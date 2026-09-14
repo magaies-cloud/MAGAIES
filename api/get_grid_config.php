@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require 'db.php';
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');

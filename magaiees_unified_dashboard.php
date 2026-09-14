@@ -1236,13 +1236,44 @@
         </div>
     </div>
 
-    <!-- Notifications Modal Overlay -->
-    <div id="notifications-dropdown" style="display:none; position:fixed; top:0; left:0; width: 100%; height:100vh; background:rgba(5,3,8,0.85); backdrop-filter:blur(10px); z-index:9999; justify-content:center; align-items:center; opacity:0; transition: opacity 0.3s ease;" onclick="toggleNotifications()">
-        <div class="glass-panel" style="width:90%; max-width:450px; max-height:80vh; overflow-y:auto; padding:25px; border:1px solid rgba(255,255,255,0.1); border-radius:20px; position:relative; box-shadow: 0 25px 50px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
-            <h3 style="margin:0 0 15px 0; padding-bottom:15px; border-bottom:1px dashed rgba(255,255,255,0.1); color:#fff; font-size:1.1rem; text-align:center; font-weight: 800; justify-content: center;"><i class="fa-solid fa-bell text-rose-400" style="margin-left: 8px;"></i> إشعارات المديونيات</h3>
-            <div id="notif-list" style="display:flex; flex-direction:column; gap:12px;">
-                <div style="color:var(--text-secondary); text-align:center; font-size:0.85rem; padding:15px;">لا توجد إشعارات حالياً</div>
+    <!-- Dual-Tab Notifications & Alerts Control Modal Overlay -->
+    <div id="notifications-dropdown" style="display:none; position:fixed; top:0; left:0; width: 100%; height:100vh; background:rgba(5,3,8,0.85); backdrop-filter:blur(12px); z-index:9999; justify-content:center; align-items:center; opacity:0; transition: opacity 0.3s ease;" onclick="toggleNotifications()">
+        <div class="glass-panel" style="width:95%; max-width:640px; max-height:85vh; overflow-y:auto; padding:22px; border:2px solid rgba(244,63,94,0.3); border-radius:24px; position:relative; box-shadow: 0 25px 60px rgba(0,0,0,0.7); background: rgba(14, 8, 28, 0.95);" onclick="event.stopPropagation()">
+            
+            <!-- Modal Header & Tabs -->
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:15px; flex-wrap:wrap; gap:8px;">
+                <div style="display:flex; gap:8px;">
+                    <button type="button" id="notif-tab-live-btn" onclick="switchModalNotifTab('LIVE')" style="padding:8px 14px; border-radius:12px; font-size:0.85rem; font-weight:800; border:1px solid #f43f5e; background:rgba(244,63,94,0.25); color:#fff; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-bell text-rose-400"></i> الإنذارات النشطة
+                    </button>
+                    <button type="button" id="notif-tab-ctrl-btn" onclick="switchModalNotifTab('CTRL')" style="padding:8px 14px; border-radius:12px; font-size:0.85rem; font-weight:800; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#94a3b8; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-sliders text-amber-400"></i> 🎛️ التحكم في التنبيهات (On/Off)
+                    </button>
+                </div>
+                <button type="button" onclick="toggleNotifications()" style="background:none; border:none; color:#94a3b8; font-size:1.3rem; cursor:pointer; padding:4px 8px; font-weight:900;">✕</button>
             </div>
+
+            <!-- Tab 1: Live Alerts List -->
+            <div id="modal-tab-live">
+                <div id="notif-list" style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="color:var(--text-secondary); text-align:center; font-size:0.85rem; padding:15px;">جاري تحميل التنبيهات...</div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Quick Rules Control Panel -->
+            <div id="modal-tab-ctrl" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; gap:8px; flex-wrap:wrap;">
+                    <span style="font-size:0.8rem; color:#cbd5e1; font-weight:700;">🎛️ يمكنك تفعيل أو إيقاف أي تنبيه بنقرة واحدة:</span>
+                    <a href="alerts_manager.php" style="font-size:0.75rem; color:#38bdf8; text-decoration:none; font-weight:800; background:rgba(56,189,248,0.1); padding:4px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.25);">مركز التخصيص المتقدم ↗</a>
+                </div>
+                <div style="margin-bottom:10px;">
+                    <input type="text" id="modal-rules-search" oninput="filterModalRules(this.value)" placeholder="🔍 ابحث عن أي تنبيه أو شرط..." style="width:100%; box-sizing:border-box; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:7px 12px; color:#fff; font-size:0.8rem; outline:none; font-family:'Tajawal', sans-serif;">
+                </div>
+                <div id="modal-rules-list" style="display:flex; flex-direction:column; gap:8px; max-height:480px; overflow-y:auto; padding-right:4px;">
+                    <div style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:15px;">جاري تحميل قواعد التنبيهات...</div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -1473,15 +1504,169 @@
         });
 
         // Toggle Notifications Dropdown (Modal)
-        function toggleNotifications() {
+        function toggleNotifications(tab = 'LIVE') {
             const dropdown = document.getElementById('notifications-dropdown');
             if (dropdown.style.display === 'none' || dropdown.style.display === '') {
                 dropdown.style.display = 'flex';
                 setTimeout(() => dropdown.style.opacity = '1', 10);
+                switchModalNotifTab(tab);
             } else {
                 dropdown.style.opacity = '0';
                 setTimeout(() => dropdown.style.display = 'none', 300);
             }
+        }
+
+        function switchModalNotifTab(tab) {
+            const liveTab = document.getElementById('modal-tab-live');
+            const ctrlTab = document.getElementById('modal-tab-ctrl');
+            const liveBtn = document.getElementById('notif-tab-live-btn');
+            const ctrlBtn = document.getElementById('notif-tab-ctrl-btn');
+
+            if (tab === 'CTRL') {
+                if (liveTab) liveTab.style.display = 'none';
+                if (ctrlTab) ctrlTab.style.display = 'block';
+                if (liveBtn) {
+                    liveBtn.style.background = 'rgba(255,255,255,0.05)';
+                    liveBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+                    liveBtn.style.color = '#94a3b8';
+                }
+                if (ctrlBtn) {
+                    ctrlBtn.style.background = 'rgba(245,158,11,0.25)';
+                    ctrlBtn.style.borderColor = '#f59e0b';
+                    ctrlBtn.style.color = '#ffffff';
+                }
+                loadModalAlertRules();
+            } else {
+                if (liveTab) liveTab.style.display = 'block';
+                if (ctrlTab) ctrlTab.style.display = 'none';
+                if (liveBtn) {
+                    liveBtn.style.background = 'rgba(244,63,94,0.25)';
+                    liveBtn.style.borderColor = '#f43f5e';
+                    liveBtn.style.color = '#ffffff';
+                }
+                if (ctrlBtn) {
+                    ctrlBtn.style.background = 'rgba(255,255,255,0.05)';
+                    ctrlBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+                    ctrlBtn.style.color = '#94a3b8';
+                }
+                checkDueDates();
+            }
+        }
+
+        let _cachedModalRules = [];
+
+        function loadModalAlertRules() {
+            const container = document.getElementById('modal-rules-list');
+            if (!container) return;
+
+            fetch('alerts_manager.php?action=get_rules_json')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.rules) {
+                    _cachedModalRules = data.rules;
+                    renderModalRulesList(data.rules);
+                }
+            })
+            .catch(() => {
+                container.innerHTML = '<div style="color:#f87171; text-align:center; padding:15px; font-size:0.85rem;">تعذر جلب قواعد التنبيهات من الخادم.</div>';
+            });
+        }
+
+        function renderModalRulesList(rules) {
+            const container = document.getElementById('modal-rules-list');
+            if (!container) return;
+
+            if (!rules || rules.length === 0) {
+                container.innerHTML = '<div style="color:#94a3b8; text-align:center; padding:15px;">لا توجد قواعد متاحة.</div>';
+                return;
+            }
+
+            const catColors = {
+                'FINANCE': '#38bdf8',
+                'CREDIT': '#fbbf24',
+                'SALES': '#34d399',
+                'INVENTORY': '#c084fc',
+                'SUPPLY': '#f472b6',
+                'SECURITY': '#f87171'
+            };
+
+            let html = '';
+            rules.forEach(r => {
+                const color = catColors[r.category] || '#94a3b8';
+                const isChecked = r.is_enabled == 1;
+                const screenBadge = r.screen_name ? `<span style="font-size:0.65rem; color:#38bdf8; background:rgba(56,189,248,0.1); padding:1px 6px; border-radius:4px; border:1px solid rgba(56,189,248,0.25);">🏢 ${r.screen_name}</span>` : '';
+                html += `
+                    <div class="modal-rule-item" data-search="${(r.rule_name + ' ' + (r.screen_name||'') + ' ' + (r.screen_file||'') + ' ' + (r.description||'')).toLowerCase()}" style="padding:10px 14px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:180px;">
+                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+                                <strong style="font-size:0.85rem; color:#fff;">${r.rule_name}</strong>
+                                <span style="font-size:0.65rem; color:${color}; background:${color}15; padding:1px 6px; border-radius:4px; border:1px solid ${color}30;">${r.category}</span>
+                                ${screenBadge}
+                            </div>
+                            <div style="font-size:0.72rem; color:#94a3b8; margin-top:3px; line-height:1.4;">${r.description || ''}</div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:3px; font-size:0.75rem; background:rgba(0,0,0,0.3); padding:3px 6px; border-radius:8px;">
+                                <span style="color:#fbbf24;">⚠️</span>
+                                <input type="number" id="mwarn-${r.rule_key}" value="${r.warning_threshold}" style="width:40px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fbbf24; text-align:center; font-weight:800; font-size:0.75rem; border-radius:4px; padding:1px;" onchange="saveModalThresholds('${r.rule_key}')">
+                                <span style="color:#f87171; margin-right:3px;">🚨</span>
+                                <input type="number" id="mcrit-${r.rule_key}" value="${r.critical_threshold}" style="width:40px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#f87171; text-align:center; font-weight:800; font-size:0.75rem; border-radius:4px; padding:1px;" onchange="saveModalThresholds('${r.rule_key}')">
+                            </div>
+                            <label style="position:relative; display:inline-block; width:44px; height:24px; margin:0; cursor:pointer;">
+                                <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleModalRule('${r.rule_key}', this.checked)" style="opacity:0; width:0; height:0;">
+                                <span style="position:absolute; top:0; left:0; right:0; bottom:0; background-color:${isChecked ? '#10b981' : '#334155'}; transition:.3s; border-radius:24px; border:1px solid rgba(255,255,255,0.2);">
+                                    <span style="position:absolute; content:''; height:16px; width:16px; left:${isChecked ? '23px' : '4px'}; bottom:3px; background-color:white; transition:.3s; border-radius:50%;"></span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function filterModalRules(q) {
+            const query = q.trim().toLowerCase();
+            const items = document.querySelectorAll('.modal-rule-item');
+            items.forEach(it => {
+                const text = it.getAttribute('data-search') || '';
+                it.style.display = (query === '' || text.includes(query)) ? 'flex' : 'none';
+            });
+        }
+
+        function toggleModalRule(ruleKey, isChecked) {
+            const formData = new FormData();
+            formData.append('action', 'toggle_rule_ajax');
+            formData.append('rule_key', ruleKey);
+            formData.append('is_enabled', isChecked ? 1 : 0);
+
+            fetch('alerts_manager.php', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    loadModalAlertRules();
+                    checkDueDates();
+                }
+            });
+        }
+
+        function saveModalThresholds(ruleKey) {
+            const warn = document.getElementById('mwarn-' + ruleKey).value;
+            const crit = document.getElementById('mcrit-' + ruleKey).value;
+
+            const formData = new FormData();
+            formData.append('action', 'update_thresholds_ajax');
+            formData.append('rule_key', ruleKey);
+            formData.append('warning_threshold', warn);
+            formData.append('critical_threshold', crit);
+
+            fetch('alerts_manager.php', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(res => {
+                if (res.success) {
+                    checkDueDates();
+                }
+            });
         }
 
         // Check Due Dates
@@ -1547,24 +1732,69 @@
                 }
             });
 
-            const badge = document.getElementById('notif-badge');
-            const list = document.getElementById('notif-list');
+            // Fetch live database alerts from alerts_manager.php
+            fetch('alerts_manager.php?action=get_live_alerts_json')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.alerts && data.alerts.length > 0) {
+                    data.alerts.forEach(a => {
+                        const isRed = a.severity === 'RED';
+                        const bg = isRed ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)';
+                        const border = isRed ? 'rgba(239, 68, 68, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+                        const color = isRed ? '#f87171' : '#fbbf24';
+                        const title = isRed ? '🚨 إنذار رقابي حرج' : '⚠️ تنبيه للمتابعة';
 
-            if (badge) {
-                if (unreadCount > 0) {
-                    badge.innerText = unreadCount;
-                    badge.style.display = 'block';
-                } else {
-                    badge.style.display = 'none';
+                        notifications.unshift(`
+                            <div style="padding:12px; background:${bg}; border-radius:12px; border:1px solid ${border};">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                    <strong style="color:${color}; font-size:0.92rem;">${title}</strong>
+                                    <span style="font-size:0.7rem; color:${color}; background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:6px;">نظامي</span>
+                                </div>
+                                <div style="font-size:0.82rem; color:#fff; line-height: 1.5;">
+                                    ${a.message}
+                                </div>
+                            </div>
+                        `);
+                        unreadCount++;
+                    });
                 }
-            }
-            if (list) {
-                if (unreadCount > 0) {
+
+                // Add footer link to Alerts Manager
+                notifications.push(`
+                    <div style="margin-top: 10px; text-align: center;">
+                        <a href="alerts_manager.php" style="display: block; padding: 10px; background: rgba(244, 63, 94, 0.2); border: 1px dashed #f43f5e; color: #fda4af; border-radius: 10px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: background 0.2s;" onmouseover="this.style.background='rgba(244, 63, 94, 0.35)'" onmouseout="this.style.background='rgba(244, 63, 94, 0.2)'">
+                            ⚙️ فتح مركز إدارة وتخصيص التنبيهات
+                        </a>
+                    </div>
+                `);
+
+                const badge = document.getElementById('notif-badge');
+                const list = document.getElementById('notif-list');
+
+                if (badge) {
+                    if (unreadCount > 0) {
+                        badge.innerText = unreadCount;
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+                if (list) {
                     list.innerHTML = notifications.join('');
-                } else {
-                    list.innerHTML = '<div style="color:var(--text-secondary); text-align:center; font-size:0.85rem; padding:15px; background: rgba(255,255,255,0.02); border-radius: 10px;">لا توجد تنبيهات لفترات السماح حالياً 🎉</div>';
                 }
-            }
+            })
+            .catch(() => {
+                const badge = document.getElementById('notif-badge');
+                const list = document.getElementById('notif-list');
+                if (badge) {
+                    if (unreadCount > 0) { badge.innerText = unreadCount; badge.style.display = 'block'; }
+                    else { badge.style.display = 'none'; }
+                }
+                if (list) {
+                    if (unreadCount > 0) list.innerHTML = notifications.join('');
+                    else list.innerHTML = '<div style="color:var(--text-secondary); text-align:center; font-size:0.85rem; padding:15px;">لا توجد تنبيهات حالياً 🎉</div>';
+                }
+            });
         }
 
         // Load Dynamic Dashboard Data
@@ -2447,6 +2677,7 @@
             { id: 'alerts_mgr', href: 'alerts_manager.php', label: 'تنبيهات التقارير', category: 'التقارير والتنبيهات', icon: 'fa-triangle-exclamation', color: '#fb7185', bg: 'rgba(244, 63, 94, 0.2)', border: '#f43f5e' },
             { id: 'settings', href: 'settings.php', label: 'الإعدادات والقواعد', category: 'الإدارة والصلاحيات', icon: 'fa-gear', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' },
             { id: 'tools', href: 'engineering_tools.php', label: 'أدوات مساعدة', category: 'أدوات مساعدة', icon: 'fa-toolbox', color: '#f472b6', bg: 'rgba(236, 72, 153, 0.2)', border: '#ec4899' },
+            { id: 'inheritance', href: 'engineering_tools.php?tab=inheritance', label: 'الميراث الشرعي', category: 'أدوات مساعدة', icon: 'fa-scale-balanced', color: '#d97706', bg: 'rgba(217, 119, 6, 0.2)', border: '#d97706' },
             { id: 'smart_inv_rep', href: 'smart_inventory_report.php', label: 'تقارير الذكاء', category: 'التقارير والتنبيهات', icon: 'fa-chart-line', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
             { id: 'sales', href: 'direct-sales.php', label: 'مبيعات', category: 'المبيعات والمشتريات', icon: 'fa-cart-shopping', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
             { id: 'purchase', href: 'purchase.php', label: 'مشتريات', category: 'المبيعات والمشتريات', icon: 'fa-bag-shopping', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },

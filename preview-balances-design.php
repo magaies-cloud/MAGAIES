@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // preview-balances-design.php
 // Excel-Style Preview Page for Balances - Pro Edition with Studio Tabs & Page Setup
 ?>
@@ -501,12 +501,31 @@
         <!-- Live Quick Search Box -->
         <input type="text" id="live-search-input" placeholder="🔍 بحث سريع..." oninput="filterTableRows(this.value)" style="padding: 6px 14px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; font-size: 0.85rem; outline: none; width: 140px;">
 
-        <button class="ribbon-btn" onclick="executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; box-shadow:0 2px 8px rgba(3,105,161,0.4);">
-            🖨️ طباعة
-        </button>
-        <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; box-shadow:0 2px 8px rgba(202,138,4,0.4);">
-            ⚙️ إعدادات الأعمدة
-        </button>
+        
+        <script>
+        function saveCurrentPresetAndLock() {
+            if (typeof saveCurrentPreset === 'function') {
+                saveCurrentPreset(window.currentPresetIndex || 0);
+                let presets = getSavedPresets();
+                if (presets[window.currentPresetIndex || 0]) {
+                    presets[window.currentPresetIndex || 0].isLocked = true;
+                    savePresets(presets);
+                    syncPresetsToDB('balances_preview_presets_v7', presets);
+                    if (typeof showToast === 'function') showToast('\u062a\u0645 \u062d\u0641\u0638 \u0627\u0644\u062a\u0635\u0645\u064a\u0645 \u0648\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u0642\u0641\u0644 \u0628\u0646\u062c\u0627\u062d\u0021', 'success');
+                    setTimeout(() => { window.history.back(); }, 800);
+                }
+            }
+        }
+        </script>
+                <!-- Settings and Save Group -->
+        <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);">
+            <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; margin:0;">
+                <span>⚙️</span> إعدادات التصميم
+            </button>
+            <button class="ribbon-btn" id="mega-save-btn" onclick="saveCurrentPresetAndLock()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border:none; margin:0; display:none;">
+                <span>💾</span> حفظ التصميم 🔒
+            </button>
+        </div>
         <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>
         <button class="ribbon-btn" onclick="window.history.back()" style="color:#f87171; border-color:rgba(239,68,68,0.5);">❌ إغلاق / رجوع</button>
     </div>
@@ -573,5 +592,8 @@
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 <script src="js/preview-balances.js?v=<?php echo time(); ?>"></script>
+
+<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+<script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// Version: 20260825201600 (Forced cache clear for JS updates)
+// Version: 20260911220000 (Bank Transfer Lookup in GL v12)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
@@ -31,10 +31,10 @@ self.addEventListener('fetch', (event) => {
             fetch(event.request).then((response) => {
                 if (response && response.status === 200 && response.type === 'basic') {
                     const clone = response.clone();
-                    caches.open('magaies-static-v3').then(c => c.put(event.request, clone));
+                    caches.open('magaies-static-v7').then(c => c.put(event.request, clone));
                 }
                 return response;
-            }).catch(() => caches.match(event.request))
+            }).catch(() => caches.match(event.request).then(cached => cached || new Response('', { status: 404, statusText: 'Not Found' })))
         );
         return;
     }

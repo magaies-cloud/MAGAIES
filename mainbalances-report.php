@@ -2,6 +2,7 @@
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 $page_title = 'حساب الارصده الاساسية';
 ?>
 <!DOCTYPE html>
@@ -305,25 +306,51 @@ $page_title = 'حساب الارصده الاساسية';
             opacity: 0.8;
         }
         
-        /* The Focused Specific Number Feature (Independent Cumulative Magnification) */
-        td.focused-num {
-            transform: scale(1.45) translateY(-2px) !important;
-            color: #ffffff !important;
+        /* The Focused Specific Number Feature (Size Increase + Soft Light Yellow Background) */
+        td.focused-num,
+        td.num-magnified,
+        #balances-table tbody td.focused-num,
+        #balances-table tbody td.num-magnified,
+        .pos-grid tbody td.focused-num,
+        .pos-grid tbody td.num-magnified,
+        .num.focused-num,
+        .num.num-magnified {
+            font-size: 1.85rem !important;
             font-weight: 900 !important;
-            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            border-radius: 8px !important;
-            box-shadow: 0 0 30px rgba(30, 58, 138, 0.7), inset 0 0 0 2px #3b82f6 !important;
-            z-index: 1000 !important;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace !important;
+            font-variant-numeric: tabular-nums !important;
+            background: #fef08a !important; /* Soft Light Yellow */
+            background-color: #fef08a !important;
+            color: #0f172a !important; /* Crisp Dark Contrast */
+            border: 2.5px solid #eab308 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 12px 30px rgba(234, 179, 8, 0.45), 0 4px 14px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+            z-index: 99999 !important;
             position: relative !important;
-            display: inline-block !important;
-            padding: 4px 12px !important;
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            text-shadow: 0 0 10px rgba(0, 0, 0, 0.6) !important;
+            display: table-cell !important;
+            padding: 8px 20px !important;
+            white-space: nowrap !important;
+            min-width: max-content !important;
+            width: auto !important;
+            overflow: visible !important;
+            letter-spacing: 0.8px !important;
+            transform: scale(1.08) !important;
+            line-height: 1.25 !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            text-shadow: none !important;
+            cursor: pointer !important;
         }
-        :root.light-theme td.focused-num {
-            color: #ffffff !important;
-            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.35), inset 0 0 0 2px #3b82f6 !important;
+        :root.light-theme td.focused-num,
+        :root.light-theme td.num-magnified,
+        :root.light-theme #balances-table tbody td.focused-num,
+        :root.light-theme #balances-table tbody td.num-magnified,
+        :root.light-theme .pos-grid tbody td.focused-num,
+        :root.light-theme .pos-grid tbody td.num-magnified {
+            background: #fef08a !important;
+            background-color: #fef08a !important;
+            color: #0f172a !important;
+            border: 2.5px solid #eab308 !important;
+            box-shadow: 0 10px 25px rgba(234, 179, 8, 0.3), 0 4px 12px rgba(0, 0, 0, 0.1) !important;
             text-shadow: none !important;
         }
 
@@ -1209,15 +1236,15 @@ $page_title = 'حساب الارصده الاساسية';
             <table class="pos-grid" style="width: 100%; border-collapse: collapse;" id="balances-table">
                 <thead>
                     <tr id="balances-header-row">
-                        <th data-orig-idx="0">اسم الحساب<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th data-orig-idx="1">رقم الهاتف<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th data-orig-idx="2">الرقم الضريبي<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th data-orig-idx="3">العملة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th data-orig-idx="4">عليه عملة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th data-orig-idx="5">له عملة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th data-orig-idx="6">عليه<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th data-orig-idx="7">له<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
-                        <th data-orig-idx="8">ملحوظة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="0" style="position:relative; cursor:grab; padding-top:20px;" draggable="true" ondragstart="window.mbHandleDragStart(event)" ondragover="window.mbHandleDragOver(event)" ondragenter="window.mbHandleDragEnter(event)" ondragleave="window.mbHandleDragLeave(event)" ondrop="window.mbHandleDrop(event)" ondragend="window.mbHandleDragEnd(event)"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, -1)" title="����� ������">?</span></div>اسم الحساب<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="1" style="position:relative; cursor:grab; padding-top:20px;" draggable="true" ondragstart="window.mbHandleDragStart(event)" ondragover="window.mbHandleDragOver(event)" ondragenter="window.mbHandleDragEnter(event)" ondragleave="window.mbHandleDragLeave(event)" ondrop="window.mbHandleDrop(event)" ondragend="window.mbHandleDragEnd(event)"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, -1)" title="����� ������">?</span></div>رقم الهاتف<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="2" style="position:relative; cursor:grab; padding-top:20px;" draggable="true" ondragstart="window.mbHandleDragStart(event)" ondragover="window.mbHandleDragOver(event)" ondragenter="window.mbHandleDragEnter(event)" ondragleave="window.mbHandleDragLeave(event)" ondrop="window.mbHandleDrop(event)" ondragend="window.mbHandleDragEnd(event)"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, -1)" title="����� ������">?</span></div>الرقم الضريبي<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="3" style="position:relative; cursor:grab; padding-top:20px;" draggable="true" ondragstart="window.mbHandleDragStart(event)" ondragover="window.mbHandleDragOver(event)" ondragenter="window.mbHandleDragEnter(event)" ondragleave="window.mbHandleDragLeave(event)" ondrop="window.mbHandleDrop(event)" ondragend="window.mbHandleDragEnd(event)"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, -1)" title="����� ������">?</span></div>العملة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="4" style="position:relative; cursor:grab; padding-top:20px;" draggable="true" ondragstart="window.mbHandleDragStart(event)" ondragover="window.mbHandleDragOver(event)" ondragenter="window.mbHandleDragEnter(event)" ondragleave="window.mbHandleDragLeave(event)" ondrop="window.mbHandleDrop(event)" ondragend="window.mbHandleDragEnd(event)"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, -1)" title="����� ������">?</span></div>عليه عملة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="5" style="position:relative; cursor:grab; padding-top:20px;" draggable="true" ondragstart="window.mbHandleDragStart(event)" ondragover="window.mbHandleDragOver(event)" ondragenter="window.mbHandleDragEnter(event)" ondragleave="window.mbHandleDragLeave(event)" ondrop="window.mbHandleDrop(event)" ondragend="window.mbHandleDragEnd(event)"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, -1)" title="����� ������">?</span></div>له عملة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="6" style="position:relative; cursor:grab; padding-top:20px;" draggable="true" ondragstart="window.mbHandleDragStart(event)" ondragover="window.mbHandleDragOver(event)" ondragenter="window.mbHandleDragEnter(event)" ondragleave="window.mbHandleDragLeave(event)" ondrop="window.mbHandleDrop(event)" ondragend="window.mbHandleDragEnd(event)"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, -1)" title="����� ������">?</span></div>عليه<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="7" style="position:relative; cursor:grab; padding-top:20px;" draggable="true" ondragstart="window.mbHandleDragStart(event)" ondragover="window.mbHandleDragOver(event)" ondragenter="window.mbHandleDragEnter(event)" ondragleave="window.mbHandleDragLeave(event)" ondrop="window.mbHandleDrop(event)" ondragend="window.mbHandleDragEnd(event)"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, -1)" title="����� ������">?</span></div>له<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
+                        <th data-orig-idx="8" style="position:relative; cursor:grab; padding-top:20px;" draggable="true" ondragstart="window.mbHandleDragStart(event)" ondragover="window.mbHandleDragOver(event)" ondragenter="window.mbHandleDragEnter(event)" ondragleave="window.mbHandleDragLeave(event)" ondrop="window.mbHandleDrop(event)" ondragend="window.mbHandleDragEnd(event)"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.mbHandleArrowMove(event, this, -1)" title="����� ������">?</span></div>ملحوظة<div class="resizer" title="اسحب لتغيير عرض العمود (Double click للإرجاع)"></div></th>
                     </tr>
                 </thead>
                 <tbody id="balances-tbody">
@@ -1968,4 +1995,5 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+
 

@@ -2,6 +2,9 @@
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 ?>
 <!DOCTYPE html>
@@ -68,32 +71,124 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         
         /* AutoComplete Styles */
         .search-wrap { display:flex; width: 100%; align-items: center; position: relative; }
-        .search-clear-btn { position:absolute; left:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:#f87171; cursor:pointer; display:none; padding:4px; z-index:10; }
-        .autocomplete-list { position:absolute; top:calc(100% + 4px); right:0; left:0; background:#1e293b; border:1px solid #334155; border-radius:8px; list-style:none; margin:0; padding:4px; display:none; max-height:250px; overflow-y:auto; z-index:1000; box-shadow:0 10px 25px rgba(0,0,0,0.5); }
-        .autocomplete-list li { padding:8px 12px; cursor:pointer; color:#f8fafc; font-size:0.85rem; border-radius:6px; margin-bottom:2px; font-weight:bold; display:flex; justify-content:space-between; }
-        .autocomplete-list li:hover, .autocomplete-list li.active { background:#38bdf8; color:#0f172a; }
+        .search-transfer-btn {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.95rem;
+            z-index: 12;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(168,85,247,0.35);
+        }
+        .search-transfer-btn:hover {
+            transform: translateY(-50%) scale(1.08);
+            background: linear-gradient(135deg, #c084fc, #818cf8);
+            box-shadow: 0 4px 14px rgba(168,85,247,0.6);
+        }
+        .search-clear-btn { position:absolute; left:46px; top:50%; transform:translateY(-50%); background:none; border:none; color:#f87171; cursor:pointer; display:none; padding:4px; z-index:10; font-size:1.2rem; }
+        .autocomplete-list { position:absolute; top:calc(100% + 4px); right:0; left:0; background:#1e293b; border:1.5px solid #475569; border-radius:10px; list-style:none; margin:0; padding:6px; display:none; max-height:280px; overflow-y:auto; z-index:1000; box-shadow:0 10px 30px rgba(0,0,0,0.6); }
+        .autocomplete-list li { padding:10px 14px; cursor:pointer; color:#f8fafc; font-size:1.25rem; border-radius:8px; margin-bottom:3px; font-weight:800; display:flex; justify-content:space-between; align-items:center; transition: background 0.15s ease; }
+        .autocomplete-list li:hover, .autocomplete-list li.active { background:rgba(56, 189, 248, 0.2); }
+        .autocomplete-list li .acc-name-text { color: #ffd700 !important; font-size: 1.25rem !important; font-weight: 800 !important; text-shadow: 0 0 10px rgba(250, 204, 21, 0.35); font-family: 'Cairo', 'Tajawal', sans-serif; }
         .search-highlight-match {
-            color: #ff7700 !important;
+            color: #ff9800 !important;
             font-weight: 900 !important;
             background: transparent !important;
             box-shadow: none !important;
             border: none !important;
             padding: 0 !important;
             display: inline !important;
+            text-decoration: underline;
         }
         .autocomplete-list li:hover .search-highlight-match,
         .autocomplete-list li.active .search-highlight-match {
-            color: #ff5500 !important;
+            color: #ffaa00 !important;
             font-weight: 900 !important;
             background: transparent !important;
             text-shadow: none !important;
         }
         :root.light-theme .autocomplete-list { background:#ffffff !important; border-color:#e2e8f0 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         :root.light-theme .autocomplete-list li { color:#1e293b !important; }
-        :root.light-theme .autocomplete-list li:hover { background:#e0f2fe !important; color:#0284c7 !important; }
+        :root.light-theme .autocomplete-list li .acc-name-text { color: #b45309 !important; text-shadow: none; }
+        :root.light-theme .autocomplete-list li:hover { background:#fef3c7 !important; }
         
-        .selected-account-chip { display:none; align-items:center; gap:8px; width:100%; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); border-radius:8px; padding:0 12px; height:40px; box-sizing:border-box; }
-        :root.light-theme .selected-account-chip { background:rgba(168,85,247,0.08) !important; border-color:rgba(168,85,247,0.3) !important; }
+        .selected-account-chip { display:none; align-items:center; gap:10px; width:100%; background:#0f172a !important; border:1.5px solid rgba(250,204,21,0.5) !important; border-radius:8px; padding:0 14px; height:44px; box-sizing:border-box; }
+        .selected-account-chip #chip-name { color: #ffd700 !important; font-size: 1.38rem !important; font-weight: 900 !important; text-shadow: 0 0 10px rgba(250, 204, 21, 0.4); font-family: 'Cairo', 'Tajawal', sans-serif; }
+        :root.light-theme .selected-account-chip { background:#f8fafc !important; border-color:rgba(217,119,6,0.5) !important; }
+        :root.light-theme .selected-account-chip #chip-name { color: #b45309 !important; text-shadow: none; }
+        #account-search-input { font-size: 1.28rem !important; font-weight: 800 !important; color: #ffd700 !important; height: 44px; background: #0f172a !important; border: 1.5px solid rgba(250, 204, 21, 0.4) !important; border-radius: 8px; padding-left: 80px !important; }
+        #account-search-input::placeholder { color: rgba(250, 204, 21, 0.7) !important; font-size: 1.05rem; }
+        #account-search-input:focus { background: #0b1120 !important; border-color: #ffd700 !important; box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.25) !important; }
+        :root.light-theme #account-search-input { background: #f8fafc !important; color: #b45309 !important; border-color: rgba(217, 119, 6, 0.4) !important; }
+        :root.light-theme #account-search-input::placeholder { color: rgba(180, 83, 9, 0.6) !important; }
+
+        /* ── Transfer Inquiry & Verification Card ── */
+        .transfer-inquiry-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+            border: 2px solid #a855f7;
+            border-radius: 16px;
+            padding: 18px 22px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(168, 85, 247, 0.25);
+            color: #f8fafc;
+            animation: ctxFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 50;
+            font-family: 'Tajawal', sans-serif;
+        }
+        :root.light-theme .transfer-inquiry-card {
+            background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+            border-color: #a855f7 !important;
+            color: #0f172a !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 0 15px rgba(168, 85, 247, 0.15) !important;
+        }
+        .transfer-info-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        :root.light-theme .transfer-info-box {
+            background: rgba(0, 0, 0, 0.03) !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        .transfer-info-box .info-label {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+        .transfer-info-box .info-val {
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: #f8fafc;
+            font-family: 'Tajawal', sans-serif;
+        }
+        :root.light-theme .transfer-info-box .info-val {
+            color: #0f172a !important;
+        }
+        .transfer-matched-row td {
+            background: rgba(234, 179, 8, 0.25) !important;
+            border-top: 2.5px solid #eab308 !important;
+            border-bottom: 2.5px solid #eab308 !important;
+            animation: transferPulse 2.2s infinite ease-in-out;
+        }
+        @keyframes transferPulse {
+            0%, 100% { background: rgba(234, 179, 8, 0.2); box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.3); }
+            50% { background: rgba(234, 179, 8, 0.42); box-shadow: inset 0 0 20px rgba(234, 179, 8, 0.6); }
+        }
         
         .btn-run { background: linear-gradient(135deg, #a855f7, #7e22ce); color: #ffffff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 8px; transition: all 0.3s; font-family: inherit; font-size: 0.95rem; height: 40px; box-shadow: 0 4px 15px rgba(126, 34, 206, 0.4); }
         .btn-run:hover { background: linear-gradient(135deg, #c084fc, #9333ea); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(126, 34, 206, 0.6); }
@@ -241,72 +336,110 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             color: #0f172a !important;
         }
 
-        /* ── Magnified Number Audit Effect ── */
-        table#recent-table tbody td.num-magnified, table#preview-table tbody td.num-magnified {
-            font-size: 1.85rem !important;
+        /* ── Magnified Number Audit Effect (+100% / 2x Size, Elegant Modern Box) ── */
+        table#recent-table tbody td.num-magnified, 
+        table#preview-table tbody td.num-magnified,
+        .pos-grid tbody td.num-magnified,
+        .excel-table tbody td.num-magnified,
+        .excel-table td.num-magnified,
+        td.num-magnified {
+            font-size: 1.8rem !important;
             font-weight: 900 !important;
-            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            color: #ffffff !important;
-            border: 2px solid #3b82f6 !important;
-            border-radius: 8px !important;
-            box-shadow: 0 0 25px rgba(30, 58, 138, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.4) !important;
-            transform: scale(1.15) !important;
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            z-index: 50 !important;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace !important;
+            font-variant-numeric: tabular-nums !important;
+            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+            background-color: #ffffff !important;
+            color: #1d4ed8 !important;
+            border: 2.5px solid #2563eb !important;
+            border-radius: 12px !important;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3), 0 4px 14px rgba(0, 0, 0, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+            z-index: 99999 !important;
             position: relative !important;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
-            padding: 8px 12px !important;
+            text-shadow: none !important;
+            padding: 10px 22px !important;
+            white-space: nowrap !important;
+            min-width: max-content !important;
+            width: auto !important;
+            overflow: visible !important;
             display: table-cell !important;
+            letter-spacing: 0.8px !important;
+            transform: scale(1.06) !important;
+            line-height: 1.25 !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            cursor: pointer !important;
         }
-        :root.light-theme table#recent-table tbody td.num-magnified, table#preview-table tbody td.num-magnified {
-            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            color: #ffffff !important;
-            border: 2px solid #3b82f6 !important;
-            box-shadow: 0 5px 20px rgba(30, 58, 138, 0.3) !important;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+        :root.light-theme table#recent-table tbody td.num-magnified, 
+        :root.light-theme table#preview-table tbody td.num-magnified,
+        :root.light-theme .pos-grid tbody td.num-magnified,
+        :root.light-theme .excel-table tbody td.num-magnified,
+        :root.light-theme .excel-table td.num-magnified {
+            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+            background-color: #ffffff !important;
+            color: #1d4ed8 !important;
+            border: 2.5px solid #2563eb !important;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25), 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+            text-shadow: none !important;
         }
 
         /* ── Custom Context Menu Styling ── */
         .gl-ctx-menu {
             position: fixed;
-            z-index: 99999;
-            background: rgba(15, 23, 42, 0.96);
-            border: 1px solid rgba(168, 85, 247, 0.4);
-            border-radius: 14px;
-            padding: 8px 0;
-            width: 260px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(168, 85, 247, 0.25);
-            backdrop-filter: blur(16px);
+            z-index: 1000000;
+            background: rgba(15, 23, 42, 0.97);
+            border: 1.5px solid rgba(56, 189, 248, 0.5);
+            border-radius: 16px;
+            padding: 10px 0;
+            width: 290px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 25px rgba(56, 189, 248, 0.35);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: none;
             direction: rtl;
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'Tajawal', 'Cairo', sans-serif;
             user-select: none;
+            animation: ctxFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes ctxFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-5px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
         .gl-ctx-item {
-            padding: 10px 18px;
+            padding: 11px 20px;
             color: #f8fafc;
-            font-size: 0.88rem;
+            font-size: 0.95rem;
             font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
-            transition: all 0.2s;
+            gap: 12px;
+            transition: all 0.2s ease;
         }
         .gl-ctx-item:hover {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(56, 189, 248, 0.3));
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.25));
             color: #38bdf8;
-            padding-right: 22px;
+            padding-right: 25px;
+        }
+        .gl-ctx-item#gl-ctx-drilldown {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15));
+            border-top: 1px solid rgba(56, 189, 248, 0.2);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            margin-bottom: 4px;
+        }
+        .gl-ctx-item#gl-ctx-drilldown:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.35), rgba(99, 102, 241, 0.35));
+            color: #ffffff;
         }
         .gl-ctx-item.disabled {
-            opacity: 0.4;
+            opacity: 0.45;
             cursor: not-allowed;
             pointer-events: none;
+            background: transparent !important;
         }
         .gl-ctx-divider {
             height: 1px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
             margin: 6px 0;
         }
         .gl-ctx-submenu {
@@ -457,37 +590,41 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     <!-- Filter Launcher Panel -->
     <div class="report-header no-print">
         <!-- ROW 1 -->
-        <div class="filter-row">
+        <div class="filter-row" style="display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 14px;">
             <!-- Main Account -->
-            <div class="filter-group" style="flex:2;">
-                <label>🏦 الحساب الرئيسي</label>
+            <div class="filter-group" style="flex: 3.5; min-width: 300px;">
+                <label style="font-size: 0.95rem; font-weight: 800; color: #ffd700; display:flex; justify-content:space-between; align-items:center;">
+                    <span>🏦 الحساب الرئيسي (بحث بالاسم أو رقم التحويلة البنكية)</span>
+                    <span style="font-size:0.75rem; color:#38bdf8; font-weight:normal;">💡 اكتب رقم التحويلة واضغط Enter</span>
+                </label>
                 <div class="search-wrap" id="account-search-wrap">
-                    <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو رقم الحساب..." autocomplete="off" onfocus="if(typeof onAccountSearch==='function')onAccountSearch()" oninput="if(typeof onAccountSearch==='function')onAccountSearch()" onclick="if(typeof onAccountSearch==='function')onAccountSearch()">
+                    <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم الحساب أو اكتب رقم التحويلة واضغط Enter..." autocomplete="off" onfocus="if(typeof onAccountSearch==='function')onAccountSearch()" oninput="if(typeof onAccountSearch==='function')onAccountSearch()" onclick="if(typeof onAccountSearch==='function')onAccountSearch()">
+                    <button type="button" class="search-transfer-btn" id="search-transfer-btn" onclick="triggerTransferOrAccountSearch()" title="بحث برقم التحويلة البنكية أو الحساب (Enter)">🔍</button>
                     <button class="search-clear-btn" id="search-clear-btn" onclick="clearAccountSearch()">✕</button>
                     <ul class="autocomplete-list" id="autocomplete-list"></ul>
                 </div>
                 <div class="selected-account-chip" id="selected-chip">
-                    <span id="chip-icon">🏷️</span>
-                    <span id="chip-name" style="flex:1; font-size:0.95rem; font-weight:bold;"></span>
-                    <button class="chip-remove" id="chip-remove-btn" title="إلغاء" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:1.1rem;" onclick="clearAccountSearch()">✕</button>
+                    <span id="chip-icon" style="font-size:1.4rem;">🏷️</span>
+                    <span id="chip-name" style="flex:1; font-size:1.38rem; font-weight:900; color:#ffd700;"></span>
+                    <button class="chip-remove" id="chip-remove-btn" title="إلغاء" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:1.3rem;font-weight:900;" onclick="clearAccountSearch()">✕</button>
                 </div>
                 <input type="hidden" id="filter-account" value="ALL">
             </div>
 
-            <!-- Date From -->
-            <div class="filter-group">
+            <!-- Date From (Reduced by 15%) -->
+            <div class="filter-group" style="flex: 0.85; min-width: 135px; max-width: 175px;">
                 <label>📅 من تاريخ</label>
                 <input type="date" class="filter-input" id="filter-date-from" value="<?php echo date('Y-m-01'); ?>">
             </div>
 
-            <!-- Date To -->
-            <div class="filter-group">
+            <!-- Date To (Reduced by 15%) -->
+            <div class="filter-group" style="flex: 0.85; min-width: 135px; max-width: 175px;">
                 <label>📅 إلى تاريخ</label>
                 <input type="date" class="filter-input" id="filter-date-to" value="<?php echo date('Y-m-t'); ?>">
             </div>
 
             <!-- Currency -->
-            <div class="filter-group">
+            <div class="filter-group" style="flex: 1.1; min-width: 160px;">
                 <label>💱 العملة</label>
                 <select class="filter-input" id="filter-currency">
                     <option value="ALL">جميع العملات (محلي + أجنبي)</option>
@@ -538,6 +675,9 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         </div>
     </div>
 
+    <!-- ── Bank Transfer Inspection & Inquiry Result Container ── -->
+    <div id="transfer-search-result-container" style="display:none; margin-bottom: 20px;"></div>
+
     <!-- Presets & Action Buttons -->
     <div class="filter-row" style="margin-bottom: 20px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.55); padding: 10px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 8px 24px rgba(0,0,0,0.25);">
         <!-- Presets Buttons on Left/Center (Fully responsive, no cutoffs) -->
@@ -587,6 +727,8 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                     <th width="140" style="position: relative; white-space: nowrap;">الحساب<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">نوع الحركة<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th style="position: relative; white-space: nowrap;">البيان<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="100" style="position: relative; white-space: nowrap;">رقم التحويلة<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="120" style="position: relative; white-space: nowrap;">اسم البنك<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="140" style="position: relative; white-space: nowrap;">الحساب المقابل<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">مدين (عليه)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">دائن (له)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
@@ -821,7 +963,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 
 <!-- Core JS -->
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+<script src="js/app.js?v=<?php echo time(); ?>"></script>
 <script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -831,6 +973,43 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <div id="toast-container" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;"></div>
+<!-- 👑 BULLETPROOF REAL-TIME CHEQUE FORMATTING SCANNER 👑 -->
+<script id="bulletproof-cheque-scanner">
+(function() {
+    function cleanChequeText(text) {
+        if (!text) return text;
+        return text.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|شيك|شيط|الشيك)\s*(\d+)/gi, 'الشيك $1');
+    }
+
+    function scanAndCleanCells() {
+        try {
+            const table = document.getElementById('recent-table');
+            if (!table) return;
+            const cells = table.querySelectorAll('td[data-col-id="transferNo"], td[data-col-id="statement"], td');
+            cells.forEach(td => {
+                if (td.getAttribute('data-col-id') === 'transferNo') {
+                    const txt = td.textContent.trim();
+                    if (/رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|شيك\s*\d+|الشيك\s*\d+/i.test(txt)) {
+                        const cleaned = cleanChequeText(txt);
+                        if (cleaned !== txt) td.textContent = cleaned;
+                    }
+                } else if (td.getAttribute('data-col-id') === 'statement') {
+                    const html = td.innerHTML;
+                    if (/رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|شيك\s*\d+/i.test(html)) {
+                        const cleaned = cleanChequeText(html);
+                        if (cleaned !== html) td.innerHTML = cleaned;
+                    }
+                }
+            });
+        } catch(e) {}
+    }
+
+    // Run continuously to guarantee instant live update
+    setInterval(scanAndCleanCells, 200);
+    document.addEventListener('DOMContentLoaded', scanAndCleanCells);
+    window.addEventListener('load', scanAndCleanCells);
+})();
+</script>
 </body>
 </html>
 

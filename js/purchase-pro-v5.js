@@ -882,7 +882,7 @@ function loadInvoiceFromStorage(invNo) {
         if(data.currency) document.getElementById('hdr-currency').value = data.currency;
         if(data.exchangeRate !== undefined) {
             document.getElementById('hdr-exchange-rate').value = data.exchangeRate;
-            document.getElementById('hdr-exchange-rate').disabled = (data.currency === 'SDG');
+            document.getElementById('hdr-exchange-rate').disabled = false;
         }
 
         // Adjustments
@@ -1678,11 +1678,12 @@ function updateRow(id, field, value) {
             if (item) {
                 const units = extractItemUnits(item);
                 item.unitsArray = units;
-                row.price = parseFloat(item.sellingPrice || item.price || 0) || 0;
+                const isForeignCurr = (getCurrency() !== 'SDG');
+                row.price = isForeignCurr ? '' : (parseFloat(item.sellingPrice || item.price || 0) || 0);
                 if (units && units.length > 0) {
                     row.selectedUnit = units[0].name;
                     row.customFactor = units[0].factor;
-                    if (units[0].price && units[0].price > 0) {
+                    if (!isForeignCurr && units[0].price && units[0].price > 0) {
                         row.price = units[0].price;
                     }
                 } else {
@@ -1707,10 +1708,13 @@ function updateRow(id, field, value) {
                 const su = units.find(u => u.name === value || u.unitName === value);
                 if (su) {
                     row.customFactor = (su.factor !== undefined && su.factor !== null && su.factor !== "") ? parseFloat(su.factor) : 1;
-                    if (su.price && su.price > 0) {
-                        row.price = su.price;
-                    } else if (su.cashPrice && su.cashPrice > 0) {
-                        row.price = su.cashPrice;
+                    const isForeignCurr = (getCurrency() !== 'SDG');
+                    if (!isForeignCurr) {
+                        if (su.price && su.price > 0) {
+                            row.price = su.price;
+                        } else if (su.cashPrice && su.cashPrice > 0) {
+                            row.price = su.cashPrice;
+                        }
                     }
                 }
             }
@@ -1847,10 +1851,8 @@ function renderGridHead() {
             <th data-col-id="unit" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الوحدة</th>
             <th data-col-id="quantity" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
             <th data-col-id="price" style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
-            ${!isBaseSDG ? `<th data-col-id="fcprice" style="width: 120px; text-align: center; font-size: 1.05rem;">سعر (جنيه)</th>` : ''}
             <th data-col-id="warehouse" style="width: 130px; text-align: center; font-size: 1.1rem; font-weight: bold;">المخزن</th>
             <th data-col-id="total" style="width: 240px; min-width: 240px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
-            ${!isBaseSDG ? `<th data-col-id="fctotal" style="width: 120px; text-align: center; font-size: 1.05rem;">جملة (جنيه)</th>` : ''}
             <th data-col-id="action" style="width: 90px; text-align: center; font-size: 1.05rem;">إجراء</th>
         </tr>
     `;
@@ -2045,13 +2047,6 @@ function renderGrid() {
                     onblur="this.value=fmtNum(parseNum(this.value), 'price')" 
                     style="text-align: center; width: 100%;">
             </td>
-            ${!isBaseSDG ? `
-            <td data-col-id="fcprice" style="text-align: center;">
-                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1), 'fcprice')}"
-                    onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
-                    onblur="this.value=fmtNum(parseNum(this.value), 'fcprice')" style="text-align: center; width: 100%;" tabindex="-1">
-            </td>
-            ` : ''}
             <td data-col-id="warehouse" style="text-align: center;">
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="text-align: center; width: 100%;">
                     <option value="">نفس الفاتورة ↩</option>
@@ -2061,11 +2056,6 @@ function renderGrid() {
             <td data-col-id="total" style="text-align: center; min-width: 240px;">
                 <span class="g-readonly total-val" data-total="${row.id}" style="display: block; text-align: center;">${fmtNum(calcs.total, 'total')}</span>
             </td>
-            ${!isBaseSDG ? `
-            <td data-col-id="fctotal" style="text-align: center;">
-                <span class="g-readonly total-fc-val" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)) * (row.quantity || 0), 'fctotal')}</span>
-            </td>
-            ` : ''}
             <td data-col-id="action" style="text-align: center;">
                 <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
                     <button type="button" class="add-row-btn" onclick="addRow()" title="إضافة سطر جديد" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1px solid rgba(16,185,129,0.5); color: #34d399; border-radius: 6px; padding: 6px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
@@ -2133,19 +2123,12 @@ function renderGrid() {
                     <div class="ctrl-input readonly" data-m-shila-rem="${row.id}" style="color:#ef4444; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaRem)}</div>
                 </div>
                 <div class="ctrl-group">
-                    <label class="label">السعر (محلي / أجنبي) <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'purchase')" title="سجل أسعار الصنف للمورد" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
+                    <label class="label">السعر <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'purchase')" title="سجل أسعار الصنف للمورد" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
                     <div style="display:flex; gap:4px;">
                         <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.price)}" placeholder="0"
                             onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                             onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1;">
-                        <input type="text" inputmode="decimal" class="ctrl-input" data-m-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="${document.getElementById('hdr-currency').value === 'SDG' ? 'أجنبي' : 'جنيه'}"
-                            onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
-                            onblur="this.value=fmtNum(parseNum(this.value))" style="flex:1; color:#10b981;">
                     </div>
-                </div>
-                <div class="ctrl-group">
-                    <label class="label fc-total-label">${document.getElementById('hdr-currency').value === 'SDG' ? 'جملة الوحدة أجنبي' : 'جملة الوحدة جنيه'}</label>
-                    <div class="ctrl-input readonly" data-m-total-fc="${row.id}" style="text-align:center;color:#10b981;">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</div>
                 </div>
                 <div class="ctrl-group">
                     <label class="label">عدد ${item ? item.baseUnit : ''}</label>
@@ -2493,14 +2476,14 @@ function submitInvoice(ignoreWarnings = false) {
     const localGrandAmount = isBase ? grandAmount : grandAmount * rate;
     const fcGrandAmount = isBase ? grandAmount / rate : grandAmount;
 
-    // --- 1. Multi-Payment Read & Validation ---
+    // --- 1. Multi-Payment Read (Save without restrictive conditions) ---
     if (typeof recalcPaymentSummary === 'function') {
         recalcPaymentSummary();
     }
-    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
-    const creditActive = document.getElementById('toggle-credit').classList.contains('active');
-    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
-    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
+    const cashActive = document.getElementById('toggle-cash')?.classList.contains('active') || false;
+    const creditActive = document.getElementById('toggle-credit')?.classList.contains('active') || false;
+    const bankActive = document.getElementById('toggle-bank')?.classList.contains('active') || false;
+    const chequeActive = document.getElementById('toggle-cheque')?.classList.contains('active') || false;
 
     let cashAmt = 0;
     let creditAmt = 0;
@@ -2508,80 +2491,86 @@ function submitInvoice(ignoreWarnings = false) {
     let transfersSum = 0;
     let cheques = [];
     let chequesSum = 0;
-    let paymentMethod = 'cash';
 
-    if (!cashActive && !creditActive && !bankActive && !chequeActive) {
-        // DEFAULT RULE: If no payment method is toggled, default to Credit (Deferred) for full amount
-        creditAmt = grandAmount;
-        paymentMethod = 'credit';
+    if (cashActive) {
+        cashAmt = parseNum(document.getElementById('pay-cash-amount')?.value || 0);
+    }
+
+    if (bankActive) {
+        document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
+            const bankAccountId = row.querySelector('.bt-bank-select') ? row.querySelector('.bt-bank-select').value : '';
+            const refEl = row.querySelector('.bt-ref-input') || row.querySelector('.bt-no-input');
+            const reference = refEl ? refEl.value.trim() : '';
+            const noteEl = row.querySelector('.bt-note-input');
+            const notes = noteEl ? noteEl.value.trim() : '';
+            const amountEl = row.querySelector('.bt-amount-input');
+            const amount = amountEl ? parseNum(amountEl.value) : 0;
+            if (amount > 0) {
+                bankTransfers.push({ bankAccountId, reference, notes, amount });
+                transfersSum += amount;
+            }
+        });
+    }
+
+    if (chequeActive) {
+        document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
+            const chequeNo = row.querySelector('.ch-no-input') ? row.querySelector('.ch-no-input').value.trim() : '';
+            const bankAccountId = row.querySelector('.ch-bank-select') ? row.querySelector('.ch-bank-select').value : '';
+            const dueDate = row.querySelector('.ch-date-input') ? row.querySelector('.ch-date-input').value : '';
+            const noteEl = row.querySelector('.bt-note-input') || row.querySelector('.ch-note-input');
+            const notes = noteEl ? noteEl.value.trim() : '';
+            const amountEl = row.querySelector('.ch-amount-input');
+            const amount = amountEl ? parseNum(amountEl.value) : 0;
+            if (amount > 0) {
+                cheques.push({ chequeNo, bankAccountId, dueDate, notes, amount });
+                chequesSum += amount;
+            }
+        });
+    }
+
+    // The remaining unpaid portion is automatically treated as Credit (آجل على حساب المورد)
+    const totalPaymentsPaid = cashAmt + transfersSum + chequesSum;
+    if (totalPaymentsPaid < grandAmount) {
+        creditAmt = Math.max(0, grandAmount - totalPaymentsPaid);
     } else {
-        cashAmt = cashActive ? parseNum(document.getElementById('pay-cash-amount').value) : 0;
-        creditAmt = creditActive ? parseNum(document.getElementById('pay-credit-amount').value) : 0;
-        
-        if (bankActive) {
-            let validationFailed = false;
-            let existingPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
-            
-            document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
-                const bankAccountId = row.querySelector('.bt-bank-select') ? row.querySelector('.bt-bank-select').value : '';
-                const refEl = row.querySelector('.bt-ref-input') || row.querySelector('.bt-no-input');
-                const reference = refEl ? refEl.value.trim() : '';
-                const amountEl = row.querySelector('.bt-amount-input');
-                const amount = amountEl ? parseNum(amountEl.value) : 0;
-                if (amount > 0) {
-                    if (reference.length < 6) {
-                        showToast('❌ رقم التحويلة أقل من 6 أرقام! يرجى التأكد.', 'error-pink', 6000);
-                        validationFailed = true;
-                    } else {
-                        const last6 = reference.slice(-6);
-                        const isDuplicate = existingPayments.some(p => p.reference && String(p.reference).trim().slice(-6) === last6);
-                        if (isDuplicate) {
-                            showToast(`❌ رقم التحويل منتهي بـ (${last6}) مسجل مسبقاً في حوالة أخرى ولن يتكرر في النظام!`, 'error', 6000);
-                            validationFailed = true;
-                        }
-                    }
-                    bankTransfers.push({ bankAccountId, reference, amount });
-                    transfersSum += amount;
+        creditAmt = 0;
+    }
+
+    if (!ignoreWarnings) {
+        if (totalPaymentsPaid > grandAmount + 0.01) {
+            window.isSubmitting = false;
+            const overpaid = totalPaymentsPaid - grandAmount;
+            const supplierSearchEl = document.getElementById('hdr-customer-search');
+            const supplierName = (supplierSearchEl ? supplierSearchEl.value : '') || 'المورد';
+            showOverpaymentConfirmModal({
+                type: 'purchase',
+                grand: grandAmount,
+                paid: totalPaymentsPaid,
+                overpaid: overpaid,
+                cur: cur,
+                partnerName: supplierName,
+                onConfirm: () => submitInvoice(true),
+                onCancel: () => {
+                    window.isSubmitting = false;
+                    const cashInp = document.getElementById('pay-cash-amount');
+                    if (cashInp) cashInp.focus();
                 }
             });
-            if (validationFailed) {
-                window.isSubmitting = false;
-                return;
-            }
-        }
-        
-        if (chequeActive) {
-            let validationFailed = false;
-            document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
-                const chequeNo = row.querySelector('.ch-no-input') ? row.querySelector('.ch-no-input').value.trim() : '';
-                const bankAccountId = row.querySelector('.ch-bank-select') ? row.querySelector('.ch-bank-select').value : '';
-                const dueDate = row.querySelector('.ch-date-input') ? row.querySelector('.ch-date-input').value : '';
-                const amountEl = row.querySelector('.ch-amount-input');
-                const amount = amountEl ? parseNum(amountEl.value) : 0;
-                if (amount > 0) {
-                    if (!chequeNo) {
-                        showToast('❌ رقم الشيك فاضي! يجب إدخال رقم الشيك لإتمام العملية.', 'error', 6000);
-                        validationFailed = true;
-                    }
-                    cheques.push({ chequeNo, bankAccountId, dueDate, amount });
-                    chequesSum += amount;
-                }
-            });
-            if (validationFailed) {
-                window.isSubmitting = false;
-                return;
-            }
-        }
-
-        const totalPaid = cashAmt + creditAmt + transfersSum + chequesSum;
-        const remaining = grandAmount - totalPaid;
-
-        if (Math.abs(remaining) > 0.05) {
-            showToast(`❌ مجموع المبالغ المدفوعة لا يتطابق مع إجمالي الفاتورة. المتبقي: ${fmtNum(remaining)} ${cur}`, 'error', 5000);
             return;
         }
+    }
 
-        paymentMethod = getPaymentMethodFromUI();
+    let paymentMethod = 'credit';
+    if (cashAmt > 0 && transfersSum === 0 && chequesSum === 0 && creditAmt === 0) {
+        paymentMethod = 'cash';
+    } else if (transfersSum > 0 && cashAmt === 0 && chequesSum === 0 && creditAmt === 0) {
+        paymentMethod = 'bank';
+    } else if (chequesSum > 0 && cashAmt === 0 && transfersSum === 0 && creditAmt === 0) {
+        paymentMethod = 'cheque';
+    } else if (totalPaymentsPaid === 0) {
+        paymentMethod = 'credit';
+    } else {
+        paymentMethod = 'hybrid';
     }
 
     // Save invoice data
@@ -2592,7 +2581,9 @@ function submitInvoice(ignoreWarnings = false) {
         timestamp: new Date().toISOString(),
         date: document.getElementById('hdr-date').value,
         time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
-        customer: document.getElementById('hdr-customer').value,
+        customer: custId,
+        supplierId: custId,
+        supplier: custId,
         supplierName: supplierSearchEl ? supplierSearchEl.value : '',
         saleType: currentSaleType,
         currency: cur,
@@ -2702,26 +2693,29 @@ function submitInvoice(ignoreWarnings = false) {
             let bIdx = banks.findIndex(b => b.id === paymentAccountId);
             let sIdx = safes.findIndex(s => s.id === paymentAccountId);
             
+            const actualPaidLocal = cashAmt > 0 ? (isBase ? cashAmt : cashAmt * rate) : localGrandAmount;
+
             if (bIdx > -1) {
-                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - localGrandAmount;
+                banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - actualPaidLocal;
                 localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
                 data.paymentAccountId = paymentAccountId;
                 usedAccountName = banks[bIdx].name;
             } else if (sIdx > -1) {
-                safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) - localGrandAmount;
+                safes[sIdx].currentBalance = (parseFloat(safes[sIdx].currentBalance) || 0) - actualPaidLocal;
                 localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
                 data.paymentAccountId = paymentAccountId;
                 usedAccountName = safes[sIdx].name;
             }
         }
 
-        // Update Supplier Balance (Debt)
+        // Update Supplier Balance (Debt / Surplus)
         let creditBalanceToAdd = 0;
         if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
             creditBalanceToAdd = creditAmt;
         } else if (paymentMethod === 'credit') {
             creditBalanceToAdd = grandAmount;
         }
+        const overpaidAmt = Math.max(0, totalPaymentsPaid - grandAmount);
         if (creditBalanceToAdd > 0 && custId && custId !== 'walk-in') {
             let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
             const sIdx = suppliers.findIndex(s => s.id === custId);
@@ -2729,6 +2723,15 @@ function submitInvoice(ignoreWarnings = false) {
                 const localCreditToAdd = isBase ? creditBalanceToAdd : creditBalanceToAdd * rate;
                 let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
                 suppliers[sIdx].currentBalance = currentBalance + localCreditToAdd;
+                localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+            }
+        } else if (overpaidAmt > 0 && custId && custId !== 'walk-in') {
+            let suppliers = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+            const sIdx = suppliers.findIndex(s => s.id === custId);
+            if (sIdx > -1) {
+                const localOverpaid = isBase ? overpaidAmt : overpaidAmt * rate;
+                let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
+                suppliers[sIdx].currentBalance = currentBalance - localOverpaid;
                 localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
             }
         }
@@ -2776,7 +2779,8 @@ function submitInvoice(ignoreWarnings = false) {
                     });
                 });
             }
-        } else if (paymentMethod !== 'credit' && grandAmount > 0) {
+        } else if (paymentMethod !== 'credit' && (totalPaymentsPaid > 0 || grandAmount > 0)) {
+            const actualPaidVal = totalPaymentsPaid > 0 ? totalPaymentsPaid : grandAmount;
             paymentsLog.unshift({
                 id: 'pay-' + Date.now() + '-f',
                 paymentNo: 'PMT-PUR-' + committedNo + '-F',
@@ -2784,7 +2788,7 @@ function submitInvoice(ignoreWarnings = false) {
                 type: 'supplier',
                 partnerId: custId,
                 partnerName: data.supplierName || 'مورد عام',
-                amount: grandAmount,
+                amount: actualPaidVal,
                 currency: cur,
                 exchangeRate: rate,
                 paymentMethod: paymentMethod === 'bank' ? 'bank' : 'cash',
@@ -2838,6 +2842,9 @@ function submitInvoice(ignoreWarnings = false) {
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
     if (window.AccountingEngine && typeof window.AccountingEngine.postPurchaseInvoice === 'function') {
         window.AccountingEngine.postPurchaseInvoice(data);
+    }
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        window.rebuildGLFromAllTables(false);
     }
     if (typeof loadHubTransactions === 'function') loadHubTransactions();
 
@@ -2924,7 +2931,12 @@ function submitInvoice(ignoreWarnings = false) {
     let finalWarnings = [];
 
     if (usedAccountName) {
-        showToast(`تم خصم ${fmtNum(grandAmount)} ${cur} من رصيد: ${usedAccountName}`, 'success', 5000);
+        const actualDeducted = totalPaymentsPaid > 0 ? totalPaymentsPaid : grandAmount;
+        showToast(`تم خصم ${fmtNum(actualDeducted)} ${cur} من رصيد: ${usedAccountName}`, 'success', 5000);
+    }
+    const overpaidAmt = Math.max(0, totalPaymentsPaid - grandAmount);
+    if (overpaidAmt > 0 && custId && custId !== 'walk-in') {
+        showToast(`🌟 تم ترحيل فائض السداد بقيمة ${fmtNum(overpaidAmt)} ${cur} كرصيد للمنشأة في حساب المورد`, 'success', 5000);
     }
 
     if (!shouldApplyEffects) {
@@ -3085,6 +3097,16 @@ function postInvoice(invoiceNo) {
     if (idx !== -1) allPurchases[idx] = inv;
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
 
+    if (window.AccountingEngine && typeof window.AccountingEngine.postPurchaseInvoice === 'function') {
+        window.AccountingEngine.postPurchaseInvoice(inv);
+    }
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        window.rebuildGLFromAllTables(false);
+    }
+    if (typeof window.pushToCloud === 'function') {
+        window.pushToCloud(true).catch(e => console.warn("Cloud sync on post failed:", e));
+    }
+
     // 5. Apply immutability and update UI
     if (window.applyImmutabilityUI) window.applyImmutabilityUI('posted');
     updatePostingStatusBar('posted');
@@ -3113,6 +3135,13 @@ function unpostInvoice(invoiceNo) {
     const idx = allPurchases.findIndex(i => String(i.invoiceNo) === String(invoiceNo));
     if (idx !== -1) allPurchases[idx] = inv;
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        window.rebuildGLFromAllTables(false);
+    }
+    if (typeof window.pushToCloud === 'function') {
+        window.pushToCloud(true).catch(e => console.warn("Cloud sync on unpost failed:", e));
+    }
 
     // Remove immutability and update UI
     if (window.applyImmutabilityUI) window.applyImmutabilityUI('confirmed');
@@ -3164,6 +3193,99 @@ function updatePostingStatusBar(status) {
     } else {
         bar.style.display = 'none';
     }
+}
+
+// ════════════════════════════════════════
+//  OVERPAYMENT CONFIRMATION MODAL ("رسالة ظريفة")
+// ════════════════════════════════════════
+function showOverpaymentConfirmModal(options) {
+    const {
+        type = 'purchase',
+        grand = 0,
+        paid = 0,
+        overpaid = 0,
+        cur = 'SDG',
+        partnerName = '',
+        onConfirm,
+        onCancel
+    } = options;
+
+    const existing = document.getElementById('overpayment-confirm-overlay');
+    if (existing) existing.remove();
+
+    const isSales = (type === 'sales');
+    const effectText = isSales 
+        ? `سيتم حفظ الفاتورة واستلام كامل المبلغ المسدد (${fmtNum(paid)} ${cur}) في الخزينة/البنك، وترحيل الفائض (+${fmtNum(overpaid)} ${cur}) كرصيد دائن في كشف حساب [${partnerName || 'العميل'}].`
+        : `سيتم حفظ الفاتورة وإثبات كامل المبلغ المسدد (${fmtNum(paid)} ${cur}) من الخزينة/البنك، وترحيل الفائض (+${fmtNum(overpaid)} ${cur}) كرصيد لصالحنا في كشف حساب [${partnerName || 'المورد'}].`;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'overpayment-confirm-overlay';
+    overlay.className = 'modal-overlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.78); backdrop-filter: blur(6px); z-index: 999999; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s ease; padding: 15px;';
+    
+    overlay.innerHTML = `
+        <div class="modal-card" style="max-width: 520px; width: 100%; background: #0f172a; border: 2px solid rgba(16, 185, 129, 0.6); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85); overflow: hidden; font-family: 'Tajawal', sans-serif; direction: rtl; text-align: right; transform: translateY(-20px); transition: transform 0.25s ease;">
+            <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.15)); padding: 16px 20px; border-bottom: 1px solid rgba(16, 185, 129, 0.25); display: flex; align-items: center; justify-content: space-between;">
+                <h3 style="margin: 0; color: #34d399; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.35rem;">💰</span> تنبيه: السداد أعلى من قيمة الفاتورة
+                </h3>
+                <button type="button" id="overpay-btn-close" style="background: transparent; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer; padding: 4px 8px; line-height: 1;">✕</button>
+            </div>
+            <div style="padding: 20px; color: #f1f5f9; font-size: 0.95rem; line-height: 1.6;">
+                <p style="margin: 0 0 14px 0; color: #cbd5e1; font-size: 0.98rem;">
+                    المبلغ المسدد أكبر من إجمالي الفاتورة بمقدار <strong style="color: #34d399; font-size: 1.2rem; font-weight: 900;">+${fmtNum(overpaid)} ${cur}</strong>.
+                </p>
+                
+                <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center;">
+                    <div style="padding: 8px 4px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 0.74rem; color: #94a3b8; margin-bottom: 4px;">إجمالي الفاتورة</div>
+                        <div style="font-size: 1rem; font-weight: 800; color: #f8fafc;">${fmtNum(grand)} <small style="font-size:0.68rem; color:#94a3b8;">${cur}</small></div>
+                    </div>
+                    <div style="padding: 8px 4px; background: rgba(59, 130, 246, 0.08); border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.25);">
+                        <div style="font-size: 0.74rem; color: #93c5fd; margin-bottom: 4px;">إجمالي المسدد</div>
+                        <div style="font-size: 1rem; font-weight: 800; color: #60a5fa;">${fmtNum(paid)} <small style="font-size:0.68rem; color:#93c5fd;">${cur}</small></div>
+                    </div>
+                    <div style="padding: 8px 4px; background: rgba(16, 185, 129, 0.12); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4);">
+                        <div style="font-size: 0.74rem; color: #6ee7b7; margin-bottom: 4px;">فائض السداد</div>
+                        <div style="font-size: 1.05rem; font-weight: 900; color: #34d399;">+${fmtNum(overpaid)} <small style="font-size:0.68rem; color:#6ee7b7;">${cur}</small></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(56, 189, 248, 0.08); border-right: 4px solid #38bdf8; border-radius: 8px; padding: 12px 14px; color: #bae6fd; font-size: 0.88rem; line-height: 1.5;">
+                    <span style="font-size: 1rem; margin-left: 4px;">ℹ️</span> <strong>الأثر في كشف الحساب:</strong> ${effectText}
+                </div>
+            </div>
+            <div style="padding: 14px 20px; background: rgba(15, 23, 42, 0.7); border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+                <button type="button" id="overpay-btn-cancel" style="padding: 8px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: bold; cursor: pointer; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.12); font-family: 'Tajawal', sans-serif;">✕ مراجعة وتعديل المبلغ</button>
+                <button type="button" id="overpay-btn-confirm" style="padding: 8px 22px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; cursor: pointer; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); font-family: 'Tajawal', sans-serif;">✓ تمرير واعتماد الفاتورة</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const closeFn = () => {
+        overlay.style.opacity = '0';
+        const card = overlay.querySelector('.modal-card');
+        if (card) card.style.transform = 'translateY(-20px)';
+        setTimeout(() => overlay.remove(), 250);
+        if (typeof onCancel === 'function') onCancel();
+    };
+
+    overlay.querySelector('#overpay-btn-close').onclick = closeFn;
+    overlay.querySelector('#overpay-btn-cancel').onclick = closeFn;
+
+    overlay.querySelector('#overpay-btn-confirm').onclick = () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 250);
+        if (typeof onConfirm === 'function') onConfirm();
+    };
+
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        const card = overlay.querySelector('.modal-card');
+        if (card) card.style.transform = 'translateY(0)';
+    });
 }
 
 // ════════════════════════════════════════
@@ -4234,7 +4356,7 @@ function addChequeRow(existingData = null) {
     const rowHtml = `
         <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 1fr 1fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
             ${labelHtml}
-            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? Math.round(parseFloat(existingData.amount)) : ''}" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle}">
+            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? Math.round(parseFloat(existingData.amount)) : ''}" step="1" oninput="onPaymentAmountInput()" onblur="const v=parseNum(this.value); const cont=document.getElementById('cheques-list'); if((!this.value || v<=0) && cont && cont.querySelectorAll('.payment-row-item').length>1){ this.closest('.payment-row-item').remove(); onPaymentAmountInput(); }" placeholder="المبلغ" style="${amountStyle}">
             <select class="v-input ctrl-input ch-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
@@ -4402,58 +4524,40 @@ function recalcPaymentSummary(isRevertCall = false) {
         }
     });
 
-    // Check if entered payment amounts exceed the invoice grand total
+    // Save current values on inputs
+    if (cashInput) cashInput.dataset.lastValidValue = cashInput.value;
+    document.querySelectorAll('.bt-amount-input').forEach(input => {
+        input.dataset.lastValidValue = input.value;
+    });
+    document.querySelectorAll('.ch-amount-input').forEach(input => {
+        input.dataset.lastValidValue = input.value;
+    });
+
     const enteredPayments = cashAmt + transfersSum + chequesSum;
-    if (enteredPayments > grand + 0.01) {
-        showToast('⚠️ المبلغ الذي تم إدخاله أكبر من قيمة الفاتورة!', 'warning');
-        if (typeof PlaySound !== 'undefined') PlaySound.error();
-        
-        // Revert active input to its last valid value
-        const activeInput = document.activeElement;
-        if (activeInput && (activeInput.id === 'pay-cash-amount' || activeInput.classList.contains('bt-amount-input') || activeInput.classList.contains('ch-amount-input'))) {
-            activeInput.value = activeInput.dataset.lastValidValue || '0';
-            
-            // Re-trigger shake animation
-            activeInput.classList.remove('input-error-shake');
-            void activeInput.offsetWidth; // trigger reflow
-            activeInput.classList.add('input-error-shake');
-        }
-        
-        // Recalculate to correct the indicators using reverted values
-        return recalcPaymentSummary(true);
-    } else {
-        // Save the valid values
-        if (cashInput) {
-            cashInput.dataset.lastValidValue = cashInput.value;
-            if (!isRevertCall) cashInput.classList.remove('input-error-shake');
-        }
-        document.querySelectorAll('.bt-amount-input').forEach(input => {
-            input.dataset.lastValidValue = input.value;
-            if (!isRevertCall) input.classList.remove('input-error-shake');
-        });
-        document.querySelectorAll('.ch-amount-input').forEach(input => {
-            input.dataset.lastValidValue = input.value;
-            if (!isRevertCall) input.classList.remove('input-error-shake');
-        });
-    }
+    const isOverpaid = (enteredPayments > grand + 0.01);
+    const surplusAmt = isOverpaid ? (enteredPayments - grand) : 0;
     
     const paidIndicator = document.getElementById('payment-paid-indicator');
     const totalIndicator = document.getElementById('payment-total-indicator');
     const remainingIndicator = document.getElementById('payment-remaining-indicator');
     
-    if (paidIndicator) paidIndicator.textContent = `${fmtNum(totalPaid)} ${cur}`;
+    if (paidIndicator) paidIndicator.textContent = `${fmtNum(enteredPayments)} ${cur}`;
     if (totalIndicator) totalIndicator.textContent = `${fmtNum(grand)} ${cur}`;
     if (remainingIndicator) {
-        remainingIndicator.textContent = `${fmtNum(remaining)} ${cur}`;
-        if (Math.abs(remaining) > 0.05) {
+        if (isOverpaid) {
+            remainingIndicator.textContent = `+${fmtNum(surplusAmt)} ${cur} (فائض)`;
+            remainingIndicator.style.color = '#34d399'; // Emerald green
+        } else if (Math.abs(remaining) > 0.05) {
+            remainingIndicator.textContent = `${fmtNum(remaining)} ${cur}`;
             remainingIndicator.style.color = '#f87171'; // Red
         } else {
+            remainingIndicator.textContent = `${fmtNum(remaining)} ${cur}`;
             remainingIndicator.style.color = '#34d399'; // Green
         }
     }
 
     // Update progress bars & status badge dynamically
-    const totalPayments = cashAmt + transfersSum + chequesSum + creditAmt;
+    const totalPayments = Math.max(grand, enteredPayments + creditAmt);
     if (totalPayments > 0) {
         const cashPct = (cashAmt / totalPayments) * 100;
         const bankPct = (transfersSum / totalPayments) * 100;
@@ -4473,7 +4577,13 @@ function recalcPaymentSummary(isRevertCall = false) {
         // Update Status Badge
         const statusBadge = document.getElementById('payment-status-badge');
         if (statusBadge) {
-            if (creditAmt <= 0.01) {
+            if (isOverpaid) {
+                statusBadge.dataset.status = 'overpaid';
+                statusBadge.textContent = '🌟 فائض سداد (رصيد للمنشأة)';
+                statusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+                statusBadge.style.color = '#34d399';
+                statusBadge.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
+            } else if (creditAmt <= 0.01) {
                 // Play sound if transitioned to fully paid
                 if (statusBadge.dataset.status !== 'fully-paid') {
                     if (typeof PlaySound !== 'undefined') PlaySound.success();
@@ -4730,7 +4840,7 @@ function loadPaymentDataIntoUI(data) {
     }
 }
 
-// Keydown delegation for payment inputs to block typing when value exceeds grand total
+// Keydown delegation for payment inputs to allow standard digit input without artificial limits
 document.addEventListener('keydown', function(event) {
     const input = event.target;
     if (!(input.id === 'pay-cash-amount' || input.classList.contains('bt-amount-input') || input.classList.contains('ch-amount-input'))) {
@@ -4743,7 +4853,7 @@ document.addEventListener('keydown', function(event) {
         return;
     }
     
-    // Only intercept digits and decimal points
+    // Only intercept non-digit and non-dot characters
     const isDigit = /^[0-9]$/.test(event.key);
     const isDot = event.key === '.';
     if (!isDigit && !isDot) {
@@ -4751,60 +4861,6 @@ document.addEventListener('keydown', function(event) {
             event.preventDefault();
         }
         return;
-    }
-    
-    // Construct potential new value
-    const start = input.selectionStart;
-    const end = input.selectionEnd;
-    const oldVal = input.value;
-    const newValStr = oldVal.slice(0, start) + event.key + oldVal.slice(end);
-    const newVal = parseFloat(newValStr) || 0;
-    
-    // Calculate potential total payment
-    const grand = parseNum(document.getElementById('t-grand-local')?.textContent || 0);
-    
-    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
-    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
-    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
-    
-    let cash = 0;
-    if (cashActive) {
-        cash = (input.id === 'pay-cash-amount') ? newVal : parseNum(document.getElementById('pay-cash-amount')?.value || 0);
-    }
-    
-    let transfersSum = 0;
-    if (bankActive) {
-        document.querySelectorAll('.bt-amount-input').forEach(inp => {
-            if (inp === input) {
-                transfersSum += newVal;
-            } else {
-                transfersSum += parseNum(inp.value);
-            }
-        });
-    }
-    
-    let chequesSum = 0;
-    if (chequeActive) {
-        document.querySelectorAll('.ch-amount-input').forEach(inp => {
-            if (inp === input) {
-                chequesSum += newVal;
-            } else {
-                chequesSum += parseNum(inp.value);
-            }
-        });
-    }
-    
-    const potentialTotalPaid = cash + transfersSum + chequesSum;
-    if (potentialTotalPaid > grand + 0.01) {
-        event.preventDefault(); // Block the typing!
-        if (typeof PlaySound !== 'undefined') PlaySound.error();
-        
-        showToast('⚠️ المبلغ الذي تم إدخاله أكبر من قيمة الفاتورة!', 'warning');
-        
-        // Shake the input container and turn border red immediately
-        input.classList.remove('input-error-shake');
-        void input.offsetWidth; // trigger reflow
-        input.classList.add('input-error-shake');
     }
 });
 
@@ -4827,4 +4883,350 @@ document.addEventListener('focus', function(event) {
         }
     }
 }, true);
+
+// ═════════════════════════════════════════════════════════════════════
+//  AI OCR INVOICE SCANNER & CFO ORDER DRAFT (المرحلة 3)
+// ═════════════════════════════════════════════════════════════════════
+
+let currentScannedOCRData = null;
+
+function triggerInvoiceOCR() {
+    const fileInput = document.getElementById('ocr-camera-input');
+    if (fileInput) {
+        fileInput.value = ''; // Reset
+        fileInput.click();
+    }
+}
+
+function handleOCRFileSelect(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const overlay = document.getElementById('ocr-loading-overlay');
+    if (overlay) overlay.style.display = 'flex';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64Image = e.target.result;
+        
+        const knownItems = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) 
+            ? ITEMS.map(i => i.name).filter(Boolean).slice(0, 50) 
+            : [];
+
+        fetch('api/ocr-invoice.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image: base64Image,
+                known_items: knownItems
+            })
+        })
+        .then(res => res.json())
+        .then(resData => {
+            if (overlay) overlay.style.display = 'none';
+
+            if (resData.success && resData.data) {
+                currentScannedOCRData = resData.data;
+                renderOCRReviewModal(resData.data, base64Image);
+            } else {
+                if (resData.is_mock_fallback) {
+                    showToast('⚠️ تنبيه: ' + resData.error, 'warning', 4000);
+                    offerMockOCRDemo(base64Image);
+                } else {
+                    showToast('❌ خطأ في قراءة الفاتورة: ' + (resData.error || 'تعذر القراءة'), 'danger', 4000);
+                }
+            }
+        })
+        .catch(err => {
+            console.error("OCR Fetch Error:", err);
+            if (overlay) overlay.style.display = 'none';
+            showToast('❌ تعذر الاتصال بخدمة فحص الفواتير', 'danger', 3000);
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+function offerMockOCRDemo(base64Image) {
+    const demoData = {
+        supplier_name: "شركة السجانة لمواد البناء المحدودة",
+        invoice_number: "INV-" + Math.floor(1000 + Math.random() * 9000),
+        invoice_date: new Date().toISOString().split('T')[0],
+        currency: "SDG",
+        items: [
+            { name: (ITEMS[0] ? ITEMS[0].name : "حديد 4 لينيا أباذر"), quantity: 10, price: 45000, total: 450000 },
+            { name: (ITEMS[1] ? ITEMS[1].name : "أسمنت بربر 50 كجم"), quantity: 50, price: 12000, total: 600000 }
+        ],
+        total_amount: 1050000,
+        paid_amount: 0
+    };
+    currentScannedOCRData = demoData;
+    renderOCRReviewModal(demoData, base64Image);
+}
+
+function renderOCRReviewModal(data, base64Image) {
+    const modal = document.getElementById('ocr-review-modal');
+    const body = document.getElementById('ocr-modal-body');
+    if (!modal || !body) return;
+
+    let itemsTableRows = '';
+    const rawItems = Array.isArray(data.items) ? data.items : [];
+
+    rawItems.forEach((item, idx) => {
+        let bestMatchId = '';
+        if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+            const found = ITEMS.find(i => i.name && (i.name.includes(item.name) || item.name.includes(i.name)));
+            if (found) bestMatchId = found.id;
+        }
+
+        let optionsHtml = '<option value="">-- حدد الصنف المطابق من النظام --</option>';
+        if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+            ITEMS.forEach(it => {
+                const sel = (String(it.id) === String(bestMatchId)) ? 'selected' : '';
+                optionsHtml += `<option value="${it.id}" ${sel}>${it.name}</option>`;
+            });
+        }
+
+        itemsTableRows += `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <td style="padding:8px 6px;">
+                <input type="text" id="ocr-name-${idx}" value="${item.name || ''}" class="v-input ctrl-input" style="width:100%; font-size:0.85rem;" placeholder="اسم الصنف">
+            </td>
+            <td style="padding:8px 6px;">
+                <select id="ocr-item-match-${idx}" class="v-input ctrl-input" style="width:100%; font-size:0.85rem;">
+                    ${optionsHtml}
+                </select>
+            </td>
+            <td style="padding:8px 6px; width:90px;">
+                <input type="number" step="any" id="ocr-qty-${idx}" value="${item.quantity || 1}" class="v-input ctrl-input" style="width:100%; text-align:center; font-weight:bold; font-size:0.9rem;" oninput="recalcOCRRow(${idx})">
+            </td>
+            <td style="padding:8px 6px; width:110px;">
+                <input type="number" step="any" id="ocr-price-${idx}" value="${item.price || 0}" class="v-input ctrl-input" style="width:100%; text-align:center; font-weight:bold; font-size:0.9rem; color:#34d399;" oninput="recalcOCRRow(${idx})">
+            </td>
+            <td style="padding:8px 6px; width:120px; text-align:center; font-weight:bold; color:#38bdf8;" id="ocr-total-${idx}">
+                ${((parseNum(item.quantity || 1) * parseNum(item.price || 0))).toLocaleString()}
+            </td>
+            <td style="padding:8px 4px; text-align:center; width:40px;">
+                <button type="button" onclick="deleteOCRRow(${idx})" style="background:transparent; border:none; color:#f87171; cursor:pointer; font-size:1.1rem;" title="حذف">🗑️</button>
+            </td>
+        </tr>`;
+    });
+
+    body.innerHTML = `
+    <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:240px; max-width:300px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px; display:flex; flex-direction:column; align-items:center;">
+            <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:8px; font-weight:bold;">🖼️ صورة الفاتورة الممسوحة:</div>
+            <img src="${base64Image}" style="max-width:100%; max-height:220px; border-radius:6px; object-fit:contain; box-shadow:0 4px 10px rgba(0,0,0,0.5);">
+            <div style="margin-top:10px; font-size:0.75rem; color:#34d399; text-align:center;">✓ تم التعرف بنجاح عبر الرؤية الحاسوبية</div>
+        </div>
+
+        <div style="flex:2; min-width:300px; display:grid; grid-template-columns:1fr 1fr; gap:12px; align-content:start;">
+            <div>
+                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:4px;">👤 المورد المستخرج:</label>
+                <input type="text" id="ocr-supplier-name" value="${data.supplier_name || ''}" class="v-input ctrl-input" style="width:100%; font-weight:bold; font-size:0.95rem;">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:4px;">📄 رقم الفاتورة الورقية:</label>
+                <input type="text" id="ocr-invoice-no" value="${data.invoice_number || ''}" class="v-input ctrl-input" style="width:100%; font-size:0.95rem;">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:4px;">📅 تاريخ الفاتورة:</label>
+                <input type="date" id="ocr-invoice-date" value="${data.invoice_date || new Date().toISOString().split('T')[0]}" class="v-input ctrl-input" style="width:100%; font-size:0.95rem;">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:4px;">💱 العملة المستخرجة:</label>
+                <select id="ocr-invoice-currency" class="v-input ctrl-input" style="width:100%; font-size:0.95rem;">
+                    <option value="SDG" ${data.currency === 'SDG' ? 'selected' : ''}>جنيه سوداني (SDG)</option>
+                    <option value="USD" ${data.currency === 'USD' ? 'selected' : ''}>دولار أمريكي (USD)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <b style="color:#fff; font-size:0.95rem;">📦 أصناف الفاتورة المستخرجة (${rawItems.length}):</b>
+            <button type="button" onclick="addBlankOCRRow()" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; padding:4px 10px; border-radius:6px; font-size:0.8rem; cursor:pointer; font-weight:bold;">+ إضافة سطر صنف</button>
+        </div>
+        <div style="overflow-x:auto; background:rgba(15,23,42,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:8px;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.85rem;" id="ocr-items-table">
+                <thead>
+                    <tr style="background:rgba(255,255,255,0.05); color:#94a3b8; text-align:right;">
+                        <th style="padding:8px 6px;">الصنف المكتوب</th>
+                        <th style="padding:8px 6px;">المطابقة في النظام</th>
+                        <th style="padding:8px 6px; text-align:center;">الكمية</th>
+                        <th style="padding:8px 6px; text-align:center;">السعر</th>
+                        <th style="padding:8px 6px; text-align:center;">الإجمالي</th>
+                        <th style="padding:8px 4px; text-align:center;">حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="ocr-items-tbody">
+                    ${itemsTableRows}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    `;
+
+    modal.style.display = 'flex';
+}
+
+function recalcOCRRow(idx) {
+    const qEl = document.getElementById(`ocr-qty-${idx}`);
+    const pEl = document.getElementById(`ocr-price-${idx}`);
+    const tEl = document.getElementById(`ocr-total-${idx}`);
+    if (qEl && pEl && tEl) {
+        const total = (parseNum(qEl.value) * parseNum(pEl.value));
+        tEl.innerText = total.toLocaleString();
+    }
+}
+
+function deleteOCRRow(idx) {
+    const rowEl = document.getElementById(`ocr-name-${idx}`)?.closest('tr');
+    if (rowEl) rowEl.remove();
+}
+
+function addBlankOCRRow() {
+    const tbody = document.getElementById('ocr-items-tbody');
+    if (!tbody) return;
+    const newIdx = tbody.querySelectorAll('tr').length + Date.now();
+    let optionsHtml = '<option value="">-- حدد الصنف المطابق من النظام --</option>';
+    if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+        ITEMS.forEach(it => { optionsHtml += `<option value="${it.id}">${it.name}</option>`; });
+    }
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+    tr.innerHTML = `
+        <td style="padding:8px 6px;"><input type="text" id="ocr-name-${newIdx}" class="v-input ctrl-input" style="width:100%; font-size:0.85rem;" placeholder="اسم الصنف"></td>
+        <td style="padding:8px 6px;"><select id="ocr-item-match-${newIdx}" class="v-input ctrl-input" style="width:100%; font-size:0.85rem;">${optionsHtml}</select></td>
+        <td style="padding:8px 6px; width:90px;"><input type="number" step="any" id="ocr-qty-${newIdx}" value="1" class="v-input ctrl-input" style="width:100%; text-align:center; font-weight:bold; font-size:0.9rem;" oninput="recalcOCRRow(${newIdx})"></td>
+        <td style="padding:8px 6px; width:110px;"><input type="number" step="any" id="ocr-price-${newIdx}" value="0" class="v-input ctrl-input" style="width:100%; text-align:center; font-weight:bold; font-size:0.9rem; color:#34d399;" oninput="recalcOCRRow(${newIdx})"></td>
+        <td style="padding:8px 6px; width:120px; text-align:center; font-weight:bold; color:#38bdf8;" id="ocr-total-${newIdx}">0</td>
+        <td style="padding:8px 4px; text-align:center; width:40px;"><button type="button" onclick="this.closest('tr').remove()" style="background:transparent; border:none; color:#f87171; cursor:pointer; font-size:1.1rem;">🗑️</button></td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function closeOCRModal() {
+    const modal = document.getElementById('ocr-review-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function applyScannedInvoiceToGrid() {
+    const modal = document.getElementById('ocr-review-modal');
+    const tbody = document.getElementById('ocr-items-tbody');
+    if (!tbody) return;
+
+    if (typeof openPurchaseEditor === 'function') {
+        openPurchaseEditor('direct');
+    }
+
+    const supNameInput = document.getElementById('ocr-supplier-name');
+    if (supNameInput && supNameInput.value.trim()) {
+        const supName = supNameInput.value.trim();
+        const supInput = document.getElementById('hdr-supplier-input');
+        if (supInput) {
+            supInput.value = supName;
+            if (typeof selectSupplierByName === 'function') {
+                selectSupplierByName(supName);
+            }
+        }
+    }
+
+    const dateInput = document.getElementById('ocr-invoice-date');
+    if (dateInput && dateInput.value) {
+        const hdrDate = document.getElementById('hdr-date');
+        if (hdrDate) hdrDate.value = dateInput.value;
+    }
+
+    const curSelect = document.getElementById('ocr-invoice-currency');
+    if (curSelect && curSelect.value) {
+        const hdrCur = document.getElementById('hdr-currency');
+        if (hdrCur && hdrCur.value !== curSelect.value) {
+            hdrCur.value = curSelect.value;
+            if (typeof onCurrencyChange === 'function') onCurrencyChange();
+        }
+    }
+
+    const trs = tbody.querySelectorAll('tr');
+    if (trs.length > 0) {
+        rows = [];
+        rowIdCounter = 0;
+
+        trs.forEach(tr => {
+            const matchSelect = tr.querySelector('select[id^="ocr-item-match-"]');
+            const nameInput = tr.querySelector('input[id^="ocr-name-"]');
+            const qtyInput = tr.querySelector('input[id^="ocr-qty-"]');
+            const priceInput = tr.querySelector('input[id^="ocr-price-"]');
+
+            let itemId = matchSelect ? matchSelect.value : '';
+            const qty = qtyInput ? parseNum(qtyInput.value) : 1;
+            const price = priceInput ? parseNum(priceInput.value) : 0;
+
+            if (!itemId && nameInput && typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+                const found = ITEMS.find(i => i.name && (i.name.includes(nameInput.value) || nameInput.value.includes(i.name)));
+                if (found) itemId = found.id;
+            }
+
+            rowIdCounter++;
+            rows.push({
+                id: rowIdCounter,
+                itemId: itemId || (ITEMS[0] ? ITEMS[0].id : ''),
+                quantity: qty > 0 ? qty : 1,
+                price: price,
+                fcPrice: price,
+                warehouseId: (WAREHOUSES[0] ? WAREHOUSES[0].id : ''),
+                costCenterId: (COST_CENTERS[0] ? COST_CENTERS[0].id : ''),
+                qrCode: '',
+                selectedUnit: ''
+            });
+        });
+
+        if (typeof renderGrid === 'function') renderGrid();
+        if (typeof recalcAll === 'function') recalcAll();
+
+        showToast(`🎉 تم تفريغ ${rows.length} صنف من الفاتورة بنجاح عبر الرؤية الحاسوبية!`, 'success', 3000);
+    }
+
+    closeOCRModal();
+}
+
+// Check URL Params for CFO Order Draft on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('cfo_order_draft') === 'true' && urlParams.get('items')) {
+        try {
+            const rawItems = JSON.parse(decodeURIComponent(urlParams.get('items')));
+            if (Array.isArray(rawItems) && rawItems.length > 0) {
+                if (typeof openPurchaseEditor === 'function') openPurchaseEditor('direct');
+                rows = [];
+                rowIdCounter = 0;
+                rawItems.forEach(item => {
+                    let itemId = '';
+                    if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+                        const found = ITEMS.find(i => i.name && (i.name.includes(item.name) || item.name.includes(i.name)));
+                        if (found) itemId = found.id;
+                    }
+                    rowIdCounter++;
+                    rows.push({
+                        id: rowIdCounter,
+                        itemId: itemId || (ITEMS[0] ? ITEMS[0].id : ''),
+                        quantity: parseNum(item.qty) || 10,
+                        price: parseNum(item.price) || 0,
+                        fcPrice: parseNum(item.price) || 0,
+                        warehouseId: (WAREHOUSES[0] ? WAREHOUSES[0].id : ''),
+                        costCenterId: (COST_CENTERS[0] ? COST_CENTERS[0].id : ''),
+                        qrCode: '',
+                        selectedUnit: ''
+                    });
+                });
+                if (typeof renderGrid === 'function') renderGrid();
+                if (typeof recalcAll === 'function') recalcAll();
+                showToast(`💼 تم تجهيز مسودة أمر الشراء المقترحة من المدير المالي (${rows.length} صنف)`, 'info', 4000);
+            }
+        } catch(e) {
+            console.error("CFO Draft Error:", e);
+        }
+    }
+});
+
 

@@ -1,4 +1,60 @@
+<script src="js/hls.light.min.js"></script>
+<script src="js/bban_auto_helper.js"></script>
 <script>
+    // ═══════════════════════════════════════════════════════════════════
+    // 🛡️ الحماية المطلقة الشاملة لمنع ظهور رسالة المتصفح (Leave Site) نهائياً
+    // ═══════════════════════════════════════════════════════════════════
+    (function() {
+        const cleanBeforeUnload = function(e) {
+            if (!e) return;
+            try {
+                delete e.returnValue;
+                e.returnValue = undefined;
+            } catch(err) {}
+        };
+
+        try {
+            const origAEL = EventTarget.prototype.addEventListener;
+            EventTarget.prototype.addEventListener = function(type, listener, options) {
+                if (type === 'beforeunload') {
+                    const safeListener = function(e) {
+                        try {
+                            if (typeof listener === 'function') listener.call(this, e);
+                            else if (listener && typeof listener.handleEvent === 'function') listener.handleEvent(e);
+                        } catch(err) {}
+                        cleanBeforeUnload(e);
+                    };
+                    return origAEL.call(this, type, safeListener, options);
+                }
+                return origAEL.call(this, type, listener, options);
+            };
+        } catch(e) {}
+
+        try {
+            Object.defineProperty(window, 'onbeforeunload', {
+                get: function() { return null; },
+                set: function() {},
+                configurable: false
+            });
+        } catch(e) {}
+
+        try {
+            if (window.BeforeUnloadEvent && window.BeforeUnloadEvent.prototype) {
+                window.BeforeUnloadEvent.prototype.preventDefault = function() {};
+                Object.defineProperty(window.BeforeUnloadEvent.prototype, 'returnValue', {
+                    get: function() { return undefined; },
+                    set: function() {},
+                    configurable: true
+                });
+            }
+        } catch(e) {}
+
+        window.addEventListener('beforeunload', function(e) {
+            e.stopImmediatePropagation();
+            cleanBeforeUnload(e);
+        }, true);
+    })();
+
     // قراءة الثيم الذي اختاره الباشمهندس مهدي من الشاشة الموحدة وتطبيقه طالما الصفحة تفتح
     const currentTheme = localStorage.getItem('magaiees_global_theme') || 'theme-imperial';
     document.documentElement.className = currentTheme;
@@ -90,6 +146,7 @@
     }
 })();
 </script>
+<script defer src="js/erp_alerts_guard.js?v=20260902_v1"></script>
 <style>
 @keyframes neonPulseHeader {
     0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.2), inset 0 0 10px rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
@@ -113,7 +170,7 @@
     position: relative;
     z-index: 1000;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    overflow: hidden;
+    overflow: visible !important;
 }
 .magical-glass-header:hover {
     transform: translateY(-3px) scale(1.005);
@@ -182,10 +239,137 @@
         border-radius: 16px !important;
     }
 }
+
+.header-tv-mini-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(30, 20, 50, 0.85), rgba(15, 23, 42, 0.95));
+    border: 1.5px solid rgba(192, 132, 252, 0.4);
+    color: #f8fafc;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    white-space: nowrap;
+    user-select: none;
+}
+.header-tv-mini-btn:hover {
+    transform: translateY(-2px);
+    border-color: #f59e0b;
+    box-shadow: 0 6px 18px rgba(245, 158, 11, 0.3);
+    color: #fef08a;
+}
+@keyframes header-tv-pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 18px #f59e0b, 0 0 35px rgba(245, 158, 11, 0.8), inset 0 0 12px rgba(245, 158, 11, 0.5) !important;
+        border-color: #f59e0b !important;
+    }
+    50% {
+        box-shadow: 0 0 28px #fbbf24, 0 0 55px rgba(251, 191, 36, 0.95), 0 0 70px #ffffff, inset 0 0 18px rgba(251, 191, 36, 0.7) !important;
+        border-color: #ffffff !important;
+    }
+}
+.header-tv-mini-btn.is-playing {
+    border-color: #f59e0b !important;
+    background: linear-gradient(135deg, rgba(180, 83, 9, 0.85), rgba(15, 23, 42, 0.98)) !important;
+    animation: header-tv-pulse-glow 1.8s infinite ease-in-out !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+.header-tv-mini-btn.is-playing .header-tv-icon {
+    animation: bounce 1.5s infinite;
+    filter: drop-shadow(0 0 8px #fbbf24);
+}
+.header-tv-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+    animation: headerTvPulse 1.4s infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+@keyframes headerTvPulse {
+    0% { transform: scale(0.85); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.6; }
+    100% { transform: scale(0.85); opacity: 1; }
+}
+.header-tv-popover {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 460px !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100vh - 30px) !important;
+    overflow-y: auto !important;
+    background: linear-gradient(155deg, rgba(15, 23, 42, 0.99), rgba(5, 10, 24, 0.99)) !important;
+    border: 2px solid #f59e0b !important;
+    border-radius: 24px !important;
+    padding: 18px 20px !important;
+    box-shadow: 0 25px 80px rgba(0,0,0,0.95), 0 0 50px rgba(245, 158, 11, 0.45) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    z-index: 2147483647 !important;
+    direction: rtl !important;
+    text-align: right !important;
+    animation: popoverCenterZoom 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+@keyframes popoverCenterZoom {
+    from { opacity: 0; transform: translate(-50%, -46%) scale(0.95); }
+    to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+#header-media-backdrop {
+    position: fixed !important;
+    inset: 0 !important;
+    background: rgba(0, 0, 0, 0.72) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    z-index: 2147483640 !important;
+    transition: opacity 0.2s ease !important;
+}
+.header-pop-ch-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 7px 3px;
+    border-radius: 11px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #f8fafc;
+    font-size: 10.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+}
+.header-pop-ch-btn:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: var(--ch-c);
+    color: var(--ch-c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3), 0 0 12px var(--ch-c);
+}
+.header-pop-ch-btn.active-ch {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(15, 23, 42, 0.95));
+    border-color: var(--ch-c);
+    box-shadow: 0 0 15px var(--ch-c), inset 0 0 8px var(--ch-c);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
 </style>
 <header class="premium-header magical-glass-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
     <!-- Left: Logo / Brand -->
-    <div style="display:flex; align-items:center; gap:12px; flex:1;">
+    <div style="display:flex; align-items:center; gap:12px; flex:0 0 auto;">
         <div style="background:linear-gradient(135deg,#10b981,#34d399); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">📦</div>
         <div>
             <div style="color:#fff; font-weight:800; font-size:1rem; letter-spacing:0.5px;" id="header-company-name-top" data-i18n="sidebar.brand">مقاييس (MAGAIEES)</div>
@@ -211,7 +395,7 @@
         elseif (strpos($page_title, 'Audit') !== false || strpos($page_title, 'الصندوق') !== false) $dynamic_icon = '🔒';
     }
     ?>
-    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:0; padding:0 12px; overflow:hidden;">
         <h2 class="header-page-title">
             <span class="header-page-title-icon"><?php echo $dynamic_icon; ?></span>
             <?php echo isset($page_title) ? htmlspecialchars($page_title) : 'مقاييس (MAGAIEES)'; ?>
@@ -224,7 +408,7 @@
     </div>
 
     <!-- Right: Controls -->
-    <div style="display:flex; align-items:center; gap:12px; flex:1; justify-content:flex-end;">
+    <div style="display:flex; align-items:center; gap:10px; flex:0 0 auto; justify-content:flex-end;">
         <!-- User Info & Online Users -->
         <div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px; margin:6px 0;">
             <div class="user-info" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; min-width: 90px;" onclick="document.getElementById('profile-modal').style.display='flex'">
@@ -265,6 +449,24 @@
                 <button class="theme-toggle-btn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل المظهر">🌓</button>
             </div>
         </div>
+
+        <!-- 📺 SACRED TV & QURAN MINI CONTROLLER (1cm x 2.5cm - Non-Obtrusive) -->
+        <div id="header-media-control-wrap" style="position:relative; display:flex; align-items:center;">
+            <button id="header-media-btn" type="button" onclick="toggleHeaderMediaPopover(event)" class="header-tv-mini-btn" title="قنوات التلفاز والقرآن الكريم (بث حي في الخلفية)">
+                <span id="header-media-icon" class="header-tv-icon">📺</span>
+                <span id="header-media-label" class="header-tv-label">التلفاز</span>
+                <span id="header-media-dot" class="header-tv-status-dot" style="display: none;"></span>
+            </button>
+        </div>
+
+        <!-- Universal Go Back Master Button (Amber-Gold Luxury) -->
+        <button id="magaiees-master-back-btn" class="magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
+            <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 19 12 12 5"></polyline>
+            </svg>
+            <span class="back-btn-text">الرجوع للخلف</span>
+        </button>
         <script>
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
@@ -288,53 +490,111 @@
             window.dispatchEvent(new Event('themeChanged'));
         }
 
-        // Global Backdrop Click to Go Back Interaction (Immediate, bypasses JS cache)
-        document.addEventListener('click', function(e) {
-            try {
-                if (!e || !e.target) return;
-                
-                // Exclude home/dashboard and login screens
-                const path = window.location.pathname.toLowerCase();
-                if (path.includes('dashboard') || path.includes('login') || path.includes('index') || path === '/' || path.endsWith('/magaees') || path.endsWith('/magaees/')) {
-                    return;
-                }
-
-                const target = e.target;
-                if (typeof target.closest !== 'function') return;
-
-                // التقييد: تفعيل زر الرجوع للخلف عند الضغط في المساحات الفارغة داخل الترويسة والشريط الجانبي فقط
-                if (!target.closest('.global-sidebar') && !target.closest('header.premium-header')) {
-                    return; // تجاهل النقرات في أي مكان آخر (مثل شاشة التقارير أو الحاويات الرئيسية)
-                }
-
-                // Protect ONLY interactive elements. We want background/empty areas to trigger 'back'
-                const interactiveSelectors = [
-                    'button', 'input', 'select', 'textarea', 'a', 'label', 'table', 'form', 'li', 'ul',
-                    '.modal-overlay', '.modal', '.custom-dropdown-list', '.toast-container', '.choices',
-                    '.user-info', '#online-users-badge', '.clock-container', '.crystal-pill', '.bal-card',
-                    '.autocomplete-list', '[onclick]' // Any element with an onclick attribute
-                ];
-
-                for (let i = 0; i < interactiveSelectors.length; i++) {
-                    if (target.closest(interactiveSelectors[i])) {
-                        return; // Ignored as click is in or on an interactive component
-                    }
-                }
-
-                // If we get here, it's an empty space, margin, or layout container
-                // Navigate back immediately
-                e.preventDefault();
-                e.stopPropagation();
-                if (document.referrer) {
-                    window.history.back();
-                } else {
-                    window.location.href = 'magaiees_unified_dashboard.php';
-                }
-            } catch (err) {
-                console.error('Error in backdrop click:', err);
-            }
-        }, true); // Use CAPTURE phase to intercept before any other script calls stopPropagation
         </script>
     </div>
 </header>
+
+<!-- 📺 SACRED TV & QURAN POPUP MODAL (ON SCREEN FACE - NOT HIDDEN FOR ANY REASON) -->
+<div id="header-media-backdrop" onclick="closeHeaderMediaPopover(event)" style="display: none;"></div>
+<div id="header-media-popover" class="header-tv-popover" onclick="event.stopPropagation()" style="display: none;">
+    <!-- Popover Header -->
+    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 8px; margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 13px; color: #fde047;">
+            <span id="popover-status-dot" class="header-tv-status-dot"></span>
+            <span>📺 تحكم البث المباشر (فوق الشاشة)</span>
+        </div>
+        <button type="button" onclick="closeHeaderMediaPopover(event)" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #f8fafc; border-radius: 8px; width: 26px; height: 26px; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;" title="إخفاء النافذة (مع استمرار البث بالخلفية)">✕</button>
+    </div>
+
+    <!-- 🌟 PROMINENT CURRENT BROADCAST STATUS CARD (البث الحالي واضح وغير مختفي) 🌟 -->
+    <div id="popover-broadcast-status-card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(15, 23, 42, 0.98)); border: 1.5px solid rgba(245, 158, 11, 0.55); border-radius: 14px; padding: 10px 12px; margin-bottom: 12px; box-shadow: inset 0 0 15px rgba(245, 158, 11, 0.15);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+            <span style="font-size: 11px; font-weight: 800; color: #94a3b8;">📡 حالة البث الحالية:</span>
+            <span id="popover-status-badge" style="font-size: 10.5px; font-weight: 900; padding: 2px 8px; border-radius: 6px; background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.5);">
+                🟢 شغال الآن
+            </span>
+        </div>
+        <div id="popover-media-title" style="font-size: 13.5px; font-weight: 900; color: #ffffff; line-height: 1.35; text-shadow: 0 0 12px rgba(245, 158, 11, 0.6); word-break: break-word;">
+            البث المباشر يعمل بالخلفية
+        </div>
+    </div>
+
+    <!-- 12 Sacred & News Channel Quick Buttons in 2 Rows of 6 (صفين كل صف به 6 أزرار عصرية) -->
+    <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-bottom: 12px;">
+        <!-- Row 1: مكة · المدينة · المجد · القرآن · الجزيرة · BBC -->
+        <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="تشغيل مكة المكرمة">
+            <span style="font-size: 14px;">🕋</span>
+            <span>مكة</span>
+        </button>
+        <button type="button" id="hdr-ch-madinah" onclick="quickHeaderPlay('madinah')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="تشغيل المدينة المنورة">
+            <span style="font-size: 14px;">🕌</span>
+            <span>المدينة</span>
+        </button>
+        <button type="button" id="hdr-ch-majd" onclick="quickHeaderPlay('majd')" class="header-pop-ch-btn" style="--ch-c: #fbbf24;" title="تشغيل قناة المجد">
+            <span style="font-size: 14px;">📺</span>
+            <span>المجد</span>
+        </button>
+        <button type="button" id="hdr-ch-quran_mp3" onclick="quickHeaderPlay('quran_mp3')" class="header-pop-ch-btn" style="--ch-c: #06b6d4;" title="تشغيل القرآن MP3">
+            <span style="font-size: 14px;">🎧</span>
+            <span>القرآن</span>
+        </button>
+        <button type="button" id="hdr-ch-aljazeera" onclick="quickHeaderPlay('aljazeera')" class="header-pop-ch-btn" style="--ch-c: #ef4444;" title="قناة الجزيرة - البث الصوتي المباشر">
+            <span style="font-size: 14px;">🔴</span>
+            <span>الجزيرة</span>
+        </button>
+        <button type="button" id="hdr-ch-bbc_arabic" onclick="quickHeaderPlay('bbc_arabic')" class="header-pop-ch-btn" style="--ch-c: #f43f5e;" title="قناة وإذاعة بي بي سي عربي - بث مباشر باللغة العربية 24/7">
+            <span style="font-size: 14px;">🌐</span>
+            <span>BBC</span>
+        </button>
+
+        <!-- Row 2: البخاري · مسلم · رياض الصالحين · الشمائل · السيرة · الصحابة -->
+        <button type="button" id="hdr-ch-hadith_bukhari" onclick="quickHeaderPlay('hadith_bukhari')" class="header-pop-ch-btn" style="--ch-c: #a855f7;" title="صحيح البخاري">
+            <span style="font-size: 14px;">📜</span>
+            <span>البخاري</span>
+        </button>
+        <button type="button" id="hdr-ch-hadith_muslim" onclick="quickHeaderPlay('hadith_muslim')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="صحيح مسلم">
+            <span style="font-size: 14px;">📗</span>
+            <span>مسلم</span>
+        </button>
+        <button type="button" id="hdr-ch-hadith_riyad" onclick="quickHeaderPlay('hadith_riyad')" class="header-pop-ch-btn" style="--ch-c: #059669;" title="رياض الصالحين">
+            <span style="font-size: 14px;">🌿</span>
+            <span>الرياض</span>
+        </button>
+        <button type="button" id="hdr-ch-hadith_shmaeel" onclick="quickHeaderPlay('hadith_shmaeel')" class="header-pop-ch-btn" style="--ch-c: #c084fc;" title="الشمائل المحمدية">
+            <span style="font-size: 14px;">✨</span>
+            <span>الشمائل</span>
+        </button>
+        <button type="button" id="hdr-ch-hadith_siyra" onclick="quickHeaderPlay('hadith_siyra')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="في ظلال السيرة النبوية">
+            <span style="font-size: 14px;">🕌</span>
+            <span>السيرة</span>
+        </button>
+        <button type="button" id="hdr-ch-hadith_sahabah" onclick="quickHeaderPlay('hadith_sahabah')" class="header-pop-ch-btn" style="--ch-c: #38bdf8;" title="صور من حياة الصحابة">
+            <span style="font-size: 14px;">👥</span>
+            <span>الصحابة</span>
+        </button>
+    </div>
+
+    <!-- Volume & Stop Controls -->
+    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px;">
+        <div style="display: flex; align-items: center; gap: 7px;">
+            <span style="font-size: 14px; color: #94a3b8;">🔊</span>
+            <input id="header-media-vol" type="range" min="0" max="1" step="0.05" value="1" oninput="setHeaderMediaVolume(this.value)" style="width: 85px; height: 5px; accent-color: #f59e0b; cursor: pointer;">
+        </div>
+        <button type="button" onclick="quickHeaderStop(event)" style="background: rgba(225, 29, 72, 0.35); border: 1.5px solid rgba(244, 63, 94, 0.6); color: #ffffff; padding: 5px 12px; border-radius: 9px; font-size: 12px; font-weight: 900; cursor: pointer; transition: 0.2s;" title="إيقاف البث تماماً">⏹️ إيقاف</button>
+    </div>
+
+    <!-- Companion Window & Full Studio Links -->
+    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 2px;">
+        <button type="button" onclick="openBackgroundPopout()" style="width: 100%; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; border-radius: 9px; padding: 6px 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s;" title="تشغيل في نافذة منفصلة مستقلة تماماً بدون أي انقطاع">
+            <span>🗗</span>
+            <span>تشغيل بنافذة مستقلة (صفر انقطاع نهائياً)</span>
+        </button>
+        <a href="engineering_tools.php?tab=quran_mp3" style="display: block; text-align: center; font-size: 11.5px; font-weight: 900; color: #a78bfa; text-decoration: none; padding-top: 2px;" class="hover:underline">
+            📖 استوديو القرآن الكريم والشاشات الكاملة ↗
+        </a>
+    </div>
+</div>
 <script src="js/auto-charts.js?v=<?php echo time(); ?>"></script>
+<script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : time(); ?>"></script>
+<script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
+<script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script>

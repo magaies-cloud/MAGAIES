@@ -2548,13 +2548,8 @@ function confirmCustomModal({ title, subtitle, confirmText = "استمرار", i
         }
     }, true);
 
-    window.addEventListener('beforeunload', function(e) {
-        if (window.isSettingsDirty) {
-            e.preventDefault();
-            e.returnValue = 'توجد تعديلات غير محفوظة على الإعدادات!';
-            return e.returnValue;
-        }
-    });
+    // Unsaved changes tracking handled via custom in-page navigation checks
+
 
     document.addEventListener('DOMContentLoaded', function() {
         initDirtyTracking();

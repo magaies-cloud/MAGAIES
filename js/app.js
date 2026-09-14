@@ -1,4 +1,84 @@
 // --- CLOUD SYNC ENGINE (Offline-First to SaaS Bridge) ---
+// ============================================================================
+// [الدرع الثاني & الدرع الثالث]: رادار الأخطاء المباشر والبرمجة الدفاعية
+// ============================================================================
+(function() {
+    // 📡 1. رادار الأخطاء المباشر (Global Error Radar): رصد وتتبع أي خطأ مع رقم السطر والمستخدم
+    window.addEventListener('error', function(event) {
+        try {
+            const user = (typeof localGetItem === 'function') ? JSON.parse(localGetItem('user') || '{}') : {};
+            const errorReport = {
+                type: 'JavaScript Error',
+                message: event.message || 'Unknown Error',
+                filename: event.filename || window.location.href,
+                lineno: event.lineno,
+                colno: event.colno,
+                stack: event.error ? event.error.stack : null,
+                user_email: user.email || user.username || 'guest',
+                tenant_id: user.tenant_id || 'default',
+                url: window.location.href,
+                time: new Date().toISOString()
+            };
+            console.warn("🛡️ [رادار الأخطاء]: تم رصد ومعالجة خطأ بنجاح:", errorReport);
+            if (window.Sentry && typeof window.Sentry.captureException === 'function') {
+                window.Sentry.captureException(event.error || new Error(event.message), { extra: errorReport });
+            }
+        } catch(e) {}
+    });
+
+    // 📡 2. رصد وعزل الوعود المرفوضة (Unhandled Promise Rejections) لمنع تجمد الشاشة
+    window.addEventListener('unhandledrejection', function(event) {
+        try {
+            const user = (typeof localGetItem === 'function') ? JSON.parse(localGetItem('user') || '{}') : {};
+            const reason = event.reason || {};
+            const errorReport = {
+                type: 'Unhandled Promise Rejection',
+                message: reason.message || String(reason),
+                stack: reason.stack || null,
+                user_email: user.email || user.username || 'guest',
+                url: window.location.href,
+                time: new Date().toISOString()
+            };
+            console.warn("🛡️ [رادار الأخطاء - Promise]: تم احتواء الخطأ البرمجي ومنع تجمد الشاشة:", errorReport);
+            if (window.Sentry && typeof window.Sentry.captureException === 'function') {
+                window.Sentry.captureException(reason instanceof Error ? reason : new Error(String(reason)), { extra: errorReport });
+            }
+        } catch(e) {}
+    });
+
+    // ⚔️ 3. دالة دفاعية مساعدة لجلب عنصر واحد بأمان تام (Defensive Limit 1)
+    window.defensiveFindSingle = function(array, predicate) {
+        if (!Array.isArray(array)) return null;
+        try {
+            for (let i = 0; i < array.length; i++) {
+                if (predicate(array[i], i, array)) {
+                    return array[i]; // Return first match immediately (Limit 1)
+                }
+            }
+        } catch(err) {
+            console.warn("Defensive search fallback triggered:", err);
+        }
+        return null;
+    };
+})();
+
+// 📡 AUTO-BOOTSTRAP GLOBAL BACKGROUND MEDIA & LIVE TV ACROSS ALL SCREENS
+(function() {
+    if (typeof window.playPersistentMedia !== 'function') {
+        const existing = document.querySelector('script[src*="global_background_media"]');
+        if (!existing) {
+            const ms = document.createElement('script');
+            ms.src = 'js/global_background_media.js?v=2026_seamless_v5';
+            ms.defer = true;
+            if (document.head) {
+                document.head.appendChild(ms);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(ms));
+            }
+        }
+    }
+})();
+
 (function() {
     // Intercept DOMContentLoaded listeners for already-loaded document states (iOS WebKit compatibility)
     const interceptDOMContentLoaded = (target) => {
@@ -24,7 +104,11 @@ const originalJSONParse = JSON.parse;
 JSON.parse = function(val) {
     if (val === null || val === undefined) return null;
     if (typeof val === 'object') return val; // Safe bypass if already parsed
-    return originalJSONParse.apply(JSON, arguments);
+    try {
+        return originalJSONParse.apply(JSON, arguments);
+    } catch(e) {
+        return null; // Defensive JSON Parse fallback
+    }
 };
 (function() {
     const getBaseUrl = () => {
@@ -63,7 +147,7 @@ JSON.parse = function(val) {
     // Convert a base key like "erp_customers_v1" to a tenant-specific key
     window.getTenantKey = function(baseKey) {
         // Keys that are NOT tenant-specific (global settings)
-        const globalKeys = ['authToken', 'companyName', 'user', 'erp_theme', 'currentTenantId', 'session_active', 'deviceUuid'];
+        const globalKeys = ['authToken', 'companyName', 'user', 'erp_theme', 'currentTenantId', 'session_active', 'deviceUuid', 'elsajana_global_media_state'];
         if (globalKeys.includes(baseKey)) return baseKey;
         // If already prefixed, return as-is
         if (baseKey.startsWith('tenant_')) return baseKey;
@@ -5222,7 +5306,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         return Array.from(map.values()).filter(v => v && !v.deleted);
     }
 
-    // 1. Single Receipts
+    // 1. Single Receipts (erp_single_receipts_v1)
     const receipts = loadSourceTable('erp_single_receipts_v1');
     receipts.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
@@ -5239,20 +5323,20 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const valFc = isBaseSDG ? (amountLocal / effRate) : amount;
         const toAcct = resolveAccount(v.toAccount || 'safe-001');
         const fromAcct = resolveAccount(v.fromAccount);
+        const refNo = v.voucherNo || v.id;
 
-        let remainingLocal = valLoc;
-        let remainingFc = valFc;
+        const hasTransfers = v.bankTransfers && v.bankTransfers.length > 0;
+        const hasCheques = v.cheques && v.cheques.length > 0;
 
-        // Process Bank Transfers
-        if (v.bankTransfers && v.bankTransfers.length > 0) {
+        if (hasTransfers && v.paymentMethod !== 'cash') {
             v.bankTransfers.forEach(bt => {
                 const amt = parseNum(bt.amount);
-                const amtLoc = isBaseSDG ? amt : amt * effRate;
-                const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                const stmt = bt.statement || v.statement || v.fromStatement || ('تحويل بنكي - سند قبض #' + (v.voucherNo || v.id || 'بدون_رقم'));
+                const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
+                const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
+                const stmt = bt.statement || v.statement || v.fromStatement || ('تحويل بنكي - سند قبض #' + refNo);
 
                 txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
+                    date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
                     account: toAcct, counterAccount: fromAcct,
                     statement: stmt, additionalNote: stmt,
                     transferNo: bt.transferNo, bankName: bt.note,
@@ -5260,28 +5344,26 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
                 txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
+                    date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند صرف',
                     account: fromAcct, counterAccount: toAcct,
                     statement: stmt, additionalNote: stmt,
                     transferNo: bt.transferNo, bankName: bt.note,
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
-                remainingLocal -= amtLoc;
-                remainingFc -= amtFc;
             });
         }
-
-        // Process Cheques
-        if (v.cheques && v.cheques.length > 0) {
+        
+        if (hasCheques && v.paymentMethod !== 'cash') {
             v.cheques.forEach(ch => {
                 const amt = parseNum(ch.amount);
-                const amtLoc = isBaseSDG ? amt : amt * effRate;
-                const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                const stmt = ch.statement || ('شيك / ' + (ch.checkNo || '') + ' / قبض نقدية');
+                const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
+                const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
+                const chkLabel = ch.checkNo ? ('الشيك ' + ch.checkNo) : 'الشيك';
+                const stmt = ch.statement || (chkLabel + ' / قبض نقدية');
 
                 txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
+                    date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
                     account: toAcct, counterAccount: fromAcct,
                     statement: stmt, additionalNote: stmt,
                     checkNo: ch.checkNo, bankName: ch.checkBranch,
@@ -5289,49 +5371,50 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
                 txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
+                    date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند صرف',
                     account: fromAcct, counterAccount: toAcct,
                     statement: stmt, additionalNote: stmt,
                     checkNo: ch.checkNo, bankName: ch.checkBranch,
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
-                remainingLocal -= amtLoc;
-                remainingFc -= amtFc;
             });
         }
-
-        // Process Remaining as Cash
-        if (remainingLocal > 0.01 || remainingFc > 0.01) {
+        
+        if (!hasTransfers && !hasCheques) {
+            // Pure Cash Single Receipt
+            const singleTr = v.transferNo || v.mobileTransferNo || "";
+            const singleBank = v.bankName || v.mobileNote || "";
+            const singleChk = v.checkNo || v.chequeNo || "";
             txns.push({
-                date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
+                date: v.date, time: time, ref: refNo, type: "receipt", typeLabel: "سند قبض",
                 account: toAcct, counterAccount: fromAcct,
-                statement: 'سند قبض #' + (v.voucherNo || v.id || 'بدون_رقم'),
-                additionalNote: v.fromStatement || 'سند قبض نقدي',
-                debit: remainingLocal > 0.01 ? remainingLocal : 0, credit: 0, 
-                debitForeign: remainingFc > 0.01 ? remainingFc : 0, creditForeign: 0,
+                statement: v.statement || "سند قبض #" + refNo,
+                additionalNote: v.fromStatement || "سند قبض نقدي",
+                transferNo: singleTr, bankName: singleBank, checkNo: singleChk,
+                debit: valLoc, credit: 0, debitForeign: valFc, creditForeign: 0,
                 costCenter, currency, exchangeRate: effRate, isPosted
             });
             txns.push({
-                date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
+                date: v.date, time: time, ref: refNo, type: "receipt", typeLabel: "سند صرف",
                 account: fromAcct, counterAccount: toAcct,
-                statement: 'سند قبض #' + (v.voucherNo || v.id || 'بدون_رقم'),
-                additionalNote: v.fromStatement || 'سند صرف نقدي',
-                debit: 0, credit: remainingLocal > 0.01 ? remainingLocal : 0, 
-                debitForeign: 0, creditForeign: remainingFc > 0.01 ? remainingFc : 0,
+                statement: v.statement || "سند قبض #" + refNo,
+                additionalNote: v.fromStatement || "سند قبض نقدي",
+                transferNo: singleTr, bankName: singleBank, checkNo: singleChk,
+                debit: 0, credit: valLoc, debitForeign: 0, creditForeign: valFc,
                 costCenter, currency, exchangeRate: effRate, isPosted
             });
         }
     });
 
-    // 2. Single Payments
+    // 2. Single Payments (erp_single_payments_v1)
     const payments = loadSourceTable('erp_single_payments_v1');
     payments.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
         const isPosted = v.isPosted !== false;
-
+        
         const rate = parseNum(v.rate || 1);
         const effRate = getEffectiveRate(v, rate);
         const isBaseSDG = (currency === 'SDG');
@@ -5341,90 +5424,85 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const valFc = isBaseSDG ? (amountLocal / effRate) : amount;
         const fromAcct = resolveAccount(v.fromAccount || 'safe-001');
         const toAcct = resolveAccount(v.toAccount);
+        const refNo = v.voucherNo || v.id;
 
-        let remainingLocal = valLoc;
-        let remainingFc = valFc;
+        const hasTransfers = v.bankTransfers && v.bankTransfers.length > 0;
+        const hasCheques = v.cheques && v.cheques.length > 0;
 
-        // Process Bank Transfers
-        if (v.bankTransfers && v.bankTransfers.length > 0) {
+        if (hasTransfers && v.paymentMethod !== 'cash') {
             v.bankTransfers.forEach(bt => {
                 const amt = parseNum(bt.amount);
-                const amtLoc = isBaseSDG ? amt : amt * effRate;
-                const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'));
+                const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
+                const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
+                const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + refNo);
 
-                // Disbursing side (Safe/Bank)
                 txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
-                    account: fromAcct, counterAccount: toAcct,
-                    statement: stmt, additionalNote: stmt,
-                    transferNo: bt.transferNo, bankName: bt.note,
-                    debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-                // Receiving side (Supplier/Customer receives from us)
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
+                    date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
                     account: toAcct, counterAccount: fromAcct,
                     statement: stmt, additionalNote: stmt,
                     transferNo: bt.transferNo, bankName: bt.note,
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
-                remainingLocal -= amtLoc;
-                remainingFc -= amtFc;
+                txns.push({
+                    date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
+                    account: fromAcct, counterAccount: toAcct,
+                    statement: stmt, additionalNote: stmt,
+                    transferNo: bt.transferNo, bankName: bt.note,
+                    debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
+                    costCenter, currency, exchangeRate: effRate, isPosted
+                });
             });
         }
-
-        // Process Cheques
-        if (v.cheques && v.cheques.length > 0) {
+        
+        if (hasCheques && v.paymentMethod !== 'cash') {
             v.cheques.forEach(ch => {
                 const amt = parseNum(ch.amount);
-                const amtLoc = isBaseSDG ? amt : amt * effRate;
-                const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                const stmt = ch.statement || ('شيك / ' + (ch.checkNo || '') + ' / صرف نقدية');
+                const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
+                const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
+                const chkLabel = ch.checkNo ? ('الشيك ' + ch.checkNo) : 'الشيك';
+                const stmt = ch.statement || (chkLabel + ' / صرف نقدية');
 
-                // Disbursing side (Safe/Bank)
                 txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
-                    account: fromAcct, counterAccount: toAcct,
-                    statement: stmt, additionalNote: stmt,
-                    checkNo: ch.checkNo, bankName: ch.checkBranch,
-                    debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-                // Receiving side (Supplier/Customer receives from us)
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
+                    date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
                     account: toAcct, counterAccount: fromAcct,
                     statement: stmt, additionalNote: stmt,
                     checkNo: ch.checkNo, bankName: ch.checkBranch,
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
-                remainingLocal -= amtLoc;
-                remainingFc -= amtFc;
+                txns.push({
+                    date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
+                    account: fromAcct, counterAccount: toAcct,
+                    statement: stmt, additionalNote: stmt,
+                    checkNo: ch.checkNo, bankName: ch.checkBranch,
+                    debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
+                    costCenter, currency, exchangeRate: effRate, isPosted
+                });
             });
         }
-
-        // Process Remaining as Cash
-        if (remainingLocal > 0.01 || remainingFc > 0.01) {
+        
+        if (!hasTransfers && !hasCheques) {
+            // Pure Cash Single Payment
+            const singleTr = v.transferNo || v.mobileTransferNo || "";
+            const singleBank = v.bankName || v.mobileNote || "";
+            const singleChk = v.checkNo || v.chequeNo || "";
             txns.push({
-                date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
-                account: fromAcct, counterAccount: toAcct,
-                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'),
-                additionalNote: v.toStatement || 'سند صرف نقدي',
-                debit: 0, credit: remainingLocal > 0.01 ? remainingLocal : 0, 
-                debitForeign: 0, creditForeign: remainingFc > 0.01 ? remainingFc : 0,
+                date: v.date, time: time, ref: refNo, type: "payment", typeLabel: "سند صرف",
+                account: toAcct, counterAccount: fromAcct,
+                statement: v.statement || "سند صرف #" + refNo,
+                additionalNote: v.toStatement || "سند صرف نقدي",
+                transferNo: singleTr, bankName: singleBank, checkNo: singleChk,
+                debit: valLoc, credit: 0, debitForeign: valFc, creditForeign: 0,
                 costCenter, currency, exchangeRate: effRate, isPosted
             });
             txns.push({
-                date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
-                account: toAcct, counterAccount: fromAcct,
-                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'),
-                additionalNote: v.toStatement || 'سند استلام نقدي',
-                debit: remainingLocal > 0.01 ? remainingLocal : 0, credit: 0, 
-                debitForeign: remainingFc > 0.01 ? remainingFc : 0, creditForeign: 0,
+                date: v.date, time: time, ref: refNo, type: "payment", typeLabel: "سند صرف",
+                account: fromAcct, counterAccount: toAcct,
+                statement: v.statement || "سند صرف #" + refNo,
+                additionalNote: v.toStatement || "سند صرف نقدي",
+                transferNo: singleTr, bankName: singleBank, checkNo: singleChk,
+                debit: 0, credit: valLoc, debitForeign: 0, creditForeign: valFc,
                 costCenter, currency, exchangeRate: effRate, isPosted
             });
         }
@@ -6119,6 +6197,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             account: bankAcct, counterAccount: customerAcct,
                             statement: `تحويل بنكي مرجع #${bt.reference || ''}`,
                             additionalNote: isReturn ? 'إرجاع تحويل بنكي' : 'سداد تحويل بنكي مع الفاتورة',
+                            transferNo: bt.reference || bt.transferNo || '', bankName: bt.bankName || 'البنك',
                             debit: debBt, credit: credBt, 
                             debitForeign: debBtFc, creditForeign: credBtFc,
                             costCenter, currency,
@@ -6130,6 +6209,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             account: customerAcct, counterAccount: bankAcct,
                             statement: `تحويل بنكي مرجع #${bt.reference || ''}`,
                             additionalNote: isReturn ? 'إرجاع تحويل بنكي' : 'سداد تحويل بنكي مع الفاتورة',
+                            transferNo: bt.reference || bt.transferNo || '', bankName: bt.bankName || 'البنك',
                             debit: credBt, credit: debBt, 
                             debitForeign: credBtFc, creditForeign: debBtFc,
                             costCenter, currency,
@@ -6335,7 +6415,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const currency = inv.currency || 'SDG';
         const time = inv.time || timeNow;
         const refNo = inv.invoiceNo || inv.id;
-        const supplierAcct = inv.supplierId || inv.supplier || inv.customer;
+        const supplierAcct = resolveAccount(inv.supplierId || inv.supplier || inv.customer || 'supp-001');
         const isPosted = inv.isPosted !== false;
 
         const rate = parseNum(inv.exchangeRate || 1);

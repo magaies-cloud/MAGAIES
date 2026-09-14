@@ -1625,6 +1625,15 @@ try {
                     <div class="subtitle">عرض سعر / طلب شراء (لا تؤثر محاسبياً ولا مخزنياً).</div>
                 </div>
             </button>
+
+            <!-- OCR Scanner Card -->
+            <button onclick="triggerInvoiceOCR()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.35)); border: 1px solid rgba(52, 211, 153, 0.5); cursor: pointer;">
+                <div class="icon" style="filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.6));">📷</div>
+                <div class="text-content">
+                    <div class="title" style="color: #34d399; font-weight: 800;">مسح فاتورة ورقية (AI OCR)</div>
+                    <div class="subtitle">تصوير الفاتورة بالكاميرا وقراءتها وتفريغ الأصناف آلياً.</div>
+                </div>
+            </button>
         </div>
 
         <!-- Smart Filter Bar (شريط الفلترة الذكي) -->
@@ -1829,7 +1838,7 @@ try {
                                 <option value="AED">🇦🇪 درهم</option>
                                 <option value="EGP">🇪🇬 مصري</option>
                             </select>
-                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="3000" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                         </div>
                     </div>
 
@@ -2252,11 +2261,13 @@ try {
                         <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap;">⏳ آجلة بالكامل</span>
                     </div>
 
-                    <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
+                    <div class="payment-toggles" style="display: flex; gap: 8px; flex: none; flex-wrap: wrap;">
                         <button type="button" class="pay-toggle-btn" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(180, 83, 9, 0.1); border: 1px solid rgba(180, 83, 9, 0.35); color: #fcd34d; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">💳 آجل</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); color: #6ee7b7; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">💵 نقدي</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.35); color: #67e8f9; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">🏦 تحويل بنكي</button>
                         <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.35); color: #d8b4fe; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">✍️ شيك</button>
+                        <button type="button" class="pay-toggle-btn" id="btn-purchase-financial-ocr" onclick="FinancialOCR.openScanner({ target: 'purchase' })" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(16, 185, 129, 0.2)); border: 1.5px solid #06b6d4; color: #67e8f9; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);" title="مسح إشعار تحويل بنكك أو شيك لسداد الفاتورة"><span style="font-size: 1.1rem;">📷</span> مسح إشعار/شيك (AI OCR)</button>
+                        <button type="button" class="pay-toggle-btn" onclick="FinancialOCR.openTrainer()" style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.35); color: #d8b4fe; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 4px;" title="شرح وتدريب النماذج للذكاء الاصطناعي"><span>🧠</span> تدريب</button>
                     </div>
                 </div>
                 
@@ -2356,6 +2367,11 @@ try {
                 
                 <!-- New Button: Solid Green Gradient -->
                 <button type="button" class="btn-action btn-new" style="flex: 1; height: 45px; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.4)';" onclick="onSuccessNewInvoice(false);">✨ جديد</button>
+
+                <!-- OCR Scanner Button: Emerald Gradient -->
+                <button type="button" class="btn-action btn-ocr" style="flex: 1.2; height: 45px; box-shadow: 0 2px 10px rgba(5, 150, 105, 0.4); background: linear-gradient(135deg, #059669, #047857); color: #fff; border: 1px solid rgba(52, 211, 153, 0.4); font-size: 1.05rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.7)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(5, 150, 105, 0.4)';" onclick="triggerInvoiceOCR()">
+                    <span style="font-size: 1.25rem;">📷</span> مسح فاتورة (OCR)
+                </button>
 
                 <!-- Submit Button: Solid Blue Gradient -->
                 <span style="display:none;" id="footer-grand"></span>
@@ -2473,23 +2489,40 @@ try {
 
         function handleCurrencyChange(val) {
             const rateInput = document.getElementById('hdr-exchange-rate');
+            const curSelect = document.getElementById('hdr-currency');
+            const prevCurrency = curSelect ? (curSelect.dataset.prevVal || 'SDG') : 'SDG';
+            if (curSelect) curSelect.dataset.prevVal = val;
+            
             if (!rateInput) return;
             
-            if (val === 'SDG') {
-                rateInput.value = '1';
-                rateInput.disabled = true;
+            // Always enable editing for all currencies (including SDG)
+            rateInput.disabled = false;
+
+            // When switching to USD, delete / clear previous SDG prices from existing rows
+            if (val === 'USD' && prevCurrency !== 'USD') {
+                if (typeof rows !== 'undefined' && Array.isArray(rows)) {
+                    rows.forEach(r => {
+                        r.price = '';
+                        r.fcPrice = '';
+                    });
+                }
+            }
+            
+            // If current rate is already valid and > 1, and we are switching between SDG and USD, keep it!
+            const currentVal = parseFloat(rateInput.value) || 0;
+            if (currentVal > 1 && (val === 'SDG' || val === 'USD') && (prevCurrency === 'SDG' || prevCurrency === 'USD')) {
                 if (typeof renderGrid === 'function') renderGrid();
                 if (typeof recalcAll === 'function') recalcAll();
                 return;
             }
-            
-            // Always enable editing for foreign currencies
-            rateInput.disabled = false;
+
+            // For SDG, show USD exchange rate (e.g. 3000)
+            const targetCurr = (val === 'SDG' ? 'USD' : val);
             
             // Step 1: Try to get rate from local settings function
             let rate = 0;
             if (window.getExchangeRateForCurrency) {
-                rate = window.getExchangeRateForCurrency(val);
+                rate = window.getExchangeRateForCurrency(targetCurr);
             }
             
             if (rate > 0) {
@@ -2502,13 +2535,14 @@ try {
             // Step 2: Try to read directly from localStorage settings (any mode)
             try {
                 const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
-                if (val === 'USD' && cfg.rateUSD) { rateInput.value = cfg.rateUSD; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
-                if (val === 'SAR' && cfg.rateSAR) { rateInput.value = cfg.rateSAR; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
-                if (val === 'AED' && cfg.rateAED) { rateInput.value = cfg.rateAED; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (targetCurr === 'USD' && cfg.rateUSD) { rateInput.value = cfg.rateUSD; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (targetCurr === 'SAR' && cfg.rateSAR) { rateInput.value = cfg.rateSAR; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (targetCurr === 'AED' && cfg.rateAED) { rateInput.value = cfg.rateAED; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
+                const dedicatedUsd = parseFloat(localStorage.getItem('erp_rate_usd'));
+                if (targetCurr === 'USD' && dedicatedUsd > 0) { rateInput.value = dedicatedUsd; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
             } catch(e) {}
             
             // Step 3: Try to fetch from API directly (central rate)
-            rateInput.value = '';
             rateInput.placeholder = '⏳ جاري التحميل...';
             
             fetch('api_index.php/exchange-rate')
@@ -2519,9 +2553,9 @@ try {
                         if (usdRate > 0) {
                             window._cachedGlobalRate = usdRate;
                             let finalRate = usdRate;
-                            if (val === 'SAR') finalRate = parseFloat((usdRate / 3.75).toFixed(4));
-                            if (val === 'AED') finalRate = parseFloat((usdRate / 3.67).toFixed(4));
-                            if (val === 'EGP') finalRate = parseFloat((usdRate / 50.0).toFixed(4));
+                            if (targetCurr === 'SAR') finalRate = parseFloat((usdRate / 3.75).toFixed(4));
+                            if (targetCurr === 'AED') finalRate = parseFloat((usdRate / 3.67).toFixed(4));
+                            if (targetCurr === 'EGP') finalRate = parseFloat((usdRate / 50.0).toFixed(4));
                             
                             rateInput.value = finalRate;
                             if (typeof renderGrid === 'function') renderGrid();
@@ -2529,18 +2563,27 @@ try {
                             return;
                         }
                     }
-                    // No rate found from API either
-                    rateInput.value = '';
-                    rateInput.placeholder = 'أدخل سعر الصرف';
+                    if (!rateInput.value || parseFloat(rateInput.value) <= 0) {
+                        rateInput.value = 3000;
+                    }
+                    if (typeof renderGrid === 'function') renderGrid();
+                    if (typeof recalcAll === 'function') recalcAll();
                 })
                 .catch(() => {
-                    rateInput.value = '';
-                    rateInput.placeholder = 'أدخل سعر الصرف';
+                    if (!rateInput.value || parseFloat(rateInput.value) <= 0) {
+                        rateInput.value = 3000;
+                    }
+                    if (typeof renderGrid === 'function') renderGrid();
+                    if (typeof recalcAll === 'function') recalcAll();
                 });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             loadHubTransactions();
+            const curEl = document.getElementById('hdr-currency');
+            if (curEl && typeof handleCurrencyChange === 'function') {
+                handleCurrencyChange(curEl.value || 'SDG');
+            }
         });
 
         if (window.APP_READY) {
@@ -4118,130 +4161,110 @@ document.addEventListener('DOMContentLoaded', () => {
     const GRID_ID = 'purchase_grid';
 
     const DEFAULT_GRID_CONFIG = {
-    "grid_id": "purchase_grid",
-    "fontSize": 16,
-    "fontWeight": "normal",
-    "fontFamily": "'Cairo', sans-serif",
-    "fontColor": "#ffffff",
-    "align": "center",
-    "decimalPlaces": 2,
-    "thousandSep": ",",
-    "columns": [
-        {
-            "id": "col_index",
-            "name": "#",
-            "visible": true,
-            "width": "45px",
-            "align": "center",
-            "color": "#94a3b8",
-            "fontSize": 15
-        },
-        {
-            "id": "available",
-            "name": "المتاح",
-            "visible": true,
-            "width": "128px",
-            "align": "center",
-            "color": "#38bdf8",
-            "fontSize": 16,
-            "decimals": 2
-        },
-        {
-            "id": "item",
-            "name": "الصنف",
-            "visible": true,
-            "width": "324px",
-            "align": "right",
-            "color": "#ffffff",
-            "fontSize": 17,
-            "fontWeight": "bold"
-        },
-        {
-            "id": "unit",
-            "name": "الوحدة",
-            "visible": true,
-            "width": "175px",
-            "align": "center",
-            "color": "#ffffff",
-            "fontSize": 16
-        },
-        {
-            "id": "quantity",
-            "name": "الكمية",
-            "visible": true,
-            "width": "196px",
-            "align": "center",
-            "color": "#facc15",
-            "fontSize": 16,
-            "fontWeight": "bold",
-            "decimals": 2
-        },
-        {
-            "id": "price",
-            "name": "السعر",
-            "visible": true,
-            "width": "168px",
-            "align": "center",
-            "color": "#ffffff",
-            "fontSize": 17,
-            "fontWeight": "bold",
-            "decimals": 2,
-            "thousandSep": ","
-        },
-        {
-            "id": "fcprice",
-            "name": "سعر (جنيه)",
-            "visible": true,
-            "width": "120px",
-            "align": "center",
-            "color": "#ffffff",
-            "fontSize": 15,
-            "decimals": 2,
-            "thousandSep": ","
-        },
-        {
-            "id": "warehouse",
-            "name": "المخزن",
-            "visible": true,
-            "width": "130px",
-            "align": "center",
-            "color": "#ffffff",
-            "fontSize": 15
-        },
-        {
-            "id": "total",
-            "name": "الجملة",
-            "visible": true,
-            "width": "240px",
-            "align": "center",
-            "color": "#ffa3a8",
-            "fontSize": 18,
-            "fontWeight": "900",
-            "decimals": 2,
-            "thousandSep": ","
-        },
-        {
-            "id": "fctotal",
-            "name": "جملة (جنيه)",
-            "visible": true,
-            "width": "120px",
-            "align": "center",
-            "color": "#fafffd",
-            "fontSize": 15,
-            "decimals": 2,
-            "thousandSep": ","
-        },
-        {
-            "id": "action",
-            "name": "إجراء",
-            "visible": true,
-            "width": "90px",
-            "align": "center",
-            "color": "#ffffff",
-            "fontSize": 14
-        }
-    ]
-};
+        "grid_id": "purchase_grid",
+        "fontSize": 16,
+        "fontWeight": "normal",
+        "fontFamily": "'Cairo', sans-serif",
+        "fontColor": "#ffffff",
+        "align": "center",
+        "decimalPlaces": 2,
+        "thousandSep": ",",
+        "columns": [
+            {
+                "id": "col_index",
+                "name": "#",
+                "visible": true,
+                "width": "45px",
+                "align": "center",
+                "color": "#94a3b8",
+                "fontSize": 15
+            },
+            {
+                "id": "available",
+                "name": "المتاح",
+                "visible": true,
+                "width": "90px",
+                "align": "center",
+                "color": "#38bdf8",
+                "fontSize": 20,
+                "decimals": 2
+            },
+            {
+                "id": "warehouse",
+                "name": "المخزن",
+                "visible": true,
+                "width": "130px",
+                "align": "center",
+                "color": "#ffffff",
+                "fontSize": 22,
+                "fontWeight": "800"
+            },
+            {
+                "id": "item",
+                "name": "الصنف",
+                "visible": true,
+                "width": "324px",
+                "align": "right",
+                "color": "#ffdc7a",
+                "fontSize": 26,
+                "fontWeight": "800"
+            },
+            {
+                "id": "unit",
+                "name": "الوحدة",
+                "visible": true,
+                "width": "107px",
+                "align": "center",
+                "color": "#ffffff",
+                "fontSize": 20,
+                "fontWeight": "bold"
+            },
+            {
+                "id": "quantity",
+                "name": "الكمية",
+                "visible": true,
+                "width": "121px",
+                "align": "center",
+                "color": "#facc15",
+                "fontSize": 36,
+                "fontWeight": "800",
+                "decimals": 2
+            },
+            {
+                "id": "price",
+                "name": "السعر",
+                "visible": true,
+                "width": "206px",
+                "align": "center",
+                "color": "#ffffff",
+                "fontSize": 36,
+                "fontWeight": "800",
+                "decimals": 0,
+                "thousandSep": "default"
+            },
+            {
+                "id": "total",
+                "name": "الجملة",
+                "visible": true,
+                "width": "240px",
+                "align": "center",
+                "color": "#fe9095",
+                "fontSize": 36,
+                "fontWeight": "800",
+                "decimals": 0,
+                "thousandSep": ","
+            },
+            {
+                "id": "action",
+                "name": "إجراء",
+                "visible": true,
+                "width": "90px",
+                "align": "center",
+                "color": "#ffffff",
+                "fontSize": 14
+            }
+        ]
+    };
 
     let tempGridConfig = null;
     let selectedColIndex = 0;
@@ -4413,16 +4436,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.loadGridConfigFromDB = async function() {
         try {
-            const res = await fetch('api/get_grid_config.php?grid_id=' + window.CurrentGridConfig.grid_id + '&_t=' + Date.now());
+            const res = await fetch('api/get_grid_config.php?grid_id=purchase_grid&_t=' + Date.now());
             const data = await res.json();
             if (data && data.config) {
                 window.CurrentGridConfig = data.config;
-                if (typeof applyGridSettings === 'function') applyGridSettings();
-                if (typeof renderGrid === 'function') renderGrid();
-                if (typeof recalcAll === 'function') recalcAll();
+            } else {
+                window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
             }
+            if (typeof applyGridSettings === 'function') applyGridSettings();
+            if (typeof renderGrid === 'function') renderGrid();
+            if (typeof recalcAll === 'function') recalcAll();
         } catch (e) {
             console.error("Failed to load grid config", e);
+            if (!window.CurrentGridConfig) {
+                window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+                if (typeof applyGridSettings === 'function') applyGridSettings();
+            }
         }
     };
     window.applyGridSettings = function() {
@@ -4584,17 +4613,33 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(`تم ضبط المحاذاة إلى ${alignMode === 'right' ? 'اليمين' : alignMode === 'center' ? 'الوسط' : 'اليسار'}`, "success");
     };
 
-    window.quickResetGrid = function() {
+    window.quickResetGrid = async function() {
         const menu = document.getElementById('col-context-menu');
         if (menu) menu.style.display = 'none';
-        if (confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول جدول المشتريات وحفظه في قاعدة البيانات؟")) {
-            window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+        if (confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول المشتريات وحفظه في قاعدة البيانات؟")) {
+            try {
+                // Try to fetch factory default from DB
+                const res = await fetch('api/get_grid_config.php?grid_id=purchase_grid_default&_t=' + Date.now());
+                const data = await res.json();
+                if (data && data.config) {
+                    window.CurrentGridConfig = data.config;
+                    window.CurrentGridConfig.grid_id = 'purchase_grid'; // Ensure correct grid_id for saving
+                } else {
+                    window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+                }
+            } catch(e) {
+                window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+            }
             applyGridSettings();
             if (typeof renderGrid === 'function') renderGrid();
             if (typeof recalcAll === 'function') recalcAll();
             saveGridConfigToDB(window.CurrentGridConfig);
-            if (tempGridConfig) openGridSettingsModal();
-            showToast("تم استعادة الضبط الافتراضي وحفظه في قاعدة البيانات بنجاح", "success");
+            if (tempGridConfig) {
+                tempGridConfig = JSON.parse(JSON.stringify(window.CurrentGridConfig));
+                if (typeof renderModalColumnsList === 'function') renderModalColumnsList();
+                if (typeof populateSelectedColPanel === 'function') populateSelectedColPanel();
+            }
+            showToast("تم استعادة الضبط الافتراضي وحفظه في قاعدة البيانات بنجاح ✅", "success");
         }
     };
 
@@ -4691,6 +4736,51 @@ document.addEventListener('DOMContentLoaded', () => {
         loadGridConfigFromDB();
     });
     </script>
+
+    <!-- Hidden OCR File/Camera Input -->
+    <input type="file" id="ocr-camera-input" accept="image/*" capture="environment" style="display:none;" onchange="handleOCRFileSelect(event)">
+
+    <!-- OCR Scanning Loading Overlay -->
+    <div id="ocr-loading-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.88); backdrop-filter:blur(10px); z-index:999999; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-family:'Tajawal',sans-serif; direction:rtl;">
+        <div style="width:70px; height:70px; border:4px solid rgba(56,189,248,0.2); border-top-color:#38bdf8; border-radius:50%; animation:ocrSpin 1s linear infinite; margin-bottom:20px;"></div>
+        <h2 style="margin:0 0 8px 0; font-size:1.4rem; color:#38bdf8; font-weight:800;">جاري فحص وقراءة الفاتورة بالرؤية الحاسوبية... 🔍</h2>
+        <p style="margin:0; color:#94a3b8; font-size:0.95rem;">يتم الآن استخراج المورد، الأصناف، الكميات، والأسعار عبر محرك الذكاء الاصطناعي</p>
+    </div>
+
+    <!-- OCR Review & Mapping Modal -->
+    <div id="ocr-review-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:999998; align-items:center; justify-content:center; padding:15px; font-family:'Tajawal',sans-serif; direction:rtl;">
+        <div style="background:#1e293b; border:1px solid rgba(56,189,248,0.4); border-radius:16px; width:100%; max-width:880px; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,0.7); overflow:hidden;">
+            <!-- Header -->
+            <div style="padding:16px 20px; background:linear-gradient(135deg, rgba(14,165,233,0.2), rgba(15,23,42,0.6)); border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.6rem;">📄</span>
+                    <div>
+                        <h3 style="margin:0; color:#fff; font-size:1.2rem; font-weight:800;">مراجعة بيانات الفاتورة الممسوحة (AI OCR)</h3>
+                        <p style="margin:0; color:#94a3b8; font-size:0.8rem;">تأكد من مطابقة الأصناف والأسعار قبل تفريغها في جدول المشتريات</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeOCRModal()" style="background:transparent; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer; padding:5px 10px;">✕</button>
+            </div>
+            <!-- Body -->
+            <div id="ocr-modal-body" style="padding:20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:16px;">
+                <!-- Dynamically generated via JS -->
+            </div>
+            <!-- Footer -->
+            <div style="padding:14px 20px; background:rgba(15,23,42,0.8); border-top:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <button type="button" onclick="closeOCRModal()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; padding:8px 18px; border-radius:8px; font-weight:bold; cursor:pointer;">إلغاء</button>
+                <button type="button" id="btn-apply-ocr" onclick="applyScannedInvoiceToGrid()" style="background:linear-gradient(135deg, #10b981, #059669); border:none; color:#fff; padding:10px 24px; border-radius:8px; font-size:1.05rem; font-weight:bold; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
+                    <span>✓ اعتماد وتفريغ في جدول المشتريات</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes ocrSpin { to { transform: rotate(360deg); } }
+    </style>
     
+    <!-- Financial OCR Modal & Script -->
+    <?php include 'includes/financial-ocr-modal.php'; ?>
+    <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
 </body>
 </html>

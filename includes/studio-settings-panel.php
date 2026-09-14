@@ -1,28 +1,27 @@
-<link rel="stylesheet" href="css/studio-ribbon-v4.css?v=<?php echo filemtime('css/studio-ribbon-v4.css'); ?>">
+﻿<link rel="stylesheet" href="css/studio-ribbon-v4.css?v=<?php echo filemtime('css/studio-ribbon-v4.css'); ?>">
 
 <div class="settings-panel no-print" id="settings-panel">
 
 <!-- ════════════════ TAB STRIP ════════════════ -->
-<div class="sr-tab-strip" dir="rtl">
+<div class="sr-tab-strip" dir="rtl" style="display:flex; align-items:center; justify-content:space-between; padding:4px 12px; gap:8px;">
     <div class="sr-tabs">
-        <button type="button" class="sr-tab" id="sr-tab-presets" onclick="switchStudioTab('presets')">💎 التخصيصات والقوالب</button>
+        <button type="button" class="sr-tab" id="sr-tab-presets" onclick="switchStudioTab('presets')">🎨 القوالب والتخصيصات</button>
         <button type="button" class="sr-tab" id="sr-tab-paper"   onclick="switchStudioTab('paper')">📄 إعدادات الورقة والطباعة</button>
-        <button type="button" class="sr-tab active" id="sr-tab-cols" onclick="switchStudioTab('cols')">📊 إعدادات الأعمدة والتنسيق</button>
+        <button type="button" class="sr-tab active" id="sr-tab-cols" onclick="switchStudioTab('cols')">📊 إعدادات وتنسيق الأعمدة</button>
     </div>
-    <div class="sr-qat" style="direction:ltr;">
-        <button type="button" class="sr-qat-btn" onclick="saveCurrentPreset()" title="حفظ الإعدادات الحالية">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+    <div class="sr-qat" style="display:flex; align-items:center; gap:8px;">
+        <button type="button" class="sr-save-panel-btn" onclick="if(typeof saveCurrentPresetAndLock==='function'){saveCurrentPresetAndLock();}else{saveCurrentPreset();}" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: 1px solid rgba(255,255,255,0.25); padding: 5px 16px; border-radius: 8px; font-weight: 900; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(16,185,129,0.4); font-family: 'Tajawal', sans-serif;">
+            <span>💾</span> حفظ التصميم وقفل القالب 🔒
         </button>
-        <button type="button" class="sr-qat-btn" onclick="if(typeof resetDefaultColumnOrder==='function')resetDefaultColumnOrder();" title="إعادة الإعدادات الافتراضية">
+        <button type="button" class="sr-qat-btn" onclick="if(typeof resetDefaultColumnOrder==='function')resetDefaultColumnOrder();" title="استعادة الترتيب الافتراضي">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
         </button>
-        <button type="button" class="sr-qat-btn" onclick="toggleSettingsPanel()" title="إغلاق الشريط">
+        <button type="button" class="sr-qat-btn" onclick="toggleSettingsPanel()" title="إغلاق اللوحة">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
         </button>
     </div>
 </div>
 
-<!-- ════════════════ TAB 1 – COLUMNS ════════════════ -->
 <div id="studio-tab-cols">
 <div class="sr-body" style="padding: 8px 14px; gap: 8px; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; justify-content: space-between; align-items: stretch;">
 

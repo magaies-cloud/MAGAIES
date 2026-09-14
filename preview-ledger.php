@@ -64,28 +64,43 @@
         table.excel-table.theme-luxury-black tbody tr:nth-child(odd) { background: #ffffff !important; }
         table.excel-table.theme-luxury-black tfoot td { background: #171717 !important; color: #f5f5f5 !important; font-weight: 900 !important; border-color: #000000 !important; }
         
-        /* ── Magnified Number Audit Effect ── */
-        .excel-table td.num-magnified {
-            font-size: 1.85rem !important;
+        /* ── Magnified Number Audit Effect (+100% / 2x Size, Elegant Modern Box) ── */
+        .excel-table tbody td.num-magnified,
+        .excel-table td.num-magnified,
+        td.num-magnified {
+            font-size: 1.8rem !important;
             font-weight: 900 !important;
-            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            color: #ffffff !important;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6) !important;
-            border: 2px solid #3b82f6 !important;
-            box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.4), 0 0 20px rgba(0,0,0,0.5) !important;
-            z-index: 100;
-            position: relative;
-            transform: scale(1.05);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border-radius: 8px;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace !important;
+            font-variant-numeric: tabular-nums !important;
+            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+            background-color: #ffffff !important;
+            color: #1d4ed8 !important;
+            border: 2.5px solid #2563eb !important;
+            border-radius: 12px !important;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3), 0 4px 14px rgba(0, 0, 0, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+            z-index: 99999 !important;
+            position: relative !important;
+            text-shadow: none !important;
+            padding: 10px 22px !important;
+            white-space: nowrap !important;
+            min-width: max-content !important;
+            width: auto !important;
+            overflow: visible !important;
             display: table-cell !important;
+            letter-spacing: 0.8px !important;
+            transform: scale(1.06) !important;
+            line-height: 1.25 !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            cursor: pointer !important;
         }
+        :root.light-theme .excel-table tbody td.num-magnified,
         :root.light-theme .excel-table td.num-magnified {
-            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            color: #ffffff !important;
-            border: 2px solid #3b82f6 !important;
-            box-shadow: inset 0 0 10px rgba(255,255,255,0.3), 0 5px 20px rgba(30, 58, 138, 0.3) !important;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
+            background-color: #ffffff !important;
+            color: #1d4ed8 !important;
+            border: 2.5px solid #2563eb !important;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25), 0 4px 14px rgba(0, 0, 0, 0.12) !important;
+            text-shadow: none !important;
         }
 
         /* Fonts */
@@ -490,21 +505,45 @@
     </div>
 
     <!-- Center/Left Side: Controls & Live Search -->
-    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
         <!-- Live Quick Search Box -->
         <input type="text" id="live-search-input" placeholder="🔍 بحث سريع..." oninput="filterTableRows(this.value)" style="padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; font-size: 0.8rem; outline: none; width: 120px; height: 30px; box-sizing: border-box;">
+
+        <script>
+        function saveCurrentPresetAndLock() {
+            if (typeof saveCurrentPreset === 'function') {
+                saveCurrentPreset(window.currentPresetIndex || 0);
+                let presets = getSavedPresets();
+                if (presets[window.currentPresetIndex || 0]) {
+                    presets[window.currentPresetIndex || 0].isLocked = true;
+                    savePresets(presets);
+                    syncPresetsToDB('ledger_preview_presets_v20', presets);
+                    if (typeof showToast === 'function') showToast('تم حفظ التصميم وقفل الطبلة بنجاح!', 'success');
+                    setTimeout(() => { window.history.back(); }, 800);
+                }
+            }
+        }
+        </script>
 
         <button class="ribbon-btn" onclick="executePrintWithPermission()" style="--btn-color: #0ea5e9;">
             <span style="font-size: 1.05rem;">🖨️</span> طباعة
         </button>
-        <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="--btn-color: #eab308;">
-            <span style="font-size: 1.05rem;">⚙️</span> إعدادات الأعمدة
-        </button>
+
+        <!-- Settings and Save Group -->
+        <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);">
+            <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="--btn-color: #eab308; margin:0;">
+                <span style="font-size: 1.05rem;">⚙️</span> إعدادات التصميم
+            </button>
+            <button class="ribbon-btn" id="mega-save-btn" onclick="saveCurrentPresetAndLock()" style="--btn-color: #10b981; font-weight: 900; display: none; margin:0;">
+                <span style="font-size: 1.05rem;">💾</span> حفظ التصميم 🔒
+            </button>
+        </div>
+
         <button class="ribbon-btn" onclick="toggleDarkMode()" style="--btn-color: #a855f7;">
-            <span style="font-size: 1.05rem;">🌙</span> عكس الألوان
+            <span style="font-size: 1.05rem;">🌙</span> الوضع الليلي
         </button>
         <button class="ribbon-btn" onclick="window.history.back()" style="--btn-color: #ef4444;">
-            <span style="font-size: 1.05rem;">❌</span> إغلاق / رجوع
+            <span style="font-size: 1.05rem;">✖</span> إغلاق / عودة
         </button>
     </div>
 </div>
@@ -586,5 +625,8 @@
 <script src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 <script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
 <script src="js/preview-ledger.js?v=<?php echo time(); ?>"></script>
+
+<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+<script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>
 </html>

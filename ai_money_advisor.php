@@ -31,7 +31,8 @@ $data_for_ai .= json_encode($top_customers, JSON_UNESCAPED_UNICODE) . "\n";
 $ai_analysis_result = "";
 
 if (isset($_POST['consult_ai'])) {
-    $gemini_key = $_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '';
+    require_once __DIR__ . '/api/ai-config.php';
+    $gemini_key = getGeminiApiKey();
     $openai_key = $_ENV['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY') ?: '';
     
     $prompt = "أنت خبير مالي واستراتيجي في سوق السجانة لحديد التسليح ومواد البناء بالسودان. حلل مديونيات العملاء والتعرض المالي الحالي لبرنامج MAGAIEES ERP وأعطني تقريراً استراتيجياً يركز على مخاطر الائتمان، نسب تحصيل الشيكات، حماية السيولة النقدية، والتوصيات المالية للحد من التعثر. اكتب التقرير باللغة العربية في نقاط واضحة ومنسقة باستخدام مارك داون وبدون أي تمهيد:\n" . $data_for_ai;
@@ -171,5 +172,8 @@ if (isset($_POST['consult_ai'])) {
         </div>
     </div>
 
+
+<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
+<script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>
 </html>

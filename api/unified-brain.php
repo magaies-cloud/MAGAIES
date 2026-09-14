@@ -135,9 +135,11 @@ try {
 4. اكتب بأسلوب مباشر وعملي بدون مقدمات، باستخدام نقاط مختصرة";
 
         // Call Gemini
-        $apiKey = getenv('GEMINI_API_KEY') ?: '';
+        require_once __DIR__ . '/ai-config.php';
+        $apiKey = getGeminiApiKey();
+        $model = getGeminiModel();
         if ($apiKey) {
-            $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
+            $url = "https://generativelanguage.googleapis.com/v1beta/models/" . $model . ":generateContent?key=" . $apiKey;
             
             $payload = [
                 "contents" => [

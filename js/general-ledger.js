@@ -232,13 +232,56 @@ function onAccountSearch() {
     let results = ALL_ACCOUNTS.filter(a => {
         if (a.id === 'ALL') return false;
         if (qTokens.length === 0) return true;
-        const nameNorm = normStr(a.name);
+        const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '');
+        const nameNorm = normStr(cleanName);
         const idNorm = normStr(a.id);
         return qTokens.every(tok => nameNorm.includes(tok) || idNorm.includes(tok));
     });
     
-    if (results.length === 0) {
-        list.innerHTML = '<li class="no-results" style="padding: 10px; color: #f87171; text-align: center;">لا يوجد حساب مطابق</li>';
+    // Live Bank Transfer Lookup in Autocomplete
+    if (q.length >= 3 || /\d/.test(q)) {
+        const qDig = q.replace(/\D/g, '');
+        const matchingTransfers = [];
+        const seenTrs = new Set();
+        (ALL_TXNS || []).forEach(t => {
+            if (!t || !t.transferNo) return;
+            const trStr = String(t.transferNo).trim();
+            if (seenTrs.has(trStr)) return;
+            let m = trStr.toLowerCase().includes(normQ);
+            if (!m && qDig.length >= 4) {
+                m = trStr.replace(/\D/g, '').includes(qDig);
+            }
+            if (m) {
+                seenTrs.add(trStr);
+                matchingTransfers.push(t);
+            }
+        });
+
+        matchingTransfers.slice(0, 3).forEach(t => {
+            const trLi = document.createElement('li');
+            trLi.className = 'transfer-autocomplete-item';
+            trLi.style.cssText = 'background: rgba(168,85,247,0.25); border: 1.5px solid #a855f7; border-radius: 8px; margin-bottom: 6px; padding: 10px 14px; cursor: pointer;';
+            const benefName = getAccountName(t.counterAccount) || getAccountName(t.account);
+            trLi.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:8px;">
+                    <span style="font-weight:900; font-size:1.15rem; color:#ffd700; display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.3rem;">💳</span>
+                        <span>تحويلة رقم: <strong style="color:#38bdf8; text-decoration:underline;">${t.transferNo}</strong></span>
+                        <span style="color:#f8fafc; font-size:0.95rem; font-weight:normal;">(مضافة لـ: <strong style="color:#ffd700;">${benefName}</strong>)</span>
+                    </span>
+                    <span style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; padding:4px 10px; border-radius:6px; font-size:0.82rem; font-weight:bold;">فحص ومطابقة ⏎</span>
+                </div>
+            `;
+            trLi.onmousedown = (ev) => {
+                ev.preventDefault();
+                inspectBankTransfer(t.transferNo);
+            };
+            list.appendChild(trLi);
+        });
+    }
+
+    if (results.length === 0 && list.children.length === 0) {
+        list.innerHTML = '<li class="no-results" style="padding: 14px; color: #f87171; text-align: center; font-size: 1.2rem; font-weight: bold;">لا يوجد حساب مطابق (اضغط Enter للبحث كرقم تحويلة)</li>';
         list.style.display = 'block';
         return;
     }
@@ -252,17 +295,19 @@ function onAccountSearch() {
         if (a.type === 'صندوق' || a.type === 'خزنة') badgeColor = '#10b981';
         if (a.type === 'بنك') badgeColor = '#8b5cf6';
         
-        const highlightedName = highlightSearchMatches(a.name, q);
-        const highlightedId = (String(a.id) !== 'ALL' && normStr(a.id).includes(normQ)) ? highlightSearchMatches(String(a.id), q) : '';
-        const idBadge = highlightedId ? `<span style="font-size: 0.75rem; opacity: 0.7; margin-right: 6px;">(#${highlightedId})</span>` : '';
+        const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '');
+        const highlightedName = highlightSearchMatches(cleanName, q);
 
         li.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                <span style="font-weight: 600;">${a.icon} ${highlightedName} ${idBadge}</span>
-                <span style="background:${badgeColor}; color:white; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight: bold; min-width: 50px; text-align: center;">${a.type}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:12px;">
+                <span class="acc-name-text" style="font-weight: 800; font-size: 1.25rem; color: #ffd700; display: inline-flex; align-items: center; gap: 8px; text-shadow: 0 0 10px rgba(250, 204, 21, 0.35);">
+                    <span style="font-size: 1.25rem;">${a.icon}</span>
+                    <span>${highlightedName}</span>
+                </span>
+                <span style="background:${badgeColor}; color:white; padding:4px 10px; border-radius:6px; font-size:0.85rem; font-weight: bold; min-width: 52px; text-align: center;">${a.type}</span>
             </div>
         `;
-        li.onmousedown = () => selectAccount(a.id, a.name, a.icon);
+        li.onmousedown = () => selectAccount(a.id, cleanName, a.icon);
         list.appendChild(li);
     });
     
@@ -273,6 +318,10 @@ function onAccountSearchKey(e) {
     if (e.key === 'Escape') {
         const list = document.getElementById('autocomplete-list');
         if (list) list.style.display = 'none';
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        triggerTransferOrAccountSearch();
     }
 }
 
@@ -286,7 +335,8 @@ window.selectAccount = function selectAccount(id, name, icon) {
     if (chip) {
         chip.style.display = 'flex';
         document.getElementById('chip-icon').innerText = icon || '🏷️';
-        document.getElementById('chip-name').innerText = name;
+        const cleanName = String(name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '');
+        document.getElementById('chip-name').innerText = cleanName;
     }
     
     const list = document.getElementById('autocomplete-list');
@@ -310,6 +360,9 @@ function clearAccountSearch() {
         input.focus();
     }
     
+    // Close any transfer inquiry card
+    if (typeof closeTransferInquiryCard === 'function') closeTransferInquiryCard();
+
     // Reset Report View
     const tbody = document.getElementById('recent-tbody');
     if (tbody) {
@@ -353,6 +406,531 @@ document.addEventListener('mousedown', function(e) {
     }
 });
 
+/* ══════════════════════════════════════════════════════════
+   BANK TRANSFER INSPECTOR & VERIFICATION ENGINE (كشف الحساب)
+   ══════════════════════════════════════════════════════════ */
+let currentSearchedTransferNo = '';
+
+window.closeTransferInquiryCard = function() {
+    const container = document.getElementById('transfer-search-result-container');
+    if (container) {
+        container.style.display = 'none';
+        container.innerHTML = '';
+    }
+    currentSearchedTransferNo = '';
+    document.querySelectorAll('.transfer-matched-row').forEach(tr => tr.classList.remove('transfer-matched-row'));
+};
+
+window.openBeneficiaryStatement = function(accId, accName, transferNo) {
+    if (!accId) return;
+    currentSearchedTransferNo = transferNo || '';
+    
+    // Select the account in the ledger
+    selectAccount(accId, accName, '👤');
+    
+    // Smoothly scroll down to the table and highlight
+    setTimeout(() => {
+        highlightTransferRows(transferNo);
+        const table = document.getElementById('recent-table');
+        if (table) {
+            table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 400);
+};
+
+window.filterLedgerByTransfer = function(transferNo) {
+    if (!transferNo) return;
+    currentSearchedTransferNo = transferNo;
+    const smartEl = document.getElementById('filter-smart');
+    if (smartEl) {
+        smartEl.value = transferNo;
+    }
+    document.getElementById('filter-account').value = 'ALL';
+    const wrap = document.getElementById('account-search-wrap');
+    const chip = document.getElementById('selected-chip');
+    if (wrap) wrap.style.display = 'flex';
+    if (chip) chip.style.display = 'none';
+    
+    runReport();
+    
+    setTimeout(() => {
+        highlightTransferRows(transferNo);
+        const table = document.getElementById('recent-table');
+        if (table) table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 350);
+};
+
+window.triggerTransferOrAccountSearch = function(customQuery) {
+    const input = document.getElementById('account-search-input');
+    const smartInput = document.getElementById('filter-smart');
+    const q = (typeof customQuery === 'string' ? customQuery : ((input && input.value) ? input.value : (smartInput ? smartInput.value : ''))).trim();
+    if (!q) {
+        if (typeof showToast === 'function') showToast('يرجى كتابة رقم التحويلة أو اسم الحساب للبحث', 'info');
+        return;
+    }
+    
+    const list = document.getElementById('autocomplete-list');
+    if (list) list.style.display = 'none';
+    
+    inspectBankTransfer(q);
+};
+
+window.inspectBankTransfer = function(query) {
+    const container = document.getElementById('transfer-search-result-container');
+    if (!container) return;
+    
+    const cleanQ = String(query || '').trim();
+    if (!cleanQ) return;
+    
+    currentSearchedTransferNo = cleanQ;
+    const qLower = cleanQ.toLowerCase();
+    const qDigits = cleanQ.replace(/\D/g, '');
+    
+    ALL_TXNS = collectAllTransactions();
+    
+    function isTransferMatch(val) {
+        if (!val) return false;
+        const s = String(val).trim().toLowerCase();
+        if (s === qLower) return true;
+        if (cleanQ.length >= 3 && s.includes(qLower)) return true;
+        if (qDigits.length >= 4) {
+            const valDigits = s.replace(/\D/g, '');
+            if (valDigits && (valDigits === qDigits || valDigits.endsWith(qDigits) || valDigits.includes(qDigits))) return true;
+        }
+        return false;
+    }
+
+    const matchedTxns = [];
+    (ALL_TXNS || []).forEach(t => {
+        if (!t) return;
+        const trNo = t.transferNo || '';
+        const chkNo = t.checkNo || '';
+        const stmt = t.statement || '';
+        const note = t.additionalNote || '';
+        
+        let matched = false;
+        let matchedNo = '';
+        
+        if (isTransferMatch(trNo)) {
+            matched = true;
+            matchedNo = trNo;
+        } else if (isTransferMatch(chkNo)) {
+            matched = true;
+            matchedNo = chkNo;
+        } else if (cleanQ.length >= 4 && (isTransferMatch(stmt) || isTransferMatch(note))) {
+            matched = true;
+            matchedNo = cleanQ;
+        }
+        
+        if (matched) {
+            matchedTxns.push({ txn: t, matchedTransferNo: matchedNo || cleanQ });
+        }
+    });
+
+    // Also scan raw source tables directly to ensure zero omission
+    const rawMatches = [];
+    const getTK = window.getTenantKey || ((k) => k);
+
+    function scanSource(key, typeLabel, typeKey) {
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem(getTK(key)) || localStorage.getItem(key) || '[]'); } catch(e) {}
+        if (!Array.isArray(list)) list = Object.values(list || {});
+        list.forEach(v => {
+            if (!v || v.deleted) return;
+            const refNo = v.voucherNo || v.id || v.invoiceNo || '';
+            
+            if (Array.isArray(v.bankTransfers)) {
+                v.bankTransfers.forEach(bt => {
+                    if (isTransferMatch(bt.transferNo || bt.reference)) {
+                        rawMatches.push({
+                            source: key,
+                            voucherRef: refNo,
+                            voucherType: typeKey,
+                            voucherTypeLabel: typeLabel,
+                            transferNo: bt.transferNo || bt.reference,
+                            amount: parseNum(bt.amount || v.amount || v.totalAmount),
+                            currency: v.currency || 'SDG',
+                            date: v.date,
+                            time: v.time,
+                            bankName: bt.bankName || bt.note || v.bankName || 'البنك',
+                            statement: bt.statement || v.description || v.statement || '',
+                            raw: v
+                        });
+                    }
+                });
+            } else if (isTransferMatch(v.transferNo || v.mobileTransferNo)) {
+                rawMatches.push({
+                    source: key,
+                    voucherRef: refNo,
+                    voucherType: typeKey,
+                    voucherTypeLabel: typeLabel,
+                    transferNo: v.transferNo || v.mobileTransferNo,
+                    amount: parseNum(v.amount || v.totalAmount || v.amountLocal),
+                    currency: v.currency || 'SDG',
+                    date: v.date,
+                    time: v.time,
+                    bankName: v.bankName || v.mobileNote || 'البنك',
+                    statement: v.statement || v.description || '',
+                    raw: v
+                });
+            }
+            
+            if (Array.isArray(v.items)) {
+                v.items.forEach(item => {
+                    if (!item) return;
+                    if (Array.isArray(item.bankTransfers)) {
+                        item.bankTransfers.forEach(bt => {
+                            if (isTransferMatch(bt.transferNo || bt.reference)) {
+                                rawMatches.push({
+                                    source: key,
+                                    voucherRef: refNo,
+                                    voucherType: typeKey,
+                                    voucherTypeLabel: typeLabel,
+                                    transferNo: bt.transferNo || bt.reference,
+                                    amount: parseNum(bt.amount || item.amount),
+                                    currency: v.currency || 'SDG',
+                                    date: v.date,
+                                    time: v.time,
+                                    bankName: bt.bankName || item.bankName || 'البنك',
+                                    statement: bt.statement || item.statement || v.description || '',
+                                    item: item,
+                                    raw: v
+                                });
+                            }
+                        });
+                    } else if (isTransferMatch(item.transferNo)) {
+                        rawMatches.push({
+                            source: key,
+                            voucherRef: refNo,
+                            voucherType: typeKey,
+                            voucherTypeLabel: typeLabel,
+                            transferNo: item.transferNo,
+                            amount: parseNum(item.amount),
+                            currency: v.currency || 'SDG',
+                            date: v.date,
+                            time: v.time,
+                            bankName: item.bankName || 'البنك',
+                            statement: item.statement || v.description || '',
+                            item: item,
+                            raw: v
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    scanSource('erp_payments_v1', 'سند صرف مجمع', 'multi-payment');
+    scanSource('erp_receipts_v1', 'سند قبض مجمع', 'multi-receipt');
+    scanSource('erp_single_payments_v1', 'سند صرف نقدية', 'payment');
+    scanSource('erp_single_receipts_v1', 'سند قبض نقدية', 'receipt');
+    scanSource('erp_sales_invoices_v1', 'فاتورة مبيعات', 'invoice');
+    scanSource('erp_purchase_invoices_v1', 'فاتورة مشتريات', 'purchase');
+
+    const operations = [];
+    const opKeys = new Set();
+
+    matchedTxns.forEach(({ txn, matchedTransferNo }) => {
+        const ref = txn.ref || '';
+        const opKey = `${txn.type}_${ref}_${matchedTransferNo}`;
+        if (opKeys.has(opKey)) return;
+        opKeys.add(opKey);
+        
+        const legs = (ALL_TXNS || []).filter(x => x && x.ref === ref && (x.transferNo === txn.transferNo || x.type === txn.type));
+        
+        let beneficiaryId = '';
+        let beneficiaryName = '';
+        let bankAccountId = '';
+        let bankAccountName = txn.bankName || '';
+        let directionLabel = '';
+        let addedToText = '';
+        
+        const isPayment = (txn.type === 'payment' || txn.type === 'multi-payment' || txn.type === 'comprehensive-payment');
+        const isReceipt = (txn.type === 'receipt' || txn.type === 'multi-receipt' || txn.type === 'comprehensive-receipt');
+        const isSales = (txn.type === 'invoice' || txn.type === 'sales');
+        const isPurchase = (txn.type === 'purchase');
+
+        if (isPayment) {
+            directionLabel = 'سند صرف (تحويل بنكي صادر)';
+            const debLeg = legs.find(l => parseNum(l.debit) > 0) || txn;
+            const credLeg = legs.find(l => parseNum(l.credit) > 0) || txn;
+            beneficiaryId = debLeg.account;
+            beneficiaryName = getAccountName(beneficiaryId);
+            bankAccountId = credLeg.account;
+            if (!bankAccountName) bankAccountName = getAccountName(bankAccountId);
+            
+            addedToText = `مضافة ومسددة لحساب المستفيد: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#94a3b8; font-weight:normal;">(مدفوعة من حساب: ${bankAccountName})</span>`;
+        } else if (isReceipt) {
+            directionLabel = 'سند قبض (تحويل بنكي وارد)';
+            const credLeg = legs.find(l => parseNum(l.credit) > 0) || txn;
+            const debLeg = legs.find(l => parseNum(l.debit) > 0) || txn;
+            beneficiaryId = credLeg.account;
+            beneficiaryName = getAccountName(beneficiaryId);
+            bankAccountId = debLeg.account;
+            if (!bankAccountName) bankAccountName = getAccountName(bankAccountId);
+            
+            addedToText = `مقيدة لحساب العميل/الدافع: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#34d399; font-weight:normal;">(تم إيداعها في: ${bankAccountName})</span>`;
+        } else if (isSales) {
+            directionLabel = 'فاتورة مبيعات';
+            beneficiaryId = txn.counterAccount && !txn.counterAccount.startsWith('revenue') ? txn.counterAccount : txn.account;
+            beneficiaryName = getAccountName(beneficiaryId);
+            if (!bankAccountName) bankAccountName = 'البنك';
+            
+            addedToText = `مقيدة لحساب العميل: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#94a3b8; font-weight:normal;">(سداد فاتورة مبيعات #${ref} وأودعت في: ${bankAccountName})</span>`;
+        } else if (isPurchase) {
+            directionLabel = 'فاتورة مشتريات';
+            beneficiaryId = txn.account && !txn.account.startsWith('exp') ? txn.account : txn.counterAccount;
+            beneficiaryName = getAccountName(beneficiaryId);
+            if (!bankAccountName) bankAccountName = 'البنك';
+            
+            addedToText = `مضافة ومسددة لحساب المورد: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#94a3b8; font-weight:normal;">(سداد فاتورة مشتريات #${ref} من: ${bankAccountName})</span>`;
+        } else {
+            beneficiaryId = txn.account;
+            beneficiaryName = getAccountName(beneficiaryId);
+            addedToText = `مقيدة في الحساب: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#94a3b8; font-weight:normal;">(الحساب المقابل: ${getAccountName(txn.counterAccount)})</span>`;
+        }
+
+        operations.push({
+            transferNo: matchedTransferNo || txn.transferNo || cleanQ,
+            voucherRef: ref,
+            voucherType: txn.type,
+            voucherTypeLabel: txn.typeLabel || directionLabel,
+            date: txn.date,
+            time: txn.time || '',
+            amount: parseNum(txn.debit || txn.credit || 0),
+            currency: txn.currency || 'SDG',
+            bankName: bankAccountName || 'البنك',
+            counterAccountName: getAccountName(txn.counterAccount),
+            beneficiaryId: beneficiaryId,
+            beneficiaryName: beneficiaryName,
+            addedToText: addedToText,
+            statement: txn.statement || txn.additionalNote || '',
+            txn: txn
+        });
+    });
+
+    rawMatches.forEach(rm => {
+        const opKey = `${rm.voucherType}_${rm.voucherRef}_${rm.transferNo}`;
+        if (opKeys.has(opKey)) return;
+        opKeys.add(opKey);
+        
+        let beneficiaryId = '';
+        let beneficiaryName = '';
+        let addedToText = '';
+        
+        if (rm.item) {
+            beneficiaryId = rm.item.accountId || rm.item.account || rm.item.accountName;
+            beneficiaryName = getAccountName(beneficiaryId) || rm.item.accountName || beneficiaryId;
+        } else if (rm.raw) {
+            if (rm.voucherType === 'multi-payment' || rm.voucherType === 'payment') {
+                beneficiaryId = rm.raw.toAccount || rm.raw.accountId || rm.raw.supplierId || rm.raw.customerId;
+            } else {
+                beneficiaryId = rm.raw.fromAccount || rm.raw.accountId || rm.raw.customerId || rm.raw.supplierId;
+            }
+            beneficiaryName = getAccountName(beneficiaryId);
+        }
+        
+        if (rm.voucherType === 'multi-payment' || rm.voucherType === 'payment') {
+            addedToText = `مضافة ومسددة لحساب المستفيد: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#94a3b8; font-weight:normal;">(مدفوعة من حساب: ${rm.bankName})</span>`;
+        } else {
+            addedToText = `مقيدة لحساب العميل/الدافع: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#34d399; font-weight:normal;">(تم إيداعها في: ${rm.bankName})</span>`;
+        }
+        
+        operations.push({
+            transferNo: rm.transferNo,
+            voucherRef: rm.voucherRef,
+            voucherType: rm.voucherType,
+            voucherTypeLabel: rm.voucherTypeLabel,
+            date: rm.date,
+            time: rm.time || '',
+            amount: rm.amount,
+            currency: rm.currency,
+            bankName: rm.bankName,
+            counterAccountName: beneficiaryName,
+            beneficiaryId: beneficiaryId,
+            beneficiaryName: beneficiaryName,
+            addedToText: addedToText,
+            statement: rm.statement,
+            raw: rm.raw
+        });
+    });
+
+    if (operations.length === 0) {
+        let foundAccount = ALL_ACCOUNTS.find(a => {
+            if (!a || a.id === 'ALL') return false;
+            const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '').trim().toLowerCase();
+            return cleanName === qLower || a.id.toLowerCase() === qLower;
+        });
+
+        if (foundAccount) {
+            container.style.display = 'none';
+            selectAccount(foundAccount.id, foundAccount.name, foundAccount.icon);
+            return;
+        }
+
+        renderTransferNotFoundCard(cleanQ);
+        return;
+    }
+
+    renderTransferSuccessCard(cleanQ, operations);
+};
+
+function renderTransferSuccessCard(query, operations) {
+    const container = document.getElementById('transfer-search-result-container');
+    if (!container) return;
+
+    const isMultiple = operations.length > 1;
+    
+    let html = `
+    <div class="transfer-inquiry-card">
+        <!-- Top Status Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:10px; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:2.2rem; filter:drop-shadow(0 0 8px rgba(52,211,153,0.6));">✅</span>
+                <div>
+                    <div style="font-size:1.25rem; font-weight:900; color:#34d399; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span>تم العثور على التحويلة بنجاح ومطابقتها في النظام</span>
+                        ${isMultiple ? `<span style="background:#f59e0b; color:#000; font-size:0.75rem; padding:2px 8px; border-radius:10px; font-weight:900;">⚠️ ${operations.length} عمليات مطابقة بنفس الرقم</span>` : ''}
+                    </div>
+                    <div style="font-size:0.85rem; color:#94a3b8; margin-top:2px;">
+                        بيانات التحويلة البنكية المؤكدة ومطابقة الطرف المستفيد في كشف الحساب
+                    </div>
+                </div>
+            </div>
+            <button type="button" onclick="closeTransferInquiryCard()" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#f87171; border-radius:8px; padding:6px 14px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">
+                ✕ إغلاق النتيجة
+            </button>
+        </div>
+    `;
+
+    operations.forEach((op, idx) => {
+        html += `
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1.5px solid ${idx === 0 ? '#eab308' : 'rgba(255,255,255,0.15)'}; border-radius: 14px; padding: 16px 20px; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.35);">
+            ${isMultiple ? `<div style="font-size:0.88rem; font-weight:bold; color:#38bdf8; margin-bottom:8px;">📌 العملية رقم (${idx + 1}):</div>` : ''}
+            
+            <!-- Crucial Section: أضيفت لمن؟ -->
+            <div style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(0, 0, 0, 0.4)); border: 2px solid #eab308; border-radius: 12px; padding: 14px 18px; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(234,179,8,0.2);">
+                <div style="font-size: 0.88rem; font-weight: 800; color: #cbd5e1; margin-bottom: 6px;">👤 أضيفت لمن؟ (الحساب المستفيد / المسجل لصالحه):</div>
+                <div style="font-size: 1.35rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 10px rgba(250,204,21,0.4);">
+                    ${op.addedToText}
+                </div>
+            </div>
+
+            <!-- Details Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                <div class="transfer-info-box">
+                    <span class="info-label">🔢 رقم التحويلة:</span>
+                    <span class="info-val" style="color:#ffd700; font-family:monospace; letter-spacing:1px;">${op.transferNo}</span>
+                </div>
+                <div class="transfer-info-box">
+                    <span class="info-label">💰 المبلغ:</span>
+                    <span class="info-val" style="color:#34d399; font-family:monospace;">${fmtNum(op.amount)} ${op.currency}</span>
+                </div>
+                <div class="transfer-info-box">
+                    <span class="info-label">📅 تاريخ ووقت الحركة:</span>
+                    <span class="info-val">${op.date} ${op.time ? '<small style="color:#94a3b8;">(' + op.time + ')</small>' : ''}</span>
+                </div>
+                <div class="transfer-info-box">
+                    <span class="info-label">📑 نوع ورقم السند:</span>
+                    <span class="info-val" style="color:#38bdf8;">${op.voucherTypeLabel} #${op.voucherRef}</span>
+                </div>
+                <div class="transfer-info-box">
+                    <span class="info-label">🏦 البنك المستخدم:</span>
+                    <span class="info-val" style="color:#e879f9;">${op.bankName || 'البنك'}</span>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 14px; margin-bottom: 14px;">
+                <span style="font-size: 0.82rem; font-weight: bold; color: #94a3b8;">📝 البيان المسجل بالسند: </span>
+                <span style="font-size: 0.92rem; font-weight: 700; color: #f8fafc;">${op.statement || 'لا يوجد بيان إضافي'}</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                ${op.beneficiaryId ? `
+                <button type="button" class="btn-run" onclick="openBeneficiaryStatement('${op.beneficiaryId}', '${op.beneficiaryName}', '${op.transferNo}')" style="background: linear-gradient(135deg, #10b981, #059669); font-size:0.9rem; height:38px; box-shadow: 0 4px 14px rgba(16,185,129,0.4);">
+                    📋 فتح كشف حساب الطرف (${op.beneficiaryName})
+                </button>
+                ` : ''}
+                <button type="button" class="btn-run" onclick="navigateToOriginalVoucher('${op.voucherType}', '${op.voucherRef}')" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); font-size:0.9rem; height:38px; box-shadow: 0 4px 14px rgba(59,130,246,0.4);">
+                    🔗 الذهاب إلى أصل السند #${op.voucherRef}
+                </button>
+                <button type="button" class="btn-action-secondary" onclick="filterLedgerByTransfer('${op.transferNo}')" style="font-size:0.88rem; height:38px;">
+                    🔍 إظهار قيود هذه التحويلة في الجدول
+                </button>
+            </div>
+        </div>
+        `;
+    });
+
+    html += `</div>`;
+    container.innerHTML = html;
+    container.style.display = 'block';
+
+    highlightTransferRows(query);
+}
+
+function renderTransferNotFoundCard(query) {
+    const container = document.getElementById('transfer-search-result-container');
+    if (!container) return;
+
+    container.innerHTML = `
+    <div class="transfer-inquiry-card" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.96)); border-color: #ef4444; box-shadow: 0 10px 30px rgba(239,68,68,0.2);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:2.4rem;">❌</span>
+                <div>
+                    <div style="font-size:1.22rem; font-weight:900; color:#f87171;">
+                        لم يتم العثور على أي تحويلة بنكية برقم: <span style="color:#ffd700; font-family:monospace; background:rgba(0,0,0,0.4); padding:2px 10px; border-radius:6px; border:1px solid rgba(250,204,21,0.3);">${query}</span>
+                    </div>
+                    <div style="font-size:0.88rem; color:#cbd5e1; margin-top:4px;">
+                        تم فحص جميع سندات القبض والصرف، فواتير المبيعات، فواتير المشتريات، والقيود اليومية.
+                    </div>
+                </div>
+            </div>
+            <button type="button" onclick="closeTransferInquiryCard()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:8px; padding:6px 14px; cursor:pointer; font-weight:bold;">
+                ✕ إغلاق
+            </button>
+        </div>
+        <div style="background:rgba(0,0,0,0.35); border-radius:10px; padding:12px 18px; border-right:4px solid #ef4444; color:#fca5a5; font-size:0.95rem; font-weight:700;">
+            ⚠️ <strong>النتيجة المؤكدة:</strong> هذه التحويلة <strong>غير مضافة وغير مسجلة بالنظام نهائياً</strong>، ولم يتم تقييدها في حساب أي عميل أو مورد أو حساب بنكي.
+        </div>
+    </div>
+    `;
+    container.style.display = 'block';
+}
+
+function highlightTransferRows(transferNo) {
+    if (!transferNo) return;
+    const cleanNo = String(transferNo).trim().toLowerCase();
+    const cleanDigits = cleanNo.replace(/\D/g, '');
+    
+    const table = document.getElementById('recent-table');
+    if (!table) return;
+    
+    let firstMatchedRow = null;
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(tr => {
+        const tdTr = tr.querySelector('td[data-col-id="transferNo"]');
+        const text = (tdTr ? tdTr.textContent : tr.textContent).trim().toLowerCase();
+        let isMatch = text.includes(cleanNo);
+        if (!isMatch && cleanDigits.length >= 4) {
+            isMatch = text.replace(/\D/g, '').includes(cleanDigits);
+        }
+        if (isMatch) {
+            tr.classList.add('transfer-matched-row');
+            if (!firstMatchedRow) firstMatchedRow = tr;
+        } else {
+            tr.classList.remove('transfer-matched-row');
+        }
+    });
+    
+    if (firstMatchedRow) {
+        firstMatchedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof window.renderLedgerPresets === 'function') window.renderLedgerPresets();
     const input = document.getElementById('account-search-input');
@@ -361,6 +939,15 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('click', onAccountSearch);
         input.addEventListener('input', onAccountSearch);
         input.addEventListener('keydown', onAccountSearchKey);
+    }
+    const smartInput = document.getElementById('filter-smart');
+    if (smartInput) {
+        smartInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                triggerTransferOrAccountSearch(smartInput.value);
+            }
+        });
     }
 });
 
@@ -920,23 +1507,28 @@ function runReport() {
             filtered = filtered.filter(t => t && t.currency !== 'SDG');
         }
 
+        // Global Overview Deduplication: When viewing ALL accounts, show each voucher once (primary side)
+        if (accVal === 'ALL') {
+            const seenVouchers = new Set();
+            filtered = filtered.filter(t => {
+                if (!t) return false;
+                const refKey = (t.type || '') + '_' + (t.ref || '') + '_' + (t.currency || '') + '_' + (t.transferNo || t.checkNo || '');
+                if (t.ref && t.ref !== '-' && t.type !== 'jv') {
+                    if (seenVouchers.has(refKey)) return false;
+                    seenVouchers.add(refKey);
+                }
+                return true;
+            });
+        }
+
         // Type Filter
         if (typeFilter !== 'ALL') {
             filtered = filtered.filter(t => {
                 if (!t) return false;
                 if (typeFilter === 'sales' && t.type === 'invoice' && t.account !== 'revenue-sales') return true;
                 if (typeFilter === 'purchases' && t.type === 'purchase' && t.account !== 'cost-purchases') return true;
-                
-                // If a specific account is selected, show all entries regardless of debit/credit.
-                // Otherwise, restrict to debit/credit to avoid duplicating global entries.
-                if (selectedAccName) {
-                    if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt')) return true;
-                    if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment')) return true;
-                } else {
-                    if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt') && t.debit > 0) return true;
-                    if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment') && t.credit > 0) return true;
-                }
-                
+                if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt')) return true;
+                if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment')) return true;
                 if (typeFilter === 'journal' && t.type === 'jv') return true;
                 return false;
             });
@@ -1122,6 +1714,7 @@ function runReport() {
                 date: opDate, time: '', ref: 'OPENING', type: 'opening',
                 typeLabel: 'رصيد افتتاحي', account: accVal, counterAccount: '-',
                 statement: 'الرصيد الافتتاحي',
+                transferNo: 'رصيد افتتاحي',
                 debit: opDebitLoc, credit: opCreditLoc,
                 debitForeign: opDebitFc, creditForeign: opCreditFc,
                 exchangeRate: entityExRate,
@@ -1271,13 +1864,15 @@ function loadGLColumnSettings() {
     try {
         const stored = localStorage.getItem('gl_column_settings_v5');
         if (stored) {
-            const parsed = JSON.parse(stored);
+            let parsed = JSON.parse(stored);
             if (Array.isArray(parsed) && parsed.length > 0) {
-                // Sync labels from default config to ensure renames apply automatically
-                parsed.forEach(col => {
-                    const defaultCol = DEFAULT_GL_COLUMNS_CONFIG.find(c => c.id === col.id);
-                    if (defaultCol) {
-                        col.label = defaultCol.label;
+                // Ensure any newly added default columns (like transferNo) are included
+                DEFAULT_GL_COLUMNS_CONFIG.forEach(defaultCol => {
+                    const existing = parsed.find(c => c.id === defaultCol.id);
+                    if (!existing) {
+                        parsed.push(JSON.parse(JSON.stringify(defaultCol)));
+                    } else {
+                        existing.label = defaultCol.label;
                     }
                 });
                 return parsed;
@@ -1354,7 +1949,7 @@ function renderRecentTable(txns, startIndex = 0) {
             ${col.headerColor ? 'color:' + col.headerColor + '!important;' : ''}
             ${col.fontFamily ? 'font-family:' + col.fontFamily + ', sans-serif!important;' : ''}
         `;
-        headHtml += `<th data-col-id="${col.id}" style="position: relative; white-space: nowrap; ${hStyle}">${col.label}<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>`;
+        headHtml += `<th draggable="true" data-col-id="${col.id}" ondragstart="window.glHandleDragStart(event)" ondragover="window.glHandleDragOver(event)" ondragenter="window.glHandleDragEnter(event)" ondragleave="window.glHandleDragLeave(event)" ondrop="window.glHandleDrop(event)" ondragend="window.glHandleDragEnd(event)" style="position: relative; white-space: nowrap; cursor: grab; padding-top: 20px; ${hStyle}"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.glHandleArrowMove(event, '${col.id}', 1)" title=" ">?</span><span style="cursor:pointer; padding:2px;" onclick="window.glHandleArrowMove(event, '${col.id}', -1)" title=" ">?</span></div>${col.label}<div class="resizer" title="Double click to auto-size"></div></th>`;
     });
     headHtml += '</tr>';
     thead.innerHTML = headHtml;
@@ -1374,7 +1969,20 @@ function renderRecentTable(txns, startIndex = 0) {
 
         let trStyle = t.isOpening ? 'background:rgba(59,130,246,0.08); border-right:3px solid #3b82f6;' : '';
 
-        html += `<tr style="${trStyle}" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}">`;
+        let isMatchedTransfer = false;
+        if (currentSearchedTransferNo) {
+            const qStr = String(currentSearchedTransferNo).trim().toLowerCase();
+            const qDig = qStr.replace(/\D/g, '');
+            const trStr = String(t.transferNo || '').trim().toLowerCase();
+            const chkStr = String(t.checkNo || '').trim().toLowerCase();
+            if (trStr && (trStr === qStr || trStr.includes(qStr))) isMatchedTransfer = true;
+            else if (qDig.length >= 4 && trStr.replace(/\D/g, '').includes(qDig)) isMatchedTransfer = true;
+            else if (chkStr && (chkStr === qStr || chkStr.includes(qStr))) isMatchedTransfer = true;
+            else if (qDig.length >= 4 && chkStr.replace(/\D/g, '').includes(qDig)) isMatchedTransfer = true;
+        }
+        let trClass = isMatchedTransfer ? 'transfer-matched-row' : '';
+
+        html += `<tr class="${trClass}" style="${trStyle}" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" data-row-idx="${i}" title="انقر كليك يمين للذهاب إلى أصل السند أو تكبير الأرقام">`;
         
         visibleCols.forEach(col => {
             const dec = col.decimals !== undefined ? col.decimals : 2;
@@ -1389,28 +1997,57 @@ function renderRecentTable(txns, startIndex = 0) {
             `;
 
             if (col.id === 'seq') {
-                html += `<td data-col-id="seq" data-is-num="false" style="${cStyle}">${startIndex + i + 1}</td>`;
+                html += `<td data-col-id="seq" data-is-num="false" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" style="${cStyle}">${startIndex + i + 1}</td>`;
             } else if (col.id === 'date') {
                 let displayDate = String(t.date || '-').trim();
                 if (displayDate.includes('T')) displayDate = displayDate.split('T')[0];
                 if (displayDate.includes(' ')) displayDate = displayDate.split(' ')[0];
-                html += `<td data-col-id="date" data-is-num="false" title="${t.time || ''}" style="${cStyle}">${displayDate}</td>`;
+                html += `<td data-col-id="date" data-is-num="false" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" title="${t.time || ''}" style="${cStyle}">${displayDate}</td>`;
             } else if (col.id === 'ref') {
                   let displayRef = t.ref ? String(t.ref).replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim() : '-';
-                  html += `<td data-col-id="ref" data-is-num="true" style="${cStyle}">${t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">الرصيد الافتتاحي</span>' : '<strong style="color:#2563eb; text-decoration:underline; cursor:pointer;" onclick="navigateToOriginalVoucher(\'' + (t.type || '') + '\', \'' + (t.ref || '') + '\')" title="عرض تفاصيل السند الأساسي">' + displayRef + '</strong>'}</td>`;
+                  html += `<td data-col-id="ref" data-is-num="true" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" style="${cStyle}">${t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">الرصيد الافتتاحي</span>' : '<strong style="color:#2563eb; text-decoration:underline; cursor:pointer;" onclick="navigateToOriginalVoucher(\'' + (t.type || '') + '\', \'' + (t.ref || '') + '\')" title="انقر لفتح أصل السند">' + displayRef + '</strong>'}</td>`;
             } else if (col.id === 'account') {
-                html += `<td data-col-id="account" data-is-num="false" style="${cStyle}"><span style="font-weight:700;">${mainAccName}</span></td>`;
+                html += `<td data-col-id="account" data-is-num="false" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" style="${cStyle}"><span style="font-weight:700;">${mainAccName}</span></td>`;
             } else if (col.id === 'typeLabel') {
-                html += `<td data-col-id="typeLabel" data-is-num="false" style="${cStyle}"><span style="background:${t.isOpening ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'}; color:${t.isOpening ? '#3b82f6' : '#c084fc'}; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>`;
+                html += `<td data-col-id="typeLabel" data-is-num="false" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" style="${cStyle}"><span style="background:${t.isOpening ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'}; color:${t.isOpening ? '#3b82f6' : '#c084fc'}; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>`;
             } else if (col.id === 'statement') {
+                let stmtText = (t.statement === 'undefined' ? '-' : t.statement) || '-';
+                stmtText = stmtText.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك|شيك|شيط)\s*(\d+)/gi, 'الشيك $1');
+                
+                let addNote = (!t.isOpening && t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined') ? t.additionalNote : '';
+                if (addNote) {
+                    addNote = addNote.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك|شيك|شيط)\s*(\d+)/gi, 'الشيك $1');
+                }
+
                 html += `<td data-col-id="statement" data-is-num="false" style="white-space:normal; min-width:180px; ${cStyle} ${t.isOpening ? 'font-weight:bold; color:#3b82f6;' : ''}">
-                    ${(t.statement === 'undefined' ? '-' : t.statement) || '-'}
-                    ${!t.isOpening && t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : ''}
+                    ${stmtText}
+                    ${addNote ? '<br><small style="color:#94a3b8;">' + addNote + '</small>' : ''}
                 </td>`;
             } else if (col.id === 'transferNo') {
-                let disp = t.transferNo;
-                if (!disp && t.checkNo) disp = 'شيك رقم ' + t.checkNo;
-                html += `<td data-col-id="transferNo" data-is-num="false" style="${cStyle}">${disp || '-'}</td>`;
+                let disp = '';
+                if (t.isOpening) {
+                    disp = 'رصيد افتتاحي';
+                } else if (t.checkNo) {
+                    let cleanNo = String(t.checkNo).replace(/^(?:الشيك|شيك|شيط|رقم\s*الشيك|رقم\s*الشيط|شيك\s*رقم|الشيك\s*رقم|رقم)\s*/gi, '').trim();
+                    disp = cleanNo ? ('الشيك ' + cleanNo) : 'الشيك';
+                } else if (t.transferNo) {
+                    disp = String(t.transferNo).trim();
+                    if (/شيك|شيط|رقم\s*الشيك|رقم\s*الشيط|شيك\s*رقم|الشيك/i.test(disp)) {
+                        disp = disp.replace(/(?:رقم\s*الشيط|رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|الشيك|شيك|شيط)\s*(\d+)/gi, 'الشيك $1');
+                    }
+                } else if (t.statement && /شيك|شيط|الشيك/i.test(t.statement)) {
+                    const chkMatch = String(t.statement).match(/(?:الشيك|شيك|شيط|رقم\s*الشيك|رقم\s*الشيط|شيك\s*رقم|الشيك\s*رقم)\s*(\d+)/i);
+                    if (chkMatch && chkMatch[1]) {
+                        disp = 'الشيك ' + chkMatch[1];
+                    }
+                }
+
+                // Final Clean: Strictly format any "رقم الشيك 5" or "شيك رقم 5" or "شيك 5" to "الشيك 5"
+                if (disp) {
+                    disp = disp.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك|شيك|شيط)\s*(\d+)/gi, 'الشيك $1');
+                }
+
+                html += `<td data-col-id="transferNo" data-is-num="false" style="${cStyle} font-weight:bold; color:#38bdf8;">${disp || '-'}</td>`;
             } else if (col.id === 'bankName') {
                 html += `<td data-col-id="bankName" data-is-num="false" style="${cStyle} color:#e879f9; font-weight:bold;">${t.bankName || '-'}</td>`;
             } else if (col.id === 'counterAccount') {
@@ -1476,52 +2113,79 @@ function renderRecentTable(txns, startIndex = 0) {
 
 /* ── Navigate to Original Voucher ── */
 window.navigateToOriginalVoucher = function(type, ref) {
-    if (!ref || ref === '-' || ref === 'OPENING') {
-        showToast('لا يوجد سند مرتبط', 'warning');
+    if (!ref || ref === '-' || ref === 'OPENING' || ref === 'الرصيد الافتتاحي' || ref === 'رصيد افتتاحي') {
+        if (typeof showToast === 'function') {
+            showToast('لا يوجد سند مرتبط بهذا السطر (رصيد افتتاحي)', 'warning');
+        } else {
+            alert('لا يوجد سند مرتبط بهذا السطر');
+        }
         return;
     }
     
-    let isPurchasePayment = String(ref).includes('-PUR-PAID');
-    let isSalesPayment = String(ref).includes('-SAL-PAID');
+    let strRef = String(ref).trim();
+    let isPurchasePayment = strRef.includes('-PUR-PAID');
+    let isSalesPayment = strRef.includes('-SAL-PAID');
     
     // Clean all types of payment suffixes
-    let cleanRef = String(ref).replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim();
+    let cleanRef = strRef.replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim();
     let targetUrl = '';
-    type = String(type || '').toLowerCase();
+    type = String(type || '').toLowerCase().trim();
 
     if (isPurchasePayment) {
-        targetUrl = `purchase.php?id=${cleanRef}`;
+        targetUrl = `purchase.php?id=${encodeURIComponent(cleanRef)}`;
     } else if (isSalesPayment) {
-        targetUrl = `direct-sales.php?id=${cleanRef}`;
-    } else if (type === 'sales' || type === 'invoice' || type === 'direct-sales') {
-        targetUrl = `direct-sales.php?id=${cleanRef}`;
-    } else if (type === 'purchase' || type === 'purchases') {
-        targetUrl = `purchase.php?id=${cleanRef}`;
-    } else if (type === 'receipt' || type === 'single-receipt') targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
-    else if (type === 'payment' || type === 'single-payment') targetUrl = `single-cash-payment.php?id=${cleanRef}`;
-    else if (type === 'multi-receipt') targetUrl = `multi-cash-payment.php?type=receipt&id=${cleanRef}`;
-    else if (type === 'multi-payment') targetUrl = `multi-cash-payment.php?type=payment&id=${cleanRef}`;
-    else if (type === 'comprehensive-receipt') targetUrl = `comprehensive-receipt.php?id=${cleanRef}`;
-    else if (type === 'comprehensive-payment') targetUrl = `comprehensive-payment.php?id=${cleanRef}`;
-    else if (type === 'jv' || type === 'journal' || type === 'adjustment') targetUrl = `journal-voucher.php?id=${cleanRef}`;
-    else if (type === 'bank-transfer') targetUrl = `bank-transfer.php?id=${cleanRef}`;
-    else if (type === 'check' || type === 'cheque') targetUrl = `checks-cycle.php?id=${cleanRef}`;
-    else {
-        if (cleanRef.startsWith('INV-') || cleanRef.startsWith('SAL-')) targetUrl = `direct-sales.php?id=${cleanRef}`;
-        else if (cleanRef.startsWith('PUR-')) targetUrl = `purchase.php?id=${cleanRef}`;
-        else if (cleanRef.startsWith('JV-')) targetUrl = `journal-voucher.php?id=${cleanRef}`;
-        else targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
+        targetUrl = `direct-sales.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'sales' || type === 'invoice' || type === 'direct-sales' || type === 'sales-invoice' || cleanRef.startsWith('INV-') || cleanRef.startsWith('SAL-') || cleanRef.startsWith('DS-')) {
+        targetUrl = `direct-sales.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'sales-return' || type === 'sales_return' || cleanRef.startsWith('RET-') || cleanRef.startsWith('SR-')) {
+        targetUrl = `sales-return.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'purchase' || type === 'purchases' || type === 'purchase-invoice' || cleanRef.startsWith('PUR-') || cleanRef.startsWith('PINV-')) {
+        targetUrl = `purchase.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'purchase-return' || type === 'purchase_return' || cleanRef.startsWith('PRET-') || cleanRef.startsWith('PR-')) {
+        targetUrl = `purchase-return.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'receipt' || type === 'single-receipt' || type === 'single_receipt' || type === 'single-cash-receipt' || cleanRef.startsWith('REC-') || cleanRef.startsWith('SREC-') || cleanRef.startsWith('RV-')) {
+        targetUrl = `single-cash-payment.php?type=receipt&id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'payment' || type === 'single-payment' || type === 'single_payment' || type === 'single-cash-payment' || cleanRef.startsWith('PAY-') || cleanRef.startsWith('SPAY-') || cleanRef.startsWith('PV-')) {
+        targetUrl = `single-cash-payment.php?type=payment&id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'multi-receipt' || type === 'multi_receipt' || cleanRef.startsWith('MREC-')) {
+        targetUrl = `multi-cash-payment.php?type=receipt&id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'multi-payment' || type === 'multi_payment' || cleanRef.startsWith('MPAY-')) {
+        targetUrl = `multi-cash-payment.php?type=payment&id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'comprehensive-receipt') {
+        targetUrl = `comprehensive-receipt.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'comprehensive-payment') {
+        targetUrl = `comprehensive-payment.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'jv' || type === 'journal' || type === 'adjustment' || type === 'journal-voucher' || cleanRef.startsWith('JV-') || cleanRef.startsWith('JE-')) {
+        targetUrl = `journal-voucher.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'bank-transfer' || type === 'transfer' || cleanRef.startsWith('TR-') || cleanRef.startsWith('BT-')) {
+        targetUrl = `bank-transfer.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'check' || type === 'cheque' || cleanRef.startsWith('CHK-') || cleanRef.startsWith('CHQ-')) {
+        targetUrl = `checks-cycle.php?id=${encodeURIComponent(cleanRef)}`;
+    } else {
+        if (cleanRef.startsWith('INV') || cleanRef.startsWith('SAL')) targetUrl = `direct-sales.php?id=${encodeURIComponent(cleanRef)}`;
+        else if (cleanRef.startsWith('PUR')) targetUrl = `purchase.php?id=${encodeURIComponent(cleanRef)}`;
+        else if (cleanRef.startsWith('JV')) targetUrl = `journal-voucher.php?id=${encodeURIComponent(cleanRef)}`;
+        else if (cleanRef.startsWith('REC')) targetUrl = `single-cash-payment.php?type=receipt&id=${encodeURIComponent(cleanRef)}`;
+        else targetUrl = `single-cash-payment.php?id=${encodeURIComponent(cleanRef)}`;
     }
 
     if (targetUrl) {
-        showToast('جاري فتح أصل السند: ' + cleanRef, 'info');
+        if (typeof showToast === 'function') {
+            showToast(`🚀 جاري فتح أصل السند: ${cleanRef}`, 'info', 3000);
+        }
         window.open(targetUrl, '_blank');
     }
 };
 
-/* ── Single Click Number Magnification ── */
+/* ── Single Click Number Magnification & Global Click Handler ── */
 document.addEventListener('click', function(e) {
-    const td = e.target.closest('#recent-table td, #preview-table td');
+    // Hide GL Context Menu when clicking outside
+    const menu = document.getElementById('gl-context-menu');
+    if (menu && menu.style.display !== 'none' && !menu.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+
+    const td = e.target.closest('#recent-table td, #preview-table td, .pos-grid td, .excel-table td');
     if (!td) return;
     const isNum = td.dataset.isNum === 'true' || td.classList.contains('num-cell') || /^[-+]?[\d,\.]+\%?$/.test(td.innerText.trim());
     if (isNum) {
@@ -1529,42 +2193,48 @@ document.addEventListener('click', function(e) {
     }
 });
 
-/* ── Split Right-Click Logic (TH: Customizer, TD: Source Voucher Menu) ── */
+/* ── Split Right-Click Logic (TH: Customizer, TD/TR: Source Voucher Menu) ── */
 let currentCtxColId = null;
 let currentCtxTxn = null;
 let currentCtxTd = null;
 
 document.addEventListener('contextmenu', function(e) {
-    const table = e.target.closest('#recent-table, #preview-table');
+    const table = e.target.closest('#recent-table, #preview-table, .pos-grid, .excel-table, table');
     if (!table) return;
+
+    const tr = e.target.closest('tr');
+    const th = e.target.closest('th');
+    const td = e.target.closest('td');
+    if (!tr && !th && !td) return;
 
     e.preventDefault();
 
-    const th = e.target.closest('th');
-    const td = e.target.closest('td');
     currentCtxTd = td;
     currentCtxColId = th ? th.dataset.colId : (td ? td.dataset.colId : 'ref');
-
-    let txnType = td ? td.dataset.txnType : null;
-    let txnRef = td ? td.dataset.txnRef : null;
-
-    if (!txnType && td && td.parentElement) {
-        txnType = td.parentElement.dataset.txnType || td.parentElement.dataset.type;
-        txnRef = td.parentElement.dataset.txnRef || td.parentElement.dataset.ref;
-    }
-
-    currentCtxTxn = (txnRef && txnRef !== '-') ? { type: txnType, ref: txnRef } : null;
 
     // 1. IF Right-Clicking on Header Row (th in top row): Open Customizer Window!
     if (th) {
         const menu = document.getElementById('gl-context-menu');
         if (menu) menu.style.display = 'none';
-        if (currentCtxColId) openGLColumnModal(currentCtxColId);
+        if (currentCtxColId && typeof openGLColumnModal === 'function') openGLColumnModal(currentCtxColId);
         return;
     }
 
-    // 2. IF Right-Clicking on Data Cell / Number (td): Open Source Voucher Menu!
-    closeGLColumnModal(); // Close customization window if open
+    // 2. IF Right-Clicking on Data Cell / Number / Middle of line (td/tr): Open Source Voucher Menu!
+    if (typeof closeGLColumnModal === 'function') closeGLColumnModal();
+
+    let txnType = (tr ? (tr.dataset.txnType || tr.dataset.type) : '') || (td ? (td.dataset.txnType || td.dataset.type) : '') || '';
+    let txnRef = (tr ? (tr.dataset.txnRef || tr.dataset.ref) : '') || (td ? (td.dataset.txnRef || td.dataset.ref) : '') || '';
+
+    // If not found from dataset, try to extract from ref cell in this row
+    if ((!txnRef || txnRef === '-') && tr) {
+        const refEl = tr.querySelector('[data-col-id="ref"], strong[onclick*="navigateToOriginalVoucher"], .ref-cell');
+        if (refEl) {
+            txnRef = refEl.innerText.trim();
+        }
+    }
+
+    currentCtxTxn = (txnRef && txnRef !== '-' && txnRef !== 'OPENING' && txnRef !== 'الرصيد الافتتاحي') ? { type: txnType, ref: txnRef } : null;
 
     const menu = document.getElementById('gl-context-menu');
     if (!menu) return;
@@ -1572,10 +2242,17 @@ document.addEventListener('contextmenu', function(e) {
     // Configure Drilldown button
     const drillEl = document.getElementById('gl-ctx-drilldown');
     if (drillEl) {
-        if (currentCtxTxn) {
+        if (currentCtxTxn && currentCtxTxn.ref) {
             drillEl.classList.remove('disabled');
-            drillEl.innerHTML = `<span>🔗 الذهاب إلى أصل السند: <strong style="color:#38bdf8;">${currentCtxTxn.ref}</strong></span><span style="font-size:0.75rem; color:#38bdf8;">◀</span>`;
-            drillEl.onclick = () => {
+            let cleanDispRef = String(currentCtxTxn.ref).replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim();
+            drillEl.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.15rem;">🔗</span>
+                    <span>الذهاب إلى أصل السند: <strong style="color:#38bdf8; background:rgba(56,189,248,0.18); padding:2px 8px; border-radius:6px; letter-spacing:0.5px;">${cleanDispRef}</strong></span>
+                </div>
+                <span style="font-size:0.85rem; color:#38bdf8;">◀</span>`;
+            drillEl.onclick = (ev) => {
+                ev.stopPropagation();
                 menu.style.display = 'none';
                 navigateToOriginalVoucher(currentCtxTxn.type, currentCtxTxn.ref);
             };
@@ -1955,30 +2632,36 @@ window.moveGLColumn = function(colId, dir) {
 function getAccountName(accVal) {
     if (accVal === 'ALL') return 'جميع الحسابات';
     if (accVal === '-' || !accVal) return '-';
+    let name = '';
     const idLower = String(accVal).toLowerCase();
-    if (ACCOUNT_NAME_CACHE.has(idLower)) return ACCOUNT_NAME_CACHE.get(idLower);
-    const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
-    if (ACCOUNT_NAME_CACHE.has(cleanId)) return ACCOUNT_NAME_CACHE.get(cleanId);
+    if (ACCOUNT_NAME_CACHE.has(idLower)) name = ACCOUNT_NAME_CACHE.get(idLower);
+    else {
+        const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
+        if (ACCOUNT_NAME_CACHE.has(cleanId)) name = ACCOUNT_NAME_CACHE.get(cleanId);
+    }
     
     // Hardcoded fallbacks
-    if (idLower === 'safe-001' || accVal === 'safe-001') return 'الخزينة الرئيسية';
-    if (idLower === 'bank-001' || accVal === 'bank-001') return 'البنك الرئيسي';
-    if (idLower === 'bankok' || accVal === 'bankok') return 'بنكك (Bankak)';
-    if (idLower === 'fawry' || accVal === 'fawry') return 'فوري (Fawry)';
-    if (idLower === 'o-cash' || accVal === 'o-cash') return 'أوكاش (O-Cash)';
-    if (idLower === 'other' || accVal === 'other') return 'أخرى';
-    if (idLower === 'exp-purchases' || accVal === 'exp-purchases') return 'المشتريات';
-    if (idLower === 'revenue-sales' || accVal === 'revenue-sales') return 'إيرادات المبيعات';
-    if (idLower === 'cost-purchases' || accVal === 'cost-purchases') return 'تكلفة المشتريات (مخزون)';
-    if (idLower === 'act-inventory' || accVal === 'act-inventory') return 'حساب المخزون';
-    if (idLower === 'exp-inventory-adjustments' || accVal === 'exp-inventory-adjustments') return 'تسويات المخزون';
-    if (idLower === 'discount-permitted' || accVal === 'discount-permitted') return 'خصم مسموح به';
-    if (idLower === 'discount-received' || accVal === 'discount-received') return 'خصم مكتسب';
-    if (idLower === 'vat-collected' || accVal === 'vat-collected') return 'ضريبة مبيعات';
-    if (idLower === 'vat-paid' || accVal === 'vat-paid') return 'ضريبة مشتريات';
-    if (idLower === 'cheques-receivable' || accVal === 'cheques-receivable') return 'شيكات برسم التحصيل';
+    if (!name) {
+        if (idLower === 'safe-001' || accVal === 'safe-001') name = 'الخزينة الرئيسية';
+        else if (idLower === 'bank-001' || accVal === 'bank-001') name = 'البنك الرئيسي';
+        else if (idLower === 'bankok' || accVal === 'bankok') name = 'بنكك (Bankak)';
+        else if (idLower === 'fawry' || accVal === 'fawry') name = 'فوري (Fawry)';
+        else if (idLower === 'o-cash' || accVal === 'o-cash') name = 'أوكاش (O-Cash)';
+        else if (idLower === 'other' || accVal === 'other') name = 'أخرى';
+        else if (idLower === 'exp-purchases' || accVal === 'exp-purchases') name = 'المشتريات';
+        else if (idLower === 'revenue-sales' || accVal === 'revenue-sales') name = 'إيرادات المبيعات';
+        else if (idLower === 'cost-purchases' || accVal === 'cost-purchases') name = 'تكلفة المشتريات (مخزون)';
+        else if (idLower === 'act-inventory' || accVal === 'act-inventory') name = 'حساب المخزون';
+        else if (idLower === 'exp-inventory-adjustments' || accVal === 'exp-inventory-adjustments') name = 'تسويات المخزون';
+        else if (idLower === 'discount-permitted' || accVal === 'discount-permitted') name = 'خصم مسموح به';
+        else if (idLower === 'discount-received' || accVal === 'discount-received') name = 'خصم مكتسب';
+        else if (idLower === 'vat-collected' || accVal === 'vat-collected') name = 'ضريبة مبيعات';
+        else if (idLower === 'vat-paid' || accVal === 'vat-paid') name = 'ضريبة مشتريات';
+        else if (idLower === 'cheques-receivable' || accVal === 'cheques-receivable') name = 'شيكات برسم التحصيل';
+        else name = accVal;
+    }
     
-    return accVal; // return ID if name not found
+    return String(name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '').trim();
 }
 
 async function prepareLedgerPreviewData() {
@@ -2123,18 +2806,21 @@ function renderLedgerPresets() {
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
     const defaultPresets = [
-        { name: '💎 افتراضي 1', showInRibbon: true },
-        { name: '⭐ افتراضي 2', showInRibbon: true },
-        { name: '🎨 افتراضي 3', showInRibbon: true },
-        { name: '🔥 افتراضي 4', showInRibbon: true },
-        { name: '✨ افتراضي 5', showInRibbon: true },
-        { name: '🚀 افتراضي 6', showInRibbon: true }
+        { name: '💎 افتراضي 1', showInRibbon: true, isLocked: true },
+        { name: '⭐ افتراضي 2', showInRibbon: true, isLocked: true },
+        { name: '🎨 افتراضي 3', showInRibbon: true, isLocked: true },
+        { name: '🔥 افتراضي 4', showInRibbon: true, isLocked: true },
+        { name: '✨ افتراضي 5', showInRibbon: true, isLocked: true },
+        { name: '🚀 افتراضي 6', showInRibbon: true, isLocked: true }
     ];
 
     if (!Array.isArray(presets) || presets.length === 0) {
         presets = defaultPresets;
-        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
     }
+
+    // Lock all default presets permanently
+    presets.forEach(p => { p.isLocked = true; });
+    try { localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets)); } catch(e){}
 
     presets.slice(0, 6).forEach((p, idx) => {
         if (p.showInRibbon === false) return;
@@ -2152,13 +2838,17 @@ function renderLedgerPresets() {
         
         btn.style.cssText = `--btn-color: ${color};`;
         btn.innerHTML = p.name || ('نموذج ' + (idx + 1));
-        btn.onclick = () => openPresetModal(idx, p.name || ('نموذج ' + (idx + 1)));
+        
+        btn.onclick = (e) => {
+            if (e) e.preventDefault();
+            openPresetModal(idx, p.name || ('نموذج ' + (idx + 1)), true);
+        };
         container.appendChild(btn);
     });
 }
 window.renderLedgerPresets = renderLedgerPresets;
 
-async function openPresetModal(presetIndex, presetName) {
+async function openPresetModal(presetIndex, presetName, isLocked = true) {
     try {
         await prepareLedgerPreviewData();
     } catch (e) {
@@ -2206,7 +2896,7 @@ async function openPresetModal(presetIndex, presetName) {
         </div>
     `;
     modal.style.display = 'flex';
-};
+}
 window.openPresetModal = openPresetModal;
 
 // Attach event listeners to filters to auto-run
@@ -2347,3 +3037,99 @@ function initGeneralLedgerResizers() {
     });
 }
 document.addEventListener('DOMContentLoaded', initGeneralLedgerResizers);
+
+window.glHandleDragStart = function(e) {
+    const th = e.target.closest('th');
+    if (!th) {
+        e.preventDefault();
+        return;
+    }
+    if (e.target.classList && e.target.classList.contains('resizer')) {
+        e.preventDefault();
+        return;
+    }
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', th.getAttribute('data-col-id'));
+    setTimeout(() => { th.style.opacity = '0.4'; }, 10);
+};
+
+window.glHandleDragEnter = function(e) {
+    e.preventDefault();
+    const th = e.target.closest('th');
+    if (th) {
+        th.style.borderLeft = '3px solid #0ea5e9';
+    }
+};
+
+window.glHandleDragOver = function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+};
+
+window.glHandleDragLeave = function(e) {
+    const th = e.target.closest('th');
+    if (th) {
+        th.style.borderLeft = '';
+    }
+};
+
+window.glHandleDrop = function(e) {
+    e.preventDefault();
+    const draggedColId = e.dataTransfer.getData('text/plain');
+    let targetTh = e.target.closest('th');
+    if (!targetTh) return;
+    
+    document.querySelectorAll('#recent-table th').forEach(el => {
+        el.style.opacity = '1';
+        el.style.borderLeft = '';
+    });
+    
+    const targetColId = targetTh.getAttribute('data-col-id');
+    if (draggedColId && targetColId && draggedColId !== targetColId) {
+        const arr = typeof activeGLColumnSettings !== 'undefined' ? activeGLColumnSettings : window.activeGLColumnSettings;
+        if (!arr) return;
+
+        const fromIdx = arr.findIndex(c => c.id === draggedColId);
+        const toIdx = arr.findIndex(c => c.id === targetColId);
+        
+        if (fromIdx > -1 && toIdx > -1) {
+            const movedItem = arr.splice(fromIdx, 1)[0];
+            arr.splice(toIdx, 0, movedItem);
+            if (typeof saveGLColumnSettings === 'function') saveGLColumnSettings();
+            if (typeof runReport === 'function') runReport();
+            if (typeof showToast === 'function') showToast('�� ������� �����', 'success');
+        }
+    }
+};
+
+window.glHandleDragEnd = function(e) {
+    const th = e.target.closest ? e.target.closest('th') : null;
+    if (th) th.style.opacity = '1';
+    document.querySelectorAll('#recent-table th').forEach(el => {
+        el.style.opacity = '1';
+        el.style.borderLeft = '';
+    });
+};
+
+
+
+
+window.glHandleArrowMove = function(e, colId, dir) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const arr = typeof activeGLColumnSettings !== 'undefined' ? activeGLColumnSettings : window.activeGLColumnSettings;
+    if (!arr) return;
+
+    const idx = arr.findIndex(c => c.id === colId);
+    if (idx < 0) return;
+    
+    const newIdx = idx + dir;
+    if (newIdx >= 0 && newIdx < arr.length) {
+        const item = arr.splice(idx, 1)[0];
+        arr.splice(newIdx, 0, item);
+        if (typeof saveGLColumnSettings === 'function') saveGLColumnSettings();
+        if (typeof runReport === 'function') runReport();
+        if (typeof showToast === 'function') showToast('�� ����� ������', 'info');
+    }
+};

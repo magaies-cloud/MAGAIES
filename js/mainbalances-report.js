@@ -1,4 +1,43 @@
-/* ═══════════════════════════════════════════════════════
+
+window.toggleNumberMagnification = function(el) {
+    if (!el) return;
+    const isMagnified = el.classList.contains('focused-num') || el.classList.contains('num-magnified');
+    if (isMagnified) {
+        el.classList.remove('focused-num', 'num-magnified');
+        el.style.removeProperty('background');
+        el.style.removeProperty('background-color');
+        el.style.removeProperty('color');
+        el.style.removeProperty('font-size');
+        el.style.removeProperty('font-weight');
+        el.style.removeProperty('border');
+        el.style.removeProperty('border-radius');
+        el.style.removeProperty('box-shadow');
+        el.style.removeProperty('transform');
+        el.style.removeProperty('z-index');
+        el.style.removeProperty('position');
+        el.style.removeProperty('padding');
+        el.style.removeProperty('letter-spacing');
+        el.style.removeProperty('text-shadow');
+    } else {
+        el.classList.add('focused-num', 'num-magnified');
+        el.style.setProperty('background', '#fef08a', 'important');
+        el.style.setProperty('background-color', '#fef08a', 'important');
+        el.style.setProperty('color', '#0f172a', 'important');
+        el.style.setProperty('font-size', '1.85rem', 'important');
+        el.style.setProperty('font-weight', '900', 'important');
+        el.style.setProperty('border', '2.5px solid #eab308', 'important');
+        el.style.setProperty('border-radius', '12px', 'important');
+        el.style.setProperty('box-shadow', '0 12px 30px rgba(234, 179, 8, 0.45), 0 4px 12px rgba(0,0,0,0.2)', 'important');
+        el.style.setProperty('transform', 'scale(1.08)', 'important');
+        el.style.setProperty('z-index', '99999', 'important');
+        el.style.setProperty('position', 'relative', 'important');
+        el.style.setProperty('padding', '8px 20px', 'important');
+        el.style.setProperty('letter-spacing', '0.8px', 'important');
+        el.style.setProperty('text-shadow', 'none', 'important');
+    }
+};
+
+﻿/* ═══════════════════════════════════════════════════════
    balances-report.js — Global Balances & Aging Report
    ═══════════════════════════════════════════════════════ */
 console.log('%c[balances-report.js] FILE LOADED v2', 'color: lime; font-size: 16px; font-weight: bold;');
@@ -100,6 +139,7 @@ function applyLayoutToDOM() {
                 if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') th.style.setProperty('background-color', conf.bg, 'important'); else th.style.removeProperty('background-color');
                 if (conf.fontFamily) th.style.setProperty('font-family', conf.fontFamily, 'important'); else th.style.removeProperty('font-family');
                 if (alignVal) th.style.setProperty('text-align', alignVal, 'important'); else th.style.removeProperty('text-align');
+                if (conf.width) th.style.setProperty('width', conf.width, 'important'); else th.style.removeProperty('width');
             });
         }
 
@@ -241,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-let isSavingLayout = false;
+let saveLayoutTimeout = null;
 function saveLayout() {
     try {
         const layoutPayload = {
@@ -257,13 +297,12 @@ function saveLayout() {
         localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
         localStorage.setItem('mainbalances_report_master_v4_default1', JSON.stringify(layoutPayload));
         
-        const token = localStorage.getItem('erp_token') || '';
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = 'Bearer ' + token;
+        clearTimeout(saveLayoutTimeout);
+        saveLayoutTimeout = setTimeout(() => {
+            const token = localStorage.getItem('erp_token') || '';
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = 'Bearer ' + token;
 
-        // Save permanently to MySQL Database
-        if (!isSavingLayout) {
-            isSavingLayout = true;
             fetch('api_index.php/report-layout', {
                 method: 'POST',
                 headers: headers,
@@ -274,16 +313,14 @@ function saveLayout() {
             })
             .then(res => res.json())
             .then(data => {
-                isSavingLayout = false;
                 if (data && data.success) {
                     console.log('✅ Layout saved permanently to DB');
                 }
             })
             .catch(err => {
-                isSavingLayout = false;
                 console.error('Failed to save layout to DB', err);
             });
-        }
+        }, 800);
         
         if (typeof window.renderBalancesPresets === 'function') {
             window.renderBalancesPresets();
@@ -428,1283 +465,487 @@ function readERPStore(key) {
     return [];
 }
 
-function loadData() {
-    const pMode = (typeof window.getPostingMode === 'function') ? window.getPostingMode() : 'auto';
-    const excludeUnposted = (pMode === 'manual');
+/* ─── Unified Helper Functions Matching General Ledger ─── */
+function parseTimeTo24h(timeStr) {
+    if (!timeStr) return '00:00:00';
+    timeStr = String(timeStr).trim();
+    let isPM = /pm|مساء/i.test(timeStr);
+    let isAM = /am|صباحا|صباحاً/i.test(timeStr);
+    let clean = timeStr.replace(/[^0-9:]/g, '');
+    let parts = clean.split(':').map(p => parseInt(p, 10) || 0);
+    let h = parts[0] || 0, m = parts[1] || 0, s = parts[2] || 0;
+    if (isPM && h < 12) h += 12;
+    if (isAM && h === 12) h = 0;
+    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
 
+function normalizeArabic(s) {
+    return String(s || '').trim().toLowerCase()
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/ى/g, 'ي')
+        .replace(/\s+/g, ' ');
+}
+
+var ACCOUNT_NAME_CACHE = new Map();
+
+function buildAccountsNameCache(allPartners = []) {
+    ACCOUNT_NAME_CACHE = new Map();
+    (allPartners || []).forEach(a => {
+        if (!a) return;
+        const idLower = String(a.id || '').toLowerCase();
+        if (idLower && a.name) ACCOUNT_NAME_CACHE.set(idLower, a.name);
+        const nameLower = String(a.name || '').toLowerCase();
+        if (nameLower && !ACCOUNT_NAME_CACHE.has(nameLower)) {
+            ACCOUNT_NAME_CACHE.set(nameLower, a.name);
+        }
+        const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
+        if (cleanId && !ACCOUNT_NAME_CACHE.has(cleanId)) {
+            ACCOUNT_NAME_CACHE.set(cleanId, a.name);
+        }
+        if (a.code) {
+            const codeLower = String(a.code).toLowerCase();
+            if (!ACCOUNT_NAME_CACHE.has(codeLower)) ACCOUNT_NAME_CACHE.set(codeLower, a.name);
+        }
+    });
+
+    // Known default aliases matching general-ledger.js
+    const defaults = {
+        'safe-001': 'الخزينة الرئيسية',
+        'bank-001': 'البنك الرئيسي',
+        'bankok': 'بنكك (Bankak)',
+        'fawry': 'فوري (Fawry)',
+        'o-cash': 'أوكاش (O-Cash)',
+        'other': 'أخرى',
+        'exp-purchases': 'المشتريات',
+        'revenue-sales': 'إيرادات المبيعات',
+        'cost-purchases': 'تكلفة المشتريات (مخزون)',
+        'act-inventory': 'حساب المخزون',
+        'exp-inventory-adjustments': 'تسويات المخزون',
+        'discount-permitted': 'خصم مسموح به',
+        'discount-received': 'خصم مكتسب',
+        'vat-collected': 'ضريبة مبيعات',
+        'vat-paid': 'ضريبة مشتريات',
+        'cheques-receivable': 'شيكات برسم التحصيل'
+    };
+    for (let k in defaults) {
+        if (!ACCOUNT_NAME_CACHE.has(k)) ACCOUNT_NAME_CACHE.set(k, defaults[k]);
+    }
+}
+
+function getAccountName(accVal) {
+    if (accVal === 'ALL') return 'جميع الحسابات';
+    if (accVal === '-' || !accVal) return '-';
+    let name = '';
+    const idLower = String(accVal).toLowerCase();
+    if (ACCOUNT_NAME_CACHE.has(idLower)) name = ACCOUNT_NAME_CACHE.get(idLower);
+    else {
+        const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
+        if (ACCOUNT_NAME_CACHE.has(cleanId)) name = ACCOUNT_NAME_CACHE.get(cleanId);
+    }
+    if (!name) name = accVal;
+    return String(name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '').trim();
+}
+
+function getSystemUsdRate() {
+    let systemUsdRate = 1;
+    if (typeof window.getExchangeRateForCurrency === 'function') {
+        const r = window.getExchangeRateForCurrency('USD');
+        if (r && r > 1) systemUsdRate = parseFloat(r);
+    }
+    if (systemUsdRate <= 1 && typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 1) {
+        systemUsdRate = ledgerExchangeRate;
+    }
+    if (systemUsdRate <= 1 && window._gemInitialRate && parseFloat(window._gemInitialRate) > 1) {
+        systemUsdRate = parseFloat(window._gemInitialRate);
+    }
+    if (systemUsdRate <= 1) {
+        try {
+            const settings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            if (settings.rateUSD && parseFloat(settings.rateUSD) > 1) {
+                systemUsdRate = parseFloat(settings.rateUSD);
+            }
+        } catch(e){}
+    }
+    if (systemUsdRate <= 1) {
+        try {
+            const dedicated = localStorage.getItem('erp_rate_usd');
+            if (dedicated && parseFloat(dedicated) > 1) systemUsdRate = parseFloat(dedicated);
+        } catch(e){}
+    }
+    if (systemUsdRate <= 1) {
+        try {
+            const cached = localStorage.getItem('erp_cached_global_rate');
+            if (cached && parseFloat(cached) > 1) systemUsdRate = parseFloat(cached);
+        } catch(e){}
+    }
+    if (systemUsdRate <= 1) {
+        try {
+            const rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1') || '{}');
+            if (rates['USD'] && parseFloat(rates['USD']) > 1) systemUsdRate = parseFloat(rates['USD']);
+        } catch(e){}
+    }
+    return systemUsdRate > 1 ? systemUsdRate : 1;
+}
+
+function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'ALL') {
+    const pIdStr = String(p.id || '').trim();
+    const pType = p.type || 'CUST';
+    const prefix = pType === 'CUST' ? 'cust-' : pType === 'SUPP' ? 'supp-' : pType === 'BANK' ? 'bank-' : pType === 'SAFE' ? 'safe-' : 'exp-';
+    const pRefPrefixed = pIdStr.startsWith(prefix) ? pIdStr : (prefix + pIdStr);
+    const pBareId = pIdStr.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+    const pName = String(p.name || '').trim();
+    const pCode = String(p.code || p.accountNo || '').trim();
+
+    const normName = normalizeArabic(pName);
+    const compactName = normName.replace(/\s+/g, '');
+
+    // 1. Opening balance calculation (100% Identical to general-ledger.js)
+    const opDebit = parseNum(p.openingDebit || p.debit || 0);
+    const opCredit = parseNum(p.openingCredit || p.credit || 0);
+    const rawBal = parseNum(p.openingBalance || p.opening_balance || p.balance || 0);
+
+    let intrinsicBal = 0;
+    if (opDebit > 0 || opCredit > 0) {
+        intrinsicBal = opDebit - opCredit;
+    } else if (rawBal !== 0) {
+        if (p.balance_type === 'credit' || p.balanceType === 'credit') {
+            intrinsicBal = -Math.abs(rawBal);
+        } else {
+            intrinsicBal = Math.abs(rawBal);
+        }
+    }
+
+    const entityCurrency = p.currency || 'SDG';
+    let entityExRate = parseNum(p.exchangeRate || p.exRate || p.rate || 0);
+    if (entityCurrency === 'SDG') {
+        entityExRate = systemUsdRate > 1 ? systemUsdRate : 1;
+    } else if (!entityExRate || entityExRate <= 1) {
+        if (typeof window.getExchangeRateForCurrency === 'function') {
+            const specificRate = window.getExchangeRateForCurrency(entityCurrency);
+            entityExRate = (specificRate && specificRate > 1) ? parseFloat(specificRate) : (systemUsdRate > 1 ? systemUsdRate : 1);
+        } else {
+            entityExRate = systemUsdRate > 1 ? systemUsdRate : 1;
+        }
+    }
+
+    let intrinsicBalFc = entityExRate > 1 ? (intrinsicBal / entityExRate) : 0;
+
+    // 2. Filter transactions matching this account (matching general-ledger.js criteria)
+    const partnerTxns = (allTxns || []).filter(t => {
+        if (!t) return false;
+        if (ccFilter && ccFilter !== 'ALL' && t.costCenter !== ccFilter) return false;
+
+        const tAcc = String(t.account || '').trim();
+        if (!tAcc) return false;
+
+        // Exact ID matches
+        if (tAcc === pRefPrefixed || tAcc === pBareId) return true;
+        const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+        if (cleanTAcc && cleanTAcc === pBareId) return true;
+
+        // Code match
+        if (pCode && (tAcc === pCode || cleanTAcc === pCode)) return true;
+
+        // Exact Name match
+        if (pName && tAcc === pName) return true;
+
+        // Name match via getAccountName (same as general-ledger.js)
+        const tAccName = getAccountName(tAcc);
+        if (pName && tAccName && tAccName === pName) return true;
+
+        // Arabic Normalized Name match
+        const normT = normalizeArabic(tAcc);
+        if (normName && (normT === normName || normT.replace(/\s+/g, '') === compactName)) return true;
+        if (tAccName) {
+            const normTN = normalizeArabic(tAccName);
+            if (normName && (normTN === normName || normTN.replace(/\s+/g, '') === compactName)) return true;
+        }
+
+        // Additional match on t.partner or t.accountName
+        const tPartner = String(t.partner || t.accountName || '').trim();
+        if (tPartner) {
+            if (tPartner === pRefPrefixed || tPartner === pBareId || tPartner === pName) return true;
+            const normTP = normalizeArabic(tPartner);
+            if (normName && (normTP === normName || normTP.replace(/\s+/g, '') === compactName)) return true;
+        }
+
+        return false;
+    });
+
+    // 3. Sort chronologically (oldest first at top, newest at bottom, same as general-ledger.js)
+    partnerTxns.sort((a, b) => {
+        const da = ((a && a.date) || '') + ' ' + parseTimeTo24h(a && a.time);
+        const db = ((b && b.date) || '') + ' ' + parseTimeTo24h(b && b.time);
+        let cmp = da.localeCompare(db);
+        if (cmp === 0) {
+            cmp = String((a && a.ref) || '').localeCompare(String((b && b.ref) || ''), undefined, { numeric: true });
+        }
+        return cmp;
+    });
+
+    // 4. Compute running balance (100% Identical to general-ledger.js)
+    let runningBal = intrinsicBal;
+    let runningBalFc = intrinsicBalFc;
+    let lastDate = null;
+
+    partnerTxns.forEach(t => {
+        let debLoc = parseNum(t.debit || t.dr || 0);
+        let credLoc = parseNum(t.credit || t.cr || 0);
+        let rate = parseNum(t.exchangeRate || t.exRate || t.rate || entityExRate || 1);
+        if (!rate || rate <= 0) rate = entityExRate || 1;
+
+        let df = parseNum(t.debitForeign || t.dr_foreign || 0);
+        let cf = parseNum(t.creditForeign || t.cr_foreign || 0);
+
+        if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 0) {
+            df = debLoc / rate;
+        }
+        if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 0) {
+            cf = credLoc / rate;
+        }
+
+        runningBal += (debLoc - credLoc);
+        runningBalFc += (df - cf);
+
+        const tDate = (t.date || '') + ' ' + (t.time || '00:00');
+        if (!lastDate || tDate > lastDate) {
+            lastDate = tDate;
+        }
+    });
+
+    // Foreign currency sign alignment matching general-ledger.js (lines 1175-1179 & 1236-1240)
+    if (runningBal < -0.001) {
+        runningBalFc = -Math.abs(runningBalFc);
+    } else if (runningBal > 0.001) {
+        runningBalFc = Math.abs(runningBalFc);
+    }
+
+    // 5. Ending balances mapping to the 4 columns
+    let endingDebitLocal = 0;
+    let endingCreditLocal = 0;
+    let endingDebitForeign = 0;
+    let endingCreditForeign = 0;
+
+    if (runningBal > 0.001) {
+        endingDebitLocal = Math.abs(runningBal);
+        endingCreditLocal = 0;
+        endingDebitForeign = Math.abs(runningBalFc);
+        endingCreditForeign = 0;
+    } else if (runningBal < -0.001) {
+        endingDebitLocal = 0;
+        endingCreditLocal = Math.abs(runningBal);
+        endingDebitForeign = 0;
+        endingCreditForeign = Math.abs(runningBalFc);
+    } else {
+        endingDebitLocal = 0;
+        endingCreditLocal = 0;
+        if (runningBalFc > 0.001) {
+            endingDebitForeign = Math.abs(runningBalFc);
+            endingCreditForeign = 0;
+        } else if (runningBalFc < -0.001) {
+            endingDebitForeign = 0;
+            endingCreditForeign = Math.abs(runningBalFc);
+        } else {
+            endingDebitForeign = 0;
+            endingCreditForeign = 0;
+        }
+    }
+
+    return {
+        endingDebitLocal,
+        endingCreditLocal,
+        endingDebitForeign,
+        endingCreditForeign,
+        runningBal,
+        runningBalFc,
+        lastDate,
+        txnCount: partnerTxns.length
+    };
+}
+
+function loadData() {
     console.log('%c[balances-report.js] loadData() CALLED', 'color: cyan; font-size: 14px;');
+    
+    // Always rebuild GL from all tables to ensure fresh synchronization
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        try {
+            window.rebuildGLFromAllTables(false);
+        } catch(e) {
+            console.warn('[balances-report.js] Error in rebuildGLFromAllTables:', e);
+        }
+    }
+
+    const getTK = window.getTenantKey || ((k) => k);
+
+    // Merge helper to read both tenant-prefixed and raw stores without data loss
+    function loadMergedStore(baseKey) {
+        const tk = getTK(baseKey);
+        let list1 = [];
+        let list2 = [];
+        try { list1 = JSON.parse(localStorage.getItem(tk) || '[]'); } catch(e){}
+        try { list2 = JSON.parse(localStorage.getItem(baseKey) || '[]'); } catch(e){}
+        if (!Array.isArray(list1)) list1 = Object.values(list1 || {});
+        if (!Array.isArray(list2)) list2 = Object.values(list2 || {});
+        
+        const map = new Map();
+        [...list2, ...list1].forEach(v => {
+            if (!v) return;
+            const key = String(v.id || v.accountNo || v.code || v.name || Math.random()).trim();
+            map.set(key, v);
+        });
+        return Array.from(map.values()).filter(v => v && !v.deleted && !v.is_deleted);
+    }
+
     ALL_PARTNERS = [];
-    const custs = (readERPStore('erp_customers_v1') || []).filter(x => !x.deleted && !x.is_deleted);
-    const sups  = (readERPStore('erp_suppliers_v1') || []).filter(x => !x.deleted && !x.is_deleted);
-    const banks = readERPStore('erp_banks_v1') || [];
-    const safes = readERPStore('erp_safes_v1') || [];
-    const exp   = readERPStore('erp_accounts_v1') || [];
+    const custs = loadMergedStore('erp_customers_v1');
+    const sups  = loadMergedStore('erp_suppliers_v1');
+    const banks = loadMergedStore('erp_banks_v1');
+    const safes = loadMergedStore('erp_safes_v1');
+    const exp   = loadMergedStore('erp_accounts_v1');
     
     const rates = getCurrencyRates();
+    const systemUsdRate = getSystemUsdRate();
     
     custs.forEach(c => {
         const cur = c.currency || 'SDG';
-        const rate = parseNum(c.exRate || rates[cur] || 1);
+        const rate = parseNum(c.exchangeRate || c.exRate || c.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
         ALL_PARTNERS.push({ 
-            id: c.id, code: c.accountNo || c.code || '-', name: c.name, type: 'CUST', 
+            id: c.id, code: c.accountNo || c.code || '-', name: c.name || c.customerName, type: 'CUST', 
             phone: c.phone || '', taxNumber: c.taxNumber || '', currency: cur, exRate: rate,
-            openingDebit: parseNum(c.openingDebit || 0), openingCredit: parseNum(c.openingCredit || 0),
+            openingDebit: parseNum(c.openingDebit || c.debit || 0),
+            openingCredit: parseNum(c.openingCredit || c.credit || 0),
+            openingBalance: parseNum(c.openingBalance || c.opening_balance || c.balance || 0),
+            balanceType: c.balance_type || c.balanceType || 'debit',
+            balance_type: c.balance_type || c.balanceType || 'debit',
             notes: c.notes || '',
             debit: 0, credit: 0, lastDate: null 
         });
     });
-    sups.forEach(s  => {
+
+    sups.forEach(s => {
         const cur = s.currency || 'SDG';
-        const rate = parseNum(s.exRate || rates[cur] || 1);
+        const rate = parseNum(s.exchangeRate || s.exRate || s.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
         ALL_PARTNERS.push({ 
-            id: s.id, code: s.accountNo || s.code || '-', name: s.name, type: 'SUPP', 
+            id: s.id, code: s.accountNo || s.code || '-', name: s.name || s.supplierName, type: 'SUPP', 
             phone: s.phone || '', taxNumber: s.taxNumber || '', currency: cur, exRate: rate,
-            openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
+            openingDebit: parseNum(s.openingDebit || s.debit || 0),
+            openingCredit: parseNum(s.openingCredit || s.credit || 0),
+            openingBalance: parseNum(s.openingBalance || s.opening_balance || s.balance || 0),
+            balanceType: s.balance_type || s.balanceType || 'credit',
+            balance_type: s.balance_type || s.balanceType || 'credit',
             notes: s.notes || '',
             debit: 0, credit: 0, lastDate: null 
         });
     });
+
     banks.forEach(b => {
         const cur = b.currency || 'SDG';
-        const rate = parseNum(b.exRate || rates[cur] || 1);
+        const rate = parseNum(b.exchangeRate || b.exRate || b.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
         ALL_PARTNERS.push({ 
-            id: b.id, code: b.glAccount || b.code || '-', name: b.name, type: 'BANK', 
+            id: b.id, code: b.glAccount || b.code || '-', name: b.name || b.bankName, type: 'BANK', 
             phone: b.branch || '', taxNumber: b.accountNo || '', currency: cur, exRate: rate,
-            openingDebit: parseNum(b.openingDebit || 0), openingCredit: parseNum(b.openingCredit || 0),
+            openingDebit: parseNum(b.openingDebit || b.debit || 0),
+            openingCredit: parseNum(b.openingCredit || b.credit || 0),
+            openingBalance: parseNum(b.openingBalance || b.opening_balance || b.balance || 0),
+            balanceType: b.balance_type || b.balanceType || 'debit',
+            balance_type: b.balance_type || b.balanceType || 'debit',
             notes: b.notes || '',
             debit: 0, credit: 0, lastDate: null 
         });
     });
+
     safes.forEach(s => {
         const cur = s.currency || 'SDG';
-        const rate = parseNum(s.exRate || rates[cur] || 1);
+        const rate = parseNum(s.exchangeRate || s.exRate || s.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
         ALL_PARTNERS.push({ 
-            id: s.id, code: s.glAccount || s.code || '-', name: s.name, type: 'SAFE', 
+            id: s.id, code: s.glAccount || s.code || '-', name: s.name || s.safeName, type: 'SAFE', 
             phone: '', taxNumber: '', currency: cur, exRate: rate,
-            openingDebit: parseNum(s.openingDebit || 0), openingCredit: parseNum(s.openingCredit || 0),
+            openingDebit: parseNum(s.openingDebit || s.debit || 0),
+            openingCredit: parseNum(s.openingCredit || s.credit || 0),
+            openingBalance: parseNum(s.openingBalance || s.opening_balance || s.balance || 0),
+            balanceType: s.balance_type || s.balanceType || 'debit',
+            balance_type: s.balance_type || s.balanceType || 'debit',
             notes: s.notes || '',
             debit: 0, credit: 0, lastDate: null 
         });
     });
+
     exp.forEach(e => {
-        const cur = 'SDG';
-        const rate = 1;
+        const cur = e.currency || 'SDG';
+        const rate = parseNum(e.exchangeRate || e.exRate || e.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
         ALL_PARTNERS.push({ 
-            id: e.id || e.code, code: e.code || '-', name: e.name, type: 'EXP', 
+            id: e.id, code: e.code || '-', name: e.name || e.accountName, type: 'EXP', 
             phone: '', taxNumber: '', currency: cur, exRate: rate,
-            openingDebit: parseNum(e.openingDebit || 0), openingCredit: parseNum(e.openingCredit || 0),
+            openingDebit: parseNum(e.openingDebit || e.debit || 0),
+            openingCredit: parseNum(e.openingCredit || e.credit || 0),
+            openingBalance: parseNum(e.openingBalance || e.opening_balance || e.balance || 0),
+            balanceType: e.balance_type || e.balanceType || 'debit',
+            balance_type: e.balance_type || e.balanceType || 'debit',
             notes: e.notes || '',
             debit: 0, credit: 0, lastDate: null 
         });
     });
 
-    // Add Mobile Wallets
-    const wallets = [
-        { id: 'bankok', name: 'بنكك (Bankak)' },
-        { id: 'fawry', name: 'فوري (Fawry)' },
-        { id: 'o-cash', name: 'أوكاش (O-Cash)' },
-        { id: 'other', name: 'محفظة أخرى' }
-    ];
-    wallets.forEach(w => {
-        ALL_PARTNERS.push({ 
-            id: w.id, code: w.id, name: w.name, type: 'SAFE', 
-            phone: '', taxNumber: '', currency: 'SDG', exRate: 1,
-            openingDebit: 0, openingCredit: 0,
-            notes: 'محفظة إلكترونية',
-            debit: 0, credit: 0, lastDate: null 
-        });
-    });
-    
-    // We reuse the collector logic from SGL, modified to only grab partner transactions
-    // === PERFECT SYNC WITH GENERAL-LEDGER.JS ===
-    function getLedgerTxns() {
-    let txns = [];
-    const timeNow = new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}); // Fallback time
+    // Build lookup cache matching general-ledger.js
+    buildAccountsNameCache(ALL_PARTNERS);
 
-    // Helper: resolve the effective exchange rate for a transaction
-    // Priority: 1) systemExchangeRate saved at creation, 2) rate if foreign, 3) current ledgerExchangeRate
-    function getEffectiveRate(item, txnRate) {
-        const saved = parseNum(item.systemExchangeRate || 0);
-        if (saved > 1) return saved;
-        if (txnRate && txnRate > 1) return txnRate;
-        return (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate > 0 ? ledgerExchangeRate : 1);
-    }
+    // Read full GL transactions
+    let glTxns = [];
+    try {
+        glTxns = JSON.parse(localStorage.getItem(getTK('erp_gl_v1')) || localStorage.getItem('erp_gl_v1') || '[]');
+    } catch(e) { glTxns = []; }
+    if (!Array.isArray(glTxns)) glTxns = Object.values(glTxns || {});
+    ALL_TXNS = glTxns;
 
-    // 1. Single Receipts
-    const receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
-    receipts.forEach(v => {
-        const costCenter = v.costCenter || 'بدون مركز';
-        const currency = v.currency || 'SDG';
-        const time = v.time || timeNow;
-        const isPosted = v.isPosted !== false;
-        
-        const rate = parseNum(v.rate || 1);
-        const effRate = getEffectiveRate(v, rate);
-        const isBaseSDG = (currency === 'SDG');
-        const amount = parseNum(v.amount !== undefined ? v.amount : (isBaseSDG ? v.amountLocal : v.amountForeign));
-        const amountLocal = parseNum(v.amountLocal || (amount * rate));
-        const valLoc = amountLocal;
-        const valFc = isBaseSDG ? (amountLocal / effRate) : amount;
+    // Scan ALL_TXNS for any transacted accounts not in ALL_PARTNERS and register them
+    const existingPartnerIds = new Set(ALL_PARTNERS.map(p => String(p.id).toLowerCase()));
+    const existingPartnerNames = new Set(ALL_PARTNERS.map(p => normalizeArabic(p.name)));
+    ALL_TXNS.forEach(t => {
+        if (!t || !t.account) return;
+        const rawAcc = String(t.account).trim();
+        const bareAcc = rawAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').toLowerCase();
+        const normAcc = normalizeArabic(rawAcc);
+        if (!existingPartnerIds.has(rawAcc.toLowerCase()) && !existingPartnerIds.has(bareAcc) && !existingPartnerNames.has(normAcc)) {
+            let accType = 'EXP';
+            if (/^cust-/i.test(rawAcc)) accType = 'CUST';
+            else if (/^supp-/i.test(rawAcc)) accType = 'SUPP';
+            else if (/^bank-/i.test(rawAcc)) accType = 'BANK';
+            else if (/^safe-/i.test(rawAcc)) accType = 'SAFE';
 
-        // Receiving side (Safe/Bank)
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
-            account: v.toAccount || 'safe-001', counterAccount: v.fromAccount,
-            statement: 'سند قبض #' + (v.voucherNo || v.id || 'بدون_رقم'),
-            additionalNote: v.fromStatement || 'سند قبض نقدي',
-            debit: valLoc, credit: 0, 
-            debitForeign: valFc, creditForeign: 0,
-            costCenter, currency,
-            exchangeRate: effRate,
-            isPosted: isPosted
-        });
-        // Disbursing side (Customer/Supplier pays us)
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
-            account: v.fromAccount, counterAccount: v.toAccount || 'safe-001',
-            statement: 'سند قبض #' + (v.voucherNo || v.id || 'بدون_رقم'),
-            additionalNote: v.fromStatement || 'سند صرف نقدي',
-            debit: 0, credit: valLoc, 
-            debitForeign: 0, creditForeign: valFc,
-            costCenter, currency,
-            exchangeRate: effRate,
-            isPosted: isPosted
-        });
-    });
-
-    // 2. Single Payments
-    const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
-    payments.forEach(v => {
-        const costCenter = v.costCenter || 'بدون مركز';
-        const currency = v.currency || 'SDG';
-        const time = v.time || timeNow;
-        const isPosted = v.isPosted !== false;
-
-        const rate = parseNum(v.rate || 1);
-        const effRate = getEffectiveRate(v, rate);
-        const isBaseSDG = (currency === 'SDG');
-        const amount = parseNum(v.amount !== undefined ? v.amount : (isBaseSDG ? v.amountLocal : v.amountForeign));
-        const amountLocal = parseNum(v.amountLocal || (amount * rate));
-        const valLoc = amountLocal;
-        const valFc = isBaseSDG ? (amountLocal / effRate) : amount;
-
-        const method = v.paymentMethod || 'cash';
-        if (method === 'mobile' && v.bankTransfers && v.bankTransfers.length > 0) {
-            v.bankTransfers.forEach(bt => {
-                const amt = parseNum(bt.amount);
-                const amtLoc = isBaseSDG ? amt : amt * rate;
-                const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                const stmt = bt.statement || v.statement || v.toStatement || ('تحويل بنكي - سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'));
-
-                // Disbursing side (Safe/Bank)
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
-                    account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-                    statement: stmt,
-                    additionalNote: stmt,
-                    debit: 0, credit: amtLoc, 
-                    debitForeign: 0, creditForeign: amtFc,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-                // Receiving side (Supplier/Customer receives from us)
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
-                    account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-                    statement: stmt,
-                    additionalNote: stmt,
-                    debit: amtLoc, credit: 0, 
-                    debitForeign: amtFc, creditForeign: 0,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-            });
-        } else if (method === 'check' && v.cheques && v.cheques.length > 0) {
-            v.cheques.forEach(ch => {
-                const amt = parseNum(ch.amount);
-                const amtLoc = isBaseSDG ? amt : amt * rate;
-                const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                const stmt = ch.statement || v.statement || v.toStatement || ('شيك - سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'));
-
-                // Disbursing side (Safe/Bank)
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
-                    account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-                    statement: stmt,
-                    additionalNote: stmt,
-                    debit: 0, credit: amtLoc, 
-                    debitForeign: 0, creditForeign: amtFc,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-                // Receiving side (Supplier/Customer receives from us)
-                txns.push({
-                    date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
-                    account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-                    statement: stmt,
-                    additionalNote: stmt,
-                    debit: amtLoc, credit: 0, 
-                    debitForeign: amtFc, creditForeign: 0,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-            });
-        } else {
-            // Disbursing side (Safe/Bank)
-            txns.push({
-                date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
-                account: v.fromAccount || 'safe-001', counterAccount: v.toAccount,
-                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'),
-                additionalNote: v.toStatement || 'سند صرف نقدي',
-                debit: 0, credit: valLoc, 
-                debitForeign: 0, creditForeign: valFc,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
-            // Receiving side (Supplier/Customer receives from us)
-            txns.push({
-                date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
-                account: v.toAccount, counterAccount: v.fromAccount || 'safe-001',
-                statement: v.statement || 'سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'),
-                additionalNote: v.toStatement || 'سند استلام نقدي',
-                debit: valLoc, credit: 0, 
-                debitForeign: valFc, creditForeign: 0,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
-        }
-    });
-
-    // Helper to resolve safe/bank account name/id from ACCOUNTS list
-    const resolveAccount = (accVal, fallback) => {
-        if (!accVal) return fallback;
-        if (/^(safe|bank|cust|supp|gl)-/.test(accVal)) return accVal;
-        if (typeof ACCOUNTS !== 'undefined' && Array.isArray(ACCOUNTS)) {
-            const found = ACCOUNTS.find(a => a.name === accVal || a.id === accVal);
-            if (found) return found.id;
-        }
-        return accVal;
-    };
-
-    // 2b. Multi-Receipts (erp_receipts_v1)
-    const multiReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
-    multiReceipts.forEach(v => {
-        const costCenter = v.costCenter || 'بدون مركز';
-        const currency = v.currency || 'SDG';
-        const time = v.time || timeNow;
-        const isPosted = v.isPosted !== false;
-        const mainAcc = v.toAccount || 'safe-001';
-
-        const rate = parseNum(v.exchangeRate || 1);
-        const effRate = getEffectiveRate(v, rate);
-        const isBaseSDG = (currency === 'SDG');
-
-        if (v.items && v.items.length > 0) {
-            v.items.forEach(item => {
-                const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
-                
-                // Cash Portion
-                if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
-                    const amt = parseNum(item.cashAmount);
-                    const amtLoc = isBaseSDG ? amt : amt * rate;
-                    const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                    const safeAcct = resolveAccount(item.cashSafe, mainAcc);
-                    const stmt = item.cashStatement || item.statement || v.description || 'قبض نقدية';
-
-                    // Safe Account (Debit)
-                    txns.push({
-                        date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
-                        account: safeAcct, counterAccount: item.account,
-                        statement: v.description || stmt,
-                        additionalNote: v.description || stmt,
-                        debit: amtLoc, credit: 0, 
-                        debitForeign: amtFc, creditForeign: 0,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                    
-                    // Recipient/Payer Account (Credit)
-                    txns.push({
-                        date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
-                        account: item.account, counterAccount: safeAcct,
-                        statement: stmt,
-                        additionalNote: stmt,
-                        debit: 0, credit: amtLoc, 
-                        debitForeign: 0, creditForeign: amtFc,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                }
-
-                // Bank Transfer Portion
-                if (pms.includes('bank') && parseNum(item.bankAmount) > 0) {
-                    const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: item.bankAmount, bankName: item.bankName, transferNo: item.transferNo, statement: item.bankStatement || '' }];
-                    transfers.forEach(bt => {
-                        const amt = parseNum(bt.amount);
-                        if (amt <= 0) return;
-                        const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                        const bankAcct = resolveAccount(bt.bankName, mainAcc);
-                        const stmt = bt.statement || item.statement || v.description || 'قبض تحويل بنكي';
-
-                        // Bank Account (Debit)
-                        txns.push({
-                            date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
-                            account: bankAcct, counterAccount: item.account,
-                            statement: v.description || stmt,
-                            additionalNote: v.description || stmt,
-                            debit: amtLoc, credit: 0, 
-                            debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                        });
-                        
-                        // Recipient/Payer Account (Credit)
-                        txns.push({
-                            date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
-                            account: item.account, counterAccount: bankAcct,
-                            statement: stmt,
-                            additionalNote: stmt,
-                            debit: 0, credit: amtLoc, 
-                            debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                        });
-                    });
-                }
-
-                // Cheque Portion
-                if (pms.includes('cheque') && parseNum(item.chequeAmount) > 0) {
-                    const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: item.chequeAmount, chequeBank: item.chequeBank, chequeNo: item.chequeNo || item.checkNo, chequeDate: item.chequeDate || item.checkDate, statement: item.chequeStatement || '' }];
-                    cheques.forEach(ch => {
-                        const amt = parseNum(ch.amount);
-                        if (amt <= 0) return;
-                        const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                        const chequeAcct = 'cheques-receivable';
-                        const stmt = ch.statement || item.statement || v.description || 'قبض شيك';
-
-                        // Cheque Account (Debit)
-                        txns.push({
-                            date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
-                            account: chequeAcct, counterAccount: item.account,
-                            statement: v.description || stmt,
-                            additionalNote: v.description || stmt,
-                            debit: amtLoc, credit: 0, 
-                            debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                        });
-                        
-                        // Recipient/Payer Account (Credit)
-                        txns.push({
-                            date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
-                            account: item.account, counterAccount: chequeAcct,
-                            statement: stmt,
-                            additionalNote: stmt,
-                            debit: 0, credit: amtLoc, 
-                            debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                        });
-                    });
-                }
-            });
-        } else {
-            // Fallback for old/empty items vouchers
-            const totalAmount = parseNum(v.totalAmount);
-            const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
-            const valFc = isBaseSDG ? (totalAmount / effRate) : totalAmount;
-            txns.push({
-                date: v.date, time: time, ref: v.id, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
-                account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
-                statement: v.description || 'قبض مجمع',
-                additionalNote: v.description || 'سند قبض مجمع',
-                debit: valLoc, credit: 0, 
-                debitForeign: valFc, creditForeign: 0,
-                costCenter, currency, exchangeRate: effRate, isPosted
-            });
-        }
-    });
-
-    // 2b2. Comprehensive Receipts (erp_comprehensive_receipts_v1)
-    const compReceipts = JSON.parse(localStorage.getItem('erp_comprehensive_receipts_v1')) || [];
-    compReceipts.forEach(v => {
-        const costCenter = v.costCenter || 'بدون مركز';
-        const currency = v.currency || 'SDG';
-        const time = v.time || timeNow;
-        const isPosted = v.isPosted !== false;
-        
-        const rate = parseNum(v.exchangeRate || 1);
-        const effRate = getEffectiveRate(v, rate);
-        const isBaseSDG = (currency === 'SDG');
-        const amt = parseNum(v.amount);
-        const valLoc = isBaseSDG ? amt : amt * rate;
-        const valFc = isBaseSDG ? (amt / effRate) : amt;
-        
-        let safeAcct = v.depositAccount || 'safe-001';
-        if (v.paymentType === 'check') safeAcct = v.checkBank || 'cheques-receivable';
-        else if (v.paymentType === 'bank') safeAcct = v.bankSourceName || safeAcct;
-        else if (v.paymentType === 'mobile') safeAcct = v.mobileWallet || safeAcct;
-        
-        const stmt = v.description || v.depositDesc || 'سند قبض شامل';
-
-        // Safe/Bank Account (Debit)
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'comprehensive-receipt', typeLabel: 'سند قبض شامل',
-            account: safeAcct, counterAccount: v.accountId,
-            statement: stmt, additionalNote: stmt,
-            debit: valLoc, credit: 0, 
-            debitForeign: valFc, creditForeign: 0,
-            costCenter, currency, exchangeRate: effRate, isPosted
-        });
-        
-        // Payer Account (Credit)
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'comprehensive-receipt', typeLabel: 'سند قبض شامل',
-            account: v.accountId, counterAccount: safeAcct,
-            statement: stmt, additionalNote: stmt,
-            debit: 0, credit: valLoc, 
-            debitForeign: 0, creditForeign: valFc,
-            costCenter, currency, exchangeRate: effRate, isPosted
-        });
-    });
-
-    // 2c. Multi-Payments (erp_payments_v1)
-    const multiPayments = JSON.parse(localStorage.getItem('erp_payments_v1')) || [];
-    multiPayments.forEach(v => {
-        const costCenter = v.costCenter || 'بدون مركز';
-        const currency = v.currency || 'SDG';
-        const time = v.time || timeNow;
-        const isPosted = v.isPosted !== false;
-        const mainAcc = v.fromAccount || 'safe-001';
-
-        const rate = parseNum(v.exchangeRate || 1);
-        const effRate = getEffectiveRate(v, rate);
-        const isBaseSDG = (currency === 'SDG');
-
-        if (v.items && v.items.length > 0) {
-            v.items.forEach(item => {
-                const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
-                
-                // Cash Portion
-                if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
-                    const amt = parseNum(item.cashAmount);
-                    const amtLoc = isBaseSDG ? amt : amt * rate;
-                    const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                    const safeAcct = resolveAccount(item.cashSafe, mainAcc);
-                    const stmt = item.cashStatement || item.statement || v.description || 'صرف نقدية';
-
-                    // Recipient Account (Debit)
-                    txns.push({
-                        date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
-                        account: item.account, counterAccount: safeAcct,
-                        statement: stmt,
-                        additionalNote: stmt,
-                        debit: amtLoc, credit: 0, 
-                        debitForeign: amtFc, creditForeign: 0,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                    
-                    // Safe Account (Credit)
-                    txns.push({
-                        date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
-                        account: safeAcct, counterAccount: item.account,
-                        statement: v.description || stmt,
-                        additionalNote: v.description || stmt,
-                        debit: 0, credit: amtLoc, 
-                        debitForeign: 0, creditForeign: amtFc,
-                        costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                }
-
-                // Bank Transfer Portion
-                if (pms.includes('bank') && parseNum(item.bankAmount) > 0) {
-                    const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: item.bankAmount, bankName: item.bankName, transferNo: item.transferNo, statement: item.bankStatement || '' }];
-                    transfers.forEach(bt => {
-                        const amt = parseNum(bt.amount);
-                        if (amt <= 0) return;
-                        const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                        const bankAcct = resolveAccount(bt.bankName, mainAcc);
-                        const stmt = bt.statement || item.statement || v.description || 'صرف تحويل بنكي';
-
-                        // Recipient Account (Debit)
-                        txns.push({
-                            date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
-                            account: item.account, counterAccount: bankAcct,
-                            statement: stmt,
-                            additionalNote: stmt,
-                            debit: amtLoc, credit: 0, 
-                            debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                        });
-                        
-                        // Bank Account (Credit)
-                        txns.push({
-                            date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
-                            account: bankAcct, counterAccount: item.account,
-                            statement: v.description || stmt,
-                            additionalNote: v.description || stmt,
-                            debit: 0, credit: amtLoc, 
-                            debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                        });
-                    });
-                }
-
-                // Cheque Portion
-                if (pms.includes('cheque') && parseNum(item.chequeAmount) > 0) {
-                    const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: item.chequeAmount, chequeBank: item.chequeBank, chequeNo: item.chequeNo || item.checkNo, chequeDate: item.chequeDate || item.checkDate, statement: item.chequeStatement || '' }];
-                    cheques.forEach(ch => {
-                        const amt = parseNum(ch.amount);
-                        if (amt <= 0) return;
-                        const amtLoc = isBaseSDG ? amt : amt * rate;
-                        const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                        const chequeAcct = resolveAccount(ch.chequeBank, 'banks-cheques');
-                        const stmt = ch.statement || item.statement || v.description || 'صرف شيك';
-
-                        // Recipient Account (Debit)
-                        txns.push({
-                            date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
-                            account: item.account, counterAccount: chequeAcct,
-                            statement: stmt,
-                            additionalNote: stmt,
-                            debit: amtLoc, credit: 0, 
-                            debitForeign: amtFc, creditForeign: 0,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                        });
-                        
-                        // Cheque Account (Credit)
-                        txns.push({
-                            date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
-                            account: chequeAcct, counterAccount: item.account,
-                            statement: v.description || stmt,
-                            additionalNote: v.description || stmt,
-                            debit: 0, credit: amtLoc, 
-                            debitForeign: 0, creditForeign: amtFc,
-                            costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
-                        });
-                    });
-                }
-            });
-        } else {
-            // Fallback for old/empty items vouchers
-            const totalAmount = parseNum(v.totalAmount);
-            const valLoc = isBaseSDG ? totalAmount : totalAmount * rate;
-            const valFc = isBaseSDG ? (totalAmount / effRate) : totalAmount;
-            txns.push({
-                date: v.date, time: time, ref: v.id, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
-                account: mainAcc, counterAccount: 'حسابات فرعية متعددة',
-                statement: v.description || 'صرف مجمع',
-                additionalNote: v.description || 'سند صرف مجمع',
-                debit: 0, credit: valLoc, 
-                debitForeign: 0, creditForeign: valFc,
-                costCenter, currency, exchangeRate: effRate, isPosted
-            });
-        }
-    });
-    // 2c2. Comprehensive Payments (erp_comprehensive_payments_v1)
-    const compPayments = JSON.parse(localStorage.getItem('erp_comprehensive_payments_v1')) || [];
-    compPayments.forEach(v => {
-        const costCenter = v.costCenter || 'بدون مركز';
-        const currency = v.currency || 'SDG';
-        const time = v.time || timeNow;
-        const isPosted = v.isPosted !== false;
-        
-        const rate = parseNum(v.exchangeRate || 1);
-        const effRate = getEffectiveRate(v, rate);
-        const isBaseSDG = (currency === 'SDG');
-        const amt = parseNum(v.amount);
-        const valLoc = isBaseSDG ? amt : amt * rate;
-        const valFc = isBaseSDG ? (amt / effRate) : amt;
-        
-        let safeAcct = v.withdrawalAccount || 'safe-001';
-        if (v.paymentType === 'check') safeAcct = v.checkBank || 'banks-cheques';
-        else if (v.paymentType === 'bank') safeAcct = v.bankSourceName || safeAcct;
-        else if (v.paymentType === 'mobile') safeAcct = v.mobileWallet || safeAcct;
-        
-        const stmt = v.description || v.withdrawalDesc || 'سند صرف شامل';
-
-        // Safe/Bank Account (Credit)
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'comprehensive-payment', typeLabel: 'سند صرف شامل',
-            account: safeAcct, counterAccount: v.accountId,
-            statement: stmt, additionalNote: stmt,
-            debit: 0, credit: valLoc, 
-            debitForeign: 0, creditForeign: valFc,
-            costCenter, currency, exchangeRate: effRate, isPosted
-        });
-        
-        // Payee Account (Debit)
-        txns.push({
-            date: v.date, time: time, ref: v.id, type: 'comprehensive-payment', typeLabel: 'سند صرف شامل',
-            account: v.accountId, counterAccount: safeAcct,
-            statement: stmt, additionalNote: stmt,
-            debit: valLoc, credit: 0, 
-            debitForeign: valFc, creditForeign: 0,
-            costCenter, currency, exchangeRate: effRate, isPosted
-        });
-    });
-
-    // 3. Journal Vouchers
-    const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
-    jvs.forEach(v => {
-        if (!v.lines) return;
-        const time = v.time || timeNow;
-        const isPosted = v.isPosted !== false;
-        v.lines.forEach(line => {
-            const costCenter = line.costCenter || v.costCenter || 'بدون مركز';
-            const currency = line.currency || v.currency || 'SDG';
-
-            const rate = parseNum(line.rate || 1);
-            const effRate = getEffectiveRate(v, rate);
-            const isBaseSDG = (currency === 'SDG');
-            const deb = parseNum(line.debit);
-            const cred = parseNum(line.credit);
-            const debLoc = isBaseSDG ? deb : deb * rate;
-            const debFc = isBaseSDG ? (deb / effRate) : deb;
-            const credLoc = isBaseSDG ? cred : cred * rate;
-            const credFc = isBaseSDG ? (cred / effRate) : cred;
-
-            txns.push({
-                date: v.date, time: time, ref: v.id, type: 'jv', typeLabel: 'قيد يومي',
-                account: line.account, counterAccount: '-',
-                statement: 'قيد يومي #' + (v.voucherNo || v.id || 'بدون_رقم'),
-                additionalNote: v.statement || line.note || 'قيد يومي',
-                debit: debLoc, credit: credLoc, 
-                debitForeign: debFc, creditForeign: credFc,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
-        });
-    });
-
-    // 4. Sales Invoices
-    const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && !x.isGDN);
-    sales.forEach(inv => {
-        let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
-        if (total === 0 && inv.items && inv.items.length > 0) {
-            total = inv.items.reduce((sum, item) => sum + (parseNum(item.total) || parseNum(item.quantity) * parseNum(item.price)), 0);
-            total += parseNum(inv.laborCost || 0) + parseNum(inv.transportCost || 0) + parseNum(inv.additions || 0) + parseNum(inv.taxAmt || 0) - parseNum(inv.discountAmt || 0);
-        }
-        if (!total) return;
-        const costCenter = inv.costCenter || 'بدون مركز';
-        const currency = inv.currency || 'SDG';
-        const time = inv.time || timeNow;
-        const refNo = inv.invoiceNo || inv.id;
-        const customerAcct = inv.customerId || inv.customer;
-        const isPosted = inv.isPosted !== false;
-
-        const rate = parseNum(inv.exchangeRate || 1);
-        const effRate = getEffectiveRate(inv, rate);
-        const isBaseSDG = (currency === 'SDG');
-        const amtLoc = isBaseSDG ? total : total * rate;
-        const amtFc = isBaseSDG ? (total / effRate) : total;
-
-        const isReturn = (inv.type === 'return' || inv.isReturn === true);
-        const debBase = isReturn ? 0 : amtLoc;
-        const credBase = isReturn ? amtLoc : 0;
-        const debBaseFc = isReturn ? 0 : amtFc;
-        const credBaseFc = isReturn ? amtFc : 0;
-
-        txns.push({
-            date: inv.date, time: time, ref: refNo, type: isReturn ? 'sales-return' : 'invoice', typeLabel: isReturn ? 'مرتجع مبيعات' : 'مبيعات',
-            account: customerAcct, counterAccount: 'revenue-sales',
-            statement: (isReturn ? 'مرتجع مبيعات #' : 'فاتورة مبيعات #') + refNo,
-            additionalNote: (isReturn ? `مردودات مبيعات — ` : `مبيعات آجلة — `) + (inv.customerName || inv.customer || ''),
-            debit: debBase, credit: credBase, 
-            debitForeign: debBaseFc, creditForeign: credBaseFc,
-            costCenter, currency,
-            exchangeRate: effRate,
-            isPosted: isPosted
-        });
-        txns.push({
-            date: inv.date, time: time, ref: refNo, type: isReturn ? 'sales-return' : 'invoice', typeLabel: isReturn ? 'مرتجع مبيعات' : 'مبيعات',
-            account: 'revenue-sales', counterAccount: customerAcct,
-            statement: (isReturn ? 'مرتجع مبيعات #' : 'فاتورة مبيعات #') + refNo,
-            additionalNote: (isReturn ? `خصم إيرادات — ` : `إيرادات — `) + (inv.customerName || inv.customer || ''),
-            debit: credBase, credit: debBase, 
-            debitForeign: credBaseFc, creditForeign: debBaseFc,
-            costCenter, currency,
-            exchangeRate: effRate,
-            isPosted: isPosted
-        });
-
-        if (inv.paymentMethod === 'hybrid' || inv.paymentMethod === 'multipay') {
-            // A. Cash Safe Portion
-            const cash = parseNum(inv.cashAmount || 0);
-            if (cash > 0) {
-                const cashLoc = isBaseSDG ? cash : cash * rate;
-                const cashFc = isBaseSDG ? (cash / effRate) : cash;
-                const paymentAcct = inv.paymentAccountId || 'safe-001';
-                const debCash = isReturn ? 0 : cashLoc;
-                const credCash = isReturn ? cashLoc : 0;
-                const debCashFc = isReturn ? 0 : cashFc;
-                const credCashFc = isReturn ? cashFc : 0;
-                
-                txns.push({
-                    date: inv.date, time: time, ref: refNo + '-PAID', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                    account: paymentAcct, counterAccount: customerAcct,
-                    statement: isReturn ? 'سداد نقدي لمرتجع' : 'استلام نقدية (نقداً)',
-                    additionalNote: isReturn ? 'صرف نقدي للمرتجع' : 'سداد نقدي مع الفاتورة',
-                    debit: debCash, credit: credCash, 
-                    debitForeign: debCashFc, creditForeign: credCashFc,
-                    costCenter, currency,
-                    exchangeRate: effRate,
-                    isPosted: isPosted
-                });
-                txns.push({
-                    date: inv.date, time: time, ref: refNo + '-PAID', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                    account: customerAcct, counterAccount: paymentAcct,
-                    statement: isReturn ? 'سداد نقدي لمرتجع' : 'استلام نقدية (نقداً)',
-                    additionalNote: isReturn ? 'صرف نقدي للمرتجع' : 'سداد نقدي مع الفاتورة',
-                    debit: credCash, credit: debCash, 
-                    debitForeign: credCashFc, creditForeign: debCashFc,
-                    costCenter, currency,
-                    exchangeRate: effRate,
-                    isPosted: isPosted
-                });
-            }
-            // B. Bank Transfer Portions
-            if (inv.bankTransfers && inv.bankTransfers.length > 0) {
-                inv.bankTransfers.forEach((bt, idx) => {
-                    const amt = parseNum(bt.amount || 0);
-                    if (amt > 0) {
-                        const amtLocBt = isBaseSDG ? amt : amt * rate;
-                        const amtFcBt = isBaseSDG ? (amt / effRate) : amt;
-                        const bankAcct = bt.bankAccountId || 'bank-001';
-                        
-                        const debBt = isReturn ? 0 : amtLocBt;
-                        const credBt = isReturn ? amtLocBt : 0;
-                        const debBtFc = isReturn ? 0 : amtFcBt;
-                        const credBtFc = isReturn ? amtFcBt : 0;
-                        
-                        txns.push({
-                            date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                            account: bankAcct, counterAccount: customerAcct,
-                            statement: `تحويل بنكي مرجع #${bt.reference || ''}`,
-                            additionalNote: isReturn ? 'إرجاع تحويل بنكي' : 'سداد تحويل بنكي مع الفاتورة',
-                            debit: debBt, credit: credBt, 
-                            debitForeign: debBtFc, creditForeign: credBtFc,
-                            costCenter, currency,
-                            exchangeRate: effRate,
-                            isPosted: isPosted
-                        });
-                        txns.push({
-                            date: inv.date, time: time, ref: `${refNo}-BT${idx+1}`, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                            account: customerAcct, counterAccount: bankAcct,
-                            statement: `تحويل بنكي مرجع #${bt.reference || ''}`,
-                            additionalNote: isReturn ? 'إرجاع تحويل بنكي' : 'سداد تحويل بنكي مع الفاتورة',
-                            debit: credBt, credit: debBt, 
-                            debitForeign: credBtFc, creditForeign: debBtFc,
-                            costCenter, currency,
-                            exchangeRate: effRate,
-                            isPosted: isPosted
-                        });
-                    }
-                });
-            }
-            // C. Cheque Portions
-            if (inv.cheques && inv.cheques.length > 0) {
-                inv.cheques.forEach((ch, idx) => {
-                    const amt = parseNum(ch.amount || 0);
-                    if (amt > 0) {
-                        const amtLocCh = isBaseSDG ? amt : amt * rate;
-                        const amtFcCh = isBaseSDG ? (amt / effRate) : amt;
-                        const chequeAcct = 'cheques-receivable';
-                        
-                        const debCh = isReturn ? 0 : amtLocCh;
-                        const credCh = isReturn ? amtLocCh : 0;
-                        const debChFc = isReturn ? 0 : amtFcCh;
-                        const credChFc = isReturn ? amtFcCh : 0;
-                        
-                        txns.push({
-                            date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                            account: chequeAcct, counterAccount: customerAcct,
-                            statement: `شيك رقم #${ch.chequeNo || ''} استحقاق ${ch.dueDate || ''}`,
-                            additionalNote: isReturn ? 'إرجاع شيك' : 'سداد شيك مع الفاتورة',
-                            debit: debCh, credit: credCh, 
-                            debitForeign: debChFc, creditForeign: credChFc,
-                            costCenter, currency,
-                            exchangeRate: effRate,
-                            isPosted: isPosted
-                        });
-                        txns.push({
-                            date: inv.date, time: time, ref: `${refNo}-CH${idx+1}`, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                            account: customerAcct, counterAccount: chequeAcct,
-                            statement: `شيك رقم #${ch.chequeNo || ''} استحقاق ${ch.dueDate || ''}`,
-                            additionalNote: isReturn ? 'إرجاع شيك' : 'سداد شيك مع الفاتورة',
-                            debit: credCh, credit: debCh, 
-                            debitForeign: credChFc, creditForeign: debChFc,
-                            costCenter, currency,
-                            exchangeRate: effRate,
-                            isPosted: isPosted
-                        });
-                    }
-                });
-            }
-        } else 
-        if (inv.paymentMethod !== 'credit') {
-            const pms = inv.paymentMethods || [inv.paymentMethod];
-            let cashAmt = parseFloat(inv.cashAmount) || 0;
-            let bankAmt = parseFloat(inv.bankTransfers ? inv.bankTransfers.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0) : inv.bankAmount) || 0;
-            let chequeAmt = parseFloat(inv.cheques ? inv.cheques.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0) : inv.chequeAmount) || 0;
-            
-            const totalForFallback = typeof totalAmt !== 'undefined' ? totalAmt.fc : (typeof amtFc !== 'undefined' ? amtFc : 0);
-            
-            if (totalForFallback > 0 && cashAmt <= 0 && bankAmt <= 0 && chequeAmt <= 0) {
-                if (pms.includes('bank')) bankAmt = totalForFallback;
-                else if (pms.includes('cheque')) chequeAmt = totalForFallback;
-                else cashAmt = totalForFallback;
-            }
-
-            // Cash
-            if (cashAmt > 0) {
-                const cLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? cashAmt : cashAmt * effRate;
-                const cFc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? (cashAmt / effRate) : cashAmt;
-                const paymentAcct = inv.paymentAccountId || 'safe-001';
-                
-                let safeName = 'الخزينة';
-                try {
-                    const allSafes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
-                    const sObj = allSafes.find(s => String(s.id) === String(paymentAcct));
-                    if (sObj) safeName = sObj.name;
-                } catch(e) {}
-                
-                const stmt = isReturn ? 'سداد مرتجع نقدي' : 'استلام نقدية';
-                const addNote = isReturn ? `صرف مبالغ المرتجع من [${safeName}]` : `سداد نقدي مبيعات (${refNo})`;
-
-                txns.push({
-                    date: inv.date, time: time, ref: refNo + '-SAL-PAID-C', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                    account: paymentAcct, counterAccount: customerAcct,
-                    statement: stmt, additionalNote: addNote,
-                    transferNo: safeName,
-                    debit: isReturn ? 0 : cLoc, credit: isReturn ? cLoc : 0,
-                    debitForeign: isReturn ? 0 : cFc, creditForeign: isReturn ? cFc : 0,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-                txns.push({
-                    date: inv.date, time: time, ref: refNo + '-SAL-PAID-C', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                    account: customerAcct, counterAccount: paymentAcct,
-                    statement: stmt, additionalNote: addNote,
-                    transferNo: safeName,
-                    debit: isReturn ? cLoc : 0, credit: isReturn ? 0 : cLoc,
-                    debitForeign: isReturn ? cFc : 0, creditForeign: isReturn ? 0 : cFc,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-            }
-
-            // Bank
-            if (bankAmt > 0 && inv.bankTransfers && inv.bankTransfers.length > 0) {
-                let allBanks = [];
-                try { allBanks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]'); } catch(e) {}
-                inv.bankTransfers.forEach((bt, idx) => {
-                    const btFc = parseFloat(bt.amount) || 0;
-                    if (btFc <= 0) return;
-                    const btLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? btFc : btFc * effRate;
-                    
-                    let bankName = 'البنك';
-                    const bObj = allBanks.find(b => String(b.id) === String(bt.bankAccountId));
-                    if (bObj) bankName = bObj.name;
-                    
-                    const stmt = isReturn ? 'سداد مرتجع تحويل بنكي' : 'استلام تحويل بنكي';
-                    const addNote = `سداد تحويلة مبيعات (${refNo})`;
-                    const trNum = bt.reference || bt.transferNo || '';
-
-                    txns.push({
-                        date: inv.date, time: time, ref: refNo + '-SAL-PAID-B' + idx, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                        account: bt.bankAccountId || 'bank-001', counterAccount: customerAcct,
-                        statement: stmt, additionalNote: addNote,
-                        transferNo: trNum, bankName: bankName,
-                        debit: isReturn ? 0 : btLoc, credit: isReturn ? btLoc : 0,
-                        debitForeign: isReturn ? 0 : btFc, creditForeign: isReturn ? btFc : 0,
-                        costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                    txns.push({
-                        date: inv.date, time: time, ref: refNo + '-SAL-PAID-B' + idx, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                        account: customerAcct, counterAccount: bt.bankAccountId || 'bank-001',
-                        statement: stmt, additionalNote: addNote,
-                        transferNo: trNum, bankName: bankName,
-                        debit: isReturn ? btLoc : 0, credit: isReturn ? 0 : btLoc,
-                        debitForeign: isReturn ? btFc : 0, creditForeign: isReturn ? 0 : btFc,
-                        costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                });
-            }
-
-            // Cheque
-            if (chequeAmt > 0 && inv.cheques && inv.cheques.length > 0) {
-                let allBanks = [];
-                try { allBanks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]'); } catch(e) {}
-                inv.cheques.forEach((ch, idx) => {
-                    const chFc = parseFloat(ch.amount) || 0;
-                    if (chFc <= 0) return;
-                    const chLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? chFc : chFc * effRate;
-                    
-                    let bankName = ch.bankName || 'البنك';
-                    if (!ch.bankName || ch.bankName === 'بنك غير محدد') {
-                        const bObj = allBanks.find(b => String(b.id) === String(ch.bankAccountId));
-                        if (bObj) bankName = bObj.name;
-                    }
-                    
-                    const stmt = isReturn ? 'سداد مرتجع شيك' : 'استلام شيك';
-                    const addNote = `سداد شيك مبيعات (${refNo})`;
-                    const trNum = `شيك (${ch.chequeNo || ''})`;
-
-                    txns.push({
-                        date: inv.date, time: time, ref: refNo + '-SAL-PAID-Q' + idx, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                        account: ch.bankAccountId || 'cheques-receivable', counterAccount: customerAcct,
-                        statement: stmt, additionalNote: addNote,
-                        transferNo: trNum, bankName: bankName,
-                        debit: isReturn ? 0 : chLoc, credit: isReturn ? chLoc : 0,
-                        debitForeign: isReturn ? 0 : chFc, creditForeign: isReturn ? chFc : 0,
-                        costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                    txns.push({
-                        date: inv.date, time: time, ref: refNo + '-SAL-PAID-Q' + idx, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                        account: customerAcct, counterAccount: ch.bankAccountId || 'cheques-receivable',
-                        statement: stmt, additionalNote: addNote,
-                        transferNo: trNum, bankName: bankName,
-                        debit: isReturn ? chLoc : 0, credit: isReturn ? 0 : chLoc,
-                        debitForeign: isReturn ? chFc : 0, creditForeign: isReturn ? 0 : chFc,
-                        costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                });
-            }
-        }
-    });
-
-    // 5. Purchase Invoices
-    const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN);
-    purchases.forEach(inv => {
-        let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
-        if (total === 0 && inv.items && inv.items.length > 0) {
-            total = inv.items.reduce((sum, item) => sum + (parseNum(item.total) || parseNum(item.quantity) * parseNum(item.price)), 0);
-            total += parseNum(inv.laborCost || 0) + parseNum(inv.transportCost || 0) + parseNum(inv.additions || 0) + parseNum(inv.taxAmt || 0) - parseNum(inv.discountAmt || 0);
-        }
-        if (!total) return;
-        const costCenter = inv.costCenter || 'بدون مركز';
-        const currency = inv.currency || 'SDG';
-        const time = inv.time || timeNow;
-        const refNo = inv.invoiceNo || inv.id;
-        const supplierAcct = inv.supplierId || inv.supplier || inv.customer;
-        const isPosted = inv.isPosted !== false;
-
-        const rate = parseNum(inv.exchangeRate || 1);
-        const effRate = getEffectiveRate(inv, rate);
-        const isBaseSDG = (currency === 'SDG');
-        const amtLoc = isBaseSDG ? total : total * rate;
-        const amtFc = isBaseSDG ? (total / effRate) : total;
-
-        if (inv.isAdjustment) {
-            const absAmtLoc = Math.abs(amtLoc);
-            const absAmtFc = Math.abs(amtFc);
-            const isSurplus = (amtLoc >= 0);
-
-            txns.push({
-                date: inv.date, time: time, ref: refNo, type: 'adjustment', typeLabel: 'تسوية مخزنية',
-                account: isSurplus ? 'act-inventory' : 'exp-inventory-adjustments',
-                counterAccount: isSurplus ? 'exp-inventory-adjustments' : 'act-inventory',
-                statement: 'تسوية مخزنية للفروقات #' + refNo,
-                additionalNote: inv.notes || 'تسوية مخزنية للفروقات',
-                debit: absAmtLoc, credit: 0, 
-                debitForeign: absAmtFc, creditForeign: 0,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
-            txns.push({
-                date: inv.date, time: time, ref: refNo, type: 'adjustment', typeLabel: 'تسوية مخزنية',
-                account: isSurplus ? 'exp-inventory-adjustments' : 'act-inventory',
-                counterAccount: isSurplus ? 'act-inventory' : 'exp-inventory-adjustments',
-                statement: 'تسوية مخزنية للفروقات #' + refNo,
-                additionalNote: inv.notes || 'تسوية مخزنية للفروقات',
-                debit: 0, credit: absAmtLoc, 
-                debitForeign: 0, creditForeign: absAmtFc,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
-            return;
-        }
-
-
-        txns.push({
-            date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
-            account: 'exp-purchases', counterAccount: supplierAcct,
-            statement: 'فاتورة مشتريات #' + refNo,
-            additionalNote: `مشتريات آجلة — ${inv.supplierName || inv.supplier || ''}`,
-            debit: amtLoc, credit: 0, 
-            debitForeign: amtFc, creditForeign: 0,
-            costCenter, currency,
-            exchangeRate: effRate,
-            isPosted: isPosted
-        });
-        txns.push({
-            date: inv.date, time: time, ref: refNo, type: 'purchase', typeLabel: 'مشتريات',
-            account: supplierAcct, counterAccount: 'exp-purchases',
-            statement: 'فاتورة مشتريات #' + refNo,
-            additionalNote: `مستحقات مورد — ${inv.supplierName || inv.supplier || ''}`,
-            debit: 0, credit: amtLoc, 
-            debitForeign: 0, creditForeign: amtFc,
-            costCenter, currency,
-            exchangeRate: effRate,
-            isPosted: isPosted
-        });
-
-        
-        if (inv.paymentMethod !== 'credit') {
-            const pms = inv.paymentMethods || [inv.paymentMethod];
-            let cashAmt = parseFloat(inv.cashAmount) || 0;
-            let bankAmt = parseFloat(inv.bankTransfers ? inv.bankTransfers.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0) : inv.bankAmount) || 0;
-            let chequeAmt = parseFloat(inv.cheques ? inv.cheques.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0) : inv.chequeAmount) || 0;
-
-            const totalForFallback = typeof totalAmt !== 'undefined' ? totalAmt.fc : (typeof amtFc !== 'undefined' ? amtFc : 0);
-            
-            if (totalForFallback > 0 && cashAmt <= 0 && bankAmt <= 0 && chequeAmt <= 0) {
-                if (pms.includes('bank')) bankAmt = totalForFallback;
-                else if (pms.includes('cheque')) chequeAmt = totalForFallback;
-                else cashAmt = totalForFallback;
-            }
-
-            // Cash Portion
-            if (cashAmt > 0) {
-                const cLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? cashAmt : cashAmt * effRate;
-                const cFc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? (cashAmt / effRate) : cashAmt;
-                const paymentAcct = inv.paymentAccountId || 'safe-001';
-                
-                let safeName = 'الخزينة';
-                try {
-                    const allSafes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
-                    const sObj = allSafes.find(s => String(s.id) === String(paymentAcct));
-                    if (sObj) safeName = sObj.name;
-                } catch(e) {}
-                
-                const stmt = (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد نقدية' : 'صرف نقدية';
-                const addNote = (typeof isReturn !== 'undefined' && isReturn) ? `استرداد نقدي مع مرتجع الفاتورة من [${safeName}]` : `سداد نقدي مشتريات (${refNo})`;
-
-                txns.push({
-                    date: inv.date, time: time, ref: refNo + '-PUR-PAID-C', type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
-                    account: paymentAcct, counterAccount: supplierAcct,
-                    statement: stmt, additionalNote: addNote,
-                    transferNo: safeName,
-                    debit: (typeof isReturn !== 'undefined' && isReturn) ? cLoc : 0, credit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : cLoc,
-                    debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? cFc : 0, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : cFc,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-                txns.push({
-                    date: inv.date, time: time, ref: refNo + '-PUR-PAID-C', type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
-                    account: supplierAcct, counterAccount: paymentAcct,
-                    statement: stmt, additionalNote: addNote,
-                    transferNo: safeName,
-                    debit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : cLoc, credit: (typeof isReturn !== 'undefined' && isReturn) ? cLoc : 0,
-                    debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : cFc, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? cFc : 0,
-                    costCenter, currency, exchangeRate: effRate, isPosted
-                });
-            }
-
-            // Bank Transfers
-            if (bankAmt > 0 && inv.bankTransfers && inv.bankTransfers.length > 0) {
-                let allBanks = [];
-                try { allBanks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]'); } catch(e) {}
-                inv.bankTransfers.forEach((bt, idx) => {
-                    const btFc = parseFloat(bt.amount) || 0;
-                    if (btFc <= 0) return;
-                    const btLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? btFc : btFc * effRate;
-                    
-                    let bankName = 'البنك';
-                    const bObj = allBanks.find(b => String(b.id) === String(bt.bankAccountId));
-                    if (bObj) bankName = bObj.name;
-                    
-                    const stmt = (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد تحويل بنكي' : 'صرف تحويل بنكي';
-                    const addNote = `سداد تحويلة مشتريات (${refNo})`;
-                    const trNum = bt.reference || bt.transferNo || '';
-
-                    txns.push({
-                        date: inv.date, time: time, ref: refNo + '-PUR-PAID-B' + idx, type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
-                        account: bt.bankAccountId || 'bank-001', counterAccount: supplierAcct,
-                        statement: stmt, additionalNote: addNote,
-                        transferNo: trNum, bankName: bankName,
-                        debit: (typeof isReturn !== 'undefined' && isReturn) ? btLoc : 0, credit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : btLoc,
-                        debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? btFc : 0, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : btFc,
-                        costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                    txns.push({
-                        date: inv.date, time: time, ref: refNo + '-PUR-PAID-B' + idx, type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
-                        account: supplierAcct, counterAccount: bt.bankAccountId || 'bank-001',
-                        statement: stmt, additionalNote: addNote,
-                        transferNo: trNum, bankName: bankName,
-                        debit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : btLoc, credit: (typeof isReturn !== 'undefined' && isReturn) ? btLoc : 0,
-                        debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : btFc, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? btFc : 0,
-                        costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                });
-            }
-
-            // Cheques
-            if (chequeAmt > 0 && inv.cheques && inv.cheques.length > 0) {
-                let allBanks = [];
-                try { allBanks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]'); } catch(e) {}
-                inv.cheques.forEach((ch, idx) => {
-                    const chFc = parseFloat(ch.amount) || 0;
-                    if (chFc <= 0) return;
-                    const chLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? chFc : chFc * effRate;
-                    
-                    let bankName = ch.bankName || 'البنك';
-                    if (!ch.bankName || ch.bankName === 'بنك غير محدد') {
-                        const bObj = allBanks.find(b => String(b.id) === String(ch.bankAccountId));
-                        if (bObj) bankName = bObj.name;
-                    }
-                    
-                    const stmt = (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد شيك' : 'صرف شيك';
-                    const addNote = `سداد شيك مشتريات (${refNo})`;
-                    const trNum = `شيك (${ch.chequeNo || ''})`;
-
-                    txns.push({
-                        date: inv.date, time: time, ref: refNo + '-PUR-PAID-Q' + idx, type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
-                        account: ch.bankAccountId || 'cheques-payable', counterAccount: supplierAcct,
-                        statement: stmt, additionalNote: addNote,
-                        transferNo: trNum, bankName: bankName,
-                        debit: (typeof isReturn !== 'undefined' && isReturn) ? chLoc : 0, credit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : chLoc,
-                        debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? chFc : 0, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : chFc,
-                        costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                    txns.push({
-                        date: inv.date, time: time, ref: refNo + '-PUR-PAID-Q' + idx, type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
-                        account: supplierAcct, counterAccount: ch.bankAccountId || 'cheques-payable',
-                        statement: stmt, additionalNote: addNote,
-                        transferNo: trNum, bankName: bankName,
-                        debit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : chLoc, credit: (typeof isReturn !== 'undefined' && isReturn) ? chLoc : 0,
-                        debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : chFc, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? chFc : 0,
-                        costCenter, currency, exchangeRate: effRate, isPosted
-                    });
-                });
-            }
-        }
-    });
-
-    // 6. Map source data for checkNo and transferNo extraction
-    const bankTransfersData = JSON.parse(localStorage.getItem('erp_bank_transfers_v1')) || [];
-    const checksData = JSON.parse(localStorage.getItem('erp_checks_v1')) || [];
-    const allData = [
-        ...receipts, ...payments, ...multiReceipts, ...multiPayments, ...compReceipts, ...jvs, ...sales, ...purchases, ...bankTransfersData, ...checksData
-    ];
-    const dataMap = new Map();
-    allData.forEach(d => {
-        if(d.id) dataMap.set(String(d.id), d);
-        if(d.invoiceNo) dataMap.set(String(d.invoiceNo), d);
-        if(d.voucherNo) dataMap.set(String(d.voucherNo), d);
-        if(d.refNo) dataMap.set(String(d.refNo), d);
-    });
-
-    txns.forEach(t => {
-        let baseRef = String(t.ref).replace(/-PAID$/, '').replace(/-BT\d+$/, '').replace(/-CH\d+$/, '');
-        let source = dataMap.get(baseRef);
-        if (source) {
-            t._source = source;
-            const isBaseSDG = (t.currency === 'SDG');
-            const amt = t.debit || t.credit || 0;
-            const matchAmt = (val) => {
-                let v = parseFloat(val) || 0;
-                return Math.abs(v - amt) < 0.1 || Math.abs((isBaseSDG ? v : v * (t.exchangeRate || 1)) - amt) < 0.1;
+            const accName = getAccountName(rawAcc) || rawAcc;
+            const newPartner = {
+                id: rawAcc,
+                code: rawAcc,
+                name: accName,
+                type: accType,
+                phone: '',
+                taxNumber: '',
+                currency: t.currency || 'SDG',
+                exRate: parseNum(t.exchangeRate || systemUsdRate || 1),
+                openingDebit: 0,
+                openingCredit: 0,
+                openingBalance: 0,
+                balanceType: 'debit',
+                balance_type: 'debit',
+                notes: '',
+                debit: 0,
+                credit: 0,
+                lastDate: null
             };
-
-            // Process cheques
-            if (!t.checkNo && !t.transferNo) {
-                if (source.cheques && source.cheques.length > 0) {
-                    let ch = source.cheques.find(c => matchAmt(c.amount));
-                    if (ch) t.checkNo = (ch.checkNo || ch.chequeNo || ch.check_number || '') + (ch.checkBranch || ch.chequeBank ? ` (${ch.checkBranch || ch.chequeBank})` : '');
-                } else if (!source.bankTransfers || source.bankTransfers.length === 0) {
-                    if (source.checkNo || source.checkNumber || source.check_number || source.chequeNo) {
-                        let cNo = source.checkNo || source.checkNumber || source.check_number || source.chequeNo;
-                        let cBank = source.checkBranch || source.chequeBank || source.bankName || '';
-                        t.checkNo = cBank ? `${cNo} (${cBank})` : cNo;
-                    }
-                }
-            }
-
-            // Process bank transfers
-            if (!t.transferNo && !t.checkNo) {
-                if (source.bankTransfers && source.bankTransfers.length > 0) {
-                    let bt = source.bankTransfers.find(b => matchAmt(b.amount));
-                    if (bt) {
-                        t.transferNo = (bt.transferNo || bt.transfer_no || bt.referenceNo || '');
-                        t.bankName = (bt.bankName || bt.note || '');
-                    }
-                } else if (!source.cheques || source.cheques.length === 0) {
-                    if (source.transferNo || source.transfer_no || source.transferNumber || source.mobileTransferNo) {
-                        let tr = source.transferNo || source.transfer_no || source.transferNumber || source.mobileTransferNo;
-                        let note = source.mobileNote || source.bankName || source.note || '';
-                        t.transferNo = tr;
-                        t.bankName = note;
-                    }
-                }
-            }
-
-            // Process multi-items
-            if (source.items && source.items.length > 0) {
-                let item = source.items.find(it => it.account === t.account || it.account === t.counterAccount);
-                if (item) {
-                    if (!t.checkNo && !t.transferNo) {
-                        if (item.cheques && item.cheques.length > 0) {
-                            let ch = item.cheques.find(c => matchAmt(c.amount));
-                            if (ch) t.checkNo = (ch.chequeNo || ch.checkNo || ch.check_number || '') + (ch.chequeBank || ch.checkBranch ? ` (${ch.chequeBank || ch.checkBranch})` : '');
-                        } else if (!item.bankTransfers || item.bankTransfers.length === 0) {
-                            if (item.checkNo || item.chequeNo || item.check_number) {
-                                t.checkNo = (item.checkNo || item.chequeNo || item.check_number) + (item.chequeBank || item.checkBranch ? ` (${item.chequeBank || item.checkBranch})` : '');
-                            }
-                        }
-                    }
-
-                    if (!t.transferNo && !t.checkNo) {
-                        if (item.bankTransfers && item.bankTransfers.length > 0) {
-                            let bt = item.bankTransfers.find(b => matchAmt(b.amount));
-                            if (bt) {
-                                t.transferNo = (bt.transferNo || bt.transfer_no || '');
-                                t.bankName = (bt.bankName || bt.note || '');
-                            }
-                        } else if (!item.cheques || item.cheques.length === 0) {
-                            if (item.transferNo || item.transfer_no) {
-                                t.transferNo = (item.transferNo || item.transfer_no);
-                                t.bankName = item.bankName || item.note || '';
-                            }
-                        }
-                    }
-                }
-            }
+            ALL_PARTNERS.push(newPartner);
+            existingPartnerIds.add(rawAcc.toLowerCase());
+            existingPartnerIds.add(bareAcc);
+            existingPartnerNames.add(normalizeArabic(accName));
         }
     });
 
-    // Recalibrate true exchange rate if both debit/credit exist in local and foreign
-    txns.forEach(t => {
-        const d = parseFloat(t.debit) || 0;
-        const c = parseFloat(t.credit) || 0;
-        const df = parseFloat(t.debitForeign || t.dr_foreign) || 0;
-        const cf = parseFloat(t.creditForeign || t.cr_foreign) || 0;
-        
-        const loc = d > 0 ? d : c;
-        const forgn = df > 0 ? df : cf;
-        
-        if (loc > 0 && forgn > 0) {
-            t.exchangeRate = loc / forgn;
-        }
-    });
+    // Rebuild cache with any newly discovered accounts
+    buildAccountsNameCache(ALL_PARTNERS);
 
-        return txns;
-    }
-
-    const ledgerTxns = getLedgerTxns();
-    ALL_TXNS = ledgerTxns.map(t => ({
-        partner: t.account,
-        debit: t.debit,
-        credit: t.credit,
-        debitForeign: t.debitForeign,
-        creditForeign: t.creditForeign,
-        date: t.date,
-        time: t.time,
-        costCenter: t.costCenter,
-        exchangeRate: t.exchangeRate,
-        ref: t.ref,
-        currency: t.currency
-    }));
-    // === END PERFECT SYNC ===
-
+    // Populate cost centers dropdown
     const ccSet = new Set();
-    ALL_TXNS.forEach(t => { if(t.costCenter && t.costCenter !== 'ALL') ccSet.add(t.costCenter); });
+    ALL_TXNS.forEach(t => { if(t && t.costCenter && t.costCenter !== 'ALL') ccSet.add(t.costCenter); });
     const ccSelect = document.getElementById('filter-costcenter');
     if(ccSelect) {
         ccSelect.innerHTML = '<option value="ALL">جميع مراكز التكلفة (مجمعة)</option>';
@@ -1746,11 +987,9 @@ function runReport(isAutoInit = false) {
     window.runReport = runReport;
     console.log('%c[balances-report.js] runReport() CALLED. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
     if (ALL_PARTNERS.length === 0) {
-        console.warn('[balances-report.js] WARNING: ALL_PARTNERS is EMPTY. loadData may not have run.');
-        // Try loading data now as a last resort
         loadData();
-        console.log('[balances-report.js] Re-ran loadData. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length);
     }
+
     const grpFilter = document.getElementById('filter-group') ? document.getElementById('filter-group').value : 'ALL';
     const sortFilter = document.getElementById('filter-sort') ? document.getElementById('filter-sort').value : 'BALANCE_DESC';
     const ccFilter = document.getElementById('filter-costcenter') ? document.getElementById('filter-costcenter').value : 'ALL';
@@ -1758,155 +997,18 @@ function runReport(isAutoInit = false) {
     const currFilter = document.getElementById('filter-currency') ? document.getElementById('filter-currency').value : 'ALL';
     const conditionFilter = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'ALL';
 
-    // Reset balances
+    const systemUsdRate = getSystemUsdRate();
+
+    // Calculate ending ledger balances for each partner using the exact same logic as general-ledger.js
     ALL_PARTNERS.forEach(p => {
-        p.endingDebitLocal = 0;
-        p.endingCreditLocal = 0;
-        p.endingDebitForeign = 0;
-        p.endingCreditForeign = 0;
-        p.lastDate = null;
-    });
-
-    // Group ALL_TXNS by partner upfront for O(N) performance
-    // We group by BOTH the raw account key AND potential variants to match how
-    // general-ledger.js filters (lines 1747-1752: matches both 'cust-xxx' AND 'xxx')
-    const txnsByPartner = {};
-    ALL_TXNS.forEach(t => {
-        const pRefStr = String(t.partner);
-        if (!txnsByPartner[pRefStr]) txnsByPartner[pRefStr] = [];
-        txnsByPartner[pRefStr].push(t);
-    });
-
-    // Get USD rate fallback (same as general-ledger.js)
-    let usdRate = 600;
-    if (typeof window.getExchangeRateForCurrency === 'function') {
-        const r = window.getExchangeRateForCurrency('USD');
-        if (r && r > 0) usdRate = parseFloat(r);
-    } else {
-        try {
-            const rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1')) || {};
-            if (rates['USD'] && rates['USD'] > 0) usdRate = parseFloat(rates['USD']);
-        } catch(e){}
-    }
-
-    // Calculate for each partner sequentially to match SGL ledger EXACTLY
-    ALL_PARTNERS.forEach(p => {
-        // Use per-entity exchange rate (same as general-ledger.js lines 1865-1870)
-        let entityExRate = parseNum(p.exchangeRate || p.exRate || p.rate || 0);
-        if (!entityExRate || entityExRate <= 0) {
-            entityExRate = usdRate;
-        }
-
-        // Opening balance calculation (identical to general-ledger.js lines 1851-1878)
-        const opDebit = parseNum(p.openingDebit || p.debit || 0);
-        const opCredit = parseNum(p.openingCredit || p.credit || 0);
-        const rawBal = parseNum(p.openingBalance || p.opening_balance || p.balance || 0);
-
-        let intrinsicBal = 0;
-        if (opDebit > 0 || opCredit > 0) {
-            intrinsicBal = opDebit - opCredit;
-        } else if (rawBal !== 0) {
-            if (p.balance_type === 'credit' || p.balanceType === 'credit') {
-                intrinsicBal = -Math.abs(rawBal);
-            } else {
-                intrinsicBal = Math.abs(rawBal);
-            }
-        }
-
-        let intrinsicBalFc = entityExRate > 0 ? (intrinsicBal / entityExRate) : 0;
-
-        let runningBal = intrinsicBal;
-        let runningBalForeign = intrinsicBalFc;
-        
-        // Filter transactions for this partner using type-prefixed IDs to avoid ID collisions
-        let pRef = String(p.id);
-        if (!pRef.startsWith('cust-') && !pRef.startsWith('supp-') && !pRef.startsWith('bank-') && !pRef.startsWith('safe-') && !pRef.startsWith('exp-')) {
-            if (p.type === 'CUST') pRef = 'cust-' + p.id;
-            else if (p.type === 'SUPP') pRef = 'supp-' + p.id;
-            else if (p.type === 'BANK') pRef = 'bank-' + p.id;
-            else if (p.type === 'SAFE') pRef = 'safe-' + p.id;
-            else if (p.type === 'EXP') pRef = 'exp-' + p.id;
-        }
-
-        // Fetch pre-grouped transactions - match BOTH prefixed AND bare IDs
-        // (same logic as general-ledger.js lines 1747-1752)
-        const cleanId = pRef.replace(/^(cust|supp|bank|safe|exp)-/, '');
-        let partnerTxns = [
-            ...(txnsByPartner[pRef] || []),
-            ...(cleanId !== pRef ? (txnsByPartner[cleanId] || []) : [])
-        ];
-        // Deduplicate in case same txn appears under both keys
-        const seen = new Set();
-        partnerTxns = partnerTxns.filter(t => {
-            const key = (t.date || '') + '|' + (t.ref || '') + '|' + (t.debit || 0) + '|' + (t.credit || 0);
-            if (seen.has(key)) return false;
-            seen.add(key);
-            return true;
-        });
-        
-        if (ccFilter !== 'ALL') {
-            partnerTxns = partnerTxns.filter(t => t.costCenter === ccFilter);
-        }
-
-        // Sort partner transactions by date & time chronologically
-        partnerTxns.sort((a, b) => {
-            const da = a.date + ' ' + (a.time || '00:00');
-            const db = b.date + ' ' + (b.time || '00:00');
-            return da.localeCompare(db);
-        });
-
-        partnerTxns.forEach(t => {
-            let debLoc = parseNum(t.debit || t.dr || 0);
-            let credLoc = parseNum(t.credit || t.cr || 0);
-            let rate = parseNum(t.exchangeRate || t.exRate || t.rate || entityExRate || 1);
-            if (!rate || rate <= 0) rate = entityExRate || 1;
-
-            let df = parseNum(t.debitForeign || t.dr_foreign || 0);
-            let cf = parseNum(t.creditForeign || t.cr_foreign || 0);
-
-            // Match general-ledger.js line 1918: rate > 1 (not rate > 0)
-            if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 1) {
-                df = debLoc / rate;
-            }
-            if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 1) {
-                cf = credLoc / rate;
-            }
-            
-            runningBal += (debLoc - credLoc);
-            runningBalForeign += (df - cf);
-            
-            const tDate = t.date + ' ' + (t.time || '00:00');
-            if(!p.lastDate || tDate > p.lastDate) {
-                p.lastDate = tDate;
-            }
-        });
-
-        // Determine the side (Debit or Credit) based on the Local Balance primarily.
-        // If Local Balance is exactly 0 but Foreign is not, fallback to Foreign Balance sign.
-        let localSide = 'zero';
-        if (Math.abs(runningBal) > 0.001) {
-            localSide = runningBal > 0 ? 'debit' : 'credit';
-        } else if (Math.abs(runningBalForeign) > 0.001) {
-            localSide = runningBalForeign > 0 ? 'debit' : 'credit';
-        }
-
-        // Place BOTH Local and Foreign balances in the same column side (عليه or له)
-        if (localSide === 'debit') {
-            p.endingDebitLocal = Math.abs(runningBal);
-            p.endingCreditLocal = 0;
-            p.endingDebitForeign = Math.abs(runningBalForeign);
-            p.endingCreditForeign = 0;
-        } else if (localSide === 'credit') {
-            p.endingDebitLocal = 0;
-            p.endingCreditLocal = Math.abs(runningBal);
-            p.endingDebitForeign = 0;
-            p.endingCreditForeign = Math.abs(runningBalForeign);
-        } else {
-            p.endingDebitLocal = 0;
-            p.endingCreditLocal = 0;
-            p.endingDebitForeign = 0;
-            p.endingCreditForeign = 0;
-        }
+        const balRes = calculateAccountLedgerBalance(p, ALL_TXNS, systemUsdRate, ccFilter);
+        p.endingDebitLocal = balRes.endingDebitLocal;
+        p.endingCreditLocal = balRes.endingCreditLocal;
+        p.endingDebitForeign = balRes.endingDebitForeign;
+        p.endingCreditForeign = balRes.endingCreditForeign;
+        p.runningBal = balRes.runningBal;
+        p.runningBalFc = balRes.runningBalFc;
+        p.lastDate = balRes.lastDate;
     });
 
     // Filter partners by group, sector, currency & condition
@@ -1976,6 +1078,13 @@ function autoSize(e) {
     e.stopPropagation();
     const th = e.target.parentElement;
     th.style.width = 'auto'; 
+    const origIdx = parseInt(th.getAttribute('data-orig-idx'));
+    if (!isNaN(origIdx) && window.colConfigs && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].width = '';
+        if (typeof saveLayout === 'function') {
+            saveLayout();
+        }
+    }
 }
 
 function initResize(e) {
@@ -2011,19 +1120,39 @@ function stopResize(e) {
     document.removeEventListener('mousemove', doResize);
     document.removeEventListener('mouseup', stopResize);
     document.querySelectorAll('.resizer').forEach(r => r.classList.remove('resizing'));
+    
+    if (resizingTh) {
+        const origIdx = parseInt(resizingTh.getAttribute('data-orig-idx'));
+        if (!isNaN(origIdx) && window.colConfigs && window.colConfigs[origIdx]) {
+            window.colConfigs[origIdx].width = resizingTh.style.width;
+            if (typeof saveLayout === 'function') {
+                saveLayout();
+            }
+        }
+    }
+    resizingTh = null;
 }
 
 function bindNumberFocus() {
     const cells = document.querySelectorAll('#balances-tbody td');
     cells.forEach(td => {
         td.style.cursor = 'pointer';
-        // Avoid duplicate listeners
         td.onclick = function(e) {
             e.stopPropagation();
             this.classList.toggle('focused-num');
         };
     });
 }
+
+// Global click handler for delegated number clicking
+document.addEventListener('click', function(e) {
+    const td = e.target.closest('#balances-tbody td, table.pos-grid td.num, table.pos-grid td');
+    if (!td) return;
+    if (e.target.closest('button, a, input, select, .col-toggle')) return;
+    
+    // If clicking cell, toggle focused-num
+    td.classList.toggle('focused-num');
+});
 
 window.switchCtxTab = function(tab) {
     const colsTab = document.getElementById('ctx-tab-cols');
@@ -2608,6 +1737,7 @@ function updateColDOM(visualIndex, origIdx) {
         if (bgVal) th.style.setProperty('background-color', bgVal, 'important'); else th.style.removeProperty('background-color');
         if (fontVal) th.style.setProperty('font-family', fontVal, 'important'); else th.style.removeProperty('font-family');
         if (alignVal) th.style.setProperty('text-align', alignVal, 'important'); else th.style.removeProperty('text-align');
+        if (conf.width) th.style.setProperty('width', conf.width, 'important'); else th.style.removeProperty('width');
     }
 
     const rows = table.querySelectorAll('tbody tr:not(.empty-state)');
@@ -2801,8 +1931,8 @@ function bindColumnReorder() {
 }
 
 
-function handleRowClick(event, partnerId, partnerType) {
-    if (event.target.closest('td.num')) {
+function handleRowClick(event, partnerId, partnerType, partnerName) {
+    if (event && event.target && event.target.closest('td.num')) {
         return;
     }
     let prefix = '';
@@ -2812,18 +1942,23 @@ function handleRowClick(event, partnerId, partnerType) {
     else if (partnerType === 'SAFE') prefix = 'safe-';
     else if (partnerType === 'EXP') prefix = 'exp-';
     
-    window.location.href = `general-ledger.php?accountId=${prefix}${partnerId}`;
+    const accId = String(partnerId).startsWith(prefix) ? partnerId : (prefix + partnerId);
+    const pName = partnerName ? decodeURIComponent(partnerName) : '';
+    window.location.href = `general-ledger.php?accountId=${encodeURIComponent(accId)}&partner_id=${encodeURIComponent(partnerId)}&name=${encodeURIComponent(pName)}&autoRun=1`;
 }
 
 function renderTable(results, isAutoInit = false) {
-    // Filter out accounts with zero ending balance in all currencies
-    results = results.filter(p => {
-        const dL = Math.abs(p.endingDebitLocal || 0);
-        const cL = Math.abs(p.endingCreditLocal || 0);
-        const dF = Math.abs(p.endingDebitForeign || 0);
-        const cF = Math.abs(p.endingCreditForeign || 0);
-        return (dL > 0.001 || cL > 0.001 || dF > 0.001 || cF > 0.001);
-    });
+    const cond = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'ALL';
+    // Filter out accounts with zero ending balance only when NON_ZERO condition is chosen
+    if (cond === 'NON_ZERO') {
+        results = results.filter(p => {
+            const dL = Math.abs(p.endingDebitLocal || 0);
+            const cL = Math.abs(p.endingCreditLocal || 0);
+            const dF = Math.abs(p.endingDebitForeign || 0);
+            const cF = Math.abs(p.endingCreditForeign || 0);
+            return (dL > 0.001 || cL > 0.001 || dF > 0.001 || cF > 0.001);
+        });
+    }
     
     window.lastResults = results;
     const tbody = document.getElementById('balances-tbody');
@@ -2839,6 +1974,8 @@ function renderTable(results, isAutoInit = false) {
     let rows = '';
     let sumCust = 0;
     let sumSupp = 0;
+    let sumDrForeign = 0;
+    let sumCrForeign = 0;
 
     function getCellStyle(origIdx) {
         const conf = window.colConfigs[origIdx] || {};
@@ -2866,39 +2003,41 @@ function renderTable(results, isAutoInit = false) {
 
         sumCust += endingDebitLocal;
         sumSupp += endingCreditLocal;
+        sumDrForeign += endingDebitForeign;
+        sumCrForeign += endingCreditForeign;
 
         const cleanPhone = String(p.phone || '').replace(/,/g, '').replace(/\.00$/, '').trim();
+        const typeLabel = p.type === 'CUST' ? 'عميل' : (p.type === 'SUPP' ? 'مورد' : (p.type === 'BANK' ? 'بنك' : (p.type === 'SAFE' ? 'خزينة' : 'حساب')));
 
         let cells = [];
-        cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${p.type === 'CUST' ? 'عميل' : 'مورد'})</span></td>`;
-        cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}">${cleanPhone || '-'}</td>`;
-        cells[2] = `<td class="num" style="${getCellStyle(2)}">${p.taxNumber || '-'}</td>`;
+        cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${typeLabel})</span></td>`;
+        cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${cleanPhone || '-'}</td>`;
+        cells[2] = `<td class="num" style="${getCellStyle(2)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${p.taxNumber || '-'}</td>`;
         cells[3] = `<td style="font-weight:bold; color:#38bdf8; ${getCellStyle(3)}">${p.currency || 'SDG'}</td>`;
-        cells[4] = `<td class="num" style="${getCellStyle(4)}">${endingDebitForeign > 0 ? fmtColNum(endingDebitForeign, 4) : '-'}</td>`;
-        cells[5] = `<td class="num" style="${getCellStyle(5)}">${endingCreditForeign > 0 ? fmtColNum(endingCreditForeign, 5) : '-'}</td>`;
-        cells[6] = `<td class="num" style="${getCellStyle(6)}">${endingDebitLocal > 0 ? fmtColNum(endingDebitLocal, 6) : '-'}</td>`;
-        cells[7] = `<td class="num" style="${getCellStyle(7)}">${endingCreditLocal > 0 ? fmtColNum(endingCreditLocal, 7) : '-'}</td>`;
+        cells[4] = `<td class="num" style="${getCellStyle(4)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingDebitForeign > 0 ? fmtColNum(endingDebitForeign, 4) : '-'}</td>`;
+        cells[5] = `<td class="num" style="${getCellStyle(5)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingCreditForeign > 0 ? fmtColNum(endingCreditForeign, 5) : '-'}</td>`;
+        cells[6] = `<td class="num" style="${getCellStyle(6)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingDebitLocal > 0 ? fmtColNum(endingDebitLocal, 6) : '-'}</td>`;
+        cells[7] = `<td class="num" style="${getCellStyle(7)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingCreditLocal > 0 ? fmtColNum(endingCreditLocal, 7) : '-'}</td>`;
         cells[8] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(8)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
         
         let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
         let delay = Math.min(idx * 0.03, 0.6).toFixed(2);
-        rows += `<tr class="partner-row animate-slide-up" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}')" style="cursor: pointer; animation-delay: ${delay}s;">${orderedCells}</tr>`;
+        rows += `<tr class="partner-row animate-slide-up" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}', '${encodeURIComponent(p.name || '')}')" style="cursor: pointer; animation-delay: ${delay}s;">${orderedCells}</tr>`;
     });
 
     tbody.innerHTML = rows;
 
-    const drForeign = ledgerExchangeRate > 0 ? (sumCust / ledgerExchangeRate) : 0;
-    const crForeign = ledgerExchangeRate > 0 ? (sumSupp / ledgerExchangeRate) : 0;
     const net = sumCust - sumSupp;
     const netSign = net >= 0 ? ' (لنا)' : ' (علينا)';
-    const netForeign = ledgerExchangeRate > 0 ? (Math.abs(net) / ledgerExchangeRate) : 0;
+    const netForeign = Math.abs(sumDrForeign - sumCrForeign);
+    const currName = ledgerForeignCurrency || 'USD';
 
     animateKpiNumber('kpi-dr', sumCust, 'SDG');
-    animateKpiNumber('kpi-dr-foreign', drForeign, ledgerForeignCurrency);
+    animateKpiNumber('kpi-dr-foreign', sumDrForeign, currName);
     animateKpiNumber('kpi-cr', sumSupp, 'SDG');
-    animateKpiNumber('kpi-cr-foreign', crForeign, ledgerForeignCurrency);
+    animateKpiNumber('kpi-cr-foreign', sumCrForeign, currName);
     animateKpiNumber('kpi-bal', Math.abs(net), 'SDG' + netSign);
-    animateKpiNumber('kpi-bal-foreign', netForeign, ledgerForeignCurrency + netSign);
+    animateKpiNumber('kpi-bal-foreign', netForeign, currName + netSign);
 
     const dashboardEl = document.getElementById('analytics-dashboard');
     if (dashboardEl) dashboardEl.style.display = 'block';
@@ -3069,13 +2208,13 @@ window.renderBalancesPresets = function() {
 
     if (!Array.isArray(presets) || presets.length === 0) {
         const defaultIcons = [
-            '💎 افتراضي 1', 
-            '⭐ افتراضي 2', 
-            '🎨 افتراضي 3', 
-            '🔥 افتراضي 4', 
-            '✨ نموذج 1', 
-            '🚀 نموذج 2', 
-            '🌟 نموذج 3'
+            'افتراضي 1', 
+            'افتراضي 2', 
+            'افتراضي 3', 
+            'افتراضي 4', 
+            'المستخدم 1', 
+            'المستخدم 2', 
+            'المستخدم 3'
         ];
         presets = defaultIcons.map((name, i) => ({ 
             name, 
@@ -3094,59 +2233,71 @@ window.renderBalancesPresets = function() {
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
         if (isDefaultGroup) {
-            btn.innerHTML = p.name + (p.isLocked ? ' 🔒' : ' 🔓');
-            btn.title = '🔒 معاينة وتعديل التنسيق بهذا النموذج الافتراضي';
+            btn.innerHTML = p.name + (p.isLocked ? ' \uD83D\uDD12' : ' \uD83D\uDD13');
+            btn.title = p.isLocked ? 'اضغط لعرض التقرير. اضغط مطولاً لفك القفل.' : 'اضغط مرة واحدة لحفظ التعديلات وقفل الإعداد.';
+
             
-            // Direct Click Handler to open modal directly (Same as General Ledger)
-            btn.onclick = (e) => {
-                if (e) e.preventDefault();
-                
-                // Admin Secret Unlock: Ctrl + Shift + Click
-                if (p.isLocked && e.ctrlKey && e.shiftKey) {
-                    const unlockConfirm = confirm("إدارة النظام: هل تريد فتح هذا القالب لتعديله كضبط مصنع نهائي؟");
-                    if (unlockConfirm) {
-                        p.isLocked = false;
-                        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                        window.renderBalancesPresets();
-                        if (typeof showToast === 'function') showToast("تم فتح القالب! صمم التقرير ثم انقر عليه مجدداً للحفظ النهائي.", "info");
-                    }
-                    return;
-                }
-                
-                if (p.isLocked) {
-                    window.openPresetModal(idx, p.name);
-                } else {
-                    const finalConfirm = confirm(`تأكيد حفظ ضبط المصنع:\n\nهل أنت متأكد أن هذا ضبط نهائي لـ (${p.name}) لا يمكن تغييره مهما كان؟\nسوف ينتقل كضبط مصنع لكل الشركات وسيتم قفله نهائياً ولن يفتح مجدداً.`);
-                    if (finalConfirm) {
-                        p.isLocked = true;
-                        p.updatedAt = new Date().toISOString();
-                        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                        const token = localStorage.getItem('erp_token') || '';
-                        const headers = { 'Content-Type': 'application/json' };
-                        if (token) headers['Authorization'] = 'Bearer ' + token;
-                        fetch('api_index.php/report-layout', {
-                            method: 'POST',
-                            headers: headers,
-                            body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
-                        }).catch(e => {});
-                        if (typeof showToast === 'function') showToast(`تم حفظ وقفل ضبط المصنع لـ ${p.name} بنجاح!`, "success");
-                        window.renderBalancesPresets();
-                    }
+            const saveAndLock = () => {
+                const finalConfirm = confirm('تمت إزالة القفل مسبقاً:\n\nهل أنت متأكد أنك تريد حفظ التصميم الحالي كافتراضي وإعادة قفله؟');
+                if (finalConfirm) {
+                    p.isLocked = true;
+                    p.updatedAt = new Date().toISOString();
+                    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                    const token = localStorage.getItem('erp_token') || '';
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['Authorization'] = 'Bearer ' + token;
+                    fetch('api_index.php/report-layout', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
+                    }).catch(e => {});
+                    if (typeof showToast === 'function') showToast('تم حفظ ' + p.name + ' بنجاح!', 'success');
+                    window.renderBalancesPresets();
                 }
             };
-        } else {
-            btn.innerHTML = p.name + ' 🔄';
-            btn.title = 'انقر لاسترجاع النموذج أو حفظ التعديلات 🔄';
+
+                        let defaultLongPress = false;
+            let defaultPressTimer;
+            const startDefPress = (e) => {
+                if (e.button === 2) return;
+                defaultLongPress = false;
+                defaultPressTimer = setTimeout(() => {
+                    defaultLongPress = true;
+                }, 600);
+            };
+            const cancelDefPress = () => { clearTimeout(defaultPressTimer); };
+
+            btn.addEventListener('mousedown', startDefPress);
+            btn.addEventListener('touchstart', startDefPress, {passive: true});
+            btn.addEventListener('mouseup', cancelDefPress);
+            btn.addEventListener('mouseleave', cancelDefPress);
+            btn.addEventListener('touchend', cancelDefPress);
 
             btn.onclick = (e) => {
                 if (e) e.preventDefault();
-                
-                const userChoice = confirm(`إعدادات (${p.name})\n\n- اضغط [OK / حسناً] إذا كنت تريد تحميل هذا النموذج.\n- اضغط [Cancel / إلغاء] إذا كنت تريد حفظ التعديلات الحالية في هذا النموذج.`);
-                
-                if (userChoice) {
+                if (defaultLongPress) {
+                    defaultLongPress = false;
+                    return; // DO NOT OPEN when long-pressed
+                }
+                if (p.isLocked) {
                     window.openPresetModal(idx, p.name);
                 } else {
-                    const confirmSave = confirm(`✨ تأكيد الحفظ\n\nهل أنت متأكد من رغبتك في حفظ التعديلات الحالية في (${p.name}) بشكل نهائي؟`);
+                    saveAndLock();
+                }
+            };
+        } else {
+            btn.innerHTML = p.name + ' \uD83D\uDCE5';
+            btn.title = 'حفظ مخصص';
+            
+            let pressTimer;
+            let isLongPress = false;
+
+            const startPress = (e) => {
+                if (e.button === 2) return;
+                isLongPress = false;
+                pressTimer = setTimeout(() => {
+                    isLongPress = true;
+                    const confirmSave = confirm('هل تريد حفظ التصميم الحالي في ' + p.name + '؟');
                     if (confirmSave) {
                         p.isLocked = false;
                         p.updatedAt = new Date().toISOString();
@@ -3159,37 +2310,45 @@ window.renderBalancesPresets = function() {
                             headers: headers,
                             body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
                         }).catch(e => {});
-                        if (typeof showToast === 'function') {
-                            showToast(`✨ تم حفظ التعديلات في "${p.name}" بنجاح!`, 'success');
-                        } else {
-                            alert(`✨ تم حفظ التعديلات في "${p.name}" بنجاح!`);
-                        }
+                        if (typeof showToast === 'function') showToast('تم حفظ ' + p.name + ' بنجاح!', 'success');
                         window.renderBalancesPresets();
                     }
-                }
+                }, 2000);
+            };
+
+            const cancelPress = () => { clearTimeout(pressTimer); };
+
+            btn.addEventListener('mousedown', startPress);
+            btn.addEventListener('touchstart', startPress, {passive: true});
+            btn.addEventListener('mouseup', cancelPress);
+            btn.addEventListener('mouseleave', cancelPress);
+            btn.addEventListener('touchend', cancelPress);
+
+            btn.onclick = (e) => {
+                if (e) e.preventDefault();
+                if (isLongPress) return;
+                window.openPresetModal(idx, p.name);
             };
         }
-
+        
         btn.oncontextmenu = (e) => { e.preventDefault(); return false; };
         container.appendChild(btn);
     });
 
-    // Main Preview & Design Page Button (Pushed to the very end of the row)
     const mainPreviewBtn = document.createElement('button');
     mainPreviewBtn.type = 'button';
     mainPreviewBtn.onclick = () => {
         if (typeof window.openNewPreviewPage === 'function') {
             window.openNewPreviewPage();
         } else {
-            window.openPresetModal(0, 'الشاشة الذكية للمعاينة والتصميم');
+            window.openPresetModal(0, 'معاينة');
         }
     };
     mainPreviewBtn.className = 'btn-action-hero btn-hero-preview';
     mainPreviewBtn.style.cssText = 'margin-right: auto;';
-    mainPreviewBtn.innerHTML = `<span>👁️ المعاينة والتصميم ⚙️</span>`;
+    mainPreviewBtn.innerHTML = '<span>شاشة العرض للطباعة</span>';
     container.appendChild(mainPreviewBtn);
 };
-
 window.addEventListener('storage', function(e) {
     if (e.key === 'balances_preview_presets_v7') {
         if (typeof window.renderBalancesPresets === 'function') {
@@ -3266,7 +2425,35 @@ async function openPresetModal(presetIndex, presetName) {
                     <span style="color: #f8fafc; font-weight: 800; font-size: 1rem;">📄 معاينة وطباعة التقرير بالتصميم المخصص</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
+                    ${presetIndex === 0 ? '' : `
+                      <button type="button" id="mega-save-btn-modal" onclick="
+                          const cw = document.getElementById('preset-modal-iframe').contentWindow;
+                          if (cw && cw.saveCurrentPreset) {
+                              cw.saveCurrentPreset(${presetIndex});
+                              let presets = [];
+                              try { presets = JSON.parse(localStorage.getItem('balances_preview_presets_v7') || '[]'); } catch(e){}
+                              if (presets[${presetIndex}]) {
+                                  presets[${presetIndex}].isLocked = true;
+                                  localStorage.setItem('balances_preview_presets_v7', JSON.stringify(presets));
+                                  if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
+                                  
+                                  const token = localStorage.getItem('erp_token') || '';
+                                  const headers = { 'Content-Type': 'application/json' };
+                                  if (token) headers['Authorization'] = 'Bearer ' + token;
+                                  fetch('api_index.php/report-layout', {
+                                      method: 'POST',
+                                      headers: headers,
+                                      body: JSON.stringify({ reportKey: 'balances_preview_presets_v7', layout: presets })
+                                  }).catch(e => {});
+                              }
+                              if (typeof showToast === 'function') showToast('تم الحفظ وتم إعادة القفل!', 'success');
+                              document.getElementById('preset-preview-modal').style.display='none';
+                          }
+                      " style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(16,185,129,0.4);">
+                          \uD83D\uDCBE \u062d\u0641\u0638 \u0627\u0644\u062a\u0635\u0645\u064a\u0645 \u0648\u0642\u0641\u0644 \u0627\u0644\u0637\u0628\u0644\u0629 \uD83D\uDD12
+                      </button>
+                    `}
+                      <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
                         🖨️ طباعة
                     </button>
 
@@ -5324,3 +4511,99 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderBalancesPresets();
     }
 });
+
+window.mbHandleDragStart = function(e) {
+    const th = e.target.closest('th');
+    if (!th) {
+        e.preventDefault();
+        return;
+    }
+    if (e.target.classList && e.target.classList.contains('resizer')) {
+        e.preventDefault();
+        return;
+    }
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', th.getAttribute('data-orig-idx'));
+    setTimeout(() => { th.style.opacity = '0.4'; }, 10);
+};
+
+window.mbHandleDragEnter = function(e) {
+    e.preventDefault();
+    const th = e.target.closest('th');
+    if (th) {
+        th.style.borderLeft = '3px solid #0ea5e9';
+    }
+};
+
+window.mbHandleDragOver = function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+};
+
+window.mbHandleDragLeave = function(e) {
+    const th = e.target.closest('th');
+    if (th) {
+        th.style.borderLeft = '';
+    }
+};
+
+window.mbHandleDrop = function(e) {
+    e.preventDefault();
+    const draggedOrigIdx = parseInt(e.dataTransfer.getData('text/plain'));
+    let targetTh = e.target.closest('th');
+    if (!targetTh) return;
+    
+    document.querySelectorAll('#balances-table th').forEach(el => {
+        el.style.opacity = '1';
+        el.style.borderLeft = '';
+    });
+    
+    const targetOrigIdx = parseInt(targetTh.getAttribute('data-orig-idx'));
+    if (!isNaN(draggedOrigIdx) && !isNaN(targetOrigIdx) && draggedOrigIdx !== targetOrigIdx) {
+        if (!window.colOrder) return;
+        const fromIdx = window.colOrder.indexOf(draggedOrigIdx);
+        const toIdx = window.colOrder.indexOf(targetOrigIdx);
+        
+        if (fromIdx > -1 && toIdx > -1) {
+            const movedItem = window.colOrder.splice(fromIdx, 1)[0];
+            window.colOrder.splice(toIdx, 0, movedItem);
+            if (typeof saveLayout === 'function') saveLayout();
+            if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+            if (typeof renderSidebarConfig === 'function') renderSidebarConfig();
+            if (typeof runReport === 'function' && window.lastResults) runReport();
+            if (typeof showToast === 'function') showToast('�� ����� ������� �����', 'success');
+        }
+    }
+};
+
+window.mbHandleDragEnd = function(e) {
+    const th = e.target.closest ? e.target.closest('th') : null;
+    if (th) th.style.opacity = '1';
+    document.querySelectorAll('#balances-table th').forEach(el => {
+        el.style.opacity = '1';
+        el.style.borderLeft = '';
+    });
+};
+
+window.mbHandleArrowMove = function(e, btn, dir) {
+    e.preventDefault();
+    e.stopPropagation();
+    const th = btn.closest('th');
+    if (!th) return;
+    const origIdx = parseInt(th.getAttribute('data-orig-idx'));
+    if (isNaN(origIdx) || !window.colOrder) return;
+
+    const idx = window.colOrder.indexOf(origIdx);
+    if (idx < 0) return;
+    
+    const newIdx = idx + dir;
+    if (newIdx >= 0 && newIdx < window.colOrder.length) {
+        const item = window.colOrder.splice(idx, 1)[0];
+        window.colOrder.splice(newIdx, 0, item);
+        if (typeof saveLayout === 'function') saveLayout();
+        if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+        if (typeof renderSidebarConfig === 'function') renderSidebarConfig();
+        if (typeof runReport === 'function' && window.lastResults) runReport();
+        if (typeof showToast === 'function') showToast('�� ����� ������', 'info');
+    }
+};

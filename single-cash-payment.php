@@ -1,4 +1,8 @@
 <?php
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
@@ -49,8 +53,8 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حركة مالية | Al-Sajana ERP</title>
-    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css?v=1788466095950">
+    <link rel="stylesheet" href="css/components.css?v=1788466095949">
     <link rel="stylesheet" href="css/sales-invoice.css">
     
     <style>
@@ -162,19 +166,124 @@ try {
         .choices__list--dropdown { background: #1e293b !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 1000 !important; }
         .choices__list--dropdown .choices__item { font-size: 1.1rem !important; font-weight: 500 !important; }
         .choices__list--dropdown .choices__item--selectable.is-highlighted { background: #38bdf8 !important; color: #fff !important; }
-        .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
-        .toast {
-            padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem;
-            display:flex; align-items:center; gap:8px; pointer-events:auto;
-            backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5);
-            animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
-            font-family:'Cairo',sans-serif; max-width:90vw;
+        /* Center Screen Premium Toast & Alert System */
+        .toast-container {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 1000000 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 15px !important;
+            pointer-events: none !important;
+            width: auto !important;
+            max-width: 92vw !important;
         }
-        .toast.success { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; }
-        .toast.error { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; }
-        .toast.hide { animation:toastOut 0.4s forwards; }
-        @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
-        @keyframes toastOut { to { opacity:0; transform:translateY(-20px) scale(0.95); } }
+
+        .toast {
+            padding: 18px 32px !important;
+            border-radius: 20px !important;
+            font-weight: 800 !important;
+            font-size: 1.25rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 14px !important;
+            pointer-events: auto !important;
+            backdrop-filter: blur(25px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+            box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+            animation: toastCenterIn 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275) both !important;
+            font-family: 'Cairo', 'Tajawal', system-ui, sans-serif !important;
+            min-width: 320px !important;
+            max-width: 650px !important;
+            text-align: center !important;
+            direction: rtl !important;
+            letter-spacing: 0.3px !important;
+            cursor: pointer !important;
+            user-select: none !important;
+            transition: transform 0.2s ease, opacity 0.3s ease !important;
+        }
+
+        .toast:hover {
+            transform: scale(1.02) !important;
+        }
+
+        .toast .toast-icon {
+            font-size: 1.6rem !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4)) !important;
+        }
+
+        .toast .toast-text {
+            flex: 1 !important;
+            line-height: 1.5 !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
+        }
+
+        .toast.error, .toast.danger {
+            background: linear-gradient(145deg, rgba(38, 8, 16, 0.96), rgba(80, 15, 28, 0.94)) !important;
+            border: 1.5px solid rgba(248, 113, 113, 0.65) !important;
+            color: #ffffff !important;
+            box-shadow: 0 20px 60px rgba(239, 68, 68, 0.35), 0 0 30px rgba(239, 68, 68, 0.2), inset 0 0 15px rgba(239, 68, 68, 0.15) !important;
+        }
+
+        .toast.warning {
+            background: linear-gradient(145deg, rgba(40, 24, 6, 0.96), rgba(85, 48, 12, 0.94)) !important;
+            border: 1.5px solid rgba(251, 191, 36, 0.65) !important;
+            color: #ffffff !important;
+            box-shadow: 0 20px 60px rgba(245, 158, 11, 0.35), 0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 15px rgba(245, 158, 11, 0.15) !important;
+        }
+
+        .toast.success {
+            background: linear-gradient(145deg, rgba(6, 36, 24, 0.96), rgba(12, 70, 45, 0.94)) !important;
+            border: 1.5px solid rgba(52, 211, 153, 0.65) !important;
+            color: #ffffff !important;
+            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.35), 0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 15px rgba(16, 185, 129, 0.15) !important;
+        }
+
+        .toast.info {
+            background: linear-gradient(145deg, rgba(12, 30, 52, 0.96), rgba(20, 60, 100, 0.94)) !important;
+            border: 1.5px solid rgba(56, 189, 248, 0.65) !important;
+            color: #ffffff !important;
+            box-shadow: 0 20px 60px rgba(56, 189, 248, 0.35), 0 0 30px rgba(56, 189, 248, 0.2), inset 0 0 15px rgba(56, 189, 248, 0.15) !important;
+        }
+
+        .toast.hide {
+            animation: toastCenterOut 0.32s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+        }
+
+        @keyframes toastCenterIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.8) translateY(20px);
+                filter: blur(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        @keyframes toastCenterOut {
+            0% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+                filter: blur(0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.85) translateY(-15px);
+                filter: blur(8px);
+            }
+        }
 
         .top-action-bar { background: rgba(239, 68, 68, 0.1); border-bottom: 1px solid rgba(239, 68, 68, 0.2); }
         .action-tab.active { background: #ef4444; color: #fff; border-color: #ef4444; }
@@ -324,7 +433,7 @@ try {
         
         .crystal-pill {
             display: flex; align-items: center; gap: 10px;
-            height: 42px; /* Slimmer height */
+            height: 48px;
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
@@ -358,7 +467,7 @@ try {
 
         /* Unused balance-container replaced by crystal-pill */
         .bal-card { display: flex; align-items: center; gap: 8px; }
-        .bal-icon { font-size: 1.3rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .bal-icon { font-size: 1.6rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
         .bal-info { display: flex; flex-direction: column; line-height: 1.1; }
         .bal-label { font-size: 0.8rem; color: #e2e8f0; font-weight: 700; }
         .bal-val { font-size: 1.25rem; color: #f97316; font-family: 'Inter', monospace; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
@@ -1091,43 +1200,57 @@ try {
             transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease, height 0.3s ease, color 0.3s ease !important;
             color: #ffffff !important;
         }
-        .dynamic-focus-input:focus {
-            font-size: 5.5rem !important;
-            height: 100px !important;
-            min-width: 400px !important;
-            position: relative !important;
-            z-index: 1000 !important;
-            margin-right: -100px !important;
+        /* 🌟 مقاسات الوضع الطبيعي الأساسي (تمت زيادتها 3 درجات إضافية لتكون الأرقام واضحة ومقروءة جداً) */
+        .transfer-no, .cheque-no {
+            font-size: 2.8rem !important; /* زيادة 3 درجات من 2.1rem إلى 2.8rem */
+            height: 62px !important;
             font-weight: 900 !important;
-            letter-spacing: 3px !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
+            letter-spacing: 1.5px !important;
         }
+        .transfer-amount, .cheque-amount {
+            font-size: 3.1rem !important; /* زيادة 3 درجات من 2.4rem إلى 3.1rem */
+            height: 62px !important;
+            font-weight: 900 !important;
+        }
+        .transfer-note, .cheque-branch, .transfer-statement, .cheque-statement, .cheque-date {
+            font-size: 1.55rem !important;
+            height: 62px !important;
+        }
+
         .dynamic-focus-amount:focus {
-            color: #fbbf24 !important; /* Yellow */
+            color: #fbbf24 !important; /* Golden Yellow */
+            border-color: #fbbf24 !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(251, 191, 36, 0.7) !important;
         }
         .dynamic-focus-number:focus {
-            color: #38bdf8 !important; /* Sky Blue for focus/comfort */
+            color: #38bdf8 !important; /* Sky Blue */
+            border-color: #38bdf8 !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56, 189, 248, 0.7) !important;
         }
-        .transfer-no.dynamic-focus-input:focus {
-            font-size: 1.7rem !important;
-            height: 80px !important;
-            width: 500px !important;
+
+        /* 🔍 مقاس موحد ومكبر بدقة 4.5rem لجميع حقول الأرقام والمبالغ أثناء التركيز والكتابة */
+        .transfer-no.dynamic-focus-input:focus,
+        .cheque-no.dynamic-focus-input:focus,
+        .transfer-amount:focus,
+        .cheque-amount:focus,
+        .block-cash-amount:focus,
+        .block-sub-amount:focus,
+        .block-total-amount:focus,
+        .dynamic-focus-input:focus {
+            font-size: 4.5rem !important; /* مقاس موحد عملاق ومريح جداً للقراءة والكتابة */
+            height: 98px !important;
+            min-width: 480px !important;
             max-width: none !important;
-            margin-right: -50px !important;
-            letter-spacing: 1px !important;
-        }
-        
-        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus {
-            font-size: 5.5rem !important;
-            height: 100px !important;
-            min-width: 400px !important;
             position: relative !important;
             z-index: 1000 !important;
-            margin-right: -100px !important;
-            border-color: #fbbf24 !important;
+            margin-right: -60px !important;
+            letter-spacing: 2px !important;
+            font-weight: 900 !important;
             background: rgba(15, 23, 42, 0.98) !important;
-            color: #fbbf24 !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
+            border-width: 2.5px !important;
+            border-style: solid !important;
+            border-radius: 10px !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
             /* Custom Number Properties Menu */
         #num-props-menu { display: none; position: absolute; z-index: 9999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border-radius: 12px; padding: 10px; width: 260px; color: #cbd5e1; font-family: 'Inter', sans-serif; direction: rtl; }
@@ -1173,6 +1296,126 @@ try {
         .cheque-glow:hover { border-color: rgba(216, 180, 254, 1) !important; box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), inset 0 0 20px rgba(168, 85, 247, 0.4) !important; }
         .bank-glow:hover { border-color: rgba(110, 231, 183, 1) !important; box-shadow: 0 0 30px rgba(16, 185, 129, 0.8), inset 0 0 20px rgba(16, 185, 129, 0.4) !important; }
         .grand-glow:hover { border-color: rgba(125, 211, 252, 1) !important; box-shadow: 0 0 40px rgba(56, 189, 248, 1), inset 0 0 25px rgba(56, 189, 248, 0.5) !important; }
+    </style>
+<!-- 👑 USER REQUESTED TYPOGRAPHY ENHANCEMENTS (+2 & +3 SIZES) 👑 -->
+    <style id="user-requested-typography-override">
+        /* 1. التاريخ (زيادة الخط درجتين) */
+        .date-input, #hdr-date {
+            font-size: 1.85rem !important; /* زيادة درجتين إضافيتين بناء على طلب المستخدم */
+            font-weight: 900 !important;
+            height: 52px !important;
+            padding: 4px 16px !important;
+            min-width: 195px !important;
+            color: #ffffff !important;
+            background: rgba(15, 23, 42, 0.9) !important;
+            border: 2px solid #38bdf8 !important;
+            border-radius: 10px !important;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important;
+            letter-spacing: 1px !important;
+        }
+        .date-crystal {
+            height: 58px !important;
+        }
+        .date-crystal .icon-box {
+            font-size: 1.65rem !important;
+            width: 44px !important;
+            height: 44px !important;
+        }
+        .date-input::-webkit-calendar-picker-indicator {
+            width: 22px !important;
+            height: 22px !important;
+        }
+
+        /* 1.1 خانة كتابة العملة (زيادة بنسبة 25%) */
+        #currency {
+            height: 68px !important; /* زيادة الارتفاع بنسبة 25% من 55px */
+            font-size: 1.55rem !important; /* زيادة حجم الخط بنسبة 25% */
+            min-width: 140px !important;
+            font-weight: 900 !important;
+        }
+
+        /* 2. النقد والشيك والوعد / العهد (زيادة الخط درجتين) */
+        .bal-label {
+            font-size: 1.15rem !important; /* زيادة درجتين */
+            font-weight: 900 !important;
+            color: #f1f5f9 !important;
+            letter-spacing: 0.5px !important;
+        }
+        .bal-val {
+            font-size: 1.65rem !important; /* زيادة درجتين */
+            font-weight: 900 !important;
+            letter-spacing: 1px !important;
+        }
+        .bal-icon {
+            font-size: 1.7rem !important;
+        }
+        .pay-toggle-btn {
+            font-size: 1.25rem !important; /* زيادة درجتين */
+            font-weight: 900 !important;
+            padding: 9px 20px !important;
+            border-radius: 22px !important;
+        }
+
+        /* 3. رقم السند (زيادة الخط درجتين) */
+        .badge-label {
+            font-size: 1.05rem !important; /* زيادة درجتين */
+            font-weight: 800 !important;
+            color: #cbd5e1 !important;
+        }
+        .badge-val, #voucher-number {
+            font-size: 1.85rem !important; /* زيادة درجتين مع توهج أحمر واضح */
+            font-weight: 900 !important;
+            color: #f87171 !important;
+            text-shadow: 0 0 15px rgba(239, 68, 68, 0.7) !important;
+            letter-spacing: 1.5px !important;
+        }
+        .crystal-pill {
+            height: 52px !important; /* Slim & Tall enough to comfortably frame larger fonts */
+            padding: 0 16px !important;
+        }
+
+        /* 4. في الأسفل: مجموع الشيكات، مجموع التحويلات، إجمالي الجملة (زيادة الخط 3 درجات كاملة) */
+        #unified-total-box {
+            display: block !important; /* Always visible at the bottom of the voucher */
+            margin-top: 25px !important;
+            padding: 15px 0 !important;
+        }
+        .cheque-glow span:first-of-type {
+            font-size: 1.65rem !important; /* مجموع الشيكات: زيادة 3 درجات */
+            font-weight: 900 !important;
+            color: #c084fc !important;
+            text-shadow: 0 0 15px rgba(168,85,247,0.7) !important;
+        }
+        #unified-cheque-total {
+            font-size: 2.85rem !important; /* قيمة الشيكات: زيادة 3 درجات */
+            font-weight: 900 !important;
+            color: #f3e8ff !important;
+            text-shadow: 0 0 25px rgba(168,85,247,1) !important;
+        }
+        .bank-glow span:first-of-type {
+            font-size: 1.65rem !important; /* مجموع التحويلات: زيادة 3 درجات */
+            font-weight: 900 !important;
+            color: #34d399 !important;
+            text-shadow: 0 0 15px rgba(16,185,129,0.7) !important;
+        }
+        #unified-bank-total {
+            font-size: 2.85rem !important; /* قيمة التحويلات: زيادة 3 درجات */
+            font-weight: 900 !important;
+            color: #a7f3d0 !important;
+            text-shadow: 0 0 25px rgba(16,185,129,1) !important;
+        }
+        .grand-glow span:first-of-type {
+            font-size: 1.95rem !important; /* إجمالي الجملة: زيادة 3 درجات */
+            font-weight: 900 !important;
+            color: #7dd3fc !important;
+            text-shadow: 0 0 20px rgba(56,189,248,0.8) !important;
+        }
+        #unified-grand-total {
+            font-size: 3.4rem !important; /* قيمة إجمالي الجملة: زيادة 3 درجات عملاقة وواضحة جداً */
+            font-weight: 900 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 35px rgba(56,189,248,1) !important;
+        }
     </style>
 </head>
 <body>
@@ -1257,7 +1500,7 @@ try {
                                     <div class="bal-card loan-card">
                                         <span class="bal-icon">💼</span>
                                         <div class="bal-info">
-                                            <span class="bal-label">عهد</span>
+                                            <span class="bal-label">عهد / وعد</span>
                                             <strong id="bal-loan" class="bal-val">120</strong>
                                         </div>
                                     </div>
@@ -1282,10 +1525,10 @@ try {
                         </div>
 
                         <!-- Row 1: Currency | Amount | Rate | Foreign -->
-                        <div style="display: grid; grid-template-columns: 0.8fr 2.2fr 1.0fr 2.0fr; gap: 15px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display: grid; grid-template-columns: 1.0fr 1.9fr 1.2fr 1.9fr; gap: 15px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💱 العملة</label>
-                                <select class="form-input system-currency-select input-glow-focus hover-glow" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="height: 55px; border-radius: 10px; flex-grow: 1; min-width: 0; width: 100%; font-size: 1.3rem !important; font-weight: 800; padding-right: 5px; padding-left: 5px;">
+                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.15rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💱 العملة</label>
+                                <select class="form-input system-currency-select input-glow-focus hover-glow" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="height: 68px; border-radius: 10px; flex-grow: 1; min-width: 140px; width: 100%; font-size: 1.55rem !important; font-weight: 900; padding-right: 8px; padding-left: 8px;">
                                     <option value="SDG">جنيه (SDG)</option>
                                     <option value="USD">دولار (USD)</option>
                                     <option value="AED">درهم (AED)</option>
@@ -1299,8 +1542,8 @@ try {
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">⚖️ سعر الصرف</label>
-                                <input type="number" class="form-input" id="exchange-rate" value="1" placeholder="الصرف" readonly style="flex: 1.5; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:900; height: 55px; border-radius: 10px; font-size: 0.95rem !important; letter-spacing: 1px; min-width: 110px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.15rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">⚖️ الصرف</label>
+                                <input type="number" class="form-input" id="exchange-rate" value="1" placeholder="الصرف" readonly style="flex: 2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.12); color:#10b981; font-weight:900; height: 55px; border-radius: 10px; font-size: 1.65rem !important; letter-spacing: 1px; min-width: 130px; width: 100%; border: 1.5px solid rgba(16,185,129,0.4); box-shadow: 0 0 12px rgba(16,185,129,0.25);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px; position: relative;">
                                 <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💵 القيمة (أجنبي)</label>
@@ -1420,13 +1663,7 @@ try {
                                 color: #94a3b8;
                                 padding: 6px 14px;
                                 border-radius: 20px;
-                                font-size: 0.9rem;
-                                font-weight: 800;
-                                cursor: pointer;
-                                transition: all 0.3s ease;
-                                display: flex;
-                                align-items: center;
-                                gap: 6px;
+                                font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;
                             }
                             .pay-toggle-btn.active {
                                 background: rgba(56, 189, 248, 0.2) !important;
@@ -1480,7 +1717,7 @@ try {
         #num-props-menu button.prop-btn { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #60a5fa; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
         #num-props-menu button.prop-btn:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
     </style>
-                        <div id="payment-panel" style="display: none; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
+                        <div id="payment-panel" style="display: block; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
                             <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
                                 <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
                                     <span>💳</span> طريقة وتفاصيل الدفع للمستند المجمع
@@ -1496,10 +1733,16 @@ try {
                                     <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap; background: rgba(16, 185, 129, 0.15); color: #34d399; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);" data-status="fully-paid">💳 مدفوعة بالكامل</span>
                                 </div>
 
-                                <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
-                                    <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
-                                    <button type="button" class="pay-toggle-btn active" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
-                                    <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                                <div class="payment-toggles" style="display: flex; gap: 8px; flex: none; flex-wrap: wrap;">
+                                    <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">💵 نقدي</button>
+                                    <button type="button" class="pay-toggle-btn active" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">🏦 تحويل بنكي</button>
+                                    <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">✍️ شيك</button>
+                                    <button type="button" class="pay-toggle-btn" id="btn-financial-ocr" onclick="FinancialOCR.openScanner({ target: 'single' })" style="background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(16,185,129,0.2)); border: 1.5px solid #22d3ee; color: #22d3ee; border-radius: 20px; font-size: 1.15rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(6,182,212,0.25);" title="تصوير وقراءة إشعار بنكك أو الشيك بالذكاء الاصطناعي">
+                                        <span style="font-size: 1.3rem;">📷</span> مسح إشعار / شيك (AI OCR)
+                                    </button>
+                                    <button type="button" class="pay-toggle-btn" onclick="FinancialOCR.openTrainer()" style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.4); color: #d8b4fe; padding: 8px 14px; border-radius: 20px; font-size: 1.05rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="شرح وتدريب النماذج للذكاء الاصطناعي">
+                                        <span>🧠</span> تدريب النماذج
+                                    </button>
                                 </div>
                             </div>
                             
@@ -1510,7 +1753,7 @@ try {
                                     <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
                                         <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
                                             <span style="font-size: 1.2rem;">💵</span>
-                                            <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
+                                            <span style="font-weight: 900; color: #34d399; font-size: 1.25rem;">الدفع النقدي (كاش)</span>
                                         </div>
                                         <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
                                             <span style="color: #94a3b8; font-size: 0.9rem;">سيتم السداد نقداً بالكامل من خلال الصندوق المحدد.</span>
@@ -1532,25 +1775,25 @@ try {
                                     </div>
 
                                     <!-- Unified Total Box Redesign -->
-                                    <div id="unified-total-box" style="display: none; width: 100%; margin-top: 15px; padding: 10px 0;">
+                                    <div id="unified-total-box" style="display: block !important; width: 100%; margin-top: 15px; padding: 10px 0;">
                                         <div style="display: flex; justify-content: space-between; align-items: stretch; gap: 15px; flex-wrap: wrap;">
                                             <!-- Cheques Total -->
                                             <div class="total-glass-card cheque-glow" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.4); position: relative; overflow: hidden;">
                                                 <div class="glow-orb" style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: rgba(168, 85, 247, 0.5); filter: blur(40px); border-radius: 50%; animation: pulseOrb 3s infinite alternate;"></div>
-                                                <span style="color: #c084fc; font-size: 1.1rem; font-weight: 800; z-index: 2; margin-bottom: 5px; text-shadow: 0 0 10px rgba(168,85,247,0.5);">مجموع الشيكات</span>
-                                                <span id="unified-cheque-total" style="color: #e9d5ff; font-size: 1.8rem; font-weight: 900; z-index: 2; text-shadow: 0 0 15px rgba(168,85,247,0.8); font-variant-numeric: tabular-nums;">0</span>
+                                                <span style="color: #c084fc; font-size: 1.55rem; font-weight: 900; z-index: 2; margin-bottom: 6px; text-shadow: 0 0 15px rgba(168,85,247,0.6);">مجموع الشيكات</span>
+                                                <span id="unified-cheque-total" style="color: #e9d5ff; font-size: 2.5rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(168,85,247,0.9); font-variant-numeric: tabular-nums;">0</span>
                                             </div>
                                             <!-- Bank Total -->
                                             <div class="total-glass-card bank-glow" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); position: relative; overflow: hidden;">
                                                 <div class="glow-orb" style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.5); filter: blur(40px); border-radius: 50%; animation: pulseOrb 3.5s infinite alternate-reverse;"></div>
-                                                <span style="color: #34d399; font-size: 1.1rem; font-weight: 800; z-index: 2; margin-bottom: 5px; text-shadow: 0 0 10px rgba(16,185,129,0.5);">مجموع التحويلات</span>
-                                                <span id="unified-bank-total" style="color: #a7f3d0; font-size: 1.8rem; font-weight: 900; z-index: 2; text-shadow: 0 0 15px rgba(16,185,129,0.8); font-variant-numeric: tabular-nums;">0</span>
+                                                <span style="color: #34d399; font-size: 1.55rem; font-weight: 900; z-index: 2; margin-bottom: 6px; text-shadow: 0 0 15px rgba(16,185,129,0.6);">مجموع التحويلات</span>
+                                                <span id="unified-bank-total" style="color: #a7f3d0; font-size: 2.5rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(16,185,129,0.9); font-variant-numeric: tabular-nums;">0</span>
                                             </div>
                                             <!-- Grand Total -->
                                             <div class="total-glass-card grand-glow" style="flex: 1; min-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(56, 189, 248, 0.15); border: 2px solid rgba(56, 189, 248, 0.6); position: relative; overflow: hidden; transform: scale(1.02); box-shadow: 0 0 20px rgba(56,189,248,0.2);">
                                                 <div class="glow-orb" style="position: absolute; top: -50px; left: -50px; width: 120px; height: 120px; background: rgba(56, 189, 248, 0.6); filter: blur(50px); border-radius: 50%; animation: pulseOrb 2.5s infinite alternate;"></div>
-                                                <span style="color: #7dd3fc; font-size: 1.3rem; font-weight: 900; z-index: 2; margin-bottom: 5px; text-shadow: 0 0 15px rgba(56,189,248,0.6);">إجمالي الجملة</span>
-                                                <span id="unified-grand-total" style="color: #ffffff; font-size: 2.2rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(56,189,248,1); font-variant-numeric: tabular-nums;">0</span>
+                                                <span style="color: #7dd3fc; font-size: 1.85rem; font-weight: 900; z-index: 2; margin-bottom: 6px; text-shadow: 0 0 20px rgba(56,189,248,0.8);">إجمالي الجملة</span>
+                                                <span id="unified-grand-total" style="color: #ffffff; font-size: 3.1rem; font-weight: 900; z-index: 2; text-shadow: 0 0 30px rgba(56,189,248,1); font-variant-numeric: tabular-nums;">0</span>
                                             </div>
                                         </div>
                                     </div>
@@ -2062,8 +2305,12 @@ try {
             // Set initial state
             setTimeout(() => {
                 if (typeof updateCurrency === 'function') updateCurrency();
+                const container = document.getElementById('transfers-container');
+                if (container && container.children.length === 0 && typeof addTransferRow === 'function') {
+                    addTransferRow('', '', 0);
+                }
                 window.togglePaymentMethod();
-            }, 200);
+            }, 50);
         });
     </script>
 
@@ -2218,10 +2465,14 @@ try {
         <div class="props-item" onclick="applyNumProp('toggle-font')">
             <span>نوع الخط</span>
             <span id="prop-font-status" style="color:#fbbf24; font-size:0.8rem; font-weight:bold;">Inter</span>
-                <div class="props-item" style="justify-content: center; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+        </div>
+        <div class="props-item" style="justify-content: center; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
             <button id="save-props-btn" onclick="saveNumberProperties(); event.stopPropagation();" style="background: #10b981; color: #fff; border: none; padding: 6px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s;">💾 حفظ الخصائص</button>
         </div>
     </div>
+    <!-- Financial OCR Modal & Script -->
+    <?php include 'includes/financial-ocr-modal.php'; ?>
+    <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
 </body>
 </html>
 
