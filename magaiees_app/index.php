@@ -181,19 +181,35 @@
   </div>
 
   <script>
+    function hideLoader() {
+      var loader = document.getElementById('loading-container');
+      if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(function() {
+          if (loader.parentNode) loader.parentNode.removeChild(loader);
+        }, 400);
+      }
+    }
     window.addEventListener('flutter-first-frame', function() {
-      // Small delay to let Flutter precache the logo image in memory
-      // before we remove the native splash screen, preventing X-box flash.
-      setTimeout(function() {
-        var loader = document.getElementById('loading-container');
-        if (loader) {
-          loader.style.opacity = '0';
-          setTimeout(function() {
-            loader.remove();
-          }, 400);
-        }
-      }, 300);
+      setTimeout(hideLoader, 200);
     });
+    setTimeout(hideLoader, 3500);
+
+    // Unlock AudioContext on first user interaction for Chrome Autoplay policy
+    function unlockAudioContext() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (AudioContext) {
+          const dummyCtx = new AudioContext();
+          dummyCtx.resume().then(function() {
+            setTimeout(function() { dummyCtx.close(); }, 200);
+          });
+        }
+      } catch(e) {}
+    }
+    window.addEventListener('click', unlockAudioContext, { once: true, capture: true });
+    window.addEventListener('touchstart', unlockAudioContext, { once: true, capture: true });
+    window.addEventListener('keydown', unlockAudioContext, { once: true, capture: true });
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
