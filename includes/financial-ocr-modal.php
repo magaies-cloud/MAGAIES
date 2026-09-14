@@ -63,6 +63,73 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
 <!-- OCR Review & Confirmation Modal (Edge-to-Edge 100% Full Screen 3-Column Dashboard) -->
 <div id="financial-ocr-review-modal" style="display:none; position:fixed !important; inset:0 !important; top:0 !important; left:0 !important; right:0 !important; bottom:0 !important; width:100vw !important; height:100vh !important; max-width:100vw !important; max-height:100vh !important; background:#020617 !important; z-index:2147483647 !important; padding:6px 8px; margin:0 !important; font-family:'Tajawal',sans-serif; direction:rtl; box-sizing:border-box; overflow:hidden;">
     
+    <!-- Modern Expressive Fraud Disclaimer Modal (نافذة إخلاء مسؤولية كشف التزوير العصرية ذات الطابع البنفسجي الفاخر) -->
+    <div id="financial-ocr-fraud-disclaimer-modal" style="display:none; position:fixed !important; inset:0 !important; top:0; left:0; width:100vw; height:100vh; background:rgba(2,6,23,0.85); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); z-index:9999999 !important; align-items:center; justify-content:center; padding:16px; font-family:'Tajawal',sans-serif; direction:rtl; box-sizing:border-box; animation:ocrModalFadeIn 0.25s ease-out;">
+        <div style="width:100%; max-width:530px; background:linear-gradient(145deg, rgba(15,23,42,0.98) 0%, rgba(30,16,56,0.98) 55%, rgba(15,23,42,0.98) 100%); border:1.8px solid rgba(192,132,252,0.65); border-radius:24px; box-shadow:0 30px 80px rgba(0,0,0,0.88), 0 0 50px rgba(168,85,247,0.35), inset 0 1px 0 rgba(255,255,255,0.15); padding:26px 24px; color:#fff; display:flex; flex-direction:column; gap:16px; position:relative; animation:ocrModalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+            
+            <!-- Glowing Top Ambient Light Bar -->
+            <div style="position:absolute; top:0; left:15%; right:15%; height:3px; background:linear-gradient(90deg, transparent, #c084fc, #fbbf24, #c084fc, transparent); border-radius:3px; filter:drop-shadow(0 0 6px rgba(192,132,252,0.8));"></div>
+
+            <!-- Top Header & Icon -->
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <!-- Animated Floating Forensic Badge -->
+                    <div style="width:54px; height:54px; min-width:54px; border-radius:18px; background:linear-gradient(135deg, rgba(168,85,247,0.35), rgba(126,34,206,0.65)); border:2px solid #d8b4fe; display:flex; align-items:center; justify-content:center; font-size:1.9rem; box-shadow:0 0 25px rgba(168,85,247,0.6); animation:ocrWarningPulse 1.4s infinite alternate;">
+                        🕵️‍♂️
+                    </div>
+                    <div>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="background:rgba(245,158,11,0.22); border:1px solid #fbbf24; color:#fef08a; padding:2px 10px; border-radius:20px; font-size:0.78rem; font-weight:900; letter-spacing:0.3px; display:inline-flex; align-items:center; gap:4px;">
+                                <span>⚠️</span> تنبيه:
+                            </span>
+                            <span style="color:#94a3b8; font-size:0.75rem; font-weight:700;">ذكاء اصطناعي جنائي</span>
+                        </div>
+                        <h3 style="margin:4px 0 0 0; font-size:1.3rem; font-weight:900; color:#f5d0fe; letter-spacing:-0.3px; line-height:1.2;">كشف التزوير وتدقيق المستندات</h3>
+                    </div>
+                </div>
+                <!-- Close Button -->
+                <button type="button" id="btn-fraud-disclaimer-close" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; width:34px; height:34px; border-radius:10px; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.15s ease;" title="إغلاق">✕</button>
+            </div>
+
+            <!-- Expressive Core Disclaimer Box -->
+            <div style="background:linear-gradient(135deg, rgba(88,28,135,0.35), rgba(30,15,55,0.55)); border:1.8px solid rgba(192,132,252,0.45); border-radius:16px; padding:18px 20px; display:flex; flex-direction:column; gap:12px; box-shadow:0 8px 30px rgba(0,0,0,0.35), inset 0 0 20px rgba(168,85,247,0.15);">
+                <div style="display:flex; align-items:flex-start; gap:12px;">
+                    <span style="font-size:1.6rem; line-height:1; flex-shrink:0; filter:drop-shadow(0 0 8px rgba(251,191,36,0.8));">⚖️</span>
+                    <div style="font-size:1.14rem; font-weight:900; color:#ffffff; line-height:1.65;">
+                        <span style="color:#fbbf24; text-shadow:0 0 14px rgba(251,191,36,0.7); font-size:1.24rem;">مقاييس</span> غير مسؤولة عن النتيجة، إنما هو <span style="color:#f5d0fe; background:rgba(168,85,247,0.25); border:1px solid rgba(192,132,252,0.4); padding:1px 8px; border-radius:6px; text-decoration:none;">اجتهاد بالذكاء الاصطناعي</span>.
+                    </div>
+                </div>
+                <div style="color:#cbd5e1; font-size:0.86rem; font-weight:700; line-height:1.6; border-top:1px dashed rgba(255,255,255,0.15); padding-top:10px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="color:#c084fc; font-size:0.9rem;">✦</span>
+                        <span>يفحص الذكاء الاصطناعي بيكسلات الصورة، وهندسة الخطوط، وتطابق التفقيط بالحروف مع الأرقام.</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="color:#38bdf8; font-size:0.9rem;">✦</span>
+                        <span>النتيجة استرشادية لمساعدة المحاسب، والاعتماد والقرار المالي النهائي يظل دائماً بمسؤولية المنشأة.</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question Prompt Banner -->
+            <div style="background:rgba(15,23,42,0.85); border:1.5px solid rgba(56,189,248,0.35); border-radius:14px; padding:12px 16px; display:flex; align-items:center; gap:10px; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
+                <span style="font-size:1.35rem; animation:pulseScale 1.2s infinite ease-in-out;">❓</span>
+                <span id="ocr-fraud-disclaimer-question" style="color:#7dd3fc; font-size:1.02rem; font-weight:900; line-height:1.4;">هل ترغب في المتابعة وبدء كشف التزوير لهذا المستند؟</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display:flex; align-items:center; gap:12px; padding-top:4px;">
+                <button type="button" id="btn-fraud-disclaimer-confirm" style="flex:1.5; height:48px; background:linear-gradient(135deg, #9333ea 0%, #7e22ce 50%, #6b21a8 100%); border:2px solid #d8b4fe; color:#ffffff; border-radius:14px; font-size:1.02rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 25px rgba(168,85,247,0.65); transition:all 0.2s ease;">
+                    <span>🔍 نعم، متابعة كشف التزوير</span>
+                </button>
+                <button type="button" id="btn-fraud-disclaimer-cancel" style="flex:1; height:48px; background:rgba(255,255,255,0.08); border:1.8px solid rgba(255,255,255,0.25); color:#e2e8f0; border-radius:14px; font-size:1rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s ease;">
+                    <span>✕ تراجع وإلغاء</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
     <!-- Three-Column Master Grid: Exactly 3 Parts, Image in the Center, 100% Fullscreen Domination -->
     <div class="ocr-responsive-grid" style="width:100%; height:100%; min-height:0; display:grid; grid-template-columns: minmax(0, 1.98fr) minmax(0, 1.255fr) minmax(0, 0.765fr); gap:8px; overflow:hidden; overflow-x:auto; direction:rtl; box-sizing:border-box;">
             
@@ -934,6 +1001,30 @@ if (!window.FinancialOCR) {
 @keyframes ocrWarningPulse {
     0% { transform: scale(1); box-shadow: 0 0 5px rgba(245, 158, 11, 0.6); }
     100% { transform: scale(1.06); box-shadow: 0 0 14px rgba(245, 158, 11, 0.95); }
+}
+@keyframes ocrModalPopIn {
+    0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes ocrModalFadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+#btn-fraud-disclaimer-confirm:hover {
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 6px 32px rgba(168, 85, 247, 0.85) !important;
+    filter: brightness(1.1) !important;
+}
+#btn-fraud-disclaimer-cancel:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.4) !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) !important;
+}
+#btn-fraud-disclaimer-close:hover {
+    background: rgba(239, 68, 68, 0.25) !important;
+    border-color: #ef4444 !important;
+    color: #fca5a5 !important;
 }
 
 .ocr-dashboard-col {

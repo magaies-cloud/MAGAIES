@@ -1328,6 +1328,75 @@
             window.open(waUrl, '_blank');
         },
 
+        // Modern Expressive Fraud Disclaimer Confirmation Modal
+        promptFraudDisclaimer(isBatch = false, count = 1) {
+            return new Promise((resolve) => {
+                const modal = document.getElementById('financial-ocr-fraud-disclaimer-modal');
+                if (!modal) {
+                    const fallbackMsg = isBatch
+                        ? `⚠️ تنبيه:\n\nمقاييس غير مسؤولة عن النتيجة، إنما هو اجتهاد بالذكاء الاصطناعي.\n\nهل ترغب في المتابعة وبدء كشف التزوير لكافة مستندات الدفعة (${count} مستند)؟`
+                        : `⚠️ تنبيه:\n\nمقاييس غير مسؤولة عن النتيجة، إنما هو اجتهاد بالذكاء الاصطناعي.\n\nهل ترغب في المتابعة وبدء كشف التزوير لهذا المستند؟`;
+                    return resolve(confirm(fallbackMsg));
+                }
+
+                const questionElem = document.getElementById('ocr-fraud-disclaimer-question');
+                const confirmBtn = document.getElementById('btn-fraud-disclaimer-confirm');
+                const cancelBtn = document.getElementById('btn-fraud-disclaimer-cancel');
+                const closeBtn = document.getElementById('btn-fraud-disclaimer-close');
+
+                if (questionElem) {
+                    questionElem.textContent = isBatch
+                        ? `هل ترغب في المتابعة وبدء كشف التزوير لكافة مستندات الدفعة (${count} مستند)؟`
+                        : `هل ترغب في المتابعة وبدء كشف التزوير لهذا المستند؟`;
+                }
+
+                if (confirmBtn) {
+                    confirmBtn.innerHTML = isBatch
+                        ? `<span>🔍 نعم، فحص تزوير الدفعة (${count})</span>`
+                        : `<span>🔍 نعم، متابعة كشف التزوير</span>`;
+                }
+
+                modal.style.setProperty('display', 'flex', 'important');
+                modal.style.setProperty('visibility', 'visible', 'important');
+                modal.style.setProperty('opacity', '1', 'important');
+                modal.style.setProperty('pointer-events', 'auto', 'important');
+
+                let resolved = false;
+                const cleanup = (result) => {
+                    if (resolved) return;
+                    resolved = true;
+                    window.removeEventListener('keydown', onKeyDown, true);
+                    modal.style.setProperty('display', 'none', 'important');
+                    if (confirmBtn) confirmBtn.onclick = null;
+                    if (cancelBtn) cancelBtn.onclick = null;
+                    if (closeBtn) closeBtn.onclick = null;
+                    modal.onclick = null;
+                    resolve(result);
+                };
+
+                const onKeyDown = (e) => {
+                    if (e.key === 'Escape') {
+                        e.stopPropagation();
+                        cleanup(false);
+                    } else if (e.key === 'Enter') {
+                        e.stopPropagation();
+                        cleanup(true);
+                    }
+                };
+                window.addEventListener('keydown', onKeyDown, true);
+
+                if (confirmBtn) confirmBtn.onclick = (e) => { e.stopPropagation(); cleanup(true); };
+                if (cancelBtn) cancelBtn.onclick = (e) => { e.stopPropagation(); cleanup(false); };
+                if (closeBtn) closeBtn.onclick = (e) => { e.stopPropagation(); cleanup(false); };
+                modal.onclick = (e) => {
+                    if (e.target === modal) {
+                        e.stopPropagation();
+                        cleanup(false);
+                    }
+                };
+            });
+        },
+
         // Re-scan ALL Items in Batch
         async rescanAllBatchItems(fraudCheck = false) {
             const items = this.batchItems;
@@ -1335,9 +1404,13 @@
                 return this.rescanCurrentItem(fraudCheck);
             }
 
-            const actionText = fraudCheck ? 'فحص التزوير الجنائي لجميع مستندات الدفعة' : 'إعادة قراءة جميع مستندات الدفعة';
-            if (!confirm(`هل ترغب في ${actionText} (${items.length} مستند) بالذكاء الاصطناعي؟`)) {
-                return;
+            if (fraudCheck) {
+                const proceed = await this.promptFraudDisclaimer(true, items.length);
+                if (!proceed) return;
+            } else {
+                if (!confirm(`هل ترغب في إعادة قراءة جميع مستندات الدفعة (${items.length} مستند) بالذكاء الاصطناعي؟`)) {
+                    return;
+                }
             }
 
             const fraudAllBtn = document.getElementById('btn-batch-fraud-all');
@@ -2077,6 +2150,11 @@
                     this.showToast('⚠️ لا يوجد مستند حالي لإجراء كشف التزوير عليه', 'warning');
                     return;
                 }
+            }
+
+            if (fraudCheck) {
+                const proceed = await this.promptFraudDisclaimer(false, 1);
+                if (!proceed) return;
             }
 
             // If user clicked refresh on a different card, switch preview and form to that card first
