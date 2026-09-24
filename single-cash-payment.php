@@ -1416,6 +1416,323 @@ try {
             color: #ffffff !important;
             text-shadow: 0 0 35px rgba(56,189,248,1) !important;
         }
+
+        /* ═══ زر الواتساب كأيقونة فقط في السطر الموحد ═══ */
+        .btn-whatsapp-icon-only {
+            --tab-border-color: #25d366;
+            --tab-glow-color: rgba(37, 211, 102, 0.85);
+            background: linear-gradient(135deg, rgba(37, 211, 102, 0.28), rgba(18, 140, 126, 0.55)) !important;
+            border: 2.2px solid #25d366 !important;
+            border-radius: 12px !important;
+            color: #ffffff !important;
+            width: 44px !important;
+            height: 42px !important;
+            min-width: 44px !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(37, 211, 102, 0.35) !important;
+            flex-shrink: 0 !important;
+            transition: all 0.25s ease !important;
+        }
+        .btn-whatsapp-icon-only:hover,
+        .crystal-btn.btn-whatsapp-icon-only:hover {
+            background: #000000 !important;
+            color: #25d366 !important;
+            border: 2.2px solid #25d366 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 16px rgba(37, 211, 102, 0.85) !important;
+            transform: translateY(-3px) scale(1.06) !important;
+        }
+
+        /* ═══ Auto-Send Control Button & Options in Footer ═══ */
+        #auto-send-control-wrapper,
+        .footer-actions #auto-send-control-wrapper {
+            display: inline-flex !important;
+            align-items: center !important;
+            position: relative !important;
+            direction: rtl !important;
+        }
+        #btn-toggle-auto-send,
+        .footer-actions #btn-toggle-auto-send {
+            height: 42px !important;
+            font-size: 0.88rem !important;
+            padding: 0 14px 0 10px !important;
+            border-radius: 0 12px 12px 0 !important;
+            border-left: none !important;
+            font-weight: 800 !important;
+            cursor: pointer !important;
+            white-space: nowrap !important;
+            transition: all 0.25s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+        }
+        #btn-auto-send-options,
+        .footer-actions #btn-auto-send-options {
+            height: 42px !important;
+            width: 28px !important;
+            min-width: 28px !important;
+            padding: 0 !important;
+            border-radius: 12px 0 0 12px !important;
+            border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            font-size: 0.72rem !important;
+            transition: all 0.25s ease !important;
+        }
+        .btn-auto-send-toggle.active,
+        .btn-auto-send-options.active {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.42) 100%) !important;
+            border-color: #10b981 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 14px rgba(16, 185, 129, 0.35) !important;
+        }
+        .btn-auto-send-toggle.active:hover,
+        .btn-auto-send-options.active:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.35) 0%, rgba(5, 150, 105, 0.55) 100%) !important;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.5), 0 0 20px rgba(16, 185, 129, 0.55) !important;
+            transform: translateY(-2px) !important;
+        }
+        .btn-auto-send-toggle.inactive,
+        .btn-auto-send-options.inactive {
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.45) 0%, rgba(30, 41, 59, 0.6) 100%) !important;
+            border-color: rgba(148, 163, 184, 0.38) !important;
+            color: #cbd5e1 !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important;
+        }
+        .btn-auto-send-toggle.inactive:hover,
+        .btn-auto-send-options.inactive:hover {
+            background: linear-gradient(135deg, rgba(71, 85, 105, 0.6) 0%, rgba(51, 65, 85, 0.75) 100%) !important;
+            border-color: #94a3b8 !important;
+            color: #ffffff !important;
+            transform: translateY(-2px) !important;
+        }
+        .auto-send-opt-item:hover {
+            background: rgba(255, 255, 255, 0.08) !important;
+        }
+        :root.light-theme .btn-auto-send-toggle.active,
+        :root.light-theme .btn-auto-send-options.active {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
+            border-color: #059669 !important;
+            color: #065f46 !important;
+        }
+        :root.light-theme .btn-auto-send-toggle.inactive,
+        :root.light-theme .btn-auto-send-options.inactive {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+            border-color: #cbd5e1 !important;
+            color: #475569 !important;
+        }
+        :root.light-theme #auto-send-dropdown-menu {
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+        }
+        :root.light-theme .auto-send-opt-item:hover {
+            background: #f1f5f9 !important;
+        }
+
+        /* ═══ WhatsApp Promissory Dispatch Modal Styles ═══ */
+        .wa-modal-resizable {
+            resize: both;
+            overflow: hidden;
+            min-width: 380px;
+            min-height: 400px;
+            max-width: 96vw;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            box-shadow: 0 16px 45px rgba(0,0,0,0.7), 0 0 25px rgba(37, 211, 102, 0.25);
+        }
+        @media (max-width: 768px) {
+            #wa-voucher-modal-card {
+                width: 96vw !important;
+                padding: 12px 10px !important;
+            }
+        }
+        .wa-modal-header-draggable {
+            cursor: grab;
+            cursor: -webkit-grab;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .wa-modal-header-draggable:active {
+            cursor: grabbing;
+            cursor: -webkit-grabbing;
+        }
+        .wa-modal-scroll-area {
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1 1 auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(37, 211, 102, 0.45) rgba(0,0,0,0.25);
+        }
+        .wa-modal-scroll-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        .wa-modal-scroll-area::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.25);
+            border-radius: 4px;
+        }
+        .wa-modal-scroll-area::-webkit-scrollbar-thumb {
+            background: rgba(37, 211, 102, 0.45);
+            border-radius: 4px;
+        }
+        .wa-modal-scroll-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(37, 211, 102, 0.75);
+        }
+        .wa-resize-handle-corner {
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            cursor: sw-resize;
+            opacity: 0.45;
+            pointer-events: none;
+            color: #25d366;
+            font-size: 11px;
+            line-height: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+        }
+        .wa-btn-header-ctrl {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .wa-btn-header-ctrl:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            transform: scale(1.05);
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
+            50% { transform: scale(1.015); box-shadow: 0 0 26px rgba(239, 68, 68, 0.85); }
+            100% { transform: scale(1); box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
+        }
+
+        .wa-luxury-badge {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+        .wa-ripple-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+        .wa-wave-pulse {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #25d366;
+            animation: waWaveRipple 2.6s infinite cubic-bezier(0, 0.2, 0.8, 1);
+            pointer-events: none;
+        }
+        .wa-wave-pulse.wave-1 { animation-delay: 0s; }
+        .wa-wave-pulse.wave-2 { animation-delay: 0.85s; }
+        .wa-wave-pulse.wave-3 { animation-delay: 1.7s; }
+        .wa-luxury-icon-circle {
+            position: relative;
+            z-index: 2;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            border: 2px solid #a7f3d0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 14px rgba(37, 211, 102, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.7);
+            animation: waSphereGlow 2.5s infinite ease-in-out, waMicroMotion 3.5s infinite ease-in-out;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .wa-luxury-icon-circle svg {
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+            transition: transform 0.25s ease;
+        }
+        .wa-luxury-badge:hover .wa-luxury-icon-circle {
+            transform: scale(1.14) rotate(8deg);
+            box-shadow: 0 0 24px rgba(37, 211, 102, 1), 0 0 35px rgba(37, 211, 102, 0.6), inset 0 1px 4px #ffffff;
+            border-color: #ffffff;
+        }
+        .wa-luxury-badge:hover .wa-luxury-icon-circle svg {
+            transform: scale(1.1);
+        }
+        @keyframes waWaveRipple {
+            0% { transform: scale(0.85); opacity: 0.95; border-color: rgba(37, 211, 102, 0.9); box-shadow: 0 0 10px rgba(37, 211, 102, 0.7); }
+            50% { opacity: 0.5; border-color: rgba(52, 211, 153, 0.6); }
+            100% { transform: scale(1.75); opacity: 0; border-color: rgba(16, 185, 129, 0); box-shadow: 0 0 18px rgba(37, 211, 102, 0); }
+        }
+        @keyframes waSphereGlow {
+            0%, 100% { box-shadow: 0 0 12px rgba(37, 211, 102, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.65); filter: drop-shadow(0 0 5px rgba(37, 211, 102, 0.5)); }
+            50% { box-shadow: 0 0 22px rgba(37, 211, 102, 0.95), inset 0 1px 4px rgba(255, 255, 255, 0.9); filter: drop-shadow(0 0 12px rgba(37, 211, 102, 0.9)); }
+        }
+        @keyframes waMicroMotion {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.05) rotate(-3deg); }
+            50% { transform: scale(0.97) rotate(2deg); }
+            75% { transform: scale(1.04) rotate(-1deg); }
+        }
+        .wa-currency-chip {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: #0f172a;
+            color: #fef08a;
+            border: 1.5px solid #fbbf24;
+            border-radius: 6px;
+            font-size: 1.05rem;
+            font-weight: 900;
+            padding: 2px 6px 2px 20px;
+            cursor: pointer;
+            text-align: center;
+            outline: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.15);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23fbbf24' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 4px center;
+            background-size: 10px;
+            transition: all 0.2s ease;
+            height: 32px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            font-family: 'Consolas', monospace;
+            box-sizing: border-box;
+        }
+        .wa-currency-chip:hover, .wa-currency-chip:focus {
+            border-color: #f59e0b;
+            background-color: #1e293b;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+            transform: translateY(-1px);
+        }
     </style>
 </head>
 <body>
@@ -1822,17 +2139,55 @@ try {
 
         <!-- STICKY FOOTER -->
         <div class="sticky-footer" style="background: rgba(15,23,42,0.85); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-top: 1px solid rgba(56, 189, 248, 0.4); border-left: 1px solid rgba(56, 189, 248, 0.4); border-right: 1px solid rgba(56, 189, 248, 0.4); border-radius: 20px 20px 0 0; padding: 8px 15px; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -10px 40px rgba(0,0,0,0.6), inset 0 2px 15px rgba(255,255,255,0.05);">
-            <div class="footer-actions" style="width: 100%; justify-content: center; gap: 10px; display: flex; flex-wrap: wrap;">
+            <div class="footer-actions unified-footer-bar" style="width: 100%; justify-content: center; gap: 10px; display: flex; flex-wrap: wrap; align-items: center;">
                 <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
                 <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()">✨ مستند جديد</button>
                 <button type="button" class="btn crystal-btn btn-print-preview" id="btn-preview-invoice" style="display: none; background: rgba(14, 165, 233, 0.15); border: 1px solid #0ea5e9; color: #7dd3fc;" onclick="previewVoucher()">👁️ معاينة</button>
                 <button type="button" class="btn crystal-btn btn-print" id="btn-print-invoice" style="display: none;" onclick="printVoucher()">🖨️ طباعة</button>
-                <button type="button" class="btn btn-whatsapp" id="btn-whatsapp-invoice" style="display: none; background: #25d366; color: #fff; border-color: #25d366; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; cursor: pointer; padding: 10px 20px; border-radius: 8px; border: none;" onclick="sendCurrentVoucherWA()">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" style="margin-left: 5px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    <span>إرسال للواتساب</span>
+                
+                <!-- زر الواتساب - يظهر كأيقونة واتساب احترافية خضراء متوهجة فقط -->
+                <button type="button" class="btn crystal-btn btn-whatsapp-icon-only" id="btn-whatsapp-master" onclick="openMasterWhatsAppDispatchModal()" title="إرسال كمبيالة وإشعار السند عبر واتساب">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display: block;">
+                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 </button>
+                <button type="button" id="btn-whatsapp-invoice" style="display: none !important;"></button>
+
                 <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()">🗑️ حذف السند</button>
-                <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="submitVoucher()">✅ حفظ واعتماد السند</button>
+
+                <!-- ═══ زر التحكم في الإرسال التلقائي مع الحفظ ═══ -->
+                <div id="auto-send-control-wrapper">
+                    <button type="button" class="btn crystal-btn btn-auto-send-toggle inactive" id="btn-toggle-auto-send" onclick="window.toggleAutoSendMode()" title="التحكم في الإرسال التلقائي: انقر للتبديل بين الحفظ مع الإرسال، أو الحفظ فقط بدون إرسال">
+                        <span id="auto-send-icon" style="font-size: 1.1rem;">💾</span>
+                        <span id="auto-send-label" style="font-weight: 800;">إرسال تلقائي:</span>
+                        <span id="auto-send-status-pill" style="padding: 2px 8px; border-radius: 7px; font-size: 0.76rem; font-weight: 900;">معطّل (حفظ فقط)</span>
+                    </button>
+                    <button type="button" class="btn crystal-btn btn-auto-send-options inactive" id="btn-auto-send-options" onclick="window.toggleAutoSendDropdown(event)" title="خيارات وجهة الإرسال التلقائي (المستلم / الصارف / كلاهما)">
+                        ▼
+                    </button>
+                    
+                    <!-- القائمة المنسدلة للخيارات السريعة -->
+                    <div id="auto-send-dropdown-menu" style="display: none; position: absolute; bottom: 50px; left: 0; background: #0f172a; border: 1.5px solid #334155; border-radius: 12px; padding: 6px; min-width: 260px; box-shadow: 0 12px 30px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.5); z-index: 9999; direction: rtl; text-align: right; backdrop-filter: blur(12px);">
+                        <div style="font-size: 0.78rem; color: #94a3b8; font-weight: 800; padding: 5px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+                            <span>⚙️ وضع الحفظ والإرسال:</span>
+                        </div>
+                        <div class="auto-send-opt-item" onclick="window.selectAutoSendOption(false)" style="padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #cbd5e1; display: flex; align-items: center; gap: 8px; margin-bottom: 3px; transition: background 0.2s;">
+                            <span>💾</span> <span>حفظ فقط (بدون إرسال)</span>
+                        </div>
+                        <div class="auto-send-opt-item" onclick="window.selectAutoSendOption(true, 'both')" style="padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 8px; margin-bottom: 3px; transition: background 0.2s;">
+                            <span>⚡👥</span> <span>إرسال تلقائي للطرفين (المستلم + الصارف)</span>
+                        </div>
+                        <div class="auto-send-opt-item" onclick="window.selectAutoSendOption(true, 'debtor')" style="padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #60a5fa; display: flex; align-items: center; gap: 8px; margin-bottom: 3px; transition: background 0.2s;">
+                            <span>📥</span> <span>إرسال تلقائي للطرف المستلم فقط</span>
+                        </div>
+                        <div class="auto-send-opt-item" onclick="window.selectAutoSendOption(true, 'creditor')" style="padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #f472b6; display: flex; align-items: center; gap: 8px; transition: background 0.2s;">
+                            <span>📤</span> <span>إرسال تلقائي للطرف الصارف فقط</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="submitVoucher()" title="حفظ واعتماد وترحيل السند المالي">
+                    <span>✅</span> <span>حفظ واعتماد السند</span>
+                </button>
             </div>
         </div>
     </div>
@@ -1865,8 +2220,359 @@ try {
         </div>
     </div>
 
+    <!-- ═══ WhatsApp Enterprise Voucher Dispatch Modal (نافذة إرسال الواتساب الذكي والكمبيالة المعتمدة) ═══ -->
+    <div id="wa-voucher-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 99999; align-items: center; justify-content: center;">
+        <div id="wa-voucher-modal-card" class="modal-card glass-container wa-modal-resizable" style="width: 96vw; max-width: 1450px; height: 95vh; max-height: 96vh; border: 2.5px solid #25d366; padding: 12px 18px; border-radius: 14px; background: #0b1120; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 35px rgba(37,211,102,0.35); display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden;">
+            
+            <!-- Header (Draggable + Window Controls) -->
+            <div id="wa-voucher-modal-header" class="wa-modal-header-draggable" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid rgba(37, 211, 102, 0.4); padding-bottom: 8px; margin-bottom: 8px; flex-shrink: 0;" title="اضغط مع السحب لتحريك النافذة يميناً ويساراً">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.3rem; color: #94a3b8; cursor: grab;" title="اضغط مع السحب لتحريك النافذة">⠿</span>
+                    <span style="font-size: 1.5rem;">📱</span>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <h3 style="margin: 0; color: #25d366; font-size: 1.30rem; font-weight: 900; line-height: 1.2; text-shadow: 0 0 10px rgba(37,211,102,0.35);">إرسال واعتماد إشعار السند المالي عبر واتساب</h3>
+                        <span id="wa-modal-subtitle" style="background: rgba(251, 191, 36, 0.16); border: 1.5px solid rgba(251, 191, 36, 0.6); color: #fef08a; font-size: 0.86rem; font-weight: 800; padding: 3px 12px; border-radius: 6px;">📜 ورقة كمبيالة رسمية مؤطرة (تشمل رصيد دفتر الأستاذ العام)</span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- زر التكبير / الاستعادة -->
+                    <button type="button" id="btn-wa-modal-maximize" class="wa-btn-header-ctrl" onclick="toggleWAModalMaximize()" title="تكبير / استعادة الحجم" style="width: 32px; height: 32px; font-size: 1.05rem;">🗖</button>
+                    <!-- زر الإغلاق -->
+                    <button type="button" onclick="closeWAVoucherModal()" class="wa-btn-header-ctrl" style="width: 32px; height: 32px; font-size: 1.05rem; background: rgba(239, 68, 68, 0.25); border-color: #ef4444; color: #ef4444;" title="إغلاق">✕</button>
+                </div>
+            </div>
+
+            <!-- ═══ شبكة التقسيم الرئيسية ═══ -->
+            <div id="wa-voucher-modal-body" style="display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: 14px; flex: 1; min-height: 0; overflow: hidden;">
+                <input type="hidden" id="wa-modal-block-id">
+                <input type="hidden" id="wa-modal-target-mode" value="both">
+                <input type="hidden" id="wa-modal-format-type" value="promissory_note">
+                <input type="hidden" id="wa-both-active-tab" value="debtor">
+
+                <!-- ════════ العمود الأيمن الموسع (لوحة أطراف السند والمعلومات وقنوات الإرسال) ════════ -->
+                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 7px; overflow-y: auto; padding-right: 2px;" class="wa-modal-scroll-area">
+                    
+                    <!-- 1. شريط وجهة العملية والأطراف واختيار العملة الموحدة -->
+                    <div style="background: #0f172a; border: 1.5px solid rgba(37,211,102,0.4); border-radius: 9px; padding: 7px 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 3px 10px rgba(0,0,0,0.4);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.92rem; font-weight: 900; color: #fbbf24; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span style="display: flex; align-items: center; gap: 6px;"><span>🎯</span> <span>وجهة إشعار السند:</span></span>
+                                <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.45); padding: 2px 8px; border-radius: 6px; border: 1.5px solid #fbbf24;">
+                                    <span style="font-size: 1.05rem;">💱</span>
+                                    <span style="font-size: 0.86rem; color: #fbbf24; font-weight: 900; white-space: nowrap;">العملة الموحدة:</span>
+                                    <select id="wa-modal-currency-select" onchange="window.setWAModalCurrency(this.value)" style="background: #1e293b; border: 1.5px solid #fbbf24; color: #fde047; font-weight: 900; font-size: 0.88rem; padding: 2px 6px; border-radius: 5px; cursor: pointer; outline: none;">
+                                        <option value="SDG">جنيه سوداني (SDG)</option>
+                                        <option value="USD">دولار أمريكي (USD)</option>
+                                        <option value="SAR">ريال سعودي (SAR)</option>
+                                        <option value="AED">درهم إماراتي (AED)</option>
+                                        <option value="EGP">جنيه مصري (EGP)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <span id="wa-target-status-badge" style="font-size: 0.84rem; font-weight: 900; padding: 3px 12px; border-radius: 6px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(239, 68, 68, 0.3) 100%); color: #fef08a; border: 1.5px solid rgba(251, 191, 36, 0.6);">
+                                محدد: إرسال لكليهما معاً (إلى + من) 👥
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: space-between;">
+                            <!-- زر الطرف المدين (المستلم) -->
+                            <button type="button" id="btn-wa-target-debtor" class="wa-target-btn" onclick="setWATargetMode('debtor')" style="flex: 1; height: 42px; padding: 4px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #022c22; border: 2px solid #10b981; color: #a7f3d0; font-size: 1.08rem; font-weight: 900; white-space: nowrap;">
+                                <span style="font-size: 1.25rem;">📥</span> <span id="wa-debtor-role-title">إلى</span>: <b id="wa-debtor-acc-name" style="color: #fef08a; font-size: 1.15rem; font-weight: 900;">-</b>
+                            </button>
+                            <!-- سهم التبديل الأوسط -->
+                            <button type="button" id="btn-wa-swap-parties" onclick="swapWATargetParties()" title="تبديل الإرسال بين الأطراف" style="background: #1e293b; border: 2px solid #fbbf24; color: #fbbf24; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; cursor: pointer; flex-shrink: 0; transition: all 0.25s; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                                ⇄
+                            </button>
+                            <!-- زر الطرف الدائن (الصارف) -->
+                            <button type="button" id="btn-wa-target-creditor" class="wa-target-btn" onclick="setWATargetMode('creditor')" style="flex: 1; height: 42px; padding: 4px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #2a080c; border: 2px solid #ef4444; color: #fecaca; font-size: 1.08rem; font-weight: 900; white-space: nowrap;">
+                                <span style="font-size: 1.25rem;">📤</span> <span id="wa-creditor-role-title">من</span>: <b id="wa-creditor-acc-name" style="color: #fef08a; font-size: 1.15rem; font-weight: 900;">-</b>
+                            </button>
+                            <!-- زر كليهما معاً (مصغر وأنيق) -->
+                            <button type="button" id="btn-wa-target-both" class="wa-target-btn active" onclick="setWATargetMode('both')" style="flex: 0 0 auto; height: 42px; padding: 4px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, #047857 0%, #1d4ed8 50%, #b91c1c 100%); border: 2px solid #fbbf24; color: #ffffff; box-shadow: 0 0 12px rgba(251, 191, 36, 0.45); font-size: 1.02rem; font-weight: 900; white-space: nowrap;" title="إرسال لكليهما معاً">
+                                <span style="font-size: 1.15rem;">👥</span> <span>كليهما معاً ⚡</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. بطاقات الأطراف في وضع كليهما معاً -->
+                    <div id="wa-both-parties-view" style="display: flex; flex-direction: column; gap: 8px;">
+                        <!-- بطاقة الطرف المدين (المستلم) -->
+                        <div id="wa-both-debtor-card" style="background: #061f18; border: 2px solid #10b981; border-right: 8px solid #10b981; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; transition: all 0.25s ease; box-shadow: 0 4px 14px rgba(0,0,0,0.5); box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                                    <span style="font-size: 1.35rem; flex-shrink: 0;">📥</span>
+                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;">
+                                        <span style="background: rgba(16, 185, 129, 0.25); border: 1.5px solid #10b981; color: #86efac; font-size: 1.15rem; font-weight: 900; padding: 3px 10px; border-radius: 6px; white-space: nowrap; min-width: 40px; text-align: center; display: inline-block; box-sizing: border-box;" id="wa-both-debtor-role-label">إلى</span>:
+                                        <b id="wa-both-debtor-name" style="color: #ffffff; font-weight: 900; font-size: 1.32rem; letter-spacing: 0.3px; line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">-</b>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                    <span id="wa-debtor-status-tag" style="background: #1e293b; border: 1.5px solid #475569; color: #cbd5e1; font-size: 0.98rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; white-space: nowrap; min-width: 110px; text-align: center; display: inline-block; box-sizing: border-box;">⏳ بانتظار الإرسال</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+                                <div id="wa-both-debtor-balance" style="background: #022c22; border: 2px solid #10b981; padding: 4px 10px; border-radius: 8px; white-space: nowrap; flex: 0 0 auto; width: auto; height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.45);">
+                                    <span style="color: #6ee7b7; font-weight: 900; font-size: 1.05rem; white-space: nowrap;">📊 رصيد المستلم:</span>
+                                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <b style="color: #ffffff; background: #064e3b; padding: 3px 8px; border-radius: 6px; border: 1.5px solid #10b981; font-family: 'Consolas', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px;">-</b>
+                                        <select class="wa-currency-chip" onchange="window.setWAModalCurrency(this.value)" title="تغيير عملة السند والأرصدة الموحدة">
+                                            <option value="SDG">SDG</option>
+                                            <option value="USD">USD</option>
+                                            <option value="SAR">SAR</option>
+                                            <option value="AED">AED</option>
+                                            <option value="EGP">EGP</option>
+                                        </select>
+                                        <span style="background: #10b981; color: #ffffff; border: 1.5px solid #34d399; padding: 3px 8px; border-radius: 6px; font-size: 1.02rem; font-weight: 900; min-width: 32px; text-align: center;">-</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                    <div class="wa-luxury-badge" title="رقم الواتساب المعتمد للإرسال">
+                                        <div class="wa-ripple-container">
+                                            <span class="wa-wave-pulse wave-1"></span>
+                                            <span class="wa-wave-pulse wave-2"></span>
+                                            <span class="wa-wave-pulse wave-3"></span>
+                                        </div>
+                                        <div class="wa-luxury-icon-circle">
+                                            <svg viewBox="0 0 24 24" width="22" height="22" fill="#ffffff">
+                                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <input type="tel" id="wa-both-debtor-phone" class="form-input" oninput="if(typeof cachePartyPhone==='function') cachePartyPhone('debtor', this.value)" placeholder="أدخل رقم الواتساب للمستلم هنا..." style="flex: 1; min-width: 0; width: 100%; height: 44px; background: #021a14; border: 2px solid #10b981; color: #ffffff; font-weight: 900; direction: ltr; text-align: left; font-size: 1.28rem; padding: 2px 14px; border-radius: 8px; box-sizing: border-box; transition: all 0.25s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
+                                </div>
+                                <button type="button" class="btn crystal-btn" onclick="sendSinglePartyDirectly('debtor')" style="height: 44px; min-width: 105px; flex-shrink: 0; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 2px solid #34d399; color: #ffffff; font-weight: 900; font-size: 1.10rem; padding: 4px 16px; border-radius: 8px; cursor: pointer; white-space: nowrap; box-shadow: 0 3px 10px rgba(16,185,129,0.45); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;" title="إرسال إشعار هذا الطرف فقط">
+                                    <span>⚡ إرسال</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- بطاقة الطرف الدائن (الصارف) -->
+                        <div id="wa-both-creditor-card" style="background: #200a0f; border: 2px solid #ef4444; border-right: 8px solid #ef4444; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; transition: all 0.25s ease; box-shadow: 0 4px 14px rgba(0,0,0,0.5); box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                                    <span style="font-size: 1.35rem; flex-shrink: 0;">📤</span>
+                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;">
+                                        <span style="background: rgba(239, 68, 68, 0.25); border: 1.5px solid #ef4444; color: #fca5a5; font-size: 1.15rem; font-weight: 900; padding: 3px 10px; border-radius: 6px; white-space: nowrap; min-width: 40px; text-align: center; display: inline-block; box-sizing: border-box;" id="wa-both-creditor-role-label">من</span>:
+                                        <b id="wa-both-creditor-name" style="color: #ffffff; font-weight: 900; font-size: 1.32rem; letter-spacing: 0.3px; line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">-</b>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                    <span id="wa-creditor-status-tag" style="background: #1e293b; border: 1.5px solid #475569; color: #cbd5e1; font-size: 0.98rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; white-space: nowrap; min-width: 110px; text-align: center; display: inline-block; box-sizing: border-box;">⏳ بانتظار الإرسال</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+                                <div id="wa-both-creditor-balance" style="background: #2a080c; border: 2px solid #ef4444; padding: 4px 10px; border-radius: 8px; white-space: nowrap; flex: 0 0 auto; width: auto; height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.45);">
+                                    <span style="color: #fca5a5; font-weight: 900; font-size: 1.05rem; white-space: nowrap;">📊 رصيد الصرف:</span>
+                                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <b style="color: #ffffff; background: #7f1d1d; padding: 3px 8px; border-radius: 6px; border: 1.5px solid #ef4444; font-family: 'Consolas', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px;">-</b>
+                                        <select class="wa-currency-chip" onchange="window.setWAModalCurrency(this.value)" title="تغيير عملة السند والأرصدة الموحدة">
+                                            <option value="SDG">SDG</option>
+                                            <option value="USD">USD</option>
+                                            <option value="SAR">SAR</option>
+                                            <option value="AED">AED</option>
+                                            <option value="EGP">EGP</option>
+                                        </select>
+                                        <span style="background: #ef4444; color: #ffffff; border: 1.5px solid #f87171; padding: 3px 8px; border-radius: 6px; font-size: 1.02rem; font-weight: 900; min-width: 32px; text-align: center;">-</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                    <div class="wa-luxury-badge" title="رقم الواتساب المعتمد للإرسال">
+                                        <div class="wa-ripple-container">
+                                            <span class="wa-wave-pulse wave-1"></span>
+                                            <span class="wa-wave-pulse wave-2"></span>
+                                            <span class="wa-wave-pulse wave-3"></span>
+                                        </div>
+                                        <div class="wa-luxury-icon-circle">
+                                            <svg viewBox="0 0 24 24" width="22" height="22" fill="#ffffff">
+                                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <input type="tel" id="wa-both-creditor-phone" class="form-input" oninput="if(typeof cachePartyPhone==='function') cachePartyPhone('creditor', this.value)" placeholder="أدخل رقم الواتساب لحساب الصرف هنا..." style="flex: 1; min-width: 0; width: 100%; height: 44px; background: #1f070b; border: 2px solid #ef4444; color: #ffffff; font-weight: 900; direction: ltr; text-align: left; font-size: 1.28rem; padding: 2px 14px; border-radius: 8px; box-sizing: border-box; transition: all 0.25s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
+                                </div>
+                                <button type="button" class="btn crystal-btn" onclick="sendSinglePartyDirectly('creditor')" style="height: 44px; min-width: 105px; flex-shrink: 0; background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%); border: 2px solid #f87171; color: #ffffff; font-weight: 900; font-size: 1.10rem; padding: 4px 16px; border-radius: 8px; cursor: pointer; white-space: nowrap; box-shadow: 0 3px 10px rgba(239,68,68,0.45); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;" title="إرسال إشعار هذا الطرف فقط">
+                                    <span>⚡ إرسال</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. بطاقة الطرف الفردي في وضع التحديد المفرد -->
+                    <div id="wa-single-party-view" style="display: none; flex-direction: column; gap: 8px; background: #0f172a; border: 1.5px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 10px 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+                        <div>
+                            <label id="wa-label-recipient-name" style="color: #34d399; font-size: 1.15rem; font-weight: 900; display: block; margin-bottom: 5px;">👤 الطرف المحدد:</label>
+                            <input type="text" id="wa-modal-recipient-name" class="form-input" readonly style="background: #1e293b; color: #ffffff; font-weight: 900; font-size: 1.30rem; padding: 3px 12px; height: 44px; border-radius: 8px; border: 1.5px solid #475569;">
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div id="wa-modal-balance-container" style="flex: 0 0 auto; width: auto; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; background: #082f49; border: 2px solid #38bdf8; border-radius: 8px; padding: 4px 12px; height: 44px; box-sizing: border-box;">
+                                <span style="color: #bae6fd; font-size: 1.05rem; font-weight: 900; white-space: nowrap;">📊 رصيد الأستاذ:</span>
+                                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                    <span id="wa-modal-live-balance" style="color: #ffffff; background: #0369a1; padding: 3px 8px; border-radius: 6px; font-family: 'Consolas', monospace; font-size: 1.25rem; font-weight: 900;">0.00</span>
+                                    <select id="wa-modal-single-currency-chip" class="wa-currency-chip" onchange="window.setWAModalCurrency(this.value)" title="تغيير عملة السند والأرصدة الموحدة">
+                                        <option value="SDG">SDG</option>
+                                        <option value="USD">USD</option>
+                                        <option value="SAR">SAR</option>
+                                        <option value="AED">AED</option>
+                                        <option value="EGP">EGP</option>
+                                    </select>
+                                    <span id="wa-modal-live-balance-tag" style="font-size: 1.02rem; font-weight: 900; padding: 3px 8px; border-radius: 6px; background: #38bdf8; color: #082f49;">-</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                <div class="wa-luxury-badge" title="رقم الواتساب المعتمد للإرسال">
+                                    <div class="wa-ripple-container">
+                                        <span class="wa-wave-pulse wave-1"></span>
+                                        <span class="wa-wave-pulse wave-2"></span>
+                                        <span class="wa-wave-pulse wave-3"></span>
+                                    </div>
+                                    <div class="wa-luxury-icon-circle">
+                                        <svg viewBox="0 0 24 24" width="22" height="22" fill="#ffffff">
+                                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <input type="tel" id="wa-modal-phone" class="form-input" oninput="if(typeof cachePartyPhone==='function') cachePartyPhone(document.getElementById('wa-modal-target-mode')?.value||'debtor', this.value)" placeholder="أدخل رقم الواتساب هنا..." style="background: #021a14; border: 2px solid #10b981; color: #ffffff; font-weight: 900; direction: ltr; text-align: left; font-size: 1.28rem; padding: 2px 14px; height: 44px; border-radius: 8px; flex: 1; min-width: 0; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. زر الإرسال الرئيسي الشامل لكلا الطرفين (المستلم + الصارف) -->
+                    <button type="button" id="btn-wa-send-both-action" onclick="executeWASend('gateway')" class="btn crystal-btn" style="width: 100%; height: 48px; padding: 4px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%); border: 2px solid #34d399; border-radius: 10px; color: #ffffff; font-weight: 900; font-size: 1.22rem; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45); cursor: pointer; transition: all 0.2s ease;" title="إرسال كمبيالة السند مباشرة عبر خادم الواتساب المربوط">
+                        <span style="font-size: 1.45rem;">🚀</span>
+                        <span id="btn-wa-send-both-action-text">إرسال إلى كل الأطراف عبر الواتساب ⚡</span>
+                    </button>
+
+                    <!-- بانر التسليم الذكي للمرحلة الثانية (Handover Panel) -->
+                    <div id="wa-modal-handover-panel" style="display: none; background: #0f172a; border: 2px solid #10b981; border-radius: 9px; padding: 6px 12px; box-shadow: 0 0 16px rgba(16, 185, 129, 0.4); animation: fadeIn 0.2s ease;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                            <span style="color: #86efac; font-weight: 900; font-size: 0.90rem; display: flex; align-items: center; gap: 6px;">
+                                <span>✅</span> <span id="wa-handover-status-text">تم إرسال إشعار المستلم بنجاح!</span>
+                            </span>
+                            <span id="wa-handover-subtext" style="color: #cbd5e1; font-weight: 700; font-size: 0.82rem; width: 100%;">اضغط الزر لإرسال إشعار الصارف فوراً:</span>
+                            <span id="wa-handover-countdown-badge" style="display: none;"><b id="wa-handover-timer"></b></span>
+                            <div style="display: flex; gap: 8px; align-items: center; width: 100%; margin-top: 3px;">
+                                <button type="button" id="btn-wa-handover-next" onclick="triggerHandoverNextParty()" style="flex: 1; height: 36px; padding: 4px 12px; background: linear-gradient(135deg, #10b981, #059669); border: 1.5px solid #34d399; border-radius: 7px; color: #fff; font-size: 0.88rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;">
+                                    <span>📤</span> <span id="btn-wa-handover-label">إرسال إشعار الطرف الصارف الآن ➔</span>
+                                </button>
+                                <button type="button" onclick="closeWAVoucherModal()" style="height: 36px; padding: 4px 12px; background: #1e293b; border: 1px solid #475569; border-radius: 7px; color: #cbd5e1; font-size: 0.82rem; font-weight: 800; cursor: pointer;">
+                                    إغلاق
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. شريط أدوات تصوير ونسخ صورة السند الفوري (Image & Capture Tools) -->
+                    <div style="background: #0f172a; border: 1.5px dashed #fbbf24; border-radius: 9px; padding: 5px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                        <span style="color: #fbbf24; font-size: 0.90rem; font-weight: 900; display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 1.15rem;">📸</span> <span>تصوير وحفظ السند:</span>
+                        </span>
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <button type="button" onclick="downloadWAVoucherImage()" class="btn crystal-btn" style="height: 34px; background: #78350f; border: 1.5px solid #fbbf24; color: #fef08a; font-size: 0.86rem; font-weight: 900; padding: 4px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="تنزيل كارت السند المصور عالي الدقة كصورة PNG">
+                                <span>💾</span> حفظ كارت السند (PNG)
+                            </button>
+                            <button type="button" onclick="copyWAVoucherImageToClipboard()" class="btn crystal-btn" style="height: 34px; background: #075985; border: 1.5px solid #38bdf8; color: #e0f2fe; font-size: 0.86rem; font-weight: 900; padding: 4px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="نسخ صورة السند للحافظة للصقها مباشرة في واتساب">
+                                <span>📋</span> نسخ الصورة للحافظة
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 6. قناة الإرسال الموحدة عبر خادم الواتساب المربوط -->
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button type="button" id="btn-wa-send-gateway" class="btn crystal-btn" onclick="executeWASend('gateway')" style="width: 100%; height: 48px; background: linear-gradient(135deg, #15803d 0%, #047857 100%); border: 2px solid #4ade80; color: #ffffff; font-weight: 900; font-size: 1.18rem; padding: 4px 16px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(21,128,61,0.45); cursor: pointer;" title="إرسال كمبيالة السند كملف PDF معتمد وموثق عبر الواتساب">
+                            <span style="font-size: 1.45rem;">📄⚡</span> <span id="btn-wa-send-gateway-text">إرسال كمبيالة السند المعتمدة (ملف PDF) عبر الواتساب</span>
+                        </button>
+                    </div>
+
+                    <!-- 7. شريط الإعدادات والإلغاء السفلي -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1.5px solid rgba(255,255,255,0.1); padding-top: 6px;">
+                        <button type="button" class="btn crystal-btn btn-ghost" onclick="closeWAVoucherModal()" style="font-size: 0.85rem; font-weight: 800; padding: 4px 14px;">إلغاء</button>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #86efac; font-size: 0.84rem; font-weight: 900; margin: 0; background: rgba(37,211,102,0.1); border: 1.5px dashed rgba(37,211,102,0.4); padding: 3px 10px; border-radius: 6px;">
+                            <input type="checkbox" id="wa-modal-auto-dispatch-sync" onchange="toggleWAAutoDispatch(this.checked)" style="width: 15px; height: 15px; cursor: pointer; accent-color: #25d366;">
+                            <span>⚡ إرسال تلقائي دائم فور حفظ السند</span>
+                        </label>
+                    </div>
+
+                    <div id="wa-modal-status-alert" style="display: none; padding: 5px 8px; border-radius: 6px; font-size: 0.84rem; font-weight: 800;"></div>
+                </div>
+
+                <!-- ════════ العمود الأيسر (لوحة كمبيالة السند المعتمدة الكاملة - Full Promissory Note Document) ════════ -->
+                <div style="display: flex; flex-direction: column; background: #070d18; border: 1.5px solid rgba(251, 191, 36, 0.4); border-radius: 10px; padding: 8px 10px; overflow: hidden; box-shadow: inset 0 0 30px rgba(0,0,0,0.65);">
+                    
+                    <!-- ترويسة لوحة الكمبيالة والتبويبات المدمجة -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid rgba(255,255,255,0.12); padding-bottom: 5px; margin-bottom: 5px; flex-shrink: 0; flex-wrap: wrap; gap: 5px;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="color: #fbbf24; font-size: 0.86rem; font-weight: 900; display: flex; align-items: center; gap: 5px;">
+                                <span>📜</span> <span>المعاينة المعتمدة:</span>
+                            </span>
+                        </div>
+                        
+                        <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+                            <!-- تبويب المستلم والصارف في وضع كليهما معاً -->
+                            <div id="wa-both-tabs-toolbar" style="display: flex; gap: 4px;">
+                                <button type="button" id="btn-wa-both-tab-debtor" onclick="switchWABothPreviewTab('debtor')" style="background: rgba(16, 185, 129, 0.35); border: 1.5px solid #10b981; color: #34d399; font-size: 0.78rem; font-weight: 900; padding: 2px 8px; border-radius: 5px; cursor: pointer;">
+                                    📥 المستلم
+                                </button>
+                                <button type="button" id="btn-wa-both-tab-creditor" onclick="switchWABothPreviewTab('creditor')" style="background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.25); color: #cbd5e1; font-size: 0.78rem; font-weight: 900; padding: 2px 8px; border-radius: 5px; cursor: pointer;">
+                                    📤 الصارف
+                                </button>
+                            </div>
+                            <!-- زر تحميل PDF الفوري -->
+                            <button type="button" onclick="downloadPromissoryPDF()" class="btn crystal-btn" style="background: linear-gradient(135deg, #b45309, #78350f); border: 1px solid #fbbf24; color: #fef08a; font-size: 0.76rem; font-weight: 900; padding: 2px 8px; border-radius: 5px; cursor: pointer;" title="تنزيل كمبيالة السند كملف PDF معتمد">
+                                📥 PDF
+                            </button>
+                            <!-- زر الطباعة المباشرة -->
+                            <button type="button" onclick="printPromissoryNote()" class="btn crystal-btn" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25); color: #f1f5f9; font-size: 0.76rem; font-weight: 800; padding: 2px 7px; border-radius: 5px; cursor: pointer;" title="طباعة كمبيالة السند">
+                                🖨️ طباعة
+                            </button>
+                            <!-- زر نسخ النص بالكامل -->
+                            <button type="button" onclick="copyFullTextMessage()" class="btn crystal-btn" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25); color: #f1f5f9; font-size: 0.76rem; font-weight: 800; padding: 2px 7px; border-radius: 5px; cursor: pointer;" title="نسخ نص الكمبيالة بالكامل إلى الحافظة">
+                                📋 نسخ
+                            </button>
+                            <!-- زر التبديل بين كمبيالة PDF والنص -->
+                            <button type="button" id="btn-wa-toggle-preview-mode" onclick="toggleWAPreviewMode()" class="btn crystal-btn" style="background: rgba(56, 189, 248, 0.15); border: 1.5px solid rgba(56, 189, 248, 0.5); color: #38bdf8; font-size: 0.76rem; font-weight: 900; padding: 2px 7px; border-radius: 5px; cursor: pointer;" title="تبديل العرض بين كمبيالة PDF والنص">
+                                📄 PDF / 📝 نص
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- مساحة عرض كمبيالة السند الكاملة (Certified PDF Document & Monospace Area) -->
+                    <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative;">
+                        <!-- حاوية المعاينة الحية لكمبيالة السند الرسمية المعتمدة (PDF Document Live Preview) -->
+                        <div id="wa-promissory-preview-wrapper" style="flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; background: #0c1424; border-radius: 8px; border: 1.5px solid rgba(251, 191, 36, 0.35); padding: 8px; box-sizing: border-box;">
+                            <div id="wa-promissory-note-container" style="background: #ffffff; color: #0f172a; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); font-family: 'Tajawal', sans-serif; direction: rtl; width: 100%;">
+                            </div>
+                        </div>
+
+                        <!-- صندوق نص كمبيالة كليهما معاً (Hidden by default, available when user toggles text mode) -->
+                        <div id="wa-preview-both-box" style="display: none; flex: 1; min-height: 0; flex-direction: column;">
+                            <textarea id="wa-both-preview-message" class="form-input" oninput="saveWABothPreviewEdit(this.value)" style="width: 100%; height: 100%; flex: 1; background: #050b14; border: 1.5px solid rgba(251, 191, 36, 0.35); color: #f8fafc; font-size: 0.84rem; line-height: 1.55; font-weight: 600; border-radius: 7px; resize: none; padding: 8px 10px; font-family: 'Consolas', 'Courier New', monospace; box-sizing: border-box; box-shadow: inset 0 0 25px rgba(0,0,0,0.85); white-space: pre-wrap; word-break: break-word;"></textarea>
+                        </div>
+
+                        <!-- صندوق نص كمبيالة الطرف الفردي -->
+                        <div id="wa-preview-single-box" style="display: none; flex: 1; min-height: 0; flex-direction: column;">
+                            <textarea id="wa-modal-message" class="form-input" style="width: 100%; height: 100%; flex: 1; background: #050b14; border: 1.5px solid rgba(251, 191, 36, 0.35); color: #f8fafc; font-size: 0.84rem; line-height: 1.55; font-weight: 600; border-radius: 7px; resize: none; padding: 8px 10px; font-family: 'Consolas', 'Courier New', monospace; box-sizing: border-box; box-shadow: inset 0 0 25px rgba(0,0,0,0.85); white-space: pre-wrap; word-break: break-word;"></textarea>
+                        </div>
+
+                        <!-- حاوية كارت السند المصور اللحظي (Graphic Preview Container) -->
+                        <div id="wa-modal-image-preview-container" style="display: none; flex: 1; min-height: 0; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); border: 1.5px solid rgba(251,191,36,0.35); border-radius: 7px; overflow: hidden; padding: 6px; position: relative;">
+                            <img id="wa-modal-image-preview" src="" alt="كارت السند المصور" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.85);">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.74rem; font-weight: 800; color: #94a3b8;">
+                        <span>💡 ورقة كمبيالة معتمدة ومقيدة</span>
+                        <span style="color: #fbbf24;">⚡ قيد آلي رقمي</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visual corner resize indicator -->
+            <div class="wa-resize-handle-corner" title="اسحب لتغيير الحجم">◢</div>
+        </div>
+    </div>
+
     <script defer src="js/localforage.min.js"></script>
-    
+    <script defer src="js/promissory-flight-animation.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>

@@ -1551,6 +1551,9 @@ function submitVoucherInner() {
             window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
             if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
             showProfessionalSuccess(voucherData.id, fromName, toName, voucherData.amountLocal, voucherData.currency, 'تم التعديل بنجاح');
+            if (typeof window.triggerAutoWADispatchOnSave === 'function') {
+                window.triggerAutoWADispatchOnSave(voucherData, voucherData.id);
+            }
         } else {
             applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
             singlePaymentsData.push(voucherData);
@@ -1562,6 +1565,9 @@ function submitVoucherInner() {
             localStorage.setItem('erp_single_payment_seq', currentSeq + 1);
             if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
             showProfessionalSuccess(voucherData.id, fromName, toName, voucherData.amountLocal, voucherData.currency, 'تم الحفظ بنجاح');
+            if (typeof window.triggerAutoWADispatchOnSave === 'function') {
+                window.triggerAutoWADispatchOnSave(voucherData, voucherData.id);
+            }
         }
 
         // setTimeout(() => { resetVoucherSilent(); }, 2500); // Do not erase the form after saving based on user feedback
@@ -2595,30 +2601,59 @@ function swapAccounts() {
     updateLedgerButtons();
 }
 
-function getVoucherContactDetails(accountId) {
-    if (!accountId) return null;
-    const custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(x => !x.deleted);
-    const customer = custs.find(c => String(c.id) === String(accountId) || String(c.id) === String(accountId).replace('cust-', ''));
-    if (customer) {
-        return {
-            type: 'customer',
-            name: customer.name,
-            phone: customer.phone || '',
-            whatsapp: customer.whatsapp || ''
-        };
-    }
-    const sups = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]').filter(x => !x.deleted);
-    const supplier = sups.find(s => String(s.id) === String(accountId) || String(s.id) === String(accountId).replace('supp-', ''));
-    if (supplier) {
-        return {
-            type: 'supplier',
-            name: supplier.name,
-            phone: supplier.phone || '',
-            whatsapp: supplier.whatsapp || ''
-        };
-    }
+function getVoucherContactDetails(accountId, accountName) {
+    if (!accountId && !accountName) return null;
+    const cleanId = String(accountId || '').trim();
+    const cleanName = String(accountName || '').trim();
+    
+    // 0. Check localStorage cached phone for this account
+    try {
+        const cached = (cleanId ? localStorage.getItem(`erp_wa_phone_${cleanId}`) : null) || 
+                       (cleanName ? localStorage.getItem(`erp_wa_phone_${cleanName}`) : null);
+        if (cached) {
+            return {
+                name: cleanName,
+                phone: cached,
+                type: 'cached'
+            };
+        }
+    } catch(e) {}
+
+    // 1. Check customers in localStorage
+    try {
+        const custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(x => !x.deleted);
+        const customer = custs.find(c => 
+            (cleanId && (String(c.id) === cleanId || String(c.id) === cleanId.replace('cust-', ''))) ||
+            (cleanName && c.name && c.name.trim() === cleanName)
+        );
+        if (customer && (customer.phone || customer.whatsapp)) {
+            return {
+                name: customer.name,
+                phone: customer.whatsapp || customer.phone || '',
+                type: 'customer'
+            };
+        }
+    } catch(e) {}
+    
+    // 2. Check suppliers in localStorage
+    try {
+        const sups = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]').filter(x => !x.deleted);
+        const supplier = sups.find(s => 
+            (cleanId && (String(s.id) === cleanId || String(s.id) === cleanId.replace('supp-', ''))) ||
+            (cleanName && s.name && s.name.trim() === cleanName)
+        );
+        if (supplier && (supplier.phone || supplier.whatsapp)) {
+            return {
+                name: supplier.name,
+                phone: supplier.whatsapp || supplier.phone || '',
+                type: 'supplier'
+            };
+        }
+    } catch(e) {}
+    
     return null;
 }
+window.getVoucherContactDetails = getVoucherContactDetails;
 
 async function sendVoucherWA(voucherId) {
     try {
@@ -3511,3 +3546,3046 @@ if (typeof addChequeRow === 'function') {
         }, 50);
     };
 }
+
+// ══════════════════════════════════════════════════════════════════════════════════════
+// 📱 WhatsApp Enterprise Automation Suite (منظومة تكامل الواتساب الذكي والمراسلات المصرفية)
+// ══════════════════════════════════════════════════════════════════════════════════════
+
+window.fmtNum = window.fmtNum || ((n) => Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+window.cleanNum = window.cleanNum || ((n) => parseFloat(String(n || 0).replace(/[^0-9.-]/g, '')) || 0);
+
+window.normalizePhoneNumber = function(rawPhone) {
+    if (!rawPhone) return '';
+    let p = String(rawPhone).replace(/[^0-9+]/g, '');
+    if (p.startsWith('+')) p = p.substring(1);
+    if (p.startsWith('00')) p = p.substring(2);
+    // Sudan local numbers starting with 09 or 01 (e.g. 0912345678 or 0123456789)
+    if (p.startsWith('0') && p.length === 10) {
+        p = '249' + p.substring(1);
+    } else if (p.length === 9 && (p.startsWith('9') || p.startsWith('1'))) {
+        p = '249' + p;
+    }
+    return p;
+};
+
+// ═══ دالة حفظ كاش أرقام هواتف الأطراف اللحظي ═══
+window.cachePartyPhone = function(partyType, phoneVal) {
+    const parties = window.getVoucherParties();
+    if (!parties) return;
+    const party = (partyType === 'debtor') ? parties.debtor : parties.creditor;
+    const cleanPhone = (phoneVal || '').trim();
+    if (cleanPhone && party) {
+        try {
+            if (party.id) localStorage.setItem(`erp_wa_phone_${party.id}`, cleanPhone);
+            if (party.name) localStorage.setItem(`erp_wa_phone_${party.name}`, cleanPhone);
+        } catch(e) {}
+    }
+};
+
+// ═══ توحيد وإدارة عملة السند والأرصدة في كروت (من وإلى) والكمبيالة المعتمدة ═══
+window.getWACurrencySelectOptions = function(selectedCurr) {
+    const list = [
+        { code: 'SDG', name: 'SDG' },
+        { code: 'USD', name: 'USD' },
+        { code: 'SAR', name: 'SAR' },
+        { code: 'AED', name: 'AED' },
+        { code: 'EGP', name: 'EGP' }
+    ];
+    const curr = (selectedCurr || window._waCurrentModalCurrency || document.getElementById('currency')?.value || 'SDG').toUpperCase();
+    return list.map(c => `<option value="${c.code}" ${c.code === curr ? 'selected' : ''}>${c.code}</option>`).join('');
+};
+
+window.getVoucherAmountForCurrency = function(targetCurrency) {
+    const voucherCurrency = (document.getElementById('currency')?.value || 'SDG').toUpperCase();
+    const localAmt = (typeof parseNum === 'function' ? parseNum(document.getElementById('amount-local')?.value) : window.cleanNum(document.getElementById('amount-local')?.value)) || 0;
+    const foreignAmt = (typeof parseNum === 'function' ? parseNum(document.getElementById('amount-foreign')?.value) : window.cleanNum(document.getElementById('amount-foreign')?.value)) || 0;
+
+    let baseAmtSDG = 0;
+    if (voucherCurrency === 'SDG') {
+        baseAmtSDG = localAmt;
+    } else {
+        const vRate = (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency(voucherCurrency) : (voucherCurrency === 'USD' ? (window.getSystemUsdRate ? window.getSystemUsdRate() : 2600) : 1)) || 2600;
+        baseAmtSDG = localAmt * vRate;
+    }
+
+    const target = (targetCurrency || 'SDG').toUpperCase();
+    if (target === 'SDG') {
+        return baseAmtSDG;
+    } else if (target === voucherCurrency && foreignAmt > 0) {
+        return foreignAmt;
+    } else {
+        const targetRate = (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency(target) : (target === 'USD' ? (window.getSystemUsdRate ? window.getSystemUsdRate() : 2600) : 1)) || 1;
+        return targetRate > 0 ? (baseAmtSDG / targetRate) : baseAmtSDG;
+    }
+};
+
+window.setWAModalCurrency = function(newCurr) {
+    if (!newCurr) return;
+    window._waCurrentModalCurrency = newCurr;
+
+    const topSelect = document.getElementById('wa-modal-currency-select');
+    if (topSelect && topSelect.value !== newCurr) {
+        topSelect.value = newCurr;
+    }
+
+    document.querySelectorAll('.wa-currency-chip').forEach(el => {
+        if (el.value !== newCurr) el.value = newCurr;
+    });
+
+    const parties = window.getVoucherParties();
+    parties.currency = newCurr;
+    parties.amount = window.getVoucherAmountForCurrency(newCurr);
+
+    const targetMode = document.getElementById('wa-modal-target-mode')?.value || 'both';
+    window.setWATargetMode(targetMode);
+
+    const activeTab = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+    try { window.renderPromissoryNotePreview(activeTab); } catch(e) {}
+    try { window.renderWAVoucherImageCard(activeTab, parties); } catch(e) {}
+
+    const fmt = document.getElementById('wa-modal-format-type')?.value || 'promissory_note';
+    window._waBothPartyMessages = {
+        debtor: window.buildWATailoredMessage('debtor', parties, fmt),
+        creditor: window.buildWATailoredMessage('creditor', parties, fmt)
+    };
+
+    const curPreviewText = document.getElementById('wa-both-preview-message');
+    if (curPreviewText && window._waBothPartyMessages[activeTab]) {
+        curPreviewText.value = window._waBothPartyMessages[activeTab];
+    }
+
+    if (typeof showToast === 'function') {
+        showToast(`تم توحيد العملة في (من وإلى) إلى: ${newCurr}`, 'info');
+    }
+};
+
+// ═══ منظومة حساب واستعلام رصيد دفتر الأستاذ العام اللحظي ═══
+window.getPartyAccountBalance = function(partyId, partyName, targetRole = 'debtor', voucherAmt = 0, isPayment = true, forcedCurrency = null) {
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const cleanId = String(partyId || '').trim();
+    const bareId = cleanId.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+    const cleanName = String(partyName || '').trim();
+
+    let masterRec = null;
+    let entityType = 'account';
+    let nativeCurrency = 'SDG';
+    const activeModalCurrency = window._waCurrentModalCurrency;
+    const voucherCurrency = document.getElementById('currency')?.value || 'SDG';
+    const targetCurrency = forcedCurrency || activeModalCurrency || voucherCurrency;
+
+    // 1. العملاء
+    try {
+        const custs = (JSON.parse(localStorage.getItem(getTenantKey('erp_customers_v1')) || localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted);
+        masterRec = custs.find(c => 
+            (cleanId && (String(c.id) === cleanId || String(c.id) === bareId)) ||
+            (cleanName && c.name && c.name.trim() === cleanName)
+        );
+        if (masterRec) entityType = 'customer';
+    } catch(e) {}
+
+    // 2. الموردين
+    if (!masterRec) {
+        try {
+            const sups = (JSON.parse(localStorage.getItem(getTenantKey('erp_suppliers_v1')) || localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted);
+            masterRec = sups.find(s => 
+                (cleanId && (String(s.id) === cleanId || String(s.id) === bareId)) ||
+                (cleanName && s.name && s.name.trim() === cleanName)
+            );
+            if (masterRec) entityType = 'supplier';
+        } catch(e) {}
+    }
+
+    // 3. البنوك
+    if (!masterRec) {
+        try {
+            const banks = (JSON.parse(localStorage.getItem(getTenantKey('erp_banks_v1')) || localStorage.getItem('erp_banks_v1')) || []).filter(x => x && !x.deleted);
+            masterRec = banks.find(b => 
+                (cleanId && (String(b.id) === cleanId || String(b.id) === bareId)) ||
+                (cleanName && b.name && b.name.trim() === cleanName)
+            );
+            if (masterRec) entityType = 'bank';
+        } catch(e) {}
+    }
+
+    // 4. الخزن
+    if (!masterRec) {
+        try {
+            const safes = (JSON.parse(localStorage.getItem(getTenantKey('erp_safes_v1')) || localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted);
+            masterRec = safes.find(s => 
+                (cleanId && (String(s.id) === cleanId || String(s.id) === bareId)) ||
+                (cleanName && s.name && s.name.trim() === cleanName)
+            );
+            if (masterRec) entityType = 'safe';
+        } catch(e) {}
+    }
+
+    // 5. شجرة الحسابات العامة
+    if (!masterRec) {
+        try {
+            const accounts = (JSON.parse(localStorage.getItem(getTenantKey('erp_accounts_v1')) || localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted);
+            masterRec = accounts.find(a => 
+                (cleanId && (String(a.id) === cleanId || String(a.id) === bareId || String(a.code) === cleanId || String(a.code) === bareId)) ||
+                (cleanName && a.name && a.name.trim() === cleanName)
+            );
+            if (masterRec) entityType = 'account';
+        } catch(e) {}
+    }
+
+    if (masterRec && masterRec.currency) {
+        nativeCurrency = masterRec.currency;
+    } else {
+        nativeCurrency = voucherCurrency;
+    }
+
+    let intrinsicBal = 0;
+    if (masterRec) {
+        const opDebit = parseFloat(masterRec.openingDebit || masterRec.debit || 0) || 0;
+        const opCredit = parseFloat(masterRec.openingCredit || masterRec.credit || 0) || 0;
+        const rawBal = parseFloat(masterRec.openingBalance || masterRec.opening_balance || masterRec.balance || 0) || 0;
+        if (opDebit > 0 || opCredit > 0) {
+            intrinsicBal = opDebit - opCredit;
+        } else if (rawBal !== 0) {
+            if (masterRec.balance_type === 'credit' || masterRec.balanceType === 'credit') {
+                intrinsicBal = -Math.abs(rawBal);
+            } else {
+                intrinsicBal = Math.abs(rawBal);
+            }
+        }
+    }
+
+    let glTxns = [];
+    try {
+        glTxns = JSON.parse(localStorage.getItem(getTenantKey('erp_gl_v1')) || localStorage.getItem('erp_gl_v1') || '[]');
+    } catch(e) { glTxns = []; }
+    if (!Array.isArray(glTxns)) glTxns = Object.values(glTxns || {});
+
+    let runningBal = intrinsicBal;
+    let hasGLTxns = false;
+    let isVoucherAlreadyInGL = false;
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || '').trim();
+
+    if (glTxns.length > 0) {
+        const pRefPrefixed = (entityType === 'customer' ? 'cust-' : entityType === 'supplier' ? 'supp-' : entityType === 'bank' ? 'bank-' : entityType === 'safe' ? 'safe-' : 'exp-') + bareId;
+        const normName = cleanName ? cleanName.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').toLowerCase() : '';
+
+        glTxns.forEach(t => {
+            if (!t) return;
+            const tAcc = String(t.account || '').trim();
+            const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+            let matches = false;
+
+            if (cleanId && (tAcc === cleanId || cleanTAcc === cleanId)) matches = true;
+            else if (bareId && (cleanTAcc === bareId || tAcc === pRefPrefixed)) matches = true;
+            else if (cleanName && (tAcc === cleanName || t.accountName === cleanName || t.partner === cleanName)) matches = true;
+            else if (normName) {
+                const normT = tAcc.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').toLowerCase();
+                const normP = String(t.partner || t.accountName || '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').toLowerCase();
+                if (normT === normName || normP === normName) matches = true;
+            }
+
+            if (matches) {
+                hasGLTxns = true;
+                const deb = parseFloat(t.debit || t.dr || 0) || 0;
+                const cred = parseFloat(t.credit || t.cr || 0) || 0;
+                runningBal += (deb - cred);
+
+                if (vNo && (t.ref === vNo || t.voucherNo === vNo || t.id === vNo)) {
+                    isVoucherAlreadyInGL = true;
+                }
+            }
+        });
+    }
+
+    if (!hasGLTxns && masterRec && masterRec.currentBalance !== undefined && masterRec.currentBalance !== null) {
+        const cb = parseFloat(masterRec.currentBalance) || 0;
+        if (entityType === 'supplier') {
+            runningBal = -cb;
+        } else {
+            runningBal = cb;
+        }
+    }
+
+    let finalBal = runningBal;
+    if (nativeCurrency !== targetCurrency) {
+        const rateToSDG_Native = (nativeCurrency === 'SDG') ? 1 : (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency(nativeCurrency) : (nativeCurrency === 'USD' ? (window.getSystemUsdRate ? window.getSystemUsdRate() : 2600) : 1));
+        const rateToSDG_Target = (targetCurrency === 'SDG') ? 1 : (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency(targetCurrency) : (targetCurrency === 'USD' ? (window.getSystemUsdRate ? window.getSystemUsdRate() : 2600) : 1));
+
+        const balInSDG = runningBal * (rateToSDG_Native > 0 ? rateToSDG_Native : 1);
+        finalBal = (rateToSDG_Target > 0) ? (balInSDG / rateToSDG_Target) : balInSDG;
+    }
+
+    if (!isVoucherAlreadyInGL && voucherAmt > 0) {
+        const isTargetDebtor = (targetRole === 'debtor');
+        const effect = isTargetDebtor ? voucherAmt : -voucherAmt;
+        finalBal += effect;
+    }
+
+    const absBal = Math.abs(finalBal);
+    let status = 'balanced';
+    let statusText = 'متوازن';
+    let balanceDescription = '';
+    let shortTag = '';
+
+    if (absBal < 0.01) {
+        status = 'balanced';
+        statusText = 'متوازن';
+        balanceDescription = `*0.00* ${targetCurrency} (متوازن ✅)`;
+        shortTag = 'متوازن';
+    } else if (finalBal > 0.01) {
+        status = 'debit';
+        statusText = 'عليه';
+        balanceDescription = `*${window.fmtNum(absBal)}* ${targetCurrency} (عليه 🔴)`;
+        shortTag = 'عليه';
+    } else {
+        status = 'credit';
+        statusText = 'له';
+        balanceDescription = `*${window.fmtNum(absBal)}* ${targetCurrency} (له 🟢)`;
+        shortTag = 'له';
+    }
+
+    let foreignCurrency = 'USD';
+    if (targetCurrency === 'USD') {
+        foreignCurrency = 'SDG';
+    } else if (nativeCurrency && nativeCurrency !== targetCurrency && nativeCurrency !== 'SDG') {
+        foreignCurrency = nativeCurrency;
+    }
+
+    const rateToSDG_TargetForForeign = (targetCurrency === 'SDG') ? 1 : ((typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency(targetCurrency) : (targetCurrency === 'USD' ? (window.getSystemUsdRate ? window.getSystemUsdRate() : 2600) : 1)) || 1);
+    const rateToSDG_Foreign = (foreignCurrency === 'SDG') ? 1 : ((typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency(foreignCurrency) : (foreignCurrency === 'USD' ? (window.getSystemUsdRate ? window.getSystemUsdRate() : 2600) : 1)) || 2600);
+
+    const balInSDG_Foreign = finalBal * (rateToSDG_TargetForForeign > 0 ? rateToSDG_TargetForForeign : 1);
+    const rawForeignBal = (rateToSDG_Foreign > 0) ? (balInSDG_Foreign / rateToSDG_Foreign) : balInSDG_Foreign;
+    const absForeignBal = Math.abs(rawForeignBal);
+
+    let foreignBalanceDescription = '';
+    if (absForeignBal < 0.01) {
+        foreignBalanceDescription = `*0.00* ${foreignCurrency} (متوازن ✅)`;
+    } else if (finalBal > 0.01) {
+        foreignBalanceDescription = `*${window.fmtNum(absForeignBal)}* ${foreignCurrency} (عليه 🔴)`;
+    } else {
+        foreignBalanceDescription = `*${window.fmtNum(absForeignBal)}* ${foreignCurrency} (له 🟢)`;
+    }
+
+    return {
+        amount: absBal,
+        rawBalance: finalBal,
+        currency: targetCurrency,
+        nativeCurrency: nativeCurrency,
+        foreignAmount: absForeignBal,
+        foreignCurrency: foreignCurrency,
+        foreignBalanceDescription: foreignBalanceDescription,
+        entityType,
+        status,
+        statusText,
+        balanceDescription,
+        shortTag,
+        partyName: cleanName
+    };
+};
+
+// ═══ استخراج أطراف السند وبيانات الدفع لسند الصرف المفرد ═══
+window.getVoucherParties = function(blockId) {
+    const isPayment = true;
+
+    // Creditor: From Account (حساب الصرف / الدافع)
+    const fromSearch = document.getElementById('from-account-search');
+    const fromIdEl = document.getElementById('from-account');
+    const fromName = (fromSearch ? fromSearch.value.trim() : '') || 'حساب الصرف';
+    const fromId = fromIdEl ? fromIdEl.value.trim() : '';
+    const fromContact = window.getVoucherContactDetails(fromId, fromName);
+    let fromPhone = fromContact ? (fromContact.phone || fromContact.whatsapp || '') : '';
+    if (!fromPhone && fromId) {
+        try { fromPhone = localStorage.getItem(`erp_wa_phone_${fromId}`) || ''; } catch(e) {}
+    }
+    if (!fromPhone && fromName) {
+        try { fromPhone = localStorage.getItem(`erp_wa_phone_${fromName}`) || ''; } catch(e) {}
+    }
+
+    // Debtor: To Account (المستفيد / قيد وصرف لحساب)
+    const toSearch = document.getElementById('to-account-search');
+    const toIdEl = document.getElementById('to-account');
+    const beneInput = document.getElementById('beneficiary-name');
+    const toName = (toSearch ? toSearch.value.trim() : '') || (beneInput ? beneInput.value.trim() : '') || 'المستفيد';
+    const toId = toIdEl ? toIdEl.value.trim() : '';
+    const toContact = window.getVoucherContactDetails(toId, toName);
+    let toPhone = toContact ? (toContact.phone || toContact.whatsapp || '') : '';
+    if (!toPhone && toId) {
+        try { toPhone = localStorage.getItem(`erp_wa_phone_${toId}`) || ''; } catch(e) {}
+    }
+    if (!toPhone && toName) {
+        try { toPhone = localStorage.getItem(`erp_wa_phone_${toName}`) || ''; } catch(e) {}
+    }
+
+    // Amount & Currency
+    const activeCurrency = window._waCurrentModalCurrency || document.getElementById('currency')?.value || 'SDG';
+    const grandAmount = (typeof window.getVoucherAmountForCurrency === 'function')
+        ? window.getVoucherAmountForCurrency(activeCurrency)
+        : (typeof parseNum === 'function' ? parseNum(document.getElementById('amount-local')?.value) : window.cleanNum(document.getElementById('amount-local')?.value)) || 0;
+
+    // Statements
+    const toStmt = document.getElementById('to-statement')?.value?.trim() || '';
+    const fromStmt = document.getElementById('from-statement')?.value?.trim() || '';
+    const statement = toStmt || fromStmt || 'سداد مستحقات مالية معتمدة وفق القيود الحسابية';
+
+    // Cost center
+    const ccEl = document.getElementById('cost-center');
+    const ccName = ccEl ? (ccEl.options ? ccEl.options[ccEl.selectedIndex]?.text : ccEl.value) : '';
+
+    // Structured Payments
+    const pmDetails = [];
+    const structuredPayments = [];
+    const method = document.querySelector('input[name="payment_method"]:checked')?.value || 'cash';
+
+    if (method === 'mobile' || method === 'hybrid') {
+        const transferRows = document.querySelectorAll('.transfer-row');
+        transferRows.forEach(row => {
+            const trAmt = (typeof parseNum === 'function' ? parseNum(row.querySelector('.transfer-amount')?.value) : window.cleanNum(row.querySelector('.transfer-amount')?.value)) || 0;
+            const trNo = row.querySelector('.transfer-no')?.value?.trim() || '';
+            const trNote = row.querySelector('.transfer-note')?.value?.trim() || '';
+            const trStmt = row.querySelector('.transfer-statement')?.value?.trim() || '';
+            if (trAmt > 0 || trNo) {
+                pmDetails.push(`🏦 تحويل بنكي: ${window.fmtNum(trAmt)} (${trNote || 'بنك'}) | رقم التحويلة: ${trNo || 'غير محدد'}`);
+                structuredPayments.push({
+                    type: 'bank',
+                    amount: trAmt,
+                    bankName: trNote || 'تحويل بنكي',
+                    transferNo: trNo,
+                    desc: trStmt
+                });
+            }
+        });
+    }
+
+    if (method === 'check' || method === 'hybrid') {
+        const chequeRows = document.querySelectorAll('.cheque-row');
+        chequeRows.forEach(row => {
+            const chAmt = (typeof parseNum === 'function' ? parseNum(row.querySelector('.cheque-amount')?.value) : window.cleanNum(row.querySelector('.cheque-amount')?.value)) || 0;
+            const chNo = row.querySelector('.cheque-no')?.value?.trim() || '';
+            const chBranch = row.querySelector('.cheque-branch')?.value?.trim() || '';
+            const chDate = row.querySelector('.cheque-date')?.value?.trim() || '';
+            const chStmt = row.querySelector('.cheque-statement')?.value?.trim() || '';
+            if (chAmt > 0 || chNo) {
+                pmDetails.push(`✍️ شيك: ${window.fmtNum(chAmt)} (${chBranch || 'بنك'}) | رقم الشيك: ${chNo || ''} ${chDate ? `(استحقاق: ${chDate})` : ''}`);
+                structuredPayments.push({
+                    type: 'cheque',
+                    amount: chAmt,
+                    bankName: chBranch || 'شيك مصرفي',
+                    chequeNo: chNo,
+                    dueDate: chDate,
+                    desc: chStmt
+                });
+            }
+        });
+    }
+
+    if (method === 'cash' || structuredPayments.length === 0) {
+        pmDetails.push(`💵 نقداً: ${window.fmtNum(grandAmount)} (${fromName || 'الخزينة'})`);
+        structuredPayments.push({
+            type: 'cash',
+            amount: grandAmount,
+            safeName: fromName || 'الخزينة',
+            desc: statement
+        });
+    }
+
+    const debtorParty = {
+        roleKey: 'debtor',
+        roleTitle: 'إلى',
+        name: toName,
+        id: toId,
+        phone: toPhone,
+        isMain: false,
+        blockId: null
+    };
+
+    const creditorParty = {
+        roleKey: 'creditor',
+        roleTitle: 'من',
+        name: fromName,
+        id: fromId,
+        phone: fromPhone,
+        isMain: true,
+        blockId: null
+    };
+
+    return {
+        debtor: debtorParty,
+        creditor: creditorParty,
+        amount: grandAmount,
+        currency: activeCurrency,
+        isPayment: true,
+        blockId: null,
+        statement,
+        ccName: ccName && ccName !== 'اختر مركز التكلفة...' ? ccName : '',
+        pmDetails,
+        structuredPayments
+    };
+};
+
+// ═══ توليد باركود التحقق الثنائي QR Code عبر خادم الواتساب المدمج ═══
+window._waQrCache = window._waQrCache || {};
+window.getVoucherQRCode = async function(text) {
+    if (window._waQrCache[text]) return window._waQrCache[text];
+    try {
+        const res = await fetch(`api_index.php?r=wa-tenant&endpoint=generate-qr&text=${encodeURIComponent(text)}`);
+        const data = await res.json();
+        if (data && data.success && data.dataUrl) {
+            window._waQrCache[text] = data.dataUrl;
+            return data.dataUrl;
+        }
+    } catch(e) {}
+    const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(text)}`;
+    window._waQrCache[text] = fallbackUrl;
+    return fallbackUrl;
+};
+
+// ═══ صياغة الكابشن المرفق بكمبيالة السند PDF ═══
+window.buildWAPromissoryPDFCaption = function(targetType = 'debtor', parties) {
+    if (!parties) parties = window.getVoucherParties();
+    const isPayment = parties?.isPayment !== false;
+    const vTitle = isPayment ? 'سند صرف مالي رسمي معتمد' : 'سند قبض مالي رسمي معتمد';
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'جديد').trim();
+    const vDate = (document.getElementById('hdr-date')?.value || document.getElementById('voucher-date')?.value || new Date().toISOString().split('T')[0]).trim();
+    const isDebtor = (targetType === 'debtor');
+    const activeParty = isDebtor ? parties?.debtor : parties?.creditor;
+    const amount = parties?.amount || 0;
+    const currency = parties?.currency || 'SDG';
+
+    let caption = `🏛️ *${vTitle}* (كمبيالة مالية رسمية)\n`;
+    caption += `📋 *رقم السند:* #${vNo}\n`;
+    caption += `📅 *تاريخ التحرير:* ${vDate}\n`;
+    caption += `👤 *المعني:* ${activeParty?.name || '—'}\n`;
+    caption += `💰 *المبلغ الصافي:* *${window.fmtNum(amount)}* ${currency}\n`;
+    if (parties?.statement) caption += `📝 *البيان:* ${parties.statement}\n`;
+    caption += `📎 *مرفق أعلاه:* ورقة كمبيالة السند المعتمدة رسمياً والمقيدة إلكترونياً بنظام الحسابات ELSAJANA ERP (ملف PDF عالي الجودة) 📄✅`;
+    return caption;
+};
+
+// ═══ صياغة وتصميم ورقة كمبيالة السند المعتمدة بتصاميم وألوان وباركود احترافي (HTML Promissory Note) ═══
+window.generatePromissoryNoteHTML = function(targetType = 'debtor', parties, qrDataUrl = '') {
+    if (!parties) parties = window.getVoucherParties();
+    const isPayment = parties.isPayment !== false;
+    const vTitle = isPayment ? 'سند صرف مالي رسمي معتمد' : 'سند قبض مالي رسمي معتمد';
+    const vSubTitle = isPayment ? 'كمبيالة صرف رسمية • إشعار خصم وقيد مالي' : 'كمبيالة قبض رسمية • إشعار إضافة وقيد مالي';
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'E26090001').trim();
+    const vDate = (document.getElementById('hdr-date')?.value || document.getElementById('voucher-date')?.value || new Date().toISOString().split('T')[0]).trim();
+    const amount = parties.amount || 0;
+    const currency = parties.currency || 'SDG';
+    const tafqeetText = typeof window.formatArabicTafqeet === 'function' ? window.formatArabicTafqeet(amount, currency) : '';
+
+    let companyName = 'الإدارة المالية';
+    try {
+        const cfg = JSON.parse(localStorage.getItem('erp_company_settings') || localStorage.getItem('erp_settings_v1') || '{}');
+        if (cfg.companyName) companyName = cfg.companyName;
+    } catch(e) {}
+
+    const isDebtor = (targetType === 'debtor');
+    const activeParty = isDebtor ? parties.debtor : parties.creditor;
+    const otherParty = isDebtor ? parties.creditor : parties.debtor;
+    const balInfo = window.getPartyAccountBalance(activeParty.id, activeParty.name, targetType, amount, isPayment);
+    const isCredit = balInfo.status === 'credit';
+
+    let acknowledgmentText = '';
+    if (isPayment) {
+        if (isDebtor) {
+            acknowledgmentText = 'أقر وأعترف بأننا قيدنا وصرفنا لحساب المكرم';
+        } else {
+            acknowledgmentText = 'نحيطكم علماً بأنه تم قيد وخصم السند من حسابكم لصالح المكرم';
+        }
+    } else {
+        if (isDebtor) {
+            acknowledgmentText = 'أقر وأعترف بأننا استلمنا وقيدنا لحسابكم';
+        } else {
+            acknowledgmentText = 'وصلنا واستلمنا من المكرم';
+        }
+    }
+
+    const barcodeSvg = typeof window.generateBarcodeSVG === 'function' ? window.generateBarcodeSVG(vNo) : '';
+    const qrPlaceholder = qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VERIFIED_${vNo}`;
+
+    // بيانات السداد
+    let paymentMethodText = 'نقداً عبر الخزينة';
+    let transferNoText = '—';
+    let bankNameText = '';
+    if (parties.structuredPayments && parties.structuredPayments.length > 0) {
+        const p = parties.structuredPayments[0];
+        if (p.type === 'bank') {
+            paymentMethodText = 'تحويل مصرفي (Bank Transfer)';
+            bankNameText = p.bankName || 'تحويل مصرفي';
+            transferNoText = p.transferNo || '—';
+        } else if (p.type === 'cheque') {
+            paymentMethodText = 'شيك مصرفي (Bank Cheque)';
+            bankNameText = p.bankName || 'شيك';
+            transferNoText = p.chequeNo || '—';
+        } else if (p.type === 'cash') {
+            paymentMethodText = 'نقداً (Cash)';
+            bankNameText = p.safeName || 'الخزينة';
+            transferNoText = 'نقدي مباشر';
+        }
+    }
+
+    return `
+    <div class="promissory-note-card" style="background:#ffffff; color:#0f172a; font-family:'Tajawal', 'Segoe UI', Arial, sans-serif; direction:rtl; border:3.5px double #d97706; outline:2px solid #1e293b; border-radius:10px; padding:18px 22px; position:relative; box-sizing:border-box; width:100%; min-height:980px; height:990px; display:flex; flex-direction:column; justify-content:space-between; margin:0 auto; box-shadow:0 8px 25px rgba(0,0,0,0.12);">
+        <!-- Watermark -->
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0.035; pointer-events:none; z-index:0; user-select:none;">
+            <svg width="380" height="380" viewBox="0 0 24 24" fill="#0f172a"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
+        </div>
+
+        <!-- Top Header & Details Section -->
+        <div style="position:relative; z-index:1;">
+            <!-- 1. Header -->
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2.5px solid #b45309; padding-bottom:10px; margin-bottom:10px; gap:10px;">
+                <!-- Right -->
+                <div style="text-align:right; flex:1.2;">
+                    <div style="font-size:1.30rem; font-weight:900; color:#0f172a; line-height:1.2;">${companyName}</div>
+                    <div style="font-size:0.82rem; color:#b45309; font-weight:800; margin-top:2px;">الإدارة المالية والمصرفية • الحسابات المركزية</div>
+                    <div style="font-size:0.78rem; color:#64748b; margin-top:3px;">
+                        <span>تاريخ التحرير:&nbsp;</span><b dir="ltr">${vDate}</b>
+                    </div>
+                </div>
+
+                <!-- Center -->
+                <div style="text-align:center; flex:1.4;">
+                    <div style="display:block; margin:0 auto; max-width:340px; background:linear-gradient(135deg, #1e293b, #0f172a); border:2px solid #d97706; border-radius:8px; padding:6px 14px; box-shadow:0 3px 10px rgba(0,0,0,0.15);">
+                        <div style="color:#fbbf24; font-size:1.10rem; font-weight:900;">🏛️ ${vTitle}</div>
+                        <div style="color:#cbd5e1; font-size:0.74rem; font-weight:800; margin-top:2px;">${vSubTitle}</div>
+                    </div>
+                    <div style="font-size:0.72rem; color:#059669; font-weight:900; margin-top:3px;">سند مالي معتمد وموثق رقمياً وفق المعايير المحاسبية</div>
+                </div>
+
+                <!-- Left -->
+                <div style="text-align:left; flex:1.2; display:flex; flex-direction:column; align-items:flex-end;">
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <div style="text-align:right;">
+                            <div style="font-size:0.70rem; color:#64748b; font-weight:800;">رقم السند المالي</div>
+                            <div style="font-family:monospace; font-size:1.15rem; font-weight:900; color:#b45309; direction:ltr;">#${vNo}</div>
+                            <div style="margin-top:2px;">${barcodeSvg}</div>
+                        </div>
+                        <div style="width:58px; height:58px; border:1.5px solid #cbd5e1; border-radius:6px; padding:2px; background:#fff; flex-shrink:0;">
+                            <img id="wa-promissory-qr-img" src="${qrPlaceholder}" style="width:100%; height:100%; object-fit:contain;" alt="QR" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Two Parties Grid (من حساب / إلى حساب) -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+                <!-- Party 1: الصارف (من حساب) -->
+                <div style="background:linear-gradient(135deg, #fef2f2 0%, #fff 100%); border:1.5px solid #fca5a5; border-radius:8px; padding:8px 12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.82rem; font-weight:900; color:#991b1b;">📤 صُرف من حساب (طرف الصرف):</span>
+                        ${!isDebtor ? '<span style="background:#ef4444; color:#fff; font-size:0.70rem; font-weight:900; padding:1px 7px; border-radius:8px;">نسخة الصارف المعتمدة</span>' : ''}
+                    </div>
+                    <div style="font-size:1.10rem; font-weight:900; color:#0f172a; margin-top:3px;">
+                        ${parties.creditor?.name || 'حساب الصرف / الخزينة'}
+                    </div>
+                    ${parties.creditor?.phone ? `<div style="font-size:0.78rem; color:#dc2626; font-weight:800; font-family:monospace; direction:ltr; margin-top:2px;">📱 ${parties.creditor.phone}</div>` : ''}
+                </div>
+
+                <!-- Party 2: المستفيد / المستلم (إلى حساب) -->
+                <div style="background:linear-gradient(135deg, #ecfdf5 0%, #fff 100%); border:1.5px solid #10b981; border-radius:8px; padding:8px 12px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.82rem; font-weight:900; color:#065f46;">📥 قُيد وصُرف لحساب (المستفيد / المستلم):</span>
+                        ${isDebtor ? '<span style="background:#10b981; color:#fff; font-size:0.70rem; font-weight:900; padding:1px 7px; border-radius:8px;">نسخة المستلم المعتمدة</span>' : ''}
+                    </div>
+                    <div style="font-size:1.10rem; font-weight:900; color:#0f172a; margin-top:3px;">
+                        ${parties.debtor?.name || 'المستفيد'}
+                    </div>
+                    ${parties.debtor?.phone ? `<div style="font-size:0.78rem; color:#059669; font-weight:800; font-family:monospace; direction:ltr; margin-top:2px;">📱 ${parties.debtor.phone}</div>` : ''}
+                </div>
+            </div>
+
+            <!-- 3. Legal Promissory Clause -->
+            <div style="background:#fffbeb; border:1.5px solid #f59e0b; border-radius:8px; padding:8px 14px; margin-bottom:10px;">
+                <div style="font-size:0.90rem; color:#78350f; font-weight:900; line-height:1.5;">
+                    📜 <b>صيغة الإقرار المالي:&nbsp;</b>${acknowledgmentText} <b>(${activeParty?.name || 'المعني'})</b> مبلغاً وقدره الصافي المبيّن أدناه، وذلك بموجب القيود الحسابية الرسمية المعتمدة بنظام الحسابات.
+                </div>
+            </div>
+
+            <!-- 4. Grand Financial Amount Box -->
+            <div style="background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border:2px solid #d97706; border-radius:9px; padding:12px 18px; margin-bottom:10px; color:#ffffff; box-shadow:0 4px 14px rgba(15,23,42,0.12);">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <div>
+                        <div style="color:#fbbf24; font-size:0.86rem; font-weight:800;">💰 المبلغ المعتمد والمنصرف:</div>
+                        <div style="font-size:2.05rem; font-weight:900; color:#34d399; font-family:monospace; letter-spacing:1px; margin-top:2px;" dir="ltr">
+                            ${window.fmtNum(amount)} <span style="font-size:1.20rem; color:#fde047;">${currency}</span>
+                        </div>
+                    </div>
+                    <div style="text-align:right; flex:1; max-width:460px;">
+                        <div style="color:#94a3b8; font-size:0.80rem; font-weight:800;">✍️ وقدره كتابةً بالحروف (تفقيط معتمد):</div>
+                        <div style="color:#fef08a; font-size:0.96rem; font-weight:900; line-height:1.45; margin-top:3px; background:rgba(255,255,255,0.08); padding:6px 10px; border-radius:6px; border:1px dashed rgba(251,191,36,0.5);">
+                            فقط ${tafqeetText || '—'}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. Statement & Purpose -->
+            <div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:8px; padding:8px 12px; margin-bottom:10px;">
+                <div style="display:flex; align-items:baseline; gap:8px;">
+                    <span style="color:#334155; font-size:0.86rem; font-weight:900; white-space:nowrap;">📝 البيان والسبب:&nbsp;</span>
+                    <span style="color:#0f172a; font-size:0.92rem; font-weight:900; flex:1; line-height:1.45;">${parties.statement || 'سداد مستحقات مالية معتمدة وفق القيود الحسابية'}</span>
+                </div>
+                ${parties.ccName ? `<div style="margin-top:4px; padding-top:4px; border-top:1px dashed #cbd5e1; font-size:0.80rem; color:#0369a1; font-weight:900;"><span>🏷️ المشروع أو مركز التكلفة:&nbsp;</span><b style="color:#0f172a;">${parties.ccName}</b></div>` : ''}
+            </div>
+
+            <!-- 6. Banking Settlement & Transfer Details -->
+            <div style="border:1.5px solid #0d9488; border-radius:8px; overflow:hidden; margin-bottom:10px;">
+                <div style="background:linear-gradient(90deg, #0f766e, #115e59); color:#ffffff; padding:5px 12px; font-size:0.85rem; font-weight:900; display:flex; align-items:center; justify-content:space-between;">
+                    <span>💳 بيانات السداد والتحويل المالي المعتمدة:</span>
+                    <span style="font-size:0.75rem; color:#a7f3d0; background:rgba(0,0,0,0.2); padding:2px 7px; border-radius:4px;">قيد مالي موثق ✅</span>
+                </div>
+                <div style="background:#f0fdfa; padding:8px 12px;">
+                    <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                        <tbody>
+                            <tr>
+                                <td style="padding:3px 6px; color:#475569; font-weight:800; width:18%;">طريقة السداد:</td>
+                                <td style="padding:3px 6px; color:#0f172a; font-weight:900; width:32%;">${paymentMethodText}</td>
+                                <td style="padding:3px 6px; color:#475569; font-weight:800; width:22%;">رقم التحويلة أو الإشعار:</td>
+                                <td style="padding:3px 6px; color:#0f766e; font-weight:900; font-family:monospace; font-size:1.0rem; width:28%;" dir="ltr">${transferNoText}</td>
+                            </tr>
+                            ${bankNameText ? `
+                            <tr>
+                                <td style="padding:3px 6px; color:#475569; font-weight:800;">البنك أو الخزينة:</td>
+                                <td style="padding:3px 6px; color:#0f172a; font-weight:900;">${bankNameText}</td>
+                                <td style="padding:3px 6px; color:#475569; font-weight:800;">المبلغ المسدد:</td>
+                                <td style="padding:3px 6px; color:#059669; font-weight:900; font-family:monospace;" dir="ltr">${window.fmtNum(amount)} ${currency}</td>
+                            </tr>` : ''}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 7. General Ledger Account Balance -->
+            <div style="background:#f8fafc; border:1.5px solid ${isCredit ? '#10b981' : '#ef4444'}; border-radius:8px; padding:8px 14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <div>
+                    <div style="font-size:0.85rem; color:#334155; font-weight:900;">📊 الموقف المالي الختامي لحساب (${activeParty?.name || 'المعني'}):</div>
+                    <div style="font-size:0.74rem; color:#64748b; margin-top:2px;">رصيد الحساب المالي في دفتر الأستاذ العام بعد قيد هذا السند مباشرة</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="font-size:1.20rem; font-weight:900; color:#0f172a; font-family:monospace; background:#ffffff; padding:3px 10px; border-radius:6px; border:1.5px solid #cbd5e1;" dir="ltr">
+                        ${window.fmtNum(balInfo.amount)} <span style="font-size:0.90rem; color:#64748b;">${balInfo.currency}</span>
+                    </div>
+                    <div style="background:${isCredit ? '#10b981' : '#ef4444'}; color:#ffffff; padding:4px 10px; border-radius:6px; font-weight:900; font-size:0.86rem;">
+                        ${balInfo.shortTag} • ${isCredit ? 'رصيد دائن لصالحكم' : 'رصيد مدين طرفكم'}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Signatures, Stamp & Security Stripe -->
+        <div style="position:relative; z-index:1; margin-top:auto;">
+            <!-- 8. Signatures & Official Stamp -->
+            <div style="display:flex; justify-content:space-between; align-items:flex-end; padding-top:10px; border-top:2px solid #cbd5e1;">
+                <!-- Accountant -->
+                <div style="text-align:center; flex:1;">
+                    <div style="font-size:0.82rem; color:#475569; font-weight:900;">المحاسب المالي (معد السند)</div>
+                    <div style="margin:6px auto 3px auto; width:80px; height:1.5px; background:#94a3b8;"></div>
+                    <div style="font-size:0.75rem; color:#059669; font-weight:900;">قيد آلي نظامي</div>
+                </div>
+
+                <!-- Official Stamp -->
+                <div style="text-align:center; flex:1.2;">
+                    <div style="display:inline-block; width:80px; height:80px; border:2.5px solid #b45309; border-radius:50%; padding:2px; background:rgba(254,243,199,0.3); transform:rotate(-5deg); box-shadow:0 0 0 2px #fff, 0 0 0 4px #b45309;">
+                        <div style="width:100%; height:100%; border:1px dashed #b45309; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+                            <div style="font-size:0.60rem; color:#b45309; font-weight:900;">🏛️ الإدارة المالية</div>
+                            <div style="font-size:0.70rem; color:#78350f; font-weight:900; margin:1px 0;">معتمد ومقيد</div>
+                            <div style="font-size:0.60rem; color:#059669; font-weight:900;">إلكترونياً ✅</div>
+                            <div style="font-size:0.54rem; color:#64748b; margin-top:1px;">${vDate}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controller -->
+                <div style="text-align:center; flex:1;">
+                    <div style="font-size:0.82rem; color:#475569; font-weight:900;">المدير المالي / الاعتماد</div>
+                    <div style="margin:6px auto 3px auto; width:80px; height:1.5px; background:#94a3b8;"></div>
+                    <div style="font-size:0.75rem; color:#0f172a; font-weight:900;">إجازة وصرف معتمد</div>
+                </div>
+
+                <!-- Recipient -->
+                <div style="text-align:center; flex:1;">
+                    <div style="font-size:0.82rem; color:#475569; font-weight:900;">المستلم / صاحب الحساب</div>
+                    <div style="margin:6px auto 3px auto; width:80px; height:1.5px; background:#94a3b8;"></div>
+                    <div style="font-size:0.75rem; color:#0369a1; font-weight:900;">${activeParty?.name || '—'}</div>
+                </div>
+            </div>
+
+            <!-- 9. Document Bottom Security Stripe -->
+            <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #cbd5e1; padding-top:6px; margin-top:8px; font-size:0.72rem; color:#64748b; font-weight:800;">
+                <div>VERIFICATION: <span style="font-family:monospace; color:#0f172a; font-weight:900;">#DOC-${vNo}-${vDate.replace(/-/g, '')}</span></div>
+                <div>وثيقة مالية معتمدة ومقيدة بالنظام المحاسبي العام ELSAJANA ERP 🔒</div>
+            </div>
+        </div>
+    </div>
+    `;
+};
+
+// ═══ عرض كمبيالة السند المعتمدة في نافذة المعاينة الحية ═══
+window.renderPromissoryNotePreview = function(targetType = 'debtor') {
+    const container = document.getElementById('wa-promissory-note-container');
+    if (!container) return;
+
+    const parties = window.getVoucherParties();
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'E26090001').trim();
+    const vDate = (document.getElementById('hdr-date')?.value || document.getElementById('voucher-date')?.value || new Date().toISOString().split('T')[0]).trim();
+
+    const isDebtor = (targetType === 'debtor');
+    const activeParty = isDebtor ? parties.debtor : parties.creditor;
+
+    const qrText = `VERIFIED_VOUCHER|NO:${vNo}|DATE:${vDate}|AMT:${parties.amount}|PARTY:${activeParty.name}`;
+
+    container.innerHTML = window.generatePromissoryNoteHTML(targetType, parties, window._waQrCache[qrText] || '');
+
+    window.getVoucherQRCode(qrText).then(dataUrl => {
+        const qrImg = document.getElementById('wa-promissory-qr-img');
+        if (qrImg) qrImg.src = dataUrl;
+    });
+};
+
+// ═══ توليد ملف PDF عالي الجودة للكمبيالة عبر html2pdf ═══
+window.generatePromissoryNotePDFBlob = async function(targetType = 'debtor', parties) {
+    if (!parties) parties = window.getVoucherParties();
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'E26090001').trim();
+    const vDate = (document.getElementById('hdr-date')?.value || document.getElementById('voucher-date')?.value || new Date().toISOString().split('T')[0]).trim();
+    const isDebtor = (targetType === 'debtor');
+    const activeParty = isDebtor ? parties.debtor : parties.creditor;
+
+    const qrText = `VERIFIED_VOUCHER|NO:${vNo}|DATE:${vDate}|AMT:${parties.amount}|PARTY:${activeParty.name}`;
+    const qrDataUrl = await window.getVoucherQRCode(qrText);
+
+    if (typeof html2pdf === 'undefined') {
+        await new Promise((resolve, reject) => {
+            const s = document.createElement('script');
+            s.src = 'js/html2pdf.bundle.min.js';
+            s.onload = resolve;
+            s.onerror = () => reject(new Error('مكتبة html2pdf غير متوفرة'));
+            document.head.appendChild(s);
+        });
+    }
+
+    const renderWrapper = document.createElement('div');
+    renderWrapper.style.position = 'fixed';
+    renderWrapper.style.top = '0';
+    renderWrapper.style.left = '0';
+    renderWrapper.style.width = '780px';
+    renderWrapper.style.zIndex = '-99999';
+    renderWrapper.style.overflow = 'visible';
+    renderWrapper.style.pointerEvents = 'none';
+
+    const innerDiv = document.createElement('div');
+    innerDiv.style.width = '780px';
+    innerDiv.style.background = '#ffffff';
+    innerDiv.style.margin = '0';
+    innerDiv.style.padding = '0';
+    innerDiv.innerHTML = window.generatePromissoryNoteHTML(targetType, parties, qrDataUrl);
+
+    renderWrapper.appendChild(innerDiv);
+    document.body.appendChild(renderWrapper);
+
+    try {
+        await new Promise(r => setTimeout(r, 60));
+        const opt = {
+            margin: [5, 5, 5, 5],
+            filename: `كمبيالة_سند_${vNo}_${activeParty.name}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2, 
+                useCORS: true, 
+                letterRendering: false, 
+                logging: false,
+                scrollX: 0,
+                scrollY: 0
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        const pdfBlob = await html2pdf().set(opt).from(innerDiv).output('blob');
+        return pdfBlob;
+    } finally {
+        if (renderWrapper.parentNode) {
+            renderWrapper.parentNode.removeChild(renderWrapper);
+        }
+    }
+};
+
+// ═══ تنزيل ملف كمبيالة السند PDF ═══
+window.downloadPromissoryPDF = async function(targetType) {
+    if (!targetType) {
+        targetType = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+    }
+    const parties = window.getVoucherParties();
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'E26090001').trim();
+    const isDebtor = (targetType === 'debtor');
+    const activeParty = isDebtor ? parties.debtor : parties.creditor;
+
+    showToast('⏳ جاري تجهيز وتنزيل ملف PDF المعتمد...', 'info', 2000);
+    try {
+        const blob = await window.generatePromissoryNotePDFBlob(targetType, parties);
+        if (blob) {
+            const safeName = (activeParty.name || targetType).replace(/[/\\?%*:|"<>]/g, '_');
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `كمبيالة_سند_${vNo}_${safeName}.pdf`;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+            showToast('📥 تم تنزيل كمبيالة السند المعتمدة بنجاح!', 'success');
+        }
+    } catch(err) {
+        showToast('تعذر تنزيل ملف PDF: ' + err.message, 'error');
+    }
+};
+
+// ═══ طباعة كمبيالة السند المعتمدة ═══
+window.printPromissoryNote = function(targetType) {
+    if (!targetType) {
+        targetType = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+    }
+    const container = document.getElementById('wa-promissory-note-container');
+    if (!container) return;
+
+    const printWin = window.open('', '_blank', 'width=900,height=700');
+    if (!printWin) {
+        window.print();
+        return;
+    }
+    printWin.document.write(`
+        <!DOCTYPE html>
+        <html dir="rtl" lang="ar">
+        <head>
+            <meta charset="utf-8">
+            <title>طباعة كمبيالة السند المعتمد</title>
+            <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+            <style>
+                body { margin: 20px; font-family: 'Tajawal', sans-serif; background: #fff; }
+                @media print { body { margin: 0; } }
+            </style>
+        </head>
+        <body>
+            ${container.innerHTML}
+            <script>
+                window.onload = function() {
+                    window.focus();
+                    window.print();
+                    setTimeout(function() { window.close(); }, 1000);
+                };
+            <\/script>
+        </body>
+        </html>
+    `);
+    printWin.document.close();
+};
+
+// ═══ تبديل وضع العرض بين كمبيالة PDF والنص ═══
+window.toggleWAPreviewMode = function() {
+    const promissoryWrapper = document.getElementById('wa-promissory-preview-wrapper');
+    const bothBox = document.getElementById('wa-preview-both-box');
+    const singleBox = document.getElementById('wa-preview-single-box');
+    const toggleBtn = document.getElementById('btn-wa-toggle-preview-mode');
+    const isBoth = (document.getElementById('wa-modal-target-mode')?.value || 'both') === 'both';
+
+    if (promissoryWrapper && (promissoryWrapper.style.display !== 'none')) {
+        promissoryWrapper.style.display = 'none';
+        if (isBoth) {
+            if (bothBox) bothBox.style.display = 'flex';
+        } else {
+            if (singleBox) singleBox.style.display = 'flex';
+        }
+        if (toggleBtn) toggleBtn.innerHTML = '📄 عرض كمبيالة PDF';
+        showToast('📝 تم التبديل إلى محاذاة النص', 'info');
+    } else {
+        if (bothBox) bothBox.style.display = 'none';
+        if (singleBox) singleBox.style.display = 'none';
+        if (promissoryWrapper) promissoryWrapper.style.display = 'flex';
+        const activeTab = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+        window.renderPromissoryNotePreview(activeTab);
+        if (toggleBtn) toggleBtn.innerHTML = '📝 عرض النص';
+        showToast('📄 تم التبديل إلى كمبيالة السند المعتمدة', 'info');
+    }
+};
+
+// ═══ إدارة نموذج الإشعار المعتمد ═══
+window.setWAFormatType = function(formatType = 'promissory_note') {
+    const fmtInput = document.getElementById('wa-modal-format-type');
+    if (fmtInput) fmtInput.value = 'promissory_note';
+
+    const parties = window.getVoucherParties();
+    const targetMode = document.getElementById('wa-modal-target-mode')?.value || 'both';
+
+    const msgInput = document.getElementById('wa-modal-message');
+    if (msgInput) {
+        const msg = window.buildWATailoredMessage(targetMode === 'both' ? 'debtor' : targetMode, parties, 'promissory_note');
+        msgInput.value = msg;
+        msgInput.dataset.defaultText = msg;
+    }
+
+    window._waBothPartyMessages = {
+        debtor: window.buildWATailoredMessage('debtor', parties, 'promissory_note'),
+        creditor: window.buildWATailoredMessage('creditor', parties, 'promissory_note')
+    };
+
+    const activeTab = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+    const bothPreview = document.getElementById('wa-both-preview-message');
+    if (bothPreview) {
+        bothPreview.value = window._waBothPartyMessages[activeTab] || '';
+    }
+
+    window.renderPromissoryNotePreview(activeTab);
+};
+
+// ═══ التبديل بين تبويب المستلم والصارف ═══
+window._waBothPartyMessages = { debtor: '', creditor: '' };
+
+window.switchWABothPreviewTab = function(tab = 'debtor') {
+    const hiddenTab = document.getElementById('wa-both-active-tab');
+    if (hiddenTab) hiddenTab.value = tab;
+
+    const btnDebtor = document.getElementById('btn-wa-both-tab-debtor');
+    const btnCreditor = document.getElementById('btn-wa-both-tab-creditor');
+    const textarea = document.getElementById('wa-both-preview-message');
+
+    if (btnDebtor && btnCreditor) {
+        if (tab === 'debtor') {
+            btnDebtor.style.background = 'rgba(16, 185, 129, 0.25)';
+            btnDebtor.style.borderColor = '#10b981';
+            btnDebtor.style.color = '#34d399';
+
+            btnCreditor.style.background = 'rgba(255, 255, 255, 0.06)';
+            btnCreditor.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            btnCreditor.style.color = '#cbd5e1';
+        } else {
+            btnCreditor.style.background = 'rgba(239, 68, 68, 0.25)';
+            btnCreditor.style.borderColor = '#ef4444';
+            btnCreditor.style.color = '#fca5a5';
+
+            btnDebtor.style.background = 'rgba(255, 255, 255, 0.06)';
+            btnDebtor.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+            btnDebtor.style.color = '#cbd5e1';
+        }
+    }
+
+    if (textarea) {
+        textarea.value = window._waBothPartyMessages[tab] || '';
+    }
+
+    window.renderPromissoryNotePreview(tab);
+};
+
+window.saveWABothPreviewEdit = function(text) {
+    const activeTab = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+    window._waBothPartyMessages[activeTab] = text;
+};
+
+window.resetWABothPreviewText = function() {
+    const activeTab = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+    const parties = window.getVoucherParties();
+    const fmtType = document.getElementById('wa-modal-format-type')?.value || 'text_line';
+
+    const newMsg = window.buildWATailoredMessage(activeTab, parties, fmtType);
+    window._waBothPartyMessages[activeTab] = newMsg;
+
+    const textarea = document.getElementById('wa-both-preview-message');
+    if (textarea) textarea.value = newMsg;
+    showToast('تمت استعادة القالب الأصلي لهذه الرسالة', 'info');
+};
+
+// ═══ صياغة رسائل الواتساب المعتمدة ═══
+window.buildWATextLineMessage = function(targetType, parties) {
+    if (!parties) parties = window.getVoucherParties();
+    const isPayment = parties.isPayment;
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'جديد').trim();
+    const vDate = (document.getElementById('hdr-date')?.value || document.getElementById('voucher-date')?.value || new Date().toISOString().split('T')[0]).trim();
+    const amount = parties.amount || 0;
+    const currency = parties.currency || 'SDG';
+    const tafqeetText = typeof window.formatArabicTafqeet === 'function' ? window.formatArabicTafqeet(amount, currency) : '';
+
+    let companyName = 'الإدارة المالية';
+    try {
+        const cfg = JSON.parse(localStorage.getItem('erp_company_settings') || localStorage.getItem('erp_settings_v1') || '{}');
+        if (cfg.companyName) companyName = cfg.companyName;
+    } catch(e) {}
+
+    const isDebtor = (targetType === 'debtor');
+    const activeParty = isDebtor ? parties.debtor : parties.creditor;
+    const otherParty = isDebtor ? parties.creditor : parties.debtor;
+    const balInfo = window.getPartyAccountBalance(activeParty.id, activeParty.name, targetType, amount, isPayment, currency);
+
+    let msg = `السلام عليكم ورحمة الله وبركاته\n`;
+    msg += `عزيزنا: *${activeParty.name}* المحترم\n`;
+
+    if (isDebtor) {
+        msg += `نحيطكم علماً بأنه تم اضافه لحسابكم بالتفاصيل التالية:\n`;
+    } else {
+        if (otherParty && otherParty.name && otherParty.name !== 'المستفيد' && otherParty.name !== 'حساب غير محدد') {
+            msg += `نحيطكم علماً بأنه تم خصم من حسابكم لصالح (*${otherParty.name}*) بالتفاصيل التالية:\n`;
+        } else {
+            msg += `نحيطكم علماً بأنه تم خصم من حسابكم بالتفاصيل التالية:\n`;
+        }
+    }
+
+    msg += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+    const cleanVNo = vNo.startsWith('#') ? vNo : '#' + vNo;
+    msg += `📄  ${cleanVNo}\n`;
+    msg += `📅 ${vDate}\n`;
+    msg += `💰 *المبلغ:* *${window.fmtNum(amount)}* ${currency}\n`;
+    if (tafqeetText) {
+        msg += `✍️ *المبلغ كتابةً:* فقط ${tafqeetText}\n`;
+    }
+    if (parties.statement) {
+        msg += `📝 *البيان:* ${parties.statement}\n`;
+    }
+    if (parties.ccName) {
+        msg += `🏷️ *المشروع:* ${parties.ccName}\n`;
+    }
+    msg += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+
+    if (parties.structuredPayments && parties.structuredPayments.length > 0) {
+        msg += `💳 *طريقة السداد والتحويل:* \n`;
+        parties.structuredPayments.forEach((p, idx) => {
+            if (p.type === 'bank') {
+                msg += `  🏦 *البنك:* ${p.bankName || 'تحويل بنكي'}\n`;
+                if (p.transferNo) msg += `  🔢 *رقم التحويلة / الإشعار:* ${p.transferNo}\n`;
+                msg += `  💵 *مبلغ التحويل:* *${window.fmtNum(p.amount)}* ${currency}\n`;
+                if (p.desc) msg += `  📝 *بيان التحويل:* ${p.desc}\n`;
+            } else if (p.type === 'cheque') {
+                msg += `  ✍️ *شيك بنكي:* ${p.bankName ? `مسحوب على (${p.bankName})` : 'شيك بنكي'}\n`;
+                if (p.chequeNo) msg += `  🔢 *رقم الشيك:* ${p.chequeNo}\n`;
+                if (p.dueDate) msg += `  📅 *تاريخ الاستحقاق:* ${p.dueDate}\n`;
+                msg += `  💵 *مبلغ الشيك:* *${window.fmtNum(p.amount)}* ${currency}\n`;
+                if (p.desc) msg += `  📝 *بيان الشيك:* ${p.desc}\n`;
+            } else if (p.type === 'cash') {
+                msg += `  💵 *طريقة الدفع:* نقداً\n`;
+                if (p.safeName) msg += `  🏛️ *الخزينة:* ${p.safeName}\n`;
+                msg += `  💰 *المبلغ النقدي:* *${window.fmtNum(p.amount)}* ${currency}\n`;
+                if (p.desc) msg += `  📝 *البيان:* ${p.desc}\n`;
+            }
+            if (idx < parties.structuredPayments.length - 1) {
+                msg += `  ──────────────────────\n`;
+            }
+        });
+        msg += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+    } else if (parties.pmDetails && parties.pmDetails.length > 0) {
+        msg += `💳 *وسيلة الدفع:*\n${parties.pmDetails.join('\n')}\n━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+    }
+
+    msg += `📊  ${balInfo.balanceDescription}\n`;
+    if (balInfo.foreignBalanceDescription) {
+        msg += `${balInfo.foreignBalanceDescription}\n`;
+    }
+    msg += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+
+    msg += `شاكرين لكم\n`;
+    msg += `🏢 *${companyName}* - إدارة الحسابات العامة`;
+    return msg;
+};
+
+window.buildWAPromissoryNoteMessage = function(targetType, parties) {
+    if (!parties) parties = window.getVoucherParties();
+    const isPayment = parties.isPayment;
+    const vTitle = isPayment ? 'سند صرف مالي رسمي معتمد' : 'سند قبض مالي رسمي معتمد';
+    const vSubTitle = isPayment ? '(كمبيالة صرف / إشعار خصم رسمي)' : '(كمبيالة قبض / إشعار توريد رسمي)';
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'جديد').trim();
+    const vDate = (document.getElementById('hdr-date')?.value || document.getElementById('voucher-date')?.value || new Date().toISOString().split('T')[0]).trim();
+    const amount = parties.amount || 0;
+    const currency = parties.currency || 'SDG';
+    const tafqeetText = typeof window.formatArabicTafqeet === 'function' ? window.formatArabicTafqeet(amount, currency) : '';
+
+    let companyName = 'الإدارة المالية';
+    try {
+        const cfg = JSON.parse(localStorage.getItem('erp_company_settings') || localStorage.getItem('erp_settings_v1') || '{}');
+        if (cfg.companyName) companyName = cfg.companyName;
+    } catch(e) {}
+
+    const isDebtor = (targetType === 'debtor');
+    const activeParty = isDebtor ? parties.debtor : parties.creditor;
+    const otherParty = isDebtor ? parties.creditor : parties.debtor;
+    const balInfo = window.getPartyAccountBalance(activeParty.id, activeParty.name, targetType, amount, isPayment);
+
+    let msg = `╔══════════════════════════════════════╗\n`;
+    msg += `║      🏛️ ${vTitle}       ║\n`;
+    msg += `║       ${vSubTitle}       ║\n`;
+    msg += `╚══════════════════════════════════════╝\n`;
+    msg += `📋 *رقم السند:* #${vNo}\n`;
+    msg += `📅 *تاريخ التحرير:* ${vDate}\n`;
+    msg += `══════════════════════════════════════\n`;
+
+    if (isPayment) {
+        if (isDebtor) {
+            msg += `أقر وأعترف بأننا قيدنا وصرفنا لحساب المكرم:\n`;
+            msg += `👤 *المستفيد:* ${activeParty.name}\n`;
+        } else {
+            msg += `نحيطكم علماً بأنه تم قيد وخصم السند من حسابكم:\n`;
+            msg += `👤 *الحساب المخصوم منه:* ${activeParty.name}\n`;
+            msg += `👤 *لصالح المستفيد:* ${otherParty.name}\n`;
+        }
+    } else {
+        if (isDebtor) {
+            msg += `أقر وأعترف بأننا استلمنا وقيدنا لحسابكم:\n`;
+            msg += `👤 *حساب القبض:* ${activeParty.name}\n`;
+            msg += `👤 *من المكرم:* ${otherParty.name}\n`;
+        } else {
+            msg += `وصلنا واستلمنا من المكرم:\n`;
+            msg += `👤 *الدافع / المسدد:* ${activeParty.name}\n`;
+        }
+    }
+
+    msg += `💰 *مبلغاً وقدره:* *${window.fmtNum(amount)}* ${currency}\n`;
+    if (tafqeetText) {
+        msg += `✍️ *وقدره كتابةً:* فقط ${tafqeetText}\n`;
+    }
+    if (parties.statement) {
+        msg += `📝 *وذلك عن:* ${parties.statement}\n`;
+    }
+    if (parties.ccName) {
+        msg += `🏷️ *المشروع / مركز التكلفة:* ${parties.ccName}\n`;
+    }
+    msg += `══════════════════════════════════════\n`;
+
+    if (parties.structuredPayments && parties.structuredPayments.length > 0) {
+        msg += `💳 *بيانات السداد المعتمدة:*\n`;
+        parties.structuredPayments.forEach((p, idx) => {
+            if (p.type === 'bank') {
+                msg += `  🏦 *البنك:* ${p.bankName || 'تحويل مصرفي'}\n`;
+                if (p.transferNo) msg += `  🔢 *رقم التحويلة / الإشعار:* ${p.transferNo}\n`;
+                msg += `  💵 *المبلغ:* *${window.fmtNum(p.amount)}* ${currency}\n`;
+            } else if (p.type === 'cheque') {
+                msg += `  ✍️ *شيك بنكي:* ${p.bankName ? `مسحوب على (${p.bankName})` : 'شيك'}\n`;
+                if (p.chequeNo) msg += `  🔢 *رقم الشيك:* ${p.chequeNo}\n`;
+                if (p.dueDate) msg += `  📅 *الاستحقاق:* ${p.dueDate}\n`;
+                msg += `  💵 *المبلغ:* *${window.fmtNum(p.amount)}* ${currency}\n`;
+            } else if (p.type === 'cash') {
+                msg += `  💵 *طريقة الدفع:* نقداً (${p.safeName || 'الخزينة'})\n`;
+                msg += `  💰 *المبلغ:* *${window.fmtNum(p.amount)}* ${currency}\n`;
+            }
+            if (idx < parties.structuredPayments.length - 1) msg += `  ──────────────────────\n`;
+        });
+        msg += `══════════════════════════════════════\n`;
+    } else if (parties.pmDetails && parties.pmDetails.length > 0) {
+        msg += `💳 *بيانات السداد:*\n${parties.pmDetails.join('\n')}\n══════════════════════════════════════\n`;
+    }
+
+    msg += `📊 *الموقف المالي الختامي (دفتر الأستاذ العام):*\n`;
+    msg += `رصيد حسابكم الحالي طرفنا:\n`;
+    msg += `${balInfo.balanceDescription}\n`;
+    if (balInfo.foreignBalanceDescription) {
+        msg += `${balInfo.foreignBalanceDescription}\n`;
+    }
+    msg += `══════════════════════════════════════\n`;
+    msg += `          *ختم واعتماد الإدارة المالية*\n`;
+    msg += `          [ معتمد ومقيد إلكترونياً ]\n`;
+    msg += `🏢 *${companyName}* - إدارة الحسابات`;
+    return msg;
+};
+
+window.buildWAImageCardTextMessage = function(targetType, parties) {
+    if (!parties) parties = window.getVoucherParties();
+    const isPayment = parties.isPayment;
+    const vTypeName = isPayment ? 'صرف مالي' : 'قبض مالي';
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'جديد').trim();
+    const vDate = (document.getElementById('hdr-date')?.value || document.getElementById('voucher-date')?.value || new Date().toISOString().split('T')[0]).trim();
+    const amount = parties.amount || 0;
+    const currency = parties.currency || 'SDG';
+    const isDebtor = (targetType === 'debtor');
+    const activeParty = isDebtor ? parties.debtor : parties.creditor;
+    const balInfo = window.getPartyAccountBalance(activeParty.id, activeParty.name, targetType, amount, isPayment, currency);
+
+    let companyName = 'الإدارة المالية';
+    try {
+        const cfg = JSON.parse(localStorage.getItem('erp_company_settings') || localStorage.getItem('erp_settings_v1') || '{}');
+        if (cfg.companyName) companyName = cfg.companyName;
+    } catch(e) {}
+
+    let msg = `السلام عليكم ورحمة الله وبركاته 🌸\n`;
+    msg += `عزيزنا: *${activeParty.name}* المحترم\n\n`;
+    msg += `مرفق لكم كارت إشعار سند *${vTypeName}* رقم (#${vNo}) بتاريخ ${vDate} بمبلغ (*${window.fmtNum(amount)}* ${currency}).\n`;
+    if (parties.statement) msg += `📝 *البيان:* ${parties.statement}\n`;
+    msg += `📊 *الموقف المالي بدفتر الأستاذ:* ${balInfo.balanceDescription}\n`;
+    if (balInfo.foreignBalanceDescription) msg += `   ${balInfo.foreignBalanceDescription}\n`;
+    msg += `\n(كارت السند المصور مرفق أعلاه 👆)\n`;
+    msg += `🏢 *${companyName}* - إدارة الحسابات العامة`;
+    return msg;
+};
+
+window.buildWATailoredMessage = function(targetType, parties, formatType) {
+    if (formatType === 'promissory_note_box') {
+        return window.buildWAPromissoryNoteMessage(targetType, parties);
+    }
+    return window.buildWATextLineMessage(targetType, parties);
+};
+
+// ═══ رسم كارت السند المصور اللحظي على Canvas ═══
+window.renderWAVoucherImageCard = function(targetType = 'debtor', parties) {
+    if (!parties) parties = window.getVoucherParties();
+    let canvas = document.getElementById('wa-voucher-canvas');
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'wa-voucher-canvas';
+        canvas.style.display = 'none';
+        document.body.appendChild(canvas);
+    }
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const width = 900;
+    const height = 540;
+    canvas.width = width;
+    canvas.height = height;
+
+    const isPayment = parties.isPayment;
+    const isDebtor = (targetType === 'debtor');
+    const activeParty = isDebtor ? parties.debtor : parties.creditor;
+    const amount = parties.amount || 0;
+    const currency = parties.currency || 'SDG';
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'جديد').trim();
+    const vDate = (document.getElementById('hdr-date')?.value || document.getElementById('voucher-date')?.value || new Date().toISOString().split('T')[0]).trim();
+    const tafqeetText = typeof window.formatArabicTafqeet === 'function' ? window.formatArabicTafqeet(amount, currency) : '';
+    const balInfo = window.getPartyAccountBalance(activeParty.id, activeParty.name, targetType, amount, isPayment);
+
+    let companyName = 'الإدارة المالية - الحسابات العامة';
+    try {
+        const cfg = JSON.parse(localStorage.getItem('erp_company_settings') || localStorage.getItem('erp_settings_v1') || '{}');
+        if (cfg.companyName) companyName = cfg.companyName;
+    } catch(e) {}
+
+    // 1. Background
+    const bgGrad = ctx.createLinearGradient(0, 0, width, height);
+    bgGrad.addColorStop(0, '#0a0f1d');
+    bgGrad.addColorStop(1, '#1e293b');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(4, 4, width - 8, height - 8);
+
+    // 2. Header Banner
+    const hdrGrad = ctx.createLinearGradient(0, 0, width, 0);
+    hdrGrad.addColorStop(0, '#881337');
+    hdrGrad.addColorStop(0.5, '#991b1b');
+    hdrGrad.addColorStop(1, '#7f1d1d');
+    ctx.fillStyle = hdrGrad;
+    ctx.fillRect(6, 6, width - 12, 90);
+
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(6, 96);
+    ctx.lineTo(width - 6, 96);
+    ctx.stroke();
+
+    ctx.textAlign = 'right';
+    ctx.direction = 'rtl';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 26px "Tajawal", "Segoe UI", Arial';
+    ctx.fillText('سند صرف مالي رسمي معتمد', width - 35, 45);
+
+    ctx.fillStyle = '#fde047';
+    ctx.font = '15px "Tajawal", "Segoe UI", Arial';
+    ctx.fillText(`🏛️ ${companyName}`, width - 35, 75);
+
+    // Header Voucher # & Date Box (Left side)
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
+    ctx.fillRect(25, 20, 240, 60);
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.4)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(25, 20, 240, 60);
+
+    ctx.textAlign = 'left';
+    ctx.direction = 'ltr';
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 16px monospace';
+    ctx.fillText(`NO: #${vNo}`, 40, 45);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '13px "Tajawal", Arial';
+    ctx.fillText(`DATE: ${vDate}`, 40, 68);
+
+    // 3. Body: Right Side
+    ctx.direction = 'rtl';
+    ctx.textAlign = 'right';
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.fillRect(width - 440, 115, 410, 80);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+    ctx.strokeRect(width - 440, 115, 410, 80);
+
+    const roleLabel = isDebtor ? 'إلى حساب (المستفيد / المستلم):' : 'الصرف خصماً من حساب:';
+    ctx.fillStyle = isDebtor ? '#34d399' : '#fca5a5';
+    ctx.font = 'bold 14px "Tajawal", Arial';
+    ctx.fillText(roleLabel, width - 455, 140);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 20px "Tajawal", Arial';
+    ctx.fillText(activeParty.name || 'حساب غير محدد', width - 455, 175);
+
+    // Statement Box
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.fillRect(width - 440, 205, 410, 75);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.strokeRect(width - 440, 205, 410, 75);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 13px "Tajawal", Arial';
+    ctx.fillText('📝 البيان والسبب:', width - 455, 228);
+
+    ctx.fillStyle = '#e2e8f0';
+    ctx.font = '15px "Tajawal", Arial';
+    const stmt = parties.statement || 'سداد مستحقات مالية معتمدة';
+    ctx.fillText(stmt.length > 45 ? stmt.substring(0, 45) + '...' : stmt, width - 455, 258);
+
+    // Cost Center / Payment Method Box
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+    ctx.fillRect(width - 440, 290, 410, 105);
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.strokeRect(width - 440, 290, 410, 105);
+
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = 'bold 13px "Tajawal", Arial';
+    ctx.fillText('💳 طريقة السداد والتحويل المالي:', width - 455, 314);
+
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '14px "Tajawal", Arial';
+    let pmStr = 'نقداً عبر الخزينة';
+    if (parties.structuredPayments && parties.structuredPayments.length > 0) {
+        const p = parties.structuredPayments[0];
+        if (p.type === 'bank') pmStr = `🏦 تحويل: ${p.bankName || 'بنك'} | رقم: ${p.transferNo || '-'}`;
+        else if (p.type === 'cheque') pmStr = `✍️ شيك: ${p.bankName || 'بنك'} | رقم: ${p.chequeNo || '-'}`;
+        else if (p.type === 'cash') pmStr = `💵 نقداً: ${p.safeName || 'الخزينة'}`;
+    }
+    ctx.fillText(pmStr, width - 455, 342);
+
+    if (parties.ccName) {
+        ctx.fillStyle = '#94a3b8';
+        ctx.font = '13px "Tajawal", Arial';
+        ctx.fillText(`🏷️ المشروع: ${parties.ccName}`, width - 455, 372);
+    }
+
+    // 4. Body: Left Side (Grand Amount & GL Balance)
+    ctx.fillStyle = 'rgba(245, 158, 11, 0.07)';
+    ctx.fillRect(30, 115, 390, 130);
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 1.8;
+    ctx.strokeRect(30, 115, 390, 130);
+
+    ctx.fillStyle = '#fbbf24';
+    ctx.font = 'bold 14px "Tajawal", Arial';
+    ctx.fillText('💰 المبلغ المعتمد الصافي:', 405, 142);
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 30px monospace';
+    ctx.fillText(`${window.fmtNum(amount)} ${currency}`, 405, 185);
+
+    if (tafqeetText) {
+        ctx.fillStyle = '#fde68a';
+        ctx.font = '13px "Tajawal", Arial';
+        const taf = `فقط ${tafqeetText}`;
+        ctx.fillText(taf.length > 38 ? taf.substring(0, 38) + '...' : taf, 405, 222);
+    }
+
+    // General Ledger Balance Pill
+    const isCreditBal = balInfo.status === 'credit';
+    const isDebitBal = balInfo.status === 'debit';
+    ctx.fillStyle = isCreditBal ? 'rgba(16, 185, 129, 0.12)' : (isDebitBal ? 'rgba(239, 68, 68, 0.12)' : 'rgba(148, 163, 184, 0.12)');
+    ctx.fillRect(30, 260, 390, 65);
+    ctx.strokeStyle = isCreditBal ? '#10b981' : (isDebitBal ? '#ef4444' : '#64748b');
+    ctx.lineWidth = 1.2;
+    ctx.strokeRect(30, 260, 390, 65);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px "Tajawal", Arial';
+    ctx.fillText('📊 رصيد الحساب الختامي في دفتر الأستاذ العام:', 405, 284);
+
+    ctx.fillStyle = isCreditBal ? '#86efac' : (isDebitBal ? '#fca5a5' : '#cbd5e1');
+    ctx.font = 'bold 15px "Tajawal", Arial';
+    ctx.fillText(`${window.fmtNum(balInfo.amount)} ${balInfo.currency} (${balInfo.shortTag})`, 405, 310);
+
+    // Official Stamp
+    ctx.save();
+    ctx.translate(140, 425);
+    ctx.beginPath();
+    ctx.arc(0, 0, 42, 0, Math.PI * 2);
+    ctx.strokeStyle = '#fbbf24';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(0, 0, 36, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(251, 191, 36, 0.5)';
+    ctx.setLineDash([4, 3]);
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#fde047';
+    ctx.font = 'bold 11px "Tajawal", Arial';
+    ctx.fillText('معتمد ومقيد', 0, -8);
+    ctx.fillText('نظامياً ✅', 0, 10);
+    ctx.font = '9px "Tajawal", Arial';
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fillText('إدارة الحسابات', 0, 24);
+    ctx.restore();
+
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#64748b';
+    ctx.font = '12px "Tajawal", Arial';
+    ctx.fillText('🛡️ سند مالي إلكتروني معتمد رسمياً ومقيد بدفتر الأستاذ العام', width - 210, 435);
+
+    // 5. Footer Bottom Bar
+    ctx.fillStyle = '#070b14';
+    ctx.fillRect(6, height - 38, width - 12, 32);
+    ctx.fillStyle = '#475569';
+    ctx.font = '11px "Tajawal", monospace';
+    ctx.fillText(`ELSAJANA ERP • FINANCIAL VOUCHER SYSTEM • SECURE DISPATCH`, width - 35, height - 18);
+
+    const previewImg = document.getElementById('wa-modal-image-preview');
+    if (previewImg) {
+        previewImg.src = canvas.toDataURL('image/png');
+    }
+};
+
+window.copyWAVoucherImageToClipboard = function() {
+    let canvas = document.getElementById('wa-voucher-canvas');
+    const parties = window.getVoucherParties();
+    const activeTab = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+    const targetMode = document.getElementById('wa-modal-target-mode')?.value || 'both';
+    const targetType = (targetMode === 'both') ? activeTab : targetMode;
+
+    window.renderWAVoucherImageCard(targetType, parties);
+    canvas = document.getElementById('wa-voucher-canvas');
+
+    if (!canvas) {
+        showToast('تعذر العثور على كارت السند للتصوير', 'error');
+        return;
+    }
+    canvas.toBlob(blob => {
+        if (!blob) {
+            showToast('تعذر تجهيز الصورة للنسخ', 'error');
+            return;
+        }
+        if (navigator.clipboard && window.ClipboardItem) {
+            const item = new ClipboardItem({ 'image/png': blob });
+            navigator.clipboard.write([item]).then(() => {
+                showToast('📋 تم نسخ صورة السند المصور للحافظة! يمكنك الآن لصقها بـ Ctrl+V في محادثة واتساب', 'success', 6000);
+            }).catch(err => {
+                console.warn('Clipboard write error:', err);
+                showToast('💡 تم تجهيز الصورة، يمكنك حفظها بزر (حفظ صورة السند)', 'info', 6000);
+            });
+        } else {
+            showToast('💡 يمكنك حفظ الصورة بزر (حفظ صورة السند) ثم إرسالها في محادثة واتساب', 'info', 6000);
+        }
+    }, 'image/png');
+};
+
+window.downloadWAVoucherImage = function() {
+    let canvas = document.getElementById('wa-voucher-canvas');
+    const parties = window.getVoucherParties();
+    const activeTab = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+    const targetMode = document.getElementById('wa-modal-target-mode')?.value || 'both';
+    const targetType = (targetMode === 'both') ? activeTab : targetMode;
+
+    window.renderWAVoucherImageCard(targetType, parties);
+    canvas = document.getElementById('wa-voucher-canvas');
+
+    if (!canvas) {
+        showToast('تعذر تجهيز كارت السند للتصوير', 'error');
+        return;
+    }
+
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'voucher').trim();
+    const a = document.createElement('a');
+    a.download = `سند_مالي_${vNo}_${targetType}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    showToast('💾 تم تنزيل صورة كمبيالة السند المصورة كملف PNG بجودة فائقة', 'success');
+};
+
+window.copyFullTextMessage = function() {
+    const isBoth = (document.getElementById('wa-modal-target-mode')?.value || 'both') === 'both';
+    let text = '';
+    if (isBoth) {
+        text = document.getElementById('wa-both-preview-message')?.value || '';
+    } else {
+        text = document.getElementById('wa-modal-message')?.value || '';
+    }
+    if (!text) {
+        showToast('لا يوجد نص للنسخ', 'warning');
+        return;
+    }
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('📋 تم نسخ نص كمبيالة السند بالكامل إلى الحافظة بنجاح!', 'success');
+        }).catch(() => {
+            showToast('تم تحديد النص، يمكنك نسخه بـ Ctrl+C', 'info');
+        });
+    }
+};
+
+// ═══ التبديل المرن بين أطراف السند (المدين / الدائن / كليهما) وتحديث الرصيد اللحظي ═══
+window.setWATargetMode = function(mode = 'both') {
+    const modeInput = document.getElementById('wa-modal-target-mode');
+    if (modeInput) modeInput.value = mode;
+
+    const parties = window.getVoucherParties();
+
+    const btnDebtor = document.getElementById('btn-wa-target-debtor');
+    const btnCreditor = document.getElementById('btn-wa-target-creditor');
+    const btnBoth = document.getElementById('btn-wa-target-both');
+    const statusBadge = document.getElementById('wa-target-status-badge');
+
+    const singleView = document.getElementById('wa-single-party-view');
+    const bothView = document.getElementById('wa-both-parties-view');
+    const desktopBtnText = document.getElementById('btn-wa-send-desktop-text');
+    const webBtnText = document.getElementById('btn-wa-send-web-text') || document.getElementById('btn-text-wa-web');
+    const gatewayBtnText = document.getElementById('btn-wa-send-gateway-text') || document.getElementById('btn-text-wa-gateway');
+
+    [btnDebtor, btnCreditor, btnBoth].forEach(btn => {
+        if (btn) {
+            btn.classList.remove('active');
+            btn.style.boxShadow = 'none';
+        }
+    });
+
+    if (btnDebtor) {
+        btnDebtor.style.background = 'rgba(16, 185, 129, 0.08)';
+        btnDebtor.style.borderColor = 'rgba(16, 185, 129, 0.25)';
+        btnDebtor.style.color = '#34d399';
+    }
+    if (btnCreditor) {
+        btnCreditor.style.background = 'rgba(239, 68, 68, 0.08)';
+        btnCreditor.style.borderColor = 'rgba(239, 68, 68, 0.25)';
+        btnCreditor.style.color = '#fca5a5';
+    }
+    if (btnBoth) {
+        btnBoth.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(239, 68, 68, 0.12) 100%)';
+        btnBoth.style.borderColor = 'rgba(255, 255, 255, 0.2)';
+        btnBoth.style.color = '#cbd5e1';
+    }
+
+    if (mode === 'debtor') {
+        if (btnDebtor) {
+            btnDebtor.classList.add('active');
+            btnDebtor.style.background = 'rgba(16, 185, 129, 0.28)';
+            btnDebtor.style.borderColor = '#10b981';
+            btnDebtor.style.color = '#34d399';
+            btnDebtor.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.4)';
+        }
+        if (statusBadge) {
+            statusBadge.style.background = 'rgba(16, 185, 129, 0.18)';
+            statusBadge.style.color = '#86efac';
+            statusBadge.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+            statusBadge.textContent = `محدد: إلى حساب (${parties.debtor.name})`;
+        }
+        if (singleView) singleView.style.display = 'flex';
+        if (bothView) bothView.style.display = 'none';
+
+        const promissoryWrapper = document.getElementById('wa-promissory-preview-wrapper');
+        const singlePreviewBox = document.getElementById('wa-preview-single-box');
+        const bothPreviewBox = document.getElementById('wa-preview-both-box');
+        const bothTabs = document.getElementById('wa-both-tabs-toolbar');
+        const imgContainer = document.getElementById('wa-modal-image-preview-container');
+
+        const isTextMode = promissoryWrapper && promissoryWrapper.style.display === 'none';
+        if (!isTextMode) {
+            if (promissoryWrapper) promissoryWrapper.style.display = 'flex';
+            if (singlePreviewBox) singlePreviewBox.style.display = 'none';
+            if (bothPreviewBox) bothPreviewBox.style.display = 'none';
+        } else {
+            if (singlePreviewBox) singlePreviewBox.style.display = 'flex';
+            if (bothPreviewBox) bothPreviewBox.style.display = 'none';
+        }
+        if (bothTabs) bothTabs.style.display = 'none';
+        if (imgContainer) imgContainer.style.display = 'none';
+        try { window.renderPromissoryNotePreview('debtor'); } catch(e) {}
+        try { window.renderWAVoucherImageCard('debtor', parties); } catch(e) {}
+
+        const labelName = document.getElementById('wa-label-recipient-name');
+        if (labelName) {
+            labelName.textContent = `👤 إلى:`;
+            labelName.style.color = '#34d399';
+        }
+
+        const nameInput = document.getElementById('wa-modal-recipient-name');
+        if (nameInput) nameInput.value = parties.debtor.name;
+
+        const phoneInput = document.getElementById('wa-modal-phone');
+        if (phoneInput) phoneInput.value = parties.debtor.phone || '';
+
+        const curCurrencyDebtor = window._waCurrentModalCurrency || document.getElementById('currency')?.value || 'SDG';
+        const debtorBal = window.getPartyAccountBalance(parties.debtor.id, parties.debtor.name, 'debtor', parties.amount, parties.isPayment, curCurrencyDebtor);
+        const balEl = document.getElementById('wa-modal-live-balance');
+        const balTag = document.getElementById('wa-modal-live-balance-tag');
+        if (balEl) {
+            balEl.textContent = `${window.fmtNum(debtorBal.amount)}`;
+            const singleChip = document.getElementById('wa-modal-single-currency-chip');
+            if (singleChip) singleChip.value = debtorBal.currency;
+        }
+        if (balTag) {
+            balTag.textContent = debtorBal.shortTag;
+            if (debtorBal.status === 'debit') {
+                balTag.style.background = '#ef4444';
+                balTag.style.color = '#ffffff';
+                balTag.style.borderColor = '#f87171';
+            } else if (debtorBal.status === 'credit') {
+                balTag.style.background = '#10b981';
+                balTag.style.color = '#022c22';
+                balTag.style.borderColor = '#34d399';
+            } else {
+                balTag.style.background = '#475569';
+                balTag.style.color = '#ffffff';
+                balTag.style.borderColor = '#64748b';
+            }
+        }
+
+        const fmt = document.getElementById('wa-modal-format-type')?.value || 'promissory_note';
+        const msgInput = document.getElementById('wa-modal-message');
+        if (msgInput) {
+            const msg = window.buildWATailoredMessage('debtor', parties, fmt);
+            msgInput.value = msg;
+            msgInput.dataset.defaultText = msg;
+        }
+        if (desktopBtnText) desktopBtnText.textContent = 'تطبيق واتساب (المستلم)';
+        if (webBtnText) webBtnText.textContent = 'واتساب ويب (المستلم)';
+        if (gatewayBtnText) gatewayBtnText.textContent = 'عبر الخادم (المستلم)';
+
+    } else if (mode === 'creditor') {
+        if (btnCreditor) {
+            btnCreditor.classList.add('active');
+            btnCreditor.style.background = 'rgba(239, 68, 68, 0.28)';
+            btnCreditor.style.borderColor = '#ef4444';
+            btnCreditor.style.color = '#fca5a5';
+            btnCreditor.style.boxShadow = '0 0 14px rgba(239, 68, 68, 0.4)';
+        }
+        if (statusBadge) {
+            statusBadge.style.background = 'rgba(239, 68, 68, 0.18)';
+            statusBadge.style.color = '#fca5a5';
+            statusBadge.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+            statusBadge.textContent = `محدد: من (${parties.creditor.name})`;
+        }
+        if (singleView) singleView.style.display = 'flex';
+        if (bothView) bothView.style.display = 'none';
+
+        const promissoryWrapper = document.getElementById('wa-promissory-preview-wrapper');
+        const singlePreviewBox = document.getElementById('wa-preview-single-box');
+        const bothPreviewBox = document.getElementById('wa-preview-both-box');
+        const bothTabs = document.getElementById('wa-both-tabs-toolbar');
+        const imgContainer = document.getElementById('wa-modal-image-preview-container');
+
+        const isTextMode = promissoryWrapper && promissoryWrapper.style.display === 'none';
+        if (!isTextMode) {
+            if (promissoryWrapper) promissoryWrapper.style.display = 'flex';
+            if (singlePreviewBox) singlePreviewBox.style.display = 'none';
+            if (bothPreviewBox) bothPreviewBox.style.display = 'none';
+        } else {
+            if (singlePreviewBox) singlePreviewBox.style.display = 'flex';
+            if (bothPreviewBox) bothPreviewBox.style.display = 'none';
+        }
+        if (bothTabs) bothTabs.style.display = 'none';
+        if (imgContainer) imgContainer.style.display = 'none';
+
+        try { window.renderPromissoryNotePreview('creditor'); } catch(e) {}
+        try { window.renderWAVoucherImageCard('creditor', parties); } catch(e) {}
+
+        const labelName = document.getElementById('wa-label-recipient-name');
+        if (labelName) {
+            labelName.textContent = `🏛️ من:`;
+            labelName.style.color = '#f87171';
+        }
+
+        const nameInput = document.getElementById('wa-modal-recipient-name');
+        if (nameInput) nameInput.value = parties.creditor.name;
+
+        const phoneInput = document.getElementById('wa-modal-phone');
+        if (phoneInput) phoneInput.value = parties.creditor.phone || '';
+
+        const curCurrencyCreditor = window._waCurrentModalCurrency || document.getElementById('currency')?.value || 'SDG';
+        const creditorBal = window.getPartyAccountBalance(parties.creditor.id, parties.creditor.name, 'creditor', parties.amount, parties.isPayment, curCurrencyCreditor);
+        const balEl = document.getElementById('wa-modal-live-balance');
+        const balTag = document.getElementById('wa-modal-live-balance-tag');
+        if (balEl) {
+            balEl.textContent = `${window.fmtNum(creditorBal.amount)}`;
+            const singleChip = document.getElementById('wa-modal-single-currency-chip');
+            if (singleChip) singleChip.value = creditorBal.currency;
+        }
+        if (balTag) {
+            balTag.textContent = creditorBal.shortTag;
+            if (creditorBal.status === 'debit') {
+                balTag.style.background = '#ef4444';
+                balTag.style.color = '#ffffff';
+                balTag.style.borderColor = '#f87171';
+            } else if (creditorBal.status === 'credit') {
+                balTag.style.background = '#10b981';
+                balTag.style.color = '#022c22';
+                balTag.style.borderColor = '#34d399';
+            } else {
+                balTag.style.background = '#475569';
+                balTag.style.color = '#ffffff';
+                balTag.style.borderColor = '#64748b';
+            }
+        }
+
+        const fmt = document.getElementById('wa-modal-format-type')?.value || 'promissory_note';
+        const msgInput = document.getElementById('wa-modal-message');
+        if (msgInput) {
+            const msg = window.buildWATailoredMessage('creditor', parties, fmt);
+            msgInput.value = msg;
+            msgInput.dataset.defaultText = msg;
+        }
+        if (desktopBtnText) desktopBtnText.textContent = 'تطبيق واتساب (الصارف)';
+        if (webBtnText) webBtnText.textContent = 'واتساب ويب (الصارف)';
+        if (gatewayBtnText) gatewayBtnText.textContent = 'عبر الخادم (الصارف)';
+
+    } else if (mode === 'both') {
+        if (btnBoth) {
+            btnBoth.classList.add('active');
+            btnBoth.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(239, 68, 68, 0.3) 100%)';
+            btnBoth.style.borderColor = '#fbbf24';
+            btnBoth.style.color = '#fef08a';
+            btnBoth.style.boxShadow = '0 0 14px rgba(251, 191, 36, 0.4)';
+        }
+        if (statusBadge) {
+            statusBadge.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(239, 68, 68, 0.2) 100%)';
+            statusBadge.style.color = '#fef08a';
+            statusBadge.style.borderColor = 'rgba(251, 191, 36, 0.5)';
+            statusBadge.textContent = 'محدد: إرسال لكليهما معاً (إلى + من) 👥';
+        }
+        if (singleView) singleView.style.display = 'none';
+        if (bothView) bothView.style.display = 'flex';
+
+        const promissoryWrapper = document.getElementById('wa-promissory-preview-wrapper');
+        const singlePreviewBox = document.getElementById('wa-preview-single-box');
+        const bothPreviewBox = document.getElementById('wa-preview-both-box');
+        const bothTabs = document.getElementById('wa-both-tabs-toolbar');
+        const imgContainer = document.getElementById('wa-modal-image-preview-container');
+
+        const isTextMode = promissoryWrapper && promissoryWrapper.style.display === 'none';
+        if (!isTextMode) {
+            if (promissoryWrapper) promissoryWrapper.style.display = 'flex';
+            if (singlePreviewBox) singlePreviewBox.style.display = 'none';
+            if (bothPreviewBox) bothPreviewBox.style.display = 'none';
+        } else {
+            if (bothPreviewBox) bothPreviewBox.style.display = 'flex';
+            if (singlePreviewBox) singlePreviewBox.style.display = 'none';
+        }
+        if (bothTabs) bothTabs.style.display = 'flex';
+        if (imgContainer) imgContainer.style.display = 'none';
+
+        const curCurrency = window._waCurrentModalCurrency || document.getElementById('currency')?.value || 'SDG';
+        const debtorBal = window.getPartyAccountBalance(parties.debtor.id, parties.debtor.name, 'debtor', parties.amount, parties.isPayment, curCurrency);
+        const creditorBal = window.getPartyAccountBalance(parties.creditor.id, parties.creditor.name, 'creditor', parties.amount, parties.isPayment, curCurrency);
+
+        const debtorRole = document.getElementById('wa-both-debtor-role-label');
+        if (debtorRole) debtorRole.textContent = parties.debtor.roleTitle;
+        const debtorName = document.getElementById('wa-both-debtor-name');
+        if (debtorName) debtorName.textContent = parties.debtor.name;
+        const debtorPhone = document.getElementById('wa-both-debtor-phone');
+        if (debtorPhone) {
+            let dVal = parties.debtor.phone || '';
+            if (!dVal) {
+                try {
+                    dVal = (parties.debtor.id ? localStorage.getItem(`erp_wa_phone_${parties.debtor.id}`) : '') || 
+                           (parties.debtor.name ? localStorage.getItem(`erp_wa_phone_${parties.debtor.name}`) : '') || '';
+                } catch(e) {}
+            }
+            debtorPhone.value = dVal;
+        }
+        const dBalEl = document.getElementById('wa-both-debtor-balance');
+        if (dBalEl) {
+            const dTagBg = debtorBal.shortTag === 'له' ? '#10b981' : (debtorBal.shortTag === 'عليه' ? '#ef4444' : '#0284c7');
+            const dCurrSelect = window.getWACurrencySelectOptions(debtorBal.currency);
+            dBalEl.innerHTML = `<span style="color: #6ee7b7; font-weight: 900; font-size: 1.05rem; white-space: nowrap;">📊 رصيد المستلم:</span> <div style="display: inline-flex; align-items: center; gap: 6px;"><b style="color: #ffffff; background: #064e3b; padding: 3px 8px; border-radius: 6px; border: 1.5px solid #10b981; font-family: 'Consolas', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px;">${window.fmtNum(debtorBal.amount)}</b><select class="wa-currency-chip" onchange="window.setWAModalCurrency(this.value)" title="تغيير عملة السند والأرصدة الموحدة">${dCurrSelect}</select><span style="background: ${dTagBg}; color: #ffffff; border: 1.5px solid rgba(255,255,255,0.4); padding: 3px 8px; border-radius: 6px; font-size: 1.02rem; font-weight: 900; min-width: 32px; text-align: center;">${debtorBal.shortTag}</span></div>`;
+        }
+
+        const creditorRole = document.getElementById('wa-both-creditor-role-label');
+        if (creditorRole) creditorRole.textContent = parties.creditor.roleTitle;
+        const creditorName = document.getElementById('wa-both-creditor-name');
+        if (creditorName) creditorName.textContent = parties.creditor.name;
+        const creditorPhone = document.getElementById('wa-both-creditor-phone');
+        if (creditorPhone) {
+            let cVal = parties.creditor.phone || '';
+            if (!cVal) {
+                try {
+                    cVal = (parties.creditor.id ? localStorage.getItem(`erp_wa_phone_${parties.creditor.id}`) : '') || 
+                           (parties.creditor.name ? localStorage.getItem(`erp_wa_phone_${parties.creditor.name}`) : '') || '';
+                } catch(e) {}
+            }
+            creditorPhone.value = cVal;
+        }
+        const cBalEl = document.getElementById('wa-both-creditor-balance');
+        if (cBalEl) {
+            const cTagBg = creditorBal.shortTag === 'له' ? '#10b981' : (creditorBal.shortTag === 'عليه' ? '#ef4444' : '#0284c7');
+            const cCurrSelect = window.getWACurrencySelectOptions(creditorBal.currency);
+            cBalEl.innerHTML = `<span style="color: #fca5a5; font-weight: 900; font-size: 1.05rem; white-space: nowrap;">📊 رصيد الصرف:</span> <div style="display: inline-flex; align-items: center; gap: 6px;"><b style="color: #ffffff; background: #7f1d1d; padding: 3px 8px; border-radius: 6px; border: 1.5px solid #ef4444; font-family: 'Consolas', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px;">${window.fmtNum(creditorBal.amount)}</b><select class="wa-currency-chip" onchange="window.setWAModalCurrency(this.value)" title="تغيير عملة السند والأرصدة الموحدة">${cCurrSelect}</select><span style="background: ${cTagBg}; color: #ffffff; border: 1.5px solid rgba(255,255,255,0.4); padding: 3px 8px; border-radius: 6px; font-size: 1.02rem; font-weight: 900; min-width: 32px; text-align: center;">${creditorBal.shortTag}</span></div>`;
+        }
+
+        const fmt = document.getElementById('wa-modal-format-type')?.value || 'promissory_note';
+        window._waBothPartyMessages = {
+            debtor: window.buildWATailoredMessage('debtor', parties, fmt),
+            creditor: window.buildWATailoredMessage('creditor', parties, fmt)
+        };
+        const activeTab = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+        window.switchWABothPreviewTab(activeTab);
+        try { window.renderPromissoryNotePreview(activeTab); } catch(e) {}
+        try { window.renderWAVoucherImageCard(activeTab, parties); } catch(e) {}
+
+        if (desktopBtnText) desktopBtnText.textContent = 'تطبيق واتساب (الطرفين)';
+        if (webBtnText) webBtnText.textContent = 'واتساب ويب (الطرفين)';
+        if (gatewayBtnText) gatewayBtnText.textContent = 'عبر الخادم (الطرفين)';
+    } else {
+        if (desktopBtnText) desktopBtnText.textContent = 'تطبيق واتساب';
+    }
+};
+
+window.swapWATargetParties = function() {
+    const swapBtn = document.getElementById('btn-wa-swap-parties');
+    if (swapBtn) {
+        swapBtn.style.transform = 'rotate(180deg) scale(1.15)';
+        setTimeout(() => {
+            swapBtn.style.transform = 'rotate(0deg) scale(1)';
+        }, 300);
+    }
+
+    const currentMode = document.getElementById('wa-modal-target-mode')?.value || 'both';
+    if (currentMode === 'debtor') {
+        window.setWATargetMode('creditor');
+        showToast('⇄ تم التبديل إلى: من', 'info');
+    } else if (currentMode === 'creditor') {
+        window.setWATargetMode('both');
+        showToast('⇄ تم التبديل إلى: كليهما معاً (إلى + من)', 'info');
+    } else {
+        window.setWATargetMode('debtor');
+        showToast('⇄ تم التبديل إلى: إلى', 'info');
+    }
+};
+
+// ═══ تحكم النافذة: التكبير والاستعادة والسحب الحر بالماوس واللمس ═══
+window.toggleWAModalMaximize = function() {
+    const card = document.getElementById('wa-voucher-modal-card');
+    const btn = document.getElementById('btn-wa-modal-maximize');
+    if (!card) return;
+
+    if (card.classList.contains('wa-maximized')) {
+        card.classList.remove('wa-maximized');
+        card.style.width = card.dataset.origW || '1400px';
+        card.style.height = card.dataset.origH || '92vh';
+        card.style.maxWidth = '98vw';
+        card.style.maxHeight = '940px';
+        card.style.position = 'relative';
+        card.style.left = '';
+        card.style.top = '';
+        card.style.margin = 'auto';
+        if (btn) {
+            btn.innerHTML = '🗖';
+            btn.title = 'تكبير النافذة';
+        }
+    } else {
+        card.dataset.origW = card.style.width || '1400px';
+        card.dataset.origH = card.style.height || '92vh';
+        card.classList.add('wa-maximized');
+        card.style.position = 'fixed';
+        card.style.left = '1vw';
+        card.style.top = '1vh';
+        card.style.width = '98vw';
+        card.style.height = '98vh';
+        card.style.maxWidth = '98vw';
+        card.style.maxHeight = '98vh';
+        card.style.margin = '0';
+        if (btn) {
+            btn.innerHTML = '🗗';
+            btn.title = 'استعادة الحجم الطبيعي';
+        }
+    }
+};
+
+window.makeModalDraggable = function(cardId, headerId) {
+    const card = document.getElementById(cardId);
+    const header = document.getElementById(headerId);
+    if (!card || !header || header.dataset.dragInit === 'true') return;
+    header.dataset.dragInit = 'true';
+
+    let isDragging = false;
+    let startX, startY;
+    let initialLeft, initialTop;
+
+    const beginDrag = (clientX, clientY) => {
+        if (card.classList.contains('wa-maximized')) return false;
+        isDragging = true;
+        startX = clientX;
+        startY = clientY;
+
+        const rect = card.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+
+        card.style.position = 'fixed';
+        card.style.left = initialLeft + 'px';
+        card.style.top = initialTop + 'px';
+        card.style.margin = '0';
+        card.style.transform = 'none';
+
+        document.body.style.userSelect = 'none';
+        return true;
+    };
+
+    header.addEventListener('mousedown', (e) => {
+        if (e.target.closest('button') || e.target.closest('input') || e.target.closest('select')) return;
+        if (!beginDrag(e.clientX, e.clientY)) return;
+
+        const onMouseMove = (ev) => {
+            if (!isDragging) return;
+            ev.preventDefault();
+            const dx = ev.clientX - startX;
+            const dy = ev.clientY - startY;
+
+            let newLeft = initialLeft + dx;
+            let newTop = initialTop + dy;
+
+            const maxLeft = Math.max(10, window.innerWidth - 80);
+            const maxTop = Math.max(10, window.innerHeight - 50);
+            newLeft = Math.max(10, Math.min(maxLeft, newLeft));
+            newTop = Math.max(10, Math.min(maxTop, newTop));
+
+            card.style.left = newLeft + 'px';
+            card.style.top = newTop + 'px';
+        };
+
+        const onMouseUp = () => {
+            isDragging = false;
+            document.body.style.userSelect = '';
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        };
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    });
+
+    header.addEventListener('touchstart', (e) => {
+        if (e.target.closest('button') || e.target.closest('input')) return;
+        const touch = e.touches[0];
+        if (!touch) return;
+        if (!beginDrag(touch.clientX, touch.clientY)) return;
+
+        const onTouchMove = (ev) => {
+            if (!isDragging) return;
+            const t = ev.touches[0];
+            if (!t) return;
+            const dx = t.clientX - startX;
+            const dy = t.clientY - startY;
+
+            let newLeft = initialLeft + dx;
+            let newTop = initialTop + dy;
+            newLeft = Math.max(10, Math.min(window.innerWidth - 80, newLeft));
+            newTop = Math.max(10, Math.min(window.innerHeight - 50, newTop));
+
+            card.style.left = newLeft + 'px';
+            card.style.top = newTop + 'px';
+        };
+
+        const onTouchEnd = () => {
+            isDragging = false;
+            document.body.style.userSelect = '';
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+        };
+
+        document.addEventListener('touchmove', onTouchMove, { passive: true });
+        document.addEventListener('touchend', onTouchEnd);
+    }, { passive: true });
+};
+
+window.initWAVoucherModalDrag = function() {
+    window.makeModalDraggable('wa-voucher-modal-card', 'wa-voucher-modal-header');
+};
+
+// ═══ فتح نافذة الواتساب الرئيسية لسند الصرف المفرد ═══
+window.openMasterWhatsAppDispatchModal = function() {
+    const modal = document.getElementById('wa-voucher-modal');
+    if (!modal) return;
+
+    if (typeof window.cancelHandoverTimer === 'function') {
+        window.cancelHandoverTimer();
+    }
+    const handoverPanel = document.getElementById('wa-modal-handover-panel');
+    if (handoverPanel) handoverPanel.style.display = 'none';
+
+    const parties = window.getVoucherParties();
+    if (!parties) return;
+    if (parties.amount <= 0 && (!parties.debtor.name || parties.debtor.name === 'المستفيد')) {
+        showToast('يرجى تحديد الحساب والمبلغ أولاً قبل إرسال الواتساب', 'warning');
+        return;
+    }
+
+    const blockIdInput = document.getElementById('wa-modal-block-id');
+    if (blockIdInput) blockIdInput.value = '';
+
+    const debtorAccName = document.getElementById('wa-debtor-acc-name');
+    if (debtorAccName) debtorAccName.textContent = parties.debtor.name;
+    const debtorTitle = document.getElementById('wa-debtor-role-title');
+    if (debtorTitle) debtorTitle.textContent = parties.debtor.roleTitle;
+
+    const creditorAccName = document.getElementById('wa-creditor-acc-name');
+    if (creditorAccName) creditorAccName.textContent = parties.creditor.name;
+    const creditorTitle = document.getElementById('wa-creditor-role-title');
+    if (creditorTitle) creditorTitle.textContent = parties.creditor.roleTitle;
+
+    const defaultCurr = document.getElementById('currency')?.value || 'SDG';
+    window._waCurrentModalCurrency = defaultCurr;
+    const topCurrSelect = document.getElementById('wa-modal-currency-select');
+    if (topCurrSelect) topCurrSelect.value = defaultCurr;
+
+    window.setWATargetMode('both');
+    window.setWAFormatType('promissory_note');
+
+    if (typeof window.updatePartyCardStatus === 'function') {
+        window.updatePartyCardStatus('debtor', false);
+        window.updatePartyCardStatus('creditor', false);
+    }
+
+    const mainActionBtn = document.getElementById('btn-wa-send-both-action');
+    if (mainActionBtn) {
+        mainActionBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)';
+        mainActionBtn.style.borderColor = '#34d399';
+        mainActionBtn.style.boxShadow = '0 0 18px rgba(16, 185, 129, 0.4)';
+        mainActionBtn.style.animation = 'none';
+        mainActionBtn.innerHTML = `
+            <span style="font-size: 1.45rem;">🚀</span>
+            <span id="btn-wa-send-both-action-text">إرسال إلى كل الأطراف عبر الواتساب ⚡</span>
+        `;
+        mainActionBtn.onclick = function() {
+            window.executeWASend('gateway');
+        };
+    }
+
+    const alertEl = document.getElementById('wa-modal-status-alert');
+    if (alertEl) alertEl.style.display = 'none';
+
+    const card = document.getElementById('wa-voucher-modal-card');
+    if (card && !card.classList.contains('wa-maximized')) {
+        card.style.position = 'relative';
+        card.style.left = '';
+        card.style.top = '';
+        card.style.margin = 'auto';
+    }
+
+    modal.style.display = 'flex';
+    try {
+        const activeTab = document.getElementById('wa-both-active-tab')?.value || 'debtor';
+        const promissoryWrapper = document.getElementById('wa-promissory-preview-wrapper');
+        const bothBox = document.getElementById('wa-preview-both-box');
+        const singleBox = document.getElementById('wa-preview-single-box');
+        const imgContainer = document.getElementById('wa-modal-image-preview-container');
+        if (promissoryWrapper) promissoryWrapper.style.display = 'flex';
+        if (bothBox) bothBox.style.display = 'none';
+        if (singleBox) singleBox.style.display = 'none';
+        if (imgContainer) imgContainer.style.display = 'none';
+        const toggleBtn = document.getElementById('btn-wa-toggle-preview-mode');
+        if (toggleBtn) toggleBtn.innerHTML = '📄 PDF / 📝 نص';
+
+        window.renderPromissoryNotePreview(activeTab);
+        window.renderWAVoucherImageCard(activeTab, parties);
+    } catch(e) {}
+
+    if (typeof window.initWAVoucherModalDrag === 'function') {
+        window.initWAVoucherModalDrag();
+    }
+};
+
+window.openBlockWhatsAppDispatchModal = window.openMasterWhatsAppDispatchModal;
+
+window.closeWAVoucherModal = function() {
+    if (window._waHandoverTimer) {
+        clearInterval(window._waHandoverTimer);
+        window._waHandoverTimer = null;
+    }
+    window._pendingHandoverData = null;
+    const handoverPanel = document.getElementById('wa-modal-handover-panel');
+    if (handoverPanel) handoverPanel.style.display = 'none';
+    const modal = document.getElementById('wa-voucher-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.markBlockAsSentWA = function(blockId, phone) {
+    if (!blockId) return;
+    const badge = document.getElementById(`wa-dispatch-badge-${blockId}`);
+    if (badge) {
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        badge.innerHTML = `<span>✅ تم الإرسال واتساب (${timeStr})</span>`;
+        badge.style.display = 'inline-flex';
+        badge.title = `أُرسل للرقم: ${phone || 'مسجل'} في ${timeStr}`;
+    }
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// WhatsApp Instant & Auto-Dispatch on Voucher Save Engine
+// ═══════════════════════════════════════════════════════════════════
+const WA_AUTO_SETTINGS_KEY = 'erp_wa_auto_dispatch_settings';
+
+window.getWAAutoDispatchSettings = function() {
+    try {
+        const raw = localStorage.getItem(WA_AUTO_SETTINGS_KEY);
+        if (raw) return JSON.parse(raw);
+    } catch(e) {}
+    return {
+        enabled: false,
+        target: 'both',
+        method: 'desktop'
+    };
+};
+
+window.saveWAAutoDispatchSettings = function(settings) {
+    try {
+        localStorage.setItem(WA_AUTO_SETTINGS_KEY, JSON.stringify(settings));
+    } catch(e) {}
+    window.syncWAAutoDispatchUI();
+};
+
+window.syncWAAutoDispatchUI = function() {
+    const s = window.getWAAutoDispatchSettings();
+    const toggleMain = document.getElementById('wa-auto-send-toggle');
+    const targetSelect = document.getElementById('wa-auto-send-target');
+    const methodSelect = document.getElementById('wa-auto-send-method');
+    const toggleModal = document.getElementById('wa-modal-auto-dispatch-sync');
+    const bar = document.getElementById('wa-auto-dispatch-bar');
+
+    if (toggleMain) toggleMain.checked = !!s.enabled;
+    if (toggleModal) toggleModal.checked = !!s.enabled;
+    if (targetSelect) targetSelect.value = s.target || 'both';
+    if (methodSelect) methodSelect.value = s.method || 'desktop';
+
+    if (bar) {
+        if (s.enabled) {
+            bar.style.borderColor = '#25d366';
+            bar.style.boxShadow = '0 0 16px rgba(37, 211, 102, 0.45)';
+            bar.style.background = 'rgba(15, 23, 42, 0.92)';
+        } else {
+            bar.style.borderColor = 'rgba(37, 211, 102, 0.3)';
+            bar.style.boxShadow = 'none';
+            bar.style.background = 'rgba(15, 23, 42, 0.75)';
+        }
+    }
+
+    // ═══ Sync Unified Footer Bar Auto-Send Control Button ═══
+    const toggleBtn = document.getElementById('btn-toggle-auto-send');
+    const optBtn = document.getElementById('btn-auto-send-options');
+    const autoSendIcon = document.getElementById('auto-send-icon');
+    const autoSendLabel = document.getElementById('auto-send-label');
+    const autoSendPill = document.getElementById('auto-send-status-pill');
+    const saveBtn = document.getElementById('btn-save');
+
+    if (toggleBtn) {
+        if (s.enabled) {
+            toggleBtn.className = 'btn crystal-btn btn-auto-send-toggle active';
+            if (optBtn) optBtn.className = 'btn crystal-btn btn-auto-send-options active';
+            
+            const targetDesc = s.target === 'both' ? 'لكليهما' : (s.target === 'debtor' ? 'المستلم' : 'الصارف');
+            toggleBtn.title = `الوضع الحالي: إرسال تلقائي مفعّل (${targetDesc}) ⚡ - سيتم إرسال الكمبيالة/السند فور الحفظ. انقر للتحويل إلى: حفظ فقط بدون إرسال`;
+            if (optBtn) optBtn.title = `خيارات وجهة الإرسال التلقائي (الحالي: ${targetDesc}) - انقر لتغيير الوجهة`;
+            
+            if (autoSendIcon) autoSendIcon.innerHTML = '⚡';
+            if (autoSendLabel) autoSendLabel.textContent = 'إرسال تلقائي:';
+            if (autoSendPill) {
+                autoSendPill.textContent = `مفعّل (${targetDesc})`;
+                autoSendPill.style.background = '#10b981';
+                autoSendPill.style.color = '#ffffff';
+                autoSendPill.style.boxShadow = '0 0 10px rgba(16,185,129,0.5)';
+            }
+        } else {
+            toggleBtn.className = 'btn crystal-btn btn-auto-send-toggle inactive';
+            if (optBtn) optBtn.className = 'btn crystal-btn btn-auto-send-options inactive';
+            
+            toggleBtn.title = 'الوضع الحالي: حفظ فقط 💾 - لن يتم إرسال أي كمبيالة أو إشعار. انقر لتفعيل الإرسال التلقائي مع الحفظ';
+            if (optBtn) optBtn.title = 'خيارات وجهة الإرسال التلقائي - انقر للاختيار والتفعيل';
+            
+            if (autoSendIcon) autoSendIcon.innerHTML = '💾';
+            if (autoSendLabel) autoSendLabel.textContent = 'إرسال تلقائي:';
+            if (autoSendPill) {
+                autoSendPill.textContent = 'معطّل (حفظ فقط)';
+                autoSendPill.style.background = 'rgba(148, 163, 184, 0.25)';
+                autoSendPill.style.color = '#cbd5e1';
+                autoSendPill.style.boxShadow = 'none';
+            }
+        }
+    }
+
+    if (saveBtn && !window.IdempotencyGuard?.isSaving && !saveBtn.disabled) {
+        if (s.enabled) {
+            saveBtn.title = 'حفظ واعتماد السند وإرسال الكمبيالة مباشرة عبر الواتساب ⚡';
+            saveBtn.innerHTML = `
+                <span>✅</span>
+                <span>حفظ وإرسال السند</span>
+                <span style="font-size: 0.8rem; background: rgba(0,0,0,0.28); padding: 1px 7px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); font-weight: 800;">⚡ إرسال</span>
+            `;
+        } else {
+            saveBtn.title = 'حفظ واعتماد وترحيل السند المالي فقط في النظام (بدون إرسال)';
+            saveBtn.innerHTML = `
+                <span>✅</span>
+                <span>حفظ واعتماد السند</span>
+            `;
+        }
+    }
+};
+
+window.toggleAutoSendMode = function() {
+    const s = window.getWAAutoDispatchSettings();
+    const newEnabled = !s.enabled;
+    window.toggleWAAutoDispatch(newEnabled);
+};
+
+window.toggleAutoSendDropdown = function(e) {
+    if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    const menu = document.getElementById('auto-send-dropdown-menu');
+    if (!menu) return;
+    const isShowing = (menu.style.display === 'block');
+    menu.style.display = isShowing ? 'none' : 'block';
+};
+
+window.selectAutoSendOption = function(enabled, target = null) {
+    const menu = document.getElementById('auto-send-dropdown-menu');
+    if (menu) menu.style.display = 'none';
+
+    const s = window.getWAAutoDispatchSettings();
+    s.enabled = !!enabled;
+    if (target) {
+        s.target = target;
+    }
+    window.saveWAAutoDispatchSettings(s);
+
+    if (s.enabled) {
+        const targetTitle = s.target === 'both' ? 'لكلا الطرفين (المستلم + الصارف)' : (s.target === 'debtor' ? 'للطرف المستلم فقط' : 'للطرف الصارف فقط');
+        showToast(`⚡ تم تفعيل الإرسال التلقائي: سيتم إرسال الكمبيالة/السند مباشرة فور الحفظ (${targetTitle})`, 'success');
+    } else {
+        showToast('💾 تم ضبط الحفظ فقط: لن يتم إرسال أي كمبيالة أو سند تلقائياً عند الحفظ', 'info');
+    }
+};
+
+// Close auto-send dropdown on click outside
+document.addEventListener('click', function(e) {
+    const wrap = document.getElementById('auto-send-control-wrapper');
+    const menu = document.getElementById('auto-send-dropdown-menu');
+    if (menu && menu.style.display === 'block' && wrap && !wrap.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+});
+
+window.toggleWAAutoDispatch = function(checked) {
+    const s = window.getWAAutoDispatchSettings();
+    s.enabled = !!checked;
+    window.saveWAAutoDispatchSettings(s);
+    if (s.enabled) {
+        const targetTitle = s.target === 'both' ? 'لكلا الطرفين (المستلم + الصارف)' : (s.target === 'debtor' ? 'للمستلم فقط' : 'للصارف فقط');
+        showToast(`⚡ تم تفعيل الإرسال التلقائي للواتساب عند الاعتماد (${targetTitle})`, 'success');
+    } else {
+        showToast('⏸️ تم إيقاف الإرسال التلقائي للواتساب (حفظ فقط بدون إرسال)', 'info');
+    }
+};
+
+window.changeWAAutoDispatchTarget = function(val) {
+    const s = window.getWAAutoDispatchSettings();
+    s.target = val;
+    window.saveWAAutoDispatchSettings(s);
+    showToast(`🎯 الوجهة التلقائية: ${val === 'both' ? 'كليهما معاً (إلى + من)' : (val === 'debtor' ? 'إلى' : 'من')}`, 'info');
+};
+
+window.changeWAAutoDispatchMethod = function(val) {
+    const s = window.getWAAutoDispatchSettings();
+    s.method = val;
+    window.saveWAAutoDispatchSettings(s);
+    const methodDesc = val === 'desktop' ? 'تطبيق واتساب الخاطف (صفر استهلاك رامات)' : (val === 'web' ? 'واتساب ويب الموحد' : 'خادم الواتساب بالخلفية');
+    showToast(`⚡ أسلوب الإرسال: ${methodDesc}`, 'info');
+};
+
+// Auto WhatsApp Dispatch trigger when voucher is successfully saved and posted
+window.triggerAutoWADispatchOnSave = function(voucher, vNo) {
+    const s = window.getWAAutoDispatchSettings();
+    if (!s || !s.enabled) return;
+
+    const parties = window.getVoucherParties();
+    if (!parties) return;
+
+    const targetMode = s.target || 'both';
+    const method = s.method || 'desktop';
+
+    setTimeout(() => {
+        if (targetMode === 'debtor') {
+            const cleanPhone = window.normalizePhoneNumber(parties.debtor.phone);
+            const msg = window.buildWATailoredMessage('debtor', parties);
+            window.sendDirectWABackground(method, cleanPhone, msg, parties.debtor.name);
+        } else if (targetMode === 'creditor') {
+            const cleanPhone = window.normalizePhoneNumber(parties.creditor.phone);
+            const msg = window.buildWATailoredMessage('creditor', parties);
+            window.sendDirectWABackground(method, cleanPhone, msg, parties.creditor.name);
+        } else if (targetMode === 'both') {
+            if (method === 'gateway') {
+                const cleanDebtorPhone = window.normalizePhoneNumber(parties.debtor.phone);
+                const debtorMsg = window.buildWATailoredMessage('debtor', parties);
+                if (cleanDebtorPhone) window.sendDirectWABackground('gateway', cleanDebtorPhone, debtorMsg, parties.debtor.name);
+
+                const cleanCreditorPhone = window.normalizePhoneNumber(parties.creditor.phone);
+                const creditorMsg = window.buildWATailoredMessage('creditor', parties);
+                if (cleanCreditorPhone) window.sendDirectWABackground('gateway', cleanCreditorPhone, creditorMsg, parties.creditor.name);
+            } else {
+                if (typeof window.openMasterWhatsAppDispatchModal === 'function') {
+                    window.openMasterWhatsAppDispatchModal();
+                    window.executeWASend(method);
+                }
+            }
+        }
+    }, 450);
+};
+
+window.sendDirectWABackground = function(method = 'gateway', cleanPhone, message, recipientName = '') {
+    if (!message) return;
+    if (!cleanPhone) {
+        console.warn('Auto WA Gateway: Phone is empty for', recipientName);
+        return;
+    }
+    const userId = typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12'));
+    const formData = new FormData();
+    formData.append('userId', userId);
+    formData.append('phone', cleanPhone);
+    formData.append('message', message);
+    fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${userId}`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast(`✅ تم إرسال إشعار واتساب تلقائياً إلى: ${recipientName || cleanPhone}`, 'success');
+        } else {
+            console.warn('WA send error:', data.error);
+        }
+    })
+    .catch(err => console.error('WA send error:', err));
+};
+
+// ═══ تحديث الحالة البصرية لبطاقة الطرف (المستلم / الصارف) ═══
+window.updatePartyCardStatus = function(partyType, isSent) {
+    const isDebtor = (partyType === 'debtor');
+    const tagEl = document.getElementById(isDebtor ? 'wa-debtor-status-tag' : 'wa-creditor-status-tag');
+    const cardEl = document.getElementById(isDebtor ? 'wa-both-debtor-card' : 'wa-both-creditor-card');
+
+    if (tagEl) {
+        if (isSent) {
+            tagEl.innerHTML = `<span>✅ تم الفتح</span>`;
+            tagEl.style.background = 'rgba(16, 185, 129, 0.25)';
+            tagEl.style.border = '1px solid #10b981';
+            tagEl.style.color = '#86efac';
+            tagEl.style.boxShadow = '0 0 8px rgba(16, 185, 129, 0.4)';
+        } else {
+            tagEl.innerHTML = `<span>⏳ بانتظار الإرسال</span>`;
+            tagEl.style.background = 'rgba(148, 163, 184, 0.15)';
+            tagEl.style.border = '1px solid rgba(148, 163, 184, 0.3)';
+            tagEl.style.color = '#94a3b8';
+            tagEl.style.boxShadow = 'none';
+        }
+    }
+
+    if (cardEl) {
+        if (isSent) {
+            cardEl.style.borderColor = '#10b981';
+            cardEl.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.35)';
+            cardEl.style.background = 'rgba(16, 185, 129, 0.14)';
+        } else {
+            cardEl.style.borderColor = isDebtor ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.4)';
+            cardEl.style.boxShadow = 'none';
+            cardEl.style.background = isDebtor ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)';
+        }
+    }
+};
+
+// ═══ تحويل الزر الرئيسي لحالة الاحتفال والنجاح المكتمل ═══
+window.setBothActionCompleteState = function() {
+    const mainActionBtn = document.getElementById('btn-wa-send-both-action');
+    if (mainActionBtn) {
+        mainActionBtn.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 100%)';
+        mainActionBtn.style.borderColor = '#34d399';
+        mainActionBtn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.6)';
+        mainActionBtn.style.animation = 'none';
+        mainActionBtn.innerHTML = `
+            <span style="font-size: 1.45rem;">🎉</span>
+            <span id="btn-wa-send-both-action-text">اكتمل إرسال السند لكلا الطرفين بنجاح (المستلم + الصارف) ✅</span>
+        `;
+        mainActionBtn.onclick = function() {
+            window.closeWAVoucherModal();
+        };
+    }
+};
+
+window._waHandoverTimer = null;
+window._pendingHandoverData = null;
+
+window.cancelHandoverTimer = function() {
+    if (window._waHandoverTimer) {
+        clearInterval(window._waHandoverTimer);
+        window._waHandoverTimer = null;
+    }
+    window._pendingHandoverData = null;
+    const panel = document.getElementById('wa-modal-handover-panel');
+    if (panel) panel.style.display = 'none';
+};
+
+// ═══ تسليم وإرسال الطرف الثاني (الصارف) بنقرة مستخدم مباشرة ═══
+window.triggerHandoverNextParty = async function() {
+    if (window._waHandoverTimer) {
+        clearInterval(window._waHandoverTimer);
+        window._waHandoverTimer = null;
+    }
+
+    const parties = window.getVoucherParties();
+
+    if (!window._pendingHandoverData) {
+        const credPhone = document.getElementById('wa-both-creditor-phone')?.value?.trim() || parties?.creditor?.phone || '';
+        const cleanCredPhone = window.normalizePhoneNumber(credPhone);
+        if (!cleanCredPhone) {
+            const credInput = document.getElementById('wa-both-creditor-phone');
+            if (credInput) {
+                credInput.focus();
+                credInput.style.borderColor = '#ef4444';
+                credInput.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.7)';
+                setTimeout(() => { if (credInput) { credInput.style.borderColor = 'rgba(239,68,68,0.5)'; credInput.style.boxShadow = 'none'; } }, 3000);
+            }
+            showToast('⚠️ يرجى إدخال هاتف الصارف (واتساب) أولاً لإتمام الإرسال!', 'warning');
+            return;
+        }
+        const fmt = document.getElementById('wa-modal-format-type')?.value || 'promissory_note';
+        const credMsg = (window._waBothPartyMessages && window._waBothPartyMessages.creditor)
+            ? window._waBothPartyMessages.creditor
+            : window.buildWATailoredMessage('creditor', parties, fmt);
+        window._pendingHandoverData = {
+            method: 'gateway',
+            phone: cleanCredPhone,
+            message: credMsg,
+            name: parties?.creditor?.name || 'الصارف',
+            blockId: null
+        };
+    }
+
+    const { phone, message, name, blockId: bId } = window._pendingHandoverData;
+    window._pendingHandoverData = null;
+
+    const alertEl = document.getElementById('wa-modal-status-alert');
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'VOUCHER').trim();
+
+    const flightAnim = (typeof window.startPromissoryFlightAnimation === 'function')
+        ? window.startPromissoryFlightAnimation({
+            recipientName: name || phone,
+            phone: phone,
+            voucherNo: vNo,
+            amount: (document.getElementById('amount-local')?.value || parties?.amount || '0'),
+            currency: (document.getElementById('currency')?.value || 'SDG'),
+            partyType: 'طرف الصرف'
+        })
+        : null;
+
+    if (alertEl) {
+        alertEl.style.display = 'block';
+        alertEl.style.background = 'rgba(56, 189, 248, 0.15)';
+        alertEl.style.color = '#38bdf8';
+        alertEl.innerHTML = `⏳ جاري إرسال الإشعار لـ (${name}) عبر خادم الواتساب المربوط...`;
+    }
+
+    try {
+        const userId = typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12'));
+        const fd = new FormData();
+        fd.append('userId', userId);
+        fd.append('phone', phone);
+
+        try {
+            const pdfBlob = await window.generatePromissoryNotePDFBlob('creditor', parties);
+            if (pdfBlob) {
+                const safeName = (name || 'الصارف').replace(/[/\\?%*:|"<>]/g, '_');
+                const docName = `كمبيالة_سند_${vNo}_${safeName}.pdf`;
+                fd.append('file', new File([pdfBlob], docName, { type: 'application/pdf' }));
+                fd.append('documentName', docName);
+                fd.append('message', window.buildWAPromissoryPDFCaption('creditor', parties));
+            } else {
+                fd.append('message', message);
+            }
+        } catch(e) {
+            fd.append('message', message);
+        }
+
+        const res = await fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${userId}`, { method: 'POST', body: fd });
+        const data = await res.json();
+
+        if (data && data.success) {
+            if (flightAnim) flightAnim.complete({ recipientName: name, phone: phone });
+            window.updatePartyCardStatus('creditor', true);
+            if (bId) window.markBlockAsSentWA(bId, phone);
+            window.setBothActionCompleteState();
+
+            const statusText = document.getElementById('wa-handover-status-text');
+            const subText = document.getElementById('wa-handover-subtext');
+            const btnHandover = document.getElementById('btn-wa-handover-next');
+            if (statusText) {
+                statusText.innerHTML = `<span>🎉</span> تم إرسال كمبيالة السند لكلا الطرفين (المستلم + الصارف) بنجاح عبر الواتساب!`;
+                statusText.style.color = '#34d399';
+            }
+            if (subText) {
+                subText.textContent = `تم تأكيد إرسال الإشعار بنجاح لكل من المستلم والصارف عبر خادم الواتساب.`;
+            }
+            if (btnHandover) {
+                btnHandover.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+                btnHandover.style.borderColor = '#34d399';
+                btnHandover.innerHTML = `<span>✅</span> <span>تم الإرسال للطرفين بنجاح (إغلاق)</span>`;
+                btnHandover.onclick = function() { window.closeWAVoucherModal(); };
+            }
+            setTimeout(() => {
+                const modal = document.getElementById('wa-voucher-modal');
+                if (modal && modal.style.display !== 'none') {
+                    window.closeWAVoucherModal();
+                }
+            }, 2500);
+        } else {
+            if (flightAnim) flightAnim.error(data?.error || 'تعذر الإرسال');
+            else showToast('❌ تعذر إرسال الإشعار: ' + (data?.error || 'خطأ غير معروف'), 'error');
+        }
+    } catch(err) {
+        console.error('WA Handover error:', err);
+        if (flightAnim) flightAnim.error('تعذر الاتصال بخادم الواتساب');
+        else showToast('⚠️ تعذر الاتصال بخادم الواتساب', 'error');
+    }
+};
+
+// ═══ إرسال مباشر لأحد الطرفين بشكل فردي من بطاقته الخاصة ═══
+window.sendSinglePartyDirectly = async function(partyType) {
+    const parties = window.getVoucherParties();
+    if (!parties) return;
+
+    const isDebtor = (partyType === 'debtor');
+    const partyObj = isDebtor ? parties.debtor : parties.creditor;
+    const inputPhone = isDebtor 
+        ? document.getElementById('wa-both-debtor-phone')?.value?.trim()
+        : document.getElementById('wa-both-creditor-phone')?.value?.trim();
+    
+    const phone = inputPhone || partyObj.phone || '';
+    const cleanPhone = window.normalizePhoneNumber(phone);
+
+    if (!cleanPhone) {
+        const inputEl = isDebtor ? document.getElementById('wa-both-debtor-phone') : document.getElementById('wa-both-creditor-phone');
+        if (inputEl) {
+            inputEl.focus();
+            inputEl.style.borderColor = '#ef4444';
+            inputEl.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.7)';
+            setTimeout(() => {
+                if (inputEl) {
+                    inputEl.style.borderColor = isDebtor ? 'rgba(16,185,129,0.5)' : 'rgba(239,68,68,0.5)';
+                    inputEl.style.boxShadow = 'none';
+                }
+            }, 3000);
+        }
+        showToast(`⚠️ يرجى إدخال رقم هاتف (${partyObj.name}) أولاً لإرسال الإشعار!`, 'warning');
+        return;
+    }
+
+    window.cachePartyPhone(partyType, cleanPhone);
+
+    const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'VOUCHER').trim();
+
+    const flightAnim = (typeof window.startPromissoryFlightAnimation === 'function')
+        ? window.startPromissoryFlightAnimation({
+            recipientName: partyObj.name || cleanPhone,
+            phone: cleanPhone,
+            voucherNo: vNo,
+            amount: (document.getElementById('amount-local')?.value || parties.amount || '0'),
+            currency: (document.getElementById('currency')?.value || 'SDG'),
+            partyType: isDebtor ? 'المستفيد / المستلم' : 'طرف الصرف'
+        })
+        : null;
+
+    const userId = typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12'));
+    const fd = new FormData();
+    fd.append('userId', userId);
+    fd.append('phone', cleanPhone);
+
+    try {
+        const pdfBlob = await window.generatePromissoryNotePDFBlob(partyType, parties);
+        if (pdfBlob) {
+            const safeName = (partyObj.name || partyType).replace(/[/\\?%*:|"<>]/g, '_');
+            const docName = `كمبيالة_سند_${vNo}_${safeName}.pdf`;
+            fd.append('file', new File([pdfBlob], docName, { type: 'application/pdf' }));
+            fd.append('documentName', docName);
+            fd.append('message', window.buildWAPromissoryPDFCaption(partyType, parties));
+        } else {
+            const fmt = document.getElementById('wa-modal-format-type')?.value || 'promissory_note';
+            const msg = (window._waBothPartyMessages && window._waBothPartyMessages[partyType])
+                ? window._waBothPartyMessages[partyType]
+                : window.buildWATailoredMessage(partyType, parties, fmt);
+            fd.append('message', msg);
+        }
+    } catch (e) {
+        console.warn('PDF blob generation fallback:', e);
+        const fmt = document.getElementById('wa-modal-format-type')?.value || 'promissory_note';
+        const msg = (window._waBothPartyMessages && window._waBothPartyMessages[partyType])
+            ? window._waBothPartyMessages[partyType]
+            : window.buildWATailoredMessage(partyType, parties, fmt);
+        fd.append('message', msg);
+    }
+
+    try {
+        const res = await fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${userId}`, { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data && data.success) {
+            if (flightAnim) flightAnim.complete({ recipientName: partyObj.name || cleanPhone, phone: cleanPhone });
+            window.updatePartyCardStatus(partyType, true);
+        } else {
+            if (flightAnim) flightAnim.error(`تعذر الإرسال: ${data?.error || 'خطأ'}`);
+            else showToast(`❌ تعذر الإرسال: ${data?.error || 'خطأ'}`, 'error');
+        }
+    } catch(err) {
+        if (flightAnim) flightAnim.error('تعذر الاتصال بخادم الواتساب');
+        else showToast('⚠️ تعذر الاتصال بخادم الواتساب', 'error');
+    }
+
+    window.updatePartyCardStatus(partyType, true);
+
+    const otherType = isDebtor ? 'creditor' : 'debtor';
+    const otherTag = document.getElementById(isDebtor ? 'wa-creditor-status-tag' : 'wa-debtor-status-tag');
+    const isOtherSent = otherTag && otherTag.textContent.includes('تم الفتح');
+
+    if (isOtherSent) {
+        window.setBothActionCompleteState();
+    } else {
+        const otherPartyObj = isDebtor ? parties.creditor : parties.debtor;
+        const mainActionBtn = document.getElementById('btn-wa-send-both-action');
+        if (mainActionBtn) {
+            mainActionBtn.style.background = isDebtor ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #10b981, #059669)';
+            mainActionBtn.style.borderColor = '#fca5a5';
+            mainActionBtn.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.6)';
+            mainActionBtn.style.animation = 'pulse 1.3s infinite ease-in-out';
+            mainActionBtn.innerHTML = `
+                <span style="font-size: 1.45rem;">📤</span>
+                <span id="btn-wa-send-both-action-text">اضغط هنا الآن لإرسال الطرف الآخر (${otherPartyObj.name}) ➔</span>
+            `;
+            mainActionBtn.onclick = function() {
+                window.sendSinglePartyDirectly(otherType);
+            };
+        }
+    }
+};
+
+// ═══ المحرك المركزي لإرسال السند (مفرد أو لكليهما) ═══
+window.executeWASend = async function(method = 'gateway') {
+    const targetMode = document.getElementById('wa-modal-target-mode')?.value || 'both';
+    const alertEl = document.getElementById('wa-modal-status-alert');
+    const parties = window.getVoucherParties();
+
+    if (targetMode === 'debtor' || targetMode === 'creditor') {
+        const phone = document.getElementById('wa-modal-phone')?.value?.trim();
+        const message = document.getElementById('wa-modal-message')?.value?.trim();
+
+        if (!message) {
+            showToast('نص الرسالة فارغ!', 'warning');
+            return;
+        }
+
+        const cleanPhone = window.normalizePhoneNumber(phone);
+        if (!cleanPhone) {
+            const pInput = document.getElementById('wa-modal-phone');
+            if (pInput) { pInput.focus(); pInput.style.borderColor = '#ef4444'; setTimeout(() => { if (pInput) pInput.style.borderColor = ''; }, 2500); }
+            showToast('⚠️ يرجى إدخال رقم الهاتف للمستلم أولاً!', 'warning');
+            return;
+        }
+
+        const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'VOUCHER').trim();
+        const activePartyObj = (targetMode === 'debtor') ? parties.debtor : parties.creditor;
+
+        const flightAnim = (typeof window.startPromissoryFlightAnimation === 'function')
+            ? window.startPromissoryFlightAnimation({
+                recipientName: activePartyObj.name || cleanPhone,
+                phone: cleanPhone,
+                voucherNo: vNo,
+                amount: (document.getElementById('amount-local')?.value || parties.amount || '0'),
+                currency: (document.getElementById('currency')?.value || 'SDG'),
+                partyType: (targetMode === 'debtor') ? 'المستفيد / المستلم' : 'طرف الصرف'
+            })
+            : null;
+
+        if (alertEl) {
+            alertEl.style.display = 'block';
+            alertEl.style.background = 'rgba(56, 189, 248, 0.15)';
+            alertEl.style.color = '#38bdf8';
+            alertEl.innerHTML = '⏳ جاري تجهيز كمبيالة السند PDF وإرسالها فوراً عبر الواتساب...';
+        }
+
+        try {
+            const userId = typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12'));
+            const statusRes = await fetch(`api_index.php?r=wa-tenant&endpoint=status&userId=${userId}`);
+            const statusData = await statusRes.json();
+
+            if (statusData.status !== 'CONNECTED' && statusData.status !== 'AUTHENTICATED') {
+                if (flightAnim) flightAnim.error('خادم الواتساب غير متصل. يرجى مسح رمز QR أولاً.');
+                if (alertEl) {
+                    alertEl.style.background = 'rgba(239, 68, 68, 0.15)';
+                    alertEl.style.color = '#f87171';
+                    alertEl.innerHTML = '⚠️ خادم الواتساب غير مربوط حالياً. يرجى مسح رمز الاستجابة (QR) أولاً.';
+                }
+                const wantsQR = confirm('خادم الواتساب غير مربوط حالياً. هل تريد فتح نافذة الربط (QR) الآن؟');
+                if (wantsQR && typeof openWAModal === 'function') {
+                    openWAModal();
+                }
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('userId', userId);
+            formData.append('phone', cleanPhone);
+
+            try {
+                const pdfBlob = await window.generatePromissoryNotePDFBlob(targetMode, parties);
+                if (pdfBlob) {
+                    const safeName = (activePartyObj.name || targetMode).replace(/[/\\?%*:|"<>]/g, '_');
+                    const docName = `كمبيالة_سند_${vNo}_${safeName}.pdf`;
+                    formData.append('file', new File([pdfBlob], docName, { type: 'application/pdf' }));
+                    formData.append('documentName', docName);
+                    formData.append('message', window.buildWAPromissoryPDFCaption(targetMode, parties));
+                } else {
+                    formData.append('message', message);
+                }
+            } catch(e) {
+                console.warn('PDF blob generation fallback:', e);
+                formData.append('message', message);
+            }
+
+            const sendRes = await fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${userId}`, {
+                method: 'POST',
+                body: formData
+            });
+            const sendData = await sendRes.json();
+
+            if (sendData && sendData.success) {
+                if (flightAnim) {
+                    flightAnim.complete({ recipientName: activePartyObj.name || cleanPhone, phone: cleanPhone });
+                }
+
+                const isTargetDebtor = (targetMode === 'debtor');
+                const otherPartyObj = isTargetDebtor ? parties.creditor : parties.debtor;
+                const otherPartyType = isTargetDebtor ? 'creditor' : 'debtor';
+                const otherPhone = otherPartyObj.phone ? window.normalizePhoneNumber(otherPartyObj.phone) : '';
+
+                if (otherPartyObj.name && otherPartyObj.name !== 'حساب الصرف/الخزينة') {
+                    const fmt = document.getElementById('wa-modal-format-type')?.value || 'promissory_note';
+                    const otherMsg = window.buildWATailoredMessage(otherPartyType, parties, fmt);
+                    window._pendingHandoverData = {
+                        method: 'gateway',
+                        phone: otherPhone,
+                        message: otherMsg,
+                        name: otherPartyObj.name,
+                        blockId: null
+                    };
+
+                    const handoverPanel = document.getElementById('wa-modal-handover-panel');
+                    const statusText = document.getElementById('wa-handover-status-text');
+                    const subText = document.getElementById('wa-handover-subtext');
+                    const btnLabel = document.getElementById('btn-wa-handover-label');
+
+                    if (handoverPanel) {
+                        handoverPanel.style.display = 'block';
+                        if (statusText) statusText.textContent = `تم إرسال إشعار (${isTargetDebtor ? parties.debtor.name : parties.creditor.name}) بنجاح عبر الواتساب!`;
+                        if (subText) subText.textContent = `اضغط الزر أدناه لإرسال إشعار الطرف الآخر (${otherPartyObj.name}) فوراً عبر الخادم:`;
+                        if (btnLabel) btnLabel.textContent = `إرسال إشعار (${otherPartyObj.name}) عبر الخادم الآن ➔`;
+                    }
+                    return;
+                }
+
+                setTimeout(() => window.closeWAVoucherModal(), 2200);
+                return;
+            } else {
+                if (flightAnim) {
+                    flightAnim.error(sendData?.error || 'فشل الإرسال عبر خادم الواتساب');
+                }
+                if (alertEl) {
+                    alertEl.style.background = 'rgba(239, 68, 68, 0.15)';
+                    alertEl.style.color = '#f87171';
+                    alertEl.innerHTML = '❌ فشل الإرسال عبر الخادم: ' + (sendData?.error || 'خطأ غير معروف');
+                }
+            }
+        } catch (err) {
+            console.error('WA Gateway error:', err);
+            if (flightAnim) flightAnim.error('تعذر الإرسال عبر خادم الواتساب');
+            if (alertEl) {
+                alertEl.style.background = 'rgba(239, 68, 68, 0.15)';
+                alertEl.style.color = '#f87171';
+                alertEl.innerHTML = '⚠️ تعذر الوصول لخادم الواتساب. تأكد من تشغيل الخدمة.';
+            }
+        }
+        return;
+    }
+
+    if (targetMode === 'both') {
+        const debtorInput = document.getElementById('wa-both-debtor-phone');
+        const creditorInput = document.getElementById('wa-both-creditor-phone');
+
+        const debtorPhone = debtorInput?.value?.trim() || parties.debtor.phone || '';
+        const creditorPhone = creditorInput?.value?.trim() || parties.creditor.phone || '';
+
+        const cleanDebtorPhone = window.normalizePhoneNumber(debtorPhone);
+        const cleanCreditorPhone = window.normalizePhoneNumber(creditorPhone);
+
+        if (!cleanDebtorPhone) {
+            if (debtorInput) {
+                debtorInput.focus();
+                debtorInput.style.borderColor = '#ef4444';
+                debtorInput.style.boxShadow = '0 0 14px rgba(239, 68, 68, 0.8)';
+                setTimeout(() => {
+                    if (debtorInput) {
+                        debtorInput.style.borderColor = 'rgba(16,185,129,0.5)';
+                        debtorInput.style.boxShadow = 'none';
+                    }
+                }, 3500);
+            }
+            showToast(`⚠️ يرجى إدخال رقم هاتف المستلم (${parties.debtor.name}) لإتمام الإرسال للطرفين!`, 'warning', 5000);
+            return;
+        }
+
+        if (!cleanCreditorPhone) {
+            if (creditorInput) {
+                creditorInput.focus();
+                creditorInput.style.borderColor = '#ef4444';
+                creditorInput.style.boxShadow = '0 0 14px rgba(239, 68, 68, 0.8)';
+                setTimeout(() => {
+                    if (creditorInput) {
+                        creditorInput.style.borderColor = 'rgba(239,68,68,0.5)';
+                        creditorInput.style.boxShadow = 'none';
+                    }
+                }, 3500);
+            }
+            showToast(`⚠️ يرجى إدخال رقم هاتف الصارف (${parties.creditor.name}) لإتمام الإرسال للطرفين!`, 'warning', 5000);
+            return;
+        }
+
+        if (cleanDebtorPhone && parties.debtor) window.cachePartyPhone('debtor', cleanDebtorPhone);
+        if (cleanCreditorPhone && parties.creditor) window.cachePartyPhone('creditor', cleanCreditorPhone);
+
+        const fmt = document.getElementById('wa-modal-format-type')?.value || 'promissory_note';
+        const debtorMsg = (window._waBothPartyMessages && window._waBothPartyMessages.debtor)
+            ? window._waBothPartyMessages.debtor
+            : window.buildWATailoredMessage('debtor', parties, fmt);
+        const creditorMsg = (window._waBothPartyMessages && window._waBothPartyMessages.creditor)
+            ? window._waBothPartyMessages.creditor
+            : window.buildWATailoredMessage('creditor', parties, fmt);
+
+        const vNo = (document.getElementById('voucher-number')?.innerText || document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'VOUCHER').trim();
+        const dualName = `${parties.debtor.name || 'المستلم'} و ${parties.creditor.name || 'الصارف'}`;
+
+        const flightAnim = (typeof window.startPromissoryFlightAnimation === 'function')
+            ? window.startPromissoryFlightAnimation({
+                recipientName: dualName,
+                phone: `${cleanDebtorPhone} / ${cleanCreditorPhone}`,
+                voucherNo: vNo,
+                amount: (document.getElementById('amount-local')?.value || parties.amount || '0'),
+                currency: (document.getElementById('currency')?.value || 'SDG'),
+                partyType: 'المستلم والصارف معاً'
+            })
+            : null;
+
+        if (alertEl) {
+            alertEl.style.display = 'block';
+            alertEl.style.background = 'rgba(56, 189, 248, 0.15)';
+            alertEl.style.color = '#38bdf8';
+            alertEl.innerHTML = '⏳ جاري تجهيز كمبيالات السند PDF وإرسالها لكلا الطرفين عبر الواتساب...';
+        }
+
+        const userId = typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12'));
+
+        try {
+            const statusRes = await fetch(`api_index.php?r=wa-tenant&endpoint=status&userId=${userId}`);
+            const statusData = await statusRes.json();
+
+            if (statusData.status !== 'CONNECTED' && statusData.status !== 'AUTHENTICATED') {
+                if (flightAnim) flightAnim.error('خادم الواتساب غير متصل. يرجى ربط الحساب أولاً.');
+                if (alertEl) {
+                    alertEl.style.background = 'rgba(239, 68, 68, 0.15)';
+                    alertEl.style.color = '#f87171';
+                    alertEl.innerHTML = '⚠️ خادم الواتساب غير متصل. يرجى ربط الحساب بالباركود أولاً.';
+                }
+                const wantsQR = confirm('خادم الواتساب غير مربوط حالياً. هل تريد فتح نافذة الربط (QR) الآن؟');
+                if (wantsQR && typeof openWAModal === 'function') {
+                    openWAModal();
+                }
+                return;
+            }
+
+            const debtorPdf = await window.generatePromissoryNotePDFBlob('debtor', parties).catch(err => {
+                console.warn('Debtor PDF err:', err);
+                return null;
+            });
+            const creditorPdf = await window.generatePromissoryNotePDFBlob('creditor', parties).catch(err => {
+                console.warn('Creditor PDF err:', err);
+                return null;
+            });
+
+            const promises = [];
+
+            const fd1 = new FormData();
+            fd1.append('userId', userId);
+            fd1.append('phone', cleanDebtorPhone);
+            if (debtorPdf) {
+                const safeName = (parties.debtor.name || 'المستلم').replace(/[/\\?%*:|"<>]/g, '_');
+                const docName = `كمبيالة_سند_${vNo}_${safeName}.pdf`;
+                fd1.append('file', new File([debtorPdf], docName, { type: 'application/pdf' }));
+                fd1.append('documentName', docName);
+                fd1.append('message', window.buildWAPromissoryPDFCaption('debtor', parties));
+            } else {
+                fd1.append('message', debtorMsg);
+            }
+            promises.push(fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${userId}`, { method: 'POST', body: fd1 }).then(r => r.json()));
+
+            const fd2 = new FormData();
+            fd2.append('userId', userId);
+            fd2.append('phone', cleanCreditorPhone);
+            if (creditorPdf) {
+                const safeName = (parties.creditor.name || 'الصارف').replace(/[/\\?%*:|"<>]/g, '_');
+                const docName = `كمبيالة_سند_${vNo}_${safeName}.pdf`;
+                fd2.append('file', new File([creditorPdf], docName, { type: 'application/pdf' }));
+                fd2.append('documentName', docName);
+                fd2.append('message', window.buildWAPromissoryPDFCaption('creditor', parties));
+            } else {
+                fd2.append('message', creditorMsg);
+            }
+            promises.push(fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${userId}`, { method: 'POST', body: fd2 }).then(r => r.json()));
+
+            const results = await Promise.all(promises);
+            const successful = results.filter(res => res && res.success).length;
+            if (successful > 0) {
+                if (flightAnim) {
+                    flightAnim.complete({ recipientName: dualName, phone: `${cleanDebtorPhone} / ${cleanCreditorPhone}` });
+                }
+                window.updatePartyCardStatus('debtor', true);
+                window.updatePartyCardStatus('creditor', true);
+                window.setBothActionCompleteState();
+                setTimeout(() => window.closeWAVoucherModal(), 2500);
+            } else {
+                if (flightAnim) {
+                    flightAnim.error('فشل الإرسال لكلا الطرفين عبر الخادم');
+                }
+                if (alertEl) {
+                    alertEl.style.background = 'rgba(239, 68, 68, 0.15)';
+                    alertEl.style.color = '#f87171';
+                    alertEl.innerHTML = '❌ فشل الإرسال عبر الخادم. تحقق من أرقام الهواتف أو حالة الخادم.';
+                }
+            }
+        } catch (err) {
+            console.error('WA Dual Gateway error:', err);
+            if (flightAnim) flightAnim.error('تعذر الإرسال لكلا الطرفين');
+            if (alertEl) {
+                alertEl.style.background = 'rgba(239, 68, 68, 0.15)';
+                alertEl.style.color = '#f87171';
+                alertEl.innerHTML = '⚠️ تعذر الإرسال عبر الخادم. تأكد من تشغيل خدمة الواتساب.';
+            }
+        }
+    }
+};
+
+// Initialize Auto-Dispatch UI on load
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => window.syncWAAutoDispatchUI());
+} else {
+    window.syncWAAutoDispatchUI();
+}
+
