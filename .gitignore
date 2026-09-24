@@ -50,7 +50,6 @@ uploads/
 .wwebjs_cache/
 scripts/
 temp*.js
-journal.php
 
 # ── Temporary / Debug Files ─────────────────────────
 scratch/
