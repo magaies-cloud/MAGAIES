@@ -100,6 +100,8 @@ echo json_encode([
     'git_diff_clean' => empty($gitDiff),
     'git_status_porcelain' => $gitStatus,
     'tracked_files_count' => $trackedCount,
+    'untracked_or_ignored' => array_values(array_filter(explode("\n", trim((string)@shell_exec('git status --ignored --porcelain 2>&1'))))),
+    'recent_modified_files' => array_values(array_filter(explode("\n", trim((string)@shell_exec('find . -maxdepth 2 -type f -mtime -3 2>&1'))))),
     'files' => $files,
     'checks' => $checks,
     'timestamp' => date('Y-m-d H:i:s')
