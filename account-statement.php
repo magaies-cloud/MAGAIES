@@ -25,6 +25,8 @@
     
     <!-- مكتبة PDF -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- مكتبة الواتساب الموحدة -->
+    <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
     <!-- مكتبة السحب والإفلات -->
     <script defer src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <!-- مكتبة إكسل -->
@@ -1936,36 +1938,56 @@ input:checked + .slider:before { transform: translateX(20px); }
         setTimeout(() => alert("تلميح: لا تنسَ إرفاق ملف الـ PDF أو الـ Excel الذي قمت بتنزيله داخل رسالة الإيميل."), 500);
     }
 
-    function shareWhatsApp() {
+    async function shareWhatsApp() {
         const accSelect = document.getElementById('accountSelect');
-        const selectedOption = accSelect.options[accSelect.selectedIndex];
-        const accName = accSelect.value ? selectedOption.text : 'عام';
-        let phone = selectedOption.getAttribute('data-phone');
+        const selectedOption = accSelect?.options[accSelect?.selectedIndex];
+        const accName = accSelect?.value ? selectedOption?.text : 'كشف حساب عام';
+        let phone = selectedOption ? selectedOption.getAttribute('data-phone') : '';
         
-        if (accSelect.value) {
+        if (accSelect && accSelect.value) {
             try {
                 const customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-                const cust = customers.find(c => c.id === accSelect.value);
+                const cust = customers.find(c => String(c.id) === String(accSelect.value));
                 if (cust) phone = cust.whatsapp || cust.phone || phone;
             } catch(e) {}
             try {
                 const suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-                const sup = suppliers.find(s => s.id === accSelect.value);
+                const sup = suppliers.find(s => String(s.id) === String(accSelect.value));
                 if (sup) phone = sup.whatsapp || sup.phone || phone;
             } catch(e) {}
         }
-        
-        const text = encodeURIComponent(`مرحباً، أود مشاركة كشف حساب (${accName}) معك.`);
-        
-        let url = `https://wa.me/`;
-        if (phone) {
-            const cleanPhone = phone.replace(/[^0-9]/g, '');
-            url += `${cleanPhone}`;
+
+        const cleanPhone = phone ? phone.replace(/[^0-9]/g, '') : '';
+        let targetPhone = cleanPhone;
+        if (!targetPhone) {
+            const entered = prompt('يرجى إدخال رقم هاتف المستلم (واتساب):', '09');
+            if (!entered) return;
+            targetPhone = entered.replace(/[^0-9]/g, '');
         }
-        url += `?text=${text}`;
-        
-        window.open(url, '_blank');
-        setTimeout(() => alert("تلميح: لا تنسَ إرفاق المستند (PDF أو Excel) في محادثة الواتساب بعد تحميله."), 500);
+
+        const message = `مرحباً، مرفق كشف حسابكم الخاص بـ (${accName}) من النظام المالي. شكراً لتعاملكم معنا!`;
+        const printContainer = document.getElementById('printArea') || document.querySelector('.statement-container') || document.body;
+
+        if (typeof sendPDFViaWhatsApp === 'function') {
+            await sendPDFViaWhatsApp(printContainer, targetPhone, message);
+        } else {
+            try {
+                const userId = typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12'));
+                const fd = new FormData();
+                fd.append('userId', userId);
+                fd.append('phone', targetPhone);
+                fd.append('message', message);
+                const res = await fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${userId}`, { method: 'POST', body: fd });
+                const data = await res.json();
+                if (data && data.success) {
+                    showToast('✅ تم إرسال كشف الحساب بنجاح عبر خادم الواتساب!', 'success');
+                } else {
+                    alert('فشل الإرسال: ' + (data?.error || 'خطأ غير معروف'));
+                }
+            } catch(e) {
+                alert('خدمة الواتساب غير متصلة حالياً.');
+            }
+        }
     }
 
     function saveLayout() {

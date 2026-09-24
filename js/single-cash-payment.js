@@ -1571,6 +1571,547 @@ function submitVoucherInner() {
     }
 }
 
+// ═══ Vector Barcode Generator (Code 128 Standard) ═══
+window.generateBarcodeSVG = function(vNo) {
+    const code128Patterns = [
+        "212222", "222122", "222221", "121223", "121322", "131222", "122213", "122312", "132212", "221213",
+        "221312", "231212", "112232", "122132", "122231", "113222", "123122", "123221", "223211", "221132",
+        "221231", "213212", "223112", "312131", "311222", "321122", "321221", "312212", "322112", "322211",
+        "212123", "212321", "232121", "111323", "131123", "131321", "112313", "132113", "132311", "211313",
+        "231113", "231311", "112133", "112331", "132131", "113123", "113321", "133121", "313121", "211331",
+        "231131", "213113", "213311", "213131", "311123", "311321", "331121", "312113", "312311", "332111",
+        "314111", "221411", "431111", "111224", "111422", "121124", "121421", "141122", "141221", "112214",
+        "112412", "122114", "122411", "142112", "142211", "241211", "221114", "413111", "241112", "134111",
+        "111242", "121142", "121241", "114212", "124112", "124211", "411212", "421112", "421211", "212141",
+        "214121", "412121", "111143", "111341", "131141", "114113", "114311", "411113", "411311", "113141",
+        "114131", "311141", "411131", "211412", "211214", "211232", "2331112"
+    ];
+    let clean = (vNo || 'E26090001').replace(/[^\x20-\x7E]/g, '');
+    if (!clean) clean = "E26090001";
+    let indices = [104]; // Code 128B start
+    for (let i = 0; i < clean.length; i++) {
+        indices.push(clean.charCodeAt(i) - 32);
+    }
+    let checksum = 104;
+    for (let i = 1; i < indices.length; i++) {
+        checksum += indices[i] * i;
+    }
+    indices.push(checksum % 103);
+    indices.push(106); // Stop symbol
+
+    let modules = [];
+    indices.forEach(idx => {
+        let pattern = code128Patterns[idx];
+        if (pattern) {
+            for (let j = 0; j < pattern.length; j++) {
+                let width = parseInt(pattern[j]);
+                let isBar = (j % 2 === 0);
+                for (let k = 0; k < width; k++) {
+                    modules.push(isBar);
+                }
+            }
+        }
+    });
+
+    let rects = '';
+    const barWidth = 1.25;
+    const quietZone = 6;
+    for (let i = 0; i < modules.length; i++) {
+        if (modules[i]) {
+            rects += `<rect x="${(quietZone + i * barWidth).toFixed(1)}" y="0" width="${barWidth}" height="26" fill="#0f172a" />`;
+        }
+    }
+    const totalW = (quietZone * 2 + modules.length * barWidth).toFixed(1);
+    return `<svg width="${totalW}" height="26" viewBox="0 0 ${totalW} 26" xmlns="http://www.w3.org/2000/svg" style="display:inline-block; vertical-align:middle;">${rects}</svg>`;
+};
+
+// ═══ Arabic Tafqeet Generator ═══
+window.formatArabicTafqeet = window.formatArabicTafqeet || function(amount, currencyCode = 'SDG') {
+    const rawNum = typeof amount === 'number' ? amount : (parseFloat(String(amount).replace(/,/g, '')) || 0);
+    const getCurrencyNames = (c) => {
+        const norm = (c || 'SDG').toUpperCase();
+        switch (norm) {
+            case 'USD': return { unit: 'دولار أمريكي', sub: 'سنت' };
+            case 'AED': return { unit: 'درهم إماراتي', sub: 'فلس' };
+            case 'SAR': return { unit: 'ريال سعودي', sub: 'هللة' };
+            case 'QAR': return { unit: 'ريال قطري', sub: 'درهم' };
+            case 'EUR': return { unit: 'يورو', sub: 'سنت' };
+            case 'GBP': return { unit: 'جنيه إسترليني', sub: 'بنس' };
+            case 'SDG':
+            default:
+                return { unit: 'جنيه سوداني', sub: 'قرش' };
+        }
+    };
+    const cInfo = getCurrencyNames(currencyCode);
+    if (rawNum <= 0) return `فقط صفر ${cInfo.unit} لا غير`;
+    const intPart = Math.floor(rawNum);
+    const decPart = Math.round((rawNum - intPart) * 100);
+    const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة',
+        'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+    const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+    const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+    function convertThreeDigits(num) {
+        let str = '';
+        const h = Math.floor(num / 100);
+        const rem = num % 100;
+        if (h > 0) str += hundreds[h];
+        if (rem > 0) {
+            if (str !== '') str += ' و';
+            if (rem < 20) str += ones[rem];
+            else {
+                const t = Math.floor(rem / 10);
+                const o = rem % 10;
+                if (o > 0) str += ones[o] + ' و' + tens[t];
+                else str += tens[t];
+            }
+        }
+        return str;
+    }
+    const scales = [
+        { val: 1000000000000, single: 'تريليون', two: 'تريليونان', plural: 'تريليونات' },
+        { val: 1000000000, single: 'مليار', two: 'ملياران', plural: 'مليارات' },
+        { val: 1000000, single: 'مليون', two: 'مليونان', plural: 'ملايين' },
+        { val: 1000, single: 'ألف', two: 'ألفان', plural: 'آلاف' }
+    ];
+    let remaining = intPart;
+    let parts = [];
+    for (const scale of scales) {
+        if (remaining >= scale.val) {
+            const count = Math.floor(remaining / scale.val);
+            remaining = remaining % scale.val;
+            if (count === 1) parts.push(scale.single);
+            else if (count === 2) parts.push(scale.two);
+            else if (count >= 3 && count <= 10) parts.push(convertThreeDigits(count) + ' ' + scale.plural);
+            else parts.push(convertThreeDigits(count) + ' ' + scale.single);
+        }
+    }
+    if (remaining > 0) parts.push(convertThreeDigits(remaining));
+    let result = parts.length > 0 ? parts.join(' و') : 'صفر';
+    result = `فقط ${result} ${cInfo.unit}`;
+    if (decPart > 0) result += ` و ${decPart} ${cInfo.sub}`;
+    result += ' لا غير';
+    return result;
+};
+
+// ═══ Account Display Name Resolver ═══
+function resolveAccountDisplayName(accId, isFrom = false) {
+    if (isFrom) {
+        const fromSearchVal = document.getElementById('from-account-search')?.value?.trim();
+        const fromIdVal = document.getElementById('from-account')?.value?.trim();
+        if (fromSearchVal && (!accId || accId === fromIdVal)) return fromSearchVal;
+    } else {
+        const toSearchVal = document.getElementById('to-account-search')?.value?.trim();
+        const toIdVal = document.getElementById('to-account')?.value?.trim();
+        if (toSearchVal && (!accId || accId === toIdVal)) return toSearchVal;
+    }
+    const name = getAccountName(accId);
+    if (name && name !== accId) return name;
+    try {
+        const custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+        const c = custs.find(x => String(x.id) === String(accId) || `cust-${x.id}` === String(accId));
+        if (c) return c.name;
+        const sups = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]');
+        const s = sups.find(x => String(x.id) === String(accId) || `supp-${x.id}` === String(accId));
+        if (s) return s.name;
+        const banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
+        const b = banks.find(x => String(x.id) === String(accId) || `bank-${x.id}` === String(accId));
+        if (b) return b.name;
+        const safes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
+        const sf = safes.find(x => String(x.id) === String(accId) || `safe-${x.id}` === String(accId));
+        if (sf) return sf.name;
+        const accs = JSON.parse(localStorage.getItem('erp_accounts_v1') || '[]');
+        const a = accs.find(x => String(x.id) === String(accId) || `exp-${x.id}` === String(accId));
+        if (a) return a.name;
+    } catch(e) {}
+    return accId || '—';
+}
+
+// ═══ Build Voucher Object from Screen Inputs (Fallback) ═══
+function buildVoucherFromCurrentForm(voucherId) {
+    const vNo = voucherId || document.getElementById('voucher-number')?.innerText?.trim() || 'E26090001';
+    const date = document.getElementById('hdr-date')?.value || new Date().toISOString().split('T')[0];
+    const amtLocal = parseNum(document.getElementById('amount-local')?.value);
+    const amtForeign = parseNum(document.getElementById('amount-foreign')?.value);
+    const curSelect = document.getElementById('currency');
+    const currency = (curSelect && curSelect.value) ? curSelect.value : 'SDG';
+    const rate = parseNum(document.getElementById('exchange-rate')?.value) || 1;
+    const fromAcc = document.getElementById('from-account')?.value || 'safe-001';
+    const toAcc = document.getElementById('to-account')?.value || '';
+    const toStatement = document.getElementById('to-statement')?.value || '';
+    const fromStatement = document.getElementById('from-statement')?.value || '';
+    const beneficiaryName = document.getElementById('beneficiary-name')?.value || '';
+    const costCenter = document.getElementById('cost-center')?.value || '';
+
+    let method = 'cash';
+    const bankActive = document.getElementById('toggle-bank')?.classList.contains('active');
+    const chequeActive = document.getElementById('toggle-cheque')?.classList.contains('active');
+    if (bankActive && chequeActive) method = 'hybrid';
+    else if (bankActive) method = 'mobile';
+    else if (chequeActive) method = 'check';
+
+    let bankTransfers = [];
+    document.querySelectorAll('.transfer-row').forEach(row => {
+        const trNo = (row.querySelector('.transfer-no')?.value || '').trim();
+        const note = (row.querySelector('.transfer-note')?.value || '').trim();
+        const amount = parseNum(row.querySelector('.transfer-amount')?.value);
+        const statement = (row.querySelector('.transfer-statement')?.value || '').trim();
+        if (amount > 0 || trNo) {
+            bankTransfers.push({ transferNo: trNo, note, amount, statement });
+        }
+    });
+
+    let cheques = [];
+    document.querySelectorAll('.cheque-row').forEach(row => {
+        const checkNo = (row.querySelector('.cheque-no')?.value || '').trim();
+        const checkBranch = (row.querySelector('.cheque-branch')?.value || '').trim();
+        const checkDate = row.querySelector('.cheque-date')?.value || '';
+        const amount = parseNum(row.querySelector('.cheque-amount')?.value);
+        const statement = (row.querySelector('.cheque-statement')?.value || '').trim();
+        if (amount > 0 || checkNo) {
+            cheques.push({ checkNo, checkBranch, checkDate, amount, statement });
+        }
+    });
+
+    return {
+        id: vNo,
+        date: date,
+        time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        amountLocal: amtLocal,
+        amountForeign: amtForeign,
+        currency: currency,
+        rate: rate,
+        fromAccount: fromAcc,
+        fromStatement: fromStatement,
+        toAccount: toAcc,
+        toStatement: toStatement,
+        beneficiaryName: beneficiaryName,
+        costCenter: costCenter,
+        paymentMethod: method,
+        bankTransfers: bankTransfers,
+        cheques: cheques,
+        mobileTransferNo: bankTransfers[0]?.transferNo || '',
+        mobileNote: bankTransfers[0]?.note || '',
+        checkNo: cheques[0]?.checkNo || '',
+        checkBranch: cheques[0]?.checkBranch || '',
+        checkDate: cheques[0]?.checkDate || ''
+    };
+}
+
+// ═══ QR Code Fetcher with Multiple Fallbacks ═══
+window._voucherQrCache = window._voucherQrCache || {};
+async function getVoucherQRCode(text) {
+    if (window._voucherQrCache[text]) return window._voucherQrCache[text];
+    try {
+        const userId = typeof getWAUserId === 'function' ? getWAUserId() : 'wa_tenant_12';
+        const res = await fetch(`api_index.php?r=wa-tenant&endpoint=generate-qr&text=${encodeURIComponent(text)}`);
+        const data = await res.json();
+        if (data && data.success && data.dataUrl) {
+            window._voucherQrCache[text] = data.dataUrl;
+            return data.dataUrl;
+        }
+    } catch(e) {}
+    const fallbackUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=1&data=${encodeURIComponent(text)}`;
+    window._voucherQrCache[text] = fallbackUrl;
+    return fallbackUrl;
+}
+
+// ═══ Master Voucher Document HTML Builder (Ultra Luxury & Complete Details) ═══
+window.generateVoucherDocumentHTML = function(voucher, qrDataUrl) {
+    if (!voucher) voucher = {};
+
+    let cfg = {};
+    try {
+        cfg = JSON.parse(localStorage.getItem('erp_company_settings') || localStorage.getItem('erp_settings_v1') || '{}');
+    } catch(e) {}
+
+    const companyName = cfg.companyName || document.getElementById('header-company-name-top')?.innerText?.trim() || 'شركة السجانة التجارية';
+    const companyPhone = cfg.phone || cfg.companyPhone || '';
+    const companyAddress = cfg.address || cfg.companyAddress || '';
+
+    let logoSrc = cfg.logoBase64 || cfg.logo || '';
+    if (!logoSrc) {
+        const headerLogo = document.querySelector('.company-logo, #hdr-c-logo, .brand-logo img');
+        if (headerLogo && headerLogo.src && !headerLogo.src.includes('placeholder')) {
+            logoSrc = headerLogo.src;
+        }
+    }
+    const logoHtml = logoSrc ? `<img src="${logoSrc}" style="max-height: 70px; max-width: 170px; object-fit: contain; border-radius: 8px;">` : `<div style="font-size: 20px; font-weight: 900; color: #0f172a; line-height: 1.2;">${companyName}</div>`;
+
+    const fromAccName = resolveAccountDisplayName(voucher.fromAccount, true);
+    const toAccName = resolveAccountDisplayName(voucher.toAccount, false);
+    const contact = getVoucherContactDetails(voucher.toAccount);
+    const contactPhone = contact?.phone || contact?.whatsapp || '';
+
+    const amtLocal = parseNum(voucher.amountLocal);
+    const currency = voucher.currency || 'SDG';
+    const tafqeetText = window.formatArabicTafqeet(amtLocal, currency);
+    const isForeign = currency !== 'SDG' && parseNum(voucher.amountForeign) > 0;
+
+    const barcodeSvg = window.generateBarcodeSVG(voucher.id);
+    const qrPlaceholder = qrDataUrl || `https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=1&data=${encodeURIComponent('VOUCHER:' + voucher.id)}`;
+
+    let methodLabel = 'نقداً عبر الخزينة';
+    if (voucher.paymentMethod === 'mobile') methodLabel = 'تحويل بنكي / مصرفي (Bank Transfer)';
+    else if (voucher.paymentMethod === 'check') methodLabel = 'شيك مصرفي (Bank Cheque)';
+    else if (voucher.paymentMethod === 'hybrid') methodLabel = 'سداد هجين (تحويل مصرفي + شيك)';
+    else if (voucher.paymentMethod === 'card') methodLabel = 'بطاقة بنكية (Bank Card)';
+
+    // Bank Transfers Table
+    let transfers = voucher.bankTransfers || [];
+    if (transfers.length === 0 && voucher.mobileTransferNo) {
+        transfers = [{ transferNo: voucher.mobileTransferNo, note: voucher.mobileNote || '', amount: amtLocal, statement: '' }];
+    }
+    let transfersHtml = '';
+    if (transfers.length > 0) {
+        let trRows = transfers.map((tr, i) => `
+            <tr style="border-bottom: 1px solid #e2e8f0; font-size: 0.85rem;">
+                <td style="padding: 6px 10px; text-align: center; color: #64748b; font-weight: bold;">${i + 1}</td>
+                <td style="padding: 6px 10px; font-family: monospace; font-size: 0.95rem; font-weight: 900; color: #0f766e;" dir="ltr">${tr.transferNo || '—'}</td>
+                <td style="padding: 6px 10px; font-weight: 800; color: #1e293b;">${tr.note || 'تحويل مصرفي'}</td>
+                <td style="padding: 6px 10px; font-weight: 900; color: #047857; text-align: left;" dir="ltr">${fmtNum(tr.amount)} SDG</td>
+                <td style="padding: 6px 10px; color: #475569;">${tr.statement || '—'}</td>
+            </tr>
+        `).join('');
+
+        transfersHtml = `
+            <div style="margin-bottom: 12px; border: 1.5px solid #0d9488; border-radius: 8px; overflow: hidden;">
+                <div style="background: linear-gradient(90deg, #0f766e, #115e59); color: #fff; padding: 6px 12px; font-size: 0.85rem; font-weight: 900; display: flex; justify-content: space-between; align-items: center;">
+                    <span>💳 تفاصيل التحويلات البنكية المصرفية:</span>
+                    <span style="font-size: 0.72rem; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px;">عمليات معتمدة ✅</span>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; background: #f0fdfa;">
+                    <thead>
+                        <tr style="background: #ccfbf1; color: #0f766e; font-size: 0.8rem; font-weight: 900; border-bottom: 1.5px solid #0d9488;">
+                            <th style="padding: 5px 10px; width: 5%; text-align: center;">#</th>
+                            <th style="padding: 5px 10px; width: 28%; text-align: right;">رقم التحويلة / الإشعار</th>
+                            <th style="padding: 5px 10px; width: 25%; text-align: right;">البنك / المحفظة</th>
+                            <th style="padding: 5px 10px; width: 22%; text-align: left;">المبلغ المحول</th>
+                            <th style="padding: 5px 10px; width: 20%; text-align: right;">البيان</th>
+                        </tr>
+                    </thead>
+                    <tbody>${trRows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    // Cheques Table
+    let cheques = voucher.cheques || [];
+    if (cheques.length === 0 && voucher.checkNo) {
+        cheques = [{ checkNo: voucher.checkNo, checkBranch: voucher.checkBranch || '', checkDate: voucher.checkDate || '', amount: amtLocal, statement: '' }];
+    }
+    let chequesHtml = '';
+    if (cheques.length > 0) {
+        let chRows = cheques.map((ch, i) => `
+            <tr style="border-bottom: 1px solid #e2e8f0; font-size: 0.85rem;">
+                <td style="padding: 6px 10px; text-align: center; color: #64748b; font-weight: bold;">${i + 1}</td>
+                <td style="padding: 6px 10px; font-family: monospace; font-size: 0.95rem; font-weight: 900; color: #b45309;" dir="ltr">${ch.checkNo || '—'}</td>
+                <td style="padding: 6px 10px; font-weight: 800; color: #1e293b;">${ch.checkBranch || '—'}</td>
+                <td style="padding: 6px 10px; font-weight: 700; color: #0f172a;" dir="ltr">${ch.checkDate || '—'}</td>
+                <td style="padding: 6px 10px; font-weight: 900; color: #b91c1c; text-align: left;" dir="ltr">${fmtNum(ch.amount)} SDG</td>
+                <td style="padding: 6px 10px; color: #475569;">${ch.statement || '—'}</td>
+            </tr>
+        `).join('');
+
+        chequesHtml = `
+            <div style="margin-bottom: 12px; border: 1.5px solid #d97706; border-radius: 8px; overflow: hidden;">
+                <div style="background: linear-gradient(90deg, #b45309, #92400e); color: #fff; padding: 6px 12px; font-size: 0.85rem; font-weight: 900; display: flex; justify-content: space-between; align-items: center;">
+                    <span>📑 تفاصيل الشيكات المصرفية المسحوبة:</span>
+                    <span style="font-size: 0.72rem; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px;">شيكات معتمدة ✅</span>
+                </div>
+                <table style="width: 100%; border-collapse: collapse; background: #fffbeb;">
+                    <thead>
+                        <tr style="background: #fef3c7; color: #92400e; font-size: 0.8rem; font-weight: 900; border-bottom: 1.5px solid #d97706;">
+                            <th style="padding: 5px 10px; width: 5%; text-align: center;">#</th>
+                            <th style="padding: 5px 10px; width: 22%; text-align: right;">رقم الشيك</th>
+                            <th style="padding: 5px 10px; width: 26%; text-align: right;">البنك / الفرع المسحوب عليه</th>
+                            <th style="padding: 5px 10px; width: 17%; text-align: right;">تاريخ الشيك</th>
+                            <th style="padding: 5px 10px; width: 18%; text-align: left;">قيمة الشيك</th>
+                            <th style="padding: 5px 10px; width: 12%; text-align: right;">البيان</th>
+                        </tr>
+                    </thead>
+                    <tbody>${chRows}</tbody>
+                </table>
+            </div>
+        `;
+    }
+
+    return `
+    <div class="disbursement-voucher-card" style="background:#ffffff; color:#0f172a; font-family:'Tajawal', 'Cairo', 'Segoe UI', Tahoma, sans-serif; direction:rtl; border:3px double #b91c1c; outline:1.5px solid #1e293b; border-radius:12px; padding:20px 24px; position:relative; box-sizing:border-box; width:100%; margin:0 auto; box-shadow:0 8px 25px rgba(0,0,0,0.08);">
+        
+        <!-- Header Row -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; border-bottom:2.5px solid #b91c1c; padding-bottom:12px; margin-bottom:14px; gap:10px;">
+            <!-- Right: Company -->
+            <div style="text-align:right; flex:1.2;">
+                <div style="font-size:1.35rem; font-weight:900; color:#0f172a; line-height:1.2;">${companyName}</div>
+                <div style="font-size:0.82rem; color:#b91c1c; font-weight:800; margin-top:2px;">الإدارة المالية والمصرفية • الحسابات المركزية</div>
+                <div style="font-size:0.78rem; color:#64748b; margin-top:3px;">
+                    ${companyAddress ? `<div>العنوان: ${companyAddress}</div>` : ''}
+                    ${companyPhone ? `<div>الهاتف: ${companyPhone}</div>` : ''}
+                </div>
+            </div>
+
+            <!-- Center: Title -->
+            <div style="text-align:center; flex:1.4;">
+                <div style="display:inline-block; margin:0 auto; min-width:280px; background:linear-gradient(135deg, #1e293b, #0f172a); border:2px solid #ef4444; border-radius:10px; padding:7px 20px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+                    <div style="color:#f87171; font-size:1.25rem; font-weight:900; letter-spacing:0.5px;">🏛️ سند صرف نقدية معتمد</div>
+                    <div style="color:#cbd5e1; font-size:0.76rem; font-weight:700; margin-top:2px;">PAYMENT & DISBURSEMENT VOUCHER</div>
+                </div>
+                <div style="font-size:0.74rem; color:#059669; font-weight:900; margin-top:4px;">وثيقة محاسبية رسمية معتمدة ومقيدة بالدفاتر المالية ✅</div>
+            </div>
+
+            <!-- Left: Voucher Meta, Barcode & QR -->
+            <div style="text-align:left; flex:1.3; display:flex; flex-direction:column; align-items:flex-end;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <div style="text-align:right;">
+                        <div style="font-size:0.70rem; color:#64748b; font-weight:800;">رقم السند المالي</div>
+                        <div style="font-family:monospace; font-size:1.20rem; font-weight:900; color:#b91c1c; direction:ltr;">#${voucher.id}</div>
+                        <div style="margin-top:2px;">${barcodeSvg}</div>
+                        <div style="font-size:0.76rem; color:#475569; font-weight:700; margin-top:2px;">
+                            <span>تاريخ التحرير: </span><b dir="ltr">${voucher.date}</b>
+                        </div>
+                    </div>
+                    <div style="width:64px; height:64px; border:1.5px solid #cbd5e1; border-radius:8px; padding:2px; background:#fff; flex-shrink:0; display:flex; align-items:center; justify-content:center;">
+                        <img src="${qrPlaceholder}" style="width:100%; height:100%; object-fit:contain; border-radius:6px;" alt="QR" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Accounts Grid (صرف من / صرف إلى) -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+            <!-- الصارف (من حساب) -->
+            <div style="background:linear-gradient(135deg, #fef2f2 0%, #fff 100%); border:1.5px solid #fca5a5; border-radius:8px; padding:10px 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.82rem; font-weight:900; color:#991b1b;">📤 صُرف من حساب (طرف الصرف / الخزينة أو البنك):</span>
+                    <span style="background:#ef4444; color:#fff; font-size:0.68rem; font-weight:900; padding:1px 7px; border-radius:6px;">الجهة الصارفة</span>
+                </div>
+                <div style="font-size:1.15rem; font-weight:900; color:#0f172a; margin-top:4px;">
+                    ${fromAccName}
+                </div>
+                ${voucher.fromStatement ? `<div style="font-size:0.78rem; color:#475569; margin-top:3px;">ملاحظات الصرف: ${voucher.fromStatement}</div>` : ''}
+            </div>
+
+            <!-- المستفيد (إلى حساب) -->
+            <div style="background:linear-gradient(135deg, #ecfdf5 0%, #fff 100%); border:1.5px solid #10b981; border-radius:8px; padding:10px 14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:0.82rem; font-weight:900; color:#065f46;">📥 صُرف وقُيد لحساب (المستفيد / المستلم):</span>
+                    <span style="background:#10b981; color:#fff; font-size:0.68rem; font-weight:900; padding:1px 7px; border-radius:6px;">الجهة المستلمة</span>
+                </div>
+                <div style="font-size:1.15rem; font-weight:900; color:#0f172a; margin-top:4px;">
+                    ${toAccName}
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:3px; font-size:0.78rem;">
+                    ${voucher.beneficiaryName ? `<span style="color:#0369a1; font-weight:800;">المستفيد الفعلي: <b>${voucher.beneficiaryName}</b></span>` : '<span></span>'}
+                    ${contactPhone ? `<span style="color:#059669; font-weight:800; font-family:monospace;" dir="ltr">📱 ${contactPhone}</span>` : ''}
+                </div>
+            </div>
+        </div>
+
+        <!-- Grand Financial Amount Card -->
+        <div style="background:linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border:2px solid #ef4444; border-radius:10px; padding:12px 18px; margin-bottom:12px; color:#ffffff; box-shadow:0 4px 14px rgba(15,23,42,0.12);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <div>
+                    <div style="color:#f87171; font-size:0.84rem; font-weight:800;">💰 المبلغ الإجمالي المعتمد والمنصرف:</div>
+                    <div style="font-size:2.1rem; font-weight:900; color:#34d399; font-family:monospace; letter-spacing:1px; margin-top:2px;" dir="ltr">
+                        ${fmtNum(amtLocal)} <span style="font-size:1.20rem; color:#fde047;">${currency}</span>
+                    </div>
+                    ${isForeign ? `
+                    <div style="font-size:0.82rem; color:#94a3b8; font-weight:700; margin-top:2px;">
+                        المبلغ الأجنبي: <b style="color:#38bdf8;">${fmtNum(voucher.amountForeign)} ${voucher.currency}</b> (سعر الصرف: ${voucher.rate || 1})
+                    </div>` : ''}
+                </div>
+                <div style="text-align:right; flex:1; max-width:480px;">
+                    <div style="color:#94a3b8; font-size:0.80rem; font-weight:800;">✍️ وقدره كتابةً بالحروف (تفقيط معتمد):</div>
+                    <div style="color:#fef08a; font-size:0.96rem; font-weight:900; line-height:1.45; margin-top:3px; background:rgba(255,255,255,0.08); padding:6px 12px; border-radius:6px; border:1px dashed rgba(251,191,36,0.5);">
+                        ${tafqeetText}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statement & Cost Center -->
+        <div style="background:#f8fafc; border:1.5px solid #cbd5e1; border-radius:8px; padding:8px 14px; margin-bottom:12px;">
+            <div style="display:flex; align-items:baseline; gap:8px;">
+                <span style="color:#334155; font-size:0.86rem; font-weight:900; white-space:nowrap;">📝 البيان والسبب:&nbsp;</span>
+                <span style="color:#0f172a; font-size:0.94rem; font-weight:800; flex:1; line-height:1.4;">${voucher.toStatement || 'سداد مستحقات مالية معتمدة وفق القيود الحسابية'}</span>
+            </div>
+            ${voucher.costCenter ? `
+            <div style="margin-top:4px; padding-top:4px; border-top:1px dashed #cbd5e1; font-size:0.80rem; color:#0369a1; font-weight:800;">
+                <span>🏷️ مركز التكلفة / المشروع:&nbsp;</span><b style="color:#0f172a;">${voucher.costCenter}</b>
+            </div>` : ''}
+        </div>
+
+        <!-- Payment Method Overview -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:8px; padding:6px 14px; margin-bottom:12px; font-size:0.85rem;">
+            <div>
+                <span style="color:#475569; font-weight:800;">طريقة السداد المعتمدة:&nbsp;</span>
+                <b style="color:#0f172a; font-weight:900;">${methodLabel}</b>
+            </div>
+            <div style="color:#059669; font-weight:800;">
+                قيد مالي موثق ومسجل بنظام الحسابات ✅
+            </div>
+        </div>
+
+        <!-- Transfers Table if any -->
+        ${transfersHtml}
+
+        <!-- Cheques Table if any -->
+        ${chequesHtml}
+
+        <!-- Legal Promissory Statement -->
+        <div style="background:#fffbeb; border:1.5px solid #f59e0b; border-radius:8px; padding:8px 14px; margin-bottom:14px;">
+            <div style="font-size:0.86rem; color:#78350f; font-weight:800; line-height:1.45;">
+                📜 <b>صيغة الإقرار المالي:&nbsp;</b>أقر وأعترف بأننا قيدنا وصرفنا من حسابنا المبلغ المبيّن أعلاه لصالح المكرم <b>(${toAccName})</b>، وذلك بموجب القيود الحسابية الرسمية المعتمدة بنظام الحسابات العامة.
+            </div>
+        </div>
+
+        <!-- Signatures & Stamp -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; padding-top:10px; border-top:2px solid #cbd5e1; margin-top:10px;">
+            <!-- Recipient -->
+            <div style="text-align:center; flex:1;">
+                <div style="font-size:0.82rem; color:#475569; font-weight:900;">المستلم / صاحب الحساب</div>
+                <div style="margin:8px auto 4px auto; width:90px; height:1.5px; background:#94a3b8;"></div>
+                <div style="font-size:0.75rem; color:#0369a1; font-weight:800;">${voucher.beneficiaryName || toAccName}</div>
+            </div>
+
+            <!-- Official Stamp -->
+            <div style="text-align:center; flex:1.2;">
+                <div style="display:inline-block; width:76px; height:76px; border:2.5px solid #b91c1c; border-radius:50%; padding:2px; background:rgba(254,242,242,0.6); transform:rotate(-6deg); box-shadow:0 0 0 2px #fff, 0 0 0 4px #b91c1c;">
+                    <div style="width:100%; height:100%; border:1px dashed #b91c1c; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
+                        <div style="font-size:0.56rem; color:#b91c1c; font-weight:900;">🏛️ الإدارة المالية</div>
+                        <div style="font-size:0.66rem; color:#991b1b; font-weight:900; margin:1px 0;">معتمد وصُرف</div>
+                        <div style="font-size:0.56rem; color:#059669; font-weight:900;">إلكترونياً ✅</div>
+                        <div style="font-size:0.50rem; color:#64748b; margin-top:1px;">${voucher.date}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accountant -->
+            <div style="text-align:center; flex:1;">
+                <div style="font-size:0.82rem; color:#475569; font-weight:900;">المحاسب المالي (معد السند)</div>
+                <div style="margin:8px auto 4px auto; width:90px; height:1.5px; background:#94a3b8;"></div>
+                <div style="font-size:0.75rem; color:#059669; font-weight:800;">قيد آلي نظامي</div>
+            </div>
+
+            <!-- Manager -->
+            <div style="text-align:center; flex:1;">
+                <div style="font-size:0.82rem; color:#475569; font-weight:900;">المدير المالي / الاعتماد</div>
+                <div style="margin:8px auto 4px auto; width:90px; height:1.5px; background:#94a3b8;"></div>
+                <div style="font-size:0.75rem; color:#0f172a; font-weight:800;">إجازة وصرف معتمد</div>
+            </div>
+        </div>
+
+        <!-- Security Stripe -->
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #cbd5e1; padding-top:6px; margin-top:10px; font-size:0.70rem; color:#64748b; font-weight:800;">
+            <div>VERIFICATION: <span style="font-family:monospace; color:#0f172a; font-weight:900;">#DOC-${voucher.id}-${String(voucher.date).replace(/-/g, '')}</span></div>
+            <div>وثيقة مالية معتمدة ومقيدة بالنظام المحاسبي العام ELSAJANA ERP 🔒</div>
+        </div>
+    </div>
+    `;
+};
+
+// ═══ Build Voucher Print HTML (Unified for Preview and Print) ═══
 function buildVoucherPrintHTML() {
     let printWrapper = document.getElementById('voucher-print-wrapper');
     let printArea = document.getElementById('voucher-print-area');
@@ -1586,160 +2127,23 @@ function buildVoucherPrintHTML() {
         printWrapper.appendChild(printArea);
     }
     
-    // Get Company Settings
-    let cfg = {};
-    try {
-        cfg = JSON.parse(localStorage.getItem('erp_company_settings')) || {};
-    } catch(e) {}
-    
-    const vCompany = cfg.companyName || document.getElementById('header-company-name-top')?.innerText || 'مقاييس (MAGAIEES)';
-    const logoData = cfg.logoBase64 || '';
-    const logoHtml = logoData ? `<img src="${logoData}" style="max-height: 80px; max-width: 180px; object-fit: contain; border-radius: 8px;">` : `<div style="font-size:24px; font-weight:900; color:#0f172a;">${vCompany}</div>`;
-    
-    // Gather values
-    const vDate = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : '';
-    const vNo = document.getElementById('voucher-number') ? document.getElementById('voucher-number').innerText : '';
-    const vUser = document.getElementById('header-user-name') ? document.getElementById('header-user-name').innerText : '';
-    const vAmount = document.getElementById('amount-local') ? document.getElementById('amount-local').value : '';
-    
-    const vCurSelect = document.getElementById('currency');
-    const vCurrency = vCurSelect && vCurSelect.selectedIndex > -1 ? vCurSelect.options[vCurSelect.selectedIndex].text : '';
-    
-    const vRate = document.getElementById('exchange-rate') ? document.getElementById('exchange-rate').value : '';
-    const vValue = document.getElementById('amount-foreign') ? document.getElementById('amount-foreign').value : '';
-    
-    const fromInput = document.getElementById('from-account-search');
-    const vFrom = fromInput ? fromInput.value : '';
-    
-    const toInput = document.getElementById('to-account-search');
-    const vTo = toInput ? toInput.value : '';
-    
-    const vBeneficiary = document.getElementById('beneficiary-name') ? document.getElementById('beneficiary-name').value : '';
-    const vStatement = document.getElementById('to-statement') ? document.getElementById('to-statement').value : '';
-    
-    const payMethodEl = document.querySelector('input[name="payment_method"]:checked');
-    let vMethod = 'نقدي';
-    if(payMethodEl) {
-        if(payMethodEl.id === 'pay-cash') vMethod = 'نقدي';
-        else if(payMethodEl.id === 'pay-check') vMethod = 'شيك';
-        else if(payMethodEl.id === 'pay-transfer') vMethod = 'تحويل بنكي';
-        else if(payMethodEl.id === 'pay-card') vMethod = 'بطاقة بنكية';
+    let voucher = null;
+    if (currentViewedIndex !== -1 && singlePaymentsData && singlePaymentsData[currentViewedIndex]) {
+        voucher = singlePaymentsData[currentViewedIndex];
     }
-
-    const premiumHtml = `
-<div class="voucher-print" style="direction: rtl; font-family: 'Tajawal', 'Cairo', sans-serif; background: #fff; color: #0f172a; padding: 20px;">
+    if (!voucher) {
+        voucher = buildVoucherFromCurrentForm();
+    }
     
-    <!-- Header with Logo -->
-    <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #e2e8f0; padding-bottom: 20px; margin-bottom: 30px;">
-        <div style="text-align: right; width: 33%;">
-            <h2 style="margin: 0; font-size: 22px; font-weight: 900; color: #1e293b;">${vCompany}</h2>
-            <div style="color: #64748b; font-size: 14px; margin-top: 5px;">نظام إدارة الأعمال المتكامل</div>
-        </div>
-        <div style="text-align: center; width: 33%;">
-            <div style="display: inline-block; padding: 10px 25px; border: 2px solid #0f172a; border-radius: 12px; background: #f8fafc;">
-                <h3 style="margin: 0; font-size: 24px; font-weight: 900; color: #0f172a;">سند صرف نقدية</h3>
-                <div style="font-size: 14px; font-weight: bold; color: #b91c1c; margin-top: 4px;">حركة مالية</div>
-            </div>
-        </div>
-        <div style="text-align: left; width: 33%; display: flex; justify-content: flex-end;">
-            ${logoHtml}
-        </div>
-    </div>
+    const qrPayload = `DOC:VOUCHER|NO:${voucher.id}|DATE:${voucher.date}|AMT:${voucher.amountLocal}SDG`;
+    const qrPlaceholder = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=1&data=${encodeURIComponent(qrPayload)}`;
     
-    <!-- Meta Data Grid -->
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between; background: #f1f5f9; border-radius: 12px; padding: 20px; margin-bottom: 30px; border: 1px solid #cbd5e1;">
-        <div style="width: 30%; margin-bottom: 10px;">
-            <div style="font-size: 12px; color: #64748b; font-weight: bold;">رقم المستند</div>
-            <div style="font-size: 18px; font-weight: 900; color: #b91c1c; font-family: monospace;">${vNo}</div>
-        </div>
-        <div style="width: 30%; margin-bottom: 10px;">
-            <div style="font-size: 12px; color: #64748b; font-weight: bold;">التاريخ</div>
-            <div style="font-size: 16px; font-weight: bold; color: #0f172a;">${vDate}</div>
-        </div>
-        <div style="width: 30%; margin-bottom: 10px;">
-            <div style="font-size: 12px; color: #64748b; font-weight: bold;">المستخدم المستخرج</div>
-            <div style="font-size: 16px; font-weight: bold; color: #0f172a;">${vUser}</div>
-        </div>
-    </div>
-    
-    <!-- Financial Values -->
-    <div style="display: flex; justify-content: space-between; border-radius: 12px; border: 2px solid #0ea5e9; overflow: hidden; margin-bottom: 30px;">
-        <div style="flex: 1; text-align: center; padding: 15px; background: rgba(14, 165, 233, 0.1);">
-            <div style="font-size: 14px; color: #0284c7; font-weight: bold; margin-bottom: 5px;">المبلغ (محلي)</div>
-            <div style="font-size: 28px; font-weight: 900; color: #0f172a;">${vAmount}</div>
-        </div>
-        <div style="width: 1px; background: #0ea5e9;"></div>
-        <div style="flex: 1; text-align: center; padding: 15px;">
-            <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 5px;">العملة</div>
-            <div style="font-size: 20px; font-weight: bold; color: #0f172a;">${vCurrency}</div>
-        </div>
-        <div style="width: 1px; background: #0ea5e9;"></div>
-        <div style="flex: 1; text-align: center; padding: 15px;">
-            <div style="font-size: 14px; color: #64748b; font-weight: bold; margin-bottom: 5px;">سعر التعادل</div>
-            <div style="font-size: 20px; font-weight: bold; color: #0f172a;">${vRate}</div>
-        </div>
-        <div style="width: 1px; background: #0ea5e9;"></div>
-        <div style="flex: 1; text-align: center; padding: 15px; background: rgba(245, 158, 11, 0.1);">
-            <div style="font-size: 14px; color: #d97706; font-weight: bold; margin-bottom: 5px;">القيمة (أجنبي)</div>
-            <div style="font-size: 20px; font-weight: 900; color: #0f172a;">${vValue}</div>
-        </div>
-    </div>
-
-    <!-- Accounts Info -->
-    <div style="margin-bottom: 40px;">
-        <h4 style="font-size: 18px; color: #1e293b; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; margin-bottom: 20px;">تفاصيل الحسابات</h4>
-        
-        <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
-            <tr>
-                <td style="width: 25%; padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; font-weight: bold; color: #475569;">من حساب (الصرف):</td>
-                <td style="padding: 15px; border: 1px solid #e2e8f0; border-right: none; border-radius: 8px 0 0 8px; font-weight: 900; font-size: 18px; color: #1d4ed8;">${vFrom}</td>
-            </tr>
-            <tr>
-                <td style="padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; font-weight: bold; color: #475569;">إلى حساب (الاستلام):</td>
-                <td style="padding: 15px; border: 1px solid #e2e8f0; border-right: none; border-radius: 8px 0 0 8px; font-weight: 900; font-size: 18px; color: #047857;">${vTo}</td>
-            </tr>
-            <tr>
-                <td style="padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; font-weight: bold; color: #475569;">اسم المستفيد:</td>
-                <td style="padding: 15px; border: 1px solid #e2e8f0; border-right: none; border-radius: 8px 0 0 8px; font-size: 16px; color: #0f172a;">${vBeneficiary || '—'}</td>
-            </tr>
-            <tr>
-                <td style="padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; font-weight: bold; color: #475569;">طريقة الدفع:</td>
-                <td style="padding: 15px; border: 1px solid #e2e8f0; border-right: none; border-radius: 8px 0 0 8px; font-size: 16px; color: #0f172a;">
-                    <span style="display: inline-block; padding: 4px 12px; background: #e0e7ff; color: #4338ca; border-radius: 6px; font-weight: bold;">${vMethod}</span>
-                </td>
-            </tr>
-            <tr>
-                <td style="padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 8px 8px 0; font-weight: bold; color: #475569;">البيان / الملاحظات:</td>
-                <td style="padding: 15px; border: 1px solid #e2e8f0; border-right: none; border-radius: 8px 0 0 8px; font-size: 16px; color: #0f172a;">${vStatement || '—'}</td>
-            </tr>
-        </table>
-    </div>
-
-    <!-- Signatures -->
-    <div style="display: flex; justify-content: space-around; margin-top: 60px; padding-top: 30px; border-top: 1px dashed #cbd5e1;">
-        <div style="text-align: center; width: 25%;">
-            <div style="height: 60px;"></div>
-            <hr style="border-top: 2px solid #94a3b8; margin-bottom: 10px;">
-            <strong style="color: #475569;">توقيع المستلم</strong>
-        </div>
-        <div style="text-align: center; width: 25%;">
-            <div style="height: 60px;"></div>
-            <hr style="border-top: 2px solid #94a3b8; margin-bottom: 10px;">
-            <strong style="color: #475569;">توقيع المحاسب</strong>
-        </div>
-        <div style="text-align: center; width: 25%;">
-            <div style="height: 60px;"></div>
-            <hr style="border-top: 2px solid #94a3b8; margin-bottom: 10px;">
-            <strong style="color: #475569;">الاعتماد</strong>
-        </div>
-    </div>
-</div>
-    `;
+    const premiumHtml = window.generateVoucherDocumentHTML(voucher, qrPlaceholder);
     
     printArea.innerHTML = premiumHtml;
     
     const previewPaper = document.getElementById('premium-voucher-paper');
-    if(previewPaper) {
+    if (previewPaper) {
         previewPaper.innerHTML = premiumHtml;
     }
 }
@@ -2218,8 +2622,8 @@ function getVoucherContactDetails(accountId) {
 
 async function sendVoucherWA(voucherId) {
     try {
-        const userId = typeof getWAUserId === 'function' ? getWAUserId() : localStorage.getItem('erp_wa_user_id');
-        const res = await fetch(`http://localhost:3001/wa/status?userId=${userId}`);
+        const userId = typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12'));
+        const res = await fetch(`api_index.php?r=wa-tenant&endpoint=status&userId=${userId}`);
         const data = await res.json();
         
         if (data.status !== 'CONNECTED' && data.status !== 'AUTHENTICATED') {
@@ -2238,11 +2642,20 @@ async function sendVoucherWA(voucherId) {
         return;
     }
 
-    const voucher = singlePaymentsData.find(x => String(x.id) === String(voucherId));
-    if (!voucher) { alert('لم يتم العثور على السند'); return; }
+    let voucher = (singlePaymentsData || []).find(x => String(x.id).trim().toLowerCase() === String(voucherId).trim().toLowerCase());
+    if (!voucher && typeof window.getAllSinglePayments === 'function') {
+        voucher = window.getAllSinglePayments().find(x => String(x.id).trim().toLowerCase() === String(voucherId).trim().toLowerCase());
+    }
+    if (!voucher && typeof buildVoucherFromCurrentForm === 'function') {
+        voucher = buildVoucherFromCurrentForm(voucherId);
+    }
+    if (!voucher || !voucher.id) {
+        showToast('لم يتم العثور على بيانات السند', 'error');
+        return;
+    }
 
     let defaultPhone = '';
-    let accountName = voucher.beneficiaryName || 'مورد غير محدد';
+    let accountName = voucher.beneficiaryName || '';
     let accountTypeLabel = 'المستفيد';
 
     const contact = getVoucherContactDetails(voucher.toAccount);
@@ -2250,6 +2663,9 @@ async function sendVoucherWA(voucherId) {
         defaultPhone = contact.whatsapp || contact.phone || '';
         accountName = contact.name || accountName;
         accountTypeLabel = contact.type === 'customer' ? 'العميل' : 'المورد';
+    }
+    if (!accountName) {
+        accountName = resolveAccountDisplayName(voucher.toAccount, false) || 'الجهة المستلمة';
     }
 
     const phone = await new Promise((resolve) => {
@@ -2354,142 +2770,96 @@ async function sendVoucherWA(voucherId) {
 
     if (!phone) return;
 
+    showToast('⏳ جاري تجهيز وتوليد سند الصرف بصيغة PDF للواتساب...', 'info', 3000);
+
     let cfg = {};
-    try { cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) {}
-    
-    const companyName = cfg.companyName || 'اسم الشركة غير مسجل';
-    const companyPhone = cfg.phone || '';
-    const companyAddress = cfg.address || '';
-    
-    let logoSrc = cfg.logoBase64 || '';
-    if (!logoSrc) {
-        const headerLogo = document.querySelector('.company-logo, #hdr-c-logo');
-        if (headerLogo && headerLogo.src && !headerLogo.src.includes('placeholder')) {
-            logoSrc = headerLogo.src;
+    try {
+        cfg = JSON.parse(localStorage.getItem('erp_company_settings') || localStorage.getItem('erp_settings_v1') || '{}');
+    } catch(e) {}
+    const companyName = cfg.companyName || document.getElementById('header-company-name-top')?.innerText?.trim() || 'شركة السجانة التجارية';
+
+    const toAccName = resolveAccountDisplayName(voucher.toAccount, false);
+    const qrPayload = `DOC:VOUCHER|NO:${voucher.id}|DATE:${voucher.date}|AMT:${voucher.amountLocal}SDG|TO:${toAccName}`;
+    const qrDataUrl = await getVoucherQRCode(qrPayload);
+
+    const voucherHtml = window.generateVoucherDocumentHTML(voucher, qrDataUrl);
+
+    const renderWrapper = document.createElement('div');
+    renderWrapper.style.position = 'fixed';
+    renderWrapper.style.top = '0';
+    renderWrapper.style.left = '0';
+    renderWrapper.style.width = '794px';
+    renderWrapper.style.zIndex = '-99999';
+    renderWrapper.style.overflow = 'visible';
+    renderWrapper.style.pointerEvents = 'none';
+    renderWrapper.style.opacity = '1'; // Must be 1 so html2canvas renders with full opacity!
+    renderWrapper.style.background = '#ffffff';
+
+    const innerDiv = document.createElement('div');
+    innerDiv.style.width = '794px';
+    innerDiv.style.background = '#ffffff';
+    innerDiv.style.margin = '0';
+    innerDiv.style.padding = '0';
+    innerDiv.innerHTML = voucherHtml;
+
+    renderWrapper.appendChild(innerDiv);
+    document.body.appendChild(renderWrapper);
+
+    let pdfBlob = null;
+    try {
+        await new Promise(r => setTimeout(r, 150));
+        if (typeof html2pdf !== 'undefined') {
+            const opt = {
+                margin: [5, 5, 5, 5],
+                filename: `سند_صرف_${voucher.id}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 2, 
+                    useCORS: true, 
+                    letterRendering: false, 
+                    logging: false,
+                    scrollX: 0,
+                    scrollY: 0
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            pdfBlob = await html2pdf().set(opt).from(innerDiv).output('blob');
+        }
+    } catch (e) {
+        console.error("Error creating PDF blob:", e);
+    } finally {
+        if (renderWrapper.parentNode) {
+            renderWrapper.parentNode.removeChild(renderWrapper);
         }
     }
-    const logoImg = logoSrc ? `<img src="${logoSrc}" style="max-height:80px; max-width:200px; object-fit:contain;">` : '';
 
-    const companyHeaderHtml = `
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px;">
-            <div style="text-align: right;">
-                <h1 style="margin: 0; font-size: 1.5rem;">${companyName}</h1>
-                <div style="font-size: 0.9rem; color: #555; margin-top: 5px;">
-                    ${companyAddress ? `<div>العنوان: ${companyAddress}</div>` : ''}
-                    ${companyPhone ? `<div>الهاتف: ${companyPhone}</div>` : ''}
-                </div>
-            </div>
-            <div>
-                ${logoImg}
-            </div>
-        </div>
-    `;
-
-    const printContainer = document.createElement('div');
-    printContainer.style.position = 'fixed';
-    printContainer.style.top = '0';
-    printContainer.style.left = '0';
-    printContainer.style.width = '700px';
-    printContainer.style.zIndex = '-99999';
-    printContainer.style.opacity = '0.01';
-    printContainer.style.pointerEvents = 'none';
-    printContainer.style.background = '#fff';
-    printContainer.style.color = '#000';
-    printContainer.style.padding = '30px';
-
-    const fromAccName = getAccountName(voucher.fromAccount || 'safe-001');
-    const toAccName = getAccountName(voucher.toAccount || '');
-
-    const htmlContent = `
-        <html dir="rtl" lang="ar">
-        <head>
-            <style>
-                body { font-family: 'Tajawal', sans-serif; background: #fff; color: #000; direction: rtl; }
-                .voucher-card { border: 2px solid #333; border-radius: 12px; padding: 25px; margin-top: 10px; }
-                .voucher-title { text-align: center; margin: 15px 0; color: #ef4444; font-size: 1.8rem; font-weight: 800; border-bottom: 2px dashed #ddd; padding-bottom: 10px; }
-                .meta-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-                .meta-table td { padding: 12px; border: 1px solid #eee; text-align: right; font-size: 1rem; }
-                .meta-table td.label { font-weight: bold; background: #f9fafb; width: 30%; }
-                .amount-highlight { font-size: 1.4rem; font-weight: bold; color: #ef4444; }
-                .signatures-section { display: flex; justify-content: space-between; margin-top: 50px; border-top: 1px solid #ddd; padding-top: 20px; }
-                .sig-box { width: 30%; text-align: center; font-size: 0.9rem; }
-                .sig-line { border-bottom: 1px solid #777; margin-bottom: 8px; height: 30px; }
-            </style>
-        </head>
-        <body>
-            ${companyHeaderHtml}
-            <div class="voucher-card">
-                <div class="voucher-title">سند صرف نقدى</div>
-                <table class="meta-table">
-                    <tr>
-                        <td class="label">رقم السند:</td>
-                        <td><strong>#${voucher.id}</strong></td>
-                        <td class="label">التاريخ:</td>
-                        <td><strong>${voucher.date}</strong></td>
-                    </tr>
-                    <tr>
-                        <td class="label">صرف إلى:</td>
-                        <td colspan="3">${toAccName}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">المبلغ:</td>
-                        <td colspan="3" class="amount-highlight">${fmtNum(voucher.amountLocal)} SDG</td>
-                    </tr>
-                    ${voucher.currency && voucher.currency !== 'SDG' ? `
-                    <tr>
-                        <td class="label">المبلغ بالعملة الأجنبية:</td>
-                        <td colspan="3">${fmtNum(voucher.amountForeign)} ${voucher.currency} (السعر: ${voucher.rate})</td>
-                    </tr>
-                    ` : ''}
-                    <tr>
-                        <td class="label">وذلك لـ:</td>
-                        <td colspan="3">${voucher.toStatement || '—'}</td>
-                    </tr>
-                    <tr>
-                        <td class="label">طريقة الدفع:</td>
-                        <td>${voucher.paymentMethod === 'mobile' ? 'تحويل موبايل' : (voucher.paymentMethod === 'check' ? 'شيك' : 'نقداً')}</td>
-                        <td class="label">المستفيد:</td>
-                        <td>${voucher.beneficiaryName || '—'}</td>
-                    </tr>
-                </table>
-                <div class="signatures-section">
-                    <div class="sig-box">
-                        <div class="sig-line"></div>
-                        <span>توقيع المستلم</span>
-                    </div>
-                    <div class="sig-box">
-                        <div class="sig-line"></div>
-                        <span>توقيع المعتمد</span>
-                    </div>
-                    <div class="sig-box">
-                        <div class="sig-line"></div>
-                        <span>توقيع المحاسب</span>
-                    </div>
-                </div>
-            </div>
-        </body>
-        </html>
-    `;
-    printContainer.innerHTML = htmlContent;
-    document.body.appendChild(printContainer);
-
-    const message = 'مرحباً، مرفق سند الصرف الخاص بكم رقم ' + voucherId + ' بقيمة ' + fmtNum(voucher.amountLocal) + ' SDG.';
+    const message = `مرحباً، مرفق سند الصرف المعتمد رقم ${voucher.id} بقيمة ${fmtNum(voucher.amountLocal)} SDG الصادر من ${companyName}. شكراً لتعاملكم معنا!`;
     
     if (typeof sendPDFViaWhatsApp === 'function') {
-        await sendPDFViaWhatsApp(printContainer, phone, message);
+        if (pdfBlob) {
+            await sendPDFViaWhatsApp(pdfBlob, phone, message);
+        } else {
+            await sendPDFViaWhatsApp(innerDiv, phone, message);
+        }
     } else {
         showToast('برنامج ربط الواتساب غير متوفر في هذه الصفحة', 'error');
     }
-    
-    printContainer.remove();
 }
 
 async function sendCurrentVoucherWA() {
-    if (currentViewedIndex !== -1) {
-        const v = singlePaymentsData[currentViewedIndex];
-        if (v) await sendVoucherWA(v.id);
+    let voucherId = null;
+    if (currentViewedIndex !== -1 && singlePaymentsData && singlePaymentsData[currentViewedIndex]) {
+        voucherId = singlePaymentsData[currentViewedIndex].id;
     } else {
-        showToast('⚠️ يرجى حفظ وتأكيد السند أولاً', 'warning');
+        const vNoEl = document.getElementById('voucher-number');
+        if (vNoEl && vNoEl.innerText && vNoEl.innerText.trim()) {
+            voucherId = vNoEl.innerText.trim();
+        }
+    }
+    if (voucherId) {
+        await sendVoucherWA(voucherId);
+    } else {
+        showToast('⚠️ يرجى إدخال أو حفظ السند أولاً قبل الإرسال', 'warning');
     }
 }
 

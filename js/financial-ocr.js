@@ -31,6 +31,11 @@
         loadingStartTime: 0,
         isStreamingInBackground: false,
         totalFilesCount: 0,
+        goldenAutoRefreshTimer: null,
+        isAutoRefreshingGolden: false,
+        reconciliationTarget: 0,
+        isFocusMode: false,
+        maxReceiptAgeDays: 30,
 
         // 1. Open Scanner
         openScanner(options = {}) {
@@ -230,10 +235,18 @@
                         return;
                     }
 
-                    // Direct scan & auto-fill
+                    const reviewModal = document.getElementById('financial-ocr-review-modal');
+                    const isReviewOpen = (reviewModal && reviewModal.style.display === 'flex');
+
+                    // Direct scan & auto-fill / append to active batch
                     this.activeContext = Object.assign({ target: 'multi', blockId: null, docHint: 'auto' }, this.activeContext || {});
                     this.handleFileSelected({ files: newFiles });
-                    this.showToast(`✅ تم التقاط ${newFiles.length} ${newFiles.length === 1 ? 'إشعار' : 'إشعارات'} من الواتساب وبدء التفريغ الفوري!`, 'success');
+
+                    if (isReviewOpen) {
+                        this.showToast(`📋 تم التقاط ${newFiles.length} ${newFiles.length === 1 ? 'إشعار' : 'إشعارات'} من الحافظة (Ctrl+V) وإضافتها للدفعة الحالية!`, 'success');
+                    } else {
+                        this.showToast(`📋 تم التقاط ${newFiles.length} ${newFiles.length === 1 ? 'إشعار' : 'إشعارات'} من الحافظة (Ctrl+V) وبدء التفريغ الفوري!`, 'success');
+                    }
                 }
             });
         },
@@ -719,7 +732,7 @@
             if (text) text.textContent = `جاري استكمال مسح بقية المستندات في الخلفية (${currentCount} من ${totalCount})... ⚡`;
         },
 
-        // 3. Handle File Selected (Option B: First 4 immediate + remaining background streaming)
+        // 3. Handle File Selected (Turbo Parallel Batch Engine - Max Speed)
         async handleFileSelected(input) {
             const files = input.files ? Array.from(input.files) : [];
             try { input.value = ''; } catch (e) {} // Reset so selecting the same file again triggers onchange
@@ -729,23 +742,20 @@
             this.totalFilesCount = total;
             const initialBatchSize = Math.min(4, total);
 
-            this.showLoading(true, `جاري مسح أول ${initialBatchSize} ${initialBatchSize === 1 ? 'مستند' : 'مستندات'} بالرؤية الحاسوبية فائقة السرعة...`, 0, initialBatchSize);
+            this.showLoading(true, `جاري مسح أول ${initialBatchSize} ${initialBatchSize === 1 ? 'مستند' : 'مستندات'} بالذكاء الاصطناعي فائق السرعة... ⚡`, 0, initialBatchSize, false);
 
             try {
-                // Step 1: Immediately compress ONLY the initial batch (up to 4) for super-fast screen opening!
-                // Compressing 27 files upfront locked the browser UI thread; compressing 4 files takes only ~150ms.
+                // Step 1: Immediately compress the initial batch in parallel
                 const firstFiles = files.slice(0, initialBatchSize);
                 const remainingFiles = files.slice(initialBatchSize);
 
                 const firstChunk = await Promise.all(firstFiles.map(f => this.compressImage(f)));
 
-                // Step 2: Scan the first 4 documents with an optimized rapid stagger delay (300ms)
+                // Step 2: Scan the initial documents with a smooth stagger to avoid burst rate limits
                 let completedCount = 0;
                 const scanPromises = firstChunk.map(async (item, idx) => {
-                    if (idx > 0) {
-                        await new Promise(r => setTimeout(r, idx * 300));
-                    }
-                    const extracted = await this.requestOCRData(item.base64);
+                    if (idx > 0) await new Promise(r => setTimeout(r, idx * 220));
+                    const extracted = await this.requestOCRData(item.base64, 0, 0, false, false);
                     completedCount++;
                     const percent = Math.round((completedCount / initialBatchSize) * 100);
                     this.updateLoadingProgress(percent, completedCount, initialBatchSize);
@@ -782,32 +792,34 @@
                     if (unclearInitial.length > 0) {
                         this.showToast(`⚠️ تنبيه: المستند رقم #${unclearInitial.join(' و #')} المبلغ غير واضح، يرجى إدخاله يدوياً.`, 'warning');
                     } else if (total > initialBatchSize) {
-                        this.showToast(`⚡ تم مسح أول ${firstResults.length} مستندات بنجاح والشاشة مفتوحة الآن، والبقية تنزل تلقائياً في الخلفية!`, 'success');
+                        this.showToast(`⚡ تم مسح أول ${firstResults.length} مستندات بنجاح والشاشة مفتوحة، والبقية تنزل بالتوازي في الخلفية!`, 'success');
                     } else {
-                        this.showToast(`⚡ تم فحص ${this.batchItems.length} ${this.batchItems.length === 1 ? 'مستند' : 'مستندات'} بنجاح!`, 'success');
+                        this.showToast(`⚡ تم فحص ${this.batchItems.length} ${this.batchItems.length === 1 ? 'مستند' : 'مستندات'} بنجاح فائق!`, 'success');
                         this.checkBatchAuditAlerts();
                     }
+                    this.triggerGoldenAutoRefresh();
                 }
 
-                // Step 4: Background Stream the remaining documents (5 to N) smoothly with lazy compression
+                // Step 4: Background Stream the remaining documents using a 2-worker concurrent pool with adaptive pacing
                 if (remainingFiles.length > 0) {
                     this.isStreamingInBackground = true;
                     this.showStreamingIndicator(true, firstResults.length, total);
 
                     let processedCount = firstResults.length;
-                    const queue = [...remainingFiles];
+                    const queue = remainingFiles.map((file, idx) => ({ file, globalIndex: initialBatchSize + idx }));
 
-                    const backgroundWorker = async () => {
+                    const CONCURRENT_WORKERS = Math.min(2, remainingFiles.length);
+                    const runWorker = async () => {
                         while (queue.length > 0) {
-                            const fileOrItem = queue.shift();
-                            const itemIdx = total - queue.length - 1;
+                            const task = queue.shift();
+                            if (!task) break;
                             try {
-                                await new Promise(r => setTimeout(r, 1100)); // Smooth 1.1s cadence
-                                // Compress lazily on-demand right before sending
-                                const item = fileOrItem.base64 ? fileOrItem : await this.compressImage(fileOrItem);
-                                const extracted = await this.requestOCRData(item.base64);
+                                // Adaptive throttle pause between tasks to protect RPM limits
+                                await new Promise(r => setTimeout(r, 450));
+                                const item = task.file.base64 ? task.file : await this.compressImage(task.file);
+                                const extracted = await this.requestOCRData(item.base64, 0, 0, false, false);
                                 const docObj = {
-                                    id: 'doc_' + Date.now() + '_' + itemIdx + '_' + Math.random().toString(36).substring(2, 5),
+                                    id: 'doc_' + Date.now() + '_' + task.globalIndex + '_' + Math.random().toString(36).substring(2, 5),
                                     fileName: item.fileName,
                                     base64: item.base64,
                                     data: extracted,
@@ -820,7 +832,7 @@
                                 this.renderBatchTabs();
 
                                 if (extracted.is_unclear_amount) {
-                                    this.showToast(`⚠️ المستند رقم #${itemIdx + 1}: المبلغ غير واضح في الصورة، يرجى إدخاله يدوياً.`, 'warning');
+                                    this.showToast(`⚠️ المستند رقم #${task.globalIndex + 1}: المبلغ غير واضح في الصورة، يرجى إدخاله يدوياً.`, 'warning');
                                 }
                             } catch (itemErr) {
                                 console.error('Background OCR item error:', itemErr);
@@ -830,17 +842,24 @@
                         }
                     };
 
-                    backgroundWorker().then(() => {
+                    const workerPromises = [];
+                    for (let w = 0; w < CONCURRENT_WORKERS; w++) {
+                        workerPromises.push(runWorker());
+                    }
+
+                    Promise.all(workerPromises).then(() => {
                         this.isStreamingInBackground = false;
                         this.showStreamingIndicator(false, total, total);
                         this.renderBatchTabs();
                         this.playSuccessSound();
-                        this.showToast(`⚡ اكتمل مسح جميع الـ ${total} مستندات في الخلفية بنجاح!`, 'success');
+                        this.showToast(`⚡ اكتمل مسح جميع الـ ${total} مستندات بنجاح فائق!`, 'success');
                         this.checkBatchAuditAlerts();
+                        this.triggerGoldenAutoRefresh();
                     }).catch(streamErr => {
                         this.isStreamingInBackground = false;
                         this.showStreamingIndicator(false, total, total);
                         this.renderBatchTabs();
+                        this.triggerGoldenAutoRefresh();
                     });
                 }
             } catch (err) {
@@ -872,12 +891,14 @@
 
                 const result = await response.json();
 
-                // 1. If Gemini hit rate limit (429 or quota exceeded), automatically backoff and retry up to 3 times
-                //    with exponential backoff to allow quota to recover
-                if (!result.success && (result.is_quota_exceeded || response.status === 429) && retryCount < 3) {
-                    const delayMs = (retryCount + 1) * (retryCount + 1) * 4000; // 4s, 16s, 36s exponential
-                    console.warn(`[OCR Rate Limit] Quota exceeded. Retrying in ${delayMs}ms (attempt ${retryCount + 1}/3)...`);
-                    this.showToast(`⏳ ضغط على الخادم... إعادة المحاولة تلقائياً بعد ${Math.round(delayMs/1000)} ثانية (${retryCount + 1}/3)`, 'warning');
+                // 1. If Gemini hit rate limit (429 or quota exceeded) or transient server error, automatically backoff and retry up to 3 times
+                const isQuotaIssue = !!(result.is_quota_exceeded || response.status === 429 || (result.error && (result.error.includes('quota') || result.error.includes('exhausted'))));
+                if (!result.success && retryCount < 3) {
+                    const delayMs = isQuotaIssue ? ((retryCount + 1) * 2800) : 1500;
+                    console.warn(`[OCR API Issue] Retrying in ${delayMs}ms (attempt ${retryCount + 1}/3)...`, result.error);
+                    if (isQuotaIssue && retryCount === 0) {
+                        this.showToast(`⏳ ضغط على واجهة الذكاء الاصطناعي... جاري إعادة المحاولة تلقائياً...`, 'warning');
+                    }
                     await new Promise(r => setTimeout(r, delayMs));
                     return await this.requestOCRData(base64Data, retryCount + 1, amountRetryCount, isManualRefresh, fraudCheck);
                 }
@@ -907,15 +928,14 @@
                     return result.data;
                 } else {
                     const errorMsg = result.error || 'تعذر استخراج البيانات من المستند المالي';
-                    const isQuotaIssue = !!(result.is_quota_exceeded || response.status === 429);
 
                     if (isQuotaIssue) {
-                        this.showToast('⚠️ تم استنفاد حد الطلبات مؤقتاً، يرجى الانتظار ثوانٍ أو إدخال مفتاحك الخاص', 'warning');
+                        this.showToast('⚠️ تم استنفاد حد الطلبات مؤقتاً، يرجى الانتظار ثوانٍ أو النقر على 🔄 لإعادة القراءة', 'warning');
                     }
 
                     // CRITICAL FIX: Distinguish API/quota errors from actual unclear documents.
-                    // When API fails, mark as scan_error + is_quota_exceeded so the UI shows
-                    // BLUE "retry" banner instead of GOLDEN "unclear document" banner.
+                    // When API fails, mark as scan_error + is_quota_exceeded + is_api_error
+                    // and give clear rejection_reason so the card doesn't falsely say "غير واضح"
                     return {
                         doc_type: (this.activeContext.docHint === 'cheque') ? 'cheque' : 'bank_transfer',
                         bank_name: '',
@@ -925,18 +945,20 @@
                         amount: 0.0,
                         is_unclear_amount: false,
                         is_quota_exceeded: isQuotaIssue,
+                        is_api_error: true,
                         date: new Date().toISOString().split('T')[0],
                         due_date: new Date().toISOString().split('T')[0],
                         sender_name: '',
                         receiver_name: '',
                         notes: '',
                         summary: errorMsg,
-                        scan_error: errorMsg
+                        scan_error: errorMsg,
+                        rejection_reason: isQuotaIssue ? '⚡ تعذر الفحص مؤقتاً بسبب حد الطلبات (Rate Limit)، انقر 🔄 لإعادة القراءة' : ('⚠️ خطأ مؤقت في الفحص: ' + errorMsg)
                     };
                 }
             } catch (e) {
                 if (retryCount < 3) {
-                    const backoff = (retryCount + 1) * 2500;
+                    const backoff = (retryCount + 1) * 2000;
                     console.warn(`[OCR Network Error] Retrying in ${backoff}ms (attempt ${retryCount + 1}/3):`, e.message);
                     await new Promise(r => setTimeout(r, backoff));
                     return await this.requestOCRData(base64Data, retryCount + 1, amountRetryCount, isManualRefresh, fraudCheck);
@@ -950,13 +972,15 @@
                     cheque_number: '',
                     amount: 0.0,
                     is_unclear_amount: false,
+                    is_api_error: true,
                     date: new Date().toISOString().split('T')[0],
                     due_date: new Date().toISOString().split('T')[0],
                     sender_name: '',
                     receiver_name: '',
                     notes: '',
                     summary: 'تعذر الاتصال بمحرك الفحص، اضغط 🔄 لإعادة المحاولة',
-                    scan_error: e.message
+                    scan_error: e.message,
+                    rejection_reason: '⚠️ تعذر الاتصال بالشبكة، اضغط 🔄 لإعادة المحاولة'
                 };
             }
         },
@@ -1299,6 +1323,9 @@
             alertMsg += `💰 المبلغ المسجل: ${amtFormatted} SDG\n`;
             alertMsg += `🔖 رقم المرجع / الشيك: ${refVal || 'غير محدد'}\n`;
             alertMsg += `📊 مؤشر اشتباه التزوير: ${tamperingScore}%\n\n`;
+            if (item.data.sequence_anomaly && item.data.sequence_anomaly.hasAnomaly) {
+                alertMsg += `📉 كشف شذوذ وانعكاس التسلسل الزمني لرقم العملية:\n${item.data.sequence_anomaly.message}\n\n`;
+            }
             alertMsg += `🔍 نتائج التحليل الجنائي للذكاء الاصطناعي:\n${reasons}\n\n`;
             alertMsg += `🛡️ الإجراءات والخيارات المحاسبية المتاحة:\n`;
             alertMsg += `1. إيقاف السند مؤقتاً ومطابقة الحركة مع كشف الحساب البنكي المباشر.\n`;
@@ -1308,6 +1335,59 @@
             alertMsg += `⚠️ تنبيه:\nمقاييس غير مسؤولة عن النتيجة، إنما هو اجتهاد بالذكاء الاصطناعي.`;
 
             alert(alertMsg);
+        },
+
+        // Detailed interactive explanation when user clicks on [✂️] for cropped / missing ref receipts
+        showCroppedAlert(idx) {
+            const items = this.batchItems || (this.lastExtractedData ? [{ data: this.lastExtractedData }] : []);
+            if (!items[idx]) return;
+            const item = items[idx];
+            const refVal = (item.data.transaction_ref || item.data.cheque_number || '').trim();
+            const amtFormatted = (parseFloat(item.data.amount) || 0).toLocaleString('en-US');
+
+            this.syncCurrentItemFromForm();
+            this.selectBatchItem(idx);
+
+            // Focus and glow reference field in electric cyan
+            const refInput = document.getElementById('ocr-field-ref-no');
+            if (refInput) {
+                refInput.focus();
+                refInput.style.borderColor = '#06b6d4';
+                refInput.style.backgroundColor = 'rgba(6, 182, 212, 0.2)';
+                refInput.style.boxShadow = '0 0 25px rgba(6, 182, 212, 0.9)';
+            }
+
+            let alertMsg = `✂️ تفاصيل إشعار سليم ومار (مقطوع في التصوير أو ناقص رقم العملية):\n\n`;
+            alertMsg += `📄 المستند رقم: #${idx + 1} (${item.data.bank_name || 'البنك'})\n`;
+            alertMsg += `💰 المبلغ المالي: ${amtFormatted} SDG (المبلغ سليم ومطابق 100%)\n`;
+            alertMsg += `🔖 رقم العملية الحالي: ${refVal || 'غير مكتمل / ناقص'}\n\n`;
+            alertMsg += `ℹ️ سبب التمييز:\n`;
+            alertMsg += `تم قراءة بيانات المبلغ والتحويل بنجاح والإشعار سليم ومار طوالي، ولكن صورة الإشعار مقطوعة من الأسفل أو أن رقم العملية غير مكتمل/ناقص.\n\n`;
+            alertMsg += `🛡️ الإجراء المحاسبي المطلوب:\n`;
+            alertMsg += `1. تم تحديد خانة "الرقم" تلقائياً باللون الأزرق الفيروزي.\n`;
+            alertMsg += `2. اكتب أو أكمل رقم العملية يدويّاً، وسيتحول الإشعار فوراً إلى اللون الأخضر (سليم ومكتمل ✓).\n`;
+            alertMsg += `3. يمكنك أيضاً النقر على زر [✂️ مقطوع] بجانب الرقم للتبديل.`;
+
+            alert(alertMsg);
+        },
+
+        toggleCroppedCurrentItem() {
+            let item = null;
+            if (this.batchItems && this.batchItems[this.currentBatchIndex]) {
+                item = this.batchItems[this.currentBatchIndex];
+            } else if (this.lastExtractedData) {
+                item = { data: this.lastExtractedData };
+            }
+            if (!item) return;
+
+            item.data.is_cropped = !item.data.is_cropped;
+            this.updateReferenceValidationUI(item.data);
+            this.renderBatchTabs();
+
+            const refInput = document.getElementById('ocr-field-ref-no');
+            if (item.data.is_cropped && refInput) {
+                refInput.focus();
+            }
         },
 
         openSuspicionDetailsModal() {
@@ -1421,7 +1501,8 @@
             if (fraudCurBtn) { fraudCurBtn.disabled = true; fraudCurBtn.style.opacity = '0.6'; }
             if (refreshAllBtn) { refreshAllBtn.disabled = true; refreshAllBtn.style.opacity = '0.6'; }
 
-            this.showLoading(true, `جاري ${actionText}...`, 1, items.length);
+            const actionText = fraudCheck ? 'الفحص الجنائي لكافة مستندات الدفعة بالذكاء الاصطناعي 🕵️‍♂️' : 'إعادة قراءة بيانات جميع المستندات بالذكاء الاصطناعي ⚡';
+            this.showLoading(true, `جاري ${actionText}...`, 1, items.length, fraudCheck);
 
             try {
                 for (let i = 0; i < items.length; i++) {
@@ -1432,6 +1513,16 @@
                     try {
                         const extracted = await this.requestOCRData(item.base64, 0, 0, true, fraudCheck);
                         if (extracted) {
+                            if (fraudCheck) {
+                                item.fraudChecked = true;
+                                extracted.fraud_checked = true;
+                            } else {
+                                item.fraudChecked = false;
+                                extracted.fraud_checked = false;
+                                extracted.tampering_score = 0;
+                                extracted.is_suspicious = false;
+                                extracted.sequence_anomaly = null;
+                            }
                             item.data = extracted;
                             item.originalData = JSON.parse(JSON.stringify(extracted));
                         }
@@ -1448,15 +1539,20 @@
                 if (refreshAllBtn) { refreshAllBtn.disabled = false; refreshAllBtn.style.opacity = '1'; }
                 this.showLoading(false);
             }
+            if (fraudCheck) {
+                this.checkTransactionSequenceAnomalies(true);
+            }
             this.renderBatchTabs();
             if (this.batchItems[this.currentBatchIndex]) {
                 this.populateForm(this.batchItems[this.currentBatchIndex].data);
             }
             this.playSuccessSound();
-            this.showToast(`✅ تم اكتمال إعادة تدقيق كافة المستندات (${items.length}) بنجاح!`, 'success');
-
-            // Open audit modal to show summary of results
-            this.checkBatchAuditAlerts(true);
+            if (fraudCheck) {
+                this.showToast(`✅ تم اكتمال الفحص الجنائي لكافة المستندات (${items.length}) بنجاح!`, 'success');
+                this.checkBatchAuditAlerts(true);
+            } else {
+                this.showToast(`✅ تم اكتمال إعادة قراءة كافة المستندات (${items.length}) بنجاح!`, 'success');
+            }
         },
 
         // Centered Batch Audit Alerts Modal (الرسائل التحذيرية التلخيصية الكبرى في منتصف الشاشة)
@@ -1468,6 +1564,7 @@
             let unclearCount = 0;
             let nonFinCount = 0;
             let cleanCount = 0;
+            let seqAnomalyCount = 0;
 
             items.forEach((item, idx) => {
                 if (!item.data.bank_name || item.data.bank_name === 'غير محدد' || item.data.bank_name === 'غير متوفر') {
@@ -1477,19 +1574,24 @@
                 const valRes = this.validateReference(refVal, idx);
                 const amt = parseFloat(item.data.amount) || 0;
                 const isNonFin = !!(item.data.is_non_financial || item.data.doc_type === 'non_financial');
+                const hasFc = Boolean(item.fraudChecked || item.data?.fraud_checked);
+                const hasSeqAnomaly = hasFc && Boolean(item.data.sequence_anomaly && item.data.sequence_anomaly.hasAnomaly);
 
+                if (hasSeqAnomaly) {
+                    seqAnomalyCount++;
+                }
                 if (isNonFin) {
                     nonFinCount++;
                 } else if (!valRes.valid && valRes.isDuplicate) {
                     dupCount++;
                 } else if (amt <= 0 || Boolean(item.data.scan_error)) {
                     unclearCount++;
-                } else {
+                } else if (!hasSeqAnomaly) {
                     cleanCount++;
                 }
             });
 
-            const hasIssues = (dupCount > 0 || unclearCount > 0 || nonFinCount > 0);
+            const hasIssues = (dupCount > 0 || unclearCount > 0 || nonFinCount > 0 || seqAnomalyCount > 0);
             if (!hasIssues && !forceOpen) return;
 
             const modal = document.getElementById('financial-ocr-batch-alert-modal');
@@ -1528,7 +1630,23 @@
                 `;
             }
 
-            // 3. Unclear count badge
+            // 3. Sequence Anomaly count badge (شذوذ تسلسل أرقام العمليات مع التاريخ)
+            if (seqAnomalyCount > 0) {
+                cardsHtml += `
+                    <div style="background:rgba(192,38,211,0.22); border:1.5px solid #d946ef; border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between; animation:ocrWarningPulse 1.2s infinite alternate;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:1.3rem;">📉</span>
+                            <div>
+                                <strong style="color:#f5d0fe; font-size:0.95rem;">شذوذ تسلسل رقم العملية مع التاريخ (اشتباه تزوير):</strong>
+                                <div style="color:#fce7f3; font-size:0.8rem;">يوجد ${seqAnomalyCount} إشعار يحمل رقم عملية تراجع بشكل مريب مقارنة بإشعار سابق بتاريخ أقدم!</div>
+                            </div>
+                        </div>
+                        <span style="background:#c026d3; color:#fff; padding:4px 12px; border-radius:20px; font-weight:900; font-size:1rem; font-family:'Consolas',monospace;">${seqAnomalyCount}</span>
+                    </div>
+                `;
+            }
+
+            // 4. Unclear count badge
             if (unclearCount > 0) {
                 cardsHtml += `
                     <div style="background:rgba(245,158,11,0.18); border:1.5px solid #f59e0b; border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between;">
@@ -1544,7 +1662,7 @@
                 `;
             }
 
-            // 4. Non-financial count badge
+            // 5. Non-financial count badge
             if (nonFinCount > 0) {
                 cardsHtml += `
                     <div style="background:rgba(71,85,105,0.25); border:1.5px solid #94a3b8; border-radius:10px; padding:10px 14px; display:flex; align-items:center; justify-content:space-between;">
@@ -1615,6 +1733,7 @@
             const formReasonTitle = document.getElementById('ocr-ai-reason-title');
             const formReasonDesc = document.getElementById('ocr-ai-reason-desc');
             const formReasonBadge = document.getElementById('ocr-ai-reason-badge');
+            const btnToggleCropped = document.getElementById('btn-toggle-cropped');
 
             if (!refNoInput) return;
 
@@ -1626,11 +1745,21 @@
             const amt = parseFloat(data.amount) || 0;
             const isAmtZero = (amt <= 0);
             const isNonFin = !!(data.is_non_financial || data.doc_type === 'non_financial');
+            const curItem = (this.batchItems && this.batchItems[this.currentBatchIndex]) ? this.batchItems[this.currentBatchIndex] : null;
+            const hasFraudCheck = Boolean((curItem && curItem.fraudChecked) || data.fraud_checked);
             const isDuplicate = !isNonFin && (!res.valid && res.isDuplicate);
-            const tamperingScore = parseInt(data.tampering_score) || 0;
-            const isSuspicious = !isDuplicate && !isNonFin && (Boolean(data.is_suspicious) || tamperingScore >= 35);
+            const tamperingScore = hasFraudCheck ? (parseInt(data.tampering_score) || 0) : 0;
+            const isSuspicious = !isDuplicate && !isNonFin && hasFraudCheck && (Boolean(data.is_suspicious) || tamperingScore >= 35);
             const hasApiError = Boolean(data.scan_error || data.is_quota_exceeded);
             const isGolden = !isDuplicate && !isSuspicious && (isNonFin || isAmtZero || hasApiError);
+
+            // Tier 4: Cropped or missing reference number (سليم ومار ولكن مقطوع في التصوير أو ناقص رقم العملية)
+            const isRefMissing = (!refVal || refVal === '---' || refVal.length < 6 || /^(null|none|n\/?a|غير\s*متوفر|لا\s*يوجد|-)$/i.test(refVal));
+            const isCroppedOrMissingRef = !isDuplicate && !isSuspicious && !isGolden && (isRefMissing || Boolean(data.is_cropped));
+            const isClean = !isDuplicate && !isSuspicious && !isGolden && !isCroppedOrMissingRef;
+
+            // Update Chronological Sequence Anomaly UI Indicators
+            this.updateReferenceSequenceUI(data);
 
             // Compute total clean documents in current batch
             let cleanCount = 0;
@@ -1641,8 +1770,9 @@
                     const a = parseFloat(d.amount) || 0;
                     const r = (d.transaction_ref || d.cheque_number || '').trim();
                     const v = this.validateReference(r, i);
-                    const ts = parseInt(d.tampering_score) || 0;
-                    const isSusp = (Boolean(d.is_suspicious) || ts >= 35);
+                    const itFc = Boolean(it.fraudChecked || d.fraud_checked);
+                    const ts = itFc ? (parseInt(d.tampering_score) || 0) : 0;
+                    const isSusp = itFc && (Boolean(d.is_suspicious) || ts >= 35);
                     if (!isNF && a > 0 && !v.isDuplicate && !isSusp) {
                         cleanCount++;
                     }
@@ -1674,6 +1804,12 @@
             // 1. Golden Theme: Unapproved in models, Non-financial (car image), Unclear, or Zero Amount
             // "يكون الإشعار باللون الذهبي، ويكتب تنبيه: المستند غير واضح، المبلغ غير ظاهر، أو المبلغ السيارة كذا كذا كذا، وزر اعتماد لا يعتمد، أي لا يعتمد في هذه الحالة نهائيا."
             if (isGolden) {
+                if (btnToggleCropped) {
+                    btnToggleCropped.style.background = 'rgba(6,182,212,0.15)';
+                    btnToggleCropped.style.border = '1px solid rgba(6,182,212,0.4)';
+                    btnToggleCropped.style.color = '#67e8f9';
+                    btnToggleCropped.style.boxShadow = 'none';
+                }
                 if (warningBox) warningBox.style.display = 'none';
                 if (suspicionBox) suspicionBox.style.display = 'none';
                 refNoInput.style.borderColor = '#f59e0b';
@@ -1741,8 +1877,8 @@
                 }
                 if (applySingleText) {
                     applySingleText.textContent = isApiErr 
-                        ? '🔄 تعذر الفحص مؤقتاً — اضغط فحص أعلاه لإعادة المحاولة'
-                        : '⚠️ محظور من الاعتماد (غير معتمد / ناقص)';
+                        ? '🔄 تعذر الفحص' 
+                        : '⚠️ محظور من الاعتماد';
                 }
 
                 // Batch Save Button State
@@ -1756,7 +1892,7 @@
                         applyBtn.style.boxShadow = 'none';
                         applyBtn.style.opacity = '0.85';
                     }
-                    if (applyText) applyText.textContent = '⚠️ زر الاعتماد لا يعتمد (لا توجد سندات معتمدة)';
+                    if (applyText) applyText.textContent = 'محظور (0 معتمد)';
                 } else {
                     if (applyBtn) {
                         applyBtn.disabled = false;
@@ -1766,13 +1902,19 @@
                         applyBtn.style.boxShadow = '0 4px 18px rgba(16,185,129,0.4)';
                         applyBtn.style.opacity = '1';
                     }
-                    if (applyText) applyText.textContent = `حفظ الاعتمادات (${cleanCount} سند)`;
+                    if (applyText) applyText.textContent = `حفظ الكل (${cleanCount})`;
                 }
                 return;
             }
 
             // 2. Duplicate Document
             if (isDuplicate) {
+                if (btnToggleCropped) {
+                    btnToggleCropped.style.background = 'rgba(6,182,212,0.15)';
+                    btnToggleCropped.style.border = '1px solid rgba(6,182,212,0.4)';
+                    btnToggleCropped.style.color = '#67e8f9';
+                    btnToggleCropped.style.boxShadow = 'none';
+                }
                 if (warningBox) {
                     warningBox.style.display = 'flex';
                 }
@@ -1825,7 +1967,7 @@
                     applySingleBtn.style.opacity = '0.9';
                 }
                 if (applySingleText) {
-                    applySingleText.textContent = '🚨 محظور: مكرر مسجل مسبقاً';
+                    applySingleText.textContent = '🚨 محظور: مكرر';
                 }
 
                 this.playWarningBeep();
@@ -1839,7 +1981,7 @@
                         applyBtn.style.boxShadow = 'none';
                         applyBtn.style.opacity = '0.85';
                     }
-                    if (applyText) applyText.textContent = '⚠️ زر الاعتماد لا يعتمد (لا توجد سندات معتمدة)';
+                    if (applyText) applyText.textContent = 'محظور (0 معتمد)';
                 } else {
                     if (applyBtn) {
                         applyBtn.disabled = false;
@@ -1849,13 +1991,19 @@
                         applyBtn.style.boxShadow = '0 4px 18px rgba(16,185,129,0.45)';
                         applyBtn.style.opacity = '1';
                     }
-                    if (applyText) applyText.textContent = `حفظ الاعتمادات (${cleanCount} سند)`;
+                    if (applyText) applyText.textContent = `حفظ الكل (${cleanCount})`;
                 }
                 return;
             }
 
             // 3. Suspicious / Tampered Document (اشتباه تزوير وتلاعب رقمي - بنفسجي ملكي مشع)
             if (isSuspicious) {
+                if (btnToggleCropped) {
+                    btnToggleCropped.style.background = 'rgba(6,182,212,0.15)';
+                    btnToggleCropped.style.border = '1px solid rgba(6,182,212,0.4)';
+                    btnToggleCropped.style.color = '#67e8f9';
+                    btnToggleCropped.style.boxShadow = 'none';
+                }
                 if (warningBox) warningBox.style.display = 'none';
                 if (suspicionBox) {
                     suspicionBox.style.display = 'flex';
@@ -1908,7 +2056,7 @@
                     applySingleBtn.style.opacity = '1';
                 }
                 if (applySingleText) {
-                    applySingleText.textContent = `⚠️ اعتماد يدوي بعد مراجعة البنك (${tamperingScore}%)`;
+                    applySingleText.textContent = `⚠️ اعتماد يدوي (${tamperingScore}%)`;
                 }
 
                 this.playWarningBeep();
@@ -1922,7 +2070,7 @@
                         applyBtn.style.boxShadow = 'none';
                         applyBtn.style.opacity = '0.85';
                     }
-                    if (applyText) applyText.textContent = `⚠️ معلق للاختبار الجنائي (${tamperingScore}% تزوير)`;
+                    if (applyText) applyText.textContent = `معلق (${tamperingScore}% تزوير)`;
                 } else {
                     if (applyBtn) {
                         applyBtn.disabled = false;
@@ -1932,17 +2080,99 @@
                         applyBtn.style.boxShadow = '0 4px 18px rgba(16,185,129,0.45)';
                         applyBtn.style.opacity = '1';
                     }
-                    if (applyText) applyText.textContent = `حفظ الاعتمادات (${cleanCount} سند)`;
+                    if (applyText) applyText.textContent = `حفظ الكل (${cleanCount})`;
                 }
                 return;
             }
 
-            // 4. Clean Document (سليم 100% مار طوالي)
+            // 4. Cropped in photography or missing transaction ref (سليم ومار ولكن مقطوع في التصوير أو ناقص رقم العملية - أزرق فيروزي)
+            if (isCroppedOrMissingRef) {
+                if (warningBox) warningBox.style.display = 'none';
+                if (suspicionBox) suspicionBox.style.display = 'none';
+                refNoInput.style.borderColor = '#06b6d4';
+                refNoInput.style.backgroundColor = 'rgba(6, 182, 212, 0.15)';
+                refNoInput.style.boxShadow = '0 0 16px rgba(6, 182, 212, 0.6)';
+                refNoInput.style.color = '#67e8f9';
+
+                if (btnToggleCropped) {
+                    btnToggleCropped.style.background = 'linear-gradient(135deg, #0891b2, #06b6d4)';
+                    btnToggleCropped.style.border = '1.5px solid #67e8f9';
+                    btnToggleCropped.style.color = '#ffffff';
+                    btnToggleCropped.style.boxShadow = '0 0 10px rgba(6,182,212,0.85)';
+                }
+
+                if (previewBanner) {
+                    previewBanner.style.display = 'flex';
+                    previewBanner.style.background = 'linear-gradient(135deg, rgba(8, 145, 178, 0.95), rgba(14, 116, 144, 0.98))';
+                    previewBanner.style.border = '1.5px solid #06b6d4';
+                    previewBanner.style.color = '#ecfeff';
+                    if (previewIcon) previewIcon.textContent = '✂️';
+                    if (previewTitle) previewTitle.textContent = 'إشعار سليم ومار (مقطوع في التصوير أو ناقص رقم العملية)';
+                    if (previewDesc) previewDesc.textContent = 'المبلغ والبيانات سليمة ومعتمدة. أدخل أو أكمل رقم العملية لتحويله تلقائياً للأخضر (مكتمل ✓).';
+                    if (previewBadge) {
+                        previewBadge.textContent = 'مقطوع / ناقص رقم ✂️';
+                        previewBadge.style.background = '#0891b2';
+                        previewBadge.style.color = '#fff';
+                    }
+                }
+
+                if (formReasonBox) {
+                    formReasonBox.style.display = 'block';
+                    formReasonBox.style.background = 'rgba(8, 145, 178, 0.22)';
+                    formReasonBox.style.border = '1.5px solid #06b6d4';
+                    formReasonBox.style.color = '#cffafe';
+                    if (formReasonIcon) formReasonIcon.textContent = '✂️';
+                    if (formReasonTitle) formReasonTitle.textContent = 'إشعار سليم ومار — مقطوع في التصوير أو ناقص رقم العملية';
+                    if (formReasonBadge) {
+                        formReasonBadge.textContent = 'مقطوع ✂️';
+                        formReasonBadge.style.background = '#0891b2';
+                        formReasonBadge.style.color = '#fff';
+                    }
+                    if (formReasonDesc) formReasonDesc.textContent = 'المبلغ مالي سليم ومار، ولكن صورة الإشعار مقطوعة أو رقم العملية غير مكتمل. اكتب رقم العملية في خانة الرقم أعلاه وسيتحول الإشعار فوراً للون الأخضر المكتمل.';
+                }
+
+                // Enable single approval button
+                if (applySingleBtn) {
+                    applySingleBtn.disabled = false;
+                    applySingleBtn.style.cursor = 'pointer';
+                    applySingleBtn.style.background = 'linear-gradient(135deg, #0891b2, #0e7490)';
+                    applySingleBtn.style.border = '1.5px solid #22d3ee';
+                    applySingleBtn.style.color = '#ffffff';
+                    applySingleBtn.style.boxShadow = '0 2px 10px rgba(6,182,212,0.4)';
+                    applySingleBtn.style.opacity = '1';
+                }
+                if (applySingleText) {
+                    applySingleText.textContent = 'حفظ هذا السند';
+                }
+
+                // Batch save button enabled
+                if (applyBtn) {
+                    applyBtn.disabled = false;
+                    applyBtn.style.cursor = 'pointer';
+                    applyBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                    applyBtn.style.border = 'none';
+                    applyBtn.style.boxShadow = '0 4px 18px rgba(16,185,129,0.4)';
+                    applyBtn.style.opacity = '1';
+                }
+                if (applyText) {
+                    applyText.textContent = `حفظ الكل (${cleanCount})`;
+                }
+                return;
+            }
+
+            // 5. Clean Document (سليم 100% مار طوالي)
+            if (btnToggleCropped) {
+                btnToggleCropped.style.background = 'rgba(6,182,212,0.15)';
+                btnToggleCropped.style.border = '1px solid rgba(6,182,212,0.4)';
+                btnToggleCropped.style.color = '#67e8f9';
+                btnToggleCropped.style.boxShadow = 'none';
+            }
             if (warningBox) warningBox.style.display = 'none';
             if (suspicionBox) suspicionBox.style.display = 'none';
             refNoInput.style.borderColor = '#38bdf8';
             refNoInput.style.backgroundColor = '#1e293b';
             refNoInput.style.boxShadow = 'none';
+            refNoInput.style.color = '#38bdf8';
 
             if (previewBanner) {
                 previewBanner.style.display = 'flex';
@@ -1974,7 +2204,7 @@
                 applySingleBtn.style.opacity = '1';
             }
             if (applySingleText) {
-                applySingleText.textContent = 'حفظ هذا السند فقط';
+                applySingleText.textContent = 'حفظ هذا السند';
             }
 
             // Batch save button enabled
@@ -1987,7 +2217,7 @@
                 applyBtn.style.opacity = '1';
             }
             if (applyText) {
-                applyText.textContent = `حفظ الاعتمادات (${cleanCount} سند)`;
+                applyText.textContent = `حفظ الكل (${cleanCount})`;
             }
         },
 
@@ -2005,6 +2235,8 @@
                 const cleanAmt = parseFloat((amountInput.value || '').replace(/[^0-9.]/g, '')) || 0;
                 data.amount = cleanAmt;
                 if (cleanAmt > 0) data.is_unclear_amount = false;
+                this.updateAmountTafqeet(cleanAmt);
+                this.updateReconciliationStatus();
             }
 
             const bankNameInput = document.getElementById('ocr-field-bank-name');
@@ -2012,12 +2244,19 @@
 
             const refNoInput = document.getElementById('ocr-field-ref-no');
             if (refNoInput) {
-                data.transaction_ref = refNoInput.value.trim();
-                data.cheque_number = refNoInput.value.trim();
+                const rVal = refNoInput.value.trim();
+                data.transaction_ref = rVal;
+                data.cheque_number = rVal;
+                if (rVal.length >= 6 && rVal !== '---') {
+                    data.is_cropped = false;
+                }
             }
 
             const dateInput = document.getElementById('ocr-field-date');
-            if (dateInput) data.date = dateInput.value;
+            if (dateInput) {
+                data.date = dateInput.value;
+                this.updateFiscalDateUI(dateInput.value);
+            }
 
             const dueDateInput = document.getElementById('ocr-field-due-date');
             if (dueDateInput) data.due_date = dueDateInput.value;
@@ -2190,9 +2429,10 @@
             if (inlineRefBtn) inlineRefBtn.innerHTML = '<span>⏳</span> جاري...';
 
             if (fraudCheck) {
-                this.showLoading(true, 'جاري الفحص الجنائي وكشف التزوير بالذكاء الاصطناعي... 🔍', 50, 100);
+                this.showLoading(true, 'جاري الفحص الجنائي وكشف التزوير بالذكاء الاصطناعي... 🕵️‍♂️', 50, 100, true);
                 this.showToast(`🔍 جاري الفحص الجنائي لتدقيق التزوير للمستند #${idx + 1}...`, 'info');
             } else {
+                this.showLoading(true, 'جاري إعادة قراءة بيانات المستند بالذكاء الاصطناعي... ⚡', 50, 100, false);
                 this.showToast(`🔄 جاري إعادة قراءة بيانات المستند #${idx + 1} بالذكاء الاصطناعي...`, 'info');
             }
 
@@ -2202,6 +2442,30 @@
                 item.originalData = JSON.parse(JSON.stringify(extracted));
                 this.lastExtractedData = extracted;
                 this.originalExtractedData = item.originalData;
+
+                if (fraudCheck) {
+                    item.fraudChecked = true;
+                    extracted.fraud_checked = true;
+
+                    // Evaluate chronological sequence anomaly specifically during fraud inspection
+                    const r = (extracted.transaction_ref || extracted.cheque_number || '').trim();
+                    const res = this.validateTransactionSequence(r, extracted.date, extracted.bank_name, extracted.app_name, idx);
+                    extracted.sequence_anomaly = res;
+                    if (res.hasAnomaly) {
+                        extracted.is_suspicious = true;
+                        extracted.tampering_score = Math.max(parseInt(extracted.tampering_score) || 0, 75);
+                        if (!extracted.tampering_reasons || !extracted.tampering_reasons.includes('شذوذ تسلسل')) {
+                            extracted.tampering_reasons = extracted.tampering_reasons ? `${extracted.tampering_reasons} | ${res.message}` : res.message;
+                        }
+                    }
+                } else {
+                    item.fraudChecked = false;
+                    extracted.fraud_checked = false;
+                    extracted.tampering_score = 0;
+                    extracted.is_suspicious = false;
+                    extracted.sequence_anomaly = null;
+                }
+
                 this.showReviewModal(extracted);
                 this.updateReferenceValidationUI(extracted);
                 this.renderBatchTabs();
@@ -2212,7 +2476,11 @@
                 if (fraudCheck) {
                     const tamperingScore = parseInt(extracted.tampering_score) || 0;
                     if (tamperingScore >= 35 || extracted.is_suspicious) {
-                        this.showToast(`⚠️ تم الانتهاء من الفحص: اشتباه تزوير بنسبة ${tamperingScore}%!`, 'warning');
+                        if (extracted.sequence_anomaly && extracted.sequence_anomaly.hasAnomaly) {
+                            this.showToast(`⚠️ اشتباه تزوير (${tamperingScore}%): شذوذ تسلسل رقم العملية مع التاريخ!`, 'warning');
+                        } else {
+                            this.showToast(`⚠️ تم الانتهاء من الفحص: اشتباه تزوير بنسبة ${tamperingScore}%!`, 'warning');
+                        }
                     } else {
                         this.showToast(`✅ تم الانتهاء من الفحص: المستند أصلي وسليم (نسبة الشك ${tamperingScore}%)`, 'success');
                     }
@@ -2246,6 +2514,810 @@
         async rescanCurrentItem(fraudCheck = false) {
             let idx = (typeof this.currentBatchIndex === 'number' && this.currentBatchIndex >= 0) ? this.currentBatchIndex : 0;
             return await this.rescanItemByIndex(idx, fraudCheck);
+        },
+
+        // -------------------------------------------------------------
+        // Golden Unclear Auto-Refresh Engine (محرك التدقيق والريفريش التلقائي للإشعارات الذهبية غير الواضحة)
+        // -------------------------------------------------------------
+        triggerGoldenAutoRefresh() {
+            if (!this.batchItems || this.batchItems.length === 0) {
+                this.stopGoldenAutoRefresh();
+                return;
+            }
+
+            // Don't interrupt if currently running a golden auto-refresh or background upload streaming
+            if (this.isAutoRefreshingGolden || this.isStreamingInBackground) {
+                return;
+            }
+
+            // Find candidates: cards that are Golden and have been retried < 2 times
+            const candidates = [];
+            this.batchItems.forEach((item, idx) => {
+                const d = item.data || {};
+                const isNF = !!(d.is_non_financial || d.doc_type === 'non_financial');
+                const amt = parseFloat(d.amount) || 0;
+                const isAmtZero = (amt <= 0);
+                const refVal = (d.transaction_ref || d.cheque_number || '').trim();
+                const valRes = this.validateReference(refVal, idx);
+                const isDuplicate = !isNF && (!valRes.valid && valRes.isDuplicate);
+                const tamperingScore = parseInt(d.tampering_score) || 0;
+                const isSuspicious = !isDuplicate && !isNF && (Boolean(d.is_suspicious) || tamperingScore >= 35);
+                const isGolden = !isDuplicate && !isSuspicious && (isNF || isAmtZero || Boolean(d.scan_error));
+
+                const attempts = item.autoRefreshAttempts || 0;
+                if (isGolden && attempts < 2 && !item.isAutoRefreshing && !item.isConfirmedGolden) {
+                    candidates.push(idx);
+                }
+            });
+
+            const bar = document.getElementById('ocr-golden-autorefresh-bar');
+            const barText = document.getElementById('ocr-golden-autorefresh-text');
+
+            if (candidates.length === 0) {
+                if (bar) bar.style.display = 'none';
+                return;
+            }
+
+            // Show indicator banner with pending count
+            if (bar) {
+                bar.style.display = 'flex';
+                if (barText) {
+                    barText.textContent = `جاري التدقيق والريفريش التلقائي لـ (${candidates.length}) إشعار باللون الذهبي للتأكد منها...`;
+                }
+            }
+
+            // Schedule the first candidate after a 2.5-second cooldown
+            if (this.goldenAutoRefreshTimer) {
+                clearTimeout(this.goldenAutoRefreshTimer);
+            }
+
+            const nextIdx = candidates[0];
+            this.goldenAutoRefreshTimer = setTimeout(async () => {
+                await this.executeGoldenAutoRefresh(nextIdx);
+            }, 2500);
+        },
+
+        async executeGoldenAutoRefresh(idx) {
+            if (!this.batchItems || !this.batchItems[idx]) {
+                this.isAutoRefreshingGolden = false;
+                this.triggerGoldenAutoRefresh();
+                return;
+            }
+
+            const item = this.batchItems[idx];
+            this.isAutoRefreshingGolden = true;
+            item.isAutoRefreshing = true;
+            item.autoRefreshAttempts = (item.autoRefreshAttempts || 0) + 1;
+
+            const barText = document.getElementById('ocr-golden-autorefresh-text');
+            if (barText) {
+                barText.textContent = `جاري التدقيق والريفريش التلقائي للإشعار رقم #${idx + 1}...`;
+            }
+
+            // Render so card shows spinning status
+            this.renderBatchTabs();
+
+            try {
+                // Request OCR with retry_amount = true and is_refresh = true
+                const extracted = await this.requestOCRData(item.base64, 0, item.autoRefreshAttempts, true, false);
+                item.data = extracted;
+                item.originalData = JSON.parse(JSON.stringify(extracted));
+
+                const amt = parseFloat(extracted.amount) || 0;
+                const refVal = (extracted.transaction_ref || extracted.cheque_number || '').trim();
+                const valRes = this.validateReference(refVal, idx);
+                const isDuplicate = !extracted.is_non_financial && (!valRes.valid && valRes.isDuplicate);
+                const tamperingScore = parseInt(extracted.tampering_score) || 0;
+                const isSuspicious = !isDuplicate && (Boolean(extracted.is_suspicious) || tamperingScore >= 35);
+                const isGolden = !isDuplicate && !isSuspicious && (amt <= 0 || Boolean(extracted.scan_error) || Boolean(extracted.is_non_financial));
+                const isCropped = !isDuplicate && !isSuspicious && !isGolden && (Boolean(extracted.is_cropped) || refVal.length < 6);
+
+                if (this.currentBatchIndex === idx) {
+                    this.lastExtractedData = extracted;
+                    this.originalExtractedData = item.originalData;
+                    this.showReviewModal(extracted);
+                    this.updateReferenceValidationUI(extracted);
+                }
+
+                if (!isGolden) {
+                    if (isDuplicate) {
+                        this.showToast(`🚨 تم التدقيق التلقائي للمستند #${idx + 1}: رقم المعاملة مكرر مسجل مسبقاً!`, 'warning');
+                    } else if (isCropped) {
+                        this.showToast(`✂️ تم التدقيق التلقائي للمستند #${idx + 1}: إشعار سليم ومار ولكن مقطوع في التصوير.`, 'info');
+                    } else {
+                        // Clean green!
+                        this.showToast(`✅ تم التدقيق التلقائي بنجاح للإشعار #${idx + 1}: سليم ومكتمل بمبلغ ${Math.round(amt).toLocaleString('en-US')} SDG!`, 'success');
+                        this.playSuccessSound();
+                    }
+                } else if (item.autoRefreshAttempts >= 2) {
+                    item.isConfirmedGolden = true;
+                }
+            } catch (err) {
+                console.warn(`[GoldenAutoRefresh] Error refreshing item #${idx + 1}:`, err);
+            } finally {
+                item.isAutoRefreshing = false;
+                this.isAutoRefreshingGolden = false;
+                this.renderBatchTabs();
+
+                // Wait 2.5 seconds before processing the next candidate
+                this.goldenAutoRefreshTimer = setTimeout(() => {
+                    this.triggerGoldenAutoRefresh();
+                }, 2500);
+            }
+        },
+
+        stopGoldenAutoRefresh() {
+            if (this.goldenAutoRefreshTimer) {
+                clearTimeout(this.goldenAutoRefreshTimer);
+                this.goldenAutoRefreshTimer = null;
+            }
+            this.isAutoRefreshingGolden = false;
+            const bar = document.getElementById('ocr-golden-autorefresh-bar');
+            if (bar) bar.style.display = 'none';
+        },
+
+        // Arabic Financial Number-to-Words Converter (التفقيط المالي باللغة العربية)
+        tafqeet(amount, currency = 'جنيه سوداني') {
+            const n = Math.round(parseFloat(amount) || 0);
+            if (n <= 0) return `فقط صفر ${currency} لا غير`;
+
+            const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة',
+                'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+            const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+            const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+            const convertThreeDigits = (num) => {
+                let str = '';
+                const h = Math.floor(num / 100);
+                const rem = num % 100;
+                if (h > 0) {
+                    str += hundreds[h];
+                }
+                if (rem > 0) {
+                    if (str !== '') str += ' و';
+                    if (rem < 20) {
+                        str += ones[rem];
+                    } else {
+                        const t = Math.floor(rem / 10);
+                        const o = rem % 10;
+                        if (o > 0) {
+                            str += ones[o] + ' و' + tens[t];
+                        } else {
+                            str += tens[t];
+                        }
+                    }
+                }
+                return str;
+            };
+
+            const scales = [
+                { val: 1000000000000, single: 'تريليون', two: 'تريليونان', plural: 'تريليونات' },
+                { val: 1000000000, single: 'مليار', two: 'ملياران', plural: 'مليارات' },
+                { val: 1000000, single: 'مليون', two: 'مليونان', plural: 'ملايين' },
+                { val: 1000, single: 'ألف', two: 'ألفان', plural: 'آلاف' }
+            ];
+
+            let remaining = n;
+            let parts = [];
+
+            for (const scale of scales) {
+                if (remaining >= scale.val) {
+                    const count = Math.floor(remaining / scale.val);
+                    remaining = remaining % scale.val;
+                    if (count === 1) {
+                        parts.push(scale.single);
+                    } else if (count === 2) {
+                        parts.push(scale.two);
+                    } else if (count >= 3 && count <= 10) {
+                        parts.push(convertThreeDigits(count) + ' ' + scale.plural);
+                    } else {
+                        parts.push(convertThreeDigits(count) + ' ' + scale.single);
+                    }
+                }
+            }
+
+            if (remaining > 0) {
+                parts.push(convertThreeDigits(remaining));
+            }
+
+            const text = parts.join(' و');
+            return `فقط ${text} ${currency} لا غير`;
+        },
+
+        updateAmountTafqeet(amountVal) {
+            const box = document.getElementById('ocr-field-amount-tafqeet');
+            if (!box) return;
+            const clean = parseFloat(String(amountVal).replace(/[^0-9.]/g, '')) || 0;
+            box.textContent = this.tafqeet(clean);
+        },
+
+        handleReconciliationInput(input) {
+            const raw = (input.value || '').replace(/[^0-9.]/g, '').trim();
+            this.reconciliationTarget = parseFloat(raw) || 0;
+            this.updateReconciliationStatus();
+        },
+
+        updateReconciliationStatus() {
+            const statusEl = document.getElementById('ocr-reconcile-status');
+            const targetInput = document.getElementById('ocr-reconcile-target-input');
+            if (!statusEl) return;
+
+            let currentTotal = 0;
+            if (this.batchItems && this.batchItems.length > 0) {
+                this.batchItems.forEach((it, i) => {
+                    const isNF = !!(it.data.is_non_financial || it.data.doc_type === 'non_financial');
+                    const a = parseFloat(it.data.amount) || 0;
+                    const r = (it.data.transaction_ref || it.data.cheque_number || '').trim();
+                    const v = this.validateReference(r, i);
+                    const itFc = Boolean(it.fraudChecked || it.data?.fraud_checked);
+                    const ts = itFc ? (parseInt(it.data.tampering_score) || 0) : 0;
+                    const isSusp = itFc && (Boolean(it.data.is_suspicious) || ts >= 35);
+                    if (!isNF && a > 0 && !v.isDuplicate && !isSusp) {
+                        currentTotal += a;
+                    }
+                });
+            } else if (this.lastExtractedData) {
+                const d = this.lastExtractedData;
+                const isNF = !!(d.is_non_financial || d.doc_type === 'non_financial');
+                const a = parseFloat(d.amount) || 0;
+                const r = (d.transaction_ref || d.cheque_number || '').trim();
+                const v = this.validateReference(r, 0);
+                const itFc = Boolean(d.fraud_checked);
+                const ts = itFc ? (parseInt(d.tampering_score) || 0) : 0;
+                const isSusp = itFc && (Boolean(d.is_suspicious) || ts >= 35);
+                if (!isNF && a > 0 && !v.isDuplicate && !isSusp) currentTotal = a;
+            }
+
+            const target = this.reconciliationTarget || 0;
+            if (target <= 0) {
+                statusEl.innerHTML = `<span style="color:#94a3b8; font-size:0.72rem;">(أدخل الإجمالي للمطابقة)</span>`;
+                if (targetInput) targetInput.style.borderColor = '#38bdf8';
+                return;
+            }
+
+            const diff = Math.round(currentTotal - target);
+
+            if (diff === 0) {
+                statusEl.innerHTML = `
+                    <span style="background:rgba(16,185,129,0.25); border:1.5px solid #10b981; color:#34d399; padding:2px 8px; border-radius:6px; font-weight:900; box-shadow:0 0 10px rgba(16,185,129,0.5); animation:pulseScale 1.5s infinite ease-in-out;">
+                        ✅ متطابق 100% (الفارق: 0.00 SDG)
+                    </span>
+                `;
+                if (targetInput) {
+                    targetInput.style.borderColor = '#10b981';
+                    targetInput.style.boxShadow = '0 0 10px rgba(16,185,129,0.5)';
+                }
+            } else if (diff < 0) {
+                const remaining = Math.abs(diff);
+                statusEl.innerHTML = `
+                    <span style="background:rgba(239,68,68,0.2); border:1.2px solid #ef4444; color:#fca5a5; padding:2px 8px; border-radius:6px; font-weight:900;">
+                        🔴 متبقي: ${remaining.toLocaleString('en-US')} SDG
+                    </span>
+                `;
+                if (targetInput) {
+                    targetInput.style.borderColor = '#ef4444';
+                    targetInput.style.boxShadow = 'none';
+                }
+            } else {
+                statusEl.innerHTML = `
+                    <span style="background:rgba(245,158,11,0.2); border:1.2px solid #f59e0b; color:#fde047; padding:2px 8px; border-radius:6px; font-weight:900;">
+                        ⚠️ زائد: ${diff.toLocaleString('en-US')} SDG
+                    </span>
+                `;
+                if (targetInput) {
+                    targetInput.style.borderColor = '#f59e0b';
+                    targetInput.style.boxShadow = 'none';
+                }
+            }
+        },
+
+        toggleFocusMode() {
+            this.setFocusMode(!this.isFocusMode);
+        },
+
+        setFocusMode(active) {
+            this.isFocusMode = !!active;
+            const btnFocus = document.getElementById('btn-ocr-focus-mode');
+            const btnAll = document.getElementById('btn-ocr-filter-all');
+            const statusText = document.getElementById('ocr-focus-status-text');
+
+            if (this.isFocusMode) {
+                if (btnFocus) {
+                    btnFocus.style.background = 'linear-gradient(135deg, rgba(6,182,212,0.35), rgba(14,165,233,0.45))';
+                    btnFocus.style.border = '1.5px solid #22d3ee';
+                    btnFocus.style.color = '#67e8f9';
+                    btnFocus.style.boxShadow = '0 0 10px rgba(6,182,212,0.4)';
+                }
+                if (btnAll) {
+                    btnAll.style.background = 'rgba(255,255,255,0.08)';
+                    btnAll.style.border = '1px solid rgba(255,255,255,0.2)';
+                    btnAll.style.color = '#cbd5e1';
+                }
+                if (statusText) statusText.textContent = '⚡ وضع التركيز نشط (المشاكل فقط)';
+            } else {
+                if (btnFocus) {
+                    btnFocus.style.background = 'rgba(255,255,255,0.08)';
+                    btnFocus.style.border = '1px solid rgba(255,255,255,0.2)';
+                    btnFocus.style.color = '#cbd5e1';
+                    btnFocus.style.boxShadow = 'none';
+                }
+                if (btnAll) {
+                    btnAll.style.background = 'rgba(56,189,248,0.25)';
+                    btnAll.style.border = '1px solid #38bdf8';
+                    btnAll.style.color = '#e0f2fe';
+                }
+                if (statusText) statusText.textContent = 'معروض الكل';
+            }
+
+            this.renderBatchTabs();
+        },
+
+        // ═══ Fiscal Date Validation (صلاحية التاريخ والفترة المحاسبية) ═══
+        validateFiscalDate(dateStr) {
+            if (!dateStr) return { valid: true, isOld: false, isClosed: false, isFuture: false, msg: '', daysDiff: 0 };
+            
+            const targetDate = new Date(dateStr);
+            if (isNaN(targetDate.getTime())) return { valid: true, isOld: false, isClosed: false, isFuture: false, msg: '', daysDiff: 0 };
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            targetDate.setHours(0, 0, 0, 0);
+
+            const diffMs = today.getTime() - targetDate.getTime();
+            const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+            // 1. Check Future Date
+            if (diffDays < 0) {
+                return {
+                    valid: false,
+                    isFuture: true,
+                    isOld: false,
+                    isClosed: false,
+                    daysDiff: diffDays,
+                    msg: `⚠️ تاريخ مستقبلي غير منطقي للإشعار (${Math.abs(diffDays)} يوم في المستقبل)`
+                };
+            }
+
+            // 2. Check Closed Fiscal Periods
+            const closedPeriods = window.DB_CLOSED_PERIODS || [];
+            const dateFormatted = dateStr.substring(0, 10);
+            for (const cp of closedPeriods) {
+                if (cp.start_date && cp.end_date) {
+                    if (dateFormatted >= cp.start_date && dateFormatted <= cp.end_date) {
+                        return {
+                            valid: false,
+                            isClosed: true,
+                            isOld: (diffDays > 30),
+                            isFuture: false,
+                            daysDiff: diffDays,
+                            msg: `⛔ التاريخ يقع في فترة مالية مغلقة (${cp.start_date} إلى ${cp.end_date})!`
+                        };
+                    }
+                }
+            }
+
+            // 3. Check Old Date (> 30 days)
+            const maxDays = this.maxReceiptAgeDays || 30;
+            if (diffDays > maxDays) {
+                return {
+                    valid: false,
+                    isOld: true,
+                    isClosed: false,
+                    isFuture: false,
+                    daysDiff: diffDays,
+                    msg: `⚠️ تاريخ الإشعار قديم: مضى عليه ${diffDays} يوماً (أكثر من شهر)!`
+                };
+            }
+
+            return { valid: true, isOld: false, isClosed: false, isFuture: false, msg: '', daysDiff: diffDays };
+        },
+
+        updateFiscalDateUI(dateStr) {
+            const warningBox = document.getElementById('ocr-date-fiscal-warning');
+            const iconEl = document.getElementById('ocr-date-fiscal-icon');
+            const textEl = document.getElementById('ocr-date-fiscal-text');
+            const dateInput = document.getElementById('ocr-field-date');
+            if (!warningBox || !dateInput) return;
+
+            const res = this.validateFiscalDate(dateStr);
+            if (!res.valid) {
+                warningBox.style.display = 'flex';
+                if (iconEl) iconEl.textContent = res.isClosed ? '⛔' : (res.isFuture ? '🔮' : '⚠️');
+                if (textEl) textEl.textContent = res.msg;
+
+                if (res.isClosed || res.isFuture) {
+                    warningBox.style.borderColor = '#ef4444';
+                    warningBox.style.background = 'linear-gradient(135deg, rgba(239,68,68,0.25), rgba(15,23,42,0.95))';
+                    dateInput.style.borderColor = '#ef4444';
+                    dateInput.style.boxShadow = '0 0 12px rgba(239,68,68,0.5)';
+                } else {
+                    warningBox.style.borderColor = '#f59e0b';
+                    warningBox.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.2), rgba(15,23,42,0.95))';
+                    dateInput.style.borderColor = '#f59e0b';
+                    dateInput.style.boxShadow = '0 0 12px rgba(245,158,11,0.4)';
+                }
+            } else {
+                warningBox.style.display = 'none';
+                dateInput.style.borderColor = '#38bdf8';
+                dateInput.style.boxShadow = '0 0 10px rgba(56,189,248,0.3)';
+            }
+        },
+
+        handleDateInput(input) {
+            this.syncCurrentItemFromForm();
+            if (input) {
+                this.updateFiscalDateUI(input.value);
+            }
+            this.renderBatchTabs();
+        },
+
+        setDateToToday() {
+            const today = new Date().toISOString().split('T')[0];
+            const dateInput = document.getElementById('ocr-field-date');
+            if (dateInput) {
+                dateInput.value = today;
+                this.handleDateInput(dateInput);
+                this.showToast('📅 تم ضبط تاريخ المستند لتاريخ اليوم', 'info');
+            }
+        },
+
+        // ═════════════════════════════════════════════════════════════
+        // Chronological Sequence Anomaly Detector for Transaction References
+        // كاشف شذوذ وانعكاس التسلسل الزمني لأرقام العمليات المصرفية (كشف تزوير متقدم)
+        // ═════════════════════════════════════════════════════════════
+        getArabicDayName(dateStr) {
+            if (!dateStr) return '';
+            const m = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (!m) return '';
+            const dt = new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10));
+            const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+            return days[dt.getDay()] || '';
+        },
+
+        normalizeBankName(bankName, appName = '') {
+            const s = `${bankName || ''} ${appName || ''}`.toLowerCase();
+            if (s.includes('خرطوم') || s.includes('بنكك') || s.includes('bankak') || s.includes('bok')) return 'bok';
+            if (s.includes('فيصل') || s.includes('فوري') || s.includes('fawry') || s.includes('fib')) return 'fib';
+            if (s.includes('أمدرمان') || s.includes('امدرمان') || s.includes('أوكاش') || s.includes('اوكاش') || s.includes('ocash') || s.includes('onb')) return 'onb';
+            if (s.includes('نيل') || s.includes('nile')) return 'nile';
+            if (s.includes('بركة') || s.includes('baraka')) return 'baraka';
+            if (s.includes('تضامن') || s.includes('tadamon')) return 'tadamon';
+            return s.trim() || 'generic';
+        },
+
+        getBankDisplayName(bankKey, fallback = '') {
+            switch (bankKey) {
+                case 'bok': return 'بنك الخرطوم (بنكك)';
+                case 'fib': return 'بنك فيصل الإسلامي (فوري)';
+                case 'onb': return 'بنك أمدرمان الوطني (أوكاش)';
+                case 'nile': return 'بنك النيل';
+                case 'baraka': return 'بنك البركة';
+                case 'tadamon': return 'بنك التضامن الإسلامي';
+                default: return fallback || 'البنك';
+            }
+        },
+
+        parseRefSequence(refStr) {
+            if (!refStr) return null;
+            const clean = refStr.toString().trim();
+            const digits = clean.replace(/\D/g, '');
+            if (digits.length < 3) return null;
+            try {
+                return {
+                    raw: clean,
+                    digits: digits,
+                    val: BigInt(digits),
+                    length: digits.length
+                };
+            } catch (e) {
+                return null;
+            }
+        },
+
+        parseDateToDays(dateStr) {
+            if (!dateStr) return null;
+            const m = dateStr.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+            if (!m) return null;
+            return new Date(parseInt(m[1], 10), parseInt(m[2], 10) - 1, parseInt(m[3], 10)).getTime();
+        },
+
+        getSystemHistoricalTransactions() {
+            if (this._cachedSystemTransactions && (Date.now() - (this._cachedSystemTransactionsTime || 0) < 10000)) {
+                return this._cachedSystemTransactions;
+            }
+
+            const list = [];
+            const seen = new Set();
+
+            const addEntry = (date, ref, bankName, source) => {
+                if (!date || !ref) return;
+                const cleanRef = ref.toString().trim();
+                const seq = this.parseRefSequence(cleanRef);
+                const days = this.parseDateToDays(date);
+                if (!seq || !days) return;
+
+                const bankKey = this.normalizeBankName(bankName);
+                const key = `${bankKey}|${date}|${seq.digits}`;
+                if (seen.has(key)) return;
+                seen.add(key);
+
+                list.push({
+                    date: date.substring(0, 10),
+                    days: days,
+                    ref: cleanRef,
+                    seq: seq,
+                    bankKey: bankKey,
+                    bankName: bankName,
+                    source: source || 'سند سابق بالنظام'
+                });
+            };
+
+            // 1. From window.SERVER_RECEIPTS
+            if (Array.isArray(window.SERVER_RECEIPTS)) {
+                for (const r of window.SERVER_RECEIPTS) {
+                    if (!r) continue;
+                    const d = r.date || r.createdAt;
+                    const b = r.mainAccount || r.toAccount || r.bankName || '';
+                    if (r.mobileTransferNo) addEntry(d, r.mobileTransferNo, b, `سند قبض #${r.voucherNo || r.id || ''}`);
+                    if (r.bankRef) addEntry(d, r.bankRef, b, `سند قبض #${r.voucherNo || r.id || ''}`);
+                    if (Array.isArray(r.bankTransfers)) {
+                        for (const bt of r.bankTransfers) {
+                            if (bt.transferNo) addEntry(bt.date || d, bt.transferNo, bt.bankName || b, `سند قبض #${r.voucherNo || r.id || ''}`);
+                        }
+                    }
+                    if (Array.isArray(r.items)) {
+                        for (const it of r.items) {
+                            if (it.transferNo) addEntry(it.date || d, it.transferNo, it.account || b, `سند قبض #${r.voucherNo || r.id || ''}`);
+                        }
+                    }
+                }
+            }
+
+            // 2. From window.SERVER_PAYMENTS
+            if (Array.isArray(window.SERVER_PAYMENTS)) {
+                for (const p of window.SERVER_PAYMENTS) {
+                    if (!p) continue;
+                    const d = p.date || p.createdAt;
+                    const b = p.mainAccount || p.fromAccount || p.bankName || '';
+                    if (p.mobileTransferNo) addEntry(d, p.mobileTransferNo, b, `سند صرف #${p.voucherNo || p.id || ''}`);
+                    if (p.bankRef) addEntry(d, p.bankRef, b, `سند صرف #${p.voucherNo || p.id || ''}`);
+                    if (Array.isArray(p.bankTransfers)) {
+                        for (const bt of p.bankTransfers) {
+                            if (bt.transferNo) addEntry(bt.date || d, bt.transferNo, bt.bankName || b, `سند صرف #${p.voucherNo || p.id || ''}`);
+                        }
+                    }
+                    if (Array.isArray(p.items)) {
+                        for (const it of p.items) {
+                            if (it.transferNo) addEntry(it.date || d, it.transferNo, it.account || b, `سند صرف #${p.voucherNo || p.id || ''}`);
+                        }
+                    }
+                }
+            }
+
+            // 3. From localStorage
+            try {
+                const stores = ['erp_receipts_v1', 'erp_payments_v1', 'erp_single_receipts_v1', 'erp_single_payments_v1', 'erp_journal_vouchers_v1', 'erp_comprehensive_payments_v1'];
+                for (const s of stores) {
+                    const raw = localStorage.getItem(s);
+                    if (!raw) continue;
+                    const parsed = JSON.parse(raw);
+                    const arr = Array.isArray(parsed) ? parsed : Object.values(parsed);
+                    for (const item of arr) {
+                        if (!item) continue;
+                        const d = item.date || item.voucherDate || item.transferDate;
+                        const b = item.bankName || item.bank || item.account || item.mainAccount || '';
+                        if (item.mobileTransferNo) addEntry(d, item.mobileTransferNo, b, `سند #${item.voucherNo || item.id || ''}`);
+                        if (item.bankRef) addEntry(d, item.bankRef, b, `سند #${item.voucherNo || item.id || ''}`);
+                        if (Array.isArray(item.bankTransfers)) {
+                            for (const bt of item.bankTransfers) {
+                                if (bt.transferNo) addEntry(bt.date || d, bt.transferNo, bt.bankName || b, `سند #${item.voucherNo || item.id || ''}`);
+                            }
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            this._cachedSystemTransactions = list;
+            this._cachedSystemTransactionsTime = Date.now();
+            return list;
+        },
+
+        validateTransactionSequence(ref, dateStr, bankName, appName = '', currentIndex = -1) {
+            const cleanRef = (ref || '').toString().trim();
+            const seqCurrent = this.parseRefSequence(cleanRef);
+            const daysCurrent = this.parseDateToDays(dateStr);
+            if (!seqCurrent || !daysCurrent) {
+                return { hasAnomaly: false, message: '' };
+            }
+
+            const currentBankKey = this.normalizeBankName(bankName, appName);
+            const currentDayName = this.getArabicDayName(dateStr);
+            const bankDisplayName = this.getBankDisplayName(currentBankKey, bankName);
+
+            // 1. Compare across other items in the batch
+            if (this.batchItems && this.batchItems.length > 1) {
+                for (let i = 0; i < this.batchItems.length; i++) {
+                    if (i === currentIndex) continue;
+                    const other = this.batchItems[i]?.data;
+                    if (!other) continue;
+                    const otherRef = (other.transaction_ref || other.cheque_number || '').toString().trim();
+                    const seqOther = this.parseRefSequence(otherRef);
+                    const daysOther = this.parseDateToDays(other.date);
+                    if (!seqOther || !daysOther) continue;
+
+                    const otherBankKey = this.normalizeBankName(other.bank_name, other.app_name);
+                    if (currentBankKey !== otherBankKey) continue;
+
+                    // Only compare if digit lengths are comparable (e.g. within 1 digit)
+                    if (Math.abs(seqCurrent.length - seqOther.length) > 1) continue;
+
+                    const otherDayName = this.getArabicDayName(other.date);
+
+                    // Case A: Current item is dated LATER than other item, but current ref is SMALLER!
+                    // (e.g. other is Thursday ref 5000, current is Saturday ref 3000)
+                    if (daysOther < daysCurrent && seqOther.val > seqCurrent.val) {
+                        return {
+                            hasAnomaly: true,
+                            isRegression: true,
+                            earlierDate: other.date,
+                            earlierDay: otherDayName,
+                            earlierRef: otherRef,
+                            laterDate: dateStr,
+                            laterDay: currentDayName,
+                            laterRef: cleanRef,
+                            comparedBank: bankDisplayName,
+                            comparedWith: `المستند رقم #${i + 1} بالدفعة`,
+                            message: `⚠️ شذوذ تسلسل رقم العملية مع التاريخ (انعكاس تسلسلي مريب): إشعار يوم ${currentDayName || 'الحالي'} (${dateStr}) يحمل رقم العملية (${cleanRef}) وهو أصغر من إشعار يوم ${otherDayName || 'السابق'} (${other.date}) برقم (${otherRef}) لنفس البنك (${bankDisplayName})! في المعاملات المصرفية تتصاعد أرقام المعاملات زمنياً، وتراجع الرقم مؤشر صريح على تزوير التاريخ أو فبركة رقم الإشعار.`
+                        };
+                    }
+
+                    // Case B: Current item is dated EARLIER than other item, but current ref is LARGER!
+                    // (e.g. current is Thursday ref 8000, other is Saturday ref 5000)
+                    if (daysCurrent < daysOther && seqCurrent.val > seqOther.val) {
+                        return {
+                            hasAnomaly: true,
+                            isPrecession: true,
+                            earlierDate: dateStr,
+                            earlierDay: currentDayName,
+                            earlierRef: cleanRef,
+                            laterDate: other.date,
+                            laterDay: otherDayName,
+                            laterRef: otherRef,
+                            comparedBank: bankDisplayName,
+                            comparedWith: `المستند رقم #${i + 1} بالدفعة`,
+                            message: `⚠️ شذوذ تسلسل رقم العملية مع التاريخ (انعكاس تسلسلي مريب): إشعار يوم ${currentDayName || 'الحالي'} (${dateStr}) يحمل رقم العملية (${cleanRef}) وهو أكبر من إشعار لاحق يوم ${otherDayName || 'التالي'} (${other.date}) برقم (${otherRef}) لنفس البنك (${bankDisplayName})!`
+                        };
+                    }
+                }
+            }
+
+            // 2. Compare against system historical transactions
+            const historical = this.getSystemHistoricalTransactions();
+            for (const hist of historical) {
+                if (hist.bankKey !== currentBankKey) continue;
+                if (Math.abs(seqCurrent.length - hist.seq.length) > 1) continue;
+
+                const histDayName = this.getArabicDayName(hist.date);
+
+                // Case A: Current item is dated LATER than historical voucher, but current ref is SMALLER!
+                if (hist.days < daysCurrent && hist.seq.val > seqCurrent.val) {
+                    return {
+                        hasAnomaly: true,
+                        isRegression: true,
+                        earlierDate: hist.date,
+                        earlierDay: histDayName,
+                        earlierRef: hist.ref,
+                        laterDate: dateStr,
+                        laterDay: currentDayName,
+                        laterRef: cleanRef,
+                        comparedBank: bankDisplayName,
+                        comparedWith: hist.source || 'سند سابق بالنظام',
+                        message: `⚠️ شذوذ تسلسل رقم العملية مع التاريخ: إشعار يوم ${currentDayName || 'الحالي'} (${dateStr}) برقم (${cleanRef}) أصغر من حركة سابقة مسجلة بالنظام في يوم ${histDayName || 'السابق'} (${hist.date}) برقم (${hist.ref}) لنفس البنك (${bankDisplayName})! (${hist.source})`
+                    };
+                }
+
+                // Case B: Current item is dated EARLIER than historical voucher, but current ref is LARGER!
+                if (daysCurrent < hist.days && seqCurrent.val > hist.seq.val) {
+                    return {
+                        hasAnomaly: true,
+                        isPrecession: true,
+                        earlierDate: dateStr,
+                        earlierDay: currentDayName,
+                        earlierRef: cleanRef,
+                        laterDate: hist.date,
+                        laterDay: histDayName,
+                        laterRef: hist.ref,
+                        comparedBank: bankDisplayName,
+                        comparedWith: hist.source || 'سند سابق بالنظام',
+                        message: `⚠️ شذوذ تسلسل رقم العملية مع التاريخ: إشعار يوم ${currentDayName || 'الحالي'} (${dateStr}) برقم (${cleanRef}) أكبر من حركة مسجلة لاحقاً بالنظام في يوم ${histDayName || 'التالي'} (${hist.date}) برقم (${hist.ref}) لنفس البنك (${bankDisplayName})! (${hist.source})`
+                    };
+                }
+            }
+
+            return { hasAnomaly: false, message: '' };
+        },
+
+        checkTransactionSequenceAnomalies(force = false) {
+            if (!force) return;
+            const items = this.batchItems;
+            if (!items || items.length === 0) {
+                if (this.lastExtractedData && this.lastExtractedData.fraud_checked) {
+                    const d = this.lastExtractedData;
+                    const r = (d.transaction_ref || d.cheque_number || '').trim();
+                    const res = this.validateTransactionSequence(r, d.date, d.bank_name, d.app_name, 0);
+                    d.sequence_anomaly = res;
+                    if (res.hasAnomaly) {
+                        d.is_suspicious = true;
+                        d.tampering_score = Math.max(parseInt(d.tampering_score) || 0, 75);
+                        if (!d.tampering_reasons || !d.tampering_reasons.includes('شذوذ تسلسل')) {
+                            d.tampering_reasons = d.tampering_reasons ? `${d.tampering_reasons} | ${res.message}` : res.message;
+                        }
+                    }
+                }
+                return;
+            }
+
+            // Loop through all batch items that have been fraud-checked
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
+                if (!item || !item.data) continue;
+                if (!item.fraudChecked && !item.data.fraud_checked) continue;
+                const d = item.data;
+                const r = (d.transaction_ref || d.cheque_number || '').trim();
+                const res = this.validateTransactionSequence(r, d.date, d.bank_name, d.app_name, i);
+                d.sequence_anomaly = res;
+
+                if (res.hasAnomaly) {
+                    d.is_suspicious = true;
+                    d.tampering_score = Math.max(parseInt(d.tampering_score) || 0, 75);
+                    if (!d.tampering_reasons || !d.tampering_reasons.includes('شذوذ تسلسل')) {
+                        d.tampering_reasons = d.tampering_reasons ? `${d.tampering_reasons} | ${res.message}` : res.message;
+                    }
+                }
+            }
+        },
+
+        updateReferenceSequenceUI(data) {
+            const seqWarningBox = document.getElementById('ocr-sequence-warning-box');
+            const seqWarningText = document.getElementById('ocr-sequence-warning-text');
+            const refSequenceWarning = document.getElementById('ocr-ref-sequence-warning');
+            const refSequenceText = document.getElementById('ocr-ref-sequence-text');
+            const refNoInput = document.getElementById('ocr-field-ref-no');
+
+            if (!data) return;
+            const curItem = (this.batchItems && this.batchItems[this.currentBatchIndex]) ? this.batchItems[this.currentBatchIndex] : null;
+            const hasFraudCheck = Boolean((curItem && curItem.fraudChecked) || data.fraud_checked);
+            const anomaly = hasFraudCheck ? data.sequence_anomaly : null;
+
+            if (anomaly && anomaly.hasAnomaly) {
+                if (seqWarningBox) {
+                    seqWarningBox.style.display = 'flex';
+                    if (seqWarningText) seqWarningText.textContent = anomaly.message;
+                }
+                if (refSequenceWarning) {
+                    refSequenceWarning.style.display = 'flex';
+                    if (refSequenceText) {
+                        const shortDesc = anomaly.isRegression
+                            ? `⚠️ تراجع تسلسلي: إشعار ${anomaly.laterDay || ''} (${anomaly.laterRef}) أصغر من إشعار ${anomaly.earlierDay || ''} (${anomaly.earlierRef}) لنفس البنك!`
+                            : `⚠️ شذوذ تسلسلي: إشعار ${anomaly.earlierDay || ''} (${anomaly.earlierRef}) أكبر من إشعار ${anomaly.laterDay || ''} (${anomaly.laterRef})!`;
+                        refSequenceText.textContent = shortDesc;
+                        refSequenceText.title = anomaly.message;
+                    }
+                }
+                if (refNoInput) {
+                    refNoInput.style.borderColor = '#d946ef';
+                    refNoInput.style.backgroundColor = 'rgba(112, 26, 117, 0.25)';
+                    refNoInput.style.boxShadow = '0 0 18px rgba(217, 70, 239, 0.7)';
+                }
+            } else {
+                if (seqWarningBox) seqWarningBox.style.display = 'none';
+                if (refSequenceWarning) refSequenceWarning.style.display = 'none';
+                if (refNoInput && refNoInput.style.borderColor === 'rgb(217, 70, 239)') {
+                    refNoInput.style.borderColor = '';
+                    refNoInput.style.backgroundColor = '';
+                    refNoInput.style.boxShadow = '';
+                }
+            }
         },
 
         // Render Batch Navigation Tabs / Pills
@@ -2286,9 +3358,9 @@
 
             const singleActionsBar = document.getElementById('ocr-single-actions-bar');
             if (container) container.style.display = 'flex';
-            if (deleteBtn) deleteBtn.style.display = (itemsCount > 1) ? 'flex' : 'none';
-            if (applySingleBtn) applySingleBtn.style.display = (itemsCount > 1) ? 'flex' : 'none';
-            if (singleActionsBar) singleActionsBar.style.display = (itemsCount > 1) ? 'flex' : 'none';
+            if (deleteBtn) deleteBtn.style.display = 'none';
+            if (applySingleBtn) applySingleBtn.style.display = 'flex';
+            if (singleActionsBar) singleActionsBar.style.display = 'none';
 
             // Compute total clean documents in current batch
             let cleanCount = 0;
@@ -2299,8 +3371,9 @@
                     const a = parseFloat(d.amount) || 0;
                     const r = (d.transaction_ref || d.cheque_number || '').trim();
                     const v = this.validateReference(r, i);
-                    const ts = parseInt(d.tampering_score) || 0;
-                    const isSusp = (Boolean(d.is_suspicious) || ts >= 35);
+                    const itFc = Boolean(it.fraudChecked || d.fraud_checked);
+                    const ts = itFc ? (parseInt(d.tampering_score) || 0) : 0;
+                    const isSusp = itFc && (Boolean(d.is_suspicious) || ts >= 35);
                     if (!isNF && a > 0 && !v.isDuplicate && !isSusp) {
                         cleanCount++;
                     }
@@ -2311,8 +3384,9 @@
                 const a = parseFloat(d.amount) || 0;
                 const r = (d.transaction_ref || d.cheque_number || '').trim();
                 const v = this.validateReference(r, 0);
-                const ts = parseInt(d.tampering_score) || 0;
-                const isSusp = (Boolean(d.is_suspicious) || ts >= 35);
+                const itFc = Boolean(d.fraud_checked);
+                const ts = itFc ? (parseInt(d.tampering_score) || 0) : 0;
+                const isSusp = itFc && (Boolean(d.is_suspicious) || ts >= 35);
                 if (!isNF && a > 0 && !v.isDuplicate && !isSusp) cleanCount = 1;
             }
 
@@ -2321,7 +3395,7 @@
             // -------------------------------------------------------------
             if (this.isStreamingInBackground) {
                 if (counterBadge) {
-                    counterBadge.innerHTML = `<span>⏳ إجمالي السندات (${itemsCount} من ${this.totalFilesCount || itemsCount} سند):</span>`;
+                    counterBadge.innerHTML = `<span>⏳ إجمالي السند (${itemsCount} من ${this.totalFilesCount || itemsCount} سند):</span>`;
                 }
                 if (applyBtn) {
                     applyBtn.disabled = true;
@@ -2337,11 +3411,11 @@
                     applySingleBtn.style.opacity = '0.5';
                 }
                 if (applyText) {
-                    applyText.innerHTML = `⏳ جاري فحص بقية المستندات (${itemsCount} من ${this.totalFilesCount || itemsCount})... تم قفل الاعتماد لحماية القيد`;
+                    applyText.innerHTML = `⏳ جاري الفحص (${itemsCount}/${this.totalFilesCount || itemsCount})`;
                 }
             } else {
                 if (counterBadge) {
-                    counterBadge.textContent = `إجمالي السندات (${itemsCount} سند):`;
+                    counterBadge.textContent = `إجمالي السند (${itemsCount} سند):`;
                 }
                 if (cleanCount === 0) {
                     // All documents are unapproved, unclear/zero, or duplicate -> Block approval button completely!
@@ -2354,7 +3428,7 @@
                         applyBtn.style.boxShadow = 'none';
                     }
                     if (applyText) {
-                        applyText.textContent = '⚠️ زر الاعتماد لا يعتمد (لا توجد سندات معتمدة)';
+                        applyText.textContent = 'محظور (0 معتمد)';
                     }
                 } else {
                     if (applyBtn) {
@@ -2366,7 +3440,7 @@
                         applyBtn.style.boxShadow = '0 4px 18px rgba(16,185,129,0.4)';
                     }
                     if (applyText) {
-                        applyText.textContent = 'حفظ الاعتمادات';
+                        applyText.textContent = (cleanCount > 0 && itemsCount > 1) ? `حفظ الكل (${cleanCount})` : 'حفظ الكل';
                     }
                 }
             }
@@ -2375,8 +3449,85 @@
                 ? this.batchItems
                 : (this.lastExtractedData ? [{ base64: this.currentImageBase64, data: this.lastExtractedData }] : []);
 
+            let totalCount = displayItems.length;
+            let issueCount = 0;
+            displayItems.forEach((item, idx) => {
+                const isNonFin = !!(item.data.is_non_financial || item.data.doc_type === 'non_financial');
+                const a = (parseFloat(item.data.amount) || 0);
+                const r = (item.data.transaction_ref || item.data.cheque_number || '').trim();
+                const v = this.validateReference(r, idx);
+                const isDup = !isNonFin && (!v.valid && v.isDuplicate);
+                const hasFc = Boolean(item.fraudChecked || item.data?.fraud_checked);
+                const ts = hasFc ? (parseInt(item.data.tampering_score) || 0) : 0;
+                const isSusp = !isDup && !isNonFin && hasFc && (Boolean(item.data.is_suspicious) || ts >= 35);
+                const isGold = !isDup && !isSusp && (isNonFin || a <= 0 || Boolean(item.data.scan_error));
+                const isRefMis = (!r || r === '---' || r.length < 6 || /^(null|none|n\/?a|غير\s*متوفر|لا\s*يوجد|-)$/i.test(r));
+                const isCrp = !isDup && !isSusp && !isGold && (isRefMis || Boolean(item.data.is_cropped));
+                if (isDup || isSusp || isGold || isCrp) issueCount++;
+            });
+
+            const countAllPills = document.getElementById('ocr-count-all-pills');
+            if (countAllPills) countAllPills.textContent = totalCount;
+
+            const countIssuesPills = document.getElementById('ocr-count-issues-pills');
+            if (countIssuesPills) countIssuesPills.textContent = issueCount;
+
+            // Auto-switch selection in Focus Mode if the currently selected card is clean
+            if (this.isFocusMode && issueCount > 0) {
+                const cur = displayItems[this.currentBatchIndex];
+                if (cur) {
+                    const curNonFin = !!(cur.data.is_non_financial || cur.data.doc_type === 'non_financial');
+                    const curAmt = (parseFloat(cur.data.amount) || 0);
+                    const curRef = (cur.data.transaction_ref || cur.data.cheque_number || '').trim();
+                    const curVal = this.validateReference(curRef, this.currentBatchIndex);
+                    const curDup = !curNonFin && (!curVal.valid && curVal.isDuplicate);
+                    const curHasFc = Boolean(cur.fraudChecked || cur.data?.fraud_checked);
+                    const curTs = curHasFc ? (parseInt(cur.data.tampering_score) || 0) : 0;
+                    const curSusp = !curDup && !curNonFin && curHasFc && (Boolean(cur.data.is_suspicious) || curTs >= 35);
+                    const curGold = !curDup && !curSusp && (curNonFin || curAmt <= 0 || Boolean(cur.data.scan_error));
+                    const curRefMis = (!curRef || curRef === '---' || curRef.length < 6 || /^(null|none|n\/?a|غير\s*متوفر|لا\s*يوجد|-)$/i.test(curRef));
+                    const curCrp = !curDup && !curSusp && !curGold && (curRefMis || Boolean(cur.data.is_cropped));
+                    const curIsClean = !curDup && !curSusp && !curGold && !curCrp;
+                    if (curIsClean) {
+                        const firstIssueIdx = displayItems.findIndex((it, i) => {
+                            const nF = !!(it.data.is_non_financial || it.data.doc_type === 'non_financial');
+                            const a = (parseFloat(it.data.amount) || 0);
+                            const r = (it.data.transaction_ref || it.data.cheque_number || '').trim();
+                            const v = this.validateReference(r, i);
+                            const d = !nF && (!v.valid && v.isDuplicate);
+                            const itHasFc = Boolean(it.fraudChecked || it.data?.fraud_checked);
+                            const t = itHasFc ? (parseInt(it.data.tampering_score) || 0) : 0;
+                            const s = !d && !nF && itHasFc && (Boolean(it.data.is_suspicious) || t >= 35);
+                            const g = !d && !s && (nF || a <= 0 || Boolean(it.data.scan_error));
+                            const rm = (!r || r === '---' || r.length < 6 || /^(null|none|n\/?a|غير\s*متوفر|لا\s*يوجد|-)$/i.test(r));
+                            const c = !d && !s && !g && (rm || Boolean(it.data.is_cropped));
+                            return (d || s || g || c);
+                        });
+                        if (firstIssueIdx !== -1 && firstIssueIdx !== this.currentBatchIndex) {
+                            this.currentBatchIndex = firstIssueIdx;
+                            this.selectBatchItem(firstIssueIdx);
+                            return;
+                        }
+                    }
+                }
+            }
+
             if (tabsList) {
                 tabsList.innerHTML = '';
+
+                if (this.isFocusMode && issueCount === 0 && totalCount > 0) {
+                    tabsList.innerHTML = `
+                        <div style="grid-column: 1 / -1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:32px 16px; text-align:center; background:linear-gradient(135deg, rgba(6,78,59,0.35), rgba(15,23,42,0.9)); border:1.8px solid #10b981; border-radius:12px; gap:8px; box-shadow:0 0 20px rgba(16,185,129,0.3);">
+                            <span style="font-size:2.5rem; filter:drop-shadow(0 0 10px #10b981);">🎉</span>
+                            <h4 style="margin:0; color:#34d399; font-size:1.18rem; font-weight:900;">ما شاء الله! كافة إشعارات الدفعة (${totalCount}) سليمة ومكتملة 100%</h4>
+                            <p style="margin:0; color:#cbd5e1; font-size:0.86rem; font-weight:700;">لا توجد أي إشعارات مكررة أو مقطوعة أو غير واضحة. تم تدقيق الدفعة بالكامل وجاهزة للاعتماد المباشر!</p>
+                            <button type="button" onclick="FinancialOCR.setFocusMode(false)" style="margin-top:6px; background:rgba(56,189,248,0.25); border:1.2px solid #38bdf8; color:#e0f2fe; padding:5px 16px; border-radius:6px; font-size:0.84rem; font-weight:900; cursor:pointer;">عرض الكل مجدداً</button>
+                        </div>
+                    `;
+                    this.updateReconciliationStatus();
+                    return;
+                }
+
                 displayItems.forEach((item, idx) => {
                     if (!item.data.bank_name || item.data.bank_name === 'غير محدد' || item.data.bank_name === 'غير متوفر') {
                         item.data.bank_name = (item.data.app_name && item.data.app_name.includes('فوري')) ? 'بنك فيصل الإسلامي' : 'بنك الخرطوم';
@@ -2391,17 +3542,21 @@
                     const valRes = this.validateReference(refVal, idx);
 
                     // 1. Classification into distinct functional tiers:
-                    // - Tier 1: Duplicate (خطر الازدواجية) -> Deep Crimson Red + Hazard Lamp 🚨
-                    // - Tier 2: Suspicious / Forgery (اشتباه تزوير وتلاعب) -> Electric Violet / Royal Purple + Suspicion % Badge 🕵️‍♂️
-                    // - Tier 3: Golden Warning -> Non-Financial / Zero Amount (غير واضح أو المبلغ غير ظاهر) / Scan Error -> Amber Golden + Warning Lamp ⚠️
-                    // - Tier 4: Clean/Valid (سليم 100% مار طوالي) -> Emerald Green + Checkmark ✓
                     const isDuplicate = !isNonFinancial && (!valRes.valid && valRes.isDuplicate);
-                    const tamperingScore = parseInt(item.data.tampering_score) || 0;
-                    const isSuspicious = !isDuplicate && !isNonFinancial && (Boolean(item.data.is_suspicious) || tamperingScore >= 35);
+                    const hasFraudCheck = Boolean(item.fraudChecked || item.data?.fraud_checked);
+                    const tamperingScore = hasFraudCheck ? (parseInt(item.data.tampering_score) || 0) : 0;
+                    const isSuspicious = !isDuplicate && !isNonFinancial && hasFraudCheck && (Boolean(item.data.is_suspicious) || tamperingScore >= 35);
                     const isGolden = !isDuplicate && !isSuspicious && (isNonFinancial || isAmtZero || Boolean(item.data.scan_error));
-                    const isClean = !isDuplicate && !isSuspicious && !isGolden;
+                    const isRefMissing = (!refVal || refVal === '---' || refVal.length < 6 || /^(null|none|n\/?a|غير\s*متوفر|لا\s*يوجد|-)$/i.test(refVal));
+                    const isCroppedOrMissingRef = !isDuplicate && !isSuspicious && !isGolden && (isRefMissing || Boolean(item.data.is_cropped));
+                    const isClean = !isDuplicate && !isSuspicious && !isGolden && !isCroppedOrMissingRef;
 
-                    // Status Indicator: Square hazard lamp / purple suspicion badge / golden warning button / clean checkmark badge
+                    // Focus Mode: Skip clean items when focus mode is active
+                    if (this.isFocusMode && isClean) {
+                        return;
+                    }
+
+                    // Status Indicator: Square hazard lamp / purple suspicion badge / golden warning button / cropped button / clean checkmark badge
                     // وضع علامة صح على العلامة الملونة وإنزالها إلى تحت قليلاً
                     let statusSquareBtnHtml = '';
                     if (isDuplicate) {
@@ -2435,18 +3590,51 @@
                             </button>
                         `;
                     } else if (isGolden) {
-                        // Square Golden Warning Button (مربع التنبيه الذهبي للمستندات غير المعتمدة أو غير الواضحة أو صور السيارات)
+                        const isApiIssue = Boolean(item.data?.is_api_error || item.data?.is_quota_exceeded || item.data?.scan_error);
+                        if (isApiIssue) {
+                            // Square Blue Retry Button for API/Rate Limit Issues
+                            statusSquareBtnHtml = `
+                                <button type="button" 
+                                        onclick="event.stopPropagation(); FinancialOCR.rescanItemByIndex(${idx}, false)" 
+                                        style="width:22px; height:22px; min-width:22px; border-radius:5px; 
+                                               background:linear-gradient(135deg, #0284c7, #0369a1); 
+                                               border:1.2px solid #7dd3fc; 
+                                               color:#ffffff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; 
+                                               font-size:0.80rem; padding:0; line-height:1; margin-top:2px; 
+                                               box-shadow:0 0 8px rgba(2,132,199,0.85);" 
+                                        title="⚡ تعذر فحص المستند مؤقتاً بسبب ضغط الطلبات (Rate Limit). انقر هنا لإعادة الفحص فوراً">
+                                    🔄
+                                </button>
+                            `;
+                        } else {
+                            // Square Golden Warning Button (مربع التنبيه الذهبي للمستندات غير المعتمدة أو غير الواضحة أو صور السيارات)
+                            statusSquareBtnHtml = `
+                                <button type="button" 
+                                        onclick="event.stopPropagation(); FinancialOCR.showUnclearAlert(${idx})" 
+                                        style="width:22px; height:22px; min-width:22px; border-radius:5px; 
+                                               background:linear-gradient(135deg, #f59e0b, #b45309); 
+                                               border:1.2px solid #fde68a; 
+                                               color:#ffffff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; 
+                                               font-size:0.85rem; padding:0; line-height:1; margin-top:2px; 
+                                               box-shadow:0 0 8px rgba(245,158,11,0.85); animation:ocrWarningPulse 1.1s infinite alternate;" 
+                                               title="⚠️ تنبيه 🚫: مستند غير معتمد في النماذج أو غير واضح أو صورة سيارة (محظور من الاعتماد نهائياً)">
+                                    ⚠️
+                                </button>
+                            `;
+                        }
+                    } else if (isCroppedOrMissingRef) {
+                        // Square Cropped / Missing Ref Status Button (مربع التنبيه الفيروزي/السماوي للمستند السليم المقطوع في التصوير أو ناقص رقم العملية)
                         statusSquareBtnHtml = `
                             <button type="button" 
-                                    onclick="event.stopPropagation(); FinancialOCR.showUnclearAlert(${idx})" 
+                                    onclick="event.stopPropagation(); FinancialOCR.showCroppedAlert(${idx})" 
                                     style="width:22px; height:22px; min-width:22px; border-radius:5px; 
-                                           background:linear-gradient(135deg, #f59e0b, #b45309); 
-                                           border:1.2px solid #fde68a; 
+                                           background:linear-gradient(135deg, #06b6d4, #0891b2); 
+                                           border:1.2px solid #67e8f9; 
                                            color:#ffffff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; 
                                            font-size:0.85rem; padding:0; line-height:1; margin-top:2px; 
-                                           box-shadow:0 0 8px rgba(245,158,11,0.85); animation:ocrWarningPulse 1.1s infinite alternate;" 
-                                    title="⚠️ تنبيه 🚫: مستند غير معتمد في النماذج أو غير واضح أو صورة سيارة (محظور من الاعتماد نهائياً)">
-                                ⚠️
+                                           box-shadow:0 0 8px rgba(6,182,212,0.85); animation:ocrWarningPulse 1.3s infinite alternate;" 
+                                    title="✂️ إشعار سليم ومار (مقطوع في التصوير أو ناقص رقم العملية) - انقر للتفاصيل">
+                                ✂️
                             </button>
                         `;
                     } else {
@@ -2464,19 +3652,21 @@
                     }
 
                     // Individual Square Refresh Button - ملموم ومصغر وبداخله أيقونة صغيرة
+                    const isCardAutoRefreshing = Boolean(item.isAutoRefreshing);
                     const refreshBtnHtml = `
                         <button type="button" 
                                 onclick="event.stopPropagation(); FinancialOCR.rescanItemByIndex(${idx}, false)" 
                                 id="card-refresh-btn-${idx}" 
-                                style="width:24px; height:24px; min-width:24px; border-radius:5px; 
-                                       background:${isAmtZero ? 'linear-gradient(135deg, rgba(245,158,11,0.5), rgba(217,119,6,0.7))' : 'rgba(56,189,248,0.22)'}; 
-                                       border:1.2px solid ${isAmtZero ? '#fbbf24' : 'rgba(56,189,248,0.5)'}; 
-                                       color:${isAmtZero ? '#fef08a' : '#7dd3fc'}; 
-                                       cursor:pointer; display:inline-flex; align-items:center; justify-content:center; 
-                                       font-size:0.78rem; padding:0; transition:all 0.15s ease; 
-                                       box-shadow:${isAmtZero ? '0 0 8px rgba(251,191,36,0.6)' : 'none'};" 
+                                style="width:${isCardAutoRefreshing ? 'auto' : '24px'}; height:24px; min-width:24px; padding:${isCardAutoRefreshing ? '0 5px' : '0'}; border-radius:5px; 
+                                       background:${isCardAutoRefreshing ? 'linear-gradient(135deg, #0284c7, #0369a1)' : (isAmtZero ? 'linear-gradient(135deg, rgba(245,158,11,0.5), rgba(217,119,6,0.7))' : 'rgba(56,189,248,0.22)')}; 
+                                       border:1.2px solid ${isCardAutoRefreshing ? '#38bdf8' : (isAmtZero ? '#fbbf24' : 'rgba(56,189,248,0.5)')}; 
+                                       color:${isCardAutoRefreshing ? '#ffffff' : (isAmtZero ? '#fef08a' : '#7dd3fc')}; 
+                                       cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:2px;
+                                       font-size:0.78rem; transition:all 0.15s ease; 
+                                       box-shadow:${isCardAutoRefreshing ? '0 0 10px rgba(56,189,248,0.85)' : (isAmtZero ? '0 0 8px rgba(251,191,36,0.6)' : 'none')};" 
                                 title="🔄 إعادة فحص وقراءة هذا المستند بالذكاء الاصطناعي (Refresh)">
-                            🔄
+                            <span style="${isCardAutoRefreshing ? 'display:inline-block; animation:ocrSpinRing 1s linear infinite;' : ''}">🔄</span>
+                            ${isCardAutoRefreshing ? '<span style="font-size:0.60rem; font-weight:900;">تدقيق...</span>' : ''}
                         </button>
                     `;
 
@@ -2497,7 +3687,8 @@
                     // 1. Duplicate: Deep Crimson Red
                     // 2. Suspicious: Electric Violet / Royal Purple
                     // 3. Golden Warning: Amber Golden Theme (غير معتمد في النماذج / صورة سيارة / غير واضح / صفر)
-                    // 4. Clean: Emerald Green (سليم مار طوالي)
+                    // 4. Cropped / Missing Ref: Electric Cyan / Turquoise (مقطوع في التصوير أو ناقص رقم العملية)
+                    // 5. Clean: Emerald Green (سليم مار طوالي)
                     let cardBg = '';
                     let cardBorderColor = '';
                     let baseShadow = '';
@@ -2516,6 +3707,11 @@
                         cardBg = 'linear-gradient(135deg, rgba(180,83,9,0.58), rgba(120,53,15,0.78))';
                         cardBorderColor = '#f59e0b';
                         baseShadow = '0 0 14px rgba(245,158,11,0.55)';
+                    } else if (isCroppedOrMissingRef) {
+                        // اللون الأزرق الفيروزي / السماوي للإشعار السليم والمار ولكنه مقطوع في التصوير أو ناقص رقم العملية
+                        cardBg = 'linear-gradient(135deg, rgba(8,145,178,0.65), rgba(14,116,144,0.82))';
+                        cardBorderColor = '#06b6d4';
+                        baseShadow = '0 0 14px rgba(6,182,212,0.6)';
                     } else {
                         // سليم مار طوالي (أخضر زمردي)
                         cardBg = 'linear-gradient(135deg, rgba(6,78,59,0.58), rgba(4,120,87,0.48))';
@@ -2555,7 +3751,7 @@
                     card.onmouseenter = () => {
                         card.style.transform = 'translateY(-1px) scale(1.01)';
                         if (!isSelected) {
-                            card.style.borderColor = isDuplicate ? '#fca5a5' : (isSuspicious ? '#d8b4fe' : (isGolden ? '#fde68a' : '#6ee7b7'));
+                            card.style.borderColor = isDuplicate ? '#fca5a5' : (isSuspicious ? '#d8b4fe' : (isGolden ? '#fde68a' : (isCroppedOrMissingRef ? '#67e8f9' : '#6ee7b7')));
                         }
                     };
                     card.onmouseleave = () => {
@@ -2569,6 +3765,33 @@
                         this.syncCurrentItemFromForm();
                         this.selectBatchItem(idx);
                     };
+
+                    const fiscalDateCheck = this.validateFiscalDate(item.data.date);
+                    let fiscalBadgeHtml = '';
+                    if (!fiscalDateCheck.valid) {
+                        if (fiscalDateCheck.isClosed) {
+                            fiscalBadgeHtml = `
+                                <span style="background:rgba(220,38,38,0.35); border:1px solid #ef4444; color:#fca5a5; font-size:0.60rem; font-weight:900; padding:1px 3px; border-radius:3px; white-space:nowrap; line-height:1;" title="${fiscalDateCheck.msg}">
+                                    ⛔ مغلقة
+                                </span>
+                            `;
+                        } else if (fiscalDateCheck.isOld) {
+                            fiscalBadgeHtml = `
+                                <span style="background:rgba(217,119,6,0.35); border:1px solid #f59e0b; color:#fde047; font-size:0.60rem; font-weight:900; padding:1px 3px; border-radius:3px; white-space:nowrap; line-height:1;" title="${fiscalDateCheck.msg}">
+                                    📅 ${fiscalDateCheck.daysDiff} يوم
+                                </span>
+                            `;
+                        } else if (fiscalDateCheck.isFuture) {
+                            fiscalBadgeHtml = `
+                                <span style="background:rgba(220,38,38,0.35); border:1px solid #ef4444; color:#fca5a5; font-size:0.60rem; font-weight:900; padding:1px 3px; border-radius:3px; white-space:nowrap; line-height:1;" title="${fiscalDateCheck.msg}">
+                                    🔮 مستقبلي
+                                </span>
+                            `;
+                        }
+                    }
+
+                    const hasSeqAnomaly = Boolean(item.data.sequence_anomaly && item.data.sequence_anomaly.hasAnomaly);
+
                     card.innerHTML = `
                         <!-- الطرف الأيمن: رقم البطاقة جالس لوحده بدون مربع ومصغر بتباين عالي جداً + تمييز الشيك وشارة الحالة الملونة وأسفلها مباشرة كتابة SDG بلون فاقع وواضح -->
                         <div style="display:flex; align-items:center; gap:3px; flex-shrink:0;">
@@ -2577,6 +3800,8 @@
                             </span>
                             ${isCheque ? '<span style="font-size:0.80rem;" title="شيك مصرفي">✍️</span>' : ''}
                             ${isSuspicious ? '<span style="font-size:0.80rem;" title="اشتباه تزوير وتلاعب">🕵️‍♂️</span>' : ''}
+                            ${hasSeqAnomaly ? `<span style="background:rgba(192,38,211,0.35); border:1px solid #d946ef; color:#f5d0fe; font-size:0.60rem; font-weight:900; padding:1px 3px; border-radius:3px; white-space:nowrap; line-height:1;" title="${item.data.sequence_anomaly ? item.data.sequence_anomaly.message : 'شذوذ تسلسل رقم العملية مع التاريخ'}">📉 شذوذ</span>` : ''}
+                            ${fiscalBadgeHtml}
                             
                             <!-- شارة الحالة الملونة وأسفلها تماماً كتابة SDG بلون فاقع ومشع واضح جداً -->
                             <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; line-height:1; flex-shrink:0;">
@@ -2611,17 +3836,21 @@
                             <div style="display:flex; align-items:center; justify-content:flex-start; flex-shrink:0; min-width:0; overflow:hidden; direction:ltr; margin-left:2px;">
                                 ${isSuspicious ? `
                                     <span style="background:rgba(88,28,135,0.65); border:1.2px solid rgba(192,132,252,0.6); border-radius:5px; padding:2px 5px; color:#f5d0fe; font-size:0.75rem; font-weight:800; font-family:'Tajawal',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:rtl;" title="${item.data.tampering_reasons || 'اشتباه تزوير وتلاعب'}">
-                                        🕵️ شك: ${tamperingScore}%
+                                        ${hasSeqAnomaly ? '📉 شذوذ تسلسل' : `🕵️ شك: ${tamperingScore}%`}
                                     </span>
                                 ` : (isGolden ? `
-                                    <span style="background:rgba(120,53,15,0.45); border:1.2px solid rgba(245,158,11,0.5); border-radius:5px; padding:2px 6px; color:#fef3c7; font-size:0.75rem; font-weight:800; font-family:'Tajawal',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:rtl;" title="${item.data.rejection_reason || (isAmtZero ? 'المستند غير واضح، المبلغ غير ظاهر' : 'المستند غير معتمد في النماذج')}">
-                                        تنبيه: ${item.data.rejection_reason || (isAmtZero ? 'المستند غير واضح، المبلغ غير ظاهر' : 'المستند غير معتمد في النماذج')}
+                                    <span style="background:${isCardAutoRefreshing ? 'rgba(2,132,199,0.5)' : ((item.data?.is_api_error || item.data?.is_quota_exceeded) ? 'rgba(30,58,138,0.65)' : 'rgba(120,53,15,0.45)')}; border:1.2px solid ${isCardAutoRefreshing ? '#38bdf8' : ((item.data?.is_api_error || item.data?.is_quota_exceeded) ? '#60a5fa' : 'rgba(245,158,11,0.5)')}; border-radius:5px; padding:2px 6px; color:${isCardAutoRefreshing ? '#e0f2fe' : ((item.data?.is_api_error || item.data?.is_quota_exceeded) ? '#bfdbfe' : '#fef3c7')}; font-size:0.75rem; font-weight:800; font-family:'Tajawal',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:rtl;" title="${item.data.rejection_reason || (isAmtZero ? 'المستند غير واضح، المبلغ غير ظاهر' : 'المستند غير معتمد في النماذج')}">
+                                        ${isCardAutoRefreshing ? '🔄 تدقيق تلقائي...' : ((item.data?.is_api_error || item.data?.is_quota_exceeded) ? '⚡ ضغط مؤقت (اضغط 🔄)' : ((item.autoRefreshAttempts >= 2 ? '⚠️ غير واضح (تم التدقيق)' : 'تنبيه: ' + (item.data.rejection_reason || (isAmtZero ? 'المستند غير واضح، المبلغ غير ظاهر' : 'المستند غير معتمد')))))}
+                                    </span>
+                                ` : (isCroppedOrMissingRef ? `
+                                    <span style="background:rgba(8,145,178,0.65); border:1.2px solid #22d3ee; border-radius:5px; padding:2px 5px; color:#cffafe; font-size:0.78rem; font-weight:800; font-family:'Tajawal',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:rtl;" title="إشعار سليم ومار (مقطوع في التصوير أو ناقص رقم العملية)">
+                                        ✂️ ${refVal || 'مقطوع / ناقص'}
                                     </span>
                                 ` : `
                                     <span style="background:rgba(15,23,42,0.70); border:1.2px solid ${isSelected ? '#38bdf8' : 'rgba(56,189,248,0.35)'}; border-radius:5px; padding:2px 5px; color:${isSelected ? '#7dd3fc' : '#38bdf8'}; font-size:${(refVal && refVal.length > 13) ? '1.04rem' : (refVal && refVal.length > 11) ? '1.15rem' : '1.22rem'}; font-weight:800; font-family:'Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; line-height:1.15; letter-spacing:-0.25px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:ltr; text-align:left; box-shadow:${isSelected ? '0 0 8px rgba(56,189,248,0.5)' : 'none'};" title="رقم العملية / الشيك: ${refVal || '---'}">
                                         ${refVal || '---'}
                                     </span>
-                                `)}
+                                `))}
                             </div>
 
                         </div>
@@ -2636,6 +3865,7 @@
                     tabsList.appendChild(card);
                 });
             }
+            this.updateReconciliationStatus();
         },
 
         deleteItemByIndex(idx) {
@@ -2707,6 +3937,7 @@
                     }
                 }
                 this.adjustAmountFontSize(amountInput);
+                this.updateAmountTafqeet(amountInput ? amountInput.value : 0);
             }
 
             const bankNameInput = document.getElementById('ocr-field-bank-name');
@@ -2722,6 +3953,7 @@
             const dateInput = document.getElementById('ocr-field-date');
             if (dateInput) {
                 dateInput.value = data.date || new Date().toISOString().split('T')[0];
+                this.updateFiscalDateUI(dateInput.value);
             }
 
             const dueDateInput = document.getElementById('ocr-field-due-date');
@@ -2814,6 +4046,7 @@
             modal.style.display = 'flex';
             requestAnimationFrame(() => {
                 modal.style.opacity = '1';
+                this.triggerGoldenAutoRefresh();
             });
         },
 
@@ -3708,6 +4941,7 @@
             if (document.fullscreenElement && document.exitFullscreen) {
                 document.exitFullscreen().catch(() => {});
             }
+            this.stopGoldenAutoRefresh();
             this.batchItems = [];
             this.currentBatchIndex = 0;
             this.previewRotation = 0;
@@ -4582,12 +5816,14 @@
         },
 
         // 7. Loading Overlay Helper with Timer & Progress
-        showLoading(show, message = '', current = 0, total = 0) {
+        showLoading(show, message = '', current = 0, total = 0, isFraud = false) {
             const loadingElem = document.getElementById('financial-ocr-loading');
             const msgElem = document.getElementById('financial-ocr-loading-msg');
             const countElem = document.getElementById('financial-ocr-loading-count');
             const bar = document.getElementById('financial-ocr-loading-progress-bar');
             const timerElem = document.getElementById('financial-ocr-loading-timer');
+            const disclaimerElem = document.getElementById('financial-ocr-loading-disclaimer');
+            const titleElem = document.getElementById('financial-ocr-loading-title');
             if (!loadingElem) return;
 
             if (show) {
@@ -4601,6 +5837,16 @@
                 if (countElem) countElem.textContent = total > 1 ? `${current} / ${total}` : '1 / 1';
                 if (bar) bar.style.width = '10%';
 
+                // Fraud disclaimer is displayed ONLY during explicit fraud inspection
+                if (disclaimerElem) {
+                    disclaimerElem.style.display = isFraud ? 'block' : 'none';
+                }
+                if (titleElem) {
+                    titleElem.textContent = isFraud 
+                        ? 'جاري الفحص الجنائي وكشف التزوير بالذكاء الاصطناعي... 🕵️‍♂️' 
+                        : 'جاري فحص الإشعار بالذكاء الاصطناعي فائق السرعة... ⚡';
+                }
+
                 this.loadingStartTime = performance.now();
                 if (this.loadingTimerInterval) clearInterval(this.loadingTimerInterval);
                 this.loadingTimerInterval = setInterval(() => {
@@ -4608,13 +5854,23 @@
                     if (timerElem) timerElem.textContent = elapsed + 's';
                 }, 100);
 
+                if (this.adsController) {
+                    this.adsController.start();
+                }
+
                 loadingElem.style.display = 'flex';
             } else {
+                if (this.adsController) {
+                    this.adsController.stop();
+                }
                 if (this.loadingTimerInterval) {
                     clearInterval(this.loadingTimerInterval);
                     this.loadingTimerInterval = null;
                 }
                 loadingElem.style.display = 'none';
+                if (disclaimerElem) {
+                    disclaimerElem.style.display = 'none';
+                }
                 const reviewModal = document.getElementById('financial-ocr-review-modal');
                 if (!reviewModal || reviewModal.style.display !== 'flex') {
                     document.body.classList.remove('ocr-modal-active');
@@ -4630,6 +5886,246 @@
             if (bar) bar.style.width = Math.max(10, percent) + '%';
             if (countElem) countElem.textContent = `${current} / ${total}`;
             if (msgElem) msgElem.textContent = `تم فحص ${current} من ${total} بالرؤية الحاسوبية فائقة السرعة... ⚡`;
+        },
+
+        pauseAds(state) {
+            if (this.adsController) {
+                this.adsController.pause(state);
+            }
+        },
+
+        // Modern Animated Ads Waiting Lounge Controller (عرض إعلانين معاً في نفس اللحظة بطريقة عصرية ومتحركة)
+        adsController: {
+            ads: [],
+            currentIndex: 0,
+            progressInterval: null,
+            durationMs: 4200,
+            isPaused: false,
+
+            init() {
+                let serverAds = [];
+                try {
+                    if (Array.isArray(window.SYSTEM_APPROVED_ADS) && window.SYSTEM_APPROVED_ADS.length > 0) {
+                        serverAds = window.SYSTEM_APPROVED_ADS;
+                    }
+                } catch(e) {}
+
+                const activeAds = serverAds.filter(a => a && a.active !== false && a.image);
+                const defaultFallbackAds = [
+                    { 
+                        id: 1783415187, 
+                        image: 'uploads/ads/ad_1783415187_8748.webp', 
+                        logo: 'assets/logo_alasaad.png',
+                        companyName: 'مصنع الأسعد لحديد التسليح',
+                        subtitle: 'حديد تسليح عالي الجودة - فخر الصناعة الوطنية',
+                        badge: 'حديد وتعدين 🏗️'
+                    },
+                    { 
+                        id: 1781951845, 
+                        image: 'uploads/ads/ad_1781951845_2666.jpg', 
+                        logo: 'uploads/ads/ad_1781951845_2666.jpg',
+                        companyName: 'زينا لايت للكهرباء والإنارة',
+                        subtitle: 'حلول الإنارة الذكية والإشارة الحديثة - Zenalight',
+                        badge: 'إنارة وكهرباء ⚡'
+                    },
+                    { 
+                        id: 1783415174, 
+                        image: 'uploads/ads/ad_1783415174_5096.webp', 
+                        logo: 'uploads/ads/ad_1783415174_5096.webp',
+                        companyName: 'سيتي كور للخدمات والمقاولات',
+                        subtitle: 'خدمات هندسية وحلول عقارية متكاملة وموثوقة',
+                        badge: 'مقاولات وهندسة 🏢'
+                    },
+                    { 
+                        id: 1781954700, 
+                        image: 'uploads/ads/ad_1781954700_1266.webp', 
+                        logo: 'assets/logo_omega.png',
+                        companyName: 'أوميغا للحلول الرقمية الذكية',
+                        subtitle: 'أنظمة أتمتة الأعمال والتقنيات السحابية المتقدمة',
+                        badge: 'حلول برمجية 💻'
+                    },
+                    { 
+                        id: 1781956149, 
+                        image: 'uploads/ads/ad_1781956149_2682.webp', 
+                        logo: 'uploads/ads/ad_1781956149_2682.webp',
+                        companyName: 'MBA للاستثمار والخدمات التجارية',
+                        subtitle: 'شريكك الاستراتيجي في تنمية وتوسيع الأعمال',
+                        badge: 'استثمار وتجارة 📈'
+                    },
+                    { 
+                        id: 1781921598, 
+                        image: 'uploads/ads/ad_1781921598_2260.jpg', 
+                        logo: 'uploads/ads/ad_1781921598_2260.jpg',
+                        companyName: 'دهانات وبوهيات أيوب',
+                        subtitle: 'ألوان الحياة - طلاء عصري مقاوم بجودة عالمية',
+                        badge: 'دهانات وطلاء 🎨'
+                    }
+                ];
+
+                this.ads = activeAds.length > 0 ? activeAds : defaultFallbackAds;
+                this.renderDots();
+            },
+
+            start() {
+                this.init();
+                this.currentIndex = 0;
+                this.displayCurrentAd();
+            },
+
+            stop() {
+                if (this.progressInterval) {
+                    clearInterval(this.progressInterval);
+                    this.progressInterval = null;
+                }
+            },
+
+            pause(state) {
+                this.isPaused = Boolean(state);
+            },
+
+            displayCurrentAd() {
+                if (!this.ads || this.ads.length === 0) return;
+
+                const ad0 = this.ads[this.currentIndex];
+                const nextIdx = (this.currentIndex + 1) % this.ads.length;
+                const ad1 = this.ads.length > 1 ? this.ads[nextIdx] : ad0;
+
+                const populateSlot = (slotIdx, ad) => {
+                    const card = document.getElementById('ocr-ad-card-' + slotIdx);
+                    const logoImg = document.getElementById('ocr-ad-logo-' + slotIdx);
+                    const compTitle = document.getElementById('ocr-ad-company-' + slotIdx);
+                    const subTitle = document.getElementById('ocr-ad-subtitle-' + slotIdx);
+                    const badgeElem = document.getElementById('ocr-ad-badge-' + slotIdx);
+                    const stage = document.getElementById('ocr-ad-stage-' + slotIdx);
+
+                    if (!ad) return;
+
+                    if (logoImg) {
+                        logoImg.src = ad.logo || ad.image;
+                        logoImg.alt = ad.companyName || 'شعار الشريك';
+                    }
+                    if (compTitle) {
+                        compTitle.textContent = ad.companyName || 'شريك معتمد';
+                    }
+                    if (subTitle) {
+                        subTitle.textContent = ad.subtitle || 'شريك معتمد في مقاييس ERP';
+                    }
+                    if (badgeElem) {
+                        badgeElem.textContent = ad.badge || 'إعلان معتمد ✨';
+                    }
+                    if (stage) {
+                        stage.innerHTML = `
+                            <img src="${ad.image}" alt="${ad.companyName || 'إعلان'}" 
+                                 style="width:100%; height:100%; object-fit:contain; object-position:center; animation:ocrKenBurns 4s ease-out forwards; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.7));"
+                                 onerror="this.style.display='none'">
+                        `;
+                    }
+                    if (card) {
+                        card.onclick = () => {
+                            if (ad.link && ad.link !== '#' && ad.link.startsWith('http')) {
+                                window.open(ad.link, '_blank');
+                            }
+                        };
+                    }
+                };
+
+                populateSlot(0, ad0);
+                populateSlot(1, ad1);
+
+                // Update Orbiting Bubbles with Next Partners
+                if (this.ads.length > 2) {
+                    const orb1Ad = this.ads[(this.currentIndex + 2) % this.ads.length];
+                    const orb1Img = document.getElementById('ocr-ad-orbit-img-1');
+                    const orb1Name = document.getElementById('ocr-ad-orbit-name-1');
+                    if (orb1Img) orb1Img.src = orb1Ad.logo || orb1Ad.image;
+                    if (orb1Name) orb1Name.textContent = (orb1Ad.companyName || 'شريك مقاييس').split(' - ')[0].substring(0, 24);
+
+                    const orb2Ad = this.ads[(this.currentIndex + 3) % this.ads.length];
+                    const orb2Img = document.getElementById('ocr-ad-orbit-img-2');
+                    const orb2Name = document.getElementById('ocr-ad-orbit-name-2');
+                    if (orb2Img) orb2Img.src = orb2Ad.logo || orb2Ad.image;
+                    if (orb2Name) orb2Name.textContent = (orb2Ad.companyName || 'شريك مقاييس').split(' - ')[0].substring(0, 24);
+                }
+
+                this.updateDots();
+                this.startProgressBar();
+            },
+
+            startProgressBar() {
+                if (this.progressInterval) clearInterval(this.progressInterval);
+                const timerBar0 = document.getElementById('ocr-loading-ad-timer-bar-0');
+                const timerBar1 = document.getElementById('ocr-loading-ad-timer-bar-1');
+
+                if (timerBar0) timerBar0.style.width = '0%';
+                if (timerBar1) timerBar1.style.width = '0%';
+
+                const step = 40;
+                let elapsed = 0;
+
+                this.progressInterval = setInterval(() => {
+                    if (this.isPaused) return;
+                    elapsed += step;
+                    const pct = Math.min(100, (elapsed / this.durationMs) * 100);
+                    if (timerBar0) timerBar0.style.width = pct + '%';
+                    if (timerBar1) timerBar1.style.width = pct + '%';
+
+                    if (elapsed >= this.durationMs) {
+                        clearInterval(this.progressInterval);
+                        this.next();
+                    }
+                }, step);
+            },
+
+            next() {
+                if (!this.ads || this.ads.length === 0) return;
+                // Move forward by 2 ads to present a brand-new pair each cycle
+                const step = this.ads.length > 2 ? 2 : 1;
+                this.currentIndex = (this.currentIndex + step) % this.ads.length;
+                this.displayCurrentAd();
+            },
+
+            goTo(idx) {
+                if (!this.ads || idx < 0 || idx >= this.ads.length) return;
+                this.currentIndex = idx;
+                this.displayCurrentAd();
+            },
+
+            renderDots() {
+                const dotsContainer = document.getElementById('ocr-loading-ad-dots');
+                if (!dotsContainer) return;
+                dotsContainer.innerHTML = '';
+                this.ads.forEach((_, i) => {
+                    const dot = document.createElement('div');
+                    dot.style.cssText = 'width:8px; height:8px; border-radius:4px; background:rgba(255,255,255,0.25); cursor:pointer; transition:all 0.25s ease;';
+                    dot.onclick = () => this.goTo(i);
+                    dot.id = 'ocr-loading-ad-dot-' + i;
+                    dotsContainer.appendChild(dot);
+                });
+            },
+
+            updateDots() {
+                const active1 = this.currentIndex;
+                const active2 = (this.currentIndex + 1) % this.ads.length;
+
+                this.ads.forEach((_, i) => {
+                    const dot = document.getElementById('ocr-loading-ad-dot-' + i);
+                    if (dot) {
+                        if (i === active1) {
+                            dot.style.width = '24px';
+                            dot.style.background = '#38bdf8';
+                            dot.style.boxShadow = '0 0 10px #38bdf8';
+                        } else if (i === active2 && this.ads.length > 1) {
+                            dot.style.width = '20px';
+                            dot.style.background = '#c084fc';
+                            dot.style.boxShadow = '0 0 10px #c084fc';
+                        } else {
+                            dot.style.width = '8px';
+                            dot.style.background = 'rgba(255,255,255,0.25)';
+                            dot.style.boxShadow = 'none';
+                        }
+                    }
+                });
+            }
         },
 
         // 8. Interactive High-Resolution Image Zoom & Pan Lightbox

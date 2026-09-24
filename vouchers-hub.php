@@ -262,7 +262,7 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 20px;
+            padding: 16px 18px;
             text-decoration: none;
             position: relative;
             overflow: hidden;
@@ -270,7 +270,7 @@
             flex-direction: column;
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             height: 100%;
-            min-height: 220px;
+            min-height: 145px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.03);
             transform-style: preserve-3d;
             animation: fadeUpIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -312,7 +312,7 @@
         }
 
         .premium-card:hover {
-            transform: translateY(-12px) scale(1.02);
+            transform: translateY(-8px) scale(1.02);
             border-color: var(--border-highlight);
             box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 40px rgba(var(--card-rgb), 0.15);
         }
@@ -326,16 +326,16 @@
         }
 
         .icon-wrapper {
-            width: 55px;
-            height: 55px;
-            border-radius: 16px;
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
             background: rgba(0,0,0,0.3);
             border: 1px solid rgba(255,255,255,0.05);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
-            margin-bottom: 15px;
+            font-size: 1.5rem;
+            margin-bottom: 12px;
             box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.2);
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
@@ -364,11 +364,12 @@
 
         .v-title {
             color: #fff;
-            font-size: 1.25rem;
+            font-size: 1.1rem;
             font-weight: 800;
-            margin: 0 0 8px 0;
-            letter-spacing: 0.5px;
+            margin: 0 0 6px 0;
+            letter-spacing: 0.3px;
             transition: color 0.3s ease;
+            line-height: 1.35;
         }
 
         .premium-card:hover .v-title {
@@ -376,61 +377,37 @@
         }
 
         .v-subtitle {
-            color: #94a3b8;
-            font-size: 0.85rem;
-            line-height: 1.5;
-            margin: 0 0 15px 0;
-            font-weight: 400;
-            flex: 1;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
+            display: none !important;
         }
 
         .v-footer {
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
             margin-top: auto;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            transition: border-color 0.3s;
+            padding-top: 4px;
+            border-top: none;
+            transition: all 0.3s ease;
         }
 
         .premium-card:hover .v-footer {
-            border-top-color: rgba(255,255,255,0.1);
+            border-top: none;
         }
 
         .v-badge {
-            background: rgba(0,0,0,0.4);
-            color: #cbd5e1;
-            padding: 5px 12px;
-            border-radius: 30px;
-            font-size: 0.75rem;
-            font-weight: 600;
-            font-family: 'Outfit', sans-serif;
-            border: 1px solid rgba(255,255,255,0.05);
-            letter-spacing: 0.5px;
-            transition: all 0.3s;
-        }
-
-        .premium-card:hover .v-badge {
-            background: rgba(var(--card-rgb), 0.15);
-            color: var(--card-color);
-            border-color: rgba(var(--card-rgb), 0.3);
+            display: none !important;
         }
 
         .v-arrow {
-            width: 40px; height: 40px;
+            width: 32px; height: 32px;
             border-radius: 50%;
             background: #fff;
             color: #000;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
-            transform: translateX(10px) scale(0.8);
+            font-size: 1rem;
+            transform: translateX(8px) scale(0.8);
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             font-family: 'Inter', sans-serif;
@@ -518,10 +495,8 @@
                 <div class="icon-wrapper">
                     <span class="v-icon">💸</span>
                 </div>
-                <h3 class="v-title">حركية مالية</h3>
-                <p class="v-subtitle">صرف مبلغ لجهة واحدة.</p>
+                <h3 class="v-title">حركة مالية</h3>
                 <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(244, 63, 94, 0.15); color: #f43f5e; border-color: rgba(244, 63, 94, 0.3);">Payment</span>
                     <span class="v-arrow" style="background: #f43f5e; color: #fff;">←</span>
                 </div>
             </div>
@@ -531,16 +506,14 @@
         <a data-href="multi-cash-payment.php" onclick="window.location.href='multi-cash-payment.php'" class="premium-card" style="--card-color: #f97316; --card-rgb: 249, 115, 22;">
             <div class="card-glow"></div>
             <div class="flow-badge" style="background: rgba(249,115,22,0.1); color: #f97316; border: 1px solid rgba(249,115,22,0.2);">
-                <span>👥</span> مجمعة
+                <span>👥</span> متعددة
             </div>
             <div class="card-content">
                 <div class="icon-wrapper">
                     <span class="v-icon">🧾</span>
                 </div>
-                <h3 class="v-title">حركة مالية مجمعة</h3>
-                <p class="v-subtitle">صرف أو قبض من عدة حسابات.</p>
+                <h3 class="v-title">صرف متعددة الجهات</h3>
                 <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(249,115,22,0.15); color: #f97316; border-color: rgba(249,115,22,0.3);">Multi</span>
                     <span class="v-arrow" style="background: #f97316; color: #fff;">←</span>
                 </div>
             </div>
@@ -557,9 +530,7 @@
                     <span class="v-icon">📝</span>
                 </div>
                 <h3 class="v-title">قيد يومية</h3>
-                <p class="v-subtitle">إدخال قيود محاسبية وتسويات مالية.</p>
                 <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(168,85,247,0.15); color: #a855f7; border-color: rgba(168,85,247,0.3);">Journal</span>
                     <span class="v-arrow" style="background: #a855f7; color: #fff;">←</span>
                 </div>
             </div>
@@ -576,9 +547,7 @@
                     <span class="v-icon">💳</span>
                 </div>
                 <h3 class="v-title">دورة الشيكات</h3>
-                <p class="v-subtitle">إدارة ومتابعة الشيكات الصادرة والواردة.</p>
                 <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(245,158,11,0.15); color: #f59e0b; border-color: rgba(245,158,11,0.3);">Checks</span>
                     <span class="v-arrow" style="background: #f59e0b; color: #fff;">←</span>
                 </div>
             </div>
@@ -595,9 +564,7 @@
                     <span class="v-icon">🔄</span>
                 </div>
                 <h3 class="v-title">ترحيل الحسابات</h3>
-                <p class="v-subtitle">مراجعة وترحيل العمليات المالية وتدقيق الحسابات المفتوحة.</p>
                 <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3);">Posting</span>
                     <span class="v-arrow" style="background: #38bdf8; color: #fff;">←</span>
                 </div>
             </div>
@@ -607,16 +574,14 @@
         <a data-href="ai_money_advisor.php" onclick="window.location.href='ai_money_advisor.php'" class="premium-card" style="--card-color: #10b981; --card-rgb: 16, 185, 129;">
             <div class="card-glow"></div>
             <div class="flow-badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.2);">
-                <span>🤖</span> مستشار
+                <span>🤖</span> ذكاء اصطناعي
             </div>
             <div class="card-content">
                 <div class="icon-wrapper">
                     <span class="v-icon">🤖</span>
                 </div>
-                <h3 class="v-title">مستشار الـ AI للأموال</h3>
-                <p class="v-subtitle">تحليل مالي ذكي وإدارة التدفقات النقدية بالذكاء الاصطناعي.</p>
+                <h3 class="v-title">تحليل مالي بالذكاء الاصطناعي</h3>
                 <div class="v-footer">
-                    <span class="v-badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; border-color: rgba(16, 185, 129, 0.3);">AI Advisor</span>
                     <span class="v-arrow" style="background: #10b981; color: #fff;">←</span>
                 </div>
             </div>

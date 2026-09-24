@@ -16,6 +16,23 @@ try {
         $stmt->execute([$tId, $tId]);
         $res = $stmt->fetchColumn();
         if ($res) $db_ocr_props_json = $res;
+
+        // Fetch closed financial periods for Fiscal Date Check
+        $db_closed_periods_json = '[]';
+        try {
+            $stmtP = $pdo->prepare("SELECT start_date, end_date FROM financial_periods WHERE tenant_id IN (?, '1') AND is_closed = 1");
+            $stmtP->execute([$tId]);
+            $closedPeriods = $stmtP->fetchAll(PDO::FETCH_ASSOC);
+            if ($closedPeriods) $db_closed_periods_json = json_encode($closedPeriods);
+        } catch(Exception $eP) {}
+
+        // Fetch approved SAAS ads from global_settings for the modern waiting lounge
+        $db_saas_ads_json = '[]';
+        try {
+            $stmtAds = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'saas_ads' LIMIT 1");
+            $resAds = $stmtAds ? $stmtAds->fetchColumn() : null;
+            if ($resAds) $db_saas_ads_json = $resAds;
+        } catch(Exception $eAds) {}
     }
 } catch(Exception $e) {}
 ?>
@@ -23,41 +40,194 @@ try {
 if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
     window.DB_OCR_PROPS = <?= !empty($db_ocr_props_json) ? $db_ocr_props_json : '{}' ?>;
 }
+if (!window.DB_CLOSED_PERIODS) {
+    window.DB_CLOSED_PERIODS = <?= !empty($db_closed_periods_json) ? $db_closed_periods_json : '[]' ?>;
+}
+if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
+    window.SYSTEM_APPROVED_ADS = <?= !empty($db_saas_ads_json) ? $db_saas_ads_json : '[]' ?>;
+}
 </script>
 <!-- Hidden File Input for Camera / Image Upload (Supports Single & Multiple Selection) -->
 <input type="file" id="financial-ocr-file-input" accept="image/*" multiple="multiple" style="display:none;" onchange="FinancialOCR.handleFileSelected(this)">
 
-<!-- High-Speed OCR Scanning Loading Overlay -->
-<div id="financial-ocr-loading" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.96); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); z-index:9999999; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-family:'Tajawal',sans-serif; direction:rtl; padding:20px;">
-    <div style="position:relative; width:100px; height:100px; margin-bottom:20px;">
-        <div style="position:absolute; inset:0; border:4px solid rgba(56,189,248,0.2); border-top-color:#38bdf8; border-radius:50%; animation:ocrSpinRing 0.8s linear infinite;"></div>
-        <div style="position:absolute; inset:12px; border:4px solid rgba(16,185,129,0.2); border-bottom-color:#10b981; border-radius:50%; animation:ocrSpinRingReverse 1.2s linear infinite;"></div>
-        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; animation:pulseScale 1.2s ease-in-out infinite;">
-            <img src="assets/logo.png" style="width:50px; height:50px; object-fit:contain; border-radius:50%;">
+<!-- High-Speed OCR Scanning Loading Overlay & Modern Animated Ads Waiting Lounge -->
+<div id="financial-ocr-loading" style="display:none; position:fixed; inset:0; background:radial-gradient(ellipse at 50% 30%, rgba(15,23,42,0.98) 0%, rgba(2,6,23,0.99) 100%); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); z-index:9999999; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-family:'Tajawal',sans-serif; direction:rtl; padding:15px; overflow-y:auto; overflow-x:hidden; user-select:none; box-sizing:border-box;">
+
+    <!-- Background Ambient Glows & Mesh (إيماءات ضوئية خلفية) -->
+    <div style="position:absolute; top:-10%; right:-10%; width:480px; height:480px; border-radius:50%; background:radial-gradient(circle, rgba(56,189,248,0.14) 0%, transparent 70%); filter:blur(40px); pointer-events:none;"></div>
+    <div style="position:absolute; bottom:-10%; left:-10%; width:480px; height:480px; border-radius:50%; background:radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%); filter:blur(40px); pointer-events:none;"></div>
+
+    <!-- Floating Animated Circles (دوائر متحركة عصرية طافية في أرجاء الشاشة مع شعارات الشركاء) -->
+    <!-- Circle 1: Top-Right Orbiting Bubble with Enlarged Circular Logo -->
+    <div class="ocr-ad-float-circle ocr-ad-float-1" style="position:absolute; top:7%; right:5%; display:flex; flex-direction:column; align-items:center; animation:ocrAdFloatSine1 5s ease-in-out infinite alternate; pointer-events:none; z-index:10;">
+        <div style="position:relative; width:95px; height:95px; border-radius:50%; background:rgba(15,23,42,0.88); border:2.5px solid rgba(56,189,248,0.7); box-shadow:0 0 35px rgba(56,189,248,0.4); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(12px);">
+            <div style="position:absolute; inset:-5px; border:2px dashed rgba(56,189,248,0.55); border-radius:50%; animation:ocrSpinRing 14s linear infinite;"></div>
+            <div style="width:64px; height:64px; border-radius:50%; background:#ffffff; padding:3px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.5); overflow:hidden;">
+                <img id="ocr-ad-orbit-img-1" src="assets/logo_alasaad.png" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+            </div>
+        </div>
+        <span id="ocr-ad-orbit-name-1" style="margin-top:6px; background:rgba(15,23,42,0.92); border:1px solid rgba(56,189,248,0.5); color:#7dd3fc; padding:2px 10px; border-radius:14px; font-size:0.72rem; font-weight:800; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,0.5);">مصنع الأسعد 🏗️</span>
+    </div>
+
+    <!-- Circle 2: Bottom-Left Orbiting Bubble with Enlarged Circular Logo -->
+    <div class="ocr-ad-float-circle ocr-ad-float-2" style="position:absolute; bottom:7%; left:5%; display:flex; flex-direction:column; align-items:center; animation:ocrAdFloatSine2 5.5s ease-in-out infinite alternate; pointer-events:none; z-index:10;">
+        <div style="position:relative; width:95px; height:95px; border-radius:50%; background:rgba(15,23,42,0.88); border:2.5px solid rgba(16,185,129,0.7); box-shadow:0 0 35px rgba(16,185,129,0.4); display:flex; align-items:center; justify-content:center; backdrop-filter:blur(12px);">
+            <div style="position:absolute; inset:-5px; border:2px dashed rgba(16,185,129,0.55); border-radius:50%; animation:ocrSpinRingReverse 16s linear infinite;"></div>
+            <div style="width:64px; height:64px; border-radius:50%; background:#ffffff; padding:3px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.5); overflow:hidden;">
+                <img id="ocr-ad-orbit-img-2" src="assets/logo_omega.png" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+            </div>
+        </div>
+        <span id="ocr-ad-orbit-name-2" style="margin-top:6px; background:rgba(15,23,42,0.92); border:1px solid rgba(16,185,129,0.5); color:#34d399; padding:2px 10px; border-radius:14px; font-size:0.72rem; font-weight:800; white-space:nowrap; box-shadow:0 4px 10px rgba(0,0,0,0.5);">أوميغا للحلول 💻</span>
+    </div>
+
+    <!-- Floating Animated Rectangles & Pills (مستطيلات متحركة عصرية طافية في أرجاء الشاشة) -->
+    <!-- Rectangle 1: Top-Left Floating Capsule -->
+    <div class="ocr-ad-float-rect ocr-ad-rect-1" style="position:absolute; top:8%; left:5%; background:linear-gradient(135deg, rgba(14,165,233,0.18), rgba(15,23,42,0.92)); border:1.2px solid rgba(56,189,248,0.45); border-radius:30px; padding:6px 16px; display:flex; align-items:center; gap:8px; backdrop-filter:blur(12px); box-shadow:0 8px 25px rgba(0,0,0,0.6); animation:ocrAdFloatSine3 4.5s ease-in-out infinite alternate; z-index:10; pointer-events:none;">
+        <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:#38bdf8; box-shadow:0 0 12px #38bdf8; animation:pulseScale 1.2s infinite alternate;"></span>
+        <span style="font-size:0.82rem; font-weight:900; color:#e0f2fe;">إعلانات وشركاء مقاييس المعتمدين ✨</span>
+    </div>
+
+    <!-- Rectangle 2: Bottom-Right Floating Glass Badge -->
+    <div class="ocr-ad-float-rect ocr-ad-rect-2" style="position:absolute; bottom:8%; right:5%; background:linear-gradient(135deg, rgba(168,85,247,0.18), rgba(15,23,42,0.92)); border:1.2px solid rgba(192,132,252,0.45); border-radius:14px; padding:7px 16px; display:flex; align-items:center; gap:8px; backdrop-filter:blur(12px); box-shadow:0 8px 25px rgba(0,0,0,0.6); animation:ocrAdFloatSine4 5s ease-in-out infinite alternate; z-index:10; pointer-events:none;">
+        <span style="font-size:1.1rem;">⚡</span>
+        <span style="font-size:0.82rem; font-weight:900; color:#f5d0fe;">رؤية حاسوبية فائقة السرعة (Ultra-Fast)</span>
+    </div>
+
+    <!-- SECTION 1: High-Speed Scanning Header Indicator (مع تكبير دائرة شعار مقاييس بشكل مميز وملفت) -->
+    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; margin-bottom:12px; z-index:20;">
+        
+        <!-- Magnified MAGAIEES Logo Circle (دائرة شعار مقاييس المكبرة والفخمة مع هالة ضوئية وحلقات نيون مزدوجة) -->
+        <div style="position:relative; width:106px; height:106px; margin-bottom:10px; display:flex; align-items:center; justify-content:center;">
+            <!-- Outer Glow Aura -->
+            <div style="position:absolute; inset:-8px; border-radius:50%; background:radial-gradient(circle, rgba(56,189,248,0.32) 0%, rgba(16,185,129,0.18) 50%, transparent 70%); filter:blur(10px); animation:pulseScale 2s infinite ease-in-out; pointer-events:none;"></div>
+            <!-- Outer Neon Ring -->
+            <div style="position:absolute; inset:0; border:4px solid rgba(56,189,248,0.22); border-top-color:#38bdf8; border-right-color:#0ea5e9; border-radius:50%; animation:ocrSpinRing 1s linear infinite;"></div>
+            <!-- Inner Counter-Spinning Ring -->
+            <div style="position:absolute; inset:9px; border:3px dashed rgba(16,185,129,0.5); border-bottom-color:#10b981; border-radius:50%; animation:ocrSpinRingReverse 1.5s linear infinite;"></div>
+            <!-- Center Glass Badge -->
+            <div style="position:absolute; inset:18px; border-radius:50%; background:linear-gradient(135deg, rgba(15,23,42,0.96) 0%, rgba(30,41,59,0.92) 100%); border:2px solid rgba(56,189,248,0.5); box-shadow:inset 0 2px 10px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.35); display:flex; align-items:center; justify-content:center;">
+                <img src="assets/logo.png" style="width:54px; height:54px; object-fit:contain; border-radius:50%; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.7)); animation:pulseScale 1.8s ease-in-out infinite;">
+            </div>
+        </div>
+        
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+            <span style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc; padding:3px 12px; border-radius:20px; font-size:0.80rem; font-weight:900;">
+                <img src="assets/logo.png" style="width:14px; height:14px; vertical-align:middle; margin-left:4px; display:inline-block; border-radius:50%;">فحص فائق السرعة (Ultra-Fast)
+            </span>
+            <span id="financial-ocr-loading-timer" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:3px 12px; border-radius:20px; font-size:0.82rem; font-weight:800; font-family:'Consolas',monospace;">0.0s</span>
+        </div>
+
+        <h2 id="financial-ocr-loading-title" style="margin:0 0 6px 0; font-size:1.35rem; font-weight:900; background:linear-gradient(135deg, #38bdf8, #34d399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow:0 0 25px rgba(56,189,248,0.5); text-align:center;">جاري فحص الإشعار بالذكاء الاصطناعي فائق السرعة... ⚡</h2>
+
+        <!-- Disclaimer Text (Shown ONLY on forensic fraud check) -->
+        <div id="financial-ocr-loading-disclaimer" style="display:none; margin-bottom:8px; text-align:center; max-width:80%; padding:8px 14px; background:rgba(220, 38, 38, 0.1); border:1px solid rgba(220, 38, 38, 0.3); border-radius:8px;">
+            <p style="color:#ef4444; font-size:0.95rem; font-weight:bold; margin:0; line-height:1.4;">مقاييس غير مسؤولة عن كشف التزوير، وإنما هو اجتهاد بالذكاء الاصطناعي لمساعدة المحاسب.</p>
+        </div>
+        
+        <!-- Batch Progress Bar -->
+        <div style="width:100%; max-width:380px; background:rgba(255,255,255,0.08); border-radius:10px; height:8px; overflow:hidden; margin-bottom:6px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1);">
+            <div id="financial-ocr-loading-progress-bar" style="width:10%; height:100%; background:linear-gradient(90deg, #38bdf8, #10b981); border-radius:10px; transition:width 0.25s ease;"></div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span id="financial-ocr-loading-count" style="color:#fbbf24; font-size:0.95rem; font-weight:900;">1 / 1</span>
+            <span id="financial-ocr-loading-msg" style="color:#cbd5e1; font-size:0.86rem; font-weight:700;">يتم الآن قراءة رقم العملية، المبلغ، واسم البنك عبر محرك الذكاء الاصطناعي...</span>
         </div>
     </div>
-    
-    <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-        <span style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc; padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:900;"><img src="assets/logo.png" style="width:14px; height:14px; vertical-align:middle; margin-left:4px; display:inline-block; border-radius:50%;">فحص فائق السرعة (Ultra-Fast)</span>
-        <span id="financial-ocr-loading-timer" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:800; font-family:'Consolas',monospace;">0.0s</span>
+
+    <!-- SECTION 2: Modern Animated Twin Ads Showcase (عرض إعلانين معاً في نفس اللحظة مع شعارات دائرية مكبرة ومتحركة) -->
+    <div id="ocr-loading-ads-container" style="width:100%; max-width:980px; display:flex; flex-direction:column; align-items:center; gap:8px; z-index:20;">
+        
+        <!-- Twin Ads Grid: Card 1 & Card 2 side-by-side -->
+        <div class="ocr-twin-ads-grid" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:14px; width:100%; box-sizing:border-box;">
+            
+            <!-- Ad Card 1 (Cyan / Emerald Glow) -->
+            <div id="ocr-ad-card-0" class="ocr-twin-ad-card" style="position:relative; background:linear-gradient(145deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.92) 100%); border:1.8px solid rgba(56,189,248,0.45); border-radius:18px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.85), 0 0 25px rgba(56,189,248,0.18); backdrop-filter:blur(14px); transition:all 0.3s ease; cursor:pointer; display:flex; flex-direction:column;" onmouseenter="FinancialOCR.pauseAds(true)" onmouseleave="FinancialOCR.pauseAds(false)">
+                
+                <!-- Shimmer Top Neon Border -->
+                <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, transparent, #38bdf8, #10b981, transparent); animation:ocrAdGlowBar 3s linear infinite; z-index:7;"></div>
+
+                <!-- Card Header with Large Circular Logo -->
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px 6px 12px; z-index:6;">
+                    <!-- Circular Logo + Name + Subtitle -->
+                    <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
+                        <!-- Enlarged Circular Logo Badge -->
+                        <div style="width:54px; height:54px; min-width:54px; border-radius:50%; background:#ffffff; border:2.5px solid #38bdf8; box-shadow:0 0 16px rgba(56,189,248,0.45); display:flex; align-items:center; justify-content:center; overflow:hidden; padding:3px; flex-shrink:0;">
+                            <img id="ocr-ad-logo-0" src="assets/logo_alasaad.png" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+                        </div>
+                        <!-- Company Info -->
+                        <div style="display:flex; flex-direction:column; min-width:0;">
+                            <h4 id="ocr-ad-company-0" style="margin:0; font-size:0.96rem; font-weight:900; color:#f8fafc; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">مصنع الأسعد لحديد التسليح</h4>
+                            <span id="ocr-ad-subtitle-0" style="font-size:0.73rem; font-weight:700; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">حديد تسليح عالي الجودة - فخر الصناعة الوطنية</span>
+                        </div>
+                    </div>
+                    <!-- Category Badge -->
+                    <div id="ocr-ad-badge-0" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc; border-radius:16px; padding:2px 10px; font-size:0.72rem; font-weight:800; white-space:nowrap; flex-shrink:0;">
+                        حديد وتعدين 🏗️
+                    </div>
+                </div>
+
+                <!-- Ad Media Stage -->
+                <div id="ocr-ad-stage-0" style="position:relative; height:135px; margin:4px 10px 10px 10px; border-radius:12px; overflow:hidden; background:radial-gradient(circle at center, rgba(30,41,59,0.7), rgba(2,6,23,0.98)); display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.08);">
+                    <img src="uploads/ads/ad_1783415187_8748.webp" style="width:100%; height:100%; object-fit:contain; animation:ocrKenBurns 4s ease-out forwards; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.7));">
+                </div>
+
+                <!-- Auto-Advance Bottom Progress Bar -->
+                <div style="position:absolute; bottom:0; left:0; right:0; height:3px; background:rgba(255,255,255,0.1); z-index:8;">
+                    <div id="ocr-loading-ad-timer-bar-0" style="height:100%; width:0%; background:linear-gradient(90deg, #38bdf8, #10b981); transition:width 0.1s linear;"></div>
+                </div>
+            </div>
+
+            <!-- Ad Card 2 (Purple / Amber Glow) -->
+            <div id="ocr-ad-card-1" class="ocr-twin-ad-card" style="position:relative; background:linear-gradient(145deg, rgba(15,23,42,0.95) 0%, rgba(30,41,59,0.92) 100%); border:1.8px solid rgba(168,85,247,0.45); border-radius:18px; overflow:hidden; box-shadow:0 20px 50px rgba(0,0,0,0.85), 0 0 25px rgba(168,85,247,0.18); backdrop-filter:blur(14px); transition:all 0.3s ease; cursor:pointer; display:flex; flex-direction:column;" onmouseenter="FinancialOCR.pauseAds(true)" onmouseleave="FinancialOCR.pauseAds(false)">
+                
+                <!-- Shimmer Top Neon Border -->
+                <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, transparent, #c084fc, #fbbf24, transparent); animation:ocrAdGlowBar 3s linear infinite; z-index:7;"></div>
+
+                <!-- Card Header with Large Circular Logo -->
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 12px 6px 12px; z-index:6;">
+                    <!-- Circular Logo + Name + Subtitle -->
+                    <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
+                        <!-- Enlarged Circular Logo Badge -->
+                        <div style="width:54px; height:54px; min-width:54px; border-radius:50%; background:#ffffff; border:2.5px solid #c084fc; box-shadow:0 0 16px rgba(192,132,252,0.45); display:flex; align-items:center; justify-content:center; overflow:hidden; padding:3px; flex-shrink:0;">
+                            <img id="ocr-ad-logo-1" src="uploads/ads/ad_1781951845_2666.jpg" style="width:100%; height:100%; object-fit:contain; border-radius:50%;">
+                        </div>
+                        <!-- Company Info -->
+                        <div style="display:flex; flex-direction:column; min-width:0;">
+                            <h4 id="ocr-ad-company-1" style="margin:0; font-size:0.96rem; font-weight:900; color:#f8fafc; line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">زينا لايت للكهرباء والإنارة</h4>
+                            <span id="ocr-ad-subtitle-1" style="font-size:0.73rem; font-weight:700; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">حلول الإنارة الذكية والإشارة الحديثة - Zenalight</span>
+                        </div>
+                    </div>
+                    <!-- Category Badge -->
+                    <div id="ocr-ad-badge-1" style="background:rgba(168,85,247,0.15); border:1px solid #c084fc; color:#e9d5ff; border-radius:16px; padding:2px 10px; font-size:0.72rem; font-weight:800; white-space:nowrap; flex-shrink:0;">
+                        إنارة وكهرباء ⚡
+                    </div>
+                </div>
+
+                <!-- Ad Media Stage -->
+                <div id="ocr-ad-stage-1" style="position:relative; height:135px; margin:4px 10px 10px 10px; border-radius:12px; overflow:hidden; background:radial-gradient(circle at center, rgba(30,41,59,0.7), rgba(2,6,23,0.98)); display:flex; align-items:center; justify-content:center; border:1px solid rgba(255,255,255,0.08);">
+                    <img src="uploads/ads/ad_1781951845_2666.jpg" style="width:100%; height:100%; object-fit:contain; animation:ocrKenBurns 4s ease-out forwards; filter:drop-shadow(0 6px 16px rgba(0,0,0,0.7));">
+                </div>
+
+                <!-- Auto-Advance Bottom Progress Bar -->
+                <div style="position:absolute; bottom:0; left:0; right:0; height:3px; background:rgba(255,255,255,0.1); z-index:8;">
+                    <div id="ocr-loading-ad-timer-bar-1" style="height:100%; width:0%; background:linear-gradient(90deg, #c084fc, #fbbf24); transition:width 0.1s linear;"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Ad Dots & Footer Note -->
+        <div style="display:flex; align-items:center; justify-content:space-between; width:100%; padding:2px 8px;">
+            <div id="ocr-loading-ad-dots" style="display:flex; align-items:center; gap:6px;">
+                <!-- Injected dynamically via JS -->
+            </div>
+            <div style="font-size:0.76rem; color:#94a3b8; font-weight:700; display:flex; align-items:center; gap:5px;">
+                <span>💡</span> <span>إعلانات الشركاء المعتمدة في مقاييس ERP - شاشة انتظار المعالجة الذكية</span>
+            </div>
+        </div>
     </div>
 
-    <h2 id="financial-ocr-loading-title" style="margin:0 0 10px 0; font-size:1.6rem; font-weight:900; background:linear-gradient(135deg, #38bdf8, #34d399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow:0 0 25px rgba(56,189,248,0.5); text-align:center;">جاري فحص الإشعار / الشيك بالرؤية الحاسوبية... 🔍</h2>
-
-    <!-- Disclaimer Text -->
-    <div style="margin-bottom:15px; text-align:center; max-width:80%; padding:10px 15px; background:rgba(220, 38, 38, 0.1); border:1px solid rgba(220, 38, 38, 0.3); border-radius:8px;">
-        <p style="color:#ef4444; font-size:1.1rem; font-weight:bold; margin:0; line-height:1.5;">مقاييس غير مسؤولة عن كشف التزوير، ولكن هو اجتهاد بالذكاء الاصطناعي.</p>
-    </div>
-    
-    <!-- Batch Progress Bar -->
-    <div style="width:100%; max-width:420px; background:rgba(255,255,255,0.08); border-radius:10px; height:10px; overflow:hidden; margin-bottom:12px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1);">
-        <div id="financial-ocr-loading-progress-bar" style="width:10%; height:100%; background:linear-gradient(90deg, #38bdf8, #10b981); border-radius:10px; transition:width 0.25s ease;"></div>
-    </div>
-
-    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-        <span id="financial-ocr-loading-count" style="color:#fbbf24; font-size:1.1rem; font-weight:900;">1 / 1</span>
-        <span id="financial-ocr-loading-msg" style="color:#cbd5e1; font-size:0.95rem; font-weight:700;">يتم الآن قراءة رقم العملية، المبلغ، واسم البنك عبر محرك الذكاء الاصطناعي...</span>
-    </div>
 </div>
 
 <!-- OCR Review & Confirmation Modal (Edge-to-Edge 100% Full Screen 3-Column Dashboard) -->
@@ -141,43 +311,70 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                     <!-- Section Top Elements -->
                     <div style="display:flex; flex-direction:column; flex:1 1 0; min-height:0; overflow:hidden;">
                         
-                        <!-- Row 1: إجمالي السندات (X سند) والمبلغ بخط عريض وواضح -->
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(6,78,59,0.8), rgba(15,23,42,0.95)); border:1.5px solid #10b981; border-radius:10px; padding:6px 12px; box-shadow:0 0 20px rgba(16,185,129,0.35); min-height:46px; flex-shrink:0; box-sizing:border-box;">
+                        <!-- Row 1: إجمالي السند (X سند) وبجواره مباشرة المطالب في سطر موحد ومختصر -->
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(6,78,59,0.8), rgba(15,23,42,0.95)); border:1.5px solid #10b981; border-radius:10px; padding:6px 12px; box-shadow:0 0 18px rgba(16,185,129,0.35); min-height:44px; flex-shrink:0; box-sizing:border-box;">
+                            <!-- إجمالي السند والمبلغ -->
                             <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
-                                <span style="font-size:0.95rem; font-weight:900; color:#a7f3d0; white-space:nowrap; display:flex; align-items:center; gap:4px;">
-                                    <span>💰</span> <span id="ocr-batch-counter-badge">إجمالي السندات (1 سند):</span>
+                                <span style="font-size:0.92rem; font-weight:900; color:#a7f3d0; white-space:nowrap; display:flex; align-items:center; gap:4px;">
+                                    <span>💰</span> <span id="ocr-batch-counter-badge">إجمالي السند (1 سند):</span>
                                 </span>
+                                <div id="ocr-batch-sum-badge" style="font-size:1.55rem; font-weight:900; color:#34d399; font-family:'Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; letter-spacing:-0.3px; text-shadow:0 0 18px rgba(16,185,129,0.65); line-height:1; white-space:nowrap;">
+                                    0 SDG
+                                </div>
                             </div>
-                            <div id="ocr-batch-sum-badge" style="font-size:1.65rem; font-weight:900; color:#34d399; font-family:'Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; letter-spacing:-0.3px; text-shadow:0 0 18px rgba(16,185,129,0.65); line-height:1; white-space:nowrap;">
-                                0 SDG
+
+                            <!-- بجواره مباشرة: المطالب وحالة المطابقة -->
+                            <div id="ocr-reconciliation-bar" style="display:flex; align-items:center; gap:6px; background:rgba(15,23,42,0.75); border:1.2px solid rgba(56,189,248,0.45); border-radius:8px; padding:3px 8px; flex-shrink:0; box-sizing:border-box;">
+                                <span style="font-size:0.80rem; color:#38bdf8; font-weight:900; white-space:nowrap;">⚖️ المطالب:</span>
+                                <input type="text" id="ocr-reconcile-target-input" oninput="FinancialOCR.handleReconciliationInput(this)" placeholder="المبلغ المطلوب..." style="width:120px; height:24px; background:#0f172a; border:1.2px solid #38bdf8; border-radius:6px; color:#ffffff; font-family:'Consolas','Bahnschrift',monospace; font-size:0.86rem; font-weight:900; padding:0 6px; text-align:center; outline:none; direction:ltr !important;" title="أدخل إجمالي المبلغ في كشف الحساب البنكي لمطابقته مع الدفعة">
+                                <div id="ocr-reconcile-status" style="display:flex; align-items:center; gap:4px; font-size:0.75rem; font-weight:900; white-space:nowrap;">
+                                    <span style="color:#94a3b8; font-size:0.70rem;">(أدخل للمطابقة)</span>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- Row 2: الأزرار أعرض وأكبر بتنسيق متناسق -->
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin:6px 0; flex-shrink:0;">
-                            <div style="display:flex; align-items:center; gap:6px; flex:1;">
-                                <button type="button" onclick="FinancialOCR.nextItem()" style="flex:1; height:34px; background:linear-gradient(135deg, rgba(56,189,248,0.3), rgba(14,165,233,0.2)); border:1.5px solid #38bdf8; color:#7dd3fc; border-radius:8px; padding:0 10px; font-size:0.86rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="المستند التالي">
-                                    <span>▲</span> التالي
+                        <!-- Row 2: شريط الأدوات المدمج والمختصر في نفس السطر -->
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; margin:6px 0; flex-shrink:0; flex-wrap:wrap;">
+                            <!-- أزرار التنقل: أسهم فقط بدون كتابة (سهم لأعلى وسهم لأسفل) -->
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <button type="button" onclick="FinancialOCR.nextItem()" style="width:34px; height:32px; min-width:34px; background:linear-gradient(135deg, rgba(56,189,248,0.3), rgba(14,165,233,0.2)); border:1.5px solid #38bdf8; color:#7dd3fc; border-radius:8px; font-size:0.95rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" title="المستند التالي">
+                                    <span>▲</span>
                                 </button>
-                                <button type="button" onclick="FinancialOCR.prevItem()" style="flex:1; height:34px; background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.25); color:#f1f5f9; border-radius:8px; padding:0 10px; font-size:0.86rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="المستند السابق">
-                                    <span>▼</span> السابق
+                                <button type="button" onclick="FinancialOCR.prevItem()" style="width:34px; height:32px; min-width:34px; background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.25); color:#f1f5f9; border-radius:8px; font-size:0.95rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;" title="المستند السابق">
+                                    <span>▼</span>
                                 </button>
                             </div>
-                            <!-- زر كشف التزوير للإشعار الحالي (بنفسجي ملكي مشع) -->
-                            <button type="button" onclick="FinancialOCR.rescanCurrentItem(true)" id="btn-batch-fraud-current" style="height:34px; background:linear-gradient(135deg, rgba(168,85,247,0.35), rgba(126,34,206,0.45)); border:1.5px solid #c084fc; color:#f5d0fe; border-radius:8px; padding:0 12px; font-size:0.84rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; box-shadow:0 0 12px rgba(168,85,247,0.35); white-space:nowrap; transition:all 0.15s ease;" title="🕵️‍♂️ كشف تزوير الإشعار الحالي المعروض بالذكاء الاصطناعي">
-                                <span>🕵️‍♂️</span> كشف التزوير
-                            </button>
-                            <!-- زر كشف التزوير لكامل الدفعة (بنفسجي مربع) -->
-                            <button type="button" onclick="FinancialOCR.rescanAllBatchItems(true)" id="btn-batch-fraud-all" style="width:36px; height:34px; min-width:36px; border-radius:8px; background:linear-gradient(135deg, rgba(168,85,247,0.35), rgba(126,34,206,0.45)); border:1.5px solid #c084fc; color:#f5d0fe; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.05rem; padding:0; transition:all 0.15s ease; box-shadow:0 0 10px rgba(168,85,247,0.35);" title="🕵️‍♂️ كشف تزوير الكل: فحص جنائي لكافة مستندات الدفعة بالكامل بالذكاء الاصطناعي">
-                                🕵️‍♂️
-                            </button>
-                            <!-- زر ريفريش شامل لكل الدفعة (مربع كبير بدون كتابة) -->
-                            <button type="button" onclick="FinancialOCR.rescanAllBatchItems(false)" id="btn-batch-refresh-all" style="width:36px; height:34px; min-width:36px; border-radius:8px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.35)); border:1.5px solid #38bdf8; color:#7dd3fc; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.15rem; padding:0; transition:all 0.15s ease; box-shadow:0 0 10px rgba(56,189,248,0.25);" title="🔄 إعادة فحص وقراءة جميع المستندات بالدفعة بالذكاء الاصطناعي (Refresh All)">
+
+                            <!-- أزرار التزوير: كلمة تزوير فقط ومربع تزوير الكل -->
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <button type="button" onclick="FinancialOCR.rescanCurrentItem(true)" id="btn-batch-fraud-current" style="height:32px; background:linear-gradient(135deg, rgba(168,85,247,0.35), rgba(126,34,206,0.45)); border:1.5px solid #c084fc; color:#f5d0fe; border-radius:8px; padding:0 10px; font-size:0.82rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; box-shadow:0 0 10px rgba(168,85,247,0.35); white-space:nowrap; transition:all 0.15s ease;" title="🕵️‍♂️ تزوير: فحص جنائي بالذكاء الاصطناعي للإشعار الحالي (عند الحاجة فقط)">
+                                    <span>🕵️‍♂️</span> تزوير
+                                </button>
+                                <button type="button" onclick="FinancialOCR.rescanAllBatchItems(true)" id="btn-batch-fraud-all" style="width:34px; height:32px; min-width:34px; border-radius:8px; background:linear-gradient(135deg, rgba(168,85,247,0.35), rgba(126,34,206,0.45)); border:1.5px solid #c084fc; color:#f5d0fe; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1rem; padding:0; transition:all 0.15s ease; box-shadow:0 0 8px rgba(168,85,247,0.35);" title="🕵️‍♂️ تزوير الكل: فحص جنائي لكافة مستندات الدفعة (عند الحاجة فقط)">
+                                    🕵️‍♂️
+                                </button>
+                            </div>
+
+                            <!-- زر ريفريش شامل لكل الدفعة -->
+                            <button type="button" onclick="FinancialOCR.rescanAllBatchItems(false)" id="btn-batch-refresh-all" style="width:34px; height:32px; min-width:34px; border-radius:8px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.35)); border:1.5px solid #38bdf8; color:#7dd3fc; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.1rem; padding:0; transition:all 0.15s ease; box-shadow:0 0 8px rgba(56,189,248,0.25);" title="🔄 إعادة فحص وقراءة جميع المستندات بالدفعة بالذكاء الاصطناعي (Refresh All)">
                                 🔄
                             </button>
-                            <button type="button" onclick="FinancialOCR.triggerUploadAgain()" style="flex:1.2; height:34px; background:linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.2)); border:1.5px solid #10b981; color:#34d399; border-radius:8px; padding:0 10px; font-size:0.86rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; white-space:nowrap;" title="إضافة شيكات أو إشعارات أخرى للدفعة">
-                                <span>➕</span> إضافة شيكات/إشعارات
+
+                            <!-- زر إضافة: رمز + إضافة فقط -->
+                            <button type="button" onclick="FinancialOCR.triggerUploadAgain()" style="height:32px; background:linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.2)); border:1.5px solid #10b981; color:#34d399; border-radius:8px; padding:0 10px; font-size:0.82rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; white-space:nowrap;" title="إضافة شيكات أو إشعارات أخرى للدفعة">
+                                <span>➕</span> إضافة
                             </button>
+
+                            <!-- بجواره مباشرة: عرض الكل ووضع التركيز على المشاكل فقط في نفس السطر -->
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <button type="button" id="btn-ocr-filter-all" onclick="FinancialOCR.setFocusMode(false)" style="height:32px; padding:0 8px; border-radius:8px; background:rgba(56,189,248,0.25); border:1.2px solid #38bdf8; color:#e0f2fe; font-size:0.76rem; font-weight:900; cursor:pointer; display:flex; align-items:center; gap:3px; white-space:nowrap;" title="عرض جميع الإشعارات">
+                                    عرض الكل (<span id="ocr-count-all-pills">0</span>)
+                                </button>
+                                <button type="button" id="btn-ocr-focus-mode" onclick="FinancialOCR.toggleFocusMode()" style="height:32px; padding:0 8px; border-radius:8px; background:rgba(255,255,255,0.08); border:1.2px solid rgba(255,255,255,0.2); color:#cbd5e1; font-size:0.76rem; font-weight:900; cursor:pointer; display:flex; align-items:center; gap:4px; transition:all 0.15s ease; white-space:nowrap;" title="إخفاء الإشعارات السليمة والتركيز فقط على الإشعارات التي تحتاج مراجعة أو بها مشاكل">
+                                    <span>⚡</span> وضع التركيز (<span id="ocr-count-issues-pills">0</span>)
+                                </button>
+                                <span id="ocr-focus-status-text" style="display:none;">معروض الكل</span>
+                            </div>
                         </div>
 
                         <!-- Live Background Streaming Progress Indicator (Option B) -->
@@ -194,28 +391,40 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         <!-- Row 3: Gallery of Cards (معرض الشيكات والإشعارات الموسع - يتمدد ديناميكياً ويحتوي شريط تمرير داخلي) -->
                         <div id="ocr-batch-container" style="display:flex; flex-direction:column; flex:1 1 0; min-height:80px; overflow:hidden; background:rgba(10,15,30,0.6); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:6px; margin-bottom:6px; box-sizing:border-box;">
                             <div id="ocr-batch-tabs" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:9px; width:100%; height:100%; overflow-y:auto; padding:4px; scrollbar-width:thin; box-sizing:border-box;">
-                                <!-- Injected dynamically via JS: 7 right, 7 left = 14 notices visible with large clear layout -->
                             </div>
                         </div>
 
                         <!-- دليل دلالات ألوان البطاقات المعتمد (مثبت دائماً أسفل البطاقات مباشرة) -->
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; background:rgba(15,23,42,0.92); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:5px 10px; margin-bottom:6px; font-size:0.73rem; font-weight:800; direction:rtl; flex-shrink:0; box-sizing:border-box;">
-                            <div style="display:flex; align-items:center; gap:4px; color:#34d399;" title="المستند سليم ومكتمل بنسبة 100% وجاهز للاعتماد الفوري">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; background:rgba(15,23,42,0.92); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:5px 8px; margin-bottom:6px; font-size:0.71rem; font-weight:800; direction:rtl; flex-shrink:0; box-sizing:border-box;">
+                            <div style="display:flex; align-items:center; gap:3px; color:#34d399;" title="المستند سليم ومكتمل بنسبة 100% وجاهز للاعتماد الفوري">
                                 <span style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981; display:inline-block;"></span>
                                 <span>أخضر: سليم (مار طوالي)</span>
                             </div>
-                            <div style="display:flex; align-items:center; gap:4px; color:#f87171;" title="رقم المعاملة مسجل مسبقاً في النظام أو متكرر بالدفعة">
+                            <div style="display:flex; align-items:center; gap:3px; color:#67e8f9;" title="المستند سليم ومار ولكن مقطوع في التصوير أو ناقص رقم العملية">
+                                <span style="width:8px; height:8px; border-radius:50%; background:#06b6d4; box-shadow:0 0 6px #06b6d4; display:inline-block;"></span>
+                                <span>🔷 أزرق: مقطوع / ناقص رقم</span>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:3px; color:#f87171;" title="رقم المعاملة مسجل مسبقاً في النظام أو متكرر بالدفعة">
                                 <span style="width:8px; height:8px; border-radius:50%; background:#ef4444; box-shadow:0 0 6px #ef4444; display:inline-block;"></span>
                                 <span>أحمر: مكرر</span>
                             </div>
-                            <div style="display:flex; align-items:center; gap:4px; color:#fbbf24;" title="المبلغ صفري أو بيانات الإشعار غير واضحة ويحتاج مراجعة">
+                            <div style="display:flex; align-items:center; gap:3px; color:#fbbf24;" title="المبلغ صفري أو بيانات الإشعار غير واضحة ويحتاج مراجعة">
                                 <span style="width:8px; height:8px; border-radius:50%; background:#f59e0b; box-shadow:0 0 6px #f59e0b; display:inline-block;"></span>
-                                <span>ذهبي: ناقص / غير واضح</span>
+                                <span>ذهبي: غير واضح</span>
                             </div>
-                            <div style="display:flex; align-items:center; gap:4px; color:#c084fc;" title="اشتباه تزوير أو تعديل رقمي أو عدم تطابق في تفقيط ومبالغ الشيك/الإشعار">
+                            <div style="display:flex; align-items:center; gap:3px; color:#c084fc;" title="اشتباه تزوير أو تعديل رقمي أو عدم تطابق في تفقيط ومبالغ الشيك/الإشعار">
                                 <span style="width:8px; height:8px; border-radius:50%; background:#a855f7; box-shadow:0 0 6px #a855f7; display:inline-block;"></span>
-                                <span>🟣 بنفسجي: اشتباه تزوير (%)</span>
+                                <span>🟣 بنفسجي: تزوير (%)</span>
                             </div>
+                        </div>
+
+                        <!-- شريط التنبيه اللحظي للتدقيق التلقائي للإشعارات الذهبية غير الواضحة -->
+                        <div id="ocr-golden-autorefresh-bar" style="display:none; align-items:center; justify-content:space-between; gap:6px; background:linear-gradient(135deg, rgba(180,83,9,0.35), rgba(120,53,15,0.45)); border:1.2px solid #f59e0b; border-radius:8px; padding:4px 10px; margin-bottom:6px; font-size:0.73rem; font-weight:800; color:#fef3c7; direction:rtl; flex-shrink:0; box-shadow:0 0 12px rgba(245,158,11,0.3);">
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="display:inline-block; animation:ocrSpinRing 1s linear infinite; font-size:0.85rem;">🔄</span>
+                                <span id="ocr-golden-autorefresh-text">جاري التدقيق والريفريش التلقائي للإشعارات الذهبية غير الواضحة للتأكد منها...</span>
+                            </div>
+                            <span id="ocr-golden-autorefresh-badge" style="background:#b45309; color:#fff; padding:2px 7px; border-radius:4px; font-size:0.68rem; font-weight:900;">تدقيق تلقائي ⚡</span>
                         </div>
 
                         <!-- Row 4: Emergency Duplicate Warning Banner (تحت التحويلات مباشرة) -->
@@ -254,38 +463,49 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                             </div>
                         </div>
 
-                    </div>
-
-                    <!-- Row 5: Action Buttons (أزرار التحكم المحاسبية: حفظ الاعتمادات، استبعاد المكرر، استبعاد الكل) - مثبتة ومحمية من الاختفاء -->
-                    <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0; margin-top:auto; padding-top:6px; border-top:1.5px solid rgba(255,255,255,0.15); background:rgba(15,23,42,0.98); z-index:20;">
-                        <!-- Primary Action Bar (حفظ الاعتمادات، استبعاد المكرر، استبعاد الكل، إلغاء) -->
-                        <div style="display:flex; align-items:center; gap:6px; width:100%;">
-                            <button type="button" id="btn-apply-financial-ocr" onclick="FinancialOCR.applyToActiveScreen()" style="flex:1.55; height:42px; background:linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); border:1.5px solid rgba(52,211,153,0.5); color:#fff; padding:0 10px; border-radius:8px; font-size:0.95rem; font-weight:900; cursor:pointer; box-shadow:0 4px 18px rgba(16,185,129,0.45); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s ease; white-space:nowrap;" title="حفظ واعتماد السندات السليمة واستبعاد المكرر تلقائياً">
-                                <span style="font-size:1.15rem;">💾</span> <span id="btn-apply-text">حفظ الاعتمادات</span>
-                            </button>
-                            <button type="button" id="btn-purge-duplicates" onclick="FinancialOCR.purgeDuplicateItems()" style="flex:1.15; height:42px; background:linear-gradient(135deg, rgba(220,38,38,0.35), rgba(185,28,28,0.55)); border:1.5px solid #ef4444; color:#fca5a5; padding:0 8px; border-radius:8px; font-size:0.86rem; font-weight:900; cursor:pointer; box-shadow:0 3px 14px rgba(239,68,68,0.3); display:flex; align-items:center; justify-content:center; gap:5px; transition:all 0.2s ease; white-space:nowrap;" title="استبعاد وحذف جميع الإشعارات المكررة بنقرة واحدة">
-                                <span style="font-size:1.05rem;">🚨</span> <span>استبعاد المكرر</span>
-                            </button>
-                            <button type="button" id="btn-purge-all" onclick="FinancialOCR.purgeAllItems()" style="flex:0.95; height:42px; background:linear-gradient(135deg, rgba(71,85,105,0.4), rgba(30,41,59,0.6)); border:1.5px solid rgba(239,68,68,0.45); color:#cbd5e1; padding:0 8px; border-radius:8px; font-size:0.84rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s ease; white-space:nowrap;" title="إفراغ الدفعة بالكامل واستبعاد جميع المستندات">
-                                <span style="font-size:1.0rem;">🗑️</span> <span>استبعاد الكل</span>
-                            </button>
-                            <button type="button" onclick="FinancialOCR.closeReviewModal()" style="flex:0.65; height:42px; background:rgba(255,255,255,0.08); border:1.5px solid rgba(255,255,255,0.22); color:#e2e8f0; padding:0 8px; border-radius:8px; font-weight:900; font-size:0.82rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:3px; white-space:nowrap;">
-                                <span>✕</span> <span>إلغاء</span>
-                            </button>
+                        <!-- Row 4-C: Sequence Anomaly Warning Banner (تحذير شذوذ التسلسل الزمني لرقم العملية) -->
+                        <div id="ocr-sequence-warning-box" style="display:none; flex-direction:column; gap:4px; background:linear-gradient(135deg, rgba(112,26,117,0.92), rgba(74,4,78,0.96)); border:1.8px solid #f472b6; color:#fff; padding:6px 10px; border-radius:8px; box-shadow:0 0 20px rgba(244,114,182,0.65); animation:ocrWarningPulse 1.2s infinite alternate; margin-bottom:6px; flex-shrink:0;">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <div style="display:flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:900; color:#fdf2f8;">
+                                    <span>📉</span>
+                                    <span>شذوذ تسلسل رقم العملية مع التاريخ (انعكاس مريب)!</span>
+                                </div>
+                                <span id="ocr-sequence-badge" style="background:#be185d; color:#fff; border:1px solid #f472b6; padding:2px 8px; border-radius:4px; font-size:0.72rem; font-weight:900;">تراجع تسلسلي ⚠️</span>
+                            </div>
+                            <div id="ocr-sequence-warning-text" style="font-size:0.76rem; font-weight:700; color:#fce7f3; line-height:1.3; background:rgba(0,0,0,0.4); padding:4px 8px; border-radius:4px; border-right:3px solid #f472b6;">
+                                رقم العملية في هذا الإشعار أصغر من عملية سابقة بتاريخ أقدم لنفس البنك!
+                            </div>
                         </div>
 
-                        <!-- Secondary Contextual Action (حفظ هذا السند فقط / استبعاد هذا المستند الفردي) -->
-                        <div id="ocr-single-actions-bar" style="display:none; justify-content:space-between; align-items:center; gap:6px; flex-shrink:0;">
-                            <button type="button" id="btn-apply-single-financial-ocr" onclick="FinancialOCR.applyCurrentItemOnly()" style="flex:1.4; height:32px; background:linear-gradient(135deg, rgba(14,165,233,0.35), rgba(2,132,199,0.5)); border:1.5px solid #38bdf8; color:#ffffff; padding:0 10px; border-radius:6px; font-size:0.82rem; font-weight:900; cursor:pointer; text-align:center; box-shadow:0 2px 10px rgba(56,189,248,0.25); display:flex; align-items:center; justify-content:center; gap:5px;">
-                                <span><img src="assets/logo.png" style="width:14px; height:14px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"></span> <span id="btn-apply-single-text">حفظ هذا السند فقط</span>
+                    </div>
+
+                    <!-- Row 5: Action Buttons (أزرار التحكم المحاسبية الموحدة في سطر واحد: حفظ الكل، استبعاد المكرر، استبعاد الكل، حفظ هذا السند) - مثبتة ومحمية من الاختفاء -->
+                    <div style="display:flex; flex-direction:column; gap:5px; flex-shrink:0; margin-top:auto; padding-top:6px; border-top:1.5px solid rgba(255,255,255,0.15); background:rgba(15,23,42,0.98); z-index:20;">
+                        <!-- Unified Single Row Action Bar: حفظ الكل، استبعاد المكرر، استبعاد الكل، حفظ هذا السند -->
+                        <div style="display:flex; align-items:center; gap:5px; width:100%;">
+                            <!-- 1. حفظ الكل -->
+                            <button type="button" id="btn-apply-financial-ocr" onclick="FinancialOCR.applyToActiveScreen()" style="flex:1.2; height:38px; background:linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); border:1.5px solid rgba(52,211,153,0.5); color:#fff; padding:0 8px; border-radius:8px; font-size:0.86rem; font-weight:900; cursor:pointer; box-shadow:0 3px 14px rgba(16,185,129,0.4); display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s ease; white-space:nowrap;" title="حفظ واعتماد السندات السليمة واستبعاد المكرر تلقائياً">
+                                <span style="font-size:1.0rem;">💾</span> <span id="btn-apply-text">حفظ الكل</span>
                             </button>
-                            <button type="button" id="btn-delete-current-ocr-item" onclick="FinancialOCR.deleteCurrentItem()" style="flex:0.9; height:32px; background:rgba(239,68,68,0.2); border:1.2px solid rgba(239,68,68,0.4); color:#fca5a5; padding:0 8px; border-radius:6px; font-weight:800; font-size:0.78rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="استبعاد هذا المستند المعروض حالياً">
-                                <span>🗑️</span> <span>استبعاد هذا السند</span>
+
+                            <!-- 2. استبعاد المكرر -->
+                            <button type="button" id="btn-purge-duplicates" onclick="FinancialOCR.purgeDuplicateItems()" style="flex:1.05; height:38px; background:linear-gradient(135deg, rgba(220,38,38,0.35), rgba(185,28,28,0.55)); border:1.5px solid #ef4444; color:#fca5a5; padding:0 6px; border-radius:8px; font-size:0.82rem; font-weight:900; cursor:pointer; box-shadow:0 2px 10px rgba(239,68,68,0.3); display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s ease; white-space:nowrap;" title="استبعاد وحذف جميع الإشعارات المكررة بنقرة واحدة">
+                                <span style="font-size:0.95rem;">🚨</span> <span>استبعاد المكرر</span>
+                            </button>
+
+                            <!-- 3. استبعاد الكل -->
+                            <button type="button" id="btn-purge-all" onclick="FinancialOCR.purgeAllItems()" style="flex:0.95; height:38px; background:linear-gradient(135deg, rgba(71,85,105,0.4), rgba(30,41,59,0.6)); border:1.5px solid rgba(239,68,68,0.45); color:#cbd5e1; padding:0 6px; border-radius:8px; font-size:0.82rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s ease; white-space:nowrap;" title="إفراغ الدفعة بالكامل واستبعاد جميع المستندات">
+                                <span style="font-size:0.95rem;">🗑️</span> <span>استبعاد الكل</span>
+                            </button>
+
+                            <!-- 4. حفظ هذا السند (أو محظور من الاعتماد) -->
+                            <button type="button" id="btn-apply-single-financial-ocr" onclick="FinancialOCR.applyCurrentItemOnly()" style="flex:1.15; height:38px; background:linear-gradient(135deg, rgba(14,165,233,0.35), rgba(2,132,199,0.5)); border:1.5px solid #38bdf8; color:#ffffff; padding:0 8px; border-radius:8px; font-size:0.82rem; font-weight:900; cursor:pointer; text-align:center; box-shadow:0 2px 10px rgba(56,189,248,0.25); display:flex; align-items:center; justify-content:center; gap:4px; transition:all 0.2s ease; white-space:nowrap;" title="حفظ واعتماد هذا المستند المعروض حالياً فقط">
+                                <span><img src="assets/logo.png" style="width:13px; height:13px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"></span> <span id="btn-apply-single-text">حفظ هذا السند</span>
                             </button>
                         </div>
 
                         <!-- Summary & Arabic Words -->
-                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:4px 8px; display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:3px 8px; display:flex; align-items:center; gap:6px; flex-shrink:0;">
                             <span style="font-size:0.8rem;">🤖</span>
                             <span id="ocr-doc-summary" style="color:#94a3b8; font-size:0.72rem; line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">تأكد من مطابقة البيانات المستخرجة</span>
                         </div>
@@ -420,12 +640,23 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(14,165,233,0.15), rgba(15,23,42,0.9)); padding:6px 10px; border-radius:8px; border:2px solid #38bdf8; box-shadow:0 0 14px rgba(56,189,248,0.3), inset 0 0 8px rgba(56,189,248,0.12); flex-shrink:0;">
                             <label style="color:#7dd3fc; font-size:0.95rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 8px rgba(56,189,248,0.5);">التاريخ:</label>
                             <div style="display:flex; align-items:center; justify-content:center; flex:1; width:100%;">
-                                <input type="date" id="ocr-field-date" oninput="FinancialOCR.syncCurrentItemFromForm()" style="width:100%; height:40px; background:#0f172a; border:1.8px solid #38bdf8; border-radius:6px; color:#ffffff; font-size:1.25rem; font-weight:900; font-family:'Consolas',monospace; padding:0 8px; outline:none; text-align:center; direction:ltr !important; box-shadow:0 0 10px rgba(56,189,248,0.3); box-sizing:border-box; margin:0 auto;" title="التاريخ موسط في المنتصف">
+                                <input type="date" id="ocr-field-date" oninput="FinancialOCR.handleDateInput(this)" style="width:100%; height:40px; background:#0f172a; border:1.8px solid #38bdf8; border-radius:6px; color:#ffffff; font-size:1.25rem; font-weight:900; font-family:'Consolas',monospace; padding:0 8px; outline:none; text-align:center; direction:ltr !important; box-shadow:0 0 10px rgba(56,189,248,0.3); box-sizing:border-box; margin:0 auto;" title="التاريخ موسط في المنتصف">
                                 <div id="ocr-box-due-date" style="display:none; align-items:center; gap:4px;">
                                     <label style="color:#c084fc; font-size:0.82rem; font-weight:900; white-space:nowrap; margin:0;">الاستحقاق:</label>
                                     <input type="date" id="ocr-field-due-date" oninput="FinancialOCR.syncCurrentItemFromForm()" style="width:135px; height:40px; background:#0f172a; border:2px solid rgba(168,85,247,0.6); border-radius:6px; color:#e9d5ff; font-size:1.15rem; font-weight:900; font-family:'Consolas',monospace; padding:0 6px; outline:none; text-align:center; direction:ltr !important; box-sizing:border-box;">
                                 </div>
                             </div>
+                        </div>
+
+                        <!-- شريط تنبيه صلاحية التاريخ والفترة المحاسبية (Fiscal Date Check Warning) -->
+                        <div id="ocr-date-fiscal-warning" style="display:none; align-items:center; justify-content:space-between; gap:6px; background:linear-gradient(135deg, rgba(239,68,68,0.2), rgba(15,23,42,0.95)); border:1.5px solid #ef4444; border-radius:6px; padding:4px 8px; margin-top:-3px; flex-shrink:0; font-size:0.75rem; font-weight:800; color:#fca5a5; box-shadow:0 0 10px rgba(239,68,68,0.3);">
+                            <div style="display:flex; align-items:center; gap:5px; flex:1; min-width:0;">
+                                <span id="ocr-date-fiscal-icon" style="font-size:0.85rem;">⚠️</span>
+                                <span id="ocr-date-fiscal-text" style="line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">تاريخ الإشعار قديم (أكثر من شهر)</span>
+                            </div>
+                            <button type="button" onclick="FinancialOCR.setDateToToday()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.25); color:#ffffff; font-size:0.68rem; font-weight:900; padding:1px 6px; border-radius:4px; cursor:pointer; white-space:nowrap;" title="تغيير تاريخ المستند لتاريخ اليوم">
+                                📅 تعيين لتاريخ اليوم
+                            </button>
                         </div>
 
                         <!-- 2. السند والبنك: يكتب السند وأمامها طوالي اسم البنك موسط في النص -->
@@ -435,10 +666,21 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                             <input type="text" id="ocr-field-bank-name" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="اسم البنك (مثال: بنك الخرطوم)" style="flex:1; height:38px; background:#0f172a; border:1.8px solid #06b6d4; border-radius:6px; color:#ffffff; font-size:1.05rem; font-weight:800; padding:0 10px; outline:none; text-align:center; box-sizing:border-box; box-shadow:0 0 10px rgba(6,182,212,0.25);">
                         </div>
 
-                        <!-- 3. الرقم: كتابة "الرقم:" وإنقاص خط الرقم درجتين (1.55rem) بارتفاع 40px وموسط في النص -->
+                        <!-- 3. الرقم: ترك كل المساحة للرقم موسط في النص بخط عريض وواضح -->
                         <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(2,132,199,0.18), rgba(15,23,42,0.9)); padding:6px 10px; border-radius:8px; border:2px solid #0284c7; box-shadow:0 0 14px rgba(2,132,199,0.4); flex-shrink:0;">
                             <label id="ocr-label-ref-no" style="color:#38bdf8; font-size:0.95rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 8px rgba(56,189,248,0.6);">الرقم:</label>
-                            <input type="text" id="ocr-field-ref-no" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="الرقم" style="flex:1; height:40px; background:#0f172a; border:2px solid #38bdf8; border-radius:6px; color:#38bdf8; font-size:1.55rem; font-weight:900; padding:0 10px; font-family:'Consolas',monospace; text-align:center; direction:ltr !important; unicode-bidi:plaintext; outline:none; box-sizing:border-box; box-shadow:0 0 12px rgba(56,189,248,0.4); letter-spacing:0.5px; margin:0 auto;" title="الرقم موسط في النص">
+                            <input type="text" id="ocr-field-ref-no" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="الرقم" style="flex:1; width:100%; height:40px; background:#0f172a; border:2px solid #38bdf8; border-radius:6px; color:#38bdf8; font-size:1.55rem; font-weight:900; padding:0 10px; font-family:'Consolas',monospace; text-align:center; direction:ltr !important; unicode-bidi:plaintext; outline:none; box-sizing:border-box; box-shadow:0 0 12px rgba(56,189,248,0.4); letter-spacing:0.5px; margin:0;" title="الرقم موسط في النص">
+                        </div>
+
+                        <!-- شريط تنبيه شذوذ التسلسل الزمني تحت خانة رقم العملية مباشرة -->
+                        <div id="ocr-ref-sequence-warning" style="display:none; align-items:center; justify-content:space-between; gap:6px; background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(88,28,135,0.92)); border:1.8px solid #c084fc; border-radius:6px; padding:5px 8px; margin-top:-3px; flex-shrink:0; font-size:0.75rem; font-weight:800; color:#f5d0fe; box-shadow:0 0 12px rgba(168,85,247,0.4);">
+                            <div style="display:flex; align-items:center; gap:5px; flex:1; min-width:0;">
+                                <span style="font-size:0.85rem;">📉</span>
+                                <span id="ocr-ref-sequence-text" style="line-height:1.25; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">شذوذ تسلسل رقم العملية مع التاريخ!</span>
+                            </div>
+                            <span style="background:#7e22ce; border:1px solid #d8b4fe; color:#ffffff; font-size:0.68rem; font-weight:900; padding:1px 6px; border-radius:4px; white-space:nowrap;">
+                                انعكاس تسلسلي ⚠️
+                            </span>
                         </div>
 
                         <!-- 4. المبلغ: موسط في النص وإنقاص درجتين (2.30rem) بارتفاع 44px باللون الذهبي وبدون خانات عشرية -->
@@ -448,6 +690,12 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                                 <span id="ocr-amount-unclear-badge" style="display:none; background:#262626; border:1px solid #ef4444; color:#fca5a5; font-size:0.70rem; padding:1px 5px; border-radius:4px; font-weight:900;">غير واضح</span>
                             </div>
                             <input type="text" id="ocr-field-amount" oninput="FinancialOCR.handleAmountInput(this)" onblur="FinancialOCR.formatAmountField(this)" placeholder="0" style="flex:1; height:44px; min-width:0; width:100%; background:#000000; border:2.5px solid #fbbf24; border-radius:8px; color:#fef08a; font-size:2.30rem; font-weight:900; padding:0 4px; font-family:'Bahnschrift Condensed','Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; text-align:center; direction:ltr !important; unicode-bidi:plaintext; outline:none; box-shadow:0 0 20px rgba(251,191,36,0.45); text-shadow:0 0 14px rgba(251,191,36,0.5); box-sizing:border-box; letter-spacing:-0.5px;" title="المبلغ المالي بدون خانات عشرية">
+                        </div>
+
+                        <!-- 4-B. تفقيط المبلغ بالعربية بخط عريض وواضح لإلغاء القلق من الصفر الزائد تماماً -->
+                        <div id="ocr-amount-tafqeet-box" style="display:flex; align-items:center; justify-content:center; gap:6px; background:linear-gradient(135deg, rgba(251,191,36,0.12), rgba(15,23,42,0.95)); border:1.5px solid rgba(251,191,36,0.45); border-radius:7px; padding:4px 10px; margin-top:-2px; flex-shrink:0; box-shadow:0 0 10px rgba(251,191,36,0.15);">
+                            <span style="font-size:0.90rem; flex-shrink:0;">✍️</span>
+                            <span id="ocr-field-amount-tafqeet" style="color:#fde047; font-size:0.94rem; font-weight:900; line-height:1.3; text-align:center; word-break:break-word; font-family:'Tajawal',sans-serif;">فقط صفر جنيه سوداني لا غير</span>
                         </div>
 
                         <!-- 5. من: إنقاص درجة واحدة (1.06rem) بارتفاع 36px وموسط في المنتصف -->
@@ -681,6 +929,7 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
             </div>
         </div>
     </div>
+</div>
 <!-- WhatsApp AI Ingest Modal (النظام الهجين المتكامل لاستيراد إشعارات الواتساب) -->
 <div id="financial-ocr-whatsapp-modal" style="display:none; position:fixed !important; inset:0 !important; background:rgba(0,0,0,0.92) !important; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); z-index:2147483647 !important; align-items:center; justify-content:center; padding:15px; font-family:'Tajawal',sans-serif; direction:rtl;">
     <div style="background:#0f172a; border:2px solid #25D366; border-radius:20px; width:100%; max-width:680px; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 25px 60px rgba(0,0,0,0.9), 0 0 45px rgba(37,211,102,0.3); overflow:hidden;">
@@ -1149,5 +1398,56 @@ body.ocr-modal-active > *:not(#financial-ocr-review-modal):not(#financial-ocr-lo
 #financial-ocr-whatsapp-modal,
 #financial-ocr-key-modal {
     z-index: 2147483647 !important;
+}
+
+/* Modern Animated Ads Waiting Screen Animations & Motion Gestures */
+@keyframes ocrAdFloatSine1 {
+    0% { transform: translateY(0px) rotate(0deg) scale(1); }
+    50% { transform: translateY(-16px) rotate(4deg) scale(1.04); }
+    100% { transform: translateY(0px) rotate(0deg) scale(1); }
+}
+@keyframes ocrAdFloatSine2 {
+    0% { transform: translateY(0px) rotate(0deg) scale(1); }
+    50% { transform: translateY(18px) rotate(-5deg) scale(1.05); }
+    100% { transform: translateY(0px) rotate(0deg) scale(1); }
+}
+@keyframes ocrAdFloatSine3 {
+    0% { transform: translateX(0px) translateY(0px); }
+    50% { transform: translateX(12px) translateY(-10px); }
+    100% { transform: translateX(0px) translateY(0px); }
+}
+@keyframes ocrAdFloatSine4 {
+    0% { transform: translateX(0px) translateY(0px); }
+    50% { transform: translateX(-12px) translateY(10px); }
+    100% { transform: translateX(0px) translateY(0px); }
+}
+@keyframes ocrAdGlowBar {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+@keyframes ocrKenBurns {
+    0% { transform: scale(1); opacity: 0.85; }
+    50% { transform: scale(1.035); opacity: 1; }
+    100% { transform: scale(1.02); opacity: 1; }
+}
+.ocr-twin-ad-card:hover {
+    transform: translateY(-3px) scale(1.012);
+    border-color: #38bdf8 !important;
+    box-shadow: 0 28px 65px rgba(0,0,0,0.92), 0 0 35px rgba(56,189,248,0.3) !important;
+}
+#ocr-ad-card-1.ocr-twin-ad-card:hover {
+    border-color: #c084fc !important;
+    box-shadow: 0 28px 65px rgba(0,0,0,0.92), 0 0 35px rgba(168,85,247,0.35) !important;
+}
+@media (max-width: 900px) {
+    .ocr-twin-ads-grid {
+        grid-template-columns: 1fr !important;
+    }
+    .ocr-ad-float-circle, .ocr-ad-float-rect {
+        display: none !important;
+    }
+    #financial-ocr-loading {
+        padding: 10px !important;
+    }
 }
 </style>

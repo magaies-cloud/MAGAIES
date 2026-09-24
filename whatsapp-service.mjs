@@ -12,7 +12,8 @@ import makeWASocket, {
     useMultiFileAuthState,
     DisconnectReason,
     Browsers,
-    fetchLatestBaileysVersion
+    fetchLatestBaileysVersion,
+    proto
 } from '@whiskeysockets/baileys';
 import pino from 'pino';
 import QRCode from 'qrcode';
@@ -92,6 +93,9 @@ class WhatsAppClient {
         // Flags
         this._isInitializing   = false;
         this._isDestroying     = false;
+
+        // Message cache for retry requests (prevents phantom messages)
+        this.messageCache      = new Map();
     }
 
     get authFolder() {
@@ -313,10 +317,14 @@ class WhatsAppClient {
                 connectTimeoutMs: 60_000,
                 defaultQueryTimeoutMs: 60_000,
                 keepAliveIntervalMs: 30_000,                 // 30s standard ping
-                retryRequestDelayMs: 5000,
+                retryRequestDelayMs: 250,                    // Fast retry processing (was 5000ms = too slow)
                 getMessage: async (key) => {
-                    // Provide a default empty/dummy message callback to prevent crashes on message retries
-                    return { conversation: 'keep-alive' };
+                    // Return the original cached message for proper re-encryption on retry
+                    if (this.messageCache && key?.id && this.messageCache.has(key.id)) {
+                        return this.messageCache.get(key.id);
+                    }
+                    // Fallback: empty proto to allow retry processing without phantom text
+                    return proto.Message.fromObject({});
                 }
             });
 
@@ -339,6 +347,25 @@ class WhatsAppClient {
             // ── Connection update handler ──
             sock.ev.on('connection.update', (update) => {
                 this._handleConnectionUpdate(update);
+            });
+
+            // ── Cache messages for retries ──
+            sock.ev.on('messages.upsert', (upsert) => {
+                try {
+                    const msgs = upsert?.messages || upsert || [];
+                    for (const msg of msgs) {
+                        if (msg?.key?.id && msg?.message) {
+                            this.messageCache.set(msg.key.id, msg.message);
+                            // Evict oldest if cache grows too large
+                            if (this.messageCache.size > 500) {
+                                const oldestKey = this.messageCache.keys().next().value;
+                                this.messageCache.delete(oldestKey);
+                            }
+                        }
+                    }
+                } catch (e) {
+                    logErr(this.userId, 'messages.upsert cache error:', e.message);
+                }
             });
 
             this._startWatchdog();
@@ -517,7 +544,17 @@ class WhatsAppClient {
             setTimeout(() => reject(new Error('Send request timed out on WhatsApp server')), 15_000)
         );
         
-        return Promise.race([sendPromise, timeoutPromise]);
+        const result = await Promise.race([sendPromise, timeoutPromise]);
+        if (result?.key?.id && result?.message) {
+            try {
+                this.messageCache.set(result.key.id, result.message);
+                if (this.messageCache.size > 200) {
+                    const oldestKey = this.messageCache.keys().next().value;
+                    this.messageCache.delete(oldestKey);
+                }
+            } catch (_) {}
+        }
+        return result;
     }
 
     async logout() {
@@ -601,6 +638,25 @@ class ClientManager {
             this.clients.set(userId, new WhatsAppClient(userId));
         }
         return this.clients.get(userId);
+    }
+
+    getConnectedClient() {
+        for (const [uid, client] of this.clients) {
+            if (client.isConnected) return client;
+        }
+        return null;
+    }
+
+    findActiveClient(preferredId) {
+        if (preferredId && this.clients.has(preferredId)) {
+            const client = this.clients.get(preferredId);
+            if (client.isConnected) return client;
+        }
+        const connected = this.getConnectedClient();
+        if (connected) return connected;
+
+        if (preferredId) return this.get(preferredId);
+        return this.get('default');
     }
 
     async initClient(userId) {
@@ -833,13 +889,13 @@ const upload = multer({ dest: UPLOADS_DIR });
 
 // ── GET /wa/status ─────────────────────────────────────────────
 app.get('/wa/status', (req, res) => {
-    const userId = req.query.userId || 'default';
-    const client = manager.get(userId);
+    const requestedId = req.query.userId || req.body?.userId;
+    const client = manager.findActiveClient(requestedId);
 
     // Auto-init if idle, failed, or logged out (user wants to reconnect or scan new QR)
-    if (client.status === 'IDLE' || client.status === 'FAILED' || client.status === 'LOGGED_OUT' || client.status === 'DISCONNECTED') {
+    if (!client.isConnected && (client.status === 'IDLE' || client.status === 'FAILED' || client.status === 'LOGGED_OUT' || client.status === 'DISCONNECTED')) {
         client.reconnectAttempts = 0; // Reset so user-triggered retry gets fresh attempts
-        client.init().catch(e => logErr(userId, 'auto-init failed:', e.message));
+        client.init().catch(e => logErr(client.userId, 'auto-init failed:', e.message));
     }
 
     res.json(client.toJSON());
@@ -848,10 +904,10 @@ app.get('/wa/status', (req, res) => {
 
 // ── GET /wa/qr ─────────────────────────────────────────────────
 app.get('/wa/qr', (req, res) => {
-    const userId = req.query.userId || 'default';
-    const client = manager.get(userId);
+    const requestedId = req.query.userId || req.body?.userId;
+    const client = manager.findActiveClient(requestedId);
     res.json({
-        userId,
+        userId: client.userId,
         status: client.status,
         qrCode: client.qrCode,
         phoneNumber: client.phoneNumber,
@@ -859,14 +915,26 @@ app.get('/wa/qr', (req, res) => {
 });
 
 
-// ── POST /wa/send ──────────────────────────────────────────────
-app.post('/wa/send', upload.single('pdf'), async (req, res) => {
-    const userId  = req.body.userId || 'default';
-    let   phone   = req.body.phone;
-    const message = req.body.message || '';
-    const client  = manager.get(userId);
+// ── GET /wa/generate-qr ────────────────────────────────────────
+app.get('/wa/generate-qr', async (req, res) => {
+    const text = req.query.text || 'VERIFIED';
+    try {
+        const dataUrl = await QRCode.toDataURL(text, { width: 140, margin: 1, color: { dark: '#0f172a', light: '#ffffff' } });
+        res.json({ success: true, dataUrl });
+    } catch (e) {
+        res.json({ success: false, error: e.message });
+    }
+});
 
-    if (!client.isConnected) {
+
+// ── POST /wa/send ──────────────────────────────────────────────
+app.post('/wa/send', upload.any(), async (req, res) => {
+    const userId  = req.body?.userId || req.query?.userId;
+    let   phone   = req.body?.phone || req.query?.phone;
+    const message = req.body?.message || req.query?.message || '';
+    const client  = manager.findActiveClient(userId);
+
+    if (!client || !client.isConnected) {
         return res.status(400).json({ success: false, error: 'WhatsApp not connected.' });
     }
     if (!phone) {
@@ -879,15 +947,32 @@ app.post('/wa/send', upload.single('pdf'), async (req, res) => {
     }
 
     try {
-        if (req.file) {
-            await client.sendMessage(phone, {
-                document: { url: req.file.path },
-                mimetype: 'application/pdf',
-                fileName: req.file.originalname || 'document.pdf',
-                caption: message,
-            });
+        const file = (req.files && req.files.length > 0) ? req.files[0] : (req.file || null);
+        if (file) {
+            const isImage = (file.mimetype && file.mimetype.startsWith('image/')) || 
+                            /\.(png|jpe?g|webp)$/i.test(file.originalname || '');
+            if (isImage) {
+                await client.sendMessage(phone, {
+                    image: { url: file.path },
+                    caption: message,
+                });
+            } else {
+                let docFileName = req.body?.documentName || req.body?.fileName || file.originalname || 'document.pdf';
+                try {
+                    const decoded = Buffer.from(docFileName, 'latin1').toString('utf8');
+                    if (!decoded.includes('\uFFFD') && /[\u0600-\u06FF]/.test(decoded)) {
+                        docFileName = decoded;
+                    }
+                } catch(e) {}
+                await client.sendMessage(phone, {
+                    document: { url: file.path },
+                    mimetype: file.mimetype || 'application/pdf',
+                    fileName: docFileName,
+                    caption: message,
+                });
+            }
             // Clean up uploaded file
-            fs.unlink(req.file.path, () => {});
+            fs.unlink(file.path, () => {});
         } else {
             await client.sendMessage(phone, { text: message });
         }
@@ -1060,6 +1145,24 @@ const server = app.listen(PORT, () => {
     log('STARTUP', `🚀 WhatsApp service on port ${PORT}`);
     log('STARTUP', `📁 Auth: ${AUTH_BASE_DIR}`);
     log('STARTUP', `📦 Node ${process.version} | ${process.platform}/${process.arch}`);
+
+    // Auto-discover and connect any saved WhatsApp sessions on disk
+    try {
+        const authDirs = fs.readdirSync(AUTH_BASE_DIR);
+        for (const dir of authDirs) {
+            if (dir.startsWith('baileys_auth_')) {
+                const credsFile = path.join(AUTH_BASE_DIR, dir, 'creds.json');
+                if (fs.existsSync(credsFile)) {
+                    const uid = dir.replace('baileys_auth_', '');
+                    log('STARTUP', `Discovered existing saved WhatsApp session: ${uid}`);
+                    manager.initClient(uid).catch(e => logErr(uid, 'startup auto-init failed:', e.message));
+                }
+            }
+        }
+    } catch (e) {
+        logErr('STARTUP', 'Session discovery failed:', e.message);
+    }
+
     manager.initClient('default-saas-admin');
     healer.start();
 });

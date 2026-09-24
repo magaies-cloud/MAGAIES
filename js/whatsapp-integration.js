@@ -582,12 +582,13 @@ function getWAUserId() {
     try {
         const userStr = localStorage.getItem('user') || '{}';
         const user = JSON.parse(userStr);
-        const tenantId = user.tenant_id || localStorage.getItem('currentTenantId') || 'default';
+        const tenantId = user.tenant_id || localStorage.getItem('currentTenantId') || localStorage.getItem('tenant_id') || localStorage.getItem('erp_tenant_id') || '12';
         return 'wa_tenant_' + tenantId;
     } catch (e) {
-        return 'wa_tenant_default';
+        return 'wa_tenant_12';
     }
 }
+window.getWAUserId = getWAUserId;
 
 /**
  * Convert HTML element to PDF and send via WhatsApp
@@ -616,28 +617,46 @@ async function sendPDFViaWhatsApp(elementToPrint, phoneNumber, message) {
     }
 
     // Show loading
-    showToast('جاري تجهيز ملف PDF للإرسال...', 'warning');
+    showToast('جاري إرسال المستند عبر الواتساب...', 'warning');
 
     try {
-        // Generate PDF using html2pdf
-        const opt = {
-            margin: 10,
-            filename: 'invoice.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        const pdfBlob = await html2pdf().set(opt).from(elementToPrint).output('blob');
-        const file = new File([pdfBlob], "invoice.pdf", { type: "application/pdf" });
-
         const formData = new FormData();
         formData.append('userId', getWAUserId());
         formData.append('phone', phoneNumber);
-        formData.append('message', message);
-        formData.append('pdf', file);
+        formData.append('message', message || '');
 
-        showToast('جاري إرسال الفاتورة عبر الواتساب...', 'warning');
+        if (elementToPrint instanceof File) {
+            formData.append('file', elementToPrint);
+        } else if (elementToPrint instanceof Blob) {
+            const isVoucher = (typeof message === 'string' && (message.includes('سند') || message.includes('حركة')));
+            const defaultName = isVoucher ? "voucher.pdf" : "document.pdf";
+            const file = new File([elementToPrint], defaultName, { type: "application/pdf" });
+            formData.append('file', file);
+        } else if (elementToPrint && elementToPrint.tagName === 'CANVAS') {
+            const blob = await new Promise(res => elementToPrint.toBlob(res, 'image/png'));
+            if (blob) {
+                const file = new File([blob], "voucher.png", { type: "image/png" });
+                formData.append('file', file);
+            }
+        } else if (elementToPrint && typeof html2pdf !== 'undefined') {
+            // CRITICAL FIX: html2canvas respects opacity. If elementToPrint has opacity < 0.5 (e.g. 0.01), html2canvas renders it blank!
+            if (elementToPrint.style && parseFloat(elementToPrint.style.opacity) < 0.5) {
+                elementToPrint.style.opacity = '1';
+            }
+            const isVoucher = (typeof message === 'string' && (message.includes('سند') || message.includes('حركة')));
+            const defaultName = isVoucher ? "voucher.pdf" : "invoice.pdf";
+            const opt = {
+                margin: [6, 6, 6, 6],
+                filename: defaultName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, logging: false },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            const pdfBlob = await html2pdf().set(opt).from(elementToPrint).output('blob');
+            const file = new File([pdfBlob], defaultName, { type: "application/pdf" });
+            formData.append('file', file);
+        }
 
         const sendRes = await fetch(`${WA_SERVER_URL}send&userId=${getWAUserId()}`, {
             method: 'POST',
@@ -646,7 +665,7 @@ async function sendPDFViaWhatsApp(elementToPrint, phoneNumber, message) {
 
         const sendData = await sendRes.json();
         if (sendData.success) {
-            showToast('✅ تم إرسال الفاتورة بنجاح!', 'success', 4000);
+            showToast('✅ تم إرسال المستند بنجاح عبر الواتساب!', 'success', 4000);
         } else {
             alert('فشل الإرسال: ' + (sendData.error || 'Unknown error'));
         }

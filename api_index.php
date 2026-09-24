@@ -162,25 +162,42 @@ if ($resource === 'wa-tenant' || $action === 'wa-proxy') {
     // Build query params for target NodeJS service
     $queryParams = $_GET;
     unset($queryParams['r'], $queryParams['a'], $queryParams['a2'], $queryParams['endpoint']);
-    if (!isset($queryParams['userId'])) {
-        $queryParams['userId'] = 'default-saas-admin';
-    }
-    $queryString = http_build_query($queryParams);
     
+    // Resolve userId dynamically if provided via GET, POST, or JSON body
+    if (empty($queryParams['userId'])) {
+        if (!empty($_POST['userId'])) {
+            $queryParams['userId'] = $_POST['userId'];
+        } elseif (!empty($input['userId'])) {
+            $queryParams['userId'] = $input['userId'];
+        }
+    }
+    
+    $queryString = http_build_query($queryParams);
     $url = 'http://127.0.0.1:3001/wa/' . $endpoint . ($queryString ? '?' . $queryString : '');
     
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 6);
+    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 15);
     if ($method === 'POST') {
         curl_setopt($ch, CURLOPT_POST, true);
         if (!empty($_FILES)) {
             $postFields = $_POST;
+            if (!isset($postFields['userId']) && !empty($queryParams['userId'])) {
+                $postFields['userId'] = $queryParams['userId'];
+            }
             foreach ($_FILES as $key => $file) {
                 $postFields[$key] = new CURLFile($file['tmp_name'], $file['type'], $file['name']);
             }
             curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+        } elseif (!empty($_POST)) {
+            // Forward FormData text fields (e.g. userId, phone, message) as JSON to Node
+            $postFields = $_POST;
+            if (!isset($postFields['userId']) && !empty($queryParams['userId'])) {
+                $postFields['userId'] = $queryParams['userId'];
+            }
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postFields));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         } else {
             curl_setopt($ch, CURLOPT_POSTFIELDS, !empty($rawInput) ? $rawInput : json_encode($input ?: []));
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
@@ -237,6 +254,28 @@ if ($resource === 'exchange-rate' && $method === 'GET') {
 // TENANT EXCHANGE RATE
 // ---------------------------------------------------------
 if ($resource === 'tenant-exchange-rate') {
+    $tenant_id = null;
+    $authH = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+    if (empty($authH) && function_exists('getallheaders')) {
+        $hdrs = getallheaders();
+        $authH = $hdrs['Authorization'] ?? $hdrs['authorization'] ?? '';
+    }
+    $tkn = '';
+    if (preg_match('/Bearer\s+(\S+)/', $authH, $m)) {
+        $tkn = $m[1];
+    } elseif (!empty($_GET['token'])) {
+        $tkn = $_GET['token'];
+    }
+    if (!empty($tkn)) {
+        try {
+            $stmtT = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? LIMIT 1");
+            $stmtT->execute([$tkn]);
+            $tenant_id = $stmtT->fetchColumn() ?: null;
+        } catch(Exception $e) {}
+    }
+    if (!$tenant_id) {
+        $tenant_id = $_GET['tenant_id'] ?? null;
+    }
     if (!$tenant_id) {
         jsonResponse(['success' => true, 'payload' => null]);
     }
@@ -417,6 +456,18 @@ if ($resource === 'public' && $action === 'send-inquiry' && $method === 'POST') 
 }
 
 function getWhatsAppNodeCommand() {
+    if (stristr(PHP_OS, 'WIN')) {
+        if (file_exists('C:\\Program Files\\nodejs\\node.exe')) {
+            return 'C:\\Program Files\\nodejs\\node.exe';
+        }
+        $whereNode = trim(shell_exec('where node 2>NUL') ?: '');
+        if (!empty($whereNode)) {
+            $lines = explode("\n", str_replace("\r", "", $whereNode));
+            if (!empty($lines[0])) return trim($lines[0]);
+        }
+        return 'node';
+    }
+    
     $nodeCheck = shell_exec('which node 2>&1');
     if (!empty($nodeCheck) && strpos($nodeCheck, 'not found') === false && strpos($nodeCheck, 'no node') === false) {
         return 'node';
@@ -435,7 +486,7 @@ function getWhatsAppNodeCommand() {
 }
 
 function isWhatsAppServiceProcessRunning() {
-    $connection = @fsockopen('127.0.0.1', 3001, $errno, $errstr, 0.1);
+    $connection = @fsockopen('127.0.0.1', 3001, $errno, $errstr, 0.2);
     if (is_resource($connection)) {
         fclose($connection);
         return true;
@@ -469,12 +520,13 @@ function startWhatsAppServiceIfNeeded() {
         : 'whatsapp-service.js';
     
     if (stristr(PHP_OS, 'WIN')) {
-        pclose(popen("start /B node \"" . __DIR__ . "\\" . $serviceFile . "\" >> \"" . __DIR__ . "\\whatsapp-service.log\" 2>&1", "r"));
+        pclose(popen("start /B \"\" \"$cmd\" \"" . __DIR__ . "\\" . $serviceFile . "\" >> \"" . __DIR__ . "\\whatsapp-service.log\" 2>&1", "r"));
     } else {
-        shell_exec("$cmd \"" . __DIR__ . "/" . $serviceFile . "\" >> \"" . __DIR__ . "/whatsapp-service.log\" 2>&1 &");
+        shell_exec("\"$cmd\" \"" . __DIR__ . "/" . $serviceFile . "\" >> \"" . __DIR__ . "/whatsapp-service.log\" 2>&1 &");
     }
     
-    usleep(800000);
+    // Allow up to 1.5 seconds for node to boot
+    usleep(1500000);
     @unlink($lockFile);
     
     return isWhatsAppServiceProcessRunning();

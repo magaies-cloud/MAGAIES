@@ -45,7 +45,12 @@ $files = [
     'sw.js' => getNormalizedHash(__DIR__ . '/sw.js'),
     'live_sw.js' => getNormalizedHash(__DIR__ . '/live_sw.js'),
     'api/ocr-invoice.php' => getNormalizedHash(__DIR__ . '/api/ocr-invoice.php'),
+    'api/ocr-financial.php' => getNormalizedHash(__DIR__ . '/api/ocr-financial.php'),
     'api/ai-assistant.php' => getNormalizedHash(__DIR__ . '/api/ai-assistant.php'),
+    'js/financial-ocr.js' => getNormalizedHash(__DIR__ . '/js/financial-ocr.js'),
+    'includes/financial-ocr-modal.php' => getNormalizedHash(__DIR__ . '/includes/financial-ocr-modal.php'),
+    'js/promissory-flight-animation.js' => getNormalizedHash(__DIR__ . '/js/promissory-flight-animation.js'),
+    'js/auto-header-scroll.js' => getNormalizedHash(__DIR__ . '/js/auto-header-scroll.js'),
 ];
 
 // Check specific keywords inside single-cash-payment.php

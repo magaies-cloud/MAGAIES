@@ -4880,8 +4880,8 @@ function convertToOfficial(invNo) {
 
 async function sendInvoiceWA(invoiceNo) {
     try {
-        const userId = typeof getWAUserId === 'function' ? getWAUserId() : localStorage.getItem('erp_wa_user_id');
-        const res = await fetch(`http://localhost:3001/wa/status?userId=${userId}`);
+        const userId = typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12'));
+        const res = await fetch(`api_index.php?r=wa-tenant&endpoint=status&userId=${userId}`);
         const data = await res.json();
         
         if (data.status !== 'CONNECTED' && data.status !== 'AUTHENTICATED') {

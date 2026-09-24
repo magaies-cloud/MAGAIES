@@ -192,8 +192,8 @@ if (!function_exists('cleanFinancialAmount')) {
                 if ($num > 0) return $num;
             }
 
-            // Pattern 2: Arabic text with various financial labels
-            if (preg_match('/(?:المبلغ(?:\s+(?:الإجمالي|الكلي|المرسل|المحول|المدفوع|المطلوب))?|قيمة(?:\s+(?:المعاملة|التحويل|الحوالة|السند|الفاتورة))?|بمبلغ|مبلغ|ادفعوا)\s*[:\-]?\s*(?:قدره)?\s*[:\-]?\s*([0-9][0-9,.\s]*[0-9]|[0-9]+)/ui', $cleanRaw, $m)) {
+            // Pattern 2: Arabic text with various financial labels (handling flexible words in between)
+            if (preg_match('/(?:المبلغ|قيمة|بمبلغ|مبلغ|ادفعوا)[^\d:\r\n]{0,35}[:\-]?\s*(?:قدره)?\s*[:\-]?\s*([0-9][0-9,.\s]*[0-9]|[0-9]+)/ui', $cleanRaw, $m)) {
                 $num = $parseNumeric($m[1]);
                 if ($num > 0) return $num;
             }
@@ -209,91 +209,123 @@ if (!function_exists('cleanFinancialAmount')) {
                 $num = $parseNumeric($m[1]);
                 if ($num > 0) return $num;
             }
+
+            // Pattern 5: Currency followed by number (e.g. SDG 50,000 or ج.س 50,000)
+            if (preg_match('/(?:SDG|ج\.س|جنيه|ريال|SAR|USD|دولار)\s*[:\-]?\s*([0-9][0-9,.\s]*[0-9]|[0-9]+)/ui', $cleanRaw, $m)) {
+                $num = $parseNumeric($m[1]);
+                if ($num > 0) return $num;
+            }
         }
 
         return 0.0;
     }
 }
 
-$systemPrompt = "أنت خبير فحص المستندات المالية المصرفية بالرؤية الحاسوبية (AI Financial Document OCR) متخصص في إشعارات التحويلات البنكية والشيكات المصرفية (خاصة البنوك السودانية والعربية مثل بنكك، فوري، أوكاش، بنك أمدرمان، بنك الخرطوم، بنك فيصل، والشيكات المصرفية الورقية).
+if ($fraudCheck) {
+    // ═════════════════════════════════════════════════════════════
+    // Forensic Inspection Prompt (Only when user explicitly clicks "كشف التزوير")
+    // ═════════════════════════════════════════════════════════════
+    $systemPrompt = "أنت خبير فحص المستندات المالية المصرفية بالرؤية الحاسوبية والتدقيق الجنائي الرقمي (Forensic Image & Document Tampering Inspection).
+دقق في صورة المستند المالي بعين الخبير الجنائي للبحث عن أي مؤشرات للتزوير أو التعديل ببرامج تحرير الصور (Photoshop / Mobile Editing) أو توليد الإشعارات الوهمية، مع التركيز الفائق والدقيق على رقم العملية المرجعي (Transaction Reference ID):
+1. الفحص الجنائي المتعمق في خانات رقم العملية المرجعي (Transaction Reference Number):
+   - افحص كل رقم وخانة في رقم العملية: هل نوع الخط (Font Family)، وزنه أو سماكته (Boldness)، حدة الحواف (Edge Sharpness)، أو المسافات البينية (Letter/Digit Spacing) متطابقة تماماً بين كافة أرقام العملية، أم يوجد رقم مُعدل أو ملصق فوق رقم قديم؟
+   - افحص استقامة خط الأساس (Baseline Alignment): هل جميع أرقام العملية مصطفة هندسياً بدقة على خط أفقي واحد، أم هناك رقم مرتفع أو منخفض بشكل شاذ؟
+   - افحص بيكسلات الخلفية والضغط (JPEG/Pixel Artifacts): هل تظهر هالة تشويش، مربع ضغط لوني، أو تدرج لوني مختلف حول أرقام العملية؟
+   - افحص بنية رقم العملية: إشعارات البنوك (مثل بنك الخرطوم/بنكك أو بنك فيصل/فوري) تتكون أرقام عملياتها من تسلسل رقمي قياسي محدد (مثلاً 10-12 رقماً في بنكك)، فإذا كان الرقم يحتوي على تشويه في عدد الخانات أو أرقام مقحمة، فهذا مؤشر تزوير.
+2. التدقيق في خانة المبلغ والتاريخ ورقم الحساب: اختلاف الخطوط أو بيكسلات الضغط أو انزياح الأرقام.
+3. في الشيكات الورقية: وجود آثار كشط، حك، تعديل حبر، كتابة فوقية، أو عدم تطابق المبلغ بالأرقام مع المبلغ بالحروف (التفقيط).
+4. قدّر نسبة الشك في التزوير (tampering_score) كنسبة مئوية صحيحة من 0 إلى 100:
+   - 0 إلى 25%: سليم وأصلي طبيعي جداً (Original Authentic).
+   - 26 إلى 45%: اشتباه طفيف قد يكون ناتجاً عن ضغط الكاميرا أو الواتساب.
+   - 46 إلى 75%: اشتباه ملحوظ (تعديل محتمل في خط رقم العملية أو المبلغ).
+   - 76 إلى 100%: اشتباه تزوير عالي ومؤكد (تعديل فوتوشوب واضح وتلاعب بالبيكسلات وخانات أرقام العملية).
+إذا تم رصد أي تلاعب أو اختلاف خط في خانات رقم العملية تحديداً، اجعل نسبة الشك لا تقل عن 70%، واذكر بوضوح في tampering_reasons: 'تلاعب رقمي أو تعديل في خانات رقم العملية المرجعي' مع توضيح التفاصيل.
 
-المطلوب:
-افحص صورة المستند المرفقة بدقة بالغة:
-1. إشعار تحويل بنكي معتمد (Approved Bank Transfer Receipt): أي إشعار تحويل مصرفي من أي تطبيق بنكي (بنكك - بنك الخرطوم، فوري - بنك فيصل، أوكاش - بنك أمدرمان، بنك النيل، إلخ) أو إشعار إيداع نقدي أو قسيمة بنكية يعتبر مستنداً مالياً معتمداً وسليماً تماماً (is_financial_doc: true, is_approved_template: true, doc_type: 'bank_transfer').
-2. شيك مصرفي معتمد (Approved Bank Check): أي شيك مصرفي ورقي معبأ أو مطبوع يعتبر مستنداً مالياً معتمداً وسليماً (is_financial_doc: true, is_approved_template: true, doc_type: 'cheque').
-3. فقط وحصراً إذا كانت الصورة لسيارة، مركبة، بضاعة، صورة شخصية، أو منظر طبيعي لا علاقة له بالمعاملات المالية إطلاقاً، اجعل (is_financial_doc: false, is_approved_template: false, doc_type: 'non_financial').
-
-معالم وتطبيقات الإشعارات المصرفية:
-- بنكك (Bankak - بنك الخرطوم): بطاقة خضراء أو بيضاء أو إشعار تحويل أو دفع. اسم البنك تلقائياً هو 'بنك الخرطوم'. رقم العملية / Transaction ID يظهر كأرقام متسلسلة (مثلاً 7 إلى 12 رقماً)، المبلغ بالجنيه أو العملة الأخرى، حساب المحول (من حساب)، حساب المستفيد (إلى حساب)، واسم المستفيد والتاريخ.
-- فوري (Fawry - بنك فيصل الإسلامي): إشعار من تطبيق فوري أو بنك فيصل الإسلامي. اسم البنك تلقائياً هو 'بنك فيصل الإسلامي'.
-- أوكاش (Ocash - بنك أمدرمان الوطني): إشعار تحويل بنك أمدرمان. اسم البنك تلقائياً هو 'بنك أمدرمان الوطني'.
-- بنك النيل، بنك البركة، بنك التضامن، والشارقة وغيرها من البنوك: استخرج اسم البنك والمبلغ ورقم المعاملة.
-- الشيكات المصرفية: اسم البنك أعلى الشيك، رقم الشيك، المبلغ بالأرقام والتفقيط بالحروف، اسم المستفيد والتاريخ.
-
-قواعد تصنيف حاسمة وفحص التزوير الرقمي:
-- أي إشعار تحويل بنكي يظهر فيه مبلغ مالي ورقم عملية أو اسم مستفيد أو حساب بنكي هو مستند مالي معتمد وسليم 100%، ولا يجوز إطلاقاً تصنيفه على أنه 'غير معتمد' أو 'غير واضح' إذا كانت تفاصيل التحويل ظاهرة ومقروءة!
-" . ($fraudCheck ? "- فحص التزوير والتعديل الجنائي الرقمي (Forensic Image & Document Tampering Inspection):
-  دقق في الصورة بعين الخبير الجنائي للبحث عن أي مؤشرات للتزوير أو التعديل ببرامج تحرير الصور (Photoshop / Mobile Editing) أو توليد الإشعارات الوهمية:
-  1. اختلاف نوع الخط، سمكه، حدته، أو لونه في خانة المبلغ أو التاريخ أو رقم الحساب أو رقم العملية مقارنة ببقية نصوص الإشعار.
-  2. وجود هالة تشوش بيكسلات (Pixel Artifacts / Blurring / Compression Mismatch) حول الأرقام المعدلة.
-  3. عدم استقامة أسطر النصوص أو وجود انزياح ومسافات هندسية غير متناسقة في الأرقام.
-  4. في الشيكات الورقية: وجود آثار كشط، حك، تعديل حبر، كتابة فوقية، أو عدم تطابق المبلغ بالأرقام مع المبلغ بالحروف (التفقيط).
-  5. قدّر نسبة الشك في التزوير (tampering_score) كنسبة مئوية صحيحة من 0 إلى 100:
-     - 0 إلى 25%: سليم وأصلي طبيعي جداً (Original Authentic).
-     - 26 إلى 45%: اشتباه طفيف قد يكون ناتجاً عن ضغط الكاميرا أو الواتساب.
-     - 46 إلى 75%: اشتباه ملحوظ (تعديل محتمل في خط المبلغ أو أرقام العملية).
-     - 76 إلى 100%: اشتباه تزوير عالي ومؤكد (تعديل فوتوشوب واضح وتلاعب بالبيكسلات والأرقام)." : "
-- تنبيه للسرعة القصوى (Ultra-Fast Mode): تجاهل أي عمليات تحقق جنائي أو فحص تزوير. ركز 100% على قراءة الأرقام والنصوص فقط وتفريغها بأسرع وقت ممكن.") . "
-
-قم باستخراج البيانات بدقة وتفريغها حصراً بصيغة JSON التالية وبدون أي نصوص تمهيدية:
+قم بتفريغ البيانات بصيغة JSON التالية وبدون أي نصوص تمهيدية:
 {
   \"is_financial_doc\": true,
   \"is_approved_template\": true,
   \"doc_type\": \"bank_transfer\" | \"cheque\" | \"deposit_slip\" | \"non_financial\",
-  \"rejection_reason\": \"\",
-  \"bank_name\": \"اسم البنك (مثلاً: بنك الخرطوم، بنك فيصل الإسلامي، بنك أمدرمان الوطني، أو كما يظهر في الصورة)\",
-  \"app_name\": \"اسم التطبيق إن كان إشعار موبايل (مثلاً: بنكك، فوري، أوكاش، تطبيق بنكي) أو فارغ للشيكات\",
-  \"transaction_ref\": \"رقم العملية المرجعي / كود التحويل / رقم الإشعار / Transaction ID\",
-  \"cheque_number\": \"رقم الشيك فقط إن كان المستند شيكاً أو فارغ\",
+  \"bank_name\": \"اسم البنك\",
+  \"app_name\": \"اسم التطبيق إن وجد\",
+  \"transaction_ref\": \"رقم العملية المرجعي / Transaction ID\",
+  \"cheque_number\": \"رقم الشيك إن وجد\",
   \"amount\": 0.0,
-  \"amount_in_words\": \"المبلغ بالحروف العربية تفقيطاً إن وجد في الشيك (مثال: فقط خمسون ألف جنيه سوداني لا غير) أو فارغ\",
-  \"currency\": \"SDG\" | \"USD\" | \"SAR\" | \"AED\",
-  \"date\": \"YYYY-MM-DD (تاريخ التحويل أو تاريخ الشيك)\",
-  \"due_date\": \"YYYY-MM-DD (تاريخ استحقاق الشيك إن وجد، وإلا نفس تاريخ الشيك)\",
-  \"time\": \"HH:MM (وقت التحويل إن وجد)\",
-  \"sender_name\": \"اسم المحول أو صاحب الشيك / الساحب\",
-  \"sender_account\": \"رقم حساب المحول المكتوب في الإشعار بالعربية 'من حساب' أو بالإنجليزية 'From Account'\",
-  \"receiver_name\": \"اسم المستفيد / المستلم المكتوب في الإشعار بالعربية 'المستلم' أو 'إلى' أو 'Beneficiary' أو 'المحول إليه' ولا تهمله أبداً\",
-  \"receiver_phone\": \"رقم هاتف أو محمول المستلم المكتوب في الإشعار أو اتركه فارغاً تماماً \"\" ولا تكتب N/A أبداً\",
-  \"receiver_account\": \"رقم حساب المستفيد إن وجد أو رقم المحمول\",
-  \"notes\": \"الغرض من التحويل أو البيان أو الملاحظة إن وجدت أو اتركه فارغاً تماماً \"\" ولا تكتب N/A أبداً\",
+  \"amount_in_words\": \"المبلغ بالحروف إن وجد\",
+  \"currency\": \"SDG\" | \"USD\" | \"SAR\",
+  \"date\": \"YYYY-MM-DD\",
+  \"due_date\": \"YYYY-MM-DD\",
+  \"time\": \"HH:MM\",
+  \"sender_name\": \"اسم المحول\",
+  \"sender_account\": \"من حساب\",
+  \"receiver_name\": \"المستلم / إلى\",
+  \"receiver_account\": \"إلى حساب\",
+  \"receiver_phone\": \"\",
+  \"notes\": \"\",
   \"confidence_score\": 95,
   \"tampering_score\": 0,
   \"is_suspicious\": false,
-  \"tampering_reasons\": \"شرح سبب الاشتباه الجنائي في التزوير بالتفصيل وموضعه بالصورة إن وجد أو اتركه فارغاً تماماً \"\" إن كان أصلياً وسليماً\",
-  \"summary\": \"ملخص سطر واحد بالعربية (مثال: تحويل بنكي عبر بنكك بمبلغ 150,000 جنيه من محمد أحمد إلى مؤسسة السجانة)\"
+  \"tampering_reasons\": \"شرح سبب الاشتباه الجنائي في التزوير بالتفصيل وموضعه بالصورة إن وجد أو فارغ تماماً إن كان أصلياً وسليماً\",
+  \"summary\": \"ملخص سطر واحد بالعربية\"
+}";
+    $maxOutputTokens = 2048;
+} else {
+    // ═════════════════════════════════════════════════════════════
+    // Ultra-Fast Turbo Extraction Prompt (Lightweight, Instant Response)
+    // ═════════════════════════════════════════════════════════════
+    $systemPrompt = "أنت محرك فحص إشعارات التحويلات البنكية والشيكات فائق السرعة (Turbo Fast OCR).
+استخرج البيانات من الصورة بدقة وسرعة فائقة بدون أي فحص تزوير.
+معالم البنوك:
+- بنكك (Bankak - بنك الخرطوم): اسم البنك 'بنك الخرطوم'، والتطبيق 'بنكك'.
+- فوري (Fawry - بنك فيصل): اسم البنك 'بنك فيصل الإسلامي'، والتطبيق 'فوري'.
+- أوكاش (Ocash - بنك أمدرمان): اسم البنك 'بنك أمدرمان الوطني'، والتطبيق 'أوكاش'.
+- أي بنك آخر: استخرج اسم البنك والمبلغ ورقم المعاملة.
+
+أخرج حصراً كود JSON الصالح للتحليل مباشرة بدون أي نصوص تمهيدية:
+{
+  \"is_financial_doc\": true,
+  \"is_approved_template\": true,
+  \"doc_type\": \"bank_transfer\" | \"cheque\" | \"deposit_slip\",
+  \"bank_name\": \"اسم البنك\",
+  \"app_name\": \"اسم التطبيق إن وجد\",
+  \"transaction_ref\": \"رقم العملية / Transaction ID / رقم الإشعار\",
+  \"cheque_number\": \"رقم الشيك إن وجد\",
+  \"amount\": 0.0,
+  \"amount_in_words\": \"\",
+  \"currency\": \"SDG\" | \"SAR\" | \"USD\",
+  \"date\": \"YYYY-MM-DD\",
+  \"due_date\": \"YYYY-MM-DD\",
+  \"time\": \"\",
+  \"sender_name\": \"اسم المحول\",
+  \"sender_account\": \"من حساب\",
+  \"receiver_name\": \"المستلم / إلى\",
+  \"receiver_account\": \"إلى حساب\",
+  \"receiver_phone\": \"\",
+  \"notes\": \"\",
+  \"confidence_score\": 98,
+  \"tampering_score\": 0,
+  \"is_suspicious\": false,
+  \"is_cropped\": false,
+  \"tampering_reasons\": \"\",
+  \"summary\": \"ملخص سطر واحد\"
 }
-" . $customGuidelineText . "
-تنبيهات صارمة:
-1. المبلغ الإجمالي للمعاملة يجب أن يكون رقماً حقيقياً خالصاً (number) في حقل \"amount\" (مثلاً 150000 أو 75500.50 بدون فواصل وبدون نصوص عملة). في الشيكات استخرج الرقم من خانة المبلغ بالأرقام ومن التفقيط، وفي الإشعارات من خانة المبلغ. لا تترك المبلغ 0 أبداً إذا كان هناك أي مبلغ مكتوب في المستند!
-2. استخرج رقم التحويلة أو رقم الشيك بالكامل دون نقصان.
-3. التواريخ يجب أن تكون بصيغة YYYY-MM-DD إن أمكن قراءتها.
-" . ($fraudCheck ? "4. دقق في نسبة التزوير والاشتباه (tampering_score) واذكر السبب بكل وضوح في tampering_reasons عند وجود أي شك." : "") . "
-5. بالنسبة لبيانات الأطراف والحسابات:
-- رقم الحساب المكتوب في خانة 'من حساب' أو 'المحول منه' أو 'From Account' ضعه حصراً في \"sender_account\" بنفس ترتيب أرقامه الأصلي من اليسار لليمين دون عكس.
-- رقم الحساب المكتوب في خانة 'إلى حساب' أو 'المستفيد' أو 'المستلم' أو 'To Account' أو 'Account Number' ضعه حصراً في \"receiver_account\" بنفس ترتيب أرقامه الأصلي من اليسار لليمين دون عكس.
-- إياك نهائياً أن تعكس رقمي الحسابين بين من وإلى، أو تضع حساب المستلم مكان حساب المرسل والعكس!
-- انقل اسم المستلم / المستفيد المكتوب في خانة 'المستلم' أو 'إلى' أو 'Beneficiary' أو 'المحول إليه' بالكامل دون إهماله نهائياً إلى receiver_name ولا تتركه فارغاً إذا كان موجوداً في الصورة.
-- انقل رقم الهاتف المكتوب في خانة 'المحمول' أو 'Mobile' إلى receiver_phone، وإذا لم يكن موجوداً اتركه فارغاً تماماً ولا تكتب N/A أو null مطلقاً.
-- انقل التعليق أو الغرض إن وجد إلى notes، وإذا لم يكن موجوداً اتركه فارغاً تماماً ولا تكتب N/A أو null مطلقاً.
-6. أخرج فقط كود JSON الصالح للتحليل مباشرة.";
+تنبيهات السرعة القصوى:
+1. المبلغ يجب أن يكون رقماً حقيقياً خالصاً في amount (مثلاً 150000 أو 75500.50 بدون فواصل وبدون نصوص عملة).
+2. استخرج رقم العملية بالكامل دون نقصان.
+3. إذا كان الإشعار مقطوعاً في التصوير (Cropped) أو حوافه مقصوصة ورقم العملية غير مكتمل أو مقطوع، اجعل is_cropped: true وضع في notes 'مقطوع في التصوير'.
+4. التواريخ بصيغة YYYY-MM-DD.
+5. حساب 'من' في sender_account، وحساب 'إلى' في receiver_account دون عكس بينهما.";
+    $maxOutputTokens = 700;
+}
+
+$systemPrompt .= $customGuidelineText;
 
 if (!empty($inputData['retry_amount'])) {
-    $systemPrompt .= "\n\n⚠️ تنبيه عالي الأهمية (إعادة فحص تلقائي للمبلغ): في المحاولة السابقة ظهر المبلغ صفر (0)؛ دقق في الصورة كاملة، افحص خانة المبلغ بالأرقام وخانة التفقيط بالحروف وأي رقم متبوع بـ SDG أو جنيه واستخرج المبلغ الحقيقي بدقة تامة ولا تتركه صفراً إذا كان موجوداً.";
+    $systemPrompt .= "\n\n⚠️ تنبيه عالي الأهمية (إعادة فحص تلقائي للمبلغ): في المحاولة السابقة ظهر المبلغ صفر (0)؛ دقق في الصورة كاملة واستخرج المبلغ الحقيقي بدقة تامة ولا تتركه صفراً إذا كان موجوداً.";
 }
 
 if (!empty($inputData['is_refresh'])) {
-    $systemPrompt .= "\n\n⚠️ إعادة تدقيق شاملة بطلب خاص من المحاسب (Manual Refresh): المحاسب يشك في صحة قراءة سابقة (مثلاً تشابه الأرقام 3 و 9 أو 8 و 0، أو خطأ في رقم العملية أو اسم العميل). دقق بتركيز فائق واقرأ الأرقام والحروف بأعلى درجات الدقة والتطابق مع الصورة الأصلية.";
+    $systemPrompt .= "\n\n⚠️ إعادة تدقيق شاملة بطلب خاص من المحاسب (Manual Refresh): دقق بتركيز فائق واقرأ الأرقام والحروف بأعلى درجات الدقة والتطابق مع الصورة الأصلية.";
 }
 
 $payload = [
@@ -313,22 +345,17 @@ $payload = [
     "generationConfig" => [
         "responseMimeType" => "application/json",
         "temperature" => 0.1,
-        "maxOutputTokens" => 2048
+        "maxOutputTokens" => $maxOutputTokens
     ]
 ];
 
 // Multi-Model Cascade: automatically fallback across active models if primary hits rate limit (429), spikes (503), or quota exhaustion
-// Each model has its own independent quota, so 429 on one model does NOT mean all others are exhausted
 $modelsCascade = [
-    'gemini-3.1-flash-lite',
     $model,
-    'gemini-3.7-flash',
-    'gemini-flash-lite-latest',
-    'gemini-3.5-flash-lite',
-    'gemini-2.5-flash',
     'gemini-3.5-flash',
-    'gemini-3.8-flash',
-    'gemini-3-flash-preview'
+    'gemini-flash-lite-latest',
+    'gemini-3-flash-preview',
+    'gemini-flash-latest'
 ];
 $modelsCascade = array_values(array_unique(array_filter($modelsCascade)));
 
@@ -338,9 +365,10 @@ $curlError = '';
 $lastErrorMsg = '';
 $usedModel = $modelsCascade[0] ?? $model;
 
+$hadQuotaIssue = false;
 foreach ($modelsCascade as $idx => $currentModel) {
     if ($idx > 0) {
-        // Brief pause between fallback attempts to be respectful to the API
+        // Brief pause between fallback attempts if first model had issue
         usleep(300000); // 0.3s
     }
     $usedModel = $currentModel;
@@ -369,9 +397,16 @@ foreach ($modelsCascade as $idx => $currentModel) {
         break;
     }
 
+    if ($httpCode === 429) {
+        $hadQuotaIssue = true;
+    }
+
     if ($response !== false) {
         $respJson = json_decode($response, true);
         $lastErrorMsg = $respJson['error']['message'] ?? "HTTP {$httpCode}";
+        if (strpos($lastErrorMsg, 'quota') !== false || strpos($lastErrorMsg, 'Resource has been exhausted') !== false) {
+            $hadQuotaIssue = true;
+        }
     } else {
         $lastErrorMsg = $curlError;
     }
@@ -388,7 +423,7 @@ $responseData = json_decode($response, true);
 
 if ($httpCode >= 400) {
     $errorMsg = $responseData['error']['message'] ?? $lastErrorMsg ?? 'خطأ في خدمة الذكاء الاصطناعي';
-    $isQuota = ($httpCode === 429 || strpos($errorMsg, 'quota') !== false || strpos($errorMsg, 'Resource has been exhausted') !== false);
+    $isQuota = ($httpCode === 429 || $hadQuotaIssue || strpos($errorMsg, 'quota') !== false || strpos($errorMsg, 'Resource has been exhausted') !== false);
     echo json_encode([
         'success' => false,
         'error' => $isQuota ? 'تم استنفاد حد الطلبات لـ Gemini مؤقتاً (Quota / Rate Limit). يرجى الانتظار بضع ثوانٍ ثم إعادة المحاولة أو إضافة مفتاح API خاص بك في زر [المفتاح].' : ('خطأ من Google Gemini: ' . $errorMsg),
@@ -573,8 +608,8 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
         
         $tamperingReasons = trim((string)($parsedData['tampering_reasons'] ?? ''));
 
-        // Logical Check Discrepancy for Checks (تفقيط الحروف مقابل الأرقام)
-        if (!empty($parsedData['amount_in_words']) && !empty($parsedData['amount']) && floatval($parsedData['amount']) > 0) {
+        // Logical Check Discrepancy for Checks (تفقيط الحروف مقابل الأرقام - عند طلب كشف التزوير فقط)
+        if ($fraudCheck && !empty($parsedData['amount_in_words']) && !empty($parsedData['amount']) && floatval($parsedData['amount']) > 0) {
             $wordsText = (string)$parsedData['amount_in_words'];
             $amtNum = floatval($parsedData['amount']);
             if (preg_match('/مليون|ملايين/', $wordsText) && $amtNum < 500000) {
@@ -586,9 +621,30 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             }
         }
 
+        // Forensic Scrutiny on Transaction Reference Number (التحقق الخوارزمي من بنية أرقام العملية)
+        if ($fraudCheck && !empty($parsedData['transaction_ref'])) {
+            $refStr = trim((string)$parsedData['transaction_ref']);
+            $digitsOnly = preg_replace('/\D/', '', $refStr);
+            // 1. Repeated identical digits (e.g. 1111111111 or 0000000000)
+            if (strlen($digitsOnly) >= 6 && preg_match('/^(\d)\1+$/', $digitsOnly)) {
+                $tamperingScore = max($tamperingScore, 85);
+                $refFraudNote = 'رقم عملية وهمي أو غير حقيقي (تكرار نفس الرقم بالكامل: ' . $refStr . ')';
+                $tamperingReasons = !empty($tamperingReasons) ? ($tamperingReasons . ' | ' . $refFraudNote) : $refFraudNote;
+            }
+            // 2. Sequential fake patterns (e.g. 123456789 or 987654321)
+            elseif (strlen($digitsOnly) >= 6 && (strpos('01234567890123456789', $digitsOnly) !== false || strpos('98765432109876543210', $digitsOnly) !== false)) {
+                $tamperingScore = max($tamperingScore, 85);
+                $refFraudNote = 'رقم عملية تجريبي أو مصطنع (تسلسل أرقام متتالية وهمية: ' . $refStr . ')';
+                $tamperingReasons = !empty($tamperingReasons) ? ($tamperingReasons . ' | ' . $refFraudNote) : $refFraudNote;
+            }
+        }
+
+        $parsedData['fraud_checked'] = (bool)$fraudCheck;
         $parsedData['tampering_score'] = $fraudCheck ? $tamperingScore : 0;
         $parsedData['is_suspicious'] = $fraudCheck ? ($tamperingScore >= 35 || !empty($parsedData['is_suspicious'])) : false;
         $parsedData['tampering_reasons'] = $fraudCheck ? $tamperingReasons : '';
+        $isRefMissing = empty($parsedData['transaction_ref']) || in_array(strtolower(trim($parsedData['transaction_ref'])), ['---', 'null', 'none', 'n/a', '-']);
+        $parsedData['is_cropped'] = !empty($parsedData['is_cropped']) || ($isRefMissing && ($parsedData['amount'] ?? 0) > 0);
 
         echo json_encode([
             'success' => true,
@@ -632,6 +688,7 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
                 'rejection_reason' => '',
                 'tampering_score' => 0,
                 'is_suspicious' => false,
+                'is_cropped' => (empty($fallbackRef) && $fallbackAmount > 0),
                 'tampering_reasons' => '',
                 'summary' => 'تحويل بنكي بمبلغ ' . number_format($fallbackAmount, 2) . ' SDG'
             ];

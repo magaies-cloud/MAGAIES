@@ -22,6 +22,6 @@ if (!function_exists('getGeminiApiKey')) {
 
 if (!function_exists('getGeminiModel')) {
     function getGeminiModel() {
-        return 'gemini-3.1-flash-lite';
+        return 'gemini-3.5-flash-lite';
     }
 }

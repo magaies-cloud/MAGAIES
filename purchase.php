@@ -803,20 +803,20 @@ try {
     <style>
         .hub-action-card {
             border-radius: 12px;
-            padding: 12px 15px;
+            padding: 10px 16px;
             display: flex;
             flex-direction: row;
             align-items: center;
             justify-content: flex-start;
-            gap: 15px;
+            gap: 12px;
             cursor: pointer;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             position: relative;
             overflow: hidden;
-            height: 80px; /* Reduced height to ~50% of the previous tall card */
+            height: 60px;
         }
         .hub-action-card::after {
             content: "";
@@ -831,20 +831,21 @@ try {
             left: 200%;
         }
         .hub-action-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
         }
         .hub-action-card .icon {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             margin-bottom: 0;
-            padding: 8px;
+            padding: 6px;
             border-radius: 10px;
             transition: transform 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 50px;
-            height: 50px;
+            width: 44px;
+            height: 44px;
+            flex-shrink: 0;
         }
         .hub-action-card:hover .icon {
             transform: scale(1.1) rotate(-5deg);
@@ -853,19 +854,19 @@ try {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
+            justify-content: center;
             text-align: right;
+            flex: 1;
         }
         .hub-action-card .title {
             font-size: 1.05rem;
             font-weight: 800;
-            margin-bottom: 3px;
-            letter-spacing: 0.5px;
+            margin: 0;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
         }
         .hub-action-card .subtitle {
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-align: right;
-            margin: 0;
+            display: none;
         }
 
         /* ── Theme-aware Card Styling (Dark Mode Defaults with Magical Glassy Borders & Glow) ── */
@@ -1588,14 +1589,13 @@ try {
     <div id="purchase-hub-view" style="display: flex; flex-direction: column; flex: 1; gap: 20px; animation: fadeIn 0.5s ease-out; padding: 10px 0; max-width: 100%; margin: 0; overflow-y: auto;">
         
         <!-- Action Cards -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
 
             <!-- Direct Purchase Invoice -->
             <button onclick="openPurchaseEditor('direct')" class="hub-action-card card-orange">
                 <div class="icon">💵</div>
                 <div class="text-content">
-                    <div class="title">فاتورة مشتريات مباشرة</div>
-                    <div class="subtitle">إنشاء فاتورة شراء نقدية مباشرة مع استلام فوري.</div>
+                    <div class="title">فاتورة مشتريات</div>
                 </div>
             </button>
 
@@ -1603,8 +1603,7 @@ try {
             <button onclick="window.location.href='purchase-receipt.php'" class="hub-action-card card-blue">
                 <div class="icon">🚛</div>
                 <div class="text-content">
-                    <div class="title">استلام بضاعة (GRN)</div>
-                    <div class="subtitle">استلام البضاعة المعلقة وإدخالها للمستودعات.</div>
+                    <div class="title">استلام بضاعة</div>
                 </div>
             </button>
 
@@ -1613,7 +1612,6 @@ try {
                 <div class="icon">↩️</div>
                 <div class="text-content">
                     <div class="title">استرداد بضاعة</div>
-                    <div class="subtitle">مردودات مشتريات مع تأثير عكسي على الحسابات.</div>
                 </div>
             </button>
 
@@ -1622,7 +1620,6 @@ try {
                 <div class="icon">📋</div>
                 <div class="text-content">
                     <div class="title">فاتورة مبدئية</div>
-                    <div class="subtitle">عرض سعر / طلب شراء (لا تؤثر محاسبياً ولا مخزنياً).</div>
                 </div>
             </button>
 
@@ -1630,8 +1627,7 @@ try {
             <button onclick="triggerInvoiceOCR()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.35)); border: 1px solid rgba(52, 211, 153, 0.5); cursor: pointer;">
                 <div class="icon" style="filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.6));">📷</div>
                 <div class="text-content">
-                    <div class="title" style="color: #34d399; font-weight: 800;">مسح فاتورة ورقية (AI OCR)</div>
-                    <div class="subtitle">تصوير الفاتورة بالكاميرا وقراءتها وتفريغ الأصناف آلياً.</div>
+                    <div class="title" style="color: #34d399; font-weight: 800;">مسح فاتورة</div>
                 </div>
             </button>
         </div>
@@ -3170,8 +3166,8 @@ try {
     <script>
 async function sendInvoiceWA(invoiceNo) {
     try {
-        const userId = typeof getWAUserId === 'function' ? getWAUserId() : localStorage.getItem('erp_wa_user_id');
-        const res = await fetch(`http://localhost:3001/wa/status?userId=${userId}`);
+        const userId = typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12'));
+        const res = await fetch(`api_index.php?r=wa-tenant&endpoint=status&userId=${userId}`);
         const data = await res.json();
         
         if (data.status !== 'CONNECTED' && data.status !== 'AUTHENTICATED') {

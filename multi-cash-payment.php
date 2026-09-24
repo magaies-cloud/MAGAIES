@@ -60,6 +60,170 @@ if (isset($_POST['action']) && $_POST['action'] === 'save_ocr_props') {
     exit;
 }
 
+// ═══ Enterprise Concurrency Lock & Idempotency Handlers ═══
+if (isset($_POST['action'])) {
+    $action = $_POST['action'];
+    $tId = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '1';
+
+    // 1. Acquire or Check Concurrency Lock
+    if ($action === 'acquire_voucher_lock') {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $vNo = trim($_POST['voucher_no'] ?? '');
+            $vType = trim($_POST['voucher_type'] ?? 'payment');
+            $uName = trim($_POST['user_name'] ?? 'مستخدم');
+            $uId = trim($_POST['user_id'] ?? '');
+            $sId = trim($_POST['session_id'] ?? '');
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+            if (empty($vNo)) {
+                echo json_encode(['success' => false, 'message' => 'رقم السند مطلوب']);
+                exit;
+            }
+
+            // Clean up expired locks (> 90 seconds inactive)
+            $pdo->exec("DELETE FROM voucher_concurrency_locks WHERE last_heartbeat < (NOW() - INTERVAL 90 SECOND)");
+
+            // Check if another active session has this voucher locked
+            $stmt = $pdo->prepare("SELECT user_name, session_id, locked_at, last_heartbeat FROM voucher_concurrency_locks WHERE tenant_id = ? AND voucher_no = ? LIMIT 1");
+            $stmt->execute([$tId, $vNo]);
+            $lock = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($lock && $lock['session_id'] !== $sId) {
+                // Another active user owns the lock!
+                $elapsedSec = time() - strtotime($lock['last_heartbeat']);
+                echo json_encode([
+                    'success' => true,
+                    'is_locked' => true,
+                    'locked_by' => $lock['user_name'],
+                    'locked_at' => $lock['locked_at'],
+                    'elapsed_sec' => $elapsedSec
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            // Otherwise, lock acquired or refreshed for this session
+            $stmtUpsert = $pdo->prepare("INSERT INTO voucher_concurrency_locks (tenant_id, voucher_no, voucher_type, user_name, user_id, session_id, ip_address, locked_at, last_heartbeat)
+                VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                ON DUPLICATE KEY UPDATE last_heartbeat = NOW(), user_name = VALUES(user_name), session_id = VALUES(session_id), user_id = VALUES(user_id)");
+            $stmtUpsert->execute([$tId, $vNo, $vType, $uName, $uId, $sId, $ip]);
+
+            echo json_encode([
+                'success' => true,
+                'is_locked' => false,
+                'lock_acquired' => true
+            ], JSON_UNESCAPED_UNICODE);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    // 2. Heartbeat to maintain lock
+    if ($action === 'heartbeat_voucher_lock') {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $vNo = trim($_POST['voucher_no'] ?? '');
+            $sId = trim($_POST['session_id'] ?? '');
+            if (!empty($vNo) && !empty($sId)) {
+                $stmt = $pdo->prepare("UPDATE voucher_concurrency_locks SET last_heartbeat = NOW() WHERE tenant_id = ? AND voucher_no = ? AND session_id = ?");
+                $stmt->execute([$tId, $vNo, $sId]);
+            }
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    // 3. Release lock (when closing voucher or resetting)
+    if ($action === 'release_voucher_lock') {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $vNo = trim($_POST['voucher_no'] ?? '');
+            $sId = trim($_POST['session_id'] ?? '');
+            if (!empty($vNo) && !empty($sId)) {
+                $stmt = $pdo->prepare("DELETE FROM voucher_concurrency_locks WHERE tenant_id = ? AND voucher_no = ? AND session_id = ?");
+                $stmt->execute([$tId, $vNo, $sId]);
+            }
+            echo json_encode(['success' => true]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    // 4. Force Takeover of Lock
+    if ($action === 'takeover_voucher_lock') {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $vNo = trim($_POST['voucher_no'] ?? '');
+            $vType = trim($_POST['voucher_type'] ?? 'payment');
+            $uName = trim($_POST['user_name'] ?? 'مستخدم');
+            $uId = trim($_POST['user_id'] ?? '');
+            $sId = trim($_POST['session_id'] ?? '');
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+            if (!empty($vNo)) {
+                $stmtUpsert = $pdo->prepare("INSERT INTO voucher_concurrency_locks (tenant_id, voucher_no, voucher_type, user_name, user_id, session_id, ip_address, locked_at, last_heartbeat)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
+                    ON DUPLICATE KEY UPDATE locked_at = NOW(), last_heartbeat = NOW(), user_name = VALUES(user_name), session_id = VALUES(session_id), user_id = VALUES(user_id)");
+                $stmtUpsert->execute([$tId, $vNo, $vType, $uName, $uId, $sId, $ip]);
+            }
+            echo json_encode(['success' => true, 'takeover' => true], JSON_UNESCAPED_UNICODE);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    // 5. Cryptographic Idempotency Check
+    if ($action === 'verify_idempotency') {
+        header('Content-Type: application/json; charset=utf-8');
+        try {
+            $key = trim($_POST['idempotency_key'] ?? '');
+            $vNo = trim($_POST['voucher_no'] ?? '');
+            $uName = trim($_POST['user_name'] ?? 'مستخدم');
+
+            if (empty($key)) {
+                echo json_encode(['success' => false, 'message' => 'مفتاح التحقق مطلوب']);
+                exit;
+            }
+
+            // Cleanup keys older than 1 hour
+            $pdo->exec("DELETE FROM voucher_idempotency_keys WHERE created_at < (NOW() - INTERVAL 1 HOUR)");
+
+            // Check if key already registered within the last 5 minutes
+            $stmt = $pdo->prepare("SELECT id, voucher_no, created_at FROM voucher_idempotency_keys WHERE tenant_id = ? AND idempotency_key = ? LIMIT 1");
+            $stmt->execute([$tId, $key]);
+            $existing = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($existing) {
+                // Key exists: this is a double-click or replay!
+                echo json_encode([
+                    'success' => true,
+                    'duplicate' => true,
+                    'message' => 'تم استلام هذا السند مسبقاً وتأمينه ضد التكرار'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            // Register key
+            $stmtInsert = $pdo->prepare("INSERT INTO voucher_idempotency_keys (tenant_id, idempotency_key, voucher_no, action_type, user_name, created_at) VALUES (?, ?, ?, 'save', ?, NOW())");
+            $stmtInsert->execute([$tId, $key, $vNo, $uName]);
+
+            echo json_encode([
+                'success' => true,
+                'duplicate' => false,
+                'registered' => true
+            ], JSON_UNESCAPED_UNICODE);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
+}
+
 // --- Fetch num properties for initial load ---
 $db_num_props_json = '{}';
 $db_ocr_props_json = '{}';
@@ -95,6 +259,15 @@ try {
         $arrRec[] = json_decode($row['data'], true);
     }
     $SERVER_RECEIPTS_json = json_encode($arrRec, JSON_UNESCAPED_UNICODE);
+
+    // Fetch cost centers / projects
+    $SERVER_COST_CENTERS_json = '[]';
+    try {
+        $stmtCc = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN ('erp_cost_centers_v1', 'erp_jobs_v1') ORDER BY FIELD(setting_key, 'erp_cost_centers_v1', 'erp_jobs_v1') LIMIT 1");
+        $stmtCc->execute();
+        $ccVal = $stmtCc->fetchColumn();
+        if ($ccVal) $SERVER_COST_CENTERS_json = $ccVal;
+    } catch (Exception $e) {}
 } catch (Exception $e) {}
 
 $page_title = 'حركة مالية مجمعة'; 
@@ -112,6 +285,7 @@ $page_title = 'حركة مالية مجمعة';
 })();
 window.SERVER_PAYMENTS = <?php echo $SERVER_PAYMENTS_json; ?>;
 window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
+window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
 </script>
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -152,6 +326,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             font-weight: bold;
         }
 
+        /* ═══ Real-Time Concurrency Lock & Idempotency Styles ═══ */
+        @keyframes concurrencyPulse {
+            0% { border-color: rgba(245, 158, 11, 0.7); box-shadow: 0 8px 25px rgba(0,0,0,0.6), 0 0 15px rgba(245, 158, 11, 0.25); }
+            100% { border-color: #fbbf24; box-shadow: 0 12px 35px rgba(0,0,0,0.75), 0 0 30px rgba(245, 158, 11, 0.55); }
+        }
+
         /* ═══ Ultra-Modern Glassmorphic Crystal Theme & Dynamic Light System ═══ */
         @keyframes lightWavePulse {
             0% { box-shadow: 0 0 0 0 var(--btn-glow, rgba(56, 189, 248, 0.6)), 0 8px 25px rgba(0,0,0,0.4); }
@@ -168,6 +348,65 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             0% { border-color: rgba(255, 255, 255, 0.18); }
             50% { border-color: rgba(255, 255, 255, 0.45); }
             100% { border-color: rgba(255, 255, 255, 0.18); }
+        }
+
+        /* ═══ Cognitive Ergonomics & Fat-Finger Prevention Styles ═══ */
+        @keyframes goldenErgonomicGlow {
+            0% {
+                border-color: #f59e0b;
+                box-shadow: 0 0 10px rgba(245, 158, 11, 0.4), inset 0 0 6px rgba(245, 158, 11, 0.15);
+            }
+            50% {
+                border-color: #fbbf24;
+                box-shadow: 0 0 22px rgba(251, 191, 36, 0.75), inset 0 0 10px rgba(251, 191, 36, 0.25);
+            }
+            100% {
+                border-color: #f59e0b;
+                box-shadow: 0 0 10px rgba(245, 158, 11, 0.4), inset 0 0 6px rgba(245, 158, 11, 0.15);
+            }
+        }
+
+        @keyframes ultraAmountPulse {
+            0% {
+                border-color: #ef4444;
+                box-shadow: 0 0 12px rgba(239, 68, 68, 0.5), inset 0 0 8px rgba(239, 68, 68, 0.2);
+            }
+            50% {
+                border-color: #f87171;
+                box-shadow: 0 0 25px rgba(248, 113, 113, 0.85), inset 0 0 12px rgba(248, 113, 113, 0.35);
+            }
+            100% {
+                border-color: #ef4444;
+                box-shadow: 0 0 12px rgba(239, 68, 68, 0.5), inset 0 0 8px rgba(239, 68, 68, 0.2);
+            }
+        }
+
+        .amount-tier-mega {
+            border: 2.5px solid #f59e0b !important;
+            background: rgba(245, 158, 11, 0.12) !important;
+            animation: goldenErgonomicGlow 2.4s infinite ease-in-out !important;
+        }
+
+        .amount-tier-ultra {
+            border: 2.8px solid #ef4444 !important;
+            background: rgba(239, 68, 68, 0.15) !important;
+            animation: ultraAmountPulse 1.8s infinite ease-in-out !important;
+        }
+
+        .block-tafqeet-row {
+            animation: fadeInDown 0.25s ease-out;
+        }
+
+        .alert-badge-mega {
+            background: rgba(245, 158, 11, 0.25) !important;
+            border: 1px solid #f59e0b !important;
+            color: #fef08a !important;
+        }
+
+        .alert-badge-ultra {
+            background: rgba(239, 68, 68, 0.28) !important;
+            border: 1px solid #ef4444 !important;
+            color: #fca5a5 !important;
         }
 
         /* Glassmorphism Crystal Containers */
@@ -217,15 +456,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(244, 63, 94, 0.35), 0 0 25px rgba(244, 63, 94, 0.25) !important;
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        /* إنارة الحواف باللون الأصفر عند القدوم إلى من حساب */
+        /* إنارة الحواف الفاخرة باللون الياقوتي الكريستالي الراقي عند التمرير أو التركيز */
         .glass-red:hover,
         .glass-red:focus-within,
         #primary-inputs-container:hover,
         #primary-inputs-container:focus-within {
-            background: linear-gradient(135deg, rgba(130, 35, 50, 0.85), rgba(15, 23, 42, 0.92)) !important;
-            border-color: #fbbf24 !important;
-            border-right-color: #f59e0b !important;
-            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(251, 191, 36, 0.85), 0 0 70px rgba(245, 158, 11, 0.45), inset 0 0 20px rgba(251, 191, 36, 0.25) !important;
+            background: linear-gradient(135deg, rgba(135, 28, 48, 0.88), rgba(15, 23, 42, 0.94)) !important;
+            border-color: rgba(244, 63, 94, 0.8) !important;
+            border-right-color: #f43f5e !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(244, 63, 94, 0.38), inset 0 0 20px rgba(244, 63, 94, 0.15) !important;
         }
 
         /* Crystal Green Container (مستطيلات الحسابات المستلمة - إلى حساب) */
@@ -830,20 +1069,53 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: translateY(-4px) scale(1.06) !important;
         }
 
-        /* ═══ Additional Controls (حواف موحدة 3.5px وخلفية سوداء ناصعة عند الوقوف) ═══ */
+        /* ═══ زر إضافة حساب مستلم (أنيق ومدمج) ═══ */
         .btn-add-account-block {
-            border: 3.5px solid #34d399 !important;
-            border-radius: 14px !important;
-            color: #ffffff !important;
+            border: 2px solid #10b981 !important;
+            border-radius: 10px !important;
+            color: #34d399 !important;
+            background: rgba(16, 185, 129, 0.12) !important;
+            font-size: 0.94rem !important;
+            padding: 7px 22px !important;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3) !important;
+            transition: all 0.25s ease !important;
         }
         .btn-add-account-block:hover {
-            background: #000000 !important;
-            background-image: none !important;
-            border: 3.5px solid #34d399 !important;
+            background: rgba(16, 185, 129, 0.25) !important;
+            border: 2px solid #34d399 !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(16, 185, 129, 0.85), 0 0 24px rgba(16, 185, 129, 0.45) !important;
-            transform: translateY(-3px) scale(1.03) !important;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.45) !important;
+            transform: translateY(-2px) !important;
             text-shadow: none !important;
+        }
+
+        /* ═══ زر الواتساب كأيقونة فقط في السطر الموحد ═══ */
+        .btn-whatsapp-icon-only {
+            --tab-border-color: #25d366;
+            --tab-glow-color: rgba(37, 211, 102, 0.85);
+            background: linear-gradient(135deg, rgba(37, 211, 102, 0.28), rgba(18, 140, 126, 0.55)) !important;
+            border: 2.2px solid #25d366 !important;
+            border-radius: 12px !important;
+            color: #ffffff !important;
+            width: 44px !important;
+            height: 42px !important;
+            min-width: 44px !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(37, 211, 102, 0.35) !important;
+            flex-shrink: 0 !important;
+            transition: all 0.25s ease !important;
+        }
+        .btn-whatsapp-icon-only:hover,
+        .crystal-btn.btn-whatsapp-icon-only:hover {
+            background: #000000 !important;
+            color: #25d366 !important;
+            border: 2.2px solid #25d366 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 16px rgba(37, 211, 102, 0.85) !important;
+            transform: translateY(-3px) scale(1.06) !important;
         }
         .btn-remove-block {
             border: 3.5px solid #ef4444 !important;
@@ -896,10 +1168,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .glass-red:focus-within,
         #primary-inputs-container:hover,
         #primary-inputs-container:focus-within {
-            --block-glow-color: rgba(251, 191, 36, 0.85);
-            border-color: #fbbf24 !important;
-            border-right-color: #f59e0b !important;
-            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(251, 191, 36, 0.85), 0 0 70px rgba(245, 158, 11, 0.45), inset 0 0 20px rgba(251, 191, 36, 0.25) !important;
+            --block-glow-color: rgba(244, 63, 94, 0.45);
+            border-color: rgba(244, 63, 94, 0.8) !important;
+            border-right-color: #f43f5e !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), 0 0 35px rgba(244, 63, 94, 0.38), inset 0 0 20px rgba(244, 63, 94, 0.15) !important;
         }
         .glass-green:hover,
         .glass-green:focus-within,
@@ -1520,7 +1792,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border: 3.5px solid #06b6d4 !important;
             border-radius: 12px !important;
         }
-        .block-bank-amount:hover, .block-bank-amount:focus {
+        .block-bank-amount:hover {
             border: 3.5px solid #22d3ee !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(34, 211, 238, 0.35) !important;
             background: rgba(6, 182, 212, 0.18) !important;
@@ -1533,7 +1805,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border: 3.5px solid #a855f7 !important;
             border-radius: 12px !important;
         }
-        .block-cheque-amount:hover, .block-cheque-amount:focus {
+        .block-cheque-amount:hover {
             border: 3.5px solid #c084fc !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(192, 132, 252, 0.35) !important;
             background: rgba(147, 51, 234, 0.18) !important;
@@ -1618,14 +1890,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             outline: none !important;
         }
 
-        /* ─── 4. إنارة الحواف في منطقة «من حساب» باللون الأصفر ─── */
+        /* ─── 4. إنارة الحواف في منطقة «من حساب» باللون الياقوتي الراقي ─── */
         #primary-inputs-container .custom-dropdown-input-wrap {
             border-radius: 10px;
             transition: all 0.3s ease;
         }
         #primary-inputs-container .custom-dropdown-input-wrap:hover,
         #primary-inputs-container .custom-dropdown-input-wrap:focus-within {
-            box-shadow: 0 0 24px rgba(251, 191, 36, 0.85), 0 0 45px rgba(245, 158, 11, 0.45);
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.35);
         }
 
         #main-account-search {
@@ -1634,8 +1906,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         #main-account-search:hover,
         #main-account-search:focus {
-            border: 2px solid #fbbf24 !important;
-            box-shadow: 0 0 28px rgba(251, 191, 36, 0.95), 0 0 50px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(251, 191, 36, 0.25) !important;
+            border: 2px solid #f43f5e !important;
+            box-shadow: 0 0 24px rgba(244, 63, 94, 0.45), inset 0 0 8px rgba(244, 63, 94, 0.15) !important;
             transform: translateY(-2px);
             outline: none !important;
         }
@@ -1728,7 +2000,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 0 12px rgba(16, 185, 129, 0.7) !important;
         }
         
-        /* 🌟 مقاسات الوضع الطبيعي الأساسي (حواف أرقام حادة ونقية بدون أي ظل أو هالة) */
+        /* 🌟 مقاسات الوضع الطبيعي الأساسي لحقول المبالغ والأرقام */
         input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount, input.block-sub-amount {
             font-size: 3.1rem !important;
             height: 62px !important;
@@ -1741,15 +2013,18 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             -moz-osx-font-smoothing: grayscale !important;
             text-rendering: geometricPrecision !important;
             font-family: 'Consolas', 'Courier New', monospace !important;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            will-change: transform, width, height, box-shadow;
+            transition: all 0.42s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transform-origin: center right;
         }
         
         input.block-transfer-no-input, input.block-cheque-no-input, input.transfer-no, input.cheque-no {
-            font-size: 2.8rem !important;
+            font-size: 1.4rem !important;
             height: 62px !important;
             font-weight: 900 !important;
-            letter-spacing: 1px !important;
+            letter-spacing: 0.5px !important;
             color: #ffffff !important;
+            text-align: center !important;
             text-shadow: none !important;
             -webkit-text-stroke: 0px !important;
             filter: none !important;
@@ -1757,10 +2032,38 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             -moz-osx-font-smoothing: grayscale !important;
             text-rendering: geometricPrecision !important;
             font-family: 'Consolas', 'Courier New', monospace !important;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            will-change: transform, width, height, box-shadow;
+            transition: all 0.42s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transform-origin: center right;
+        }
+
+        /* 🏷️ خط مريح وواضح لنافذة كتابة النص التوضيحي (Placeholder) ليظهر بالكامل دون قص */
+        input.block-transfer-no-input::placeholder,
+        input.block-cheque-no-input::placeholder,
+        input.transfer-no::placeholder,
+        input.cheque-no::placeholder {
+            font-size: 1.15rem !important;
+            font-weight: 800 !important;
+            color: rgba(255, 255, 255, 0.55) !important;
+            letter-spacing: 0px !important;
+            font-family: 'Tajawal', sans-serif !important;
+            text-align: center !important;
+        }
+
+        input.block-bank-amount::placeholder,
+        input.block-cheque-amount::placeholder,
+        input.transfer-amount::placeholder,
+        input.cheque-amount::placeholder,
+        input.block-sub-amount::placeholder {
+            font-size: 1.25rem !important;
+            font-weight: 800 !important;
+            color: rgba(255, 255, 255, 0.55) !important;
+            letter-spacing: 0px !important;
+            font-family: 'Tajawal', sans-serif !important;
+            text-align: center !important;
         }
         
-        /* 🔍 مقاس موحد ومكبر بدقة 4.5rem لجميع حقول المبالغ والأرقام عند الضغط والتركيز والكتابة باللون الذهبي بحواف حادة */
+        /* 🔍 تضخيم وتوسيع احترافي سينمائي لحقول المبالغ (ذهب ملكي مشع) عند النقر والتركيز */
         input.block-total-amount:focus,
         input.block-bank-amount:focus,
         input.block-cheque-amount:focus,
@@ -1769,13 +2072,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         input.block-sub-amount:focus {
             font-size: 4.5rem !important;
             height: 98px !important;
-            width: 480px !important;
-            min-width: 450px !important;
+            width: 490px !important;
+            min-width: 460px !important;
             max-width: none !important;
             position: relative !important;
             z-index: 99999 !important;
             margin-right: -60px !important;
-            color: #fbbf24 !important; /* Gold / Yellow */
+            color: #fbbf24 !important; /* Gold / Amber */
             -webkit-text-fill-color: #fbbf24 !important;
             caret-color: #fbbf24 !important;
             text-shadow: none !important;
@@ -1785,26 +2088,35 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             -moz-osx-font-smoothing: grayscale !important;
             text-rendering: geometricPrecision !important;
             font-family: 'Consolas', 'Courier New', monospace !important;
-            background: rgba(15, 23, 42, 0.98) !important;
+            background: rgba(13, 17, 28, 0.98) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
             border: 3.5px solid #fbbf24 !important;
-            border-radius: 12px !important;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(251, 191, 36, 0.4) !important;
+            border-radius: 14px !important;
+            transform: translateY(-4px) scale(1.015) !important;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.92), 
+                        0 0 25px rgba(251, 191, 36, 0.45), 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+            transition: all 0.42s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         
+        /* 🔍 تضخيم وتوسيع احترافي سينمائي لحقول أرقام التحويلات والشيكات (أزرق ياقوتي سايان كهربائي) */
         input.block-transfer-no-input:focus,
         input.block-cheque-no-input:focus,
         input.transfer-no:focus,
         input.cheque-no:focus {
             font-size: 4.5rem !important;
             height: 98px !important;
-            width: 480px !important;
-            min-width: 450px !important;
+            width: 490px !important;
+            min-width: 460px !important;
             max-width: none !important;
             position: relative !important;
             z-index: 99999 !important;
             margin-right: -60px !important;
             letter-spacing: 1.5px !important;
-            color: #38bdf8 !important; /* Sky Blue */
+            color: #38bdf8 !important; /* Vivid Cyan */
+            -webkit-text-fill-color: #38bdf8 !important;
+            caret-color: #38bdf8 !important;
             text-shadow: none !important;
             -webkit-text-stroke: 0px !important;
             filter: none !important;
@@ -1812,10 +2124,16 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             -moz-osx-font-smoothing: grayscale !important;
             text-rendering: geometricPrecision !important;
             font-family: 'Consolas', 'Courier New', monospace !important;
-            background: rgba(15, 23, 42, 0.98) !important;
+            background: rgba(13, 17, 28, 0.98) !important;
+            backdrop-filter: blur(16px) !important;
+            -webkit-backdrop-filter: blur(16px) !important;
             border: 3.5px solid #38bdf8 !important;
-            border-radius: 12px !important;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(56, 189, 248, 0.35) !important;
+            border-radius: 14px !important;
+            transform: translateY(-4px) scale(1.015) !important;
+            box-shadow: 0 20px 45px rgba(0, 0, 0, 0.92), 
+                        0 0 25px rgba(56, 189, 248, 0.45), 
+                        inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+            transition: all 0.42s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
         /* Larger Bank Name Font */
@@ -1828,7 +2146,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         /* Bank Row Layout Overrides */
         .bank-row > div:nth-child(2) { flex: 1.5 !important; min-width: 140px !important; width: auto !important; }
         .bank-row > div:nth-child(3) { flex: 2 !important; min-width: 160px !important; width: auto !important; }
-        .bank-row > div:nth-child(4) { flex: 1.5 !important; min-width: 120px !important; }
+        .bank-row > div:nth-child(4) { flex: 1.6 !important; min-width: 140px !important; }
         .bank-row > div:nth-child(5) { flex: 3 !important; min-width: 250px !important; }
 
         /* Cheque Row Layout Overrides */
@@ -1980,6 +2298,103 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             color: #fff;
             transform: scale(1.08);
         }
+
+        /* ═══════════════════════════════════════════════════════════
+           🌟 AUTO-ASCENT SMOOTH SCROLL & EXECUTIVE WORKSPACE CONTROLS
+           ═══════════════════════════════════════════════════════════ */
+        /* 1. Floating Return-to-Header Glass Pill */
+        .auto-scroll-return-pill {
+            position: fixed;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-65px);
+            opacity: 0;
+            pointer-events: none;
+            z-index: 999999;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.96));
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
+            border-radius: 30px;
+            padding: 6px 18px;
+            color: #f8fafc;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 20px rgba(56, 189, 248, 0.25);
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+            user-select: none;
+        }
+        .auto-scroll-return-pill.visible {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .auto-scroll-return-pill:hover {
+            border-color: #38bdf8;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+            color: #38bdf8;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 28px rgba(56, 189, 248, 0.55);
+            transform: translateX(-50%) translateY(-2px) scale(1.03);
+        }
+        .auto-scroll-return-pill .pill-arrow {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            font-size: 0.75rem;
+            transition: all 0.25s;
+        }
+        .auto-scroll-return-pill:hover .pill-arrow {
+            background: #38bdf8;
+            color: #0f172a;
+            transform: translateY(-2px);
+        }
+
+        /* 3. Header Navigation Quick Toggle in payment-methods-row */
+        .header-nav-toggle-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 8px;
+            height: 38px;
+            padding: 0 12px;
+            color: #cbd5e1;
+            font-size: 0.84rem;
+            font-weight: 800;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            outline: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            user-select: none;
+        }
+        .header-nav-toggle-btn:hover {
+            background: rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+            color: #38bdf8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.35);
+        }
+        .header-nav-toggle-btn .toggle-icon {
+            font-size: 0.9rem;
+            color: #38bdf8;
+            display: flex;
+            align-items: center;
+            transition: transform 0.25s;
+        }
+        .header-nav-toggle-btn:hover .toggle-icon {
+            transform: translateY(-2px);
+        }
     </style>
 </head>
 <body>
@@ -2003,9 +2418,44 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             <!-- Main Content area (Full width) -->
             <div class="main-panel glass-panel" id="main-form-panel" style="padding: 25px; position: relative; width: 100%;">
                 
+                <!-- Real-Time Concurrency Lock Warning Banner (تنبيه التداخل اللحظي وقفل السند) -->
+                <div id="concurrency-warning-badge" style="display:none; margin-bottom:12px; width:100%; box-sizing:border-box; animation:slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; background:linear-gradient(135deg, rgba(30, 20, 10, 0.96) 0%, rgba(120, 53, 15, 0.45) 50%, rgba(30, 20, 10, 0.96) 100%); border:2px solid #fbbf24; border-radius:14px; padding:10px 16px; box-shadow:0 10px 30px rgba(0,0,0,0.65), 0 0 25px rgba(245,158,11,0.35); backdrop-filter:blur(14px); color:#ffffff; animation:concurrencyPulse 3s infinite alternate ease-in-out;">
+                        <div style="display:flex; align-items:center; gap:12px; min-width:0; flex:1;">
+                            <!-- Animated Warning Icon -->
+                            <div style="width:42px; height:42px; min-width:42px; border-radius:12px; background:rgba(245,158,11,0.25); border:1.8px solid #fbbf24; display:flex; align-items:center; justify-content:center; font-size:1.5rem; box-shadow:0 0 15px rgba(245,158,11,0.5); animation:pulseScale 1.4s infinite alternate;">
+                                ⚠️
+                            </div>
+                            <!-- Message Details -->
+                            <div style="display:flex; flex-direction:column; gap:2px; min-width:0;">
+                                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                                    <span style="font-size:1.02rem; font-weight:900; color:#fbbf24; text-shadow:0 0 12px rgba(251,191,36,0.6);">تنبيه تداخل متزامن:</span>
+                                    <span style="font-size:0.95rem; font-weight:800; color:#ffffff;">هذا السند مفتوح حالياً للمراجعة بواسطة المحاسب <span id="concurrency-lock-username" style="color:#38bdf8; background:rgba(15,23,42,0.8); border:1px solid #38bdf8; padding:2px 10px; border-radius:14px; font-weight:900;">أحمد</span> <span id="concurrency-lock-time" style="color:#fef08a; font-size:0.85rem; font-weight:700;">(منذ قليل)</span></span>
+                                </div>
+                                <span style="font-size:0.80rem; color:#cbd5e1; font-weight:700; line-height:1.4;">يُنصح بعدم التعديل المتزامن لتفادي تعارض البيانات والكتابة فوق عمل زميلك.</span>
+                            </div>
+                        </div>
+                        <!-- Actions -->
+                        <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+                            <button type="button" onclick="ConcurrencyLockManager.takeoverLock()" style="background:linear-gradient(135deg, #d97706, #b45309); border:1.5px solid #fbbf24; color:#ffffff; padding:6px 14px; border-radius:10px; font-size:0.86rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 15px rgba(245,158,11,0.4); transition:all 0.2s;" title="أخذ الإذن واستلام التحرير لهذا السند">
+                                <span>🔄 استلام التحرير</span>
+                            </button>
+                            <button type="button" onclick="ConcurrencyLockManager.dismissBadge()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#cbd5e1; width:34px; height:34px; border-radius:10px; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" title="إغلاق التنبيه">
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Unified Top Row (Payment Methods Row - Slim Single Level) -->
                 <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.98)); padding: 6px 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.18); flex-wrap: nowrap; transition: all 0.4s ease; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45); position: relative; overflow-x: auto; min-height: 48px; box-sizing: border-box; width: 100%;">
                     
+                    <!-- Quick Toggle Header Button (إظهار / إخفاء الترويسة) -->
+                    <button type="button" id="btn-toggle-top-header" class="header-nav-toggle-btn" onclick="AutoHeaderScroll.toggleHeader()" title="الرجوع إلى أعلى الصفحة وإظهار الترويسة">
+                        <span class="toggle-icon"><i class="fa-solid fa-angles-up"></i></span>
+                        <span class="toggle-text">الترويسة</span>
+                    </button>
+
                     <!-- User Icon Only (حذف كلمة بيان الطرف الرئيسي والإبقاء على الأيقونة فقط) -->
                     <div id="main-party-title" style="display: flex; align-items: center; justify-content: center; font-size: 1.35rem; color: #ffffff; flex-shrink: 0; padding: 0 4px;" title="الطرف الرئيسي">
                         <span>👤</span>
@@ -2089,6 +2539,16 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
                     </div>
 
+                    <!-- ═══ Grand Total Live Tafqeet Bar (التفقيط المالي لإجمالي السند وحماية الأصفار) ═══ -->
+                    <div id="grand-tafqeet-container" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.88) 0%, rgba(30, 41, 59, 0.85) 100%); border: 1.5px solid rgba(245, 158, 11, 0.35); border-radius: 10px; padding: 10px 16px; margin-top: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.25); transition: all 0.35s ease;">
+                        <div style="display: flex; align-items: center; gap: 10px; flex: 1; min-width: 0;">
+                            <span style="font-size: 1.35rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); flex-shrink: 0;">📜</span>
+                            <span style="color: #fbbf24; font-weight: 800; font-size: 0.95rem; white-space: nowrap; flex-shrink: 0;">إجمالي السند بالحروف:</span>
+                            <span id="grand-tafqeet-text" style="color: #fef08a; font-size: 1.12rem; font-weight: 900; font-family: 'Tajawal', sans-serif; text-shadow: 0 1px 3px rgba(0,0,0,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">فقط صفر جنيه سوداني لا غير</span>
+                        </div>
+                        <div id="grand-fat-finger-alert" style="display: none; align-items: center; gap: 6px; font-size: 0.88rem; font-weight: 800; padding: 4px 12px; border-radius: 8px; flex-shrink: 0; transition: all 0.3s ease;"></div>
+                    </div>
+
                     <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.25); padding: 12px 15px; min-height: 48px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-top: 12px;">
                         <label style="color: #fbbf24; font-size: 0.95rem; font-weight: bold; margin: 0; white-space: nowrap; display: flex; align-items: center; gap: 5px;">✍️ بيان حساب الصرف:</label>
                         <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="اكتب البيان التفصيلي لحساب الصرف هنا (الذي يظهر في كشف الأستاذ العام)..." style="flex: 1; margin: 0; background: rgba(15,23,42,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; padding: 8px 12px; height: 38px !important; font-size: 0.95rem; color: #fff !important; border-radius: 6px;">
@@ -2101,9 +2561,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 </div>
 
                 <!-- ═══ زر إضافة حساب جديد ═══ -->
-                <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; margin-bottom: 30px; flex-wrap: wrap;">
-                    <button type="button" class="btn-add-account-block" onclick="addAccountBlock()" style="padding: 12px 30px; border-radius: 14px; background: rgba(16,185,129,0.15); color: #ffffff; border: 3.5px solid #34d399 !important; font-weight: 900; font-size: 1.1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 10px;">
-                        ➕ إضافة حساب مستلم / دافع آخر
+                <div style="display: flex; justify-content: center; align-items: center; margin-top: 6px; margin-bottom: 12px;">
+                    <button type="button" class="btn-add-account-block" onclick="addAccountBlock()" style="padding: 7px 22px; border-radius: 10px; background: rgba(16,185,129,0.14); color: #34d399; border: 2px solid #10b981 !important; font-weight: 800; font-size: 0.94rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.25s ease; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 3px 12px rgba(16,185,129,0.2);">
+                        <span style="font-size: 1.05rem;">➕</span> <span>إضافة حساب مستلم / دافع آخر</span>
                     </button>
                 </div>
 
@@ -2117,9 +2577,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <button type="button" class="btn-remove-block" data-action="remove-block" data-block="{ID}" style="background: rgba(239,68,68,0.15); border: 3.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: all 0.2s;" title="حذف هذا الحساب">✖</button>
                         </div>
 
-                        <!-- Row 1: Account, Amount, Statement, and Unified 4-Button Base -->
+                        <!-- Row 1: Account, Amount, Statement, Cost Center, and Unified 5-Button Base -->
                         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
-                            <!-- Account -->
+                            <!-- Account (توسعة مسافة الحساب ليكون بنفس حجم خانة بحث عن حساب الصرف الخزنة كشف حساب 35%) -->
                             <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px; position: relative; display: flex; flex-direction: column;">
                                 <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
@@ -2130,14 +2590,21 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 </div>
                             </div>
                             
-                            <!-- Total Amount (auto-calculated or direct) -->
-                            <div style="flex: 1.1; min-width: 140px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ (جنيه)" style="font-weight: 900; font-family: 'Consolas', monospace; text-align: center; flex: 1; margin-bottom: 0; border: 1.8px solid #fbbf24; background: rgba(251,191,36,0.08); transition: all 0.25s ease; text-shadow: none !important; -webkit-text-stroke: 0px !important; letter-spacing: 0.5px;">
-                            </div>
+                            <!-- Hidden Total Amount (للحفاظ على العمليات الحسابية بدون إظهار خانة المبلغ الملغية) -->
+                            <input type="hidden" id="amount-{ID}" class="form-input block-total-amount" value="0.00">
                             
-                            <!-- Statement (بيان التحويل) -->
-                            <div style="flex: 1.3; min-width: 140px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="بيان التحويل (اختياري)" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
+                            <!-- Statement (بيان التحويل - تم توسيعه لامتصاص بقية المساحة) -->
+                            <div style="flex: 2.2; min-width: 180px; display: flex; flex-direction: column; position: relative;">
+                                <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="بيان التحويل (اختياري)..." style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff; width: 100%;">
+                            </div>
+
+                            <!-- Cost Center / Project / Branch / Vehicle (مركز التكلفة / المشروع) -->
+                            <div style="flex: 1.1; min-width: 145px; display: flex; flex-direction: column; position: relative;">
+                                <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
+                                    <input type="hidden" id="cost-center-{ID}-id" class="block-cost-center-id">
+                                    <input type="text" autocomplete="off" id="cost-center-{ID}" class="form-input block-cost-center" placeholder="🏷️ مركز تكلفة / مشروع..." onfocus="showCostCenterDropdown('{ID}')" onblur="hideCostCenterDropdownDelayed('{ID}')" oninput="filterCostCenterDropdown('{ID}')" style="font-size: 0.95rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #38bdf8; border: 1.4px solid rgba(56, 189, 248, 0.35); text-overflow: ellipsis;" title="ربط الصرف بـ (مركز تكلفة / مشروع / فرع / شاحنة) - اختياري">
+                                    <div class="custom-dropdown-list" id="cost-center-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999; max-height: 220px; overflow-y: auto;"></div>
+                                </div>
                             </div>
                             
                             <!-- ═══ Unified 5-Icon Base (قاعدة الأيقونات الموحدة) ═══ -->
@@ -2146,8 +2613,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                     <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-scan" onclick="FinancialOCR.openScanner({ target: 'multi', blockId: '{ID}' })" title="مسح وقراءة إشعار التحويل البنكي بالذكاء الاصطناعي">
                                         <span class="btn-icon">📷</span> <span class="btn-text">إشعار AI</span>
                                     </button>
-                                    <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-whatsapp" onclick="typeof FinancialOCR !== 'undefined' && FinancialOCR.openWhatsAppWebPopup ? FinancialOCR.openWhatsAppWebPopup() : window.open('https://web.whatsapp.com', '_blank')" title="فتح واتساب ويب">
-                                        <span class="btn-icon">💬</span> <span class="btn-text">واتساب</span>
+                                    <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-whatsapp block-btn-ai-whatsapp-ingest" onclick="openBlockWhatsAppIngest('{ID}')" title="إدخال واستيراد إشعارات الواتساب لهذا الحساب وتفريغها في السند (إدخال إلى الداخل ↙)">
+                                        <span class="btn-icon" style="display: inline-flex; align-items: center; justify-content: center; gap: 3px;">
+                                            <span style="font-size: 1.15rem; filter: drop-shadow(0 0 4px #25d366);">💬</span>
+                                            <span style="font-size: 0.95rem; color: #fef08a; font-weight: 900; line-height: 1;">↙</span>
+                                        </span>
+                                        <span class="btn-text">واتساب ↙</span>
                                     </button>
                                     <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-trainer" onclick="FinancialOCR.openTrainer()" title="نماذج الذكاء الاصطناعي">
                                         <span class="btn-icon">🧠</span> <span class="btn-text">نماذج</span>
@@ -2161,6 +2632,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                         <span class="btn-icon">✍️</span> <span class="btn-text">شيك</span>
                                     </button>
                                 </div>
+                            </div>
+                        </div>
+
+                        <!-- ═══ Live Arabic Words & Cognitive Ergonomics Bar (التفقيط المالي اللحظي وحماية الأصفار) ═══ -->
+                        <div id="tafqeet-row-{ID}" class="block-tafqeet-row" style="display: none; align-items: center; justify-content: space-between; gap: 10px; background: rgba(15, 23, 42, 0.75); border: 1.4px solid rgba(251, 191, 36, 0.35); border-radius: 8px; padding: 6px 14px; margin-bottom: 10px; font-size: 0.95rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                <span style="font-size: 1.1rem; flex-shrink: 0;">✍️</span>
+                                <span style="color: #94a3b8; font-size: 0.85rem; font-weight: 700; flex-shrink: 0;">فقط بالحروف:</span>
+                                <span id="tafqeet-text-{ID}" class="block-tafqeet-text" style="color: #fef08a; font-weight: 800; font-family: 'Tajawal', sans-serif; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <div id="tafqeet-alert-{ID}" class="block-fat-finger-alert" style="display: none; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 800; padding: 2px 10px; border-radius: 6px; flex-shrink: 0;"></div>
+                                <span id="wa-dispatch-badge-{ID}" class="block-wa-dispatch-badge" style="display: none; align-items: center; gap: 4px; font-size: 0.8rem; font-weight: 800; background: rgba(37, 211, 102, 0.18); border: 1px solid #25d366; color: #4ade80; padding: 2px 10px; border-radius: 6px; flex-shrink: 0;"></span>
                             </div>
                         </div>
 
@@ -2231,8 +2715,112 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             </div>
 
             <style>
-                .footer-actions .btn { font-size: 0.85rem !important; padding: 8px 15px !important; }
-                .footer-actions .btn-save-master { font-size: 0.95rem !important; padding: 8px 20px !important; font-weight: bold; }
+                .footer-actions.unified-footer-bar .btn {
+                    height: 42px !important;
+                    font-size: 0.92rem !important;
+                    padding: 0 18px !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    gap: 6px !important;
+                    border-radius: 12px !important;
+                    box-sizing: border-box !important;
+                    white-space: nowrap !important;
+                }
+                .footer-actions.unified-footer-bar .btn-save-master {
+                    font-size: 0.98rem !important;
+                    padding: 0 24px !important;
+                    font-weight: 900 !important;
+                }
+                .footer-actions.unified-footer-bar .btn-whatsapp-icon-only {
+                    width: 44px !important;
+                    height: 42px !important;
+                    min-width: 44px !important;
+                    padding: 0 !important;
+                }
+                
+                /* Auto-Send Control Button & Options in Footer */
+                .footer-actions.unified-footer-bar #auto-send-control-wrapper {
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    position: relative !important;
+                    direction: rtl !important;
+                }
+                .footer-actions.unified-footer-bar #btn-toggle-auto-send {
+                    height: 42px !important;
+                    font-size: 0.88rem !important;
+                    padding: 0 14px 0 10px !important;
+                    border-radius: 0 12px 12px 0 !important;
+                    border-left: none !important;
+                    font-weight: 800 !important;
+                    cursor: pointer !important;
+                    white-space: nowrap !important;
+                    transition: all 0.25s ease !important;
+                }
+                .footer-actions.unified-footer-bar #btn-auto-send-options {
+                    height: 42px !important;
+                    width: 28px !important;
+                    min-width: 28px !important;
+                    padding: 0 !important;
+                    border-radius: 12px 0 0 12px !important;
+                    border-right: 1px solid rgba(255, 255, 255, 0.2) !important;
+                    display: inline-flex !important;
+                    align-items: center !important;
+                    justify-content: center !important;
+                    cursor: pointer !important;
+                    font-size: 0.72rem !important;
+                    transition: all 0.25s ease !important;
+                }
+                .btn-auto-send-toggle.active,
+                .btn-auto-send-options.active {
+                    background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.42) 100%) !important;
+                    border-color: #10b981 !important;
+                    color: #ffffff !important;
+                    box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 14px rgba(16, 185, 129, 0.35) !important;
+                }
+                .btn-auto-send-toggle.active:hover,
+                .btn-auto-send-options.active:hover {
+                    background: linear-gradient(135deg, rgba(16, 185, 129, 0.35) 0%, rgba(5, 150, 105, 0.55) 100%) !important;
+                    box-shadow: 0 6px 18px rgba(0,0,0,0.5), 0 0 20px rgba(16, 185, 129, 0.55) !important;
+                    transform: translateY(-2px) !important;
+                }
+                .btn-auto-send-toggle.inactive,
+                .btn-auto-send-options.inactive {
+                    background: linear-gradient(135deg, rgba(51, 65, 85, 0.45) 0%, rgba(30, 41, 59, 0.6) 100%) !important;
+                    border-color: rgba(148, 163, 184, 0.38) !important;
+                    color: #cbd5e1 !important;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.25) !important;
+                }
+                .btn-auto-send-toggle.inactive:hover,
+                .btn-auto-send-options.inactive:hover {
+                    background: linear-gradient(135deg, rgba(71, 85, 105, 0.6) 0%, rgba(51, 65, 85, 0.75) 100%) !important;
+                    border-color: #94a3b8 !important;
+                    color: #ffffff !important;
+                    transform: translateY(-2px) !important;
+                }
+                .auto-send-opt-item:hover {
+                    background: rgba(255, 255, 255, 0.08) !important;
+                }
+                :root.light-theme .btn-auto-send-toggle.active,
+                :root.light-theme .btn-auto-send-options.active {
+                    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
+                    border-color: #059669 !important;
+                    color: #065f46 !important;
+                }
+                :root.light-theme .btn-auto-send-toggle.inactive,
+                :root.light-theme .btn-auto-send-options.inactive {
+                    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%) !important;
+                    border-color: #cbd5e1 !important;
+                    color: #475569 !important;
+                }
+                :root.light-theme #auto-send-dropdown-menu {
+                    background: #ffffff !important;
+                    border-color: #e2e8f0 !important;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;
+                }
+                :root.light-theme .auto-send-opt-item:hover {
+                    background: #f1f5f9 !important;
+                }
                 
                 /* Universal Light Theme Overrides for Internal Screens */
                 :root.light-theme body,
@@ -2310,20 +2898,726 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
             </style>
 
-            <!-- Action Buttons Section Integrated Into Main Card -->
-            <div style="padding: 20px 0 10px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; width: 100%;">
-                <!-- Action Buttons Section -->
-                <div class="footer-actions" style="display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; width: 100%;">
-                    <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
-                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()">✨ مستند جديد</button>
-                    <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()">🖨️ طباعة</button>
-                    <button type="button" class="btn crystal-btn btn-print-preview" onclick="printVoucher()">👁️ معاينة</button>
-                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()">🗑️ حذف المستند</button>
-                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()">✅ حفظ واعتماد السند</button>
+            <!-- Action Buttons Section Integrated Into Main Card (Single Unified Row) -->
+            <div style="padding: 12px 0 6px 0; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: center; align-items: center; margin-top: 8px; width: 100%;">
+                <div class="footer-actions unified-footer-bar" style="display: flex; gap: 10px; flex-wrap: nowrap; justify-content: center; width: auto; max-width: 100%; align-items: center; padding: 4px 6px;">
+                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()" title="بدء مستند جديد وتصفير الخانات" style="height: 42px; padding: 0 18px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>✨</span> <span>مستند جديد</span>
+                    </button>
+                    <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()" title="طباعة فورية للسند المالي" style="height: 42px; padding: 0 18px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>🖨️</span> <span>طباعة</span>
+                    </button>
+                    <button type="button" class="btn crystal-btn btn-print-preview" onclick="printVoucher()" title="معاينة طباعة السند المالي" style="height: 42px; padding: 0 18px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>👁️</span> <span>معاينة</span>
+                    </button>
+                    
+                    <!-- زر الواتساب - يظهر كأيقونة واتساب احترافية خضراء متوهجة فقط -->
+                    <button type="button" class="btn crystal-btn btn-whatsapp-icon-only" id="btn-whatsapp-master" onclick="openMasterWhatsAppDispatchModal()" title="إرسال كمبيالة وإشعار السند عبر واتساب">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" style="display: block;">
+                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                        </svg>
+                    </button>
+
+                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()" title="حذف هذا المستند" style="height: 42px; padding: 0 16px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px;">
+                        <span>🗑️</span> <span>حذف المستند</span>
+                    </button>
+
+                    <!-- ═══ زر التحكم في الإرسال التلقائي مع الحفظ ═══ -->
+                    <div id="auto-send-control-wrapper">
+                        <button type="button" class="btn crystal-btn btn-auto-send-toggle inactive" id="btn-toggle-auto-send" onclick="window.toggleAutoSendMode()" title="التحكم في الإرسال التلقائي: انقر للتبديل بين الحفظ مع الإرسال، أو الحفظ فقط بدون إرسال">
+                            <span id="auto-send-icon" style="font-size: 1.1rem;">💾</span>
+                            <span id="auto-send-label" style="font-weight: 800;">إرسال تلقائي:</span>
+                            <span id="auto-send-status-pill" style="padding: 2px 8px; border-radius: 7px; font-size: 0.76rem; font-weight: 900;">معطّل (حفظ فقط)</span>
+                        </button>
+                        <button type="button" class="btn crystal-btn btn-auto-send-options inactive" id="btn-auto-send-options" onclick="window.toggleAutoSendDropdown(event)" title="خيارات وجهة الإرسال التلقائي (المستلم / الصارف / كلاهما)">
+                            ▼
+                        </button>
+                        
+                        <!-- القائمة المنسدلة للخيارات السريعة -->
+                        <div id="auto-send-dropdown-menu" style="display: none; position: absolute; bottom: 50px; left: 0; background: #0f172a; border: 1.5px solid #334155; border-radius: 12px; padding: 6px; min-width: 260px; box-shadow: 0 12px 30px rgba(0,0,0,0.7), 0 0 20px rgba(0,0,0,0.5); z-index: 9999; direction: rtl; text-align: right; backdrop-filter: blur(12px);">
+                            <div style="font-size: 0.78rem; color: #94a3b8; font-weight: 800; padding: 5px 10px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
+                                <span>⚙️ وضع الحفظ والإرسال:</span>
+                            </div>
+                            <div class="auto-send-opt-item" onclick="window.selectAutoSendOption(false)" style="padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #cbd5e1; display: flex; align-items: center; gap: 8px; margin-bottom: 3px; transition: background 0.2s;">
+                                <span>💾</span> <span>حفظ فقط (بدون إرسال)</span>
+                            </div>
+                            <div class="auto-send-opt-item" onclick="window.selectAutoSendOption(true, 'both')" style="padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #34d399; display: flex; align-items: center; gap: 8px; margin-bottom: 3px; transition: background 0.2s;">
+                                <span>⚡👥</span> <span>إرسال تلقائي للطرفين (المستلم + الصارف)</span>
+                            </div>
+                            <div class="auto-send-opt-item" onclick="window.selectAutoSendOption(true, 'debtor')" style="padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #60a5fa; display: flex; align-items: center; gap: 8px; margin-bottom: 3px; transition: background 0.2s;">
+                                <span>📥</span> <span>إرسال تلقائي للطرف المستلم فقط</span>
+                            </div>
+                            <div class="auto-send-opt-item" onclick="window.selectAutoSendOption(true, 'creditor')" style="padding: 7px 10px; border-radius: 7px; cursor: pointer; font-size: 0.82rem; font-weight: 800; color: #f472b6; display: flex; align-items: center; gap: 8px; transition: background 0.2s;">
+                                <span>📤</span> <span>إرسال تلقائي للطرف الصارف فقط</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()" title="حفظ واعتماد وترحيل السند المالي" style="height: 42px; padding: 0 22px; border-radius: 12px; font-weight: 900; font-size: 0.98rem; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 18px rgba(16, 185, 129, 0.45);">
+                        <span>✅</span> <span>حفظ واعتماد السند</span>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+    </div>
+
+    <!-- ═══ WhatsApp Enterprise Voucher Dispatch Modals (نوافذ إرسال الواتساب الذكي) ═══ -->
+    <style>
+        /* أنماط السحب وتغيير الحجم والتحكم بالنافذة */
+        .wa-modal-resizable {
+            resize: both;
+            overflow: hidden;
+            min-width: 380px;
+            min-height: 400px;
+            max-width: 96vw;
+            max-height: 92vh;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            box-shadow: 0 16px 45px rgba(0,0,0,0.7), 0 0 25px rgba(37, 211, 102, 0.25);
+        }
+        @media (max-width: 768px) {
+            #wa-voucher-modal-card {
+                width: 96vw !important;
+                padding: 12px 10px !important;
+            }
+            .wa-dual-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+        .wa-modal-header-draggable {
+            cursor: grab;
+            cursor: -webkit-grab;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .wa-modal-header-draggable:active {
+            cursor: grabbing;
+            cursor: -webkit-grabbing;
+        }
+        .wa-modal-scroll-area {
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1 1 auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(37, 211, 102, 0.45) rgba(0,0,0,0.25);
+        }
+        .wa-modal-scroll-area::-webkit-scrollbar {
+            width: 6px;
+        }
+        .wa-modal-scroll-area::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.25);
+            border-radius: 4px;
+        }
+        .wa-modal-scroll-area::-webkit-scrollbar-thumb {
+            background: rgba(37, 211, 102, 0.45);
+            border-radius: 4px;
+        }
+        .wa-modal-scroll-area::-webkit-scrollbar-thumb:hover {
+            background: rgba(37, 211, 102, 0.75);
+        }
+        .wa-resize-handle-corner {
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            width: 14px;
+            height: 14px;
+            cursor: sw-resize;
+            opacity: 0.45;
+            pointer-events: none;
+            color: #25d366;
+            font-size: 11px;
+            line-height: 1;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+        }
+        .wa-btn-header-ctrl {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #cbd5e1;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .wa-btn-header-ctrl:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            transform: scale(1.05);
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
+            50% { transform: scale(1.015); box-shadow: 0 0 26px rgba(239, 68, 68, 0.85); }
+            100% { transform: scale(1); box-shadow: 0 0 16px rgba(239, 68, 68, 0.4); }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           🌟 شعار الواتساب الفخم والمتحرك (أيقونة متوهجة بموجات ضوئية وإيماءات حركية)
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        .wa-luxury-badge {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .wa-ripple-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .wa-wave-pulse {
+            position: absolute;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #25d366;
+            animation: waWaveRipple 2.6s infinite cubic-bezier(0, 0.2, 0.8, 1);
+            pointer-events: none;
+        }
+
+        .wa-wave-pulse.wave-1 {
+            animation-delay: 0s;
+        }
+        .wa-wave-pulse.wave-2 {
+            animation-delay: 0.85s;
+        }
+        .wa-wave-pulse.wave-3 {
+            animation-delay: 1.7s;
+        }
+
+        .wa-luxury-icon-circle {
+            position: relative;
+            z-index: 2;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #25d366 0%, #128c7e 100%);
+            border: 2px solid #a7f3d0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 14px rgba(37, 211, 102, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.7);
+            animation: waSphereGlow 2.5s infinite ease-in-out, waMicroMotion 3.5s infinite ease-in-out;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .wa-luxury-icon-circle svg {
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
+            transition: transform 0.25s ease;
+        }
+
+        .wa-luxury-badge:hover .wa-luxury-icon-circle {
+            transform: scale(1.14) rotate(8deg);
+            box-shadow: 0 0 24px rgba(37, 211, 102, 1), 0 0 35px rgba(37, 211, 102, 0.6), inset 0 1px 4px #ffffff;
+            border-color: #ffffff;
+        }
+
+        .wa-luxury-badge:hover .wa-luxury-icon-circle svg {
+            transform: scale(1.1);
+        }
+
+        @keyframes waWaveRipple {
+            0% {
+                transform: scale(0.85);
+                opacity: 0.95;
+                border-color: rgba(37, 211, 102, 0.9);
+                box-shadow: 0 0 10px rgba(37, 211, 102, 0.7);
+            }
+            50% {
+                opacity: 0.5;
+                border-color: rgba(52, 211, 153, 0.6);
+            }
+            100% {
+                transform: scale(1.75);
+                opacity: 0;
+                border-color: rgba(16, 185, 129, 0);
+                box-shadow: 0 0 18px rgba(37, 211, 102, 0);
+            }
+        }
+
+        @keyframes waSphereGlow {
+            0%, 100% {
+                box-shadow: 0 0 12px rgba(37, 211, 102, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.65);
+                filter: drop-shadow(0 0 5px rgba(37, 211, 102, 0.5));
+            }
+            50% {
+                box-shadow: 0 0 22px rgba(37, 211, 102, 0.95), inset 0 1px 4px rgba(255, 255, 255, 0.9);
+                filter: drop-shadow(0 0 12px rgba(37, 211, 102, 0.9));
+            }
+        }
+
+        @keyframes waMicroMotion {
+            0%, 100% {
+                transform: scale(1) rotate(0deg);
+            }
+            25% {
+                transform: scale(1.05) rotate(-3deg);
+            }
+            50% {
+                transform: scale(0.97) rotate(2deg);
+            }
+            75% {
+                transform: scale(1.04) rotate(-1deg);
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           💱 شريحة تبديل واختيار العملة الموحدة داخل كروت من وإلى (Unified Currency Chip)
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        .wa-currency-chip {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background: #0f172a;
+            color: #fef08a;
+            border: 1.5px solid #fbbf24;
+            border-radius: 6px;
+            font-size: 1.05rem;
+            font-weight: 900;
+            padding: 2px 6px 2px 20px;
+            cursor: pointer;
+            text-align: center;
+            outline: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5), inset 0 1px 2px rgba(255,255,255,0.15);
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23fbbf24' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 4px center;
+            background-size: 10px;
+            transition: all 0.2s ease;
+            height: 32px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            vertical-align: middle;
+            font-family: 'Consolas', monospace;
+            box-sizing: border-box;
+        }
+
+        .wa-currency-chip:hover, .wa-currency-chip:focus {
+            border-color: #f59e0b;
+            background-color: #1e293b;
+            box-shadow: 0 0 10px rgba(251, 191, 36, 0.6);
+            transform: translateY(-1px);
+        }
+    </style>
+
+    <!-- 1. Single & Dual Recipient Dispatch Modal with Debtor/Creditor/Both Switcher (Grand 2-Column Master Layout) -->
+    <div id="wa-voucher-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 99999; align-items: center; justify-content: center;">
+        <div id="wa-voucher-modal-card" class="modal-card glass-container wa-modal-resizable" style="width: 96vw; max-width: 1450px; height: 95vh; max-height: 96vh; border: 2.5px solid #25d366; padding: 12px 18px; border-radius: 14px; background: #0b1120; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.9), 0 0 35px rgba(37,211,102,0.35); display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden;">
+            
+            <!-- Header (Draggable + Window Controls) -->
+            <div id="wa-voucher-modal-header" class="wa-modal-header-draggable" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid rgba(37, 211, 102, 0.4); padding-bottom: 8px; margin-bottom: 8px; flex-shrink: 0;" title="اضغط مع السحب لتحريك النافذة يميناً ويساراً">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.3rem; color: #94a3b8; cursor: grab;" title="اضغط مع السحب لتحريك النافذة">⠿</span>
+                    <span style="font-size: 1.5rem;">📱</span>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <h3 style="margin: 0; color: #25d366; font-size: 1.30rem; font-weight: 900; line-height: 1.2; text-shadow: 0 0 10px rgba(37,211,102,0.35);">إرسال واعتماد إشعار السند المالي عبر واتساب</h3>
+                        <span id="wa-modal-subtitle" style="background: rgba(251, 191, 36, 0.16); border: 1.5px solid rgba(251, 191, 36, 0.6); color: #fef08a; font-size: 0.86rem; font-weight: 800; padding: 3px 12px; border-radius: 6px;">📜 ورقة كمبيالة رسمية مؤطرة (تشمل رصيد دفتر الأستاذ العام)</span>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- زر التكبير / الاستعادة -->
+                    <button type="button" id="btn-wa-modal-maximize" class="wa-btn-header-ctrl" onclick="toggleWAModalMaximize()" title="تكبير / استعادة الحجم" style="width: 32px; height: 32px; font-size: 1.05rem;">🗖</button>
+                    <!-- زر الإغلاق -->
+                    <button type="button" onclick="closeWAVoucherModal()" class="wa-btn-header-ctrl" style="width: 32px; height: 32px; font-size: 1.05rem; background: rgba(239, 68, 68, 0.25); border-color: #ef4444; color: #ef4444;" title="إغلاق">✕</button>
+                </div>
+            </div>
+
+            <!-- ═══ شبكة التقسيم الرئيسية (زيادة القسم اليمين 50% وإنقاص القسم اليسار 50%) ═══ -->
+            <div id="wa-voucher-modal-body" style="display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr); gap: 14px; flex: 1; min-height: 0; overflow: hidden;">
+                <input type="hidden" id="wa-modal-block-id">
+                <input type="hidden" id="wa-modal-target-mode" value="both">
+                <input type="hidden" id="wa-modal-format-type" value="promissory_note">
+                <input type="hidden" id="wa-both-active-tab" value="debtor">
+
+                <!-- ════════ العمود الأيمن الموسع (لوحة أطراف السند والمعلومات وقنوات الإرسال) ════════ -->
+                <div style="display: flex; flex-direction: column; justify-content: space-between; gap: 7px; overflow-y: auto; padding-right: 2px;" class="wa-modal-scroll-area">
+                    
+                    <!-- 1. شريط وجهة العملية والأطراف واختيار العملة الموحدة -->
+                    <div style="background: #0f172a; border: 1.5px solid rgba(37,211,102,0.4); border-radius: 9px; padding: 7px 12px; display: flex; flex-direction: column; gap: 6px; box-shadow: 0 3px 10px rgba(0,0,0,0.4);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 0.92rem; font-weight: 900; color: #fbbf24; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span style="display: flex; align-items: center; gap: 6px;"><span>🎯</span> <span>وجهة إشعار السند:</span></span>
+                                <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.45); padding: 2px 8px; border-radius: 6px; border: 1.5px solid #fbbf24;">
+                                    <span style="font-size: 1.05rem;">💱</span>
+                                    <span style="font-size: 0.86rem; color: #fbbf24; font-weight: 900; white-space: nowrap;">العملة الموحدة:</span>
+                                    <select id="wa-modal-currency-select" onchange="window.setWAModalCurrency(this.value)" style="background: #1e293b; border: 1.5px solid #fbbf24; color: #fde047; font-weight: 900; font-size: 0.88rem; padding: 2px 6px; border-radius: 5px; cursor: pointer; outline: none;">
+                                        <option value="SDG">جنيه سوداني (SDG)</option>
+                                        <option value="USD">دولار أمريكي (USD)</option>
+                                        <option value="SAR">ريال سعودي (SAR)</option>
+                                        <option value="AED">درهم إماراتي (AED)</option>
+                                        <option value="EGP">جنيه مصري (EGP)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <span id="wa-target-status-badge" style="font-size: 0.84rem; font-weight: 900; padding: 3px 12px; border-radius: 6px; background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(239, 68, 68, 0.3) 100%); color: #fef08a; border: 1.5px solid rgba(251, 191, 36, 0.6);">
+                                محدد: إرسال لكليهما معاً (إلى + من) 👥
+                            </span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; justify-content: space-between;">
+                            <!-- زر الطرف المدين (المستلم) -->
+                            <button type="button" id="btn-wa-target-debtor" class="wa-target-btn" onclick="setWATargetMode('debtor')" style="flex: 1; height: 42px; padding: 4px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #022c22; border: 2px solid #10b981; color: #a7f3d0; font-size: 1.08rem; font-weight: 900; white-space: nowrap;">
+                                <span style="font-size: 1.25rem;">📥</span> <span id="wa-debtor-role-title">إلى</span>: <b id="wa-debtor-acc-name" style="color: #fef08a; font-size: 1.15rem; font-weight: 900;">-</b>
+                            </button>
+                            <!-- سهم التبديل الأوسط -->
+                            <button type="button" id="btn-wa-swap-parties" onclick="swapWATargetParties()" title="تبديل الإرسال بين الأطراف" style="background: #1e293b; border: 2px solid #fbbf24; color: #fbbf24; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; cursor: pointer; flex-shrink: 0; transition: all 0.25s; box-shadow: 0 2px 6px rgba(0,0,0,0.5);">
+                                ⇄
+                            </button>
+                            <!-- زر الطرف الدائن (الصارف) -->
+                            <button type="button" id="btn-wa-target-creditor" class="wa-target-btn" onclick="setWATargetMode('creditor')" style="flex: 1; height: 42px; padding: 4px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: #2a080c; border: 2px solid #ef4444; color: #fecaca; font-size: 1.08rem; font-weight: 900; white-space: nowrap;">
+                                <span style="font-size: 1.25rem;">📤</span> <span id="wa-creditor-role-title">من</span>: <b id="wa-creditor-acc-name" style="color: #fef08a; font-size: 1.15rem; font-weight: 900;">-</b>
+                            </button>
+                            <!-- زر كليهما معاً (مصغر وأنيق) -->
+                            <button type="button" id="btn-wa-target-both" class="wa-target-btn active" onclick="setWATargetMode('both')" style="flex: 0 0 auto; height: 42px; padding: 4px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: linear-gradient(135deg, #047857 0%, #1d4ed8 50%, #b91c1c 100%); border: 2px solid #fbbf24; color: #ffffff; box-shadow: 0 0 12px rgba(251, 191, 36, 0.45); font-size: 1.02rem; font-weight: 900; white-space: nowrap;" title="إرسال لكليهما معاً">
+                                <span style="font-size: 1.15rem;">👥</span> <span>كليهما معاً ⚡</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. بطاقات الأطراف في وضع كليهما معاً (تصميم تنفيذي عالي التباين والوضوح) -->
+                    <div id="wa-both-parties-view" style="display: flex; flex-direction: column; gap: 8px;">
+                        <!-- بطاقة الطرف المدين (المستلم) -->
+                        <div id="wa-both-debtor-card" style="background: #061f18; border: 2px solid #10b981; border-right: 8px solid #10b981; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; transition: all 0.25s ease; box-shadow: 0 4px 14px rgba(0,0,0,0.5); box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                                    <span style="font-size: 1.35rem; flex-shrink: 0;">📥</span>
+                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;">
+                                        <span style="background: rgba(16, 185, 129, 0.25); border: 1.5px solid #10b981; color: #86efac; font-size: 1.15rem; font-weight: 900; padding: 3px 10px; border-radius: 6px; white-space: nowrap; min-width: 40px; text-align: center; display: inline-block; box-sizing: border-box;" id="wa-both-debtor-role-label">إلى</span>:
+                                        <b id="wa-both-debtor-name" style="color: #ffffff; font-weight: 900; font-size: 1.32rem; letter-spacing: 0.3px; line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">-</b>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                    <span id="wa-debtor-status-tag" style="background: #1e293b; border: 1.5px solid #475569; color: #cbd5e1; font-size: 0.98rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; white-space: nowrap; min-width: 110px; text-align: center; display: inline-block; box-sizing: border-box;">⏳ بانتظار الإرسال</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+                                <div id="wa-both-debtor-balance" style="background: #022c22; border: 2px solid #10b981; padding: 4px 10px; border-radius: 8px; white-space: nowrap; flex: 0 0 auto; width: auto; height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.45);">
+                                    <span style="color: #6ee7b7; font-weight: 900; font-size: 1.05rem; white-space: nowrap;">📊 رصيد المستلم:</span>
+                                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <b style="color: #ffffff; background: #064e3b; padding: 3px 8px; border-radius: 6px; border: 1.5px solid #10b981; font-family: 'Consolas', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px;">-</b>
+                                        <select class="wa-currency-chip" onchange="window.setWAModalCurrency(this.value)" title="تغيير عملة السند والأرصدة الموحدة">
+                                            <option value="SDG">SDG</option>
+                                            <option value="USD">USD</option>
+                                            <option value="SAR">SAR</option>
+                                            <option value="AED">AED</option>
+                                            <option value="EGP">EGP</option>
+                                        </select>
+                                        <span style="background: #10b981; color: #ffffff; border: 1.5px solid #34d399; padding: 3px 8px; border-radius: 6px; font-size: 1.02rem; font-weight: 900; min-width: 32px; text-align: center;">-</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                    <div class="wa-luxury-badge" title="رقم الواتساب المعتمد للإرسال">
+                                        <div class="wa-ripple-container">
+                                            <span class="wa-wave-pulse wave-1"></span>
+                                            <span class="wa-wave-pulse wave-2"></span>
+                                            <span class="wa-wave-pulse wave-3"></span>
+                                        </div>
+                                        <div class="wa-luxury-icon-circle">
+                                            <svg viewBox="0 0 24 24" width="22" height="22" fill="#ffffff">
+                                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <input type="tel" id="wa-both-debtor-phone" class="form-input" oninput="if(typeof cachePartyPhone==='function') cachePartyPhone('debtor', this.value)" placeholder="أدخل رقم الواتساب للمستلم هنا..." style="flex: 1; min-width: 0; width: 100%; height: 44px; background: #021a14; border: 2px solid #10b981; color: #ffffff; font-weight: 900; direction: ltr; text-align: left; font-size: 1.28rem; padding: 2px 14px; border-radius: 8px; box-sizing: border-box; transition: all 0.25s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
+                                </div>
+                                <button type="button" class="btn crystal-btn" onclick="sendSinglePartyDirectly('debtor')" style="height: 44px; min-width: 105px; flex-shrink: 0; background: linear-gradient(135deg, #059669 0%, #047857 100%); border: 2px solid #34d399; color: #ffffff; font-weight: 900; font-size: 1.10rem; padding: 4px 16px; border-radius: 8px; cursor: pointer; white-space: nowrap; box-shadow: 0 3px 10px rgba(16,185,129,0.45); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;" title="إرسال إشعار هذا الطرف فقط">
+                                    <span>⚡ إرسال</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- بطاقة الطرف الدائن (الصارف) -->
+                        <div id="wa-both-creditor-card" style="background: #200a0f; border: 2px solid #ef4444; border-right: 8px solid #ef4444; border-radius: 12px; padding: 10px 14px; display: flex; flex-direction: column; gap: 8px; transition: all 0.25s ease; box-shadow: 0 4px 14px rgba(0,0,0,0.5); box-sizing: border-box;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1;">
+                                    <span style="font-size: 1.35rem; flex-shrink: 0;">📤</span>
+                                    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0;">
+                                        <span style="background: rgba(239, 68, 68, 0.25); border: 1.5px solid #ef4444; color: #fca5a5; font-size: 1.15rem; font-weight: 900; padding: 3px 10px; border-radius: 6px; white-space: nowrap; min-width: 40px; text-align: center; display: inline-block; box-sizing: border-box;" id="wa-both-creditor-role-label">من</span>:
+                                        <b id="wa-both-creditor-name" style="color: #ffffff; font-weight: 900; font-size: 1.32rem; letter-spacing: 0.3px; line-height: 1.3; text-shadow: 0 1px 3px rgba(0,0,0,0.8);">-</b>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                    <span id="wa-creditor-status-tag" style="background: #1e293b; border: 1.5px solid #475569; color: #cbd5e1; font-size: 0.98rem; font-weight: 800; padding: 4px 12px; border-radius: 6px; white-space: nowrap; min-width: 110px; text-align: center; display: inline-block; box-sizing: border-box;">⏳ بانتظار الإرسال</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+                                <div id="wa-both-creditor-balance" style="background: #2a080c; border: 2px solid #ef4444; padding: 4px 10px; border-radius: 8px; white-space: nowrap; flex: 0 0 auto; width: auto; height: 44px; box-sizing: border-box; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.45);">
+                                    <span style="color: #fca5a5; font-weight: 900; font-size: 1.05rem; white-space: nowrap;">📊 رصيد الصرف:</span>
+                                    <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                        <b style="color: #ffffff; background: #7f1d1d; padding: 3px 8px; border-radius: 6px; border: 1.5px solid #ef4444; font-family: 'Consolas', monospace; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px;">-</b>
+                                        <select class="wa-currency-chip" onchange="window.setWAModalCurrency(this.value)" title="تغيير عملة السند والأرصدة الموحدة">
+                                            <option value="SDG">SDG</option>
+                                            <option value="USD">USD</option>
+                                            <option value="SAR">SAR</option>
+                                            <option value="AED">AED</option>
+                                            <option value="EGP">EGP</option>
+                                        </select>
+                                        <span style="background: #ef4444; color: #ffffff; border: 1.5px solid #f87171; padding: 3px 8px; border-radius: 6px; font-size: 1.02rem; font-weight: 900; min-width: 32px; text-align: center;">-</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                    <div class="wa-luxury-badge" title="رقم الواتساب المعتمد للإرسال">
+                                        <div class="wa-ripple-container">
+                                            <span class="wa-wave-pulse wave-1"></span>
+                                            <span class="wa-wave-pulse wave-2"></span>
+                                            <span class="wa-wave-pulse wave-3"></span>
+                                        </div>
+                                        <div class="wa-luxury-icon-circle">
+                                            <svg viewBox="0 0 24 24" width="22" height="22" fill="#ffffff">
+                                                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <input type="tel" id="wa-both-creditor-phone" class="form-input" oninput="if(typeof cachePartyPhone==='function') cachePartyPhone('creditor', this.value)" placeholder="أدخل رقم الواتساب لحساب الصرف هنا..." style="flex: 1; min-width: 0; width: 100%; height: 44px; background: #1f070b; border: 2px solid #ef4444; color: #ffffff; font-weight: 900; direction: ltr; text-align: left; font-size: 1.28rem; padding: 2px 14px; border-radius: 8px; box-sizing: border-box; transition: all 0.25s; box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);">
+                                </div>
+                                <button type="button" class="btn crystal-btn" onclick="sendSinglePartyDirectly('creditor')" style="height: 44px; min-width: 105px; flex-shrink: 0; background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%); border: 2px solid #f87171; color: #ffffff; font-weight: 900; font-size: 1.10rem; padding: 4px 16px; border-radius: 8px; cursor: pointer; white-space: nowrap; box-shadow: 0 3px 10px rgba(239,68,68,0.45); display: inline-flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;" title="إرسال إشعار هذا الطرف فقط">
+                                    <span>⚡ إرسال</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3. بطاقة الطرف الفردي في وضع التحديد المفرد -->
+                    <div id="wa-single-party-view" style="display: none; flex-direction: column; gap: 8px; background: #0f172a; border: 1.5px solid rgba(255,255,255,0.2); border-radius: 10px; padding: 10px 14px; box-shadow: 0 4px 14px rgba(0,0,0,0.4);">
+                        <div>
+                            <label id="wa-label-recipient-name" style="color: #34d399; font-size: 1.15rem; font-weight: 900; display: block; margin-bottom: 5px;">👤 الطرف المحدد:</label>
+                            <input type="text" id="wa-modal-recipient-name" class="form-input" readonly style="background: #1e293b; color: #ffffff; font-weight: 900; font-size: 1.30rem; padding: 3px 12px; height: 44px; border-radius: 8px; border: 1.5px solid #475569;">
+                        </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <div id="wa-modal-balance-container" style="flex: 0 0 auto; width: auto; display: inline-flex; align-items: center; justify-content: space-between; gap: 8px; background: #082f49; border: 2px solid #38bdf8; border-radius: 8px; padding: 4px 12px; height: 44px; box-sizing: border-box;">
+                                <span style="color: #bae6fd; font-size: 1.05rem; font-weight: 900; white-space: nowrap;">📊 رصيد الأستاذ:</span>
+                                <div style="display: inline-flex; align-items: center; gap: 6px;">
+                                    <span id="wa-modal-live-balance" style="color: #ffffff; background: #0369a1; padding: 3px 8px; border-radius: 6px; font-family: 'Consolas', monospace; font-size: 1.25rem; font-weight: 900;">0.00</span>
+                                    <select id="wa-modal-single-currency-chip" class="wa-currency-chip" onchange="window.setWAModalCurrency(this.value)" title="تغيير عملة السند والأرصدة الموحدة">
+                                        <option value="SDG">SDG</option>
+                                        <option value="USD">USD</option>
+                                        <option value="SAR">SAR</option>
+                                        <option value="AED">AED</option>
+                                        <option value="EGP">EGP</option>
+                                    </select>
+                                    <span id="wa-modal-live-balance-tag" style="font-size: 1.02rem; font-weight: 900; padding: 3px 8px; border-radius: 6px; background: #38bdf8; color: #082f49;">-</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0;">
+                                <div class="wa-luxury-badge" title="رقم الواتساب المعتمد للإرسال">
+                                    <div class="wa-ripple-container">
+                                        <span class="wa-wave-pulse wave-1"></span>
+                                        <span class="wa-wave-pulse wave-2"></span>
+                                        <span class="wa-wave-pulse wave-3"></span>
+                                    </div>
+                                    <div class="wa-luxury-icon-circle">
+                                        <svg viewBox="0 0 24 24" width="22" height="22" fill="#ffffff">
+                                            <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <input type="tel" id="wa-modal-phone" class="form-input" oninput="if(typeof cachePartyPhone==='function') cachePartyPhone(document.getElementById('wa-modal-target-mode')?.value||'debtor', this.value)" placeholder="أدخل رقم الواتساب هنا..." style="background: #021a14; border: 2px solid #10b981; color: #ffffff; font-weight: 900; direction: ltr; text-align: left; font-size: 1.28rem; padding: 2px 14px; height: 44px; border-radius: 8px; flex: 1; min-width: 0; width: 100%; box-sizing: border-box;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4. زر الإرسال الرئيسي الشامل لكلا الطرفين (المستلم + الصارف) -->
+                    <button type="button" id="btn-wa-send-both-action" onclick="executeWASend('gateway')" class="btn crystal-btn" style="width: 100%; height: 48px; padding: 4px 16px; background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%); border: 2px solid #34d399; border-radius: 10px; color: #ffffff; font-weight: 900; font-size: 1.22rem; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45); cursor: pointer; transition: all 0.2s ease;" title="إرسال كمبيالة السند مباشرة عبر خادم الواتساب المربوط">
+                        <span style="font-size: 1.45rem;">🚀</span>
+                        <span id="btn-wa-send-both-action-text">إرسال إلى كل الأطراف عبر الواتساب ⚡</span>
+                    </button>
+
+                    <!-- بانر التسليم الذكي للمرحلة الثانية (Handover Panel) -->
+                    <div id="wa-modal-handover-panel" style="display: none; background: #0f172a; border: 2px solid #10b981; border-radius: 9px; padding: 6px 12px; box-shadow: 0 0 16px rgba(16, 185, 129, 0.4); animation: fadeIn 0.2s ease;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                            <span style="color: #86efac; font-weight: 900; font-size: 0.90rem; display: flex; align-items: center; gap: 6px;">
+                                <span>✅</span> <span id="wa-handover-status-text">تم إرسال إشعار المستلم بنجاح!</span>
+                            </span>
+                            <span id="wa-handover-subtext" style="color: #cbd5e1; font-weight: 700; font-size: 0.82rem; width: 100%;">اضغط الزر لإرسال إشعار الصارف فوراً:</span>
+                            <span id="wa-handover-countdown-badge" style="display: none;"><b id="wa-handover-timer"></b></span>
+                            <div style="display: flex; gap: 8px; align-items: center; width: 100%; margin-top: 3px;">
+                                <button type="button" id="btn-wa-handover-next" onclick="triggerHandoverNextParty()" style="flex: 1; height: 36px; padding: 4px 12px; background: linear-gradient(135deg, #10b981, #059669); border: 1.5px solid #34d399; border-radius: 7px; color: #fff; font-size: 0.88rem; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; white-space: nowrap;">
+                                    <span>📤</span> <span id="btn-wa-handover-label">إرسال إشعار الطرف الصارف الآن ➔</span>
+                                </button>
+                                <button type="button" onclick="closeWAVoucherModal()" style="height: 36px; padding: 4px 12px; background: #1e293b; border: 1px solid #475569; border-radius: 7px; color: #cbd5e1; font-size: 0.82rem; font-weight: 800; cursor: pointer;">
+                                    إغلاق
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5. شريط أدوات تصوير ونسخ صورة السند الفوري (Image & Capture Tools) -->
+                    <div style="background: #0f172a; border: 1.5px dashed #fbbf24; border-radius: 9px; padding: 5px 14px; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                        <span style="color: #fbbf24; font-size: 0.90rem; font-weight: 900; display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 1.15rem;">📸</span> <span>تصوير وحفظ السند:</span>
+                        </span>
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <button type="button" onclick="downloadWAVoucherImage()" class="btn crystal-btn" style="height: 34px; background: #78350f; border: 1.5px solid #fbbf24; color: #fef08a; font-size: 0.86rem; font-weight: 900; padding: 4px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="تنزيل كارت السند المصور عالي الدقة كصورة PNG">
+                                <span>💾</span> حفظ كارت السند (PNG)
+                            </button>
+                            <button type="button" onclick="copyWAVoucherImageToClipboard()" class="btn crystal-btn" style="height: 34px; background: #075985; border: 1.5px solid #38bdf8; color: #e0f2fe; font-size: 0.86rem; font-weight: 900; padding: 4px 14px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="نسخ صورة السند للحافظة للصقها مباشرة في واتساب">
+                                <span>📋</span> نسخ الصورة للحافظة
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 6. قناة الإرسال الموحدة عبر خادم الواتساب المربوط -->
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button type="button" id="btn-wa-send-gateway" class="btn crystal-btn" onclick="executeWASend('gateway')" style="width: 100%; height: 48px; background: linear-gradient(135deg, #15803d 0%, #047857 100%); border: 2px solid #4ade80; color: #ffffff; font-weight: 900; font-size: 1.18rem; padding: 4px 16px; border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 16px rgba(21,128,61,0.45); cursor: pointer;" title="إرسال كمبيالة السند كملف PDF معتمد وموثق عبر الواتساب">
+                            <span style="font-size: 1.45rem;">📄⚡</span> <span id="btn-wa-send-gateway-text">إرسال كمبيالة السند المعتمدة (ملف PDF) عبر الواتساب</span>
+                        </button>
+                    </div>
+
+                    <!-- 7. شريط الإعدادات والإلغاء السفلي -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1.5px solid rgba(255,255,255,0.1); padding-top: 6px;">
+                        <button type="button" class="btn crystal-btn btn-ghost" onclick="closeWAVoucherModal()" style="font-size: 0.85rem; font-weight: 800; padding: 4px 14px;">إلغاء</button>
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; color: #86efac; font-size: 0.84rem; font-weight: 900; margin: 0; background: rgba(37,211,102,0.1); border: 1.5px dashed rgba(37,211,102,0.4); padding: 3px 10px; border-radius: 6px;">
+                            <input type="checkbox" id="wa-modal-auto-dispatch-sync" onchange="toggleWAAutoDispatch(this.checked)" style="width: 15px; height: 15px; cursor: pointer; accent-color: #25d366;">
+                            <span>⚡ إرسال تلقائي دائم فور حفظ السند</span>
+                        </label>
+                    </div>
+
+                    <div id="wa-modal-status-alert" style="display: none; padding: 5px 8px; border-radius: 6px; font-size: 0.84rem; font-weight: 800;"></div>
+                </div>
+
+                <!-- ════════ العمود الأيسر (لوحة كمبيالة السند المعتمدة الكاملة - Full Promissory Note Document) ════════ -->
+                <div style="display: flex; flex-direction: column; background: #070d18; border: 1.5px solid rgba(251, 191, 36, 0.4); border-radius: 10px; padding: 8px 10px; overflow: hidden; box-shadow: inset 0 0 30px rgba(0,0,0,0.65);">
+                    
+                    <!-- ترويسة لوحة الكمبيالة والتبويبات المدمجة -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1.5px solid rgba(255,255,255,0.12); padding-bottom: 5px; margin-bottom: 5px; flex-shrink: 0; flex-wrap: wrap; gap: 5px;">
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="color: #fbbf24; font-size: 0.86rem; font-weight: 900; display: flex; align-items: center; gap: 5px;">
+                                <span>📜</span> <span>المعاينة المعتمدة:</span>
+                            </span>
+                        </div>
+                        
+                        <div style="display: flex; gap: 4px; align-items: center; flex-wrap: wrap;">
+                            <!-- تبويب المستلم والصارف في وضع كليهما معاً -->
+                            <div id="wa-both-tabs-toolbar" style="display: flex; gap: 4px;">
+                                <button type="button" id="btn-wa-both-tab-debtor" onclick="switchWABothPreviewTab('debtor')" style="background: rgba(16, 185, 129, 0.35); border: 1.5px solid #10b981; color: #34d399; font-size: 0.78rem; font-weight: 900; padding: 2px 8px; border-radius: 5px; cursor: pointer;">
+                                    📥 المستلم
+                                </button>
+                                <button type="button" id="btn-wa-both-tab-creditor" onclick="switchWABothPreviewTab('creditor')" style="background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.25); color: #cbd5e1; font-size: 0.78rem; font-weight: 900; padding: 2px 8px; border-radius: 5px; cursor: pointer;">
+                                    📤 الصارف
+                                </button>
+                            </div>
+                            <!-- زر تحميل PDF الفوري -->
+                            <button type="button" onclick="downloadPromissoryPDF()" class="btn crystal-btn" style="background: linear-gradient(135deg, #b45309, #78350f); border: 1px solid #fbbf24; color: #fef08a; font-size: 0.76rem; font-weight: 900; padding: 2px 8px; border-radius: 5px; cursor: pointer;" title="تنزيل كمبيالة السند كملف PDF معتمد">
+                                📥 PDF
+                            </button>
+                            <!-- زر الطباعة المباشرة -->
+                            <button type="button" onclick="printPromissoryNote()" class="btn crystal-btn" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25); color: #f1f5f9; font-size: 0.76rem; font-weight: 800; padding: 2px 7px; border-radius: 5px; cursor: pointer;" title="طباعة كمبيالة السند">
+                                🖨️ طباعة
+                            </button>
+                            <!-- زر نسخ النص بالكامل -->
+                            <button type="button" onclick="copyFullTextMessage()" class="btn crystal-btn" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25); color: #f1f5f9; font-size: 0.76rem; font-weight: 800; padding: 2px 7px; border-radius: 5px; cursor: pointer;" title="نسخ نص الكمبيالة بالكامل إلى الحافظة">
+                                📋 نسخ
+                            </button>
+                            <!-- زر التبديل بين كمبيالة PDF والنص -->
+                            <button type="button" id="btn-wa-toggle-preview-mode" onclick="toggleWAPreviewMode()" class="btn crystal-btn" style="background: rgba(56, 189, 248, 0.15); border: 1.5px solid rgba(56, 189, 248, 0.5); color: #38bdf8; font-size: 0.76rem; font-weight: 900; padding: 2px 7px; border-radius: 5px; cursor: pointer;" title="تبديل العرض بين كمبيالة PDF والنص">
+                                📄 PDF / 📝 نص
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- مساحة عرض كمبيالة السند الكاملة (Certified PDF Document & Monospace Area) -->
+                    <div style="flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative;">
+                        <!-- حاوية المعاينة الحية لكمبيالة السند الرسمية المعتمدة (PDF Document Live Preview) -->
+                        <div id="wa-promissory-preview-wrapper" style="flex: 1; min-height: 0; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; background: #0c1424; border-radius: 8px; border: 1.5px solid rgba(251, 191, 36, 0.35); padding: 8px; box-sizing: border-box;">
+                            <div id="wa-promissory-note-container" style="background: #ffffff; color: #0f172a; border-radius: 6px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); font-family: 'Tajawal', sans-serif; direction: rtl; width: 100%;">
+                            </div>
+                        </div>
+
+                        <!-- صندوق نص كمبيالة كليهما معاً (Hidden by default, available when user toggles text mode) -->
+                        <div id="wa-preview-both-box" style="display: none; flex: 1; min-height: 0; flex-direction: column;">
+                            <textarea id="wa-both-preview-message" class="form-input" oninput="saveWABothPreviewEdit(this.value)" style="width: 100%; height: 100%; flex: 1; background: #050b14; border: 1.5px solid rgba(251, 191, 36, 0.35); color: #f8fafc; font-size: 0.84rem; line-height: 1.55; font-weight: 600; border-radius: 7px; resize: none; padding: 8px 10px; font-family: 'Consolas', 'Courier New', monospace; box-sizing: border-box; box-shadow: inset 0 0 25px rgba(0,0,0,0.85); white-space: pre-wrap; word-break: break-word;"></textarea>
+                        </div>
+
+                        <!-- صندوق نص كمبيالة الطرف الفردي -->
+                        <div id="wa-preview-single-box" style="display: none; flex: 1; min-height: 0; flex-direction: column;">
+                            <textarea id="wa-modal-message" class="form-input" style="width: 100%; height: 100%; flex: 1; background: #050b14; border: 1.5px solid rgba(251, 191, 36, 0.35); color: #f8fafc; font-size: 0.84rem; line-height: 1.55; font-weight: 600; border-radius: 7px; resize: none; padding: 8px 10px; font-family: 'Consolas', 'Courier New', monospace; box-sizing: border-box; box-shadow: inset 0 0 25px rgba(0,0,0,0.85); white-space: pre-wrap; word-break: break-word;"></textarea>
+                        </div>
+
+                        <!-- حاوية كارت السند المصور اللحظي (Graphic Preview Container) -->
+                        <div id="wa-modal-image-preview-container" style="display: none; flex: 1; min-height: 0; align-items: center; justify-content: center; background: rgba(0,0,0,0.65); border: 1.5px solid rgba(251,191,36,0.35); border-radius: 7px; overflow: hidden; padding: 6px; position: relative;">
+                            <img id="wa-modal-image-preview" src="" alt="كارت السند المصور" style="max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 10px 30px rgba(0,0,0,0.85);">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.74rem; font-weight: 800; color: #94a3b8;">
+                        <span>💡 ورقة كمبيالة معتمدة ومقيدة</span>
+                        <span style="color: #fbbf24;">⚡ قيد آلي رقمي</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Visual corner resize indicator -->
+            <div class="wa-resize-handle-corner" title="اسحب لتغيير الحجم">◢</div>
+        </div>
+    </div>
+
+    <!-- 2. Batch Recipients Modal (إرسال مجمع آمن يحفظ الخصوصية للأطراف) -->
+    <div id="wa-batch-voucher-modal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.78); backdrop-filter: blur(8px); z-index: 99999; align-items: center; justify-content: center;">
+        <div id="wa-batch-voucher-modal-card" class="modal-card glass-container wa-modal-resizable" style="max-width: 650px; width: 92%; max-height: 88vh; border: 2px solid #25d366; padding: 14px 18px; border-radius: 14px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.96)); position: relative; display: flex; flex-direction: column;">
+            <div id="wa-batch-voucher-modal-header" class="wa-modal-header-draggable" style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(37, 211, 102, 0.3); padding-bottom: 8px; margin-bottom: 10px; flex-shrink: 0;" title="اضغط مع السحب لتحريك النافذة">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.1rem; color: #94a3b8; cursor: grab;">⠿</span>
+                    <span style="font-size: 1.3rem;">📱</span>
+                    <div>
+                        <h3 style="margin: 0; color: #25d366; font-size: 1.1rem; font-weight: 800; line-height: 1.2;">إرسال إشعارات السند المجمع عبر واتساب</h3>
+                        <span style="font-size: 0.76rem; color: #94a3b8;">إرسال آمن ومستقل لكل طرف حفاظاً على السرية المصرفية 🛡️</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeWABatchModal()" class="wa-btn-header-ctrl" style="background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #ef4444;" title="إغلاق">✕</button>
+            </div>
+
+            <div class="wa-modal-scroll-area" style="display: flex; flex-direction: column; gap: 10px; padding-right: 2px;">
+                <p style="color: #fef08a; font-size: 0.82rem; margin: 0; background: rgba(245, 158, 11, 0.12); padding: 6px 10px; border-radius: 6px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                    ℹ️ سيتم إرسال إشعار رسمي منفصل ومخصص لكل طرف برقم تحويلته ومبلغه فقط، دون كشف بيانات الأطراف الأخرى.
+                </p>
+
+                <!-- Quick Filter & Swap Toolbar -->
+                <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap; background: rgba(0,0,0,0.25); padding: 5px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08);">
+                    <button type="button" onclick="filterWABatchTargets('all')" class="btn-batch-filter active" id="btn-batch-filter-all" style="background: rgba(37,211,102,0.2); border: 1.5px solid #25d366; color: #86efac; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">👥 تحديد الكل</button>
+                    <button type="button" onclick="filterWABatchTargets('blocks')" class="btn-batch-filter" id="btn-batch-filter-blocks" style="background: rgba(16,185,129,0.12); border: 1px solid rgba(16,185,129,0.35); color: #86efac; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">📥 إلى حساب (المستلمين)</button>
+                    <button type="button" onclick="filterWABatchTargets('main')" class="btn-batch-filter" id="btn-batch-filter-main" style="background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.35); color: #fca5a5; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer;">🏛️ الصرف من حساب</button>
+                    <button type="button" onclick="toggleWABatchChecks()" style="background: transparent; border: 1px dashed rgba(251,191,36,0.5); color: #fbbf24; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem; font-weight: 800; cursor: pointer; margin-right: auto;">⇄ عكس التحديد</button>
+                </div>
+
+                <!-- Recipients List -->
+                <div id="wa-batch-recipients-list" style="max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 2px;">
+                    <!-- Rows generated dynamically -->
+                </div>
+
+                <!-- Progress info -->
+                <div id="wa-batch-progress-bar" style="display: none; width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden; margin-top: 4px;">
+                    <div id="wa-batch-progress-fill" style="width: 0%; height: 100%; background: #25d366; transition: width 0.3s ease;"></div>
+                </div>
+                <div id="wa-batch-status-text" style="font-size: 0.8rem; font-weight: bold; color: #38bdf8; text-align: center; display: none;"></div>
+            </div>
+
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 8px; flex-shrink: 0; flex-wrap: wrap;">
+                <button type="button" class="btn crystal-btn btn-ghost" onclick="closeWABatchModal()" style="font-size: 0.85rem; padding: 6px 14px;">إغلاق</button>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <button type="button" id="btn-wa-batch-send" class="btn crystal-btn" onclick="executeBatchWASend()" style="background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; font-weight: 800; font-size: 0.88rem; padding: 6px 14px; display: flex; align-items: center; gap: 6px;">
+                        <span>🚀</span> بدء الإرسال للأطراف المحددة
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Context Menu -->
@@ -2410,7 +3704,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/html2pdf.bundle.min.js"></script>
+    <script defer src="js/whatsapp-integration.js?v=<?= file_exists('js/whatsapp-integration.js') ? filemtime('js/whatsapp-integration.js') : '1' ?>"></script>
     <script defer src="js/app.js?v=<?= file_exists('js/app.js') ? filemtime('js/app.js') : '1' ?>"></script>
+    <script defer src="js/promissory-flight-animation.js?v=<?= time() ?>"></script>
     <script defer src="js/multi-cash-payment.js?v=<?= time() ?>"></script>
     <script>
     let hasWarnedAboutEdit = false;
@@ -3041,7 +4338,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         setTimeout(applyNumPropsToAll, 400);
     });
 
-    // 🔍 محرك التضخيم والتكبير الفوري عند التركيز والكتابة (Dynamic Focus Magnification Engine)
+    // 🔍 محرك التضخيم والتكبير الفوري بمؤثر حركي انسيابي عالي الاحترافية (Dynamic Fluid Focus Magnification Engine)
     document.addEventListener('focusin', function(e) {
         const el = e.target;
         if (!el || !el.classList) return;
@@ -3061,14 +4358,16 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         if (isAmount || isNumber) {
             el.style.setProperty('font-size', '4.5rem', 'important');
             el.style.setProperty('height', '98px', 'important');
-            el.style.setProperty('min-width', '450px', 'important');
+            el.style.setProperty('width', '490px', 'important');
+            el.style.setProperty('min-width', '460px', 'important');
             el.style.setProperty('position', 'relative', 'important');
             el.style.setProperty('z-index', '99999', 'important');
-            el.style.setProperty('margin-right', '-50px', 'important');
+            el.style.setProperty('margin-right', '-60px', 'important');
             el.style.setProperty('font-weight', '900', 'important');
-            el.style.setProperty('background', 'rgba(15, 23, 42, 0.98)', 'important');
-            el.style.setProperty('border-radius', '10px', 'important');
-            el.style.setProperty('transition', 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)', 'important');
+            el.style.setProperty('background', 'rgba(13, 17, 28, 0.98)', 'important');
+            el.style.setProperty('border-radius', '14px', 'important');
+            el.style.setProperty('transform', 'translateY(-4px) scale(1.015)', 'important');
+            el.style.setProperty('transition', 'all 0.42s cubic-bezier(0.16, 1, 0.3, 1)', 'important');
             
             if (isAmount) {
                 el.style.setProperty('color', '#fbbf24', 'important');
@@ -3081,8 +4380,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
                 el.style.setProperty('text-rendering', 'geometricPrecision', 'important');
                 el.style.setProperty('font-family', "'Consolas', 'Courier New', monospace", 'important');
-                el.style.setProperty('border', '2.5px solid #fbbf24', 'important');
-                el.style.setProperty('box-shadow', '0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(251, 191, 36, 0.35)', 'important');
+                el.style.setProperty('border', '3.5px solid #fbbf24', 'important');
+                el.style.setProperty('box-shadow', '0 20px 45px rgba(0,0,0,0.92), 0 0 25px rgba(251, 191, 36, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25)', 'important');
             } else {
                 el.style.setProperty('color', '#38bdf8', 'important');
                 el.style.setProperty('-webkit-text-fill-color', '#38bdf8', 'important');
@@ -3094,8 +4393,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
                 el.style.setProperty('text-rendering', 'geometricPrecision', 'important');
                 el.style.setProperty('font-family', "'Consolas', 'Courier New', monospace", 'important');
-                el.style.setProperty('border', '2.5px solid #38bdf8', 'important');
-                el.style.setProperty('box-shadow', '0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(56, 189, 248, 0.35)', 'important');
+                el.style.setProperty('border', '3.5px solid #38bdf8', 'important');
+                el.style.setProperty('box-shadow', '0 20px 45px rgba(0,0,0,0.92), 0 0 25px rgba(56, 189, 248, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25)', 'important');
                 el.style.setProperty('letter-spacing', '1.5px', 'important');
             }
             
@@ -3125,7 +4424,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                          el.classList.contains('cheque-no');
                          
         if (isAmount || isNumber) {
+            el.style.setProperty('transition', 'all 0.38s cubic-bezier(0.16, 1, 0.3, 1)', 'important');
             el.style.removeProperty('height');
+            el.style.removeProperty('width');
             el.style.removeProperty('min-width');
             el.style.removeProperty('position');
             el.style.removeProperty('z-index');
@@ -3134,21 +4435,22 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             el.style.removeProperty('border');
             el.style.removeProperty('border-radius');
             el.style.removeProperty('box-shadow');
+            el.style.removeProperty('transform');
             el.style.removeProperty('color');
             el.style.removeProperty('-webkit-text-fill-color');
             el.style.removeProperty('caret-color');
             el.style.removeProperty('text-shadow');
             el.style.removeProperty('letter-spacing');
             
-            if (isAmount) {
-                el.style.removeProperty('font-size');
-            } else {
-                el.style.setProperty('font-size', '2.8rem', 'important');
-            }
+            el.style.removeProperty('font-size');
             
             if (el.parentElement && el.parentElement.style) {
-                el.parentElement.style.zIndex = el.parentElement.dataset.origZIndex || '';
-                el.parentElement.style.position = el.parentElement.dataset.origPosition || '';
+                setTimeout(() => {
+                    if (document.activeElement !== el) {
+                        el.parentElement.style.zIndex = el.parentElement.dataset.origZIndex || '';
+                        el.parentElement.style.position = el.parentElement.dataset.origPosition || '';
+                    }
+                }, 400);
             }
         }
         

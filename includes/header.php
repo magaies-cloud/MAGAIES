@@ -366,6 +366,64 @@
     transform: translateY(-1px);
 }
 
+/* ═══════════════════════════════════════════════════════════
+   🌟 AUTO-ASCENT RETURN PILL & WORKSPACE GLOW STYLES
+   ═══════════════════════════════════════════════════════════ */
+.auto-scroll-return-pill {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-65px);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 999999;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.96));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(56, 189, 248, 0.45);
+    border-radius: 30px;
+    padding: 6px 18px;
+    color: #f8fafc;
+    font-size: 0.85rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 0 0 20px rgba(56, 189, 248, 0.25);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+    user-select: none;
+}
+.auto-scroll-return-pill.visible {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+.auto-scroll-return-pill:hover {
+    border-color: #38bdf8;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+    color: #38bdf8;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.8), 0 0 28px rgba(56, 189, 248, 0.55);
+    transform: translateX(-50%) translateY(-2px) scale(1.03);
+}
+.auto-scroll-return-pill .pill-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: rgba(56, 189, 248, 0.2);
+    color: #38bdf8;
+    font-size: 0.75rem;
+    transition: all 0.25s;
+}
+.auto-scroll-return-pill:hover .pill-arrow {
+    background: #38bdf8;
+    color: #0f172a;
+    transform: translateY(-2px);
+}
+
 </style>
 <header class="premium-header magical-glass-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
     <!-- Left: Logo / Brand -->
@@ -489,10 +547,15 @@
             localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
             window.dispatchEvent(new Event('themeChanged'));
         }
-
         </script>
     </div>
 </header>
+
+<!-- 🌟 زر عائم ذكي لإظهار الترويسة العلوية في أي وقت لجميع الشاشات -->
+<div id="auto-scroll-header-pill" class="auto-scroll-return-pill" onclick="if(window.AutoHeaderScroll) window.AutoHeaderScroll.scrollToHeader()" title="الرجوع إلى أعلى الصفحة وإظهار الترويسة">
+    <span class="pill-arrow">▲</span>
+    <span>إظهار الترويسة والمعلومات</span>
+</div>
 
 <!-- 📺 SACRED TV & QURAN POPUP MODAL (ON SCREEN FACE - NOT HIDDEN FOR ANY REASON) -->
 <div id="header-media-backdrop" onclick="closeHeaderMediaPopover(event)" style="display: none;"></div>
@@ -598,3 +661,4 @@
 <script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : time(); ?>"></script>
 <script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
 <script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script>
+<script src="js/auto-header-scroll.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-header-scroll.js') ? filemtime(__DIR__ . '/../js/auto-header-scroll.js') : time(); ?>" defer></script>
