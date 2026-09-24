@@ -2946,6 +2946,11 @@ function submitInvoice(ignoreWarnings = false) {
     onSuccessNewInvoice(false);
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
 
+    // ═══ Trigger Auto-Send if enabled ═══
+    if (typeof window.triggerPurchaseAutoSendOnSave === 'function') {
+        window.triggerPurchaseAutoSendOnSave(committedNo);
+    }
+
     } catch (err) {
         console.error("Critical error in submitInvoice:", err);
         window.isSubmitting = false;
@@ -3630,9 +3635,12 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
                 <div class="success-amount-value">${grandTotal}</div>
             </div>
             ${warningsHtml}
-            <div class="success-actions" style="margin-top: 20px;">
-                <button class="btn btn-ghost success-btn" onclick="onSuccessNewInvoice()">استلام جديد</button>
-                <button class="btn btn-success success-btn" onclick="onSuccessDone()">قائمة المشتريات</button>
+            <div class="success-actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#25d366,#128c7e);" onclick="if(typeof openPurchaseWhatsAppModal==='function'){openPurchaseWhatsAppModal('${invoiceNo}');}">🚀 إرسال إذن التوريد / الفاتورة للمورد عبر واتساب</button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-ghost success-btn" style="flex:1;" onclick="onSuccessNewInvoice()">استلام جديد</button>
+                    <button class="btn btn-success success-btn" style="flex:1;" onclick="onSuccessDone()">قائمة المشتريات</button>
+                </div>
             </div>
         </div>
     `;

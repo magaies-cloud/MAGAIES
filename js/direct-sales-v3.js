@@ -3882,6 +3882,11 @@ function submitInvoice(ignoreWarnings = false) {
     }
 
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
+
+    // ═══ Trigger Auto-Send if enabled ═══
+    if (typeof window.triggerSalesAutoSendOnSave === 'function') {
+        window.triggerSalesAutoSendOnSave(committedNo);
+    }
     } catch(err) {
         console.error("Error in submitInvoice:", err);
         showToast("❌ حدث خطأ غير متوقع أثناء الحفظ: " + (err.message || err), "error");
@@ -4169,6 +4174,8 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
                     }
                     return '';
                 })()}
+                
+                <button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#25d366,#128c7e);" onclick="if(typeof openSalesWhatsAppModal==='function'){openSalesWhatsAppModal('${invoiceNo}');}">🚀 إرسال الفاتورة / إذن الاستلام عبر واتساب</button>
                 
                 <div style="display:flex; gap:10px;">
                     <button class="btn btn-ghost success-btn" style="flex:1;" onclick="onSuccessNewInvoice()">عملية جديدة</button>
