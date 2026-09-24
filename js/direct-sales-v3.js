@@ -3884,8 +3884,9 @@ function submitInvoice(ignoreWarnings = false) {
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
 
     // ═══ Trigger Auto-Send if enabled ═══
+    window._lastSubmittedSalesInvoice = data;
     if (typeof window.triggerSalesAutoSendOnSave === 'function') {
-        window.triggerSalesAutoSendOnSave(committedNo);
+        window.triggerSalesAutoSendOnSave(committedNo, data);
     }
     } catch(err) {
         console.error("Error in submitInvoice:", err);
@@ -5899,3 +5900,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 500);
     }
 });
+
+// ══════════════════════════════════════════════════════════════════════════
+// EXPORT INVOICE DATA FOR WHATSAPP SUITE (Sales)
+// ══════════════════════════════════════════════════════════════════════════
+window.getSalesInvoiceDataForWA = function(invoiceNo = null) {
+    if (invoiceNo) {
+        if (window._lastSubmittedSalesInvoice && String(window._lastSubmittedSalesInvoice.invoiceNo) === String(invoiceNo)) {
+            return window._lastSubmittedSalesInvoice;
+        }
+        try {
+            const raw = localStorage.getItem('erp_inv_' + invoiceNo);
+            if (raw) return JSON.parse(raw);
+        } catch(e) {}
+        try {
+            const list = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+            const found = list.find(i => String(i.invoiceNo) === String(invoiceNo));
+            if (found) return found;
+        } catch(e) {}
+    }
+
+    if (currentViewedInvoiceNo) {
+        try {
+            const raw = localStorage.getItem('erp_inv_' + currentViewedInvoiceNo);
+            if (raw) return JSON.parse(raw);
+        } catch(e) {}
+    }
+
+    const invNoVal = document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || 'SAL-NEW';
+    const custId = document.getElementById('hdr-customer')?.value || '';
+    const custName = document.getElementById('hdr-customer-search')?.value || 'عميل نقدي';
+
+    let custPhone = '';
+    if (typeof CUSTOMERS !== 'undefined' && Array.isArray(CUSTOMERS)) {
+        const c = CUSTOMERS.find(x => String(x.id) === String(custId));
+        if (c && c.phone) custPhone = c.phone;
+    }
+    if (!custPhone && custId && custId !== 'walk-in') {
+        try {
+            const custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+            const c = custs.find(x => String(x.id) === String(custId));
+            if (c) custPhone = c.whatsapp || c.phone || c.mobile || '';
+        } catch(e) {}
+    }
+
+    const itemsList = (rows || []).filter(r => r && r.itemId).map(r => {
+        const it = (typeof ITEMS !== 'undefined' ? ITEMS : []).find(i => String(i.id) === String(r.itemId));
+        const calcs = (typeof getRowCalcs === 'function') ? getRowCalcs(r) : { total: (parseFloat(r.quantity)||0) * (parseFloat(r.price)||0) };
+        return {
+            itemId: r.itemId,
+            name: it ? it.name : (r.name || 'صنف'),
+            itemName: it ? it.name : (r.name || 'صنف'),
+            unit: r.selectedUnit || (it ? it.baseUnit : 'وحدة'),
+            quantity: parseFloat(r.quantity) || 0,
+            qty: parseFloat(r.quantity) || 0,
+            price: parseFloat(r.price) || 0,
+            unitPrice: parseFloat(r.price) || 0,
+            total: parseFloat(calcs.total) || 0,
+            notes: r.itemNotes || r.notes || '-'
+        };
+    });
+
+    const grandTotal = document.getElementById('t-grand-dynamic-loc')?.textContent || 
+                       document.getElementById('t-grand')?.textContent || 
+                       document.getElementById('t-grand-local')?.textContent || '0.00';
+    const cur = (typeof getCurrency === 'function') ? getCurrency() : (document.getElementById('hdr-currency')?.value || 'SDG');
+
+    return {
+        invoiceNo: invNoVal,
+        date: document.getElementById('hdr-date')?.value || new Date().toISOString().split('T')[0],
+        customer: custId,
+        customerName: custName,
+        customerPhone: custPhone,
+        currency: cur,
+        items: itemsList,
+        grandTotal: grandTotal,
+        paymentMethod: document.getElementById('hdr-payment-method')?.value || 'cash',
+        notes: document.getElementById('inv-notes')?.value || ''
+    };
+};

@@ -2943,13 +2943,16 @@ function submitInvoice(ignoreWarnings = false) {
         showToast('📋 تم تأكيد الفاتورة — تحتاج ترحيل لتؤثر في الأرصدة والمخزون', 'warning', 5000);
     }
 
-    onSuccessNewInvoice(false);
-    showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
+    // Save submitted data for WhatsApp integration before form reset
+    window._lastSubmittedPurchaseInvoice = data;
 
     // ═══ Trigger Auto-Send if enabled ═══
     if (typeof window.triggerPurchaseAutoSendOnSave === 'function') {
-        window.triggerPurchaseAutoSendOnSave(committedNo);
+        window.triggerPurchaseAutoSendOnSave(committedNo, data);
     }
+
+    onSuccessNewInvoice(false);
+    showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
 
     } catch (err) {
         console.error("Critical error in submitInvoice:", err);
@@ -5236,5 +5239,83 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 });
+
+// ══════════════════════════════════════════════════════════════════════════
+// EXPORT INVOICE DATA FOR WHATSAPP SUITE (Purchases)
+// ══════════════════════════════════════════════════════════════════════════
+window.getPurchaseInvoiceDataForWA = function(invoiceNo = null) {
+    if (invoiceNo) {
+        if (window._lastSubmittedPurchaseInvoice && String(window._lastSubmittedPurchaseInvoice.invoiceNo) === String(invoiceNo)) {
+            return window._lastSubmittedPurchaseInvoice;
+        }
+        try {
+            const raw = localStorage.getItem('erp_pur_' + invoiceNo);
+            if (raw) return JSON.parse(raw);
+        } catch(e) {}
+        try {
+            const list = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+            const found = list.find(i => String(i.invoiceNo) === String(invoiceNo));
+            if (found) return found;
+        } catch(e) {}
+    }
+
+    if (currentViewedInvoiceNo) {
+        try {
+            const raw = localStorage.getItem('erp_pur_' + currentViewedInvoiceNo);
+            if (raw) return JSON.parse(raw);
+        } catch(e) {}
+    }
+
+    const invNoVal = document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || 'PUR-NEW';
+    const suppId = document.getElementById('hdr-customer')?.value || '';
+    const suppName = document.getElementById('hdr-customer-search')?.value || 'مورد عام';
+
+    let suppPhone = '';
+    if (typeof VENDORS !== 'undefined' && Array.isArray(VENDORS)) {
+        const v = VENDORS.find(x => String(x.id) === String(suppId));
+        if (v && v.phone) suppPhone = v.phone;
+    }
+    if (!suppPhone && suppId && suppId !== 'walk-in') {
+        try {
+            const supps = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+            const s = supps.find(x => String(x.id) === String(suppId));
+            if (s) suppPhone = s.whatsapp || s.phone || s.mobile || '';
+        } catch(e) {}
+    }
+
+    const itemsList = (rows || []).filter(r => r && r.itemId).map(r => {
+        const it = (typeof ITEMS !== 'undefined' ? ITEMS : []).find(i => String(i.id) === String(r.itemId));
+        const calcs = (typeof getRowCalcs === 'function') ? getRowCalcs(r) : { total: (parseFloat(r.quantity)||0) * (parseFloat(r.price)||0) };
+        return {
+            itemId: r.itemId,
+            name: it ? it.name : (r.name || 'صنف'),
+            itemName: it ? it.name : (r.name || 'صنف'),
+            unit: r.selectedUnit || (it ? it.baseUnit : 'وحدة'),
+            quantity: parseFloat(r.quantity) || 0,
+            qty: parseFloat(r.quantity) || 0,
+            price: parseFloat(r.price) || 0,
+            unitPrice: parseFloat(r.price) || 0,
+            total: parseFloat(calcs.total) || 0,
+            notes: r.itemNotes || r.notes || '-'
+        };
+    });
+
+    const grandTotal = document.getElementById('t-grand-dynamic-loc')?.textContent || 
+                       document.getElementById('t-grand-local')?.textContent || 
+                       document.getElementById('t-grand')?.textContent || '0.00';
+    const cur = (typeof getCurrency === 'function') ? getCurrency() : (document.getElementById('hdr-currency')?.value || 'SDG');
+
+    return {
+        invoiceNo: invNoVal,
+        date: document.getElementById('hdr-date')?.value || new Date().toISOString().split('T')[0],
+        supplier: suppId,
+        supplierName: suppName,
+        supplierPhone: suppPhone,
+        currency: cur,
+        items: itemsList,
+        grandTotal: grandTotal,
+        notes: document.getElementById('inv-notes')?.value || ''
+    };
+};
 
 

@@ -192,7 +192,7 @@
                 background: rgba(15, 23, 42, 0.85);
                 backdrop-filter: blur(12px);
                 -webkit-backdrop-filter: blur(12px);
-                z-index: 1000000;
+                z-index: 2000000 !important;
                 display: none;
                 align-items: center;
                 justify-content: center;
@@ -574,27 +574,12 @@
         const textEl = document.getElementById('erp-wa-preview-text');
         const messageText = textEl ? (textEl.textContent || textEl.innerText) : '';
 
-        // If official doc mode and user has whatsapp-integration.js connected
-        if (activeModalContext.currentTab.endsWith('_doc') && typeof sendPDFViaWhatsApp === 'function') {
-            const docWrap = document.getElementById('erp-wa-preview-doc-wrap');
-            if (docWrap && docWrap.innerHTML.trim() !== '') {
-                // Try sending PDF via tenant if available
-                sendPDFViaWhatsApp(docWrap, phone, messageText.substring(0, 300)).catch(err => {
-                    console.warn("Direct PDF send fallback to web:", err);
-                    const waUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(messageText)}`;
-                    window.open(waUrl, '_blank');
-                });
-                window.closeSuiteWAModal();
-                return;
-            }
-        }
-
-        // Direct WhatsApp Link
+        // Universal Direct WhatsApp Link (Works instantly across Web, Desktop & Mobile)
         const waUrl = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(messageText)}`;
         window.open(waUrl, '_blank');
 
         if (typeof showToast === 'function') {
-            showToast('🚀 تم فتح محادثة الواتساب بنجاح', 'success');
+            showToast('🚀 تم فتح محادثة الواتساب وتجهيز المستند بنجاح', 'success');
         }
         window.closeSuiteWAModal();
     };
@@ -635,29 +620,34 @@
     };
 
     // Open Sales WhatsApp Modal
-    window.openSalesWhatsAppModal = function(invoiceNo = null) {
+    window.openSalesWhatsAppModal = function(invoiceNo = null, invoiceData = null) {
         initSuiteStyles();
         initSuiteModal();
 
         // 1. Resolve Invoice Data
-        let inv = null;
-        if (invoiceNo) {
-            let allSales = [];
-            try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e){}
-            inv = allSales.find(i => String(i.invoiceNo) === String(invoiceNo));
+        let inv = invoiceData;
+        if (!inv && typeof window.getSalesInvoiceDataForWA === 'function') {
+            try { inv = window.getSalesInvoiceDataForWA(invoiceNo); } catch(e){}
+        }
+        if (!inv && invoiceNo) {
+            try { inv = JSON.parse(localStorage.getItem('erp_inv_' + invoiceNo)); } catch(e){}
             if (!inv) {
-                try { inv = JSON.parse(localStorage.getItem('erp_inv_' + invoiceNo)); } catch(e){}
+                let allSales = [];
+                try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e){}
+                inv = allSales.find(i => String(i.invoiceNo) === String(invoiceNo));
             }
         }
 
         // If no invoice found from storage, read from active form
         if (!inv) {
-            const invNoVal = document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || 'NEW';
+            const invNoVal = document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || 'SAL-NEW';
             const custId = document.getElementById('hdr-customer')?.value || '';
             const custName = document.getElementById('hdr-customer-search')?.value || 'عميل نقدي';
             const rowsData = (window.rows && Array.isArray(window.rows)) ? window.rows : [];
-            const grandTotal = document.getElementById('t-grand')?.textContent || '0.00';
-            const cur = (typeof window.getCurrency === 'function') ? window.getCurrency() : 'SDG';
+            const grandTotal = document.getElementById('t-grand-dynamic-loc')?.textContent || 
+                               document.getElementById('t-grand')?.textContent || 
+                               document.getElementById('t-grand-local')?.textContent || '0.00';
+            const cur = (typeof window.getCurrency === 'function') ? window.getCurrency() : (document.getElementById('hdr-currency')?.value || 'SDG');
 
             inv = {
                 invoiceNo: invNoVal,
@@ -672,9 +662,9 @@
         }
 
         // Resolve customer details & phone
-        let custPhone = '';
+        let custPhone = inv.customerPhone || '';
         let custName = inv.customerName || 'عميل نقدي';
-        if (inv.customer && inv.customer !== 'walk-in') {
+        if (!custPhone && inv.customer && inv.customer !== 'walk-in') {
             let customers = [];
             try { customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e){}
             const custObj = customers.find(c => String(c.id) === String(inv.customer));
@@ -701,13 +691,13 @@
         // Render Tabs
         const tabsContainer = document.getElementById('erp-wa-tabs-container');
         tabsContainer.innerHTML = `
-            <button type="button" class="erp-wa-tab-btn active" id="tab-sales-do-doc" onclick="window.switchSuiteWATab('delivery_order_doc')">
+            <button type="button" class="erp-wa-tab-btn active" data-tab="delivery_order_doc" id="tab-sales-do-doc" onclick="window.switchSuiteWATab('delivery_order_doc')">
                 <span>📄</span> إذن استلام رسمي (كميات فقط)
             </button>
-            <button type="button" class="erp-wa-tab-btn" id="tab-sales-do-txt" onclick="window.switchSuiteWATab('delivery_order_text')">
+            <button type="button" class="erp-wa-tab-btn" data-tab="delivery_order_text" id="tab-sales-do-txt" onclick="window.switchSuiteWATab('delivery_order_text')">
                 <span>📝</span> إذن استلام نصي كمعلومة
             </button>
-            <button type="button" class="erp-wa-tab-btn" id="tab-sales-inv" onclick="window.switchSuiteWATab('invoice')">
+            <button type="button" class="erp-wa-tab-btn" data-tab="invoice" id="tab-sales-inv" onclick="window.switchSuiteWATab('invoice')">
                 <span>💰</span> الفاتورة وكشف الحساب
             </button>
         `;
@@ -752,24 +742,32 @@
     };
 
     // Open Purchase WhatsApp Modal
-    window.openPurchaseWhatsAppModal = function(invoiceNo = null) {
+    window.openPurchaseWhatsAppModal = function(invoiceNo = null, invoiceData = null) {
         initSuiteStyles();
         initSuiteModal();
 
-        let inv = null;
-        if (invoiceNo) {
-            let allPurchases = [];
-            try { allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []; } catch(e){}
-            inv = allPurchases.find(i => String(i.invoiceNo) === String(invoiceNo));
+        let inv = invoiceData;
+        if (!inv && typeof window.getPurchaseInvoiceDataForWA === 'function') {
+            try { inv = window.getPurchaseInvoiceDataForWA(invoiceNo); } catch(e){}
+        }
+        if (!inv && invoiceNo) {
+            try { inv = JSON.parse(localStorage.getItem('erp_pur_' + invoiceNo)); } catch(e){}
+            if (!inv) {
+                let allPurchases = [];
+                try { allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []; } catch(e){}
+                inv = allPurchases.find(i => String(i.invoiceNo) === String(invoiceNo));
+            }
         }
 
         if (!inv) {
             const invNoVal = document.getElementById('hdr-inv-no')?.value || document.getElementById('inv-number')?.textContent || 'PUR-NEW';
-            const suppId = document.getElementById('hdr-supplier')?.value || '';
-            const suppName = document.getElementById('hdr-supplier-search')?.value || 'مورد عام';
+            const suppId = document.getElementById('hdr-customer')?.value || document.getElementById('hdr-supplier')?.value || '';
+            const suppName = document.getElementById('hdr-customer-search')?.value || document.getElementById('hdr-supplier-search')?.value || 'مورد عام';
             const rowsData = (window.rows && Array.isArray(window.rows)) ? window.rows : [];
-            const grandTotal = document.getElementById('t-grand')?.textContent || '0.00';
-            const cur = (typeof window.getCurrency === 'function') ? window.getCurrency() : 'SDG';
+            const grandTotal = document.getElementById('t-grand-dynamic-loc')?.textContent || 
+                               document.getElementById('t-grand-local')?.textContent || 
+                               document.getElementById('t-grand')?.textContent || '0.00';
+            const cur = (typeof window.getCurrency === 'function') ? window.getCurrency() : (document.getElementById('hdr-currency')?.value || 'SDG');
 
             inv = {
                 invoiceNo: invNoVal,
@@ -783,9 +781,9 @@
             };
         }
 
-        let suppPhone = '';
-        let suppName = inv.supplierName || 'مورد';
-        if (inv.supplier) {
+        let suppPhone = inv.supplierPhone || '';
+        let suppName = inv.supplierName || 'مورد عام';
+        if (!suppPhone && inv.supplier && inv.supplier !== 'walk-in') {
             let suppliers = [];
             try { suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e){}
             const suppObj = suppliers.find(s => String(s.id) === String(inv.supplier));
@@ -812,13 +810,13 @@
         // Render Tabs
         const tabsContainer = document.getElementById('erp-wa-tabs-container');
         tabsContainer.innerHTML = `
-            <button type="button" class="erp-wa-tab-btn active" id="tab-purchase-ro-doc" onclick="window.switchSuiteWATab('receipt_order_doc')">
+            <button type="button" class="erp-wa-tab-btn active" data-tab="receipt_order_doc" id="tab-purchase-ro-doc" onclick="window.switchSuiteWATab('receipt_order_doc')">
                 <span>📄</span> إذن توريد رسمي (كميات فقط)
             </button>
-            <button type="button" class="erp-wa-tab-btn" id="tab-purchase-ro-txt" onclick="window.switchSuiteWATab('receipt_order_text')">
+            <button type="button" class="erp-wa-tab-btn" data-tab="receipt_order_text" id="tab-purchase-ro-txt" onclick="window.switchSuiteWATab('receipt_order_text')">
                 <span>📝</span> إذن توريد نصي كمعلومة
             </button>
-            <button type="button" class="erp-wa-tab-btn" id="tab-purchase-inv" onclick="window.switchSuiteWATab('invoice')">
+            <button type="button" class="erp-wa-tab-btn" data-tab="invoice" id="tab-purchase-inv" onclick="window.switchSuiteWATab('invoice')">
                 <span>💰</span> فاتورة الشراء وحساب المورد
             </button>
         `;
@@ -883,10 +881,10 @@
         // Render Tabs
         const tabsContainer = document.getElementById('erp-wa-tabs-container');
         tabsContainer.innerHTML = `
-            <button type="button" class="erp-wa-tab-btn active" id="tab-ledger-txt" onclick="window.switchSuiteWATab('statement_text')">
+            <button type="button" class="erp-wa-tab-btn active" data-tab="statement_text" id="tab-ledger-txt" onclick="window.switchSuiteWATab('statement_text')">
                 <span>📝</span> ملخص كشف الحساب كنص سريع
             </button>
-            <button type="button" class="erp-wa-tab-btn" id="tab-ledger-pdf" onclick="window.switchSuiteWATab('statement_pdf')">
+            <button type="button" class="erp-wa-tab-btn" data-tab="statement_pdf" id="tab-ledger-pdf" onclick="window.switchSuiteWATab('statement_pdf')">
                 <span>📄</span> كشف حساب معتمد (PDF)
             </button>
         `;
@@ -903,10 +901,16 @@
         if (!activeModalContext) return;
         activeModalContext.currentTab = tabName;
 
-        // Update active class on tab buttons
-        document.querySelectorAll('.erp-wa-tab-btn').forEach(btn => btn.classList.remove('active'));
-        const activeBtn = document.querySelector(`[onclick*="'${tabName}'"]`);
-        if (activeBtn) activeBtn.classList.add('active');
+        // Update active class on tab buttons safely
+        document.querySelectorAll('.erp-wa-tab-btn').forEach(btn => {
+            const btnTab = btn.getAttribute('data-tab');
+            const btnOnclick = btn.getAttribute('onclick') || '';
+            if (btnTab === tabName || btnOnclick.includes(tabName)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
 
         const descEl = document.getElementById('erp-wa-mode-desc');
         const textEl = document.getElementById('erp-wa-preview-text');
@@ -946,14 +950,14 @@
             } else if (tabName === 'delivery_order_text') {
                 descEl.innerHTML = '📝 <strong>إذن استلام كتابة كمعلومة:</strong> رسالة نصية تفصيلية سريعة بالكميات والأسعار (مثال: اشترى 4 طن بسعر كذا، بإجمالي كذا...).';
                 
-                let itemLines = items.map((it, idx) => {
+                let itemLines = (items && items.length > 0) ? items.map((it, idx) => {
                     const name = it.name || it.itemName || 'صنف';
                     const qty = it.quantity || it.qty || 1;
                     const unit = it.unit || 'وحدة';
                     const price = it.price || it.unitPrice || 0;
                     const total = it.total || (qty * price);
                     return `${idx + 1}. *${name}* ← الكمية: ${qty} ${unit} | السعر: ${price} ${inv.currency || 'SDG'} (الإجمالي: ${total})`;
-                }).join('\n');
+                }).join('\n') : '• (لا توجد أصناف مدخلة بعد)';
 
                 const waText = `*إشعار صدور إذن استلام بضاعة* 📋\n` +
                     `*رقم الفاتورة/الإذن:* #${inv.invoiceNo}\n` +
@@ -971,14 +975,14 @@
             } else if (tabName === 'invoice') {
                 descEl.innerHTML = '💰 <strong>فاتورة المبيعات وكشف الحساب:</strong> تفاصيل مالية شاملة للأصناف، الكميات، الأسعار، الضرائب، الأرصدة، وطريقة الدفع.';
                 
-                let itemLines = items.map((it, idx) => {
+                let itemLines = (items && items.length > 0) ? items.map((it, idx) => {
                     const name = it.name || it.itemName || 'صنف';
                     const qty = it.quantity || it.qty || 1;
                     const unit = it.unit || 'وحدة';
                     const price = it.price || it.unitPrice || 0;
                     const total = it.total || (qty * price);
                     return `• ${name}: ${qty} ${unit} × ${price} = *${total} ${inv.currency || 'SDG'}*`;
-                }).join('\n');
+                }).join('\n') : '• (لا توجد أصناف مدخلة بعد)';
 
                 const waText = `*فاتورة مبيعات وكشف حساب رسمي* 🧾\n` +
                     `*رقم الفاتورة:* #${inv.invoiceNo}\n` +
@@ -1018,13 +1022,13 @@
                 charCountEl.textContent = `${waText.length} حرف`;
             } else if (tabName === 'receipt_order_text') {
                 descEl.innerHTML = '📝 <strong>إذن توريد كتابة كمعلومة:</strong> رسالة نصية سريعة للمورد بتفاصيل الكميات والأسعار المعتمدة.';
-                let itemLines = items.map((it, idx) => {
+                let itemLines = (items && items.length > 0) ? items.map((it, idx) => {
                     const name = it.name || it.itemName || 'صنف';
                     const qty = it.quantity || it.qty || 1;
                     const unit = it.unit || 'وحدة';
                     const price = it.price || it.unitPrice || 0;
                     return `${idx + 1}. *${name}* ← الكمية: ${qty} ${unit} | السعر: ${price}`;
-                }).join('\n');
+                }).join('\n') : '• (لا توجد أصناف مدخلة بعد)';
 
                 const waText = `*إشعار اعتماد توريد واستلام بضاعة* 📦\n` +
                     `*رقم الفاتورة:* #${inv.invoiceNo}\n` +
@@ -1122,23 +1126,31 @@
         let rowsHtml = '';
         let totalUnits = 0;
 
-        items.forEach((it, idx) => {
-            const name = it.name || it.itemName || 'صنف';
-            const unit = it.unit || 'وحدة';
-            const qty = parseFloat(it.quantity || it.qty || 0);
-            totalUnits += qty;
-            const notes = it.notes || it.itemNotes || '-';
-
-            rowsHtml += `
-                <tr style="border-bottom: 1px solid #e2e8f0;">
-                    <td style="padding: 8px 10px; text-align: center; font-weight: bold;">${idx + 1}</td>
-                    <td style="padding: 8px 10px; font-weight: bold; color: #0f172a;">${name}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #475569;">${unit}</td>
-                    <td style="padding: 8px 10px; text-align: center; font-weight: 900; font-size: 1.05rem; color: #0284c7;">${qty.toLocaleString()}</td>
-                    <td style="padding: 8px 10px; text-align: center; color: #64748b; font-size: 0.85rem;">${notes}</td>
+        if (items.length === 0) {
+            rowsHtml = `
+                <tr>
+                    <td colspan="5" style="padding: 18px; text-align: center; color: #64748b; font-weight: bold; font-size: 0.95rem;">لا توجد أصناف مسجلة حتى الآن</td>
                 </tr>
             `;
-        });
+        } else {
+            items.forEach((it, idx) => {
+                const name = it.name || it.itemName || 'صنف';
+                const unit = it.unit || it.selectedUnit || 'وحدة';
+                const qty = parseFloat(it.quantity || it.qty || 0);
+                totalUnits += qty;
+                const notes = it.notes || it.itemNotes || '-';
+
+                rowsHtml += `
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 8px 10px; text-align: center; font-weight: bold;">${idx + 1}</td>
+                        <td style="padding: 8px 10px; font-weight: bold; color: #0f172a;">${name}</td>
+                        <td style="padding: 8px 10px; text-align: center; color: #475569;">${unit}</td>
+                        <td style="padding: 8px 10px; text-align: center; font-weight: 900; font-size: 1.05rem; color: #0284c7;">${qty.toLocaleString()}</td>
+                        <td style="padding: 8px 10px; text-align: center; color: #64748b; font-size: 0.85rem;">${notes}</td>
+                    </tr>
+                `;
+            });
+        }
 
         return `
             <div style="font-family: 'Tajawal', Arial, sans-serif; direction: rtl; padding: 18px; border: 2px solid #0f172a; border-radius: 12px; background: #ffffff; color: #0f172a;">
@@ -1208,49 +1220,89 @@
     // Automatic Send Hook Triggers (Post-Submit)
     // ══════════════════════════════════════════════════════════════════════════
 
-    window.triggerSalesAutoSendOnSave = function(invoiceNo) {
+    window.triggerSalesAutoSendOnSave = function(invoiceNo, invoiceData = null) {
         const s = getSalesAutoSend();
         if (!s.enabled || s.mode === 'disabled') return;
 
-        // Give storage 200ms to ensure invoice is saved
         setTimeout(() => {
-            window.openSalesWhatsAppModal(invoiceNo);
+            window.openSalesWhatsAppModal(invoiceNo, invoiceData);
             if (s.mode) {
                 window.switchSuiteWATab(s.mode);
             }
             if (typeof showToast === 'function') {
                 showToast('🚀 الإرسال التلقائي: تم تحضير المستند للإرسال الفوري عبر واتساب', 'success');
             }
-        }, 350);
+        }, 300);
     };
 
-    window.triggerPurchaseAutoSendOnSave = function(invoiceNo) {
+    window.triggerPurchaseAutoSendOnSave = function(invoiceNo, invoiceData = null) {
         const s = getPurchaseAutoSend();
         if (!s.enabled || s.mode === 'disabled') return;
 
         setTimeout(() => {
-            window.openPurchaseWhatsAppModal(invoiceNo);
+            window.openPurchaseWhatsAppModal(invoiceNo, invoiceData);
             if (s.mode) {
                 window.switchSuiteWATab(s.mode);
             }
             if (typeof showToast === 'function') {
                 showToast('🚀 الإرسال التلقائي: تم تحضير إذن التوريد للإرسال للمورد عبر واتساب', 'success');
             }
-        }, 350);
+        }, 300);
     };
 
+    // ═══ Direct DOM Button Event Binding ═══
+    function bindWhatsAppButtons() {
+        const salesBtn = document.getElementById('btn-whatsapp-master-sales');
+        if (salesBtn && !salesBtn._waBound) {
+            salesBtn._waBound = true;
+            salesBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.openSalesWhatsAppModal();
+            });
+        }
+        const purBtn = document.getElementById('btn-whatsapp-master-purchase');
+        if (purBtn && !purBtn._waBound) {
+            purBtn._waBound = true;
+            purBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.openPurchaseWhatsAppModal();
+            });
+        }
+        const ledBtn = document.getElementById('btn-whatsapp-master-ledger');
+        if (ledBtn && !ledBtn._waBound) {
+            ledBtn._waBound = true;
+            ledBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                window.openLedgerWhatsAppModal();
+            });
+        }
+    }
+
+    // ═══ Close Dropdowns on Outside Click ═══
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('#auto-send-control-wrapper-sales')) {
+            const menu = document.getElementById('auto-send-sales-dropdown-menu');
+            if (menu) menu.style.display = 'none';
+        }
+        if (!e.target.closest('#auto-send-control-wrapper-purchase')) {
+            const menu = document.getElementById('auto-send-purchase-dropdown-menu');
+            if (menu) menu.style.display = 'none';
+        }
+    });
+
     // ═══ Initialize UI on DOM Ready ═══
-    document.addEventListener('DOMContentLoaded', () => {
+    function initAllSuiteFeatures() {
         injectSuiteStyles();
         syncSalesAutoSendUI();
         syncPurchaseAutoSendUI();
-    });
+        bindWhatsAppButtons();
+    }
+
+    document.addEventListener('DOMContentLoaded', initAllSuiteFeatures);
 
     // Run immediately if DOM is already parsed
     if (document.readyState === 'interactive' || document.readyState === 'complete') {
-        injectSuiteStyles();
-        syncSalesAutoSendUI();
-        syncPurchaseAutoSendUI();
+        initAllSuiteFeatures();
     }
 
 })(window, document);
