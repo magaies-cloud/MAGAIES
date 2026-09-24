@@ -2658,7 +2658,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                                         <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: 'Consolas', monospace; font-weight: 900; text-align: center; text-shadow: none !important; -webkit-text-stroke: 0px !important;">
                                     </div>
                                     <div style="flex: 1; min-width: 120px;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+                                        <input type="text" autocomplete="off" list="master-banks-datalist" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
                                     </div>
                                     <div style="flex: 1; min-width: 120px;">
                                         <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0;">
@@ -2680,7 +2680,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                                         <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: 'Consolas', monospace; font-weight: 900; text-align: center; text-shadow: none !important; -webkit-text-stroke: 0px !important;">
                                     </div>
                                     <div style="flex: 1; min-width: 90px;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+                                        <input type="text" autocomplete="off" list="master-banks-datalist" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
                                     </div>
                                     <div style="flex: 1; min-width: 80px;">
                                         <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" style="margin-bottom: 0;">
@@ -3708,6 +3708,7 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
     <script defer src="js/whatsapp-integration.js?v=<?= file_exists('js/whatsapp-integration.js') ? filemtime('js/whatsapp-integration.js') : '1' ?>"></script>
     <script defer src="js/app.js?v=<?= file_exists('js/app.js') ? filemtime('js/app.js') : '1' ?>"></script>
     <script defer src="js/promissory-flight-animation.js?v=<?= time() ?>"></script>
+    <script defer src="js/master-banks-helper.js?v=<?= file_exists('js/master-banks-helper.js') ? filemtime('js/master-banks-helper.js') : '1' ?>"></script>
     <script defer src="js/multi-cash-payment.js?v=<?= time() ?>"></script>
     <script>
     let hasWarnedAboutEdit = false;

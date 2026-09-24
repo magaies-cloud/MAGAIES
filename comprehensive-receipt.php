@@ -484,7 +484,7 @@
                 </div>
                 <div class="input-group">
                     <label>البنك المسحوب عليه</label>
-                    <input type="text" class="form-control" id="check-bank" placeholder="اسم البنك">
+                    <input type="text" autocomplete="off" list="master-banks-datalist" class="form-control" id="check-bank" placeholder="اسم البنك">
                 </div>
             </div>
 
@@ -544,6 +544,7 @@
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js"></script>
+    <script defer src="js/master-banks-helper.js?v=20260924_v1"></script>
     <script defer src="js/comprehensive-receipt.js"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>

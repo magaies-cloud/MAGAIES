@@ -1777,7 +1777,7 @@
             row.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; padding: 15px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; position: relative; animation: fadeIn 0.3s ease-out;';
             
             row.innerHTML = `
-                <div class="input-group"><label>اسم البنك</label><input type="text" class="bank-name" placeholder="مثال: بنك الخرطوم" value="${data ? (data.bankName || '') : ''}"></div>
+                <div class="input-group"><label>اسم البنك</label><input type="text" autocomplete="off" list="master-banks-datalist" class="bank-name" placeholder="مثال: بنك الخرطوم" value="${data ? (data.bankName || '') : ''}"></div>
                 <div class="input-group"><label>الفرع</label><input type="text" class="bank-branch" placeholder="مثال: فرع الرياض" value="${data ? (data.branch || '') : ''}"></div>
                 <div class="input-group"><label>رقم الحساب</label><input type="text" class="bank-acc" placeholder="رقم الحساب البنكي" value="${data ? (data.accountNo || '') : ''}"></div>
                 <div class="input-group"><label>درجة سرية البنك</label>
@@ -2278,6 +2278,7 @@
 
             localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
             syncToBackend('save_bank', bankData);
+            if (window.MasterBanksHelper) window.MasterBanksHelper.refresh();
             closeBankForm();
             renderBanks();
             if (typeof showToast === 'function') showToast('✅ تم حفظ البنك نهائياً في قاعدة البيانات بنجاح', 'success');
@@ -2356,6 +2357,7 @@
 
         function deleteBank(id) {
             genericDeleteEntity('bank', id);
+            if (window.MasterBanksHelper) window.MasterBanksHelper.refresh();
         }
 
         // ================= SAFES (خزن) LOGIC =================

@@ -51,6 +51,8 @@ $files = [
     'includes/financial-ocr-modal.php' => getNormalizedHash(__DIR__ . '/includes/financial-ocr-modal.php'),
     'js/promissory-flight-animation.js' => getNormalizedHash(__DIR__ . '/js/promissory-flight-animation.js'),
     'js/auto-header-scroll.js' => getNormalizedHash(__DIR__ . '/js/auto-header-scroll.js'),
+    'js/master-banks-helper.js' => getNormalizedHash(__DIR__ . '/js/master-banks-helper.js'),
+    'master-data.php' => getNormalizedHash(__DIR__ . '/master-data.php'),
 ];
 
 // Check specific keywords inside single-cash-payment.php

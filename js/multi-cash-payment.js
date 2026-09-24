@@ -1080,7 +1080,7 @@ window.addBankRow = function(blockId) {
             <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 120px;">
-            <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+            <input type="text" autocomplete="off" list="master-banks-datalist" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
         </div>
         <div style="flex: 1; min-width: 120px;">
             <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0;">
@@ -1119,7 +1119,7 @@ window.addChequeRow = function(blockId) {
             <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 90px;">
-            <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+            <input type="text" autocomplete="off" list="master-banks-datalist" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
         </div>
         <div style="flex: 1; min-width: 80px;">
             <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" style="margin-bottom: 0;">
@@ -1166,7 +1166,7 @@ document.addEventListener('click', function(e) {
                 <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
             </div>
             <div style="flex: 1; min-width: 120px;">
-                <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+                <input type="text" autocomplete="off" list="master-banks-datalist" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
             </div>
             <div style="flex: 1; min-width: 120px;">
                 <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0;">
@@ -1191,7 +1191,7 @@ document.addEventListener('click', function(e) {
                 <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
             </div>
             <div style="flex: 1; min-width: 90px;">
-                <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
+                <input type="text" autocomplete="off" list="master-banks-datalist" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
             </div>
             <div style="flex: 1; min-width: 80px;">
                 <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" style="margin-bottom: 0;">
@@ -3361,7 +3361,7 @@ function loadVoucherIntoForm(v) {
                                 <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" value="${bt.amount || ''}" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
                             </div>
                             <div style="flex: 1; min-width: 120px;">
-                                <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" value="${bt.bankName || ''}" style="margin-bottom: 0;">
+                                <input type="text" autocomplete="off" list="master-banks-datalist" class="form-input block-bank-name-input" placeholder="اسم البنك" value="${bt.bankName || ''}" style="margin-bottom: 0;">
                             </div>
                             <div style="flex: 1; min-width: 120px;">
                                 <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" value="${bt.transferNo || ''}" style="margin-bottom: 0;">
@@ -3394,7 +3394,7 @@ function loadVoucherIntoForm(v) {
                                 <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" value="${ch.amount || ''}" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
                             </div>
                             <div style="flex: 1; min-width: 90px;">
-                                <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" value="${ch.chequeBank || ''}" style="margin-bottom: 0;">
+                                <input type="text" autocomplete="off" list="master-banks-datalist" class="form-input block-cheque-bank-input" placeholder="اسم البنك" value="${ch.chequeBank || ''}" style="margin-bottom: 0;">
                             </div>
                             <div style="flex: 1; min-width: 80px;">
                                 <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" value="${ch.chequeNo || ''}" style="margin-bottom: 0;">
@@ -3902,7 +3902,7 @@ window.addTransferRow = function(no = '', note = '', amt = 0) {
         </div>
         <div style="flex: 1.2; min-width: 170px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">اسم البنك:</label>
-            <input type="text" autocomplete="off" class="v-input ctrl-input transfer-note" value="${note}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
+            <input type="text" autocomplete="off" list="master-banks-datalist" class="v-input ctrl-input transfer-note" value="${note}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
         </div>
         <div style="flex: 1.2; min-width: 190px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">رقم التحويلة:</label>
@@ -3967,7 +3967,7 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0) {
         </div>
         <div style="flex: 1.2; min-width: 170px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">اسم البنك:</label>
-            <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
+            <input type="text" autocomplete="off" list="master-banks-datalist" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
         </div>
         <div style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">رقم الشيك:</label>

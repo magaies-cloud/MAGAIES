@@ -663,7 +663,7 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
                         <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(6,182,212,0.14), rgba(15,23,42,0.85)); padding:6px 10px; border-radius:8px; border:2px solid #06b6d4; box-shadow:0 0 14px rgba(6,182,212,0.3); flex-shrink:0;">
                             <input type="hidden" id="ocr-field-doc-type" value="bank_transfer">
                             <label id="ocr-badge-doc-type" style="color:#d8b4fe; font-size:0.95rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(168,85,247,0.5);">السند:</label>
-                            <input type="text" id="ocr-field-bank-name" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="اسم البنك (مثال: بنك الخرطوم)" style="flex:1; height:38px; background:#0f172a; border:1.8px solid #06b6d4; border-radius:6px; color:#ffffff; font-size:1.05rem; font-weight:800; padding:0 10px; outline:none; text-align:center; box-sizing:border-box; box-shadow:0 0 10px rgba(6,182,212,0.25);">
+                            <input type="text" id="ocr-field-bank-name" autocomplete="off" list="master-banks-datalist" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="اسم البنك (مثال: بنك الخرطوم)" style="flex:1; height:38px; background:#0f172a; border:1.8px solid #06b6d4; border-radius:6px; color:#ffffff; font-size:1.05rem; font-weight:800; padding:0 10px; outline:none; text-align:center; box-sizing:border-box; box-shadow:0 0 10px rgba(6,182,212,0.25);">
                         </div>
 
                         <!-- 3. الرقم: ترك كل المساحة للرقم موسط في النص بخط عريض وواضح -->
@@ -828,7 +828,7 @@ if (!window.SYSTEM_APPROVED_ADS || window.SYSTEM_APPROVED_ADS.length === 0) {
                         </div>
                         <div>
                             <label style="display:block; color:#cbd5e1; font-size:0.85rem; font-weight:800; margin-bottom:4px;">اسم البنك المستهدف *</label>
-                            <input type="text" id="new-template-bank" placeholder="مثال: مصرف السلام، بنك العمال، بنك النيل" style="width:100%; height:44px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#fff; font-size:0.95rem; padding:0 10px; outline:none;">
+                            <input type="text" id="new-template-bank" autocomplete="off" list="master-banks-datalist" placeholder="مثال: مصرف السلام، بنك العمال، بنك النيل" style="width:100%; height:44px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:8px; color:#fff; font-size:0.95rem; padding:0 10px; outline:none;">
                         </div>
                     </div>
 

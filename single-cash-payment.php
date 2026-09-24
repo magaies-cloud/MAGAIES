@@ -1885,6 +1885,7 @@ try {
     <script>
         window.SERVER_SINGLE_PAYMENTS = <?php echo $SERVER_SINGLE_PAYMENTS_json; ?>;
     </script>
+    <script defer src="js/master-banks-helper.js?v=<?php echo file_exists('js/master-banks-helper.js') ? filemtime('js/master-banks-helper.js') : '1'; ?>"></script>
     <script defer src="js/single-cash-payment.js?v=<?php echo time(); ?>"></script>
     <script>
         let lastEnterTime = 0;
