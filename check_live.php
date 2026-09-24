@@ -1,13 +1,4 @@
 <?php
-if (isset($_GET['fetch_raw_file'])) {
-    $allowed = ['journal.php', 'test_db.php', 'temp.js'];
-    $f = basename($_GET['fetch_raw_file']);
-    if (in_array($f, $allowed) && file_exists(__DIR__ . '/' . $f)) {
-        header('Content-Type: text/plain; charset=utf-8');
-        echo file_get_contents(__DIR__ . '/' . $f);
-        exit;
-    }
-}
 header('Content-Type: application/json; charset=utf-8');
 
 function getNormalizedHash($filePath) {
