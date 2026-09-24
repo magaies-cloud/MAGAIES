@@ -54,6 +54,7 @@ $files = [
     'js/master-banks-helper.js' => getNormalizedHash(__DIR__ . '/js/master-banks-helper.js'),
     'master-data.php' => getNormalizedHash(__DIR__ . '/master-data.php'),
     'js/erp-whatsapp-suite.js' => getNormalizedHash(__DIR__ . '/js/erp-whatsapp-suite.js'),
+    'preview-ledger.php' => getNormalizedHash(__DIR__ . '/preview-ledger.php'),
 ];
 
 // Check specific keywords inside single-cash-payment.php

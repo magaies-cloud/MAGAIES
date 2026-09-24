@@ -3486,8 +3486,11 @@ try {
                         <div class="auto-send-menu-item" onclick="window.selectSalesAutoSendOption('delivery_order_text')" style="color: #f59e0b;">
                             <span>📝</span> <span>إذن استلام كتابة كمعلومة (نص سريع)</span>
                         </div>
+                        <div class="auto-send-menu-item" onclick="window.selectSalesAutoSendOption('invoice_doc')" style="color: #ca8a04;">
+                            <span>🧾</span> <span>فاتورة مبيعات مصممة (تصميم رسمي)</span>
+                        </div>
                         <div class="auto-send-menu-item" onclick="window.selectSalesAutoSendOption('invoice')" style="color: #10b981;">
-                            <span>💰</span> <span>فاتورة المبيعات وكشف الحساب</span>
+                            <span>💰</span> <span>نص الفاتورة وكشف الحساب</span>
                         </div>
                     </div>
                 </div>

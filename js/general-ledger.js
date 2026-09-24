@@ -2879,7 +2879,19 @@ async function openPresetModal(presetIndex, presetName, isLocked = true) {
                     <span style="background: linear-gradient(135deg, #ca8a04, #854d0e); color: #fff; padding: 4px 14px; border-radius: 16px; font-weight: 900; font-size: 0.95rem;">${presetName}</span>
                     <span style="color: #f8fafc; font-weight: 800; font-size: 1rem;">📄 معاينة وطباعة التقرير بالتصميم المخصص (دفتر الأستاذ)</span>
                 </div>
-                <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button type="button" onclick="window.shareCurrentLedgerReport(${presetIndex}, '${presetName}')" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(59,130,246,0.4);" title="مشاركة كشف الحساب عبر التطبيقات">
+                        🔗 مشاركة
+                    </button>
+
+                    <button type="button" onclick="window.openLedgerWhatsAppModal()" style="background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; border: none; padding: 7px 16px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(37,211,102,0.4);" title="إرسال كشف الحساب للشخص المعني عبر واتساب">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" style="display:inline-block; vertical-align:middle;">
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.115.552 4.103 1.516 5.832L.057 24l6.34-1.662A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" fill="#ffffff"/>
+                            <path fill-rule="evenodd" clip-rule="evenodd" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#ffffff"/>
+                        </svg>
+                        <span>واتساب</span>
+                    </button>
+
                     <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
                         🖨️ طباعة
                     </button>
@@ -2898,6 +2910,64 @@ async function openPresetModal(presetIndex, presetName, isLocked = true) {
     modal.style.display = 'flex';
 }
 window.openPresetModal = openPresetModal;
+
+window.shareCurrentLedgerReport = async function(presetIndex = 0, presetName = 'افتراضي') {
+    let accountName = document.getElementById('chip-name')?.innerText || '';
+    if (!accountName || accountName === 'جميع الحسابات') {
+        const inputVal = document.getElementById('account-search-input')?.value || '';
+        if (inputVal && !inputVal.includes('Enter')) accountName = inputVal.trim();
+    }
+    if (!accountName) accountName = 'كشف حساب عام';
+
+    const dateFrom = document.getElementById('filter-date-from')?.value || '';
+    const dateTo = document.getElementById('filter-date-to')?.value || '';
+    const totalDebit = document.getElementById('launcher-total-debit')?.innerText || '0.00';
+    const totalCredit = document.getElementById('launcher-total-credit')?.innerText || '0.00';
+    const totalBalance = document.getElementById('launcher-total-balance')?.innerText || '0.00';
+
+    const balNum = parseFloat(String(totalBalance).replace(/,/g, '')) || 0;
+    const balType = (balNum > 0) ? 'مدين (عليه)' : ((balNum < 0) ? 'دائن (له)' : 'متزن (0.00)');
+
+    const title = `كشف حساب معتمد - ${accountName}`;
+    const shareText = `*كشف حساب معتمد* 📊\n` +
+        `*الحساب:* ${accountName}\n` +
+        (dateFrom && dateTo ? `*الفترة:* من ${dateFrom} إلى ${dateTo}\n` : '') +
+        `• إجمالي المدين: ${totalDebit} SDG\n` +
+        `• إجمالي الدائن: ${totalCredit} SDG\n` +
+        `• *الرصيد النهائي الحالي:* ${Math.abs(balNum).toLocaleString()} SDG (${balType})\n` +
+        `──────────────────\n` +
+        `نظام السجانة للحلول المحاسبية 🏢`;
+
+    const shareUrl = window.location.href.split('?')[0].replace('general-ledger.php', 'preview-ledger.php') + `?presetIndex=${presetIndex || 0}`;
+
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: title,
+                text: shareText,
+                url: shareUrl
+            });
+            if (typeof showToast === 'function') {
+                showToast('✅ تمت مشاركة كشف الحساب بنجاح', 'success');
+            }
+            return;
+        } catch(err) {
+            if (err.name === 'AbortError') return;
+            console.warn('Navigator share error, falling back:', err);
+        }
+    }
+
+    if (typeof window.openLedgerWhatsAppModal === 'function') {
+        window.openLedgerWhatsAppModal(accountName);
+    } else {
+        navigator.clipboard.writeText(shareText + '\n' + shareUrl);
+        if (typeof showToast === 'function') {
+            showToast('✅ تم نسخ كشف الحساب ورابط المعاينة إلى الحافظة', 'success');
+        } else {
+            alert('✅ تم نسخ كشف الحساب ورابط المعاينة إلى الحافظة بنجاح.');
+        }
+    }
+};
 
 // Attach event listeners to filters to auto-run
 document.addEventListener('DOMContentLoaded', () => {

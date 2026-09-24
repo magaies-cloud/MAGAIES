@@ -292,14 +292,117 @@
     // ═══ Phone Number Helper ═══
     function cleanPhoneNumber(phone) {
         if (!phone) return '';
-        let cleaned = String(phone).replace(/[^\d+]/g, '');
-        // If phone starts with 0 and has 10 digits (e.g., Sudan 09xxxxxxx or 01xxxxxxx)
+        // Normalize Eastern Arabic numerals to Western digits
+        let cleaned = String(phone).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+        cleaned = cleaned.replace(/[^\d+]/g, '');
+        // If phone starts with 0 and has 10 digits (e.g. Sudan 09xxxxxxx or 01xxxxxxx)
         if (cleaned.startsWith('0') && cleaned.length === 10) {
             cleaned = '249' + cleaned.substring(1);
         } else if (cleaned.startsWith('+')) {
             cleaned = cleaned.substring(1);
         }
         return cleaned;
+    }
+
+    // ═══ Robust Arabic Text Normalizer ═══
+    function normalizeArabic(s) {
+        return String(s || '').trim().toLowerCase()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .replace(/[\u064B-\u065F]/g, '') // remove diacritics / tashkeel
+            .replace(/^\[\d+\]\s*/, '')      // remove [123] prefix
+            .replace(/^\d+\s*[-–]\s*/, '')   // remove 123 - prefix
+            .replace(/[^\u0600-\u06FFa-zA-Z0-9]/g, ' ')
+            .replace(/\s+/g, ' ');
+    }
+
+    function extractPhoneFromEntity(obj) {
+        if (!obj) return '';
+        return cleanPhoneNumber(obj.whatsapp || obj.phone || obj.mobile || obj.tel || obj.phone1 || obj.contactNumber || '');
+    }
+
+    // ═══ Universal Party & Phone Resolver ═══
+    function resolvePartyInfo(partyIdOrName) {
+        const result = { name: '', phone: '', type: 'party', id: '' };
+        if (!partyIdOrName) return result;
+
+        const rawStr = String(partyIdOrName).trim();
+        const normQuery = normalizeArabic(rawStr);
+
+        function getStoredList(key) {
+            let list = [];
+            try { list = JSON.parse(localStorage.getItem(key)) || []; } catch(e){}
+            if ((!list || list.length === 0) && typeof getTenantKey === 'function') {
+                try { list = JSON.parse(localStorage.getItem(getTenantKey(key))) || []; } catch(e){}
+            }
+            return Array.isArray(list) ? list : [];
+        }
+
+        const customers = getStoredList('erp_customers_v1');
+        const suppliers = getStoredList('erp_suppliers_v1');
+
+        // 1. Direct ID match
+        let cleanId = rawStr.replace(/^cust-/, '').replace(/^supp-/, '');
+        if (rawStr.startsWith('cust-') || !rawStr.startsWith('supp-')) {
+            const found = customers.find(c => String(c.id) === cleanId || String(c.id) === rawStr);
+            if (found) {
+                result.name = found.name;
+                result.phone = extractPhoneFromEntity(found);
+                result.type = 'customer';
+                result.id = found.id;
+                return result;
+            }
+        }
+        if (rawStr.startsWith('supp-') || !result.phone) {
+            const found = suppliers.find(s => String(s.id) === cleanId || String(s.id) === rawStr);
+            if (found) {
+                result.name = found.name;
+                result.phone = extractPhoneFromEntity(found);
+                result.type = 'supplier';
+                result.id = found.id;
+                return result;
+            }
+        }
+
+        // 2. Name-based match (exact & token search)
+        if (normQuery && normQuery !== 'all' && normQuery !== 'جميع الحسابات' && normQuery !== 'كشف حساب عام') {
+            let found = customers.find(c => normalizeArabic(c.name) === normQuery);
+            if (!found) {
+                const qTokens = normQuery.split(' ').filter(t => t.length > 1);
+                found = customers.find(c => {
+                    const cNorm = normalizeArabic(c.name);
+                    if (cNorm.includes(normQuery) || normQuery.includes(cNorm)) return true;
+                    return qTokens.length > 0 && qTokens.every(tok => cNorm.includes(tok));
+                });
+            }
+            if (found) {
+                result.name = found.name;
+                result.phone = extractPhoneFromEntity(found);
+                result.type = 'customer';
+                result.id = found.id;
+                return result;
+            }
+
+            found = suppliers.find(s => normalizeArabic(s.name) === normQuery);
+            if (!found) {
+                const qTokens = normQuery.split(' ').filter(t => t.length > 1);
+                found = suppliers.find(s => {
+                    const sNorm = normalizeArabic(s.name);
+                    if (sNorm.includes(normQuery) || normQuery.includes(sNorm)) return true;
+                    return qTokens.length > 0 && qTokens.every(tok => sNorm.includes(tok));
+                });
+            }
+            if (found) {
+                result.name = found.name;
+                result.phone = extractPhoneFromEntity(found);
+                result.type = 'supplier';
+                result.id = found.id;
+                return result;
+            }
+        }
+
+        return result;
     }
 
     // ═══ Get Auto-Send Settings ═══
@@ -343,8 +446,10 @@
             if (icon) icon.innerHTML = '⚡';
             
             let label = 'مفعّل (إذن استلام)';
-            if (s.mode === 'invoice') label = 'مفعّل (فاتورة وكشف)';
+            if (s.mode === 'invoice_doc') label = 'مفعّل (فاتورة مصممة)';
+            else if (s.mode === 'invoice') label = 'مفعّل (فاتورة وكشف)';
             else if (s.mode === 'delivery_order_text') label = 'مفعّل (إذن نصي)';
+            else if (s.mode === 'delivery_order_doc') label = 'مفعّل (إذن رسمي)';
 
             if (pill) {
                 pill.textContent = label;
@@ -383,8 +488,10 @@
             if (icon) icon.innerHTML = '⚡';
             
             let label = 'مفعّل (إذن توريد)';
-            if (s.mode === 'invoice') label = 'مفعّل (فاتورة شراء)';
+            if (s.mode === 'invoice_doc') label = 'مفعّل (فاتورة شراء مصممة)';
+            else if (s.mode === 'invoice') label = 'مفعّل (فاتورة الشراء)';
             else if (s.mode === 'receipt_order_text') label = 'مفعّل (إذن نصي)';
+            else if (s.mode === 'receipt_order_doc') label = 'مفعّل (إذن رسمي)';
 
             if (pill) {
                 pill.textContent = label;
@@ -479,15 +586,18 @@
 
                     <!-- Footer Actions -->
                     <div class="erp-wa-footer">
-                        <div style="display:flex; gap:8px;">
+                        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
                             <button type="button" class="btn" onclick="window.copySuiteWAMessage()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; border-radius:10px; padding:8px 14px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
                                 <span>📋</span> نسخ النص
+                            </button>
+                            <button type="button" class="btn" onclick="window.shareActiveSuiteDocument()" style="background:linear-gradient(135deg, rgba(59,130,246,0.25), rgba(29,78,216,0.35)); border:1.5px solid #3b82f6; color:#93c5fd; border-radius:10px; padding:8px 14px; font-weight:bold; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px;" title="مشاركة المستند عبر مختلف التطبيقات (واتساب، إيميل، تيليجرام...)">
+                                <span>🔗</span> مشاركة
                             </button>
                             <button type="button" id="erp-wa-btn-print-doc" class="btn" onclick="window.printSuiteWADocument()" style="display:none; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; border-radius:10px; padding:8px 14px; font-weight:bold; font-size:0.85rem; cursor:pointer; align-items:center; gap:6px;">
                                 <span>🖨️</span> طباعة / PDF
                             </button>
                         </div>
-                        <div style="display:flex; gap:8px;">
+                        <div style="display:flex; gap:8px; align-items:center;">
                             <button type="button" class="btn" onclick="window.executeSuiteWASend('web')" style="background:linear-gradient(135deg, #25d366, #128c7e); border:none; color:#fff; border-radius:10px; padding:9px 18px; font-weight:900; font-size:0.92rem; cursor:pointer; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 14px rgba(37,211,102,0.4);">
                                 <span>🚀</span> إرسال عبر واتساب
                             </button>
@@ -520,6 +630,46 @@
                 alert('✅ تم نسخ نص الرسالة بنجاح');
             }
         });
+    };
+
+    // ═══ Share Document via Web Share API ═══
+    window.shareActiveSuiteDocument = async function() {
+        if (!activeModalContext) return;
+        const textEl = document.getElementById('erp-wa-preview-text');
+        const messageText = textEl ? (textEl.textContent || textEl.innerText) : '';
+        const phoneInput = document.getElementById('erp-wa-phone-input');
+        const phone = cleanPhoneNumber(phoneInput ? phoneInput.value : '');
+
+        let title = 'مستند نظام السجانة المحاسبي';
+        if (activeModalContext.screen === 'sales') {
+            title = `مستند مبيعات #${activeModalContext.data?.invoiceNo || ''}`;
+        } else if (activeModalContext.screen === 'purchase') {
+            title = `مستند مشتريات #${activeModalContext.data?.invoiceNo || ''}`;
+        } else if (activeModalContext.screen === 'ledger') {
+            title = `كشف حساب - ${activeModalContext.data?.accountName || ''}`;
+        }
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: title,
+                    text: messageText
+                });
+                if (typeof showToast === 'function') {
+                    showToast('✅ تمت المشاركة بنجاح عبر التطبيقات', 'success');
+                }
+                return;
+            } catch(e) {
+                if (e.name === 'AbortError') return;
+            }
+        }
+
+        // Fallback: If phone present, trigger direct WhatsApp; else copy text
+        if (phone) {
+            window.executeSuiteWASend('web');
+        } else {
+            window.copySuiteWAMessage();
+        }
     };
 
     // ═══ Print / PDF Document ═══
@@ -664,13 +814,18 @@
         // Resolve customer details & phone
         let custPhone = inv.customerPhone || '';
         let custName = inv.customerName || 'عميل نقدي';
-        if (!custPhone && inv.customer && inv.customer !== 'walk-in') {
-            let customers = [];
-            try { customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e){}
-            const custObj = customers.find(c => String(c.id) === String(inv.customer));
-            if (custObj) {
-                custPhone = custObj.whatsapp || custObj.phone || custObj.mobile || '';
-                custName = custObj.name || custName;
+        if (!custPhone || !custName || custName === 'عميل نقدي') {
+            const info = resolvePartyInfo(inv.customer || custName);
+            if (info) {
+                if (info.phone && !custPhone) custPhone = info.phone;
+                if (info.name && (!custName || custName === 'عميل نقدي')) custName = info.name;
+            }
+        }
+        if (!custPhone) {
+            const searchVal = document.getElementById('hdr-customer-search')?.value;
+            if (searchVal) {
+                const info = resolvePartyInfo(searchVal);
+                if (info && info.phone) custPhone = info.phone;
             }
         }
 
@@ -697,8 +852,11 @@
             <button type="button" class="erp-wa-tab-btn" data-tab="delivery_order_text" id="tab-sales-do-txt" onclick="window.switchSuiteWATab('delivery_order_text')">
                 <span>📝</span> إذن استلام نصي كمعلومة
             </button>
+            <button type="button" class="erp-wa-tab-btn" data-tab="invoice_doc" id="tab-sales-inv-doc" onclick="window.switchSuiteWATab('invoice_doc')">
+                <span>🧾</span> فاتورة مبيعات مصممة (رسمي)
+            </button>
             <button type="button" class="erp-wa-tab-btn" data-tab="invoice" id="tab-sales-inv" onclick="window.switchSuiteWATab('invoice')">
-                <span>💰</span> الفاتورة وكشف الحساب
+                <span>💰</span> نص الفاتورة وكشف الحساب
             </button>
         `;
 
@@ -783,13 +941,18 @@
 
         let suppPhone = inv.supplierPhone || '';
         let suppName = inv.supplierName || 'مورد عام';
-        if (!suppPhone && inv.supplier && inv.supplier !== 'walk-in') {
-            let suppliers = [];
-            try { suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e){}
-            const suppObj = suppliers.find(s => String(s.id) === String(inv.supplier));
-            if (suppObj) {
-                suppPhone = suppObj.whatsapp || suppObj.phone || suppObj.mobile || '';
-                suppName = suppObj.name || suppName;
+        if (!suppPhone || !suppName || suppName === 'مورد عام') {
+            const info = resolvePartyInfo(inv.supplier || suppName);
+            if (info) {
+                if (info.phone && !suppPhone) suppPhone = info.phone;
+                if (info.name && (!suppName || suppName === 'مورد عام')) suppName = info.name;
+            }
+        }
+        if (!suppPhone) {
+            const searchVal = document.getElementById('hdr-supplier-search')?.value || document.getElementById('hdr-customer-search')?.value;
+            if (searchVal) {
+                const info = resolvePartyInfo(searchVal);
+                if (info && info.phone) suppPhone = info.phone;
             }
         }
 
@@ -816,8 +979,11 @@
             <button type="button" class="erp-wa-tab-btn" data-tab="receipt_order_text" id="tab-purchase-ro-txt" onclick="window.switchSuiteWATab('receipt_order_text')">
                 <span>📝</span> إذن توريد نصي كمعلومة
             </button>
+            <button type="button" class="erp-wa-tab-btn" data-tab="invoice_doc" id="tab-purchase-inv-doc" onclick="window.switchSuiteWATab('invoice_doc')">
+                <span>🧾</span> فاتورة شراء مصممة (رسمي)
+            </button>
             <button type="button" class="erp-wa-tab-btn" data-tab="invoice" id="tab-purchase-inv" onclick="window.switchSuiteWATab('invoice')">
-                <span>💰</span> فاتورة الشراء وحساب المورد
+                <span>💰</span> نص فاتورة الشراء وحساب المورد
             </button>
         `;
 
@@ -829,12 +995,20 @@
     // 3. GENERAL LEDGER / STATEMENT LOGIC (general-ledger.php)
     // ══════════════════════════════════════════════════════════════════════════
 
-    window.openLedgerWhatsAppModal = function() {
+    window.openLedgerWhatsAppModal = function(paramAccountName = null, paramPhone = null) {
         initSuiteStyles();
         initSuiteModal();
 
         const accountId = document.getElementById('filter-account')?.value || 'ALL';
-        const accountName = document.getElementById('chip-name')?.innerText || 'كشف حساب عام';
+        let accountName = paramAccountName || document.getElementById('chip-name')?.innerText || '';
+        if (!accountName || accountName === 'جميع الحسابات') {
+            const inputVal = document.getElementById('account-search-input')?.value || '';
+            if (inputVal && !inputVal.includes('Enter')) {
+                accountName = inputVal.trim();
+            }
+        }
+        if (!accountName) accountName = 'كشف حساب عام';
+
         const dateFrom = document.getElementById('filter-date-from')?.value || 'البداية';
         const dateTo = document.getElementById('filter-date-to')?.value || 'الآن';
 
@@ -843,19 +1017,35 @@
         const totalBalance = document.getElementById('launcher-total-balance')?.innerText || '0.00';
 
         // Detect Phone Number
-        let partyPhone = '';
-        if (accountId.startsWith('cust-')) {
-            const cId = accountId.replace('cust-', '');
-            let custs = [];
-            try { custs = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e){}
-            const c = custs.find(x => String(x.id) === String(cId));
-            if (c) partyPhone = c.whatsapp || c.phone || '';
-        } else if (accountId.startsWith('supp-')) {
-            const sId = accountId.replace('supp-', '');
-            let supps = [];
-            try { supps = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []; } catch(e){}
-            const s = supps.find(x => String(x.id) === String(sId));
-            if (s) partyPhone = s.whatsapp || s.phone || '';
+        let partyPhone = paramPhone || '';
+        if (!partyPhone) {
+            // First check by accountId if present
+            if (accountId && accountId !== 'ALL') {
+                const info = resolvePartyInfo(accountId);
+                if (info && info.phone) {
+                    partyPhone = info.phone;
+                    if (info.name && (!accountName || accountName === 'كشف حساب عام')) accountName = info.name;
+                }
+            }
+            // If still no phone, check by accountName
+            if (!partyPhone && accountName && accountName !== 'كشف حساب عام') {
+                const info = resolvePartyInfo(accountName);
+                if (info && info.phone) {
+                    partyPhone = info.phone;
+                    if (info.name) accountName = info.name;
+                }
+            }
+            // If still no phone, check search input
+            if (!partyPhone) {
+                const searchVal = document.getElementById('account-search-input')?.value || '';
+                if (searchVal && searchVal.length > 2) {
+                    const info = resolvePartyInfo(searchVal);
+                    if (info && info.phone) {
+                        partyPhone = info.phone;
+                        if (info.name && accountName === 'كشف حساب عام') accountName = info.name;
+                    }
+                }
+            }
         }
 
         activeModalContext = {
@@ -885,7 +1075,7 @@
                 <span>📝</span> ملخص كشف الحساب كنص سريع
             </button>
             <button type="button" class="erp-wa-tab-btn" data-tab="statement_pdf" id="tab-ledger-pdf" onclick="window.switchSuiteWATab('statement_pdf')">
-                <span>📄</span> كشف حساب معتمد (PDF)
+                <span>📄</span> كشف حساب معتمد (تصميم رسمي / PDF)
             </button>
         `;
 
@@ -905,7 +1095,7 @@
         document.querySelectorAll('.erp-wa-tab-btn').forEach(btn => {
             const btnTab = btn.getAttribute('data-tab');
             const btnOnclick = btn.getAttribute('onclick') || '';
-            if (btnTab === tabName || btnOnclick.includes(tabName)) {
+            if (btnTab === tabName || btnOnclick.includes(`'${tabName}'`)) {
                 btn.classList.add('active');
             } else {
                 btn.classList.remove('active');
@@ -921,7 +1111,10 @@
         // Reset visibility
         textEl.style.display = 'block';
         docWrap.style.display = 'none';
-        if (btnPrint) btnPrint.style.display = 'none';
+        if (btnPrint) {
+            btnPrint.style.display = 'none';
+            btnPrint.innerHTML = '<span>🖨️</span> طباعة / PDF';
+        }
 
         if (activeModalContext.screen === 'sales') {
             const inv = activeModalContext.data;
@@ -969,6 +1162,25 @@
                     `*صافي القيمة الإجمالية:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n` +
                     (inv.notes ? `*ملاحظات التسليم:* ${inv.notes}\n` : '') +
                     `شاكرين ومقدرين حسن تعاملكم معنا 🌟`;
+
+                textEl.textContent = waText;
+                charCountEl.textContent = `${waText.length} حرف`;
+            } else if (tabName === 'invoice_doc') {
+                descEl.innerHTML = '🧾 <strong>فاتورة مبيعات مصممة (تصميم رسمي معتمد):</strong> مستند مالي كامل بكافة البيانات، الأصناف، الأسعار، الضرائب، الصافي والتوقيعات الرسمية، جاهز للطباعة والتصدير والإرسال.';
+                const docHtml = generateInvoiceHTML(inv, 'sales');
+                activeModalContext.docHtml = docHtml;
+
+                docWrap.innerHTML = docHtml;
+                docWrap.style.display = 'block';
+                if (btnPrint) btnPrint.style.display = 'inline-flex';
+
+                const waText = `*فاتورة مبيعات معتمدة مصممة* 🧾\n` +
+                    `*رقم الفاتورة:* #${inv.invoiceNo}\n` +
+                    `*التاريخ:* ${inv.date}\n` +
+                    `*العميل الكريم:* ${activeModalContext.customerName}\n` +
+                    `*إجمالي الفاتورة:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n\n` +
+                    `مرفق طيه التصميم الرسمي المعتمد للفاتورة بكافة التفاصيل والبنود.\n` +
+                    `شاكرين لكم حسن تعاملكم معنا ✨`;
 
                 textEl.textContent = waText;
                 charCountEl.textContent = `${waText.length} حرف`;
@@ -1042,6 +1254,25 @@
 
                 textEl.textContent = waText;
                 charCountEl.textContent = `${waText.length} حرف`;
+            } else if (tabName === 'invoice_doc') {
+                descEl.innerHTML = '🧾 <strong>فاتورة شراء مصممة (تصميم رسمي معتمد):</strong> مستند مالي كامل بكافة الأصناف وأسعار الشراء وإجمالي المبالغ المقيدة لحساب المورد.';
+                const docHtml = generateInvoiceHTML(inv, 'purchase');
+                activeModalContext.docHtml = docHtml;
+
+                docWrap.innerHTML = docHtml;
+                docWrap.style.display = 'block';
+                if (btnPrint) btnPrint.style.display = 'inline-flex';
+
+                const waText = `*فاتورة شراء معتمدة مصممة* 🧾\n` +
+                    `*رقم الفاتورة:* #${inv.invoiceNo}\n` +
+                    `*التاريخ:* ${inv.date}\n` +
+                    `*المورد:* ${activeModalContext.supplierName}\n` +
+                    `*صافي القيمة:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n\n` +
+                    `مرفق طيه فاتورة الشراء المعتمدة مصممة بالمبالغ المقيدة لحسابكم.\n` +
+                    `مع تحيات الإدارة المالية 🏢`;
+
+                textEl.textContent = waText;
+                charCountEl.textContent = `${waText.length} حرف`;
             } else if (tabName === 'invoice') {
                 descEl.innerHTML = '💰 <strong>فاتورة الشراء وحساب المورد:</strong> تفاصيل الفاتورة المالية والمبالغ المقيدة لحساب المورد.';
                 const waText = `*فاتورة شراء وحساب مورد* 💼\n` +
@@ -1091,11 +1322,16 @@
 
                 textEl.textContent = waText;
                 charCountEl.textContent = `${waText.length} حرف`;
-            } else if (tabName === 'statement_pdf') {
-                descEl.innerHTML = '📄 <strong>كشف الحساب المعتمد (PDF):</strong> معاينة وتصميم وطباعة التقرير الشامل تمهيداً للإرسال أو التنزيل.';
+            } else if (tabName === 'statement_pdf' || tabName === 'statement_doc') {
+                descEl.innerHTML = '📄 <strong>كشف الحساب المعتمد (تصميم رسمي / PDF):</strong> كشف الحساب المالي المعتمد بكافة الحركات والأرصدة والتوقيعات الرسمية.';
+                const docHtml = generateStatementHTML(d);
+                activeModalContext.docHtml = docHtml;
+
+                docWrap.innerHTML = docHtml;
+                docWrap.style.display = 'block';
                 if (btnPrint) {
                     btnPrint.style.display = 'inline-flex';
-                    btnPrint.innerHTML = '<span>👁️</span> فتح استوديو المعاينة والطباعة';
+                    btnPrint.innerHTML = '<span>🖨️</span> طباعة / PDF';
                 }
 
                 const waText = `*كشف حساب تفصيلي معتمد* 📊\n` +
@@ -1217,6 +1453,210 @@
     }
 
     // ══════════════════════════════════════════════════════════════════════════
+    // HTML Template Generator for Official Financial Invoices (With Prices & Taxes)
+    // ══════════════════════════════════════════════════════════════════════════
+
+    function generateInvoiceHTML(doc, type = 'sales') {
+        const isSales = (type === 'sales');
+        const title = isSales ? 'فاتورة مبيعات ضريبية معتمدة' : 'فاتورة شراء وتوريد معتمدة';
+        const partyLabel = isSales ? 'اسم العميل / المشتري:' : 'اسم المورد:';
+        const partyName = isSales ? (doc.customerName || 'عميل نقدي') : (doc.supplierName || 'مورد عام');
+        const invNo = doc.invoiceNo || 'INV-001';
+        const currency = doc.currency || 'SDG';
+        const items = doc.items || [];
+
+        let rowsHtml = '';
+        let grandCalc = 0;
+
+        if (items.length === 0) {
+            rowsHtml = `
+                <tr>
+                    <td colspan="6" style="padding: 18px; text-align: center; color: #64748b; font-weight: bold;">لا توجد أصناف مدخلة بعد</td>
+                </tr>
+            `;
+        } else {
+            items.forEach((it, idx) => {
+                const name = it.name || it.itemName || 'صنف';
+                const unit = it.unit || it.selectedUnit || 'وحدة';
+                const qty = parseFloat(it.quantity || it.qty || 0);
+                const price = parseFloat(it.price || it.unitPrice || 0);
+                const total = parseFloat(it.total) || (qty * price);
+                grandCalc += total;
+
+                rowsHtml += `
+                    <tr style="border-bottom: 1px solid #e2e8f0;">
+                        <td style="padding: 8px 10px; text-align: center; font-weight: bold;">${idx + 1}</td>
+                        <td style="padding: 8px 10px; font-weight: bold; color: #0f172a;">${name}</td>
+                        <td style="padding: 8px 10px; text-align: center; color: #475569;">${unit}</td>
+                        <td style="padding: 8px 10px; text-align: center; font-weight: 800; color: #0284c7;">${qty.toLocaleString()}</td>
+                        <td style="padding: 8px 10px; text-align: center; font-family: monospace; font-weight: bold;">${price.toLocaleString()} ${currency}</td>
+                        <td style="padding: 8px 10px; text-align: center; font-family: monospace; font-weight: 900; color: #10b981;">${total.toLocaleString()} ${currency}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        const grandFinal = doc.grandTotal ? String(doc.grandTotal) : grandCalc.toLocaleString();
+
+        return `
+            <div style="font-family: 'Tajawal', Arial, sans-serif; direction: rtl; padding: 20px; border: 2px solid #0f172a; border-radius: 12px; background: #ffffff; color: #0f172a;">
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ca8a04; padding-bottom: 12px; margin-bottom: 15px;">
+                    <div>
+                        <h2 style="margin: 0; font-size: 1.4rem; color: #0f172a; font-weight: 900;">${title}</h2>
+                        <span style="font-size: 0.85rem; color: #64748b; font-weight: bold;">مستند مالي رسمي معتمد - نظام السجانة المحاسبي</span>
+                    </div>
+                    <div style="text-align: left;">
+                        <div style="font-weight: 900; font-size: 1.2rem; color: #ca8a04; font-family: monospace;">#${invNo}</div>
+                        <div style="font-size: 0.82rem; color: #475569;">التاريخ: ${doc.date || ''}</div>
+                    </div>
+                </div>
+
+                <!-- Party & Metadata Box -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 15px; font-size: 0.88rem;">
+                    <div><strong>${partyLabel}</strong> ${partyName}</div>
+                    <div><strong>العملة:</strong> ${currency}</div>
+                    <div><strong>طريقة السداد:</strong> ${doc.paymentMethod === 'credit' ? 'آجل' : 'نقدي / بنكي'}</div>
+                    <div><strong>حالة المستند:</strong> <span style="background:#dcfce7; color:#15803d; padding:2px 8px; border-radius:4px; font-weight:bold;">معتمد ومقيد بالدفاتر</span></div>
+                </div>
+
+                <!-- Items Table -->
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 0.88rem;">
+                    <thead>
+                        <tr style="background: #0f172a; color: #ffffff;">
+                            <th style="padding: 8px 10px; width: 40px; text-align: center;">#</th>
+                            <th style="padding: 8px 10px; text-align: right;">بيان الصنف والمواصفات</th>
+                            <th style="padding: 8px 10px; width: 70px; text-align: center;">الوحدة</th>
+                            <th style="padding: 8px 10px; width: 90px; text-align: center;">الكمية</th>
+                            <th style="padding: 8px 10px; width: 110px; text-align: center;">سعر الوحدة</th>
+                            <th style="padding: 8px 10px; width: 130px; text-align: center;">الإجمالي</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background: #f1f5f9; font-weight: bold; border-top: 2px solid #0f172a;">
+                            <td colspan="5" style="padding: 10px; text-align: left; font-size: 1rem;">صافي القيمة الإجمالية:</td>
+                            <td style="padding: 10px; text-align: center; color: #10b981; font-size: 1.25rem; font-family: monospace;">${grandFinal} ${currency}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+
+                <!-- Signatures -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; border-top: 1px dashed #cbd5e1; padding-top: 15px; text-align: center; font-size: 0.82rem;">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 25px; color: #475569;">المحاسب المسؤول:</div>
+                        <div style="border-bottom: 1px dotted #94a3b8; width: 80%; margin: 0 auto;"></div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 25px; color: #475569;">اعتماد الإدارة المالية:</div>
+                        <div style="border-bottom: 1px dotted #94a3b8; width: 80%; margin: 0 auto;"></div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 25px; color: #475569;">توقيع المستلم:</div>
+                        <div style="border-bottom: 1px dotted #94a3b8; width: 80%; margin: 0 auto;"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    // HTML Template Generator for Official Statement of Account (General Ledger)
+    // ══════════════════════════════════════════════════════════════════════════
+
+    function generateStatementHTML(d) {
+        const balNum = parseFloat(String(d.totalBalance).replace(/,/g, '')) || 0;
+        const balType = (balNum > 0) ? 'مدين (عليه)' : ((balNum < 0) ? 'دائن (له)' : 'متزن (0.00)');
+        const balColor = (balNum > 0) ? '#dc2626' : ((balNum < 0) ? '#16a34a' : '#0284c7');
+
+        let rowsHtml = '';
+        const txns = (window.currentTxns && Array.isArray(window.currentTxns)) ? window.currentTxns.slice(-25) : [];
+        if (txns.length === 0) {
+            rowsHtml = `
+                <tr>
+                    <td colspan="5" style="padding: 18px; text-align: center; color: #64748b; font-weight: bold;">لا توجد حركات مسجلة خلال الفترة المحددة</td>
+                </tr>
+            `;
+        } else {
+            txns.forEach((t, idx) => {
+                const date = t.date || '-';
+                const stmt = t.statement || t.desc || t.memo || 'حركة حساب';
+                const deb = parseFloat(t.debit) || 0;
+                const crd = parseFloat(t.credit) || 0;
+
+                rowsHtml += `
+                    <tr style="border-bottom: 1px solid #e2e8f0; font-size: 0.85rem;">
+                        <td style="padding: 6px 8px; text-align: center; font-weight: bold;">${idx + 1}</td>
+                        <td style="padding: 6px 8px; text-align: center;">${date}</td>
+                        <td style="padding: 6px 8px; font-weight: bold; color: #0f172a;">${stmt}</td>
+                        <td style="padding: 6px 8px; text-align: center; font-family: monospace; color: #dc2626;">${deb > 0 ? deb.toLocaleString() : '-'}</td>
+                        <td style="padding: 6px 8px; text-align: center; font-family: monospace; color: #16a34a;">${crd > 0 ? crd.toLocaleString() : '-'}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        return `
+            <div style="font-family: 'Tajawal', Arial, sans-serif; direction: rtl; padding: 18px; border: 2px solid #0f172a; border-radius: 12px; background: #ffffff; color: #0f172a;">
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #0284c7; padding-bottom: 10px; margin-bottom: 14px;">
+                    <div>
+                        <h2 style="margin: 0; font-size: 1.35rem; color: #0f172a; font-weight: 900;">كشف حساب مالي معتمد</h2>
+                        <span style="font-size: 0.82rem; color: #64748b; font-weight: bold;">دفتر الأستاذ العام - نظام السجانة المحاسبي</span>
+                    </div>
+                    <div style="text-align: left;">
+                        <div style="font-size: 0.82rem; color: #475569;">تاريخ الطباعة: ${new Date().toISOString().split('T')[0]}</div>
+                    </div>
+                </div>
+
+                <!-- Account & Period Details -->
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 0.88rem;">
+                    <div><strong>اسم الحساب:</strong> <span style="font-weight: 900; color: #0284c7;">${d.accountName}</span></div>
+                    <div><strong>الفترة:</strong> من ${d.dateFrom} إلى ${d.dateTo}</div>
+                    <div><strong>إجمالي المدين:</strong> ${d.totalDebit} SDG</div>
+                    <div><strong>إجمالي الدائن:</strong> ${d.totalCredit} SDG</div>
+                </div>
+
+                <!-- Balance Banner -->
+                <div style="background: #f1f5f9; border: 1.5px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 900; font-size: 0.95rem;">الرصيد النهائي المستحق:</span>
+                    <span style="font-family: monospace; font-size: 1.25rem; font-weight: 900; color: ${balColor};">${Math.abs(balNum).toLocaleString()} SDG (${balType})</span>
+                </div>
+
+                <!-- Transactions Table -->
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+                    <thead>
+                        <tr style="background: #0f172a; color: #ffffff; font-size: 0.82rem;">
+                            <th style="padding: 7px; width: 35px; text-align: center;">#</th>
+                            <th style="padding: 7px; width: 90px; text-align: center;">التاريخ</th>
+                            <th style="padding: 7px; text-align: right;">البيان / الحركة</th>
+                            <th style="padding: 7px; width: 100px; text-align: center;">مدين (+)</th>
+                            <th style="padding: 7px; width: 100px; text-align: center;">دائن (-)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+
+                <!-- Signatures -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border-top: 1px dashed #cbd5e1; padding-top: 12px; text-align: center; font-size: 0.8rem;">
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 25px; color: #475569;">توقيع المحاسب / الإدارة المالية:</div>
+                        <div style="border-bottom: 1px dotted #94a3b8; width: 70%; margin: 0 auto;"></div>
+                    </div>
+                    <div>
+                        <div style="font-weight: bold; margin-bottom: 25px; color: #475569;">توقيع العميل / المصادقة على الرصيد:</div>
+                        <div style="border-bottom: 1px dotted #94a3b8; width: 70%; margin: 0 auto;"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
     // Automatic Send Hook Triggers (Post-Submit)
     // ══════════════════════════════════════════════════════════════════════════
 
@@ -1298,11 +1738,45 @@
         bindWhatsAppButtons();
     }
 
-    document.addEventListener('DOMContentLoaded', initAllSuiteFeatures);
+    // Export Globals
+    window.resolvePartyInfo = resolvePartyInfo;
+    if (typeof window.shareCurrentLedgerReport !== 'function') {
+        window.shareCurrentLedgerReport = async function(presetIndex = 0, presetName = 'افتراضي') {
+            let accountName = document.getElementById('chip-name')?.innerText || '';
+            if (!accountName || accountName === 'جميع الحسابات') {
+                const inputVal = document.getElementById('account-search-input')?.value || '';
+                if (inputVal && !inputVal.includes('Enter')) accountName = inputVal.trim();
+            }
+            if (!accountName) accountName = 'كشف حساب عام';
 
-    // Run immediately if DOM is already parsed
-    if (document.readyState === 'interactive' || document.readyState === 'complete') {
-        initAllSuiteFeatures();
+            const totalBalance = document.getElementById('launcher-total-balance')?.innerText || '0.00';
+            const balNum = parseFloat(String(totalBalance).replace(/,/g, '')) || 0;
+            const balType = (balNum > 0) ? 'مدين (عليه)' : ((balNum < 0) ? 'دائن (له)' : 'متزن (0.00)');
+
+            const shareText = `*كشف حساب معتمد* 📊\n` +
+                `*الحساب:* ${accountName}\n` +
+                `*الرصيد النهائي الحالي:* ${Math.abs(balNum).toLocaleString()} SDG (${balType})\n` +
+                `نظام السجانة للحلول المحاسبية 🏢`;
+
+            const shareUrl = window.location.href.split('?')[0].replace('general-ledger.php', 'preview-ledger.php') + `?presetIndex=${presetIndex || 0}`;
+
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: `كشف حساب معتمد - ${accountName}`,
+                        text: shareText,
+                        url: shareUrl
+                    });
+                    if (typeof showToast === 'function') showToast('✅ تمت المشاركة بنجاح', 'success');
+                    return;
+                } catch(e) {
+                    if (e.name === 'AbortError') return;
+                }
+            }
+            if (typeof window.openLedgerWhatsAppModal === 'function') {
+                window.openLedgerWhatsAppModal(accountName);
+            }
+        };
     }
 
 })(window, document);

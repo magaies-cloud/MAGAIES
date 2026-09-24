@@ -687,8 +687,8 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         
         <!-- Controls: Preview Studio & WhatsApp Dispatch -->
         <div class="no-print" style="display: flex; gap: 8px; align-items: center; border-right: 1px solid rgba(255,255,255,0.12); padding-right: 14px; margin-right: 2px; flex-wrap: wrap;">
-            <button type="button" class="luxury-action-btn luxury-btn-primary" onclick="openPreviewDesign()" title="فتح استوديو المعاينة والتصميم والطباعة" style="--btn-color: #a855f7;">
-                <span style="font-size: 1.1rem;">👁️</span> معاينة التقرير
+            <button type="button" class="luxury-action-btn luxury-btn-primary" onclick="shareCurrentLedgerReport()" title="مشاركة كشف الحساب عبر مختلف التطبيقات (واتساب، إيميل، تيليجرام...)" style="--btn-color: #3b82f6;">
+                <span style="font-size: 1.1rem;">🔗</span> مشاركة كشف الحساب
             </button>
 
             <!-- زر الواتساب الصغير بشعار الواتساب الرسمي لكشف الحساب -->

@@ -522,11 +522,35 @@
                     setTimeout(() => { window.history.back(); }, 800);
                 }
             }
+            function shareCurrentLedgerReportFromPreview() {
+                if (window.parent && window.parent !== window && typeof window.parent.shareCurrentLedgerReport === 'function') {
+                    window.parent.shareCurrentLedgerReport(window.currentPresetIndex || 0, 'كشف الحساب');
+                } else if (typeof window.shareCurrentLedgerReport === 'function') {
+                    window.shareCurrentLedgerReport(window.currentPresetIndex || 0, 'كشف الحساب');
+                } else if (typeof window.openLedgerWhatsAppModal === 'function') {
+                    window.openLedgerWhatsAppModal();
+                }
+            }
+            function openLedgerWhatsAppFromPreview() {
+                if (window.parent && window.parent !== window && typeof window.parent.openLedgerWhatsAppModal === 'function') {
+                    window.parent.openLedgerWhatsAppModal();
+                } else if (typeof window.openLedgerWhatsAppModal === 'function') {
+                    window.openLedgerWhatsAppModal();
+                }
+            }
         }
         </script>
 
         <button class="ribbon-btn" onclick="executePrintWithPermission()" style="--btn-color: #0ea5e9;">
             <span style="font-size: 1.05rem;">🖨️</span> طباعة
+        </button>
+
+        <button class="ribbon-btn" onclick="shareCurrentLedgerReportFromPreview()" style="--btn-color: #3b82f6;" title="مشاركة كشف الحساب عبر مختلف التطبيقات">
+            <span style="font-size: 1.05rem;">🔗</span> مشاركة
+        </button>
+
+        <button class="ribbon-btn" onclick="openLedgerWhatsAppFromPreview()" style="--btn-color: #25d366;" title="إرسال كشف الحساب عبر واتساب">
+            <span style="font-size: 1.05rem;">💬</span> واتساب
         </button>
 
         <!-- Settings and Save Group -->
@@ -625,6 +649,7 @@
 <script src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 <script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
 <script src="js/preview-ledger.js?v=<?php echo time(); ?>"></script>
+<script defer src="js/erp-whatsapp-suite.js?v=<?php echo time(); ?>"></script>
 
 <script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>

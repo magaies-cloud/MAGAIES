@@ -2402,8 +2402,11 @@ try {
                         <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('receipt_order_text')" style="color: #f59e0b;">
                             <span>📝</span> <span>إذن توريد كتابة كمعلومة (نص سريع)</span>
                         </div>
+                        <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('invoice_doc')" style="color: #ca8a04;">
+                            <span>🧾</span> <span>فاتورة شراء مصممة (تصميم رسمي)</span>
+                        </div>
                         <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('invoice')" style="color: #10b981;">
-                            <span>💰</span> <span>فاتورة الشراء وحساب المورد</span>
+                            <span>💰</span> <span>نص فاتورة الشراء وحساب المورد</span>
                         </div>
                     </div>
                 </div>
