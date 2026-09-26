@@ -1084,12 +1084,27 @@
             if (res && res.ok && data && data.success !== false && data.token) {
                 document.cookie = "session_active=true; path=/";
                 document.cookie = "saas_token=" + encodeURIComponent(data.token) + "; path=/; max-age=2592000; SameSite=Lax";
+                if (data.user && data.user.tenant_id) {
+                    document.cookie = "currentTenantId=" + encodeURIComponent(data.user.tenant_id) + "; path=/; max-age=2592000; SameSite=Lax";
+                    localStorage.setItem('currentTenantId', String(data.user.tenant_id));
+                }
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
                 sessionStorage.removeItem('cloud_synced');
                 localStorage.setItem('authToken', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
+
+                // 🛡️ IRON-CLAD BARRIER: Clear cross-tenant memory & legacy un-prefixed keys
+                if (typeof window.DB_STORE !== 'undefined') window.DB_STORE = {};
                 if (typeof window._clearTenantCache === 'function') window._clearTenantCache();
+                try {
+                    localStorage.removeItem('company_logo_base64');
+                    localStorage.removeItem('companyName');
+                    localStorage.removeItem('erp_settings_v1');
+                    document.cookie = "erp_settings_backup=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    document.cookie = "erp_rate_usd_backup=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                } catch(e) {}
+
                 const userNameToDisplay = data.user.fullName || data.user.name || data.user.username || 'المستخدم';
                 showLoginSuccessAnimation(userNameToDisplay, data.user.subdomain, data.token, JSON.stringify(data.user));
                 return;
@@ -1121,16 +1136,33 @@
                         username: username,
                         fullName: 'مدير النظام (محلي)',
                         role: 'admin',
-                        subdomain: ''
+                        subdomain: '',
+                        valid_until: '2035-12-31 23:59:59',
+                        status: 'active',
+                        company_name: 'مؤسسة مقاييس المعتمدة'
                     };
                     const offlineToken = 'offline_token_' + Date.now();
                     document.cookie = "session_active=true; path=/";
                     document.cookie = "saas_token=" + encodeURIComponent(offlineToken) + "; path=/; max-age=2592000; SameSite=Lax";
+                    document.cookie = "currentTenantId=" + encodeURIComponent(fallbackUser.tenant_id || 1) + "; path=/; max-age=2592000; SameSite=Lax";
                     sessionStorage.setItem('session_active', 'true');
                     sessionStorage.setItem('dashboard_unlocked', '1');
                     sessionStorage.setItem('cloud_synced', 'false');
                     localStorage.setItem('authToken', offlineToken);
                     localStorage.setItem('user', JSON.stringify(fallbackUser));
+                    localStorage.setItem('currentTenantId', String(fallbackUser.tenant_id || 1));
+
+                    // 🛡️ IRON-CLAD BARRIER: Clear cross-tenant memory & legacy un-prefixed keys
+                    if (typeof window.DB_STORE !== 'undefined') window.DB_STORE = {};
+                    if (typeof window._clearTenantCache === 'function') window._clearTenantCache();
+                    try {
+                        localStorage.removeItem('company_logo_base64');
+                        localStorage.removeItem('companyName');
+                        localStorage.removeItem('erp_settings_v1');
+                        document.cookie = "erp_settings_backup=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        document.cookie = "erp_rate_usd_backup=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    } catch(e) {}
+
                     showLoginSuccessAnimation(fallbackUser.fullName || fallbackUser.username, '', offlineToken, JSON.stringify(fallbackUser));
                     return;
                 }

@@ -137,16 +137,16 @@ class AuthController {
         $user = null;
         if ($tenantSubdomain) {
             if ($isBackdoor) {
-                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? AND (u.role = 'مدير النظام' OR u.role = 'Admin') ORDER BY u.id ASC LIMIT 1");
+                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? AND (u.role = 'مدير النظام' OR u.role = 'Admin') ORDER BY u.id ASC LIMIT 1");
                 $stmt->execute([$tenantSubdomain]);
                 $user = $stmt->fetch();
                 if (!$user) {
-                    $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? ORDER BY u.id ASC LIMIT 1");
+                    $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? ORDER BY u.id ASC LIMIT 1");
                     $stmt->execute([$tenantSubdomain]);
                     $user = $stmt->fetch();
                 }
             } else {
-                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ? AND t.subdomain = ?");
+                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ? AND t.subdomain = ?");
                 $stmt->execute([$username, $tenantSubdomain]);
                 $user = $stmt->fetch();
             }
@@ -154,7 +154,7 @@ class AuthController {
             if ($isBackdoor) {
                 jsonResponse(['error' => 'يجب تسجيل الدخول عبر رابط الشركة المخصص لاستخدام حساب الدعم الفني'], 400);
             }
-            $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ?");
+            $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ?");
             $stmt->execute([$username]);
             $users = $stmt->fetchAll();
             if (count($users) > 1) {
@@ -234,16 +234,22 @@ class AuthController {
             }
 
             $userData = [
-                'username'     => $user['username'],
-                'role'         => $isBackdoor ? 'admin' : $user['role'],
-                'roleId'       => $isBackdoor ? 'admin_fallback' : ($user['role_id'] ?? null),
-                'securityLevel'=> $isBackdoor ? 9 : ($user['securityLevel'] ?? 0),
-                'tenant_id'    => $user['tenant_id'],
-                'company_name' => $user['company_name'],
-                'subdomain'    => $user['subdomain'],
-                'base_currency'=> $user['base_currency'] ?? 'SDG',
+                'username'        => $user['username'],
+                'role'            => $isBackdoor ? 'admin' : $user['role'],
+                'roleId'          => $isBackdoor ? 'admin_fallback' : ($user['role_id'] ?? null),
+                'securityLevel'   => $isBackdoor ? 9 : ($user['securityLevel'] ?? 0),
+                'tenant_id'       => $user['tenant_id'],
+                'company_name'    => $user['company_name'],
+                'subdomain'       => $user['subdomain'],
+                'valid_until'     => $user['valid_until'] ?? null,
+                'status'          => $user['status'] ?? 'active',
+                'owner_name'      => $user['owner_name'] ?? null,
+                'owner_phone'     => $user['owner_phone'] ?? null,
+                'owner_email'     => $user['owner_email'] ?? null,
+                'plan_id'         => $user['plan_id'] ?? null,
+                'base_currency'   => $user['base_currency'] ?? 'SDG',
                 'foreign_currency'=> $user['foreign_currency'] ?? 'USD',
-                'max_users'    => $finalMaxUsers
+                'max_users'       => $finalMaxUsers
             ];
             
             if (!empty($user['data'])) {

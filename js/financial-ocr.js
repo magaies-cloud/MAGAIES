@@ -62,6 +62,70 @@
             }
         },
 
+        async inspectReceiptDirect(receipt, blockId = '1') {
+            if (!receipt) return;
+            this.activeContext = {
+                target: 'multi',
+                blockId: blockId,
+                docHint: 'transfer'
+            };
+
+            const imageUrl = receipt.receipt_image || 'assets/sample_receipt_bok.png';
+            const parsedAmount = parseFloat(receipt.amount || 0);
+
+            const docData = {
+                is_financial_doc: true,
+                is_approved_template: true,
+                doc_type: 'bank_transfer',
+                bank_name: receipt.bank_name || 'بنك الخرطوم',
+                app_name: 'بنكك',
+                transaction_ref: receipt.transfer_no || '',
+                amount: parsedAmount,
+                currency: receipt.currency || 'SDG',
+                date: (receipt.created_at || '').split(' ')[0] || new Date().toISOString().split('T')[0],
+                sender_name: receipt.customer_name || '',
+                sender_account: receipt.sender_account || '',
+                receiver_name: receipt.receiver_name || '',
+                receiver_account: receipt.receiver_account || '',
+                notes: receipt.notes || '',
+                confidence_score: 99,
+                tampering_score: (receipt.status === 'duplicate_rejected' ? 85 : 0),
+                is_suspicious: (receipt.status === 'duplicate_rejected'),
+                summary: `إشعار تحويل بنكك بمبلغ ${parsedAmount.toLocaleString('en-US', {minimumFractionDigits: 2})} جنيه سوداني للعميل (${receipt.customer_name}) برقم عملية ${receipt.transfer_no || ''}`
+            };
+
+            try {
+                const res = await fetch(imageUrl);
+                const blob = await res.blob();
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const base64 = e.target.result;
+                    this.batchItems = [{
+                        id: 'receipt_' + receipt.id,
+                        fileName: `إشعار_${receipt.customer_name || 'بنكك'}.jpg`,
+                        base64: base64,
+                        data: docData,
+                        originalData: JSON.parse(JSON.stringify(docData)),
+                        applied: false
+                    }];
+                    this.currentBatchIndex = 0;
+                    this.selectBatchItem(0);
+                };
+                reader.readAsDataURL(blob);
+            } catch (err) {
+                this.batchItems = [{
+                    id: 'receipt_' + receipt.id,
+                    fileName: `إشعار_${receipt.customer_name || 'بنكك'}.jpg`,
+                    base64: imageUrl,
+                    data: docData,
+                    originalData: JSON.parse(JSON.stringify(docData)),
+                    applied: false
+                }];
+                this.currentBatchIndex = 0;
+                this.selectBatchItem(0);
+            }
+        },
+
         // ═══ WhatsApp AI Hybrid Ingest System ═══
         whatsAppSelectedFiles: [],
         _globalPasteBound: false,

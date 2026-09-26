@@ -19,7 +19,6 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <script src="js/bban_auto_helper.js"></script>
     <style>
         :root {
             --bg-color: #050308;
@@ -127,9 +126,12 @@
         :root.light-theme label, :root.light-theme .h-label, :root.light-theme .tot-lbl {
             color: #334155 !important;
         }
+        html {
+            scroll-behavior: smooth;
+        }
         body {
             background-color: var(--bg-color);
-            margin: 0; padding: 0; min-height: 100vh;
+            margin: 0; padding: 0; min-height: calc(100vh + 160px);
             display: flex; flex-direction: column; overflow-x: hidden;
             font-family: 'Tajawal', sans-serif; color: #fff;
         }
@@ -672,8 +674,7 @@
         :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
+    </style>
 
 </head>
 <body>

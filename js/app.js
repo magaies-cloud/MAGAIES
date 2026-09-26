@@ -146,8 +146,8 @@ JSON.parse = function(val) {
 
     // Convert a base key like "erp_customers_v1" to a tenant-specific key
     window.getTenantKey = function(baseKey) {
-        // Keys that are NOT tenant-specific (global settings)
-        const globalKeys = ['authToken', 'companyName', 'user', 'erp_theme', 'currentTenantId', 'session_active', 'deviceUuid', 'elsajana_global_media_state'];
+        // Keys that are NOT tenant-specific (global session settings only)
+        const globalKeys = ['authToken', 'user', 'erp_theme', 'erp_lang', 'currentTenantId', 'session_active', 'deviceUuid', 'elsajana_global_media_state'];
         if (globalKeys.includes(baseKey)) return baseKey;
         // If already prefixed, return as-is
         if (baseKey.startsWith('tenant_')) return baseKey;
@@ -240,25 +240,21 @@ JSON.parse = function(val) {
     // Load data from IndexedDB into DB_STORE (optimized: localStorage first, IndexedDB async)
     async function initDB() {
                 // ---------------------------------------------------------------------------------
-        // AUTO-RECOVERY: If tenant keys were wiped by quota cleanup, restore from base keys
+        // 🛡️ IRON-CLAD TENANT ISOLATION BARRIER:
+        // Strictly prohibit cross-tenant data recovery. Data for one tenant can NEVER
+        // be populated or recovered from another tenant or global un-prefixed keys.
+        // Wipe legacy un-prefixed leak keys (logo, company name, shared backup cookies).
         // ---------------------------------------------------------------------------------
         try {
-            const tk = window.getTenantKey('erp_settings_v1');
-            if (tk !== 'erp_settings_v1') {
-                syncKeys.forEach(baseKey => {
-                    const tenantKey = window.getTenantKey(baseKey);
-                    const tenantVal = originalGetItem.call(localStorage, tenantKey);
-                    const baseVal = originalGetItem.call(localStorage, baseKey);
-                    
-                    // If tenant is empty or '[]' but base has data, recover it!
-                    if ((!tenantVal || tenantVal === '[]' || tenantVal === '{}') && baseVal && baseVal !== '[]' && baseVal !== '{}') {
-                        console.warn('Recovering ' + baseKey + ' to ' + tenantKey);
-                        window.DB_STORE[tenantKey] = baseVal;
-                        try { originalSetItem.call(localStorage, tenantKey, baseVal); } catch(e) {}
-                        if (typeof localforage !== 'undefined') localforage.setItem(tenantKey, baseVal).catch(e=>{});
-                    }
-                });
-            }
+            const legacyLeakKeys = ['company_logo_base64', 'erp_settings_backup', 'erp_rate_usd_backup', 'companyName'];
+            legacyLeakKeys.forEach(k => {
+                if (originalGetItem.call(localStorage, k) !== null) {
+                    originalRemoveItem.call(localStorage, k);
+                }
+            });
+            // Clear un-isolated backup cookies
+            document.cookie = "erp_settings_backup=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.cookie = "erp_rate_usd_backup=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
         } catch(e) {}
         // ---------------------------------------------------------------------------------
 
@@ -3163,14 +3159,28 @@ window.logout = async function(force = false) {
         }
     }
 
-    // 1. Remove Core Session
+    // 1. Invalidate in-memory store & tenant prefix cache
+    window.DB_STORE = {};
+    if (typeof window._clearTenantCache === 'function') window._clearTenantCache();
+
+    // 2. Remove Core Session & Un-isolated Keys
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
+    localStorage.removeItem('currentTenantId');
+    localStorage.removeItem('companyName');
+    localStorage.removeItem('company_logo_base64');
     sessionStorage.removeItem('session_active');
+    sessionStorage.removeItem('dashboard_unlocked');
     sessionStorage.removeItem('cloud_synced');
-    document.cookie = "saas_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     
-    // 3. Redirect
+    // 3. Clear All Session & Backup Cookies
+    document.cookie = "saas_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "currentTenantId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "erp_settings_backup=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "erp_rate_usd_backup=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    document.cookie = "session_active=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    
+    // 4. Redirect
     window.location.href = 'login.php';
 };
 
@@ -4064,7 +4074,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (onClickAttr.includes('window.print()') || onClickAttr.includes('printVoucher()') || onClickAttr.includes('printInvoice()')) {
             // Skip injection on inventory/ledger/single-cash-payment pages as requested by user
             const currentPath = window.location.pathname.toLowerCase();
-            if (currentPath.includes('inventory') || currentPath.includes('ledger') || currentPath.includes('analytics') || currentPath.includes('single-cash-payment')) {
+            if (currentPath.includes('inventory') || currentPath.includes('ledger') || currentPath.includes('analytics') || currentPath.includes('single-cash-payment') || currentPath.includes('alarm')) {
                 return;
             }
 

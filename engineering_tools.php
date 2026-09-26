@@ -26,7 +26,7 @@ $pdo = getDBConnection();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مفاتيح تحويلات البنوك وموسوعة فتاوى البيوع | Al-Sajana ERP</title>
+    <title>مركز الأدوات والمساعدات ومفاتيح البنوك | مقاييس (MAGAIEES)</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,8 +35,9 @@ $pdo = getDBConnection();
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/tailwind.min.css">
-    <!-- Fiqh Encyclopedia is Lazy-Loaded on demand for ultra-fast page rendering -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Font Awesome Local (Ultra-Fast & Offline Robust) + CDN Fallback -->
+    <link rel="stylesheet" href="css/fontawesome/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <script src="js/hls.light.min.js"></script>
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
 
@@ -94,12 +95,17 @@ $pdo = getDBConnection();
             --text-muted: #334155;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             margin: 0 !important;
             padding: 0 !important;
             background-color: var(--bg-dark);
             color: var(--text-main);
-            font-family: 'Cairo', 'Tajawal', sans-serif;
+            font-family: 'Tajawal', sans-serif;
+            min-height: calc(100vh + 160px);
             overflow-x: hidden;
         }
 
@@ -107,11 +113,11 @@ $pdo = getDBConnection();
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 auto !important;
-            padding: 10px 14px 60px 14px !important;
+            padding: 6px 14px 60px 14px !important;
             box-sizing: border-box !important;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
         }
 
         /* ── إضاءة نيون فائقة ومشعّة لأزرار وقنوات التلفاز والقرآن الكريم ── */
@@ -604,13 +610,227 @@ $pdo = getDBConnection();
         }
 
 
-        /* ── أزرار التبويبات العشرة البارزة ثلاثية الأبعاد ── */
-        .suite-pill-card {
-            padding: 14px 8px;
+        /* ── شريط الأوامر التنفيذي الفاخر والمضغوط (Executive Compact Command Bar) ── */
+        .tools-command-bar {
+            position: relative;
+            background: 
+                linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(20, 26, 48, 0.92) 50%, rgba(13, 20, 38, 0.96) 100%) padding-box,
+                linear-gradient(135deg, rgba(236, 72, 153, 0.65) 0%, rgba(139, 92, 246, 0.5) 30%, rgba(6, 182, 212, 0.45) 70%, rgba(16, 185, 129, 0.45) 100%) border-box;
+            border: 1.8px solid transparent;
             border-radius: 20px;
-            min-height: 120px;
-            cursor: pointer;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 11px 20px;
+            box-shadow: 
+                0 16px 40px rgba(0, 0, 0, 0.55),
+                0 0 30px rgba(236, 72, 153, 0.12),
+                inset 0 1px 1px rgba(255, 255, 255, 0.15),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 48px;
+            z-index: 10;
+            overflow: hidden;
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tools-command-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 4%;
+            right: 4%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(236, 72, 153, 0.95) 20%, 
+                rgba(139, 92, 246, 0.95) 50%, 
+                rgba(6, 182, 212, 0.9) 80%, 
+                transparent 100%
+            );
+            border-radius: 2px;
+            pointer-events: none;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.7);
+        }
+
+        .tools-command-bar:hover {
+            box-shadow: 
+                0 20px 48px rgba(0, 0, 0, 0.65),
+                0 0 38px rgba(139, 92, 246, 0.22),
+                inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .tools-cmd-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 0;
+        }
+
+        .tools-cmd-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, #ec4899, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #ffffff;
+            box-shadow: 0 6px 16px rgba(236, 72, 153, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+
+        .tools-command-bar:hover .tools-cmd-icon {
+            transform: scale(1.05) rotate(3deg);
+        }
+
+        .tools-cmd-info {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+        }
+
+        .tools-cmd-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tools-cmd-title {
+            font-size: 1.08rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: -0.2px;
+            line-height: 1.3;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .tools-cmd-badge {
+            font-size: 10.5px;
+            font-weight: 800;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.2), rgba(139, 92, 246, 0.25));
+            color: #f472b6;
+            border: 1.2px solid rgba(236, 72, 153, 0.45);
+            border-radius: 20px;
+            padding: 1px 9px;
+            white-space: nowrap;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.2);
+        }
+
+        .tools-cmd-sub {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: #94a3b8;
+            margin-top: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 550px;
+        }
+
+        .tools-cmd-clearance {
+            flex: 1;
+            min-width: 140px; /* مساحة أمان للزر العائم في منتصف الشاشة */
+        }
+
+        .tools-cmd-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-shrink: 0;
+        }
+
+        .tools-cmd-btn {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.75), rgba(15, 23, 42, 0.9));
+            border: 1.2px solid rgba(139, 92, 246, 0.38);
+            color: #f8fafc;
+            padding: 7px 15px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            white-space: nowrap;
+            user-select: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .tools-cmd-btn:hover {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.28), rgba(30, 41, 59, 0.95));
+            border-color: rgba(167, 139, 250, 0.75);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.35);
+        }
+
+        .tools-cmd-btn#btn-toggle-media.active {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.3));
+            border-color: rgba(245, 158, 11, 0.6);
+            color: #fde68a;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+        }
+
+        .tools-cmd-btn.btn-print {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.18), rgba(5, 150, 105, 0.28));
+            border: 1.2px solid rgba(16, 185, 129, 0.48);
+            color: #a7f3d0;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .tools-cmd-btn.btn-print:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(5, 150, 105, 0.5));
+            border-color: #34d399;
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* ── شبكة أزرار التبويبات الـ 11 المتناسقة والمنظمة بالكامل ── */
+        .suite-tabs-grid {
+            display: grid;
+            grid-template-columns: repeat(11, 1fr);
+            gap: 6px;
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        @media (max-width: 1280px) {
+            .suite-tabs-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 6px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .suite-tabs-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .suite-tabs-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 5px;
+            }
+        }
+
+        .suite-pill-card {
+            padding: 10px 4px;
+            border-radius: 16px;
+            min-height: 94px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -623,24 +843,38 @@ $pdo = getDBConnection();
             position: relative;
             overflow: hidden;
             backdrop-filter: blur(15px);
+            user-select: none;
         }
 
         .suite-pill-card:hover {
-            transform: translateY(-5px) scale(1.02);
+            transform: translateY(-3px) scale(1.02);
             border-color: var(--p-color, #ec4899);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), 0 0 20px var(--p-color);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 20px var(--p-color);
         }
 
         .suite-pill-card.active {
-            background: linear-gradient(145deg, rgba(236, 72, 153, 0.35), rgba(168, 85, 247, 0.45)) !important;
-            border-color: #ec4899 !important;
-            box-shadow: 0 12px 30px rgba(236, 72, 153, 0.5), 0 0 25px #ec4899 !important;
-            transform: translateY(-4px) scale(1.03);
+            background: linear-gradient(145deg, rgba(20, 27, 45, 0.98), rgba(10, 15, 28, 0.99)) !important;
+            border-color: var(--p-color, #ec4899) !important;
+            border-width: 2.2px !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 25px var(--p-color, #ec4899), inset 0 0 15px var(--p-border, rgba(236,72,153,0.3)) !important;
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .suite-pill-card.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 15%;
+            right: 15%;
+            height: 3.5px;
+            background: var(--p-color, #ec4899);
+            border-radius: 3px 3px 0 0;
+            box-shadow: 0 0 12px var(--p-color, #ec4899);
         }
 
         .suite-pill-icon {
-            font-size: 1.8rem;
-            margin-bottom: 5px;
+            font-size: 1.45rem;
+            margin-bottom: 3px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -649,20 +883,27 @@ $pdo = getDBConnection();
         }
 
         .suite-pill-title {
-            font-size: 1.05rem;
+            font-size: 0.88rem;
             font-weight: 900;
             color: #ffffff;
-            letter-spacing: -0.3px;
+            letter-spacing: -0.2px;
             text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
             margin: 2px 0;
-            line-height: 1.2;
+            line-height: 1.25;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
 
         .suite-pill-sub {
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             color: #94a3b8;
             font-weight: 700;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
 
         .glass-panel-v3 {
@@ -673,13 +914,6 @@ $pdo = getDBConnection();
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(20px);
             position: relative;
-        }
-
-        :root.light-theme .glass-panel-v3 {
-            background: #ffffff !important;
-            border: 2px solid #cbd5e1 !important;
-            color: #000000 !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
         }
 
         .tool-input {
@@ -695,12 +929,6 @@ $pdo = getDBConnection();
             transition: all 0.2s;
         }
 
-        :root.light-theme .tool-input {
-            background: #f8fafc;
-            border: 2px solid #94a3b8;
-            color: #000000;
-        }
-
         .tool-input:focus {
             border-color: #ec4899;
             box-shadow: 0 0 15px rgba(236, 72, 153, 0.35);
@@ -714,9 +942,243 @@ $pdo = getDBConnection();
             text-align: center;
         }
 
+        /* ═══════════════════════════════════════════════════════════════════
+           🌟 COMPLETE LIGHT THEME OVERRIDES FOR ENGINEERING TOOLS
+           ═══════════════════════════════════════════════════════════════════ */
+        :root.light-theme body {
+            background-color: #f8fafc !important;
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .tools-command-bar {
+            background: 
+                linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) padding-box,
+                linear-gradient(135deg, rgba(236, 72, 153, 0.6) 0%, rgba(139, 92, 246, 0.5) 35%, rgba(6, 182, 212, 0.45) 70%, rgba(16, 185, 129, 0.45) 100%) border-box !important;
+            border: 1.8px solid transparent !important;
+            box-shadow: 
+                0 10px 28px rgba(15, 23, 42, 0.08),
+                0 0 20px rgba(236, 72, 153, 0.1),
+                inset 0 1px 1px rgba(255, 255, 255, 1) !important;
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .tools-command-bar::before {
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(236, 72, 153, 0.8) 20%, 
+                rgba(139, 92, 246, 0.85) 50%, 
+                rgba(6, 182, 212, 0.8) 80%, 
+                transparent 100%
+            ) !important;
+            box-shadow: 0 0 10px rgba(139, 92, 246, 0.4) !important;
+        }
+
+        :root.light-theme .tools-cmd-title {
+            color: #0f172a !important;
+            text-shadow: none !important;
+        }
+
+        :root.light-theme .tools-cmd-sub {
+            color: #475569 !important;
+        }
+
+        :root.light-theme .tools-cmd-btn {
+            background: #ffffff !important;
+            border: 1.2px solid rgba(139, 92, 246, 0.35) !important;
+            color: #1e293b !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        :root.light-theme .tools-cmd-btn:hover {
+            background: #f1f5f9 !important;
+            border-color: #8b5cf6 !important;
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .tools-cmd-btn.btn-print {
+            background: #ecfdf5 !important;
+            border: 1.2px solid #10b981 !important;
+            color: #047857 !important;
+        }
+
+        :root.light-theme .suite-pill-card {
+            background: #ffffff !important;
+            border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+            color: #0f172a !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        :root.light-theme .suite-pill-card:hover {
+            border-color: var(--p-color, #ec4899) !important;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), 0 0 15px var(--p-color) !important;
+        }
+
+        :root.light-theme .suite-pill-card.active {
+            background: #ffffff !important;
+            border-color: var(--p-color, #ec4899) !important;
+            border-width: 2.5px !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1), 0 0 20px var(--p-color) !important;
+        }
+
+        :root.light-theme .suite-pill-title {
+            color: #0f172a !important;
+            text-shadow: none !important;
+        }
+
+        :root.light-theme .suite-pill-sub {
+            color: #64748b !important;
+        }
+
+        :root.light-theme .sacred-media-pill {
+            background: #ffffff !important;
+            border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.03) !important;
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .sm-title {
+            color: #0f172a !important;
+            text-shadow: none !important;
+        }
+
+        :root.light-theme .sm-sub {
+            color: #64748b !important;
+        }
+
+        :root.light-theme .glass-panel-v3 {
+            background: #ffffff !important;
+            border: 1.5px solid #e2e8f0 !important;
+            color: #0f172a !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        :root.light-theme .glass-panel-v3 .text-slate-100,
+        :root.light-theme .glass-panel-v3 .text-slate-200,
+        :root.light-theme .glass-panel-v3 .text-slate-300,
+        :root.light-theme .glass-panel-v3 .text-white,
+        :root.light-theme .glass-panel-v3 h1,
+        :root.light-theme .glass-panel-v3 h2,
+        :root.light-theme .glass-panel-v3 h3,
+        :root.light-theme .glass-panel-v3 h4,
+        :root.light-theme .glass-panel-v3 h5 {
+            color: #0f172a !important;
+            text-shadow: none !important;
+        }
+
+        :root.light-theme .glass-panel-v3 .text-slate-400 {
+            color: #475569 !important;
+        }
+
+        :root.light-theme .glass-panel-v3 .border-slate-800,
+        :root.light-theme .glass-panel-v3 .border-slate-700 {
+            border-color: #e2e8f0 !important;
+        }
+
+        :root.light-theme .tool-input {
+            background: #f8fafc !important;
+            border: 1.5px solid #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .tool-input:focus {
+            border-color: #ec4899 !important;
+            background: #ffffff !important;
+            box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.15) !important;
+        }
+
         :root.light-theme .calc-result-box {
-            background: #fdf2f8;
-            border: 2px solid #db2777;
+            background: #f8fafc !important;
+            border: 2px solid #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .bban-bank-card {
+            background: #ffffff !important;
+            border: 1.5px solid #e2e8f0 !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        :root.light-theme .bban-bank-card h4,
+        :root.light-theme .bban-bank-card .text-white,
+        :root.light-theme .bban-bank-card .text-slate-200 {
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .bban-code-box {
+            background: #0f172a !important;
+            border-color: #0284c7 !important;
+            color: #38bdf8 !important;
+        }
+
+        :root.light-theme .master-bban-hero-box {
+            background: #ffffff !important;
+            border-color: #f59e0b !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06), 0 0 30px rgba(245, 158, 11, 0.15) !important;
+        }
+
+        :root.light-theme .master-bban-hero-box h3,
+        :root.light-theme .master-bban-hero-box p {
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .master-bban-display-screen {
+            background: #0f172a !important;
+            border-color: #10b981 !important;
+            color: #34d399 !important;
+        }
+
+        :root.light-theme .fiqh-master-card {
+            background: #ffffff !important;
+            border: 1.5px solid #e2e8f0 !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.04) !important;
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .fiqh-master-card h3,
+        :root.light-theme .fiqh-master-card h4,
+        :root.light-theme .fiqh-master-card .text-slate-100,
+        :root.light-theme .fiqh-master-card .text-slate-200 {
+            color: #0f172a !important;
+        }
+
+        :root.light-theme .fiqh-top-nav-bar {
+            background: #ffffff !important;
+            border: 1.5px solid #e2e8f0 !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04) !important;
+        }
+
+        :root.light-theme .fiqh-filter-btn {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            color: #334155 !important;
+        }
+
+        :root.light-theme .fiqh-filter-btn:hover {
+            border-color: #f59e0b !important;
+            color: #b45309 !important;
+        }
+
+        :root.light-theme .fiqh-filter-btn.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            color: #ffffff !important;
+            border-color: #f59e0b !important;
+        }
+
+        :root.light-theme table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
+
+        :root.light-theme table td {
+            color: #0f172a !important;
+            border-color: #e2e8f0 !important;
+        }
+
+        :root.light-theme .bg-slate-900,
+        :root.light-theme .bg-slate-950,
+        :root.light-theme .bg-slate-900\/85 {
+            background-color: #ffffff !important;
         }
 
         /* ── بطاقات البنوك الفخمة والمفاتيح البارزة ── */
@@ -2003,33 +2465,40 @@ $pdo = getDBConnection();
         
         <?php include "includes/header.php"; ?>
 
-        <!-- 🌟 ACTION CONTROLS & NAVIGATION BAR 🌟 -->
-        <div class="flex flex-wrap items-center justify-between gap-4 no-print bg-slate-900/85 border-2 border-pink-500/40 p-5 rounded-2xl shadow-2xl backdrop-blur-2xl">
-            <div>
-                <a href="magaiees_unified_dashboard.php" class="inline-flex items-center gap-2 text-pink-400 font-extrabold hover:underline text-sm mb-1.5">
-                    <i class="fa-solid fa-arrow-right"></i> ↩️ رجوع للوحة القيادة الموحدة (Unified Dashboard)
-                </a>
-                <h1 class="text-2xl md:text-3xl font-black flex items-center gap-3">
-                    <i class="fa-solid fa-toolbox text-pink-400"></i>
-                    مركز الأدوات والمساعدات ومفاتيح تحويلات البنوك (BBAN)
-                </h1>
-                <p class="text-slate-400 text-xs md:text-sm mt-1 font-bold">
-                    حاسبات أوزان الحديد، الخرسانات، الطاقة والمضخات، الجمارك، مفاتيح التحويلات البنكية السودانية (BBAN)، فتاوى البيوع، والزكاة.
-                </p>
+        <!-- 🌟 SLIM EXECUTIVE COMMAND BAR (مدمج، فاخر، بدون أي تصادم مع زر الترويسة) 🌟 -->
+        <div class="tools-command-bar no-print">
+            <div class="tools-cmd-brand">
+                <div class="tools-cmd-icon">
+                    <i class="fa-solid fa-toolbox"></i>
+                </div>
+                <div class="tools-cmd-info">
+                    <div class="tools-cmd-title-wrap">
+                        <span class="tools-cmd-title">مركز الأدوات والمساعدات ومفاتيح البنوك BBAN</span>
+                        <span class="tools-cmd-badge">11 حاسبة معتمدة</span>
+                    </div>
+                    <div class="tools-cmd-sub">حاسبات أوزان ومعايير التصنيع القياسية، مفاتيح 16 بنكاً، وموسوعة المعاملات والتركات الشرعية</div>
+                </div>
             </div>
 
-            <div class="flex items-center gap-2.5">
-                <button type="button" onclick="window.print();" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-xl text-xs transition flex items-center gap-1.5 border border-slate-700 shadow-md">
-                    <i class="fa-solid fa-print"></i> طباعة التقرير / الحسابات
+            <div class="tools-cmd-clearance"></div>
+
+            <div class="tools-cmd-actions">
+                <button type="button" onclick="toggleSacredMediaBar()" id="btn-toggle-media" class="tools-cmd-btn" title="إظهار / إخفاء شريط الإذاعات والبث المباشر">
+                    <span class="text-amber-400"><i class="fa-solid fa-tower-broadcast"></i></span>
+                    <span>استوديو البث (12)</span>
+                    <span id="media-chevron" class="text-xs text-slate-400">▾</span>
+                </button>
+                <button type="button" onclick="window.print();" class="tools-cmd-btn btn-print" title="طباعة الحسابات والتقرير الحالي">
+                    <span class="text-emerald-400"><i class="fa-solid fa-print"></i></span>
+                    <span>طباعة الحسابات</span>
                 </button>
             </div>
         </div>
 
-        
         <!-- ════════════════════════════════════════════════════════════════ -->
         <!-- 📡 SACRED MEDIA BAR (12 إذاعة وقناة في صفين متناسقين - 6 أزرار عصرية في كل صف) -->
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <div class="mb-6 sacred-media-container select-none">
+        <div id="sacred-media-wrapper" class="mb-3 sacred-media-container select-none">
             <div class="sacred-media-grid">
                 
                 <!-- ── السطر الأول: المحطات الكبرى، القرآن، والأخبار المباشرة (6 أزرار) ── -->
@@ -2239,8 +2708,8 @@ $pdo = getDBConnection();
         </div>
 
 
-        <!-- 🎛️ 10 PROMINENT SUITE TABS (3D CENTERED NEUMORPHIC) 🎛️ -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11 gap-2.5" id="suite-tabs-container">
+        <!-- 🎛️ 11 PROMINENT SUITE TABS (RESPONSIVE AUTO-FIT GRID) 🎛️ -->
+        <div class="suite-tabs-grid" id="suite-tabs-container">
             
             <!-- 1. الحديد -->
             <div class="suite-pill-card active" style="--p-color:#ec4899; --p-border:rgba(236,72,153,0.5);" onclick="switchSuite('steel', this)">
@@ -2287,32 +2756,32 @@ $pdo = getDBConnection();
             <!-- 7. فتاوى البيوع -->
             <div class="suite-pill-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.5);" onclick="switchSuite('fiqh', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-book-quran text-amber-400"></i></div>
-                <div class="suite-pill-title">📜 فتاوى البيع والمعاملات</div>
+                <div class="suite-pill-title">📜 فتاوى البيوع</div>
                 <div class="suite-pill-sub">12 إماماً وموسوعة</div>
             </div>
 
             <!-- 8. الميراث والفرائض الشرعية (منفصلة ومميزة) -->
-            <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(16,185,129,0.6); background:linear-gradient(180deg, rgba(16,185,129,0.06), rgba(6,78,59,0.15));" onclick="switchSuite('inheritance', this)">
-                <div class="suite-pill-icon"><i class="fa-solid fa-scale-balanced text-emerald-400 text-xl"></i></div>
-                <div class="suite-pill-title text-emerald-300">⚖️ الميراث الشرعي</div>
-                <div class="suite-pill-sub text-emerald-400/80">قسمة وحساب التركات</div>
+            <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(16,185,129,0.6);" onclick="switchSuite('inheritance', this)">
+                <div class="suite-pill-icon"><i class="fa-solid fa-scale-balanced text-emerald-400"></i></div>
+                <div class="suite-pill-title">⚖️ الميراث الشرعي</div>
+                <div class="suite-pill-sub">قسمة وحساب التركات</div>
             </div>
 
             <!-- 9. حاسبة الزكاة -->
-            <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(167,243,208,0.5);" onclick="switchSuite('zakat', this)">
-                <div class="suite-pill-icon"><i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i></div>
-                <div class="suite-pill-title">⚖️ الزكاة</div>
-                <div class="suite-pill-sub">عروض التجارة</div>
+            <div class="suite-pill-card" style="--p-color:#14b8a6; --p-border:rgba(20,184,166,0.5);" onclick="switchSuite('zakat', this)">
+                <div class="suite-pill-icon"><i class="fa-solid fa-hand-holding-dollar text-teal-400"></i></div>
+                <div class="suite-pill-title">💰 الزكاة</div>
+                <div class="suite-pill-sub">عروض التجارة والأنصبة</div>
             </div>
 
-            <!-- 9. الجدوى والأرباح -->
+            <!-- 10. الجدوى والأرباح -->
             <div class="suite-pill-card" style="--p-color:#f43f5e; --p-border:rgba(244,63,94,0.5);" onclick="switchSuite('feasibility', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-chart-line text-rose-400"></i></div>
                 <div class="suite-pill-title">📊 الجدوى</div>
                 <div class="suite-pill-sub">التعادل والهامش</div>
             </div>
 
-            <!-- 10. نهاية الخدمة -->
+            <!-- 11. نهاية الخدمة -->
             <div class="suite-pill-card" style="--p-color:#e879f9; --p-border:rgba(232,121,249,0.5);" onclick="switchSuite('hr_gratuity', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-user-tie text-fuchsia-400"></i></div>
                 <div class="suite-pill-title">👥 نهاية الخدمة</div>
@@ -22862,8 +23331,13 @@ $pdo = getDBConnection();
         </div>
 
     <!-- Master Fiqh 4,500 Fatwas Data Library (Synchronous Instant Memory Preload) -->
-    <!-- Master All 241 Quran Reciters Data Library -->
-    <script src="js/quran_reciters_data.js?v=<?php echo time(); ?>"></script>
+    <script>
+    if (typeof window.QURAN_ALL_RECITERS === 'undefined') {
+        const s = document.createElement('script');
+        s.src = "js/quran_reciters_data.js?v=<?php echo time(); ?>";
+        document.head.appendChild(s);
+    }
+    </script>
     <script src="js/fiqh_20000_data.js?v=4500_v2"></script>
 
 
@@ -25124,6 +25598,39 @@ $pdo = getDBConnection();
             }, 150);
         }
     };
+
+    // ── Sacred Media Bar Toggle Controller ──
+    window.toggleSacredMediaBar = function() {
+        const wrap = document.getElementById('sacred-media-wrapper');
+        const btn = document.getElementById('btn-toggle-media');
+        const chevron = document.getElementById('media-chevron');
+        if (!wrap) return;
+        const isHidden = (wrap.style.display === 'none' || getComputedStyle(wrap).display === 'none');
+        if (isHidden) {
+            wrap.style.display = 'block';
+            if (chevron) chevron.textContent = '▾';
+            if (btn) btn.classList.add('active');
+            try { localStorage.setItem('magaiees_tools_media_bar', 'open'); } catch(e) {}
+        } else {
+            wrap.style.display = 'none';
+            if (chevron) chevron.textContent = '▴';
+            if (btn) btn.classList.remove('active');
+            try { localStorage.setItem('magaiees_tools_media_bar', 'closed'); } catch(e) {}
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        try {
+            if (localStorage.getItem('magaiees_tools_media_bar') === 'closed') {
+                const wrap = document.getElementById('sacred-media-wrapper');
+                const chevron = document.getElementById('media-chevron');
+                const btn = document.getElementById('btn-toggle-media');
+                if (wrap) wrap.style.display = 'none';
+                if (chevron) chevron.textContent = '▴';
+                if (btn) btn.classList.remove('active');
+            }
+        } catch(e) {}
+    });
 
 </script>
     <!-- 🤖 SMART AI ASSISTANT FOR DATA, FIQH & ENGINEERING TOOLS 🤖 -->

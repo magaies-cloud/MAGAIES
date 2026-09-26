@@ -1,4 +1,165 @@
-<?php $page_title = 'الإعدادات'; ?>
+<?php 
+$page_title = 'الإعدادات'; 
+require_once __DIR__ . '/db_bridge.php';
+$pdo = getDBConnection();
+global $GLOBAL_TENANT_ID;
+
+// AJAX Endpoints for live company & subscription sync
+if (isset($_GET['action'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    // 1. Get Live Company & Subscription Data
+    if ($_GET['action'] === 'get_company_subscription_data') {
+        try {
+            $stmtT = $pdo->prepare("SELECT id, company_name, subdomain, owner_name, owner_phone, phone2, owner_email, status, valid_until, max_users, max_storage, plan_id, base_currency, foreign_currency, created_at FROM tenants WHERE id = ?");
+            $stmtT->execute([$GLOBAL_TENANT_ID]);
+            $tenant = $stmtT->fetch(PDO::FETCH_ASSOC);
+
+            $planName = 'باقة الأعمال المؤسسية';
+            if (!empty($tenant['plan_id'])) {
+                try {
+                    $stmtP = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'saas_plans'");
+                    $plansJson = $stmtP->fetchColumn();
+                    if ($plansJson) {
+                        $plans = json_decode($plansJson, true);
+                        foreach ($plans as $p) {
+                            if ($p['id'] == $tenant['plan_id']) {
+                                $planName = $p['name'] ?? $planName;
+                                break;
+                            }
+                        }
+                    }
+                } catch (Exception $e) {}
+            }
+            if ($tenant) {
+                $tenant['plan_name'] = $planName;
+            }
+
+            $stmtS = $pdo->prepare("SELECT data FROM settings WHERE tenant_id = ? ORDER BY id DESC LIMIT 1");
+            $stmtS->execute([$GLOBAL_TENANT_ID]);
+            $rawSettings = $stmtS->fetchColumn();
+            $settingsData = $rawSettings ? json_decode($rawSettings, true) : null;
+
+            echo json_encode([
+                'success' => true,
+                'tenant_id' => $GLOBAL_TENANT_ID,
+                'tenant' => $tenant,
+                'settings' => $settingsData
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            exit;
+        }
+    }
+    
+    // 2. Save Live Company Settings
+    if ($_GET['action'] === 'save_company_settings' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+        try {
+            $rawInput = file_get_contents('php://input');
+            $input = json_decode($rawInput, true);
+            if (!$input || !is_array($input)) {
+                echo json_encode(['success' => false, 'error' => 'بيانات الإعدادات غير صالحة']);
+                exit;
+            }
+            
+            // Sync to tenants table
+            $companyName = trim($input['companyName'] ?? '');
+            $phone = trim($input['phone'] ?? '');
+            $phone2 = trim($input['whatsapp'] ?? '');
+            
+            if ($companyName !== '' || $phone !== '' || $phone2 !== '') {
+                $stmtUpT = $pdo->prepare("UPDATE tenants SET 
+                    company_name = CASE WHEN ? != '' THEN ? ELSE company_name END,
+                    owner_phone = CASE WHEN ? != '' THEN ? ELSE owner_phone END,
+                    phone2 = CASE WHEN ? != '' THEN ? ELSE phone2 END
+                    WHERE id = ?");
+                $stmtUpT->execute([$companyName, $companyName, $phone, $phone, $phone2, $phone2, $GLOBAL_TENANT_ID]);
+            }
+            
+            // 🛡️ Physical Tenant Logo File Isolation Barrier
+            if (!empty($input['logoBase64']) && strpos($input['logoBase64'], 'data:image') === 0) {
+                try {
+                    $parts = explode(',', $input['logoBase64']);
+                    if (count($parts) === 2) {
+                        $imgData = base64_decode($parts[1]);
+                        $uploadDir = __DIR__ . '/uploads/tenants/' . (int)$GLOBAL_TENANT_ID;
+                        if (!is_dir($uploadDir)) {
+                            @mkdir($uploadDir, 0755, true);
+                        }
+                        $logoFilePath = $uploadDir . '/logo.png';
+                        @file_put_contents($logoFilePath, $imgData);
+                        $input['logoUrl'] = 'uploads/tenants/' . (int)$GLOBAL_TENANT_ID . '/logo.png?v=' . time();
+                    }
+                } catch (Exception $e) {}
+            }
+            
+            // Sync full settings payload into settings table
+            $jsonStr = json_encode($input, JSON_UNESCAPED_UNICODE);
+            $stmtCheck = $pdo->prepare("SELECT id FROM settings WHERE tenant_id = ? LIMIT 1");
+            $stmtCheck->execute([$GLOBAL_TENANT_ID]);
+            $existingId = $stmtCheck->fetchColumn();
+            if ($existingId) {
+                $stmtUpS = $pdo->prepare("UPDATE settings SET data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUpS->execute([$jsonStr, $existingId]);
+            } else {
+                $stmtIns = $pdo->prepare("INSERT INTO settings (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                $stmtIns->execute([$GLOBAL_TENANT_ID, $jsonStr]);
+            }
+            
+            // If user session exists, update company_name there too
+            if (session_status() === PHP_SESSION_NONE) {
+                @session_start();
+            }
+            if (!empty($companyName) && isset($_SESSION['user'])) {
+                $_SESSION['user']['company_name'] = $companyName;
+            }
+            
+            echo json_encode(['success' => true]);
+            exit;
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+            exit;
+        }
+    }
+}
+
+// Pre-fetch for server-rendered state
+$serverTenant = null;
+$serverSettings = null;
+try {
+    if (!empty($GLOBAL_TENANT_ID)) {
+        $stmtT = $pdo->prepare("SELECT id, company_name, subdomain, owner_name, owner_phone, phone2, owner_email, status, valid_until, max_users, max_storage, plan_id, base_currency, foreign_currency, created_at FROM tenants WHERE id = ?");
+        $stmtT->execute([$GLOBAL_TENANT_ID]);
+        $serverTenant = $stmtT->fetch(PDO::FETCH_ASSOC);
+
+        $planName = 'باقة الأعمال المؤسسية';
+        if (!empty($serverTenant['plan_id'])) {
+            try {
+                $stmtP = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'saas_plans'");
+                $plansJson = $stmtP->fetchColumn();
+                if ($plansJson) {
+                    $plans = json_decode($plansJson, true);
+                    foreach ($plans as $p) {
+                        if ($p['id'] == $serverTenant['plan_id']) {
+                            $planName = $p['name'] ?? $planName;
+                            break;
+                        }
+                    }
+                }
+            } catch (Exception $e) {}
+        }
+        if ($serverTenant) {
+            $serverTenant['plan_name'] = $planName;
+        }
+
+        $stmtS = $pdo->prepare("SELECT data FROM settings WHERE tenant_id = ? ORDER BY id DESC LIMIT 1");
+        $stmtS->execute([$GLOBAL_TENANT_ID]);
+        $rawS = $stmtS->fetchColumn();
+        if ($rawS) $serverSettings = json_decode($rawS, true);
+    }
+} catch (Exception $e) {}
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -19,6 +180,13 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/fontawesome/all.min.css">
+    <link rel="stylesheet" href="css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script>
+        window.SERVER_TENANT = <?php echo json_encode($serverTenant, JSON_UNESCAPED_UNICODE); ?>;
+        window.SERVER_SETTINGS = <?php echo json_encode($serverSettings, JSON_UNESCAPED_UNICODE); ?>;
+    </script>
     <style>
         :root {
             --bg-color: #050308;
@@ -331,7 +499,8 @@
         .settings-layout {
             display: flex;
             flex-direction: column;
-            gap: 10px; /* Reduced gap between nav and panels */
+            gap: 15px;
+            margin-top: 5px;
         }
         .tabs-nav {
             display: flex;
@@ -340,10 +509,11 @@
             background: rgba(30, 41, 59, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            padding: 8px;
-            gap: 8px;
+            padding: 10px;
+            gap: 10px;
             backdrop-filter: blur(10px);
-            margin-bottom: 5px; /* Reduced margin below the tabs */
+            margin-top: 15px;
+            margin-bottom: 15px;
         }
         
         :root.light-theme .tabs-nav {
@@ -454,16 +624,38 @@
             <div class="glass-panel" id="panel-company">
                 <div class="setting-title" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                     <span>🏢 بيانات الشركة والاشتراك</span>
-                    <span id="subscription-status" style="font-size: 0.9rem; padding: 5px 12px; border-radius: 20px; background: rgba(255,255,255,0.1); color: #fff; display:inline-flex; align-items:center; gap:5px; font-weight:600;">
+                    <span id="subscription-status" style="font-size: 0.9rem; padding: 5px 14px; border-radius: 20px; background: rgba(255,255,255,0.1); color: #fff; display:inline-flex; align-items:center; gap:6px; font-weight:700;">
                         ⏳ جاري فحص الاشتراك...
                     </span>
                 </div>
+
+                <!-- 🌟 بطاقة تفاصيل الاشتراك والترخيص السحابي 🌟 -->
+                <div id="subscription-summary-box" style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.75) 0%, rgba(30, 41, 59, 0.65) 100%); border: 1.5px solid rgba(56, 189, 248, 0.35); border-radius: 18px; padding: 16px 20px; margin-top: 15px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; backdrop-filter: blur(10px);">
+                    <div class="sub-card-item">
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display:block;">📦 باقة الاشتراك الحالية</span>
+                        <span id="sub-plan-name" style="font-size: 1.05rem; font-weight: 900; color: #38bdf8; margin-top: 4px; display:block;">الباقة المؤسسية المعتمدة</span>
+                    </div>
+                    <div class="sub-card-item">
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display:block;">🛡️ حالة الحساب</span>
+                        <span id="sub-account-status" style="font-size: 1.05rem; font-weight: 900; color: #10b981; margin-top: 4px; display:inline-flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-circle-check"></i> حساب نشط ومعتمد
+                        </span>
+                    </div>
+                    <div class="sub-card-item">
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display:block;">⏳ تاريخ انتهاء الصلاحية</span>
+                        <span id="sub-expiry-date" style="font-size: 1.05rem; font-weight: 900; color: #f8fafc; margin-top: 4px; display:block;">-</span>
+                    </div>
+                    <div class="sub-card-item">
+                        <span style="font-size: 0.75rem; color: #94a3b8; font-weight: 700; display:block;">⏱️ الأيام المتبقية</span>
+                        <span id="sub-days-remaining" style="font-size: 1.05rem; font-weight: 900; color: #34d399; margin-top: 4px; display:block;">-</span>
+                    </div>
+                </div>
                 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 5px;">
                     <!-- Row 1: Logo and Preview -->
                     <div class="form-group" style="grid-column: span 2; display: flex; align-items: center; gap: 20px; margin:0;">
                         <div style="flex: 1;">
-                            <label class="form-label">شعار الشركة (اللوقو)</label>
+                            <label class="form-label">شعار الشركة (اللوقو المعتمد للفواتير والسندات)</label>
                             <input type="file" id="cfg-logo" accept="image/*" class="form-input" style="padding: 10px;">
                         </div>
                         <div id="logo-preview-container" style="width:120px; height:80px; border:1px dashed rgba(255,255,255,0.3); border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden; background:rgba(0,0,0,0.2); margin-top: 25px;">
@@ -471,17 +663,48 @@
                         </div>
                     </div>
 
-                    <!-- Row 2 -->
-                    <div class="form-group" style="margin: 0;"><label class="form-label">اسم الشركة المطبوع على الفواتير</label><input type="text" class="form-input" id="cfg-company-name" placeholder="مثال: مؤسسة مقاييس للتجارة"></div>
-                    <div class="form-group" style="margin: 0;"><label class="form-label">الرقم الضريبي (VAT Number)</label><input type="text" class="form-input" id="cfg-tax-number" placeholder="الرقم الضريبي للشركة"></div>
+                    <!-- Row 2: Company Name -->
+                    <div class="form-group" style="grid-column: span 2; margin: 0;">
+                        <label class="form-label">اسم الشركة الرسمي المطبوع على الفواتير والتقارير</label>
+                        <input type="text" class="form-input" id="cfg-company-name" placeholder="مثال: مؤسسة مقاييس للتجارة والخدمات">
+                    </div>
 
-                    <!-- Row 3 -->
-                    <div class="form-group" style="margin: 0;"><label class="form-label">رقم الواتساب (WhatsApp)</label><input type="tel" class="form-input" id="cfg-whatsapp" placeholder="+249..." dir="ltr" style="text-align: left;" oninput="this.value = this.value.replace(/[^0-9+\\- ]/g, '')"></div>
-                    <div class="form-group" style="margin: 0;"><label class="form-label">رقم الهاتف للتواصل</label><input type="tel" class="form-input" id="cfg-phone" placeholder="+249..." dir="ltr" style="text-align: left;" oninput="this.value = this.value.replace(/[^0-9+\\- ]/g, '')"></div>
+                    <!-- Row 3: Commercial Reg & Tax Number -->
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label">رقم السجل التجاري (Commercial Registration)</label>
+                        <input type="text" class="form-input" id="cfg-reg-number" placeholder="رقم السجل التجاري المعتمد">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label">الرقم الضريبي (VAT / Tax Number)</label>
+                        <input type="text" class="form-input" id="cfg-tax-number" placeholder="الرقم الضريبي للمؤسسة">
+                    </div>
 
-                    <!-- Row 4 -->
-                    <div class="form-group" style="margin: 0;"><label class="form-label">العنوان</label><input type="text" class="form-input" id="cfg-address" placeholder="العنوان الكامل للطباعة"></div>
-                    <div class="form-group" style="margin: 0;"><label class="form-label">رابط الموقع / الخرائط</label><input type="url" class="form-input" id="cfg-location" placeholder="رابط Google Maps أو وصف الموقع"></div>
+                    <!-- Row 4: Phone & WhatsApp -->
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label">رقم الهاتف للتواصل</label>
+                        <input type="tel" class="form-input" id="cfg-phone" placeholder="+249..." dir="ltr" style="text-align: left;" oninput="this.value = this.value.replace(/[^0-9+\\- ]/g, '')">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label">رقم الواتساب (WhatsApp المعتمد)</label>
+                        <input type="tel" class="form-input" id="cfg-whatsapp" placeholder="+249..." dir="ltr" style="text-align: left;" oninput="this.value = this.value.replace(/[^0-9+\\- ]/g, '')">
+                    </div>
+
+                    <!-- Row 5: Address & Location -->
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label">العنوان الجغرافي والفرع الرئيسي</label>
+                        <input type="text" class="form-input" id="cfg-address" placeholder="المدينة، الحي، الشارع، المبنى">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label">رابط الموقع الجغرافي / خرائط Google</label>
+                        <input type="url" class="form-input" id="cfg-location" placeholder="https://maps.google.com/...">
+                    </div>
+                </div>
+
+                <!-- Quick In-Tab Save Action -->
+                <div style="display: flex; justify-content: flex-end; margin-top: 25px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.08);">
+                    <button type="button" onclick="saveSettings()" class="save-btn-main" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; padding: 12px 30px; border-radius: 12px; font-weight: 800; font-size: 1rem; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);">
+                        <i class="fa-solid fa-floppy-disk"></i> حفظ بيانات الشركة والاشتراك
+                    </button>
                 </div>
             </div>
         </div>
@@ -1425,39 +1648,41 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         function loadSettings() {
-        console.log('=== loadSettings() CALLED ===');
-        const settingsKey = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
-        console.log('settingsKey =', settingsKey);
+        console.log('=== loadSettings() CALLED (IRON-CLAD TENANT ISOLATION) ===');
+        const activeTenantId = (window.SERVER_TENANT && window.SERVER_TENANT.id) || (JSON.parse(localStorage.getItem('user')||'{}').tenant_id) || '1';
+        const settingsKey = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : ('tenant_' + activeTenantId + '_erp_settings_v1');
+        console.log('Strict settingsKey =', settingsKey);
         
-        // Try multiple sources in order of priority
+        // 🛡️ IRON-CLAD ISOLATION BARRIER:
+        // Priority 1: Direct MySQL authoritative data for THIS specific tenant
+        // Priority 2: In-Memory Proxy for THIS specific tenantKey
+        // Priority 3: LocalStorage for THIS specific tenantKey
+        // Priority 4: Scoped tenant cookie backup
+        // Strictly prohibit reading from un-prefixed keys of other tenants!
         let cfgRaw = null;
         
-        // Source 1: DB_STORE (in-memory)
-        if (window.DB_STORE && window.DB_STORE[settingsKey]) {
+        if (window.SERVER_SETTINGS && typeof window.SERVER_SETTINGS === 'object') {
+            cfgRaw = window.SERVER_SETTINGS;
+            console.log('loadSettings: READ from authoritative window.SERVER_SETTINGS (MySQL)');
+        }
+        
+        if (!cfgRaw && window.DB_STORE && window.DB_STORE[settingsKey]) {
             cfgRaw = window.DB_STORE[settingsKey];
             console.log('loadSettings: READ from DB_STORE[settingsKey]');
         }
-        // Source 2: DB_STORE base key
-        if (!cfgRaw && window.DB_STORE && window.DB_STORE['erp_settings_v1']) {
-            cfgRaw = window.DB_STORE['erp_settings_v1'];
-            console.log('loadSettings: READ from DB_STORE[erp_settings_v1]');
-        }
-        // Source 3: proxy localStorage
+        
         if (!cfgRaw) {
             try { cfgRaw = localStorage.getItem(settingsKey); } catch(e) {}
-            if (cfgRaw) console.log('loadSettings: READ from localStorage proxy[settingsKey]');
+            if (cfgRaw) console.log('loadSettings: READ from localStorage[settingsKey]');
         }
+        
+        // Scoped tenant cookie backup ONLY
         if (!cfgRaw) {
-            try { cfgRaw = localStorage.getItem('erp_settings_v1'); } catch(e) {}
-            if (cfgRaw) console.log('loadSettings: READ from localStorage proxy[erp_settings_v1]');
-        }
-        // Source 4: cookie backup
-        if (!cfgRaw) {
-            const cookieMatch = document.cookie.match(/erp_settings_backup=([^;]+)/);
+            const cookieMatch = document.cookie.match(new RegExp('erp_settings_backup_t' + activeTenantId + '=([^;]+)'));
             if (cookieMatch) {
                 try {
                     cfgRaw = decodeURIComponent(cookieMatch[1]);
-                    console.log('loadSettings: READ from COOKIE BACKUP');
+                    console.log('loadSettings: READ from scoped tenant cookie backup');
                 } catch(e) {}
             }
         }
@@ -1496,50 +1721,138 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
 
-        // Company
-        const safeSet = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
-        if (cfg.companyName)    safeSet('cfg-company-name', cfg.companyName);
-        if (cfg.regNumber)      safeSet('cfg-reg-number', cfg.regNumber);
-        if (cfg.taxNumber)      safeSet('cfg-tax-number', cfg.taxNumber);
-        if (cfg.phone)          safeSet('cfg-phone', cfg.phone);
-        if (cfg.whatsapp)       safeSet('cfg-whatsapp', cfg.whatsapp);
-        if (cfg.address)        safeSet('cfg-address', cfg.address);
-        if (cfg.location)       safeSet('cfg-location', cfg.location);
+        // -------------------------------------------------------------
+        // Company & Subscription Data: Intelligent Multi-Tier Sync
+        // -------------------------------------------------------------
+        window.applyCompanyAndSubscriptionData = function(srvTenant, srvSettings, localCfg) {
+            srvTenant = srvTenant || window.SERVER_TENANT || {};
+            srvSettings = srvSettings || window.SERVER_SETTINGS || {};
+            localCfg = localCfg || cfg || {};
 
-        // Subscription Status Tracking
-        const userObj = JSON.parse(localStorage.getItem('user') || '{}');
-        const validUntilStr = userObj.valid_until || localStorage.getItem('tenant_valid_until');
-        const subStatusEl = document.getElementById('subscription-status');
-        if (subStatusEl) {
+            const safeSet = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
+
+            // Server is single source of truth; falls back to local cache, then tenant defaults
+            const finalCompanyName = (srvSettings && srvSettings.companyName) || (srvTenant && srvTenant.company_name) || (localCfg && localCfg.companyName) || '';
+            const finalRegNumber = (srvSettings && srvSettings.regNumber) || (localCfg && localCfg.regNumber) || '';
+            const finalTaxNumber = (srvSettings && srvSettings.taxNumber) || (localCfg && localCfg.taxNumber) || '';
+            const finalPhone = (srvSettings && srvSettings.phone) || (srvTenant && srvTenant.owner_phone) || (localCfg && localCfg.phone) || '';
+            const finalWhatsapp = (srvSettings && srvSettings.whatsapp) || (srvTenant && srvTenant.phone2) || (localCfg && localCfg.whatsapp) || '';
+            const finalAddress = (srvSettings && srvSettings.address) || (localCfg && localCfg.address) || '';
+            const finalLocation = (srvSettings && srvSettings.location) || (localCfg && localCfg.location) || '';
+            const finalLogo = (srvSettings && srvSettings.logoBase64) || (localCfg && localCfg.logoBase64) || '';
+
+            safeSet('cfg-company-name', finalCompanyName);
+            safeSet('cfg-reg-number', finalRegNumber);
+            safeSet('cfg-tax-number', finalTaxNumber);
+            safeSet('cfg-phone', finalPhone);
+            safeSet('cfg-whatsapp', finalWhatsapp);
+            safeSet('cfg-address', finalAddress);
+            safeSet('cfg-location', finalLocation);
+
+            if (finalLogo) {
+                const img = document.getElementById('logo-preview');
+                if (img) {
+                    img.src = finalLogo;
+                    img.style.display = 'block';
+                }
+            }
+
+            // Subscription Status & Live Tracking
+            const userObj = JSON.parse(localStorage.getItem('user') || '{}');
+            const validUntilStr = (srvTenant && srvTenant.valid_until) || userObj.valid_until || localStorage.getItem('tenant_valid_until');
+            const tenantStatus = (srvTenant && srvTenant.status) || userObj.status || 'active';
+            const planName = (srvTenant && srvTenant.plan_name) || 'الباقة المؤسسية المعتمدة';
+
+            // Keep local caches aligned
+            if (validUntilStr) {
+                localStorage.setItem('tenant_valid_until', validUntilStr);
+                if (userObj.username && (!userObj.valid_until || userObj.valid_until !== validUntilStr || userObj.company_name !== finalCompanyName)) {
+                    userObj.valid_until = validUntilStr;
+                    userObj.company_name = finalCompanyName;
+                    localStorage.setItem('user', JSON.stringify(userObj));
+                }
+            }
+
+            const subStatusEl = document.getElementById('subscription-status');
+            const subPlanEl = document.getElementById('sub-plan-name');
+            const subAccEl = document.getElementById('sub-account-status');
+            const subExpEl = document.getElementById('sub-expiry-date');
+            const subDaysEl = document.getElementById('sub-days-remaining');
+
+            if (subPlanEl) subPlanEl.textContent = planName;
+
             if (validUntilStr) {
                 const validDate = new Date(validUntilStr);
                 const now = new Date();
                 const diffTime = validDate - now;
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
+                const dateStr = validDate.toISOString().split('T')[0];
+
+                if (subExpEl) subExpEl.textContent = dateStr;
+
                 if (diffDays > 0) {
-                    let color = 'rgba(16, 185, 129, 0.2)'; // Green
+                    let color = 'rgba(16, 185, 129, 0.2)';
                     let textColor = '#10b981';
-                    if (diffDays <= 30) { color = 'rgba(245, 158, 11, 0.2)'; textColor = '#f59e0b'; } // Orange
-                    if (diffDays <= 7) { color = 'rgba(239, 68, 68, 0.2)'; textColor = '#ef4444'; } // Red
-                    
-                    subStatusEl.innerHTML = `⏳ تنتهي في: ${validDate.toLocaleDateString('ar-SA')} (متبقي ${diffDays} يوم)`;
-                    subStatusEl.style.background = color;
-                    subStatusEl.style.color = textColor;
-                    subStatusEl.style.border = `1px solid ${textColor}`;
+                    if (diffDays <= 30) { color = 'rgba(245, 158, 11, 0.2)'; textColor = '#f59e0b'; }
+                    if (diffDays <= 7) { color = 'rgba(239, 68, 68, 0.2)'; textColor = '#ef4444'; }
+
+                    if (subStatusEl) {
+                        subStatusEl.innerHTML = `⏳ تنتهي في: ${dateStr} (متبقي ${diffDays} يوم)`;
+                        subStatusEl.style.background = color;
+                        subStatusEl.style.color = textColor;
+                        subStatusEl.style.border = `1px solid ${textColor}`;
+                    }
+                    if (subAccEl) {
+                        subAccEl.innerHTML = `<span style="color:#10b981; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-circle-check"></i> ${tenantStatus === 'active' ? 'حساب نشط ومعتمد' : tenantStatus}</span>`;
+                    }
+                    if (subDaysEl) {
+                        subDaysEl.innerHTML = `<span style="color:${textColor}; font-size:1.15rem; font-weight:900;">${diffDays} يوم</span>`;
+                    }
                 } else {
-                    subStatusEl.innerHTML = '⚠️ الاشتراك منتهي!';
-                    subStatusEl.style.background = 'rgba(239, 68, 68, 0.2)';
-                    subStatusEl.style.color = '#ef4444';
-                    subStatusEl.style.border = '1px solid #ef4444';
+                    if (subStatusEl) {
+                        subStatusEl.innerHTML = '⚠️ الاشتراك منتهي!';
+                        subStatusEl.style.background = 'rgba(239, 68, 68, 0.2)';
+                        subStatusEl.style.color = '#ef4444';
+                        subStatusEl.style.border = '1px solid #ef4444';
+                    }
+                    if (subAccEl) {
+                        subAccEl.innerHTML = '<span style="color:#ef4444; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-triangle-exclamation"></i> اشتراك منتهي الصلاحية</span>';
+                    }
+                    if (subDaysEl) {
+                        subDaysEl.innerHTML = '<span style="color:#ef4444; font-size:1.15rem; font-weight:900;">منتهي منذ ' + Math.abs(diffDays) + ' يوم</span>';
+                    }
                 }
             } else {
-                subStatusEl.innerHTML = '✨ فترة تجريبية (غير محدد)';
-                subStatusEl.style.background = 'rgba(56, 189, 248, 0.1)';
-                subStatusEl.style.color = '#38bdf8';
-                subStatusEl.style.border = '1px solid rgba(56, 189, 248, 0.3)';
+                if (subStatusEl) {
+                    subStatusEl.innerHTML = '✨ فترة تجريبية مفتوحة';
+                    subStatusEl.style.background = 'rgba(56, 189, 248, 0.1)';
+                    subStatusEl.style.color = '#38bdf8';
+                    subStatusEl.style.border = '1px solid rgba(56, 189, 248, 0.3)';
+                }
+                if (subExpEl) subExpEl.textContent = 'غير محدد (فترة تجريبية)';
+                if (subDaysEl) subDaysEl.textContent = 'مفتوح';
+                if (subAccEl) {
+                    subAccEl.innerHTML = '<span style="color:#38bdf8; display:inline-flex; align-items:center; gap:6px;"><i class="fa-solid fa-circle-check"></i> فترة تجريبية نشطة</span>';
+                }
             }
-        }
+        };
+
+        // Initial sync from server-injected state
+        window.applyCompanyAndSubscriptionData(window.SERVER_TENANT, window.SERVER_SETTINGS, cfg);
+
+        // Background live check to ensure up-to-the-minute freshness from MySQL
+        try {
+            fetch('settings.php?action=get_company_subscription_data')
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.success && res.tenant) {
+                        window.SERVER_TENANT = res.tenant;
+                        if (res.settings) window.SERVER_SETTINGS = res.settings;
+                        window.applyCompanyAndSubscriptionData(res.tenant, res.settings, cfg);
+                        console.log('Live company & subscription data re-synced from MySQL.');
+                    }
+                }).catch(e => console.warn('Company subscription background fetch:', e));
+        } catch(e) {}
 
         // Financial Currencies
         if (cfg.currency) {
@@ -1766,37 +2079,41 @@ document.addEventListener('DOMContentLoaded', function() {
                 savedAt: new Date().toISOString()
             };
 
-            const settingsKey = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+            const activeTenantId = (window.SERVER_TENANT && window.SERVER_TENANT.id) || (JSON.parse(localStorage.getItem('user')||'{}').tenant_id) || '1';
+            const settingsKey = window.getTenantKey ? window.getTenantKey('erp_settings_v1') : ('tenant_' + activeTenantId + '_erp_settings_v1');
+            const logoKey = window.getTenantKey ? window.getTenantKey('company_logo_base64') : ('tenant_' + activeTenantId + '_company_logo_base64');
             const strVal = JSON.stringify(cfg);
             
-            console.log('=== saveSettings() ===');
-            console.log('saveSettings: rateUSD =', cfg.rateUSD);
+            console.log('=== saveSettings() STRICT TENANT ISOLATION ===');
+            console.log('saveSettings: activeTenantId =', activeTenantId);
             console.log('saveSettings: settingsKey =', settingsKey);
-            console.log('saveSettings: cfg.savedAt =', cfg.savedAt);
             
-            // Save to all storage layers
-            try { localStorage.setItem('erp_settings_v1', strVal); console.log('saveSettings: localStorage.setItem(erp_settings_v1) OK'); } catch(e) { console.error('saveSettings: localStorage.setItem(erp_settings_v1) FAILED:', e.message); }
-            try { localStorage.setItem(settingsKey, strVal); console.log('saveSettings: localStorage.setItem(settingsKey) OK'); } catch(e) { console.error('saveSettings: localStorage.setItem(settingsKey) FAILED:', e.message); }
-            
+            // 🛡️ Save EXCLUSIVELY to tenant-isolated storage
+            try { localStorage.setItem(settingsKey, strVal); } catch(e) {}
             if (window.DB_STORE) {
-                window.DB_STORE['erp_settings_v1'] = strVal;
                 window.DB_STORE[settingsKey] = strVal;
-                console.log('saveSettings: DB_STORE direct write OK');
             }
             if (typeof localforage !== 'undefined') {
                 localforage.setItem(settingsKey, strVal).catch(() => {});
-                localforage.setItem('erp_settings_v1', strVal).catch(() => {});
             }
             
-            // Also save dedicated rate key
-            try { localStorage.setItem('erp_rate_usd', String(cfg.rateUSD)); } catch(e) {}
+            // Isolate dedicated logo key per tenant
+            if (cfg.logoBase64) {
+                try { localStorage.setItem(logoKey, cfg.logoBase64); } catch(e) {}
+            } else {
+                try { localStorage.removeItem(logoKey); } catch(e) {}
+            }
+
+            // Also save isolated dedicated rate key
+            const rateKey = window.getTenantKey ? window.getTenantKey('erp_rate_usd') : ('tenant_' + activeTenantId + '_erp_rate_usd');
+            try { localStorage.setItem(rateKey, String(cfg.rateUSD)); } catch(e) {}
             
-            // COOKIE BACKUP - independent of all storage proxies
+            // Scoped tenant cookie backup (lightweight without heavy base64)
             try {
-                const minCfg = JSON.stringify({ rateUSD: cfg.rateUSD, exchangeMode: cfg.exchangeMode, companyName: cfg.companyName, currency: cfg.currency, foreignCurrency: cfg.foreignCurrency, savedAt: cfg.savedAt });
-                document.cookie = 'erp_settings_backup=' + encodeURIComponent(strVal) + '; path=/; max-age=31536000; SameSite=Lax';
-                document.cookie = 'erp_rate_usd_backup=' + cfg.rateUSD + '; path=/; max-age=31536000; SameSite=Lax';
-                console.log('saveSettings: COOKIE BACKUP saved OK');
+                const minCfg = JSON.stringify({ rateUSD: cfg.rateUSD, exchangeMode: cfg.exchangeMode, companyName: cfg.companyName, currency: cfg.currency, savedAt: cfg.savedAt });
+                document.cookie = 'erp_settings_backup_t' + activeTenantId + '=' + encodeURIComponent(minCfg) + '; path=/; max-age=31536000; SameSite=Lax';
+                document.cookie = 'erp_rate_usd_backup_t' + activeTenantId + '=' + cfg.rateUSD + '; path=/; max-age=31536000; SameSite=Lax';
+            } catch(e) {}
             // --- Log Exchange Rate History ---
             try {
                 if (cfg.rateUSD && (oldCfg.rateUSD !== cfg.rateUSD || oldCfg.exchangeMode !== cfg.exchangeMode)) {
@@ -1822,7 +2139,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             } catch(e) { console.error('History log error:', e); }
             // --- End Log ---
-            } catch(e) { console.error('saveSettings: COOKIE BACKUP FAILED:', e.message); }
             
             // Verify immediately after save
             try {
@@ -1848,6 +2164,35 @@ document.addEventListener('DOMContentLoaded', function() {
             if (window.saveToDB) {
                 window.saveToDB('erp_settings_v1', cfg);
             }
+
+            // Persist full company & ERP settings to MySQL backend
+            try {
+                fetch('settings.php?action=save_company_settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cfg)
+                }).then(r => r.json()).then(res => {
+                    if (res && res.success) {
+                        console.log('Company and ERP settings synced to MySQL successfully.');
+                        if (window.SERVER_TENANT) {
+                            window.SERVER_TENANT.company_name = cfg.companyName;
+                            window.SERVER_TENANT.owner_phone = cfg.phone;
+                            window.SERVER_TENANT.phone2 = cfg.whatsapp;
+                        }
+                        if (window.SERVER_SETTINGS) {
+                            Object.assign(window.SERVER_SETTINGS, cfg);
+                        } else {
+                            window.SERVER_SETTINGS = Object.assign({}, cfg);
+                        }
+                        try {
+                            const u = JSON.parse(localStorage.getItem('user') || '{}');
+                            u.company_name = cfg.companyName;
+                            localStorage.setItem('user', JSON.stringify(u));
+                            localStorage.setItem('companyName', cfg.companyName);
+                        } catch(e) {}
+                    }
+                }).catch(e => console.warn('MySQL company settings sync warning:', e));
+            } catch(e) {}
             
             // Send SMTP & Backup settings to backend
             try {

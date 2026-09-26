@@ -4873,7 +4873,33 @@ window.getVoucherContactDetails = function(accountId, accountName) {
     return null;
 };
 
-// ═══ 1. جلب واستيراد الإشعارات من الواتساب بالذكاء الاصطناعي (أيقونة الكارت العلوية 📥) ═══
+// ═══ 1. التفاعل الموحد مع زر واتساب بالكارت (إرسال مباشر أو استيراد إشعارات) ═══
+window.handleBlockWhatsAppClick = function(blockId) {
+    if (!blockId) return;
+    const accSearch = document.getElementById(`account-${blockId}-search`);
+    const accName = accSearch ? accSearch.value.trim() : '';
+    const amtEl = document.getElementById(`amount-${blockId}`);
+    const amt = amtEl ? cleanNum(amtEl.value) : 0;
+
+    // إذا كان الكارت يحتوي على حساب أو مبلغ، فتح نافذة الإرسال المباشر لهذا البند فوراً
+    if (amt > 0 || accName) {
+        if (typeof window.openBlockWhatsAppDispatchModal === 'function') {
+            window.openBlockWhatsAppDispatchModal(blockId);
+            return;
+        }
+    }
+
+    // إذا كان الكارت فارغاً، فتح قائمة الإشعارات البنكية الواردة للاستيراد السريع
+    if (typeof InboundBankakManager !== 'undefined' && typeof InboundBankakManager.toggleDrawer === 'function') {
+        InboundBankakManager.toggleDrawer();
+        if (typeof showToast === 'function') {
+            showToast('💡 يمكنك إدراج إشعار بنكي وارد لهذا الحساب أو تعبئة بيانات السند للإرسال', 'info', 5000);
+        }
+    } else if (typeof window.openBlockWhatsAppDispatchModal === 'function') {
+        window.openBlockWhatsAppDispatchModal(blockId);
+    }
+};
+
 window.openBlockWhatsAppIngest = function(blockId) {
     if (!blockId) return;
     const accSearch = document.getElementById(`account-${blockId}-search`);
@@ -4885,25 +4911,10 @@ window.openBlockWhatsAppIngest = function(blockId) {
     const phone = contact && contact.phone ? contact.phone : '';
     const cleanPhone = phone ? window.normalizePhoneNumber(phone) : '';
 
-    // If account has registered phone, open their chat directly on WhatsApp Web to grab the receipt!
-    if (cleanPhone) {
-        const waUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}`;
-        const width = Math.min(1050, window.screen.availWidth - 100);
-        const height = Math.min(800, window.screen.availHeight - 100);
-        const left = Math.max(20, (window.screen.availWidth - width) / 2);
-        const top = Math.max(20, (window.screen.availHeight - height) / 2);
-        try {
-            window.open(waUrl, 'WhatsAppWebPopup', `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`);
-        } catch(e) {
-            window.open(waUrl, '_blank');
-        }
-        showToast(`💡 تم فتح محادثة (${accName}) في واتساب ويب! انسخ صورة الإشعار واضغط Ctrl+V هنا لتفريغ بياناته بالذكاء الاصطناعي.`, 'info', 7500);
-    } else {
-        showToast('📥 اسحب وأفلت إشعارات الواتساب هنا أو اضغط Ctrl+V لتفريغها فورياً بالذكاء الاصطناعي في هذا الكارت.', 'info', 6000);
-    }
-
-    // Open the WhatsApp AI Ingest Modal targeting this specific block
-    if (typeof FinancialOCR !== 'undefined' && typeof FinancialOCR.openWhatsAppIngest === 'function') {
+    // توجيه تلقائي: فتح نافذة استيراد الإشعار المالي أو نافذة الإشعارات الواردة بدون فتح تطبيق واتساب
+    if (typeof InboundBankakManager !== 'undefined' && typeof InboundBankakManager.toggleDrawer === 'function') {
+        InboundBankakManager.toggleDrawer();
+    } else if (typeof FinancialOCR !== 'undefined' && typeof FinancialOCR.openWhatsAppIngest === 'function') {
         FinancialOCR.openWhatsAppIngest({
             target: 'multi',
             blockId: blockId,
@@ -7267,7 +7278,7 @@ window.getWAAutoDispatchSettings = function() {
     return {
         enabled: false,
         target: 'both',   // 'both' | 'debtor' | 'creditor' (افتراضي لكليهما معاً)
-        method: 'desktop'   // 'desktop' | 'web' | 'gateway'
+        method: 'gateway'   // 'gateway' (خادم الواتساب المباشر بالخلفية)
     };
 };
 
@@ -7289,7 +7300,7 @@ window.syncWAAutoDispatchUI = function() {
     if (toggleMain) toggleMain.checked = !!s.enabled;
     if (toggleModal) toggleModal.checked = !!s.enabled;
     if (targetSelect) targetSelect.value = s.target || 'both';
-    if (methodSelect) methodSelect.value = s.method || 'desktop';
+    if (methodSelect) methodSelect.value = s.method || 'gateway';
 
     if (bar) {
         if (s.enabled) {
@@ -7445,33 +7456,39 @@ window.triggerAutoWADispatchOnSave = function(voucher, vNo) {
     if (!parties) return;
 
     const targetMode = s.target || 'both';
-    const method = s.method || 'desktop';
+    const method = s.method || 'gateway';
 
     setTimeout(() => {
-        if (targetMode === 'debtor') {
-            const cleanPhone = window.normalizePhoneNumber(parties.debtor.phone);
-            const msg = window.buildWATailoredMessage('debtor', parties);
-            window.sendDirectWABackground(method, cleanPhone, msg, parties.debtor.name);
-        } else if (targetMode === 'creditor') {
-            const cleanPhone = window.normalizePhoneNumber(parties.creditor.phone);
-            const msg = window.buildWATailoredMessage('creditor', parties);
-            window.sendDirectWABackground(method, cleanPhone, msg, parties.creditor.name);
-        } else if (targetMode === 'both') {
-            if (method === 'gateway') {
-                const cleanDebtorPhone = window.normalizePhoneNumber(parties.debtor.phone);
-                const debtorMsg = window.buildWATailoredMessage('debtor', parties);
-                if (cleanDebtorPhone) window.sendDirectWABackground('gateway', cleanDebtorPhone, debtorMsg, parties.debtor.name);
+        const blocks = document.querySelectorAll('.account-block');
+        const isPayment = parties.isPayment;
 
-                const cleanCreditorPhone = window.normalizePhoneNumber(parties.creditor.phone);
-                const creditorMsg = window.buildWATailoredMessage('creditor', parties);
-                if (cleanCreditorPhone) window.sendDirectWABackground('gateway', cleanCreditorPhone, creditorMsg, parties.creditor.name);
-            } else {
-                // في وضع تطبيق واتساب / الويب، فتح نافذة السند المزدوجة بجهوزية تامة لإرسال الطرفين دون حجب المتصفح
-                if (typeof window.openBlockWhatsAppDispatchModal === 'function') {
-                    window.openBlockWhatsAppDispatchModal();
-                    window.executeWASend(method);
+        // 1. إرسال لطرف الحساب الرئيسي (الصرف أو القبض)
+        const mainPartyObj = isPayment ? parties.creditor : parties.debtor;
+        const mainCleanPhone = mainPartyObj.phone ? window.normalizePhoneNumber(mainPartyObj.phone) : '';
+        const shouldSendMain = (targetMode === 'both' || (isPayment && targetMode === 'creditor') || (!isPayment && targetMode === 'debtor'));
+
+        if (shouldSendMain && mainCleanPhone) {
+            const mainType = isPayment ? 'creditor' : 'debtor';
+            const mainMsg = window.buildWATailoredMessage(mainType, parties);
+            window.sendDirectWABackground('gateway', mainCleanPhone, mainMsg, mainPartyObj.name);
+        }
+
+        // 2. إرسال لكافة بنود المستلمين / الأطراف الفرعية في السند
+        const shouldSendBlocks = (targetMode === 'both' || (isPayment && targetMode === 'debtor') || (!isPayment && targetMode === 'creditor'));
+        if (shouldSendBlocks && blocks.length > 0) {
+            blocks.forEach((b, idx) => {
+                const bid = b.getAttribute('data-block-id');
+                const bParties = window.getVoucherParties(bid);
+                const blockPartyObj = isPayment ? bParties.debtor : bParties.creditor;
+                const blockCleanPhone = blockPartyObj.phone ? window.normalizePhoneNumber(blockPartyObj.phone) : '';
+                if (blockCleanPhone) {
+                    setTimeout(() => {
+                        const blockType = isPayment ? 'debtor' : 'creditor';
+                        const blockMsg = window.buildWATailoredMessage(blockType, bParties);
+                        window.sendDirectWABackground('gateway', blockCleanPhone, blockMsg, blockPartyObj.name);
+                    }, (idx + 1) * 400);
                 }
-            }
+            });
         }
     }, 450);
 };
@@ -8335,13 +8352,42 @@ window.executeBatchWASend = async function() {
     const sendBtn = document.getElementById('btn-wa-batch-send');
 
     if (progressBar) progressBar.style.display = 'block';
-    if (statusText) statusText.style.display = 'block';
+    if (statusText) {
+        statusText.style.display = 'block';
+        statusText.style.color = '#38bdf8';
+        statusText.textContent = '⏳ جاري فحص اتصال خادم الواتساب...';
+    }
     if (sendBtn) sendBtn.disabled = true;
+
+    const userId = typeof getWAUserId === 'function' ? getWAUserId() : (window.getWAUserId ? window.getWAUserId() : (localStorage.getItem('erp_wa_user_id') || 'wa_tenant_12'));
+
+    // 1. التحقق من اتصال خادم الواتساب
+    try {
+        const statusRes = await fetch(`api_index.php?r=wa-tenant&endpoint=status&userId=${userId}`);
+        const statusData = await statusRes.json();
+
+        if (statusData.status !== 'CONNECTED' && statusData.status !== 'AUTHENTICATED') {
+            if (sendBtn) sendBtn.disabled = false;
+            if (statusText) {
+                statusText.style.color = '#f87171';
+                statusText.textContent = '⚠️ خادم الواتساب غير مربوط حالياً. يرجى مسح رمز الاستجابة (QR) أولاً.';
+            }
+            const wantsQR = confirm('خادم الواتساب غير مربوط حالياً. هل تريد فتح نافذة الربط (QR) الآن؟');
+            if (wantsQR && typeof openWAModal === 'function') {
+                openWAModal();
+            }
+            return;
+        }
+    } catch (e) {
+        console.warn('WA Batch status check error:', e);
+    }
 
     let successCount = 0;
     const total = checks.length;
     const parties = window.getVoucherParties();
+    const vNo = (document.getElementById('voucher-no-display')?.value || document.getElementById('voucher-no')?.value || 'VOUCHER').trim();
 
+    // 2. معالجة وإرسال إشعار وكمبيالة كل طرف مباشرة عبر الخادم في الخلفية
     for (let i = 0; i < total; i++) {
         const check = checks[i];
         const idStr = check.id.replace('wa-batch-check-', '');
@@ -8349,44 +8395,84 @@ window.executeBatchWASend = async function() {
         const phone = phoneInput ? phoneInput.value.trim() : '';
         const cleanPhone = window.normalizePhoneNumber(phone);
 
-        let msg = '';
-        if (idStr === 'main') {
-            // Message for main account (creditor in payment, debtor in receipt)
-            const mainType = parties.isPayment ? 'creditor' : 'debtor';
-            msg = window.buildWATailoredMessage(mainType, parties);
-        } else {
-            // Message for block
-            const blockType = parties.isPayment ? 'debtor' : 'creditor';
-            const blockParties = window.getVoucherParties(idStr);
-            msg = window.buildWATailoredMessage(blockType, blockParties);
-        }
+        const isMain = (idStr === 'main');
+        const targetType = isMain ? (parties.isPayment ? 'creditor' : 'debtor') : (parties.isPayment ? 'debtor' : 'creditor');
+        const targetParties = isMain ? parties : window.getVoucherParties(idStr);
+        const partyObj = (targetType === 'debtor') ? targetParties.debtor : targetParties.creditor;
+        const msg = window.buildWATailoredMessage(targetType, targetParties);
 
         if (statusText) {
-            statusText.textContent = `جاري تجهيز وإرسال الإشعار ${i + 1} من ${total}...`;
+            statusText.style.color = '#38bdf8';
+            statusText.textContent = `جاري إرسال إشعار (${partyObj.name || cleanPhone}) عبر خادم الواتساب (${i + 1} من ${total})...`;
         }
         if (progressFill) {
             progressFill.style.width = `${Math.round(((i + 1) / total) * 100)}%`;
         }
 
-        const encodedMsg = encodeURIComponent(msg);
-        const waUrl = cleanPhone 
-            ? `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodedMsg}`
-            : `https://web.whatsapp.com/send?text=${encodedMsg}`;
-
-        window.open(waUrl, '_blank');
-        if (idStr !== 'main') {
-            window.markBlockAsSentWA(idStr, cleanPhone);
+        if (!cleanPhone) {
+            console.warn('Skipping send for empty phone:', partyObj.name);
+            continue;
         }
-        successCount++;
 
-        await new Promise(r => setTimeout(r, 800));
+        const formData = new FormData();
+        formData.append('userId', userId);
+        formData.append('phone', cleanPhone);
+
+        // محاولة إنشاء وإرفاق كمبيالة السند المعتمدة كملف PDF
+        try {
+            const pdfBlob = await window.generatePromissoryNotePDFBlob(targetType, targetParties).catch(() => null);
+            if (pdfBlob) {
+                const safeName = (partyObj.name || targetType).replace(/[/\\?%*:|"<>]/g, '_');
+                const docName = `كمبيالة_سند_${vNo}_${safeName}.pdf`;
+                formData.append('file', new File([pdfBlob], docName, { type: 'application/pdf' }));
+                formData.append('documentName', docName);
+                formData.append('message', window.buildWAPromissoryPDFCaption(targetType, targetParties));
+            } else {
+                formData.append('message', msg);
+            }
+        } catch (e) {
+            console.warn('PDF blob generation fallback in batch:', e);
+            formData.append('message', msg);
+        }
+
+        try {
+            const sendRes = await fetch(`api_index.php?r=wa-tenant&endpoint=send&userId=${userId}`, {
+                method: 'POST',
+                body: formData
+            });
+            const sendData = await sendRes.json();
+            if (sendData && sendData.success) {
+                successCount++;
+                if (!isMain) {
+                    window.markBlockAsSentWA(idStr, cleanPhone);
+                }
+            } else {
+                console.warn('WA batch send error for', partyObj.name, sendData?.error);
+            }
+        } catch (err) {
+            console.error('WA fetch send error in batch:', err);
+        }
+
+        await new Promise(r => setTimeout(r, 450));
     }
 
     if (sendBtn) sendBtn.disabled = false;
-    showToast(`✅ تم تجهيز وإرسال ${successCount} إشعار بنجاح!`, 'success');
-    setTimeout(() => {
-        window.closeWABatchModal();
-    }, 1500);
+    if (successCount > 0) {
+        if (statusText) {
+            statusText.style.color = '#4ade80';
+            statusText.textContent = `✅ اكتمل الإرسال المباشر لـ ${successCount} طرف بنجاح!`;
+        }
+        showToast(`⚡ تم إرسال ${successCount} إشعار مباشرة عبر واتساب بنجاح دون فتح أي تطبيقات!`, 'success', 6000);
+        setTimeout(() => {
+            window.closeWABatchModal();
+        }, 1600);
+    } else {
+        if (statusText) {
+            statusText.style.color = '#f87171';
+            statusText.textContent = `⚠️ تعذر إرسال الإشعارات. يرجى التأكد من حالة الخادم وأرقام الهواتف.`;
+        }
+        showToast(`⚠️ تعذر إرسال الإشعارات عبر الخادم. تأكد من أرقام الهواتف.`, 'warning', 6000);
+    }
 };
 
 

@@ -252,6 +252,12 @@
             100% { transform: translateY(-8px) scale(1.06) rotate(0deg); }
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            min-height: calc(100vh + 160px);
+        }
         /* Layout Container taking full width with small equal padding */
         .analytics-container {
             width: 100%;
@@ -263,6 +269,7 @@
             flex-direction: column;
             gap: 30px;
             flex: 1;
+            min-height: calc(100vh + 160px);
         }
 
         /* Ultra Premium Header */
@@ -1008,13 +1015,7 @@
         :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
-
-
-
-
-</div>
+</style>
 
 
 

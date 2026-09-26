@@ -1890,7 +1890,8 @@ foreach ($rules as $r) {
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/fontawesome/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
 
     <style>
         :root {
@@ -2122,6 +2123,318 @@ foreach ($rules as $r) {
             margin-bottom: 26px;
             transition: all 0.3s ease;
         }
+
+        /* ═══════════════════════════════════════════════════════════════════
+           🛡️ TITANIUM ALARM COMMAND BAR (شريط التحكم والرقابة التنفيذي الفاخر)
+           ═══════════════════════════════════════════════════════════════════ */
+        .alarm-command-bar {
+            position: relative;
+            background: 
+                linear-gradient(135deg, rgba(15, 23, 42, 0.96) 0%, rgba(20, 26, 48, 0.94) 50%, rgba(13, 17, 34, 0.98) 100%) padding-box,
+                linear-gradient(135deg, rgba(244, 63, 94, 0.75) 0%, rgba(139, 92, 246, 0.55) 35%, rgba(56, 189, 248, 0.45) 70%, rgba(16, 185, 129, 0.45) 100%) border-box;
+            border: 2px solid transparent;
+            border-radius: 22px;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            padding: 18px 24px;
+            box-shadow: 
+                0 18px 45px rgba(0, 0, 0, 0.65),
+                0 0 35px rgba(244, 63, 94, 0.15),
+                inset 0 1px 1px rgba(255, 255, 255, 0.15),
+                inset 0 -1px 1px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 36px;
+            margin-bottom: 24px;
+            z-index: 10;
+            overflow: hidden;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .alarm-command-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 3%;
+            right: 3%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(244, 63, 94, 0.95) 20%, 
+                rgba(139, 92, 246, 0.95) 50%, 
+                rgba(56, 189, 248, 0.9) 80%, 
+                transparent 100%
+            );
+            border-radius: 2px;
+            pointer-events: none;
+            box-shadow: 0 0 14px rgba(244, 63, 94, 0.7);
+        }
+
+        .alarm-command-bar:hover {
+            box-shadow: 
+                0 22px 52px rgba(0, 0, 0, 0.75),
+                0 0 42px rgba(244, 63, 94, 0.25),
+                inset 0 1px 1px rgba(255, 255, 255, 0.25);
+            transform: translateY(-1px);
+        }
+
+        .alarm-cmd-brand {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
+            flex: 1 1 540px;
+        }
+
+        .alarm-cmd-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #ffffff;
+            box-shadow: 0 8px 22px rgba(244, 63, 94, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.35);
+            flex-shrink: 0;
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
+        }
+
+        .alarm-command-bar:hover .alarm-cmd-icon {
+            transform: scale(1.06) rotate(-3deg);
+            box-shadow: 0 10px 28px rgba(244, 63, 94, 0.6);
+        }
+
+        .alarm-cmd-info {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 0;
+        }
+
+        .alarm-cmd-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .alarm-cmd-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: -0.4px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            line-height: 1.25;
+        }
+
+        .alarm-badge-titanium {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.22), rgba(139, 92, 246, 0.28));
+            color: #fda4af;
+            border: 1px solid rgba(244, 63, 94, 0.45);
+            padding: 3px 10px;
+            border-radius: 999px;
+            letter-spacing: 0.6px;
+            text-transform: uppercase;
+        }
+
+        .alarm-badge-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            background: rgba(16, 185, 129, 0.16);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            padding: 3px 10px;
+            border-radius: 999px;
+        }
+
+        .alarm-cmd-sub {
+            font-size: 0.82rem;
+            color: #94a3b8;
+            font-weight: 600;
+            line-height: 1.6;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .alarm-chip {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.74rem;
+            font-weight: 800;
+            padding: 1.5px 7px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            letter-spacing: -0.2px;
+        }
+
+        /* ── مجموعة الأزرار التنفيذية الفاخرة (Executive Action Toolbar) ── */
+        .alarm-cmd-actions {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-wrap: wrap;
+        }
+
+        .alarm-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 9px 15px;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            white-space: nowrap;
+            user-select: none;
+            outline: none;
+            text-decoration: none;
+        }
+
+        .alarm-btn:active {
+            transform: scale(0.97);
+        }
+
+        /* 1. زر تفعيل الكل (Emerald) */
+        .alarm-btn-success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.18) 0%, rgba(5, 150, 105, 0.28) 100%);
+            border: 1.5px solid rgba(52, 211, 153, 0.55);
+            color: #34d399;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.18);
+        }
+        .alarm-btn-success:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3) 0%, rgba(5, 150, 105, 0.42) 100%);
+            border-color: #34d399;
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+            transform: translateY(-1.5px);
+        }
+
+        /* 2. زر تعطيل وتجاوز الكل (Rose) */
+        .alarm-btn-danger {
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.15) 0%, rgba(225, 29, 72, 0.25) 100%);
+            border: 1.5px solid rgba(251, 113, 133, 0.48);
+            color: #fb7185;
+            box-shadow: 0 4px 14px rgba(244, 63, 94, 0.18);
+        }
+        .alarm-btn-danger:hover {
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.28) 0%, rgba(225, 29, 72, 0.4) 100%);
+            border-color: #fb7185;
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(244, 63, 94, 0.35);
+            transform: translateY(-1.5px);
+        }
+
+        /* 3. زر طباعة المصفوفة (Slate) */
+        .alarm-btn-neutral {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+            border: 1.5px solid rgba(148, 163, 184, 0.4);
+            color: #f1f5f9;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .alarm-btn-neutral:hover {
+            background: linear-gradient(135deg, rgba(51, 65, 85, 0.9) 0%, rgba(30, 41, 59, 0.95) 100%);
+            border-color: #cbd5e1;
+            color: #ffffff;
+            box-shadow: 0 6px 18px rgba(148, 163, 184, 0.25);
+            transform: translateY(-1.5px);
+        }
+
+        /* 4. زر معاينة قبل الطباعة (Cyan) */
+        .alarm-btn-preview {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.18) 0%, rgba(14, 165, 233, 0.28) 100%);
+            border: 1.5px solid rgba(56, 189, 248, 0.55);
+            color: #38bdf8;
+            box-shadow: 0 4px 14px rgba(6, 182, 212, 0.18);
+        }
+        .alarm-btn-preview:hover {
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.32) 0%, rgba(14, 165, 233, 0.42) 100%);
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.35);
+            transform: translateY(-1.5px);
+        }
+
+        /* 5. زر فحص حي الآن (Crimson Pulse) */
+        .alarm-btn-pulse {
+            background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%);
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            box-shadow: 0 4px 18px rgba(244, 63, 94, 0.45);
+        }
+        .alarm-btn-pulse:hover {
+            background: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%);
+            box-shadow: 0 6px 24px rgba(244, 63, 94, 0.65);
+            transform: translateY(-1.5px);
+        }
+
+        .alarm-pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ffffff;
+            display: inline-block;
+            box-shadow: 0 0 8px #ffffff;
+            animation: alarmRadarPulse 1.8s infinite;
+        }
+
+        @keyframes alarmRadarPulse {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.35); opacity: 1; box-shadow: 0 0 12px #ffffff; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+
+        /* ── الوضع الفاتح (Light Theme Overrides) ── */
+        :root.light-theme .alarm-command-bar {
+            background: 
+                linear-gradient(145deg, #ffffff 0%, #f8fafc 100%) padding-box,
+                linear-gradient(135deg, rgba(244, 63, 94, 0.65) 0%, rgba(139, 92, 246, 0.5) 35%, rgba(56, 189, 248, 0.45) 70%, rgba(16, 185, 129, 0.45) 100%) border-box !important;
+            border: 2px solid transparent !important;
+            box-shadow: 
+                0 10px 28px rgba(15, 23, 42, 0.08),
+                0 0 20px rgba(244, 63, 94, 0.1),
+                inset 0 1px 1px rgba(255, 255, 255, 1) !important;
+        }
+        :root.light-theme .alarm-cmd-title {
+            color: #0f172a !important;
+            text-shadow: none !important;
+        }
+        :root.light-theme .alarm-cmd-sub {
+            color: #475569 !important;
+        }
+        :root.light-theme .alarm-chip {
+            background: rgba(15, 23, 42, 0.05) !important;
+            border-color: rgba(15, 23, 42, 0.12) !important;
+        }
+        :root.light-theme .alarm-btn-neutral {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+        }
     </style>
 </head>
 
@@ -2133,34 +2446,52 @@ foreach ($rules as $r) {
         
         <?php include "includes/header.php"; ?>
 
-        <!-- 🌟 ACTION CONTROLS & NAVIGATION BAR 🌟 -->
-        <div class="flex flex-wrap items-center justify-between gap-4 no-print bg-slate-900/85 border-2 border-rose-500/40 p-5 rounded-2xl shadow-2xl backdrop-blur-2xl">
-            <div>
-                <a href="magaiees_unified_dashboard.php" class="inline-flex items-center gap-2 text-rose-400 font-extrabold hover:underline text-sm mb-1.5">
-                    <i class="fa-solid fa-arrow-right"></i> ↩️ رجوع للوحة القيادة الموحدة (Unified Dashboard)
-                </a>
-                <h1 class="text-2xl md:text-3xl font-black flex items-center gap-3">
-                    <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
-                    مصفوفة الرقابة وإدارة التنبيهات العالمية Titanium (88 قاعدة)
-                </h1>
-                <p class="text-slate-400 text-xs md:text-sm mt-1 font-bold">
-                    منظومة رقابة ومكافحة احتيال عالمية تتفوق على أعتى البرامج (DLP، فصل المهام SoD، فتح الدرج، المطابقة الثلاثية 3-Way، حظر الحذف، والذكاء السلوكي).
-                </p>
+        <!-- 🌟 TITANIUM EXECUTIVE ALARM COMMAND BAR (منظومة الرقابة والتنبيهات الموحدة) 🌟 -->
+        <div class="alarm-command-bar no-print">
+            <div class="alarm-cmd-brand">
+                <div class="alarm-cmd-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="alarm-cmd-info">
+                    <div class="alarm-cmd-header">
+                        <h1 class="alarm-cmd-title">مصفوفة الرقابة وإدارة التنبيهات العالمية</h1>
+                        <span class="alarm-badge-titanium"><i class="fa-solid fa-microchip"></i> Titanium V8</span>
+                        <span class="alarm-badge-count"><i class="fa-solid fa-list-check"></i> 88 قاعدة معتمدة</span>
+                    </div>
+                    <div class="alarm-cmd-sub">
+                        <span>منظومة رقابة ومكافحة احتيال استباقية عالمية تتفوق على أعتى البرامج</span>
+                        <span class="alarm-chip text-rose-400">DLP</span>
+                        <span class="alarm-chip text-amber-400">فصل المهام SoD</span>
+                        <span class="alarm-chip text-cyan-400">فتح الدرج</span>
+                        <span class="alarm-chip text-emerald-400">المطابقة الثلاثية 3-Way</span>
+                        <span class="alarm-chip text-purple-400">حظر الحذف</span>
+                        <span class="alarm-chip text-sky-400">الذكاء السلوكي</span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Quick Bulk Actions -->
-            <div class="flex flex-wrap items-center gap-2.5">
-                <button type="button" onclick="bulkToggle('ALL', 1)" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
-                    <i class="fa-solid fa-check-double"></i> تفعيل الكل (88 قاعدة)
+            <!-- مجموعة الأزرار التنفيذية الفاخرة المنسقة -->
+            <div class="alarm-cmd-actions">
+                <button type="button" onclick="bulkToggle('ALL', 1)" class="alarm-btn alarm-btn-success" title="تفعيل جميع قواعد الرقابة الـ 88 فورياً">
+                    <i class="fa-solid fa-check-double"></i>
+                    <span>تفعيل الكل (88 قاعدة)</span>
                 </button>
-                <button type="button" onclick="bulkToggle('ALL', 0)" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
-                    <i class="fa-solid fa-ban"></i> تعطيل وتجاوز الكل
+                <button type="button" onclick="bulkToggle('ALL', 0)" class="alarm-btn alarm-btn-danger" title="تعطيل وتجاوز جميع القواعد مؤقتاً">
+                    <i class="fa-solid fa-ban"></i>
+                    <span>تعطيل وتجاوز الكل</span>
                 </button>
-                <button type="button" onclick="window.print();" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-xl text-xs transition flex items-center gap-1.5 border border-slate-700 shadow-md">
-                    <i class="fa-solid fa-print"></i> طباعة المصفوفة
+                <button type="button" onclick="if (typeof window.prepareForPrint === 'function') window.prepareForPrint(); window.print();" class="alarm-btn alarm-btn-preview" title="معاينة تقرير مصفوفة الرقابة قبل الطباعة">
+                    <i class="fa-solid fa-eye"></i>
+                    <span>معاينة قبل الطباعة</span>
                 </button>
-                <button type="button" onclick="refreshLiveEngine()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl text-xs transition shadow-lg flex items-center gap-1.5">
-                    <i class="fa-solid fa-rotate"></i> فحص حي الآن
+                <button type="button" onclick="window.print();" class="alarm-btn alarm-btn-neutral" title="طباعة مصفوفة الرقابة والتنبيهات المباشرة">
+                    <i class="fa-solid fa-print"></i>
+                    <span>طباعة المصفوفة</span>
+                </button>
+                <button type="button" onclick="refreshLiveEngine()" class="alarm-btn alarm-btn-pulse" title="إجراء فحص جنائي ورقابي حي ومباشر لكافة الشاشات الآن">
+                    <span class="alarm-pulse-dot"></span>
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>فحص حي الآن</span>
                 </button>
             </div>
         </div>
