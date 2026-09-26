@@ -1,6 +1,7 @@
 <script src="js/hls.light.min.js"></script>
 <script src="js/bban_auto_helper.js"></script>
 <script src="js/master-banks-helper.js?v=20260924_v1"></script>
+<script src="js/permissions-manager.js"></script>
 <script>
     // ═══════════════════════════════════════════════════════════════════
     // 🛡️ الحماية المطلقة الشاملة لمنع ظهور رسالة المتصفح (Leave Site) نهائياً

@@ -2011,10 +2011,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const user = JSON.parse(userStr);
         
-        // Auto-upgrade admin or local users to absolute superadmin (Level 10)
-        if (user.username === 'admin' || user.role === 'admin' || window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
+        // Admin Detection: True admin or system superadmin
+        if (user.username === 'admin' || user.role === 'admin' || user.userType === 'admin' || user.roleId === 'role_admin_default' || user.roleId === 'admin_fallback' || (user.securityLevel >= 9 && user.userType !== 'user')) {
             user.securityLevel = 10;
             user.role = 'admin';
+            user.userType = 'admin';
         }
         
         window.resolveUserPermissions = function(userObj) {
@@ -2136,12 +2137,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const currentModule = pageModuleMap[currentPage];
 
-        // Access Control
-        if (currentModule && currentModule !== 'dashboard') {
-            if (!perms[currentModule] || !perms[currentModule].view) {
-                alert('عفواً، ليس لديك صلاحية للدخول إلى هذه الشاشة.');
-                window.location.href = 'dashboard-pro.php';
-                return;
+        // Access Control (Granular Screen & Module Security)
+        if (currentPage !== 'login.php' && currentPage !== 'magaiees_unified_dashboard.php' && currentPage !== 'dashboard-pro.php' && currentPage !== 'index.php') {
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.canUserAccessScreen === 'function') {
+                if (!window.MagaieesPermissions.canUserAccessScreen(currentPage, user)) {
+                    alert('عفواً، ليس لديك صلاحية للدخول إلى هذه الشاشة (' + currentPage + ').');
+                    window.location.href = 'magaiees_unified_dashboard.php';
+                    return;
+                }
+                if (typeof window.MagaieesPermissions.applyScreenButtonSecurity === 'function') {
+                    window.MagaieesPermissions.applyScreenButtonSecurity(currentPage, user);
+                }
+            } else if (currentModule && currentModule !== 'dashboard') {
+                if (!perms[currentModule] || !perms[currentModule].view) {
+                    alert('عفواً، ليس لديك صلاحية للدخول إلى هذه الشاشة.');
+                    window.location.href = 'magaiees_unified_dashboard.php';
+                    return;
+                }
             }
         }
 

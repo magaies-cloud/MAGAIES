@@ -165,6 +165,11 @@ function renderUsersTable() {
 
     USERS.forEach(user => {
         const role = ROLES.find(r => r.id === user.roleId) || { name: 'غير معروف' };
+        const isAdmin = (user.userType === 'admin' || user.role === 'admin' || user.roleId === 'role_admin_default');
+        const userTypeBadge = isAdmin 
+            ? `<span class="badge" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid #ef4444; font-weight:800;">👑 مدير نظام</span>` 
+            : `<span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid #38bdf8; font-weight:800;">👤 مستخدم عادي</span>`;
+
         let statusBadge = user.status === 'active' 
             ? `<span class="badge badge-user">نشط</span>` 
             : user.status === 'forced_logout' ? `<span class="badge" style="background:#f59e0b; color:#fff; border-color:#f59e0b;">مطرود</span>` : `<span class="badge badge-admin">موقوف</span>`;
@@ -180,6 +185,7 @@ function renderUsersTable() {
         tr.innerHTML = `
             <td style="font-weight: bold; color: var(--primary-accent);">${user.username}</td>
             <td>${user.fullName}</td>
+            <td>${userTypeBadge}</td>
             <td>${role.name}</td>
             <td>${warehouseName}</td>
             <td>${statusBadge}</td>
@@ -229,7 +235,16 @@ function showUserForm() {
     toggleTimeFields();
     
     if(document.getElementById('user-data-scope')) document.getElementById('user-data-scope').value = 'all';
-    renderPermissionsMatrix(null, 'user-permissions-matrix-body');
+    
+    const studioContainer = document.getElementById('user-permissions-studio-container');
+    if (studioContainer && window.MagaieesPermissions) {
+        window.MagaieesPermissions.renderPermissionsStudioUI(studioContainer, {
+            userType: 'user',
+            allowedScreens: { 'direct-sales.php': true },
+            screenButtons: { 'direct-sales.php': { save: true, new: true, print: true, share: true } },
+            allowedReports: { 'rep_statement': true }
+        });
+    }
 }
 
 function hideUserForm() {
@@ -305,6 +320,16 @@ async function saveUser() {
                 };
             }
         });
+    }
+
+    let studioPerms = {
+        userType: 'user',
+        allowedScreens: {},
+        screenButtons: {},
+        allowedReports: {}
+    };
+    if (window.MagaieesPermissions && typeof window.MagaieesPermissions.collectStudioPermissionsData === 'function') {
+        studioPerms = window.MagaieesPermissions.collectStudioPermissionsData();
     }
 
     let hasError = false;
@@ -414,6 +439,11 @@ async function saveUser() {
             USERS[userIndex].allowedDays = allowedDays;
             USERS[userIndex].dataScope = dataScope;
             USERS[userIndex].permissionsOverrides = permissionsOverrides;
+            USERS[userIndex].userType = studioPerms.userType;
+            USERS[userIndex].role = studioPerms.userType === 'admin' ? 'admin' : (roleId || USERS[userIndex].role || 'user');
+            USERS[userIndex].allowedScreens = studioPerms.allowedScreens;
+            USERS[userIndex].screenButtons = studioPerms.screenButtons;
+            USERS[userIndex].allowedReports = studioPerms.allowedReports;
         }
     } else {
         // Add new
@@ -442,9 +472,26 @@ async function saveUser() {
             allowedDays,
             dataScope,
             permissionsOverrides,
+            userType: studioPerms.userType,
+            role: studioPerms.userType === 'admin' ? 'admin' : (roleId || 'user'),
+            allowedScreens: studioPerms.allowedScreens,
+            screenButtons: studioPerms.screenButtons,
+            allowedReports: studioPerms.allowedReports,
             isSystem: false
         });
     }
+
+    try {
+        const currentActive = JSON.parse(localStorage.getItem('user') || '{}');
+        if (currentActive && (currentActive.id === id || currentActive.username === username)) {
+            currentActive.userType = studioPerms.userType;
+            currentActive.role = studioPerms.userType === 'admin' ? 'admin' : (currentActive.role || 'user');
+            currentActive.allowedScreens = studioPerms.allowedScreens;
+            currentActive.screenButtons = studioPerms.screenButtons;
+            currentActive.allowedReports = studioPerms.allowedReports;
+            localStorage.setItem('user', JSON.stringify(currentActive));
+        }
+    } catch(e) {}
 
     localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
     if (typeof window.pushToCloud === 'function') {
@@ -476,8 +523,10 @@ function editUser(id) {
     document.getElementById('user-warehouse').value = user.warehouse;
     document.getElementById('user-status').value = user.status;
     
-    if(document.getElementById('user-data-scope')) document.getElementById('user-data-scope').value = user.dataScope || 'all';
-    renderPermissionsMatrix(user.permissionsOverrides || null, 'user-permissions-matrix-body');
+    const studioContainer = document.getElementById('user-permissions-studio-container');
+    if (studioContainer && window.MagaieesPermissions) {
+        window.MagaieesPermissions.renderPermissionsStudioUI(studioContainer, user);
+    }
     
     // Geo load
     document.getElementById('user-geo-restricted').checked = !!user.geoRestricted;

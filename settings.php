@@ -1050,12 +1050,12 @@ try {
 
         <!-- Tab: Users -->
         <div class="tab-content" id="tab-users">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
                 
                 <div class="glass-panel" id="panel-users" style="margin: 0;">
-                    <div class="setting-title" style="border: none; margin-bottom: 10px;">🛡️ إدارة المستخدمين</div>
-                    <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">إدارة حسابات الموظفين، تحديد الأدوار (أدمن، محاسب، بائع)، وتخصيص الصلاحيات.</p>
-                    <button class="action-btn btn-users" onclick="window.location.href='users-roles.php'" style="margin-top: 15px;">⚙️ فتح إدارة المستخدمين</button>
+                    <div class="setting-title" style="border: none; margin-bottom: 10px;">🛡️ إدارة المستخدمين الشاملة</div>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">إدارة حسابات الموظفين، تحديد نوع المستخدم (مدير نظام أو عادي)، وتخصيص ظهور كل شاشة وأزرارها وتقاريرها بدقة.</p>
+                    <button class="action-btn btn-users" onclick="window.location.href='users-roles.php'" style="margin-top: 15px;">⚙️ فتح شاشة المستخدمين المستقلة</button>
                 </div>
 
                 <div class="glass-panel" id="panel-whatsapp" style="margin: 0;">
@@ -1069,7 +1069,57 @@ try {
                     <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">سجل شامل لجميع حركات النظام لتتبع ومراقبة العمليات والتدقيق الأمني.</p>
                     <button class="action-btn" style="background: rgba(15,23,42,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); margin-top: 15px;" onclick="window.location.href='audit-log.php'">🔍 فتح الصندوق الأسود</button>
                 </div>
-                
+            </div>
+
+            <!-- EMBEDDED GRANULAR USERS & PERMISSIONS STUDIO -->
+            <div class="glass-panel" style="margin:0; padding:25px; border:1px solid rgba(56,189,248,0.3); border-radius:18px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:15px; margin-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:15px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                        <span style="font-size:1.6rem;">🛡️</span>
+                        <div>
+                            <h3 style="margin:0; font-size:1.3rem; color:#38bdf8; font-weight:800;">التحكم الدقيق في صلاحيات المستخدمين والشاشات</h3>
+                            <p style="margin:3px 0 0 0; color:#94a3b8; font-size:0.85rem;">اختر الموظف للتحكم في ظهور الشاشات، وصلاحيات الأزرار (حفظ، جديد، تعديل، حذف، طباعة، مشاركة)، والتقارير</p>
+                        </div>
+                    </div>
+                    
+                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                        <label style="color:#e2e8f0; font-weight:700; font-size:0.9rem;">المستخدم:</label>
+                        <select id="settings-user-select" onchange="window.loadUserSettingsStudio(this.value)" style="padding:10px 16px; border-radius:10px; background:#0f172a; border:1px solid #38bdf8; color:#fff; font-size:0.95rem; font-weight:700; outline:none; min-width:200px;">
+                            <!-- Populated dynamically -->
+                        </select>
+                        <button type="button" onclick="window.openNewUserInSettings()" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer;">
+                            + مستخدم جديد
+                        </button>
+                        <button type="button" onclick="window.saveUserSettingsPermissions()" style="background:#10b981; border:none; color:#030712; padding:10px 22px; border-radius:10px; font-weight:800; cursor:pointer; font-size:0.95rem; box-shadow:0 0 15px rgba(16,185,129,0.4);">
+                            💾 حفظ صلاحيات المستخدم
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modal / Inline New User Form -->
+                <div id="settings-new-user-modal" style="display:none; background:rgba(0,0,0,0.5); padding:15px; border-radius:14px; border:1px dashed #38bdf8; margin-bottom:20px;">
+                    <h4 style="margin:0 0 12px 0; color:#38bdf8;">إضافة مستخدم جديد:</h4>
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+                        <div><label style="font-size:0.8rem; color:#94a3b8;">الاسم الكامل:</label><input type="text" id="new-u-fullname" placeholder="مثال: أحمد محمد" class="form-input"></div>
+                        <div><label style="font-size:0.8rem; color:#94a3b8;">اسم الدخول (Username):</label><input type="text" id="new-u-username" placeholder="ahmed" class="form-input"></div>
+                        <div><label style="font-size:0.8rem; color:#94a3b8;">كلمة المرور:</label><input type="password" id="new-u-password" placeholder="••••••" class="form-input"></div>
+                    </div>
+                    <div style="margin-top:12px; display:flex; gap:10px;">
+                        <button type="button" onclick="window.confirmCreateNewUserInSettings()" style="background:#38bdf8; color:#030712; border:none; padding:8px 18px; border-radius:8px; font-weight:700; cursor:pointer;">إضافة وتعيين الصلاحيات</button>
+                        <button type="button" onclick="document.getElementById('settings-new-user-modal').style.display='none'" style="background:transparent; color:#94a3b8; border:1px solid #64748b; padding:8px 16px; border-radius:8px; cursor:pointer;">إلغاء</button>
+                    </div>
+                </div>
+
+                <!-- Dynamic Container for the Studio -->
+                <div id="settings-permissions-studio-container">
+                    <!-- Populated dynamically via MagaieesPermissions -->
+                </div>
+
+                <div style="margin-top:20px; display:flex; justify-content:flex-end;">
+                    <button type="button" onclick="window.saveUserSettingsPermissions()" style="background:#10b981; border:none; color:#030712; padding:12px 28px; border-radius:12px; font-weight:800; cursor:pointer; font-size:1rem; box-shadow:0 0 20px rgba(16,185,129,0.4);">
+                        💾 حفظ وتطبيق الصلاحيات فوراً
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -1461,6 +1511,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (targetTab) {
             targetTab.classList.add('active');
             targetTab.style.display = 'block';
+            if (tabId === 'users' && typeof window.initSettingsUsersStudio === 'function') {
+                window.initSettingsUsersStudio();
+            }
         }
     }
 
@@ -1473,6 +1526,167 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     window.switchTab = switchTab;
     window.switchPrintTab = switchPrintTab;
+
+    // ═══════════════════════════════════════════════════════════════════
+    // SETTINGS USERS & PERMISSIONS STUDIO CONTROLLER
+    // ═══════════════════════════════════════════════════════════════════
+    window.initSettingsUsersStudio = function() {
+        let users = [];
+        try {
+            users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+        } catch(e) {}
+
+        if (!users || users.length === 0) {
+            users = [
+                { id: 'u_admin_default', username: 'admin', fullName: 'مدير النظام', userType: 'admin', role: 'admin', isSystem: true },
+                { id: 'u_c_default', username: 'c', fullName: 'المستخدم الرئيسي (c)', userType: 'admin', role: 'admin', isSystem: true }
+            ];
+            localStorage.setItem('erp_users_v1', JSON.stringify(users));
+        }
+
+        const select = document.getElementById('settings-user-select');
+        if (!select) return;
+        const currentSelected = select.value;
+        select.innerHTML = '';
+        users.forEach(u => {
+            const isAdmin = (u.userType === 'admin' || u.role === 'admin');
+            const typeLabel = isAdmin ? '👑 مدير نظام' : '👤 مستخدم عادي';
+            select.innerHTML += `<option value="${u.id}">${u.fullName || u.username} (${u.username}) - [${typeLabel}]</option>`;
+        });
+
+        if (currentSelected && users.some(u => u.id === currentSelected)) {
+            select.value = currentSelected;
+            window.loadUserSettingsStudio(currentSelected);
+        } else if (users.length > 0) {
+            select.value = users[0].id;
+            window.loadUserSettingsStudio(users[0].id);
+        }
+    };
+
+    window.loadUserSettingsStudio = function(userId) {
+        let users = [];
+        try {
+            users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+        } catch(e) {}
+        const targetUser = users.find(u => u.id === userId) || users[0];
+        if (!targetUser) return;
+
+        const container = document.getElementById('settings-permissions-studio-container');
+        if (container && window.MagaieesPermissions) {
+            window.MagaieesPermissions.renderPermissionsStudioUI(container, targetUser);
+        }
+    };
+
+    window.saveUserSettingsPermissions = function() {
+        const select = document.getElementById('settings-user-select');
+        if (!select || !select.value) return;
+        const userId = select.value;
+
+        let users = [];
+        try {
+            users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+        } catch(e) {}
+        const userIndex = users.findIndex(u => u.id === userId);
+        if (userIndex === -1) return;
+
+        if (!window.MagaieesPermissions) return;
+        const permsData = window.MagaieesPermissions.collectStudioPermissionsData();
+
+        users[userIndex].userType = permsData.userType;
+        users[userIndex].role = permsData.userType === 'admin' ? 'admin' : (users[userIndex].role || 'user');
+        users[userIndex].allowedScreens = permsData.allowedScreens;
+        users[userIndex].screenButtons = permsData.screenButtons;
+        users[userIndex].allowedReports = permsData.allowedReports;
+
+        localStorage.setItem('erp_users_v1', JSON.stringify(users));
+
+        // If currently logged-in user is this user, update active user object in localStorage!
+        try {
+            const currentActive = JSON.parse(localStorage.getItem('user') || '{}');
+            if (currentActive && (currentActive.id === userId || currentActive.username === users[userIndex].username)) {
+                currentActive.userType = users[userIndex].userType;
+                currentActive.role = users[userIndex].role;
+                currentActive.allowedScreens = users[userIndex].allowedScreens;
+                currentActive.screenButtons = users[userIndex].screenButtons;
+                currentActive.allowedReports = users[userIndex].allowedReports;
+                localStorage.setItem('user', JSON.stringify(currentActive));
+            }
+        } catch(e) {}
+
+        // Cloud sync
+        if (typeof window.pushToCloud === 'function') {
+            window.pushToCloud(true).catch(console.error);
+        }
+
+        if (typeof showToast === 'function') {
+            showToast('✅ تم حفظ وتطبيق الصلاحيات بنجاح للمستخدم: ' + (users[userIndex].fullName || users[userIndex].username), 'success');
+        } else {
+            alert('✅ تم حفظ وتطبيق الصلاحيات بنجاح للمستخدم: ' + (users[userIndex].fullName || users[userIndex].username));
+        }
+
+        window.initSettingsUsersStudio();
+        select.value = userId;
+    };
+
+    window.openNewUserInSettings = function() {
+        const modal = document.getElementById('settings-new-user-modal');
+        if (modal) {
+            modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
+            document.getElementById('new-u-fullname').value = '';
+            document.getElementById('new-u-username').value = '';
+            document.getElementById('new-u-password').value = '';
+        }
+    };
+
+    window.confirmCreateNewUserInSettings = function() {
+        const fullName = (document.getElementById('new-u-fullname').value || '').trim();
+        const username = (document.getElementById('new-u-username').value || '').trim().toLowerCase();
+        const password = document.getElementById('new-u-password').value;
+
+        if (!username || !password) {
+            alert('يرجى كتابة اسم الدخول وكلمة المرور');
+            return;
+        }
+
+        let users = [];
+        try {
+            users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+        } catch(e) {}
+
+        if (users.some(u => u.username === username)) {
+            alert('اسم المستخدم هذا مستخدم مسبقاً، يرجى اختيار اسم آخر.');
+            return;
+        }
+
+        const newUser = {
+            id: 'u_' + Date.now(),
+            username: username,
+            password: password,
+            fullName: fullName || username,
+            userType: 'user',
+            role: 'user',
+            status: 'active',
+            allowedScreens: { 'direct-sales.php': true },
+            screenButtons: { 'direct-sales.php': { save: true, new: true, print: true, share: true } },
+            allowedReports: { 'rep_statement': true }
+        };
+
+        users.push(newUser);
+        localStorage.setItem('erp_users_v1', JSON.stringify(users));
+
+        if (typeof window.pushToCloud === 'function') {
+            window.pushToCloud(true).catch(console.error);
+        }
+
+        document.getElementById('settings-new-user-modal').style.display = 'none';
+        window.initSettingsUsersStudio();
+        document.getElementById('settings-user-select').value = newUser.id;
+        window.loadUserSettingsStudio(newUser.id);
+
+        if (typeof showToast === 'function') {
+            showToast('تمت إضافة المستخدم بنجاح. يمكنك الآن تخصيص صلاحياته وحفظها.', 'success');
+        }
+    };
 
                 window.handleExchangeModeChange = function(select) {
         const rateInput = document.getElementById('cfg-rate-usd');

@@ -2614,17 +2614,25 @@
 
             const popoverList = document.getElementById('cat-popover-list');
             if (popoverList) {
-                popoverList.innerHTML = cat.screens.map(scr => `
-                    <a href="${scr.href}" onclick="window.location.href='${scr.href}'" class="screen-popover-item" style="--item-border-color: ${scr.border}; --item-glow-color: ${scr.bg}; border-bottom: 2.5px solid ${scr.border} !important; background: rgba(15, 23, 42, 0.95) !important;">
-                        <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
-                            <span class="qa-icon" style="width: 32px; height: 32px; min-width: 32px; font-size: 0.88rem; border-radius: 8px; background: ${scr.bg}; border: 1px solid ${scr.border}; color: ${scr.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                <i class="fa-solid ${scr.icon}"></i>
-                            </span>
-                            <span class="screen-title" style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">${scr.label}</span>
-                        </div>
-                        <i class="fa-solid fa-arrow-left screen-arrow" style="font-size: 0.8rem; color: ${scr.color}; opacity: 0.9;"></i>
-                    </a>
-                `).join('');
+                const visibleScreens = (window.MagaieesPermissions && typeof window.MagaieesPermissions.canUserAccessScreen === 'function')
+                    ? cat.screens.filter(scr => window.MagaieesPermissions.canUserAccessScreen(scr.href))
+                    : cat.screens;
+
+                if (visibleScreens.length === 0) {
+                    popoverList.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8; font-size:0.9rem;">🚫 لا تملك صلاحية للوصول إلى أي شاشة في هذا القسم.</div>';
+                } else {
+                    popoverList.innerHTML = visibleScreens.map(scr => `
+                        <a href="${scr.href}" onclick="window.location.href='${scr.href}'" class="screen-popover-item" style="--item-border-color: ${scr.border}; --item-glow-color: ${scr.bg}; border-bottom: 2.5px solid ${scr.border} !important; background: rgba(15, 23, 42, 0.95) !important;">
+                            <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
+                                <span class="qa-icon" style="width: 32px; height: 32px; min-width: 32px; font-size: 0.88rem; border-radius: 8px; background: ${scr.bg}; border: 1px solid ${scr.border}; color: ${scr.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fa-solid ${scr.icon}"></i>
+                                </span>
+                                <span class="screen-title" style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">${scr.label}</span>
+                            </div>
+                            <i class="fa-solid fa-arrow-left screen-arrow" style="font-size: 0.8rem; color: ${scr.color}; opacity: 0.9;"></i>
+                        </a>
+                    `).join('');
+                }
             }
 
             // Calculate Position relative to targetBtn in RTL layout
@@ -2737,7 +2745,10 @@
             const grid = document.getElementById('qa-single-row-grid');
             if (!grid) return;
 
-            const activeItems = selectedIds.map(id => ALL_QUICK_ACTIONS.find(a => a.id === id)).filter(Boolean);
+            let activeItems = selectedIds.map(id => ALL_QUICK_ACTIONS.find(a => a.id === id)).filter(Boolean);
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.canUserAccessScreen === 'function') {
+                activeItems = activeItems.filter(item => window.MagaieesPermissions.canUserAccessScreen(item.href));
+            }
             
             grid.innerHTML = activeItems.map(item => `
                 <a data-href="${item.href}" onclick="window.location.href='${item.href}'" class="qa-master-btn" style="--btn-border-color: ${item.border}; --btn-glow-color: ${item.bg}; border-bottom: 3.5px solid ${item.border} !important;">
@@ -2762,6 +2773,9 @@
             }
 
             let unselected = ALL_QUICK_ACTIONS.filter(item => !selectedIds.includes(item.id));
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.canUserAccessScreen === 'function') {
+                unselected = unselected.filter(item => window.MagaieesPermissions.canUserAccessScreen(item.href));
+            }
 
             if (currentScreenSortMode === 'alphabetical') {
                 unselected.sort((a, b) => a.label.localeCompare(b.label, 'ar'));

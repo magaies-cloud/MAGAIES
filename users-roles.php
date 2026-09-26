@@ -329,32 +329,10 @@
                                 </div>
                             </div>
 
-                            <!-- User Permissions Overrides -->
-                            <div class="input-group" style="grid-column: 1 / -1; background: rgba(56, 189, 248, 0.05); padding: 15px; border-radius: 8px; border: 1px dashed #38bdf8; margin-top: 10px;">
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <label style="font-weight: 800; color: #38bdf8; font-size: 1rem; margin:0;">
-                                        🛡️ تخصيص استثناءات الصلاحيات (User-Level Overrides)
-                                    </label>
-                                    <button type="button" class="btn-cancel" style="padding: 5px 10px; font-size: 0.8rem; margin:0; border-color: #38bdf8; color: #38bdf8;" onclick="selectAllUserPermissions()">تحديد الكل</button>
-                                </div>
-                                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 8px; margin-bottom: 12px;">في حال تفعيل أي صلاحية هنا، ستكون هذه الصلاحية خاصة به وتتجاوز صلاحيات دوره الوظيفي الأساسي.</p>
-                                <div class="table-responsive">
-                                    <table class="matrix-table">
-                                        <thead>
-                                            <tr>
-                                                <th>القسم / الشاشة</th>
-                                                <th>دخول (View)</th>
-                                                <th>إضافة (Add)</th>
-                                                <th>تعديل (Edit)</th>
-                                                <th>حذف (Delete)</th>
-                                                <th>طباعة (Print)</th>
-                                                <th>اعتماد (Approve)</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="user-permissions-matrix-body">
-                                            <!-- Populated dynamically via JS -->
-                                        </tbody>
-                                    </table>
+                            <!-- Unified Granular Permissions Studio Container -->
+                            <div class="input-group" style="grid-column: 1 / -1; margin-top: 15px;">
+                                <div id="user-permissions-studio-container">
+                                    <!-- Populated dynamically via MagaieesPermissions.renderPermissionsStudioUI -->
                                 </div>
                             </div>
                             
@@ -372,6 +350,7 @@
                                 <tr>
                                     <th>اسم المستخدم</th>
                                     <th>الاسم الكامل</th>
+                                    <th>نوع الحساب</th>
                                     <th>الدور الوظيفي</th>
                                     <th>المخزن الافتراضي</th>
                                     <th>الحالة</th>
@@ -492,7 +471,7 @@
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
-    <script defer src="js/users-roles.js?v=20260723_v14"></script>
+    <script defer src="js/users-roles.js?v=<?php echo file_exists('js/users-roles.js') ? filemtime('js/users-roles.js') : '1'; ?>"></script>
     <script>
         // Simple Tab Switcher for this page
         function openTab(evt, tabId) {
