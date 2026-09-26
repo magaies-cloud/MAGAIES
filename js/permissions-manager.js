@@ -3742,33 +3742,76 @@
                                 </div>
 
                                 <div id="studio-geo-fields-wrapper" style="opacity:${geoRestricted ? '1' : '0.45'}; pointer-events:${geoRestricted ? 'auto' : 'none'}; transition:all 0.3s;">
-                                    <p style="margin:0 0 16px 0; font-size:0.85rem; color:#cbd5e1; line-height:1.5;">
+                                    <p style="margin:0 0 16px 0; font-size:0.85rem; color:#cbd5e1; line-height:1.6;">
                                         📍 إذا تواجد الموظف خارج النطاق الجغرافي المحدد، <strong style="color:#f87171;">تتوقف كافة صلاحيات النظام</strong> ولن يتمكن من الوصول لأي شاشة أو زر.
                                     </p>
 
+                                    <!-- 1. Multi-Method Quick Action Buttons -->
+                                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:10px; margin-bottom:16px;">
+                                        <button type="button" onclick="window.openInteractiveGeoMapModal()" style="background:linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,78,59,0.4)); border:1.5px solid #10b981; color:#34d399; padding:12px 14px; border-radius:12px; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 15px rgba(16,185,129,0.2); transition:all 0.2s;">
+                                            <i class="fa-solid fa-map-location-dot" style="font-size:1.15rem; color:#10b981;"></i>
+                                            <span>🗺️ فتح الخريطة واختيار الموقع</span>
+                                        </button>
+
+                                        <button type="button" onclick="window.getCurrentGPSInStudio()" style="background:rgba(56,189,248,0.12); border:1.5px solid rgba(56,189,248,0.4); color:#38bdf8; padding:12px 14px; border-radius:12px; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s;">
+                                            <i class="fa-solid fa-crosshairs" style="font-size:1.15rem; color:#38bdf8;"></i>
+                                            <span>🎯 رصد موقعي الحالي بالـ GPS</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- 2. WhatsApp & Google Maps Smart Importer Box -->
+                                    <div style="background:rgba(2, 6, 23, 0.55); border:1.5px solid rgba(34,197,94,0.3); border-radius:14px; padding:14px 16px; margin-bottom:16px; box-shadow:0 4px 20px rgba(0,0,0,0.25);">
+                                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+                                            <div style="display:flex; align-items:center; gap:8px;">
+                                                <span style="width:28px; height:28px; border-radius:8px; background:rgba(37,211,102,0.18); border:1px solid #25d366; color:#25d366; display:flex; align-items:center; justify-content:center; font-size:0.95rem;">
+                                                    <i class="fa-brands fa-whatsapp"></i>
+                                                </span>
+                                                <span style="font-size:0.88rem; font-weight:800; color:#86efac;">استيراد الموقع من الواتساب أو خرائط Google</span>
+                                            </div>
+                                            <button type="button" onclick="window.pasteFromClipboardToWhatsAppGeo()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; padding:5px 12px; border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                                                <i class="fa-regular fa-clipboard"></i> لصق تلقائي من الحافظة
+                                            </button>
+                                        </div>
+                                        <p style="font-size:0.76rem; color:#94a3b8; margin:0 0 10px 0; line-height:1.4;">
+                                            إذا أرسل لك الموظف موقعه عبر الواتساب، الصق الرسالة أو رابط خرائط جوجل هنا وسيقوم النظام باستخراج الإحداثيات وتحديد الموقع فوراً:
+                                        </p>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <input type="text" id="studio-whatsapp-geo-input" placeholder="الصق رسالة الواتساب أو رابط خرائط جوجل (مثل: https://maps.google.com/?q=... أو إحداثيات)..." class="form-input" style="flex:1; padding:10px 14px; background:#0f172a; border:1px solid rgba(34,197,94,0.35); color:#fff; border-radius:10px; font-size:0.85rem; font-weight:600; outline:none;" onkeydown="if(event.key==='Enter'){event.preventDefault(); window.applyWhatsAppLocationToStudio();}">
+                                            <button type="button" onclick="window.applyWhatsAppLocationToStudio()" style="background:linear-gradient(135deg, #25d366, #16a34a); color:#052e16; border:none; padding:10px 18px; border-radius:10px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap; box-shadow:0 4px 12px rgba(37,211,102,0.3);">
+                                                <i class="fa-solid fa-arrow-down-to-bracket"></i> استخراج
+                                            </button>
+                                        </div>
+                                        <div id="studio-whatsapp-status" style="margin-top:8px; font-size:0.78rem; text-align:right;"></div>
+                                    </div>
+
+                                    <!-- 3. Coordinates & Radius Fields -->
                                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
                                         <div>
                                             <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">خط العرض (Latitude):</label>
-                                            <input type="number" step="any" id="studio-geo-lat" value="${geoLat || ''}" placeholder="مثال: 15.3694" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
+                                            <input type="number" step="any" id="studio-geo-lat" value="${geoLat || ''}" placeholder="مثال: 15.369400" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;" oninput="window.updateStudioGeoInlineBadge()">
                                         </div>
                                         <div>
                                             <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">خط الطول (Longitude):</label>
-                                            <input type="number" step="any" id="studio-geo-lng" value="${geoLng || ''}" placeholder="مثال: 44.1910" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
+                                            <input type="number" step="any" id="studio-geo-lng" value="${geoLng || ''}" placeholder="مثال: 44.191000" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;" oninput="window.updateStudioGeoInlineBadge()">
                                         </div>
                                     </div>
 
-                                    <div style="margin-bottom:16px;">
-                                        <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">نطاق السماح بالمتر (Radius Meters):</label>
-                                        <input type="number" id="studio-geo-radius" value="${geoRadius || 500}" placeholder="500" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
-                                        <span style="font-size:0.75rem; color:#94a3b8; display:block; margin-top:4px;">نطاق القطر المسموح به حول النقطة (الافتراضي: 500 متر).</span>
+                                    <div style="margin-bottom:14px;">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                            <label style="font-size:0.82rem; font-weight:700; color:#94a3b8;">نطاق السماح بالمتر (Radius Meters):</label>
+                                            <span id="studio-geo-radius-display" style="font-size:0.82rem; font-weight:800; color:#34d399;">${geoRadius || 500} متر</span>
+                                        </div>
+                                        <div style="display:flex; gap:10px; align-items:center;">
+                                            <input type="number" id="studio-geo-radius" value="${geoRadius || 500}" placeholder="500" class="form-input" style="width:110px; padding:8px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;" oninput="const r=document.getElementById('studio-geo-radius-range'); if(r) r.value=this.value; const d=document.getElementById('studio-geo-radius-display'); if(d) d.innerText=this.value+' متر'; window.updateStudioGeoInlineBadge();">
+                                            <input type="range" id="studio-geo-radius-range" min="50" max="5000" step="50" value="${geoRadius || 500}" style="flex:1; accent-color:#10b981; cursor:pointer;" oninput="const n=document.getElementById('studio-geo-radius'); if(n) n.value=this.value; const d=document.getElementById('studio-geo-radius-display'); if(d) d.innerText=this.value+' متر'; window.updateStudioGeoInlineBadge();">
+                                        </div>
+                                        <span style="font-size:0.75rem; color:#94a3b8; display:block; margin-top:4px;">المسافة المسموح بها للموظف للابتعاد عن النقطة (من 50 متراً إلى 5 كيلومترات).</span>
                                     </div>
 
-                                    <div style="display:flex; flex-direction:column; gap:8px;">
-                                        <button type="button" onclick="window.getCurrentGPSInStudio()" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:10px 16px; border-radius:10px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-                                            <i class="fa-solid fa-crosshairs"></i> 🎯 تحديد موقعي الحالي تلقائياً بالـ GPS
-                                        </button>
-                                        <span id="studio-gps-status" style="font-size:0.8rem; color:#94a3b8; text-align:center;"></span>
-                                    </div>
+                                    <!-- 4. Visual Location Status Badge -->
+                                    <div id="studio-geo-status-badge" style="background:rgba(15,23,42,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px 16px; margin-bottom:12px;"></div>
+
+                                    <span id="studio-gps-status" style="font-size:0.8rem; color:#94a3b8; text-align:center; display:block;"></span>
                                 </div>
                             </div>
 
@@ -3809,6 +3852,9 @@
         setTimeout(() => {
             if (typeof window.onStudioSecLevelChange === 'function') {
                 window.onStudioSecLevelChange(userSecLevel);
+            }
+            if (typeof window.updateStudioGeoInlineBadge === 'function') {
+                window.updateStudioGeoInlineBadge();
             }
         }, 50);
     }
@@ -3863,6 +3909,7 @@
             wrap.style.opacity = isChecked ? '1' : '0.45';
             wrap.style.pointerEvents = isChecked ? 'auto' : 'none';
         }
+        window.updateStudioGeoInlineBadge();
     };
 
     window.setStudioWorkDaysPreset = function(preset) {
@@ -3879,30 +3926,586 @@
         });
     };
 
+    // ─────────────────────────────────────────────────────────────────
+    // 🗺️ MAGAIEES ADVANCED MULTI-METHOD LOCATION & GEOFENCING ENGINE
+    // ─────────────────────────────────────────────────────────────────
+
+    // 1. Ensure Leaflet Library is Dynamically Loaded
+    function ensureLeafletLoaded(callback) {
+        if (window.L && typeof window.L.map === 'function') {
+            if (callback) callback();
+            return;
+        }
+
+        if (!document.getElementById('magaiees-leaflet-css') && !document.querySelector('link[href*="leaflet"]')) {
+            const link = document.createElement('link');
+            link.id = 'magaiees-leaflet-css';
+            link.rel = 'stylesheet';
+            link.href = 'css/leaflet.css';
+            document.head.appendChild(link);
+        }
+
+        let script = document.getElementById('magaiees-leaflet-js') || document.querySelector('script[src*="leaflet"]');
+        if (!script) {
+            script = document.createElement('script');
+            script.id = 'magaiees-leaflet-js';
+            script.src = 'js/leaflet.js';
+            script.onload = () => { if (callback) callback(); };
+            script.onerror = () => {
+                const cdn = document.createElement('script');
+                cdn.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                cdn.onload = () => { if (callback) callback(); };
+                document.head.appendChild(cdn);
+            };
+            document.head.appendChild(script);
+        } else {
+            if (window.L && typeof window.L.map === 'function') {
+                if (callback) callback();
+            } else {
+                script.addEventListener('load', () => { if (callback) callback(); });
+            }
+        }
+    }
+
+    // 2. Intelligent WhatsApp & Google Maps Location Parser
+    function parseWhatsAppOrMapsInput(rawText) {
+        if (!rawText || typeof rawText !== 'string') return { success: false };
+
+        // Convert Eastern Arabic numerals (٠١٢٣٤٥٦٧٨٩) to standard English ASCII (0-9)
+        let clean = rawText.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
+
+        // Pattern A: Google Maps @lat,lng
+        const atMatch = clean.match(/@(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/);
+        if (atMatch) {
+            const lat = parseFloat(atMatch[1]), lng = parseFloat(atMatch[2]);
+            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                return { success: true, lat, lng, source: 'google_maps_at' };
+            }
+        }
+
+        // Pattern B: Query params q=lat,lng or ll=lat,lng
+        const qMatch = clean.match(/[?&](?:q|query|ll)=(-?\d{1,2}\.\d+)[,+](-?\d{1,3}\.\d+)/);
+        if (qMatch) {
+            const lat = parseFloat(qMatch[1]), lng = parseFloat(qMatch[2]);
+            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                return { success: true, lat, lng, source: 'google_maps_query' };
+            }
+        }
+
+        // Pattern C: Apple Maps or Geo URI (geo:lat,lng)
+        const geoUriMatch = clean.match(/geo:(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/i);
+        if (geoUriMatch) {
+            const lat = parseFloat(geoUriMatch[1]), lng = parseFloat(geoUriMatch[2]);
+            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                return { success: true, lat, lng, source: 'geo_uri' };
+            }
+        }
+
+        // Pattern D: Plain text coordinates (e.g., 15.369444, 44.191000 or 15.369444 44.191000)
+        const textCoordsMatch = clean.match(/(-?\d{1,2}\.\d{3,})[\s,]+(-?\d{1,3}\.\d{3,})/);
+        if (textCoordsMatch) {
+            const lat = parseFloat(textCoordsMatch[1]), lng = parseFloat(textCoordsMatch[2]);
+            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                return { success: true, lat, lng, source: 'plain_coords' };
+            }
+        }
+
+        // Pattern E: Short URLs that require server-side redirect following (maps.app.goo.gl or goo.gl/maps)
+        const urlMatch = clean.match(/https?:\/\/[^\s]+/i);
+        if (urlMatch) {
+            return { success: false, isShortUrl: true, url: urlMatch[0] };
+        }
+
+        return { success: false };
+    }
+
+    // 3. Apply Coordinates to Studio with Visual Feedback
+    function applyCoordinatesToStudio(lat, lng, sourceName) {
+        const latIn = document.getElementById('studio-geo-lat');
+        const lngIn = document.getElementById('studio-geo-lng');
+        const cb = document.getElementById('studio-geo-restricted');
+
+        if (latIn) latIn.value = parseFloat(lat).toFixed(6);
+        if (lngIn) lngIn.value = parseFloat(lng).toFixed(6);
+
+        if (cb && !cb.checked) {
+            cb.checked = true;
+            if (typeof window.toggleStudioGeoFields === 'function') {
+                window.toggleStudioGeoFields(true);
+            }
+        }
+
+        window.updateStudioGeoInlineBadge();
+
+        if (window.showModernToast) {
+            window.showModernToast(`✅ تم اعتماد ${sourceName || 'الموقع الجغرافي'}: (${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)})`, 'success', 4000);
+        }
+    }
+
+    // 4. Handle WhatsApp Location Input / Button
+    window.applyWhatsAppLocationToStudio = async function(customText) {
+        const inputEl = document.getElementById('studio-whatsapp-geo-input');
+        const statusEl = document.getElementById('studio-whatsapp-status');
+        const rawVal = customText !== undefined ? customText : (inputEl ? inputEl.value : '');
+
+        if (!rawVal || !rawVal.trim()) {
+            if (statusEl) statusEl.innerHTML = '<span style="color:#f87171;">⚠️ يرجى لصق رسالة أو رابط الواتساب أولاً.</span>';
+            if (window.showModernToast) window.showModernToast('يرجى لصق رسالة أو رابط الواتساب أولاً', 'warning');
+            return;
+        }
+
+        if (statusEl) statusEl.innerHTML = '<span style="color:#38bdf8;">⏳ جاري تحليل واستخراج الإحداثيات...</span>';
+
+        const parsed = parseWhatsAppOrMapsInput(rawVal);
+        if (parsed.success) {
+            applyCoordinatesToStudio(parsed.lat, parsed.lng, 'موقع الواتساب المباشر');
+            if (statusEl) {
+                statusEl.innerHTML = `<span style="color:#34d399;">✅ تم استخراج الموقع بنجاح: (خط العرض: ${parsed.lat.toFixed(6)} ، خط الطول: ${parsed.lng.toFixed(6)})</span>`;
+            }
+            if (inputEl) inputEl.value = '';
+            return;
+        }
+
+        // Short URL resolution via backend proxy
+        if (parsed.isShortUrl && parsed.url) {
+            if (statusEl) statusEl.innerHTML = '<span style="color:#38bdf8;">⏳ جاري فك الرابط المختصر واستخراج الموقع من الخريطة...</span>';
+            try {
+                const res = await fetch('api/resolve_maps_url.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: parsed.url })
+                });
+                const data = await res.json();
+                if (data.success && data.lat !== null && data.lng !== null) {
+                    applyCoordinatesToStudio(data.lat, data.lng, 'رابط خرائط Google / الواتساب');
+                    if (statusEl) {
+                        statusEl.innerHTML = `<span style="color:#34d399;">✅ تم فك الرابط واستخراج الموقع بنجاح: (${data.lat.toFixed(6)} , ${data.lng.toFixed(6)})</span>`;
+                    }
+                    if (inputEl) inputEl.value = '';
+                    return;
+                } else {
+                    throw new Error(data.error || 'تعذر استخراج الإحداثيات من هذا الرابط');
+                }
+            } catch (e) {
+                if (statusEl) {
+                    statusEl.innerHTML = `<span style="color:#f87171;">❌ تعذر استخراج الإحداثيات تلقائياً: ${e.message}</span>`;
+                }
+                if (window.showModernToast) window.showModernToast('تعذر فك الرابط تلقائياً، يمكنك فتحه ونسخ الإحداثيات مباشرة أو تحديد الموقع من الخريطة', 'error');
+                return;
+            }
+        }
+
+        if (statusEl) {
+            statusEl.innerHTML = '<span style="color:#f87171;">❌ لم يتم العثور على إحداثيات صالحة في النص المدخل. تأكد من صحة الرابط أو الإحداثيات.</span>';
+        }
+        if (window.showModernToast) window.showModernToast('لم يتم العثور على إحداثيات صالحة في الرسالة المدخلة', 'error');
+    };
+
+    // 5. Automatic Clipboard Paste for WhatsApp
+    window.pasteFromClipboardToWhatsAppGeo = async function() {
+        const inputEl = document.getElementById('studio-whatsapp-geo-input');
+        try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                const clipText = await navigator.clipboard.readText();
+                if (clipText && clipText.trim()) {
+                    if (inputEl) inputEl.value = clipText.trim();
+                    window.applyWhatsAppLocationToStudio(clipText.trim());
+                    return;
+                }
+            }
+        } catch(e) {
+            console.warn("Clipboard read blocked, focusing input", e);
+        }
+        if (inputEl) {
+            inputEl.focus();
+            inputEl.select();
+        }
+        if (window.showModernToast) {
+            window.showModernToast('اضغط Ctrl+V للصق الرسالة أو الرابط المنسوخ من الواتساب', 'info');
+        }
+    };
+
+    // 6. Update Inline Visual Status Badge in Studio
+    window.updateStudioGeoInlineBadge = function() {
+        const badge = document.getElementById('studio-geo-status-badge');
+        if (!badge) return;
+
+        const latVal = parseFloat(document.getElementById('studio-geo-lat')?.value);
+        const lngVal = parseFloat(document.getElementById('studio-geo-lng')?.value);
+        const radiusVal = parseInt(document.getElementById('studio-geo-radius')?.value, 10) || 500;
+
+        if (!isNaN(latVal) && !isNaN(lngVal) && latVal !== 0 && lngVal !== 0) {
+            badge.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; width:100%;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="width:38px; height:38px; border-radius:10px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </span>
+                        <div>
+                            <div style="font-weight:800; color:#34d399; font-size:0.92rem;">الموقع معتمد ونشط بالـ GPS</div>
+                            <div style="font-size:0.8rem; color:#cbd5e1; direction:ltr; text-align:right;">
+                                Lat: <strong>${latVal.toFixed(6)}</strong> , Lng: <strong>${lngVal.toFixed(6)}</strong> (نطاق: <strong>${radiusVal}م</strong>)
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" onclick="window.openInteractiveGeoMapModal()" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:7px 14px; border-radius:8px; font-size:0.82rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-map"></i> عرض وتعديل على الخريطة
+                        </button>
+                    </div>
+                </div>
+            `;
+            badge.style.borderColor = 'rgba(16,185,129,0.4)';
+            badge.style.background = 'rgba(6, 78, 59, 0.2)';
+        } else {
+            badge.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; width:100%;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="width:38px; height:38px; border-radius:10px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:1.05rem;">
+                            <i class="fa-solid fa-map-pin"></i>
+                        </span>
+                        <span style="font-size:0.82rem; color:#94a3b8;">لم يتم تعيين إحداثيات الموقع حتى الآن. اختر من الخريطة أو الصق رابط الواتساب.</span>
+                    </div>
+                    <button type="button" onclick="window.openInteractiveGeoMapModal()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:7px 16px; border-radius:8px; font-size:0.82rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-map-location-dot"></i> فتح الخريطة الآن
+                    </button>
+                </div>
+            `;
+            badge.style.borderColor = 'rgba(255,255,255,0.1)';
+            badge.style.background = 'rgba(15, 23, 42, 0.7)';
+        }
+    };
+
+    // 7. Interactive Geo Map Picker Modal
+    window.openInteractiveGeoMapModal = function() {
+        ensureLeafletLoaded(() => {
+            const existing = document.getElementById('magaiees-geo-map-modal');
+            if (existing) existing.remove();
+
+            const currentLatVal = parseFloat(document.getElementById('studio-geo-lat')?.value);
+            const currentLngVal = parseFloat(document.getElementById('studio-geo-lng')?.value);
+            const currentRadiusVal = parseInt(document.getElementById('studio-geo-radius')?.value, 10) || 500;
+
+            let activeLat = (!isNaN(currentLatVal) && currentLatVal !== 0) ? currentLatVal : 15.369444;
+            let activeLng = (!isNaN(currentLngVal) && currentLngVal !== 0) ? currentLngVal : 44.191000;
+            let activeRadius = currentRadiusVal;
+            let hasInitialCoords = (!isNaN(currentLatVal) && !isNaN(currentLngVal) && currentLatVal !== 0);
+
+            const modal = document.createElement('div');
+            modal.id = 'magaiees-geo-map-modal';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+                z-index: 2147483640; display: flex; align-items: center; justify-content: center;
+                font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif; direction: rtl;
+                padding: 16px; box-sizing: border-box; animation: modernToastSpringIn 0.35s ease-out;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: 24px; width: 96%; max-width: 1050px; height: 90vh; max-height: 820px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px -10px rgba(0,0,0,0.8), 0 0 40px rgba(16,185,129,0.15);">
+                    
+                    <!-- Modal Header -->
+                    <div style="padding: 16px 22px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="width: 40px; height: 40px; border-radius: 12px; background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </span>
+                            <div>
+                                <h3 style="margin: 0; color: #ffffff; font-size: 1.15rem; font-weight: 800;">خريطة تحديد مقر ونطاق عمل الموظف</h3>
+                                <span style="font-size: 0.78rem; color: #94a3b8;">انقر على أي نقطة في الخريطة أو اسحب الدبوس لتحديد الموقع المصرح به لفتح النظام</span>
+                            </div>
+                        </div>
+                        <button type="button" id="magaiees-map-modal-close" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: all 0.2s;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Toolbar -->
+                    <div style="padding: 12px 20px; background: rgba(15,23,42,0.8); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <!-- Search Input -->
+                        <div style="display: flex; gap: 8px; flex: 1; min-width: 260px; max-width: 460px;">
+                            <div style="position: relative; width: 100%;">
+                                <input type="text" id="magaiees-map-search-input" placeholder="🔍 ابحث عن اسم مدينة، حي، شارع أو معلم..." style="width: 100%; padding: 9px 36px 9px 12px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 10px; font-size: 0.85rem; font-weight: 600; outline: none; box-sizing: border-box;">
+                                <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 0.85rem;"></i>
+                            </div>
+                            <button type="button" id="magaiees-map-search-btn" style="background: #334155; color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 9px 16px; border-radius: 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer; white-space: nowrap;">
+                                بحث
+                            </button>
+                        </div>
+
+                        <!-- Radius Slider & Controls -->
+                        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 6px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                                <span style="font-size: 0.8rem; font-weight: 700; color: #94a3b8;">نطاق السماح:</span>
+                                <span id="magaiees-modal-radius-badge" style="font-size: 0.85rem; font-weight: 800; color: #34d399; min-width: 55px;">${activeRadius}م</span>
+                                <input type="range" id="magaiees-modal-radius-slider" min="50" max="5000" step="50" value="${activeRadius}" style="width: 110px; accent-color: #10b981; cursor: pointer;">
+                            </div>
+
+                            <button type="button" id="magaiees-map-toggle-layer" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 7px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-satellite"></i> <span id="magaiees-layer-name">قمر صناعي</span>
+                            </button>
+
+                            <button type="button" id="magaiees-map-my-gps" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 7px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-crosshairs"></i> موقعي الآن
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Map Container -->
+                    <div style="flex: 1; position: relative; min-height: 380px;">
+                        <div id="magaiees-interactive-leaflet-map" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
+                        <div id="magaiees-map-search-results" style="display: none; position: absolute; top: 10px; right: 15px; width: 340px; max-height: 250px; overflow-y: auto; background: rgba(15,23,42,0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); z-index: 1000; padding: 6px; box-sizing: border-box;"></div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div style="padding: 14px 22px; background: rgba(15,23,42,0.95); border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 0.88rem; color: #94a3b8;">الإحداثيات المختارة:</span>
+                            <span id="magaiees-modal-coords-display" style="font-family: monospace; font-size: 0.95rem; font-weight: 800; color: #34d399; direction: ltr; background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.3);">
+                                ${activeLat.toFixed(6)}, ${activeLng.toFixed(6)}
+                            </span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button type="button" id="magaiees-map-modal-cancel" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #94a3b8; padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
+                                إلغاء
+                            </button>
+                            <button type="button" id="magaiees-map-modal-confirm" style="background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; padding: 10px 24px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(16,185,129,0.4);">
+                                <i class="fa-solid fa-check"></i> اعتماد هذا الموقع وحفظه للموظف
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            const closeModal = () => modal.remove();
+            modal.querySelector('#magaiees-map-modal-close').addEventListener('click', closeModal);
+            modal.querySelector('#magaiees-map-modal-cancel').addEventListener('click', closeModal);
+
+            const mapContainer = modal.querySelector('#magaiees-interactive-leaflet-map');
+            const streetTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            });
+            const satelliteTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: '© Esri Satellite'
+            });
+
+            let currentTileLayer = streetTiles;
+            const initialZoom = hasInitialCoords ? 16 : 13;
+            const map = L.map(mapContainer, {
+                center: [activeLat, activeLng],
+                zoom: initialZoom,
+                layers: [currentTileLayer],
+                zoomControl: true
+            });
+
+            // Modern glowing beacon icon
+            const pinIcon = L.divIcon({
+                className: 'magaiees-map-custom-marker',
+                html: `
+                    <div style="position:relative; width:44px; height:44px; display:flex; align-items:center; justify-content:center;">
+                        <div style="position:absolute; width:44px; height:44px; border-radius:50%; background:rgba(16,185,129,0.35); animation:magaieesPinPulse 1.8s infinite ease-out;"></div>
+                        <div style="width:34px; height:34px; border-radius:50% 50% 50% 0; background:linear-gradient(135deg, #10b981, #059669); transform:rotate(-45deg); box-shadow:0 6px 18px rgba(0,0,0,0.6), 0 0 15px rgba(16,185,129,0.5); display:flex; align-items:center; justify-content:center; border:2.5px solid #ffffff;">
+                            <i class="fa-solid fa-briefcase" style="transform:rotate(45deg); color:#ffffff; font-size:13px;"></i>
+                        </div>
+                    </div>
+                `,
+                iconSize: [44, 44],
+                iconAnchor: [22, 38],
+                popupAnchor: [0, -38]
+            });
+
+            const marker = L.marker([activeLat, activeLng], {
+                icon: pinIcon,
+                draggable: true
+            }).addTo(map);
+
+            const circle = L.circle([activeLat, activeLng], {
+                radius: activeRadius,
+                color: '#10b981',
+                weight: 2,
+                opacity: 0.85,
+                fillColor: '#10b981',
+                fillOpacity: 0.18
+            }).addTo(map);
+
+            function updateCoords(lat, lng) {
+                activeLat = lat;
+                activeLng = lng;
+                marker.setLatLng([lat, lng]);
+                circle.setLatLng([lat, lng]);
+                const coordsDisplay = modal.querySelector('#magaiees-modal-coords-display');
+                if (coordsDisplay) coordsDisplay.innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            }
+
+            marker.on('drag', e => {
+                const pos = e.target.getLatLng();
+                updateCoords(pos.lat, pos.lng);
+            });
+
+            map.on('click', e => {
+                updateCoords(e.latlng.lat, e.latlng.lng);
+            });
+
+            // Radius slider
+            const radiusSlider = modal.querySelector('#magaiees-modal-radius-slider');
+            const radiusBadge = modal.querySelector('#magaiees-modal-radius-badge');
+            radiusSlider.addEventListener('input', e => {
+                activeRadius = parseInt(e.target.value, 10);
+                circle.setRadius(activeRadius);
+                radiusBadge.innerText = activeRadius + 'م';
+            });
+
+            // Layer Switcher
+            let isSatellite = false;
+            const layerBtn = modal.querySelector('#magaiees-map-toggle-layer');
+            const layerName = modal.querySelector('#magaiees-layer-name');
+            layerBtn.addEventListener('click', () => {
+                if (isSatellite) {
+                    map.removeLayer(satelliteTiles);
+                    map.addLayer(streetTiles);
+                    layerName.innerText = 'قمر صناعي';
+                    layerBtn.innerHTML = '<i class="fa-solid fa-satellite"></i> <span>قمر صناعي</span>';
+                    isSatellite = false;
+                } else {
+                    map.removeLayer(streetTiles);
+                    map.addLayer(satelliteTiles);
+                    layerName.innerText = 'خريطة الشوارع';
+                    layerBtn.innerHTML = '<i class="fa-solid fa-map"></i> <span>خريطة الشوارع</span>';
+                    isSatellite = true;
+                }
+            });
+
+            // My GPS button on map
+            modal.querySelector('#magaiees-map-my-gps').addEventListener('click', () => {
+                if (!navigator.geolocation) {
+                    if (window.showModernToast) window.showModernToast('متصفحك لا يدعم خاصية الـ GPS', 'error');
+                    return;
+                }
+                if (window.showModernToast) window.showModernToast('جاري تحديد موقعك الحالي عبر الأقمار الصناعية...', 'info', 2500);
+                navigator.geolocation.getCurrentPosition(pos => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    updateCoords(lat, lng);
+                    map.flyTo([lat, lng], 17);
+                    if (window.showModernToast) window.showModernToast('تم الانتقال إلى موقعك الحالي بدقة!', 'success');
+                }, err => {
+                    if (window.showModernToast) window.showModernToast('تعذر جلب موقع GPS: ' + err.message, 'warning');
+                }, { timeout: 10000, enableHighAccuracy: true });
+            });
+
+            // Search logic
+            const searchInput = modal.querySelector('#magaiees-map-search-input');
+            const searchBtn = modal.querySelector('#magaiees-map-search-btn');
+            const searchResults = modal.querySelector('#magaiees-map-search-results');
+
+            const doSearch = async () => {
+                const q = searchInput.value.trim();
+                if (!q) return;
+                searchBtn.innerText = '⏳...';
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&accept-language=ar`);
+                    const results = await res.json();
+                    searchBtn.innerText = 'بحث';
+                    if (!results || results.length === 0) {
+                        searchResults.style.display = 'block';
+                        searchResults.innerHTML = '<div style="padding:10px; color:#cbd5e1; font-size:0.82rem; text-align:center;">لم يتم العثور على نتائج لهذا العنوان</div>';
+                        return;
+                    }
+                    searchResults.style.display = 'block';
+                    searchResults.innerHTML = results.slice(0, 6).map((item, idx) => `
+                        <div class="magaiees-search-item" data-lat="${item.lat}" data-lon="${item.lon}" style="padding:8px 10px; border-radius:8px; cursor:pointer; font-size:0.8rem; color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.2s;">
+                            📍 <strong>${item.display_name.split(',')[0]}</strong>
+                            <div style="font-size:0.72rem; color:#94a3b8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.display_name}</div>
+                        </div>
+                    `).join('');
+
+                    searchResults.querySelectorAll('.magaiees-search-item').forEach(itemEl => {
+                        itemEl.addEventListener('click', () => {
+                            const sLat = parseFloat(itemEl.dataset.lat);
+                            const sLng = parseFloat(itemEl.dataset.lon);
+                            updateCoords(sLat, sLng);
+                            map.flyTo([sLat, sLng], 16);
+                            searchResults.style.display = 'none';
+                        });
+                    });
+                } catch(e) {
+                    searchBtn.innerText = 'بحث';
+                    if (window.showModernToast) window.showModernToast('تعذر البحث عن العنوان عبر الإنترنت', 'error');
+                }
+            };
+
+            searchBtn.addEventListener('click', doSearch);
+            searchInput.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    doSearch();
+                }
+            });
+
+            map.on('click', () => { searchResults.style.display = 'none'; });
+
+            // Confirm button
+            modal.querySelector('#magaiees-map-modal-confirm').addEventListener('click', () => {
+                applyCoordinatesToStudio(activeLat, activeLng, 'الخريطة التفاعلية');
+                const radIn = document.getElementById('studio-geo-radius');
+                const radRange = document.getElementById('studio-geo-radius-range');
+                const radDisplay = document.getElementById('studio-geo-radius-display');
+                if (radIn) radIn.value = activeRadius;
+                if (radRange) radRange.value = activeRadius;
+                if (radDisplay) radDisplay.innerText = activeRadius + ' متر';
+
+                closeModal();
+            });
+
+            // Invalidate size after modal render
+            setTimeout(() => {
+                map.invalidateSize();
+                if (!hasInitialCoords && navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                        if (!hasInitialCoords) {
+                            updateCoords(pos.coords.latitude, pos.coords.longitude);
+                            map.setView([pos.coords.latitude, pos.coords.longitude], 16);
+                        }
+                    }, () => {}, { timeout: 4000 });
+                }
+            }, 300);
+        });
+    };
+
+    // 8. GPS Button in Studio
     window.getCurrentGPSInStudio = function() {
         const statusEl = document.getElementById('studio-gps-status');
         if (!("geolocation" in navigator)) {
             if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444;">متصفحك لا يدعم خاصية تحديد الموقع GPS</span>';
+            if (window.showModernToast) window.showModernToast('متصفحك لا يدعم خاصية تحديد الموقع GPS', 'error');
             return;
         }
         if (statusEl) statusEl.innerHTML = '<span style="color:#38bdf8;">⏳ جاري جلب إحداثيات موقعك عبر الأقمار الصناعية...</span>';
+        if (window.showModernToast) window.showModernToast('جاري رصد إحداثيات موقعك الحالي عبر GPS...', 'info', 2500);
+
         navigator.geolocation.getCurrentPosition(
             pos => {
-                const lat = pos.coords.latitude.toFixed(6);
-                const lng = pos.coords.longitude.toFixed(6);
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
                 const acc = Math.round(pos.coords.accuracy || 0);
-                const latInput = document.getElementById('studio-geo-lat');
-                const lngInput = document.getElementById('studio-geo-lng');
-                if (latInput) latInput.value = lat;
-                if (lngInput) lngInput.value = lng;
+
+                applyCoordinatesToStudio(lat, lng, 'موقع جهازك الحالي بالـ GPS');
+
                 if (statusEl) {
-                    statusEl.innerHTML = `<span style="color:#34d399;">✅ تم رصد موقعك بنجاح! خط العرض: ${lat}، خط الطول: ${lng} (دقة: ${acc}م)</span>`;
+                    statusEl.innerHTML = `<span style="color:#34d399;">✅ تم رصد موقعك بنجاح! خط العرض: ${lat.toFixed(6)}، خط الطول: ${lng.toFixed(6)} (دقة: ${acc}م)</span>`;
                 }
             },
             err => {
                 if (statusEl) {
                     statusEl.innerHTML = `<span style="color:#ef4444;">❌ فشل تحديد الموقع: ${err.message || 'تم رفض الإذن أو انقضت المهلة'}</span>`;
                 }
+                if (window.showModernToast) window.showModernToast('فشل تحديد الموقع عبر GPS: ' + (err.message || 'تم رفض الإذن'), 'error');
             },
             { timeout: 10000, enableHighAccuracy: true }
         );
