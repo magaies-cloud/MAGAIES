@@ -682,6 +682,382 @@
             title: '👑 مدير نظام (كامل الصلاحيات دون استثناء)',
             userType: 'admin'
         },
+        level_1: {
+            title: 'المستوى الأول: التشغيلي ونقاط البيع (Operational & POS)',
+            description: 'الفصل المحاسبي للمهام وحماية النقدية (Segregation of Duties). موجه للكاشير وبائعي المعارض والمندوبين الميدانيين.',
+            badgeColor: '#10b981',
+            userType: 'user',
+            securityLevel: 2,
+            allowedScreens: {
+                'magaiees_unified_dashboard.php': true,
+                'direct-sales.php': true,
+                'pos.php': true,
+                'single-cash-receipt.php': true,
+                'customer-portfolio.php': true,
+                'item-ledger.php': true
+            },
+            screenButtons: {
+                'direct-sales.php': { new: true, save: true, print: true, share: true, preview: true, edit: false, delete: false },
+                'pos.php': { new: true, save: true, print: true, share: true, preview: true, edit: false, delete: false },
+                'single-cash-receipt.php': { new: true, save: true, print: true, share: true, preview: true, edit: false, delete: false },
+                'customer-portfolio.php': { preview: true, print: true, share: true }
+            },
+            dashboardPermissions: {
+                kpi_sales: true,
+                kpi_liquidity: false,
+                kpi_profit: false,
+                kpi_inventory: true,
+                kpi_alerts: false,
+                charts: false,
+                quick_actions: true,
+                category_hubs: false,
+                athkar: true
+            },
+            postingPermissions: {
+                post_sales: false,
+                post_purchases: false,
+                post_payments: false,
+                post_receipts: false,
+                post_journal: false,
+                unpost: false
+            },
+            masterDataPermissions: {
+                cust_add: true,
+                cust_edit: false,
+                cust_del: false,
+                supp_add: false,
+                supp_edit: false,
+                supp_del: false,
+                item_add: false,
+                item_edit: false,
+                item_del: false,
+                acc_manage: false
+            },
+            alertsPermissions: {
+                alert_inv: false,
+                alert_pur: false,
+                alert_fin: false,
+                alert_thresholds: false
+            },
+            toolsPermissions: {
+                tool_inheritance: false,
+                tool_fatwa: false,
+                tool_tv: true,
+                tool_eng: false
+            },
+            allowedReports: {
+                'rep_statement': true,
+                'rep_daily_sales': true
+            },
+            financialLimits: {
+                maxDiscountPercent: 2,
+                maxDiscountAmount: 500,
+                maxVoucherAmount: 5000,
+                maxInvoiceAmount: 50000,
+                allowCreditSale: false
+            },
+            dataMasking: {
+                maskCostPrice: true,
+                maskProfitMargin: true,
+                maskBankAccounts: true,
+                maskCustomerPhone: false
+            },
+            workShift: {
+                restricted: true,
+                timeFrom: '08:00',
+                timeTo: '03:00',
+                allowedDays: [0, 1, 2, 3, 4, 6]
+            },
+            geofencing: {
+                restricted: false,
+                lat: null,
+                lng: null,
+                radius: 500
+            }
+        },
+        level_2: {
+            title: 'المستوى الثاني: المحاسبي والمخزني والإشرافي (Supervisory & Accounting)',
+            description: 'الرقابة الثنائية والمطابقات المالية (Dual Control & Segregation of Accounting Duties). موجه للمحاسبين وأمناء المستودعات ومسؤولي المشتريات والمشرفين.',
+            badgeColor: '#f59e0b',
+            userType: 'user',
+            securityLevel: 6,
+            allowedScreens: {
+                'magaiees_unified_dashboard.php': true,
+                'direct-sales.php': true,
+                'pos.php': true,
+                'sales-return.php': true,
+                'purchase.php': true,
+                'purchase-receipt.php': true,
+                'purchase-return.php': true,
+                'payment-vouchers.php': true,
+                'receipt-vouchers.php': true,
+                'single-cash-receipt.php': true,
+                'customer-portfolio.php': true,
+                'customers.php': true,
+                'suppliers.php': true,
+                'supplier_reliability.php': true,
+                'supplier_performance.php': true,
+                'inventory.php': true,
+                'warehouse_transfer.php': true,
+                'stocktaking.php': true,
+                'item-ledger.php': true,
+                'accounts-guide.php': true,
+                'general_ledger.php': true,
+                'trial_balance.php': true,
+                'daily_entries.php': true,
+                'bank-reconciliation.php': true,
+                'expenses.php': true,
+                'ai_goods_advisor.php': true,
+                'inventory_optimizer.php': true,
+                'reports-center.php': true
+            },
+            screenButtons: {
+                'direct-sales.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
+                'pos.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
+                'sales-return.php': { new: true, save: true, return: true, print: true, share: true },
+                'purchase.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
+                'purchase-receipt.php': { new: true, save: true, receive: true, print: true },
+                'purchase-return.php': { new: true, save: true, return: true, print: true, share: true },
+                'payment-vouchers.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
+                'receipt-vouchers.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
+                'single-cash-receipt.php': { new: true, save: true, edit: true, delete: false, print: true, share: true, preview: true },
+                'inventory.php': { preview: true, print: true },
+                'warehouse_transfer.php': { new: true, save: true, transfer: true, print: true },
+                'stocktaking.php': { new: true, save: true, print: true }
+            },
+            dashboardPermissions: {
+                kpi_sales: true,
+                kpi_liquidity: true,
+                kpi_profit: false,
+                kpi_inventory: true,
+                kpi_alerts: true,
+                charts: true,
+                quick_actions: true,
+                category_hubs: true,
+                athkar: true
+            },
+            postingPermissions: {
+                post_sales: true,
+                post_purchases: true,
+                post_payments: true,
+                post_receipts: true,
+                post_journal: false,
+                unpost: false
+            },
+            masterDataPermissions: {
+                cust_add: true,
+                cust_edit: true,
+                cust_del: false,
+                supp_add: true,
+                supp_edit: true,
+                supp_del: false,
+                item_add: true,
+                item_edit: true,
+                item_del: false,
+                acc_manage: false
+            },
+            alertsPermissions: {
+                alert_inv: true,
+                alert_pur: true,
+                alert_fin: true,
+                alert_thresholds: false
+            },
+            toolsPermissions: {
+                tool_inheritance: false,
+                tool_fatwa: true,
+                tool_tv: true,
+                tool_eng: true
+            },
+            allowedReports: {
+                'rep_statement': true,
+                'rep_daily_sales': true,
+                'rep_daily_purchases': true,
+                'rep_sales_by_customer': true,
+                'rep_purchases_by_supplier': true,
+                'rep_inventory_val': true,
+                'rep_item_movement': true,
+                'rep_trial_balance': true,
+                'rep_general_ledger': true,
+                'rep_cash_flow': true,
+                'rep_expenses': true,
+                'rep_supplier_reliability': true
+            },
+            financialLimits: {
+                maxDiscountPercent: 15,
+                maxDiscountAmount: 10000,
+                maxVoucherAmount: 250000,
+                maxInvoiceAmount: 1000000,
+                allowCreditSale: true
+            },
+            dataMasking: {
+                maskCostPrice: false,
+                maskProfitMargin: true,
+                maskBankAccounts: false,
+                maskCustomerPhone: false
+            },
+            workShift: {
+                restricted: true,
+                timeFrom: '08:00',
+                timeTo: '22:00',
+                allowedDays: [0, 1, 2, 3, 4, 6]
+            },
+            geofencing: {
+                restricted: false,
+                lat: null,
+                lng: null,
+                radius: 500
+            }
+        },
+        level_3: {
+            title: 'المستوى الثالث: الإداري والمالي الشامل والتدقيق (Executive & Controller)',
+            description: 'الاعتماد النهائي والحوكمة المالية والرقابة التشفيرية الشاملة (Financial Controller / Auditor). موجه للمدير المالي، مراقب الحسابات، التدقيق الداخلي، والإدارة العليا.',
+            badgeColor: '#ef4444',
+            userType: 'user',
+            securityLevel: 9,
+            allowedScreens: {
+                'magaiees_unified_dashboard.php': true,
+                'direct-sales.php': true,
+                'pos.php': true,
+                'sales-return.php': true,
+                'purchase.php': true,
+                'purchase-receipt.php': true,
+                'purchase-return.php': true,
+                'payment-vouchers.php': true,
+                'receipt-vouchers.php': true,
+                'single-cash-receipt.php': true,
+                'multi_currency_transfer.php': true,
+                'check-portfolio.php': true,
+                'customer-portfolio.php': true,
+                'customers.php': true,
+                'suppliers.php': true,
+                'supplier_reliability.php': true,
+                'supplier_performance.php': true,
+                'inventory.php': true,
+                'warehouse_transfer.php': true,
+                'stocktaking.php': true,
+                'item-ledger.php': true,
+                'accounts-guide.php': true,
+                'cost-centers.php': true,
+                'general_ledger.php': true,
+                'trial_balance.php': true,
+                'income_statement.php': true,
+                'balance_sheet.php': true,
+                'daily_entries.php': true,
+                'posting.php': true,
+                'bank-reconciliation.php': true,
+                'expenses.php': true,
+                'partners.php': true,
+                'inheritance.php': true,
+                'sharia_auditor.php': true,
+                'audit_log.php': true,
+                'ai_goods_advisor.php': true,
+                'inventory_optimizer.php': true,
+                'reports-center.php': true,
+                'reports-builder.php': true,
+                'security_audit.php': true
+            },
+            screenButtons: {
+                'direct-sales.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
+                'pos.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
+                'sales-return.php': { new: true, save: true, edit: true, delete: true, return: true, print: true, share: true },
+                'purchase.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
+                'purchase-receipt.php': { new: true, save: true, edit: true, delete: true, receive: true, print: true },
+                'purchase-return.php': { new: true, save: true, edit: true, delete: true, return: true, print: true, share: true },
+                'payment-vouchers.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
+                'receipt-vouchers.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
+                'single-cash-receipt.php': { new: true, save: true, edit: true, delete: true, print: true, share: true, preview: true },
+                'multi_currency_transfer.php': { new: true, save: true, edit: true, delete: true, print: true },
+                'inventory.php': { new: true, save: true, edit: true, delete: true, preview: true, print: true },
+                'warehouse_transfer.php': { new: true, save: true, edit: true, delete: true, transfer: true, print: true },
+                'stocktaking.php': { new: true, save: true, edit: true, delete: true, print: true }
+            },
+            dashboardPermissions: {
+                kpi_sales: true,
+                kpi_liquidity: true,
+                kpi_profit: true,
+                kpi_inventory: true,
+                kpi_alerts: true,
+                charts: true,
+                quick_actions: true,
+                category_hubs: true,
+                athkar: true
+            },
+            postingPermissions: {
+                post_sales: true,
+                post_purchases: true,
+                post_payments: true,
+                post_receipts: true,
+                post_journal: true,
+                unpost: true
+            },
+            masterDataPermissions: {
+                cust_add: true,
+                cust_edit: true,
+                cust_del: true,
+                supp_add: true,
+                supp_edit: true,
+                supp_del: true,
+                item_add: true,
+                item_edit: true,
+                item_del: true,
+                acc_manage: true
+            },
+            alertsPermissions: {
+                alert_inv: true,
+                alert_pur: true,
+                alert_fin: true,
+                alert_thresholds: true
+            },
+            toolsPermissions: {
+                tool_inheritance: true,
+                tool_fatwa: true,
+                tool_tv: true,
+                tool_eng: true
+            },
+            allowedReports: {
+                'rep_statement': true,
+                'rep_daily_sales': true,
+                'rep_daily_purchases': true,
+                'rep_sales_by_customer': true,
+                'rep_purchases_by_supplier': true,
+                'rep_inventory_val': true,
+                'rep_item_movement': true,
+                'rep_trial_balance': true,
+                'rep_general_ledger': true,
+                'rep_cash_flow': true,
+                'rep_income_statement': true,
+                'rep_balance_sheet': true,
+                'rep_expenses': true,
+                'rep_supplier_reliability': true,
+                'rep_tax': true,
+                'rep_zakat': true
+            },
+            financialLimits: {
+                maxDiscountPercent: 50,
+                maxDiscountAmount: 1000000,
+                maxVoucherAmount: 5000000,
+                maxInvoiceAmount: 10000000,
+                allowCreditSale: true
+            },
+            dataMasking: {
+                maskCostPrice: false,
+                maskProfitMargin: false,
+                maskBankAccounts: false,
+                maskCustomerPhone: false
+            },
+            workShift: {
+                restricted: false,
+                timeFrom: '08:00',
+                timeTo: '03:00',
+                allowedDays: [0, 1, 2, 3, 4, 5, 6]
+            },
+            geofencing: {
+                restricted: false,
+                lat: null,
+                lng: null,
+                radius: 1000
+            }
+        },
         cashier: {
             title: '🛒 كاشير / مبيعات ونقاط بيع',
             userType: 'user',
@@ -2397,6 +2773,7 @@
         const geoLat = (userObj && userObj.geoLat) ? userObj.geoLat : '';
         const geoLng = (userObj && userObj.geoLng) ? userObj.geoLng : '';
         const geoRadius = (userObj && userObj.geoRadius) ? userObj.geoRadius : 500;
+        const userAiSmartLevel = (userObj && userObj.aiSmartLevel) ? userObj.aiSmartLevel : '';
 
         let totalScreensCount = 0;
         SYSTEM_SCREENS_CATALOG.forEach(c => totalScreensCount += c.screens.length);
@@ -2508,6 +2885,151 @@
                                     <!-- Dynamically populated explanation -->
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 🤖 AI-Driven 3-Tier Financial & Accounting Architecture Panel -->
+                    <div id="studio-ai-tiers-panel" style="background:linear-gradient(135deg, rgba(30,27,75,0.7) 0%, rgba(15,23,42,0.85) 100%); border:2px solid rgba(139,92,246,0.4); border-radius:18px; padding:22px 24px; margin-bottom:22px; box-shadow:0 12px 35px rgba(0,0,0,0.4); position:relative; overflow:hidden;">
+                        <!-- Glowing accent line at top -->
+                        <div style="position:absolute; top:0; left:0; right:0; height:3px; background:linear-gradient(90deg, #10b981, #f59e0b, #ef4444, #8b5cf6);"></div>
+
+                        <!-- Header -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:16px; padding-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <div style="width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg, #8b5cf6, #6366f1); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.35rem; box-shadow:0 4px 15px rgba(139,92,246,0.4);">
+                                    <i class="fa-solid fa-brain"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin:0; font-size:1.15rem; font-weight:800; color:#fff; display:flex; align-items:center; gap:8px;">
+                                        تقسيم الصلاحيات الذكي بالذكاء الاصطناعي (AI Financial Architecture)
+                                        <span style="font-size:0.75rem; background:rgba(139,92,246,0.25); color:#c4b5fd; border:1px solid rgba(139,92,246,0.5); padding:2px 10px; border-radius:20px; font-weight:700;">3 مستويات قياسية اختيارية</span>
+                                    </h3>
+                                    <div style="font-size:0.85rem; color:#cbd5e1; margin-top:3px;">
+                                        مبني على أسس هندسة البرمجيات والمعايير المحاسبية العالمية والرقابة الداخلية (COSO & Segregation of Duties)
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="studio-active-ai-level-badge" style="font-size:0.85rem; font-weight:800; padding:6px 14px; border-radius:10px; background:${userAiSmartLevel === 'level_1' ? 'rgba(16,185,129,0.18)' : userAiSmartLevel === 'level_2' ? 'rgba(245,158,11,0.18)' : userAiSmartLevel === 'level_3' ? 'rgba(239,68,68,0.18)' : 'rgba(255,255,255,0.06)'}; border:1px solid ${userAiSmartLevel === 'level_1' ? '#10b981' : userAiSmartLevel === 'level_2' ? '#f59e0b' : userAiSmartLevel === 'level_3' ? '#ef4444' : 'rgba(255,255,255,0.15)'}; color:${userAiSmartLevel === 'level_1' ? '#34d399' : userAiSmartLevel === 'level_2' ? '#fbbf24' : userAiSmartLevel === 'level_3' ? '#f87171' : '#94a3b8'}; display:flex; align-items:center; gap:6px;">
+                                ${userAiSmartLevel === 'level_1' ? '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i> المستوى الأول 🟢 (نشط - جاهز للتعديل أدناه)' :
+                                  userAiSmartLevel === 'level_2' ? '<i class="fa-solid fa-circle-check" style="color:#f59e0b;"></i> المستوى الثاني 🟡 (نشط - جاهز للتعديل أدناه)' :
+                                  userAiSmartLevel === 'level_3' ? '<i class="fa-solid fa-circle-check" style="color:#ef4444;"></i> المستوى الثالث 🔴 (نشط - جاهز للتعديل أدناه)' :
+                                  '<i class="fa-solid fa-layer-group"></i> لم يتم اختيار مستوى بعد (يمكنك الاختيار أدناه)'}
+                            </div>
+                        </div>
+
+                        <!-- Instructions subtext -->
+                        <p style="margin:0 0 16px 0; font-size:0.88rem; color:#e2e8f0; line-height:1.6;">
+                            🎯 <strong>كيف يعمل نظام المستويات الثلاثة؟</strong> اختر أحد المستويات القياسية الثلاثة أدناه كقالب أساسي ذكي؛ سيقوم النظام بضبط كافة الشاشات والأزرار والتقارير والحدود المحاسبية تلقائياً، <strong>وبعدها يمكنك فوراً النزول لخيارات الشاشات والتبويبات بالأسفل وتعديل أي خيار بحرية تامة</strong> حسب رغبتك قبل الحفظ.
+                        </p>
+
+                        <!-- The 3 Cards Grid -->
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(310px, 1fr)); gap:16px; margin-bottom:14px;">
+                            
+                            <!-- Level 1 Card -->
+                            <div id="ai-tier-card-level_1" class="ai-tier-card ${userAiSmartLevel === 'level_1' ? 'ai-tier-card-active' : ''}" onclick="window.applySmartAILevel('level_1')" style="background:${userAiSmartLevel === 'level_1' ? 'rgba(16,185,129,0.12)' : 'rgba(15,23,42,0.7)'}; border:2px solid ${userAiSmartLevel === 'level_1' ? '#10b981' : 'rgba(16,185,129,0.35)'}; box-shadow:${userAiSmartLevel === 'level_1' ? '0 0 25px rgba(16,185,129,0.45)' : 'none'}; border-radius:14px; padding:18px; cursor:pointer; transition:all 0.25s ease; position:relative; display:flex; flex-direction:column; justify-content:space-between;">
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <input type="radio" name="ai_smart_tier_radio" id="ai-tier-radio-level_1" value="level_1" ${userAiSmartLevel === 'level_1' ? 'checked' : ''} style="accent-color:#10b981; width:18px; height:18px; cursor:pointer;" onclick="event.stopPropagation(); window.applySmartAILevel('level_1')">
+                                            <span style="font-size:0.75rem; font-weight:800; background:rgba(16,185,129,0.2); color:#34d399; border:1px solid #10b981; padding:3px 10px; border-radius:12px;">المستوى الأول 🟢</span>
+                                        </div>
+                                        <span style="font-size:0.75rem; color:#94a3b8; font-weight:700;">أمان: مستوى 2</span>
+                                    </div>
+
+                                    <h4 style="margin:0 0 6px 0; font-size:1.05rem; font-weight:800; color:#34d399;">التشغيلي ونقاط البيع (Operational & POS)</h4>
+                                    <div style="font-size:0.8rem; color:#6ee7b7; font-weight:700; margin-bottom:10px;">الكاشير، بائعو الصالات، المندوبون الميدانيون</div>
+
+                                    <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(16,185,129,0.2); border-radius:8px; padding:10px; margin-bottom:12px; font-size:0.82rem; line-height:1.5; color:#cbd5e1;">
+                                        ⚖️ <strong>المعيار المحاسبي:</strong> الفصل التام بين حيازة النقدية والقيود (Segregation of Duties). حصر الصلاحيات في القبض والبيع اليومي المباشر.
+                                    </div>
+
+                                    <ul style="margin:0 0 14px 0; padding-right:18px; font-size:0.82rem; color:#e2e8f0; line-height:1.7;">
+                                        <li>🛒 <strong>الشاشات:</strong> المبيعات المباشرة، الكاشير POS، سند قبض نقدي، كشف حساب عميل، وحركة صنف.</li>
+                                        <li>🔒 <strong>الأزرار:</strong> جديد، حفظ، طباعة، مشاركة. <strong style="color:#f87171;">منع تام للتعديل والحذف والترحيل</strong>.</li>
+                                        <li>🙈 <strong>حجب البيانات:</strong> حجب أسعار الشراء/التكلفة، حجب هامش الربح، وحجب كلي لحسابات البنوك.</li>
+                                        <li>📉 <strong>الحدود المالية:</strong> سقف خصم 2% (بحد أقصى 500 ج.س)، وسقف فاتورة 50,000 ج.س. حظر البيع الآجل.</li>
+                                    </ul>
+                                </div>
+
+                                <button type="button" class="btn-select-tier" onclick="event.stopPropagation(); window.applySmartAILevel('level_1')" style="width:100%; padding:9px 12px; background:rgba(16,185,129,0.18); border:1.5px solid #10b981; color:#34d399; font-weight:800; font-size:0.85rem; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                                    <span>اختيار المستوى الأول وبدء التعديل</span>
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                </button>
+                            </div>
+
+                            <!-- Level 2 Card -->
+                            <div id="ai-tier-card-level_2" class="ai-tier-card ${userAiSmartLevel === 'level_2' ? 'ai-tier-card-active' : ''}" onclick="window.applySmartAILevel('level_2')" style="background:${userAiSmartLevel === 'level_2' ? 'rgba(245,158,11,0.12)' : 'rgba(15,23,42,0.7)'}; border:2px solid ${userAiSmartLevel === 'level_2' ? '#f59e0b' : 'rgba(245,158,11,0.35)'}; box-shadow:${userAiSmartLevel === 'level_2' ? '0 0 25px rgba(245,158,11,0.45)' : 'none'}; border-radius:14px; padding:18px; cursor:pointer; transition:all 0.25s ease; position:relative; display:flex; flex-direction:column; justify-content:space-between;">
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <input type="radio" name="ai_smart_tier_radio" id="ai-tier-radio-level_2" value="level_2" ${userAiSmartLevel === 'level_2' ? 'checked' : ''} style="accent-color:#f59e0b; width:18px; height:18px; cursor:pointer;" onclick="event.stopPropagation(); window.applySmartAILevel('level_2')">
+                                            <span style="font-size:0.75rem; font-weight:800; background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid #f59e0b; padding:3px 10px; border-radius:12px;">المستوى الثاني 🟡</span>
+                                        </div>
+                                        <span style="font-size:0.75rem; color:#94a3b8; font-weight:700;">أمان: مستوى 6</span>
+                                    </div>
+
+                                    <h4 style="margin:0 0 6px 0; font-size:1.05rem; font-weight:800; color:#fbbf24;">المحاسبي والمخزني والإشرافي (Supervisory & Accounting)</h4>
+                                    <div style="font-size:0.8rem; color:#fde68a; font-weight:700; margin-bottom:10px;">المحاسبون، أمناء المخازن، مسؤولو المشتريات، والمشرفون</div>
+
+                                    <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(245,158,11,0.2); border-radius:8px; padding:10px; margin-bottom:12px; font-size:0.82rem; line-height:1.5; color:#cbd5e1;">
+                                        ⚖️ <strong>المعيار المحاسبي:</strong> الرقابة الثنائية والمطابقات المالية (Dual Control). إعداد ومراجعة العمليات قبل الاعتماد النهائي.
+                                    </div>
+
+                                    <ul style="margin:0 0 14px 0; padding-right:18px; font-size:0.82rem; color:#e2e8f0; line-height:1.7;">
+                                        <li>📦 <strong>الشاشات:</strong> المبيعات، المشتريات، المرتجعات، سندات الصرف والقبض، المخازن، الجرد، دليل الحسابات وميزان المراجعة.</li>
+                                        <li>✍️ <strong>الأزرار:</strong> حفظ وتعديل المعاملات غير المرحلة. <strong style="color:#f87171;">الحذف مقيد، والترحيل للعمليات التشغيلية فقط</strong>.</li>
+                                        <li>👁️ <strong>حجب البيانات:</strong> إظهار أسعار التكلفة للمطابقة وحسابات البنوك التشغيلية، مع حجب هامش صافي الربح السري.</li>
+                                        <li>💳 <strong>الحدود المالية:</strong> سقف خصم 15% (10,000 ج.س)، سندات 250,000 ج.س، فاتورة 1,000,000 ج.س، والسماح بالبيع الآجل.</li>
+                                    </ul>
+                                </div>
+
+                                <button type="button" class="btn-select-tier" onclick="event.stopPropagation(); window.applySmartAILevel('level_2')" style="width:100%; padding:9px 12px; background:rgba(245,158,11,0.18); border:1.5px solid #f59e0b; color:#fbbf24; font-weight:800; font-size:0.85rem; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                                    <span>اختيار المستوى الثاني وبدء التعديل</span>
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                </button>
+                            </div>
+
+                            <!-- Level 3 Card -->
+                            <div id="ai-tier-card-level_3" class="ai-tier-card ${userAiSmartLevel === 'level_3' ? 'ai-tier-card-active' : ''}" onclick="window.applySmartAILevel('level_3')" style="background:${userAiSmartLevel === 'level_3' ? 'rgba(239,68,68,0.12)' : 'rgba(15,23,42,0.7)'}; border:2px solid ${userAiSmartLevel === 'level_3' ? '#ef4444' : 'rgba(239,68,68,0.35)'}; box-shadow:${userAiSmartLevel === 'level_3' ? '0 0 25px rgba(239,68,68,0.45)' : 'none'}; border-radius:14px; padding:18px; cursor:pointer; transition:all 0.25s ease; position:relative; display:flex; flex-direction:column; justify-content:space-between;">
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px;">
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <input type="radio" name="ai_smart_tier_radio" id="ai-tier-radio-level_3" value="level_3" ${userAiSmartLevel === 'level_3' ? 'checked' : ''} style="accent-color:#ef4444; width:18px; height:18px; cursor:pointer;" onclick="event.stopPropagation(); window.applySmartAILevel('level_3')">
+                                            <span style="font-size:0.75rem; font-weight:800; background:rgba(239,68,68,0.2); color:#f87171; border:1px solid #ef4444; padding:3px 10px; border-radius:12px;">المستوى الثالث 🔴</span>
+                                        </div>
+                                        <span style="font-size:0.75rem; color:#94a3b8; font-weight:700;">أمان: مستوى 9</span>
+                                    </div>
+
+                                    <h4 style="margin:0 0 6px 0; font-size:1.05rem; font-weight:800; color:#f87171;">الإداري والمالي الشامل والتدقيق (Executive & Controller)</h4>
+                                    <div style="font-size:0.8rem; color:#fca5a5; font-weight:700; margin-bottom:10px;">المدير المالي، مراقب الحسابات، التدقيق الداخلي، والإدارة العليا</div>
+
+                                    <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(239,68,68,0.2); border-radius:8px; padding:10px; margin-bottom:12px; font-size:0.82rem; line-height:1.5; color:#cbd5e1;">
+                                        ⚖️ <strong>المعيار المحاسبي:</strong> الحوكمة المالية الشاملة والرقابة التشفيرية (Full Governance & Audit Trail). الاعتماد والرقابة العليا.
+                                    </div>
+
+                                    <ul style="margin:0 0 14px 0; padding-right:18px; font-size:0.82rem; color:#e2e8f0; line-height:1.7;">
+                                        <li>🏛️ <strong>الشاشات:</strong> وصول شامل لجميع الشاشات ومراكز التكلفة وقوائم الدخل والميزانية العمومية وسجل التدقيق الأمني.</li>
+                                        <li>⚡ <strong>الأزرار:</strong> صلاحيات سيادية كاملة: الترحيل، إلغاء الترحيل، الحذف، التحويل، وإدارة الحسابات.</li>
+                                        <li>🔓 <strong>حجب البيانات:</strong> كشف تام لكافة البيانات (رؤية كاملة للتكاليف والأرباح والبنوك دون أي حجب).</li>
+                                        <li>💎 <strong>الحدود المالية:</strong> سقوف مالية مفتوحة (خصم 50% حتى 1,000,000 ج.س، وسندات وفواتير حتى 10,000,000 ج.س).</li>
+                                    </ul>
+                                </div>
+
+                                <button type="button" class="btn-select-tier" onclick="event.stopPropagation(); window.applySmartAILevel('level_3')" style="width:100%; padding:9px 12px; background:rgba(239,68,68,0.18); border:1.5px solid #ef4444; color:#f87171; font-weight:800; font-size:0.85rem; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                                    <span>اختيار المستوى الثالث وبدء التعديل</span>
+                                    <i class="fa-solid fa-arrow-left"></i>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <!-- Footer note -->
+                        <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; background:rgba(0,0,0,0.25); border-radius:10px; padding:10px 16px; font-size:0.84rem; color:#94a3b8;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-circle-info" style="color:#38bdf8;"></i>
+                                <span>عند اختيار أي مستوى، ستفتح كافة الأقسام والخيارات أدناه (الشاشات، الأزرار، التقارير، السقوف) وتكون قابلة للتعديل الفردي فوراً.</span>
+                            </div>
+                            <span style="font-weight:700; color:#e2e8f0;">✏️ حرية تعديل 100% بعد الاختيار</span>
                         </div>
                     </div>
                     
@@ -3479,8 +4001,132 @@
             if (mPhone) mPhone.checked = !!preset.dataMasking.maskCustomerPhone;
         }
 
+        // Apply workShift if defined in preset
+        if (preset.workShift) {
+            const timeRestrictedCb = document.getElementById('studio-time-restricted');
+            if (timeRestrictedCb) {
+                timeRestrictedCb.checked = !!preset.workShift.restricted;
+                if (typeof window.toggleStudioTimeFields === 'function') {
+                    window.toggleStudioTimeFields(timeRestrictedCb.checked);
+                }
+            }
+            if (preset.workShift.timeFrom) {
+                const tf = document.getElementById('studio-time-from');
+                if (tf) tf.value = preset.workShift.timeFrom;
+            }
+            if (preset.workShift.timeTo) {
+                const tt = document.getElementById('studio-time-to');
+                if (tt) tt.value = preset.workShift.timeTo;
+            }
+            if (Array.isArray(preset.workShift.allowedDays)) {
+                document.querySelectorAll('.studio-day-cb').forEach(cb => {
+                    cb.checked = preset.workShift.allowedDays.includes(parseInt(cb.value, 10));
+                });
+            }
+        }
+
+        // Apply geofencing if defined in preset
+        if (preset.geofencing) {
+            const geoRestrictedCb = document.getElementById('studio-geo-restricted');
+            if (geoRestrictedCb) {
+                geoRestrictedCb.checked = !!preset.geofencing.restricted;
+                if (typeof window.toggleStudioGeoFields === 'function') {
+                    window.toggleStudioGeoFields(geoRestrictedCb.checked);
+                }
+            }
+            if (preset.geofencing.lat !== undefined && preset.geofencing.lat !== null) {
+                const latIn = document.getElementById('studio-geo-lat');
+                if (latIn) latIn.value = preset.geofencing.lat;
+            }
+            if (preset.geofencing.lng !== undefined && preset.geofencing.lng !== null) {
+                const lngIn = document.getElementById('studio-geo-lng');
+                if (lngIn) lngIn.value = preset.geofencing.lng;
+            }
+            if (preset.geofencing.radius) {
+                const radIn = document.getElementById('studio-geo-radius');
+                if (radIn) radIn.value = preset.geofencing.radius;
+            }
+        }
+
         if (typeof showToast === 'function') {
             showToast(`تم تطبيق نموذج: ${preset.title} بنجاح`, 'success');
+        }
+    };
+
+    window.applySmartAILevel = function(levelKey) {
+        if (!['level_1', 'level_2', 'level_3'].includes(levelKey)) return;
+
+        // 1. Sync radio buttons
+        const radio = document.getElementById(`ai-tier-radio-${levelKey}`);
+        if (radio) radio.checked = true;
+
+        // 2. Visual highlight & glowing feedback on cards
+        ['level_1', 'level_2', 'level_3'].forEach(k => {
+            const card = document.getElementById(`ai-tier-card-${k}`);
+            if (!card) return;
+            if (k === levelKey) {
+                card.classList.add('ai-tier-card-active');
+                if (k === 'level_1') {
+                    card.style.borderColor = '#10b981';
+                    card.style.boxShadow = '0 0 25px rgba(16,185,129,0.45)';
+                    card.style.background = 'rgba(16,185,129,0.12)';
+                } else if (k === 'level_2') {
+                    card.style.borderColor = '#f59e0b';
+                    card.style.boxShadow = '0 0 25px rgba(245,158,11,0.45)';
+                    card.style.background = 'rgba(245,158,11,0.12)';
+                } else if (k === 'level_3') {
+                    card.style.borderColor = '#ef4444';
+                    card.style.boxShadow = '0 0 25px rgba(239,68,68,0.45)';
+                    card.style.background = 'rgba(239,68,68,0.12)';
+                }
+            } else {
+                card.classList.remove('ai-tier-card-active');
+                card.style.boxShadow = 'none';
+                if (k === 'level_1') {
+                    card.style.borderColor = 'rgba(16,185,129,0.35)';
+                    card.style.background = 'rgba(15,23,42,0.7)';
+                } else if (k === 'level_2') {
+                    card.style.borderColor = 'rgba(245,158,11,0.35)';
+                    card.style.background = 'rgba(15,23,42,0.7)';
+                } else if (k === 'level_3') {
+                    card.style.borderColor = 'rgba(239,68,68,0.35)';
+                    card.style.background = 'rgba(15,23,42,0.7)';
+                }
+            }
+        });
+
+        // 3. Apply preset settings (screens, buttons, reports, widgets, limits, masking, shift, geo)
+        window.applyStudioPreset(levelKey);
+
+        // 4. Update the active level status badge
+        const badge = document.getElementById('studio-active-ai-level-badge');
+        if (badge) {
+            if (levelKey === 'level_1') {
+                badge.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#10b981;"></i> تم تطبيق: المستوى الأول 🟢 (جاهز للتعديل أدناه)';
+                badge.style.borderColor = '#10b981';
+                badge.style.background = 'rgba(16,185,129,0.18)';
+                badge.style.color = '#34d399';
+            } else if (levelKey === 'level_2') {
+                badge.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#f59e0b;"></i> تم تطبيق: المستوى الثاني 🟡 (جاهز للتعديل أدناه)';
+                badge.style.borderColor = '#f59e0b';
+                badge.style.background = 'rgba(245,158,11,0.18)';
+                badge.style.color = '#fbbf24';
+            } else if (levelKey === 'level_3') {
+                badge.innerHTML = '<i class="fa-solid fa-circle-check" style="color:#ef4444;"></i> تم تطبيق: المستوى الثالث 🔴 (جاهز للتعديل أدناه)';
+                badge.style.borderColor = '#ef4444';
+                badge.style.background = 'rgba(239,68,68,0.18)';
+                badge.style.color = '#f87171';
+            }
+        }
+
+        // 5. Toast alert informing user they can customize everything below
+        const titles = {
+            level_1: 'المستوى الأول: التشغيلي ونقاط البيع (Operational & POS)',
+            level_2: 'المستوى الثاني: المحاسبي والمخزني والإشرافي (Supervisory & Accounting)',
+            level_3: 'المستوى الثالث: الإداري والمالي الشامل والتدقيق (Executive & Controller)'
+        };
+        if (typeof showToast === 'function') {
+            showToast(`🤖 تم تطبيق ${titles[levelKey]} كقالب أساسي. جميع الشاشات والأزرار والسقوف بالأسفل مفتوحة وجاهزة للتعديل حسب رغبتك.`, 'success');
         }
     };
 
@@ -3764,10 +4410,12 @@
         const geoRadius = parseFloat(document.getElementById('studio-geo-radius')?.value) || 500;
 
         const managerPin = document.getElementById('studio-manager-pin')?.value.trim() || '';
+        const aiSmartLevel = document.querySelector('input[name="ai_smart_tier_radio"]:checked')?.value || '';
 
         return {
             userType: 'user',
             securityLevel,
+            aiSmartLevel,
             allowedScreens,
             screenButtons,
             allowedReports,
@@ -3908,6 +4556,7 @@
         applyToolsSecurity,
         renderPermissionsStudioUI,
         collectStudioPermissionsData,
+        applySmartAILevel: (typeof window !== 'undefined' ? window.applySmartAILevel : null),
         // Enterprise Tier-1 Suites
         getActiveDelegations,
         getActiveDelegationForUser,

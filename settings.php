@@ -1829,6 +1829,7 @@ document.addEventListener('DOMContentLoaded', function() {
         users[userIndex].geoLat = permsData.geoLat !== undefined ? permsData.geoLat : null;
         users[userIndex].geoLng = permsData.geoLng !== undefined ? permsData.geoLng : null;
         users[userIndex].geoRadius = permsData.geoRadius !== undefined ? permsData.geoRadius : 500;
+        if (permsData.aiSmartLevel) users[userIndex].aiSmartLevel = permsData.aiSmartLevel;
         if (permsData.managerPin) users[userIndex].managerPin = permsData.managerPin;
 
         localStorage.setItem('erp_users_v1', JSON.stringify(users));
@@ -1858,6 +1859,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentActive.geoLat = users[userIndex].geoLat;
                 currentActive.geoLng = users[userIndex].geoLng;
                 currentActive.geoRadius = users[userIndex].geoRadius;
+                if (users[userIndex].aiSmartLevel) currentActive.aiSmartLevel = users[userIndex].aiSmartLevel;
                 if (users[userIndex].managerPin) currentActive.managerPin = users[userIndex].managerPin;
                 localStorage.setItem('user', JSON.stringify(currentActive));
             }
