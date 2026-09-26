@@ -2806,13 +2806,17 @@
                         </div>
                     </div>
 
-                    <!-- Live Global Search Bar & Stats Pill -->
+                    <!-- Live Global Search Bar & Quick Jump Buttons -->
                     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; border-top:1px solid rgba(255,255,255,0.08); padding-top:14px;">
                         <div style="position:relative; flex:1; min-width:280px; max-width:550px;">
                             <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:14px; top:50%; transform:translateY(-50%); color:#38bdf8; font-size:1rem;"></i>
-                            <input type="text" id="studio-search-input" oninput="window.filterStudioItems(this.value)" placeholder="🔍 ابحث عن شاشة (مثل: مشتريات، ترحيل، مخازن، شيكات، إرجاع، ميراث)..." style="width:100%; box-sizing:border-box; padding:10px 42px 10px 14px; border-radius:10px; background:rgba(0,0,0,0.4); border:1px solid rgba(56,189,248,0.3); color:#fff; font-size:0.92rem; outline:none; font-family:'Tajawal', sans-serif;">
+                            <input type="text" id="studio-search-input" oninput="window.filterStudioItems(this.value)" placeholder="🔍 ابحث بذكاء عن أي شيء (مثل: أوقات العمل، الورديات، ساعات الدوام، GPS، مبيعات، ترحيل، خصم)..." style="width:100%; box-sizing:border-box; padding:10px 42px 10px 14px; border-radius:10px; background:rgba(0,0,0,0.4); border:1px solid rgba(56,189,248,0.3); color:#fff; font-size:0.92rem; outline:none; font-family:'Tajawal', sans-serif;">
                         </div>
-                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                            <button type="button" onclick="window.jumpToWorkShiftAndGeoTab()" style="background:linear-gradient(135deg, rgba(14,165,233,0.25), rgba(3,105,161,0.4)); border:1.5px solid #38bdf8; color:#38bdf8; padding:7px 14px; border-radius:10px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.35)'" onmouseout="this.style.background='linear-gradient(135deg, rgba(14,165,233,0.25), rgba(3,105,161,0.4))'">
+                                <i class="fa-solid fa-clock"></i>
+                                <span>⏱️ وقت العمل والورديات والـ GPS</span>
+                            </button>
                             <span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); padding:6px 14px; border-radius:20px; font-weight:800; font-size:0.85rem;">
                                 🖥️ إجمالي الشاشات: ${totalScreensCount} شاشة
                             </span>
@@ -2821,6 +2825,8 @@
                             </span>
                         </div>
                     </div>
+                    <!-- Live Search Results & Smart Jump Bar -->
+                    <div id="studio-search-results-bar" style="display:none; margin-top:12px; padding:12px 16px; background:rgba(15,23,42,0.85); border:1.5px solid rgba(56,189,248,0.4); border-radius:12px; font-size:0.88rem; box-shadow:0 6px 20px rgba(0,0,0,0.3);"></div>
                 </div>
 
                 <!-- Admin Notice (Shown when Admin is selected) -->
@@ -3053,41 +3059,42 @@
 
                     <!-- Multi-Section Studio Tabs -->
                     <div class="studio-subtabs" style="display:flex; gap:6px; overflow-x:auto; margin-bottom:18px; padding-bottom:4px; border-bottom:1px solid rgba(255,255,255,0.1);">
-                        <button type="button" class="studio-tab-btn active" onclick="window.switchStudioTab('all_screens', this)">
+                        <button type="button" id="studio-tab-btn-all_screens" class="studio-tab-btn active" onclick="window.switchStudioTab('all_screens', this)">
                             <i class="fa-solid fa-desktop"></i> الشاشات والأزرار التفصيلية
                         </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('dashboard_widgets', this)">
-                            <i class="fa-solid fa-gauge"></i> لوحة التحكم والمؤشرات
+                        <button type="button" id="studio-tab-btn-work_shifts_and_geo" class="studio-tab-btn" onclick="window.switchStudioTab('work_shifts_and_geo', this)" style="border:1.5px solid rgba(56,189,248,0.5); background:rgba(56,189,248,0.12); color:#38bdf8;">
+                            <i class="fa-solid fa-business-time"></i> أوقات العمل والورديات والموقع (GPS)
+                            <span style="background:#0284c7; color:#fff; font-size:0.72rem; padding:1px 7px; border-radius:10px; margin-right:5px; font-weight:800;">⏱️ دوام وموقع</span>
                         </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('posting_rights', this)">
-                            <i class="fa-solid fa-sitemap"></i> صلاحيات الترحيل والاعتماد
-                        </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('master_data_rights', this)">
-                            <i class="fa-solid fa-database"></i> تفاصيل البيانات الأساسية
-                        </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('alerts_rights', this)">
-                            <i class="fa-solid fa-triangle-exclamation"></i> الرقابة والتنبيهات
-                        </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('tools_rights', this)">
-                            <i class="fa-solid fa-toolbox"></i> الأدوات المساعدة والشريعة
-                        </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('reports_catalog', this)">
-                            <i class="fa-solid fa-chart-pie"></i> كتالوج التقارير المصرح بها
-                        </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('financial_limits', this)">
+                        <button type="button" id="studio-tab-btn-financial_limits" class="studio-tab-btn" onclick="window.switchStudioTab('financial_limits', this)">
                             <i class="fa-solid fa-scale-balanced"></i> سقوف المبالغ والخصومات
                         </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('data_masking', this)">
+                        <button type="button" id="studio-tab-btn-data_masking" class="studio-tab-btn" onclick="window.switchStudioTab('data_masking', this)">
                             <i class="fa-solid fa-eye-slash"></i> حجب وتعتيم الأسعار
                         </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('delegations_rights', this)">
+                        <button type="button" id="studio-tab-btn-dashboard_widgets" class="studio-tab-btn" onclick="window.switchStudioTab('dashboard_widgets', this)">
+                            <i class="fa-solid fa-gauge"></i> لوحة التحكم والمؤشرات
+                        </button>
+                        <button type="button" id="studio-tab-btn-posting_rights" class="studio-tab-btn" onclick="window.switchStudioTab('posting_rights', this)">
+                            <i class="fa-solid fa-sitemap"></i> صلاحيات الترحيل والاعتماد
+                        </button>
+                        <button type="button" id="studio-tab-btn-master_data_rights" class="studio-tab-btn" onclick="window.switchStudioTab('master_data_rights', this)">
+                            <i class="fa-solid fa-database"></i> تفاصيل البيانات الأساسية
+                        </button>
+                        <button type="button" id="studio-tab-btn-alerts_rights" class="studio-tab-btn" onclick="window.switchStudioTab('alerts_rights', this)">
+                            <i class="fa-solid fa-triangle-exclamation"></i> الرقابة والتنبيهات
+                        </button>
+                        <button type="button" id="studio-tab-btn-tools_rights" class="studio-tab-btn" onclick="window.switchStudioTab('tools_rights', this)">
+                            <i class="fa-solid fa-toolbox"></i> الأدوات المساعدة والشريعة
+                        </button>
+                        <button type="button" id="studio-tab-btn-reports_catalog" class="studio-tab-btn" onclick="window.switchStudioTab('reports_catalog', this)">
+                            <i class="fa-solid fa-chart-pie"></i> كتالوج التقارير المصرح بها
+                        </button>
+                        <button type="button" id="studio-tab-btn-delegations_rights" class="studio-tab-btn" onclick="window.switchStudioTab('delegations_rights', this)">
                             <i class="fa-solid fa-user-clock"></i> التفويض المؤقت
                         </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('manager_override_pin', this)">
+                        <button type="button" id="studio-tab-btn-manager_override_pin" class="studio-tab-btn" onclick="window.switchStudioTab('manager_override_pin', this)">
                             <i class="fa-solid fa-key"></i> رمز مرور المشرف (PIN)
-                        </button>
-                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('work_shifts_and_geo', this)">
-                            <i class="fa-solid fa-business-time"></i> أوقات العمل والورديات والموقع (GPS)
                         </button>
                     </div>
 
@@ -3641,7 +3648,7 @@
                         <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:20px;">
                             
                             <!-- Shift & Work Hours Card -->
-                            <div style="background:rgba(15,23,42,0.6); border:1.5px solid rgba(56,189,248,0.3); border-radius:16px; padding:22px; box-shadow:0 8px 25px rgba(0,0,0,0.3);">
+                            <div id="studio-work-shifts-card" style="background:rgba(15,23,42,0.6); border:1.5px solid rgba(56,189,248,0.3); border-radius:16px; padding:22px; box-shadow:0 8px 25px rgba(0,0,0,0.3);">
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08);">
                                     <div style="display:flex; align-items:center; gap:10px;">
                                         <span style="width:38px; height:38px; border-radius:10px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
@@ -3710,7 +3717,7 @@
                             </div>
 
                             <!-- Geofencing (GPS) Card -->
-                            <div style="background:rgba(15,23,42,0.6); border:1.5px solid rgba(16,185,129,0.3); border-radius:16px; padding:22px; box-shadow:0 8px 25px rgba(0,0,0,0.3);">
+                            <div id="studio-geofencing-card" style="background:rgba(15,23,42,0.6); border:1.5px solid rgba(16,185,129,0.3); border-radius:16px; padding:22px; box-shadow:0 8px 25px rgba(0,0,0,0.3);">
                                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08);">
                                     <div style="display:flex; align-items:center; gap:10px;">
                                         <span style="width:38px; height:38px; border-radius:10px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
@@ -3806,11 +3813,32 @@
     window.switchStudioTab = function(tabKey, btn) {
         document.querySelectorAll('.studio-tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.studio-tab-content').forEach(c => c.style.display = 'none');
-        if (btn) btn.classList.add('active');
+        if (btn) {
+            btn.classList.add('active');
+        } else {
+            const b = document.getElementById(`studio-tab-btn-${tabKey}`);
+            if (b) b.classList.add('active');
+        }
         const target = document.getElementById(`studio-tab-content-${tabKey}`);
         if (target) target.style.display = 'block';
         if (tabKey === 'delegations_rights' && typeof window.populateDelegationDropdown === 'function') {
             window.populateDelegationDropdown();
+        }
+    };
+
+    window.jumpToWorkShiftAndGeoTab = function() {
+        const btn = document.getElementById('studio-tab-btn-work_shifts_and_geo');
+        window.switchStudioTab('work_shifts_and_geo', btn);
+        const card = document.getElementById('studio-work-shifts-card');
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.style.transition = 'all 0.4s ease';
+            card.style.borderColor = '#38bdf8';
+            card.style.boxShadow = '0 0 35px rgba(56,189,248,0.7)';
+            setTimeout(() => {
+                card.style.boxShadow = '0 8px 25px rgba(0,0,0,0.3)';
+                card.style.borderColor = 'rgba(56,189,248,0.3)';
+            }, 2500);
         }
     };
 
@@ -4252,43 +4280,259 @@
     };
 
     window.filterStudioItems = function(query) {
-        const q = (query || '').trim().toLowerCase();
+        const qRaw = (query || '').trim();
+        const normalizeAr = (s) => (s || '').toLowerCase()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .trim();
 
-        // 1. Filter screens
+        const qNorm = normalizeAr(qRaw);
+        const resultsBar = document.getElementById('studio-search-results-bar');
+
+        // If query is empty, reset everything
+        if (!qNorm) {
+            if (resultsBar) {
+                resultsBar.style.display = 'none';
+                resultsBar.innerHTML = '';
+            }
+            document.querySelectorAll('.studio-screen-row').forEach(row => row.style.display = 'flex');
+            document.querySelectorAll('.studio-cat-card').forEach(card => card.style.display = 'block');
+            document.querySelectorAll('.studio-report-card').forEach(rep => rep.style.display = 'flex');
+            const shiftCard = document.getElementById('studio-work-shifts-card');
+            if (shiftCard) shiftCard.style.boxShadow = 'none';
+            const geoCard = document.getElementById('studio-geofencing-card');
+            if (geoCard) geoCard.style.boxShadow = 'none';
+            return;
+        }
+
+        // Semantic synonym groups (normalized Arabic)
+        const isTimeMatch = /وقت|اوقات|زمن|ازمنه|دوام|ساعات|ساعه|ورديات|ورديه|شيفت|شفت|شفتات|ايام|اسبوع|جمعه|سبت|توقيت|حظر زمني|بدايه الورديه|نهايه الورديه|دوام ليلي|دوام نهاري/i.test(qNorm);
+        const isGeoMatch = /موقع|جغرافي|جغرافيه|gps|نطاق|خريطه|احداثيات|متر|نصف القطر|radius|مسافه|مكان/i.test(qNorm);
+        const isLimitsMatch = /سقف|سقوف|حد|حدود|خصم|خصومات|نسبه الخصم|مبلغ الفاتوره|سند|سندات|اجل|ائتمان|سلف|سقف مالي|limit|discount/i.test(qNorm);
+        const isMaskingMatch = /حجب|تعتيم|اخفاء|سريه|تكلفه|شراء|سعر الشراء|ربح|ارباح|هامش الربح|بنوك|بنك|الخرطوم|هاتف|تلفون|mask/i.test(qNorm);
+        const isPostingMatch = /ترحيل|اعتماد|موافقه|الغاء ترحيل|قيد|قيود|يوميه|post|unpost/i.test(qNorm);
+        const isReportsMatch = /تقرير|تقارير|كشف|كشوفات|ميزان|ميزانيه|ارباح وخسائر|تدفقات|قائمه دخل|report/i.test(qNorm);
+        const isDelegationMatch = /تفويض|وكاله|نيابه|اجازه|بديل|delegate/i.test(qNorm);
+        const isPinMatch = /رمز|مرور|بين|pin|مشرف|تجاوز|override/i.test(qNorm);
+        const isAiLevelMatch = /مستوى|المستوى|الاول|الثاني|الثالث|ذكاء|ai|قالب|قوالب/i.test(qNorm);
+        const isDashboardMatch = /لوحه|مؤشر|مؤشرات|kpi|رسوم|اذكار|dashboard/i.test(qNorm);
+        const isMasterDataMatch = /عميل|عملاء|مورد|موردين|صنف|اصناف|دليل|شجره الحسابات|بيانات اساسيه/i.test(qNorm);
+        const isAlertsMatch = /تنبيه|تنبيهات|رقابه|مخزون حرج|سيوله|alert/i.test(qNorm);
+        const isToolsMatch = /شريعه|شرعي|فتاوى|فتوى|ميراث|تركات|تلفزيون|tv|مهندس/i.test(qNorm);
+
+        // 1. Filter screens in all_screens tab
+        let matchingScreensCount = 0;
         document.querySelectorAll('.studio-screen-row').forEach(row => {
-            const title = (row.dataset.screenTitle || '').toLowerCase();
-            const file = (row.dataset.screenFile || '').toLowerCase();
-            if (!q || title.includes(q) || file.includes(q)) {
+            const titleNorm = normalizeAr(row.dataset.screenTitle);
+            const fileNorm = normalizeAr(row.dataset.screenFile);
+            if (titleNorm.includes(qNorm) || fileNorm.includes(qNorm)) {
                 row.style.display = 'flex';
+                matchingScreensCount++;
             } else {
                 row.style.display = 'none';
             }
         });
 
-        // Hide empty category cards if all child screens are hidden
         document.querySelectorAll('.studio-cat-card').forEach(card => {
-            if (!q) {
-                card.style.display = 'block';
-                return;
-            }
             const visibleRows = card.querySelectorAll('.studio-screen-row:not([style*="display: none"])');
             card.style.display = visibleRows.length > 0 ? 'block' : 'none';
         });
 
         // 2. Filter reports
+        let matchingReportsCount = 0;
         document.querySelectorAll('.studio-report-card').forEach(rep => {
-            const title = (rep.dataset.reportTitle || '').toLowerCase();
-            if (!q || title.includes(q)) {
+            const repTitleNorm = normalizeAr(rep.dataset.reportTitle);
+            if (repTitleNorm.includes(qNorm)) {
                 rep.style.display = 'flex';
+                matchingReportsCount++;
             } else {
                 rep.style.display = 'none';
             }
         });
 
-        // Auto switch to all_screens tab if typing search
-        if (q && document.getElementById('studio-tab-content-all_screens') && document.getElementById('studio-tab-content-all_screens').style.display === 'none') {
-            const firstTabBtn = document.querySelector('.studio-tab-btn');
-            if (firstTabBtn) window.switchStudioTab('all_screens', firstTabBtn);
+        // 3. Compile Smart Matches for Results Bar
+        const matches = [];
+
+        if (isTimeMatch || isGeoMatch) {
+            matches.push({
+                tab: 'work_shifts_and_geo',
+                icon: 'fa-solid fa-clock',
+                label: isTimeMatch ? '⏱️ جدول أوقات العمل والورديات الأسبوعية' : '📍 التقييد الجغرافي بالـ GPS',
+                badge: 'تطابق مباشر 100%',
+                badgeBg: 'rgba(56,189,248,0.25)',
+                badgeColor: '#38bdf8',
+                borderColor: '#38bdf8',
+                actionKey: 'time_shift'
+            });
+        }
+
+        if (isLimitsMatch) {
+            matches.push({
+                tab: 'financial_limits',
+                icon: 'fa-solid fa-scale-balanced',
+                label: '⚖️ سقوف المبالغ والخصومات المسموحة والبيع الآجل',
+                badge: 'تطابق مباشر',
+                badgeBg: 'rgba(245,158,11,0.25)',
+                badgeColor: '#fbbf24',
+                borderColor: '#f59e0b',
+                actionKey: 'limits'
+            });
+        }
+
+        if (isMaskingMatch) {
+            matches.push({
+                tab: 'data_masking',
+                icon: 'fa-solid fa-eye-slash',
+                label: '🔒 حجب وتعتيم الأسعار وهوامش الربح والبنوك',
+                badge: 'تطابق مباشر',
+                badgeBg: 'rgba(239,68,68,0.25)',
+                badgeColor: '#f87171',
+                borderColor: '#ef4444',
+                actionKey: 'masking'
+            });
+        }
+
+        if (isPostingMatch) {
+            matches.push({
+                tab: 'posting_rights',
+                icon: 'fa-solid fa-sitemap',
+                label: '📑 صلاحيات الترحيل والاعتماد المحاسبي',
+                badge: 'تطابق مباشر',
+                badgeBg: 'rgba(99,102,241,0.25)',
+                badgeColor: '#818cf8',
+                borderColor: '#6366f1',
+                actionKey: 'posting'
+            });
+        }
+
+        if (isReportsMatch || matchingReportsCount > 0) {
+            matches.push({
+                tab: 'reports_catalog',
+                icon: 'fa-solid fa-chart-pie',
+                label: `📊 كتالوج التقارير المصرح بها (${matchingReportsCount > 0 ? matchingReportsCount + ' تقارير' : 'مطابقة'})`,
+                badge: `${matchingReportsCount} تقرير`,
+                badgeBg: 'rgba(16,185,129,0.25)',
+                badgeColor: '#34d399',
+                borderColor: '#10b981',
+                actionKey: 'reports'
+            });
+        }
+
+        if (isAiLevelMatch) {
+            matches.push({
+                tab: 'all_screens',
+                icon: 'fa-solid fa-brain',
+                label: '🤖 تقسيم الصلاحيات الذكي بالذكاء الاصطناعي (3 مستويات)',
+                badge: 'قوالب الذكاء الاصطناعي',
+                badgeBg: 'rgba(139,92,246,0.25)',
+                badgeColor: '#c4b5fd',
+                borderColor: '#8b5cf6',
+                actionKey: 'ai_tiers'
+            });
+        }
+
+        if (isDashboardMatch) {
+            matches.push({
+                tab: 'dashboard_widgets',
+                icon: 'fa-solid fa-gauge',
+                label: '📊 لوحة التحكم والمؤشرات (KPIs)',
+                badge: 'مؤشرات الأداء',
+                badgeBg: 'rgba(14,165,233,0.25)',
+                badgeColor: '#38bdf8',
+                borderColor: '#0284c7',
+                actionKey: 'dashboard'
+            });
+        }
+
+        if (matchingScreensCount > 0) {
+            matches.push({
+                tab: 'all_screens',
+                icon: 'fa-solid fa-desktop',
+                label: `🖥️ شاشات العمليات (${matchingScreensCount} شاشة مطابقة)`,
+                badge: `${matchingScreensCount} شاشة`,
+                badgeBg: 'rgba(56,189,248,0.25)',
+                badgeColor: '#38bdf8',
+                borderColor: '#38bdf8',
+                actionKey: 'screens'
+            });
+        }
+
+        // 4. Render Live Search Results Bar
+        if (resultsBar) {
+            if (matches.length > 0) {
+                resultsBar.style.display = 'block';
+                resultsBar.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; margin-bottom:8px;">
+                        <span style="font-weight:800; color:#38bdf8; font-size:0.92rem; display:flex; align-items:center; gap:8px;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> نتائج البحث الذكي لـ "${qRaw}":
+                        </span>
+                        <span style="font-size:0.78rem; color:#94a3b8;">💡 اضغط على أي نتيجة أدناه للانتقال المباشر والتركيز على القسم:</span>
+                    </div>
+                    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                        ${matches.map((m, idx) => `
+                            <button type="button" class="search-match-pill" onclick="window._triggerStudioSearchAction('${m.actionKey}')" style="background:rgba(15,23,42,0.9); border:1.5px solid ${m.borderColor}; color:#fff; padding:7px 14px; border-radius:10px; font-weight:800; font-size:0.84rem; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                                <span>${m.label}</span>
+                                <span style="background:${m.badgeBg}; color:${m.badgeColor}; padding:2px 7px; border-radius:8px; font-size:0.75rem;">${m.badge}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                resultsBar.style.display = 'block';
+                resultsBar.innerHTML = `
+                    <div style="color:#f87171; font-size:0.86rem; display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-circle-exclamation"></i>
+                        <span>لم يتم العثور على نتيجة تطابق "${qRaw}". جرّب كلمات مثل: (أوقات العمل، الورديات، GPS، مبيعات، ترحيل، خصم، حجب).</span>
+                    </div>
+                `;
+            }
+        }
+
+        // 5. Intelligent Automatic Redirection:
+        // When searching about Time/Shifts or Geo, switch directly to work_shifts_and_geo!
+        if (isTimeMatch || isGeoMatch) {
+            window.jumpToWorkShiftAndGeoTab();
+        } else if (isLimitsMatch && matchingScreensCount === 0) {
+            window.switchStudioTab('financial_limits');
+        } else if (isMaskingMatch && matchingScreensCount === 0) {
+            window.switchStudioTab('data_masking');
+        } else if (isPostingMatch && matchingScreensCount === 0) {
+            window.switchStudioTab('posting_rights');
+        } else if (isReportsMatch && matchingScreensCount === 0 && matchingReportsCount > 0) {
+            window.switchStudioTab('reports_catalog');
+        } else if (isAiLevelMatch && matchingScreensCount === 0) {
+            const aiPanel = document.getElementById('studio-ai-tiers-panel');
+            if (aiPanel) aiPanel.scrollIntoView({ behavior: 'smooth' });
+        } else if (matchingScreensCount > 0) {
+            window.switchStudioTab('all_screens');
+        }
+    };
+
+    window._triggerStudioSearchAction = function(actionKey) {
+        if (actionKey === 'time_shift') {
+            window.jumpToWorkShiftAndGeoTab();
+        } else if (actionKey === 'limits') {
+            window.switchStudioTab('financial_limits');
+            document.getElementById('studio-tab-content-financial_limits')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (actionKey === 'masking') {
+            window.switchStudioTab('data_masking');
+            document.getElementById('studio-tab-content-data_masking')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (actionKey === 'posting') {
+            window.switchStudioTab('posting_rights');
+            document.getElementById('studio-tab-content-posting_rights')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (actionKey === 'reports') {
+            window.switchStudioTab('reports_catalog');
+            document.getElementById('studio-tab-content-reports_catalog')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (actionKey === 'ai_tiers') {
+            const aiPanel = document.getElementById('studio-ai-tiers-panel');
+            if (aiPanel) aiPanel.scrollIntoView({ behavior: 'smooth' });
+        } else if (actionKey === 'dashboard') {
+            window.switchStudioTab('dashboard_widgets');
+            document.getElementById('studio-tab-content-dashboard_widgets')?.scrollIntoView({ behavior: 'smooth' });
+        } else if (actionKey === 'screens') {
+            window.switchStudioTab('all_screens');
+            document.getElementById('studio-tab-content-all_screens')?.scrollIntoView({ behavior: 'smooth' });
         }
     };
 
