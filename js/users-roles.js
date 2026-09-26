@@ -181,12 +181,18 @@ function renderUsersTable() {
             if (w) warehouseName = w.name;
         }
 
+        const secLevel = (user.securityLevel !== undefined) 
+            ? user.securityLevel 
+            : (isAdmin ? 10 : (role.securityLevel || 1));
+        const secBadge = `<span class="badge" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid #a855f7; font-weight:800;">مستوى ${secLevel}</span>`;
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td style="font-weight: bold; color: var(--primary-accent);">${user.username}</td>
             <td>${user.fullName}</td>
             <td>${userTypeBadge}</td>
             <td>${role.name}</td>
+            <td>${secBadge}</td>
             <td>${warehouseName}</td>
             <td>${statusBadge}</td>
             <td>
@@ -441,6 +447,7 @@ async function saveUser() {
             USERS[userIndex].permissionsOverrides = permissionsOverrides;
             USERS[userIndex].userType = studioPerms.userType;
             USERS[userIndex].role = studioPerms.userType === 'admin' ? 'admin' : (roleId || USERS[userIndex].role || 'user');
+            USERS[userIndex].securityLevel = (studioPerms.securityLevel !== undefined) ? studioPerms.securityLevel : (studioPerms.userType === 'admin' ? 10 : 1);
             USERS[userIndex].allowedScreens = studioPerms.allowedScreens;
             USERS[userIndex].screenButtons = studioPerms.screenButtons;
             USERS[userIndex].allowedReports = studioPerms.allowedReports;
@@ -479,6 +486,7 @@ async function saveUser() {
             permissionsOverrides,
             userType: studioPerms.userType,
             role: studioPerms.userType === 'admin' ? 'admin' : (roleId || 'user'),
+            securityLevel: (studioPerms.securityLevel !== undefined) ? studioPerms.securityLevel : (studioPerms.userType === 'admin' ? 10 : 1),
             allowedScreens: studioPerms.allowedScreens,
             screenButtons: studioPerms.screenButtons,
             allowedReports: studioPerms.allowedReports,
@@ -496,6 +504,7 @@ async function saveUser() {
         if (currentActive && (currentActive.id === id || currentActive.username === username)) {
             currentActive.userType = studioPerms.userType;
             currentActive.role = studioPerms.userType === 'admin' ? 'admin' : (currentActive.role || 'user');
+            currentActive.securityLevel = (studioPerms.securityLevel !== undefined) ? studioPerms.securityLevel : (studioPerms.userType === 'admin' ? 10 : 1);
             currentActive.allowedScreens = studioPerms.allowedScreens;
             currentActive.screenButtons = studioPerms.screenButtons;
             currentActive.allowedReports = studioPerms.allowedReports;
@@ -508,6 +517,16 @@ async function saveUser() {
         }
     } catch(e) {}
 
+    // Real-time Live Cross-Tab Sync via MagaieesPermissions
+    if (window.MagaieesPermissions && typeof window.MagaieesPermissions.broadcastSecurityUpdate === 'function') {
+        window.MagaieesPermissions.broadcastSecurityUpdate({
+            userId: id || (USERS[USERS.length - 1] ? USERS[USERS.length - 1].id : null),
+            username: username,
+            securityLevel: (studioPerms.securityLevel !== undefined) ? studioPerms.securityLevel : 1,
+            updatedAt: new Date().toISOString()
+        });
+    }
+
     localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
     if (typeof window.pushToCloud === 'function') {
         window.pushToCloud().catch(err => console.error("Immediate sync failed:", err));
@@ -519,7 +538,7 @@ async function saveUser() {
 
     hideUserForm();
     renderUsersTable();
-    showToast('تم حفظ المستخدم بنجاح!', 'success');
+    showToast('تم حفظ المستخدم وتطبيق مستوى الأمان بنجاح!', 'success');
 }
 
 function editUser(id) {

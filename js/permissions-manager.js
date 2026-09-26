@@ -685,6 +685,7 @@
         cashier: {
             title: '🛒 كاشير / مبيعات ونقاط بيع',
             userType: 'user',
+            securityLevel: 4,
             allowedScreens: {
                 'magaiees_unified_dashboard.php': true,
                 'direct-sales.php': true,
@@ -720,6 +721,7 @@
         purchases_manager: {
             title: '📦 مسؤول مشتريات وتوريدات ومستودعات',
             userType: 'user',
+            securityLevel: 5,
             allowedScreens: {
                 'magaiees_unified_dashboard.php': true,
                 'purchase.php': true,
@@ -763,6 +765,7 @@
         storekeeper: {
             title: '🏢 أمين مستودع وجرد بضائع',
             userType: 'user',
+            securityLevel: 3,
             allowedScreens: {
                 'magaiees_unified_dashboard.php': true,
                 'inventory.php': true,
@@ -813,6 +816,7 @@
         accountant: {
             title: '💰 محاسب مالي ورئيس حسابات',
             userType: 'user',
+            securityLevel: 6,
             allowedScreens: {
                 'magaiees_unified_dashboard.php': true,
                 'single-cash-payment.php': true,
@@ -878,6 +882,7 @@
         viewer: {
             title: '🔍 استعلام ومعاينة وطباعة فقط (View Only)',
             userType: 'user',
+            securityLevel: 1,
             allowedScreens: {
                 'magaiees_unified_dashboard.php': true,
                 'direct-sales.php': true,
@@ -1054,6 +1059,267 @@
     }
 
     // ═════════════════════════════════════════════════════════════════════
+    // 5.5 MULTI-LEVEL SECURITY CLEARANCE ENGINE (مستويات سرية وأمان الحسابات 1 - 10)
+    // ═════════════════════════════════════════════════════════════════════
+
+    function getUserSecurityLevel(user) {
+        const u = user || getCurrentUser();
+        if (!u) return 1;
+        if (u.userType === 'admin' || u.role === 'admin' || u.username === 'admin' || u.username === 'c') {
+            return 10;
+        }
+        if (u.securityLevel !== undefined && u.securityLevel !== null && u.securityLevel !== '') {
+            const lvl = parseInt(u.securityLevel, 10);
+            if (!isNaN(lvl)) return Math.min(Math.max(lvl, 1), 10);
+        }
+        return 1;
+    }
+
+    function canUserAccessEntity(entity, user) {
+        const u = user || getCurrentUser();
+        if (!u) return true;
+        if (isCurrentUserAdmin(u)) return true;
+        if (!entity) return true;
+
+        // Extract entity clearance level from standard attributes
+        let entLevel = 1;
+        if (entity.securityLevel !== undefined && entity.securityLevel !== null && entity.securityLevel !== '') {
+            entLevel = parseInt(entity.securityLevel, 10);
+        } else if (entity.confidentiality !== undefined && entity.confidentiality !== null && entity.confidentiality !== '') {
+            entLevel = parseInt(entity.confidentiality, 10);
+        } else if (entity.security_level !== undefined && entity.security_level !== null && entity.security_level !== '') {
+            entLevel = parseInt(entity.security_level, 10);
+        }
+
+        // Standard Benchmark: Bank of Khartoum default clearance is level 6
+        const entName = String(entity.name || entity.bankName || entity.customerName || entity.supplierName || entity.safeName || '');
+        if ((!entLevel || entLevel === 1) && (entName.includes('الخرطوم') || entName.includes('BOK') || entName.includes('بنكك') || entity.id === 'bank-bok' || entity.code === '170')) {
+            entLevel = 6;
+        }
+
+        if (isNaN(entLevel) || entLevel < 1) entLevel = 1;
+
+        const userLevel = getUserSecurityLevel(u);
+        return userLevel >= entLevel;
+    }
+
+    function filterEntitiesByClearance(entitiesList, user) {
+        if (!Array.isArray(entitiesList)) return [];
+        return entitiesList.filter(e => canUserAccessEntity(e, user));
+    }
+
+    function getSecuredStorageList(storageKey, user) {
+        let rawList = [];
+        try {
+            const tenantKey = (typeof window.getTenantKey === 'function') ? window.getTenantKey(storageKey) : storageKey;
+            rawList = JSON.parse(localStorage.getItem(tenantKey) || localStorage.getItem(storageKey) || '[]');
+            if (!Array.isArray(rawList)) rawList = [];
+        } catch(e) {
+            rawList = [];
+        }
+        return filterEntitiesByClearance(rawList.filter(x => x && !x.deleted), user);
+    }
+
+    // Dynamic Scanner & Enforcer for Data Clearance across DOM elements
+    function enforceDataClearance(user) {
+        const u = user || getCurrentUser();
+        if (!u || isCurrentUserAdmin(u)) return;
+
+        const userLevel = getUserSecurityLevel(u);
+
+        // 1. Scan and filter all <select> options containing banks, safes, customers, suppliers, accounts
+        try {
+            const selects = document.querySelectorAll('select');
+            selects.forEach(sel => {
+                if (sel.id === 'settings-user-select' || sel.id === 'studio-user-security-level' || sel.id === 'user-role') return;
+
+                Array.from(sel.options).forEach(opt => {
+                    const optText = opt.text || '';
+                    const optVal = opt.value || '';
+
+                    // Check Bank of Khartoum or high-security indicators
+                    if ((optText.includes('الخرطوم') || optText.includes('BOK') || optVal.includes('bank-bok') || optVal.includes('170')) && userLevel < 6) {
+                        opt.style.display = 'none';
+                        opt.disabled = true;
+                        if (sel.value === optVal) {
+                            sel.value = '';
+                        }
+                    }
+
+                    // Check explicit data-security-level on option if present
+                    const optSec = opt.getAttribute('data-security-level');
+                    if (optSec) {
+                        const req = parseInt(optSec, 10);
+                        if (!isNaN(req) && userLevel < req) {
+                            opt.style.display = 'none';
+                            opt.disabled = true;
+                            if (sel.value === optVal) sel.value = '';
+                        }
+                    }
+                });
+            });
+        } catch(e) {}
+
+        // 2. Scan custom dropdown items (e.g. #from-account-dropdown-list, #to-account-dropdown-list, #cs-dropdown)
+        try {
+            document.querySelectorAll('.custom-dropdown-item, .cs-option').forEach(el => {
+                const text = el.innerText || '';
+                if ((text.includes('الخرطوم') || text.includes('BOK') || text.includes('بنكك')) && userLevel < 6) {
+                    el.style.display = 'none';
+                }
+            });
+        } catch(e) {}
+
+        // 3. Mask cost & profit data if user security clearance is below 6 or role has hideCosts
+        if (userLevel < 6 || u.hideCosts === true) {
+            try {
+                const sensitiveSelectors = [
+                    '.cost-val', '.profit-val', '.kpi-profit', '#kpi-profit', 
+                    '.gross-profit', '.net-profit', '[data-field="cost"]', '[data-field="profit"]',
+                    '.item-purchase-cost', '.cost-price-cell'
+                ];
+                document.querySelectorAll(sensitiveSelectors.join(', ')).forEach(el => {
+                    if (!el.getAttribute('data-original-val')) {
+                        el.setAttribute('data-original-val', el.innerText);
+                    }
+                    el.innerText = '••••••';
+                    el.style.filter = 'blur(2px)';
+                    el.title = 'محجوب لعدم كفاية التصريح الأمني (يتطلب تصريح مستوى 6 فما فوق)';
+                });
+            } catch(e) {}
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    // 5.6 DYNAMIC AUTO-DISCOVERY ENGINE (الاستكشاف والتسجيل التلقائي للأزرار والشاشات)
+    // ═════════════════════════════════════════════════════════════════════
+
+    function autoDiscoverScreenElements() {
+        const currentFile = (window.location.pathname.split('/').pop() || '').split('?')[0];
+        if (!currentFile || currentFile.endsWith('.css') || currentFile.endsWith('.js') || currentFile === 'login.php' || currentFile === 'index.php') return;
+
+        let discovered = {};
+        try {
+            discovered = JSON.parse(localStorage.getItem('erp_discovered_screen_actions') || '{}');
+        } catch(e) { discovered = {}; }
+
+        if (!discovered[currentFile]) {
+            discovered[currentFile] = [];
+        }
+
+        const candidateButtons = document.querySelectorAll('button, a.btn, input[type="button"], input[type="submit"], [data-perm-action]');
+        let changed = false;
+
+        candidateButtons.forEach(btn => {
+            let actionKey = btn.getAttribute('data-perm-action');
+            let actionLabel = btn.getAttribute('data-perm-label') || btn.innerText.trim() || btn.getAttribute('title') || '';
+
+            if (!actionKey && btn.id && (btn.id.startsWith('btn-') || btn.id.endsWith('-btn'))) {
+                const rawId = btn.id.replace(/^btn-/, '').replace(/-btn$/, '').toLowerCase();
+                const ignored = ['theme', 'lang', 'logout', 'back', 'close', 'cancel', 'menu', 'search', 'filter'];
+                if (!ignored.includes(rawId)) {
+                    actionKey = rawId;
+                }
+            }
+
+            if (actionKey && actionKey.length > 1) {
+                actionKey = actionKey.toLowerCase().replace(/[^a-z0-9_]/g, '_');
+                const coreActions = ['save', 'new', 'edit', 'delete', 'preview', 'print', 'share', 'export', 'receive', 'return', 'approve'];
+                if (!coreActions.includes(actionKey)) {
+                    const alreadyExists = discovered[currentFile].some(a => a.id === actionKey);
+                    if (!alreadyExists) {
+                        discovered[currentFile].push({
+                            id: actionKey,
+                            name: actionLabel || actionKey,
+                            selector: btn.id ? `#${btn.id}` : `[data-perm-action="${actionKey}"]`,
+                            discoveredAt: new Date().toISOString()
+                        });
+                        changed = true;
+                    }
+                }
+            }
+        });
+
+        if (changed) {
+            try {
+                localStorage.setItem('erp_discovered_screen_actions', JSON.stringify(discovered));
+            } catch(e) {}
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    // 5.7 REAL-TIME LIVE CROSS-TAB BROADCAST CHANNEL (البث والتحديث اللحظي)
+    // ═════════════════════════════════════════════════════════════════════
+
+    const SEC_CHANNEL_NAME = 'magaiees_security_live_channel';
+    let _secBroadcastChannel = null;
+
+    try {
+        if (typeof window.BroadcastChannel === 'function') {
+            _secBroadcastChannel = new BroadcastChannel(SEC_CHANNEL_NAME);
+            _secBroadcastChannel.onmessage = function(event) {
+                if (event && event.data) handleSecurityBroadcast(event.data);
+            };
+        }
+    } catch(e) {}
+
+    window.addEventListener('storage', function(e) {
+        if (e.key === 'erp_security_broadcast_ping') {
+            try {
+                const data = JSON.parse(e.newValue);
+                handleSecurityBroadcast(data);
+            } catch(err) {}
+        }
+    });
+
+    function broadcastSecurityUpdate(data) {
+        const payload = Object.assign({
+            timestamp: Date.now(),
+            sourceUrl: window.location.href
+        }, data);
+
+        if (_secBroadcastChannel) {
+            try { _secBroadcastChannel.postMessage(payload); } catch(e) {}
+        }
+        try {
+            localStorage.setItem('erp_security_broadcast_ping', JSON.stringify(payload));
+        } catch(e) {}
+    }
+
+    function handleSecurityBroadcast(data) {
+        if (!data || !data.type) return;
+
+        if (data.type === 'PERMISSIONS_UPDATED' || data.type === 'SECURITY_LEVEL_UPDATED') {
+            const activeUser = getCurrentUser();
+            if (!activeUser) return;
+
+            if (!data.targetUserId || activeUser.id === data.targetUserId || activeUser.username === data.targetUsername) {
+                try {
+                    const users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+                    const fresh = users.find(u => u.id === activeUser.id || u.username === activeUser.username);
+                    if (fresh) {
+                        localStorage.setItem('user', JSON.stringify(fresh));
+                    }
+                } catch(e) {}
+
+                enforceScreenSecurity();
+                enforceDataClearance();
+
+                if (typeof window.buildAccountsArray === 'function') {
+                    window.buildAccountsArray();
+                }
+                if (window.MasterBanksHelper && typeof window.MasterBanksHelper.refresh === 'function') {
+                    window.MasterBanksHelper.refresh();
+                }
+
+                if (typeof window.showToast === 'function') {
+                    window.showToast('⚡ تم تحديث صلاحياتك ومستوى الأمان المالي لحظياً', 'info');
+                }
+            }
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
     // 6. RUNTIME SCREEN & BUTTON SECURITY ENFORCER
     // ═════════════════════════════════════════════════════════════════════
 
@@ -1068,6 +1334,9 @@
             return;
         }
 
+        // Auto discover interactive buttons on this page
+        autoDiscoverScreenElements();
+
         // 1. Screen Access Check
         if (!canUserAccessScreen(currentFile, user)) {
             console.warn(`[Permissions] Access denied to screen: ${currentFile} for user: ${user.username}`);
@@ -1078,7 +1347,10 @@
         // 2. Button Security Check
         applyScreenButtonSecurity(currentFile, user);
 
-        // 3. Specialized Screen Security Handlers
+        // 3. Data Clearance & High-Security Accounts Enforcement
+        enforceDataClearance(user);
+
+        // 4. Specialized Screen Security Handlers
         if (currentFile === 'magaiees_unified_dashboard.php' || currentFile === 'dashboard-pro.php') {
             applyDashboardSecurity(user);
         } else if (currentFile === 'posting-accounts.php') {
@@ -1323,6 +1595,7 @@
         if (!containerElement) return;
 
         const isUserAdmin = userObj ? (userObj.userType === 'admin' || userObj.role === 'admin') : false;
+        const userSecLevel = userObj ? (userObj.securityLevel !== undefined && userObj.securityLevel !== null ? parseInt(userObj.securityLevel, 10) : (isUserAdmin ? 10 : 1)) : 1;
         const allowedScreens = (userObj && userObj.allowedScreens) ? userObj.allowedScreens : {};
         const screenButtons = (userObj && userObj.screenButtons) ? userObj.screenButtons : {};
         const allowedReports = (userObj && userObj.allowedReports) ? userObj.allowedReports : {};
@@ -1391,6 +1664,59 @@
 
                 <!-- Custom Permissions Studio Container -->
                 <div id="studio-custom-permissions-container" style="display:${isUserAdmin ? 'none' : 'block'};">
+                    
+                    <!-- 2. Security Clearance Level (مستوى السرية والوصول للمعلومات 1 - 10) -->
+                    <div style="background:linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,41,59,0.7)); border:1.5px solid rgba(245,158,11,0.4); border-radius:18px; padding:20px; margin-bottom:20px; box-shadow:0 10px 30px rgba(0,0,0,0.35);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+                            <div style="display:flex; align-items:center; gap:12px;">
+                                <span style="width:42px; height:42px; border-radius:12px; background:rgba(245,158,11,0.2); border:1.5px solid #f59e0b; color:#f59e0b; display:flex; align-items:center; justify-content:center; font-size:1.35rem; box-shadow:0 0 15px rgba(245,158,11,0.25);">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </span>
+                                <div>
+                                    <h4 style="margin:0; color:#fbbf24; font-size:1.2rem; font-weight:900; display:flex; align-items:center; gap:10px;">
+                                        درجة السرية والأمان المالي (Security Clearance Level 1 - 10)
+                                        <span id="studio-sec-level-badge" style="background:#f59e0b; color:#030712; padding:3px 12px; border-radius:20px; font-size:0.85rem; font-weight:900; box-shadow:0 0 10px rgba(245,158,11,0.5);">
+                                            المستوى الحالي: ${userSecLevel}
+                                        </span>
+                                    </h4>
+                                    <p style="margin:4px 0 0 0; color:#cbd5e1; font-size:0.88rem;">
+                                        تحديد سقف سرية الحسابات والعملاء والموردين والبنوك التي يُسمح لهذا المستخدم برؤيتها أو التعامل معها
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Live Discovery Button -->
+                            <div style="display:flex; gap:10px;">
+                                <button type="button" onclick="window.runStudioAutoDiscovery()" class="preset-btn" style="background:rgba(56,189,248,0.15); border:1.5px solid #38bdf8; color:#38bdf8; padding:9px 18px; border-radius:10px; font-weight:800; display:flex; align-items:center; gap:8px; cursor:pointer; box-shadow:0 0 15px rgba(56,189,248,0.2);">
+                                    <i class="fa-solid fa-arrows-rotate"></i> 🔄 فحص واستكشاف عناصر الشاشات تلقائياً
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Slider & Level Selector -->
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px; align-items:center; background:rgba(0,0,0,0.35); padding:16px; border-radius:14px; border:1px solid rgba(255,255,255,0.08);">
+                            <div>
+                                <label style="display:block; font-size:0.88rem; color:#94a3b8; font-weight:800; margin-bottom:8px;">اختر المستوى الأمني المصرح به للموظف:</label>
+                                <select id="studio-user-security-level" onchange="window.onStudioSecLevelChange(this.value)" style="width:100%; padding:11px 16px; border-radius:10px; background:#0f172a; border:1.5px solid #f59e0b; color:#fbbf24; font-weight:800; font-size:1rem; outline:none; font-family:'Tajawal', sans-serif;">
+                                    <option value="1" ${userSecLevel == 1 ? 'selected' : ''}>1 - مستوى أساسي (استعلام محدود جداً)</option>
+                                    <option value="2" ${userSecLevel == 2 ? 'selected' : ''}>2 - مدخل بيانات مبتدئ / عامل مستودع</option>
+                                    <option value="3" ${userSecLevel == 3 ? 'selected' : ''}>3 - كاشير مبيعات عادي</option>
+                                    <option value="4" ${userSecLevel == 4 ? 'selected' : ''}>4 - كاشير أول / مسؤول صالة (مثل: جمانة مهدي)</option>
+                                    <option value="5" ${userSecLevel == 5 ? 'selected' : ''}>5 - محاسب مدفوعات ومقبوضات عامة</option>
+                                    <option value="6" ${userSecLevel == 6 ? 'selected' : ''}>6 - رئيس حسابات / مسؤول مشتريات (يرى بنك الخرطوم)</option>
+                                    <option value="7" ${userSecLevel == 7 ? 'selected' : ''}>7 - مدير فرع / مالي متقدم</option>
+                                    <option value="8" ${userSecLevel == 8 ? 'selected' : ''}>8 - مراجع داخلي ومدير رقابة</option>
+                                    <option value="9" ${userSecLevel == 9 ? 'selected' : ''}>9 - مدير عام / إدارة عليا</option>
+                                    <option value="10" ${userSecLevel == 10 ? 'selected' : ''}>10 - مجلس الإدارة والمالك (سري للغاية)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <div id="studio-sec-level-explanation" style="font-size:0.92rem; line-height:1.7; color:#f1f5f9; background:rgba(245,158,11,0.08); border-right:4px solid #f59e0b; padding:12px 16px; border-radius:8px;">
+                                    <!-- Dynamically populated explanation -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- Presets Toolbar -->
                     <div id="studio-presets-bar" style="background:rgba(15,23,42,0.4); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:12px 18px; margin-bottom:20px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
@@ -1504,8 +1830,28 @@
                             </span>
                 `;
 
-                screen.supportedActions.forEach(action => {
-                    const meta = ACTION_META[action] || { label: action, icon: 'fa-circle-dot', color: '#94a3b8' };
+                // Merge standard supportedActions with any dynamically discovered actions
+                let customDiscovered = [];
+                try {
+                    const discMap = JSON.parse(localStorage.getItem('erp_discovered_screen_actions') || '{}');
+                    if (discMap[screen.file] && Array.isArray(discMap[screen.file])) {
+                        customDiscovered = discMap[screen.file];
+                    }
+                } catch(e) {}
+
+                const renderedActions = [...(screen.supportedActions || [])];
+                customDiscovered.forEach(cd => {
+                    if (!renderedActions.includes(cd.id)) renderedActions.push(cd.id);
+                });
+
+                renderedActions.forEach(action => {
+                    const isCustomAuto = customDiscovered.some(cd => cd.id === action);
+                    const customObj = isCustomAuto ? customDiscovered.find(cd => cd.id === action) : null;
+                    const meta = ACTION_META[action] || { 
+                        label: (customObj && customObj.name) ? customObj.name : action, 
+                        icon: 'fa-cube', 
+                        color: '#a78bfa' 
+                    };
                     let actionChecked = false;
                     if (screenButtons[screen.file] && typeof screenButtons[screen.file][action] === 'boolean') {
                         actionChecked = screenButtons[screen.file][action];
@@ -1515,10 +1861,11 @@
                     }
 
                     html += `
-                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:rgba(0,0,0,0.3); padding:4px 10px; border-radius:6px; border:1px solid rgba(255,255,255,0.06); transition:0.2s;" onmouseover="this.style.borderColor='${meta.color}'" onmouseout="this.style.borderColor='rgba(255,255,255,0.06)'">
+                        <label style="display:inline-flex; align-items:center; gap:6px; cursor:pointer; background:rgba(0,0,0,0.3); padding:4px 10px; border-radius:6px; border:1px solid ${isCustomAuto ? 'rgba(167,139,250,0.4)' : 'rgba(255,255,255,0.06)'}; transition:0.2s;" onmouseover="this.style.borderColor='${meta.color}'" onmouseout="this.style.borderColor='${isCustomAuto ? 'rgba(167,139,250,0.4)' : 'rgba(255,255,255,0.06)'}'">
                             <input type="checkbox" class="screen-btn-cb" data-file="${screen.file}" data-action="${action}" ${actionChecked ? 'checked' : ''} style="accent-color:${meta.color}; width:15px; height:15px;">
                             <span style="font-size:0.8rem; font-weight:700; color:#cbd5e1; display:flex; align-items:center; gap:4px;">
                                 <i class="fa-solid ${meta.icon}" style="color:${meta.color}; font-size:0.75rem;"></i> ${meta.label}
+                                ${isCustomAuto ? '<span style="font-size:0.65rem; background:#8b5cf6; color:#fff; padding:1px 4px; border-radius:4px; margin-right:4px;">✨ جديد تلقائي</span>' : ''}
                             </span>
                         </label>
                     `;
@@ -1791,6 +2138,11 @@
         `;
 
         containerElement.innerHTML = html;
+        setTimeout(() => {
+            if (typeof window.onStudioSecLevelChange === 'function') {
+                window.onStudioSecLevelChange(userSecLevel);
+            }
+        }, 50);
     }
 
     // ═════════════════════════════════════════════════════════════════════
@@ -1896,8 +2248,72 @@
             cb.checked = !!(preset.toolsPermissions && preset.toolsPermissions[tid]);
         });
 
+        // Apply security level
+        if (preset.securityLevel) {
+            const secSelect = document.getElementById('studio-user-security-level');
+            if (secSelect) {
+                secSelect.value = preset.securityLevel;
+                if (typeof window.onStudioSecLevelChange === 'function') {
+                    window.onStudioSecLevelChange(preset.securityLevel);
+                }
+            }
+        }
+
         if (typeof showToast === 'function') {
             showToast(`تم تطبيق نموذج: ${preset.title} بنجاح`, 'success');
+        }
+    };
+
+    window.onStudioSecLevelChange = function(level) {
+        const lvl = parseInt(level, 10) || 1;
+        const badge = document.getElementById('studio-sec-level-badge');
+        if (badge) badge.innerText = `المستوى الحالي: ${lvl}`;
+
+        const exp = document.getElementById('studio-sec-level-explanation');
+        if (!exp) return;
+
+        if (lvl <= 4) {
+            exp.innerHTML = `
+                <div style="font-weight:800; color:#38bdf8; margin-bottom:4px;">✅ نطاق الرؤية المصرح به (مستوى ${lvl}):</div>
+                <div>يستطيع هذا المستخدم رؤية واستخدام أي حساب مالي، خزينة، عميل، أو مورد بدرجة سرية من <strong>1 إلى ${lvl}</strong>.</div>
+                <div style="margin-top:6px; color:#f87171; font-weight:700;">
+                    🚫 الحسابات المحجوبة تلقائياً: الحسابات ذات المستوى الأكبر من ${lvl} (مثل: <span style="text-decoration:underline;">حساب بنك الخرطوم مستوى 6</span>) سيتم إخفاؤها تماماً من كافة القوائم المنسدلة وسندات الصرف والقبض وكشوف الحسابات.
+                </div>
+            `;
+        } else if (lvl >= 5 && lvl <= 8) {
+            exp.innerHTML = `
+                <div style="font-weight:800; color:#34d399; margin-bottom:4px;">✅ نطاق الرؤية المتقدم (مستوى ${lvl}):</div>
+                <div>يستطيع هذا المستخدم التعامل مع ورؤية كافة الحسابات والعملاء والموردين والبنوك حتى المستوى ${lvl} (بما في ذلك <strong>حساب بنك الخرطوم مستوى 6</strong>).</div>
+                <div style="margin-top:6px; color:#f87171; font-weight:700;">
+                    🚫 الحسابات المحجوبة: الحسابات والعملاء المخصصين للإدارة العليا بمستوى أعلى من ${lvl} ستظل محجوبة.
+                </div>
+            `;
+        } else {
+            exp.innerHTML = `
+                <div style="font-weight:800; color:#fbbf24; margin-bottom:4px;">👑 تصريح سيادي كامل (مستوى ${lvl} - سري للغاية):</div>
+                <div>يمتلك حق الوصول والتعامل مع كافة الحسابات البنكية، الخزن، الأرصدة، وهوامش الربح، وبيانات العملاء والموردين دون أي حجب أو قيود.</div>
+            `;
+        }
+    };
+
+    window.runStudioAutoDiscovery = function() {
+        autoDiscoverScreenElements();
+        let totalDiscovered = 0;
+        try {
+            const discMap = JSON.parse(localStorage.getItem('erp_discovered_screen_actions') || '{}');
+            Object.keys(discMap).forEach(k => totalDiscovered += (discMap[k] || []).length);
+        } catch(e) {}
+        
+        if (typeof showToast === 'function') {
+            showToast(`✅ تم فحص واستكشاف عناصر وشاشات النظام بنجاح! تم تسجيل (${totalDiscovered}) عنصراً تلقائياً.`, 'success');
+        } else {
+            alert(`✅ تم فحص واستكشاف عناصر وشاشات النظام بنجاح! تم تسجيل (${totalDiscovered}) عنصراً تلقائياً.`);
+        }
+        
+        // Refresh studio
+        if (typeof window.loadUserSettingsStudio === 'function') {
+            const sel = document.getElementById('settings-user-select');
+            if (sel && sel.value) window.loadUserSettingsStudio(sel.value);
         }
     };
 
@@ -1977,6 +2393,7 @@
         if (userType === 'admin') {
             return {
                 userType: 'admin',
+                securityLevel: 10,
                 allowedScreens: {},
                 screenButtons: {},
                 allowedReports: {},
@@ -1987,6 +2404,9 @@
                 toolsPermissions: {}
             };
         }
+
+        const secLevelSelect = document.getElementById('studio-user-security-level');
+        const securityLevel = secLevelSelect ? (parseInt(secLevelSelect.value, 10) || 1) : 1;
 
         const allowedScreens = {};
         document.querySelectorAll('.screen-visibility-cb').forEach(cb => {
@@ -2033,6 +2453,7 @@
 
         return {
             userType: 'user',
+            securityLevel,
             allowedScreens,
             screenButtons,
             allowedReports,
@@ -2057,6 +2478,15 @@
         ACTION_META,
         getCurrentUser,
         isCurrentUserAdmin,
+        getUserSecurityLevel,
+        canUserAccessEntity,
+        filterEntitiesByClearance,
+        getSecuredStorageList,
+        enforceDataClearance,
+        autoDiscoverScreenElements,
+        broadcastSecurityUpdate,
+        handleSecurityBroadcast,
+        runStudioAutoDiscovery: window.runStudioAutoDiscovery,
         canUserAccessScreen,
         canUserDoAction,
         canUserViewReport,

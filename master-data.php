@@ -2266,6 +2266,7 @@
                 maxLimit: 0,
                 minLimit: 0,
                 confidentiality: document.getElementById('bank-confidentiality').value,
+                securityLevel: parseInt(document.getElementById('bank-confidentiality').value) || 1,
                 isInactive: document.getElementById('bank-inactive').checked,
                 isModifier: false
             };
@@ -2440,6 +2441,7 @@
                 maxLimit: parseFloat(document.getElementById('safe-max-limit').value) || 0,
                 minLimit: parseFloat(document.getElementById('safe-min-limit').value) || 0,
                 confidentiality: document.getElementById('safe-confidentiality').value,
+                securityLevel: parseInt(document.getElementById('safe-confidentiality').value) || 1,
                 isInactive: document.getElementById('safe-inactive').checked,
                 isModifier: document.getElementById('safe-modifier').checked
             };

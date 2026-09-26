@@ -22,9 +22,9 @@
     // 1. البنوك الافتراضية الشائعة (Fallback Baseline)
     // ═══════════════════════════════════════════════════════════════════
     const DEFAULT_MASTER_BANKS = [
-        { id: 'bank-bok', name: 'بنك الخرطوم (بنكك - Bankak)', branch: 'الفرع الرئيسي', code: '170', currency: 'SDG', keywords: ['بنكك', 'bankak', 'bok', 'الخرطوم', '170'] },
-        { id: 'bank-fib', name: 'بنك فيصل الإسلامي (فوري - Fawry)', branch: 'الفرع الرئيسي', code: '190', currency: 'SDG', keywords: ['فوري', 'fawry', 'fib', 'فيصل', '190'] },
-        { id: 'bank-onb', name: 'بنك أمدرمان الوطني (أوكاش - O-Cash)', branch: 'الفرع الرئيسي', code: '180', currency: 'SDG', keywords: ['اوكاش', 'أوكاش', 'ocash', 'onb', 'أمدرمان', 'امدرمان', '180'] },
+        { id: 'bank-bok', name: 'بنك الخرطوم (بنكك - Bankak)', branch: 'الفرع الرئيسي', code: '170', currency: 'SDG', securityLevel: 6, confidentiality: 6, keywords: ['بنكك', 'bankak', 'bok', 'الخرطوم', '170'] },
+        { id: 'bank-fib', name: 'بنك فيصل الإسلامي (فوري - Fawry)', branch: 'الفرع الرئيسي', code: '190', currency: 'SDG', securityLevel: 3, confidentiality: 3, keywords: ['فوري', 'fawry', 'fib', 'فيصل', '190'] },
+        { id: 'bank-onb', name: 'بنك أمدرمان الوطني (أوكاش - O-Cash)', branch: 'الفرع الرئيسي', code: '180', currency: 'SDG', securityLevel: 3, confidentiality: 3, keywords: ['اوكاش', 'أوكاش', 'ocash', 'onb', 'أمدرمان', 'امدرمان', '180'] },
         { id: 'bank-nile', name: 'بنك النيل (سريع)', branch: 'الفرع الرئيسي', code: '320', currency: 'SDG', keywords: ['سريع', 'النيل', 'nile', '320'] },
         { id: 'bank-workers', name: 'بنك العمال الوطني', branch: 'الفرع الرئيسي', code: '220', currency: 'SDG', keywords: ['العمال', 'workers', '220'] },
         { id: 'bank-baraka', name: 'بنك البركة السوداني', branch: 'الفرع الرئيسي', code: '280', currency: 'SDG', keywords: ['البركة', 'baraka', '280'] },
@@ -110,6 +110,10 @@
         const userBanks = parsed.filter(b => {
             if (!b || b.deleted || b.isInactive) return false;
             if (b.type && b.type === 'safe') return false;
+            // Security Clearance Enforcement
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.canUserAccessEntity === 'function') {
+                if (!window.MagaieesPermissions.canUserAccessEntity(b)) return false;
+            }
             return true;
         }).map(b => ({
             id: b.id || ('bank-' + Math.random()),
@@ -119,6 +123,7 @@
             code: b.code || '',
             iban: b.iban || '',
             glAccount: b.glAccount || '',
+            securityLevel: b.securityLevel || b.confidentiality || 1,
             isMasterCustom: true // معرف كبنك مسجل فعلياً من قبل المنشأة في البيانات الأساسية
         })).filter(b => b.name.length > 0);
 
@@ -135,6 +140,10 @@
         });
 
         DEFAULT_MASTER_BANKS.forEach(db => {
+            // Security Clearance Enforcement for default master banks
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.canUserAccessEntity === 'function') {
+                if (!window.MagaieesPermissions.canUserAccessEntity(db)) return;
+            }
             const norm = normalizeArabic(db.name);
             // مطابقة ذكية لتجنب التكرار حتى مع اختلاف التنسيق
             let exists = false;

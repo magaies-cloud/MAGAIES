@@ -1538,9 +1538,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (!users || users.length === 0) {
             users = [
-                { id: 'u_admin_default', username: 'admin', fullName: 'مدير النظام', userType: 'admin', role: 'admin', isSystem: true },
-                { id: 'u_c_default', username: 'c', fullName: 'المستخدم الرئيسي (c)', userType: 'admin', role: 'admin', isSystem: true }
+                { id: 'u_admin_default', username: 'admin', fullName: 'مدير النظام', userType: 'admin', role: 'admin', securityLevel: 10, isSystem: true },
+                { id: 'u_c_default', username: 'c', fullName: 'المستخدم الرئيسي (c)', userType: 'admin', role: 'admin', securityLevel: 10, isSystem: true },
+                { id: 'u_joumana', username: 'joumana', fullName: 'جمانة مهدي', userType: 'user', role: 'cashier', securityLevel: 4, isSystem: false }
             ];
+            localStorage.setItem('erp_users_v1', JSON.stringify(users));
+        } else if (!users.some(u => u.username === 'joumana')) {
+            // Seed sample employee Joumana Mahdi (Level 4) for immediate testing
+            users.push({ id: 'u_joumana', username: 'joumana', fullName: 'جمانة مهدي', userType: 'user', role: 'cashier', securityLevel: 4, isSystem: false });
             localStorage.setItem('erp_users_v1', JSON.stringify(users));
         }
 
@@ -1551,7 +1556,8 @@ document.addEventListener('DOMContentLoaded', function() {
         users.forEach(u => {
             const isAdmin = (u.userType === 'admin' || u.role === 'admin');
             const typeLabel = isAdmin ? '👑 مدير نظام' : '👤 مستخدم عادي';
-            select.innerHTML += `<option value="${u.id}">${u.fullName || u.username} (${u.username}) - [${typeLabel}]</option>`;
+            const secLvl = (u.securityLevel !== undefined) ? u.securityLevel : (isAdmin ? 10 : 1);
+            select.innerHTML += `<option value="${u.id}">${u.fullName || u.username} (${u.username}) - [${typeLabel}] [مستوى أمان: ${secLvl}]</option>`;
         });
 
         if (currentSelected && users.some(u => u.id === currentSelected)) {
@@ -1594,6 +1600,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         users[userIndex].userType = permsData.userType;
         users[userIndex].role = permsData.userType === 'admin' ? 'admin' : (users[userIndex].role || 'user');
+        users[userIndex].securityLevel = (permsData.securityLevel !== undefined) ? permsData.securityLevel : (permsData.userType === 'admin' ? 10 : 1);
         users[userIndex].allowedScreens = permsData.allowedScreens;
         users[userIndex].screenButtons = permsData.screenButtons;
         users[userIndex].allowedReports = permsData.allowedReports;
@@ -1611,6 +1618,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (currentActive && (currentActive.id === userId || currentActive.username === users[userIndex].username)) {
                 currentActive.userType = users[userIndex].userType;
                 currentActive.role = users[userIndex].role;
+                currentActive.securityLevel = users[userIndex].securityLevel;
                 currentActive.allowedScreens = users[userIndex].allowedScreens;
                 currentActive.screenButtons = users[userIndex].screenButtons;
                 currentActive.allowedReports = users[userIndex].allowedReports;
@@ -1623,15 +1631,25 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         } catch(e) {}
 
+        // Real-time Live Cross-Tab Sync via MagaieesPermissions
+        if (window.MagaieesPermissions && typeof window.MagaieesPermissions.broadcastSecurityUpdate === 'function') {
+            window.MagaieesPermissions.broadcastSecurityUpdate({
+                userId: userId,
+                username: users[userIndex].username,
+                securityLevel: users[userIndex].securityLevel,
+                updatedAt: new Date().toISOString()
+            });
+        }
+
         // Cloud sync
         if (typeof window.pushToCloud === 'function') {
             window.pushToCloud(true).catch(console.error);
         }
 
         if (typeof showToast === 'function') {
-            showToast('✅ تم حفظ وتطبيق الصلاحيات بنجاح للمستخدم: ' + (users[userIndex].fullName || users[userIndex].username), 'success');
+            showToast('✅ تم حفظ وتطبيق الصلاحيات ومستوى الأمان بنجاح للمستخدم: ' + (users[userIndex].fullName || users[userIndex].username), 'success');
         } else {
-            alert('✅ تم حفظ وتطبيق الصلاحيات بنجاح للمستخدم: ' + (users[userIndex].fullName || users[userIndex].username));
+            alert('✅ تم حفظ وتطبيق الصلاحيات ومستوى الأمان بنجاح للمستخدم: ' + (users[userIndex].fullName || users[userIndex].username));
         }
 
         window.initSettingsUsersStudio();
@@ -1675,6 +1693,7 @@ document.addEventListener('DOMContentLoaded', function() {
             fullName: fullName || username,
             userType: 'user',
             role: 'user',
+            securityLevel: 1,
             status: 'active',
             allowedScreens: { 'direct-sales.php': true },
             screenButtons: { 'direct-sales.php': { save: true, new: true, print: true, share: true } },

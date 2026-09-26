@@ -532,7 +532,10 @@
             accountsData = [{ id: 'all_accounts', name: '🌟 جميع الحسابات (شامل)', group: 'عام' }];
             
             // 1. العملاء
-            const customers = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]')).filter(x => !x.deleted);
+            let customers = (JSON.parse(localStorage.getItem('erp_customers_v1') || '[]')).filter(x => !x.deleted);
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+                customers = window.MagaieesPermissions.filterEntitiesByClearance(customers);
+            }
             customers.forEach(c => {
                 accountsData.push({ id: c.id, name: c.name, phone: c.phone || '', group: 'العملاء' });
             });
@@ -550,24 +553,36 @@
     { id: 'SUP-007', code: 'SUP-007', name: 'مصنع الراجحي للحديد والصلب', phone: '0123112233', currentBalance: 0, creditLimit: 40000000, status: 'active', securityLevel: 1 }
 ];
             }
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+                suppliers = window.MagaieesPermissions.filterEntitiesByClearance(suppliers);
+            }
             suppliers.forEach(s => {
                 accountsData.push({ id: s.id, name: s.name, phone: s.phone || '', group: 'الموردين' });
             });
 
             // 3. البنوك
-            const banks = (JSON.parse(localStorage.getItem('erp_banks_v1') || '[]')).filter(x => !x.deleted);
+            let banks = (JSON.parse(localStorage.getItem('erp_banks_v1') || '[]')).filter(x => !x.deleted);
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+                banks = window.MagaieesPermissions.filterEntitiesByClearance(banks);
+            }
             banks.forEach(b => {
                 accountsData.push({ id: b.id, name: b.bankName || b.name || 'بنك غير محدد', phone: b.accountNumber || '', group: 'البنوك' });
             });
 
             // 4. الخزن
-            const safes = (JSON.parse(localStorage.getItem('erp_safes_v1') || '[]')).filter(x => !x.deleted);
+            let safes = (JSON.parse(localStorage.getItem('erp_safes_v1') || '[]')).filter(x => !x.deleted);
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+                safes = window.MagaieesPermissions.filterEntitiesByClearance(safes);
+            }
             safes.forEach(s => {
                 accountsData.push({ id: s.id, name: s.safeName || s.name || 'خزينة غير محددة', phone: '', group: 'الخزن' });
             });
 
             // 5. الحسابات والمصروفات
-            const generalAccounts = (JSON.parse(localStorage.getItem('erp_accounts_v1') || '[]')).filter(x => !x.deleted);
+            let generalAccounts = (JSON.parse(localStorage.getItem('erp_accounts_v1') || '[]')).filter(x => !x.deleted);
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+                generalAccounts = window.MagaieesPermissions.filterEntitiesByClearance(generalAccounts);
+            }
             generalAccounts.forEach((acc, idx) => {
                 accountsData.push({ id: acc.id, name: acc.name || 'غير محدد', phone: '', group: 'المصروفات والحسابات' });
             });

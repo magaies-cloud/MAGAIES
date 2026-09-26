@@ -233,6 +233,14 @@ onDBReady(() => {
     try { localExp = JSON.parse(localStorage.getItem(getTenantKey('erp_accounts_v1')) || localStorage.getItem('erp_accounts_v1')) || []; } catch(e) {}
     try { localJobs = JSON.parse(localStorage.getItem(getTenantKey('erp_jobs_v1')) || localStorage.getItem('erp_jobs_v1')) || []; } catch(e) {}
     
+    if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+        localCusts = window.MagaieesPermissions.filterEntitiesByClearance(localCusts);
+        localSups = window.MagaieesPermissions.filterEntitiesByClearance(localSups);
+        localBanks = window.MagaieesPermissions.filterEntitiesByClearance(localBanks);
+        localSafes = window.MagaieesPermissions.filterEntitiesByClearance(localSafes);
+        localExp = window.MagaieesPermissions.filterEntitiesByClearance(localExp);
+    }
+
     ACCOUNTS = [];
     localCusts.forEach(c => ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name || c.customerName, type: 'عميل', color: '#10b981', balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
     localSups.forEach(s => ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name || s.supplierName, type: 'مورد', color: '#f59e0b', balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
@@ -2370,6 +2378,14 @@ window.buildAccountsArray = function() {
     try { localExp = JSON.parse(localStorage.getItem(getTenantKey('erp_accounts_v1')) || localStorage.getItem('erp_accounts_v1')) || []; } catch(e) {}
     try { localJobs = JSON.parse(localStorage.getItem(getTenantKey('erp_jobs_v1')) || localStorage.getItem('erp_jobs_v1')) || []; } catch(e) {}
     
+    if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+        localCusts = window.MagaieesPermissions.filterEntitiesByClearance(localCusts);
+        localSups = window.MagaieesPermissions.filterEntitiesByClearance(localSups);
+        localBanks = window.MagaieesPermissions.filterEntitiesByClearance(localBanks);
+        localSafes = window.MagaieesPermissions.filterEntitiesByClearance(localSafes);
+        localExp = window.MagaieesPermissions.filterEntitiesByClearance(localExp);
+    }
+
     ACCOUNTS = [];
     localCusts.forEach(c => ACCOUNTS.push({ id: `cust-${c.id}`, name: c.name || c.customerName, type: 'عميل', color: '#10b981', balances: { checks: 0, debt: parseFloat(c.currentBalance) || 0, loan: 0 } }));
     localSups.forEach(s => ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name || s.supplierName, type: 'مورد', color: '#f59e0b', balances: { checks: 0, debt: 0, loan: parseFloat(s.currentBalance) || 0 } }));
