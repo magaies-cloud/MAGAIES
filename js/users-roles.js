@@ -79,7 +79,7 @@ function loadData() {
         USERS.push({
             id: 'u_joumana',
             username: 'joumana',
-            password: '',
+            password: '123456',
             fullName: 'جمانة مهدي',
             userType: 'user',
             roleId: ROLES[0] ? ROLES[0].id : '',
@@ -95,6 +95,12 @@ function loadData() {
     if (changes) {
         localStorage.setItem('erp_roles_v1', JSON.stringify(ROLES));
         localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
+        try {
+            if (typeof window.getTenantKey === 'function') {
+                const tk = window.getTenantKey('erp_users_v1');
+                if (tk !== 'erp_users_v1') localStorage.setItem(tk, JSON.stringify(USERS));
+            }
+        } catch(e) {}
     }
 }
 
@@ -563,8 +569,21 @@ async function saveUser() {
     }
 
     localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
+    try {
+        if (typeof window.getTenantKey === 'function') {
+            const tk = window.getTenantKey('erp_users_v1');
+            if (tk !== 'erp_users_v1') {
+                localStorage.setItem(tk, JSON.stringify(USERS));
+            }
+        }
+    } catch(e) {}
+
     if (typeof window.pushToCloud === 'function') {
-        window.pushToCloud().catch(err => console.error("Immediate sync failed:", err));
+        try {
+            await window.pushToCloud(true);
+        } catch(err) {
+            console.warn("Immediate cloud sync notice:", err);
+        }
     }
     
     if (window.logSystemAction) {

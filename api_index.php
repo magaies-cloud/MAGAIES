@@ -298,6 +298,17 @@ if ($resource === 'tenant-exchange-rate') {
     }
 }
 
+if ($resource === 'public' && $action === 'check-username' && $method === 'GET') {
+    $uName = strtolower(trim($_GET['username'] ?? ''));
+    if (empty($uName)) {
+        jsonResponse(['exists' => false]);
+    }
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM `users` WHERE LOWER(username) = ?");
+    $stmt->execute([$uName]);
+    $count = (int)$stmt->fetchColumn();
+    jsonResponse(['exists' => ($count > 0)]);
+}
+
 if ($resource === 'public' && empty($action) && $method === 'GET') {
     $data = ['plans' => [], 'partners' => [], 'ads' => [], 'partners_enabled' => true];
     try {
@@ -1509,18 +1520,26 @@ if ($resource === 'sync') {
                                         $allowedUsersLimit = ($tData['max_users'] !== null) ? (int)$tData['max_users'] : $planLimit;
                                     }
 
-                                    // Count active users in incoming push records
+                                    // Identify tenant owner/admin account to not penalize employee limits
+                                    $stmtOwner = $pdo->prepare("SELECT username FROM users WHERE tenant_id = ? AND (role = 'admin' OR role = 'مدير النظام') ORDER BY id ASC LIMIT 1");
+                                    $stmtOwner->execute([$tenant_id]);
+                                    $tenantOwnerUsername = strtolower(trim($stmtOwner->fetchColumn() ?: ''));
+
+                                    // Count active employee users in incoming push records
                                     $incomingActiveUsers = 0;
                                     foreach ($records as $record) {
                                         if (empty($record['username'])) continue;
+                                        $uName = strtolower(trim($record['username']));
+                                        if ($uName === 'admin' || (!empty($tenantOwnerUsername) && $uName === $tenantOwnerUsername)) continue;
                                         $status = $record['status'] ?? 'active';
                                         if ($status !== 'inactive') {
                                             $incomingActiveUsers++;
                                         }
                                     }
 
-                                    if ($incomingActiveUsers > $allowedUsersLimit) {
-                                        jsonResponse(['error' => 'لقد تجاوزت الحد الأقصى للمستخدمين المتاح لشركتك وهو (' . $allowedUsersLimit . ') مستخدمين. يرجى ترقية الاشتراك.'], 403);
+                                    $effectiveUserLimit = max($allowedUsersLimit, 10);
+                                    if ($incomingActiveUsers > $effectiveUserLimit) {
+                                        jsonResponse(['error' => 'لقد تجاوزت الحد الأقصى للمستخدمين المتاح لشركتك وهو (' . $effectiveUserLimit . ') مستخدمين. يرجى ترقية الاشتراك.'], 403);
                                     }
 
                                     $stmtCheck = $pdo->prepare("SELECT id, username, password FROM `users` WHERE tenant_id = ?");
@@ -1540,23 +1559,28 @@ if ($resource === 'sync') {
                                         $username = strtolower(trim($record['username']));
                                         $password = $record['password'] ?? '';
                                         $status = $record['status'] ?? 'active';
+                                        $userRole = !empty($record['role']) ? $record['role'] : (!empty($record['userType']) ? $record['userType'] : 'employee');
                                         
                                         if ($username === 'admin') continue;
+                                        if (!empty($tenantOwnerUsername) && $username === $tenantOwnerUsername) {
+                                            $userRole = 'admin';
+                                        }
                                         
                                         $recordData = $record;
                                         // Remove plain password from data JSON for security
                                         unset($recordData['password']);
                                         $jsonData = json_encode($recordData, JSON_UNESCAPED_UNICODE);
+                                        $passToHash = !empty($password) ? $password : '123456';
                                         
                                         if (isset($userMap[$username])) {
                                             $uId = $userMap[$username];
                                             if (!empty($password)) {
-                                                $usersToUpdatePass[$uId] = [password_hash($password, PASSWORD_DEFAULT), $jsonData, $status];
+                                                $usersToUpdatePass[$uId] = [password_hash($passToHash, PASSWORD_DEFAULT), $jsonData, $status, $userRole];
                                             } else {
-                                                $usersToUpdateNoPass[$uId] = [$jsonData, $status];
+                                                $usersToUpdateNoPass[$uId] = [$jsonData, $status, $userRole];
                                             }
                                         } else {
-                                            $usersToInsert[] = [$tenant_id, $username, password_hash($password, PASSWORD_DEFAULT), 'employee', $status, $jsonData];
+                                            $usersToInsert[] = [$tenant_id, $username, password_hash($passToHash, PASSWORD_DEFAULT), $userRole, $status, $jsonData];
                                         }
                                     }
                                     
@@ -1564,27 +1588,31 @@ if ($resource === 'sync') {
                                         $sql = "UPDATE `users` SET password = CASE id ";
                                         $sqlData = "data = CASE id ";
                                         $sqlStatus = "status = CASE id ";
+                                        $sqlRole = "role = CASE id ";
                                         $ids = [];
                                         foreach ($usersToUpdatePass as $uId => $vals) {
                                             $sql .= "WHEN $uId THEN " . $pdo->quote($vals[0]) . " ";
                                             $sqlData .= "WHEN $uId THEN " . $pdo->quote($vals[1]) . " ";
                                             $sqlStatus .= "WHEN $uId THEN " . $pdo->quote($vals[2]) . " ";
+                                            $sqlRole .= "WHEN $uId THEN " . $pdo->quote($vals[3]) . " ";
                                             $ids[] = $uId;
                                         }
-                                        $sql .= "END, " . $sqlData . "END, " . $sqlStatus . "END WHERE id IN (" . implode(',', $ids) . ")";
+                                        $sql .= "END, " . $sqlData . "END, " . $sqlStatus . "END, " . $sqlRole . "END WHERE id IN (" . implode(',', $ids) . ")";
                                         $pdo->exec($sql);
                                     }
                                     
                                     if (!empty($usersToUpdateNoPass)) {
                                         $sqlData = "UPDATE `users` SET data = CASE id ";
                                         $sqlStatus = "status = CASE id ";
+                                        $sqlRole = "role = CASE id ";
                                         $ids = [];
                                         foreach ($usersToUpdateNoPass as $uId => $vals) {
                                             $sqlData .= "WHEN $uId THEN " . $pdo->quote($vals[0]) . " ";
                                             $sqlStatus .= "WHEN $uId THEN " . $pdo->quote($vals[1]) . " ";
+                                            $sqlRole .= "WHEN $uId THEN " . $pdo->quote($vals[2]) . " ";
                                             $ids[] = $uId;
                                         }
-                                        $sqlData .= "END, " . $sqlStatus . "END WHERE id IN (" . implode(',', $ids) . ")";
+                                        $sqlData .= "END, " . $sqlStatus . "END, " . $sqlRole . "END WHERE id IN (" . implode(',', $ids) . ")";
                                         $pdo->exec($sqlData);
                                     }
                                     

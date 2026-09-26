@@ -1547,13 +1547,25 @@ document.addEventListener('DOMContentLoaded', function() {
             users = [
                 { id: 'u_admin_default', username: 'admin', fullName: 'مدير النظام', userType: 'admin', role: 'admin', securityLevel: 10, isSystem: true },
                 { id: 'u_c_default', username: 'c', fullName: 'المستخدم الرئيسي (c)', userType: 'admin', role: 'admin', securityLevel: 10, isSystem: true },
-                { id: 'u_joumana', username: 'joumana', fullName: 'جمانة مهدي', userType: 'user', role: 'cashier', securityLevel: 4, isSystem: false }
+                { id: 'u_joumana', username: 'joumana', password: '123456', fullName: 'جمانة مهدي', userType: 'user', role: 'cashier', securityLevel: 4, isSystem: false }
             ];
             localStorage.setItem('erp_users_v1', JSON.stringify(users));
+            try {
+                if (typeof window.getTenantKey === 'function') {
+                    const tk = window.getTenantKey('erp_users_v1');
+                    if (tk !== 'erp_users_v1') localStorage.setItem(tk, JSON.stringify(users));
+                }
+            } catch(e) {}
         } else if (!users.some(u => u.username === 'joumana')) {
             // Seed sample employee Joumana Mahdi (Level 4) for immediate testing
-            users.push({ id: 'u_joumana', username: 'joumana', fullName: 'جمانة مهدي', userType: 'user', role: 'cashier', securityLevel: 4, isSystem: false });
+            users.push({ id: 'u_joumana', username: 'joumana', password: '123456', fullName: 'جمانة مهدي', userType: 'user', role: 'cashier', securityLevel: 4, isSystem: false });
             localStorage.setItem('erp_users_v1', JSON.stringify(users));
+            try {
+                if (typeof window.getTenantKey === 'function') {
+                    const tk = window.getTenantKey('erp_users_v1');
+                    if (tk !== 'erp_users_v1') localStorage.setItem(tk, JSON.stringify(users));
+                }
+            } catch(e) {}
         }
 
         const select = document.getElementById('settings-user-select');
@@ -1719,6 +1731,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         users.push(newUser);
         localStorage.setItem('erp_users_v1', JSON.stringify(users));
+        try {
+            if (typeof window.getTenantKey === 'function') {
+                const tk = window.getTenantKey('erp_users_v1');
+                if (tk !== 'erp_users_v1') localStorage.setItem(tk, JSON.stringify(users));
+            }
+        } catch(e) {}
 
         if (typeof window.pushToCloud === 'function') {
             window.pushToCloud(true).catch(console.error);
