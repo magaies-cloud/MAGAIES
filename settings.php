@@ -1100,6 +1100,28 @@ try {
                             💾 حفظ صلاحيات المستخدم
                         </button>
                     </div>
+
+                    <!-- Quick Copy / Clone Permissions Bar -->
+                    <div style="margin-top:14px; display:flex; align-items:center; gap:12px; background:linear-gradient(135deg, rgba(99,102,241,0.15), rgba(15,23,42,0.7)); border:1.5px solid rgba(99,102,241,0.4); padding:12px 18px; border-radius:14px; flex-wrap:wrap; box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <span style="width:34px; height:34px; border-radius:10px; background:rgba(99,102,241,0.25); border:1.5px solid #6366f1; color:#a5b4fc; display:flex; align-items:center; justify-content:center; font-size:1.05rem;">
+                                <i class="fa-solid fa-copy"></i>
+                            </span>
+                            <div>
+                                <strong style="color:#c7d2fe; font-size:0.95rem; font-weight:800;">نسخ ومطابقة الصلاحيات:</strong>
+                                <span style="color:#94a3b8; font-size:0.82rem; margin-right:4px;">(نسخ كامل الشاشات والأزرار والورديات الليلية والـ GPS وسقوف المبالغ من موظف لآخر بضغطة واحدة)</span>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-right:auto;">
+                            <label style="color:#e2e8f0; font-size:0.88rem; font-weight:700;">نسخ من:</label>
+                            <select id="settings-copy-source-select" style="padding:8px 14px; border-radius:8px; background:#0f172a; border:1px solid #6366f1; color:#fff; font-size:0.88rem; font-weight:700; outline:none; min-width:220px;">
+                                <option value="">-- اختر المستخدم المصدر --</option>
+                            </select>
+                            <button type="button" onclick="window.copyPermissionsToSelectedUser()" style="background:linear-gradient(135deg, #6366f1, #4f46e5); color:#fff; border:none; padding:8px 18px; border-radius:8px; font-weight:800; font-size:0.88rem; cursor:pointer; box-shadow:0 0 15px rgba(99,102,241,0.4); display:flex; align-items:center; gap:6px;">
+                                📋 تطبيق ونسخ الصلاحيات فوراً
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Modal / Inline New User Form -->
@@ -1582,9 +1604,172 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentSelected && users.some(u => u.id === currentSelected)) {
             select.value = currentSelected;
             window.loadUserSettingsStudio(currentSelected);
+            window.updateCopySourceDropdown(currentSelected);
         } else if (users.length > 0) {
             select.value = users[0].id;
             window.loadUserSettingsStudio(users[0].id);
+            window.updateCopySourceDropdown(users[0].id);
+        }
+    };
+
+    window.updateCopySourceDropdown = function(targetUserId) {
+        const copySelect = document.getElementById('settings-copy-source-select');
+        if (!copySelect) return;
+        let users = [];
+        try {
+            users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+        } catch(e) {}
+        const prevVal = copySelect.value;
+        copySelect.innerHTML = '<option value="">-- اختر المستخدم المصدر لنسخ صلاحياته --</option>';
+        users.forEach(u => {
+            if (u.id !== targetUserId) {
+                const isAdmin = (u.userType === 'admin' || u.role === 'admin');
+                const typeLabel = isAdmin ? '👑 مدير نظام' : '👤 مستخدم عادي';
+                copySelect.innerHTML += `<option value="${u.id}">${u.fullName || u.username} (${u.username}) - [${typeLabel}]</option>`;
+            }
+        });
+        if (prevVal && prevVal !== targetUserId && users.some(u => u.id === prevVal)) {
+            copySelect.value = prevVal;
+        }
+    };
+
+    window.copyPermissionsToSelectedUser = async function() {
+        const targetSelect = document.getElementById('settings-user-select');
+        const sourceSelect = document.getElementById('settings-copy-source-select');
+        if (!targetSelect || !targetSelect.value) {
+            alert('يرجى اختيار المستخدم المراد نسخ الصلاحيات إليه أولاً.');
+            return;
+        }
+        if (!sourceSelect || !sourceSelect.value) {
+            alert('يرجى اختيار المستخدم المصدر الذي تريد نسخ الصلاحيات منه.');
+            return;
+        }
+        const targetUserId = targetSelect.value;
+        const sourceUserId = sourceSelect.value;
+
+        if (targetUserId === sourceUserId) {
+            alert('لا يمكن نسخ الصلاحيات من وإلى نفس المستخدم!');
+            return;
+        }
+
+        let users = [];
+        try {
+            users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+        } catch(e) {}
+
+        const targetUser = users.find(u => u.id === targetUserId);
+        const sourceUser = users.find(u => u.id === sourceUserId);
+
+        if (!targetUser || !sourceUser) {
+            alert('تعذر العثور على بيانات أحد المستخدمين.');
+            return;
+        }
+
+        const confirmMsg = `هل أنت متأكد من نسخ كامل الصلاحيات والشاشات والأزرار والورديات الليلية وسقوف المبالغ والـ GPS:\nمن: [${sourceUser.fullName || sourceUser.username}]\nإلى: [${targetUser.fullName || targetUser.username}]؟\n\nسيتم استبدال صلاحيات (${targetUser.fullName || targetUser.username}) الحالية بصلاحيات (${sourceUser.fullName || sourceUser.username}).`;
+        if (!confirm(confirmMsg)) return;
+
+        // Clone all permissions fields deeply
+        targetUser.userType = sourceUser.userType || 'user';
+        targetUser.role = sourceUser.role || (sourceUser.userType === 'admin' ? 'admin' : 'user');
+        targetUser.securityLevel = sourceUser.securityLevel !== undefined ? sourceUser.securityLevel : (sourceUser.userType === 'admin' ? 10 : 1);
+        targetUser.allowedScreens = JSON.parse(JSON.stringify(sourceUser.allowedScreens || {}));
+        targetUser.screenButtons = JSON.parse(JSON.stringify(sourceUser.screenButtons || {}));
+        targetUser.allowedReports = JSON.parse(JSON.stringify(sourceUser.allowedReports || {}));
+        targetUser.dashboardPermissions = JSON.parse(JSON.stringify(sourceUser.dashboardPermissions || {}));
+        targetUser.postingPermissions = JSON.parse(JSON.stringify(sourceUser.postingPermissions || {}));
+        targetUser.masterDataPermissions = JSON.parse(JSON.stringify(sourceUser.masterDataPermissions || {}));
+        targetUser.alertsPermissions = JSON.parse(JSON.stringify(sourceUser.alertsPermissions || {}));
+        targetUser.toolsPermissions = JSON.parse(JSON.stringify(sourceUser.toolsPermissions || {}));
+        targetUser.financialLimits = JSON.parse(JSON.stringify(sourceUser.financialLimits || {}));
+        targetUser.dataMasking = JSON.parse(JSON.stringify(sourceUser.dataMasking || {}));
+        targetUser.timeRestricted = !!sourceUser.timeRestricted;
+        targetUser.timeFrom = sourceUser.timeFrom || '08:00';
+        targetUser.timeTo = sourceUser.timeTo || '03:00';
+        targetUser.allowedDays = Array.isArray(sourceUser.allowedDays) ? [...sourceUser.allowedDays] : [0, 1, 2, 3, 4, 6];
+        targetUser.geoRestricted = !!sourceUser.geoRestricted;
+        targetUser.geoLat = sourceUser.geoLat !== undefined ? sourceUser.geoLat : null;
+        targetUser.geoLng = sourceUser.geoLng !== undefined ? sourceUser.geoLng : null;
+        targetUser.geoRadius = sourceUser.geoRadius !== undefined ? sourceUser.geoRadius : 500;
+        if (sourceUser.managerPin) targetUser.managerPin = sourceUser.managerPin;
+
+        // Save to localStorage
+        localStorage.setItem('erp_users_v1', JSON.stringify(users));
+        try {
+            if (typeof window.getTenantKey === 'function') {
+                const tk = window.getTenantKey('erp_users_v1');
+                if (tk !== 'erp_users_v1') localStorage.setItem(tk, JSON.stringify(users));
+            }
+        } catch(e) {}
+
+        // If currently active logged-in user is targetUser, update active user object
+        try {
+            const currentActive = JSON.parse(localStorage.getItem('user') || '{}');
+            if (currentActive && (currentActive.id === targetUserId || currentActive.username === targetUser.username)) {
+                Object.assign(currentActive, {
+                    userType: targetUser.userType,
+                    role: targetUser.role,
+                    securityLevel: targetUser.securityLevel,
+                    allowedScreens: targetUser.allowedScreens,
+                    screenButtons: targetUser.screenButtons,
+                    allowedReports: targetUser.allowedReports,
+                    dashboardPermissions: targetUser.dashboardPermissions,
+                    postingPermissions: targetUser.postingPermissions,
+                    masterDataPermissions: targetUser.masterDataPermissions,
+                    alertsPermissions: targetUser.alertsPermissions,
+                    toolsPermissions: targetUser.toolsPermissions,
+                    financialLimits: targetUser.financialLimits,
+                    dataMasking: targetUser.dataMasking,
+                    timeRestricted: targetUser.timeRestricted,
+                    timeFrom: targetUser.timeFrom,
+                    timeTo: targetUser.timeTo,
+                    allowedDays: targetUser.allowedDays,
+                    geoRestricted: targetUser.geoRestricted,
+                    geoLat: targetUser.geoLat,
+                    geoLng: targetUser.geoLng,
+                    geoRadius: targetUser.geoRadius,
+                    managerPin: targetUser.managerPin
+                });
+                localStorage.setItem('user', JSON.stringify(currentActive));
+            }
+        } catch(e) {}
+
+        // Direct MySQL sync
+        try {
+            await fetch('api/save_master_data.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'save_user',
+                    data: targetUser
+                })
+            });
+        } catch(apiErr) {
+            console.warn("Direct save_user sync notice:", apiErr);
+        }
+
+        // Broadcast Security Update
+        if (window.MagaieesPermissions && typeof window.MagaieesPermissions.broadcastSecurityUpdate === 'function') {
+            window.MagaieesPermissions.broadcastSecurityUpdate({
+                userId: targetUserId,
+                username: targetUser.username,
+                securityLevel: targetUser.securityLevel,
+                updatedAt: new Date().toISOString()
+            });
+        }
+
+        // Push to cloud
+        if (typeof window.pushToCloud === 'function') {
+            window.pushToCloud(true).catch(console.error);
+        }
+
+        // Reload Studio UI for targetUser
+        window.loadUserSettingsStudio(targetUserId);
+
+        const successMsg = `✅ تم بنجاح نسخ كامل الصلاحيات من (${sourceUser.fullName || sourceUser.username}) إلى (${targetUser.fullName || targetUser.username}) وتطبيقها فوراً!`;
+        if (typeof showToast === 'function') {
+            showToast(successMsg, 'success');
+        } else {
+            alert(successMsg);
         }
     };
 
@@ -1595,6 +1780,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch(e) {}
         const targetUser = users.find(u => u.id === userId) || users[0];
         if (!targetUser) return;
+
+        window.updateCopySourceDropdown(userId);
 
         const container = document.getElementById('settings-permissions-studio-container');
         if (container) {
@@ -1634,6 +1821,14 @@ document.addEventListener('DOMContentLoaded', function() {
         users[userIndex].toolsPermissions = permsData.toolsPermissions;
         users[userIndex].financialLimits = permsData.financialLimits;
         users[userIndex].dataMasking = permsData.dataMasking;
+        users[userIndex].timeRestricted = permsData.timeRestricted !== undefined ? permsData.timeRestricted : false;
+        users[userIndex].timeFrom = permsData.timeFrom || '08:00';
+        users[userIndex].timeTo = permsData.timeTo || '03:00';
+        users[userIndex].allowedDays = permsData.allowedDays || [0, 1, 2, 3, 4, 6];
+        users[userIndex].geoRestricted = permsData.geoRestricted !== undefined ? permsData.geoRestricted : false;
+        users[userIndex].geoLat = permsData.geoLat !== undefined ? permsData.geoLat : null;
+        users[userIndex].geoLng = permsData.geoLng !== undefined ? permsData.geoLng : null;
+        users[userIndex].geoRadius = permsData.geoRadius !== undefined ? permsData.geoRadius : 500;
         if (permsData.managerPin) users[userIndex].managerPin = permsData.managerPin;
 
         localStorage.setItem('erp_users_v1', JSON.stringify(users));
@@ -1655,9 +1850,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentActive.toolsPermissions = users[userIndex].toolsPermissions;
                 currentActive.financialLimits = users[userIndex].financialLimits;
                 currentActive.dataMasking = users[userIndex].dataMasking;
+                currentActive.timeRestricted = users[userIndex].timeRestricted;
+                currentActive.timeFrom = users[userIndex].timeFrom;
+                currentActive.timeTo = users[userIndex].timeTo;
+                currentActive.allowedDays = users[userIndex].allowedDays;
+                currentActive.geoRestricted = users[userIndex].geoRestricted;
+                currentActive.geoLat = users[userIndex].geoLat;
+                currentActive.geoLng = users[userIndex].geoLng;
+                currentActive.geoRadius = users[userIndex].geoRadius;
                 if (users[userIndex].managerPin) currentActive.managerPin = users[userIndex].managerPin;
                 localStorage.setItem('user', JSON.stringify(currentActive));
             }
+        } catch(e) {}
+
+        // Direct MySQL sync
+        try {
+            fetch('api/save_master_data.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'save_user',
+                    data: users[userIndex]
+                })
+            }).catch(console.warn);
         } catch(e) {}
 
         // Real-time Live Cross-Tab Sync via MagaieesPermissions

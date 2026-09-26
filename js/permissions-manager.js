@@ -1013,6 +1013,77 @@
         return false;
     }
 
+    // Comprehensive shift checking supporting overnight shifts spanning midnight
+    function isCurrentUserWithinShift(user) {
+        const u = user || getCurrentUser();
+        if (!u || isCurrentUserAdmin(u)) return true;
+        if (!u.timeRestricted) return true;
+
+        const now = new Date();
+        const currentDay = now.getDay();
+        const allowedDays = Array.isArray(u.allowedDays) ? u.allowedDays : [0, 1, 2, 3, 4, 6];
+        const curMinutes = now.getHours() * 60 + now.getMinutes();
+
+        let fromMin = 0, toMin = 1439;
+        if (u.timeFrom && u.timeTo) {
+            const [fh, fm] = u.timeFrom.split(':').map(Number);
+            const [th, tm] = u.timeTo.split(':').map(Number);
+            fromMin = fh * 60 + (fm || 0);
+            toMin = th * 60 + (tm || 0);
+        }
+
+        const isOvernight = fromMin > toMin;
+        const shiftDay = (isOvernight && curMinutes <= toMin) ? (currentDay === 0 ? 6 : currentDay - 1) : currentDay;
+
+        if (!allowedDays.includes(currentDay) && !allowedDays.includes(shiftDay)) {
+            return false;
+        }
+
+        if (u.timeFrom && u.timeTo) {
+            let isAllowedTime = false;
+            if (!isOvernight) {
+                isAllowedTime = (curMinutes >= fromMin && curMinutes <= toMin);
+            } else {
+                isAllowedTime = (curMinutes >= fromMin || curMinutes <= toMin);
+            }
+            if (!isAllowedTime) return false;
+        }
+
+        return true;
+    }
+
+    // Comprehensive geofencing check using Haversine distance
+    function isCurrentUserWithinGeofence(user) {
+        const u = user || getCurrentUser();
+        if (!u || isCurrentUserAdmin(u)) return true;
+        if (!u.geoRestricted || !u.geoLat || !u.geoLng) return true;
+
+        const cachedLat = parseFloat(sessionStorage.getItem('magaiees_last_lat') || localStorage.getItem('magaiees_last_lat'));
+        const cachedLng = parseFloat(sessionStorage.getItem('magaiees_last_lng') || localStorage.getItem('magaiees_last_lng'));
+        if (cachedLat && cachedLng) {
+            const calcDist = (lat1, lon1, lat2, lon2) => {
+                const R = 6371e3;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                          Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                return R * c;
+            };
+            const dist = calcDist(cachedLat, cachedLng, parseFloat(u.geoLat), parseFloat(u.geoLng));
+            const maxRadius = parseFloat(u.geoRadius) || 500;
+            if (dist > maxRadius) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function isUserCurrentlyAllowedWorkTimeAndGeo(user) {
+        return isCurrentUserWithinShift(user) && isCurrentUserWithinGeofence(user);
+    }
+
     function canUserAccessScreen(screenUrl, user) {
         const u = user || getCurrentUser();
         if (!u) return true; // fallback
@@ -1021,6 +1092,11 @@
         const baseFile = (screenUrl || '').split('?')[0].split('/').pop();
         if (!baseFile || baseFile === 'login.php' || baseFile === 'index.php') {
             return true;
+        }
+
+        // Strict Check: Outside work shift or outside geofence -> completely stripped of permissions!
+        if (!isUserCurrentlyAllowedWorkTimeAndGeo(u)) {
+            return false;
         }
 
         // Dashboard explicit check
@@ -1048,6 +1124,10 @@
         if (!u) return true;
         if (isCurrentUserAdmin(u)) return true;
 
+        if (!isUserCurrentlyAllowedWorkTimeAndGeo(u)) {
+            return false;
+        }
+
         const baseFile = (screenUrl || '').split('?')[0].split('/').pop();
 
         if (u.screenButtons && u.screenButtons[baseFile] && typeof u.screenButtons[baseFile][action] === 'boolean') {
@@ -1062,6 +1142,10 @@
         if (!u) return true;
         if (isCurrentUserAdmin(u)) return true;
 
+        if (!isUserCurrentlyAllowedWorkTimeAndGeo(u)) {
+            return false;
+        }
+
         if (u.allowedReports && typeof u.allowedReports[reportId] === 'boolean') {
             return u.allowedReports[reportId];
         }
@@ -1072,6 +1156,10 @@
         const u = user || getCurrentUser();
         if (!u) return true;
         if (isCurrentUserAdmin(u)) return true;
+
+        if (!isUserCurrentlyAllowedWorkTimeAndGeo(u)) {
+            return false;
+        }
 
         if (u.postingPermissions && typeof u.postingPermissions[type] === 'boolean') {
             return u.postingPermissions[type];
@@ -1084,6 +1172,10 @@
         if (!u) return true;
         if (isCurrentUserAdmin(u)) return true;
 
+        if (!isUserCurrentlyAllowedWorkTimeAndGeo(u)) {
+            return false;
+        }
+
         if (u.dashboardPermissions && typeof u.dashboardPermissions[widgetId] === 'boolean') {
             return u.dashboardPermissions[widgetId];
         }
@@ -1094,6 +1186,10 @@
         const u = user || getCurrentUser();
         if (!u) return true;
         if (isCurrentUserAdmin(u)) return true;
+
+        if (!isUserCurrentlyAllowedWorkTimeAndGeo(u)) {
+            return false;
+        }
 
         if (u.masterDataPermissions && typeof u.masterDataPermissions[actionId] === 'boolean') {
             return u.masterDataPermissions[actionId];
@@ -1106,6 +1202,10 @@
         if (!u) return true;
         if (isCurrentUserAdmin(u)) return true;
 
+        if (!isUserCurrentlyAllowedWorkTimeAndGeo(u)) {
+            return false;
+        }
+
         if (u.alertsPermissions && typeof u.alertsPermissions[alertId] === 'boolean') {
             return u.alertsPermissions[alertId];
         }
@@ -1116,6 +1216,10 @@
         const u = user || getCurrentUser();
         if (!u) return true;
         if (isCurrentUserAdmin(u)) return true;
+
+        if (!isUserCurrentlyAllowedWorkTimeAndGeo(u)) {
+            return false;
+        }
 
         if (u.toolsPermissions && typeof u.toolsPermissions[toolId] === 'boolean') {
             return u.toolsPermissions[toolId];
@@ -1734,37 +1838,38 @@
         return { allowed: true };
     }
 
-    // --- D. SHIFT SCHEDULES & TIME CONSTRAINTS (الرقابة الزمنية وأوقات الدوام الرسمي) ---
+    // --- D. SHIFT SCHEDULES & TIME CONSTRAINTS (الرقابة الزمنية وأوقات الدوام الرسمي والتقييد الجغرافي) ---
     function enforceShiftAndTimeRestrictions(user) {
         const u = user || getCurrentUser();
         if (!u || isCurrentUserAdmin(u)) return true;
-        if (!u.timeRestricted) return true;
-
-        const now = new Date();
-        const currentDay = now.getDay();
-        const allowedDays = Array.isArray(u.allowedDays) ? u.allowedDays : [0,1,2,3,4,6];
+        if (!u.timeRestricted && !u.geoRestricted) return true;
 
         let isLocked = false;
         let lockReason = '';
 
-        if (!allowedDays.includes(currentDay)) {
+        if (!isCurrentUserWithinShift(u)) {
             isLocked = true;
-            lockReason = 'اليوم الحالي يقع خارج أيام العمل المصرح بها لحسابك.';
-        } else if (u.timeFrom && u.timeTo) {
-            const curMinutes = now.getHours() * 60 + now.getMinutes();
-            const [fh, fm] = u.timeFrom.split(':').map(Number);
-            const [th, tm] = u.timeTo.split(':').map(Number);
-            const fromMinutes = fh * 60 + (fm || 0);
-            const toMinutes = th * 60 + (tm || 0);
-
-            if (fromMinutes <= toMinutes) {
-                if (curMinutes < fromMinutes || curMinutes > toMinutes) isLocked = true;
-            } else {
-                if (curMinutes < fromMinutes && curMinutes > toMinutes) isLocked = true;
+            lockReason = `ساعات الدوام المعتمدة لحسابك هي من ${u.timeFrom || '08:00'} إلى ${u.timeTo || '03:00'}. الوقت الحالي يقع خارج الوردية المصرح بها، ولا توجد أي صلاحيات لحسابك في هذا التوقيت.`;
+        } else if (!isCurrentUserWithinGeofence(u)) {
+            isLocked = true;
+            const cachedLat = parseFloat(sessionStorage.getItem('magaiees_last_lat') || localStorage.getItem('magaiees_last_lat'));
+            const cachedLng = parseFloat(sessionStorage.getItem('magaiees_last_lng') || localStorage.getItem('magaiees_last_lng'));
+            let distStr = '';
+            if (cachedLat && cachedLng) {
+                const calcDist = (lat1, lon1, lat2, lon2) => {
+                    const R = 6371e3;
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLon = (lon2 - lon1) * Math.PI / 180;
+                    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                              Math.sin(dLon/2) * Math.sin(dLon/2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                    return R * c;
+                };
+                const dist = Math.round(calcDist(cachedLat, cachedLng, parseFloat(u.geoLat), parseFloat(u.geoLng)));
+                distStr = `(المسافة المحسوبة: ${dist} متر)`;
             }
-            if (isLocked) {
-                lockReason = `ساعات الدوام المعتمدة لحسابك هي من ${u.timeFrom} إلى ${u.timeTo}. الوقت الحالي يقع خارج الوردية المصرح بها.`;
-            }
+            lockReason = `أنت متواجد خارج النطاق الجغرافي المصرح به للعمل ${distStr}. تم إيقاف كافة الصلاحيات تماماً.`;
         }
 
         if (isLocked) {
@@ -1790,10 +1895,10 @@
                 <div style="width:75px; height:75px; border-radius:50%; background:rgba(239,68,68,0.12); border:2px solid #ef4444; color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:2.2rem; margin:0 auto 16px;">
                     ⏱️
                 </div>
-                <h2 style="color:#fff; margin:0 0 10px; font-weight:900;">خارج أوقات العمل الرسمية المصرح بها</h2>
+                <h2 style="color:#fff; margin:0 0 10px; font-weight:900;">خارج أوقات العمل أو النطاق الجغرافي</h2>
                 <p style="color:#94a3b8; font-size:0.95rem; line-height:1.6; margin-bottom:24px;">${reason}</p>
                 <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-                    <button type="button" onclick="window.MagaieesPermissions.requestManagerApproval({ title:'تصريح فتح خارج أوقات العمل', description:'فتح استثنائي لحساب الموظف خارج الوردية الرسمية', onSuccess: () => document.getElementById('magaiees-time-lockout-overlay')?.remove() })" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#030712; border:none; padding:12px 22px; border-radius:12px; font-weight:800; cursor:pointer;">
+                    <button type="button" onclick="window.MagaieesPermissions.requestManagerApproval({ title:'تصريح استثنائي', description:'فتح استثنائي لحساب الموظف خارج الوردية أو النطاق الجغرافي', onSuccess: () => document.getElementById('magaiees-time-lockout-overlay')?.remove() })" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#030712; border:none; padding:12px 22px; border-radius:12px; font-weight:800; cursor:pointer;">
                         🔓 طلب تصريح استثنائي برمز المشرف
                     </button>
                     <button type="button" onclick="window.location.href='login.php'" style="background:transparent; border:1px solid #64748b; color:#cbd5e1; padding:12px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
@@ -2284,6 +2389,14 @@
         const financialLimits = (userObj && userObj.financialLimits) ? userObj.financialLimits : {};
         const dataMasking = (userObj && userObj.dataMasking) ? userObj.dataMasking : {};
         const managerPin = (userObj && userObj.managerPin) ? userObj.managerPin : '';
+        const timeRestricted = userObj ? !!userObj.timeRestricted : false;
+        const timeFrom = (userObj && userObj.timeFrom) ? userObj.timeFrom : '08:00';
+        const timeTo = (userObj && userObj.timeTo) ? userObj.timeTo : '03:00';
+        const allowedDays = (userObj && Array.isArray(userObj.allowedDays)) ? userObj.allowedDays : [0, 1, 2, 3, 4, 6];
+        const geoRestricted = userObj ? !!userObj.geoRestricted : false;
+        const geoLat = (userObj && userObj.geoLat) ? userObj.geoLat : '';
+        const geoLng = (userObj && userObj.geoLng) ? userObj.geoLng : '';
+        const geoRadius = (userObj && userObj.geoRadius) ? userObj.geoRadius : 500;
 
         let totalScreensCount = 0;
         SYSTEM_SCREENS_CATALOG.forEach(c => totalScreensCount += c.screens.length);
@@ -2450,6 +2563,9 @@
                         </button>
                         <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('manager_override_pin', this)">
                             <i class="fa-solid fa-key"></i> رمز مرور المشرف (PIN)
+                        </button>
+                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('work_shifts_and_geo', this)">
+                            <i class="fa-solid fa-business-time"></i> أوقات العمل والورديات والموقع (GPS)
                         </button>
                     </div>
 
@@ -2998,6 +3114,131 @@
                         </div>
                     </div>
 
+                    <!-- TAB 12: WORK SHIFTS & GEOFENCING -->
+                    <div id="studio-tab-content-work_shifts_and_geo" class="studio-tab-content" style="display:none;">
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(360px, 1fr)); gap:20px;">
+                            
+                            <!-- Shift & Work Hours Card -->
+                            <div style="background:rgba(15,23,42,0.6); border:1.5px solid rgba(56,189,248,0.3); border-radius:16px; padding:22px; box-shadow:0 8px 25px rgba(0,0,0,0.3);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <span style="width:38px; height:38px; border-radius:10px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+                                            <i class="fa-solid fa-clock"></i>
+                                        </span>
+                                        <div>
+                                            <h4 style="margin:0; color:#38bdf8; font-size:1.1rem; font-weight:800;">جدول أوقات العمل والورديات</h4>
+                                            <span style="font-size:0.8rem; color:#94a3b8;">تحديد فترة الدوام وأيام الأسبوع المصرح بها</span>
+                                        </div>
+                                    </div>
+                                    <label class="perm-switch" title="تفعيل أو تعطيل تقييد وقت العمل لهذا المستخدم">
+                                        <input type="checkbox" id="studio-time-restricted" ${timeRestricted ? 'checked' : ''} onchange="window.toggleStudioTimeFields(this.checked)">
+                                        <span class="perm-slider round"></span>
+                                    </label>
+                                </div>
+
+                                <div id="studio-time-fields-wrapper" style="opacity:${timeRestricted ? '1' : '0.45'}; pointer-events:${timeRestricted ? 'auto' : 'none'}; transition:all 0.3s;">
+                                    <p style="margin:0 0 16px 0; font-size:0.85rem; color:#cbd5e1; line-height:1.5;">
+                                        ⚠️ إذا تم تفعيل هذا الخيار وحاول الموظف الدخول أو العمل خارج هذه الساعات، سيتم <strong style="color:#f87171;">تجريده بالكامل من كافة الصلاحيات</strong> وحظر شاشات وأزرار النظام فوراً.
+                                    </p>
+
+                                    <!-- Time From & To Inputs -->
+                                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
+                                        <div>
+                                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">من الساعة (بداية الوردية):</label>
+                                            <input type="time" id="studio-time-from" value="${timeFrom || '08:00'}" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
+                                        </div>
+                                        <div>
+                                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">إلى الساعة (نهاية الوردية):</label>
+                                            <input type="time" id="studio-time-to" value="${timeTo || '03:00'}" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(56,189,248,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
+                                        </div>
+                                    </div>
+
+                                    <div style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.2); border-radius:8px; padding:10px; margin-bottom:16px; font-size:0.8rem; color:#38bdf8;">
+                                        💡 <strong>دعم الورديات الليلية:</strong> النظام يتعامل تلقائياً وبدقة فائقة مع الورديات الممتدة لبعد منتصف الليل (مثلاً: من 08:00 صباحاً وحتى 03:00 فجراً لليوم التالي).
+                                    </div>
+
+                                    <!-- Allowed Days -->
+                                    <div style="margin-bottom:12px;">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                                            <label style="font-size:0.85rem; font-weight:700; color:#e2e8f0;">أيام العمل المسموح بها أسبوعياً:</label>
+                                            <div style="display:flex; gap:6px;">
+                                                <button type="button" onclick="window.setStudioWorkDaysPreset('all')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; padding:3px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;">الكل (7 أيام)</button>
+                                                <button type="button" onclick="window.setStudioWorkDaysPreset('except_friday')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; padding:3px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;">عدا الجمعة</button>
+                                                <button type="button" onclick="window.setStudioWorkDaysPreset('except_fri_sat')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; padding:3px 8px; border-radius:6px; font-size:0.75rem; cursor:pointer;">عدا الجمعة والسبت</button>
+                                            </div>
+                                        </div>
+                                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 1fr)); gap:8px;">
+                                            ${[
+                                                { day: 0, name: 'الأحد' },
+                                                { day: 1, name: 'الإثنين' },
+                                                { day: 2, name: 'الثلاثاء' },
+                                                { day: 3, name: 'الأربعاء' },
+                                                { day: 4, name: 'الخميس' },
+                                                { day: 5, name: 'الجمعة' },
+                                                { day: 6, name: 'السبت' }
+                                            ].map(d => `
+                                                <label style="display:flex; align-items:center; gap:6px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.06); padding:8px 10px; border-radius:8px; cursor:pointer; font-size:0.85rem; font-weight:700;">
+                                                    <input type="checkbox" class="studio-day-cb" value="${d.day}" ${allowedDays.includes(d.day) ? 'checked' : ''} style="accent-color:#38bdf8; width:15px; height:15px;">
+                                                    <span style="color:#e2e8f0;">${d.name}</span>
+                                                </label>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Geofencing (GPS) Card -->
+                            <div style="background:rgba(15,23,42,0.6); border:1.5px solid rgba(16,185,129,0.3); border-radius:16px; padding:22px; box-shadow:0 8px 25px rgba(0,0,0,0.3);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <span style="width:38px; height:38px; border-radius:10px; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+                                            <i class="fa-solid fa-location-dot"></i>
+                                        </span>
+                                        <div>
+                                            <h4 style="margin:0; color:#34d399; font-size:1.1rem; font-weight:800;">التقييد الجغرافي بالـ GPS</h4>
+                                            <span style="font-size:0.8rem; color:#94a3b8;">حصر صلاحيات المستخدم داخل المقر أو الفرع</span>
+                                        </div>
+                                    </div>
+                                    <label class="perm-switch" title="تفعيل أو تعطيل التقييد الجغرافي لهذا المستخدم">
+                                        <input type="checkbox" id="studio-geo-restricted" ${geoRestricted ? 'checked' : ''} onchange="window.toggleStudioGeoFields(this.checked)">
+                                        <span class="perm-slider round"></span>
+                                    </label>
+                                </div>
+
+                                <div id="studio-geo-fields-wrapper" style="opacity:${geoRestricted ? '1' : '0.45'}; pointer-events:${geoRestricted ? 'auto' : 'none'}; transition:all 0.3s;">
+                                    <p style="margin:0 0 16px 0; font-size:0.85rem; color:#cbd5e1; line-height:1.5;">
+                                        📍 إذا تواجد الموظف خارج النطاق الجغرافي المحدد، <strong style="color:#f87171;">تتوقف كافة صلاحيات النظام</strong> ولن يتمكن من الوصول لأي شاشة أو زر.
+                                    </p>
+
+                                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
+                                        <div>
+                                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">خط العرض (Latitude):</label>
+                                            <input type="number" step="any" id="studio-geo-lat" value="${geoLat || ''}" placeholder="مثال: 15.3694" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
+                                        </div>
+                                        <div>
+                                            <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">خط الطول (Longitude):</label>
+                                            <input type="number" step="any" id="studio-geo-lng" value="${geoLng || ''}" placeholder="مثال: 44.1910" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-bottom:16px;">
+                                        <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">نطاق السماح بالمتر (Radius Meters):</label>
+                                        <input type="number" id="studio-geo-radius" value="${geoRadius || 500}" placeholder="500" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
+                                        <span style="font-size:0.75rem; color:#94a3b8; display:block; margin-top:4px;">نطاق القطر المسموح به حول النقطة (الافتراضي: 500 متر).</span>
+                                    </div>
+
+                                    <div style="display:flex; flex-direction:column; gap:8px;">
+                                        <button type="button" onclick="window.getCurrentGPSInStudio()" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:10px 16px; border-radius:10px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                                            <i class="fa-solid fa-crosshairs"></i> 🎯 تحديد موقعي الحالي تلقائياً بالـ GPS
+                                        </button>
+                                        <span id="studio-gps-status" style="font-size:0.8rem; color:#94a3b8; text-align:center;"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -3049,6 +3290,65 @@
         if (tabKey === 'delegations_rights' && typeof window.populateDelegationDropdown === 'function') {
             window.populateDelegationDropdown();
         }
+    };
+
+    window.toggleStudioTimeFields = function(isChecked) {
+        const wrap = document.getElementById('studio-time-fields-wrapper');
+        if (wrap) {
+            wrap.style.opacity = isChecked ? '1' : '0.45';
+            wrap.style.pointerEvents = isChecked ? 'auto' : 'none';
+        }
+    };
+
+    window.toggleStudioGeoFields = function(isChecked) {
+        const wrap = document.getElementById('studio-geo-fields-wrapper');
+        if (wrap) {
+            wrap.style.opacity = isChecked ? '1' : '0.45';
+            wrap.style.pointerEvents = isChecked ? 'auto' : 'none';
+        }
+    };
+
+    window.setStudioWorkDaysPreset = function(preset) {
+        const checkboxes = document.querySelectorAll('.studio-day-cb');
+        checkboxes.forEach(cb => {
+            const val = parseInt(cb.value, 10);
+            if (preset === 'all') {
+                cb.checked = true;
+            } else if (preset === 'except_friday') {
+                cb.checked = (val !== 5);
+            } else if (preset === 'except_fri_sat') {
+                cb.checked = (val !== 5 && val !== 6);
+            }
+        });
+    };
+
+    window.getCurrentGPSInStudio = function() {
+        const statusEl = document.getElementById('studio-gps-status');
+        if (!("geolocation" in navigator)) {
+            if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444;">متصفحك لا يدعم خاصية تحديد الموقع GPS</span>';
+            return;
+        }
+        if (statusEl) statusEl.innerHTML = '<span style="color:#38bdf8;">⏳ جاري جلب إحداثيات موقعك عبر الأقمار الصناعية...</span>';
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                const lat = pos.coords.latitude.toFixed(6);
+                const lng = pos.coords.longitude.toFixed(6);
+                const acc = Math.round(pos.coords.accuracy || 0);
+                const latInput = document.getElementById('studio-geo-lat');
+                const lngInput = document.getElementById('studio-geo-lng');
+                if (latInput) latInput.value = lat;
+                if (lngInput) lngInput.value = lng;
+                if (statusEl) {
+                    statusEl.innerHTML = `<span style="color:#34d399;">✅ تم رصد موقعك بنجاح! خط العرض: ${lat}، خط الطول: ${lng} (دقة: ${acc}م)</span>`;
+                }
+            },
+            err => {
+                if (statusEl) {
+                    statusEl.innerHTML = `<span style="color:#ef4444;">❌ فشل تحديد الموقع: ${err.message || 'تم رفض الإذن أو انقضت المهلة'}</span>`;
+                }
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+        );
     };
 
     window.onStudioUserTypeChange = function(type) {
@@ -3377,6 +3677,14 @@
                     maskBankAccounts: false,
                     maskCustomerPhone: false
                 },
+                timeRestricted: false,
+                timeFrom: '08:00',
+                timeTo: '03:00',
+                allowedDays: [0, 1, 2, 3, 4, 5, 6],
+                geoRestricted: false,
+                geoLat: null,
+                geoLng: null,
+                geoRadius: 500,
                 managerPin: managerPin
             };
         }
@@ -3442,6 +3750,19 @@
             maskCustomerPhone: !!document.getElementById('studio-mask-phone')?.checked
         };
 
+        const timeRestricted = !!document.getElementById('studio-time-restricted')?.checked;
+        const timeFrom = document.getElementById('studio-time-from')?.value || '08:00';
+        const timeTo = document.getElementById('studio-time-to')?.value || '03:00';
+        const allowedDays = [];
+        document.querySelectorAll('.studio-day-cb:checked').forEach(cb => {
+            allowedDays.push(parseInt(cb.value, 10));
+        });
+
+        const geoRestricted = !!document.getElementById('studio-geo-restricted')?.checked;
+        const geoLat = parseFloat(document.getElementById('studio-geo-lat')?.value) || null;
+        const geoLng = parseFloat(document.getElementById('studio-geo-lng')?.value) || null;
+        const geoRadius = parseFloat(document.getElementById('studio-geo-radius')?.value) || 500;
+
         const managerPin = document.getElementById('studio-manager-pin')?.value.trim() || '';
 
         return {
@@ -3457,6 +3778,14 @@
             toolsPermissions,
             financialLimits,
             dataMasking,
+            timeRestricted,
+            timeFrom,
+            timeTo,
+            allowedDays: allowedDays.length > 0 ? allowedDays : [0, 1, 2, 3, 4, 6],
+            geoRestricted,
+            geoLat,
+            geoLng,
+            geoRadius,
             managerPin
         };
     }
@@ -3587,6 +3916,9 @@
         requestManagerApproval,
         checkFinancialLimits,
         enforceShiftAndTimeRestrictions,
+        isCurrentUserWithinShift,
+        isCurrentUserWithinGeofence,
+        isUserCurrentlyAllowedWorkTimeAndGeo,
         enforceDelegatedAuthority,
         verifyAuditChainIntegrity,
         triggerSecurityAlert,

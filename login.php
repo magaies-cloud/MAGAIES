@@ -1166,11 +1166,15 @@
                                 return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                             };
                             const dist = calcDist(loggedUser.geoLat, loggedUser.geoLng, pos.coords.latitude, pos.coords.longitude);
-                            const radius = loggedUser.geoRadius || 100;
+                            const radius = loggedUser.geoRadius || 500;
                             if (dist > radius) {
                                 alert(`عفواً، أنت متواجد خارج النطاق الجغرافي المصرح لك بالعمل فيه (${Math.round(dist)} متر عن الموقع المحدد، النطاق المسموح ${radius} متر). تم حظر الدخول.`);
                                 return;
                             }
+                            sessionStorage.setItem('magaiees_last_lat', String(pos.coords.latitude));
+                            sessionStorage.setItem('magaiees_last_lng', String(pos.coords.longitude));
+                            localStorage.setItem('magaiees_last_lat', String(pos.coords.latitude));
+                            localStorage.setItem('magaiees_last_lng', String(pos.coords.longitude));
                         } catch(geoErr) {
                             alert('يتطلب حسابك التحقق من الموقع الجغرافي (GPS) للدخول. يرجى تفعيل الـ GPS في متصفحك والسماح بالوصول للموقع والمحاولة مجدداً.');
                             return;
@@ -1319,11 +1323,15 @@
                             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
                         };
                         const dist = calcDist(matchedUser.geoLat, matchedUser.geoLng, pos.coords.latitude, pos.coords.longitude);
-                        const radius = matchedUser.geoRadius || 100;
+                        const radius = matchedUser.geoRadius || 500;
                         if (dist > radius) {
                             alert(`عفواً، أنت متواجد خارج النطاق الجغرافي المصرح لك بالعمل فيه (${Math.round(dist)} متر عن الموقع المحدد، النطاق المسموح ${radius} متر). تم حظر الدخول.`);
                             return;
                         }
+                        sessionStorage.setItem('magaiees_last_lat', String(pos.coords.latitude));
+                        sessionStorage.setItem('magaiees_last_lng', String(pos.coords.longitude));
+                        localStorage.setItem('magaiees_last_lat', String(pos.coords.latitude));
+                        localStorage.setItem('magaiees_last_lng', String(pos.coords.longitude));
                     } catch(geoErr) {
                         alert('يتطلب حسابك التحقق من الموقع الجغرافي (GPS) للدخول. يرجى تفعيل الـ GPS في متصفحك والسماح بالوصول للموقع والمحاولة مجدداً.');
                         return;
