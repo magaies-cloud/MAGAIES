@@ -75,6 +75,23 @@ function loadData() {
         changes = true;
     }
 
+    if (!USERS.some(u => u.username === 'joumana')) {
+        USERS.push({
+            id: 'u_joumana',
+            username: 'joumana',
+            password: '',
+            fullName: 'جمانة مهدي',
+            userType: 'user',
+            roleId: ROLES[0] ? ROLES[0].id : '',
+            role: 'cashier',
+            securityLevel: 4,
+            warehouse: 'all',
+            status: 'active',
+            isSystem: false
+        });
+        changes = true;
+    }
+
     if (changes) {
         localStorage.setItem('erp_roles_v1', JSON.stringify(ROLES));
         localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
@@ -84,7 +101,11 @@ function loadData() {
 // ════════════════════════════════════════
 //  DOM CONTENT LOADED
 // ════════════════════════════════════════
+let appInitialized = false;
 function initUsersRolesApp() {
+    if (appInitialized) return;
+    appInitialized = true;
+
     // Basic Authentication Check
     if (!localStorage.getItem('authToken')) {
         window.location.href = 'login.php';
@@ -107,6 +128,8 @@ if (window.APP_READY) {
     initUsersRolesApp();
 } else {
     document.addEventListener('DBReady', initUsersRolesApp);
+    document.addEventListener('DOMContentLoaded', () => setTimeout(initUsersRolesApp, 100));
+    setTimeout(initUsersRolesApp, 400);
 }
 
 // ════════════════════════════════════════
@@ -164,7 +187,7 @@ function renderUsersTable() {
     } catch(e) { console.error("Error parsing user:", e); }
 
     USERS.forEach(user => {
-        const role = ROLES.find(r => r.id === user.roleId) || { name: 'غير معروف' };
+        const role = ROLES.find(r => r.id === user.roleId) || { name: (user.role === 'cashier' ? 'كاشير' : (user.role === 'accountant' ? 'محاسب' : (user.role === 'admin' ? 'مدير نظام' : (user.role || 'مستخدم')))) };
         const isAdmin = (user.userType === 'admin' || user.role === 'admin' || user.roleId === 'role_admin_default');
         const userTypeBadge = isAdmin 
             ? `<span class="badge" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid #ef4444; font-weight:800;">👑 مدير نظام</span>` 
@@ -205,7 +228,7 @@ function renderUsersTable() {
     });
 }
 
-function showUserForm() {
+function showUserForm(isEdit = false) {
     document.getElementById('user-form-container').style.display = 'block';
     document.getElementById('user-form-title').innerText = 'إضافة مستخدم جديد';
     
@@ -242,14 +265,17 @@ function showUserForm() {
     
     if(document.getElementById('user-data-scope')) document.getElementById('user-data-scope').value = 'all';
     
-    const studioContainer = document.getElementById('user-permissions-studio-container');
-    if (studioContainer && window.MagaieesPermissions) {
-        window.MagaieesPermissions.renderPermissionsStudioUI(studioContainer, {
-            userType: 'user',
-            allowedScreens: { 'direct-sales.php': true },
-            screenButtons: { 'direct-sales.php': { save: true, new: true, print: true, share: true } },
-            allowedReports: { 'rep_statement': true }
-        });
+    if (!isEdit) {
+        const studioContainer = document.getElementById('user-permissions-studio-container');
+        if (studioContainer && window.MagaieesPermissions) {
+            window.MagaieesPermissions.renderPermissionsStudioUI(studioContainer, {
+                userType: 'user',
+                securityLevel: 1,
+                allowedScreens: { 'direct-sales.php': true },
+                screenButtons: { 'direct-sales.php': { save: true, new: true, print: true, share: true } },
+                allowedReports: { 'rep_statement': true }
+            });
+        }
     }
 }
 
@@ -554,17 +580,17 @@ function editUser(id) {
     const user = USERS.find(u => u.id === id);
     if (!user) return;
 
-    showUserForm();
+    showUserForm(true);
     document.getElementById('user-form-title').innerText = 'تعديل بيانات المستخدم';
     document.getElementById('user-id').value = user.id;
-    document.getElementById('user-fullname').value = user.fullName;
-    document.getElementById('user-username').value = user.username;
+    document.getElementById('user-fullname').value = user.fullName || '';
+    document.getElementById('user-username').value = user.username || '';
     document.getElementById('user-password').value = ''; // Don't show existing password
     document.getElementById('user-password').placeholder = 'اتركه فارغاً للاحتفاظ بكلمة المرور الحالية';
     document.getElementById('user-phone').value = user.phone || '';
-    document.getElementById('user-role').value = user.roleId;
-    document.getElementById('user-warehouse').value = user.warehouse;
-    document.getElementById('user-status').value = user.status;
+    document.getElementById('user-role').value = user.roleId || user.role || '';
+    document.getElementById('user-warehouse').value = user.warehouse || 'all';
+    document.getElementById('user-status').value = user.status || 'active';
     
     const studioContainer = document.getElementById('user-permissions-studio-container');
     if (studioContainer && window.MagaieesPermissions) {
@@ -591,6 +617,11 @@ function editUser(id) {
         cb.checked = (user.allowedDays || [0,1,2,3,4,6]).includes(parseInt(cb.value));
     });
     toggleTimeFields();
+
+    const formEl = document.getElementById('user-form-container');
+    if (formEl) {
+        formEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 function deleteUser(id) {

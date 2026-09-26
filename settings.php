@@ -1090,6 +1090,12 @@ try {
                         <button type="button" onclick="window.openNewUserInSettings()" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer;">
                             + مستخدم جديد
                         </button>
+                        <button type="button" onclick="window.changePasswordInSettings()" style="background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer;" title="تغيير كلمة مرور المستخدم المحدد">
+                            🔑 كلمة المرور
+                        </button>
+                        <button type="button" onclick="window.deleteUserInSettings()" style="background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#f87171; padding:10px 16px; border-radius:10px; font-weight:700; cursor:pointer;" title="حذف المستخدم المحدد">
+                            🗑️ حذف
+                        </button>
                         <button type="button" onclick="window.saveUserSettingsPermissions()" style="background:#10b981; border:none; color:#030712; padding:10px 22px; border-radius:10px; font-weight:800; cursor:pointer; font-size:0.95rem; box-shadow:0 0 15px rgba(16,185,129,0.4);">
                             💾 حفظ صلاحيات المستخدم
                         </button>
@@ -1223,6 +1229,7 @@ try {
 </div>
 
 <script defer src="js/localforage.min.js"></script>
+<script defer src="js/permissions-manager.js?v=<?php echo file_exists('js/permissions-manager.js') ? filemtime('js/permissions-manager.js') : '1'; ?>"></script>
 <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
 <script>
@@ -1578,8 +1585,12 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!targetUser) return;
 
         const container = document.getElementById('settings-permissions-studio-container');
-        if (container && window.MagaieesPermissions) {
-            window.MagaieesPermissions.renderPermissionsStudioUI(container, targetUser);
+        if (container) {
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.renderPermissionsStudioUI === 'function') {
+                window.MagaieesPermissions.renderPermissionsStudioUI(container, targetUser);
+            } else {
+                setTimeout(() => window.loadUserSettingsStudio(userId), 150);
+            }
         }
     };
 
@@ -1721,6 +1732,79 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof showToast === 'function') {
             showToast('تمت إضافة المستخدم بنجاح. يمكنك الآن تخصيص صلاحياته وحفظها.', 'success');
         }
+    };
+
+    window.changePasswordInSettings = function() {
+        const select = document.getElementById('settings-user-select');
+        if (!select || !select.value) return;
+        const userId = select.value;
+
+        let users = [];
+        try {
+            users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+        } catch(e) {}
+
+        const targetUser = users.find(u => u.id === userId);
+        if (!targetUser) return;
+
+        const newPass = prompt(`أدخل كلمة المرور الجديدة للمستخدم "${targetUser.fullName || targetUser.username}":`);
+        if (!newPass) return;
+
+        const userIndex = users.findIndex(u => u.id === userId);
+        users[userIndex].password = newPass;
+        localStorage.setItem('erp_users_v1', JSON.stringify(users));
+
+        if (typeof window.pushToCloud === 'function') {
+            window.pushToCloud(true).catch(console.error);
+        }
+
+        if (typeof showToast === 'function') {
+            showToast('✅ تم تحديث كلمة المرور بنجاح للمستخدم: ' + (targetUser.fullName || targetUser.username), 'success');
+        } else {
+            alert('✅ تم تحديث كلمة المرور بنجاح للمستخدم: ' + (targetUser.fullName || targetUser.username));
+        }
+    };
+
+    window.deleteUserInSettings = function() {
+        const select = document.getElementById('settings-user-select');
+        if (!select || !select.value) return;
+        const userId = select.value;
+
+        let users = [];
+        try {
+            users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
+        } catch(e) {}
+
+        const targetUser = users.find(u => u.id === userId);
+        if (!targetUser) return;
+
+        if (targetUser.isSystem || targetUser.username === 'c' || targetUser.username === 'admin') {
+            alert('لا يمكن حذف المستخدم الرئيسي أو مدير النظام السيادي!');
+            return;
+        }
+
+        if (!confirm(`هل أنت متأكد من حذف المستخدم "${targetUser.fullName || targetUser.username}"؟`)) {
+            return;
+        }
+
+        users = users.filter(u => u.id !== userId);
+        localStorage.setItem('erp_users_v1', JSON.stringify(users));
+
+        if (typeof window.pushToCloud === 'function') {
+            window.pushToCloud(true).catch(console.error);
+        }
+
+        if (window.logSystemAction) {
+            window.logSystemAction('حذف مستخدم', 'settings', `تم حذف المستخدم: ${targetUser.fullName || targetUser.username}`);
+        }
+
+        if (typeof showToast === 'function') {
+            showToast('✅ تم حذف المستخدم بنجاح', 'success');
+        } else {
+            alert('✅ تم حذف المستخدم بنجاح');
+        }
+
+        window.initSettingsUsersStudio();
     };
 
                 window.handleExchangeModeChange = function(select) {

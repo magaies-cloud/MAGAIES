@@ -716,6 +716,19 @@
             allowedReports: {
                 'rep_statement': true,
                 'rep_daily_sales': true
+            },
+            financialLimits: {
+                maxDiscountPercent: 5,
+                maxDiscountAmount: 500,
+                maxVoucherAmount: 10000,
+                maxInvoiceAmount: 25000,
+                allowCreditSale: false
+            },
+            dataMasking: {
+                maskCostPrice: true,
+                maskProfitMargin: true,
+                maskBankAccounts: true,
+                maskCustomerPhone: false
             }
         },
         purchases_manager: {
@@ -760,6 +773,19 @@
                 'rep_purchases_by_supplier': true,
                 'rep_inventory_val': true,
                 'rep_supplier_reliability': true
+            },
+            financialLimits: {
+                maxDiscountPercent: 15,
+                maxDiscountAmount: 5000,
+                maxVoucherAmount: 50000,
+                maxInvoiceAmount: 100000,
+                allowCreditSale: true
+            },
+            dataMasking: {
+                maskCostPrice: false,
+                maskProfitMargin: false,
+                maskBankAccounts: true,
+                maskCustomerPhone: false
             }
         },
         storekeeper: {
@@ -811,6 +837,19 @@
                 'rep_item_movement': true,
                 'rep_deadstock': true,
                 'rep_smart_inv_alerts': true
+            },
+            financialLimits: {
+                maxDiscountPercent: 0,
+                maxDiscountAmount: 0,
+                maxVoucherAmount: 0,
+                maxInvoiceAmount: 0,
+                allowCreditSale: false
+            },
+            dataMasking: {
+                maskCostPrice: true,
+                maskProfitMargin: true,
+                maskBankAccounts: true,
+                maskCustomerPhone: true
             }
         },
         accountant: {
@@ -877,6 +916,19 @@
                 'rep_aging': true,
                 'rep_daily_sales': true,
                 'rep_daily_purchases': true
+            },
+            financialLimits: {
+                maxDiscountPercent: 20,
+                maxDiscountAmount: 10000,
+                maxVoucherAmount: 200000,
+                maxInvoiceAmount: 500000,
+                allowCreditSale: true
+            },
+            dataMasking: {
+                maskCostPrice: false,
+                maskProfitMargin: false,
+                maskBankAccounts: false,
+                maskCustomerPhone: false
             }
         },
         viewer: {
@@ -920,6 +972,19 @@
                 'rep_statement': true,
                 'rep_general_ledger': true,
                 'rep_inventory_val': true
+            },
+            financialLimits: {
+                maxDiscountPercent: 0,
+                maxDiscountAmount: 0,
+                maxVoucherAmount: 0,
+                maxInvoiceAmount: 0,
+                allowCreditSale: false
+            },
+            dataMasking: {
+                maskCostPrice: true,
+                maskProfitMargin: true,
+                maskBankAccounts: true,
+                maskCustomerPhone: false
             }
         }
     };
@@ -2517,12 +2582,20 @@
                     <!-- TAB 2: DASHBOARD WIDGETS CONTROL -->
                     <div id="studio-tab-content-dashboard_widgets" class="studio-tab-content" style="display:none;">
                         <div style="background:rgba(15,23,42,0.5); border:1px solid rgba(56,189,248,0.25); border-radius:16px; padding:22px;">
-                            <h4 style="margin:0 0 8px 0; color:#38bdf8; font-size:1.15rem; font-weight:900;">
-                                📊 تخصيص عناصر وبطاقات لوحة التحكم (Dashboard Widgets)
-                            </h4>
-                            <p style="margin:0 0 18px 0; color:#94a3b8; font-size:0.88rem;">
-                                حدد البطاقات والمؤشرات التي يحق للمستخدم رؤيتها داخل لوحة التحكم المركزية:
-                            </p>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+                                <div>
+                                    <h4 style="margin:0 0 4px 0; color:#38bdf8; font-size:1.15rem; font-weight:900;">
+                                        📊 تخصيص عناصر وبطاقات لوحة التحكم (Dashboard Widgets)
+                                    </h4>
+                                    <p style="margin:0; color:#94a3b8; font-size:0.88rem;">
+                                        حدد البطاقات والمؤشرات التي يحق للمستخدم رؤيتها داخل لوحة التحكم المركزية:
+                                    </p>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button type="button" onclick="window.toggleAllDashboard(true)" class="bulk-btn" style="background:rgba(56,189,248,0.15); border-color:#38bdf8; color:#38bdf8;">تفعيل الكل</button>
+                                    <button type="button" onclick="window.toggleAllDashboard(false)" class="bulk-btn" style="background:rgba(239,68,68,0.15); border-color:#ef4444; color:#f87171;">تعطيل الكل</button>
+                                </div>
+                            </div>
                             
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px;">
         `;
@@ -2593,12 +2666,20 @@
                     <!-- TAB 4: MASTER DATA GRANULAR RIGHTS -->
                     <div id="studio-tab-content-master_data_rights" class="studio-tab-content" style="display:none;">
                         <div style="background:rgba(15,23,42,0.5); border:1px solid rgba(59,130,246,0.25); border-radius:16px; padding:22px;">
-                            <h4 style="margin:0 0 8px 0; color:#3b82f6; font-size:1.15rem; font-weight:900;">
-                                🗄️ تفاصيل وصلاحيات البيانات الأساسية (عملاء، موردين، أصناف، حسابات)
-                            </h4>
-                            <p style="margin:0 0 18px 0; color:#94a3b8; font-size:0.88rem;">
-                                التحكم الدقيق في إمكانية إضافة، تعديل، أو حذف أي كيان أساسي في النظام:
-                            </p>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+                                <div>
+                                    <h4 style="margin:0 0 4px 0; color:#3b82f6; font-size:1.15rem; font-weight:900;">
+                                        🗄️ تفاصيل وصلاحيات البيانات الأساسية (عملاء، موردين، أصناف، حسابات)
+                                    </h4>
+                                    <p style="margin:0; color:#94a3b8; font-size:0.88rem;">
+                                        التحكم الدقيق في إمكانية إضافة، تعديل، أو حذف أي كيان أساسي في النظام:
+                                    </p>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button type="button" onclick="window.toggleAllMasterData(true)" class="bulk-btn" style="background:rgba(59,130,246,0.15); border-color:#3b82f6; color:#60a5fa;">تفعيل الكل</button>
+                                    <button type="button" onclick="window.toggleAllMasterData(false)" class="bulk-btn" style="background:rgba(239,68,68,0.15); border-color:#ef4444; color:#f87171;">تعطيل الكل</button>
+                                </div>
+                            </div>
 
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px;">
         `;
@@ -2627,12 +2708,20 @@
                     <!-- TAB 5: ALERTS CONFIGURATION RIGHTS -->
                     <div id="studio-tab-content-alerts_rights" class="studio-tab-content" style="display:none;">
                         <div style="background:rgba(15,23,42,0.5); border:1px solid rgba(248,113,113,0.25); border-radius:16px; padding:22px;">
-                            <h4 style="margin:0 0 8px 0; color:#f87171; font-size:1.15rem; font-weight:900;">
-                                🔔 صلاحيات مصفوفة الرقابة والتنبيهات
-                            </h4>
-                            <p style="margin:0 0 18px 0; color:#94a3b8; font-size:0.88rem;">
-                                تحديد قدرة المستخدم على ضبط وتفعيل تنبيهات المخازن، المشتريات، والمالية وتعديل الحدود:
-                            </p>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+                                <div>
+                                    <h4 style="margin:0 0 4px 0; color:#f87171; font-size:1.15rem; font-weight:900;">
+                                        🔔 صلاحيات مصفوفة الرقابة والتنبيهات
+                                    </h4>
+                                    <p style="margin:0; color:#94a3b8; font-size:0.88rem;">
+                                        تحديد قدرة المستخدم على ضبط وتفعيل تنبيهات المخازن، المشتريات، والمالية وتعديل الحدود:
+                                    </p>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button type="button" onclick="window.toggleAllAlerts(true)" class="bulk-btn" style="background:rgba(248,113,113,0.15); border-color:#f87171; color:#f87171;">تفعيل الكل</button>
+                                    <button type="button" onclick="window.toggleAllAlerts(false)" class="bulk-btn" style="background:rgba(239,68,68,0.15); border-color:#ef4444; color:#f87171;">تعطيل الكل</button>
+                                </div>
+                            </div>
 
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px;">
         `;
@@ -2661,12 +2750,20 @@
                     <!-- TAB 6: TOOLS & SHARIA RIGHTS -->
                     <div id="studio-tab-content-tools_rights" class="studio-tab-content" style="display:none;">
                         <div style="background:rgba(15,23,42,0.5); border:1px solid rgba(217,119,6,0.3); border-radius:16px; padding:22px;">
-                            <h4 style="margin:0 0 8px 0; color:#fbbf24; font-size:1.15rem; font-weight:900;">
-                                🛠️ صلاحيات الأدوات المساعدة والشريعة الإسلامية
-                            </h4>
-                            <p style="margin:0 0 18px 0; color:#94a3b8; font-size:0.88rem;">
-                                التحكم في استخدام حاسبة الميراث الشرعي، موسوعة الفتاوى، وبث التلفزيون:
-                            </p>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px; flex-wrap:wrap; gap:10px;">
+                                <div>
+                                    <h4 style="margin:0 0 4px 0; color:#fbbf24; font-size:1.15rem; font-weight:900;">
+                                        🛠️ صلاحيات الأدوات المساعدة والشريعة الإسلامية
+                                    </h4>
+                                    <p style="margin:0; color:#94a3b8; font-size:0.88rem;">
+                                        التحكم في استخدام حاسبة الميراث الشرعي، موسوعة الفتاوى، وبث التلفزيون:
+                                    </p>
+                                </div>
+                                <div style="display:flex; gap:8px;">
+                                    <button type="button" onclick="window.toggleAllTools(true)" class="bulk-btn" style="background:rgba(251,191,36,0.15); border-color:#fbbf24; color:#fbbf24;">تفعيل الكل</button>
+                                    <button type="button" onclick="window.toggleAllTools(false)" class="bulk-btn" style="background:rgba(239,68,68,0.15); border-color:#ef4444; color:#f87171;">تعطيل الكل</button>
+                                </div>
+                            </div>
 
                             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:14px;">
         `;
@@ -3056,6 +3153,32 @@
             }
         }
 
+        // Apply financial limits
+        if (preset.financialLimits) {
+            const discPct = document.getElementById('studio-limit-discount-pct');
+            if (discPct) discPct.value = preset.financialLimits.maxDiscountPercent || 0;
+            const discAmt = document.getElementById('studio-limit-discount-amt');
+            if (discAmt) discAmt.value = preset.financialLimits.maxDiscountAmount || 0;
+            const vouchAmt = document.getElementById('studio-limit-voucher-amt');
+            if (vouchAmt) vouchAmt.value = preset.financialLimits.maxVoucherAmount || 0;
+            const invAmt = document.getElementById('studio-limit-invoice-amt');
+            if (invAmt) invAmt.value = preset.financialLimits.maxInvoiceAmount || 0;
+            const creditSale = document.getElementById('studio-limit-credit-sale');
+            if (creditSale) creditSale.checked = !!preset.financialLimits.allowCreditSale;
+        }
+
+        // Apply data masking
+        if (preset.dataMasking) {
+            const mCost = document.getElementById('studio-mask-cost');
+            if (mCost) mCost.checked = !!preset.dataMasking.maskCostPrice;
+            const mProfit = document.getElementById('studio-mask-profit');
+            if (mProfit) mProfit.checked = !!preset.dataMasking.maskProfitMargin;
+            const mBank = document.getElementById('studio-mask-bank');
+            if (mBank) mBank.checked = !!preset.dataMasking.maskBankAccounts;
+            const mPhone = document.getElementById('studio-mask-phone');
+            if (mPhone) mPhone.checked = !!preset.dataMasking.maskCustomerPhone;
+        }
+
         if (typeof showToast === 'function') {
             showToast(`تم تطبيق نموذج: ${preset.title} بنجاح`, 'success');
         }
@@ -3111,6 +3234,13 @@
         if (typeof window.loadUserSettingsStudio === 'function') {
             const sel = document.getElementById('settings-user-select');
             if (sel && sel.value) window.loadUserSettingsStudio(sel.value);
+        } else {
+            const userId = document.getElementById('user-id')?.value;
+            const container = document.getElementById('user-permissions-studio-container');
+            if (container && window.USERS) {
+                const u = window.USERS.find(x => x.id === userId);
+                if (u && window.MagaieesPermissions) window.MagaieesPermissions.renderPermissionsStudioUI(container, u);
+            }
         }
     };
 
@@ -3139,8 +3269,32 @@
         });
     };
 
+    window.toggleAllDashboard = function(selectAll) {
+        document.querySelectorAll('.dash-perm-cb').forEach(cb => {
+            cb.checked = selectAll;
+        });
+    };
+
     window.toggleAllPosting = function(selectAll) {
         document.querySelectorAll('.posting-perm-cb').forEach(cb => {
+            cb.checked = selectAll;
+        });
+    };
+
+    window.toggleAllMasterData = function(selectAll) {
+        document.querySelectorAll('.master-perm-cb').forEach(cb => {
+            cb.checked = selectAll;
+        });
+    };
+
+    window.toggleAllAlerts = function(selectAll) {
+        document.querySelectorAll('.alert-perm-cb').forEach(cb => {
+            cb.checked = selectAll;
+        });
+    };
+
+    window.toggleAllTools = function(selectAll) {
+        document.querySelectorAll('.tool-perm-cb').forEach(cb => {
             cb.checked = selectAll;
         });
     };
@@ -3165,6 +3319,16 @@
             }
         });
 
+        // Hide empty category cards if all child screens are hidden
+        document.querySelectorAll('.studio-cat-card').forEach(card => {
+            if (!q) {
+                card.style.display = 'block';
+                return;
+            }
+            const visibleRows = card.querySelectorAll('.studio-screen-row:not([style*="display: none"])');
+            card.style.display = visibleRows.length > 0 ? 'block' : 'none';
+        });
+
         // 2. Filter reports
         document.querySelectorAll('.studio-report-card').forEach(rep => {
             const title = (rep.dataset.reportTitle || '').toLowerCase();
@@ -3176,7 +3340,7 @@
         });
 
         // Auto switch to all_screens tab if typing search
-        if (q && document.getElementById('studio-tab-content-all_screens').style.display === 'none') {
+        if (q && document.getElementById('studio-tab-content-all_screens') && document.getElementById('studio-tab-content-all_screens').style.display === 'none') {
             const firstTabBtn = document.querySelector('.studio-tab-btn');
             if (firstTabBtn) window.switchStudioTab('all_screens', firstTabBtn);
         }
@@ -3188,6 +3352,7 @@
         const userType = userTypeRadio ? userTypeRadio.value : 'user';
 
         if (userType === 'admin') {
+            const managerPin = document.getElementById('studio-manager-pin')?.value.trim() || '';
             return {
                 userType: 'admin',
                 securityLevel: 10,
@@ -3198,7 +3363,21 @@
                 postingPermissions: {},
                 masterDataPermissions: {},
                 alertsPermissions: {},
-                toolsPermissions: {}
+                toolsPermissions: {},
+                financialLimits: {
+                    maxDiscountPercent: 100,
+                    maxDiscountAmount: 999999999,
+                    maxVoucherAmount: 999999999,
+                    maxInvoiceAmount: 999999999,
+                    allowCreditSale: true
+                },
+                dataMasking: {
+                    maskCostPrice: false,
+                    maskProfitMargin: false,
+                    maskBankAccounts: false,
+                    maskCustomerPhone: false
+                },
+                managerPin: managerPin
             };
         }
 
@@ -3285,7 +3464,7 @@
     // Interactive Delegation Submission for Studio UI
     window.submitStudioDelegation = function() {
         const select = document.getElementById('settings-user-select');
-        const fromUserId = select ? select.value : 'u_admin_default';
+        const fromUserId = (select && select.value) ? select.value : (document.getElementById('user-id')?.value || 'u_admin_default');
         const toUserId = document.getElementById('new-del-target-user')?.value;
         const level = parseInt(document.getElementById('new-del-level')?.value, 10) || 6;
         const start = document.getElementById('new-del-start')?.value;
@@ -3336,13 +3515,14 @@
                         <span style="font-weight:700; color:#fff;">من: ${d.fromUserName} ⬅️ إلى: ${d.toUserName}</span>
                         <span style="display:block; font-size:0.78rem; color:#94a3b8;">مستوى: ${d.delegatedLevel} | ساري حتى: ${new Date(d.endDate).toLocaleDateString('ar-EG')} | الحالة: ${isAct ? '<span style="color:#10b981;">نشط</span>' : '<span style="color:#ef4444;">منتهي/ملغي</span>'}</span>
                     </div>
-                    ${isAct ? `<button type="button" onclick="window.MagaieesPermissions.revokeDelegation('${d.id}'); renderStudioDelegationsList('${userId}');" style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#f87171; padding:4px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer;">إلغاء التفويض ❌</button>` : ''}
+                    ${isAct ? `<button type="button" onclick="window.MagaieesPermissions.revokeDelegation('${d.id}'); window.renderStudioDelegationsList('${userId}');" style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#f87171; padding:4px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer;">إلغاء التفويض ❌</button>` : ''}
                 </div>
             `;
         });
         html += '</div>';
         container.innerHTML = html;
     }
+    window.renderStudioDelegationsList = renderStudioDelegationsList;
 
     // Populate delegatee dropdown in studio on tab switch
     window.populateDelegationDropdown = function() {
@@ -3350,7 +3530,7 @@
         if (!sel) return;
         let allUsers = [];
         try { allUsers = JSON.parse(localStorage.getItem('erp_users_v1') || '[]'); } catch(e){}
-        const currentUserId = document.getElementById('settings-user-select')?.value;
+        const currentUserId = document.getElementById('settings-user-select')?.value || document.getElementById('user-id')?.value;
         sel.innerHTML = '<option value="">اختر الموظف...</option>';
         allUsers.forEach(u => {
             if (u.id !== currentUserId) {
