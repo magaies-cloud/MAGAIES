@@ -20,24 +20,36 @@
                 'index.php',
                 'saas-admin.php',
                 'login.php',
-                'register.php'
+                'register.php',
+                'settings.php',
+                'backup.php',
+                'master-data.php',
+                'users.php'
             ];
             
             if (excludedPages.includes(path)) {
                 return true;
             }
 
+            // فحص كلاسات وخصائص تعطيل التمرير التلقائي صراحة
+            if (document.body && (document.body.classList.contains('no-auto-scroll') || document.body.hasAttribute('data-no-auto-scroll'))) {
+                return true;
+            }
+
             // فحص عنوان الصفحة ومحتوى العنوان
             const titleEl = document.querySelector('.header-page-title');
             if (titleEl) {
-                const txt = titleEl.textContent || '';
-                if (txt.includes('لوحة التحكم') || txt.toLowerCase().includes('dashboard')) {
+                const txt = (titleEl.textContent || '').toLowerCase();
+                if (txt.includes('لوحة التحكم') || txt.includes('dashboard') || txt.includes('الإعدادات') || txt.includes('settings')) {
                     return true;
                 }
             }
 
-            if (document.title && (document.title.includes('لوحة التحكم') || document.title.toLowerCase().includes('dashboard'))) {
-                return true;
+            if (document.title) {
+                const dt = document.title.toLowerCase();
+                if (dt.includes('لوحة التحكم') || dt.includes('dashboard') || dt.includes('الإعدادات') || dt.includes('settings')) {
+                    return true;
+                }
             }
         } catch(e) {}
         return false;
@@ -46,6 +58,16 @@
     const AutoHeaderScroll = {
         timer: null,
         hasAutoScrolled: false,
+
+        ensureScrollableSpace: function() {
+            try {
+                const targetY = this.getTargetY();
+                const neededHeight = window.innerHeight + targetY + 30;
+                if (document.documentElement.scrollHeight < neededHeight) {
+                    document.body.style.minHeight = neededHeight + 'px';
+                }
+            } catch(e) {}
+        },
 
         init: function() {
             // استثناء لوحة التحكم والشاشات المستثناة
@@ -60,9 +82,10 @@
             } catch(e) {}
 
             // التأكد من بدء الصفحة من القمة عند أول فتح
-            if (window.pageYOffset > 0 && !sessionStorage.getItem('mcp_page_scrolled_' + window.location.pathname)) {
-                window.scrollTo(0, 0);
-            }
+            window.scrollTo(0, 0);
+
+            // ضمان وجود مساحة كافية للتمرير في أي شاشة مهما كان محتواها قصيراً
+            this.ensureScrollableSpace();
 
             // مراقبة التمرير لتحديث ظهور الزر العائم وزر الترويسة
             window.addEventListener('scroll', () => {
@@ -85,6 +108,10 @@
                 }
             }, { passive: true });
 
+            window.addEventListener('resize', () => {
+                this.ensureScrollableSpace();
+            }, { passive: true });
+
             // بدء مؤقت الـ 0.5 ثانية
             this.startCountdown(500);
         },
@@ -105,30 +132,46 @@
                 const rect = header.getBoundingClientRect();
                 // الصعود في حدود الترويسة فقط:
                 // ينتهي التمرير عند الحافة السفلية للترويسة تماماً، مما يضمن بقاء جميع أزرار العمليات
-                // مثل (فاتورة مشتريات مباشرة، استلام بضاعة، صرف، إلخ) ظاهرة وكاملة الوضوح في قمة الصفحة
-                return Math.max(0, Math.round(rect.bottom + window.pageYOffset));
+                // ظاهرة وكاملة الوضوح في قمة الصفحة
+                const y = Math.round(rect.bottom + window.pageYOffset);
+                if (y > 30) return y;
             }
 
             return 130;
         },
 
         scrollToTarget: function() {
+            // التأكد من توفر مساحة كافية للتمرير
+            this.ensureScrollableSpace();
+
             const targetY = this.getTargetY();
-            
-            // إذا كانت الصفحة قصيرة جداً ولا تستوعب التمرير
             const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
-            if (maxScroll < 40) return;
+            if (maxScroll < 15) return;
 
             this.hasAutoScrolled = true;
             try { sessionStorage.setItem('mcp_page_scrolled_' + window.location.pathname, '1'); } catch(e) {}
 
-            // انتقال فوري ومباشر بدون أي مؤثر حركي أو إبطاء
-            window.scrollTo(0, Math.min(targetY, maxScroll));
+            const scrollY = Math.min(targetY, maxScroll);
+            try {
+                window.scrollTo({
+                    top: scrollY,
+                    behavior: 'smooth'
+                });
+            } catch(e) {
+                window.scrollTo(0, scrollY);
+            }
         },
 
         scrollToHeader: function() {
-            // رجوع فوري ومباشر إلى أعلى الصفحة
-            window.scrollTo(0, 0);
+            // رجوع سلس ومباشر إلى أعلى الصفحة
+            try {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            } catch(e) {
+                window.scrollTo(0, 0);
+            }
         },
 
         toggleHeader: function() {
@@ -179,10 +222,20 @@
 
     window.AutoHeaderScroll = AutoHeaderScroll;
 
-    // تشغيل المحرك تلقائياً بمجرد اكتمال تجهيز الصفحة
-    if (document.readyState === 'complete') {
-        AutoHeaderScroll.init();
+    // تشغيل المحرك تلقائياً بمجرد جاهزية الـ DOM دون انتظار الملفات الخارجية الثقيلة
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => AutoHeaderScroll.init());
     } else {
-        window.addEventListener('load', () => AutoHeaderScroll.init());
+        AutoHeaderScroll.init();
     }
+
+    // فحص إضافي عند اكتمال تحميل الصفحة بالكامل لضمان دقة الأبعاد
+    window.addEventListener('load', () => {
+        if (!isDashboardPage()) {
+            AutoHeaderScroll.ensureScrollableSpace();
+            if (!AutoHeaderScroll.hasAutoScrolled && !AutoHeaderScroll.timer && window.pageYOffset < 35) {
+                AutoHeaderScroll.scrollToTarget();
+            }
+        }
+    });
 })();

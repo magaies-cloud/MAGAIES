@@ -2491,6 +2491,13 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                     <div style="display: flex; align-items: center; flex-shrink: 0;">
                         <input type="text" autocomplete="off" id="voucher-ref" class="form-input" placeholder="رقم المرجع (اختياري)" style="height: 38px; width: 140px; background: rgba(0,0,0,0.3); font-size: 0.88rem; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff; margin: 0;">
                     </div>
+
+                    <!-- زر صندوق إشعارات بنكك والتحصيلات الواردة من العملاء -->
+                    <button type="button" id="btn-inbound-receipts-drawer" class="btn crystal-btn" onclick="toggleInboundReceiptsDrawer()" style="height: 38px; padding: 0 12px; border-radius: 8px; font-weight: 800; font-size: 0.88rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.35)); border: 1.5px solid #10b981; color: #a7f3d0; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; flex-shrink: 0; box-shadow: 0 0 15px rgba(16, 185, 129, 0.3); transition: all 0.2s;" title="صندوق إشعارات تحويلات بنكك الواردة من العملاء ومطابقتها فورياً بالسند">
+                        <span style="font-size: 1.15rem; filter: drop-shadow(0 0 4px #10b981);">📥</span>
+                        <span style="white-space: nowrap;">إشعارات بنكك</span>
+                        <span id="inbound-receipts-badge-count" style="background: #ef4444; color: #ffffff; padding: 1px 7px; border-radius: 10px; font-size: 0.75rem; font-weight: 900; box-shadow: 0 0 8px rgba(239,68,68,0.8); display: inline-block;">0</span>
+                    </button>
                 </div>
 
                 <!-- Primary Inputs Glass Container -->
@@ -2613,12 +2620,12 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                                     <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-scan" onclick="FinancialOCR.openScanner({ target: 'multi', blockId: '{ID}' })" title="مسح وقراءة إشعار التحويل البنكي بالذكاء الاصطناعي">
                                         <span class="btn-icon">📷</span> <span class="btn-text">إشعار AI</span>
                                     </button>
-                                    <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-whatsapp block-btn-ai-whatsapp-ingest" onclick="openBlockWhatsAppIngest('{ID}')" title="إدخال واستيراد إشعارات الواتساب لهذا الحساب وتفريغها في السند (إدخال إلى الداخل ↙)">
+                                    <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-whatsapp block-btn-ai-whatsapp-ingest" onclick="handleBlockWhatsAppClick('{ID}')" title="إرسال كمبيالة وإشعار السند لهذا الحساب مباشرة عبر الواتساب (إرسال مباشر ⚡)">
                                         <span class="btn-icon" style="display: inline-flex; align-items: center; justify-content: center; gap: 3px;">
                                             <span style="font-size: 1.15rem; filter: drop-shadow(0 0 4px #25d366);">💬</span>
-                                            <span style="font-size: 0.95rem; color: #fef08a; font-weight: 900; line-height: 1;">↙</span>
+                                            <span style="font-size: 0.95rem; color: #fef08a; font-weight: 900; line-height: 1;">⚡</span>
                                         </span>
-                                        <span class="btn-text">واتساب ↙</span>
+                                        <span class="btn-text">واتساب ⚡</span>
                                     </button>
                                     <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-trainer" onclick="FinancialOCR.openTrainer()" title="نماذج الذكاء الاصطناعي">
                                         <span class="btn-icon">🧠</span> <span class="btn-text">نماذج</span>
@@ -4471,6 +4478,9 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
     // Periodically apply styles to newly added rows dynamically
     setInterval(applyNumPropsToAll, 1000);
     </script>
+    <!-- Inbound Bankak Receipts Drawer Component -->
+    <?php include 'includes/inbound-bankak-drawer.php'; ?>
+
     <!-- Financial OCR Modal & Script -->
     <?php include 'includes/financial-ocr-modal.php'; ?>
     <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>

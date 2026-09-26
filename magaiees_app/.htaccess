@@ -1,0 +1,35 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Serve pre-compressed .gz file if the client supports gzip and the .gz file exists
+    RewriteCond %{HTTP:Accept-Encoding} gzip
+    RewriteCond %{REQUEST_FILENAME}\.gz -s
+    RewriteRule ^(.*)\.(js|wasm)$ $1.$2.gz [L,QSA]
+</IfModule>
+
+<IfModule mod_headers.c>
+    # Correct MIME type and Content-Encoding for pre-compressed files
+    <FilesMatch "\.js\.gz$">
+        ForceType text/javascript
+        Header set Content-Encoding gzip
+        Header append Vary Accept-Encoding
+    </FilesMatch>
+
+    <FilesMatch "\.wasm\.gz$">
+        ForceType application/wasm
+        Header set Content-Encoding gzip
+        Header append Vary Accept-Encoding
+    </FilesMatch>
+
+    # Long-term aggressive caching for static assets (1 year)
+    <FilesMatch "\.(js|js\.gz|wasm|wasm\.gz|ttf|otf|woff|woff2|png|jpg|jpeg|gif|svg|ico)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # Prevent caching of entry points and service workers so updates are immediate
+    <FilesMatch "(index\.html|index\.php|version\.json|flutter_service_worker\.js)$">
+        Header set Cache-Control "no-cache, no-store, must-revalidate"
+        Header set Pragma "no-cache"
+        Header set Expires "0"
+    </FilesMatch>
+</IfModule>

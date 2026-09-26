@@ -3,7 +3,7 @@
  * Includes all recordings of Abdul Basit (Murattal, Mujawwad, Warsh),
  * Minshawi, Husary, Mustafa Ismail, and all 287+ editions from MP3Quran Network
  */
-const QURAN_ALL_RECITERS = [
+var QURAN_ALL_RECITERS = (typeof window !== 'undefined' && window.QURAN_ALL_RECITERS) ? window.QURAN_ALL_RECITERS : [
     {
         "id": "51_53",
         "reciterId": 51,

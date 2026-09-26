@@ -19,18 +19,30 @@ function getDBConnection() {
     }
     
     if ($GLOBAL_TENANT_ID === null) {
-        $token = $_COOKIE['saas_token'] ?? '';
-        $isLocalhost = (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1');
-        
-        if (empty($token) && !$isLocalhost) {
-            die("<script>alert('غير مصرح! يرجى تسجيل الدخول من البوابة أولاً.'); window.location.href='login.php';</script>");
+        if (session_status() === PHP_SESSION_NONE) {
+            @session_start();
         }
+        
+        $token = $_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? '';
+        if (empty($token) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+            $token = trim(str_replace('Bearer', '', $_SERVER['HTTP_AUTHORIZATION']));
+        }
+        
+        $isLocalhost = (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1');
         
         $tenantId = false;
         if (!empty($token)) {
             $stmt = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? AND (token_expires_at IS NULL OR token_expires_at > NOW()) AND status = 'active'");
             $stmt->execute([$token]);
             $tenantId = $stmt->fetchColumn();
+        }
+        
+        // Multi-tier session fallbacks
+        if (!$tenantId && !empty($_SESSION['user']['tenant_id'])) {
+            $tenantId = (int)$_SESSION['user']['tenant_id'];
+        }
+        if (!$tenantId && !empty($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId'])) {
+            $tenantId = (int)$_COOKIE['currentTenantId'];
         }
         
         if (!$tenantId) {

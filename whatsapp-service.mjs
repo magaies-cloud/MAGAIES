@@ -13,7 +13,8 @@ import makeWASocket, {
     DisconnectReason,
     Browsers,
     fetchLatestBaileysVersion,
-    proto
+    proto,
+    downloadMediaMessage
 } from '@whiskeysockets/baileys';
 import pino from 'pino';
 import QRCode from 'qrcode';
@@ -73,6 +74,20 @@ process.on('uncaughtException', err => {
 process.on('unhandledRejection', err => {
     console.error('Unhandled Rejection:', err);
 });
+
+function unwrapWAMessage(msg) {
+    if (!msg || !msg.message) return null;
+    let m = msg.message;
+    while (m) {
+        if (m.ephemeralMessage?.message) { m = m.ephemeralMessage.message; continue; }
+        if (m.viewOnceMessage?.message) { m = m.viewOnceMessage.message; continue; }
+        if (m.viewOnceMessageV2?.message) { m = m.viewOnceMessageV2.message; continue; }
+        if (m.viewOnceMessageV2Extension?.message) { m = m.viewOnceMessageV2Extension.message; continue; }
+        if (m.documentWithCaptionMessage?.message) { m = m.documentWithCaptionMessage.message; continue; }
+        break;
+    }
+    return m;
+}
 
 class WhatsAppClient {
     constructor(userId) {
@@ -349,8 +364,8 @@ class WhatsAppClient {
                 this._handleConnectionUpdate(update);
             });
 
-            // ── Cache messages for retries ──
-            sock.ev.on('messages.upsert', (upsert) => {
+            // ── Cache messages for retries & Inbound Receipt Listener ──
+            sock.ev.on('messages.upsert', async (upsert) => {
                 try {
                     const msgs = upsert?.messages || upsert || [];
                     for (const msg of msgs) {
@@ -360,6 +375,20 @@ class WhatsAppClient {
                             if (this.messageCache.size > 500) {
                                 const oldestKey = this.messageCache.keys().next().value;
                                 this.messageCache.delete(oldestKey);
+                            }
+
+                            // Auto-ingest customer receipt image if incoming from client
+                            const unwrapped = unwrapWAMessage(msg);
+                            const isImg = unwrapped && (
+                                unwrapped.imageMessage || 
+                                (unwrapped.documentMessage?.mimetype && unwrapped.documentMessage.mimetype.startsWith('image/')) ||
+                                (unwrapped.documentMessage?.fileName && /\.(jpg|jpeg|png|webp)$/i.test(unwrapped.documentMessage.fileName))
+                            );
+
+                            if (!msg.key.fromMe && isImg) {
+                                this._processIncomingWhatsAppReceipt(msg, sock, unwrapped).catch(e => {
+                                    logErr(this.userId, 'Error handling incoming receipt:', e.message);
+                                });
                             }
                         }
                     }
@@ -528,6 +557,111 @@ class WhatsAppClient {
             return true;
         } catch (_) {
             return false;
+        }
+    }
+
+    async _processIncomingWhatsAppReceipt(msg, sock, unwrapped) {
+        try {
+            const remoteJid = msg.key.remoteJid || '';
+            if (remoteJid.includes('@g.us') || remoteJid.includes('status@broadcast')) return;
+
+            const senderPhone = remoteJid.replace(/@.*$/, '');
+            const pushName = msg.pushName || ('عميل واتساب ' + senderPhone);
+            const tenantId = this.userId.replace(/\D/g, '') || '2';
+
+            log(this.userId, `📥 Incoming WhatsApp image from ${pushName} (${senderPhone}), downloading...`);
+
+            const unwrappedContent = unwrapped || unwrapWAMessage(msg) || msg.message;
+            const caption = unwrappedContent?.imageMessage?.caption || unwrappedContent?.documentMessage?.caption || '';
+
+            const messageToDownload = {
+                key: msg.key,
+                message: unwrappedContent
+            };
+
+            let buffer = null;
+            try {
+                buffer = await downloadMediaMessage(messageToDownload, 'buffer', {}, {
+                    logger: pino({ level: 'silent' }),
+                    reuploadRequest: sock.updateMediaMessage
+                });
+            } catch (dlErr) {
+                try {
+                    buffer = await downloadMediaMessage(msg, 'buffer', {}, {
+                        logger: pino({ level: 'silent' }),
+                        reuploadRequest: sock.updateMediaMessage
+                    });
+                } catch (dlErr2) {
+                    logErr(this.userId, 'Buffer download failed:', dlErr2.message);
+                }
+            }
+
+            if (!buffer || buffer.length === 0) return;
+
+            const targetDir = path.join(UPLOADS_DIR, 'receipts_inbox', tenantId);
+            if (!fs.existsSync(targetDir)) {
+                fs.mkdirSync(targetDir, { recursive: true });
+            }
+
+            const filename = `bankak_wa_${Date.now()}_${Math.floor(Math.random() * 10000)}.jpg`;
+            const filePath = path.join(targetDir, filename);
+            fs.writeFileSync(filePath, buffer);
+
+            const relativePath = `uploads/receipts_inbox/${tenantId}/${filename}`;
+
+            // Forward to ERP Inbound API
+            const payload = {
+                action: 'upload',
+                tenant_id: tenantId,
+                customer_name: pushName,
+                customer_phone: senderPhone,
+                receipt_image: relativePath,
+                caption: caption,
+                bank_name: 'بنك الخرطوم (بنكك)',
+                source: 'whatsapp',
+                notes: caption ? `إشعار تحويل وارد من واتساب (${caption})` : 'إشعار تحويل وارد تلقائياً عبر محادثة واتساب'
+            };
+
+            const isWin = process.platform === 'win32';
+            const primaryEndpoint = isWin 
+                ? `http://localhost/magaees/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`
+                : `http://localhost/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`;
+            
+            let response;
+            try {
+                response = await fetch(primaryEndpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!response.ok && !isWin) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (postErr) {
+                if (!isWin) {
+                    response = await fetch(`https://c.elsajana.com/api/inbound_receipts.php?action=upload&tenant_id=${tenantId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                } else {
+                    throw postErr;
+                }
+            }
+
+            const data = await response.json();
+            log(this.userId, `✅ Inbound WhatsApp receipt saved to ERP successfully (ID: ${data.id}, Status: ${data.status})`);
+
+            // Send automated confirmation to customer on WhatsApp
+            try {
+                const replyText = `✅ مرحباً بك ${pushName}!\nتم استلام إشعار التحويل البنكي بنجاح وجاري تدقيقه واعتماده في النظام المالي.\nشكراً لتعاملكم معنا. 🏢✨`;
+                await sock.sendMessage(remoteJid, { text: replyText }, { quoted: msg });
+                log(this.userId, `📤 Auto-reply sent to customer ${senderPhone}`);
+            } catch (replyErr) {
+                logErr(this.userId, 'Failed to send auto-reply to customer:', replyErr.message);
+            }
+        } catch(err) {
+            logErr(this.userId, 'Failed to process WhatsApp receipt image:', err.message);
         }
     }
 

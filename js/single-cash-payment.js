@@ -5746,7 +5746,7 @@ window.getWAAutoDispatchSettings = function() {
     return {
         enabled: false,
         target: 'both',
-        method: 'desktop'
+        method: 'gateway'
     };
 };
 
@@ -5924,7 +5924,7 @@ window.triggerAutoWADispatchOnSave = function(voucher, vNo) {
     if (!parties) return;
 
     const targetMode = s.target || 'both';
-    const method = s.method || 'desktop';
+    const method = s.method || 'gateway';
 
     setTimeout(() => {
         if (targetMode === 'debtor') {
