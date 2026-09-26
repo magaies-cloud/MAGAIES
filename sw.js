@@ -1,4 +1,4 @@
-// Version: 20260924023000 (Multi-cash payment, WhatsApp, OCR, animations v13)
+// Version: 20260926110500 (Unified Sync: GitHub, Local, Live Server - v15)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
@@ -31,7 +31,7 @@ self.addEventListener('fetch', (event) => {
             fetch(event.request).then((response) => {
                 if (response && response.status === 200 && response.type === 'basic') {
                     const clone = response.clone();
-                    caches.open('magaies-static-v8').then(c => c.put(event.request, clone));
+                    caches.open('magaies-static-v15').then(c => c.put(event.request, clone));
                 }
                 return response;
             }).catch(() => caches.match(event.request).then(cached => cached || new Response('', { status: 404, statusText: 'Not Found' })))
