@@ -200,8 +200,10 @@ function renderUsersTable() {
             : `<span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid #38bdf8; font-weight:800;">👤 مستخدم عادي</span>`;
 
         let statusBadge = user.status === 'active' 
-            ? `<span class="badge badge-user">نشط</span>` 
-            : user.status === 'forced_logout' ? `<span class="badge" style="background:#f59e0b; color:#fff; border-color:#f59e0b;">مطرود</span>` : `<span class="badge badge-admin">موقوف</span>`;
+            ? `<span class="badge" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid #22c55e; font-weight:800;">نشط</span>` 
+            : user.status === 'forced_logout' 
+                ? `<span class="badge" style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid #f59e0b; font-weight:800;">مطرود</span>` 
+                : `<span class="badge" style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid #ef4444; font-weight:800;">⏸️ معطل (موقوف)</span>`;
             
         let warehouseName = 'الكل';
         if (user.warehouse !== 'all') {
@@ -224,10 +226,15 @@ function renderUsersTable() {
             <td>${secBadge}</td>
             <td>${warehouseName}</td>
             <td>${statusBadge}</td>
-            <td>
-                <button class="action-btn edit-btn" onclick="editUser('${user.id}')" title="تعديل">✏️</button>
-                ${!user.isSystem ? `<button class="action-btn del-btn" onclick="deleteUser('${user.id}')" title="حذف">🗑️</button>` : ''}
-                ${(!user.isSystem && user.status === 'active') ? `<button class="action-btn" style="color:#f59e0b;" onclick="forceLogoutUser('${user.id}')" title="إجبار على الخروج">🚪</button>` : ''}
+            <td style="white-space:nowrap;">
+                <button class="action-btn edit-btn" onclick="editUser('${user.id}')" title="تعديل بيانات المستخدم">✏️</button>
+                ${!user.isSystem ? (
+                    user.status === 'inactive'
+                    ? `<button class="action-btn" style="background:rgba(34,197,94,0.15); color:#22c55e; border:1px solid #22c55e; padding:4px 9px; border-radius:6px; font-weight:800; cursor:pointer; margin:0 2px;" onclick="toggleUserActiveState('${user.id}')" title="تنشيط المستخدم للسماح له بالدخول والعمل">▶️ تنشيط</button>`
+                    : `<button class="action-btn" style="background:rgba(245,158,11,0.15); color:#f59e0b; border:1px solid #f59e0b; padding:4px 9px; border-radius:6px; font-weight:800; cursor:pointer; margin:0 2px;" onclick="toggleUserActiveState('${user.id}')" title="تعطيل المستخدم (إيقاف عن العمل ومنع الدخول)">⏸️ تعطيل</button>`
+                ) : ''}
+                ${!user.isSystem ? `<button class="action-btn del-btn" onclick="deleteUser('${user.id}')" title="حذف مستخدم">🗑️</button>` : ''}
+                ${(!user.isSystem && user.status === 'active') ? `<button class="action-btn" style="color:#ef4444; margin:0 2px;" onclick="forceLogoutUser('${user.id}')" title="طرد فوري (إجبار على الخروج)">🚪</button>` : ''}
             </td>
         `;
         tbody.appendChild(tr);
@@ -578,6 +585,23 @@ async function saveUser() {
         }
     } catch(e) {}
 
+    // Direct MySQL database sync for immediate user and password persistence
+    const savedUser = USERS.find(u => u.username === username);
+    if (savedUser) {
+        try {
+            await fetch('api/save_master_data.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'save_user',
+                    data: Object.assign({}, savedUser, password ? { password: password } : {})
+                })
+            });
+        } catch(apiErr) {
+            console.warn("Direct save_user notice:", apiErr);
+        }
+    }
+
     if (typeof window.pushToCloud === 'function') {
         try {
             await window.pushToCloud(true);
@@ -643,21 +667,281 @@ function editUser(id) {
     }
 }
 
-function deleteUser(id) {
-    if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
-        const userToDelete = USERS.find(u => u.id === id);
+// ════════════════════════════════════════
+//  USER DEACTIVATION & ACTIVATION TOGGLE
+// ════════════════════════════════════════
+async function toggleUserActiveState(id) {
+    const userIndex = USERS.findIndex(u => u.id === id);
+    if (userIndex === -1) return;
+    const user = USERS[userIndex];
+
+    if (user.isSystem || ['admin', 'c'].includes(user.username.toLowerCase())) {
+        showToast('لا يمكن تعديل حالة مدير النظام الرئيسي أو الحساب السيادي!', 'warning');
+        return;
+    }
+
+    if (user.status === 'inactive') {
+        // Activating user: Check subscription user limits
+        let userObj = {};
+        try { userObj = JSON.parse(localStorage.getItem('user') || '{}'); } catch(e){}
+        const maxUsers = parseInt(userObj.max_users || 5);
+        const currentActiveUsers = USERS.filter(u => u.status !== 'inactive').length;
+        if (currentActiveUsers >= maxUsers) {
+            showToast(`لا يمكن تنشيط هذا المستخدم. لقد تجاوزت الحد الأقصى للمستخدمين المتاح لباقة اشتراكك وهو (${maxUsers}) مستخدمين. يرجى ترقية الباقة.`, 'error');
+            return;
+        }
+
+        user.status = 'active';
+        localStorage.removeItem('force_logout_' + user.username);
+        showToast(`تم تنشيط المستخدم "${user.fullName || user.username}" بنجاح، ويمكنه الآن الدخول والعمل.`, 'success');
+        if (window.logSystemAction) {
+            window.logSystemAction('تنشيط مستخدم', 'settings', `تم تنشيط المستخدم: ${user.fullName || user.username}`);
+        }
+    } else {
+        // Deactivating user
+        if (!confirm(`هل أنت متأكد من رغبتك في تعطيل المستخدم "${user.fullName || user.username}"؟\nسيتم إيقافه فوراً عن العمل ولن يتمكن من الدخول إلى البرنامج حتى يتم تنشيطه مجدداً.`)) {
+            return;
+        }
+
+        user.status = 'inactive';
+        localStorage.setItem('force_logout_' + user.username, 'true');
+        
+        // Broadcast instant session termination to any tab/window running this user
+        if (window.MagaieesPermissions && typeof window.MagaieesPermissions.broadcastSecurityUpdate === 'function') {
+            window.MagaieesPermissions.broadcastSecurityUpdate({
+                type: 'USER_DEACTIVATED',
+                targetUserId: user.id,
+                targetUsername: user.username,
+                message: 'تم تعطيل حسابك من قبل الإدارة.'
+            });
+        }
+
+        showToast(`تم تعطيل حساب المستخدم "${user.fullName || user.username}" ومنعه من العمل بنجاح.`, 'warning');
+        if (window.logSystemAction) {
+            window.logSystemAction('تعطيل مستخدم', 'settings', `تم تعطيل حساب المستخدم: ${user.fullName || user.username}`);
+        }
+    }
+
+    // Persist locally
+    localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
+    try {
+        if (typeof window.getTenantKey === 'function') {
+            const tk = window.getTenantKey('erp_users_v1');
+            if (tk !== 'erp_users_v1') localStorage.setItem(tk, JSON.stringify(USERS));
+        }
+    } catch(e) {}
+
+    // Persist directly to backend database
+    try {
+        await fetch('api/save_master_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'toggle_user_status',
+                data: { id: user.id, status: user.status }
+            })
+        });
+    } catch(err) {
+        console.warn("Direct status sync notice:", err);
+    }
+
+    // Cloud push
+    if (typeof window.pushToCloud === 'function') {
+        window.pushToCloud(true).catch(console.error);
+    }
+
+    renderUsersTable();
+}
+
+// ════════════════════════════════════════
+//  SMART TRANSACTION USAGE CHECKER & SAFE DELETION
+// ════════════════════════════════════════
+async function checkUserUsageComprehensive(user) {
+    const usages = [];
+    const targetId = String(user.id);
+    const targetUsername = String(user.username || '').toLowerCase();
+    const targetName = String(user.fullName || user.name || '').toLowerCase();
+
+    const matchesUser = (val) => {
+        if (!val) return false;
+        const s = String(val).trim().toLowerCase();
+        return s === targetId || s === targetUsername || s === targetName;
+    };
+
+    // 1. Sales Invoices
+    const sales = safeGetJSON('erp_sales_invoices_v1', []);
+    const salesCount = sales.filter(inv => matchesUser(inv.createdBy) || matchesUser(inv.user) || matchesUser(inv.cashier) || matchesUser(inv.salesRep)).length;
+    if (salesCount > 0) usages.push({ type: 'فواتير مبيعات', count: salesCount });
+
+    // 2. Purchase Invoices
+    const purchases = safeGetJSON('erp_purchase_invoices_v1', []);
+    const purchasesCount = purchases.filter(inv => matchesUser(inv.createdBy) || matchesUser(inv.user) || matchesUser(inv.buyer)).length;
+    if (purchasesCount > 0) usages.push({ type: 'فواتير مشتريات', count: purchasesCount });
+
+    // 3. Receipts & Single Receipts
+    const receipts = [...safeGetJSON('erp_receipts_v1', []), ...safeGetJSON('erp_single_receipts_v1', [])];
+    const receiptsCount = receipts.filter(rec => matchesUser(rec.createdBy) || matchesUser(rec.user) || matchesUser(rec.receivedBy)).length;
+    if (receiptsCount > 0) usages.push({ type: 'سندات قبض', count: receiptsCount });
+
+    // 4. Payments & Single Payments
+    const payments = [...safeGetJSON('erp_payments_v1', []), ...safeGetJSON('erp_single_payments_v1', [])];
+    const paymentsCount = payments.filter(pay => matchesUser(pay.createdBy) || matchesUser(pay.user) || matchesUser(pay.paidBy)).length;
+    if (paymentsCount > 0) usages.push({ type: 'سندات صرف', count: paymentsCount });
+
+    // 5. Journal Vouchers & GL Entries
+    const jvs = safeGetJSON('erp_journal_vouchers_v1', []);
+    const gls = safeGetJSON('erp_gl_v1', []);
+    const jvCount = jvs.filter(jv => matchesUser(jv.createdBy) || matchesUser(jv.user)).length +
+                    gls.filter(g => matchesUser(g.createdBy) || matchesUser(g.user)).length;
+    if (jvCount > 0) usages.push({ type: 'قيود يومية وحركات دفتر أستاذ', count: jvCount });
+
+    // 6. Delivery Notes
+    const notes = safeGetJSON('erp_delivery_notes_v1', []);
+    const noteCount = notes.filter(dn => matchesUser(dn.createdBy) || matchesUser(dn.driver) || matchesUser(dn.deliveredBy)).length;
+    if (noteCount > 0) usages.push({ type: 'سندات تسليم وإذن استلام', count: noteCount });
+
+    // 7. Audit Logs
+    const audits = safeGetJSON('erp_audit_logs', []);
+    const auditCount = audits.filter(a => matchesUser(a.userId) || matchesUser(a.username) || matchesUser(a.user)).length;
+    if (auditCount > 0) usages.push({ type: 'سجلات تدقيق ورقابة نظام', count: auditCount });
+
+    // 8. Server-side MySQL Database Check
+    try {
+        const res = await fetch('api/save_master_data.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                type: 'check_entity_usage',
+                data: {
+                    entity_type: 'user',
+                    id: user.id,
+                    name: user.username
+                }
+            })
+        });
+        const serverData = await res.json();
+        if (serverData && serverData.is_used && Array.isArray(serverData.usages)) {
+            serverData.usages.forEach(u => {
+                if (!usages.some(existing => existing.type === u.type)) {
+                    usages.push(u);
+                }
+            });
+        }
+    } catch(e) {
+        console.warn("Server usage check notice:", e);
+    }
+
+    return usages;
+}
+
+function showBlockedUserDeletionModal(user, usages, totalCount) {
+    let existingModal = document.getElementById('blocked-user-delete-modal');
+    if (existingModal) existingModal.remove();
+
+    const usagesListHtml = usages.map(u => `
+        <li style="display:flex; justify-content:space-between; align-items:center; padding:9px 14px; background:rgba(239,68,68,0.06); border-radius:8px; border-right:4px solid #ef4444; margin-bottom:8px;">
+            <span style="font-weight:700; color:var(--text-primary); font-size:0.92rem;">📌 ${u.type}</span>
+            <span style="background:#ef4444; color:#fff; border-radius:12px; padding:2px 12px; font-weight:800; font-size:0.85rem;">${u.count || 'مسجل'}</span>
+        </li>
+    `).join('');
+
+    const modalHtml = `
+    <div id="blocked-user-delete-modal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.78); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; z-index:999999; direction:rtl; padding:15px; box-sizing:border-box;">
+        <div style="background:var(--card-bg, #1e293b); border:1px solid rgba(239,68,68,0.45); box-shadow:0 25px 60px rgba(0,0,0,0.5), 0 0 35px rgba(239,68,68,0.25); border-radius:18px; width:100%; max-width:550px; overflow:hidden;">
+            <div style="background:linear-gradient(135deg, rgba(239,68,68,0.25), rgba(185,28,28,0.35)); padding:20px 24px; border-bottom:1px solid rgba(239,68,68,0.3); display:flex; align-items:center; gap:14px;">
+                <div style="font-size:2.2rem; background:rgba(239,68,68,0.2); width:52px; height:52px; border-radius:12px; display:flex; align-items:center; justify-content:center; border:1px solid rgba(239,68,68,0.5);">🚫</div>
+                <div>
+                    <h3 style="margin:0; color:#f87171; font-size:1.25rem; font-weight:800;">تنبيه رقابي: لا يمكن حذف هذا المستخدم!</h3>
+                    <p style="margin:4px 0 0 0; color:rgba(255,255,255,0.75); font-size:0.88rem;">المستخدم مرتبط بسجلات وحركات محاسبية ومالية في النظام</p>
+                </div>
+            </div>
+            
+            <div style="padding:22px 24px; max-height:60vh; overflow-y:auto;">
+                <div style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.35); border-radius:10px; padding:12px 16px; margin-bottom:18px;">
+                    <p style="margin:0; font-size:0.92rem; color:var(--text-primary); line-height:1.6;">
+                        المستخدم <strong style="color:var(--primary-accent);">${user.fullName || user.username}</strong> قام بإجراء <strong style="color:#f87171;">(${totalCount}) عملية/حركة</strong> مسجلة في النظام. حفاظاً على سلامة الدفاتر المحاسبية والتدقيق المالي والضرائب، يُمنع منعاً باتاً حذف حسابه نهائياً.
+                    </p>
+                </div>
+
+                <h4 style="margin:0 0 10px 0; font-size:0.95rem; color:var(--text-primary); font-weight:700;">سجل العمليات المرتبطة بهذا المستخدم:</h4>
+                <ul style="list-style:none; padding:0; margin:0 0 18px 0;">
+                    ${usagesListHtml}
+                </ul>
+
+                <div style="background:rgba(59,130,246,0.08); border:1px dashed rgba(59,130,246,0.4); border-radius:10px; padding:12px 16px;">
+                    <p style="margin:0; font-size:0.86rem; color:var(--text-secondary); line-height:1.5;">
+                        💡 <strong>الحل النظامي المعتمد:</strong> يمكنك تعطيل حساب المستخدم فوراً. سيؤدي التعطيل إلى طرده ومنعه من تسجيل الدخول أو إجراء أي عمليات مستقبلية مع الاحتفاظ بالبيانات التاريخية للتدقيق.
+                    </p>
+                </div>
+            </div>
+
+            <div style="background:rgba(0,0,0,0.25); padding:16px 24px; border-top:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; gap:12px;">
+                <button type="button" onclick="document.getElementById('blocked-user-delete-modal').remove()" style="background:transparent; border:1px solid rgba(255,255,255,0.25); color:var(--text-primary); padding:10px 18px; border-radius:8px; cursor:pointer; font-weight:700; font-size:0.9rem;">
+                    إغلاق
+                </button>
+                <button type="button" onclick="document.getElementById('blocked-user-delete-modal').remove(); toggleUserActiveState('${user.id}');" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#fff; border:none; padding:10px 22px; border-radius:8px; cursor:pointer; font-weight:800; font-size:0.92rem; box-shadow:0 4px 15px rgba(245,158,11,0.35); display:flex; align-items:center; gap:8px;">
+                    <span>⏸️</span> تعطيل حساب المستخدم الآن
+                </button>
+            </div>
+        </div>
+    </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+async function deleteUser(id) {
+    const userToDelete = USERS.find(u => u.id === id);
+    if (!userToDelete) return;
+
+    if (userToDelete.isSystem || ['admin', 'c'].includes(userToDelete.username.toLowerCase())) {
+        showToast('لا يمكن حذف المستخدم السيادي للنظام!', 'error');
+        return;
+    }
+
+    showToast('جاري التحقق من سجلات وعمليات المستخدم في النظام...', 'info', 2000);
+
+    const usages = await checkUserUsageComprehensive(userToDelete);
+    const totalTransactions = usages.reduce((sum, u) => sum + (u.count || 1), 0);
+
+    if (totalTransactions > 0) {
+        showBlockedUserDeletionModal(userToDelete, usages, totalTransactions);
+        return;
+    }
+
+    if (confirm(`المستخدم "${userToDelete.fullName || userToDelete.username}" ليس لديه أي عمليات أو فواتير أو حركات مسجلة بالنظام.\n\nهل أنت متأكد من حذفه نهائياً من قاعدة البيانات؟`)) {
         USERS = USERS.filter(u => u.id !== id);
         localStorage.setItem('erp_users_v1', JSON.stringify(USERS));
+        try {
+            if (typeof window.getTenantKey === 'function') {
+                const tk = window.getTenantKey('erp_users_v1');
+                if (tk !== 'erp_users_v1') localStorage.setItem(tk, JSON.stringify(USERS));
+            }
+        } catch(e) {}
+
+        try {
+            await fetch('api/save_master_data.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    type: 'delete_user',
+                    data: { id: userToDelete.id, username: userToDelete.username }
+                })
+            });
+        } catch(e) {
+            console.warn("Backend user deletion notice:", e);
+        }
+
         if (typeof window.pushToCloud === 'function') {
-            window.pushToCloud().catch(err => console.error("Immediate sync failed:", err));
+            window.pushToCloud(true).catch(err => console.error("Immediate sync failed:", err));
         }
         
-        if (window.logSystemAction && userToDelete) {
-            window.logSystemAction('حذف مستخدم', 'settings', `تم حذف المستخدم: ${userToDelete.fullName}`);
+        if (window.logSystemAction) {
+            window.logSystemAction('حذف مستخدم', 'settings', `تم حذف المستخدم نهائياً لعدم وجود حركات: ${userToDelete.fullName} (${userToDelete.username})`);
         }
 
         renderUsersTable();
-        showToast('تم حذف المستخدم بنجاح', 'success');
+        showToast(`✅ تم حذف المستخدم "${userToDelete.fullName || userToDelete.username}" نهائياً بنجاح.`, 'success');
     }
 }
 
@@ -923,9 +1207,13 @@ window.selectAllUserPermissions = function() {
     tbody.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = !allChecked);
 };
 
+window.toggleUserActiveState = toggleUserActiveState;
+window.deleteUser = deleteUser;
+
 window.addEventListener('cloudDataRestored', () => {
     loadData();
     renderRolesTable();
     renderUsersTable();
 });
+
 

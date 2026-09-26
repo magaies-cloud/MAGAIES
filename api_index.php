@@ -1555,8 +1555,9 @@ if ($resource === 'sync') {
                                     $usersToInsert = [];
                                     
                                     foreach ($records as $record) {
-                                        if (empty($record['username'])) continue;
-                                        $username = strtolower(trim($record['username']));
+                                        $rawUsername = $record['username'] ?? $record['name'] ?? $record['fullName'] ?? '';
+                                        if (empty($rawUsername)) continue;
+                                        $username = strtolower(trim($rawUsername));
                                         $password = $record['password'] ?? '';
                                         $status = $record['status'] ?? 'active';
                                         $userRole = !empty($record['role']) ? $record['role'] : (!empty($record['userType']) ? $record['userType'] : 'employee');

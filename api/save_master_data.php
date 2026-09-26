@@ -622,24 +622,103 @@ try {
         case 'save_user':
             if ($data && isset($data['id'])) {
                 $uId = (string)$data['id'];
-                $uName = $data['name'] ?? $data['username'] ?? '';
+                $uName = $data['username'] ?? $data['name'] ?? '';
+                if (empty($uName)) {
+                    $uName = $data['fullName'] ?? ('user_' . $uId);
+                }
                 if (isDuplicateNameDB($pdo, $tenant_id, 'users', $uName, $uId)) {
                     echo json_encode(['success' => false, 'error' => 'الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.']);
                     exit;
                 }
-                $uRole = $data['role'] ?? 'cashier';
+                $uRole = $data['role'] ?? ($data['userType'] === 'admin' ? 'admin' : 'cashier');
                 $uStatus = $data['status'] ?? 'active';
+                $rawPass = !empty($data['password']) ? trim($data['password']) : '123456';
+                $hashedPass = password_hash($rawPass, PASSWORD_DEFAULT);
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
-                $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+
+                $stmtCheck = $pdo->prepare("SELECT id, password FROM users WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
                 $stmtCheck->execute([$tenant_id, $uId, $uId]);
-                $existingId = $stmtCheck->fetchColumn();
-                if ($existingId) {
-                    $stmtUp = $pdo->prepare("UPDATE users SET data = ?, search_name = ?, username = COALESCE(NULLIF(username, ''), ?), role = ?, status = ?, is_deleted = 0, updated_at = NOW() WHERE id = ?");
-                    $stmtUp->execute([$jsonData, $uName, $uName, $uRole, $uStatus, $existingId]);
+                $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+
+                if ($existingRow) {
+                    if (!empty($data['password'])) {
+                        $stmtUp = $pdo->prepare("UPDATE users SET data = ?, search_name = ?, username = COALESCE(NULLIF(username, ''), ?), password = ?, role = ?, status = ?, is_deleted = 0, updated_at = NOW() WHERE id = ?");
+                        $stmtUp->execute([$jsonData, $uName, $uName, $hashedPass, $uRole, $uStatus, $existingRow['id']]);
+                    } else {
+                        $passSql = empty($existingRow['password']) ? ", password = " . $pdo->quote($hashedPass) : "";
+                        $stmtUp = $pdo->prepare("UPDATE users SET data = ?, search_name = ?, username = COALESCE(NULLIF(username, ''), ?){$passSql}, role = ?, status = ?, is_deleted = 0, updated_at = NOW() WHERE id = ?");
+                        $stmtUp->execute([$jsonData, $uName, $uName, $uRole, $uStatus, $existingRow['id']]);
+                    }
                 } else {
-                    $stmtIns = $pdo->prepare("INSERT INTO users (tenant_id, frontend_id, data, search_name, username, role, status, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
-                    $stmtIns->execute([$tenant_id, $uId, $jsonData, $uName, $uName, $uRole, $uStatus]);
+                    $stmtIns = $pdo->prepare("INSERT INTO users (tenant_id, frontend_id, data, search_name, username, password, role, status, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0)");
+                    $stmtIns->execute([$tenant_id, $uId, $jsonData, $uName, $uName, $hashedPass, $uRole, $uStatus]);
                 }
+                echo json_encode(['success' => true, 'id' => $uId], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            break;
+
+        case 'delete_user':
+        case 'delete_employee':
+            if ($data && (isset($data['id']) || isset($data['username']))) {
+                $uId = (string)($data['id'] ?? '');
+                $uName = (string)($data['username'] ?? $data['name'] ?? '');
+
+                if (in_array(strtolower($uName), ['admin', 'c']) || $uId === 'u_admin_default') {
+                    echo json_encode([
+                        'success' => false,
+                        'is_used' => true,
+                        'can_delete' => false,
+                        'message' => 'لا يمكن حذف الحساب السيادي للنظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'user', $uId, $uName, $data);
+                if ($usageResult['is_used']) {
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_safe',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'message' => 'لا يمكن حذف هذا المستخدم نهائياً نظراً لوجود عمليات أو فواتير أو سندات مرتبطة به في النظام. يمكنك بدلاً من ذلك تعطيل حسابه لمنعه من الدخول والعمل.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                $stmtDel = $pdo->prepare("DELETE FROM users WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR username = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel->execute([$tenant_id, $uId, $uId, $uName, $uId]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_safe',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف المستخدم نهائياً بنجاح.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            break;
+
+        case 'toggle_user_status':
+        case 'update_user_status':
+            if ($data && isset($data['id'])) {
+                $uId = (string)$data['id'];
+                $newStatus = ($data['status'] === 'inactive') ? 'inactive' : 'active';
+                $stmtCheck = $pdo->prepare("SELECT id, data FROM users WHERE tenant_id = ? AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+                $stmtCheck->execute([$tenant_id, $uId, $uId, $uId]);
+                $userRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+                if ($userRow) {
+                    $uData = json_decode($userRow['data'] ?? '{}', true) ?: [];
+                    $uData['status'] = $newStatus;
+                    $updatedJson = json_encode($uData, JSON_UNESCAPED_UNICODE);
+                    $stmtUp = $pdo->prepare("UPDATE users SET status = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                    $stmtUp->execute([$newStatus, $updatedJson, $userRow['id']]);
+                }
+                echo json_encode(['success' => true, 'status' => $newStatus], JSON_UNESCAPED_UNICODE);
+                exit;
             }
             break;
 
@@ -650,21 +729,32 @@ try {
                 foreach ($data as $item) {
                     if (!$item || !isset($item['id'])) continue;
                     $uId = (string)$item['id'];
-                    $uName = $item['name'] ?? $item['username'] ?? '';
-                    $uRole = $item['role'] ?? 'cashier';
+                    $uName = $item['username'] ?? $item['name'] ?? '';
+                    if (empty($uName)) {
+                        $uName = $item['fullName'] ?? ('user_' . $uId);
+                    }
+                    $uRole = $item['role'] ?? ($item['userType'] === 'admin' ? 'admin' : 'cashier');
                     $uStatus = $item['status'] ?? 'active';
                     $isDeleted = !empty($item['deleted']) ? 1 : 0;
+                    $rawPass = !empty($item['password']) ? trim($item['password']) : '123456';
+                    $hashedPass = password_hash($rawPass, PASSWORD_DEFAULT);
                     $jsonData = json_encode($item, JSON_UNESCAPED_UNICODE);
 
-                    $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+                    $stmtCheck = $pdo->prepare("SELECT id, password FROM users WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
                     $stmtCheck->execute([$tenant_id, $uId, $uId]);
-                    $existingId = $stmtCheck->fetchColumn();
-                    if ($existingId) {
-                        $stmtUp = $pdo->prepare("UPDATE users SET data = ?, search_name = ?, username = COALESCE(NULLIF(username, ''), ?), role = ?, status = ?, is_deleted = ?, updated_at = NOW() WHERE id = ?");
-                        $stmtUp->execute([$jsonData, $uName, $uName, $uRole, $uStatus, $isDeleted, $existingId]);
+                    $existingRow = $stmtCheck->fetch(PDO::FETCH_ASSOC);
+                    if ($existingRow) {
+                        if (!empty($item['password'])) {
+                            $stmtUp = $pdo->prepare("UPDATE users SET data = ?, search_name = ?, username = COALESCE(NULLIF(username, ''), ?), password = ?, role = ?, status = ?, is_deleted = ?, updated_at = NOW() WHERE id = ?");
+                            $stmtUp->execute([$jsonData, $uName, $uName, $hashedPass, $uRole, $uStatus, $isDeleted, $existingRow['id']]);
+                        } else {
+                            $passSql = empty($existingRow['password']) ? ", password = " . $pdo->quote($hashedPass) : "";
+                            $stmtUp = $pdo->prepare("UPDATE users SET data = ?, search_name = ?, username = COALESCE(NULLIF(username, ''), ?){$passSql}, role = ?, status = ?, is_deleted = ?, updated_at = NOW() WHERE id = ?");
+                            $stmtUp->execute([$jsonData, $uName, $uName, $uRole, $uStatus, $isDeleted, $existingRow['id']]);
+                        }
                     } else {
-                        $stmtIns = $pdo->prepare("INSERT INTO users (tenant_id, frontend_id, data, search_name, username, role, status, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-                        $stmtIns->execute([$tenant_id, $uId, $jsonData, $uName, $uName, $uRole, $uStatus, $isDeleted]);
+                        $stmtIns = $pdo->prepare("INSERT INTO users (tenant_id, frontend_id, data, search_name, username, password, role, status, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmtIns->execute([$tenant_id, $uId, $jsonData, $uName, $uName, $hashedPass, $uRole, $uStatus, $isDeleted]);
                     }
                 }
             }

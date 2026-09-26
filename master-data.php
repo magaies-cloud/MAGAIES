@@ -2134,11 +2134,14 @@
             
             const existingIdx = employees.findIndex(e => e.id === id);
             
+            const rawPassword = document.getElementById('emp-password').value;
             const empData = {
                 id,
                 name,
+                username: (name || '').trim().toLowerCase(),
+                fullName: name,
                 phone: document.getElementById('emp-phone').value,
-                password: document.getElementById('emp-password').value,
+                password: rawPassword ? rawPassword : '123456',
                 role: document.getElementById('emp-role').value,
                 securityLevel: parseInt(document.getElementById('emp-security').value) || 1,
                 status: document.getElementById('emp-status').value
@@ -2152,7 +2155,19 @@
             
             localStorage.setItem('erp_users_v1', JSON.stringify(employees));
             localStorage.setItem('erp_employees_v1', JSON.stringify(employees));
+            try {
+                if (typeof window.getTenantKey === 'function') {
+                    const tk1 = window.getTenantKey('erp_users_v1');
+                    if (tk1 !== 'erp_users_v1') localStorage.setItem(tk1, JSON.stringify(employees));
+                    const tk2 = window.getTenantKey('erp_employees_v1');
+                    if (tk2 !== 'erp_employees_v1') localStorage.setItem(tk2, JSON.stringify(employees));
+                }
+            } catch(e) {}
+
             syncToBackend('save_employee', empData);
+            if (typeof window.pushToCloud === 'function') {
+                window.pushToCloud(true).catch(console.error);
+            }
             document.getElementById('employee-form').style.display='none';
             renderEmployees();
             if (typeof showToast === 'function') showToast('✅ تم حفظ الموظف نهائياً في قاعدة البيانات بنجاح', 'success');

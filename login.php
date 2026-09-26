@@ -1106,6 +1106,78 @@
 
             // If response succeeded from either Local or Cloud API
             if (res && res.ok && data && data.success !== false && data.token) {
+                const loggedUser = data.user || {};
+                
+                // Enforce Inactive Status
+                if (loggedUser.status === 'inactive' || loggedUser.status === 'forced_logout') {
+                    alert('عفواً، تم تعطيل هذا الحساب من قبل الإدارة. غير مصرح لك بالدخول أو العمل على النظام.');
+                    return;
+                }
+
+                // Enforce Work Hours and Days (Supports overnight shift)
+                if (loggedUser.timeRestricted && loggedUser.role !== 'admin' && loggedUser.userType !== 'admin') {
+                    const now = new Date();
+                    const currentDay = now.getDay();
+                    const allowedDays = Array.isArray(loggedUser.allowedDays) ? loggedUser.allowedDays : [0, 1, 2, 3, 4, 6];
+                    const curMinutes = now.getHours() * 60 + now.getMinutes();
+                    let fromMin = 0, toMin = 1439;
+                    if (loggedUser.timeFrom && loggedUser.timeTo) {
+                        const [fh, fm] = loggedUser.timeFrom.split(':').map(Number);
+                        const [th, tm] = loggedUser.timeTo.split(':').map(Number);
+                        fromMin = fh * 60 + (fm || 0);
+                        toMin = th * 60 + (tm || 0);
+                    }
+                    const isOvernight = fromMin > toMin;
+                    const shiftDay = (isOvernight && curMinutes <= toMin) ? (currentDay === 0 ? 6 : currentDay - 1) : currentDay;
+
+                    if (!allowedDays.includes(currentDay) && !allowedDays.includes(shiftDay)) {
+                        alert('عفواً، لا يُسمح لك بالدخول في هذا اليوم بناءً على جدول أوقات العمل المحدد لحسابك.');
+                        return;
+                    }
+
+                    if (loggedUser.timeFrom && loggedUser.timeTo) {
+                        let isAllowedTime = false;
+                        if (!isOvernight) {
+                            isAllowedTime = (curMinutes >= fromMin && curMinutes <= toMin);
+                        } else {
+                            isAllowedTime = (curMinutes >= fromMin || curMinutes <= toMin);
+                        }
+                        if (!isAllowedTime) {
+                            alert(`عفواً، الدخول مسموح لك فقط خلال فترة الدوام المحددة لحسابك من الساعة ${loggedUser.timeFrom} إلى ${loggedUser.timeTo}.`);
+                            return;
+                        }
+                    }
+                }
+
+                // Enforce GPS Geofencing
+                if (loggedUser.geoRestricted && loggedUser.geoLat && loggedUser.geoLng && loggedUser.role !== 'admin' && loggedUser.userType !== 'admin') {
+                    if ("geolocation" in navigator) {
+                        try {
+                            const pos = await new Promise((resolve, reject) => {
+                                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000, enableHighAccuracy: true });
+                            });
+                            const calcDist = (lat1, lon1, lat2, lon2) => {
+                                const R = 6371e3;
+                                const dLat = (lat2 - lat1) * Math.PI / 180;
+                                const dLon = (lon2 - lon1) * Math.PI / 180;
+                                const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                                          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                                          Math.sin(dLon/2) * Math.sin(dLon/2);
+                                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                            };
+                            const dist = calcDist(loggedUser.geoLat, loggedUser.geoLng, pos.coords.latitude, pos.coords.longitude);
+                            const radius = loggedUser.geoRadius || 100;
+                            if (dist > radius) {
+                                alert(`عفواً، أنت متواجد خارج النطاق الجغرافي المصرح لك بالعمل فيه (${Math.round(dist)} متر عن الموقع المحدد، النطاق المسموح ${radius} متر). تم حظر الدخول.`);
+                                return;
+                            }
+                        } catch(geoErr) {
+                            alert('يتطلب حسابك التحقق من الموقع الجغرافي (GPS) للدخول. يرجى تفعيل الـ GPS في متصفحك والسماح بالوصول للموقع والمحاولة مجدداً.');
+                            return;
+                        }
+                    }
+                }
+
                 document.cookie = "session_active=true; path=/";
                 document.cookie = "saas_token=" + encodeURIComponent(data.token) + "; path=/; max-age=2592000; SameSite=Lax";
                 if (data.user && data.user.tenant_id) {
@@ -1162,16 +1234,20 @@
                     if (!rawVal) continue;
                     const offlineUsers = JSON.parse(rawVal);
                     if (Array.isArray(offlineUsers)) {
-                        const cand = offlineUsers.find(u => 
-                            (u.username && u.username.trim().toLowerCase() === username.trim().toLowerCase()) || 
-                            (u.email && u.email.trim().toLowerCase() === username.trim().toLowerCase())
-                        );
+                        const cand = offlineUsers.find(u => {
+                            const uName = (u.username || '').trim().toLowerCase();
+                            const uFullName = (u.fullName || u.name || '').trim().toLowerCase();
+                            const uEmail = (u.email || '').trim().toLowerCase();
+                            const uPhone = (u.phone || '').trim();
+                            const target = username.trim().toLowerCase();
+                            return (uName === target || uFullName === target || uEmail === target || (uPhone && uPhone === username.trim()));
+                        });
                         if (cand) {
                             // Verify password:
                             // 1. Direct password match
                             // 2. Default password (123456 / 123) if password was blank in local cache
                             // 3. Sovereign admin check
-                            const passValid = (cand.password && cand.password === password) ||
+                            const passValid = (cand.password && (cand.password === password || String(cand.password) === String(password))) ||
                                               (!cand.password && (password === '123456' || password === '123' || password === username)) ||
                                               (username === 'admin' && (password === '123456' || password === 'admin' || password.length >= 3)) ||
                                               (username === 'c' && (password === '123456' || password === 'c'));
@@ -1184,6 +1260,75 @@
                         }
                     }
                 } catch(e) {}
+            }
+
+            if (matchedUser && (matchedUser.status === 'inactive' || matchedUser.status === 'forced_logout')) {
+                alert('عفواً، تم تعطيل هذا الحساب من قبل الإدارة. غير مصرح لك بالدخول أو العمل على النظام.');
+                return;
+            }
+
+            // Enforce offline time & overnight shift
+            if (matchedUser && matchedUser.timeRestricted && matchedUser.role !== 'admin' && matchedUser.userType !== 'admin') {
+                const now = new Date();
+                const currentDay = now.getDay();
+                const allowedDays = Array.isArray(matchedUser.allowedDays) ? matchedUser.allowedDays : [0, 1, 2, 3, 4, 6];
+                const curMinutes = now.getHours() * 60 + now.getMinutes();
+                let fromMin = 0, toMin = 1439;
+                if (matchedUser.timeFrom && matchedUser.timeTo) {
+                    const [fh, fm] = matchedUser.timeFrom.split(':').map(Number);
+                    const [th, tm] = matchedUser.timeTo.split(':').map(Number);
+                    fromMin = fh * 60 + (fm || 0);
+                    toMin = th * 60 + (tm || 0);
+                }
+                const isOvernight = fromMin > toMin;
+                const shiftDay = (isOvernight && curMinutes <= toMin) ? (currentDay === 0 ? 6 : currentDay - 1) : currentDay;
+
+                if (!allowedDays.includes(currentDay) && !allowedDays.includes(shiftDay)) {
+                    alert('عفواً، لا يُسمح لك بالدخول في هذا اليوم بناءً على جدول أوقات العمل المحدد لحسابك.');
+                    return;
+                }
+
+                if (matchedUser.timeFrom && matchedUser.timeTo) {
+                    let isAllowedTime = false;
+                    if (!isOvernight) {
+                        isAllowedTime = (curMinutes >= fromMin && curMinutes <= toMin);
+                    } else {
+                        isAllowedTime = (curMinutes >= fromMin || curMinutes <= toMin);
+                    }
+                    if (!isAllowedTime) {
+                        alert(`عفواً، الدخول مسموح لك فقط خلال فترة الدوام المحددة لحسابك من الساعة ${matchedUser.timeFrom} إلى ${matchedUser.timeTo}.`);
+                        return;
+                    }
+                }
+            }
+
+            // Enforce offline GPS Geofencing
+            if (matchedUser && matchedUser.geoRestricted && matchedUser.geoLat && matchedUser.geoLng && matchedUser.role !== 'admin' && matchedUser.userType !== 'admin') {
+                if ("geolocation" in navigator) {
+                    try {
+                        const pos = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000, enableHighAccuracy: true });
+                        });
+                        const calcDist = (lat1, lon1, lat2, lon2) => {
+                            const R = 6371e3;
+                            const dLat = (lat2 - lat1) * Math.PI / 180;
+                            const dLon = (lon2 - lon1) * Math.PI / 180;
+                            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                                      Math.sin(dLon/2) * Math.sin(dLon/2);
+                            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                        };
+                        const dist = calcDist(matchedUser.geoLat, matchedUser.geoLng, pos.coords.latitude, pos.coords.longitude);
+                        const radius = matchedUser.geoRadius || 100;
+                        if (dist > radius) {
+                            alert(`عفواً، أنت متواجد خارج النطاق الجغرافي المصرح لك بالعمل فيه (${Math.round(dist)} متر عن الموقع المحدد، النطاق المسموح ${radius} متر). تم حظر الدخول.`);
+                            return;
+                        }
+                    } catch(geoErr) {
+                        alert('يتطلب حسابك التحقق من الموقع الجغرافي (GPS) للدخول. يرجى تفعيل الـ GPS في متصفحك والسماح بالوصول للموقع والمحاولة مجدداً.');
+                        return;
+                    }
+                }
             }
 
             const isSovereignAdmin = (username === 'admin' && (password === '123456' || password === 'admin' || password.length >= 3));

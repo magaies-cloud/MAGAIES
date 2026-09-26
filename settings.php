@@ -1783,7 +1783,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
-    window.deleteUserInSettings = function() {
+    window.deleteUserInSettings = async function() {
         const select = document.getElementById('settings-user-select');
         if (!select || !select.value) return;
         const userId = select.value;
@@ -1801,12 +1801,67 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        if (!confirm(`هل أنت متأكد من حذف المستخدم "${targetUser.fullName || targetUser.username}"؟`)) {
+        // Check if user has transactions
+        let isUsed = false;
+        let usageDetails = [];
+        try {
+            const uId = String(targetUser.id);
+            const uName = String(targetUser.username || '').toLowerCase();
+            const checkMatch = val => val && [uId, uName].includes(String(val).trim().toLowerCase());
+            
+            const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+            const sCount = sales.filter(i => checkMatch(i.createdBy) || checkMatch(i.user)).length;
+            if (sCount > 0) usageDetails.push(`${sCount} فاتورة مبيعات`);
+
+            const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1') || '[]');
+            const pCount = purchases.filter(i => checkMatch(i.createdBy) || checkMatch(i.user)).length;
+            if (pCount > 0) usageDetails.push(`${pCount} فاتورة مشتريات`);
+
+            const receipts = JSON.parse(localStorage.getItem('erp_receipts_v1') || '[]');
+            const rCount = receipts.filter(i => checkMatch(i.createdBy) || checkMatch(i.user)).length;
+            if (rCount > 0) usageDetails.push(`${rCount} سند قبض`);
+
+            const payments = JSON.parse(localStorage.getItem('erp_payments_v1') || '[]');
+            const payCount = payments.filter(i => checkMatch(i.createdBy) || checkMatch(i.user)).length;
+            if (payCount > 0) usageDetails.push(`${payCount} سند صرف`);
+
+            if (usageDetails.length > 0) isUsed = true;
+        } catch(e) {}
+
+        if (isUsed) {
+            const deact = confirm(`⚠️ تنبيه رقابي: لا يمكن حذف المستخدم "${targetUser.fullName || targetUser.username}"!\n\nهذا المستخدم مرتبط بعمليات مسجلة بالنظام (${usageDetails.join('، ')}).\nحفاظاً على سلامة الحسابات المالية والتدقيق، يُمنع حذفه نهائياً.\n\nهل ترغب في تعطيل حسابه بدلاً من ذلك لمنعه من العمل والدخول؟`);
+            if (deact) {
+                targetUser.status = 'inactive';
+                localStorage.setItem('erp_users_v1', JSON.stringify(users));
+                localStorage.setItem('force_logout_' + targetUser.username, 'true');
+                if (typeof window.pushToCloud === 'function') window.pushToCloud(true).catch(console.error);
+                try {
+                    fetch('api/save_master_data.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ type: 'toggle_user_status', data: { id: targetUser.id, status: 'inactive' } })
+                    });
+                } catch(e) {}
+                alert(`✅ تم تعطيل حساب المستخدم "${targetUser.fullName || targetUser.username}" بنجاح.`);
+                window.initSettingsUsersStudio();
+            }
+            return;
+        }
+
+        if (!confirm(`هل أنت متأكد من حذف المستخدم "${targetUser.fullName || targetUser.username}"؟ هذا المستخدم ليس لديه أي حركات مسجلة بالنظام وسيتم حذفه نهائياً.`)) {
             return;
         }
 
         users = users.filter(u => u.id !== userId);
         localStorage.setItem('erp_users_v1', JSON.stringify(users));
+
+        try {
+            fetch('api/save_master_data.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: 'delete_user', data: { id: targetUser.id, username: targetUser.username } })
+            });
+        } catch(e) {}
 
         if (typeof window.pushToCloud === 'function') {
             window.pushToCloud(true).catch(console.error);

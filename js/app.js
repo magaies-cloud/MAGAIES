@@ -2187,23 +2187,49 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- Time Restriction Check ---
-        if (user.timeRestricted) {
+        // --- Status Check ---
+        if (user.status === 'inactive' || user.status === 'forced_logout') {
+            alert('تم تعطيل هذا الحساب من قبل الإدارة. غير مصرح لك بالعمل على النظام.');
+            if (window.logout) window.logout();
+            else { localStorage.removeItem('authToken'); localStorage.removeItem('user'); window.location.href = 'login.php'; }
+            return;
+        }
+
+        // --- Time Restriction Check (Supports Overnight Shifts & Custom Days) ---
+        if (user.timeRestricted && user.role !== 'admin' && user.userType !== 'admin') {
             const now = new Date();
             const currentDay = now.getDay(); // 0 = Sunday, 6 = Saturday
-            if (!user.allowedDays || !user.allowedDays.includes(currentDay)) {
-                alert('عفواً، لا يُسمح لك بالدخول في هذا اليوم بناءً على إعدادات الأمان.');
+            const allowedDays = Array.isArray(user.allowedDays) ? user.allowedDays : [0, 1, 2, 3, 4, 6];
+
+            const curMinutes = now.getHours() * 60 + now.getMinutes();
+            let fromMin = 0, toMin = 1439;
+            if (user.timeFrom && user.timeTo) {
+                const [fh, fm] = user.timeFrom.split(':').map(Number);
+                const [th, tm] = user.timeTo.split(':').map(Number);
+                fromMin = fh * 60 + (fm || 0);
+                toMin = th * 60 + (tm || 0);
+            }
+            const isOvernight = fromMin > toMin;
+            const shiftDay = (isOvernight && curMinutes <= toMin) ? (currentDay === 0 ? 6 : currentDay - 1) : currentDay;
+
+            if (!allowedDays.includes(currentDay) && !allowedDays.includes(shiftDay)) {
+                alert('عفواً، لا يُسمح لك بالدخول في هذا اليوم بناءً على جدول أوقات العمل المحدد لحسابك.');
                 if (window.logout) window.logout();
-                else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php'; }
+                else { localStorage.removeItem('authToken'); window.location.href = 'login.php'; }
                 return;
             }
 
-            const currentTimeStr = now.toTimeString().substring(0, 5); // "HH:MM"
             if (user.timeFrom && user.timeTo) {
-                if (currentTimeStr < user.timeFrom || currentTimeStr > user.timeTo) {
-                    alert(`عفواً، الدخول مسموح لك فقط من الساعة ${user.timeFrom} إلى ${user.timeTo}.`);
+                let isAllowedTime = false;
+                if (!isOvernight) {
+                    isAllowedTime = (curMinutes >= fromMin && curMinutes <= toMin);
+                } else {
+                    isAllowedTime = (curMinutes >= fromMin || curMinutes <= toMin);
+                }
+                if (!isAllowedTime) {
+                    alert(`عفواً، الدخول مسموح لك فقط خلال فترة الدوام المحددة لحسابك من الساعة ${user.timeFrom} إلى ${user.timeTo}.`);
                     if (window.logout) window.logout();
-                    else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php'; }
+                    else { localStorage.removeItem('authToken'); window.location.href = 'login.php'; }
                     return;
                 }
             }
