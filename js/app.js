@@ -79,6 +79,23 @@
     }
 })();
 
+// 🛡️ AUTO-BOOTSTRAP ENTERPRISE PERMISSIONS MANAGER ACROSS ALL SCREENS
+(function() {
+    if (typeof window.MagaieesPermissions === 'undefined') {
+        const existing = document.querySelector('script[src*="permissions-manager"]');
+        if (!existing) {
+            const ps = document.createElement('script');
+            ps.src = 'js/permissions-manager.js?v=' + (window.MAGAIEES_VERSION || '2026_enterprise_v2');
+            ps.defer = false;
+            if (document.head) {
+                document.head.appendChild(ps);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(ps));
+            }
+        }
+    }
+})();
+
 (function() {
     // Intercept DOMContentLoaded listeners for already-loaded document states (iOS WebKit compatibility)
     const interceptDOMContentLoaded = (target) => {
@@ -2145,7 +2162,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = 'magaiees_unified_dashboard.php';
                     return;
                 }
-                if (typeof window.MagaieesPermissions.applyScreenButtonSecurity === 'function') {
+                if (typeof window.MagaieesPermissions.enforceScreenSecurity === 'function') {
+                    window.MagaieesPermissions.enforceScreenSecurity(user);
+                } else if (typeof window.MagaieesPermissions.applyScreenButtonSecurity === 'function') {
                     window.MagaieesPermissions.applyScreenButtonSecurity(currentPage, user);
                 }
             } else if (currentModule && currentModule !== 'dashboard') {

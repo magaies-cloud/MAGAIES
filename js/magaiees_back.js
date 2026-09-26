@@ -398,3 +398,20 @@
         ensureBackButton();
     }
 })();
+
+// 🛡️ AUTO-BOOTSTRAP ENTERPRISE PERMISSIONS MANAGER ACROSS ALL UTILITY SCREENS
+(function() {
+    if (typeof window.MagaieesPermissions === 'undefined') {
+        const existing = document.querySelector('script[src*="permissions-manager"]');
+        if (!existing) {
+            const ps = document.createElement('script');
+            ps.src = 'js/permissions-manager.js?v=' + (window.MAGAIEES_VERSION || '2026_enterprise_v2');
+            ps.defer = false;
+            if (document.head) {
+                document.head.appendChild(ps);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(ps));
+            }
+        }
+    }
+})();

@@ -285,6 +285,9 @@ function initPurchaseApp() {
         try {
             const rawSupps = localStorage.getItem('erp_suppliers_v1') || (window.getTenantKey ? localStorage.getItem(window.getTenantKey('erp_suppliers_v1')) : null);
             supps = (JSON.parse(rawSupps) || []).filter(x => !x.deleted);
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+                supps = window.MagaieesPermissions.filterEntitiesByClearance(supps);
+            }
         } catch(e) { supps = []; }
 
         if (!supps || supps.length === 0) {
@@ -2473,6 +2476,27 @@ function submitInvoice(ignoreWarnings = false) {
     const rate = rateEl ? (parseNum(rateEl.value) || 1) : 1;
     const grandTotal = document.getElementById('t-grand-local').textContent;
     const grandAmount = parseNum(grandTotal);
+
+    // 🛡️ Enterprise Financial Approval Limits Enforcement (Purchase Amount)
+    if (window.MagaieesPermissions && typeof window.MagaieesPermissions.checkFinancialLimits === 'function' && !window.managerOverrideBypass) {
+        const invCheck = window.MagaieesPermissions.checkFinancialLimits('invoice_amount', grandAmount);
+        if (!invCheck.allowed) {
+            window.isSubmitting = false;
+            window.MagaieesPermissions.requestManagerApproval({
+                actionType: 'purchase_amount_exceeded',
+                details: `إصدار فاتورة مشتريات بقيمة (${grandAmount.toLocaleString('en-US')} ${cur}) وهو أعلى من السقف المالي للمستخدم (${invCheck.maxAllowed.toLocaleString('en-US')} ${cur}).`,
+                onApproved: (mgr) => {
+                    window.managerOverrideBypass = true;
+                    submitInvoice(ignoreWarnings);
+                    setTimeout(() => { window.managerOverrideBypass = false; }, 2000);
+                },
+                onRejected: () => {
+                    if (typeof showToast === 'function') showToast('❌ تم رفض اعتماد سقف فاتورة المشتريات المالي', 'warning');
+                }
+            });
+            return;
+        }
+    }
     
     // Explicitly compute Local vs FC for robust accounting
     const localGrandAmount = isBase ? grandAmount : grandAmount * rate;
@@ -4159,9 +4183,16 @@ function getAvailableSafes() {
         const getTKey = window.getTenantKey || ((k) => k);
         let safes = JSON.parse(localStorage.getItem(getTKey('erp_safes_v1')) || localStorage.getItem('erp_safes_v1') || '[]');
         safes = (Array.isArray(safes) ? safes : []).filter(s => s && !s.deleted);
+        if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+            safes = window.MagaieesPermissions.filterEntitiesByClearance(safes);
+        }
         if (safes.length > 0) return safes;
     } catch(e) {}
-    return DEFAULT_ERP_SAFES;
+    let fallback = DEFAULT_ERP_SAFES;
+    if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+        fallback = window.MagaieesPermissions.filterEntitiesByClearance(fallback);
+    }
+    return fallback;
 }
 
 function getAvailableBanks() {
@@ -4169,9 +4200,16 @@ function getAvailableBanks() {
         const getTKey = window.getTenantKey || ((k) => k);
         let banks = JSON.parse(localStorage.getItem(getTKey('erp_banks_v1')) || localStorage.getItem('erp_banks_v1') || '[]');
         banks = (Array.isArray(banks) ? banks : []).filter(b => b && !b.deleted);
+        if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+            banks = window.MagaieesPermissions.filterEntitiesByClearance(banks);
+        }
         if (banks.length > 0) return banks;
     } catch(e) {}
-    return DEFAULT_ERP_BANKS;
+    let fallback = DEFAULT_ERP_BANKS;
+    if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+        fallback = window.MagaieesPermissions.filterEntitiesByClearance(fallback);
+    }
+    return fallback;
 }
 
 function populatePaymentAccounts() {

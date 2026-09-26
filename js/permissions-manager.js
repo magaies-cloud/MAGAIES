@@ -1553,6 +1553,7 @@
         const closeOverrideModal = () => {
             modal.style.display = 'none';
             if (typeof opts.onReject === 'function') opts.onReject();
+            else if (typeof opts.onRejected === 'function') opts.onRejected();
         };
 
         document.getElementById('btn-cancel-override').onclick = closeOverrideModal;
@@ -1600,6 +1601,8 @@
 
                 if (typeof opts.onSuccess === 'function') {
                     opts.onSuccess(targetManager);
+                } else if (typeof opts.onApproved === 'function') {
+                    opts.onApproved(targetManager);
                 }
             } else {
                 failedAttempts++;
@@ -2132,19 +2135,28 @@
         if (isCurrentUserAdmin(user)) return;
 
         if (!canUserDoMasterDataAction('cust_add', user)) {
-            document.querySelectorAll('#btn-add-customer, button[onclick*="showAddCustomer"]').forEach(b => b.style.display = 'none');
+            document.querySelectorAll('#btn-add-customer, button[onclick*="showAddCustomer"], button[onclick*="clearCustomerForm"]').forEach(b => b.style.display = 'none');
+        }
+        if (!canUserDoMasterDataAction('cust_edit', user)) {
+            document.querySelectorAll('button[onclick*="editCustomer"], button[onclick*="saveCustomer"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('cust_del', user)) {
             document.querySelectorAll('.del-cust-btn, button[onclick*="deleteCustomer"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('supp_add', user)) {
-            document.querySelectorAll('#btn-add-supplier, button[onclick*="showAddSupplier"]').forEach(b => b.style.display = 'none');
+            document.querySelectorAll('#btn-add-supplier, button[onclick*="showAddSupplier"], button[onclick*="clearSupplierForm"]').forEach(b => b.style.display = 'none');
+        }
+        if (!canUserDoMasterDataAction('supp_edit', user)) {
+            document.querySelectorAll('button[onclick*="editSupplier"], button[onclick*="saveSupplier"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('supp_del', user)) {
             document.querySelectorAll('.del-supp-btn, button[onclick*="deleteSupplier"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('item_add', user)) {
-            document.querySelectorAll('#btn-add-item, button[onclick*="showAddItem"]').forEach(b => b.style.display = 'none');
+            document.querySelectorAll('#btn-add-item, button[onclick*="showAddItem"], button[onclick*="openItemForm"]').forEach(b => b.style.display = 'none');
+        }
+        if (!canUserDoMasterDataAction('item_edit', user)) {
+            document.querySelectorAll('.edit-item-btn, button[onclick*="editItem"], button[onclick*="saveItem"]').forEach(b => b.style.display = 'none');
         }
         if (!canUserDoMasterDataAction('item_del', user)) {
             document.querySelectorAll('.del-item-btn, button[onclick*="deleteItem"]').forEach(b => b.style.display = 'none');

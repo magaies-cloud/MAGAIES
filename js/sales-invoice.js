@@ -124,7 +124,10 @@ function commitInvoiceNumber(type) {
 document.addEventListener('DBReady', () => {
     window.refreshAllMasterData = function() {
         // Load real customer data from master-data
-        const localCusts = window.getAllSalesInvoices().filter(x => !x.deleted);
+        let localCusts = window.getAllSalesInvoices().filter(x => !x.deleted);
+        if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+            localCusts = window.MagaieesPermissions.filterEntitiesByClearance(localCusts);
+        }
         if(localCusts.length > 0) {
             CUSTOMERS = localCusts.map(c => ({
                 id: c.id,
@@ -1585,6 +1588,27 @@ function submitInvoice(ignoreWarnings = false) {
     const cur = getCurrency();
     const grandLocEl = document.getElementById('t-grand-dynamic-loc');
     const grandTotal = grandLocEl ? parseNum(grandLocEl.textContent) : 0;
+
+    // 🛡️ Enterprise Financial Approval Limits Enforcement (Invoice Amount)
+    if (window.MagaieesPermissions && typeof window.MagaieesPermissions.checkFinancialLimits === 'function' && !window.managerOverrideBypass) {
+        const invCheck = window.MagaieesPermissions.checkFinancialLimits('invoice_amount', grandTotal);
+        if (!invCheck.allowed) {
+            window.isSubmitting = false;
+            window.MagaieesPermissions.requestManagerApproval({
+                actionType: 'invoice_amount_exceeded',
+                details: `إصدار فاتورة مبيعات بقيمة (${grandTotal.toLocaleString('en-US')} ${cur}) وهو أعلى من السقف المالي للمستخدم (${invCheck.maxAllowed.toLocaleString('en-US')} ${cur}).`,
+                onApproved: (mgr) => {
+                    window.managerOverrideBypass = true;
+                    submitInvoice(ignoreWarnings);
+                    setTimeout(() => { window.managerOverrideBypass = false; }, 2000);
+                },
+                onRejected: () => {
+                    if (typeof showToast === 'function') showToast('❌ تم رفض اعتماد سقف الفاتورة المالي', 'warning');
+                }
+            });
+            return;
+        }
+    }
 
     // Save invoice data
     let dueDateValue = null;

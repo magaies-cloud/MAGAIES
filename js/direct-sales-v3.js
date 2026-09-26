@@ -376,6 +376,9 @@ function initSalesApp() {
         } catch(e) { console.error(e); }
         
         if(Array.isArray(localCusts) && localCusts.length > 0) {
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+                localCusts = window.MagaieesPermissions.filterEntitiesByClearance(localCusts);
+            }
             localCusts.forEach(c => {
                 if (c && c.id) {
                     CUSTOMERS.push({
@@ -611,6 +614,10 @@ function populateAccountSelect(select) {
         
         safes = safes.filter(x => x && !x.deleted);
         banks = banks.filter(x => x && !x.deleted);
+        if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+            safes = window.MagaieesPermissions.filterEntitiesByClearance(safes);
+            banks = window.MagaieesPermissions.filterEntitiesByClearance(banks);
+        }
         
         let choicesArr = [];
         safes.forEach(s => {
@@ -643,6 +650,10 @@ function populateAccountSelectFallback(select) {
         
         safes = safes.filter(x => x && !x.deleted);
         banks = banks.filter(x => x && !x.deleted);
+        if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+            safes = window.MagaieesPermissions.filterEntitiesByClearance(safes);
+            banks = window.MagaieesPermissions.filterEntitiesByClearance(banks);
+        }
         
         let html = '';
         safes.forEach(s => {
@@ -3071,6 +3082,10 @@ function populatePaymentAccounts() {
         
         safes = safes.filter(x => x && !x.deleted);
         banks = banks.filter(x => x && !x.deleted);
+        if (window.MagaieesPermissions && typeof window.MagaieesPermissions.filterEntitiesByClearance === 'function') {
+            safes = window.MagaieesPermissions.filterEntitiesByClearance(safes);
+            banks = window.MagaieesPermissions.filterEntitiesByClearance(banks);
+        }
         
         window.PAYMENT_SAFES = safes;
         window.PAYMENT_BANKS = banks;
@@ -3963,6 +3978,51 @@ function submitInvoice(ignoreWarnings = false) {
     const cur = getCurrency();
     const grandTotal = document.getElementById('t-grand').textContent;
     const grandAmount = parseNum(grandTotal);
+
+    // 🛡️ Enterprise Financial Approval Limits Enforcement (Discount & Invoice Amount)
+    if (window.MagaieesPermissions && typeof window.MagaieesPermissions.checkFinancialLimits === 'function' && !window.managerOverrideBypass) {
+        const invTotalVal = typeof getInvoiceTotal === 'function' ? getInvoiceTotal() : grandAmount;
+        const discountAmt = parseNum(document.getElementById('discount-amt')?.value || 0);
+        const discountPct = invTotalVal > 0 ? ((discountAmt / invTotalVal) * 100) : 0;
+
+        // 1. Discount limit check
+        const discCheck = window.MagaieesPermissions.checkFinancialLimits('discount_percent', discountPct);
+        if (!discCheck.allowed) {
+            window.isSubmitting = false;
+            window.MagaieesPermissions.requestManagerApproval({
+                actionType: 'discount_exceeded',
+                details: `طلب تطبيق خصم بنسبة (${discountPct.toFixed(1)}%) وهو أعلى من حد الصلاحية المسموح (${discCheck.maxAllowed}%).`,
+                onApproved: (mgr) => {
+                    window.managerOverrideBypass = true;
+                    submitInvoice(ignoreWarnings);
+                    setTimeout(() => { window.managerOverrideBypass = false; }, 2000);
+                },
+                onRejected: () => {
+                    if (typeof showToast === 'function') showToast('❌ تم رفض طلب تجاوز حد الخصم من قبل المشرف', 'warning');
+                }
+            });
+            return;
+        }
+
+        // 2. Invoice amount limit check
+        const invCheck = window.MagaieesPermissions.checkFinancialLimits('invoice_amount', grandAmount);
+        if (!invCheck.allowed) {
+            window.isSubmitting = false;
+            window.MagaieesPermissions.requestManagerApproval({
+                actionType: 'invoice_amount_exceeded',
+                details: `إصدار فاتورة مبيعات بقيمة (${grandAmount.toLocaleString('en-US')} ${cur}) وهو أعلى من السقف المالي للمستخدم (${invCheck.maxAllowed.toLocaleString('en-US')} ${cur}).`,
+                onApproved: (mgr) => {
+                    window.managerOverrideBypass = true;
+                    submitInvoice(ignoreWarnings);
+                    setTimeout(() => { window.managerOverrideBypass = false; }, 2000);
+                },
+                onRejected: () => {
+                    if (typeof showToast === 'function') showToast('❌ تم رفض اعتماد سقف الفاتورة المالي', 'warning');
+                }
+            });
+            return;
+        }
+    }
 
     // --- 1. Multi-Payment Read & Validation ---
     const cashActive = document.getElementById('toggle-cash').classList.contains('active');
