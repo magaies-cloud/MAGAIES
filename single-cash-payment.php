@@ -3031,6 +3031,24 @@ try {
         if (typeof window.submitVoucher === 'function') {
             const originalSubmit = window.submitVoucher;
             window.submitVoucher = function(...args) {
+                // Check financial limits for voucher amount
+                const voucherAmt = parseFloat(document.getElementById('amount')?.value) || 0;
+                if (window.MagaieesPermissions && typeof window.MagaieesPermissions.checkFinancialLimits === 'function') {
+                    const check = window.MagaieesPermissions.checkFinancialLimits('voucher_amount', voucherAmt);
+                    if (!check.allowed) {
+                        window.MagaieesPermissions.requestManagerApproval({
+                            title: 'تجاوز سقف الصرف المالي',
+                            description: check.message + ' يرجى إدخال رمز المشرف لاعتماد صرف هذا المبلغ الاستثنائي.',
+                            requiredLevel: 6,
+                            onSuccess: () => {
+                                hasWarnedAboutEdit = true;
+                                return originalSubmit.apply(this, args);
+                            }
+                        });
+                        return;
+                    }
+                }
+
                 let editIndex = -1;
                 try {
                     if (typeof currentViewedIndex !== 'undefined') {

@@ -456,6 +456,9 @@ async function saveUser() {
             USERS[userIndex].masterDataPermissions = studioPerms.masterDataPermissions;
             USERS[userIndex].alertsPermissions = studioPerms.alertsPermissions;
             USERS[userIndex].toolsPermissions = studioPerms.toolsPermissions;
+            USERS[userIndex].financialLimits = studioPerms.financialLimits;
+            USERS[userIndex].dataMasking = studioPerms.dataMasking;
+            if (studioPerms.managerPin) USERS[userIndex].managerPin = studioPerms.managerPin;
         }
     } else {
         // Add new
@@ -495,6 +498,9 @@ async function saveUser() {
             masterDataPermissions: studioPerms.masterDataPermissions,
             alertsPermissions: studioPerms.alertsPermissions,
             toolsPermissions: studioPerms.toolsPermissions,
+            financialLimits: studioPerms.financialLimits,
+            dataMasking: studioPerms.dataMasking,
+            managerPin: studioPerms.managerPin || '',
             isSystem: false
         });
     }
@@ -513,6 +519,9 @@ async function saveUser() {
             currentActive.masterDataPermissions = studioPerms.masterDataPermissions;
             currentActive.alertsPermissions = studioPerms.alertsPermissions;
             currentActive.toolsPermissions = studioPerms.toolsPermissions;
+            currentActive.financialLimits = studioPerms.financialLimits;
+            currentActive.dataMasking = studioPerms.dataMasking;
+            if (studioPerms.managerPin) currentActive.managerPin = studioPerms.managerPin;
             localStorage.setItem('user', JSON.stringify(currentActive));
         }
     } catch(e) {}

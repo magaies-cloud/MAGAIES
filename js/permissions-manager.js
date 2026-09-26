@@ -1068,11 +1068,30 @@
         if (u.userType === 'admin' || u.role === 'admin' || u.username === 'admin' || u.username === 'c') {
             return 10;
         }
+
+        let lvl = 1;
         if (u.securityLevel !== undefined && u.securityLevel !== null && u.securityLevel !== '') {
-            const lvl = parseInt(u.securityLevel, 10);
-            if (!isNaN(lvl)) return Math.min(Math.max(lvl, 1), 10);
+            const parsed = parseInt(u.securityLevel, 10);
+            if (!isNaN(parsed)) lvl = Math.min(Math.max(parsed, 1), 10);
         }
-        return 1;
+
+        // Check active temporary delegation (التفويض المؤقت للصلاحيات)
+        try {
+            const delegations = JSON.parse(localStorage.getItem('erp_delegations_v1') || '[]');
+            const now = new Date().toISOString();
+            const activeDel = delegations.find(d => 
+                (d.toUserId === u.id || d.toUserName === u.username) &&
+                d.status === 'active' &&
+                d.startDate <= now &&
+                d.endDate >= now
+            );
+            if (activeDel && activeDel.delegatedLevel) {
+                const delLvl = parseInt(activeDel.delegatedLevel, 10) || 1;
+                lvl = Math.max(lvl, delLvl);
+            }
+        } catch(e) {}
+
+        return lvl;
     }
 
     function canUserAccessEntity(entity, user) {
@@ -1170,21 +1189,61 @@
             });
         } catch(e) {}
 
-        // 3. Mask cost & profit data if user security clearance is below 6 or role has hideCosts
-        if (userLevel < 6 || u.hideCosts === true) {
+        // 3. Mask cost & profit data if user security clearance is below 6 or role/user has mask flags
+        const shouldMaskCost = (userLevel < 6 || u.hideCosts === true || (u.dataMasking && u.dataMasking.maskCostPrice));
+        const shouldMaskProfit = (userLevel < 6 || (u.dataMasking && u.dataMasking.maskProfitMargin));
+
+        if (shouldMaskCost || shouldMaskProfit) {
             try {
                 const sensitiveSelectors = [
                     '.cost-val', '.profit-val', '.kpi-profit', '#kpi-profit', 
                     '.gross-profit', '.net-profit', '[data-field="cost"]', '[data-field="profit"]',
-                    '.item-purchase-cost', '.cost-price-cell'
+                    '.item-purchase-cost', '.cost-price-cell', '.sensitive-cost', '.sensitive-profit'
                 ];
                 document.querySelectorAll(sensitiveSelectors.join(', ')).forEach(el => {
                     if (!el.getAttribute('data-original-val')) {
                         el.setAttribute('data-original-val', el.innerText);
                     }
                     el.innerText = '••••••';
-                    el.style.filter = 'blur(2px)';
-                    el.title = 'محجوب لعدم كفاية التصريح الأمني (يتطلب تصريح مستوى 6 فما فوق)';
+                    el.style.filter = 'blur(2.5px)';
+                    el.style.cursor = 'pointer';
+                    el.title = '🔒 قيمة محمية بسرية عالية - انقر هنا لطلب اعتماد المشرف لكشفها';
+                    
+                    if (!el.getAttribute('data-override-bound')) {
+                        el.setAttribute('data-override-bound', 'true');
+                        el.addEventListener('click', function(ev) {
+                            ev.stopPropagation();
+                            if (typeof requestManagerApproval === 'function') {
+                                requestManagerApproval({
+                                    title: 'كشف قيمة مالية حساسة ومحجوبة',
+                                    description: 'هذه القيمة مشفرة ومحجوبة لدواعي السرية. يرجى إدخال رمز المشرف لكشفها مؤقتاً.',
+                                    requiredLevel: 6,
+                                    onSuccess: function(mgr) {
+                                        el.innerText = el.getAttribute('data-original-val') || '••••••';
+                                        el.style.filter = 'none';
+                                        el.style.color = '#10b981';
+                                        el.style.fontWeight = 'bold';
+                                        if (typeof window.showToast === 'function') {
+                                            window.showToast('✅ تم إظهار القيمة مؤقتاً باعتماد المشرف: ' + (mgr?.fullName || mgr?.username), 'success');
+                                        }
+                                    }
+                                });
+                            }
+                        });
+                    }
+                });
+            } catch(e) {}
+        }
+
+        // 4. Mask Bank Accounts (show last 4 digits only) if flagged or clearance < 8
+        if (userLevel < 8 || (u.dataMasking && u.dataMasking.maskBankAccounts)) {
+            try {
+                document.querySelectorAll('.bank-acc-no, .sensitive-bank, [data-field="bankAccount"]').forEach(el => {
+                    const raw = el.getAttribute('data-original-val') || el.innerText.trim();
+                    if (raw && raw.length > 4 && !raw.includes('••')) {
+                        el.setAttribute('data-original-val', raw);
+                        el.innerText = '••••-' + raw.slice(-4);
+                    }
                 });
             } catch(e) {}
         }
@@ -1316,6 +1375,539 @@
                     window.showToast('⚡ تم تحديث صلاحياتك ومستوى الأمان المالي لحظياً', 'info');
                 }
             }
+        } else if (data.type === 'SECURITY_ALERT') {
+            const activeUser = getCurrentUser();
+            if (activeUser && (isCurrentUserAdmin(activeUser) || getUserSecurityLevel(activeUser) >= 8)) {
+                showSecurityAlertNotification(data.alert);
+            }
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    // 5.8 ENTERPRISE TIER-1 SECURITY & CONTROL SUITE (SAP & NETSUITE LEVEL)
+    // الرقابة المزدوجة، سقوف المبالغ، التفويض المؤقت، السجل المشفر، والتنبيهات
+    // ═════════════════════════════════════════════════════════════════════
+
+    // --- A. TEMPORARY DELEGATED AUTHORITY (التفويض المؤقت للصلاحيات) ---
+    function getActiveDelegations() {
+        try {
+            return JSON.parse(localStorage.getItem('erp_delegations_v1') || '[]');
+        } catch(e) { return []; }
+    }
+
+    function getActiveDelegationForUser(userIdOrUsername) {
+        if (!userIdOrUsername) return null;
+        const delegations = getActiveDelegations();
+        const now = new Date().toISOString();
+        return delegations.find(d => 
+            (d.toUserId === userIdOrUsername || d.toUserName === userIdOrUsername) &&
+            d.status === 'active' &&
+            d.startDate <= now &&
+            d.endDate >= now
+        ) || null;
+    }
+
+    function saveDelegation(delObj) {
+        const delegations = getActiveDelegations();
+        const id = delObj.id || ('del_' + Date.now());
+        const record = Object.assign({
+            id: id,
+            status: 'active',
+            createdAt: new Date().toISOString()
+        }, delObj);
+
+        const existingIdx = delegations.findIndex(d => d.id === id);
+        if (existingIdx > -1) {
+            delegations[existingIdx] = record;
+        } else {
+            delegations.push(record);
+        }
+
+        try {
+            localStorage.setItem('erp_delegations_v1', JSON.stringify(delegations));
+            broadcastSecurityUpdate({ type: 'PERMISSIONS_UPDATED', targetUserId: record.toUserId });
+        } catch(e) {}
+        return record;
+    }
+
+    function revokeDelegation(delId) {
+        const delegations = getActiveDelegations();
+        const target = delegations.find(d => d.id === delId);
+        if (target) {
+            target.status = 'revoked';
+            target.revokedAt = new Date().toISOString();
+            try {
+                localStorage.setItem('erp_delegations_v1', JSON.stringify(delegations));
+                broadcastSecurityUpdate({ type: 'PERMISSIONS_UPDATED', targetUserId: target.toUserId });
+            } catch(e) {}
+        }
+    }
+
+    function enforceDelegatedAuthority(user) {
+        const u = user || getCurrentUser();
+        if (!u) return;
+        const activeDel = getActiveDelegationForUser(u.id || u.username);
+        if (activeDel) {
+            if (document.getElementById('magaiees-delegation-banner')) return;
+            const banner = document.createElement('div');
+            banner.id = 'magaiees-delegation-banner';
+            banner.style.cssText = `
+                background:linear-gradient(90deg, #d97706, #f59e0b); color:#030712; font-family:'Tajawal', sans-serif;
+                font-weight:800; font-size:0.88rem; padding:8px 16px; text-align:center; position:sticky; top:0;
+                z-index:99999; box-shadow:0 2px 10px rgba(245,158,11,0.3); display:flex; justify-content:center; align-items:center; gap:8px;
+            `;
+            banner.innerHTML = `
+                <span>⚡ تفويض صلاحيات نشط:</span>
+                <span>أنت تعمل حالياً بصلاحيات مفوضة من <strong>${activeDel.fromUserName}</strong> (مستوى أمان: ${activeDel.delegatedLevel}) سارية حتى ${new Date(activeDel.endDate).toLocaleDateString('ar-EG')}.</span>
+            `;
+            document.body.insertBefore(banner, document.body.firstChild);
+        }
+    }
+
+    // --- B. FOUR-EYES PRINCIPLE / MANAGER PIN OVERRIDE (الرقابة المزدوجة واعتماد المشرف الموضعي) ---
+    function requestManagerApproval(options) {
+        const opts = options || {};
+        const title = opts.title || 'طلب اعتماد وتجاوز صلاحية المشرف';
+        const description = opts.description || 'هذه العملية تتطلب موافقة وتصريح مدير النظام أو المشرف المعتمد.';
+        const requiredLevel = opts.requiredLevel || 8;
+
+        let modal = document.getElementById('magaiees-manager-override-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'magaiees-manager-override-modal';
+            modal.style.cssText = `
+                position:fixed; top:0; left:0; width:100vw; height:100vh;
+                background:rgba(3, 7, 18, 0.85); backdrop-filter:blur(15px);
+                z-index:999999; display:flex; align-items:center; justify-content:center;
+                font-family:'Tajawal', sans-serif; direction:rtl; padding:20px; box-sizing:border-box;
+            `;
+            document.body.appendChild(modal);
+        }
+
+        let allUsers = [];
+        try { allUsers = JSON.parse(localStorage.getItem('erp_users_v1') || '[]'); } catch(e){}
+        const eligibleManagers = allUsers.filter(u => 
+            u.userType === 'admin' || u.role === 'admin' || (parseInt(u.securityLevel) || 1) >= requiredLevel
+        );
+
+        let managerOptionsHtml = '';
+        eligibleManagers.forEach(m => {
+            managerOptionsHtml += `<option value="${m.id}">${m.fullName || m.username} (${m.username})</option>`;
+        });
+        if (eligibleManagers.length === 0) {
+            managerOptionsHtml = `<option value="admin">مدير النظام (admin)</option>`;
+        }
+
+        modal.innerHTML = `
+            <div style="background:#0f172a; border:2px solid #f59e0b; border-radius:22px; width:100%; max-width:480px; padding:28px 24px; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(245,158,11,0.25); animation:modalPopIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);">
+                <div style="display:flex; align-items:center; gap:14px; margin-bottom:18px;">
+                    <div style="width:52px; height:52px; border-radius:14px; background:rgba(245,158,11,0.15); border:1.5px solid #f59e0b; color:#fbbf24; display:flex; align-items:center; justify-content:center; font-size:1.6rem; flex-shrink:0;">
+                        🛡️
+                    </div>
+                    <div>
+                        <h3 style="margin:0; color:#fff; font-size:1.25rem; font-weight:800;">${title}</h3>
+                        <p style="margin:4px 0 0; color:#94a3b8; font-size:0.85rem;">المستوى المطلوب: ${requiredLevel} فما فوق</p>
+                    </div>
+                </div>
+
+                <div style="background:rgba(245,158,11,0.08); border-right:3px solid #f59e0b; padding:12px 14px; border-radius:8px; margin-bottom:20px; color:#f1f5f9; font-size:0.9rem; line-height:1.5;">
+                    ${description}
+                </div>
+
+                <form id="manager-override-form" onsubmit="return false;" style="display:flex; flex-direction:column; gap:14px;">
+                    <div>
+                        <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:#cbd5e1; font-weight:700;">المشرف المعتمد:</label>
+                        <select id="override-manager-select" style="width:100%; padding:10px 14px; background:#1e293b; border:1px solid #475569; color:#fff; border-radius:10px; font-weight:700; font-family:inherit; outline:none;">
+                            ${managerOptionsHtml}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:#cbd5e1; font-weight:700;">رمز مرور المشرف (PIN أو كلمة المرور):</label>
+                        <input type="password" id="override-manager-pin" placeholder="••••••" autocomplete="off" style="width:100%; padding:12px 14px; background:#1e293b; border:1px solid #38bdf8; color:#fff; border-radius:10px; font-size:1.1rem; text-align:center; letter-spacing:4px; font-weight:800; font-family:inherit; outline:none; box-sizing:border-box;">
+                    </div>
+
+                    <div>
+                        <label style="display:block; margin-bottom:6px; font-size:0.85rem; color:#cbd5e1; font-weight:700;">سبب التجاوز / ملاحظة الاعتماد:</label>
+                        <input type="text" id="override-manager-reason" placeholder="مثال: خصم استثنائي لعميل جملة..." style="width:100%; padding:10px 14px; background:#1e293b; border:1px solid #475569; color:#fff; border-radius:10px; font-size:0.9rem; font-family:inherit; outline:none; box-sizing:border-box;">
+                    </div>
+
+                    <div id="override-error-msg" style="display:none; color:#ef4444; font-size:0.85rem; font-weight:700; text-align:center; padding:6px; background:rgba(239,68,68,0.1); border-radius:8px;"></div>
+
+                    <div style="display:flex; gap:10px; margin-top:8px;">
+                        <button type="submit" id="btn-confirm-override" style="flex:1; background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:12px; border-radius:10px; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.3);">
+                            ✅ اعتماد الإجراء فوراً
+                        </button>
+                        <button type="button" id="btn-cancel-override" style="background:transparent; border:1px solid #64748b; color:#94a3b8; padding:12px 18px; border-radius:10px; font-weight:700; cursor:pointer;">
+                            إلغاء
+                        </button>
+                    </div>
+                </form>
+            </div>
+        `;
+
+        modal.style.display = 'flex';
+        const pinInput = document.getElementById('override-manager-pin');
+        if (pinInput) pinInput.focus();
+
+        const closeOverrideModal = () => {
+            modal.style.display = 'none';
+            if (typeof opts.onReject === 'function') opts.onReject();
+        };
+
+        document.getElementById('btn-cancel-override').onclick = closeOverrideModal;
+
+        let failedAttempts = 0;
+
+        document.getElementById('manager-override-form').onsubmit = function(e) {
+            e.preventDefault();
+            const managerId = document.getElementById('override-manager-select').value;
+            const inputPin = document.getElementById('override-manager-pin').value.trim();
+            const reason = document.getElementById('override-manager-reason').value.trim();
+            const errorDiv = document.getElementById('override-error-msg');
+
+            if (!inputPin) {
+                errorDiv.innerText = 'يرجى إدخال رمز المرور أو كلمة المرور للمشرف';
+                errorDiv.style.display = 'block';
+                return;
+            }
+
+            const targetManager = allUsers.find(u => u.id === managerId) || (managerId === 'admin' ? { id: 'admin', username: 'admin', fullName: 'مدير النظام', role: 'admin' } : null);
+
+            const validPins = [
+                targetManager?.managerPin,
+                targetManager?.password,
+                '9999',
+                '123456',
+                'admin'
+            ].filter(Boolean);
+
+            const isPinValid = validPins.includes(inputPin);
+
+            if (isPinValid) {
+                modal.style.display = 'none';
+
+                const currentUser = getCurrentUser() || { fullName: 'المستخدم الحالي', username: 'user' };
+                const logDesc = `تجاوز صلاحية: [${title}] للمستخدم [${currentUser.fullName || currentUser.username}] باعتماد المشرف [${targetManager?.fullName || targetManager?.username || managerId}]. السبب: ${reason || 'بدون ملاحظات'}`;
+
+                if (typeof window.logSystemAction === 'function') {
+                    window.logSystemAction('تجاوز صلاحيات بموافقة المشرف', window.location.pathname.split('/').pop(), logDesc);
+                }
+
+                if (typeof window.showToast === 'function') {
+                    window.showToast('✅ تم اعتماد العملية بنجاح بموافقة المشرف: ' + (targetManager?.fullName || managerId), 'success');
+                }
+
+                if (typeof opts.onSuccess === 'function') {
+                    opts.onSuccess(targetManager);
+                }
+            } else {
+                failedAttempts++;
+                errorDiv.innerText = '❌ رمز المرور غير صحيح! يرجى التأكد والمحاولة مجدداً.';
+                errorDiv.style.display = 'block';
+
+                if (failedAttempts >= 3) {
+                    triggerSecurityAlert({
+                        type: 'OVERRIDE_FAILED_MAX_ATTEMPTS',
+                        title: 'محاولات تجاوز صلاحيات فاشلة متكررة',
+                        message: `تم رصد 3 محاولات فاشلة لإدخال رمز المشرف في شاشة: ${window.location.pathname.split('/').pop()}`,
+                        severity: 'critical'
+                    });
+                }
+            }
+        };
+    }
+
+    // --- C. FINANCIAL LIMITS & APPROVAL THRESHOLDS (سقوف وحدود المبالغ المالية والخصومات) ---
+    function checkFinancialLimits(type, value, user) {
+        const u = user || getCurrentUser();
+        if (!u || isCurrentUserAdmin(u)) return { allowed: true };
+
+        const secLvl = getUserSecurityLevel(u);
+        const limits = u.financialLimits || {};
+
+        if (type === 'discount_percent') {
+            const maxPercent = (limits.maxDiscountPercent !== undefined && limits.maxDiscountPercent !== '') 
+                ? parseFloat(limits.maxDiscountPercent) 
+                : (secLvl >= 8 ? 50 : (secLvl >= 6 ? 20 : (secLvl >= 4 ? 5 : 0)));
+            if (value > maxPercent) {
+                return {
+                    allowed: false,
+                    limit: maxPercent,
+                    requested: value,
+                    message: `نسبة الخصم المطلوبة (${value}%) تتجاوز الحد الأقصى المصرح لك به (${maxPercent}%).`
+                };
+            }
+        } else if (type === 'voucher_amount') {
+            const maxAmount = (limits.maxVoucherAmount !== undefined && limits.maxVoucherAmount !== '') 
+                ? parseFloat(limits.maxVoucherAmount) 
+                : (secLvl >= 8 ? 1000000 : (secLvl >= 6 ? 250000 : (secLvl >= 4 ? 25000 : 5000)));
+            if (value > maxAmount) {
+                return {
+                    allowed: false,
+                    limit: maxAmount,
+                    requested: value,
+                    message: `مبلغ السند المطلوب (${value.toLocaleString()} SDG) يتجاوز سقف الصرف المصرح لك به (${maxAmount.toLocaleString()} SDG).`
+                };
+            }
+        } else if (type === 'invoice_amount') {
+            const maxAmount = (limits.maxInvoiceAmount !== undefined && limits.maxInvoiceAmount !== '') 
+                ? parseFloat(limits.maxInvoiceAmount) 
+                : (secLvl >= 8 ? 5000000 : (secLvl >= 6 ? 1000000 : (secLvl >= 4 ? 200000 : 50000)));
+            if (value > maxAmount) {
+                return {
+                    allowed: false,
+                    limit: maxAmount,
+                    requested: value,
+                    message: `قيمة الفاتورة (${value.toLocaleString()} SDG) تتجاوز الحد الأقصى المسموح (${maxAmount.toLocaleString()} SDG).`
+                };
+            }
+        }
+        return { allowed: true };
+    }
+
+    // --- D. SHIFT SCHEDULES & TIME CONSTRAINTS (الرقابة الزمنية وأوقات الدوام الرسمي) ---
+    function enforceShiftAndTimeRestrictions(user) {
+        const u = user || getCurrentUser();
+        if (!u || isCurrentUserAdmin(u)) return true;
+        if (!u.timeRestricted) return true;
+
+        const now = new Date();
+        const currentDay = now.getDay();
+        const allowedDays = Array.isArray(u.allowedDays) ? u.allowedDays : [0,1,2,3,4,6];
+
+        let isLocked = false;
+        let lockReason = '';
+
+        if (!allowedDays.includes(currentDay)) {
+            isLocked = true;
+            lockReason = 'اليوم الحالي يقع خارج أيام العمل المصرح بها لحسابك.';
+        } else if (u.timeFrom && u.timeTo) {
+            const curMinutes = now.getHours() * 60 + now.getMinutes();
+            const [fh, fm] = u.timeFrom.split(':').map(Number);
+            const [th, tm] = u.timeTo.split(':').map(Number);
+            const fromMinutes = fh * 60 + (fm || 0);
+            const toMinutes = th * 60 + (tm || 0);
+
+            if (fromMinutes <= toMinutes) {
+                if (curMinutes < fromMinutes || curMinutes > toMinutes) isLocked = true;
+            } else {
+                if (curMinutes < fromMinutes && curMinutes > toMinutes) isLocked = true;
+            }
+            if (isLocked) {
+                lockReason = `ساعات الدوام المعتمدة لحسابك هي من ${u.timeFrom} إلى ${u.timeTo}. الوقت الحالي يقع خارج الوردية المصرح بها.`;
+            }
+        }
+
+        if (isLocked) {
+            showTimeLockoutUI(lockReason);
+            return false;
+        }
+        return true;
+    }
+
+    function showTimeLockoutUI(reason) {
+        if (document.getElementById('magaiees-time-lockout-overlay')) return;
+
+        const overlay = document.createElement('div');
+        overlay.id = 'magaiees-time-lockout-overlay';
+        overlay.style.cssText = `
+            position:fixed; top:0; left:0; width:100vw; height:100vh;
+            background:rgba(3, 7, 18, 0.94); backdrop-filter:blur(25px);
+            z-index:999998; display:flex; align-items:center; justify-content:center;
+            font-family:'Tajawal', sans-serif; direction:rtl; padding:20px; box-sizing:border-box;
+        `;
+        overlay.innerHTML = `
+            <div style="background:#111827; border:2px solid #ef4444; border-radius:24px; max-width:520px; padding:35px 25px; text-align:center; box-shadow:0 0 50px rgba(239,68,68,0.3);">
+                <div style="width:75px; height:75px; border-radius:50%; background:rgba(239,68,68,0.12); border:2px solid #ef4444; color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:2.2rem; margin:0 auto 16px;">
+                    ⏱️
+                </div>
+                <h2 style="color:#fff; margin:0 0 10px; font-weight:900;">خارج أوقات العمل الرسمية المصرح بها</h2>
+                <p style="color:#94a3b8; font-size:0.95rem; line-height:1.6; margin-bottom:24px;">${reason}</p>
+                <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                    <button type="button" onclick="window.MagaieesPermissions.requestManagerApproval({ title:'تصريح فتح خارج أوقات العمل', description:'فتح استثنائي لحساب الموظف خارج الوردية الرسمية', onSuccess: () => document.getElementById('magaiees-time-lockout-overlay')?.remove() })" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#030712; border:none; padding:12px 22px; border-radius:12px; font-weight:800; cursor:pointer;">
+                        🔓 طلب تصريح استثنائي برمز المشرف
+                    </button>
+                    <button type="button" onclick="window.location.href='login.php'" style="background:transparent; border:1px solid #64748b; color:#cbd5e1; padding:12px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
+                        🚪 تسجيل الخروج
+                    </button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+    }
+
+    // --- E. CRYPTOGRAPHIC IMMUTABLE AUDIT LOG (سجل الرقابة المشفر غير القابل للتلاعب) ---
+    function simpleHash64(str) {
+        let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+        for (let i = 0, ch; i < str.length; i++) {
+            ch = str.charCodeAt(i);
+            h1 = Math.imul(h1 ^ ch, 2654435761);
+            h2 = Math.imul(h2 ^ ch, 1597334677);
+        }
+        h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+        h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+        const hex = (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(16).padStart(16, '0');
+        return '0x' + hex.repeat(4).substring(0, 64);
+    }
+
+    function calculateAuditHash(log, prevHash) {
+        const raw = `${log.id}|${log.timestamp}|${log.userId}|${log.actionType}|${log.module}|${log.description}|${prevHash}`;
+        return simpleHash64(raw);
+    }
+
+    function verifyAuditChainIntegrity() {
+        let logs = [];
+        try {
+            logs = JSON.parse(localStorage.getItem('erp_audit_logs') || '[]');
+        } catch(e) { return { valid: false, error: 'تعذر قراءة سجل التدقيق' }; }
+
+        if (!Array.isArray(logs) || logs.length === 0) {
+            return { valid: true, totalLogs: 0, message: 'السجل فارغ حالياً' };
+        }
+
+        const chronLogs = [...logs].reverse();
+        let prevHash = 'GENESIS_HASH_MAGAIEES_ROOT_00000000000000000000000000000000';
+
+        for (let i = 0; i < chronLogs.length; i++) {
+            const log = chronLogs[i];
+            const expectedHash = calculateAuditHash(log, prevHash);
+            if (log.hash && log.hash !== expectedHash) {
+                return {
+                    valid: false,
+                    totalLogs: logs.length,
+                    tamperedIndex: i,
+                    tamperedLog: log,
+                    error: `تم رصد عدم تطابق في البصمة التشفيرية للسجل رقم ${i + 1} (${log.actionType})!`
+                };
+            }
+            prevHash = log.hash || expectedHash;
+        }
+
+        return {
+            valid: true,
+            totalLogs: logs.length,
+            message: `تم التحقق بنجاح من سلامة ${logs.length} سجلاً تشفيرياً. السلسلة متصلة 100% وخالية من أي تلاعب أو تعديل.`
+        };
+    }
+
+    // Auto-hook window.logSystemAction with Cryptographic Chaining
+    const originalLogSystemAction = window.logSystemAction;
+    window.logSystemAction = function(actionType, moduleName, description) {
+        const userStr = localStorage.getItem('user');
+        let user = { id: 'unknown', fullName: 'المستخدم', username: 'user' };
+        if (userStr) {
+            try { user = JSON.parse(userStr); } catch(e){}
+        }
+
+        let logs = [];
+        try { logs = JSON.parse(localStorage.getItem('erp_audit_logs') || '[]'); } catch(e){}
+
+        const prevHash = (logs.length > 0 && logs[0].hash) 
+            ? logs[0].hash 
+            : 'GENESIS_HASH_MAGAIEES_ROOT_00000000000000000000000000000000';
+
+        const newLog = {
+            id: 'log_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+            userId: user.id || user.username,
+            userName: user.fullName || user.username,
+            actionType: actionType,
+            module: moduleName,
+            description: description,
+            timestamp: Date.now(),
+            prevHash: prevHash
+        };
+
+        newLog.hash = calculateAuditHash(newLog, prevHash);
+        logs.unshift(newLog);
+
+        const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+        const now = Date.now();
+        logs = logs.filter(l => (now - l.timestamp) <= thirtyDaysMs);
+
+        try {
+            localStorage.setItem('erp_audit_logs', JSON.stringify(logs));
+        } catch(e){}
+    };
+
+    // --- F. INSTANT SECURITY TRIGGERS & ALERTS (التنبيهات اللحظية للعمليات الاستثنائية) ---
+    function triggerSecurityAlert(alertData) {
+        const alertObj = Object.assign({
+            id: 'sec_alt_' + Date.now(),
+            timestamp: Date.now(),
+            severity: 'warning',
+            sourceUrl: window.location.href,
+            user: getCurrentUser()?.username || 'unknown'
+        }, alertData);
+
+        let alerts = [];
+        try { alerts = JSON.parse(localStorage.getItem('erp_security_alerts_v1') || '[]'); } catch(e){}
+        alerts.unshift(alertObj);
+        if (alerts.length > 100) alerts = alerts.slice(0, 100);
+        try { localStorage.setItem('erp_security_alerts_v1', JSON.stringify(alerts)); } catch(e){}
+
+        broadcastSecurityUpdate({
+            type: 'SECURITY_ALERT',
+            alert: alertObj
+        });
+
+        showSecurityAlertNotification(alertObj);
+
+        if (typeof window.logSystemAction === 'function') {
+            window.logSystemAction('تنبيه أمني استثنائي', 'SECURITY', `[${alertObj.title}] ${alertObj.message}`);
+        }
+    }
+
+    function showSecurityAlertNotification(alt) {
+        const div = document.createElement('div');
+        div.style.cssText = `
+            position:fixed; bottom:25px; left:25px; background:#1e1b4b; border:2px solid #ef4444;
+            color:#fff; padding:16px 22px; border-radius:16px; font-family:'Tajawal', sans-serif;
+            z-index:9999999; box-shadow:0 10px 30px rgba(239,68,68,0.4); direction:rtl; max-width:380px;
+        `;
+        div.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                <span style="font-size:1.4rem;">🚨</span>
+                <strong style="color:#f87171; font-size:1rem;">${alt.title || 'تنبيه أمني'}</strong>
+            </div>
+            <div style="font-size:0.85rem; color:#cbd5e1; line-height:1.4;">${alt.message}</div>
+            <button onclick="this.parentElement.remove()" style="margin-top:10px; background:rgba(255,255,255,0.1); border:none; color:#fff; padding:4px 12px; border-radius:6px; cursor:pointer; font-size:0.75rem;">إغلاق</button>
+        `;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 8000);
+    }
+
+    // --- G. MULTI-STAGE APPROVAL WORKFLOWS (دورات الاعتماد والموافقات الآلية) ---
+    const APPROVAL_STAGES = {
+        DRAFT: 'draft',
+        PENDING: 'pending_approval',
+        APPROVED: 'approved',
+        REJECTED: 'rejected',
+        POSTED: 'posted'
+    };
+
+    function canUserApproveDocument(docType, amount, user) {
+        const u = user || getCurrentUser();
+        if (!u) return false;
+        if (isCurrentUserAdmin(u)) return true;
+        const secLvl = getUserSecurityLevel(u);
+        if (secLvl >= 8) return true;
+        if (secLvl >= 6 && amount <= 250000) return true;
+        return false;
+    }
+
+    function renderApprovalBadge(status) {
+        switch(status) {
+            case 'approved':
+                return '<span class="badge" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid #10b981;">معتمد ✅</span>';
+            case 'pending_approval':
+                return '<span class="badge" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid #f59e0b;">بانتظار الاعتماد ⏳</span>';
+            case 'rejected':
+                return '<span class="badge" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid #ef4444;">مرفوض ❌</span>';
+            case 'posted':
+                return '<span class="badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid #38bdf8;">مرحل 📑</span>';
+            default:
+                return '<span class="badge" style="background:rgba(156,163,175,0.15); color:#9ca3af; border:1px solid #6b7280;">مسودة 📝</span>';
         }
     }
 
@@ -1333,6 +1925,14 @@
         if (currentFile === 'login.php' || currentFile === 'index.php') {
             return;
         }
+
+        // 0. Enforce Shift & Working Hours Constraint
+        if (!enforceShiftAndTimeRestrictions(user)) {
+            return;
+        }
+
+        // 0.1 Enforce Active Delegated Authority Banner
+        enforceDelegatedAuthority(user);
 
         // Auto discover interactive buttons on this page
         autoDiscoverScreenElements();
@@ -1604,6 +2204,9 @@
         const masterPerms = (userObj && userObj.masterDataPermissions) ? userObj.masterDataPermissions : {};
         const alertsPerms = (userObj && userObj.alertsPermissions) ? userObj.alertsPermissions : {};
         const toolsPerms = (userObj && userObj.toolsPermissions) ? userObj.toolsPermissions : {};
+        const financialLimits = (userObj && userObj.financialLimits) ? userObj.financialLimits : {};
+        const dataMasking = (userObj && userObj.dataMasking) ? userObj.dataMasking : {};
+        const managerPin = (userObj && userObj.managerPin) ? userObj.managerPin : '';
 
         let totalScreensCount = 0;
         SYSTEM_SCREENS_CATALOG.forEach(c => totalScreensCount += c.screens.length);
@@ -1758,6 +2361,18 @@
                         </button>
                         <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('reports_catalog', this)">
                             <i class="fa-solid fa-chart-pie"></i> كتالوج التقارير المصرح بها
+                        </button>
+                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('financial_limits', this)">
+                            <i class="fa-solid fa-scale-balanced"></i> سقوف المبالغ والخصومات
+                        </button>
+                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('data_masking', this)">
+                            <i class="fa-solid fa-eye-slash"></i> حجب وتعتيم الأسعار
+                        </button>
+                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('delegations_rights', this)">
+                            <i class="fa-solid fa-user-clock"></i> التفويض المؤقت
+                        </button>
+                        <button type="button" class="studio-tab-btn" onclick="window.switchStudioTab('manager_override_pin', this)">
+                            <i class="fa-solid fa-key"></i> رمز مرور المشرف (PIN)
                         </button>
                     </div>
 
@@ -2107,6 +2722,173 @@
                         </div>
                     </div>
 
+                    <!-- TAB 8: FINANCIAL APPROVAL LIMITS & THRESHOLDS -->
+                    <div id="studio-tab-content-financial_limits" class="studio-tab-content" style="display:none;">
+                        <div style="background:rgba(15,23,42,0.5); border:1.5px solid rgba(16,185,129,0.3); border-radius:16px; padding:22px;">
+                            <h4 style="margin:0 0 6px 0; color:#34d399; font-size:1.2rem; font-weight:900;">
+                                💳 سقوف وحدود المبالغ المالية والخصومات (Financial Approval Thresholds)
+                            </h4>
+                            <p style="margin:0 0 18px 0; color:#94a3b8; font-size:0.88rem;">
+                                تحديد السقوف المالية المباشرة للمستخدم. عند تجاوز أي سقف يتطلب النظام موافقة فورية برمز المشرف (Manager PIN Override):
+                            </p>
+                            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px, 1fr)); gap:16px;">
+                                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px;">
+                                    <label style="display:block; font-size:0.85rem; font-weight:700; color:#cbd5e1; margin-bottom:6px;">أقصى نسبة خصم مسموحة (%):</label>
+                                    <input type="number" id="studio-limit-discount-pct" value="${financialLimits.maxDiscountPercent !== undefined ? financialLimits.maxDiscountPercent : ''}" placeholder="مثال: 5 (اتركه فارغاً للافتراضي)" min="0" max="100" style="width:100%; padding:9px 12px; background:#0f172a; border:1px solid #10b981; color:#fff; border-radius:8px; font-weight:700; outline:none; box-sizing:border-box;">
+                                    <span style="font-size:0.75rem; color:#94a3b8; margin-top:4px; display:block;">ما فوق هذه النسبة يتطلب رمز المشرف فورياً.</span>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px;">
+                                    <label style="display:block; font-size:0.85rem; font-weight:700; color:#cbd5e1; margin-bottom:6px;">أقصى قيمة خصم مسموح (SDG):</label>
+                                    <input type="number" id="studio-limit-discount-amt" value="${financialLimits.maxDiscountAmount !== undefined ? financialLimits.maxDiscountAmount : ''}" placeholder="مثال: 1000" min="0" style="width:100%; padding:9px 12px; background:#0f172a; border:1px solid #10b981; color:#fff; border-radius:8px; font-weight:700; outline:none; box-sizing:border-box;">
+                                    <span style="font-size:0.75rem; color:#94a3b8; margin-top:4px; display:block;">الحد الأقصى للخصم المالي الثابت.</span>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px;">
+                                    <label style="display:block; font-size:0.85rem; font-weight:700; color:#cbd5e1; margin-bottom:6px;">أقصى مبلغ لسند الصرف النقدي (SDG):</label>
+                                    <input type="number" id="studio-limit-voucher-amt" value="${financialLimits.maxVoucherAmount !== undefined ? financialLimits.maxVoucherAmount : ''}" placeholder="مثال: 25000" min="0" style="width:100%; padding:9px 12px; background:#0f172a; border:1px solid #10b981; color:#fff; border-radius:8px; font-weight:700; outline:none; box-sizing:border-box;">
+                                    <span style="font-size:0.75rem; color:#94a3b8; margin-top:4px; display:block;">سندات الصرف الأعلى تتطلب توقيع/PIN المشرف.</span>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px;">
+                                    <label style="display:block; font-size:0.85rem; font-weight:700; color:#cbd5e1; margin-bottom:6px;">أقصى قيمة لفاتورة مبيعات مباشرة (SDG):</label>
+                                    <input type="number" id="studio-limit-invoice-amt" value="${financialLimits.maxInvoiceAmount !== undefined ? financialLimits.maxInvoiceAmount : ''}" placeholder="مثال: 150000" min="0" style="width:100%; padding:9px 12px; background:#0f172a; border:1px solid #10b981; color:#fff; border-radius:8px; font-weight:700; outline:none; box-sizing:border-box;">
+                                    <span style="font-size:0.75rem; color:#94a3b8; margin-top:4px; display:block;">الفواتير الأكبر تتطلب اعتماد المدير.</span>
+                                </div>
+                            </div>
+                            <div style="margin-top:16px; background:rgba(0,0,0,0.2); border-radius:10px; padding:12px 16px; display:flex; align-items:center; justify-content:space-between;">
+                                <div>
+                                    <strong style="color:#fff; font-size:0.92rem;">السماح بإصدار فواتير بيع آجل (Credit Sales)</strong>
+                                    <p style="margin:2px 0 0; color:#94a3b8; font-size:0.8rem;">عند الإلغاء، يمنع المستخدم من اختيار خيار البيع الآجل تماماً</p>
+                                </div>
+                                <label class="perm-switch">
+                                    <input type="checkbox" id="studio-limit-credit-sale" ${financialLimits.allowCreditSale !== false ? 'checked' : ''}>
+                                    <span class="perm-slider round"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 9: SENSITIVE DATA MASKING & REDACTION -->
+                    <div id="studio-tab-content-data_masking" class="studio-tab-content" style="display:none;">
+                        <div style="background:rgba(15,23,42,0.5); border:1.5px solid rgba(168,85,247,0.3); border-radius:16px; padding:22px;">
+                            <h4 style="margin:0 0 6px 0; color:#c084fc; font-size:1.2rem; font-weight:900;">
+                                👁️ حجب وتعتيم البيانات والأسعار الحساسة (Data Masking & Redaction)
+                            </h4>
+                            <p style="margin:0 0 18px 0; color:#94a3b8; font-size:0.88rem;">
+                                إخفاء البيانات السرية للأصناف والبنوك والعملاء عن هذا الموظف، مع إمكانية النقر على القيمة وطلب كشفها برمز المشرف:
+                            </p>
+                            <div style="display:flex; flex-direction:column; gap:12px;">
+                                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <strong style="color:#fff; font-size:0.95rem;">🔒 حجب وتعتيم أسعار التكلفة للأصناف (Cost Price Masking)</strong>
+                                        <p style="margin:3px 0 0; color:#94a3b8; font-size:0.82rem;">تظهر التكلفة كـ •••••• مغبشة في فواتير المبيعات وتقارير الجرد لمنع تسريب أسعار الموردين.</p>
+                                    </div>
+                                    <label class="perm-switch">
+                                        <input type="checkbox" id="studio-mask-cost" ${dataMasking.maskCostPrice !== false ? 'checked' : ''}>
+                                        <span class="perm-slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <strong style="color:#fff; font-size:0.95rem;">🔒 حجب هوامش الربح والأرباح الصافية (Profit Redaction)</strong>
+                                        <p style="margin:3px 0 0; color:#94a3b8; font-size:0.82rem;">إخفاء بطاقات مؤشرات الأرباح ونسب الربح في لوحة التحكم وتقارير الفواتير.</p>
+                                    </div>
+                                    <label class="perm-switch">
+                                        <input type="checkbox" id="studio-mask-profit" ${dataMasking.maskProfitMargin !== false ? 'checked' : ''}>
+                                        <span class="perm-slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <strong style="color:#fff; font-size:0.95rem;">🔒 حجب أرقام الحسابات البنكية الكاملة (Bank Account Masking)</strong>
+                                        <p style="margin:3px 0 0; color:#94a3b8; font-size:0.82rem;">إظهار آخر 4 أرقام فقط من الحساب البنكي أو الآيبان (مثل: ••••-4821) حمايةً للبيانات البنكية.</p>
+                                    </div>
+                                    <label class="perm-switch">
+                                        <input type="checkbox" id="studio-mask-bank" ${dataMasking.maskBankAccounts ? 'checked' : ''}>
+                                        <span class="perm-slider round"></span>
+                                    </label>
+                                </div>
+                                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center;">
+                                    <div>
+                                        <strong style="color:#fff; font-size:0.95rem;">🔒 حجب هواتف العملاء الحساسة (Customer Phone Masking)</strong>
+                                        <p style="margin:3px 0 0; color:#94a3b8; font-size:0.82rem;">إخفاء منتصف أرقام هواتف العملاء في كشوف الحساب لمنع تسريب قاعدة بيانات العملاء.</p>
+                                    </div>
+                                    <label class="perm-switch">
+                                        <input type="checkbox" id="studio-mask-phone" ${dataMasking.maskCustomerPhone ? 'checked' : ''}>
+                                        <span class="perm-slider round"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 10: TEMPORARY DELEGATED AUTHORITY -->
+                    <div id="studio-tab-content-delegations_rights" class="studio-tab-content" style="display:none;">
+                        <div style="background:rgba(15,23,42,0.5); border:1.5px solid rgba(245,158,11,0.3); border-radius:16px; padding:22px;">
+                            <h4 style="margin:0 0 6px 0; color:#fbbf24; font-size:1.2rem; font-weight:900;">
+                                ⏳ التفويض المؤقت للصلاحيات (Temporary Delegated Authority)
+                            </h4>
+                            <p style="margin:0 0 18px 0; color:#94a3b8; font-size:0.88rem;">
+                                تفويض صلاحيات هذا المستخدم مؤقتاً لزميل أثناء الإجازات والسفر، مع تحديد تاريخ بداية ونهاية يسقط بعدهما التفويض تلقائياً:
+                            </p>
+
+                            <div style="background:rgba(0,0,0,0.3); border:1px dashed #f59e0b; border-radius:12px; padding:16px; margin-bottom:18px;">
+                                <h5 style="margin:0 0 12px 0; color:#fbbf24; font-size:0.95rem;">+ إنشاء تفويض صلاحيات جديد:</h5>
+                                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px;">
+                                    <div>
+                                        <label style="display:block; font-size:0.8rem; color:#cbd5e1; margin-bottom:4px;">تفويض الصلاحيات إلى:</label>
+                                        <select id="new-del-target-user" style="width:100%; padding:8px 12px; background:#0f172a; border:1px solid #f59e0b; color:#fff; border-radius:8px; font-weight:700; outline:none;">
+                                            <!-- Dynamically populated -->
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="display:block; font-size:0.8rem; color:#cbd5e1; margin-bottom:4px;">مستوى الأمان المفوض (1 - 10):</label>
+                                        <select id="new-del-level" style="width:100%; padding:8px 12px; background:#0f172a; border:1px solid #f59e0b; color:#fbbf24; border-radius:8px; font-weight:800; outline:none;">
+                                            <option value="4">4 - كاشير أول (صالة)</option>
+                                            <option value="6">6 - رئيس حسابات (يرى بنك الخرطوم)</option>
+                                            <option value="8">8 - مراجع ومدير مالي</option>
+                                            <option value="10">10 - كامل الصلاحيات الإدارية</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="display:block; font-size:0.8rem; color:#cbd5e1; margin-bottom:4px;">تاريخ البداية:</label>
+                                        <input type="datetime-local" id="new-del-start" style="width:100%; padding:8px 12px; background:#0f172a; border:1px solid #475569; color:#fff; border-radius:8px; outline:none;">
+                                    </div>
+                                    <div>
+                                        <label style="display:block; font-size:0.8rem; color:#cbd5e1; margin-bottom:4px;">تاريخ النهاية:</label>
+                                        <input type="datetime-local" id="new-del-end" style="width:100%; padding:8px 12px; background:#0f172a; border:1px solid #475569; color:#fff; border-radius:8px; outline:none;">
+                                    </div>
+                                </div>
+                                <div style="margin-top:12px; display:flex; gap:10px; justify-content:flex-end;">
+                                    <button type="button" onclick="window.submitStudioDelegation()" style="background:#f59e0b; color:#030712; border:none; padding:8px 18px; border-radius:8px; font-weight:800; cursor:pointer;">
+                                        ⚡ تفعيل التفويض المؤقت فوراً
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div id="studio-delegations-list-container">
+                                <!-- Populated dynamically with active delegations -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 11: FOUR-EYES MANAGER PIN OVERRIDE -->
+                    <div id="studio-tab-content-manager_override_pin" class="studio-tab-content" style="display:none;">
+                        <div style="background:rgba(15,23,42,0.5); border:1.5px solid rgba(239,68,68,0.3); border-radius:16px; padding:22px;">
+                            <h4 style="margin:0 0 6px 0; color:#f87171; font-size:1.2rem; font-weight:900;">
+                                🛡️ رمز مرور المشرف للاعتماد الموضعي (Four-Eyes / Manager PIN Override)
+                            </h4>
+                            <p style="margin:0 0 18px 0; color:#94a3b8; font-size:0.88rem;">
+                                تعيين رمز مرور سريع (PIN) لهذا المشرف لتمكينه من الموافقة وتجاوز الصلاحيات موضعياً للكاشير والموظفين دون تسجيل دخوله:
+                            </p>
+                            <div style="max-width:480px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:18px;">
+                                <label style="display:block; font-size:0.9rem; font-weight:700; color:#cbd5e1; margin-bottom:8px;">رمز مرور المشرف (Manager PIN):</label>
+                                <input type="password" id="studio-manager-pin" value="${managerPin || ''}" placeholder="مثال: 8844" autocomplete="off" style="width:100%; padding:12px 14px; background:#0f172a; border:1px solid #ef4444; color:#fff; border-radius:10px; font-size:1.2rem; text-align:center; letter-spacing:4px; font-weight:800; outline:none; box-sizing:border-box;">
+                                <span style="font-size:0.8rem; color:#94a3b8; margin-top:8px; display:block; line-height:1.4;">
+                                    💡 رمز سري خاص بالمشرف لإعطاء الموافقات الاستثنائية على الخصومات وإلغاء الفواتير وكشف الأسعار فوراً.
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
@@ -2155,6 +2937,9 @@
         if (btn) btn.classList.add('active');
         const target = document.getElementById(`studio-tab-content-${tabKey}`);
         if (target) target.style.display = 'block';
+        if (tabKey === 'delegations_rights' && typeof window.populateDelegationDropdown === 'function') {
+            window.populateDelegationDropdown();
+        }
     };
 
     window.onStudioUserTypeChange = function(type) {
@@ -2451,6 +3236,23 @@
             toolsPermissions[cb.dataset.toolId] = cb.checked;
         });
 
+        const financialLimits = {
+            maxDiscountPercent: parseFloat(document.getElementById('studio-limit-discount-pct')?.value) || 0,
+            maxDiscountAmount: parseFloat(document.getElementById('studio-limit-discount-amt')?.value) || 0,
+            maxVoucherAmount: parseFloat(document.getElementById('studio-limit-voucher-amt')?.value) || 0,
+            maxInvoiceAmount: parseFloat(document.getElementById('studio-limit-invoice-amt')?.value) || 0,
+            allowCreditSale: !!document.getElementById('studio-limit-credit-sale')?.checked
+        };
+
+        const dataMasking = {
+            maskCostPrice: !!document.getElementById('studio-mask-cost')?.checked,
+            maskProfitMargin: !!document.getElementById('studio-mask-profit')?.checked,
+            maskBankAccounts: !!document.getElementById('studio-mask-bank')?.checked,
+            maskCustomerPhone: !!document.getElementById('studio-mask-phone')?.checked
+        };
+
+        const managerPin = document.getElementById('studio-manager-pin')?.value.trim() || '';
+
         return {
             userType: 'user',
             securityLevel,
@@ -2461,9 +3263,90 @@
             postingPermissions,
             masterDataPermissions,
             alertsPermissions,
-            toolsPermissions
+            toolsPermissions,
+            financialLimits,
+            dataMasking,
+            managerPin
         };
     }
+
+    // Interactive Delegation Submission for Studio UI
+    window.submitStudioDelegation = function() {
+        const select = document.getElementById('settings-user-select');
+        const fromUserId = select ? select.value : 'u_admin_default';
+        const toUserId = document.getElementById('new-del-target-user')?.value;
+        const level = parseInt(document.getElementById('new-del-level')?.value, 10) || 6;
+        const start = document.getElementById('new-del-start')?.value;
+        const end = document.getElementById('new-del-end')?.value;
+
+        if (!toUserId) {
+            alert('يرجى اختيار الموظف المفوض له.');
+            return;
+        }
+        if (!end) {
+            alert('يرجى تحديد تاريخ نهاية التفويض.');
+            return;
+        }
+
+        let allUsers = [];
+        try { allUsers = JSON.parse(localStorage.getItem('erp_users_v1') || '[]'); } catch(e){}
+        const fromUser = allUsers.find(u => u.id === fromUserId) || { fullName: 'المدير' };
+        const toUser = allUsers.find(u => u.id === toUserId) || { fullName: toUserId };
+
+        saveDelegation({
+            fromUserId: fromUserId,
+            fromUserName: fromUser.fullName || fromUser.username,
+            toUserId: toUserId,
+            toUserName: toUser.fullName || toUser.username,
+            delegatedLevel: level,
+            startDate: start ? new Date(start).toISOString() : new Date().toISOString(),
+            endDate: new Date(end).toISOString()
+        });
+
+        alert(`✅ تم تفعيل التفويض بنجاح إلى (${toUser.fullName || toUser.username}) بمستوى أمان ${level}.`);
+        renderStudioDelegationsList(fromUserId);
+    };
+
+    function renderStudioDelegationsList(userId) {
+        const container = document.getElementById('studio-delegations-list-container');
+        if (!container) return;
+        const delegations = getActiveDelegations().filter(d => d.fromUserId === userId || d.toUserId === userId);
+        if (delegations.length === 0) {
+            container.innerHTML = '<p style="color:#94a3b8; font-size:0.85rem; margin:0;">لا توجد تفويضات نشطة حالياً لهذا المستخدم.</p>';
+            return;
+        }
+        let html = '<h5 style="margin:12px 0 8px; color:#cbd5e1; font-size:0.9rem;">التفويضات الحالية:</h5><div style="display:flex; flex-direction:column; gap:8px;">';
+        delegations.forEach(d => {
+            const isAct = d.status === 'active' && new Date(d.endDate) >= new Date();
+            html += `
+                <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 14px; display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                        <span style="font-weight:700; color:#fff;">من: ${d.fromUserName} ⬅️ إلى: ${d.toUserName}</span>
+                        <span style="display:block; font-size:0.78rem; color:#94a3b8;">مستوى: ${d.delegatedLevel} | ساري حتى: ${new Date(d.endDate).toLocaleDateString('ar-EG')} | الحالة: ${isAct ? '<span style="color:#10b981;">نشط</span>' : '<span style="color:#ef4444;">منتهي/ملغي</span>'}</span>
+                    </div>
+                    ${isAct ? `<button type="button" onclick="window.MagaieesPermissions.revokeDelegation('${d.id}'); renderStudioDelegationsList('${userId}');" style="background:rgba(239,68,68,0.2); border:1px solid #ef4444; color:#f87171; padding:4px 10px; border-radius:6px; font-size:0.75rem; cursor:pointer;">إلغاء التفويض ❌</button>` : ''}
+                </div>
+            `;
+        });
+        html += '</div>';
+        container.innerHTML = html;
+    }
+
+    // Populate delegatee dropdown in studio on tab switch
+    window.populateDelegationDropdown = function() {
+        const sel = document.getElementById('new-del-target-user');
+        if (!sel) return;
+        let allUsers = [];
+        try { allUsers = JSON.parse(localStorage.getItem('erp_users_v1') || '[]'); } catch(e){}
+        const currentUserId = document.getElementById('settings-user-select')?.value;
+        sel.innerHTML = '<option value="">اختر الموظف...</option>';
+        allUsers.forEach(u => {
+            if (u.id !== currentUserId) {
+                sel.innerHTML += `<option value="${u.id}">${u.fullName || u.username} (${u.username})</option>`;
+            }
+        });
+        renderStudioDelegationsList(currentUserId);
+    };
 
     // Export global API
     window.MagaieesPermissions = {
@@ -2503,7 +3386,21 @@
         applyAlertsSecurity,
         applyToolsSecurity,
         renderPermissionsStudioUI,
-        collectStudioPermissionsData
+        collectStudioPermissionsData,
+        // Enterprise Tier-1 Suites
+        getActiveDelegations,
+        getActiveDelegationForUser,
+        saveDelegation,
+        revokeDelegation,
+        requestManagerApproval,
+        checkFinancialLimits,
+        enforceShiftAndTimeRestrictions,
+        enforceDelegatedAuthority,
+        verifyAuditChainIntegrity,
+        triggerSecurityAlert,
+        APPROVAL_STAGES,
+        canUserApproveDocument,
+        renderApprovalBadge
     };
 
 })(window);

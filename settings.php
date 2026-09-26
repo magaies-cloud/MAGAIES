@@ -1609,6 +1609,9 @@ document.addEventListener('DOMContentLoaded', function() {
         users[userIndex].masterDataPermissions = permsData.masterDataPermissions;
         users[userIndex].alertsPermissions = permsData.alertsPermissions;
         users[userIndex].toolsPermissions = permsData.toolsPermissions;
+        users[userIndex].financialLimits = permsData.financialLimits;
+        users[userIndex].dataMasking = permsData.dataMasking;
+        if (permsData.managerPin) users[userIndex].managerPin = permsData.managerPin;
 
         localStorage.setItem('erp_users_v1', JSON.stringify(users));
 
@@ -1627,6 +1630,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentActive.masterDataPermissions = users[userIndex].masterDataPermissions;
                 currentActive.alertsPermissions = users[userIndex].alertsPermissions;
                 currentActive.toolsPermissions = users[userIndex].toolsPermissions;
+                currentActive.financialLimits = users[userIndex].financialLimits;
+                currentActive.dataMasking = users[userIndex].dataMasking;
+                if (users[userIndex].managerPin) currentActive.managerPin = users[userIndex].managerPin;
                 localStorage.setItem('user', JSON.stringify(currentActive));
             }
         } catch(e) {}

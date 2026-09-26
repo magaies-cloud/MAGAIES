@@ -209,6 +209,11 @@
                 <label>نص البحث</label>
                 <input type="text" id="filter-search" placeholder="ابحث في السجلات..." onkeyup="renderLogs()">
             </div>
+            <div class="filter-group" style="display:flex; align-items:flex-end;">
+                <button type="button" onclick="verifyChainIntegrityUI()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:11px 20px; border-radius:10px; font-weight:800; cursor:pointer; font-family:'Tajawal', sans-serif; display:flex; align-items:center; gap:8px; box-shadow:0 0 15px rgba(16,185,129,0.35);">
+                    🛡️ فحص نزاهة السجل المشفر (Hash Integrity)
+                </button>
+            </div>
         </div>
 
         <div class="data-table-wrapper">
@@ -220,6 +225,7 @@
                         <th>الوحدة</th>
                         <th>نوع الحركة</th>
                         <th>التفاصيل</th>
+                        <th>البصمة التشفيرية (Hash Chain)</th>
                     </tr>
                 </thead>
                 <tbody id="logs-table-body">
@@ -231,6 +237,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/permissions-manager.js?v=<?php echo file_exists('js/permissions-manager.js') ? filemtime('js/permissions-manager.js') : '1'; ?>"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
         document.addEventListener('DBReady', () => {
@@ -265,8 +272,8 @@
         function getActionBadgeColor(action) {
             const a = action.toLowerCase();
             if (a.includes('delete') || a.includes('حذف') || a.includes('reject')) return 'background:rgba(239, 68, 68, 0.1); color:#ef4444;';
-            if (a.includes('add') || a.includes('create') || a.includes('إضافة') || a.includes('approve') || a.includes('login')) return 'background:rgba(16, 185, 129, 0.1); color:#10b981;';
-            if (a.includes('edit') || a.includes('update') || a.includes('تعديل')) return 'background:rgba(245, 158, 11, 0.1); color:#f59e0b;';
+            if (a.includes('add') || a.includes('create') || a.includes('إضافة') || a.includes('approve') || a.includes('login') || a.includes('تجاوز')) return 'background:rgba(16, 185, 129, 0.1); color:#10b981;';
+            if (a.includes('edit') || a.includes('update') || a.includes('تعديل') || a.includes('تنبيه')) return 'background:rgba(245, 158, 11, 0.1); color:#f59e0b;';
             if (a.includes('print') || a.includes('طباعة')) return 'background:rgba(56, 189, 248, 0.1); color:#38bdf8;';
             return 'background:rgba(156, 163, 175, 0.1); color:#6b7280;';
         }
@@ -288,22 +295,40 @@
             });
 
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="empty-state">لا توجد سجلات تطابق بحثك</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" class="empty-state">لا توجد سجلات تطابق بحثك</td></tr>`;
                 return;
             }
 
             filtered.forEach(log => {
                 const tr = document.createElement('tr');
+                const hashDisplay = log.hash 
+                    ? `<span class="badge" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-family:monospace; font-size:0.75rem;" title="Hash: ${log.hash}\nPrev: ${log.prevHash || 'Genesis'}">${log.hash.substring(0, 10)}...${log.hash.substring(log.hash.length - 6)}</span>`
+                    : `<span class="badge" style="background:rgba(156,163,175,0.1); color:#9ca3af; font-size:0.72rem;">إرثي</span>`;
+
                 tr.innerHTML = `
                     <td style="font-size:0.85rem; opacity:0.8;" dir="ltr">${new Date(log.timestamp).toLocaleString('en-GB')}</td>
                     <td style="font-weight:bold;">${log.userName}</td>
                     <td>${log.module}</td>
                     <td><span class="badge" style="${getActionBadgeColor(log.actionType)}">${log.actionType}</span></td>
                     <td style="max-width:300px; line-height:1.4;">${log.description}</td>
+                    <td style="text-align:center;">${hashDisplay}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
+
+        window.verifyChainIntegrityUI = function() {
+            if (!window.MagaieesPermissions || typeof window.MagaieesPermissions.verifyAuditChainIntegrity !== 'function') {
+                alert('محرك التحقق التشفيري قيد التحميل، يرجى المحاولة بعد لحظات.');
+                return;
+            }
+            const res = window.MagaieesPermissions.verifyAuditChainIntegrity();
+            if (res.valid) {
+                alert(`✅ فحص النزاهة التشفيرية ناجح بنسبة 100%:\n\n${res.message}\nإجمالي السجلات التي تم فحصها: ${res.totalLogs} حركة موثقة ومحمية.`);
+            } else {
+                alert(`❌ تنبيه أمني خطير:\n\n${res.error}\nتم رصد تلاعب أو انقطاع في تسلسل البصمات التشفيرية!`);
+            }
+        };
     </script>
 </body>
 </html>
