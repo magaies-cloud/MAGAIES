@@ -2252,8 +2252,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     navigator.geolocation.getCurrentPosition(
                         (pos) => {
                             const dist = calcDist(user.geoLat, user.geoLng, pos.coords.latitude, pos.coords.longitude);
-                            const radius = user.geoRadius || 100;
+                            const radius = user.geoRadius || 500;
                             
+                            sessionStorage.setItem('magaiees_last_lat', String(pos.coords.latitude));
+                            sessionStorage.setItem('magaiees_last_lng', String(pos.coords.longitude));
+                            localStorage.setItem('magaiees_last_lat', String(pos.coords.latitude));
+                            localStorage.setItem('magaiees_last_lng', String(pos.coords.longitude));
+
                             if (dist > radius) {
                                 // Outside zone
                                 let outsideSince = localStorage.getItem('geo_outside_since');
