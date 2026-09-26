@@ -1597,6 +1597,11 @@ document.addEventListener('DOMContentLoaded', function() {
         users[userIndex].allowedScreens = permsData.allowedScreens;
         users[userIndex].screenButtons = permsData.screenButtons;
         users[userIndex].allowedReports = permsData.allowedReports;
+        users[userIndex].dashboardPermissions = permsData.dashboardPermissions;
+        users[userIndex].postingPermissions = permsData.postingPermissions;
+        users[userIndex].masterDataPermissions = permsData.masterDataPermissions;
+        users[userIndex].alertsPermissions = permsData.alertsPermissions;
+        users[userIndex].toolsPermissions = permsData.toolsPermissions;
 
         localStorage.setItem('erp_users_v1', JSON.stringify(users));
 
@@ -1609,6 +1614,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentActive.allowedScreens = users[userIndex].allowedScreens;
                 currentActive.screenButtons = users[userIndex].screenButtons;
                 currentActive.allowedReports = users[userIndex].allowedReports;
+                currentActive.dashboardPermissions = users[userIndex].dashboardPermissions;
+                currentActive.postingPermissions = users[userIndex].postingPermissions;
+                currentActive.masterDataPermissions = users[userIndex].masterDataPermissions;
+                currentActive.alertsPermissions = users[userIndex].alertsPermissions;
+                currentActive.toolsPermissions = users[userIndex].toolsPermissions;
                 localStorage.setItem('user', JSON.stringify(currentActive));
             }
         } catch(e) {}

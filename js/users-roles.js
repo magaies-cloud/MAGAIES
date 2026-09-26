@@ -444,6 +444,11 @@ async function saveUser() {
             USERS[userIndex].allowedScreens = studioPerms.allowedScreens;
             USERS[userIndex].screenButtons = studioPerms.screenButtons;
             USERS[userIndex].allowedReports = studioPerms.allowedReports;
+            USERS[userIndex].dashboardPermissions = studioPerms.dashboardPermissions;
+            USERS[userIndex].postingPermissions = studioPerms.postingPermissions;
+            USERS[userIndex].masterDataPermissions = studioPerms.masterDataPermissions;
+            USERS[userIndex].alertsPermissions = studioPerms.alertsPermissions;
+            USERS[userIndex].toolsPermissions = studioPerms.toolsPermissions;
         }
     } else {
         // Add new
@@ -477,6 +482,11 @@ async function saveUser() {
             allowedScreens: studioPerms.allowedScreens,
             screenButtons: studioPerms.screenButtons,
             allowedReports: studioPerms.allowedReports,
+            dashboardPermissions: studioPerms.dashboardPermissions,
+            postingPermissions: studioPerms.postingPermissions,
+            masterDataPermissions: studioPerms.masterDataPermissions,
+            alertsPermissions: studioPerms.alertsPermissions,
+            toolsPermissions: studioPerms.toolsPermissions,
             isSystem: false
         });
     }
@@ -489,6 +499,11 @@ async function saveUser() {
             currentActive.allowedScreens = studioPerms.allowedScreens;
             currentActive.screenButtons = studioPerms.screenButtons;
             currentActive.allowedReports = studioPerms.allowedReports;
+            currentActive.dashboardPermissions = studioPerms.dashboardPermissions;
+            currentActive.postingPermissions = studioPerms.postingPermissions;
+            currentActive.masterDataPermissions = studioPerms.masterDataPermissions;
+            currentActive.alertsPermissions = studioPerms.alertsPermissions;
+            currentActive.toolsPermissions = studioPerms.toolsPermissions;
             localStorage.setItem('user', JSON.stringify(currentActive));
         }
     } catch(e) {}
