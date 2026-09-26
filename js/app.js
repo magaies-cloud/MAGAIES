@@ -96,6 +96,23 @@
     }
 })();
 
+// 🔔 AUTO-BOOTSTRAP MODERN ALERTS & TOASTS ACROSS ALL SCREENS
+(function() {
+    if (typeof window.MagaieesAlerts === 'undefined') {
+        const existing = document.querySelector('script[src*="modern-alerts"]');
+        if (!existing) {
+            const mas = document.createElement('script');
+            mas.src = 'js/modern-alerts.js?v=' + (window.MAGAIEES_VERSION || '2026_enterprise_v2');
+            mas.defer = false;
+            if (document.head) {
+                document.head.appendChild(mas);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(mas));
+            }
+        }
+    }
+})();
+
 (function() {
     // Intercept DOMContentLoaded listeners for already-loaded document states (iOS WebKit compatibility)
     const interceptDOMContentLoaded = (target) => {

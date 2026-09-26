@@ -2258,26 +2258,33 @@
     function showTimeLockoutUI(reason) {
         if (document.getElementById('magaiees-time-lockout-overlay')) return;
 
+        if (window.MagaieesAlerts && typeof window.MagaieesAlerts.playChime === 'function') {
+            window.MagaieesAlerts.playChime('warning');
+        }
+
         const overlay = document.createElement('div');
         overlay.id = 'magaiees-time-lockout-overlay';
         overlay.style.cssText = `
             position:fixed; top:0; left:0; width:100vw; height:100vh;
-            background:rgba(3, 7, 18, 0.94); backdrop-filter:blur(25px);
+            background:radial-gradient(circle at center, rgba(15, 23, 42, 0.88), rgba(3, 7, 18, 0.97));
+            backdrop-filter:blur(24px) saturate(180%);
+            -webkit-backdrop-filter:blur(24px) saturate(180%);
             z-index:999998; display:flex; align-items:center; justify-content:center;
-            font-family:'Tajawal', sans-serif; direction:rtl; padding:20px; box-sizing:border-box;
+            font-family:'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif; direction:rtl; padding:20px; box-sizing:border-box;
         `;
         overlay.innerHTML = `
-            <div style="background:#111827; border:2px solid #ef4444; border-radius:24px; max-width:520px; padding:35px 25px; text-align:center; box-shadow:0 0 50px rgba(239,68,68,0.3);">
-                <div style="width:75px; height:75px; border-radius:50%; background:rgba(239,68,68,0.12); border:2px solid #ef4444; color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:2.2rem; margin:0 auto 16px;">
+            <div style="background:linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98)); border:1.5px solid rgba(239, 68, 68, 0.6); border-radius:28px; max-width:520px; width:100%; padding:38px 28px; text-align:center; box-shadow:0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 50px rgba(239, 68, 68, 0.25); position:relative; overflow:hidden;">
+                <div style="position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, #ef4444, #f59e0b, #ef4444);"></div>
+                <div style="width:84px; height:84px; border-radius:24px; background:radial-gradient(circle, rgba(239,68,68,0.2), rgba(239,68,68,0.05)); border:2px solid rgba(239,68,68,0.5); color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:2.4rem; margin:0 auto 20px; box-shadow:0 0 30px rgba(239,68,68,0.35);">
                     ⏱️
                 </div>
-                <h2 style="color:#fff; margin:0 0 10px; font-weight:900;">خارج أوقات العمل أو النطاق الجغرافي</h2>
-                <p style="color:#94a3b8; font-size:0.95rem; line-height:1.6; margin-bottom:24px;">${reason}</p>
-                <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-                    <button type="button" onclick="window.MagaieesPermissions.requestManagerApproval({ title:'تصريح استثنائي', description:'فتح استثنائي لحساب الموظف خارج الوردية أو النطاق الجغرافي', onSuccess: () => document.getElementById('magaiees-time-lockout-overlay')?.remove() })" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#030712; border:none; padding:12px 22px; border-radius:12px; font-weight:800; cursor:pointer;">
+                <h2 style="color:#ffffff; margin:0 0 12px; font-weight:900; font-size:1.45rem; letter-spacing:-0.02em;">خارج أوقات العمل أو النطاق الجغرافي المصرّح</h2>
+                <p style="color:#cbd5e1; font-size:1rem; line-height:1.7; margin-bottom:28px; background:rgba(0,0,0,0.3); padding:14px 18px; border-radius:14px; border:1px solid rgba(255,255,255,0.08);">${reason}</p>
+                <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+                    <button type="button" onclick="window.MagaieesPermissions.requestManagerApproval({ title:'تصريح استثنائي', description:'فتح استثنائي لحساب الموظف خارج الوردية أو النطاق الجغرافي', onSuccess: () => document.getElementById('magaiees-time-lockout-overlay')?.remove() })" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#0f172a; border:none; padding:13px 26px; border-radius:14px; font-weight:800; font-size:0.95rem; cursor:pointer; box-shadow:0 10px 25px rgba(245,158,11,0.35);">
                         🔓 طلب تصريح استثنائي برمز المشرف
                     </button>
-                    <button type="button" onclick="window.location.href='login.php'" style="background:transparent; border:1px solid #64748b; color:#cbd5e1; padding:12px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
+                    <button type="button" onclick="window.location.href='login.php'" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#e2e8f0; padding:13px 22px; border-radius:14px; font-weight:700; font-size:0.95rem; cursor:pointer;">
                         🚪 تسجيل الخروج
                     </button>
                 </div>

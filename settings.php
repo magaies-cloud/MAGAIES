@@ -1251,6 +1251,7 @@ try {
 </div>
 
 <script defer src="js/localforage.min.js"></script>
+<script defer src="js/modern-alerts.js?v=<?php echo file_exists('js/modern-alerts.js') ? filemtime('js/modern-alerts.js') : '1'; ?>"></script>
 <script defer src="js/permissions-manager.js?v=<?php echo file_exists('js/permissions-manager.js') ? filemtime('js/permissions-manager.js') : '1'; ?>"></script>
 <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
