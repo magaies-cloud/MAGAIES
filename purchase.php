@@ -2369,13 +2369,7 @@ try {
                     <span style="font-size: 1.25rem;">📷</span> مسح فاتورة (OCR)
                 </button>
 
-                <!-- زر الواتساب الصغير بشعار الواتساب الرسمي للمشتريات -->
-                <button type="button" class="btn crystal-btn btn-whatsapp-icon-only" id="btn-whatsapp-master-purchase" onclick="openPurchaseWhatsAppModal()" title="إرسال إذن التوريد وفاتورة الشراء للمورد عبر واتساب">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="display: block;">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.115.552 4.103 1.516 5.832L.057 24l6.34-1.662A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" fill="#25D366"/>
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#ffffff"/>
-                    </svg>
-                </button>
+                <!-- Removed small WhatsApp button per request -->
 
                 <!-- زر التحكم في الإرسال التلقائي مع الحفظ للمشتريات -->
                 <div class="auto-send-control-box" id="auto-send-control-wrapper-purchase">
@@ -2397,16 +2391,16 @@ try {
                             <span>💾</span> <span>حفظ فقط (بدون إرسال)</span>
                         </div>
                         <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('receipt_order_doc')" style="color: #38bdf8;">
-                            <span>📄</span> <span>إذن توريد واستلام مخزني رسمي (كميات فقط)</span>
+                            <span>📄</span> <span>إذن توريد رسمي (كميات فقط)</span>
                         </div>
                         <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('receipt_order_text')" style="color: #f59e0b;">
-                            <span>📝</span> <span>إذن توريد كتابة كمعلومة (نص سريع)</span>
+                            <span>📝</span> <span>إذن توريد نصي كمعلومة</span>
                         </div>
                         <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('invoice_doc')" style="color: #ca8a04;">
-                            <span>🧾</span> <span>فاتورة شراء مصممة (تصميم رسمي)</span>
+                            <span>🧾</span> <span>فاتورة شراء مصممة</span>
                         </div>
                         <div class="auto-send-menu-item" onclick="window.selectPurchaseAutoSendOption('invoice')" style="color: #10b981;">
-                            <span>💰</span> <span>نص فاتورة الشراء وحساب المورد</span>
+                            <span>💰</span> <span>نص الفاتورة وحساب المورد</span>
                         </div>
                     </div>
                 </div>
@@ -3245,7 +3239,7 @@ async function sendInvoiceWA(invoiceNo) {
         }
     }
 
-    const phone = await new Promise((resolve) => {
+    const phone = defaultPhone ? defaultPhone : await new Promise((resolve) => {
         const overlayId = 'wa-phone-prompt-overlay';
         if (document.getElementById(overlayId)) document.getElementById(overlayId).remove();
 
@@ -3351,20 +3345,46 @@ async function sendInvoiceWA(invoiceNo) {
 
     const htmlContent = window.InvoicePrinter.buildHTML(inv, 'نسخة العميل');
     
+    // Create a fullscreen overlay to display the document clearly while sending
+    const overlayWrapper = document.createElement('div');
+    overlayWrapper.style.position = 'fixed';
+    overlayWrapper.style.top = '0';
+    overlayWrapper.style.left = '0';
+    overlayWrapper.style.width = '100vw';
+    overlayWrapper.style.height = '100vh';
+    overlayWrapper.style.background = 'rgba(15, 23, 42, 0.85)';
+    overlayWrapper.style.backdropFilter = 'blur(10px)';
+    overlayWrapper.style.zIndex = '999999999';
+    overlayWrapper.style.display = 'flex';
+    overlayWrapper.style.flexDirection = 'column';
+    overlayWrapper.style.alignItems = 'center';
+    overlayWrapper.style.justifyContent = 'center';
+    overlayWrapper.style.overflowY = 'auto';
+    overlayWrapper.style.padding = '40px 20px';
+
+    const statusHeader = document.createElement('div');
+    statusHeader.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+            <div style="width:30px; height:30px; border:3px solid #25d366; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
+            <h3 style="color:#25d366; font-family:'Tajawal', sans-serif; font-size:1.6rem; margin:0; font-weight:bold;">جاري الإرسال عبر واتساب...</h3>
+        </div>
+    `;
+    
     const printContainer = document.createElement('div');
     printContainer.className = 'print-preview-wrapper';
-    printContainer.style.position = 'fixed';
-    printContainer.style.top = '0';
-    printContainer.style.left = '0';
     printContainer.style.width = '800px';
-    printContainer.style.zIndex = '-99999';
-    printContainer.style.opacity = '0.01';
-    printContainer.style.pointerEvents = 'none';
-    printContainer.style.padding = '24px';
+    printContainer.style.maxWidth = '100%';
     printContainer.style.background = '#f0f4f8';
+    printContainer.style.padding = '24px';
+    printContainer.style.borderRadius = '16px';
+    printContainer.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
+    printContainer.style.transform = 'scale(0.85)';
     
     printContainer.innerHTML = htmlContent;
-    document.body.appendChild(printContainer);
+    
+    overlayWrapper.appendChild(statusHeader);
+    overlayWrapper.appendChild(printContainer);
+    document.body.appendChild(overlayWrapper);
 
     const message = `مرحباً، مرفق فاتورتكم المرجعية رقم ${invoiceNo} من ${JSON.parse(localStorage.getItem('user'))?.company_name || 'مؤسستنا'}.`;
     
@@ -3372,13 +3392,15 @@ async function sendInvoiceWA(invoiceNo) {
         await sendPDFViaWhatsApp(printContainer, phone, message);
     } catch (e) {
         console.error(e);
-        printContainer.remove();
+    } finally {
+        overlayWrapper.remove();
     }
 }
 
 function updateActionButtonsVisibility() {
     const previewBtn = document.getElementById('btn-preview-invoice');
-    if (currentViewedInvoiceNo) {
+    const invNo = (typeof currentViewedInvoiceNo !== 'undefined' && currentViewedInvoiceNo) ? currentViewedInvoiceNo : window.currentViewedInvoiceNo;
+    if (invNo && invNo !== '---' && invNo !== 'PUR-NEW' && invNo !== 'جديد') {
         if (previewBtn) previewBtn.style.display = 'flex';
     } else {
         if (previewBtn) previewBtn.style.display = 'none';
@@ -3392,13 +3414,24 @@ function updateActionButtonsVisibility() {
 let shareMenuOpen = false;
 
 function toggleShareMenu(e) {
-    e.stopPropagation();
+    if (e) e.stopPropagation();
     const menu = document.getElementById('share-popup-menu');
     if (!menu) return;
     
     if (shareMenuOpen) {
         closeShareMenu();
     } else {
+        if (menu.parentElement !== document.body) {
+            document.body.appendChild(menu);
+            menu.style.position = 'fixed';
+            menu.style.zIndex = '999999999';
+        }
+        const btn = document.getElementById('btn-share-invoice');
+        if (btn) {
+            const rect = btn.getBoundingClientRect();
+            menu.style.bottom = (window.innerHeight - rect.top + 10) + 'px';
+            menu.style.left = (rect.left + rect.width / 2) + 'px';
+        }
         menu.style.display = 'block';
         // Trigger reflow for animation
         requestAnimationFrame(() => {
@@ -3433,18 +3466,20 @@ document.addEventListener('click', function(e) {
 });
 
 async function sendCurrentInvoiceWA() {
-    if (currentViewedInvoiceNo) {
-        await sendInvoiceWA(currentViewedInvoiceNo);
+    let invNo = (typeof currentViewedInvoiceNo !== 'undefined' && currentViewedInvoiceNo) ? currentViewedInvoiceNo : (window.currentViewedInvoiceNo || window._lastSubmittedPurchaseInvoiceNo || document.getElementById('hdr-inv-no')?.value);
+    if (invNo && invNo !== '---' && invNo !== 'PUR-NEW' && invNo !== 'جديد') {
+        await sendInvoiceWA(invNo);
     } else {
         showToast('⚠️ يرجى حفظ وتأكيد الفاتورة أولاً', 'warning');
     }
 }
 
 async function sendCurrentInvoiceEmail() {
-    if (currentViewedInvoiceNo) {
+    let invNo = (typeof currentViewedInvoiceNo !== 'undefined' && currentViewedInvoiceNo) ? currentViewedInvoiceNo : (window.currentViewedInvoiceNo || window._lastSubmittedPurchaseInvoiceNo || document.getElementById('hdr-inv-no')?.value);
+    if (invNo && invNo !== '---' && invNo !== 'PUR-NEW' && invNo !== 'جديد') {
         showToast('جاري تجهيز الفاتورة للإرسال عبر البريد الإلكتروني...', 'success');
         // Fallback for Email if no backend email API exists
-        const mailtoLink = `mailto:?subject=فاتورة مشتريات رقم ${currentViewedInvoiceNo}&body=مرحباً، مرفق تفاصيل الفاتورة.`;
+        const mailtoLink = `mailto:?subject=فاتورة مشتريات رقم ${invNo}&body=مرحباً، مرفق تفاصيل الفاتورة.`;
         window.location.href = mailtoLink;
     } else {
         showToast('⚠️ يرجى حفظ وتأكيد الفاتورة أولاً', 'warning');

@@ -1342,17 +1342,40 @@ window.shareViaWhatsApp = async function() {
         </div>
     `;
 
+    const overlayWrapper = document.createElement('div');
+    overlayWrapper.style.position = 'fixed';
+    overlayWrapper.style.top = '0';
+    overlayWrapper.style.left = '0';
+    overlayWrapper.style.width = '100vw';
+    overlayWrapper.style.height = '100vh';
+    overlayWrapper.style.zIndex = '999999999';
+    overlayWrapper.style.background = 'rgba(15, 23, 42, 0.85)';
+    overlayWrapper.style.backdropFilter = 'blur(10px)';
+    overlayWrapper.style.display = 'flex';
+    overlayWrapper.style.flexDirection = 'column';
+    overlayWrapper.style.alignItems = 'center';
+    overlayWrapper.style.justifyContent = 'center';
+    overlayWrapper.style.overflowY = 'auto';
+    overlayWrapper.style.padding = '40px 20px';
+
+    const statusHeader = document.createElement('div');
+    statusHeader.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+            <div style="width:30px; height:30px; border:3px solid #25d366; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
+            <h3 style="color:#25d366; font-family:'Tajawal', sans-serif; font-size:1.6rem; margin:0; font-weight:bold;">جاري الإرسال عبر واتساب...</h3>
+        </div>
+    `;
+    overlayWrapper.appendChild(statusHeader);
+
     const printContainer = document.createElement('div');
-    printContainer.style.position = 'fixed';
-    printContainer.style.top = '0';
-    printContainer.style.left = '0';
     printContainer.style.width = '1000px';
-    printContainer.style.zIndex = '-99999';
-    printContainer.style.opacity = '0.01';
-    printContainer.style.pointerEvents = 'none';
+    printContainer.style.maxWidth = '100%';
     printContainer.style.background = '#fff';
     printContainer.style.color = '#000';
     printContainer.style.padding = '30px';
+    printContainer.style.borderRadius = '16px';
+    printContainer.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
+    printContainer.style.transform = 'scale(0.85)';
     
     const originalTable = document.querySelector('#recent-table');
     const tableClone = originalTable.cloneNode(true);
@@ -1386,7 +1409,9 @@ window.shareViaWhatsApp = async function() {
         </html>
     `;
     printContainer.innerHTML = htmlContent;
-    document.body.appendChild(printContainer);
+    
+    overlayWrapper.appendChild(printContainer);
+    document.body.appendChild(overlayWrapper);
 
     const periodText = currentDateMode === 'all' ? 'لكل الفترة' : 'لفتـرة من ' + document.getElementById('filter-date-from').value + ' إلى ' + document.getElementById('filter-date-to').value;
     const message = 'مرحباً، مرفق كشف حسابكم الخاص بـ ' + getAccountNameForShare() + ' ' + periodText;
@@ -1397,7 +1422,7 @@ window.shareViaWhatsApp = async function() {
         showToast('برنامج ربط الواتساب غير متوفر في هذه الصفحة', 'error');
     }
     
-    document.body.removeChild(printContainer);
+    document.body.removeChild(overlayWrapper);
 }
 
 function shareViaEmail() {

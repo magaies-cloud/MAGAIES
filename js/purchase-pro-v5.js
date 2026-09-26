@@ -862,9 +862,11 @@ function loadInvoiceFromStorage(invNo) {
         // If loading a confirmed or posted invoice, enter Edit Mode
         if (data.status === 'confirmed' || data.status === 'posted' || localStorage.getItem('erp_pur_' + invNo)) {
             currentViewedInvoiceNo = data.invoiceNo || data.id;
+            window.currentViewedInvoiceNo = currentViewedInvoiceNo;
             showToast('✏️ أنت الآن في وضع التعديل للفاتورة الأصلية', 'warning', 4000);
         } else {
             currentViewedInvoiceNo = null;
+            window.currentViewedInvoiceNo = null;
         }
 
         // Reset form
@@ -2943,15 +2945,23 @@ function submitInvoice(ignoreWarnings = false) {
         showToast('📋 تم تأكيد الفاتورة — تحتاج ترحيل لتؤثر في الأرصدة والمخزون', 'warning', 5000);
     }
 
-    // Save submitted data for WhatsApp integration before form reset
+    // Save submitted data for WhatsApp integration
     window._lastSubmittedPurchaseInvoice = data;
+    window._lastSubmittedPurchaseInvoiceNo = committedNo;
+    window.currentViewedInvoiceNo = committedNo;
+    currentViewedInvoiceNo = committedNo;
 
     // ═══ Trigger Auto-Send if enabled ═══
     if (typeof window.triggerPurchaseAutoSendOnSave === 'function') {
         window.triggerPurchaseAutoSendOnSave(committedNo, data);
     }
 
-    onSuccessNewInvoice(false);
+    // Automatically return to and stay on the saved invoice
+    loadInvoiceFromStorage(committedNo);
+
+    if (typeof updatePostingStatusBar === 'function') updatePostingStatusBar(committedNo);
+    if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
+
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
 
     } catch (err) {
@@ -3607,12 +3617,12 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
     let warningsHtml = '';
     if (warnings && warnings.length > 0) {
         warningsHtml = `
-            <div style="margin-top: 15px; padding: 12px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; text-align: right;">
-                <strong style="color: #fbbf24; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
-                    <span>⚠️</span> تنبيهات أثناء الحفظ:
+            <div style="margin-top: 10px; padding: 8px 12px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; text-align: right;">
+                <strong style="color: #fbbf24; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+                    <span>⚠️</span> تنبيهات:
                 </strong>
-                <ul style="color: #f1f5f9; font-size: 0.8rem; margin-top: 8px; padding-right: 24px; line-height: 1.5;">
-                    ${warnings.map(w => `<li style="margin-bottom: 4px;">${w}</li>`).join('')}
+                <ul style="color: #f1f5f9; font-size: 0.78rem; margin: 4px 0 0 0; padding-right: 18px; line-height: 1.4;">
+                    ${warnings.map(w => `<li style="margin-bottom: 2px;">${w}</li>`).join('')}
                 </ul>
             </div>
         `;
@@ -3622,36 +3632,74 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
     overlay.id = 'success-modal-overlay';
     overlay.className = 'success-overlay';
     overlay.innerHTML = `
-        <div class="success-card">
-            <div class="success-check-wrap">
-                <div class="success-check-circle">
-                    <svg class="success-check-svg" viewBox="0 0 52 52">
+        <div class="success-card" style="position: relative; max-width: 380px !important; padding: 22px 24px 20px !important; border-radius: 20px !important; box-sizing: border-box !important;">
+            <!-- زر إغلاق والعودة للفاتورة -->
+            <button type="button" onclick="onSuccessReturnToInvoice('${invoiceNo}')" style="position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; width: 30px; height: 30px; border-radius: 50%; font-size: 1.15rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'; this.style.color='#f43f5e';" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#94a3b8';" title="العودة لمتابعة التوريد">&times;</button>
+            <div class="success-check-wrap" style="margin-bottom: 10px !important;">
+                <div class="success-check-circle" style="width: 48px !important; height: 48px !important; box-shadow: 0 4px 15px rgba(16,185,129,0.3) !important;">
+                    <svg class="success-check-svg" viewBox="0 0 52 52" style="width: 26px !important; height: 26px !important;">
                         <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
                         <path class="check-mark" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                     </svg>
                 </div>
             </div>
-            <h2 class="success-title">🎉 تم الحفظ بنجاح!</h2>
-            <p class="success-inv-no">رقم الفاتورة: <strong>#${invoiceNo}</strong></p>
-            <div class="success-amount-box">
-                <div class="success-amount-label">إجمالي المبلغ</div>
-                <div class="success-amount-value">${grandTotal}</div>
+            <h2 class="success-title" style="font-size: 1.25rem !important; margin-bottom: 3px !important; font-weight: 800 !important; color: #f8fafc !important;">🎉 تم الحفظ بنجاح</h2>
+            <p class="success-inv-no" style="font-size: 0.9rem !important; margin-bottom: 12px !important; color: #94a3b8 !important;">رقم الفاتورة: <strong style="color: #38bdf8 !important;">#${invoiceNo}</strong></p>
+            <div class="success-amount-box" style="padding: 10px 16px !important; margin-bottom: 16px !important; border-radius: 12px !important;">
+                <div class="success-amount-label" style="font-size: 0.75rem !important; margin-bottom: 2px !important;">إجمالي المبلغ</div>
+                <div class="success-amount-value" style="font-size: 1.4rem !important; font-weight: 800 !important;">${grandTotal} ${currency || ''}</div>
             </div>
             ${warningsHtml}
-            <div class="success-actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
-                <button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#25d366,#128c7e);" onclick="if(typeof openPurchaseWhatsAppModal==='function'){openPurchaseWhatsAppModal('${invoiceNo}');}">🚀 إرسال إذن التوريد / الفاتورة للمورد عبر واتساب</button>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-ghost success-btn" style="flex:1;" onclick="onSuccessNewInvoice()">استلام جديد</button>
-                    <button class="btn btn-success success-btn" style="flex:1;" onclick="onSuccessDone()">قائمة المشتريات</button>
+            <div class="success-actions" style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
+                <!-- زر العودة لمتابعة التوريد -->
+                <button class="btn success-btn" style="height: 44px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; font-weight: 800; font-size: 0.95rem; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35); transition: 0.2s;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';" onclick="onSuccessReturnToInvoice('${invoiceNo}')">
+                    <span>🔙 العودة لمتابعة التوريد</span>
+                </button>
+                <!-- زر إرسال إذن توريد فاتورة لمورد عبر واتساب -->
+                <button class="btn btn-success success-btn" style="height: 44px; background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; font-weight: 800; font-size: 0.95rem; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); transition: 0.2s;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';" onclick="if(typeof sendCurrentInvoiceWA==='function'){sendCurrentInvoiceWA();}else{alert('دالة الإرسال غير متوفرة');}">
+                    <span>📲 إرسال إذن توريد للمورد (واتساب)</span>
+                </button>
+                <div style="display: flex; gap: 8px; margin-top: 2px;">
+                    <button class="btn btn-ghost success-btn" style="flex: 1; height: 38px; font-size: 0.88rem; font-weight: 700; border-radius: 8px;" onclick="onSuccessNewInvoice()">✨ استلام جديد</button>
+                    <button class="btn btn-success success-btn" style="flex: 1; height: 38px; font-size: 0.88rem; font-weight: 700; border-radius: 8px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); color: #60a5fa;" onclick="onSuccessDone()">📋 المشتريات</button>
                 </div>
             </div>
         </div>
     `;
+    overlay.onclick = function(e) {
+        if (e.target === overlay) {
+            onSuccessReturnToInvoice(invoiceNo);
+        }
+    };
     document.body.appendChild(overlay);
 
     // Trigger animation
     requestAnimationFrame(() => overlay.classList.add('visible'));
 }
+
+function onSuccessReturnToInvoice(invoiceNo) {
+    const overlay = document.getElementById('success-modal-overlay');
+    if (overlay) {
+        overlay.classList.remove('visible');
+        setTimeout(() => overlay.remove(), 250);
+    }
+    const targetNo = invoiceNo || currentViewedInvoiceNo || window.currentViewedInvoiceNo || window._lastSubmittedPurchaseInvoiceNo;
+    if (targetNo) {
+        currentViewedInvoiceNo = targetNo;
+        window.currentViewedInvoiceNo = targetNo;
+        loadInvoiceFromStorage(targetNo);
+    }
+    if (typeof updateActionButtonsVisibility === 'function') {
+        updateActionButtonsVisibility();
+    }
+    if (typeof updatePostingStatusBar === 'function') {
+        updatePostingStatusBar(targetNo);
+    }
+    if (typeof showToast === 'function') {
+        showToast(`📄 تم العودة للفاتورة #${targetNo} لمتابعة التوريد`, 'info', 3500);
+    }
+}
+window.onSuccessReturnToInvoice = onSuccessReturnToInvoice;
 
 function onSuccessNewInvoice(closeModalFlag = true) {
     currentViewedInvoiceNo = null; // Reset edit mode

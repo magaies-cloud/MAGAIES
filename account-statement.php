@@ -1968,7 +1968,9 @@ input:checked + .slider:before { transform: translateX(20px); }
         const message = `مرحباً، مرفق كشف حسابكم الخاص بـ (${accName}) من النظام المالي. شكراً لتعاملكم معنا!`;
         const printContainer = document.getElementById('printArea') || document.querySelector('.statement-container') || document.body;
 
-        if (typeof sendPDFViaWhatsApp === 'function') {
+        if (typeof openLedgerWhatsAppModal === 'function') {
+            openLedgerWhatsAppModal(accName, targetPhone);
+        } else if (typeof sendPDFViaWhatsApp === 'function') {
             await sendPDFViaWhatsApp(printContainer, targetPhone, message);
         } else {
             try {

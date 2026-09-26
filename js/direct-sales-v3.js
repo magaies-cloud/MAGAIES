@@ -869,6 +869,8 @@ function loadNextInvoice() {
 
 window.isInvoiceLocked = false;
 window.isInvoicePosted = false;
+window.isInvoiceEditingPermitted = false;
+window.isAmendingInvoice = false;
 
 function showEditBanner(invNo, opts = {}) {
     const banner = document.getElementById('saved-invoice-edit-banner');
@@ -876,78 +878,88 @@ function showEditBanner(invNo, opts = {}) {
 
     const isPosted = !!opts.isPosted;
     const isLocked = !!opts.isLocked;
+    const isAmended = !!opts.isAmended;
 
-    if (isPosted) {
-        banner.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.18), rgba(185, 28, 28, 0.3))';
-        banner.style.borderColor = 'rgba(239, 68, 68, 0.7)';
-        banner.style.boxShadow = '0 4px 20px rgba(239, 68, 68, 0.35)';
+    if (isPosted && isLocked) {
+        // 🔒 Locked & Posted State (المطابق للطلب: الفاتورة مرحّلة وممنوع التعديل إلا بطلب صريح)
+        banner.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 78, 59, 0.35))';
+        banner.style.borderColor = 'rgba(16, 185, 129, 0.6)';
+        banner.style.boxShadow = '0 4px 20px rgba(16, 185, 129, 0.25)';
         banner.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 1.8rem;">🔒</span>
+                    <span style="font-size: 2rem;">🔒</span>
                     <div>
-                        <div style="color: #fca5a5; font-size: 1.15rem; font-weight: 900;">
-                            تنبيه أمان: هذه الفاتورة (رقم: <span style="color:#ffffff; font-family:'Outfit',sans-serif; text-decoration: underline;">${invNo}</span>) مُرحّلة محاسبياً في دفتر الأستاذ العام
+                        <div style="color: #34d399; font-size: 1.15rem; font-weight: 900; display: flex; align-items: center; gap: 8px;">
+                            <span>الفاتورة مرحّلة</span>
+                            <span style="background: rgba(16, 185, 129, 0.25); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.5); padding: 2px 10px; border-radius: 12px; font-size: 0.85rem; font-family:'Outfit',sans-serif;">#${invNo}</span>
+                            ${isAmended ? '<span style="background: rgba(245, 158, 11, 0.25); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); padding: 2px 8px; border-radius: 10px; font-size: 0.8rem; font-weight: 800;">نسخة معدّلة</span>' : ''}
                         </div>
-                        <div style="color: #fecaca; font-size: 0.9rem; font-weight: 700; margin-top: 2px;">
-                            تم إثبات الأثر المالي والمخزني لهذه الفاتورة. الفاتورة مغلقة للقراءة فقط وممنوع تعديلها نهائياً للحفاظ على سلامة الحسابات.
+                        <div style="color: #cbd5e1; font-size: 0.88rem; font-weight: 600; margin-top: 3px;">
+                            تم إثبات الأثر المالي والمخزني لهذه الفاتورة. الفاتورة مقفلة للقراءة فقط — لإجراء أي تعديل اضغط على زر «تعديل الفاتورة».
                         </div>
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <button type="button" onclick="onSuccessNewInvoice()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 7px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">
-                        ➕ بدء فاتورة جديدة
+                    <button type="button" onclick="requestEditPostedInvoice('${invNo}')" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #fff; padding: 8px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95rem; box-shadow: 0 2px 10px rgba(245,158,11,0.35); transition: 0.2s; display: flex; align-items: center; gap: 6px;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 4px 15px rgba(245,158,11,0.5)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 10px rgba(245,158,11,0.35)';" title="فك القفل وتفعيل وضع التعديل الرسمي">
+                        <span>✏️</span> تعديل الفاتورة
+                    </button>
+                    <button type="button" onclick="onSuccessNewInvoice(false)" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.88rem; transition: 0.2s;">
+                        ✨ جديد
                     </button>
                 </div>
             </div>
         `;
-    } else if (isLocked) {
-        banner.style.background = 'linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(30, 58, 138, 0.3))';
-        banner.style.borderColor = 'rgba(56, 189, 248, 0.7)';
-        banner.style.boxShadow = '0 4px 20px rgba(56, 189, 248, 0.25)';
+    } else if (isPosted && !isLocked) {
+        // ⚠️ Active Editing of Posted Invoice (Amendment Mode)
+        banner.style.background = 'linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(180, 83, 9, 0.4))';
+        banner.style.borderColor = 'rgba(245, 158, 11, 0.8)';
+        banner.style.boxShadow = '0 4px 20px rgba(245, 158, 11, 0.35)';
         banner.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 1.8rem;">👁️</span>
+                    <span style="font-size: 2rem;">⚠️</span>
                     <div>
-                        <div style="color: #38bdf8; font-size: 1.15rem; font-weight: 900;">
-                            وضع المعاينة فقط للفاتورة رقم (<span style="color:#ffffff; font-family:'Outfit',sans-serif; text-decoration: underline;">${invNo}</span>)
+                        <div style="color: #fbbf24; font-size: 1.15rem; font-weight: 900; display: flex; align-items: center; gap: 8px;">
+                            <span>أنت الآن في وضع تعديل الفاتورة المرحّلة</span>
+                            <span style="background: rgba(245, 158, 11, 0.3); color: #fef08a; border: 1px solid rgba(245, 158, 11, 0.5); padding: 2px 10px; border-radius: 12px; font-size: 0.85rem; font-family:'Outfit',sans-serif;">#${invNo}</span>
                         </div>
-                        <div style="color: #bae6fd; font-size: 0.9rem; font-weight: 700; margin-top: 2px;">
-                            الفاتورة مفتوحة للعرض والقراءة فقط. الحقول مغلقة ضد التعديل غير المقصود.
+                        <div style="color: #fde68a; font-size: 0.88rem; font-weight: 600; margin-top: 3px;">
+                            تنبيه: سيتم حفظ التعديلات وتحديث قيود الحسابات والأرصدة، وإرسال إشعار رسمي للعميل يفيد بأن هذه الفاتورة قد تم تعديلها.
                         </div>
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <button type="button" onclick="setInvoiceLockState(false, false, '${invNo}')" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: 1px solid rgba(56,189,248,0.5); color: #fff; padding: 7px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s;">
-                        ✏️ تفعيل التعديل
+                    <button type="button" onclick="cancelEditPostedInvoice('${invNo}')" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.88rem; transition: 0.2s;" onmouseover="this.style.background='rgba(239, 68, 68, 0.3)'" onmouseout="this.style.background='rgba(239, 68, 68, 0.2)'">
+                        ↩️ إلغاء التعديل
                     </button>
-                    <button type="button" onclick="onSuccessNewInvoice()" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 7px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s;">
-                        ➕ فاتورة جديدة
+                    <button type="button" onclick="onSuccessNewInvoice(false)" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.88rem; transition: 0.2s;">
+                        ✨ جديد
                     </button>
                 </div>
             </div>
         `;
     } else {
-        banner.style.background = 'linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(180, 83, 9, 0.3))';
-        banner.style.borderColor = 'rgba(245, 158, 11, 0.7)';
-        banner.style.boxShadow = '0 4px 20px rgba(245, 158, 11, 0.25)';
+        // Standard view or draft
+        banner.style.background = 'linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(30, 58, 138, 0.25))';
+        banner.style.borderColor = 'rgba(56, 189, 248, 0.6)';
+        banner.style.boxShadow = '0 4px 15px rgba(56, 189, 248, 0.2)';
         banner.innerHTML = `
             <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
                 <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 1.8rem;">⚠️</span>
+                    <span style="font-size: 1.6rem;">📄</span>
                     <div>
-                        <div style="color: #fbbf24; font-size: 1.15rem; font-weight: 900;">
-                            تنبيه: أنت الآن في وضع تعديل فاتورة محفوظة مسبقاً (<span style="color:#ffffff; font-family:'Outfit',sans-serif; text-decoration: underline;">${invNo}</span>)
+                        <div style="color: #38bdf8; font-size: 1.1rem; font-weight: 900;">
+                            فاتورة محفوظة (<span style="color:#ffffff; font-family:'Outfit',sans-serif; text-decoration: underline;">${invNo}</span>)
                         </div>
-                        <div style="color: #fde68a; font-size: 0.9rem; font-weight: 700; margin-top: 2px;">
-                            أصل الفاتورة تم اعتماده مسبقاً في النظام. حفظ أي تعديلات سيقوم بتحديث الحسابات وحركات المخزن المرتبطة بها تلقائياً.
+                        <div style="color: #bae6fd; font-size: 0.85rem; font-weight: 600; margin-top: 2px;">
+                            يمكنك تعديل الفاتورة أو طباعتها أو بدء فاتورة جديدة.
                         </div>
                     </div>
                 </div>
                 <div style="display: flex; gap: 8px; align-items: center;">
-                    <button type="button" onclick="onSuccessNewInvoice()" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 7px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
-                        ➕ إلغاء التعديل وبدء فاتورة جديدة
+                    <button type="button" onclick="onSuccessNewInvoice(false)" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 7px 16px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s;">
+                        ✨ جديد
                     </button>
                 </div>
             </div>
@@ -971,6 +983,17 @@ function setInvoiceLockState(isLocked, isPosted = false, invNo = '') {
         invNo = document.getElementById('hdr-inv-no')?.value || currentViewedInvoiceNo || '';
     }
 
+    let isAmended = false;
+    if (invNo) {
+        try {
+            const str = localStorage.getItem('erp_inv_' + invNo);
+            if (str) {
+                const parsed = JSON.parse(str);
+                isAmended = !!(parsed.isAmended || parsed.amendmentCount);
+            }
+        } catch(e) {}
+    }
+
     const editor = document.getElementById('invoice-editor-view');
     if (editor) {
         editor.querySelectorAll('input:not(#hub-search):not(#delivery-search), select:not(#preset-selector), textarea').forEach(el => {
@@ -991,32 +1014,429 @@ function setInvoiceLockState(isLocked, isPosted = false, invNo = '') {
             b.style.display = isLocked ? 'none' : '';
         });
 
-        // Save Button vs Locked Badge
+        // Save Button vs Locked Badge & Edit button
         const saveBtn = editor.querySelector('.btn-submit');
         let lockedBadge = document.getElementById('locked-submit-badge');
 
         if (isLocked) {
             if (saveBtn) saveBtn.style.display = 'none';
+            const badgeContent = `
+                <div style="display: flex; gap: 8px; width: 100%; align-items: center; justify-content: center;">
+                    <div style="flex: 1; height: 45px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(16, 185, 129, 0.15); border: 1.5px solid rgba(16, 185, 129, 0.4); color: #34d399; border-radius: 8px; font-weight: 800; font-size: 0.95rem;">
+                        <span style="font-size:1.15rem;">🔒</span> <span>الفاتورة مرحّلة</span>
+                    </div>
+                    <button type="button" class="btn-action" onclick="requestEditPostedInvoice('${invNo}')" style="flex: 1.2; height: 45px; background: linear-gradient(135deg, #f59e0b, #d97706); border: none; color: #fff; font-size: 0.95rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.boxShadow='0 4px 15px rgba(245, 158, 11, 0.5)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(245, 158, 11, 0.3)';" title="فك القفل وتفعيل وضع التعديل الرسمي">
+                        <span>✏️</span> <span>تعديل الفاتورة</span>
+                    </button>
+                </div>
+            `;
             if (!lockedBadge && saveBtn && saveBtn.parentNode) {
                 lockedBadge = document.createElement('div');
                 lockedBadge.id = 'locked-submit-badge';
-                lockedBadge.style.cssText = 'flex: 1.5; height: 45px; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(239, 68, 68, 0.15); border: 1.5px solid rgba(239, 68, 68, 0.5); color: #fca5a5; border-radius: 8px; font-weight: 800; font-size: 1rem; box-shadow: 0 2px 10px rgba(239,68,68,0.2);';
-                lockedBadge.innerHTML = isPosted ? '<span style="font-size:1.2rem;">🔒</span> <span>فاتورة مرحلة محاسبياً - ممنوع التعديل</span>' : '<span style="font-size:1.2rem;">👁️</span> <span>وضع المعاينة فقط - التعديل معطل</span>';
+                lockedBadge.style.cssText = 'flex: 1.5; height: 45px; display: flex; align-items: center; justify-content: center;';
+                lockedBadge.innerHTML = badgeContent;
                 saveBtn.parentNode.insertBefore(lockedBadge, saveBtn);
             } else if (lockedBadge) {
                 lockedBadge.style.display = 'flex';
-                lockedBadge.innerHTML = isPosted ? '<span style="font-size:1.2rem;">🔒</span> <span>فاتورة مرحلة محاسبياً - ممنوع التعديل</span>' : '<span style="font-size:1.2rem;">👁️</span> <span>وضع المعاينة فقط - التعديل معطل</span>';
+                lockedBadge.innerHTML = badgeContent;
             }
         } else {
-            if (saveBtn) saveBtn.style.display = 'flex';
+            if (saveBtn) {
+                saveBtn.style.display = 'flex';
+                if (window.isInvoiceEditingPermitted || window.isAmendingInvoice) {
+                    saveBtn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    saveBtn.style.boxShadow = '0 2px 10px rgba(245, 158, 11, 0.4)';
+                    saveBtn.innerHTML = '💾 تأكيد وحفظ التعديل وإرسال الإشعار';
+                } else {
+                    saveBtn.style.background = 'linear-gradient(135deg, #0ea5e9, #2563eb)';
+                    saveBtn.style.boxShadow = '0 2px 10px rgba(56, 189, 248, 0.4)';
+                    saveBtn.innerHTML = '✅ تأكيد وحفظ';
+                }
+            }
             if (lockedBadge) lockedBadge.style.display = 'none';
         }
     }
 
     if (invNo) {
-        showEditBanner(invNo, { isLocked: isLocked, isPosted: isPosted });
+        showEditBanner(invNo, { isLocked: isLocked, isPosted: isPosted, isAmended: isAmended });
     }
 }
+
+function requestEditPostedInvoice(invNo) {
+    if (!invNo) invNo = document.getElementById('hdr-inv-no')?.value || currentViewedInvoiceNo;
+    if (!invNo) return;
+
+    // Inject styles if not present
+    if (!document.getElementById('edit-warning-modal-styles')) {
+        const style = document.createElement('style');
+        style.id = 'edit-warning-modal-styles';
+        style.textContent = `
+            @keyframes pulseWarnGlow {
+                0%, 100% {
+                    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4), inset 0 0 10px rgba(245, 158, 11, 0.2);
+                    transform: scale(1);
+                }
+                50% {
+                    box-shadow: 0 0 28px rgba(239, 68, 68, 0.75), inset 0 0 15px rgba(239, 68, 68, 0.35);
+                    transform: scale(1.06);
+                }
+            }
+            @keyframes editModalCardIn {
+                0% {
+                    opacity: 0;
+                    transform: scale(0.92) translateY(16px);
+                }
+                100% {
+                    opacity: 1;
+                    transform: scale(1) translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // Remove any existing overlay
+    const existing = document.getElementById('edit-posted-invoice-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'edit-posted-invoice-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(8, 13, 24, 0.82);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 9999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        padding: 16px;
+        box-sizing: border-box;
+        font-family: 'Tajawal', sans-serif;
+        direction: rtl;
+    `;
+
+    overlay.innerHTML = `
+        <div class="edit-warn-card" style="
+            max-width: 530px;
+            width: 100%;
+            background: linear-gradient(165deg, #111827 0%, #0b1120 100%);
+            border: 2px solid rgba(245, 158, 11, 0.6);
+            border-radius: 20px;
+            box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.9), 0 0 35px rgba(245, 158, 11, 0.22);
+            overflow: hidden;
+            color: #f1f5f9;
+            animation: editModalCardIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            position: relative;
+        ">
+            <!-- Header with glowing warning banner -->
+            <div style="
+                background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.14));
+                border-bottom: 1px solid rgba(245, 158, 11, 0.3);
+                padding: 18px 22px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: relative;
+            ">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div style="
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 14px;
+                        background: linear-gradient(135deg, #f59e0b, #ef4444);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.55rem;
+                        color: #ffffff;
+                        animation: pulseWarnGlow 2s infinite ease-in-out;
+                        flex-shrink: 0;
+                    ">
+                        ⚠️
+                    </div>
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 900; color: #fbbf24; letter-spacing: -0.3px;">
+                                تأكيد تعديل الفاتورة المرحلة
+                            </h3>
+                            <span style="
+                                background: rgba(245, 158, 11, 0.2);
+                                color: #fde047;
+                                border: 1px solid rgba(245, 158, 11, 0.45);
+                                padding: 2px 10px;
+                                border-radius: 20px;
+                                font-size: 0.85rem;
+                                font-weight: 800;
+                                font-family: 'Outfit', sans-serif;
+                            ">#${invNo}</span>
+                        </div>
+                        <div style="color: #94a3b8; font-size: 0.82rem; margin-top: 3px; font-weight: 600;">
+                            الفاتورة مرحّلة ومثبتة رسمياً في قيود الحسابات وحركات المخزن
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="edit-modal-close-btn" style="
+                    background: rgba(255, 255, 255, 0.06);
+                    border: 1px solid rgba(255, 255, 255, 0.12);
+                    color: #94a3b8;
+                    font-size: 1.2rem;
+                    width: 34px;
+                    height: 34px;
+                    border-radius: 10px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                " onmouseover="this.style.background='rgba(239,68,68,0.2)'; this.style.color='#f87171'; this.style.borderColor='rgba(239,68,68,0.4)';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#94a3b8'; this.style.borderColor='rgba(255,255,255,0.12)';">✕</button>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px;">
+                
+                <!-- Notice Alert Box -->
+                <div style="
+                    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(239, 68, 68, 0.06));
+                    border: 1px solid rgba(245, 158, 11, 0.35);
+                    border-right: 4px solid #f59e0b;
+                    border-radius: 10px;
+                    padding: 12px 16px;
+                    font-size: 0.92rem;
+                    color: #fef3c7;
+                    line-height: 1.6;
+                ">
+                    <div style="font-weight: 800; color: #fbbf24; margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">
+                        <span>🛡️</span> <span>تنبيه أمني ومحاسبي هام:</span>
+                    </div>
+                    أنت على وشك فتح قفل هذه الفاتورة للتعديل المباشر. عند اعتماد التعديلات وحفظها، ستحدث الإجراءات النظامية التالية:
+                </div>
+
+                <!-- 3 Colorful Feature Warning Cards -->
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Card 1: Unlock Fields -->
+                    <div style="
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 12px;
+                        background: rgba(245, 158, 11, 0.06);
+                        border: 1px solid rgba(245, 158, 11, 0.22);
+                        border-radius: 12px;
+                        padding: 12px 14px;
+                    ">
+                        <div style="
+                            width: 38px;
+                            height: 38px;
+                            border-radius: 10px;
+                            background: rgba(245, 158, 11, 0.15);
+                            border: 1px solid rgba(245, 158, 11, 0.35);
+                            color: #fbbf24;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 1.2rem;
+                            flex-shrink: 0;
+                        ">🔓</div>
+                        <div>
+                            <div style="font-size: 0.93rem; font-weight: 800; color: #fde68a; margin-bottom: 2px;">
+                                فك قفل الحقول للتعديل الفوري
+                            </div>
+                            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.45;">
+                                سيتم إتاحة تعديل بنود الأصناف، الكميات، الأسعار، الخصومات، وطرق الدفع بحرية تامة.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Recompute Entries & Stock -->
+                    <div style="
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 12px;
+                        background: rgba(59, 130, 246, 0.06);
+                        border: 1px solid rgba(59, 130, 246, 0.22);
+                        border-radius: 12px;
+                        padding: 12px 14px;
+                    ">
+                        <div style="
+                            width: 38px;
+                            height: 38px;
+                            border-radius: 10px;
+                            background: rgba(59, 130, 246, 0.15);
+                            border: 1px solid rgba(59, 130, 246, 0.35);
+                            color: #60a5fa;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 1.2rem;
+                            flex-shrink: 0;
+                        ">📊</div>
+                        <div>
+                            <div style="font-size: 0.93rem; font-weight: 800; color: #93c5fd; margin-bottom: 2px;">
+                                إعادة احتساب القيود وحركات المخزن
+                            </div>
+                            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.45;">
+                                عند الحفظ، يُلغى الأثر المالي والمخزني السابق ويتم تحديث قيود الحسابات والأستاذ والمخزن بالقيم الجديدة.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: WhatsApp Notification & Amendment Badge -->
+                    <div style="
+                        display: flex;
+                        align-items: flex-start;
+                        gap: 12px;
+                        background: rgba(16, 185, 129, 0.06);
+                        border: 1px solid rgba(16, 185, 129, 0.22);
+                        border-radius: 12px;
+                        padding: 12px 14px;
+                    ">
+                        <div style="
+                            width: 38px;
+                            height: 38px;
+                            border-radius: 10px;
+                            background: rgba(16, 185, 129, 0.15);
+                            border: 1px solid rgba(16, 185, 129, 0.35);
+                            color: #34d399;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 1.2rem;
+                            flex-shrink: 0;
+                        ">📲</div>
+                        <div>
+                            <div style="font-size: 0.93rem; font-weight: 800; color: #6ee7b7; margin-bottom: 2px;">
+                                توثيق الفاتورة كـ «نسخة معدّلة» وإشعار العميل
+                            </div>
+                            <div style="font-size: 0.83rem; color: #cbd5e1; line-height: 1.45;">
+                                ستُعلّم الفاتورة رسمياً كـ «نسخة معدّلة» وسيتم إرسال إشعار رسمي فوري للعميل بالتعديل عبر واتساب.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div style="
+                background: rgba(15, 23, 42, 0.7);
+                border-top: 1px solid rgba(255, 255, 255, 0.08);
+                padding: 16px 24px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                flex-wrap: wrap;
+            ">
+                <button type="button" id="edit-modal-cancel-btn" style="
+                    flex: 1;
+                    min-width: 140px;
+                    padding: 12px 18px;
+                    border-radius: 10px;
+                    font-size: 0.9rem;
+                    font-weight: 700;
+                    cursor: pointer;
+                    background: rgba(255, 255, 255, 0.06);
+                    color: #cbd5e1;
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    font-family: 'Tajawal', sans-serif;
+                    transition: all 0.2s ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 6px;
+                " onmouseover="this.style.background='rgba(255,255,255,0.12)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.06)'; this.style.color='#cbd5e1';">
+                    <span>🔒</span> إلغاء والاحتفاظ بالقفل
+                </button>
+
+                <button type="button" id="edit-modal-confirm-btn" style="
+                    flex: 1.4;
+                    min-width: 190px;
+                    padding: 12px 22px;
+                    border-radius: 10px;
+                    font-size: 0.95rem;
+                    font-weight: 900;
+                    cursor: pointer;
+                    background: linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%);
+                    color: #ffffff;
+                    border: none;
+                    box-shadow: 0 4px 18px rgba(245, 158, 11, 0.45);
+                    font-family: 'Tajawal', sans-serif;
+                    transition: all 0.25s ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                " onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 24px rgba(245,158,11,0.65)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 18px rgba(245,158,11,0.45)';">
+                    <span>✏️</span> تأكيد فك القفل وبدء التعديل
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Fade in
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+    });
+
+    const closeModal = () => {
+        overlay.style.opacity = '0';
+        const card = overlay.querySelector('.edit-warn-card');
+        if (card) {
+            card.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+            card.style.transform = 'scale(0.92) translateY(15px)';
+            card.style.opacity = '0';
+        }
+        document.removeEventListener('keydown', onKeyDown);
+        setTimeout(() => {
+            if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+        }, 250);
+    };
+
+    const onKeyDown = (e) => {
+        if (e.key === 'Escape') closeModal();
+    };
+    document.addEventListener('keydown', onKeyDown);
+
+    overlay.querySelector('#edit-modal-close-btn').onclick = closeModal;
+    overlay.querySelector('#edit-modal-cancel-btn').onclick = closeModal;
+
+    // Click outside card to close
+    overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeModal();
+    });
+
+    overlay.querySelector('#edit-modal-confirm-btn').onclick = () => {
+        closeModal();
+
+        window.isInvoiceEditingPermitted = true;
+        window.isAmendingInvoice = true;
+        setInvoiceLockState(false, true, invNo);
+        if (typeof showToast === 'function') {
+            showToast('✏️ تم فك القفل — أنت الآن في وضع التعديل (سيتم إرسال إشعار التعديل عند الحفظ)', 'warning', 5000);
+        }
+    };
+}
+window.requestEditPostedInvoice = requestEditPostedInvoice;
+
+function cancelEditPostedInvoice(invNo) {
+    if (!invNo) invNo = document.getElementById('hdr-inv-no')?.value || currentViewedInvoiceNo;
+    window.isInvoiceEditingPermitted = false;
+    window.isAmendingInvoice = false;
+    if (invNo && loadInvoiceFromStorage(invNo, { isLocked: true, isPosted: true })) {
+        if (typeof showToast === 'function') {
+            showToast('🔒 تم إلغاء التعديل وإعادة قفل الفاتورة', 'info');
+        }
+    } else {
+        onSuccessNewInvoice(false);
+    }
+}
+window.cancelEditPostedInvoice = cancelEditPostedInvoice;
 
 function loadInvoiceFromStorage(invNo, opts = {}) {
     let str = localStorage.getItem('erp_inv_' + invNo);
@@ -1053,6 +1473,21 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
         // Set Header
         document.getElementById('hdr-inv-no').value = data.invoiceNo;
         document.getElementById('inv-number').textContent = data.invoiceNo;
+
+        let amendedBadge = document.getElementById('hdr-amended-badge');
+        if (data.isAmended) {
+            if (!amendedBadge) {
+                amendedBadge = document.createElement('span');
+                amendedBadge.id = 'hdr-amended-badge';
+                amendedBadge.style.cssText = 'background: rgba(245, 158, 11, 0.25); border: 1px solid rgba(245, 158, 11, 0.6); color: #fbbf24; font-size: 0.72rem; padding: 2px 8px; border-radius: 6px; font-weight: 800; margin: 0 4px;';
+                const invWrap = document.querySelector('.gold-serial-wrap');
+                if (invWrap) invWrap.insertBefore(amendedBadge, document.getElementById('inv-number').nextSibling);
+            }
+            amendedBadge.textContent = 'مُعَدَّلَة';
+            amendedBadge.style.display = 'inline-block';
+        } else if (amendedBadge) {
+            amendedBadge.style.display = 'none';
+        }
         if(data.date) document.getElementById('hdr-date').value = data.date;
         if(data.description) document.getElementById('hdr-description').value = data.description;
         if(data.notes) document.getElementById('inv-notes').value = data.notes;
@@ -3484,9 +3919,9 @@ function submitInvoice(ignoreWarnings = false) {
     window.isSubmitting = true;
 
     try {
-        if (window.isInvoiceLocked || window.isInvoicePosted) {
-            showToast('🔒 هذه الفاتورة مرحلة محاسبياً في دفتر الأستاذ ومقفلة تماماً - ممنوع التعديل', 'error', 6000);
-            alert('🚫 تنبيه أمان:\n\nلا يمكن تعديل هذه الفاتورة نهائياً لأنها فاتورة مرحلة محاسبياً في دفتر الأستاذ العام.');
+        if (window.isInvoiceLocked && !window.isInvoiceEditingPermitted) {
+            showToast('🔒 الفاتورة مرحّلة ومقفلة — يرجى تأكيد فك القفل للتعديل', 'warning', 5000);
+            requestEditPostedInvoice(currentViewedInvoiceNo);
             window.isSubmitting = false;
             return;
         }
@@ -3499,7 +3934,7 @@ function submitInvoice(ignoreWarnings = false) {
                 return; // blocked by policy
             }
 
-            if (!confirm('⚠️ تأكيد حفظ التعديلات:\n\nالفاتورة رقم (' + currentViewedInvoiceNo + ') هي فاتورة أصلية معتمدة ومحفوظة مسبقاً في النظام.\n\nهل تريد بالتأكيد تطبيق التعديلات عليها وتحديث الحسابات وحركات المخزن المرتبطة بها؟')) {
+            if (!confirm(`⚠️ تأكيد حفظ التعديلات:\n\nالفاتورة رقم (${currentViewedInvoiceNo}) مرحّلة ومثبتة في قيود النظام.\n\nسيتم حفظ التعديلات كـ «نسخة معدّلة» وتحديث قيود الحسابات والأرصدة، وإرسال إشعار رسمي للعميل يفيد بتعديل الفاتورة.\n\nهل تريد المتابعة وحفظ التعديلات الآن؟`)) {
                 window.isSubmitting = false;
                 return;
             }
@@ -3537,6 +3972,7 @@ function submitInvoice(ignoreWarnings = false) {
 
     let cashAmt = 0;
     let creditAmt = 0;
+    let overpaidAmt = 0;
     let bankTransfers = [];
     let transfersSum = 0;
     let cheques = [];
@@ -3546,6 +3982,7 @@ function submitInvoice(ignoreWarnings = false) {
     if (!cashActive && !creditActive && !bankActive && !chequeActive) {
         // DEFAULT RULE: If no payment method is toggled, default to Credit (Deferred) for full amount
         creditAmt = grandAmount;
+        overpaidAmt = 0;
         paymentMethod = 'credit';
     } else {
         if (cashActive) {
@@ -3583,8 +4020,10 @@ function submitInvoice(ignoreWarnings = false) {
         const totalPaymentsPaid = cashAmt + transfersSum + chequesSum;
         if (totalPaymentsPaid < grandAmount) {
             creditAmt = Math.max(0, grandAmount - totalPaymentsPaid);
+            overpaidAmt = 0;
         } else {
             creditAmt = 0;
+            overpaidAmt = Math.max(0, totalPaymentsPaid - grandAmount);
         }
 
         if (cashAmt > 0 && transfersSum === 0 && chequesSum === 0 && creditAmt === 0) {
@@ -3718,6 +4157,15 @@ function submitInvoice(ignoreWarnings = false) {
         }
     }
 
+    let oldInv = null;
+    const wasAmending = !!(currentViewedInvoiceNo && (window.isInvoiceEditingPermitted || window.isAmendingInvoice));
+    if (currentViewedInvoiceNo) {
+        try {
+            const oldStr = localStorage.getItem('erp_inv_' + currentViewedInvoiceNo);
+            if (oldStr) oldInv = JSON.parse(oldStr);
+        } catch(e) {}
+    }
+
     const data = {
         invoiceNo: committedNo,
         date: document.getElementById('hdr-date').value,
@@ -3750,7 +4198,11 @@ function submitInvoice(ignoreWarnings = false) {
         status: finalStatus,
         timestamp: new Date().toISOString(),
         customerName: cust ? cust.name : 'عميل نقدي',
-        effectsApplied: (currentSaleType !== 'preliminary' && postingMode === 'auto')
+        effectsApplied: (currentSaleType !== 'preliminary' && postingMode === 'auto'),
+        isAmended: wasAmending ? true : !!(oldInv?.isAmended),
+        amendmentCount: wasAmending ? ((Number(oldInv?.amendmentCount) || 0) + 1) : (oldInv?.amendmentCount || 0),
+        lastAmendedAt: wasAmending ? new Date().toISOString() : (oldInv?.lastAmendedAt || null),
+        wasEdited: wasAmending ? true : !!(oldInv?.wasEdited)
     };
 
     // If editing, revert old financial effects first
@@ -3795,8 +4247,6 @@ function submitInvoice(ignoreWarnings = false) {
         localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
         
         // C. Customer Credit Debt / Surplus Portion
-        const totalPaymentsPaid = cashAmt + transfersSum + chequesSum;
-        const overpaidAmt = Math.max(0, totalPaymentsPaid - grandAmount);
         if (creditAmt > 0 && custId && custId !== 'walk-in') {
             let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
             const cIdx = customers.findIndex(c => c.id === custId);
@@ -3831,11 +4281,22 @@ function submitInvoice(ignoreWarnings = false) {
     }
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
 
+    window.isInvoiceEditingPermitted = false;
+    window.isAmendingInvoice = false;
+
     if (typeof window.rebuildGLFromAllTables === 'function') {
-        window.rebuildGLFromAllTables(false);
+        try {
+            window.rebuildGLFromAllTables(false);
+        } catch(eGL) {
+            console.warn("rebuildGLFromAllTables warning:", eGL);
+        }
     }
     if (typeof window.pushToCloud === 'function') {
-        window.pushToCloud(true).catch(e => console.warn("Cloud sync failed:", e));
+        try {
+            window.pushToCloud(true).catch(e => console.warn("Cloud sync failed:", e));
+        } catch(eCloud) {
+            console.warn("Cloud push warning:", eCloud);
+        }
     }
 
     // Notice: Inventory is NO LONGER DEDUCTED HERE for new invoices!
@@ -3873,21 +4334,37 @@ function submitInvoice(ignoreWarnings = false) {
     }
 
     currentViewedInvoiceNo = committedNo;
+    window.currentViewedInvoiceNo = committedNo;
     document.getElementById('hdr-inv-no').value = committedNo;
     document.getElementById('inv-number').textContent = committedNo;
-    if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
-    
-    if (typeof updateSalesPostingStatusBar === 'function') {
-        updateSalesPostingStatusBar(finalStatus);
+    window._lastSubmittedSalesInvoice = data;
+    window._lastSubmittedSalesInvoiceNo = committedNo;
+
+    // ═══ Trigger Auto-Send if enabled ═══
+    if (typeof window.triggerSalesAutoSendOnSave === 'function') {
+        try {
+            window.triggerSalesAutoSendOnSave(committedNo, data);
+        } catch(eAuto) {
+            console.warn("Auto-send non-fatal error:", eAuto);
+        }
+    }
+
+    // Automatically return to and stay on the saved invoice in locked posted state
+    try {
+        loadInvoiceFromStorage(committedNo, { isLocked: true, isPosted: true });
+    } catch(eLoad) {
+        console.warn("loadInvoiceFromStorage non-fatal error:", eLoad);
+    }
+
+    try {
+        if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
+    } catch(eAct) {}
+
+    if (wasAmending) {
+        showToast('✅ تم حفظ التعديل بنجاح وتسجيل الفاتورة كـ «نسخة معدّلة»', 'success', 5000);
     }
 
     showSuccessModal(committedNo, grandTotal, cur, finalWarnings);
-
-    // ═══ Trigger Auto-Send if enabled ═══
-    window._lastSubmittedSalesInvoice = data;
-    if (typeof window.triggerSalesAutoSendOnSave === 'function') {
-        window.triggerSalesAutoSendOnSave(committedNo, data);
-    }
     } catch(err) {
         console.error("Error in submitInvoice:", err);
         showToast("❌ حدث خطأ غير متوقع أثناء الحفظ: " + (err.message || err), "error");
@@ -4129,12 +4606,12 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
     let warningsHtml = '';
     if (warnings && warnings.length > 0) {
         warningsHtml = `
-            <div style="margin-top: 15px; padding: 12px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; text-align: right;">
-                <strong style="color: #fbbf24; font-size: 0.85rem; display: flex; align-items: center; gap: 6px;">
-                    <span>⚠️</span> تنبيهات أثناء الحفظ:
+            <div style="margin-top: 10px; padding: 8px 12px; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.3); border-radius: 8px; text-align: right;">
+                <strong style="color: #fbbf24; font-size: 0.8rem; display: flex; align-items: center; gap: 4px;">
+                    <span>⚠️</span> تنبيهات:
                 </strong>
-                <ul style="color: #f1f5f9; font-size: 0.8rem; margin-top: 8px; padding-right: 24px; line-height: 1.5;">
-                    ${warnings.map(w => `<li style="margin-bottom: 4px;">${w}</li>`).join('')}
+                <ul style="color: #f1f5f9; font-size: 0.78rem; margin: 4px 0 0 0; padding-right: 18px; line-height: 1.4;">
+                    ${warnings.map(w => `<li style="margin-bottom: 2px;">${w}</li>`).join('')}
                 </ul>
             </div>
         `;
@@ -4144,55 +4621,117 @@ function showSuccessModal(invoiceNo, grandTotal, currency, warnings = []) {
     overlay.id = 'success-modal-overlay';
     overlay.className = 'success-overlay';
     overlay.innerHTML = `
-        <div class="success-card">
-            <div class="success-check-wrap">
-                <div class="success-check-circle">
-                    <svg class="success-check-svg" viewBox="0 0 52 52">
+        <div class="success-card" style="position: relative; max-width: 380px !important; padding: 22px 24px 20px !important; border-radius: 20px !important; box-sizing: border-box !important;">
+            <!-- زر إغلاق والعودة للفاتورة -->
+            <button type="button" onclick="onSuccessReturnToInvoice('${invoiceNo}')" style="position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; width: 30px; height: 30px; border-radius: 50%; font-size: 1.15rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'; this.style.color='#f43f5e';" onmouseout="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#94a3b8';" title="العودة لمتابعة الفاتورة">&times;</button>
+            <div class="success-check-wrap" style="margin-bottom: 10px !important;">
+                <div class="success-check-circle" style="width: 48px !important; height: 48px !important; box-shadow: 0 4px 15px rgba(16,185,129,0.3) !important;">
+                    <svg class="success-check-svg" viewBox="0 0 52 52" style="width: 26px !important; height: 26px !important;">
                         <circle class="check-circle" cx="26" cy="26" r="25" fill="none"/>
                         <path class="check-mark" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
                     </svg>
                 </div>
             </div>
-            <h2 class="success-title">🎉 تم الحفظ بنجاح!</h2>
-            <p class="success-inv-no">رقم الفاتورة: <strong>#${invoiceNo}</strong></p>
-            <div class="success-amount-box">
-                <div class="success-amount-label">إجمالي المبلغ</div>
-                <div class="success-amount-value">${grandTotal}</div>
+            <h2 class="success-title" style="font-size: 1.25rem !important; margin-bottom: 3px !important; font-weight: 800 !important; color: #f8fafc !important;">🎉 تم الحفظ بنجاح</h2>
+            <p class="success-inv-no" style="font-size: 0.9rem !important; margin-bottom: 12px !important; color: #94a3b8 !important;">رقم الفاتورة: <strong style="color: #38bdf8 !important;">#${invoiceNo}</strong></p>
+            <div class="success-amount-box" style="padding: 10px 16px !important; margin-bottom: 16px !important; border-radius: 12px !important;">
+                <div class="success-amount-label" style="font-size: 0.75rem !important; margin-bottom: 2px !important;">إجمالي المبلغ</div>
+                <div class="success-amount-value" style="font-size: 1.4rem !important; font-weight: 800 !important;">${grandTotal} ${currency || ''}</div>
             </div>
             ${warningsHtml}
-            <div class="success-actions" style="margin-top: 20px; display:flex; flex-direction:column; gap:10px;">
-                <button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#38bdf8,#0284c7);" onclick="printCurrentInvoice()">🖨️ طباعة الفاتورة</button>
-                
+            <div class="success-actions" style="margin-top: 15px; display: flex; flex-direction: column; gap: 8px;">
+                <!-- زر العودة لمتابعة الفاتورة (نفس المشتريات) -->
+                <button class="btn success-btn" style="height: 44px; background: linear-gradient(135deg, #6366f1, #4f46e5); color: #fff; font-weight: 800; font-size: 0.95rem; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35); transition: 0.2s;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';" onclick="onSuccessReturnToInvoice('${invoiceNo}')">
+                    <span>🔙 العودة لمتابعة الفاتورة</span>
+                </button>
+                <!-- زر إرسال إذن استلام للعميل عبر واتساب (نفس المشتريات) -->
+                <button class="btn btn-success success-btn" style="height: 44px; background: linear-gradient(135deg, #25d366, #128c7e); color: #fff; font-weight: 800; font-size: 0.95rem; border: none; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.35); transition: 0.2s;" onmouseover="this.style.transform='translateY(-1px)';" onmouseout="this.style.transform='none';" onclick="if(typeof sendCurrentInvoiceWA==='function'){sendCurrentInvoiceWA();}else if(typeof openSalesWhatsAppModal==='function'){openSalesWhatsAppModal('${invoiceNo}');}else{alert('دالة الإرسال غير متوفرة');}">
+                    <span>📲 إرسال إذن استلام للعميل (واتساب)</span>
+                </button>
                 ${(() => {
                     const str = localStorage.getItem('erp_inv_' + invoiceNo) || localStorage.getItem('erp_draft_' + invoiceNo);
                     if (str) {
                         try {
                             const data = JSON.parse(str);
                             if (parseFloat(data.creditAmount) > 0) {
-                                return `<button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#f59e0b,#d97706);" onclick="printCurrentPromissoryNote('${invoiceNo}')">📜 طباعة الكمبيالة / إقرار دين المدين</button>`;
+                                return `<button class="btn btn-success success-btn" style="height: 40px; background:linear-gradient(135deg,#f59e0b,#d97706); font-size: 0.9rem; font-weight: 700; border-radius: 8px;" onclick="printCurrentPromissoryNote('${invoiceNo}')">📜 طباعة سند لأمر / إقرار دين</button>`;
                             }
                         } catch(e) {}
                     }
                     return '';
                 })()}
-                
-                <button class="btn btn-success success-btn" style="background:linear-gradient(135deg,#25d366,#128c7e);" onclick="if(typeof openSalesWhatsAppModal==='function'){openSalesWhatsAppModal('${invoiceNo}');}">🚀 إرسال الفاتورة / إذن الاستلام عبر واتساب</button>
-                
-                <div style="display:flex; gap:10px;">
-                    <button class="btn btn-ghost success-btn" style="flex:1;" onclick="onSuccessNewInvoice()">عملية جديدة</button>
-                    <button class="btn btn-success success-btn" style="flex:1;" onclick="onSuccessDone()">قائمة المبيعات</button>
+                <div style="display: flex; gap: 8px; margin-top: 2px;">
+                    <button class="btn btn-ghost success-btn" style="flex: 1; height: 38px; font-size: 0.88rem; font-weight: 700; border-radius: 8px;" onclick="onSuccessNewInvoice()">✨ عملية جديدة</button>
+                    <button class="btn btn-success success-btn" style="flex: 1; height: 38px; font-size: 0.88rem; font-weight: 700; border-radius: 8px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(59, 130, 246, 0.35); color: #60a5fa;" onclick="onSuccessDone()">📋 قائمة المبيعات</button>
                 </div>
             </div>
         </div>
     `;
+    overlay.onclick = function(e) {
+        if (e.target === overlay) {
+            onSuccessReturnToInvoice(invoiceNo);
+        }
+    };
     document.body.appendChild(overlay);
 
     // Trigger animation
     requestAnimationFrame(() => overlay.classList.add('visible'));
 }
 
+function onSuccessReturnToInvoice(invoiceNo) {
+    const overlay = document.getElementById('success-modal-overlay');
+    if (overlay) {
+        overlay.classList.remove('visible');
+        setTimeout(() => overlay.remove(), 250);
+    }
+    const targetNo = invoiceNo || currentViewedInvoiceNo || window.currentViewedInvoiceNo || window._lastSubmittedSalesInvoiceNo;
+    if (targetNo) {
+        currentViewedInvoiceNo = targetNo;
+        window.currentViewedInvoiceNo = targetNo;
+        loadInvoiceFromStorage(targetNo, { isLocked: true, isPosted: true });
+    }
+    if (typeof updateActionButtonsVisibility === 'function') {
+        updateActionButtonsVisibility();
+    }
+    if (typeof showToast === 'function') {
+        showToast(`📄 تم العودة للفاتورة #${targetNo} (الفاتورة مرحّلة ومقفلة)`, 'info', 3500);
+    }
+}
+
 function onSuccessNewInvoice(closeModalFlag = true) {
+    if (!closeModalFlag && typeof rows !== 'undefined' && rows.length > 0 && rows.some(r => r && (r.itemId || (r.price && Number(r.price) > 0)))) {
+        if (!confirm('هل تريد بالتأكيد إلغاء البيانات الحالية وتفريغ النموذج لبدء فاتورة جديدة؟')) {
+            return;
+        }
+    }
     currentViewedInvoiceNo = null; // Reset edit mode
+    window.isInvoiceEditingPermitted = false;
+    window.isAmendingInvoice = false;
+    window.isInvoiceLocked = false;
+    window.isInvoicePosted = false;
+
+    // Remove immutability locks from form elements
+    document.querySelectorAll('input, select, textarea').forEach(el => {
+        if (el.hasAttribute('data-immutability-locked')) {
+            el.disabled = false;
+            el.removeAttribute('data-immutability-locked');
+        }
+    });
+
+    // Restore save button and hide locked badge
+    const lockedBadge = document.getElementById('locked-submit-badge');
+    if (lockedBadge) lockedBadge.style.display = 'none';
+    const saveBtn = document.querySelector('.btn-submit');
+    if (saveBtn) {
+        saveBtn.style.display = 'flex';
+        saveBtn.style.background = 'linear-gradient(135deg, #0ea5e9, #2563eb)';
+        saveBtn.style.boxShadow = '0 2px 10px rgba(56, 189, 248, 0.4)';
+        saveBtn.innerHTML = '✅ تأكيد وحفظ';
+    }
+
+    const amendedBadge = document.getElementById('hdr-amended-badge');
+    if (amendedBadge) amendedBadge.style.display = 'none';
+
     if (typeof hideEditBanner === 'function') hideEditBanner();
     if (typeof updateSalesPostingStatusBar === 'function') {
         updateSalesPostingStatusBar('new');
@@ -4267,14 +4806,20 @@ function onSuccessNewInvoice(closeModalFlag = true) {
     if (typeof initMultiPaymentSystem === 'function') initMultiPaymentSystem();
     if (typeof recalcAll === 'function') recalcAll();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
+    if (!closeModalFlag && typeof showToast === 'function') {
+        showToast('✨ تم تجهيز فاتورة جديدة', 'success');
+    }
 }
+window.onSuccessNewInvoice = onSuccessNewInvoice;
 
 function onSuccessDone() {
     const overlay = document.getElementById('success-modal-overlay');
-    if (overlay) { overlay.classList.remove('visible'); setTimeout(() => overlay.remove(), 400); }
-    // In production: navigate to sales list
-    // window.location.href = 'sales-list.html';
-    showToast('📋 قائمة المبيعات (قيد التطوير)', 'warning');
+    if (overlay) { overlay.classList.remove('visible'); setTimeout(() => overlay.remove(), 250); }
+    if (typeof showSalesHub === 'function') {
+        showSalesHub();
+    } else {
+        showToast('📋 قائمة المبيعات', 'info');
+    }
 }
 
 // ════════════════════════════════════════
@@ -5029,47 +5574,79 @@ async function sendInvoiceWA(invoiceNo) {
 
     const htmlContent = window.InvoicePrinter.buildHTML(inv, 'نسخة العميل');
     
+    // Create a fullscreen overlay to display the document clearly while sending (نفس المشتريات)
+    const overlayWrapper = document.createElement('div');
+    overlayWrapper.style.position = 'fixed';
+    overlayWrapper.style.top = '0';
+    overlayWrapper.style.left = '0';
+    overlayWrapper.style.width = '100vw';
+    overlayWrapper.style.height = '100vh';
+    overlayWrapper.style.background = 'rgba(15, 23, 42, 0.85)';
+    overlayWrapper.style.backdropFilter = 'blur(10px)';
+    overlayWrapper.style.zIndex = '999999999';
+    overlayWrapper.style.display = 'flex';
+    overlayWrapper.style.flexDirection = 'column';
+    overlayWrapper.style.alignItems = 'center';
+    overlayWrapper.style.justifyContent = 'center';
+    overlayWrapper.style.overflowY = 'auto';
+    overlayWrapper.style.padding = '40px 20px';
+
+    const statusHeader = document.createElement('div');
+    statusHeader.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+            <div style="width:30px; height:30px; border:3px solid #25d366; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
+            <h3 style="color:#25d366; font-family:'Tajawal', sans-serif; font-size:1.6rem; margin:0; font-weight:bold;">جاري الإرسال عبر واتساب...</h3>
+        </div>
+    `;
+    
     const printContainer = document.createElement('div');
     printContainer.className = 'print-preview-wrapper';
-    printContainer.style.position = 'fixed';
-    printContainer.style.top = '0';
-    printContainer.style.left = '0';
     printContainer.style.width = '800px';
-    printContainer.style.zIndex = '-99999';
-    printContainer.style.opacity = '0.01';
-    printContainer.style.pointerEvents = 'none';
-    printContainer.style.padding = '24px';
+    printContainer.style.maxWidth = '100%';
     printContainer.style.background = '#f0f4f8';
+    printContainer.style.padding = '24px';
+    printContainer.style.borderRadius = '16px';
+    printContainer.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
+    printContainer.style.transform = 'scale(0.85)';
     
     printContainer.innerHTML = htmlContent;
-    document.body.appendChild(printContainer);
+    
+    overlayWrapper.appendChild(statusHeader);
+    overlayWrapper.appendChild(printContainer);
+    document.body.appendChild(overlayWrapper);
 
-    const message = `مرحباً، مرفق فاتورتكم رقم ${invoiceNo} من ${JSON.parse(localStorage.getItem('user'))?.company_name || 'مؤسستنا'}. شكراً لتعاملكم معنا!`;
+    const isAmended = !!(inv.isAmended || inv.amendmentCount);
+    const companyName = JSON.parse(localStorage.getItem('user') || '{}')?.company_name || 'مؤسستنا';
+    let message = '';
+    if (isAmended) {
+        message = `⚠️ إشعار تعديل فاتورة: مرحباً، نود إحاطتكم بأنه تم إجراء تعديل رسمي على فاتورتكم رقم ${invoiceNo} من ${companyName}. مرفق طيه الفاتورة المعدلة للاعتماد والعمل بموجبها. شكراً لتعاملكم معنا!`;
+    } else {
+        message = `مرحباً، مرفق فاتورتكم رقم ${invoiceNo} من ${companyName}. شكراً لتعاملكم معنا!`;
+    }
     
     try {
         await sendPDFViaWhatsApp(printContainer, phone, message);
     } catch (e) {
         console.error(e);
     } finally {
-        printContainer.remove();
+        overlayWrapper.remove();
     }
 }
 
 function updateActionButtonsVisibility() {
     const previewBtn = document.getElementById('btn-preview-invoice');
-    const waBtn = document.getElementById('btn-whatsapp-invoice');
-    // Preview button always visible
-    if (previewBtn) previewBtn.style.display = 'flex';
-    if (currentViewedInvoiceNo) {
-        if (waBtn) waBtn.style.display = 'flex';
+    const invNo = (typeof currentViewedInvoiceNo !== 'undefined' && currentViewedInvoiceNo) ? currentViewedInvoiceNo : window.currentViewedInvoiceNo;
+    if (invNo && invNo !== '---' && invNo !== 'SAL-NEW' && invNo !== 'جديد') {
+        if (previewBtn) previewBtn.style.display = 'flex';
     } else {
-        if (waBtn) waBtn.style.display = 'none';
+        if (previewBtn) previewBtn.style.display = 'none';
     }
 }
 
 async function sendCurrentInvoiceWA() {
-    if (currentViewedInvoiceNo) {
-        await sendInvoiceWA(currentViewedInvoiceNo);
+    let invNo = (typeof currentViewedInvoiceNo !== 'undefined' && currentViewedInvoiceNo) ? currentViewedInvoiceNo : (window.currentViewedInvoiceNo || window._lastSubmittedSalesInvoiceNo || document.getElementById('hdr-inv-no')?.value);
+    if (invNo && invNo !== '---' && invNo !== 'SAL-NEW' && invNo !== 'جديد') {
+        await sendInvoiceWA(invNo);
     } else {
         showToast('⚠️ يرجى حفظ وتأكيد الفاتورة أولاً', 'warning');
     }
@@ -5713,6 +6290,11 @@ function updateSalesPostingStatusBar(status) {
     const actions = document.getElementById('posting-status-actions');
     
     if (!bar) return;
+
+    if (window.isInvoiceLocked) {
+        bar.style.display = 'none';
+        return;
+    }
 
     const postingMode = window.getPostingMode ? window.getPostingMode() : 'auto';
     

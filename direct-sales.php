@@ -2677,7 +2677,7 @@ try {
     <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 12px; width: 100%; align-items: center;">
         
         <!-- 1. Customer Field -->
-        <div class="h-form-group group-supplier" style="flex: 2.2; min-width: 260px; display:flex; align-items:center; gap:10px;">
+        <div class="h-form-group group-supplier" style="flex: 2.8; min-width: 325px; display:flex; align-items:center; gap:10px;">
             <label class="h-label" style="margin:0; white-space:nowrap; font-size: 1.25rem !important; font-weight: 800 !important; color: #34d399;">👤 العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span></label>
             <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
                 <div class="custom-dropdown" style="flex:1; min-width: 0;">
@@ -2697,7 +2697,7 @@ try {
         </div>
 
         <!-- 2. Exchange Rate Field -->
-        <div class="h-form-group group-currency" style="flex: 1.8; min-width: 220px; display:flex; align-items:center; gap:10px;">
+        <div class="h-form-group group-currency" style="flex: 1.6; min-width: 200px; display:flex; align-items:center; gap:10px;">
             <label class="h-label" style="margin:0; white-space:nowrap;">💱 الصرف</label>
             <div style="display: flex; flex-direction: row; align-items: center; gap: 5px; flex: 1; width: 100%;">
                 <select class="v-input ctrl-input system-currency-select" id="hdr-currency" onchange="handleCurrencyChange(this.value)" style="flex: 1.2; min-width:0;">
@@ -2712,7 +2712,7 @@ try {
         </div>
 
         <!-- 3. Warehouse -->
-        <div class="h-form-group group-warehouse" style="flex: 1.5; min-width: 180px; display:flex; align-items:center; gap:10px;">
+        <div class="h-form-group group-warehouse" style="flex: 1.3; min-width: 170px; display:flex; align-items:center; gap:10px;">
             <label class="h-label" style="margin:0; white-space:nowrap; min-width:60px;">📦 المخزن</label>
             <div style="flex:1;">
                 <select class="v-input ctrl-input" id="hdr-warehouse" onchange="onMainWarehouseChange()" style="width:100%;"></select>
@@ -2720,7 +2720,7 @@ try {
         </div>
 
         <!-- 4. Cost Center -->
-        <div class="h-form-group group-cost-center" style="flex: 1.5; min-width: 180px; display:flex; align-items:center; gap:10px;">
+        <div class="h-form-group group-cost-center" style="flex: 1.3; min-width: 170px; display:flex; align-items:center; gap:10px;">
             <label class="h-label" style="margin:0; white-space:nowrap; min-width:75px;">🏷️ مركز التكلفة</label>
             <div style="flex:1;">
                 <select class="v-input ctrl-input" id="hdr-cost-center" style="width:100%;">
@@ -3452,14 +3452,44 @@ try {
                     </select>
                 </div>
                 
-                <!-- زر الواتساب الصغير بشعار الواتساب الرسمي -->
-                <button type="button" class="btn crystal-btn btn-whatsapp-icon-only" id="btn-whatsapp-master-sales" onclick="openSalesWhatsAppModal()" title="إرسال إذن الاستلام والفاتورة وكشف الحساب عبر واتساب">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style="display: block;">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M12 0C5.373 0 0 5.373 0 12c0 2.115.552 4.103 1.516 5.832L.057 24l6.34-1.662A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z" fill="#25D366"/>
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" fill="#ffffff"/>
-                    </svg>
-                </button>
-                <button type="button" id="btn-whatsapp-invoice" style="display: none !important;"></button>
+                <!-- Share Button: Professional with dropdown (نفس زر المشاركة في المشتريات) -->
+                <div style="position: relative; flex: 1.2;" id="share-btn-wrapper">
+                    <button type="button" class="btn-action btn-share" id="btn-share-invoice" style="width: 100%; height: 45px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border: none; color: #fff; font-size: 1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 10px rgba(139, 92, 246, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.background='linear-gradient(135deg, #7c3aed, #5b21b6)'; this.style.boxShadow='0 4px 18px rgba(139, 92, 246, 0.5)'; this.style.transform='translateY(-1px)';" onmouseout="this.style.background='linear-gradient(135deg, #8b5cf6, #6d28d9)'; this.style.boxShadow='0 2px 10px rgba(139, 92, 246, 0.3)'; this.style.transform='none';" onclick="toggleShareMenu(event)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                        <span>مشاركة</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.7;"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                    <!-- Share Popup Menu -->
+                    <div id="share-popup-menu" style="display: none; position: absolute; bottom: 55px; left: 50%; transform: translateX(-50%) scale(0.9); opacity: 0; min-width: 220px; background: linear-gradient(160deg, rgba(30,27,50,0.98), rgba(15,12,30,0.98)); border: 1px solid rgba(139, 92, 246, 0.35); border-radius: 16px; padding: 8px; box-shadow: 0 15px 40px rgba(0,0,0,0.5), 0 0 30px rgba(139, 92, 246, 0.15); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 9999; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);">
+                        <!-- Arrow -->
+                        <div style="position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 14px; height: 14px; background: rgba(15,12,30,0.98); border-right: 1px solid rgba(139, 92, 246, 0.35); border-bottom: 1px solid rgba(139, 92, 246, 0.35);"></div>
+                        <!-- WhatsApp Option -->
+                        <button type="button" onclick="closeShareMenu(); sendCurrentInvoiceWA();" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: transparent; border: none; border-radius: 12px; color: #e2e8f0; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; direction: rtl;" onmouseover="this.style.background='rgba(37, 211, 102, 0.12)'; this.style.color='#25d366';" onmouseout="this.style.background='transparent'; this.style.color='#e2e8f0';">
+                            <span style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #25d366, #128C7E); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 10px rgba(37, 211, 102, 0.3);">
+                                <svg viewBox="0 0 24 24" width="20" height="20" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            </span>
+                            <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                                <span>إرسال عبر واتساب</span>
+                                <span style="font-size: 0.7rem; color: #64748b; font-weight: 400;">إرسال PDF مع رسالة</span>
+                            </div>
+                        </button>
+                        <!-- Divider -->
+                        <div style="height: 1px; background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.2), transparent); margin: 4px 12px;"></div>
+                        <!-- Email Option -->
+                        <button type="button" onclick="closeShareMenu(); sendCurrentInvoiceEmail();" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: transparent; border: none; border-radius: 12px; color: #e2e8f0; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; direction: rtl;" onmouseover="this.style.background='rgba(245, 158, 11, 0.12)'; this.style.color='#f59e0b';" onmouseout="this.style.background='transparent'; this.style.color='#e2e8f0';">
+                            <span style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 10px rgba(245, 158, 11, 0.6);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                            </span>
+                            <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
+                                <span>إرسال عبر الإيميل</span>
+                                <span style="font-size: 0.7rem; color: #64748b; font-weight: 400;">فتح تطبيق البريد</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- New Button: Solid Green Gradient (مثل المشتريات) -->
+                <button type="button" class="btn-action btn-new" id="btn-new-invoice" style="flex: 1; height: 45px; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 6px;" onmouseover="this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.4)';" onclick="onSuccessNewInvoice(false);" title="بدء فاتورة مبيعات جديدة وتفريغ الحقول">✨ جديد</button>
 
                 <!-- زر التحكم في الإرسال التلقائي مع الحفظ -->
                 <div class="auto-send-control-box" id="auto-send-control-wrapper-sales">
@@ -4244,6 +4274,87 @@ try {
                 showSalesHub();
             }, 50);
         });
+
+        // ═══════════════════════════════════════
+        //  SHARE MENU TOGGLE
+        // ═══════════════════════════════════════
+        let shareMenuOpen = false;
+
+        function toggleShareMenu(e) {
+            if (e) e.stopPropagation();
+            const menu = document.getElementById('share-popup-menu');
+            if (!menu) return;
+            
+            if (shareMenuOpen) {
+                closeShareMenu();
+            } else {
+                if (menu.parentElement !== document.body) {
+                    document.body.appendChild(menu);
+                    menu.style.position = 'fixed';
+                    menu.style.zIndex = '999999999';
+                }
+                const btn = document.getElementById('btn-share-invoice');
+                if (btn) {
+                    const rect = btn.getBoundingClientRect();
+                    menu.style.bottom = (window.innerHeight - rect.top + 10) + 'px';
+                    menu.style.left = (rect.left + rect.width / 2) + 'px';
+                }
+                menu.style.display = 'block';
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        menu.style.opacity = '1';
+                        menu.style.transform = 'translateX(-50%) scale(1)';
+                    });
+                });
+                shareMenuOpen = true;
+            }
+        }
+
+        function closeShareMenu() {
+            const menu = document.getElementById('share-popup-menu');
+            if (!menu) return;
+            menu.style.opacity = '0';
+            menu.style.transform = 'translateX(-50%) scale(0.9)';
+            setTimeout(() => {
+                menu.style.display = 'none';
+            }, 250);
+            shareMenuOpen = false;
+        }
+
+        // Close share menu on outside click
+        document.addEventListener('click', function(e) {
+            if (shareMenuOpen) {
+                const wrapper = document.getElementById('share-btn-wrapper');
+                const menu = document.getElementById('share-popup-menu');
+                if ((!wrapper || !wrapper.contains(e.target)) && (!menu || !menu.contains(e.target))) {
+                    closeShareMenu();
+                }
+            }
+        });
+
+        async function sendCurrentInvoiceWA() {
+            let invNo = (typeof currentViewedInvoiceNo !== 'undefined' && currentViewedInvoiceNo) ? currentViewedInvoiceNo : (window.currentViewedInvoiceNo || window._lastSubmittedSalesInvoiceNo || document.getElementById('hdr-inv-no')?.value);
+            if (invNo && invNo !== '---' && invNo !== 'SAL-NEW' && invNo !== 'جديد') {
+                if (typeof sendInvoiceWA === 'function') {
+                    await sendInvoiceWA(invNo);
+                } else if (typeof openSalesWhatsAppModal === 'function') {
+                    openSalesWhatsAppModal(invNo);
+                }
+            } else {
+                showToast('⚠️ يرجى حفظ وتأكيد الفاتورة أولاً', 'warning');
+            }
+        }
+
+        async function sendCurrentInvoiceEmail() {
+            let invNo = (typeof currentViewedInvoiceNo !== 'undefined' && currentViewedInvoiceNo) ? currentViewedInvoiceNo : (window.currentViewedInvoiceNo || window._lastSubmittedSalesInvoiceNo || document.getElementById('hdr-inv-no')?.value);
+            if (invNo && invNo !== '---' && invNo !== 'SAL-NEW' && invNo !== 'جديد') {
+                showToast('جاري تجهيز الفاتورة للإرسال عبر البريد الإلكتروني...', 'success');
+                const mailtoLink = `mailto:?subject=فاتورة مبيعات رقم ${invNo}&body=مرحباً، مرفق تفاصيل الفاتورة.`;
+                window.location.href = mailtoLink;
+            } else {
+                showToast('⚠️ يرجى حفظ وتأكيد الفاتورة أولاً', 'warning');
+            }
+        }
     </script>
     
     

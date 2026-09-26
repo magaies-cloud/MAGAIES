@@ -39,10 +39,10 @@ if exist "C:\Program Files\nodejs\node.exe" (
 
 echo =========================================================
 echo Server started successfully on Apache (Port 80)!
-echo Opening browser: http://localhost/magaees/login.php
+echo Opening browser: http://localhost/ELSAJANA2/magaies/login.php
 echo =========================================================
 
-start http://localhost/magaees/login.php
+start http://localhost/ELSAJANA2/magaies/login.php
 
 echo.
 echo Server running in background. Press any key to close this window...

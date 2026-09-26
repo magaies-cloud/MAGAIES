@@ -751,7 +751,24 @@
         if (e) { e.stopPropagation(); e.preventDefault(); }
         const menu = document.getElementById('auto-send-sales-dropdown-menu');
         if (!menu) return;
-        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        
+        if (menu.parentElement !== document.body) {
+            document.body.appendChild(menu);
+            menu.style.position = 'fixed';
+            menu.style.zIndex = '999999999';
+        }
+        
+        if (menu.style.display !== 'block') {
+            const btn = document.getElementById('btn-auto-send-options-sales');
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                menu.style.bottom = (window.innerHeight - rect.top + 5) + 'px';
+                menu.style.left = (rect.left) + 'px';
+            }
+            menu.style.display = 'block';
+        } else {
+            menu.style.display = 'none';
+        }
     };
 
     window.selectSalesAutoSendOption = function(mode) {
@@ -881,7 +898,24 @@
         if (e) { e.stopPropagation(); e.preventDefault(); }
         const menu = document.getElementById('auto-send-purchase-dropdown-menu');
         if (!menu) return;
-        menu.style.display = (menu.style.display === 'block') ? 'none' : 'block';
+        
+        if (menu.parentElement !== document.body) {
+            document.body.appendChild(menu);
+            menu.style.position = 'fixed';
+            menu.style.zIndex = '999999999';
+        }
+        
+        if (menu.style.display !== 'block') {
+            const btn = document.getElementById('btn-auto-send-options-purchase');
+            if (btn) {
+                const rect = btn.getBoundingClientRect();
+                menu.style.bottom = (window.innerHeight - rect.top + 5) + 'px';
+                menu.style.left = (rect.left) + 'px';
+            }
+            menu.style.display = 'block';
+        } else {
+            menu.style.display = 'none';
+        }
     };
 
     window.selectPurchaseAutoSendOption = function(mode) {
@@ -1130,19 +1164,31 @@
                 docWrap.style.display = 'block';
                 if (btnPrint) btnPrint.style.display = 'inline-flex';
 
+                const isAmended = !!(inv.isAmended || inv.amendmentCount);
+
                 // Accompanying WhatsApp text
-                const waText = `*إذن استلام وتسليم بضاعة رسمي* 📄\n` +
-                    `*رقم الإذن:* #DO-${inv.invoiceNo}\n` +
-                    `*العميل:* ${activeModalContext.customerName}\n` +
-                    `*التاريخ:* ${inv.date}\n\n` +
-                    `مرفق طيه إذن الاستلام والتسليم المعتمد للأصناف والكميات المسلمة.\n` +
-                    `يرجى مراجعة وتوقيع الإذن عند استلام الشحنة.\n` +
-                    `شكراً لتعاملكم معنا 🌟`;
+                const waText = isAmended
+                    ? `*⚠️ إشعار تعديل إذن استلام وتسليم بضاعة* 📄\n` +
+                      `*(نسخة معدّلة - تعديل رقم ${inv.amendmentCount || 1})*\n` +
+                      `*رقم الإذن:* #DO-${inv.invoiceNo}\n` +
+                      `*العميل الكريم:* ${activeModalContext.customerName}\n` +
+                      `*التاريخ:* ${inv.date}\n\n` +
+                      `نحيطكم علماً بأنه تم إجراء تعديل رسمي على إذن الاستلام والتسليم.\n` +
+                      `مرفق طيه النسخة المعدلة للاعتماد والاستلام بموجبها.\n` +
+                      `شكراً لحسن تعاونكم معنا 🌟`
+                    : `*إذن استلام وتسليم بضاعة رسمي* 📄\n` +
+                      `*رقم الإذن:* #DO-${inv.invoiceNo}\n` +
+                      `*العميل:* ${activeModalContext.customerName}\n` +
+                      `*التاريخ:* ${inv.date}\n\n` +
+                      `مرفق طيه إذن الاستلام والتسليم المعتمد للأصناف والكميات المسلمة.\n` +
+                      `يرجى مراجعة وتوقيع الإذن عند استلام الشحنة.\n` +
+                      `شكراً لتعاملكم معنا 🌟`;
                 textEl.textContent = waText;
                 charCountEl.textContent = `${waText.length} حرف`;
             } else if (tabName === 'delivery_order_text') {
                 descEl.innerHTML = '📝 <strong>إذن استلام كتابة كمعلومة:</strong> رسالة نصية تفصيلية سريعة بالكميات والأسعار (مثال: اشترى 4 طن بسعر كذا، بإجمالي كذا...).';
                 
+                const isAmended = !!(inv.isAmended || inv.amendmentCount);
                 let itemLines = (items && items.length > 0) ? items.map((it, idx) => {
                     const name = it.name || it.itemName || 'صنف';
                     const qty = it.quantity || it.qty || 1;
@@ -1152,16 +1198,28 @@
                     return `${idx + 1}. *${name}* ← الكمية: ${qty} ${unit} | السعر: ${price} ${inv.currency || 'SDG'} (الإجمالي: ${total})`;
                 }).join('\n') : '• (لا توجد أصناف مدخلة بعد)';
 
-                const waText = `*إشعار صدور إذن استلام بضاعة* 📋\n` +
-                    `*رقم الفاتورة/الإذن:* #${inv.invoiceNo}\n` +
-                    `*التاريخ:* ${inv.date}\n` +
-                    `*السيد/السادة:* ${activeModalContext.customerName}\n\n` +
-                    `نحيطكم علماً بصدور إذن استلام بضاعة بالبيانات التالية:\n` +
-                    `${itemLines}\n\n` +
-                    `──────────────────\n` +
-                    `*صافي القيمة الإجمالية:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n` +
-                    (inv.notes ? `*ملاحظات التسليم:* ${inv.notes}\n` : '') +
-                    `شاكرين ومقدرين حسن تعاملكم معنا 🌟`;
+                const waText = isAmended
+                    ? `*⚠️ إشعار تعديل إذن استلام بضاعة* 📋\n` +
+                      `*(نسخة معدّلة - تعديل رقم ${inv.amendmentCount || 1})*\n` +
+                      `*رقم الفاتورة/الإذن:* #${inv.invoiceNo}\n` +
+                      `*التاريخ:* ${inv.date}\n` +
+                      `*السيد/السادة:* ${activeModalContext.customerName}\n\n` +
+                      `نحيطكم علماً بأنه تم تعديل إذن الاستلام والتسليم كالتالي:\n` +
+                      `${itemLines}\n\n` +
+                      `──────────────────\n` +
+                      `*صافي القيمة بعد التعديل:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n` +
+                      (inv.notes ? `*ملاحظات التسليم:* ${inv.notes}\n` : '') +
+                      `نرجو اعتماد هذه النسخة المعدلة. شاكرين ومقدرين حسن تعاملكم معنا 🌟`
+                    : `*إشعار صدور إذن استلام بضاعة* 📋\n` +
+                      `*رقم الفاتورة/الإذن:* #${inv.invoiceNo}\n` +
+                      `*التاريخ:* ${inv.date}\n` +
+                      `*السيد/السادة:* ${activeModalContext.customerName}\n\n` +
+                      `نحيطكم علماً بصدور إذن استلام بضاعة بالبيانات التالية:\n` +
+                      `${itemLines}\n\n` +
+                      `──────────────────\n` +
+                      `*صافي القيمة الإجمالية:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n` +
+                      (inv.notes ? `*ملاحظات التسليم:* ${inv.notes}\n` : '') +
+                      `شاكرين ومقدرين حسن تعاملكم معنا 🌟`;
 
                 textEl.textContent = waText;
                 charCountEl.textContent = `${waText.length} حرف`;
@@ -1174,19 +1232,31 @@
                 docWrap.style.display = 'block';
                 if (btnPrint) btnPrint.style.display = 'inline-flex';
 
-                const waText = `*فاتورة مبيعات معتمدة مصممة* 🧾\n` +
-                    `*رقم الفاتورة:* #${inv.invoiceNo}\n` +
-                    `*التاريخ:* ${inv.date}\n` +
-                    `*العميل الكريم:* ${activeModalContext.customerName}\n` +
-                    `*إجمالي الفاتورة:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n\n` +
-                    `مرفق طيه التصميم الرسمي المعتمد للفاتورة بكافة التفاصيل والبنود.\n` +
-                    `شاكرين لكم حسن تعاملكم معنا ✨`;
+                const isAmended = !!(inv.isAmended || inv.amendmentCount);
+                const waText = isAmended
+                    ? `*⚠️ إشعار تعديل فاتورة مبيعات معتمدة* 🧾\n` +
+                      `*(نسخة معدّلة - تعديل رقم ${inv.amendmentCount || 1})*\n` +
+                      `*رقم الفاتورة:* #${inv.invoiceNo}\n` +
+                      `*التاريخ:* ${inv.date}\n` +
+                      `*العميل الكريم:* ${activeModalContext.customerName}\n` +
+                      `*إجمالي الفاتورة بعد التعديل:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n\n` +
+                      `نحيطكم علماً بأنه تم إجراء تعديل معتمد على بنود وتفاصيل الفاتورة رقم #${inv.invoiceNo}.\n` +
+                      `مرفق طيه التصميم الرسمي المعتمد للفاتورة بعد التعديل للاعتماد والعمل بموجبها.\n` +
+                      `شاكرين لكم حسن تعاونكم وتفهمكم ✨`
+                    : `*فاتورة مبيعات معتمدة مصممة* 🧾\n` +
+                      `*رقم الفاتورة:* #${inv.invoiceNo}\n` +
+                      `*التاريخ:* ${inv.date}\n` +
+                      `*العميل الكريم:* ${activeModalContext.customerName}\n` +
+                      `*إجمالي الفاتورة:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n\n` +
+                      `مرفق طيه التصميم الرسمي المعتمد للفاتورة بكافة التفاصيل والبنود.\n` +
+                      `شاكرين لكم حسن تعاملكم معنا ✨`;
 
                 textEl.textContent = waText;
                 charCountEl.textContent = `${waText.length} حرف`;
             } else if (tabName === 'invoice') {
                 descEl.innerHTML = '💰 <strong>فاتورة المبيعات وكشف الحساب:</strong> تفاصيل مالية شاملة للأصناف، الكميات، الأسعار، الضرائب، الأرصدة، وطريقة الدفع.';
                 
+                const isAmended = !!(inv.isAmended || inv.amendmentCount);
                 let itemLines = (items && items.length > 0) ? items.map((it, idx) => {
                     const name = it.name || it.itemName || 'صنف';
                     const qty = it.quantity || it.qty || 1;
@@ -1196,17 +1266,30 @@
                     return `• ${name}: ${qty} ${unit} × ${price} = *${total} ${inv.currency || 'SDG'}*`;
                 }).join('\n') : '• (لا توجد أصناف مدخلة بعد)';
 
-                const waText = `*فاتورة مبيعات وكشف حساب رسمي* 🧾\n` +
-                    `*رقم الفاتورة:* #${inv.invoiceNo}\n` +
-                    `*التاريخ:* ${inv.date}\n` +
-                    `*العميل:* ${activeModalContext.customerName}\n\n` +
-                    `*تفاصيل الفاتورة:* \n` +
-                    `${itemLines}\n\n` +
-                    `──────────────────\n` +
-                    `*المبلغ الإجمالي الصافي:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n` +
-                    `*طريقة السداد:* ${inv.paymentMethod === 'credit' ? 'آجل' : 'نقدي / بنكي'}\n` +
-                    `──────────────────\n` +
-                    `شاكرين لكم ثقتكم الدائمة بنا ✨`;
+                const waText = isAmended
+                    ? `*⚠️ إشعار تعديل فاتورة مبيعات وكشف حساب رسمي* 🧾\n` +
+                      `*(نسخة معدّلة - تعديل رقم ${inv.amendmentCount || 1})*\n` +
+                      `*رقم الفاتورة:* #${inv.invoiceNo}\n` +
+                      `*التاريخ:* ${inv.date}\n` +
+                      `*العميل:* ${activeModalContext.customerName}\n\n` +
+                      `*تفاصيل الفاتورة بعد التعديل:* \n` +
+                      `${itemLines}\n\n` +
+                      `──────────────────\n` +
+                      `*المبلغ الإجمالي بعد التعديل:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n` +
+                      `*طريقة السداد:* ${inv.paymentMethod === 'credit' ? 'آجل' : 'نقدي / بنكي'}\n` +
+                      `──────────────────\n` +
+                      `نرجو اعتماد هذه النسخة المعدلة. شاكرين لكم ثقتكم الدائمة بنا ✨`
+                    : `*فاتورة مبيعات وكشف حساب رسمي* 🧾\n` +
+                      `*رقم الفاتورة:* #${inv.invoiceNo}\n` +
+                      `*التاريخ:* ${inv.date}\n` +
+                      `*العميل:* ${activeModalContext.customerName}\n\n` +
+                      `*تفاصيل الفاتورة:* \n` +
+                      `${itemLines}\n\n` +
+                      `──────────────────\n` +
+                      `*المبلغ الإجمالي الصافي:* ${inv.grandTotal} ${inv.currency || 'SDG'}\n` +
+                      `*طريقة السداد:* ${inv.paymentMethod === 'credit' ? 'آجل' : 'نقدي / بنكي'}\n` +
+                      `──────────────────\n` +
+                      `شاكرين لكم ثقتكم الدائمة بنا ✨`;
 
                 textEl.textContent = waText;
                 charCountEl.textContent = `${waText.length} حرف`;
@@ -1458,7 +1541,10 @@
 
     function generateInvoiceHTML(doc, type = 'sales') {
         const isSales = (type === 'sales');
-        const title = isSales ? 'فاتورة مبيعات ضريبية معتمدة' : 'فاتورة شراء وتوريد معتمدة';
+        const isAmended = !!(doc.isAmended || doc.amendmentCount);
+        const title = isSales 
+            ? (isAmended ? `فاتورة مبيعات معتمدة (نسخة معدّلة - تعديل #${doc.amendmentCount || 1})` : 'فاتورة مبيعات ضريبية معتمدة') 
+            : 'فاتورة شراء وتوريد معتمدة';
         const partyLabel = isSales ? 'اسم العميل / المشتري:' : 'اسم المورد:';
         const partyName = isSales ? (doc.customerName || 'عميل نقدي') : (doc.supplierName || 'مورد عام');
         const invNo = doc.invoiceNo || 'INV-001';
@@ -1665,12 +1751,20 @@
         if (!s.enabled || s.mode === 'disabled') return;
 
         setTimeout(() => {
-            window.openSalesWhatsAppModal(invoiceNo, invoiceData);
-            if (s.mode) {
-                window.switchSuiteWATab(s.mode);
-            }
-            if (typeof showToast === 'function') {
-                showToast('🚀 الإرسال التلقائي: تم تحضير المستند للإرسال الفوري عبر واتساب', 'success');
+            if (typeof sendInvoiceWA === 'function') {
+                sendInvoiceWA(invoiceNo).then(() => {
+                    if (typeof showToast === 'function') {
+                        showToast('🚀 الإرسال التلقائي: تم الإرسال للعميل عبر واتساب بنجاح', 'success');
+                    }
+                }).catch(e => console.error(e));
+            } else {
+                window.openSalesWhatsAppModal(invoiceNo, invoiceData);
+                if (s.mode) {
+                    window.switchSuiteWATab(s.mode);
+                }
+                if (typeof showToast === 'function') {
+                    showToast('🚀 الإرسال التلقائي: تم تحضير المستند للإرسال الفوري عبر واتساب', 'success');
+                }
             }
         }, 300);
     };
@@ -1680,12 +1774,15 @@
         if (!s.enabled || s.mode === 'disabled') return;
 
         setTimeout(() => {
-            window.openPurchaseWhatsAppModal(invoiceNo, invoiceData);
-            if (s.mode) {
-                window.switchSuiteWATab(s.mode);
-            }
-            if (typeof showToast === 'function') {
-                showToast('🚀 الإرسال التلقائي: تم تحضير إذن التوريد للإرسال للمورد عبر واتساب', 'success');
+            if (typeof sendInvoiceWA === 'function') {
+                sendInvoiceWA(invoiceNo).then(() => {
+                    if (typeof showToast === 'function') {
+                        showToast('🚀 الإرسال التلقائي: تم الإرسال للمورد عبر واتساب بنجاح', 'success');
+                    }
+                }).catch(e => console.error(e));
+            } else {
+                window.openPurchaseWhatsAppModal(invoiceNo, invoiceData);
+                if (s.mode) window.switchSuiteWATab(s.mode);
             }
         }, 300);
     };
@@ -1720,11 +1817,11 @@
 
     // ═══ Close Dropdowns on Outside Click ═══
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('#auto-send-control-wrapper-sales')) {
+        if (!e.target.closest('#auto-send-control-wrapper-sales') && !e.target.closest('#auto-send-sales-dropdown-menu')) {
             const menu = document.getElementById('auto-send-sales-dropdown-menu');
             if (menu) menu.style.display = 'none';
         }
-        if (!e.target.closest('#auto-send-control-wrapper-purchase')) {
+        if (!e.target.closest('#auto-send-control-wrapper-purchase') && !e.target.closest('#auto-send-purchase-dropdown-menu')) {
             const menu = document.getElementById('auto-send-purchase-dropdown-menu');
             if (menu) menu.style.display = 'none';
         }

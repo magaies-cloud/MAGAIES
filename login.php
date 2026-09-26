@@ -347,6 +347,30 @@
         </script>
         
         <button class="btn-login" onclick="handleLogin()">دخول آمن</button>
+
+        <!-- Fast Local Login Helper -->
+        <div id="local-login-hints" style="margin-top: 15px; padding: 10px; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 10px; text-align: center; display: none;">
+            <div style="font-size: 0.8rem; color: #38bdf8; font-weight: 700; margin-bottom: 8px;">🚀 تسجيل دخول سريع ومباشر:</div>
+            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                <button type="button" onclick="fillCreds('c', '123456')" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 6px; padding: 6px 12px; font-size: 0.82rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.35)'" onmouseout="this.style.background='rgba(16,185,129,0.2)'">🏢 الحساب الرئيسي (c / 123456)</button>
+                <button type="button" onclick="fillCreds('admin', '123456')" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; border-radius: 6px; padding: 6px 12px; font-size: 0.82rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.35)'" onmouseout="this.style.background='rgba(59,130,246,0.2)'">⚙️ المدير (admin / 123456)</button>
+            </div>
+        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    const hintBox = document.getElementById('local-login-hints');
+                    if (hintBox) hintBox.style.display = 'block';
+                }
+            });
+            function fillCreds(u, p) {
+                const uInput = document.getElementById('username');
+                const pInput = document.getElementById('password');
+                if (uInput) uInput.value = u;
+                if (pInput) pInput.value = p;
+                if (typeof handleLogin === 'function') handleLogin();
+            }
+        </script>
         
         <div class="device-info" id="device-id-display">جاري التحقق من الجهاز...</div>
     </div>

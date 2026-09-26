@@ -2823,18 +2823,35 @@ async function sendVoucherWA(voucherId) {
     renderWrapper.style.position = 'fixed';
     renderWrapper.style.top = '0';
     renderWrapper.style.left = '0';
-    renderWrapper.style.width = '794px';
-    renderWrapper.style.zIndex = '-99999';
-    renderWrapper.style.overflow = 'visible';
-    renderWrapper.style.pointerEvents = 'none';
-    renderWrapper.style.opacity = '1'; // Must be 1 so html2canvas renders with full opacity!
-    renderWrapper.style.background = '#ffffff';
+    renderWrapper.style.width = '100vw';
+    renderWrapper.style.height = '100vh';
+    renderWrapper.style.zIndex = '999999999';
+    renderWrapper.style.background = 'rgba(15, 23, 42, 0.85)';
+    renderWrapper.style.backdropFilter = 'blur(10px)';
+    renderWrapper.style.display = 'flex';
+    renderWrapper.style.flexDirection = 'column';
+    renderWrapper.style.alignItems = 'center';
+    renderWrapper.style.justifyContent = 'center';
+    renderWrapper.style.overflowY = 'auto';
+    renderWrapper.style.padding = '40px 20px';
+
+    const statusHeader = document.createElement('div');
+    statusHeader.innerHTML = `
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:20px;">
+            <div style="width:30px; height:30px; border:3px solid #25d366; border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
+            <h3 style="color:#25d366; font-family:'Tajawal', sans-serif; font-size:1.6rem; margin:0; font-weight:bold;">جاري إنشاء السند والإرسال عبر واتساب...</h3>
+        </div>
+    `;
+    renderWrapper.appendChild(statusHeader);
 
     const innerDiv = document.createElement('div');
     innerDiv.style.width = '794px';
+    innerDiv.style.maxWidth = '100%';
     innerDiv.style.background = '#ffffff';
-    innerDiv.style.margin = '0';
-    innerDiv.style.padding = '0';
+    innerDiv.style.padding = '24px';
+    innerDiv.style.borderRadius = '16px';
+    innerDiv.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
+    innerDiv.style.transform = 'scale(0.85)';
     innerDiv.innerHTML = voucherHtml;
 
     renderWrapper.appendChild(innerDiv);
