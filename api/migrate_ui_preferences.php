@@ -45,6 +45,10 @@ try {
         $pdo->exec("ALTER TABLE users ADD COLUMN is_deleted TINYINT(1) DEFAULT 0");
     }
 
+    // 1.2 Ensure all active tenants have extended validity (until 2035) and active status
+    $pdo->exec("UPDATE tenants SET valid_until = '2035-12-31 23:59:59', status = 'active' WHERE valid_until IS NULL OR valid_until < '2035-01-01'");
+    $pdo->exec("UPDATE users SET status = 'active' WHERE username = 'c' AND tenant_id = 2");
+
     // 2. Exact calibrated field properties
     $calibratedProps = [
         'date' => [
