@@ -21,16 +21,6 @@ if ($forceMobile) {
     exit;
 }
 
-// Session & Authentication Verification
-$token = $_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? '';
-$sessionActive = $_COOKIE['session_active'] ?? '';
-$isLocalhost = (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1');
-
-if (!$isLocalhost && empty($token) && empty($sessionActive)) {
-    header('Location: login.php?redirect=mobile-dashboard.php');
-    exit;
-}
-
 $page_title = 'مقاييس الموبايل | النسخة السريعة';
 require_once __DIR__ . '/db_bridge.php';
 

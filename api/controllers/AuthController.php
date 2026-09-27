@@ -150,6 +150,15 @@ class AuthController {
                     $user = $stmt->fetch();
                 }
             } else {
+            $hasSearchName = false;
+            try {
+                $chkCol = $this->pdo->query("SHOW COLUMNS FROM users LIKE 'search_name'");
+                $hasSearchName = ($chkCol && $chkCol->rowCount() > 0);
+            } catch(Exception $e) {}
+
+            $searchNameClause = $hasSearchName ? "u.search_name = ?" : "1=0";
+
+            if ($hasSearchName) {
                 $stmt = $this->pdo->prepare("SELECT u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at 
                     FROM users u 
                     JOIN tenants t ON u.tenant_id = t.id 
@@ -159,23 +168,54 @@ class AuthController {
                        OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?) 
                       AND t.subdomain = ?");
                 $stmt->execute([$username, $username, $username, $username, $username, $tenantSubdomain]);
-                $user = $stmt->fetch();
+            } else {
+                $stmt = $this->pdo->prepare("SELECT u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at 
+                    FROM users u 
+                    JOIN tenants t ON u.tenant_id = t.id 
+                    WHERE (u.username = ? 
+                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')) = ? 
+                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ? 
+                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?) 
+                      AND t.subdomain = ?");
+                $stmt->execute([$username, $username, $username, $username, $tenantSubdomain]);
+            }
+            $user = $stmt->fetch();
             }
         } else {
             if ($isBackdoor) {
                 jsonResponse(['error' => 'يجب تسجيل الدخول عبر رابط الشركة المخصص لاستخدام حساب الدعم الفني'], 400);
             }
-            $stmt = $this->pdo->prepare("SELECT u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at 
-                FROM users u 
-                JOIN tenants t ON u.tenant_id = t.id 
-                WHERE u.username = ? 
-                   OR t.owner_email = ? 
-                   OR (u.search_name = ?) 
-                   OR (t.subdomain = ?)
-                   OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')) = ? 
-                   OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ? 
-                   OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?");
-            $stmt->execute([$username, $username, $username, $username, $username, $username, $username]);
+
+            $hasSearchName = false;
+            try {
+                $chkCol = $this->pdo->query("SHOW COLUMNS FROM users LIKE 'search_name'");
+                $hasSearchName = ($chkCol && $chkCol->rowCount() > 0);
+            } catch(Exception $e) {}
+
+            if ($hasSearchName) {
+                $stmt = $this->pdo->prepare("SELECT u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at 
+                    FROM users u 
+                    JOIN tenants t ON u.tenant_id = t.id 
+                    WHERE u.username = ? 
+                       OR t.owner_email = ? 
+                       OR (u.search_name = ?) 
+                       OR (t.subdomain = ?)
+                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')) = ? 
+                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ? 
+                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?");
+                $stmt->execute([$username, $username, $username, $username, $username, $username, $username]);
+            } else {
+                $stmt = $this->pdo->prepare("SELECT u.*, u.status as user_status, t.subdomain, t.company_name, t.status as tenant_status, t.valid_until, t.owner_name, t.owner_phone, t.owner_email, t.plan_id, t.base_currency, t.foreign_currency, t.created_at as tenant_created_at, u.created_at as user_created_at 
+                    FROM users u 
+                    JOIN tenants t ON u.tenant_id = t.id 
+                    WHERE u.username = ? 
+                       OR t.owner_email = ? 
+                       OR (t.subdomain = ?)
+                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.username')) = ? 
+                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.name')) = ? 
+                       OR JSON_UNQUOTE(JSON_EXTRACT(u.data, '$.fullName')) = ?");
+                $stmt->execute([$username, $username, $username, $username, $username, $username]);
+            }
             $users = $stmt->fetchAll();
 
             $verifyUserPassword = function($cand, $pass) {

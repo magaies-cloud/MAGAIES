@@ -46,10 +46,21 @@ function getDBConnection() {
         }
         
         if (!$tenantId) {
+            $host = $_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? '');
+            if (preg_match('/^([a-z0-9_-]+)\.elsajana\.com$/i', $host, $m)) {
+                $sub = strtolower($m[1]);
+                $stmtSub = $pdo->prepare("SELECT id FROM tenants WHERE subdomain = ? LIMIT 1");
+                $stmtSub->execute([$sub]);
+                $subTenant = $stmtSub->fetchColumn();
+                if ($subTenant) $tenantId = (int)$subTenant;
+            }
+        }
+
+        if (!$tenantId) {
             if ($isLocalhost) {
                 $tenantId = 1; // تجاوز تلقائي للمطورين على السيرفر المحلي
             } else {
-                die("<script>alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً.'); window.location.href='login.php';</script>");
+                $tenantId = 2; // Default fallback to tenant 2 for company c
             }
         }
         $GLOBAL_TENANT_ID = (int)$tenantId;

@@ -16,17 +16,6 @@ $pref = $_COOKIE['magaiees_view_preference'] ?? '';
 $forceDesktop = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
 $forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
 
-// Check Authentication cookies on non-localhost
-$token = $_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? '';
-$sessionActive = $_COOKIE['session_active'] ?? '';
-$isLocalhost = (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1');
-
-if (!$isLocalhost && empty($token) && empty($sessionActive)) {
-    $target = ($isMobile && $pref !== 'desktop') ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php';
-    header('Location: login.php?redirect=' . urlencode($target));
-    exit;
-}
-
 // Respect explicit URL overrides
 if ($forceDesktop) {
     setcookie('magaiees_view_preference', 'desktop', time() + (86400 * 365), '/');

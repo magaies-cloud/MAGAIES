@@ -29,6 +29,22 @@ try {
         PRIMARY KEY (tenant_id, pref_key)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 
+    // 1.1 Ensure missing users table columns exist across environments
+    $colStmt = $pdo->query("SHOW COLUMNS FROM users");
+    $existingCols = $colStmt->fetchAll(PDO::FETCH_COLUMN);
+    if (!in_array('search_name', $existingCols)) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN search_name VARCHAR(191) NULL AFTER username");
+    }
+    if (!in_array('updated_at', $existingCols)) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP");
+    }
+    if (!in_array('frontend_id', $existingCols)) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN frontend_id VARCHAR(100) NULL");
+    }
+    if (!in_array('is_deleted', $existingCols)) {
+        $pdo->exec("ALTER TABLE users ADD COLUMN is_deleted TINYINT(1) DEFAULT 0");
+    }
+
     // 2. Exact calibrated field properties
     $calibratedProps = [
         'date' => [
