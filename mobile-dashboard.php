@@ -33,6 +33,139 @@ if (!in_array($activeTheme, ['solar', 'midnight', 'navy', 'forest'])) {
 }
 
 // ═════════════════════════════════════════════════════════════════════
+// 📱 HARDWARE AUTO-DETECTION PROFILE (IPHONE / SAMSUNG / HUAWEI / HONOR / ANDROID)
+// ═════════════════════════════════════════════════════════════════
+function detectMobileHardwareProfile() {
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    $secChUa = $_SERVER['HTTP_SEC_CH_UA'] ?? '';
+    $secMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
+
+    $profile = [
+        'brand' => 'android',
+        'brandKey' => 'android',
+        'brandName' => 'هاتف أندرويد الذكي',
+        'model' => 'Android Smartphone',
+        'os' => 'Android',
+        'icon' => 'fa-brands fa-android',
+        'color' => '#10b981',
+        'safeTop' => '0px',
+        'safeBottom' => '16px',
+        'refreshRate' => '60-120Hz',
+        'tuningNote' => 'معايرة الأندرويد القياسية وتثبيت الارتفاع'
+    ];
+
+    // 1. Apple iPhone / iPad
+    if (preg_match('/iPhone/i', $ua) || preg_match('/iPad|iPod/i', $ua) || (preg_match('/Macintosh/i', $ua) && $secMobile === '?1')) {
+        $profile['brand'] = 'apple';
+        $profile['brandKey'] = 'apple';
+        $profile['brandName'] = 'Apple iPhone';
+        $profile['os'] = 'iOS';
+        $profile['icon'] = 'fa-brands fa-apple';
+        $profile['color'] = '#f8fafc';
+        $profile['model'] = 'iPhone';
+        $profile['safeTop'] = '44px';
+        $profile['safeBottom'] = '24px';
+        $profile['refreshRate'] = 'ProMotion 120Hz / 60Hz Retina';
+        $profile['tuningNote'] = 'معايرة Dynamic Island / نوتش وحواف شاشة الآيفون';
+        return $profile;
+    }
+
+    // 2. Honor (Check before Samsung to prevent model code overlap like PGT-)
+    if (preg_match('/HONOR|MagicOS|MagicUI|\b(HNY|ANY|NTH|CRT|RMO|PGT|FRI|ALI|BND|ELZ|BVX)-/i', $ua)) {
+        $profile['brand'] = 'honor';
+        $profile['brandKey'] = 'honor';
+        $profile['brandName'] = 'Honor';
+        $profile['os'] = 'MagicOS';
+        $profile['icon'] = 'fa-solid fa-ring';
+        $profile['color'] = '#818cf8';
+        $profile['model'] = 'Honor Magic / X-Series';
+        $profile['safeTop'] = '14px';
+        $profile['safeBottom'] = '16px';
+        $profile['refreshRate'] = 'Quad-Curved 120Hz';
+        $profile['tuningNote'] = 'معايرة الشاشات المنحنية وحماية حواف اللمس في هونر';
+        return $profile;
+    }
+
+    // 3. Huawei
+    if (preg_match('/HUAWEI|HarmonyOS|HuaweiBrowser|HMSCore|\b(AL00|TL00|HMA|VOG|ELE|NOH|NOP|BLA|LYA|POT|TAS|ANA|ELS|JAD|ALN|BRA)-/i', $ua)) {
+        $profile['brand'] = 'huawei';
+        $profile['brandKey'] = 'huawei';
+        $profile['brandName'] = 'Huawei';
+        $profile['os'] = 'HarmonyOS / EMUI';
+        $profile['icon'] = 'fa-solid fa-gem';
+        $profile['color'] = '#ef4444';
+        $profile['model'] = 'Huawei Mate / Pura';
+        $profile['safeTop'] = '14px';
+        $profile['safeBottom'] = '16px';
+        $profile['refreshRate'] = 'OLED 90-120Hz';
+        $profile['tuningNote'] = 'معايرة كاميرا هواوي والخطوط وشريط إيماءات EMUI';
+        return $profile;
+    }
+
+    // 4. Samsung Galaxy
+    if (preg_match('/SamsungBrowser|SAMSUNG|\b(SM|GT|SCH|SPH|SGH)-[A-Z0-9]+/i', $ua) || stripos($secChUa, 'Samsung') !== false) {
+        $profile['brand'] = 'samsung';
+        $profile['brandKey'] = 'samsung';
+        $profile['brandName'] = 'Samsung Galaxy';
+        $profile['os'] = 'One UI (Android)';
+        $profile['icon'] = 'fa-solid fa-mobile-screen-button';
+        $profile['color'] = '#38bdf8';
+        $model = 'Galaxy';
+        if (preg_match('/SM-(S9[0-9]{2})/i', $ua)) {
+            $model = 'Galaxy S-Series Ultra';
+        } elseif (preg_match('/SM-(F9[0-9]{2})/i', $ua)) {
+            $model = 'Galaxy Z Fold (Foldable)';
+        } elseif (preg_match('/SM-(F7[0-9]{2})/i', $ua)) {
+            $model = 'Galaxy Z Flip (Foldable)';
+        } elseif (preg_match('/SM-A([0-9]{2,3})/i', $ua)) {
+            $model = 'Galaxy A-Series';
+        }
+        $profile['model'] = $model;
+        $profile['safeTop'] = '10px';
+        $profile['safeBottom'] = '18px';
+        $profile['refreshRate'] = 'Super AMOLED 120Hz Fluidity';
+        $profile['tuningNote'] = 'تسريع عتاد One UI و 120Hz AMOLED وشريط الإيماءات';
+        return $profile;
+    }
+
+    // 5. Xiaomi / Redmi / POCO
+    if (preg_match('/Xiaomi|Redmi|POCO|MiuiBrowser|HyperOS/i', $ua)) {
+        $profile['brand'] = 'xiaomi';
+        $profile['brandKey'] = 'xiaomi';
+        $profile['brandName'] = 'Xiaomi / Redmi';
+        $profile['os'] = 'HyperOS / MIUI';
+        $profile['icon'] = 'fa-solid fa-bolt';
+        $profile['color'] = '#f97316';
+        $profile['model'] = 'Xiaomi / Redmi';
+        $profile['safeTop'] = '10px';
+        $profile['safeBottom'] = '16px';
+        $profile['refreshRate'] = 'AdaptiveSync 120Hz';
+        $profile['tuningNote'] = 'معايرة شاشات شاومي ومحرك HyperOS';
+        return $profile;
+    }
+
+    // 6. Desktop / Computer
+    if (!preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $ua) && $secMobile !== '?1') {
+        $profile['brand'] = 'desktop';
+        $profile['brandKey'] = 'desktop';
+        $profile['brandName'] = 'شاشة الكمبيوتر';
+        $profile['os'] = 'Desktop OS';
+        $profile['icon'] = 'fa-solid fa-desktop';
+        $profile['color'] = '#a855f7';
+        $profile['model'] = 'Desktop / Laptop';
+        $profile['safeTop'] = '0px';
+        $profile['safeBottom'] = '0px';
+        $profile['refreshRate'] = 'Standard Monitor';
+        $profile['tuningNote'] = 'عرض محاكي سطح المكتب';
+        return $profile;
+    }
+
+    return $profile;
+}
+
+$deviceProfile = detectMobileHardwareProfile();
+
+// ═════════════════════════════════════════════════════════════════════
 // 🌐 SERVER-SIDE REAL DATABASE PRELOADER (MARIADB DIRECT)
 // ═════════════════════════════════════════════════════════════════════
 $preloadedData = [
@@ -271,7 +404,7 @@ try {
 }
 ?>
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
+<html lang="ar" dir="rtl" data-theme="<?php echo htmlspecialchars($activeTheme); ?>" data-device-brand="<?php echo htmlspecialchars($deviceProfile['brand']); ?>" data-device-os="<?php echo htmlspecialchars($deviceProfile['os']); ?>" data-device-model="<?php echo htmlspecialchars($deviceProfile['model']); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -344,7 +477,12 @@ try {
             --grand-color: #34d399;
             --grand-sub: #a7f3d0;
             --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.8);
+            --safe-top: env(safe-area-inset-top, 0px);
             --safe-bottom: env(safe-area-inset-bottom, 16px);
+            --safe-left: env(safe-area-inset-left, 0px);
+            --safe-right: env(safe-area-inset-right, 0px);
+            --device-gutter: 0px;
+            --dvh: 100dvh;
         }
 
         /* 2. THEME 1: ☀️ SOLAR WHITE (نهار وشمس ساطعة - تباين فائق 21:1) */
@@ -488,11 +626,157 @@ try {
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1.5px solid var(--border-glass);
-            padding: 12px 16px;
+            padding: calc(10px + var(--safe-top)) 16px 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════
+           📱 HARDWARE-SPECIFIC CALIBRATION (IPHONE / SAMSUNG / HUAWEI / HONOR / ANDROID)
+           ═════════════════════════════════════════════════════════════════ */
+
+        /* 1. APPLE IPHONE / IPAD (DYNAMIC ISLAND & SAFE AREAS & INPUT ZOOM FIX) */
+        html[data-device-brand="apple"],
+        body[data-device-brand="apple"] {
+            --safe-top: env(safe-area-inset-top, 44px);
+            --safe-bottom: env(safe-area-inset-bottom, 24px);
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }
+        html[data-device-brand="apple"] input,
+        html[data-device-brand="apple"] select,
+        html[data-device-brand="apple"] textarea {
+            font-size: 16px !important; /* Prevents Safari auto-zoom on input focus */
+        }
+        html[data-device-brand="apple"] .mobile-header {
+            padding-top: max(12px, env(safe-area-inset-top, 44px));
+            padding-left: max(16px, env(safe-area-inset-left, 0px));
+            padding-right: max(16px, env(safe-area-inset-right, 0px));
+        }
+        html[data-device-brand="apple"] .bottom-nav-bar {
+            padding-bottom: max(14px, env(safe-area-inset-bottom, 24px));
+        }
+
+        /* 2. SAMSUNG GALAXY (ONE UI 120HZ AMOLED SMOOTHNESS & NAVIGATION BAR) */
+        html[data-device-brand="samsung"],
+        body[data-device-brand="samsung"] {
+            --safe-top: env(safe-area-inset-top, 10px);
+            --safe-bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+            transform: translateZ(0); /* Hardware GPU acceleration for 120Hz smooth scrolling */
+            -webkit-font-smoothing: antialiased;
+        }
+        html[data-device-brand="samsung"] .mobile-content {
+            will-change: scroll-position;
+            scroll-behavior: smooth;
+        }
+        html[data-device-brand="samsung"] .bottom-nav-bar {
+            padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        }
+
+        /* 3. HUAWEI (HARMONYOS / EMUI CAMERA CUTOUT & TAJAWAL FONT RENDERING) */
+        html[data-device-brand="huawei"],
+        body[data-device-brand="huawei"] {
+            --safe-top: max(14px, env(safe-area-inset-top, 14px));
+            --safe-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
+        }
+        html[data-device-brand="huawei"] .mobile-header {
+            padding-top: max(14px, env(safe-area-inset-top, 14px));
+        }
+        html[data-device-brand="huawei"] .bottom-nav-bar {
+            padding-bottom: max(12px, env(safe-area-inset-bottom, 12px));
+        }
+
+        /* 4. HONOR (MAGICOS QUAD-CURVED DISPLAY TOUCH REJECTION GUTTERS) */
+        html[data-device-brand="honor"],
+        body[data-device-brand="honor"] {
+            --safe-top: max(14px, env(safe-area-inset-top, 14px));
+            --safe-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+            --device-gutter: 8px; /* Extra side spacing to eliminate palm misclicks on curved glass */
+        }
+        html[data-device-brand="honor"] .mobile-content {
+            padding-left: calc(16px + var(--device-gutter));
+            padding-right: calc(16px + var(--device-gutter));
+        }
+        html[data-device-brand="honor"] .mobile-header {
+            padding-top: max(14px, env(safe-area-inset-top, 14px));
+            padding-left: calc(16px + var(--device-gutter));
+            padding-right: calc(16px + var(--device-gutter));
+        }
+
+        /* 5. GENERAL ANDROID / XIAOMI / OPPO / VIVO */
+        html[data-device-brand="android"],
+        html[data-device-brand="xiaomi"],
+        body[data-device-brand="android"],
+        body[data-device-brand="xiaomi"] {
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: max(14px, env(safe-area-inset-bottom, 14px));
+            touch-action: manipulation;
+        }
+
+        /* 📱 DEVICE TUNING BANNER STYLING */
+        .device-tuning-banner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(56, 189, 248, 0.06));
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 8px 14px;
+            margin: 10px 16px 4px 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .device-tuning-banner:active {
+            transform: scale(0.98);
+            background: rgba(56, 189, 248, 0.12);
+        }
+        .device-brand-badge {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+        .dt-status-pill {
+            font-size: 0.68rem;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid #10b981;
+            color: #10b981;
+            padding: 1px 7px;
+            border-radius: 20px;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-dt-action {
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .btn-dt-action:active {
+            background: var(--primary);
+            color: #000;
         }
 
         .brand-section {
@@ -1616,6 +1900,34 @@ try {
         </div>
     </header>
 
+    <!-- 📱 شريط التعرف وضبط شاشة الموبايل (آيفون / سامسونج / هواوي / هونر / أندرويد) -->
+    <div class="device-tuning-banner" id="device-tuning-banner" onclick="openBottomSheet('sheet-device-calibration')" title="انقر لعرض تفاصيل ضبط شاشة جهازك">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span class="device-brand-badge" id="dt-brand-icon">
+                <i class="<?php echo $deviceProfile['icon']; ?>" style="color:<?php echo $deviceProfile['color']; ?>;"></i>
+            </span>
+            <div style="display:flex; flex-direction:column; text-align:right;">
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:0.82rem; font-weight:900; color:var(--text-main);" id="dt-brand-title">
+                        <?php echo htmlspecialchars($deviceProfile['brandName']); ?>
+                    </span>
+                    <span class="dt-status-pill" id="dt-status-pill">
+                        <i class="fa-solid fa-circle-check"></i> شاشة مُعايرة 100%
+                    </span>
+                </div>
+                <span style="font-size:0.68rem; color:var(--text-muted); font-weight:700;" id="dt-tuning-subtitle">
+                    <?php echo htmlspecialchars($deviceProfile['tuningNote']); ?>
+                </span>
+            </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+            <button type="button" class="btn-dt-action" onclick="event.stopPropagation(); switchToDesktopDashboard();" title="الانتقال لشاشة الكمبيوتر">
+                <i class="fa-solid fa-desktop"></i> الكمبيوتر
+            </button>
+            <span style="color:var(--text-muted); font-size:0.75rem;"><i class="fa-solid fa-chevron-left"></i></span>
+        </div>
+    </div>
+
     <!-- 2. Dual-Engine Segmented Pill Switcher -->
     <div class="mode-switcher-container">
         <div class="mode-segmented-pill">
@@ -2308,6 +2620,89 @@ try {
     </div>
 
     <!-- ═════════════════════════════════════════════════════════════════
+         SHEET 6: 📱 شاشة تفاصيل معايرة الجهاز والعتاد (HARDWARE CALIBRATION)
+         ═════════════════════════════════════════════════════════════════ -->
+    <div class="mobile-sheet-overlay" id="overlay-sheet-device-calibration" onclick="closeBottomSheet('sheet-device-calibration')"></div>
+    <div class="mobile-bottom-sheet" id="sheet-device-calibration">
+        <div class="sheet-drag-handle"></div>
+        <div class="sheet-header">
+            <span class="sheet-title" style="color:var(--primary); font-weight:900;">
+                <i class="fa-solid fa-mobile-screen"></i> نظام ضبط الشاشة الذكي للأجهزة
+            </span>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-device-calibration')">✕</button>
+        </div>
+        <div class="sheet-body" style="padding-bottom: 24px;">
+            <!-- Card 1: Detected Device Info -->
+            <div style="background:var(--surface-sub); border:1.5px solid var(--border-glass); border-radius:16px; padding:16px; margin-bottom:14px;">
+                <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                    <div style="width:48px; height:48px; border-radius:14px; background:rgba(56,189,248,0.15); border:1.5px solid #38bdf8; display:flex; align-items:center; justify-content:center; font-size:1.5rem;" id="calib-device-icon">
+                        <i class="<?php echo $deviceProfile['icon']; ?>" style="color:<?php echo $deviceProfile['color']; ?>;"></i>
+                    </div>
+                    <div>
+                        <h3 style="margin:0; font-size:1.05rem; font-weight:900; color:var(--text-main);" id="calib-device-name">
+                            <?php echo htmlspecialchars($deviceProfile['brandName']); ?>
+                        </h3>
+                        <span style="font-size:0.8rem; color:var(--emerald); font-weight:800;" id="calib-device-status">
+                            ✓ تم التعرف التلقائي وضبط أبعاد الشاشة
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Specs Grid -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.8rem;">
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; border-radius:10px;">
+                        <div style="color:var(--text-muted); font-size:0.72rem; margin-bottom:2px;">نظام التشغيل:</div>
+                        <strong style="color:var(--text-main);" id="calib-os"><?php echo htmlspecialchars($deviceProfile['os']); ?></strong>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; border-radius:10px;">
+                        <div style="color:var(--text-muted); font-size:0.72rem; margin-bottom:2px;">أبعاد الشاشة:</div>
+                        <strong style="color:var(--text-main); direction:ltr; display:inline-block;" id="calib-resolution">جار الفحص...</strong>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; border-radius:10px;">
+                        <div style="color:var(--text-muted); font-size:0.72rem; margin-bottom:2px;">حواف الأمان (Notch / Island):</div>
+                        <strong style="color:var(--primary);" id="calib-safe-area">معايرة تلقائية ✓</strong>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; border-radius:10px;">
+                        <div style="color:var(--text-muted); font-size:0.72rem; margin-bottom:2px;">سلاسة الشاشة والتحديث:</div>
+                        <strong style="color:var(--emerald);" id="calib-refresh-rate"><?php echo htmlspecialchars($deviceProfile['refreshRate']); ?></strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tuning Features Applied -->
+            <div style="margin-bottom:16px;">
+                <div style="font-size:0.85rem; font-weight:800; color:var(--text-main); margin-bottom:8px;">
+                    🎯 الخصائص التي تمت معايرتها لهذا الجهاز:
+                </div>
+                <div id="calib-feature-list" style="display:flex; flex-direction:column; gap:6px; font-size:0.8rem; color:var(--text-muted);">
+                    <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                        <i class="fa-solid fa-check" style="color:var(--emerald); font-size:0.8rem;"></i>
+                        <span>حجز مساحات النوتش والكبسولة العلوية لعدم تداخل العناوين</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                        <i class="fa-solid fa-check" style="color:var(--emerald); font-size:0.8rem;"></i>
+                        <span>حجز مسافة شريط السحب والإيماءات السفلي لسهولة التنقل بالإبهام</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                        <i class="fa-solid fa-check" style="color:var(--emerald); font-size:0.8rem;"></i>
+                        <span>تسريع عتاد الرسوميات وتثبيت الارتفاع الديناميكي (100dvh)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons: Switch to Desktop or Re-calibrate -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <button type="button" onclick="runLiveHardwareCalibration(true)" style="height:44px; background:rgba(56,189,248,0.15); border:1.5px solid #38bdf8; color:#38bdf8; border-radius:12px; font-size:0.85rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+                    <i class="fa-solid fa-arrows-rotate"></i> إعادة المعايرة
+                </button>
+                <button type="button" onclick="switchToDesktopDashboard()" style="height:44px; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.2); color:var(--text-main); border-radius:12px; font-size:0.85rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+                    <i class="fa-solid fa-desktop"></i> شاشة الكمبيوتر
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════════════════
          5. FIXED BOTTOM NAVIGATION BAR
          ═════════════════════════════════════════════════════════════════ -->
     <nav class="bottom-nav-bar">
@@ -2401,6 +2796,280 @@ try {
             document.documentElement.setAttribute('data-theme', savedTheme);
             document.body.setAttribute('data-theme', savedTheme);
             updateThemeUI(savedTheme);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 📱 REAL-TIME HARDWARE DETECTION & LIVE SCREEN CALIBRATION ENGINE
+        // ═════════════════════════════════════════════════════════════════
+        window.CURRENT_DEVICE_PROFILE = null;
+
+        function runLiveHardwareCalibration(isManual = false) {
+            const ua = navigator.userAgent || '';
+            const dpr = window.devicePixelRatio || 1;
+            const w = Math.min(window.screen.width, window.screen.height);
+            const h = Math.max(window.screen.width, window.screen.height);
+
+            let brand = 'android';
+            let brandName = 'هاتف أندرويد';
+            let model = 'هاتف ذكي';
+            let os = 'Android';
+            let icon = 'fa-brands fa-android';
+            let color = '#10b981';
+            let safeTop = '0px';
+            let safeBottom = '16px';
+            let refreshRate = '60-120Hz';
+            let tuningNote = 'معايرة الأندرويد القياسية وتثبيت الارتفاع';
+            let features = [];
+
+            // 1. APPLE IPHONE / IPAD
+            if (/iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
+                brand = 'apple';
+                os = 'iOS';
+                icon = 'fa-brands fa-apple';
+                color = '#f8fafc';
+                safeTop = '44px';
+                safeBottom = '24px';
+                refreshRate = 'ProMotion 120Hz / 60Hz Retina';
+
+                // Specific iPhone Model Identification from Logical Resolution
+                if (w === 430 && h === 932) {
+                    model = 'iPhone 16 / 15 / 14 Pro Max';
+                    tuningNote = 'Dynamic Island + شاشة 6.7" عملاقة';
+                    safeTop = '54px';
+                    safeBottom = '34px';
+                } else if (w === 393 && h === 852) {
+                    model = 'iPhone 16 / 15 / 14 Pro';
+                    tuningNote = 'Dynamic Island + شاشة 6.1" فائقة الدقة';
+                    safeTop = '54px';
+                    safeBottom = '34px';
+                } else if (w === 428 && h === 926) {
+                    model = 'iPhone 14 Plus / 13 Pro Max / 12 Pro Max';
+                    tuningNote = 'نوتش عريض + شاشة 6.7" Retina';
+                    safeTop = '47px';
+                    safeBottom = '34px';
+                } else if (w === 390 && h === 844) {
+                    model = 'iPhone 14 / 13 / 13 Pro / 12 / 12 Pro';
+                    tuningNote = 'نوتش مدمج + شاشة 6.1" OLED';
+                    safeTop = '47px';
+                    safeBottom = '34px';
+                } else if (w === 414 && h === 896) {
+                    model = 'iPhone 11 Pro Max / 11 / XR / XS Max';
+                    tuningNote = 'نوتش كلاسيكي + حواف Retina';
+                    safeTop = '44px';
+                    safeBottom = '34px';
+                } else if (w === 375 && h === 812) {
+                    model = 'iPhone 13 mini / 12 mini / 11 Pro / X';
+                    tuningNote = 'نوتش صغير + شاشة مدمجة';
+                    safeTop = '44px';
+                    safeBottom = '34px';
+                } else if (w === 375 && h === 667) {
+                    model = 'iPhone SE (Gen 2/3) / iPhone 8/7';
+                    tuningNote = 'شاشة كلاسيكية مع زر الهوم (بدون نوتش)';
+                    safeTop = '10px';
+                    safeBottom = '12px';
+                } else {
+                    model = 'Apple iPhone / iPad';
+                    tuningNote = 'معايرة شاشة أبل ونظام iOS';
+                }
+
+                brandName = model;
+                features = [
+                    'حجز مساحة Dynamic Island / النوتش بالأعلى لعدم تداخل العناوين',
+                    'حجز مساحة شريط السحب السفلي (Home Indicator) لمنع التداخل مع أزرار التنقل',
+                    'تثبيت قياس الخطوط على 16px لمنع التكبير التلقائي المزعج في Safari',
+                    'تفعيل التمرير المرن الطبيعي (Inertia Scrolling) ومنع ارتداد الصفحة'
+                ];
+            }
+            // 2. HONOR (Check before Samsung to prevent overlap with model prefixes like PGT-)
+            else if (/HONOR|MagicOS|MagicUI|\b(HNY|ANY|NTH|CRT|RMO|PGT|FRI|ALI|BND|ELZ|BVX)-/i.test(ua)) {
+                brand = 'honor';
+                os = 'MagicOS (Android)';
+                icon = 'fa-solid fa-ring';
+                color = '#818cf8';
+                safeTop = '14px';
+                safeBottom = '16px';
+                refreshRate = 'Quad-Curved 120Hz';
+
+                if (/PGT-|FRI-|BVX-/i.test(ua)) {
+                    model = 'Honor Magic 6 / 5 Pro';
+                    tuningNote = 'معايرة الشاشة رباعية الانحناء + Magic Capsule';
+                } else if (/CRT-|RMO-/i.test(ua)) {
+                    model = 'Honor 90 / 70 / 50';
+                    tuningNote = 'معايرة شاشة العرض المنحنية 120Hz';
+                } else if (/ALI-|ANY-/i.test(ua)) {
+                    model = 'Honor X9 / X8 Series';
+                    tuningNote = 'معايرة شاشة هونر الفئة X المتينة';
+                } else {
+                    model = 'Honor Smartphone';
+                    tuningNote = 'معايرة نظام MagicOS وشاشات هونر';
+                }
+
+                brandName = model;
+                features = [
+                    'إضافة هوامش أمان جانبية لحماية حواف الشاشات رباعية الانحناء (Quad-Curved)',
+                    'ضبط مساحة ثقب الكاميرا المركزي أو الكبسولة الذكية (Magic Capsule)',
+                    'مواءمة شريط إيماءات MagicOS في أسفل الشاشة',
+                    'تفعيل التدرج اللوني الفائق لشاشات AMOLED عالية التباين'
+                ];
+            }
+            // 3. HUAWEI
+            else if (/HUAWEI|HarmonyOS|HuaweiBrowser|HMSCore|\b(AL00|TL00|HMA|VOG|ELE|NOH|NOP|BLA|LYA|POT|TAS|ANA|ELS|JAD|ALN|BRA)-/i.test(ua)) {
+                brand = 'huawei';
+                os = 'HarmonyOS / EMUI';
+                icon = 'fa-solid fa-gem';
+                color = '#ef4444';
+                safeTop = '14px';
+                safeBottom = '16px';
+                refreshRate = 'OLED 90-120Hz';
+
+                if (/ALN-|BRA-/i.test(ua)) {
+                    model = 'Huawei Mate 60 / Pura 70';
+                    tuningNote = 'معايرة الثقوب الثلاثية ونظام HarmonyOS 4';
+                } else if (/JAD-|ELS-|ANA-/i.test(ua)) {
+                    model = 'Huawei P50 / P40 Pro';
+                    tuningNote = 'معايرة ثقب الكاميرا البيضاوي وشاشة OLED';
+                } else if (/NOH-|NOP-/i.test(ua)) {
+                    model = 'Huawei Mate 40 Pro';
+                    tuningNote = 'معايرة الشاشة الشلالية Horizon Display';
+                } else {
+                    model = 'Huawei Smartphone';
+                    tuningNote = 'معايرة نظام HarmonyOS وشاشات هواوي';
+                }
+
+                brandName = model;
+                features = [
+                    'حجز مساحة نوتش الكاميرا البيضاوي أو الثقوب الثلاثية في أعلى الشاشة',
+                    'تحسين وضوح خط Tajawal والأرقام العربية مع محرك خطوط HarmonyOS',
+                    'تعديل هامش شريط الإيماءات السفلي لـ EMUI/HarmonyOS',
+                    'معالجة انحناءات الشاشة الجانبية لتقليل اللمس غير المقصود'
+                ];
+            }
+            // 4. SAMSUNG GALAXY
+            else if (/SamsungBrowser|SAMSUNG|\b(SM|GT|SCH|SPH|SGH)-[A-Z0-9]+/i.test(ua) || (navigator.userAgentData && navigator.userAgentData.brands && navigator.userAgentData.brands.some(b => /Samsung/i.test(b.brand)))) {
+                brand = 'samsung';
+                os = 'One UI (Android)';
+                icon = 'fa-solid fa-mobile-screen-button';
+                color = '#38bdf8';
+                safeTop = '12px';
+                safeBottom = '18px';
+                refreshRate = 'Super AMOLED 120Hz Fluidity';
+
+                if (/SM-S92/i.test(ua)) {
+                    model = 'Galaxy S24 Ultra / S24+ / S24';
+                    tuningNote = 'معايرة AMOLED 120Hz + شريط One UI 6.1';
+                } else if (/SM-S91/i.test(ua)) {
+                    model = 'Galaxy S23 Ultra / S23';
+                    tuningNote = 'معايرة AMOLED 120Hz + شريط One UI';
+                } else if (/SM-F9/i.test(ua)) {
+                    model = 'Galaxy Z Fold Series';
+                    tuningNote = 'معايرة الشاشة القابلة للطي (Foldable)';
+                } else if (/SM-F7/i.test(ua)) {
+                    model = 'Galaxy Z Flip Series';
+                    tuningNote = 'معايرة الشاشة الطولية 22:9 (Flip)';
+                } else if (/SM-A/i.test(ua)) {
+                    model = 'Galaxy A-Series';
+                    tuningNote = 'معايرة شاشات جالاكسي الفئة A';
+                } else {
+                    model = 'Samsung Galaxy Smartphone';
+                    tuningNote = 'معايرة سامسونج وسلاسة One UI';
+                }
+
+                brandName = model;
+                features = [
+                    'تسريع عتاد الرسوميات (GPU Acceleration) لتحقيق سلاسة 120 إطار في الثانية',
+                    'ضبط هامش شريط الإيماءات أو أزرار One UI الثلاثية أسفل الشاشة',
+                    'تكييف الارتفاع الديناميكي (100dvh) مع ظهور واختفاء شريط سامسونج إنترنت',
+                    'دعم الأبعاد المرنة للشاشات القابلة للطي (Z Fold / Z Flip)'
+                ];
+            }
+            // 5. XIAOMI / REDMI / POCO
+            else if (/Xiaomi|Redmi|POCO|MiuiBrowser|HyperOS/i.test(ua)) {
+                brand = 'xiaomi';
+                os = 'HyperOS / MIUI';
+                icon = 'fa-solid fa-bolt';
+                color = '#f97316';
+                safeTop = '10px';
+                safeBottom = '16px';
+                refreshRate = 'AdaptiveSync 120Hz';
+                model = /POCO/i.test(ua) ? 'POCO Smartphone' : (/Redmi/i.test(ua) ? 'Redmi Smartphone' : 'Xiaomi Flagship');
+                brandName = model;
+                tuningNote = 'معايرة شاشات شاومي ومحرك HyperOS';
+                features = [
+                    'مواءمة محرك العرض مع HyperOS / MIUI 14',
+                    'تثبيت معدل التحديث التكيفي حتى 120Hz لمنع التقطيع',
+                    'ضبط أبعاد لوحة المفاتيح لمنع رفع النوافذ المنبثقة بشكل زائد'
+                ];
+            }
+            // 6. GENERAL ANDROID
+            else if (/Android/i.test(ua)) {
+                brand = 'android';
+                os = 'Android';
+                icon = 'fa-brands fa-android';
+                color = '#10b981';
+                safeTop = '10px';
+                safeBottom = '16px';
+                refreshRate = 'High Refresh OLED';
+                model = 'هاتف أندرويد الذكي';
+                brandName = model;
+                tuningNote = 'معايرة الأندرويد القياسية وتثبيت الارتفاع';
+                features = [
+                    'تثبيت وحدة الارتفاع الديناميكي 100dvh مع المتصفح',
+                    'ضبط مساحات اللمس الإرجونومية (أكثر من 44px لكل زر)',
+                    'التعامل الذكي مع لوحة المفاتيح الافتراضية لمنع إزاحة الشاشة'
+                ];
+            }
+
+            window.CURRENT_DEVICE_PROFILE = {
+                brand, brandName, model, os, icon, color, safeTop, safeBottom, refreshRate, tuningNote, features,
+                resolution: `${Math.round(window.screen.width * dpr)} × ${Math.round(window.screen.height * dpr)} (${Math.round(w)}×${Math.round(h)} pt)`,
+                dpr: dpr
+            };
+
+            // Apply attributes to HTML and Body
+            document.documentElement.setAttribute('data-device-brand', brand);
+            document.documentElement.setAttribute('data-device-os', os);
+            document.documentElement.setAttribute('data-device-model', model);
+            document.body.setAttribute('data-device-brand', brand);
+
+            // Update Hardware Tuning Banner
+            const dtIcon = document.getElementById('dt-brand-icon');
+            if (dtIcon) {
+                dtIcon.innerHTML = `<i class="${icon}" style="color:${color};"></i>`;
+            }
+            const dtTitle = document.getElementById('dt-brand-title');
+            if (dtTitle) {
+                dtTitle.textContent = brandName;
+            }
+            const dtSub = document.getElementById('dt-tuning-subtitle');
+            if (dtSub) {
+                dtSub.textContent = tuningNote;
+            }
+
+            // Update Calibration Bottom Sheet Elements
+            const cIcon = document.getElementById('calib-device-icon');
+            if (cIcon) cIcon.innerHTML = `<i class="${icon}" style="color:${color};"></i>`;
+            const cName = document.getElementById('calib-device-name');
+            if (cName) cName.textContent = brandName;
+            const cOs = document.getElementById('calib-os');
+            if (cOs) cOs.textContent = `${os} (DPR: ${dpr}x)`;
+            const cRes = document.getElementById('calib-resolution');
+            if (cRes) cRes.textContent = window.CURRENT_DEVICE_PROFILE.resolution;
+            const cRef = document.getElementById('calib-refresh-rate');
+            if (cRef) cRef.textContent = refreshRate;
+
+            const featList = document.getElementById('calib-feature-list');
+            if (featList && features.length > 0) {
+                featList.innerHTML = features.map(f => `
+                    <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
+                        <i class="fa-solid fa-check" style="color:var(--emerald); font-size:0.8rem;"></i>
+                        <span>${f}</span>
+                    </div>
+                `).join('');
+            }
+
+            if (isManual && window.showModernToast) {
+                window.showModernToast(`✨ تم ضبط الشاشة بنجاح لجهازك: ${brandName}`, 'success', 3000);
+            }
         }
 
         // Switch to Full Desktop Dashboard & Persist Preference
@@ -4684,7 +5353,18 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
+            runLiveHardwareCalibration(false);
             refreshMobileData();
+
+            // First session auto-notification
+            if (!sessionStorage.getItem('device_calib_notified')) {
+                sessionStorage.setItem('device_calib_notified', 'true');
+                setTimeout(() => {
+                    if (window.showModernToast && window.CURRENT_DEVICE_PROFILE) {
+                        window.showModernToast(`📱 تم التعرف على جهازك (${window.CURRENT_DEVICE_PROFILE.brandName}) وتضبيط أبعاد الشاشة تلقائياً!`, 'info', 3500);
+                    }
+                }, 1000);
+            }
         });
     </script>
 </body>

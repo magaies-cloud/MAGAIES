@@ -1007,9 +1007,10 @@
                 document.cookie = "saas_token=" + encodeURIComponent(ssoParams.get('sso_token')) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
-                const isMobileDevice = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && window.innerHeight <= 1024);
-                const viewPref = localStorage.getItem('magaiees_view_preference');
-                const defaultTarget = (isMobileDevice && viewPref !== 'desktop') ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php';
+                const isMobileDevice = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(navigator.userAgent) 
+                                    || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
+                                    || (window.innerWidth <= 768);
+                const defaultTarget = isMobileDevice ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php';
                 window.location.replace(ssoParams.get('redirect') || defaultTarget);
             }
         })();
@@ -1521,11 +1522,12 @@
             btn.style.pointerEvents = 'none';
 
             // --- START SSO & DEVICE REDIRECT ---
-            const isMobileDevice = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && window.innerHeight <= 1024);
-            const viewPref = localStorage.getItem('magaiees_view_preference');
+            const isMobileDevice = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(navigator.userAgent) 
+                                || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
+                                || (window.innerWidth <= 768);
             const urlParams = new URLSearchParams(window.location.search);
             const redirectParam = urlParams.get('redirect');
-            let targetUrl = redirectParam || ((isMobileDevice && viewPref !== 'desktop') ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php');
+            let targetUrl = redirectParam || (isMobileDevice ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php');
 
             if (userSubdomain && window.location.hostname !== userSubdomain + '.elsajana.com' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
                 const subdomainUrl = `https://${userSubdomain}.elsajana.com`;

@@ -3,13 +3,13 @@
 // 🌐 SMART DEVICE ROUTER (Unified Link Architecture)
 // ═════════════════════════════════════════════════════════════════════
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-$isMobileUserAgent = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent);
+$secChUaMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
+$isMobileUserAgent = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini|samsung|huawei|honor|harmonyos|xiaomi|redmi|poco|oppo|vivo|oneplus|pixel)/i', $userAgent) || ($secChUaMobile === '?1');
 $forceDesktop = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
-$prefCookie = $_COOKIE['magaiees_view_preference'] ?? '';
 
 if ($forceDesktop) {
     setcookie('magaiees_view_preference', 'desktop', time() + (86400 * 365), '/');
-} elseif ($isMobileUserAgent && $prefCookie !== 'desktop') {
+} elseif ($isMobileUserAgent) {
     header('Location: mobile-dashboard.php');
     exit;
 }
@@ -31,9 +31,10 @@ $page_title = 'لوحة التحكم';
         localStorage.setItem('magaiees_view_preference', 'desktop');
         document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
     } else {
-        var isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && window.innerHeight <= 1024);
-        var viewPref = localStorage.getItem('magaiees_view_preference');
-        if (isMobile && viewPref !== 'desktop') {
+        var isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(navigator.userAgent) 
+                    || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
+                    || (window.screen.width <= 768);
+        if (isMobile) {
             window.location.replace('mobile-dashboard.php');
         }
     }
@@ -3239,6 +3240,23 @@ function switchToMobileEdition() {
             input.focus();
         }
         </script>
+<!-- Floating Return to Mobile Button (Only displays when viewed on mobile / small screen) -->
+<div id="mobile-return-float-container" style="position:fixed; bottom:22px; right:22px; z-index:99999; display:none;">
+    <button type="button" onclick="switchToMobileEdition()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:2px solid #34d399; padding:12px 20px; border-radius:30px; font-weight:900; font-size:0.95rem; box-shadow:0 10px 30px rgba(16,185,129,0.5); cursor:pointer; display:flex; align-items:center; gap:8px; font-family:'Tajawal',sans-serif;">
+        <i class="fa-solid fa-mobile-screen-button"></i> العودة لشاشات الموبايل
+    </button>
+</div>
+<script>
+(function() {
+    var isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor/i.test(navigator.userAgent) 
+                || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
+                || (window.screen.width <= 768);
+    if (isMobile) {
+        var btn = document.getElementById('mobile-return-float-container');
+        if (btn) btn.style.display = 'block';
+    }
+})();
+</script>
 <script src="js/unified-brain.js?v=20260722"></script>
 </body>
 </html>
