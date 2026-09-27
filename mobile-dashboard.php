@@ -6,8 +6,23 @@
  * النسخة التنفيذية الذكية للهواتف الذكية والأجهزة اللوحية
  * تصميم ثنائي المحرك: [ ⚡ العمليات السريعة ] + [ 📊 التقارير الذكية ]
  */
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$isMobileUserAgent = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent);
+$forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
+$prefCookie = $_COOKIE['magaiees_view_preference'] ?? '';
+
+if ($forceMobile) {
+    setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
+} elseif (!$isMobileUserAgent && $prefCookie !== 'mobile') {
+    header('Location: magaiees_unified_dashboard.php');
+    exit;
+}
+
 $page_title = 'مقاييس الموبايل | النسخة السريعة';
 require_once __DIR__ . '/db_bridge.php';
+
+// Detect active theme from cookie or default to midnight
+$activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -607,21 +622,356 @@ require_once __DIR__ . '/db_bridge.php';
             cursor: pointer;
             border: none;
             background: transparent;
+        /* ═════════════════════════════════════════════════════════════════
+           🎨 4 HIGH-CONTRAST ERGONOMIC THEMES FOR MOBILE
+           ═════════════════════════════════════════════════════════════════ */
+        
+        /* THEME 1: ☀️ نهار وشمس ساطعة (SOLAR HIGH-CONTRAST 21:1) */
+        body[data-theme="solar"] {
+            --bg-base: #f8fafc;
+            --surface-1: #ffffff;
+            --surface-2: #f1f5f9;
+            --border-glass: rgba(15, 23, 42, 0.18);
+            --primary: #0284c7;
+            --emerald: #059669;
+            --amber: #d97706;
+            --rose: #dc2626;
+            --purple: #7c3aed;
+            --text-main: #020617;
+            --text-muted: #334155;
+            background-color: #f1f5f9;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(2, 132, 199, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.05) 0%, transparent 40%);
+            color: #020617;
         }
-        .nav-item i {
-            font-size: 1.25rem;
-            transition: transform 0.2s;
+        body[data-theme="solar"] .mobile-header {
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 2px solid #cbd5e1;
         }
-        .nav-item.active {
-            color: #38bdf8;
+        body[data-theme="solar"] .brand-meta h1 { color: #020617; font-weight: 900; }
+        body[data-theme="solar"] .brand-meta span { color: #0284c7; font-weight: 800; }
+        body[data-theme="solar"] .btn-switch-desktop {
+            background: #e2e8f0;
+            border: 1.5px solid #cbd5e1;
+            color: #0f172a;
+            font-weight: 800;
         }
-        .nav-item.active i {
-            transform: translateY(-2px);
+        body[data-theme="solar"] .mode-segmented-pill {
+            background: #e2e8f0;
+            border: 2px solid #cbd5e1;
+        }
+        body[data-theme="solar"] .mode-tab-btn {
+            color: #334155;
+            font-weight: 800;
+        }
+        body[data-theme="solar"] .mode-tab-btn.active {
+            background: #ffffff;
+            color: #0284c7;
+            border: 1.5px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+        body[data-theme="solar"] .liquidity-card {
+            background: #ffffff;
+            border: 2px solid #94a3b8;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+        body[data-theme="solar"] .liquidity-title { color: #334155; font-weight: 800; }
+        body[data-theme="solar"] .liquidity-grand {
+            color: #047857;
+            text-shadow: none;
+        }
+        body[data-theme="solar"] .liquidity-grand small { color: #059669; }
+        body[data-theme="solar"] .liquidity-breakdown { border-top: 1.5px solid #e2e8f0; }
+        body[data-theme="solar"] .vault-item {
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+        }
+        body[data-theme="solar"] .vault-name { color: #334155; font-weight: 800; }
+        body[data-theme="solar"] .vault-amt { color: #020617; font-weight: 900; }
+        body[data-theme="solar"] .section-heading { color: #020617; font-weight: 900; }
+        body[data-theme="solar"] .power-action-btn {
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+        }
+        body[data-theme="solar"] .action-title { color: #020617; font-weight: 900; }
+        body[data-theme="solar"] .action-subtitle { color: #334155; font-weight: 700; }
+        body[data-theme="solar"] .activity-card {
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+        body[data-theme="solar"] .activity-details h5 { color: #020617; font-weight: 900; }
+        body[data-theme="solar"] .activity-details span { color: #475569; font-weight: 600; }
+        body[data-theme="solar"] .activity-val.positive { color: #047857; font-weight: 900; }
+        body[data-theme="solar"] .activity-val.negative { color: #dc2626; font-weight: 900; }
+        body[data-theme="solar"] .kpi-card {
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        body[data-theme="solar"] .kpi-label { color: #334155; font-weight: 800; }
+        body[data-theme="solar"] .kpi-value { color: #020617; font-weight: 900; }
+        body[data-theme="solar"] .radar-card {
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+        body[data-theme="solar"] .radar-title { color: #020617; font-weight: 900; }
+        body[data-theme="solar"] .radar-row { border-bottom: 1.5px solid #f1f5f9; }
+        body[data-theme="solar"] .radar-name { color: #020617; font-weight: 900; }
+        body[data-theme="solar"] .mobile-bottom-sheet {
+            background: #ffffff;
+            border-top: 3px solid #0284c7;
+            color: #020617;
+        }
+        body[data-theme="solar"] .sheet-header { border-bottom: 1.5px solid #e2e8f0; }
+        body[data-theme="solar"] .sheet-title { color: #020617; font-weight: 900; }
+        body[data-theme="solar"] .btn-sheet-close {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+        body[data-theme="solar"] .sheet-drag-handle { background: #94a3b8; }
+        body[data-theme="solar"] .m-label { color: #0f172a; font-weight: 800; }
+        body[data-theme="solar"] .m-input,
+        body[data-theme="solar"] .m-select {
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+            color: #020617;
+            font-weight: 700;
+        }
+        body[data-theme="solar"] .m-input:focus,
+        body[data-theme="solar"] .m-select:focus {
+            border-color: #0284c7;
+            background: #ffffff;
+        }
+        body[data-theme="solar"] .m-input.huge-number { color: #047857; }
+        body[data-theme="solar"] .bottom-nav-bar {
+            background: rgba(255, 255, 255, 0.96);
+            border-top: 2px solid #cbd5e1;
+        }
+        body[data-theme="solar"] .nav-item { color: #475569; font-weight: 800; }
+        body[data-theme="solar"] .nav-item.active { color: #0284c7; }
+        body[data-theme="solar"] .theme-card-option {
+            background: #f8fafc;
+            border: 2px solid #cbd5e1;
+        }
+        body[data-theme="solar"] .theme-card-option.active {
+            border-color: #0284c7;
+            background: #f0f9ff;
+        }
+        body[data-theme="solar"] .theme-title-row strong { color: #020617; }
+        body[data-theme="solar"] .theme-info-box p { color: #475569; }
+
+        /* THEME 2: 🌙 ليل أسود فاحم (OLED MIDNIGHT) */
+        body[data-theme="midnight"] {
+            --bg-base: #000000;
+            --surface-1: #090d16;
+            --surface-2: #101726;
+            --border-glass: rgba(255, 255, 255, 0.16);
+            --primary: #38bdf8;
+            --emerald: #10b981;
+            --amber: #f59e0b;
+            --rose: #f43f5e;
+            --purple: #a855f7;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            background-color: #000000;
+            background-image: none;
+            color: #ffffff;
+        }
+        body[data-theme="midnight"] .mobile-header {
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        body[data-theme="midnight"] .liquidity-card,
+        body[data-theme="midnight"] .activity-card,
+        body[data-theme="midnight"] .kpi-card,
+        body[data-theme="midnight"] .radar-card {
+            background: #080c14;
+            border: 1.5px solid rgba(56, 189, 248, 0.3);
+        }
+        body[data-theme="midnight"] .power-action-btn {
+            background: #090e18;
+            border: 1.5px solid rgba(255, 255, 255, 0.16);
+        }
+        body[data-theme="midnight"] .bottom-nav-bar {
+            background: rgba(0, 0, 0, 0.96);
+            border-top: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        body[data-theme="midnight"] .mobile-bottom-sheet {
+            background: #05080f;
+            border-top: 3px solid #38bdf8;
+        }
+
+        /* THEME 3: 🧠 التركيز المالي السيادي (EXECUTIVE NAVY & GOLD) */
+        body[data-theme="navy"] {
+            --bg-base: #030a1a;
+            --surface-1: #0a1628;
+            --surface-2: #10223d;
+            --border-glass: rgba(56, 189, 248, 0.22);
+            --primary: #38bdf8;
+            --emerald: #10b981;
+            --amber: #fbbf24;
+            --rose: #f43f5e;
+            --purple: #818cf8;
+            --text-main: #ffffff;
+            --text-muted: #93c5fd;
+            background-color: #030a1a;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
+            color: #ffffff;
+        }
+        body[data-theme="navy"] .mobile-header {
+            background: rgba(3, 10, 26, 0.92);
+            border-bottom: 1.5px solid rgba(56, 189, 248, 0.25);
+        }
+        body[data-theme="navy"] .liquidity-card {
+            background: linear-gradient(135deg, #0a1628 0%, #0e1e38 100%);
+            border: 2px solid rgba(251, 191, 36, 0.45);
+        }
+        body[data-theme="navy"] .liquidity-grand {
+            color: #fbbf24;
+            text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+        }
+        body[data-theme="navy"] .liquidity-grand small { color: #fef08a; }
+        body[data-theme="navy"] .power-action-btn {
+            background: #0d1d36;
+            border: 1.5px solid rgba(56, 189, 248, 0.3);
+        }
+        body[data-theme="navy"] .activity-card,
+        body[data-theme="navy"] .kpi-card,
+        body[data-theme="navy"] .radar-card {
+            background: #0a1628;
+            border: 1.5px solid rgba(56, 189, 248, 0.25);
+        }
+        body[data-theme="navy"] .bottom-nav-bar {
+            background: rgba(3, 10, 26, 0.95);
+            border-top: 1.5px solid rgba(56, 189, 248, 0.25);
+        }
+        body[data-theme="navy"] .mobile-bottom-sheet {
+            background: #060e20;
+            border-top: 3px solid #fbbf24;
+        }
+
+        /* THEME 4: 🌿 الراحة واليقظة الممتدة (FOREST EMERALD & MINT) */
+        body[data-theme="forest"] {
+            --bg-base: #03140d;
+            --surface-1: #072317;
+            --surface-2: #0e3424;
+            --border-glass: rgba(52, 211, 153, 0.25);
+            --primary: #34d399;
+            --emerald: #10b981;
+            --amber: #fbbf24;
+            --rose: #f43f5e;
+            --purple: #6ee7b7;
+            --text-main: #ffffff;
+            --text-muted: #a7f3d0;
+            background-color: #03140d;
+            background-image: 
+                radial-gradient(circle at 15% 25%, rgba(52, 211, 153, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.1) 0%, transparent 45%);
+            color: #ffffff;
+        }
+        body[data-theme="forest"] .mobile-header {
+            background: rgba(3, 20, 13, 0.92);
+            border-bottom: 1.5px solid rgba(52, 211, 153, 0.3);
+        }
+        body[data-theme="forest"] .brand-avatar {
+            background: linear-gradient(135deg, #059669, #10b981);
+        }
+        body[data-theme="forest"] .liquidity-card {
+            background: linear-gradient(135deg, #072317 0%, #0d2f20 100%);
+            border: 2px solid rgba(52, 211, 153, 0.4);
+        }
+        body[data-theme="forest"] .liquidity-grand { color: #34d399; }
+        body[data-theme="forest"] .power-action-btn {
+            background: #08281a;
+            border: 1.5px solid rgba(52, 211, 153, 0.3);
+        }
+        body[data-theme="forest"] .activity-card,
+        body[data-theme="forest"] .kpi-card,
+        body[data-theme="forest"] .radar-card {
+            background: #072317;
+            border: 1.5px solid rgba(52, 211, 153, 0.25);
+        }
+        body[data-theme="forest"] .bottom-nav-bar {
+            background: rgba(3, 20, 13, 0.95);
+            border-top: 1.5px solid rgba(52, 211, 153, 0.3);
+        }
+        body[data-theme="forest"] .mobile-bottom-sheet {
+            background: #04170f;
+            border-top: 3px solid #34d399;
+        }
+
+        /* Theme Selection Sheet Styles */
+        .theme-card-option {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            border-radius: 16px;
+            padding: 13px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.22s ease;
+            position: relative;
+        }
+        .theme-card-option:active { transform: scale(0.97); }
+        .theme-card-option.active {
+            border-color: #38bdf8;
+            background: rgba(56, 189, 248, 0.14);
+            box-shadow: 0 4px 18px rgba(56, 189, 248, 0.25);
+        }
+        .theme-swatch-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            flex-shrink: 0;
+        }
+        .theme-info-box { flex: 1; }
+        .theme-title-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .theme-title-row strong {
+            font-size: 0.92rem;
+            color: #ffffff;
+            font-weight: 900;
+        }
+        .theme-badge {
+            font-size: 0.68rem;
+            padding: 2px 7px;
+            border-radius: 6px;
+        }
+        .theme-info-box p {
+            font-size: 0.74rem;
+            color: #94a3b8;
+            line-height: 1.35;
+            margin: 0;
+            font-weight: 500;
+        }
+        .theme-check-icon {
+            font-size: 1.35rem;
+            color: transparent;
+            transition: color 0.2s;
+        }
+        .theme-card-option.active .theme-check-icon {
             color: #38bdf8;
         }
     </style>
 </head>
-<body>
+<body data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
 
     <!-- 1. Sticky Mobile App Header -->
     <header class="mobile-header">
@@ -635,10 +985,15 @@ require_once __DIR__ . '/db_bridge.php';
             </div>
         </div>
         <div class="header-actions">
+            <!-- 🎨 Theme Trigger Button -->
+            <button type="button" onclick="openBottomSheet('sheet-theme')" class="btn-switch-desktop btn-theme-trigger" title="اختيار سمة التباين والألوان">
+                <i class="fa-solid fa-palette text-amber-400" id="current-theme-icon"></i>
+                <span id="current-theme-label">السمة</span>
+            </button>
             <!-- 🖥️ Switch to Full Desktop Dashboard Button -->
             <button type="button" onclick="switchToDesktopDashboard()" class="btn-switch-desktop" title="الانتقال لنسخة الكمبيوتر الكاملة">
                 <i class="fa-solid fa-desktop"></i>
-                <span>نسخة الكمبيوتر</span>
+                <span>الكمبيوتر</span>
             </button>
             <!-- Fast Refresh Button -->
             <button type="button" onclick="refreshMobileData(true)" class="btn-switch-desktop" style="padding:7px 9px;" title="تحديث البيانات">
@@ -995,6 +1350,95 @@ require_once __DIR__ . '/db_bridge.php';
     </div>
 
     <!-- ═════════════════════════════════════════════════════════════════
+         BOTTOM SHEET 5: 🎨 سمات التباين والراحة البصرية (4 سمات هندسية)
+         ═════════════════════════════════════════════════════════════════ -->
+    <div class="mobile-sheet-overlay" id="overlay-sheet-theme" onclick="closeBottomSheet('sheet-theme')"></div>
+    <div class="mobile-bottom-sheet" id="sheet-theme">
+        <div class="sheet-drag-handle"></div>
+        <div class="sheet-header">
+            <span class="sheet-title" style="color:var(--amber);">
+                <i class="fa-solid fa-palette"></i> سمات التباين والراحة البصرية
+            </span>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-theme')">✕</button>
+        </div>
+        <div class="sheet-body" style="padding-bottom: 24px;">
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px; font-weight: 700;">
+                اختر السمة المناسبة للإضاءة الحالية والبيئة المحيطة (شمس، ليل، قيادة، أو تركيز مالي عميق):
+            </p>
+            
+            <div class="theme-options-grid" style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Theme 1: Solar -->
+                <div class="theme-card-option" id="theme-opt-solar" onclick="selectTheme('solar')">
+                    <div class="theme-swatch-box" style="background: #ffffff; border: 2px solid #94a3b8;">
+                        <span style="background: #020617; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #0284c7; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #059669; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>☀️ نهار وشمس ساطعة (Solar White)</strong>
+                            <span class="theme-badge" style="background: #e2e8f0; color: #020617; font-weight:900;">تباين 21:1 | ضد التوهج</span>
+                        </div>
+                        <p>خلفية بيضاء ناصعة مع خطوط سوداء فاحمة مخصصة للقراءة تحت أشعة الشمس المباشرة وتمنع انعكاس زجاج السيارة تماماً.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- Theme 2: Midnight OLED -->
+                <div class="theme-card-option" id="theme-opt-midnight" onclick="selectTheme('midnight')">
+                    <div class="theme-swatch-box" style="background: #000000; border: 2px solid rgba(255,255,255,0.25);">
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #38bdf8; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🌙 ليل أسود فاحم (OLED Midnight)</strong>
+                            <span class="theme-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight:900;">سواد 100% | حماية العين</span>
+                        </div>
+                        <p>سواد مطبق خالٍ من أي إشعاع زائد لحماية شبكية العين في الغرف المظلمة وتوفير طاقة بطارية الهاتف لأقصى حد.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- Theme 3: Executive Navy & Gold -->
+                <div class="theme-card-option" id="theme-opt-navy" onclick="selectTheme('navy')">
+                    <div class="theme-swatch-box" style="background: #030a1a; border: 2px solid rgba(251, 191, 36, 0.45);">
+                        <span style="background: #fbbf24; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #38bdf8; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🧠 التركيز المالي السيادي (Executive Navy)</strong>
+                            <span class="theme-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; font-weight:900;">هدوء وتركيز مصرفي</span>
+                        </div>
+                        <p>كحلي مصرفي ملكي يقلل التوتر ويرفع التركيز، مع أرقام ذهبية مشعة تبرز المبالغ والديون فوراً للعين.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- Theme 4: Forest Emerald & Mint -->
+                <div class="theme-card-option" id="theme-opt-forest" onclick="selectTheme('forest')">
+                    <div class="theme-swatch-box" style="background: #03140d; border: 2px solid rgba(52, 211, 153, 0.4);">
+                        <span style="background: #34d399; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🌿 الراحة واليقظة الممتدة (Forest Emerald)</strong>
+                            <span class="theme-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight:900;">صفر إجهاد | عمل متواصل</span>
+                        </div>
+                        <p>الطول الموجي الأخضر الأريح لعدسة العين علمياً؛ ممتاز للمراجعة والتدقيق والعمل المتواصل دون إرهاق بصري.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════════════════
          5. FIXED BOTTOM NAVIGATION BAR
          ═════════════════════════════════════════════════════════════════ -->
     <nav class="bottom-nav-bar">
@@ -1010,9 +1454,9 @@ require_once __DIR__ . '/db_bridge.php';
             <i class="fa-solid fa-receipt"></i>
             <span>فاتورة</span>
         </button>
-        <button type="button" class="nav-item" onclick="openBottomSheet('sheet-statement')">
-            <i class="fa-solid fa-address-book"></i>
-            <span>العملاء</span>
+        <button type="button" class="nav-item" onclick="openBottomSheet('sheet-theme')">
+            <i class="fa-solid fa-palette"></i>
+            <span>السمات</span>
         </button>
         <button type="button" class="nav-item" onclick="switchToDesktopDashboard()">
             <i class="fa-solid fa-desktop"></i>
@@ -1030,10 +1474,52 @@ require_once __DIR__ . '/db_bridge.php';
             }
         }
 
+        // Theme Manager Functions
+        function selectTheme(themeKey) {
+            triggerHaptic('medium');
+            document.body.setAttribute('data-theme', themeKey);
+            localStorage.setItem('magaiees_mobile_theme', themeKey);
+            document.cookie = "magaiees_mobile_theme=" + themeKey + "; path=/; max-age=31536000; SameSite=Lax";
+            updateThemeUI(themeKey);
+            setTimeout(() => {
+                closeBottomSheet('sheet-theme');
+            }, 250);
+        }
+
+        function updateThemeUI(themeKey) {
+            document.querySelectorAll('.theme-card-option').forEach(el => el.classList.remove('active'));
+            const activeCard = document.getElementById('theme-opt-' + themeKey);
+            if (activeCard) activeCard.classList.add('active');
+
+            const iconMap = {
+                solar: 'fa-sun text-amber-500',
+                midnight: 'fa-moon text-sky-400',
+                navy: 'fa-brain text-amber-400',
+                forest: 'fa-leaf text-emerald-400'
+            };
+            const labelMap = {
+                solar: 'شمس',
+                midnight: 'ليل',
+                navy: 'كحلي',
+                forest: 'زمرد'
+            };
+            const iconEl = document.getElementById('current-theme-icon');
+            const labelEl = document.getElementById('current-theme-label');
+            if (iconEl && iconMap[themeKey]) iconEl.className = 'fa-solid ' + iconMap[themeKey];
+            if (labelEl && labelMap[themeKey]) labelEl.textContent = labelMap[themeKey];
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('magaiees_mobile_theme') || document.body.getAttribute('data-theme') || 'midnight';
+            document.body.setAttribute('data-theme', savedTheme);
+            updateThemeUI(savedTheme);
+        }
+
         // Switch to Full Desktop Dashboard & Persist Preference
         function switchToDesktopDashboard() {
             triggerHaptic('light');
             localStorage.setItem('magaiees_view_preference', 'desktop');
+            document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
             window.location.href = 'magaiees_unified_dashboard.php?force_desktop=1';
         }
 
@@ -1512,6 +1998,7 @@ require_once __DIR__ . '/db_bridge.php';
 
         // Initialize on load
         document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
             refreshMobileData();
         });
     </script>

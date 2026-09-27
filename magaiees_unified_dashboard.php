@@ -1,4 +1,20 @@
-<?php $page_title = 'لوحة التحكم'; ?>
+<?php
+// ═════════════════════════════════════════════════════════════════════
+// 🌐 SMART DEVICE ROUTER (Unified Link Architecture)
+// ═════════════════════════════════════════════════════════════════════
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$isMobileUserAgent = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent);
+$forceDesktop = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
+$prefCookie = $_COOKIE['magaiees_view_preference'] ?? '';
+
+if ($forceDesktop) {
+    setcookie('magaiees_view_preference', 'desktop', time() + (86400 * 365), '/');
+} elseif ($isMobileUserAgent && $prefCookie !== 'desktop') {
+    header('Location: mobile-dashboard.php');
+    exit;
+}
+$page_title = 'لوحة التحكم';
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -13,6 +29,7 @@
     var params = new URLSearchParams(window.location.search);
     if (params.get('force_desktop') === '1') {
         localStorage.setItem('magaiees_view_preference', 'desktop');
+        document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
     } else {
         var isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && window.innerHeight <= 1024);
         var viewPref = localStorage.getItem('magaiees_view_preference');
@@ -23,7 +40,8 @@
 })();
 function switchToMobileEdition() {
     localStorage.setItem('magaiees_view_preference', 'mobile');
-    window.location.href = 'mobile-dashboard.php';
+    document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
+    window.location.href = 'mobile-dashboard.php?force_mobile=1';
 }
 </script>
 <head>
