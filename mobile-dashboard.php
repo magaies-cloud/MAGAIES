@@ -1777,9 +1777,14 @@ try {
     <div class="mobile-bottom-sheet" id="sheet-financial-tx" style="max-height:94vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border);">
-            <span class="sheet-title" id="tx-sheet-title" style="color:var(--primary); font-weight:900;">
-                <i class="fa-solid fa-money-bill-transfer"></i> حركة مالية
-            </span>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span class="sheet-title" id="tx-sheet-title" style="color:var(--primary); font-weight:900;">
+                    <i class="fa-solid fa-money-bill-transfer"></i> حركة مالية
+                </span>
+                <button type="button" class="btn-refresh-header" onclick="refreshFinancialTxModal()" title="تحديث السند وسعر الصرف" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; width:34px; height:34px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                    <i class="fa-solid fa-arrows-rotate" style="font-size:0.9rem;"></i>
+                </button>
+            </div>
             <div style="display:flex; align-items:center; gap:8px;">
                 <button type="button" class="btn-switch-desktop" onclick="openBottomSheet('sheet-ai-slip')" style="padding:5px 10px; font-size:0.78rem; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;" title="تفريغ إشعار بالذكاء الاصطناعي">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> تفريغ إشعار AI
@@ -1791,8 +1796,8 @@ try {
             <form onsubmit="handleFinancialTxSubmit(event)">
                 <input type="hidden" id="tx-operation-type" value="financial_movement">
 
-                <!-- 1. Top Bar: رقم السند & سعر الصرف في سطر واحد مدمج وأنيق وثابت تماماً -->
-                <div class="tx-top-bar" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); padding:8px 10px; border-radius:12px; margin-bottom:12px; gap:6px; width:100%; box-sizing:border-box; overflow:hidden;">
+                <!-- 1. Top Bar: رقم السند & زر التحديث في المنتصف & سعر الصرف -->
+                <div class="tx-top-bar" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); padding:8px 12px; border-radius:12px; margin-bottom:10px; gap:6px; width:100%; box-sizing:border-box;">
                     <!-- رقم السند -->
                     <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
                         <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">السند:</span>
@@ -1800,12 +1805,46 @@ try {
                         <input type="hidden" id="tx-voucher-no" value="">
                     </div>
 
+                    <!-- زر التحديث Refresh في المنتصف بارز وواضح جداً -->
+                    <button type="button" onclick="refreshFinancialTxModal()" title="تحديث رقم السند وسعر الصرف" style="background:linear-gradient(135deg, rgba(56,189,248,0.18), rgba(2,132,199,0.25)); border:1.5px solid #38bdf8; color:#38bdf8; padding:5px 14px; border-radius:10px; cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:900; box-shadow:0 2px 8px rgba(56,189,248,0.2); flex-shrink:0;">
+                        <i class="fa-solid fa-arrows-rotate"></i> تحديث
+                    </button>
+
                     <!-- الصرف -->
                     <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
                         <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">الصرف:</span>
-                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:78px; max-width:80px; height:34px; font-size:0.95rem; font-weight:900; text-align:center; direction:ltr !important; padding:2px 4px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:8px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
-                        <button type="button" onclick="resetExchangeRateToDefault()" title="استعادة سعر الصرف" style="background:rgba(255,255,255,0.08); border:none; color:var(--text-main); width:32px; height:32px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                            <i class="fa-solid fa-arrows-rotate" style="font-size:0.75rem;"></i>
+                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:78px; max-width:82px; height:34px; font-size:0.95rem; font-weight:900; text-align:center; direction:ltr !important; padding:2px 4px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:8px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
+                    </div>
+                </div>
+
+                <!-- 2. WhatsApp & Smart Bank Slip Quick Bar (فتح واتساب + تفريغ تلقائي) -->
+                <div class="whatsapp-slip-action-bar" style="display:flex; gap:8px; margin-bottom:12px;">
+                    <!-- فتح واتساب -->
+                    <button type="button" onclick="openWhatsAppForSlip()" style="flex:1; height:42px; background:linear-gradient(135deg, rgba(34,197,94,0.18), rgba(22,163,74,0.28)); border:1.5px solid #22c55e; color:#22c55e; border-radius:12px; font-size:0.82rem; font-weight:900; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;" title="فتح تطبيق واتساب لاختيار ونسخ الإشعار">
+                        <i class="fa-brands fa-whatsapp" style="font-size:1.15rem;"></i> فتح واتساب
+                    </button>
+
+                    <!-- لصق وتفريغ تلقائي AI -->
+                    <button type="button" onclick="pasteAndAutoFillSlip()" style="flex:1.2; height:42px; background:linear-gradient(135deg, rgba(56,189,248,0.18), rgba(2,132,199,0.28)); border:1.5px solid #38bdf8; color:#38bdf8; border-radius:12px; font-size:0.82rem; font-weight:900; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;" title="لصق الإشعار المنسوخ من واتساب وتفريغه فوراً">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> تفريغ الإشعار AI
+                    </button>
+
+                    <!-- اختيار صورة إشعار من واتساب -->
+                    <button type="button" onclick="triggerSlipImagePicker()" style="width:42px; height:42px; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.15); color:var(--text-main); border-radius:12px; font-size:0.95rem; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="اختيار صورة الإشعار من ألبوم واتساب أو الاستوديو">
+                        <i class="fa-solid fa-image"></i>
+                    </button>
+                    <input type="file" id="slip-image-picker" accept="image/*" style="display:none;" onchange="handleSlipImageUpload(event)">
+                </div>
+
+                <!-- إشعار عائم ذكي عند العودة من واتساب -->
+                <div id="wa-return-banner" style="display:none; margin-bottom:12px; padding:10px 12px; background:linear-gradient(135deg, rgba(16,185,129,0.18), rgba(5,150,105,0.25)); border:1.5px solid #10b981; border-radius:12px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:1.2rem;">✨</span>
+                            <span style="font-size:0.82rem; font-weight:800; color:#10b981;">هل نسخت الإشعار من واتساب؟</span>
+                        </div>
+                        <button type="button" onclick="pasteAndAutoFillSlip()" style="background:#10b981; border:none; color:#fff; padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:900; cursor:pointer;">
+                            تفريغ الآن ⚡
                         </button>
                     </div>
                 </div>
@@ -1976,11 +2015,17 @@ try {
                 <textarea id="ai-slip-text" class="ai-slip-textarea" placeholder="الصق نص الإشعار هنا..." oninput="parseSlipInputLive(this.value)"></textarea>
             </div>
 
-            <div style="display:flex; gap:8px; margin-bottom:12px;">
-                <button type="button" class="btn-switch-desktop" onclick="pasteFromClipboardToAI()" style="flex:1; padding:8px 12px; font-size:0.8rem; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;">
-                    <i class="fa-solid fa-paste"></i> لصق من الحافظة
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
+                <button type="button" class="btn-switch-desktop" onclick="openWhatsAppForSlip()" style="padding:10px; font-size:0.82rem; font-weight:800; background:rgba(34,197,94,0.18); border:1.5px solid #22c55e; color:#22c55e;">
+                    <i class="fa-brands fa-whatsapp"></i> فتح واتساب
                 </button>
-                <button type="button" class="btn-switch-desktop" onclick="loadSampleBankakSlip()" style="padding:8px 12px; font-size:0.8rem; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981;">
+                <button type="button" class="btn-switch-desktop" onclick="pasteFromClipboardToAI()" style="padding:10px; font-size:0.82rem; font-weight:800; background:rgba(56,189,248,0.18); border:1.5px solid #38bdf8; color:#38bdf8;">
+                    <i class="fa-solid fa-paste"></i> لصق وتفريغ
+                </button>
+                <button type="button" class="btn-switch-desktop" onclick="triggerSlipImagePicker()" style="padding:8px; font-size:0.8rem; font-weight:800; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:var(--text-main);">
+                    <i class="fa-solid fa-image"></i> صورة من واتساب
+                </button>
+                <button type="button" class="btn-switch-desktop" onclick="loadSampleBankakSlip()" style="padding:8px; font-size:0.8rem; font-weight:800; background:rgba(16,185,129,0.12); border:1px solid #10b981; color:#10b981;">
                     <i class="fa-solid fa-flask"></i> إشعار تجريبي
                 </button>
             </div>
@@ -4194,6 +4239,196 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (window.showModernToast) {
                 window.showModernToast('✨ تم تفريغ الإشعار وتعبئة السند بنجاح!', 'success', 2500);
             }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 🔄 REFRESH FINANCIAL TX MODAL (رقم السند وسعر الصرف)
+        // ═════════════════════════════════════════════════════════════════
+        function refreshFinancialTxModal() {
+            triggerHaptic('medium');
+            const vObj = computeNextVoucherNo();
+            const vNoEl = document.getElementById('tx-voucher-no');
+            const vDispEl = document.getElementById('tx-voucher-display');
+            if (vNoEl) vNoEl.value = vObj.voucherNo;
+            if (vDispEl) vDispEl.textContent = vObj.voucherNo;
+
+            const rate = getDollarExchangeRate();
+            const rateInp = document.getElementById('tx-exchange-rate');
+            if (rateInp) rateInp.value = rate;
+            updateRateDisplayHint(rate);
+
+            const localVal = parseFloat(document.getElementById('tx-amount-local')?.value) || 0;
+            if (localVal > 0) onLocalAmountInput(localVal);
+
+            if (window.showModernToast) {
+                window.showModernToast('🔄 تم تحديث رقم السند وسعر الصرف بنجاح', 'info', 1800);
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 📲 WHATSAPP BANK SLIP PARSER & DIRECT EXTRACTOR
+        // ═════════════════════════════════════════════════════════════════
+        function openWhatsAppForSlip() {
+            triggerHaptic('medium');
+            sessionStorage.setItem('waiting_whatsapp_slip', 'true');
+            sessionStorage.setItem('waiting_whatsapp_slip_time', String(Date.now()));
+
+            if (window.showModernToast) {
+                window.showModernToast('📲 جاري فتح واتساب.. انسخ نص الإشعار أو صورته ثم ارجع للتطبيق!', 'info', 3000);
+            }
+
+            setTimeout(() => {
+                window.location.href = 'whatsapp://';
+            }, 350);
+        }
+
+        function checkReturnFromWhatsApp() {
+            const isWaiting = sessionStorage.getItem('waiting_whatsapp_slip');
+            if (!isWaiting) return;
+
+            const banner = document.getElementById('wa-return-banner');
+            if (banner) {
+                banner.style.display = 'block';
+            }
+
+            // Attempt automatic clipboard read if permitted
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                navigator.clipboard.readText().then(text => {
+                    if (text && text.trim().length > 10) {
+                        const hasKeywords = /بنك|تحويل|مبلغ|SDG|جنيه|عملية|مرجع|أوكاش|فوري|Bankak|Transfer|Receipt/i.test(text);
+                        if (hasKeywords) {
+                            pasteAndAutoFillSlip(text);
+                        }
+                    }
+                }).catch(() => {});
+            }
+        }
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                checkReturnFromWhatsApp();
+            }
+        });
+        window.addEventListener('focus', () => {
+            checkReturnFromWhatsApp();
+        });
+
+        async function pasteAndAutoFillSlip(customText) {
+            triggerHaptic('medium');
+            let text = customText || '';
+            if (!text) {
+                try {
+                    if (navigator.clipboard && navigator.clipboard.readText) {
+                        text = await navigator.clipboard.readText();
+                    }
+                } catch(e) {}
+            }
+
+            if (!text || !text.trim()) {
+                openBottomSheet('sheet-ai-slip');
+                return;
+            }
+
+            const banner = document.getElementById('wa-return-banner');
+            if (banner) banner.style.display = 'none';
+            sessionStorage.removeItem('waiting_whatsapp_slip');
+
+            const ta = document.getElementById('ai-slip-text');
+            if (ta) ta.value = text;
+
+            parseSlipInputLive(text);
+
+            if (AI_EXTRACTED_DATA && (AI_EXTRACTED_DATA.amount || AI_EXTRACTED_DATA.ref)) {
+                applyAIExtractedData();
+                if (window.showModernToast) {
+                    window.showModernToast('✨ تم تفريغ إشعار واتساب وتعبئة السند بنجاح!', 'success', 2500);
+                }
+            } else {
+                openBottomSheet('sheet-ai-slip');
+                if (window.showModernToast) {
+                    window.showModernToast('يرجى مراجعة وتأكيد بيانات الإشعار', 'info', 2500);
+                }
+            }
+        }
+
+        function triggerSlipImagePicker() {
+            triggerHaptic('light');
+            const inp = document.getElementById('slip-image-picker');
+            if (inp) inp.click();
+        }
+
+        async function handleSlipImageUpload(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            triggerHaptic('medium');
+            if (window.showModernToast) {
+                window.showModernToast('🔍 جاري فحص وقراءة صورة الإشعار بالذكاء الاصطناعي...', 'info', 4000);
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Data = e.target.result;
+                try {
+                    const resp = await fetch('api/ocr-financial.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            image: base64Data,
+                            doc_hint: 'transfer'
+                        })
+                    });
+                    const res = await resp.json();
+                    if (res.success && res.data) {
+                        const d = res.data;
+                        buildAllAccountsList();
+
+                        if (d.amount) {
+                            const locInp = document.getElementById('tx-amount-local');
+                            if (locInp) locInp.value = d.amount;
+                            onLocalAmountInput(d.amount);
+                        }
+                        if (d.transaction_ref || d.reference_no) {
+                            const refInp = document.getElementById('tx-ref');
+                            if (refInp) {
+                                refInp.value = d.transaction_ref || d.reference_no;
+                                validateRefNoLive(refInp.value);
+                            }
+                        }
+                        if (d.date) {
+                            const dtInp = document.getElementById('tx-date');
+                            if (dtInp) dtInp.value = d.date;
+                        }
+                        if (d.sender_name) {
+                            const mFrom = ALL_ACCOUNTS.find(a => a.name.includes(d.sender_name) || d.sender_name.includes(a.name));
+                            if (mFrom) selectAccountDirectly('from', mFrom);
+                        }
+                        if (d.receiver_name || d.bank_name) {
+                            const targetName = d.receiver_name || d.bank_name;
+                            const mTo = ALL_ACCOUNTS.find(a => a.name.includes(targetName) || targetName.includes(a.name)) || ALL_ACCOUNTS.find(a => a.category === 'bank');
+                            if (mTo) selectAccountDirectly('to', mTo);
+                        }
+
+                        const noteInp = document.getElementById('tx-notes');
+                        if (noteInp) {
+                            noteInp.value = `تحويل ${d.bank_name || 'بنكي'} - مرجع ${d.transaction_ref || d.reference_no || ''}`;
+                        }
+
+                        openFinancialTxSheet();
+                        if (window.showModernToast) {
+                            window.showModernToast('✨ تم استخراج بيانات الإشعار وتعبئة السند بنجاح!', 'success', 3000);
+                        }
+                    } else {
+                        alert(res.error || 'تعذر استخراج بيانات الإشعار من الصورة، يرجى المحاولة بصورة أوضح أو نسخ النص.');
+                    }
+                } catch(err) {
+                    console.error('OCR Error:', err);
+                    alert('حدث خطأ أثناء فحص الصورة. يمكنك نسخ نص الإشعار ولصقه مباشرة.');
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsDataURL(file);
         }
 
         // Backward compatibility shims
