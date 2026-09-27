@@ -14,11 +14,13 @@ $forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
 $prefCookie = $_COOKIE['magaiees_view_preference'] ?? '';
 
 // Check if accessing from desktop without mobile override
-if ($forceMobile) {
-    setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
-} elseif (!$isMobileUserAgent && $prefCookie !== 'mobile') {
-    header('Location: magaiees_unified_dashboard.php');
-    exit;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    if ($forceMobile) {
+        setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
+    } elseif (!$isMobileUserAgent && $prefCookie !== 'mobile') {
+        header('Location: magaiees_unified_dashboard.php');
+        exit;
+    }
 }
 
 $page_title = 'مقاييس الموبايل | النسخة السريعة';
@@ -139,12 +141,131 @@ try {
         if ($payObj) $preloadedData['payments'][] = $payObj;
     }
 
+    // 6. Direct AJAX Financial Voucher Persistence (Instant write to MariaDB)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ((isset($_POST['action']) && $_POST['action'] === 'save_financial_tx') || (isset($_GET['action']) && $_GET['action'] === 'save_financial_tx'))) {
+        header('Content-Type: application/json; charset=UTF-8');
+        try {
+            $rawTx = $_POST['data'] ?? '';
+            if (empty($rawTx)) {
+                $rawInput = file_get_contents('php://input');
+                $inputJson = json_decode($rawInput, true);
+                if (isset($inputJson['data'])) {
+                    $rawTx = is_array($inputJson['data']) ? json_encode($inputJson['data']) : $inputJson['data'];
+                } else {
+                    $rawTx = $rawInput;
+                }
+            }
+            $tx = json_decode($rawTx, true);
+            if (!$tx && is_string($rawTx)) {
+                $tx = json_decode(stripslashes($rawTx), true);
+            }
+            $amtVal = floatval($tx['amountLocal'] ?? ($tx['amount'] ?? 0));
+            if (!$tx || $amtVal <= 0) {
+                echo json_encode(['success' => false, 'error' => 'بيانات الحركة غير صالحة']);
+                exit;
+            }
+
+            $prefix = 'E' . date('ym');
+            $maxSeq = 0;
+            $stmtCheck = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
+            $stmtCheck->execute([$currentTenantId]);
+            while ($row = $stmtCheck->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($row['data'], true);
+                if (!$d) continue;
+                $id = $d['voucherNo'] ?? ($d['id'] ?? '');
+                if (strpos($id, $prefix) === 0) {
+                    $seq = (int)substr($id, strlen($prefix));
+                    if ($seq > $maxSeq) $maxSeq = $seq;
+                } elseif (is_numeric($id)) {
+                    $seq = (int)$id;
+                    if ($seq > $maxSeq) $maxSeq = $seq;
+                }
+            }
+
+            $targetVNo = !empty($tx['voucherNo']) ? $tx['voucherNo'] : ($prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT));
+            $tx['id'] = $targetVNo;
+            $tx['voucherNo'] = $targetVNo;
+            $tx['isPosted'] = true;
+
+            $stmtInsert = $pdo->prepare("INSERT INTO single_payments (tenant_id, data) VALUES (?, ?)");
+            $stmtInsert->execute([$currentTenantId, json_encode($tx, JSON_UNESCAPED_UNICODE)]);
+            
+            echo json_encode(['success' => true, 'voucherNo' => $targetVNo, 'seq' => $maxSeq + 1]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
     $stmtSale = $pdo->prepare("SELECT data FROM sales_invoices WHERE tenant_id = ? ORDER BY id DESC LIMIT 20");
     $stmtSale->execute([$currentTenantId]);
     while ($r = $stmtSale->fetch()) {
         $saleObj = json_decode($r['data'], true);
         if ($saleObj) $preloadedData['sales'][] = $saleObj;
     }
+
+    // 7. Real Cost Centers
+    $preloadedData['costCenters'] = [];
+    try {
+        $stmtCc = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN ('erp_cost_centers_v1', 'erp_jobs_v1') ORDER BY FIELD(setting_key, 'erp_cost_centers_v1', 'erp_jobs_v1') LIMIT 1");
+        $stmtCc->execute();
+        $ccVal = $stmtCc->fetchColumn();
+        if ($ccVal) {
+            $ccParsed = json_decode($ccVal, true);
+            if (is_array($ccParsed)) $preloadedData['costCenters'] = $ccParsed;
+        }
+    } catch(Exception $e){}
+
+    // 8. Currency & Real-Time Dollar Rate (USD)
+    $preloadedData['currency'] = 'SDG';
+    $preloadedData['exchangeRateUSD'] = 6000;
+    try {
+        $stmtCr = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN ('tenant_rate_" . intval($currentTenantId) . "', 'exchange_rate', 'erp_currency_rates_v1') ORDER BY FIELD(setting_key, 'tenant_rate_" . intval($currentTenantId) . "', 'exchange_rate', 'erp_currency_rates_v1') LIMIT 1");
+        $stmtCr->execute();
+        $crVal = $stmtCr->fetchColumn();
+        if ($crVal) {
+            $crParsed = json_decode($crVal, true);
+            if (!empty($crParsed['rateUSD'])) $preloadedData['exchangeRateUSD'] = floatval($crParsed['rateUSD']);
+            elseif (!empty($crParsed['rate'])) $preloadedData['exchangeRateUSD'] = floatval($crParsed['rate']);
+            elseif (!empty($crParsed['USD'])) $preloadedData['exchangeRateUSD'] = floatval($crParsed['USD']);
+        }
+    } catch(Exception $e){}
+
+    // 9. Sequential Voucher Number Calculation (Shared sequence with desktop single-cash-payment.php)
+    $prefix = 'E' . date('ym');
+    $maxSeq = 0;
+    try {
+        $stmtP = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
+        $stmtP->execute([$currentTenantId]);
+        while ($r = $stmtP->fetch()) {
+            $d = json_decode($r['data'], true);
+            if (!$d) continue;
+            $id = $d['voucherNo'] ?? ($d['id'] ?? '');
+            if (strpos($id, $prefix) === 0) {
+                $seq = (int)substr($id, strlen($prefix));
+                if ($seq > $maxSeq) $maxSeq = $seq;
+            } elseif (is_numeric($id)) {
+                $seq = (int)$id;
+                if ($seq > $maxSeq) $maxSeq = $seq;
+            }
+        }
+        $stmtR = $pdo->prepare("SELECT data FROM single_receipts WHERE tenant_id = ?");
+        $stmtR->execute([$currentTenantId]);
+        while ($r = $stmtR->fetch()) {
+            $d = json_decode($r['data'], true);
+            if (!$d) continue;
+            $id = $d['voucherNo'] ?? ($d['id'] ?? '');
+            if (strpos($id, $prefix) === 0) {
+                $seq = (int)substr($id, strlen($prefix));
+                if ($seq > $maxSeq) $maxSeq = $seq;
+            } elseif (is_numeric($id)) {
+                $seq = (int)$id;
+                if ($seq > $maxSeq) $maxSeq = $seq;
+            }
+        }
+    } catch(Exception $e){}
+    $preloadedData['maxVoucherSeq'] = $maxSeq;
+    $preloadedData['nextVoucherNo'] = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
 } catch (Exception $e) {
     error_log('Mobile Dashboard Preloader Error: ' . $e->getMessage());
 }
@@ -1628,13 +1749,56 @@ try {
             <form onsubmit="handleFinancialTxSubmit(event)">
                 <input type="hidden" id="tx-operation-type" value="financial_movement">
 
-                <!-- 1. Amount Field with Thousands Preview -->
-                <div class="m-form-group">
-                    <label class="m-label" style="display:flex; justify-content:space-between;">
-                        <span>المبلغ المالي (SDG):</span>
-                        <span id="tx-amount-preview" style="color:var(--emerald); font-family:'Inter',sans-serif; font-size:0.9rem; font-weight:900;">0 SDG</span>
-                    </label>
-                    <input type="number" id="tx-amount" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal" oninput="updateTxAmountPreview(this.value)">
+                <!-- Sequential Voucher Number Banner -->
+                <div class="voucher-serial-banner" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); padding:8px 12px; border-radius:12px; margin-bottom:12px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.15rem;">📑</span>
+                        <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">رقم السند:</span>
+                        <span id="tx-voucher-display" style="font-family:'Inter',monospace; font-size:1.05rem; font-weight:900; color:var(--emerald); background:rgba(16,185,129,0.12); padding:2px 10px; border-radius:8px; border:1px solid rgba(16,185,129,0.3);">...</span>
+                        <input type="hidden" id="tx-voucher-no" value="">
+                    </div>
+                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-arrows-rotate"></i> متسلسل تلقائي</span>
+                </div>
+
+                <!-- 1. Split Amount: Local (50%) & Foreign USD (50%) -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:6px;">
+                    <!-- 🇸🇩 Local Currency (العملة المحلية) -->
+                    <div class="m-form-group" style="margin-bottom:0;">
+                        <label class="m-label" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span>💰 محلي (SDG)</span>
+                            <span style="font-size:0.7rem; color:var(--emerald); font-weight:800;">الأساسي</span>
+                        </label>
+                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal" style="height:58px; font-size:1.35rem; padding:6px 10px; font-family:'Inter',sans-serif;" oninput="onLocalAmountInput(this.value)">
+                        <div id="tx-amount-local-preview" style="color:var(--emerald); font-family:'Inter',sans-serif; font-size:0.75rem; font-weight:900; margin-top:3px; text-align:left; direction:ltr;">0 SDG</div>
+                    </div>
+
+                    <!-- 💵 Foreign Currency (الدولار USD) -->
+                    <div class="m-form-group" style="margin-bottom:0;">
+                        <label class="m-label" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <span>💵 أجنبي ($ USD)</span>
+                            <span style="font-size:0.7rem; color:#f87171; font-weight:800;">دولار</span>
+                        </label>
+                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0.00" step="any" inputmode="decimal" style="height:58px; font-size:1.35rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif;" oninput="onForeignAmountInput(this.value)">
+                        <div id="tx-amount-foreign-preview" style="color:#f87171; font-family:'Inter',sans-serif; font-size:0.75rem; font-weight:900; margin-top:3px; text-align:left; direction:ltr;">$0.00 USD</div>
+                    </div>
+                </div>
+                <input type="hidden" id="tx-amount" value="">
+
+                <!-- ⚖️ Dollar Exchange Rate Bar (سعر صرف الدولار) -->
+                <div class="exchange-rate-bar" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 12px; border-radius:12px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.15rem;">⚖️</span>
+                        <div>
+                            <div style="font-size:0.8rem; font-weight:800; color:var(--text-muted);">سعر صرف الدولار (USD / SDG):</div>
+                            <div id="tx-rate-hint" style="font-size:0.72rem; color:var(--amber); font-weight:700;">1$ = 6,000 SDG</div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:105px; height:38px; font-size:1.1rem; font-weight:900; text-align:center; padding:4px 8px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber);" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
+                        <button type="button" onclick="resetExchangeRateToDefault()" title="استعادة سعر الصرف" style="background:rgba(255,255,255,0.08); border:none; color:var(--text-main); width:36px; height:36px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-arrows-rotate" style="font-size:0.8rem;"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- 2. Dual Account Box (من حساب إلى حساب) -->
@@ -1703,7 +1867,23 @@ try {
                 </div>
                 <div id="tx-ref-validation-hint" style="font-size:0.75rem; font-weight:800; margin-top:-6px; margin-bottom:10px; display:none; padding:4px 10px; border-radius:8px;"></div>
 
-                <!-- 4. Notes / Statement -->
+                <!-- 4. Cost Center (مركز الكلفة) & Beneficiary (المستفيد) -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+                    <div class="m-form-group" style="margin-bottom:0;">
+                        <label class="m-label" style="display:flex; justify-content:space-between; align-items:center;">
+                            <span><i class="fa-solid fa-chart-pie" style="color:var(--sky);"></i> مركز الكلفة:</span>
+                        </label>
+                        <select id="tx-cost-center" class="m-input" style="height:44px; font-weight:700; font-size:0.9rem;">
+                            <option value="">-- بدون مركز كلفة --</option>
+                        </select>
+                    </div>
+                    <div class="m-form-group" style="margin-bottom:0;">
+                        <label class="m-label">اسم المستفيد: <span style="font-size:0.7rem; color:var(--text-muted);">(اختياري)</span></label>
+                        <input type="text" id="tx-beneficiary" class="m-input" placeholder="اسم المستفيد..." style="height:44px;">
+                    </div>
+                </div>
+
+                <!-- 5. Notes / Statement -->
                 <div class="m-form-group">
                     <label class="m-label">البيان / ملاحظات السند:</label>
                     <input type="text" id="tx-notes" class="m-input" placeholder="دفعة حساب / تحويل بنكي / منصرف">
@@ -2772,9 +2952,189 @@ try {
             ALL_ACCOUNTS = [...bankItems, ...safeItems, ...customerItems, ...supplierItems, ...expenseItems];
         }
 
+        let LAST_FOCUSED_CURRENCY = 'local';
+
         // ═════════════════════════════════════════════════════════════════
         // 2. UNIFIED FINANCIAL MOVEMENT ENGINE (قيد مزدوج: دائن / مدين)
         // ═════════════════════════════════════════════════════════════════
+        function computeNextVoucherNo() {
+            const today = new Date();
+            const yy = String(today.getFullYear()).slice(-2);
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const prefix = 'E' + yy + mm; // e.g. E2609
+
+            let maxSeq = 0;
+            if (window.SERVER_DATA && window.SERVER_DATA.maxVoucherSeq) {
+                maxSeq = Math.max(maxSeq, parseInt(window.SERVER_DATA.maxVoucherSeq) || 0);
+            }
+
+            const checkId = (raw) => {
+                if (!raw) return;
+                const str = String(raw).trim();
+                if (str.startsWith(prefix)) {
+                    const num = parseInt(str.slice(prefix.length)) || 0;
+                    if (num > maxSeq) maxSeq = num;
+                } else if (/^\d+$/.test(str)) {
+                    const num = parseInt(str) || 0;
+                    if (num > maxSeq) maxSeq = num;
+                }
+            };
+
+            // Scan server preloaded records
+            if (window.SERVER_DATA) {
+                (window.SERVER_DATA.payments || []).forEach(p => checkId(p.voucherNo || p.id));
+                (window.SERVER_DATA.receipts || []).forEach(r => checkId(r.voucherNo || r.id));
+            }
+
+            // Scan local arrays
+            loadTenantArray('erp_single_payments_v1').forEach(p => checkId(p.voucherNo || p.id));
+            loadTenantArray('erp_single_receipts_v1').forEach(r => checkId(r.voucherNo || r.id));
+            loadTenantArray('erp_financial_txs_v1').forEach(t => checkId(t.voucherNo || t.id));
+
+            const storedSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || '0');
+            if (storedSeq > maxSeq) maxSeq = storedSeq;
+
+            const nextSeq = maxSeq + 1;
+            return {
+                voucherNo: prefix + String(nextSeq).padStart(4, '0'),
+                seq: nextSeq
+            };
+        }
+
+        function getDollarExchangeRate() {
+            if (window.SERVER_DATA && window.SERVER_DATA.exchangeRateUSD) {
+                const r = parseFloat(window.SERVER_DATA.exchangeRateUSD);
+                if (r > 1) return r;
+            }
+            if (typeof window.getExchangeRateForCurrency === 'function') {
+                const r = window.getExchangeRateForCurrency('USD');
+                if (r && r > 1) return r;
+            }
+            try {
+                const getTenantKey = window.getTenantKey || ((k) => k);
+                const settings = JSON.parse(localStorage.getItem(getTenantKey('erp_settings_v1')) || localStorage.getItem('erp_settings_v1')) || {};
+                if (settings.rateUSD && settings.rateUSD > 1) return parseFloat(settings.rateUSD);
+                if (settings.exchangeRate && settings.exchangeRate > 1) return parseFloat(settings.exchangeRate);
+            } catch(e){}
+            try {
+                const rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1')) || {};
+                if (rates.USD && rates.USD > 1) return parseFloat(rates.USD);
+            } catch(e){}
+            return 6000;
+        }
+
+        function updateRateDisplayHint(rate) {
+            const hintEl = document.getElementById('tx-rate-hint');
+            if (hintEl) {
+                hintEl.textContent = `1$ = ${fmt(rate)} SDG`;
+            }
+        }
+
+        function resetExchangeRateToDefault() {
+            const defRate = getDollarExchangeRate();
+            const rateInp = document.getElementById('tx-exchange-rate');
+            if (rateInp) {
+                rateInp.value = defRate;
+                updateRateDisplayHint(defRate);
+                onExchangeRateInput(defRate);
+            }
+        }
+
+        function populateCostCentersDropdown() {
+            const sel = document.getElementById('tx-cost-center');
+            if (!sel) return;
+            let costCenters = [];
+            if (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.costCenters) && window.SERVER_DATA.costCenters.length > 0) {
+                costCenters = window.SERVER_DATA.costCenters;
+            } else {
+                costCenters = loadTenantArray('erp_cost_centers_v1');
+                if (!costCenters || costCenters.length === 0) {
+                    costCenters = loadTenantArray('erp_jobs_v1');
+                }
+            }
+            let html = '<option value="">-- بدون مركز كلفة --</option>';
+            (costCenters || []).forEach(cc => {
+                if (!cc) return;
+                const id = cc.id || cc.code || cc.name;
+                const name = cc.name || cc.title || id;
+                html += `<option value="${id}">${name}</option>`;
+            });
+            sel.innerHTML = html;
+        }
+
+        function onLocalAmountInput(val) {
+            LAST_FOCUSED_CURRENCY = 'local';
+            const num = parseFloat(val) || 0;
+            const rate = parseFloat(document.getElementById('tx-exchange-rate')?.value) || 1;
+
+            const hiddenAmt = document.getElementById('tx-amount');
+            if (hiddenAmt) hiddenAmt.value = num > 0 ? num : '';
+
+            const foreignInp = document.getElementById('tx-amount-foreign');
+            const foreignPrev = document.getElementById('tx-amount-foreign-preview');
+            const localPrev = document.getElementById('tx-amount-local-preview');
+
+            if (num > 0 && rate > 0) {
+                const usd = (num / rate).toFixed(2);
+                if (foreignInp) foreignInp.value = usd;
+                if (foreignPrev) foreignPrev.textContent = `$${fmt(usd)} USD`;
+            } else {
+                if (foreignInp) foreignInp.value = '';
+                if (foreignPrev) foreignPrev.textContent = '$0.00 USD';
+            }
+            if (localPrev) localPrev.textContent = `${fmt(num)} SDG`;
+        }
+
+        function onForeignAmountInput(val) {
+            LAST_FOCUSED_CURRENCY = 'foreign';
+            const num = parseFloat(val) || 0;
+            const rate = parseFloat(document.getElementById('tx-exchange-rate')?.value) || 1;
+
+            const localInp = document.getElementById('tx-amount-local');
+            const hiddenAmt = document.getElementById('tx-amount');
+            const foreignPrev = document.getElementById('tx-amount-foreign-preview');
+            const localPrev = document.getElementById('tx-amount-local-preview');
+
+            if (num > 0 && rate > 0) {
+                const local = Math.round(num * rate);
+                if (localInp) localInp.value = local;
+                if (hiddenAmt) hiddenAmt.value = local;
+                if (localPrev) localPrev.textContent = `${fmt(local)} SDG`;
+            } else {
+                if (localInp) localInp.value = '';
+                if (hiddenAmt) hiddenAmt.value = '';
+                if (localPrev) localPrev.textContent = '0 SDG';
+            }
+            if (foreignPrev) foreignPrev.textContent = `$${fmt(num)} USD`;
+        }
+
+        function onExchangeRateInput(val) {
+            const rate = parseFloat(val) || 1;
+            updateRateDisplayHint(rate);
+
+            if (LAST_FOCUSED_CURRENCY === 'foreign') {
+                const foreignVal = parseFloat(document.getElementById('tx-amount-foreign')?.value) || 0;
+                if (foreignVal > 0 && rate > 0) {
+                    const local = Math.round(foreignVal * rate);
+                    const localInp = document.getElementById('tx-amount-local');
+                    const hiddenAmt = document.getElementById('tx-amount');
+                    if (localInp) localInp.value = local;
+                    if (hiddenAmt) hiddenAmt.value = local;
+                    const localPrev = document.getElementById('tx-amount-local-preview');
+                    if (localPrev) localPrev.textContent = `${fmt(local)} SDG`;
+                }
+            } else {
+                const localVal = parseFloat(document.getElementById('tx-amount-local')?.value) || 0;
+                if (localVal > 0 && rate > 0) {
+                    const usd = (localVal / rate).toFixed(2);
+                    const foreignInp = document.getElementById('tx-amount-foreign');
+                    if (foreignInp) foreignInp.value = usd;
+                    const foreignPrev = document.getElementById('tx-amount-foreign-preview');
+                    if (foreignPrev) foreignPrev.textContent = `$${fmt(usd)} USD`;
+                }
+            }
+        }
+
         function openFinancialTxSheet() {
             triggerHaptic('light');
             buildAllAccountsList();
@@ -2784,6 +3144,22 @@ try {
             if (dateInp && !dateInp.value) {
                 dateInp.value = new Date().toISOString().split('T')[0];
             }
+
+            // Populate sequential voucher number
+            const vObj = computeNextVoucherNo();
+            const vNoEl = document.getElementById('tx-voucher-no');
+            const vDispEl = document.getElementById('tx-voucher-display');
+            if (vNoEl) vNoEl.value = vObj.voucherNo;
+            if (vDispEl) vDispEl.textContent = `${vObj.voucherNo} (#${vObj.seq})`;
+
+            // Populate Cost Centers
+            populateCostCentersDropdown();
+
+            // Populate Dollar Exchange Rate
+            const rate = getDollarExchangeRate();
+            const rateInp = document.getElementById('tx-exchange-rate');
+            if (rateInp) rateInp.value = rate;
+            updateRateDisplayHint(rate);
 
             // Clear ref validation hint
             const hint = document.getElementById('tx-ref-validation-hint');
@@ -3186,15 +3562,26 @@ try {
             if (e && e.preventDefault) e.preventDefault();
             triggerHaptic('heavy');
 
-            const amt = parseFloat(document.getElementById('tx-amount').value) || 0;
-            const txDate = document.getElementById('tx-date').value || new Date().toISOString().split('T')[0];
-            const txRef = document.getElementById('tx-ref').value.trim();
-            const txNotes = document.getElementById('tx-notes').value.trim();
+            const localAmt = parseFloat(document.getElementById('tx-amount-local')?.value) || 0;
+            const foreignAmt = parseFloat(document.getElementById('tx-amount-foreign')?.value) || 0;
+            const rate = parseFloat(document.getElementById('tx-exchange-rate')?.value) || 1;
+            const amt = localAmt;
+            const txDate = document.getElementById('tx-date')?.value || new Date().toISOString().split('T')[0];
+            const txRef = document.getElementById('tx-ref')?.value?.trim() || '';
+            const txNotes = document.getElementById('tx-notes')?.value?.trim() || '';
+            const costCenter = document.getElementById('tx-cost-center')?.value || '';
+            const ccEl = document.getElementById('tx-cost-center');
+            const costCenterName = (ccEl && ccEl.selectedIndex > 0) ? ccEl.options[ccEl.selectedIndex].text : '';
+            const beneficiary = document.getElementById('tx-beneficiary')?.value?.trim() || '';
+
+            // Compute current sequential voucher number
+            const vObj = computeNextVoucherNo();
+            const vNo = document.getElementById('tx-voucher-no')?.value || vObj.voucherNo;
 
             // 1. Amount Validation
-            if (amt <= 0) {
+            if (amt <= 0 && foreignAmt <= 0) {
                 alert('⚠️ يرجى إدخال مبلغ صحيح أكبر من صفر');
-                document.getElementById('tx-amount').focus();
+                document.getElementById('tx-amount-local')?.focus();
                 return false;
             }
 
@@ -3233,7 +3620,7 @@ try {
             // If bank is involved, reference number is mandatory
             if (isBankInvolved && !txRef) {
                 showLengthWarningModal('');
-                document.getElementById('tx-ref').focus();
+                document.getElementById('tx-ref')?.focus();
                 return false;
             }
 
@@ -3241,13 +3628,13 @@ try {
             if (txRef) {
                 if (txRef.length < 6) {
                     showLengthWarningModal(txRef);
-                    document.getElementById('tx-ref').focus();
+                    document.getElementById('tx-ref')?.focus();
                     return false;
                 }
 
                 if (checkTransferDuplicate(txRef, null)) {
                     showDuplicateWarningModal(txRef);
-                    document.getElementById('tx-ref').focus();
+                    document.getElementById('tx-ref')?.focus();
                     return false;
                 }
             }
@@ -3268,18 +3655,30 @@ try {
 
             // 7. Auto-infer Movement Nature based on chosen accounts
             const nature = inferTransactionNature(SELECTED_FROM_ACCOUNT, SELECTED_TO_ACCOUNT);
-            const finalRef = txRef || ('TX-' + Date.now().toString().slice(-6));
+            const finalRef = txRef || vNo;
 
             // Build Transaction Record
             const txRecord = {
-                id: finalRef,
+                id: vNo,
+                voucherNo: vNo,
+                voucherSeq: vObj.seq,
                 refNo: finalRef,
                 transferNo: txRef || '',
                 mobileTransferNo: txRef || '',
                 amount: amt,
+                amountLocal: amt,
+                amountForeign: foreignAmt,
+                currency: 'SDG',
+                rate: rate,
+                systemExchangeRate: rate,
+                costCenter: costCenter,
+                costCenterName: costCenterName,
+                beneficiaryName: beneficiary,
                 date: txDate,
+                time: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' }),
                 type: nature.type,
                 natureLabel: nature.label,
+                paymentMethod: isBankInvolved ? 'bank' : 'cash',
                 fromAccount: {
                     id: SELECTED_FROM_ACCOUNT.id,
                     rawId: SELECTED_FROM_ACCOUNT.rawId,
@@ -3297,7 +3696,11 @@ try {
                     phone: SELECTED_TO_ACCOUNT.phone
                 },
                 notes: txNotes,
-                createdAt: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' })
+                toStatement: txNotes,
+                fromStatement: txNotes,
+                createdAt: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' }),
+                timestamp: new Date().toISOString(),
+                isPosted: true
             };
 
             // 8. Save to financial txs array
@@ -3342,47 +3745,121 @@ try {
                 SELECTED_TO_ACCOUNT.balance = (parseFloat(SELECTED_TO_ACCOUNT.balance || 0) + amt);
             }
 
-            // 10. Backward Compatibility Sync with Legacy Receipts and Payments
+            // 10. Backward Compatibility Sync with Legacy Receipts and Payments (Desktop single_payments / single_receipts)
             if (nature.type === 'receipt') {
                 let recs = loadTenantArray('erp_single_receipts_v1');
                 recs.unshift({
-                    id: finalRef,
+                    id: vNo,
+                    voucherNo: vNo,
                     refNo: finalRef,
                     transferNo: txRef,
                     mobileTransferNo: txRef,
                     amount: amt,
+                    amountLocal: amt,
+                    amountForeign: foreignAmt,
+                    rate: rate,
+                    currency: 'SDG',
+                    systemExchangeRate: rate,
+                    costCenter: costCenter,
                     customer: SELECTED_FROM_ACCOUNT.name,
                     customerId: SELECTED_FROM_ACCOUNT.rawId,
                     customerName: SELECTED_FROM_ACCOUNT.name,
                     destination: SELECTED_TO_ACCOUNT.name,
+                    destinationId: SELECTED_TO_ACCOUNT.rawId,
+                    beneficiaryName: beneficiary,
                     notes: txNotes,
-                    date: txDate
+                    statement: txNotes,
+                    date: txDate,
+                    time: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' }),
+                    isPosted: true,
+                    timestamp: new Date().toISOString()
                 });
                 saveTenantArray('erp_single_receipts_v1', recs);
-            } else if (nature.type === 'payment') {
+            } else {
                 let pays = loadTenantArray('erp_single_payments_v1');
                 pays.unshift({
-                    id: finalRef,
+                    id: vNo,
+                    voucherNo: vNo,
                     refNo: finalRef,
                     transferNo: txRef,
                     mobileTransferNo: txRef,
                     amount: amt,
+                    amountLocal: amt,
+                    amountForeign: foreignAmt,
+                    rate: rate,
+                    currency: 'SDG',
+                    systemExchangeRate: rate,
+                    costCenter: costCenter,
                     recipient: SELECTED_TO_ACCOUNT.name,
+                    toAccount: SELECTED_TO_ACCOUNT.rawId || SELECTED_TO_ACCOUNT.id,
                     source: SELECTED_FROM_ACCOUNT.name,
+                    fromAccount: SELECTED_FROM_ACCOUNT.rawId || SELECTED_FROM_ACCOUNT.id,
+                    beneficiaryName: beneficiary,
                     notes: txNotes,
-                    date: txDate
+                    toStatement: txNotes,
+                    fromStatement: txNotes,
+                    date: txDate,
+                    time: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' }),
+                    isPosted: true,
+                    timestamp: new Date().toISOString()
                 });
                 saveTenantArray('erp_single_payments_v1', pays);
             }
 
-            // Push to backend
+            // Update sequence counter in localStorage
+            const getTenantKey = window.getTenantKey || ((k) => k);
+            const currentSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || '0');
+            localStorage.setItem(getTenantKey('erp_single_payment_seq'), Math.max(currentSeq, vObj.seq));
+
+            // 11. Direct AJAX Write to MariaDB single_payments table for instant desktop parity
+            const postFormData = new FormData();
+            postFormData.append('action', 'save_financial_tx');
+            postFormData.append('tenant_id', window.SERVER_DATA?.tenantId || 1);
+            postFormData.append('data', JSON.stringify({
+                id: vNo,
+                voucherNo: vNo,
+                type: 'single_payment',
+                date: txDate,
+                time: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' }),
+                amountLocal: amt,
+                amountForeign: foreignAmt,
+                rate: rate,
+                currency: 'SDG',
+                systemExchangeRate: rate,
+                fromAccount: SELECTED_FROM_ACCOUNT.rawId || SELECTED_FROM_ACCOUNT.id,
+                toAccount: SELECTED_TO_ACCOUNT.rawId || SELECTED_TO_ACCOUNT.id,
+                costCenter: costCenter,
+                beneficiaryName: beneficiary,
+                toStatement: txNotes,
+                fromStatement: txNotes,
+                paymentMethod: isBankInvolved ? 'bank' : 'cash',
+                mobileTransferNo: txRef,
+                transferNo: txRef,
+                isPosted: true,
+                timestamp: new Date().toISOString()
+            }));
+
+            fetch('mobile-dashboard.php', { method: 'POST', body: postFormData })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success && res.seq) {
+                        localStorage.setItem(getTenantKey('erp_single_payment_seq'), Math.max(currentSeq, res.seq));
+                    }
+                })
+                .catch(() => {});
+
+            // Push to backend sync engine
             pushChangesToBackend();
 
             ACTIVE_TX_FOR_WA = txRecord;
+            document.getElementById('tx-amount-local').value = '';
+            document.getElementById('tx-amount-foreign').value = '';
             document.getElementById('tx-amount').value = '';
             document.getElementById('tx-ref').value = '';
             document.getElementById('tx-notes').value = '';
-            updateTxAmountPreview(0);
+            if (document.getElementById('tx-beneficiary')) document.getElementById('tx-beneficiary').value = '';
+            if (document.getElementById('tx-cost-center')) document.getElementById('tx-cost-center').value = '';
+            onLocalAmountInput('');
 
             const hint = document.getElementById('tx-ref-validation-hint');
             if (hint) hint.style.display = 'none';
@@ -3391,7 +3868,7 @@ try {
             refreshMobileData();
 
             if (window.showModernToast) {
-                window.showModernToast(`✅ تم حفظ الحركة المالية (${fmt(amt)} SDG) بنجاح!`, 'success', 3000);
+                window.showModernToast(`✅ تم حفظ الحركة المالية [${vNo}] بمبلغ (${fmt(amt)} SDG) بنجاح!`, 'success', 3500);
             }
 
             if (openWhatsAppDirect) {
@@ -3404,7 +3881,7 @@ try {
         }
 
         function handleTxWhatsAppShareClick() {
-            const amt = parseFloat(document.getElementById('tx-amount').value) || 0;
+            const amt = parseFloat(document.getElementById('tx-amount-local')?.value || document.getElementById('tx-amount')?.value) || 0;
             if (amt > 0) {
                 handleFinancialTxSubmit(null, true);
                 return;
@@ -3455,19 +3932,32 @@ try {
                 else if (tx.type === 'journal_transfer') typeTitle = 'تسوية وتحويل ذمة بين حسابين';
             }
 
+            let extraDetails = [];
+            if (tx.amountForeign && tx.amountForeign > 0) {
+                extraDetails.push(`💵 *المعادل بالدولار:* $${fmt(tx.amountForeign)} USD (سعر الصرف: ${fmt(tx.rate)} SDG)`);
+            }
+            if (tx.costCenterName) {
+                extraDetails.push(`📊 *مركز الكلفة:* ${tx.costCenterName}`);
+            }
+            if (tx.beneficiaryName) {
+                extraDetails.push(`👤 *المستفيد:* ${tx.beneficiaryName}`);
+            }
+            const extraText = extraDetails.length > 0 ? (extraDetails.join('\n') + '\n') : '';
+
             const voucherMsg = 
-`🧾 *إشعار مالي معتمد*
+`🧾 *إشعار حركة مالية معتمد*
 🏢 *${compName}*
 ━━━━━━━━━━━━━━━━━━━━
+📑 *رقم السند:* ${tx.voucherNo || tx.id}
 📌 *نوع الحركة:* ${typeTitle}
-💰 *المبلغ الصافي:* ${fmt(tx.amount)} SDG
-🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
+💰 *المبلغ (محلي):* ${fmt(tx.amountLocal || tx.amount)} SDG
+${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 🟢 *إلى حساب (المستلم):* ${tx.toAccount?.name || '--'}
-🔢 *رقم الإشعار / المرجع:* ${tx.refNo}
+🔢 *رقم الإشعار / التحويل:* ${tx.transferNo || tx.refNo || '--'}
 📅 *التاريخ:* ${tx.date}
 📝 *البيان:* ${tx.notes || 'سند معتمد بنجاح'}
 ━━━━━━━━━━━━━━━━━━━━
-✓ تم قيد وتسجيل الحركة دفترياً بنجاح عبر نظام مقاييس السحابي.`;
+✓ قيد محاسبي مزدوج معتمد ومطابق لدفاتر وسجلات النظام.`;
 
             let phone = '';
             if (targetOption === 'from' && tx.fromAccount?.phone) {
@@ -3663,8 +4153,9 @@ try {
             buildAllAccountsList();
 
             if (data.amount) {
-                document.getElementById('tx-amount').value = data.amount;
-                updateTxAmountPreview(data.amount);
+                const locInp = document.getElementById('tx-amount-local');
+                if (locInp) locInp.value = data.amount;
+                onLocalAmountInput(data.amount);
             }
 
             if (data.ref) {
@@ -3685,7 +4176,7 @@ try {
             document.getElementById('tx-notes').value = `تحويل بنكك آلي - مرجع ${data.ref}`;
 
             closeBottomSheet('sheet-ai-slip');
-            openBottomSheet('sheet-financial-tx');
+            openFinancialTxSheet();
 
             if (window.showModernToast) {
                 window.showModernToast('✨ تم تفريغ الإشعار وتعبئة السند بنجاح!', 'success', 2500);
