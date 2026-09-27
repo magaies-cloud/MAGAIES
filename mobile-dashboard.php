@@ -1730,9 +1730,9 @@ try {
     <div class="mobile-sheet-overlay" id="overlay-sheet-financial-tx" onclick="closeBottomSheet('sheet-financial-tx')"></div>
     <div class="mobile-bottom-sheet" id="sheet-financial-tx" style="max-height:94vh;">
         <div class="sheet-drag-handle"></div>
-        <div class="sheet-header">
+        <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border);">
             <span class="sheet-title" id="tx-sheet-title" style="color:var(--primary); font-weight:900;">
-                <i class="fa-solid fa-money-bill-transfer"></i> حركة مالية (قيد مزدوج)
+                <i class="fa-solid fa-money-bill-transfer"></i> حركة مالية
             </span>
             <div style="display:flex; align-items:center; gap:8px;">
                 <button type="button" class="btn-switch-desktop" onclick="openBottomSheet('sheet-ai-slip')" style="padding:5px 10px; font-size:0.78rem; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;" title="تفريغ إشعار بالذكاء الاصطناعي">
@@ -1741,82 +1741,64 @@ try {
                 <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-financial-tx')">✕</button>
             </div>
         </div>
-        <div class="sheet-body">
-            <p style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin:2px 0 10px 0;">
-                حدد الحساب الدافع (من) والحساب المستلم (إلى) والمبلغ، وسيقوم النظام بتوجيه القيد دفترياً آلياً:
-            </p>
-
+        <div class="sheet-body" style="padding-top:12px;">
             <form onsubmit="handleFinancialTxSubmit(event)">
                 <input type="hidden" id="tx-operation-type" value="financial_movement">
 
-                <!-- Sequential Voucher Number Banner -->
-                <div class="voucher-serial-banner" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); padding:8px 12px; border-radius:12px; margin-bottom:12px;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:1.15rem;">📑</span>
-                        <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">رقم السند:</span>
+                <!-- 1. Top Bar: رقم السند & سعر الصرف في سطر واحد مدمج وأنيق -->
+                <div class="tx-top-bar" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); padding:8px 12px; border-radius:12px; margin-bottom:12px; gap:8px;">
+                    <!-- رقم السند -->
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">السند:</span>
                         <span id="tx-voucher-display" style="font-family:'Inter',monospace; font-size:1.05rem; font-weight:900; color:var(--emerald); background:rgba(16,185,129,0.12); padding:2px 10px; border-radius:8px; border:1px solid rgba(16,185,129,0.3);">...</span>
                         <input type="hidden" id="tx-voucher-no" value="">
                     </div>
-                    <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;"><i class="fa-solid fa-arrows-rotate"></i> متسلسل تلقائي</span>
-                </div>
 
-                <!-- 1. Split Amount: Local (50%) & Foreign USD (50%) -->
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:6px;">
-                    <!-- 🇸🇩 Local Currency (العملة المحلية) -->
-                    <div class="m-form-group" style="margin-bottom:0;">
-                        <label class="m-label" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                            <span>💰 محلي (SDG)</span>
-                            <span style="font-size:0.7rem; color:var(--emerald); font-weight:800;">الأساسي</span>
-                        </label>
-                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal" style="height:58px; font-size:1.35rem; padding:6px 10px; font-family:'Inter',sans-serif;" oninput="onLocalAmountInput(this.value)">
-                        <div id="tx-amount-local-preview" style="color:var(--emerald); font-family:'Inter',sans-serif; font-size:0.75rem; font-weight:900; margin-top:3px; text-align:left; direction:ltr;">0 SDG</div>
-                    </div>
-
-                    <!-- 💵 Foreign Currency (الدولار USD) -->
-                    <div class="m-form-group" style="margin-bottom:0;">
-                        <label class="m-label" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                            <span>💵 أجنبي ($ USD)</span>
-                            <span style="font-size:0.7rem; color:#f87171; font-weight:800;">دولار</span>
-                        </label>
-                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0.00" step="any" inputmode="decimal" style="height:58px; font-size:1.35rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif;" oninput="onForeignAmountInput(this.value)">
-                        <div id="tx-amount-foreign-preview" style="color:#f87171; font-family:'Inter',sans-serif; font-size:0.75rem; font-weight:900; margin-top:3px; text-align:left; direction:ltr;">$0.00 USD</div>
-                    </div>
-                </div>
-                <input type="hidden" id="tx-amount" value="">
-
-                <!-- ⚖️ Dollar Exchange Rate Bar (سعر صرف الدولار) -->
-                <div class="exchange-rate-bar" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 12px; border-radius:12px; margin-bottom:14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:1.15rem;">⚖️</span>
-                        <div>
-                            <div style="font-size:0.8rem; font-weight:800; color:var(--text-muted);">سعر صرف الدولار (USD / SDG):</div>
-                            <div id="tx-rate-hint" style="font-size:0.72rem; color:var(--amber); font-weight:700;">1$ = 6,000 SDG</div>
-                        </div>
-                    </div>
+                    <!-- الصرف -->
                     <div style="display:flex; align-items:center; gap:6px;">
-                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:105px; height:38px; font-size:1.1rem; font-weight:900; text-align:center; padding:4px 8px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber);" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
-                        <button type="button" onclick="resetExchangeRateToDefault()" title="استعادة سعر الصرف" style="background:rgba(255,255,255,0.08); border:none; color:var(--text-main); width:36px; height:36px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
-                            <i class="fa-solid fa-arrows-rotate" style="font-size:0.8rem;"></i>
+                        <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">الصرف:</span>
+                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:90px; height:34px; font-size:0.95rem; font-weight:900; text-align:center; padding:2px 6px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:8px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
+                        <button type="button" onclick="resetExchangeRateToDefault()" title="استعادة سعر الصرف" style="background:rgba(255,255,255,0.08); border:none; color:var(--text-main); width:32px; height:32px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-arrows-rotate" style="font-size:0.75rem;"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- 2. Dual Account Box (من حساب إلى حساب) -->
-                <div class="account-selector-container">
-                    <!-- 🔴 FROM ACCOUNT (الصارف / المدفوع منه) -->
+                <!-- 2. Dual Amount Boxes (محلي 50% وأجنبي 50% بدون إعادة للمبلغ) -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+                    <!-- محلي -->
+                    <div class="m-form-group" style="margin-bottom:0;">
+                        <label class="m-label" style="margin-bottom:4px; font-weight:800; font-size:0.85rem; color:var(--emerald);">
+                            المبلغ محلي
+                        </label>
+                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal" style="height:54px; font-size:1.3rem; padding:6px 10px; font-family:'Inter',sans-serif;" oninput="onLocalAmountInput(this.value)">
+                    </div>
+
+                    <!-- أجنبي -->
+                    <div class="m-form-group" style="margin-bottom:0;">
+                        <label class="m-label" style="margin-bottom:4px; font-weight:800; font-size:0.85rem; color:#f87171;">
+                            المبلغ أجنبي ($)
+                        </label>
+                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0.00" step="any" inputmode="decimal" style="height:54px; font-size:1.3rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif;" oninput="onForeignAmountInput(this.value)">
+                    </div>
+                </div>
+                <input type="hidden" id="tx-amount" value="">
+
+                <!-- 3. Dual Account Box (من وإلى) -->
+                <div class="account-selector-container" style="margin-bottom:12px;">
+                    <!-- 🔴 FROM (من - الدافع) -->
                     <div class="box-account-picker box-account-from" onclick="openAccountPicker('from')">
                         <div class="box-acc-left">
-                            <span class="box-acc-tag">
-                                <i class="fa-solid fa-arrow-up-from-bracket"></i> من حساب (الصارف / الدافع / الدائن):
+                            <span class="box-acc-tag" style="font-size:0.85rem; font-weight:900;">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> من:
                             </span>
-                            <div class="box-acc-title" id="display-from-name">-- اضغط لاختيار الحساب الدافع --</div>
+                            <div class="box-acc-title" id="display-from-name" style="font-size:0.95rem; font-weight:800;">-- اضغط لاختيار الحساب --</div>
                             <div class="box-acc-meta" id="display-from-meta">
                                 <span>اختر عميلاً أو خزينة أو بنكاً</span>
                             </div>
                         </div>
                         <div class="box-acc-right">
-                            <span class="acc-badge" id="display-from-badge" style="display:none;"></span>
-                            <i class="fa-solid fa-chevron-left" style="font-size:0.85rem;"></i>
+                            <i class="fa-solid fa-chevron-left" style="font-size:0.85rem; opacity:0.6;"></i>
                         </div>
                     </div>
                     <input type="hidden" id="tx-from-id" required>
@@ -1829,20 +1811,19 @@ try {
                         <i class="fa-solid fa-arrow-up-down"></i>
                     </button>
 
-                    <!-- 🟢 TO ACCOUNT (المستلم / المقبوض إليه) -->
+                    <!-- 🟢 TO (إلى - المستلم) -->
                     <div class="box-account-picker box-account-to" onclick="openAccountPicker('to')">
                         <div class="box-acc-left">
-                            <span class="box-acc-tag">
-                                <i class="fa-solid fa-arrow-down-to-bracket"></i> إلى حساب (المستلم / المستفيد / المدين):
+                            <span class="box-acc-tag" style="font-size:0.85rem; font-weight:900;">
+                                <i class="fa-solid fa-arrow-down-to-bracket"></i> إلى:
                             </span>
-                            <div class="box-acc-title" id="display-to-name">-- اضغط لاختيار الحساب المستلم --</div>
+                            <div class="box-acc-title" id="display-to-name" style="font-size:0.95rem; font-weight:800;">-- اضغط لاختيار الحساب --</div>
                             <div class="box-acc-meta" id="display-to-meta">
                                 <span>اختر بنكاً أو خزينة أو عميلاً أو مورداً</span>
                             </div>
                         </div>
                         <div class="box-acc-right">
-                            <span class="acc-badge" id="display-to-badge" style="display:none;"></span>
-                            <i class="fa-solid fa-chevron-left" style="font-size:0.85rem;"></i>
+                            <i class="fa-solid fa-chevron-left" style="font-size:0.85rem; opacity:0.6;"></i>
                         </div>
                     </div>
                     <input type="hidden" id="tx-to-id" required>
@@ -1851,45 +1832,35 @@ try {
                     <input type="hidden" id="tx-to-phone">
                 </div>
 
-                <!-- 3. Transaction Date & Slip Ref with 6 Digits & Duplicate Constraints -->
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                    <div class="m-form-group">
-                        <label class="m-label">تاريخ الحركة: <span style="color:#ef4444;">*</span></label>
-                        <input type="date" id="tx-date" class="m-input" required>
-                    </div>
-                    <div class="m-form-group">
-                        <label class="m-label" style="display:flex; justify-content:space-between;">
-                            <span>رقم التحويلة / الإشعار:</span>
-                            <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">(6 أرقام فأكثر)</span>
-                        </label>
-                        <input type="text" id="tx-ref" class="m-input" placeholder="مثال: 9481023" style="font-family:'Inter',monospace; font-weight:800; letter-spacing:1px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
-                    </div>
-                </div>
-                <div id="tx-ref-validation-hint" style="font-size:0.75rem; font-weight:800; margin-top:-6px; margin-bottom:10px; display:none; padding:4px 10px; border-radius:8px;"></div>
-
-                <!-- 4. Cost Center (مركز الكلفة) & Beneficiary (المستفيد) -->
+                <!-- 4. Date & Ref in one compact row -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
                     <div class="m-form-group" style="margin-bottom:0;">
-                        <label class="m-label" style="display:flex; justify-content:space-between; align-items:center;">
-                            <span><i class="fa-solid fa-chart-pie" style="color:var(--sky);"></i> مركز الكلفة:</span>
-                        </label>
+                        <input type="date" id="tx-date" class="m-input" required style="height:44px; font-weight:700;">
+                    </div>
+                    <div class="m-form-group" style="margin-bottom:0;">
+                        <input type="text" id="tx-ref" class="m-input" placeholder="رقم التحويلة" style="height:44px; font-family:'Inter',monospace; font-weight:800; letter-spacing:0.5px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
+                    </div>
+                </div>
+                <div id="tx-ref-validation-hint" style="font-size:0.75rem; font-weight:800; margin-top:-4px; margin-bottom:10px; display:none; padding:4px 10px; border-radius:8px;"></div>
+
+                <!-- 5. Cost Center & Beneficiary -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
+                    <div class="m-form-group" style="margin-bottom:0;">
                         <select id="tx-cost-center" class="m-input" style="height:44px; font-weight:700; font-size:0.9rem;">
-                            <option value="">-- بدون مركز كلفة --</option>
+                            <option value="">مركز الكلفة</option>
                         </select>
                     </div>
                     <div class="m-form-group" style="margin-bottom:0;">
-                        <label class="m-label">اسم المستفيد: <span style="font-size:0.7rem; color:var(--text-muted);">(اختياري)</span></label>
-                        <input type="text" id="tx-beneficiary" class="m-input" placeholder="اسم المستفيد..." style="height:44px;">
+                        <input type="text" id="tx-beneficiary" class="m-input" placeholder="اسم المستفيد" style="height:44px;">
                     </div>
                 </div>
 
-                <!-- 5. Notes / Statement -->
-                <div class="m-form-group">
-                    <label class="m-label">البيان / ملاحظات السند:</label>
-                    <input type="text" id="tx-notes" class="m-input" placeholder="دفعة حساب / تحويل بنكي / منصرف">
+                <!-- 6. Statement / Notes -->
+                <div class="m-form-group" style="margin-bottom:14px;">
+                    <input type="text" id="tx-notes" class="m-input" placeholder="البيان / ملاحظات السند" style="height:44px;">
                 </div>
 
-                <!-- 5. Submit Buttons -->
+                <!-- 7. Submit Buttons -->
                 <div style="display:flex; flex-direction:column; gap:8px;">
                     <button type="submit" class="m-btn-submit" id="btn-save-tx" style="background: linear-gradient(135deg, #10b981, #059669);">
                         <i class="fa-solid fa-check"></i> حفظ الحركة المالية
@@ -3052,7 +3023,7 @@ try {
                     costCenters = loadTenantArray('erp_jobs_v1');
                 }
             }
-            let html = '<option value="">-- بدون مركز كلفة --</option>';
+            let html = '<option value="">مركز الكلفة</option>';
             (costCenters || []).forEach(cc => {
                 if (!cc) return;
                 const id = cc.id || cc.code || cc.name;
@@ -3150,7 +3121,7 @@ try {
             const vNoEl = document.getElementById('tx-voucher-no');
             const vDispEl = document.getElementById('tx-voucher-display');
             if (vNoEl) vNoEl.value = vObj.voucherNo;
-            if (vDispEl) vDispEl.textContent = `${vObj.voucherNo} (#${vObj.seq})`;
+            if (vDispEl) vDispEl.textContent = vObj.voucherNo;
 
             // Populate Cost Centers
             populateCostCentersDropdown();
@@ -3388,14 +3359,11 @@ try {
 
                 document.getElementById('display-from-name').textContent = acc.name;
                 document.getElementById('display-from-meta').innerHTML = `
-                    <span>${acc.categoryName} ${acc.phone ? '• ' + acc.phone : ''} • الرصيد: <strong>${fmt(acc.balance)} SDG</strong></span>
+                    <span>الرصيد: <strong>${fmt(acc.balance)} SDG</strong></span>
                 `;
                 const badge = document.getElementById('display-from-badge');
                 if (badge) {
-                    badge.style.display = 'inline-block';
-                    badge.style.background = acc.color + '22';
-                    badge.style.color = acc.color;
-                    badge.textContent = acc.categoryName;
+                    badge.style.display = 'none';
                 }
             } else {
                 SELECTED_TO_ACCOUNT = acc;
@@ -3406,14 +3374,11 @@ try {
 
                 document.getElementById('display-to-name').textContent = acc.name;
                 document.getElementById('display-to-meta').innerHTML = `
-                    <span>${acc.categoryName} ${acc.phone ? '• ' + acc.phone : ''} • الرصيد: <strong>${fmt(acc.balance)} SDG</strong></span>
+                    <span>الرصيد: <strong>${fmt(acc.balance)} SDG</strong></span>
                 `;
                 const badge = document.getElementById('display-to-badge');
                 if (badge) {
-                    badge.style.display = 'inline-block';
-                    badge.style.background = acc.color + '22';
-                    badge.style.color = acc.color;
-                    badge.textContent = acc.categoryName;
+                    badge.style.display = 'none';
                 }
             }
         }
