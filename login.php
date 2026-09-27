@@ -1007,7 +1007,10 @@
                 document.cookie = "saas_token=" + encodeURIComponent(ssoParams.get('sso_token')) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
-                window.location.replace(ssoParams.get('redirect') || 'magaiees_unified_dashboard.php');
+                const isMobileDevice = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && window.innerHeight <= 1024);
+                const viewPref = localStorage.getItem('magaiees_view_preference');
+                const defaultTarget = (isMobileDevice && viewPref !== 'desktop') ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php';
+                window.location.replace(ssoParams.get('redirect') || defaultTarget);
             }
         })();
 
@@ -1517,18 +1520,20 @@
             btn.innerHTML = '<div class="loader"></div>';
             btn.style.pointerEvents = 'none';
 
-            // --- START SSO REDIRECT ---
-            let targetUrl = 'magaiees_unified_dashboard.php';
+            // --- START SSO & DEVICE REDIRECT ---
+            const isMobileDevice = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && window.innerHeight <= 1024);
+            const viewPref = localStorage.getItem('magaiees_view_preference');
+            let targetUrl = (isMobileDevice && viewPref !== 'desktop') ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php';
 
             if (userSubdomain && window.location.hostname !== userSubdomain + '.elsajana.com' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
                 const subdomainUrl = `https://${userSubdomain}.elsajana.com`;
                 if (token) {
-                    targetUrl = `${subdomainUrl}/login.php?sso_token=${encodeURIComponent(token)}&sso_user=${encodeURIComponent(userStr || '')}&redirect=magaiees_unified_dashboard.php`;
+                    targetUrl = `${subdomainUrl}/login.php?sso_token=${encodeURIComponent(token)}&sso_user=${encodeURIComponent(userStr || '')}&redirect=${encodeURIComponent(targetUrl)}`;
                 } else {
-                    targetUrl = `${subdomainUrl}/magaiees_unified_dashboard.php`;
+                    targetUrl = `${subdomainUrl}/${targetUrl}`;
                 }
             }
-            // --- END SSO REDIRECT ---
+            // --- END SSO & DEVICE REDIRECT ---
 
             setTimeout(() => {
                 const loginCard = document.querySelector('.login-card');

@@ -9,7 +9,22 @@
         document.documentElement.setAttribute('dir','ltr');
         document.documentElement.setAttribute('lang','en');
     }
+    // Check force desktop flag or mobile auto-redirect
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('force_desktop') === '1') {
+        localStorage.setItem('magaiees_view_preference', 'desktop');
+    } else {
+        var isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && window.innerHeight <= 1024);
+        var viewPref = localStorage.getItem('magaiees_view_preference');
+        if (isMobile && viewPref !== 'desktop') {
+            window.location.replace('mobile-dashboard.php');
+        }
+    }
 })();
+function switchToMobileEdition() {
+    localStorage.setItem('magaiees_view_preference', 'mobile');
+    window.location.href = 'mobile-dashboard.php';
+}
 </script>
 <head>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -978,6 +993,14 @@
                         </span>
                         <span class="btn-text" style="color: #fff;">الشاشات</span>
                         <i class="fa-solid fa-chevron-down" id="screens-chevron" style="font-size: 0.75rem; transition: transform 0.3s ease; color: #c084fc;"></i>
+                    </button>
+
+                    <!-- Mobile Dashboard Switcher Button -->
+                    <button onclick="switchToMobileEdition()" class="qa-master-btn" style="--btn-border-color: #10b981; --btn-glow-color: rgba(16, 185, 129, 0.6); background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.2)) !important; border-bottom: 3.5px solid #10b981 !important; min-width: 145px;" title="التبديل إلى نسخة الموبايل والتابلت السريعة">
+                        <span class="qa-icon" style="background: rgba(16, 185, 129, 0.3); border: 1px solid #10b981; color: #34d399;">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                        </span>
+                        <span class="btn-text" style="color: #34d399; font-weight:800;">نسخة الهاتف 📱</span>
                     </button>
                 </div>
             </div>
