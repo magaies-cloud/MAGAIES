@@ -1332,6 +1332,90 @@ try {
         .theme-card-option.active .theme-check-icon {
             color: var(--primary);
         }
+
+        /* ═════════════════════════════════════════════════════════════════
+           ⚠️ MOBILE FINANCIAL SECURITY & AUDIT MODALS
+           ═════════════════════════════════════════════════════════════════ */
+        .mobile-alert-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 999999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: mobModalFadeIn 0.25s ease-out;
+        }
+        @keyframes mobModalFadeIn {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .mobile-alert-card {
+            background: #0f172a;
+            border-radius: 24px;
+            padding: 26px 20px;
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.85);
+            position: relative;
+            overflow: hidden;
+        }
+        .mobile-alert-card.type-warning {
+            border: 2px solid #f59e0b;
+            box-shadow: 0 0 35px rgba(245, 158, 11, 0.35);
+        }
+        .mobile-alert-card.type-critical {
+            border: 2px solid #ef4444;
+            box-shadow: 0 0 40px rgba(239, 68, 68, 0.45);
+        }
+        .mob-alert-icon-ring {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            margin: 0 auto 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            animation: mobPulseRing 2s infinite;
+        }
+        @keyframes mobPulseRing {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            70% { transform: scale(1.06); box-shadow: 0 0 0 16px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .mob-alert-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .mob-alert-body {
+            font-size: 0.92rem;
+            color: #cbd5e1;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        .mob-alert-btn {
+            width: 100%;
+            padding: 13px;
+            border-radius: 14px;
+            font-weight: 900;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'Tajawal', sans-serif;
+        }
     </style>
 </head>
 <body data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
@@ -1407,14 +1491,14 @@ try {
             <small style="color:var(--text-muted); font-size:0.75rem;">لمسة واحدة للتنفيذ</small>
         </div>
         <div class="actions-2x2-grid">
-            <!-- 1. Quick Financial Movement (حركة مالية - قبض وصرف) -->
-            <div class="power-action-btn act-receipt" onclick="openFinancialTxSheet('receipt')">
+            <!-- 1. Quick Financial Movement (حركة مالية - قيد مزدوج) -->
+            <div class="power-action-btn act-receipt" onclick="openFinancialTxSheet()">
                 <div class="action-icon-circle">
                     <i class="fa-solid fa-money-bill-transfer"></i>
                 </div>
                 <div>
                     <div class="action-title">حركة مالية</div>
-                    <div class="action-subtitle">قبض / صرف / تحويل</div>
+                    <div class="action-subtitle">من حساب إلى حساب (دائن / مدين)</div>
                 </div>
             </div>
 
@@ -1520,14 +1604,14 @@ try {
          ═════════════════════════════════════════════════════════════════ -->
 
     <!-- ═════════════════════════════════════════════════════════════════
-         SHEET 1: 💸 حركة مالية موحدة (قبض وصرف وتحويل ذكي)
+         SHEET 1: 💸 حركة مالية موحدة (قيد مزدوج: من حساب إلى حساب)
          ═════════════════════════════════════════════════════════════════ -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-financial-tx" onclick="closeBottomSheet('sheet-financial-tx')"></div>
     <div class="mobile-bottom-sheet" id="sheet-financial-tx" style="max-height:94vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
-            <span class="sheet-title" id="tx-sheet-title" style="color:var(--primary);">
-                <i class="fa-solid fa-money-bill-transfer"></i> حركة مالية
+            <span class="sheet-title" id="tx-sheet-title" style="color:var(--primary); font-weight:900;">
+                <i class="fa-solid fa-money-bill-transfer"></i> حركة مالية (قيد مزدوج)
             </span>
             <div style="display:flex; align-items:center; gap:8px;">
                 <button type="button" class="btn-switch-desktop" onclick="openBottomSheet('sheet-ai-slip')" style="padding:5px 10px; font-size:0.78rem; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;" title="تفريغ إشعار بالذكاء الاصطناعي">
@@ -1537,21 +1621,12 @@ try {
             </div>
         </div>
         <div class="sheet-body">
-            <!-- Transaction Type Pill (قبض / صرف / تحويل) -->
-            <div class="tx-type-pill-container">
-                <button type="button" class="tx-type-btn active type-receipt" id="btn-type-receipt" onclick="setTxType('receipt')">
-                    <i class="fa-solid fa-arrow-down-to-bracket"></i> قبض واستلام
-                </button>
-                <button type="button" class="tx-type-btn type-payment" id="btn-type-payment" onclick="setTxType('payment')">
-                    <i class="fa-solid fa-arrow-up-from-bracket"></i> صرف ودفع
-                </button>
-                <button type="button" class="tx-type-btn type-transfer" id="btn-type-transfer" onclick="setTxType('transfer')">
-                    <i class="fa-solid fa-repeat"></i> تحويل بيني
-                </button>
-            </div>
+            <p style="font-size:0.8rem; color:var(--text-muted); font-weight:700; margin:2px 0 10px 0;">
+                حدد الحساب الدافع (من) والحساب المستلم (إلى) والمبلغ، وسيقوم النظام بتوجيه القيد دفترياً آلياً:
+            </p>
 
             <form onsubmit="handleFinancialTxSubmit(event)">
-                <input type="hidden" id="tx-operation-type" value="receipt">
+                <input type="hidden" id="tx-operation-type" value="financial_movement">
 
                 <!-- 1. Amount Field with Thousands Preview -->
                 <div class="m-form-group">
@@ -1568,9 +1643,9 @@ try {
                     <div class="box-account-picker box-account-from" onclick="openAccountPicker('from')">
                         <div class="box-acc-left">
                             <span class="box-acc-tag">
-                                <i class="fa-solid fa-arrow-up-from-bracket"></i> من حساب (الصارف / الدائن):
+                                <i class="fa-solid fa-arrow-up-from-bracket"></i> من حساب (الصارف / الدافع / الدائن):
                             </span>
-                            <div class="box-acc-title" id="display-from-name">-- اضغط لاختيار الحساب --</div>
+                            <div class="box-acc-title" id="display-from-name">-- اضغط لاختيار الحساب الدافع --</div>
                             <div class="box-acc-meta" id="display-from-meta">
                                 <span>اختر عميلاً أو خزينة أو بنكاً</span>
                             </div>
@@ -1594,9 +1669,9 @@ try {
                     <div class="box-account-picker box-account-to" onclick="openAccountPicker('to')">
                         <div class="box-acc-left">
                             <span class="box-acc-tag">
-                                <i class="fa-solid fa-arrow-down-to-bracket"></i> إلى حساب (المستلم / المدين):
+                                <i class="fa-solid fa-arrow-down-to-bracket"></i> إلى حساب (المستلم / المستفيد / المدين):
                             </span>
-                            <div class="box-acc-title" id="display-to-name">-- اضغط لاختيار الحساب --</div>
+                            <div class="box-acc-title" id="display-to-name">-- اضغط لاختيار الحساب المستلم --</div>
                             <div class="box-acc-meta" id="display-to-meta">
                                 <span>اختر بنكاً أو خزينة أو عميلاً أو مورداً</span>
                             </div>
@@ -1612,17 +1687,21 @@ try {
                     <input type="hidden" id="tx-to-phone">
                 </div>
 
-                <!-- 3. Transaction Date & Slip Ref -->
+                <!-- 3. Transaction Date & Slip Ref with 6 Digits & Duplicate Constraints -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                     <div class="m-form-group">
-                        <label class="m-label">تاريخ الحركة:</label>
+                        <label class="m-label">تاريخ الحركة: <span style="color:#ef4444;">*</span></label>
                         <input type="date" id="tx-date" class="m-input" required>
                     </div>
                     <div class="m-form-group">
-                        <label class="m-label">رقم الإشعار / المرجع:</label>
-                        <input type="text" id="tx-ref" class="m-input" placeholder="مثال: 9481023">
+                        <label class="m-label" style="display:flex; justify-content:space-between;">
+                            <span>رقم التحويلة / الإشعار:</span>
+                            <span style="font-size:0.7rem; color:var(--text-muted); font-weight:700;">(6 أرقام فأكثر)</span>
+                        </label>
+                        <input type="text" id="tx-ref" class="m-input" placeholder="مثال: 9481023" style="font-family:'Inter',monospace; font-weight:800; letter-spacing:1px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
                     </div>
                 </div>
+                <div id="tx-ref-validation-hint" style="font-size:0.75rem; font-weight:800; margin-top:-6px; margin-bottom:10px; display:none; padding:4px 10px; border-radius:8px;"></div>
 
                 <!-- 4. Notes / Statement -->
                 <div class="m-form-group">
@@ -2694,80 +2773,225 @@ try {
         }
 
         // ═════════════════════════════════════════════════════════════════
-        // 2. UNIFIED FINANCIAL MOVEMENT ENGINE (قبض / صرف / تحويل)
+        // 2. UNIFIED FINANCIAL MOVEMENT ENGINE (قيد مزدوج: دائن / مدين)
         // ═════════════════════════════════════════════════════════════════
-        function openFinancialTxSheet(defaultType = 'receipt') {
+        function openFinancialTxSheet() {
             triggerHaptic('light');
             buildAllAccountsList();
 
             // Set default date to today YYYY-MM-DD
             const dateInp = document.getElementById('tx-date');
-            if (dateInp) {
+            if (dateInp && !dateInp.value) {
                 dateInp.value = new Date().toISOString().split('T')[0];
             }
 
-            // Set auto ref if empty
-            const refInp = document.getElementById('tx-ref');
-            if (refInp && !refInp.value) {
-                refInp.value = 'TX-' + Date.now().toString().slice(-6);
+            // Clear ref validation hint
+            const hint = document.getElementById('tx-ref-validation-hint');
+            if (hint) hint.style.display = 'none';
+
+            // Intelligent defaults if no accounts selected yet
+            if (!SELECTED_FROM_ACCOUNT) {
+                const firstSafeOrBank = ALL_ACCOUNTS.find(a => a.category === 'safe') || ALL_ACCOUNTS.find(a => a.category === 'bank');
+                if (firstSafeOrBank) selectAccountDirectly('from', firstSafeOrBank);
             }
 
-            setTxType(defaultType);
             openBottomSheet('sheet-financial-tx');
         }
 
+        // Backward compatibility shim if any legacy button calls setTxType
         function setTxType(type) {
-            triggerHaptic('light');
-            SELECTED_TX_TYPE = type;
-            document.getElementById('tx-operation-type').value = type;
+            SELECTED_TX_TYPE = type || 'financial_movement';
+            const opEl = document.getElementById('tx-operation-type');
+            if (opEl) opEl.value = SELECTED_TX_TYPE;
+        }
 
-            const btnReceipt = document.getElementById('btn-type-receipt');
-            const btnPayment = document.getElementById('btn-type-payment');
-            const btnTransfer = document.getElementById('btn-type-transfer');
-            const sheetTitle = document.getElementById('tx-sheet-title');
-            const btnSave = document.getElementById('btn-save-tx');
+        // Auto-infer movement nature based on the chosen parties
+        function inferTransactionNature(fromAcc, toAcc) {
+            if (!fromAcc || !toAcc) {
+                return { type: 'financial_movement', label: 'حركة مالية عامة (قيد مزدوج)' };
+            }
+            const fCat = fromAcc.category;
+            const tCat = toAcc.category;
 
-            [btnReceipt, btnPayment, btnTransfer].forEach(b => { if (b) b.classList.remove('active'); });
+            if (fCat === 'customer' && (tCat === 'bank' || tCat === 'safe')) {
+                return { type: 'receipt', label: 'سند قبض نقدية من عميل' };
+            }
+            if ((fCat === 'bank' || fCat === 'safe') && tCat === 'supplier') {
+                return { type: 'payment', label: 'سند صرف وسداد لمورد' };
+            }
+            if ((fCat === 'bank' || fCat === 'safe') && tCat === 'expense') {
+                return { type: 'payment', label: 'سند صرف منصرفات وتشغيل' };
+            }
+            if ((fCat === 'bank' || fCat === 'safe') && (tCat === 'bank' || tCat === 'safe')) {
+                return { type: 'transfer', label: 'تحويل مالي بيني' };
+            }
+            if (fCat === 'customer' && tCat === 'customer') {
+                return { type: 'journal_transfer', label: 'تسوية وتحويل ذمة بين عميلين' };
+            }
+            if (fCat === 'supplier' && tCat === 'supplier') {
+                return { type: 'journal_transfer', label: 'تسوية وتحويل بين موردين' };
+            }
+            return { type: 'financial_movement', label: 'حركة مالية عامة (قيد مزدوج)' };
+        }
 
-            if (type === 'receipt') {
-                if (btnReceipt) btnReceipt.classList.add('active');
-                if (sheetTitle) sheetTitle.innerHTML = '<i class="fa-solid fa-arrow-down-to-bracket" style="color:var(--emerald);"></i> حركة قبض واستلام';
-                if (btnSave) btnSave.innerHTML = '<i class="fa-solid fa-check"></i> حفظ سند القبض';
+        // ═════════════════════════════════════════════════════════════════
+        // 🔒 DESKTOP FINANCIAL CONSTRAINTS: DUPLICATE & LENGTH CHECKERS
+        // ═════════════════════════════════════════════════════════════════
+        function checkTransferDuplicate(tno, currentTxId) {
+            if (!tno || String(tno).trim().length < 6) return false;
+            const cleanTno = String(tno).trim().toLowerCase();
+            const targetSuffix = cleanTno.slice(-6);
 
-                // Defaults: FROM = customer, TO = bank or safe
-                if (!SELECTED_FROM_ACCOUNT || SELECTED_FROM_ACCOUNT.category !== 'customer') {
-                    const firstCust = ALL_ACCOUNTS.find(a => a.category === 'customer');
-                    if (firstCust) selectAccountDirectly('from', firstCust);
-                }
-                if (!SELECTED_TO_ACCOUNT || (SELECTED_TO_ACCOUNT.category !== 'bank' && SELECTED_TO_ACCOUNT.category !== 'safe')) {
-                    const firstBankOrSafe = ALL_ACCOUNTS.find(a => a.category === 'bank') || ALL_ACCOUNTS.find(a => a.category === 'safe');
-                    if (firstBankOrSafe) selectAccountDirectly('to', firstBankOrSafe);
-                }
-            } else if (type === 'payment') {
-                if (btnPayment) btnPayment.classList.add('active');
-                if (sheetTitle) sheetTitle.innerHTML = '<i class="fa-solid fa-arrow-up-from-bracket" style="color:var(--rose);"></i> حركة صرف ودفع';
-                if (btnSave) btnSave.innerHTML = '<i class="fa-solid fa-check"></i> حفظ سند الصرف';
+            const getTenantKey = window.getTenantKey || ((k) => k);
+            const keys = [
+                getTenantKey('erp_financial_txs_v1'),
+                getTenantKey('erp_single_payments_v1'),
+                getTenantKey('erp_payments_v1'),
+                getTenantKey('erp_single_receipts_v1'),
+                getTenantKey('erp_receipts_v1'),
+                getTenantKey('erp_comprehensive_payments_v1'),
+                getTenantKey('erp_comprehensive_receipts_v1'),
+                getTenantKey('erp_journal_v1')
+            ];
 
-                // Defaults: FROM = bank or safe, TO = supplier or expense
-                if (!SELECTED_FROM_ACCOUNT || (SELECTED_FROM_ACCOUNT.category !== 'bank' && SELECTED_FROM_ACCOUNT.category !== 'safe')) {
-                    const firstSafeOrBank = ALL_ACCOUNTS.find(a => a.category === 'safe') || ALL_ACCOUNTS.find(a => a.category === 'bank');
-                    if (firstSafeOrBank) selectAccountDirectly('from', firstSafeOrBank);
-                }
-                if (!SELECTED_TO_ACCOUNT || (SELECTED_TO_ACCOUNT.category !== 'supplier' && SELECTED_TO_ACCOUNT.category !== 'expense')) {
-                    const firstSupOrExp = ALL_ACCOUNTS.find(a => a.category === 'supplier') || ALL_ACCOUNTS.find(a => a.category === 'expense');
-                    if (firstSupOrExp) selectAccountDirectly('to', firstSupOrExp);
-                }
-            } else if (type === 'transfer') {
-                if (btnTransfer) btnTransfer.classList.add('active');
-                if (sheetTitle) sheetTitle.innerHTML = '<i class="fa-solid fa-repeat" style="color:var(--primary);"></i> تحويل مالي بين الحسابات';
-                if (btnSave) btnSave.innerHTML = '<i class="fa-solid fa-check"></i> حفظ التحويل البيني';
+            const isMatch = (val) => {
+                if (!val) return false;
+                const s = String(val).trim().toLowerCase();
+                if (s === cleanTno) return true;
+                if (s.length >= 6 && s.slice(-6) === targetSuffix) return true;
+                return false;
+            };
 
-                const vaults = ALL_ACCOUNTS.filter(a => a.category === 'safe' || a.category === 'bank');
-                if (vaults.length >= 2) {
-                    selectAccountDirectly('from', vaults[0]);
-                    selectAccountDirectly('to', vaults[1]);
+            for (let key of keys) {
+                let list = [];
+                try {
+                    list = JSON.parse(localStorage.getItem(key)) || [];
+                } catch(e) { continue; }
+
+                for (let item of list) {
+                    if (!item || item.deleted) continue;
+                    if (currentTxId && (item.id === currentTxId || item.refNo === currentTxId || item.voucherNo === currentTxId)) continue;
+
+                    if (isMatch(item.refNo) || isMatch(item.ref) || isMatch(item.id)) return true;
+                    if (isMatch(item.mobileTransferNo) || isMatch(item.transferNo)) return true;
+
+                    if (item.bankTransfers && Array.isArray(item.bankTransfers)) {
+                        for (let bt of item.bankTransfers) {
+                            if (isMatch(bt.transferNo)) return true;
+                        }
+                    }
                 }
             }
+
+            // Also check SERVER_DATA preloaded records
+            if (window.SERVER_DATA) {
+                const sRecs = window.SERVER_DATA.receipts || [];
+                const sPays = window.SERVER_DATA.payments || [];
+                for (let r of sRecs) {
+                    if (isMatch(r.refNo) || isMatch(r.id) || isMatch(r.transferNo) || isMatch(r.mobileTransferNo)) return true;
+                }
+                for (let p of sPays) {
+                    if (isMatch(p.refNo) || isMatch(p.id) || isMatch(p.transferNo) || isMatch(p.mobileTransferNo)) return true;
+                }
+            }
+
+            return false;
+        }
+
+        function showLengthWarningModal(transferNo) {
+            triggerHaptic('heavy');
+            const existing = document.getElementById('mob-length-modal');
+            if (existing) existing.remove();
+
+            const tStr = String(transferNo || '').trim();
+            const len = tStr.length;
+
+            const modalHTML = `
+                <div id="mob-length-modal" class="mobile-alert-backdrop">
+                    <div class="mobile-alert-card type-warning">
+                        <div class="mob-alert-icon-ring" style="background:rgba(245,158,11,0.18); color:#f59e0b; border:2px solid #f59e0b;">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                        <div class="mob-alert-title">تنبيه رقابي أمني!</div>
+                        <div class="mob-alert-body">
+                            رقم التحويلة / الإشعار البنكي <span style="background:rgba(245,158,11,0.25); color:#f59e0b; font-weight:900; padding:2px 8px; border-radius:6px; font-family:monospace; font-size:1.15rem;">${tStr || '(فارغ)'}</span><br>
+                            <strong>أقل من 6 أرقام!</strong> (أدخلت ${len} ${len === 1 ? 'رقم' : 'أرقام'} فقط).<br>
+                            <span style="font-size:0.8rem; color:#94a3b8; display:block; margin-top:8px;">
+                                يشترط النظام الأساسي أن يتكون رقم التحويلة من 6 أرقام على الأقل لضمان صحة القيود المصرفية ومنع التلاعب.
+                            </span>
+                        </div>
+                        <button type="button" class="mob-alert-btn" style="background:#f59e0b; color:#000;" onclick="document.getElementById('mob-length-modal').remove(); document.getElementById('tx-ref')?.focus();">
+                            <i class="fa-solid fa-pen-to-square"></i> تصحيح رقم التحويلة الآن
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function showDuplicateWarningModal(transferNo) {
+            triggerHaptic('heavy');
+            const existing = document.getElementById('mob-duplicate-modal');
+            if (existing) existing.remove();
+
+            const tStr = String(transferNo || '').trim();
+
+            const modalHTML = `
+                <div id="mob-duplicate-modal" class="mobile-alert-backdrop">
+                    <div class="mobile-alert-card type-critical">
+                        <div class="mob-alert-icon-ring" style="background:rgba(239,68,68,0.2); color:#ef4444; border:2px solid #ef4444;">
+                            <i class="fa-solid fa-ban"></i>
+                        </div>
+                        <div class="mob-alert-title" style="color:#ef4444;">🚨 تحويلة مكررة محظورة!</div>
+                        <div class="mob-alert-body">
+                            رقم التحويلة البنكية <span style="background:rgba(239,68,68,0.3); color:#fff; font-weight:900; padding:2px 8px; border-radius:6px; font-family:monospace; font-size:1.2rem;">${tStr}</span><br>
+                            <strong>مسجل مسبقاً في النظام!</strong> (تطابق آخر 6 أرقام مع سند آخر).<br>
+                            <span style="font-size:0.8rem; color:#fca5a5; display:block; margin-top:8px;">
+                                يمنع نظام الرقابة والتدقيق تكرار استخدام نفس رقم التحويلة البنكية في أكثر من حركة لمنع الازدواجية والخطأ المالي.
+                            </span>
+                        </div>
+                        <button type="button" class="mob-alert-btn" style="background:#ef4444; color:#fff;" onclick="document.getElementById('mob-duplicate-modal').remove(); document.getElementById('tx-ref')?.focus();">
+                            <i class="fa-solid fa-arrow-rotate-left"></i> إدخال رقم تحويلة مختلف
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+        }
+
+        function validateRefNoLive(val) {
+            const hint = document.getElementById('tx-ref-validation-hint');
+            if (!hint) return;
+            const clean = String(val || '').trim();
+            if (!clean) {
+                hint.style.display = 'none';
+                return;
+            }
+
+            if (clean.length < 6) {
+                hint.style.display = 'block';
+                hint.style.background = 'rgba(245, 158, 11, 0.15)';
+                hint.style.color = '#f59e0b';
+                hint.style.border = '1px solid #f59e0b';
+                hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> الرقم الحالي (${clean.length} أرقام) - يشترط 6 أرقام فأكثر`;
+                return;
+            }
+
+            const isDuplicate = checkTransferDuplicate(clean, null);
+            if (isDuplicate) {
+                hint.style.display = 'block';
+                hint.style.background = 'rgba(239, 68, 68, 0.18)';
+                hint.style.color = '#ef4444';
+                hint.style.border = '1px solid #ef4444';
+                hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> هذا الرقم مسجل مسبقاً في حركة أخرى (مكرر)!`;
+                return;
+            }
+
+            hint.style.display = 'block';
+            hint.style.background = 'rgba(16, 185, 129, 0.15)';
+            hint.style.color = '#10b981';
+            hint.style.border = '1px solid #10b981';
+            hint.innerHTML = `<i class="fa-solid fa-circle-check"></i> رقم التحويلة نظامي ومتاح للتقييد (${clean.length} أرقام)`;
         }
 
         function updateTxAmountPreview(val) {
@@ -2963,19 +3187,29 @@ try {
             triggerHaptic('heavy');
 
             const amt = parseFloat(document.getElementById('tx-amount').value) || 0;
-            const opType = document.getElementById('tx-operation-type').value || 'receipt';
             const txDate = document.getElementById('tx-date').value || new Date().toISOString().split('T')[0];
-            const txRef = document.getElementById('tx-ref').value.trim() || 'TX-' + Date.now().toString().slice(-6);
+            const txRef = document.getElementById('tx-ref').value.trim();
             const txNotes = document.getElementById('tx-notes').value.trim();
 
+            // 1. Amount Validation
             if (amt <= 0) {
                 alert('⚠️ يرجى إدخال مبلغ صحيح أكبر من صفر');
                 document.getElementById('tx-amount').focus();
                 return false;
             }
 
+            // 2. Financial Limits Permission Check (Desktop Rule)
+            if (window.MagaieesPermissions && typeof window.MagaieesPermissions.checkFinancialLimits === 'function') {
+                const limitCheck = window.MagaieesPermissions.checkFinancialLimits('voucher_amount', amt);
+                if (!limitCheck.allowed) {
+                    alert('⚠️ تجاوز سقف الصرف المالي المسموح به: ' + limitCheck.message);
+                    return false;
+                }
+            }
+
+            // 3. Accounts Selection & Distinct Identity Validation
             if (!SELECTED_FROM_ACCOUNT) {
-                alert('⚠️ يرجى اختيار الحساب الصارف (من حساب)');
+                alert('⚠️ يرجى اختيار الحساب الدافع (من حساب)');
                 openAccountPicker('from');
                 return false;
             }
@@ -2987,17 +3221,65 @@ try {
             }
 
             if (SELECTED_FROM_ACCOUNT.id === SELECTED_TO_ACCOUNT.id) {
-                alert('⚠️ لا يمكن أن يكون الحساب الصارف والحساب المستلم نفس الحساب!');
+                alert('⚠️ خطأ محاسبي: لا يمكن أن يكون الحساب الدافع والحساب المستلم نفس الحساب!');
                 return false;
             }
 
+            // 4. Transfer / Reference Number Rules (Desktop Rules Enforcement: Min 6 digits & Duplicate check)
+            const isBankInvolved = (SELECTED_FROM_ACCOUNT.category === 'bank' || SELECTED_TO_ACCOUNT.category === 'bank' ||
+                                    (SELECTED_FROM_ACCOUNT.name || '').includes('بنك') || (SELECTED_TO_ACCOUNT.name || '').includes('بنك') ||
+                                    (SELECTED_FROM_ACCOUNT.name || '').includes('بنكك') || (SELECTED_TO_ACCOUNT.name || '').includes('بنكك'));
+
+            // If bank is involved, reference number is mandatory
+            if (isBankInvolved && !txRef) {
+                showLengthWarningModal('');
+                document.getElementById('tx-ref').focus();
+                return false;
+            }
+
+            // If ref is provided (or bank is involved), enforce length >= 6 and duplicate prevention
+            if (txRef) {
+                if (txRef.length < 6) {
+                    showLengthWarningModal(txRef);
+                    document.getElementById('tx-ref').focus();
+                    return false;
+                }
+
+                if (checkTransferDuplicate(txRef, null)) {
+                    showDuplicateWarningModal(txRef);
+                    document.getElementById('tx-ref').focus();
+                    return false;
+                }
+            }
+
+            // 5. Fiscal Period & Date Validation
+            if (typeof window.canCreateRecord === 'function') {
+                if (!window.canCreateRecord(txDate)) return false;
+            }
+
+            // 6. Overdraft / Safe Negative Warning
+            if (SELECTED_FROM_ACCOUNT.category === 'safe' || SELECTED_FROM_ACCOUNT.category === 'bank') {
+                const currentBal = parseFloat(SELECTED_FROM_ACCOUNT.balance || 0);
+                if (amt > currentBal && currentBal > 0) {
+                    const allowOverdraft = confirm(`⚠️ تنبيه سيولة: رصيد [${SELECTED_FROM_ACCOUNT.name}] الحالي هو (${fmt(currentBal)} SDG)، بينما المبلغ المطلوب صرفه هو (${fmt(amt)} SDG).\n\nهل تريد المتابعة والسماح بالحركة على المكشوف؟`);
+                    if (!allowOverdraft) return false;
+                }
+            }
+
+            // 7. Auto-infer Movement Nature based on chosen accounts
+            const nature = inferTransactionNature(SELECTED_FROM_ACCOUNT, SELECTED_TO_ACCOUNT);
+            const finalRef = txRef || ('TX-' + Date.now().toString().slice(-6));
+
             // Build Transaction Record
             const txRecord = {
-                id: txRef,
-                refNo: txRef,
+                id: finalRef,
+                refNo: finalRef,
+                transferNo: txRef || '',
+                mobileTransferNo: txRef || '',
                 amount: amt,
                 date: txDate,
-                type: opType,
+                type: nature.type,
+                natureLabel: nature.label,
                 fromAccount: {
                     id: SELECTED_FROM_ACCOUNT.id,
                     rawId: SELECTED_FROM_ACCOUNT.rawId,
@@ -3018,12 +3300,12 @@ try {
                 createdAt: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' })
             };
 
-            // 1. Save to financial txs array
+            // 8. Save to financial txs array
             let allFinancialTxs = loadTenantArray('erp_financial_txs_v1');
             allFinancialTxs.unshift(txRecord);
             saveTenantArray('erp_financial_txs_v1', allFinancialTxs);
 
-            // 2. Adjust Balances
+            // 9. Adjust Balances
             if (SELECTED_FROM_ACCOUNT.category === 'customer') {
                 let custs = loadTenantArray('erp_customers_v1');
                 const c = custs.find(x => x.id === SELECTED_FROM_ACCOUNT.rawId || 'cust_' + x.id === SELECTED_FROM_ACCOUNT.id);
@@ -3060,12 +3342,14 @@ try {
                 SELECTED_TO_ACCOUNT.balance = (parseFloat(SELECTED_TO_ACCOUNT.balance || 0) + amt);
             }
 
-            // 3. Backward Compatibility
-            if (opType === 'receipt') {
+            // 10. Backward Compatibility Sync with Legacy Receipts and Payments
+            if (nature.type === 'receipt') {
                 let recs = loadTenantArray('erp_single_receipts_v1');
                 recs.unshift({
-                    id: txRef,
-                    refNo: txRef,
+                    id: finalRef,
+                    refNo: finalRef,
+                    transferNo: txRef,
+                    mobileTransferNo: txRef,
                     amount: amt,
                     customer: SELECTED_FROM_ACCOUNT.name,
                     customerId: SELECTED_FROM_ACCOUNT.rawId,
@@ -3075,11 +3359,13 @@ try {
                     date: txDate
                 });
                 saveTenantArray('erp_single_receipts_v1', recs);
-            } else if (opType === 'payment') {
+            } else if (nature.type === 'payment') {
                 let pays = loadTenantArray('erp_single_payments_v1');
                 pays.unshift({
-                    id: txRef,
-                    refNo: txRef,
+                    id: finalRef,
+                    refNo: finalRef,
+                    transferNo: txRef,
+                    mobileTransferNo: txRef,
                     amount: amt,
                     recipient: SELECTED_TO_ACCOUNT.name,
                     source: SELECTED_FROM_ACCOUNT.name,
@@ -3089,11 +3375,17 @@ try {
                 saveTenantArray('erp_single_payments_v1', pays);
             }
 
+            // Push to backend
             pushChangesToBackend();
 
             ACTIVE_TX_FOR_WA = txRecord;
             document.getElementById('tx-amount').value = '';
+            document.getElementById('tx-ref').value = '';
+            document.getElementById('tx-notes').value = '';
             updateTxAmountPreview(0);
+
+            const hint = document.getElementById('tx-ref-validation-hint');
+            if (hint) hint.style.display = 'none';
 
             closeBottomSheet('sheet-financial-tx');
             refreshMobileData();
@@ -3155,10 +3447,13 @@ try {
             const tx = ACTIVE_TX_FOR_WA;
             const compName = document.getElementById('mobile-company-name')?.innerText || 'مؤسسة السجانة';
 
-            let typeTitle = 'حركة مالية موحدة';
-            if (tx.type === 'receipt') typeTitle = 'سند قبض واستلام نقدية';
-            else if (tx.type === 'payment') typeTitle = 'سند صرف ودفع نقدية';
-            else if (tx.type === 'transfer') typeTitle = 'سند تحويل مالي بيني';
+            let typeTitle = tx.natureLabel || 'حركة مالية (قيد مزدوج)';
+            if (!tx.natureLabel) {
+                if (tx.type === 'receipt') typeTitle = 'سند قبض واستلام نقدية';
+                else if (tx.type === 'payment') typeTitle = 'سند صرف ودفع نقدية';
+                else if (tx.type === 'transfer') typeTitle = 'سند تحويل مالي بيني';
+                else if (tx.type === 'journal_transfer') typeTitle = 'تسوية وتحويل ذمة بين حسابين';
+            }
 
             const voucherMsg = 
 `🧾 *إشعار مالي معتمد*
