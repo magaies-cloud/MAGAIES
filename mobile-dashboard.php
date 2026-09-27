@@ -449,11 +449,18 @@ try {
         /* ═════════════════════════════════════════════════════════════════
            CORE LAYOUT & COMPONENTS (THEME-VARIABLE POWERED)
            ═════════════════════════════════════════════════════════════════ */
-        * {
+        *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
+        }
+
+        html {
+            overflow-x: hidden !important;
+            max-width: 100vw;
+            width: 100%;
+            -webkit-text-size-adjust: 100%;
         }
 
         body {
@@ -463,7 +470,11 @@ try {
             font-family: 'Tajawal', sans-serif;
             color: var(--text-main);
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow-x: hidden !important;
+            max-width: 100vw;
+            width: 100%;
+            position: relative;
+            touch-action: pan-y;
             padding-bottom: calc(85px + var(--safe-bottom));
             transition: background-color 0.25s ease, color 0.25s ease;
         }
@@ -939,6 +950,10 @@ try {
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            overflow-x: hidden !important;
+            width: 100%;
+            max-width: 100vw;
+            box-sizing: border-box;
             padding-bottom: var(--safe-bottom);
             color: var(--text-main);
         }
@@ -953,11 +968,12 @@ try {
             margin: 10px auto 4px auto;
         }
         .sheet-header {
-            padding: 12px 20px;
+            padding: 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border-bottom: 1.5px solid var(--border-glass);
+            flex-shrink: 0;
         }
         .sheet-title {
             font-size: 1.15rem;
@@ -980,11 +996,19 @@ try {
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
         .sheet-body {
-            padding: 16px 20px;
+            padding: 14px 16px;
             overflow-y: auto;
+            overflow-x: hidden !important;
             flex: 1;
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+            touch-action: pan-y;
+            overscroll-behavior-x: none;
+            -webkit-overflow-scrolling: touch;
         }
 
         /* Mobile Form Controls */
@@ -1000,7 +1024,7 @@ try {
         }
         .m-input, .m-select {
             width: 100%;
-            padding: 13px 16px;
+            padding: 12px 14px;
             background: var(--input-bg);
             border: 2px solid var(--input-border);
             color: var(--input-color);
@@ -1017,12 +1041,31 @@ try {
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
         }
         .m-input.huge-number {
-            font-size: 1.8rem;
+            font-size: 1.7rem;
             font-weight: 900;
             text-align: center;
+            direction: ltr !important;
             color: var(--emerald);
             letter-spacing: 1px;
             font-family: 'Inter', monospace, sans-serif;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Prevent number spinner jump and horizontal cursor jitter */
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+            appearance: none;
+        }
+        input[type="number"],
+        input[inputmode="decimal"],
+        input[inputmode="numeric"] {
+            direction: ltr !important;
+            font-variant-numeric: tabular-nums;
         }
 
         .m-btn-submit {
@@ -1220,6 +1263,9 @@ try {
             overflow-x: auto;
             padding-bottom: 8px;
             scrollbar-width: none;
+            touch-action: pan-x;
+            overscroll-behavior-x: contain;
+            -webkit-overflow-scrolling: touch;
         }
         .picker-category-pills::-webkit-scrollbar {
             display: none;
@@ -1745,20 +1791,20 @@ try {
             <form onsubmit="handleFinancialTxSubmit(event)">
                 <input type="hidden" id="tx-operation-type" value="financial_movement">
 
-                <!-- 1. Top Bar: رقم السند & سعر الصرف في سطر واحد مدمج وأنيق -->
-                <div class="tx-top-bar" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); padding:8px 12px; border-radius:12px; margin-bottom:12px; gap:8px;">
+                <!-- 1. Top Bar: رقم السند & سعر الصرف في سطر واحد مدمج وأنيق وثابت تماماً -->
+                <div class="tx-top-bar" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); padding:8px 10px; border-radius:12px; margin-bottom:12px; gap:6px; width:100%; box-sizing:border-box; overflow:hidden;">
                     <!-- رقم السند -->
-                    <div style="display:flex; align-items:center; gap:6px;">
+                    <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
                         <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">السند:</span>
-                        <span id="tx-voucher-display" style="font-family:'Inter',monospace; font-size:1.05rem; font-weight:900; color:var(--emerald); background:rgba(16,185,129,0.12); padding:2px 10px; border-radius:8px; border:1px solid rgba(16,185,129,0.3);">...</span>
+                        <span id="tx-voucher-display" style="font-family:'Inter',monospace; font-size:0.95rem; font-weight:900; color:var(--emerald); background:rgba(16,185,129,0.12); padding:2px 8px; border-radius:8px; border:1px solid rgba(16,185,129,0.3);">...</span>
                         <input type="hidden" id="tx-voucher-no" value="">
                     </div>
 
                     <!-- الصرف -->
-                    <div style="display:flex; align-items:center; gap:6px;">
+                    <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
                         <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">الصرف:</span>
-                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:90px; height:34px; font-size:0.95rem; font-weight:900; text-align:center; padding:2px 6px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:8px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
-                        <button type="button" onclick="resetExchangeRateToDefault()" title="استعادة سعر الصرف" style="background:rgba(255,255,255,0.08); border:none; color:var(--text-main); width:32px; height:32px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center;">
+                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:78px; max-width:80px; height:34px; font-size:0.95rem; font-weight:900; text-align:center; direction:ltr !important; padding:2px 4px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:8px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
+                        <button type="button" onclick="resetExchangeRateToDefault()" title="استعادة سعر الصرف" style="background:rgba(255,255,255,0.08); border:none; color:var(--text-main); width:32px; height:32px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                             <i class="fa-solid fa-arrows-rotate" style="font-size:0.75rem;"></i>
                         </button>
                     </div>
@@ -1771,7 +1817,7 @@ try {
                         <label class="m-label" style="margin-bottom:4px; font-weight:800; font-size:0.85rem; color:var(--emerald);">
                             المبلغ محلي
                         </label>
-                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal" style="height:54px; font-size:1.3rem; padding:6px 10px; font-family:'Inter',sans-serif;" oninput="onLocalAmountInput(this.value)">
+                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal" style="height:54px; font-size:1.3rem; padding:6px 10px; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onLocalAmountInput(this.value)">
                     </div>
 
                     <!-- أجنبي -->
@@ -1779,7 +1825,7 @@ try {
                         <label class="m-label" style="margin-bottom:4px; font-weight:800; font-size:0.85rem; color:#f87171;">
                             المبلغ أجنبي ($)
                         </label>
-                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0.00" step="any" inputmode="decimal" style="height:54px; font-size:1.3rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif;" oninput="onForeignAmountInput(this.value)">
+                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0.00" step="any" inputmode="decimal" style="height:54px; font-size:1.3rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onForeignAmountInput(this.value)">
                     </div>
                 </div>
                 <input type="hidden" id="tx-amount" value="">
@@ -2357,6 +2403,7 @@ try {
                 overlay.classList.add('active');
                 sheet.classList.add('active');
                 document.body.style.overflow = 'hidden';
+                document.documentElement.style.overflow = 'hidden';
             }
         }
 
@@ -2368,6 +2415,7 @@ try {
                 sheet.classList.remove('active');
                 overlay.classList.remove('active');
                 document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
             }
         }
 
