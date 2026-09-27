@@ -18,6 +18,7 @@
     <title>مقاييس (MAGAIEES) - إدارة المستخدمين والصلاحيات</title>
     <link rel="stylesheet" href="css/theme.css?v=neon2">
     <link rel="stylesheet" href="css/components.css?v=neon2">
+    <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
         <style>
         /* SCROLL ALLOWED */
@@ -472,6 +473,8 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/leaflet.js"></script>
+    <script defer src="js/modern-alerts.js?v=<?php echo file_exists('js/modern-alerts.js') ? filemtime('js/modern-alerts.js') : '1'; ?>"></script>
     <script defer src="js/permissions-manager.js?v=<?php echo file_exists('js/permissions-manager.js') ? filemtime('js/permissions-manager.js') : '1'; ?>"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script defer src="js/users-roles.js?v=<?php echo file_exists('js/users-roles.js') ? filemtime('js/users-roles.js') : '1'; ?>"></script>

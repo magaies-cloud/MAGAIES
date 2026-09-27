@@ -746,6 +746,7 @@
             const userReason = document.getElementById('return-reason').value.trim();
             const notesText = userReason ? `مردودات: ${userReason} (أصل الفاتورة ${currentInvId})` : `مردودات لفاتورة المشتريات رقم ${currentInvId}`;
             
+            const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
             const retInvId = 'RET-' + Date.now();
             const retInv = {
                 id: retInvId,
@@ -765,11 +766,18 @@
                 status: 'completed',
                 notes: notesText,
                 refundMethod: activeRefundMethod,
-                refundAccountId: refundAccountId
+                refundAccountId: refundAccountId,
+                createdBy: curUser.id,
+                createdByName: curUser.fullName || curUser.name,
+                createdByUsername: curUser.username
             };
 
             allPurchases.push(retInv);
             localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+
+            if (window.logSystemAction) {
+                window.logSystemAction('استرداد بضاعة / مردودات مشتريات', 'المشتريات', retInvId, `مردودات مشتريات رقم ${retInvId} بقيمة ${grand} للفاتورة ${currentInvId}`);
+            }
 
             // --- Apply Inventory Effects (Decrease stock because we return to supplier) ---
             let inventory = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];

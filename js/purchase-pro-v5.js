@@ -462,6 +462,9 @@ function initPurchaseApp() {
         if (rows.length === 0) {
             addRow(true);
         }
+        if (window.renderDocumentUserBadge) {
+            window.renderDocumentUserBadge('purchase-user-audit-container', {}, true);
+        }
     }
 
     // Keyboard shortcuts & Grid Navigation
@@ -980,6 +983,9 @@ function loadInvoiceFromStorage(invNo) {
         
         renderGrid();
         recalcAll();
+        if (window.renderDocumentUserBadge) {
+            window.renderDocumentUserBadge('purchase-user-audit-container', data, false);
+        }
         if (window.applyImmutabilityUI) window.applyImmutabilityUI(data.status);
         if (typeof updatePostingStatusBar === 'function') updatePostingStatusBar(data.status);
         if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
@@ -2601,8 +2607,25 @@ function submitInvoice(ignoreWarnings = false) {
 
     // Save invoice data
     const supplierSearchEl = document.getElementById('hdr-customer-search');
+    const curUser = (typeof window.getCurrentUserInfo === 'function') 
+        ? window.getCurrentUserInfo() 
+        : (JSON.parse(localStorage.getItem('user')) || { fullName: 'مستخدم', username: 'user' });
+
+    let existingPur = null;
+    if (currentViewedInvoiceNo) {
+        try {
+            const oldStr = localStorage.getItem('erp_pur_' + currentViewedInvoiceNo);
+            if (oldStr) existingPur = JSON.parse(oldStr);
+        } catch(e) {}
+    }
+
     const data = {
-        createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
+        createdBy: existingPur?.createdBy || curUser.id || curUser.username || 'unknown',
+        createdByName: existingPur?.createdByName || curUser.fullName || curUser.username || 'مستخدم',
+        createdByUsername: existingPur?.createdByUsername || curUser.username || 'user',
+        updatedBy: currentViewedInvoiceNo ? (curUser.id || curUser.username) : null,
+        updatedByName: currentViewedInvoiceNo ? (curUser.fullName || curUser.username) : null,
+        updatedAt: currentViewedInvoiceNo ? new Date().toISOString() : null,
         invoiceNo: committedNo,
         timestamp: new Date().toISOString(),
         date: document.getElementById('hdr-date').value,
@@ -2866,6 +2889,15 @@ function submitInvoice(ignoreWarnings = false) {
         allPurchases.push(data);
     }
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+    if (typeof window.logSystemAction === 'function') {
+        const actionLabel = currentViewedInvoiceNo ? 'تعديل فاتورة مشتريات' : 'حفظ فاتورة مشتريات';
+        window.logSystemAction(actionLabel, 'المشتريات', 
+            `${actionLabel} رقم #${committedNo} بقيمة ${grandAmount} ${cur} للمورد (${data.supplierName || 'عام'}) بواسطة ${curUser.fullName}`, 
+            { docId: committedNo, docType: 'purchase', amount: grandAmount });
+    }
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('purchase-user-audit-container', data, false);
+    }
     if (window.AccountingEngine && typeof window.AccountingEngine.postPurchaseInvoice === 'function') {
         window.AccountingEngine.postPurchaseInvoice(data);
     }
@@ -3623,6 +3655,10 @@ function executeDeleteTransaction() {
     allPurchases = allPurchases.filter(inv => inv.invoiceNo !== currentInvNo);
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
 
+    if (window.logSystemAction) {
+        window.logSystemAction('حذف فاتورة مشتريات', 'المشتريات', currentInvNo, `تم حذف فاتورة المشتريات رقم ${currentInvNo} وإلغاء جميع تأثيراتها`);
+    }
+
     localStorage.removeItem('erp_pur_' + currentInvNo);
     localStorage.removeItem('erp_draft_' + currentInvNo);
 
@@ -3780,6 +3816,9 @@ function onSuccessNewInvoice(closeModalFlag = true) {
     renderGrid();
     recalcAll();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('purchase-user-audit-container', {}, true);
+    }
 }
 
 function onSuccessDone() {

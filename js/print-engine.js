@@ -60,6 +60,11 @@ window.InvoicePrinter = (function () {
             if (filteredCopies.length === 0) filteredCopies = [copies[0]];
         }
 
+        const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
+        const creatorName = data.createdByName || data.createdByUsername || data.createdBy || '—';
+        const updaterName = data.updatedByName || data.updatedBy || '';
+        const userTrackingLine = `المستخدم: <strong>${creatorName}</strong>${updaterName ? ' | عُدلت بواسطة: <strong>' + updaterName + '</strong>' : ''} | طُبع بواسطة: <strong>${curUser.fullName || curUser.name}</strong> | وقت الطباعة: ${printedAt}`;
+
         // ── Assemble all copies ───────────────────────────────
         const allHtml = filteredCopies.map((copy, idx) => `
             <div class="inv-doc">
@@ -69,10 +74,16 @@ window.InvoicePrinter = (function () {
                 </div>
                 ${copy.html}
                 <div class="inv-doc-footer">
-                    ${companyName}
-                    ${companyPhone ? ' · ' + companyPhone : ''}
-                    ${companyAddress ? ' · ' + companyAddress : ''}
-                    ${companyReg ? ' · سجل تجاري: ' + companyReg : ''}
+                    <div>
+                        ${companyName}
+                        ${companyPhone ? ' · ' + companyPhone : ''}
+                        ${companyAddress ? ' · ' + companyAddress : ''}
+                        ${companyReg ? ' · سجل تجاري: ' + companyReg : ''}
+                    </div>
+                    <div style="margin-top: 6px; font-size: 0.73rem; color: #475569; border-top: 1px dashed #cbd5e1; padding-top: 5px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                        <span>👤 ${userTrackingLine}</span>
+                        <span>نظام مجاييس المحاسبي الموحد</span>
+                    </div>
                 </div>
             </div>
         `).join('<div style="height:20px;"></div>');
@@ -522,6 +533,11 @@ window.InvoicePrinter = (function () {
 
         const mainCopyHtml = buildMainCopy(data, companyName, companyPhone, companyAddress, companyReg, currency);
 
+        const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
+        const creatorName = data.createdByName || data.createdByUsername || data.createdBy || '—';
+        const updaterName = data.updatedByName || data.updatedBy || '';
+        const userTrackingLine = `المستخدم: <strong>${creatorName}</strong>${updaterName ? ' | عُدلت بواسطة: <strong>' + updaterName + '</strong>' : ''} | طُبع بواسطة: <strong>${curUser.fullName || curUser.name}</strong> | وقت الطباعة: ${printedAt}`;
+
         return `
             <div class="inv-doc">
                 <div class="inv-copy-header">
@@ -530,10 +546,16 @@ window.InvoicePrinter = (function () {
                 </div>
                 ${mainCopyHtml}
                 <div class="inv-doc-footer">
-                    ${companyName}
-                    ${companyPhone ? ' · ' + companyPhone : ''}
-                    ${companyAddress ? ' · ' + companyAddress : ''}
-                    ${companyReg ? ' · سجل تجاري: ' + companyReg : ''}
+                    <div>
+                        ${companyName}
+                        ${companyPhone ? ' · ' + companyPhone : ''}
+                        ${companyAddress ? ' · ' + companyAddress : ''}
+                        ${companyReg ? ' · سجل تجاري: ' + companyReg : ''}
+                    </div>
+                    <div style="margin-top: 6px; font-size: 0.73rem; color: #475569; border-top: 1px dashed #cbd5e1; padding-top: 5px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                        <span>👤 ${userTrackingLine}</span>
+                        <span>نظام مجاييس المحاسبي الموحد</span>
+                    </div>
                 </div>
             </div>
         `;

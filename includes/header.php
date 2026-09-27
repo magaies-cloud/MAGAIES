@@ -2,6 +2,7 @@
 <script src="js/bban_auto_helper.js"></script>
 <script src="js/master-banks-helper.js?v=20260924_v1"></script>
 <script src="js/permissions-manager.js"></script>
+<script src="js/audit-tracker.js?v=20260927"></script>
 <script>
     // ═══════════════════════════════════════════════════════════════════
     // 🛡️ الحماية المطلقة الشاملة لمنع ظهور رسالة المتصفح (Leave Site) نهائياً
@@ -505,7 +506,10 @@
             <?php endif; ?>
 
             <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+                <button class="audit-tracker-btn" onclick="window.openAuditTrackerModal()" style="background:rgba(56,189,248,0.18); border:1.5px solid rgba(56,189,248,0.4); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem; color:#38bdf8; transition:0.2s; box-shadow:0 0 10px rgba(56,189,248,0.25);" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
                 <button class="fullscreen-toggle-btn" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.15rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
                 <button class="theme-toggle-btn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل المظهر">🌓</button>
             </div>
         </div>

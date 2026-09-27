@@ -2258,26 +2258,33 @@
     function showTimeLockoutUI(reason) {
         if (document.getElementById('magaiees-time-lockout-overlay')) return;
 
+        if (window.MagaieesAlerts && typeof window.MagaieesAlerts.playChime === 'function') {
+            window.MagaieesAlerts.playChime('warning');
+        }
+
         const overlay = document.createElement('div');
         overlay.id = 'magaiees-time-lockout-overlay';
         overlay.style.cssText = `
             position:fixed; top:0; left:0; width:100vw; height:100vh;
-            background:rgba(3, 7, 18, 0.94); backdrop-filter:blur(25px);
+            background:radial-gradient(circle at center, rgba(15, 23, 42, 0.88), rgba(3, 7, 18, 0.97));
+            backdrop-filter:blur(24px) saturate(180%);
+            -webkit-backdrop-filter:blur(24px) saturate(180%);
             z-index:999998; display:flex; align-items:center; justify-content:center;
-            font-family:'Tajawal', sans-serif; direction:rtl; padding:20px; box-sizing:border-box;
+            font-family:'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif; direction:rtl; padding:20px; box-sizing:border-box;
         `;
         overlay.innerHTML = `
-            <div style="background:#111827; border:2px solid #ef4444; border-radius:24px; max-width:520px; padding:35px 25px; text-align:center; box-shadow:0 0 50px rgba(239,68,68,0.3);">
-                <div style="width:75px; height:75px; border-radius:50%; background:rgba(239,68,68,0.12); border:2px solid #ef4444; color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:2.2rem; margin:0 auto 16px;">
+            <div style="background:linear-gradient(145deg, rgba(30, 41, 59, 0.95), rgba(15, 23, 42, 0.98)); border:1.5px solid rgba(239, 68, 68, 0.6); border-radius:28px; max-width:520px; width:100%; padding:38px 28px; text-align:center; box-shadow:0 30px 60px -12px rgba(0, 0, 0, 0.8), 0 0 50px rgba(239, 68, 68, 0.25); position:relative; overflow:hidden;">
+                <div style="position:absolute; top:0; left:0; right:0; height:4px; background:linear-gradient(90deg, #ef4444, #f59e0b, #ef4444);"></div>
+                <div style="width:84px; height:84px; border-radius:24px; background:radial-gradient(circle, rgba(239,68,68,0.2), rgba(239,68,68,0.05)); border:2px solid rgba(239,68,68,0.5); color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:2.4rem; margin:0 auto 20px; box-shadow:0 0 30px rgba(239,68,68,0.35);">
                     ⏱️
                 </div>
-                <h2 style="color:#fff; margin:0 0 10px; font-weight:900;">خارج أوقات العمل أو النطاق الجغرافي</h2>
-                <p style="color:#94a3b8; font-size:0.95rem; line-height:1.6; margin-bottom:24px;">${reason}</p>
-                <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-                    <button type="button" onclick="window.MagaieesPermissions.requestManagerApproval({ title:'تصريح استثنائي', description:'فتح استثنائي لحساب الموظف خارج الوردية أو النطاق الجغرافي', onSuccess: () => document.getElementById('magaiees-time-lockout-overlay')?.remove() })" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#030712; border:none; padding:12px 22px; border-radius:12px; font-weight:800; cursor:pointer;">
+                <h2 style="color:#ffffff; margin:0 0 12px; font-weight:900; font-size:1.45rem; letter-spacing:-0.02em;">خارج أوقات العمل أو النطاق الجغرافي المصرّح</h2>
+                <p style="color:#cbd5e1; font-size:1rem; line-height:1.7; margin-bottom:28px; background:rgba(0,0,0,0.3); padding:14px 18px; border-radius:14px; border:1px solid rgba(255,255,255,0.08);">${reason}</p>
+                <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+                    <button type="button" onclick="window.MagaieesPermissions.requestManagerApproval({ title:'تصريح استثنائي', description:'فتح استثنائي لحساب الموظف خارج الوردية أو النطاق الجغرافي', onSuccess: () => document.getElementById('magaiees-time-lockout-overlay')?.remove() })" style="background:linear-gradient(135deg, #f59e0b, #d97706); color:#0f172a; border:none; padding:13px 26px; border-radius:14px; font-weight:800; font-size:0.95rem; cursor:pointer; box-shadow:0 10px 25px rgba(245,158,11,0.35);">
                         🔓 طلب تصريح استثنائي برمز المشرف
                     </button>
-                    <button type="button" onclick="window.location.href='login.php'" style="background:transparent; border:1px solid #64748b; color:#cbd5e1; padding:12px 20px; border-radius:12px; font-weight:700; cursor:pointer;">
+                    <button type="button" onclick="window.location.href='login.php'" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#e2e8f0; padding:13px 22px; border-radius:14px; font-weight:700; font-size:0.95rem; cursor:pointer;">
                         🚪 تسجيل الخروج
                     </button>
                 </div>
@@ -2775,6 +2782,20 @@
         const geoRadius = (userObj && userObj.geoRadius) ? userObj.geoRadius : 500;
         const userAiSmartLevel = (userObj && userObj.aiSmartLevel) ? userObj.aiSmartLevel : '';
 
+        // Device Access Control & Multi-Device Quotas
+        const deviceRestricted = userObj ? !!userObj.deviceRestricted : false;
+        const maxDevices = (userObj && userObj.maxDevices !== undefined && userObj.maxDevices !== null) ? parseInt(userObj.maxDevices, 10) : 1;
+        let initialTrustedDevices = (userObj && Array.isArray(userObj.trustedDevices)) ? JSON.parse(JSON.stringify(userObj.trustedDevices)) : [];
+        if (initialTrustedDevices.length === 0 && userObj && userObj.deviceUuid) {
+            initialTrustedDevices.push({
+                uuid: userObj.deviceUuid,
+                name: 'الجهاز الأساسي المعتمد',
+                type: 'desktop',
+                registeredAt: new Date().toISOString()
+            });
+        }
+        window._currentStudioTrustedDevices = initialTrustedDevices;
+
         let totalScreensCount = 0;
         SYSTEM_SCREENS_CATALOG.forEach(c => totalScreensCount += c.screens.length);
 
@@ -3063,8 +3084,8 @@
                             <i class="fa-solid fa-desktop"></i> الشاشات والأزرار التفصيلية
                         </button>
                         <button type="button" id="studio-tab-btn-work_shifts_and_geo" class="studio-tab-btn" onclick="window.switchStudioTab('work_shifts_and_geo', this)" style="border:1.5px solid rgba(56,189,248,0.5); background:rgba(56,189,248,0.12); color:#38bdf8;">
-                            <i class="fa-solid fa-business-time"></i> أوقات العمل والورديات والموقع (GPS)
-                            <span style="background:#0284c7; color:#fff; font-size:0.72rem; padding:1px 7px; border-radius:10px; margin-right:5px; font-weight:800;">⏱️ دوام وموقع</span>
+                            <i class="fa-solid fa-shield-halved"></i> الورديات والـ GPS والأجهزة المصرح بها 📱
+                            <span style="background:#0284c7; color:#fff; font-size:0.72rem; padding:1px 7px; border-radius:10px; margin-right:5px; font-weight:800;">⏱️ دوام وموقع وأجهزة</span>
                         </button>
                         <button type="button" id="studio-tab-btn-financial_limits" class="studio-tab-btn" onclick="window.switchStudioTab('financial_limits', this)">
                             <i class="fa-solid fa-scale-balanced"></i> سقوف المبالغ والخصومات
@@ -3735,33 +3756,183 @@
                                 </div>
 
                                 <div id="studio-geo-fields-wrapper" style="opacity:${geoRestricted ? '1' : '0.45'}; pointer-events:${geoRestricted ? 'auto' : 'none'}; transition:all 0.3s;">
-                                    <p style="margin:0 0 16px 0; font-size:0.85rem; color:#cbd5e1; line-height:1.5;">
+                                    <p style="margin:0 0 16px 0; font-size:0.85rem; color:#cbd5e1; line-height:1.6;">
                                         📍 إذا تواجد الموظف خارج النطاق الجغرافي المحدد، <strong style="color:#f87171;">تتوقف كافة صلاحيات النظام</strong> ولن يتمكن من الوصول لأي شاشة أو زر.
                                     </p>
 
+                                    <!-- 1. Multi-Method Quick Action Buttons -->
+                                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:10px; margin-bottom:16px;">
+                                        <button type="button" onclick="window.openInteractiveGeoMapModal()" style="background:linear-gradient(135deg, rgba(16,185,129,0.2), rgba(6,78,59,0.4)); border:1.5px solid #10b981; color:#34d399; padding:12px 14px; border-radius:12px; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 15px rgba(16,185,129,0.2); transition:all 0.2s;">
+                                            <i class="fa-solid fa-map-location-dot" style="font-size:1.15rem; color:#10b981;"></i>
+                                            <span>🗺️ فتح الخريطة واختيار الموقع</span>
+                                        </button>
+
+                                        <button type="button" onclick="window.getCurrentGPSInStudio()" style="background:rgba(56,189,248,0.12); border:1.5px solid rgba(56,189,248,0.4); color:#38bdf8; padding:12px 14px; border-radius:12px; font-weight:800; font-size:0.88rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.2s;">
+                                            <i class="fa-solid fa-crosshairs" style="font-size:1.15rem; color:#38bdf8;"></i>
+                                            <span>🎯 رصد موقعي الحالي بالـ GPS</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- 2. WhatsApp & Google Maps Smart Importer Box -->
+                                    <div style="background:rgba(2, 6, 23, 0.55); border:1.5px solid rgba(34,197,94,0.3); border-radius:14px; padding:14px 16px; margin-bottom:16px; box-shadow:0 4px 20px rgba(0,0,0,0.25);">
+                                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; flex-wrap:wrap; gap:8px;">
+                                            <div style="display:flex; align-items:center; gap:8px;">
+                                                <span style="width:28px; height:28px; border-radius:8px; background:rgba(37,211,102,0.18); border:1px solid #25d366; color:#25d366; display:flex; align-items:center; justify-content:center; font-size:0.95rem;">
+                                                    <i class="fa-brands fa-whatsapp"></i>
+                                                </span>
+                                                <span style="font-size:0.88rem; font-weight:800; color:#86efac;">استيراد الموقع من الواتساب أو خرائط Google</span>
+                                            </div>
+                                            <button type="button" onclick="window.pasteFromClipboardToWhatsAppGeo()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; padding:5px 12px; border-radius:8px; font-size:0.75rem; font-weight:700; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                                                <i class="fa-regular fa-clipboard"></i> لصق تلقائي من الحافظة
+                                            </button>
+                                        </div>
+                                        <p style="font-size:0.76rem; color:#94a3b8; margin:0 0 10px 0; line-height:1.4;">
+                                            إذا أرسل لك الموظف موقعه عبر الواتساب، الصق الرسالة أو رابط خرائط جوجل هنا وسيقوم النظام باستخراج الإحداثيات وتحديد الموقع فوراً:
+                                        </p>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <input type="text" id="studio-whatsapp-geo-input" placeholder="الصق رسالة الواتساب أو رابط خرائط جوجل (مثل: https://maps.google.com/?q=... أو إحداثيات)..." class="form-input" style="flex:1; padding:10px 14px; background:#0f172a; border:1px solid rgba(34,197,94,0.35); color:#fff; border-radius:10px; font-size:0.85rem; font-weight:600; outline:none;" onkeydown="if(event.key==='Enter'){event.preventDefault(); window.applyWhatsAppLocationToStudio();}">
+                                            <button type="button" onclick="window.applyWhatsAppLocationToStudio()" style="background:linear-gradient(135deg, #25d366, #16a34a); color:#052e16; border:none; padding:10px 18px; border-radius:10px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap; box-shadow:0 4px 12px rgba(37,211,102,0.3);">
+                                                <i class="fa-solid fa-arrow-down-to-bracket"></i> استخراج
+                                            </button>
+                                        </div>
+                                        <div id="studio-whatsapp-status" style="margin-top:8px; font-size:0.78rem; text-align:right;"></div>
+                                    </div>
+
+                                    <!-- 3. Coordinates & Radius Fields -->
                                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px;">
                                         <div>
                                             <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">خط العرض (Latitude):</label>
-                                            <input type="number" step="any" id="studio-geo-lat" value="${geoLat || ''}" placeholder="مثال: 15.3694" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
+                                            <input type="number" step="any" id="studio-geo-lat" value="${geoLat || ''}" placeholder="مثال: 15.369400" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;" oninput="window.updateStudioGeoInlineBadge()">
                                         </div>
                                         <div>
                                             <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">خط الطول (Longitude):</label>
-                                            <input type="number" step="any" id="studio-geo-lng" value="${geoLng || ''}" placeholder="مثال: 44.1910" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
+                                            <input type="number" step="any" id="studio-geo-lng" value="${geoLng || ''}" placeholder="مثال: 44.191000" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;" oninput="window.updateStudioGeoInlineBadge()">
                                         </div>
                                     </div>
 
-                                    <div style="margin-bottom:16px;">
-                                        <label style="display:block; font-size:0.82rem; font-weight:700; color:#94a3b8; margin-bottom:6px;">نطاق السماح بالمتر (Radius Meters):</label>
-                                        <input type="number" id="studio-geo-radius" value="${geoRadius || 500}" placeholder="500" class="form-input" style="width:100%; padding:10px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;">
-                                        <span style="font-size:0.75rem; color:#94a3b8; display:block; margin-top:4px;">نطاق القطر المسموح به حول النقطة (الافتراضي: 500 متر).</span>
+                                    <div style="margin-bottom:14px;">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                            <label style="font-size:0.82rem; font-weight:700; color:#94a3b8;">نطاق السماح بالمتر (Radius Meters):</label>
+                                            <span id="studio-geo-radius-display" style="font-size:0.82rem; font-weight:800; color:#34d399;">${geoRadius || 500} متر</span>
+                                        </div>
+                                        <div style="display:flex; gap:10px; align-items:center;">
+                                            <input type="number" id="studio-geo-radius" value="${geoRadius || 500}" placeholder="500" class="form-input" style="width:110px; padding:8px 12px; background:#0f172a; border:1px solid rgba(16,185,129,0.3); color:#fff; border-radius:8px; font-weight:700; box-sizing:border-box;" oninput="const r=document.getElementById('studio-geo-radius-range'); if(r) r.value=this.value; const d=document.getElementById('studio-geo-radius-display'); if(d) d.innerText=this.value+' متر'; window.updateStudioGeoInlineBadge();">
+                                            <input type="range" id="studio-geo-radius-range" min="50" max="5000" step="50" value="${geoRadius || 500}" style="flex:1; accent-color:#10b981; cursor:pointer;" oninput="const n=document.getElementById('studio-geo-radius'); if(n) n.value=this.value; const d=document.getElementById('studio-geo-radius-display'); if(d) d.innerText=this.value+' متر'; window.updateStudioGeoInlineBadge();">
+                                        </div>
+                                        <span style="font-size:0.75rem; color:#94a3b8; display:block; margin-top:4px;">المسافة المسموح بها للموظف للابتعاد عن النقطة (من 50 متراً إلى 5 كيلومترات).</span>
                                     </div>
 
-                                    <div style="display:flex; flex-direction:column; gap:8px;">
-                                        <button type="button" onclick="window.getCurrentGPSInStudio()" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:10px 16px; border-radius:10px; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-                                            <i class="fa-solid fa-crosshairs"></i> 🎯 تحديد موقعي الحالي تلقائياً بالـ GPS
-                                        </button>
-                                        <span id="studio-gps-status" style="font-size:0.8rem; color:#94a3b8; text-align:center;"></span>
+                                    <!-- 4. Visual Location Status Badge -->
+                                    <div id="studio-geo-status-badge" style="background:rgba(15,23,42,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px 16px; margin-bottom:12px;"></div>
+
+                                    <span id="studio-gps-status" style="font-size:0.8rem; color:#94a3b8; text-align:center; display:block;"></span>
+                                </div>
+                            </div>
+
+                            <!-- 📱 Card 3: Device Access Control & Multi-Device Quotas -->
+                            <div id="studio-device-access-card" style="grid-column: 1 / -1; background:rgba(15,23,42,0.65); border:1.5px solid rgba(168,85,247,0.35); border-radius:16px; padding:22px; box-shadow:0 8px 25px rgba(0,0,0,0.35);">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.08); flex-wrap:wrap; gap:12px;">
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <span style="width:40px; height:40px; border-radius:10px; background:rgba(168,85,247,0.15); border:1px solid #a855f7; color:#c084fc; display:flex; align-items:center; justify-content:center; font-size:1.25rem;">
+                                            <i class="fa-solid fa-mobile-screen-button"></i>
+                                        </span>
+                                        <div>
+                                            <h4 style="margin:0; color:#c084fc; font-size:1.15rem; font-weight:800; display:flex; align-items:center; gap:8px;">
+                                                تقييد وحصر الأجهزة المصرح بها (Device Access Control & Binding)
+                                                <span style="background:rgba(168,85,247,0.2); color:#d8b4fe; border:1px solid rgba(168,85,247,0.4); font-size:0.75rem; padding:2px 10px; border-radius:12px; font-weight:700;">حماية أمنية مشددة</span>
+                                            </h4>
+                                            <span style="font-size:0.82rem; color:#94a3b8;">تحديد سقف الأجهزة (جهاز، جهازين، أو حتى 12 جهازاً) مع التسجيل التلقائي أو اليدوي</span>
+                                        </div>
                                     </div>
+                                    <div style="display:flex; align-items:center; gap:10px;">
+                                        <label class="perm-switch" title="تفعيل أو تعطيل تقييد الأجهزة لهذا المستخدم">
+                                            <input type="checkbox" id="studio-device-restricted" ${deviceRestricted ? 'checked' : ''} onchange="window.toggleStudioDeviceFields(this.checked)">
+                                            <span class="perm-slider round"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div id="studio-device-fields-wrapper" style="opacity:${deviceRestricted ? '1' : '0.45'}; pointer-events:${deviceRestricted ? 'auto' : 'none'}; transition:all 0.3s;">
+                                    <div style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.25); border-radius:12px; padding:12px 16px; margin-bottom:18px; font-size:0.86rem; color:#e2e8f0; line-height:1.6;">
+                                        💡 <strong>كيف تعمل ميزة تقييد الأجهزة؟</strong><br>
+                                        • <strong>أحمد عثمان (جهاز واحد فقط):</strong> عيّن الحد الأقصى (1). عند دخوله من آيفون 14، يتم قفل الحساب على هذا الجهاز فوراً ويُمنع أي جهاز آخر.<br>
+                                        • <strong>عمر (جهازين):</strong> عيّن الحد الأقصى (2). أول جهازين يدخل بهما عمر (مثلاً كمبيوتر وهاتف) يتم اعتمادهما تلقائياً، ويُحظر أي جهاز ثالث.<br>
+                                        • <strong>عثمان (12 جهازاً):</strong> عيّن الحد الأقصى (12). أول 12 جهاز يتم اعتمادهم تلقائياً كآيفون، أندرويد، أو كمبيوتر.<br>
+                                        • <strong>إلغاء الربط:</strong> يمكنك في أي وقت الضغط على زر 🗑️ إلغاء ربط أي جهاز لتفريغ مكانه والسماح بتسجيل جهاز بديل.
+                                    </div>
+
+                                    <!-- Quota / Max Devices Setting with Presets -->
+                                    <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px; margin-bottom:18px;">
+                                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                                            <div>
+                                                <label style="display:block; font-size:0.9rem; font-weight:800; color:#f8fafc; margin-bottom:4px;">
+                                                    الحد الأقصى لعدد الأجهزة المصرح بها (Device Quota):
+                                                </label>
+                                                <span style="font-size:0.78rem; color:#94a3b8;">عدد الأجهزة المسموح لهذا المستخدم بتسجيل الدخول منها في نفس الوقت</span>
+                                            </div>
+                                            <div style="display:flex; align-items:center; gap:8px;">
+                                                <input type="number" id="studio-max-devices" min="1" max="50" value="${maxDevices}" class="form-input" style="width:85px; padding:8px 12px; background:#0f172a; border:1.5px solid #a855f7; color:#c084fc; border-radius:8px; font-weight:800; font-size:1.1rem; text-align:center;" oninput="window.renderStudioTrustedDevicesList()">
+                                                <span style="font-weight:700; color:#cbd5e1; font-size:0.88rem;">جهاز</span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quick Presets -->
+                                        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+                                            <span style="font-size:0.8rem; font-weight:700; color:#94a3b8;">تحديد سريع:</span>
+                                            <button type="button" onclick="window.setStudioMaxDevicesPreset(1)" class="preset-btn" style="border-color:rgba(168,85,247,0.4);">📱 1 جهاز (مثل: أحمد عثمان)</button>
+                                            <button type="button" onclick="window.setStudioMaxDevicesPreset(2)" class="preset-btn" style="border-color:rgba(168,85,247,0.4);">📱📱 جهازين (مثل: عمر)</button>
+                                            <button type="button" onclick="window.setStudioMaxDevicesPreset(3)" class="preset-btn">📱 3 أجهزة</button>
+                                            <button type="button" onclick="window.setStudioMaxDevicesPreset(5)" class="preset-btn">📱 5 أجهزة</button>
+                                            <button type="button" onclick="window.setStudioMaxDevicesPreset(12)" class="preset-btn" style="background:rgba(168,85,247,0.2); border-color:#a855f7; color:#e9d5ff;">📱💻 12 جهازاً (مثل: عثمان)</button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Devices Header & Action Bar -->
+                                    <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                                        <div style="display:flex; align-items:center; gap:10px;">
+                                            <h5 style="margin:0; font-size:0.95rem; font-weight:800; color:#e2e8f0;">الأجهزة المعتمدة والمربوطة حالياً:</h5>
+                                            <span id="studio-devices-count-badge" style="background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); padding:3px 10px; border-radius:14px; font-size:0.8rem; font-weight:700;">
+                                                جاري التحميل...
+                                            </span>
+                                        </div>
+                                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                            <button type="button" onclick="window.bindCurrentDeviceToStudio()" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; padding:6px 14px; border-radius:8px; font-size:0.8rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                                                <i class="fa-solid fa-laptop"></i> ربط جهازي الحالي فوراً
+                                            </button>
+                                            <button type="button" onclick="window.clearAllStudioTrustedDevices()" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; padding:6px 14px; border-radius:8px; font-size:0.8rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                                                <i class="fa-solid fa-broom"></i> مسح جميع الأجهزة
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Trusted Devices Dynamic List Container -->
+                                    <div id="studio-trusted-devices-container" style="margin-bottom:18px;">
+                                        <!-- Dynamically populated by window.renderStudioTrustedDevicesList -->
+                                    </div>
+
+                                    <!-- Manual Pre-Binding Box -->
+                                    <div style="background:rgba(2,6,23,0.5); border:1px dashed rgba(168,85,247,0.3); border-radius:12px; padding:14px 16px;">
+                                        <div style="font-size:0.85rem; font-weight:800; color:#d8b4fe; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                                            <i class="fa-solid fa-plus-circle"></i>
+                                            <span>تسجيل أو حجز جهاز مسبقاً يدوياً (اختياري):</span>
+                                        </div>
+                                        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)) auto; gap:10px; align-items:flex-end;">
+                                            <div>
+                                                <label style="display:block; font-size:0.78rem; font-weight:700; color:#94a3b8; margin-bottom:4px;">اسم / نوع الجهاز:</label>
+                                                <input type="text" id="studio-manual-device-name" placeholder="مثال: آيفون 14 - أحمد عثمان" class="form-input" style="width:100%; box-sizing:border-box; padding:8px 12px; background:#0f172a; border:1px solid rgba(168,85,247,0.3); color:#fff; border-radius:8px; font-size:0.85rem;">
+                                            </div>
+                                            <div>
+                                                <label style="display:block; font-size:0.78rem; font-weight:700; color:#94a3b8; margin-bottom:4px;">معرّف الجهاز (UUID أو السيريال):</label>
+                                                <input type="text" id="studio-manual-device-uuid" placeholder="الصق معرّف الجهاز هنا..." class="form-input" style="width:100%; box-sizing:border-box; padding:8px 12px; background:#0f172a; border:1px solid rgba(168,85,247,0.3); color:#fff; border-radius:8px; font-size:0.85rem; font-family:monospace; direction:ltr;">
+                                            </div>
+                                            <div>
+                                                <button type="button" onclick="window.addStudioTrustedDeviceManually()" style="background:linear-gradient(135deg, #a855f7, #7c3aed); color:#fff; border:none; padding:9px 18px; border-radius:8px; font-weight:800; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; gap:6px; white-space:nowrap; box-shadow:0 4px 12px rgba(168,85,247,0.3);">
+                                                    <i class="fa-solid fa-plus"></i> إضافة وحجز
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </div>
 
@@ -3802,6 +3973,12 @@
         setTimeout(() => {
             if (typeof window.onStudioSecLevelChange === 'function') {
                 window.onStudioSecLevelChange(userSecLevel);
+            }
+            if (typeof window.updateStudioGeoInlineBadge === 'function') {
+                window.updateStudioGeoInlineBadge();
+            }
+            if (typeof window.renderStudioTrustedDevicesList === 'function') {
+                window.renderStudioTrustedDevicesList();
             }
         }, 50);
     }
@@ -3856,6 +4033,7 @@
             wrap.style.opacity = isChecked ? '1' : '0.45';
             wrap.style.pointerEvents = isChecked ? 'auto' : 'none';
         }
+        window.updateStudioGeoInlineBadge();
     };
 
     window.setStudioWorkDaysPreset = function(preset) {
@@ -3872,32 +4050,916 @@
         });
     };
 
+    // ─────────────────────────────────────────────────────────────────
+    // 📱 MAGAIEES DEVICE ACCESS CONTROL & TRUSTED DEVICES ENGINE
+    // ─────────────────────────────────────────────────────────────────
+
+    window.jumpToDeviceAccessCard = function() {
+        const btn = document.getElementById('studio-tab-btn-work_shifts_and_geo');
+        window.switchStudioTab('work_shifts_and_geo', btn);
+        const card = document.getElementById('studio-device-access-card');
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.style.transition = 'all 0.4s ease';
+            card.style.borderColor = '#a855f7';
+            card.style.boxShadow = '0 0 35px rgba(168,85,247,0.7)';
+            setTimeout(() => {
+                card.style.boxShadow = '0 8px 25px rgba(0,0,0,0.35)';
+                card.style.borderColor = 'rgba(168,85,247,0.35)';
+            }, 2500);
+        }
+    };
+
+    window.toggleStudioDeviceFields = function(isChecked) {
+        const wrap = document.getElementById('studio-device-fields-wrapper');
+        if (wrap) {
+            wrap.style.opacity = isChecked ? '1' : '0.45';
+            wrap.style.pointerEvents = isChecked ? 'auto' : 'none';
+        }
+    };
+
+    window.setStudioMaxDevicesPreset = function(n) {
+        const input = document.getElementById('studio-max-devices');
+        if (input) input.value = n;
+        window.renderStudioTrustedDevicesList();
+        if (window.showToast) {
+            window.showToast(`تم تعيين سقف الأجهزة المصرح بها إلى (${n}) أجهزة`, 'info');
+        }
+    };
+
+    window.renderStudioTrustedDevicesList = function() {
+        const container = document.getElementById('studio-trusted-devices-container');
+        const countBadge = document.getElementById('studio-devices-count-badge');
+        const maxInput = document.getElementById('studio-max-devices');
+        const maxDevs = maxInput ? (parseInt(maxInput.value, 10) || 1) : 1;
+
+        if (!Array.isArray(window._currentStudioTrustedDevices)) {
+            window._currentStudioTrustedDevices = [];
+        }
+        const list = window._currentStudioTrustedDevices;
+
+        if (countBadge) {
+            countBadge.innerHTML = `الأجهزة المعتمدة: <strong style="color:${list.length >= maxDevs ? '#f87171' : '#34d399'};">${list.length}</strong> من أصل <strong style="color:#c084fc;">${maxDevs}</strong> مصرح بها`;
+        }
+
+        if (!container) return;
+
+        if (list.length === 0) {
+            container.innerHTML = `
+                <div style="background:rgba(0,0,0,0.25); border:1.5px dashed rgba(168,85,247,0.3); border-radius:12px; padding:22px; text-align:center; color:#94a3b8;">
+                    <div style="font-size:2.2rem; margin-bottom:8px;">📱💻</div>
+                    <div style="font-weight:800; color:#f8fafc; font-size:1rem; margin-bottom:6px;">لم يتم تسجيل أي جهاز لهذا المستخدم حتى الآن</div>
+                    <div style="font-size:0.84rem; color:#cbd5e1; max-width:540px; margin:0 auto; line-height:1.6;">
+                        عند قيام الموظف بتسجيل الدخول، سيقوم النظام تلقائياً باعتماد أول <strong>(${maxDevs})</strong> أجهزة يدخل منها وقفل الحساب عليها، أو يمكنك ربط جهازك الحالي أو إضافة معرف يدوي أدناه الآن.
+                    </div>
+                </div>
+            `;
+            return;
+        }
+
+        let html = `
+            <div style="overflow-x:auto; border-radius:12px; border:1px solid rgba(255,255,255,0.08); box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+                <table style="width:100%; border-collapse:collapse; text-align:right; font-size:0.85rem;">
+                    <thead>
+                        <tr style="background:rgba(168,85,247,0.18); color:#d8b4fe; border-bottom:1px solid rgba(168,85,247,0.35);">
+                            <th style="padding:10px 14px; width:40px;">#</th>
+                            <th style="padding:10px 14px;">اسم ونوع الجهاز</th>
+                            <th style="padding:10px 14px;">معرّف الجهاز (UUID / Serial)</th>
+                            <th style="padding:10px 14px;">تاريخ الاعتماد</th>
+                            <th style="padding:10px 14px;">آخر تسجيل دخول</th>
+                            <th style="padding:10px 14px; text-align:center; width:110px;">إلغاء الربط</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        list.forEach((dev, idx) => {
+            const devObj = typeof dev === 'string' ? { uuid: dev, name: 'جهاز ' + (idx + 1) } : dev;
+            const uuid = devObj.uuid || 'غير محدد';
+            const name = devObj.name || ('جهاز ' + (idx + 1));
+            const type = (devObj.type || '').toLowerCase();
+            const isApple = type.includes('iphone') || type.includes('ipad') || type.includes('mac') || name.toLowerCase().includes('iphone');
+            const isAndroid = type.includes('android') || name.toLowerCase().includes('android');
+            const isDesktop = type.includes('desktop') || type.includes('windows') || (!isApple && !isAndroid);
+
+            let icon = '📱';
+            if (isApple) icon = '🍎📱';
+            else if (isAndroid) icon = '🤖📱';
+            else if (isDesktop) icon = '💻';
+
+            const regAt = devObj.registeredAt ? new Date(devObj.registeredAt).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : 'معتمد مسبقاً';
+            const lastAt = devObj.lastLogin ? new Date(devObj.lastLogin).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '—';
+
+            html += `
+                <tr style="border-bottom:1px solid rgba(255,255,255,0.06); background:${idx % 2 === 0 ? 'rgba(0,0,0,0.22)' : 'transparent'};">
+                    <td style="padding:10px 14px; color:#94a3b8; font-weight:700;">${idx + 1}</td>
+                    <td style="padding:10px 14px; font-weight:800; color:#fff;">
+                        <span style="margin-left:6px; font-size:1.15rem;">${icon}</span>
+                        <span>${name}</span>
+                    </td>
+                    <td style="padding:10px 14px; font-family:monospace; color:#38bdf8; font-size:0.82rem; direction:ltr; text-align:left;">
+                        <span>${uuid.length > 24 ? uuid.substring(0, 22) + '...' : uuid}</span>
+                        <button type="button" title="نسخ المعرف" onclick="navigator.clipboard.writeText('${uuid}'); if(window.showToast) window.showToast('تم نسخ المعرف للحافظة', 'info'); else alert('تم نسخ المعرف');" style="background:none; border:none; color:#94a3b8; cursor:pointer; padding:2px 6px;">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </td>
+                    <td style="padding:10px 14px; color:#cbd5e1; font-size:0.8rem;">${regAt}</td>
+                    <td style="padding:10px 14px; color:#34d399; font-size:0.8rem;">${lastAt}</td>
+                    <td style="padding:10px 14px; text-align:center;">
+                        <button type="button" onclick="window.removeStudioTrustedDevice(${idx})" title="إلغاء ربط هذا الجهاز وتفريغ مقعده" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; padding:5px 12px; border-radius:8px; font-weight:700; cursor:pointer; font-size:0.75rem; transition:all 0.2s;">
+                            <i class="fa-solid fa-trash-can"></i> إلغاء الربط
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        container.innerHTML = html;
+    };
+
+    window.removeStudioTrustedDevice = function(idx) {
+        if (!Array.isArray(window._currentStudioTrustedDevices) || !window._currentStudioTrustedDevices[idx]) return;
+        const dev = window._currentStudioTrustedDevices[idx];
+        const devName = dev.name || dev.uuid || 'هذا الجهاز';
+        if (!confirm(`هل أنت متأكد من رغبتك في إلغاء ربط "${devName}"؟\nسيتم تفريغ مكان مسموح به فوراً لاعتماد جهاز جديد.`)) return;
+
+        window._currentStudioTrustedDevices.splice(idx, 1);
+        window.renderStudioTrustedDevicesList();
+        if (window.showToast) window.showToast('تم إلغاء ربط الجهاز وتفريغ مكانه بنجاح', 'success');
+    };
+
+    window.clearAllStudioTrustedDevices = function() {
+        if (!confirm('هل أنت متأكد من مسح جميع الأجهزة المصرح بها لهذا الحساب؟\nسيتمكن المستخدم من تسجيل أجهزة جديدة عند دخوله القادم.')) return;
+        window._currentStudioTrustedDevices = [];
+        window.renderStudioTrustedDevicesList();
+        if (window.showToast) window.showToast('تم مسح جميع الأجهزة المصرح بها', 'info');
+    };
+
+    window.bindCurrentDeviceToStudio = function() {
+        let curUuid = localStorage.getItem('deviceUuid');
+        if (!curUuid) {
+            curUuid = 'dev_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
+            localStorage.setItem('deviceUuid', curUuid);
+        }
+
+        const maxInput = document.getElementById('studio-max-devices');
+        const maxDevs = maxInput ? (parseInt(maxInput.value, 10) || 1) : 1;
+
+        if (!Array.isArray(window._currentStudioTrustedDevices)) {
+            window._currentStudioTrustedDevices = [];
+        }
+
+        const exists = window._currentStudioTrustedDevices.some(d => (typeof d === 'string' ? d : d.uuid) === curUuid);
+        if (exists) {
+            alert('هذا الجهاز مسجل بالفعل في قائمة الأجهزة المصرح بها لهذا المستخدم.');
+            return;
+        }
+
+        if (window._currentStudioTrustedDevices.length >= maxDevs) {
+            alert(`عفواً، لقد تم استيفاء الحد الأقصى للأجهزة المصرح بها وهو (${maxDevs}) أجهزة.\nيرجى زيادة السقف أو إلغاء ربط أحد الأجهزة المسجلة أولاً.`);
+            return;
+        }
+
+        const ua = navigator.userAgent;
+        let devName = 'كمبيوتر ويندوز الحالي (Windows PC)';
+        let devType = 'desktop';
+        if (/iPhone/i.test(ua)) { devName = 'آيفون الحالي (iPhone)'; devType = 'iphone'; }
+        else if (/iPad/i.test(ua)) { devName = 'آيباد الحالي (iPad)'; devType = 'ipad'; }
+        else if (/Android/i.test(ua)) { devName = 'هاتف أندرويد الحالي (Android)'; devType = 'android'; }
+        else if (/Macintosh|Mac OS/i.test(ua)) { devName = 'ماك الحالي (Mac PC)'; devType = 'mac'; }
+
+        window._currentStudioTrustedDevices.push({
+            uuid: curUuid,
+            name: devName,
+            type: devType,
+            registeredAt: new Date().toISOString(),
+            lastLogin: new Date().toISOString()
+        });
+
+        window.renderStudioTrustedDevicesList();
+        if (window.showToast) window.showToast('✅ تم ربط واعتماد جهازك الحالي بنجاح', 'success');
+    };
+
+    window.addStudioTrustedDeviceManually = function() {
+        const nameInput = document.getElementById('studio-manual-device-name');
+        const uuidInput = document.getElementById('studio-manual-device-uuid');
+        const uuid = uuidInput ? uuidInput.value.trim() : '';
+        const name = nameInput ? nameInput.value.trim() : '';
+
+        if (!uuid) {
+            alert('يرجى إدخال معرّف الجهاز (UUID أو السيريال)');
+            if (uuidInput) uuidInput.focus();
+            return;
+        }
+
+        const maxInput = document.getElementById('studio-max-devices');
+        const maxDevs = maxInput ? (parseInt(maxInput.value, 10) || 1) : 1;
+
+        if (!Array.isArray(window._currentStudioTrustedDevices)) {
+            window._currentStudioTrustedDevices = [];
+        }
+
+        const exists = window._currentStudioTrustedDevices.some(d => (typeof d === 'string' ? d : d.uuid) === uuid);
+        if (exists) {
+            alert('هذا المعرف مسجل بالفعل في قائمة الأجهزة المصرح بها.');
+            return;
+        }
+
+        if (window._currentStudioTrustedDevices.length >= maxDevs) {
+            alert(`عفواً، تم استيفاء الحد الأقصى للأجهزة المصرح بها وهو (${maxDevs}) أجهزة.\nيرجى زيادة السقف أو إلغاء ربط جهاز قديم.`);
+            return;
+        }
+
+        window._currentStudioTrustedDevices.push({
+            uuid: uuid,
+            name: name || ('جهاز ' + (window._currentStudioTrustedDevices.length + 1)),
+            type: /iphone|ipad/i.test(name) ? 'iphone' : (/android/i.test(name) ? 'android' : 'device'),
+            registeredAt: new Date().toISOString(),
+            lastLogin: null
+        });
+
+        if (nameInput) nameInput.value = '';
+        if (uuidInput) uuidInput.value = '';
+
+        window.renderStudioTrustedDevicesList();
+        if (window.showToast) window.showToast('✅ تم تسجيل وحجز الجهاز بنجاح', 'success');
+    };
+
+    // ─────────────────────────────────────────────────────────────────
+    // 🗺️ MAGAIEES ADVANCED MULTI-METHOD LOCATION & GEOFENCING ENGINE
+    // ─────────────────────────────────────────────────────────────────
+
+    // 1. Ensure Leaflet Library is Dynamically Loaded
+    function ensureLeafletLoaded(callback) {
+        if (window.L && typeof window.L.map === 'function') {
+            if (callback) callback();
+            return;
+        }
+
+        if (!document.getElementById('magaiees-leaflet-css') && !document.querySelector('link[href*="leaflet"]')) {
+            const link = document.createElement('link');
+            link.id = 'magaiees-leaflet-css';
+            link.rel = 'stylesheet';
+            link.href = 'css/leaflet.css';
+            document.head.appendChild(link);
+        }
+
+        let script = document.getElementById('magaiees-leaflet-js') || document.querySelector('script[src*="leaflet"]');
+        if (!script) {
+            script = document.createElement('script');
+            script.id = 'magaiees-leaflet-js';
+            script.src = 'js/leaflet.js';
+            script.onload = () => { if (callback) callback(); };
+            script.onerror = () => {
+                const cdn = document.createElement('script');
+                cdn.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+                cdn.onload = () => { if (callback) callback(); };
+                document.head.appendChild(cdn);
+            };
+            document.head.appendChild(script);
+        } else {
+            if (window.L && typeof window.L.map === 'function') {
+                if (callback) callback();
+            } else {
+                script.addEventListener('load', () => { if (callback) callback(); });
+            }
+        }
+    }
+
+    // 2. Intelligent WhatsApp & Google Maps Location Parser
+    function parseWhatsAppOrMapsInput(rawText) {
+        if (!rawText || typeof rawText !== 'string') return { success: false };
+
+        // Convert Eastern Arabic numerals (٠١٢٣٤٥٦٧٨٩) to standard English ASCII (0-9)
+        let clean = rawText.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).trim();
+
+        // Pattern A: Google Maps @lat,lng
+        const atMatch = clean.match(/@(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/);
+        if (atMatch) {
+            const lat = parseFloat(atMatch[1]), lng = parseFloat(atMatch[2]);
+            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                return { success: true, lat, lng, source: 'google_maps_at' };
+            }
+        }
+
+        // Pattern B: Query params q=lat,lng or ll=lat,lng
+        const qMatch = clean.match(/[?&](?:q|query|ll)=(-?\d{1,2}\.\d+)[,+](-?\d{1,3}\.\d+)/);
+        if (qMatch) {
+            const lat = parseFloat(qMatch[1]), lng = parseFloat(qMatch[2]);
+            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                return { success: true, lat, lng, source: 'google_maps_query' };
+            }
+        }
+
+        // Pattern C: Apple Maps or Geo URI (geo:lat,lng)
+        const geoUriMatch = clean.match(/geo:(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/i);
+        if (geoUriMatch) {
+            const lat = parseFloat(geoUriMatch[1]), lng = parseFloat(geoUriMatch[2]);
+            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                return { success: true, lat, lng, source: 'geo_uri' };
+            }
+        }
+
+        // Pattern D: Plain text coordinates (e.g., 15.369444, 44.191000 or 15.369444 44.191000)
+        const textCoordsMatch = clean.match(/(-?\d{1,2}\.\d{3,})[\s,]+(-?\d{1,3}\.\d{3,})/);
+        if (textCoordsMatch) {
+            const lat = parseFloat(textCoordsMatch[1]), lng = parseFloat(textCoordsMatch[2]);
+            if (lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+                return { success: true, lat, lng, source: 'plain_coords' };
+            }
+        }
+
+        // Pattern E: Short URLs that require server-side redirect following (maps.app.goo.gl or goo.gl/maps)
+        const urlMatch = clean.match(/https?:\/\/[^\s]+/i);
+        if (urlMatch) {
+            return { success: false, isShortUrl: true, url: urlMatch[0] };
+        }
+
+        return { success: false };
+    }
+
+    // 3. Apply Coordinates to Studio with Visual Feedback
+    function applyCoordinatesToStudio(lat, lng, sourceName) {
+        const latIn = document.getElementById('studio-geo-lat');
+        const lngIn = document.getElementById('studio-geo-lng');
+        const cb = document.getElementById('studio-geo-restricted');
+
+        if (latIn) latIn.value = parseFloat(lat).toFixed(6);
+        if (lngIn) lngIn.value = parseFloat(lng).toFixed(6);
+
+        if (cb && !cb.checked) {
+            cb.checked = true;
+            if (typeof window.toggleStudioGeoFields === 'function') {
+                window.toggleStudioGeoFields(true);
+            }
+        }
+
+        window.updateStudioGeoInlineBadge();
+
+        if (window.showModernToast) {
+            window.showModernToast(`✅ تم اعتماد ${sourceName || 'الموقع الجغرافي'}: (${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)})`, 'success', 4000);
+        }
+    }
+
+    // 4. Handle WhatsApp Location Input / Button
+    window.applyWhatsAppLocationToStudio = async function(customText) {
+        const inputEl = document.getElementById('studio-whatsapp-geo-input');
+        const statusEl = document.getElementById('studio-whatsapp-status');
+        const rawVal = customText !== undefined ? customText : (inputEl ? inputEl.value : '');
+
+        if (!rawVal || !rawVal.trim()) {
+            if (statusEl) statusEl.innerHTML = '<span style="color:#f87171;">⚠️ يرجى لصق رسالة أو رابط الواتساب أولاً.</span>';
+            if (window.showModernToast) window.showModernToast('يرجى لصق رسالة أو رابط الواتساب أولاً', 'warning');
+            return;
+        }
+
+        if (statusEl) statusEl.innerHTML = '<span style="color:#38bdf8;">⏳ جاري تحليل واستخراج الإحداثيات...</span>';
+
+        const parsed = parseWhatsAppOrMapsInput(rawVal);
+        if (parsed.success) {
+            applyCoordinatesToStudio(parsed.lat, parsed.lng, 'موقع الواتساب المباشر');
+            if (statusEl) {
+                statusEl.innerHTML = `<span style="color:#34d399;">✅ تم استخراج الموقع بنجاح: (خط العرض: ${parsed.lat.toFixed(6)} ، خط الطول: ${parsed.lng.toFixed(6)})</span>`;
+            }
+            if (inputEl) inputEl.value = '';
+            return;
+        }
+
+        // Short URL resolution via backend proxy
+        if (parsed.isShortUrl && parsed.url) {
+            if (statusEl) statusEl.innerHTML = '<span style="color:#38bdf8;">⏳ جاري فك الرابط المختصر واستخراج الموقع من الخريطة...</span>';
+            try {
+                const res = await fetch('api/resolve_maps_url.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: parsed.url })
+                });
+                const data = await res.json();
+                if (data.success && data.lat !== null && data.lng !== null) {
+                    applyCoordinatesToStudio(data.lat, data.lng, 'رابط خرائط Google / الواتساب');
+                    if (statusEl) {
+                        statusEl.innerHTML = `<span style="color:#34d399;">✅ تم فك الرابط واستخراج الموقع بنجاح: (${data.lat.toFixed(6)} , ${data.lng.toFixed(6)})</span>`;
+                    }
+                    if (inputEl) inputEl.value = '';
+                    return;
+                } else {
+                    throw new Error(data.error || 'تعذر استخراج الإحداثيات من هذا الرابط');
+                }
+            } catch (e) {
+                if (statusEl) {
+                    statusEl.innerHTML = `<span style="color:#f87171;">❌ تعذر استخراج الإحداثيات تلقائياً: ${e.message}</span>`;
+                }
+                if (window.showModernToast) window.showModernToast('تعذر فك الرابط تلقائياً، يمكنك فتحه ونسخ الإحداثيات مباشرة أو تحديد الموقع من الخريطة', 'error');
+                return;
+            }
+        }
+
+        if (statusEl) {
+            statusEl.innerHTML = '<span style="color:#f87171;">❌ لم يتم العثور على إحداثيات صالحة في النص المدخل. تأكد من صحة الرابط أو الإحداثيات.</span>';
+        }
+        if (window.showModernToast) window.showModernToast('لم يتم العثور على إحداثيات صالحة في الرسالة المدخلة', 'error');
+    };
+
+    // 5. Automatic Clipboard Paste for WhatsApp
+    window.pasteFromClipboardToWhatsAppGeo = async function() {
+        const inputEl = document.getElementById('studio-whatsapp-geo-input');
+        try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                const clipText = await navigator.clipboard.readText();
+                if (clipText && clipText.trim()) {
+                    if (inputEl) inputEl.value = clipText.trim();
+                    window.applyWhatsAppLocationToStudio(clipText.trim());
+                    return;
+                }
+            }
+        } catch(e) {
+            console.warn("Clipboard read blocked, focusing input", e);
+        }
+        if (inputEl) {
+            inputEl.focus();
+            inputEl.select();
+        }
+        if (window.showModernToast) {
+            window.showModernToast('اضغط Ctrl+V للصق الرسالة أو الرابط المنسوخ من الواتساب', 'info');
+        }
+    };
+
+    // 6. Update Inline Visual Status Badge in Studio
+    window.updateStudioGeoInlineBadge = function() {
+        const badge = document.getElementById('studio-geo-status-badge');
+        if (!badge) return;
+
+        const latVal = parseFloat(document.getElementById('studio-geo-lat')?.value);
+        const lngVal = parseFloat(document.getElementById('studio-geo-lng')?.value);
+        const radiusVal = parseInt(document.getElementById('studio-geo-radius')?.value, 10) || 500;
+
+        if (!isNaN(latVal) && !isNaN(lngVal) && latVal !== 0 && lngVal !== 0) {
+            badge.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; width:100%;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="width:38px; height:38px; border-radius:10px; background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#10b981; display:flex; align-items:center; justify-content:center; font-size:1.15rem;">
+                            <i class="fa-solid fa-location-dot"></i>
+                        </span>
+                        <div>
+                            <div style="font-weight:800; color:#34d399; font-size:0.92rem;">الموقع معتمد ونشط بالـ GPS</div>
+                            <div style="font-size:0.8rem; color:#cbd5e1; direction:ltr; text-align:right;">
+                                Lat: <strong>${latVal.toFixed(6)}</strong> , Lng: <strong>${lngVal.toFixed(6)}</strong> (نطاق: <strong>${radiusVal}م</strong>)
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" onclick="window.openInteractiveGeoMapModal()" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:7px 14px; border-radius:8px; font-size:0.82rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                            <i class="fa-solid fa-map"></i> عرض وتعديل على الخريطة
+                        </button>
+                    </div>
+                </div>
+            `;
+            badge.style.borderColor = 'rgba(16,185,129,0.4)';
+            badge.style.background = 'rgba(6, 78, 59, 0.2)';
+        } else {
+            badge.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; width:100%;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <span style="width:38px; height:38px; border-radius:10px; background:rgba(239,68,68,0.15); border:1px solid #ef4444; color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:1.05rem;">
+                            <i class="fa-solid fa-map-pin"></i>
+                        </span>
+                        <span style="font-size:0.82rem; color:#94a3b8;">لم يتم تعيين إحداثيات الموقع حتى الآن. اختر من الخريطة أو الصق رابط الواتساب.</span>
+                    </div>
+                    <button type="button" onclick="window.openInteractiveGeoMapModal()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:7px 16px; border-radius:8px; font-size:0.82rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                        <i class="fa-solid fa-map-location-dot"></i> فتح الخريطة الآن
+                    </button>
+                </div>
+            `;
+            badge.style.borderColor = 'rgba(255,255,255,0.1)';
+            badge.style.background = 'rgba(15, 23, 42, 0.7)';
+        }
+    };
+
+    // 7. Interactive Geo Map Picker Modal
+    window.openInteractiveGeoMapModal = function() {
+        ensureLeafletLoaded(() => {
+            const existing = document.getElementById('magaiees-geo-map-modal');
+            if (existing) existing.remove();
+
+            const currentLatVal = parseFloat(document.getElementById('studio-geo-lat')?.value);
+            const currentLngVal = parseFloat(document.getElementById('studio-geo-lng')?.value);
+            const currentRadiusVal = parseInt(document.getElementById('studio-geo-radius')?.value, 10) || 500;
+
+            let activeLat = (!isNaN(currentLatVal) && currentLatVal !== 0) ? currentLatVal : 15.369444;
+            let activeLng = (!isNaN(currentLngVal) && currentLngVal !== 0) ? currentLngVal : 44.191000;
+            let activeRadius = currentRadiusVal;
+            let hasInitialCoords = (!isNaN(currentLatVal) && !isNaN(currentLngVal) && currentLatVal !== 0);
+
+            const modal = document.createElement('div');
+            modal.id = 'magaiees-geo-map-modal';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                background: rgba(3, 7, 18, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+                z-index: 2147483640; display: flex; align-items: center; justify-content: center;
+                font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif; direction: rtl;
+                padding: 16px; box-sizing: border-box; animation: modernToastSpringIn 0.35s ease-out;
+            `;
+
+            modal.innerHTML = `
+                <div style="background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.4); border-radius: 24px; width: 96%; max-width: 1050px; height: 90vh; max-height: 820px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 60px -10px rgba(0,0,0,0.8), 0 0 40px rgba(16,185,129,0.15);">
+                    
+                    <!-- Modal Header -->
+                    <div style="padding: 16px 22px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.25);">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="width: 40px; height: 40px; border-radius: 12px; background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.25rem;">
+                                <i class="fa-solid fa-map-location-dot"></i>
+                            </span>
+                            <div>
+                                <h3 style="margin: 0; color: #ffffff; font-size: 1.15rem; font-weight: 800;">خريطة تحديد مقر ونطاق عمل الموظف</h3>
+                                <span style="font-size: 0.78rem; color: #94a3b8;">انقر على أي نقطة في الخريطة أو اسحب الدبوس لتحديد الموقع المصرح به لفتح النظام</span>
+                            </div>
+                        </div>
+                        <button type="button" id="magaiees-map-modal-close" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: all 0.2s;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <!-- Modal Toolbar -->
+                    <div style="padding: 12px 20px; background: rgba(15,23,42,0.8); border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <!-- Search Input -->
+                        <div style="display: flex; gap: 8px; flex: 1; min-width: 260px; max-width: 460px;">
+                            <div style="position: relative; width: 100%;">
+                                <input type="text" id="magaiees-map-search-input" placeholder="🔍 ابحث عن اسم مدينة، حي، شارع أو معلم..." style="width: 100%; padding: 9px 36px 9px 12px; background: #0f172a; border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 10px; font-size: 0.85rem; font-weight: 600; outline: none; box-sizing: border-box;">
+                                <i class="fa-solid fa-magnifying-glass" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #64748b; font-size: 0.85rem;"></i>
+                            </div>
+                            <button type="button" id="magaiees-map-search-btn" style="background: #334155; color: #fff; border: 1px solid rgba(255,255,255,0.15); padding: 9px 16px; border-radius: 10px; font-weight: 700; font-size: 0.82rem; cursor: pointer; white-space: nowrap;">
+                                بحث
+                            </button>
+                        </div>
+
+                        <!-- Radius Slider & Controls -->
+                        <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); padding: 6px 14px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);">
+                                <span style="font-size: 0.8rem; font-weight: 700; color: #94a3b8;">نطاق السماح:</span>
+                                <span id="magaiees-modal-radius-badge" style="font-size: 0.85rem; font-weight: 800; color: #34d399; min-width: 55px;">${activeRadius}م</span>
+                                <input type="range" id="magaiees-modal-radius-slider" min="50" max="5000" step="50" value="${activeRadius}" style="width: 110px; accent-color: #10b981; cursor: pointer;">
+                            </div>
+
+                            <button type="button" id="magaiees-map-toggle-layer" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; padding: 7px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-satellite"></i> <span id="magaiees-layer-name">قمر صناعي</span>
+                            </button>
+
+                            <button type="button" id="magaiees-map-my-gps" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 7px 12px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-crosshairs"></i> موقعي الآن
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Map Container -->
+                    <div style="flex: 1; position: relative; min-height: 380px;">
+                        <!-- Floating GPS Permission & Windows Prompt Status Banner -->
+                        <div id="magaiees-map-gps-banner" style="display: none; position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 1001; background: rgba(15,23,42,0.96); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1.5px solid #38bdf8; border-radius: 14px; padding: 10px 18px; box-shadow: 0 10px 30px rgba(0,0,0,0.7), 0 0 20px rgba(56,189,248,0.2); max-width: 92%; width: 560px; align-items: center; gap: 12px; transition: all 0.3s ease; box-sizing: border-box;">
+                            <span id="magaiees-map-gps-banner-icon" style="font-size: 1.4rem; display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: rgba(56,189,248,0.15); border-radius: 10px;">🛰️</span>
+                            <div style="flex: 1; text-align: right;">
+                                <div id="magaiees-map-gps-banner-title" style="font-weight: 800; font-size: 0.92rem; color: #38bdf8;">جاري طلب إذن الموقع من ويندوز / المتصفح...</div>
+                                <div id="magaiees-map-gps-banner-desc" style="font-size: 0.8rem; color: #cbd5e1; margin-top: 3px; line-height: 1.4;">يرجى تأكيد الضغط على <strong>(سماح / Allow)</strong> في إشعار ويندوز أو المتصفح للوصول لموقعك الفعلي مباشرة.</div>
+                            </div>
+                        </div>
+
+                        <div id="magaiees-interactive-leaflet-map" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; z-index: 1;"></div>
+                        <div id="magaiees-map-search-results" style="display: none; position: absolute; top: 10px; right: 15px; width: 340px; max-height: 250px; overflow-y: auto; background: rgba(15,23,42,0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); z-index: 1000; padding: 6px; box-sizing: border-box;"></div>
+                    </div>
+
+                    <!-- Modal Footer -->
+                    <div style="padding: 14px 22px; background: rgba(15,23,42,0.95); border-top: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 0.88rem; color: #94a3b8;">الإحداثيات المختارة:</span>
+                            <span id="magaiees-modal-coords-display" style="font-family: monospace; font-size: 0.95rem; font-weight: 800; color: #34d399; direction: ltr; background: rgba(0,0,0,0.4); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(16,185,129,0.3);">
+                                ${activeLat.toFixed(6)}, ${activeLng.toFixed(6)}
+                            </span>
+                        </div>
+
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <button type="button" id="magaiees-map-modal-cancel" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: #94a3b8; padding: 10px 18px; border-radius: 12px; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
+                                إلغاء
+                            </button>
+                            <button type="button" id="magaiees-map-modal-confirm" style="background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; padding: 10px 24px; border-radius: 12px; font-weight: 800; font-size: 0.92rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(16,185,129,0.4);">
+                                <i class="fa-solid fa-check"></i> اعتماد هذا الموقع وحفظه للموظف
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            const closeModal = () => modal.remove();
+            modal.querySelector('#magaiees-map-modal-close').addEventListener('click', closeModal);
+            modal.querySelector('#magaiees-map-modal-cancel').addEventListener('click', closeModal);
+
+            const mapContainer = modal.querySelector('#magaiees-interactive-leaflet-map');
+            const streetTiles = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '© OpenStreetMap'
+            });
+            const satelliteTiles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: '© Esri Satellite'
+            });
+
+            let currentTileLayer = streetTiles;
+            const initialZoom = hasInitialCoords ? 16 : 13;
+            const map = L.map(mapContainer, {
+                center: [activeLat, activeLng],
+                zoom: initialZoom,
+                layers: [currentTileLayer],
+                zoomControl: true
+            });
+
+            // Modern glowing beacon icon
+            const pinIcon = L.divIcon({
+                className: 'magaiees-map-custom-marker',
+                html: `
+                    <div style="position:relative; width:44px; height:44px; display:flex; align-items:center; justify-content:center;">
+                        <div style="position:absolute; width:44px; height:44px; border-radius:50%; background:rgba(16,185,129,0.35); animation:magaieesPinPulse 1.8s infinite ease-out;"></div>
+                        <div style="width:34px; height:34px; border-radius:50% 50% 50% 0; background:linear-gradient(135deg, #10b981, #059669); transform:rotate(-45deg); box-shadow:0 6px 18px rgba(0,0,0,0.6), 0 0 15px rgba(16,185,129,0.5); display:flex; align-items:center; justify-content:center; border:2.5px solid #ffffff;">
+                            <i class="fa-solid fa-briefcase" style="transform:rotate(45deg); color:#ffffff; font-size:13px;"></i>
+                        </div>
+                    </div>
+                `,
+                iconSize: [44, 44],
+                iconAnchor: [22, 38],
+                popupAnchor: [0, -38]
+            });
+
+            const marker = L.marker([activeLat, activeLng], {
+                icon: pinIcon,
+                draggable: true
+            }).addTo(map);
+
+            const circle = L.circle([activeLat, activeLng], {
+                radius: activeRadius,
+                color: '#10b981',
+                weight: 2,
+                opacity: 0.85,
+                fillColor: '#10b981',
+                fillOpacity: 0.18
+            }).addTo(map);
+
+            function updateCoords(lat, lng) {
+                activeLat = lat;
+                activeLng = lng;
+                marker.setLatLng([lat, lng]);
+                circle.setLatLng([lat, lng]);
+                const coordsDisplay = modal.querySelector('#magaiees-modal-coords-display');
+                if (coordsDisplay) coordsDisplay.innerText = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+            }
+
+            marker.on('drag', e => {
+                const pos = e.target.getLatLng();
+                updateCoords(pos.lat, pos.lng);
+            });
+
+            map.on('click', e => {
+                updateCoords(e.latlng.lat, e.latlng.lng);
+            });
+
+            // Radius slider
+            const radiusSlider = modal.querySelector('#magaiees-modal-radius-slider');
+            const radiusBadge = modal.querySelector('#magaiees-modal-radius-badge');
+            radiusSlider.addEventListener('input', e => {
+                activeRadius = parseInt(e.target.value, 10);
+                circle.setRadius(activeRadius);
+                radiusBadge.innerText = activeRadius + 'م';
+            });
+
+            // Layer Switcher
+            let isSatellite = false;
+            const layerBtn = modal.querySelector('#magaiees-map-toggle-layer');
+            const layerName = modal.querySelector('#magaiees-layer-name');
+            layerBtn.addEventListener('click', () => {
+                if (isSatellite) {
+                    map.removeLayer(satelliteTiles);
+                    map.addLayer(streetTiles);
+                    layerName.innerText = 'قمر صناعي';
+                    layerBtn.innerHTML = '<i class="fa-solid fa-satellite"></i> <span>قمر صناعي</span>';
+                    isSatellite = false;
+                } else {
+                    map.removeLayer(streetTiles);
+                    map.addLayer(satelliteTiles);
+                    layerName.innerText = 'خريطة الشوارع';
+                    layerBtn.innerHTML = '<i class="fa-solid fa-map"></i> <span>خريطة الشوارع</span>';
+                    isSatellite = true;
+                }
+            });
+
+            // Geolocation Auto-Detection & Windows Permission Handler
+            const requestAndFlyToUserLocation = (isAutoTrigger = false) => {
+                const banner = modal.querySelector('#magaiees-map-gps-banner');
+                const bannerTitle = modal.querySelector('#magaiees-map-gps-banner-title');
+                const bannerDesc = modal.querySelector('#magaiees-map-gps-banner-desc');
+                const bannerIcon = modal.querySelector('#magaiees-map-gps-banner-icon');
+
+                if (!("geolocation" in navigator)) {
+                    if (!isAutoTrigger) {
+                        if (window.showModernToast) window.showModernToast('متصفحك لا يدعم خاصية تحديد الموقع (GPS)', 'error');
+                        else alert('متصفحك لا يدعم خاصية تحديد الموقع (GPS)');
+                    }
+                    return;
+                }
+
+                if (banner) {
+                    banner.style.display = 'flex';
+                    banner.style.opacity = '1';
+                    banner.style.borderColor = '#38bdf8';
+                    banner.style.boxShadow = '0 10px 30px rgba(0,0,0,0.7), 0 0 20px rgba(56,189,248,0.3)';
+                    bannerIcon.innerHTML = '🛰️';
+                    bannerTitle.innerHTML = 'جاري طلب إذن الموقع من ويندوز / المتصفح...';
+                    bannerTitle.style.color = '#38bdf8';
+                    bannerDesc.innerHTML = '🔔 يرجى الضغط على <strong>(سماح / Allow)</strong> في نافذة ويندوز أو إشعار المتصفح للوصول لموقعك الفعلي مباشرة.';
+                }
+
+                const geoOptions = {
+                    enableHighAccuracy: true,
+                    timeout: 25000,
+                    maximumAge: 0
+                };
+
+                navigator.geolocation.getCurrentPosition(
+                    pos => {
+                        const lat = pos.coords.latitude;
+                        const lng = pos.coords.longitude;
+                        const acc = Math.round(pos.coords.accuracy || 0);
+
+                        updateCoords(lat, lng);
+                        map.flyTo([lat, lng], 17, { animate: true, duration: 1.6 });
+
+                        // Also push directly to studio inputs
+                        applyCoordinatesToStudio(lat, lng, 'موقع جهازك الحالي (GPS)');
+
+                        if (banner) {
+                            banner.style.borderColor = '#10b981';
+                            banner.style.boxShadow = '0 10px 30px rgba(0,0,0,0.7), 0 0 20px rgba(16,185,129,0.3)';
+                            bannerIcon.innerHTML = '✅';
+                            bannerTitle.innerHTML = 'تم تأكيد الإذن والوصول لموقعك الفعلي بنجاح!';
+                            bannerTitle.style.color = '#34d399';
+                            bannerDesc.innerHTML = `تم نقلك إلى موقعك الحالي (دقة: ${acc}م). يمكنك تعديل النطاق أو الضغط على "اعتماد هذا الموقع".`;
+                            setTimeout(() => {
+                                banner.style.opacity = '0';
+                                setTimeout(() => { banner.style.display = 'none'; banner.style.opacity = '1'; }, 400);
+                            }, 3500);
+                        }
+
+                        if (window.showModernToast) window.showModernToast(`✅ تم الوصول لموقعك الحالي بدقة (${acc}م)!`, 'success');
+                    },
+                    err => {
+                        console.warn('Geolocation error:', err);
+                        let errMsg = 'تعذر الوصول للموقع بدقة عبر الأقمار الصناعية.';
+                        if (err.code === 1) { // PERMISSION_DENIED
+                            errMsg = '⚠️ تم رفض إذن الوصول للموقع. يرجى تفعيل الموقع في ويندوز (Windows Settings > Location) أو النقر على رمز القفل 🔒 في شريط المتصفح واختيار (سماح بالموقع).';
+                        } else if (err.code === 3) { // TIMEOUT
+                            errMsg = 'انتهت مهلة انتظار إذن الموقع. يرجى الضغط على زر (موقعي الآن) والموافقة على إشعار ويندوز.';
+                        }
+
+                        if (banner) {
+                            banner.style.borderColor = '#f59e0b';
+                            banner.style.boxShadow = '0 10px 30px rgba(0,0,0,0.7), 0 0 20px rgba(245,158,11,0.25)';
+                            bannerIcon.innerHTML = '⚠️';
+                            bannerTitle.innerHTML = 'تنبيه إذن الموقع:';
+                            bannerTitle.style.color = '#fbbf24';
+                            bannerDesc.innerHTML = errMsg + ' <button type="button" id="magaiees-banner-retry" style="background:#0284c7; color:#fff; border:none; padding:3px 10px; border-radius:6px; font-size:0.75rem; font-weight:700; cursor:pointer; margin-right:8px;">إعادة المحاولة</button>';
+                            
+                            const retryBtn = modal.querySelector('#magaiees-banner-retry');
+                            if (retryBtn) retryBtn.onclick = () => requestAndFlyToUserLocation(false);
+
+                            setTimeout(() => {
+                                if (banner && banner.style.display !== 'none') {
+                                    banner.style.opacity = '0';
+                                    setTimeout(() => { banner.style.display = 'none'; banner.style.opacity = '1'; }, 400);
+                                }
+                            }, 10000);
+                        }
+                    },
+                    geoOptions
+                );
+            };
+
+            // My GPS button on map
+            modal.querySelector('#magaiees-map-my-gps').addEventListener('click', () => {
+                requestAndFlyToUserLocation(false);
+            });
+
+            // Search logic
+            const searchInput = modal.querySelector('#magaiees-map-search-input');
+            const searchBtn = modal.querySelector('#magaiees-map-search-btn');
+            const searchResults = modal.querySelector('#magaiees-map-search-results');
+
+            const doSearch = async () => {
+                const q = searchInput.value.trim();
+                if (!q) return;
+                searchBtn.innerText = '⏳...';
+                try {
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&accept-language=ar`);
+                    const results = await res.json();
+                    searchBtn.innerText = 'بحث';
+                    if (!results || results.length === 0) {
+                        searchResults.style.display = 'block';
+                        searchResults.innerHTML = '<div style="padding:10px; color:#cbd5e1; font-size:0.82rem; text-align:center;">لم يتم العثور على نتائج لهذا العنوان</div>';
+                        return;
+                    }
+                    searchResults.style.display = 'block';
+                    searchResults.innerHTML = results.slice(0, 6).map((item, idx) => `
+                        <div class="magaiees-search-item" data-lat="${item.lat}" data-lon="${item.lon}" style="padding:8px 10px; border-radius:8px; cursor:pointer; font-size:0.8rem; color:#cbd5e1; border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.2s;">
+                            📍 <strong>${item.display_name.split(',')[0]}</strong>
+                            <div style="font-size:0.72rem; color:#94a3b8; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.display_name}</div>
+                        </div>
+                    `).join('');
+
+                    searchResults.querySelectorAll('.magaiees-search-item').forEach(itemEl => {
+                        itemEl.addEventListener('click', () => {
+                            const sLat = parseFloat(itemEl.dataset.lat);
+                            const sLng = parseFloat(itemEl.dataset.lon);
+                            updateCoords(sLat, sLng);
+                            map.flyTo([sLat, sLng], 16);
+                            searchResults.style.display = 'none';
+                        });
+                    });
+                } catch(e) {
+                    searchBtn.innerText = 'بحث';
+                    if (window.showModernToast) window.showModernToast('تعذر البحث عن العنوان عبر الإنترنت', 'error');
+                }
+            };
+
+            searchBtn.addEventListener('click', doSearch);
+            searchInput.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    doSearch();
+                }
+            });
+
+            map.on('click', () => { searchResults.style.display = 'none'; });
+
+            // Confirm button
+            modal.querySelector('#magaiees-map-modal-confirm').addEventListener('click', () => {
+                applyCoordinatesToStudio(activeLat, activeLng, 'الخريطة التفاعلية');
+                const radIn = document.getElementById('studio-geo-radius');
+                const radRange = document.getElementById('studio-geo-radius-range');
+                const radDisplay = document.getElementById('studio-geo-radius-display');
+                if (radIn) radIn.value = activeRadius;
+                if (radRange) radRange.value = activeRadius;
+                if (radDisplay) radDisplay.innerText = activeRadius + ' متر';
+
+                closeModal();
+            });
+
+            // Automatically request location and invalidate size after modal render
+            setTimeout(() => {
+                map.invalidateSize();
+                requestAndFlyToUserLocation(true);
+            }, 300);
+        });
+    };
+
+    // 8. GPS Button in Studio
     window.getCurrentGPSInStudio = function() {
         const statusEl = document.getElementById('studio-gps-status');
         if (!("geolocation" in navigator)) {
             if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444;">متصفحك لا يدعم خاصية تحديد الموقع GPS</span>';
+            if (window.showModernToast) window.showModernToast('متصفحك لا يدعم خاصية تحديد الموقع GPS', 'error');
             return;
         }
-        if (statusEl) statusEl.innerHTML = '<span style="color:#38bdf8;">⏳ جاري جلب إحداثيات موقعك عبر الأقمار الصناعية...</span>';
+        if (statusEl) statusEl.innerHTML = '<span style="color:#38bdf8;">🛰️ جاري طلب إذن الموقع من ويندوز... يرجى الضغط على (سماح / Allow) في إشعار المتصفح/ويندوز.</span>';
+        if (window.showModernToast) window.showModernToast('🔔 يرجى تأكيد السماح بالوصول للموقع في إشعار ويندوز أو المتصفح...', 'info', 4000);
+
         navigator.geolocation.getCurrentPosition(
             pos => {
-                const lat = pos.coords.latitude.toFixed(6);
-                const lng = pos.coords.longitude.toFixed(6);
+                const lat = pos.coords.latitude;
+                const lng = pos.coords.longitude;
                 const acc = Math.round(pos.coords.accuracy || 0);
-                const latInput = document.getElementById('studio-geo-lat');
-                const lngInput = document.getElementById('studio-geo-lng');
-                if (latInput) latInput.value = lat;
-                if (lngInput) lngInput.value = lng;
+
+                applyCoordinatesToStudio(lat, lng, 'موقع جهازك الحالي بالـ GPS');
+
                 if (statusEl) {
-                    statusEl.innerHTML = `<span style="color:#34d399;">✅ تم رصد موقعك بنجاح! خط العرض: ${lat}، خط الطول: ${lng} (دقة: ${acc}م)</span>`;
+                    statusEl.innerHTML = `<span style="color:#34d399;">✅ تم تأكيد إذن ويندوز ورصد موقعك بنجاح! خط العرض: ${lat.toFixed(6)}، خط الطول: ${lng.toFixed(6)} (دقة: ${acc}م)</span>`;
                 }
+                if (window.showModernToast) window.showModernToast(`✅ تم رصد وتحديد موقعك الحالي بدقة (${acc}م)!`, 'success');
             },
             err => {
-                if (statusEl) {
-                    statusEl.innerHTML = `<span style="color:#ef4444;">❌ فشل تحديد الموقع: ${err.message || 'تم رفض الإذن أو انقضت المهلة'}</span>`;
+                let msg = 'تعذر جلب الموقع عبر الأقمار الصناعية.';
+                if (err.code === 1) {
+                    msg = 'تم رفض الإذن في ويندوز أو المتصفح. يرجى تفعيل الموقع في ويندوز (Settings > Location) ثم المحاولة مجدداً.';
+                } else if (err.code === 3) {
+                    msg = 'انتهت مهلة استجابة الـ GPS.';
                 }
+                if (statusEl) {
+                    statusEl.innerHTML = `<span style="color:#ef4444;">❌ فشل تحديد الموقع: ${msg}</span>`;
+                }
+                if (window.showModernToast) window.showModernToast('❌ فشل تحديد الموقع: ' + msg, 'error');
             },
-            { timeout: 10000, enableHighAccuracy: true }
+            { timeout: 25000, enableHighAccuracy: true, maximumAge: 0 }
         );
     };
 
@@ -4307,6 +5369,7 @@
         }
 
         // Semantic synonym groups (normalized Arabic)
+        const isDeviceMatch = /جهاز|اجهزه|أجهزة|اجهزة|موبايل|هاتف|جوال|ايفون|آيفون|اندرويد|أندرويد|كمبيوتر|لابتوب|سيريال|بصمه|device|uuid|mac|serial/i.test(qNorm);
         const isTimeMatch = /وقت|اوقات|زمن|ازمنه|دوام|ساعات|ساعه|ورديات|ورديه|شيفت|شفت|شفتات|ايام|اسبوع|جمعه|سبت|توقيت|حظر زمني|بدايه الورديه|نهايه الورديه|دوام ليلي|دوام نهاري/i.test(qNorm);
         const isGeoMatch = /موقع|جغرافي|جغرافيه|gps|نطاق|خريطه|احداثيات|متر|نصف القطر|radius|مسافه|مكان/i.test(qNorm);
         const isLimitsMatch = /سقف|سقوف|حد|حدود|خصم|خصومات|نسبه الخصم|مبلغ الفاتوره|سند|سندات|اجل|ائتمان|سلف|سقف مالي|limit|discount/i.test(qNorm);
@@ -4353,6 +5416,19 @@
 
         // 3. Compile Smart Matches for Results Bar
         const matches = [];
+
+        if (isDeviceMatch) {
+            matches.push({
+                tab: 'work_shifts_and_geo',
+                icon: 'fa-solid fa-mobile-screen-button',
+                label: '📱 تقييد وحصر الأجهزة المصرح بها وتحديد السقف (Device Binding)',
+                badge: 'تطابق مباشر 100%',
+                badgeBg: 'rgba(168,85,247,0.25)',
+                badgeColor: '#c084fc',
+                borderColor: '#a855f7',
+                actionKey: 'device_access'
+            });
+        }
 
         if (isTimeMatch || isGeoMatch) {
             matches.push({
@@ -4490,8 +5566,10 @@
         }
 
         // 5. Intelligent Automatic Redirection:
-        // When searching about Time/Shifts or Geo, switch directly to work_shifts_and_geo!
-        if (isTimeMatch || isGeoMatch) {
+        // When searching about Devices, Time/Shifts or Geo, switch directly to work_shifts_and_geo!
+        if (isDeviceMatch) {
+            window.jumpToDeviceAccessCard();
+        } else if (isTimeMatch || isGeoMatch) {
             window.jumpToWorkShiftAndGeoTab();
         } else if (isLimitsMatch && matchingScreensCount === 0) {
             window.switchStudioTab('financial_limits');
@@ -4510,7 +5588,9 @@
     };
 
     window._triggerStudioSearchAction = function(actionKey) {
-        if (actionKey === 'time_shift') {
+        if (actionKey === 'device_access') {
+            window.jumpToDeviceAccessCard();
+        } else if (actionKey === 'time_shift') {
             window.jumpToWorkShiftAndGeoTab();
         } else if (actionKey === 'limits') {
             window.switchStudioTab('financial_limits');
@@ -4575,6 +5655,10 @@
                 geoLat: null,
                 geoLng: null,
                 geoRadius: 500,
+                deviceRestricted: false,
+                maxDevices: 1,
+                trustedDevices: [],
+                deviceUuid: '',
                 managerPin: managerPin
             };
         }
@@ -4653,6 +5737,12 @@
         const geoLng = parseFloat(document.getElementById('studio-geo-lng')?.value) || null;
         const geoRadius = parseFloat(document.getElementById('studio-geo-radius')?.value) || 500;
 
+        // Device Access Control & Multi-Device Quotas
+        const deviceRestricted = !!document.getElementById('studio-device-restricted')?.checked;
+        const maxDevices = Math.max(1, parseInt(document.getElementById('studio-max-devices')?.value, 10) || 1);
+        const trustedDevices = Array.isArray(window._currentStudioTrustedDevices) ? JSON.parse(JSON.stringify(window._currentStudioTrustedDevices)) : [];
+        const deviceUuid = trustedDevices[0] ? (typeof trustedDevices[0] === 'string' ? trustedDevices[0] : trustedDevices[0].uuid) : '';
+
         const managerPin = document.getElementById('studio-manager-pin')?.value.trim() || '';
         const aiSmartLevel = document.querySelector('input[name="ai_smart_tier_radio"]:checked')?.value || '';
 
@@ -4678,6 +5768,10 @@
             geoLat,
             geoLng,
             geoRadius,
+            deviceRestricted,
+            maxDevices,
+            trustedDevices,
+            deviceUuid,
             managerPin
         };
     }

@@ -603,11 +603,12 @@
                         <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">من حساب (صُرف منه)</th>
                         <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">إلى حساب (تم الاستلام فيه)</th>
                         <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">المبلغ</th>
+                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">المستخدم</th>
                         <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">إجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="recent-transactions-body">
-                    <tr><td colspan='8' style='text-align:center; padding:20px; color:#94a3b8;'>جاري التحميل...</td></tr>
+                    <tr><td colspan='9' style='text-align:center; padding:20px; color:#94a3b8;'>جاري التحميل...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -707,7 +708,7 @@
             
             let tbody = document.getElementById('recent-transactions-body');
             if(top.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">لا توجد عمليات مسجلة</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px; color:#94a3b8;">لا توجد عمليات مسجلة</td></tr>';
                 return;
             }
 
@@ -737,6 +738,7 @@
                 let toAcc = x.toAccount || x.depositAccount || x.accountId || 'متعدد';
                 let fromName = resolveAccName(fromAcc);
                 let toName = resolveAccName(toAcc);
+                let userName = x.createdByName || x.createdByUsername || x.createdBy || '—';
                 let vid = (x.voucherNo && !String(x.voucherNo).startsWith('MV-') && !String(x.voucherNo).startsWith('MV17')) 
                           ? x.voucherNo 
                           : ((x.id && !String(x.id).startsWith('MV-') && !String(x.id).startsWith('MV17')) 
@@ -755,6 +757,7 @@
                     <td style="padding: 12px 10px; color: #cbd5e1;">${fromName}</td>
                     <td style="padding: 12px 10px; color: #cbd5e1;">${toName}</td>
                     <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${(x.amount || x.totalAmount || x.amountLocal || 0).toLocaleString()}</td>
+                    <td style="padding: 12px 10px; color: #cbd5e1; font-size: 0.85rem;"><span style="background: rgba(167,139,250,0.15); color: #c084fc; padding: 2px 8px; border-radius: 6px; font-weight: 600;">👤 ${userName}</span></td>
                     <td style="padding: 12px 10px; white-space: nowrap;">
                         <button onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" style="background: rgba(56,189,248,0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 4px; padding: 4px 8px; cursor: pointer; margin-left: 5px; font-family: 'Tajawal', sans-serif;">تعديل</button>
                         <button onclick="deleteHubVoucher('${vid}', '${x._storeKey}')" style="background: rgba(244,63,94,0.1); color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-family: 'Tajawal', sans-serif;">حذف</button>
@@ -763,7 +766,7 @@
             `}).join('');
         } catch(e) {
             console.error(e);
-            document.getElementById('recent-transactions-body').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#ef4444;">خطأ في جلب البيانات: ' + (e.message || e) + '</td></tr>';
+            document.getElementById('recent-transactions-body').innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px; color:#ef4444;">خطأ في جلب البيانات: ' + (e.message || e) + '</td></tr>';
         }
     });
 
@@ -799,6 +802,9 @@
                 await localforage.setItem(storeKey, data);
                 localStorage.setItem(storeKey, JSON.stringify(data)); // Fallback
                 if (window.rebuildGLFromAllTables) window.rebuildGLFromAllTables(false);
+                if (window.logSystemAction) {
+                    window.logSystemAction('حذف سند من المركز المالي', 'المعاملات المالية', id, `تم حذف السند رقم ${id}`);
+                }
                 if (typeof showToast === 'function') showToast('تم حذف السند وتحديث الحسابات بنجاح.', 'success');
                 else alert('تم الحذف بنجاح.');
                 setTimeout(() => window.location.reload(), 1000);

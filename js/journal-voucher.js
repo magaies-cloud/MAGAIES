@@ -92,6 +92,10 @@ function initJVApp() {
             currentViewedIndex = idx;
             renderVoucher(jvData[idx]);
         }
+    } else {
+        if (window.renderDocumentUserBadge) {
+            window.renderDocumentUserBadge('jv-user-audit-container', {}, true);
+        }
     }
 }
 
@@ -259,6 +263,9 @@ function resetVoucherSilent() {
     setNextVoucherNumber();
     calculateTotals();
     if (window.applyImmutabilityUI) window.applyImmutabilityUI(typeof v !== 'undefined' ? v.status : 'draft');
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('jv-user-audit-container', {}, true);
+    }
 }
 
 function loadPreviousVoucher() {
@@ -299,6 +306,9 @@ function renderVoucher(v) {
     
     calculateTotals();
     if (window.applyImmutabilityUI) window.applyImmutabilityUI(typeof v !== 'undefined' ? v.status : 'draft');
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('jv-user-audit-container', v, false);
+    }
 }
 
 function submitVoucher() {
@@ -363,8 +373,17 @@ function submitVoucher() {
     window.isSubmitting = true;
     setTimeout(() => { window.isSubmitting = false; }, 2000);
 
+    jvData = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+    const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
+    const oldVoucher = (currentViewedIndex !== -1 && jvData[currentViewedIndex]) ? jvData[currentViewedIndex] : null;
+
     const voucherData = {
-        createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
+        createdBy: oldVoucher?.createdBy || curUser.id,
+        createdByName: oldVoucher?.createdByName || curUser.fullName || curUser.name,
+        createdByUsername: oldVoucher?.createdByUsername || curUser.username,
+        updatedBy: oldVoucher ? curUser.id : null,
+        updatedByName: oldVoucher ? (curUser.fullName || curUser.name) : null,
+        updatedAt: oldVoucher ? new Date().toISOString() : null,
         id: document.getElementById('voucher-number').innerText,
         date: document.getElementById('hdr-date').value,
         time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
@@ -375,19 +394,17 @@ function submitVoucher() {
         timestamp: new Date().toISOString(),
         systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1) || 1
     };
-
-    jvData = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
     
     if (currentViewedIndex !== -1) {
         if (!window.canEditRecord(voucherData.date, 'finance')) return;
         jvData[currentViewedIndex] = voucherData;
         localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(jvData));
-        if (window.logSystemAction) window.logSystemAction(currentViewedIndex !== -1 ? 'تعديل قيد يومية' : 'إنشاء قيد يومية', 'FINANCE', 'رقم القيد: ' + voucherData.id);
+        if (window.logSystemAction) window.logSystemAction('تعديل قيد يومية', 'القيود اليومية', voucherData.id, `تعديل قيد يومية رقم ${voucherData.id} بقيمة ${voucherData.totalAmount}`);
         showToast(`تم تعديل القيد رقم ${voucherData.id} بنجاح!`, "success");
     } else {
         jvData.push(voucherData);
         localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(jvData));
-        if (window.logSystemAction) window.logSystemAction(currentViewedIndex !== -1 ? 'تعديل قيد يومية' : 'إنشاء قيد يومية', 'FINANCE', 'رقم القيد: ' + voucherData.id);
+        if (window.logSystemAction) window.logSystemAction('قيد يومية جديد', 'القيود اليومية', voucherData.id, `إصدار قيد يومية رقم ${voucherData.id} بقيمة ${voucherData.totalAmount}`);
         const currentSeq = parseInt(localStorage.getItem('erp_jv_seq') || '0');
         localStorage.setItem('erp_jv_seq', currentSeq + 1);
         showToast(`تم اعتماد القيد رقم ${voucherData.id} بنجاح!`, "success");
@@ -397,6 +414,18 @@ function submitVoucher() {
 }
 
 function printVoucher() {
+    const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { fullName: 'المسؤول' };
+    const v = (currentViewedIndex !== -1 && jvData[currentViewedIndex]) ? jvData[currentViewedIndex] : {};
+    const creator = v.createdByName || v.createdByUsername || v.createdBy || curUser.fullName;
+    const updater = v.updatedByName ? ` (عُدلت بواسطة: ${v.updatedByName})` : '';
+    
+    const cEl = document.getElementById('jv-print-creator');
+    const pEl = document.getElementById('jv-print-printer');
+    const tEl = document.getElementById('jv-print-time');
+    if (cEl) cEl.innerText = creator + updater;
+    if (pEl) pEl.innerText = curUser.fullName;
+    if (tEl) tEl.innerText = new Date().toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' });
+
     window.print();
 }
 
@@ -406,9 +435,11 @@ function confirmDelete() {
         return;
     }
     if (confirm("هل أنت متأكد من حذف هذا القيد نهائياً؟")) {
+        const deletedVoucher = jvData[currentViewedIndex];
+        const deletedId = deletedVoucher ? deletedVoucher.id : '---';
         jvData.splice(currentViewedIndex, 1);
         localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(jvData));
-        if (window.logSystemAction) window.logSystemAction(currentViewedIndex !== -1 ? 'تعديل قيد يومية' : 'إنشاء قيد يومية', 'FINANCE', 'رقم القيد: ' + voucherData.id);
+        if (window.logSystemAction) window.logSystemAction('حذف قيد يومية', 'القيود اليومية', deletedId, `تم حذف قيد اليومية رقم ${deletedId}`);
         showToast("تم حذف القيد بنجاح", "success");
         resetVoucherSilent();
     }

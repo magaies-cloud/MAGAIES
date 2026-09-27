@@ -96,6 +96,23 @@
     }
 })();
 
+// 🔔 AUTO-BOOTSTRAP MODERN ALERTS & TOASTS ACROSS ALL SCREENS
+(function() {
+    if (typeof window.MagaieesAlerts === 'undefined') {
+        const existing = document.querySelector('script[src*="modern-alerts"]');
+        if (!existing) {
+            const mas = document.createElement('script');
+            mas.src = 'js/modern-alerts.js?v=' + (window.MAGAIEES_VERSION || '2026_enterprise_v2');
+            mas.defer = false;
+            if (document.head) {
+                document.head.appendChild(mas);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(mas));
+            }
+        }
+    }
+})();
+
 (function() {
     // Intercept DOMContentLoaded listeners for already-loaded document states (iOS WebKit compatibility)
     const interceptDOMContentLoaded = (target) => {
@@ -2176,13 +2193,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- Device Binding Check ---
-        if (user.deviceRestricted) {
+        // --- Device Binding Check (Multi-Device & Quotas) ---
+        if (user.deviceRestricted && user.role !== 'admin' && user.userType !== 'admin') {
             const localUuid = localStorage.getItem('deviceUuid');
-            if (!localUuid || localUuid !== user.deviceUuid) {
-                alert('عفواً، لا يمكنك الدخول. حسابك مقيد للعمل من جهاز محدد فقط.');
+            let isTrusted = false;
+            if (localUuid) {
+                if (Array.isArray(user.trustedDevices) && user.trustedDevices.length > 0) {
+                    isTrusted = user.trustedDevices.some(d => (typeof d === 'string' ? d : d.uuid) === localUuid);
+                } else if (user.deviceUuid) {
+                    isTrusted = (localUuid === user.deviceUuid);
+                }
+            }
+            if (!isTrusted) {
+                const maxDevs = user.maxDevices || 1;
+                alert(`عفواً، لا يمكنك العمل من هذا الجهاز. حسابك مقيد للعمل من أجهزة مصرح بها فقط (الحد الأقصى المصرح: ${maxDevs} أجهزة).`);
                 if (window.logout) window.logout();
-                else { localStorage.removeItem('authToken'); fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php'; }
+                else { 
+                    localStorage.removeItem('authToken'); 
+                    sessionStorage.removeItem('session_active');
+                    window.location.href = 'login.php'; 
+                }
                 return;
             }
         }

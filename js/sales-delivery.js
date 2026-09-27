@@ -471,9 +471,14 @@ function executeDelivery() {
     const personalNotesEl   = document.getElementById('personal-notes');
     const personalNotesVal  = personalNotesEl ? personalNotesEl.value.trim() : '';
 
+    const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
+
     allSales[invIndex].deliveryStatus      = 'Delivered_Pending_Admin';
     allSales[invIndex].status              = 'Delivered_Pending_Admin';
     allSales[invIndex].deliveryDate        = new Date().toISOString();
+    allSales[invIndex].deliveredBy          = curUser.id;
+    allSales[invIndex].deliveredByName      = curUser.fullName || curUser.name;
+    allSales[invIndex].deliveredByUsername  = curUser.username;
     allSales[invIndex].adminDeadline       = Date.now() + (72 * 3600 * 1000);
     allSales[invIndex].verificationMethod  = verificationMethod;
     allSales[invIndex].attachmentBase64    = currentAttachment;
@@ -484,8 +489,8 @@ function executeDelivery() {
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
 
     if (typeof window.logSystemAction === 'function') {
-        window.logSystemAction('STAGE1_DELIVERY_EXECUTED', 'warehouse',
-            `تسليم مخزني للإذن ${currentLoadedInvoice.invoiceNo} عبر ${verificationMethod} | ملاحظات: ${warehouseNotesVal}`);
+        window.logSystemAction('تسليم بضاعة', 'المستودعات / المبيعات', currentLoadedInvoice.invoiceNo,
+            `تسليم بضاعة للإذن ${currentLoadedInvoice.invoiceNo} عبر ${verificationMethod} | المستودع: ${currentLoadedInvoice.warehouse || 'الرئيسي'} | ملاحظات: ${warehouseNotesVal}`);
     }
 
     showToast('🎉 تم خروج البضاعة وتفعيل رقابة الإدارة (Stage 1).', 'success');

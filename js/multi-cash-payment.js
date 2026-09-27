@@ -253,6 +253,9 @@ window.saveStoredVouchers = function(storageKey, dataArray) {
 };
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('multi-voucher-user-audit-container', {}, true);
+    }
     // Set today's date
     const __d = new Date();
     const __y = __d.getFullYear();
@@ -1727,6 +1730,9 @@ function resetVoucher() {
     if (typeof window.syncWAAutoDispatchUI === 'function') {
         window.syncWAAutoDispatchUI();
     }
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('multi-voucher-user-audit-container', {}, true);
+    }
 }
 
 window.printVoucher = function() {
@@ -2089,6 +2095,12 @@ window.printVoucher = function() {
                     <div class="meta-label">الاعتماد / المدير</div>
                 </div>
             </div>
+
+            <!-- User Tracking & Accountability Print Footer -->
+            <div style="margin-top: 15px; border-top: 1px dashed #cbd5e1; padding-top: 6px; font-size: 0.72rem; color: #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; background: #f8fafc; padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <span>👤 المستخدم (معد الحركة): <strong>${(typeof currentVoucherList !== 'undefined' && typeof currentVoucherIndex !== 'undefined' && currentVoucherIndex >= 0 && currentVoucherList[currentVoucherIndex]) ? (currentVoucherList[currentVoucherIndex].createdByName || currentVoucherList[currentVoucherIndex].createdByUsername || currentVoucherList[currentVoucherIndex].createdBy || userName) : userName}</strong>${(typeof currentVoucherList !== 'undefined' && typeof currentVoucherIndex !== 'undefined' && currentVoucherIndex >= 0 && currentVoucherList[currentVoucherIndex] && currentVoucherList[currentVoucherIndex].updatedByName) ? ' | عُدلت بواسطة: <strong>' + currentVoucherList[currentVoucherIndex].updatedByName + '</strong>' : ''} | طُبع بواسطة: <strong>${userName}</strong> | وقت الطباعة: ${printDateTime}</span>
+                <span style="font-weight: 800; color: #0284c7;">نظام مقاييس المحاسبي الموحد ⚡</span>
+            </div>
         </div>
     `;
 
@@ -2134,6 +2146,10 @@ async function confirmDelete() {
             saveStoredVouchers(storageKey, existingData);
             if (window.rebuildGLFromAllTables) {
                 try { window.rebuildGLFromAllTables(false); } catch(e) {}
+            }
+            if (window.logSystemAction) {
+                const actionType = type === 'payment' ? 'حذف حركة دفع متعددة' : 'حذف استلام متعدد';
+                window.logSystemAction(actionType, 'المعاملات المالية', voucherNo, `تم حذف المستند رقم ${voucherNo}`);
             }
             showToast('تم حذف المستند بنجاح وعكس تأثيره المحاسبي!', 'success');
         } else {
@@ -2438,6 +2454,13 @@ async function _saveVoucherCore() {
         }
     }
 
+    // Determine storage key based on type
+    const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
+    let existingData = getStoredVouchers(storageKey);
+    const existingIdx = existingData.findIndex(v => (v && (v.voucherNo === vNo || v.id === vNo) && v.isGrouped));
+    const oldVoucher = (existingIdx > -1) ? existingData[existingIdx] : null;
+    const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
+
     // Build the voucher object
     const voucher = {
         id: vNo, // Clean sequence ID matching voucherNo
@@ -2465,9 +2488,15 @@ async function _saveVoucherCore() {
         cheques: [],
         items: items, // Contains {account, amount, statement, paymentMethod, bankName, ...}
         isPosted: true, // Auto-post to reflect in general ledger immediately
-        createdAt: new Date().toISOString(),
+        createdAt: oldVoucher?.createdAt || new Date().toISOString(),
         idempotencyKey: (window.IdempotencyGuard ? window.IdempotencyGuard.getKey() : null),
-        systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1) || 1
+        systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1) || 1,
+        createdBy: oldVoucher?.createdBy || curUser.id,
+        createdByName: oldVoucher?.createdByName || curUser.fullName || curUser.name,
+        createdByUsername: oldVoucher?.createdByUsername || curUser.username,
+        updatedBy: oldVoucher ? curUser.id : (oldVoucher?.updatedBy || null),
+        updatedByName: oldVoucher ? (curUser.fullName || curUser.name) : (oldVoucher?.updatedByName || null),
+        updatedAt: oldVoucher ? new Date().toISOString() : (oldVoucher?.updatedAt || null)
     };
 
     // Set fromAccount and toAccount properly for compatibility
@@ -2480,17 +2509,10 @@ async function _saveVoucherCore() {
         voucher.fromAccount = 'حسابات فرعية متعددة';
         voucher.notes = desc;
     }
-
-    // Determine storage key based on type
-    const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
     
     try {
-        let existingData = getStoredVouchers(storageKey);
-
         // Update existing record if editing, otherwise insert
-        const existingIdx = existingData.findIndex(v => (v && (v.voucherNo === vNo || v.id === vNo) && v.isGrouped));
         if (existingIdx > -1) {
-            voucher.createdAt = existingData[existingIdx].createdAt || voucher.createdAt;
             existingData[existingIdx] = voucher;
         } else {
             existingData.push(voucher);
@@ -2498,6 +2520,16 @@ async function _saveVoucherCore() {
 
         // SAVE TO BOTH TENANT KEY AND BASE KEY
         saveStoredVouchers(storageKey, existingData);
+
+        if (window.logSystemAction) {
+            const isEdit = (existingIdx > -1);
+            const isPay = (type === 'payment');
+            const actionType = isEdit ? (isPay ? 'تعديل حركة دفع متعددة' : 'تعديل استلام متعدد') : (isPay ? 'حركة دفع متعددة' : 'استلام متعدد');
+            window.logSystemAction(actionType, 'المعاملات المالية', vNo, `${actionType} رقم ${vNo} بمبلغ ${finalTotal} ${currency}`);
+        }
+        if (window.renderDocumentUserBadge) {
+            window.renderDocumentUserBadge('multi-voucher-user-audit-container', voucher, false);
+        }
 
         // Rebuild GL immediately so General Ledger reflects new voucher
         if (window.rebuildGLFromAllTables) {
@@ -3438,6 +3470,9 @@ function loadVoucherIntoForm(v) {
     }
     if (typeof window.syncWAAutoDispatchUI === 'function') {
         window.syncWAAutoDispatchUI();
+    }
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('multi-voucher-user-audit-container', v, false);
     }
     showToast(`تم عرض السند ${v.voucherNo} بنجاح`, 'success');
 }

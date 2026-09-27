@@ -1405,10 +1405,13 @@ if ($resource === 'sync') {
                 $frontendKey = $table;
                 if ($table === 'gl_entries') $frontendKey = 'gl';
                 if ($table === 'sales_invoices') $frontendKey = 'sales_invoices';
-                if ($table === 'purchase_invoices') $frontendKey = 'purchase_invoices';
-                $key = "erp_" . $frontendKey . "_v1";
-                
-                $data_payload[$key] = $parsed_rows;
+                if ($table === 'audit_logs') {
+                    $data_payload['erp_audit_logs'] = $parsed_rows;
+                    $data_payload['erp_audit_logs_v1'] = $parsed_rows;
+                } else {
+                    $key = "erp_" . $frontendKey . "_v1";
+                    $data_payload[$key] = $parsed_rows;
+                }
             } catch (PDOException $e) { error_log('API Index Error: ' . $e->getMessage());
                 // Skip if table doesn't exist or doesn't have 'data' column
                 continue;
@@ -1490,8 +1493,14 @@ if ($resource === 'sync') {
         $pdo->beginTransaction();
         try {
             foreach ($input as $key => $records) {
+                $table = null;
                 if (preg_match('/^erp_(.+)_v1$/', $key, $matches)) {
                     $table = $matches[1];
+                } elseif ($key === 'erp_audit_logs') {
+                    $table = 'audit_logs';
+                }
+                
+                if ($table) {
                     // Map frontend keys back to database tables
                     if ($table === 'gl') $table = 'gl_entries';
                     if ($table === 'sales') $table = 'sales_invoices';

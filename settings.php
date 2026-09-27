@@ -182,6 +182,7 @@ try {
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/fontawesome/all.min.css">
     <link rel="stylesheet" href="css/all.min.css">
+    <link rel="stylesheet" href="css/leaflet.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <script>
         window.SERVER_TENANT = <?php echo json_encode($serverTenant, JSON_UNESCAPED_UNICODE); ?>;
@@ -1251,6 +1252,8 @@ try {
 </div>
 
 <script defer src="js/localforage.min.js"></script>
+<script defer src="js/leaflet.js"></script>
+<script defer src="js/modern-alerts.js?v=<?php echo file_exists('js/modern-alerts.js') ? filemtime('js/modern-alerts.js') : '1'; ?>"></script>
 <script defer src="js/permissions-manager.js?v=<?php echo file_exists('js/permissions-manager.js') ? filemtime('js/permissions-manager.js') : '1'; ?>"></script>
 <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
@@ -1829,6 +1832,10 @@ document.addEventListener('DOMContentLoaded', function() {
         users[userIndex].geoLat = permsData.geoLat !== undefined ? permsData.geoLat : null;
         users[userIndex].geoLng = permsData.geoLng !== undefined ? permsData.geoLng : null;
         users[userIndex].geoRadius = permsData.geoRadius !== undefined ? permsData.geoRadius : 500;
+        users[userIndex].deviceRestricted = permsData.deviceRestricted !== undefined ? permsData.deviceRestricted : false;
+        users[userIndex].maxDevices = permsData.maxDevices !== undefined ? permsData.maxDevices : 1;
+        users[userIndex].trustedDevices = permsData.trustedDevices || [];
+        users[userIndex].deviceUuid = permsData.deviceUuid || '';
         if (permsData.aiSmartLevel) users[userIndex].aiSmartLevel = permsData.aiSmartLevel;
         if (permsData.managerPin) users[userIndex].managerPin = permsData.managerPin;
 
@@ -1859,6 +1866,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 currentActive.geoLat = users[userIndex].geoLat;
                 currentActive.geoLng = users[userIndex].geoLng;
                 currentActive.geoRadius = users[userIndex].geoRadius;
+                currentActive.deviceRestricted = users[userIndex].deviceRestricted;
+                currentActive.maxDevices = users[userIndex].maxDevices;
+                currentActive.trustedDevices = users[userIndex].trustedDevices;
+                currentActive.deviceUuid = users[userIndex].deviceUuid;
                 if (users[userIndex].aiSmartLevel) currentActive.aiSmartLevel = users[userIndex].aiSmartLevel;
                 if (users[userIndex].managerPin) currentActive.managerPin = users[userIndex].managerPin;
                 localStorage.setItem('user', JSON.stringify(currentActive));

@@ -1389,8 +1389,8 @@ function syncTotalsVisibility() {
 }
 
 function syncLocal(type) {
-    let locInput = document.getElementById('t-' + type + '-loc') || document.getElementById('t-' + type);
-    let fcInput = document.getElementById('t-' + type + '-fc');
+    let locInput = document.getElementById('t-' + type + '-loc') || document.getElementById('t-' + type) || document.getElementById(type + '-amt') || (type === 'additions' ? document.getElementById('addition-amt') : null);
+    let fcInput = document.getElementById('t-' + type + '-fc') || document.getElementById(type + '-amt-fc') || (type === 'additions' ? document.getElementById('addition-amt-fc') : null);
     if (!locInput || !fcInput) return;
     const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
     let fcVal = parseNum(fcInput.value);
@@ -1398,8 +1398,8 @@ function syncLocal(type) {
 }
 
 function syncFc(type) {
-    let locInput = document.getElementById('t-' + type + '-loc') || document.getElementById('t-' + type);
-    let fcInput = document.getElementById('t-' + type + '-fc');
+    let locInput = document.getElementById('t-' + type + '-loc') || document.getElementById('t-' + type) || document.getElementById(type + '-amt') || (type === 'additions' ? document.getElementById('addition-amt') : null);
+    let fcInput = document.getElementById('t-' + type + '-fc') || document.getElementById(type + '-amt-fc') || (type === 'additions' ? document.getElementById('addition-amt-fc') : null);
     if (!locInput || !fcInput) return;
     const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
     let locVal = parseNum(locInput.value);
@@ -1415,15 +1415,15 @@ function recalcAll() {
     // Add expenses
     const transportLoc = parseNum(document.getElementById('t-transport')?.value || 0);
     const laborLoc = parseNum(document.getElementById('t-labor')?.value || 0);
-    const additionsLoc = parseNum(document.getElementById('t-additions-loc')?.value || 0);
-    const taxLoc = parseNum(document.getElementById('t-tax-loc')?.value || 0);
-    const discountLoc = parseNum(document.getElementById('t-discount-loc')?.value || 0);
+    const additionsLoc = parseNum(document.getElementById('addition-amt')?.value || document.getElementById('t-additions-loc')?.value || 0);
+    const taxLoc = parseNum(document.getElementById('tax-amt')?.value || document.getElementById('t-tax-loc')?.value || 0);
+    const discountLoc = parseNum(document.getElementById('discount-amt')?.value || document.getElementById('t-discount-loc')?.value || 0);
 
     const transportFc = parseNum(document.getElementById('t-transport-fc')?.value || 0);
     const laborFc = parseNum(document.getElementById('t-labor-fc')?.value || 0);
-    const additionsFc = parseNum(document.getElementById('t-additions-fc')?.value || 0);
-    const taxFc = parseNum(document.getElementById('t-tax-fc')?.value || 0);
-    const discountFc = parseNum(document.getElementById('t-discount-fc')?.value || 0);
+    const additionsFc = parseNum(document.getElementById('addition-amt-fc')?.value || document.getElementById('t-additions-fc')?.value || 0);
+    const taxFc = parseNum(document.getElementById('tax-amt-fc')?.value || document.getElementById('t-tax-fc')?.value || 0);
+    const discountFc = parseNum(document.getElementById('discount-amt-fc')?.value || document.getElementById('t-discount-fc')?.value || 0);
 
     const grandLoc = invTotalLoc + transportLoc + laborLoc + additionsLoc + taxLoc - discountLoc;
     const grandFc = invTotalFc + transportFc + laborFc + additionsFc + taxFc - discountFc;
@@ -1589,8 +1589,32 @@ function submitInvoice(ignoreWarnings = false) {
     const grandLocEl = document.getElementById('t-grand-dynamic-loc');
     const grandTotal = grandLocEl ? parseNum(grandLocEl.textContent) : 0;
 
-    // 🛡️ Enterprise Financial Approval Limits Enforcement (Invoice Amount)
+    // 🛡️ Enterprise Financial Approval Limits Enforcement (Discount & Invoice Amount)
     if (window.MagaieesPermissions && typeof window.MagaieesPermissions.checkFinancialLimits === 'function' && !window.managerOverrideBypass) {
+        const invTotalVal = typeof getInvoiceTotal === 'function' ? getInvoiceTotal() : grandTotal;
+        const discountAmt = parseNum(document.getElementById('discount-amt')?.value || document.getElementById('t-discount-loc')?.value || 0);
+        const discountPct = invTotalVal > 0 ? ((discountAmt / invTotalVal) * 100) : 0;
+
+        // 1. Discount limit check
+        const discCheck = window.MagaieesPermissions.checkFinancialLimits('discount_percent', discountPct);
+        if (!discCheck.allowed) {
+            window.isSubmitting = false;
+            window.MagaieesPermissions.requestManagerApproval({
+                actionType: 'discount_exceeded',
+                details: `طلب تطبيق خصم بنسبة (${discountPct.toFixed(1)}%) وهو أعلى من حد الصلاحية المسموح (${discCheck.maxAllowed}%).`,
+                onApproved: (mgr) => {
+                    window.managerOverrideBypass = true;
+                    submitInvoice(ignoreWarnings);
+                    setTimeout(() => { window.managerOverrideBypass = false; }, 2000);
+                },
+                onRejected: () => {
+                    if (typeof showToast === 'function') showToast('❌ تم رفض طلب تجاوز حد الخصم من قبل المشرف', 'warning');
+                }
+            });
+            return;
+        }
+
+        // 2. Invoice amount limit check
         const invCheck = window.MagaieesPermissions.checkFinancialLimits('invoice_amount', grandTotal);
         if (!invCheck.allowed) {
             window.isSubmitting = false;

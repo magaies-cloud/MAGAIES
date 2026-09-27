@@ -955,6 +955,14 @@
                     <span style="font-size: 0.72rem; font-weight: 600; color: #94a3b8; margin-right: 6px;">(انقر بالزر الأيمن 🖱️ لتخصيص الأزرار السبعة)</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 12px;">
+                    <!-- Track Who Did What Button -->
+                    <button onclick="window.openAuditTrackerModal ? window.openAuditTrackerModal() : window.location.href='audit-log.php'" class="qa-master-btn" style="--btn-border-color: #f59e0b; --btn-glow-color: rgba(245, 158, 11, 0.6); border-bottom: 3.5px solid #f59e0b !important; min-width: 175px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(239, 68, 68, 0.2)) !important;" title="تتبع نشاط المستخدمين ومن فعل ماذا والبحث عن أي إذن أو فاتورة (Alt+T)">
+                        <span class="qa-icon" style="background: rgba(245, 158, 11, 0.25); border: 1px solid #f59e0b; color: #fbbf24;">
+                            <i class="fa-solid fa-magnifying-glass-chart"></i>
+                        </span>
+                        <span class="btn-text" style="color: #fbbf24; font-weight:800;">تتبع من فعل ماذا 🔍</span>
+                    </button>
+
                     <!-- Customize Button (Top Row Master Button) -->
                     <button onclick="openQACustomizer(event)" class="qa-master-btn" style="--btn-border-color: #38bdf8; --btn-glow-color: rgba(56, 189, 248, 0.6); border-bottom: 3.5px solid #38bdf8 !important; min-width: 145px;" title="تخصيص الأزرار السبعة">
                         <span class="qa-icon" style="background: rgba(56, 189, 248, 0.25); border: 1px solid #38bdf8; color: #38bdf8;">

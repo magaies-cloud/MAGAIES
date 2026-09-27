@@ -352,7 +352,7 @@
         <div id="local-login-hints" style="margin-top: 15px; padding: 10px; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 10px; text-align: center; display: none;">
             <div style="font-size: 0.8rem; color: #38bdf8; font-weight: 700; margin-bottom: 8px;">🚀 تسجيل دخول سريع ومباشر:</div>
             <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-                <button type="button" onclick="fillCreds('c', '123456')" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 6px; padding: 6px 12px; font-size: 0.82rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.35)'" onmouseout="this.style.background='rgba(16,185,129,0.2)'">🏢 الحساب الرئيسي (c / 123456)</button>
+                <button type="button" onclick="fillCreds('c', '0000')" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 6px; padding: 6px 12px; font-size: 0.82rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.35)'" onmouseout="this.style.background='rgba(16,185,129,0.2)'">🏢 الحساب الرئيسي (c / 0000)</button>
                 <button type="button" onclick="fillCreds('admin', '123456')" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; border-radius: 6px; padding: 6px 12px; font-size: 0.82rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.35)'" onmouseout="this.style.background='rgba(59,130,246,0.2)'">⚙️ المدير (admin / 123456)</button>
             </div>
         </div>
@@ -622,6 +622,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/modern-alerts.js?v=<?php echo file_exists('js/modern-alerts.js') ? filemtime('js/modern-alerts.js') : '1'; ?>"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 
     <script>
@@ -1010,12 +1011,40 @@
             }
         })();
 
-        // Generate or get Device UUID
-        let deviceUuid = localStorage.getItem('deviceUuid');
-        if (!deviceUuid) {
-            deviceUuid = 'DEV-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
-            localStorage.setItem('deviceUuid', deviceUuid);
+        // Generate or get Device UUID & detection info
+        function getDeviceDetails() {
+            let uuid = localStorage.getItem('deviceUuid');
+            if (!uuid) {
+                uuid = 'DEV-' + Math.random().toString(36).substr(2, 8).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+                localStorage.setItem('deviceUuid', uuid);
+            }
+            
+            const ua = navigator.userAgent || '';
+            let type = 'desktop';
+            let name = 'كمبيوتر (PC)';
+            
+            if (/iPhone/i.test(ua)) {
+                type = 'iphone';
+                name = 'هاتف آيفون (Apple iPhone)';
+            } else if (/iPad/i.test(ua)) {
+                type = 'ipad';
+                name = 'جهاز آيباد (Apple iPad)';
+            } else if (/Android/i.test(ua)) {
+                type = 'android';
+                name = /Mobile/i.test(ua) ? 'هاتف أندرويد (Android Mobile)' : 'تابلت أندرويد (Android Tablet)';
+            } else if (/Macintosh|Mac OS/i.test(ua)) {
+                type = 'mac';
+                name = 'كمبيوتر ماك (Apple Mac)';
+            } else if (/Windows/i.test(ua)) {
+                type = 'windows';
+                name = 'كمبيوتر ويندوز (Windows PC)';
+            }
+
+            return { deviceUuid: uuid, deviceName: name, deviceType: type };
         }
+
+        const currentDevice = getDeviceDetails();
+        let deviceUuid = currentDevice.deviceUuid;
         
         function getSubdomain() {
             const params = new URLSearchParams(window.location.search);
@@ -1028,7 +1057,7 @@
             return null;
         }
         
-        document.getElementById('device-id-display').innerText = `معرف الجهاز: ${deviceUuid}`;
+        document.getElementById('device-id-display').innerText = `معرف الجهاز: ${currentDevice.deviceUuid} (${currentDevice.deviceName})`;
 
         async function handleLogin() {
             const username = document.getElementById('username').value.trim().toLowerCase();
@@ -1040,7 +1069,10 @@
             }
 
             const tenantSubdomain = getSubdomain();
-            const headers = { 'Content-Type': 'application/json' };
+            const headers = { 
+                'Content-Type': 'application/json',
+                'X-Device-UUID': currentDevice.deviceUuid
+            };
             if (tenantSubdomain) headers['X-Tenant-Subdomain'] = tenantSubdomain;
 
             const getBaseUrl = () => {
@@ -1057,6 +1089,14 @@
             let res = null;
             let data = null;
 
+            const loginPayload = {
+                username,
+                password,
+                deviceUuid: currentDevice.deviceUuid,
+                deviceName: currentDevice.deviceName,
+                deviceType: currentDevice.deviceType
+            };
+
             // 1. First Attempt: Local Server URL
             try {
                 const controller = new AbortController();
@@ -1066,7 +1106,7 @@
                 res = await fetch(localUrl, {
                     method: 'POST',
                     headers: headers,
-                    body: JSON.stringify({ username, password }),
+                    body: JSON.stringify(loginPayload),
                     signal: controller.signal
                 });
                 clearTimeout(timeoutId);
@@ -1076,8 +1116,8 @@
             }
 
             // 2. Second Attempt: Cloud Server Fallback
-            // Skip cloud fallback if local returned a valid activation-wait response
-            if ((!res || !res.ok) && !(data && data.remaining_seconds)) {
+            // Skip cloud fallback if local returned a valid activation-wait response or a 403 device/access block
+            if ((!res || !res.ok) && !(data && data.remaining_seconds) && !(res && res.status === 403)) {
                 try {
                     const cloudController = new AbortController();
                     const cloudTimeoutId = setTimeout(() => cloudController.abort(), 6000);
@@ -1086,7 +1126,7 @@
                     const cloudRes = await fetch(cloudUrl, {
                         method: 'POST',
                         headers: headers,
-                        body: JSON.stringify({ username, password }),
+                        body: JSON.stringify(loginPayload),
                         signal: cloudController.signal
                     });
                     clearTimeout(cloudTimeoutId);
@@ -1154,7 +1194,7 @@
                     if ("geolocation" in navigator) {
                         try {
                             const pos = await new Promise((resolve, reject) => {
-                                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000, enableHighAccuracy: true });
+                                navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 20000, enableHighAccuracy: true, maximumAge: 0 });
                             });
                             const calcDist = (lat1, lon1, lat2, lon2) => {
                                 const R = 6371e3;
@@ -1213,6 +1253,12 @@
             // If explicit 15-min activation delay from API
             if (res && data && data.remaining_seconds) {
                 showActivationWaitModal(data.remaining_seconds);
+                return;
+            }
+
+            // If API explicitly rejected access (403: device limit/restriction, forbidden work shift, GPS violation, inactive)
+            if (res && res.status === 403 && data && data.error) {
+                alert(data.error);
                 return;
             }
 
@@ -1311,7 +1357,7 @@
                 if ("geolocation" in navigator) {
                     try {
                         const pos = await new Promise((resolve, reject) => {
-                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000, enableHighAccuracy: true });
+                            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 20000, enableHighAccuracy: true, maximumAge: 0 });
                         });
                         const calcDist = (lat1, lon1, lat2, lon2) => {
                             const R = 6371e3;
@@ -1334,6 +1380,49 @@
                         localStorage.setItem('magaiees_last_lng', String(pos.coords.longitude));
                     } catch(geoErr) {
                         alert('يتطلب حسابك التحقق من الموقع الجغرافي (GPS) للدخول. يرجى تفعيل الـ GPS في متصفحك والسماح بالوصول للموقع والمحاولة مجدداً.');
+                        return;
+                    }
+                }
+            }
+
+            // Enforce offline Device Restriction & Quota
+            if (matchedUser && matchedUser.deviceRestricted && matchedUser.role !== 'admin' && matchedUser.userType !== 'admin') {
+                const maxDevs = Math.max(1, parseInt(matchedUser.maxDevices) || 1);
+                let trusted = Array.isArray(matchedUser.trustedDevices) ? matchedUser.trustedDevices : [];
+                if (trusted.length === 0 && matchedUser.deviceUuid) {
+                    trusted.push({ uuid: matchedUser.deviceUuid, name: 'الجهاز الأساسي المعتمد', type: 'desktop', registeredAt: new Date().toISOString() });
+                }
+                const curUuid = currentDevice.deviceUuid;
+                const isTrusted = trusted.some(d => (typeof d === 'string' ? d : d.uuid) === curUuid);
+                if (!isTrusted) {
+                    if (trusted.length < maxDevs) {
+                        // Auto-enroll device offline
+                        const newDev = {
+                            uuid: curUuid,
+                            name: currentDevice.deviceName || `جهاز ${trusted.length + 1}`,
+                            type: currentDevice.deviceType || 'device',
+                            registeredAt: new Date().toISOString(),
+                            lastLogin: new Date().toISOString()
+                        };
+                        trusted.push(newDev);
+                        matchedUser.trustedDevices = trusted;
+                        matchedUser.deviceUuid = trusted[0].uuid;
+                        matchedUser.maxDevices = maxDevs;
+                        try {
+                            const raw = localStorage.getItem('erp_users_v1');
+                            if (raw) {
+                                let list = JSON.parse(raw);
+                                const idx = list.findIndex(u => (u.username || '').toLowerCase() === (matchedUser.username || '').toLowerCase());
+                                if (idx !== -1) {
+                                    list[idx].trustedDevices = trusted;
+                                    list[idx].deviceUuid = matchedUser.deviceUuid;
+                                    list[idx].maxDevices = maxDevs;
+                                    localStorage.setItem('erp_users_v1', JSON.stringify(list));
+                                }
+                            }
+                        } catch(e) {}
+                    } else {
+                        alert(`عفواً، لا يمكنك الدخول من هذا الجهاز!\nلقد تم استيفاء الحد الأقصى للأجهزة المصرح بها لهذا الحساب (${maxDevs} أجهزة).\nالأجهزة المسجلة مسبقاً هي فقط المصرح لها بالدخول. يرجى مراجعة إدارة النظام.`);
                         return;
                     }
                 }

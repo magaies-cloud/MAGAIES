@@ -2481,6 +2481,8 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
                         <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 0.95rem; padding: 0 4px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
                     </div>
 
+                    <div id="multi-voucher-user-audit-container" style="display: flex; align-items: center; flex-shrink: 0;"></div>
+
                     <!-- التاريخ -->
                     <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; height: 38px; padding: 0 10px; flex-shrink: 0;">
                         <span style="color: #94a3b8; font-size: 0.92rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>

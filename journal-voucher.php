@@ -202,8 +202,34 @@
         :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
+                /* Print Styles */
+        @media print {
+            .ambient-bg, .top-action-bar, .sticky-footer, .btn-add-row, .jv-del-btn, #toast-container, header, nav, .inv-nav {
+                display: none !important;
+            }
+            body, .pos-wrapper {
+                background: #fff !important;
+                color: #000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .glass-panel {
+                background: #fff !important;
+                border: 1px solid #cbd5e1 !important;
+                box-shadow: none !important;
+            }
+            .jv-print-audit-footer {
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                border-top: 1px dashed #64748b !important;
+                padding-top: 8px !important;
+                margin-top: 25px !important;
+                font-size: 8pt !important;
+                color: #334155 !important;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -239,6 +265,7 @@
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </button>
                 </div>
+                <div id="jv-user-audit-container" style="display:flex; align-items:center;"></div>
             </div>
         </div>
 
@@ -303,6 +330,12 @@
                     </tbody>
                 </table>
                 <button class="btn-add-row" onclick="addGridRow()">+ إضافة سطر جديد (طرف للقيد)</button>
+            </div>
+
+            <!-- Print Audit Footer -->
+            <div class="jv-print-audit-footer" style="display:none;">
+                <span>👤 المستخدم (معد القيد): <strong id="jv-print-creator">—</strong> | طُبع بواسطة: <strong id="jv-print-printer">—</strong> | وقت الطباعة: <span id="jv-print-time">—</span></span>
+                <span style="font-weight: 800; color: #7c3aed;">نظام مقاييس المحاسبي الموحد ⚡</span>
             </div>
 
         </div>

@@ -1757,6 +1757,9 @@ try {
                             <label class="h-label" id="hdr-date-label" style="margin:0; font-size: 0.9rem; font-weight:bold; white-space:nowrap; transition: all 0.3s ease;">التاريخ:</label>
                             <input type="date" class="v-input ctrl-input" id="hdr-date" style="flex:1; text-align: center; padding:4px 8px; font-family:'Outfit',sans-serif; font-weight:bold; font-size:0.95rem; transition: all 0.3s ease;">
                         </div>
+
+                        <div style="width: 2px; height: 40px; background: rgba(255,255,255,0.1); margin: 0 10px;"></div>
+                        <div id="purchase-user-audit-container" style="display:flex; align-items:center;"></div>
                     </div>
                     
                     <!-- RIGHT: Financial Strip -->

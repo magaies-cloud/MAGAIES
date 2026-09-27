@@ -312,17 +312,21 @@ function toggleTimeFields() {
 }
 
 function getCurrentGPS() {
-    if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            document.getElementById('user-geo-lat').value = position.coords.latitude;
-            document.getElementById('user-geo-lng').value = position.coords.longitude;
-            showToast('تم تحديد الموقع بنجاح', 'success');
-        }, function(error) {
-            showToast('حدث خطأ أثناء محاولة جلب الموقع. يرجى تفعيل الـ GPS في متصفحك.', 'error');
-        });
-    } else {
+    if (!("geolocation" in navigator)) {
         showToast('متصفحك لا يدعم تحديد الموقع (GPS)', 'error');
+        return;
     }
+    showToast('🔔 يرجى الضغط على (سماح / Allow) في إشعار ويندوز أو المتصفح للوصول لموقعك...', 'info');
+    navigator.geolocation.getCurrentPosition(function(position) {
+        document.getElementById('user-geo-lat').value = position.coords.latitude;
+        document.getElementById('user-geo-lng').value = position.coords.longitude;
+        showToast('✅ تم تأكيد إذن ويندوز وتحديد موقعك الحالي بنجاح!', 'success');
+    }, function(error) {
+        let msg = 'حدث خطأ أثناء محاولة جلب الموقع.';
+        if (error.code === 1) msg = 'تم رفض الإذن في ويندوز أو المتصفح. يرجى تفعيل الموقع في ويندوز أولاً.';
+        else if (error.code === 3) msg = 'انتهت مهلة انتظار الإذن من ويندوز.';
+        showToast('❌ ' + msg, 'error');
+    }, { timeout: 25000, enableHighAccuracy: true, maximumAge: 0 });
 }
 
 async function saveUser() {
@@ -476,8 +480,10 @@ async function saveUser() {
             USERS[userIndex].geoLat = geoLat;
             USERS[userIndex].geoLng = geoLng;
             USERS[userIndex].geoRadius = geoRadius;
-            USERS[userIndex].deviceRestricted = deviceRestricted;
-            USERS[userIndex].deviceUuid = deviceUuid;
+            USERS[userIndex].deviceRestricted = (studioPerms && studioPerms.deviceRestricted !== undefined) ? studioPerms.deviceRestricted : deviceRestricted;
+            USERS[userIndex].maxDevices = (studioPerms && studioPerms.maxDevices !== undefined) ? studioPerms.maxDevices : (USERS[userIndex].maxDevices || 1);
+            USERS[userIndex].trustedDevices = (studioPerms && studioPerms.trustedDevices !== undefined) ? studioPerms.trustedDevices : (USERS[userIndex].trustedDevices || []);
+            USERS[userIndex].deviceUuid = (studioPerms && studioPerms.deviceUuid) ? studioPerms.deviceUuid : deviceUuid;
             USERS[userIndex].timeRestricted = timeRestricted;
             USERS[userIndex].timeFrom = timeFrom;
             USERS[userIndex].timeTo = timeTo;
@@ -518,8 +524,10 @@ async function saveUser() {
             geoLat,
             geoLng,
             geoRadius,
-            deviceRestricted,
-            deviceUuid,
+            deviceRestricted: (studioPerms && studioPerms.deviceRestricted !== undefined) ? studioPerms.deviceRestricted : deviceRestricted,
+            maxDevices: (studioPerms && studioPerms.maxDevices !== undefined) ? studioPerms.maxDevices : 1,
+            trustedDevices: (studioPerms && studioPerms.trustedDevices !== undefined) ? studioPerms.trustedDevices : [],
+            deviceUuid: (studioPerms && studioPerms.deviceUuid) ? studioPerms.deviceUuid : deviceUuid,
             timeRestricted,
             timeFrom,
             timeTo,

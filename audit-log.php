@@ -1,4 +1,4 @@
-<?php $page_title = 'سجل التطوير'; ?>
+<?php $page_title = 'سجل تتبع المستخدمين والعمليات والرقابة'; ?>
 <!-- c:\mynewapp\frontend-pwa\audit-log.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -16,7 +16,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>سجل التطوير</title>
+    <title>سجل تتبع المستخدمين والعمليات والرقابة</title>
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
         <style>
@@ -209,8 +209,11 @@
                 <label>نص البحث</label>
                 <input type="text" id="filter-search" placeholder="ابحث في السجلات..." onkeyup="renderLogs()">
             </div>
-            <div class="filter-group" style="display:flex; align-items:flex-end;">
-                <button type="button" onclick="verifyChainIntegrityUI()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:11px 20px; border-radius:10px; font-weight:800; cursor:pointer; font-family:'Tajawal', sans-serif; display:flex; align-items:center; gap:8px; box-shadow:0 0 15px rgba(16,185,129,0.35);">
+            <div class="filter-group" style="display:flex; align-items:flex-end; gap:10px;">
+                <button type="button" onclick="if(window.openAuditTrackerModal) window.openAuditTrackerModal(); else alert('جاري تحميل نافذة التتبع...');" style="background:linear-gradient(135deg, #3b82f6, #1d4ed8); color:#fff; border:none; padding:11px 20px; border-radius:10px; font-weight:800; cursor:pointer; font-family:'Tajawal', sans-serif; display:flex; align-items:center; gap:8px; box-shadow:0 0 15px rgba(59,130,246,0.35); transition:0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                    🔍 تتبع مستند أو فاتورة (من فعل ماذا؟)
+                </button>
+                <button type="button" onclick="verifyChainIntegrityUI()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:11px 20px; border-radius:10px; font-weight:800; cursor:pointer; font-family:'Tajawal', sans-serif; display:flex; align-items:center; gap:8px; box-shadow:0 0 15px rgba(16,185,129,0.35); transition:0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
                     🛡️ فحص نزاهة السجل المشفر (Hash Integrity)
                 </button>
             </div>
@@ -255,8 +258,20 @@
             document.getElementById('main-content').style.display = 'block';
             
             populateUserFilter();
-            renderLogs();
+            loadAndRenderLogs();
         });
+
+        let cachedDbLogs = [];
+        async function loadAndRenderLogs() {
+            try {
+                const resp = await fetch('api/log_audit.php');
+                const json = await resp.json();
+                if (json && json.status === 'success' && Array.isArray(json.data)) {
+                    cachedDbLogs = json.data;
+                }
+            } catch(e) {}
+            renderLogs();
+        }
 
         function populateUserFilter() {
             const users = JSON.parse(localStorage.getItem('erp_users_v1') || '[]');
@@ -270,16 +285,34 @@
         }
 
         function getActionBadgeColor(action) {
-            const a = action.toLowerCase();
+            const a = (action || '').toLowerCase();
             if (a.includes('delete') || a.includes('حذف') || a.includes('reject')) return 'background:rgba(239, 68, 68, 0.1); color:#ef4444;';
-            if (a.includes('add') || a.includes('create') || a.includes('إضافة') || a.includes('approve') || a.includes('login') || a.includes('تجاوز')) return 'background:rgba(16, 185, 129, 0.1); color:#10b981;';
-            if (a.includes('edit') || a.includes('update') || a.includes('تعديل') || a.includes('تنبيه')) return 'background:rgba(245, 158, 11, 0.1); color:#f59e0b;';
+            if (a.includes('add') || a.includes('create') || a.includes('إضافة') || a.includes('approve') || a.includes('login') || a.includes('تجاوز') || a.includes('استلام') || a.includes('تسليم')) return 'background:rgba(16, 185, 129, 0.1); color:#10b981;';
+            if (a.includes('edit') || a.includes('update') || a.includes('تعديل') || a.includes('تنبيه') || a.includes('تقسيم') || a.includes('استرداد')) return 'background:rgba(245, 158, 11, 0.1); color:#f59e0b;';
             if (a.includes('print') || a.includes('طباعة')) return 'background:rgba(56, 189, 248, 0.1); color:#38bdf8;';
             return 'background:rgba(156, 163, 175, 0.1); color:#6b7280;';
         }
 
         function renderLogs() {
-            const logs = JSON.parse(localStorage.getItem('erp_audit_logs') || '[]');
+            const localLogs1 = JSON.parse(localStorage.getItem('erp_audit_logs') || '[]');
+            const localLogs2 = JSON.parse(localStorage.getItem('erp_audit_logs_v1') || '[]');
+            
+            const map = new Map();
+            cachedDbLogs.forEach(l => {
+                if (l) {
+                    const key = l.id || l.frontend_id || l._db_id;
+                    map.set(key, l);
+                }
+            });
+            localLogs1.forEach(l => { if (l && !map.has(l.id)) map.set(l.id, l); });
+            localLogs2.forEach(l => { if (l && !map.has(l.id)) map.set(l.id, l); });
+
+            const logs = Array.from(map.values()).sort((a,b) => {
+                const ta = a.timestamp || (a._db_created_at ? new Date(a._db_created_at).getTime() : 0);
+                const tb = b.timestamp || (b._db_created_at ? new Date(b._db_created_at).getTime() : 0);
+                return tb - ta;
+            });
+
             const tbody = document.getElementById('logs-table-body');
             tbody.innerHTML = '';
 
@@ -288,9 +321,11 @@
             const search = document.getElementById('filter-search').value.toLowerCase();
 
             const filtered = logs.filter(l => {
-                const matchUser = userFilter === 'all' || l.userId === userFilter;
-                const matchModule = moduleFilter === 'all' || l.module === moduleFilter;
-                const matchSearch = l.description.toLowerCase().includes(search) || l.actionType.toLowerCase().includes(search);
+                const matchUser = userFilter === 'all' || String(l.userId) === String(userFilter) || String(l.userName).includes(userFilter);
+                const matchModule = moduleFilter === 'all' || String(l.module || '').toLowerCase().includes(moduleFilter);
+                const desc = String(l.description || '').toLowerCase();
+                const act = String(l.actionType || '').toLowerCase();
+                const matchSearch = desc.includes(search) || act.includes(search);
                 return matchUser && matchModule && matchSearch;
             });
 
@@ -303,14 +338,17 @@
                 const tr = document.createElement('tr');
                 const hashDisplay = log.hash 
                     ? `<span class="badge" style="background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); font-family:monospace; font-size:0.75rem;" title="Hash: ${log.hash}\nPrev: ${log.prevHash || 'Genesis'}">${log.hash.substring(0, 10)}...${log.hash.substring(log.hash.length - 6)}</span>`
-                    : `<span class="badge" style="background:rgba(156,163,175,0.1); color:#9ca3af; font-size:0.72rem;">إرثي</span>`;
+                    : `<span class="badge" style="background:rgba(156,163,175,0.1); color:#9ca3af; font-size:0.72rem;">إلكتروني</span>`;
+
+                const timeVal = log.timestamp || (log._db_created_at ? new Date(log._db_created_at).getTime() : Date.now());
+                const timeStr = !isNaN(timeVal) ? new Date(timeVal).toLocaleString('en-GB') : (log._db_created_at || '—');
 
                 tr.innerHTML = `
-                    <td style="font-size:0.85rem; opacity:0.8;" dir="ltr">${new Date(log.timestamp).toLocaleString('en-GB')}</td>
-                    <td style="font-weight:bold;">${log.userName}</td>
-                    <td>${log.module}</td>
-                    <td><span class="badge" style="${getActionBadgeColor(log.actionType)}">${log.actionType}</span></td>
-                    <td style="max-width:300px; line-height:1.4;">${log.description}</td>
+                    <td style="font-size:0.85rem; opacity:0.8;" dir="ltr">${timeStr}</td>
+                    <td style="font-weight:bold; color:#f1f5f9;">👤 ${log.userName || log.userId || 'مستخدم'}</td>
+                    <td><span style="background:rgba(255,255,255,0.08); padding:3px 8px; border-radius:6px; font-size:0.82rem;">${log.module || 'عام'}</span></td>
+                    <td><span class="badge" style="${getActionBadgeColor(log.actionType)}">${log.actionType || 'حركة'}</span></td>
+                    <td style="max-width:320px; line-height:1.4;">${log.description || '—'}</td>
                     <td style="text-align:center;">${hashDisplay}</td>
                 `;
                 tbody.appendChild(tr);

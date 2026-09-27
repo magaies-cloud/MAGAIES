@@ -1525,6 +1525,8 @@
             const lineNotesList = receivingItems.map(l => l.notes ? `${getItemName(l.itemId)}: ${l.notes}` : '').filter(Boolean);
             const notesSummary = lineNotesList.length > 0 ? ` (${lineNotesList.join(' | ')})` : '';
 
+            const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
+
             const grnInv = {
                 id: generateGRNNumber(),
                 isGRN: true,
@@ -1540,7 +1542,9 @@
                 items: newItems,
                 status: 'completed',
                 notes: `مذكرة استلام بضاعة للفاتورة ${currentInvoiceId}${notesSummary}`,
-                createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown'
+                createdBy: curUser.id,
+                createdByName: curUser.fullName || curUser.name,
+                createdByUsername: curUser.username
             };
 
             // Revert stock of the old GRN first if we are in edit mode
@@ -1608,14 +1612,22 @@
                     freshPurchases[grnIdx].date = new Date().toISOString();
                     freshPurchases[grnIdx].warehouse = firstWh;
                     freshPurchases[grnIdx].notes = `تعديل مذكرة استلام بضاعة للفاتورة ${currentInvoiceId}`;
-                    freshPurchases[grnIdx].createdBy = (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown';
+                    freshPurchases[grnIdx].updatedBy = curUser.id;
+                    freshPurchases[grnIdx].updatedByName = curUser.fullName || curUser.name;
+                    freshPurchases[grnIdx].updatedAt = new Date().toISOString();
                 }
                 showToast(`تم تعديل الإذن ${editingGRNId} بنجاح`, 'success');
+                if (window.logSystemAction) {
+                    window.logSystemAction('تعديل استلام بضاعة', 'المشتريات / المخازن', editingGRNId, `تعديل إذن استلام بضاعة رقم ${editingGRNId} لفاتورة المشتريات ${currentInvoiceId}`);
+                }
                 editingGRNId = null; // Clear edit mode
             } else {
                 // New mode: add new GRN
                 freshPurchases.push(grnInv);
                 showToast(`تم حفظ مذكرة الاستلام وتحديث المخزون الفعلي بنجاح`, 'success');
+                if (window.logSystemAction) {
+                    window.logSystemAction('استلام بضاعة', 'المشتريات / المخازن', grnInv.id, `إصدار إذن استلام بضاعة رقم ${grnInv.id} لفاتورة المشتريات ${currentInvoiceId}`);
+                }
             }
 
             localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(freshPurchases));
@@ -1823,6 +1835,9 @@
             if (index > -1) {
                 allPurchases.splice(index, 1);
                 localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+                if (window.logSystemAction) {
+                    window.logSystemAction('حذف إذن استلام بضاعة', 'المشتريات / المخازن', grnId, `تم حذف إذن استلام البضاعة رقم ${grnId}`);
+                }
                 showToast('تم حذف عملية الاستلام وتحديث البضاعة المعلقة بنجاح', 'success');
                 
                 if (editingGRNId === grnId) {

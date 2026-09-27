@@ -322,6 +322,9 @@ onDBReady(() => {
     
     // Initialize UI
     togglePaymentMethod();
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('voucher-user-audit-container', {}, true);
+    }
 });
 
 // Deep Drill-down (Run after DBReady so localforage data is fully loaded)
@@ -814,6 +817,9 @@ function resetVoucherSilent() {
     // setNextVoucherNumber();
     updateLedgerButtons();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('voucher-user-audit-container', {}, true);
+    }
 }
 
 function loadPreviousVoucher() {
@@ -901,6 +907,9 @@ function renderVoucher(v) {
     updateBalances();
     updateLedgerButtons();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('voucher-user-audit-container', v, false);
+    }
     window.isLoadingVoucher = false;
 }
 
@@ -1114,8 +1123,17 @@ function submitVoucherInner() {
 
     const method = document.querySelector('input[name="payment_method"]:checked').value;
 
+    const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
+    singlePaymentsData = (typeof window.getAllSinglePayments === 'function') ? window.getAllSinglePayments() : (singlePaymentsData || []);
+    const oldVoucher = (currentViewedIndex !== -1 && singlePaymentsData && singlePaymentsData[currentViewedIndex]) ? singlePaymentsData[currentViewedIndex] : null;
+
     const voucherData = {
-        createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown',
+        createdBy: oldVoucher?.createdBy || curUser.id,
+        createdByName: oldVoucher?.createdByName || curUser.fullName || curUser.name,
+        createdByUsername: oldVoucher?.createdByUsername || curUser.username,
+        updatedBy: oldVoucher ? curUser.id : (oldVoucher?.updatedBy || null),
+        updatedByName: oldVoucher ? (curUser.fullName || curUser.name) : (oldVoucher?.updatedByName || null),
+        updatedAt: oldVoucher ? new Date().toISOString() : (oldVoucher?.updatedAt || null),
         id: document.getElementById('voucher-number').innerText,
         date: document.getElementById('hdr-date').value,
         time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
@@ -1558,6 +1576,12 @@ function submitVoucherInner() {
             localStorage.setItem(tKey, JSON.stringify(singlePaymentsData));
             window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
             if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
+            if (window.logSystemAction) {
+                window.logSystemAction('تعديل سند صرف', 'المعاملات المالية', voucherData.id, `تعديل سند صرف رقم ${voucherData.id} بمبلغ ${voucherData.amountLocal} ${voucherData.currency} من ${fromName} إلى ${toName}`);
+            }
+            if (window.renderDocumentUserBadge) {
+                window.renderDocumentUserBadge('voucher-user-audit-container', voucherData, false);
+            }
             showProfessionalSuccess(voucherData.id, fromName, toName, voucherData.amountLocal, voucherData.currency, 'تم التعديل بنجاح');
             if (typeof window.triggerAutoWADispatchOnSave === 'function') {
                 window.triggerAutoWADispatchOnSave(voucherData, voucherData.id);
@@ -1572,6 +1596,12 @@ function submitVoucherInner() {
             const currentSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || localStorage.getItem('erp_single_payment_seq') || '0');
             localStorage.setItem('erp_single_payment_seq', currentSeq + 1);
             if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
+            if (window.logSystemAction) {
+                window.logSystemAction('حفظ سند صرف', 'المعاملات المالية', voucherData.id, `إصدار سند صرف رقم ${voucherData.id} بمبلغ ${voucherData.amountLocal} ${voucherData.currency} من ${fromName} إلى ${toName}`);
+            }
+            if (window.renderDocumentUserBadge) {
+                window.renderDocumentUserBadge('voucher-user-audit-container', voucherData, false);
+            }
             showProfessionalSuccess(voucherData.id, fromName, toName, voucherData.amountLocal, voucherData.currency, 'تم الحفظ بنجاح');
             if (typeof window.triggerAutoWADispatchOnSave === 'function') {
                 window.triggerAutoWADispatchOnSave(voucherData, voucherData.id);
@@ -2116,10 +2146,16 @@ window.generateVoucherDocumentHTML = function(voucher, qrDataUrl) {
             </div>
         </div>
 
-        <!-- Security Stripe -->
-        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #cbd5e1; padding-top:6px; margin-top:10px; font-size:0.70rem; color:#64748b; font-weight:800;">
-            <div>VERIFICATION: <span style="font-family:monospace; color:#0f172a; font-weight:900;">#DOC-${voucher.id}-${String(voucher.date).replace(/-/g, '')}</span></div>
-            <div>وثيقة مالية معتمدة ومقيدة بالنظام المحاسبي العام ELSAJANA ERP 🔒</div>
+        <!-- Security Stripe & User Attribution Audit Footer -->
+        <div style="margin-top: 8px; border-top: 1px dashed #cbd5e1; padding-top: 6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.70rem; color:#64748b; font-weight:800; margin-bottom: 4px;">
+                <div>VERIFICATION: <span style="font-family:monospace; color:#0f172a; font-weight:900;">#DOC-${voucher.id}-${String(voucher.date).replace(/-/g, '')}</span></div>
+                <div>وثيقة مالية معتمدة ومقيدة بالنظام المحاسبي العام ELSAJANA ERP 🔒</div>
+            </div>
+            <div style="font-size: 0.72rem; color: #475569; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; background: #f8fafc; padding: 4px 8px; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <span>👤 المستخدم (معد السند): <strong>${voucher.createdByName || voucher.createdByUsername || voucher.createdBy || '—'}</strong>${voucher.updatedByName ? ' | عُدلت بواسطة: <strong>' + voucher.updatedByName + '</strong>' : ''} | طُبع بواسطة: <strong>${((typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo().fullName : 'المسؤول')}</strong> | وقت الطباعة: ${new Date().toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}</span>
+                <span style="font-weight: 800; color: #0284c7;">نظام مقاييس المحاسبي الموحد ⚡</span>
+            </div>
         </div>
     </div>
     `;
@@ -2314,6 +2350,9 @@ function confirmDelete() {
         localStorage.setItem(tKey, JSON.stringify(singlePaymentsData));
         window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
         if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
+        if (window.logSystemAction) {
+            window.logSystemAction('حذف سند صرف', 'المعاملات المالية', oldVoucher.id, `تم حذف سند الصرف رقم ${oldVoucher.id} بمبلغ ${oldVoucher.amountLocal} ${oldVoucher.currency}`);
+        }
         showToast("تم حذف السند بنجاح", "success");
         resetVoucherSilent();
     }

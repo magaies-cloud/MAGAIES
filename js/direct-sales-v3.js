@@ -459,6 +459,9 @@ function initSalesApp() {
         populatePaymentAccounts();
         initMultiPaymentSystem();
         initHeader();
+        if (window.renderDocumentUserBadge) {
+            window.renderDocumentUserBadge('sales-user-audit-container', {}, true);
+        }
 
         if (rows.length === 0) {
             addRow(true);
@@ -1547,6 +1550,10 @@ function loadInvoiceFromStorage(invNo, opts = {}) {
         
         // Apply strict lock state if posted or preview-only
         setInvoiceLockState(isLocked, isPosted, currentViewedInvoiceNo);
+
+        if (window.renderDocumentUserBadge) {
+            window.renderDocumentUserBadge('sales-user-audit-container', data, false);
+        }
 
         return true;
     } catch(e) {
@@ -4226,6 +4233,8 @@ function submitInvoice(ignoreWarnings = false) {
         } catch(e) {}
     }
 
+    const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
+
     const data = {
         invoiceNo: committedNo,
         date: document.getElementById('hdr-date').value,
@@ -4262,7 +4271,13 @@ function submitInvoice(ignoreWarnings = false) {
         isAmended: wasAmending ? true : !!(oldInv?.isAmended),
         amendmentCount: wasAmending ? ((Number(oldInv?.amendmentCount) || 0) + 1) : (oldInv?.amendmentCount || 0),
         lastAmendedAt: wasAmending ? new Date().toISOString() : (oldInv?.lastAmendedAt || null),
-        wasEdited: wasAmending ? true : !!(oldInv?.wasEdited)
+        wasEdited: wasAmending ? true : !!(oldInv?.wasEdited),
+        createdBy: oldInv?.createdBy || curUser.id,
+        createdByName: oldInv?.createdByName || curUser.fullName || curUser.name,
+        createdByUsername: oldInv?.createdByUsername || curUser.username,
+        updatedBy: currentViewedInvoiceNo ? curUser.id : (oldInv?.updatedBy || null),
+        updatedByName: currentViewedInvoiceNo ? (curUser.fullName || curUser.name) : (oldInv?.updatedByName || null),
+        updatedAt: currentViewedInvoiceNo ? new Date().toISOString() : (oldInv?.updatedAt || null)
     };
 
     // If editing, revert old financial effects first
@@ -4340,6 +4355,12 @@ function submitInvoice(ignoreWarnings = false) {
         allSales.push(data);
     }
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+
+    if (window.logSystemAction) {
+        const actionType = currentViewedInvoiceNo ? 'تعديل فاتورة مبيعات' : (currentSaleType === 'preliminary' ? 'فاتورة مبيعات مبدئية' : 'إصدار فاتورة مبيعات');
+        const actionDetails = `${actionType} رقم ${committedNo} بقيمة ${grandTotal} ${cur} للعميل ${cust ? cust.name : 'نقدي'}`;
+        window.logSystemAction(actionType, 'المبيعات', committedNo, actionDetails);
+    }
 
     window.isInvoiceEditingPermitted = false;
     window.isAmendingInvoice = false;
@@ -4646,6 +4667,10 @@ function executeDeleteTransaction() {
     allSales = allSales.filter(inv => inv.invoiceNo !== currentInvNo);
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
 
+    if (window.logSystemAction) {
+        window.logSystemAction('حذف فاتورة مبيعات', 'المبيعات', currentInvNo, `تم حذف فاتورة المبيعات رقم ${currentInvNo} وإلغاء تأثيراتها المالية والمخزنية`);
+    }
+
     // 5. Delete individual records
     localStorage.removeItem('erp_inv_' + currentInvNo);
     localStorage.removeItem('erp_draft_' + currentInvNo);
@@ -4866,6 +4891,9 @@ function onSuccessNewInvoice(closeModalFlag = true) {
     if (typeof initMultiPaymentSystem === 'function') initMultiPaymentSystem();
     if (typeof recalcAll === 'function') recalcAll();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
+    if (window.renderDocumentUserBadge) {
+        window.renderDocumentUserBadge('sales-user-audit-container', {}, true);
+    }
     if (!closeModalFlag && typeof showToast === 'function') {
         showToast('✨ تم تجهيز فاتورة جديدة', 'success');
     }
@@ -6058,6 +6086,8 @@ function submitInvoiceSplit() {
     const additionsB = (parseFloat(activeSplitInvoice.additionsCost) || 0) * ratioB;
     const additionsFcB = (parseFloat(activeSplitInvoice.additionsCostFc) || 0) * ratioB;
     
+    const curUser = (typeof window.getCurrentUserInfo === 'function') ? window.getCurrentUserInfo() : { id: 1, name: 'المسؤول', username: 'admin' };
+
     const invoiceA = {
         ...activeSplitInvoice,
         invoiceNo: invoiceNoA,
@@ -6077,7 +6107,11 @@ function submitInvoiceSplit() {
         additionsCost: additionsA,
         additionsCostFc: additionsFcA,
         timestamp: new Date().toISOString(),
-        parentInvoice: activeSplitInvoice.invoiceNo
+        parentInvoice: activeSplitInvoice.invoiceNo,
+        splitBy: curUser.id,
+        splitByName: curUser.fullName || curUser.name,
+        createdBy: curUser.id,
+        createdByName: curUser.fullName || curUser.name
     };
     
     const invoiceB = {
@@ -6099,7 +6133,11 @@ function submitInvoiceSplit() {
         additionsCost: additionsB,
         additionsCostFc: additionsFcB,
         timestamp: new Date().toISOString(),
-        parentInvoice: activeSplitInvoice.invoiceNo
+        parentInvoice: activeSplitInvoice.invoiceNo,
+        splitBy: curUser.id,
+        splitByName: curUser.fullName || curUser.name,
+        createdBy: curUser.id,
+        createdByName: curUser.fullName || curUser.name
     };
     
     let allSales = [];
@@ -6112,6 +6150,8 @@ function submitInvoiceSplit() {
         allSales[origIdx].deleted = true;
         allSales[origIdx].wasSplit = true;
         allSales[origIdx].splitTo = [invoiceNoA, invoiceNoB];
+        allSales[origIdx].splitBy = curUser.id;
+        allSales[origIdx].splitByName = curUser.fullName || curUser.name;
     }
     
     allSales.push(invoiceA);
@@ -6120,6 +6160,10 @@ function submitInvoiceSplit() {
     
     localStorage.setItem('erp_inv_' + invoiceNoA, JSON.stringify(invoiceA));
     localStorage.setItem('erp_inv_' + invoiceNoB, JSON.stringify(invoiceB));
+
+    if (window.logSystemAction) {
+        window.logSystemAction('تقسيم فاتورة مبيعات', 'المبيعات', activeSplitInvoice.invoiceNo, `تم تقسيم الفاتورة رقم ${activeSplitInvoice.invoiceNo} إلى ${invoiceNoA} و ${invoiceNoB}`);
+    }
     
     // ── 1. Revert Old Invoice Effects ──
     if (typeof revertSalesInvoiceEffects === 'function') {
