@@ -84,7 +84,39 @@ try {
     // 3. Real Customers & Debts
     $preloadedData['customers'] = getCustomerExposureData($pdo);
 
-    // 4. Real Products & Items
+    // 4. Real Suppliers
+    $preloadedData['suppliers'] = [];
+    try {
+        $stmtSup = $pdo->prepare("SELECT data FROM suppliers WHERE tenant_id = ? ORDER BY id DESC LIMIT 100");
+        $stmtSup->execute([$currentTenantId]);
+        while ($r = $stmtSup->fetch()) {
+            $supObj = json_decode($r['data'], true);
+            if ($supObj) $preloadedData['suppliers'][] = $supObj;
+        }
+    } catch(Exception $e){}
+
+    // 5. Real Banks & Safes
+    $preloadedData['banks'] = [];
+    try {
+        $stmtB = $pdo->prepare("SELECT data FROM banks WHERE tenant_id = ? ORDER BY id DESC");
+        $stmtB->execute([$currentTenantId]);
+        while ($r = $stmtB->fetch()) {
+            $bObj = json_decode($r['data'], true);
+            if ($bObj) $preloadedData['banks'][] = $bObj;
+        }
+    } catch(Exception $e){}
+
+    $preloadedData['safes'] = [];
+    try {
+        $stmtS = $pdo->prepare("SELECT data FROM safes WHERE tenant_id = ? ORDER BY id DESC");
+        $stmtS->execute([$currentTenantId]);
+        while ($r = $stmtS->fetch()) {
+            $sObj = json_decode($r['data'], true);
+            if ($sObj) $preloadedData['safes'][] = $sObj;
+        }
+    } catch(Exception $e){}
+
+    // 6. Real Products & Items
     $stmtItm = $pdo->prepare("SELECT data FROM items WHERE tenant_id = ? ORDER BY id DESC LIMIT 50");
     $stmtItm->execute([$currentTenantId]);
     while ($r = $stmtItm->fetch()) {
@@ -894,6 +926,305 @@ try {
             transform: scale(0.98);
         }
 
+        /* ═════════════════════════════════════════════════════════════════
+           💸 UNIFIED FINANCIAL TRANSACTION & SMART ACCOUNT PICKER STYLES
+           ═════════════════════════════════════════════════════════════════ */
+        .tx-type-pill-container {
+            display: flex;
+            background: var(--surface-sub);
+            border: 1.5px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 4px;
+            gap: 4px;
+            margin-bottom: 14px;
+        }
+        .tx-type-btn {
+            flex: 1;
+            padding: 9px 4px;
+            border-radius: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.84rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .tx-type-btn.active.type-receipt {
+            background: rgba(16, 185, 129, 0.22);
+            color: var(--emerald);
+            border: 1px solid var(--emerald);
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.25);
+        }
+        .tx-type-btn.active.type-payment {
+            background: rgba(244, 63, 94, 0.22);
+            color: var(--rose);
+            border: 1px solid var(--rose);
+            box-shadow: 0 2px 10px rgba(244, 63, 94, 0.25);
+        }
+        .tx-type-btn.active.type-transfer {
+            background: rgba(56, 189, 248, 0.22);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            box-shadow: 0 2px 10px rgba(56, 189, 248, 0.25);
+        }
+
+        /* Account Selector Boxes */
+        .account-selector-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            position: relative;
+            margin-bottom: 14px;
+        }
+        .box-account-picker {
+            border-radius: 16px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .box-account-picker:active {
+            transform: scale(0.98);
+        }
+        /* 🔴 FROM ACCOUNT: Light Soft Red */
+        .box-account-from {
+            background: rgba(239, 68, 68, 0.10);
+            border: 1.8px solid rgba(239, 68, 68, 0.38);
+        }
+        html[data-theme="solar"] .box-account-from {
+            background: #fef2f2 !important;
+            border-color: #fca5a5 !important;
+        }
+        .box-account-from .box-acc-tag {
+            color: #ef4444;
+            font-size: 0.8rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* 🟢 TO ACCOUNT: Light Soft Green */
+        .box-account-to {
+            background: rgba(16, 185, 129, 0.10);
+            border: 1.8px solid rgba(16, 185, 129, 0.38);
+        }
+        html[data-theme="solar"] .box-account-to {
+            background: #ecfdf5 !important;
+            border-color: #6ee7b7 !important;
+        }
+        .box-account-to .box-acc-tag {
+            color: #10b981;
+            font-size: 0.8rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .box-acc-left {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            min-width: 0;
+            flex: 1;
+        }
+        .box-acc-title {
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .box-acc-meta {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .box-acc-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            color: var(--text-muted);
+        }
+        .btn-swap-accounts {
+            align-self: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: var(--surface-card);
+            border: 1.5px solid var(--border-glass);
+            color: var(--text-main);
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: var(--shadow-card);
+            transition: transform 0.25s ease;
+            margin: -6px auto;
+            z-index: 2;
+        }
+        .btn-swap-accounts:active {
+            transform: rotate(180deg) scale(0.92);
+        }
+
+        /* Searchable Accounts Modal Sheet */
+        .picker-search-bar {
+            position: sticky;
+            top: 0;
+            background: var(--sheet-bg);
+            padding: 0 0 10px 0;
+            z-index: 10;
+        }
+        .picker-category-pills {
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+        }
+        .picker-category-pills::-webkit-scrollbar {
+            display: none;
+        }
+        .cat-pill {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            background: var(--surface-sub);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .cat-pill.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+        .account-item-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .account-item-card:active {
+            transform: scale(0.98);
+            border-color: var(--primary);
+        }
+        .acc-badge {
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+        }
+        .badge-bank { background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid #38bdf8; }
+        .badge-safe { background: rgba(16, 185, 129, 0.18); color: #10b981; border: 1px solid #10b981; }
+        .badge-customer { background: rgba(251, 191, 36, 0.18); color: #fbbf24; border: 1px solid #fbbf24; }
+        .badge-supplier { background: rgba(168, 85, 247, 0.18); color: #a855f7; border: 1px solid #a855f7; }
+        .badge-expense { background: rgba(244, 63, 94, 0.18); color: #f43f5e; border: 1px solid #f43f5e; }
+        .badge-revenue { background: rgba(52, 211, 153, 0.18); color: #34d399; border: 1px solid #34d399; }
+
+        /* AI Slip Extractor Modal Sheet */
+        .ai-slip-textarea {
+            width: 100%;
+            min-height: 110px;
+            padding: 12px 14px;
+            background: var(--input-bg);
+            border: 2px solid var(--input-border);
+            border-radius: 14px;
+            color: var(--input-color);
+            font-size: 0.92rem;
+            font-family: inherit;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .ai-slip-textarea:focus {
+            border-color: var(--primary);
+        }
+        .ai-preview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .ai-chip {
+            background: var(--surface-sub);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            padding: 8px 10px;
+        }
+        .ai-chip-label {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 800;
+            display: block;
+            margin-bottom: 2px;
+        }
+        .ai-chip-val {
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* WhatsApp Target Modal */
+        .wa-target-option {
+            background: var(--surface-card);
+            border: 1.5px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .wa-target-option:active {
+            transform: scale(0.98);
+            border-color: #22c55e;
+        }
+        .wa-opt-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
         /* Fixed Bottom Navigation Bar */
         .bottom-nav-bar {
             position: fixed;
@@ -1076,25 +1407,25 @@ try {
             <small style="color:var(--text-muted); font-size:0.75rem;">لمسة واحدة للتنفيذ</small>
         </div>
         <div class="actions-2x2-grid">
-            <!-- 1. Quick Receipt (قبض / إشعار بنكك) -->
-            <div class="power-action-btn act-receipt" onclick="openBottomSheet('sheet-receipt')">
-                <div class="action-icon-circle">
-                    <i class="fa-solid fa-hand-holding-dollar"></i>
-                </div>
-                <div>
-                    <div class="action-title">سند قبض</div>
-                    <div class="action-subtitle">إشعار بنكك / كاش</div>
-                </div>
-            </div>
-
-            <!-- 2. Quick Payment (صرف نقدية / مصاريف) -->
-            <div class="power-action-btn act-payment" onclick="openBottomSheet('sheet-payment')">
+            <!-- 1. Quick Financial Movement (حركة مالية - قبض وصرف) -->
+            <div class="power-action-btn act-receipt" onclick="openFinancialTxSheet('receipt')">
                 <div class="action-icon-circle">
                     <i class="fa-solid fa-money-bill-transfer"></i>
                 </div>
                 <div>
-                    <div class="action-title">سند صرف</div>
-                    <div class="action-subtitle">سداد مورد / منصرف</div>
+                    <div class="action-title">حركة مالية</div>
+                    <div class="action-subtitle">قبض / صرف / تحويل</div>
+                </div>
+            </div>
+
+            <!-- 2. AI Smart Slip Parser (تفريغ إشعار ذكي بالذكاء الاصطناعي) -->
+            <div class="power-action-btn act-ai" onclick="openBottomSheet('sheet-ai-slip')">
+                <div class="action-icon-circle">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                </div>
+                <div>
+                    <div class="action-title">تفريغ إشعار (AI)</div>
+                    <div class="action-subtitle">إشعار بنكك / واتساب</div>
                 </div>
             </div>
 
@@ -1188,83 +1519,284 @@ try {
          BOTTOM SHEETS (POWER ACTION MODALS)
          ═════════════════════════════════════════════════════════════════ -->
 
-    <!-- SHEET 1: سند قبض وبنكك -->
-    <div class="mobile-sheet-overlay" id="overlay-sheet-receipt" onclick="closeBottomSheet('sheet-receipt')"></div>
-    <div class="mobile-bottom-sheet" id="sheet-receipt">
+    <!-- ═════════════════════════════════════════════════════════════════
+         SHEET 1: 💸 حركة مالية موحدة (قبض وصرف وتحويل ذكي)
+         ═════════════════════════════════════════════════════════════════ -->
+    <div class="mobile-sheet-overlay" id="overlay-sheet-financial-tx" onclick="closeBottomSheet('sheet-financial-tx')"></div>
+    <div class="mobile-bottom-sheet" id="sheet-financial-tx" style="max-height:94vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
-            <span class="sheet-title" style="color:var(--emerald);">
-                <i class="fa-solid fa-hand-holding-dollar"></i> تسجيل سند قبض جديد
+            <span class="sheet-title" id="tx-sheet-title" style="color:var(--primary);">
+                <i class="fa-solid fa-money-bill-transfer"></i> حركة مالية
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-receipt')">✕</button>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="btn-switch-desktop" onclick="openBottomSheet('sheet-ai-slip')" style="padding:5px 10px; font-size:0.78rem; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;" title="تفريغ إشعار بالذكاء الاصطناعي">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> تفريغ إشعار AI
+                </button>
+                <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-financial-tx')">✕</button>
+            </div>
         </div>
         <div class="sheet-body">
-            <form onsubmit="handleQuickReceiptSubmit(event)">
-                <div class="m-form-group">
-                    <label class="m-label">المبلغ المستلم (SDG):</label>
-                    <input type="number" id="receipt-amount" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal">
-                </div>
-                <div class="m-form-group">
-                    <label class="m-label">اسم العميل:</label>
-                    <select id="receipt-customer" class="m-select" required>
-                        <option value="">-- جاري التحميل من قاعدة البيانات... --</option>
-                    </select>
-                </div>
-                <div class="m-form-group">
-                    <label class="m-label">الجهة المستلمة (الخزنة / البنك):</label>
-                    <select id="receipt-destination" class="m-select" required>
-                        <!-- Loaded dynamically -->
-                    </select>
-                </div>
-                <div class="m-form-group">
-                    <label class="m-label">رقم إشعار بنكك / المرجع (اختياري):</label>
-                    <input type="text" id="receipt-ref" class="m-input" placeholder="مثال: 9481023">
-                </div>
-                <div class="m-form-group">
-                    <label class="m-label">ملاحظات أو بيان السند:</label>
-                    <input type="text" id="receipt-notes" class="m-input" placeholder="دفعة تحت الحساب">
-                </div>
-                <button type="submit" class="m-btn-submit">
-                    <i class="fa-solid fa-check"></i> حفظ السند ومشاركة إيصال الواتساب 💬
+            <!-- Transaction Type Pill (قبض / صرف / تحويل) -->
+            <div class="tx-type-pill-container">
+                <button type="button" class="tx-type-btn active type-receipt" id="btn-type-receipt" onclick="setTxType('receipt')">
+                    <i class="fa-solid fa-arrow-down-to-bracket"></i> قبض واستلام
                 </button>
+                <button type="button" class="tx-type-btn type-payment" id="btn-type-payment" onclick="setTxType('payment')">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i> صرف ودفع
+                </button>
+                <button type="button" class="tx-type-btn type-transfer" id="btn-type-transfer" onclick="setTxType('transfer')">
+                    <i class="fa-solid fa-repeat"></i> تحويل بيني
+                </button>
+            </div>
+
+            <form onsubmit="handleFinancialTxSubmit(event)">
+                <input type="hidden" id="tx-operation-type" value="receipt">
+
+                <!-- 1. Amount Field with Thousands Preview -->
+                <div class="m-form-group">
+                    <label class="m-label" style="display:flex; justify-content:space-between;">
+                        <span>المبلغ المالي (SDG):</span>
+                        <span id="tx-amount-preview" style="color:var(--emerald); font-family:'Inter',sans-serif; font-size:0.9rem; font-weight:900;">0 SDG</span>
+                    </label>
+                    <input type="number" id="tx-amount" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal" oninput="updateTxAmountPreview(this.value)">
+                </div>
+
+                <!-- 2. Dual Account Box (من حساب إلى حساب) -->
+                <div class="account-selector-container">
+                    <!-- 🔴 FROM ACCOUNT (الصارف / المدفوع منه) -->
+                    <div class="box-account-picker box-account-from" onclick="openAccountPicker('from')">
+                        <div class="box-acc-left">
+                            <span class="box-acc-tag">
+                                <i class="fa-solid fa-arrow-up-from-bracket"></i> من حساب (الصارف / الدائن):
+                            </span>
+                            <div class="box-acc-title" id="display-from-name">-- اضغط لاختيار الحساب --</div>
+                            <div class="box-acc-meta" id="display-from-meta">
+                                <span>اختر عميلاً أو خزينة أو بنكاً</span>
+                            </div>
+                        </div>
+                        <div class="box-acc-right">
+                            <span class="acc-badge" id="display-from-badge" style="display:none;"></span>
+                            <i class="fa-solid fa-chevron-left" style="font-size:0.85rem;"></i>
+                        </div>
+                    </div>
+                    <input type="hidden" id="tx-from-id" required>
+                    <input type="hidden" id="tx-from-name" required>
+                    <input type="hidden" id="tx-from-type" required>
+                    <input type="hidden" id="tx-from-phone">
+
+                    <!-- SWAP BUTTON -->
+                    <button type="button" class="btn-swap-accounts" onclick="swapTxAccounts()" title="تبديل الحسابين">
+                        <i class="fa-solid fa-arrow-up-down"></i>
+                    </button>
+
+                    <!-- 🟢 TO ACCOUNT (المستلم / المقبوض إليه) -->
+                    <div class="box-account-picker box-account-to" onclick="openAccountPicker('to')">
+                        <div class="box-acc-left">
+                            <span class="box-acc-tag">
+                                <i class="fa-solid fa-arrow-down-to-bracket"></i> إلى حساب (المستلم / المدين):
+                            </span>
+                            <div class="box-acc-title" id="display-to-name">-- اضغط لاختيار الحساب --</div>
+                            <div class="box-acc-meta" id="display-to-meta">
+                                <span>اختر بنكاً أو خزينة أو عميلاً أو مورداً</span>
+                            </div>
+                        </div>
+                        <div class="box-acc-right">
+                            <span class="acc-badge" id="display-to-badge" style="display:none;"></span>
+                            <i class="fa-solid fa-chevron-left" style="font-size:0.85rem;"></i>
+                        </div>
+                    </div>
+                    <input type="hidden" id="tx-to-id" required>
+                    <input type="hidden" id="tx-to-name" required>
+                    <input type="hidden" id="tx-to-type" required>
+                    <input type="hidden" id="tx-to-phone">
+                </div>
+
+                <!-- 3. Transaction Date & Slip Ref -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                    <div class="m-form-group">
+                        <label class="m-label">تاريخ الحركة:</label>
+                        <input type="date" id="tx-date" class="m-input" required>
+                    </div>
+                    <div class="m-form-group">
+                        <label class="m-label">رقم الإشعار / المرجع:</label>
+                        <input type="text" id="tx-ref" class="m-input" placeholder="مثال: 9481023">
+                    </div>
+                </div>
+
+                <!-- 4. Notes / Statement -->
+                <div class="m-form-group">
+                    <label class="m-label">البيان / ملاحظات السند:</label>
+                    <input type="text" id="tx-notes" class="m-input" placeholder="دفعة حساب / تحويل بنكي / منصرف">
+                </div>
+
+                <!-- 5. Submit Buttons -->
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <button type="submit" class="m-btn-submit" id="btn-save-tx" style="background: linear-gradient(135deg, #10b981, #059669);">
+                        <i class="fa-solid fa-check"></i> حفظ الحركة المالية
+                    </button>
+                    <button type="button" class="m-btn-submit" onclick="handleTxWhatsAppShareClick()" style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34,197,94,0.35);">
+                        <i class="fa-brands fa-whatsapp"></i> حفظ ومشاركة عبر واتساب 💬
+                    </button>
+                </div>
             </form>
         </div>
     </div>
 
-    <!-- SHEET 2: سند صرف -->
-    <div class="mobile-sheet-overlay" id="overlay-sheet-payment" onclick="closeBottomSheet('sheet-payment')"></div>
-    <div class="mobile-bottom-sheet" id="sheet-payment">
+    <!-- ═════════════════════════════════════════════════════════════════
+         SHEET: 🔍 شاشة البحث واختيار الحسابات الشاملة (من / إلى)
+         ═════════════════════════════════════════════════════════════════ -->
+    <div class="mobile-sheet-overlay" id="overlay-sheet-account-picker" onclick="closeBottomSheet('sheet-account-picker')"></div>
+    <div class="mobile-bottom-sheet" id="sheet-account-picker" style="max-height:94vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
-            <span class="sheet-title" style="color:var(--rose);">
-                <i class="fa-solid fa-money-bill-transfer"></i> تسجيل سند صرف / نثريات
+            <span class="sheet-title" style="color:var(--text-main);">
+                <i class="fa-solid fa-magnifying-glass"></i> <span id="picker-modal-heading">اختر الحساب</span>
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-payment')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-account-picker')">✕</button>
+        </div>
+        <div class="sheet-body" style="padding-top:8px;">
+            <!-- Sticky Search & Filter Category Pills -->
+            <div class="picker-search-bar">
+                <div style="position:relative; margin-bottom:8px;">
+                    <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:14px; top:14px; color:var(--text-muted); font-size:0.95rem;"></i>
+                    <input type="text" id="picker-search-input" class="m-input" style="padding-right:40px;" placeholder="ابحث بالاسم، الهاتف، أو نوع الحساب..." oninput="filterAccountsList()" autocomplete="off">
+                </div>
+                <div class="picker-category-pills">
+                    <button type="button" class="cat-pill active" onclick="setPickerCategory('all', this)">الكل</button>
+                    <button type="button" class="cat-pill" onclick="setPickerCategory('bank', this)">🏦 البنوك</button>
+                    <button type="button" class="cat-pill" onclick="setPickerCategory('safe', this)">💵 الخزن</button>
+                    <button type="button" class="cat-pill" onclick="setPickerCategory('customer', this)">👤 العملاء</button>
+                    <button type="button" class="cat-pill" onclick="setPickerCategory('supplier', this)">🏢 الموردين</button>
+                    <button type="button" class="cat-pill" onclick="setPickerCategory('expense', this)">📉 المصروفات</button>
+                </div>
+            </div>
+
+            <!-- List of Filtered Accounts -->
+            <div id="picker-accounts-container">
+                <!-- Dynamically Rendered Account Items -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════════════════
+         SHEET: 🤖 المساعد الذكي لتفريغ إشعارات بنكك والواتساب (AI)
+         ═════════════════════════════════════════════════════════════════ -->
+    <div class="mobile-sheet-overlay" id="overlay-sheet-ai-slip" onclick="closeBottomSheet('sheet-ai-slip')"></div>
+    <div class="mobile-bottom-sheet" id="sheet-ai-slip">
+        <div class="sheet-drag-handle"></div>
+        <div class="sheet-header">
+            <span class="sheet-title" style="color:var(--primary);">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> المساعد الذكي لتفريغ الإشعارات
+            </span>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-ai-slip')">✕</button>
         </div>
         <div class="sheet-body">
-            <form onsubmit="handleQuickPaymentSubmit(event)">
-                <div class="m-form-group">
-                    <label class="m-label">المبلغ المصروف (SDG):</label>
-                    <input type="number" id="payment-amount" class="m-input huge-number" style="color:var(--rose);" placeholder="0.00" step="any" required inputmode="decimal">
-                </div>
-                <div class="m-form-group">
-                    <label class="m-label">يصرف إلى (اسم المستلم أو المورد):</label>
-                    <input type="text" id="payment-recipient" class="m-input" placeholder="مثال: شركة الكهرباء أو اسم المورد" required>
-                </div>
-                <div class="m-form-group">
-                    <label class="m-label">يصرف من حساب:</label>
-                    <select id="payment-source" class="m-select" required>
-                        <!-- Loaded dynamically -->
-                    </select>
-                </div>
-                <div class="m-form-group">
-                    <label class="m-label">بيان الصرف:</label>
-                    <input type="text" id="payment-notes" class="m-input" placeholder="مصاريف تشغيل / نثريات" required>
-                </div>
-                <button type="submit" class="m-btn-submit" style="background: linear-gradient(135deg, var(--rose), #be123c);">
-                    <i class="fa-solid fa-check"></i> حفظ وترحيل سند الصرف فوراً
+            <p style="font-size:0.82rem; color:var(--text-muted); font-weight:700; margin-bottom:10px;">
+                انسخ رسالة إشعار البنك (بنكك، فوري، أوكاش) أو رسالة الواتساب والصقها هنا، وسيقوم الذكاء الاصطناعي باستخراج كافة البيانات وتعبئة السند آلياً:
+            </p>
+            
+            <div style="position:relative; margin-bottom:8px;">
+                <textarea id="ai-slip-text" class="ai-slip-textarea" placeholder="الصق نص الإشعار هنا..." oninput="parseSlipInputLive(this.value)"></textarea>
+            </div>
+
+            <div style="display:flex; gap:8px; margin-bottom:12px;">
+                <button type="button" class="btn-switch-desktop" onclick="pasteFromClipboardToAI()" style="flex:1; padding:8px 12px; font-size:0.8rem; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;">
+                    <i class="fa-solid fa-paste"></i> لصق من الحافظة
                 </button>
-            </form>
+                <button type="button" class="btn-switch-desktop" onclick="loadSampleBankakSlip()" style="padding:8px 12px; font-size:0.8rem; background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#10b981;">
+                    <i class="fa-solid fa-flask"></i> إشعار تجريبي
+                </button>
+            </div>
+
+            <!-- Live Extracted Preview Chips -->
+            <div id="ai-parsed-preview" style="display:none;">
+                <div style="font-size:0.84rem; font-weight:900; color:var(--emerald); margin-bottom:6px;">
+                    ✨ البيانات المستخرجة بنجاح:
+                </div>
+                <div class="ai-preview-grid">
+                    <div class="ai-chip">
+                        <span class="ai-chip-label">💰 المبلغ:</span>
+                        <div class="ai-chip-val" id="ai-chip-amount" style="color:var(--emerald);">0 SDG</div>
+                    </div>
+                    <div class="ai-chip">
+                        <span class="ai-chip-label">🔖 رقم الإشعار / المرجع:</span>
+                        <div class="ai-chip-val" id="ai-chip-ref">-</div>
+                    </div>
+                    <div class="ai-chip">
+                        <span class="ai-chip-label">🔴 الصارف (من حساب):</span>
+                        <div class="ai-chip-val" id="ai-chip-from" style="color:#ef4444;">-</div>
+                    </div>
+                    <div class="ai-chip">
+                        <span class="ai-chip-label">🟢 المستلم (إلى حساب):</span>
+                        <div class="ai-chip-val" id="ai-chip-to" style="color:#10b981;">-</div>
+                    </div>
+                    <div class="ai-chip" style="grid-column: span 2;">
+                        <span class="ai-chip-label">📅 التاريخ والوقت:</span>
+                        <div class="ai-chip-val" id="ai-chip-date">-</div>
+                    </div>
+                </div>
+                <button type="button" class="m-btn-submit" onclick="applyAIExtractedData()" style="background: linear-gradient(135deg, var(--primary), #0284c7); margin-top:8px;">
+                    <i class="fa-solid fa-arrow-down-short-wide"></i> تطبيق وتعبئة السند فوراً
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════════════════
+         SHEET: 💬 نافذة اختيار مستلم إشعار الواتساب (من / إلى / مخصص)
+         ═════════════════════════════════════════════════════════════════ -->
+    <div class="mobile-sheet-overlay" id="overlay-sheet-whatsapp-target" onclick="closeBottomSheet('sheet-whatsapp-target')"></div>
+    <div class="mobile-bottom-sheet" id="sheet-whatsapp-target">
+        <div class="sheet-drag-handle"></div>
+        <div class="sheet-header">
+            <span class="sheet-title" style="color:#22c55e;">
+                <i class="fa-brands fa-whatsapp"></i> مشاركة السند عبر واتساب
+            </span>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-whatsapp-target')">✕</button>
+        </div>
+        <div class="sheet-body">
+            <p style="font-size:0.84rem; color:var(--text-muted); font-weight:700; margin-bottom:12px;">
+                حدد الطرف الذي ترغب في إرسال الإشعار له عبر واتساب:
+            </p>
+
+            <!-- Option 1: Payer (من حساب) -->
+            <div class="wa-target-option" onclick="sendVoucherWhatsApp('from')">
+                <div class="wa-opt-icon" style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid #ef4444;">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <div style="font-size:0.75rem; color:#ef4444; font-weight:800;">إرسال إلى الحساب الصارف (من):</div>
+                    <div style="font-size:1rem; font-weight:900; color:var(--text-main);" id="wa-from-name">--</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);" id="wa-from-phone">هاتف: غير مسجل</div>
+                </div>
+                <i class="fa-brands fa-whatsapp" style="color:#22c55e; font-size:1.3rem;"></i>
+            </div>
+
+            <!-- Option 2: Payee (إلى حساب) -->
+            <div class="wa-target-option" onclick="sendVoucherWhatsApp('to')">
+                <div class="wa-opt-icon" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid #10b981;">
+                    <i class="fa-solid fa-arrow-down-to-bracket"></i>
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <div style="font-size:0.75rem; color:#10b981; font-weight:800;">إرسال إلى الحساب المستلم (إلى):</div>
+                    <div style="font-size:1rem; font-weight:900; color:var(--text-main);" id="wa-to-name">--</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);" id="wa-to-phone">هاتف: غير مسجل</div>
+                </div>
+                <i class="fa-brands fa-whatsapp" style="color:#22c55e; font-size:1.3rem;"></i>
+            </div>
+
+            <!-- Option 3: Custom Phone -->
+            <div class="wa-target-option" onclick="sendVoucherWhatsApp('custom')">
+                <div class="wa-opt-icon" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid #38bdf8;">
+                    <i class="fa-solid fa-mobile-screen"></i>
+                </div>
+                <div style="flex:1; min-width:0;">
+                    <div style="font-size:0.75rem; color:#38bdf8; font-weight:800;">إرسال إلى رقم واتساب مخصص:</div>
+                    <div style="font-size:0.95rem; font-weight:900; color:var(--text-main);">اختيار أي جهة اتصال في واتساب</div>
+                </div>
+                <i class="fa-brands fa-whatsapp" style="color:#22c55e; font-size:1.3rem;"></i>
+            </div>
         </div>
     </div>
 
@@ -1622,6 +2154,14 @@ try {
         let M_VAULTS = [];
         let M_TRANSACTIONS = [];
         let activeStatementCustomer = null;
+        let ALL_ACCOUNTS = [];
+        let CURRENT_PICKER_TARGET = 'from';
+        let CURRENT_PICKER_CATEGORY = 'all';
+        let ACTIVE_TX_FOR_WA = null;
+        let SELECTED_TX_TYPE = 'receipt';
+        let SELECTED_FROM_ACCOUNT = null;
+        let SELECTED_TO_ACCOUNT = null;
+        let AI_EXTRACTED_DATA = null;
 
         function getTenantKey(baseKey) {
             try {
@@ -1775,6 +2315,9 @@ try {
                 }
             });
 
+            // Build Universal Chart of Accounts for Searchable Picker
+            buildAllAccountsList();
+
             // Render Liquidity Pulse Numbers
             renderLiquidityDisplay();
 
@@ -1824,29 +2367,49 @@ try {
         function renderLiveFeed() {
             let txs = [];
             
-            // Combine receipts, payments, sales from server preloaded or local arrays
+            // 1. Unified Financial Movements
+            const financialTxs = loadTenantArray('erp_financial_txs_v1');
+            financialTxs.forEach(f => {
+                let typeLabel = (f.type === 'payment') ? 'سند صرف' : ((f.type === 'transfer') ? 'تحويل بيني' : 'سند قبض');
+                let parties = (f.fromAccount?.name || 'حساب') + ' ➜ ' + (f.toAccount?.name || 'حساب');
+                txs.push({
+                    type: f.type || 'receipt',
+                    title: `${typeLabel} - ${parties}`,
+                    amount: parseFloat(f.amount || 0),
+                    time: f.date || f.createdAt || 'اليوم',
+                    ref: f.refNo || f.id || 'TX'
+                });
+            });
+
+            // 2. Combine receipts, payments, sales from server preloaded or local arrays
             const receipts = window.SERVER_DATA?.receipts || loadTenantArray('erp_single_receipts_v1');
             const payments = window.SERVER_DATA?.payments || loadTenantArray('erp_single_payments_v1');
             const sales = window.SERVER_DATA?.sales || loadTenantArray('erp_sales_invoices_v1');
 
             receipts.forEach(r => {
-                txs.push({
-                    type: 'receipt',
-                    title: 'سند قبض - ' + (r.customerName || r.customer || 'عميل'),
-                    amount: parseFloat(r.amount || 0),
-                    time: r.date || r.createdAt || 'اليوم',
-                    ref: r.refNo || r.id || 'REC'
-                });
+                const rRef = r.refNo || r.id || 'REC';
+                if (!txs.some(t => t.ref === rRef)) {
+                    txs.push({
+                        type: 'receipt',
+                        title: 'سند قبض - ' + (r.customerName || r.customer || 'عميل'),
+                        amount: parseFloat(r.amount || 0),
+                        time: r.date || r.createdAt || 'اليوم',
+                        ref: rRef
+                    });
+                }
             });
 
             payments.forEach(p => {
-                txs.push({
-                    type: 'payment',
-                    title: 'سند صرف - ' + (p.recipient || p.party || 'مصروف'),
-                    amount: parseFloat(p.amount || 0),
-                    time: p.date || p.createdAt || 'اليوم',
-                    ref: p.refNo || p.id || 'PAY'
-                });
+                const pRef = p.refNo || p.id || 'PAY';
+                if (!txs.some(t => t.ref === pRef)) {
+                    txs.push({
+                        type: 'payment',
+                        title: 'سند صرف - ' + (p.recipient || p.party || 'مصروف'),
+                        amount: parseFloat(p.amount || 0),
+                        time: p.date || p.createdAt || 'اليوم',
+                        ref: pRef
+                    });
+                }
             });
 
             sales.forEach(s => {
@@ -1918,98 +2481,929 @@ try {
             window.open(waUrl, '_blank');
         }
 
-        // 1. Submit Quick Receipt
-        function handleQuickReceiptSubmit(e) {
-            e.preventDefault();
-            triggerHaptic('heavy');
-            const amt = parseFloat(document.getElementById('receipt-amount').value) || 0;
-            const custId = document.getElementById('receipt-customer').value;
-            const custName = document.getElementById('receipt-customer').selectedOptions[0]?.text || 'عميل';
-            const dest = document.getElementById('receipt-destination').value;
-            const ref = document.getElementById('receipt-ref').value.trim() || 'REC-' + Date.now().toString().slice(-6);
-            const notes = document.getElementById('receipt-notes').value.trim();
+        // ═════════════════════════════════════════════════════════════════
+        // 1. UNIVERSAL CHART OF ACCOUNTS BUILDER
+        // ═════════════════════════════════════════════════════════════════
+        function buildAllAccountsList() {
+            ALL_ACCOUNTS = [];
 
-            if (amt <= 0) {
-                alert('يرجى كتابة مبلغ صحيح أكبر من صفر');
-                return;
-            }
-
-            const rec = {
-                id: ref,
-                refNo: ref,
-                amount: amt,
-                customerId: custId,
-                customerName: custName,
-                destination: dest,
-                notes: notes,
-                date: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute:'2-digit' })
-            };
-
-            // Save to local tenant array
-            let receipts = loadTenantArray('erp_single_receipts_v1');
-            receipts.unshift(rec);
-            saveTenantArray('erp_single_receipts_v1', receipts);
-
-            // Deduct customer debt
-            let custs = loadTenantArray('erp_customers_v1');
-            const targetCust = custs.find(c => c.id === custId);
-            if (targetCust) {
-                targetCust.currentBalance = (parseFloat(targetCust.currentBalance || targetCust.balance || 0) - amt);
-                saveTenantArray('erp_customers_v1', custs);
-            }
-
-            // Sync with backend API
-            pushChangesToBackend();
-
-            closeBottomSheet('sheet-receipt');
-            if (window.showModernToast) {
-                window.showModernToast(`✅ تم حفظ سند القبض بمبلغ ${fmt(amt)} SDG بنجاح!`, 'success');
-            }
-            refreshMobileData();
-
-            setTimeout(() => {
-                if (confirm(`تم حفظ سند القبض بنجاح!\nهل تريد مشاركة إيصال الاستلام (${fmt(amt)} SDG) للعميل عبر واتساب الآن؟`)) {
-                    shareTxWhatsApp(`سند قبض (${custName})`, amt, ref);
+            // 1. Banks (🏦 البنوك)
+            const bankItems = [];
+            if (window.SERVER_DATA?.banks && window.SERVER_DATA.banks.length > 0) {
+                window.SERVER_DATA.banks.forEach((b, i) => {
+                    bankItems.push({
+                        id: 'bank_' + (b.id || i + 1),
+                        rawId: b.id || i + 1,
+                        name: b.name || b.bank_name || 'بنك ' + (i + 1),
+                        category: 'bank',
+                        categoryName: 'بنك',
+                        balance: parseFloat(b.balance || b.amount || 0),
+                        phone: b.accountNumber || b.account_number || '',
+                        icon: 'fa-building-columns',
+                        color: '#38bdf8'
+                    });
+                });
+            } else {
+                const localBanks = loadTenantArray('erp_banks_v1');
+                if (localBanks.length > 0) {
+                    localBanks.forEach((b, i) => {
+                        bankItems.push({
+                            id: 'bank_' + (b.id || i + 1),
+                            rawId: b.id || i + 1,
+                            name: b.name || 'بنك ' + (i + 1),
+                            category: 'bank',
+                            categoryName: 'بنك',
+                            balance: parseFloat(b.balance || 0),
+                            phone: b.accountNumber || '',
+                            icon: 'fa-building-columns',
+                            color: '#38bdf8'
+                        });
+                    });
+                } else {
+                    bankItems.push({
+                        id: 'bank_bankak',
+                        rawId: 'bankak',
+                        name: 'بنك الخرطوم (بنكك)',
+                        category: 'bank',
+                        categoryName: 'بنك',
+                        balance: 0,
+                        phone: '',
+                        icon: 'fa-building-columns',
+                        color: '#38bdf8'
+                    });
+                    bankItems.push({
+                        id: 'bank_faisal',
+                        rawId: 'faisal',
+                        name: 'بنك فيصل الإسلامي (فوري)',
+                        category: 'bank',
+                        categoryName: 'بنك',
+                        balance: 0,
+                        phone: '',
+                        icon: 'fa-building-columns',
+                        color: '#38bdf8'
+                    });
+                    bankItems.push({
+                        id: 'bank_omdurman',
+                        rawId: 'omdurman',
+                        name: 'بنك أم درمان الوطني (أوكاش)',
+                        category: 'bank',
+                        categoryName: 'بنك',
+                        balance: 0,
+                        phone: '',
+                        icon: 'fa-building-columns',
+                        color: '#38bdf8'
+                    });
                 }
-            }, 300);
+            }
+
+            // Also include any bank vaults from M_VAULTS
+            M_VAULTS.forEach((v, idx) => {
+                const isSafe = v.name.includes('خزن') || v.name.includes('كاش') || v.name.includes('صندوق');
+                if (!isSafe) {
+                    const exists = bankItems.some(b => b.name.toLowerCase() === v.name.toLowerCase());
+                    if (!exists) {
+                        bankItems.push({
+                            id: 'vault_bank_' + idx,
+                            rawId: 'vault_bank_' + idx,
+                            name: v.name,
+                            category: 'bank',
+                            categoryName: 'بنك',
+                            balance: v.amount || 0,
+                            phone: '',
+                            icon: 'fa-building-columns',
+                            color: '#38bdf8'
+                        });
+                    }
+                }
+            });
+
+            // 2. Safes (💵 الخزن)
+            const safeItems = [];
+            if (window.SERVER_DATA?.safes && window.SERVER_DATA.safes.length > 0) {
+                window.SERVER_DATA.safes.forEach((s, i) => {
+                    safeItems.push({
+                        id: 'safe_' + (s.id || i + 1),
+                        rawId: s.id || i + 1,
+                        name: s.name || s.safe_name || 'الخزينة الرئيسية',
+                        category: 'safe',
+                        categoryName: 'خزينة',
+                        balance: parseFloat(s.balance || s.amount || 0),
+                        phone: '',
+                        icon: 'fa-vault',
+                        color: '#10b981'
+                    });
+                });
+            } else {
+                const localSafes = loadTenantArray('erp_safes_v1');
+                if (localSafes.length > 0) {
+                    localSafes.forEach((s, i) => {
+                        safeItems.push({
+                            id: 'safe_' + (s.id || i + 1),
+                            rawId: s.id || i + 1,
+                            name: s.name || 'الخزينة الرئيسية',
+                            category: 'safe',
+                            categoryName: 'خزينة',
+                            balance: parseFloat(s.balance || 0),
+                            phone: '',
+                            icon: 'fa-vault',
+                            color: '#10b981'
+                        });
+                    });
+                } else {
+                    safeItems.push({
+                        id: 'safe_main',
+                        rawId: 'safe_main',
+                        name: 'الخزينة الرئيسية (كاش)',
+                        category: 'safe',
+                        categoryName: 'خزينة',
+                        balance: 0,
+                        phone: '',
+                        icon: 'fa-vault',
+                        color: '#10b981'
+                    });
+                }
+            }
+
+            // Add cash vaults from M_VAULTS
+            M_VAULTS.forEach((v, idx) => {
+                const isSafe = v.name.includes('خزن') || v.name.includes('كاش') || v.name.includes('صندوق');
+                if (isSafe) {
+                    const exists = safeItems.some(s => s.name.toLowerCase() === v.name.toLowerCase());
+                    if (!exists) {
+                        safeItems.push({
+                            id: 'vault_safe_' + idx,
+                            rawId: 'vault_safe_' + idx,
+                            name: v.name,
+                            category: 'safe',
+                            categoryName: 'خزينة',
+                            balance: v.amount || 0,
+                            phone: '',
+                            icon: 'fa-vault',
+                            color: '#10b981'
+                        });
+                    }
+                }
+            });
+
+            // 3. Customers (👤 العملاء)
+            const customerItems = M_CUSTOMERS.map(c => ({
+                id: 'cust_' + c.id,
+                rawId: c.id,
+                name: c.name,
+                category: 'customer',
+                categoryName: 'عميل',
+                balance: c.balance || 0,
+                phone: c.phone || '',
+                icon: 'fa-user',
+                color: '#fbbf24'
+            }));
+
+            // 4. Suppliers (🏢 الموردين)
+            const supplierItems = [];
+            const rawSups = window.SERVER_DATA?.suppliers || loadTenantArray('erp_suppliers_v1');
+            if (rawSups.length > 0) {
+                rawSups.forEach((s, i) => {
+                    supplierItems.push({
+                        id: 'sup_' + (s.id || s.supplier_id || i + 1),
+                        rawId: s.id || s.supplier_id || i + 1,
+                        name: s.name || s.supplier_name || 'مورد ' + (i + 1),
+                        category: 'supplier',
+                        categoryName: 'مورد',
+                        balance: parseFloat(s.balance || s.current_balance || s.exposure || 0),
+                        phone: s.phone || '',
+                        icon: 'fa-truck-field',
+                        color: '#a855f7'
+                    });
+                });
+            }
+
+            // 5. Standard Expense & Revenue Accounts (📉 المصروفات)
+            const expenseItems = [
+                { id: 'exp_admin', rawId: 'exp_admin', name: 'مصروفات عمومية وإدارية', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-money-bill-trend-up', color: '#f43f5e' },
+                { id: 'exp_salaries', rawId: 'exp_salaries', name: 'مرتبات وأجور العاملين', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-users', color: '#f43f5e' },
+                { id: 'exp_rent', rawId: 'exp_rent', name: 'إيجار مقرات ومخازن', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-warehouse', color: '#f43f5e' },
+                { id: 'exp_utilities', rawId: 'exp_utilities', name: 'كهرباء ومياه وإنترنت', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-bolt', color: '#f43f5e' },
+                { id: 'exp_hospitality', rawId: 'exp_hospitality', name: 'نثريات وضيافة', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-mug-hot', color: '#f43f5e' },
+                { id: 'exp_fuel', rawId: 'exp_fuel', name: 'وقود ونقليات وترحيل', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-gas-pump', color: '#f43f5e' },
+                { id: 'exp_maintenance', rawId: 'exp_maintenance', name: 'صيانة وتشغيل', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-wrench', color: '#f43f5e' },
+                { id: 'exp_purchases', rawId: 'exp_purchases', name: 'مشتريات بضاعة نقدية', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-cart-shopping', color: '#f43f5e' }
+            ];
+
+            // Combine into unified accounts array
+            ALL_ACCOUNTS = [...bankItems, ...safeItems, ...customerItems, ...supplierItems, ...expenseItems];
         }
 
-        // 2. Submit Quick Payment
-        function handleQuickPaymentSubmit(e) {
-            e.preventDefault();
-            triggerHaptic('heavy');
-            const amt = parseFloat(document.getElementById('payment-amount').value) || 0;
-            const recipient = document.getElementById('payment-recipient').value.trim();
-            const source = document.getElementById('payment-source').value;
-            const notes = document.getElementById('payment-notes').value.trim();
-            const ref = 'PAY-' + Date.now().toString().slice(-6);
+        // ═════════════════════════════════════════════════════════════════
+        // 2. UNIFIED FINANCIAL MOVEMENT ENGINE (قبض / صرف / تحويل)
+        // ═════════════════════════════════════════════════════════════════
+        function openFinancialTxSheet(defaultType = 'receipt') {
+            triggerHaptic('light');
+            buildAllAccountsList();
 
-            if (amt <= 0) {
-                alert('يرجى كتابة مبلغ صحيح أكبر من صفر');
+            // Set default date to today YYYY-MM-DD
+            const dateInp = document.getElementById('tx-date');
+            if (dateInp) {
+                dateInp.value = new Date().toISOString().split('T')[0];
+            }
+
+            // Set auto ref if empty
+            const refInp = document.getElementById('tx-ref');
+            if (refInp && !refInp.value) {
+                refInp.value = 'TX-' + Date.now().toString().slice(-6);
+            }
+
+            setTxType(defaultType);
+            openBottomSheet('sheet-financial-tx');
+        }
+
+        function setTxType(type) {
+            triggerHaptic('light');
+            SELECTED_TX_TYPE = type;
+            document.getElementById('tx-operation-type').value = type;
+
+            const btnReceipt = document.getElementById('btn-type-receipt');
+            const btnPayment = document.getElementById('btn-type-payment');
+            const btnTransfer = document.getElementById('btn-type-transfer');
+            const sheetTitle = document.getElementById('tx-sheet-title');
+            const btnSave = document.getElementById('btn-save-tx');
+
+            [btnReceipt, btnPayment, btnTransfer].forEach(b => { if (b) b.classList.remove('active'); });
+
+            if (type === 'receipt') {
+                if (btnReceipt) btnReceipt.classList.add('active');
+                if (sheetTitle) sheetTitle.innerHTML = '<i class="fa-solid fa-arrow-down-to-bracket" style="color:var(--emerald);"></i> حركة قبض واستلام';
+                if (btnSave) btnSave.innerHTML = '<i class="fa-solid fa-check"></i> حفظ سند القبض';
+
+                // Defaults: FROM = customer, TO = bank or safe
+                if (!SELECTED_FROM_ACCOUNT || SELECTED_FROM_ACCOUNT.category !== 'customer') {
+                    const firstCust = ALL_ACCOUNTS.find(a => a.category === 'customer');
+                    if (firstCust) selectAccountDirectly('from', firstCust);
+                }
+                if (!SELECTED_TO_ACCOUNT || (SELECTED_TO_ACCOUNT.category !== 'bank' && SELECTED_TO_ACCOUNT.category !== 'safe')) {
+                    const firstBankOrSafe = ALL_ACCOUNTS.find(a => a.category === 'bank') || ALL_ACCOUNTS.find(a => a.category === 'safe');
+                    if (firstBankOrSafe) selectAccountDirectly('to', firstBankOrSafe);
+                }
+            } else if (type === 'payment') {
+                if (btnPayment) btnPayment.classList.add('active');
+                if (sheetTitle) sheetTitle.innerHTML = '<i class="fa-solid fa-arrow-up-from-bracket" style="color:var(--rose);"></i> حركة صرف ودفع';
+                if (btnSave) btnSave.innerHTML = '<i class="fa-solid fa-check"></i> حفظ سند الصرف';
+
+                // Defaults: FROM = bank or safe, TO = supplier or expense
+                if (!SELECTED_FROM_ACCOUNT || (SELECTED_FROM_ACCOUNT.category !== 'bank' && SELECTED_FROM_ACCOUNT.category !== 'safe')) {
+                    const firstSafeOrBank = ALL_ACCOUNTS.find(a => a.category === 'safe') || ALL_ACCOUNTS.find(a => a.category === 'bank');
+                    if (firstSafeOrBank) selectAccountDirectly('from', firstSafeOrBank);
+                }
+                if (!SELECTED_TO_ACCOUNT || (SELECTED_TO_ACCOUNT.category !== 'supplier' && SELECTED_TO_ACCOUNT.category !== 'expense')) {
+                    const firstSupOrExp = ALL_ACCOUNTS.find(a => a.category === 'supplier') || ALL_ACCOUNTS.find(a => a.category === 'expense');
+                    if (firstSupOrExp) selectAccountDirectly('to', firstSupOrExp);
+                }
+            } else if (type === 'transfer') {
+                if (btnTransfer) btnTransfer.classList.add('active');
+                if (sheetTitle) sheetTitle.innerHTML = '<i class="fa-solid fa-repeat" style="color:var(--primary);"></i> تحويل مالي بين الحسابات';
+                if (btnSave) btnSave.innerHTML = '<i class="fa-solid fa-check"></i> حفظ التحويل البيني';
+
+                const vaults = ALL_ACCOUNTS.filter(a => a.category === 'safe' || a.category === 'bank');
+                if (vaults.length >= 2) {
+                    selectAccountDirectly('from', vaults[0]);
+                    selectAccountDirectly('to', vaults[1]);
+                }
+            }
+        }
+
+        function updateTxAmountPreview(val) {
+            const preview = document.getElementById('tx-amount-preview');
+            if (!preview) return;
+            const num = parseFloat(val) || 0;
+            preview.innerText = fmt(num) + ' SDG';
+        }
+
+        function selectAccountDirectly(target, acc) {
+            if (!acc) return;
+            if (target === 'from') {
+                SELECTED_FROM_ACCOUNT = acc;
+                document.getElementById('tx-from-id').value = acc.id;
+                document.getElementById('tx-from-name').value = acc.name;
+                document.getElementById('tx-from-type').value = acc.category;
+                document.getElementById('tx-from-phone').value = acc.phone || '';
+
+                document.getElementById('display-from-name').textContent = acc.name;
+                document.getElementById('display-from-meta').innerHTML = `
+                    <span>${acc.categoryName} ${acc.phone ? '• ' + acc.phone : ''} • الرصيد: <strong>${fmt(acc.balance)} SDG</strong></span>
+                `;
+                const badge = document.getElementById('display-from-badge');
+                if (badge) {
+                    badge.style.display = 'inline-block';
+                    badge.style.background = acc.color + '22';
+                    badge.style.color = acc.color;
+                    badge.textContent = acc.categoryName;
+                }
+            } else {
+                SELECTED_TO_ACCOUNT = acc;
+                document.getElementById('tx-to-id').value = acc.id;
+                document.getElementById('tx-to-name').value = acc.name;
+                document.getElementById('tx-to-type').value = acc.category;
+                document.getElementById('tx-to-phone').value = acc.phone || '';
+
+                document.getElementById('display-to-name').textContent = acc.name;
+                document.getElementById('display-to-meta').innerHTML = `
+                    <span>${acc.categoryName} ${acc.phone ? '• ' + acc.phone : ''} • الرصيد: <strong>${fmt(acc.balance)} SDG</strong></span>
+                `;
+                const badge = document.getElementById('display-to-badge');
+                if (badge) {
+                    badge.style.display = 'inline-block';
+                    badge.style.background = acc.color + '22';
+                    badge.style.color = acc.color;
+                    badge.textContent = acc.categoryName;
+                }
+            }
+        }
+
+        function swapTxAccounts() {
+            triggerHaptic('medium');
+            const temp = SELECTED_FROM_ACCOUNT;
+            SELECTED_FROM_ACCOUNT = SELECTED_TO_ACCOUNT;
+            SELECTED_TO_ACCOUNT = temp;
+
+            if (SELECTED_FROM_ACCOUNT) selectAccountDirectly('from', SELECTED_FROM_ACCOUNT);
+            if (SELECTED_TO_ACCOUNT) selectAccountDirectly('to', SELECTED_TO_ACCOUNT);
+
+            if (window.showModernToast) {
+                window.showModernToast('🔄 تم تبديل الحسابين (من / إلى)', 'info', 1500);
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 3. UNIVERSAL SEARCHABLE ACCOUNT PICKER
+        // ═════════════════════════════════════════════════════════════════
+        function openAccountPicker(target) {
+            triggerHaptic('light');
+            CURRENT_PICKER_TARGET = target;
+            const heading = document.getElementById('picker-modal-heading');
+            if (heading) {
+                if (target === 'from') {
+                    heading.innerHTML = '<span style="color:#ef4444;">🔴 اختر الحساب الصارف (المدفوع منه / الدائن)</span>';
+                } else {
+                    heading.innerHTML = '<span style="color:#10b981;">🟢 اختر الحساب المستلم (المقبوض إليه / المدين)</span>';
+                }
+            }
+
+            const searchInp = document.getElementById('picker-search-input');
+            if (searchInp) searchInp.value = '';
+
+            CURRENT_PICKER_CATEGORY = 'all';
+            document.querySelectorAll('.picker-category-pills .cat-pill').forEach((p, idx) => {
+                if (idx === 0) p.classList.add('active');
+                else p.classList.remove('active');
+            });
+
+            filterAccountsList();
+            openBottomSheet('sheet-account-picker');
+            setTimeout(() => {
+                if (searchInp) searchInp.focus();
+            }, 200);
+        }
+
+        function setPickerCategory(cat, btn) {
+            triggerHaptic('light');
+            CURRENT_PICKER_CATEGORY = cat;
+            document.querySelectorAll('.picker-category-pills .cat-pill').forEach(p => p.classList.remove('active'));
+            if (btn) btn.classList.add('active');
+            filterAccountsList();
+        }
+
+        function filterAccountsList() {
+            const q = (document.getElementById('picker-search-input')?.value || '').trim().toLowerCase();
+            const container = document.getElementById('picker-accounts-container');
+            if (!container) return;
+
+            let filtered = ALL_ACCOUNTS;
+
+            if (CURRENT_PICKER_CATEGORY !== 'all') {
+                filtered = filtered.filter(a => a.category === CURRENT_PICKER_CATEGORY);
+            }
+
+            if (q) {
+                filtered = filtered.filter(a => {
+                    const nameMatch = (a.name || '').toLowerCase().includes(q);
+                    const phoneMatch = (a.phone || '').toLowerCase().includes(q);
+                    const catMatch = (a.categoryName || '').toLowerCase().includes(q);
+                    return nameMatch || phoneMatch || catMatch;
+                });
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align:center; padding:35px 15px; color:var(--text-muted);">
+                        <i class="fa-solid fa-magnifying-glass" style="font-size:2.2rem; opacity:0.35; margin-bottom:10px;"></i>
+                        <div style="font-size:0.95rem; font-weight:800; color:var(--text-main);">لم يتم العثور على حساب مطابق</div>
+                        <div style="font-size:0.8rem; margin-top:4px;">تأكد من كتابة الاسم أو الرقم بشكل صحيح</div>
+                    </div>
+                `;
                 return;
             }
 
-            const pay = {
-                id: ref,
-                refNo: ref,
+            let html = '';
+            filtered.forEach(acc => {
+                const isFromSelected = SELECTED_FROM_ACCOUNT && SELECTED_FROM_ACCOUNT.id === acc.id;
+                const isToSelected = SELECTED_TO_ACCOUNT && SELECTED_TO_ACCOUNT.id === acc.id;
+                const isSelected = (CURRENT_PICKER_TARGET === 'from' && isFromSelected) || (CURRENT_PICKER_TARGET === 'to' && isToSelected);
+
+                let balLabel = 'الرصيد الدفتري';
+                let balColor = 'var(--text-main)';
+                if (acc.category === 'customer') {
+                    if (acc.balance > 0) {
+                        balLabel = 'مدين للشركة';
+                        balColor = 'var(--rose)';
+                    } else {
+                        balLabel = 'خالص';
+                        balColor = 'var(--emerald)';
+                    }
+                } else if (acc.category === 'supplier') {
+                    balLabel = 'مستحق للمورد';
+                    balColor = 'var(--amber)';
+                }
+
+                html += `
+                    <div class="account-item-card ${isSelected ? 'active-selected' : ''}" onclick="selectAccount('${acc.id}')">
+                        <div class="acc-item-icon" style="background:${acc.color}22; color:${acc.color}; border:1px solid ${acc.color}55;">
+                            <i class="fa-solid ${acc.icon}"></i>
+                        </div>
+                        <div class="acc-item-details">
+                            <div class="acc-item-name">${acc.name}</div>
+                            <div class="acc-item-meta">
+                                <span class="acc-badge" style="background:${acc.color}22; color:${acc.color};">${acc.categoryName}</span>
+                                ${acc.phone ? `<span style="display:flex; align-items:center; gap:4px;"><i class="fa-solid fa-phone" style="font-size:0.7rem;"></i> ${acc.phone}</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="acc-item-balance">
+                            <div class="acc-item-balance-val" style="color:${balColor}; font-weight:900;">${fmt(acc.balance)}</div>
+                            <div class="acc-item-balance-lbl">${balLabel}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function selectAccount(accId) {
+            triggerHaptic('medium');
+            const acc = ALL_ACCOUNTS.find(a => a.id === accId);
+            if (!acc) return;
+
+            selectAccountDirectly(CURRENT_PICKER_TARGET, acc);
+            closeBottomSheet('sheet-account-picker');
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 4. TRANSACTION SUBMIT & LEDGER ADJUSTMENT
+        // ═════════════════════════════════════════════════════════════════
+        function handleFinancialTxSubmit(e, openWhatsAppDirect = false) {
+            if (e && e.preventDefault) e.preventDefault();
+            triggerHaptic('heavy');
+
+            const amt = parseFloat(document.getElementById('tx-amount').value) || 0;
+            const opType = document.getElementById('tx-operation-type').value || 'receipt';
+            const txDate = document.getElementById('tx-date').value || new Date().toISOString().split('T')[0];
+            const txRef = document.getElementById('tx-ref').value.trim() || 'TX-' + Date.now().toString().slice(-6);
+            const txNotes = document.getElementById('tx-notes').value.trim();
+
+            if (amt <= 0) {
+                alert('⚠️ يرجى إدخال مبلغ صحيح أكبر من صفر');
+                document.getElementById('tx-amount').focus();
+                return false;
+            }
+
+            if (!SELECTED_FROM_ACCOUNT) {
+                alert('⚠️ يرجى اختيار الحساب الصارف (من حساب)');
+                openAccountPicker('from');
+                return false;
+            }
+
+            if (!SELECTED_TO_ACCOUNT) {
+                alert('⚠️ يرجى اختيار الحساب المستلم (إلى حساب)');
+                openAccountPicker('to');
+                return false;
+            }
+
+            if (SELECTED_FROM_ACCOUNT.id === SELECTED_TO_ACCOUNT.id) {
+                alert('⚠️ لا يمكن أن يكون الحساب الصارف والحساب المستلم نفس الحساب!');
+                return false;
+            }
+
+            // Build Transaction Record
+            const txRecord = {
+                id: txRef,
+                refNo: txRef,
                 amount: amt,
-                recipient: recipient,
-                source: source,
-                notes: notes,
-                date: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute:'2-digit' })
+                date: txDate,
+                type: opType,
+                fromAccount: {
+                    id: SELECTED_FROM_ACCOUNT.id,
+                    rawId: SELECTED_FROM_ACCOUNT.rawId,
+                    name: SELECTED_FROM_ACCOUNT.name,
+                    type: SELECTED_FROM_ACCOUNT.category,
+                    categoryName: SELECTED_FROM_ACCOUNT.categoryName,
+                    phone: SELECTED_FROM_ACCOUNT.phone
+                },
+                toAccount: {
+                    id: SELECTED_TO_ACCOUNT.id,
+                    rawId: SELECTED_TO_ACCOUNT.rawId,
+                    name: SELECTED_TO_ACCOUNT.name,
+                    type: SELECTED_TO_ACCOUNT.category,
+                    categoryName: SELECTED_TO_ACCOUNT.categoryName,
+                    phone: SELECTED_TO_ACCOUNT.phone
+                },
+                notes: txNotes,
+                createdAt: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' })
             };
 
-            let payments = loadTenantArray('erp_single_payments_v1');
-            payments.unshift(pay);
-            saveTenantArray('erp_single_payments_v1', payments);
+            // 1. Save to financial txs array
+            let allFinancialTxs = loadTenantArray('erp_financial_txs_v1');
+            allFinancialTxs.unshift(txRecord);
+            saveTenantArray('erp_financial_txs_v1', allFinancialTxs);
+
+            // 2. Adjust Balances
+            if (SELECTED_FROM_ACCOUNT.category === 'customer') {
+                let custs = loadTenantArray('erp_customers_v1');
+                const c = custs.find(x => x.id === SELECTED_FROM_ACCOUNT.rawId || 'cust_' + x.id === SELECTED_FROM_ACCOUNT.id);
+                if (c) {
+                    c.currentBalance = (parseFloat(c.currentBalance || c.balance || 0) - amt);
+                    saveTenantArray('erp_customers_v1', custs);
+                }
+            } else if (SELECTED_FROM_ACCOUNT.category === 'supplier') {
+                let sups = loadTenantArray('erp_suppliers_v1');
+                const s = sups.find(x => x.id === SELECTED_FROM_ACCOUNT.rawId || 'sup_' + x.id === SELECTED_FROM_ACCOUNT.id);
+                if (s) {
+                    s.balance = (parseFloat(s.balance || 0) - amt);
+                    saveTenantArray('erp_suppliers_v1', sups);
+                }
+            } else if (SELECTED_FROM_ACCOUNT.category === 'bank' || SELECTED_FROM_ACCOUNT.category === 'safe') {
+                SELECTED_FROM_ACCOUNT.balance = (parseFloat(SELECTED_FROM_ACCOUNT.balance || 0) - amt);
+            }
+
+            if (SELECTED_TO_ACCOUNT.category === 'customer') {
+                let custs = loadTenantArray('erp_customers_v1');
+                const c = custs.find(x => x.id === SELECTED_TO_ACCOUNT.rawId || 'cust_' + x.id === SELECTED_TO_ACCOUNT.id);
+                if (c) {
+                    c.currentBalance = (parseFloat(c.currentBalance || c.balance || 0) + amt);
+                    saveTenantArray('erp_customers_v1', custs);
+                }
+            } else if (SELECTED_TO_ACCOUNT.category === 'supplier') {
+                let sups = loadTenantArray('erp_suppliers_v1');
+                const s = sups.find(x => x.id === SELECTED_TO_ACCOUNT.rawId || 'sup_' + x.id === SELECTED_TO_ACCOUNT.id);
+                if (s) {
+                    s.balance = (parseFloat(s.balance || 0) + amt);
+                    saveTenantArray('erp_suppliers_v1', sups);
+                }
+            } else if (SELECTED_TO_ACCOUNT.category === 'bank' || SELECTED_TO_ACCOUNT.category === 'safe') {
+                SELECTED_TO_ACCOUNT.balance = (parseFloat(SELECTED_TO_ACCOUNT.balance || 0) + amt);
+            }
+
+            // 3. Backward Compatibility
+            if (opType === 'receipt') {
+                let recs = loadTenantArray('erp_single_receipts_v1');
+                recs.unshift({
+                    id: txRef,
+                    refNo: txRef,
+                    amount: amt,
+                    customer: SELECTED_FROM_ACCOUNT.name,
+                    customerId: SELECTED_FROM_ACCOUNT.rawId,
+                    customerName: SELECTED_FROM_ACCOUNT.name,
+                    destination: SELECTED_TO_ACCOUNT.name,
+                    notes: txNotes,
+                    date: txDate
+                });
+                saveTenantArray('erp_single_receipts_v1', recs);
+            } else if (opType === 'payment') {
+                let pays = loadTenantArray('erp_single_payments_v1');
+                pays.unshift({
+                    id: txRef,
+                    refNo: txRef,
+                    amount: amt,
+                    recipient: SELECTED_TO_ACCOUNT.name,
+                    source: SELECTED_FROM_ACCOUNT.name,
+                    notes: txNotes,
+                    date: txDate
+                });
+                saveTenantArray('erp_single_payments_v1', pays);
+            }
 
             pushChangesToBackend();
 
-            closeBottomSheet('sheet-payment');
-            if (window.showModernToast) {
-                window.showModernToast(`✅ تم تسجيل سند الصرف بمبلغ ${fmt(amt)} SDG بنجاح!`, 'success');
-            }
+            ACTIVE_TX_FOR_WA = txRecord;
+            document.getElementById('tx-amount').value = '';
+            updateTxAmountPreview(0);
+
+            closeBottomSheet('sheet-financial-tx');
             refreshMobileData();
+
+            if (window.showModernToast) {
+                window.showModernToast(`✅ تم حفظ الحركة المالية (${fmt(amt)} SDG) بنجاح!`, 'success', 3000);
+            }
+
+            if (openWhatsAppDirect) {
+                setTimeout(() => {
+                    promptWhatsAppRecipient();
+                }, 300);
+            }
+
+            return true;
+        }
+
+        function handleTxWhatsAppShareClick() {
+            const amt = parseFloat(document.getElementById('tx-amount').value) || 0;
+            if (amt > 0) {
+                handleFinancialTxSubmit(null, true);
+                return;
+            }
+            if (ACTIVE_TX_FOR_WA) {
+                promptWhatsAppRecipient();
+            } else {
+                alert('⚠️ يرجى إدخال المبلغ وتفاصيل الحركة أولاً');
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 5. SMART WHATSAPP RECIPIENT TARGET SELECTOR
+        // ═════════════════════════════════════════════════════════════════
+        function promptWhatsAppRecipient() {
+            if (!ACTIVE_TX_FOR_WA) return;
+            const tx = ACTIVE_TX_FOR_WA;
+
+            const fromNameEl = document.getElementById('wa-from-name');
+            const fromPhoneEl = document.getElementById('wa-from-phone');
+            const toNameEl = document.getElementById('wa-to-name');
+            const toPhoneEl = document.getElementById('wa-to-phone');
+
+            if (fromNameEl) fromNameEl.textContent = tx.fromAccount?.name || 'حساب الصارف';
+            if (fromPhoneEl) fromPhoneEl.textContent = tx.fromAccount?.phone ? ('هاتف: ' + tx.fromAccount.phone) : 'هاتف: غير مسجل (اختيار جهة الاتصال)';
+
+            if (toNameEl) toNameEl.textContent = tx.toAccount?.name || 'حساب المستلم';
+            if (toPhoneEl) toPhoneEl.textContent = tx.toAccount?.phone ? ('هاتف: ' + tx.toAccount.phone) : 'هاتف: غير مسجل (اختيار جهة الاتصال)';
+
+            openBottomSheet('sheet-whatsapp-target');
+        }
+
+        function sendVoucherWhatsApp(targetOption) {
+            triggerHaptic('medium');
+            if (!ACTIVE_TX_FOR_WA) {
+                closeBottomSheet('sheet-whatsapp-target');
+                return;
+            }
+
+            const tx = ACTIVE_TX_FOR_WA;
+            const compName = document.getElementById('mobile-company-name')?.innerText || 'مؤسسة السجانة';
+
+            let typeTitle = 'حركة مالية موحدة';
+            if (tx.type === 'receipt') typeTitle = 'سند قبض واستلام نقدية';
+            else if (tx.type === 'payment') typeTitle = 'سند صرف ودفع نقدية';
+            else if (tx.type === 'transfer') typeTitle = 'سند تحويل مالي بيني';
+
+            const voucherMsg = 
+`🧾 *إشعار مالي معتمد*
+🏢 *${compName}*
+━━━━━━━━━━━━━━━━━━━━
+📌 *نوع الحركة:* ${typeTitle}
+💰 *المبلغ الصافي:* ${fmt(tx.amount)} SDG
+🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
+🟢 *إلى حساب (المستلم):* ${tx.toAccount?.name || '--'}
+🔢 *رقم الإشعار / المرجع:* ${tx.refNo}
+📅 *التاريخ:* ${tx.date}
+📝 *البيان:* ${tx.notes || 'سند معتمد بنجاح'}
+━━━━━━━━━━━━━━━━━━━━
+✓ تم قيد وتسجيل الحركة دفترياً بنجاح عبر نظام مقاييس السحابي.`;
+
+            let phone = '';
+            if (targetOption === 'from' && tx.fromAccount?.phone) {
+                phone = tx.fromAccount.phone.replace(/[^0-9]/g, '');
+            } else if (targetOption === 'to' && tx.toAccount?.phone) {
+                phone = tx.toAccount.phone.replace(/[^0-9]/g, '');
+            }
+
+            let waUrl = '';
+            if (phone) {
+                if (phone.length === 9) phone = '249' + phone;
+                else if (phone.length === 10 && phone.startsWith('0')) phone = '249' + phone.substring(1);
+                waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(voucherMsg)}`;
+            } else {
+                waUrl = `https://wa.me/?text=${encodeURIComponent(voucherMsg)}`;
+            }
+
+            closeBottomSheet('sheet-whatsapp-target');
+            window.open(waUrl, '_blank');
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 6. AI BANK SLIP / NOTIFICATION EXTRACTOR
+        // ═════════════════════════════════════════════════════════════════
+        function parseSlipInputLive(rawText) {
+            if (!rawText || !rawText.trim()) {
+                const preview = document.getElementById('ai-parsed-preview');
+                if (preview) preview.style.display = 'none';
+                AI_EXTRACTED_DATA = null;
+                return;
+            }
+
+            // 1. Amount Extraction
+            let extractedAmount = null;
+            const amountRegexes = [
+                /(?:المبلغ|مبلغ|المبلغ المحول|المبلغ المخصوم|المبلغ المسحوب|Amount|Total)\s*[:=]?\s*([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)/i,
+                /([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*(?:SDG|ج\.س|جنيه|ريال|دولار)/i
+            ];
+            for (let rx of amountRegexes) {
+                const m = rawText.match(rx);
+                if (m && m[1]) {
+                    const clean = m[1].replace(/,/g, '');
+                    const parsed = parseFloat(clean);
+                    if (parsed > 0) {
+                        extractedAmount = parsed;
+                        break;
+                    }
+                }
+            }
+
+            // 2. Ref / Transaction ID
+            let extractedRef = null;
+            const refRegexes = [
+                /(?:رقم العملية|رقم المرجع|المرجع|رقم الإشعار|رقم المعاملة|Transaction ID|Ref(?:erence)?\s*(?:No)?)\s*[:=]?\s*([A-Za-z0-9\-_]{4,35})/i,
+                /(?:TX|TRX|REF|FT)[0-9A-Za-z]{6,25}/i
+            ];
+            for (let rx of refRegexes) {
+                const m = rawText.match(rx);
+                if (m) {
+                    extractedRef = m[1] || m[0];
+                    break;
+                }
+            }
+
+            // 3. Date & Time
+            let extractedDate = null;
+            const dateRegexes = [
+                /(\d{4}[-/.]\d{1,2}[-/.]\d{1,2})/,
+                /(\d{1,2}[-/.]\d{1,2}[-/.]\d{4})/
+            ];
+            for (let rx of dateRegexes) {
+                const m = rawText.match(rx);
+                if (m) {
+                    extractedDate = m[1].replace(/\//g, '-').replace(/\./g, '-');
+                    break;
+                }
+            }
+            if (!extractedDate) {
+                extractedDate = new Date().toISOString().split('T')[0];
+            }
+
+            // 4. Sender / Payer (من / المحول)
+            let extractedFrom = null;
+            const fromRegexes = [
+                /(?:من حساب|من المحول|المحول|المرسل|من)\s*[:=]?\s*([^\n\r,–—]+)/i
+            ];
+            for (let rx of fromRegexes) {
+                const m = rawText.match(rx);
+                if (m && m[1]) {
+                    extractedFrom = m[1].trim();
+                    break;
+                }
+            }
+
+            // 5. Receiver / Payee (إلى / المحول إليه / المستلم)
+            let extractedTo = null;
+            const toRegexes = [
+                /(?:إلى حساب|المحول إليه|المستلم|إلى)\s*[:=]?\s*([^\n\r,–—]+)/i
+            ];
+            for (let rx of toRegexes) {
+                const m = rawText.match(rx);
+                if (m && m[1]) {
+                    extractedTo = m[1].trim();
+                    break;
+                }
+            }
+
+            if (ALL_ACCOUNTS.length === 0) buildAllAccountsList();
+
+            let matchedFromAcc = null;
+            let matchedToAcc = null;
+
+            if (extractedFrom) {
+                matchedFromAcc = ALL_ACCOUNTS.find(a => 
+                    a.name.toLowerCase().includes(extractedFrom.toLowerCase()) || 
+                    extractedFrom.toLowerCase().includes(a.name.toLowerCase())
+                );
+            }
+
+            if (extractedTo) {
+                matchedToAcc = ALL_ACCOUNTS.find(a => 
+                    a.name.toLowerCase().includes(extractedTo.toLowerCase()) || 
+                    extractedTo.toLowerCase().includes(a.name.toLowerCase())
+                );
+            }
+
+            if (!matchedToAcc && (rawText.includes('بنكك') || rawText.includes('بنك الخرطوم') || rawText.includes('Bankak'))) {
+                matchedToAcc = ALL_ACCOUNTS.find(a => a.name.includes('الخرطوم') || a.name.includes('بنكك')) || ALL_ACCOUNTS.find(a => a.category === 'bank');
+            }
+
+            AI_EXTRACTED_DATA = {
+                amount: extractedAmount,
+                ref: extractedRef || ('AI-' + Date.now().toString().slice(-6)),
+                date: extractedDate,
+                senderText: extractedFrom,
+                receiverText: extractedTo,
+                matchedFromAcc: matchedFromAcc,
+                matchedToAcc: matchedToAcc
+            };
+
+            const previewBox = document.getElementById('ai-parsed-preview');
+            if (previewBox) {
+                previewBox.style.display = 'block';
+                document.getElementById('ai-chip-amount').innerText = extractedAmount ? (fmt(extractedAmount) + ' SDG') : 'لم يتم تحديده';
+                document.getElementById('ai-chip-ref').innerText = extractedRef || 'غير محدد';
+                document.getElementById('ai-chip-from').innerText = matchedFromAcc ? (matchedFromAcc.name + ' (' + matchedFromAcc.categoryName + ')') : (extractedFrom || 'غير محدد');
+                document.getElementById('ai-chip-to').innerText = matchedToAcc ? (matchedToAcc.name + ' (' + matchedToAcc.categoryName + ')') : (extractedTo || 'بنك الخرطوم');
+                document.getElementById('ai-chip-date').innerText = extractedDate || 'اليوم';
+            }
+        }
+
+        function loadSampleBankakSlip() {
+            triggerHaptic('light');
+            const sample = 
+`إشعار تحويل بنكك - بنك الخرطوم
+رقم العملية: 94820148
+المبلغ: 250,000.00 SDG
+من: محمد عثمان إدريس
+إلى: مؤسسة السجانة التجارية
+التاريخ: ${new Date().toISOString().split('T')[0]} 14:35
+حالة العملية: ناجحة ومكتملة`;
+
+            const textarea = document.getElementById('ai-slip-text');
+            if (textarea) {
+                textarea.value = sample;
+                parseSlipInputLive(sample);
+            }
+        }
+
+        async function pasteFromClipboardToAI() {
+            triggerHaptic('light');
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        const textarea = document.getElementById('ai-slip-text');
+                        if (textarea) {
+                            textarea.value = text;
+                            parseSlipInputLive(text);
+                        }
+                        return;
+                    }
+                }
+            } catch(err) {}
+            alert('يرجى لصق النص يدوياً داخل المربع بالضغط المطول واختيار "لصق"');
+        }
+
+        function applyAIExtractedData() {
+            triggerHaptic('heavy');
+            if (!AI_EXTRACTED_DATA) return;
+
+            const data = AI_EXTRACTED_DATA;
+            buildAllAccountsList();
+
+            if (data.amount) {
+                document.getElementById('tx-amount').value = data.amount;
+                updateTxAmountPreview(data.amount);
+            }
+
+            if (data.ref) {
+                document.getElementById('tx-ref').value = data.ref;
+            }
+
+            if (data.date) {
+                document.getElementById('tx-date').value = data.date;
+            }
+
+            if (data.matchedFromAcc) {
+                selectAccountDirectly('from', data.matchedFromAcc);
+            }
+            if (data.matchedToAcc) {
+                selectAccountDirectly('to', data.matchedToAcc);
+            }
+
+            document.getElementById('tx-notes').value = `تحويل بنكك آلي - مرجع ${data.ref}`;
+
+            closeBottomSheet('sheet-ai-slip');
+            openBottomSheet('sheet-financial-tx');
+
+            if (window.showModernToast) {
+                window.showModernToast('✨ تم تفريغ الإشعار وتعبئة السند بنجاح!', 'success', 2500);
+            }
+        }
+
+        // Backward compatibility shims
+        function handleQuickReceiptSubmit(e) {
+            openFinancialTxSheet('receipt');
+        }
+
+        function handleQuickPaymentSubmit(e) {
+            openFinancialTxSheet('payment');
         }
 
         // 3. Fast POS Invoice
