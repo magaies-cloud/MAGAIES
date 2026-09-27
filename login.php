@@ -1523,7 +1523,9 @@
             // --- START SSO & DEVICE REDIRECT ---
             const isMobileDevice = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || (window.innerWidth <= 768 && window.innerHeight <= 1024);
             const viewPref = localStorage.getItem('magaiees_view_preference');
-            let targetUrl = (isMobileDevice && viewPref !== 'desktop') ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php';
+            const urlParams = new URLSearchParams(window.location.search);
+            const redirectParam = urlParams.get('redirect');
+            let targetUrl = redirectParam || ((isMobileDevice && viewPref !== 'desktop') ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php');
 
             if (userSubdomain && window.location.hostname !== userSubdomain + '.elsajana.com' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
                 const subdomainUrl = `https://${userSubdomain}.elsajana.com`;

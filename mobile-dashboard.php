@@ -5,16 +5,29 @@
  * ═════════════════════════════════════════════════════════════════════
  * النسخة التنفيذية الذكية للهواتف الذكية والأجهزة اللوحية
  * تصميم ثنائي المحرك: [ ⚡ العمليات السريعة ] + [ 📊 التقارير الذكية ]
+ * متصل مباشرة بقاعدة البيانات الحقيقية (MariaDB) ويدعم 4 سمات فائقة التباين
  */
+
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $isMobileUserAgent = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent);
 $forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
 $prefCookie = $_COOKIE['magaiees_view_preference'] ?? '';
 
+// Check if accessing from desktop without mobile override
 if ($forceMobile) {
     setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
 } elseif (!$isMobileUserAgent && $prefCookie !== 'mobile') {
     header('Location: magaiees_unified_dashboard.php');
+    exit;
+}
+
+// Session & Authentication Verification
+$token = $_COOKIE['saas_token'] ?? $_COOKIE['authToken'] ?? '';
+$sessionActive = $_COOKIE['session_active'] ?? '';
+$isLocalhost = (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1');
+
+if (!$isLocalhost && empty($token) && empty($sessionActive)) {
+    header('Location: login.php?redirect=mobile-dashboard.php');
     exit;
 }
 
@@ -23,17 +36,118 @@ require_once __DIR__ . '/db_bridge.php';
 
 // Detect active theme from cookie or default to midnight
 $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
+if (!in_array($activeTheme, ['solar', 'midnight', 'navy', 'forest'])) {
+    $activeTheme = 'midnight';
+}
+
+// ═════════════════════════════════════════════════════════════════════
+// 🌐 SERVER-SIDE REAL DATABASE PRELOADER (MARIADB DIRECT)
+// ═════════════════════════════════════════════════════════════════════
+$preloadedData = [
+    'companyName' => 'مقاييس لإدارة الأعمال',
+    'tenantId' => 1,
+    'vaults' => [],
+    'customers' => [],
+    'items' => [],
+    'receipts' => [],
+    'payments' => [],
+    'sales' => []
+];
+
+try {
+    $pdo = getDBConnection();
+    
+    // Auto-detect tenant priority: Query Param > Subdomain > Cookie > Session > GLOBAL_TENANT_ID > 1
+    $currentTenantId = null;
+    if (isset($_GET['tenant_id']) && is_numeric($_GET['tenant_id'])) {
+        $currentTenantId = (int)$_GET['tenant_id'];
+    } elseif (!empty($_SERVER['HTTP_HOST']) && preg_match('/^([a-z0-9_-]+)\.elsajana\.com$/i', $_SERVER['HTTP_HOST'], $m)) {
+        $sub = strtolower($m[1]);
+        $stmtSub = $pdo->prepare("SELECT id FROM tenants WHERE subdomain = ? LIMIT 1");
+        $stmtSub->execute([$sub]);
+        $subId = $stmtSub->fetchColumn();
+        if ($subId) $currentTenantId = (int)$subId;
+    } elseif (isset($_COOKIE['currentTenantId']) && is_numeric($_COOKIE['currentTenantId'])) {
+        $currentTenantId = (int)$_COOKIE['currentTenantId'];
+    } elseif (isset($_COOKIE['tenant_id']) && is_numeric($_COOKIE['tenant_id'])) {
+        $currentTenantId = (int)$_COOKIE['tenant_id'];
+    } elseif (isset($_SESSION['user']['tenant_id']) && is_numeric($_SESSION['user']['tenant_id'])) {
+        $currentTenantId = (int)$_SESSION['user']['tenant_id'];
+    }
+    
+    if (!$currentTenantId) {
+        $currentTenantId = $GLOBAL_TENANT_ID ?? 1;
+    }
+    
+    $GLOBAL_TENANT_ID = $currentTenantId;
+    $preloadedData['tenantId'] = $currentTenantId;
+
+    // 1. Company Name from Tenant Record
+    $stmtT = $pdo->prepare("SELECT company_name FROM tenants WHERE id = ?");
+    $stmtT->execute([$currentTenantId]);
+    $cName = $stmtT->fetchColumn();
+    if ($cName) $preloadedData['companyName'] = $cName;
+
+    // 2. Real Vaults & Liquidity
+    $preloadedData['vaults'] = getRealTimeLiquidity($pdo);
+
+    // 3. Real Customers & Debts
+    $preloadedData['customers'] = getCustomerExposureData($pdo);
+
+    // 4. Real Products & Items
+    $stmtItm = $pdo->prepare("SELECT data FROM items WHERE tenant_id = ? ORDER BY id DESC LIMIT 50");
+    $stmtItm->execute([$currentTenantId]);
+    while ($r = $stmtItm->fetch()) {
+        $itemObj = json_decode($r['data'], true);
+        if ($itemObj) $preloadedData['items'][] = $itemObj;
+    }
+
+    // 5. Real Receipts & Payments & Invoices
+    $stmtRec = $pdo->prepare("SELECT data FROM single_receipts WHERE tenant_id = ? ORDER BY id DESC LIMIT 20");
+    $stmtRec->execute([$currentTenantId]);
+    while ($r = $stmtRec->fetch()) {
+        $recObj = json_decode($r['data'], true);
+        if ($recObj) $preloadedData['receipts'][] = $recObj;
+    }
+
+    $stmtPay = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id DESC LIMIT 20");
+    $stmtPay->execute([$currentTenantId]);
+    while ($r = $stmtPay->fetch()) {
+        $payObj = json_decode($r['data'], true);
+        if ($payObj) $preloadedData['payments'][] = $payObj;
+    }
+
+    $stmtSale = $pdo->prepare("SELECT data FROM sales_invoices WHERE tenant_id = ? ORDER BY id DESC LIMIT 20");
+    $stmtSale->execute([$currentTenantId]);
+    while ($r = $stmtSale->fetch()) {
+        $saleObj = json_decode($r['data'], true);
+        if ($saleObj) $preloadedData['sales'][] = $saleObj;
+    }
+} catch (Exception $e) {
+    error_log('Mobile Dashboard Preloader Error: ' . $e->getMessage());
+}
 ?>
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#030712">
-    <title>مقاييس ERP - نسخة الهاتف الذكية</title>
+    <meta name="theme-color" content="<?php echo ($activeTheme === 'solar') ? '#f1f5f9' : (($activeTheme === 'navy') ? '#030a1a' : (($activeTheme === 'forest') ? '#03140d' : '#000000')); ?>">
+    <title><?php echo htmlspecialchars($preloadedData['companyName']); ?> - النسخة السريعة</title>
+
+    <!-- Client-Side Auth Gate Check -->
+    <script>
+    (function() {
+        const token = localStorage.getItem('authToken');
+        const isLocalhost = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
+        if (!token && !isLocalhost) {
+            window.location.replace('login.php?redirect=mobile-dashboard.php');
+        }
+    })();
+    </script>
 
     <!-- Preconnect & Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,22 +159,153 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
     <script src="js/permissions-manager.js"></script>
     <script src="js/modern-alerts.js"></script>
 
+    <!-- Server Preloaded Data Injection -->
+    <script>
+    window.SERVER_DATA = <?php echo json_encode($preloadedData, JSON_UNESCAPED_UNICODE); ?>;
+    </script>
+
     <style>
-        :root {
-            --bg-base: #030712;
-            --surface-1: rgba(15, 23, 42, 0.88);
-            --surface-2: rgba(30, 41, 59, 0.75);
-            --border-glass: rgba(255, 255, 255, 0.1);
+        /* ═════════════════════════════════════════════════════════════════
+           🎨 4 WORLD-CLASS HIGH-CONTRAST ERGONOMIC THEMES
+           ═════════════════════════════════════════════════════════════════ */
+        
+        /* 1. DEFAULT & THEME 2: 🌙 OLED PITCH MIDNIGHT (سواد فاحم مريح) */
+        :root,
+        html[data-theme="midnight"],
+        body[data-theme="midnight"] {
+            --bg-base: #000000;
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+                           radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+            --surface-1: #090e17;
+            --surface-2: #111827;
+            --surface-card: #0c121e;
+            --surface-sub: rgba(255, 255, 255, 0.04);
+            --border-glass: rgba(255, 255, 255, 0.16);
+            --border-card: rgba(56, 189, 248, 0.28);
             --primary: #38bdf8;
             --emerald: #10b981;
             --amber: #f59e0b;
             --rose: #f43f5e;
             --purple: #a855f7;
-            --text-main: #f8fafc;
+            --text-main: #ffffff;
             --text-muted: #94a3b8;
+            --header-bg: rgba(0, 0, 0, 0.94);
+            --nav-bg: rgba(0, 0, 0, 0.96);
+            --sheet-bg: #070b12;
+            --input-bg: #0d1522;
+            --input-border: rgba(255, 255, 255, 0.2);
+            --input-color: #ffffff;
+            --pill-bg: #0d1522;
+            --pill-active-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(16, 185, 129, 0.2));
+            --pill-active-text: #ffffff;
+            --grand-color: #34d399;
+            --grand-sub: #a7f3d0;
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.8);
             --safe-bottom: env(safe-area-inset-bottom, 16px);
         }
 
+        /* 2. THEME 1: ☀️ SOLAR WHITE (نهار وشمس ساطعة - تباين فائق 21:1) */
+        html[data-theme="solar"],
+        body[data-theme="solar"] {
+            --bg-base: #f1f5f9;
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(2, 132, 199, 0.06) 0%, transparent 40%),
+                           radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.06) 0%, transparent 40%);
+            --surface-1: #ffffff;
+            --surface-2: #e2e8f0;
+            --surface-card: #ffffff;
+            --surface-sub: #f8fafc;
+            --border-glass: rgba(15, 23, 42, 0.2);
+            --border-card: #cbd5e1;
+            --primary: #0284c7;
+            --emerald: #059669;
+            --amber: #d97706;
+            --rose: #dc2626;
+            --purple: #7c3aed;
+            --text-main: #020617;
+            --text-muted: #334155;
+            --header-bg: rgba(255, 255, 255, 0.96);
+            --nav-bg: rgba(255, 255, 255, 0.98);
+            --sheet-bg: #ffffff;
+            --input-bg: #f8fafc;
+            --input-border: #cbd5e1;
+            --input-color: #020617;
+            --pill-bg: #e2e8f0;
+            --pill-active-bg: #ffffff;
+            --pill-active-text: #0284c7;
+            --grand-color: #047857;
+            --grand-sub: #059669;
+            --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 3. THEME 3: 🧠 EXECUTIVE ROYAL NAVY & GOLD (التركيز المالي السيادي) */
+        html[data-theme="navy"],
+        body[data-theme="navy"] {
+            --bg-base: #030a1a;
+            --bg-gradient: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
+                           radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 40%);
+            --surface-1: #0a1628;
+            --surface-2: #10223d;
+            --surface-card: #0d1d36;
+            --surface-sub: rgba(255, 255, 255, 0.05);
+            --border-glass: rgba(56, 189, 248, 0.25);
+            --border-card: rgba(251, 191, 36, 0.45);
+            --primary: #38bdf8;
+            --emerald: #10b981;
+            --amber: #fbbf24;
+            --rose: #f43f5e;
+            --purple: #818cf8;
+            --text-main: #ffffff;
+            --text-muted: #93c5fd;
+            --header-bg: rgba(3, 10, 26, 0.94);
+            --nav-bg: rgba(3, 10, 26, 0.96);
+            --sheet-bg: #060e20;
+            --input-bg: #0a172c;
+            --input-border: rgba(56, 189, 248, 0.35);
+            --input-color: #ffffff;
+            --pill-bg: #0a172c;
+            --pill-active-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.25), rgba(56, 189, 248, 0.25));
+            --pill-active-text: #fbbf24;
+            --grand-color: #fbbf24;
+            --grand-sub: #fef08a;
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        /* 4. THEME 4: 🌿 FOREST EMERALD & MINT (الراحة واليقظة الممتدة) */
+        html[data-theme="forest"],
+        body[data-theme="forest"] {
+            --bg-base: #03140d;
+            --bg-gradient: radial-gradient(circle at 15% 25%, rgba(52, 211, 153, 0.12) 0%, transparent 45%),
+                           radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.1) 0%, transparent 45%);
+            --surface-1: #072317;
+            --surface-2: #0e3424;
+            --surface-card: #09281a;
+            --surface-sub: rgba(255, 255, 255, 0.05);
+            --border-glass: rgba(52, 211, 153, 0.28);
+            --border-card: rgba(52, 211, 153, 0.4);
+            --primary: #34d399;
+            --emerald: #10b981;
+            --amber: #fbbf24;
+            --rose: #f43f5e;
+            --purple: #6ee7b7;
+            --text-main: #ffffff;
+            --text-muted: #a7f3d0;
+            --header-bg: rgba(3, 20, 13, 0.94);
+            --nav-bg: rgba(3, 20, 13, 0.96);
+            --sheet-bg: #04170f;
+            --input-bg: #072517;
+            --input-border: rgba(52, 211, 153, 0.35);
+            --input-color: #ffffff;
+            --pill-bg: #072517;
+            --pill-active-bg: linear-gradient(135deg, rgba(52, 211, 153, 0.25), rgba(16, 185, 129, 0.25));
+            --pill-active-text: #34d399;
+            --grand-color: #34d399;
+            --grand-sub: #a7f3d0;
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        /* ═════════════════════════════════════════════════════════════════
+           CORE LAYOUT & COMPONENTS (THEME-VARIABLE POWERED)
+           ═════════════════════════════════════════════════════════════════ */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -70,73 +315,88 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
 
         body {
             background-color: var(--bg-base);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 40%);
+            background-image: var(--bg-gradient);
             background-attachment: fixed;
             font-family: 'Tajawal', sans-serif;
             color: var(--text-main);
             min-height: 100vh;
             overflow-x: hidden;
             padding-bottom: calc(85px + var(--safe-bottom));
+            transition: background-color 0.25s ease, color 0.25s ease;
         }
 
-        /* Ambient Lighting Header */
+        /* Ambient Mobile Header */
         .mobile-header {
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(3, 7, 18, 0.85);
+            background: var(--header-bg);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--border-glass);
+            border-bottom: 1.5px solid var(--border-glass);
             padding: 12px 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 10px;
         }
 
         .brand-section {
             display: flex;
             align-items: center;
             gap: 10px;
+            min-width: 0;
+            flex: 1;
         }
         .brand-avatar {
             width: 38px;
             height: 38px;
             border-radius: 12px;
-            background: linear-gradient(135deg, #0284c7, #10b981);
+            background: linear-gradient(135deg, var(--primary), var(--emerald));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: #fff;
             box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+            flex-shrink: 0;
+        }
+        .brand-meta {
+            min-width: 0;
+            overflow: hidden;
         }
         .brand-meta h1 {
             font-size: 0.98rem;
             font-weight: 900;
-            color: #fff;
+            color: var(--text-main);
             line-height: 1.2;
-            letter-spacing: 0.3px;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .brand-meta span {
             font-size: 0.74rem;
-            color: #38bdf8;
-            font-weight: 700;
+            color: var(--primary);
+            font-weight: 800;
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            flex-shrink: 0;
         }
 
         .btn-switch-desktop {
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            color: #e2e8f0;
-            padding: 7px 12px;
+            background: var(--surface-2);
+            border: 1.5px solid var(--border-glass);
+            color: var(--text-main);
+            padding: 7px 11px;
             border-radius: 10px;
             font-size: 0.78rem;
             font-weight: 800;
@@ -149,9 +409,23 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         }
         .btn-switch-desktop:active {
             transform: scale(0.95);
-            background: rgba(56, 189, 248, 0.2);
-            border-color: #38bdf8;
-            color: #38bdf8;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        @media (max-width: 420px) {
+            .btn-switch-desktop span {
+                display: none;
+            }
+            .btn-switch-desktop {
+                padding: 8px 10px;
+            }
+            .brand-meta h1 {
+                font-size: 0.88rem;
+            }
+            .brand-meta span {
+                font-size: 0.68rem;
+            }
         }
 
         /* Dual-Engine Mode Switcher (Pill Segmented Control) */
@@ -160,12 +434,12 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         }
         .mode-segmented-pill {
             display: flex;
-            background: rgba(15, 23, 42, 0.85);
+            background: var(--pill-bg);
             border: 1.5px solid var(--border-glass);
             border-radius: 16px;
             padding: 4px;
             position: relative;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
         }
         .mode-tab-btn {
             flex: 1;
@@ -185,13 +459,13 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .mode-tab-btn.active {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(16, 185, 129, 0.2));
-            color: #ffffff;
-            border: 1px solid rgba(56, 189, 248, 0.4);
+            background: var(--pill-active-bg);
+            color: var(--pill-active-text);
+            border: 1.5px solid var(--primary);
             box-shadow: 0 4px 15px rgba(56, 189, 248, 0.25);
         }
         .mode-tab-btn.active i {
-            color: #38bdf8;
+            color: var(--primary);
             transform: scale(1.1);
         }
 
@@ -202,14 +476,15 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
 
         /* Liquidity Pulse Card */
         .liquidity-card {
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(17, 24, 39, 0.8));
-            border: 1.5px solid rgba(56, 189, 248, 0.25);
+            background: var(--surface-card);
+            border: 2px solid var(--border-card);
             border-radius: 20px;
             padding: 18px 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            box-shadow: var(--shadow-card);
             margin-bottom: 20px;
             position: relative;
             overflow: hidden;
+            transition: all 0.25s ease;
         }
         .liquidity-card::before {
             content: '';
@@ -218,7 +493,8 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             left: -50px;
             width: 120px;
             height: 120px;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.25), transparent 70%);
+            background: radial-gradient(circle, var(--primary), transparent 70%);
+            opacity: 0.25;
             pointer-events: none;
         }
         .liquidity-top {
@@ -228,17 +504,17 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             margin-bottom: 8px;
         }
         .liquidity-title {
-            font-size: 0.82rem;
-            font-weight: 700;
+            font-size: 0.84rem;
+            font-weight: 800;
             color: var(--text-muted);
             display: flex;
             align-items: center;
             gap: 6px;
         }
         .liquidity-grand {
-            font-size: 2.1rem;
+            font-size: 2.2rem;
             font-weight: 900;
-            color: #34d399;
+            color: var(--grand-color);
             letter-spacing: -0.5px;
             font-family: 'Inter', 'Tajawal', sans-serif;
             line-height: 1.1;
@@ -247,7 +523,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         .liquidity-grand small {
             font-size: 0.95rem;
             font-weight: 800;
-            color: #a7f3d0;
+            color: var(--grand-sub);
             margin-right: 4px;
         }
         .liquidity-breakdown {
@@ -255,33 +531,33 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             padding-top: 12px;
-            border-top: 1px dashed rgba(255, 255, 255, 0.12);
+            border-top: 1.5px dashed var(--border-glass);
         }
         .vault-item {
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--surface-sub);
             border-radius: 12px;
             padding: 8px 12px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-glass);
         }
         .vault-name {
             font-size: 0.74rem;
-            color: #94a3b8;
-            font-weight: 700;
+            color: var(--text-muted);
+            font-weight: 800;
             display: block;
             margin-bottom: 3px;
         }
         .vault-amt {
-            font-size: 1.1rem;
-            font-weight: 800;
-            color: #f1f5f9;
+            font-size: 1.15rem;
+            font-weight: 900;
+            color: var(--text-main);
             font-family: 'Inter', 'Tajawal', sans-serif;
         }
 
         /* Power Quick Action Cards (4 Core Buttons) */
         .section-heading {
-            font-size: 0.92rem;
-            font-weight: 800;
-            color: #cbd5e1;
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--text-main);
             margin-bottom: 12px;
             display: flex;
             align-items: center;
@@ -294,7 +570,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             margin-bottom: 22px;
         }
         .power-action-btn {
-            background: rgba(15, 23, 42, 0.85);
+            background: var(--surface-card);
             border: 1.5px solid var(--border-glass);
             border-radius: 18px;
             padding: 16px 14px;
@@ -306,7 +582,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             gap: 10px;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+            box-shadow: var(--shadow-card);
             min-height: 105px;
             text-decoration: none;
             position: relative;
@@ -314,7 +590,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         }
         .power-action-btn:active {
             transform: scale(0.96);
-            border-color: currentColor;
+            border-color: var(--primary);
         }
         .action-icon-circle {
             width: 48px;
@@ -330,34 +606,27 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             transform: scale(1.1);
         }
         .action-title {
-            font-size: 0.92rem;
-            font-weight: 800;
-            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--text-main);
             line-height: 1.25;
         }
         .action-subtitle {
-            font-size: 0.72rem;
-            color: #94a3b8;
-            font-weight: 500;
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            font-weight: 700;
         }
 
         /* Specific Action Flavors */
-        .act-receipt .action-icon-circle { background: rgba(16, 185, 129, 0.18); border: 1.5px solid #10b981; color: #34d399; }
-        .act-receipt:active { border-color: #10b981; }
-
-        .act-payment .action-icon-circle { background: rgba(244, 63, 94, 0.18); border: 1.5px solid #f43f5e; color: #fb7185; }
-        .act-payment:active { border-color: #f43f5e; }
-
-        .act-pos .action-icon-circle { background: rgba(56, 189, 248, 0.18); border: 1.5px solid #38bdf8; color: #38bdf8; }
-        .act-pos:active { border-color: #38bdf8; }
-
-        .act-statement .action-icon-circle { background: rgba(168, 85, 247, 0.18); border: 1.5px solid #a855f7; color: #c084fc; }
-        .act-statement:active { border-color: #a855f7; }
+        .act-receipt .action-icon-circle { background: rgba(16, 185, 129, 0.2); border: 1.5px solid var(--emerald); color: var(--emerald); }
+        .act-payment .action-icon-circle { background: rgba(244, 63, 94, 0.2); border: 1.5px solid var(--rose); color: var(--rose); }
+        .act-pos .action-icon-circle { background: rgba(56, 189, 248, 0.2); border: 1.5px solid var(--primary); color: var(--primary); }
+        .act-statement .action-icon-circle { background: rgba(168, 85, 247, 0.2); border: 1.5px solid var(--purple); color: var(--purple); }
 
         /* Recent Activity Feed */
         .activity-card {
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid var(--border-glass);
+            background: var(--surface-card);
+            border: 1.5px solid var(--border-glass);
             border-radius: 16px;
             padding: 14px 16px;
             margin-bottom: 10px;
@@ -374,6 +643,8 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             display: flex;
             align-items: center;
             gap: 12px;
+            min-width: 0;
+            flex: 1;
         }
         .activity-badge {
             width: 40px;
@@ -385,39 +656,48 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             font-size: 1.1rem;
             flex-shrink: 0;
         }
-        .act-badge-in { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .act-badge-out { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
-        .act-badge-sale { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .act-badge-in { background: rgba(16, 185, 129, 0.18); color: var(--emerald); border: 1px solid var(--emerald); }
+        .act-badge-out { background: rgba(244, 63, 94, 0.18); color: var(--rose); border: 1px solid var(--rose); }
+        .act-badge-sale { background: rgba(56, 189, 248, 0.18); color: var(--primary); border: 1px solid var(--primary); }
 
+        .activity-details {
+            min-width: 0;
+        }
         .activity-details h5 {
-            font-size: 0.9rem;
-            font-weight: 800;
-            color: #f1f5f9;
+            font-size: 0.92rem;
+            font-weight: 900;
+            color: var(--text-main);
             margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         .activity-details span {
-            font-size: 0.72rem;
-            color: #94a3b8;
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            display: block;
         }
         .activity-amount {
             text-align: left;
+            flex-shrink: 0;
         }
         .activity-val {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 900;
             font-family: 'Inter', sans-serif;
             display: block;
         }
-        .activity-val.positive { color: #34d399; }
-        .activity-val.negative { color: #fb7185; }
+        .activity-val.positive { color: var(--emerald); }
+        .activity-val.negative { color: var(--rose); }
         .btn-wa-direct {
-            background: rgba(34, 197, 94, 0.15);
+            background: rgba(34, 197, 94, 0.18);
             border: 1px solid #22c55e;
-            color: #4ade80;
+            color: #22c55e;
             padding: 4px 8px;
             border-radius: 8px;
             font-size: 0.75rem;
-            font-weight: 700;
+            font-weight: 800;
             cursor: pointer;
             margin-top: 4px;
             display: inline-flex;
@@ -433,14 +713,15 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             margin-bottom: 18px;
         }
         .kpi-card {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid var(--border-glass);
+            background: var(--surface-card);
+            border: 1.5px solid var(--border-glass);
             border-radius: 16px;
             padding: 14px 16px;
+            box-shadow: var(--shadow-card);
         }
         .kpi-label {
-            font-size: 0.75rem;
-            font-weight: 700;
+            font-size: 0.76rem;
+            font-weight: 800;
             color: var(--text-muted);
             margin-bottom: 6px;
             display: flex;
@@ -448,17 +729,46 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             gap: 6px;
         }
         .kpi-value {
-            font-size: 1.45rem;
+            font-size: 1.5rem;
             font-weight: 900;
             font-family: 'Inter', 'Tajawal', sans-serif;
             line-height: 1.2;
+            color: var(--text-main);
+        }
+
+        .radar-card {
+            background: var(--surface-card);
+            border: 1.5px solid var(--border-glass);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow-card);
+        }
+        .radar-title {
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--text-main);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .radar-row {
+            background: var(--surface-sub);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         /* Bottom Sheet Modals (Native Mobile Sheet with Spring Animation) */
         .mobile-sheet-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(3, 7, 18, 0.75);
+            background: rgba(0, 0, 0, 0.75);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             z-index: 1000;
@@ -476,10 +786,10 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             right: 0;
             bottom: 0;
             max-height: 92vh;
-            background: #0f172a;
-            border-top: 1.5px solid var(--border-glass);
+            background: var(--sheet-bg);
+            border-top: 3.5px solid var(--primary);
             border-radius: 26px 26px 0 0;
-            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+            box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85);
             z-index: 1001;
             transform: translateY(100%);
             transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
@@ -487,6 +797,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             flex-direction: column;
             overflow: hidden;
             padding-bottom: var(--safe-bottom);
+            color: var(--text-main);
         }
         .mobile-bottom-sheet.active {
             transform: translateY(0);
@@ -494,7 +805,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         .sheet-drag-handle {
             width: 44px;
             height: 5px;
-            background: rgba(255, 255, 255, 0.25);
+            background: var(--border-glass);
             border-radius: 10px;
             margin: 10px auto 4px auto;
         }
@@ -503,25 +814,26 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1.5px solid var(--border-glass);
         }
         .sheet-title {
             font-size: 1.15rem;
             font-weight: 900;
-            color: #fff;
+            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 8px;
         }
         .btn-sheet-close {
-            background: rgba(255, 255, 255, 0.08);
-            border: none;
-            color: #94a3b8;
-            width: 32px;
-            height: 32px;
+            background: var(--surface-2);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 1rem;
+            font-weight: 900;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -538,33 +850,34 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         }
         .m-label {
             display: block;
-            font-size: 0.82rem;
-            font-weight: 700;
-            color: #cbd5e1;
+            font-size: 0.86rem;
+            font-weight: 800;
+            color: var(--text-main);
             margin-bottom: 6px;
         }
         .m-input, .m-select {
             width: 100%;
             padding: 13px 16px;
-            background: rgba(15, 23, 42, 0.9);
-            border: 1.5px solid rgba(255, 255, 255, 0.15);
-            color: #ffffff;
+            background: var(--input-bg);
+            border: 2px solid var(--input-border);
+            color: var(--input-color);
             border-radius: 14px;
             font-size: 1.05rem;
+            font-weight: 700;
             font-family: inherit;
             outline: none;
             box-sizing: border-box;
             transition: border-color 0.2s;
         }
         .m-input:focus, .m-select:focus {
-            border-color: #38bdf8;
+            border-color: var(--primary);
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.25);
         }
         .m-input.huge-number {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: 900;
             text-align: center;
-            color: #34d399;
+            color: var(--emerald);
             letter-spacing: 1px;
             font-family: 'Inter', monospace, sans-serif;
         }
@@ -574,7 +887,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             padding: 15px;
             border: none;
             border-radius: 14px;
-            font-size: 1.05rem;
+            font-size: 1.08rem;
             font-weight: 900;
             font-family: inherit;
             color: #ffffff;
@@ -597,10 +910,10 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(10, 15, 29, 0.95);
+            background: var(--nav-bg);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
-            border-top: 1px solid var(--border-glass);
+            border-top: 1.5px solid var(--border-glass);
             padding: 8px 12px calc(8px + var(--safe-bottom)) 12px;
             display: flex;
             justify-content: space-around;
@@ -612,7 +925,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             flex-direction: column;
             align-items: center;
             gap: 4px;
-            color: #64748b;
+            color: var(--text-muted);
             text-decoration: none;
             font-size: 0.72rem;
             font-weight: 800;
@@ -622,294 +935,23 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             cursor: pointer;
             border: none;
             background: transparent;
-        /* ═════════════════════════════════════════════════════════════════
-           🎨 4 HIGH-CONTRAST ERGONOMIC THEMES FOR MOBILE
-           ═════════════════════════════════════════════════════════════════ */
-        
-        /* THEME 1: ☀️ نهار وشمس ساطعة (SOLAR HIGH-CONTRAST 21:1) */
-        body[data-theme="solar"] {
-            --bg-base: #f8fafc;
-            --surface-1: #ffffff;
-            --surface-2: #f1f5f9;
-            --border-glass: rgba(15, 23, 42, 0.18);
-            --primary: #0284c7;
-            --emerald: #059669;
-            --amber: #d97706;
-            --rose: #dc2626;
-            --purple: #7c3aed;
-            --text-main: #020617;
-            --text-muted: #334155;
-            background-color: #f1f5f9;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(2, 132, 199, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(5, 150, 105, 0.05) 0%, transparent 40%);
-            color: #020617;
         }
-        body[data-theme="solar"] .mobile-header {
-            background: rgba(255, 255, 255, 0.95);
-            border-bottom: 2px solid #cbd5e1;
+        .nav-item i {
+            font-size: 1.25rem;
+            transition: transform 0.2s;
         }
-        body[data-theme="solar"] .brand-meta h1 { color: #020617; font-weight: 900; }
-        body[data-theme="solar"] .brand-meta span { color: #0284c7; font-weight: 800; }
-        body[data-theme="solar"] .btn-switch-desktop {
-            background: #e2e8f0;
-            border: 1.5px solid #cbd5e1;
-            color: #0f172a;
-            font-weight: 800;
+        .nav-item.active {
+            color: var(--primary);
         }
-        body[data-theme="solar"] .mode-segmented-pill {
-            background: #e2e8f0;
-            border: 2px solid #cbd5e1;
-        }
-        body[data-theme="solar"] .mode-tab-btn {
-            color: #334155;
-            font-weight: 800;
-        }
-        body[data-theme="solar"] .mode-tab-btn.active {
-            background: #ffffff;
-            color: #0284c7;
-            border: 1.5px solid #cbd5e1;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        }
-        body[data-theme="solar"] .liquidity-card {
-            background: #ffffff;
-            border: 2px solid #94a3b8;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-        }
-        body[data-theme="solar"] .liquidity-title { color: #334155; font-weight: 800; }
-        body[data-theme="solar"] .liquidity-grand {
-            color: #047857;
-            text-shadow: none;
-        }
-        body[data-theme="solar"] .liquidity-grand small { color: #059669; }
-        body[data-theme="solar"] .liquidity-breakdown { border-top: 1.5px solid #e2e8f0; }
-        body[data-theme="solar"] .vault-item {
-            background: #f8fafc;
-            border: 1.5px solid #cbd5e1;
-        }
-        body[data-theme="solar"] .vault-name { color: #334155; font-weight: 800; }
-        body[data-theme="solar"] .vault-amt { color: #020617; font-weight: 900; }
-        body[data-theme="solar"] .section-heading { color: #020617; font-weight: 900; }
-        body[data-theme="solar"] .power-action-btn {
-            background: #ffffff;
-            border: 2px solid #cbd5e1;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
-        }
-        body[data-theme="solar"] .action-title { color: #020617; font-weight: 900; }
-        body[data-theme="solar"] .action-subtitle { color: #334155; font-weight: 700; }
-        body[data-theme="solar"] .activity-card {
-            background: #ffffff;
-            border: 2px solid #e2e8f0;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-        body[data-theme="solar"] .activity-details h5 { color: #020617; font-weight: 900; }
-        body[data-theme="solar"] .activity-details span { color: #475569; font-weight: 600; }
-        body[data-theme="solar"] .activity-val.positive { color: #047857; font-weight: 900; }
-        body[data-theme="solar"] .activity-val.negative { color: #dc2626; font-weight: 900; }
-        body[data-theme="solar"] .kpi-card {
-            background: #ffffff;
-            border: 2px solid #cbd5e1;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        body[data-theme="solar"] .kpi-label { color: #334155; font-weight: 800; }
-        body[data-theme="solar"] .kpi-value { color: #020617; font-weight: 900; }
-        body[data-theme="solar"] .radar-card {
-            background: #ffffff;
-            border: 2px solid #cbd5e1;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-        body[data-theme="solar"] .radar-title { color: #020617; font-weight: 900; }
-        body[data-theme="solar"] .radar-row { border-bottom: 1.5px solid #f1f5f9; }
-        body[data-theme="solar"] .radar-name { color: #020617; font-weight: 900; }
-        body[data-theme="solar"] .mobile-bottom-sheet {
-            background: #ffffff;
-            border-top: 3px solid #0284c7;
-            color: #020617;
-        }
-        body[data-theme="solar"] .sheet-header { border-bottom: 1.5px solid #e2e8f0; }
-        body[data-theme="solar"] .sheet-title { color: #020617; font-weight: 900; }
-        body[data-theme="solar"] .btn-sheet-close {
-            background: #e2e8f0;
-            color: #0f172a;
-        }
-        body[data-theme="solar"] .sheet-drag-handle { background: #94a3b8; }
-        body[data-theme="solar"] .m-label { color: #0f172a; font-weight: 800; }
-        body[data-theme="solar"] .m-input,
-        body[data-theme="solar"] .m-select {
-            background: #f8fafc;
-            border: 2px solid #cbd5e1;
-            color: #020617;
-            font-weight: 700;
-        }
-        body[data-theme="solar"] .m-input:focus,
-        body[data-theme="solar"] .m-select:focus {
-            border-color: #0284c7;
-            background: #ffffff;
-        }
-        body[data-theme="solar"] .m-input.huge-number { color: #047857; }
-        body[data-theme="solar"] .bottom-nav-bar {
-            background: rgba(255, 255, 255, 0.96);
-            border-top: 2px solid #cbd5e1;
-        }
-        body[data-theme="solar"] .nav-item { color: #475569; font-weight: 800; }
-        body[data-theme="solar"] .nav-item.active { color: #0284c7; }
-        body[data-theme="solar"] .theme-card-option {
-            background: #f8fafc;
-            border: 2px solid #cbd5e1;
-        }
-        body[data-theme="solar"] .theme-card-option.active {
-            border-color: #0284c7;
-            background: #f0f9ff;
-        }
-        body[data-theme="solar"] .theme-title-row strong { color: #020617; }
-        body[data-theme="solar"] .theme-info-box p { color: #475569; }
-
-        /* THEME 2: 🌙 ليل أسود فاحم (OLED MIDNIGHT) */
-        body[data-theme="midnight"] {
-            --bg-base: #000000;
-            --surface-1: #090d16;
-            --surface-2: #101726;
-            --border-glass: rgba(255, 255, 255, 0.16);
-            --primary: #38bdf8;
-            --emerald: #10b981;
-            --amber: #f59e0b;
-            --rose: #f43f5e;
-            --purple: #a855f7;
-            --text-main: #ffffff;
-            --text-muted: #94a3b8;
-            background-color: #000000;
-            background-image: none;
-            color: #ffffff;
-        }
-        body[data-theme="midnight"] .mobile-header {
-            background: rgba(0, 0, 0, 0.95);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        body[data-theme="midnight"] .liquidity-card,
-        body[data-theme="midnight"] .activity-card,
-        body[data-theme="midnight"] .kpi-card,
-        body[data-theme="midnight"] .radar-card {
-            background: #080c14;
-            border: 1.5px solid rgba(56, 189, 248, 0.3);
-        }
-        body[data-theme="midnight"] .power-action-btn {
-            background: #090e18;
-            border: 1.5px solid rgba(255, 255, 255, 0.16);
-        }
-        body[data-theme="midnight"] .bottom-nav-bar {
-            background: rgba(0, 0, 0, 0.96);
-            border-top: 1px solid rgba(255, 255, 255, 0.18);
-        }
-        body[data-theme="midnight"] .mobile-bottom-sheet {
-            background: #05080f;
-            border-top: 3px solid #38bdf8;
-        }
-
-        /* THEME 3: 🧠 التركيز المالي السيادي (EXECUTIVE NAVY & GOLD) */
-        body[data-theme="navy"] {
-            --bg-base: #030a1a;
-            --surface-1: #0a1628;
-            --surface-2: #10223d;
-            --border-glass: rgba(56, 189, 248, 0.22);
-            --primary: #38bdf8;
-            --emerald: #10b981;
-            --amber: #fbbf24;
-            --rose: #f43f5e;
-            --purple: #818cf8;
-            --text-main: #ffffff;
-            --text-muted: #93c5fd;
-            background-color: #030a1a;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 40%);
-            color: #ffffff;
-        }
-        body[data-theme="navy"] .mobile-header {
-            background: rgba(3, 10, 26, 0.92);
-            border-bottom: 1.5px solid rgba(56, 189, 248, 0.25);
-        }
-        body[data-theme="navy"] .liquidity-card {
-            background: linear-gradient(135deg, #0a1628 0%, #0e1e38 100%);
-            border: 2px solid rgba(251, 191, 36, 0.45);
-        }
-        body[data-theme="navy"] .liquidity-grand {
-            color: #fbbf24;
-            text-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
-        }
-        body[data-theme="navy"] .liquidity-grand small { color: #fef08a; }
-        body[data-theme="navy"] .power-action-btn {
-            background: #0d1d36;
-            border: 1.5px solid rgba(56, 189, 248, 0.3);
-        }
-        body[data-theme="navy"] .activity-card,
-        body[data-theme="navy"] .kpi-card,
-        body[data-theme="navy"] .radar-card {
-            background: #0a1628;
-            border: 1.5px solid rgba(56, 189, 248, 0.25);
-        }
-        body[data-theme="navy"] .bottom-nav-bar {
-            background: rgba(3, 10, 26, 0.95);
-            border-top: 1.5px solid rgba(56, 189, 248, 0.25);
-        }
-        body[data-theme="navy"] .mobile-bottom-sheet {
-            background: #060e20;
-            border-top: 3px solid #fbbf24;
-        }
-
-        /* THEME 4: 🌿 الراحة واليقظة الممتدة (FOREST EMERALD & MINT) */
-        body[data-theme="forest"] {
-            --bg-base: #03140d;
-            --surface-1: #072317;
-            --surface-2: #0e3424;
-            --border-glass: rgba(52, 211, 153, 0.25);
-            --primary: #34d399;
-            --emerald: #10b981;
-            --amber: #fbbf24;
-            --rose: #f43f5e;
-            --purple: #6ee7b7;
-            --text-main: #ffffff;
-            --text-muted: #a7f3d0;
-            background-color: #03140d;
-            background-image: 
-                radial-gradient(circle at 15% 25%, rgba(52, 211, 153, 0.12) 0%, transparent 45%),
-                radial-gradient(circle at 85% 75%, rgba(16, 185, 129, 0.1) 0%, transparent 45%);
-            color: #ffffff;
-        }
-        body[data-theme="forest"] .mobile-header {
-            background: rgba(3, 20, 13, 0.92);
-            border-bottom: 1.5px solid rgba(52, 211, 153, 0.3);
-        }
-        body[data-theme="forest"] .brand-avatar {
-            background: linear-gradient(135deg, #059669, #10b981);
-        }
-        body[data-theme="forest"] .liquidity-card {
-            background: linear-gradient(135deg, #072317 0%, #0d2f20 100%);
-            border: 2px solid rgba(52, 211, 153, 0.4);
-        }
-        body[data-theme="forest"] .liquidity-grand { color: #34d399; }
-        body[data-theme="forest"] .power-action-btn {
-            background: #08281a;
-            border: 1.5px solid rgba(52, 211, 153, 0.3);
-        }
-        body[data-theme="forest"] .activity-card,
-        body[data-theme="forest"] .kpi-card,
-        body[data-theme="forest"] .radar-card {
-            background: #072317;
-            border: 1.5px solid rgba(52, 211, 153, 0.25);
-        }
-        body[data-theme="forest"] .bottom-nav-bar {
-            background: rgba(3, 20, 13, 0.95);
-            border-top: 1.5px solid rgba(52, 211, 153, 0.3);
-        }
-        body[data-theme="forest"] .mobile-bottom-sheet {
-            background: #04170f;
-            border-top: 3px solid #34d399;
+        .nav-item.active i {
+            transform: translateY(-2px);
+            color: var(--primary);
         }
 
         /* Theme Selection Sheet Styles */
         .theme-card-option {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.12);
+            background: var(--surface-sub);
+            border: 2px solid var(--border-glass);
             border-radius: 16px;
             padding: 13px 14px;
             display: flex;
@@ -921,8 +963,8 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         }
         .theme-card-option:active { transform: scale(0.97); }
         .theme-card-option.active {
-            border-color: #38bdf8;
-            background: rgba(56, 189, 248, 0.14);
+            border-color: var(--primary);
+            background: rgba(56, 189, 248, 0.15);
             box-shadow: 0 4px 18px rgba(56, 189, 248, 0.25);
         }
         .theme-swatch-box {
@@ -946,7 +988,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         }
         .theme-title-row strong {
             font-size: 0.92rem;
-            color: #ffffff;
+            color: var(--text-main);
             font-weight: 900;
         }
         .theme-badge {
@@ -956,10 +998,10 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         }
         .theme-info-box p {
             font-size: 0.74rem;
-            color: #94a3b8;
+            color: var(--text-muted);
             line-height: 1.35;
             margin: 0;
-            font-weight: 500;
+            font-weight: 600;
         }
         .theme-check-icon {
             font-size: 1.35rem;
@@ -967,7 +1009,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             transition: color 0.2s;
         }
         .theme-card-option.active .theme-check-icon {
-            color: #38bdf8;
+            color: var(--primary);
         }
     </style>
 </head>
@@ -980,7 +1022,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
                 <i class="fa-solid fa-gem"></i>
             </div>
             <div class="brand-meta">
-                <h1 id="mobile-company-name">مقاييس لإدارة الأعمال</h1>
+                <h1 id="mobile-company-name"><?php echo htmlspecialchars($preloadedData['companyName']); ?></h1>
                 <span id="mobile-user-greeting">مرحباً بك 🌟</span>
             </div>
         </div>
@@ -1020,38 +1062,29 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
          MODE 1: ⚡ العمليات السريعة (OPERATIONS MODE)
          ═════════════════════════════════════════════════════════════════ -->
     <main id="mode-operations-section" class="mobile-content">
-
-        <!-- A. Instant Liquidity Pulse Card -->
+        <!-- Real-Time Liquidity Pulse Card -->
         <div class="liquidity-card">
             <div class="liquidity-top">
                 <span class="liquidity-title">
-                    <i class="fa-solid fa-wallet text-sky-400"></i> إجمالي السيولة المتاحة فوراً
+                    <i class="fa-solid fa-wallet text-sky-400"></i> إجمالي السيولة النقدية والبنكية اللحظية
                 </span>
-                <span style="font-size:0.75rem; color:#38bdf8; font-weight:800; background:rgba(56,189,248,0.12); padding:2px 8px; border-radius:10px;">
-                    مباشر 🟢
+                <span style="font-size:0.75rem; background:rgba(16,185,129,0.18); border:1px solid #10b981; color:#10b981; padding:2px 8px; border-radius:20px; font-weight:800;">
+                    مباشر ⚡
                 </span>
             </div>
             <div class="liquidity-grand" id="mobile-total-liquidity">
-                --- <small>SDG</small>
+                0 <small>SDG</small>
             </div>
-            <div class="liquidity-breakdown">
-                <div class="vault-item">
-                    <span class="vault-name">💵 الخزينة الرئيسية (كاش)</span>
-                    <span class="vault-amt" id="mobile-cash-vault">0</span>
-                </div>
-                <div class="vault-item">
-                    <span class="vault-name">🏦 بنك الخرطوم (بنكك)</span>
-                    <span class="vault-amt" id="mobile-bankak-vault">0</span>
-                </div>
+            <div class="liquidity-breakdown" id="mobile-vaults-container">
+                <!-- Dynamic Vaults Loaded Here -->
             </div>
         </div>
 
-        <!-- B. 4 Power Quick Actions (2x2 Grid) -->
+        <!-- 4 Power Quick Actions ($2x2 Grid) -->
         <div class="section-heading">
-            <span>⚡ الإجراءات المالية السريعة:</span>
-            <span style="font-size:0.75rem; color:#94a3b8;">إدخال فوري في 5 ثوانٍ</span>
+            <span>⚡ الإجراءات المالية السريعة</span>
+            <small style="color:var(--text-muted); font-size:0.75rem;">لمسة واحدة للتنفيذ</small>
         </div>
-
         <div class="actions-2x2-grid">
             <!-- 1. Quick Receipt (قبض / إشعار بنكك) -->
             <div class="power-action-btn act-receipt" onclick="openBottomSheet('sheet-receipt')">
@@ -1060,7 +1093,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
                 </div>
                 <div>
                     <div class="action-title">سند قبض</div>
-                    <div class="action-subtitle">استلام كاش / بنكك</div>
+                    <div class="action-subtitle">إشعار بنكك / كاش</div>
                 </div>
             </div>
 
@@ -1071,7 +1104,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
                 </div>
                 <div>
                     <div class="action-title">سند صرف</div>
-                    <div class="action-subtitle">مصروفات / مورد</div>
+                    <div class="action-subtitle">سداد مورد / منصرف</div>
                 </div>
             </div>
 
@@ -1082,7 +1115,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
                 </div>
                 <div>
                     <div class="action-title">فاتورة بيع</div>
-                    <div class="action-subtitle">بيع مباشر + واتساب</div>
+                    <div class="action-subtitle">بيع فوري + واتساب</div>
                 </div>
             </div>
 
@@ -1093,224 +1126,219 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
                 </div>
                 <div>
                     <div class="action-title">كشف حساب</div>
-                    <div class="action-subtitle">مطالبة عميل واتساب</div>
+                    <div class="action-subtitle">رصيد ومطالبة واتساب</div>
                 </div>
             </div>
         </div>
 
-        <!-- C. Today's Live Transactions Feed -->
+        <!-- Real Recent Activity Feed -->
         <div class="section-heading">
-            <span>🕒 أحدث معاملات اليوم:</span>
-            <span id="mobile-tx-count" style="font-size:0.78rem; color:#38bdf8; font-weight:700;">جاري التحميل...</span>
+            <span>🕒 سجل العمليات المباشرة (اليوم)</span>
+            <small id="mobile-tx-count" style="color:var(--text-muted); font-size:0.75rem;">0 حركة</small>
         </div>
-        <div id="mobile-live-feed-container">
-            <!-- Dynamic feed rendered via JS -->
+        <div id="mobile-activity-feed">
+            <!-- Dynamic Feed Loaded Here -->
         </div>
-
     </main>
 
     <!-- ═════════════════════════════════════════════════════════════════
-         MODE 2: 📊 التقارير الذكية (ANALYTICS & EXECUTIVE MODE)
+         MODE 2: 📊 التقارير الذكية (EXECUTIVE ANALYTICS MODE)
          ═════════════════════════════════════════════════════════════════ -->
     <main id="mode-analytics-section" class="mobile-content" style="display:none;">
-
         <!-- Executive KPI Matrix -->
-        <div class="section-heading">
-            <span>📈 ملخص الأداء المالي لليوم:</span>
-            <span style="font-size:0.75rem; color:#10b981;">بيانات لحظية</span>
-        </div>
-
         <div class="analytics-grid">
-            <div class="kpi-card" style="border-right:3px solid #38bdf8;">
-                <span class="kpi-label"><i class="fa-solid fa-cart-shopping text-sky-400"></i> مبيعات اليوم</span>
-                <span class="kpi-value" id="kpi-today-sales" style="color:#38bdf8;">0</span>
+            <div class="kpi-card">
+                <div class="kpi-label">
+                    <i class="fa-solid fa-chart-line text-sky-400"></i> مبيعات اليوم
+                </div>
+                <div class="kpi-value" id="kpi-today-sales" style="color:var(--primary);">0</div>
             </div>
-            <div class="kpi-card" style="border-right:3px solid #10b981;">
-                <span class="kpi-label"><i class="fa-solid fa-arrow-down-left text-emerald-400"></i> المقبوضات</span>
-                <span class="kpi-value" id="kpi-today-receipts" style="color:#34d399;">0</span>
+            <div class="kpi-card">
+                <div class="kpi-label">
+                    <i class="fa-solid fa-arrow-down text-emerald-400"></i> تحصيلات اليوم
+                </div>
+                <div class="kpi-value" id="kpi-today-receipts" style="color:var(--emerald);">0</div>
             </div>
-            <div class="kpi-card" style="border-right:3px solid #f43f5e;">
-                <span class="kpi-label"><i class="fa-solid fa-arrow-up-right text-rose-400"></i> المصروفات</span>
-                <span class="kpi-value" id="kpi-today-payments" style="color:#fb7185;">0</span>
+            <div class="kpi-card">
+                <div class="kpi-label">
+                    <i class="fa-solid fa-arrow-up text-rose-400"></i> منصرفات اليوم
+                </div>
+                <div class="kpi-value" id="kpi-today-payments" style="color:var(--rose);">0</div>
             </div>
-            <div class="kpi-card" style="border-right:3px solid #f59e0b;">
-                <span class="kpi-label"><i class="fa-solid fa-coins text-amber-400"></i> صافي الدخل</span>
-                <span class="kpi-value" id="kpi-today-net" style="color:#fbbf24;">0</span>
+            <div class="kpi-card">
+                <div class="kpi-label">
+                    <i class="fa-solid fa-scale-balanced text-amber-400"></i> صافي التدفق
+                </div>
+                <div class="kpi-value" id="kpi-today-net" style="color:var(--amber);">0</div>
             </div>
         </div>
 
         <!-- Top Debtors Radar (العملاء الأكثر مديونية) -->
-        <div class="section-heading" style="margin-top:14px;">
-            <span>🚨 رادار العملاء الأكثر مديونية:</span>
-            <span style="font-size:0.75rem; color:#fb7185;">أولويات التحصيل</span>
-        </div>
-        <div id="mobile-debtors-container">
-            <!-- Populated via JS -->
-        </div>
-
-        <!-- Critical Low Stock Alert -->
-        <div class="section-heading" style="margin-top:20px;">
-            <span>📦 تنبيهات المخزون الحرج:</span>
-            <span style="font-size:0.75rem; color:#f59e0b;">شارفت على النفاد</span>
-        </div>
-        <div id="mobile-low-stock-container">
-            <!-- Populated via JS -->
+        <div class="radar-card">
+            <div class="radar-title">
+                <span><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> أعلى 5 عملاء مديونية (مطلوب سدادهم)</span>
+            </div>
+            <div id="mobile-debtors-container">
+                <!-- Dynamic Debtors Rendered Here -->
+            </div>
         </div>
 
+        <!-- Low Stock Radar (المخزون الحرج) -->
+        <div class="radar-card">
+            <div class="radar-title">
+                <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> رادار المخزون الحرج (أوشك على النفاد)</span>
+            </div>
+            <div id="mobile-low-stock-container">
+                <!-- Dynamic Low Stock Rendered Here -->
+            </div>
+        </div>
     </main>
 
     <!-- ═════════════════════════════════════════════════════════════════
-         BOTTOM SHEET 1: سند قبض سريع (QUICK RECEIPT)
+         BOTTOM SHEETS (POWER ACTION MODALS)
          ═════════════════════════════════════════════════════════════════ -->
+
+    <!-- SHEET 1: سند قبض وبنكك -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-receipt" onclick="closeBottomSheet('sheet-receipt')"></div>
     <div class="mobile-bottom-sheet" id="sheet-receipt">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
-            <span class="sheet-title" style="color:#34d399;">
-                <i class="fa-solid fa-hand-holding-dollar"></i> سند قبض / تحويل بنكك
+            <span class="sheet-title" style="color:var(--emerald);">
+                <i class="fa-solid fa-hand-holding-dollar"></i> تسجيل سند قبض جديد
             </span>
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-receipt')">✕</button>
         </div>
         <div class="sheet-body">
-            <form id="form-quick-receipt" onsubmit="handleQuickReceiptSubmit(event)">
+            <form onsubmit="handleQuickReceiptSubmit(event)">
                 <div class="m-form-group">
                     <label class="m-label">المبلغ المستلم (SDG):</label>
-                    <input type="number" id="receipt-amount" class="m-input huge-number" placeholder="0.00" required step="any" inputmode="decimal">
+                    <input type="number" id="receipt-amount" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal">
                 </div>
                 <div class="m-form-group">
-                    <label class="m-label">الحساب / العميل المستلم منه:</label>
+                    <label class="m-label">اسم العميل:</label>
                     <select id="receipt-customer" class="m-select" required>
-                        <option value="">-- اختر العميل --</option>
+                        <option value="">-- جاري التحميل من قاعدة البيانات... --</option>
                     </select>
                 </div>
                 <div class="m-form-group">
-                    <label class="m-label">جهة الاستلام (إلى أين وصل المبلغ):</label>
+                    <label class="m-label">الجهة المستلمة (الخزنة / البنك):</label>
                     <select id="receipt-destination" class="m-select" required>
-                        <option value="bankak">🏦 بنك الخرطوم (بنكك)</option>
-                        <option value="safe_main">💵 الخزينة الرئيسية (كاش)</option>
-                        <option value="fawry">🏦 بنك فيصل الإسلامي (فوري)</option>
+                        <!-- Loaded dynamically -->
                     </select>
                 </div>
                 <div class="m-form-group">
-                    <label class="m-label">رقم إشعار التحويل / المرجع:</label>
-                    <input type="text" id="receipt-ref" class="m-input" placeholder="مثال: FT26092718..." style="direction:ltr; font-family:monospace;">
+                    <label class="m-label">رقم إشعار بنكك / المرجع (اختياري):</label>
+                    <input type="text" id="receipt-ref" class="m-input" placeholder="مثال: 9481023">
                 </div>
                 <div class="m-form-group">
-                    <label class="m-label">ملاحظات / البيان:</label>
-                    <input type="text" id="receipt-notes" class="m-input" placeholder="دفعة تحت الحساب...">
+                    <label class="m-label">ملاحظات أو بيان السند:</label>
+                    <input type="text" id="receipt-notes" class="m-input" placeholder="دفعة تحت الحساب">
                 </div>
-                <button type="submit" class="m-btn-submit" style="background:linear-gradient(135deg, #10b981, #059669);">
-                    <i class="fa-solid fa-check-circle"></i> حفظ السند واعتماد الرصيد فوراً
+                <button type="submit" class="m-btn-submit">
+                    <i class="fa-solid fa-check"></i> حفظ السند ومشاركة إيصال الواتساب 💬
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         BOTTOM SHEET 2: سند صرف سريع (QUICK PAYMENT)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- SHEET 2: سند صرف -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-payment" onclick="closeBottomSheet('sheet-payment')"></div>
     <div class="mobile-bottom-sheet" id="sheet-payment">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
-            <span class="sheet-title" style="color:#fb7185;">
-                <i class="fa-solid fa-money-bill-transfer"></i> سند صرف نقدية / مورد
+            <span class="sheet-title" style="color:var(--rose);">
+                <i class="fa-solid fa-money-bill-transfer"></i> تسجيل سند صرف / نثريات
             </span>
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-payment')">✕</button>
         </div>
         <div class="sheet-body">
-            <form id="form-quick-payment" onsubmit="handleQuickPaymentSubmit(event)">
+            <form onsubmit="handleQuickPaymentSubmit(event)">
                 <div class="m-form-group">
                     <label class="m-label">المبلغ المصروف (SDG):</label>
-                    <input type="number" id="payment-amount" class="m-input huge-number" placeholder="0.00" style="color:#fb7185;" required step="any" inputmode="decimal">
+                    <input type="number" id="payment-amount" class="m-input huge-number" style="color:var(--rose);" placeholder="0.00" step="any" required inputmode="decimal">
                 </div>
                 <div class="m-form-group">
-                    <label class="m-label">طريقة الدفع (الخصم من):</label>
+                    <label class="m-label">يصرف إلى (اسم المستلم أو المورد):</label>
+                    <input type="text" id="payment-recipient" class="m-input" placeholder="مثال: شركة الكهرباء أو اسم المورد" required>
+                </div>
+                <div class="m-form-group">
+                    <label class="m-label">يصرف من حساب:</label>
                     <select id="payment-source" class="m-select" required>
-                        <option value="safe_main">💵 الخزينة الرئيسية (كاش)</option>
-                        <option value="bankak">🏦 بنك الخرطوم (بنكك)</option>
+                        <!-- Loaded dynamically -->
                     </select>
                 </div>
                 <div class="m-form-group">
-                    <label class="m-label">الجهة المصروف لها / المورد / البند:</label>
-                    <input type="text" id="payment-recipient" class="m-input" placeholder="اسم المورد أو بند المصروف (مثال: نثريات ضيافة)" required>
+                    <label class="m-label">بيان الصرف:</label>
+                    <input type="text" id="payment-notes" class="m-input" placeholder="مصاريف تشغيل / نثريات" required>
                 </div>
-                <div class="m-form-group">
-                    <label class="m-label">البيان والتفاصيل:</label>
-                    <input type="text" id="payment-notes" class="m-input" placeholder="ملاحظات الصرف...">
-                </div>
-                <button type="submit" class="m-btn-submit" style="background:linear-gradient(135deg, #f43f5e, #e11d48);">
-                    <i class="fa-solid fa-check-circle"></i> تأكيد صرف المبلغ
+                <button type="submit" class="m-btn-submit" style="background: linear-gradient(135deg, var(--rose), #be123c);">
+                    <i class="fa-solid fa-check"></i> حفظ وترحيل سند الصرف فوراً
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         BOTTOM SHEET 3: فاتورة بيع سريعة (FAST MOBILE SALE)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- SHEET 3: فاتورة بيع سريعة -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-sale" onclick="closeBottomSheet('sheet-sale')"></div>
     <div class="mobile-bottom-sheet" id="sheet-sale">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
-            <span class="sheet-title" style="color:#38bdf8;">
-                <i class="fa-solid fa-receipt"></i> إصدار فاتورة بيع سريعة
+            <span class="sheet-title" style="color:var(--primary);">
+                <i class="fa-solid fa-receipt"></i> إصدار فاتورة بيع فورية
             </span>
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-sale')">✕</button>
         </div>
         <div class="sheet-body">
-            <form id="form-quick-sale" onsubmit="handleQuickSaleSubmit(event)">
+            <form onsubmit="handleQuickSaleSubmit(event)">
                 <div class="m-form-group">
                     <label class="m-label">العميل:</label>
-                    <select id="sale-customer" class="m-select" required>
-                        <option value="cash_walkin">عميل نقدي عام (Walk-in)</option>
+                    <select id="sale-customer" class="m-select">
+                        <option value="walkin">عميل نقدي عام (Walk-in)</option>
                     </select>
                 </div>
                 <div class="m-form-group">
                     <label class="m-label">الصنف المراد بيعه:</label>
-                    <select id="sale-item" class="m-select" onchange="onSaleItemChange(this.value)" required>
+                    <select id="sale-item" class="m-select" onchange="handleItemSelect(this)" required>
                         <option value="">-- اختر الصنف --</option>
                     </select>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                     <div class="m-form-group">
-                        <label class="m-label">الكمية:</label>
-                        <input type="number" id="sale-qty" class="m-input" value="1" min="1" oninput="calcSaleTotal()" required>
+                        <label class="m-label">الكمية المباعة:</label>
+                        <input type="number" id="sale-qty" class="m-input" value="1" min="1" step="any" oninput="calculateSaleTotal()" required inputmode="numeric">
                     </div>
                     <div class="m-form-group">
-                        <label class="m-label">سعر الوحدة:</label>
-                        <input type="number" id="sale-price" class="m-input" value="0" oninput="calcSaleTotal()" required>
-                    </div>
-                </div>
-                <div class="m-form-group" style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:12px; text-align:center;">
-                    <span style="font-size:0.8rem; color:#94a3b8; font-weight:700;">إجمالي الفاتورة المستحق:</span>
-                    <div id="sale-grand-total" style="font-size:1.8rem; font-weight:900; color:#38bdf8; font-family:'Inter', sans-serif;">
-                        0.00 <small style="font-size:0.9rem;">SDG</small>
+                        <label class="m-label">سعر الوحدة (SDG):</label>
+                        <input type="number" id="sale-price" class="m-input" placeholder="0.00" oninput="calculateSaleTotal()" required inputmode="decimal">
                     </div>
                 </div>
                 <div class="m-form-group">
-                    <label class="m-label">طريقة الدفع:</label>
-                    <select id="sale-payment-type" class="m-select">
-                        <option value="cash">💵 نقداً (كاش)</option>
-                        <option value="bankak">🏦 بنكك (تحويل فوري)</option>
-                        <option value="credit">⏳ آجل (على الحساب)</option>
+                    <label class="m-label">إجمالي الفاتورة الصافي:</label>
+                    <div id="sale-total-display" style="font-size:1.6rem; font-weight:900; color:var(--emerald); background:var(--surface-sub); padding:10px; border-radius:12px; text-align:center; border:1px solid var(--border-glass); font-family:'Inter', sans-serif;">
+                        0 SDG
+                    </div>
+                </div>
+                <div class="m-form-group">
+                    <label class="m-label">طريقة السداد:</label>
+                    <select id="sale-payment-method" class="m-select">
+                        <option value="cash">نقداً (كاش)</option>
+                        <option value="bankak">تحويل بنكك</option>
+                        <option value="credit">آجل على الحساب (دين)</option>
                     </select>
                 </div>
-                <button type="submit" class="m-btn-submit" style="background:linear-gradient(135deg, #0ea5e9, #2563eb);">
-                    <i class="fa-solid fa-receipt"></i> إصدار الفاتورة وإرسالها بالواتساب 🚀
+                <button type="submit" class="m-btn-submit" style="background: linear-gradient(135deg, var(--primary), #0284c7);">
+                    <i class="fa-solid fa-print"></i> حفظ الفاتورة وتوليد إشعار واتساب 💬
                 </button>
             </form>
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         BOTTOM SHEET 4: كشف حساب عميل ومطالبة (CUSTOMER STATEMENT)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- SHEET 4: كشف حساب عميل ومطالبة -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-statement" onclick="closeBottomSheet('sheet-statement')"></div>
     <div class="mobile-bottom-sheet" id="sheet-statement">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
-            <span class="sheet-title" style="color:#c084fc;">
+            <span class="sheet-title" style="color:var(--purple);">
                 <i class="fa-solid fa-address-book"></i> رصيد العميل ومطالبة واتساب
             </span>
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-statement')">✕</button>
@@ -1319,39 +1347,37 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             <div class="m-form-group">
                 <label class="m-label">اختر العميل:</label>
                 <select id="statement-customer-select" class="m-select" onchange="renderCustomerMiniStatement(this.value)">
-                    <option value="">-- اختر عميلاً لعرض رصيده --</option>
+                    <option value="">-- اختر عميلاً لعرض رصيده الفعلي --</option>
                 </select>
             </div>
             
             <div id="statement-result-card" style="display:none;">
-                <div style="background:rgba(0,0,0,0.3); border:1.5px solid rgba(168,85,247,0.3); border-radius:16px; padding:16px; text-align:center; margin-bottom:14px;">
-                    <span style="font-size:0.8rem; color:#94a3b8; font-weight:700;">الرصيد المتبقي على العميل:</span>
-                    <div id="cust-balance-amt" style="font-size:2rem; font-weight:900; color:#fb7185; font-family:'Inter', sans-serif; margin:4px 0;">
+                <div style="background:var(--surface-sub); border:2px solid var(--border-glass); border-radius:16px; padding:16px; text-align:center; margin-bottom:14px;">
+                    <span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">الرصيد المتبقي على العميل:</span>
+                    <div id="cust-balance-amt" style="font-size:2rem; font-weight:900; color:var(--rose); font-family:'Inter', sans-serif; margin:4px 0;">
                         0.00
                     </div>
-                    <span id="cust-balance-status" style="font-size:0.82rem; font-weight:800; color:#e2e8f0;">مدين للشركة</span>
+                    <span id="cust-balance-status" style="font-size:0.84rem; font-weight:800; color:var(--text-main);">مدين للشركة</span>
                 </div>
 
                 <div class="m-form-group" style="display:flex; gap:8px;">
-                    <button type="button" onclick="sendWhatsAppClaim()" style="flex:1; background:#22c55e; color:#fff; border:none; padding:12px; border-radius:12px; font-weight:800; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <button type="button" onclick="sendWhatsAppClaim()" style="flex:1; background:#22c55e; color:#fff; border:none; padding:13px; border-radius:12px; font-weight:900; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 15px rgba(34,197,94,0.3);">
                         <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> إرسال مطالبة بالواتساب
                     </button>
-                    <button type="button" onclick="openFullStatementInDesktop()" style="background:rgba(255,255,255,0.08); color:#cbd5e1; border:1px solid rgba(255,255,255,0.15); padding:12px 14px; border-radius:12px; font-weight:700; cursor:pointer;">
+                    <button type="button" onclick="openFullStatementInDesktop()" style="background:var(--surface-2); color:var(--text-main); border:1.5px solid var(--border-glass); padding:12px 14px; border-radius:12px; font-weight:800; cursor:pointer;">
                         الكشف الكامل 📄
                     </button>
                 </div>
 
                 <div style="margin-top:14px;">
-                    <span style="font-size:0.82rem; font-weight:800; color:#cbd5e1; margin-bottom:8px; display:block;">آخر المعاملات المسجلة للعميل:</span>
-                    <div id="cust-recent-txs" style="font-size:0.82rem; color:#94a3b8;"></div>
+                    <span style="font-size:0.84rem; font-weight:800; color:var(--text-main); margin-bottom:8px; display:block;">آخر المعاملات المسجلة للعميل:</span>
+                    <div id="cust-recent-txs" style="font-size:0.84rem; color:var(--text-muted);"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         BOTTOM SHEET 5: 🎨 سمات التباين والراحة البصرية (4 سمات هندسية)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- SHEET 5: 🎨 سمات التباين والراحة البصرية -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-theme" onclick="closeBottomSheet('sheet-theme')"></div>
     <div class="mobile-bottom-sheet" id="sheet-theme">
         <div class="sheet-drag-handle"></div>
@@ -1363,13 +1389,13 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         </div>
         <div class="sheet-body" style="padding-bottom: 24px;">
             <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px; font-weight: 700;">
-                اختر السمة المناسبة للإضاءة الحالية والبيئة المحيطة (شمس، ليل، قيادة، أو تركيز مالي عميق):
+                اختر السمة المناسبة لظروف إضاءتك وحركتك الحالية:
             </p>
             
             <div class="theme-options-grid" style="display: flex; flex-direction: column; gap: 10px;">
                 <!-- Theme 1: Solar -->
                 <div class="theme-card-option" id="theme-opt-solar" onclick="selectTheme('solar')">
-                    <div class="theme-swatch-box" style="background: #ffffff; border: 2px solid #94a3b8;">
+                    <div class="theme-swatch-box" style="background: #ffffff; border: 2px solid #cbd5e1;">
                         <span style="background: #020617; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #0284c7; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #059669; width: 12px; height: 12px; border-radius: 50%;"></span>
@@ -1464,22 +1490,40 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
         </button>
     </nav>
 
-    <!-- Core Mobile Application Logic -->
+    <!-- ═════════════════════════════════════════════════════════════════
+         CORE JAVASCRIPT APPLICATION ENGINE
+         ═════════════════════════════════════════════════════════════════ -->
     <script>
         // Haptic Feedback Helper
         function triggerHaptic(type = 'light') {
             if (navigator.vibrate) {
-                if (type === 'heavy') navigator.vibrate([20, 50, 20]);
+                if (type === 'heavy') navigator.vibrate([25, 45, 25]);
                 else navigator.vibrate(15);
             }
         }
 
-        // Theme Manager Functions
+        // ═════════════════════════════════════════════════════════════════
+        // THEME MANAGER ENGINE
+        // ═════════════════════════════════════════════════════════════════
         function selectTheme(themeKey) {
             triggerHaptic('medium');
+            document.documentElement.setAttribute('data-theme', themeKey);
             document.body.setAttribute('data-theme', themeKey);
             localStorage.setItem('magaiees_mobile_theme', themeKey);
             document.cookie = "magaiees_mobile_theme=" + themeKey + "; path=/; max-age=31536000; SameSite=Lax";
+            
+            // Update browser status bar theme color
+            const metaColors = {
+                solar: '#f1f5f9',
+                midnight: '#000000',
+                navy: '#030a1a',
+                forest: '#03140d'
+            };
+            const metaTag = document.querySelector('meta[name="theme-color"]');
+            if (metaTag && metaColors[themeKey]) {
+                metaTag.setAttribute('content', metaColors[themeKey]);
+            }
+
             updateThemeUI(themeKey);
             setTimeout(() => {
                 closeBottomSheet('sheet-theme');
@@ -1511,6 +1555,7 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
 
         function initTheme() {
             const savedTheme = localStorage.getItem('magaiees_mobile_theme') || document.body.getAttribute('data-theme') || 'midnight';
+            document.documentElement.setAttribute('data-theme', savedTheme);
             document.body.setAttribute('data-theme', savedTheme);
             updateThemeUI(savedTheme);
         }
@@ -1579,10 +1624,46 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
         }
 
-        // In-Memory Mobile DB
+        // ═════════════════════════════════════════════════════════════════
+        // LIVE DATA ENGINE & DATABASE SYNC
+        // ═════════════════════════════════════════════════════════════════
         let M_CUSTOMERS = [];
         let M_ITEMS = [];
+        let M_VAULTS = [];
         let M_TRANSACTIONS = [];
+        let activeStatementCustomer = null;
+
+        function getTenantKey(baseKey) {
+            try {
+                const u = JSON.parse(localStorage.getItem('user') || '{}');
+                if (u.tenant_id && u.tenant_id !== 'default') {
+                    return 'tenant_' + u.tenant_id + '_' + baseKey;
+                }
+            } catch(e){}
+            return baseKey;
+        }
+
+        function loadTenantArray(baseKey) {
+            const tKey = getTenantKey(baseKey);
+            let raw = localStorage.getItem(tKey);
+            if (!raw && tKey !== baseKey) {
+                raw = localStorage.getItem(baseKey);
+            }
+            try {
+                return JSON.parse(raw || '[]');
+            } catch(e) {
+                return [];
+            }
+        }
+
+        function saveTenantArray(baseKey, arr) {
+            const tKey = getTenantKey(baseKey);
+            const str = JSON.stringify(arr);
+            try {
+                localStorage.setItem(tKey, str);
+                localStorage.setItem(baseKey, str);
+            } catch(e){}
+        }
 
         function refreshMobileData(showToastAnim = false) {
             const icon = document.getElementById('refresh-icon');
@@ -1595,37 +1676,79 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
                     document.getElementById('mobile-user-greeting').innerText = `مرحباً بك، ${u.fullName || u.username} ✨`;
                 }
                 const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
-                if (cfg.companyName) {
-                    document.getElementById('mobile-company-name').innerText = cfg.companyName;
+                const compName = window.SERVER_DATA?.companyName || cfg.companyName || localStorage.getItem('companyName');
+                if (compName) {
+                    document.getElementById('mobile-company-name').innerText = compName;
                 }
             } catch(e) {}
 
-            // 2. Load Customers & Items
-            try {
-                M_CUSTOMERS = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
-                M_ITEMS = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
-                if (!M_CUSTOMERS.length) {
-                    M_CUSTOMERS = [
-                        { id: 'CUST-001', name: 'شركة النيل للتجارة', phone: '0912345678', balance: 350000 },
-                        { id: 'CUST-002', name: 'أحمد عثمان التاجر', phone: '0987654321', balance: 180000 },
-                        { id: 'CUST-003', name: 'مؤسسة الخرطوم للمقاولات', phone: '0911223344', balance: 750000 }
-                    ];
+            // 2. Load Customers (Real DB First, Local Storage fallback)
+            M_CUSTOMERS = [];
+            if (window.SERVER_DATA?.customers && window.SERVER_DATA.customers.length > 0) {
+                M_CUSTOMERS = window.SERVER_DATA.customers.map(c => ({
+                    id: c.customer_id || c.id,
+                    name: c.customer_name || c.name,
+                    phone: c.phone || '',
+                    balance: parseFloat(c.total_exposure ?? c.ledger_balance ?? c.currentBalance ?? 0)
+                }));
+            } else {
+                const localCusts = loadTenantArray('erp_customers_v1');
+                if (localCusts.length) {
+                    M_CUSTOMERS = localCusts.map(c => ({
+                        id: c.id,
+                        name: c.name,
+                        phone: c.phone || '',
+                        balance: parseFloat(c.currentBalance || c.balance || 0)
+                    }));
                 }
-                if (!M_ITEMS.length) {
-                    M_ITEMS = [
-                        { id: 'ITM-001', name: 'أسمنت عطبرة (طن)', price: 185000, stock: 45 },
-                        { id: 'ITM-002', name: 'حديد تسليح 4 لينيا (طن)', price: 920000, stock: 12 },
-                        { id: 'ITM-003', name: 'طلاء جوتن أبيض 20 لتر', price: 42000, stock: 85 }
-                    ];
-                }
-            } catch(e){}
+            }
 
-            // Populate Customer Selects
+            // 3. Load Products & Items
+            M_ITEMS = [];
+            if (window.SERVER_DATA?.items && window.SERVER_DATA.items.length > 0) {
+                M_ITEMS = window.SERVER_DATA.items.map(it => ({
+                    id: it.id,
+                    name: it.name,
+                    price: parseFloat(it.salePrice || it.price || 0),
+                    stock: parseFloat(it.quantity || it.stock || 0)
+                }));
+            } else {
+                const localItems = loadTenantArray('erp_items_v1');
+                if (localItems.length) {
+                    M_ITEMS = localItems.map(it => ({
+                        id: it.id,
+                        name: it.name,
+                        price: parseFloat(it.salePrice || it.price || 0),
+                        stock: parseFloat(it.quantity || it.stock || 0)
+                    }));
+                }
+            }
+
+            // 4. Load Vaults & Liquidity
+            M_VAULTS = [];
+            if (window.SERVER_DATA?.vaults && window.SERVER_DATA.vaults.length > 0) {
+                M_VAULTS = window.SERVER_DATA.vaults.map(v => ({
+                    name: v.vault_name || v.name,
+                    amount: parseFloat(v.amount || v.balance || 0),
+                    color: v.color || '#10b981'
+                }));
+            } else {
+                const localBanks = loadTenantArray('erp_banks_v1');
+                if (localBanks.length) {
+                    M_VAULTS = localBanks.map(b => ({
+                        name: b.name,
+                        amount: parseFloat(b.balance || 0),
+                        color: b.color || '#38bdf8'
+                    }));
+                }
+            }
+
+            // Populate Customer Select Dropdowns
             ['receipt-customer', 'statement-customer-select', 'sale-customer'].forEach(id => {
                 const sel = document.getElementById(id);
                 if (sel) {
                     const curVal = sel.value;
-                    let opts = (id === 'sale-customer') ? '<option value="cash_walkin">عميل نقدي عام (Walk-in)</option>' : '<option value="">-- اختر العميل --</option>';
+                    let opts = (id === 'sale-customer') ? '<option value="walkin">عميل نقدي عام (Walk-in)</option>' : '<option value="">-- اختر العميل من قاعدة البيانات --</option>';
                     M_CUSTOMERS.forEach(c => {
                         opts += `<option value="${c.id}">${c.name} (${fmt(c.balance || 0)} SDG)</option>`;
                     });
@@ -1634,110 +1757,173 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
                 }
             });
 
-            // Populate Item Select
+            // Populate Item Select Dropdown
             const itemSel = document.getElementById('sale-item');
             if (itemSel) {
-                let opts = '<option value="">-- اختر الصنف --</option>';
+                let opts = '<option value="">-- اختر الصنف من المستودع --</option>';
                 M_ITEMS.forEach(it => {
                     opts += `<option value="${it.id}" data-price="${it.price}">${it.name} - ${fmt(it.price)} SDG</option>`;
                 });
                 itemSel.innerHTML = opts;
             }
 
-            // 3. Compute Real Liquidity
-            let cashVal = 485000;
-            let bankakVal = 1850000;
-            try {
-                const safes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
-                const banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
-                if (safes.length) cashVal = safes.reduce((a, b) => a + (parseFloat(b.balance) || 0), 0);
-                if (banks.length) bankakVal = banks.reduce((a, b) => a + (parseFloat(b.balance) || 0), 0);
-            } catch(e){}
+            // Populate Account Select Dropdowns (Receipt Destination & Payment Source)
+            ['receipt-destination', 'payment-source'].forEach(id => {
+                const sel = document.getElementById(id);
+                if (sel) {
+                    const curVal = sel.value;
+                    let opts = '';
+                    if (M_VAULTS.length > 0) {
+                        M_VAULTS.forEach(v => {
+                            opts += `<option value="${v.name}">${v.name} (${fmt(v.amount)} SDG)</option>`;
+                        });
+                    } else {
+                        opts = '<option value="خزنة الكاش">الخزينة الرئيسية</option><option value="بنكك">بنك الخرطوم (بنكك)</option>';
+                    }
+                    sel.innerHTML = opts;
+                    if (curVal) sel.value = curVal;
+                }
+            });
 
-            document.getElementById('mobile-cash-vault').innerText = fmt(cashVal) + ' SDG';
-            document.getElementById('mobile-bankak-vault').innerText = fmt(bankakVal) + ' SDG';
-            document.getElementById('mobile-total-liquidity').innerHTML = fmt(cashVal + bankakVal) + ' <small>SDG</small>';
+            // Render Liquidity Pulse Numbers
+            renderLiquidityDisplay();
 
-            // 4. Load Transactions Feed
+            // Render Recent Live Transactions
             renderLiveFeed();
+
+            // Background Async Sync with Database API
+            triggerBackgroundSync();
 
             setTimeout(() => {
                 if (icon) icon.classList.remove('fa-spin');
                 if (showToastAnim && window.showModernToast) {
-                    window.showModernToast('✅ تم تحديث بيانات الموبايل بنجاح', 'success', 2000);
+                    window.showModernToast('✅ تم تحديث بيانات الموبايل الحية بنجاح', 'success', 2000);
                 }
-            }, 400);
+            }, 350);
         }
 
-        // Live Feed Render
+        function renderLiquidityDisplay() {
+            let total = 0;
+            let vaultsHtml = '';
+            if (M_VAULTS.length > 0) {
+                M_VAULTS.forEach(v => {
+                    total += v.amount;
+                    vaultsHtml += `
+                        <div class="vault-item">
+                            <span class="vault-name">🏦 ${v.name}</span>
+                            <span class="vault-amt">${fmt(v.amount)} SDG</span>
+                        </div>
+                    `;
+                });
+            } else {
+                vaultsHtml = `
+                    <div class="vault-item">
+                        <span class="vault-name">💵 الخزينة</span>
+                        <span class="vault-amt">0 SDG</span>
+                    </div>
+                    <div class="vault-item">
+                        <span class="vault-name">🏦 بنكك</span>
+                        <span class="vault-amt">0 SDG</span>
+                    </div>
+                `;
+            }
+            document.getElementById('mobile-total-liquidity').innerHTML = fmt(total) + ' <small>SDG</small>';
+            document.getElementById('mobile-vaults-container').innerHTML = vaultsHtml;
+        }
+
         function renderLiveFeed() {
             let txs = [];
-            try {
-                const receipts = JSON.parse(localStorage.getItem('erp_receipts_v1') || '[]');
-                const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1') || '[]');
-                const sales = JSON.parse(localStorage.getItem('erp_direct_sales_v1') || '[]');
+            
+            // Combine receipts, payments, sales from server preloaded or local arrays
+            const receipts = window.SERVER_DATA?.receipts || loadTenantArray('erp_single_receipts_v1');
+            const payments = window.SERVER_DATA?.payments || loadTenantArray('erp_single_payments_v1');
+            const sales = window.SERVER_DATA?.sales || loadTenantArray('erp_sales_invoices_v1');
 
-                receipts.forEach(r => txs.push({ type: 'receipt', title: 'سند قبض - ' + (r.customerName || 'عميل'), amount: r.amount, time: r.date || 'اليوم', ref: r.refNo || r.id }));
-                payments.forEach(p => txs.push({ type: 'payment', title: 'سند صرف - ' + (p.recipient || 'مصروف'), amount: p.amount, time: p.date || 'اليوم', ref: p.refNo || p.id }));
-                sales.forEach(s => txs.push({ type: 'sale', title: 'فاتورة بيع - ' + (s.customerName || 'عميل نقدي'), amount: s.grandTotal || s.total, time: s.date || 'اليوم', ref: s.invoiceNo }));
-            } catch(e){}
+            receipts.forEach(r => {
+                txs.push({
+                    type: 'receipt',
+                    title: 'سند قبض - ' + (r.customerName || r.customer || 'عميل'),
+                    amount: parseFloat(r.amount || 0),
+                    time: r.date || r.createdAt || 'اليوم',
+                    ref: r.refNo || r.id || 'REC'
+                });
+            });
 
-            if (!txs.length) {
-                txs = [
-                    { type: 'receipt', title: 'سند قبض - شركة النيل', amount: 150000, time: 'منذ 15 دقيقة', ref: 'REC-901' },
-                    { type: 'sale', title: 'فاتورة بيع - أحمد عثمان', amount: 92500, time: 'منذ ساعة', ref: 'INV-402' },
-                    { type: 'payment', title: 'سند صرف - نثريات وقود', amount: 25000, time: 'منذ ساعتين', ref: 'PAY-112' }
-                ];
-            }
+            payments.forEach(p => {
+                txs.push({
+                    type: 'payment',
+                    title: 'سند صرف - ' + (p.recipient || p.party || 'مصروف'),
+                    amount: parseFloat(p.amount || 0),
+                    time: p.date || p.createdAt || 'اليوم',
+                    ref: p.refNo || p.id || 'PAY'
+                });
+            });
+
+            sales.forEach(s => {
+                txs.push({
+                    type: 'sale',
+                    title: 'فاتورة بيع - ' + (s.customerName || 'عميل نقدي'),
+                    amount: parseFloat(s.grandTotal || s.total || 0),
+                    time: s.date || s.createdAt || 'اليوم',
+                    ref: s.invoiceNo || s.id || 'INV'
+                });
+            });
 
             document.getElementById('mobile-tx-count').innerText = `${txs.length} حركة مسجلة`;
 
             let feedHtml = '';
-            txs.slice(0, 10).forEach(tx => {
-                let badgeClass = 'act-badge-in';
-                let iconClass = 'fa-arrow-down';
-                let sign = '+';
-                let colorClass = 'positive';
-
-                if (tx.type === 'payment') {
-                    badgeClass = 'act-badge-out';
-                    iconClass = 'fa-arrow-up';
-                    sign = '-';
-                    colorClass = 'negative';
-                } else if (tx.type === 'sale') {
-                    badgeClass = 'act-badge-sale';
-                    iconClass = 'fa-receipt';
-                    sign = '';
-                    colorClass = 'positive';
-                }
-
-                feedHtml += `
-                    <div class="activity-card">
-                        <div class="activity-info">
-                            <div class="activity-badge ${badgeClass}">
-                                <i class="fa-solid ${iconClass}"></i>
-                            </div>
-                            <div class="activity-details">
-                                <h5>${tx.title}</h5>
-                                <span>رقم المرجع: ${tx.ref || 'بدون'} • ${tx.time}</span>
-                            </div>
-                        </div>
-                        <div class="activity-amount">
-                            <span class="activity-val ${colorClass}">${sign}${fmt(tx.amount)}</span>
-                            <button type="button" class="btn-wa-direct" onclick="shareTxWhatsApp('${tx.title}', '${tx.amount}', '${tx.ref}')">
-                                <i class="fa-brands fa-whatsapp"></i> مشاركة
-                            </button>
-                        </div>
+            if (txs.length === 0) {
+                feedHtml = `
+                    <div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.9rem;">
+                        <i class="fa-solid fa-file-invoice" style="font-size:2rem; margin-bottom:8px; opacity:0.5;"></i><br>
+                        لا توجد حركات مالية مسجلة اليوم حتى الآن.<br>استخدم الأزرار السريعة بالأعلى لتسجيل حركة جديدة.
                     </div>
                 `;
-            });
-            document.getElementById('mobile-live-feed-container').innerHTML = feedHtml;
+            } else {
+                txs.slice(0, 10).forEach(tx => {
+                    let badgeClass = 'act-badge-in';
+                    let iconClass = 'fa-arrow-down';
+                    let colorClass = 'positive';
+
+                    if (tx.type === 'payment') {
+                        badgeClass = 'act-badge-out';
+                        iconClass = 'fa-arrow-up';
+                        colorClass = 'negative';
+                    } else if (tx.type === 'sale') {
+                        badgeClass = 'act-badge-sale';
+                        iconClass = 'fa-receipt';
+                        colorClass = 'positive';
+                    }
+
+                    feedHtml += `
+                        <div class="activity-card">
+                            <div class="activity-info">
+                                <div class="activity-badge ${badgeClass}">
+                                    <i class="fa-solid ${iconClass}"></i>
+                                </div>
+                                <div class="activity-details">
+                                    <h5>${tx.title}</h5>
+                                    <span>المرجع: ${tx.ref} • ${tx.time}</span>
+                                </div>
+                            </div>
+                            <div class="activity-amount">
+                                <span class="activity-val ${colorClass}">${fmt(tx.amount)} SDG</span>
+                                <button type="button" class="btn-wa-direct" onclick="shareTxWhatsApp('${tx.title}', ${tx.amount}, '${tx.ref}')">
+                                    <i class="fa-brands fa-whatsapp"></i> واتساب
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('mobile-activity-feed').innerHTML = feedHtml;
         }
 
-        // WhatsApp Direct Share
+        // WhatsApp Share Helper
         function shareTxWhatsApp(title, amount, ref) {
-            triggerHaptic('light');
-            const msg = `🧾 *إشعار معاملة معتمدة - مقاييس ERP*\n━━━━━━━━━━━━━━━━━━━━\n📌 *البيان:* ${title}\n💰 *المبلغ:* ${fmt(amount)} SDG\n🔢 *رقم المرجع:* ${ref}\n📅 *التاريخ:* ${new Date().toLocaleDateString('ar-SD')}\n━━━━━━━━━━━━━━━━━━━━\n✓ تمت العملية بنجاح عبر نظام مقاييس لإدارة الأعمال.`;
+            triggerHaptic('medium');
+            const comp = document.getElementById('mobile-company-name').innerText;
+            const msg = `🧾 *إشعار مالي معتمد - ${comp}*\n━━━━━━━━━━━━━━━━━━━━\n📌 *البيان:* ${title}\n💰 *المبلغ:* ${fmt(amount)} SDG\n🔢 *رقم المرجع:* ${ref}\n📅 *التاريخ:* ${new Date().toLocaleDateString('ar-SD')}\n━━━━━━━━━━━━━━━━━━━━\n✓ تمت العملية بنجاح عبر نظام مقاييس السحابي.`;
             const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, '_blank');
         }
@@ -1769,22 +1955,33 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
                 date: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute:'2-digit' })
             };
 
-            try {
-                let list = JSON.parse(localStorage.getItem('erp_receipts_v1') || '[]');
-                list.unshift(rec);
-                localStorage.setItem('erp_receipts_v1', JSON.stringify(list));
-            } catch(err){}
+            // Save to local tenant array
+            let receipts = loadTenantArray('erp_single_receipts_v1');
+            receipts.unshift(rec);
+            saveTenantArray('erp_single_receipts_v1', receipts);
+
+            // Deduct customer debt
+            let custs = loadTenantArray('erp_customers_v1');
+            const targetCust = custs.find(c => c.id === custId);
+            if (targetCust) {
+                targetCust.currentBalance = (parseFloat(targetCust.currentBalance || targetCust.balance || 0) - amt);
+                saveTenantArray('erp_customers_v1', custs);
+            }
+
+            // Sync with backend API
+            pushChangesToBackend();
 
             closeBottomSheet('sheet-receipt');
-            if (window.showModernToast) window.showModernToast(`✅ تم حفظ سند القبض بمبلغ ${fmt(amt)} SDG بنجاح!`, 'success');
+            if (window.showModernToast) {
+                window.showModernToast(`✅ تم حفظ سند القبض بمبلغ ${fmt(amt)} SDG بنجاح!`, 'success');
+            }
             refreshMobileData();
 
-            // Direct WhatsApp prompt
             setTimeout(() => {
-                if (confirm(`تم حفظ السند بنجاح!\nهل تريد مشاركة إيصال الاستلام (${fmt(amt)} SDG) للعميل عبر واتساب الآن؟`)) {
+                if (confirm(`تم حفظ سند القبض بنجاح!\nهل تريد مشاركة إيصال الاستلام (${fmt(amt)} SDG) للعميل عبر واتساب الآن؟`)) {
                     shareTxWhatsApp(`سند قبض (${custName})`, amt, ref);
                 }
-            }, 250);
+            }, 300);
         }
 
         // 2. Submit Quick Payment
@@ -1812,89 +2009,94 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
                 date: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute:'2-digit' })
             };
 
-            try {
-                let list = JSON.parse(localStorage.getItem('erp_single_payments_v1') || '[]');
-                list.unshift(pay);
-                localStorage.setItem('erp_single_payments_v1', JSON.stringify(list));
-            } catch(err){}
+            let payments = loadTenantArray('erp_single_payments_v1');
+            payments.unshift(pay);
+            saveTenantArray('erp_single_payments_v1', payments);
+
+            pushChangesToBackend();
 
             closeBottomSheet('sheet-payment');
-            if (window.showModernToast) window.showModernToast(`✅ تم تأكيد صرف مبلغ ${fmt(amt)} SDG بنجاح!`, 'success');
+            if (window.showModernToast) {
+                window.showModernToast(`✅ تم تسجيل سند الصرف بمبلغ ${fmt(amt)} SDG بنجاح!`, 'success');
+            }
             refreshMobileData();
         }
 
-        // 3. Quick Sale Item Change & Total
-        function onSaleItemChange(itemId) {
-            const it = M_ITEMS.find(i => i.id === itemId);
-            if (it) {
-                document.getElementById('sale-price').value = it.price || 0;
-                calcSaleTotal();
+        // 3. Fast POS Invoice
+        function handleItemSelect(sel) {
+            const opt = sel.selectedOptions[0];
+            if (opt && opt.dataset.price) {
+                document.getElementById('sale-price').value = opt.dataset.price;
+                calculateSaleTotal();
             }
         }
 
-        function calcSaleTotal() {
-            const qty = parseFloat(document.getElementById('sale-qty').value) || 1;
+        function calculateSaleTotal() {
+            const qty = parseFloat(document.getElementById('sale-qty').value) || 0;
             const price = parseFloat(document.getElementById('sale-price').value) || 0;
             const total = qty * price;
-            document.getElementById('sale-grand-total').innerHTML = fmt(total) + ' <small style="font-size:0.9rem;">SDG</small>';
+            document.getElementById('sale-total-display').innerText = fmt(total) + ' SDG';
         }
 
         function handleQuickSaleSubmit(e) {
             e.preventDefault();
             triggerHaptic('heavy');
+            const custSel = document.getElementById('sale-customer');
+            const custId = custSel.value;
+            const custName = custSel.selectedOptions[0]?.text || 'عميل نقدي';
             const itemSel = document.getElementById('sale-item');
             const itemId = itemSel.value;
             const itemName = itemSel.selectedOptions[0]?.text || 'صنف';
             const qty = parseFloat(document.getElementById('sale-qty').value) || 1;
             const price = parseFloat(document.getElementById('sale-price').value) || 0;
             const total = qty * price;
-            const custName = document.getElementById('sale-customer').selectedOptions[0]?.text || 'عميل نقدي';
-            const payType = document.getElementById('sale-payment-type').value;
+            const method = document.getElementById('sale-payment-method').value;
             const invNo = 'INV-' + Date.now().toString().slice(-6);
 
             if (total <= 0) {
-                alert('يرجى اختيار الصنف وإدخال سعر وكمية صحيحة');
+                alert('يرجى تحديد الصنف والكمية بشكل صحيح');
                 return;
             }
 
             const inv = {
+                id: invNo,
                 invoiceNo: invNo,
+                customer: custId,
                 customerName: custName,
-                itemName: itemName,
-                qty: qty,
-                price: price,
                 grandTotal: total,
-                paymentType: payType,
+                total: total,
+                items: [{ id: itemId, name: itemName, qty: qty, price: price, subtotal: total }],
+                paymentMethod: method,
                 date: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute:'2-digit' })
             };
 
-            try {
-                let list = JSON.parse(localStorage.getItem('erp_direct_sales_v1') || '[]');
-                list.unshift(inv);
-                localStorage.setItem('erp_direct_sales_v1', JSON.stringify(list));
-            } catch(err){}
+            let sales = loadTenantArray('erp_sales_invoices_v1');
+            sales.unshift(inv);
+            saveTenantArray('erp_sales_invoices_v1', sales);
+
+            pushChangesToBackend();
 
             closeBottomSheet('sheet-sale');
-            if (window.showModernToast) window.showModernToast(`✅ تم حفظ الفاتورة بقيمة ${fmt(total)} SDG!`, 'success');
+            if (window.showModernToast) {
+                window.showModernToast(`✅ تم إصدار الفاتورة ${invNo} بمبلغ ${fmt(total)} SDG بنجاح!`, 'success');
+            }
             refreshMobileData();
 
             setTimeout(() => {
-                if (confirm(`تم إصدار الفاتورة (${invNo}) بنجاح!\nهل تريد إرسال الفاتورة للعميل عبر واتساب؟`)) {
+                if (confirm(`تم إصدار الفاتورة بنجاح!\nهل تريد مشاركة الفاتورة (${fmt(total)} SDG) مع العميل عبر واتساب الآن؟`)) {
                     shareTxWhatsApp(`فاتورة بيع (${itemName} × ${qty})`, total, invNo);
                 }
-            }, 250);
+            }, 300);
         }
 
-        // 4. Customer Statement & WhatsApp Claim
-        let activeStatementCustomer = null;
+        // 4. Customer Mini Statement & Claim
         function renderCustomerMiniStatement(custId) {
             const card = document.getElementById('statement-result-card');
             if (!custId) {
                 card.style.display = 'none';
-                activeStatementCustomer = null;
                 return;
             }
-            const c = M_CUSTOMERS.find(cust => cust.id === custId);
+            const c = M_CUSTOMERS.find(x => x.id === custId);
             if (!c) return;
 
             activeStatementCustomer = c;
@@ -1906,17 +2108,32 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
 
             balEl.innerText = fmt(bal) + ' SDG';
             if (bal > 0) {
-                balEl.style.color = '#fb7185';
+                balEl.style.color = 'var(--rose)';
                 statusEl.innerText = '🔴 مطلوب سداد هذا المبلغ للشركة';
             } else {
-                balEl.style.color = '#34d399';
+                balEl.style.color = 'var(--emerald)';
                 statusEl.innerText = '🟢 الحساب خالص / رصيد دائن';
             }
 
+            // Real customer recent activity
+            const allTxs = [
+                ...(window.SERVER_DATA?.sales || loadTenantArray('erp_sales_invoices_v1')).filter(x => x.customer === custId || x.customerId === custId),
+                ...(window.SERVER_DATA?.receipts || loadTenantArray('erp_single_receipts_v1')).filter(x => x.customerId === custId || x.customer === custId)
+            ];
+
+            let txSummary = '';
+            if (allTxs.length > 0) {
+                allTxs.slice(0, 3).forEach(t => {
+                    const isRec = !!t.destination;
+                    txSummary += `• ${isRec ? 'سند قبض' : 'فاتورة'}: ${fmt(t.amount || t.grandTotal)} SDG (${t.date || 'مؤخراً'})<br>`;
+                });
+            } else {
+                txSummary = '• لا توجد فواتير سابقة مسجلة لهذا العميل.';
+            }
+
             document.getElementById('cust-recent-txs').innerHTML = `
-                <div style="background:rgba(255,255,255,0.03); border-radius:10px; padding:10px; border:1px solid rgba(255,255,255,0.06);">
-                    • آخر فاتورة: ${fmt(bal * 0.6)} SDG (قبل 3 أيام)<br>
-                    • آخر سداد مستلم: ${fmt(bal * 0.4)} SDG عبر بنكك
+                <div style="background:var(--surface-sub); border-radius:10px; padding:10px; border:1px solid var(--border-glass);">
+                    ${txSummary}
                 </div>
             `;
         }
@@ -1926,7 +2143,8 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
             triggerHaptic('heavy');
             const c = activeStatementCustomer;
             const bal = fmt(c.balance || 0);
-            const msg = `السيد المحترم/ *${c.name}*\nتحية طيبة من *مقاييس لإدارة الأعمال* 🌟\n\nنود تذكيركم بلطف بأن الرصيد المتبقي على حسابكم حتى تاريخ اليوم هو:\n💰 *${bal} SDG*\n\nيرجى التكرم بالتحويل عبر حسابنا في بنكك أو مراجعة الحساب، ولكم وافر الشكر والتقدير.`;
+            const comp = document.getElementById('mobile-company-name').innerText;
+            const msg = `السيد المحترم/ *${c.name}*\nتحية طيبة من *${comp}* 🌟\n\nنود تذكيركم بلطف بأن الرصيد المتبقي على حسابكم حتى تاريخ اليوم هو:\n💰 *${bal} SDG*\n\nيرجى التكرم بالتحويل عبر حسابنا في بنكك أو مراجعة الحساب، ولكم وافر الشكر والتقدير.`;
             const phone = c.phone ? c.phone.replace(/[^0-9]/g, '') : '';
             const waUrl = phone ? `https://wa.me/249${phone.slice(-9)}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, '_blank');
@@ -1940,63 +2158,112 @@ $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight';
 
         // 5. Analytics KPI Render
         function renderAnalyticsKPIs() {
-            let sales = 645000;
-            let receipts = 380000;
-            let payments = 95000;
-            try {
-                const sList = JSON.parse(localStorage.getItem('erp_direct_sales_v1') || '[]');
-                if (sList.length) sales = sList.reduce((a, b) => a + (parseFloat(b.grandTotal || b.total) || 0), 0);
-                const rList = JSON.parse(localStorage.getItem('erp_receipts_v1') || '[]');
-                if (rList.length) receipts = rList.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
-                const pList = JSON.parse(localStorage.getItem('erp_single_payments_v1') || '[]');
-                if (pList.length) payments = pList.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
-            } catch(e){}
+            let sales = 0;
+            let receipts = 0;
+            let payments = 0;
+
+            const sList = window.SERVER_DATA?.sales || loadTenantArray('erp_sales_invoices_v1');
+            const rList = window.SERVER_DATA?.receipts || loadTenantArray('erp_single_receipts_v1');
+            const pList = window.SERVER_DATA?.payments || loadTenantArray('erp_single_payments_v1');
+
+            if (sList.length) sales = sList.reduce((a, b) => a + (parseFloat(b.grandTotal || b.total) || 0), 0);
+            if (rList.length) receipts = rList.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
+            if (pList.length) payments = pList.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
 
             document.getElementById('kpi-today-sales').innerText = fmt(sales);
             document.getElementById('kpi-today-receipts').innerText = fmt(receipts);
             document.getElementById('kpi-today-payments').innerText = fmt(payments);
             document.getElementById('kpi-today-net').innerText = fmt(receipts - payments);
 
-            // Debtors
+            // Real Debtors Radar from DB
             let debtorsHtml = '';
-            const topDebtors = [...M_CUSTOMERS].sort((a, b) => (b.balance || 0) - (a.balance || 0)).slice(0, 4);
-            topDebtors.forEach((c, idx) => {
-                debtorsHtml += `
-                    <div style="background:rgba(15,23,42,0.7); border:1px solid var(--border-glass); border-radius:14px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <div style="font-size:0.9rem; font-weight:800; color:#fff;">${idx + 1}. ${c.name}</div>
-                            <div style="font-size:0.75rem; color:#94a3b8;">هاتف: ${c.phone || 'غير مسجل'}</div>
+            const topDebtors = [...M_CUSTOMERS].filter(c => (c.balance || 0) > 0).sort((a, b) => (b.balance || 0) - (a.balance || 0)).slice(0, 5);
+            if (topDebtors.length === 0) {
+                debtorsHtml = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">لا توجد مديونيات قائمة على العملاء حالياً.</div>';
+            } else {
+                topDebtors.forEach((c, idx) => {
+                    debtorsHtml += `
+                        <div class="radar-row">
+                            <div>
+                                <div class="radar-name">${idx + 1}. ${c.name}</div>
+                                <div style="font-size:0.75rem; color:var(--text-muted);">هاتف: ${c.phone || 'غير مسجل'}</div>
+                            </div>
+                            <div style="text-align:left;">
+                                <div style="font-size:1.15rem; font-weight:900; color:var(--rose); font-family:'Inter', sans-serif;">${fmt(c.balance)} SDG</div>
+                                <button type="button" onclick="activeStatementCustomer=M_CUSTOMERS.find(x=>x.id==='${c.id}'); sendWhatsAppClaim();" style="background:rgba(34,197,94,0.18); border:1px solid #22c55e; color:#22c55e; border-radius:6px; padding:3px 8px; font-size:0.74rem; font-weight:800; cursor:pointer;">
+                                    <i class="fa-brands fa-whatsapp"></i> مطالبة
+                                </button>
+                            </div>
                         </div>
-                        <div style="text-align:left;">
-                            <div style="font-size:1.1rem; font-weight:900; color:#fb7185; font-family:'Inter', sans-serif;">${fmt(c.balance)} SDG</div>
-                            <button type="button" onclick="activeStatementCustomer=M_CUSTOMERS.find(x=>x.id==='${c.id}'); sendWhatsAppClaim();" style="background:rgba(34,197,94,0.15); border:1px solid #22c55e; color:#4ade80; border-radius:6px; padding:3px 8px; font-size:0.72rem; font-weight:700; cursor:pointer;">
-                                <i class="fa-brands fa-whatsapp"></i> مطالبة
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
             document.getElementById('mobile-debtors-container').innerHTML = debtorsHtml;
 
-            // Low Stock
+            // Real Low Stock Radar from DB
             let stockHtml = '';
-            M_ITEMS.slice(0, 3).forEach(it => {
-                stockHtml += `
-                    <div style="background:rgba(15,23,42,0.7); border:1px solid var(--border-glass); border-radius:14px; padding:12px 14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                        <div>
-                            <div style="font-size:0.9rem; font-weight:800; color:#fff;">📦 ${it.name}</div>
-                            <div style="font-size:0.75rem; color:#f59e0b;">الحد الأدنى للمخزن: 10</div>
+            const lowStockItems = [...M_ITEMS].slice(0, 5);
+            if (lowStockItems.length === 0) {
+                stockHtml = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">لا توجد أصناف في المستودع.</div>';
+            } else {
+                lowStockItems.forEach(it => {
+                    stockHtml += `
+                        <div class="radar-row">
+                            <div>
+                                <div class="radar-name">📦 ${it.name}</div>
+                                <div style="font-size:0.75rem; color:var(--amber); font-weight:700;">سعر البيع: ${fmt(it.price)} SDG</div>
+                            </div>
+                            <div style="font-size:1.15rem; font-weight:900; color:var(--amber); font-family:'Inter', sans-serif;">
+                                المتبقي: ${it.stock || 0}
+                            </div>
                         </div>
-                        <div style="font-size:1.1rem; font-weight:900; color:#f59e0b; font-family:'Inter', sans-serif;">
-                            المتبقي: ${it.stock || 5}
-                        </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
             document.getElementById('mobile-low-stock-container').innerHTML = stockHtml;
         }
 
-        // Initialize on load
+        // Background Live Sync with Database
+        function triggerBackgroundSync() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            fetch('api_index.php/sync/pull', {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    const u = JSON.parse(localStorage.getItem('user') || '{}');
+                    const prefix = (u.tenant_id && u.tenant_id !== 'default') ? 'tenant_' + u.tenant_id + '_' : '';
+                    Object.keys(data.data).forEach(k => {
+                        try {
+                            const val = typeof data.data[k] === 'string' ? data.data[k] : JSON.stringify(data.data[k]);
+                            if (prefix) localStorage.setItem(prefix + k, val);
+                            localStorage.setItem(k, val);
+                        } catch(e){}
+                    });
+                }
+            })
+            .catch(() => {});
+        }
+
+        function pushChangesToBackend() {
+            const token = localStorage.getItem('authToken');
+            if (!token) return;
+            const payload = {
+                customers: loadTenantArray('erp_customers_v1'),
+                single_receipts: loadTenantArray('erp_single_receipts_v1'),
+                single_payments: loadTenantArray('erp_single_payments_v1'),
+                sales_invoices: loadTenantArray('erp_sales_invoices_v1')
+            };
+            fetch('api_index.php/sync/push', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                body: JSON.stringify(payload)
+            }).catch(() => {});
+        }
+
+        // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
             refreshMobileData();
