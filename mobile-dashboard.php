@@ -717,67 +717,6 @@ try {
             touch-action: manipulation;
         }
 
-        /* 📱 DEVICE TUNING BANNER STYLING */
-        .device-tuning-banner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(56, 189, 248, 0.06));
-            border: 1px solid var(--border-glass);
-            border-radius: 14px;
-            padding: 8px 14px;
-            margin: 10px 16px 4px 16px;
-            cursor: pointer;
-            transition: all 0.25s ease;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-        }
-        .device-tuning-banner:active {
-            transform: scale(0.98);
-            background: rgba(56, 189, 248, 0.12);
-        }
-        .device-brand-badge {
-            width: 32px;
-            height: 32px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-        .dt-status-pill {
-            font-size: 0.68rem;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid #10b981;
-            color: #10b981;
-            padding: 1px 7px;
-            border-radius: 20px;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .btn-dt-action {
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: var(--text-main);
-            padding: 5px 10px;
-            border-radius: 8px;
-            font-size: 0.75rem;
-            font-weight: 800;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            transition: all 0.2s;
-        }
-        .btn-dt-action:active {
-            background: var(--primary);
-            color: #000;
-        }
 
         .brand-section {
             display: flex;
@@ -1878,7 +1817,12 @@ try {
                 <i class="fa-solid fa-gem"></i>
             </div>
             <div class="brand-meta">
-                <h1 id="mobile-company-name"><?php echo htmlspecialchars($preloadedData['companyName']); ?></h1>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <h1 id="mobile-company-name"><?php echo htmlspecialchars($preloadedData['companyName']); ?></h1>
+                    <span id="dt-brand-icon" style="display:inline-flex; align-items:center; font-size:1.15rem;" title="Android">
+                        <i class="fa-brands fa-android" style="color:#22c55e;"></i>
+                    </span>
+                </div>
                 <span id="mobile-user-greeting">مرحباً بك 🌟</span>
             </div>
         </div>
@@ -1899,34 +1843,6 @@ try {
             </button>
         </div>
     </header>
-
-    <!-- 📱 شريط التعرف وضبط شاشة الموبايل (آيفون / سامسونج / هواوي / هونر / أندرويد) -->
-    <div class="device-tuning-banner" id="device-tuning-banner" onclick="openBottomSheet('sheet-device-calibration')" title="انقر لعرض تفاصيل ضبط شاشة جهازك">
-        <div style="display:flex; align-items:center; gap:8px;">
-            <span class="device-brand-badge" id="dt-brand-icon">
-                <i class="<?php echo $deviceProfile['icon']; ?>" style="color:<?php echo $deviceProfile['color']; ?>;"></i>
-            </span>
-            <div style="display:flex; flex-direction:column; text-align:right;">
-                <div style="display:flex; align-items:center; gap:6px;">
-                    <span style="font-size:0.82rem; font-weight:900; color:var(--text-main);" id="dt-brand-title">
-                        <?php echo htmlspecialchars($deviceProfile['brandName']); ?>
-                    </span>
-                    <span class="dt-status-pill" id="dt-status-pill">
-                        <i class="fa-solid fa-circle-check"></i> شاشة مُعايرة 100%
-                    </span>
-                </div>
-                <span style="font-size:0.68rem; color:var(--text-muted); font-weight:700;" id="dt-tuning-subtitle">
-                    <?php echo htmlspecialchars($deviceProfile['tuningNote']); ?>
-                </span>
-            </div>
-        </div>
-        <div style="display:flex; align-items:center; gap:6px;">
-            <button type="button" class="btn-dt-action" onclick="event.stopPropagation(); switchToDesktopDashboard();" title="الانتقال لشاشة الكمبيوتر">
-                <i class="fa-solid fa-desktop"></i> الكمبيوتر
-            </button>
-            <span style="color:var(--text-muted); font-size:0.75rem;"><i class="fa-solid fa-chevron-left"></i></span>
-        </div>
-    </div>
 
     <!-- 2. Dual-Engine Segmented Pill Switcher -->
     <div class="mode-switcher-container">
@@ -2620,89 +2536,6 @@ try {
     </div>
 
     <!-- ═════════════════════════════════════════════════════════════════
-         SHEET 6: 📱 شاشة تفاصيل معايرة الجهاز والعتاد (HARDWARE CALIBRATION)
-         ═════════════════════════════════════════════════════════════════ -->
-    <div class="mobile-sheet-overlay" id="overlay-sheet-device-calibration" onclick="closeBottomSheet('sheet-device-calibration')"></div>
-    <div class="mobile-bottom-sheet" id="sheet-device-calibration">
-        <div class="sheet-drag-handle"></div>
-        <div class="sheet-header">
-            <span class="sheet-title" style="color:var(--primary); font-weight:900;">
-                <i class="fa-solid fa-mobile-screen"></i> نظام ضبط الشاشة الذكي للأجهزة
-            </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-device-calibration')">✕</button>
-        </div>
-        <div class="sheet-body" style="padding-bottom: 24px;">
-            <!-- Card 1: Detected Device Info -->
-            <div style="background:var(--surface-sub); border:1.5px solid var(--border-glass); border-radius:16px; padding:16px; margin-bottom:14px;">
-                <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-                    <div style="width:48px; height:48px; border-radius:14px; background:rgba(56,189,248,0.15); border:1.5px solid #38bdf8; display:flex; align-items:center; justify-content:center; font-size:1.5rem;" id="calib-device-icon">
-                        <i class="<?php echo $deviceProfile['icon']; ?>" style="color:<?php echo $deviceProfile['color']; ?>;"></i>
-                    </div>
-                    <div>
-                        <h3 style="margin:0; font-size:1.05rem; font-weight:900; color:var(--text-main);" id="calib-device-name">
-                            <?php echo htmlspecialchars($deviceProfile['brandName']); ?>
-                        </h3>
-                        <span style="font-size:0.8rem; color:var(--emerald); font-weight:800;" id="calib-device-status">
-                            ✓ تم التعرف التلقائي وضبط أبعاد الشاشة
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Specs Grid -->
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:0.8rem;">
-                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; border-radius:10px;">
-                        <div style="color:var(--text-muted); font-size:0.72rem; margin-bottom:2px;">نظام التشغيل:</div>
-                        <strong style="color:var(--text-main);" id="calib-os"><?php echo htmlspecialchars($deviceProfile['os']); ?></strong>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; border-radius:10px;">
-                        <div style="color:var(--text-muted); font-size:0.72rem; margin-bottom:2px;">أبعاد الشاشة:</div>
-                        <strong style="color:var(--text-main); direction:ltr; display:inline-block;" id="calib-resolution">جار الفحص...</strong>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; border-radius:10px;">
-                        <div style="color:var(--text-muted); font-size:0.72rem; margin-bottom:2px;">حواف الأمان (Notch / Island):</div>
-                        <strong style="color:var(--primary);" id="calib-safe-area">معايرة تلقائية ✓</strong>
-                    </div>
-                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:8px 10px; border-radius:10px;">
-                        <div style="color:var(--text-muted); font-size:0.72rem; margin-bottom:2px;">سلاسة الشاشة والتحديث:</div>
-                        <strong style="color:var(--emerald);" id="calib-refresh-rate"><?php echo htmlspecialchars($deviceProfile['refreshRate']); ?></strong>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tuning Features Applied -->
-            <div style="margin-bottom:16px;">
-                <div style="font-size:0.85rem; font-weight:800; color:var(--text-main); margin-bottom:8px;">
-                    🎯 الخصائص التي تمت معايرتها لهذا الجهاز:
-                </div>
-                <div id="calib-feature-list" style="display:flex; flex-direction:column; gap:6px; font-size:0.8rem; color:var(--text-muted);">
-                    <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-                        <i class="fa-solid fa-check" style="color:var(--emerald); font-size:0.8rem;"></i>
-                        <span>حجز مساحات النوتش والكبسولة العلوية لعدم تداخل العناوين</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-                        <i class="fa-solid fa-check" style="color:var(--emerald); font-size:0.8rem;"></i>
-                        <span>حجز مسافة شريط السحب والإيماءات السفلي لسهولة التنقل بالإبهام</span>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-                        <i class="fa-solid fa-check" style="color:var(--emerald); font-size:0.8rem;"></i>
-                        <span>تسريع عتاد الرسوميات وتثبيت الارتفاع الديناميكي (100dvh)</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Action Buttons: Switch to Desktop or Re-calibrate -->
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                <button type="button" onclick="runLiveHardwareCalibration(true)" style="height:44px; background:rgba(56,189,248,0.15); border:1.5px solid #38bdf8; color:#38bdf8; border-radius:12px; font-size:0.85rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-                    <i class="fa-solid fa-arrows-rotate"></i> إعادة المعايرة
-                </button>
-                <button type="button" onclick="switchToDesktopDashboard()" style="height:44px; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.2); color:var(--text-main); border-radius:12px; font-size:0.85rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-                    <i class="fa-solid fa-desktop"></i> شاشة الكمبيوتر
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ═════════════════════════════════════════════════════════════════
          5. FIXED BOTTOM NAVIGATION BAR
          ═════════════════════════════════════════════════════════════════ -->
     <nav class="bottom-nav-bar">
@@ -3031,44 +2864,14 @@ try {
             document.documentElement.setAttribute('data-device-model', model);
             document.body.setAttribute('data-device-brand', brand);
 
-            // Update Hardware Tuning Banner
-            const dtIcon = document.getElementById('dt-brand-icon');
-            if (dtIcon) {
-                dtIcon.innerHTML = `<i class="${icon}" style="color:${color};"></i>`;
-            }
-            const dtTitle = document.getElementById('dt-brand-title');
-            if (dtTitle) {
-                dtTitle.textContent = brandName;
-            }
-            const dtSub = document.getElementById('dt-tuning-subtitle');
-            if (dtSub) {
-                dtSub.textContent = tuningNote;
-            }
-
-            // Update Calibration Bottom Sheet Elements
-            const cIcon = document.getElementById('calib-device-icon');
-            if (cIcon) cIcon.innerHTML = `<i class="${icon}" style="color:${color};"></i>`;
-            const cName = document.getElementById('calib-device-name');
-            if (cName) cName.textContent = brandName;
-            const cOs = document.getElementById('calib-os');
-            if (cOs) cOs.textContent = `${os} (DPR: ${dpr}x)`;
-            const cRes = document.getElementById('calib-resolution');
-            if (cRes) cRes.textContent = window.CURRENT_DEVICE_PROFILE.resolution;
-            const cRef = document.getElementById('calib-refresh-rate');
-            if (cRef) cRef.textContent = refreshRate;
-
-            const featList = document.getElementById('calib-feature-list');
-            if (featList && features.length > 0) {
-                featList.innerHTML = features.map(f => `
-                    <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.06);">
-                        <i class="fa-solid fa-check" style="color:var(--emerald); font-size:0.8rem;"></i>
-                        <span>${f}</span>
-                    </div>
-                `).join('');
-            }
+            // Apply attributes to HTML and Body
+            document.documentElement.setAttribute('data-device-brand', brand);
+            document.documentElement.setAttribute('data-device-os', os);
+            document.documentElement.setAttribute('data-device-model', model);
+            document.body.setAttribute('data-device-brand', brand);
 
             if (isManual && window.showModernToast) {
-                window.showModernToast(`✨ تم ضبط الشاشة بنجاح لجهازك: ${brandName}`, 'success', 3000);
+                window.showModernToast(`✨ تم ضبط الشاشة بنجاح`, 'success', 2500);
             }
         }
 
@@ -5355,16 +5158,6 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             initTheme();
             runLiveHardwareCalibration(false);
             refreshMobileData();
-
-            // First session auto-notification
-            if (!sessionStorage.getItem('device_calib_notified')) {
-                sessionStorage.setItem('device_calib_notified', 'true');
-                setTimeout(() => {
-                    if (window.showModernToast && window.CURRENT_DEVICE_PROFILE) {
-                        window.showModernToast(`📱 تم التعرف على جهازك (${window.CURRENT_DEVICE_PROFILE.brandName}) وتضبيط أبعاد الشاشة تلقائياً!`, 'info', 3500);
-                    }
-                }, 1000);
-            }
         });
     </script>
 </body>
