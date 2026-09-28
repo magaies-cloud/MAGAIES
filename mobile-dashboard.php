@@ -2009,14 +2009,8 @@ try {
                 <span class="sheet-title" id="tx-sheet-title" style="color:var(--primary); font-weight:900;">
                     <i class="fa-solid fa-money-bill-transfer"></i> حركة مالية
                 </span>
-                <button type="button" class="btn-refresh-header" onclick="refreshFinancialTxModal()" title="تحديث السند وسعر الصرف" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; width:34px; height:34px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center;">
-                    <i class="fa-solid fa-arrows-rotate" style="font-size:0.9rem;"></i>
-                </button>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
-                <button type="button" class="btn-switch-desktop" onclick="openBottomSheet('sheet-ai-slip')" style="padding:5px 10px; font-size:0.78rem; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8;" title="تفريغ إشعار بالذكاء الاصطناعي">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> تفريغ إشعار AI
-                </button>
                 <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-financial-tx')">✕</button>
             </div>
         </div>
@@ -2024,42 +2018,43 @@ try {
             <form onsubmit="handleFinancialTxSubmit(event)">
                 <input type="hidden" id="tx-operation-type" value="financial_movement">
 
-                <!-- 1. Top Bar: رقم السند & زر التحديث في المنتصف & سعر الصرف -->
-                <div class="tx-top-bar" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); padding:8px 12px; border-radius:12px; margin-bottom:10px; gap:6px; width:100%; box-sizing:border-box;">
+                <!-- 1. Top Bar: رقم السند & سعر الصرف -->
+                <div class="tx-top-bar" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); padding:8px 12px; border-radius:12px; margin-bottom:10px; width:100%; box-sizing:border-box;">
                     <!-- رقم السند -->
-                    <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
+                    <div style="display:flex; align-items:center; gap:6px;">
                         <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">السند:</span>
                         <span id="tx-voucher-display" style="font-family:'Inter',monospace; font-size:0.95rem; font-weight:900; color:var(--emerald); background:rgba(16,185,129,0.12); padding:2px 8px; border-radius:8px; border:1px solid rgba(16,185,129,0.3);">...</span>
                         <input type="hidden" id="tx-voucher-no" value="">
                     </div>
 
-                    <!-- زر التحديث Refresh في المنتصف بارز وواضح جداً -->
-                    <button type="button" onclick="refreshFinancialTxModal()" title="تحديث رقم السند وسعر الصرف" style="background:linear-gradient(135deg, rgba(56,189,248,0.18), rgba(2,132,199,0.25)); border:1.5px solid #38bdf8; color:#38bdf8; padding:5px 14px; border-radius:10px; cursor:pointer; display:flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:900; box-shadow:0 2px 8px rgba(56,189,248,0.2); flex-shrink:0;">
-                        <i class="fa-solid fa-arrows-rotate"></i> تحديث
-                    </button>
-
                     <!-- الصرف -->
-                    <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
+                    <div style="display:flex; align-items:center; gap:6px;">
                         <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">الصرف:</span>
-                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:78px; max-width:82px; height:34px; font-size:0.95rem; font-weight:900; text-align:center; direction:ltr !important; padding:2px 4px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:8px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
+                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:82px; max-width:88px; height:34px; font-size:0.95rem; font-weight:900; text-align:center; direction:ltr !important; padding:2px 4px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:8px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
                     </div>
                 </div>
 
-                <!-- 2. WhatsApp & Smart Bank Slip Quick Bar (فتح واتساب + تفريغ تلقائي) -->
-                <div class="whatsapp-slip-action-bar" style="display:flex; gap:8px; margin-bottom:12px;">
-                    <!-- فتح واتساب -->
-                    <button type="button" onclick="openWhatsAppForSlip()" style="flex:1; height:42px; background:linear-gradient(135deg, rgba(34,197,94,0.18), rgba(22,163,74,0.28)); border:1.5px solid #22c55e; color:#22c55e; border-radius:12px; font-size:0.82rem; font-weight:900; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;" title="فتح تطبيق واتساب لاختيار ونسخ الإشعار">
-                        <i class="fa-brands fa-whatsapp" style="font-size:1.15rem;"></i> فتح واتساب
+                <!-- 2. Action Toolbar: زر الوتساب (شعار فقط) ثم ai ثم شعار تحديث ثم شعار الاستديو -->
+                <div class="whatsapp-slip-action-bar" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:12px; width:100%; box-sizing:border-box;">
+                    <!-- 1. زر الوتساب (الشعار فقط) -->
+                    <button type="button" onclick="openWhatsAppForSlip()" style="height:44px; background:linear-gradient(135deg, rgba(34,197,94,0.18), rgba(22,163,74,0.28)); border:1.5px solid #22c55e; color:#22c55e; border-radius:12px; font-size:1.35rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(34,197,94,0.15);" title="فتح تطبيق واتساب لنسخ الإشعار">
+                        <i class="fa-brands fa-whatsapp"></i>
                     </button>
 
-                    <!-- لصق وتفريغ تلقائي AI -->
-                    <button type="button" onclick="pasteAndAutoFillSlip()" style="flex:1.2; height:42px; background:linear-gradient(135deg, rgba(56,189,248,0.18), rgba(2,132,199,0.28)); border:1.5px solid #38bdf8; color:#38bdf8; border-radius:12px; font-size:0.82rem; font-weight:900; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;" title="لصق الإشعار المنسوخ من واتساب وتفريغه فوراً">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> تفريغ الإشعار AI
+                    <!-- 2. زر AI -->
+                    <button type="button" onclick="pasteAndAutoFillSlip()" style="height:44px; background:linear-gradient(135deg, rgba(56,189,248,0.18), rgba(2,132,199,0.28)); border:1.5px solid #38bdf8; color:#38bdf8; border-radius:12px; font-size:0.95rem; font-weight:900; display:flex; align-items:center; justify-content:center; gap:5px; cursor:pointer; box-shadow:0 2px 8px rgba(56,189,248,0.15);" title="تفريغ الإشعار المنسوخ بالذكاء الاصطناعي">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        <span style="font-family:'Inter',sans-serif; font-weight:900; letter-spacing:0.5px;">AI</span>
                     </button>
 
-                    <!-- اختيار صورة إشعار من واتساب -->
-                    <button type="button" onclick="triggerSlipImagePicker()" style="width:42px; height:42px; background:rgba(255,255,255,0.06); border:1.5px solid rgba(255,255,255,0.15); color:var(--text-main); border-radius:12px; font-size:0.95rem; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="اختيار صورة الإشعار من ألبوم واتساب أو الاستوديو">
-                        <i class="fa-solid fa-image"></i>
+                    <!-- 3. شعار تحديث -->
+                    <button type="button" onclick="refreshFinancialTxModal()" style="height:44px; background:linear-gradient(135deg, rgba(245,158,11,0.15), rgba(217,119,6,0.25)); border:1.5px solid #f59e0b; color:#fbbf24; border-radius:12px; font-size:1.15rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(245,158,11,0.15);" title="تحديث رقم السند وسعر الصرف">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </button>
+
+                    <!-- 4. شعار الاستديو -->
+                    <button type="button" onclick="triggerSlipImagePicker()" style="height:44px; background:linear-gradient(135deg, rgba(168,85,247,0.18), rgba(126,34,206,0.28)); border:1.5px solid #a855f7; color:#c084fc; border-radius:12px; font-size:1.2rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(168,85,247,0.15);" title="اختيار صورة الإشعار من الاستوديو أو الكاميرا">
+                        <i class="fa-solid fa-images"></i>
                     </button>
                     <input type="file" id="slip-image-picker" accept="image/*" style="display:none;" onchange="handleSlipImageUpload(event)">
                 </div>
@@ -4746,12 +4741,22 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             sessionStorage.setItem('waiting_whatsapp_slip_time', String(Date.now()));
 
             if (window.showModernToast) {
-                window.showModernToast('📲 جاري فتح واتساب.. انسخ نص الإشعار أو صورته ثم ارجع للتطبيق!', 'info', 3000);
+                window.showModernToast('📲 جاري فتح واتساب.. انسخ نص الإشعار أو شارك صورته ثم ارجع للتطبيق!', 'info', 3000);
             }
 
+            try {
+                const link = document.createElement('a');
+                link.href = 'whatsapp://';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch(e) {}
+
             setTimeout(() => {
-                window.location.href = 'whatsapp://';
-            }, 350);
+                if (document.visibilityState === 'visible') {
+                    window.location.href = 'whatsapp://';
+                }
+            }, 300);
         }
 
         function checkReturnFromWhatsApp() {
@@ -4763,11 +4768,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 banner.style.display = 'block';
             }
 
-            // Attempt automatic clipboard read if permitted
+            // Attempt automatic clipboard read if permitted by browser
             if (navigator.clipboard && navigator.clipboard.readText) {
                 navigator.clipboard.readText().then(text => {
                     if (text && text.trim().length > 10) {
-                        const hasKeywords = /بنك|تحويل|مبلغ|SDG|جنيه|عملية|مرجع|أوكاش|فوري|Bankak|Transfer|Receipt/i.test(text);
+                        const hasKeywords = /بنك|تحويل|مبلغ|حوالة|سداد|خصم|إيداع|SDG|SAR|جنيه|ريال|عملية|مرجع|أوكاش|فوري|Bankak|Transfer|Receipt/i.test(text);
                         if (hasKeywords) {
                             pasteAndAutoFillSlip(text);
                         }
@@ -4788,16 +4793,45 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         async function pasteAndAutoFillSlip(customText) {
             triggerHaptic('medium');
             let text = customText || '';
+
+            // 1. Try reading clipboard text
             if (!text) {
                 try {
                     if (navigator.clipboard && navigator.clipboard.readText) {
                         text = await navigator.clipboard.readText();
                     }
-                } catch(e) {}
+                } catch(e) {
+                    console.warn('Clipboard readText restricted:', e);
+                }
+            }
+
+            // 2. Try reading clipboard image (e.g. copied slip image from WhatsApp)
+            if (!text && navigator.clipboard && navigator.clipboard.read) {
+                try {
+                    const items = await navigator.clipboard.read();
+                    for (const item of items) {
+                        const imageType = item.types.find(t => t.startsWith('image/'));
+                        if (imageType) {
+                            const blob = await item.getType(imageType);
+                            if (blob) {
+                                if (window.showModernToast) {
+                                    window.showModernToast('🖼️ تم العثور على صورة إشعار في الحافظة، جار الفحص بالذكاء الاصطناعي...', 'info', 3000);
+                                }
+                                processSlipImageBlob(blob);
+                                return;
+                            }
+                        }
+                    }
+                } catch(e) {
+                    console.warn('Clipboard image read restricted:', e);
+                }
             }
 
             if (!text || !text.trim()) {
                 openBottomSheet('sheet-ai-slip');
+                if (window.showModernToast) {
+                    window.showModernToast('📋 الصق نص الإشعار هنا لتفريغه آلياً', 'info', 2500);
+                }
                 return;
             }
 
@@ -4813,7 +4847,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (AI_EXTRACTED_DATA && (AI_EXTRACTED_DATA.amount || AI_EXTRACTED_DATA.ref)) {
                 applyAIExtractedData();
                 if (window.showModernToast) {
-                    window.showModernToast('✨ تم تفريغ إشعار واتساب وتعبئة السند بنجاح!', 'success', 2500);
+                    window.showModernToast('✨ تم تفريغ الإشعار وتعبئة السند بنجاح!', 'success', 2500);
                 }
             } else {
                 openBottomSheet('sheet-ai-slip');
@@ -4823,84 +4857,133 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             }
         }
 
+        // ═════════════════════════════════════════════════════════════════
+        // 🖼️ STUDIO / GALLERY IMAGE PICKER & HIGH-SPEED CLIENT RESIZE OCR
+        // ═════════════════════════════════════════════════════════════════
         function triggerSlipImagePicker() {
             triggerHaptic('light');
             const inp = document.getElementById('slip-image-picker');
             if (inp) inp.click();
         }
 
-        async function handleSlipImageUpload(event) {
-            const file = event.target.files?.[0];
-            if (!file) return;
+        // Resizes images in-browser to 1600px max dimension before OCR upload (ultra-fast, fits under PHP limits)
+        function resizeImageForOCR(fileOrBlob, maxDimension = 1600, quality = 0.88) {
+            return new Promise((resolve, reject) => {
+                const img = new Image();
+                const url = URL.createObjectURL(fileOrBlob);
+                img.onload = () => {
+                    URL.revokeObjectURL(url);
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > maxDimension || h > maxDimension) {
+                        if (w > h) {
+                            h = Math.round((h * maxDimension) / w);
+                            w = maxDimension;
+                        } else {
+                            w = Math.round((w * maxDimension) / h);
+                            h = maxDimension;
+                        }
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, w, h);
+                    const base64 = canvas.toDataURL('image/jpeg', quality);
+                    resolve(base64);
+                };
+                img.onerror = (e) => {
+                    URL.revokeObjectURL(url);
+                    reject(e);
+                };
+                img.src = url;
+            });
+        }
 
+        async function processSlipImageBlob(fileOrBlob) {
             triggerHaptic('medium');
             if (window.showModernToast) {
                 window.showModernToast('🔍 جاري فحص وقراءة صورة الإشعار بالذكاء الاصطناعي...', 'info', 4000);
             }
 
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const base64Data = e.target.result;
-                try {
-                    const resp = await fetch('api/ocr-financial.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            image: base64Data,
-                            doc_hint: 'transfer'
-                        })
-                    });
-                    const res = await resp.json();
-                    if (res.success && res.data) {
-                        const d = res.data;
-                        buildAllAccountsList();
+            try {
+                const base64Data = await resizeImageForOCR(fileOrBlob, 1600, 0.88);
+                const resp = await fetch('api/ocr-financial.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        image: base64Data,
+                        doc_hint: 'transfer'
+                    })
+                });
+                const res = await resp.json();
+                if (res.success && res.data) {
+                    const d = res.data;
+                    buildAllAccountsList();
 
-                        if (d.amount) {
-                            const locInp = document.getElementById('tx-amount-local');
-                            if (locInp) locInp.value = d.amount;
-                            onLocalAmountInput(d.amount);
-                        }
-                        if (d.transaction_ref || d.reference_no) {
-                            const refInp = document.getElementById('tx-ref');
-                            if (refInp) {
-                                refInp.value = d.transaction_ref || d.reference_no;
-                                validateRefNoLive(refInp.value);
-                            }
-                        }
-                        if (d.date) {
-                            const dtInp = document.getElementById('tx-date');
-                            if (dtInp) dtInp.value = d.date;
-                        }
-                        if (d.sender_name) {
-                            const mFrom = ALL_ACCOUNTS.find(a => a.name.includes(d.sender_name) || d.sender_name.includes(a.name));
-                            if (mFrom) selectAccountDirectly('from', mFrom);
-                        }
-                        if (d.receiver_name || d.bank_name) {
-                            const targetName = d.receiver_name || d.bank_name;
-                            const mTo = ALL_ACCOUNTS.find(a => a.name.includes(targetName) || targetName.includes(a.name)) || ALL_ACCOUNTS.find(a => a.category === 'bank');
-                            if (mTo) selectAccountDirectly('to', mTo);
-                        }
-
-                        const noteInp = document.getElementById('tx-notes');
-                        if (noteInp) {
-                            noteInp.value = `تحويل ${d.bank_name || 'بنكي'} - مرجع ${d.transaction_ref || d.reference_no || ''}`;
-                        }
-
-                        openFinancialTxSheet();
-                        if (window.showModernToast) {
-                            window.showModernToast('✨ تم استخراج بيانات الإشعار وتعبئة السند بنجاح!', 'success', 3000);
-                        }
-                    } else {
-                        alert(res.error || 'تعذر استخراج بيانات الإشعار من الصورة، يرجى المحاولة بصورة أوضح أو نسخ النص.');
+                    if (d.amount) {
+                        const locInp = document.getElementById('tx-amount-local');
+                        if (locInp) locInp.value = d.amount;
+                        onLocalAmountInput(d.amount);
                     }
-                } catch(err) {
-                    console.error('OCR Error:', err);
-                    alert('حدث خطأ أثناء فحص الصورة. يمكنك نسخ نص الإشعار ولصقه مباشرة.');
-                } finally {
-                    event.target.value = '';
+                    if (d.transaction_ref || d.reference_no) {
+                        const refInp = document.getElementById('tx-ref');
+                        if (refInp) {
+                            refInp.value = d.transaction_ref || d.reference_no;
+                            if (typeof validateRefNoLive === 'function') validateRefNoLive(refInp.value);
+                        }
+                    }
+                    if (d.date) {
+                        const dtInp = document.getElementById('tx-date');
+                        if (dtInp) dtInp.value = d.date;
+                    }
+                    if (d.sender_name) {
+                        const mFrom = ALL_ACCOUNTS.find(a => a.name.includes(d.sender_name) || d.sender_name.includes(a.name));
+                        if (mFrom) selectAccountDirectly('from', mFrom);
+                    }
+                    if (d.receiver_name || d.bank_name) {
+                        const targetName = d.receiver_name || d.bank_name;
+                        const mTo = ALL_ACCOUNTS.find(a => a.name.includes(targetName) || targetName.includes(a.name)) || ALL_ACCOUNTS.find(a => a.category === 'bank');
+                        if (mTo) selectAccountDirectly('to', mTo);
+                    }
+
+                    const noteInp = document.getElementById('tx-notes');
+                    if (noteInp) {
+                        noteInp.value = `تحويل ${d.bank_name || 'بنكي'} - مرجع ${d.transaction_ref || d.reference_no || ''}`;
+                    }
+
+                    const banner = document.getElementById('wa-return-banner');
+                    if (banner) banner.style.display = 'none';
+                    sessionStorage.removeItem('waiting_whatsapp_slip');
+
+                    if (window.showModernToast) {
+                        window.showModernToast('✨ تم استخراج بيانات الإشعار وتعبئة السند بنجاح!', 'success', 3000);
+                    }
+                } else {
+                    if (window.showModernToast) {
+                        window.showModernToast(res.error || 'تعذر استخراج بيانات الإشعار من الصورة، يرجى المحاولة بصورة أوضح أو نسخ النص.', 'warning', 4000);
+                    } else {
+                        alert(res.error || 'تعذر استخراج بيانات الإشعار من الصورة.');
+                    }
                 }
-            };
-            reader.readAsDataURL(file);
+            } catch(err) {
+                console.error('OCR Error:', err);
+                if (window.showModernToast) {
+                    window.showModernToast('حدث خطأ أثناء فحص الصورة. يمكنك نسخ نص الإشعار ولصقه مباشرة.', 'warning', 4000);
+                } else {
+                    alert('حدث خطأ أثناء فحص الصورة.');
+                }
+            }
+        }
+
+        async function handleSlipImageUpload(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+            try {
+                await processSlipImageBlob(file);
+            } finally {
+                event.target.value = '';
+            }
         }
 
         // Backward compatibility shims

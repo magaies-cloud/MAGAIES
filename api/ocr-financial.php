@@ -352,9 +352,9 @@ $payload = [
 // Multi-Model Cascade: automatically fallback across active models if primary hits rate limit (429), spikes (503), or quota exhaustion
 $modelsCascade = [
     $model,
+    'gemini-2.5-flash',
     'gemini-3.5-flash',
     'gemini-flash-lite-latest',
-    'gemini-3-flash-preview',
     'gemini-flash-latest'
 ];
 $modelsCascade = array_values(array_unique(array_filter($modelsCascade)));
