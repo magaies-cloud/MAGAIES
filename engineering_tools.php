@@ -41,7 +41,7 @@ $pdo = getDBConnection();
     <script src="js/hls.light.min.js"></script>
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
     <script src="js/xlsx.full.min.js"></script>
-    <script src="js/accounting_reconciliation.js?v=2026_v1"></script>
+    <script src="js/accounting_reconciliation.js?v=2026_omni_v2"></script>
 
     <style>
 
@@ -23077,6 +23077,29 @@ $pdo = getDBConnection();
                     color: #ffffff !important;
                     box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35) !important;
                 }
+                .omni-source-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 6px 12px;
+                    border-radius: 12px;
+                    background: rgba(30, 41, 59, 0.75);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    color: #e2e8f0;
+                    font-size: 11px;
+                    font-weight: 800;
+                    cursor: pointer;
+                    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+                    white-space: nowrap;
+                    user-select: none;
+                }
+                .omni-source-btn:hover {
+                    background: rgba(51, 65, 85, 0.95);
+                    border-color: rgba(255, 255, 255, 0.25);
+                    color: #ffffff;
+                    transform: translateY(-1.5px);
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+                }
                 :root.light-theme .recon-hero-glass {
                     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
                     border-color: rgba(99, 102, 241, 0.4) !important;
@@ -23101,6 +23124,15 @@ $pdo = getDBConnection();
                 :root.light-theme .recon-tab-pill.active {
                     background: #e0e7ff !important;
                     color: #3730a3 !important;
+                }
+                :root.light-theme .omni-source-btn {
+                    background: #f1f5f9 !important;
+                    border-color: #cbd5e1 !important;
+                    color: #334155 !important;
+                }
+                :root.light-theme .omni-source-btn:hover {
+                    background: #e2e8f0 !important;
+                    color: #0f172a !important;
                 }
             </style>
 
@@ -23154,13 +23186,13 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 1. Dual Excel Comparison Pods -->
+                <!-- 1. Dual Omnichannel Comparison Pods -->
                 <div class="relative mb-8">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         
                         <!-- Side A: My Accounting Records -->
                         <div class="recon-pod recon-pod-a">
-                            <div class="flex items-center justify-between mb-4 pb-2 border-b border-sky-500/20">
+                            <div class="flex items-center justify-between mb-3 pb-2 border-b border-sky-500/20">
                                 <div class="flex items-center gap-2.5">
                                     <span class="w-8 h-8 rounded-xl bg-sky-500/20 border border-sky-400/50 flex items-center justify-center text-sky-400 text-sm">
                                         <i class="fa-solid fa-file-invoice-dollar"></i>
@@ -23173,23 +23205,57 @@ $pdo = getDBConnection();
                                 <span class="text-[11px] font-black text-sky-300 bg-sky-500/15 px-2.5 py-1 rounded-lg border border-sky-500/30">الملف الأساسي</span>
                             </div>
 
+                            <!-- Omnichannel Sources Bar for Side A -->
+                            <div class="flex flex-wrap items-center gap-1.5 mb-3 p-2 rounded-xl bg-slate-950/70 border border-sky-500/20 text-xs">
+                                <span class="text-[11px] font-black text-sky-400 pl-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-cloud-arrow-down"></i> جلب من:
+                                </span>
+                                
+                                <button type="button" onclick="openSystemAccountSelector('A')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ وحسابات البرنامج">
+                                    <i class="fa-solid fa-book-journal-whills text-sky-400"></i>
+                                    <span>حسابات النظام</span>
+                                </button>
+                                
+                                <button type="button" onclick="document.getElementById('omni-file-camera-A').click()" class="omni-source-btn" title="التقاط صورة أو اختيارها من استوديو الجوال">
+                                    <i class="fa-solid fa-camera text-pink-400"></i>
+                                    <span>استوديو / كاميرا</span>
+                                </button>
+                                <input type="file" id="omni-file-camera-A" accept="image/*" capture="environment" class="hidden" onchange="handleOmniUpload(event, 'A', 'camera')">
+
+                                <button type="button" onclick="document.getElementById('omni-file-all-A').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Image)">
+                                    <i class="fa-solid fa-folder-open text-amber-400"></i>
+                                    <span>تنزيلات / ملفات</span>
+                                </button>
+                                <input type="file" id="omni-file-all-A" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" class="hidden" onchange="handleOmniUpload(event, 'A', 'file')">
+
+                                <button type="button" onclick="openWhatsAppImportModal('A')" class="omni-source-btn" title="استيراد وتفريغ إشعار أو رسالة واتساب">
+                                    <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+                                    <span>واتساب</span>
+                                </button>
+
+                                <button type="button" onclick="pasteFromClipboard('A')" class="omni-source-btn" title="لصق جدول أو نص من الحافظة مباشرة">
+                                    <i class="fa-solid fa-paste text-indigo-400"></i>
+                                    <span>لصق</span>
+                                </button>
+                            </div>
+
                             <div id="recon-dropzone-box-A">
-                                <label for="recon-file-input-A" class="recon-upload-area flex flex-col items-center justify-center group">
+                                <label for="omni-file-all-A" class="recon-upload-area flex flex-col items-center justify-center group">
                                     <div class="w-14 h-14 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 text-2xl mb-3 group-hover:scale-110 transition duration-300 shadow-lg">
                                         <i class="fa-solid fa-cloud-arrow-up"></i>
                                     </div>
-                                    <span class="font-extrabold text-sm text-slate-100 group-hover:text-sky-300 transition">اسحب وأفلت ملف إكسيل حساباتك هنا أو انقر للاختيار</span>
-                                    <span class="text-xs text-slate-400 mt-1">يدعم ملفات (.xlsx, .xls, .csv)</span>
+                                    <span class="font-extrabold text-sm text-slate-100 group-hover:text-sky-300 transition">اسحب وأفلت الملف هنا أو اختر من الأزرار أعلاه</span>
+                                    <span class="text-xs text-slate-400 mt-1">يقبل إكسيل · صور · PDF · وورد · نصوص</span>
                                 </label>
                             </div>
-                            <input type="file" id="recon-file-input-A" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleReconFileUpload(event, 'A')">
+                            <input type="file" id="recon-file-input-A" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" class="hidden" onchange="handleOmniUpload(event, 'A', 'file')">
 
                             <div id="recon-map-badges-A"></div>
                         </div>
 
                         <!-- Side B: Factory Records -->
                         <div class="recon-pod recon-pod-b">
-                            <div class="flex items-center justify-between mb-4 pb-2 border-b border-purple-500/20">
+                            <div class="flex items-center justify-between mb-3 pb-2 border-b border-purple-500/20">
                                 <div class="flex items-center gap-2.5">
                                     <span class="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-400/50 flex items-center justify-center text-purple-400 text-sm">
                                         <i class="fa-solid fa-industry"></i>
@@ -23202,16 +23268,50 @@ $pdo = getDBConnection();
                                 <span class="text-[11px] font-black text-purple-300 bg-purple-500/15 px-2.5 py-1 rounded-lg border border-purple-500/30">الملف المقابل</span>
                             </div>
 
+                            <!-- Omnichannel Sources Bar for Side B -->
+                            <div class="flex flex-wrap items-center gap-1.5 mb-3 p-2 rounded-xl bg-slate-950/70 border border-purple-500/20 text-xs">
+                                <span class="text-[11px] font-black text-purple-400 pl-1 flex items-center gap-1">
+                                    <i class="fa-solid fa-cloud-arrow-down"></i> جلب من:
+                                </span>
+                                
+                                <button type="button" onclick="openSystemAccountSelector('B')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ وحسابات البرنامج">
+                                    <i class="fa-solid fa-book-journal-whills text-purple-400"></i>
+                                    <span>حسابات النظام</span>
+                                </button>
+                                
+                                <button type="button" onclick="document.getElementById('omni-file-camera-B').click()" class="omni-source-btn" title="التقاط صورة أو اختيارها من استوديو الجوال">
+                                    <i class="fa-solid fa-camera text-pink-400"></i>
+                                    <span>استوديو / كاميرا</span>
+                                </button>
+                                <input type="file" id="omni-file-camera-B" accept="image/*" capture="environment" class="hidden" onchange="handleOmniUpload(event, 'B', 'camera')">
+
+                                <button type="button" onclick="document.getElementById('omni-file-all-B').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Image)">
+                                    <i class="fa-solid fa-folder-open text-amber-400"></i>
+                                    <span>تنزيلات / ملفات</span>
+                                </button>
+                                <input type="file" id="omni-file-all-B" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" class="hidden" onchange="handleOmniUpload(event, 'B', 'file')">
+
+                                <button type="button" onclick="openWhatsAppImportModal('B')" class="omni-source-btn" title="استيراد وتفريغ إشعار أو رسالة واتساب">
+                                    <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+                                    <span>واتساب</span>
+                                </button>
+
+                                <button type="button" onclick="pasteFromClipboard('B')" class="omni-source-btn" title="لصق جدول أو نص من الحافظة مباشرة">
+                                    <i class="fa-solid fa-paste text-indigo-400"></i>
+                                    <span>لصق</span>
+                                </button>
+                            </div>
+
                             <div id="recon-dropzone-box-B">
-                                <label for="recon-file-input-B" class="recon-upload-area flex flex-col items-center justify-center group">
+                                <label for="omni-file-all-B" class="recon-upload-area flex flex-col items-center justify-center group">
                                     <div class="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl mb-3 group-hover:scale-110 transition duration-300 shadow-lg">
                                         <i class="fa-solid fa-cloud-arrow-up"></i>
                                     </div>
-                                    <span class="font-extrabold text-sm text-slate-100 group-hover:text-purple-300 transition">اسحب وأفلت ملف إكسيل المصنع هنا أو انقر للاختيار</span>
-                                    <span class="text-xs text-slate-400 mt-1">يدعم ملفات (.xlsx, .xls, .csv)</span>
+                                    <span class="font-extrabold text-sm text-slate-100 group-hover:text-purple-300 transition">اسحب وأفلت ملف إكسيل المصنع أو اختر من الأزرار أعلاه</span>
+                                    <span class="text-xs text-slate-400 mt-1">يقبل إكسيل · صور · PDF · وورد · نصوص</span>
                                 </label>
                             </div>
-                            <input type="file" id="recon-file-input-B" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleReconFileUpload(event, 'B')">
+                            <input type="file" id="recon-file-input-B" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" class="hidden" onchange="handleOmniUpload(event, 'B', 'file')">
 
                             <div id="recon-map-badges-B"></div>
                         </div>
@@ -23464,6 +23564,102 @@ $pdo = getDBConnection();
 
                 </div>
 
+            </div>
+
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <!-- MODAL 1: SYSTEM GENERAL LEDGER & ACCOUNTS SELECTOR              -->
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <div id="modal-recon-system-accounts" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+                <div class="w-full max-w-2xl rounded-3xl bg-slate-900 border-2 border-indigo-500/50 shadow-2xl p-6 sm:p-7 space-y-5 animate-scaleIn text-right">
+                    
+                    <div class="flex items-center justify-between pb-3 border-b border-indigo-500/20">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-book-journal-whills"></i>
+                            </span>
+                            <div>
+                                <h4 class="font-black text-base text-slate-100">جلب كشف الحساب مباشرة من دفتر الأستاذ العام</h4>
+                                <span class="text-xs text-slate-400 font-bold" id="recon-modal-target-side-label">سيتم التضمين في: الطرف الأول</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <!-- Category Pills -->
+                    <div class="flex flex-wrap gap-1.5" id="recon-acc-cat-filters">
+                        <button type="button" onclick="filterReconAccountsList('all', this)" class="px-3 py-1 rounded-xl bg-indigo-600 text-white font-bold text-xs cursor-pointer">🌟 الكل</button>
+                        <button type="button" onclick="filterReconAccountsList('الموردين', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">🏭 الموردين والمصانع</button>
+                        <button type="button" onclick="filterReconAccountsList('البنوك', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">🏦 البنوك</button>
+                        <button type="button" onclick="filterReconAccountsList('العملاء', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">👥 العملاء</button>
+                        <button type="button" onclick="filterReconAccountsList('الخزن', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">💼 الخزن والصناديق</button>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <input type="text" id="recon-acc-search-input" oninput="searchReconAccountsList()" placeholder="🔍 ابحث باسم المصنع، المورد، البنك، أو رقم الهاتف..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-sm font-bold focus:border-indigo-400 focus:outline-none">
+                    </div>
+
+                    <!-- Accounts List -->
+                    <div id="recon-modal-accounts-grid" class="max-h-72 overflow-y-auto space-y-2 p-1 custom-scrollbar">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-800 text-xs text-slate-400">
+                        <span>💡 يجلب النظام الحركات المسجلة في قيود اليومية تلقائياً دون تصدير</span>
+                        <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold cursor-pointer">إلغاء</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <!-- MODAL 2: WHATSAPP & CLIPBOARD TEXT / NOTIFICATION EXTRACTOR     -->
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <div id="modal-recon-whatsapp-paste" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+                <div class="w-full max-w-2xl rounded-3xl bg-slate-900 border-2 border-emerald-500/50 shadow-2xl p-6 sm:p-7 space-y-5 animate-scaleIn text-right">
+                    
+                    <div class="flex items-center justify-between pb-3 border-b border-emerald-500/20">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </span>
+                            <div>
+                                <h4 class="font-black text-base text-slate-100">تفريغ وتحليل نصوص وإشعارات الواتساب والحافظة بالـ AI</h4>
+                                <span class="text-xs text-slate-400 font-bold" id="recon-whatsapp-target-side-label">سيتم التضمين في: الطرف الأول</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-slate-300">ألصق هنا نص رسالة الواتساب، أو نص الإشعار البنكي، أو جدول الحركات المنسوخ:</label>
+                        <textarea id="recon-whatsapp-text-input" rows="6" placeholder="مثال: تم تحويل مبلغ 5,000,000 عبر تطبيق بنكك بتاريخ 2026/06/10 مرجع 88014567 توريد دفعة حديد..." class="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs sm:text-sm font-mono focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-xs text-slate-400 font-bold">
+                            <i class="fa-solid fa-wand-magic-sparkles text-emerald-400"></i>
+                            <span>يدعم الذكاء الاصطناعي تفكيك رسائل وتنسيقات البنوك السودانية والعربية المتعددة</span>
+                        </div>
+                        <a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" class="text-xs text-emerald-400 hover:text-emerald-300 font-bold underline flex items-center gap-1">
+                            <span>فتح واتساب ويب</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+                        <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-xs cursor-pointer">إلغاء</button>
+                        <button type="button" onclick="submitWhatsAppImport()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/40">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>تفريغ واستخراج الحركات بالذكاء الاصطناعي ⚡</span>
+                        </button>
+                    </div>
+
+                </div>
             </div>
         </div>
 

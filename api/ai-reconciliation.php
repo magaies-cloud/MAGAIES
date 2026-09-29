@@ -28,11 +28,147 @@ require_once __DIR__ . '/ai-config.php';
 $inputJSON = file_get_contents('php://input');
 $data = json_decode($inputJSON, true);
 
-if (!$data) {
-    echo json_encode(['success' => false, 'error' => 'لم يتم إرسال بيانات صالحة للتحليل المحاسبي'], JSON_UNESCAPED_UNICODE);
+$action = $data['action'] ?? 'reconcile';
+$apiKey = getGeminiApiKey();
+
+// ────────────────────────────────────────────────────────────────────
+// A. MULTIMODAL DOCUMENT & VISION OCR EXTRACTION (أي صيغة: صور، PDF، Word، نص)
+// ────────────────────────────────────────────────────────────────────
+if ($action === 'extract_document') {
+    $fileBase64 = $data['file_base64'] ?? '';
+    $mimeType = $data['mime_type'] ?? 'image/jpeg';
+    $textContent = $data['text_content'] ?? '';
+    $fileName = $data['file_name'] ?? 'مستند مالي';
+
+    if (empty($fileBase64) && empty($textContent)) {
+        echo json_encode(['success' => false, 'error' => 'لم يتم إرسال صورة أو ملف أو نص لتحليله'], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    if (!empty($fileBase64)) {
+        if (preg_match('/^data:([^;]+);base64,(.+)$/', $fileBase64, $matches)) {
+            $mimeType = $matches[1];
+            $fileBase64 = $matches[2];
+        }
+    }
+
+    $ocrPrompt = <<<PROMPT
+أنت خبير محاسبي جنائي عالمي ومتخصص في قراءة وتدقيق المستندات البنكية وكشوفات الحسابات والفواتير (World-Class AI Forensic Accountant & Financial OCR Specialist).
+المطلوب منك: فحص وتدقيق المستند أو الصورة المرفقة، واستخراج جدول كافة الحركات المالية بدقة محاسبية متناهية.
+
+ملاحظات بالغة الأهمية:
+1. اقبل المستند أياً كان نوعه: صورة ملتقطة بكاميرا الجوال، كشف حساب PDF رسمي لبنك (مثل بنكك أو بنك فيصل أو الراجحي أو الأهلي)، إشعار سداد، شيك، فاتورة، رسائل واتساب، جدول Word أو Excel أو نص منسوخ.
+2. حتى لو كانت الصورة باهتة، أو الإضاءة خافتة، أو الزاوية مائلة، أو الأرقام مهتزة قليلاً، استعن بالمنطق المحاسبي وتطابق الأرصدة (الرصيد السابق + المدين - الدائن = الرصيد الحالي) لإعادة استنتاج وقراءة الأرقام الحقيقية بدقة تامة.
+3. فكك كل حركة مالية إلى:
+   - date: تاريخ العملية بصيغة (YYYY-MM-DD) أو كما هو مدون في الكشف.
+   - ref: رقم السند أو رقم التحويلة البنكية أو رقم الشيك أو رقم الفاتورة أو آخر 6 أرقام ظاهرة.
+   - desc: البيان والشرح المالي والتفاصيل واسم الطرف الآخر أو تفاصيل التحويل.
+   - debit: المبلغ المدين (لنا / قبض / توريد / إضافة). إذا لم يتوفر ضع 0.
+   - credit: المبلغ الدائن (علينا / صرف / سداد / خصم). إذا لم يتوفر ضع 0.
+   - balance: الرصيد الختامي بعد العملية إذا كان مدوناً، وإلا ضع 0.
+
+المطلوب إخراج النتيجة بصيغة JSON محضة دون أي نص تمهيدي أو علامات Markdown:
+{
+  "account_name": "اسم الحساب أو المصنع أو الجهة الظاهرة في الكشف",
+  "currency": "SDG أو USD أو العملة المكتشفة",
+  "opening_balance": 0.00,
+  "closing_balance": 0.00,
+  "rows": [
+    {
+      "date": "2026-06-01",
+      "ref": "88014567",
+      "desc": "تحويل بنكك توريد دفعة أولى",
+      "debit": 5000000,
+      "credit": 0,
+      "balance": 5000000
+    }
+  ]
+}
+PROMPT;
+
+    $parts = [];
+    if (!empty($fileBase64)) {
+        $parts[] = [
+            'inline_data' => [
+                'mime_type' => $mimeType,
+                'data' => $fileBase64
+            ]
+        ];
+    }
+    if (!empty($textContent)) {
+        $ocrPrompt .= "\n\nالنص المرفق المستخرج أو المنسوخ من المستند:\n" . $textContent;
+    }
+    $parts[] = ['text' => $ocrPrompt];
+
+    $modelsCascade = ['gemini-2.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.5-flash'];
+    $response = false;
+    $httpCode = 0;
+    $matchedModel = $modelsCascade[0];
+
+    foreach ($modelsCascade as $idx => $curModel) {
+        if ($idx > 0) usleep(300000);
+        $matchedModel = $curModel;
+        $url = "https://generativelanguage.googleapis.com/v1beta/models/" . $curModel . ":generateContent?key=" . $apiKey;
+
+        $payload = [
+            'contents' => [
+                ['parts' => $parts]
+            ],
+            'generationConfig' => [
+                'temperature' => 0.1,
+                'maxOutputTokens' => 4000
+            ]
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200 && $response !== false) {
+            break;
+        }
+    }
+
+    if ($httpCode === 200 && $response !== false) {
+        $resJson = json_decode($response, true);
+        $text = $resJson['candidates'][0]['content']['parts'][0]['text'] ?? '';
+        if (strpos($text, '```json') !== false) {
+            $text = preg_replace('/^```json\s*/', '', $text);
+            $text = preg_replace('/\s*```$/', '', $text);
+        } elseif (strpos($text, '```') !== false) {
+            $text = preg_replace('/^```\s*/', '', $text);
+            $text = preg_replace('/\s*```$/', '', $text);
+        }
+        $parsed = json_decode(trim($text), true);
+        if ($parsed && isset($parsed['rows']) && is_array($parsed['rows'])) {
+            echo json_encode([
+                'success' => true,
+                'source' => 'gemini_vision_ocr',
+                'model' => $matchedModel,
+                'data' => $parsed
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+    }
+
+    echo json_encode([
+        'success' => false,
+        'error' => 'تعذر تحليل المستند بالذكاء الاصطناعي، يرجى المحاولة مرة أخرى أو التأكد من وضوح الصورة.'
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
+// ────────────────────────────────────────────────────────────────────
+// B. FORENSIC AUDIT & DISCREPANCY RECONCILIATION
+// ────────────────────────────────────────────────────────────────────
 $summaryA = $data['summary_a'] ?? [];
 $summaryB = $data['summary_b'] ?? [];
 $netVariance = floatval($data['net_variance'] ?? 0);
