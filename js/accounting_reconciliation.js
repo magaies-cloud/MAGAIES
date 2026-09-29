@@ -616,39 +616,51 @@
     // ────────────────────────────────────────────────────────────────
     // 6. UI RENDERING & TAB MANAGERS
     // ────────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────────────────────
+    // 6. UI RENDERING & TAB MANAGERS
+    // ────────────────────────────────────────────────────────────────
     function renderDropzoneCard(side) {
-        const target = (side === 'A') ? window.RECON_STATE.fileA : window.RECON_STATE.fileB;
+        const isA = (side === 'A');
+        const target = isA ? window.RECON_STATE.fileA : window.RECON_STATE.fileB;
         const boxEl = document.getElementById(`recon-dropzone-box-${side}`);
         if (!boxEl) return;
 
+        const themeColor = isA ? 'sky' : 'purple';
+
         boxEl.innerHTML = `
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="w-10 h-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg">
-                        <i class="fa-solid fa-file-excel"></i>
-                    </span>
-                    <div>
-                        <h4 class="font-black text-sm text-slate-100">${target.name}</h4>
-                        <span class="text-xs text-emerald-400 font-bold">✓ تم قراءة ${target.mappedRows.length} حركة مالية</span>
+            <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="w-12 h-12 rounded-2xl bg-${themeColor}-500/15 border border-${themeColor}-500/40 flex items-center justify-center text-${themeColor}-400 text-xl shadow-lg">
+                            <i class="fa-solid fa-file-excel"></i>
+                        </span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-black text-sm text-slate-100 font-mono tracking-tight">${target.name}</h4>
+                                <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold text-[10px] border border-emerald-500/30">✓ تم التدقيق</span>
+                            </div>
+                            <span class="text-xs text-slate-400 font-bold mt-0.5 block">تم استخراج <strong>${target.mappedRows.length}</strong> حركة مالية بنجاح</span>
+                        </div>
                     </div>
+                    <button type="button" onclick="document.getElementById('recon-file-input-${side}').click()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1.5 cursor-pointer">
+                        <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
+                        استبدال الملف
+                    </button>
                 </div>
-                <button type="button" onclick="document.getElementById('recon-file-input-${side}').click()" class="text-xs font-bold text-slate-400 hover:text-slate-200 underline cursor-pointer">
-                    تغيير الملف
-                </button>
-            </div>
-            
-            <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-800/80 text-center text-xs">
-                <div class="bg-slate-800/50 p-2 rounded-lg">
-                    <span class="text-slate-400 block font-bold">إجمالي المدين:</span>
-                    <strong class="text-rose-400 font-mono">${formatMoney(target.summary.debit)}</strong>
-                </div>
-                <div class="bg-slate-800/50 p-2 rounded-lg">
-                    <span class="text-slate-400 block font-bold">إجمالي الدائن:</span>
-                    <strong class="text-emerald-400 font-mono">${formatMoney(target.summary.credit)}</strong>
-                </div>
-                <div class="bg-slate-800/50 p-2 rounded-lg">
-                    <span class="text-slate-400 block font-bold">رصيد الإغلاق:</span>
-                    <strong class="text-sky-400 font-mono">${formatMoney(target.summary.balance)}</strong>
+                
+                <div class="grid grid-cols-3 gap-2.5 pt-3 border-t border-slate-800 text-center text-xs">
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-rose-500/20">
+                        <span class="text-slate-400 block font-bold text-[11px] mb-0.5">إجمالي المدين:</span>
+                        <strong class="text-rose-400 font-mono text-sm block">${formatMoney(target.summary.debit)}</strong>
+                    </div>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-emerald-500/20">
+                        <span class="text-slate-400 block font-bold text-[11px] mb-0.5">إجمالي الدائن:</span>
+                        <strong class="text-emerald-400 font-mono text-sm block">${formatMoney(target.summary.credit)}</strong>
+                    </div>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-${themeColor}-500/20">
+                        <span class="text-slate-400 block font-bold text-[11px] mb-0.5">رصيد الإغلاق:</span>
+                        <strong class="text-${themeColor}-300 font-mono text-sm block">${formatMoney(target.summary.balance)}</strong>
+                    </div>
                 </div>
             </div>
         `;
@@ -663,13 +675,14 @@
         const h = target.headers;
 
         badgeEl.innerHTML = `
-            <div class="flex flex-wrap gap-1.5 text-[11px] font-bold mt-2">
-                <span class="px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/20">التاريخ: ${h[m.dateIdx] || 'غير محدد'}</span>
-                <span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">المرجع: ${h[m.refIdx] || 'غير محدد'}</span>
-                <span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20">البيان: ${h[m.descIdx] || 'غير محدد'}</span>
-                <span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20">مدين: ${h[m.debitIdx] || 'غير محدد'}</span>
-                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">دائن: ${h[m.creditIdx] || 'غير محدد'}</span>
-                <span class="px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">الرصيد: ${h[m.balanceIdx] || 'غير محدد'}</span>
+            <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-bold mt-2.5 pt-2 border-t border-slate-800/60">
+                <span class="text-slate-400 text-[10px] ml-1">الأعمدة المكتشفة:</span>
+                <span class="px-2.5 py-0.5 rounded-lg bg-sky-500/10 text-sky-300 border border-sky-500/25">📅 ${h[m.dateIdx] || 'تاريخ'}</span>
+                <span class="px-2.5 py-0.5 rounded-lg bg-amber-500/10 text-amber-300 border border-amber-500/25">🔖 ${h[m.refIdx] || 'مرجع'}</span>
+                <span class="px-2.5 py-0.5 rounded-lg bg-purple-500/10 text-purple-300 border border-purple-500/25">📝 ${h[m.descIdx] || 'بيان'}</span>
+                <span class="px-2.5 py-0.5 rounded-lg bg-rose-500/10 text-rose-300 border border-rose-500/25">🔻 مدين: ${h[m.debitIdx] || '-'}</span>
+                <span class="px-2.5 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/25">🔺 دائن: ${h[m.creditIdx] || '-'}</span>
+                <span class="px-2.5 py-0.5 rounded-lg bg-indigo-500/10 text-indigo-300 border border-indigo-500/25">⚖️ رصيد: ${h[m.balanceIdx] || '-'}</span>
             </div>
         `;
     }
@@ -688,13 +701,18 @@
         document.getElementById('recon-kpi-bal-b').textContent = formatMoney(stateB.summary.balance);
         
         const diffEl = document.getElementById('recon-kpi-net-diff');
+        const diffHint = document.getElementById('recon-kpi-net-diff-hint');
         diffEl.textContent = formatMoney(Math.abs(res.netVariance));
         if (Math.abs(res.netVariance) > 1) {
-            diffEl.className = 'text-3xl font-black font-mono text-rose-400';
-            document.getElementById('recon-kpi-net-diff-hint').textContent = '⚠️ يوجد فرق يجب حسمه وتسويته';
+            diffEl.className = 'text-2xl sm:text-3xl font-black font-mono text-rose-400 block tracking-tight';
+            if (diffHint) {
+                diffHint.innerHTML = '<span class="text-rose-400 font-bold">⚠️ يوجد فارق يجب حسمه وتسويته</span>';
+            }
         } else {
-            diffEl.className = 'text-3xl font-black font-mono text-emerald-400';
-            document.getElementById('recon-kpi-net-diff-hint').textContent = '✓ تطابق تام ولا يوجد أي فرق';
+            diffEl.className = 'text-2xl sm:text-3xl font-black font-mono text-emerald-400 block tracking-tight';
+            if (diffHint) {
+                diffHint.innerHTML = '<span class="text-emerald-400 font-bold">✓ تطابق تام ولا يوجد أي فرق</span>';
+            }
         }
 
         document.getElementById('recon-kpi-match-rate').textContent = res.matchRate + '%';
@@ -726,22 +744,28 @@
         let causesHtml = '';
         if (aiData.causes && aiData.causes.length > 0) {
             causesHtml = `
-                <div class="space-y-3 mt-4">
-                    <h5 class="font-black text-sm text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-magnifying-glass-chart text-amber-400"></i>
-                        التشخيص الجذري لبنود الخلل المكتشفة:
-                    </h5>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div class="space-y-3 mt-5">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                        <h5 class="font-black text-sm text-slate-100 flex items-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass-chart text-amber-400"></i>
+                            التشخيص الجنائي والتفصيلي لبنود الفروقات المكتشفة:
+                        </h5>
+                        <span class="text-xs text-slate-400 font-bold">تم رصد ${aiData.causes.length} بنود خلل</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                         ${aiData.causes.map((c, i) => `
-                            <div class="p-3.5 rounded-xl border border-slate-700/80 bg-slate-900/60 space-y-1.5">
-                                <div class="flex items-center justify-between">
-                                    <span class="font-black text-xs text-amber-300">#${i + 1} ${c.title}</span>
-                                    <span class="font-mono font-black text-xs text-rose-400">${formatMoney(Math.abs(c.amount))}</span>
+                            <div class="p-4 rounded-2xl border border-slate-700/80 bg-slate-950/70 hover:border-indigo-500/50 transition space-y-2 shadow-lg">
+                                <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
+                                    <span class="font-black text-xs text-amber-300 flex items-center gap-1.5">
+                                        <span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center text-[10px] font-bold">${i + 1}</span>
+                                        ${c.title}
+                                    </span>
+                                    <span class="font-mono font-black text-sm text-rose-400">${formatMoney(Math.abs(c.amount))}</span>
                                 </div>
-                                <p class="text-xs text-slate-300 leading-relaxed">${c.explanation}</p>
-                                <div class="flex items-center gap-3 text-[11px] text-slate-400 pt-1 border-t border-slate-800">
-                                    <span>📅 التاريخ: ${c.date || '-'}</span>
-                                    <span>🔖 المرجع: ${c.ref || '-'}</span>
+                                <p class="text-xs text-slate-300 leading-relaxed font-normal">${c.explanation}</p>
+                                <div class="flex items-center justify-between text-[11px] text-slate-400 pt-1.5 border-t border-slate-800/80 font-mono">
+                                    <span>📅 ${c.date || 'بدون تاريخ'}</span>
+                                    <span class="text-sky-300">🔖 ${c.ref || 'بدون مرجع'}</span>
                                 </div>
                             </div>
                         `).join('')}
@@ -753,14 +777,19 @@
         let actionsHtml = '';
         if (aiData.corrective_actions && aiData.corrective_actions.length > 0) {
             actionsHtml = `
-                <div class="mt-4 p-4 rounded-2xl bg-indigo-950/30 border border-indigo-500/30 space-y-2">
-                    <h5 class="font-black text-xs text-indigo-300 flex items-center gap-2">
-                        <i class="fa-solid fa-list-check"></i>
-                        القيود والإجراءات التصحيحية الموصى بها:
+                <div class="mt-5 p-5 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 space-y-3">
+                    <h5 class="font-black text-xs sm:text-sm text-indigo-200 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-indigo-400"></i>
+                        القيود والإجراءات التصحيحية الموصى بها لحسم التباين:
                     </h5>
-                    <ul class="space-y-1.5 text-xs text-slate-300 pr-4 list-disc">
-                        ${aiData.corrective_actions.map(a => `<li>${a}</li>`).join('')}
-                    </ul>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-200">
+                        ${aiData.corrective_actions.map(a => `
+                            <div class="flex items-start gap-2 bg-slate-900/60 p-2.5 rounded-xl border border-indigo-500/20">
+                                <i class="fa-solid fa-circle-check text-emerald-400 mt-0.5 text-xs"></i>
+                                <span class="leading-relaxed">${a}</span>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             `;
         }
@@ -768,38 +797,50 @@
         let refInsightsHtml = '';
         if (aiData.ref_matching_insights) {
             refInsightsHtml = `
-                <div class="mt-3 p-3 rounded-xl bg-slate-800/40 border border-slate-700 text-xs text-slate-300">
-                    <strong class="text-emerald-400 block mb-1">🔍 ملاحظة تطابق أرقام التحويلات (Suffix Matching):</strong>
-                    ${aiData.ref_matching_insights}
+                <div class="mt-3 p-3.5 rounded-2xl bg-slate-800/40 border border-slate-700/80 text-xs text-slate-300 flex items-start gap-2.5">
+                    <i class="fa-solid fa-lightbulb text-amber-400 text-sm mt-0.5"></i>
+                    <div>
+                        <strong class="text-amber-300 block mb-0.5">ملاحظة الذكاء الاصطناعي حول أرقام التحويلات (Suffix Matching):</strong>
+                        <span>${aiData.ref_matching_insights}</span>
+                    </div>
                 </div>
             `;
         }
 
         aiCardEl.innerHTML = `
-            <div class="space-y-4">
-                <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-indigo-500/20">
+            <div class="space-y-5">
+                <!-- AI Card Header -->
+                <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-indigo-500/20">
                     <div class="flex items-center gap-3">
-                        <span class="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-indigo-300 text-lg">
+                        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-400/50 flex items-center justify-center text-indigo-300 text-xl shadow-lg">
                             <i class="fa-solid fa-user-secret"></i>
-                        </span>
+                        </div>
                         <div>
-                            <h4 class="font-black text-base text-indigo-200">مذكرة التدقيق المحاسبي الجنائي والذكاء الاصطناعي</h4>
-                            <span class="text-xs text-slate-400 font-bold">بواسطة ${aiData.engine || 'Gemini Forensic Auditor'}</span>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-black text-base sm:text-lg text-slate-100">مذكرة التدقيق المحاسبي الجنائي والذكاء الاصطناعي</h4>
+                                <span class="px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-extrabold text-[10px] border border-indigo-400/30">AI Live Verified</span>
+                            </div>
+                            <span class="text-xs text-slate-400 font-bold">بواسطة ${aiData.engine || 'Gemini Forensic Auditor 2026'}</span>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        <button type="button" onclick="copyWhatsAppReconciliationLetter()" class="px-3.5 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/50 hover:bg-emerald-500/30 text-emerald-300 text-xs font-bold flex items-center gap-2 cursor-pointer transition">
-                            <i class="fa-brands fa-whatsapp text-sm"></i>
-                            نسخ رسالة الواتساب للمصنع
+                        <button type="button" onclick="copyWhatsAppReconciliationLetter()" class="px-4 py-2 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/50 hover:bg-emerald-500/30 text-emerald-300 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
+                            <i class="fa-brands fa-whatsapp text-base"></i>
+                            نسخ خطاب الواتساب للمصنع
                         </button>
                     </div>
                 </div>
 
-                <div class="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20">
-                    <strong class="text-xs text-indigo-400 block mb-1">📌 الملخص التنفيذي للمطابقة:</strong>
-                    <p class="text-sm font-bold text-slate-100 leading-relaxed">${aiData.executive_summary}</p>
-                    <div class="mt-2 text-xs font-bold text-slate-300 bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
-                        ${aiData.net_difference_explained}
+                <!-- Executive Summary Quote Box -->
+                <div class="p-5 rounded-2xl bg-gradient-to-r from-indigo-950/50 via-slate-900/80 to-purple-950/40 border border-indigo-500/30 shadow-inner">
+                    <strong class="text-xs text-indigo-300 font-black block mb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-quote-right text-indigo-400"></i>
+                        الملخص التنفيذي لنتائج المطابقة:
+                    </strong>
+                    <p class="text-sm sm:text-base font-bold text-slate-100 leading-relaxed">${aiData.executive_summary}</p>
+                    <div class="mt-3 text-xs font-bold text-slate-200 bg-slate-950/70 p-3 rounded-xl border border-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-sky-400"></i>
+                        <span>${aiData.net_difference_explained}</span>
                     </div>
                 </div>
 
@@ -816,19 +857,19 @@
         if (!tbody) return;
 
         if (matches.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400 font-bold">لا توجد حركات متطابقة تماماً.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center py-10 text-slate-400 font-bold">لا توجد حركات متطابقة تماماً.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = matches.map((m, idx) => `
-            <tr class="hover:bg-slate-800/40 border-b border-slate-800/60 text-xs">
+            <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs transition">
                 <td class="p-2.5 text-center font-bold text-slate-400">${idx + 1}</td>
                 <td class="p-2.5 font-mono text-slate-300">${m.rowA.date || m.rowB.date}</td>
-                <td class="p-2.5 font-mono font-bold text-amber-400">${m.rowA.ref} <span class="text-slate-500">↔</span> ${m.rowB.ref}</td>
+                <td class="p-2.5 font-mono font-black text-amber-400">${m.rowA.ref} <span class="text-slate-500">↔</span> ${m.rowB.ref}</td>
                 <td class="p-2.5 text-slate-200">${m.rowA.desc}</td>
-                <td class="p-2.5 text-center font-mono font-bold text-emerald-400">${formatMoney(m.rowA.amount)}</td>
+                <td class="p-2.5 text-center font-mono font-black text-emerald-400">${formatMoney(m.rowA.amount)}</td>
                 <td class="p-2.5 text-center">
-                    <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[11px] border border-emerald-500/30">
+                    <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold text-[11px] border border-emerald-500/30">
                         ${m.badge}
                     </span>
                 </td>
@@ -842,15 +883,15 @@
         if (!tbody) return;
 
         if (variances.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-emerald-400 font-bold">لا توجد عمليات فيها تباين أو اختلاف مبالغ! كل العمليات المتطابقة صحيحة.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-emerald-400 font-bold">✓ لا توجد عمليات فيها تباين أو اختلاف مبالغ! كل العمليات المتطابقة صحيحة.</td></tr>`;
             return;
         }
 
         tbody.innerHTML = variances.map((v, idx) => `
-            <tr class="hover:bg-slate-800/40 border-b border-slate-800/60 text-xs bg-amber-500/5">
+            <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs bg-amber-500/5 transition">
                 <td class="p-2.5 text-center font-bold text-slate-400">${idx + 1}</td>
                 <td class="p-2.5 font-mono text-slate-300">${v.rowA.date} ↔ ${v.rowB.date}</td>
-                <td class="p-2.5 font-mono font-bold text-amber-400">${v.rowA.ref}</td>
+                <td class="p-2.5 font-mono font-black text-amber-400">${v.rowA.ref}</td>
                 <td class="p-2.5 text-slate-200 leading-relaxed">${v.explanation}</td>
                 <td class="p-2.5 text-center font-mono text-slate-200">${formatMoney(v.rowA.amount)}</td>
                 <td class="p-2.5 text-center font-mono text-slate-200">${formatMoney(v.rowB.amount)}</td>
@@ -868,15 +909,15 @@
 
         if (tbodyA) {
             if (unA.length === 0) {
-                tbodyA.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-emerald-400 font-bold">✓ جميع حركاتك مسجلة ومطابقة لدى المصنع!</td></tr>`;
+                tbodyA.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-emerald-400 font-bold">✓ جميع حركاتك مسجلة ومطابقة لدى المصنع!</td></tr>`;
             } else {
                 tbodyA.innerHTML = unA.map((r, idx) => `
-                    <tr class="hover:bg-slate-800/40 border-b border-slate-800/60 text-xs">
-                        <td class="p-2 text-center text-slate-400 font-bold">${idx + 1}</td>
-                        <td class="p-2 font-mono text-slate-300">${r.date || '-'}</td>
-                        <td class="p-2 font-mono font-bold text-amber-400">${r.ref}</td>
-                        <td class="p-2 text-slate-300">${r.desc}</td>
-                        <td class="p-2 text-center font-mono font-bold text-rose-400">${formatMoney(r.amount)}</td>
+                    <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs transition">
+                        <td class="p-2.5 text-center text-slate-400 font-bold">${idx + 1}</td>
+                        <td class="p-2.5 font-mono text-slate-300">${r.date || '-'}</td>
+                        <td class="p-2.5 font-mono font-black text-amber-400">${r.ref}</td>
+                        <td class="p-2.5 text-slate-300">${r.desc}</td>
+                        <td class="p-2.5 text-center font-mono font-black text-rose-400">${formatMoney(r.amount)}</td>
                     </tr>
                 `).join('');
             }
@@ -884,15 +925,15 @@
 
         if (tbodyB) {
             if (unB.length === 0) {
-                tbodyB.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-emerald-400 font-bold">✓ لا توجد حركات للمصنع مفقودة في كشفك!</td></tr>`;
+                tbodyB.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-emerald-400 font-bold">✓ لا توجد حركات للمصنع مفقودة في كشفك!</td></tr>`;
             } else {
                 tbodyB.innerHTML = unB.map((r, idx) => `
-                    <tr class="hover:bg-slate-800/40 border-b border-slate-800/60 text-xs">
-                        <td class="p-2 text-center text-slate-400 font-bold">${idx + 1}</td>
-                        <td class="p-2 font-mono text-slate-300">${r.date || '-'}</td>
-                        <td class="p-2 font-mono font-bold text-sky-400">${r.ref}</td>
-                        <td class="p-2 text-slate-300">${r.desc}</td>
-                        <td class="p-2 text-center font-mono font-bold text-amber-400">${formatMoney(r.amount)}</td>
+                    <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs transition">
+                        <td class="p-2.5 text-center text-slate-400 font-bold">${idx + 1}</td>
+                        <td class="p-2.5 font-mono text-slate-300">${r.date || '-'}</td>
+                        <td class="p-2.5 font-mono font-black text-sky-400">${r.ref}</td>
+                        <td class="p-2.5 text-slate-300">${r.desc}</td>
+                        <td class="p-2.5 text-center font-mono font-black text-purple-300">${formatMoney(r.amount)}</td>
                     </tr>
                 `).join('');
             }
@@ -901,18 +942,53 @@
 
     // Tab Switching inside Reconciliation Results
     window.switchReconTab = function(tabId) {
-        document.querySelectorAll('.recon-result-tab-btn').forEach(btn => btn.classList.remove('active', 'border-indigo-500', 'text-indigo-400'));
+        document.querySelectorAll('.recon-tab-pill, .recon-result-tab-btn').forEach(btn => btn.classList.remove('active'));
         document.querySelectorAll('.recon-result-section').forEach(sec => sec.classList.add('hidden'));
 
         const targetBtn = document.getElementById(`btn-recon-tab-${tabId}`);
         const targetSec = document.getElementById(`recon-sec-${tabId}`);
 
         if (targetBtn) {
-            targetBtn.classList.add('active', 'border-indigo-500', 'text-indigo-400');
+            targetBtn.classList.add('active');
         }
         if (targetSec) {
             targetSec.classList.remove('hidden');
         }
+    };
+
+    // Reset Suite State and Clear UI
+    window.resetReconciliationSuite = function() {
+        window.RECON_STATE.fileA = { name: '', rawRows: [], headers: [], colMap: {}, mappedRows: [], summary: { debit: 0, credit: 0, balance: 0, count: 0 } };
+        window.RECON_STATE.fileB = { name: '', rawRows: [], headers: [], colMap: {}, mappedRows: [], summary: { debit: 0, credit: 0, balance: 0, count: 0 } };
+        window.RECON_STATE.results = { exactMatches: [], varianceMatches: [], unmatchedA: [], unmatchedB: [], netVariance: 0, matchRate: 0 };
+        window.RECON_STATE.aiAudit = null;
+
+        ['A', 'B'].forEach(side => {
+            const box = document.getElementById(`recon-dropzone-box-${side}`);
+            if (box) {
+                const isA = side === 'A';
+                const color = isA ? 'sky' : 'purple';
+                const title = isA ? 'اسحب وأفلت ملف إكسيل حساباتك هنا أو انقر للاختيار' : 'اسحب وأفلت ملف إكسيل المصنع هنا أو انقر للاختيار';
+                box.innerHTML = `
+                    <label for="recon-file-input-${side}" class="recon-upload-area flex flex-col items-center justify-center group">
+                        <div class="w-14 h-14 rounded-2xl bg-${color}-500/10 border border-${color}-500/30 flex items-center justify-center text-${color}-400 text-2xl mb-3 group-hover:scale-110 transition duration-300 shadow-lg">
+                            <i class="fa-solid fa-cloud-arrow-up"></i>
+                        </div>
+                        <span class="font-extrabold text-sm text-slate-100 group-hover:text-${color}-300 transition">${title}</span>
+                        <span class="text-xs text-slate-400 mt-1">يدعم ملفات (.xlsx, .xls, .csv)</span>
+                    </label>
+                `;
+            }
+            const badge = document.getElementById(`recon-map-badges-${side}`);
+            if (badge) badge.innerHTML = '';
+            const input = document.getElementById(`recon-file-input-${side}`);
+            if (input) input.value = '';
+        });
+
+        const resCont = document.getElementById('recon-results-container');
+        if (resCont) resCont.classList.add('hidden');
+        const aiStat = document.getElementById('recon-ai-status');
+        if (aiStat) aiStat.classList.add('hidden');
     };
 
     // Copy Official Reconciliation Letter for WhatsApp
@@ -924,10 +1000,18 @@
         }
 
         navigator.clipboard.writeText(letter).then(() => {
-            if (window.showModernToast) {
-                window.showModernToast('📋 تم نسخ مسودة خطاب التسوية لمشاركتها عبر واتساب المصنع!', 'success', 3000);
+            if (typeof Swal !== 'undefined') {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم النسخ بنجاح!',
+                    text: 'تم نسخ مسودة خطاب التسوية لمشاركتها عبر واتساب المصنع.',
+                    timer: 2500,
+                    showConfirmButton: false,
+                    background: '#0f172a',
+                    color: '#ffffff'
+                });
             } else {
-                alert('تم نسخ الرسالة بنجاح.');
+                alert('📋 تم نسخ مسودة خطاب التسوية لمشاركتها عبر واتساب المصنع!');
             }
         }).catch(() => {
             alert('يرجى نسخ النص يدوياً.');
