@@ -41,7 +41,7 @@ $pdo = getDBConnection();
     <script src="js/hls.light.min.js"></script>
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
     <script src="js/xlsx.full.min.js"></script>
-    <script src="js/accounting_reconciliation.js?v=2026_omni_v2"></script>
+    <script src="js/accounting_reconciliation.js?v=2026_omni_tier1_v3"></script>
 
     <style>
 
@@ -23372,8 +23372,8 @@ $pdo = getDBConnection();
                 <!-- 4. Interactive Results Dashboard -->
                 <div id="recon-results-container" class="space-y-6 hidden">
                     
-                    <!-- KPI Summary Metric Cards -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <!-- KPI Summary Metric Cards (6-Pillar World-Class Cockpit) -->
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
                         
                         <!-- KPI 1: My Balance -->
                         <div class="recon-kpi-card" style="--kpi-accent: #38bdf8; --kpi-border: rgba(56, 189, 248, 0.4); --kpi-glow: rgba(56, 189, 248, 0.25);">
@@ -23381,7 +23381,7 @@ $pdo = getDBConnection();
                                 <span>رصيد كشف حساباتي</span>
                                 <i class="fa-solid fa-wallet text-sky-400"></i>
                             </div>
-                            <span class="text-2xl sm:text-3xl font-black text-sky-300 font-mono block tracking-tight" id="recon-kpi-bal-a">0</span>
+                            <span class="text-xl sm:text-2xl font-black text-sky-300 font-mono block tracking-tight" id="recon-kpi-bal-a">0</span>
                             <span class="text-[10px] text-slate-400 font-bold block mt-1">الطرف الأول (المؤسسة)</span>
                         </div>
 
@@ -23391,7 +23391,7 @@ $pdo = getDBConnection();
                                 <span>رصيد كشف المصنع</span>
                                 <i class="fa-solid fa-industry text-purple-400"></i>
                             </div>
-                            <span class="text-2xl sm:text-3xl font-black text-purple-300 font-mono block tracking-tight" id="recon-kpi-bal-b">0</span>
+                            <span class="text-xl sm:text-2xl font-black text-purple-300 font-mono block tracking-tight" id="recon-kpi-bal-b">0</span>
                             <span class="text-[10px] text-slate-400 font-bold block mt-1">الطرف الثاني (المورد)</span>
                         </div>
 
@@ -23401,18 +23401,38 @@ $pdo = getDBConnection();
                                 <span>صافي الفرق المكتشف</span>
                                 <i class="fa-solid fa-scale-unbalanced text-rose-400"></i>
                             </div>
-                            <span class="text-2xl sm:text-3xl font-black text-rose-400 font-mono block tracking-tight" id="recon-kpi-net-diff">0</span>
+                            <span class="text-xl sm:text-2xl font-black text-rose-400 font-mono block tracking-tight" id="recon-kpi-net-diff">0</span>
                             <span class="text-[10px] font-bold block mt-1" id="recon-kpi-net-diff-hint"></span>
                         </div>
 
                         <!-- KPI 4: Match Rate -->
-                        <div class="recon-kpi-card" style="--kpi-accent: #10b981; --kpi-border: rgba(16, 185, 129, 0.4); --kpi-glow: rgba(16, 185, 129, 0.25);">
+                        <div class="recon-kpi-card" style="--kpi-accent: #10b981; --kpi-border: rgba(168, 85, 247, 0.4); --kpi-glow: rgba(16, 185, 129, 0.25);">
                             <div class="flex items-center justify-between text-xs text-slate-400 font-bold mb-1">
                                 <span>معدل التطابق الإجمالي</span>
                                 <i class="fa-solid fa-circle-check text-emerald-400"></i>
                             </div>
-                            <span class="text-2xl sm:text-3xl font-black text-emerald-400 font-mono block tracking-tight" id="recon-kpi-match-rate">0%</span>
+                            <span class="text-xl sm:text-2xl font-black text-emerald-400 font-mono block tracking-tight" id="recon-kpi-match-rate">0%</span>
                             <span class="text-[10px] text-slate-400 font-bold block mt-1">العمليات المشتركة المؤكدة</span>
+                        </div>
+
+                        <!-- KPI 5: Combinatorial Matches N:1 -->
+                        <div class="recon-kpi-card" style="--kpi-accent: #0ea5e9; --kpi-border: rgba(14, 165, 233, 0.4); --kpi-glow: rgba(14, 165, 233, 0.25);">
+                            <div class="flex items-center justify-between text-xs text-slate-400 font-bold mb-1">
+                                <span>مطابقات تجميعية N:1</span>
+                                <i class="fa-solid fa-diagram-project text-sky-400"></i>
+                            </div>
+                            <span class="text-xl sm:text-2xl font-black text-sky-400 font-mono block tracking-tight" id="recon-kpi-combinatorial">0</span>
+                            <span class="text-[10px] text-slate-400 font-bold block mt-1">دفعات مجزأة بالسقف</span>
+                        </div>
+
+                        <!-- KPI 6: Critical Aging Risk -->
+                        <div class="recon-kpi-card" style="--kpi-accent: #f59e0b; --kpi-border: rgba(245, 158, 11, 0.45); --kpi-glow: rgba(245, 158, 11, 0.25);">
+                            <div class="flex items-center justify-between text-xs text-slate-400 font-bold mb-1">
+                                <span>المعلقات الحرجة (+60 يوم)</span>
+                                <i class="fa-solid fa-triangle-exclamation text-amber-400"></i>
+                            </div>
+                            <span class="text-xl sm:text-2xl font-black text-amber-400 font-mono block tracking-tight" id="recon-kpi-risk-aging">0</span>
+                            <span class="text-[10px] text-slate-400 font-bold block mt-1">شبهة تلاعب أو تقادم</span>
                         </div>
 
                     </div>
@@ -23423,6 +23443,14 @@ $pdo = getDBConnection();
                             <button type="button" id="btn-recon-tab-ai_audit" onclick="switchReconTab('ai_audit')" class="recon-tab-pill active">
                                 <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
                                 <span>تقرير الذكاء الاصطناعي ومذكرة التسوية</span>
+                            </button>
+                            <button type="button" id="btn-recon-tab-combinatorial" onclick="switchReconTab('combinatorial')" class="recon-tab-pill">
+                                <i class="fa-solid fa-link text-sky-400"></i>
+                                <span>مطابقة تجميعية N:1 (<span id="recon-count-combinatorial">0</span>)</span>
+                            </button>
+                            <button type="button" id="btn-recon-tab-aging" onclick="switchReconTab('aging')" class="recon-tab-pill">
+                                <i class="fa-solid fa-hourglass-half text-amber-400"></i>
+                                <span>أعمار المعلقات (<span id="recon-count-aging-risk">0</span> حرج)</span>
                             </button>
                             <button type="button" id="btn-recon-tab-unmatched" onclick="switchReconTab('unmatched')" class="recon-tab-pill">
                                 <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
@@ -23438,8 +23466,12 @@ $pdo = getDBConnection();
                             </button>
                         </div>
 
-                        <!-- Export Actions -->
+                        <!-- Export & Journal Actions -->
                         <div class="flex items-center gap-2">
+                            <button type="button" onclick="openBulkAdjustmentsModal()" class="px-4 py-2 rounded-xl bg-indigo-500/15 border border-indigo-500/40 hover:bg-indigo-500/25 text-indigo-300 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
+                                <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
+                                <span>توليد قيود التسوية لليومية</span>
+                            </button>
                             <button type="button" onclick="exportReconciliationExcel()" class="px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/40 hover:bg-emerald-500/25 text-emerald-300 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
                                 <i class="fa-solid fa-file-excel text-sm"></i>
                                 <span>تصدير إكسيل (XLSX)</span>
@@ -23476,6 +23508,7 @@ $pdo = getDBConnection();
                                                 <th class="p-2.5">المرجع</th>
                                                 <th class="p-2.5">البيان</th>
                                                 <th class="p-2.5 text-center">المبلغ</th>
+                                                <th class="p-2.5 text-center">إجراء التسوية</th>
                                             </tr>
                                         </thead>
                                         <tbody id="recon-table-unmatched-a-body"></tbody>
@@ -23501,6 +23534,7 @@ $pdo = getDBConnection();
                                                 <th class="p-2.5">المرجع</th>
                                                 <th class="p-2.5">البيان</th>
                                                 <th class="p-2.5 text-center">المبلغ</th>
+                                                <th class="p-2.5 text-center">إجراء التسوية</th>
                                             </tr>
                                         </thead>
                                         <tbody id="recon-table-unmatched-b-body"></tbody>
@@ -23529,6 +23563,7 @@ $pdo = getDBConnection();
                                             <th class="p-2.5 text-center">مبلغي</th>
                                             <th class="p-2.5 text-center">مبلغ المصنع</th>
                                             <th class="p-2.5 text-center">الفارق</th>
+                                            <th class="p-2.5 text-center">إجراء التسوية</th>
                                         </tr>
                                     </thead>
                                     <tbody id="recon-table-variance-body"></tbody>
@@ -23558,6 +23593,52 @@ $pdo = getDBConnection();
                                     </thead>
                                     <tbody id="recon-table-exact-body"></tbody>
                                 </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 5: Combinatorial Matches N:1 & 1:N (Subset Sum Engine) -->
+                    <div id="recon-sec-combinatorial" class="recon-result-section hidden space-y-4">
+                        <div class="p-6 rounded-2xl bg-slate-900/80 border border-sky-500/35 space-y-4">
+                            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-sky-500/20">
+                                <div>
+                                    <h5 class="font-black text-xs sm:text-sm text-sky-300 flex items-center gap-2">
+                                        <i class="fa-solid fa-diagram-project text-sky-400 text-base"></i>
+                                        المطابقات التجميعية الذكية (سداد فواتير عبر دفعات متعددة بسبب السقف البنكي):
+                                    </h5>
+                                    <p class="text-[11px] text-slate-400 mt-1">خوارزمية Subset-Sum التوافقية تجمع عدة حركات مقسمة ومجزأة لمطابقتها مع فاتورة أو حركة واحدة بالطرف الآخر</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-xl bg-sky-500/15 text-sky-300 font-extrabold text-xs border border-sky-500/30">Combinatorial AI Match</span>
+                            </div>
+
+                            <div id="recon-combinatorial-cards-container" class="space-y-3">
+                                <!-- Populated dynamically by renderCombinatorialMatches -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 6: Aging Matrix & Risk Exposure -->
+                    <div id="recon-sec-aging" class="recon-result-section hidden space-y-4">
+                        <div class="p-6 rounded-2xl bg-slate-900/80 border border-amber-500/35 space-y-5">
+                            <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-amber-500/20">
+                                <div>
+                                    <h5 class="font-black text-xs sm:text-sm text-amber-300 flex items-center gap-2">
+                                        <i class="fa-solid fa-hourglass-half text-amber-400 text-base"></i>
+                                        مصفوفة أعمار المعلقات المالية ومؤشر المخاطر (Aging & Financial Exposure):
+                                    </h5>
+                                    <p class="text-[11px] text-slate-400 mt-1">تصنيف زمني لكافة الحركات المعلقة وغير المطابقة لحصر الأموال المهددة أو المعرضة للنزاع التجاري</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-xl bg-amber-500/15 text-amber-300 font-extrabold text-xs border border-amber-500/30">Forensic Aging Analysis</span>
+                            </div>
+
+                            <!-- 4 Aging Buckets Metric Grid -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-right" id="recon-aging-buckets-grid">
+                                <!-- Populated dynamically by renderAgingMatrix -->
+                            </div>
+
+                            <!-- Critical Aging Alert Box -->
+                            <div id="recon-aging-critical-list" class="space-y-3 pt-2">
+                                <!-- Populated dynamically -->
                             </div>
                         </div>
                     </div>
@@ -23658,6 +23739,84 @@ $pdo = getDBConnection();
                             <span>تفريغ واستخراج الحركات بالذكاء الاصطناعي ⚡</span>
                         </button>
                     </div>
+
+                </div>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <!-- MODAL 3: ONE-CLICK ADJUSTMENT JOURNAL VOUCHER (سند قيد تسوية)   -->
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <div id="modal-recon-adjustment-voucher" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
+                <div class="w-full max-w-xl rounded-3xl bg-slate-900 border-2 border-emerald-500/50 shadow-2xl p-6 sm:p-7 space-y-5 animate-scaleIn text-right">
+                    
+                    <div class="flex items-center justify-between pb-3 border-b border-emerald-500/20">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </span>
+                            <div>
+                                <h4 class="font-black text-base text-slate-100">توليد قيد تسوية محاسبي آلي لدفتر اليومية</h4>
+                                <span class="text-xs text-slate-400 font-bold">تسوية فارق المطابقة وترحيله فوراً لدفتر الأستاذ العام</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <form id="form-recon-adjustment" onsubmit="event.preventDefault(); submitAdjustmentVoucher();" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">رقم السند المرجعي:</label>
+                                <input type="text" id="recon-adj-vch-no" readonly class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-amber-400 font-mono text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">تاريخ القيد والتسوية:</label>
+                                <input type="date" id="recon-adj-date" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 font-mono text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">الطرف المدين (من حـ/):</label>
+                                <select id="recon-adj-debit-acc" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">الطرف الدائن (إلى حـ/):</label>
+                                <select id="recon-adj-credit-acc" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">مبلغ قيد التسوية (بالعملة الدفترية):</label>
+                            <div class="relative">
+                                <input type="number" step="0.01" id="recon-adj-amount" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-emerald-400 font-mono font-black text-sm focus:border-emerald-400 focus:outline-none">
+                                <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-bold" id="recon-adj-currency">SDG</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">البيان والشرح المحاسبي لسند التسوية:</label>
+                            <textarea id="recon-adj-notes" rows="2" class="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-normal focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-[11px] text-slate-400 flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-emerald-400 text-sm"></i>
+                            <span>يتم ترحيل هذا القيد بنظام القيد المزدوج المتزن وتحديث رصيد دفتر الأستاذ فورياً.</span>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+                            <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-xs cursor-pointer">إلغاء</button>
+                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/40">
+                                <i class="fa-solid fa-check-double"></i>
+                                <span>ترحيل القيد لدفتر اليومية العامة ⚡</span>
+                            </button>
+                        </div>
+                    </form>
 
                 </div>
             </div>

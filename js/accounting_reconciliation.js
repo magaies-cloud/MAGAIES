@@ -57,24 +57,32 @@
             ["2026-06-05", "TRX-88014567", "تحويل بنكك توريد بضاعة دفعة أولى", 6000000, 0, -9000000, 6000, 1000],
             ["2026-06-10", "INV-102", "فاتورة شراء حديد تسليح 12 ملم (10 طن)", 0, 12000000, -21000000, 6000, -2000],
             ["2026-06-12", "CHQ-7721", "سداد شيك مصرفي رقم 7721 لصالح المصنع", 5000000, 0, -16000000, 6000, 833.33],
-            ["2026-06-15", "TRX-994411", "سداد نقدي عبر بنك أمدرمان الوطني", 2000000, 0, -14000000, 6000, 333.33],
-            ["2026-06-18", "TRX-442188", "تحويل بنكك سداد دفعة توريد إسمنت", 3500000, 0, -10500000, 6000, 583.33],
-            ["2026-06-20", "INV-103", "فاتورة استلام صاج وزنك أمريكي", 0, 8000000, -18500000, 6050, -1322.31],
-            ["2026-06-22", "TRX-661200", "تحويل بنك فيصل الإسلامي - فوري", 4000000, 0, -14500000, 6000, 666.67]
+            ["2026-06-15", "TRX-994411", "سداد نقدي عبر بنك أمدرمان الوطني", 2540000, 0, -13460000, 6000, 423.33], // Transposition error test: 2,540,000 vs 2,450,000 (diff 90,000 divisible by 9)
+            ["2026-06-18", "TRX-442188", "تحويل بنكك سداد دفعة توريد إسمنت", 3500000, 0, -9960000, 6000, 583.33],
+            ["2026-06-20", "INV-103", "فاتورة استلام صاج وزنك أمريكي", 0, 8000000, -17960000, 6050, -1322.31],
+            ["2026-06-22", "TRX-661200", "تحويل بنك فيصل الإسلامي - فوري", 4000000, 0, -13960000, 6000, 666.67],
+            // Combinatorial match: 2 split transfers settling invoice INV-104 (5,000,000)
+            ["2026-06-24", "TRX-SPLIT-1", "تحويل بنكك سداد دفعة فاتورة 104 (دفعة 1 سقف يومي)", 3000000, 0, -10960000, 6000, 500],
+            ["2026-06-24", "TRX-SPLIT-2", "تحويل بنكك سداد دفعة فاتورة 104 (دفعة 2 سقف يومي)", 2000000, 0, -8960000, 6000, 333.33],
+            // Aged critical item (dated April 2026 -> >60 days old)
+            ["2026-04-12", "OLD-CHQ-109", "شيك مسحوب رقم 109 معلق بالطريق لم يصرفه المصنع", 1800000, 0, -7160000, 5800, 310.34]
         ];
 
-        // Sample B: Factory Statement (Contains realistic discrepancies)
+        // Sample B: Factory Statement (Contains realistic discrepancies, split payments, and transposition)
         const sampleB = [
             ["تاريخ الحركة", "رقم العملية المرجعي", "شرح الحركة في المصنع", "المقبوضات (دائن)", "المدفوعات والمبيعات (مدين)", "رصيد العميل", "تعادل الدولار"],
             ["2026-06-01", "OP-BAL", "الرصيد الافتتاحي المقيد لدى المصنع", 0, 15000000, 15000000, 2500],
             ["2026-06-06", "BOK-009988014567", "إشعار تحويل بنكك الوارد من العميل (مطابق بآخر أرقام)", 6000000, 0, 9000000, 1000],
             ["2026-06-10", "INV-102", "قيمة حديد تسليح مباني طلبية رقم 102", 0, 12000000, 21000000, 2000],
             ["2026-06-13", "7721", "تحصيل شيك مصرفي رقم 7721", 5000000, 0, 16000000, 833.33],
-            ["2026-06-15", "TRX-994411", "سداد نقدي مقيد بالخطأ بـ 2.5 مليون بدلاً من 2 مليون", 2500000, 0, 13500000, 416.67], // DIFFERENCE: 500K variance
-            // Note: TRX-442188 (3,500,000) was NOT entered by the factory! (MISSING IN FACTORY)
-            ["2026-06-20", "INV-103", "فاتورة توريد صاج وزنك أمريكي", 0, 8000000, 21500000, 1333.33],
-            ["2026-06-21", "FEE-901", "رسوم نولون وتعتيق وشحن لم يقيدها العميل", 0, 250000, 21750000, 41.67], // MISSING IN CLIENT
-            ["2026-06-22", "TRX-661200", "إشعار تحويل بنك فيصل فوري", 4000000, 0, 17750000, 666.67]
+            ["2026-06-15", "TRX-994411", "سداد نقدي مقيد بـ 2,450,000 بدلاً من 2,540,000 (تبديل خانات)", 2450000, 0, 13550000, 408.33], // Transposition: 90K diff (90000 % 9 === 0)
+            ["2026-06-20", "INV-103", "فاتورة توريد صاج وزنك أمريكي", 0, 8000000, 21550000, 1333.33],
+            ["2026-06-21", "FEE-901", "رسوم نولون وتعتيق وشحن لم يقيدها العميل", 0, 250000, 21800000, 41.67], // MISSING IN CLIENT
+            ["2026-06-22", "TRX-661200", "إشعار تحويل بنك فيصل فوري", 4000000, 0, 17800000, 666.67],
+            // Target single invoice matched by 2 split transfers (3M + 2M = 5M)
+            ["2026-06-24", "INV-104", "فاتورة توريد زوايا حديد مبوم طلبية 104", 0, 5000000, 22800000, 833.33],
+            // Aged critical item
+            ["2026-04-10", "OLD-FEE-88", "رسوم أرضيات ومستودع قديمة لم تسجل لدى العميل", 0, 450000, 23250000, 77.59]
         ];
 
         processLoadedSheetData(sampleA, 'A', 'حساباتي_الخاصة_يونيو_2026.xlsx');
@@ -416,13 +424,20 @@
                 const amtA = rowA.amount;
                 const amtB = bestMatchB.amount;
                 const diff = amtA - amtB;
+                const absDiff = Math.abs(diff);
+                const isTransposition = (Math.round(absDiff) % 9 === 0) && absDiff > 0;
+                let explanation = `نفس رقم العملية (${rowA.ref} مقابل ${bestMatchB.ref})، لكن مسجل في كشفك بمبلغ ${formatMoney(amtA)} ومسجل في كشف المصنع بمبلغ ${formatMoney(amtB)}، بفارق ${formatMoney(absDiff)}.`;
+                if (isTransposition) {
+                    explanation += ` (⚠️ كشف جنائي: الفارق ${formatMoney(absDiff)} يقبل القسمة على 9 تماماً، مما يرجح بنسبة 99% وجود خطأ إدخال بتبديل خانات الأرقام Transposition Error).`;
+                }
                 varianceMatches.push({
                     rowA: rowA,
                     rowB: bestMatchB,
                     type: 'amount_variance',
-                    title: 'اختلاف في مبلغ التحويلة لنفس الرقم المرجعي',
+                    title: isTransposition ? 'تبديل خانات أرقام (قاعدة التسعة) لنفس التحويلة' : 'اختلاف في مبلغ التحويلة لنفس الرقم المرجعي',
                     diff: diff,
-                    explanation: `نفس رقم العملية (${rowA.ref} مقابل ${bestMatchB.ref})، لكن مسجل في كشفك بمبلغ ${formatMoney(amtA)} ومسجل في كشف المصنع بمبلغ ${formatMoney(amtB)}، بفارق ${formatMoney(Math.abs(diff))}.`
+                    isTransposition: isTransposition,
+                    explanation: explanation
                 });
             }
         }
@@ -458,7 +473,54 @@
             }
         }
 
-        // ── Level 5: Collect Unmatched Records ──
+        // ── Level 4.5: Combinatorial Matching (N:1 and 1:N Subset-Sum Engine) ──
+        const combinatorialMatches = [];
+
+        // Check N:1 (Multiple A rows match single B row) - e.g. multiple bank transfers for 1 invoice
+        for (const rowB of stateB.mappedRows) {
+            if (rowB.matched) continue;
+            const candidatesA = stateA.mappedRows
+                .filter(rA => !rA.matched && Math.abs(getDayDifference(rA.date, rowB.date)) <= 10)
+                .map(rA => ({ row: rA, amount: rA.amount }));
+
+            const comboA = findSubsetSum(candidatesA, rowB.amount, window.RECON_STATE.settings.amountTolerance, 3);
+            if (comboA && comboA.length >= 2) {
+                rowB.matched = true;
+                comboA.forEach(r => r.matched = true);
+                combinatorialMatches.push({
+                    type: 'N_to_1',
+                    singleRow: rowB,
+                    comboRows: comboA,
+                    totalAmount: rowB.amount,
+                    badge: `مطابقة تجميعية N:1 (${comboA.length} دفعات في حساباتي سددت فاتورة واحدة للمصنع)`,
+                    explanation: `حركة المصنع (${rowB.desc} - مرجع: ${rowB.ref}) بقيمة ${formatMoney(rowB.amount)} تم سدادها عبر ${comboA.length} حركات مجتمعة في حساباتك (${comboA.map(c => formatMoney(c.amount)).join(' + ')}).`
+                });
+            }
+        }
+
+        // Check 1:N (Single A row matches multiple B rows) - e.g. single transfer for multiple invoices
+        for (const rowA of stateA.mappedRows) {
+            if (rowA.matched) continue;
+            const candidatesB = stateB.mappedRows
+                .filter(rB => !rB.matched && Math.abs(getDayDifference(rB.date, rowA.date)) <= 10)
+                .map(rB => ({ row: rB, amount: rB.amount }));
+
+            const comboB = findSubsetSum(candidatesB, rowA.amount, window.RECON_STATE.settings.amountTolerance, 3);
+            if (comboB && comboB.length >= 2) {
+                rowA.matched = true;
+                comboB.forEach(r => r.matched = true);
+                combinatorialMatches.push({
+                    type: '1_to_N',
+                    singleRow: rowA,
+                    comboRows: comboB,
+                    totalAmount: rowA.amount,
+                    badge: `مطابقة تجميعية 1:N (حركة واحدة في حساباتي غطت ${comboB.length} فواتير للمصنع)`,
+                    explanation: `حركتك (${rowA.desc} - مرجع: ${rowA.ref}) بقيمة ${formatMoney(rowA.amount)} غطت ${comboB.length} فواتير وحركات مجتمعة لدى المصنع (${comboB.map(c => formatMoney(c.amount)).join(' + ')}).`
+                });
+            }
+        }
+
+        // ── Level 5: Collect Unmatched Records & Compute Aging Matrix ──
         stateA.mappedRows.forEach(r => {
             if (!r.matched) unmatchedA.push(r);
         });
@@ -466,17 +528,55 @@
             if (!r.matched) unmatchedB.push(r);
         });
 
+        // 4-Bucket Aging Matrix
+        const agingBuckets = {
+            b0_15: { label: '0 - 15 يوماً', sub: 'مقاصة ودورة عمل جارية', countA: 0, countB: 0, amountA: 0, amountB: 0, rows: [] },
+            b16_30: { label: '16 - 30 يوماً', sub: 'متابعة عادية', countA: 0, countB: 0, amountA: 0, amountB: 0, rows: [] },
+            b31_60: { label: '31 - 60 يوماً', sub: 'نزاع تجاري محتمل', countA: 0, countB: 0, amountA: 0, amountB: 0, rows: [] },
+            b60_plus: { label: '+60 يوماً', sub: 'حرج: خطر مالي وشبهة تقادم', countA: 0, countB: 0, amountA: 0, amountB: 0, rows: [] }
+        };
+
+        unmatchedA.forEach(r => {
+            const days = calculateDaysAgo(r.date);
+            r.agingDays = days;
+            let bKey = 'b0_15';
+            if (days > 60) bKey = 'b60_plus';
+            else if (days > 30) bKey = 'b31_60';
+            else if (days > 15) bKey = 'b16_30';
+            agingBuckets[bKey].countA++;
+            agingBuckets[bKey].amountA += r.amount;
+            agingBuckets[bKey].rows.push({ side: 'A', row: r, days: days });
+        });
+
+        unmatchedB.forEach(r => {
+            const days = calculateDaysAgo(r.date);
+            r.agingDays = days;
+            let bKey = 'b0_15';
+            if (days > 60) bKey = 'b60_plus';
+            else if (days > 30) bKey = 'b31_60';
+            else if (days > 15) bKey = 'b16_30';
+            agingBuckets[bKey].countB++;
+            agingBuckets[bKey].amountB += r.amount;
+            agingBuckets[bKey].rows.push({ side: 'B', row: r, days: days });
+        });
+
         const balA = stateA.summary.balance;
         const balB = stateB.summary.balance;
         const netVariance = balA - balB;
         const totalRows = stateA.mappedRows.length + stateB.mappedRows.length;
-        const matchRate = totalRows > 0 ? Math.round(((exactMatches.length * 2) / totalRows) * 100) : 0;
+
+        let matchedRowCount = 0;
+        stateA.mappedRows.forEach(r => { if (r.matched) matchedRowCount++; });
+        stateB.mappedRows.forEach(r => { if (r.matched) matchedRowCount++; });
+        const matchRate = totalRows > 0 ? Math.round((matchedRowCount / totalRows) * 100) : 0;
 
         window.RECON_STATE.results = {
             exactMatches,
             varianceMatches,
+            combinatorialMatches,
             unmatchedA,
             unmatchedB,
+            agingBuckets,
             netVariance,
             matchRate
         };
@@ -529,6 +629,54 @@
         if (isNaN(date1.getTime()) || isNaN(date2.getTime())) return 999;
         const diffTime = date1.getTime() - date2.getTime();
         return Math.round(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function calculateDaysAgo(dateStr) {
+        if (!dateStr) return 0;
+        try {
+            const today = new Date();
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return 0;
+            const diff = Math.round((today - d) / (1000 * 60 * 60 * 24));
+            return Math.max(0, diff);
+        } catch(e) { return 0; }
+    }
+
+    // Combinatorial Knapsack / Subset Sum Solver for N:1 and 1:N splits
+    function findSubsetSum(candidates, targetAmount, tolerance, maxDepth = 3) {
+        if (!candidates || candidates.length < 2) return null;
+        const target = Math.abs(targetAmount);
+        const valid = candidates.filter(c => c && c.amount > 0);
+        const n = valid.length;
+        if (n < 2) return null;
+
+        // Depth 2: O(n^2)
+        for (let i = 0; i < n; i++) {
+            for (let j = i + 1; j < n; j++) {
+                const sum = valid[i].amount + valid[j].amount;
+                if (Math.abs(sum - target) <= tolerance) {
+                    return [valid[i].row, valid[j].row];
+                }
+            }
+        }
+
+        // Depth 3: O(n^3) - limit n to 30 for max performance
+        if (n <= 30 && maxDepth >= 3) {
+            for (let i = 0; i < n; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    const s2 = valid[i].amount + valid[j].amount;
+                    if (s2 > target + tolerance) continue;
+                    for (let k = j + 1; k < n; k++) {
+                        const sum = s2 + valid[k].amount;
+                        if (Math.abs(sum - target) <= tolerance) {
+                            return [valid[i].row, valid[j].row, valid[k].row];
+                        }
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     function formatMoney(n) {
@@ -704,27 +852,43 @@
         const diffHint = document.getElementById('recon-kpi-net-diff-hint');
         diffEl.textContent = formatMoney(Math.abs(res.netVariance));
         if (Math.abs(res.netVariance) > 1) {
-            diffEl.className = 'text-2xl sm:text-3xl font-black font-mono text-rose-400 block tracking-tight';
+            diffEl.className = 'text-xl sm:text-2xl font-black font-mono text-rose-400 block tracking-tight';
             if (diffHint) {
                 diffHint.innerHTML = '<span class="text-rose-400 font-bold">⚠️ يوجد فارق يجب حسمه وتسويته</span>';
             }
         } else {
-            diffEl.className = 'text-2xl sm:text-3xl font-black font-mono text-emerald-400 block tracking-tight';
+            diffEl.className = 'text-xl sm:text-2xl font-black font-mono text-emerald-400 block tracking-tight';
             if (diffHint) {
                 diffHint.innerHTML = '<span class="text-emerald-400 font-bold">✓ تطابق تام ولا يوجد أي فرق</span>';
             }
         }
 
         document.getElementById('recon-kpi-match-rate').textContent = res.matchRate + '%';
+
+        const elComboKpi = document.getElementById('recon-kpi-combinatorial');
+        if (elComboKpi) elComboKpi.textContent = res.combinatorialMatches ? res.combinatorialMatches.length : 0;
+
+        const criticalCount = res.agingBuckets ? (res.agingBuckets.b60_plus.countA + res.agingBuckets.b60_plus.countB) : 0;
+        const elRiskKpi = document.getElementById('recon-kpi-risk-aging');
+        if (elRiskKpi) elRiskKpi.textContent = criticalCount;
+
         document.getElementById('recon-count-exact').textContent = res.exactMatches.length;
         document.getElementById('recon-count-variance').textContent = res.varianceMatches.length;
         document.getElementById('recon-count-unmatched-a').textContent = res.unmatchedA.length;
         document.getElementById('recon-count-unmatched-b').textContent = res.unmatchedB.length;
 
+        const elCountCombo = document.getElementById('recon-count-combinatorial');
+        if (elCountCombo) elCountCombo.textContent = res.combinatorialMatches ? res.combinatorialMatches.length : 0;
+
+        const elCountAgingRisk = document.getElementById('recon-count-aging-risk');
+        if (elCountAgingRisk) elCountAgingRisk.textContent = criticalCount;
+
         // Render Tables for Sub-Tabs
         renderExactMatchesTable();
         renderVariancesTable();
         renderUnmatchedTables();
+        renderCombinatorialMatches();
+        renderAgingMatrix();
 
         // Switch to AI tab by default
         switchReconTab('ai_audit');
@@ -878,67 +1042,456 @@
     }
 
     function renderVariancesTable() {
-        const variances = window.RECON_STATE.results.varianceMatches;
+        const variances = window.RECON_STATE.results.varianceMatches || [];
         const tbody = document.getElementById('recon-table-variance-body');
         if (!tbody) return;
 
         if (variances.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-10 text-emerald-400 font-bold">✓ لا توجد عمليات فيها تباين أو اختلاف مبالغ! كل العمليات المتطابقة صحيحة.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-10 text-emerald-400 font-bold">✓ لا توجد عمليات فيها تباين أو اختلاف مبالغ! كل العمليات المتطابقة صحيحة.</td></tr>`;
             return;
         }
 
-        tbody.innerHTML = variances.map((v, idx) => `
-            <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs bg-amber-500/5 transition">
-                <td class="p-2.5 text-center font-bold text-slate-400">${idx + 1}</td>
-                <td class="p-2.5 font-mono text-slate-300">${v.rowA.date} ↔ ${v.rowB.date}</td>
-                <td class="p-2.5 font-mono font-black text-amber-400">${v.rowA.ref}</td>
-                <td class="p-2.5 text-slate-200 leading-relaxed">${v.explanation}</td>
-                <td class="p-2.5 text-center font-mono text-slate-200">${formatMoney(v.rowA.amount)}</td>
-                <td class="p-2.5 text-center font-mono text-slate-200">${formatMoney(v.rowB.amount)}</td>
-                <td class="p-2.5 text-center font-mono font-black text-rose-400">${formatMoney(Math.abs(v.diff))}</td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = variances.map((v, idx) => {
+            const absDiff = Math.abs(v.diff);
+            const transpositionBadge = v.isTransposition ? `
+                <div class="mt-1">
+                    <span class="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold text-[10px] border border-amber-500/40 inline-flex items-center gap-1">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                        قاعدة التسعة: خطأ تبديل خانات محتمل
+                    </span>
+                </div>
+            ` : '';
+
+            const actionBtn = v.isAdjusted ? `
+                <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/40">✓ تم قيد التسوية</span>
+            ` : `
+                <button type="button" onclick="openAdjustmentModalForVariance(${idx})" class="px-2.5 py-1 rounded-lg bg-indigo-600/30 hover:bg-indigo-600 text-indigo-200 hover:text-white text-xs font-bold border border-indigo-500/40 transition flex items-center gap-1 cursor-pointer mx-auto">
+                    <i class="fa-solid fa-file-invoice-dollar"></i>
+                    <span>قيد تسوية</span>
+                </button>
+            `;
+
+            return `
+                <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs bg-amber-500/5 transition">
+                    <td class="p-2.5 text-center font-bold text-slate-400">${idx + 1}</td>
+                    <td class="p-2.5 font-mono text-slate-300">${v.rowA.date} ↔ ${v.rowB.date}</td>
+                    <td class="p-2.5 font-mono font-black text-amber-400">${v.rowA.ref}</td>
+                    <td class="p-2.5 text-slate-200 leading-relaxed">${v.explanation} ${transpositionBadge}</td>
+                    <td class="p-2.5 text-center font-mono text-slate-200">${formatMoney(v.rowA.amount)}</td>
+                    <td class="p-2.5 text-center font-mono text-slate-200">${formatMoney(v.rowB.amount)}</td>
+                    <td class="p-2.5 text-center font-mono font-black text-rose-400">${formatMoney(absDiff)}</td>
+                    <td class="p-2.5 text-center">${actionBtn}</td>
+                </tr>
+            `;
+        }).join('');
     }
 
     function renderUnmatchedTables() {
-        const unA = window.RECON_STATE.results.unmatchedA;
-        const unB = window.RECON_STATE.results.unmatchedB;
+        const unA = window.RECON_STATE.results.unmatchedA || [];
+        const unB = window.RECON_STATE.results.unmatchedB || [];
 
         const tbodyA = document.getElementById('recon-table-unmatched-a-body');
         const tbodyB = document.getElementById('recon-table-unmatched-b-body');
 
         if (tbodyA) {
             if (unA.length === 0) {
-                tbodyA.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-emerald-400 font-bold">✓ جميع حركاتك مسجلة ومطابقة لدى المصنع!</td></tr>`;
+                tbodyA.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-emerald-400 font-bold">✓ جميع حركاتك مسجلة ومطابقة لدى المصنع!</td></tr>`;
             } else {
-                tbodyA.innerHTML = unA.map((r, idx) => `
-                    <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs transition">
-                        <td class="p-2.5 text-center text-slate-400 font-bold">${idx + 1}</td>
-                        <td class="p-2.5 font-mono text-slate-300">${r.date || '-'}</td>
-                        <td class="p-2.5 font-mono font-black text-amber-400">${r.ref}</td>
-                        <td class="p-2.5 text-slate-300">${r.desc}</td>
-                        <td class="p-2.5 text-center font-mono font-black text-rose-400">${formatMoney(r.amount)}</td>
-                    </tr>
-                `).join('');
+                tbodyA.innerHTML = unA.map((r, idx) => {
+                    const actionBtn = r.isAdjusted ? `
+                        <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/40">✓ تم قيد التسوية</span>
+                    ` : `
+                        <button type="button" onclick="openAdjustmentModalForUnmatched('A', ${idx})" class="px-2.5 py-1 rounded-lg bg-rose-600/25 hover:bg-rose-600 text-rose-300 hover:text-white text-[11px] font-bold border border-rose-500/35 transition flex items-center gap-1 cursor-pointer mx-auto">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>تسوية</span>
+                        </button>
+                    `;
+
+                    return `
+                        <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs transition">
+                            <td class="p-2.5 text-center text-slate-400 font-bold">${idx + 1}</td>
+                            <td class="p-2.5 font-mono text-slate-300">${r.date || '-'}</td>
+                            <td class="p-2.5 font-mono font-black text-amber-400">${r.ref}</td>
+                            <td class="p-2.5 text-slate-300">${r.desc}</td>
+                            <td class="p-2.5 text-center font-mono font-black text-rose-400">${formatMoney(r.amount)}</td>
+                            <td class="p-2.5 text-center">${actionBtn}</td>
+                        </tr>
+                    `;
+                }).join('');
             }
         }
 
         if (tbodyB) {
             if (unB.length === 0) {
-                tbodyB.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-emerald-400 font-bold">✓ لا توجد حركات للمصنع مفقودة في كشفك!</td></tr>`;
+                tbodyB.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-emerald-400 font-bold">✓ لا توجد حركات للمصنع مفقودة في كشفك!</td></tr>`;
             } else {
-                tbodyB.innerHTML = unB.map((r, idx) => `
-                    <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs transition">
-                        <td class="p-2.5 text-center text-slate-400 font-bold">${idx + 1}</td>
-                        <td class="p-2.5 font-mono text-slate-300">${r.date || '-'}</td>
-                        <td class="p-2.5 font-mono font-black text-sky-400">${r.ref}</td>
-                        <td class="p-2.5 text-slate-300">${r.desc}</td>
-                        <td class="p-2.5 text-center font-mono font-black text-purple-300">${formatMoney(r.amount)}</td>
-                    </tr>
-                `).join('');
+                tbodyB.innerHTML = unB.map((r, idx) => {
+                    const actionBtn = r.isAdjusted ? `
+                        <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/40">✓ تم قيد التسوية</span>
+                    ` : `
+                        <button type="button" onclick="openAdjustmentModalForUnmatched('B', ${idx})" class="px-2.5 py-1 rounded-lg bg-purple-600/25 hover:bg-purple-600 text-purple-300 hover:text-white text-[11px] font-bold border border-purple-500/35 transition flex items-center gap-1 cursor-pointer mx-auto">
+                            <i class="fa-solid fa-plus-circle"></i>
+                            <span>تسوية</span>
+                        </button>
+                    `;
+
+                    return `
+                        <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs transition">
+                            <td class="p-2.5 text-center text-slate-400 font-bold">${idx + 1}</td>
+                            <td class="p-2.5 font-mono text-slate-300">${r.date || '-'}</td>
+                            <td class="p-2.5 font-mono font-black text-sky-400">${r.ref}</td>
+                            <td class="p-2.5 text-slate-300">${r.desc}</td>
+                            <td class="p-2.5 text-center font-mono font-black text-purple-300">${formatMoney(r.amount)}</td>
+                            <td class="p-2.5 text-center">${actionBtn}</td>
+                        </tr>
+                    `;
+                }).join('');
             }
         }
     }
+
+    function renderCombinatorialMatches() {
+        const combos = window.RECON_STATE.results.combinatorialMatches || [];
+        const container = document.getElementById('recon-combinatorial-cards-container');
+        if (!container) return;
+
+        if (combos.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-10 text-slate-400 font-bold space-y-2">
+                    <i class="fa-solid fa-diagram-project text-3xl text-slate-600"></i>
+                    <p>لا توجد مطابقات تجميعية N:1 حتى الآن (لم يتم رصد دفعات مقسمة تطابق فاتورة واحدة).</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = combos.map((c, idx) => `
+            <div class="p-4 sm:p-5 rounded-2xl bg-slate-950/80 border border-sky-500/30 hover:border-sky-500/60 transition space-y-3.5 shadow-lg">
+                <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-800">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-sky-500/20 text-sky-300 flex items-center justify-center text-xs font-bold">${idx + 1}</span>
+                        <span class="font-black text-sm text-slate-100">${c.type === 'N_to_1' ? 'سداد فاتورة واحدة بعدة دفعات مقسمة (N:1)' : 'حركة واحدة غطت عدة فواتير (1:N)'}</span>
+                    </div>
+                    <span class="px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-300 font-bold text-xs border border-emerald-500/30 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check"></i>
+                        مجموع المبالغ مطابق تماماً (${formatMoney(c.totalAmount)})
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <!-- Target Single Row -->
+                    <div class="p-3.5 rounded-xl bg-slate-900/90 border border-purple-500/30 space-y-1.5">
+                        <div class="flex items-center justify-between text-xs text-purple-300 font-bold pb-1 border-b border-purple-500/20">
+                            <span>🎯 الحركة المستهدفة (${c.type === 'N_to_1' ? 'كشف المصنع' : 'حساباتي'}):</span>
+                            <span class="font-mono font-black text-sm text-purple-200">${formatMoney(c.singleRow.amount)}</span>
+                        </div>
+                        <p class="text-xs text-slate-200 leading-snug font-bold">${c.singleRow.desc}</p>
+                        <div class="flex items-center justify-between text-[11px] text-slate-400 font-mono pt-1">
+                            <span>📅 ${c.singleRow.date}</span>
+                            <span class="text-purple-300">🔖 ${c.singleRow.ref}</span>
+                        </div>
+                    </div>
+
+                    <!-- Multiple Component Rows -->
+                    <div class="p-3.5 rounded-xl bg-slate-900/90 border border-sky-500/30 space-y-2">
+                        <div class="flex items-center justify-between text-xs text-sky-300 font-bold pb-1 border-b border-sky-500/20">
+                            <span>🧩 الدفعات المكونة المسددة (${c.type === 'N_to_1' ? 'حساباتي' : 'كشف المصنع'} - ${c.comboRows.length} حركات):</span>
+                            <span class="font-mono font-black text-sm text-sky-200">${formatMoney(c.totalAmount)}</span>
+                        </div>
+                        <div class="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
+                            ${c.comboRows.map(r => `
+                                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-950/70 text-xs border border-slate-800">
+                                    <div>
+                                        <span class="font-bold text-slate-200">${r.desc}</span>
+                                        <div class="text-[10px] text-slate-400 font-mono">📅 ${r.date} · 🔖 ${r.ref}</div>
+                                    </div>
+                                    <span class="font-mono font-black text-sky-300 text-xs">${formatMoney(r.amount)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-xs text-slate-300 bg-slate-900/50 p-2.5 rounded-xl border border-slate-800/80 leading-relaxed font-normal">
+                    <i class="fa-solid fa-circle-info text-sky-400 ml-1"></i>
+                    ${c.explanation}
+                </p>
+            </div>
+        `).join('');
+    }
+
+    function renderAgingMatrix() {
+        const buckets = window.RECON_STATE.results.agingBuckets;
+        const grid = document.getElementById('recon-aging-buckets-grid');
+        const criticalList = document.getElementById('recon-aging-critical-list');
+        if (!grid || !buckets) return;
+
+        const bKeys = ['b0_15', 'b16_30', 'b31_60', 'b60_plus'];
+        const borderColors = {
+            b0_15: 'border-emerald-500/40 text-emerald-400',
+            b16_30: 'border-sky-500/40 text-sky-400',
+            b31_60: 'border-amber-500/40 text-amber-400',
+            b60_plus: 'border-rose-500/50 text-rose-400'
+        };
+        const bgGradients = {
+            b0_15: 'from-emerald-950/30 to-slate-950',
+            b16_30: 'from-sky-950/30 to-slate-950',
+            b31_60: 'from-amber-950/30 to-slate-950',
+            b60_plus: 'from-rose-950/40 to-slate-950'
+        };
+
+        grid.innerHTML = bKeys.map(k => {
+            const b = buckets[k];
+            const totalCount = b.countA + b.countB;
+            const totalAmt = b.amountA + b.amountB;
+            return `
+                <div class="p-4 rounded-2xl bg-gradient-to-b ${bgGradients[k]} border ${borderColors[k]} space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-black text-xs sm:text-sm text-slate-100">${b.label}</span>
+                        <span class="px-2 py-0.5 rounded-full bg-slate-900/80 ${borderColors[k]} font-mono font-bold text-xs border border-current">${totalCount} حركات</span>
+                    </div>
+                    <div class="font-mono font-black text-lg sm:text-xl text-slate-100 tracking-tight pt-1">
+                        ${formatMoney(totalAmt)}
+                    </div>
+                    <span class="text-[11px] text-slate-400 block">${b.sub}</span>
+                    <div class="pt-2 border-t border-slate-800/80 text-[10px] text-slate-400 flex items-center justify-between font-mono">
+                        <span>حساباتي: ${formatMoney(b.amountA)} (${b.countA})</span>
+                        <span>المصنع: ${formatMoney(b.amountB)} (${b.countB})</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        // Critical Aging rows
+        const criticalRows = buckets.b60_plus.rows || [];
+        if (criticalList) {
+            if (criticalRows.length === 0) {
+                criticalList.innerHTML = `
+                    <div class="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-emerald-300 text-xs font-bold text-center">
+                        ✓ ممتاز! لا توجد حركات معلقة تجاوزت 60 يوماً. المحفظة المحاسبية آمنة وخالية من التقادم.
+                    </div>
+                `;
+            } else {
+                criticalList.innerHTML = `
+                    <div class="p-4 rounded-2xl bg-rose-950/40 border border-rose-500/40 space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-rose-500/20">
+                            <span class="font-black text-xs sm:text-sm text-rose-300 flex items-center gap-2">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-400 text-base"></i>
+                                تنبيه عالي الخطورة: تم رصد ${criticalRows.length} حركات متقادمة (+60 يوماً) يجب تسويتها فورياً:
+                            </span>
+                        </div>
+                        <div class="space-y-2">
+                            ${criticalRows.map(item => `
+                                <div class="p-3 rounded-xl bg-slate-950/80 border border-rose-500/30 flex flex-wrap items-center justify-between gap-3 text-xs">
+                                    <div class="space-y-0.5">
+                                        <div class="flex items-center gap-2">
+                                            <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold text-[10px]">${item.side === 'A' ? 'في كشف حساباتي' : 'في كشف المصنع'}</span>
+                                            <span class="font-bold text-slate-100">${item.row.desc}</span>
+                                        </div>
+                                        <div class="text-[11px] text-slate-400 font-mono">📅 ${item.row.date} (منذ ${item.days} يوماً) · 🔖 ${item.row.ref}</div>
+                                    </div>
+                                    <div class="flex items-center gap-3">
+                                        <span class="font-mono font-black text-sm text-rose-400">${formatMoney(item.row.amount)}</span>
+                                        <button type="button" onclick="openAdjustmentModalForUnmatched('${item.side}', ${item.row.id - 1})" class="px-3 py-1 rounded-lg bg-rose-600/30 hover:bg-rose-600 text-rose-200 text-xs font-bold border border-rose-500/40 transition cursor-pointer">
+                                            تسوية فورية
+                                        </button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // 7. ONE-CLICK ADJUSTMENT JOURNALS WORKFLOW (توليد قيود التسوية لليومية)
+    // ────────────────────────────────────────────────────────────────
+    window.CURRENT_ADJ_ITEM = null;
+
+    window.openAdjustmentModalForVariance = function(idx) {
+        const v = window.RECON_STATE.results.varianceMatches[idx];
+        if (!v) return;
+        const diff = Math.abs(v.diff);
+        const notes = `تسوية فارق عملية مرجع (${v.rowA.ref}) بين دفاتري وكشف المصنع - ${v.explanation}`;
+        window.openAdjustmentModal({
+            date: v.rowA.date || new Date().toISOString().split('T')[0],
+            amount: diff,
+            ref: v.rowA.ref,
+            notes: notes,
+            sourceType: 'variance',
+            targetItem: v
+        });
+    };
+
+    window.openAdjustmentModalForUnmatched = function(side, idx) {
+        const list = (side === 'A') ? window.RECON_STATE.results.unmatchedA : window.RECON_STATE.results.unmatchedB;
+        const item = list[idx];
+        if (!item) return;
+
+        const notes = (side === 'A') 
+            ? `تسوية حركة مقيدة عندي وغير مسجلة لدى المصنع (${item.desc} - مرجع: ${item.ref})`
+            : `تسوية وإثبات حركة قيدها المصنع وغير مسجلة في دفاتري (${item.desc} - مرجع: ${item.ref})`;
+
+        window.openAdjustmentModal({
+            date: item.date || new Date().toISOString().split('T')[0],
+            amount: item.amount,
+            ref: item.ref,
+            notes: notes,
+            sourceType: 'unmatched',
+            side: side,
+            targetItem: item
+        });
+    };
+
+    window.openAdjustmentModal = function(config) {
+        window.CURRENT_ADJ_ITEM = config;
+        const modal = document.getElementById('modal-recon-adjustment-voucher');
+        if (!modal) return;
+
+        const vchNo = 'ADJ-' + Date.now().toString().slice(-6);
+        const vchNoEl = document.getElementById('recon-adj-vch-no');
+        const dateEl = document.getElementById('recon-adj-date');
+        const amountEl = document.getElementById('recon-adj-amount');
+        const notesEl = document.getElementById('recon-adj-notes');
+
+        if (vchNoEl) vchNoEl.value = vchNo;
+        if (dateEl) dateEl.value = config.date || new Date().toISOString().split('T')[0];
+        if (amountEl) amountEl.value = config.amount || 0;
+        if (notesEl) notesEl.value = config.notes || '';
+
+        populateAdjustmentAccountsDropdown(config);
+        modal.classList.remove('hidden');
+    };
+
+    function populateAdjustmentAccountsDropdown(config) {
+        const debitSelect = document.getElementById('recon-adj-debit-acc');
+        const creditSelect = document.getElementById('recon-adj-credit-acc');
+        if (!debitSelect || !creditSelect) return;
+
+        const commonAccounts = [
+            { id: 'EXP-FEES', name: 'مصروفات وعمولات بنكية' },
+            { id: 'EXP-NOLON', name: 'مصروفات نولون وتعتيق وشحن' },
+            { id: 'EXP-DIFF', name: 'أرباح وخسائر تسوية فروقات تقريب وهللات' },
+            { id: 'PURCHASE', name: 'مشتريات بضاعة وتوريدات' },
+            { id: 'SUP-FACTORY', name: 'حساب المصنع / المورد (الطرف الثاني)' },
+            { id: 'BNK-BOK', name: 'بنك الخرطوم (بنكك)' },
+            { id: 'BNK-FAWRY', name: 'بنك فيصل الإسلامي (فوري)' },
+            { id: 'SAFE-MAIN', name: 'الخزينة الرئيسية (نقدية المركز)' }
+        ];
+
+        const optsHtml = commonAccounts.map(a => `<option value="${a.id}">${a.name}</option>`).join('');
+        debitSelect.innerHTML = optsHtml;
+        creditSelect.innerHTML = optsHtml;
+
+        if (config.side === 'B') {
+            debitSelect.value = 'EXP-NOLON';
+            creditSelect.value = 'SUP-FACTORY';
+        } else {
+            debitSelect.value = 'SUP-FACTORY';
+            creditSelect.value = 'BNK-BOK';
+        }
+    }
+
+    window.submitAdjustmentVoucher = function() {
+        const vchNo = document.getElementById('recon-adj-vch-no')?.value || ('ADJ-' + Date.now().toString().slice(-6));
+        const date = document.getElementById('recon-adj-date')?.value || new Date().toISOString().split('T')[0];
+        const amount = parseFloat(document.getElementById('recon-adj-amount')?.value) || 0;
+        const debitSelect = document.getElementById('recon-adj-debit-acc');
+        const creditSelect = document.getElementById('recon-adj-credit-acc');
+        const debitAccName = debitSelect?.options[debitSelect.selectedIndex]?.text || 'حساب مدين';
+        const creditAccName = creditSelect?.options[creditSelect.selectedIndex]?.text || 'حساب دائن';
+        const notes = document.getElementById('recon-adj-notes')?.value || 'قيد تسوية مطابقة';
+
+        if (amount <= 0) {
+            alert('يرجى تحديد مبلغ صالح لقيد التسوية.');
+            return;
+        }
+
+        const newVoucher = {
+            id: 'JV-' + Date.now(),
+            voucherNo: vchNo,
+            voucherDate: date,
+            date: date,
+            notes: notes,
+            lines: [
+                { accountId: debitSelect.value, accountName: debitAccName, debit: amount, credit: 0, description: notes },
+                { accountId: creditSelect.value, accountName: creditAccName, debit: 0, credit: amount, description: notes }
+            ],
+            createdAt: new Date().toISOString(),
+            source: 'reconciliation_auto_adjustment'
+        };
+
+        // Save to LocalStorage / ERP DB
+        try {
+            const key = 'erp_journal_vouchers_v1';
+            let existing = JSON.parse(localStorage.getItem(key) || '[]');
+            if (!Array.isArray(existing)) existing = [];
+            existing.push(newVoucher);
+            localStorage.setItem(key, JSON.stringify(existing));
+
+            const key2 = 'erp_journal_entries_v1';
+            let existing2 = JSON.parse(localStorage.getItem(key2) || '[]');
+            if (!Array.isArray(existing2)) existing2 = [];
+            existing2.push(newVoucher);
+            localStorage.setItem(key2, JSON.stringify(existing2));
+
+            if (window.DB_STORE) {
+                window.DB_STORE[key] = JSON.stringify(existing);
+                window.DB_STORE[key2] = JSON.stringify(existing2);
+            }
+        } catch(e) {
+            console.warn('Error saving adjustment voucher to storage:', e);
+        }
+
+        // Mark item as adjusted
+        if (window.CURRENT_ADJ_ITEM && window.CURRENT_ADJ_ITEM.targetItem) {
+            window.CURRENT_ADJ_ITEM.targetItem.isAdjusted = true;
+            window.CURRENT_ADJ_ITEM.targetItem.adjustmentVchNo = vchNo;
+        }
+
+        closeReconModals();
+
+        // Re-render
+        renderVariancesTable();
+        renderUnmatchedTables();
+        renderAgingMatrix();
+
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                icon: 'success',
+                title: 'تم ترحيل قيد التسوية بنجاح! ⚡',
+                text: `تم ترحيل قيد التسوية المزدوج رقم (${vchNo}) بمبلغ ${formatMoney(amount)} إلى دفتر اليومية العامة.`,
+                background: '#0f172a',
+                color: '#ffffff',
+                timer: 3500,
+                showConfirmButton: false
+            });
+        } else if (window.showModernToast) {
+            window.showModernToast(`✨ تم ترحيل قيد التسوية رقم (${vchNo}) إلى دفتر اليومية بنجاح!`, 'success', 3500);
+        }
+    };
+
+    window.openBulkAdjustmentsModal = function() {
+        const unA = window.RECON_STATE.results.unmatchedA || [];
+        const unB = window.RECON_STATE.results.unmatchedB || [];
+        const variances = window.RECON_STATE.results.varianceMatches || [];
+        const totalCount = unA.length + unB.length + variances.length;
+
+        if (totalCount === 0) {
+            alert('لا توجد حركات معلقة أو فروقات تتطلب قيود تسوية! الكشوفات متطابقة تماماً.');
+            return;
+        }
+
+        const netDiff = Math.abs(window.RECON_STATE.results.netVariance);
+        window.openAdjustmentModal({
+            date: new Date().toISOString().split('T')[0],
+            amount: netDiff,
+            ref: 'BULK-ADJ',
+            notes: `قيد تسوية إجمالي شامل لكافة فروقات ومعلقات كشف حساب الطرفين (${totalCount} بنود خلل) بصافي فارق ${formatMoney(netDiff)}`
+        });
+    };
 
     // Tab Switching inside Reconciliation Results
     window.switchReconTab = function(tabId) {
