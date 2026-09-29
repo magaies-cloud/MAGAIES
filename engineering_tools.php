@@ -40,6 +40,8 @@ $pdo = getDBConnection();
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <script src="js/hls.light.min.js"></script>
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
+    <script src="js/xlsx.full.min.js"></script>
+    <script src="js/accounting_reconciliation.js?v=2026_v1"></script>
 
     <style>
 
@@ -2786,6 +2788,13 @@ $pdo = getDBConnection();
                 <div class="suite-pill-icon"><i class="fa-solid fa-user-tie text-fuchsia-400"></i></div>
                 <div class="suite-pill-title">👥 نهاية الخدمة</div>
                 <div class="suite-pill-sub">قوانين العمل والرواتب</div>
+            </div>
+
+            <!-- 12. التطابق والمقارنات المحاسبية الذكية -->
+            <div class="suite-pill-card" style="--p-color:#6366f1; --p-border:rgba(99,102,241,0.6);" onclick="switchSuite('reconciliation', this)" id="tab-pill-reconciliation">
+                <div class="suite-pill-icon"><i class="fa-solid fa-scale-unbalanced-flip text-indigo-400"></i></div>
+                <div class="suite-pill-title">⚖️ التطابق المحاسبي</div>
+                <div class="suite-pill-sub">مقارنة كشوف الإكسيل بالـ AI</div>
             </div>
         </div>
 
@@ -22884,6 +22893,304 @@ $pdo = getDBConnection();
             </div>
         </div>
 
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- 12. SUITE: AI ACCOUNTING & EXCEL RECONCILIATION ENGINE           -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div id="suite-sec-reconciliation" class="suite-section anim-suite hidden space-y-6">
+            <div class="glass-panel-v3" style="--border-color: rgba(99, 102, 241, 0.45);">
+                
+                <!-- Suite Header -->
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6 border-b border-indigo-500/20 pb-4">
+                    <div class="flex items-center gap-3">
+                        <span class="w-12 h-12 rounded-2xl bg-indigo-500/20 border border-indigo-400/50 flex items-center justify-center text-indigo-400 text-2xl shadow-lg">
+                            <i class="fa-solid fa-scale-unbalanced-flip"></i>
+                        </span>
+                        <div>
+                            <h3 class="text-xl font-black text-slate-100 flex items-center gap-2">
+                                ⚖️ نظام التطابق والمقارنات المحاسبية الذكي (AI Excel Reconciliation)
+                            </h3>
+                            <p class="text-xs text-slate-400 font-bold">
+                                مقارنة كشف حساباتك مع كشف المصنع والشركاء بالذكاء الاصطناعي واكتشاف وتفكيك أسباب الفروقات
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Quick Sample Loader Button -->
+                    <div class="flex items-center gap-2.5">
+                        <button type="button" onclick="loadReconciliationSampleData()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/40 hover:border-amber-400 text-amber-300 text-xs font-bold flex items-center gap-2 cursor-pointer transition shadow-md hover:scale-[1.02]">
+                            <i class="fa-solid fa-flask"></i>
+                            تحميل نموذج تجريبي (حساباتي مقابل المصنع)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 1. Dual Excel Upload Cards -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    
+                    <!-- Side A: My Accounting Records -->
+                    <div class="p-5 rounded-2xl bg-slate-900/60 border-2 border-dashed border-sky-500/30 hover:border-sky-500/60 transition relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-black text-sm text-sky-400 flex items-center gap-2">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                                الطرف الأول: كشف حساباتي الخاصة (أو ملف البرنامج)
+                            </h4>
+                            <span class="text-[11px] font-bold text-slate-400 bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20">الملف الأساسي</span>
+                        </div>
+
+                        <div id="recon-dropzone-box-A" class="space-y-3">
+                            <label for="recon-file-input-A" class="flex flex-col items-center justify-center p-6 rounded-xl bg-slate-950/40 border border-slate-800 hover:bg-slate-800/30 cursor-pointer transition text-center group">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-sky-400 mb-2 group-hover:scale-110 transition"></i>
+                                <span class="font-bold text-xs text-slate-200">اسحب وأفلت ملف الإكسيل هنا أو اضغط للاختيار</span>
+                                <span class="text-[11px] text-slate-500 mt-1">يدعم صيغ (.xlsx, .xls, .csv)</span>
+                            </label>
+                        </div>
+                        <input type="file" id="recon-file-input-A" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleReconFileUpload(event, 'A')">
+
+                        <div id="recon-map-badges-A"></div>
+                    </div>
+
+                    <!-- Side B: Factory Records -->
+                    <div class="p-5 rounded-2xl bg-slate-900/60 border-2 border-dashed border-purple-500/30 hover:border-purple-500/60 transition relative">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-black text-sm text-purple-400 flex items-center gap-2">
+                                <i class="fa-solid fa-industry"></i>
+                                الطرف الثاني: كشف حساب المصنع (أو المورد / الشريك)
+                            </h4>
+                            <span class="text-[11px] font-bold text-slate-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">الملف المقارن</span>
+                        </div>
+
+                        <div id="recon-dropzone-box-B" class="space-y-3">
+                            <label for="recon-file-input-B" class="flex flex-col items-center justify-center p-6 rounded-xl bg-slate-950/40 border border-slate-800 hover:bg-slate-800/30 cursor-pointer transition text-center group">
+                                <i class="fa-solid fa-cloud-arrow-up text-3xl text-purple-400 mb-2 group-hover:scale-110 transition"></i>
+                                <span class="font-bold text-xs text-slate-200">اسحب وأفلت ملف إكسيل المصنع هنا أو اضغط للاختيار</span>
+                                <span class="text-[11px] text-slate-500 mt-1">يدعم صيغ (.xlsx, .xls, .csv)</span>
+                            </label>
+                        </div>
+                        <input type="file" id="recon-file-input-B" accept=".xlsx,.xls,.csv" class="hidden" onchange="handleReconFileUpload(event, 'B')">
+
+                        <div id="recon-map-badges-B"></div>
+                    </div>
+                </div>
+
+                <!-- 2. Settings & Tuning Rules Accordion -->
+                <div class="p-4 rounded-2xl bg-slate-900/40 border border-slate-800 mb-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3 text-xs">
+                        <span class="font-black text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-sliders text-indigo-400"></i>
+                            قواعد الذكاء الاصطناعي للمطابقة:
+                        </span>
+                        <div class="flex flex-wrap items-center gap-4 text-slate-400 font-bold">
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <span>سماحية التاريخ:</span>
+                                <select id="recon-setting-date-tol" onchange="window.RECON_STATE.settings.dateTolerance = parseInt(this.value)" class="tool-input py-1 px-2 text-xs">
+                                    <option value="0">نفس اليوم بالضبط</option>
+                                    <option value="1">± 1 يوم</option>
+                                    <option value="3" selected>± 3 أيام (موصى به للمقاصة)</option>
+                                    <option value="7">± 7 أيام</option>
+                                </select>
+                            </label>
+
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <span>تطابق رقم التحويلة بآخر:</span>
+                                <select id="recon-setting-ref-len" onchange="window.RECON_STATE.settings.refMinSuffix = parseInt(this.value)" class="tool-input py-1 px-2 text-xs">
+                                    <option value="4">4 أرقام أخيرة</option>
+                                    <option value="5">5 أرقام أخيرة</option>
+                                    <option value="6" selected>6 أرقام أخيرة (موصى به)</option>
+                                    <option value="12">الرقم كاملاً</option>
+                                </select>
+                            </label>
+
+                            <label class="flex items-center gap-1.5 cursor-pointer">
+                                <input type="checkbox" id="recon-setting-fx" checked onchange="window.RECON_STATE.settings.enableFxMatching = this.checked" class="rounded text-indigo-500">
+                                <span>فحص تعادل الدولار والعملات</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Central Trigger Button -->
+                <div class="text-center mb-8">
+                    <button type="button" onclick="runReconciliationEngine()" class="px-8 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-sky-500 hover:from-indigo-500 hover:to-sky-400 text-white font-black text-base shadow-xl shadow-indigo-500/25 hover:shadow-indigo-500/40 cursor-pointer transition transform hover:scale-[1.02] flex items-center gap-3 mx-auto">
+                        <i class="fa-solid fa-wand-magic-sparkles text-lg"></i>
+                        تشغيل التطابق المحاسبي واكتشاف الخلل بالذكاء الاصطناعي ⚡
+                    </button>
+                    <div id="recon-ai-status" class="mt-3 hidden text-xs font-bold"></div>
+                </div>
+
+                <!-- 4. Interactive Results Container -->
+                <div id="recon-results-container" class="space-y-6 hidden">
+                    
+                    <!-- KPI Summary Bar -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div class="calc-result-box" style="border-color: rgba(56, 189, 248, 0.4);">
+                            <span class="text-xs text-slate-400 font-bold block">رصيد حساباتي</span>
+                            <span class="text-2xl font-black text-sky-400 mt-1 block font-mono" id="recon-kpi-bal-a">0</span>
+                        </div>
+                        <div class="calc-result-box" style="border-color: rgba(168, 85, 247, 0.4);">
+                            <span class="text-xs text-slate-400 font-bold block">رصيد كشف المصنع</span>
+                            <span class="text-2xl font-black text-purple-400 mt-1 block font-mono" id="recon-kpi-bal-b">0</span>
+                        </div>
+                        <div class="calc-result-box" style="border-color: rgba(244, 63, 94, 0.5);">
+                            <span class="text-xs text-slate-400 font-bold block">صافي الفرق بين الطرفين</span>
+                            <span class="text-2xl font-black text-rose-400 mt-1 block font-mono" id="recon-kpi-net-diff">0</span>
+                            <small class="text-[10px] font-bold text-slate-400 block mt-0.5" id="recon-kpi-net-diff-hint"></small>
+                        </div>
+                        <div class="calc-result-box" style="border-color: rgba(16, 185, 129, 0.4);">
+                            <span class="text-xs text-slate-400 font-bold block">نسبة التطابق</span>
+                            <span class="text-2xl font-black text-emerald-400 mt-1 block font-mono" id="recon-kpi-match-rate">0%</span>
+                        </div>
+                    </div>
+
+                    <!-- Filter Tabs -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" id="btn-recon-tab-ai_audit" onclick="switchReconTab('ai_audit')" class="recon-result-tab-btn active px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition border border-transparent flex items-center gap-1.5">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                تقرير الذكاء الاصطناعي ومذكرة التسوية
+                            </button>
+                            <button type="button" id="btn-recon-tab-unmatched" onclick="switchReconTab('unmatched')" class="recon-result-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition border border-transparent flex items-center gap-1.5">
+                                <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+                                حركات معلقة ومفقودة (<span id="recon-count-unmatched-a">0</span> عندي / <span id="recon-count-unmatched-b">0</span> مصنع)
+                            </button>
+                            <button type="button" id="btn-recon-tab-variance" onclick="switchReconTab('variance')" class="recon-result-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition border border-transparent flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrows-split-up-and-left text-amber-400"></i>
+                                متطابقة بفارق (<span id="recon-count-variance">0</span>)
+                            </button>
+                            <button type="button" id="btn-recon-tab-exact" onclick="switchReconTab('exact')" class="recon-result-tab-btn px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition border border-transparent flex items-center gap-1.5">
+                                <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                                متطابقة تماماً (<span id="recon-count-exact">0</span>)
+                            </button>
+                        </div>
+
+                        <!-- Export Actions -->
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="exportReconciliationExcel()" class="px-3.5 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 hover:bg-emerald-500/25 text-emerald-300 text-xs font-bold flex items-center gap-1.5 cursor-pointer transition">
+                                <i class="fa-solid fa-file-excel"></i>
+                                تصدير إكسيل (XLSX)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- TAB 1: AI Forensic Audit Card -->
+                    <div id="recon-sec-ai_audit" class="recon-result-section space-y-4">
+                        <div id="recon-ai-card" class="p-6 rounded-3xl bg-slate-900/80 border border-indigo-500/40 shadow-2xl space-y-4">
+                            <!-- Populated dynamically by renderAIAuditCard -->
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: Unmatched Records -->
+                    <div id="recon-sec-unmatched" class="recon-result-section hidden space-y-6">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                            
+                            <!-- Missing in Factory -->
+                            <div class="p-5 rounded-2xl bg-slate-900/70 border border-rose-500/30 space-y-3">
+                                <div class="flex items-center justify-between pb-2 border-b border-rose-500/20">
+                                    <h5 class="font-black text-xs text-rose-400 flex items-center gap-2">
+                                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                                        حركات مقيدة عندك ومفقودة في كشف المصنع:
+                                    </h5>
+                                    <span class="text-[11px] font-bold text-rose-300">يجب مطالبتهم بها</span>
+                                </div>
+                                <div class="overflow-x-auto max-h-96">
+                                    <table class="w-full text-right">
+                                        <thead>
+                                            <tr class="text-[11px] text-slate-400 border-b border-slate-800">
+                                                <th class="p-2">#</th>
+                                                <th class="p-2">التاريخ</th>
+                                                <th class="p-2">المرجع</th>
+                                                <th class="p-2">البيان</th>
+                                                <th class="p-2 text-center">المبلغ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recon-table-unmatched-a-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Missing in My Records -->
+                            <div class="p-5 rounded-2xl bg-slate-900/70 border border-purple-500/30 space-y-3">
+                                <div class="flex items-center justify-between pb-2 border-b border-purple-500/20">
+                                    <h5 class="font-black text-xs text-purple-400 flex items-center gap-2">
+                                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                                        حركات قيدها المصنع وغير مسجلة في دفاترك:
+                                    </h5>
+                                    <span class="text-[11px] font-bold text-purple-300">عمولات أو فواتير ناقصة</span>
+                                </div>
+                                <div class="overflow-x-auto max-h-96">
+                                    <table class="w-full text-right">
+                                        <thead>
+                                            <tr class="text-[11px] text-slate-400 border-b border-slate-800">
+                                                <th class="p-2">#</th>
+                                                <th class="p-2">التاريخ</th>
+                                                <th class="p-2">المرجع</th>
+                                                <th class="p-2">البيان</th>
+                                                <th class="p-2 text-center">المبلغ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="recon-table-unmatched-b-body"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: Variance Matches -->
+                    <div id="recon-sec-variance" class="recon-result-section hidden space-y-4">
+                        <div class="p-5 rounded-2xl bg-slate-900/70 border border-amber-500/30">
+                            <h5 class="font-black text-xs text-amber-400 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-scale-unbalanced text-sm"></i>
+                                حركات متطابقة في رقم التحويلة مع وجود فارق في المبلغ أو التاريخ أو سعر الصرف:
+                            </h5>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right">
+                                    <thead>
+                                        <tr class="text-[11px] text-slate-400 border-b border-slate-800">
+                                            <th class="p-2.5">#</th>
+                                            <th class="p-2.5">التاريخ (ملفي ↔ المصنع)</th>
+                                            <th class="p-2.5">رقم التحويلة</th>
+                                            <th class="p-2.5">شرح التباين المكتشف</th>
+                                            <th class="p-2.5 text-center">مبلغي</th>
+                                            <th class="p-2.5 text-center">مبلغ المصنع</th>
+                                            <th class="p-2.5 text-center">الفارق</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recon-table-variance-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 4: Exact Matches -->
+                    <div id="recon-sec-exact" class="recon-result-section hidden space-y-4">
+                        <div class="p-5 rounded-2xl bg-slate-900/70 border border-emerald-500/30">
+                            <h5 class="font-black text-xs text-emerald-400 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-circle-check text-sm"></i>
+                                حركات متطابقة ومؤكدة تماماً بين الطرفين:
+                            </h5>
+                            <div class="overflow-x-auto max-h-96">
+                                <table class="w-full text-right">
+                                    <thead>
+                                        <tr class="text-[11px] text-slate-400 border-b border-slate-800">
+                                            <th class="p-2.5">#</th>
+                                            <th class="p-2.5">التاريخ</th>
+                                            <th class="p-2.5">المرجع (ملفي ↔ المصنع)</th>
+                                            <th class="p-2.5">البيان</th>
+                                            <th class="p-2.5 text-center">المبلغ</th>
+                                            <th class="p-2.5 text-center">نوع التطابق</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recon-table-exact-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
         <div class="text-center text-xs text-slate-500 font-bold mt-2 no-print">
             نظام Al-Sajana Smart ERP 2026 · منصة المساعدات والحاسبات الهندسية والتجارية ومفاتيح البنوك
         </div>
@@ -23349,7 +23656,7 @@ $pdo = getDBConnection();
     // 🚀 AUTO-ACTIVATE TAB FROM URL HASH OR PARAMETER 🚀
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
-        const tabParam = urlParams.get('tab') || window.location.hash.replace('#', '');
+        const tabParam = urlParams.get('suite') || urlParams.get('tab') || window.location.hash.replace('#', '');
         const subParam = urlParams.get('sub');
         const qParam = urlParams.get('q');
         
@@ -24295,6 +24602,10 @@ $pdo = getDBConnection();
         } else if (suiteId === 'inheritance') {
             if (typeof initInheritanceEngine === 'function') {
                 initInheritanceEngine();
+            }
+        } else if (suiteId === 'reconciliation') {
+            if (typeof initReconciliationSuite === 'function') {
+                initReconciliationSuite();
             }
         }
     }
