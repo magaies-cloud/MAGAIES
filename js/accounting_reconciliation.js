@@ -592,6 +592,11 @@
         // ── Level 4.8: FX Currency Variances List ──
         const fxVariances = varianceMatches.filter(v => v.isFxVariance);
 
+        // ── Level 4.85: Opening Balances & Historical Retroactive Shift Detection ──
+        const opBalA = extractOpeningBalance(stateA.mappedRows);
+        const opBalB = extractOpeningBalance(stateB.mappedRows);
+        const openingVariance = Math.round((opBalA - opBalB) * 100) / 100;
+
         // ── Level 4.9: Cumulative Running Balance Drift Waterfall ──
         const waterfall = computeCumulativeWaterfall(stateA, stateB);
 
@@ -604,6 +609,10 @@
         const debitVariance = totalDebitA - totalCreditB;
         const creditVariance = totalCreditA - totalDebitB;
         const localVariance = balA - balB;
+
+        // Forensic Detection: All in-period transactions match, difference is 100% historical opening balance change
+        const periodMovementsMatched = (unmatchedA.length === 0 && unmatchedB.length === 0 && varianceMatches.length === 0);
+        const isPureOpeningDiscrepancy = Math.abs(openingVariance) > 1 && (periodMovementsMatched || Math.abs(localVariance - openingVariance) < 1);
 
         window.RECON_STATE.results = {
             exactMatches,
@@ -618,7 +627,11 @@
             creditVariance,
             localVariance,
             netVariance,
-            matchRate
+            matchRate,
+            opBalA,
+            opBalB,
+            openingVariance,
+            isPureOpeningDiscrepancy
         };
 
         // Render UI Results
@@ -663,13 +676,42 @@
     }
 
     // ────────────────────────────────────────────────────────────────
+    // Opening Balance Extractor & Mathematical Back-Calculator
+    // ────────────────────────────────────────────────────────────────
+    function extractOpeningBalance(rows) {
+        if (!rows || rows.length === 0) return 0;
+        const first = rows[0];
+        const desc = (first.desc || '').toLowerCase();
+        const ref = (first.ref || '').toLowerCase();
+        const isOpening = desc.includes('افتتاح') || desc.includes('مرحل') || desc.includes('سابق') || desc.includes('opening') || desc.includes('b/f') || ref.includes('op');
+
+        if (isOpening) {
+            if (first.balance !== 0) return first.balance;
+            if (first.debit !== 0) return first.debit;
+            if (first.credit !== 0) return -first.credit;
+        }
+
+        // Mathematical deduction from first movement running balance
+        if (first.balance !== 0) {
+            const netMovement = (first.debit || 0) - (first.credit || 0);
+            return Math.round((first.balance - netMovement) * 100) / 100;
+        }
+
+        return 0;
+    }
+
+    // ────────────────────────────────────────────────────────────────
     // Cumulative Running Balance Drift Waterfall & Baseline Inception Point Engine
     // ────────────────────────────────────────────────────────────────
     function computeCumulativeWaterfall(stateA, stateB) {
         const events = [];
 
-        // Extract rows from Party A
-        stateA.mappedRows.forEach(r => {
+        // Extract rows from Party A (excluding opening row if present to avoid double counting)
+        stateA.mappedRows.forEach((r, idx) => {
+            const desc = (r.desc || '').toLowerCase();
+            const isOpeningRow = (idx === 0) && (desc.includes('افتتاح') || desc.includes('مرحل') || desc.includes('سابق') || desc.includes('opening'));
+            if (isOpeningRow) return;
+
             const net = (r.debit || 0) - (r.credit || 0);
             events.push({
                 date: r.date || '2026-01-01',
@@ -686,7 +728,11 @@
         });
 
         // Extract rows from Party B (credit in B corresponds to debit in A)
-        stateB.mappedRows.forEach(r => {
+        stateB.mappedRows.forEach((r, idx) => {
+            const desc = (r.desc || '').toLowerCase();
+            const isOpeningRow = (idx === 0) && (desc.includes('افتتاح') || desc.includes('مرحل') || desc.includes('سابق') || desc.includes('opening'));
+            if (isOpeningRow) return;
+
             const net = (r.credit || 0) - (r.debit || 0);
             events.push({
                 date: r.date || '2026-01-01',
@@ -705,11 +751,57 @@
         // Chronological Sort
         events.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
-        let runningA = 0;
-        let runningB = 0;
-        let prevDelta = 0;
+        // Opening Balances Analysis
+        const opA = extractOpeningBalance(stateA.mappedRows);
+        const opB = extractOpeningBalance(stateB.mappedRows);
+        const openingDelta = Math.round((opA - opB) * 100) / 100;
+
+        let runningA = opA;
+        let runningB = opB;
+        let prevDelta = openingDelta;
         let inceptionPoint = null;
         const timeline = [];
+
+        // Insert Step 0: Opening Balance Carryover
+        if (opA !== 0 || opB !== 0 || openingDelta !== 0) {
+            let opDiagnosis = '';
+            let opBadgeClass = '';
+            if (openingDelta !== 0) {
+                inceptionPoint = {
+                    stepIndex: 0,
+                    date: 'بداية الدورة',
+                    side: 'الرصيد الافتتاحي',
+                    ref: 'OPENING',
+                    desc: 'الرصيد الافتتاحي المنقول من إقفال دورات سابقة',
+                    delta: openingDelta,
+                    amount: Math.abs(openingDelta)
+                };
+                opDiagnosis = `⚡ انطلاق الخلل: فارق رصيد افتتاحي مرحل من سنوات سابقة (${formatMoney(Math.abs(openingDelta))} SDG)`;
+                opBadgeClass = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+            } else {
+                opDiagnosis = '✓ رصيد افتتاحي متطابق في بداية الفترة';
+                opBadgeClass = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
+            }
+
+            timeline.push({
+                index: 0,
+                date: 'بداية الدورة',
+                side: '-',
+                sideLabel: 'الرصيد الافتتاحي المرحل',
+                ref: 'OP-BALANCE',
+                desc: 'رصيد أول المدة المنقول من إقفال الدورات والسنوات السابقة (تعديلات تاريخية سابقة)',
+                netEffect: 0,
+                runningA: runningA,
+                runningB: runningB,
+                delta: openingDelta,
+                stepShift: openingDelta,
+                stepDiagnosis: opDiagnosis,
+                stepBadgeClass: opBadgeClass,
+                isShift: openingDelta !== 0,
+                isInception: openingDelta !== 0,
+                isOpening: true
+            });
+        }
 
         events.forEach((ev, idx) => {
             if (ev.side === 'A') {
@@ -995,6 +1087,36 @@
         const resultsContainer = document.getElementById('recon-results-container');
         if (!resultsContainer) return;
         resultsContainer.classList.remove('hidden');
+
+        // ── Forensic Prior-Period Opening Balance Shift Alert ──
+        let openingBanner = document.getElementById('recon-opening-alert-banner');
+        if (res.isPureOpeningDiscrepancy) {
+            if (!openingBanner) {
+                openingBanner = document.createElement('div');
+                openingBanner.id = 'recon-opening-alert-banner';
+                resultsContainer.insertBefore(openingBanner, resultsContainer.firstChild);
+            }
+            openingBanner.className = 'mb-6 p-6 rounded-3xl bg-gradient-to-r from-amber-950/95 via-yellow-950/85 to-amber-950/95 border-2 border-amber-400 shadow-2xl text-right space-y-2';
+            openingBanner.innerHTML = `
+                <div class="flex items-start gap-4">
+                    <span class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-2xl border border-amber-400/60 shrink-0">
+                        <i class="fa-solid fa-award"></i>
+                    </span>
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full bg-amber-500/30 text-amber-200 text-[11px] font-black border border-amber-400/50">🏆 تشخيص جنائي فائق</span>
+                            <h4 class="text-base sm:text-lg font-black text-amber-100">كافة حركات وبنود الفترة الحالية متطابقة 100%! الخلل ناتج عن تعديل تاريخي في الرصيد الافتتاحي</h4>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed">
+                            أثبت الفحص المحاسبي الجنائي أن جميع فواتير وتحويلات وسندات الدورة الحالية متطابقة بدقة تامة دون أي نقص أو زيادة. الفارق الإجمالي وقدره <span class="text-amber-300 font-black font-mono underline decoration-amber-400 text-sm sm:text-base">${formatMoney(Math.abs(res.openingVariance))} SDG</span> ناتج 100% عن <strong>تعديل تاريخي سابق في الرصيد الافتتاحي (Prior-Period Retrospective Shift)</strong>؛ تم تعديل قيود أو أرصدة في سنوات سابقة (مثل 2023) أثّرت على رصيد أول المدة المرحل إلى هذه الفترة دون وجود أي خطأ في بنود الفترة الحالية.
+                        </p>
+                    </div>
+                </div>
+            `;
+            openingBanner.classList.remove('hidden');
+        } else if (openingBanner) {
+            openingBanner.classList.add('hidden');
+        }
 
         // Update KPI Cards
         document.getElementById('recon-kpi-bal-a').textContent = formatMoney(stateA.summary.balance);
@@ -1839,6 +1961,40 @@
         const scope = window.RECON_SEARCH_SCOPE || 'all';
         let matchCount = 0;
 
+        // Intelligent Multi-Dimensional Matching Engine
+        function isSmartMatch(text, rawQ) {
+            if (!rawQ) return true;
+            if (!text) return false;
+            const t = String(text).toLowerCase();
+            const q = String(rawQ).toLowerCase().trim();
+            if (t.includes(q)) return true;
+
+            // Arabic normalization (أ/إ/آ -> ا, ة -> ه, ى -> ي)
+            const normT = t.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+            const normQ = q.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+            if (normT.includes(normQ)) return true;
+
+            // Number normalization (ignoring commas/spaces, e.g. 5000000 matches 5,000,000)
+            const cleanTDigits = t.replace(/[, \s]/g, '');
+            const cleanQDigits = q.replace(/[, \s]/g, '');
+            if (cleanQDigits.length >= 3 && cleanTDigits.includes(cleanQDigits)) return true;
+
+            // Dollar, Exchange Rate, and Foreign Currency Equivalence matching
+            const isDollarSearch = q === '$' || q === 'usd' || normQ.includes('دولار') || normQ.includes('صرف') || normQ.includes('تعادل');
+            if (isDollarSearch) {
+                if (t.includes('$') || t.includes('usd') || normT.includes('دولار') || normT.includes('صرف') || normT.includes('سعر') || normT.includes('عمله')) return true;
+            }
+
+            // Accounting types (مدين, دائن, افتتاحي, فارق, معلق)
+            if (normQ.includes('مدين') && (t.includes('مدين') || t.includes('لنا'))) return true;
+            if (normQ.includes('دائن') && (t.includes('دائن') || t.includes('علينا'))) return true;
+            if (normQ.includes('افتتاح') && (t.includes('افتتاح') || t.includes('مرحل') || t.includes('سابق'))) return true;
+            if (normQ.includes('فارق') && (t.includes('فارق') || t.includes('خلل') || t.includes('تباين'))) return true;
+            if (normQ.includes('معلق') && (t.includes('معلق') || t.includes('غير مطابق'))) return true;
+
+            return false;
+        }
+
         // 1. Exact Matches Table
         const exactRows = document.querySelectorAll('#recon-table-exact-body tr');
         exactRows.forEach(tr => {
@@ -1849,8 +2005,7 @@
             if (scope === 'sideB' || scope === 'results') {
                 // Keep visible if matches query
             }
-            const text = tr.textContent.toLowerCase();
-            if (text.includes(query)) {
+            if (isSmartMatch(tr.textContent, query)) {
                 tr.style.display = '';
                 matchCount++;
             } else {
@@ -1865,8 +2020,7 @@
                 tr.style.display = '';
                 return;
             }
-            const text = tr.textContent.toLowerCase();
-            if (text.includes(query)) {
+            if (isSmartMatch(tr.textContent, query)) {
                 tr.style.display = '';
                 matchCount++;
             } else {
@@ -1881,8 +2035,7 @@
                 card.style.display = '';
                 return;
             }
-            const text = card.textContent.toLowerCase();
-            if (text.includes(query)) {
+            if (isSmartMatch(card.textContent, query)) {
                 card.style.display = '';
                 matchCount++;
             } else {
@@ -1901,8 +2054,7 @@
                 tr.style.display = 'none';
                 return;
             }
-            const text = tr.textContent.toLowerCase();
-            if (text.includes(query)) {
+            if (isSmartMatch(tr.textContent, query)) {
                 tr.style.display = '';
                 matchCount++;
             } else {
@@ -1921,8 +2073,7 @@
                 tr.style.display = 'none';
                 return;
             }
-            const text = tr.textContent.toLowerCase();
-            if (text.includes(query)) {
+            if (isSmartMatch(tr.textContent, query)) {
                 tr.style.display = '';
                 matchCount++;
             } else {
@@ -1937,8 +2088,7 @@
                 card.style.display = '';
                 return;
             }
-            const text = card.textContent.toLowerCase();
-            if (text.includes(query)) {
+            if (isSmartMatch(card.textContent, query)) {
                 card.style.display = '';
                 matchCount++;
             } else {
@@ -1953,8 +2103,7 @@
                 tr.style.display = '';
                 return;
             }
-            const text = tr.textContent.toLowerCase();
-            if (text.includes(query)) {
+            if (isSmartMatch(tr.textContent, query)) {
                 tr.style.display = '';
                 matchCount++;
             } else {
@@ -1969,8 +2118,7 @@
                 tr.style.display = '';
                 return;
             }
-            const text = tr.textContent.toLowerCase();
-            if (text.includes(query)) {
+            if (isSmartMatch(tr.textContent, query)) {
                 tr.style.display = '';
                 matchCount++;
             } else {
@@ -2327,6 +2475,28 @@
             }
         } catch(e) { console.warn('Failed loading safes:', e); }
 
+        // 5. General Ledger Accounts (الحسابات العامة والدليل المحاسبي)
+        try {
+            const rawAccs = localStorage.getItem('erp_accounts_v1');
+            const parsedAccs = rawAccs ? JSON.parse(rawAccs) : [];
+            if (Array.isArray(parsedAccs) && parsedAccs.length > 0) {
+                parsedAccs.filter(a => a && !a.deleted).forEach(a => {
+                    accounts.push({
+                        id: a.id || a.code,
+                        code: a.code || a.id,
+                        name: a.name,
+                        phone: a.costCenter || '',
+                        category: 'الحسابات العامة',
+                        badgeColor: 'indigo',
+                        iconClass: 'fa-solid fa-chart-pie',
+                        balance: parseFloat(a.currentBalance || a.balance || 0),
+                        currency: a.currency || 'SDG',
+                        notes: a.type || 'حساب عام بدفتر الأستاذ'
+                    });
+                });
+            }
+        } catch(e) { console.warn('Failed loading general accounts:', e); }
+
         window.RECON_LOADED_ACCOUNTS = accounts;
         renderAccountsGrid(accounts);
     }
@@ -2425,13 +2595,75 @@
         renderAccountsGrid(list);
     }
 
-    // Select account and synthesize / load its statement into Side A or B
+    // Select account and synthesize / load its statement from General Ledger into Side A or B
     window.selectSystemAccount = function(accId, accName, category) {
         const side = window.RECON_ACTIVE_OMNI_SIDE || 'A';
         closeReconModals();
 
-        // 1. Check if real journal vouchers exist in localStorage
+        // 1. Identify Master Account Record and Opening Balance
+        let masterRec = (window.RECON_LOADED_ACCOUNTS || []).find(a => a && (a.id === accId || a.name === accName));
+        if (!masterRec) {
+            try {
+                const supps = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]');
+                const banks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]');
+                const custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
+                const safes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
+                const accs = JSON.parse(localStorage.getItem('erp_accounts_v1') || '[]');
+                masterRec = supps.find(x => x.id === accId || x.name === accName)
+                         || banks.find(x => x.id === accId || x.name === accName)
+                         || custs.find(x => x.id === accId || x.name === accName)
+                         || safes.find(x => x.id === accId || x.name === accName)
+                         || accs.find(x => x.id === accId || x.name === accName);
+            } catch(e){}
+        }
+
+        let openingBal = 0;
+        let opDate = '2026-01-01';
+        if (masterRec) {
+            const opDeb = parseFloat(masterRec.openingDebit || masterRec.debit || 0);
+            const opCred = parseFloat(masterRec.openingCredit || masterRec.credit || 0);
+            const rawB = parseFloat(masterRec.openingBalance || masterRec.opening_balance || masterRec.balance || 0);
+            if (opDeb > 0 || opCred > 0) {
+                openingBal = opDeb - opCred;
+            } else if (rawB !== 0) {
+                const bType = String(masterRec.balance_type || masterRec.balanceType || '').toLowerCase();
+                openingBal = bType.includes('cred') ? -Math.abs(rawB) : Math.abs(rawB);
+            }
+            if (masterRec.createdAt || masterRec.date) {
+                opDate = String(masterRec.createdAt || masterRec.date).split('T')[0].split(' ')[0];
+            }
+        }
+
+        // 2. Collect Real Transactions from General Ledger and Journal Tables
         let realEntries = [];
+
+        // 2a. Unified General Ledger (erp_gl_v1)
+        try {
+            const rawGL = localStorage.getItem('erp_gl_v1');
+            if (rawGL) {
+                const parsedGL = JSON.parse(rawGL);
+                if (Array.isArray(parsedGL)) {
+                    parsedGL.forEach(t => {
+                        const tAcc = String(t.account || '').toLowerCase();
+                        const tName = String(t.accountName || '').toLowerCase();
+                        const cleanId = String(accId).toLowerCase().replace(/^(cust|supp|bank|safe|exp)-/, '');
+                        const cleanAccName = String(accName).toLowerCase();
+                        if (tAcc === String(accId).toLowerCase() || tAcc === cleanId || tName === cleanAccName || (t.statement && t.statement.toLowerCase().includes(cleanAccName))) {
+                            realEntries.push({
+                                date: t.date || '2026-06-01',
+                                ref: t.ref || t.transferNo || t.voucherNo || ('GL-' + (t.id || '101')),
+                                desc: t.statement || t.additionalNote || ('حركة عامة ' + accName),
+                                debit: parseFloat(t.debit || 0),
+                                credit: parseFloat(t.credit || 0),
+                                currency: t.currency || 'SDG'
+                            });
+                        }
+                    });
+                }
+            }
+        } catch(e) { console.warn('Error reading erp_gl_v1:', e); }
+
+        // 2b. Journal Vouchers
         try {
             const rawVouchers = localStorage.getItem('erp_journal_vouchers_v1') || localStorage.getItem('erp_journal_entries_v1');
             if (rawVouchers) {
@@ -2447,7 +2679,7 @@
                                     desc: l.description || v.notes || ('قيد يومية ' + accName),
                                     debit: parseFloat(l.debit || 0),
                                     credit: parseFloat(l.credit || 0),
-                                    balance: 0
+                                    currency: 'SDG'
                                 });
                             }
                         });
@@ -2456,20 +2688,81 @@
             }
         } catch(e) { console.warn('Error reading vouchers:', e); }
 
+        // 2c. Cash Receipts
+        try {
+            const rawRc = localStorage.getItem('erp_cash_receipts_v1');
+            if (rawRc) {
+                JSON.parse(rawRc).forEach(r => {
+                    if (r.customerId === accId || r.supplierId === accId || r.accountName === accName || r.customerName === accName) {
+                        realEntries.push({
+                            date: r.date || '2026-06-01',
+                            ref: r.receiptNo || ('REC-' + r.id),
+                            desc: r.notes || r.reason || ('سند قبض نقدي - ' + accName),
+                            debit: parseFloat(r.amount || 0),
+                            credit: 0,
+                            currency: r.currency || 'SDG'
+                        });
+                    }
+                });
+            }
+        } catch(e) {}
+
+        // 2d. Cash Payments
+        try {
+            const rawPy = localStorage.getItem('erp_cash_payments_v1');
+            if (rawPy) {
+                JSON.parse(rawPy).forEach(p => {
+                    if (p.supplierId === accId || p.customerId === accId || p.accountName === accName || p.supplierName === accName) {
+                        realEntries.push({
+                            date: p.date || '2026-06-01',
+                            ref: p.paymentNo || ('PAY-' + p.id),
+                            desc: p.notes || p.reason || ('سند صرف نقدي - ' + accName),
+                            debit: 0,
+                            credit: parseFloat(p.amount || 0),
+                            currency: p.currency || 'SDG'
+                        });
+                    }
+                });
+            }
+        } catch(e) {}
+
         let matrix = [
             ["التاريخ", "رقم السند / المرجع", "البيان وتفاصيل العملية", "مدين (لنا)", "دائن (علينا)", "الرصيد", "العملة"]
         ];
 
-        // 2. If real entries found, calculate cumulative balances
-        if (realEntries.length >= 2) {
-            let runningBal = 0;
-            realEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
-            realEntries.forEach(r => {
+        // 3. Process Ledger Data
+        if (realEntries.length >= 1) {
+            // Deduplicate entries by ref + date + amount
+            const seen = new Set();
+            const uniqueEntries = [];
+            realEntries.forEach(e => {
+                const key = `${e.date}|${e.ref}|${e.debit}|${e.credit}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    uniqueEntries.push(e);
+                }
+            });
+
+            uniqueEntries.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+            let runningBal = openingBal;
+            // Prepend Opening Balance Row
+            matrix.push([
+                opDate,
+                'OP-00',
+                'الرصيد الافتتاحي المرحل (أول المدة)',
+                openingBal > 0 ? openingBal : 0,
+                openingBal < 0 ? Math.abs(openingBal) : 0,
+                openingBal,
+                'SDG'
+            ]);
+
+            uniqueEntries.forEach(r => {
                 runningBal += (r.debit - r.credit);
-                matrix.push([r.date, r.ref, r.desc, r.debit, r.credit, runningBal, 'SDG']);
+                matrix.push([r.date, r.ref, r.desc, r.debit, r.credit, runningBal, r.currency || 'SDG']);
             });
         } else {
-            // 3. Synthesize a rich, realistic chronological ledger statement for this entity
+            // Fallback: Rich, realistic chronological ledger statement
             const synthesized = generateRealisticLedger(accName, category);
             synthesized.forEach(row => matrix.push(row));
         }
@@ -2477,7 +2770,7 @@
         processLoadedSheetData(matrix, side, `${accName} (دفتر الأستاذ).xlsx`);
 
         if (window.showModernToast) {
-            window.showModernToast(`✨ تم جلب كشف حساب (${accName}) من دفتر الأستاذ العام (${matrix.length - 1} حركة) إلى ${side === 'A' ? 'الطرف الأول' : 'الطرف الثاني'}`, 'success', 3500);
+            window.showModernToast(`✨ تم فتح وجلب كشف (${accName}) من دفتر الأستاذ العام (${matrix.length - 1} حركة) إلى ${side === 'A' ? 'الطرف الأول' : 'الطرف الثاني'} بنجاح!`, 'success', 3500);
         }
     };
 

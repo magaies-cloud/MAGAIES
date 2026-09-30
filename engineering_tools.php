@@ -41,7 +41,7 @@ $pdo = getDBConnection();
     <script src="js/hls.light.min.js"></script>
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
     <script src="js/xlsx.full.min.js"></script>
-    <script src="js/accounting_reconciliation.js?v=2026_recon_v5_forensic"></script>
+    <script src="js/accounting_reconciliation.js?v=2026_recon_v6_gl_forensic"></script>
 
     <style>
 
@@ -23197,7 +23197,7 @@ $pdo = getDBConnection();
                         </span>
                         <input type="text" id="recon-global-search-input" 
                                oninput="handleReconGlobalSearch(this.value)" 
-                               placeholder="🔍 بحث شامل وفوري: ابحث برقم العملية، رقم التحويلة، المبلغ، التاريخ، البيان، الفروقات، أو أطراف المعاملة..." 
+                               placeholder="بحث..." 
                                class="w-full pr-14 pl-14 py-4 sm:py-4.5 rounded-2xl bg-slate-950/95 border-2 border-indigo-500/40 text-slate-100 placeholder-slate-400/80 text-sm sm:text-base lg:text-lg font-bold focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/30 transition-all outline-none shadow-2xl">
                         <button type="button" id="btn-recon-search-clear" onclick="clearReconGlobalSearch()" 
                                 class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 hover:text-rose-400 hidden transition cursor-pointer" title="تفريغ البحث">
@@ -23252,9 +23252,9 @@ $pdo = getDBConnection();
                                     <i class="fa-solid fa-cloud-arrow-down"></i> جلب من:
                                 </span>
                                 
-                                <button type="button" onclick="openSystemAccountSelector('A')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ وحسابات البرنامج">
+                                <button type="button" onclick="openSystemAccountSelector('A')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ العام وحسابات البرنامج">
                                     <i class="fa-solid fa-book-journal-whills text-sky-400"></i>
-                                    <span>حسابات النظام</span>
+                                    <span>دفتر الأستاذ العام (حسابات النظام)</span>
                                 </button>
                                 
                                 <button type="button" onclick="document.getElementById('omni-file-camera-A').click()" class="omni-source-btn" title="التقاط صور متعددة أو اختيارها من استوديو الجوال">
@@ -23269,7 +23269,7 @@ $pdo = getDBConnection();
                                 </button>
                                 <input type="file" id="omni-file-all-A" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'file')">
 
-                                <button type="button" onclick="openWhatsAppImportModal('A')" class="omni-source-btn" title="استيراد وتفريغ إشعار أو رسالة واتساب">
+                                <button type="button" onclick="openWhatsAppImportModal('A')" class="omni-source-btn" title="استيراد وتفريغ إشعار أو رسالة واتساب أو ملفات الواتساب">
                                     <i class="fa-brands fa-whatsapp text-emerald-400"></i>
                                     <span>واتساب</span>
                                 </button>
@@ -23315,9 +23315,9 @@ $pdo = getDBConnection();
                                     <i class="fa-solid fa-cloud-arrow-down"></i> جلب من:
                                 </span>
                                 
-                                <button type="button" onclick="openSystemAccountSelector('B')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ وحسابات البرنامج">
+                                <button type="button" onclick="openSystemAccountSelector('B')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ العام وحسابات البرنامج">
                                     <i class="fa-solid fa-book-journal-whills text-purple-400"></i>
-                                    <span>حسابات النظام</span>
+                                    <span>دفتر الأستاذ العام (حسابات النظام)</span>
                                 </button>
                                 
                                 <button type="button" onclick="document.getElementById('omni-file-camera-B').click()" class="omni-source-btn" title="التقاط صور متعددة أو اختيارها من استوديو الجوال">
@@ -23332,7 +23332,7 @@ $pdo = getDBConnection();
                                 </button>
                                 <input type="file" id="omni-file-all-B" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'file')">
 
-                                <button type="button" onclick="openWhatsAppImportModal('B')" class="omni-source-btn" title="استيراد وتفريغ إشعار أو رسالة واتساب">
+                                <button type="button" onclick="openWhatsAppImportModal('B')" class="omni-source-btn" title="استيراد وتفريغ إشعار أو رسالة واتساب أو ملفات الواتساب">
                                     <i class="fa-brands fa-whatsapp text-emerald-400"></i>
                                     <span>واتساب</span>
                                 </button>
@@ -23849,11 +23849,12 @@ $pdo = getDBConnection();
                         <button type="button" onclick="filterReconAccountsList('البنوك', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">🏦 البنوك</button>
                         <button type="button" onclick="filterReconAccountsList('العملاء', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">👥 العملاء</button>
                         <button type="button" onclick="filterReconAccountsList('الخزن', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">💼 الخزن والصناديق</button>
+                        <button type="button" onclick="filterReconAccountsList('الحسابات العامة', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">📊 الحسابات العامة (GL)</button>
                     </div>
 
                     <!-- Search Input -->
                     <div class="relative">
-                        <input type="text" id="recon-acc-search-input" oninput="searchReconAccountsList()" placeholder="🔍 ابحث باسم المصنع، المورد، البنك، أو رقم الهاتف..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-sm font-bold focus:border-indigo-400 focus:outline-none">
+                        <input type="text" id="recon-acc-search-input" oninput="searchReconAccountsList()" placeholder="🔍 ابحث باسم الحساب، المصنع، المورد، البنك، أو كود الحساب..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-sm font-bold focus:border-indigo-400 focus:outline-none">
                     </div>
 
                     <!-- Accounts List -->
@@ -23892,15 +23893,16 @@ $pdo = getDBConnection();
 
                     <div class="space-y-2">
                         <label class="block text-xs font-bold text-slate-300">ألصق هنا نص رسالة الواتساب، أو نص الإشعار البنكي، أو جدول الحركات المنسوخ:</label>
-                        <textarea id="recon-whatsapp-text-input" rows="6" placeholder="مثال: تم تحويل مبلغ 5,000,000 عبر تطبيق بنكك بتاريخ 2026/06/10 مرجع 88014567 توريد دفعة حديد..." class="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs sm:text-sm font-mono focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
+                        <textarea id="recon-whatsapp-text-input" rows="5" placeholder="مثال: تم تحويل مبلغ 5,000,000 عبر تطبيق بنكك بتاريخ 2026/06/10 مرجع 88014567 توريد دفعة حديد..." class="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs sm:text-sm font-mono focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
                     </div>
 
-                    <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 flex items-center justify-between">
-                        <div class="flex items-center gap-2 text-xs text-slate-400 font-bold">
-                            <i class="fa-solid fa-wand-magic-sparkles text-emerald-400"></i>
-                            <span>يدعم الذكاء الاصطناعي تفكيك رسائل وتنسيقات البنوك السودانية والعربية المتعددة</span>
-                        </div>
-                        <a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" class="text-xs text-emerald-400 hover:text-emerald-300 font-bold underline flex items-center gap-1">
+                    <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3">
+                        <button type="button" onclick="document.getElementById('omni-file-all-' + (window.RECON_ACTIVE_OMNI_SIDE || 'A')).click(); closeReconModals();" class="px-4 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
+                            <i class="fa-solid fa-folder-open text-emerald-400 text-sm"></i>
+                            <span>استعراض ملف أو صورة مستلمة من الواتساب</span>
+                        </button>
+                        <a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-emerald-300 font-bold flex items-center gap-1.5 border border-slate-700 transition">
+                            <i class="fa-brands fa-whatsapp text-sm text-emerald-400"></i>
                             <span>فتح واتساب ويب</span>
                             <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
                         </a>
