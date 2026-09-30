@@ -41,7 +41,7 @@ $pdo = getDBConnection();
     <script src="js/hls.light.min.js"></script>
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
     <script src="js/xlsx.full.min.js"></script>
-    <script src="js/accounting_reconciliation.js?v=2026_omni_tier1_v3"></script>
+    <script src="js/accounting_reconciliation.js?v=2026_recon_v4_search"></script>
 
     <style>
 
@@ -2797,11 +2797,11 @@ $pdo = getDBConnection();
                 <div class="suite-pill-sub">قوانين العمل والرواتب</div>
             </div>
 
-            <!-- 12. التطابق والمقارنات المحاسبية الذكية -->
+            <!-- 12. فحص وتدقيق الكشوفات وشيتات الإكسيل المعقدة -->
             <div class="suite-pill-card" style="--p-color:#6366f1; --p-border:rgba(99,102,241,0.6);" onclick="switchSuite('reconciliation', this)" id="tab-pill-reconciliation">
                 <div class="suite-pill-icon"><i class="fa-solid fa-scale-unbalanced-flip text-indigo-400"></i></div>
-                <div class="suite-pill-title">⚖️ التطابق المحاسبي</div>
-                <div class="suite-pill-sub">مقارنة كشوف الإكسيل بالـ AI</div>
+                <div class="suite-pill-title">⚖️ فحص وتدقيق الكشوفات</div>
+                <div class="suite-pill-sub">شيتات الإكسيل وتفكيك الخلل المالي</div>
             </div>
         </div>
 
@@ -23100,6 +23100,28 @@ $pdo = getDBConnection();
                     transform: translateY(-1.5px);
                     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
                 }
+                .recon-scope-pill {
+                    padding: 5px 12px;
+                    border-radius: 9px;
+                    font-size: 11px;
+                    font-weight: 800;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                    border: 1px solid transparent;
+                    color: #94a3b8;
+                    background: transparent;
+                    user-select: none;
+                }
+                .recon-scope-pill:hover {
+                    color: #ffffff;
+                    background: rgba(255, 255, 255, 0.08);
+                }
+                .recon-scope-pill.active {
+                    background: rgba(99, 102, 241, 0.35) !important;
+                    border-color: rgba(129, 140, 248, 0.6) !important;
+                    color: #ffffff !important;
+                    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3) !important;
+                }
                 :root.light-theme .recon-hero-glass {
                     background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
                     border-color: rgba(99, 102, 241, 0.4) !important;
@@ -23139,22 +23161,22 @@ $pdo = getDBConnection();
             <div class="recon-hero-glass">
                 
                 <!-- Suite Header -->
-                <div class="flex flex-wrap items-center justify-between gap-5 mb-8 pb-6 border-b border-indigo-500/20">
+                <div class="flex flex-wrap items-center justify-between gap-5 mb-6 pb-6 border-b border-indigo-500/20">
                     <div class="flex items-center gap-4">
                         <div class="recon-icon-beacon">
                             <i class="fa-solid fa-scale-unbalanced-flip text-2xl text-indigo-300"></i>
                         </div>
                         <div>
                             <div class="flex items-center gap-3">
-                                <h3 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-pink-300">
-                                    منظومة التطابق والمقارنات المحاسبية الذكية
+                                <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-pink-300">
+                                    فحص وتدقيق الكشوفات وشيتات الإكسيل المعقدة واكتشاف وتفكيك أسباب الخلل المالي والفروقات
                                 </h3>
                                 <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 font-extrabold text-xs border border-indigo-400/40 hidden sm:inline-block">
                                     AI Engine 2026
                                 </span>
                             </div>
                             <p class="text-xs sm:text-sm text-slate-300 font-bold mt-1">
-                                فحص وتدقيق كشوفات الحسابات والإكسيل المعقدة واكتشاف وتفكيك أسباب الخلل المالي والفروقات بالذكاء الاصطناعي
+                                مقارنة وتطابق كشف حساب الطرف الأول (كشف الحساب الخاص) مع كشف حساب الطرف الثاني وفك شفرات الاختلافات الحسابية والمالية بالذكاء الاصطناعي
                             </p>
                             <!-- Smart Features Badges -->
                             <div class="flex flex-wrap gap-2 mt-2.5">
@@ -23178,7 +23200,7 @@ $pdo = getDBConnection();
                     <div class="flex items-center gap-2.5">
                         <button type="button" onclick="loadReconciliationSampleData()" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500/25 via-orange-500/25 to-amber-600/25 hover:from-amber-500/35 hover:to-orange-500/35 border-2 border-amber-400/60 text-amber-200 text-xs sm:text-sm font-black flex items-center gap-2.5 cursor-pointer transition shadow-lg shadow-amber-950/40 hover:scale-[1.02]">
                             <i class="fa-solid fa-flask-vial text-base text-amber-300"></i>
-                            تحميل نموذج تجريبي جاهز (حساباتي ↔ المصنع)
+                            تحميل نموذج تجريبي جاهز (كشف الطرف الأول ↔ كشف الطرف الثاني)
                         </button>
                         <button type="button" onclick="resetReconciliationSuite()" title="تفريغ الحقول والبدء من جديد" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700 transition cursor-pointer">
                             <i class="fa-solid fa-rotate-left"></i>
@@ -23186,11 +23208,50 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
+                <!-- 🔍 GLOBAL OMNI RECONCILIATION SEARCH BAR (شريط البحث الشامل في أعلى فحص وتدقيق الكشوفات) -->
+                <div class="recon-global-search-box mb-8 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900/95 via-indigo-950/60 to-slate-900/95 border-2 border-indigo-500/40 shadow-2xl backdrop-blur-xl relative overflow-hidden">
+                    <div class="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+                        <!-- Search Input Group -->
+                        <div class="relative flex-1">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-indigo-400 text-lg">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </span>
+                            <input type="text" id="recon-global-search-input" 
+                                   oninput="handleReconGlobalSearch(this.value)" 
+                                   placeholder="🔍 بحث شامل وفوري: ابحث برقم العملية، رقم التحويلة، المبلغ، التاريخ، البيان، الفروقات، أو أطراف المعاملة..." 
+                                   class="w-full pr-12 pl-12 py-3.5 rounded-xl bg-slate-950/90 border-2 border-indigo-500/35 text-slate-100 placeholder-slate-400 text-sm font-bold focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none shadow-inner">
+                            <button type="button" id="btn-recon-search-clear" onclick="clearReconGlobalSearch()" 
+                                    class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 hover:text-rose-400 hidden transition cursor-pointer" title="تفريغ البحث">
+                                <i class="fa-solid fa-circle-xmark text-lg"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Search Filters & Badges -->
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span id="recon-search-badge" class="px-3.5 py-2 rounded-xl bg-indigo-500/20 text-indigo-300 font-black text-xs border border-indigo-400/40 hidden flex items-center gap-1.5 whitespace-nowrap shadow-md">
+                                <i class="fa-solid fa-filter text-indigo-400"></i>
+                                <span id="recon-search-count-label">0 نتيجة</span>
+                            </span>
+                            <div class="flex items-center gap-1 bg-slate-950/80 p-1.5 rounded-xl border border-slate-700/60 text-xs font-bold text-slate-300">
+                                <span class="text-[11px] text-slate-400 px-1.5">نطاق البحث:</span>
+                                <button type="button" onclick="setReconSearchScope('all', this)" class="recon-scope-pill active">الكل</button>
+                                <button type="button" onclick="setReconSearchScope('sideA', this)" class="recon-scope-pill">كشف الطرف الأول</button>
+                                <button type="button" onclick="setReconSearchScope('sideB', this)" class="recon-scope-pill">كشف الطرف الثاني</button>
+                                <button type="button" onclick="setReconSearchScope('results', this)" class="recon-scope-pill">الفروقات والمعلقات</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="recon-search-live-hint" class="mt-2.5 text-[11px] text-slate-300 font-bold hidden flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                        <span id="recon-search-hint-text"></span>
+                    </div>
+                </div>
+
                 <!-- 1. Dual Omnichannel Comparison Pods -->
                 <div class="relative mb-8">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         
-                        <!-- Side A: My Accounting Records -->
+                        <!-- Side A: First Party Records (كشف حساب الطرف الأول) -->
                         <div class="recon-pod recon-pod-a">
                             <div class="flex items-center justify-between mb-3 pb-2 border-b border-sky-500/20">
                                 <div class="flex items-center gap-2.5">
@@ -23198,11 +23259,11 @@ $pdo = getDBConnection();
                                         <i class="fa-solid fa-file-invoice-dollar"></i>
                                     </span>
                                     <div>
-                                        <h4 class="font-black text-sm text-sky-300">الطرف الأول: كشف حساباتي الخاصة</h4>
-                                        <span class="text-[11px] text-slate-400 font-bold">دفاتر المؤسسة أو تقرير البرنامج الداخلي</span>
+                                        <h4 class="font-black text-sm text-sky-300">كشف حساب الطرف الأول</h4>
+                                        <span class="text-[11px] text-slate-400 font-bold">كشف الحساب الخاص (دفاتر المؤسسة والبرنامج الداخلي)</span>
                                     </div>
                                 </div>
-                                <span class="text-[11px] font-black text-sky-300 bg-sky-500/15 px-2.5 py-1 rounded-lg border border-sky-500/30">الملف الأساسي</span>
+                                <span class="text-[11px] font-black text-sky-300 bg-sky-500/15 px-2.5 py-1 rounded-lg border border-sky-500/30">كشف حساب الطرف الأول</span>
                             </div>
 
                             <!-- Omnichannel Sources Bar for Side A -->
@@ -23244,7 +23305,7 @@ $pdo = getDBConnection();
                                     <div class="w-14 h-14 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 text-2xl mb-3 group-hover:scale-110 transition duration-300 shadow-lg">
                                         <i class="fa-solid fa-cloud-arrow-up"></i>
                                     </div>
-                                    <span class="font-extrabold text-sm text-slate-100 group-hover:text-sky-300 transition">اسحب وأفلت الملف هنا أو اختر من الأزرار أعلاه</span>
+                                    <span class="font-extrabold text-sm text-slate-100 group-hover:text-sky-300 transition">اسحب وأفلت كشف حساب الطرف الأول هنا أو اختر من الأزرار أعلاه</span>
                                     <span class="text-xs text-slate-400 mt-1">يقبل إكسيل · صور · PDF · وورد · نصوص</span>
                                 </label>
                             </div>
@@ -23253,7 +23314,7 @@ $pdo = getDBConnection();
                             <div id="recon-map-badges-A"></div>
                         </div>
 
-                        <!-- Side B: Factory Records -->
+                        <!-- Side B: Second Party Records (كشف حساب الطرف الثاني) -->
                         <div class="recon-pod recon-pod-b">
                             <div class="flex items-center justify-between mb-3 pb-2 border-b border-purple-500/20">
                                 <div class="flex items-center gap-2.5">
@@ -23261,11 +23322,11 @@ $pdo = getDBConnection();
                                         <i class="fa-solid fa-industry"></i>
                                     </span>
                                     <div>
-                                        <h4 class="font-black text-sm text-purple-300">الطرف الثاني: كشف حساب المصنع</h4>
-                                        <span class="text-[11px] text-slate-400 font-bold">كشف حساب المورد أو الشريك التجاري الخارجي</span>
+                                        <h4 class="font-black text-sm text-purple-300">كشف حساب الطرف الثاني</h4>
+                                        <span class="text-[11px] text-slate-400 font-bold">كشف حساب الطرف المقابل (المصنع / المورد / الشريك التجاري)</span>
                                     </div>
                                 </div>
-                                <span class="text-[11px] font-black text-purple-300 bg-purple-500/15 px-2.5 py-1 rounded-lg border border-purple-500/30">الملف المقابل</span>
+                                <span class="text-[11px] font-black text-purple-300 bg-purple-500/15 px-2.5 py-1 rounded-lg border border-purple-500/30">كشف حساب الطرف الثاني</span>
                             </div>
 
                             <!-- Omnichannel Sources Bar for Side B -->
@@ -23307,7 +23368,7 @@ $pdo = getDBConnection();
                                     <div class="w-14 h-14 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl mb-3 group-hover:scale-110 transition duration-300 shadow-lg">
                                         <i class="fa-solid fa-cloud-arrow-up"></i>
                                     </div>
-                                    <span class="font-extrabold text-sm text-slate-100 group-hover:text-purple-300 transition">اسحب وأفلت ملف إكسيل المصنع أو اختر من الأزرار أعلاه</span>
+                                    <span class="font-extrabold text-sm text-slate-100 group-hover:text-purple-300 transition">اسحب وأفلت كشف حساب الطرف الثاني هنا أو اختر من الأزرار أعلاه</span>
                                     <span class="text-xs text-slate-400 mt-1">يقبل إكسيل · صور · PDF · وورد · نصوص</span>
                                 </label>
                             </div>
@@ -23375,24 +23436,24 @@ $pdo = getDBConnection();
                     <!-- KPI Summary Metric Cards (6-Pillar World-Class Cockpit) -->
                     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
                         
-                        <!-- KPI 1: My Balance -->
+                        <!-- KPI 1: First Party Balance -->
                         <div class="recon-kpi-card" style="--kpi-accent: #38bdf8; --kpi-border: rgba(56, 189, 248, 0.4); --kpi-glow: rgba(56, 189, 248, 0.25);">
                             <div class="flex items-center justify-between text-xs text-slate-400 font-bold mb-1">
-                                <span>رصيد كشف حساباتي</span>
+                                <span>رصيد كشف حساب الطرف الأول</span>
                                 <i class="fa-solid fa-wallet text-sky-400"></i>
                             </div>
                             <span class="text-xl sm:text-2xl font-black text-sky-300 font-mono block tracking-tight" id="recon-kpi-bal-a">0</span>
-                            <span class="text-[10px] text-slate-400 font-bold block mt-1">الطرف الأول (المؤسسة)</span>
+                            <span class="text-[10px] text-slate-400 font-bold block mt-1">الطرف الأول (كشف الحساب الخاص)</span>
                         </div>
 
-                        <!-- KPI 2: Factory Balance -->
+                        <!-- KPI 2: Second Party Balance -->
                         <div class="recon-kpi-card" style="--kpi-accent: #c084fc; --kpi-border: rgba(168, 85, 247, 0.4); --kpi-glow: rgba(168, 85, 247, 0.25);">
                             <div class="flex items-center justify-between text-xs text-slate-400 font-bold mb-1">
-                                <span>رصيد كشف المصنع</span>
+                                <span>رصيد كشف حساب الطرف الثاني</span>
                                 <i class="fa-solid fa-industry text-purple-400"></i>
                             </div>
                             <span class="text-xl sm:text-2xl font-black text-purple-300 font-mono block tracking-tight" id="recon-kpi-bal-b">0</span>
-                            <span class="text-[10px] text-slate-400 font-bold block mt-1">الطرف الثاني (المورد)</span>
+                            <span class="text-[10px] text-slate-400 font-bold block mt-1">الطرف الثاني (الطرف المقابل)</span>
                         </div>
 
                         <!-- KPI 3: Net Difference -->
@@ -23454,7 +23515,7 @@ $pdo = getDBConnection();
                             </button>
                             <button type="button" id="btn-recon-tab-unmatched" onclick="switchReconTab('unmatched')" class="recon-tab-pill">
                                 <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
-                                <span>حركات معلقة ومفقودة (<span id="recon-count-unmatched-a">0</span> عندي / <span id="recon-count-unmatched-b">0</span> مصنع)</span>
+                                <span>حركات معلقة ومفقودة (<span id="recon-count-unmatched-a">0</span> الطرف الأول / <span id="recon-count-unmatched-b">0</span> الطرف الثاني)</span>
                             </button>
                             <button type="button" id="btn-recon-tab-variance" onclick="switchReconTab('variance')" class="recon-tab-pill">
                                 <i class="fa-solid fa-arrows-split-up-and-left text-amber-400"></i>
@@ -23490,14 +23551,14 @@ $pdo = getDBConnection();
                     <div id="recon-sec-unmatched" class="recon-result-section hidden space-y-6">
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             
-                            <!-- Missing in Factory -->
+                            <!-- Missing in Second Party -->
                             <div class="p-5 rounded-2xl bg-slate-900/80 border border-rose-500/35 space-y-3">
                                 <div class="flex items-center justify-between pb-3 border-b border-rose-500/20">
                                     <h5 class="font-black text-xs sm:text-sm text-rose-400 flex items-center gap-2">
                                         <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                                        حركات مقيدة عندك ومفقودة في كشف المصنع:
+                                        حركات مقيدة في كشف الطرف الأول ومفقودة لدى الطرف الثاني:
                                     </h5>
-                                    <span class="text-[11px] font-bold text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">يجب مطالبتهم بها</span>
+                                    <span class="text-[11px] font-bold text-rose-300 bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20">مطالبة الطرف الثاني بها</span>
                                 </div>
                                 <div class="overflow-x-auto max-h-96 custom-scrollbar">
                                     <table class="w-full text-right">
@@ -23516,14 +23577,14 @@ $pdo = getDBConnection();
                                 </div>
                             </div>
 
-                            <!-- Missing in My Records -->
+                            <!-- Missing in First Party -->
                             <div class="p-5 rounded-2xl bg-slate-900/80 border border-purple-500/35 space-y-3">
                                 <div class="flex items-center justify-between pb-3 border-b border-purple-500/20">
                                     <h5 class="font-black text-xs sm:text-sm text-purple-400 flex items-center gap-2">
                                         <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                                        حركات قيدها المصنع وغير مسجلة في دفاترك:
+                                        حركات قيدها الطرف الثاني وغير مسجلة في كشف حساب الطرف الأول:
                                     </h5>
-                                    <span class="text-[11px] font-bold text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">عمولات أو فواتير ناقصة</span>
+                                    <span class="text-[11px] font-bold text-purple-300 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">تتطلب إثباتها في دفاترك</span>
                                 </div>
                                 <div class="overflow-x-auto max-h-96 custom-scrollbar">
                                     <table class="w-full text-right">
@@ -23557,11 +23618,11 @@ $pdo = getDBConnection();
                                     <thead>
                                         <tr class="text-[11px] text-slate-400 border-b border-slate-800">
                                             <th class="p-2.5">#</th>
-                                            <th class="p-2.5">التاريخ (ملفي ↔ المصنع)</th>
+                                            <th class="p-2.5">التاريخ (الطرف الأول ↔ الطرف الثاني)</th>
                                             <th class="p-2.5">رقم التحويلة</th>
                                             <th class="p-2.5">شرح التباين المكتشف</th>
-                                            <th class="p-2.5 text-center">مبلغي</th>
-                                            <th class="p-2.5 text-center">مبلغ المصنع</th>
+                                            <th class="p-2.5 text-center">مبلغ الطرف الأول</th>
+                                            <th class="p-2.5 text-center">مبلغ الطرف الثاني</th>
                                             <th class="p-2.5 text-center">الفارق</th>
                                             <th class="p-2.5 text-center">إجراء التسوية</th>
                                         </tr>
@@ -23585,7 +23646,7 @@ $pdo = getDBConnection();
                                         <tr class="text-[11px] text-slate-400 border-b border-slate-800">
                                             <th class="p-2.5">#</th>
                                             <th class="p-2.5">التاريخ</th>
-                                            <th class="p-2.5">المرجع (ملفي ↔ المصنع)</th>
+                                            <th class="p-2.5">المرجع (الطرف الأول ↔ الطرف الثاني)</th>
                                             <th class="p-2.5">البيان</th>
                                             <th class="p-2.5 text-center">المبلغ</th>
                                             <th class="p-2.5 text-center">نوع التطابق</th>

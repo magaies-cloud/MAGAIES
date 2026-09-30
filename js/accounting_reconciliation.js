@@ -56,7 +56,7 @@
             ["2026-06-01", "INV-101", "رصيد افتتاحي مرحل من الدورة السابقة", 0, 15000000, -15000000, 6000, -2500],
             ["2026-06-05", "TRX-88014567", "تحويل بنكك توريد بضاعة دفعة أولى", 6000000, 0, -9000000, 6000, 1000],
             ["2026-06-10", "INV-102", "فاتورة شراء حديد تسليح 12 ملم (10 طن)", 0, 12000000, -21000000, 6000, -2000],
-            ["2026-06-12", "CHQ-7721", "سداد شيك مصرفي رقم 7721 لصالح المصنع", 5000000, 0, -16000000, 6000, 833.33],
+            ["2026-06-12", "CHQ-7721", "سداد شيك مصرفي رقم 7721 لصالح الطرف الثاني", 5000000, 0, -16000000, 6000, 833.33],
             ["2026-06-15", "TRX-994411", "سداد نقدي عبر بنك أمدرمان الوطني", 2540000, 0, -13460000, 6000, 423.33], // Transposition error test: 2,540,000 vs 2,450,000 (diff 90,000 divisible by 9)
             ["2026-06-18", "TRX-442188", "تحويل بنكك سداد دفعة توريد إسمنت", 3500000, 0, -9960000, 6000, 583.33],
             ["2026-06-20", "INV-103", "فاتورة استلام صاج وزنك أمريكي", 0, 8000000, -17960000, 6050, -1322.31],
@@ -65,28 +65,28 @@
             ["2026-06-24", "TRX-SPLIT-1", "تحويل بنكك سداد دفعة فاتورة 104 (دفعة 1 سقف يومي)", 3000000, 0, -10960000, 6000, 500],
             ["2026-06-24", "TRX-SPLIT-2", "تحويل بنكك سداد دفعة فاتورة 104 (دفعة 2 سقف يومي)", 2000000, 0, -8960000, 6000, 333.33],
             // Aged critical item (dated April 2026 -> >60 days old)
-            ["2026-04-12", "OLD-CHQ-109", "شيك مسحوب رقم 109 معلق بالطريق لم يصرفه المصنع", 1800000, 0, -7160000, 5800, 310.34]
+            ["2026-04-12", "OLD-CHQ-109", "شيك مسحوب رقم 109 معلق بالطريق لم يصرفه الطرف الثاني", 1800000, 0, -7160000, 5800, 310.34]
         ];
 
-        // Sample B: Factory Statement (Contains realistic discrepancies, split payments, and transposition)
+        // Sample B: Second Party Statement (Contains realistic discrepancies, split payments, and transposition)
         const sampleB = [
-            ["تاريخ الحركة", "رقم العملية المرجعي", "شرح الحركة في المصنع", "المقبوضات (دائن)", "المدفوعات والمبيعات (مدين)", "رصيد العميل", "تعادل الدولار"],
-            ["2026-06-01", "OP-BAL", "الرصيد الافتتاحي المقيد لدى المصنع", 0, 15000000, 15000000, 2500],
+            ["تاريخ الحركة", "رقم العملية المرجعي", "شرح الحركة في كشف الطرف الثاني", "المقبوضات (دائن)", "المدفوعات والمبيعات (مدين)", "رصيد العميل", "تعادل الدولار"],
+            ["2026-06-01", "OP-BAL", "الرصيد الافتتاحي المقيد لدى الطرف الثاني", 0, 15000000, 15000000, 2500],
             ["2026-06-06", "BOK-009988014567", "إشعار تحويل بنكك الوارد من العميل (مطابق بآخر أرقام)", 6000000, 0, 9000000, 1000],
             ["2026-06-10", "INV-102", "قيمة حديد تسليح مباني طلبية رقم 102", 0, 12000000, 21000000, 2000],
             ["2026-06-13", "7721", "تحصيل شيك مصرفي رقم 7721", 5000000, 0, 16000000, 833.33],
             ["2026-06-15", "TRX-994411", "سداد نقدي مقيد بـ 2,450,000 بدلاً من 2,540,000 (تبديل خانات)", 2450000, 0, 13550000, 408.33], // Transposition: 90K diff (90000 % 9 === 0)
             ["2026-06-20", "INV-103", "فاتورة توريد صاج وزنك أمريكي", 0, 8000000, 21550000, 1333.33],
-            ["2026-06-21", "FEE-901", "رسوم نولون وتعتيق وشحن لم يقيدها العميل", 0, 250000, 21800000, 41.67], // MISSING IN CLIENT
+            ["2026-06-21", "FEE-901", "رسوم نولون وتعتيق وشحن لم يقيدها كشف الطرف الأول", 0, 250000, 21800000, 41.67], // MISSING IN CLIENT
             ["2026-06-22", "TRX-661200", "إشعار تحويل بنك فيصل فوري", 4000000, 0, 17800000, 666.67],
             // Target single invoice matched by 2 split transfers (3M + 2M = 5M)
             ["2026-06-24", "INV-104", "فاتورة توريد زوايا حديد مبوم طلبية 104", 0, 5000000, 22800000, 833.33],
             // Aged critical item
-            ["2026-04-10", "OLD-FEE-88", "رسوم أرضيات ومستودع قديمة لم تسجل لدى العميل", 0, 450000, 23250000, 77.59]
+            ["2026-04-10", "OLD-FEE-88", "رسوم أرضيات ومستودع قديمة لم تسجل في كشف الطرف الأول", 0, 450000, 23250000, 77.59]
         ];
 
-        processLoadedSheetData(sampleA, 'A', 'حساباتي_الخاصة_يونيو_2026.xlsx');
-        processLoadedSheetData(sampleB, 'B', 'كشف_حساب_المصنع_يونيو_2026.xlsx');
+        processLoadedSheetData(sampleA, 'A', 'كشف_حساب_الطرف_الأول_الخاص.xlsx');
+        processLoadedSheetData(sampleB, 'B', 'كشف_حساب_الطرف_الثاني.xlsx');
 
         if (window.showModernToast) {
             window.showModernToast('✨ تم تحميل بيانات النموذج التجريبي بنجاح! اضغط على زر تشغيل التطابق لمشاهدة التحليل.', 'success', 3500);
@@ -155,7 +155,7 @@
         const summary = computeSideSummary(mappedRows);
 
         const target = (side === 'A') ? window.RECON_STATE.fileA : window.RECON_STATE.fileB;
-        target.name = fileName || (side === 'A' ? 'كشف حساباتي' : 'كشف حساب المصنع');
+        target.name = fileName || (side === 'A' ? 'كشف حساب الطرف الأول' : 'كشف حساب الطرف الثاني');
         target.rawRows = dataRows;
         target.headers = rawHeaders;
         target.colMap = colMap;
@@ -305,7 +305,7 @@
         const stateB = window.RECON_STATE.fileB;
 
         if (!stateA.mappedRows || stateA.mappedRows.length === 0 || !stateB.mappedRows || stateB.mappedRows.length === 0) {
-            alert('يرجى تحميل ملفي الإكسيل أولاً (حساباتي وكشف المصنع) أو الضغط على "تحميل نموذج تجريبي".');
+            alert('يرجى تحميل ملفي الإكسيل أولاً (كشف حساب الطرف الأول وكشف حساب الطرف الثاني) أو الضغط على "تحميل نموذج تجريبي".');
             return;
         }
 
@@ -395,14 +395,13 @@
                         title: 'تطابق رقم التحويلة والمبلغ مع تباعد كبير بالتاريخ',
                         diff: 0,
                         dateDiff: dayDiffFound,
-                        explanation: `رقم التحويلة متطابق (${rowA.ref} مقابل ${bestMatchB.ref}) والمبلغ متطابق، ولكن تاريخ تسجيلك (${rowA.date}) يختلف عن تاريخ المصنع (${bestMatchB.date}) بفارق ${Math.abs(dayDiffFound)} يوماً.`
+                        explanation: `رقم التحويلة متطابق (${rowA.ref} مقابل ${bestMatchB.ref}) والمبلغ متطابق، ولكن تاريخ تسجيل كشف الطرف الأول (${rowA.date}) يختلف عن تاريخ كشف الطرف الثاني (${bestMatchB.date}) بفارق ${Math.abs(dayDiffFound)} يوماً.`
                     });
                 }
             }
         }
 
         // ── Level 3: Reference Match but Amount has a Variance! ──
-        // (e.g. Client entered 2,000,000 but factory entered 2,500,000 for the same transfer number)
         for (const rowA of stateA.mappedRows) {
             if (rowA.matched) continue;
 
@@ -426,7 +425,7 @@
                 const diff = amtA - amtB;
                 const absDiff = Math.abs(diff);
                 const isTransposition = (Math.round(absDiff) % 9 === 0) && absDiff > 0;
-                let explanation = `نفس رقم العملية (${rowA.ref} مقابل ${bestMatchB.ref})، لكن مسجل في كشفك بمبلغ ${formatMoney(amtA)} ومسجل في كشف المصنع بمبلغ ${formatMoney(amtB)}، بفارق ${formatMoney(absDiff)}.`;
+                let explanation = `نفس رقم العملية (${rowA.ref} مقابل ${bestMatchB.ref})، لكن مسجل في كشف الطرف الأول بمبلغ ${formatMoney(amtA)} ومسجل في كشف الطرف الثاني بمبلغ ${formatMoney(amtB)}، بفارق ${formatMoney(absDiff)}.`;
                 if (isTransposition) {
                     explanation += ` (⚠️ كشف جنائي: الفارق ${formatMoney(absDiff)} يقبل القسمة على 9 تماماً، مما يرجح بنسبة 99% وجود خطأ إدخال بتبديل خانات الأرقام Transposition Error).`;
                 }
@@ -492,8 +491,8 @@
                     singleRow: rowB,
                     comboRows: comboA,
                     totalAmount: rowB.amount,
-                    badge: `مطابقة تجميعية N:1 (${comboA.length} دفعات في حساباتي سددت فاتورة واحدة للمصنع)`,
-                    explanation: `حركة المصنع (${rowB.desc} - مرجع: ${rowB.ref}) بقيمة ${formatMoney(rowB.amount)} تم سدادها عبر ${comboA.length} حركات مجتمعة في حساباتك (${comboA.map(c => formatMoney(c.amount)).join(' + ')}).`
+                    badge: `مطابقة تجميعية N:1 (${comboA.length} دفعات في كشف الطرف الأول سددت حركة واحدة لدى الطرف الثاني)`,
+                    explanation: `حركة كشف الطرف الثاني (${rowB.desc} - مرجع: ${rowB.ref}) بقيمة ${formatMoney(rowB.amount)} تم سدادها عبر ${comboA.length} حركات مجتمعة في كشف الطرف الأول (${comboA.map(c => formatMoney(c.amount)).join(' + ')}).`
                 });
             }
         }
@@ -514,8 +513,8 @@
                     singleRow: rowA,
                     comboRows: comboB,
                     totalAmount: rowA.amount,
-                    badge: `مطابقة تجميعية 1:N (حركة واحدة في حساباتي غطت ${comboB.length} فواتير للمصنع)`,
-                    explanation: `حركتك (${rowA.desc} - مرجع: ${rowA.ref}) بقيمة ${formatMoney(rowA.amount)} غطت ${comboB.length} فواتير وحركات مجتمعة لدى المصنع (${comboB.map(c => formatMoney(c.amount)).join(' + ')}).`
+                    badge: `مطابقة تجميعية 1:N (حركة واحدة في كشف الطرف الأول غطت ${comboB.length} حركات لدى الطرف الثاني)`,
+                    explanation: `حركة كشف الطرف الأول (${rowA.desc} - مرجع: ${rowA.ref}) بقيمة ${formatMoney(rowA.amount)} غطت ${comboB.length} فواتير وحركات مجتمعة لدى الطرف الثاني (${comboB.map(c => formatMoney(c.amount)).join(' + ')}).`
                 });
             }
         }
@@ -990,7 +989,7 @@
                     <div class="flex items-center gap-2">
                         <button type="button" onclick="copyWhatsAppReconciliationLetter()" class="px-4 py-2 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/50 hover:bg-emerald-500/30 text-emerald-300 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
                             <i class="fa-brands fa-whatsapp text-base"></i>
-                            نسخ خطاب الواتساب للمصنع
+                            نسخ خطاب الواتساب للطرف الثاني
                         </button>
                     </div>
                 </div>
@@ -1095,7 +1094,7 @@
 
         if (tbodyA) {
             if (unA.length === 0) {
-                tbodyA.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-emerald-400 font-bold">✓ جميع حركاتك مسجلة ومطابقة لدى المصنع!</td></tr>`;
+                tbodyA.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-emerald-400 font-bold">✓ جميع حركات كشف حساب الطرف الأول مسجلة ومطابقة لدى الطرف الثاني!</td></tr>`;
             } else {
                 tbodyA.innerHTML = unA.map((r, idx) => {
                     const actionBtn = r.isAdjusted ? `
@@ -1123,7 +1122,7 @@
 
         if (tbodyB) {
             if (unB.length === 0) {
-                tbodyB.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-emerald-400 font-bold">✓ لا توجد حركات للمصنع مفقودة في كشفك!</td></tr>`;
+                tbodyB.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-emerald-400 font-bold">✓ لا توجد حركات للطرف الثاني مفقودة في كشف الطرف الأول!</td></tr>`;
             } else {
                 tbodyB.innerHTML = unB.map((r, idx) => {
                     const actionBtn = r.isAdjusted ? `
@@ -1182,7 +1181,7 @@
                     <!-- Target Single Row -->
                     <div class="p-3.5 rounded-xl bg-slate-900/90 border border-purple-500/30 space-y-1.5">
                         <div class="flex items-center justify-between text-xs text-purple-300 font-bold pb-1 border-b border-purple-500/20">
-                            <span>🎯 الحركة المستهدفة (${c.type === 'N_to_1' ? 'كشف المصنع' : 'حساباتي'}):</span>
+                            <span>🎯 الحركة المستهدفة (${c.type === 'N_to_1' ? 'كشف حساب الطرف الثاني' : 'كشف حساب الطرف الأول'}):</span>
                             <span class="font-mono font-black text-sm text-purple-200">${formatMoney(c.singleRow.amount)}</span>
                         </div>
                         <p class="text-xs text-slate-200 leading-snug font-bold">${c.singleRow.desc}</p>
@@ -1195,7 +1194,7 @@
                     <!-- Multiple Component Rows -->
                     <div class="p-3.5 rounded-xl bg-slate-900/90 border border-sky-500/30 space-y-2">
                         <div class="flex items-center justify-between text-xs text-sky-300 font-bold pb-1 border-b border-sky-500/20">
-                            <span>🧩 الدفعات المكونة المسددة (${c.type === 'N_to_1' ? 'حساباتي' : 'كشف المصنع'} - ${c.comboRows.length} حركات):</span>
+                            <span>🧩 الدفعات المكونة المسددة (${c.type === 'N_to_1' ? 'كشف حساب الطرف الأول' : 'كشف حساب الطرف الثاني'} - ${c.comboRows.length} حركات):</span>
                             <span class="font-mono font-black text-sm text-sky-200">${formatMoney(c.totalAmount)}</span>
                         </div>
                         <div class="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">
@@ -1255,8 +1254,8 @@
                     </div>
                     <span class="text-[11px] text-slate-400 block">${b.sub}</span>
                     <div class="pt-2 border-t border-slate-800/80 text-[10px] text-slate-400 flex items-center justify-between font-mono">
-                        <span>حساباتي: ${formatMoney(b.amountA)} (${b.countA})</span>
-                        <span>المصنع: ${formatMoney(b.amountB)} (${b.countB})</span>
+                        <span>كشف الطرف الأول: ${formatMoney(b.amountA)} (${b.countA})</span>
+                        <span>كشف الطرف الثاني: ${formatMoney(b.amountB)} (${b.countB})</span>
                     </div>
                 </div>
             `;
@@ -1285,7 +1284,7 @@
                                 <div class="p-3 rounded-xl bg-slate-950/80 border border-rose-500/30 flex flex-wrap items-center justify-between gap-3 text-xs">
                                     <div class="space-y-0.5">
                                         <div class="flex items-center gap-2">
-                                            <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold text-[10px]">${item.side === 'A' ? 'في كشف حساباتي' : 'في كشف المصنع'}</span>
+                                            <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-bold text-[10px]">${item.side === 'A' ? 'في كشف الطرف الأول' : 'في كشف الطرف الثاني'}</span>
                                             <span class="font-bold text-slate-100">${item.row.desc}</span>
                                         </div>
                                         <div class="text-[11px] text-slate-400 font-mono">📅 ${item.row.date} (منذ ${item.days} يوماً) · 🔖 ${item.row.ref}</div>
@@ -1314,7 +1313,7 @@
         const v = window.RECON_STATE.results.varianceMatches[idx];
         if (!v) return;
         const diff = Math.abs(v.diff);
-        const notes = `تسوية فارق عملية مرجع (${v.rowA.ref}) بين دفاتري وكشف المصنع - ${v.explanation}`;
+        const notes = `تسوية فارق عملية مرجع (${v.rowA.ref}) بين كشف الطرف الأول وكشف الطرف الثاني - ${v.explanation}`;
         window.openAdjustmentModal({
             date: v.rowA.date || new Date().toISOString().split('T')[0],
             amount: diff,
@@ -1331,8 +1330,8 @@
         if (!item) return;
 
         const notes = (side === 'A') 
-            ? `تسوية حركة مقيدة عندي وغير مسجلة لدى المصنع (${item.desc} - مرجع: ${item.ref})`
-            : `تسوية وإثبات حركة قيدها المصنع وغير مسجلة في دفاتري (${item.desc} - مرجع: ${item.ref})`;
+            ? `تسوية حركة مقيدة في كشف الطرف الأول ومفقودة لدى الطرف الثاني (${item.desc} - مرجع: ${item.ref})`
+            : `تسوية وإثبات حركة قيدها الطرف الثاني وغير مسجلة في كشف حساب الطرف الأول (${item.desc} - مرجع: ${item.ref})`;
 
         window.openAdjustmentModal({
             date: item.date || new Date().toISOString().split('T')[0],
@@ -1493,6 +1492,175 @@
         });
     };
 
+    // ────────────────────────────────────────────────────────────────
+    // 6.5. TOP-LEVEL UNIFIED GLOBAL LIVE SEARCH (محرك البحث الشامل الفوري في أعلى المنظومة)
+    // ────────────────────────────────────────────────────────────────
+    window.RECON_SEARCH_QUERY = '';
+    window.RECON_SEARCH_SCOPE = 'all';
+
+    window.handleReconGlobalSearch = function(rawQuery) {
+        const query = (rawQuery !== undefined ? rawQuery : (document.getElementById('recon-global-search-input')?.value || '')).trim().toLowerCase();
+        window.RECON_SEARCH_QUERY = query;
+
+        const clearBtn = document.getElementById('btn-recon-search-clear');
+        const badgeEl = document.getElementById('recon-search-badge');
+        const countLabel = document.getElementById('recon-search-count-label');
+        const hintEl = document.getElementById('recon-search-live-hint');
+        const hintText = document.getElementById('recon-search-hint-text');
+
+        if (clearBtn) {
+            if (query) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+        }
+
+        const scope = window.RECON_SEARCH_SCOPE || 'all';
+        let matchCount = 0;
+
+        // 1. Exact Matches Table
+        const exactRows = document.querySelectorAll('#recon-table-exact-body tr');
+        exactRows.forEach(tr => {
+            if (!query) {
+                tr.style.display = '';
+                return;
+            }
+            if (scope === 'sideB' || scope === 'results') {
+                // Keep visible if matches query
+            }
+            const text = tr.textContent.toLowerCase();
+            if (text.includes(query)) {
+                tr.style.display = '';
+                matchCount++;
+            } else {
+                tr.style.display = 'none';
+            }
+        });
+
+        // 2. Variance Matches Table
+        const varianceRows = document.querySelectorAll('#recon-table-variance-body tr');
+        varianceRows.forEach(tr => {
+            if (!query) {
+                tr.style.display = '';
+                return;
+            }
+            const text = tr.textContent.toLowerCase();
+            if (text.includes(query)) {
+                tr.style.display = '';
+                matchCount++;
+            } else {
+                tr.style.display = 'none';
+            }
+        });
+
+        // 3. Combinatorial Cards
+        const comboCards = document.querySelectorAll('#recon-combinatorial-cards-container > div');
+        comboCards.forEach(card => {
+            if (!query) {
+                card.style.display = '';
+                return;
+            }
+            const text = card.textContent.toLowerCase();
+            if (text.includes(query)) {
+                card.style.display = '';
+                matchCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // 4. Unmatched Table A (كشف الطرف الأول)
+        const unARows = document.querySelectorAll('#recon-table-unmatched-a-body tr');
+        unARows.forEach(tr => {
+            if (!query) {
+                tr.style.display = '';
+                return;
+            }
+            if (scope === 'sideB') {
+                tr.style.display = 'none';
+                return;
+            }
+            const text = tr.textContent.toLowerCase();
+            if (text.includes(query)) {
+                tr.style.display = '';
+                matchCount++;
+            } else {
+                tr.style.display = 'none';
+            }
+        });
+
+        // 5. Unmatched Table B (كشف الطرف الثاني)
+        const unBRows = document.querySelectorAll('#recon-table-unmatched-b-body tr');
+        unBRows.forEach(tr => {
+            if (!query) {
+                tr.style.display = '';
+                return;
+            }
+            if (scope === 'sideA') {
+                tr.style.display = 'none';
+                return;
+            }
+            const text = tr.textContent.toLowerCase();
+            if (text.includes(query)) {
+                tr.style.display = '';
+                matchCount++;
+            } else {
+                tr.style.display = 'none';
+            }
+        });
+
+        // 6. Aging Matrix items
+        const agingCards = document.querySelectorAll('#recon-aging-critical-list > div, #recon-aging-critical-list .p-3');
+        agingCards.forEach(card => {
+            if (!query) {
+                card.style.display = '';
+                return;
+            }
+            const text = card.textContent.toLowerCase();
+            if (text.includes(query)) {
+                card.style.display = '';
+                matchCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // 7. Update Search Counter Badge
+        if (badgeEl && countLabel) {
+            if (query) {
+                badgeEl.classList.remove('hidden');
+                countLabel.textContent = `${matchCount} بند مطابق`;
+            } else {
+                badgeEl.classList.add('hidden');
+            }
+        }
+
+        // 8. Guidance hint if engine hasn't been run yet
+        const resultsContainer = document.getElementById('recon-results-container');
+        if (resultsContainer && resultsContainer.classList.contains('hidden') && query) {
+            if (hintEl && hintText) {
+                hintEl.classList.remove('hidden');
+                hintText.innerHTML = `تم إدخال كلمة البحث: <strong>"${escapeHtmlRecon(query)}"</strong>. للبحث الشامل في كافة الفروقات والمعلقات المحللة بالذكاء الاصطناعي، يرجى الضغط على زر <strong>[بدء التطابق المحاسبي واكتشاف الخلل]</strong> أدناه.`;
+            }
+        } else {
+            if (hintEl) hintEl.classList.add('hidden');
+        }
+    };
+
+    window.clearReconGlobalSearch = function() {
+        const input = document.getElementById('recon-global-search-input');
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+        window.handleReconGlobalSearch('');
+    };
+
+    window.setReconSearchScope = function(scope, btn) {
+        window.RECON_SEARCH_SCOPE = scope;
+        document.querySelectorAll('.recon-scope-pill').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        window.handleReconGlobalSearch();
+    };
+
     // Tab Switching inside Reconciliation Results
     window.switchReconTab = function(tabId) {
         document.querySelectorAll('.recon-tab-pill, .recon-result-tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -1506,6 +1674,10 @@
         }
         if (targetSec) {
             targetSec.classList.remove('hidden');
+        }
+
+        if (window.RECON_SEARCH_QUERY) {
+            window.handleReconGlobalSearch(window.RECON_SEARCH_QUERY);
         }
     };
 
@@ -1521,7 +1693,7 @@
             if (box) {
                 const isA = side === 'A';
                 const color = isA ? 'sky' : 'purple';
-                const title = isA ? 'اسحب وأفلت ملف إكسيل حساباتك هنا أو انقر للاختيار' : 'اسحب وأفلت ملف إكسيل المصنع هنا أو انقر للاختيار';
+                const title = isA ? 'اسحب وأفلت كشف حساب الطرف الأول هنا أو انقر للاختيار' : 'اسحب وأفلت كشف حساب الطرف الثاني هنا أو انقر للاختيار';
                 box.innerHTML = `
                     <label for="omni-file-all-${side}" class="recon-upload-area flex flex-col items-center justify-center group">
                         <div class="w-14 h-14 rounded-2xl bg-${color}-500/10 border border-${color}-500/30 flex items-center justify-center text-${color}-400 text-2xl mb-3 group-hover:scale-110 transition duration-300 shadow-lg">
@@ -1537,6 +1709,8 @@
             const input = document.getElementById(`recon-file-input-${side}`);
             if (input) input.value = '';
         });
+
+        if (typeof clearReconGlobalSearch === 'function') clearReconGlobalSearch();
 
         const resCont = document.getElementById('recon-results-container');
         if (resCont) resCont.classList.add('hidden');
@@ -1557,14 +1731,14 @@
                 Swal.fire({
                     icon: 'success',
                     title: 'تم النسخ بنجاح!',
-                    text: 'تم نسخ مسودة خطاب التسوية لمشاركتها عبر واتساب المصنع.',
+                    text: 'تم نسخ مسودة خطاب التسوية لمشاركتها مع الطرف الثاني.',
                     timer: 2500,
                     showConfirmButton: false,
                     background: '#0f172a',
                     color: '#ffffff'
                 });
             } else {
-                alert('📋 تم نسخ مسودة خطاب التسوية لمشاركتها عبر واتساب المصنع!');
+                alert('📋 تم نسخ مسودة خطاب التسوية لمشاركتها مع الطرف الثاني!');
             }
         }).catch(() => {
             alert('يرجى نسخ النص يدوياً.');
@@ -1590,28 +1764,28 @@
             ["تقرير التطابق والتسوية المحاسبية الذكية - نظام مقاييس MAGAIEES 2026"],
             ["تاريخ إعداد التقرير", new Date().toLocaleString('ar-SA')],
             [""],
-            ["الطرف الأول (حساباتي)", stateA.name, "رصيد الإغلاق", stateA.summary.balance],
-            ["الطرف الثاني (المصنع)", stateB.name, "رصيد الإغلاق", stateB.summary.balance],
+            ["الطرف الأول (كشف الحساب الخاص)", stateA.name, "رصيد الإغلاق", stateA.summary.balance],
+            ["الطرف الثاني", stateB.name, "رصيد الإغلاق", stateB.summary.balance],
             ["صافي الفرق بين الطرفين", Math.abs(res.netVariance), "الحالة", Math.abs(res.netVariance) > 1 ? "يوجد فرق" : "متطابق تماماً"],
             ["نسبة التطابق الإجمالية", res.matchRate + "%"],
             ["عدد العمليات المتطابقة تماماً", res.exactMatches.length],
             ["عدد العمليات المتطابقة مع فارق", res.varianceMatches.length],
-            ["عدد الحركات غير المقيدة لدى المصنع", res.unmatchedA.length],
-            ["عدد الحركات المقيدة لدى المصنع وغير مسجلة عندي", res.unmatchedB.length]
+            ["عدد الحركات غير المقيدة لدى الطرف الثاني", res.unmatchedA.length],
+            ["عدد الحركات المقيدة لدى الطرف الثاني وغير مسجلة في كشف الطرف الأول", res.unmatchedB.length]
         ];
         const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
         XLSX.utils.book_append_sheet(wb, wsSummary, "الملخص التنفيذي");
 
         // 2. Unmatched Sheet
         const unData = [
-            ["حركات مسجلة عندي ومفقودة في كشف المصنع"],
+            ["حركات مقيدة في كشف الطرف الأول ومفقودة في كشف الطرف الثاني"],
             ["م", "التاريخ", "المرجع", "البيان", "المبلغ"]
         ];
         res.unmatchedA.forEach((r, i) => {
             unData.push([i + 1, r.date, r.ref, r.desc, r.amount]);
         });
         unData.push([""]);
-        unData.push(["حركات مقيدة لدى المصنع وغير مسجلة عندي"]);
+        unData.push(["حركات قيدها الطرف الثاني وغير مسجلة في كشف الطرف الأول"]);
         unData.push(["م", "التاريخ", "المرجع", "البيان", "المبلغ"]);
         res.unmatchedB.forEach((r, i) => {
             unData.push([i + 1, r.date, r.ref, r.desc, r.amount]);
@@ -1621,7 +1795,7 @@
 
         // 3. Exact Matches Sheet
         const matchData = [
-            ["م", "تاريخ حركتي", "تاريخ المصنع", "رقم المرجع الخاص بي", "رقم مرجع المصنع", "البيان", "المبلغ المتطابق", "طبيعة التطابق"]
+            ["م", "تاريخ كشف الطرف الأول", "تاريخ كشف الطرف الثاني", "رقم مرجع الطرف الأول", "رقم مرجع الطرف الثاني", "البيان", "المبلغ المتطابق", "طبيعة التطابق"]
         ];
         res.exactMatches.forEach((m, i) => {
             matchData.push([i + 1, m.rowA.date, m.rowB.date, m.rowA.ref, m.rowB.ref, m.rowA.desc, m.rowA.amount, m.badge]);
@@ -1656,7 +1830,7 @@
         window.RECON_ACTIVE_OMNI_SIDE = side || 'A';
         const labelEl = document.getElementById('recon-modal-target-side-label');
         if (labelEl) {
-            labelEl.textContent = `الطرف المستهدف: ${window.RECON_ACTIVE_OMNI_SIDE === 'A' ? 'الطرف الأول (كشف حساباتي)' : 'الطرف الثاني (كشف المصنع)'}`;
+            labelEl.textContent = `الطرف المستهدف: ${window.RECON_ACTIVE_OMNI_SIDE === 'A' ? 'كشف حساب الطرف الأول (كشف الحساب الخاص)' : 'كشف حساب الطرف الثاني'}`;
         }
 
         const modal = document.getElementById('modal-recon-system-accounts');
@@ -1985,7 +2159,7 @@
         window.RECON_ACTIVE_OMNI_SIDE = side || 'A';
         const labelEl = document.getElementById('recon-whatsapp-target-side-label');
         if (labelEl) {
-            labelEl.textContent = `الطرف المستهدف: ${window.RECON_ACTIVE_OMNI_SIDE === 'A' ? 'الطرف الأول (كشف حساباتي)' : 'الطرف الثاني (كشف المصنع)'}`;
+            labelEl.textContent = `الطرف المستهدف: ${window.RECON_ACTIVE_OMNI_SIDE === 'A' ? 'كشف حساب الطرف الأول (كشف الحساب الخاص)' : 'كشف حساب الطرف الثاني'}`;
         }
         const modal = document.getElementById('modal-recon-whatsapp-paste');
         if (modal) modal.classList.remove('hidden');
