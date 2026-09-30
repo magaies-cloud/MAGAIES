@@ -23822,202 +23822,7 @@ $pdo = getDBConnection();
 
             </div>
 
-            <!-- ════════════════════════════════════════════════════════════════ -->
-            <!-- MODAL 1: SYSTEM GENERAL LEDGER & ACCOUNTS SELECTOR              -->
-            <!-- ════════════════════════════════════════════════════════════════ -->
-            <div id="modal-recon-system-accounts" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
-                <div class="w-full max-w-2xl rounded-3xl bg-slate-900 border-2 border-indigo-500/50 shadow-2xl p-6 sm:p-7 space-y-5 animate-scaleIn text-right">
-                    
-                    <div class="flex items-center justify-between pb-3 border-b border-indigo-500/20">
-                        <div class="flex items-center gap-3">
-                            <span class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg">
-                                <i class="fa-solid fa-book-journal-whills"></i>
-                            </span>
-                            <div>
-                                <h4 class="font-black text-base text-slate-100">جلب كشف الحساب مباشرة من دفتر الأستاذ العام</h4>
-                                <span class="text-xs text-slate-400 font-bold" id="recon-modal-target-side-label">سيتم التضمين في: الطرف الأول</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <a href="general-ledger.php" target="_blank" class="px-3 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-400/40 text-xs font-bold flex items-center gap-1.5 transition" title="فتح شاشة دفتر الأستاذ العام في نافذة جديدة">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                <span>شاشة دفتر الأستاذ الكاملة</span>
-                            </a>
-                            <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Category Pills -->
-                    <div class="flex flex-wrap gap-1.5" id="recon-acc-cat-filters">
-                        <button type="button" onclick="filterReconAccountsList('all', this)" class="px-3 py-1 rounded-xl bg-indigo-600 text-white font-bold text-xs cursor-pointer">🌟 الكل</button>
-                        <button type="button" onclick="filterReconAccountsList('الموردين', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">🏭 الموردين والمصانع</button>
-                        <button type="button" onclick="filterReconAccountsList('البنوك', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">🏦 البنوك</button>
-                        <button type="button" onclick="filterReconAccountsList('العملاء', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">👥 العملاء</button>
-                        <button type="button" onclick="filterReconAccountsList('الخزن', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">💼 الخزن والصناديق</button>
-                        <button type="button" onclick="filterReconAccountsList('الحسابات العامة', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">📊 الحسابات العامة (GL)</button>
-                    </div>
-
-                    <!-- Search Input -->
-                    <div class="relative">
-                        <input type="text" id="recon-acc-search-input" oninput="searchReconAccountsList()" placeholder="🔍 ابحث باسم الحساب، المصنع، المورد، البنك، أو كود الحساب..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-sm font-bold focus:border-indigo-400 focus:outline-none">
-                    </div>
-
-                    <!-- Accounts List -->
-                    <div id="recon-modal-accounts-grid" class="max-h-72 overflow-y-auto space-y-2 p-1 custom-scrollbar">
-                        <!-- Populated dynamically -->
-                    </div>
-
-                    <div class="flex items-center justify-between pt-3 border-t border-slate-800 text-xs text-slate-400">
-                        <span>💡 يجلب النظام الحركات المسجلة في قيود اليومية تلقائياً دون تصدير</span>
-                        <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold cursor-pointer">إلغاء</button>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- ════════════════════════════════════════════════════════════════ -->
-            <!-- MODAL 2: WHATSAPP & CLIPBOARD TEXT / NOTIFICATION EXTRACTOR     -->
-            <!-- ════════════════════════════════════════════════════════════════ -->
-            <div id="modal-recon-whatsapp-paste" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
-                <div class="w-full max-w-2xl rounded-3xl bg-slate-900 border-2 border-emerald-500/50 shadow-2xl p-6 sm:p-7 space-y-5 animate-scaleIn text-right">
-                    
-                    <div class="flex items-center justify-between pb-3 border-b border-emerald-500/20">
-                        <div class="flex items-center gap-3">
-                            <span class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
-                                <i class="fa-brands fa-whatsapp"></i>
-                            </span>
-                            <div>
-                                <h4 class="font-black text-base text-slate-100">تفريغ وتحليل نصوص وإشعارات الواتساب والحافظة بالـ AI</h4>
-                                <span class="text-xs text-slate-400 font-bold" id="recon-whatsapp-target-side-label">سيتم التضمين في: الطرف الأول</span>
-                            </div>
-                        </div>
-                        <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-
-                    <!-- Quick Launchers Row -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                        <a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" class="p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 transition transform hover:scale-[1.02]">
-                            <i class="fa-brands fa-whatsapp text-lg"></i>
-                            <span>فتح واتساب ويب في نافذة جديدة (Web)</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                        </a>
-                        <a href="whatsapp://" class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-emerald-500/40 transition">
-                            <i class="fa-solid fa-mobile-screen-button text-base text-emerald-400"></i>
-                            <span>فتح تطبيق واتساب بالجهاز (App)</span>
-                        </a>
-                    </div>
-
-                    <div class="space-y-2">
-                        <div class="flex items-center justify-between">
-                            <label class="block text-xs font-bold text-slate-300">ألصق (Ctrl+V) نصوص، جداول، صور، ولقطات شاشة مباشرة هنا:</label>
-                            <button type="button" onclick="pasteFromClipboard(window.RECON_ACTIVE_OMNI_SIDE || 'A')" class="text-xs text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1 cursor-pointer">
-                                <i class="fa-solid fa-paste"></i>
-                                <span>لصق تلقائي من الحافظة</span>
-                            </button>
-                        </div>
-                        <textarea id="recon-whatsapp-text-input" rows="4" placeholder="يمكنك لصق نصوص رسائل الواتساب، أو جداول الإكسيل، أو حتى لصق صور ولقطات شاشة (Screenshots) مباشرة من الحافظة ليتم التعرف عليها بالذكاء الاصطناعي..." class="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs sm:text-sm font-mono focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
-                    </div>
-
-                    <div class="p-3 rounded-2xl bg-slate-950/70 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3">
-                        <button type="button" onclick="document.getElementById('omni-file-all-' + (window.RECON_ACTIVE_OMNI_SIDE || 'A')).click(); closeReconModals();" class="px-4 py-2.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/50 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
-                            <i class="fa-solid fa-folder-open text-amber-400 text-sm"></i>
-                            <span>استعراض ملفات وتنزيلات الواتساب (PDF / صور / إكسيل)</span>
-                        </button>
-                        <span class="text-[11px] text-slate-400 font-bold">💡 بعد نسخ أي صورة أو حركة من الواتساب اضغط (لصق)</span>
-                    </div>
-
-                    <div class="flex items-center justify-between pt-3 border-t border-slate-800">
-                        <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-xs cursor-pointer">إلغاء</button>
-                        <button type="button" onclick="submitWhatsAppImport()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/40">
-                            <i class="fa-solid fa-bolt"></i>
-                            <span>تفريغ واستخراج الحركات بالذكاء الاصطناعي ⚡</span>
-                        </button>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- ════════════════════════════════════════════════════════════════ -->
-            <!-- MODAL 3: ONE-CLICK ADJUSTMENT JOURNAL VOUCHER (سند قيد تسوية)   -->
-            <!-- ════════════════════════════════════════════════════════════════ -->
-            <div id="modal-recon-adjustment-voucher" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md hidden">
-                <div class="w-full max-w-xl rounded-3xl bg-slate-900 border-2 border-emerald-500/50 shadow-2xl p-6 sm:p-7 space-y-5 animate-scaleIn text-right">
-                    
-                    <div class="flex items-center justify-between pb-3 border-b border-emerald-500/20">
-                        <div class="flex items-center gap-3">
-                            <span class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
-                                <i class="fa-solid fa-file-invoice-dollar"></i>
-                            </span>
-                            <div>
-                                <h4 class="font-black text-base text-slate-100">توليد قيد تسوية محاسبي آلي لدفتر اليومية</h4>
-                                <span class="text-xs text-slate-400 font-bold">تسوية فارق المطابقة وترحيله فوراً لدفتر الأستاذ العام</span>
-                            </div>
-                        </div>
-                        <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
-                    </div>
-
-                    <form id="form-recon-adjustment" onsubmit="event.preventDefault(); submitAdjustmentVoucher();" class="space-y-4">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">رقم السند المرجعي:</label>
-                                <input type="text" id="recon-adj-vch-no" readonly class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-amber-400 font-mono text-xs font-bold">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">تاريخ القيد والتسوية:</label>
-                                <input type="date" id="recon-adj-date" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 font-mono text-xs font-bold focus:border-emerald-400 focus:outline-none">
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">الطرف المدين (من حـ/):</label>
-                                <select id="recon-adj-debit-acc" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-bold focus:border-emerald-400 focus:outline-none">
-                                    <!-- Populated dynamically -->
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-1">الطرف الدائن (إلى حـ/):</label>
-                                <select id="recon-adj-credit-acc" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-bold focus:border-emerald-400 focus:outline-none">
-                                    <!-- Populated dynamically -->
-                                </select>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">مبلغ قيد التسوية (بالعملة الدفترية):</label>
-                            <div class="relative">
-                                <input type="number" step="0.01" id="recon-adj-amount" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-emerald-400 font-mono font-black text-sm focus:border-emerald-400 focus:outline-none">
-                                <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-bold" id="recon-adj-currency">SDG</span>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-bold text-slate-300 mb-1">البيان والشرح المحاسبي لسند التسوية:</label>
-                            <textarea id="recon-adj-notes" rows="2" class="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-normal focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
-                        </div>
-
-                        <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-[11px] text-slate-400 flex items-center gap-2">
-                            <i class="fa-solid fa-shield-halved text-emerald-400 text-sm"></i>
-                            <span>يتم ترحيل هذا القيد بنظام القيد المزدوج المتزن وتحديث رصيد دفتر الأستاذ فورياً.</span>
-                        </div>
-
-                        <div class="flex items-center justify-between pt-3 border-t border-slate-800">
-                            <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-xs cursor-pointer">إلغاء</button>
-                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/40">
-                                <i class="fa-solid fa-check-double"></i>
-                                <span>ترحيل القيد لدفتر اليومية العامة ⚡</span>
-                            </button>
-                        </div>
-                    </form>
-
-                </div>
-            </div>
+            
         </div>
 
         <div class="text-center text-xs text-slate-500 font-bold mt-2 no-print">
@@ -26781,6 +26586,207 @@ $pdo = getDBConnection();
 <!-- INHERITANCE EVIDENCE GRAND MODAL CONTAINER (ROOT LEVEL VIEWPORT) -->
 <!-- ════════════════════════════════════════════════════════════════ -->
 <div id="inh-evidence-modal" style="display: none; position: fixed; inset: 0; z-index: 99999999; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(3, 7, 18, 0.94); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);"></div>
+
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- RECONCILIATION MODALS (ROOT VIEWPORT LEVEL - Z-INDEX 99999999) -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+            <!-- MODAL 1: SYSTEM GENERAL LEDGER & ACCOUNTS SELECTOR              -->
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <div id="modal-recon-system-accounts" style="display: none; position: fixed; inset: 0; z-index: 99999999; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(2, 6, 23, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);" class="hidden">
+                <div class="w-full max-w-2xl rounded-3xl bg-slate-900 border-2 border-indigo-500/50 shadow-2xl p-6 sm:p-7 space-y-5 animate-scaleIn text-right">
+                    
+                    <div class="flex items-center justify-between pb-3 border-b border-indigo-500/20">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-book-journal-whills"></i>
+                            </span>
+                            <div>
+                                <h4 class="font-black text-base text-slate-100">جلب كشف الحساب مباشرة من دفتر الأستاذ العام</h4>
+                                <span class="text-xs text-slate-400 font-bold" id="recon-modal-target-side-label">سيتم التضمين في: الطرف الأول</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <a href="general-ledger.php" target="_blank" class="px-3 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-400/40 text-xs font-bold flex items-center gap-1.5 transition" title="فتح شاشة دفتر الأستاذ العام في نافذة جديدة">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                <span>شاشة دفتر الأستاذ الكاملة</span>
+                            </a>
+                            <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Category Pills -->
+                    <div class="flex flex-wrap gap-1.5" id="recon-acc-cat-filters">
+                        <button type="button" onclick="filterReconAccountsList('all', this)" class="px-3 py-1 rounded-xl bg-indigo-600 text-white font-bold text-xs cursor-pointer">🌟 الكل</button>
+                        <button type="button" onclick="filterReconAccountsList('الموردين', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">🏭 الموردين والمصانع</button>
+                        <button type="button" onclick="filterReconAccountsList('البنوك', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">🏦 البنوك</button>
+                        <button type="button" onclick="filterReconAccountsList('العملاء', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">👥 العملاء</button>
+                        <button type="button" onclick="filterReconAccountsList('الخزن', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">💼 الخزن والصناديق</button>
+                        <button type="button" onclick="filterReconAccountsList('الحسابات العامة', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">📊 الحسابات العامة (GL)</button>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="relative">
+                        <input type="text" id="recon-acc-search-input" oninput="searchReconAccountsList()" placeholder="🔍 ابحث باسم الحساب، المصنع، المورد، البنك، أو كود الحساب..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-sm font-bold focus:border-indigo-400 focus:outline-none">
+                    </div>
+
+                    <!-- Accounts List -->
+                    <div id="recon-modal-accounts-grid" class="max-h-72 overflow-y-auto space-y-2 p-1 custom-scrollbar">
+                        <!-- Populated dynamically -->
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-800 text-xs text-slate-400">
+                        <span>💡 يجلب النظام الحركات المسجلة في قيود اليومية تلقائياً دون تصدير</span>
+                        <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold cursor-pointer">إلغاء</button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <!-- MODAL 2: WHATSAPP & CLIPBOARD TEXT / NOTIFICATION EXTRACTOR     -->
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <div id="modal-recon-whatsapp-paste" style="display: none; position: fixed; inset: 0; z-index: 99999999; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(2, 6, 23, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);" class="hidden">
+                <div class="w-full max-w-2xl rounded-3xl bg-slate-900 border-2 border-emerald-500/50 shadow-2xl p-6 sm:p-7 space-y-5 animate-scaleIn text-right">
+                    
+                    <div class="flex items-center justify-between pb-3 border-b border-emerald-500/20">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xl">
+                                <i class="fa-brands fa-whatsapp"></i>
+                            </span>
+                            <div>
+                                <h4 class="font-black text-base text-slate-100">تفريغ وتحليل نصوص وإشعارات الواتساب والحافظة بالـ AI</h4>
+                                <span class="text-xs text-slate-400 font-bold" id="recon-whatsapp-target-side-label">سيتم التضمين في: الطرف الأول</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <!-- Quick Launchers Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" class="p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 transition transform hover:scale-[1.02]">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                            <span>فتح واتساب ويب في نافذة جديدة (Web)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                        <a href="whatsapp://" class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-emerald-500/40 transition">
+                            <i class="fa-solid fa-mobile-screen-button text-base text-emerald-400"></i>
+                            <span>فتح تطبيق واتساب بالجهاز (App)</span>
+                        </a>
+                    </div>
+
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-bold text-slate-300">ألصق (Ctrl+V) نصوص، جداول، صور، ولقطات شاشة مباشرة هنا:</label>
+                            <button type="button" onclick="pasteFromClipboard(window.RECON_ACTIVE_OMNI_SIDE || 'A')" class="text-xs text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-paste"></i>
+                                <span>لصق تلقائي من الحافظة</span>
+                            </button>
+                        </div>
+                        <textarea id="recon-whatsapp-text-input" rows="4" placeholder="يمكنك لصق نصوص رسائل الواتساب، أو جداول الإكسيل، أو حتى لصق صور ولقطات شاشة (Screenshots) مباشرة من الحافظة ليتم التعرف عليها بالذكاء الاصطناعي..." class="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs sm:text-sm font-mono focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-slate-950/70 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3">
+                        <button type="button" onclick="document.getElementById('omni-file-all-' + (window.RECON_ACTIVE_OMNI_SIDE || 'A')).click(); closeReconModals();" class="px-4 py-2.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/50 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
+                            <i class="fa-solid fa-folder-open text-amber-400 text-sm"></i>
+                            <span>استعراض ملفات وتنزيلات الواتساب (PDF / صور / إكسيل)</span>
+                        </button>
+                        <span class="text-[11px] text-slate-400 font-bold">💡 بعد نسخ أي صورة أو حركة من الواتساب اضغط (لصق)</span>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+                        <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-xs cursor-pointer">إلغاء</button>
+                        <button type="button" onclick="submitWhatsAppImport()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/40">
+                            <i class="fa-solid fa-bolt"></i>
+                            <span>تفريغ واستخراج الحركات بالذكاء الاصطناعي ⚡</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <!-- MODAL 3: ONE-CLICK ADJUSTMENT JOURNAL VOUCHER (سند قيد تسوية)   -->
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <div id="modal-recon-adjustment-voucher" style="display: none; position: fixed; inset: 0; z-index: 99999999; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(2, 6, 23, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);" class="hidden">
+                <div class="w-full max-w-xl rounded-3xl bg-slate-900 border-2 border-emerald-500/50 shadow-2xl p-6 sm:p-7 space-y-5 animate-scaleIn text-right">
+                    
+                    <div class="flex items-center justify-between pb-3 border-b border-emerald-500/20">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                            </span>
+                            <div>
+                                <h4 class="font-black text-base text-slate-100">توليد قيد تسوية محاسبي آلي لدفتر اليومية</h4>
+                                <span class="text-xs text-slate-400 font-bold">تسوية فارق المطابقة وترحيله فوراً لدفتر الأستاذ العام</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+
+                    <form id="form-recon-adjustment" onsubmit="event.preventDefault(); submitAdjustmentVoucher();" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">رقم السند المرجعي:</label>
+                                <input type="text" id="recon-adj-vch-no" readonly class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-amber-400 font-mono text-xs font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">تاريخ القيد والتسوية:</label>
+                                <input type="date" id="recon-adj-date" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 font-mono text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">الطرف المدين (من حـ/):</label>
+                                <select id="recon-adj-debit-acc" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1">الطرف الدائن (إلى حـ/):</label>
+                                <select id="recon-adj-credit-acc" class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-bold focus:border-emerald-400 focus:outline-none">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">مبلغ قيد التسوية (بالعملة الدفترية):</label>
+                            <div class="relative">
+                                <input type="number" step="0.01" id="recon-adj-amount" required class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-emerald-400 font-mono font-black text-sm focus:border-emerald-400 focus:outline-none">
+                                <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-bold" id="recon-adj-currency">SDG</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-slate-300 mb-1">البيان والشرح المحاسبي لسند التسوية:</label>
+                            <textarea id="recon-adj-notes" rows="2" class="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 text-xs font-normal focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
+                        </div>
+
+                        <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-[11px] text-slate-400 flex items-center gap-2">
+                            <i class="fa-solid fa-shield-halved text-emerald-400 text-sm"></i>
+                            <span>يتم ترحيل هذا القيد بنظام القيد المزدوج المتزن وتحديث رصيد دفتر الأستاذ فورياً.</span>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-3 border-t border-slate-800">
+                            <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-xs cursor-pointer">إلغاء</button>
+                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/40">
+                                <i class="fa-solid fa-check-double"></i>
+                                <span>ترحيل القيد لدفتر اليومية العامة ⚡</span>
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+
 
 
 <!-- ════════════════════════════════════════════════════════════════ -->

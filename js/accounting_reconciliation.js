@@ -1980,6 +1980,7 @@
         if (notesEl) notesEl.value = config.notes || '';
 
         populateAdjustmentAccountsDropdown(config);
+        modal.style.display = 'flex';
         modal.classList.remove('hidden');
     }
     window.openAdjustmentModal = openAdjustmentModal;
@@ -2559,9 +2560,9 @@
         const modalAcc = document.getElementById('modal-recon-system-accounts');
         const modalWa = document.getElementById('modal-recon-whatsapp-paste');
         const modalAdj = document.getElementById('modal-recon-adjustment-voucher');
-        if (modalAcc) modalAcc.classList.add('hidden');
-        if (modalWa) modalWa.classList.add('hidden');
-        if (modalAdj) modalAdj.classList.add('hidden');
+        if (modalAcc) { modalAcc.style.display = 'none'; modalAcc.classList.add('hidden'); }
+        if (modalWa) { modalWa.style.display = 'none'; modalWa.classList.add('hidden'); }
+        if (modalAdj) { modalAdj.style.display = 'none'; modalAdj.classList.add('hidden'); }
     }
     window.closeReconModals = closeReconModals;
 
@@ -2575,6 +2576,7 @@
 
         const modal = document.getElementById('modal-recon-system-accounts');
         if (!modal) return;
+        modal.style.display = 'flex';
         modal.classList.remove('hidden');
 
         // Reset search input
@@ -3096,7 +3098,10 @@
             labelEl.textContent = `الطرف المستهدف: ${window.RECON_ACTIVE_OMNI_SIDE === 'A' ? 'كشف حساب الطرف الأول (كشف الحساب الخاص)' : 'كشف حساب الطرف الثاني'}`;
         }
         const modal = document.getElementById('modal-recon-whatsapp-paste');
-        if (modal) modal.classList.remove('hidden');
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.classList.remove('hidden');
+        }
         const txtInput = document.getElementById('recon-whatsapp-text-input');
         if (txtInput && typeof txtInput.focus === 'function') {
             txtInput.focus();
