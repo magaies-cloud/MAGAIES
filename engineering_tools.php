@@ -42,7 +42,7 @@ $pdo = getDBConnection();
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
     <script src="js/xlsx.full.min.js"></script>
     <script src="js/modern-alerts.js?v=2026_modern_alerts"></script>
-    <script src="js/accounting_reconciliation.js?v=2026_recon_v7_buttons_perfect"></script>
+    <script src="js/accounting_reconciliation.js?v=2026_recon_v9_compat_20260930_1905"></script>
 
     <style>
 
@@ -26768,6 +26768,30 @@ $pdo = getDBConnection();
 
 <!-- ════════════════════════════════════════════════════════════════ -->
 <!-- ════════════════════════════════════════════════════════════════ -->
+
+<!-- Reconciliation Functions Diagnostic -->
+<script>
+(function(){
+    var fns = ['openSystemAccountSelector','openWhatsAppImportModal','pasteFromClipboard','handleOmniUpload',
+               'closeReconModals','initReconciliationSuite','loadReconciliationSampleData','selectSystemAccount',
+               'submitWhatsAppImport','clearReconGlobalSearch'];
+    var missing = [];
+    for(var i=0;i<fns.length;i++){
+        if(typeof window[fns[i]] !== 'function') missing.push(fns[i]);
+    }
+    if(missing.length > 0){
+        console.error('❌ RECON DIAGNOSTIC: Missing functions:', missing.join(', '));
+        // Try to show visible error
+        var d = document.createElement('div');
+        d.style.cssText = 'position:fixed;top:10px;left:10px;right:10px;z-index:999999;background:#dc2626;color:white;padding:12px 16px;border-radius:12px;font-size:13px;font-weight:bold;direction:rtl;text-align:right;box-shadow:0 4px 20px rgba(0,0,0,0.5);';
+        d.textContent = '⚠️ خطأ: لم يتم تحميل دوال المطابقة: ' + missing.join(', ') + ' — يرجى تحديث الصفحة (Ctrl+Shift+R)';
+        document.body.appendChild(d);
+        setTimeout(function(){ d.remove(); }, 15000);
+    } else {
+        console.log('✅ RECON DIAGNOSTIC: All ' + fns.length + ' reconciliation functions loaded successfully.');
+    }
+})();
+</script>
 
 </body>
 </html>
