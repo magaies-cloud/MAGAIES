@@ -42,7 +42,7 @@ $pdo = getDBConnection();
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
     <script src="js/xlsx.full.min.js"></script>
     <script src="js/modern-alerts.js?v=2026_modern_alerts"></script>
-    <script src="js/accounting_reconciliation.js?v=2026_recon_v9_compat_20260930_1905"></script>
+    <script src="js/accounting_reconciliation.js?v=<?php echo time(); ?>"></script>
 
     <style>
 
