@@ -46,7 +46,7 @@
     function setupReconDropzones() {
         ['A', 'B'].forEach(side => {
             const box = document.getElementById(`recon-dropzone-box-${side}`);
-            if (!box || typeof box.addEventListener !== 'function' || box.dataset?.dragInitialized === 'true') return;
+            if (!box || typeof box.addEventListener !== 'function' || (box.dataset ? box.dataset.dragInitialized : null) === 'true') return;
             if (box.dataset) box.dataset.dragInitialized = 'true';
 
             ['dragenter', 'dragover'].forEach(eventName => {
@@ -67,7 +67,7 @@
 
             box.addEventListener('drop', (e) => {
                 const dt = e.dataTransfer;
-                const files = dt?.files;
+                const files = (dt ? dt.files : null);
                 if (files && files.length > 0) {
                     const fakeEvent = { target: { files: files, value: '' } };
                     window.handleOmniUpload(fakeEvent, side, 'file');
@@ -152,7 +152,7 @@
     // 2. EXCEL & CSV FILE INGESTION (SheetJS)
     // ────────────────────────────────────────────────────────────────
     function handleReconFileUpload(event, side) {
-        const file = event.target.files?.[0];
+        const file = (event.target.files ? event.target.files[0] : null);
         if (!file) return;
 
         const reader = new FileReader();
@@ -1013,11 +1013,11 @@
         (res.varianceMatches || []).forEach(v => {
             causes.push({
                 type: v.isFxVariance ? 'fx_rate_diff' : 'amount_variance',
-                title: v.title || `فارق في العملية (${v.rowA?.ref || '-'})`,
+                title: v.title || `فارق في العملية (${(v.rowA ? v.rowA.ref : null) || '-'})`,
                 amount: v.diff || 0,
-                ref: v.rowA?.ref || '-',
-                date: v.rowA?.date || '-',
-                desc: v.rowA?.desc || '-',
+                ref: (v.rowA ? v.rowA.ref : null) || '-',
+                date: (v.rowA ? v.rowA.date : null) || '-',
+                desc: (v.rowA ? v.rowA.desc : null) || '-',
                 explanation: v.explanation || 'فارق بين قيد الطرفين'
             });
         });
@@ -1074,7 +1074,7 @@
             whatsappLetter += `📌 حركات مقيدة لديكم وجاري إثباتها في دفاترنا بعد التحقق:\n` + res.unmatchedB.slice(0, 5).map(r => `• تاريخ ${r.date} | مرجع ${r.ref} | مبلغ ${formatMoney(r.amount)} | ${r.desc}`).join('\n') + `\n\n`;
         }
         if (res.varianceMatches.length > 0) {
-            whatsappLetter += `📌 حركات متطابقة بالمرجع وبها فارق بسيط للمراجعة المشتركة:\n` + res.varianceMatches.slice(0, 3).map(v => `• مرجع ${v.rowA?.ref} | فارق: ${formatMoney(Math.abs(v.diff))} (${v.explanation})`).join('\n') + `\n\n`;
+            whatsappLetter += `📌 حركات متطابقة بالمرجع وبها فارق بسيط للمراجعة المشتركة:\n` + res.varianceMatches.slice(0, 3).map(v => `• مرجع ${(v.rowA ? v.rowA.ref : null)} | فارق: ${formatMoney(Math.abs(v.diff))} (${v.explanation})`).join('\n') + `\n\n`;
         }
         whatsappLetter += `نرجو التكرم بمراجعة البنود المذكورة لمطابقة الحساب وإغلاقه بشكل نهائي.\nشاكرين ومقدرين حسن تعاونكم الدائم.\nنظام مقاييس MAGAIEES ERP 2026`;
 
@@ -2014,14 +2014,14 @@
     }
 
     function submitAdjustmentVoucher() {
-        const vchNo = document.getElementById('recon-adj-vch-no')?.value || ('ADJ-' + Date.now().toString().slice(-6));
-        const date = document.getElementById('recon-adj-date')?.value || new Date().toISOString().split('T')[0];
-        const amount = parseFloat(document.getElementById('recon-adj-amount')?.value) || 0;
+        const vchNo = (document.getElementById('recon-adj-vch-no') ? document.getElementById('recon-adj-vch-no').value : null) || ('ADJ-' + Date.now().toString().slice(-6));
+        const date = (document.getElementById('recon-adj-date') ? document.getElementById('recon-adj-date').value : null) || new Date().toISOString().split('T')[0];
+        const amount = parseFloat((document.getElementById('recon-adj-amount') ? document.getElementById('recon-adj-amount').value : null)) || 0;
         const debitSelect = document.getElementById('recon-adj-debit-acc');
         const creditSelect = document.getElementById('recon-adj-credit-acc');
-        const debitAccName = debitSelect?.options?.[debitSelect?.selectedIndex]?.text || 'حساب مدين';
-        const creditAccName = creditSelect?.options?.[creditSelect?.selectedIndex]?.text || 'حساب دائن';
-        const notes = document.getElementById('recon-adj-notes')?.value || 'قيد تسوية مطابقة';
+        const debitAccName = (debitSelect && debitSelect.options && debitSelect.options[debitSelect.selectedIndex] ? debitSelect.options[debitSelect.selectedIndex].text : null) || 'حساب مدين';
+        const creditAccName = (creditSelect && creditSelect.options && creditSelect.options[creditSelect.selectedIndex] ? creditSelect.options[creditSelect.selectedIndex].text : null) || 'حساب دائن';
+        const notes = (document.getElementById('recon-adj-notes') ? document.getElementById('recon-adj-notes').value : null) || 'قيد تسوية مطابقة';
 
         if (amount <= 0) {
             alert('يرجى تحديد مبلغ صالح لقيد التسوية.');
@@ -2128,7 +2128,7 @@
     window.RECON_SEARCH_SCOPE = 'all';
 
     function handleReconGlobalSearch(rawQuery) {
-        const query = (rawQuery !== undefined ? rawQuery : (document.getElementById('recon-global-search-input')?.value || '')).trim().toLowerCase();
+        const query = (rawQuery !== undefined ? rawQuery : ((document.getElementById('recon-global-search-input') ? document.getElementById('recon-global-search-input').value : null) || '')).trim().toLowerCase();
         window.RECON_SEARCH_QUERY = query;
 
         const clearBtn = document.getElementById('btn-recon-search-clear');
@@ -2422,7 +2422,7 @@
 
     // Copy Official Reconciliation Letter for WhatsApp with Universal Multi-Layer Fallback
     function copyWhatsAppReconciliationLetter() {
-        const letter = window.RECON_STATE.aiAudit?.whatsapp_letter;
+        const letter = (window.RECON_STATE.aiAudit ? window.RECON_STATE.aiAudit.whatsapp_letter : null);
         if (!letter) {
             alert('لم يتم توليد الرسالة بعد، يرجى تشغيل المقارنة أولاً.');
             return;
@@ -2807,14 +2807,14 @@
             btnEl.className = 'px-3 py-1 rounded-xl bg-indigo-600 text-white font-bold text-xs cursor-pointer';
         }
 
-        const query = (document.getElementById('recon-acc-search-input')?.value || '').trim().toLowerCase();
+        const query = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim().toLowerCase();
         applyAccountsFilterAndSearch(category, query);
     }
     window.filterReconAccountsList = filterReconAccountsList;
 
     // Live search in accounts list
     function searchReconAccountsList() {
-        const query = (document.getElementById('recon-acc-search-input')?.value || '').trim().toLowerCase();
+        const query = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim().toLowerCase();
         applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', query);
     }
     window.searchReconAccountsList = searchReconAccountsList;
