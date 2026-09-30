@@ -3373,4 +3373,97 @@
     }
     window.handleOmniUpload = handleOmniUpload;
 
+    // ────────────────────────────────────────────────────────────────
+    // 9. UNIVERSAL GLOBAL PASTE & DROP LISTENER (الاستماع التلقائي الشامل للصق والإفلات)
+    // ────────────────────────────────────────────────────────────────
+    document.addEventListener('paste', async function(e) {
+        const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+        const activeId = document.activeElement ? document.activeElement.id : '';
+        
+        // Don't hijack input fields unless it's specifically for reconciliation
+        if (activeTag === 'input' || activeTag === 'textarea') {
+            if (activeId !== 'recon-whatsapp-text-input' && activeId !== 'recon-global-search-input') {
+                return;
+            }
+        }
+
+        const side = window.RECON_ACTIVE_OMNI_SIDE || 'A';
+        const clipboard = e.clipboardData || e.originalEvent.clipboardData;
+        if (!clipboard) return;
+
+        let hasImageOrFile = false;
+        let filesList = [];
+        
+        if (clipboard.items && clipboard.items.length > 0) {
+            for (let i = 0; i < clipboard.items.length; i++) {
+                if (clipboard.items[i].kind === 'file') {
+                    const file = clipboard.items[i].getAsFile();
+                    if (file) {
+                        filesList.push(file);
+                        hasImageOrFile = true;
+                    }
+                }
+            }
+        }
+
+        if (hasImageOrFile) {
+            e.preventDefault();
+            if (window.showModernToast) {
+                window.showModernToast(`📸 تم اكتشاف صور/ملفات منسوخة! جاري قراءتها بالذكاء الاصطناعي...`, 'info', 3000);
+            }
+            const fakeEvent = { target: { files: filesList, value: '' } };
+            if (typeof closeReconModals === 'function') closeReconModals();
+            if (typeof handleOmniUpload === 'function') handleOmniUpload(fakeEvent, side, 'clipboard');
+            return;
+        }
+
+        // Fallback to text
+        let pastedText = clipboard.getData('text');
+        if (pastedText && pastedText.trim().length > 0) {
+            // Check if it's tab-separated (Excel cells)
+            const lines = pastedText.trim().split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+            if (lines.length > 1 && lines[0].includes('\t')) {
+                e.preventDefault();
+                const matrix = lines.map(line => line.split('\t'));
+                if (typeof processLoadedSheetData === 'function') {
+                    processLoadedSheetData(matrix, side, 'لصق_جدول_الحافظة.xlsx');
+                }
+                if (window.showModernToast) {
+                    window.showModernToast(`📋 تم قراءة جدول الحافظة بنجاح (${matrix.length - 1} حركة)!`, 'success', 3000);
+                }
+                if (typeof closeReconModals === 'function') closeReconModals();
+            } else if (activeId !== 'recon-whatsapp-text-input' && activeId !== 'recon-global-search-input') {
+                e.preventDefault();
+                const txtInput = document.getElementById('recon-whatsapp-text-input');
+                if (txtInput) txtInput.value = pastedText;
+                if (typeof openWhatsAppImportModal === 'function') openWhatsAppImportModal(side);
+                if (window.showModernToast) {
+                    window.showModernToast('📋 تم إدراج النص المنسوخ من الحافظة! انقر على زر التفريغ الذكي.', 'info', 2500);
+                }
+            }
+        }
+    });
+
+    document.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
+
+    document.addEventListener('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const side = window.RECON_ACTIVE_OMNI_SIDE || 'A';
+        const dt = e.dataTransfer;
+        
+        if (dt && dt.files && dt.files.length > 0) {
+            if (window.showModernToast) {
+                window.showModernToast(`📂 تم إفلات ${dt.files.length} ملف/صورة. جاري المعالجة...`, 'info', 2500);
+            }
+            const fakeEvent = { target: { files: Array.from(dt.files), value: '' } };
+            if (typeof closeReconModals === 'function') closeReconModals();
+            if (typeof handleOmniUpload === 'function') handleOmniUpload(fakeEvent, side, 'file');
+        }
+    });
+
 })(window);

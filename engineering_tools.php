@@ -23893,20 +23893,24 @@ $pdo = getDBConnection();
                     </div>
 
                     <div class="space-y-2">
-                        <label class="block text-xs font-bold text-slate-300">ألصق هنا نص رسالة الواتساب، أو نص الإشعار البنكي، أو جدول الحركات المنسوخ:</label>
-                        <textarea id="recon-whatsapp-text-input" rows="5" placeholder="مثال: تم تحويل مبلغ 5,000,000 عبر تطبيق بنكك بتاريخ 2026/06/10 مرجع 88014567 توريد دفعة حديد..." class="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs sm:text-sm font-mono focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
+                        <label class="block text-xs font-bold text-slate-300">ألصق (Ctrl+V) نصوص، جداول، صور، ولقطات شاشة مباشرة هنا أو في أي مكان بالشاشة:</label>
+                        <textarea id="recon-whatsapp-text-input" rows="5" placeholder="يمكنك لصق نصوص رسائل الواتساب، أو جداول الإكسيل، أو حتى لصق صور ولقطات شاشة (Screenshots) مباشرة من الحافظة ليتم التعرف عليها بالذكاء الاصطناعي..." class="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs sm:text-sm font-mono focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
                     </div>
 
                     <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3">
                         <button type="button" onclick="document.getElementById('omni-file-all-' + (window.RECON_ACTIVE_OMNI_SIDE || 'A')).click(); closeReconModals();" class="px-4 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
                             <i class="fa-solid fa-folder-open text-emerald-400 text-sm"></i>
-                            <span>استعراض ملف أو صورة مستلمة من الواتساب</span>
+                            <span>استعراض الصور، PDF، وملفات الواتساب</span>
                         </button>
-                        <a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-emerald-300 font-bold flex items-center gap-1.5 border border-slate-700 transition">
-                            <i class="fa-brands fa-whatsapp text-sm text-emerald-400"></i>
-                            <span>فتح واتساب ويب</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                        </a>
+                        <div class="flex items-center gap-2">
+                            <a href="whatsapp://" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-emerald-300 font-bold flex items-center gap-1.5 border border-slate-700 transition" title="يفتح تطبيق واتساب لنسخ الحركات (ثم العودة للصق هنا)">
+                                <i class="fa-brands fa-whatsapp text-sm text-emerald-400"></i>
+                                <span>فتح واتساب لنسخ حركة</span>
+                            </a>
+                            <a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-emerald-500 font-bold flex items-center transition" title="واتساب ويب">
+                                <i class="fa-solid fa-desktop"></i>
+                            </a>
+                        </div>
                     </div>
 
                     <div class="flex items-center justify-between pt-3 border-t border-slate-800">
