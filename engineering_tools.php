@@ -41,7 +41,8 @@ $pdo = getDBConnection();
     <script src="js/hls.light.min.js"></script>
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
     <script src="js/xlsx.full.min.js"></script>
-    <script src="js/accounting_reconciliation.js?v=2026_recon_v6_gl_forensic"></script>
+    <script src="js/modern-alerts.js?v=2026_modern_alerts"></script>
+    <script src="js/accounting_reconciliation.js?v=2026_recon_v7_buttons_perfect"></script>
 
     <style>
 
