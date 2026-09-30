@@ -220,6 +220,17 @@
 
         renderDropzoneCard(side);
         renderColumnMappingCard(side);
+
+        // Auto-run reconciliation comparison if both sides are ready
+        const hasA = window.RECON_STATE.fileA && window.RECON_STATE.fileA.mappedRows && window.RECON_STATE.fileA.mappedRows.length > 0;
+        const hasB = window.RECON_STATE.fileB && window.RECON_STATE.fileB.mappedRows && window.RECON_STATE.fileB.mappedRows.length > 0;
+        if (hasA && hasB) {
+            setTimeout(function() {
+                if (typeof window.runReconciliationEngine === 'function') {
+                    window.runReconciliationEngine();
+                }
+            }, 300);
+        }
     }
 
     // ────────────────────────────────────────────────────────────────
@@ -1170,6 +1181,80 @@
     // ────────────────────────────────────────────────────────────────
     // 6. UI RENDERING & TAB MANAGERS
     // ────────────────────────────────────────────────────────────────
+    // Render full detailed transactions table inside the party pod (Side A or B)
+    function renderPodTableRows(side, rows) {
+        if (!rows || rows.length === 0) {
+            return `<tr><td colspan="7" class="text-center py-6 text-slate-500 font-bold">لا توجد حركات مسجلة أو مطابقة للبحث</td></tr>`;
+        }
+        return rows.map((r, idx) => {
+            const deb = r.debit > 0 ? formatMoney(r.debit) : '-';
+            const cred = r.credit > 0 ? formatMoney(r.credit) : '-';
+            const bal = formatMoney(r.balance || 0);
+            const balClass = (r.balance || 0) < 0 ? 'text-rose-400' : 'text-emerald-400';
+            return `
+                <tr class="hover:bg-slate-800/40 transition">
+                    <td class="p-2 text-center text-[10px] text-slate-500 font-mono">${idx + 1}</td>
+                    <td class="p-2 font-mono text-[11px] text-slate-300 whitespace-nowrap">${r.date || '-'}</td>
+                    <td class="p-2 font-mono text-[11px] text-amber-300 font-bold whitespace-nowrap">${r.ref || '-'}</td>
+                    <td class="p-2 text-slate-200 text-xs leading-snug">${escapeHtmlRecon(r.desc || '-')}</td>
+                    <td class="p-2 text-center font-mono text-xs font-bold text-rose-400 whitespace-nowrap">${deb}</td>
+                    <td class="p-2 text-center font-mono text-xs font-bold text-emerald-400 whitespace-nowrap">${cred}</td>
+                    <td class="p-2 text-center font-mono text-xs font-bold ${balClass} whitespace-nowrap">${bal}</td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function filterPodRows(side, query) {
+        const target = (side === 'A') ? window.RECON_STATE.fileA : window.RECON_STATE.fileB;
+        if (!target || !target.mappedRows) return;
+        const tbody = document.getElementById(`recon-pod-table-body-${side}`);
+        if (!tbody) return;
+        const q = (query || '').trim().toLowerCase();
+        let filtered = target.mappedRows;
+        if (q) {
+            filtered = target.mappedRows.filter(r => 
+                (r.desc && r.desc.toLowerCase().includes(q)) ||
+                (r.ref && String(r.ref).toLowerCase().includes(q)) ||
+                (r.date && r.date.includes(q)) ||
+                (String(r.debit).includes(q)) ||
+                (String(r.credit).includes(q))
+            );
+        }
+        tbody.innerHTML = renderPodTableRows(side, filtered);
+        const countBadge = document.getElementById(`recon-pod-count-${side}`);
+        if (countBadge) countBadge.textContent = `${filtered.length} من ${target.mappedRows.length}`;
+    }
+    window.filterPodRows = filterPodRows;
+
+    function clearPodSide(side) {
+        const isA = (side === 'A');
+        const emptyState = { name: '', rawRows: [], headers: [], colMap: {}, mappedRows: [], summary: { debit: 0, credit: 0, balance: 0, count: 0 } };
+        if (isA) window.RECON_STATE.fileA = emptyState;
+        else window.RECON_STATE.fileB = emptyState;
+
+        const boxEl = document.getElementById(`recon-dropzone-box-${side}`);
+        const themeColor = isA ? 'sky' : 'purple';
+        const sideLabel = isA ? 'كشف حساب الطرف الأول' : 'كشف حساب الطرف الثاني';
+        if (boxEl) {
+            boxEl.innerHTML = `
+                <label for="omni-file-all-${side}" class="recon-upload-area flex flex-col items-center justify-center group">
+                    <div class="w-14 h-14 rounded-2xl bg-${themeColor}-500/10 border border-${themeColor}-500/30 flex items-center justify-center text-${themeColor}-400 text-2xl mb-3 group-hover:scale-110 transition duration-300 shadow-lg">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <span class="font-extrabold text-sm text-slate-100 group-hover:text-${themeColor}-300 transition">اسحب وأفلت ${sideLabel} هنا أو اختر من الأزرار أعلاه</span>
+                    <span class="text-xs text-slate-400 mt-1">يقبل إكسيل · صور متعددة متتالية · PDF · وورد · نصوص</span>
+                </label>
+            `;
+        }
+        const badgeEl = document.getElementById(`recon-map-badges-${side}`);
+        if (badgeEl) badgeEl.innerHTML = '';
+
+        const resultsContainer = document.getElementById('recon-results-container');
+        if (resultsContainer) resultsContainer.classList.add('hidden');
+    }
+    window.clearPodSide = clearPodSide;
+
     function renderDropzoneCard(side) {
         const isA = (side === 'A');
         const target = isA ? window.RECON_STATE.fileA : window.RECON_STATE.fileB;
@@ -1177,29 +1262,37 @@
         if (!boxEl) return;
 
         const themeColor = isA ? 'sky' : 'purple';
+        const sideLabel = isA ? 'كشف حساب الطرف الأول (كشف الحساب الخاص)' : 'كشف حساب الطرف الثاني (المصنع / الشريك)';
 
         boxEl.innerHTML = `
-            <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4">
-                <div class="flex items-center justify-between">
+            <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4 shadow-xl">
+                <!-- Summary Header -->
+                <div class="flex items-center justify-between pb-3 border-b border-slate-800/80">
                     <div class="flex items-center gap-3">
-                        <span class="w-12 h-12 rounded-2xl bg-${themeColor}-500/15 border border-${themeColor}-500/40 flex items-center justify-center text-${themeColor}-400 text-xl shadow-lg">
-                            <i class="fa-solid fa-file-excel"></i>
+                        <span class="w-11 h-11 rounded-2xl bg-${themeColor}-500/15 border border-${themeColor}-500/40 flex items-center justify-center text-${themeColor}-400 text-lg shadow-lg">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
                         </span>
                         <div>
                             <div class="flex items-center gap-2">
-                                <h4 class="font-black text-sm text-slate-100 font-mono tracking-tight">${target.name}</h4>
+                                <h4 class="font-black text-sm text-slate-100 font-mono tracking-tight">${escapeHtmlRecon(target.name)}</h4>
                                 <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold text-[10px] border border-emerald-500/30">✓ تم التدقيق</span>
                             </div>
-                            <span class="text-xs text-slate-400 font-bold mt-0.5 block">تم استخراج <strong>${target.mappedRows.length}</strong> حركة مالية بنجاح</span>
+                            <span class="text-xs text-slate-400 font-bold mt-0.5 block">${sideLabel}</span>
                         </div>
                     </div>
-                    <button type="button" onclick="document.getElementById('omni-file-all-${side}').click()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
-                        استبدال الملف
-                    </button>
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="document.getElementById('omni-file-all-${side}').click()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 hover:text-white border border-slate-700 transition flex items-center gap-1.5 cursor-pointer" title="استبدال الملف">
+                            <i class="fa-solid fa-arrows-rotate text-[11px]"></i>
+                            <span>استبدال</span>
+                        </button>
+                        <button type="button" onclick="clearPodSide('${side}')" class="p-1.5 rounded-xl bg-slate-800 hover:bg-rose-950/60 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-500/40 transition cursor-pointer" title="تفريغ هذا الطرف">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="grid grid-cols-3 gap-2.5 pt-3 border-t border-slate-800 text-center text-xs">
+                <!-- 3 Metrics KPI Summary -->
+                <div class="grid grid-cols-3 gap-2.5 text-center text-xs">
                     <div class="bg-slate-900/80 p-2.5 rounded-xl border border-rose-500/20">
                         <span class="text-slate-400 block font-bold text-[11px] mb-0.5">إجمالي المدين:</span>
                         <strong class="text-rose-400 font-mono text-sm block">${formatMoney(target.summary.debit)}</strong>
@@ -1211,6 +1304,39 @@
                     <div class="bg-slate-900/80 p-2.5 rounded-xl border border-${themeColor}-500/20">
                         <span class="text-slate-400 block font-bold text-[11px] mb-0.5">رصيد الإغلاق:</span>
                         <strong class="text-${themeColor}-300 font-mono text-sm block">${formatMoney(target.summary.balance)}</strong>
+                    </div>
+                </div>
+
+                <!-- Complete Detailed Transactions Table of This Account -->
+                <div class="pt-2 border-t border-slate-800/80 space-y-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <h5 class="text-xs font-black text-${themeColor}-300 flex items-center gap-1.5">
+                            <i class="fa-solid fa-table-list"></i>
+                            <span>كشف الحركات التفصيلية المسجلة</span>
+                        </h5>
+                        <div class="flex items-center gap-2">
+                            <input type="text" oninput="filterPodRows('${side}', this.value)" placeholder="🔍 تصفية الحركات..." class="px-2.5 py-1 text-[11px] rounded-xl bg-slate-900 border border-slate-700 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-${themeColor}-400">
+                            <span id="recon-pod-count-${side}" class="px-2 py-0.5 rounded-md bg-slate-800 text-[10px] text-slate-300 font-mono font-bold">${target.mappedRows.length} حركة</span>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto max-h-72 overflow-y-auto custom-scrollbar rounded-xl border border-slate-800/80 bg-slate-950/90 shadow-inner">
+                        <table class="w-full text-right text-xs border-collapse">
+                            <thead class="sticky top-0 z-10 bg-slate-900/95 border-b border-slate-800 text-[11px] text-slate-400 shadow">
+                                <tr>
+                                    <th class="p-2 text-center w-7">#</th>
+                                    <th class="p-2 whitespace-nowrap">التاريخ</th>
+                                    <th class="p-2 whitespace-nowrap">المرجع</th>
+                                    <th class="p-2">البيان والتفاصيل</th>
+                                    <th class="p-2 text-center whitespace-nowrap text-rose-400">مدين</th>
+                                    <th class="p-2 text-center whitespace-nowrap text-emerald-400">دائن</th>
+                                    <th class="p-2 text-center whitespace-nowrap text-${themeColor}-300">الرصيد</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recon-pod-table-body-${side}" class="divide-y divide-slate-800/40">
+                                ${renderPodTableRows(side, target.mappedRows)}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -3074,6 +3200,19 @@
                 ["2026-06-15", "TRX-994411", "سداد عميل عبر التطبيق البنكي الإلكتروني", 2000000, 0, 47975000, "SDG"],
                 ["2026-06-18", "TRX-442188", "تحويل صادر لصالح شركة أسمنت عطبرة", 0, 3500000, 44475000, "SDG"],
                 ["2026-06-22", "TRX-661200", "إيداع نقدي مباشر عبر صراف الفرع الرئيسي", 4000000, 0, 48475000, "SDG"]
+            ];
+        }
+
+        if (category === 'العملاء') {
+            return [
+                ["2026-06-01", "OP-01", "رصيد افتتاحي مرحل من الفترة السابقة", 18500000, 0, 18500000, "SDG"],
+                ["2026-06-05", "INV-2041", "فاتورة مبيعات حديد تسليح ومستلزمات بناء", 12000000, 0, 30500000, "SDG"],
+                ["2026-06-08", "TRX-88014567", "سداد نقدي عبر تحويل بنكك (إشعار مقبوضات)", 0, 6000000, 24500000, "SDG"],
+                ["2026-06-12", "CHQ-7721", "سند قبض شيك مصرفي رقم 7721", 0, 5000000, 19500000, "SDG"],
+                ["2026-06-16", "INV-2045", "فاتورة مبيعات صاج وزنك مجلفن", 4500000, 0, 24000000, "SDG"],
+                ["2026-06-18", "TRX-442188", "تحويل بنكي وارد عبر تطبيق فوري", 0, 3500000, 20500000, "SDG"],
+                ["2026-06-21", "INV-2050", "فاتورة توريد أسمنت بورتلاندي (15 طن)", 6000000, 0, 26500000, "SDG"],
+                ["2026-06-25", "TRX-661200", "سداد دفعة نقدية بالخزينة الرئيسية", 0, 8000000, 18500000, "SDG"]
             ];
         }
 

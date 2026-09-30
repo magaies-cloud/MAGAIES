@@ -23258,11 +23258,17 @@ $pdo = getDBConnection();
                                     <span>دفتر الأستاذ العام (حسابات النظام)</span>
                                 </button>
                                 
-                                <button type="button" onclick="document.getElementById('omni-file-camera-A').click()" class="omni-source-btn" title="التقاط صور متعددة أو اختيارها من استوديو الجوال">
-                                    <i class="fa-solid fa-camera text-pink-400"></i>
-                                    <span>استوديو / كاميرا (صور متعددة)</span>
+                                <button type="button" onclick="document.getElementById('omni-file-gallery-A').click()" class="omni-source-btn" title="اختيار صور متعددة من استوديو ومعرض الصور بالجهاز">
+                                    <i class="fa-solid fa-images text-pink-400"></i>
+                                    <span>استوديو الصور (متعدد)</span>
                                 </button>
-                                <input type="file" id="omni-file-camera-A" accept="image/*" capture="environment" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'camera')">
+                                <input type="file" id="omni-file-gallery-A" accept="image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'gallery')">
+
+                                <button type="button" onclick="document.getElementById('omni-file-camera-A').click()" class="omni-source-btn" title="التقاط صور حية ومباشرة بكاميرا الجوال">
+                                    <i class="fa-solid fa-camera text-rose-400"></i>
+                                    <span>كاميرا مباشرة</span>
+                                </button>
+                                <input type="file" id="omni-file-camera-A" accept="image/*" capture="environment" class="hidden" onchange="handleOmniUpload(event, 'A', 'camera')">
 
                                 <button type="button" onclick="document.getElementById('omni-file-all-A').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Images)">
                                     <i class="fa-solid fa-folder-open text-amber-400"></i>
@@ -23321,11 +23327,17 @@ $pdo = getDBConnection();
                                     <span>دفتر الأستاذ العام (حسابات النظام)</span>
                                 </button>
                                 
-                                <button type="button" onclick="document.getElementById('omni-file-camera-B').click()" class="omni-source-btn" title="التقاط صور متعددة أو اختيارها من استوديو الجوال">
-                                    <i class="fa-solid fa-camera text-pink-400"></i>
-                                    <span>استوديو / كاميرا (صور متعددة)</span>
+                                <button type="button" onclick="document.getElementById('omni-file-gallery-B').click()" class="omni-source-btn" title="اختيار صور متعددة من استوديو ومعرض الصور بالجهاز">
+                                    <i class="fa-solid fa-images text-pink-400"></i>
+                                    <span>استوديو الصور (متعدد)</span>
                                 </button>
-                                <input type="file" id="omni-file-camera-B" accept="image/*" capture="environment" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'camera')">
+                                <input type="file" id="omni-file-gallery-B" accept="image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'gallery')">
+
+                                <button type="button" onclick="document.getElementById('omni-file-camera-B').click()" class="omni-source-btn" title="التقاط صور حية ومباشرة بكاميرا الجوال">
+                                    <i class="fa-solid fa-camera text-rose-400"></i>
+                                    <span>كاميرا مباشرة</span>
+                                </button>
+                                <input type="file" id="omni-file-camera-B" accept="image/*" capture="environment" class="hidden" onchange="handleOmniUpload(event, 'B', 'camera')">
 
                                 <button type="button" onclick="document.getElementById('omni-file-all-B').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Images)">
                                     <i class="fa-solid fa-folder-open text-amber-400"></i>
