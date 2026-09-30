@@ -23270,12 +23270,12 @@ $pdo = getDBConnection();
                                 </button>
                                 <input type="file" id="omni-file-all-A" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'file')">
 
-                                <button type="button" onclick="openWhatsAppImportModal('A')" class="omni-source-btn" title="استيراد وتفريغ إشعار أو رسالة واتساب أو ملفات الواتساب">
+                                <button type="button" onclick="openWhatsAppAction('A')" class="omni-source-btn" title="فتح واتساب مباشرة أو استيراد وتفريغ إشعار ومستندات الواتساب">
                                     <i class="fa-brands fa-whatsapp text-emerald-400"></i>
-                                    <span>واتساب</span>
+                                    <span>واتساب (فتح وجلب)</span>
                                 </button>
 
-                                <button type="button" onclick="pasteFromClipboard('A')" class="omni-source-btn" title="لصق جدول أو نص من الحافظة مباشرة">
+                                <button type="button" onclick="pasteFromClipboard('A')" class="omni-source-btn" title="لصق جدول أو صور أو نص من الحافظة مباشرة">
                                     <i class="fa-solid fa-paste text-indigo-400"></i>
                                     <span>لصق</span>
                                 </button>
@@ -23333,9 +23333,9 @@ $pdo = getDBConnection();
                                 </button>
                                 <input type="file" id="omni-file-all-B" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'file')">
 
-                                <button type="button" onclick="openWhatsAppImportModal('B')" class="omni-source-btn" title="استيراد وتفريغ إشعار أو رسالة واتساب أو ملفات الواتساب">
+                                <button type="button" onclick="openWhatsAppAction('B')" class="omni-source-btn" title="فتح واتساب مباشرة أو استيراد وتفريغ إشعار ومستندات الواتساب">
                                     <i class="fa-brands fa-whatsapp text-emerald-400"></i>
-                                    <span>واتساب</span>
+                                    <span>واتساب (فتح وجلب)</span>
                                 </button>
 
                                 <button type="button" onclick="pasteFromClipboard('B')" class="omni-source-btn" title="لصق جدول أو نص من الحافظة مباشرة">
@@ -23838,9 +23838,15 @@ $pdo = getDBConnection();
                                 <span class="text-xs text-slate-400 font-bold" id="recon-modal-target-side-label">سيتم التضمين في: الطرف الأول</span>
                             </div>
                         </div>
-                        <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <a href="general-ledger.php" target="_blank" class="px-3 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-400/40 text-xs font-bold flex items-center gap-1.5 transition" title="فتح شاشة دفتر الأستاذ العام في نافذة جديدة">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                <span>شاشة دفتر الأستاذ الكاملة</span>
+                            </a>
+                            <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Category Pills -->
@@ -23892,25 +23898,36 @@ $pdo = getDBConnection();
                         </button>
                     </div>
 
-                    <div class="space-y-2">
-                        <label class="block text-xs font-bold text-slate-300">ألصق (Ctrl+V) نصوص، جداول، صور، ولقطات شاشة مباشرة هنا أو في أي مكان بالشاشة:</label>
-                        <textarea id="recon-whatsapp-text-input" rows="5" placeholder="يمكنك لصق نصوص رسائل الواتساب، أو جداول الإكسيل، أو حتى لصق صور ولقطات شاشة (Screenshots) مباشرة من الحافظة ليتم التعرف عليها بالذكاء الاصطناعي..." class="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs sm:text-sm font-mono focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
+                    <!-- Quick Launchers Row -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        <a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" class="p-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50 transition transform hover:scale-[1.02]">
+                            <i class="fa-brands fa-whatsapp text-lg"></i>
+                            <span>فتح واتساب ويب في نافذة جديدة (Web)</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                        </a>
+                        <a href="whatsapp://" class="p-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-emerald-300 font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border border-emerald-500/40 transition">
+                            <i class="fa-solid fa-mobile-screen-button text-base text-emerald-400"></i>
+                            <span>فتح تطبيق واتساب بالجهاز (App)</span>
+                        </a>
                     </div>
 
-                    <div class="p-3.5 rounded-2xl bg-slate-950/70 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3">
-                        <button type="button" onclick="document.getElementById('omni-file-all-' + (window.RECON_ACTIVE_OMNI_SIDE || 'A')).click(); closeReconModals();" class="px-4 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/50 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
-                            <i class="fa-solid fa-folder-open text-emerald-400 text-sm"></i>
-                            <span>استعراض الصور، PDF، وملفات الواتساب</span>
-                        </button>
-                        <div class="flex items-center gap-2">
-                            <a href="whatsapp://" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-emerald-300 font-bold flex items-center gap-1.5 border border-slate-700 transition" title="يفتح تطبيق واتساب لنسخ الحركات (ثم العودة للصق هنا)">
-                                <i class="fa-brands fa-whatsapp text-sm text-emerald-400"></i>
-                                <span>فتح واتساب لنسخ حركة</span>
-                            </a>
-                            <a href="https://web.whatsapp.com" target="_blank" rel="noopener noreferrer" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs text-emerald-500 font-bold flex items-center transition" title="واتساب ويب">
-                                <i class="fa-solid fa-desktop"></i>
-                            </a>
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between">
+                            <label class="block text-xs font-bold text-slate-300">ألصق (Ctrl+V) نصوص، جداول، صور، ولقطات شاشة مباشرة هنا:</label>
+                            <button type="button" onclick="pasteFromClipboard(window.RECON_ACTIVE_OMNI_SIDE || 'A')" class="text-xs text-sky-400 hover:text-sky-300 font-bold flex items-center gap-1 cursor-pointer">
+                                <i class="fa-solid fa-paste"></i>
+                                <span>لصق تلقائي من الحافظة</span>
+                            </button>
                         </div>
+                        <textarea id="recon-whatsapp-text-input" rows="4" placeholder="يمكنك لصق نصوص رسائل الواتساب، أو جداول الإكسيل، أو حتى لصق صور ولقطات شاشة (Screenshots) مباشرة من الحافظة ليتم التعرف عليها بالذكاء الاصطناعي..." class="w-full p-4 rounded-2xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs sm:text-sm font-mono focus:border-emerald-400 focus:outline-none leading-relaxed"></textarea>
+                    </div>
+
+                    <div class="p-3 rounded-2xl bg-slate-950/70 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3">
+                        <button type="button" onclick="document.getElementById('omni-file-all-' + (window.RECON_ACTIVE_OMNI_SIDE || 'A')).click(); closeReconModals();" class="px-4 py-2.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/50 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
+                            <i class="fa-solid fa-folder-open text-amber-400 text-sm"></i>
+                            <span>استعراض ملفات وتنزيلات الواتساب (PDF / صور / إكسيل)</span>
+                        </button>
+                        <span class="text-[11px] text-slate-400 font-bold">💡 بعد نسخ أي صورة أو حركة من الواتساب اضغط (لصق)</span>
                     </div>
 
                     <div class="flex items-center justify-between pt-3 border-t border-slate-800">
@@ -26772,7 +26789,7 @@ $pdo = getDBConnection();
 <!-- Reconciliation Functions Diagnostic -->
 <script>
 (function(){
-    var fns = ['openSystemAccountSelector','openWhatsAppImportModal','pasteFromClipboard','handleOmniUpload',
+    var fns = ['openSystemAccountSelector','openWhatsAppImportModal','openWhatsAppAction','pasteFromClipboard','handleOmniUpload',
                'closeReconModals','initReconciliationSuite','loadReconciliationSampleData','selectSystemAccount',
                'submitWhatsAppImport','clearReconGlobalSearch'];
     var missing = [];

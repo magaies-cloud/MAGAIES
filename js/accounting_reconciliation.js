@@ -2691,6 +2691,20 @@
             }
         } catch(e) { console.warn('Failed loading customers:', e); }
 
+        // Fallback default customers if empty or to ensure essential accounts are present (including Aya Mahdi)
+        const defCusts = [
+            { id: 'CUST-MAHDI-01', code: 'CUST-109', name: 'آية مهدي', phone: '0912345678', category: 'العملاء', badgeColor: 'emerald', iconClass: 'fa-solid fa-user-check', balance: 18500000, currency: 'SDG', notes: 'كشف حساب عميل معتمد - آية مهدي' },
+            { id: 'CUST-MAHDI-02', code: 'CUST-110', name: 'همس مهدي', phone: '0923456789', category: 'العملاء', badgeColor: 'emerald', iconClass: 'fa-solid fa-user', balance: 7400000, currency: 'SDG', notes: 'عميل تجاري' },
+            { id: 'CUST-MAHDI-03', code: 'CUST-111', name: 'مهدي مصر', phone: '0901234567', category: 'العملاء', badgeColor: 'emerald', iconClass: 'fa-solid fa-user', balance: -12500000, currency: 'SDG', notes: 'مشتريات وعمليات توريد' },
+            { id: 'CUST-MAHDI-04', code: 'CUST-112', name: 'محمد عمار', phone: '0123456789', category: 'العملاء', badgeColor: 'emerald', iconClass: 'fa-solid fa-user', balance: 3500000, currency: 'SDG', notes: 'عميل رئيسي' },
+            { id: 'CUST-MAHDI-05', code: 'CUST-113', name: 'حسن علي', phone: '0912001122', category: 'العملاء', badgeColor: 'emerald', iconClass: 'fa-solid fa-user', balance: -4200000, currency: 'SDG', notes: 'عميل معتمد' }
+        ];
+        defCusts.forEach(dc => {
+            if (!accounts.some(a => a.name === dc.name || a.id === dc.id)) {
+                accounts.push(dc);
+            }
+        });
+
         // 4. Safes (الخزن والصناديق)
         try {
             const rawSafes = localStorage.getItem('erp_safes_v1');
@@ -2737,6 +2751,37 @@
 
         window.RECON_LOADED_ACCOUNTS = accounts;
         renderAccountsGrid(accounts);
+
+        // Background sync: Fetch latest live customers and suppliers from server database
+        if (!window.RECON_MASTER_DATA_FETCHED) {
+            window.RECON_MASTER_DATA_FETCHED = true;
+            fetch('api/get_master_data.php')
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.customers && Array.isArray(data.customers)) {
+                        data.customers.forEach(c => {
+                            if (c && c.name && !accounts.some(a => a.name === c.name || a.id === c.id)) {
+                                accounts.push({
+                                    id: c.id || c.code,
+                                    code: c.code || c.id,
+                                    name: c.name,
+                                    phone: c.phone || '',
+                                    category: 'العملاء',
+                                    badgeColor: 'emerald',
+                                    iconClass: 'fa-solid fa-user',
+                                    balance: parseFloat(c.currentBalance || c.balance || 0),
+                                    currency: c.currency || 'SDG',
+                                    notes: c.notes || 'عميل مسجل بقاعدة البيانات'
+                                });
+                            }
+                        });
+                        window.RECON_LOADED_ACCOUNTS = accounts;
+                        const currQuery = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim().toLowerCase();
+                        applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', currQuery);
+                    }
+                })
+                .catch(e => console.warn('Background master data fetch:', e));
+        }
     }
 
     function renderAccountsGrid(list) {
@@ -3181,9 +3226,37 @@
         return rows;
     }
 
-    // Paste directly from System Clipboard
+    // Paste directly from System Clipboard (Universal: Images, Excel Tables, Text)
     async function pasteFromClipboard(side) {
         window.RECON_ACTIVE_OMNI_SIDE = side || 'A';
+
+        // 1. Check if clipboard has images or files first
+        if (navigator.clipboard && typeof navigator.clipboard.read === 'function') {
+            try {
+                const items = await navigator.clipboard.read();
+                let hasImage = false;
+                for (const item of items) {
+                    for (const type of item.types) {
+                        if (type.startsWith('image/')) {
+                            hasImage = true;
+                            const blob = await item.getType(type);
+                            const file = new File([blob], `clipboard_image_${Date.now()}.png`, { type: blob.type });
+                            if (window.showModernToast) {
+                                window.showModernToast('📸 تم التقاط الصورة المنسوخة من الحافظة! جاري قراءتها بالذكاء الاصطناعي...', 'info', 3000);
+                            }
+                            const fakeEvent = { target: { files: [file], value: '' } };
+                            closeReconModals();
+                            handleOmniUpload(fakeEvent, side, 'clipboard');
+                            return;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('Clipboard.read() failed, trying readText():', err);
+            }
+        }
+
+        // 2. Read text or tabular data
         try {
             if (!navigator.clipboard || !navigator.clipboard.readText) {
                 openWhatsAppImportModal(side);
@@ -3192,6 +3265,9 @@
             const clipText = await navigator.clipboard.readText();
             if (!clipText || !clipText.trim()) {
                 openWhatsAppImportModal(side);
+                if (window.showModernToast) {
+                    window.showModernToast('الحافظة فارغة حالياً. انسخ حركة أو صورة من الواتساب ثم اضغط هنا.', 'warning', 3000);
+                }
                 return;
             }
 
@@ -3203,6 +3279,7 @@
                 if (window.showModernToast) {
                     window.showModernToast(`📋 تم قراءة ولصق جدول الحافظة بنجاح (${matrix.length - 1} حركة)!`, 'success', 3000);
                 }
+                closeReconModals();
                 return;
             }
 
@@ -3218,9 +3295,33 @@
         } catch (e) {
             console.warn('Clipboard read error, fallback to modal:', e);
             openWhatsAppImportModal(side);
+            if (window.showModernToast) {
+                window.showModernToast('يرجى الضغط على (Ctrl+V) للصق مباشرة داخل الحقل.', 'info', 3000);
+            }
         }
     }
     window.pasteFromClipboard = pasteFromClipboard;
+
+    // Direct WhatsApp Launcher & Helper
+    function openWhatsAppAction(side) {
+        window.RECON_ACTIVE_OMNI_SIDE = side || 'A';
+        
+        // 1. Direct deep-link to WhatsApp Web / App
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            window.location.href = 'whatsapp://';
+        } else {
+            window.open('https://web.whatsapp.com', '_blank');
+        }
+
+        // 2. Open companion modal ready to receive data
+        openWhatsAppImportModal(side);
+
+        if (window.showModernToast) {
+            window.showModernToast('💬 تم فتح الواتساب بنجاح! انسخ الصورة أو المستند من الواتساب، ثم الصقه هنا أو ارفعه.', 'success', 5000);
+        }
+    }
+    window.openWhatsAppAction = openWhatsAppAction;
 
     // Algorithmic overlap and duplicate statement row cleaner
     function deduplicateStatementRows(rows) {
