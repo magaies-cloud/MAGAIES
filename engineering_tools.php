@@ -41,7 +41,7 @@ $pdo = getDBConnection();
     <script src="js/hls.light.min.js"></script>
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
     <script src="js/xlsx.full.min.js"></script>
-    <script src="js/accounting_reconciliation.js?v=2026_recon_v4_search"></script>
+    <script src="js/accounting_reconciliation.js?v=2026_recon_v5_forensic"></script>
 
     <style>
 
@@ -23160,47 +23160,27 @@ $pdo = getDBConnection();
 
             <div class="recon-hero-glass">
                 
-                <!-- Suite Header -->
-                <div class="flex flex-wrap items-center justify-between gap-5 mb-6 pb-6 border-b border-indigo-500/20">
-                    <div class="flex items-center gap-4">
+                <!-- Suite Header (Clean, Modern, De-cluttered) -->
+                <div class="flex flex-wrap items-center justify-between gap-4 mb-6 pb-5 border-b border-indigo-500/20">
+                    <div class="flex items-center gap-3.5">
                         <div class="recon-icon-beacon">
                             <i class="fa-solid fa-scale-unbalanced-flip text-2xl text-indigo-300"></i>
                         </div>
-                        <div>
-                            <div class="flex items-center gap-3">
-                                <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-pink-300">
-                                    فحص وتدقيق الكشوفات وشيتات الإكسيل المعقدة واكتشاف وتفكيك أسباب الخلل المالي والفروقات
-                                </h3>
-                                <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 font-extrabold text-xs border border-indigo-400/40 hidden sm:inline-block">
-                                    AI Engine 2026
-                                </span>
-                            </div>
-                            <p class="text-xs sm:text-sm text-slate-300 font-bold mt-1">
-                                مقارنة وتطابق كشف حساب الطرف الأول (كشف الحساب الخاص) مع كشف حساب الطرف الثاني وفك شفرات الاختلافات الحسابية والمالية بالذكاء الاصطناعي
-                            </p>
-                            <!-- Smart Features Badges -->
-                            <div class="flex flex-wrap gap-2 mt-2.5">
-                                <span class="recon-chip recon-chip-ai">
-                                    <i class="fa-solid fa-brain"></i> Gemini 2026 AI
-                                </span>
-                                <span class="recon-chip recon-chip-ref">
-                                    <i class="fa-solid fa-fingerprint"></i> مطابقة لاحقة التحاويل (Suffix 4-6)
-                                </span>
-                                <span class="recon-chip recon-chip-date">
-                                    <i class="fa-solid fa-calendar-check"></i> مرونة المقاصة (1-3 أيام)
-                                </span>
-                                <span class="recon-chip recon-chip-fx">
-                                    <i class="fa-solid fa-coins"></i> تعادل الدولار والعملات
-                                </span>
-                            </div>
+                        <div class="flex items-center gap-3">
+                            <h3 class="text-xl sm:text-2xl lg:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-indigo-200 to-pink-300">
+                                فحص وتدقيق الكشوفات وشيتات الإكسيل واكتشاف الخلل المالي
+                            </h3>
+                            <span class="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 font-extrabold text-xs border border-indigo-400/40 hidden sm:inline-block">
+                                AI Suite 2026
+                            </span>
                         </div>
                     </div>
 
                     <!-- Quick Sample Loader Button & Reset -->
-                    <div class="flex items-center gap-2.5">
-                        <button type="button" onclick="loadReconciliationSampleData()" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-amber-500/25 via-orange-500/25 to-amber-600/25 hover:from-amber-500/35 hover:to-orange-500/35 border-2 border-amber-400/60 text-amber-200 text-xs sm:text-sm font-black flex items-center gap-2.5 cursor-pointer transition shadow-lg shadow-amber-950/40 hover:scale-[1.02]">
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="loadReconciliationSampleData()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/25 to-orange-500/25 hover:from-amber-500/35 hover:to-orange-500/35 border-2 border-amber-400/60 text-amber-200 text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer transition shadow-md hover:scale-[1.02]">
                             <i class="fa-solid fa-flask-vial text-base text-amber-300"></i>
-                            تحميل نموذج تجريبي جاهز (كشف الطرف الأول ↔ كشف الطرف الثاني)
+                            <span>تحميل نموذج تجريبي</span>
                         </button>
                         <button type="button" onclick="resetReconciliationSuite()" title="تفريغ الحقول والبدء من جديد" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700 transition cursor-pointer">
                             <i class="fa-solid fa-rotate-left"></i>
@@ -23208,42 +23188,42 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 🔍 GLOBAL OMNI RECONCILIATION SEARCH BAR (شريط البحث الشامل في أعلى فحص وتدقيق الكشوفات) -->
-                <div class="recon-global-search-box mb-8 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900/95 via-indigo-950/60 to-slate-900/95 border-2 border-indigo-500/40 shadow-2xl backdrop-blur-xl relative overflow-hidden">
-                    <div class="relative z-10 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
-                        <!-- Search Input Group -->
-                        <div class="relative flex-1">
-                            <span class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-indigo-400 text-lg">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </span>
-                            <input type="text" id="recon-global-search-input" 
-                                   oninput="handleReconGlobalSearch(this.value)" 
-                                   placeholder="🔍 بحث شامل وفوري: ابحث برقم العملية، رقم التحويلة، المبلغ، التاريخ، البيان، الفروقات، أو أطراف المعاملة..." 
-                                   class="w-full pr-12 pl-12 py-3.5 rounded-xl bg-slate-950/90 border-2 border-indigo-500/35 text-slate-100 placeholder-slate-400 text-sm font-bold focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/20 transition-all outline-none shadow-inner">
-                            <button type="button" id="btn-recon-search-clear" onclick="clearReconGlobalSearch()" 
-                                    class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 hover:text-rose-400 hidden transition cursor-pointer" title="تفريغ البحث">
-                                <i class="fa-solid fa-circle-xmark text-lg"></i>
-                            </button>
+                <!-- 🔍 GRAND FULL-WIDTH OMNI SEARCH BAR (شريط البحث الشامل العريض فائق الوضوح) -->
+                <div class="recon-global-search-box mb-8 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-slate-900/95 via-indigo-950/70 to-slate-900/95 border-2 border-indigo-500/50 shadow-2xl backdrop-blur-xl space-y-3">
+                    <!-- Grand Full-Width Search Input -->
+                    <div class="relative w-full">
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-sky-400 text-xl sm:text-2xl">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </span>
+                        <input type="text" id="recon-global-search-input" 
+                               oninput="handleReconGlobalSearch(this.value)" 
+                               placeholder="🔍 بحث شامل وفوري: ابحث برقم العملية، رقم التحويلة، المبلغ، التاريخ، البيان، الفروقات، أو أطراف المعاملة..." 
+                               class="w-full pr-14 pl-14 py-4 sm:py-4.5 rounded-2xl bg-slate-950/95 border-2 border-indigo-500/40 text-slate-100 placeholder-slate-400/80 text-sm sm:text-base lg:text-lg font-bold focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/30 transition-all outline-none shadow-2xl">
+                        <button type="button" id="btn-recon-search-clear" onclick="clearReconGlobalSearch()" 
+                                class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 hover:text-rose-400 hidden transition cursor-pointer" title="تفريغ البحث">
+                            <i class="fa-solid fa-circle-xmark text-xl sm:text-2xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Search Toolbar: Scope Filters & Counter -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                        <div class="flex flex-wrap items-center gap-1.5 bg-slate-950/80 p-1.5 rounded-xl border border-slate-700/60 text-xs font-bold text-slate-300">
+                            <span class="text-[11px] text-slate-400 px-2 font-black">نطاق البحث:</span>
+                            <button type="button" onclick="setReconSearchScope('all', this)" class="recon-scope-pill active">الكل</button>
+                            <button type="button" onclick="setReconSearchScope('sideA', this)" class="recon-scope-pill">كشف الطرف الأول</button>
+                            <button type="button" onclick="setReconSearchScope('sideB', this)" class="recon-scope-pill">كشف الطرف الثاني</button>
+                            <button type="button" onclick="setReconSearchScope('results', this)" class="recon-scope-pill">الفروقات والمعلقات</button>
                         </div>
-                        
-                        <!-- Search Filters & Badges -->
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span id="recon-search-badge" class="px-3.5 py-2 rounded-xl bg-indigo-500/20 text-indigo-300 font-black text-xs border border-indigo-400/40 hidden flex items-center gap-1.5 whitespace-nowrap shadow-md">
+                        <div class="flex items-center gap-2">
+                            <span id="recon-search-badge" class="px-3.5 py-1.5 rounded-xl bg-indigo-500/20 text-indigo-300 font-black text-xs border border-indigo-400/40 hidden flex items-center gap-1.5 whitespace-nowrap shadow-md">
                                 <i class="fa-solid fa-filter text-indigo-400"></i>
                                 <span id="recon-search-count-label">0 نتيجة</span>
                             </span>
-                            <div class="flex items-center gap-1 bg-slate-950/80 p-1.5 rounded-xl border border-slate-700/60 text-xs font-bold text-slate-300">
-                                <span class="text-[11px] text-slate-400 px-1.5">نطاق البحث:</span>
-                                <button type="button" onclick="setReconSearchScope('all', this)" class="recon-scope-pill active">الكل</button>
-                                <button type="button" onclick="setReconSearchScope('sideA', this)" class="recon-scope-pill">كشف الطرف الأول</button>
-                                <button type="button" onclick="setReconSearchScope('sideB', this)" class="recon-scope-pill">كشف الطرف الثاني</button>
-                                <button type="button" onclick="setReconSearchScope('results', this)" class="recon-scope-pill">الفروقات والمعلقات</button>
+                            <div id="recon-search-live-hint" class="text-[11px] text-slate-300 font-bold hidden flex items-center gap-2">
+                                <i class="fa-solid fa-lightbulb text-amber-400"></i>
+                                <span id="recon-search-hint-text"></span>
                             </div>
                         </div>
-                    </div>
-                    <div id="recon-search-live-hint" class="mt-2.5 text-[11px] text-slate-300 font-bold hidden flex items-center gap-2">
-                        <i class="fa-solid fa-lightbulb text-amber-400"></i>
-                        <span id="recon-search-hint-text"></span>
                     </div>
                 </div>
 
@@ -23277,17 +23257,17 @@ $pdo = getDBConnection();
                                     <span>حسابات النظام</span>
                                 </button>
                                 
-                                <button type="button" onclick="document.getElementById('omni-file-camera-A').click()" class="omni-source-btn" title="التقاط صورة أو اختيارها من استوديو الجوال">
+                                <button type="button" onclick="document.getElementById('omni-file-camera-A').click()" class="omni-source-btn" title="التقاط صور متعددة أو اختيارها من استوديو الجوال">
                                     <i class="fa-solid fa-camera text-pink-400"></i>
-                                    <span>استوديو / كاميرا</span>
+                                    <span>استوديو / كاميرا (صور متعددة)</span>
                                 </button>
-                                <input type="file" id="omni-file-camera-A" accept="image/*" capture="environment" class="hidden" onchange="handleOmniUpload(event, 'A', 'camera')">
+                                <input type="file" id="omni-file-camera-A" accept="image/*" capture="environment" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'camera')">
 
-                                <button type="button" onclick="document.getElementById('omni-file-all-A').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Image)">
+                                <button type="button" onclick="document.getElementById('omni-file-all-A').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Images)">
                                     <i class="fa-solid fa-folder-open text-amber-400"></i>
                                     <span>تنزيلات / ملفات</span>
                                 </button>
-                                <input type="file" id="omni-file-all-A" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" class="hidden" onchange="handleOmniUpload(event, 'A', 'file')">
+                                <input type="file" id="omni-file-all-A" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'file')">
 
                                 <button type="button" onclick="openWhatsAppImportModal('A')" class="omni-source-btn" title="استيراد وتفريغ إشعار أو رسالة واتساب">
                                     <i class="fa-brands fa-whatsapp text-emerald-400"></i>
@@ -23306,10 +23286,10 @@ $pdo = getDBConnection();
                                         <i class="fa-solid fa-cloud-arrow-up"></i>
                                     </div>
                                     <span class="font-extrabold text-sm text-slate-100 group-hover:text-sky-300 transition">اسحب وأفلت كشف حساب الطرف الأول هنا أو اختر من الأزرار أعلاه</span>
-                                    <span class="text-xs text-slate-400 mt-1">يقبل إكسيل · صور · PDF · وورد · نصوص</span>
+                                    <span class="text-xs text-slate-400 mt-1">يقبل إكسيل · صور متعددة متتالية · PDF · وورد · نصوص</span>
                                 </label>
                             </div>
-                            <input type="file" id="recon-file-input-A" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" class="hidden" onchange="handleOmniUpload(event, 'A', 'file')">
+                            <input type="file" id="recon-file-input-A" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'file')">
 
                             <div id="recon-map-badges-A"></div>
                         </div>
@@ -23340,17 +23320,17 @@ $pdo = getDBConnection();
                                     <span>حسابات النظام</span>
                                 </button>
                                 
-                                <button type="button" onclick="document.getElementById('omni-file-camera-B').click()" class="omni-source-btn" title="التقاط صورة أو اختيارها من استوديو الجوال">
+                                <button type="button" onclick="document.getElementById('omni-file-camera-B').click()" class="omni-source-btn" title="التقاط صور متعددة أو اختيارها من استوديو الجوال">
                                     <i class="fa-solid fa-camera text-pink-400"></i>
-                                    <span>استوديو / كاميرا</span>
+                                    <span>استوديو / كاميرا (صور متعددة)</span>
                                 </button>
-                                <input type="file" id="omni-file-camera-B" accept="image/*" capture="environment" class="hidden" onchange="handleOmniUpload(event, 'B', 'camera')">
+                                <input type="file" id="omni-file-camera-B" accept="image/*" capture="environment" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'camera')">
 
-                                <button type="button" onclick="document.getElementById('omni-file-all-B').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Image)">
+                                <button type="button" onclick="document.getElementById('omni-file-all-B').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Images)">
                                     <i class="fa-solid fa-folder-open text-amber-400"></i>
                                     <span>تنزيلات / ملفات</span>
                                 </button>
-                                <input type="file" id="omni-file-all-B" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" class="hidden" onchange="handleOmniUpload(event, 'B', 'file')">
+                                <input type="file" id="omni-file-all-B" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'file')">
 
                                 <button type="button" onclick="openWhatsAppImportModal('B')" class="omni-source-btn" title="استيراد وتفريغ إشعار أو رسالة واتساب">
                                     <i class="fa-brands fa-whatsapp text-emerald-400"></i>
@@ -23369,10 +23349,10 @@ $pdo = getDBConnection();
                                         <i class="fa-solid fa-cloud-arrow-up"></i>
                                     </div>
                                     <span class="font-extrabold text-sm text-slate-100 group-hover:text-purple-300 transition">اسحب وأفلت كشف حساب الطرف الثاني هنا أو اختر من الأزرار أعلاه</span>
-                                    <span class="text-xs text-slate-400 mt-1">يقبل إكسيل · صور · PDF · وورد · نصوص</span>
+                                    <span class="text-xs text-slate-400 mt-1">يقبل إكسيل · صور متعددة متتالية · PDF · وورد · نصوص</span>
                                 </label>
                             </div>
-                            <input type="file" id="recon-file-input-B" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" class="hidden" onchange="handleOmniUpload(event, 'B', 'file')">
+                            <input type="file" id="recon-file-input-B" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'file')">
 
                             <div id="recon-map-badges-B"></div>
                         </div>
@@ -23498,12 +23478,60 @@ $pdo = getDBConnection();
 
                     </div>
 
+                    <!-- 💎 MULTI-DIMENSIONAL FORENSIC MATRIX (التشخيص المالي رباعي الأبعاد: مدين / دائن / محلي / أجنبي) -->
+                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 p-3.5 rounded-2xl bg-slate-950/70 border border-indigo-500/30">
+                        <div class="p-3 rounded-xl bg-slate-900/80 border border-sky-500/25 flex items-center justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold text-slate-400 block">فارق إجمالي المدين:</span>
+                                <span class="font-mono font-black text-sm text-sky-300" id="recon-forensic-debit-diff">0.00</span>
+                            </div>
+                            <span class="w-8 h-8 rounded-lg bg-sky-500/15 text-sky-400 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-arrow-trend-up"></i>
+                            </span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-900/80 border border-purple-500/25 flex items-center justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold text-slate-400 block">فارق إجمالي الدائن:</span>
+                                <span class="font-mono font-black text-sm text-purple-300" id="recon-forensic-credit-diff">0.00</span>
+                            </div>
+                            <span class="w-8 h-8 rounded-lg bg-purple-500/15 text-purple-400 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-arrow-trend-down"></i>
+                            </span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-900/80 border border-emerald-500/25 flex items-center justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold text-slate-400 block">فارق الرصيد المحلي (SDG):</span>
+                                <span class="font-mono font-black text-sm text-emerald-300" id="recon-forensic-local-diff">0.00</span>
+                            </div>
+                            <span class="w-8 h-8 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-money-bill-wave"></i>
+                            </span>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-900/80 border border-amber-500/25 flex items-center justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold text-slate-400 block">تعادل العملات الأجنبية (USD/SAR):</span>
+                                <span class="font-mono font-black text-sm text-amber-300" id="recon-forensic-fx-diff">متكافئ 100%</span>
+                            </div>
+                            <span class="w-8 h-8 rounded-lg bg-amber-500/15 text-amber-400 flex items-center justify-center text-xs">
+                                <i class="fa-solid fa-coins"></i>
+                            </span>
+                        </div>
+                    </div>
+
                     <!-- Filter Tabs & Actions Bar -->
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-500/20 pb-3">
                         <div class="flex flex-wrap items-center gap-2">
                             <button type="button" id="btn-recon-tab-ai_audit" onclick="switchReconTab('ai_audit')" class="recon-tab-pill active">
                                 <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
                                 <span>تقرير الذكاء الاصطناعي ومذكرة التسوية</span>
+                            </button>
+                            <button type="button" id="btn-recon-tab-waterfall" onclick="switchReconTab('waterfall')" class="recon-tab-pill">
+                                <i class="fa-solid fa-chart-line text-cyan-400"></i>
+                                <span>مسار الرصيد والتراكمي (<span id="recon-count-drift-events">0</span> انحراف)</span>
+                            </button>
+                            <button type="button" id="btn-recon-tab-fx" onclick="switchReconTab('fx')" class="recon-tab-pill">
+                                <i class="fa-solid fa-coins text-emerald-400"></i>
+                                <span>فروقات أسعار الصرف (<span id="recon-count-fx">0</span>)</span>
                             </button>
                             <button type="button" id="btn-recon-tab-combinatorial" onclick="switchReconTab('combinatorial')" class="recon-tab-pill">
                                 <i class="fa-solid fa-link text-sky-400"></i>
@@ -23700,6 +23728,91 @@ $pdo = getDBConnection();
                             <!-- Critical Aging Alert Box -->
                             <div id="recon-aging-critical-list" class="space-y-3 pt-2">
                                 <!-- Populated dynamically -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 7: Cumulative Running Balance Drift & Waterfall (الفروقات التراكمية ومسار الرصيد) -->
+                    <div id="recon-sec-waterfall" class="recon-result-section hidden space-y-5">
+                        <div class="p-6 sm:p-7 rounded-2xl bg-slate-900/85 border border-cyan-500/35 space-y-5">
+                            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-cyan-500/20">
+                                <div>
+                                    <h5 class="font-black text-sm sm:text-base text-cyan-300 flex items-center gap-2">
+                                        <i class="fa-solid fa-chart-line text-cyan-400"></i>
+                                        مسار الرصيد التراكمي وتحديد نقطة انطلاق الخلل المالي (Cumulative Drift & Baseline Inception):
+                                    </h5>
+                                    <p class="text-xs text-slate-300 mt-1">تتبع التدفق الزمني المتتابع للفروقات بين رصيد كشف الطرف الأول ورصيد الطرف الثاني، لعزل فارق الرصيد السابق الموروث عن حركات الفترة الحالية</p>
+                                </div>
+                                <span class="px-3.5 py-1.5 rounded-xl bg-cyan-500/15 text-cyan-300 font-extrabold text-xs border border-cyan-500/30 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-water"></i>
+                                    Waterfall Engine
+                                </span>
+                            </div>
+
+                            <!-- Inception Alert Banner -->
+                            <div id="recon-waterfall-inception-alert" class="p-4 rounded-xl bg-slate-950/80 border border-slate-700 space-y-2">
+                                <!-- Populated dynamically by renderWaterfallTimeline -->
+                            </div>
+
+                            <!-- Waterfall Timeline Table -->
+                            <div class="overflow-x-auto custom-scrollbar max-h-[500px]">
+                                <table class="w-full text-right">
+                                    <thead>
+                                        <tr class="text-[11px] text-slate-400 border-b border-slate-800 bg-slate-950/60 sticky top-0 z-10 backdrop-blur-md">
+                                            <th class="p-2.5">#</th>
+                                            <th class="p-2.5">التاريخ</th>
+                                            <th class="p-2.5">الطرف المقيد</th>
+                                            <th class="p-2.5">المرجع والبيان</th>
+                                            <th class="p-2.5 text-center">أثر الحركة على الرصيد</th>
+                                            <th class="p-2.5 text-center">رصيد الطرف الأول التراكمي</th>
+                                            <th class="p-2.5 text-center">رصيد الطرف الثاني التراكمي</th>
+                                            <th class="p-2.5 text-center">الفارق اللحظي (Delta)</th>
+                                            <th class="p-2.5 text-center">تشخيص الخطوة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recon-table-waterfall-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 8: FX Currency Variances (فروقات أسعار الصرف والعملات الأجنبية) -->
+                    <div id="recon-sec-fx" class="recon-result-section hidden space-y-5">
+                        <div class="p-6 sm:p-7 rounded-2xl bg-slate-900/85 border border-emerald-500/35 space-y-5">
+                            <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-emerald-500/20">
+                                <div>
+                                    <h5 class="font-black text-sm sm:text-base text-emerald-300 flex items-center gap-2">
+                                        <i class="fa-solid fa-coins text-emerald-400"></i>
+                                        فروقات أسعار الصرف وتقلبات العملة (Dynamic FX Drift Diagnostics):
+                                    </h5>
+                                    <p class="text-xs text-slate-300 mt-1">عزل الفروقات الناتجة عن اختلاف سعر تقييم الدولار اليومي بين الطرفين عن الفروقات الحقيقية في كمية الأموال المسددة</p>
+                                </div>
+                                <span class="px-3.5 py-1.5 rounded-xl bg-emerald-500/15 text-emerald-300 font-extrabold text-xs border border-emerald-500/30 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-money-bill-transfer"></i>
+                                    FX Revaluation Detector
+                                </span>
+                            </div>
+
+                            <div id="recon-fx-summary-banner" class="p-4 rounded-xl bg-slate-950/80 border border-emerald-500/30 space-y-2">
+                                <!-- Populated dynamically by renderFXVariances -->
+                            </div>
+
+                            <div class="overflow-x-auto custom-scrollbar max-h-96">
+                                <table class="w-full text-right">
+                                    <thead>
+                                        <tr class="text-[11px] text-slate-400 border-b border-slate-800 bg-slate-950/60 sticky top-0 z-10 backdrop-blur-md">
+                                            <th class="p-2.5">#</th>
+                                            <th class="p-2.5">التاريخ والمرجع</th>
+                                            <th class="p-2.5">البيان</th>
+                                            <th class="p-2.5 text-center">أصل المبلغ بالعملة الأجنبية</th>
+                                            <th class="p-2.5 text-center">قيد كشف الطرف الأول</th>
+                                            <th class="p-2.5 text-center">قيد كشف الطرف الثاني</th>
+                                            <th class="p-2.5 text-center">فارق تقييم سعر الصرف</th>
+                                            <th class="p-2.5 text-center">إجراء التسوية المحاسبي</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="recon-table-fx-body"></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

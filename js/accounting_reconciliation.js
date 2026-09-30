@@ -64,6 +64,8 @@
             // Combinatorial match: 2 split transfers settling invoice INV-104 (5,000,000)
             ["2026-06-24", "TRX-SPLIT-1", "تحويل بنكك سداد دفعة فاتورة 104 (دفعة 1 سقف يومي)", 3000000, 0, -10960000, 6000, 500],
             ["2026-06-24", "TRX-SPLIT-2", "تحويل بنكك سداد دفعة فاتورة 104 (دفعة 2 سقف يومي)", 2000000, 0, -8960000, 6000, 333.33],
+            // FX Currency variance test (1,000$ USD booked at 6,000 vs 6,050 -> 50,000 SDG FX drift)
+            ["2026-06-25", "TRX-USD-770", "حوالة بنكية بالدولار (1,000$) مسجلة بسعر صرف 6,000", 6000000, 0, -2960000, 6000, 1000],
             // Aged critical item (dated April 2026 -> >60 days old)
             ["2026-04-12", "OLD-CHQ-109", "شيك مسحوب رقم 109 معلق بالطريق لم يصرفه الطرف الثاني", 1800000, 0, -7160000, 5800, 310.34]
         ];
@@ -81,6 +83,8 @@
             ["2026-06-22", "TRX-661200", "إشعار تحويل بنك فيصل فوري", 4000000, 0, 17800000, 666.67],
             // Target single invoice matched by 2 split transfers (3M + 2M = 5M)
             ["2026-06-24", "INV-104", "فاتورة توريد زوايا حديد مبوم طلبية 104", 0, 5000000, 22800000, 833.33],
+            // FX Currency variance test (1,000$ USD booked at 6,050 -> 50,000 SDG FX drift)
+            ["2026-06-25", "TRX-USD-770", "إشعار تحويل بالدولار (1,000$) مقيد بسعر صرف 6,050 (فارق تقييم صرف)", 6050000, 0, 16750000, 1000],
             // Aged critical item
             ["2026-04-10", "OLD-FEE-88", "رسوم أرضيات ومستودع قديمة لم تسجل في كشف الطرف الأول", 0, 450000, 23250000, 77.59]
         ];
@@ -425,17 +429,33 @@
                 const diff = amtA - amtB;
                 const absDiff = Math.abs(diff);
                 const isTransposition = (Math.round(absDiff) % 9 === 0) && absDiff > 0;
+
+                // Dynamic FX Fluctuation Diagnostics
+                const descCombined = ((rowA.desc || '') + ' ' + (bestMatchB.desc || '') + ' ' + (rowA.currency || '') + ' ' + (bestMatchB.currency || '')).toLowerCase();
+                const hasFxIndicator = descCombined.includes('دولار') || descCombined.includes('usd') || descCombined.includes('sar') || descCombined.includes('ريال') || descCombined.includes('صرف') || descCombined.includes('سعر') || (rowA.fx_rate > 0) || (bestMatchB.fx_rate > 0);
+                const ratio = (amtA > 0 && amtB > 0) ? (Math.max(amtA, amtB) / Math.min(amtA, amtB)) : 1;
+                const isFxVariance = (!isTransposition && (hasFxIndicator || (ratio > 1.002 && ratio < 1.30 && absDiff >= 100)));
+
                 let explanation = `نفس رقم العملية (${rowA.ref} مقابل ${bestMatchB.ref})، لكن مسجل في كشف الطرف الأول بمبلغ ${formatMoney(amtA)} ومسجل في كشف الطرف الثاني بمبلغ ${formatMoney(amtB)}، بفارق ${formatMoney(absDiff)}.`;
                 if (isTransposition) {
                     explanation += ` (⚠️ كشف جنائي: الفارق ${formatMoney(absDiff)} يقبل القسمة على 9 تماماً، مما يرجح بنسبة 99% وجود خطأ إدخال بتبديل خانات الأرقام Transposition Error).`;
+                } else if (isFxVariance) {
+                    explanation += ` (💱 تشخيص العملات الأجنبية: الفارق ناتج عن تباين سعر تقييم صرف العملة اليومي FX Rate Drift بين قيد الطرفين وليس نقصاً في أصل الدفعة المسددة).`;
                 }
+
+                let title = 'اختلاف في مبلغ التحويلة لنفس الرقم المرجعي';
+                if (isTransposition) title = 'تبديل خانات أرقام (قاعدة التسعة) لنفس التحويلة';
+                else if (isFxVariance) title = 'فارق سعر صرف وتقلبات عملة (FX Rate Drift)';
+
                 varianceMatches.push({
                     rowA: rowA,
                     rowB: bestMatchB,
-                    type: 'amount_variance',
-                    title: isTransposition ? 'تبديل خانات أرقام (قاعدة التسعة) لنفس التحويلة' : 'اختلاف في مبلغ التحويلة لنفس الرقم المرجعي',
+                    type: isFxVariance ? 'fx_rate_variance' : 'amount_variance',
+                    title: title,
                     diff: diff,
                     isTransposition: isTransposition,
+                    isFxVariance: isFxVariance,
+                    foreignBase: (rowA.foreignAmt || bestMatchB.foreignAmt) ? `${rowA.foreignAmt || bestMatchB.foreignAmt} $` : '1,000 $',
                     explanation: explanation
                 });
             }
@@ -569,6 +589,22 @@
         stateB.mappedRows.forEach(r => { if (r.matched) matchedRowCount++; });
         const matchRate = totalRows > 0 ? Math.round((matchedRowCount / totalRows) * 100) : 0;
 
+        // ── Level 4.8: FX Currency Variances List ──
+        const fxVariances = varianceMatches.filter(v => v.isFxVariance);
+
+        // ── Level 4.9: Cumulative Running Balance Drift Waterfall ──
+        const waterfall = computeCumulativeWaterfall(stateA, stateB);
+
+        // Multi-dimensional metrics
+        const totalDebitA = stateA.summary.debit || 0;
+        const totalCreditA = stateA.summary.credit || 0;
+        const totalDebitB = stateB.summary.debit || 0;
+        const totalCreditB = stateB.summary.credit || 0;
+
+        const debitVariance = totalDebitA - totalCreditB;
+        const creditVariance = totalCreditA - totalDebitB;
+        const localVariance = balA - balB;
+
         window.RECON_STATE.results = {
             exactMatches,
             varianceMatches,
@@ -576,6 +612,11 @@
             unmatchedA,
             unmatchedB,
             agingBuckets,
+            fxVariances,
+            waterfall,
+            debitVariance,
+            creditVariance,
+            localVariance,
             netVariance,
             matchRate
         };
@@ -619,6 +660,118 @@
         }
 
         return false;
+    }
+
+    // ────────────────────────────────────────────────────────────────
+    // Cumulative Running Balance Drift Waterfall & Baseline Inception Point Engine
+    // ────────────────────────────────────────────────────────────────
+    function computeCumulativeWaterfall(stateA, stateB) {
+        const events = [];
+
+        // Extract rows from Party A
+        stateA.mappedRows.forEach(r => {
+            const net = (r.debit || 0) - (r.credit || 0);
+            events.push({
+                date: r.date || '2026-01-01',
+                side: 'A',
+                sideLabel: 'كشف حساب الطرف الأول (كشف الحساب الخاص)',
+                ref: r.ref || '-',
+                desc: r.desc || '-',
+                debit: r.debit || 0,
+                credit: r.credit || 0,
+                amount: r.amount || 0,
+                netEffect: net,
+                row: r
+            });
+        });
+
+        // Extract rows from Party B (credit in B corresponds to debit in A)
+        stateB.mappedRows.forEach(r => {
+            const net = (r.credit || 0) - (r.debit || 0);
+            events.push({
+                date: r.date || '2026-01-01',
+                side: 'B',
+                sideLabel: 'كشف حساب الطرف الثاني (كشف حساب الطرف المقابل)',
+                ref: r.ref || '-',
+                desc: r.desc || '-',
+                debit: r.debit || 0,
+                credit: r.credit || 0,
+                amount: r.amount || 0,
+                netEffect: net,
+                row: r
+            });
+        });
+
+        // Chronological Sort
+        events.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+        let runningA = 0;
+        let runningB = 0;
+        let prevDelta = 0;
+        let inceptionPoint = null;
+        const timeline = [];
+
+        events.forEach((ev, idx) => {
+            if (ev.side === 'A') {
+                runningA += ev.netEffect;
+            } else {
+                runningB += ev.netEffect;
+            }
+
+            const currentDelta = Math.round((runningA - runningB) * 100) / 100;
+            const stepShift = Math.round((currentDelta - prevDelta) * 100) / 100;
+            let stepDiagnosis = '';
+            let stepBadgeClass = '';
+
+            if (prevDelta === 0 && currentDelta !== 0 && !inceptionPoint) {
+                inceptionPoint = {
+                    stepIndex: idx + 1,
+                    date: ev.date,
+                    side: ev.side,
+                    ref: ev.ref,
+                    desc: ev.desc,
+                    delta: currentDelta,
+                    amount: ev.amount
+                };
+                stepDiagnosis = '⚡ نقطة انطلاق الخلل الأولى (Baseline Inception Point)';
+                stepBadgeClass = 'bg-rose-500/20 text-rose-300 border-rose-500/40';
+            } else if (stepShift !== 0) {
+                stepDiagnosis = `⚠️ اتساع الفارق التراكمي بمقدار ${formatMoney(Math.abs(stepShift))}`;
+                stepBadgeClass = 'bg-amber-500/20 text-amber-300 border-amber-500/40';
+            } else {
+                stepDiagnosis = '✓ حركة متوازنة (توريث الفارق السابق دون زيادة)';
+                stepBadgeClass = 'bg-slate-800 text-slate-300 border-slate-700';
+            }
+
+            timeline.push({
+                index: idx + 1,
+                date: ev.date,
+                side: ev.side,
+                sideLabel: ev.sideLabel,
+                ref: ev.ref,
+                desc: ev.desc,
+                netEffect: ev.netEffect,
+                runningA: runningA,
+                runningB: runningB,
+                delta: currentDelta,
+                stepShift: stepShift,
+                stepDiagnosis: stepDiagnosis,
+                stepBadgeClass: stepBadgeClass,
+                isShift: stepShift !== 0,
+                isInception: (inceptionPoint && inceptionPoint.stepIndex === idx + 1)
+            });
+
+            prevDelta = currentDelta;
+        });
+
+        const driftEventsCount = timeline.filter(t => t.isShift).length;
+
+        return {
+            timeline,
+            inceptionPoint,
+            driftEventsCount,
+            finalDelta: prevDelta
+        };
     }
 
     function getDayDifference(d1, d2) {
@@ -882,12 +1035,43 @@
         const elCountAgingRisk = document.getElementById('recon-count-aging-risk');
         if (elCountAgingRisk) elCountAgingRisk.textContent = criticalCount;
 
+        // Update 4-Pillar Multi-Dimensional Forensic Matrix
+        const debDiffEl = document.getElementById('recon-forensic-debit-diff');
+        if (debDiffEl) debDiffEl.textContent = formatMoney(res.debitVariance || 0);
+
+        const credDiffEl = document.getElementById('recon-forensic-credit-diff');
+        if (credDiffEl) credDiffEl.textContent = formatMoney(res.creditVariance || 0);
+
+        const locDiffEl = document.getElementById('recon-forensic-local-diff');
+        if (locDiffEl) locDiffEl.textContent = formatMoney(res.localVariance || 0);
+
+        const fxDiffEl = document.getElementById('recon-forensic-fx-diff');
+        if (fxDiffEl) {
+            if (res.fxVariances && res.fxVariances.length > 0) {
+                const totalFx = res.fxVariances.reduce((acc, f) => acc + Math.abs(f.diff), 0);
+                fxDiffEl.textContent = `فارق صرف ${formatMoney(totalFx)}`;
+                fxDiffEl.className = 'font-mono font-black text-sm text-amber-400';
+            } else {
+                fxDiffEl.textContent = 'متكافئ 100%';
+                fxDiffEl.className = 'font-mono font-black text-sm text-emerald-400';
+            }
+        }
+
+        // Update counts for new tabs
+        const driftCountEl = document.getElementById('recon-count-drift-events');
+        if (driftCountEl) driftCountEl.textContent = res.waterfall ? res.waterfall.driftEventsCount : 0;
+
+        const fxCountEl = document.getElementById('recon-count-fx');
+        if (fxCountEl) fxCountEl.textContent = res.fxVariances ? res.fxVariances.length : 0;
+
         // Render Tables for Sub-Tabs
         renderExactMatchesTable();
         renderVariancesTable();
         renderUnmatchedTables();
         renderCombinatorialMatches();
         renderAgingMatrix();
+        renderWaterfallTimeline();
+        renderFXVariances();
 
         // Switch to AI tab by default
         switchReconTab('ai_audit');
@@ -1061,6 +1245,15 @@
                 </div>
             ` : '';
 
+            const fxBadge = v.isFxVariance ? `
+                <div class="mt-1">
+                    <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/40 inline-flex items-center gap-1">
+                        <i class="fa-solid fa-coins"></i>
+                        فارق سعر صرف وتقلبات عملة (FX Drift)
+                    </span>
+                </div>
+            ` : '';
+
             const actionBtn = v.isAdjusted ? `
                 <span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] border border-emerald-500/40">✓ تم قيد التسوية</span>
             ` : `
@@ -1075,7 +1268,7 @@
                     <td class="p-2.5 text-center font-bold text-slate-400">${idx + 1}</td>
                     <td class="p-2.5 font-mono text-slate-300">${v.rowA.date} ↔ ${v.rowB.date}</td>
                     <td class="p-2.5 font-mono font-black text-amber-400">${v.rowA.ref}</td>
-                    <td class="p-2.5 text-slate-200 leading-relaxed">${v.explanation} ${transpositionBadge}</td>
+                    <td class="p-2.5 text-slate-200 leading-relaxed">${v.explanation} ${transpositionBadge} ${fxBadge}</td>
                     <td class="p-2.5 text-center font-mono text-slate-200">${formatMoney(v.rowA.amount)}</td>
                     <td class="p-2.5 text-center font-mono text-slate-200">${formatMoney(v.rowB.amount)}</td>
                     <td class="p-2.5 text-center font-mono font-black text-rose-400">${formatMoney(absDiff)}</td>
@@ -1302,6 +1495,136 @@
                 `;
             }
         }
+    }
+
+    function renderWaterfallTimeline() {
+        const waterfall = window.RECON_STATE.results.waterfall;
+        const tbody = document.getElementById('recon-table-waterfall-body');
+        const alertBox = document.getElementById('recon-waterfall-inception-alert');
+        if (!tbody || !waterfall) return;
+
+        if (alertBox) {
+            if (waterfall.inceptionPoint) {
+                const inc = waterfall.inceptionPoint;
+                alertBox.innerHTML = `
+                    <div class="flex items-start gap-3.5">
+                        <span class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-lg mt-0.5 border border-rose-500/40 shadow-md">
+                            <i class="fa-solid fa-flag-checkered"></i>
+                        </span>
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <h6 class="font-black text-sm text-rose-300">تم تحديد نقطة انطلاق الخلل المحاسبي بدقة (Baseline Inception Point)</h6>
+                                <span class="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 text-[10px] font-mono font-bold">حركة رقم ${inc.stepIndex}</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                بدأ التباين بين الكشفين أول مرة بتاريخ <strong class="text-sky-300 font-mono">${inc.date}</strong> عند قيد عملية (<span class="text-amber-300 font-bold">${inc.desc}</span> - مرجع: <span class="font-mono text-amber-400">${inc.ref}</span>) بمبلغ <strong class="text-rose-400 font-mono">${formatMoney(Math.abs(inc.amount))}</strong> لدى <span class="text-indigo-300 font-bold">${inc.side === 'A' ? 'كشف حساب الطرف الأول' : 'كشف حساب الطرف الثاني'}</span>، حيث كان الرصيد قبل هذه العملية متطابقاً تماماً (Zero Delta).
+                            </p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                alertBox.innerHTML = `
+                    <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+                        <i class="fa-solid fa-circle-check text-base"></i>
+                        <span>مسار الرصيد متطابق تماماً على مدار كافة الحركات الزمنية دون أي انحراف (Zero Cumulative Drift).</span>
+                    </div>
+                `;
+            }
+        }
+
+        if (waterfall.timeline.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" class="text-center py-8 text-slate-400 font-bold">لا توجد حركات مسجلة.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = waterfall.timeline.map(t => {
+            const rowBg = t.isInception ? 'bg-rose-500/15 border-rose-500/40' : (t.isShift ? 'bg-amber-500/5' : 'hover:bg-slate-800/40');
+            const sideColor = t.side === 'A' ? 'text-sky-400' : 'text-purple-400';
+            const netSign = t.netEffect >= 0 ? '+' : '';
+            const netColor = t.netEffect >= 0 ? 'text-emerald-400' : 'text-rose-400';
+
+            return `
+                <tr class="border-b border-slate-800/60 text-xs transition ${rowBg}">
+                    <td class="p-2.5 text-center font-bold text-slate-400">${t.index}</td>
+                    <td class="p-2.5 font-mono text-slate-300">${t.date}</td>
+                    <td class="p-2.5 font-bold ${sideColor}">${t.side === 'A' ? 'الطرف الأول' : 'الطرف الثاني'}</td>
+                    <td class="p-2.5">
+                        <span class="font-mono font-bold text-amber-300 text-[11px] block">${t.ref}</span>
+                        <span class="text-slate-200 text-xs">${t.desc}</span>
+                    </td>
+                    <td class="p-2.5 text-center font-mono font-black ${netColor}">${netSign}${formatMoney(t.netEffect)}</td>
+                    <td class="p-2.5 text-center font-mono font-bold text-sky-300">${formatMoney(t.runningA)}</td>
+                    <td class="p-2.5 text-center font-mono font-bold text-purple-300">${formatMoney(t.runningB)}</td>
+                    <td class="p-2.5 text-center font-mono font-black ${Math.abs(t.delta) > 1 ? 'text-rose-400' : 'text-emerald-400'}">${formatMoney(t.delta)}</td>
+                    <td class="p-2.5 text-center">
+                        <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold border inline-block ${t.stepBadgeClass}">
+                            ${t.stepDiagnosis}
+                        </span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function renderFXVariances() {
+        const fxList = window.RECON_STATE.results.fxVariances || [];
+        const tbody = document.getElementById('recon-table-fx-body');
+        const banner = document.getElementById('recon-fx-summary-banner');
+        if (!tbody) return;
+
+        if (banner) {
+            if (fxList.length > 0) {
+                const totalFxDiff = fxList.reduce((acc, f) => acc + Math.abs(f.diff), 0);
+                banner.innerHTML = `
+                    <div class="flex items-start gap-3.5">
+                        <span class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg mt-0.5 border border-emerald-500/40 shadow-md">
+                            <i class="fa-solid fa-coins"></i>
+                        </span>
+                        <div class="space-y-1">
+                            <h6 class="font-black text-sm text-emerald-300">تم رصد (${fxList.length}) عمليات فيها فروقات صرف وتقلبات عملة بإجمالي ${formatMoney(totalFxDiff)}</h6>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                هذه العمليات تم إثباتها وسدادها لدى الطرفين، ولكن اختلاف سعر الصرف المعتمد في يوم التحويل بين دفاتر الطرف الأول ودفاتر الطرف الثاني ولد هذا الفارق المحاسبي. التسوية المطلوبة هي قيد أرباح/خسائر فروق عملة وليس مطالبة سداد.
+                            </p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                banner.innerHTML = `
+                    <div class="flex items-center gap-2 text-emerald-400 font-bold text-xs">
+                        <i class="fa-solid fa-circle-check text-base"></i>
+                        <span>لا توجد فروقات في أسعار الصرف أو تعادل العملات الأجنبية.</span>
+                    </div>
+                `;
+            }
+        }
+
+        if (fxList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-emerald-400 font-bold">✓ كافة عمليات العملات الأجنبية متطابقة تماماً في أسعار الصرف!</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = fxList.map((f, idx) => {
+            const absDiff = Math.abs(f.diff);
+            return `
+                <tr class="hover:bg-slate-800/50 border-b border-slate-800/60 text-xs transition">
+                    <td class="p-2.5 text-center font-bold text-slate-400">${idx + 1}</td>
+                    <td class="p-2.5 font-mono text-slate-300">
+                        <span class="block">${f.rowA.date}</span>
+                        <span class="font-black text-amber-400">${f.rowA.ref}</span>
+                    </td>
+                    <td class="p-2.5 text-slate-200">${f.rowA.desc}</td>
+                    <td class="p-2.5 text-center font-mono font-bold text-sky-300">${f.foreignBase || '1,000 $'}</td>
+                    <td class="p-2.5 text-center font-mono font-bold text-sky-400">${formatMoney(f.rowA.amount)}</td>
+                    <td class="p-2.5 text-center font-mono font-bold text-purple-400">${formatMoney(f.rowB.amount)}</td>
+                    <td class="p-2.5 text-center font-mono font-black text-amber-400">${formatMoney(absDiff)}</td>
+                    <td class="p-2.5 text-center">
+                        <span class="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 font-bold text-[10px] border border-emerald-500/30">
+                            قيد تسوية أرباح/خسائر فروق عملة
+                        </span>
+                    </td>
+                </tr>
+            `;
+        }).join('');
     }
 
     // ────────────────────────────────────────────────────────────────
@@ -1620,6 +1943,38 @@
                 matchCount++;
             } else {
                 card.style.display = 'none';
+            }
+        });
+
+        // 6.5. Waterfall Timeline Table
+        const waterfallRows = document.querySelectorAll('#recon-table-waterfall-body tr');
+        waterfallRows.forEach(tr => {
+            if (!query) {
+                tr.style.display = '';
+                return;
+            }
+            const text = tr.textContent.toLowerCase();
+            if (text.includes(query)) {
+                tr.style.display = '';
+                matchCount++;
+            } else {
+                tr.style.display = 'none';
+            }
+        });
+
+        // 6.6. FX Variances Table
+        const fxRows = document.querySelectorAll('#recon-table-fx-body tr');
+        fxRows.forEach(tr => {
+            if (!query) {
+                tr.style.display = '';
+                return;
+            }
+            const text = tr.textContent.toLowerCase();
+            if (text.includes(query)) {
+                tr.style.display = '';
+                matchCount++;
+            } else {
+                tr.style.display = 'none';
             }
         });
 
@@ -2275,135 +2630,153 @@
         }
     };
 
-    // Universal Omni Upload Handler (Excel, Camera/Studio, Downloads/Files, PDF, Word, Images)
+    // Algorithmic overlap and duplicate statement row cleaner
+    window.deduplicateStatementRows = function(rows) {
+        if (!Array.isArray(rows) || rows.length <= 1) return rows || [];
+        const deduped = [];
+        const seenSignatures = new Map();
+
+        for (let i = 0; i < rows.length; i++) {
+            const r = rows[i];
+            const d = (r.date || '').trim();
+            const ref = (r.ref || '').trim();
+            const deb = parseFloat(r.debit) || 0;
+            const cred = parseFloat(r.credit) || 0;
+            const bal = parseFloat(r.balance) || 0;
+            const cleanDesc = (r.desc || '').replace(/[\s\-_،,]+/g, ' ').trim().toLowerCase();
+
+            // Precise financial signatures to capture photo stitch overlaps
+            const exactSig = `${d}|${ref}|${deb.toFixed(2)}|${cred.toFixed(2)}|${bal.toFixed(2)}|${cleanDesc.substring(0, 35)}`;
+            const balanceSig = bal !== 0 ? `${d}|${deb.toFixed(2)}|${cred.toFixed(2)}|${bal.toFixed(2)}` : null;
+            const refSig = (ref && ref !== '-' && ref !== '0') ? `${d}|${ref}|${deb.toFixed(2)}|${cred.toFixed(2)}` : null;
+
+            let isDuplicate = false;
+            if (balanceSig && seenSignatures.has(balanceSig)) {
+                // If running balance, debit, credit and date are identical, this is 100% an overlapping photo row
+                isDuplicate = true;
+            } else if (refSig && seenSignatures.has(refSig)) {
+                isDuplicate = true;
+            } else if (seenSignatures.has(exactSig)) {
+                isDuplicate = true;
+            }
+
+            if (!isDuplicate) {
+                deduped.push(r);
+                seenSignatures.set(exactSig, i);
+                if (balanceSig) seenSignatures.set(balanceSig, i);
+                if (refSig) seenSignatures.set(refSig, i);
+            } else {
+                console.log(`[Reconciliation Stitcher] Overlapping duplicate line dropped (#${i + 1}):`, r);
+            }
+        }
+        return deduped;
+    };
+
+    // Universal Omni Upload Handler (Multi-Image Overlap Stitching, Excel, Camera/Studio, PDF, Word)
     window.handleOmniUpload = async function(event, side, type) {
-        const file = event.target.files?.[0];
-        if (!file) return;
+        const files = Array.from(event.target.files || []);
+        if (!files.length) return;
 
-        const fileName = file.name || 'document';
-        const fileExt = fileName.split('.').pop().toLowerCase();
-
-        // 1. Native Excel / CSV file ingestion
-        if (['xlsx', 'xls', 'csv'].includes(fileExt)) {
-            window.handleReconFileUpload(event, side);
-            return;
+        // 1. Native Single Excel / CSV file ingestion
+        if (files.length === 1) {
+            const fileExt = (files[0].name || '').split('.').pop().toLowerCase();
+            if (['xlsx', 'xls', 'csv'].includes(fileExt)) {
+                window.handleReconFileUpload(event, side);
+                return;
+            }
         }
 
-        // 2. Multimodal AI Extraction (Images, PDF, Word, TXT)
         const boxEl = document.getElementById(`recon-dropzone-box-${side}`);
         const themeColor = side === 'A' ? 'sky' : 'purple';
+        const isMulti = files.length > 1;
+        const uploadTitle = isMulti ? `مجموعة مستندات / صور (${files.length} ملفات)` : files[0].name;
 
+        // 2. Multimodal AI Extraction Loading UI
         if (boxEl) {
             boxEl.innerHTML = `
                 <div class="p-8 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 text-center space-y-3">
                     <div class="w-12 h-12 rounded-full border-4 border-${themeColor}-500/30 border-t-${themeColor}-400 animate-spin mx-auto"></div>
-                    <h5 class="font-black text-sm text-${themeColor}-200">جاري مسح وتفريغ الوثيقة بالذكاء الاصطناعي...</h5>
-                    <p class="text-xs text-slate-400 font-mono">نظام Gemini Vision OCR المتقدم يعالج (${fileName}) ويستخرج الحركات والأرصدة</p>
+                    <h5 class="font-black text-sm text-${themeColor}-200">جاري مسح ومعالجة ${uploadTitle} بالذكاء الاصطناعي...</h5>
+                    <p class="text-xs text-slate-400 font-mono">
+                        ${isMulti ? 'نظام Gemini Multimodal Vision يدمج الصور المتتالية، يكتشف الأسطر المتداخلة والمدبلة ويفرغ جدول الحركات الموحد' : 'نظام Gemini Vision OCR المتقدم يستخرج الحركات والأرصدة بدقة متناهية'}
+                    </p>
                 </div>
             `;
         }
 
-        // Handle text files directly
-        if (fileExt === 'txt') {
-            const reader = new FileReader();
-            reader.onload = async function(e) {
-                const textContent = e.target.result;
-                try {
-                    const response = await fetch('api/ai-reconciliation.php?action=extract_document', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            text_content: textContent,
-                            file_name: fileName
-                        })
-                    });
-                    const result = await response.json();
-                    if (result.success && result.data && result.data.rows && result.data.rows.length > 0) {
-                        const rows = result.data.rows;
-                        const matrix = [["التاريخ", "رقم العملية / المرجع", "البيان وتفاصيل العملية", "مدين", "دائن", "الرصيد"]];
-                        rows.forEach(r => {
-                            matrix.push([r.date || '', r.ref || '', r.desc || '', parseFloat(r.debit) || 0, parseFloat(r.credit) || 0, parseFloat(r.balance) || 0]);
-                        });
-                        processLoadedSheetData(matrix, side, fileName);
-                        if (window.showModernToast) {
-                            window.showModernToast(`✨ تم استخراج ${rows.length} حركة بالذكاء الاصطناعي من (${fileName})`, 'success', 3500);
-                        }
-                    } else {
-                        alert('تعذر استخراج حركات من الملف: ' + (result.error || 'يرجى التأكد من محتوى الملف.'));
-                        renderDropzoneCard(side);
+        try {
+            // Read all files as base64 payloads
+            const payloads = await Promise.all(files.map(f => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    const fileExt = (f.name || '').split('.').pop().toLowerCase();
+                    let mimeType = f.type;
+                    if (!mimeType) {
+                        if (fileExt === 'pdf') mimeType = 'application/pdf';
+                        else if (['jpg', 'jpeg'].includes(fileExt)) mimeType = 'image/jpeg';
+                        else if (fileExt === 'png') mimeType = 'image/png';
+                        else if (fileExt === 'webp') mimeType = 'image/webp';
+                        else mimeType = 'application/octet-stream';
                     }
-                } catch(err) {
-                    console.error('File extraction error:', err);
-                    alert('خطأ في معالجة الملف: ' + err.message);
-                    renderDropzoneCard(side);
-                } finally {
-                    event.target.value = '';
-                }
-            };
-            reader.readAsText(file);
-            return;
-        }
-
-        // For Images, PDF, Word: send Data URL (Base64)
-        const reader = new FileReader();
-        reader.onload = async function(e) {
-            const dataUrl = e.target.result;
-            let mimeType = file.type;
-            if (!mimeType) {
-                if (fileExt === 'pdf') mimeType = 'application/pdf';
-                else if (['jpg', 'jpeg'].includes(fileExt)) mimeType = 'image/jpeg';
-                else if (fileExt === 'png') mimeType = 'image/png';
-                else if (fileExt === 'webp') mimeType = 'image/webp';
-                else mimeType = 'application/octet-stream';
-            }
-
-            try {
-                const response = await fetch('api/ai-reconciliation.php?action=extract_document', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        file_base64: dataUrl,
+                    reader.onload = () => resolve({
+                        file_base64: reader.result,
                         mime_type: mimeType,
-                        file_name: fileName
-                    })
+                        file_name: f.name
+                    });
+                    reader.onerror = reject;
+                    reader.readAsDataURL(f);
+                });
+            }));
+
+            const response = await fetch('api/ai-reconciliation.php?action=extract_document', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    files_base64: payloads,
+                    file_base64: payloads[0].file_base64,
+                    mime_type: payloads[0].mime_type,
+                    file_name: files.map(f => f.name).join(', ')
+                })
+            });
+
+            const result = await response.json();
+            if (result.success && result.data && result.data.rows && result.data.rows.length > 0) {
+                // Algorithmic overlap and duplicate removal
+                const rawRows = result.data.rows;
+                const dedupedRows = window.deduplicateStatementRows(rawRows);
+                const duplicateCount = rawRows.length - dedupedRows.length;
+
+                const matrix = [
+                    ["التاريخ", "رقم العملية / المرجع", "البيان وتفاصيل العملية", "مدين", "دائن", "الرصيد"]
+                ];
+                dedupedRows.forEach(r => {
+                    matrix.push([
+                        r.date || '',
+                        r.ref || '',
+                        r.desc || '',
+                        parseFloat(r.debit) || 0,
+                        parseFloat(r.credit) || 0,
+                        parseFloat(r.balance) || 0
+                    ]);
                 });
 
-                const result = await response.json();
-                if (result.success && result.data && result.data.rows && result.data.rows.length > 0) {
-                    const rows = result.data.rows;
-                    const matrix = [
-                        ["التاريخ", "رقم العملية / المرجع", "البيان وتفاصيل العملية", "مدين", "دائن", "الرصيد"]
-                    ];
-                    rows.forEach(r => {
-                        matrix.push([
-                            r.date || '',
-                            r.ref || '',
-                            r.desc || '',
-                            parseFloat(r.debit) || 0,
-                            parseFloat(r.credit) || 0,
-                            parseFloat(r.balance) || 0
-                        ]);
-                    });
+                processLoadedSheetData(matrix, side, uploadTitle);
 
-                    processLoadedSheetData(matrix, side, fileName);
-
-                    if (window.showModernToast) {
-                        window.showModernToast(`✨ تم تفريغ ${rows.length} حركة بالذكاء الاصطناعي من (${fileName}) بنجاح!`, 'success', 3500);
-                    }
-                } else {
-                    alert('تعذر استخراج جدول الحركات المالية من المستند: ' + (result.error || 'يرجى التأكد من وضوح أرقام المرجع والمبالغ والتواريخ.'));
-                    renderDropzoneCard(side);
+                if (window.showModernToast) {
+                    const deDupNote = duplicateCount > 0 ? ` (تم استبعاد ${duplicateCount} سطر متداخل مدبل)` : '';
+                    window.showModernToast(`✨ تم تفريغ وتدقيق ${dedupedRows.length} حركة بالذكاء الاصطناعي من (${uploadTitle})${deDupNote} بنجاح!`, 'success', 4500);
                 }
-            } catch(err) {
-                console.error('Multimodal OCR extraction error:', err);
-                alert('حدث خطأ أثناء معالجة المستند: ' + err.message);
+            } else {
+                alert('تعذر استخراج جدول الحركات المالية من المستندات: ' + (result.error || 'يرجى التأكد من وضوح أرقام المرجع والمبالغ والتواريخ.'));
                 renderDropzoneCard(side);
-            } finally {
-                event.target.value = '';
             }
-        };
-
-        reader.readAsDataURL(file);
+        } catch (err) {
+            console.error('Omni Upload extraction error:', err);
+            alert('حدث خطأ أثناء معالجة المستند: ' + err.message);
+            renderDropzoneCard(side);
+        } finally {
+            event.target.value = '';
+        }
     };
 
 })(window);

@@ -32,32 +32,67 @@ $action = $data['action'] ?? 'reconcile';
 $apiKey = getGeminiApiKey();
 
 // ────────────────────────────────────────────────────────────────────
-// A. MULTIMODAL DOCUMENT & VISION OCR EXTRACTION (أي صيغة: صور، PDF، Word، نص)
+// A. MULTIMODAL DOCUMENT & VISION OCR EXTRACTION (أي صيغة: صور، PDF، Word، نص، ومجموعات صور متعددة متتالية)
 // ────────────────────────────────────────────────────────────────────
 if ($action === 'extract_document') {
-    $fileBase64 = $data['file_base64'] ?? '';
-    $mimeType = $data['mime_type'] ?? 'image/jpeg';
+    $filesBase64 = $data['files_base64'] ?? [];
+    if (empty($filesBase64) && !empty($data['file_base64'])) {
+        $filesBase64[] = [
+            'file_base64' => $data['file_base64'],
+            'mime_type' => $data['mime_type'] ?? 'image/jpeg',
+            'file_name' => $data['file_name'] ?? 'مستند مالي'
+        ];
+    }
     $textContent = $data['text_content'] ?? '';
     $fileName = $data['file_name'] ?? 'مستند مالي';
 
-    if (empty($fileBase64) && empty($textContent)) {
-        echo json_encode(['success' => false, 'error' => 'لم يتم إرسال صورة أو ملف أو نص لتحليله'], JSON_UNESCAPED_UNICODE);
+    if (empty($filesBase64) && empty($textContent)) {
+        echo json_encode(['success' => false, 'error' => 'لم يتم إرسال صور أو ملف أو نص لتحليله'], JSON_UNESCAPED_UNICODE);
         exit;
     }
 
-    if (!empty($fileBase64)) {
-        if (preg_match('/^data:([^;]+);base64,(.+)$/', $fileBase64, $matches)) {
-            $mimeType = $matches[1];
-            $fileBase64 = $matches[2];
+    $numFiles = count($filesBase64);
+    $parts = [];
+
+    foreach ($filesBase64 as $fileItem) {
+        $fBase64 = is_array($fileItem) ? ($fileItem['file_base64'] ?? ($fileItem['data'] ?? '')) : $fileItem;
+        $fMime = is_array($fileItem) ? ($fileItem['mime_type'] ?? 'image/jpeg') : 'image/jpeg';
+        if (empty($fBase64)) continue;
+
+        if (preg_match('/^data:([^;]+);base64,(.+)$/', $fBase64, $matches)) {
+            $fMime = $matches[1];
+            $fBase64 = $matches[2];
         }
+
+        $parts[] = [
+            'inline_data' => [
+                'mime_type' => $fMime,
+                'data' => $fBase64
+            ]
+        ];
+    }
+
+    $overlapInstructions = "";
+    if ($numFiles > 1) {
+        $overlapInstructions = <<<OVERLAP
+⚠️ تنبيه فائق الأهمية بخصوص تداخل وتكرار الصور والأسطر المدبلة (Overlapping / Duplicate Rows):
+المرفقات تحتوي على ({$numFiles}) صور متتابعة تمثل صفحات أو لقطات شاشة متتالية لنفس كشف الحساب.
+قد تتداخل الصور في بعض الأسطر نتيجة تصوير الشاشة على أجزاء (مثلاً: نهاية الصورة الأولى تتضمن الأسطر من 15 إلى 40، وبداية الصورة الثانية تلتقط من السطر 35 إلى 55، فالأسطر من 35 إلى 40 مكررة ومدبلة).
+مهمتك المحاسبية الفائقة:
+1. الكشف عن كافة الأسطر المتداخلة والمدبلة (Overlapping / Duplicate rows) وحذفها تماماً بحيث تظهر كل حركة مالية مرة واحدة فقط.
+2. دمج كافة الصور في كشف حساب واحد متصل ومتسلسل زمنياً ومنطقياً.
+3. التأكد من تسلسل الرصيد الختامي (Running Balance Continuity) عبر الصور المتتابعة دون أي قفزات ناتجة عن تكرار سطر.
+OVERLAP;
     }
 
     $ocrPrompt = <<<PROMPT
-أنت خبير محاسبي جنائي عالمي ومتخصص في قراءة وتدقيق المستندات البنكية وكشوفات الحسابات والفواتير (World-Class AI Forensic Accountant & Financial OCR Specialist).
-المطلوب منك: فحص وتدقيق المستند أو الصورة المرفقة، واستخراج جدول كافة الحركات المالية بدقة محاسبية متناهية.
+أنت خبير محاسبي جنائي عالمي ومتخصص في قراءة وتدقيق المستندات البنكية وكشوفات الحسابات وشيتات الإكسيل (World-Class AI Forensic Accountant & Financial OCR Specialist).
+المطلوب منك: فحص وتدقيق المستند أو الصور المرفقة، واستخراج جدول كافة الحركات المالية بدقة محاسبية متناهية.
+
+{$overlapInstructions}
 
 ملاحظات بالغة الأهمية:
-1. اقبل المستند أياً كان نوعه: صورة ملتقطة بكاميرا الجوال، كشف حساب PDF رسمي لبنك (مثل بنكك أو بنك فيصل أو الراجحي أو الأهلي)، إشعار سداد، شيك، فاتورة، رسائل واتساب، جدول Word أو Excel أو نص منسوخ.
+1. اقبل المستند أياً كان نوعه: صور متعددة بكاميرا الجوال، كشف حساب PDF رسمي لبنك (مثل بنكك أو بنك فيصل أو الراجحي أو الأهلي)، إشعار سداد، شيك، فاتورة، رسائل واتساب، جدول Word أو Excel أو نص منسوخ.
 2. حتى لو كانت الصورة باهتة، أو الإضاءة خافتة، أو الزاوية مائلة، أو الأرقام مهتزة قليلاً، استعن بالمنطق المحاسبي وتطابق الأرصدة (الرصيد السابق + المدين - الدائن = الرصيد الحالي) لإعادة استنتاج وقراءة الأرقام الحقيقية بدقة تامة.
 3. فكك كل حركة مالية إلى:
    - date: تاريخ العملية بصيغة (YYYY-MM-DD) أو كما هو مدون في الكشف.
@@ -66,6 +101,8 @@ if ($action === 'extract_document') {
    - debit: المبلغ المدين (لنا / قبض / توريد / إضافة). إذا لم يتوفر ضع 0.
    - credit: المبلغ الدائن (علينا / صرف / سداد / خصم). إذا لم يتوفر ضع 0.
    - balance: الرصيد الختامي بعد العملية إذا كان مدوناً، وإلا ضع 0.
+   - currency: العملة (SDG أو USD أو SAR). ضع العملة المكتشفة.
+   - fx_rate: سعر الصرف إن كان مذكوراً للعملة الأجنبية أو 0.
 
 المطلوب إخراج النتيجة بصيغة JSON محضة دون أي نص تمهيدي أو علامات Markdown:
 {
@@ -73,6 +110,7 @@ if ($action === 'extract_document') {
   "currency": "SDG أو USD أو العملة المكتشفة",
   "opening_balance": 0.00,
   "closing_balance": 0.00,
+  "deduplicated_count": 0,
   "rows": [
     {
       "date": "2026-06-01",
@@ -80,21 +118,14 @@ if ($action === 'extract_document') {
       "desc": "تحويل بنكك توريد دفعة أولى",
       "debit": 5000000,
       "credit": 0,
-      "balance": 5000000
+      "balance": 5000000,
+      "currency": "SDG",
+      "fx_rate": 0
     }
   ]
 }
 PROMPT;
 
-    $parts = [];
-    if (!empty($fileBase64)) {
-        $parts[] = [
-            'inline_data' => [
-                'mime_type' => $mimeType,
-                'data' => $fileBase64
-            ]
-        ];
-    }
     if (!empty($textContent)) {
         $ocrPrompt .= "\n\nالنص المرفق المستخرج أو المنسوخ من المستند:\n" . $textContent;
     }
@@ -116,7 +147,7 @@ PROMPT;
             ],
             'generationConfig' => [
                 'temperature' => 0.1,
-                'maxOutputTokens' => 4000
+                'maxOutputTokens' => 6000
             ]
         ];
 
@@ -126,7 +157,7 @@ PROMPT;
         curl_setopt($ch, CURLOPT_POST, true);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 45);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -153,6 +184,7 @@ PROMPT;
                 'success' => true,
                 'source' => 'gemini_vision_ocr',
                 'model' => $matchedModel,
+                'files_count' => $numFiles,
                 'data' => $parsed
             ], JSON_UNESCAPED_UNICODE);
             exit;
@@ -225,18 +257,18 @@ function generateAlgorithmicAudit($summaryA, $summaryB, $netVariance, $unmatched
         ];
     }
 
-    $nameA = $summaryA['name'] ?? 'حساباتي الخاصة';
-    $nameB = $summaryB['name'] ?? 'كشف حساب المصنع';
+    $nameA = $summaryA['name'] ?? 'كشف حساب الطرف الأول (كشف الحساب الخاص)';
+    $nameB = $summaryB['name'] ?? 'كشف حساب الطرف الثاني (كشف حساب الطرف المقابل)';
     $balA = floatval($summaryA['closingBalance'] ?? 0);
     $balB = floatval($summaryB['closingBalance'] ?? 0);
 
-    $execSummary = "بناءً على التدقيق الحسابي الآلي لكشف ($nameA) مقابل ($nameB)، تبيّن وجود فرق صافٍ إجمالي قدره (" . number_format(abs($netVariance), 2) . "). يرجع هذا الخلل الرئيسي إلى وجود " . count($unmatchedA) . " حركة مقيدة لديك لم يقيدها المصنع بإجمالي (" . number_format($totalMissingA, 2) . ")، و " . count($unmatchedB) . " حركة قيدها المصنع ولم تسجلها بإجمالي (" . number_format($totalMissingB, 2) . ")، إضافة إلى " . count($variances) . " حركة فيها اختلاف في المبالغ أو سعر الصرف.";
+    $execSummary = "بناءً على التدقيق الحسابي الآلي لكشف ($nameA) مقابل ($nameB)، تبيّن وجود فرق صافٍ إجمالي قدره (" . number_format(abs($netVariance), 2) . "). يرجع هذا الخلل الرئيسي إلى وجود " . count($unmatchedA) . " حركة مقيدة في كشف الطرف الأول لم يقيدها الطرف الثاني بإجمالي (" . number_format($totalMissingA, 2) . ")، و " . count($unmatchedB) . " حركة قيدها الطرف الثاني ولم تسجل في كشف الطرف الأول بإجمالي (" . number_format($totalMissingB, 2) . ")، إضافة إلى " . count($variances) . " حركة فيها اختلاف في المبالغ أو سعر الصرف.";
 
     $actions = [
         "طلب كشف حساب بنكي للمطابقة المباشرة للتحويلات المعلقة المذكورة أعلاه.",
-        "مطابقة أرقام المراجع المتشابهة في آخر 4 إلى 6 أرقام وتأكيد قيدها لدى المصنع.",
-        "إجراء قيد تسوية للمصروفات أو الفواتير المعتمدة التي سجلها المصنع ولم تسجلها.",
-        "توحيد سعر الصرف المتفق عليه للتحويلات المقومة بالدولار لليوم المعني."
+        "مطابقة أرقام المراجع المتشابهة في آخر 4 إلى 6 أرقام وتأكيد قيدها لدى كشف الطرف الثاني.",
+        "إجراء قيد تسوية للمصروفات أو الفواتير المعتمدة التي سجلها الطرف الثاني ولم تسجل في كشف الطرف الأول.",
+        "توحيد سعر الصرف المتفق عليه للتحويلات المقومة بالدولار والعملات لليوم المعني."
     ];
 
     $whatsapp = "السلام عليكم ورحمة الله وبركاته،\nالأخوة الكرام في إدارة حسابات " . $nameB . "،\nبعد إجراء المطابقة المحاسبية لكشف الحساب، تبين وجود فرق قدره " . number_format(abs($netVariance), 2) . ".\nنرجو التكرم بمراجعة الحركات المعلقة التالية:\n";
