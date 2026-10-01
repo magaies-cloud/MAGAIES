@@ -26808,6 +26808,54 @@ $pdo = getDBConnection();
                 </div>
             </div>
 
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <!-- MODAL 4: FULLSCREEN DOCUMENT & PHOTO LIGHTBOX (المعاينة البصرية)  -->
+            <!-- ════════════════════════════════════════════════════════════════ -->
+            <div id="modal-recon-image-lightbox" style="display: none; position: fixed; inset: 0; z-index: 999999999; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(2, 6, 23, 0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);" class="hidden">
+                <div class="relative w-full max-w-5xl max-h-[92vh] flex flex-col bg-slate-900 border-2 border-indigo-500/50 rounded-3xl shadow-2xl overflow-hidden animate-scaleIn text-right">
+                    
+                    <!-- Lightbox Header -->
+                    <div class="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/80">
+                        <div class="flex items-center gap-3">
+                            <span class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg">
+                                <i class="fa-solid fa-eye"></i>
+                            </span>
+                            <div>
+                                <h4 class="font-black text-base text-slate-100" id="recon-lightbox-title">معاينة المستند والورقة الأصلية (المقارنة البصرية بالعين المجردة)</h4>
+                                <span class="text-xs text-slate-400 font-bold">قارن خط اليد أو الأرقام المطبوعة مباشرة بالجدول المالي المفكك</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button type="button" onclick="rotateLightboxImage()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 cursor-pointer" title="تدوير الصورة 90 درجة">
+                                <i class="fa-solid fa-rotate-right"></i>
+                                <span>تدوير</span>
+                            </button>
+                            <a id="recon-lightbox-download-btn" href="#" download="document.png" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 cursor-pointer" title="تنزيل الصورة">
+                                <i class="fa-solid fa-download"></i>
+                                <span>تنزيل</span>
+                            </a>
+                            <button type="button" onclick="closeReconLightbox()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-300 text-lg flex items-center justify-center transition border border-slate-700 cursor-pointer">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Lightbox Image Viewport -->
+                    <div class="flex-1 overflow-auto p-4 flex items-center justify-center bg-slate-950/90 custom-scrollbar min-h-[350px]">
+                        <img id="recon-lightbox-img" src="" alt="المستند الأصلي" class="max-w-full max-h-[72vh] object-contain rounded-xl shadow-2xl border border-slate-800 transition-transform duration-200" style="transform: rotate(0deg);">
+                    </div>
+
+                    <!-- Lightbox Footer -->
+                    <div class="px-6 py-3 border-t border-slate-800 bg-slate-950 flex items-center justify-between text-xs text-slate-400">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-check-double text-emerald-400"></i>
+                            <span>تم تفكيك واستخراج الأرقام من هذه الصورة بالذكاء الاصطناعي بنجاح</span>
+                        </span>
+                        <button type="button" onclick="closeReconLightbox()" class="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold cursor-pointer">إغلاق المعاينة</button>
+                    </div>
+                </div>
+            </div>
+
 
 
 <!-- ════════════════════════════════════════════════════════════════ -->

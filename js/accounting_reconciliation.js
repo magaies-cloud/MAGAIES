@@ -217,6 +217,9 @@
         target.colMap = colMap;
         target.mappedRows = mappedRows;
         target.summary = summary;
+        if (window['RECON_PREVIEW_IMG_' + side]) {
+            target.previewImg = window['RECON_PREVIEW_IMG_' + side];
+        }
 
         renderDropzoneCard(side);
         renderColumnMappingCard(side);
@@ -1266,6 +1269,34 @@
 
         boxEl.innerHTML = `
             <div class="p-4 rounded-2xl bg-slate-950/70 border border-slate-800 space-y-4 shadow-xl">
+                <!-- Document / Photo Visual Thumbnail Preview if available -->
+                ${target.previewImg ? `
+                    <div class="flex items-center justify-between gap-3 p-3 rounded-2xl bg-slate-900/90 border border-indigo-500/30 shadow-lg">
+                        <div class="flex items-center gap-3 min-w-0">
+                            <div class="relative group cursor-pointer shrink-0" onclick="openReconImageLightbox(window.RECON_STATE['file' + '${side}'].previewImg, '${escapeHtmlRecon(target.name)}')">
+                                <img src="${escapeHtmlRecon(target.previewImg)}" alt="معاينة المستند" class="w-13 h-13 object-cover rounded-xl border-2 border-indigo-500/50 shadow group-hover:scale-105 transition duration-200">
+                                <div class="absolute inset-0 bg-black/40 rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
+                                    <i class="fa-solid fa-magnifying-glass-plus text-white text-xs"></i>
+                                </div>
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-black text-slate-100 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-image text-pink-400"></i>
+                                        <span>المستند الأصلي الممسوح بالـ AI</span>
+                                    </span>
+                                    <span class="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 font-bold text-[10px] border border-emerald-500/30">معاينة بصرية</span>
+                                </div>
+                                <span class="text-[11px] text-slate-400 block truncate mt-0.5">انقر على المصغر للمقارنة البصرية بالعين المجردة بين الورقة والأرقام</span>
+                            </div>
+                        </div>
+                        <button type="button" onclick="openReconImageLightbox(window.RECON_STATE['file' + '${side}'].previewImg, '${escapeHtmlRecon(target.name)}')" class="px-3 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-xs font-bold text-indigo-200 border border-indigo-500/40 transition flex items-center gap-1.5 cursor-pointer shrink-0">
+                            <i class="fa-solid fa-expand text-[10px]"></i>
+                            <span>تكبير</span>
+                        </button>
+                    </div>
+                ` : ''}
+
                 <!-- Summary Header -->
                 <div class="flex items-center justify-between pb-3 border-b border-slate-800/80">
                     <div class="flex items-center gap-3">
@@ -1342,6 +1373,7 @@
             </div>
         `;
     }
+    window.renderDropzoneCard = renderDropzoneCard;
 
     function renderColumnMappingCard(side) {
         const target = (side === 'A') ? window.RECON_STATE.fileA : window.RECON_STATE.fileB;
@@ -1577,10 +1609,15 @@
                             <span class="text-xs text-slate-400 font-bold">بواسطة ${aiData.engine || 'Gemini Forensic Auditor 2026'}</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button" onclick="dispatchWhatsAppLetterToOtherSide()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-lg shadow-emerald-950/40 transform hover:scale-[1.02]">
+                            <i class="fa-solid fa-paper-plane text-xs"></i>
+                            <span>إرسال فوري بالواتساب</span>
+                            <i class="fa-brands fa-whatsapp text-sm"></i>
+                        </button>
                         <button type="button" onclick="copyWhatsAppReconciliationLetter()" class="px-4 py-2 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/50 hover:bg-emerald-500/30 text-emerald-300 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
-                            <i class="fa-brands fa-whatsapp text-base"></i>
-                            نسخ خطاب الواتساب للطرف الثاني
+                            <i class="fa-regular fa-copy text-sm"></i>
+                            نسخ الخطاب
                         </button>
                     </div>
                 </div>
@@ -3556,7 +3593,7 @@
     }
     window.openWhatsAppAction = openWhatsAppAction;
 
-    // Algorithmic overlap and duplicate statement row cleaner
+    // Algorithmic overlap and duplicate statement row cleaner (Multi-Photo Consecutive Overlap Splicer)
     function deduplicateStatementRows(rows) {
         if (!Array.isArray(rows) || rows.length <= 1) return rows || [];
         const deduped = [];
@@ -3571,18 +3608,20 @@
             const bal = parseFloat(r.balance) || 0;
             const cleanDesc = (r.desc || '').replace(/[\s\-_،,]+/g, ' ').trim().toLowerCase();
 
-            // Precise financial signatures to capture photo stitch overlaps
+            // Precise financial signatures to capture photo stitch overlaps (e.g. Lines 15..20 photographed twice)
             const exactSig = `${d}|${ref}|${deb.toFixed(2)}|${cred.toFixed(2)}|${bal.toFixed(2)}|${cleanDesc.substring(0, 35)}`;
             const balanceSig = bal !== 0 ? `${d}|${deb.toFixed(2)}|${cred.toFixed(2)}|${bal.toFixed(2)}` : null;
-            const refSig = (ref && ref !== '-' && ref !== '0') ? `${d}|${ref}|${deb.toFixed(2)}|${cred.toFixed(2)}` : null;
+            const refSig = (ref && ref !== '-' && ref !== '0' && ref.length >= 4) ? `${ref}|${deb.toFixed(2)}|${cred.toFixed(2)}` : null;
+            const contentSig = (cleanDesc.length >= 8 && (deb > 0 || cred > 0)) ? `${d}|${deb.toFixed(2)}|${cred.toFixed(2)}|${cleanDesc.substring(0, 25)}` : null;
 
             let isDuplicate = false;
             if (balanceSig && seenSignatures.has(balanceSig)) {
-                // If running balance, debit, credit and date are identical, this is 100% an overlapping photo row
                 isDuplicate = true;
             } else if (refSig && seenSignatures.has(refSig)) {
                 isDuplicate = true;
-            } else if (seenSignatures.has(exactSig)) {
+            } else if (exactSig && seenSignatures.has(exactSig)) {
+                isDuplicate = true;
+            } else if (contentSig && seenSignatures.has(contentSig)) {
                 isDuplicate = true;
             }
 
@@ -3591,6 +3630,7 @@
                 seenSignatures.set(exactSig, i);
                 if (balanceSig) seenSignatures.set(balanceSig, i);
                 if (refSig) seenSignatures.set(refSig, i);
+                if (contentSig) seenSignatures.set(contentSig, i);
             } else {
                 console.log(`[Reconciliation Stitcher] Overlapping duplicate line dropped (#${i + 1}):`, r);
             }
@@ -3654,6 +3694,16 @@
                     reader.readAsDataURL(f);
                 });
             }));
+
+            // Store visual preview for side-by-side inspection
+            let firstImg = null;
+            for (const p of payloads) {
+                if (p.mime_type && p.mime_type.startsWith('image/')) {
+                    firstImg = p.file_base64;
+                    break;
+                }
+            }
+            window['RECON_PREVIEW_IMG_' + side] = firstImg;
 
             const response = await fetch('api/ai-reconciliation.php?action=extract_document', {
                 method: 'POST',
@@ -3799,5 +3849,87 @@
             if (typeof handleOmniUpload === 'function') handleOmniUpload(fakeEvent, side, 'file');
         }
     });
+
+
+    // ── Fullscreen Visual Lightbox for Document/Photo Inspection ──
+    let currentLightboxRotation = 0;
+    function openReconImageLightbox(imgSrc, title) {
+        currentLightboxRotation = 0;
+        const modal = document.getElementById('modal-recon-image-lightbox');
+        const img = document.getElementById('recon-lightbox-img');
+        const titleEl = document.getElementById('recon-lightbox-title');
+        const downloadBtn = document.getElementById('recon-lightbox-download-btn');
+        if (!modal || !img) return;
+
+        img.src = imgSrc;
+        img.style.transform = 'rotate(0deg)';
+        if (titleEl && title) titleEl.textContent = `معاينة المستند: ${title}`;
+        if (downloadBtn) downloadBtn.href = imgSrc;
+
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+    }
+    window.openReconImageLightbox = openReconImageLightbox;
+
+    function closeReconLightbox() {
+        const modal = document.getElementById('modal-recon-image-lightbox');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.add('hidden');
+        }
+    }
+    window.closeReconLightbox = closeReconLightbox;
+
+    function rotateLightboxImage() {
+        const img = document.getElementById('recon-lightbox-img');
+        if (!img) return;
+        currentLightboxRotation = (currentLightboxRotation + 90) % 360;
+        img.style.transform = `rotate(${currentLightboxRotation}deg)`;
+    }
+    window.rotateLightboxImage = rotateLightboxImage;
+
+    // ── Direct WhatsApp Dispatch with Pre-filled Reconciliation Memo ──
+    function dispatchWhatsAppLetterToOtherSide() {
+        const letter = (window.RECON_STATE && window.RECON_STATE.aiAudit && window.RECON_STATE.aiAudit.whatsapp_letter)
+            ? window.RECON_STATE.aiAudit.whatsapp_letter
+            : (document.getElementById('recon-memo-content') ? document.getElementById('recon-memo-content').innerText : '');
+
+        if (!letter || !letter.trim()) {
+            alert('لم يتم استخراج خطاب المطابقة بعد، يرجى تشغيل المقارنة أولاً.');
+            return;
+        }
+
+        let phone = '';
+        if (window.RECON_STATE && window.RECON_STATE.fileB) {
+            const nameB = (window.RECON_STATE.fileB.name || '').replace(/\.xlsx$/i, '').trim();
+            if (window.RECON_LOADED_ACCOUNTS) {
+                const found = window.RECON_LOADED_ACCOUNTS.find(a => a.name === nameB || nameB.includes(a.name));
+                if (found && found.phone) phone = found.phone;
+            }
+        }
+
+        let cleanPhone = phone.replace(/[^0-9]/g, '');
+        if (cleanPhone.startsWith('0')) {
+            cleanPhone = '249' + cleanPhone.substring(1);
+        }
+
+        const encodedText = encodeURIComponent(letter);
+        const waUrl = cleanPhone 
+            ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodedText}`
+            : `https://api.whatsapp.com/send?text=${encodedText}`;
+
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            window.open(cleanPhone ? `whatsapp://send?phone=${cleanPhone}&text=${encodedText}` : `whatsapp://send?text=${encodedText}`, '_blank');
+        } else {
+            window.open(waUrl, '_blank');
+        }
+
+        if (window.showModernToast) {
+            window.showModernToast('💬 تم فتح محادثة الواتساب لنقل الخطاب والمطالبة فوراً!', 'success', 3500);
+        }
+    }
+    window.dispatchWhatsAppLetterToOtherSide = dispatchWhatsAppLetterToOtherSide;
+
 
 })(window);
