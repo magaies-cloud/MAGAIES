@@ -2738,7 +2738,7 @@
     // Expose internal sheet processor globally
     window.processLoadedSheetData = processLoadedSheetData;
 
-    // Close all reconciliation modals (System accounts, WhatsApp paste, Adjustment voucher)
+    // Close all reconciliation modals (System accounts, WhatsApp paste, Adjustment voucher, Live Camera)
     function closeReconModals() {
         const modalAcc = document.getElementById('modal-recon-system-accounts');
         const modalWa = document.getElementById('modal-recon-whatsapp-paste');
@@ -2746,8 +2746,227 @@
         if (modalAcc) { modalAcc.style.display = 'none'; modalAcc.classList.add('hidden'); }
         if (modalWa) { modalWa.style.display = 'none'; modalWa.classList.add('hidden'); }
         if (modalAdj) { modalAdj.style.display = 'none'; modalAdj.classList.add('hidden'); }
+        if (typeof closeLiveCameraCapture === 'function') closeLiveCameraCapture();
     }
     window.closeReconModals = closeReconModals;
+
+    // ────────────────────────────────────────────────────────────────
+    // LIVE WEBRTC CAMERA CAPTURE ENGINE FOR DOCUMENT & STATEMENT SCANNING
+    // ────────────────────────────────────────────────────────────────
+    window.RECON_CAMERA_STREAM = null;
+    window.RECON_CAMERA_FACING = 'environment'; // 'environment' (back) or 'user' (front)
+    window.RECON_ACTIVE_CAMERA_SIDE = 'A';
+
+    function openLiveCameraCapture(side) {
+        window.RECON_ACTIVE_CAMERA_SIDE = side || 'A';
+        const labelEl = document.getElementById('recon-camera-target-side-label');
+        if (labelEl) {
+            labelEl.textContent = `الهدف: ${window.RECON_ACTIVE_CAMERA_SIDE === 'A' ? 'كشف حساب الطرف الأول' : 'كشف حساب الطرف الثاني'}`;
+        }
+
+        const modal = document.getElementById('modal-recon-live-camera');
+        if (!modal) return;
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+
+        // Reset views: show live view, hide preview
+        const liveContainer = document.getElementById('recon-camera-live-container');
+        const previewContainer = document.getElementById('recon-camera-preview-container');
+        const liveControls = document.getElementById('recon-camera-live-controls');
+        const previewControls = document.getElementById('recon-camera-preview-controls');
+        if (liveContainer) liveContainer.classList.remove('hidden');
+        if (previewContainer) previewContainer.classList.add('hidden');
+        if (liveControls) liveControls.classList.remove('hidden');
+        if (previewControls) previewControls.classList.add('hidden');
+
+        startLiveCameraStream();
+    }
+    window.openLiveCameraCapture = openLiveCameraCapture;
+
+    function startLiveCameraStream() {
+        const spinner = document.getElementById('recon-camera-loading-spinner');
+        if (spinner) spinner.classList.remove('hidden');
+
+        // Stop any existing stream
+        if (window.RECON_CAMERA_STREAM) {
+            try {
+                window.RECON_CAMERA_STREAM.getTracks().forEach(t => t.stop());
+            } catch(e) {}
+                window.RECON_CAMERA_STREAM = null;
+        }
+
+        // Check browser support
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            console.warn('getUserMedia not supported, falling back to native device camera');
+            handleCameraFallback();
+            return;
+        }
+
+        const constraints = {
+            video: {
+                facingMode: { ideal: window.RECON_CAMERA_FACING || 'environment' },
+                width: { ideal: 1920 },
+                height: { ideal: 1080 }
+            },
+            audio: false
+        };
+
+        navigator.mediaDevices.getUserMedia(constraints)
+            .then(stream => {
+                window.RECON_CAMERA_STREAM = stream;
+                const video = document.getElementById('recon-live-camera-video');
+                if (video) {
+                    video.srcObject = stream;
+                    video.onloadedmetadata = () => {
+                        video.play().catch(e => console.warn('Video play error:', e));
+                        if (spinner) spinner.classList.add('hidden');
+                    };
+                }
+            })
+            .catch(err => {
+                console.warn('Camera access denied or failed:', err);
+                if (spinner) spinner.classList.add('hidden');
+                handleCameraFallback();
+            });
+    }
+
+    function handleCameraFallback() {
+        closeLiveCameraCapture();
+        const side = window.RECON_ACTIVE_CAMERA_SIDE || 'A';
+        const fileInput = document.getElementById(`omni-file-camera-${side}`);
+        if (fileInput) {
+            fileInput.click();
+        }
+        if (window.showModernToast) {
+            window.showModernToast('📷 جاري فتح كاميرا الجهاز الافتراضية لالتقاط كشف الحساب...', 'info', 3500);
+        }
+    }
+
+    function switchLiveCameraFacing() {
+        window.RECON_CAMERA_FACING = (window.RECON_CAMERA_FACING === 'environment') ? 'user' : 'environment';
+        startLiveCameraStream();
+    }
+    window.switchLiveCameraFacing = switchLiveCameraFacing;
+
+    function takeLiveCameraSnapshot() {
+        const video = document.getElementById('recon-live-camera-video');
+        const canvas = document.getElementById('recon-camera-capture-canvas');
+        if (!video || !canvas) return;
+
+        const w = video.videoWidth || 1280;
+        const h = video.videoHeight || 720;
+        canvas.width = w;
+        canvas.height = h;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, w, h);
+
+        const liveContainer = document.getElementById('recon-camera-live-container');
+        const previewContainer = document.getElementById('recon-camera-preview-container');
+        const liveControls = document.getElementById('recon-camera-live-controls');
+        const previewControls = document.getElementById('recon-camera-preview-controls');
+
+        if (liveContainer) liveContainer.classList.add('hidden');
+        if (previewContainer) previewContainer.classList.remove('hidden');
+        if (liveControls) liveControls.classList.add('hidden');
+        if (previewControls) previewControls.classList.remove('hidden');
+
+        try { video.pause(); } catch(e) {}
+    }
+    window.takeLiveCameraSnapshot = takeLiveCameraSnapshot;
+
+    function retakeLiveCameraSnapshot() {
+        const liveContainer = document.getElementById('recon-camera-live-container');
+        const previewContainer = document.getElementById('recon-camera-preview-container');
+        const liveControls = document.getElementById('recon-camera-live-controls');
+        const previewControls = document.getElementById('recon-camera-preview-controls');
+        const video = document.getElementById('recon-live-camera-video');
+
+        if (liveContainer) liveContainer.classList.remove('hidden');
+        if (previewContainer) previewContainer.classList.add('hidden');
+        if (liveControls) liveControls.classList.remove('hidden');
+        if (previewControls) previewControls.classList.add('hidden');
+
+        if (video) {
+            video.play().catch(e => console.warn(e));
+        }
+    }
+    window.retakeLiveCameraSnapshot = retakeLiveCameraSnapshot;
+
+    function confirmLiveCameraSnapshot() {
+        const canvas = document.getElementById('recon-camera-capture-canvas');
+        if (!canvas) return;
+
+        canvas.toBlob(blob => {
+            if (!blob) {
+                if (window.showModernToast) {
+                    window.showModernToast('⚠️ حدث خطأ أثناء تجهيز الصورة، يرجى إعادة المحاولة', 'error', 3000);
+                }
+                return;
+            }
+
+            const side = window.RECON_ACTIVE_CAMERA_SIDE || 'A';
+            const fileName = `كاميرا_كشف_حساب_${side}_${Date.now()}.jpg`;
+            const file = new File([blob], fileName, { type: 'image/jpeg', lastModified: Date.now() });
+
+            // Close camera modal and stop tracks
+            closeLiveCameraCapture();
+
+            if (window.showModernToast) {
+                window.showModernToast('📸 تم التقاط صورة كشف الحساب! جاري المعالجة والاستخراج بالذكاء الاصطناعي...', 'info', 3500);
+            }
+
+            // Synthesize upload event for handleOmniUpload
+            const fakeEvent = {
+                target: {
+                    files: [file],
+                    value: ''
+                }
+            };
+            if (typeof handleOmniUpload === 'function') {
+                handleOmniUpload(fakeEvent, side, 'camera');
+            }
+        }, 'image/jpeg', 0.92);
+    }
+    window.confirmLiveCameraSnapshot = confirmLiveCameraSnapshot;
+
+    function closeLiveCameraCapture() {
+        const modal = document.getElementById('modal-recon-live-camera');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.add('hidden');
+        }
+        if (window.RECON_CAMERA_STREAM) {
+            try {
+                window.RECON_CAMERA_STREAM.getTracks().forEach(t => t.stop());
+            } catch(e) {}
+            window.RECON_CAMERA_STREAM = null;
+        }
+        const video = document.getElementById('recon-live-camera-video');
+        if (video) {
+            video.srcObject = null;
+        }
+    }
+    window.closeLiveCameraCapture = closeLiveCameraCapture;
+
+    // Camera Keyboard Shortcuts (Space/Enter to take snap, Esc to close)
+    if (!window.RECON_CAMERA_KEYS_BOUND) {
+        window.RECON_CAMERA_KEYS_BOUND = true;
+        document.addEventListener('keydown', function(e) {
+            const camModal = document.getElementById('modal-recon-live-camera');
+            if (camModal && camModal.style.display !== 'none' && !camModal.classList.contains('hidden')) {
+                if (e.key === 'Escape') {
+                    closeLiveCameraCapture();
+                } else if (e.key === ' ' || e.key === 'Enter') {
+                    const liveControls = document.getElementById('recon-camera-live-controls');
+                    if (liveControls && !liveControls.classList.contains('hidden')) {
+                        e.preventDefault();
+                        takeLiveCameraSnapshot();
+                    }
+                }
+            }
+        });
+    }
 
     // Open System General Ledger / Internal Accounts Selector
     window.RECON_SEARCH_SCOPE = 'all';
