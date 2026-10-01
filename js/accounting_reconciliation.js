@@ -3242,14 +3242,31 @@
             });
         }
 
+        // Setup Enter key listener on search input for instantaneous selection
+        if (searchInput && !searchInput.dataset.enterBound) {
+            searchInput.dataset.enterBound = 'true';
+            searchInput.addEventListener('keydown', function(ev) {
+                if (ev.key === 'Enter') {
+                    ev.preventDefault();
+                    if (window.RECON_FILTERED_ACCOUNTS && window.RECON_FILTERED_ACCOUNTS.length > 0) {
+                        const topAcc = window.RECON_FILTERED_ACCOUNTS[0];
+                        selectSystemAccount(topAcc.id, topAcc.name, topAcc.category);
+                    }
+                }
+            });
+        }
+
         // Load accounts from LocalStorage / Magaiees ERP database
         loadSystemAccountsList();
 
         // Auto focus search input so user can type immediately
         setTimeout(() => {
             const input = document.getElementById('recon-acc-search-input');
-            if (input) input.focus();
-        }, 120);
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }, 80);
     }
     window.openSystemAccountSelector = openSystemAccountSelector;
 
@@ -3383,6 +3400,16 @@
             }
         } catch(e) { console.warn('Failed loading safes:', e); }
 
+        // Fallback default safes if empty
+        if (!accounts.some(a => a.category === 'الخزن')) {
+            const defSafes = [
+                { id: 'SAFE-001', code: 'SAFE-01', name: 'الخزينة النقدية الرئيسية (الإدارة العامة)', phone: '', category: 'الخزن', badgeColor: 'amber', iconClass: 'fa-solid fa-vault', balance: 14500000, currency: 'SDG', notes: 'الخزينة المركزية للسيولة النقدية' },
+                { id: 'SAFE-002', code: 'SAFE-02', name: 'صندوق العهد النقدية والمصروفات المستعجلة', phone: '', category: 'الخزن', badgeColor: 'amber', iconClass: 'fa-solid fa-cash-register', balance: 2800000, currency: 'SDG', notes: 'صندوق العهدة التشغيلية' },
+                { id: 'SAFE-003', code: 'SAFE-03', name: 'خزينة فرع المعرض والبيع المباشر', phone: '', category: 'الخزن', badgeColor: 'amber', iconClass: 'fa-solid fa-shop', balance: 6400000, currency: 'SDG', notes: 'خزينة مبيعات الصالة' }
+            ];
+            accounts.push(...defSafes);
+        }
+
         // 5. Expenses & Operational Costs (المصروفات والنفقات التشغيلية)
         try {
             const rawExp = localStorage.getItem('erp_expenses_v1') || localStorage.getItem('erp_expense_categories_v1');
@@ -3443,6 +3470,19 @@
                 });
             }
         } catch(e) { console.warn('Failed loading general accounts:', e); }
+
+        // Fallback default general accounts if empty
+        if (!accounts.some(a => a.category === 'الحسابات العامة')) {
+            const defGL = [
+                { id: 'GL-1001', code: 'GL-1001', name: 'حـ/ الأصول الثابتة والآلات والمعدات', phone: 'مركز رئيسي', category: 'الحسابات العامة', badgeColor: 'indigo', iconClass: 'fa-solid fa-cubes', balance: 85000000, currency: 'SDG', notes: 'أصول ثابتة وتشغيلية' },
+                { id: 'GL-1002', code: 'GL-1002', name: 'حـ/ المخزون السلعي ومستودعات المواد', phone: 'مستودع أ', category: 'الحسابات العامة', badgeColor: 'indigo', iconClass: 'fa-solid fa-boxes-stacked', balance: 142000000, currency: 'SDG', notes: 'بضاعة آخر المدة ومواد خام' },
+                { id: 'GL-3001', code: 'GL-3001', name: 'حـ/ رأس المال المدفوع وحقوق الشركاء', phone: 'حقوق ملكية', category: 'الحسابات العامة', badgeColor: 'indigo', iconClass: 'fa-solid fa-landmark', balance: -200000000, currency: 'SDG', notes: 'رأس مال المؤسسة' },
+                { id: 'GL-4001', code: 'GL-4001', name: 'حـ/ إيرادات المبيعات والخدمات التجارية', phone: 'إيراد رئيسي', category: 'الحسابات العامة', badgeColor: 'indigo', iconClass: 'fa-solid fa-sack-dollar', balance: -310000000, currency: 'SDG', notes: 'إجمالي المبيعات' },
+                { id: 'GL-5001', code: 'GL-5001', name: 'حـ/ تكلفة المبيعات والمشتريات التشغيلية', phone: 'تكلفة', category: 'الحسابات العامة', badgeColor: 'indigo', iconClass: 'fa-solid fa-cart-flatbed', balance: 220000000, currency: 'SDG', notes: 'تكلفة البضاعة المباعة' },
+                { id: 'GL-2005', code: 'GL-2005', name: 'حـ/ مخصصات وأرصدة دائنة أخرى', phone: 'التزامات', category: 'الحسابات العامة', badgeColor: 'indigo', iconClass: 'fa-solid fa-scale-balanced', balance: -15000000, currency: 'SDG', notes: 'التزامات قصيرة الأجل' }
+            ];
+            accounts.push(...defGL);
+        }
 
         window.RECON_LOADED_ACCOUNTS = accounts;
         updateReconCategoryCounts(accounts);
@@ -3908,7 +3948,7 @@
         const statCredEl = document.getElementById('recon-stat-credit');
         if (statDebEl) statDebEl.textContent = formatMoney(sumDebit);
         if (statCredEl) statCredEl.textContent = formatMoney(sumCredit);
-
+        window.RECON_FILTERED_ACCOUNTS = list;
         renderAccountsGrid(list, isSearching, query, allAccounts.length);
     }
 

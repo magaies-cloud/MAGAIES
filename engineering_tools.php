@@ -23157,6 +23157,24 @@ $pdo = getDBConnection();
                     background: #e2e8f0 !important;
                     color: #0f172a !important;
                 }
+                .omni-source-btn-primary {
+                    background: linear-gradient(135deg, rgba(99, 102, 241, 0.28), rgba(56, 189, 248, 0.2)) !important;
+                    border-color: rgba(56, 189, 248, 0.5) !important;
+                    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.15) !important;
+                }
+                .omni-source-btn-primary:hover {
+                    background: linear-gradient(135deg, rgba(99, 102, 241, 0.5), rgba(56, 189, 248, 0.4)) !important;
+                    border-color: rgba(56, 189, 248, 0.9) !important;
+                    transform: translateY(-1.5px) scale(1.02) !important;
+                    box-shadow: 0 4px 16px rgba(56, 189, 248, 0.3) !important;
+                }
+                @keyframes reconScaleIn {
+                    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+                    to { opacity: 1; transform: scale(1) translateY(0); }
+                }
+                .animate-scaleIn {
+                    animation: reconScaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                }
             </style>
 
             <div class="recon-hero-glass">
@@ -23177,8 +23195,12 @@ $pdo = getDBConnection();
                         </div>
                     </div>
 
-                    <!-- Quick Sample Loader Button & Reset -->
+                    <!-- Quick Action Buttons: Account Statement, Sample Loader, Reset -->
                     <div class="flex items-center gap-2">
+                        <button type="button" onclick="openSystemAccountSelector('A')" class="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600/30 via-indigo-600/30 to-purple-600/30 hover:from-sky-600/50 hover:to-indigo-600/50 border-2 border-indigo-400/60 text-indigo-200 hover:text-white text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer transition shadow-md hover:scale-[1.02]" title="فتح شاشة اختيار كشف حساب والبحث في جميع حسابات البرنامج">
+                            <i class="fa-solid fa-file-invoice-dollar text-base text-sky-300"></i>
+                            <span>كشف حساب</span>
+                        </button>
                         <button type="button" onclick="loadReconciliationSampleData()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/25 to-orange-500/25 hover:from-amber-500/35 hover:to-orange-500/35 border-2 border-amber-400/60 text-amber-200 text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer transition shadow-md hover:scale-[1.02]">
                             <i class="fa-solid fa-flask-vial text-base text-amber-300"></i>
                             <span>نموذج تجريبي</span>
@@ -23249,9 +23271,9 @@ $pdo = getDBConnection();
 
                             <!-- Omnichannel Sources Bar for Side A -->
                             <div class="flex flex-wrap items-center gap-1.5 mb-3 p-2 rounded-xl bg-slate-950/70 border border-sky-500/20 text-xs">
-                                <button type="button" onclick="openSystemAccountSelector('A')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ العام وحسابات البرنامج">
-                                    <i class="fa-solid fa-book-journal-whills text-sky-400"></i>
-                                    <span>دفتر الأستاذ</span>
+                                <button type="button" onclick="openSystemAccountSelector('A')" class="omni-source-btn omni-source-btn-primary" title="جلب واستعراض كشف حساب مباشرة من دليل الحسابات ودفتر الأستاذ">
+                                    <i class="fa-solid fa-file-invoice-dollar text-sky-400"></i>
+                                    <span class="font-black text-sky-200">كشف حساب</span>
                                 </button>
                                 
                                 <button type="button" onclick="document.getElementById('omni-file-gallery-A').click()" class="omni-source-btn" title="اختيار صور متعددة من استوديو ومعرض الصور بالجهاز">
@@ -23314,9 +23336,9 @@ $pdo = getDBConnection();
 
                             <!-- Omnichannel Sources Bar for Side B -->
                             <div class="flex flex-wrap items-center gap-1.5 mb-3 p-2 rounded-xl bg-slate-950/70 border border-purple-500/20 text-xs">
-                                <button type="button" onclick="openSystemAccountSelector('B')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ العام وحسابات البرنامج">
-                                    <i class="fa-solid fa-book-journal-whills text-purple-400"></i>
-                                    <span>دفتر الأستاذ</span>
+                                <button type="button" onclick="openSystemAccountSelector('B')" class="omni-source-btn omni-source-btn-primary" title="جلب واستعراض كشف حساب مباشرة من دليل الحسابات ودفتر الأستاذ">
+                                    <i class="fa-solid fa-file-invoice-dollar text-purple-400"></i>
+                                    <span class="font-black text-purple-200">كشف حساب</span>
                                 </button>
                                 
                                 <button type="button" onclick="document.getElementById('omni-file-gallery-B').click()" class="omni-source-btn" title="اختيار صور متعددة من استوديو ومعرض الصور بالجهاز">
@@ -26597,30 +26619,30 @@ $pdo = getDBConnection();
 <!-- ════════════════════════════════════════════════════════════════ -->
             <!-- MODAL 1: SYSTEM GENERAL LEDGER & ACCOUNTS SELECTOR              -->
             <!-- ════════════════════════════════════════════════════════════════ -->
-            <div id="modal-recon-system-accounts" style="display: none; position: fixed; inset: 0; z-index: 99999999; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(2, 6, 23, 0.94); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);" class="hidden">
-                <div class="w-full max-w-6xl max-h-[92vh] flex flex-col rounded-3xl bg-slate-900 border-2 border-indigo-500/50 shadow-2xl overflow-hidden animate-scaleIn text-right">
+            <div id="modal-recon-system-accounts" style="display: none; position: fixed; inset: 0; z-index: 99999999; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(2, 6, 23, 0.94); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);" class="hidden" onclick="if(event.target === this) closeReconModals()">
+                <div class="relative w-full max-w-5xl my-auto max-h-[92vh] flex flex-col rounded-3xl bg-slate-900 border-2 border-indigo-500/50 shadow-2xl overflow-hidden animate-scaleIn text-right ring-1 ring-white/10">
                     
                     <!-- 1. Header (Fixed Top) -->
                     <div class="px-5 py-4 sm:px-6 bg-slate-900/95 border-b border-indigo-500/25 flex flex-wrap items-center justify-between gap-3 shrink-0">
-                        <div class="flex items-center gap-3">
-                            <span class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-sky-500 text-white flex items-center justify-center text-xl shadow-lg shadow-indigo-500/30">
-                                <i class="fa-solid fa-book-journal-whills"></i>
+                        <div class="flex items-center gap-3.5">
+                            <span class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 via-indigo-600 to-purple-600 text-white flex items-center justify-center text-xl shadow-lg shadow-indigo-500/30">
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
                             </span>
                             <div>
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <h4 class="font-black text-lg sm:text-xl text-slate-100">📖 دفتر الأستاذ العام — دليل وبحث الحسابات المالية</h4>
-                                    <span id="recon-modal-target-side-label" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                                    <h4 class="font-black text-lg sm:text-xl text-slate-100">📖 كشف الحساب — دليل واستعراض كافة حسابات المنظومة</h4>
+                                    <span id="recon-modal-target-side-label" class="px-3 py-1 rounded-full text-xs font-black bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm">
                                         الطرف المستهدف: كشف حساب الطرف الأول
                                     </span>
                                 </div>
-                                <p class="text-xs text-slate-400 mt-0.5">اختر أي حساب لاستيراد قيوده وحركاته المحاسبية مباشرة إلى جدول المطابقة</p>
+                                <p class="text-xs text-slate-400 mt-0.5">ابحث واختر أي حساب لجلب كشف الحساب فوراً وإدراجه في جدول المطابقة والفحص بالذكاء الاصطناعي</p>
                             </div>
                         </div>
                         
                         <div class="flex items-center gap-2">
                             <a href="general-ledger.php" target="_blank" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 hover:text-white border border-indigo-500/30 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition shadow" title="فتح شاشة دفتر الأستاذ العام في نافذة جديدة">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                <span class="hidden sm:inline">دفتر الأستاذ</span>
+                                <span class="hidden sm:inline">دفتر الأستاذ العام</span>
                             </a>
                             <button type="button" onclick="closeReconModals()" class="w-10 h-10 rounded-2xl bg-slate-800 hover:bg-rose-950/80 text-slate-400 hover:text-rose-300 text-xl cursor-pointer flex items-center justify-center transition border border-slate-700/80 shadow" title="إغلاق (Esc)">
                                 <i class="fa-solid fa-xmark"></i>
@@ -26629,29 +26651,29 @@ $pdo = getDBConnection();
                     </div>
 
                     <!-- 2. Search & Filter Control Center (Fixed Top) -->
-                    <div class="p-4 sm:p-5 bg-slate-950/85 border-b border-slate-800/80 space-y-3 shrink-0">
+                    <div class="p-4 sm:p-5 bg-slate-950/90 border-b border-slate-800/80 space-y-3.5 shrink-0">
                         
                         <!-- Search Bar + Scope Selector -->
-                        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                        <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
                             <div class="relative flex-1">
-                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sky-400 text-lg pointer-events-none">
+                                <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sky-400 text-xl pointer-events-none">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </span>
                                 <input type="text" id="recon-acc-search-input" oninput="searchReconAccountsList()" 
-                                       placeholder="🔍 اكتب هنا للبحث الفوري بالاسم، الكود (مثل SUP-001)، الهاتف، أو الحساب المصرفي..." 
-                                       class="w-full pr-12 pl-24 py-3 rounded-2xl bg-slate-900 border-2 border-slate-700 focus:border-indigo-400 focus:bg-slate-900/95 text-slate-100 placeholder-slate-400 text-sm sm:text-base font-bold focus:outline-none transition shadow-inner">
-                                <button type="button" id="recon-acc-clear-search-btn" onclick="clearReconAccountSearch()" class="hidden absolute left-3 top-1/2 -translate-y-1/2 px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-rose-900/60 text-slate-300 hover:text-rose-200 text-xs font-bold transition flex items-center gap-1 border border-slate-700">
+                                       placeholder="🔍 اكتب هنا للبحث الفوري في كافة الحسابات (الاسم، الكود، رقم الهاتف، أو الحساب المصرفي)..." 
+                                       class="w-full pr-12 pl-24 py-3.5 rounded-2xl bg-slate-900 border-2 border-slate-700 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/20 text-slate-100 placeholder-slate-400 text-sm sm:text-base font-bold focus:outline-none transition shadow-inner">
+                                <button type="button" id="recon-acc-clear-search-btn" onclick="clearReconAccountSearch()" class="hidden absolute left-3 top-1/2 -translate-y-1/2 px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-900/60 text-slate-300 hover:text-rose-200 text-xs font-bold transition flex items-center gap-1 border border-slate-700 cursor-pointer">
                                     <i class="fa-solid fa-xmark"></i> <span>مسح</span>
                                 </button>
                             </div>
 
                             <!-- Search Scope Selector -->
-                            <div class="flex items-center bg-slate-900 p-1 rounded-2xl border border-slate-700/80 shrink-0 text-xs font-bold text-slate-300">
+                            <div class="flex items-center bg-slate-900 p-1.5 rounded-2xl border border-slate-700/80 shrink-0 text-xs font-bold text-slate-300">
                                 <span class="px-2 text-slate-400 hidden lg:inline"><i class="fa-solid fa-sliders text-indigo-400"></i> نطاق البحث:</span>
-                                <button type="button" onclick="setReconSearchScope('all', this)" class="recon-scope-btn px-2.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black transition">الكل</button>
-                                <button type="button" onclick="setReconSearchScope('name', this)" class="recon-scope-btn px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-white transition">الاسم</button>
-                                <button type="button" onclick="setReconSearchScope('code', this)" class="recon-scope-btn px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-white transition">الكود</button>
-                                <button type="button" onclick="setReconSearchScope('phone', this)" class="recon-scope-btn px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-white transition">الهاتف/البنك</button>
+                                <button type="button" onclick="setReconSearchScope('all', this)" class="recon-scope-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-black transition cursor-pointer">الكل</button>
+                                <button type="button" onclick="setReconSearchScope('name', this)" class="recon-scope-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition cursor-pointer">الاسم</button>
+                                <button type="button" onclick="setReconSearchScope('code', this)" class="recon-scope-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition cursor-pointer">الكود</button>
+                                <button type="button" onclick="setReconSearchScope('phone', this)" class="recon-scope-btn px-3 py-1.5 rounded-xl text-slate-400 hover:text-white transition cursor-pointer">الهاتف/البنك</button>
                             </div>
                         </div>
 
@@ -26659,18 +26681,18 @@ $pdo = getDBConnection();
                         <div class="flex flex-wrap items-center justify-between gap-2 px-1 text-xs">
                             <div class="flex items-center gap-1.5 text-indigo-300 font-medium">
                                 <span class="w-4 h-4 rounded-full bg-indigo-500/25 text-indigo-400 flex items-center justify-center text-[10px]"><i class="fa-solid fa-lightbulb"></i></span>
-                                <span class="font-bold text-slate-200">منطق البحث الذكي:</span>
-                                <span class="text-slate-400">يدعم تطبيع الحروف العربية (تجاهل الهمزات أ/إ/ا، ة/ه، ي/ى) والتصفية متعددة الكلمات عبر كود واسم الحساب ورقم هاتفه.</span>
+                                <span class="font-bold text-slate-200">بحث ذكي فوري:</span>
+                                <span class="text-slate-400">يدعم تطبيع الحروف العربية وتصفية الحسابات بمجرد كتابة أي حرف (اضغط Enter للاختيار السريع للأول).</span>
                             </div>
                             
                             <!-- Quick Chips -->
                             <div class="flex items-center gap-1.5 flex-wrap">
                                 <span class="text-slate-500 font-bold">اقتراحات سريعة:</span>
-                                <button type="button" onclick="quickReconSearch('بنكك')" class="px-2.5 py-0.5 rounded-lg bg-slate-800/90 hover:bg-sky-600/30 text-sky-300 border border-slate-700 text-[11px] font-bold transition">بنكك</button>
-                                <button type="button" onclick="quickReconSearch('مصنع')" class="px-2.5 py-0.5 rounded-lg bg-slate-800/90 hover:bg-purple-600/30 text-purple-300 border border-slate-700 text-[11px] font-bold transition">المصانع</button>
-                                <button type="button" onclick="quickReconSearch('مهدي')" class="px-2.5 py-0.5 rounded-lg bg-slate-800/90 hover:bg-emerald-600/30 text-emerald-300 border border-slate-700 text-[11px] font-bold transition">آية مهدي</button>
-                                <button type="button" onclick="quickReconSearch('خزينة')" class="px-2.5 py-0.5 rounded-lg bg-slate-800/90 hover:bg-amber-600/30 text-amber-300 border border-slate-700 text-[11px] font-bold transition">الخزينة</button>
-                                <button type="button" onclick="quickReconSearch('نقل')" class="px-2.5 py-0.5 rounded-lg bg-slate-800/90 hover:bg-rose-600/30 text-rose-300 border border-slate-700 text-[11px] font-bold transition">نقل وترحيل</button>
+                                <button type="button" onclick="quickReconSearch('بنكك')" class="px-2.5 py-0.5 rounded-lg bg-slate-800/90 hover:bg-sky-600/30 text-sky-300 border border-slate-700 text-[11px] font-bold transition cursor-pointer">بنكك</button>
+                                <button type="button" onclick="quickReconSearch('مصنع')" class="px-2.5 py-0.5 rounded-lg bg-slate-800/90 hover:bg-purple-600/30 text-purple-300 border border-slate-700 text-[11px] font-bold transition cursor-pointer">المصانع</button>
+                                <button type="button" onclick="quickReconSearch('مهدي')" class="px-2.5 py-0.5 rounded-lg bg-slate-800/90 hover:bg-emerald-600/30 text-emerald-300 border border-slate-700 text-[11px] font-bold transition cursor-pointer">آية مهدي</button>
+                                <button type="button" onclick="quickReconSearch('خزينة')" class="px-2.5 py-0.5 rounded-lg bg-slate-800/90 hover:bg-amber-600/30 text-amber-300 border border-slate-700 text-[11px] font-bold transition cursor-pointer">الخزينة</button>
+                                <button type="button" onclick="quickReconSearch('نقل')" class="px-2.5 py-0.5 rounded-lg bg-slate-800/90 hover:bg-rose-600/30 text-rose-300 border border-slate-700 text-[11px] font-bold transition cursor-pointer">نقل وترحيل</button>
                             </div>
                         </div>
 
