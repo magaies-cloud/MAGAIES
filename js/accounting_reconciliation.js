@@ -2855,7 +2855,46 @@
             }
         } catch(e) { console.warn('Failed loading safes:', e); }
 
-        // 5. General Ledger Accounts (الحسابات العامة والدليل المحاسبي)
+        // 5. Expenses & Operational Costs (المصروفات والنفقات التشغيلية)
+        try {
+            const rawExp = localStorage.getItem('erp_expenses_v1') || localStorage.getItem('erp_expense_categories_v1');
+            const parsedExp = rawExp ? JSON.parse(rawExp) : [];
+            if (Array.isArray(parsedExp) && parsedExp.length > 0) {
+                parsedExp.forEach(e => {
+                    accounts.push({
+                        id: e.id || e.code || ('EXP-' + (e.name || '')),
+                        code: e.code || e.id || 'EXP',
+                        name: e.name || e.category || 'مصروف عام',
+                        phone: '',
+                        category: 'المصروفات',
+                        badgeColor: 'rose',
+                        iconClass: 'fa-solid fa-receipt',
+                        balance: parseFloat(e.amount || e.balance || 0),
+                        currency: e.currency || 'SDG',
+                        notes: e.notes || 'حساب مصروفات ونفقات تشغيلية'
+                    });
+                });
+            }
+        } catch(e) { console.warn('Failed loading expenses:', e); }
+
+        // Standard Default Expenses if not populated
+        const defExpenses = [
+            { id: 'EXP-101', code: 'EXP-101', name: 'حـ/ مصروفات نقل وترحيل بضائع ومشحونات', phone: '', category: 'المصروفات', badgeColor: 'rose', iconClass: 'fa-solid fa-truck-fast', balance: 5050000, currency: 'SDG', notes: 'تكاليف الشحن والتفريغ والترحيل' },
+            { id: 'EXP-102', code: 'EXP-102', name: 'حـ/ إيجارات المعارض والمخازن والمستودعات', phone: '', category: 'المصروفات', badgeColor: 'rose', iconClass: 'fa-solid fa-warehouse', balance: 3600000, currency: 'SDG', notes: 'إيجارات مقرات العمل والمستودعات' },
+            { id: 'EXP-103', code: 'EXP-103', name: 'حـ/ مرتبات وأجور العمال والموظفين', phone: '', category: 'المصروفات', badgeColor: 'rose', iconClass: 'fa-solid fa-user-tie', balance: 14200000, currency: 'SDG', notes: 'رواتب وبدلات ومكافآت شهرية' },
+            { id: 'EXP-104', code: 'EXP-104', name: 'حـ/ كهرباء ومياه ووقود المولدات', phone: '', category: 'المصروفات', badgeColor: 'rose', iconClass: 'fa-solid fa-bolt', balance: 2800000, currency: 'SDG', notes: 'فواتير الطاقة والمياه والمحروقات' },
+            { id: 'EXP-105', code: 'EXP-105', name: 'حـ/ صيانة وإصلاح الرافعات والمعدات والسيارات', phone: '', category: 'المصروفات', badgeColor: 'rose', iconClass: 'fa-solid fa-wrench', balance: 1950000, currency: 'SDG', notes: 'صيانة دورية للمعدات والمركبات' },
+            { id: 'EXP-106', code: 'EXP-106', name: 'حـ/ نثريات وضيافة ومطبوعات مكتبية', phone: '', category: 'المصروفات', badgeColor: 'rose', iconClass: 'fa-solid fa-mug-hot', balance: 850000, currency: 'SDG', notes: 'مصروفات مكتبية وبوفيه ونثريات' },
+            { id: 'EXP-107', code: 'EXP-107', name: 'حـ/ رسوم حكومية وضرائب ودمغات ورخص', phone: '', category: 'المصروفات', badgeColor: 'rose', iconClass: 'fa-solid fa-stamp', balance: 4100000, currency: 'SDG', notes: 'تراخيص ومصروفات حكومية رسمية' },
+            { id: 'EXP-108', code: 'EXP-108', name: 'حـ/ عمولات بنكية ومصروفات مقاصة وتحويل', phone: '', category: 'المصروفات', badgeColor: 'rose', iconClass: 'fa-solid fa-percent', balance: 620000, currency: 'SDG', notes: 'رسوم خدمات بنكية ومصرفية' }
+        ];
+        defExpenses.forEach(de => {
+            if (!accounts.some(a => a.name === de.name || a.id === de.id)) {
+                accounts.push(de);
+            }
+        });
+
+        // 6. General Ledger Accounts (الحسابات العامة والدليل المحاسبي)
         try {
             const rawAccs = localStorage.getItem('erp_accounts_v1');
             const parsedAccs = rawAccs ? JSON.parse(rawAccs) : [];
@@ -2916,11 +2955,18 @@
         const grid = document.getElementById('recon-modal-accounts-grid');
         if (!grid) return;
 
+        // Update total counter badge in modal header
+        const countBadge = document.getElementById('recon-modal-total-accs-count');
+        if (countBadge) {
+            countBadge.textContent = `${(list || []).length} حساب معتمد`;
+        }
+
         if (!list || list.length === 0) {
             grid.innerHTML = `
-                <div class="text-center py-10 text-slate-400 font-bold space-y-2">
-                    <i class="fa-solid fa-magnifying-glass text-2xl text-slate-500"></i>
-                    <p>لا توجد حسابات مطابقة للبحث أو التصنيف المحدد.</p>
+                <div class="col-span-full text-center py-12 text-slate-400 font-bold space-y-3 bg-slate-950/40 rounded-2xl border border-slate-800/80">
+                    <i class="fa-solid fa-magnifying-glass text-3xl text-indigo-400/60 animate-pulse"></i>
+                    <p class="text-sm">لا توجد حسابات مطابقة للبحث أو التصنيف المحدد.</p>
+                    <span class="text-xs text-slate-500 font-mono">جرب البحث باسم الحساب أو كوده من حقل البحث أعلاه</span>
                 </div>
             `;
             return;
@@ -2928,31 +2974,54 @@
 
         grid.innerHTML = list.map(acc => {
             const isNegative = acc.balance < 0;
-            const balColor = isNegative ? 'text-rose-400' : 'text-emerald-400';
-            const balLabel = isNegative ? 'دائن (علينا)' : 'مدين (لنا)';
+            const isExpense = acc.category === 'المصروفات';
+            let balColor = 'text-emerald-400';
+            let balLabel = 'مدين (لنا)';
+            let balBadgeBg = 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400';
+
+            if (isExpense) {
+                balColor = 'text-rose-400';
+                balLabel = 'إجمالي منصرف';
+                balBadgeBg = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
+            } else if (isNegative) {
+                balColor = 'text-rose-400';
+                balLabel = 'دائن (علينا)';
+                balBadgeBg = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
+            }
+
             const escapedName = escapeHtmlRecon(acc.name);
             const escapedId = escapeHtmlRecon(acc.id);
             const escapedCat = escapeHtmlRecon(acc.category);
 
             return `
                 <div onclick="selectSystemAccount('${escapedId}', '${escapedName}', '${escapedCat}')"
-                     class="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 hover:border-indigo-500/60 hover:bg-slate-900 transition cursor-pointer flex items-center justify-between group shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <span class="w-10 h-10 rounded-xl bg-${acc.badgeColor}-500/15 border border-${acc.badgeColor}-500/30 flex items-center justify-center text-${acc.badgeColor}-400 text-sm group-hover:scale-110 transition shadow">
+                     class="p-4 rounded-2xl bg-slate-950/85 border border-slate-800/90 hover:border-indigo-500 hover:bg-slate-900 transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 group shadow-md hover:shadow-indigo-500/15 transform hover:-translate-y-0.5">
+                    
+                    <div class="flex items-center gap-3.5 min-w-0 flex-1">
+                        <span class="w-12 h-12 shrink-0 rounded-2xl bg-${acc.badgeColor}-500/15 border border-${acc.badgeColor}-500/40 flex items-center justify-center text-${acc.badgeColor}-400 text-lg group-hover:scale-110 group-hover:border-${acc.badgeColor}-400 transition shadow">
                             <i class="${acc.iconClass}"></i>
                         </span>
-                        <div>
-                            <h5 class="font-black text-sm text-slate-100 group-hover:text-indigo-300 transition leading-snug">${escapedName}</h5>
-                            <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-400 font-mono mt-1">
-                                <span>كود: ${acc.code}</span>
-                                ${acc.phone ? `<span>· 📞 ${acc.phone}</span>` : ''}
-                                <span class="px-2 py-0.5 rounded-md bg-slate-800 text-[10px] text-slate-300 font-bold">${acc.category}</span>
+                        
+                        <div class="min-w-0 flex-1">
+                            <!-- Name and Balance side by side in clear large typography -->
+                            <div class="flex flex-wrap items-baseline gap-2">
+                                <h5 class="font-black text-base sm:text-lg text-slate-100 group-hover:text-indigo-300 transition truncate leading-tight">${escapedName}</h5>
+                                <span class="font-mono text-xs sm:text-sm font-black px-2.5 py-0.5 rounded-lg ${balBadgeBg} border whitespace-nowrap shadow-inner">
+                                    ${formatMoney(Math.abs(acc.balance))} <span class="text-[10px] text-slate-400 font-sans">${acc.currency}</span>
+                                </span>
+                            </div>
+                            
+                            <!-- Subtitle with category badge and balance nature (No code clutter) -->
+                            <div class="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-400">
+                                <span class="px-2 py-0.5 rounded-md bg-slate-900 text-[10px] font-bold text-slate-300 border border-slate-800">${acc.category}</span>
+                                <span class="text-[11px] font-bold ${isNegative ? 'text-rose-400' : 'text-emerald-400'}">${balLabel}</span>
+                                ${acc.phone ? `<span class="text-[11px] text-slate-400">· 📞 ${escapeHtmlRecon(acc.phone)}</span>` : ''}
                             </div>
                         </div>
                     </div>
-                    <div class="text-left font-mono pl-1">
-                        <span class="text-[10px] text-slate-400 block font-bold">${balLabel}</span>
-                        <span class="text-xs sm:text-sm font-black ${balColor}">${formatMoney(Math.abs(acc.balance))} ${acc.currency}</span>
+
+                    <div class="shrink-0 text-slate-500 group-hover:text-indigo-400 transition pr-1 text-sm">
+                        <i class="fa-solid fa-chevron-left"></i>
                     </div>
                 </div>
             `;
@@ -3213,6 +3282,26 @@
                 ["2026-06-18", "TRX-442188", "تحويل بنكي وارد عبر تطبيق فوري", 0, 3500000, 20500000, "SDG"],
                 ["2026-06-21", "INV-2050", "فاتورة توريد أسمنت بورتلاندي (15 طن)", 6000000, 0, 26500000, "SDG"],
                 ["2026-06-25", "TRX-661200", "سداد دفعة نقدية بالخزينة الرئيسية", 0, 8000000, 18500000, "SDG"]
+            ];
+        }
+
+        if (category === 'المصروفات') {
+            return [
+                ["2026-06-01", "EXP-01", "رصيد مرحل لمصروفات الفترة السابقة", 1250000, 0, 1250000, "SDG"],
+                ["2026-06-06", "PAY-301", "سداد نقدي من الخزينة الرئيسية بموجب إيصال رسمي", 850000, 0, 2100000, "SDG"],
+                ["2026-06-11", "TRX-7744", "تحويل بنكك سداد فواتير ورسوم تشغيلية", 1400000, 0, 3500000, "SDG"],
+                ["2026-06-17", "CHQ-1092", "صرف شيك مصرفي رقم 1092 نفقات دورية", 600000, 0, 4100000, "SDG"],
+                ["2026-06-23", "PAY-308", "سداد دفعة مصاريف ونثريات بمستند صرف", 950000, 0, 5050000, "SDG"]
+            ];
+        }
+
+        if (category === 'الخزن') {
+            return [
+                ["2026-06-01", "OP-01", "رصيد افتتاحي عهدة الخزينة أول المدة", 15000000, 0, 15000000, "SDG"],
+                ["2026-06-05", "REC-101", "توريد مقبوضات مبيعات نقدية يومية بالصالة", 8500000, 0, 23500000, "SDG"],
+                ["2026-06-09", "PAY-204", "صرف عهدة نقدية وسداد مشتريات ومصروفات", 0, 4200000, 19300000, "SDG"],
+                ["2026-06-14", "REC-105", "إيداع مقبوضات سداد عملاء نقداً بالخزينة", 6000000, 0, 25300000, "SDG"],
+                ["2026-06-20", "TRX-BNK", "تحويل وتغذية من الخزينة إلى الحساب البنكي", 0, 10000000, 15300000, "SDG"]
             ];
         }
 

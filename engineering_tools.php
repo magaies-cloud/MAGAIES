@@ -26605,25 +26605,29 @@ $pdo = getDBConnection();
 <!-- ════════════════════════════════════════════════════════════════ -->
             <!-- MODAL 1: SYSTEM GENERAL LEDGER & ACCOUNTS SELECTOR              -->
             <!-- ════════════════════════════════════════════════════════════════ -->
-            <div id="modal-recon-system-accounts" style="display: none; position: fixed; inset: 0; z-index: 99999999; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(2, 6, 23, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);" class="hidden">
-                <div class="w-full max-w-2xl rounded-3xl bg-slate-900 border-2 border-indigo-500/50 shadow-2xl p-6 sm:p-7 space-y-5 animate-scaleIn text-right">
+            <div id="modal-recon-system-accounts" style="display: none; position: fixed; inset: 0; z-index: 99999999; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(2, 6, 23, 0.90); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);" class="hidden">
+                <div class="w-full max-w-4xl rounded-3xl bg-slate-900 border-2 border-indigo-500/50 shadow-2xl p-6 sm:p-7 space-y-4 animate-scaleIn text-right">
                     
-                    <div class="flex items-center justify-between pb-3 border-b border-indigo-500/20">
+                    <!-- Header -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-indigo-500/25">
                         <div class="flex items-center gap-3">
-                            <span class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-lg">
+                            <span class="w-11 h-11 rounded-2xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/40 flex items-center justify-center text-xl shadow-lg">
                                 <i class="fa-solid fa-book-journal-whills"></i>
                             </span>
                             <div>
-                                <h4 class="font-black text-base text-slate-100">جلب كشف الحساب مباشرة من دفتر الأستاذ العام</h4>
-                                <span class="text-xs text-slate-400 font-bold" id="recon-modal-target-side-label">سيتم التضمين في: الطرف الأول</span>
+                                <div class="flex items-center gap-2">
+                                    <h4 class="font-black text-base sm:text-lg text-slate-100">دليل الحسابات ودفتر الأستاذ العام</h4>
+                                    <span id="recon-modal-total-accs-count" class="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono text-xs font-bold border border-indigo-500/30">0 حساب</span>
+                                </div>
+                                <span class="text-xs text-slate-400 font-bold" id="recon-modal-target-side-label">الهدف: كشف حساب الطرف الأول</span>
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <a href="general-ledger.php" target="_blank" class="px-3 py-1.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-400/40 text-xs font-bold flex items-center gap-1.5 transition" title="فتح شاشة دفتر الأستاذ العام في نافذة جديدة">
+                            <a href="general-ledger.php" target="_blank" class="px-3.5 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 text-xs font-bold flex items-center gap-1.5 transition" title="فتح شاشة دفتر الأستاذ العام في نافذة جديدة">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
                                 <span>شاشة دفتر الأستاذ الكاملة</span>
                             </a>
-                            <button type="button" onclick="closeReconModals()" class="text-slate-400 hover:text-white text-lg cursor-pointer p-1">
+                            <button type="button" onclick="closeReconModals()" class="w-9 h-9 rounded-xl bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-300 text-lg cursor-pointer flex items-center justify-center transition border border-slate-700">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
@@ -26631,27 +26635,32 @@ $pdo = getDBConnection();
 
                     <!-- Category Pills -->
                     <div class="flex flex-wrap gap-1.5" id="recon-acc-cat-filters">
-                        <button type="button" onclick="filterReconAccountsList('all', this)" class="px-3 py-1 rounded-xl bg-indigo-600 text-white font-bold text-xs cursor-pointer">🌟 الكل</button>
-                        <button type="button" onclick="filterReconAccountsList('الموردين', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">🏭 الموردين والمصانع</button>
-                        <button type="button" onclick="filterReconAccountsList('البنوك', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">🏦 البنوك</button>
-                        <button type="button" onclick="filterReconAccountsList('العملاء', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">👥 العملاء</button>
-                        <button type="button" onclick="filterReconAccountsList('الخزن', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">💼 الخزن والصناديق</button>
-                        <button type="button" onclick="filterReconAccountsList('الحسابات العامة', this)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer">📊 الحسابات العامة (GL)</button>
+                        <button type="button" onclick="filterReconAccountsList('all', this)" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white font-bold text-xs cursor-pointer shadow-md transition">🌟 الكل (جميع الحسابات)</button>
+                        <button type="button" onclick="filterReconAccountsList('العملاء', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition">👥 العملاء</button>
+                        <button type="button" onclick="filterReconAccountsList('الموردين', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition">🏭 الموردين والمصانع</button>
+                        <button type="button" onclick="filterReconAccountsList('البنوك', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition">🏦 البنوك والمصارف</button>
+                        <button type="button" onclick="filterReconAccountsList('الخزن', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition">💰 الخزن والصناديق</button>
+                        <button type="button" onclick="filterReconAccountsList('المصروفات', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition">📉 المصروفات والنفقات</button>
+                        <button type="button" onclick="filterReconAccountsList('الحسابات العامة', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition">📊 الحسابات العامة (GL)</button>
                     </div>
 
                     <!-- Search Input -->
                     <div class="relative">
-                        <input type="text" id="recon-acc-search-input" oninput="searchReconAccountsList()" placeholder="🔍 ابحث باسم الحساب، المصنع، المورد، البنك، أو كود الحساب..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-slate-100 placeholder-slate-500 text-sm font-bold focus:border-indigo-400 focus:outline-none">
+                        <input type="text" id="recon-acc-search-input" oninput="searchReconAccountsList()" placeholder="🔍 ابحث باسم الحساب، المصنع، العميل، البنك، الخزينة، المصروف، أو كود الحساب..." class="w-full px-4 py-3 rounded-2xl bg-slate-950 border-2 border-slate-700 focus:border-indigo-400 text-slate-100 placeholder-slate-500 text-sm font-bold focus:outline-none transition shadow-inner">
+                        <span class="absolute left-3 top-3 text-slate-500 text-xs font-mono">البحث الفوري</span>
                     </div>
 
-                    <!-- Accounts List -->
-                    <div id="recon-modal-accounts-grid" class="max-h-72 overflow-y-auto space-y-2 p-1 custom-scrollbar">
+                    <!-- Accounts Grid (Spacious 2-column layout) -->
+                    <div id="recon-modal-accounts-grid" class="max-h-96 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-3 p-1.5 custom-scrollbar">
                         <!-- Populated dynamically -->
                     </div>
 
-                    <div class="flex items-center justify-between pt-3 border-t border-slate-800 text-xs text-slate-400">
-                        <span>💡 يجلب النظام الحركات المسجلة في قيود اليومية تلقائياً دون تصدير</span>
-                        <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold cursor-pointer">إلغاء</button>
+                    <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-800 text-xs text-slate-400">
+                        <span class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                            <span>انقر على أي حساب لجلب كشف حركاته التفصيلية مباشرة من قيود اليومية والدفتر العام</span>
+                        </span>
+                        <button type="button" onclick="closeReconModals()" class="px-5 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold cursor-pointer transition border border-slate-700">إغلاق</button>
                     </div>
 
                 </div>
