@@ -2742,23 +2742,31 @@
         modal.style.display = 'flex';
         modal.classList.remove('hidden');
 
-        // Reset search input
+        // Reset search input and hide clear button
         const searchInput = document.getElementById('recon-acc-search-input');
         if (searchInput) searchInput.value = '';
+        const clearBtn = document.getElementById('recon-acc-clear-search-btn');
+        if (clearBtn) clearBtn.classList.add('hidden');
 
         // Reset filter pills
         window.RECON_CURRENT_FILTER = 'all';
         const filterBtns = document.querySelectorAll('#recon-acc-cat-filters button');
         filterBtns.forEach((btn, idx) => {
             if (idx === 0) {
-                btn.className = 'px-3 py-1 rounded-xl bg-indigo-600 text-white font-bold text-xs cursor-pointer';
+                btn.className = 'px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs sm:text-sm cursor-pointer shadow-md transition';
             } else {
-                btn.className = 'px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer';
+                btn.className = 'px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition';
             }
         });
 
         // Load accounts from LocalStorage / Magaiees ERP database
         loadSystemAccountsList();
+
+        // Auto focus search input so user can type immediately
+        setTimeout(() => {
+            const input = document.getElementById('recon-acc-search-input');
+            if (input) input.focus();
+        }, 120);
     }
     window.openSystemAccountSelector = openSystemAccountSelector;
 
@@ -2954,7 +2962,7 @@
         } catch(e) { console.warn('Failed loading general accounts:', e); }
 
         window.RECON_LOADED_ACCOUNTS = accounts;
-        renderAccountsGrid(accounts);
+        applyAccountsFilterAndSearch('all', '');
 
         // Background sync: Fetch latest live customers and suppliers from server database
         if (!window.RECON_MASTER_DATA_FETCHED) {
@@ -2980,7 +2988,7 @@
                             }
                         });
                         window.RECON_LOADED_ACCOUNTS = accounts;
-                        const currQuery = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim().toLowerCase();
+                        const currQuery = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim();
                         applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', currQuery);
                     }
                 })
@@ -2988,22 +2996,57 @@
         }
     }
 
-    function renderAccountsGrid(list) {
+    function normalizeArabicRecon(str) {
+        if (!str) return '';
+        return String(str).toLowerCase()
+            .replace(/[إأآا]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .replace(/[\u064B-\u065F]/g, '')
+            .trim();
+    }
+
+    function renderAccountsGrid(list, isSearching, query, totalAvailable) {
         const grid = document.getElementById('recon-modal-accounts-grid');
         if (!grid) return;
 
-        // Update total counter badge in modal header
         const countBadge = document.getElementById('recon-modal-total-accs-count');
+        const statusText = document.getElementById('recon-modal-status-text');
+
         if (countBadge) {
-            countBadge.textContent = `${(list || []).length} حساب معتمد`;
+            if (isSearching) {
+                countBadge.textContent = `${(list || []).length} حساب مطابق`;
+            } else {
+                countBadge.textContent = `معروض ${list.length} من أصل ${totalAvailable || list.length}`;
+            }
+        }
+
+        if (statusText) {
+            if (isSearching) {
+                statusText.innerHTML = `
+                    <i class="fa-solid fa-magnifying-glass text-sky-400"></i>
+                    <span class="text-sky-300">نتائج البحث عن "<strong class="text-white">${escapeHtmlRecon(query)}</strong>" (${list.length} حساب): انقر على الحساب لاختياره</span>
+                `;
+            } else {
+                statusText.innerHTML = `
+                    <i class="fa-solid fa-sparkles text-amber-400"></i>
+                    <span class="text-indigo-300">أبرز الحسابات الشائعة (${list.length}) — اكتب اسم الحساب في خانة البحث أعلاه لاختياره مباشرة:</span>
+                `;
+            }
         }
 
         if (!list || list.length === 0) {
             grid.innerHTML = `
-                <div class="col-span-full text-center py-12 text-slate-400 font-bold space-y-3 bg-slate-950/40 rounded-2xl border border-slate-800/80">
-                    <i class="fa-solid fa-magnifying-glass text-3xl text-indigo-400/60 animate-pulse"></i>
-                    <p class="text-sm">لا توجد حسابات مطابقة للبحث أو التصنيف المحدد.</p>
-                    <span class="text-xs text-slate-500 font-mono">جرب البحث باسم الحساب أو كوده من حقل البحث أعلاه</span>
+                <div class="col-span-full text-center py-12 px-4 text-slate-300 font-bold space-y-3 bg-slate-950/70 rounded-3xl border-2 border-dashed border-slate-800">
+                    <i class="fa-solid fa-magnifying-glass text-4xl text-amber-400/80 animate-bounce"></i>
+                    <h5 class="text-base sm:text-lg text-slate-200">لم يتم العثور على أي حساب باسم "${escapeHtmlRecon(query)}"</h5>
+                    <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+                        تأكد من كتابة الاسم أو انقر على زر "مسح" للعودة إلى قائمة الحسابات الشائعة.
+                    </p>
+                    <button type="button" onclick="clearReconAccountSearch()" class="mt-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs sm:text-sm cursor-pointer shadow-lg transition flex items-center gap-2 mx-auto">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>عرض الحسابات الشائعة</span>
+                    </button>
                 </div>
             `;
             return;
@@ -3014,16 +3057,16 @@
             const isExpense = acc.category === 'المصروفات';
             let balColor = 'text-emerald-400';
             let balLabel = 'مدين (لنا)';
-            let balBadgeBg = 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400';
+            let balBadgeBg = 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300';
 
             if (isExpense) {
-                balColor = 'text-rose-400';
+                balColor = 'text-amber-400';
                 balLabel = 'إجمالي منصرف';
-                balBadgeBg = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
+                balBadgeBg = 'bg-amber-500/15 border-amber-500/40 text-amber-300';
             } else if (isNegative) {
                 balColor = 'text-rose-400';
                 balLabel = 'دائن (علينا)';
-                balBadgeBg = 'bg-rose-500/10 border-rose-500/30 text-rose-400';
+                balBadgeBg = 'bg-rose-500/15 border-rose-500/40 text-rose-300';
             }
 
             const escapedName = escapeHtmlRecon(acc.name);
@@ -3032,33 +3075,44 @@
 
             return `
                 <div onclick="selectSystemAccount('${escapedId}', '${escapedName}', '${escapedCat}')"
-                     class="p-4 rounded-2xl bg-slate-950/85 border border-slate-800/90 hover:border-indigo-500 hover:bg-slate-900 transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 group shadow-md hover:shadow-indigo-500/15 transform hover:-translate-y-0.5">
+                     class="p-4 sm:p-5 rounded-2xl bg-slate-950/85 hover:bg-slate-900/95 border-2 border-slate-800 hover:border-indigo-400 transition-all duration-200 cursor-pointer flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 group shadow-lg hover:shadow-indigo-500/20 transform hover:-translate-y-0.5">
                     
-                    <div class="flex items-center gap-3.5 min-w-0 flex-1">
-                        <span class="w-12 h-12 shrink-0 rounded-2xl bg-${acc.badgeColor}-500/15 border border-${acc.badgeColor}-500/40 flex items-center justify-center text-${acc.badgeColor}-400 text-lg group-hover:scale-110 group-hover:border-${acc.badgeColor}-400 transition shadow">
+                    <div class="flex items-center gap-4 min-w-0 flex-1">
+                        <span class="w-14 h-14 shrink-0 rounded-2xl bg-${acc.badgeColor}-500/15 border-2 border-${acc.badgeColor}-500/40 flex items-center justify-center text-${acc.badgeColor}-400 text-2xl group-hover:scale-110 group-hover:border-${acc.badgeColor}-400 transition shadow">
                             <i class="${acc.iconClass}"></i>
                         </span>
                         
-                        <div class="min-w-0 flex-1">
-                            <!-- Name and Balance side by side in clear large typography -->
-                            <div class="flex flex-wrap items-baseline gap-2">
-                                <h5 class="font-black text-base sm:text-lg text-slate-100 group-hover:text-indigo-300 transition truncate leading-tight">${escapedName}</h5>
-                                <span class="font-mono text-xs sm:text-sm font-black px-2.5 py-0.5 rounded-lg ${balBadgeBg} border whitespace-nowrap shadow-inner">
-                                    ${formatMoney(Math.abs(acc.balance))} <span class="text-[10px] text-slate-400 font-sans">${acc.currency}</span>
+                        <div class="min-w-0 flex-1 space-y-1.5">
+                            <!-- Large Name & Prominent Balance Beside it -->
+                            <div class="flex flex-wrap items-baseline gap-2.5">
+                                <h5 class="font-black text-lg sm:text-xl text-slate-100 group-hover:text-indigo-200 transition leading-snug">
+                                    ${escapedName}
+                                </h5>
+                                <span class="font-mono text-sm sm:text-base font-black px-3 py-1 rounded-xl ${balBadgeBg} border whitespace-nowrap shadow-inner">
+                                    ${formatMoney(Math.abs(acc.balance))} <span class="text-xs text-slate-300 font-sans font-bold">${acc.currency}</span>
                                 </span>
                             </div>
                             
-                            <!-- Subtitle with category badge and balance nature (No code clutter) -->
-                            <div class="flex flex-wrap items-center gap-2 mt-1.5 text-xs text-slate-400">
-                                <span class="px-2 py-0.5 rounded-md bg-slate-900 text-[10px] font-bold text-slate-300 border border-slate-800">${acc.category}</span>
-                                <span class="text-[11px] font-bold ${isNegative ? 'text-rose-400' : 'text-emerald-400'}">${balLabel}</span>
-                                ${acc.phone ? `<span class="text-[11px] text-slate-400">· 📞 ${escapeHtmlRecon(acc.phone)}</span>` : ''}
+                            <!-- Badges: Category, Balance Nature, Details -->
+                            <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
+                                <span class="px-2.5 py-0.5 rounded-lg bg-slate-900 text-xs font-bold text-slate-200 border border-slate-700/80">
+                                    ${acc.category}
+                                </span>
+                                <span class="text-xs font-bold ${isExpense ? 'text-amber-400' : (isNegative ? 'text-rose-400' : 'text-emerald-400')}">
+                                    ${balLabel}
+                                </span>
+                                ${acc.phone ? `<span class="text-xs text-slate-400 font-mono">· 📞 ${escapeHtmlRecon(acc.phone)}</span>` : ''}
+                                ${acc.notes ? `<span class="text-xs text-slate-500 hidden md:inline-block">· ${escapeHtmlRecon(acc.notes)}</span>` : ''}
                             </div>
                         </div>
                     </div>
 
-                    <div class="shrink-0 text-slate-500 group-hover:text-indigo-400 transition pr-1 text-sm">
-                        <i class="fa-solid fa-chevron-left"></i>
+                    <!-- Direct Selection Button -->
+                    <div class="shrink-0 flex items-center gap-2">
+                        <span class="px-4 py-2.5 rounded-xl bg-indigo-600/25 group-hover:bg-indigo-600 border border-indigo-500/40 text-indigo-300 group-hover:text-white font-black text-xs sm:text-sm flex items-center gap-2 transition shadow-md">
+                            <i class="fa-solid fa-check"></i>
+                            <span>اختيار الحساب</span>
+                        </span>
                     </div>
                 </div>
             `;
@@ -3080,38 +3134,86 @@
         window.RECON_CURRENT_FILTER = category;
         const filterBtns = document.querySelectorAll('#recon-acc-cat-filters button');
         filterBtns.forEach(btn => {
-            btn.className = 'px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer';
+            btn.className = 'px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition';
         });
         if (btnEl) {
-            btnEl.className = 'px-3 py-1 rounded-xl bg-indigo-600 text-white font-bold text-xs cursor-pointer';
+            btnEl.className = 'px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs sm:text-sm cursor-pointer shadow-md transition';
         }
 
-        const query = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim().toLowerCase();
+        const query = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim();
         applyAccountsFilterAndSearch(category, query);
     }
     window.filterReconAccountsList = filterReconAccountsList;
 
+    // Clear search and reset to curated common accounts
+    function clearReconAccountSearch() {
+        const input = document.getElementById('recon-acc-search-input');
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+        const clearBtn = document.getElementById('recon-acc-clear-search-btn');
+        if (clearBtn) clearBtn.classList.add('hidden');
+        applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', '');
+    }
+    window.clearReconAccountSearch = clearReconAccountSearch;
+
     // Live search in accounts list
     function searchReconAccountsList() {
-        const query = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim().toLowerCase();
+        const input = document.getElementById('recon-acc-search-input');
+        const query = (input ? input.value : '').trim();
+        const clearBtn = document.getElementById('recon-acc-clear-search-btn');
+        if (clearBtn) {
+            if (query) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+        }
         applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', query);
     }
     window.searchReconAccountsList = searchReconAccountsList;
 
     function applyAccountsFilterAndSearch(category, query) {
-        let list = window.RECON_LOADED_ACCOUNTS || [];
+        const allAccounts = window.RECON_LOADED_ACCOUNTS || [];
+        const normQuery = normalizeArabicRecon(query);
+        let list = allAccounts;
+
         if (category && category !== 'all') {
             list = list.filter(a => a.category === category);
         }
-        if (query) {
-            list = list.filter(a =>
-                (a.name && a.name.toLowerCase().includes(query)) ||
-                (a.code && a.code.toLowerCase().includes(query)) ||
-                (a.phone && a.phone.toLowerCase().includes(query)) ||
-                (a.notes && a.notes.toLowerCase().includes(query))
-            );
+
+        const isSearching = Boolean(normQuery);
+
+        if (isSearching) {
+            // When searching: match by name, code, phone, or notes with Arabic normalization
+            list = list.filter(a => {
+                const normName = normalizeArabicRecon(a.name);
+                const normCode = normalizeArabicRecon(a.code);
+                const normPhone = normalizeArabicRecon(a.phone);
+                const normNotes = normalizeArabicRecon(a.notes);
+                return normName.includes(normQuery) || 
+                       normCode.includes(normQuery) || 
+                       normPhone.includes(normQuery) || 
+                       normNotes.includes(normQuery);
+            });
+        } else {
+            // When NOT searching, show a simple curated list (small number of accounts)
+            if (category === 'all') {
+                const curated = [];
+                const takeFromCategory = (cat, count) => {
+                    const matches = allAccounts.filter(a => a.category === cat);
+                    curated.push(...matches.slice(0, count));
+                };
+                takeFromCategory('الخزن', 1);
+                takeFromCategory('البنوك', 2);
+                takeFromCategory('الموردين', 2);
+                takeFromCategory('العملاء', 2);
+                takeFromCategory('المصروفات', 1);
+                list = curated.length > 0 ? curated : allAccounts.slice(0, 7);
+            } else {
+                list = list.slice(0, 6);
+            }
         }
-        renderAccountsGrid(list);
+
+        renderAccountsGrid(list, isSearching, query, allAccounts.length);
     }
 
     // Select account and synthesize / load its statement from General Ledger into Side A or B
