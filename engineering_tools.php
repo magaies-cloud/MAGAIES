@@ -26686,10 +26686,16 @@ $pdo = getDBConnection();
                             </span>
                             <input type="text" id="recon-acc-search-input" oninput="searchReconAccountsList()" 
                                    placeholder="🔍 مساحة البحث (الاسم، الكود، رقم الهاتف)..." 
-                                   class="w-full pr-12 pl-24 py-4 rounded-2xl bg-slate-900 border-2 border-slate-700 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/20 text-slate-100 placeholder-slate-400 text-base sm:text-lg font-bold focus:outline-none transition shadow-inner">
-                            <button type="button" id="recon-acc-clear-search-btn" onclick="clearReconAccountSearch()" class="hidden absolute left-3 top-1/2 -translate-y-1/2 px-3 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/60 text-slate-300 hover:text-rose-200 text-sm font-bold transition flex items-center gap-1.5 border border-slate-700 cursor-pointer">
-                                <i class="fa-solid fa-xmark"></i> <span>مسح</span>
-                            </button>
+                                   class="w-full pr-12 pl-28 py-4 rounded-2xl bg-slate-900 border-2 border-slate-700 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/20 text-slate-100 placeholder-slate-400 text-base sm:text-lg font-bold focus:outline-none transition shadow-inner">
+                            
+                            <div class="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+                                <button type="button" id="recon-acc-mic-btn" onclick="startReconVoiceSearch()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-sky-900/60 text-slate-400 hover:text-sky-300 text-sm font-bold transition flex items-center justify-center border border-slate-700 cursor-pointer" title="البحث الصوتي (تحدث للبحث)">
+                                    <i class="fa-solid fa-microphone"></i>
+                                </button>
+                                <button type="button" id="recon-acc-clear-search-btn" onclick="clearReconAccountSearch()" class="hidden px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/60 text-slate-300 hover:text-rose-200 text-sm font-bold transition flex items-center gap-1.5 border border-slate-700 cursor-pointer">
+                                    <i class="fa-solid fa-xmark"></i> <span class="hidden sm:inline">مسح</span>
+                                </button>
+                            </div>
                         </div>
 
                     </div>

@@ -3961,6 +3961,56 @@
         applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', '');
     }
     window.clearReconAccountSearch = clearReconAccountSearch;
+    // Live search in accounts list
+    function startReconVoiceSearch() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) {
+            alert('عذراً، متصفحك لا يدعم ميزة البحث الصوتي. يرجى التحديث لمتصفح كروم أو إيدج.');
+            return;
+        }
+
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'ar-SA';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+
+        const micBtn = document.getElementById('recon-acc-mic-btn');
+        if (micBtn) {
+            micBtn.classList.add('bg-rose-500/20', 'text-rose-400', 'border-rose-500/50', 'animate-pulse');
+            micBtn.classList.remove('bg-slate-800', 'text-slate-400');
+            micBtn.innerHTML = '<i class="fa-solid fa-microphone-lines"></i>';
+        }
+
+        recognition.start();
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            const input = document.getElementById('recon-acc-search-input');
+            if (input) {
+                input.value = transcript;
+                searchReconAccountsList(); // trigger live search
+            }
+            resetMicBtn();
+        };
+
+        recognition.onerror = function(event) {
+            console.error('Voice search error', event.error);
+            resetMicBtn();
+        };
+
+        recognition.onend = function() {
+            resetMicBtn();
+        };
+
+        function resetMicBtn() {
+            if (micBtn) {
+                micBtn.classList.remove('bg-rose-500/20', 'text-rose-400', 'border-rose-500/50', 'animate-pulse');
+                micBtn.classList.add('bg-slate-800', 'text-slate-400');
+                micBtn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+            }
+        }
+    }
+    window.startReconVoiceSearch = startReconVoiceSearch;
 
     // Live search in accounts list
     function searchReconAccountsList() {
