@@ -23305,6 +23305,20 @@ $pdo = getDBConnection();
                                 </button>
                             </div>
 
+                            <!-- Inline Quick Account Search Bar for Side A -->
+                            <div id="inline-recon-account-search-box-A" class="mb-3 p-2 rounded-2xl bg-slate-950/85 border border-sky-500/30 flex items-center gap-2 relative shadow-inner">
+                                <span class="text-sky-400 text-sm pr-2 shrink-0"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" id="inline-acc-search-input-A" onfocus="handleInlineAccSearchFocus('A')" oninput="handleInlineAccSearchInput('A', this.value)"
+                                       placeholder="🔍 اكتب اسم الحساب (بنكك، الأسعد، آية مهدي، الخزينة، نقل)..."
+                                       class="w-full bg-transparent text-slate-100 placeholder-slate-400 text-xs font-bold focus:outline-none">
+                                <button type="button" onclick="openSystemAccountSelector('A')" class="px-3 py-1.5 rounded-xl bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white text-xs font-bold transition shrink-0 border border-sky-500/40 flex items-center gap-1.5 shadow-sm cursor-pointer" title="فتح نافذة البحث الموسطة الشاملة">
+                                    <i class="fa-solid fa-expand text-[10px]"></i>
+                                    <span>بحث شامل</span>
+                                </button>
+                                <!-- Live Autocomplete Dropdown -->
+                                <div id="inline-acc-search-dropdown-A" class="hidden absolute top-full right-0 left-0 mt-1.5 max-h-64 overflow-y-auto rounded-2xl bg-slate-900 border-2 border-sky-500/50 shadow-2xl z-50 p-2 space-y-1 custom-scrollbar"></div>
+                            </div>
+
                             <div id="recon-dropzone-box-A">
                                 <label for="omni-file-all-A" class="recon-upload-area flex flex-col items-center justify-center group">
                                     <div class="w-14 h-14 rounded-2xl bg-sky-500/10 border border-sky-500/30 flex items-center justify-center text-sky-400 text-2xl mb-3 group-hover:scale-110 transition duration-300 shadow-lg">
@@ -23368,6 +23382,20 @@ $pdo = getDBConnection();
                                     <i class="fa-solid fa-paste text-indigo-400"></i>
                                     <span>لصق</span>
                                 </button>
+                            </div>
+
+                            <!-- Inline Quick Account Search Bar for Side B -->
+                            <div id="inline-recon-account-search-box-B" class="mb-3 p-2 rounded-2xl bg-slate-950/85 border border-purple-500/30 flex items-center gap-2 relative shadow-inner">
+                                <span class="text-purple-400 text-sm pr-2 shrink-0"><i class="fa-solid fa-magnifying-glass"></i></span>
+                                <input type="text" id="inline-acc-search-input-B" onfocus="handleInlineAccSearchFocus('B')" oninput="handleInlineAccSearchInput('B', this.value)"
+                                       placeholder="🔍 اكتب اسم الحساب (المورد، المصنع، الشريك، البنك المقابل)..."
+                                       class="w-full bg-transparent text-slate-100 placeholder-slate-400 text-xs font-bold focus:outline-none">
+                                <button type="button" onclick="openSystemAccountSelector('B')" class="px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white text-xs font-bold transition shrink-0 border border-purple-500/40 flex items-center gap-1.5 shadow-sm cursor-pointer" title="فتح نافذة البحث الموسطة الشاملة">
+                                    <i class="fa-solid fa-expand text-[10px]"></i>
+                                    <span>بحث شامل</span>
+                                </button>
+                                <!-- Live Autocomplete Dropdown -->
+                                <div id="inline-acc-search-dropdown-B" class="hidden absolute top-full right-0 left-0 mt-1.5 max-h-64 overflow-y-auto rounded-2xl bg-slate-900 border-2 border-purple-500/50 shadow-2xl z-50 p-2 space-y-1 custom-scrollbar"></div>
                             </div>
 
                             <div id="recon-dropzone-box-B">
@@ -26630,12 +26658,15 @@ $pdo = getDBConnection();
                             </span>
                             <div>
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <h4 class="font-black text-lg sm:text-xl text-slate-100">📖 كشف الحساب — دليل واستعراض كافة حسابات المنظومة</h4>
+                                    <h4 class="font-black text-lg sm:text-xl text-slate-100 flex items-center gap-2">
+                                        <i class="fa-solid fa-magnifying-glass text-sky-400"></i>
+                                        <span>بحث واختيار كشف حساب — كافة حسابات المنظومة</span>
+                                    </h4>
                                     <span id="recon-modal-target-side-label" class="px-3 py-1 rounded-full text-xs font-black bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 shadow-sm">
                                         الطرف المستهدف: كشف حساب الطرف الأول
                                     </span>
                                 </div>
-                                <p class="text-xs text-slate-400 mt-0.5">ابحث واختر أي حساب لجلب كشف الحساب فوراً وإدراجه في جدول المطابقة والفحص بالذكاء الاصطناعي</p>
+                                <p class="text-xs text-slate-300 mt-0.5">اكتب اسم أو كود أي حساب للبحث الفوري واختياره لجلب كشف الحساب فوراً للمطابقة</p>
                             </div>
                         </div>
                         

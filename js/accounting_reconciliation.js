@@ -3171,6 +3171,96 @@
     }
     window.setReconViewMode = setReconViewMode;
 
+    function handleInlineAccSearchFocus(side) {
+        window.RECON_ACTIVE_OMNI_SIDE = side || 'A';
+        if (!window.RECON_LOADED_ACCOUNTS || window.RECON_LOADED_ACCOUNTS.length === 0) {
+            loadSystemAccountsList();
+        }
+        const input = document.getElementById(`inline-acc-search-input-${side}`);
+        const val = ((input ? input.value : null) || '').trim();
+        handleInlineAccSearchInput(side, val);
+    }
+    window.handleInlineAccSearchFocus = handleInlineAccSearchFocus;
+
+    function handleInlineAccSearchInput(side, query) {
+        window.RECON_ACTIVE_OMNI_SIDE = side || 'A';
+        const dropdown = document.getElementById(`inline-acc-search-dropdown-${side}`);
+        if (!dropdown) return;
+
+        if (!window.RECON_LOADED_ACCOUNTS || window.RECON_LOADED_ACCOUNTS.length === 0) {
+            loadSystemAccountsList();
+        }
+
+        const all = window.RECON_LOADED_ACCOUNTS || [];
+        const normQ = normalizeArabicRecon(query);
+        let list = all;
+
+        if (normQ) {
+            const terms = normQ.split(/\s+/).filter(Boolean);
+            list = all.filter(a => {
+                const normName = normalizeArabicRecon(a.name);
+                const normCode = normalizeArabicRecon(a.code);
+                const normPhone = normalizeArabicRecon(a.phone);
+                return terms.every(t => normName.includes(t) || normCode.includes(t) || normPhone.includes(t));
+            });
+        }
+
+        if (list.length === 0) {
+            dropdown.innerHTML = `
+                <div class="p-3 text-center text-xs text-slate-400 font-bold">
+                    لا يوجد حساب مطابق لـ "${escapeHtmlRecon(query)}"
+                </div>
+            `;
+            dropdown.classList.remove('hidden');
+            return;
+        }
+
+        const itemsHtml = list.slice(0, 10).map(acc => {
+            const isNegative = acc.balance < 0;
+            const balColor = isNegative ? 'text-rose-400' : 'text-emerald-400';
+            return `
+                <div onclick="selectSystemAccount('${escapeHtmlRecon(acc.id)}', '${escapeHtmlRecon(acc.name)}', '${escapeHtmlRecon(acc.category)}')"
+                     class="p-2 sm:p-2.5 rounded-xl hover:bg-slate-800 border border-transparent hover:border-sky-500/30 cursor-pointer flex items-center justify-between gap-2 transition group">
+                    <div class="flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-${acc.badgeColor}-500/20 text-${acc.badgeColor}-400 flex items-center justify-center text-xs shrink-0">
+                            <i class="${acc.iconClass}"></i>
+                        </span>
+                        <div>
+                            <span class="font-black text-xs text-slate-100 group-hover:text-sky-300 transition line-clamp-1">${escapeHtmlRecon(acc.name)}</span>
+                            <span class="font-mono text-[10px] text-slate-400">#${escapeHtmlRecon(acc.code)} · ${acc.category}</span>
+                        </div>
+                    </div>
+                    <div class="text-left shrink-0">
+                        <span class="font-mono text-xs font-black ${balColor}">${formatMoney(Math.abs(acc.balance))}</span>
+                        <span class="text-[10px] text-slate-400 font-bold mr-0.5">${acc.currency || 'SDG'}</span>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        dropdown.innerHTML = `
+            <div class="flex items-center justify-between pb-1.5 mb-1 px-1 border-b border-slate-800 text-[11px] font-bold text-slate-400">
+                <span>نتائج البحث (${list.length} حساب):</span>
+                <button type="button" onclick="document.getElementById('inline-acc-search-dropdown-${side}').classList.add('hidden')" class="hover:text-rose-400 cursor-pointer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            ${itemsHtml}
+        `;
+        dropdown.classList.remove('hidden');
+    }
+    window.handleInlineAccSearchInput = handleInlineAccSearchInput;
+
+    if (typeof document !== 'undefined') {
+        document.addEventListener('click', function(e) {
+            ['A', 'B'].forEach(side => {
+                const box = document.getElementById(`inline-recon-account-search-box-${side}`);
+                const drop = document.getElementById(`inline-acc-search-dropdown-${side}`);
+                if (box && drop && !box.contains(e.target)) {
+                    drop.classList.add('hidden');
+                }
+            });
+        });
+    }
+
     function updateReconCategoryCounts(accounts) {
         const all = accounts || [];
         const setVal = (id, count) => {
