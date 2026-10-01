@@ -23181,7 +23181,7 @@ $pdo = getDBConnection();
                     <div class="flex items-center gap-2">
                         <button type="button" onclick="loadReconciliationSampleData()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/25 to-orange-500/25 hover:from-amber-500/35 hover:to-orange-500/35 border-2 border-amber-400/60 text-amber-200 text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer transition shadow-md hover:scale-[1.02]">
                             <i class="fa-solid fa-flask-vial text-base text-amber-300"></i>
-                            <span>تحميل نموذج تجريبي</span>
+                            <span>نموذج تجريبي</span>
                         </button>
                         <button type="button" onclick="resetReconciliationSuite()" title="تفريغ الحقول والبدء من جديد" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-400 hover:text-slate-200 border border-slate-700 transition cursor-pointer">
                             <i class="fa-solid fa-rotate-left"></i>
@@ -23211,8 +23211,8 @@ $pdo = getDBConnection();
                         <div class="flex flex-wrap items-center gap-1.5 bg-slate-950/80 p-1.5 rounded-xl border border-slate-700/60 text-xs font-bold text-slate-300">
                             <span class="text-[11px] text-slate-400 px-2 font-black">نطاق البحث:</span>
                             <button type="button" onclick="setReconSearchScope('all', this)" class="recon-scope-pill active">الكل</button>
-                            <button type="button" onclick="setReconSearchScope('sideA', this)" class="recon-scope-pill">كشف الطرف الأول</button>
-                            <button type="button" onclick="setReconSearchScope('sideB', this)" class="recon-scope-pill">كشف الطرف الثاني</button>
+                            <button type="button" onclick="setReconSearchScope('sideA', this)" class="recon-scope-pill">الطرف الأول</button>
+                            <button type="button" onclick="setReconSearchScope('sideB', this)" class="recon-scope-pill">الطرف الثاني</button>
                             <button type="button" onclick="setReconSearchScope('results', this)" class="recon-scope-pill">الفروقات والمعلقات</button>
                         </div>
                         <div class="flex items-center gap-2">
@@ -23255,30 +23255,30 @@ $pdo = getDBConnection();
                                 
                                 <button type="button" onclick="openSystemAccountSelector('A')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ العام وحسابات البرنامج">
                                     <i class="fa-solid fa-book-journal-whills text-sky-400"></i>
-                                    <span>دفتر الأستاذ العام (حسابات النظام)</span>
+                                    <span>دفتر الأستاذ</span>
                                 </button>
                                 
                                 <button type="button" onclick="document.getElementById('omni-file-gallery-A').click()" class="omni-source-btn" title="اختيار صور متعددة من استوديو ومعرض الصور بالجهاز">
                                     <i class="fa-solid fa-images text-pink-400"></i>
-                                    <span>استوديو الصور (متعدد)</span>
+                                    <span>الاستوديو</span>
                                 </button>
                                 <input type="file" id="omni-file-gallery-A" accept="image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'gallery')">
 
                                 <button type="button" onclick="document.getElementById('omni-file-camera-A').click()" class="omni-source-btn" title="التقاط صور حية ومباشرة بكاميرا الجوال">
                                     <i class="fa-solid fa-camera text-rose-400"></i>
-                                    <span>كاميرا مباشرة</span>
+                                    <span>الكاميرا</span>
                                 </button>
                                 <input type="file" id="omni-file-camera-A" accept="image/*" capture="environment" class="hidden" onchange="handleOmniUpload(event, 'A', 'camera')">
 
                                 <button type="button" onclick="document.getElementById('omni-file-all-A').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Images)">
                                     <i class="fa-solid fa-folder-open text-amber-400"></i>
-                                    <span>تنزيلات / ملفات</span>
+                                    <span>ملفات</span>
                                 </button>
                                 <input type="file" id="omni-file-all-A" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'file')">
 
                                 <button type="button" onclick="openWhatsAppAction('A')" class="omni-source-btn" title="فتح واتساب مباشرة أو استيراد وتفريغ إشعار ومستندات الواتساب">
                                     <i class="fa-brands fa-whatsapp text-emerald-400"></i>
-                                    <span>واتساب (فتح وجلب)</span>
+                                    <span>واتساب</span>
                                 </button>
 
                                 <button type="button" onclick="pasteFromClipboard('A')" class="omni-source-btn" title="لصق جدول أو صور أو نص من الحافظة مباشرة">
@@ -23324,33 +23324,33 @@ $pdo = getDBConnection();
                                 
                                 <button type="button" onclick="openSystemAccountSelector('B')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ العام وحسابات البرنامج">
                                     <i class="fa-solid fa-book-journal-whills text-purple-400"></i>
-                                    <span>دفتر الأستاذ العام (حسابات النظام)</span>
+                                    <span>دفتر الأستاذ</span>
                                 </button>
                                 
                                 <button type="button" onclick="document.getElementById('omni-file-gallery-B').click()" class="omni-source-btn" title="اختيار صور متعددة من استوديو ومعرض الصور بالجهاز">
                                     <i class="fa-solid fa-images text-pink-400"></i>
-                                    <span>استوديو الصور (متعدد)</span>
+                                    <span>الاستوديو</span>
                                 </button>
                                 <input type="file" id="omni-file-gallery-B" accept="image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'gallery')">
 
                                 <button type="button" onclick="document.getElementById('omni-file-camera-B').click()" class="omni-source-btn" title="التقاط صور حية ومباشرة بكاميرا الجوال">
                                     <i class="fa-solid fa-camera text-rose-400"></i>
-                                    <span>كاميرا مباشرة</span>
+                                    <span>الكاميرا</span>
                                 </button>
                                 <input type="file" id="omni-file-camera-B" accept="image/*" capture="environment" class="hidden" onchange="handleOmniUpload(event, 'B', 'camera')">
 
                                 <button type="button" onclick="document.getElementById('omni-file-all-B').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Images)">
                                     <i class="fa-solid fa-folder-open text-amber-400"></i>
-                                    <span>تنزيلات / ملفات</span>
+                                    <span>ملفات</span>
                                 </button>
                                 <input type="file" id="omni-file-all-B" accept=".xlsx,.xls,.csv,.pdf,.docx,.doc,.txt,image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'file')">
 
                                 <button type="button" onclick="openWhatsAppAction('B')" class="omni-source-btn" title="فتح واتساب مباشرة أو استيراد وتفريغ إشعار ومستندات الواتساب">
                                     <i class="fa-brands fa-whatsapp text-emerald-400"></i>
-                                    <span>واتساب (فتح وجلب)</span>
+                                    <span>واتساب</span>
                                 </button>
 
-                                <button type="button" onclick="pasteFromClipboard('B')" class="omni-source-btn" title="لصق جدول أو نص من الحافظة مباشرة">
+                                <button type="button" onclick="pasteFromClipboard('B')" class="omni-source-btn" title="لصق جدول أو صور أو نص من الحافظة مباشرة">
                                     <i class="fa-solid fa-paste text-indigo-400"></i>
                                     <span>لصق</span>
                                 </button>
@@ -23416,9 +23416,9 @@ $pdo = getDBConnection();
 
                 <!-- 3. Central Master Trigger Button -->
                 <div class="text-center mb-8">
-                    <button type="button" onclick="runReconciliationEngine()" class="recon-master-btn">
+                    <button type="button" onclick="runReconciliationEngine()" class="recon-master-btn" title="بدء التطابق المحاسبي واكتشاف وتفكيك الخلل بالذكاء الاصطناعي">
                         <i class="fa-solid fa-wand-magic-sparkles text-xl"></i>
-                        <span>بدء التطابق المحاسبي واكتشاف وتفكيك الخلل بالذكاء الاصطناعي ⚡</span>
+                        <span>بدء المطابقة ⚡</span>
                     </button>
                     <div id="recon-ai-status" class="mt-4 hidden text-xs sm:text-sm font-bold"></div>
                 </div>
@@ -23534,49 +23534,49 @@ $pdo = getDBConnection();
                     <!-- Filter Tabs & Actions Bar -->
                     <div class="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-500/20 pb-3">
                         <div class="flex flex-wrap items-center gap-2">
-                            <button type="button" id="btn-recon-tab-ai_audit" onclick="switchReconTab('ai_audit')" class="recon-tab-pill active">
+                            <button type="button" id="btn-recon-tab-ai_audit" onclick="switchReconTab('ai_audit')" class="recon-tab-pill active" title="تقرير الذكاء الاصطناعي ومذكرة التسوية">
                                 <i class="fa-solid fa-wand-magic-sparkles text-indigo-400"></i>
-                                <span>تقرير الذكاء الاصطناعي ومذكرة التسوية</span>
+                                <span>تقرير الـ AI</span>
                             </button>
-                            <button type="button" id="btn-recon-tab-waterfall" onclick="switchReconTab('waterfall')" class="recon-tab-pill">
+                            <button type="button" id="btn-recon-tab-waterfall" onclick="switchReconTab('waterfall')" class="recon-tab-pill" title="مسار الرصيد والتراكمي وكشف الانحرافات">
                                 <i class="fa-solid fa-chart-line text-cyan-400"></i>
-                                <span>مسار الرصيد والتراكمي (<span id="recon-count-drift-events">0</span> انحراف)</span>
+                                <span>مسار الرصيد (<span id="recon-count-drift-events">0</span>)</span>
                             </button>
-                            <button type="button" id="btn-recon-tab-fx" onclick="switchReconTab('fx')" class="recon-tab-pill">
+                            <button type="button" id="btn-recon-tab-fx" onclick="switchReconTab('fx')" class="recon-tab-pill" title="فروقات أسعار الصرف وتقلبات العملة">
                                 <i class="fa-solid fa-coins text-emerald-400"></i>
-                                <span>فروقات أسعار الصرف (<span id="recon-count-fx">0</span>)</span>
+                                <span>فروقات الصرف (<span id="recon-count-fx">0</span>)</span>
                             </button>
-                            <button type="button" id="btn-recon-tab-combinatorial" onclick="switchReconTab('combinatorial')" class="recon-tab-pill">
+                            <button type="button" id="btn-recon-tab-combinatorial" onclick="switchReconTab('combinatorial')" class="recon-tab-pill" title="مطابقة تجميعية N:1 دفعات مجزأة">
                                 <i class="fa-solid fa-link text-sky-400"></i>
-                                <span>مطابقة تجميعية N:1 (<span id="recon-count-combinatorial">0</span>)</span>
+                                <span>تجميعي N:1 (<span id="recon-count-combinatorial">0</span>)</span>
                             </button>
-                            <button type="button" id="btn-recon-tab-aging" onclick="switchReconTab('aging')" class="recon-tab-pill">
+                            <button type="button" id="btn-recon-tab-aging" onclick="switchReconTab('aging')" class="recon-tab-pill" title="أعمار المعلقات والحركات المتأخرة والحرجة">
                                 <i class="fa-solid fa-hourglass-half text-amber-400"></i>
-                                <span>أعمار المعلقات (<span id="recon-count-aging-risk">0</span> حرج)</span>
+                                <span>أعمار المعلقات (<span id="recon-count-aging-risk">0</span>)</span>
                             </button>
-                            <button type="button" id="btn-recon-tab-unmatched" onclick="switchReconTab('unmatched')" class="recon-tab-pill">
+                            <button type="button" id="btn-recon-tab-unmatched" onclick="switchReconTab('unmatched')" class="recon-tab-pill" title="حركات معلقة ومفقودة بين الطرفين">
                                 <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
-                                <span>حركات معلقة ومفقودة (<span id="recon-count-unmatched-a">0</span> الطرف الأول / <span id="recon-count-unmatched-b">0</span> الطرف الثاني)</span>
+                                <span>معلقات ومفقودة (<span id="recon-count-unmatched-a">0</span>/<span id="recon-count-unmatched-b">0</span>)</span>
                             </button>
-                            <button type="button" id="btn-recon-tab-variance" onclick="switchReconTab('variance')" class="recon-tab-pill">
+                            <button type="button" id="btn-recon-tab-variance" onclick="switchReconTab('variance')" class="recon-tab-pill" title="متطابقة بفارق في المبلغ أو التاريخ">
                                 <i class="fa-solid fa-arrows-split-up-and-left text-amber-400"></i>
-                                <span>متطابقة بفارق (<span id="recon-count-variance">0</span>)</span>
+                                <span>بفارق (<span id="recon-count-variance">0</span>)</span>
                             </button>
-                            <button type="button" id="btn-recon-tab-exact" onclick="switchReconTab('exact')" class="recon-tab-pill">
+                            <button type="button" id="btn-recon-tab-exact" onclick="switchReconTab('exact')" class="recon-tab-pill" title="عمليات متطابقة تماماً">
                                 <i class="fa-solid fa-circle-check text-emerald-400"></i>
-                                <span>متطابقة تماماً (<span id="recon-count-exact">0</span>)</span>
+                                <span>متطابقة (<span id="recon-count-exact">0</span>)</span>
                             </button>
                         </div>
 
                         <!-- Export & Journal Actions -->
                         <div class="flex items-center gap-2">
-                            <button type="button" onclick="openBulkAdjustmentsModal()" class="px-4 py-2 rounded-xl bg-indigo-500/15 border border-indigo-500/40 hover:bg-indigo-500/25 text-indigo-300 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
+                            <button type="button" onclick="openBulkAdjustmentsModal()" class="px-4 py-2 rounded-xl bg-indigo-500/15 border border-indigo-500/40 hover:bg-indigo-500/25 text-indigo-300 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md" title="توليد قيود التسوية لليومية العامة">
                                 <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
-                                <span>توليد قيود التسوية لليومية</span>
+                                <span>قيود التسوية</span>
                             </button>
-                            <button type="button" onclick="exportReconciliationExcel()" class="px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/40 hover:bg-emerald-500/25 text-emerald-300 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
+                            <button type="button" onclick="exportReconciliationExcel()" class="px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/40 hover:bg-emerald-500/25 text-emerald-300 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md" title="تصدير تقرير المطابقة إلى ملف إكسيل XLSX">
                                 <i class="fa-solid fa-file-excel text-sm"></i>
-                                <span>تصدير إكسيل (XLSX)</span>
+                                <span>تصدير إكسيل</span>
                             </button>
                         </div>
                     </div>
@@ -26624,7 +26624,7 @@ $pdo = getDBConnection();
                         <div class="flex items-center gap-2">
                             <a href="general-ledger.php" target="_blank" class="px-3.5 py-2 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/40 text-xs sm:text-sm font-bold flex items-center gap-1.5 transition" title="فتح شاشة دفتر الأستاذ العام في نافذة جديدة">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                                <span>دفتر الأستاذ الكامل</span>
+                                <span>دفتر الأستاذ</span>
                             </a>
                             <button type="button" onclick="closeReconModals()" class="w-10 h-10 rounded-2xl bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-300 text-xl cursor-pointer flex items-center justify-center transition border border-slate-700">
                                 <i class="fa-solid fa-xmark"></i>
@@ -26649,13 +26649,13 @@ $pdo = getDBConnection();
                         <!-- Category Filters Row -->
                         <div class="flex flex-wrap items-center gap-1.5" id="recon-acc-cat-filters">
                             <span class="text-xs text-slate-400 font-bold ml-1">التصنيف:</span>
-                            <button type="button" onclick="filterReconAccountsList('all', this)" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs sm:text-sm cursor-pointer shadow-md transition">🌟 الشائعة (الأبرز)</button>
+                            <button type="button" onclick="filterReconAccountsList('all', this)" class="px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs sm:text-sm cursor-pointer shadow-md transition">🌟 الشائعة</button>
                             <button type="button" onclick="filterReconAccountsList('البنوك', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition">🏦 البنوك</button>
                             <button type="button" onclick="filterReconAccountsList('الخزن', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition">💰 الخزن</button>
                             <button type="button" onclick="filterReconAccountsList('الموردين', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition">🏭 الموردين</button>
                             <button type="button" onclick="filterReconAccountsList('العملاء', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition">👥 العملاء</button>
                             <button type="button" onclick="filterReconAccountsList('المصروفات', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition">📉 المصروفات</button>
-                            <button type="button" onclick="filterReconAccountsList('الحسابات العامة', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition">📊 الحسابات العامة</button>
+                            <button type="button" onclick="filterReconAccountsList('الحسابات العامة', this)" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition">📊 عامة</button>
                         </div>
                     </div>
 
@@ -26732,7 +26732,7 @@ $pdo = getDBConnection();
                     <div class="p-3 rounded-2xl bg-slate-950/70 border border-emerald-500/30 flex flex-wrap items-center justify-between gap-3">
                         <button type="button" onclick="document.getElementById('omni-file-all-' + (window.RECON_ACTIVE_OMNI_SIDE || 'A')).click(); closeReconModals();" class="px-4 py-2.5 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 text-indigo-200 border border-indigo-500/50 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
                             <i class="fa-solid fa-folder-open text-amber-400 text-sm"></i>
-                            <span>استعراض ملفات وتنزيلات الواتساب (PDF / صور / إكسيل)</span>
+                            <span>ملفات الواتساب</span>
                         </button>
                         <span class="text-[11px] text-slate-400 font-bold">💡 بعد نسخ أي صورة أو حركة من الواتساب اضغط (لصق)</span>
                     </div>
@@ -26741,7 +26741,7 @@ $pdo = getDBConnection();
                         <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-xs cursor-pointer">إلغاء</button>
                         <button type="button" onclick="submitWhatsAppImport()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/40">
                             <i class="fa-solid fa-bolt"></i>
-                            <span>تفريغ واستخراج الحركات بالذكاء الاصطناعي ⚡</span>
+                            <span>تفريغ بالـ AI ⚡</span>
                         </button>
                     </div>
 
@@ -26816,9 +26816,9 @@ $pdo = getDBConnection();
 
                         <div class="flex items-center justify-between pt-3 border-t border-slate-800">
                             <button type="button" onclick="closeReconModals()" class="px-4 py-2 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold text-xs cursor-pointer">إلغاء</button>
-                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/40">
+                            <button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs sm:text-sm flex items-center gap-2 cursor-pointer shadow-lg shadow-emerald-950/40" title="ترحيل القيد لدفتر اليومية العامة بنظام القيد المزدوج">
                                 <i class="fa-solid fa-check-double"></i>
-                                <span>ترحيل القيد لدفتر اليومية العامة ⚡</span>
+                                <span>ترحيل القيد ⚡</span>
                             </button>
                         </div>
                     </form>

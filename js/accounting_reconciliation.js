@@ -1630,9 +1630,9 @@
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-2">
-                        <button type="button" onclick="dispatchWhatsAppLetterToOtherSide()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-lg shadow-emerald-950/40 transform hover:scale-[1.02]">
+                        <button type="button" onclick="dispatchWhatsAppLetterToOtherSide()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-lg shadow-emerald-950/40 transform hover:scale-[1.02]" title="إرسال تقرير ومذكرة التسوية عبر واتساب">
                             <i class="fa-solid fa-paper-plane text-xs"></i>
-                            <span>إرسال فوري بالواتساب</span>
+                            <span>إرسال واتساب</span>
                             <i class="fa-brands fa-whatsapp text-sm"></i>
                         </button>
                         <button type="button" onclick="copyWhatsAppReconciliationLetter()" class="px-4 py-2 rounded-xl bg-emerald-500/20 border-2 border-emerald-500/50 hover:bg-emerald-500/30 text-emerald-300 text-xs font-black flex items-center gap-2 cursor-pointer transition shadow-md">
@@ -1949,7 +1949,7 @@
                                     <div class="flex items-center gap-3">
                                         <span class="font-mono font-black text-sm text-rose-400">${formatMoney(item.row.amount)}</span>
                                         <button type="button" onclick="openAdjustmentModalForUnmatched('${item.side}', ${item.uIdx !== undefined ? item.uIdx : (item.row.id - 1)})" class="px-3 py-1 rounded-lg bg-rose-600/30 hover:bg-rose-600 text-rose-200 text-xs font-bold border border-rose-500/40 transition cursor-pointer">
-                                            تسوية فورية
+                                            تسوية
                                         </button>
                                     </div>
                                 </div>
@@ -3134,7 +3134,7 @@
                     <!-- Bottom: Full-Width Clear Action Button -->
                     <button type="button" class="mt-3 w-full py-2.5 rounded-xl bg-indigo-600/25 group-hover:bg-indigo-600 border border-indigo-500/50 text-indigo-300 group-hover:text-white font-black text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md">
                         <i class="fa-solid fa-check"></i>
-                        <span>اختيار هذا الحساب</span>
+                        <span>اختيار</span>
                     </button>
                 </div>
             `;
