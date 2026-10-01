@@ -26606,7 +26606,7 @@ $pdo = getDBConnection();
             <!-- MODAL 1: SYSTEM GENERAL LEDGER & ACCOUNTS SELECTOR              -->
             <!-- ════════════════════════════════════════════════════════════════ -->
             <div id="modal-recon-system-accounts" style="display: none; position: fixed; inset: 0; z-index: 99999999; align-items: center; justify-content: center; padding: 1rem; background-color: rgba(2, 6, 23, 0.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);" class="hidden">
-                <div class="w-full max-w-4xl rounded-3xl bg-slate-900 border-2 border-indigo-500/60 shadow-2xl p-5 sm:p-7 space-y-4 animate-scaleIn text-right">
+                <div class="w-full max-w-5xl rounded-3xl bg-slate-900 border-2 border-indigo-500/60 shadow-2xl p-5 sm:p-7 space-y-4 animate-scaleIn text-right">
                     
                     <!-- Header -->
                     <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-indigo-500/25">
@@ -26668,9 +26668,9 @@ $pdo = getDBConnection();
                         <span id="recon-modal-total-accs-count" class="px-2.5 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-mono text-xs font-bold border border-indigo-500/30">0 حساب</span>
                     </div>
 
-                    <!-- Accounts Grid (Spacious, Elegant, Large Typography) -->
-                    <div id="recon-modal-accounts-grid" class="max-h-[26rem] overflow-y-auto space-y-2.5 p-1 custom-scrollbar">
-                        <!-- Populated dynamically -->
+                    <!-- Accounts Grid (Square Cards, Large Numbers, Spacious 3-Column Layout) -->
+                    <div id="recon-modal-accounts-grid" class="max-h-[32rem] overflow-y-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4.5 p-1.5 custom-scrollbar">
+                        <!-- Populated dynamically with square cards -->
                     </div>
 
                     <div class="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-slate-800 text-xs text-slate-400">

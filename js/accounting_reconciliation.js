@@ -1187,7 +1187,7 @@
     // Render full detailed transactions table inside the party pod (Side A or B)
     function renderPodTableRows(side, rows) {
         if (!rows || rows.length === 0) {
-            return `<tr><td colspan="7" class="text-center py-6 text-slate-500 font-bold">لا توجد حركات مسجلة أو مطابقة للبحث</td></tr>`;
+            return `<tr><td colspan="7" class="text-center py-6 text-slate-400 font-bold text-sm">لا توجد حركات مسجلة أو مطابقة للبحث</td></tr>`;
         }
         return rows.map((r, idx) => {
             const deb = r.debit > 0 ? formatMoney(r.debit) : '-';
@@ -1195,14 +1195,14 @@
             const bal = formatMoney(r.balance || 0);
             const balClass = (r.balance || 0) < 0 ? 'text-rose-400' : 'text-emerald-400';
             return `
-                <tr class="hover:bg-slate-800/40 transition">
-                    <td class="p-2 text-center text-[10px] text-slate-500 font-mono">${idx + 1}</td>
-                    <td class="p-2 font-mono text-[11px] text-slate-300 whitespace-nowrap">${r.date || '-'}</td>
-                    <td class="p-2 font-mono text-[11px] text-amber-300 font-bold whitespace-nowrap">${r.ref || '-'}</td>
-                    <td class="p-2 text-slate-200 text-xs leading-snug">${escapeHtmlRecon(r.desc || '-')}</td>
-                    <td class="p-2 text-center font-mono text-xs font-bold text-rose-400 whitespace-nowrap">${deb}</td>
-                    <td class="p-2 text-center font-mono text-xs font-bold text-emerald-400 whitespace-nowrap">${cred}</td>
-                    <td class="p-2 text-center font-mono text-xs font-bold ${balClass} whitespace-nowrap">${bal}</td>
+                <tr class="hover:bg-slate-800/50 transition">
+                    <td class="p-2.5 text-center text-xs text-slate-400 font-mono">${idx + 1}</td>
+                    <td class="p-2.5 font-mono text-xs sm:text-sm text-slate-200 whitespace-nowrap">${r.date || '-'}</td>
+                    <td class="p-2.5 font-mono text-xs sm:text-sm text-amber-300 font-black whitespace-nowrap">${r.ref || '-'}</td>
+                    <td class="p-2.5 text-slate-100 text-xs sm:text-sm font-bold leading-snug">${escapeHtmlRecon(r.desc || '-')}</td>
+                    <td class="p-2.5 text-center font-mono text-sm sm:text-base font-black text-rose-400 whitespace-nowrap">${deb}</td>
+                    <td class="p-2.5 text-center font-mono text-sm sm:text-base font-black text-emerald-400 whitespace-nowrap">${cred}</td>
+                    <td class="p-2.5 text-center font-mono text-sm sm:text-base font-black ${balClass} whitespace-nowrap">${bal}</td>
                 </tr>
             `;
         }).join('');
@@ -1322,19 +1322,39 @@
                     </div>
                 </div>
                 
-                <!-- 3 Metrics KPI Summary -->
-                <div class="grid grid-cols-3 gap-2.5 text-center text-xs">
-                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-rose-500/20">
-                        <span class="text-slate-400 block font-bold text-[11px] mb-0.5">إجمالي المدين:</span>
-                        <strong class="text-rose-400 font-mono text-sm block">${formatMoney(target.summary.debit)}</strong>
+                <!-- Square KPI Summary Cards with Clear Big Numbers (شاشات مربعة واضحة أرقام كبيرة) -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center my-3">
+                    <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-rose-950/40 via-slate-900/90 to-slate-950 border-2 border-rose-500/40 shadow-lg flex flex-col items-center justify-center">
+                        <span class="text-xs sm:text-sm font-black text-rose-300 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrow-trend-down text-rose-400"></i>
+                            <span>إجمالي المدين:</span>
+                        </span>
+                        <div class="font-mono text-xl sm:text-2xl lg:text-3xl font-black text-rose-400 tracking-tight my-1">
+                            ${formatMoney(target.summary.debit)}
+                        </div>
+                        <span class="text-[11px] text-slate-400 font-bold">منصرف / مستحق</span>
                     </div>
-                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-emerald-500/20">
-                        <span class="text-slate-400 block font-bold text-[11px] mb-0.5">إجمالي الدائن:</span>
-                        <strong class="text-emerald-400 font-mono text-sm block">${formatMoney(target.summary.credit)}</strong>
+
+                    <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-emerald-950/40 via-slate-900/90 to-slate-950 border-2 border-emerald-500/40 shadow-lg flex flex-col items-center justify-center">
+                        <span class="text-xs sm:text-sm font-black text-emerald-300 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrow-trend-up text-emerald-400"></i>
+                            <span>إجمالي الدائن:</span>
+                        </span>
+                        <div class="font-mono text-xl sm:text-2xl lg:text-3xl font-black text-emerald-400 tracking-tight my-1">
+                            ${formatMoney(target.summary.credit)}
+                        </div>
+                        <span class="text-[11px] text-slate-400 font-bold">مقبوض / مسدد</span>
                     </div>
-                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-${themeColor}-500/20">
-                        <span class="text-slate-400 block font-bold text-[11px] mb-0.5">رصيد الإغلاق:</span>
-                        <strong class="text-${themeColor}-300 font-mono text-sm block">${formatMoney(target.summary.balance)}</strong>
+
+                    <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-b from-indigo-950/50 via-slate-900/90 to-slate-950 border-2 border-${themeColor}-500/50 shadow-lg flex flex-col items-center justify-center">
+                        <span class="text-xs sm:text-sm font-black text-${themeColor}-300 mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-scale-balanced text-${themeColor}-400"></i>
+                            <span>رصيد الإغلاق:</span>
+                        </span>
+                        <div class="font-mono text-xl sm:text-2xl lg:text-3xl font-black text-${themeColor}-300 tracking-tight my-1">
+                            ${formatMoney(target.summary.balance)}
+                        </div>
+                        <span class="text-[11px] text-slate-400 font-bold">${target.mappedRows.length} حركة مسجلة</span>
                     </div>
                 </div>
 
@@ -3075,45 +3095,47 @@
 
             return `
                 <div onclick="selectSystemAccount('${escapedId}', '${escapedName}', '${escapedCat}')"
-                     class="p-4 sm:p-5 rounded-2xl bg-slate-950/85 hover:bg-slate-900/95 border-2 border-slate-800 hover:border-indigo-400 transition-all duration-200 cursor-pointer flex flex-wrap sm:flex-nowrap items-center justify-between gap-4 group shadow-lg hover:shadow-indigo-500/20 transform hover:-translate-y-0.5">
+                     class="p-5 rounded-3xl bg-gradient-to-b from-slate-900/95 via-slate-950/90 to-slate-950 border-2 border-slate-700/80 hover:border-indigo-400 hover:shadow-2xl hover:shadow-indigo-500/25 transition-all duration-200 cursor-pointer flex flex-col justify-between group transform hover:-translate-y-1 text-center min-h-[250px] shadow-xl">
                     
-                    <div class="flex items-center gap-4 min-w-0 flex-1">
-                        <span class="w-14 h-14 shrink-0 rounded-2xl bg-${acc.badgeColor}-500/15 border-2 border-${acc.badgeColor}-500/40 flex items-center justify-center text-${acc.badgeColor}-400 text-2xl group-hover:scale-110 group-hover:border-${acc.badgeColor}-400 transition shadow">
+                    <!-- Top: Icon + Category Badge + Nature -->
+                    <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                        <span class="w-12 h-12 rounded-2xl bg-${acc.badgeColor}-500/15 border-2 border-${acc.badgeColor}-500/40 flex items-center justify-center text-${acc.badgeColor}-400 text-xl group-hover:scale-110 transition shadow">
                             <i class="${acc.iconClass}"></i>
                         </span>
-                        
-                        <div class="min-w-0 flex-1 space-y-1.5">
-                            <!-- Large Name & Prominent Balance Beside it -->
-                            <div class="flex flex-wrap items-baseline gap-2.5">
-                                <h5 class="font-black text-lg sm:text-xl text-slate-100 group-hover:text-indigo-200 transition leading-snug">
-                                    ${escapedName}
-                                </h5>
-                                <span class="font-mono text-sm sm:text-base font-black px-3 py-1 rounded-xl ${balBadgeBg} border whitespace-nowrap shadow-inner">
-                                    ${formatMoney(Math.abs(acc.balance))} <span class="text-xs text-slate-300 font-sans font-bold">${acc.currency}</span>
-                                </span>
-                            </div>
-                            
-                            <!-- Badges: Category, Balance Nature, Details -->
-                            <div class="flex flex-wrap items-center gap-2 text-xs text-slate-400">
-                                <span class="px-2.5 py-0.5 rounded-lg bg-slate-900 text-xs font-bold text-slate-200 border border-slate-700/80">
-                                    ${acc.category}
-                                </span>
-                                <span class="text-xs font-bold ${isExpense ? 'text-amber-400' : (isNegative ? 'text-rose-400' : 'text-emerald-400')}">
-                                    ${balLabel}
-                                </span>
-                                ${acc.phone ? `<span class="text-xs text-slate-400 font-mono">· 📞 ${escapeHtmlRecon(acc.phone)}</span>` : ''}
-                                ${acc.notes ? `<span class="text-xs text-slate-500 hidden md:inline-block">· ${escapeHtmlRecon(acc.notes)}</span>` : ''}
-                            </div>
+                        <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                            <span class="px-2.5 py-1 rounded-xl bg-slate-800/90 text-xs font-black text-slate-300 border border-slate-700">
+                                ${acc.category}
+                            </span>
+                            <span class="px-2.5 py-1 rounded-xl text-xs font-black ${balBadgeBg}">
+                                ${balLabel}
+                            </span>
                         </div>
                     </div>
 
-                    <!-- Direct Selection Button -->
-                    <div class="shrink-0 flex items-center gap-2">
-                        <span class="px-4 py-2.5 rounded-xl bg-indigo-600/25 group-hover:bg-indigo-600 border border-indigo-500/40 text-indigo-300 group-hover:text-white font-black text-xs sm:text-sm flex items-center gap-2 transition shadow-md">
-                            <i class="fa-solid fa-check"></i>
-                            <span>اختيار الحساب</span>
+                    <!-- Center: Bold Account Name -->
+                    <div class="my-3 min-h-[50px] flex items-center justify-center">
+                        <h5 class="font-black text-lg sm:text-xl text-slate-100 group-hover:text-indigo-200 transition line-clamp-2 leading-snug">
+                            ${escapedName}
+                        </h5>
+                    </div>
+
+                    <!-- Centerpiece: Square Box with Massive Numbers (شاشة مربعة وأرقام كبيرة) -->
+                    <div class="p-3.5 rounded-2xl bg-slate-950/95 border-2 border-slate-800 group-hover:border-${acc.badgeColor}-500/40 transition shadow-inner">
+                        <span class="text-[11px] font-black text-slate-400 block mb-1">الرصيد الدفتري الحالي:</span>
+                        <div class="font-mono text-2xl sm:text-3xl lg:text-4xl font-black ${balColor} tracking-tight">
+                            ${formatMoney(Math.abs(acc.balance))}
+                        </div>
+                        <span class="text-xs font-black text-slate-400 block mt-1">
+                            ${acc.currency}
+                            ${acc.phone ? ` · 📞 ${escapeHtmlRecon(acc.phone)}` : ''}
                         </span>
                     </div>
+
+                    <!-- Bottom: Full-Width Clear Action Button -->
+                    <button type="button" class="mt-3 w-full py-2.5 rounded-xl bg-indigo-600/25 group-hover:bg-indigo-600 border border-indigo-500/50 text-indigo-300 group-hover:text-white font-black text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md">
+                        <i class="fa-solid fa-check"></i>
+                        <span>اختيار هذا الحساب</span>
+                    </button>
                 </div>
             `;
         }).join('');
