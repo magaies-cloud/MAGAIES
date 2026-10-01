@@ -17,8 +17,8 @@
     const pathname = window.location.pathname.toLowerCase();
     const pageFile = pathname.split('/').pop().split('?')[0] || '';
 
-    // Ignore login / auth / index redirect
-    const excludedPages = ['login.php', 'register.php', 'auto-login.php', 'index.php'];
+    // Exclude background player popout
+    const excludedPages = ['background_player.php'];
     if (excludedPages.includes(pageFile)) {
         return;
     }
@@ -89,6 +89,31 @@
         window.onbeforeunload = null;
 
         const isDashboard = pageFile.includes('magaiees_unified_dashboard.php') || pageFile === 'dashboard-pro.php';
+        const isAuthPage = (pageFile === 'login.php' || pageFile === 'register.php');
+
+        // Resolve smart fallback destination
+        const getFallbackUrl = function() {
+            if (isAuthPage) {
+                if (document.referrer && document.referrer !== window.location.href) {
+                    try {
+                        const r = new URL(document.referrer);
+                        if (r.origin === window.location.origin && !r.pathname.toLowerCase().includes('login.php') && !r.pathname.toLowerCase().includes('register.php')) {
+                            return document.referrer;
+                        }
+                    } catch(e) {}
+                }
+                return 'index.php';
+            }
+            if (document.referrer && document.referrer !== window.location.href) {
+                try {
+                    const r = new URL(document.referrer);
+                    if (r.origin === window.location.origin && !r.pathname.toLowerCase().includes('login.php')) {
+                        return document.referrer;
+                    }
+                } catch(e) {}
+            }
+            return isDashboard ? '' : 'magaiees_unified_dashboard.php';
+        };
 
         // Check if persistent background media is actively playing
         let mediaState = null;
@@ -111,16 +136,13 @@
         if (window !== window.top) {
             if (window.history.length > 1) {
                 window.history.back();
+                setTimeout(() => {
+                    const dest = getFallbackUrl();
+                    if (dest) window.location.href = dest;
+                }, 350);
                 return;
             } else {
-                let dest = document.referrer;
-                if (dest) {
-                    try {
-                        const r = new URL(dest);
-                        if (r.origin !== window.location.origin || r.pathname.toLowerCase().includes('login.php')) dest = '';
-                    } catch(e) { dest = ''; }
-                }
-                if (!dest && !isDashboard) dest = 'magaiees_unified_dashboard.php';
+                const dest = getFallbackUrl();
                 if (dest) window.location.href = dest;
                 return;
             }
@@ -144,18 +166,7 @@
         // (Prevents destroying audio element, eliminates 100% of stutter)
         // ════════════════════════════════════════════════════════════════
         if (isMediaActive && typeof window.activateSeamlessCarrier === 'function') {
-            let dest = '';
-            if (document.referrer) {
-                try {
-                    const r = new URL(document.referrer);
-                    if (r.origin === window.location.origin && !r.pathname.toLowerCase().includes('login.php') && r.href !== window.location.href) {
-                        dest = document.referrer;
-                    }
-                } catch(e) {}
-            }
-            if (!dest && !isDashboard) {
-                dest = 'magaiees_unified_dashboard.php';
-            }
+            const dest = getFallbackUrl();
             if (dest) {
                 window.activateSeamlessCarrier(dest);
                 return;
@@ -175,25 +186,19 @@
             }
             if (!isExternal) {
                 window.history.back();
+                setTimeout(() => {
+                    const dest = getFallbackUrl();
+                    if (dest) window.location.href = dest;
+                }, 350);
                 return;
             }
         }
 
-        // Fallback to referrer or dashboard
-        const ref = document.referrer;
-        if (ref && ref !== window.location.href) {
-            try {
-                const refUrl = new URL(ref);
-                if (refUrl.origin === window.location.origin && !refUrl.pathname.toLowerCase().includes('login.php')) {
-                    window.location.href = ref;
-                    return;
-                }
-            } catch (e) {}
-        }
-
-        if (!isDashboard) {
-            window.location.href = 'magaiees_unified_dashboard.php';
-        } else {
+        // Direct fallback when window.history.length <= 1 or external referrer
+        const fallback = getFallbackUrl();
+        if (fallback) {
+            window.location.href = fallback;
+        } else if (isDashboard) {
             const btn = document.getElementById('magaiees-master-back-btn');
             if (btn) {
                 btn.style.transform = 'scale(0.92)';
@@ -296,7 +301,7 @@
                 position: fixed !important;
                 top: 16px !important;
                 left: 24px !important;
-                z-index: 99998 !important;
+                z-index: 9999999 !important;
                 border: 2px solid #fef08a !important;
                 box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 24px rgba(245, 158, 11, 0.75), inset 0 0 12px rgba(254, 240, 138, 0.5) !important;
                 backdrop-filter: blur(12px) !important;

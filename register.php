@@ -8,6 +8,7 @@
     <title>تسجيل شركة جديدة - مقاييس (MAGAIEES) SaaS</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
+    <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
     <style>
         .otp-digit:focus {
             border-color: #10b981 !important;

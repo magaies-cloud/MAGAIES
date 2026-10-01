@@ -890,3 +890,21 @@
     }
 })();
 
+// 🛡️ AUTO-BOOTSTRAP UNIVERSAL BACK BUTTON ACROSS ALL SCREENS
+(function() {
+    if (typeof window.magaieesGoBack === 'undefined') {
+        const existing = document.querySelector('script[src*="magaiees_back"]');
+        if (!existing) {
+            const bs = document.createElement('script');
+            bs.src = 'js/magaiees_back.js?v=' + (window.MAGAIEES_VERSION || '2026_back_universal');
+            bs.defer = true;
+            if (document.head) {
+                document.head.appendChild(bs);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(bs));
+            }
+        }
+    }
+})();
+
+

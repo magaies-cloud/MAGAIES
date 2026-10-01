@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'دفتر اليومية العام'; ?>
+<?php $page_title = 'دفتر اليومية العام'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260626_4">
     <link rel="stylesheet" href="css/sales-invoice.css">
+    <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
     <style>
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
         .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; font-family:'Cairo',sans-serif; }

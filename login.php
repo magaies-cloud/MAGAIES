@@ -20,6 +20,7 @@
     <title>مقاييس 2026 - تسجيل الدخول</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14"><link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
         <style>
         body, body.has-sidebar, body.has-sidebar.sidebar-open {
             display: flex;
@@ -347,6 +348,11 @@
         </script>
         
         <button class="btn-login" onclick="handleLogin()">دخول آمن</button>
+        
+        <button type="button" class="btn-login-back" onclick="if(typeof window.magaieesGoBack==='function'){window.magaieesGoBack();}else{window.history.back();}" style="width: 100%; margin-top: 10px; padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.22); color: #f8fafc; font-size: 0.96rem; font-weight: 800; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; gap: 8px; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.25);" onmouseover="this.style.background='linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.35))'; this.style.borderColor='#fef08a'; this.style.color='#fef08a'; this.style.boxShadow='0 0 20px rgba(245,158,11,0.5)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.22)'; this.style.color='#f8fafc'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.25)';">
+            <svg style="width: 18px; height: 18px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 19 12 12 5"></polyline></svg>
+            <span>الرجوع للشاشة السابقة</span>
+        </button>
 
         <!-- Fast Local Login Helper -->
         <div id="local-login-hints" style="margin-top: 15px; padding: 10px; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 10px; text-align: center; display: none;">

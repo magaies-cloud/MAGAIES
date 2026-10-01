@@ -413,6 +413,7 @@ try {
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="<?php echo ($activeTheme === 'solar') ? '#f1f5f9' : (($activeTheme === 'navy') ? '#030a1a' : (($activeTheme === 'forest') ? '#03140d' : '#000000')); ?>">
     <title><?php echo htmlspecialchars($preloadedData['companyName']); ?> - النسخة السريعة</title>
+    <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
 
     <!-- Client-Side Auth Gate Check -->
     <script>
