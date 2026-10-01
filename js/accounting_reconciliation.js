@@ -2750,6 +2750,76 @@
     window.closeReconModals = closeReconModals;
 
     // Open System General Ledger / Internal Accounts Selector
+    window.RECON_SEARCH_SCOPE = 'all';
+    window.RECON_BALANCE_FILTER = 'all';
+    window.RECON_VIEW_MODE = 'cards';
+
+    function setReconSearchScope(scope, btnEl) {
+        window.RECON_SEARCH_SCOPE = scope || 'all';
+        const btns = document.querySelectorAll('.recon-scope-btn');
+        btns.forEach(b => {
+            b.className = 'recon-scope-btn px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-white transition';
+        });
+        if (btnEl) {
+            btnEl.className = 'recon-scope-btn px-2.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black transition';
+        }
+        const query = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim();
+        applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', query);
+    }
+    window.setReconSearchScope = setReconSearchScope;
+
+    function quickReconSearch(term) {
+        const input = document.getElementById('recon-acc-search-input');
+        if (input) {
+            input.value = term;
+            input.focus();
+        }
+        const clearBtn = document.getElementById('recon-acc-clear-search-btn');
+        if (clearBtn) clearBtn.classList.remove('hidden');
+        applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', term);
+    }
+    window.quickReconSearch = quickReconSearch;
+
+    function onReconBalanceFilterChange(val) {
+        window.RECON_BALANCE_FILTER = val || 'all';
+        const query = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim();
+        applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', query);
+    }
+    window.onReconBalanceFilterChange = onReconBalanceFilterChange;
+
+    function setReconViewMode(mode) {
+        window.RECON_VIEW_MODE = mode || 'cards';
+        const btnCards = document.getElementById('recon-view-btn-cards');
+        const btnTable = document.getElementById('recon-view-btn-table');
+        if (btnCards && btnTable) {
+            if (mode === 'table') {
+                btnCards.className = 'p-1.5 px-2 rounded-lg text-slate-400 hover:text-white text-xs transition';
+                btnTable.className = 'p-1.5 px-2 rounded-lg bg-indigo-600 text-white text-xs transition';
+            } else {
+                btnCards.className = 'p-1.5 px-2 rounded-lg bg-indigo-600 text-white text-xs transition';
+                btnTable.className = 'p-1.5 px-2 rounded-lg text-slate-400 hover:text-white text-xs transition';
+            }
+        }
+        const query = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim();
+        applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', query);
+    }
+    window.setReconViewMode = setReconViewMode;
+
+    function updateReconCategoryCounts(accounts) {
+        const all = accounts || [];
+        const setVal = (id, count) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = count;
+        };
+        setVal('recon-count-all', all.length);
+        setVal('recon-count-banks', all.filter(a => a.category === 'البنوك').length);
+        setVal('recon-count-safes', all.filter(a => a.category === 'الخزن').length);
+        setVal('recon-count-suppliers', all.filter(a => a.category === 'الموردين').length);
+        setVal('recon-count-customers', all.filter(a => a.category === 'العملاء').length);
+        setVal('recon-count-expenses', all.filter(a => a.category === 'المصروفات').length);
+        setVal('recon-count-general', all.filter(a => a.category === 'الحسابات العامة').length);
+    }
+
     function openSystemAccountSelector(side) {
         window.RECON_ACTIVE_OMNI_SIDE = side || 'A';
         const labelEl = document.getElementById('recon-modal-target-side-label');
@@ -2768,16 +2838,43 @@
         const clearBtn = document.getElementById('recon-acc-clear-search-btn');
         if (clearBtn) clearBtn.classList.add('hidden');
 
+        // Reset search scope to all
+        window.RECON_SEARCH_SCOPE = 'all';
+        const scopeBtns = document.querySelectorAll('.recon-scope-btn');
+        scopeBtns.forEach((b, idx) => {
+            b.className = idx === 0 
+                ? 'recon-scope-btn px-2.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black transition'
+                : 'recon-scope-btn px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-white transition';
+        });
+
+        // Reset balance filter to all
+        window.RECON_BALANCE_FILTER = 'all';
+        const balFilter = document.getElementById('recon-acc-balance-filter');
+        if (balFilter) balFilter.value = 'all';
+
         // Reset filter pills
         window.RECON_CURRENT_FILTER = 'all';
         const filterBtns = document.querySelectorAll('#recon-acc-cat-filters button');
         filterBtns.forEach((btn, idx) => {
             if (idx === 0) {
-                btn.className = 'px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs sm:text-sm cursor-pointer shadow-md transition';
+                btn.className = 'recon-cat-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs cursor-pointer shadow transition flex items-center gap-1.5';
             } else {
-                btn.className = 'px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition';
+                btn.className = 'recon-cat-btn px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition flex items-center gap-1.5';
             }
         });
+
+        // Setup Escape key listener once
+        if (!window.RECON_ESC_LISTENER_BOUND) {
+            window.RECON_ESC_LISTENER_BOUND = true;
+            document.addEventListener('keydown', function(ev) {
+                if (ev.key === 'Escape') {
+                    const m = document.getElementById('modal-recon-system-accounts');
+                    if (m && m.style.display !== 'none' && !m.classList.contains('hidden')) {
+                        closeReconModals();
+                    }
+                }
+            });
+        }
 
         // Load accounts from LocalStorage / Magaiees ERP database
         loadSystemAccountsList();
@@ -2982,6 +3079,7 @@
         } catch(e) { console.warn('Failed loading general accounts:', e); }
 
         window.RECON_LOADED_ACCOUNTS = accounts;
+        updateReconCategoryCounts(accounts);
         applyAccountsFilterAndSearch('all', '');
 
         // Background sync: Fetch latest live customers and suppliers from server database
@@ -3008,6 +3106,7 @@
                             }
                         });
                         window.RECON_LOADED_ACCOUNTS = accounts;
+                        updateReconCategoryCounts(accounts);
                         const currQuery = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim();
                         applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', currQuery);
                     }
@@ -3021,9 +3120,42 @@
         return String(str).toLowerCase()
             .replace(/[إأآا]/g, 'ا')
             .replace(/ة/g, 'ه')
-            .replace(/ى/g, 'ي')
+            .replace(/[ىي]/g, 'ي')
             .replace(/[\u064B-\u065F]/g, '')
             .trim();
+    }
+
+    function escapeHtmlRecon(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function highlightReconMatch(text, query) {
+        if (!text) return '';
+        const safeText = String(text);
+        if (!query || !query.trim()) return escapeHtmlRecon(safeText);
+        
+        const qTerms = query.trim().split(/\s+/).map(t => normalizeArabicRecon(t)).filter(Boolean);
+        if (qTerms.length === 0) return escapeHtmlRecon(safeText);
+
+        const normText = normalizeArabicRecon(safeText);
+        // Find if the first matching term exists
+        for (let term of qTerms) {
+            const idx = normText.indexOf(term);
+            if (idx !== -1 && idx < safeText.length) {
+                const matchLen = term.length;
+                const before = escapeHtmlRecon(safeText.substring(0, idx));
+                const match = escapeHtmlRecon(safeText.substring(idx, idx + matchLen));
+                const after = escapeHtmlRecon(safeText.substring(idx + matchLen));
+                return `${before}<mark class="bg-indigo-500/50 text-white font-black px-1 rounded shadow-sm">${match}</mark>${after}`;
+            }
+        }
+        return escapeHtmlRecon(safeText);
     }
 
     function renderAccountsGrid(list, isSearching, query, totalAvailable) {
@@ -3041,42 +3173,166 @@
             }
         }
 
+        const scopeLabels = {
+            'all': 'شامل (الاسم/الكود/الهاتف)',
+            'name': 'الاسم فقط',
+            'code': 'الكود فقط',
+            'phone': 'الهاتف والحساب المصرفي'
+        };
+        const currentScopeLabel = scopeLabels[window.RECON_SEARCH_SCOPE || 'all'] || 'الكل';
+
         if (statusText) {
             if (isSearching) {
                 statusText.innerHTML = `
                     <i class="fa-solid fa-magnifying-glass text-sky-400"></i>
-                    <span class="text-sky-300">نتائج البحث عن "<strong class="text-white">${escapeHtmlRecon(query)}</strong>" (${list.length} حساب): انقر على الحساب لاختياره</span>
+                    <span class="text-sky-300">نتائج البحث عن "<strong class="text-white">${escapeHtmlRecon(query)}</strong>" [نطاق: ${currentScopeLabel}] (${list.length} حساب): انقر على الحساب لاختياره فوراً</span>
                 `;
             } else {
+                const catName = window.RECON_CURRENT_FILTER === 'all' ? 'كافة الحسابات' : window.RECON_CURRENT_FILTER;
                 statusText.innerHTML = `
                     <i class="fa-solid fa-sparkles text-amber-400"></i>
-                    <span class="text-indigo-300">أبرز الحسابات الشائعة (${list.length}) — اكتب اسم الحساب في خانة البحث أعلاه لاختياره مباشرة:</span>
+                    <span class="text-indigo-300">قائمة ${catName} (${list.length} حساب) — اكتب بالبحث أعلاه للوصول السريع أو انقر للاختيار:</span>
                 `;
             }
         }
 
         if (!list || list.length === 0) {
             grid.innerHTML = `
-                <div class="col-span-full text-center py-12 px-4 text-slate-300 font-bold space-y-3 bg-slate-950/70 rounded-3xl border-2 border-dashed border-slate-800">
-                    <i class="fa-solid fa-magnifying-glass text-4xl text-amber-400/80 animate-bounce"></i>
-                    <h5 class="text-base sm:text-lg text-slate-200">لم يتم العثور على أي حساب باسم "${escapeHtmlRecon(query)}"</h5>
+                <div class="col-span-full text-center py-12 px-4 text-slate-300 font-bold space-y-3 bg-slate-900/60 rounded-3xl border-2 border-dashed border-slate-800">
+                    <i class="fa-solid fa-folder-open text-4xl text-amber-400/80 animate-bounce"></i>
+                    <h5 class="text-base sm:text-lg text-slate-100">لم يتم العثور على أي حساب مطابق للمحددات</h5>
                     <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
-                        تأكد من كتابة الاسم أو انقر على زر "مسح" للعودة إلى قائمة الحسابات الشائعة.
+                        تأكد من كتابة الاسم أو الكود، أو جرب تغيير نطاق البحث أو تصفية الأرصدة، أو انقر أدناه لإعادة الضبط.
                     </p>
                     <button type="button" onclick="clearReconAccountSearch()" class="mt-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs sm:text-sm cursor-pointer shadow-lg transition flex items-center gap-2 mx-auto">
                         <i class="fa-solid fa-rotate-left"></i>
-                        <span>عرض الحسابات الشائعة</span>
+                        <span>إعادة ضبط البحث والتصنيف</span>
                     </button>
                 </div>
             `;
             return;
         }
 
-        grid.innerHTML = list.map(acc => {
+        // VIEW MODE: TABLE (عرض الجدول المحاسبي عالي الكثافة)
+        if (window.RECON_VIEW_MODE === 'table') {
+            const rowsHtml = list.map(acc => {
+                const isNegative = acc.balance < 0;
+                const isZero = Math.abs(acc.balance) < 0.001;
+                const isExpense = acc.category === 'المصروفات';
+                let balColor = 'text-emerald-400';
+                let balLabel = 'مدين (لنا)';
+                let balBadgeBg = 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300';
+
+                if (isExpense) {
+                    balColor = 'text-amber-400';
+                    balLabel = 'منصرف';
+                    balBadgeBg = 'bg-amber-500/15 border-amber-500/30 text-amber-300';
+                } else if (isNegative) {
+                    balColor = 'text-rose-400';
+                    balLabel = 'دائن (علينا)';
+                    balBadgeBg = 'bg-rose-500/15 border-rose-500/30 text-rose-300';
+                } else if (isZero) {
+                    balColor = 'text-slate-400';
+                    balLabel = 'متزن (صفر)';
+                    balBadgeBg = 'bg-slate-800 border-slate-700 text-slate-400';
+                }
+
+                const escapedId = escapeHtmlRecon(acc.id);
+                const escapedName = escapeHtmlRecon(acc.name);
+                const escapedCat = escapeHtmlRecon(acc.category);
+
+                return `
+                    <tr onclick="selectSystemAccount('${escapedId}', '${escapedName}', '${escapedCat}')"
+                        class="hover:bg-indigo-950/40 border-b border-slate-800/80 transition-colors duration-150 cursor-pointer group">
+                        
+                        <!-- Account Code -->
+                        <td class="py-3 px-3.5 whitespace-nowrap">
+                            <span class="font-mono text-indigo-300 text-xs font-black bg-indigo-500/15 px-2 py-1 rounded-lg border border-indigo-500/30">
+                                #${highlightReconMatch(acc.code, query)}
+                            </span>
+                        </td>
+
+                        <!-- Account Name -->
+                        <td class="py-3 px-3.5">
+                            <div class="flex items-center gap-2">
+                                <span class="w-7 h-7 rounded-lg bg-${acc.badgeColor}-500/15 border border-${acc.badgeColor}-500/40 text-${acc.badgeColor}-400 flex items-center justify-center text-xs shrink-0">
+                                    <i class="${acc.iconClass}"></i>
+                                </span>
+                                <span class="font-black text-slate-100 group-hover:text-indigo-200 transition text-sm">
+                                    ${highlightReconMatch(acc.name, query)}
+                                </span>
+                            </div>
+                        </td>
+
+                        <!-- Category -->
+                        <td class="py-3 px-3.5 whitespace-nowrap">
+                            <span class="px-2.5 py-1 rounded-lg bg-slate-800 text-xs font-bold text-slate-300 border border-slate-700">
+                                ${acc.category}
+                            </span>
+                        </td>
+
+                        <!-- Phone / Contact / Account No -->
+                        <td class="py-3 px-3.5 whitespace-nowrap text-slate-400 font-mono text-xs">
+                            ${acc.phone ? `<span class="flex items-center gap-1"><i class="fa-solid fa-phone text-slate-500 text-[10px]"></i> ${highlightReconMatch(acc.phone, query)}</span>` : '—'}
+                        </td>
+
+                        <!-- Balance Nature Badge -->
+                        <td class="py-3 px-3.5 whitespace-nowrap text-center">
+                            <span class="px-2 py-0.5 rounded-lg text-xs font-black border ${balBadgeBg}">
+                                ${balLabel}
+                            </span>
+                        </td>
+
+                        <!-- Current Ledger Balance -->
+                        <td class="py-3 px-3.5 whitespace-nowrap text-left">
+                            <span class="font-mono text-base font-black ${balColor}">
+                                ${formatMoney(Math.abs(acc.balance))}
+                            </span>
+                            <span class="text-xs text-slate-400 font-bold ml-1">${acc.currency || 'SDG'}</span>
+                        </td>
+
+                        <!-- Action Button -->
+                        <td class="py-3 px-3.5 whitespace-nowrap text-center">
+                            <button type="button" class="px-3.5 py-1.5 rounded-xl bg-indigo-600/30 group-hover:bg-indigo-600 text-indigo-200 group-hover:text-white border border-indigo-500/40 font-black text-xs transition flex items-center gap-1.5 mx-auto shadow-sm">
+                                <i class="fa-solid fa-check"></i>
+                                <span>اختيار</span>
+                            </button>
+                        </td>
+
+                    </tr>
+                `;
+            }).join('');
+
+            grid.innerHTML = `
+                <div class="overflow-x-auto rounded-2xl border border-slate-800/90 shadow-xl bg-slate-900/60">
+                    <table class="w-full text-right text-xs">
+                        <thead class="bg-slate-950/90 text-slate-400 font-black border-b border-slate-800 sticky top-0 z-10 backdrop-blur">
+                            <tr>
+                                <th class="py-3 px-3.5">كود الحساب</th>
+                                <th class="py-3 px-3.5">اسم الحساب</th>
+                                <th class="py-3 px-3.5">التصنيف</th>
+                                <th class="py-3 px-3.5">الهاتف / المرجع</th>
+                                <th class="py-3 px-3.5 text-center">طبيعة الرصيد</th>
+                                <th class="py-3 px-3.5 text-left">الرصيد الدفتري الحالي</th>
+                                <th class="py-3 px-3.5 text-center">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 font-medium">
+                            ${rowsHtml}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            return;
+        }
+
+        // VIEW MODE: CARDS (عرض البطاقات العصرية التفاعلية)
+        const cardsHtml = list.map(acc => {
             const isNegative = acc.balance < 0;
+            const isZero = Math.abs(acc.balance) < 0.001;
             const isExpense = acc.category === 'المصروفات';
             let balColor = 'text-emerald-400';
-            let balLabel = 'مدين (لنا)';
+            let balLabel = 'مدين (لنا ↗)';
             let balBadgeBg = 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300';
 
             if (isExpense) {
@@ -3085,8 +3341,12 @@
                 balBadgeBg = 'bg-amber-500/15 border-amber-500/40 text-amber-300';
             } else if (isNegative) {
                 balColor = 'text-rose-400';
-                balLabel = 'دائن (علينا)';
+                balLabel = 'دائن (علينا ↘)';
                 balBadgeBg = 'bg-rose-500/15 border-rose-500/40 text-rose-300';
+            } else if (isZero) {
+                balColor = 'text-slate-400';
+                balLabel = 'متزن (صفر)';
+                balBadgeBg = 'bg-slate-800 border-slate-700 text-slate-400';
             }
 
             const escapedName = escapeHtmlRecon(acc.name);
@@ -3095,60 +3355,71 @@
 
             return `
                 <div onclick="selectSystemAccount('${escapedId}', '${escapedName}', '${escapedCat}')"
-                     class="p-5 rounded-3xl bg-gradient-to-b from-slate-900/95 via-slate-950/90 to-slate-950 border-2 border-slate-700/80 hover:border-indigo-400 hover:shadow-2xl hover:shadow-indigo-500/25 transition-all duration-200 cursor-pointer flex flex-col justify-between group transform hover:-translate-y-1 text-center min-h-[250px] shadow-xl">
+                     class="p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-slate-900/95 via-slate-950/90 to-slate-950 border border-slate-800 hover:border-indigo-400/80 hover:shadow-2xl hover:shadow-indigo-500/20 transition-all duration-200 cursor-pointer flex flex-col justify-between group transform hover:-translate-y-1 text-right shadow-xl relative overflow-hidden">
                     
-                    <!-- Top: Icon + Category Badge + Nature -->
+                    <!-- Top: Icon + Code + Badges -->
                     <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
-                        <span class="w-12 h-12 rounded-2xl bg-${acc.badgeColor}-500/15 border-2 border-${acc.badgeColor}-500/40 flex items-center justify-center text-${acc.badgeColor}-400 text-xl group-hover:scale-110 transition shadow">
-                            <i class="${acc.iconClass}"></i>
-                        </span>
+                        <div class="flex items-center gap-2">
+                            <span class="w-10 h-10 rounded-2xl bg-${acc.badgeColor}-500/15 border border-${acc.badgeColor}-500/40 flex items-center justify-center text-${acc.badgeColor}-400 text-lg group-hover:scale-110 transition shadow">
+                                <i class="${acc.iconClass}"></i>
+                            </span>
+                            <span class="font-mono text-xs font-black text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-lg border border-indigo-500/20">
+                                #${highlightReconMatch(acc.code, query)}
+                            </span>
+                        </div>
                         <div class="flex items-center gap-1.5 flex-wrap justify-end">
-                            <span class="px-2.5 py-1 rounded-xl bg-slate-800/90 text-xs font-black text-slate-300 border border-slate-700">
+                            <span class="px-2 py-0.5 rounded-lg bg-slate-800 text-[11px] font-black text-slate-300 border border-slate-700">
                                 ${acc.category}
                             </span>
-                            <span class="px-2.5 py-1 rounded-xl text-xs font-black ${balBadgeBg}">
+                            <span class="px-2 py-0.5 rounded-lg text-[11px] font-black border ${balBadgeBg}">
                                 ${balLabel}
                             </span>
                         </div>
                     </div>
 
-                    <!-- Center: Bold Account Name -->
-                    <div class="my-3 min-h-[50px] flex items-center justify-center">
-                        <h5 class="font-black text-lg sm:text-xl text-slate-100 group-hover:text-indigo-200 transition line-clamp-2 leading-snug">
-                            ${escapedName}
+                    <!-- Center: Bold Account Name & Info -->
+                    <div class="my-3 space-y-1">
+                        <h5 class="font-black text-base sm:text-lg text-slate-100 group-hover:text-indigo-200 transition line-clamp-2 leading-snug">
+                            ${highlightReconMatch(acc.name, query)}
                         </h5>
+                        ${acc.phone ? `
+                            <div class="flex items-center gap-1.5 text-xs text-slate-400 font-mono">
+                                <i class="fa-solid fa-phone text-slate-500 text-[11px]"></i>
+                                <span>${highlightReconMatch(acc.phone, query)}</span>
+                            </div>
+                        ` : ''}
+                        ${acc.notes ? `
+                            <p class="text-[11px] text-slate-500 line-clamp-1">${escapeHtmlRecon(acc.notes)}</p>
+                        ` : ''}
                     </div>
 
-                    <!-- Centerpiece: Square Box with Massive Numbers (شاشة مربعة وأرقام كبيرة) -->
-                    <div class="p-3.5 rounded-2xl bg-slate-950/95 border-2 border-slate-800 group-hover:border-${acc.badgeColor}-500/40 transition shadow-inner">
-                        <span class="text-[11px] font-black text-slate-400 block mb-1">الرصيد الدفتري الحالي:</span>
-                        <div class="font-mono text-2xl sm:text-3xl lg:text-4xl font-black ${balColor} tracking-tight">
-                            ${formatMoney(Math.abs(acc.balance))}
+                    <!-- Balance Digital Box -->
+                    <div class="p-3 rounded-2xl bg-slate-950/95 border border-slate-800 group-hover:border-${acc.badgeColor}-500/40 transition shadow-inner">
+                        <span class="text-[11px] font-bold text-slate-400 block mb-0.5">الرصيد الدفتري الحالي:</span>
+                        <div class="flex items-baseline justify-between gap-2">
+                            <span class="font-mono text-xl sm:text-2xl font-black ${balColor} tracking-tight">
+                                ${formatMoney(Math.abs(acc.balance))}
+                            </span>
+                            <span class="text-xs font-black text-slate-400">
+                                ${acc.currency || 'SDG'}
+                            </span>
                         </div>
-                        <span class="text-xs font-black text-slate-400 block mt-1">
-                            ${acc.currency}
-                            ${acc.phone ? ` · 📞 ${escapeHtmlRecon(acc.phone)}` : ''}
-                        </span>
                     </div>
 
-                    <!-- Bottom: Full-Width Clear Action Button -->
+                    <!-- Bottom: Full-Width Action Button -->
                     <button type="button" class="mt-3 w-full py-2.5 rounded-xl bg-indigo-600/25 group-hover:bg-indigo-600 border border-indigo-500/50 text-indigo-300 group-hover:text-white font-black text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-md">
-                        <i class="fa-solid fa-check"></i>
-                        <span>اختيار</span>
+                        <i class="fa-solid fa-arrow-down-to-bracket"></i>
+                        <span>اختيار واستيراد الكشف</span>
                     </button>
                 </div>
             `;
         }).join('');
-    }
 
-    function escapeHtmlRecon(str) {
-        if (!str) return '';
-        return String(str)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;');
+        grid.innerHTML = `
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                ${cardsHtml}
+            </div>
+        `;
     }
 
     // Filter accounts by category pill
@@ -3156,10 +3427,10 @@
         window.RECON_CURRENT_FILTER = category;
         const filterBtns = document.querySelectorAll('#recon-acc-cat-filters button');
         filterBtns.forEach(btn => {
-            btn.className = 'px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs sm:text-sm cursor-pointer border border-slate-700/80 transition';
+            btn.className = 'recon-cat-btn px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition flex items-center gap-1.5';
         });
         if (btnEl) {
-            btnEl.className = 'px-3.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs sm:text-sm cursor-pointer shadow-md transition';
+            btnEl.className = 'recon-cat-btn px-3 py-1.5 rounded-xl bg-indigo-600 text-white font-black text-xs cursor-pointer shadow transition flex items-center gap-1.5';
         }
 
         const query = ((document.getElementById('recon-acc-search-input') ? document.getElementById('recon-acc-search-input').value : null) || '').trim();
@@ -3167,7 +3438,7 @@
     }
     window.filterReconAccountsList = filterReconAccountsList;
 
-    // Clear search and reset to curated common accounts
+    // Clear search and reset to default view
     function clearReconAccountSearch() {
         const input = document.getElementById('recon-acc-search-input');
         if (input) {
@@ -3176,6 +3447,21 @@
         }
         const clearBtn = document.getElementById('recon-acc-clear-search-btn');
         if (clearBtn) clearBtn.classList.add('hidden');
+        
+        // Reset search scope
+        window.RECON_SEARCH_SCOPE = 'all';
+        const scopeBtns = document.querySelectorAll('.recon-scope-btn');
+        scopeBtns.forEach((b, idx) => {
+            b.className = idx === 0 
+                ? 'recon-scope-btn px-2.5 py-1.5 rounded-xl bg-indigo-600 text-white font-black transition'
+                : 'recon-scope-btn px-2.5 py-1.5 rounded-xl text-slate-400 hover:text-white transition';
+        });
+
+        // Reset balance filter
+        window.RECON_BALANCE_FILTER = 'all';
+        const balFilter = document.getElementById('recon-acc-balance-filter');
+        if (balFilter) balFilter.value = 'all';
+
         applyAccountsFilterAndSearch(window.RECON_CURRENT_FILTER || 'all', '');
     }
     window.clearReconAccountSearch = clearReconAccountSearch;
@@ -3196,44 +3482,66 @@
     function applyAccountsFilterAndSearch(category, query) {
         const allAccounts = window.RECON_LOADED_ACCOUNTS || [];
         const normQuery = normalizeArabicRecon(query);
+        const queryTerms = (query || '').trim().split(/\s+/).map(t => normalizeArabicRecon(t)).filter(Boolean);
+        const scope = window.RECON_SEARCH_SCOPE || 'all';
+        const balFilter = window.RECON_BALANCE_FILTER || 'all';
+
         let list = allAccounts;
 
+        // 1. Filter by category
         if (category && category !== 'all') {
             list = list.filter(a => a.category === category);
         }
 
-        const isSearching = Boolean(normQuery);
+        // 2. Filter by balance nature
+        if (balFilter === 'debit') {
+            list = list.filter(a => a.balance > 0);
+        } else if (balFilter === 'credit') {
+            list = list.filter(a => a.balance < 0);
+        } else if (balFilter === 'zero') {
+            list = list.filter(a => Math.abs(a.balance) < 0.001);
+        }
 
+        const isSearching = Boolean(queryTerms.length > 0);
+
+        // 3. Filter by search terms and scope
         if (isSearching) {
-            // When searching: match by name, code, phone, or notes with Arabic normalization
             list = list.filter(a => {
                 const normName = normalizeArabicRecon(a.name);
                 const normCode = normalizeArabicRecon(a.code);
                 const normPhone = normalizeArabicRecon(a.phone);
                 const normNotes = normalizeArabicRecon(a.notes);
-                return normName.includes(normQuery) || 
-                       normCode.includes(normQuery) || 
-                       normPhone.includes(normQuery) || 
-                       normNotes.includes(normQuery);
+
+                if (scope === 'name') {
+                    return queryTerms.every(term => normName.includes(term));
+                } else if (scope === 'code') {
+                    return queryTerms.every(term => normCode.includes(term));
+                } else if (scope === 'phone') {
+                    return queryTerms.every(term => normPhone.includes(term));
+                } else {
+                    // Scope 'all': every term must match somewhere in name, code, phone, or notes
+                    return queryTerms.every(term => 
+                        normName.includes(term) ||
+                        normCode.includes(term) ||
+                        normPhone.includes(term) ||
+                        normNotes.includes(term)
+                    );
+                }
             });
-        } else {
-            // When NOT searching, show a simple curated list (small number of accounts)
-            if (category === 'all') {
-                const curated = [];
-                const takeFromCategory = (cat, count) => {
-                    const matches = allAccounts.filter(a => a.category === cat);
-                    curated.push(...matches.slice(0, count));
-                };
-                takeFromCategory('الخزن', 1);
-                takeFromCategory('البنوك', 2);
-                takeFromCategory('الموردين', 2);
-                takeFromCategory('العملاء', 2);
-                takeFromCategory('المصروفات', 1);
-                list = curated.length > 0 ? curated : allAccounts.slice(0, 7);
-            } else {
-                list = list.slice(0, 6);
-            }
         }
+
+        // Calculate summary stats for matching accounts
+        let sumDebit = 0;
+        let sumCredit = 0;
+        list.forEach(a => {
+            if (a.balance > 0) sumDebit += a.balance;
+            else if (a.balance < 0) sumCredit += Math.abs(a.balance);
+        });
+
+        const statDebEl = document.getElementById('recon-stat-debit');
+        const statCredEl = document.getElementById('recon-stat-credit');
+        if (statDebEl) statDebEl.textContent = formatMoney(sumDebit);
+        if (statCredEl) statCredEl.textContent = formatMoney(sumCredit);
 
         renderAccountsGrid(list, isSearching, query, allAccounts.length);
     }
