@@ -23249,10 +23249,6 @@ $pdo = getDBConnection();
 
                             <!-- Omnichannel Sources Bar for Side A -->
                             <div class="flex flex-wrap items-center gap-1.5 mb-3 p-2 rounded-xl bg-slate-950/70 border border-sky-500/20 text-xs">
-                                <span class="text-[11px] font-black text-sky-400 pl-1 flex items-center gap-1">
-                                    <i class="fa-solid fa-cloud-arrow-down"></i> جلب من:
-                                </span>
-                                
                                 <button type="button" onclick="openSystemAccountSelector('A')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ العام وحسابات البرنامج">
                                     <i class="fa-solid fa-book-journal-whills text-sky-400"></i>
                                     <span>دفتر الأستاذ</span>
@@ -23318,10 +23314,6 @@ $pdo = getDBConnection();
 
                             <!-- Omnichannel Sources Bar for Side B -->
                             <div class="flex flex-wrap items-center gap-1.5 mb-3 p-2 rounded-xl bg-slate-950/70 border border-purple-500/20 text-xs">
-                                <span class="text-[11px] font-black text-purple-400 pl-1 flex items-center gap-1">
-                                    <i class="fa-solid fa-cloud-arrow-down"></i> جلب من:
-                                </span>
-                                
                                 <button type="button" onclick="openSystemAccountSelector('B')" class="omni-source-btn" title="جلب كشف حساب مباشرة من دفتر الأستاذ العام وحسابات البرنامج">
                                     <i class="fa-solid fa-book-journal-whills text-purple-400"></i>
                                     <span>دفتر الأستاذ</span>
