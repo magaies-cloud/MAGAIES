@@ -2751,14 +2751,48 @@
     window.closeReconModals = closeReconModals;
 
     // ────────────────────────────────────────────────────────────────
-    // LIVE WEBRTC CAMERA CAPTURE ENGINE FOR DOCUMENT & STATEMENT SCANNING
+    // LIVE WEBRTC CAMERA CAPTURE ENGINE FOR MULTI-SHOT DOCUMENT SCANNING
     // ────────────────────────────────────────────────────────────────
     window.RECON_CAMERA_STREAM = null;
     window.RECON_CAMERA_FACING = 'environment'; // 'environment' (back) or 'user' (front)
     window.RECON_ACTIVE_CAMERA_SIDE = 'A';
+    window.RECON_CAPTURED_PHOTOS = []; // Array of { id, dataUrl, blob, fileName }
+
+    // Instant synthetic camera shutter click sound (Zero network, 0ms latency)
+    function playCameraShutterSound() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(220, ctx.currentTime + 0.08);
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.08);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.08);
+        } catch(e) {}
+    }
+
+    function triggerCameraFlash() {
+        const flashEl = document.getElementById('recon-camera-flash');
+        if (flashEl) {
+            flashEl.style.opacity = '0.85';
+            setTimeout(() => { flashEl.style.opacity = '0'; }, 120);
+        }
+        if (navigator.vibrate) {
+            try { navigator.vibrate(40); } catch(e) {}
+        }
+    }
 
     function openLiveCameraCapture(side) {
         window.RECON_ACTIVE_CAMERA_SIDE = side || 'A';
+        window.RECON_CAPTURED_PHOTOS = []; // reset shots on open
+        
         const labelEl = document.getElementById('recon-camera-target-side-label');
         if (labelEl) {
             labelEl.textContent = `الهدف: ${window.RECON_ACTIVE_CAMERA_SIDE === 'A' ? 'كشف حساب الطرف الأول' : 'كشف حساب الطرف الثاني'}`;
@@ -2769,16 +2803,7 @@
         modal.style.display = 'flex';
         modal.classList.remove('hidden');
 
-        // Reset views: show live view, hide preview
-        const liveContainer = document.getElementById('recon-camera-live-container');
-        const previewContainer = document.getElementById('recon-camera-preview-container');
-        const liveControls = document.getElementById('recon-camera-live-controls');
-        const previewControls = document.getElementById('recon-camera-preview-controls');
-        if (liveContainer) liveContainer.classList.remove('hidden');
-        if (previewContainer) previewContainer.classList.add('hidden');
-        if (liveControls) liveControls.classList.remove('hidden');
-        if (previewControls) previewControls.classList.add('hidden');
-
+        updateCapturedPhotosUI();
         startLiveCameraStream();
     }
     window.openLiveCameraCapture = openLiveCameraCapture;
@@ -2792,12 +2817,12 @@
             try {
                 window.RECON_CAMERA_STREAM.getTracks().forEach(t => t.stop());
             } catch(e) {}
-                window.RECON_CAMERA_STREAM = null;
+            window.RECON_CAMERA_STREAM = null;
         }
 
         // Check browser support
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-            console.warn('getUserMedia not supported, falling back to native device camera');
+            console.warn('getUserMedia not supported or insecure context, falling back to native camera');
             handleCameraFallback();
             return;
         }
@@ -2805,8 +2830,8 @@
         const constraints = {
             video: {
                 facingMode: { ideal: window.RECON_CAMERA_FACING || 'environment' },
-                width: { ideal: 1920 },
-                height: { ideal: 1080 }
+                width: { ideal: 1920, min: 1280 },
+                height: { ideal: 1080, min: 720 }
             },
             audio: false
         };
@@ -2838,9 +2863,19 @@
             fileInput.click();
         }
         if (window.showModernToast) {
-            window.showModernToast('📷 جاري فتح كاميرا الجهاز الافتراضية لالتقاط كشف الحساب...', 'info', 3500);
+            window.showModernToast('📷 جاري فتح كاميرا الجهاز الأصلية لالتقاط كشف الحساب...', 'info', 3500);
         }
     }
+
+    function triggerNativeCameraInput() {
+        const side = window.RECON_ACTIVE_CAMERA_SIDE || 'A';
+        closeLiveCameraCapture();
+        const fileInput = document.getElementById(`omni-file-camera-${side}`);
+        if (fileInput) {
+            fileInput.click();
+        }
+    }
+    window.triggerNativeCameraInput = triggerNativeCameraInput;
 
     function switchLiveCameraFacing() {
         window.RECON_CAMERA_FACING = (window.RECON_CAMERA_FACING === 'environment') ? 'user' : 'environment';
@@ -2853,82 +2888,197 @@
         const canvas = document.getElementById('recon-camera-capture-canvas');
         if (!video || !canvas) return;
 
-        const w = video.videoWidth || 1280;
-        const h = video.videoHeight || 720;
+        const w = video.videoWidth || 1920;
+        const h = video.videoHeight || 1080;
         canvas.width = w;
         canvas.height = h;
 
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0, w, h);
 
-        const liveContainer = document.getElementById('recon-camera-live-container');
-        const previewContainer = document.getElementById('recon-camera-preview-container');
-        const liveControls = document.getElementById('recon-camera-live-controls');
-        const previewControls = document.getElementById('recon-camera-preview-controls');
+        playCameraShutterSound();
+        triggerCameraFlash();
 
-        if (liveContainer) liveContainer.classList.add('hidden');
-        if (previewContainer) previewContainer.classList.remove('hidden');
-        if (liveControls) liveControls.classList.add('hidden');
-        if (previewControls) previewControls.classList.remove('hidden');
-
-        try { video.pause(); } catch(e) {}
-    }
-    window.takeLiveCameraSnapshot = takeLiveCameraSnapshot;
-
-    function retakeLiveCameraSnapshot() {
-        const liveContainer = document.getElementById('recon-camera-live-container');
-        const previewContainer = document.getElementById('recon-camera-preview-container');
-        const liveControls = document.getElementById('recon-camera-live-controls');
-        const previewControls = document.getElementById('recon-camera-preview-controls');
-        const video = document.getElementById('recon-live-camera-video');
-
-        if (liveContainer) liveContainer.classList.remove('hidden');
-        if (previewContainer) previewContainer.classList.add('hidden');
-        if (liveControls) liveControls.classList.remove('hidden');
-        if (previewControls) previewControls.classList.add('hidden');
-
-        if (video) {
-            video.play().catch(e => console.warn(e));
-        }
-    }
-    window.retakeLiveCameraSnapshot = retakeLiveCameraSnapshot;
-
-    function confirmLiveCameraSnapshot() {
-        const canvas = document.getElementById('recon-camera-capture-canvas');
-        if (!canvas) return;
-
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
         canvas.toBlob(blob => {
-            if (!blob) {
-                if (window.showModernToast) {
-                    window.showModernToast('⚠️ حدث خطأ أثناء تجهيز الصورة، يرجى إعادة المحاولة', 'error', 3000);
-                }
-                return;
-            }
-
+            if (!blob) return;
             const side = window.RECON_ACTIVE_CAMERA_SIDE || 'A';
-            const fileName = `كاميرا_كشف_حساب_${side}_${Date.now()}.jpg`;
-            const file = new File([blob], fileName, { type: 'image/jpeg', lastModified: Date.now() });
+            const count = (window.RECON_CAPTURED_PHOTOS || []).length + 1;
+            const fileName = `لقطة_كشف_${side}_صفحة_${count}_${Date.now()}.jpg`;
 
-            // Close camera modal and stop tracks
-            closeLiveCameraCapture();
+            window.RECON_CAPTURED_PHOTOS.push({
+                id: Date.now() + Math.random(),
+                dataUrl: dataUrl,
+                blob: blob,
+                fileName: fileName
+            });
 
-            if (window.showModernToast) {
-                window.showModernToast('📸 تم التقاط صورة كشف الحساب! جاري المعالجة والاستخراج بالذكاء الاصطناعي...', 'info', 3500);
-            }
+            updateCapturedPhotosUI();
 
-            // Synthesize upload event for handleOmniUpload
-            const fakeEvent = {
-                target: {
-                    files: [file],
-                    value: ''
-                }
-            };
-            if (typeof handleOmniUpload === 'function') {
-                handleOmniUpload(fakeEvent, side, 'camera');
+            // Dynamic HUD hint update
+            const hudText = document.getElementById('recon-camera-hud-text');
+            if (hudText) {
+                hudText.innerHTML = `✅ تم التقاط صفحة (<strong>${count}</strong>)! وجه الكاميرا للصفحة التالية أو اضغط "فحص واستخراج".`;
             }
         }, 'image/jpeg', 0.92);
     }
+    window.takeLiveCameraSnapshot = takeLiveCameraSnapshot;
+
+    function updateCapturedPhotosUI() {
+        const list = window.RECON_CAPTURED_PHOTOS || [];
+        const count = list.length;
+        
+        // Update badge
+        const badge = document.getElementById('recon-camera-shots-badge');
+        if (badge) {
+            badge.textContent = `📸 ${count} ${count === 1 ? 'صورة ملتقطة' : (count === 2 ? 'صورتين ملتقطتين' : 'صور ملتقطة')}`;
+            if (count > 0) {
+                badge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-500/25 text-emerald-300 border border-emerald-500/50 shadow-sm animate-pulse';
+            } else {
+                badge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm';
+            }
+        }
+
+        // Update button text
+        const confirmText = document.getElementById('recon-camera-confirm-text');
+        if (confirmText) {
+            if (count > 0) {
+                confirmText.textContent = `فحص واستخراج (${count}) صور بالذكاء الاصطناعي ⬅️`;
+            } else {
+                confirmText.textContent = 'فحص واستخراج بالذكاء الاصطناعي';
+            }
+        }
+
+        // Update filmstrip tray
+        const emptyTray = document.getElementById('recon-camera-empty-tray');
+        const thumbsList = document.getElementById('recon-camera-thumbnails-list');
+        const trayActions = document.getElementById('recon-camera-tray-actions');
+
+        if (count === 0) {
+            if (emptyTray) emptyTray.classList.remove('hidden');
+            if (thumbsList) { thumbsList.classList.add('hidden'); thumbsList.innerHTML = ''; }
+            if (trayActions) trayActions.classList.add('hidden');
+        } else {
+            if (emptyTray) emptyTray.classList.add('hidden');
+            if (thumbsList) {
+                thumbsList.classList.remove('hidden');
+                thumbsList.innerHTML = list.map((p, idx) => `
+                    <div class="relative w-14 h-14 rounded-xl overflow-hidden border-2 border-rose-500/70 bg-black shrink-0 group shadow-lg">
+                        <img src="${p.dataUrl}" class="w-full h-full object-cover" alt="صفحة ${idx+1}">
+                        <span class="absolute bottom-0 inset-x-0 bg-slate-950/85 text-[10px] text-center font-black text-rose-300 leading-tight">#${idx+1}</span>
+                        <button type="button" onclick="removeCapturedPhoto(${p.id})" class="absolute -top-1 -left-1 w-5 h-5 rounded-full bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center text-xs font-black shadow transition" title="حذف هذه اللقطة">✕</button>
+                    </div>
+                `).join('');
+            }
+            if (trayActions) trayActions.classList.remove('hidden');
+        }
+    }
+    window.updateCapturedPhotosUI = updateCapturedPhotosUI;
+
+    function removeCapturedPhoto(id) {
+        window.RECON_CAPTURED_PHOTOS = (window.RECON_CAPTURED_PHOTOS || []).filter(p => p.id !== id);
+        updateCapturedPhotosUI();
+    }
+    window.removeCapturedPhoto = removeCapturedPhoto;
+
+    function clearAllCapturedPhotos() {
+        window.RECON_CAPTURED_PHOTOS = [];
+        updateCapturedPhotosUI();
+        const hudText = document.getElementById('recon-camera-hud-text');
+        if (hudText) {
+            hudText.textContent = 'تم مسح اللقطات. وجه الكاميرا واضغط التقاط للبدء مجدداً.';
+        }
+    }
+    window.clearAllCapturedPhotos = clearAllCapturedPhotos;
+
+    function addPhotosFromDevice() {
+        const inp = document.getElementById('recon-camera-extra-files-input');
+        if (inp) inp.click();
+    }
+    window.addPhotosFromDevice = addPhotosFromDevice;
+
+    async function handleExtraCameraPhotos(e) {
+        const files = Array.from(e.target.files || []);
+        if (!files.length) return;
+        const side = window.RECON_ACTIVE_CAMERA_SIDE || 'A';
+
+        for (const file of files) {
+            await new Promise(resolve => {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    const count = (window.RECON_CAPTURED_PHOTOS || []).length + 1;
+                    window.RECON_CAPTURED_PHOTOS.push({
+                        id: Date.now() + Math.random(),
+                        dataUrl: reader.result,
+                        blob: file,
+                        fileName: file.name || `صورة_${side}_${count}.jpg`
+                    });
+                    resolve();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        e.target.value = '';
+        updateCapturedPhotosUI();
+        if (window.showModernToast) {
+            window.showModernToast(`📁 تم إضافة (${files.length}) صور إضافية بنجاح!`, 'success', 2500);
+        }
+    }
+    window.handleExtraCameraPhotos = handleExtraCameraPhotos;
+
+    function confirmLiveCameraSnapshot() {
+        const list = window.RECON_CAPTURED_PHOTOS || [];
+        const side = window.RECON_ACTIVE_CAMERA_SIDE || 'A';
+
+        // If no photo taken yet, snap current frame automatically first!
+        if (list.length === 0) {
+            const video = document.getElementById('recon-live-camera-video');
+            const canvas = document.getElementById('recon-camera-capture-canvas');
+            if (video && canvas && video.videoWidth > 0) {
+                const w = video.videoWidth;
+                const h = video.videoHeight;
+                canvas.width = w; canvas.height = h;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0, w, h);
+                canvas.toBlob(blob => {
+                    if (blob) {
+                        const file = new File([blob], `لقطة_كشف_${side}_1_${Date.now()}.jpg`, { type: 'image/jpeg', lastModified: Date.now() });
+                        closeLiveCameraCapture();
+                        dispatchCapturedFiles([file], side);
+                    }
+                }, 'image/jpeg', 0.92);
+                return;
+            }
+        }
+
+        if (list.length === 0) {
+            alert('يرجى التقاط صورة واحدة على الأقل قبل الفحص.');
+            return;
+        }
+
+        const files = list.map((p, idx) => {
+            return new File([p.blob], p.fileName || `لقطة_كشف_${side}_${idx+1}.jpg`, { type: 'image/jpeg', lastModified: Date.now() });
+        });
+
+        closeLiveCameraCapture();
+        dispatchCapturedFiles(files, side);
+    }
     window.confirmLiveCameraSnapshot = confirmLiveCameraSnapshot;
+
+    function dispatchCapturedFiles(files, side) {
+        if (window.showModernToast) {
+            window.showModernToast(`📸 تم تسليم (${files.length}) صور! جاري فحصها وتدقيقها بالذكاء الاصطناعي...`, 'info', 3500);
+        }
+        const fakeEvent = {
+            target: {
+                files: files,
+                value: ''
+            }
+        };
+        if (typeof handleOmniUpload === 'function') {
+            handleOmniUpload(fakeEvent, side, 'camera');
+        }
+    }
 
     function closeLiveCameraCapture() {
         const modal = document.getElementById('modal-recon-live-camera');
@@ -2958,11 +3108,8 @@
                 if (e.key === 'Escape') {
                     closeLiveCameraCapture();
                 } else if (e.key === ' ' || e.key === 'Enter') {
-                    const liveControls = document.getElementById('recon-camera-live-controls');
-                    if (liveControls && !liveControls.classList.contains('hidden')) {
-                        e.preventDefault();
-                        takeLiveCameraSnapshot();
-                    }
+                    e.preventDefault();
+                    takeLiveCameraSnapshot();
                 }
             }
         });
@@ -4290,6 +4437,79 @@
     }
     window.deduplicateStatementRows = deduplicateStatementRows;
 
+    // Smart Chronological Sequence Sorter & Balance Continuity Stitcher
+    function smartSortAndStitchStatementRows(rows) {
+        if (!Array.isArray(rows) || rows.length <= 1) return rows || [];
+
+        function parseRowDate(dStr) {
+            if (!dStr) return null;
+            dStr = String(dStr).trim();
+            // YYYY-MM-DD or YYYY/MM/DD
+            if (/^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}/.test(dStr)) {
+                const ts = Date.parse(dStr.replace(/\./g, '-'));
+                if (!isNaN(ts)) return ts;
+            }
+            // DD/MM/YYYY or DD-MM-YYYY
+            const parts = dStr.split(/[-/.]/);
+            if (parts.length === 3) {
+                if (parts[0].length <= 2 && parts[2].length === 4) {
+                    const ts = Date.parse(`${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
+                    if (!isNaN(ts)) return ts;
+                }
+            }
+            return null;
+        }
+
+        let datedCount = 0;
+        rows.forEach(r => {
+            if (parseRowDate(r.date) !== null) datedCount++;
+        });
+
+        // If >= 60% of entries have dates, sort chronologically while maintaining intra-date order
+        if (datedCount >= rows.length * 0.6) {
+            const indexed = rows.map((r, idx) => ({ r, idx, ts: parseRowDate(r.date) }));
+            indexed.sort((a, b) => {
+                if (a.ts !== null && b.ts !== null) {
+                    if (a.ts !== b.ts) return a.ts - b.ts;
+                } else if (a.ts !== null) {
+                    return -1;
+                } else if (b.ts !== null) {
+                    return 1;
+                }
+                return a.idx - b.idx;
+            });
+            return indexed.map(item => item.r);
+        }
+
+        return rows;
+    }
+    window.smartSortAndStitchStatementRows = smartSortAndStitchStatementRows;
+
+    // Inject Laser Scan Animation Styles for In-Dropzone AI Inspection
+    (function injectReconLaserStyles() {
+        if (document.getElementById('recon-laser-scan-css')) return;
+        const sc = document.createElement('style');
+        sc.id = 'recon-laser-scan-css';
+        sc.textContent = `
+            @keyframes reconLaserScan {
+                0% { top: 2%; opacity: 0.9; }
+                50% { top: 92%; opacity: 1; }
+                100% { top: 2%; opacity: 0.9; }
+            }
+            .recon-laser-line {
+                position: absolute;
+                left: 0; right: 0;
+                height: 3px;
+                background: linear-gradient(90deg, transparent, #38bdf8, #f43f5e, #38bdf8, transparent);
+                box-shadow: 0 0 10px #38bdf8, 0 0 20px #f43f5e;
+                animation: reconLaserScan 2.2s infinite ease-in-out;
+                pointer-events: none;
+                z-index: 20;
+            }
+        `;
+        document.head.appendChild(sc);
+    })();
+
     // Universal Omni Upload Handler (Multi-Image Overlap Stitching, Excel, Camera/Studio, PDF, Word)
     async function handleOmniUpload(event, side, type) {
         const files = Array.from(event.target.files || []);
@@ -4309,15 +4529,57 @@
         const isMulti = files.length > 1;
         const uploadTitle = isMulti ? `مجموعة مستندات / صور (${files.length} ملفات)` : files[0].name;
 
-        // 2. Multimodal AI Extraction Loading UI
+        // 2. High-Tech Visual Inspection Hub in Dropzone
         if (boxEl) {
+            const imgFiles = files.filter(f => (f.type && f.type.startsWith('image/')) || /\.(jpe?g|png|webp)$/i.test(f.name));
+            let previewCardsHtml = '';
+            if (imgFiles.length > 0) {
+                previewCardsHtml = `
+                    <div class="grid grid-cols-${Math.min(imgFiles.length, 4)} gap-2.5 my-3 max-w-full">
+                        ${imgFiles.map((f, idx) => {
+                            let src = '';
+                            try { src = URL.createObjectURL(f); } catch(e){}
+                            return `
+                                <div class="relative rounded-2xl overflow-hidden border-2 border-slate-700 bg-black/90 aspect-[3/4] flex items-center justify-center group shadow-xl">
+                                    ${src ? `<img src="${src}" class="w-full h-full object-cover" alt="لقطة ${idx+1}">` : '<i class="fa-solid fa-file-image text-3xl text-slate-500"></i>'}
+                                    <div class="recon-laser-line"></div>
+                                    <span class="absolute top-2 right-2 px-2.5 py-0.5 rounded-lg text-[10px] font-black bg-rose-600/90 text-white shadow-md backdrop-blur-sm">
+                                        لقطة #${idx+1}
+                                    </span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+            }
+
             boxEl.innerHTML = `
-                <div class="p-8 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 text-center space-y-3">
-                    <div class="w-12 h-12 rounded-full border-4 border-${themeColor}-500/30 border-t-${themeColor}-400 animate-spin mx-auto"></div>
-                    <h5 class="font-black text-sm text-${themeColor}-200">جاري مسح ومعالجة ${uploadTitle} بالذكاء الاصطناعي...</h5>
-                    <p class="text-xs text-slate-400 font-mono">
-                        ${isMulti ? 'نظام Gemini Multimodal Vision يدمج الصور المتتالية، يكتشف الأسطر المتداخلة والمدبلة ويفرغ جدول الحركات الموحد' : 'نظام Gemini Vision OCR المتقدم يستخرج الحركات والأرصدة بدقة متناهية'}
-                    </p>
+                <div class="p-5 sm:p-6 rounded-2xl bg-slate-900/95 border-2 border-${themeColor}-500/40 text-center space-y-3.5 shadow-2xl relative overflow-hidden animate-scaleIn">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-2.5 text-right">
+                            <span class="w-9 h-9 rounded-xl bg-${themeColor}-500/20 text-${themeColor}-400 flex items-center justify-center text-base font-bold shadow">
+                                <i class="fa-solid fa-microchip animate-pulse"></i>
+                            </span>
+                            <div>
+                                <h5 class="font-black text-sm text-slate-100 flex items-center gap-2">
+                                    <span>جاري فحص وتدقيق ${uploadTitle}</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse">فحص مباشر ⚡</span>
+                                </h5>
+                                <span class="text-[11px] text-slate-400 font-bold">دمج وترتيب الصور · كشف الأسطر المدبلة · تسوية الرقع والتداخلات</span>
+                            </div>
+                        </div>
+                        <div class="w-7 h-7 rounded-full border-2 border-${themeColor}-500/30 border-t-${themeColor}-400 animate-spin"></div>
+                    </div>
+
+                    ${previewCardsHtml}
+
+                    <div class="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800 text-xs font-mono flex items-center justify-between text-slate-300">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles text-amber-400 animate-spin"></i>
+                            <span>نظام Gemini Vision يقوم بالتفتيش والفرز والترتيب المحاسبي الدقيق...</span>
+                        </span>
+                        <span class="text-slate-500 font-bold">${files.length} ملفات</span>
+                    </div>
                 </div>
             `;
         }
@@ -4369,15 +4631,17 @@
 
             const result = await response.json();
             if (result.success && result.data && result.data.rows && result.data.rows.length > 0) {
-                // Algorithmic overlap and duplicate removal
                 const rawRows = result.data.rows;
+                // 1. Algorithmic overlap and duplicate removal
                 const dedupedRows = window.deduplicateStatementRows(rawRows);
-                const duplicateCount = rawRows.length - dedupedRows.length;
+                // 2. Smart sequence and chronological sorting
+                const finalRows = window.smartSortAndStitchStatementRows(dedupedRows);
+                const duplicateCount = (rawRows.length - dedupedRows.length) + (result.data.deduplicated_count || 0);
 
                 const matrix = [
                     ["التاريخ", "رقم العملية / المرجع", "البيان وتفاصيل العملية", "مدين", "دائن", "الرصيد"]
                 ];
-                dedupedRows.forEach(r => {
+                finalRows.forEach(r => {
                     matrix.push([
                         r.date || '',
                         r.ref || '',
@@ -4391,8 +4655,8 @@
                 processLoadedSheetData(matrix, side, uploadTitle);
 
                 if (window.showModernToast) {
-                    const deDupNote = duplicateCount > 0 ? ` (تم استبعاد ${duplicateCount} سطر متداخل مدبل)` : '';
-                    window.showModernToast(`✨ تم تفريغ وتدقيق ${dedupedRows.length} حركة بالذكاء الاصطناعي من (${uploadTitle})${deDupNote} بنجاح!`, 'success', 4500);
+                    const deDupNote = duplicateCount > 0 ? ` (تم استبعاد ${duplicateCount} سطر مدبل متداخل وتسوية الرقع)` : '';
+                    window.showModernToast(`✨ تم فحص وترتيب ${files.length} صور واستخراج ${finalRows.length} حركة بالذكاء الاصطناعي بنجاح!${deDupNote}`, 'success', 5000);
                 }
             } else {
                 alert('تعذر استخراج جدول الحركات المالية من المستندات: ' + (result.error || 'يرجى التأكد من وضوح أرقام المرجع والمبالغ والتواريخ.'));

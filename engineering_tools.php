@@ -23264,7 +23264,7 @@ $pdo = getDBConnection();
                                     <i class="fa-solid fa-camera text-rose-400"></i>
                                     <span>الكاميرا</span>
                                 </button>
-                                <input type="file" id="omni-file-camera-A" accept="image/*" capture="environment" class="hidden" onchange="handleOmniUpload(event, 'A', 'camera')">
+                                <input type="file" id="omni-file-camera-A" accept="image/*" capture="environment" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'camera')">
 
                                 <button type="button" onclick="document.getElementById('omni-file-all-A').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Images)">
                                     <i class="fa-solid fa-folder-open text-amber-400"></i>
@@ -23329,7 +23329,7 @@ $pdo = getDBConnection();
                                     <i class="fa-solid fa-camera text-rose-400"></i>
                                     <span>الكاميرا</span>
                                 </button>
-                                <input type="file" id="omni-file-camera-B" accept="image/*" capture="environment" class="hidden" onchange="handleOmniUpload(event, 'B', 'camera')">
+                                <input type="file" id="omni-file-camera-B" accept="image/*" capture="environment" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'camera')">
 
                                 <button type="button" onclick="document.getElementById('omni-file-all-B').click()" class="omni-source-btn" title="تنزيلات الكمبيوتر أو استعراض كافة الملفات (Excel, PDF, Word, Images)">
                                     <i class="fa-solid fa-folder-open text-amber-400"></i>
@@ -26987,31 +26987,44 @@ $pdo = getDBConnection();
                                 <i class="fa-solid fa-camera"></i>
                             </span>
                             <div>
-                                <div class="flex items-center gap-2">
-                                    <h4 class="font-black text-base sm:text-lg text-slate-100">📷 كاميرا المسح المباشر لكشوفات الحساب</h4>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <h4 class="font-black text-base sm:text-lg text-slate-100">📷 كاميرا فحص وتدقيق كشوفات الحساب</h4>
                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500/20 text-rose-300 border border-rose-500/30">
                                         <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
                                         <span>بث مباشر</span>
+                                    </span>
+                                    <span id="recon-camera-shots-badge" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm">
+                                        📸 0 صور ملتقطة
                                     </span>
                                 </div>
                                 <span class="text-xs text-rose-300/80 font-bold" id="recon-camera-target-side-label">الهدف: كشف حساب الطرف الأول</span>
                             </div>
                         </div>
 
-                        <button type="button" onclick="closeLiveCameraCapture()" class="w-10 h-10 rounded-2xl bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-300 text-xl cursor-pointer flex items-center justify-center transition border border-slate-700 shadow" title="إغلاق الكاميرا (Esc)">
-                            <i class="fa-solid fa-xmark"></i>
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <!-- Direct Native Camera Fallback button -->
+                            <button type="button" onclick="triggerNativeCameraInput()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 shadow" title="فتح كاميرا الموبايل الأصلية مباشرة">
+                                <i class="fa-solid fa-mobile-screen text-amber-400"></i>
+                                <span class="hidden sm:inline">كاميرا الهاتف</span>
+                            </button>
+                            <button type="button" onclick="closeLiveCameraCapture()" class="w-10 h-10 rounded-2xl bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-300 text-xl cursor-pointer flex items-center justify-center transition border border-slate-700 shadow" title="إغلاق الكاميرا (Esc)">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Viewfinder & Preview Body -->
-                    <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden min-h-[380px] max-h-[65vh]">
+                    <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden min-h-[350px] max-h-[58vh]">
                         
                         <!-- 1. Live Video Viewfinder -->
                         <div id="recon-camera-live-container" class="relative w-full h-full flex items-center justify-center bg-black">
-                            <video id="recon-live-camera-video" autoplay playsinline muted class="w-full h-full object-contain max-h-[65vh]"></video>
+                            <video id="recon-live-camera-video" autoplay playsinline muted class="w-full h-full object-contain max-h-[58vh]"></video>
                             
+                            <!-- Shutter Flash Overlay -->
+                            <div id="recon-camera-flash" class="absolute inset-0 bg-white pointer-events-none opacity-0 transition-opacity duration-150 z-20"></div>
+
                             <!-- Document Alignment Guide Overlay (إطار توجيه المستند) -->
-                            <div class="absolute inset-4 sm:inset-8 border-2 border-dashed border-rose-400/60 rounded-2xl pointer-events-none flex flex-col justify-between p-3 shadow-[0_0_20px_rgba(244,63,94,0.15)]">
+                            <div class="absolute inset-3 sm:inset-6 border-2 border-dashed border-rose-400/60 rounded-2xl pointer-events-none flex flex-col justify-between p-3 shadow-[0_0_20px_rgba(244,63,94,0.15)]">
                                 <!-- Top corner brackets -->
                                 <div class="flex justify-between">
                                     <span class="w-6 h-6 border-t-4 border-r-4 border-rose-400 rounded-tr-lg"></span>
@@ -27019,9 +27032,9 @@ $pdo = getDBConnection();
                                 </div>
                                 
                                 <!-- Guide Hint -->
-                                <div class="text-center py-1 px-3 rounded-full bg-black/70 backdrop-blur-md text-[11px] font-bold text-rose-200 border border-rose-500/30 mx-auto pointer-events-auto">
-                                    <i class="fa-solid fa-arrows-to-eye ml-1 text-rose-400"></i>
-                                    <span>وجه الكاميرا نحو كشف الحساب الورقي أو الشاشة واضغط على زر التقاط الصورة</span>
+                                <div id="recon-camera-hud-hint" class="text-center py-1.5 px-4 rounded-full bg-black/80 backdrop-blur-md text-[11px] sm:text-xs font-bold text-rose-200 border border-rose-500/40 mx-auto pointer-events-auto shadow-lg transition-all duration-300">
+                                    <i class="fa-solid fa-camera mr-1 text-rose-400"></i>
+                                    <span id="recon-camera-hud-text">وجه الكاميرا واضغط التقاط (يمكنك تصوير عدة لقطات متتالية صفحة 1، 2، 3...)</span>
                                 </div>
 
                                 <!-- Bottom corner brackets -->
@@ -27038,51 +27051,61 @@ $pdo = getDBConnection();
                             </div>
                         </div>
 
-                        <!-- 2. Captured Photo Preview (Hidden initially) -->
-                        <div id="recon-camera-preview-container" class="hidden relative w-full h-full flex flex-col items-center justify-center bg-black">
-                            <canvas id="recon-camera-capture-canvas" class="max-w-full max-h-[55vh] object-contain rounded-xl border border-slate-700 shadow-2xl"></canvas>
-                            <div class="absolute top-3 left-3 bg-emerald-600/90 text-white text-xs font-black px-3 py-1 rounded-full shadow flex items-center gap-1.5 backdrop-blur-md">
-                                <i class="fa-solid fa-check"></i>
-                                <span>تم التقاط الصورة بنجاح</span>
-                            </div>
-                        </div>
+                        <!-- Hidden Working Canvas -->
+                        <canvas id="recon-camera-capture-canvas" class="hidden"></canvas>
+                    </div>
 
+                    <!-- 3. Multi-Shot Filmstrip Tray (شريط اللقطات المصورة) -->
+                    <div id="recon-camera-filmstrip-tray" class="px-4 py-2.5 bg-slate-950/95 border-t border-slate-800 flex items-center justify-between gap-3 overflow-x-auto min-h-[78px] shrink-0">
+                        <div id="recon-camera-empty-tray" class="w-full text-center text-xs text-slate-400 font-bold flex items-center justify-center gap-2 py-2">
+                            <i class="fa-solid fa-layer-group text-slate-500 text-sm"></i>
+                            <span>التقط صورة كشف الحساب الأولى، ثم اضغط ثانية لتصوير الصفحة التالية (صورتين، 3، أو 4 صور). الذكاء الاصطناعي سيرتبها ويدمجها!</span>
+                        </div>
+                        <div id="recon-camera-thumbnails-list" class="flex items-center gap-2.5 hidden">
+                            <!-- Thumbnails injected dynamically -->
+                        </div>
+                        <div id="recon-camera-tray-actions" class="hidden shrink-0 flex items-center gap-2">
+                            <button type="button" onclick="clearAllCapturedPhotos()" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-rose-950 text-slate-400 hover:text-rose-300 text-[11px] font-bold transition border border-slate-700" title="مسح الصور الملتقطة والبدء مجدداً">
+                                <i class="fa-solid fa-trash-can ml-1 text-rose-400"></i>
+                                <span>مسح الكل</span>
+                            </button>
+                        </div>
                     </div>
 
                     <!-- Footer Controls Bar -->
-                    <div class="px-5 py-4 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-3 shrink-0">
+                    <div class="px-5 py-3.5 bg-slate-900 border-t border-slate-800 flex items-center justify-between gap-3 shrink-0">
                         
-                        <!-- Live Mode Controls -->
-                        <div id="recon-camera-live-controls" class="w-full flex items-center justify-between">
+                        <!-- Left Tools -->
+                        <div class="flex items-center gap-2">
                             <!-- Switch Camera (Front/Back) -->
-                            <button type="button" onclick="switchLiveCameraFacing()" class="px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition flex items-center gap-2 border border-slate-700 shadow" title="تبديل العدسة (الأمامية / الخلفية)">
-                                <i class="fa-solid fa-camera-rotate text-rose-400 text-base"></i>
+                            <button type="button" onclick="switchLiveCameraFacing()" class="px-3.5 py-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition flex items-center gap-2 border border-slate-700 shadow" title="تبديل العدسة (الأمامية / الخلفية)">
+                                <i class="fa-solid fa-camera-rotate text-rose-400 text-sm"></i>
                                 <span class="hidden sm:inline">تبديل العدسة</span>
                             </button>
+                            
+                            <!-- Add extra photo from gallery/file -->
+                            <button type="button" onclick="addPhotosFromDevice()" class="px-3.5 py-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-bold transition flex items-center gap-2 border border-slate-700 shadow" title="إضافة صور أخرى من ألبوم المعرض أو الملفات">
+                                <i class="fa-solid fa-images text-pink-400 text-sm"></i>
+                                <span class="hidden sm:inline">إضافة صور</span>
+                            </button>
+                            <input type="file" id="recon-camera-extra-files-input" accept="image/*" multiple class="hidden" onchange="handleExtraCameraPhotos(event)">
+                        </div>
 
-                            <!-- Massive Shutter Snap Button -->
-                            <button type="button" onclick="takeLiveCameraSnapshot()" class="relative group p-1.5 rounded-full bg-slate-950 border-4 border-rose-500/50 hover:border-rose-400 shadow-2xl transition-all duration-200 transform hover:scale-105 active:scale-95" title="التقاط صورة كشف الحساب (Space / Enter)">
-                                <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-rose-600 to-rose-400 flex items-center justify-center text-white text-2xl shadow-inner group-hover:from-rose-500 group-hover:to-pink-500 transition">
+                        <!-- Center: Shutter Snap Button -->
+                        <div class="flex flex-col items-center">
+                            <button type="button" id="recon-camera-shutter-btn" onclick="takeLiveCameraSnapshot()" class="relative group p-1.5 rounded-full bg-slate-950 border-4 border-rose-500/50 hover:border-rose-400 shadow-2xl transition-all duration-200 transform hover:scale-105 active:scale-95" title="التقاط صورة (Space / Enter)">
+                                <div class="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-gradient-to-tr from-rose-600 to-rose-400 flex items-center justify-center text-white text-2xl shadow-inner group-hover:from-rose-500 group-hover:to-pink-500 transition">
                                     <i class="fa-solid fa-camera"></i>
                                 </div>
                             </button>
-
-                            <!-- Cancel Button -->
-                            <button type="button" onclick="closeLiveCameraCapture()" class="px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-rose-950/60 text-slate-300 hover:text-rose-200 text-xs font-bold transition border border-slate-700">
-                                <span>إلغاء</span>
-                            </button>
+                            <span class="text-[10px] text-slate-400 font-bold mt-1">التقاط (Space)</span>
                         </div>
 
-                        <!-- Preview Mode Controls (Shown after snapping) -->
-                        <div id="recon-camera-preview-controls" class="hidden w-full flex items-center justify-between gap-3">
-                            <button type="button" onclick="retakeLiveCameraSnapshot()" class="px-5 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs sm:text-sm font-bold transition flex items-center gap-2 border border-slate-700 shadow">
-                                <i class="fa-solid fa-rotate-left text-amber-400"></i>
-                                <span>إعادة الالتقاط</span>
-                            </button>
-
-                            <button type="button" onclick="confirmLiveCameraSnapshot()" class="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-black transition flex items-center gap-2 shadow-lg shadow-emerald-600/30 transform hover:scale-105 active:scale-95">
-                                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                                <span>اعتماد واستخراج بالذكاء الاصطناعي</span>
+                        <!-- Right: AI Inspection Execution Button -->
+                        <div class="flex items-center gap-2">
+                            <button type="button" id="recon-camera-confirm-btn" onclick="confirmLiveCameraSnapshot()" class="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-black transition flex items-center gap-2 shadow-lg shadow-emerald-600/30 transform hover:scale-105 active:scale-95 border border-emerald-400/40">
+                                <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i>
+                                <span id="recon-camera-confirm-text">فحص واستخراج بالذكاء الاصطناعي</span>
                             </button>
                         </div>
 
