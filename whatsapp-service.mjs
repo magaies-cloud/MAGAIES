@@ -21,6 +21,7 @@ import QRCode from 'qrcode';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { execSync, exec } from 'child_process';
 
 // ─── ESM __dirname polyfill ────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
@@ -1020,6 +1021,72 @@ const upload = multer({ dest: UPLOADS_DIR });
 
 // (Error handler moved after routes — see bottom of file)
 
+// ── GET /wa/system-repair ──────────────────────────────────────
+app.get('/wa/system-repair', async (req, res) => {
+    const results = {};
+    const run = (cmd) => {
+        try {
+            return execSync(cmd, { encoding: 'utf8', timeout: 30000, shell: '/bin/bash' });
+        } catch (e) {
+            return `ERROR: ${e.message}\nSTDOUT: ${e.stdout || ''}\nSTDERR: ${e.stderr || ''}`;
+        }
+    };
+
+    results.whoami = run('id');
+    results.php_sockets_before = run('ls -la /var/run/php/ 2>&1');
+    results.services_status = run('systemctl status php8.3-fpm --no-pager 2>&1 || systemctl status php*-fpm --no-pager 2>&1');
+
+    results.restart_php = run(`
+        for v in 8.3 8.2 8.1 8.0 7.4; do
+            if [ -f "/lib/systemd/system/php$v-fpm.service" ] || [ -f "/etc/systemd/system/php$v-fpm.service" ] || [ -f "/etc/init.d/php$v-fpm" ]; then
+                systemctl unmask "php$v-fpm" 2>/dev/null || true
+                systemctl enable "php$v-fpm" 2>/dev/null || true
+                systemctl restart "php$v-fpm" 2>/dev/null || service "php$v-fpm" restart 2>/dev/null || true
+            fi
+        done
+        systemctl restart php-fpm 2>/dev/null || true
+    `);
+
+    results.socket_fix = run(`
+        if [ ! -S /var/run/php/php8.3-fpm.sock ]; then
+            for s in /var/run/php/php*-fpm.sock; do
+                if [ -S "$s" ]; then
+                    ln -sf "$s" /var/run/php/php8.3-fpm.sock
+                    break
+                fi
+            done
+        fi
+        mkdir -p /var/run/php
+        chmod 755 /var/run/php
+        chmod 666 /var/run/php/*.sock 2>/dev/null || true
+        chown -R www-data:www-data /var/run/php 2>/dev/null || true
+    `);
+
+    results.php_sockets_after = run('ls -la /var/run/php/ 2>&1');
+    results.nginx_test = run('nginx -t 2>&1');
+    results.nginx_restart = run('systemctl restart nginx 2>&1 || systemctl reload nginx 2>&1');
+    results.curl_test = run('curl -s -I http://127.0.0.1/index.php -H "Host: elsajana.com" 2>&1');
+
+    res.json(results);
+});
+
+// Auto-trigger self-healing on boot
+setTimeout(() => {
+    try {
+        exec(`
+            for v in 8.3 8.2 8.1 8.0 7.4; do
+                [ -f "/lib/systemd/system/php$v-fpm.service" ] && (systemctl unmask "php$v-fpm"; systemctl enable "php$v-fpm"; systemctl restart "php$v-fpm") 2>/dev/null || true
+            done
+            if [ ! -S /var/run/php/php8.3-fpm.sock ]; then
+                for s in /var/run/php/php*-fpm.sock; do
+                    [ -S "$s" ] && ln -sf "$s" /var/run/php/php8.3-fpm.sock && break
+                done
+            fi
+            chmod 666 /var/run/php/*.sock 2>/dev/null || true
+            systemctl restart nginx 2>/dev/null || systemctl reload nginx 2>/dev/null || true
+        `, { shell: '/bin/bash' });
+    } catch(e) {}
+}, 2000);
 
 // ── GET /wa/status ─────────────────────────────────────────────
 app.get('/wa/status', (req, res) => {
