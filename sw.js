@@ -120,3 +120,71 @@ self.addEventListener('sync', (event) => {
         );
     }
 });
+
+// ────────────────────────────────────────────────────────────────────
+// 🔔 Web Push Event: Triggers when notification arrives while phone is locked
+// ────────────────────────────────────────────────────────────────────
+self.addEventListener('push', (event) => {
+    console.log('[SW Push] Background push event received:', event);
+    let payload = {
+        title: '🔔 إشعار فوري: مقاييس ERP',
+        body: 'تنبيه تنفيذي جديد يتطلب انتباهك على شاشة الجوال',
+        icon: './assets/icon-192.png',
+        badge: './assets/icon-192.png',
+        tag: 'magaiees-alert-' + Date.now(),
+        data: { url: './mobile-dashboard.php?tab=approvals' }
+    };
+
+    if (event.data) {
+        try {
+            const json = event.data.json();
+            payload = Object.assign(payload, json);
+        } catch (e) {
+            payload.body = event.data.text() || payload.body;
+        }
+    }
+
+    const options = {
+        body: payload.body,
+        icon: payload.icon || './assets/icon-192.png',
+        badge: payload.badge || './assets/icon-192.png',
+        tag: payload.tag || 'magaiees-push',
+        renotify: true,
+        requireInteraction: true,
+        vibrate: [300, 100, 300, 100, 400],
+        data: payload.data || { url: './mobile-dashboard.php' },
+        actions: [
+            { action: 'open', title: 'عرض في مقاييس 🚀' },
+            { action: 'dismiss', title: 'تجاهل' }
+        ]
+    };
+
+    event.waitUntil(
+        self.registration.showNotification(payload.title, options)
+    );
+});
+
+// ────────────────────────────────────────────────────────────────────
+// 📲 Notification Click Event: When user taps the lockscreen notification
+// ────────────────────────────────────────────────────────────────────
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    if (event.action === 'dismiss') return;
+
+    const targetUrl = event.notification.data?.url || './mobile-dashboard.php';
+
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
+            for (let client of windowClients) {
+                if (client.url.includes('mobile-dashboard') || client.url.includes('magaiees')) {
+                    return client.focus().then(() => {
+                        if (typeof client.navigate === 'function') {
+                            return client.navigate(targetUrl);
+                        }
+                    });
+                }
+            }
+            return self.clients.openWindow(targetUrl);
+        })
+    );
+});

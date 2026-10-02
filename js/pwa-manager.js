@@ -23,6 +23,13 @@ window.PWAManager = {
         this.listenInstallPrompt();
         this.setupAdaptiveResizeListener();
         this.bindExistingDomButtons();
+        this.checkPushInitialStatus();
+    },
+
+    checkPushInitialStatus() {
+        if ('Notification' in window && Notification.permission === 'granted' && localStorage.getItem('magaies_push_subscribed') === '1') {
+            this.updatePushUI(true);
+        }
     },
 
     detectDisplayMode() {
@@ -62,6 +69,15 @@ window.PWAManager = {
                                 }
                             };
                         };
+
+                        if ('PushManager' in window && reg.pushManager) {
+                            reg.pushManager.getSubscription().then(sub => {
+                                if (sub) {
+                                    localStorage.setItem('magaies_push_subscribed', '1');
+                                    PWAManager.updatePushUI(true);
+                                }
+                            }).catch(() => {});
+                        }
                     })
                     .catch((err) => {
                         console.warn('[Magaiees PWA] SW registration notice:', err);
@@ -273,6 +289,127 @@ window.PWAManager = {
                 }
             }, 350);
         });
+    },
+
+    // ────────────────────────────────────────────────────────────────────
+    // 🔔 WEB PUSH NOTIFICATIONS ENGINE (Lockscreen & Background Alerts)
+    // ────────────────────────────────────────────────────────────────────
+    defaultVapidPublicKey: 'BEl62iUYgUivxIkv69yViEuiBIa-Ib9-SkvMeAtA3LFgDzkrxZJjSgSnfckjBJuBkr3qBUYIHBQFLXYp5Nksh8U',
+
+    urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/\-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) {
+            outputArray[i] = rawData.charCodeAt(i);
+        }
+        return outputArray;
+    },
+
+    async enablePushNotifications() {
+        if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+            if (window.showModernToast) {
+                window.showModernToast('⚠️ متصفحك الحالي لا يدعم إشعارات الويب المتقدمة (Web Push)', 'warning', 3500);
+            }
+            return false;
+        }
+
+        try {
+            const permission = await Notification.requestPermission();
+            if (permission !== 'granted') {
+                if (window.showModernToast) {
+                    window.showModernToast('يرجى السماح بالإشعارات من إعدادات المتصفح أو القفل', 'warning', 3000);
+                }
+                return false;
+            }
+
+            const reg = await navigator.serviceWorker.ready;
+            let sub = await reg.pushManager.getSubscription();
+
+            if (!sub) {
+                let vapidKey = this.defaultVapidPublicKey;
+                try {
+                    const cfgRes = await fetch('api/push_subscription.php?action=get_config');
+                    if (cfgRes.ok) {
+                        const cfg = await cfgRes.json();
+                        if (cfg && cfg.vapid_public_key) vapidKey = cfg.vapid_public_key;
+                    }
+                } catch(e) {}
+
+                const convertedVapidKey = this.urlBase64ToUint8Array(vapidKey);
+                sub = await reg.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: convertedVapidKey
+                });
+            }
+
+            // Save subscription to backend
+            await fetch('api/push_subscription.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'save_subscription',
+                    subscription: sub.toJSON()
+                })
+            });
+
+            localStorage.setItem('magaiees_push_subscribed', '1');
+            if (window.showModernToast) {
+                window.showModernToast('🔔 تم تفعيل إشعارات الخلفية بنجاح! ستصلك التنبيهات حتى والشاشة مقفلة', 'success', 4000);
+            }
+
+            this.updatePushUI(true);
+            return true;
+        } catch(err) {
+            console.error('[Magaiees Push Error]', err);
+            if (window.showModernToast) {
+                window.showModernToast('حدث خطأ أثناء تفعيل الإشعارات: ' + err.message, 'error', 4000);
+            }
+            return false;
+        }
+    },
+
+    async sendTestPushNotification() {
+        try {
+            const reg = await navigator.serviceWorker.ready;
+            if (reg.showNotification) {
+                reg.showNotification('🔔 تجربة إشعار مقاييس ERP', {
+                    body: '🎉 ممتاز! إشعارات النظام تعمل بأعلى كفاءة والشاشة مقفلة.',
+                    icon: './assets/icon-192.png',
+                    badge: './assets/icon-192.png',
+                    tag: 'test-push-' + Date.now(),
+                    vibrate: [200, 100, 200, 100, 300],
+                    data: { url: './mobile-dashboard.php' }
+                });
+            }
+
+            fetch('api/push_subscription.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    action: 'test_push',
+                    title: '🚨 تنبيه تنفيذي عاجل (مقاييس)',
+                    body: 'تم تسجيل فاتورة تجاوزت السقف المالي المحدد • يرجى الاطلاع والاعتماد'
+                })
+            });
+
+            if (window.showModernToast) {
+                window.showModernToast('📲 تم إرسال الإشعار! اقفل شاشة هاتفك لاختبار ظهوره في شاشة القفل', 'info', 4000);
+            }
+        } catch(err) {
+            console.warn('Test notification error:', err);
+        }
+    },
+
+    updatePushUI(isActive) {
+        const toggle = document.getElementById('push-notification-toggle');
+        if (toggle) toggle.checked = isActive;
+        const statusBadge = document.getElementById('push-status-badge');
+        if (statusBadge) {
+            statusBadge.style.color = isActive ? '#10b981' : 'rgba(255,255,255,0.4)';
+            statusBadge.textContent = isActive ? '🟢 مفعلة ونشطة' : '⚪ غير مفعلة';
+        }
     }
 };
 

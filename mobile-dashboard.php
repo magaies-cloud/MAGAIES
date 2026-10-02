@@ -4363,6 +4363,87 @@ try {
                 transform: translateX(-50%) !important;
             }
         }
+
+        /* 📊 20 Advanced Inventory Reports Crystal Cards & Sheet Styling */
+        .inv-rep-card {
+            background: var(--surface-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 14px;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-card);
+        }
+        .inv-rep-card:hover, .inv-rep-card:active {
+            transform: translateY(-2px);
+            border-color: rgba(139, 92, 246, 0.45);
+            background: var(--surface-sub);
+        }
+        .rep-card-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            flex-shrink: 0;
+        }
+        .rep-card-info {
+            flex-grow: 1;
+            min-width: 0;
+        }
+        .rep-card-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 3px;
+            flex-wrap: wrap;
+        }
+        .rep-card-num {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 900;
+            color: var(--text-muted);
+            opacity: 0.85;
+        }
+        .rep-card-title {
+            font-size: 0.84rem;
+            color: var(--text-main);
+            font-weight: 800;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .rep-card-badge {
+            font-size: 0.62rem;
+            font-weight: 700;
+            padding: 1px 7px;
+            border-radius: 6px;
+            margin-right: auto;
+        }
+        .rep-card-desc {
+            margin: 0;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            line-height: 1.35;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .rep-card-action {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 6px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
@@ -4957,6 +5038,18 @@ try {
                         <i class="fa-solid fa-cart-plus"></i> توريد بضاعة
                     </button>
                 </div>
+
+                <!-- 20 Advanced Inventory Reports Quick Launcher Trigger -->
+                <button type="button" class="btn-ripple" onclick="openBottomSheet('sheet-20-inventory-reports')" style="margin-top:8px; width:100%; height:40px; border-radius:12px; border:1px solid rgba(139,92,246,0.35); background:linear-gradient(135deg, rgba(139,92,246,0.18), rgba(59,130,246,0.18)); color:#c084fc; font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:space-between; padding:0 12px; cursor:pointer; box-shadow:0 4px 14px rgba(139,92,246,0.12);">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-chart-pie" style="color:#c084fc; font-size:14px;"></i>
+                        <span>📊 مصفوفة تقارير المخزون الـ 20 المتقدمة</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                        <span style="background:rgba(139,92,246,0.3); font-size:10px; padding:2px 7px; border-radius:10px; color:#e9d5ff; font-weight:700;">20 تقرير</span>
+                        <i class="fa-solid fa-chevron-left" style="font-size:10px; opacity:0.8;"></i>
+                    </div>
+                </button>
             </div>
 
             <!-- 1. Search Toolbar with Continuous Barcode Scanner Trigger -->
@@ -6319,6 +6412,37 @@ try {
                     <i class="fa-solid fa-floppy-disk"></i> حفظ القواعد وتحديث الرادار فوراً
                 </button>
             </form>
+
+            <!-- 🔔 قسم إشعارات الخلفية والشاشة مقفلة (Web Push / FCM Notifications) -->
+            <div style="margin-top:20px; padding-top:16px; border-top:1px dashed var(--border-glass);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg, rgba(244,63,94,0.2), rgba(234,88,12,0.2)); display:flex; align-items:center; justify-content:center; color:#f43f5e; font-size:1rem;">
+                            <i class="fa-solid fa-bell"></i>
+                        </div>
+                        <div>
+                            <strong style="font-size:0.88rem; color:var(--text-main); display:block;">إشعارات الخلفية وقفل الشاشة (Web Push)</strong>
+                            <span style="font-size:0.7rem; color:var(--text-muted);">تنبيهات فورية تصلك حتى والهاتف مقفل والمتصفح مغلق</span>
+                        </div>
+                    </div>
+                    <span id="push-status-badge" style="font-size:0.72rem; font-weight:800; color:rgba(255,255,255,0.4);">⚪ غير مفعلة</span>
+                </div>
+
+                <div style="background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:12px; padding:12px; margin-bottom:12px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                        <div>
+                            <span style="font-size:0.8rem; font-weight:800; color:var(--text-main); display:block;">تفعيل استقبال الإشعارات المشفرة</span>
+                            <small style="font-size:0.68rem; color:var(--text-muted); display:block; margin-top:2px;">اهتزاز ونغمة صوتية عند وجود فواتير كبرى، تجاوز ائتمان، أو نقص مخزون</small>
+                        </div>
+                        <input type="checkbox" id="push-notification-toggle" onchange="PWAManager.enablePushNotifications()" style="width:22px; height:22px; accent-color:var(--primary); cursor:pointer; flex-shrink:0;">
+                    </div>
+                </div>
+
+                <button type="button" class="btn-ripple" onclick="PWAManager.sendTestPushNotification()" style="width:100%; height:38px; border-radius:10px; background:linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.2)); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; font-size:0.8rem; font-weight:800; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;">
+                    <i class="fa-solid fa-paper-plane"></i>
+                    <span>📲 إرسال إشعار تجريبي فوري (أقفل الشاشة للاختبار)</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -6523,6 +6647,425 @@ try {
                     <i class="fa-solid fa-vial"></i> تجربة حركات Offline
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- SHEET: 📊 مصفوفة تقارير المخزون الـ 20 المتقدمة (Executive Inventory Intelligence Matrix) -->
+    <div class="mobile-sheet-overlay" id="overlay-sheet-20-inventory-reports" onclick="closeBottomSheet('sheet-20-inventory-reports')"></div>
+    <div class="mobile-bottom-sheet" id="sheet-20-inventory-reports" style="max-height:92vh; display:flex; flex-direction:column;">
+        <div class="sheet-drag-handle"></div>
+        <div class="sheet-header" style="flex-shrink:0;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:36px; height:36px; border-radius:12px; background:linear-gradient(135deg, #8b5cf6, #3b82f6); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.05rem; box-shadow:0 4px 12px rgba(139,92,246,0.3);">
+                    <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <div>
+                    <span class="sheet-title" style="color:var(--text-main); font-weight:900; font-size:0.96rem; margin:0; display:block;">
+                        مصفوفة تقارير المخزون الذكية (20 تقرير)
+                    </span>
+                    <span style="font-size:0.7rem; color:var(--text-muted); display:block;">مراقبة حدود الأمان، معدل الدوران، الربحية والتنبؤ بالمخاطر</span>
+                </div>
+            </div>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-20-inventory-reports')">✕</button>
+        </div>
+
+        <div class="sheet-body" style="padding:12px 14px 24px 14px; overflow-y:auto; flex-grow:1;">
+            <!-- Search & Quick Filter Bar -->
+            <div style="position:relative; margin-bottom:10px;">
+                <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:0.85rem; pointer-events:none;"></i>
+                <input type="text" id="filter-20-reports-input" class="m-input" placeholder="ابحث باسم التقرير، المحور، أو المؤشر..." oninput="Inventory20Reports.filter(this.value)" style="padding-right:34px; height:40px; font-size:0.82rem; border-radius:12px; background:var(--surface-sub); border:1px solid var(--border-glass);">
+            </div>
+
+            <!-- Filter Chips for 4 Axes -->
+            <div class="inv-filter-chips" style="margin-bottom:14px; overflow-x:auto; white-space:nowrap; padding-bottom:4px; display:flex; gap:6px;">
+                <button type="button" class="inv-chip-pill active" onclick="Inventory20Reports.filterCategory('all', this)">الكل (20)</button>
+                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('limits', this)">🛡️ حدود الأمان (5)</button>
+                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('velocity', this)">⚡ سرعة الدوران (5)</button>
+                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('profit', this)">💰 الربحية والهوامش (5)</button>
+                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('forecast', this)">🔮 التنبؤ والمخاطر (5)</button>
+            </div>
+
+            <!-- 20 Reports Grid / List -->
+            <div id="inv-20-reports-list" style="display:flex; flex-direction:column; gap:8px;">
+
+                <!-- ── AXIS 1: حدود الأمان وكميات المخزون ── -->
+                <div class="inv-rep-card" data-cat="limits" data-title="حدود الأمان الأربعة للمخزون" data-desc="مراقبة حدود الخطر وإعادة الطلب والسقف الأقصى لكل صنف لمنع العجز" onclick="Inventory20Reports.openReport('حدود الأمان الأربعة للمخزون', 'inv_rep1_limits.php')">
+                    <div class="rep-card-icon" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3);">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#01</span>
+                            <strong class="rep-card-title">حدود الأمان الأربعة للمخزون</strong>
+                            <span class="rep-card-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5;">حدود الأمان</span>
+                        </div>
+                        <p class="rep-card-desc">مراقبة حدود الخطر، إعادة الطلب، والحد الأقصى لكل صنف لتفادي العجز الفجائي.</p>
+                    </div>
+                    <button type="button" class="rep-card-action" title="فتح التقرير">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="limits" data-title="أيام التغطية والمخزون المتبقي" data-desc="حساب كم يوماً يكفي المخزون الحالي بناءً على متوسط السحب اليومي الفعلي" onclick="Inventory20Reports.openReport('أيام التغطية والمخزون المتبقي', 'inv_rep2_coverage.php')">
+                    <div class="rep-card-icon" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3);">
+                        <i class="fa-solid fa-calendar-day"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#02</span>
+                            <strong class="rep-card-title">أيام التغطية والمخزون المتبقي</strong>
+                            <span class="rep-card-badge" style="background:rgba(245,158,11,0.2); color:#fde68a;">حدود الأمان</span>
+                        </div>
+                        <p class="rep-card-desc">حساب كم يوماً يكفي المخزون الحالي بناءً على متوسط السحب اليومي الفعلي لكل عنبر.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="limits" data-title="مصفوفة البضاعة الراكدة والبطيئة" data-desc="كشف الأصناف المجمدة بدون حركة وحساب حجم رأس المال المعطل فيها" onclick="Inventory20Reports.openReport('مصفوفة البضاعة الراكدة والبطيئة', 'inv_rep3_deadstock.php')">
+                    <div class="rep-card-icon" style="background:rgba(234,88,12,0.15); color:#fb923c; border:1px solid rgba(234,88,12,0.3);">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#03</span>
+                            <strong class="rep-card-title">مصفوفة البضاعة الراكدة (Dead Stock)</strong>
+                            <span class="rep-card-badge" style="background:rgba(234,88,12,0.2); color:#fdba74;">حدود الأمان</span>
+                        </div>
+                        <p class="rep-card-desc">كشف الأصناف الراكدة والبطيئة مع تقدير رأس المال المعطل وتكلفة التخزين الضائعة.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="limits" data-title="البضاعة المحجوزة والملتزم بها" data-desc="تتبع الكميات المحجوزة للمشاريع والعملاء لتفادي البيع المزدوج أو النقص" onclick="Inventory20Reports.openReport('البضاعة المحجوزة والملتزم بها', 'inv_rep4_committed.php')">
+                    <div class="rep-card-icon" style="background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3);">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#04</span>
+                            <strong class="rep-card-title">البضاعة المحجوزة والملتزم بها</strong>
+                            <span class="rep-card-badge" style="background:rgba(14,165,233,0.2); color:#bae6fd;">حدود الأمان</span>
+                        </div>
+                        <p class="rep-card-desc">تتبع الكميات المحجوزة للمشاريع والمقاولين لضمان الالتزام وتفادي البيع المزدوج.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="limits" data-title="الطاقة الاستيعابية للعنابر والمستودعات" data-desc="نسبة إشغال المستودعات والمساحات المتبقية بالأطنان والمتر المربع" onclick="Inventory20Reports.openReport('الطاقة الاستيعابية للعنابر والمستودعات', 'inv_rep5_capacity.php')">
+                    <div class="rep-card-icon" style="background:rgba(99,102,241,0.15); color:#818cf8; border:1px solid rgba(99,102,241,0.3);">
+                        <i class="fa-solid fa-warehouse"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#05</span>
+                            <strong class="rep-card-title">الطاقة الاستيعابية للعنابر</strong>
+                            <span class="rep-card-badge" style="background:rgba(99,102,241,0.2); color:#c7d2fe;">حدود الأمان</span>
+                        </div>
+                        <p class="rep-card-desc">مراقبة نسبة إشغال العنابر والمساحات التخزينية المتبقية بالأطنان والأمتار المربعة.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <!-- ── AXIS 2: حركات التشغيل وسرعة الدوران ── -->
+                <div class="inv-rep-card" data-cat="velocity" data-title="معدل دوران المخزون Turnover Ratio" data-desc="سرعة تصريف البضاعة وتحويل المخزون إلى نقد خلال الدورات التشغيلية" onclick="Inventory20Reports.openReport('معدل دوران المخزون', 'inv_rep6_turnover.php')">
+                    <div class="rep-card-icon" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">
+                        <i class="fa-solid fa-rotate"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#06</span>
+                            <strong class="rep-card-title">معدل دوران المخزون (Turnover)</strong>
+                            <span class="rep-card-badge" style="background:rgba(16,185,129,0.2); color:#a7f3d0;">سرعة الدوران</span>
+                        </div>
+                        <p class="rep-card-desc">قياس سرعة تحويل المخزون إلى مبيعات ونقد، وتحديد الأصناف سريعة وبطيئة الدوران.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="velocity" data-title="تحليل الطلب الموسمي والذروات" data-desc="رصد مواسم انتعاش الطلب وهبوطه لتجهيز العنابر بالمخزون المناسب مبكراً" onclick="Inventory20Reports.openReport('تحليل الطلب الموسمي والذروات', 'inv_rep7_seasonal.php')">
+                    <div class="rep-card-icon" style="background:rgba(217,70,239,0.15); color:#e879f9; border:1px solid rgba(217,70,239,0.3);">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#07</span>
+                            <strong class="rep-card-title">تحليل الطلب الموسمي والذروات</strong>
+                            <span class="rep-card-badge" style="background:rgba(217,70,239,0.2); color:#f5d0fe;">سرعة الدوران</span>
+                        </div>
+                        <p class="rep-card-desc">تحليل المنحنيات الشهرية ورصد مواسم ذروة البناء وتجهيز المخزون قبل ارتفاع الأسعار.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="velocity" data-title="ميزان تدفق الوارد والصادر" data-desc="مقارنة حركة الإدخال والصرف لضبط التوازن وتفادي تكدس الأصناف" onclick="Inventory20Reports.openReport('ميزان تدفق الوارد والصادر', 'inv_rep8_flow.php')">
+                    <div class="rep-card-icon" style="background:rgba(6,182,212,0.15); color:#22d3ee; border:1px solid rgba(6,182,212,0.3);">
+                        <i class="fa-solid fa-arrows-split-up-and-left"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#08</span>
+                            <strong class="rep-card-title">ميزان تدفق الوارد والصادر</strong>
+                            <span class="rep-card-badge" style="background:rgba(6,182,212,0.2); color:#a5f3fc;">سرعة الدوران</span>
+                        </div>
+                        <p class="rep-card-desc">مقارنة حركة التوريدات والمبيعات اليومية لضمان توازن التدفق ومنع الاختناقات.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="velocity" data-title="كفاءة الموردين وزمن التوريد Lead Time" data-desc="قياس الفارق الزمني بين أمر الشراء ووصول الشحنة للعنابر" onclick="Inventory20Reports.openReport('كفاءة الموردين وزمن التوريد', 'inv_rep9_leadtime.php')">
+                    <div class="rep-card-icon" style="background:rgba(234,179,8,0.15); color:#facc15; border:1px solid rgba(234,179,8,0.3);">
+                        <i class="fa-solid fa-truck-fast"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#09</span>
+                            <strong class="rep-card-title">كفاءة الموردين وزمن التوريد (Lead Time)</strong>
+                            <span class="rep-card-badge" style="background:rgba(234,179,8,0.2); color:#fef08a;">سرعة الدوران</span>
+                        </div>
+                        <p class="rep-card-desc">تقييم التزام المصانع والموردين بالفترات الزمنية المحددة لشحن البضاعة واستلامها.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="velocity" data-title="دقة طلبات الصرف ومعدل الإنجاز" data-desc="معدل تنفيذ أذونات الصرف بنجاح بدون نواقص أو تأخير للميدان" onclick="Inventory20Reports.openReport('دقة طلبات الصرف والإنجاز', 'inv_rep10_fulfillment.php')">
+                    <div class="rep-card-icon" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.3);">
+                        <i class="fa-solid fa-clipboard-check"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#10</span>
+                            <strong class="rep-card-title">دقة طلبات الصرف والإنجاز</strong>
+                            <span class="rep-card-badge" style="background:rgba(168,85,247,0.2); color:#e9d5ff;">سرعة الدوران</span>
+                        </div>
+                        <p class="rep-card-desc">قياس معدل Fulfillment ومستوى دقة تسليم البضاعة للعملاء والمشاريع في الموعد.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <!-- ── AXIS 3: ربحية الأصناف ومراقبة الخسائر ── -->
+                <div class="inv-rep-card" data-cat="profit" data-title="مصفوفة الربحية مقابل السرعة Margin vs Velocity" data-desc="تصنيف الأصناف حسب الهامش وسرعة البيع وتحديد الأصناف الرابحة والخاسرة" onclick="Inventory20Reports.openReport('مصفوفة الربحية مقابل السرعة', 'inv_rep11_velocity_margin.php')">
+                    <div class="rep-card-icon" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3);">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#11</span>
+                            <strong class="rep-card-title">الربحية مقابل سرعة البيع</strong>
+                            <span class="rep-card-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">الربحية والهوامش</span>
+                        </div>
+                        <p class="rep-card-desc">مصفوفة BCG الذكية لتصنيف الأصناف الأكثر ربحية وسرعة لتوجيه استراتيجية التسعير.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="profit" data-title="انحراف التكلفة ومتوسط الشراء" data-desc="رصد تقلبات أسعار شراء المواد الخام ومدى تأثيرها على تكلفة الوحدة" onclick="Inventory20Reports.openReport('انحراف التكلفة ومتوسط الشراء', 'inv_rep12_cost_variance.php')">
+                    <div class="rep-card-icon" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3);">
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#12</span>
+                            <strong class="rep-card-title">انحراف التكلفة ومتوسط الشراء</strong>
+                            <span class="rep-card-badge" style="background:rgba(59,130,246,0.2); color:#bfdbfe;">الربحية والهوامش</span>
+                        </div>
+                        <p class="rep-card-desc">مقارنة أسعار الشراء الفعلية بتكاليف الموازنة التقديرية لرصد أي فروقات سلبية.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="profit" data-title="رادار الأصناف الخاسرة والحرجة Zero & Negative Margin" data-desc="كشف أي صنف يباع بهامش صفري أو خسارة دون سعر التكلفة المرجعي" onclick="Inventory20Reports.openReport('رادار الأصناف الخاسرة والحرجة', 'inv_rep13_zero_margin.php')">
+                    <div class="rep-card-icon" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3);">
+                        <i class="fa-solid fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#13</span>
+                            <strong class="rep-card-title">الأصناف الخاسرة والحرجة (Zero Margin)</strong>
+                            <span class="rep-card-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5;">الربحية والهوامش</span>
+                        </div>
+                        <p class="rep-card-desc">إنذار رقابي عاجل للأصناف المباعة دون التكلفة أو بهامش ربح صفري لإيقاف النزيف.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="profit" data-title="العائد الإجمالي على الاستثمار GMROII" data-desc="قياس العائد المالي لكل جنيه مستثمر في المخزون بدقة مصرفية" onclick="Inventory20Reports.openReport('العائد الإجمالي على الاستثمار GMROII', 'inv_rep14_gmroii.php')">
+                    <div class="rep-card-icon" style="background:rgba(139,92,246,0.15); color:#a78bfa; border:1px solid rgba(139,92,246,0.3);">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#14</span>
+                            <strong class="rep-card-title">العائد الاستثماري GMROII</strong>
+                            <span class="rep-card-badge" style="background:rgba(139,92,246,0.2); color:#ddd6fe;">الربحية والهوامش</span>
+                        </div>
+                        <p class="rep-card-desc">حساب العائد الإجمالي على استثمار المخزون بدقة لترتيب أولوية السيولة النقدية.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="profit" data-title="التقييم المالي الإجمالي للمخزون" data-desc="تقييم القيمة الرأسمالية للمخزون بالطرق القياسية FIFO و WAC" onclick="Inventory20Reports.openReport('التقييم المالي الإجمالي للمخزون', 'inv_rep15_valuation.php')">
+                    <div class="rep-card-icon" style="background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3);">
+                        <i class="fa-solid fa-vault"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#15</span>
+                            <strong class="rep-card-title">التقييم المالي للمخزون (Valuation)</strong>
+                            <span class="rep-card-badge" style="background:rgba(14,165,233,0.2); color:#bae6fd;">الربحية والهوامش</span>
+                        </div>
+                        <p class="rep-card-desc">تحديد القيمة الرأسمالية الشاملة للبضاعة المخزنة وفق معايير المحاسبة والتدقيق.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <!-- ── AXIS 4: التنبؤ المستقبلي وحظر المخاطر ── -->
+                <div class="inv-rep-card" data-cat="forecast" data-title="رادار هبوط الأسعار ومخاطر السوق" data-desc="إنذار مبكر عند تراجع الأسعار لحماية السيولة من خسائر انخفاض القيمة" onclick="Inventory20Reports.openReport('رادار هبوط الأسعار ومخاطر السوق', 'inv_rep16_market_drop.php')">
+                    <div class="rep-card-icon" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3);">
+                        <i class="fa-solid fa-arrow-trend-down"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#16</span>
+                            <strong class="rep-card-title">رادار هبوط الأسعار ومخاطر السوق</strong>
+                            <span class="rep-card-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5;">التنبؤ والمخاطر</span>
+                        </div>
+                        <p class="rep-card-desc">نظام تنبيهات مبكرة عند انخفاض أسعار مواد البناء عالمياً ومحلياً لحماية الأرباح.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="forecast" data-title="تحليل عجز وجرد العنابر والفارق الجردي" data-desc="تتبع الفروقات الجردية ونسب الفاقد والتلف لتعزيز الرقابة والحوكمة" onclick="Inventory20Reports.openReport('تحليل عجز وجرد العنابر', 'inv_rep17_shrinkage.php')">
+                    <div class="rep-card-icon" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3);">
+                        <i class="fa-solid fa-barcode"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#17</span>
+                            <strong class="rep-card-title">عجز وجرد العنابر (Shrinkage)</strong>
+                            <span class="rep-card-badge" style="background:rgba(245,158,11,0.2); color:#fde68a;">التنبؤ والمخاطر</span>
+                        </div>
+                        <p class="rep-card-desc">رصد نسب الفاقد، التلف، وفروقات الجرد الفعلي عن الدفتري لحوكمة العنابر.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="forecast" data-title="بضاعة بالطريق والمناقلات المعلقة Transit" data-desc="تتبع الشحنات المتحركة بين الموانئ والمستودعات ولم تسجل بعد بالعنابر" onclick="Inventory20Reports.openReport('بضاعة بالطريق والمناقلات المعلقة', 'inv_rep18_transit.php')">
+                    <div class="rep-card-icon" style="background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3);">
+                        <i class="fa-solid fa-ship"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#18</span>
+                            <strong class="rep-card-title">بضاعة بالطريق والمناقلات (Transit)</strong>
+                            <span class="rep-card-badge" style="background:rgba(14,165,233,0.2); color:#bae6fd;">التنبؤ والمخاطر</span>
+                        </div>
+                        <p class="rep-card-desc">تتبع الشحنات في الطريق بين بورتسودان ومستودعات السجانة ومناقلات الفروع.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="forecast" data-title="تصنيف ABC وفق مبدأ باريتو Pareto Analysis" data-desc="عزل فئة A الحيوية التي تمثل 80% من قيمة المبيعات للتركيز عليها" onclick="Inventory20Reports.openReport('تصنيف ABC باريتو', 'inv_rep19_abc.php')">
+                    <div class="rep-card-icon" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.3);">
+                        <i class="fa-solid fa-ranking-star"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#19</span>
+                            <strong class="rep-card-title">تصنيف ABC باريتو (80/20)</strong>
+                            <span class="rep-card-badge" style="background:rgba(168,85,247,0.2); color:#e9d5ff;">التنبؤ والمخاطر</span>
+                        </div>
+                        <p class="rep-card-desc">تحليل باريتو لتصنيف الأصناف إلى A (استراتيجية)، B (متوسطة)، C (ثانوية).</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="inv-rep-card" data-cat="forecast" data-title="محاكي قرارات الشراء الذكي ومستشار الطلبيات" data-desc="محاكاة سيناريوهات الشراء والتنبؤ بالكميات المثالية ومواعيد التوريد" onclick="Inventory20Reports.openReport('محاكي قرارات الشراء الذكي', 'inv_rep20_simulator.php')">
+                    <div class="rep-card-icon" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <div class="rep-card-info">
+                        <div class="rep-card-header">
+                            <span class="rep-card-num">#20</span>
+                            <strong class="rep-card-title">محاكي قرارات الشراء الذكي</strong>
+                            <span class="rep-card-badge" style="background:rgba(16,185,129,0.2); color:#a7f3d0;">التنبؤ والمخاطر</span>
+                        </div>
+                        <p class="rep-card-desc">أداة محاكاة تفاعلية لاقتراح كميات وأوقات الشراء وتوقع الأرباح وسيولة الصناديق.</p>
+                    </div>
+                    <button type="button" class="rep-card-action">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Empty Search State -->
+            <div id="inv-rep-empty-state" style="display:none; text-align:center; padding:30px 10px; color:var(--text-muted);">
+                <i class="fa-solid fa-magnifying-glass" style="font-size:2rem; opacity:0.3; margin-bottom:8px;"></i>
+                <div style="font-weight:700; font-size:0.9rem; color:var(--text-main);">لم يتم العثور على تقارير مطابقة</div>
+                <div style="font-size:0.75rem; margin-top:4px;">جرب البحث بكلمات أخرى أو اختر محوراً مختلفاً</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SHEET: 📱 نافذة المعاينة السريعة للتقارير (In-App Interactive Report Viewer) -->
+    <div class="mobile-sheet-overlay" id="overlay-sheet-report-viewer" onclick="closeBottomSheet('sheet-report-viewer')" style="z-index:1049;"></div>
+    <div class="mobile-bottom-sheet" id="sheet-report-viewer" style="height:95vh; max-height:95vh; display:flex; flex-direction:column; z-index:1050; padding:0;">
+        <div class="sheet-drag-handle" style="margin:8px auto 4px;"></div>
+        <div class="sheet-header" style="padding:10px 16px; border-bottom:1px solid var(--border-glass); flex-shrink:0;">
+            <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
+                <span class="sheet-title" id="rep-viewer-title" style="font-size:0.88rem; font-weight:800; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
+                    عرض التقرير
+                </span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <a href="#" id="rep-viewer-external-btn" target="_blank" class="btn-ripple" style="padding:4px 10px; border-radius:8px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-size:0.72rem; font-weight:700; text-decoration:none; display:flex; align-items:center; gap:4px;">
+                    <i class="fa-solid fa-up-right-from-square"></i> نافذة كاملة
+                </a>
+                <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-report-viewer')">✕</button>
+            </div>
+        </div>
+        <div style="flex-grow:1; position:relative; overflow:hidden; background:var(--bg-main, #0b0f19);">
+            <div id="rep-viewer-loader" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--text-muted); background:var(--sheet-bg);">
+                <i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.8rem; color:#8b5cf6;"></i>
+                <span style="font-size:0.8rem;">جاري تحميل التقرير التفاعلي...</span>
+            </div>
+            <iframe id="rep-viewer-iframe" src="about:blank" style="width:100%; height:100%; border:none;" onload="const ldr=document.getElementById('rep-viewer-loader'); if(ldr) ldr.style.display='none';"></iframe>
         </div>
     </div>
 
@@ -10637,6 +11180,76 @@ try {
             });
             closeBottomSheet('sheet-rule-settings');
         }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 📊 20 ADVANCED INVENTORY REPORTS CONTROLLER
+        // ═════════════════════════════════════════════════════════════════
+        window.Inventory20Reports = {
+            currentCat: 'all',
+            filterText: '',
+
+            filter(text) {
+                this.filterText = (text || '').trim().toLowerCase();
+                this.applyFilter();
+            },
+
+            filterCategory(cat, btn) {
+                triggerHaptic('selection');
+                this.currentCat = cat;
+                if (btn && btn.parentElement) {
+                    btn.parentElement.querySelectorAll('.inv-chip-pill').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                }
+                this.applyFilter();
+            },
+
+            applyFilter() {
+                const cards = document.querySelectorAll('.inv-rep-card');
+                let visibleCount = 0;
+                cards.forEach(card => {
+                    const cat = card.getAttribute('data-cat') || '';
+                    const title = (card.getAttribute('data-title') || '').toLowerCase();
+                    const desc = (card.getAttribute('data-desc') || '').toLowerCase();
+                    const matchesCat = (this.currentCat === 'all' || cat === this.currentCat);
+                    const matchesText = !this.filterText || title.includes(this.filterText) || desc.includes(this.filterText);
+
+                    if (matchesCat && matchesText) {
+                        card.style.display = 'flex';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                const emptyState = document.getElementById('inv-rep-empty-state');
+                if (emptyState) {
+                    emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+                }
+            },
+
+            openReport(title, url) {
+                triggerHaptic('light');
+                const sheet = document.getElementById('sheet-report-viewer');
+                const overlay = document.getElementById('overlay-sheet-report-viewer');
+                const titleEl = document.getElementById('rep-viewer-title');
+                const externalBtn = document.getElementById('rep-viewer-external-btn');
+                const iframe = document.getElementById('rep-viewer-iframe');
+                const loader = document.getElementById('rep-viewer-loader');
+
+                if (titleEl) titleEl.textContent = title;
+                if (externalBtn) externalBtn.href = url;
+                if (loader) loader.style.display = 'flex';
+
+                if (iframe) {
+                    iframe.src = url;
+                }
+
+                if (sheet && overlay) {
+                    overlay.classList.add('active');
+                    sheet.classList.add('active');
+                }
+            }
+        };
 
         function sendDebtWhatsApp(name, phone, amount) {
             triggerHaptic('light');
