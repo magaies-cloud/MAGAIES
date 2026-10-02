@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark" data-theme="ROYAL_OBSIDIAN_GLASS">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>مقاييس ERP - باقة اللمسات الختامية الفائقة (Final Polish Suite)</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-midnight: #080C14;
+      --bg-glass-card: rgba(18, 24, 38, 0.72);
+      --bg-glass-surface: rgba(15, 23, 42, 0.85);
+      --border-hairline: rgba(255, 255, 255, 0.08);
+      --border-bevel: rgba(255, 255, 255, 0.16);
+      --text-crystalline: #FFFFFF;
+      --text-muted: #94A3B8;
+      --accent-azure: #38BDF8;
+      --accent-emerald: #10B981;
+      --accent-coral: #F43F5E;
+      --accent-amber: #F59E0B;
+      --circadian-filter: none;
+      --circadian-brightness: 1.0;
+      --circadian-sepia: 0%;
+    }
+
+    /* Circadian Eye Relief Mode */
+    .circadian-warmth-active {
+      filter: sepia(22%) brightness(0.92) contrast(0.97);
+      transition: filter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-midnight);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(30, 41, 69, 0.5) 0%, transparent 65%),
+        radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 0% 50%, rgba(16, 185, 129, 0.04) 0%, transparent 45%);
+      background-attachment: fixed;
+      color: var(--text-crystalline);
+      touch-action: pan-y;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 100vh;
+      transition: background-color 0.3s ease;
+    }
+
+    .tabular-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+      letter-spacing: 0.5px;
+    }
+
+    /* 1. Frosted Smoky Acrylic Glass Container */
+    .royal-glass-card {
+      position: relative;
+      background: var(--bg-glass-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-hairline);
+      border-top: 1px solid var(--border-bevel);
+      border-radius: 20px;
+      box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      isolation: isolate;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* 2. The Ambient Light Sheen & Shimmer */
+    .ambient-shimmer-card {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ambient-shimmer-card::after {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -120%;
+      width: 60%;
+      height: 220%;
+      background: linear-gradient(
+        115deg, 
+        transparent 20%, 
+        rgba(255, 255, 255, 0.01) 35%,
+        rgba(255, 255, 255, 0.08) 50%, 
+        rgba(255, 255, 255, 0.01) 65%,
+        transparent 80%
+      );
+      transform: rotate(25deg) translate3d(0, 0, 0);
+      pointer-events: none;
+      z-index: 25;
+      animation: ambient-sheen-sweep 18s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      will-change: transform;
+    }
+
+    @keyframes ambient-sheen-sweep {
+      0%, 75% {
+        transform: rotate(25deg) translate3d(-150%, 0, 0);
+        opacity: 0;
+      }
+      78% {
+        opacity: 1;
+      }
+      82% {
+        transform: rotate(25deg) translate3d(250%, 0, 0);
+        opacity: 1;
+      }
+      85%, 100% {
+        transform: rotate(25deg) translate3d(250%, 0, 0);
+        opacity: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ambient-shimmer-card::after {
+        animation: none !important;
+        display: none !important;
+      }
+    }
+
+    /* 5-Second Progress Bar */
+    @keyframes snackbar-countdown {
+      from { width: 100%; }
+      to { width: 0%; }
+    }
+
+    .countdown-bar {
+      animation: snackbar-countdown 5s linear forwards;
+    }
+
+    /* Pulse dot indicators */
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+    .pulse-dot-green {
+      animation: pulse-ring 2s infinite;
+    }
+
+    @keyframes pulse-amber {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+    }
+    .pulse-dot-amber {
+      animation: pulse-amber 1.2s infinite;
+    }
+
+    /* Privacy Masked State */
+    .privacy-masked .maskable-data {
+      letter-spacing: 3px;
+      font-family: monospace;
+      color: rgba(148, 163, 184, 0.8) !important;
+      filter: blur(3px);
+      user-select: none;
+      transition: filter 0.2s ease;
+    }
+    .privacy-masked .maskable-data:hover {
+      filter: blur(1px);
+    }
+  </style>
+</head>
+<body class="p-3 md:p-6 pb-24 selection:bg-cyan-500/20">
+
+  <!-- TOP APP BAR -->
+  <header class="max-w-6xl mx-auto mb-6">
+    <div class="royal-glass-card p-4 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-sky-400 flex items-center justify-center shadow-lg shadow-sky-500/20">
+          <span class="text-xl font-bold">✨</span>
+        </div>
+        <div>
+          <h1 class="text-lg md:text-xl font-extrabold tracking-wide text-white">مقاييس ERP & POS — باقة الصقل الفائق</h1>
+          <p class="text-xs text-slate-400">The Final Polish Suite • Cognitive Shield, Instant Tafqeet, 5s Undo, Crash Recovery & Circadian Relief</p>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Connectivity Tri-State Indicator -->
+        <div id="connStatusPill" class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold transition-all duration-300">
+          <span id="connDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot-green"></span>
+          <span id="connText">مكتمل المزامنة (متصل)</span>
+        </div>
+
+        <!-- Circadian Relief Quick Toggle -->
+        <button id="circadianToggleBtn" onclick="toggleCircadianRelief()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-amber-500/50 text-xs font-semibold text-slate-300 transition-all" title="نمط حماية العين الليلي وترشيد شاشة OLED">
+          <span id="circadianIcon">🌙</span>
+          <span id="circadianLabel">راحة العين (> 7 م)</span>
+        </button>
+
+        <!-- Privacy Shield Toggle -->
+        <button id="privacyToggleBtn" onclick="togglePrivacyShield()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-sky-500/50 text-xs font-semibold text-slate-300 transition-all">
+          <span id="privacyIcon">👁️</span>
+          <span id="privacyLabel">الخصوصية الميدانية</span>
+        </button>
+
+        <!-- Theme Selector -->
+        <select id="themeSelector" onchange="switchTheme(this.value)" class="bg-slate-900 border border-slate-700 text-xs rounded-xl px-2.5 py-1.5 text-slate-300 focus:outline-none focus:border-cyan-400">
+          <option value="ROYAL_OBSIDIAN_GLASS" selected>💎 السمة الكريستالية الملكية (8)</option>
+          <option value="DARK_OLED">🖤 أسود OLED موفر للطاقة (1)</option>
+          <option value="SLATE_MIDNIGHT">🌌 رمادي ليلي تنفيذي (2)</option>
+          <option value="SAND_DUNES">🏜️ رمال الصحراء الذهبية (3)</option>
+          <option value="EMERALD_CORP">🌿 الزمرد المؤسسي الملكي (4)</option>
+          <option value="INDIGO_TWILIGHT">🔮 الشفق البنفسجي (5)</option>
+          <option value="LIGHT_DAYLIGHT">☀️ النهار الصافي (شمس ميدانية) (6)</option>
+          <option value="HIGH_CONTRAST_YARD">⚠️ تباين ساحات التحميل (7)</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- CRASH RECOVERY NOTIFICATION BANNER (Initially Hidden) -->
+  <div id="crashRecoveryBanner" class="max-w-6xl mx-auto mb-6 hidden">
+    <div class="royal-glass-card p-4 border border-amber-500/40 bg-amber-950/20 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl animate-bounce">⚡</span>
+        <div>
+          <h3 class="text-sm font-bold text-amber-300">تم استرجاع مسودة فاتورة غير مكتملة تلقائياً!</h3>
+          <p id="crashRecoveryNoticeText" class="text-xs text-slate-300">تم حفظ كافة التغييرات والبنود قبل إغلاق التطبيق غير المتوقع.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="restoreDraftData()" class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold transition-all shadow-md">
+          استعادة المسودة للنموذج
+        </button>
+        <button onclick="discardRecoveredDraft()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all">
+          تجاهل ومسح
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN SUITE GRID -->
+  <main class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+    <!-- LEFT / MAIN COLUMN: COGNITIVE FATIGUE SHIELD & FORM ENTRY (Cols 7) -->
+    <section class="lg:col-span-7 space-y-6">
+
+      <!-- CARD 1: TAFQEET & SMART OUTLIER GUARD -->
+      <div class="royal-glass-card ambient-shimmer-card p-5">
+        <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="p-2 rounded-lg bg-cyan-500/10 text-cyan-400 font-bold text-sm">٠١</span>
+            <div>
+              <h2 class="text-base font-bold text-white">التفقيط المالي الفوري وحارس الانحراف (Tafqeet & Sanity Guard)</h2>
+              <p class="text-xs text-slate-400">ترجمة المبالغ لكلمات عربية فصيحة فورياً وحماية الكاشير من زلات الأصفار (Outliers)</p>
+            </div>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 font-mono">Cognitive Shield</span>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Currency Input with instant conversion -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="text-xs font-semibold text-slate-300">المبلغ الإجمالي / سعر الصنف (ريال سعودي):</label>
+              <div class="flex items-center gap-1.5 text-xs text-slate-400">
+                <span>المعدل المعتاد لهذا الصنف:</span>
+                <span class="font-bold text-cyan-300 tabular-num">500.00 SAR</span>
+              </div>
+            </div>
+
+            <div class="relative">
+              <input 
+                id="amountInput" 
+                type="text" 
+                value="75,000" 
+                oninput="handleAmountInput(this.value)"
+                class="w-full bg-slate-900/90 border border-slate-700/80 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 rounded-xl px-4 py-3 text-lg md:text-xl font-bold text-white tabular-num outline-none transition-all"
+                placeholder="أدخل المبلغ..."
+              />
+              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">ر.س (SAR)</span>
+            </div>
+
+            <!-- Dynamic Arabic Tafqeet Box -->
+            <div class="mt-2.5 p-3 rounded-xl bg-slate-950/70 border border-slate-800 flex items-start gap-2.5">
+              <span class="text-base text-cyan-400 mt-0.5">✍️</span>
+              <div class="flex-1">
+                <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">التفقيط المالي المعتمد:</span>
+                <p id="tafqeetDisplay" class="text-sm md:text-base font-bold text-cyan-200 transition-all duration-200">
+                  فقط خمسة وسبعون ألفاً ريال سعودي لا غير
+                </p>
+              </div>
+            </div>
+
+            <!-- Outlier Warning Banner (Shown on > 5x) -->
+            <div id="outlierAlertBanner" class="mt-2.5 p-3 rounded-xl bg-rose-950/30 border border-rose-500/40 hidden">
+              <div class="flex items-center gap-2 text-rose-300">
+                <span class="text-lg">⚠️</span>
+                <div>
+                  <h4 class="text-xs font-bold">تنبيه استثنائي لمنع الخطأ (Outlier Sanity Warning):</h4>
+                  <p id="outlierAlertText" class="text-xs text-rose-200/90 mt-0.5"></p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Test Presets -->
+            <div class="mt-3 flex items-center gap-2 flex-wrap">
+              <span class="text-[11px] text-slate-400">نماذج سريعة:</span>
+              <button onclick="setAmountPreset(500)" class="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-mono transition-all">500 (عادي)</button>
+              <button onclick="setAmountPreset(75000)" class="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-mono transition-all">75,000</button>
+              <button onclick="setAmountPreset(142500.50)" class="px-2 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs font-mono transition-all">142,500.50</button>
+              <button onclick="setAmountPreset(50000)" class="px-2 py-1 rounded-lg bg-rose-950/40 border border-rose-600/50 hover:bg-rose-900/60 text-rose-300 text-xs font-mono transition-all">50,000 (فخ الأصفار 100x!)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: CRASH-PROOF CONTINUOUS DRAFT PERSISTENCE -->
+      <div class="royal-glass-card p-5">
+        <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 font-bold text-sm">٠٢</span>
+            <div>
+              <h2 class="text-base font-bold text-white">الحفظ التلقائي المقاوم للانهيار (Crash-Proof Drafts)</h2>
+              <p class="text-xs text-slate-400">حفظ مستمر فائق الخفة (&lt; 1ms) في ذاكرة الجهاز المحلية يحمي من انقطاع الاتصال والبطارية</p>
+            </div>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono">Zero-Loss</span>
+        </div>
+
+        <div class="space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label class="text-xs text-slate-400 mb-1 block">اسم العميل / المستلم:</label>
+              <input 
+                id="draftCustomerInput" 
+                type="text" 
+                value="شركة الأفق للمقاولات العامة" 
+                oninput="handleDraftKeyStroke()"
+                class="w-full bg-slate-900/80 border border-slate-700/80 focus:border-emerald-400 rounded-xl px-3 py-2 text-sm text-white outline-none"
+              />
+            </div>
+            <div>
+              <label class="text-xs text-slate-400 mb-1 block">مستودع الصرف / الفرع:</label>
+              <select id="draftBranchSelect" onchange="handleDraftKeyStroke()" class="w-full bg-slate-900/80 border border-slate-700/80 focus:border-emerald-400 rounded-xl px-3 py-2 text-sm text-white outline-none">
+                <option value="BR-01">المستودع الرئيسي - الرياض (الساحة 02)</option>
+                <option value="BR-02">فرع جدة - مستودعات الخمرة</option>
+                <option value="BR-03">فرع الدمام - المدينة الصناعية</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <div>
+            <label class="text-xs text-slate-400 mb-1.5 block">أصناف الفاتورة الحالية:</label>
+            <div class="rounded-xl border border-slate-800 overflow-hidden bg-slate-950/60">
+              <table class="w-full text-right text-xs">
+                <thead class="bg-slate-900/90 text-slate-400 border-b border-slate-800">
+                  <tr>
+                    <th class="p-2.5">الصنف</th>
+                    <th class="p-2.5 text-center">الكمية</th>
+                    <th class="p-2.5 text-center">الوحدة</th>
+                    <th class="p-2.5 text-center">الإجمالي</th>
+                    <th class="p-2.5 text-center">إجراء</th>
+                  </tr>
+                </thead>
+                <tbody id="invoiceItemsTableBody" class="divide-y divide-slate-800/60 text-slate-200">
+                  <!-- Injected dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Autosave Status Badge & Crash Simulator -->
+          <div class="flex items-center justify-between pt-2">
+            <div class="flex items-center gap-2 text-xs text-emerald-400">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span id="autosaveStatusText">محفوظ تلقائياً في التخزين المحلي الآمن</span>
+            </div>
+
+            <button onclick="simulateSuddenCrash()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-semibold text-slate-200 transition-all flex items-center gap-1.5">
+              <span>💥</span>
+              <span>محاكاة خروج مفاجئ / إعادة تحميل</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: 5-SECOND UNDO ACTION CONTROLS -->
+      <div class="royal-glass-card p-5">
+        <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="p-2 rounded-lg bg-sky-500/10 text-sky-400 font-bold text-sm">٠٣</span>
+            <div>
+              <h2 class="text-base font-bold text-white">الإجراءات الخالية من الحوارات التوكيدية (5s Undo Buffer)</h2>
+              <p class="text-xs text-slate-400">الاستغناء الكامل عن نوافذ «هل أنت متأكد؟» المرهقة مع اعتماد فوري ومساحة تراجع 5 ثوانٍ</p>
+            </div>
+          </div>
+          <span class="text-xs px-2.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/30 text-sky-300 font-mono">No Modals</span>
+        </div>
+
+        <div class="flex items-center gap-3 flex-wrap">
+          <button onclick="triggerSaveInvoiceAction()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-sm shadow-lg shadow-emerald-500/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+            <span>💾</span>
+            <span>حفظ الفاتورة فورياً (Save Invoice)</span>
+          </button>
+
+          <button onclick="triggerDeleteItemAction()" class="py-3 px-4 rounded-xl bg-rose-500/20 border border-rose-500/30 hover:bg-rose-500/30 text-rose-300 font-bold text-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+            <span>🗑️</span>
+            <span>حذف صنف (Delete Item)</span>
+          </button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT COLUMN: MICRO-QUEUE OFFLINE SYNC & CIRCADIAN METRICS (Cols 5) -->
+    <section class="lg:col-span-5 space-y-6">
+
+      <!-- CARD 4: ZERO-LAG MICRO-QUEUE SYNC -->
+      <div class="royal-glass-card p-5">
+        <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 font-bold text-sm">٠٤</span>
+            <div>
+              <h2 class="text-base font-bold text-white">طابور المزامنة الدقيق (Micro-Queue Sync)</h2>
+              <p class="text-xs text-slate-400">فصل واجهة المستخدم عن الشبكة تماماً وإصدار المستندات في أقل من 2ms</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <!-- Network Toggle -->
+          <div class="flex items-center justify-between p-3 rounded-xl bg-slate-950/70 border border-slate-800">
+            <div>
+              <span class="text-xs font-bold text-white block">حالة الاتصال الميداني:</span>
+              <span id="currentNetStateLabel" class="text-[11px] text-slate-400">متصل بالشبكة المركزية (Online)</span>
+            </div>
+            <button id="networkToggleBtn" onclick="toggleNetworkConnection()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white transition-all">
+              قطع الاتصال (وضع الميدان)
+            </button>
+          </div>
+
+          <!-- Quick Issue Offline Voucher -->
+          <div>
+            <button onclick="issueOfflineRecord()" class="w-full py-2.5 px-3 rounded-xl bg-indigo-600/30 border border-indigo-500/40 hover:bg-indigo-600/50 text-indigo-200 font-bold text-xs flex items-center justify-center gap-2 transition-all">
+              <span>⚡</span>
+              <span>إصدار فاتورة أوفلاين (INV-OFF-X) في &lt; 2ms</span>
+            </button>
+            <div id="lastLatencyBadge" class="mt-2 text-[11px] text-center text-slate-400 font-mono">
+              آخر تسجيل محلي: 0.08ms (بدون أي تجميد للواجهة)
+            </div>
+          </div>
+
+          <!-- Pending Micro-Queue Records -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-slate-300">طابور العمليات المعلقة:</span>
+              <span id="queueBadge" class="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 font-mono">0 معلق</span>
+            </div>
+            <div id="offlineQueueContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+              <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-center text-xs text-slate-500">
+                لا توجد عمليات معلقة — النظام متزامن تماماً
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 5: CIRCADIAN EYE RELIEF TELEMETRY -->
+      <div class="royal-glass-card p-5">
+        <div class="flex items-center justify-between mb-4 border-b border-white/5 pb-3">
+          <div class="flex items-center gap-2">
+            <span class="p-2 rounded-lg bg-amber-500/10 text-amber-400 font-bold text-sm">٠٥</span>
+            <div>
+              <h2 class="text-base font-bold text-white">إحصائيات الراحة الليلية وشاشات OLED</h2>
+              <p class="text-xs text-slate-400">تخفيض الضوء الأزرق تلقائياً في نوبات المساء (> 7 مساءً)</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div class="p-3 rounded-xl bg-slate-950/70 border border-slate-800 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">الساعة الحالية (النظام):</span>
+              <span id="circadianCurrentClock" class="font-bold text-white tabular-num">17:25</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">نطاق النوبة الليلية المعتمد:</span>
+              <span class="font-bold text-amber-300 tabular-num">19:00 — 06:00 (7 م إلى 6 ص)</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">معدل تصفية الضوء الأزرق (Amber Tint):</span>
+              <span class="font-bold text-amber-400">22% Sepia Warmth</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-400">توفير طاقة بكسلات OLED:</span>
+              <span class="font-bold text-emerald-400 tabular-num">-8% Luminance Dimming</span>
+            </div>
+          </div>
+
+          <p class="text-[11px] text-slate-400 leading-relaxed">
+            يتم تطبيق الفلتر عبر كروت العرض الرسومية GPU بدون أي هبوط في معدل الإطارات (60 FPS ثابت)، مما يريح أعين أمناء المستودعات والمحاسبين خلال جرد المساء.
+          </p>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- FLOATING 5-SECOND UNDO SNACKBAR (Dynamic Bottom Dock) -->
+  <aside id="undoSnackbarContainer" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md hidden transition-all duration-300">
+    <div class="royal-glass-card border border-emerald-500/50 bg-slate-900/95 shadow-2xl p-4 flex flex-col gap-2.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</span>
+          <div>
+            <p id="snackbarMessage" class="text-xs md:text-sm font-bold text-white">تم حفظ الفاتورة بنجاح</p>
+            <span class="text-[11px] text-slate-400">يمكنك التراجع الآن خلال 5 ثوانٍ</span>
+          </div>
+        </div>
+
+        <button onclick="executeUndoAction()" class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-md transition-all flex items-center gap-1 active:scale-95">
+          <span>↩️</span>
+          <span>تراجع (Undo)</span>
+        </button>
+      </div>
+
+      <!-- Animated Countdown Bar -->
+      <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+        <div id="snackbarProgressBar" class="h-full bg-gradient-to-r from-emerald-400 to-teal-300 rounded-full countdown-bar"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOAST FEEDBACK NOTIFICATION -->
+  <div id="toastNotification" class="fixed top-6 left-1/2 -translate-x-1/2 z-50 hidden transition-all duration-200">
+    <div class="px-4 py-2.5 rounded-xl bg-slate-900/95 border border-cyan-500/40 text-cyan-300 font-bold text-xs shadow-xl flex items-center gap-2">
+      <span id="toastIcon">✨</span>
+      <span id="toastText">تم تنفيذ الإجراء بنجاح</span>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT CORE LOGIC & TAFQEET CLIENT ENGINE -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. TAFQEET ENGINE (Arabic Currency Words Translation)
+    // -------------------------------------------------------------------------
+    const ONES = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+    const TENS = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+    const HUNDREDS = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+    function convertIntegerPart(num) {
+      if (num === 0) return 'صفر';
+      if (num >= 1000000000) {
+        const billions = Math.floor(num / 1000000000);
+        const remainder = num % 1000000000;
+        let text = billions === 1 ? 'مليار' : (billions === 2 ? 'ملياران' : (billions <= 10 ? `${convertIntegerPart(billions)} مليارات` : `${convertIntegerPart(billions)} ملياراً`));
+        return remainder > 0 ? `${text} و${convertIntegerPart(remainder)}` : text;
+      }
+      if (num >= 1000000) {
+        const millions = Math.floor(num / 1000000);
+        const remainder = num % 1000000;
+        let text = millions === 1 ? 'مليون' : (millions === 2 ? 'مليونان' : (millions <= 10 ? `${convertIntegerPart(millions)} ملايين` : `${convertIntegerPart(millions)} مليوناً`));
+        return remainder > 0 ? `${text} و${convertIntegerPart(remainder)}` : text;
+      }
+      if (num >= 1000) {
+        const thousands = Math.floor(num / 1000);
+        const remainder = num % 1000;
+        let text = thousands === 1 ? 'ألف' : (thousands === 2 ? 'ألفان' : (thousands <= 10 ? `${convertIntegerPart(thousands)} آلاف` : `${convertIntegerPart(thousands)} ألفاً`));
+        return remainder > 0 ? `${text} و${convertIntegerPart(remainder)}` : text;
+      }
+      if (num >= 100) {
+        const hundreds = Math.floor(num / 100);
+        const remainder = num % 100;
+        const text = HUNDREDS[hundreds];
+        return remainder > 0 ? `${text} و${convertIntegerPart(remainder)}` : text;
+      }
+      if (num >= 20) {
+        const tens = Math.floor(num / 10);
+        const ones = num % 10;
+        const tensText = TENS[tens];
+        return ones > 0 ? `${ONES[ones]} و${tensText}` : tensText;
+      }
+      return ONES[num];
+    }
+
+    function tafqeetCurrency(amount) {
+      if (isNaN(amount) || amount === 0) return 'فقط صفر ريال سعودي لا غير';
+      const absAmount = Math.abs(amount);
+      const integerPart = Math.floor(absAmount);
+      const decimalPart = Math.round((absAmount - integerPart) * 100);
+
+      let text = `فقط ${convertIntegerPart(integerPart)} ريال سعودي`;
+      if (decimalPart > 0) {
+        text += ` و${convertIntegerPart(decimalPart)} هللة`;
+      }
+      text += ' لا غير';
+      return amount < 0 ? `سالب ${text}` : text;
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. INPUT HANDLING & COGNITIVE OUTLIER GUARD
+    // -------------------------------------------------------------------------
+    const BASELINE_ITEM_PRICE = 500.00;
+
+    function handleAmountInput(rawVal) {
+      const cleanNum = parseFloat(rawVal.replace(/,/g, ''));
+      if (isNaN(cleanNum)) {
+        document.getElementById('tafqeetDisplay').innerText = 'فقط صفر ريال سعودي لا غير';
+        document.getElementById('outlierAlertBanner').classList.add('hidden');
+        return;
+      }
+
+      // Live Tafqeet translation
+      const tafqeetText = tafqeetCurrency(cleanNum);
+      document.getElementById('tafqeetDisplay').innerText = tafqeetText;
+
+      // Sanity Outlier Guard: check if > 5x baseline
+      const ratio = cleanNum / BASELINE_ITEM_PRICE;
+      const outlierBanner = document.getElementById('outlierAlertBanner');
+      const outlierText = document.getElementById('outlierAlertText');
+
+      if (ratio >= 5.0) {
+        outlierBanner.classList.remove('hidden');
+        outlierText.innerText = `القيمة المدخلة (${cleanNum.toLocaleString('ar-SA')} SAR) تتجاوز المعدل المعتاد بمقدار (${ratio.toFixed(1)}x ضعفاً). هل أضفت أصفاراً إضافية بالخطأ؟`;
+        if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+      } else {
+        outlierBanner.classList.add('hidden');
+      }
+
+      handleDraftKeyStroke();
+    }
+
+    function setAmountPreset(val) {
+      document.getElementById('amountInput').value = val.toLocaleString('en-US');
+      handleAmountInput(val.toString());
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. 5-SECOND UNDO GRACE BUFFER
+    // -------------------------------------------------------------------------
+    let currentUndoTimer = null;
+    let pendingRollbackAction = null;
+
+    function triggerSaveInvoiceAction() {
+      if (currentUndoTimer) clearTimeout(currentUndoTimer);
+
+      pendingRollbackAction = {
+        type: 'SAVE_INVOICE',
+        description: 'تم حفظ الفاتورة بنجاح واعتماد القيود المحاسبية',
+        previousState: JSON.parse(JSON.stringify(mockInvoiceItems))
+      };
+
+      showUndoSnackbar('✓ تم حفظ الفاتورة بنجاح');
+      if (navigator.vibrate) navigator.vibrate([15, 20]);
+    }
+
+    function triggerDeleteItemAction() {
+      if (mockInvoiceItems.length === 0) {
+        showToast('⚠️ لا توجد أصناف للحذف', '⚠️');
+        return;
+      }
+
+      if (currentUndoTimer) clearTimeout(currentUndoTimer);
+
+      const deletedItem = mockInvoiceItems.pop();
+      renderInvoiceItems();
+
+      pendingRollbackAction = {
+        type: 'DELETE_ITEM',
+        description: `تم حذف صنف (${deletedItem.name})`,
+        deletedItem
+      };
+
+      showUndoSnackbar(`✓ تم حذف (${deletedItem.name}) بنجاح`);
+      if (navigator.vibrate) navigator.vibrate([25]);
+    }
+
+    function showUndoSnackbar(msg) {
+      const container = document.getElementById('undoSnackbarContainer');
+      const msgElem = document.getElementById('snackbarMessage');
+      const progressBar = document.getElementById('snackbarProgressBar');
+
+      msgElem.innerText = msg;
+      container.classList.remove('hidden');
+
+      // Reset and trigger CSS animation
+      progressBar.classList.remove('countdown-bar');
+      void progressBar.offsetWidth; // trigger reflow
+      progressBar.classList.add('countdown-bar');
+
+      currentUndoTimer = setTimeout(() => {
+        container.classList.add('hidden');
+        pendingRollbackAction = null;
+      }, 5000);
+    }
+
+    function executeUndoAction() {
+      if (!pendingRollbackAction) return;
+
+      if (currentUndoTimer) clearTimeout(currentUndoTimer);
+      document.getElementById('undoSnackbarContainer').classList.add('hidden');
+
+      if (pendingRollbackAction.type === 'DELETE_ITEM') {
+        mockInvoiceItems.push(pendingRollbackAction.deletedItem);
+        renderInvoiceItems();
+      }
+
+      showToast('↩️ تم التراجع واستعادة الحالة السابقة فورياً', '↩️');
+      if (navigator.vibrate) navigator.vibrate([10]);
+      pendingRollbackAction = null;
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. CRASH-PROOF DRAFT PERSISTENCE
+    // -------------------------------------------------------------------------
+    let mockInvoiceItems = [
+      { id: '1', name: 'حديد تسليح 16 ملم سابك', qty: 25, unit: 'طن', total: 80000 },
+      { id: '2', name: 'إسمنت بورتلاندي مقاوم للرطوبة', qty: 150, unit: 'كيس', total: 4200 }
+    ];
+
+    function renderInvoiceItems() {
+      const tbody = document.getElementById('invoiceItemsTableBody');
+      tbody.innerHTML = '';
+      mockInvoiceItems.forEach((itm, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-white/5 transition-colors';
+        tr.innerHTML = `
+          <td class="p-2.5 font-semibold text-white">${itm.name}</td>
+          <td class="p-2.5 text-center font-mono tabular-num">${itm.qty}</td>
+          <td class="p-2.5 text-center text-slate-400">${itm.unit}</td>
+          <td class="p-2.5 text-center font-mono tabular-num text-cyan-300 maskable-data">${itm.total.toLocaleString()} ر.س</td>
+          <td class="p-2.5 text-center">
+            <button onclick="removeSpecificItem(${idx})" class="text-rose-400 hover:text-rose-300 text-xs">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function removeSpecificItem(idx) {
+      mockInvoiceItems.splice(idx, 1);
+      renderInvoiceItems();
+      handleDraftKeyStroke();
+    }
+
+    function handleDraftKeyStroke() {
+      const draft = {
+        customer: document.getElementById('draftCustomerInput').value,
+        branch: document.getElementById('draftBranchSelect').value,
+        amount: document.getElementById('amountInput').value,
+        items: mockInvoiceItems,
+        timestamp: new Date().toLocaleTimeString('ar-SA')
+      };
+
+      try {
+        localStorage.setItem('magaiees_polish_draft', JSON.stringify(draft));
+        document.getElementById('autosaveStatusText').innerText = `محفوظ تلقائياً في التخزين المحلي (${draft.timestamp})`;
+      } catch (e) {}
+    }
+
+    function simulateSuddenCrash() {
+      // Simulate app crashing / killing process
+      showToast('💥 تم محاكاة خروج مفاجئ للتطبيق...', '💥');
+      setTimeout(() => {
+        // Clear UI form inputs to simulate reload
+        document.getElementById('draftCustomerInput').value = '';
+        mockInvoiceItems = [];
+        renderInvoiceItems();
+
+        // Check local storage for recovery
+        const saved = localStorage.getItem('magaiees_polish_draft');
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          document.getElementById('crashRecoveryNoticeText').innerText = `تم استرجاع مسودة (${parsed.customer || 'عميل نقدي'}) تحتوي على (${parsed.items.length} أصناف - آخر تعديل ${parsed.timestamp})`;
+          document.getElementById('crashRecoveryBanner').classList.remove('hidden');
+        }
+      }, 700);
+    }
+
+    function restoreDraftData() {
+      const saved = localStorage.getItem('magaiees_polish_draft');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        document.getElementById('draftCustomerInput').value = parsed.customer || '';
+        document.getElementById('draftBranchSelect').value = parsed.branch || 'BR-01';
+        document.getElementById('amountInput').value = parsed.amount || '75,000';
+        mockInvoiceItems = parsed.items || [];
+        renderInvoiceItems();
+        handleAmountInput(document.getElementById('amountInput').value);
+      }
+      document.getElementById('crashRecoveryBanner').classList.add('hidden');
+      showToast('⚡ تم استرجاع مسودة الفاتورة بنجاح!', '⚡');
+    }
+
+    function discardRecoveredDraft() {
+      localStorage.removeItem('magaiees_polish_draft');
+      document.getElementById('crashRecoveryBanner').classList.add('hidden');
+      showToast('تم مسح المسودة المؤقتة بنجاح', '🗑️');
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. MICRO-QUEUE SYNC & OFFLINE FIELD OPS
+    // -------------------------------------------------------------------------
+    let isOnline = true;
+    let offlineTransactions = [];
+    let offlineCounter = 1000;
+
+    function toggleNetworkConnection() {
+      isOnline = !isOnline;
+      const connPill = document.getElementById('connStatusPill');
+      const connDot = document.getElementById('connDot');
+      const connText = document.getElementById('connText');
+      const toggleBtn = document.getElementById('networkToggleBtn');
+      const netLabel = document.getElementById('currentNetStateLabel');
+
+      if (!isOnline) {
+        // Offline Lightning Mode
+        connPill.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/90 border border-slate-600 text-slate-300 text-xs font-bold transition-all';
+        connDot.className = 'w-2.5 h-2.5 rounded-full bg-slate-400';
+        connText.innerText = 'وضع الساحات فائق السرعة (أوفلاين)';
+        toggleBtn.innerText = 'إعادة الاتصال (Sync)';
+        netLabel.innerText = 'وضع غير متصل بالإنترنت (Lightning-Fast Offline)';
+        showToast('⚡ دخلت في وضع الساحات فائق السرعة (Offline Mode)', '⚡');
+      } else {
+        // Restore connection & trigger batch sync
+        connPill.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-bold transition-all';
+        connDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400 pulse-dot-amber';
+        connText.innerText = 'جاري المزامنة في الخلفية...';
+        toggleBtn.innerText = 'قطع الاتصال (وضع الميدان)';
+        netLabel.innerText = 'متصل بالشبكة المركزية (Online)';
+
+        // Simulate silent background compression & transmission (< 1% CPU)
+        setTimeout(() => {
+          offlineTransactions.forEach(t => t.status = 'SYNCED');
+          renderOfflineQueue();
+          connPill.className = 'flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold transition-all';
+          connDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 pulse-dot-green';
+          connText.innerText = 'مكتمل المزامنة (متصل)';
+          showToast('✓ اكتملت مزامنة كافة العمليات المعلقة بنجاح', '✓');
+        }, 800);
+      }
+    }
+
+    function issueOfflineRecord() {
+      const t0 = performance.now();
+      offlineCounter++;
+      const rec = {
+        id: `INV-OFF-${offlineCounter}`,
+        customer: document.getElementById('draftCustomerInput').value || 'عميل ساحة التحميل',
+        amount: document.getElementById('amountInput').value || '500',
+        timestamp: new Date().toLocaleTimeString('ar-SA'),
+        status: isOnline ? 'SYNCED' : 'QUEUED'
+      };
+
+      offlineTransactions.unshift(rec);
+      const executionTimeMs = (performance.now() - t0).toFixed(3);
+
+      document.getElementById('lastLatencyBadge').innerText = `آخر تسجيل محلي: ${executionTimeMs}ms (المستهدف < 2ms)`;
+      renderOfflineQueue();
+
+      showToast(`⚡ تم إصدار ${rec.id} فورياً (${executionTimeMs}ms)`, '⚡');
+      if (navigator.vibrate) navigator.vibrate([15]);
+    }
+
+    function renderOfflineQueue() {
+      const container = document.getElementById('offlineQueueContainer');
+      const pendingCount = offlineTransactions.filter(t => t.status === 'QUEUED').length;
+      document.getElementById('queueBadge').innerText = `${pendingCount} معلق`;
+
+      if (offlineTransactions.length === 0) {
+        container.innerHTML = `
+          <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800/80 text-center text-xs text-slate-500">
+            لا توجد عمليات معلقة — النظام متزامن تماماً
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      offlineTransactions.slice(0, 5).forEach(t => {
+        const item = document.createElement('div');
+        const isQueued = t.status === 'QUEUED';
+        item.className = `p-2.5 rounded-xl border text-xs flex items-center justify-between ${
+          isQueued ? 'bg-amber-950/20 border-amber-500/30' : 'bg-slate-900/60 border-slate-800 text-slate-300'
+        }`;
+        item.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="${isQueued ? 'text-amber-400' : 'text-emerald-400'} font-bold">${isQueued ? '⏳' : '✓'}</span>
+            <div>
+              <span class="font-mono font-bold text-white">${t.id}</span>
+              <span class="text-[11px] text-slate-400 block">${t.customer}</span>
+            </div>
+          </div>
+          <div class="text-left font-mono">
+            <span class="font-bold text-cyan-300 tabular-num">${t.amount} SAR</span>
+            <span class="text-[10px] text-slate-400 block">${t.timestamp}</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. CIRCADIAN EYE RELIEF & OLED WARMTH MODE
+    // -------------------------------------------------------------------------
+    let circadianWarmActive = false;
+
+    function toggleCircadianRelief() {
+      circadianWarmActive = !circadianWarmActive;
+      const html = document.documentElement;
+      const icon = document.getElementById('circadianIcon');
+      const label = document.getElementById('circadianLabel');
+
+      if (circadianWarmActive) {
+        html.classList.add('circadian-warmth-active');
+        icon.innerText = '☀️';
+        label.innerText = 'إلغاء الفلتر الليلي';
+        showToast('🌙 تم تفعيل نمط راحة العين الليلي وترشيد شاشة OLED', '🌙');
+      } else {
+        html.classList.remove('circadian-warmth-active');
+        icon.innerText = '🌙';
+        label.innerText = 'راحة العين (> 7 م)';
+        showToast('☀️ تم الرجوع لنمط الإضاءة القياسي', '☀️');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. PRIVACY SHIELD & THEMES
+    // -------------------------------------------------------------------------
+    let privacyActive = false;
+
+    function togglePrivacyShield() {
+      privacyActive = !privacyActive;
+      document.body.classList.toggle('privacy-masked', privacyActive);
+      document.getElementById('privacyIcon').innerText = privacyActive ? '🔒' : '👁️';
+      document.getElementById('privacyLabel').innerText = privacyActive ? 'الدرع مفعّل' : 'الخصوصية الميدانية';
+      showToast(privacyActive ? '🔒 تم إخفاء المبالغ الحساسة في الساحة' : '👁️ تم إظهار المبالغ', '🔒');
+    }
+
+    function switchTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      showToast(`تم التبديل إلى: ${theme}`, '🎨');
+    }
+
+    function showToast(text, icon = '✨') {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastIcon').innerText = icon;
+      document.getElementById('toastText').innerText = text;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 2500);
+    }
+
+    // Initialize on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      renderInvoiceItems();
+      handleAmountInput('75,000');
+      // Update clock
+      const now = new Date();
+      document.getElementById('circadianCurrentClock').innerText = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+    });
+  </script>
+</body>
+</html>

@@ -142,6 +142,22 @@ try {
     }
     $response['employees'] = $users;
 
+    // 12. Accounts (General Ledger / Chart of Accounts)
+    try {
+        $stmtAccs = $pdo->prepare("SELECT data FROM accounts WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+        $stmtAccs->execute([$tenant_id]);
+        $accsList = [];
+        while ($row = $stmtAccs->fetch(PDO::FETCH_ASSOC)) {
+            if (!empty($row['data'])) {
+                $d = json_decode($row['data'], true);
+                if ($d && empty($d['deleted'])) $accsList[] = $d;
+            }
+        }
+        $response['accounts'] = $accsList;
+    } catch(Exception $ex) {
+        $response['accounts'] = [];
+    }
+
     echo json_encode(['success' => true, 'data' => $response], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);

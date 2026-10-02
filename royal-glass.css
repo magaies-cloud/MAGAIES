@@ -1,0 +1,140 @@
+/* ========================================================================= */
+/* MAGAIEES ERP & POS (مقاييس)                                                */
+/* 8TH THEME: THE ROYAL GLASSMORPHIC & AMBIENT SHIMMER (السمة الكريستالية)    */
+/* ========================================================================= */
+
+/* 1. Deep Midnight Cosmic Backdrop */
+[data-theme="ROYAL_OBSIDIAN_GLASS"],
+.theme-royal-obsidian {
+  --bg-main: #080C14;
+  --bg-surface: rgba(15, 23, 42, 0.75);
+  --bg-card: rgba(18, 24, 38, 0.65);
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-bevel: rgba(255, 255, 255, 0.16);
+  --text-primary: #FFFFFF;
+  --text-secondary: #94A3B8;
+  --text-gold-silver: #E2E8F0;
+  --accent-color: #38BDF8;
+  --accent-glow: rgba(56, 189, 248, 0.35);
+  --shimmer-peak-opacity: 0.08;
+}
+
+body[data-theme="ROYAL_OBSIDIAN_GLASS"],
+.theme-royal-obsidian {
+  background-color: #080C14;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(30, 41, 69, 0.5) 0%, transparent 65%),
+    radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 0% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 45%);
+  background-attachment: fixed;
+  color: #FFFFFF;
+}
+
+/* 2. Frosted Smoky Acrylic Glass Card */
+.royal-glass-card {
+  position: relative;
+  background: rgba(18, 24, 38, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 
+    0 16px 40px -10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  isolation: isolate;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* 3. The Ambient Light Sheen & Shimmer Sweep */
+.ambient-shimmer-card {
+  position: relative;
+}
+
+.ambient-shimmer-card::after {
+  content: '';
+  position: absolute;
+  top: -60%;
+  left: -120%;
+  width: 60%;
+  height: 220%;
+  background: linear-gradient(
+    115deg, 
+    transparent 20%, 
+    rgba(255, 255, 255, 0.01) 35%,
+    rgba(255, 255, 255, 0.08) 50%, 
+    rgba(255, 255, 255, 0.01) 65%,
+    transparent 80%
+  );
+  transform: rotate(25deg) translate3d(0, 0, 0);
+  pointer-events: none;
+  z-index: 25;
+  animation: ambient-sheen-sweep 18s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform;
+}
+
+/* Calm 3s light sweep every 18s */
+@keyframes ambient-sheen-sweep {
+  0%, 75% {
+    transform: rotate(25deg) translate3d(-150%, 0, 0);
+    opacity: 0;
+  }
+  78% {
+    opacity: 1;
+  }
+  92% {
+    transform: rotate(25deg) translate3d(350%, 0, 0);
+    opacity: 1;
+  }
+  93%, 100% {
+    transform: rotate(25deg) translate3d(350%, 0, 0);
+    opacity: 0;
+  }
+}
+
+/* 4. Crystalline Dual-Layer Vector Iconography */
+.crystal-icon-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  flex-shrink: 0;
+}
+
+.crystal-icon-emerald {
+  background: rgba(16, 185, 129, 0.12);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: #34D399;
+}
+
+.crystal-icon-coral {
+  background: rgba(244, 63, 94, 0.12);
+  box-shadow: 0 0 20px rgba(244, 63, 94, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: #FB7185;
+}
+
+.crystal-icon-azure {
+  background: rgba(56, 189, 248, 0.12);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  color: #38BDF8;
+}
+
+/* 5. GPU Performance & Battery Low-Power Guardrails */
+@media (prefers-reduced-motion: reduce) {
+  .ambient-shimmer-card::after {
+    animation: none !important;
+    display: none !important;
+  }
+}
+
+.low-power-active .ambient-shimmer-card::after {
+  animation: none !important;
+  display: none !important;
+}

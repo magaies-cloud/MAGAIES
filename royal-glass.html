@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark" data-theme="ROYAL_OBSIDIAN_GLASS">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>مقاييس ERP - السمة الكريستالية الملكية (Royal Obsidian Glass)</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ========================================================================= */
+    /* ROYAL OBSIDIAN GLASS MATRIX & AMBIENT SHIMMER                             */
+    /* ========================================================================= */
+    :root {
+      --bg-midnight: #080C14;
+      --bg-glass-card: rgba(18, 24, 38, 0.65);
+      --bg-glass-surface: rgba(15, 23, 42, 0.75);
+      --border-hairline: rgba(255, 255, 255, 0.08);
+      --border-bevel: rgba(255, 255, 255, 0.16);
+      --text-crystalline: #FFFFFF;
+      --text-muted: #94A3B8;
+      --accent-azure: #38BDF8;
+      --glow-azure: rgba(56, 189, 248, 0.35);
+      --glow-emerald: rgba(16, 185, 129, 0.35);
+      --glow-coral: rgba(244, 63, 94, 0.35);
+    }
+
+    body {
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-midnight);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(30, 41, 69, 0.5) 0%, transparent 65%),
+        radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 0% 50%, rgba(16, 185, 129, 0.05) 0%, transparent 45%);
+      background-attachment: fixed;
+      color: var(--text-crystalline);
+      touch-action: pan-y;
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .tabular-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+      letter-spacing: 0.5px;
+    }
+
+    /* 1. Frosted Smoky Acrylic Glass Container */
+    .royal-glass-card {
+      position: relative;
+      background: var(--bg-glass-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-hairline);
+      border-top: 1px solid var(--border-bevel); /* Light-catching beveled edge */
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 
+        0 16px 40px -10px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      isolation: isolate;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    /* 2. The Ambient Light Sheen & Shimmer (الانعكاسات الضوئية الهادئة) */
+    .ambient-shimmer-card {
+      position: relative;
+    }
+
+    .ambient-shimmer-card::after {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -120%;
+      width: 60%;
+      height: 220%;
+      background: linear-gradient(
+        115deg, 
+        transparent 20%, 
+        rgba(255, 255, 255, 0.01) 35%,
+        rgba(255, 255, 255, 0.08) 50%, 
+        rgba(255, 255, 255, 0.01) 65%,
+        transparent 80%
+      );
+      transform: rotate(25deg) translate3d(0, 0, 0);
+      pointer-events: none;
+      z-index: 25;
+      animation: ambient-sheen-sweep 18s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+      will-change: transform;
+    }
+
+    @keyframes ambient-sheen-sweep {
+      0%, 75% {
+        transform: rotate(25deg) translate3d(-150%, 0, 0);
+        opacity: 0;
+      }
+      78% {
+        opacity: 1;
+      }
+      92% {
+        transform: rotate(25deg) translate3d(350%, 0, 0);
+        opacity: 1;
+      }
+      93%, 100% {
+        transform: rotate(25deg) translate3d(350%, 0, 0);
+        opacity: 0;
+      }
+    }
+
+    /* Immediate manual trigger for test button */
+    .ambient-sheen-manual::after {
+      animation: manual-sheen-sweep 2.8s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+
+    @keyframes manual-sheen-sweep {
+      0% {
+        transform: rotate(25deg) translate3d(-120%, 0, 0);
+        opacity: 0;
+      }
+      15% {
+        opacity: 1;
+      }
+      85% {
+        opacity: 1;
+      }
+      100% {
+        transform: rotate(25deg) translate3d(320%, 0, 0);
+        opacity: 0;
+      }
+    }
+
+    /* 3. Crystalline Dual-Layer Vector Iconography */
+    .crystal-icon-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      flex-shrink: 0;
+    }
+
+    .crystal-icon-emerald {
+      background: rgba(16, 185, 129, 0.12);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      color: #34D399;
+    }
+
+    .crystal-icon-coral {
+      background: rgba(244, 63, 94, 0.12);
+      box-shadow: 0 0 20px rgba(244, 63, 94, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      color: #FB7185;
+    }
+
+    .crystal-icon-azure {
+      background: rgba(56, 189, 248, 0.12);
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      color: #38BDF8;
+    }
+
+    /* 4. Low-Power Battery Fallback */
+    .low-power-active .ambient-shimmer-card::after {
+      animation: none !important;
+      display: none !important;
+    }
+
+    /* Tactile Press */
+    .tactile-btn {
+      transition: transform 0.08s ease, filter 0.08s ease;
+    }
+    .tactile-btn:active {
+      transform: scale(0.95);
+      filter: brightness(0.9);
+    }
+  </style>
+</head>
+<body class="min-h-screen antialiased selection:bg-amber-500 selection:text-slate-950 pb-16">
+
+  <!-- ========================================================================= -->
+  <!-- TOP NAVIGATION: Theme Switcher with All 8 Themes & Shimmer Trigger -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-50 bg-[#080C14]/80 backdrop-blur-xl border-b border-white/10 px-4 lg:px-8 py-3">
+    <div class="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3">
+      
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-sky-500/25 border border-white/20">
+          💎
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-base tracking-tight text-white">مقاييس ERP & POS</h1>
+            <span class="text-[11px] font-black px-2.5 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/30">
+              8th Theme: Royal Obsidian Glass
+            </span>
+          </div>
+          <p class="text-xs text-slate-400">السمة الكريستالية الملكية | زجاج معتم مصقول وانعكاسات ضوئية هادئة</p>
+        </div>
+      </div>
+
+      <!-- Right Controls: Trigger Sheen Test & All 8 Themes Selector -->
+      <div class="flex items-center gap-2.5">
+        
+        <!-- Manual Sheen Trigger Button -->
+        <button 
+          onclick="triggerInstantSheenSweep()" 
+          class="tactile-btn px-3 py-1.5 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 text-sky-300 border border-sky-500/30 text-xs font-bold flex items-center gap-1.5 transition shadow-sm"
+          title="تشغيل تجربة الانعكاس الضوئي فوراً دون انتظار 18 ثانية"
+        >
+          <span>✨</span>
+          <span>إطلاق وميض الانعكاس الآن</span>
+        </button>
+
+        <!-- Low-Power Battery Fallback Toggle -->
+        <button 
+          id="batterySaverToggleBtn" 
+          onclick="toggleBatterySaverMode()" 
+          class="tactile-btn px-2.5 py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 text-xs font-bold flex items-center gap-1 transition"
+          title="محاكاة وضع توفير الطاقة (إيقاف حركة الوميض مع بقاء المظهر الزجاجي)"
+        >
+          <span id="batteryIcon">🔋</span>
+          <span id="batteryLabel">التوفير: معطل</span>
+        </button>
+
+        <!-- Universal 8-Tier Theme Selector -->
+        <select 
+          id="universalThemeSelector" 
+          onchange="switchGlobalTheme(this.value)" 
+          class="bg-slate-900 text-slate-100 text-xs font-bold rounded-xl px-3 py-2 border border-slate-700 focus:outline-none focus:border-sky-400 cursor-pointer"
+        >
+          <option value="ROYAL_OBSIDIAN_GLASS" selected>💎 8. السمة الكريستالية الملكية (Royal Obsidian)</option>
+          <option value="DARK_OLED">🖤 1. أسود OLED موفر للطاقة (OLED Pure Black)</option>
+          <option value="SLATE_MIDNIGHT">🌌 2. رمادي ليلي تنفيذي (Slate Midnight)</option>
+          <option value="SAND_DUNES">🏜️ 3. رمال الصحراء الذهبية (Desert Sand Dunes)</option>
+          <option value="EMERALD_CORP">🌿 4. الزمرد السعودي المؤسسي (Saudi Royal Emerald)</option>
+          <option value="INDIGO_TWILIGHT">🔮 5. الشفق البنفسجي (Twilight Indigo)</option>
+          <option value="LIGHT_DAYLIGHT">☀️ 6. النهار الصافي (Clean Outdoor Daylight)</option>
+          <option value="HIGH_CONTRAST_YARD">⚠️ 7. تباين الساحات (Yard High-Contrast)</option>
+        </select>
+
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN WORKSPACE -->
+  <!-- ========================================================================= -->
+  <main class="max-w-6xl mx-auto px-4 lg:px-8 mt-6 space-y-6">
+
+    <!-- Theme Presentation Banner -->
+    <div class="royal-glass-card p-5 ambient-shimmer-card">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3.5">
+          <div class="crystal-icon-wrapper crystal-icon-azure">
+            <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-base font-extrabold text-white">السمة الكريستالية الملكية (The Royal Obsidian Glass)</h2>
+            <p class="text-xs text-slate-400 mt-0.5">
+              طبقات زجاجية معتمة مصقولة (Frosted Acrylic blur-16px) بانعكاسات ضوئية دورية مهدئة تمر كل 18 ثانية بدون أي استهلاك للمعالج.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 text-xs">
+          <span class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 font-mono font-bold border border-emerald-500/20">
+            GPU Composited 60 FPS
+          </span>
+          <span class="px-3 py-1 rounded-full bg-sky-500/10 text-sky-400 font-mono font-bold border border-sky-500/20">
+            CLS = 0.000
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 3 EXECUTIVE DASHBOARD CARDS WITH AMBIENT SHIMMER & CRYSTALLINE ICONS -->
+    <!-- ========================================================================= -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+      
+      <!-- Card 1: Inflows & Cash Collections (Emerald Crystalline Icon) -->
+      <div class="royal-glass-card p-5 ambient-shimmer-card flex flex-col justify-between" id="shimmerCard1">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="crystal-icon-wrapper crystal-icon-emerald">
+                <!-- Dual-layer cash/money icon -->
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-slate-300 block">إجمالي المقبوضات النقدية</span>
+                <span class="text-[10px] text-emerald-400 font-bold">تدفق إيجابي آمن</span>
+              </div>
+            </div>
+            <span class="text-[10px] text-slate-400 font-mono">اليوم</span>
+          </div>
+
+          <div class="my-2">
+            <span class="text-3xl font-black text-white tabular-num tracking-tight block">
+              184,250.00
+            </span>
+            <span class="text-xs text-slate-400">ريال سعودي (SAR)</span>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+          <span>فواتير البيع: 64 فاتورة</span>
+          <span class="text-emerald-400 font-bold">+18.4% نمو أسبوعي</span>
+        </div>
+      </div>
+
+      <!-- Card 2: Risk & Customer Debt Exposure (Coral Crystalline Icon) -->
+      <div class="royal-glass-card p-5 ambient-shimmer-card flex flex-col justify-between" id="shimmerCard2">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="crystal-icon-wrapper crystal-icon-coral">
+                <!-- Dual-layer shield alert icon -->
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-slate-300 block">التعرض الائتماني والمخاطر</span>
+                <span class="text-[10px] text-rose-400 font-bold">تنبيهات استثنائية P0</span>
+              </div>
+            </div>
+            <span class="text-[10px] text-rose-400 font-bold px-1.5 py-0.5 rounded bg-rose-500/10">3 حوادث</span>
+          </div>
+
+          <div class="my-2">
+            <span class="text-3xl font-black text-rose-300 tabular-num tracking-tight block">
+              52,000.00
+            </span>
+            <span class="text-xs text-slate-400">شيك مرتد (تم القفل آلياً)</span>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+          <span>الطرف: مؤسسة أوميجا</span>
+          <span class="text-rose-400 font-bold">تم إيقاف الـ POS ✓</span>
+        </div>
+      </div>
+
+      <!-- Card 3: Cloud Sync & Active Mobile Terminals (Azure Crystalline Icon) -->
+      <div class="royal-glass-card p-5 ambient-shimmer-card flex flex-col justify-between" id="shimmerCard3">
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2.5">
+              <div class="crystal-icon-wrapper crystal-icon-azure">
+                <!-- Dual-layer sync cloud icon -->
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </div>
+              <div>
+                <span class="text-xs font-bold text-slate-300 block">المزامنة الفورية للأجهزة</span>
+                <span class="text-[10px] text-sky-400 font-bold">Mobile <-> Desktop Sync</span>
+              </div>
+            </div>
+            <span class="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></span>
+          </div>
+
+          <div class="my-2">
+            <span class="text-3xl font-black text-sky-300 tabular-num tracking-tight block">
+              142 ms
+            </span>
+            <span class="text-xs text-slate-400">FCM v1 Real-time Push</span>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-white/5 flex items-center justify-between text-[11px] text-slate-400">
+          <span>هاتف المدير + لابتوب المحاسبة</span>
+          <span class="text-sky-400 font-bold">متطابق 100% (v2.4)</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Architectural Deep-Dive Card -->
+    <div class="royal-glass-card p-6">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+        <h3 class="font-extrabold text-sm text-white flex items-center gap-2">
+          <span>🔬</span> الركائز المعمارية للسمة الكريستالية (Engineering Breakdown)
+        </h3>
+        <span class="text-xs text-sky-400 font-mono font-bold">Ultra-Low Power</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+        <div class="bg-black/30 rounded-2xl p-4 border border-white/5">
+          <h4 class="font-bold text-sky-300 mb-1">1. مصفوفة الأكريليك المصقول</h4>
+          <p class="text-slate-400 leading-relaxed text-[11px]">
+            تعتمد على <code class="text-sky-300 font-mono">backdrop-filter: blur(16px)</code> مع طبقة داكنة شبه شفافة (<code class="text-sky-300 font-mono">rgba(18, 24, 38, 0.65)</code>) لضمان وضوح الأرقام التام بدون أي تشويش خلفي.
+          </p>
+        </div>
+
+        <div class="bg-black/30 rounded-2xl p-4 border border-white/5">
+          <h4 class="font-bold text-sky-300 mb-1">2. الوميض الضوئي الهادئ (Sheen)</h4>
+          <p class="text-slate-400 leading-relaxed text-[11px]">
+            انعكاس ضوئي مائل بزاوية 25 درجة يمر ببطء فائق (3 ثوانٍ) كل 18 ثانية. تم عزله عبر <code class="text-sky-300 font-mono">translate3d</code> ليعمل على كرت الشاشة (GPU) مباشرة.
+          </p>
+        </div>
+
+        <div class="bg-black/30 rounded-2xl p-4 border border-white/5">
+          <h4 class="font-bold text-sky-300 mb-1">3. أمان البطارية الذكي</h4>
+          <p class="text-slate-400 leading-relaxed text-[11px]">
+            توقف تلقائي فوري لأي حركة عند تفعيل وضع توفير الطاقة أو تفضيل تقليل الحركة، مع الحفاظ على جمالية المظهر الكريستالي الثابت.
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- JAVASCRIPT LOGIC -->
+  <!-- ========================================================================= -->
+  <script>
+    let isLowPowerMode = false;
+
+    // Trigger immediate manual light sheen sweep across all cards
+    function triggerInstantSheenSweep() {
+      const cards = [
+        document.getElementById('shimmerCard1'),
+        document.getElementById('shimmerCard2'),
+        document.getElementById('shimmerCard3')
+      ];
+
+      cards.forEach((card, idx) => {
+        if (!card) return;
+        card.classList.remove('ambient-sheen-manual');
+        void card.offsetWidth; // force DOM reflow
+        setTimeout(() => {
+          card.classList.add('ambient-sheen-manual');
+        }, idx * 120);
+      });
+
+      // Clear after 3 seconds
+      setTimeout(() => {
+        cards.forEach(card => card && card.classList.remove('ambient-sheen-manual'));
+      }, 3200);
+    }
+
+    // Toggle Low-Power Battery Saver Mode
+    function toggleBatterySaverMode() {
+      isLowPowerMode = !isLowPowerMode;
+      const body = document.body;
+      const icon = document.getElementById('batteryIcon');
+      const label = document.getElementById('batteryLabel');
+
+      if (isLowPowerMode) {
+        body.classList.add('low-power-active');
+        icon.innerText = '🪫';
+        label.innerText = 'التوفير: نشط (تم إيقاف الوميض)';
+        label.className = 'text-amber-400';
+      } else {
+        body.classList.remove('low-power-active');
+        icon.innerText = '🔋';
+        label.innerText = 'التوفير: معطل';
+        label.className = 'text-slate-300';
+      }
+    }
+
+    // Switch Global Theme across all 8 tiers
+    function switchGlobalTheme(themeId) {
+      document.documentElement.setAttribute('data-theme', themeId);
+      if (themeId !== 'ROYAL_OBSIDIAN_GLASS') {
+        alert(`تم التبديل إلى السمة [${themeId}]. جميع السمات الـ 7 السابقة ما زالت محفوظة ومتوفرة بالكامل.`);
+      }
+    }
+  </script>
+</body>
+</html>

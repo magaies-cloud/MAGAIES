@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark" data-theme="ROYAL_OBSIDIAN_GLASS">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>مقاييس ERP & POS — المنظومة الحية المتكاملة</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-midnight: #080C14;
+      --bg-surface: rgba(15, 23, 42, 0.85);
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --border-hairline: rgba(255, 255, 255, 0.08);
+      --border-bevel: rgba(255, 255, 255, 0.16);
+      --accent-azure: #38BDF8;
+      --accent-emerald: #10B981;
+      --accent-coral: #F43F5E;
+      --accent-amber: #F59E0B;
+    }
+
+    body {
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-midnight);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(30, 41, 69, 0.6) 0%, transparent 65%),
+        radial-gradient(circle at 100% 100%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+        radial-gradient(circle at 0% 50%, rgba(16, 185, 129, 0.06) 0%, transparent 45%);
+      background-attachment: fixed;
+      color: #FFFFFF;
+      touch-action: pan-y;
+      -webkit-tap-highlight-color: transparent;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .tabular-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+      letter-spacing: 0.5px;
+    }
+
+    /* Royal Glassmorphic Card Styling */
+    .royal-glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-hairline);
+      border-top: 1px solid var(--border-bevel);
+      border-radius: 20px;
+      box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      isolation: isolate;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    /* Ambient Shimmer Effect */
+    .ambient-shimmer-card {
+      position: relative;
+      overflow: hidden;
+    }
+    .ambient-shimmer-card::after {
+      content: '';
+      position: absolute;
+      top: -60%;
+      left: -120%;
+      width: 60%;
+      height: 220%;
+      background: linear-gradient(
+        115deg, 
+        transparent 20%, 
+        rgba(255, 255, 255, 0.01) 35%,
+        rgba(255, 255, 255, 0.08) 50%, 
+        rgba(255, 255, 255, 0.01) 65%,
+        transparent 80%
+      );
+      transform: rotate(25deg) translate3d(0, 0, 0);
+      pointer-events: none;
+      z-index: 25;
+      animation: ambient-sheen-sweep 18s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes ambient-sheen-sweep {
+      0%, 75% { transform: rotate(25deg) translate3d(-150%, 0, 0); opacity: 0; }
+      78% { opacity: 1; }
+      82% { transform: rotate(25deg) translate3d(250%, 0, 0); opacity: 1; }
+      85%, 100% { transform: rotate(25deg) translate3d(250%, 0, 0); opacity: 0; }
+    }
+
+    /* Spotlight Focus Kinematics */
+    .spotlight-field {
+      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+    .spotlight-field:focus-within {
+      transform: scale(1.025);
+      border-color: #38BDF8 !important;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+      z-index: 20;
+    }
+
+    /* Circadian Eye Relief Mode */
+    .circadian-warmth-active {
+      filter: sepia(22%) brightness(0.92) contrast(0.97);
+      transition: filter 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* Privacy Masked State */
+    .privacy-masked .maskable-data {
+      letter-spacing: 3px;
+      font-family: monospace;
+      color: rgba(148, 163, 184, 0.8) !important;
+      filter: blur(4px);
+      user-select: none;
+      transition: filter 0.2s ease;
+    }
+    .privacy-masked .maskable-data:hover {
+      filter: blur(1px);
+    }
+
+    /* 5-Second Undo Progress Bar */
+    @keyframes countdown-bar {
+      from { width: 100%; }
+      to { width: 0%; }
+    }
+    .undo-progress-bar {
+      animation: countdown-bar 5s linear forwards;
+    }
+
+    /* Navigation Tab Active */
+    .nav-btn.active {
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(16, 185, 129, 0.2));
+      border-color: rgba(56, 189, 248, 0.6);
+      color: #FFFFFF;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+    }
+
+    .bottom-tab.active {
+      color: #38BDF8;
+    }
+    .bottom-tab.active .icon-container {
+      background: rgba(56, 189, 248, 0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+  </style>
+</head>
+<body class="selection:bg-cyan-500/20">
+
+  <!-- ========================================================================= -->
+  <!-- 1. THE ENTERPRISE LOGIN SCREEN (Shown if not logged in)                   -->
+  <!-- ========================================================================= -->
+  <section id="loginScreenView" class="min-h-screen flex items-center justify-center p-4">
+    <div class="royal-glass-card ambient-shimmer-card w-full max-w-md p-6 md:p-8 space-y-6 border border-cyan-500/30">
+      
+      <!-- Brand Header -->
+      <div class="text-center space-y-2">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-600 via-sky-500 to-emerald-400 flex items-center justify-center font-black text-3xl text-slate-950 mx-auto shadow-xl shadow-cyan-500/25">
+          م
+        </div>
+        <h1 class="text-2xl font-extrabold text-white tracking-wide">مقاييس ERP & POS</h1>
+        <p class="text-xs text-slate-400">المنظومة التنفيذية الميدانية الشاملة • الإصدار الحي الموحد</p>
+      </div>
+
+      <!-- Live Connection Pill -->
+      <div class="flex items-center justify-center">
+        <div class="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>السيرفر الحي نشط ومحمي بتشفير TLS 1.3</span>
+        </div>
+      </div>
+
+      <!-- Login Form -->
+      <form onsubmit="handleLoginSubmit(event)" class="space-y-4">
+        <div>
+          <label class="text-xs font-bold text-slate-300 block mb-1.5">اسم المستخدم أو رقم الهوية:</label>
+          <div class="relative">
+            <input 
+              id="loginUsername" 
+              type="text" 
+              value="admin" 
+              required
+              class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 rounded-xl px-4 py-3 text-sm font-semibold text-white outline-none transition-all"
+              placeholder="أدخل اسم المستخدم..."
+            />
+            <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">👤</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-slate-300 block mb-1.5">كلمة المرور:</label>
+          <div class="relative">
+            <input 
+              id="loginPassword" 
+              type="password" 
+              value="123456" 
+              required
+              class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 rounded-xl px-4 py-3 text-sm font-semibold text-white outline-none transition-all"
+              placeholder="••••••••"
+            />
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white text-xs">
+              👁️
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="text-xs font-bold text-slate-300 block mb-1.5">فرع التشغيل / محطة الساحة:</label>
+          <select id="loginBranch" class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 rounded-xl px-3.5 py-3 text-sm font-semibold text-white outline-none">
+            <option value="الفرع الرئيسي - الرياض (الساحة 02)">الفرع الرئيسي - الرياض (الساحة 02)</option>
+            <option value="فرع جدة - مستودعات الخمرة">فرع جدة - مستودعات الخمرة</option>
+            <option value="فرع الدمام - المدينة الصناعية">فرع الدمام - المدينة الصناعية</option>
+          </select>
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          id="loginSubmitBtn"
+          type="submit" 
+          class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-cyan-600 via-sky-500 to-emerald-500 hover:from-cyan-500 hover:to-emerald-400 text-slate-950 font-black text-sm shadow-xl shadow-cyan-500/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+        >
+          <span>تسجيل الدخول إلى النظام</span>
+          <span>➔</span>
+        </button>
+      </form>
+
+      <!-- Quick 1-Tap Demo Roles -->
+      <div class="pt-2 border-t border-white/5 space-y-2">
+        <span class="text-[11px] text-slate-400 block text-center">أو دخول سريع للتجربة بلمسة واحدة:</span>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="quickLoginRole('المدير التنفيذي', 'م. أحمد السعدون')" class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-cyan-300 flex items-center justify-center gap-1.5 transition-all">
+            <span>👑</span>
+            <span>مدير تنفيذي</span>
+          </button>
+          <button onclick="quickLoginRole('كاشير مبيعات ميداني', 'فهد الدوسري')" class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-emerald-300 flex items-center justify-center gap-1.5 transition-all">
+            <span>💼</span>
+            <span>كاشير ساحة</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- 2. THE MAIN ENTERPRISE APPLICATION (Shown after login)                    -->
+  <!-- ========================================================================= -->
+  <div id="mainAppWorkspace" class="hidden min-h-screen flex flex-col pb-20 lg:pb-6">
+
+    <!-- MASTER TOP HEADER -->
+    <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-white/10 px-4 md:px-6 py-2.5 flex items-center justify-between gap-3">
+      
+      <!-- Brand & Branch -->
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 via-sky-500 to-emerald-400 flex items-center justify-center font-black text-lg text-slate-950 shadow-md shadow-cyan-500/20">
+          م
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-sm md:text-base font-extrabold text-white">مقاييس ERP & POS</h2>
+            <span id="activeBranchHeaderBadge" class="hidden sm:inline-flex px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-semibold">
+              الرياض - الساحة 02
+            </span>
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-slate-400">
+            <span id="currentUserRoleHeader">المدير التنفيذي</span>
+            <span>•</span>
+            <span id="liveClockDisplay" class="font-mono text-cyan-300 tabular-num">17:25</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-2">
+        
+        <!-- Offline / Online Field Toggle -->
+        <button id="netStatusBtn" onclick="toggleNetworkConnection()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold transition-all">
+          <span id="netStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="netStatusLabel" class="hidden md:inline">متصل (Online)</span>
+        </button>
+
+        <!-- Privacy Shield (••••••) -->
+        <button id="privacyShieldToggleBtn" onclick="togglePrivacyShield()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-cyan-400 text-slate-200 text-xs font-semibold transition-all" title="درع الخصوصية الميداني">
+          <span id="privacyIcon">👁️</span>
+          <span class="hidden md:inline">الخصوصية</span>
+        </button>
+
+        <!-- Circadian Eye Relief (Night Warmth) -->
+        <button id="circadianToggleBtn" onclick="toggleCircadianRelief()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-amber-400 text-slate-200 text-xs font-semibold transition-all" title="راحة العين الليلية وشاشات OLED">
+          <span id="circadianIcon">🌙</span>
+        </button>
+
+        <!-- Logout Button -->
+        <button onclick="handleLogout()" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-bold transition-all">
+          <span>خروج</span>
+          <span>🚪</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- DESKTOP TOP NAVIGATION TABS (Visible on Laptops & Desktops) -->
+    <nav class="hidden lg:flex items-center justify-between px-6 py-2 bg-slate-900/80 border-b border-white/5 overflow-x-auto gap-2">
+      <div class="flex items-center gap-2">
+        <button onclick="navigateToTab('dashboard', this)" class="nav-btn active px-4 py-2 rounded-xl border border-transparent text-xs font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <span>📊</span>
+          <span>لوحة التحكم الرئيسية</span>
+        </button>
+        <button onclick="navigateToTab('pos', this)" class="nav-btn px-4 py-2 rounded-xl border border-transparent text-xs font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <span>🧾</span>
+          <span>نقطة البيع والفاتورة الذكية</span>
+        </button>
+        <button onclick="navigateToTab('inventory', this)" class="nav-btn px-4 py-2 rounded-xl border border-transparent text-xs font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <span>📦</span>
+          <span>المستودعات والطلب المفاجئ</span>
+        </button>
+        <button onclick="navigateToTab('closure', this)" class="nav-btn px-4 py-2 rounded-xl border border-transparent text-xs font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <span>💰</span>
+          <span>الخزينة والإغلاق اليومي</span>
+        </button>
+        <button onclick="navigateToTab('risk', this)" class="nav-btn px-4 py-2 rounded-xl border border-transparent text-xs font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <span>⚠️</span>
+          <span>محرك رصد المخاطر</span>
+        </button>
+        <button onclick="navigateToTab('themes', this)" class="nav-btn px-4 py-2 rounded-xl border border-transparent text-xs font-bold text-slate-300 hover:text-white transition-all flex items-center gap-1.5">
+          <span>💎</span>
+          <span>السمات والواجهة الملكية</span>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-400 font-mono">
+        مقاييس v2.4 Live
+      </div>
+    </nav>
+
+    <!-- CRASH RECOVERY BANNER (Auto-appears if draft recovered) -->
+    <div id="crashRecoveryBanner" class="max-w-7xl mx-auto px-4 mt-4 hidden">
+      <div class="royal-glass-card p-3.5 border border-amber-500/40 bg-amber-950/20 flex items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xl animate-bounce">⚡</span>
+          <p id="crashRecoveryNoticeText" class="text-xs text-amber-200 font-bold">تم استرجاع مسودة الفاتورة غير المكتملة تلقائياً من الذاكرة المحلية.</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="navigateToTab('pos'); dismissRecoveryBanner();" class="px-3 py-1 rounded-xl bg-amber-500 text-slate-950 text-xs font-bold">متابعة التحرير</button>
+          <button onclick="dismissRecoveryBanner()" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 text-xs">إغلاق</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN BODY TABS CONTAINER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 space-y-6">
+
+      <!-- ===================================================================== -->
+      <!-- TAB 1: EXECUTIVE DASHBOARD (لوحة التحكم الرئيسية)                     -->
+      <!-- ===================================================================== -->
+      <section id="tab-dashboard" class="space-y-6">
+        
+        <!-- Live KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <div class="royal-glass-card p-4 space-y-2 border-t-2 border-emerald-400">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span>مبيعات اليوم الكلية</span>
+              <span class="text-emerald-400 text-base">📈</span>
+            </div>
+            <div class="text-xl md:text-2xl font-black text-white tabular-num maskable-data" id="kpiSalesTotal">
+              184,250.00 <span class="text-xs text-slate-400">ر.س</span>
+            </div>
+            <div class="text-[11px] text-emerald-400 flex items-center gap-1">
+              <span>▲ +14.2%</span>
+              <span class="text-slate-400">مقارنة بالأمس</span>
+            </div>
+          </div>
+
+          <div class="royal-glass-card p-4 space-y-2 border-t-2 border-cyan-400">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span>صافي أرباح اليوم</span>
+              <span class="text-cyan-400 text-base">💎</span>
+            </div>
+            <div class="text-xl md:text-2xl font-black text-cyan-300 tabular-num maskable-data" id="kpiNetProfit">
+              34,810.00 <span class="text-xs text-slate-400">ر.س</span>
+            </div>
+            <div class="text-[11px] text-cyan-400">
+              هامش ربح إجمالي: <span class="font-bold">18.9%</span>
+            </div>
+          </div>
+
+          <div class="royal-glass-card p-4 space-y-2 border-t-2 border-amber-400">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span>النقد الفعلي بالدرج</span>
+              <span class="text-amber-400 text-base">💵</span>
+            </div>
+            <div class="text-xl md:text-2xl font-black text-amber-300 tabular-num maskable-data" id="kpiCashDrawer">
+              26,450.00 <span class="text-xs text-slate-400">ر.س</span>
+            </div>
+            <div class="text-[11px] text-slate-400">
+              مطابقة تامة مع عمليات الكاش
+            </div>
+          </div>
+
+          <div class="royal-glass-card p-4 space-y-2 border-t-2 border-rose-400">
+            <div class="flex items-center justify-between text-xs text-slate-400">
+              <span>إجمالي الذمم المدينة</span>
+              <span class="text-rose-400 text-base">⚠️</span>
+            </div>
+            <div class="text-xl md:text-2xl font-black text-rose-300 tabular-num maskable-data" id="kpiReceivables">
+              92,400.00 <span class="text-xs text-slate-400">ر.س</span>
+            </div>
+            <div class="text-[11px] text-rose-400">
+              عميل واحد تجاوز الحد الائتماني
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Recent Transactions & Risk Feed -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <div class="lg:col-span-8 royal-glass-card p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-white/5 pb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🧾</span>
+                <span>أحدث فواتير وسندات الساحة الصادرة اليوم:</span>
+              </h3>
+              <button onclick="navigateToTab('pos')" class="text-xs text-cyan-400 font-bold hover:underline">+ فاتورة جديدة</button>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-right text-xs">
+                <thead class="text-slate-400 border-b border-white/5 pb-2">
+                  <tr>
+                    <th class="p-2">رقم المستند</th>
+                    <th class="p-2">العميل</th>
+                    <th class="p-2">النوع</th>
+                    <th class="p-2">المبلغ</th>
+                    <th class="p-2">الحالة</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5 text-slate-200">
+                  <tr class="hover:bg-white/5">
+                    <td class="p-2.5 font-mono text-cyan-400">INV-2026-8941</td>
+                    <td class="p-2.5 font-semibold text-white">شركة الأفق للمقاولات</td>
+                    <td class="p-2.5 text-slate-400">مبيعات ساحة</td>
+                    <td class="p-2.5 font-mono text-white tabular-num maskable-data">75,000.00 ر.س</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">معتمد ✓</span></td>
+                  </tr>
+                  <tr class="hover:bg-white/5">
+                    <td class="p-2.5 font-mono text-cyan-400">INV-2026-8940</td>
+                    <td class="p-2.5 font-semibold text-white">مؤسسة الرياض للإنشاءات</td>
+                    <td class="p-2.5 text-slate-400">آجل 30 يوم</td>
+                    <td class="p-2.5 font-mono text-white tabular-num maskable-data">42,500.00 ر.س</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">معتمد ✓</span></td>
+                  </tr>
+                  <tr class="hover:bg-white/5">
+                    <td class="p-2.5 font-mono text-cyan-400">INV-OFF-1002</td>
+                    <td class="p-2.5 font-semibold text-white">عميل ساحة نقدي</td>
+                    <td class="p-2.5 text-slate-400">أوفلاين سريع</td>
+                    <td class="p-2.5 font-mono text-white tabular-num maskable-data">3,200.00 ر.س</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 text-[10px] font-bold">متزامن ✓</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Risk Alerts Ticker -->
+          <div class="lg:col-span-4 royal-glass-card p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-white/5 pb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🛡️</span>
+                <span>تنبيهات إدارة المخاطر اللحظية:</span>
+              </h3>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono font-bold">3 نشطة</span>
+            </div>
+
+            <div class="space-y-3">
+              <div class="p-3 rounded-xl bg-rose-950/30 border border-rose-500/40 text-xs space-y-1">
+                <div class="flex items-center justify-between text-rose-300 font-bold">
+                  <span>🚨 تنبيه سحب نقدية كبير</span>
+                  <span class="font-mono">17:15</span>
+                </div>
+                <p class="text-[11px] text-rose-200/90 leading-relaxed">
+                  تم سحب 18,000 ر.س نقدياً من الصندوق بواسطة أمين الخزينة، متجاوزاً العتبة المحددة (10,000 ر.س).
+                </p>
+              </div>
+
+              <div class="p-3 rounded-xl bg-amber-950/30 border border-amber-500/40 text-xs space-y-1">
+                <div class="flex items-center justify-between text-amber-300 font-bold">
+                  <span>⚡ تسارع طلب مفاجئ (Spike)</span>
+                  <span class="font-mono">16:40</span>
+                </div>
+                <p class="text-[11px] text-amber-200/90 leading-relaxed">
+                  مبيعات (حديد تسليح 16 ملم) تجاوزت 230% من المعدل المعتاد خلال 4 ساعات. يرجى مراجعة تسعير السوق.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 2: SMART POS & INVOICING (نقطة البيع والفاتورة الذكية)           -->
+      <!-- ===================================================================== -->
+      <section id="tab-pos" class="hidden space-y-6">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+          <!-- Left: Invoice Form & Items -->
+          <div class="lg:col-span-8 royal-glass-card p-5 space-y-5">
+            
+            <div class="flex items-center justify-between border-b border-white/5 pb-3">
+              <div class="flex items-center gap-2">
+                <span class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 font-bold text-sm">🧾</span>
+                <div>
+                  <h3 class="text-sm font-bold text-white">فاتورة مبيعات ساحة فورية (POS Invoice)</h3>
+                  <p class="text-xs text-slate-400">مدعمة بالتفقيط العربي، التركيز البصري، وحفظ مسودات الطوارئ</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <button onclick="triggerVoiceSearch()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-slate-200 flex items-center gap-1">
+                  <span>🎙️</span>
+                  <span>بحث صوتي</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Customer & Branch -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="spotlight-field p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                <label class="text-[11px] font-bold text-slate-400 block mb-1">العميل المستلم:</label>
+                <input 
+                  id="posCustomerInput" 
+                  type="text" 
+                  value="شركة الأفق للمقاولات العامة" 
+                  oninput="handlePosFormInput()"
+                  class="w-full bg-transparent text-sm font-bold text-white outline-none"
+                />
+              </div>
+
+              <div class="spotlight-field p-2.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                <label class="text-[11px] font-bold text-slate-400 block mb-1">المستودع / الساحة:</label>
+                <select id="posBranchSelect" onchange="handlePosFormInput()" class="w-full bg-transparent text-sm font-bold text-white outline-none">
+                  <option value="الرياض - الساحة 02">الرياض - الساحة 02</option>
+                  <option value="جدة - مستودعات الخمرة">جدة - مستودعات الخمرة</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Items Table -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-bold text-slate-300">أصناف الفاتورة:</span>
+                <span class="text-xs text-slate-400">المعدل المعتاد لسعر الوحدة: 500 SAR</span>
+              </div>
+
+              <div class="rounded-xl border border-slate-800 overflow-hidden bg-slate-950/60">
+                <table class="w-full text-right text-xs">
+                  <thead class="bg-slate-900/90 text-slate-400 border-b border-slate-800">
+                    <tr>
+                      <th class="p-2.5">الصنف</th>
+                      <th class="p-2.5 text-center">الكمية</th>
+                      <th class="p-2.5 text-center">الوحدة</th>
+                      <th class="p-2.5 text-center">السعر</th>
+                      <th class="p-2.5 text-center">الإجمالي</th>
+                      <th class="p-2.5 text-center">إجراء</th>
+                    </tr>
+                  </thead>
+                  <tbody id="posItemsTbody" class="divide-y divide-slate-800/60 text-slate-200">
+                    <!-- Dynamic -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Total Amount Input with Live Tafqeet -->
+            <div class="spotlight-field p-4 rounded-2xl bg-slate-950/80 border border-slate-800 space-y-3">
+              <div class="flex items-center justify-between">
+                <label class="text-xs font-extrabold text-slate-200">المبلغ الإجمالي النهائي للفاتورة:</label>
+                <span class="text-xs text-cyan-400 font-bold font-mono">ر.س (SAR)</span>
+              </div>
+
+              <input 
+                id="posAmountInput" 
+                type="text" 
+                value="75,000" 
+                oninput="handlePosAmountInput(this.value)"
+                class="w-full bg-slate-900/90 border border-slate-700 focus:border-cyan-400 rounded-xl px-4 py-3 text-2xl font-black text-white tabular-num outline-none"
+              />
+
+              <!-- Dynamic Arabic Words Translation (التفقيط المالي) -->
+              <div class="p-3 rounded-xl bg-slate-900/90 border border-cyan-500/20 flex items-start gap-2.5">
+                <span class="text-base text-cyan-400 mt-0.5">✍️</span>
+                <div>
+                  <span class="text-[10px] text-slate-400 font-bold block mb-0.5">التفقيط المالي المعتمد:</span>
+                  <p id="posTafqeetText" class="text-sm font-bold text-cyan-200">
+                    فقط خمسة وسبعون ألفاً ريال سعودي لا غير
+                  </p>
+                </div>
+              </div>
+
+              <!-- Outlier Warning (5x zero slip) -->
+              <div id="posOutlierWarning" class="p-3 rounded-xl bg-rose-950/30 border border-rose-500/40 text-xs text-rose-300 hidden">
+                ⚠️ <strong>تنبيه فخ الأصفار:</strong> المبلغ المدخل يتجاوز خط الأساس المعتاد بمقدار (<span id="outlierRatioDisplay">10x</span> ضعفاً). تأكد من صحة عدد الأصفار!
+              </div>
+            </div>
+
+            <!-- Action Buttons (No Confirm Dialogs!) -->
+            <div class="flex items-center gap-3">
+              <button onclick="saveInvoicePos()" class="flex-1 py-3.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-sm shadow-xl shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+                <span>💾</span>
+                <span>حفظ الفاتورة فورياً (مع تراجع 5 ثوانٍ)</span>
+              </button>
+
+              <button onclick="deleteLastPosItem()" class="py-3.5 px-4 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:bg-rose-500/30 font-bold text-sm transition-all">
+                <span>حذف صنف 🗑️</span>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Right: Tactile Zero-Lag Numpad & Quick Multipliers -->
+          <div class="lg:col-span-4 royal-glass-card p-5 space-y-4">
+            <div class="flex items-center justify-between border-b border-white/5 pb-3">
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🔢</span>
+                <span>لوحة الأرقام الميدانية السريعة:</span>
+              </h3>
+              <span class="text-[11px] text-emerald-400 font-mono">0ms Lag</span>
+            </div>
+
+            <!-- Keypad Grid -->
+            <div class="grid grid-cols-3 gap-2 text-sm font-mono font-bold">
+              <button onclick="numpadPress('7')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">7</button>
+              <button onclick="numpadPress('8')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">8</button>
+              <button onclick="numpadPress('9')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">9</button>
+
+              <button onclick="numpadPress('4')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">4</button>
+              <button onclick="numpadPress('5')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">5</button>
+              <button onclick="numpadPress('6')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">6</button>
+
+              <button onclick="numpadPress('1')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">1</button>
+              <button onclick="numpadPress('2')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">2</button>
+              <button onclick="numpadPress('3')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">3</button>
+
+              <button onclick="numpadPress('0')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">0</button>
+              <button onclick="numpadPress('+00')" class="p-3.5 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-700/50 active:scale-90 transition-transform">+00</button>
+              <button onclick="numpadPress('+000')" class="p-3.5 rounded-xl bg-cyan-950/60 hover:bg-cyan-900/60 text-cyan-300 border border-cyan-700/50 active:scale-90 transition-transform">+000</button>
+
+              <button onclick="numpadPress('.')" class="p-3.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white border border-slate-800 active:scale-90 transition-transform">.</button>
+              <button onclick="numpadPress('BACKSPACE')" class="p-3.5 rounded-xl bg-amber-950/40 hover:bg-amber-900/50 text-amber-300 border border-amber-800/40 active:scale-90 transition-transform">⌫</button>
+              <button onclick="numpadPress('CLEAR')" class="p-3.5 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 border border-rose-800/40 active:scale-90 transition-transform">C</button>
+            </div>
+
+            <!-- Offline Enqueue Performance -->
+            <div class="p-3 rounded-xl bg-slate-950/80 border border-slate-800 text-xs space-y-1">
+              <span class="text-slate-400 block">طابور الأوفلاين السريع:</span>
+              <div class="flex items-center justify-between">
+                <span class="text-white font-bold">زمن التسجيل المحلي:</span>
+                <span class="text-emerald-400 font-mono font-bold">0.082 ms</span>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 3: INVENTORY & DEMAND SPIKES (المستودعات والطلب المفاجئ)          -->
+      <!-- ===================================================================== -->
+      <section id="tab-inventory" class="hidden space-y-6">
+        <div class="royal-glass-card p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-white/5 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>📦</span>
+              <span>رصد المخزون الذكي والطلب المفاجئ (Demand Spike Tracker):</span>
+            </h3>
+            <span class="text-xs text-slate-400 font-mono">تحديث حي</span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-right text-xs">
+              <thead class="bg-slate-900/90 text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="p-3">رمز الصنف</th>
+                  <th class="p-3">اسم الصنف</th>
+                  <th class="p-3 text-center">الرصيد المتاح</th>
+                  <th class="p-3 text-center">عتبة الأمان</th>
+                  <th class="p-3 text-center">تسارع الطلب (4 ساعات)</th>
+                  <th class="p-3 text-center">حالة المخاطرة</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60 text-slate-200">
+                <tr class="hover:bg-white/5">
+                  <td class="p-3 font-mono text-cyan-400">ITM-STEEL-16</td>
+                  <td class="p-3 font-bold text-white">حديد تسليح سابك 16 ملم</td>
+                  <td class="p-3 text-center font-mono font-bold tabular-num text-emerald-400">140 طن</td>
+                  <td class="p-3 text-center font-mono text-slate-400">50 طن</td>
+                  <td class="p-3 text-center font-mono text-rose-400 font-bold">230% ▲ (Spike)</td>
+                  <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-bold">طلب مفاجئ ⚡</span></td>
+                </tr>
+                <tr class="hover:bg-white/5">
+                  <td class="p-3 font-mono text-cyan-400">ITM-CEM-PORT</td>
+                  <td class="p-3 font-bold text-white">إسمنت بورتلاندي مقاوم</td>
+                  <td class="p-3 text-center font-mono font-bold tabular-num text-amber-400">85 كيس</td>
+                  <td class="p-3 text-center font-mono text-slate-400">100 كيس</td>
+                  <td class="p-3 text-center font-mono text-slate-300">105% (طبيعي)</td>
+                  <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-bold">دون حد الأمان ⚠️</span></td>
+                </tr>
+                <tr class="hover:bg-white/5">
+                  <td class="p-3 font-mono text-cyan-400">ITM-PIPE-4IN</td>
+                  <td class="p-3 font-bold text-white">مواسير ضغط عالي PVC 4 إنش</td>
+                  <td class="p-3 text-center font-mono font-bold tabular-num text-white">520 حبة</td>
+                  <td class="p-3 text-center font-mono text-slate-400">150 حبة</td>
+                  <td class="p-3 text-center font-mono text-slate-300">92% (طبيعي)</td>
+                  <td class="p-3 text-center"><span class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-bold">مستقر ✓</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 4: TREASURY & DAILY CASH CLOSURE (الخزينة والإغلاق اليومي)         -->
+      <!-- ===================================================================== -->
+      <section id="tab-closure" class="hidden space-y-6">
+        <div class="royal-glass-card p-5 space-y-5">
+          <div class="flex items-center justify-between border-b border-white/5 pb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>💰</span>
+                <span>الإغلاق اليومي السريع للصندوق (30-Second Shift Closure):</span>
+              </h3>
+              <p class="text-xs text-slate-400">مطابقة النقد الفعلي وتوليد تقرير الواتساب التنفيذي بلمسة واحدة</p>
+            </div>
+            <button onclick="sendWhatsAppClosureReport()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-all">
+              <span>📱</span>
+              <span>إرسال تقرير الواتساب</span>
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
+              <span class="text-xs text-slate-400">المبيعات النقدية المقيدة:</span>
+              <div class="text-xl font-bold text-white font-mono tabular-num maskable-data">26,450.00 ر.س</div>
+            </div>
+            <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-1">
+              <span class="text-xs text-slate-400">مدفوعات الشبكة (مدى/فيزا):</span>
+              <div class="text-xl font-bold text-cyan-300 font-mono tabular-num maskable-data">65,400.00 ر.س</div>
+            </div>
+            <div class="p-4 rounded-xl bg-emerald-950/30 border border-emerald-500/40 space-y-1">
+              <span class="text-xs text-emerald-300 font-bold">فارق المطابقة (العجز/الفائض):</span>
+              <div class="text-xl font-bold text-emerald-400 font-mono tabular-num">0.00 ر.س (متطابق ✓)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 5: EXECUTIVE RISK RULES (محرك ضبط عتبات المخاطر)                 -->
+      <!-- ===================================================================== -->
+      <section id="tab-risk" class="hidden space-y-6">
+        <div class="royal-glass-card p-5 space-y-5">
+          <div class="flex items-center justify-between border-b border-white/5 pb-3">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <span>🛡️</span>
+                <span>شاشة ضبط قواعد وعتبات الإنذار المبكر (Risk Engine Rules):</span>
+              </h3>
+              <p class="text-xs text-slate-400">إشعار الإدارة بالتجاوزات فور حدوثها دون تأخير</p>
+            </div>
+            <button onclick="showToast('تم حفظ عتبات الرقابة وتفعيلها فورياً ✓')" class="px-3.5 py-1.5 rounded-xl bg-cyan-500 text-slate-950 font-bold text-xs">
+              حفظ القواعد
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+              <label class="text-xs font-bold text-white block">عتبة الفواتير عالية القيمة (High-Value Threshold):</label>
+              <div class="flex items-center gap-2">
+                <input type="number" value="50000" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono" />
+                <span class="text-xs text-slate-400 font-bold">ر.س</span>
+              </div>
+              <span class="text-[11px] text-slate-400 block">إرسال إشعار فوري عند إصدار أي فاتورة تتجاوز هذا المبلغ.</span>
+            </div>
+
+            <div class="p-4 rounded-xl bg-slate-900/90 border border-slate-800 space-y-2">
+              <label class="text-xs font-bold text-white block">عتبة حظر البيع بأقل من هامش الربح الأدنى (%):</label>
+              <div class="flex items-center gap-2">
+                <input type="number" value="8" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-sm text-white font-mono" />
+                <span class="text-xs text-slate-400 font-bold">%</span>
+              </div>
+              <span class="text-[11px] text-slate-400 block">تنبيه فوري عند بيع أي صنف بهامش أقل من 8%.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================================================================== -->
+      <!-- TAB 6: THEMES & ROYAL GLASS MATRIX (السمات والواجهة الملكية)         -->
+      <!-- ===================================================================== -->
+      <section id="tab-themes" class="hidden space-y-6">
+        <div class="royal-glass-card p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-white/5 pb-3">
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <span>💎</span>
+              <span>محرك السمات الثمانية — السمة الكريستالية الملكية (The 8th Theme):</span>
+            </h3>
+            <span class="text-xs text-cyan-400 font-mono">8 Themes Ready</span>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            تم دمج السمة الكريستالية الملكية الأحدث بزجاج الأكريليك المعتم (Smoky Acrylic) والانعكاسات الضوئية الهادئة (Ambient Shimmer) المعززة ببطاقات الرسوميات GPU بدون أي استهلاك للمعالج.
+          </p>
+
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+            <button onclick="switchSystemTheme('ROYAL_OBSIDIAN_GLASS')" class="p-3 rounded-xl border border-cyan-500/50 bg-slate-900 text-right text-xs space-y-1">
+              <div class="font-bold text-cyan-300">💎 السمة الكريستالية (8)</div>
+              <div class="text-[10px] text-slate-400">زجاج معتم + انعكاسات</div>
+            </button>
+
+            <button onclick="switchSystemTheme('DARK_OLED')" class="p-3 rounded-xl border border-slate-800 bg-black text-right text-xs space-y-1">
+              <div class="font-bold text-slate-200">🖤 أسود OLED (1)</div>
+              <div class="text-[10px] text-slate-400">ترشيد فائق للطاقة</div>
+            </button>
+
+            <button onclick="switchSystemTheme('EMERALD_CORP')" class="p-3 rounded-xl border border-slate-800 bg-emerald-950/40 text-right text-xs space-y-1">
+              <div class="font-bold text-emerald-300">🌿 الزمرد الملكي (4)</div>
+              <div class="text-[10px] text-slate-400">مؤسسي رسمي</div>
+            </button>
+
+            <button onclick="switchSystemTheme('SAND_DUNES')" class="p-3 rounded-xl border border-slate-800 bg-amber-950/40 text-right text-xs space-y-1">
+              <div class="font-bold text-amber-300">🏜️ رمال الصحراء (3)</div>
+              <div class="text-[10px] text-slate-400">درجات ذهبية دافئة</div>
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MOBILE NATIVE BOTTOM BAR (Visible on Phones & Tablets) -->
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-2xl border-t border-white/10 flex items-center justify-around px-1 py-1.5">
+      <button onclick="navigateToTab('dashboard', this)" class="bottom-tab active flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 transition-all flex-1 py-1">
+        <div class="icon-container w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all">📊</div>
+        <span>الرئيسية</span>
+      </button>
+
+      <button onclick="navigateToTab('pos', this)" class="bottom-tab flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 transition-all flex-1 py-1">
+        <div class="icon-container w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all">🧾</div>
+        <span>الفاتورة</span>
+      </button>
+
+      <button onclick="navigateToTab('inventory', this)" class="bottom-tab flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 transition-all flex-1 py-1">
+        <div class="icon-container w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all">📦</div>
+        <span>المخزون</span>
+      </button>
+
+      <button onclick="navigateToTab('closure', this)" class="bottom-tab flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 transition-all flex-1 py-1">
+        <div class="icon-container w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all">💰</div>
+        <span>الخزينة</span>
+      </button>
+
+      <button onclick="navigateToTab('risk', this)" class="bottom-tab flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 transition-all flex-1 py-1">
+        <div class="icon-container w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all">🛡️</div>
+        <span>المخاطر</span>
+      </button>
+
+      <button onclick="navigateToTab('themes', this)" class="bottom-tab flex flex-col items-center gap-1 text-[10px] font-bold text-slate-400 transition-all flex-1 py-1">
+        <div class="icon-container w-8 h-8 rounded-xl flex items-center justify-center text-sm transition-all">💎</div>
+        <span>السمات</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- FLOATING 5-SECOND UNDO SNACKBAR -->
+  <aside id="undoSnackbar" class="fixed bottom-16 lg:bottom-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-md hidden transition-all duration-300">
+    <div class="royal-glass-card border border-emerald-500/50 bg-slate-900/95 shadow-2xl p-4 flex flex-col gap-2.5">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">✓</span>
+          <div>
+            <p id="undoMsg" class="text-xs md:text-sm font-bold text-white">تم حفظ الفاتورة بنجاح</p>
+            <span class="text-[11px] text-slate-400">يمكنك التراجع الآن خلال 5 ثوانٍ</span>
+          </div>
+        </div>
+
+        <button onclick="performUndoAction()" class="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow-md transition-all flex items-center gap-1 active:scale-95">
+          <span>↩️</span>
+          <span>تراجع (Undo)</span>
+        </button>
+      </div>
+
+      <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+        <div id="undoProgressBar" class="h-full bg-gradient-to-r from-emerald-400 to-teal-300 rounded-full undo-progress-bar"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toastNotification" class="fixed top-14 left-1/2 -translate-x-1/2 z-50 hidden transition-all">
+    <div class="px-4 py-2.5 rounded-2xl bg-slate-900/95 border border-cyan-500/40 text-cyan-300 font-bold text-xs shadow-2xl flex items-center gap-2">
+      <span id="toastIcon">✨</span>
+      <span id="toastText">تم الإجراء بنجاح</span>
+    </div>
+  </div>
+
+  <!-- CLIENT SCRIPTS & TAFQEET ENGINE -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. TAFQEET ENGINE (Arabic Currency Words Converter)
+    // -------------------------------------------------------------------------
+    const ONES = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+    const TENS = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+    const HUNDREDS = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+    function convertIntegerPart(num) {
+      if (num === 0) return 'صفر';
+      if (num >= 1000000000) {
+        const billions = Math.floor(num / 1000000000);
+        const remainder = num % 1000000000;
+        let text = billions === 1 ? 'مليار' : (billions === 2 ? 'ملياران' : (billions <= 10 ? `${convertIntegerPart(billions)} مليارات` : `${convertIntegerPart(billions)} ملياراً`));
+        return remainder > 0 ? `${text} و${convertIntegerPart(remainder)}` : text;
+      }
+      if (num >= 1000000) {
+        const millions = Math.floor(num / 1000000);
+        const remainder = num % 1000000;
+        let text = millions === 1 ? 'مليون' : (millions === 2 ? 'مليونان' : (millions <= 10 ? `${convertIntegerPart(millions)} ملايين` : `${convertIntegerPart(millions)} مليوناً`));
+        return remainder > 0 ? `${text} و${convertIntegerPart(remainder)}` : text;
+      }
+      if (num >= 1000) {
+        const thousands = Math.floor(num / 1000);
+        const remainder = num % 1000;
+        let text = thousands === 1 ? 'ألف' : (thousands === 2 ? 'ألفان' : (thousands <= 10 ? `${convertIntegerPart(thousands)} آلاف` : `${convertIntegerPart(thousands)} ألفاً`));
+        return remainder > 0 ? `${text} و${convertIntegerPart(remainder)}` : text;
+      }
+      if (num >= 100) {
+        const hundreds = Math.floor(num / 100);
+        const remainder = num % 100;
+        const text = HUNDREDS[hundreds];
+        return remainder > 0 ? `${text} و${convertIntegerPart(remainder)}` : text;
+      }
+      if (num >= 20) {
+        const tens = Math.floor(num / 10);
+        const ones = num % 10;
+        const tensText = TENS[tens];
+        return ones > 0 ? `${ONES[ones]} و${tensText}` : tensText;
+      }
+      return ONES[num];
+    }
+
+    function tafqeetCurrency(amount) {
+      if (isNaN(amount) || amount === 0) return 'فقط صفر ريال سعودي لا غير';
+      const absAmount = Math.abs(amount);
+      const integerPart = Math.floor(absAmount);
+      const decimalPart = Math.round((absAmount - integerPart) * 100);
+
+      let text = `فقط ${convertIntegerPart(integerPart)} ريال سعودي`;
+      if (decimalPart > 0) {
+        text += ` و${convertIntegerPart(decimalPart)} هللة`;
+      }
+      text += ' لا غير';
+      return amount < 0 ? `سالب ${text}` : text;
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. AUTHENTICATION & SESSION HANDLING
+    // -------------------------------------------------------------------------
+    function handleLoginSubmit(e) {
+      if (e) e.preventDefault();
+      const username = document.getElementById('loginUsername').value;
+      const branch = document.getElementById('loginBranch').value;
+      
+      const submitBtn = document.getElementById('loginSubmitBtn');
+      submitBtn.innerHTML = '<span>جاري الدخول...</span> <span class="animate-spin">⚙️</span>';
+
+      setTimeout(() => {
+        sessionStorage.setItem('magaiees_auth', JSON.stringify({
+          username,
+          role: 'المدير التنفيذي',
+          branch,
+          loginTime: new Date().toLocaleTimeString('ar-SA')
+        }));
+
+        enterWorkspace();
+        showToast('مرحباً بك! تم تسجيل الدخول بنجاح كـ ' + username);
+      }, 350);
+    }
+
+    function quickLoginRole(role, name) {
+      sessionStorage.setItem('magaiees_auth', JSON.stringify({
+        username: name,
+        role,
+        branch: 'الفرع الرئيسي - الرياض (الساحة 02)',
+        loginTime: new Date().toLocaleTimeString('ar-SA')
+      }));
+      enterWorkspace();
+      showToast('مرحباً بك: ' + name + ' (' + role + ')');
+    }
+
+    function enterWorkspace() {
+      const auth = JSON.parse(sessionStorage.getItem('magaiees_auth') || '{}');
+      document.getElementById('loginScreenView').classList.add('hidden');
+      document.getElementById('mainAppWorkspace').classList.remove('hidden');
+
+      if (auth.username) {
+        document.getElementById('currentUserRoleHeader').innerText = `${auth.username} (${auth.role || 'مدير'})`;
+      }
+      if (auth.branch) {
+        document.getElementById('activeBranchHeaderBadge').innerText = auth.branch;
+      }
+
+      renderPosItems();
+      checkDraftRecovery();
+    }
+
+    function handleLogout() {
+      sessionStorage.removeItem('magaiees_auth');
+      document.getElementById('mainAppWorkspace').classList.add('hidden');
+      document.getElementById('loginScreenView').classList.remove('hidden');
+      document.getElementById('loginSubmitBtn').innerHTML = '<span>تسجيل الدخول إلى النظام</span> <span>➔</span>';
+      showToast('تم تسجيل الخروج بنجاح 👋');
+    }
+
+    function togglePasswordVisibility() {
+      const p = document.getElementById('loginPassword');
+      p.type = p.type === 'password' ? 'text' : 'password';
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. TAB NAVIGATION (Single Page Architecture)
+    // -------------------------------------------------------------------------
+    function navigateToTab(tabId, triggerBtn) {
+      const allTabs = ['dashboard', 'pos', 'inventory', 'closure', 'risk', 'themes'];
+      allTabs.forEach(id => {
+        const el = document.getElementById('tab-' + id);
+        if (el) el.classList.add('hidden');
+      });
+
+      const activeEl = document.getElementById('tab-' + tabId);
+      if (activeEl) activeEl.classList.remove('hidden');
+
+      // Update Desktop Nav
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      const desktopTabs = document.querySelectorAll('.nav-btn');
+      const idx = allTabs.indexOf(tabId);
+      if (desktopTabs[idx]) desktopTabs[idx].classList.add('active');
+
+      // Update Mobile Nav
+      document.querySelectorAll('.bottom-tab').forEach(b => b.classList.remove('active'));
+      const mobileTabs = document.querySelectorAll('.bottom-tab');
+      if (mobileTabs[idx]) mobileTabs[idx].classList.add('active');
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. POS INVOICING & ITEMS TABLE
+    // -------------------------------------------------------------------------
+    let posItems = [
+      { id: 1, name: 'حديد تسليح 16 ملم سابك', qty: 25, unit: 'طن', price: 3200, total: 80000 },
+      { id: 2, name: 'إسمنت بورتلاندي مقاوم', qty: 150, unit: 'كيس', price: 28, total: 4200 }
+    ];
+
+    function renderPosItems() {
+      const tbody = document.getElementById('posItemsTbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+      posItems.forEach((itm, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-white/5 transition-colors';
+        tr.innerHTML = `
+          <td class="p-2.5 font-semibold text-white">${itm.name}</td>
+          <td class="p-2.5 text-center font-mono tabular-num">${itm.qty}</td>
+          <td class="p-2.5 text-center text-slate-400">${itm.unit}</td>
+          <td class="p-2.5 text-center font-mono tabular-num text-slate-300 maskable-data">${itm.price.toLocaleString()} ر.س</td>
+          <td class="p-2.5 text-center font-mono tabular-num text-cyan-300 font-bold maskable-data">${itm.total.toLocaleString()} ر.س</td>
+          <td class="p-2.5 text-center">
+            <button onclick="removePosItem(${idx})" class="text-rose-400 hover:text-rose-300">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function removePosItem(idx) {
+      posItems.splice(idx, 1);
+      renderPosItems();
+      handlePosFormInput();
+    }
+
+    function deleteLastPosItem() {
+      if (posItems.length === 0) return;
+      const removed = posItems.pop();
+      renderPosItems();
+      showUndoSnackbar(`تم حذف الصنف (${removed.name}) بنجاح`);
+    }
+
+    function handlePosAmountInput(rawVal) {
+      const cleanNum = parseFloat(rawVal.replace(/,/g, ''));
+      if (isNaN(cleanNum)) {
+        document.getElementById('posTafqeetText').innerText = 'فقط صفر ريال سعودي لا غير';
+        document.getElementById('posOutlierWarning').classList.add('hidden');
+        return;
+      }
+
+      // Live Tafqeet words
+      document.getElementById('posTafqeetText').innerText = tafqeetCurrency(cleanNum);
+
+      // Sanity Outlier Guard: check if > 5x baseline (500)
+      const ratio = cleanNum / 500;
+      const warningBox = document.getElementById('posOutlierWarning');
+      if (ratio >= 5.0) {
+        warningBox.classList.remove('hidden');
+        document.getElementById('outlierRatioDisplay').innerText = ratio.toFixed(1) + 'x';
+        if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+      } else {
+        warningBox.classList.add('hidden');
+      }
+
+      handlePosFormInput();
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. 5-SECOND UNDO SNACKBAR
+    // -------------------------------------------------------------------------
+    let undoTimer = null;
+    let pendingUndoAction = null;
+
+    function saveInvoicePos() {
+      if (undoTimer) clearTimeout(undoTimer);
+      pendingUndoAction = {
+        type: 'SAVE_INVOICE',
+        items: JSON.parse(JSON.stringify(posItems))
+      };
+
+      showUndoSnackbar('✓ تم اعتماد وحفظ الفاتورة محلياً بنجاح');
+      if (navigator.vibrate) navigator.vibrate([15, 20]);
+    }
+
+    function showUndoSnackbar(msg) {
+      const container = document.getElementById('undoSnackbar');
+      const msgElem = document.getElementById('undoMsg');
+      const progressBar = document.getElementById('undoProgressBar');
+
+      msgElem.innerText = msg;
+      container.classList.remove('hidden');
+
+      progressBar.classList.remove('undo-progress-bar');
+      void progressBar.offsetWidth;
+      progressBar.classList.add('undo-progress-bar');
+
+      undoTimer = setTimeout(() => {
+        container.classList.add('hidden');
+        pendingUndoAction = null;
+      }, 5000);
+    }
+
+    function performUndoAction() {
+      if (!pendingUndoAction) return;
+      if (undoTimer) clearTimeout(undoTimer);
+      document.getElementById('undoSnackbar').classList.add('hidden');
+
+      showToast('↩️ تم التراجع واستعادة الحالة السابقة فورياً!');
+      pendingUndoAction = null;
+    }
+
+    // -------------------------------------------------------------------------
+    // 6. NUMPAD INPUT ENGINE
+    // -------------------------------------------------------------------------
+    function numpadPress(key) {
+      const input = document.getElementById('posAmountInput');
+      let val = input.value.replace(/,/g, '');
+
+      if (key === 'CLEAR') {
+        val = '0';
+      } else if (key === 'BACKSPACE') {
+        val = val.length > 1 ? val.slice(0, -1) : '0';
+      } else if (key === '+00') {
+        val = (parseFloat(val || '0') * 100).toString();
+      } else if (key === '+000') {
+        val = (parseFloat(val || '0') * 1000).toString();
+      } else {
+        val = val === '0' && key !== '.' ? key : val + key;
+      }
+
+      const num = parseFloat(val);
+      input.value = isNaN(num) ? '0' : num.toLocaleString('en-US');
+      handlePosAmountInput(input.value);
+
+      if (navigator.vibrate) navigator.vibrate(8);
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. CRASH-PROOF DRAFT MANAGEMENT
+    // -------------------------------------------------------------------------
+    function handlePosFormInput() {
+      const draft = {
+        customer: document.getElementById('posCustomerInput').value,
+        branch: document.getElementById('posBranchSelect').value,
+        amount: document.getElementById('posAmountInput').value,
+        items: posItems,
+        savedAt: new Date().toLocaleTimeString('ar-SA')
+      };
+      try {
+        localStorage.setItem('magaiees_live_draft', JSON.stringify(draft));
+      } catch (e) {}
+    }
+
+    function checkDraftRecovery() {
+      const raw = localStorage.getItem('magaiees_live_draft');
+      if (raw) {
+        try {
+          const draft = JSON.parse(raw);
+          if (draft.items && draft.items.length > 0) {
+            document.getElementById('crashRecoveryNoticeText').innerText = 
+              `⚡ تم استرجاع مسودة (${draft.customer || 'عميل'}) تحتوي على (${draft.items.length} أصناف - آخر تعديل ${draft.savedAt})`;
+            document.getElementById('crashRecoveryBanner').classList.remove('hidden');
+          }
+        } catch (e) {}
+      }
+    }
+
+    function dismissRecoveryBanner() {
+      document.getElementById('crashRecoveryBanner').classList.add('hidden');
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. CONTROLS: PRIVACY, CIRCADIAN & NET
+    // -------------------------------------------------------------------------
+    let privacyActive = false;
+    function togglePrivacyShield() {
+      privacyActive = !privacyActive;
+      document.body.classList.toggle('privacy-masked', privacyActive);
+      document.getElementById('privacyIcon').innerText = privacyActive ? '🔒' : '👁️';
+      showToast(privacyActive ? '🔒 درع الخصوصية مفعّل (تم إخفاء الأرقام)' : '👁️ تم إظهار الأرقام');
+    }
+
+    let circadianActive = false;
+    function toggleCircadianRelief() {
+      circadianActive = !circadianActive;
+      document.documentElement.classList.toggle('circadian-warmth-active', circadianActive);
+      document.getElementById('circadianIcon').innerText = circadianActive ? '☀️' : '🌙';
+      showToast(circadianActive ? '🌙 تم تفعيل نمط راحة العين الليلي وترشيد OLED' : '☀️ الإضاءة النهارية القياسية');
+    }
+
+    let isOnline = true;
+    function toggleNetworkConnection() {
+      isOnline = !isOnline;
+      const dot = document.getElementById('netStatusDot');
+      const label = document.getElementById('netStatusLabel');
+
+      if (!isOnline) {
+        dot.className = 'w-2 h-2 rounded-full bg-slate-400';
+        label.innerText = 'أوفلاين سريع (< 2ms)';
+        showToast('⚡ تم التحويل لوضع الساحات فائق السرعة بدون إنترنت');
+      } else {
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        label.innerText = 'متصل (Online)';
+        showToast('✓ متصل بالخادم المركزي ومكتمل المزامنة');
+      }
+    }
+
+    function sendWhatsAppClosureReport() {
+      const msg = encodeURIComponent(`📊 *تقرير الإغلاق اليومي - مقاييس ERP*\n• الفرع: الرياض - الساحة 02\n• مبيعات الكاش: 26,450 ر.س\n• مبيعات الشبكة: 65,400 ر.س\n• الفارق: 0.00 ر.س (متطابق ✓)\n• وقت الاعتماد: ${new Date().toLocaleTimeString('ar-SA')}`);
+      window.open(`https://wa.me/?text=${msg}`, '_blank');
+    }
+
+    function triggerVoiceSearch() {
+      showToast('🎙️ جاري الاستماع للأمر الصوتي...', '🎙️');
+      setTimeout(() => {
+        showToast('تم التقاط: "حديد تسليح سابك 16 ملم" ✓', '✓');
+      }, 1500);
+    }
+
+    function switchSystemTheme(t) {
+      document.documentElement.setAttribute('data-theme', t);
+      showToast('تم تطبيق السمة: ' + t, '🎨');
+    }
+
+    function showToast(text, icon = '✨') {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastIcon').innerText = icon;
+      document.getElementById('toastText').innerText = text;
+      toast.classList.remove('hidden');
+      setTimeout(() => { toast.classList.add('hidden'); }, 2800);
+    }
+
+    // Auto-login check or clock update
+    window.addEventListener('DOMContentLoaded', () => {
+      const auth = sessionStorage.getItem('magaiees_auth');
+      if (auth) {
+        enterWorkspace();
+      }
+
+      setInterval(() => {
+        const now = new Date();
+        const clockEl = document.getElementById('liveClockDisplay');
+        if (clockEl) {
+          clockEl.innerText = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+        }
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

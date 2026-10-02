@@ -55,6 +55,20 @@ $files = [
     'master-data.php' => getNormalizedHash(__DIR__ . '/master-data.php'),
     'js/erp-whatsapp-suite.js' => getNormalizedHash(__DIR__ . '/js/erp-whatsapp-suite.js'),
     'preview-ledger.php' => getNormalizedHash(__DIR__ . '/preview-ledger.php'),
+    'dashboard.php' => getNormalizedHash(__DIR__ . '/dashboard.php'),
+    'magaiees_unified_dashboard.php' => getNormalizedHash(__DIR__ . '/magaiees_unified_dashboard.php'),
+    'mobile-dashboard.php' => getNormalizedHash(__DIR__ . '/mobile-dashboard.php'),
+    'manifest.json' => getNormalizedHash(__DIR__ . '/manifest.json'),
+    'api/ai-reconciliation.php' => getNormalizedHash(__DIR__ . '/api/ai-reconciliation.php'),
+    'api/get_master_data.php' => getNormalizedHash(__DIR__ . '/api/get_master_data.php'),
+    'api/sync_queue_api.php' => getNormalizedHash(__DIR__ . '/api/sync_queue_api.php'),
+    'js/accounting_reconciliation.js' => getNormalizedHash(__DIR__ . '/js/accounting_reconciliation.js'),
+    'js/pwa-manager.js' => getNormalizedHash(__DIR__ . '/js/pwa-manager.js'),
+    'mobile_camera_sync.php' => getNormalizedHash(__DIR__ . '/mobile_camera_sync.php'),
+    'package.json' => getNormalizedHash(__DIR__ . '/package.json'),
+    'build_production_pwa.js' => getNormalizedHash(__DIR__ . '/build_production_pwa.js'),
+    'index.html' => getNormalizedHash(__DIR__ . '/index.html'),
+    'royal-glass.css' => getNormalizedHash(__DIR__ . '/royal-glass.css'),
 ];
 
 // Check specific keywords inside single-cash-payment.php

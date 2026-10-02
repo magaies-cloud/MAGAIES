@@ -1,4 +1,24 @@
 {
+  "name": "magaiees-erp-pos",
+  "version": "3.0.0",
+  "description": "Magaiees ERP & POS - Production PWA, Responsive Master Shell & Cloud Deployment",
+  "main": "preview_pwa_server.js",
+  "scripts": {
+    "build": "node build_production_pwa.js",
+    "preview": "node preview_pwa_server.js",
+    "tunnel": "node launch_tunnel.js",
+    "test:pwa": "node scratch/test_magaiees_pwa_suite.js"
+  },
+  "keywords": [
+    "pwa",
+    "erp",
+    "pos",
+    "accounting",
+    "offline-first",
+    "responsive"
+  ],
+  "author": "Magaiees Engineering Team",
+  "license": "ISC",
   "dependencies": {
     "@whiskeysockets/baileys": "^6.7.23",
     "acorn": "^8.17.0",
@@ -6,6 +26,7 @@
     "esprima": "^4.0.1",
     "express": "^5.2.1",
     "jsdom": "^29.1.1",
+    "localtunnel": "^2.0.2",
     "multer": "^2.2.0",
     "pino": "^10.3.1",
     "qrcode": "^1.5.4",

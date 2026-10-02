@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مقاييس ERP - محرك رصد المخاطر والإشعارات التنفيذية</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom subtle glass and glow effects */
+    .glass-panel {
+      background: rgba(23, 27, 38, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .pulse-glow-p0 {
+      box-shadow: 0 0 25px rgba(239, 68, 68, 0.35);
+      animation: pulse-red 2s infinite;
+    }
+    @keyframes pulse-red {
+      0%, 100% { box-shadow: 0 0 15px rgba(239, 68, 68, 0.25); }
+      50% { box-shadow: 0 0 30px rgba(239, 68, 68, 0.6); }
+    }
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(148, 163, 184, 0.6);
+    }
+  </style>
+</head>
+<body class="bg-[#0B0F19] text-slate-100 min-h-screen antialiased selection:bg-amber-500 selection:text-slate-900 pb-16">
+
+  <!-- Top Navigation Bar -->
+  <header class="sticky top-0 z-50 bg-[#0F172A]/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-600 to-amber-400 flex items-center justify-center shadow-lg shadow-amber-500/20 text-slate-950 font-black text-xl">
+          م
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-lg tracking-tight text-white">مقاييس ERP & POS</h1>
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">Executive Suite</span>
+          </div>
+          <p class="text-xs text-slate-400">محرك إدارة المخاطر بالاستثناء والتنبيهات المباشرة (Cross-Platform Push & Audio Engine)</p>
+        </div>
+      </div>
+
+      <!-- Sync Status & Role Switcher -->
+      <div class="flex items-center gap-3">
+        <!-- Live Sync Pill -->
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span id="syncStatusText">متزامن فورياً مع هاتف المدير واللابتوب (v2.4)</span>
+        </div>
+
+        <!-- Role Selector -->
+        <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg p-1">
+          <label class="text-xs text-slate-400 px-2 font-medium">الملف الشخصي:</label>
+          <select id="activeRoleSelector" onchange="switchActiveRole(this.value)" class="bg-slate-800 text-slate-200 text-xs font-semibold rounded px-2.5 py-1 border border-slate-700 focus:outline-none focus:border-amber-500">
+            <option value="EXECUTIVE_CEO" selected>منصور الحسيني (الرئيس التنفيذي - CEO)</option>
+            <option value="CFO_TREASURY">نورة الخطيب (المدير المالي - CFO)</option>
+            <option value="SALES_DIRECTOR">طارق زياد (مدير المبيعات العام)</option>
+            <option value="SUPPLY_CHAIN_HEAD">حسن البدر (مدير سلاسل الإمداد)</option>
+          </select>
+        </div>
+
+        <!-- Language / RTL Toggle -->
+        <button onclick="toggleLanguage()" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold border border-slate-700 text-slate-300">
+          <span id="langToggleBtn">English 🌐</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace Container -->
+  <main class="max-w-7xl mx-auto px-4 lg:px-8 mt-6">
+
+    <!-- Executive KPI Strip -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <!-- KPI 1 -->
+      <div class="glass-panel rounded-2xl p-4 border border-slate-800 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-slate-400">قواعد المراقبة النشطة</span>
+          <span class="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">🛡️</span>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-black text-white" id="activeRulesCount">8 / 8</span>
+          <span class="text-xs text-emerald-400 font-semibold">100% مغطاة</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">تتبع مستمر للمبيعات، الخزينة، والمخزون</p>
+      </div>
+
+      <!-- KPI 2 -->
+      <div class="glass-panel rounded-2xl p-4 border border-slate-800 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-slate-400">إنذارات P0 الحرجة اليوم</span>
+          <span class="p-1.5 rounded-lg bg-red-500/10 text-red-400">🚨</span>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-black text-red-400" id="criticalAlertsTodayCount">3</span>
+          <span class="text-xs text-red-400/80 font-semibold">تتطلب قراراً استثنائياً</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">شيك مرتد + كسر هامش + طفرة سحب</p>
+      </div>
+
+      <!-- KPI 3 -->
+      <div class="glass-panel rounded-2xl p-4 border border-slate-800 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-slate-400">زمن استجابة الدفع الخلفي (FCM)</span>
+          <span class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">⚡</span>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-black text-white font-mono">142 ms</span>
+          <span class="text-xs text-emerald-400 font-semibold">High-Priority Direct</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">تسليم حتى مع قفل الشاشة وإغلاق التطبيق</p>
+      </div>
+
+      <!-- KPI 4 -->
+      <div class="glass-panel rounded-2xl p-4 border border-slate-800 relative overflow-hidden">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-slate-400">قنوات الصوت والاهتزاز</span>
+          <span class="p-1.5 rounded-lg bg-purple-500/10 text-purple-400">📳</span>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span class="text-2xl font-black text-white">Dual Mode</span>
+          <span class="text-xs text-purple-400 font-semibold">صفارة إنذار + هزة مزدوجة</span>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">تمييز فوري بين الإشعار العادي والطارئ</p>
+      </div>
+    </div>
+
+    <!-- Main Content Grid: Configurator (Left/Center 8 cols) + Device Lock Screen Simulator (Right 4 cols) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 1 & 2: DYNAMIC THRESHOLD & RISK RULE CONFIGURATOR (شاشة ضبط التنبيهات) -->
+      <!-- ========================================================================= -->
+      <div class="lg:col-span-7 xl:col-span-8 space-y-6">
+
+        <!-- Tabs Navigation -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 flex flex-wrap gap-1.5">
+          <button onclick="switchConfigTab('sales')" id="tabBtn-sales" class="flex-1 min-w-[140px] px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all bg-amber-500 text-slate-950 shadow-md">
+            💼 المبيعات والائتمان (Sales)
+          </button>
+          <button onclick="switchConfigTab('inventory')" id="tabBtn-inventory" class="flex-1 min-w-[140px] px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+            📦 المخزون وطفرات الطلب (Velocity)
+          </button>
+          <button onclick="switchConfigTab('treasury')" id="tabBtn-treasury" class="flex-1 min-w-[140px] px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+            🏦 الخزينة والسيولة (Treasury)
+          </button>
+          <button onclick="switchConfigTab('cheques')" id="tabBtn-cheques" class="flex-1 min-w-[140px] px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+            🧾 دورة الشيكات (Cheques)
+          </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 1: SALES & COMMERCIAL RULES -->
+        <!-- ========================================== -->
+        <div id="tabContent-sales" class="space-y-4">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <span>💼</span> ضبط قواعد المبيعات والتسهيلات التجارية
+            </h2>
+            <span class="text-xs text-slate-400">تطبيق فوري على جميع نقاط البيع (POS) والفواتير</span>
+          </div>
+
+          <!-- Rule Card 1A: High-Value Transaction Threshold -->
+          <div class="glass-panel rounded-2xl p-5 border border-slate-800 hover:border-slate-700 transition">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">P1 Warning</span>
+                  <h3 class="font-extrabold text-sm text-white">حد المعاملات الكبرى والفواتير عالية القيمة</h3>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">إرسال إشعار فوري عند تجاوز فاتورة بيع أو أمر تسليم للسقف المالي المحدد للمراجعة الاستثنائية.</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="ruleToggle-highValue" checked onchange="notifyRuleChange('RULE_SALES_HIGH_VALUE')" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+              </label>
+            </div>
+
+            <!-- Inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-slate-800/80">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">سقف الفاتورة المثير للتنبيه (SAR)</label>
+                <div class="relative">
+                  <input type="number" id="input-highValue-amount" value="50000" step="5000" onchange="notifyRuleChange('RULE_SALES_HIGH_VALUE')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-amber-400 font-mono focus:border-amber-500 focus:outline-none">
+                  <span class="absolute left-3 top-2.5 text-xs text-slate-500">ر.س</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">المستندات الخاضعة للرقابة</label>
+                <select id="input-highValue-docs" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:border-amber-500 focus:outline-none">
+                  <option value="ALL">فواتير البيع + أوامر التسليم</option>
+                  <option value="INVOICES_ONLY">فواتير البيع فقط</option>
+                  <option value="DISPATCH_ONLY">أوامر التسليم فقط</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button onclick="simulateEventDirect('high_value')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                  <span>⚡ اختبار التنبيه (142,500 ر.س)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule Card 1B: Below-Margin Floor Violation -->
+          <div class="glass-panel rounded-2xl p-5 border border-slate-800 hover:border-slate-700 transition">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20">P0 Critical</span>
+                  <h3 class="font-extrabold text-sm text-white">خرق الحد الأدنى لهامش الربح السعري (Price Floor)</h3>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">تنبيه طارئ بصفارة إنذار عند محاولة بيع أي صنف بهامش ربح يقل عن النسبة المحددة أو دون سعر التكلفة.</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="ruleToggle-belowMargin" checked onchange="notifyRuleChange('RULE_SALES_BELOW_MARGIN')" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+              </label>
+            </div>
+
+            <!-- Inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-slate-800/80">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">الحد الأدنى لهامش الربح (%)</label>
+                <div class="relative">
+                  <input type="number" id="input-belowMargin-pct" value="12.0" step="0.5" onchange="notifyRuleChange('RULE_SALES_BELOW_MARGIN')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-red-400 font-mono focus:border-red-500 focus:outline-none">
+                  <span class="absolute left-3 top-2.5 text-xs text-slate-500">%</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">إجراء نقطة البيع (POS Lock)</label>
+                <select id="input-belowMargin-lock" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:border-red-500 focus:outline-none">
+                  <option value="BLOCK_OVERRIDE">تجميد البيع لحين موافقة الإدارة</option>
+                  <option value="NOTIFY_ONLY">سماح بالبيع مع إشعار فوري للمدير</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button onclick="simulateEventDirect('below_margin')" class="w-full bg-red-950/40 hover:bg-red-900/60 border border-red-800 text-red-300 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                  <span>🚨 اختبار كسر الهامش (4.4%)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule Card 1C: Credit Overdraft Trigger -->
+          <div class="glass-panel rounded-2xl p-5 border border-slate-800 hover:border-slate-700 transition">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20">P0 Critical</span>
+                  <h3 class="font-extrabold text-sm text-white">تجاوز السقف الائتماني المعتمد للعميل (Credit Breach)</h3>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">تنبيه فوري عند إضافة بيع آجل لعميل يتخطى سقفه المعتمد مع احتساب الشيكات التي تحت التحصيل.</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="ruleToggle-creditOverdraft" checked onchange="notifyRuleChange('RULE_SALES_CREDIT_OVERDRAFT')" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+              </label>
+            </div>
+
+            <!-- Inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-slate-800/80">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">هامش التسامح المسموح (%)</label>
+                <div class="relative">
+                  <input type="number" id="input-credit-buffer" value="0.0" step="1.0" onchange="notifyRuleChange('RULE_SALES_CREDIT_OVERDRAFT')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-amber-400 font-mono focus:border-amber-500 focus:outline-none">
+                  <span class="absolute left-3 top-2.5 text-xs text-slate-500">%</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">احتساب الشيكات المؤجلة</label>
+                <select id="input-credit-cheques" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:border-amber-500 focus:outline-none">
+                  <option value="YES">نعم، تضاف لكامل المديونية</option>
+                  <option value="NO">استبعاد الشيكات قيد المقاصة</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button onclick="simulateEventDirect('credit_overdraft')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                  <span>⚡ اختبار كسر السقف (+80k)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 2: INVENTORY & DEMAND SPIKE -->
+        <!-- ========================================== -->
+        <div id="tabContent-inventory" class="space-y-4 hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <span>📦</span> ذكاء المخزون ورصد طفرات الطلب السريعة (Velocity)
+            </h2>
+            <span class="text-xs text-slate-400">تحليل انحدار زمني ديناميكي على مستوى الصنف والفرع</span>
+          </div>
+
+          <!-- Rule Card 2A: Abnormal Demand Spike -->
+          <div class="glass-panel rounded-2xl p-5 border border-red-900/50 bg-red-950/10 hover:border-red-700 transition">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30">P0 Urgent Intelligence</span>
+                  <h3 class="font-extrabold text-sm text-white">تنبيه الطلب المفاجئ وغير المعتاد (Abnormal Demand Spike)</h3>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">
+                  خوارزمية ذكية تحسب سرعة سحب الصنف خلال نافذة 4 ساعات، وتطلق إنذاراً طارئاً إذا تجاوزت 200% من المعدل الأساسي (مؤشر شح بالسوق، احتكار تجار، أو خطأ تسعير بالباركود).
+                </p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="ruleToggle-demandSpike" checked onchange="notifyRuleChange('RULE_INVENTORY_DEMAND_SPIKE')" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+              </label>
+            </div>
+
+            <!-- Inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-slate-800/80">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">نافذة المراقبة الزمنية</label>
+                <div class="relative">
+                  <input type="number" id="input-spike-window" value="4" min="1" max="24" onchange="notifyRuleChange('RULE_INVENTORY_DEMAND_SPIKE')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-amber-400 font-mono focus:border-amber-500 focus:outline-none">
+                  <span class="absolute left-3 top-2.5 text-xs text-slate-500">ساعات</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">نسبة مضاعف الطفرة المثير للإنذار</label>
+                <div class="relative">
+                  <input type="number" id="input-spike-ratio" value="200" step="25" onchange="notifyRuleChange('RULE_INVENTORY_DEMAND_SPIKE')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-red-400 font-mono focus:border-red-500 focus:outline-none">
+                  <span class="absolute left-3 top-2.5 text-xs text-slate-500">% من الأساس</span>
+                </div>
+              </div>
+              <div class="flex items-end">
+                <button onclick="simulateEventDirect('demand_spike')" class="w-full bg-red-900/60 hover:bg-red-800 border border-red-700 text-white font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition shadow-lg shadow-red-950">
+                  <span>🚨 اختبار طفرة مفاجئة (+280%)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule Card 2B: Critical Strategic Safety Stock -->
+          <div class="glass-panel rounded-2xl p-5 border border-slate-800 hover:border-slate-700 transition">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">P1 Warning</span>
+                  <h3 class="font-extrabold text-sm text-white">هبوط المخزون دون حد الأمان الحرج (Critical Safety Stock)</h3>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">تنبيه استباقي لإدارة الإمداد عند انخفاض الرصيد الفعلي المتاح للأصناف الاستراتيجية دون الحد الأدنى.</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="ruleToggle-safetyStock" checked onchange="notifyRuleChange('RULE_INVENTORY_SAFETY_STOCK')" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+              </label>
+            </div>
+
+            <!-- Inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-slate-800/80">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">حد الأمان القياسي الافتراضي</label>
+                <div class="relative">
+                  <input type="number" id="input-safety-floor" value="50" step="5" onchange="notifyRuleChange('RULE_INVENTORY_SAFETY_STOCK')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-amber-400 font-mono focus:border-amber-500 focus:outline-none">
+                  <span class="absolute left-3 top-2.5 text-xs text-slate-500">وحدة</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">نطاق تطبيق القاعدة</label>
+                <select id="input-safety-scope" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:border-amber-500 focus:outline-none">
+                  <option value="STRATEGIC_A">الأصناف الاستراتيجية الفئة A</option>
+                  <option value="ALL_ACTIVE">جميع الأصناف النشطة</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button onclick="simulateEventDirect('safety_stock')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                  <span>⚡ اختبار نقص الأمان (13 متبقي)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 3: TREASURY & BANKING -->
+        <!-- ========================================== -->
+        <div id="tabContent-treasury" class="space-y-4 hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <span>🏦</span> ضبط قواعد الخزينة وإدارة السيولة النقدية
+            </h2>
+            <span class="text-xs text-slate-400">حماية الخزائن وصناديق الفروع من النزيف النقدي</span>
+          </div>
+
+          <!-- Rule Card 3A: Cash Out Limit -->
+          <div class="glass-panel rounded-2xl p-5 border border-slate-800 hover:border-slate-700 transition">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">P1 Warning</span>
+                  <h3 class="font-extrabold text-sm text-white">حد السحب وسندات الصرف النقدي الاستثنائية (Cash Out Ceiling)</h3>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">إشعار فوري للمدير المالي والمدير التنفيذي عند تسجيل سند صرف نثري أو بنكي يتجاوز السقف المحدد.</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="ruleToggle-cashOut" checked onchange="notifyRuleChange('RULE_TREASURY_CASH_OUT')" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-500"></div>
+              </label>
+            </div>
+
+            <!-- Inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-slate-800/80">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">الحد الأقصى لسند الصرف الفردي</label>
+                <div class="relative">
+                  <input type="number" id="input-cashout-limit" value="10000" step="2500" onchange="notifyRuleChange('RULE_TREASURY_CASH_OUT')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-amber-400 font-mono focus:border-amber-500 focus:outline-none">
+                  <span class="absolute left-3 top-2.5 text-xs text-slate-500">ر.س</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">اشتراط اعتماد المدير التنفيذي</label>
+                <select id="input-cashout-approval" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:border-amber-500 focus:outline-none">
+                  <option value="YES">نعم، تجميد الصرف حتى الاعتماد</option>
+                  <option value="NO">إشعار للمراجعة فقط</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button onclick="simulateEventDirect('cash_out')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                  <span>⚡ اختبار سند صرف (28,400 ر.س)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule Card 3B: Low Liquidity Safe-Zone -->
+          <div class="glass-panel rounded-2xl p-5 border border-red-900/40 bg-red-950/10 hover:border-red-700 transition">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-500/20 text-red-400 border border-red-500/30">P0 Liquidity Alarm</span>
+                  <h3 class="font-extrabold text-sm text-white">دخول منطقة الأمان الحرجة للسيولة (Low Liquidity Zone)</h3>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">إنذار طارئ عند هبوط إجمالي رصيد الخزائن وصناديق الفروع والحسابات البنكية دون حد الطوارئ التشغيلي.</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="ruleToggle-liquidity" checked onchange="notifyRuleChange('RULE_TREASURY_LOW_LIQUIDITY')" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-500"></div>
+              </label>
+            </div>
+
+            <!-- Inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-slate-800/80">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">حد السيولة التشغيلي الحرج (Floor)</label>
+                <div class="relative">
+                  <input type="number" id="input-liquidity-floor" value="75000" step="5000" onchange="notifyRuleChange('RULE_TREASURY_LOW_LIQUIDITY')" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm font-bold text-red-400 font-mono focus:border-red-500 focus:outline-none">
+                  <span class="absolute left-3 top-2.5 text-xs text-slate-500">ر.س</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">الحسابات المشمولة بالرصد</label>
+                <select id="input-liquidity-scope" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:border-red-500 focus:outline-none">
+                  <option value="ALL">كافة صناديق الفروع + الحسابات البنكية</option>
+                  <option value="DRAWERS_ONLY">صناديق الكاش فقط</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button onclick="simulateEventDirect('liquidity')" class="w-full bg-red-950/60 hover:bg-red-900/80 border border-red-800 text-red-200 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                  <span>🚨 اختبار هبوط السيولة (43,700 ر.س)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- TAB 4: CHEQUE LIFECYCLE -->
+        <!-- ========================================== -->
+        <div id="tabContent-cheques" class="space-y-4 hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <span>🧾</span> رقابة دورة الشيكات البنكية وحماية السيولة
+            </h2>
+            <span class="text-xs text-slate-400">تذكيرات استباقية وإنذارات الارتجاع الفورية</span>
+          </div>
+
+          <!-- Rule Card 4A: Cheque Due Date Reminders -->
+          <div class="glass-panel rounded-2xl p-5 border border-slate-800 hover:border-slate-700 transition">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">P2 Informational</span>
+                  <h3 class="font-extrabold text-sm text-white">تذكير استحقاق الشيكات البنكية (48 ساعة و 24 ساعة)</h3>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">تنبيه استباقي ناعم يسبق تاريخ استحقاق الشيكات الواردة (للإيداع والتحصيل) والشيكات الصادرة (لتأكيد تغطية الرصيد).</p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" id="ruleToggle-chequeDue" checked onchange="notifyRuleChange('RULE_CHEQUE_DUE_REMINDER')" class="sr-only peer">
+                <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500"></div>
+              </label>
+            </div>
+
+            <!-- Inputs -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-slate-800/80">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">فترات التنبيه المجدولة</label>
+                <select id="input-cheque-intervals" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:border-blue-500 focus:outline-none">
+                  <option value="48_24">قبل 48 ساعة + قبل 24 ساعة</option>
+                  <option value="24_ONLY">قبل 24 ساعة فقط</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">نوع الشيكات المشمولة</label>
+                <select id="input-cheque-types" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-semibold text-slate-200 focus:border-blue-500 focus:outline-none">
+                  <option value="BOTH">الشيكات الواردة والصادرة معاً</option>
+                  <option value="RECEIVABLE">الواردة (التحصيل) فقط</option>
+                  <option value="PAYABLE">الصادرة (الصرف) فقط</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button onclick="simulateEventDirect('cheque_due')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-blue-400 font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition">
+                  <span>🔔 اختبار تذكير 24 ساعة (65,000 ر.س)</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rule Card 4B: Bounced Cheque Red Flag & Auto Account Lock -->
+          <div class="glass-panel rounded-2xl p-5 border border-red-800 bg-red-950/20 hover:border-red-600 transition pulse-glow-p0">
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded text-xs font-black bg-red-600 text-white shadow-md shadow-red-600/50">P0 FATAL EMERGENCY</span>
+                  <h3 class="font-extrabold text-sm text-red-300">إنذار الشيك المرتجع وإيقاف العميل الفوري (Bounced Red Flag)</h3>
+                </div>
+                <p class="text-xs text-red-200/80 mt-1">
+                  إنذار عالي الأهمية ينطلق فوراً بصفارة طوارئ واهتزاز متكرر للمدير التنفيذي والمالي، مع إيقاف آلي فوري لحساب العميل وتجميد تسهيلاته في جميع الفروع ونقاط البيع.
+                </p>
+              </div>
+              <div class="text-xs font-bold text-emerald-400 bg-emerald-950/50 border border-emerald-500/30 px-2 py-1 rounded-lg">
+                إلزامي بالنظام 🔒
+              </div>
+            </div>
+
+            <!-- Inputs & Lock Status -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4 pt-3 border-t border-red-900/60">
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">الإجراء التلقائي الفوري</label>
+                <div class="text-xs font-bold text-red-400 bg-slate-900/90 border border-red-900/80 rounded-xl px-3 py-2">
+                  قفل العميل فوراً + تجميد POS
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-300 mb-1">المستلمون للإنذار الحرج</label>
+                <div class="text-xs font-semibold text-slate-300 bg-slate-900/90 border border-slate-700 rounded-xl px-3 py-2">
+                  الرئيس التنفيذي + المدير المالي
+                </div>
+              </div>
+              <div class="flex items-end">
+                <button onclick="simulateEventDirect('bounced_cheque')" class="w-full bg-red-600 hover:bg-red-500 text-white font-extrabold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-1.5 transition shadow-lg shadow-red-700/60">
+                  <span>🚨 إطلاق إنذار الشيك المرتجع!</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- AUDIO / HAPTIC SOUND TEST BAR -->
+        <!-- ========================================================================= -->
+        <div class="glass-panel rounded-2xl p-4 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-3">
+            <span class="text-xl">🔊</span>
+            <div>
+              <h4 class="text-xs font-bold text-white">اختبار الصوت والاهتزاز البرمجي (Web Audio & Haptic Synthesizer)</h4>
+              <p class="text-[11px] text-slate-400">توليد نغمات طوارئ ثنائية التردد حية دون الحاجة لملفات صوت خارجية</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="playCriticalAlarmTone()" class="px-3 py-1.5 rounded-lg bg-red-600/20 hover:bg-red-600/30 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1.5 transition">
+              <span>🚨 نغمة P0 الحرجة + اهتزاز مزدوج</span>
+            </button>
+            <button onclick="playSubtleChimeTone()" class="px-3 py-1.5 rounded-lg bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/40 text-blue-300 text-xs font-bold flex items-center gap-1.5 transition">
+              <span>🔔 نغمة P2 الدورية الناعمة</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- SECTION 3: INTERACTIVE SMARTPHONE LOCK-SCREEN PUSH SIMULATOR -->
+      <!-- ========================================================================= -->
+      <div class="lg:col-span-5 xl:col-span-4 sticky top-20 space-y-4">
+
+        <!-- Mobile Phone Mockup Frame -->
+        <div class="w-full max-w-[370px] mx-auto bg-slate-950 rounded-[44px] p-3.5 border-4 border-slate-800 shadow-2xl shadow-black relative overflow-hidden">
+          
+          <!-- Phone Speaker & Dynamic Island -->
+          <div class="absolute top-5 left-1/2 -translate-x-1/2 w-28 h-5 bg-black rounded-full z-20 flex items-center justify-between px-3">
+            <div class="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-800"></div>
+            <div class="w-2.5 h-2.5 rounded-full bg-emerald-500/80 animate-pulse"></div>
+          </div>
+
+          <!-- Phone Screen Container -->
+          <div class="w-full bg-gradient-to-b from-slate-900 via-slate-950 to-black rounded-[36px] min-h-[580px] p-4 flex flex-col justify-between relative border border-slate-800/80">
+            
+            <!-- Top Status Bar -->
+            <div class="flex items-center justify-between text-slate-400 text-xs font-mono pt-3 px-2">
+              <span id="phoneClock">16:49</span>
+              <div class="flex items-center gap-1.5 text-xs">
+                <span>5G</span>
+                <span>📶</span>
+                <span>🔋 94%</span>
+              </div>
+            </div>
+
+            <!-- Lock Screen Center: Date & Time Display -->
+            <div class="text-center my-4">
+              <p class="text-xs text-slate-400 font-semibold" id="phoneDate">الجمعة، 2 أكتوبر</p>
+              <h2 class="text-5xl font-black text-white tracking-tight mt-1 font-mono" id="phoneBigClock">16:49</h2>
+              <div class="mt-2 inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-800/60 border border-slate-700/60 text-slate-300 text-[11px]">
+                <span>🔒</span> شاشة القفل (Device Locked)
+              </div>
+            </div>
+
+            <!-- SIMULATED BACKGROUND PUSH BANNER CONTAINER -->
+            <div class="flex-1 flex flex-col justify-center space-y-3" id="lockScreenBannerContainer">
+
+              <!-- Active Push Notification Banner -->
+              <div id="simulatedPushCard" class="bg-slate-900/90 backdrop-blur-xl border border-red-500/50 rounded-2xl p-3.5 shadow-2xl transition-all duration-300">
+                
+                <!-- Notification Header -->
+                <div class="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                  <div class="flex items-center gap-2">
+                    <div class="w-5 h-5 rounded-md bg-amber-500 flex items-center justify-center text-[10px] font-black text-slate-950">
+                      م
+                    </div>
+                    <span class="text-xs font-black text-white">مقاييس ERP (Magaiees)</span>
+                    <span class="text-[10px] text-slate-500">الآن</span>
+                  </div>
+                  <span id="pushSeverityTag" class="text-[10px] font-black px-2 py-0.5 rounded-full bg-red-600 text-white">
+                    P0 CRITICAL
+                  </span>
+                </div>
+
+                <!-- Notification Title & Body -->
+                <div class="mt-2">
+                  <h4 id="pushNotificationTitle" class="text-xs font-extrabold text-red-400 flex items-center gap-1">
+                    <span>🚨</span> إنذار الشيك المرتجع وإيقاف العميل
+                  </h4>
+                  <p id="pushNotificationBody" class="text-xs text-slate-200 mt-1 leading-relaxed">
+                    مؤسسة أوميجا العالمية | 52,000 ر.س (ارتد: عدم كفاية الرصيد). تم قفل الحساب آلياً.
+                  </p>
+                </div>
+
+                <!-- Rich Actionable Badge Strip -->
+                <div class="mt-2.5 bg-slate-950/70 border border-slate-800 rounded-xl p-2 flex items-center justify-between text-[11px]">
+                  <div>
+                    <span class="text-slate-400 block text-[10px]">الطرف المعني:</span>
+                    <span id="pushPartyBadge" class="font-bold text-white">مؤسسة أوميجا</span>
+                  </div>
+                  <div class="text-left">
+                    <span class="text-slate-400 block text-[10px]">القيمة / الانحراف:</span>
+                    <span id="pushAmountBadge" class="font-bold text-amber-400 font-mono">52,000 SAR</span>
+                  </div>
+                </div>
+
+                <!-- Lock Screen Action Buttons -->
+                <div class="grid grid-cols-2 gap-2 mt-3 pt-2 border-t border-slate-800/80">
+                  <button onclick="handleNotificationClick('view')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs py-2 px-2 rounded-xl text-center shadow-md transition flex items-center justify-center gap-1">
+                    <span>🔍</span> <span id="pushActionLabelPrimary">عرض في مقاييس</span>
+                  </button>
+                  <button onclick="handleNotificationClick('action')" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs py-2 px-2 rounded-xl text-center border border-slate-700 transition flex items-center justify-center gap-1">
+                    <span>⚡</span> <span id="pushActionLabelSecondary">إجراء فوري</span>
+                  </button>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Lock Screen Bottom Shortcuts -->
+            <div class="flex items-center justify-between px-3 pt-3 text-slate-400">
+              <div class="w-10 h-10 rounded-full bg-slate-800/70 flex items-center justify-center text-sm">
+                🔦
+              </div>
+              <div class="w-28 h-1 bg-slate-700 rounded-full"></div>
+              <div class="w-10 h-10 rounded-full bg-slate-800/70 flex items-center justify-center text-sm">
+                📷
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Simulator Controls Card -->
+        <div class="glass-panel rounded-2xl p-4 border border-slate-800">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+              <span>🎮</span> لوحة محاكاة أحداث النظام الاستثنائية
+            </h4>
+            <span class="text-[10px] text-emerald-400 font-mono">Live FCM Gateway</span>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="simulateEventDirect('high_value')" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left text-xs font-semibold text-slate-200">
+              1. فاتورة كبرى (142k)
+            </button>
+            <button onclick="simulateEventDirect('below_margin')" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left text-xs font-semibold text-red-300">
+              2. كسر هامش (4.4%)
+            </button>
+            <button onclick="simulateEventDirect('credit_overdraft')" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left text-xs font-semibold text-amber-300">
+              3. تجاوز ائتماني (+80k)
+            </button>
+            <button onclick="simulateEventDirect('demand_spike')" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left text-xs font-semibold text-red-300">
+              4. طفرة طلب (+280%)
+            </button>
+            <button onclick="simulateEventDirect('safety_stock')" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left text-xs font-semibold text-amber-300">
+              5. هبوط مخزون (13 وحدة)
+            </button>
+            <button onclick="simulateEventDirect('cash_out')" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left text-xs font-semibold text-amber-300">
+              6. سند صرف (28.4k)
+            </button>
+            <button onclick="simulateEventDirect('liquidity')" class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-left text-xs font-semibold text-red-300">
+              7. عجز سيولة طارئ
+            </button>
+            <button onclick="simulateEventDirect('bounced_cheque')" class="p-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 border border-red-800 text-left text-xs font-extrabold text-red-200">
+              8. شيك مرتد + قفل
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Live Event Log / Audit Trail -->
+    <div class="mt-8 glass-panel rounded-2xl p-5 border border-slate-800">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="text-base">📋</span>
+          <h3 class="text-sm font-bold text-white">سجل إشعارات المخاطر المرسلة للخلفية (Push Audit Trail)</h3>
+        </div>
+        <button onclick="clearAuditLog()" class="text-xs text-slate-400 hover:text-slate-200 underline">مسح السجل</button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-right text-xs">
+          <thead>
+            <tr class="text-slate-400 border-b border-slate-800 pb-2">
+              <th class="py-2.5 font-bold">الوقت</th>
+              <th class="font-bold">المستوى</th>
+              <th class="font-bold">القاعدة</th>
+              <th class="font-bold">الطرف / البيان</th>
+              <th class="font-bold">القيمة المالية / الانحراف</th>
+              <th class="font-bold">الإجراء الآلي المنفذ</th>
+              <th class="font-bold">حالة التسليم للأجهزة</th>
+            </tr>
+          </thead>
+          <tbody id="auditLogTbody" class="divide-y divide-slate-800/60 font-mono">
+            <!-- Dynamic entries will be prepended here -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Interactive JavaScript Engine -->
+  <script>
+    // State management
+    let currentLanguage = 'ar';
+    let activeRole = 'EXECUTIVE_CEO';
+    let audioContext = null;
+
+    // Simulated Scenarios Database
+    const SCENARIOS = {
+      high_value: {
+        severity: 'WARNING_P1',
+        titleAr: 'معاملة كبرى: 142,500 ر.س',
+        titleEn: 'High-Value Sale: 142,500 SAR',
+        bodyAr: 'مجموعة الراجحي للمقاولات | فاتورة بيع #INV-9901 تتجاوز السقف المحدد (50,000 ر.س).',
+        bodyEn: 'Al Rajhi Group | Invoice #INV-9901 exceeds threshold of 50,000 SAR.',
+        party: 'مجموعة الراجحي',
+        amount: '142,500 SAR',
+        variance: '+92,500 SAR فوق السقف',
+        primaryAction: 'عرض الفاتورة',
+        secondaryAction: 'اعتماد التسليم',
+        ruleCode: 'HIGH_VALUE_TXN',
+        autoAction: 'توجيه للتدقيق التنفيذي'
+      },
+      below_margin: {
+        severity: 'CRITICAL_P0',
+        titleAr: 'تنبيه حرج: كسر هامش الربح (4.4%)',
+        titleEn: 'Critical: Price Floor Violation (4.4%)',
+        bodyAr: 'سوبرماركت النجمة | زيت دوار الشمس بيع بهامش 4.4% دون الحد الأدنى (12%).',
+        bodyEn: 'Al Najma Supermarket | Oil sold at 4.4% margin, breaching 12% floor.',
+        party: 'سوبرماركت النجمة - زيت 5L',
+        amount: 'هامش: 4.4%',
+        variance: 'عجز: -7.6% دون الحد',
+        primaryAction: 'فحص التسعير',
+        secondaryAction: 'إيقاف البيع بالفرع',
+        ruleCode: 'MARGIN_FLOOR_BREACH',
+        autoAction: 'تجميد إتمام الفاتورة بالـ POS'
+      },
+      credit_overdraft: {
+        severity: 'CRITICAL_P0',
+        titleAr: 'تجاوز السقف الائتماني (+80,000 ر.س)',
+        titleEn: 'Credit Limit Overdraft (+80,000 SAR)',
+        bodyAr: 'شركة دلتا للتجارة | التعرض الإجمالي بلغ 280,000 ر.س وتجاوز السقف (200,000 ر.س).',
+        bodyEn: 'Delta Trading | Exposure reached 280k SAR, exceeding 200k limit.',
+        party: 'شركة دلتا للتجارة',
+        amount: 'التعرض: 280,000 SAR',
+        variance: 'تجاوز +80,000 SAR',
+        primaryAction: 'ملف الائتمان',
+        secondaryAction: 'إلزام بالدفع النقدي',
+        ruleCode: 'CREDIT_LIMIT_BREACH',
+        autoAction: 'حظر البيع الآجل تلقائياً'
+      },
+      demand_spike: {
+        severity: 'CRITICAL_P0',
+        titleAr: 'طفرة طلب مفاجئة (+280%)',
+        titleEn: 'Abnormal Demand Spike (+280%)',
+        bodyAr: 'أرز بسمتي 10 كجم | قفزت المبيعات إلى 95 وحدة في 4 ساعات (المعدل 34). اشتباه خطأ تسعير أو احتكار!',
+        bodyEn: 'Basmati Rice 10kg | 95 units sold in 4h vs 34 baseline. Potential mispricing or hoarding!',
+        party: 'أرز بسمتي 10 كجم',
+        amount: '95 وحدة / 4 ساعات',
+        variance: 'طفرة سرعة: +280%',
+        primaryAction: 'فحص سرعة المخزون',
+        secondaryAction: 'ضبط الحصة اليومية',
+        ruleCode: 'ABNORMAL_DEMAND_SPIKE',
+        autoAction: 'إخطار الإمداد + فحص الباركود'
+      },
+      safety_stock: {
+        severity: 'WARNING_P1',
+        titleAr: 'مخزون حرج: الصنف شارف على النفاذ',
+        titleEn: 'Critical Safety Stock Depleted',
+        bodyAr: 'حليب أطفال استراتيجي مرحلة 1 | المتبقي 13 وحدة دون حد الأمان (50 وحدة).',
+        bodyEn: 'Infant Milk Stage 1 | 13 units remaining, below 50 safe units.',
+        party: 'حليب أطفال مرحلة 1',
+        amount: '13 وحدة متاحة',
+        variance: 'عجز -37 وحدة',
+        primaryAction: 'أمر شراء عاجل',
+        secondaryAction: 'مناقلة بين الفروع',
+        ruleCode: 'SAFETY_STOCK_FLOOR',
+        autoAction: 'توليد مسودة أمر شراء'
+      },
+      cash_out: {
+        severity: 'WARNING_P1',
+        titleAr: 'سند صرف استثنائي: 28,400 ر.س',
+        titleEn: 'Substantial Expense Voucher: 28,400 SAR',
+        bodyAr: 'مؤسسة التبريد الخليجي | سند صرف صيانة تبريد طارئة يتجاوز سقف الرقابة (10,000 ر.س).',
+        bodyEn: 'Gulf Cooling Co | Emergency maintenance voucher exceeds 10,000 SAR threshold.',
+        party: 'مؤسسة التبريد الخليجي',
+        amount: '28,400 SAR',
+        variance: '+18,400 SAR فوق السقف',
+        primaryAction: 'مراجعة السند',
+        secondaryAction: 'اعتماد الصرف',
+        ruleCode: 'CASH_OUT_CEILING',
+        autoAction: 'تعليق السند لتوقيع الإدارة'
+      },
+      liquidity: {
+        severity: 'CRITICAL_P0',
+        titleAr: 'إنذار سيولة طارئ: الرصيد (43,700 ر.س)',
+        titleEn: 'Emergency Low Liquidity Deficit',
+        bodyAr: 'الخزينة الموحدة | إجمالي السيولة هبط دون حد الأمان التشغيلي (75,000 ر.س).',
+        bodyEn: 'Unified Treasury | Liquid cash dropped below 75,000 SAR safe floor.',
+        party: 'الخزينة الموحدة للفروع',
+        amount: '43,700 SAR متاح',
+        variance: 'عجز سيولة: -31,300 SAR',
+        primaryAction: 'موقف السيولة',
+        secondaryAction: 'تغذية الحسابات',
+        ruleCode: 'LOW_LIQUIDITY_ZONE',
+        autoAction: 'تقييد المصروفات غير الحرجة'
+      },
+      cheque_due: {
+        severity: 'INFORMATIONAL_P2',
+        titleAr: 'تذكير استحقاق شيك خلال 24 ساعة',
+        titleEn: 'Cheque Due in 24 Hours (65,000 SAR)',
+        bodyAr: 'شركة ألفا للمقاولات | شيك تحصيل #00982341 بقيمة 65,000 ر.س يستحق غداً.',
+        bodyEn: 'Alfa Contracting | Receivable cheque #00982341 of 65k SAR matures tomorrow.',
+        party: 'شركة ألفا للمقاولات',
+        amount: '65,000 SAR (وارد)',
+        variance: 'الاستحقاق: خلال 24 ساعة',
+        primaryAction: 'ملف الشيك',
+        secondaryAction: 'إيداع بالمقاصة',
+        ruleCode: 'CHEQUE_DUE_MONITOR',
+        autoAction: 'جدولة مهمة الإيداع'
+      },
+      bounced_cheque: {
+        severity: 'CRITICAL_P0',
+        titleAr: 'إنذار أحمر: شيك مرتد - تم قفل العميل!',
+        titleEn: 'Red Flag: Bounced Cheque - Account Locked!',
+        bodyAr: 'مؤسسة أوميجا | ارتد شيك #00412890 بقيمة 52,000 ر.س (عدم كفاية الرصيد). تم تجميد الحساب فورياً.',
+        bodyEn: 'Omega Est | Cheque #00412890 bounced for 52,000 SAR. Account locked across all POS.',
+        party: 'مؤسسة أوميجا العالمية',
+        amount: '52,000 SAR مرتد',
+        variance: 'السبب: عدم كفاية الرصيد',
+        primaryAction: 'إدارة الأزمة والتحصيل',
+        secondaryAction: 'اتصال فوري بالعميل',
+        ruleCode: 'BOUNCED_CHEQUE_FATAL',
+        autoAction: 'قفل العميل آلياً في جميع الفروع'
+      }
+    };
+
+    // Tab Switching
+    function switchConfigTab(tabName) {
+      ['sales', 'inventory', 'treasury', 'cheques'].forEach(t => {
+        const btn = document.getElementById(`tabBtn-${t}`);
+        const content = document.getElementById(`tabContent-${t}`);
+        if (t === tabName) {
+          btn.className = 'flex-1 min-w-[140px] px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all bg-amber-500 text-slate-950 shadow-md';
+          content.classList.remove('hidden');
+        } else {
+          btn.className = 'flex-1 min-w-[140px] px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white hover:bg-slate-800';
+          content.classList.add('hidden');
+        }
+      });
+    }
+
+    // Role Switching
+    function switchActiveRole(role) {
+      activeRole = role;
+      const syncEl = document.getElementById('syncStatusText');
+      syncEl.innerText = `تمت مزامنة تفضيلات [${role}] فورياً مع الأجهزة المحمولة واللابتوب`;
+      syncEl.parentElement.classList.add('pulse-glow-p0');
+      setTimeout(() => syncEl.parentElement.classList.remove('pulse-glow-p0'), 1500);
+    }
+
+    // Rule change notification
+    function notifyRuleChange(ruleId) {
+      const syncEl = document.getElementById('syncStatusText');
+      const timestamp = new Date().toLocaleTimeString();
+      syncEl.innerText = `تم حفظ القاعدة [${ruleId}] ومزامنتها لحظياً (${timestamp})`;
+      
+      // Visual feedback
+      const header = document.querySelector('header');
+      header.classList.add('border-amber-500/50');
+      setTimeout(() => header.classList.remove('border-amber-500/50'), 800);
+    }
+
+    // Direct Event Simulation
+    function simulateEventDirect(scenarioKey) {
+      const s = SCENARIOS[scenarioKey];
+      if (!s) return;
+
+      const isP0 = s.severity === 'CRITICAL_P0';
+      const isP2 = s.severity === 'INFORMATIONAL_P2';
+
+      // 1. Play synthesized tone & vibration
+      if (isP0) {
+        playCriticalAlarmTone();
+      } else if (isP2) {
+        playSubtleChimeTone();
+      } else {
+        playWarningKlaxonTone();
+      }
+
+      // 2. Update Mobile Lock-Screen Banner
+      const card = document.getElementById('simulatedPushCard');
+      const titleEl = document.getElementById('pushNotificationTitle');
+      const bodyEl = document.getElementById('pushNotificationBody');
+      const tagEl = document.getElementById('pushSeverityTag');
+      const partyEl = document.getElementById('pushPartyBadge');
+      const amountEl = document.getElementById('pushAmountBadge');
+      const primaryActEl = document.getElementById('pushActionLabelPrimary');
+      const secondaryActEl = document.getElementById('pushActionLabelSecondary');
+
+      // Populate text
+      titleEl.innerHTML = `<span>${isP0 ? '🚨' : isP2 ? '🔔' : '⚠️'}</span> ${currentLanguage === 'ar' ? s.titleAr : s.titleEn}`;
+      bodyEl.innerText = currentLanguage === 'ar' ? s.bodyAr : s.bodyEn;
+      partyEl.innerText = s.party;
+      amountEl.innerText = `${s.amount} (${s.variance})`;
+      primaryActEl.innerText = s.primaryAction;
+      secondaryActEl.innerText = s.secondaryAction;
+
+      // Styling by severity
+      if (isP0) {
+        tagEl.className = 'text-[10px] font-black px-2 py-0.5 rounded-full bg-red-600 text-white animate-pulse';
+        tagEl.innerText = 'P0 CRITICAL';
+        card.className = 'bg-slate-900/90 backdrop-blur-xl border border-red-500 rounded-2xl p-3.5 shadow-2xl transition-all duration-300 pulse-glow-p0';
+        titleEl.className = 'text-xs font-extrabold text-red-400 flex items-center gap-1';
+      } else if (isP2) {
+        tagEl.className = 'text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-600 text-white';
+        tagEl.innerText = 'P2 INFO';
+        card.className = 'bg-slate-900/90 backdrop-blur-xl border border-blue-500/50 rounded-2xl p-3.5 shadow-2xl transition-all duration-300';
+        titleEl.className = 'text-xs font-extrabold text-blue-400 flex items-center gap-1';
+      } else {
+        tagEl.className = 'text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-500 text-slate-950 font-bold';
+        tagEl.innerText = 'P1 WARNING';
+        card.className = 'bg-slate-900/90 backdrop-blur-xl border border-amber-500/50 rounded-2xl p-3.5 shadow-2xl transition-all duration-300';
+        titleEl.className = 'text-xs font-extrabold text-amber-400 flex items-center gap-1';
+      }
+
+      // 3. Prepend to Audit Trail Table
+      prependAuditLogRow(s);
+    }
+
+    function prependAuditLogRow(s) {
+      const tbody = document.getElementById('auditLogTbody');
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-slate-800/40 transition text-slate-300';
+
+      const timeStr = new Date().toLocaleTimeString();
+      const isP0 = s.severity === 'CRITICAL_P0';
+      const badgeClass = isP0 
+        ? 'text-red-400 bg-red-950/60 border border-red-800' 
+        : s.severity === 'WARNING_P1' 
+          ? 'text-amber-400 bg-amber-950/60 border border-amber-800'
+          : 'text-blue-400 bg-blue-950/60 border border-blue-800';
+
+      tr.innerHTML = `
+        <td class="py-2.5 text-slate-500">${timeStr}</td>
+        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${badgeClass}">${s.severity}</span></td>
+        <td class="font-semibold text-slate-200">${s.ruleCode}</td>
+        <td>${s.party}</td>
+        <td class="text-amber-400 font-bold">${s.amount}</td>
+        <td class="text-emerald-400 text-[11px]">${s.autoAction}</td>
+        <td><span class="text-emerald-400">✓ تم الإرسال (FCM + APNs)</span></td>
+      `;
+
+      tbody.insertBefore(tr, tbody.firstChild);
+    }
+
+    function clearAuditLog() {
+      document.getElementById('auditLogTbody').innerHTML = '';
+    }
+
+    function handleNotificationClick(type) {
+      alert(`[Magaiees ERP Deep-Link]: تم النقر على زر الإجراء في شاشة القفل (${type.toUpperCase()}). جاري فتح شاشة المعاملة المباشرة.`);
+    }
+
+    // Web Audio Synthesizer Functions
+    function getAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioContext.state === 'suspended') {
+        audioContext.resume();
+      }
+      return audioContext;
+    }
+
+    function playCriticalAlarmTone() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        for (let i = 0; i < 3; i++) {
+          const offset = i * 0.45;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(960, now + offset);
+          osc.frequency.exponentialRampToValueAtTime(480, now + offset + 0.35);
+
+          gain.gain.setValueAtTime(0.35, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + offset + 0.4);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.42);
+        }
+
+        // Hardware vibration API
+        if (navigator.vibrate) {
+          navigator.vibrate([0, 300, 100, 300, 150, 600]);
+        }
+      } catch (e) {
+        console.log('Audio disabled or blocked by policy', e);
+      }
+    }
+
+    function playWarningKlaxonTone() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(660, now);
+        osc.frequency.linearRampToValueAtTime(520, now + 0.35);
+
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.48);
+
+        if (navigator.vibrate) {
+          navigator.vibrate([0, 250, 150, 250]);
+        }
+      } catch (e) {}
+    }
+
+    function playSubtleChimeTone() {
+      try {
+        const ctx = getAudioContext();
+        const now = ctx.currentTime;
+        [523.25, 659.25, 783.99].forEach((freq, idx) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + (idx * 0.1));
+
+          gain.gain.setValueAtTime(0.18, now + (idx * 0.1));
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.1) + 0.5);
+
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc.start(now + (idx * 0.1));
+          osc.stop(now + (idx * 0.1) + 0.55);
+        });
+
+        if (navigator.vibrate) {
+          navigator.vibrate([0, 100]);
+        }
+      } catch (e) {}
+    }
+
+    // Toggle Language
+    function toggleLanguage() {
+      currentLanguage = currentLanguage === 'ar' ? 'en' : 'ar';
+      document.documentElement.dir = currentLanguage === 'ar' ? 'rtl' : 'ltr';
+      document.documentElement.lang = currentLanguage;
+      document.getElementById('langToggleBtn').innerText = currentLanguage === 'ar' ? 'English 🌐' : 'عربي 🌐';
+    }
+
+    // Update real-time clock on lock screen
+    function updateClock() {
+      const d = new Date();
+      const hours = String(d.getHours()).padStart(2, '0');
+      const minutes = String(d.getMinutes()).padStart(2, '0');
+      const timeStr = `${hours}:${minutes}`;
+      document.getElementById('phoneClock').innerText = timeStr;
+      document.getElementById('phoneBigClock').innerText = timeStr;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Initial seed of audit log
+    window.addEventListener('DOMContentLoaded', () => {
+      simulateEventDirect('bounced_cheque');
+      setTimeout(() => simulateEventDirect('demand_spike'), 800);
+    });
+  </script>
+</body>
+</html>

@@ -31,10 +31,12 @@ $page_title = 'لوحة التحكم';
         localStorage.setItem('magaiees_view_preference', 'desktop');
         document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
     } else {
+        var screenWidth = window.innerWidth || document.documentElement.clientWidth || screen.width;
         var isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(navigator.userAgent) 
-                    || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
-                    || (window.screen.width <= 768);
-        if (isMobile) {
+                    || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && screenWidth < 1024)
+                    || (screenWidth < 1024);
+        var pref = localStorage.getItem('magaiees_view_preference');
+        if (isMobile && pref !== 'desktop') {
             window.location.replace('mobile-dashboard.php');
         }
     }
@@ -46,15 +48,32 @@ function switchToMobileEdition() {
 }
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لوحة التحكم</title>
+<?php if ($forceDesktop || ($_COOKIE['magaiees_view_preference'] ?? '') === 'desktop'): ?>
+    <meta name="viewport" content="width=1280, initial-scale=0.35, minimum-scale=0.2, maximum-scale=3.0, user-scalable=yes">
+<?php else: ?>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<?php endif; ?>
+    
+    <!-- PWA & Native Standalone Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+    <meta name="theme-color" content="#0F172A">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>Magaiees ERP - مقاييس | لوحة التحكم المتكاملة</title>
     <link rel="preload" href="css/design-system.css?v=20260723_v14" as="style">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/unified-brain.css?v=20260722">
+    <script src="js/pwa-manager.js" defer></script>
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         html {
@@ -3242,15 +3261,17 @@ function switchToMobileEdition() {
         </script>
 <!-- Floating Return to Mobile Button (Only displays when viewed on mobile / small screen) -->
 <div id="mobile-return-float-container" style="position:fixed; bottom:22px; right:22px; z-index:99999; display:none;">
-    <button type="button" onclick="switchToMobileEdition()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:2px solid #34d399; padding:12px 20px; border-radius:30px; font-weight:900; font-size:0.95rem; box-shadow:0 10px 30px rgba(16,185,129,0.5); cursor:pointer; display:flex; align-items:center; gap:8px; font-family:'Tajawal',sans-serif;">
-        <i class="fa-solid fa-mobile-screen-button"></i> العودة لشاشات الموبايل
+    <button type="button" onclick="switchToMobileEdition()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:2px solid #34d399; padding:12px 22px; border-radius:30px; font-weight:900; font-size:0.95rem; box-shadow:0 10px 30px rgba(16,185,129,0.5); cursor:pointer; display:flex; align-items:center; gap:8px; font-family:'Tajawal',sans-serif;">
+        <i class="fa-solid fa-mobile-screen-button"></i> 📱 العودة لنسخة الجوال / Mobile View
     </button>
 </div>
 <script>
 (function() {
+    var params = new URLSearchParams(window.location.search);
     var isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor/i.test(navigator.userAgent) 
                 || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
-                || (window.screen.width <= 768);
+                || (window.screen.width <= 1024)
+                || (params.get('force_desktop') === '1');
     if (isMobile) {
         var btn = document.getElementById('mobile-return-float-container');
         if (btn) btn.style.display = 'block';

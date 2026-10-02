@@ -1,0 +1,82 @@
+{
+  "name": "Magaiees ERP - مقاييس",
+  "short_name": "مقاييس",
+  "description": "منظومة مقاييس لإدارة الموارد والمبيعات والمخزون والحسابات - Magaiees ERP & POS System",
+  "id": "magaiees-erp-pwa-v3",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "window-controls-overlay",
+    "minimal-ui",
+    "browser"
+  ],
+  "orientation": "any",
+  "background_color": "#000000",
+  "theme_color": "#0F172A",
+  "lang": "ar",
+  "dir": "rtl",
+  "categories": [
+    "business",
+    "finance",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "فاتورة بيع سريعة (POS)",
+      "short_name": "بيع سريع",
+      "description": "إصدار فاتورة بيع سريعة فورية",
+      "url": "/?action=pos",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "كشف الحساب التفاعلي",
+      "short_name": "كشف حساب",
+      "description": "استعراض كشف الحساب الفاخر",
+      "url": "/?action=statement",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "ميزان تقادم الديون",
+      "short_name": "تقادم الديون",
+      "description": "مصفوفة تقادم الديون والتحصيل",
+      "url": "/?action=aging",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "مركز الموافقات والتحكم",
+      "short_name": "الموافقات",
+      "description": "مركز موافقات الإدارة والمدير التنفيذي",
+      "url": "/?action=approvals",
+      "icons": [{ "src": "assets/icon-192.png", "sizes": "192x192" }]
+    }
+  ],
+  "prefer_related_applications": false
+}
