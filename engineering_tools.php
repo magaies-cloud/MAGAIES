@@ -27017,31 +27017,73 @@ $pdo = getDBConnection();
                     <div class="relative flex-1 bg-black flex items-center justify-center overflow-hidden min-h-[350px] max-h-[58vh]">
                         
                         <!-- Option A: Phone QR Live Sync Viewfinder (Default for Laptops) -->
-                        <div id="recon-camera-phone-sync-container" class="relative w-full h-full flex flex-col items-center justify-center p-4 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-center space-y-3">
+                        <div id="recon-camera-phone-sync-container" class="relative w-full h-full flex flex-col items-center justify-center p-3 sm:p-4 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 text-center space-y-2.5 overflow-y-auto">
+                            
+                            <!-- Header Hint -->
                             <div class="flex items-center gap-2 px-3.5 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-black animate-pulse">
                                 <span class="w-2 h-2 rounded-full bg-rose-400"></span>
-                                <span>امسح الكود بالهاتف والتقط صور كشف الحساب فورياً</span>
+                                <span>اختر نوع الرابط المناسب للهاتف وامسح رمز الـ QR بالكاميرا</span>
                             </div>
 
-                            <div class="p-2.5 rounded-3xl bg-white shadow-2xl border-4 border-rose-500/60 transition transform hover:scale-105">
-                                <img id="recon-camera-qr-img" src="" alt="رمز QR لكاميرا الهاتف" class="w-44 h-44 sm:w-48 sm:h-48 object-contain rounded-2xl">
-                            </div>
-
-                            <div class="space-y-1 max-w-sm">
-                                <p class="text-xs text-slate-300 font-bold">افتح كاميرا الهاتف واقترب من الرمز أعلاه، ستفتح صفحة التصوير مباشرة.</p>
-                                <span class="text-[10px] text-slate-400">أي لقطة تلتقطها بهاتفك ستظهر هنا فوراً ويتم فحصها بالـ AI!</span>
-                            </div>
-
-                            <div class="flex items-center gap-2 pt-1">
-                                <button type="button" onclick="copyPhoneCameraLink()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 shadow cursor-pointer">
-                                    <i class="fa-solid fa-link text-sky-400 text-xs"></i>
-                                    <span>نسخ الرابط</span>
+                            <!-- Link Type Selector (اختر من الرمز QR رابط) -->
+                            <div class="w-full max-w-lg bg-slate-950/80 p-1.5 rounded-2xl border border-slate-800 flex items-center justify-center gap-1.5 flex-wrap">
+                                <button type="button" id="btn-qr-link-tunnel" onclick="setReconCameraLink('tunnel')" class="px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 border cursor-pointer bg-gradient-to-r from-rose-600 to-pink-600 text-white border-rose-400/50 shadow-md shadow-rose-600/30">
+                                    <i class="fa-solid fa-bolt text-amber-300"></i>
+                                    <span>نفق حي مشفر (HTTPS)</span>
+                                    <span class="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-full">⭐ موصى به</span>
                                 </button>
-                                <button type="button" onclick="openPhoneCameraInWindow()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 shadow cursor-pointer">
-                                    <i class="fa-solid fa-arrow-up-right-from-square text-emerald-400 text-xs"></i>
-                                    <span>فتح في نافذة</span>
+                                <button type="button" id="btn-qr-link-cloud" onclick="setReconCameraLink('cloud')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 bg-slate-900 text-slate-300 hover:text-white cursor-pointer">
+                                    <i class="fa-solid fa-cloud text-sky-400"></i>
+                                    <span>سحابي (Elsajana)</span>
+                                </button>
+                                <button type="button" id="btn-qr-link-wifi" onclick="setReconCameraLink('wifi')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 bg-slate-900 text-slate-300 hover:text-white cursor-pointer">
+                                    <i class="fa-solid fa-wifi text-emerald-400"></i>
+                                    <span>شبكة الواي فاي (LAN)</span>
+                                </button>
+                                <button type="button" id="btn-qr-link-local" onclick="setReconCameraLink('local')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 bg-slate-900 text-slate-300 hover:text-white cursor-pointer">
+                                    <i class="fa-solid fa-desktop text-indigo-400"></i>
+                                    <span>محلي (Localhost)</span>
                                 </button>
                             </div>
+
+                            <!-- QR Code Card -->
+                            <div class="relative p-2.5 rounded-3xl bg-white shadow-2xl border-4 border-rose-500/60 transition transform hover:scale-105">
+                                <img id="recon-camera-qr-img" src="" alt="رمز QR لكاميرا الهاتف" class="w-36 h-36 sm:w-44 sm:h-44 object-contain rounded-2xl">
+                                <div id="recon-qr-loading-overlay" class="absolute inset-0 bg-white/90 rounded-2xl flex flex-col items-center justify-center text-slate-900 font-bold text-xs gap-1 hidden">
+                                    <i class="fa-solid fa-circle-notch fa-spin text-rose-500 text-2xl"></i>
+                                    <span>جاري تحديث الرمز...</span>
+                                </div>
+                            </div>
+
+                            <!-- Link Details & URL Bar -->
+                            <div class="w-full max-w-md space-y-1">
+                                <div class="flex items-center gap-1.5 bg-slate-900/90 border border-slate-800 rounded-xl p-1.5">
+                                    <input type="text" id="recon-camera-current-url-input" readonly value="" dir="ltr" class="flex-1 bg-transparent text-[11px] font-mono text-rose-300 px-2 outline-none select-all truncate" title="رابط كاميرا الهاتف المباشر">
+                                    <button type="button" onclick="copyPhoneCameraLink()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1 border border-slate-700 shadow shrink-0 cursor-pointer" title="نسخ الرابط للحافظة">
+                                        <i class="fa-solid fa-copy text-sky-400 text-xs"></i>
+                                        <span>نسخ</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Action Buttons Bar -->
+                            <div class="flex items-center gap-2 pt-0.5 flex-wrap justify-center">
+                                <button type="button" onclick="sendCameraLinkToWhatsApp()" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 text-white text-xs font-black transition flex items-center gap-1.5 shadow-md shadow-emerald-600/30 border border-emerald-400/40 cursor-pointer" title="إرسال الرابط إلى هاتفك عبر الواتساب مباشرة">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                    <span>إرسال للواتساب</span>
+                                </button>
+                                <button type="button" onclick="openPhoneCameraInWindow()" class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 shadow cursor-pointer" title="فتح شاشة الكاميرا في نافذة مستقلة للمعاينة">
+                                    <i class="fa-solid fa-arrow-up-right-from-square text-indigo-400 text-xs"></i>
+                                    <span>فتح في نافذة مستقلة</span>
+                                </button>
+                            </div>
+
+                            <!-- Live Sync Pulse Status -->
+                            <div class="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 pt-0.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                                <span id="recon-camera-live-sync-status-text">بث حي نشط: أي صورة تلتقطها بالهاتف تظهر هنا باللابتوب فوراً ⚡</span>
+                            </div>
+
                         </div>
 
                         <!-- Option B: Live Webcam Viewfinder -->

@@ -32,6 +32,45 @@ if ($action === 'qr') {
     exit;
 }
 
+// Endpoints Discovery for Dynamic QR selection (Tunnel, Cloud, Wi-Fi LAN, Local)
+if ($action === 'get_endpoints') {
+    header('Content-Type: application/json; charset=utf-8');
+    
+    // 1. Live Tunnel
+    $tunnelUrl = '';
+    $tunnelFile = __DIR__ . '/LIVE_TUNNEL_URL.txt';
+    if (file_exists($tunnelFile)) {
+        $raw = trim(file_get_contents($tunnelFile));
+        if (filter_var($raw, FILTER_VALIDATE_URL)) {
+            $tunnelUrl = rtrim($raw, '/') . '/ELSAJANA2/magaies/mobile_camera_sync.php';
+        }
+    }
+    
+    // 2. Real LAN IP
+    $lanIp = gethostbyname(gethostname());
+    if (empty($lanIp) || $lanIp === '127.0.0.1') {
+        $lanIp = '10.85.184.1';
+    }
+    $wifiUrl = 'http://' . $lanIp . '/ELSAJANA2/magaies/mobile_camera_sync.php';
+    
+    // 3. Cloud Production URL
+    $cloudUrl = 'https://elsajana.com/mobile_camera_sync.php';
+    
+    // 4. Localhost URL
+    $localUrl = 'http://localhost/ELSAJANA2/magaies/mobile_camera_sync.php';
+    
+    echo json_encode([
+        'success' => true,
+        'tunnel_url' => $tunnelUrl,
+        'cloud_url' => $cloudUrl,
+        'wifi_url' => $wifiUrl,
+        'local_url' => $localUrl,
+        'lan_ip' => $lanIp,
+        'current_origin' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost')
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+    exit;
+}
+
 if (!empty($session)) {
     $sessionDir = $tempBaseDir . '/' . $session;
 

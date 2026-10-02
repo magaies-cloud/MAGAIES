@@ -2828,7 +2828,30 @@
     }
     window.openLiveCameraCapture = openLiveCameraCapture;
 
-    function initPhoneCameraSyncSession(side) {
+    window.RECON_CAM_SESSION_ID = null;
+    window.RECON_CAM_POLL_INTERVAL = null;
+    window.RECON_PHONE_CAM_URL = null;
+    window.RECON_SELECTED_LINK_TYPE = 'tunnel';
+    window.RECON_CAMERA_ENDPOINTS = null;
+    window.RECON_POLL_BASE_URL = 'mobile_camera_sync.php';
+
+    async function fetchReconCameraEndpoints() {
+        try {
+            const resp = await fetch('mobile_camera_sync.php?action=get_endpoints');
+            if (resp.ok) {
+                const data = await resp.json();
+                if (data && data.success) {
+                    window.RECON_CAMERA_ENDPOINTS = data;
+                    return data;
+                }
+            }
+        } catch(e) {
+            console.warn('Could not fetch camera endpoints, using fallbacks:', e);
+        }
+        return null;
+    }
+
+    async function initPhoneCameraSyncSession(side) {
         side = side || window.RECON_ACTIVE_CAMERA_SIDE || 'A';
         if (window.RECON_CAM_POLL_INTERVAL) {
             clearInterval(window.RECON_CAM_POLL_INTERVAL);
@@ -2838,18 +2861,22 @@
         const sessionId = 'cam_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
         window.RECON_CAM_SESSION_ID = sessionId;
 
-        // Determine accessible IP for mobile devices on same Wi-Fi network
-        let host = window.location.host;
-        if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-            host = '192.168.1.101'; // Default LAN IP of this machine
-        }
-        const mobileSyncUrl = `${window.location.protocol}//${host}/ELSAJANA2/magaies/mobile_camera_sync.php?session=${sessionId}&side=${side}`;
-        window.RECON_PHONE_CAM_URL = mobileSyncUrl;
+        // Fetch server-discovered endpoints (tunnel, LAN IP, cloud, local)
+        await fetchReconCameraEndpoints();
 
-        const qrImg = document.getElementById('recon-camera-qr-img');
-        if (qrImg) {
-            qrImg.src = `mobile_camera_sync.php?action=qr&text=${encodeURIComponent(mobileSyncUrl)}`;
+        // Auto-select best link type if not set
+        if (!window.RECON_SELECTED_LINK_TYPE) {
+            if (window.location.hostname.includes('elsajana.com')) {
+                window.RECON_SELECTED_LINK_TYPE = 'cloud';
+            } else if (window.RECON_CAMERA_ENDPOINTS && window.RECON_CAMERA_ENDPOINTS.tunnel_url) {
+                window.RECON_SELECTED_LINK_TYPE = 'tunnel';
+            } else {
+                window.RECON_SELECTED_LINK_TYPE = 'wifi';
+            }
         }
+
+        // Apply selected link
+        setReconCameraLink(window.RECON_SELECTED_LINK_TYPE);
 
         // Start polling for uploads from the smartphone every 1.5 seconds
         window.RECON_CAM_POLL_INTERVAL = setInterval(() => {
@@ -2857,6 +2884,111 @@
         }, 1500);
     }
     window.initPhoneCameraSyncSession = initPhoneCameraSyncSession;
+
+    function setReconCameraLink(type) {
+        window.RECON_SELECTED_LINK_TYPE = type;
+        const sessionId = window.RECON_CAM_SESSION_ID || ('cam_' + Date.now());
+        const side = window.RECON_ACTIVE_CAMERA_SIDE || 'A';
+        const ep = window.RECON_CAMERA_ENDPOINTS || {};
+
+        let baseTargetUrl = '';
+        let pollTargetUrl = 'mobile_camera_sync.php';
+
+        switch (type) {
+            case 'cloud':
+                baseTargetUrl = 'https://elsajana.com/mobile_camera_sync.php';
+                pollTargetUrl = 'https://elsajana.com/mobile_camera_sync.php';
+                break;
+            case 'wifi':
+                const lanIp = ep.lan_ip || '10.85.184.1';
+                baseTargetUrl = `http://${lanIp}/ELSAJANA2/magaies/mobile_camera_sync.php`;
+                pollTargetUrl = 'mobile_camera_sync.php';
+                break;
+            case 'local':
+                baseTargetUrl = `${window.location.origin}/ELSAJANA2/magaies/mobile_camera_sync.php`;
+                pollTargetUrl = 'mobile_camera_sync.php';
+                break;
+            case 'tunnel':
+            default:
+                if (ep.tunnel_url) {
+                    baseTargetUrl = ep.tunnel_url;
+                } else {
+                    baseTargetUrl = 'https://magaiees-live-erp.loca.lt/ELSAJANA2/magaies/mobile_camera_sync.php';
+                }
+                pollTargetUrl = 'mobile_camera_sync.php';
+                break;
+        }
+
+        const fullUrl = `${baseTargetUrl}?session=${sessionId}&side=${side}`;
+        window.RECON_PHONE_CAM_URL = fullUrl;
+        window.RECON_POLL_BASE_URL = pollTargetUrl;
+
+        // Update displayed URL input
+        const inputEl = document.getElementById('recon-camera-current-url-input');
+        if (inputEl) {
+            inputEl.value = fullUrl;
+        }
+
+        // Update QR image with loading overlay
+        const qrImg = document.getElementById('recon-camera-qr-img');
+        const overlay = document.getElementById('recon-qr-loading-overlay');
+        if (qrImg) {
+            if (overlay) overlay.classList.remove('hidden');
+            const newQrSrc = `mobile_camera_sync.php?action=qr&text=${encodeURIComponent(fullUrl)}&_t=${Date.now()}`;
+            qrImg.onload = () => {
+                if (overlay) overlay.classList.add('hidden');
+            };
+            qrImg.src = newQrSrc;
+        }
+
+        // Update button styles
+        ['tunnel', 'cloud', 'wifi', 'local'].forEach(btnKey => {
+            const btn = document.getElementById('btn-qr-link-' + btnKey);
+            if (btn) {
+                if (btnKey === type) {
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 border cursor-pointer bg-gradient-to-r from-rose-600 to-pink-600 text-white border-rose-400/50 shadow-md shadow-rose-600/30';
+                } else {
+                    btn.className = 'px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 bg-slate-900 text-slate-300 hover:text-white cursor-pointer';
+                }
+            }
+        });
+
+        // Update status text
+        const statusEl = document.getElementById('recon-camera-live-sync-status-text');
+        if (statusEl) {
+            const names = {
+                tunnel: 'النفق السحابي المشفر HTTPS (موصى به للهاتف)',
+                cloud: 'السيرفر الحي السحابي Elsajana.com',
+                wifi: 'شبكة الواي فاي المباشرة ' + (ep.lan_ip || '10.85.184.1'),
+                local: 'المحلي الداخلي Localhost'
+            };
+            statusEl.textContent = `تم التفعيل: ${names[type] || type} ⚡`;
+        }
+
+        if (window.showModernToast) {
+            const shortNames = {
+                tunnel: 'النفق الحي المشفر (HTTPS)',
+                cloud: 'خادم السحابة (Elsajana)',
+                wifi: 'شبكة الواي فاي المحلية',
+                local: 'المحلي (Localhost)'
+            };
+            window.showModernToast(`📱 تم تفعيل رمز الـ QR عبر: ${shortNames[type]}`, 'info', 2000);
+        }
+    }
+    window.setReconCameraLink = setReconCameraLink;
+
+    function sendCameraLinkToWhatsApp() {
+        const url = window.RECON_PHONE_CAM_URL;
+        if (!url) {
+            if (window.showModernToast) window.showModernToast('يرجى الانتظار حتى اكتمال تجهيز الرابط', 'warning', 2500);
+            return;
+        }
+        const sideName = window.RECON_ACTIVE_CAMERA_SIDE === 'A' ? 'الطرف الأول' : 'الطرف الثاني';
+        const msg = `📷 *رابط كاميرا فحص كشف الحساب (مقاييس ERP)*:\n\nافتح الرابط التالي في هاتفك لتصوير كشف الحساب (${sideName}) ومزامنته فوراً مع اللابتوب بالذكاء الاصطناعي:\n\n${url}`;
+        const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+        window.open(waUrl, '_blank');
+    }
+    window.sendCameraLinkToWhatsApp = sendCameraLinkToWhatsApp;
 
     async function pollPhoneCameraUploads(sessionId, side) {
         if (!sessionId) return;
@@ -2870,7 +3002,8 @@
         }
 
         try {
-            const resp = await fetch(`mobile_camera_sync.php?action=poll&session=${encodeURIComponent(sessionId)}&_t=${Date.now()}`);
+            const pollBase = window.RECON_POLL_BASE_URL || 'mobile_camera_sync.php';
+            const resp = await fetch(`${pollBase}?action=poll&session=${encodeURIComponent(sessionId)}&_t=${Date.now()}`);
             if (!resp.ok) return;
             const res = await resp.json();
 
