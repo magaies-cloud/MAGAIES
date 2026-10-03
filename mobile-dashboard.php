@@ -8971,6 +8971,105 @@ try {
             // Build Universal Chart of Accounts for Searchable Picker
             buildAllAccountsList();
 
+            // Populate and Unify M_TRANSACTIONS from Server Preloaded + Local Stores
+            M_TRANSACTIONS = [];
+            const seenTxIds = new Set();
+            const addTxIfNew = (tx) => {
+                const uniqueKey = String(tx.official_server_id || tx.voucherNo || tx.invoiceNo || tx.voucher_no || tx.id || '').trim();
+                if (uniqueKey && seenTxIds.has(uniqueKey)) return;
+                if (uniqueKey) seenTxIds.add(uniqueKey);
+                M_TRANSACTIONS.push(tx);
+            };
+
+            // Local financial movements
+            const localFinTxs = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_financial_txs_v1') || []) : [];
+            localFinTxs.forEach(f => {
+                addTxIfNew({
+                    id: f.official_server_id || f.voucherNo || f.id,
+                    voucher_no: f.official_server_id || f.voucherNo || f.id,
+                    type: f.type || 'payment',
+                    operation_type: f.type || 'payment',
+                    from_account: f.fromAccount?.name || 'الخزينة',
+                    to_account: f.toAccount?.name || f.beneficiaryName || 'المستفيد',
+                    amount: parseFloat(f.amount || f.amountLocal || 0),
+                    notes: f.notes || f.toStatement || (f.type === 'receipt' ? 'سند قبض' : 'سند صرف'),
+                    date: f.date || 'اليوم',
+                    sync_status: f.sync_status || 'SYNCED',
+                    official_server_id: f.official_server_id
+                });
+            });
+
+            // Local sales invoices
+            const localSalesTxs = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
+            localSalesTxs.forEach(s => {
+                addTxIfNew({
+                    id: s.official_server_id || s.invoiceNo || s.id,
+                    voucher_no: s.official_server_id || s.invoiceNo || s.id,
+                    type: 'sale',
+                    operation_type: 'sale',
+                    from_account: 'نقطة البيع',
+                    to_account: s.customerName || 'عميل نقدي',
+                    customer_name: s.customerName || 'عميل نقدي',
+                    amount: parseFloat(s.grandTotal || s.total || 0),
+                    notes: `فاتورة بيع ${s.items ? `(${s.items.length} صنف)` : ''}`,
+                    date: s.fullDate || s.date || 'اليوم',
+                    sync_status: s.sync_status || 'SYNCED',
+                    official_server_id: s.official_server_id
+                });
+            });
+
+            // Server preloaded receipts
+            (window.SERVER_DATA?.receipts || []).forEach(r => {
+                addTxIfNew({
+                    id: r.voucherNo || r.id,
+                    voucher_no: r.voucherNo || r.id,
+                    type: 'receipt',
+                    operation_type: 'receipt',
+                    from_account: r.customerName || r.customer || 'العميل',
+                    to_account: r.destination || 'الخزينة',
+                    amount: parseFloat(r.amount || 0),
+                    notes: r.statement || r.notes || 'سند قبض معتمد بالسيرفر',
+                    date: r.date || 'اليوم',
+                    sync_status: 'SYNCED',
+                    official_server_id: r.voucherNo || r.id
+                });
+            });
+
+            // Server preloaded payments
+            (window.SERVER_DATA?.payments || []).forEach(p => {
+                addTxIfNew({
+                    id: p.voucherNo || p.id,
+                    voucher_no: p.voucherNo || p.id,
+                    type: 'payment',
+                    operation_type: 'payment',
+                    from_account: p.source || 'الخزينة',
+                    to_account: p.recipient || p.toAccount || 'المصروفات',
+                    amount: parseFloat(p.amount || 0),
+                    notes: p.notes || p.toStatement || 'سند صرف معتمد بالسيرفر',
+                    date: p.date || 'اليوم',
+                    sync_status: 'SYNCED',
+                    official_server_id: p.voucherNo || p.id
+                });
+            });
+
+            // Server preloaded sales
+            (window.SERVER_DATA?.sales || []).forEach(s => {
+                addTxIfNew({
+                    id: s.invoiceNo || s.id,
+                    voucher_no: s.invoiceNo || s.id,
+                    type: 'sale',
+                    operation_type: 'sale',
+                    from_account: 'المبيعات',
+                    to_account: s.customerName || 'عميل',
+                    customer_name: s.customerName || 'عميل',
+                    amount: parseFloat(s.grandTotal || s.total || 0),
+                    notes: 'فاتورة بيع معتمدة بالسيرفر',
+                    date: s.date || 'اليوم',
+                    sync_status: 'SYNCED',
+                    official_server_id: s.invoiceNo || s.id
+                });
+            });
+
             // Render Liquidity Pulse Numbers
             renderLiquidityDisplay();
 
@@ -12239,11 +12338,46 @@ try {
                 });
             });
 
-            // 2. Combine receipts, payments, sales, purchases from server preloaded or local arrays
-            const receipts = window.SERVER_DATA?.receipts || loadTenantArray('erp_single_receipts_v1');
-            const payments = window.SERVER_DATA?.payments || loadTenantArray('erp_single_payments_v1');
-            const sales = window.SERVER_DATA?.sales || loadTenantArray('erp_sales_invoices_v1');
-            const purchases = window.SERVER_DATA?.purchases || loadTenantArray('erp_purchase_invoices_v1');
+            // 2. Combine receipts, payments, sales, purchases from server preloaded AND local arrays
+            const localRecs = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_single_receipts_v1') || []) : [];
+            const serverRecs = window.SERVER_DATA?.receipts || [];
+            const receipts = [...serverRecs];
+            localRecs.forEach(lr => {
+                const matchKey = lr.official_server_id || lr.voucherNo || lr.id;
+                if (!receipts.some(sr => (sr.voucherNo || sr.id) === matchKey)) {
+                    receipts.unshift(lr);
+                }
+            });
+
+            const localPays = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_single_payments_v1') || []) : [];
+            const serverPays = window.SERVER_DATA?.payments || [];
+            const payments = [...serverPays];
+            localPays.forEach(lp => {
+                const matchKey = lp.official_server_id || lp.voucherNo || lp.id;
+                if (!payments.some(sp => (sp.voucherNo || sp.id) === matchKey)) {
+                    payments.unshift(lp);
+                }
+            });
+
+            const localSales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
+            const serverSales = window.SERVER_DATA?.sales || [];
+            const sales = [...serverSales];
+            localSales.forEach(ls => {
+                const matchKey = ls.official_server_id || ls.invoiceNo || ls.id;
+                if (!sales.some(ss => (ss.invoiceNo || ss.id) === matchKey)) {
+                    sales.unshift(ls);
+                }
+            });
+
+            const localPurs = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_purchase_invoices_v1') || []) : [];
+            const serverPurs = window.SERVER_DATA?.purchases || [];
+            const purchases = [...serverPurs];
+            localPurs.forEach(lpur => {
+                const matchKey = lpur.official_server_id || lpur.invoiceNo || lpur.id;
+                if (!purchases.some(spur => (spur.invoiceNo || spur.id) === matchKey)) {
+                    purchases.unshift(lpur);
+                }
+            });
 
             receipts.forEach(r => {
                 const rRef = r.refNo || r.id || 'REC';
@@ -13754,7 +13888,8 @@ try {
             // Push to backend sync engine & Outbox
             pushChangesToBackend();
             if (window.OfflineOutboxEngine) {
-                window.OfflineOutboxEngine.enqueue('cash_voucher', txRecord, 'HIGH');
+                const qType = (nature.type === 'receipt') ? 'cash_receipt' : 'cash_payment';
+                window.OfflineOutboxEngine.enqueue(qType, txRecord, 'HIGH');
             }
 
             ACTIVE_TX_FOR_WA = txRecord;
@@ -16021,8 +16156,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 };
             },
 
-            markSynced(localSeq, officialServerId) {
-                if (!localSeq) return;
+            markSynced(localSeq, officialServerId, queueId = null) {
+                if (!officialServerId) return;
                 const stores = [
                     'erp_sales_invoices_v1',
                     'erp_purchase_invoices_v1',
@@ -16036,11 +16171,28 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     const arr = loadTenantArray(stKey);
                     let changed = false;
                     arr.forEach(rec => {
-                        if (rec.local_seq === localSeq || rec.invoiceNo === localSeq || rec.voucherNo === localSeq || rec.waybillNo === localSeq || rec.id === localSeq) {
+                        const isMatch = (
+                            (localSeq && (rec.local_seq === localSeq || rec.invoiceNo === localSeq || rec.voucherNo === localSeq || rec.waybillNo === localSeq || rec.id === localSeq)) ||
+                            (queueId && (rec.id === queueId || rec.queue_id === queueId)) ||
+                            (rec.official_server_id === officialServerId)
+                        );
+                        if (isMatch) {
                             rec.sync_status = 'SYNCED';
                             rec.official_server_id = officialServerId;
                             rec.server_ref = officialServerId;
                             rec.synced_at = new Date().toISOString();
+                            if (!rec.offline_no) {
+                                rec.offline_no = localSeq;
+                            }
+                            if (rec.voucherNo) {
+                                rec.voucherNo = officialServerId;
+                            }
+                            if (rec.invoiceNo) {
+                                rec.invoiceNo = officialServerId;
+                            }
+                            if (rec.id && (String(rec.id).includes('OFF') || String(rec.id).startsWith('REC-') || String(rec.id).startsWith('TX-'))) {
+                                rec.id = officialServerId;
+                            }
                             changed = true;
                         }
                     });
@@ -16049,12 +16201,65 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     }
                 });
 
+                // Update SERVER_DATA in-memory caches
+                if (window.SERVER_DATA) {
+                    if (officialServerId.startsWith('R')) {
+                        window.SERVER_DATA.receipts = window.SERVER_DATA.receipts || [];
+                        const exists = window.SERVER_DATA.receipts.some(r => r.id === officialServerId || r.voucherNo === officialServerId);
+                        if (!exists) {
+                            const recArr = loadTenantArray('erp_single_receipts_v1');
+                            const match = recArr.find(r => r.id === officialServerId || r.voucherNo === officialServerId);
+                            if (match) window.SERVER_DATA.receipts.unshift(match);
+                        }
+                    } else if (officialServerId.startsWith('E')) {
+                        window.SERVER_DATA.payments = window.SERVER_DATA.payments || [];
+                        const exists = window.SERVER_DATA.payments.some(p => p.id === officialServerId || p.voucherNo === officialServerId);
+                        if (!exists) {
+                            const payArr = loadTenantArray('erp_single_payments_v1');
+                            const match = payArr.find(p => p.id === officialServerId || p.voucherNo === officialServerId);
+                            if (match) window.SERVER_DATA.payments.unshift(match);
+                        }
+                    } else if (officialServerId.startsWith('INV-')) {
+                        window.SERVER_DATA.sales = window.SERVER_DATA.sales || [];
+                        const exists = window.SERVER_DATA.sales.some(s => s.id === officialServerId || s.invoiceNo === officialServerId);
+                        if (!exists) {
+                            const saleArr = loadTenantArray('erp_sales_invoices_v1');
+                            const match = saleArr.find(s => s.id === officialServerId || s.invoiceNo === officialServerId);
+                            if (match) window.SERVER_DATA.sales.unshift(match);
+                        }
+                    }
+                }
+
+                // Update VoucherNavigator live list and active view
+                if (window.VoucherNavigator && Array.isArray(window.VoucherNavigator.vouchers)) {
+                    let navUpdated = false;
+                    window.VoucherNavigator.vouchers.forEach(v => {
+                        if (v.voucherNo === localSeq || v.id === localSeq || v.local_seq === localSeq || (queueId && v.id === queueId)) {
+                            v.voucherNo = officialServerId;
+                            v.id = officialServerId;
+                            v.official_server_id = officialServerId;
+                            v.sync_status = 'SYNCED';
+                            navUpdated = true;
+                        }
+                    });
+                    if (window.VoucherNavigator.currentIndex >= 0 && navUpdated) {
+                        window.VoucherNavigator.displayVoucher(window.VoucherNavigator.currentIndex);
+                    } else if (window.VoucherNavigator.currentIndex === -1) {
+                        const vObj = computeNextVoucherNo();
+                        const vNoEl = document.getElementById('tx-voucher-no');
+                        const vDispEl = document.getElementById('tx-voucher-display');
+                        if (vNoEl) vNoEl.value = vObj.voucherNo;
+                        if (vDispEl) vDispEl.textContent = vObj.voucherNo;
+                    }
+                }
+
                 if (window.MobilePOS && window.MobilePOS.state.lastSubmittedInvoice) {
                     const last = window.MobilePOS.state.lastSubmittedInvoice;
-                    if (last.local_seq === localSeq || last.invoiceNo === localSeq || last.id === localSeq) {
+                    if (last.local_seq === localSeq || last.invoiceNo === localSeq || last.id === localSeq || (queueId && last.id === queueId)) {
                         last.sync_status = 'SYNCED';
                         last.official_server_id = officialServerId;
                         last.server_ref = officialServerId;
+                        last.invoiceNo = officialServerId;
                         const printSheet = document.getElementById('sheet-receipt-print');
                         if (printSheet && printSheet.classList.contains('active')) {
                             window.MobilePOS.openThermalReceiptSheet(last);
@@ -16105,8 +16310,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 window.addEventListener('online', () => {
                     this.failedPings = 0;
                     this.lastSyncFailed = false;
+                    this.lastSyncAttempt = 0;
                     this.setConnectionState(true);
                     this.checkHeartbeat(false);
+                    this.flushQueueNow(false);
                 });
                 window.addEventListener('offline', () => {
                     this.failedPings = 3;
@@ -16114,11 +16321,31 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 });
                 if (navigator.connection) {
                     try {
-                        navigator.connection.addEventListener('change', () => this.checkHeartbeat(false));
+                        navigator.connection.addEventListener('change', () => {
+                            if (navigator.onLine) {
+                                this.lastSyncFailed = false;
+                                this.lastSyncAttempt = 0;
+                                this.checkHeartbeat(false);
+                            }
+                        });
                     } catch(e) {}
                 }
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden && navigator.onLine) {
+                        this.lastSyncFailed = false;
+                        this.lastSyncAttempt = 0;
+                        this.checkHeartbeat(false);
+                    }
+                });
+                window.addEventListener('focus', () => {
+                    if (navigator.onLine) {
+                        this.lastSyncFailed = false;
+                        this.lastSyncAttempt = 0;
+                        this.checkHeartbeat(false);
+                    }
+                });
 
-                // Adaptive heartbeat probe: every 10s when online, every 4s when offline
+                // Adaptive heartbeat probe: every 10s when online, every 3s when offline
                 this.startHeartbeatTimer();
 
                 // Auto-sync watcher with smart backoff cooldown (never locks or endlessly spins)
@@ -16143,7 +16370,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             startHeartbeatTimer() {
                 if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
-                const intervalMs = this.realOnline ? 10000 : 4000;
+                const intervalMs = this.realOnline ? 10000 : 3000;
                 this.heartbeatInterval = setInterval(() => {
                     this.checkHeartbeat(false);
                 }, intervalMs);
@@ -16164,10 +16391,12 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     this.startHeartbeatTimer(); // Adjust interval dynamically
                     this.renderUI();
                     if (this.realOnline) {
+                        this.lastSyncFailed = false;
+                        this.lastSyncAttempt = 0;
                         triggerHaptic('medium');
                         if (typeof playSoundEffect === 'function') playSoundEffect('success');
                         if (window.showModernToast) {
-                            window.showModernToast('🟢 تم استعادة اتصال الإنترنت (النور أخضر) — جاري ترحيل ورفع كافة السندات فوراً ⚡', 'success', 3000);
+                            window.showModernToast('🟢 تم استعادة اتصال الإنترنت (النور أخضر) — جاري ترحيل ورفع كافة العمليات فوراً ⚡', 'success', 3000);
                         }
                         // Instantly drain all pending items upon internet recovery
                         this.flushQueueNow(false);
@@ -16337,17 +16566,21 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 let recordId = payload?.invoiceNo || payload?.voucherNo || payload?.transferNo || payload?.auditNo || payload?.id || ('REC-' + Date.now());
 
                 if (type === 'sale_invoice') {
-                    entityName = 'invoices';
+                    entityName = 'sales_invoices';
                     itemTitle = itemTitle || `فاتورة بيع #${recordId}`;
                     itemSummary = itemSummary || `العميل: ${payload.customerName || 'عميل'} • ${typeof fmt === 'function' ? fmt(payload.total || payload.grandTotal || 0) : payload.total} SDG`;
                 } else if (type === 'purchase_invoice') {
-                    entityName = 'invoices';
+                    entityName = 'purchase_invoices';
                     itemTitle = itemTitle || `فاتورة توريد #${recordId}`;
                     itemSummary = itemSummary || `المورد: ${payload.supplierName || 'مورد'} • ${typeof fmt === 'function' ? fmt(payload.total || 0) : payload.total} SDG`;
-                } else if (type.includes('voucher') || type.includes('payment') || type.includes('receipt')) {
-                    entityName = 'vouchers';
-                    itemTitle = itemTitle || `سند مالي #${recordId}`;
-                    itemSummary = itemSummary || `${payload.beneficiaryName || payload.toStatement || 'سند'} • ${typeof fmt === 'function' ? fmt(payload.amountLocal || payload.amount || 0) : payload.amount} SDG`;
+                } else if (type.includes('receipt') || (payload && payload.type === 'receipt')) {
+                    entityName = 'single_receipts';
+                    itemTitle = itemTitle || `سند قبض #${recordId}`;
+                    itemSummary = itemSummary || `المستلم منه: ${payload.beneficiaryName || payload.customerName || payload.toStatement || 'سند قبض'} • ${typeof fmt === 'function' ? fmt(payload.amountLocal || payload.amount || 0) : payload.amount} SDG`;
+                } else if (type.includes('voucher') || type.includes('payment') || type.includes('disburse')) {
+                    entityName = 'single_payments';
+                    itemTitle = itemTitle || `سند صرف #${recordId}`;
+                    itemSummary = itemSummary || `المستفيد: ${payload.beneficiaryName || payload.recipient || payload.toStatement || 'سند صرف'} • ${typeof fmt === 'function' ? fmt(payload.amountLocal || payload.amount || 0) : payload.amount} SDG`;
                 } else if (type.includes('transfer')) {
                     entityName = 'stock_transfers';
                     itemTitle = itemTitle || `تحويل مخزني #${recordId}`;
@@ -16518,7 +16751,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                         it.lastError = null;
 
                                         if (window.DualNumberingEngine) {
-                                            window.DualNumberingEngine.markSynced(it.record_id || it.local_seq, officialId);
+                                            window.DualNumberingEngine.markSynced(it.record_id || it.local_seq, officialId, it.id);
                                         }
                                         singleSuccessCount++;
                                         this.saveQueue();
@@ -16540,7 +16773,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             it.status = 'SYNCED';
                             it.sync_status = 'SYNCED';
                             it.synced_at = new Date().toISOString();
-                            const sRef = serverResponse.results.find(r => r.id === it.id);
+                            const sRef = serverResponse.results.find(r => r.id === it.id || r.queue_id === it.id || r.record_id === it.record_id);
                             const officialId = sRef?.server_id || sRef?.official_server_id || ('#' + (10500 + idx));
                             it.server_id = officialId;
                             it.official_server_id = officialId;
@@ -16549,7 +16782,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                             // Dual Numbering sync update
                             if (window.DualNumberingEngine) {
-                                window.DualNumberingEngine.markSynced(it.record_id || it.local_seq, officialId);
+                                window.DualNumberingEngine.markSynced(it.record_id || it.local_seq, officialId, it.id);
                             }
                         });
                     }
@@ -16567,8 +16800,15 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         const syncedCount = pendingItems.filter(it => it.status === 'SYNCED').length;
                         this.lastSyncFailed = false;
                         this.lastSyncAttempt = Date.now();
+                        const serials = pendingItems
+                            .filter(it => it.status === 'SYNCED' && it.official_server_id)
+                            .map(it => it.official_server_id);
+                        const serialListStr = serials.slice(0, 3).join(', ') + (serials.length > 3 ? ` و+${serials.length - 3} أخرى` : '');
+                        const msg = serials.length > 0 
+                            ? `🟢 تم الاتصال بالإنترنت! تم تدوين (${syncedCount}) عملية في الموقع الحي بأرقام تسلسلية رسمية: [${serialListStr}] ⚡`
+                            : `🟢 تم الاتصال بالإنترنت! تم تدوين وتوثيق (${syncedCount}) عملية في الموقع الحي بنجاح ⚡`;
                         if (window.showModernToast) {
-                            window.showModernToast(`🚀 تم ترحيل ورفع (${syncedCount}) سندات وفواتير وأخذ الأرقام التسلسلية الرسمية من السيرفر بنجاح!`, 'success', 3500);
+                            window.showModernToast(msg, 'success', 5000);
                         }
 
                         // Auto-clean confirmed items after 4 seconds
