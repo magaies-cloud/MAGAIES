@@ -657,19 +657,19 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     
     <!-- PWA & Native Standalone Configuration -->
-    <link rel="manifest" href="manifest.json?v=2026_m_v6">
+    <link rel="manifest" href="manifest.json?v=2026_m_v7">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_v6">
-    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_v6">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_v6">
-    <link rel="icon" type="image/png" sizes="256x256" href="assets/icon-256.png?v=2026_m_v6">
-    <link rel="icon" type="image/png" sizes="384x384" href="assets/icon-384.png?v=2026_m_v6">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_m_v6">
-    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_v6">
-    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v6">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_v7">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_v7">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_v7">
+    <link rel="icon" type="image/png" sizes="256x256" href="assets/icon-256.png?v=2026_m_v7">
+    <link rel="icon" type="image/png" sizes="384x384" href="assets/icon-384.png?v=2026_m_v7">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_m_v7">
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_v7">
+    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v7">
     <?php
     $themeHexMap = [
         'ultra_white' => '#ffffff',
@@ -689,7 +689,7 @@ try {
     <meta name="theme-color" content="<?php echo $themeColorHex; ?>">
     <title><?php echo htmlspecialchars($preloadedData['companyName']); ?> - النسخة السريعة</title>
     <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
-    <script src="js/pwa-manager.js?v=2026_10_03_v8_suite" defer></script>
+    <script src="js/pwa-manager.js?v=2026_10_03_v9_suite" defer></script>
 
     <!-- Dynamic Viewport Auto-Redirect & Auth Gate -->
     <script>
@@ -2719,6 +2719,15 @@ try {
             justify-content: space-between;
             width: 100%;
             gap: 8px;
+            box-sizing: border-box;
+        }
+        .header-top-content {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            box-sizing: border-box;
         }
         .brand-title-wrap {
             display: flex;
@@ -2728,6 +2737,99 @@ try {
             color: var(--text-main);
             letter-spacing: -0.2px;
             white-space: nowrap;
+        }
+
+        /* 🌐 Live Internet Status Indicator (نقطة خضراء متصل / نقطة حمراء منقطع) */
+        .header-net-status-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 4px 8px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            user-select: none;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+        .header-net-status-wrap.online {
+            background: rgba(16, 185, 129, 0.12);
+            border-color: rgba(16, 185, 129, 0.35);
+        }
+        .header-net-status-wrap.offline {
+            background: rgba(239, 68, 68, 0.16);
+            border-color: rgba(239, 68, 68, 0.45);
+        }
+        .net-status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
+        }
+        .net-status-dot.online {
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: netPulseGreen 2.2s infinite ease-in-out;
+        }
+        .net-status-dot.offline {
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+            animation: netPulseRed 1.2s infinite ease-in-out;
+        }
+        @keyframes netPulseGreen {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; box-shadow: 0 0 12px #34d399; }
+        }
+        @keyframes netPulseRed {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.4); opacity: 0.6; box-shadow: 0 0 14px #f43f5e; }
+        }
+        .net-status-label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--text-main);
+            line-height: 1;
+            white-space: nowrap;
+        }
+
+        /* 🔄 Top Bar Quick Refresh Button (زر ريفريش ذكي) */
+        .header-refresh-btn {
+            width: 34px;
+            height: 34px;
+            min-width: 34px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.28);
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14), inset 0 1px 1px rgba(255, 255, 255, 0.4);
+            transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 0.88rem;
+        }
+        .header-refresh-btn:hover {
+            border-color: rgba(56, 189, 248, 0.7);
+            color: #38bdf8;
+            transform: scale(1.08);
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+        }
+        .header-refresh-btn:active {
+            transform: scale(0.92);
+        }
+        .header-refresh-btn.is-spinning i {
+            animation: spinRefresh 0.65s linear infinite;
+        }
+        @keyframes spinRefresh {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         /* ═════════════════════════════════════════════════════════════════
            💎 THE FLAGSHIP CRYSTAL GLASS HEADER ACTIONS DECK
@@ -3194,68 +3296,133 @@ try {
             color: #ffffff;
         }
 
-        /* 4. Executive Micro-KPI Cards (2x2 Grid - Rectangular Ergonomic Proportions) */
-        .micro-kpi-grid {
+        /* 4. 💎 THE UNIFIED EXECUTIVE KPI MATRIX (وحدة المؤشرات الكبرى المنسقة) */
+        .unified-kpi-matrix {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            padding: 4px 10px 8px 10px;
-        }
-        .micro-kpi-card {
             background: var(--surface-card);
             border: 1.5px solid var(--border-glass);
-            border-radius: 14px;
-            padding: 9px 11px;
-            box-shadow: var(--shadow-card);
+            border-radius: 18px;
+            margin: 6px 10px 10px 10px;
+            box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+            box-sizing: border-box;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .matrix-quadrant {
+            padding: 10px 12px 10px 12px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 80px; /* Elegant rectangular aspect ratio ~ 2:1 */
-            position: relative;
-            overflow: hidden;
+            min-height: 88px;
+            box-sizing: border-box;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            user-select: none;
+            overflow: hidden;
         }
-        .micro-kpi-card:active {
-            transform: scale(0.97);
+        .matrix-quadrant:active {
+            transform: scale(0.98);
+            background: rgba(255, 255, 255, 0.05);
         }
-        .micro-kpi-head {
+
+        /* 🪟 Symmetrical Fine Frosted Glass Grid Separators */
+        .matrix-quadrant.quad-sales {
+            border-bottom: 1px solid var(--border-glass);
+            border-inline-end: 1px solid var(--border-glass);
+        }
+        .matrix-quadrant.quad-liquidity {
+            border-bottom: 1px solid var(--border-glass);
+        }
+        .matrix-quadrant.quad-receivables {
+            border-inline-end: 1px solid var(--border-glass);
+        }
+        .matrix-quadrant.quad-inventory {
+            border: none;
+        }
+
+        /* 🏷️ Quadrant Top Section: Title & Arrow / Trend */
+        .quad-head {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 0.74rem;
+            width: 100%;
+            gap: 4px;
+            margin-bottom: 3px;
+        }
+        .quad-title {
+            font-size: 0.76rem;
             font-weight: 800;
             color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             white-space: nowrap;
         }
-        .micro-kpi-val {
+        .quad-trend {
+            font-size: 0.70rem;
+            font-weight: 900;
+            padding: 1.5px 5px;
+            border-radius: 6px;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
             font-family: 'Inter', sans-serif;
-            margin: 3px 0 2px 0;
+            font-variant-numeric: tabular-nums;
+        }
+        .quad-sales .quad-trend {
+            background: rgba(56, 189, 248, 0.16);
+            color: #38bdf8;
+        }
+        .quad-liquidity .quad-trend {
+            background: rgba(16, 185, 129, 0.16);
+            color: #34d399;
+        }
+        .quad-receivables .quad-trend {
+            background: rgba(251, 113, 133, 0.16);
+            color: #fb7185;
+        }
+        .quad-inventory .quad-trend {
+            background: rgba(245, 158, 11, 0.16);
+            color: #fbbf24;
+        }
+
+        /* 💰 Quadrant Center (SDG) & Bottom (USD) Section */
+        .quad-val {
+            font-family: 'Inter', sans-serif;
+            margin: 2px 0 0 0;
             line-height: 1.15;
             color: var(--text-main);
             display: flex;
             flex-direction: column;
-            gap: 2px;
+            gap: 3px;
             overflow: hidden;
+            width: 100%;
         }
         .micro-kpi-amt-local {
-            font-size: 1.12rem;
+            font-size: 1.14rem;
             font-weight: 900;
             letter-spacing: -0.3px;
             white-space: nowrap;
-            line-height: 1.18;
+            line-height: 1.15;
             overflow: hidden;
             font-variant-numeric: tabular-nums;
             width: 100%;
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
         }
         .micro-kpi-amt-foreign {
-            font-size: 0.88rem;
+            font-size: 0.84rem;
             font-weight: 800;
             display: inline-flex;
             align-items: center;
             gap: 3px;
-            padding: 1px 6px;
-            border-radius: 6px;
+            padding: 1.5px 7px;
+            border-radius: 7px;
             width: fit-content;
             max-width: 100%;
             white-space: nowrap;
@@ -3263,6 +3430,9 @@ try {
             letter-spacing: -0.2px;
             overflow: hidden;
             font-variant-numeric: tabular-nums;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
         }
         .micro-kpi-sub {
             font-size: 0.7rem;
@@ -3271,6 +3441,9 @@ try {
             align-items: center;
             gap: 4px;
         }
+        /* Fallback compatibility */
+        .micro-kpi-grid { display: none; }
+        .micro-kpi-card { display: none; }
 
         /* 5. Floating Bottom Action Hub (Fixed Above Navigation) */
         .floating-action-hub {
@@ -3895,12 +4068,6 @@ try {
                 font-size: 0.82rem;
                 gap: 6px;
             }
-        }
-            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.3);
-            margin-top: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
         }
         .settle-summary-grid {
             display: grid;
@@ -5745,23 +5912,37 @@ try {
     <!-- 1. Sticky Mobile App Header -->
     <!-- 1. Sticky Mobile App Header (Ergonomic Dual-Row Layout) -->
     <header class="mobile-header">
-        <!-- Row 1: Brand + Branch + Cloud Status -->
-        <!-- Row 1: Brand + Branch -->
+        <!-- Row 1: Brand + Branch + Live Internet Status Dot + Quick Refresh Button -->
         <div class="header-top-row">
-            <div class="brand-section" style="width: 100%; display: flex; align-items: center; justify-content: space-between;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <div class="brand-avatar" onclick="calibrateMobileScreen(true)" title="شعار مقاييس المعتمد — اضغط لوزن الشاشة ومطابقة الأزرار">
-                        <img src="assets/icon-192.png?v=2026_m_v5" alt="شعار مقاييس" class="brand-avatar-img">
+            <div class="header-top-content">
+                <!-- Brand & Branch on right side -->
+                <div style="display:flex; align-items:center; gap:7px; min-width:0;">
+                    <div class="brand-avatar" onclick="calibrateMobileScreen(true)" title="شعار مقاييس المعتمد — اضغط لوزن الشاشة">
+                        <img src="assets/icon-192.png?v=2026_m_v6" alt="شعار مقاييس" class="brand-avatar-img">
                     </div>
                     <div class="brand-title-wrap">
-                        <span>مقاييس ERP</span>
+                        <span style="font-weight:900; font-size:0.92rem; letter-spacing:-0.3px;">مقاييس</span>
                     </div>
+                    <button type="button" class="branch-pill" id="btn-branch-header" onclick="openBottomSheet('sheet-branch-picker')" title="الفرع: فرع السجانة — اضغط لتغيير الفرع">
+                        <i class="fa-solid fa-store" style="color:var(--primary); font-size:0.80rem;"></i>
+                        <span id="header-branch-name" style="max-width:85px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">فرع السجانة</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size:0.50rem; opacity:0.6;"></i>
+                    </button>
                 </div>
-                <button type="button" class="branch-pill" id="btn-branch-header" onclick="openBottomSheet('sheet-branch-picker')" title="الفرع: فرع السجانة — اضغط لتغيير الفرع">
-                    <i class="fa-solid fa-store" style="color:var(--primary); font-size:0.84rem;"></i>
-                    <span id="header-branch-name">فرع السجانة</span>
-                    <i class="fa-solid fa-chevron-down" style="font-size:0.52rem; opacity:0.6;"></i>
-                </button>
+
+                <!-- Live Internet Dot + Refresh Button on left side -->
+                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+                    <!-- 🟢 Online / 🔴 Offline Indicator Dot -->
+                    <div class="header-net-status-wrap online" id="header-net-indicator" onclick="checkNetworkAndNotify()" title="حالة الإنترنت: متصل (Online)">
+                        <span class="net-status-dot online" id="header-net-dot"></span>
+                        <span class="net-status-label" id="header-net-label">متصل</span>
+                    </div>
+
+                    <!-- 🔄 Header Quick Refresh Button -->
+                    <button type="button" class="header-refresh-btn" id="btn-header-refresh" onclick="triggerHeaderRefresh(this)" title="تحديث فوري لبيانات النظام">
+                        <i class="fa-solid fa-arrows-rotate" id="header-refresh-spinner"></i>
+                    </button>
+                </div>
             </div>
             <span id="mobile-user-greeting" style="display:none;">مرحباً بك 🌟</span>
         </div>
@@ -5780,13 +5961,13 @@ try {
                 <span class="theme-dot" id="current-theme-dot"></span>
             </button>
             <!-- 🛰️ Offline Outbox Drain Button with Live Red Counter Badge -->
-            <button type="button" id="btn-header-outbox" onclick="openBottomSheet('sheet-outbox-manager')" class="header-deck-pill pill-sync outbox-bell-btn" title="طابور الحركات غير المتزامنة (Offline Outbox)">
+            <button type="button" id="btn-header-outbox" onclick="openBottomSheet('sheet-outbox-manager')" class="header-deck-pill pill-sync" title="طابور الحركات غير المتزامنة (Offline Outbox)">
                 <i class="fa-solid fa-cloud-arrow-up" id="header-outbox-icon"></i>
                 <span>المزامنة</span>
                 <span class="outbox-count-badge" id="header-outbox-badge" style="display:none;">0</span>
             </button>
             <!-- 🔔 Smart Notification / Alert Center Bell with live counter -->
-            <button type="button" onclick="switchMobileTab('approvals')" class="header-deck-pill pill-alerts notif-bell-btn" title="الرسائل التنبيهية وقواعد الأعمال">
+            <button type="button" onclick="switchMobileTab('approvals')" class="header-deck-pill pill-alerts" title="الرسائل التنبيهية وقواعد الأعمال">
                 <i class="fa-solid fa-bell"></i>
                 <span>التنبيهات</span>
                 <span class="notif-badge" id="header-alert-count">4</span>
@@ -5803,7 +5984,7 @@ try {
     <div id="magaiees-native-install-banner" class="magaiees-install-trigger-wrap" style="display:none; margin:10px 14px 4px 14px; background:linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98)); border:1.5px solid rgba(56, 189, 248, 0.5); border-radius:20px; padding:12px 14px; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 10px 30px rgba(0,0,0,0.6); flex-wrap:wrap; max-width:calc(100vw - 28px); box-sizing:border-box;">
         <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <div style="width:44px; height:44px; border-radius:14px; background:#0f172a; border:2px solid rgba(56,189,248,0.6); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; box-shadow:0 0 15px rgba(56,189,248,0.4);">
-                <img src="assets/icon-192.png?v=2026_m_v5" alt="مقاييس" style="width:100%; height:100%; object-fit:cover;">
+                <img src="assets/icon-192.png?v=2026_m_v6" alt="مقاييس" style="width:100%; height:100%; object-fit:cover;">
             </div>
             <div style="min-width:0;">
                 <strong style="font-size:0.92rem; color:#fff; display:block;">تطبيق مقاييس ERP</strong>
@@ -5819,52 +6000,51 @@ try {
          VIEW CONTAINER 1: 📊 DASHBOARD (الرئيسية)
          ═════════════════════════════════════════════════════════════════ -->
     <div class="view-container active" id="view-dashboard">
-        <!-- C. Executive Micro-KPI Cards (2x2 Grid - Rectangular Proportions) with Dual Currency (SDG + USD) -->
-        <div class="micro-kpi-grid">
-            <!-- 1. Net Sales -->
-            <div class="micro-kpi-card" onclick="switchMobileTab('transactions')" style="border-inline-start: 3.5px solid var(--primary);">
-                <div class="micro-kpi-head">
-                    <span><i class="fa-solid fa-chart-line text-sky-400"></i> المبيعات</span>
-                    <span style="font-size:0.74rem; background:rgba(56,189,248,0.15); color:var(--primary); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap; display:inline-flex; align-items:center; gap:3px;" id="kpi-sales-pct">+14.8% ↗</span>
+        <!-- 💎 The Unified Executive KPI Matrix (الوحدة المتكاملة المنسقة للمؤشرات الأربعة الكبرى) -->
+        <div class="unified-kpi-matrix" id="unified-executive-cockpit">
+            <!-- 1. المبيعات (Sales) -->
+            <div class="matrix-quadrant quad-sales" onclick="switchMobileTab('transactions')" title="إجمالي المبيعات — اضغط لعرض السجل">
+                <div class="quad-head">
+                    <span class="quad-title"><i class="fa-solid fa-chart-line text-sky-400"></i> المبيعات</span>
+                    <span class="quad-trend" id="kpi-sales-pct">+14.8% ↗</span>
                 </div>
-                <div class="micro-kpi-val" id="micro-sales-val">
+                <div class="quad-val" id="micro-sales-val">
                     <div class="micro-kpi-amt-local" style="color:#ffffff;">0 <small style="font-size:0.68rem; color:rgba(255,255,255,0.7);">SDG</small></div>
                     <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">≈ $0</div>
                 </div>
             </div>
 
-            <!-- 2. Liquid Cash Balance -->
-            <div class="micro-kpi-card" onclick="document.getElementById('mobile-total-liquidity').scrollIntoView({behavior:'smooth'})" style="border-inline-start: 3.5px solid var(--emerald);">
-                <div class="micro-kpi-head">
-                    <span><i class="fa-solid fa-wallet text-emerald-400"></i> السيولة</span>
+            <!-- 2. السيولة النقدية (Liquid Cash) -->
+            <div class="matrix-quadrant quad-liquidity" onclick="document.getElementById('mobile-total-liquidity').scrollIntoView({behavior:'smooth'})" title="السيولة النقدية — اضغط لعرض الخزائن والبنوك">
+                <div class="quad-head">
+                    <span class="quad-title"><i class="fa-solid fa-wallet text-emerald-400"></i> السيولة</span>
+                    <span class="quad-trend">فوري ↗</span>
                 </div>
-                <div class="micro-kpi-val" id="micro-cash-val">
+                <div class="quad-val" id="micro-cash-val">
                     <div class="micro-kpi-amt-local" style="color:#34d399;">0 <small style="font-size:0.68rem; color:rgba(52,211,153,0.7);">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(16,185,129,0.14); color:#34d399; border:1px solid rgba(16,185,129,0.25);">≈ $0</div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.35);">≈ $0</div>
                 </div>
             </div>
 
-            <!-- 3. Outstanding Receivables -->
-            <div class="micro-kpi-card" onclick="switchMobileTab('ledgers')" style="border-inline-start: 3.5px solid var(--rose);">
-                <div class="micro-kpi-head">
-                    <span><i class="fa-solid fa-hand-holding-dollar text-rose-400"></i> مديونية العملاء</span>
+            <!-- 3. مديونية العملاء (Receivables) -->
+            <div class="matrix-quadrant quad-receivables" onclick="switchMobileTab('ledgers')" title="مديونية العملاء — اضغط لعرض كشف الحساب">
+                <div class="quad-head">
+                    <span class="quad-title"><i class="fa-solid fa-hand-holding-dollar text-rose-400"></i> مديونية العملاء</span>
+                    <span class="quad-trend" id="micro-overdue-val">سداد منتظم</span>
                 </div>
-                <div class="micro-kpi-val" id="micro-receivables-val">
+                <div class="quad-val" id="micro-receivables-val">
                     <div class="micro-kpi-amt-local" style="color:#fb7185;">0 <small style="font-size:0.68rem; color:rgba(251,113,133,0.7);">SDG</small></div>
                     <div class="micro-kpi-amt-foreign" style="background:rgba(252,211,77,0.14); color:#fcd34d; border:1px solid rgba(252,211,77,0.25);">≈ $0</div>
                 </div>
-                <div class="micro-kpi-sub" style="color:#ef4444;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> <span id="micro-overdue-val">سداد منتظم</span>
-                </div>
             </div>
 
-            <!-- 4. Inventory Valuation Snapshot -->
-            <div class="micro-kpi-card" onclick="switchMobileTab('inventory')" style="border-inline-start: 3.5px solid var(--amber);">
-                <div class="micro-kpi-head">
-                    <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> تقييم المخزون</span>
-                    <span style="font-size:0.74rem; background:rgba(245,158,11,0.15); color:var(--amber); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap;" id="micro-stock-items-count">0 صنف</span>
+            <!-- 4. تقييم المخزون (Inventory Valuation) -->
+            <div class="matrix-quadrant quad-inventory" onclick="switchMobileTab('inventory')" title="تقييم المخزون — اضغط للأصناف">
+                <div class="quad-head">
+                    <span class="quad-title"><i class="fa-solid fa-boxes-stacked text-amber-400"></i> تقييم المخزون</span>
+                    <span class="quad-trend" id="micro-stock-items-count">0 صنف</span>
                 </div>
-                <div class="micro-kpi-val" id="micro-inventory-val">
+                <div class="quad-val" id="micro-inventory-val">
                     <div class="micro-kpi-amt-local" style="color:#fbbf24;">0 <small style="font-size:0.68rem; color:rgba(251,191,36,0.7);">SDG</small></div>
                     <div class="micro-kpi-amt-foreign" style="background:rgba(103,232,249,0.14); color:#67e8f9; border:1px solid rgba(103,232,249,0.25);">≈ $0</div>
                 </div>
@@ -5912,7 +6092,7 @@ try {
                     <i class="fa-solid fa-money-bill-transfer"></i>
                 </div>
                 <div class="hero-btn-content">
-                    <div class="action-title" style="font-size:1.15rem;">حركة مالية (سند قبض / صرف)</div>
+                    <div class="action-title" style="font-size:1.15rem;">حركة مالية</div>
                 </div>
                 <div class="hero-btn-actions">
                     <button type="button" class="btn-ai-chip" onclick="event.stopPropagation(); openBottomSheet('sheet-ai-slip');" title="تفريغ إشعار بالذكاء الاصطناعي">
@@ -10211,9 +10391,86 @@ try {
             } catch(e){}
         }
 
+        window.triggerHeaderRefresh = function(btn) {
+            if (typeof triggerHaptic === 'function') triggerHaptic('medium');
+            const spinner = document.getElementById('header-refresh-spinner');
+            if (btn) btn.classList.add('is-spinning');
+            if (spinner) spinner.classList.add('fa-spin');
+
+            if (window.AudioEngine && typeof AudioEngine.play === 'function') {
+                try { AudioEngine.play('nav'); } catch(e){}
+            }
+
+            if (window.OfflineOutboxEngine && typeof OfflineOutboxEngine.flushQueueNow === 'function') {
+                OfflineOutboxEngine.flushQueueNow(false);
+            }
+
+            refreshMobileData(false);
+            renderLiquidityDisplay();
+            renderExecutiveMicroKPIs();
+
+            setTimeout(() => {
+                if (btn) btn.classList.remove('is-spinning');
+                if (spinner) spinner.classList.remove('fa-spin');
+                if (window.showModernToast) {
+                    window.showModernToast('🔄 تم تحديث كافة المؤشرات والخزائن بنجاح', 'success', 2200);
+                }
+            }, 600);
+        };
+
+        window.checkNetworkAndNotify = function() {
+            const online = navigator.onLine;
+            if (typeof triggerHaptic === 'function') triggerHaptic('light');
+            if (online) {
+                if (window.showModernToast) {
+                    window.showModernToast('🟢 الإنترنت متصل بالكامل — جميع العمليات تتزامن لحظياً مع السيرفر', 'success', 3000);
+                }
+            } else {
+                if (window.showModernToast) {
+                    window.showModernToast('🔴 انقطع الاتصال بالإنترنت — نظام الأوفلاين نشط ويحفظ كافة الحركات محلياً', 'warning', 4000);
+                }
+            }
+        };
+
+        // Window Online / Offline Live Listeners
+        window.addEventListener('online', () => {
+            const dot = document.getElementById('header-net-dot');
+            const label = document.getElementById('header-net-label');
+            const wrap = document.getElementById('header-net-indicator');
+            if (dot) dot.className = 'net-status-dot online';
+            if (label) label.innerText = 'متصل';
+            if (wrap) {
+                wrap.className = 'header-net-status-wrap online';
+                wrap.title = 'حالة الإنترنت: متصل (Online)';
+            }
+            if (window.showModernToast) {
+                window.showModernToast('🟢 عاد اتصال الإنترنت! جاري المزامنة التلقائية...', 'success', 3000);
+            }
+            if (window.OfflineOutboxEngine && typeof OfflineOutboxEngine.flushQueueNow === 'function') {
+                OfflineOutboxEngine.flushQueueNow(false);
+            }
+        });
+
+        window.addEventListener('offline', () => {
+            const dot = document.getElementById('header-net-dot');
+            const label = document.getElementById('header-net-label');
+            const wrap = document.getElementById('header-net-indicator');
+            if (dot) dot.className = 'net-status-dot offline';
+            if (label) label.innerText = 'منقطع';
+            if (wrap) {
+                wrap.className = 'header-net-status-wrap offline';
+                wrap.title = 'انقطع اتصال الإنترنت (Offline) — الحركات تحفظ محلياً';
+            }
+            if (window.showModernToast) {
+                window.showModernToast('🔴 انقطع الإنترنت! تحول النظام تلقائياً للوضع المحلي المستقل', 'warning', 3500);
+            }
+        });
+
         function refreshMobileData(showToastAnim = false) {
             const icon = document.getElementById('refresh-icon');
+            const spinner = document.getElementById('header-refresh-spinner');
             if (icon) icon.classList.add('fa-spin');
+            if (spinner) spinner.classList.add('fa-spin');
 
             try {
                 // 1. User & Company
@@ -10665,6 +10922,8 @@ try {
             } finally {
                 setTimeout(() => {
                     if (icon) icon.classList.remove('fa-spin');
+                    const spinner = document.getElementById('header-refresh-spinner');
+                    if (spinner) spinner.classList.remove('fa-spin');
                     if (showToastAnim && window.showModernToast) {
                         window.showModernToast('✅ تم تحديث بيانات الموبايل الحية بنجاح', 'success', 2000);
                     }
@@ -10678,10 +10937,10 @@ try {
             const rate = getDollarExchangeRate();
             const toUSD = (amt) => rate > 0 ? Math.round(amt / rate) : 0;
 
-            let list = (M_VAULTS && M_VAULTS.length > 0) ? M_VAULTS : loadTenantArray('erp_vaults_v1');
+            let list = (M_VAULTS && M_VAULTS.length > 0) ? [...M_VAULTS] : (loadTenantArray('erp_vaults_v1') || []);
             if (!list || list.length === 0) {
-                const bks = loadTenantArray('erp_banks_v1');
-                const sfs = loadTenantArray('erp_safes_v1');
+                const bks = loadTenantArray('erp_banks_v1') || [];
+                const sfs = loadTenantArray('erp_safes_v1') || [];
                 list = [...sfs, ...bks].map(x => ({
                     name: x.name || x.vault_name,
                     amount: parseFloat(x.currentBalance ?? x.balance ?? x.amount ?? 0),
@@ -10689,20 +10948,57 @@ try {
                 }));
             }
 
+            // Ensure Cheques Portfolio (الشيكات تحت التحصيل) is prominently present
+            const hasCheque = list.some(v => ((v.name || v.vault_name || '').includes('شيك') || (v.type === 'cheque')));
+            if (!hasCheque) {
+                const localChecks = loadTenantArray('erp_checks_v1') || [];
+                let localChqTotal = 0;
+                let chqCount = 0;
+                localChecks.forEach(c => {
+                    const status = String(c.status || 'PENDING').toUpperCase();
+                    if (status === 'PENDING' || status === 'UNDER_COLLECTION' || status === 'RECEIVED') {
+                        localChqTotal += parseFloat(c.amount || 0);
+                        chqCount++;
+                    }
+                });
+                list.push({
+                    name: 'الشيكات (تحت التحصيل)',
+                    amount: localChqTotal,
+                    count: chqCount,
+                    color: '#8b5cf6',
+                    type: 'cheque'
+                });
+            }
+
             if (list && list.length > 0) {
                 list.forEach(v => {
+                    const vName = v.name || v.vault_name || 'خزنة';
                     const amt = parseFloat(v.amount || 0);
                     total += amt;
                     const vUsd = toUSD(amt);
-                    const isBank = (v.name || '').includes('بنك') || (v.name || '').toLowerCase().includes('bank');
-                    const icon = isBank ? '🏦' : '💵';
+                    const isBank = vName.includes('بنك') || vName.toLowerCase().includes('bank');
+                    const isCheque = (v.type === 'cheque') || vName.includes('شيك') || vName.toLowerCase().includes('check');
+                    const isDollar = vName.includes('دولار') || vName.toLowerCase().includes('usd');
+                    
+                    let icon = '💵';
+                    let typeBadge = '';
+                    if (isCheque) {
+                        icon = '📑';
+                        typeBadge = '<span style="font-size:0.65rem; background:rgba(139,92,246,0.18); color:#a78bfa; padding:1px 5px; border-radius:4px; margin-inline-start:4px;">شيكات</span>';
+                    } else if (isBank) {
+                        icon = '🏦';
+                    } else if (isDollar) {
+                        icon = '💲';
+                        typeBadge = '<span style="font-size:0.65rem; background:rgba(245,158,11,0.18); color:#fbbf24; padding:1px 5px; border-radius:4px; margin-inline-start:4px;">USD</span>';
+                    }
+
                     const amtColor = amt < 0 ? 'color:#fb7185;' : '';
                     vaultsHtml += `
                         <div class="vault-item">
-                            <span class="vault-name">${icon} ${v.name}</span>
+                            <span class="vault-name">${icon} ${vName} ${typeBadge}</span>
                             <div class="vault-amt-row">
                                 <span class="vault-amt-local" style="${amtColor}">${fmt(amt)} <small>SDG</small></span>
-                                <span class="vault-amt-usd">≈ $${fmt(vUsd)}</span>
+                                <span class="vault-amt-usd" style="background:rgba(245,158,11,0.14); color:#fbbf24; border:1px solid rgba(245,158,11,0.28);">≈ $${fmt(vUsd)}</span>
                             </div>
                         </div>
                     `;
@@ -10713,7 +11009,7 @@ try {
                         <span class="vault-name">💵 الخزينة الرئيسية</span>
                         <div class="vault-amt-row">
                             <span class="vault-amt-local">0 <small>SDG</small></span>
-                            <span class="vault-amt-usd">≈ $0</span>
+                            <span class="vault-amt-usd" style="background:rgba(245,158,11,0.14); color:#fbbf24; border:1px solid rgba(245,158,11,0.28);">≈ $0</span>
                         </div>
                     </div>
                 `;
@@ -10723,7 +11019,7 @@ try {
             if (liqEl) {
                 liqEl.innerHTML = `
                     <div class="liq-grand-local">${fmt(total)} <small>SDG</small></div>
-                    <div class="liq-grand-usd">≈ $${fmt(totalUsd)}</div>
+                    <div class="liq-grand-usd" style="background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.35);">≈ $${fmt(totalUsd)}</div>
                 `;
             }
             const vContainer = document.getElementById('mobile-vaults-container');
@@ -10815,7 +11111,7 @@ try {
             const sCnt = document.getElementById('micro-sales-count');
             if (sCnt) sCnt.remove();
 
-            // 2. Combined Liquid Cash (Vaults + Banks)
+            // 2. Combined Liquid Cash (Vaults + Banks + Cheques) with High-Contrast Gold USD Badge
             let cashTotal = 0;
             M_VAULTS.forEach(v => { cashTotal += parseFloat(v.amount || 0); });
             const cVal = document.getElementById('micro-cash-val');
@@ -10823,7 +11119,7 @@ try {
                 const usd = toUSD(cashTotal);
                 cVal.innerHTML = `
                     ${formatScaledKpiAmount(cashTotal, 'SDG', '#34d399')}
-                    ${formatScaledKpiForeign(usd, 'rgba(16,185,129,0.14)', '#34d399', 'rgba(16,185,129,0.25)')}
+                    ${formatScaledKpiForeign(usd, 'rgba(245,158,11,0.18)', '#fbbf24', 'rgba(245,158,11,0.35)')}
                 `;
             }
             const vCnt = document.getElementById('micro-vaults-count');
@@ -20133,26 +20429,48 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 if (headerOutboxBtn && headerOutboxBadge) {
                     if (this.isSyncing) {
-                        headerOutboxBtn.className = 'header-icon-btn is-syncing-outbox';
-                        if (headerOutboxIcon) headerOutboxIcon.className = 'fa-solid fa-rotate';
+                        headerOutboxBtn.className = 'header-deck-pill pill-sync is-syncing-outbox';
+                        if (headerOutboxIcon) headerOutboxIcon.className = 'fa-solid fa-rotate fa-spin';
                         headerOutboxBadge.style.display = 'flex';
                         headerOutboxBadge.innerText = '⟳';
                         headerOutboxBtn.title = 'جاري تفريغ الطابور ومزامنة المعاملات مع السيرفر...';
                     } else if (pendingCount > 0) {
-                        headerOutboxBtn.className = 'header-icon-btn has-pending-outbox';
+                        headerOutboxBtn.className = 'header-deck-pill pill-sync has-pending-outbox';
                         if (headerOutboxIcon) headerOutboxIcon.className = 'fa-solid fa-cloud-arrow-up';
                         headerOutboxBadge.style.display = 'flex';
                         headerOutboxBadge.innerText = pendingCount;
                         headerOutboxBtn.title = `${pendingCount} معاملات أوفلاين بانتظار التفريغ (${breakdown.vouchers} مالية، ${breakdown.sales} مبيعات) — اضغط للتفريغ الآن`;
                     } else {
-                        headerOutboxBtn.className = 'header-icon-btn';
+                        headerOutboxBtn.className = 'header-deck-pill pill-sync';
                         if (headerOutboxIcon) headerOutboxIcon.className = 'fa-solid fa-cloud-arrow-up';
                         headerOutboxBadge.style.display = 'none';
                         headerOutboxBtn.title = online ? 'طابور الأوفلاين مفرغ بالكامل ومؤكد بالسحابة (Online)' : 'دون اتصال (Offline) — لا توجد معاملات معلقة';
                     }
                 }
 
-                // 2. Connection Light Dot (النور الأخضر / النور الأحمر)
+                // 2. Row 1 Live Internet Status Dot (نقطة خضراء متصل / نقطة حمراء منقطع)
+                const headerNetDot = document.getElementById('header-net-dot');
+                const headerNetLabel = document.getElementById('header-net-label');
+                const headerNetWrap = document.getElementById('header-net-indicator');
+                if (headerNetDot) {
+                    if (online) {
+                        headerNetDot.className = 'net-status-dot online';
+                        if (headerNetLabel) headerNetLabel.innerText = this.isSyncing ? 'مزامنة' : 'متصل';
+                        if (headerNetWrap) {
+                            headerNetWrap.className = 'header-net-status-wrap online';
+                            headerNetWrap.title = this.isSyncing ? 'جاري المزامنة مع السيرفر ⚡' : 'الإنترنت متصل (Online)';
+                        }
+                    } else {
+                        headerNetDot.className = 'net-status-dot offline';
+                        if (headerNetLabel) headerNetLabel.innerText = 'منقطع';
+                        if (headerNetWrap) {
+                            headerNetWrap.className = 'header-net-status-wrap offline';
+                            headerNetWrap.title = 'انقطع الإنترنت (Offline) — الحركات تحفظ محلياً';
+                        }
+                    }
+                }
+
+                // Bottom Docked connection indicator (if present)
                 const headerPill = document.getElementById('btn-outbox-status');
                 const pillDot = document.getElementById('outbox-pill-dot');
                 const pillText = document.getElementById('outbox-pill-text');

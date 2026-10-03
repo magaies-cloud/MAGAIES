@@ -811,7 +811,30 @@ function getRealTimeLiquidity($pdo) {
             }
         } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage()); }
 
-        // Mock data fallback removed for SaaS environment
+        // 3. جلب محفظة الشيكات الحقيقية (تحت التحصيل)
+        try {
+            $tCond = (!empty($GLOBAL_TENANT_ID) && $GLOBAL_TENANT_ID > 0) ? "tenant_id = '{$GLOBAL_TENANT_ID}'" : "1=1";
+            $stmt = $pdo->query("SELECT data FROM `checks` WHERE ($tCond) AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $checksTotal = 0;
+            $checksCount = 0;
+            while ($row = $stmt->fetch()) {
+                $data = json_decode($row['data'], true);
+                if ($data && empty($data['deleted'])) {
+                    $status = strtoupper($data['status'] ?? 'PENDING');
+                    if ($status === 'PENDING' || $status === 'UNDER_COLLECTION' || $status === 'RECEIVED') {
+                        $checksTotal += (float)($data['amount'] ?? 0);
+                        $checksCount++;
+                    }
+                }
+            }
+            $vaults[] = [
+                'vault_name' => 'الشيكات (تحت التحصيل)',
+                'amount' => $checksTotal,
+                'count' => $checksCount,
+                'color' => '#8b5cf6',
+                'type' => 'cheque'
+            ];
+        } catch (Exception $e) { error_log('DB Bridge Error in ' . __FUNCTION__ . ': ' . $e->getMessage()); }
 
         // ترتيب تنازلي حسب الرصيد المتوفر
         usort($vaults, function($a, $b) {
