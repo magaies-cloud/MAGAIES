@@ -28,11 +28,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/../db_bridge.php';
 
+function ensureSyncInfrastructure($pdo) {
+    static $initialized = false;
+    if ($initialized) return;
+
+    try {
+        // 1. Ensure sync_queue table exists
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `sync_queue` (
+          `id` varchar(64) NOT NULL,
+          `entity_name` varchar(64) NOT NULL COMMENT 'invoices, vouchers, stock_transfers',
+          `record_id` varchar(64) DEFAULT NULL,
+          `operation` varchar(16) NOT NULL DEFAULT 'INSERT' COMMENT 'INSERT, UPDATE, DELETE',
+          `payload` longtext NOT NULL COMMENT 'JSON payload',
+          `status` varchar(32) NOT NULL DEFAULT 'PENDING' COMMENT 'PENDING, SYNCING, FAILED, SYNCED',
+          `retry_count` int(11) NOT NULL DEFAULT 0,
+          `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          `synced_at` timestamp NULL DEFAULT NULL,
+          `error_message` text DEFAULT NULL,
+          PRIMARY KEY (`id`),
+          KEY `idx_entity_status` (`entity_name`,`status`),
+          KEY `idx_created` (`created_at`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        // 2. Ensure domain storage tables exist
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `single_receipts` (
+          `id` int(11) NOT NULL AUTO_INCREMENT,
+          `tenant_id` int(11) NOT NULL DEFAULT 1,
+          `data` longtext NOT NULL,
+          `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (`id`),
+          KEY `idx_tenant` (`tenant_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `single_payments` (
+          `id` int(11) NOT NULL AUTO_INCREMENT,
+          `tenant_id` int(11) NOT NULL DEFAULT 1,
+          `data` longtext NOT NULL,
+          `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (`id`),
+          KEY `idx_tenant` (`tenant_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `sales_invoices` (
+          `id` int(11) NOT NULL AUTO_INCREMENT,
+          `tenant_id` int(11) NOT NULL DEFAULT 1,
+          `data` longtext NOT NULL,
+          `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (`id`),
+          KEY `idx_tenant` (`tenant_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `purchase_invoices` (
+          `id` int(11) NOT NULL AUTO_INCREMENT,
+          `tenant_id` int(11) NOT NULL DEFAULT 1,
+          `data` longtext NOT NULL,
+          `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          PRIMARY KEY (`id`),
+          KEY `idx_tenant` (`tenant_id`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
+
+        $initialized = true;
+    } catch (Exception $e) {
+        // Log silently, allow request to proceed
+    }
+}
+
 try {
     $pdo = getDBConnection();
     if (!$pdo) {
         throw new Exception("Database connection unavailable");
     }
+    ensureSyncInfrastructure($pdo);
 
     $method = $_SERVER['REQUEST_METHOD'];
     $action = $_GET['action'] ?? ($method === 'POST' ? 'push' : 'pull');
