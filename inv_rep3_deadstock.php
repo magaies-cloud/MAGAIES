@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -10,11 +10,11 @@ $report_data = [];
 foreach ($raw_data as $row) {
     if ($row['stock_qty'] > 0) {
         $last_date = $row['last_movement_date'];
-        if ($last_date && $last_date !== 'لا يوجد حركة') {
+        if ($last_date && $last_date !== 'ظ„ط§ ظٹظˆط¬ط¯ ط­ط±ظƒط©') {
             $days_dormant = (int)round((time() - strtotime($last_date)) / (60 * 60 * 24));
             if ($days_dormant < 0) $days_dormant = 0;
         } else {
-            $days_dormant = 365; // لم يبع أبداً
+            $days_dormant = 365; // ظ„ظ… ظٹط¨ط¹ ط£ط¨ط¯ط§ظ‹
             $last_date = null;
         }
         $report_data[] = [
@@ -31,7 +31,8 @@ usort($report_data, function($a, $b) { return $b['days_dormant'] <=> $a['days_do
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>البضاعة الراكدة - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ط±ط§ظƒط¯ط© - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -68,7 +69,7 @@ usort($report_data, function($a, $b) { return $b['days_dormant'] <=> $a['days_do
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -138,7 +139,7 @@ usort($report_data, function($a, $b) { return $b['days_dormant'] <=> $a['days_do
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -150,7 +151,7 @@ usort($report_data, function($a, $b) { return $b['days_dormant'] <=> $a['days_do
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -167,42 +168,42 @@ usort($report_data, function($a, $b) { return $b['days_dormant'] <=> $a['days_do
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'البضاعة الراكدة'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ط±ط§ظƒط¯ط©'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-amber-400"><i class="fa-solid fa-snowflake"></i> تقرير مصفوفة البضاعة الراكدة وبطيئة الحركة</h1>
-            <p class="text-slate-500 text-xs mt-1">يرصد البضاعة المتراكمة في المخازن وحساب كلفة جمود رأس المال</p>
+            <h1 class="text-xl font-black text-amber-400"><i class="fa-solid fa-snowflake"></i> طھظ‚ط±ظٹط± ظ…طµظپظˆظپط© ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ط±ط§ظƒط¯ط© ظˆط¨ط·ظٹط¦ط© ط§ظ„ط­ط±ظƒط©</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹط±طµط¯ ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ظ…طھط±ط§ظƒظ…ط© ظپظٹ ط§ظ„ظ…ط®ط§ط²ظ† ظˆط­ط³ط§ط¨ ظƒظ„ظپط© ط¬ظ…ظˆط¯ ط±ط£ط³ ط§ظ„ظ…ط§ظ„</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
 
-    <!-- الجدول العلوي -->
+    <!-- ط§ظ„ط¬ط¯ظˆظ„ ط§ظ„ط¹ظ„ظˆظٹ -->
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف الراكد</th>
-                    <th class="p-4 font-bold text-center">الكمية المجمّدة في العنبر</th>
-                    <th class="p-4 font-bold text-center">تاريخ آخر عملية بيع</th>
-                    <th class="p-4 font-bold text-center text-amber-400">أيام الركود المستمر</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ ط§ظ„ط±ط§ظƒط¯</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط¬ظ…ظ‘ط¯ط© ظپظٹ ط§ظ„ط¹ظ†ط¨ط±</th>
+                    <th class="p-4 font-bold text-center">طھط§ط±ظٹط® ط¢ط®ط± ط¹ظ…ظ„ظٹط© ط¨ظٹط¹</th>
+                    <th class="p-4 font-bold text-center text-amber-400">ط£ظٹط§ظ… ط§ظ„ط±ظƒظˆط¯ ط§ظ„ظ…ط³طھظ…ط±</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
                 <?php foreach ($report_data as $row): ?>
                     <tr class="hover:bg-slate-900/40 transition-colors">
                         <td class="p-4 font-bold text-slate-200"><?php echo htmlspecialchars($row['item_name']); ?></td>
-                        <td class="p-4 text-center font-mono font-bold text-amber-400"><?php echo number_format($row['stock_qty']); ?> طن</td>
-                        <td class="p-4 text-center font-mono text-slate-400"><?php echo $row['last_sale_date'] ? $row['last_sale_date'] : 'لا يوجد حركات'; ?></td>
-                        <td class="p-4 text-center font-mono font-bold bg-amber-500/5 text-amber-300"><?php echo $row['days_dormant']; ?> يوم</td>
+                        <td class="p-4 text-center font-mono font-bold text-amber-400"><?php echo number_format($row['stock_qty']); ?> ط·ظ†</td>
+                        <td class="p-4 text-center font-mono text-slate-400"><?php echo $row['last_sale_date'] ? $row['last_sale_date'] : 'ظ„ط§ ظٹظˆط¬ط¯ ط­ط±ظƒط§طھ'; ?></td>
+                        <td class="p-4 text-center font-mono font-bold bg-amber-500/5 text-amber-300"><?php echo $row['days_dormant']; ?> ظٹظˆظ…</td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 
-    <!-- كعكة دائرية مفرغة في الأسفل -->
+    <!-- ظƒط¹ظƒط© ط¯ط§ط¦ط±ظٹط© ظ…ظپط±ط؛ط© ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">🍩 كعكة الركود: توزيع أيام جمود رأس المال للأصناف</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًںچ© ظƒط¹ظƒط© ط§ظ„ط±ظƒظˆط¯: طھظˆط²ظٹط¹ ط£ظٹط§ظ… ط¬ظ…ظˆط¯ ط±ط£ط³ ط§ظ„ظ…ط§ظ„ ظ„ظ„ط£طµظ†ط§ظپ</h3>
         <div class="h-80 flex justify-center">
             <div class="w-80 h-80">
                 <canvas id="dormantDoughnutChart"></canvas>
@@ -236,3 +237,4 @@ usort($report_data, function($a, $b) { return $b['days_dormant'] <=> $a['days_do
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

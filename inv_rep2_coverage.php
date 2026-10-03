@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -12,7 +12,8 @@ usort($report_data, function($a, $b) { return $a['days_coverage'] <=> $b['days_c
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>أيام تغطية المخزون الفعلي - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط£ظٹط§ظ… طھط؛ط·ظٹط© ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظپط¹ظ„ظٹ - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -49,7 +50,7 @@ usort($report_data, function($a, $b) { return $a['days_coverage'] <=> $b['days_c
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -119,7 +120,7 @@ usort($report_data, function($a, $b) { return $a['days_coverage'] <=> $b['days_c
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -131,7 +132,7 @@ usort($report_data, function($a, $b) { return $a['days_coverage'] <=> $b['days_c
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -148,34 +149,34 @@ usort($report_data, function($a, $b) { return $a['days_coverage'] <=> $b['days_c
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'أيام تغطية المخزون الفعلي'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط£ظٹط§ظ… طھط؛ط·ظٹط© ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظپط¹ظ„ظٹ'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-hourglass-half"></i> تقرير أيام التغطية المتبقية للمخزون الفعلي</h1>
-            <p class="text-slate-500 text-xs mt-1">مؤشر زمني يكشف كم يوماً تكفي البضاعة الحالية في المخزن قبل النفاد</p>
+            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-hourglass-half"></i> طھظ‚ط±ظٹط± ط£ظٹط§ظ… ط§ظ„طھط؛ط·ظٹط© ط§ظ„ظ…طھط¨ظ‚ظٹط© ظ„ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظپط¹ظ„ظٹ</h1>
+            <p class="text-slate-500 text-xs mt-1">ظ…ط¤ط´ط± ط²ظ…ظ†ظٹ ظٹظƒط´ظپ ظƒظ… ظٹظˆظ…ط§ظ‹ طھظƒظپظٹ ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ط­ط§ظ„ظٹط© ظپظٹ ط§ظ„ظ…ط®ط²ظ† ظ‚ط¨ظ„ ط§ظ„ظ†ظپط§ط¯</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
 
-    <!-- الجدول العلوي -->
+    <!-- ط§ظ„ط¬ط¯ظˆظ„ ط§ظ„ط¹ظ„ظˆظٹ -->
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف</th>
-                    <th class="p-4 font-bold text-center">الكمية الحالية</th>
-                    <th class="p-4 font-bold text-center">معدل السحب اليومي (طن)</th>
-                    <th class="p-4 font-bold text-center text-emerald-400">أيام التغطية المتبقية</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ظƒظ…ظٹط© ط§ظ„ط­ط§ظ„ظٹط©</th>
+                    <th class="p-4 font-bold text-center">ظ…ط¹ط¯ظ„ ط§ظ„ط³ط­ط¨ ط§ظ„ظٹظˆظ…ظٹ (ط·ظ†)</th>
+                    <th class="p-4 font-bold text-center text-emerald-400">ط£ظٹط§ظ… ط§ظ„طھط؛ط·ظٹط© ط§ظ„ظ…طھط¨ظ‚ظٹط©</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
                 <?php foreach ($report_data as $row): ?>
                     <tr class="hover:bg-slate-900/40 transition-colors">
                         <td class="p-4 font-bold text-slate-200"><?php echo htmlspecialchars($row['item_name']); ?></td>
-                        <td class="p-4 text-center font-mono"><?php echo number_format($row['stock_qty']); ?> طن</td>
+                        <td class="p-4 text-center font-mono"><?php echo number_format($row['stock_qty']); ?> ط·ظ†</td>
                         <td class="p-4 text-center font-mono text-slate-400"><?php echo number_format($row['avg_daily_sales'], 2); ?></td>
                         <td class="p-4 text-center font-mono font-bold text-emerald-400 bg-emerald-500/5">
-                            <?php echo $row['days_coverage'] == 999 ? 'مخزون راكد / لا سحب' : $row['days_coverage'] . ' يوم'; ?>
+                            <?php echo $row['days_coverage'] == 999 ? 'ظ…ط®ط²ظˆظ† ط±ط§ظƒط¯ / ظ„ط§ ط³ط­ط¨' : $row['days_coverage'] . ' ظٹظˆظ…'; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -183,9 +184,9 @@ usort($report_data, function($a, $b) { return $a['days_coverage'] <=> $b['days_c
         </table>
     </div>
 
-    <!-- المخطط البياني السفلي -->
+    <!-- ط§ظ„ظ…ط®ط·ط· ط§ظ„ط¨ظٹط§ظ†ظٹ ط§ظ„ط³ظپظ„ظٹ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📊 مخطط أيام التغطية الزمنية لكل صنف</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ٹ ظ…ط®ط·ط· ط£ظٹط§ظ… ط§ظ„طھط؛ط·ظٹط© ط§ظ„ط²ظ…ظ†ظٹط© ظ„ظƒظ„ طµظ†ظپ</h3>
         <div class="h-80">
             <canvas id="coverageChart"></canvas>
         </div>
@@ -200,7 +201,7 @@ usort($report_data, function($a, $b) { return $a['days_coverage'] <=> $b['days_c
             data: {
                 labels: reportData.map(r => r.item_name),
                 datasets: [{
-                    label: 'أيام التغطية المتبقية (يوم)',
+                    label: 'ط£ظٹط§ظ… ط§ظ„طھط؛ط·ظٹط© ط§ظ„ظ…طھط¨ظ‚ظٹط© (ظٹظˆظ…)',
                     data: reportData.map(r => r.days_coverage == 999 ? 100 : r.days_coverage),
                     backgroundColor: reportData.map(r => r.days_coverage <= 30 ? '#ef4444' : (r.days_coverage <= 90 ? '#f59e0b' : '#10b981'))
                 }]
@@ -222,3 +223,4 @@ usort($report_data, function($a, $b) { return $a['days_coverage'] <=> $b['days_c
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

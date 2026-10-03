@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -13,7 +13,7 @@ try {
     foreach ($sups as $row) {
         $data = json_decode($row['data'], true);
         if ($data) {
-            $name = $data['name'] ?? 'مورد';
+            $name = $data['name'] ?? 'ظ…ظˆط±ط¯';
             $report_data[] = [
                 'supplier_name' => $name,
                 'order_count' => rand(5, 20),
@@ -25,8 +25,8 @@ try {
 
 if (empty($report_data)) {
     $report_data = [
-        ['supplier_name' => 'مصنع الأسعد للحديد', 'order_count' => 12, 'avg_lead_time_days' => 4],
-        ['supplier_name' => 'شركة أسمنت عطبرة', 'order_count' => 8, 'avg_lead_time_days' => 7]
+        ['supplier_name' => 'ظ…طµظ†ط¹ ط§ظ„ط£ط³ط¹ط¯ ظ„ظ„ط­ط¯ظٹط¯', 'order_count' => 12, 'avg_lead_time_days' => 4],
+        ['supplier_name' => 'ط´ط±ظƒط© ط£ط³ظ…ظ†طھ ط¹ط·ط¨ط±ط©', 'order_count' => 8, 'avg_lead_time_days' => 7]
     ];
 }
 ?>
@@ -34,7 +34,8 @@ if (empty($report_data)) {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>زمن توريد المصانع - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط²ظ…ظ† طھظˆط±ظٹط¯ ط§ظ„ظ…طµط§ظ†ط¹ - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -71,7 +72,7 @@ if (empty($report_data)) {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -141,7 +142,7 @@ if (empty($report_data)) {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -153,7 +154,7 @@ if (empty($report_data)) {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -170,38 +171,38 @@ if (empty($report_data)) {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'زمن توريد المصانع'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط²ظ…ظ† طھظˆط±ظٹط¯ ط§ظ„ظ…طµط§ظ†ط¹'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-truck"></i> تقرير متوسط زمن توريد المصانع باليوم (Supplier Lead Time)</h1>
-            <p class="text-slate-500 text-xs mt-1">يحلل كفاءة وسرعة استجابة المصانع المحلية في شحن وتوصيل طلبيات الشراء</p>
+            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-truck"></i> طھظ‚ط±ظٹط± ظ…طھظˆط³ط· ط²ظ…ظ† طھظˆط±ظٹط¯ ط§ظ„ظ…طµط§ظ†ط¹ ط¨ط§ظ„ظٹظˆظ… (Supplier Lead Time)</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹط­ظ„ظ„ ظƒظپط§ط،ط© ظˆط³ط±ط¹ط© ط§ط³طھط¬ط§ط¨ط© ط§ظ„ظ…طµط§ظ†ط¹ ط§ظ„ظ…ط­ظ„ظٹط© ظپظٹ ط´ط­ظ† ظˆطھظˆطµظٹظ„ ط·ظ„ط¨ظٹط§طھ ط§ظ„ط´ط±ط§ط،</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم المصنع / المورد</th>
-                    <th class="p-4 font-bold text-center">عدد طلبيات التوريد</th>
-                    <th class="p-4 font-bold text-center text-emerald-400">متوسط زمن التوصيل (يوم)</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„ظ…طµظ†ط¹ / ط§ظ„ظ…ظˆط±ط¯</th>
+                    <th class="p-4 font-bold text-center">ط¹ط¯ط¯ ط·ظ„ط¨ظٹط§طھ ط§ظ„طھظˆط±ظٹط¯</th>
+                    <th class="p-4 font-bold text-center text-emerald-400">ظ…طھظˆط³ط· ط²ظ…ظ† ط§ظ„طھظˆطµظٹظ„ (ظٹظˆظ…)</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
                 <?php foreach ($report_data as $row): ?>
                     <tr class="hover:bg-slate-900/40 transition-colors">
                         <td class="p-4 font-bold text-slate-200"><?php echo htmlspecialchars($row['supplier_name']); ?></td>
-                        <td class="p-4 text-center font-mono"><?php echo $row['order_count']; ?> طلبيات</td>
-                        <td class="p-4 text-center font-mono font-bold text-emerald-400 bg-emerald-500/5"><?php echo $row['avg_lead_time_days']; ?> أيام</td>
+                        <td class="p-4 text-center font-mono"><?php echo $row['order_count']; ?> ط·ظ„ط¨ظٹط§طھ</td>
+                        <td class="p-4 text-center font-mono font-bold text-emerald-400 bg-emerald-500/5"><?php echo $row['avg_lead_time_days']; ?> ط£ظٹط§ظ…</td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 
-    <!-- شريط بياني أفقي في الأسفل -->
+    <!-- ط´ط±ظٹط· ط¨ظٹط§ظ†ظٹ ط£ظپظ‚ظٹ ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800 mb-6">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📊 مخطط متوسط أيام توريد الشحنات لكل مصنع</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ٹ ظ…ط®ط·ط· ظ…طھظˆط³ط· ط£ظٹط§ظ… طھظˆط±ظٹط¯ ط§ظ„ط´ط­ظ†ط§طھ ظ„ظƒظ„ ظ…طµظ†ط¹</h3>
         <div class="h-80">
             <canvas id="leadTimeChart"></canvas>
         </div>
@@ -216,7 +217,7 @@ if (empty($report_data)) {
             data: {
                 labels: reportData.map(r => r.supplier_name),
                 datasets: [{
-                    label: 'متوسط زمن التوريد (يوم)',
+                    label: 'ظ…طھظˆط³ط· ط²ظ…ظ† ط§ظ„طھظˆط±ظٹط¯ (ظٹظˆظ…)',
                     data: reportData.map(r => r.avg_lead_time_days),
                     backgroundColor: '#10b981'
                 }]
@@ -239,3 +240,4 @@ if (empty($report_data)) {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

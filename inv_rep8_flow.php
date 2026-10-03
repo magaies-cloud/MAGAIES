@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -55,7 +55,8 @@ try {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>تدفق الوارد والصادر حياً - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طھط¯ظپظ‚ ط§ظ„ظˆط§ط±ط¯ ظˆط§ظ„طµط§ط¯ط± ط­ظٹط§ظ‹ - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -92,7 +93,7 @@ try {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -162,7 +163,7 @@ try {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -174,7 +175,7 @@ try {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -191,22 +192,22 @@ try {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'تدفق الوارد والصادر حياً'; include 'includes/header.php'; ?>
+        <?php $page_title = 'طھط¯ظپظ‚ ط§ظ„ظˆط§ط±ط¯ ظˆط§ظ„طµط§ط¯ط± ط­ظٹط§ظ‹'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-exchange-alt"></i> تقرير تدفق الوارد والصادر حياً من المخازن</h1>
-            <p class="text-slate-500 text-xs mt-1">يعرض إجمالي الكميات الموردة والمصروفة من البضائع يومياً وصافي التدفق اللحظي</p>
+            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-exchange-alt"></i> طھظ‚ط±ظٹط± طھط¯ظپظ‚ ط§ظ„ظˆط§ط±ط¯ ظˆط§ظ„طµط§ط¯ط± ط­ظٹط§ظ‹ ظ…ظ† ط§ظ„ظ…ط®ط§ط²ظ†</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹط¹ط±ط¶ ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظƒظ…ظٹط§طھ ط§ظ„ظ…ظˆط±ط¯ط© ظˆط§ظ„ظ…طµط±ظˆظپط© ظ…ظ† ط§ظ„ط¨ط¶ط§ط¦ط¹ ظٹظˆظ…ظٹط§ظ‹ ظˆطµط§ظپظٹ ط§ظ„طھط¯ظپظ‚ ط§ظ„ظ„ط­ط¸ظٹ</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">التاريخ</th>
-                    <th class="p-4 font-bold text-center text-cyan-400">الوارد (طن)</th>
-                    <th class="p-4 font-bold text-center text-amber-400">الصادر (طن)</th>
-                    <th class="p-4 font-bold text-center">صافي الحركة اليومية</th>
+                    <th class="p-4 font-bold">ط§ظ„طھط§ط±ظٹط®</th>
+                    <th class="p-4 font-bold text-center text-cyan-400">ط§ظ„ظˆط§ط±ط¯ (ط·ظ†)</th>
+                    <th class="p-4 font-bold text-center text-amber-400">ط§ظ„طµط§ط¯ط± (ط·ظ†)</th>
+                    <th class="p-4 font-bold text-center">طµط§ظپظٹ ط§ظ„ط­ط±ظƒط© ط§ظ„ظٹظˆظ…ظٹط©</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
@@ -216,7 +217,7 @@ try {
                         <td class="p-4 text-center font-mono text-cyan-400 bg-cyan-500/5"><?php echo number_format($row['inbound_qty']); ?></td>
                         <td class="p-4 text-center font-mono text-amber-400 bg-amber-500/5"><?php echo number_format($row['outbound_qty']); ?></td>
                         <td class="p-4 text-center font-mono font-bold <?php echo $row['net_flow'] >= 0 ? 'text-emerald-400 bg-emerald-500/5' : 'text-red-400 bg-red-500/5'; ?>">
-                            <?php echo number_format($row['net_flow']); ?> طن
+                            <?php echo number_format($row['net_flow']); ?> ط·ظ†
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -224,9 +225,9 @@ try {
         </table>
     </div>
 
-    <!-- مخطط بياني خطي في الأسفل -->
+    <!-- ظ…ط®ط·ط· ط¨ظٹط§ظ†ظٹ ط®ط·ظٹ ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800 mb-6">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📈 منحنى تدفق الوارد والصادر المالي اليومي</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ˆ ظ…ظ†ط­ظ†ظ‰ طھط¯ظپظ‚ ط§ظ„ظˆط§ط±ط¯ ظˆط§ظ„طµط§ط¯ط± ط§ظ„ظ…ط§ظ„ظٹ ط§ظ„ظٹظˆظ…ظٹ</h3>
         <div class="h-80">
             <canvas id="flowChart"></canvas>
         </div>
@@ -241,8 +242,8 @@ try {
             data: {
                 labels: reportData.map(r => r.flow_date),
                 datasets: [
-                    { label: 'كمية الوارد (طن)', data: reportData.map(r => r.inbound_qty), borderColor: '#06b6d4', tension: 0.3, fill: false },
-                    { label: 'كمية الصادر (طن)', data: reportData.map(r => r.outbound_qty), borderColor: '#f59e0b', tension: 0.3, fill: false }
+                    { label: 'ظƒظ…ظٹط© ط§ظ„ظˆط§ط±ط¯ (ط·ظ†)', data: reportData.map(r => r.inbound_qty), borderColor: '#06b6d4', tension: 0.3, fill: false },
+                    { label: 'ظƒظ…ظٹط© ط§ظ„طµط§ط¯ط± (ط·ظ†)', data: reportData.map(r => r.outbound_qty), borderColor: '#f59e0b', tension: 0.3, fill: false }
                 ]
             },
             options: {
@@ -262,4 +263,5 @@ try {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+
 

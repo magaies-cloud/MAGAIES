@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -25,15 +25,15 @@ foreach ($report_data as $idx => $row) {
     $pct = $total_value > 0 ? ($cumulative / $total_value) * 100 : 0;
     
     if ($pct <= 80) {
-        $class = 'A (رئيسي استراتيجي)';
+        $class = 'A (ط±ط¦ظٹط³ظٹ ط§ط³طھط±ط§طھظٹط¬ظٹ)';
         $color = 'text-red-400 bg-red-500/5';
         $class_counts['A'] += $row['value'];
     } elseif ($pct <= 95) {
-        $class = 'B (متوسط الأهمية)';
+        $class = 'B (ظ…طھظˆط³ط· ط§ظ„ط£ظ‡ظ…ظٹط©)';
         $color = 'text-amber-400 bg-amber-500/5';
         $class_counts['B'] += $row['value'];
     } else {
-        $class = 'C (ثانوي)';
+        $class = 'C (ط«ط§ظ†ظˆظٹ)';
         $color = 'text-emerald-400 bg-emerald-500/5';
         $class_counts['C'] += $row['value'];
     }
@@ -47,7 +47,8 @@ foreach ($report_data as $idx => $row) {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>تحليل تركيز البضائع ABC - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طھط­ظ„ظٹظ„ طھط±ظƒظٹط² ط§ظ„ط¨ط¶ط§ط¦ط¹ ABC - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -84,7 +85,7 @@ foreach ($report_data as $idx => $row) {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -154,7 +155,7 @@ foreach ($report_data as $idx => $row) {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -166,7 +167,7 @@ foreach ($report_data as $idx => $row) {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -183,22 +184,22 @@ foreach ($report_data as $idx => $row) {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'تحليل تركيز البضائع ABC'; include 'includes/header.php'; ?>
+        <?php $page_title = 'طھط­ظ„ظٹظ„ طھط±ظƒظٹط² ط§ظ„ط¨ط¶ط§ط¦ط¹ ABC'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-cubes-stacked"></i> تحليل تركيز القيمة المالية للبضائع (ABC Analysis)</h1>
-            <p class="text-slate-500 text-xs mt-1">يصنف المخزون حسب الأهمية الرأسمالية: فئة A (80% من القيمة)، فئة B (15% من القيمة)، فئة C (5% من القيمة)</p>
+            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-cubes-stacked"></i> طھط­ظ„ظٹظ„ طھط±ظƒظٹط² ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ظ…ط§ظ„ظٹط© ظ„ظ„ط¨ط¶ط§ط¦ط¹ (ABC Analysis)</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹطµظ†ظپ ط§ظ„ظ…ط®ط²ظˆظ† ط­ط³ط¨ ط§ظ„ط£ظ‡ظ…ظٹط© ط§ظ„ط±ط£ط³ظ…ط§ظ„ظٹط©: ظپط¦ط© A (80% ظ…ظ† ط§ظ„ظ‚ظٹظ…ط©)طŒ ظپط¦ط© B (15% ظ…ظ† ط§ظ„ظ‚ظٹظ…ط©)طŒ ظپط¦ط© C (5% ظ…ظ† ط§ظ„ظ‚ظٹظ…ط©)</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف</th>
-                    <th class="p-4 font-bold text-left">القيمة الاستثمارية للمخزون</th>
-                    <th class="p-4 font-bold text-center">النسبة من الإجمالي (%)</th>
-                    <th class="p-4 font-bold text-center text-purple-400">فئة تركيز الأهمية ABC</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ</th>
+                    <th class="p-4 font-bold text-left">ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ط§ط³طھط«ظ…ط§ط±ظٹط© ظ„ظ„ظ…ط®ط²ظˆظ†</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ظ†ط³ط¨ط© ظ…ظ† ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ (%)</th>
+                    <th class="p-4 font-bold text-center text-purple-400">ظپط¦ط© طھط±ظƒظٹط² ط§ظ„ط£ظ‡ظ…ظٹط© ABC</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
@@ -214,9 +215,9 @@ foreach ($report_data as $idx => $row) {
         </table>
     </div>
 
-    <!-- كعكة دائرية مفرغة لتوزيع القيمة الرأسمالية حسب فئات ABC في الأسفل -->
+    <!-- ظƒط¹ظƒط© ط¯ط§ط¦ط±ظٹط© ظ…ظپط±ط؛ط© ظ„طھظˆط²ظٹط¹ ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ط±ط£ط³ظ…ط§ظ„ظٹط© ط­ط³ط¨ ظپط¦ط§طھ ABC ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">🍩 كعكة توزيع القيمة الاستثمارية حسب فئات الأهمية ABC</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًںچ© ظƒط¹ظƒط© طھظˆط²ظٹط¹ ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ط§ط³طھط«ظ…ط§ط±ظٹط© ط­ط³ط¨ ظپط¦ط§طھ ط§ظ„ط£ظ‡ظ…ظٹط© ABC</h3>
         <div class="h-80 flex justify-center">
             <div class="w-80 h-80">
                 <canvas id="abcChart"></canvas>
@@ -229,7 +230,7 @@ foreach ($report_data as $idx => $row) {
         new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['الفئة A (استراتيجي)', 'الفئة B (متوسط)', 'الفئة C (ثانوي)'],
+                labels: ['ط§ظ„ظپط¦ط© A (ط§ط³طھط±ط§طھظٹط¬ظٹ)', 'ط§ظ„ظپط¦ط© B (ظ…طھظˆط³ط·)', 'ط§ظ„ظپط¦ط© C (ط«ط§ظ†ظˆظٹ)'],
                 datasets: [{
                     data: [<?php echo $class_counts['A']; ?>, <?php echo $class_counts['B']; ?>, <?php echo $class_counts['C']; ?>],
                     backgroundColor: ['#ef4444', '#f59e0b', '#10b981']
@@ -248,3 +249,4 @@ foreach ($report_data as $idx => $row) {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

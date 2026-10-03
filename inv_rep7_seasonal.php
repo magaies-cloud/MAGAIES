@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -11,7 +11,8 @@ $report_data = getSeasonalTrendsData($pdo);
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>السحب والطلب الموسمي - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط§ظ„ط³ط­ط¨ ظˆط§ظ„ط·ظ„ط¨ ط§ظ„ظ…ظˆط³ظ…ظٹ - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -48,7 +49,7 @@ $report_data = getSeasonalTrendsData($pdo);
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -118,7 +119,7 @@ $report_data = getSeasonalTrendsData($pdo);
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -130,7 +131,7 @@ $report_data = getSeasonalTrendsData($pdo);
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -147,22 +148,22 @@ $report_data = getSeasonalTrendsData($pdo);
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'السحب والطلب الموسمي'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط§ظ„ط³ط­ط¨ ظˆط§ظ„ط·ظ„ط¨ ط§ظ„ظ…ظˆط³ظ…ظٹ'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-cloud-sun"></i> تقرير السحب والطلب الموسمي للبضائع</h1>
-            <p class="text-slate-500 text-xs mt-1">يقارن حجم المبيعات خلال موسم الأمطار والخريف مقابل موسم الجفاف والصيف</p>
+            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-cloud-sun"></i> طھظ‚ط±ظٹط± ط§ظ„ط³ط­ط¨ ظˆط§ظ„ط·ظ„ط¨ ط§ظ„ظ…ظˆط³ظ…ظٹ ظ„ظ„ط¨ط¶ط§ط¦ط¹</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹظ‚ط§ط±ظ† ط­ط¬ظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط®ظ„ط§ظ„ ظ…ظˆط³ظ… ط§ظ„ط£ظ…ط·ط§ط± ظˆط§ظ„ط®ط±ظٹظپ ظ…ظ‚ط§ط¨ظ„ ظ…ظˆط³ظ… ط§ظ„ط¬ظپط§ظپ ظˆط§ظ„طµظٹظپ</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف</th>
-                    <th class="p-4 font-bold text-center">سحب الخريف والأمطار (طن)</th>
-                    <th class="p-4 font-bold text-center">سحب الصيف والجفاف (طن)</th>
-                    <th class="p-4 font-bold text-center text-emerald-400">إجمالي السحب السنوي</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ</th>
+                    <th class="p-4 font-bold text-center">ط³ط­ط¨ ط§ظ„ط®ط±ظٹظپ ظˆط§ظ„ط£ظ…ط·ط§ط± (ط·ظ†)</th>
+                    <th class="p-4 font-bold text-center">ط³ط­ط¨ ط§ظ„طµظٹظپ ظˆط§ظ„ط¬ظپط§ظپ (ط·ظ†)</th>
+                    <th class="p-4 font-bold text-center text-emerald-400">ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط³ط­ط¨ ط§ظ„ط³ظ†ظˆظٹ</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
@@ -171,16 +172,16 @@ $report_data = getSeasonalTrendsData($pdo);
                         <td class="p-4 font-bold text-slate-200"><?php echo htmlspecialchars($row['item_name']); ?></td>
                         <td class="p-4 text-center font-mono text-cyan-400 bg-cyan-500/5"><?php echo number_format($row['autumn_rainy_season_qty']); ?></td>
                         <td class="p-4 text-center font-mono text-amber-400 bg-amber-500/5"><?php echo number_format($row['summer_dry_season_qty']); ?></td>
-                        <td class="p-4 text-center font-mono font-bold text-emerald-400 bg-emerald-500/5"><?php echo number_format($row['total_annual_qty']); ?> طن</td>
+                        <td class="p-4 text-center font-mono font-bold text-emerald-400 bg-emerald-500/5"><?php echo number_format($row['total_annual_qty']); ?> ط·ظ†</td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
         </table>
     </div>
 
-    <!-- المخطط البياني في الأسفل -->
+    <!-- ط§ظ„ظ…ط®ط·ط· ط§ظ„ط¨ظٹط§ظ†ظٹ ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800 mb-6">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📈 مقارنة بيانية للسحب والطلب الموسمي للأصناف</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ˆ ظ…ظ‚ط§ط±ظ†ط© ط¨ظٹط§ظ†ظٹط© ظ„ظ„ط³ط­ط¨ ظˆط§ظ„ط·ظ„ط¨ ط§ظ„ظ…ظˆط³ظ…ظٹ ظ„ظ„ط£طµظ†ط§ظپ</h3>
         <div class="h-80">
             <canvas id="seasonalChart"></canvas>
         </div>
@@ -195,8 +196,8 @@ $report_data = getSeasonalTrendsData($pdo);
             data: {
                 labels: reportData.map(r => r.item_name),
                 datasets: [
-                    { label: 'سحب الخريف والأمطار', data: reportData.map(r => r.autumn_rainy_season_qty), backgroundColor: '#06b6d4' },
-                    { label: 'سحب الصيف والجفاف', data: reportData.map(r => r.summer_dry_season_qty), backgroundColor: '#fbbf24' }
+                    { label: 'ط³ط­ط¨ ط§ظ„ط®ط±ظٹظپ ظˆط§ظ„ط£ظ…ط·ط§ط±', data: reportData.map(r => r.autumn_rainy_season_qty), backgroundColor: '#06b6d4' },
+                    { label: 'ط³ط­ط¨ ط§ظ„طµظٹظپ ظˆط§ظ„ط¬ظپط§ظپ', data: reportData.map(r => r.summer_dry_season_qty), backgroundColor: '#fbbf24' }
                 ]
             },
             options: {
@@ -216,3 +217,4 @@ $report_data = getSeasonalTrendsData($pdo);
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

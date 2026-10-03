@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -23,7 +23,8 @@ foreach ($raw_data as $row) {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>انحراف التكلفة المرجحة - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط§ظ†ط­ط±ط§ظپ ط§ظ„طھظƒظ„ظپط© ط§ظ„ظ…ط±ط¬ط­ط© - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -60,7 +61,7 @@ foreach ($raw_data as $row) {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -130,7 +131,7 @@ foreach ($raw_data as $row) {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -142,7 +143,7 @@ foreach ($raw_data as $row) {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -159,22 +160,22 @@ foreach ($raw_data as $row) {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'انحراف التكلفة المرجحة'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط§ظ†ط­ط±ط§ظپ ط§ظ„طھظƒظ„ظپط© ط§ظ„ظ…ط±ط¬ط­ط©'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-amber-400"><i class="fa-solid fa-compass"></i> تقرير انحراف التكلفة المرجحة الفعلي للأصناف (Cost Variance)</h1>
-            <p class="text-slate-500 text-xs mt-1">يقارن بين سعر الشراء الفعلي المرجح من فواتير المشتريات والسعر المعياري المستهدف</p>
+            <h1 class="text-xl font-black text-amber-400"><i class="fa-solid fa-compass"></i> طھظ‚ط±ظٹط± ط§ظ†ط­ط±ط§ظپ ط§ظ„طھظƒظ„ظپط© ط§ظ„ظ…ط±ط¬ط­ط© ط§ظ„ظپط¹ظ„ظٹ ظ„ظ„ط£طµظ†ط§ظپ (Cost Variance)</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹظ‚ط§ط±ظ† ط¨ظٹظ† ط³ط¹ط± ط§ظ„ط´ط±ط§ط، ط§ظ„ظپط¹ظ„ظٹ ط§ظ„ظ…ط±ط¬ط­ ظ…ظ† ظپظˆط§طھظٹط± ط§ظ„ظ…ط´طھط±ظٹط§طھ ظˆط§ظ„ط³ط¹ط± ط§ظ„ظ…ط¹ظٹط§ط±ظٹ ط§ظ„ظ…ط³طھظ‡ط¯ظپ</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف</th>
-                    <th class="p-4 font-bold text-center">التكلفة المعيارية</th>
-                    <th class="p-4 font-bold text-center">التكلفة الفعلية الشراء</th>
-                    <th class="p-4 font-bold text-center">الانحراف المالي</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„طھظƒظ„ظپط© ط§ظ„ظ…ط¹ظٹط§ط±ظٹط©</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„طھظƒظ„ظپط© ط§ظ„ظپط¹ظ„ظٹط© ط§ظ„ط´ط±ط§ط،</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ط§ظ†ط­ط±ط§ظپ ط§ظ„ظ…ط§ظ„ظٹ</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
@@ -190,9 +191,9 @@ foreach ($raw_data as $row) {
         </table>
     </div>
 
-    <!-- المخطط البياني في الأسفل -->
+    <!-- ط§ظ„ظ…ط®ط·ط· ط§ظ„ط¨ظٹط§ظ†ظٹ ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800 mb-6">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📈 مقارنة بيانية بين التكلفة المعيارية والتكلفة الفعلية</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ˆ ظ…ظ‚ط§ط±ظ†ط© ط¨ظٹط§ظ†ظٹط© ط¨ظٹظ† ط§ظ„طھظƒظ„ظپط© ط§ظ„ظ…ط¹ظٹط§ط±ظٹط© ظˆط§ظ„طھظƒظ„ظپط© ط§ظ„ظپط¹ظ„ظٹط©</h3>
         <div class="h-80">
             <canvas id="costVarianceChart"></canvas>
         </div>
@@ -207,8 +208,8 @@ foreach ($raw_data as $row) {
             data: {
                 labels: reportData.map(r => r.item_name),
                 datasets: [
-                    { label: 'التكلفة المعيارية', data: reportData.map(r => r.std_cost), backgroundColor: '#94a3b8' },
-                    { label: 'التكلفة الفعلية', data: reportData.map(r => r.actual_cost), backgroundColor: '#f59e0b' }
+                    { label: 'ط§ظ„طھظƒظ„ظپط© ط§ظ„ظ…ط¹ظٹط§ط±ظٹط©', data: reportData.map(r => r.std_cost), backgroundColor: '#94a3b8' },
+                    { label: 'ط§ظ„طھظƒظ„ظپط© ط§ظ„ظپط¹ظ„ظٹط©', data: reportData.map(r => r.actual_cost), backgroundColor: '#f59e0b' }
                 ]
             },
             options: {
@@ -228,3 +229,4 @@ foreach ($raw_data as $row) {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

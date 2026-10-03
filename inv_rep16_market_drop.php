@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -24,7 +24,8 @@ foreach ($raw_data as $row) {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>خطر الأسعار - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط®ط·ط± ط§ظ„ط£ط³ط¹ط§ط± - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -61,7 +62,7 @@ foreach ($raw_data as $row) {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -131,7 +132,7 @@ foreach ($raw_data as $row) {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -143,7 +144,7 @@ foreach ($raw_data as $row) {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -160,22 +161,22 @@ foreach ($raw_data as $row) {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'خطر الأسعار'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط®ط·ط± ط§ظ„ط£ط³ط¹ط§ط±'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-arrow-trend-down"></i> تقرير خطر الهبوط المفاجئ لأسعار البضاعة بناءً على مؤشرات السوق المحلية</h1>
-            <p class="text-slate-500 text-xs mt-1">يقيس درجة التعرض لخطر تقلبات وهبوط الأسعار المفاجئ للبضائع لحماية رأس المال</p>
+            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-arrow-trend-down"></i> طھظ‚ط±ظٹط± ط®ط·ط± ط§ظ„ظ‡ط¨ظˆط· ط§ظ„ظ…ظپط§ط¬ط¦ ظ„ط£ط³ط¹ط§ط± ط§ظ„ط¨ط¶ط§ط¹ط© ط¨ظ†ط§ط،ظ‹ ط¹ظ„ظ‰ ظ…ط¤ط´ط±ط§طھ ط§ظ„ط³ظˆظ‚ ط§ظ„ظ…ط­ظ„ظٹط©</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹظ‚ظٹط³ ط¯ط±ط¬ط© ط§ظ„طھط¹ط±ط¶ ظ„ط®ط·ط± طھظ‚ظ„ط¨ط§طھ ظˆظ‡ط¨ظˆط· ط§ظ„ط£ط³ط¹ط§ط± ط§ظ„ظ…ظپط§ط¬ط¦ ظ„ظ„ط¨ط¶ط§ط¦ط¹ ظ„ط­ظ…ط§ظٹط© ط±ط£ط³ ط§ظ„ظ…ط§ظ„</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف</th>
-                    <th class="p-4 font-bold text-center">سعر البيع الدفتري</th>
-                    <th class="p-4 font-bold text-center">السعر المتوقع بالبورصة</th>
-                    <th class="p-4 font-bold text-center text-purple-400">معدل خطورة الهبوط</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ</th>
+                    <th class="p-4 font-bold text-center">ط³ط¹ط± ط§ظ„ط¨ظٹط¹ ط§ظ„ط¯ظپطھط±ظٹ</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ط³ط¹ط± ط§ظ„ظ…طھظˆظ‚ط¹ ط¨ط§ظ„ط¨ظˆط±طµط©</th>
+                    <th class="p-4 font-bold text-center text-purple-400">ظ…ط¹ط¯ظ„ ط®ط·ظˆط±ط© ط§ظ„ظ‡ط¨ظˆط·</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
@@ -191,9 +192,9 @@ foreach ($raw_data as $row) {
         </table>
     </div>
 
-    <!-- مؤشر خطورة الهبوط في الأسفل -->
+    <!-- ظ…ط¤ط´ط± ط®ط·ظˆط±ط© ط§ظ„ظ‡ط¨ظˆط· ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📊 مخطط نسبة خطورة هبوط السعر لكل صنف</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ٹ ظ…ط®ط·ط· ظ†ط³ط¨ط© ط®ط·ظˆط±ط© ظ‡ط¨ظˆط· ط§ظ„ط³ط¹ط± ظ„ظƒظ„ طµظ†ظپ</h3>
         <div class="h-80">
             <canvas id="marketDropChart"></canvas>
         </div>
@@ -208,7 +209,7 @@ foreach ($raw_data as $row) {
             data: {
                 labels: reportData.map(r => r.item_name),
                 datasets: [{
-                    label: 'نسبة خطر الهبوط (%)',
+                    label: 'ظ†ط³ط¨ط© ط®ط·ط± ط§ظ„ظ‡ط¨ظˆط· (%)',
                     data: reportData.map(r => r.hazard_pct),
                     backgroundColor: '#a855f7'
                 }]
@@ -230,3 +231,4 @@ foreach ($raw_data as $row) {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -25,7 +25,8 @@ usort($report_data, function($a, $b) { return $b['turnover'] <=> $a['turnover'];
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>معدل دوران المخزون - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ظ…ط¹ط¯ظ„ ط¯ظˆط±ط§ظ† ط§ظ„ظ…ط®ط²ظˆظ† - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -62,7 +63,7 @@ usort($report_data, function($a, $b) { return $b['turnover'] <=> $a['turnover'];
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -132,7 +133,7 @@ usort($report_data, function($a, $b) { return $b['turnover'] <=> $a['turnover'];
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -144,7 +145,7 @@ usort($report_data, function($a, $b) { return $b['turnover'] <=> $a['turnover'];
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -161,30 +162,30 @@ usort($report_data, function($a, $b) { return $b['turnover'] <=> $a['turnover'];
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'معدل دوران المخزون'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ظ…ط¹ط¯ظ„ ط¯ظˆط±ط§ظ† ط§ظ„ظ…ط®ط²ظˆظ†'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-sync"></i> تقرير معدل دوران المخزون (Inventory Turnover)</h1>
-            <p class="text-slate-500 text-xs mt-1">يقيس عدد مرات بيع واستبدال المخزون خلال الفترة لتقييم كفاءة إدارة البضائع</p>
+            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-sync"></i> طھظ‚ط±ظٹط± ظ…ط¹ط¯ظ„ ط¯ظˆط±ط§ظ† ط§ظ„ظ…ط®ط²ظˆظ† (Inventory Turnover)</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹظ‚ظٹط³ ط¹ط¯ط¯ ظ…ط±ط§طھ ط¨ظٹط¹ ظˆط§ط³طھط¨ط¯ط§ظ„ ط§ظ„ظ…ط®ط²ظˆظ† ط®ظ„ط§ظ„ ط§ظ„ظپطھط±ط© ظ„طھظ‚ظٹظٹظ… ظƒظپط§ط،ط© ط¥ط¯ط§ط±ط© ط§ظ„ط¨ط¶ط§ط¦ط¹</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
     
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف</th>
-                    <th class="p-4 font-bold text-center">الكمية الحالية</th>
-                    <th class="p-4 font-bold text-left">تكلفة المبيعات (COGS)</th>
-                    <th class="p-4 font-bold text-center text-emerald-400">معدل الدوران</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ظƒظ…ظٹط© ط§ظ„ط­ط§ظ„ظٹط©</th>
+                    <th class="p-4 font-bold text-left">طھظƒظ„ظپط© ط§ظ„ظ…ط¨ظٹط¹ط§طھ (COGS)</th>
+                    <th class="p-4 font-bold text-center text-emerald-400">ظ…ط¹ط¯ظ„ ط§ظ„ط¯ظˆط±ط§ظ†</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
                 <?php foreach ($report_data as $row): ?>
                     <tr class="hover:bg-slate-900/40 transition-colors">
                         <td class="p-4 font-bold text-slate-200"><?php echo htmlspecialchars($row['item_name']); ?></td>
-                        <td class="p-4 text-center font-mono"><?php echo number_format($row['stock_qty']); ?> طن</td>
+                        <td class="p-4 text-center font-mono"><?php echo number_format($row['stock_qty']); ?> ط·ظ†</td>
                         <td class="p-4 text-left font-mono"><?php echo number_format($row['cogs'], 2); ?> SDG</td>
                         <td class="p-4 text-center font-mono font-bold text-emerald-400 bg-emerald-500/5"><?php echo $row['turnover']; ?>x</td>
                     </tr>
@@ -193,9 +194,9 @@ usort($report_data, function($a, $b) { return $b['turnover'] <=> $a['turnover'];
         </table>
     </div>
 
-    <!-- الرسم البياني السفلي -->
+    <!-- ط§ظ„ط±ط³ظ… ط§ظ„ط¨ظٹط§ظ†ظٹ ط§ظ„ط³ظپظ„ظٹ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800 mb-6">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📈 مخطط معدل دوران المخزون التفصيلي لكل صنف</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ˆ ظ…ط®ط·ط· ظ…ط¹ط¯ظ„ ط¯ظˆط±ط§ظ† ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„طھظپطµظٹظ„ظٹ ظ„ظƒظ„ طµظ†ظپ</h3>
         <div class="h-80">
             <canvas id="turnoverChart"></canvas>
         </div>
@@ -210,7 +211,7 @@ usort($report_data, function($a, $b) { return $b['turnover'] <=> $a['turnover'];
             data: {
                 labels: reportData.map(r => r.item_name),
                 datasets: [{
-                    label: 'معدل دوران المخزون (مرة)',
+                    label: 'ظ…ط¹ط¯ظ„ ط¯ظˆط±ط§ظ† ط§ظ„ظ…ط®ط²ظˆظ† (ظ…ط±ط©)',
                     data: reportData.map(r => r.turnover),
                     backgroundColor: '#10b981'
                 }]
@@ -232,3 +233,4 @@ usort($report_data, function($a, $b) { return $b['turnover'] <=> $a['turnover'];
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

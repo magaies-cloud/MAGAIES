@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -22,7 +22,8 @@ foreach ($raw_data as $row) {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>الأصناف الخاسرة - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ط®ط§ط³ط±ط© - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -59,7 +60,7 @@ foreach ($raw_data as $row) {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -129,7 +130,7 @@ foreach ($raw_data as $row) {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -141,7 +142,7 @@ foreach ($raw_data as $row) {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -158,28 +159,28 @@ foreach ($raw_data as $row) {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'الأصناف الخاسرة'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ط®ط§ط³ط±ط©'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-red-400"><i class="fa-solid fa-ban"></i> تقرير الأصناف الخاسرة والبيع دون سعر تكلفة الشراء المرجح</h1>
-            <p class="text-slate-500 text-xs mt-1">يكشف المنتجات التي تباع بأسعار تساوى أو تقل عن تكلفة شرائها الفعلي لحظر الخسائر</p>
+            <h1 class="text-xl font-black text-red-400"><i class="fa-solid fa-ban"></i> طھظ‚ط±ظٹط± ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ط®ط§ط³ط±ط© ظˆط§ظ„ط¨ظٹط¹ ط¯ظˆظ† ط³ط¹ط± طھظƒظ„ظپط© ط§ظ„ط´ط±ط§ط، ط§ظ„ظ…ط±ط¬ط­</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹظƒط´ظپ ط§ظ„ظ…ظ†طھط¬ط§طھ ط§ظ„طھظٹ طھط¨ط§ط¹ ط¨ط£ط³ط¹ط§ط± طھط³ط§ظˆظ‰ ط£ظˆ طھظ‚ظ„ ط¹ظ† طھظƒظ„ظپط© ط´ط±ط§ط¦ظ‡ط§ ط§ظ„ظپط¹ظ„ظٹ ظ„ط­ط¸ط± ط§ظ„ط®ط³ط§ط¦ط±</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف الخاسر</th>
-                    <th class="p-4 font-bold text-center">تكلفة الشراء</th>
-                    <th class="p-4 font-bold text-center">سعر البيع الحالي</th>
-                    <th class="p-4 font-bold text-center text-red-400">الخسارة في الوحدة</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ ط§ظ„ط®ط§ط³ط±</th>
+                    <th class="p-4 font-bold text-center">طھظƒظ„ظپط© ط§ظ„ط´ط±ط§ط،</th>
+                    <th class="p-4 font-bold text-center">ط³ط¹ط± ط§ظ„ط¨ظٹط¹ ط§ظ„ط­ط§ظ„ظٹ</th>
+                    <th class="p-4 font-bold text-center text-red-400">ط§ظ„ط®ط³ط§ط±ط© ظپظٹ ط§ظ„ظˆط­ط¯ط©</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
                 <?php if (empty($report_data)): ?>
                     <tr>
-                        <td colspan="4" class="p-8 text-center text-slate-500">✓ ممتاز! لا توجد أصناف خاسرة في الداتابيز الحالية.</td>
+                        <td colspan="4" class="p-8 text-center text-slate-500">âœ“ ظ…ظ…طھط§ط²! ظ„ط§ طھظˆط¬ط¯ ط£طµظ†ط§ظپ ط®ط§ط³ط±ط© ظپظٹ ط§ظ„ط¯ط§طھط§ط¨ظٹط² ط§ظ„ط­ط§ظ„ظٹط©.</td>
                     </tr>
                 <?php else: ?>
                     <?php foreach ($report_data as $row): ?>
@@ -195,10 +196,10 @@ foreach ($raw_data as $row) {
         </table>
     </div>
 
-    <!-- مخطط بياني سفلي للأصناف الخاسرة وقيمة الخسارة -->
+    <!-- ظ…ط®ط·ط· ط¨ظٹط§ظ†ظٹ ط³ظپظ„ظٹ ظ„ظ„ط£طµظ†ط§ظپ ط§ظ„ط®ط§ط³ط±ط© ظˆظ‚ظٹظ…ط© ط§ظ„ط®ط³ط§ط±ط© -->
     <?php if (!empty($report_data)): ?>
         <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-            <h3 class="text-xs font-bold text-slate-300 mb-4">📉 مخطط الخسائر المالية المتراكمة لكل صنف</h3>
+            <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“‰ ظ…ط®ط·ط· ط§ظ„ط®ط³ط§ط¦ط± ط§ظ„ظ…ط§ظ„ظٹط© ط§ظ„ظ…طھط±ط§ظƒظ…ط© ظ„ظƒظ„ طµظ†ظپ</h3>
             <div class="h-80">
                 <canvas id="lossChart"></canvas>
             </div>
@@ -213,7 +214,7 @@ foreach ($raw_data as $row) {
                 data: {
                     labels: reportData.map(r => r.item_name),
                     datasets: [{
-                        label: 'قيمة الخسارة في الوحدة (SDG)',
+                        label: 'ظ‚ظٹظ…ط© ط§ظ„ط®ط³ط§ط±ط© ظپظٹ ط§ظ„ظˆط­ط¯ط© (SDG)',
                         data: reportData.map(r => r.loss),
                         backgroundColor: '#ef4444'
                     }]
@@ -236,3 +237,4 @@ foreach ($raw_data as $row) {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

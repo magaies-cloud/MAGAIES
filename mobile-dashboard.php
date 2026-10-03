@@ -506,7 +506,7 @@ try {
 <html lang="ar" dir="rtl" data-theme="<?php echo htmlspecialchars($activeTheme); ?>" data-device-brand="<?php echo htmlspecialchars($deviceProfile['brand']); ?>" data-device-os="<?php echo htmlspecialchars($deviceProfile['os']); ?>" data-device-model="<?php echo htmlspecialchars($deviceProfile['model']); ?>">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     
     <!-- PWA & Native Standalone Configuration -->
     <link rel="manifest" href="manifest.json">
@@ -903,6 +903,13 @@ try {
             max-width: 100vw;
             width: 100%;
             -webkit-text-size-adjust: 100%;
+        }
+
+        /* 🔤 GLOBAL FONT CLARITY SYSTEM — Minimum readable sizes for mobile */
+        /* Raise dangerously small fonts to readable minimums */
+        small, .micro-kpi-sub, .outbox-status-pill span,
+        .alert-card-snap .priority-badge, .inv-sku-badge {
+            font-size: max(0.75rem, inherit) !important;
         }
 
         body {
@@ -4532,7 +4539,7 @@ try {
             <div class="micro-kpi-card" onclick="switchMobileTab('transactions')" style="border-inline-start: 3.5px solid var(--primary);">
                 <div class="micro-kpi-head">
                     <span><i class="fa-solid fa-chart-line text-sky-400"></i> مبيعات اليوم</span>
-                    <span style="font-size:0.68rem; background:rgba(56,189,248,0.15); color:var(--primary); padding:1px 6px; border-radius:6px; font-weight:900;" id="kpi-sales-pct">+14.8% ↗</span>
+                    <span style="font-size:0.78rem; background:rgba(56,189,248,0.15); color:var(--primary); padding:1px 6px; border-radius:6px; font-weight:900;" id="kpi-sales-pct">+14.8% ↗</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-sales-val" style="color:var(--primary);">
                     0 <small style="font-size:0.7rem;">SDG</small>
@@ -4546,7 +4553,7 @@ try {
             <div class="micro-kpi-card" onclick="document.getElementById('mobile-total-liquidity').scrollIntoView({behavior:'smooth'})" style="border-inline-start: 3.5px solid var(--emerald);">
                 <div class="micro-kpi-head">
                     <span><i class="fa-solid fa-wallet text-emerald-400"></i> السيولة اللحظية</span>
-                    <span style="font-size:0.68rem; background:rgba(16,185,129,0.15); color:var(--emerald); padding:1px 6px; border-radius:6px; font-weight:900;">خزن وبنوك</span>
+                    <span style="font-size:0.78rem; background:rgba(16,185,129,0.15); color:var(--emerald); padding:1px 6px; border-radius:6px; font-weight:900;">خزن وبنوك</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-cash-val" style="color:var(--emerald);">
                     0 <small style="font-size:0.7rem;">SDG</small>
@@ -4560,7 +4567,7 @@ try {
             <div class="micro-kpi-card" onclick="switchMobileTab('ledgers')" style="border-inline-start: 3.5px solid var(--rose);">
                 <div class="micro-kpi-head">
                     <span><i class="fa-solid fa-hand-holding-dollar text-rose-400"></i> مديونيات العملاء</span>
-                    <span style="font-size:0.68rem; background:rgba(244,63,94,0.15); color:var(--rose); padding:1px 6px; border-radius:6px; font-weight:900;">مستحقات</span>
+                    <span style="font-size:0.78rem; background:rgba(244,63,94,0.15); color:var(--rose); padding:1px 6px; border-radius:6px; font-weight:900;">مستحقات</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-receivables-val" style="color:var(--rose);">
                     0 <small style="font-size:0.7rem;">SDG</small>
@@ -4574,7 +4581,7 @@ try {
             <div class="micro-kpi-card" onclick="switchMobileTab('inventory')" style="border-inline-start: 3.5px solid var(--amber);">
                 <div class="micro-kpi-head">
                     <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> تقييم المخزون</span>
-                    <span style="font-size:0.68rem; background:rgba(245,158,11,0.15); color:var(--amber); padding:1px 6px; border-radius:6px; font-weight:900;" id="micro-stock-items-count">0 صنف</span>
+                    <span style="font-size:0.78rem; background:rgba(245,158,11,0.15); color:var(--amber); padding:1px 6px; border-radius:6px; font-weight:900;" id="micro-stock-items-count">0 صنف</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-inventory-val" style="color:var(--amber);">
                     0 <small style="font-size:0.7rem;">SDG</small>
@@ -5781,14 +5788,27 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-barcode-scanner')">✕</button>
         </div>
         <div class="sheet-body" style="padding:14px; text-align:center;">
-            <div style="position:relative; width:100%; height:180px; background:#000; border-radius:14px; overflow:hidden; display:flex; align-items:center; justify-content:center; border:2px solid var(--purple); margin-bottom:12px;">
-                <div style="position:absolute; width:80%; height:2px; background:#ef4444; box-shadow:0 0 12px #ef4444; animation:posPulseBorder 1.5s infinite;"></div>
-                <div style="font-size:0.8rem; color:#fff; opacity:0.8; z-index:2;">وجه الكاميرا نحو باركود الصنف...</div>
+            <!-- Live Camera Preview -->
+            <div id="barcode-camera-box" style="position:relative; width:100%; height:220px; background:#000; border-radius:14px; overflow:hidden; display:none; border:2px solid var(--purple); margin-bottom:12px;">
+                <video id="barcode-camera-video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
+                <div style="position:absolute; top:50%; left:10%; width:80%; height:2px; background:#ef4444; box-shadow:0 0 12px #ef4444; animation:posPulseBorder 1.5s infinite; transform:translateY(-50%);"></div>
+                <div style="position:absolute; bottom:8px; left:0; right:0; font-size:0.82rem; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.8); font-weight:800;">وجّه الكاميرا نحو الباركود...</div>
+            </div>
+            <!-- Fallback: Manual Input -->
+            <div id="barcode-fallback-box" style="display:block;">
+                <div style="background:var(--surface-sub); border:1.5px dashed var(--border-glass); border-radius:14px; padding:20px 14px; margin-bottom:12px;">
+                    <i class="fa-solid fa-barcode" style="font-size:2.5rem; color:var(--purple); opacity:0.6; margin-bottom:8px; display:block;"></i>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">أدخل رقم الباركود يدوياً أو امسح بالكاميرا</p>
+                </div>
+            </div>
+            <!-- Status Badge -->
+            <div id="barcode-scan-status" style="font-size:0.82rem; color:var(--text-muted); margin-bottom:10px; font-weight:700;">
+                <i class="fa-solid fa-info-circle"></i> في انتظار المسح...
             </div>
             <div class="m-form-group" style="margin-bottom:10px;">
-                <input type="text" id="manual-barcode-input" class="m-input" placeholder="أو أدخل رقم الباركود يدوياً (مثال: 628000001)" style="text-align:center; font-family:'Inter',monospace; font-weight:800;">
+                <input type="text" id="manual-barcode-input" class="m-input" placeholder="أدخل رقم الباركود يدوياً (مثال: 628000001)" style="text-align:center; font-family:'Inter',monospace; font-weight:800;" inputmode="numeric">
             </div>
-            <button type="button" class="m-btn-submit" style="background:var(--purple); color:#fff;" onclick="MobilePOS.simulateBarcodeFromInput()">
+            <button type="button" class="m-btn-submit" style="background:var(--purple); color:#fff;" onclick="BarcodeScannerEngine.submitManual()">
                 <i class="fa-solid fa-magnifying-glass"></i> مطابقة وإضافة الصنف فوراً ⚡
             </button>
         </div>
@@ -5948,8 +5968,8 @@ try {
                     </span>
                     <!-- Unit Selection Toggle -->
                     <div style="display:flex; gap:4px;">
-                        <button type="button" class="v-cat-pill active" id="btn-unit-primary" style="font-size:0.68rem; padding:2px 8px;" onclick="StockTransferEngine.setUnitMode('primary')">وحدة كبرى (طن)</button>
-                        <button type="button" class="v-cat-pill" id="btn-unit-secondary" style="font-size:0.68rem; padding:2px 8px;" onclick="StockTransferEngine.setUnitMode('secondary')">تجزئة (سيخة)</button>
+                        <button type="button" class="v-cat-pill active" id="btn-unit-primary" style="font-size:0.78rem; padding:2px 8px;" onclick="StockTransferEngine.setUnitMode('primary')">وحدة كبرى (طن)</button>
+                        <button type="button" class="v-cat-pill" id="btn-unit-secondary" style="font-size:0.78rem; padding:2px 8px;" onclick="StockTransferEngine.setUnitMode('secondary')">تجزئة (سيخة)</button>
                     </div>
                 </div>
 
@@ -6432,7 +6452,7 @@ try {
                     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
                         <div>
                             <span style="font-size:0.8rem; font-weight:800; color:var(--text-main); display:block;">تفعيل استقبال الإشعارات المشفرة</span>
-                            <small style="font-size:0.68rem; color:var(--text-muted); display:block; margin-top:2px;">اهتزاز ونغمة صوتية عند وجود فواتير كبرى، تجاوز ائتمان، أو نقص مخزون</small>
+                            <small style="font-size:0.78rem; color:var(--text-muted); display:block; margin-top:2px;">اهتزاز ونغمة صوتية عند وجود فواتير كبرى، تجاوز ائتمان، أو نقص مخزون</small>
                         </div>
                         <input type="checkbox" id="push-notification-toggle" onchange="PWAManager.enablePushNotifications()" style="width:22px; height:22px; accent-color:var(--primary); cursor:pointer; flex-shrink:0;">
                     </div>
@@ -6488,15 +6508,15 @@ try {
                 <!-- Financial Balance Summary Banner -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1.2fr; gap:6px; text-align:center; margin-bottom:12px;">
                     <div style="background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3); border-radius:10px; padding:8px 4px;">
-                        <span style="font-size:0.68rem; color:var(--rose); font-weight:800; display:block;">إجمالي المدين (+)</span>
+                        <span style="font-size:0.78rem; color:var(--rose); font-weight:800; display:block;">إجمالي المدين (+)</span>
                         <strong id="pdf-stmt-total-debit" style="font-family:'Inter',sans-serif; font-size:0.84rem; color:var(--rose);">6,870,000</strong>
                     </div>
                     <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:8px 4px;">
-                        <span style="font-size:0.68rem; color:var(--emerald); font-weight:800; display:block;">إجمالي الدائن (-)</span>
+                        <span style="font-size:0.78rem; color:var(--emerald); font-weight:800; display:block;">إجمالي الدائن (-)</span>
                         <strong id="pdf-stmt-total-credit" style="font-family:'Inter',sans-serif; font-size:0.84rem; color:var(--emerald);">2,020,000</strong>
                     </div>
                     <div style="background:var(--surface-sub); border:1.5px solid var(--border-glass); border-radius:10px; padding:8px 4px;">
-                        <span style="font-size:0.68rem; color:var(--text-muted); font-weight:800; display:block;">صافي الرصيد المستحق</span>
+                        <span style="font-size:0.78rem; color:var(--text-muted); font-weight:800; display:block;">صافي الرصيد المستحق</span>
                         <strong id="pdf-stmt-net-balance" style="font-family:'Inter',sans-serif; font-size:0.92rem; color:var(--rose);">4,850,000</strong>
                     </div>
                 </div>
@@ -6594,10 +6614,10 @@ try {
                     <span class="outbox-dot online" id="outbox-banner-dot" style="width:10px; height:10px;"></span>
                     <div>
                         <div style="font-size:0.82rem; font-weight:800; color:var(--text-main);" id="outbox-banner-title">الاتصال بالسحابة: متصل ومستقر</div>
-                        <div style="font-size:0.68rem; color:var(--text-muted);" id="outbox-banner-sub">زمن الاستجابة: 38ms • البوابة السحابية API Gateway جاهزة</div>
+                        <div style="font-size:0.78rem; color:var(--text-muted);" id="outbox-banner-sub">زمن الاستجابة: 38ms • البوابة السحابية API Gateway جاهزة</div>
                     </div>
                 </div>
-                <button type="button" id="btn-toggle-sim-offline" class="btn-sm" style="font-size:0.68rem; padding:5px 9px; border-radius:8px; background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); font-weight:800; cursor:pointer;" onclick="OfflineOutboxEngine.toggleOfflineSimulation()">
+                <button type="button" id="btn-toggle-sim-offline" class="btn-sm" style="font-size:0.78rem; padding:5px 9px; border-radius:8px; background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); font-weight:800; cursor:pointer;" onclick="OfflineOutboxEngine.toggleOfflineSimulation()">
                     محاكاة انقطاع الشبكة
                 </button>
             </div>
@@ -6605,19 +6625,19 @@ try {
             <!-- 4-Stat Grid: Pending, Syncing, Synced, Conflicts -->
             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; margin-bottom:14px;">
                 <div class="outbox-stat-card">
-                    <span style="font-size:0.65rem; color:var(--amber); font-weight:800; display:block;">في الانتظار</span>
+                    <span style="font-size:0.76rem; color:var(--amber); font-weight:800; display:block;">في الانتظار</span>
                     <strong id="outbox-stat-pending" style="font-size:1.15rem; font-family:'Inter',sans-serif; color:var(--amber);">0</strong>
                 </div>
                 <div class="outbox-stat-card">
-                    <span style="font-size:0.65rem; color:var(--primary); font-weight:800; display:block;">جاري الرفع</span>
+                    <span style="font-size:0.76rem; color:var(--primary); font-weight:800; display:block;">جاري الرفع</span>
                     <strong id="outbox-stat-syncing" style="font-size:1.15rem; font-family:'Inter',sans-serif; color:var(--primary);">0</strong>
                 </div>
                 <div class="outbox-stat-card">
-                    <span style="font-size:0.65rem; color:var(--emerald); font-weight:800; display:block;">تم التأكيد</span>
+                    <span style="font-size:0.76rem; color:var(--emerald); font-weight:800; display:block;">تم التأكيد</span>
                     <strong id="outbox-stat-synced" style="font-size:1.15rem; font-family:'Inter',sans-serif; color:var(--emerald);">0</strong>
                 </div>
                 <div class="outbox-stat-card">
-                    <span style="font-size:0.65rem; color:var(--rose); font-weight:800; display:block;">تعارضات</span>
+                    <span style="font-size:0.76rem; color:var(--rose); font-weight:800; display:block;">تعارضات</span>
                     <strong id="outbox-stat-conflicts" style="font-size:1.15rem; font-family:'Inter',sans-serif; color:var(--rose);">0</strong>
                 </div>
             </div>
@@ -7159,6 +7179,104 @@ try {
             } catch(e) { /* Audio not available */ }
         }
         window.playSoundEffect = playSoundEffect;
+
+        // 📷 Real Camera Barcode Scanner Engine (BarcodeDetector API + Manual Fallback)
+        window.BarcodeScannerEngine = {
+            stream: null,
+            detector: null,
+            scanning: false,
+            callback: null,
+            scanInterval: null,
+
+            async open(callbackFn) {
+                this.callback = callbackFn;
+                const videoEl = document.getElementById('barcode-camera-video');
+                const statusEl = document.getElementById('barcode-scan-status');
+                const cameraBox = document.getElementById('barcode-camera-box');
+                const fallbackBox = document.getElementById('barcode-fallback-box');
+
+                // Check for BarcodeDetector support
+                if ('BarcodeDetector' in window) {
+                    try {
+                        this.detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'code_128', 'code_39', 'qr_code', 'upc_a', 'upc_e', 'itf', 'codabar'] });
+                    } catch(e) { this.detector = null; }
+                }
+
+                // Try to open camera
+                try {
+                    this.stream = await navigator.mediaDevices.getUserMedia({
+                        video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } }
+                    });
+                    if (videoEl) {
+                        videoEl.srcObject = this.stream;
+                        videoEl.play();
+                    }
+                    if (cameraBox) cameraBox.style.display = 'block';
+                    if (fallbackBox) fallbackBox.style.display = 'none';
+                    if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-camera" style="color:var(--emerald);"></i> الكاميرا نشطة — وجّه نحو الباركود';
+                    this.scanning = true;
+                    this.startScanning(videoEl);
+                } catch(err) {
+                    console.warn('Camera access denied or unavailable:', err);
+                    if (cameraBox) cameraBox.style.display = 'none';
+                    if (fallbackBox) fallbackBox.style.display = 'block';
+                    if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-keyboard" style="color:var(--amber);"></i> الكاميرا غير متاحة — أدخل الباركود يدوياً';
+                }
+
+                openBottomSheet('sheet-barcode-scanner');
+            },
+
+            startScanning(videoEl) {
+                if (!this.detector || !videoEl) return;
+                this.scanInterval = setInterval(async () => {
+                    if (!this.scanning) return;
+                    try {
+                        const barcodes = await this.detector.detect(videoEl);
+                        if (barcodes.length > 0) {
+                            const code = barcodes[0].rawValue;
+                            triggerHaptic('success');
+                            if (typeof playSoundEffect === 'function') playSoundEffect('barcode_beep');
+                            this.handleResult(code);
+                        }
+                    } catch(e) { /* frame not ready */ }
+                }, 250);
+            },
+
+            handleResult(code) {
+                this.scanning = false;
+                const statusEl = document.getElementById('barcode-scan-status');
+                if (statusEl) statusEl.innerHTML = `<i class="fa-solid fa-check-circle" style="color:var(--emerald);"></i> تم المسح: <strong style="font-family:'Inter',monospace;">${code}</strong>`;
+
+                if (this.callback) {
+                    this.callback(code);
+                }
+                setTimeout(() => this.close(), 800);
+            },
+
+            submitManual() {
+                const inp = document.getElementById('manual-barcode-input');
+                const code = inp ? inp.value.trim() : '';
+                if (!code) {
+                    if (window.showModernToast) window.showModernToast('يرجى إدخال رقم الباركود', 'warning');
+                    return;
+                }
+                triggerHaptic('light');
+                this.handleResult(code);
+                if (inp) inp.value = '';
+            },
+
+            close() {
+                this.scanning = false;
+                if (this.scanInterval) { clearInterval(this.scanInterval); this.scanInterval = null; }
+                if (this.stream) {
+                    this.stream.getTracks().forEach(t => t.stop());
+                    this.stream = null;
+                }
+                const videoEl = document.getElementById('barcode-camera-video');
+                if (videoEl) videoEl.srcObject = null;
+                closeBottomSheet('sheet-barcode-scanner');
+            }
+        };
 
         // ═════════════════════════════════════════════════════════════════
         // 🎨 THE 7-TIER THEME ENGINE (FROM ULTRA-LIGHT TO DEEP NIGHT)
@@ -8365,7 +8483,7 @@ try {
                         <div class="alert-card-snap alert-${a.type}" id="carousel-alert-${a.id}">
                             <div class="alert-card-top">
                                 <span class="alert-priority-tag">${a.typeLabel}</span>
-                                <span style="font-size:0.68rem; color:var(--text-muted); font-weight:700;">${a.priority}</span>
+                                <span style="font-size:0.78rem; color:var(--text-muted); font-weight:700;">${a.priority}</span>
                             </div>
                             <div class="alert-title-row">
                                 <span>${a.title}</span>
@@ -8548,7 +8666,7 @@ try {
                                     <span style="font-size:0.86rem; font-weight:900; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
                                         ${tx.to_account || tx.from_account || tx.customer_name || 'حركة مالية'}
                                     </span>
-                                    <span style="font-size:0.68rem; padding:1px 6px; border-radius:6px; background:var(--surface-2); color:var(--text-muted); font-family:monospace;">
+                                    <span style="font-size:0.78rem; padding:1px 6px; border-radius:6px; background:var(--surface-2); color:var(--text-muted); font-family:monospace;">
                                         #${tx.voucher_no || tx.id || '---'}
                                     </span>
                                 </div>
@@ -8559,9 +8677,9 @@ try {
                         </div>
                         <div style="text-align:left; flex-shrink:0;">
                             <div style="font-family:'Inter',sans-serif; font-size:1.05rem; font-weight:900; color:${isIncoming ? 'var(--emerald)' : 'var(--rose)'};">
-                                ${isIncoming ? '+' : '-'}${fmt(amt)} <small style="font-size:0.65rem;">SDG</small>
+                                ${isIncoming ? '+' : '-'}${fmt(amt)} <small style="font-size:0.76rem;">SDG</small>
                             </div>
-                            <button type="button" class="btn-ai-chip" style="padding:2px 8px; font-size:0.68rem; margin-top:2px;" onclick='shareSingleTxWhatsApp(${JSON.stringify(tx).replace(/'/g, "&apos;")})'>
+                            <button type="button" class="btn-ai-chip" style="padding:2px 8px; font-size:0.78rem; margin-top:2px;" onclick='shareSingleTxWhatsApp(${JSON.stringify(tx).replace(/'/g, "&apos;")})'>
                                 <i class="fa-brands fa-whatsapp text-emerald-400"></i> واتساب
                             </button>
                         </div>
@@ -9203,7 +9321,7 @@ try {
                         <div class="ledger-feed-item" onclick="LedgerEngine.toggleTxExpand('${item.id}')">
                             <div class="ledger-item-header">
                                 <div style="display:flex; align-items:center; gap:6px;">
-                                    <span class="${badgeClass}" style="font-size:0.68rem; padding:2px 8px; border-radius:6px;">
+                                    <span class="${badgeClass}" style="font-size:0.78rem; padding:2px 8px; border-radius:6px;">
                                         <i class="fa-solid ${typeIcon}"></i> ${item.typeLabel}
                                     </span>
                                     <strong style="font-family:'Inter',sans-serif; font-size:0.75rem; color:var(--text-muted);">${item.ref}</strong>
@@ -9394,7 +9512,7 @@ try {
                                     <div style="font-family:'Inter',sans-serif; font-size:1.05rem; font-weight:900; color:var(--rose);">
                                         ${fmt(d.balance)} <small style="font-size:0.7rem;">SDG</small>
                                     </div>
-                                    <span style="font-size:0.68rem; font-weight:800; background:${bucketPillColor}22; color:${bucketPillColor}; padding:2px 6px; border-radius:6px; display:inline-block; margin-top:2px;">
+                                    <span style="font-size:0.78rem; font-weight:800; background:${bucketPillColor}22; color:${bucketPillColor}; padding:2px 6px; border-radius:6px; display:inline-block; margin-top:2px;">
                                         ${d.bucketLabel}
                                     </span>
                                 </div>
@@ -9675,19 +9793,18 @@ try {
 
             triggerContinuousScanner() {
                 triggerHaptic('medium');
-                if (typeof playSoundEffect === 'function') playSoundEffect('barcode_beep');
-                
-                if (M_ITEMS.length > 0) {
-                    const randItem = M_ITEMS[Math.floor(Math.random() * M_ITEMS.length)];
-                    const inp = document.getElementById('inventory-search-input');
-                    if (inp) {
-                        inp.value = randItem.sku || randItem.barcode || randItem.name;
-                        this.onSearch(inp.value);
+                BarcodeScannerEngine.open((code) => {
+                    const found = M_ITEMS.find(x => String(x.barcode || '') === code || String(x.sku || '') === code || String(x.id) === code);
+                    if (found) {
+                        const inp = document.getElementById('inventory-search-input');
+                        if (inp) { inp.value = found.name; this.onSearch(found.name); }
+                        if (window.showModernToast) window.showModernToast(`📸 تم العثور: [${found.sku}] ${found.name}`, 'success', 2500);
+                    } else {
+                        const inp = document.getElementById('inventory-search-input');
+                        if (inp) { inp.value = code; this.onSearch(code); }
+                        if (window.showModernToast) window.showModernToast(`🔍 بحث بالباركود: ${code}`, 'info', 2500);
                     }
-                    if (window.showModernToast) {
-                        window.showModernToast(`📸 مسح باركود ناجح: [${randItem.sku}] ${randItem.name}`, 'info', 2500);
-                    }
-                }
+                });
             },
 
             toggleCostReveal(itemId, ev) {
@@ -9856,7 +9973,7 @@ try {
                                 </div>
                                 <div style="text-align:left;">
                                     <span class="inv-sku-badge">${it.sku || ('SKU-' + it.id)}</span>
-                                    <div style="font-size:0.68rem; color:var(--text-muted); font-family:'Inter',monospace; margin-top:2px;">
+                                    <div style="font-size:0.78rem; color:var(--text-muted); font-family:'Inter',monospace; margin-top:2px;">
                                         <i class="fa-solid fa-barcode"></i> ${it.barcode || ''}
                                     </div>
                                 </div>
@@ -9880,7 +9997,7 @@ try {
                                 <div>
                                     <span style="font-size:0.7rem; color:var(--text-muted); font-weight:800; display:block;">سعر البيع المعتمد:</span>
                                     <span class="inv-selling-price">${fmt(it.price)} <small style="font-size:0.7rem;">SDG</small></span>
-                                    <span class="margin-pct-pill" style="font-size:0.68rem; margin-right:4px; font-weight:900; background:rgba(16,185,129,0.15); color:var(--emerald); padding:1px 6px; border-radius:6px;">
+                                    <span class="margin-pct-pill" style="font-size:0.78rem; margin-right:4px; font-weight:900; background:rgba(16,185,129,0.15); color:var(--emerald); padding:1px 6px; border-radius:6px;">
                                         +${marginPct}%
                                     </span>
                                 </div>
@@ -9932,15 +10049,15 @@ try {
                             <div class="inv-wh-drawer ${isWhExpanded ? 'active' : ''}" id="wh-drawer-${it.id}">
                                 <div class="inv-wh-row">
                                     <span><i class="fa-solid fa-building text-sky-400"></i> المستودع المركزي (السجانة):</span>
-                                    <strong>${wh.central || 0} ${it.primaryUnit || 'طن'} <small style="font-size:0.68rem; color:var(--primary);">(${Math.round((wh.central || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'سيخة'})</small></strong>
+                                    <strong>${wh.central || 0} ${it.primaryUnit || 'طن'} <small style="font-size:0.78rem; color:var(--primary);">(${Math.round((wh.central || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'سيخة'})</small></strong>
                                 </div>
                                 <div class="inv-wh-row">
                                     <span><i class="fa-solid fa-store text-emerald-400"></i> حظيرة الكلاكلة الميدانية:</span>
-                                    <strong>${wh.kalakla || 0} ${it.primaryUnit || 'طن'} <small style="font-size:0.68rem; color:var(--emerald);">(${Math.round((wh.kalakla || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'سيخة'})</small></strong>
+                                    <strong>${wh.kalakla || 0} ${it.primaryUnit || 'طن'} <small style="font-size:0.78rem; color:var(--emerald);">(${Math.round((wh.kalakla || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'سيخة'})</small></strong>
                                 </div>
                                 <div class="inv-wh-row">
                                     <span><i class="fa-solid fa-industry text-amber-400"></i> معرض بحري الصناعي:</span>
-                                    <strong>${wh.bahri || 0} ${it.primaryUnit || 'طن'} <small style="font-size:0.68rem; color:var(--amber);">(${Math.round((wh.bahri || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'سيخة'})</small></strong>
+                                    <strong>${wh.bahri || 0} ${it.primaryUnit || 'طن'} <small style="font-size:0.78rem; color:var(--amber);">(${Math.round((wh.bahri || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'سيخة'})</small></strong>
                                 </div>
                             </div>
 
@@ -10313,18 +10430,16 @@ try {
 
             triggerTransferScanner() {
                 triggerHaptic('medium');
-                if (typeof playSoundEffect === 'function') playSoundEffect('barcode_beep');
-                if (M_ITEMS.length > 0) {
-                    const randItem = M_ITEMS[Math.floor(Math.random() * M_ITEMS.length)];
-                    const sel = document.getElementById('transfer-item-select');
-                    if (sel) {
-                        sel.value = randItem.id;
-                        this.onTransferItemSelect(sel);
+                BarcodeScannerEngine.open((code) => {
+                    const found = M_ITEMS.find(x => String(x.barcode || '') === code || String(x.sku || '') === code || String(x.id) === code);
+                    if (found) {
+                        const sel = document.getElementById('transfer-item-select');
+                        if (sel) { sel.value = found.id; this.onTransferItemSelect(sel); }
+                        if (window.showModernToast) window.showModernToast(`📸 تم التقاط: ${found.name}`, 'success', 2000);
+                    } else {
+                        if (window.showModernToast) window.showModernToast(`⚠️ الباركود (${code}) غير مطابق لأي صنف`, 'warning', 3000);
                     }
-                    if (window.showModernToast) {
-                        window.showModernToast(`📸 تم التقاط باركود الصنف: ${randItem.name}`, 'info', 2000);
-                    }
-                }
+                });
             },
 
             addItemToBasket() {
@@ -10993,7 +11108,7 @@ try {
                                     <span style="font-size:0.7rem; color:var(--text-muted); font-family:'Inter',sans-serif; display:block;">
                                         <i class="fa-regular fa-clock"></i> ${req.time}
                                     </span>
-                                    <span style="font-size:0.68rem; font-weight:800; color:var(--amber); background:rgba(245,158,11,0.12); padding:2px 6px; border-radius:4px; display:inline-block; margin-top:2px;">
+                                    <span style="font-size:0.78rem; font-weight:800; color:var(--amber); background:rgba(245,158,11,0.12); padding:2px 6px; border-radius:4px; display:inline-block; margin-top:2px;">
                                         ${req.priority}
                                     </span>
                                 </div>
@@ -11807,7 +11922,7 @@ try {
                 const offSeq = window.DualNumberingEngine.peekNextSequence(targetMode);
                 if (vNoEl) vNoEl.value = offSeq;
                 if (vDispEl) {
-                    vDispEl.innerHTML = `⏳ ${offSeq} <small style="font-size:0.65rem; opacity:0.85;">(أوفلاين)</small>`;
+                    vDispEl.innerHTML = `⏳ ${offSeq} <small style="font-size:0.76rem; opacity:0.85;">(أوفلاين)</small>`;
                     vDispEl.style.color = '#f59e0b';
                     vDispEl.style.borderColor = '#f59e0b';
                     vDispEl.style.background = 'rgba(245, 158, 11, 0.15)';
@@ -13248,7 +13363,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     const offSeq = window.DualNumberingEngine.peekNextSequence(mode);
                     if (vNoEl) vNoEl.value = offSeq;
                     if (vDispEl) {
-                        vDispEl.innerHTML = `⏳ ${offSeq} <small style="font-size:0.65rem; opacity:0.85;">(أوفلاين)</small>`;
+                        vDispEl.innerHTML = `⏳ ${offSeq} <small style="font-size:0.76rem; opacity:0.85;">(أوفلاين)</small>`;
                         vDispEl.style.color = '#f59e0b';
                         vDispEl.style.borderColor = '#f59e0b';
                         vDispEl.style.background = 'rgba(245, 158, 11, 0.15)';
@@ -13468,7 +13583,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     const peek = window.DualNumberingEngine ? window.DualNumberingEngine.peekNextSequence('sale') : 'INV-OFF-1';
                     invNo = peek;
                     if (pill) {
-                        pill.innerHTML = `⏳ أوفلاين ${invNo} <span style="font-size:0.65rem; opacity:0.85;">(معلق)</span>`;
+                        pill.innerHTML = `⏳ أوفلاين ${invNo} <span style="font-size:0.76rem; opacity:0.85;">(معلق)</span>`;
                         pill.style.background = 'rgba(245, 158, 11, 0.2)';
                         pill.style.borderColor = '#f59e0b';
                         pill.style.color = '#f59e0b';
@@ -13961,11 +14076,15 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             triggerBarcodeScanner() {
                 triggerHaptic('light');
-                openBottomSheet('sheet-barcode-scanner');
-                setTimeout(() => {
-                    const inp = document.getElementById('manual-barcode-input');
-                    if (inp) inp.focus();
-                }, 300);
+                BarcodeScannerEngine.open((code) => {
+                    const found = M_ITEMS.find(x => String(x.barcode || '') === code || String(x.sku || '') === code || String(x.id) === code || x.name.includes(code));
+                    if (found) {
+                        this.addItemById(found.id);
+                        if (window.showModernToast) window.showModernToast(`🎯 تمت إضافة: ${found.name}`, 'success');
+                    } else {
+                        if (window.showModernToast) window.showModernToast(`⚠️ الباركود (${code}) غير مطابق`, 'warning', 3000);
+                    }
+                });
             },
 
             simulateBarcodeFromInput() {
@@ -14154,7 +14273,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             <span>${it.name} × ${it.qty}</span>
                             <span>${fmt(it.subtotal)}</span>
                         </div>
-                        ${it.discount > 0 ? `<div class="thermal-row" style="color:#ef4444; font-size:0.65rem;"><span>(خصم الصنف)</span><span>-${fmt(it.discount)}</span></div>` : ''}
+                        ${it.discount > 0 ? `<div class="thermal-row" style="color:#ef4444; font-size:0.76rem;"><span>(خصم الصنف)</span><span>-${fmt(it.discount)}</span></div>` : ''}
                     `;
                 });
 
@@ -14230,7 +14349,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     <div class="thermal-footer">
                         <p>شكراً لتعاملكم معنا! البضاعة المباعة ترد وتستبدل حسب الشروط</p>
                         <div style="font-family:monospace; letter-spacing:2px; font-size:1.1rem; margin-top:6px;">*${inv.official_server_id || inv.local_seq || inv.invoiceNo}*</div>
-                        <div style="font-size:0.68rem; color:#555; margin-top:4px;">
+                        <div style="font-size:0.78rem; color:#555; margin-top:4px;">
                             ${isSynced ? `سيرفر المزامنة: ${inv.official_server_id || '#10542'} • معتمد` : `إيصال محلي: ${inv.local_seq || inv.invoiceNo} (في انتظار المزامنة)`}
                         </div>
                     </div>
@@ -15301,8 +15420,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 </div>
                                 <div>
                                     <div style="font-size:0.78rem; font-weight:800; color:var(--text-main);">${item.title || item.record_id}</div>
-                                    <div style="font-size:0.68rem; color:var(--text-muted);">${item.summary || item.entity_name}</div>
-                                    <div style="font-size:0.62rem; font-family:'Inter',monospace; color:var(--text-muted); margin-top:2px; opacity:0.85;">
+                                    <div style="font-size:0.78rem; color:var(--text-muted);">${item.summary || item.entity_name}</div>
+                                    <div style="font-size:0.75rem; font-family:'Inter',monospace; color:var(--text-muted); margin-top:2px; opacity:0.85;">
                                         <span style="color:var(--primary); font-weight:700;">[${item.entity_name || 'invoices'}:${item.operation || 'INSERT'}]</span> 
                                         ${item.id.slice(0, 18)}...
                                         ${item.serverRef ? `• <span style="color:var(--emerald); font-weight:700;">${item.serverRef}</span>` : ''}
@@ -15310,10 +15429,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 </div>
                             </div>
                             <div style="text-align:left;">
-                                <span style="display:inline-block; font-size:0.65rem; font-weight:800; color:${statusColor}; background:var(--surface-sub); border:1px solid var(--border-glass); padding:2px 6px; border-radius:6px; margin-bottom:4px;">
+                                <span style="display:inline-block; font-size:0.76rem; font-weight:800; color:${statusColor}; background:var(--surface-sub); border:1px solid var(--border-glass); padding:2px 6px; border-radius:6px; margin-bottom:4px;">
                                     ${statusLabel}
                                 </span>
-                                <div style="font-size:0.62rem; font-family:'Inter',sans-serif; color:var(--text-muted); direction:ltr; text-align:right;">
+                                <div style="font-size:0.75rem; font-family:'Inter',sans-serif; color:var(--text-muted); direction:ltr; text-align:right;">
                                     ${item.created_at ? item.created_at.slice(11, 16) : ''}
                                 </div>
                             </div>

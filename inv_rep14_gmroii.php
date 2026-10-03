@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -24,7 +24,8 @@ foreach ($raw_data as $row) {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>العائد على الاستثمار - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط§ظ„ط¹ط§ط¦ط¯ ط¹ظ„ظ‰ ط§ظ„ط§ط³طھط«ظ…ط§ط± - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -61,7 +62,7 @@ foreach ($raw_data as $row) {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -131,7 +132,7 @@ foreach ($raw_data as $row) {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -143,7 +144,7 @@ foreach ($raw_data as $row) {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -160,22 +161,22 @@ foreach ($raw_data as $row) {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'العائد على الاستثمار'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط§ظ„ط¹ط§ط¦ط¯ ط¹ظ„ظ‰ ط§ظ„ط§ط³طھط«ظ…ط§ط±'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-amber-400"><i class="fa-solid fa-coins"></i> تقرير العائد المالي الفعلي على استثمار أصناف المخزون (GMROII Ratio)</h1>
-            <p class="text-slate-500 text-xs mt-1">يقيس ربحية البضاعة مقارنة بالسيولة المجمدة فيها لتحديد جدوى شراء وتخزين كل صنف</p>
+            <h1 class="text-xl font-black text-amber-400"><i class="fa-solid fa-coins"></i> طھظ‚ط±ظٹط± ط§ظ„ط¹ط§ط¦ط¯ ط§ظ„ظ…ط§ظ„ظٹ ط§ظ„ظپط¹ظ„ظٹ ط¹ظ„ظ‰ ط§ط³طھط«ظ…ط§ط± ط£طµظ†ط§ظپ ط§ظ„ظ…ط®ط²ظˆظ† (GMROII Ratio)</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹظ‚ظٹط³ ط±ط¨ط­ظٹط© ط§ظ„ط¨ط¶ط§ط¹ط© ظ…ظ‚ط§ط±ظ†ط© ط¨ط§ظ„ط³ظٹظˆظ„ط© ط§ظ„ظ…ط¬ظ…ط¯ط© ظپظٹظ‡ط§ ظ„طھط­ط¯ظٹط¯ ط¬ط¯ظˆظ‰ ط´ط±ط§ط، ظˆطھط®ط²ظٹظ† ظƒظ„ طµظ†ظپ</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">العودة لبوابة المخازن</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">ط§ظ„ط¹ظˆط¯ط© ظ„ط¨ظˆط§ط¨ط© ط§ظ„ظ…ط®ط§ط²ظ†</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف</th>
-                    <th class="p-4 font-bold text-left">الربح الإجمالي الفعلي</th>
-                    <th class="p-4 font-bold text-left">متوسط تكلفة المخزون</th>
-                    <th class="p-4 font-bold text-center text-amber-400">نسبة GMROII</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ</th>
+                    <th class="p-4 font-bold text-left">ط§ظ„ط±ط¨ط­ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظپط¹ظ„ظٹ</th>
+                    <th class="p-4 font-bold text-left">ظ…طھظˆط³ط· طھظƒظ„ظپط© ط§ظ„ظ…ط®ط²ظˆظ†</th>
+                    <th class="p-4 font-bold text-center text-amber-400">ظ†ط³ط¨ط© GMROII</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
@@ -191,9 +192,9 @@ foreach ($raw_data as $row) {
         </table>
     </div>
 
-    <!-- الرسم البياني في الأسفل -->
+    <!-- ط§ظ„ط±ط³ظ… ط§ظ„ط¨ظٹط§ظ†ظٹ ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800 mb-6">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📈 كفاءة العائد المالي الفعلي على استثمار المخزون GMROII</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ˆ ظƒظپط§ط،ط© ط§ظ„ط¹ط§ط¦ط¯ ط§ظ„ظ…ط§ظ„ظٹ ط§ظ„ظپط¹ظ„ظٹ ط¹ظ„ظ‰ ط§ط³طھط«ظ…ط§ط± ط§ظ„ظ…ط®ط²ظˆظ† GMROII</h3>
         <div class="h-80">
             <canvas id="gmroiiChart"></canvas>
         </div>
@@ -208,7 +209,7 @@ foreach ($raw_data as $row) {
             data: {
                 labels: reportData.map(r => r.item_name),
                 datasets: [{
-                    label: 'نسبة GMROII',
+                    label: 'ظ†ط³ط¨ط© GMROII',
                     data: reportData.map(r => r.gmroii),
                     backgroundColor: '#fbbf24'
                 }]
@@ -230,3 +231,4 @@ foreach ($raw_data as $row) {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -14,7 +14,7 @@ try {
         $data = json_decode($s['data'], true);
         if ($data) {
             $inv_no = $data['invoiceNo'] ?? 'INV';
-            $cust = $data['customerName'] ?? 'عميل';
+            $cust = $data['customerName'] ?? 'ط¹ظ…ظٹظ„';
             $status = $s['status_val'] ?? ($data['status'] ?? 'pending');
             $rate = ($status === 'delivered') ? 100 : 0;
             
@@ -30,7 +30,7 @@ try {
 
 // Mock data fallback removed for SaaS environment
 
-// حساب معدلات التلبية الإجمالية
+// ط­ط³ط§ط¨ ظ…ط¹ط¯ظ„ط§طھ ط§ظ„طھظ„ط¨ظٹط© ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹط©
 $delivered_count = 0;
 $pending_count = 0;
 foreach ($report_data as $row) {
@@ -42,7 +42,8 @@ foreach ($report_data as $row) {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>دقة طلبات الصرف - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط¯ظ‚ط© ط·ظ„ط¨ط§طھ ط§ظ„طµط±ظپ - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -79,7 +80,7 @@ foreach ($report_data as $row) {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -149,7 +150,7 @@ foreach ($report_data as $row) {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -161,7 +162,7 @@ foreach ($report_data as $row) {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -178,22 +179,22 @@ foreach ($report_data as $row) {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'دقة طلبات الصرف'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط¯ظ‚ط© ط·ظ„ط¨ط§طھ ط§ظ„طµط±ظپ'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-circle-check"></i> دقة طلبات الصرف وتلبية أذونات البضائع (Order Fulfillment Rate)</h1>
-            <p class="text-slate-500 text-xs mt-1">يقيس نسبة الطلبات التي تم شحنها وتوصيلها للزبائن بنجاح دون نقص أو عجز مخزني</p>
+            <h1 class="text-xl font-black text-emerald-400"><i class="fa-solid fa-circle-check"></i> ط¯ظ‚ط© ط·ظ„ط¨ط§طھ ط§ظ„طµط±ظپ ظˆطھظ„ط¨ظٹط© ط£ط°ظˆظ†ط§طھ ط§ظ„ط¨ط¶ط§ط¦ط¹ (Order Fulfillment Rate)</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹظ‚ظٹط³ ظ†ط³ط¨ط© ط§ظ„ط·ظ„ط¨ط§طھ ط§ظ„طھظٹ طھظ… ط´ط­ظ†ظ‡ط§ ظˆطھظˆطµظٹظ„ظ‡ط§ ظ„ظ„ط²ط¨ط§ط¦ظ† ط¨ظ†ط¬ط§ط­ ط¯ظˆظ† ظ†ظ‚طµ ط£ظˆ ط¹ط¬ط² ظ…ط®ط²ظ†ظٹ</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">رقم الفاتورة</th>
-                    <th class="p-4 font-bold text-center">العميل</th>
-                    <th class="p-4 font-bold text-center">الحالة</th>
-                    <th class="p-4 font-bold text-center text-emerald-400">نسبة تلبية الطلب</th>
+                    <th class="p-4 font-bold">ط±ظ‚ظ… ط§ظ„ظپط§طھظˆط±ط©</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ط¹ظ…ظٹظ„</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ط­ط§ظ„ط©</th>
+                    <th class="p-4 font-bold text-center text-emerald-400">ظ†ط³ط¨ط© طھظ„ط¨ظٹط© ط§ظ„ط·ظ„ط¨</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
@@ -203,9 +204,9 @@ foreach ($report_data as $row) {
                         <td class="p-4 text-center"><?php echo htmlspecialchars($row['customer_name']); ?></td>
                         <td class="p-4 text-center font-mono">
                             <?php if ($row['status'] === 'delivered'): ?>
-                                <span class="text-emerald-400">✓ تم التسليم</span>
+                                <span class="text-emerald-400">âœ“ طھظ… ط§ظ„طھط³ظ„ظٹظ…</span>
                             <?php else: ?>
-                                <span class="text-amber-400">⏳ قيد الانتظار</span>
+                                <span class="text-amber-400">âڈ³ ظ‚ظٹط¯ ط§ظ„ط§ظ†طھط¸ط§ط±</span>
                             <?php endif; ?>
                         </td>
                         <td class="p-4 text-center font-mono font-bold <?php echo $row['fulfillment_pct'] == 100 ? 'text-emerald-400 bg-emerald-500/5' : 'text-amber-400 bg-amber-500/5'; ?>"><?php echo $row['fulfillment_pct']; ?>%</td>
@@ -215,9 +216,9 @@ foreach ($report_data as $row) {
         </table>
     </div>
 
-    <!-- كعكة تلبية الطلبات في الأسفل -->
+    <!-- ظƒط¹ظƒط© طھظ„ط¨ظٹط© ط§ظ„ط·ظ„ط¨ط§طھ ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">🍩 كعكة تلبية وصرف البضائع الفورية</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًںچ© ظƒط¹ظƒط© طھظ„ط¨ظٹط© ظˆطµط±ظپ ط§ظ„ط¨ط¶ط§ط¦ط¹ ط§ظ„ظپظˆط±ظٹط©</h3>
         <div class="h-80 flex justify-center">
             <div class="w-80 h-80">
                 <canvas id="fulfillmentChart"></canvas>
@@ -230,7 +231,7 @@ foreach ($report_data as $row) {
         new Chart(ctx, {
             type: 'pie',
             data: {
-                labels: ['تم التسليم بالكامل', 'معلق قيد الشحن'],
+                labels: ['طھظ… ط§ظ„طھط³ظ„ظٹظ… ط¨ط§ظ„ظƒط§ظ…ظ„', 'ظ…ط¹ظ„ظ‚ ظ‚ظٹط¯ ط§ظ„ط´ط­ظ†'],
                 datasets: [{
                     data: [<?php echo $delivered_count; ?>, <?php echo $pending_count; ?>],
                     backgroundColor: ['#10b981', '#f59e0b']
@@ -249,4 +250,5 @@ foreach ($report_data as $row) {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+
 

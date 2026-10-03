@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -11,7 +11,8 @@ $report_data = getWarehouseCapacities($pdo);
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>الطاقة الاستيعابية للعنابر - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط§ظ„ط·ط§ظ‚ط© ط§ظ„ط§ط³طھظٹط¹ط§ط¨ظٹط© ظ„ظ„ط¹ظ†ط§ط¨ط± - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -48,7 +49,7 @@ $report_data = getWarehouseCapacities($pdo);
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -118,7 +119,7 @@ $report_data = getWarehouseCapacities($pdo);
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -130,7 +131,7 @@ $report_data = getWarehouseCapacities($pdo);
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -147,13 +148,13 @@ $report_data = getWarehouseCapacities($pdo);
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'الطاقة الاستيعابية للعنابر'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط§ظ„ط·ط§ظ‚ط© ط§ظ„ط§ط³طھظٹط¹ط§ط¨ظٹط© ظ„ظ„ط¹ظ†ط§ط¨ط±'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-cyan-400"><i class="fa-solid fa-circle-dot"></i> تقرير الطاقة الاستيعابية الفعلي لعنابر التخزين</h1>
-            <p class="text-slate-500 text-xs mt-1">يراقب نسبة استغلال المساحات التخزينية في المستودعات المختلفة لمنع تكدس البضائع</p>
+            <h1 class="text-xl font-black text-cyan-400"><i class="fa-solid fa-circle-dot"></i> طھظ‚ط±ظٹط± ط§ظ„ط·ط§ظ‚ط© ط§ظ„ط§ط³طھظٹط¹ط§ط¨ظٹط© ط§ظ„ظپط¹ظ„ظٹ ظ„ط¹ظ†ط§ط¨ط± ط§ظ„طھط®ط²ظٹظ†</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹط±ط§ظ‚ط¨ ظ†ط³ط¨ط© ط§ط³طھط؛ظ„ط§ظ„ ط§ظ„ظ…ط³ط§ط­ط§طھ ط§ظ„طھط®ط²ظٹظ†ظٹط© ظپظٹ ط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ ط§ظ„ظ…ط®طھظ„ظپط© ظ„ظ…ظ†ط¹ طھظƒط¯ط³ ط§ظ„ط¨ط¶ط§ط¦ط¹</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -171,43 +172,43 @@ $report_data = getWarehouseCapacities($pdo);
             <div class="bg-slate-900/40 p-5 rounded-2xl border border-slate-800">
                 <div class="flex justify-between items-center mb-3">
                     <span class="font-bold text-slate-200"><?php echo htmlspecialchars($row['warehouse_name']); ?></span>
-                    <span class="text-xs text-slate-400 font-mono"><?php echo number_format($row['stock_qty']); ?> / <?php echo number_format($row['capacity']); ?> طن</span>
+                    <span class="text-xs text-slate-400 font-mono"><?php echo number_format($row['stock_qty']); ?> / <?php echo number_format($row['capacity']); ?> ط·ظ†</span>
                 </div>
                 <div class="w-full bg-slate-950 rounded-full h-3 overflow-hidden border border-slate-800">
                     <div class="bg-gradient-to-r <?php echo $bar_color; ?> h-full" style="width: <?php echo min($row['utilization_pct'], 100); ?>%"></div>
                 </div>
                 <div class="flex justify-between items-center mt-2 text-xs">
-                    <span class="text-slate-500">نسبة الاستغلال</span>
+                    <span class="text-slate-500">ظ†ط³ط¨ط© ط§ظ„ط§ط³طھط؛ظ„ط§ظ„</span>
                     <span class="font-bold <?php echo $text_color; ?>"><?php echo $row['utilization_pct']; ?>%</span>
                 </div>
             </div>
         <?php endforeach; ?>
     </div>
 
-    <!-- الجدول والتخطيط البياني السفلي -->
+    <!-- ط§ظ„ط¬ط¯ظˆظ„ ظˆط§ظ„طھط®ط·ظٹط· ط§ظ„ط¨ظٹط§ظ†ظٹ ط§ظ„ط³ظپظ„ظٹ -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <!-- الجدول -->
+        <!-- ط§ظ„ط¬ط¯ظˆظ„ -->
         <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md">
             <table class="w-full text-right border-collapse text-sm">
                 <thead>
                     <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                        <th class="p-4 font-bold">اسم المستودع / العنبر</th>
-                        <th class="p-4 font-bold text-center">الكمية المخزنة</th>
-                        <th class="p-4 font-bold text-center text-emerald-400">حالة الامتلاء</th>
+                        <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„ظ…ط³طھظˆط¯ط¹ / ط§ظ„ط¹ظ†ط¨ط±</th>
+                        <th class="p-4 font-bold text-center">ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط®ط²ظ†ط©</th>
+                        <th class="p-4 font-bold text-center text-emerald-400">ط­ط§ظ„ط© ط§ظ„ط§ظ…طھظ„ط§ط،</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-800/50">
                     <?php foreach ($report_data as $row): ?>
                         <tr class="hover:bg-slate-900/40 transition-colors">
                             <td class="p-4 font-bold text-slate-200"><?php echo htmlspecialchars($row['warehouse_name']); ?></td>
-                            <td class="p-4 text-center font-mono"><?php echo number_format($row['stock_qty']); ?> طن</td>
+                            <td class="p-4 text-center font-mono"><?php echo number_format($row['stock_qty']); ?> ط·ظ†</td>
                             <td class="p-4 text-center">
                                 <?php if ($row['utilization_pct'] >= 85): ?>
-                                    <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-red-950 text-red-400 border border-red-500/20">🚨 ممتلئ حرج</span>
+                                    <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-red-950 text-red-400 border border-red-500/20">ًںڑ¨ ظ…ظ…طھظ„ط¦ ط­ط±ط¬</span>
                                 <?php elseif ($row['utilization_pct'] >= 60): ?>
-                                    <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-amber-950 text-amber-400 border border-amber-500/20">⚠️ امتلاء متوسط</span>
+                                    <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-amber-950 text-amber-400 border border-amber-500/20">âڑ ï¸ڈ ط§ظ…طھظ„ط§ط، ظ…طھظˆط³ط·</span>
                                 <?php else: ?>
-                                    <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-emerald-950 text-emerald-400 border border-emerald-500/20">✓ مساحة كافية</span>
+                                    <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-emerald-950 text-emerald-400 border border-emerald-500/20">âœ“ ظ…ط³ط§ط­ط© ظƒط§ظپظٹط©</span>
                                 <?php endif; ?>
                             </td>
                         </tr>
@@ -216,9 +217,9 @@ $report_data = getWarehouseCapacities($pdo);
             </table>
         </div>
 
-        <!-- الرسم البياني الأفقي -->
+        <!-- ط§ظ„ط±ط³ظ… ط§ظ„ط¨ظٹط§ظ†ظٹ ط§ظ„ط£ظپظ‚ظٹ -->
         <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800 h-80 flex flex-col justify-between">
-            <h3 class="text-xs font-bold text-slate-300 mb-2">📊 نسبة إشغال المستودعات مقارنة بالسعة الإجمالية</h3>
+            <h3 class="text-xs font-bold text-slate-300 mb-2">ًں“ٹ ظ†ط³ط¨ط© ط¥ط´ط؛ط§ظ„ ط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ ظ…ظ‚ط§ط±ظ†ط© ط¨ط§ظ„ط³ط¹ط© ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹط©</h3>
             <div class="h-64">
                 <canvas id="capacityChart"></canvas>
             </div>
@@ -234,8 +235,8 @@ $report_data = getWarehouseCapacities($pdo);
             data: {
                 labels: reportData.map(r => r.warehouse_name),
                 datasets: [
-                    { label: 'الكمية الحالية', data: reportData.map(r => r.stock_qty), backgroundColor: '#06b6d4' },
-                    { label: 'السعة الكلية', data: reportData.map(r => r.capacity), backgroundColor: '#1e293b' }
+                    { label: 'ط§ظ„ظƒظ…ظٹط© ط§ظ„ط­ط§ظ„ظٹط©', data: reportData.map(r => r.stock_qty), backgroundColor: '#06b6d4' },
+                    { label: 'ط§ظ„ط³ط¹ط© ط§ظ„ظƒظ„ظٹط©', data: reportData.map(r => r.capacity), backgroundColor: '#1e293b' }
                 ]
             },
             options: {
@@ -256,3 +257,4 @@ $report_data = getWarehouseCapacities($pdo);
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

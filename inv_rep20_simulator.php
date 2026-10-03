@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -14,14 +14,14 @@ foreach ($raw_data as $row) {
     $daily = $row['avg_daily_sales'] > 0 ? $row['avg_daily_sales'] : 2.5; 
     
     $remaining_stock = $row['stock_qty'] - ($sim_delay * $daily);
-    $status = '✓ آمن ومستقر';
+    $status = 'âœ“ ط¢ظ…ظ† ظˆظ…ط³طھظ‚ط±';
     $color = 'text-emerald-400 bg-emerald-500/5';
     if ($remaining_stock <= 0) {
-        $status = '🚨 خطر النفاد الكامل';
+        $status = 'ًںڑ¨ ط®ط·ط± ط§ظ„ظ†ظپط§ط¯ ط§ظ„ظƒط§ظ…ظ„';
         $color = 'text-red-400 bg-red-500/5';
         $remaining_stock = 0;
     } elseif ($remaining_stock <= $row['min_limit']) {
-        $status = '⚠️ نفاد حرج (تحت حد الأمان)';
+        $status = 'âڑ ï¸ڈ ظ†ظپط§ط¯ ط­ط±ط¬ (طھط­طھ ط­ط¯ ط§ظ„ط£ظ…ط§ظ†)';
         $color = 'text-amber-400 bg-amber-500/5';
     }
     
@@ -39,7 +39,8 @@ foreach ($raw_data as $row) {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>محاكي النواقص - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ظ…ط­ط§ظƒظٹ ط§ظ„ظ†ظˆط§ظ‚طµ - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -76,7 +77,7 @@ foreach ($raw_data as $row) {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -146,7 +147,7 @@ foreach ($raw_data as $row) {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -158,7 +159,7 @@ foreach ($raw_data as $row) {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -175,20 +176,20 @@ foreach ($raw_data as $row) {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'محاكي النواقص'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ظ…ط­ط§ظƒظٹ ط§ظ„ظ†ظˆط§ظ‚طµ'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-magic"></i> محاكي سيناريوهات ونواقص المخازن المستقبلية</h1>
-            <p class="text-slate-500 text-xs mt-1">يتوقع تأثر رصيد عنابر التخزين في السجانة في حال تأخر التوريد من المصانع لعدة أيام</p>
+            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-magic"></i> ظ…ط­ط§ظƒظٹ ط³ظٹظ†ط§ط±ظٹظˆظ‡ط§طھ ظˆظ†ظˆط§ظ‚طµ ط§ظ„ظ…ط®ط§ط²ظ† ط§ظ„ظ…ط³طھظ‚ط¨ظ„ظٹط©</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹطھظˆظ‚ط¹ طھط£ط«ط± ط±طµظٹط¯ ط¹ظ†ط§ط¨ط± ط§ظ„طھط®ط²ظٹظ† ظپظٹ ط§ظ„ط³ط¬ط§ظ†ط© ظپظٹ ط­ط§ظ„ طھط£ط®ط± ط§ظ„طھظˆط±ظٹط¯ ظ…ظ† ط§ظ„ظ…طµط§ظ†ط¹ ظ„ط¹ط¯ط© ط£ظٹط§ظ…</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
 
     <div class="bg-slate-900/40 p-5 rounded-2xl border border-slate-800 mb-6">
         <form method="POST" class="flex items-center gap-4">
-            <span class="text-xs font-bold text-slate-300">حدد عدد أيام تأخر التوريد من المصانع:</span>
+            <span class="text-xs font-bold text-slate-300">ط­ط¯ط¯ ط¹ط¯ط¯ ط£ظٹط§ظ… طھط£ط®ط± ط§ظ„طھظˆط±ظٹط¯ ظ…ظ† ط§ظ„ظ…طµط§ظ†ط¹:</span>
             <input type="number" name="sim_delay" value="<?php echo $sim_delay; ?>" min="1" max="60" class="px-3 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-sm text-center w-20 font-bold text-purple-400">
-            <button type="submit" class="px-4 py-1.5 bg-purple-600 hover:bg-purple-500 rounded-lg text-xs font-bold transition-all">تشغيل المحاكاة</button>
+            <button type="submit" class="px-4 py-1.5 bg-purple-600 hover:bg-purple-500 rounded-lg text-xs font-bold transition-all">طھط´ط؛ظٹظ„ ط§ظ„ظ…ط­ط§ظƒط§ط©</button>
         </form>
     </div>
 
@@ -196,20 +197,20 @@ foreach ($raw_data as $row) {
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف</th>
-                    <th class="p-4 font-bold text-center">الرصيد الفعلي الحالي</th>
-                    <th class="p-4 font-bold text-center">الاستهلاك المتوقع خلال التأخير</th>
-                    <th class="p-4 font-bold text-center">الرصيد المتبقي المتوقع</th>
-                    <th class="p-4 font-bold text-center text-purple-400">حالة الخطر بعد التأخير</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ط±طµظٹط¯ ط§ظ„ظپط¹ظ„ظٹ ط§ظ„ط­ط§ظ„ظٹ</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ط§ط³طھظ‡ظ„ط§ظƒ ط§ظ„ظ…طھظˆظ‚ط¹ ط®ظ„ط§ظ„ ط§ظ„طھط£ط®ظٹط±</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط¨ظ‚ظٹ ط§ظ„ظ…طھظˆظ‚ط¹</th>
+                    <th class="p-4 font-bold text-center text-purple-400">ط­ط§ظ„ط© ط§ظ„ط®ط·ط± ط¨ط¹ط¯ ط§ظ„طھط£ط®ظٹط±</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
                 <?php foreach ($report_data as $row): ?>
                     <tr class="hover:bg-slate-900/40 transition-colors">
                         <td class="p-4 font-bold text-slate-200"><?php echo htmlspecialchars($row['item_name']); ?></td>
-                        <td class="p-4 text-center font-mono"><?php echo number_format($row['current_stock']); ?> طن</td>
-                        <td class="p-4 text-center font-mono text-slate-400"><?php echo number_format($row['expected_consumption'], 1); ?> طن</td>
-                        <td class="p-4 text-center font-mono font-bold"><?php echo number_format($row['remaining_stock'], 1); ?> طن</td>
+                        <td class="p-4 text-center font-mono"><?php echo number_format($row['current_stock']); ?> ط·ظ†</td>
+                        <td class="p-4 text-center font-mono text-slate-400"><?php echo number_format($row['expected_consumption'], 1); ?> ط·ظ†</td>
+                        <td class="p-4 text-center font-mono font-bold"><?php echo number_format($row['remaining_stock'], 1); ?> ط·ظ†</td>
                         <td class="p-4 text-center font-bold <?php echo $row['color']; ?>"><?php echo $row['status']; ?></td>
                     </tr>
                 <?php endforeach; ?>
@@ -217,9 +218,9 @@ foreach ($raw_data as $row) {
         </table>
     </div>
 
-    <!-- منحنى التراجع المتوقع في الرصيد في الأسفل -->
+    <!-- ظ…ظ†ط­ظ†ظ‰ ط§ظ„طھط±ط§ط¬ط¹ ط§ظ„ظ…طھظˆظ‚ط¹ ظپظٹ ط§ظ„ط±طµظٹط¯ ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📈 منحنى تناقص المخزن المتوقع لكل صنف بسبب التأخر</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ˆ ظ…ظ†ط­ظ†ظ‰ طھظ†ط§ظ‚طµ ط§ظ„ظ…ط®ط²ظ† ط§ظ„ظ…طھظˆظ‚ط¹ ظ„ظƒظ„ طµظ†ظپ ط¨ط³ط¨ط¨ ط§ظ„طھط£ط®ط±</h3>
         <div class="h-80">
             <canvas id="simChart"></canvas>
         </div>
@@ -234,8 +235,8 @@ foreach ($raw_data as $row) {
             data: {
                 labels: reportData.map(r => r.item_name),
                 datasets: [
-                    { label: 'الرصيد الفعلي الحالي', data: reportData.map(r => r.current_stock), backgroundColor: '#64748b' },
-                    { label: 'الرصيد المتبقي المتوقع', data: reportData.map(r => r.remaining_stock), backgroundColor: '#a855f7' }
+                    { label: 'ط§ظ„ط±طµظٹط¯ ط§ظ„ظپط¹ظ„ظٹ ط§ظ„ط­ط§ظ„ظٹ', data: reportData.map(r => r.current_stock), backgroundColor: '#64748b' },
+                    { label: 'ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط¨ظ‚ظٹ ط§ظ„ظ…طھظˆظ‚ط¹', data: reportData.map(r => r.remaining_stock), backgroundColor: '#a855f7' }
                 ]
             },
             options: {
@@ -255,3 +256,4 @@ foreach ($raw_data as $row) {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

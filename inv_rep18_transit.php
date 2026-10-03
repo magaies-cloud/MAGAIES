@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -15,9 +15,9 @@ try {
         if ($data) {
             $report_data[] = [
                 'order_no' => $data['invoiceNo'] ?? 'PO',
-                'supplier_name' => $data['supplierName'] ?? 'مورد',
+                'supplier_name' => $data['supplierName'] ?? 'ظ…ظˆط±ط¯',
                 'expected_date' => $data['date'] ?? date('Y-m-d', strtotime('+7 days')),
-                'status' => 'قيد الشحن'
+                'status' => 'ظ‚ظٹط¯ ط§ظ„ط´ط­ظ†'
             ];
         }
     }
@@ -25,16 +25,16 @@ try {
 
 if (empty($report_data)) {
     $report_data = [
-        ['order_no' => 'PO-2026-08', 'supplier_name' => 'مصنع الأسعد للحديد', 'expected_date' => date('Y-m-d', strtotime('+3 days')), 'status' => 'قيد الاستيراد'],
-        ['order_no' => 'PO-2026-11', 'supplier_name' => 'شركة أسمنت عطبرة', 'expected_date' => date('Y-m-d', strtotime('+5 days')), 'status' => 'تحت النقل']
+        ['order_no' => 'PO-2026-08', 'supplier_name' => 'ظ…طµظ†ط¹ ط§ظ„ط£ط³ط¹ط¯ ظ„ظ„ط­ط¯ظٹط¯', 'expected_date' => date('Y-m-d', strtotime('+3 days')), 'status' => 'ظ‚ظٹط¯ ط§ظ„ط§ط³طھظٹط±ط§ط¯'],
+        ['order_no' => 'PO-2026-11', 'supplier_name' => 'ط´ط±ظƒط© ط£ط³ظ…ظ†طھ ط¹ط·ط¨ط±ط©', 'expected_date' => date('Y-m-d', strtotime('+5 days')), 'status' => 'طھط­طھ ط§ظ„ظ†ظ‚ظ„']
     ];
 }
 
-// حساب عدد الحالات
+// ط­ط³ط§ط¨ ط¹ط¯ط¯ ط§ظ„ط­ط§ظ„ط§طھ
 $import_count = 0;
 $transit_count = 0;
 foreach ($report_data as $row) {
-    if (strpos($row['status'], 'استيراد') !== false) $import_count++;
+    if (strpos($row['status'], 'ط§ط³طھظٹط±ط§ط¯') !== false) $import_count++;
     else $transit_count++;
 }
 ?>
@@ -42,7 +42,8 @@ foreach ($report_data as $row) {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>بضاعة قيد الشحن - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط¨ط¶ط§ط¹ط© ظ‚ظٹط¯ ط§ظ„ط´ط­ظ† - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -79,7 +80,7 @@ foreach ($report_data as $row) {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -149,7 +150,7 @@ foreach ($report_data as $row) {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -161,7 +162,7 @@ foreach ($report_data as $row) {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -178,22 +179,22 @@ foreach ($report_data as $row) {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'بضاعة قيد الشحن'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط¨ط¶ط§ط¹ط© ظ‚ظٹط¯ ط§ظ„ط´ط­ظ†'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-ship"></i> تتبع وتأمين طلبيات الاستيراد والشحن قيد الانتظار (Goods In Transit)</h1>
-            <p class="text-slate-500 text-xs mt-1">يعرض طلبيات الشراء قيد الشحن الخارجي أو الاستيراد وتاريخ وصولها المتوقع</p>
+            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-ship"></i> طھطھط¨ط¹ ظˆطھط£ظ…ظٹظ† ط·ظ„ط¨ظٹط§طھ ط§ظ„ط§ط³طھظٹط±ط§ط¯ ظˆط§ظ„ط´ط­ظ† ظ‚ظٹط¯ ط§ظ„ط§ظ†طھط¸ط§ط± (Goods In Transit)</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹط¹ط±ط¶ ط·ظ„ط¨ظٹط§طھ ط§ظ„ط´ط±ط§ط، ظ‚ظٹط¯ ط§ظ„ط´ط­ظ† ط§ظ„ط®ط§ط±ط¬ظٹ ط£ظˆ ط§ظ„ط§ط³طھظٹط±ط§ط¯ ظˆطھط§ط±ظٹط® ظˆطµظˆظ„ظ‡ط§ ط§ظ„ظ…طھظˆظ‚ط¹</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">العودة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">ط§ظ„ط¹ظˆط¯ط©</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">رقم الطلبية</th>
-                    <th class="p-4 font-bold text-center">المورد / المصنع</th>
-                    <th class="p-4 font-bold text-center">تاريخ الوصول المتوقع</th>
-                    <th class="p-4 font-bold text-center text-purple-400">الحالة الحالية</th>
+                    <th class="p-4 font-bold">ط±ظ‚ظ… ط§ظ„ط·ظ„ط¨ظٹط©</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ظ…ظˆط±ط¯ / ط§ظ„ظ…طµظ†ط¹</th>
+                    <th class="p-4 font-bold text-center">طھط§ط±ظٹط® ط§ظ„ظˆطµظˆظ„ ط§ظ„ظ…طھظˆظ‚ط¹</th>
+                    <th class="p-4 font-bold text-center text-purple-400">ط§ظ„ط­ط§ظ„ط© ط§ظ„ط­ط§ظ„ظٹط©</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
@@ -209,9 +210,9 @@ foreach ($report_data as $row) {
         </table>
     </div>
 
-    <!-- كعكة مفرغة في الأسفل لحالة الشحنات -->
+    <!-- ظƒط¹ظƒط© ظ…ظپط±ط؛ط© ظپظٹ ط§ظ„ط£ط³ظپظ„ ظ„ط­ط§ظ„ط© ط§ظ„ط´ط­ظ†ط§طھ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">🍩 كعكة الحالات اللوجستية للبضائع قيد الشحن</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًںچ© ظƒط¹ظƒط© ط§ظ„ط­ط§ظ„ط§طھ ط§ظ„ظ„ظˆط¬ط³طھظٹط© ظ„ظ„ط¨ط¶ط§ط¦ط¹ ظ‚ظٹط¯ ط§ظ„ط´ط­ظ†</h3>
         <div class="h-80 flex justify-center">
             <div class="w-80 h-80">
                 <canvas id="transitChart"></canvas>
@@ -224,7 +225,7 @@ foreach ($report_data as $row) {
         new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['قيد الاستيراد الخارجي', 'قيد النقل المحلي'],
+                labels: ['ظ‚ظٹط¯ ط§ظ„ط§ط³طھظٹط±ط§ط¯ ط§ظ„ط®ط§ط±ط¬ظٹ', 'ظ‚ظٹط¯ ط§ظ„ظ†ظ‚ظ„ ط§ظ„ظ…ط­ظ„ظٹ'],
                 datasets: [{
                     data: [<?php echo $import_count; ?>, <?php echo $transit_count; ?>],
                     backgroundColor: ['#a855f7', '#06b6d4']
@@ -243,4 +244,5 @@ foreach ($report_data as $row) {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+
 

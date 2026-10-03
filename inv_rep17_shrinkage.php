@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -22,7 +22,8 @@ foreach ($raw_data as $row) {
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>التدقيق المخزني - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط§ظ„طھط¯ظ‚ظٹظ‚ ط§ظ„ظ…ط®ط²ظ†ظٹ - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -59,7 +60,7 @@ foreach ($raw_data as $row) {
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -129,7 +130,7 @@ foreach ($raw_data as $row) {
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -141,7 +142,7 @@ foreach ($raw_data as $row) {
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -158,32 +159,32 @@ foreach ($raw_data as $row) {
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'التدقيق المخزني'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط§ظ„طھط¯ظ‚ظٹظ‚ ط§ظ„ظ…ط®ط²ظ†ظٹ'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-cut"></i> تقرير معدل العجز والتدقيق المخزني الفعلي (Shrinkage Rate)</h1>
-            <p class="text-slate-500 text-xs mt-1">يقارن الرصيد الدفتري المسجل في الداتابيز بالجرد الفعلي لعنابر السجانة لكشف أي عجز</p>
+            <h1 class="text-xl font-black text-purple-400"><i class="fa-solid fa-cut"></i> طھظ‚ط±ظٹط± ظ…ط¹ط¯ظ„ ط§ظ„ط¹ط¬ط² ظˆط§ظ„طھط¯ظ‚ظٹظ‚ ط§ظ„ظ…ط®ط²ظ†ظٹ ط§ظ„ظپط¹ظ„ظٹ (Shrinkage Rate)</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹظ‚ط§ط±ظ† ط§ظ„ط±طµظٹط¯ ط§ظ„ط¯ظپطھط±ظٹ ط§ظ„ظ…ط³ط¬ظ„ ظپظٹ ط§ظ„ط¯ط§طھط§ط¨ظٹط² ط¨ط§ظ„ط¬ط±ط¯ ط§ظ„ظپط¹ظ„ظٹ ظ„ط¹ظ†ط§ط¨ط± ط§ظ„ط³ط¬ط§ظ†ط© ظ„ظƒط´ظپ ط£ظٹ ط¹ط¬ط²</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">العودة للبوابة</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold">ط§ظ„ط¹ظˆط¯ط© ظ„ظ„ط¨ظˆط§ط¨ط©</a>
     </div>
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف</th>
-                    <th class="p-4 font-bold text-center">الكمية الدفترية</th>
-                    <th class="p-4 font-bold text-center">الكمية الفعلية بالجرد</th>
-                    <th class="p-4 font-bold text-center text-red-400">العجز المرصود</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ظƒظ…ظٹط© ط§ظ„ط¯ظپطھط±ظٹط©</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ظƒظ…ظٹط© ط§ظ„ظپط¹ظ„ظٹط© ط¨ط§ظ„ط¬ط±ط¯</th>
+                    <th class="p-4 font-bold text-center text-red-400">ط§ظ„ط¹ط¬ط² ط§ظ„ظ…ط±طµظˆط¯</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
                 <?php foreach ($report_data as $row): ?>
                     <tr class="hover:bg-slate-900/40 transition-colors">
                         <td class="p-4 font-bold text-slate-200"><?php echo htmlspecialchars($row['item_name']); ?></td>
-                        <td class="p-4 text-center font-mono"><?php echo number_format($row['db_qty']); ?> طن</td>
-                        <td class="p-4 text-center font-mono"><?php echo number_format($row['physical_qty']); ?> طن</td>
+                        <td class="p-4 text-center font-mono"><?php echo number_format($row['db_qty']); ?> ط·ظ†</td>
+                        <td class="p-4 text-center font-mono"><?php echo number_format($row['physical_qty']); ?> ط·ظ†</td>
                         <td class="p-4 text-center font-mono font-bold <?php echo $row['discrepancy'] > 0 ? 'text-red-400 bg-red-500/5' : 'text-slate-500'; ?>">
-                            <?php echo $row['discrepancy'] > 0 ? $row['discrepancy'] . ' طن' : '✓ لا يوجد عجز'; ?>
+                            <?php echo $row['discrepancy'] > 0 ? $row['discrepancy'] . ' ط·ظ†' : 'âœ“ ظ„ط§ ظٹظˆط¬ط¯ ط¹ط¬ط²'; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>
@@ -191,9 +192,9 @@ foreach ($raw_data as $row) {
         </table>
     </div>
 
-    <!-- مخطط بياني للمقارنة في الأسفل -->
+    <!-- ظ…ط®ط·ط· ط¨ظٹط§ظ†ظٹ ظ„ظ„ظ…ظ‚ط§ط±ظ†ط© ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📈 مقارنة بيانية بين الكمية الدفترية والكمية الفعلية المجرودة</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ˆ ظ…ظ‚ط§ط±ظ†ط© ط¨ظٹط§ظ†ظٹط© ط¨ظٹظ† ط§ظ„ظƒظ…ظٹط© ط§ظ„ط¯ظپطھط±ظٹط© ظˆط§ظ„ظƒظ…ظٹط© ط§ظ„ظپط¹ظ„ظٹط© ط§ظ„ظ…ط¬ط±ظˆط¯ط©</h3>
         <div class="h-80">
             <canvas id="shrinkageChart"></canvas>
         </div>
@@ -208,8 +209,8 @@ foreach ($raw_data as $row) {
             data: {
                 labels: reportData.map(r => r.item_name),
                 datasets: [
-                    { label: 'الكمية الدفترية (طن)', data: reportData.map(r => r.db_qty), backgroundColor: '#64748b' },
-                    { label: 'الكمية الفعلية (طن)', data: reportData.map(r => r.physical_qty), backgroundColor: '#a855f7' }
+                    { label: 'ط§ظ„ظƒظ…ظٹط© ط§ظ„ط¯ظپطھط±ظٹط© (ط·ظ†)', data: reportData.map(r => r.db_qty), backgroundColor: '#64748b' },
+                    { label: 'ط§ظ„ظƒظ…ظٹط© ط§ظ„ظپط¹ظ„ظٹط© (ط·ظ†)', data: reportData.map(r => r.physical_qty), backgroundColor: '#a855f7' }
                 ]
             },
             options: {
@@ -229,3 +230,4 @@ foreach ($raw_data as $row) {
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -11,7 +11,8 @@ $report_data = getInventoryReportData($pdo);
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>حدود الأمان الأربعة للمخزون - MAGAIEES ERP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ† ط§ظ„ط£ط±ط¨ط¹ط© ظ„ظ„ظ…ط®ط²ظˆظ† - MAGAIEES ERP</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -48,7 +49,7 @@ $report_data = getInventoryReportData($pdo);
             flex: 1;
         }
 
-        /* تنسيقات الجداول المتوافقة مع الوضعين الفاتح والداكن */
+        /* طھظ†ط³ظٹظ‚ط§طھ ط§ظ„ط¬ط¯ط§ظˆظ„ ط§ظ„ظ…طھظˆط§ظپظ‚ط© ظ…ط¹ ط§ظ„ظˆط¶ط¹ظٹظ† ط§ظ„ظپط§طھط­ ظˆط§ظ„ط¯ط§ظƒظ† */
         .bg-slate-900\/40 {
             background-color: rgba(30, 41, 59, 0.2) !important;
             backdrop-filter: blur(16px);
@@ -118,7 +119,7 @@ $report_data = getInventoryReportData($pdo);
             color: #475569 !important;
         }
 
-        /* أزرار وتنبيهات العودة */
+        /* ط£ط²ط±ط§ط± ظˆطھظ†ط¨ظٹظ‡ط§طھ ط§ظ„ط¹ظˆط¯ط© */
         .bg-slate-900 {
             background-color: rgba(30, 41, 59, 0.4) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -130,7 +131,7 @@ $report_data = getInventoryReportData($pdo);
             color: #1e293b !important;
         }
 
-        /* تحسين مظهر المدخلات والمخططات البيانية */
+        /* طھط­ط³ظٹظ† ظ…ط¸ظ‡ط± ط§ظ„ظ…ط¯ط®ظ„ط§طھ ظˆط§ظ„ظ…ط®ط·ط·ط§طھ ط§ظ„ط¨ظٹط§ظ†ظٹط© */
         input[type="number"], select {
             background-color: rgba(15, 23, 42, 0.6) !important;
             border-color: rgba(255, 255, 255, 0.08) !important;
@@ -147,43 +148,43 @@ $report_data = getInventoryReportData($pdo);
 
 <body class="text-slate-100 min-h-screen">
     <div class="dashboard-container">
-        <?php $page_title = 'حدود الأمان الأربعة للمخزون'; include 'includes/header.php'; ?>
+        <?php $page_title = 'ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ† ط§ظ„ط£ط±ط¨ط¹ط© ظ„ظ„ظ…ط®ط²ظˆظ†'; include 'includes/header.php'; ?>
     <div class="mb-6 border-b border-slate-800 pb-4 flex justify-between items-center">
         <div>
-            <h1 class="text-xl font-black text-cyan-400"><i class="fa-solid fa-shield-halved"></i> تقرير الرقابة الذكية على حدود المخزون الأربعة</h1>
-            <p class="text-slate-500 text-xs mt-1">يحلل مطابقة الكميات الحالية بحدود الخطر والطلب الأقصى لضمان استقرار حركة السوق</p>
+            <h1 class="text-xl font-black text-cyan-400"><i class="fa-solid fa-shield-halved"></i> طھظ‚ط±ظٹط± ط§ظ„ط±ظ‚ط§ط¨ط© ط§ظ„ط°ظƒظٹط© ط¹ظ„ظ‰ ط­ط¯ظˆط¯ ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط£ط±ط¨ط¹ط©</h1>
+            <p class="text-slate-500 text-xs mt-1">ظٹط­ظ„ظ„ ظ…ط·ط§ط¨ظ‚ط© ط§ظ„ظƒظ…ظٹط§طھ ط§ظ„ط­ط§ظ„ظٹط© ط¨ط­ط¯ظˆط¯ ط§ظ„ط®ط·ط± ظˆط§ظ„ط·ظ„ط¨ ط§ظ„ط£ظ‚طµظ‰ ظ„ط¶ظ…ط§ظ† ط§ط³طھظ‚ط±ط§ط± ط­ط±ظƒط© ط§ظ„ط³ظˆظ‚</p>
         </div>
-        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">العودة لبوابة المخازن</a>
+        <a href="smart_inventory_report.php" class="px-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs font-bold hover:bg-slate-800">ط§ظ„ط¹ظˆط¯ط© ظ„ط¨ظˆط§ط¨ط© ط§ظ„ظ…ط®ط§ط²ظ†</a>
     </div>
 
-    <!-- الجدول التفصيلي -->
+    <!-- ط§ظ„ط¬ط¯ظˆظ„ ط§ظ„طھظپطµظٹظ„ظٹ -->
     <div class="bg-slate-900/40 rounded-2xl border border-slate-800 overflow-hidden shadow-md mb-8">
         <table class="w-full text-right border-collapse text-sm">
             <thead>
                 <tr class="bg-slate-950 text-slate-400 text-xs border-b border-slate-800">
-                    <th class="p-4 font-bold">اسم الصنف</th>
-                    <th class="p-4 font-bold text-center">الكمية الحالية</th>
-                    <th class="p-4 font-bold text-center text-red-400">الحد الأدنى (الخطر)</th>
-                    <th class="p-4 font-bold text-center text-amber-400">حد الطلب الذكي</th>
-                    <th class="p-4 font-bold text-center text-emerald-400">الحد الأعلى (السقف)</th>
-                    <th class="p-4 font-bold text-center">حالة الصنف الحالية</th>
+                    <th class="p-4 font-bold">ط§ط³ظ… ط§ظ„طµظ†ظپ</th>
+                    <th class="p-4 font-bold text-center">ط§ظ„ظƒظ…ظٹط© ط§ظ„ط­ط§ظ„ظٹط©</th>
+                    <th class="p-4 font-bold text-center text-red-400">ط§ظ„ط­ط¯ ط§ظ„ط£ط¯ظ†ظ‰ (ط§ظ„ط®ط·ط±)</th>
+                    <th class="p-4 font-bold text-center text-amber-400">ط­ط¯ ط§ظ„ط·ظ„ط¨ ط§ظ„ط°ظƒظٹ</th>
+                    <th class="p-4 font-bold text-center text-emerald-400">ط§ظ„ط­ط¯ ط§ظ„ط£ط¹ظ„ظ‰ (ط§ظ„ط³ظ‚ظپ)</th>
+                    <th class="p-4 font-bold text-center">ط­ط§ظ„ط© ط§ظ„طµظ†ظپ ط§ظ„ط­ط§ظ„ظٹط©</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-800/50">
                 <?php foreach ($report_data as $row): ?>
                     <tr class="hover:bg-slate-900/40 transition-colors">
                         <td class="p-4 font-bold text-slate-200"><?php echo htmlspecialchars($row['item_name']); ?></td>
-                        <td class="p-4 text-center font-mono font-bold"><?php echo number_format($row['stock_qty']); ?> طن</td>
+                        <td class="p-4 text-center font-mono font-bold"><?php echo number_format($row['stock_qty']); ?> ط·ظ†</td>
                         <td class="p-4 text-center font-mono text-red-400 bg-red-500/5"><?php echo number_format($row['min_limit']); ?></td>
                         <td class="p-4 text-center font-mono text-amber-400 bg-amber-500/5"><?php echo number_format($row['demand_limit']); ?></td>
                         <td class="p-4 text-center font-mono text-emerald-400 bg-emerald-500/5"><?php echo number_format($row['max_limit']); ?></td>
                         <td class="p-4 text-center">
                             <?php if ($row['stock_qty'] <= $row['min_limit']): ?>
-                                <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-red-950 text-red-400 border border-red-500/20">🚨 نفاد حرج</span>
+                                <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-red-950 text-red-400 border border-red-500/20">ًںڑ¨ ظ†ظپط§ط¯ ط­ط±ط¬</span>
                             <?php elseif ($row['stock_qty'] <= $row['demand_limit']): ?>
-                                <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-amber-950 text-amber-400 border border-amber-500/20">⚠️ شراء فوري</span>
+                                <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-amber-950 text-amber-400 border border-amber-500/20">âڑ ï¸ڈ ط´ط±ط§ط، ظپظˆط±ظٹ</span>
                             <?php else: ?>
-                                <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-emerald-950 text-emerald-400 border border-emerald-500/20">✓ آمن ومستقر</span>
+                                <span class="px-2.5 py-1 text-[10px] font-bold rounded bg-emerald-950 text-emerald-400 border border-emerald-500/20">âœ“ ط¢ظ…ظ† ظˆظ…ط³طھظ‚ط±</span>
                             <?php endif; ?>
                         </td>
                     </tr>
@@ -192,9 +193,9 @@ $report_data = getInventoryReportData($pdo);
         </table>
     </div>
 
-    <!-- المخطط البياني في الأسفل -->
+    <!-- ط§ظ„ظ…ط®ط·ط· ط§ظ„ط¨ظٹط§ظ†ظٹ ظپظٹ ط§ظ„ط£ط³ظپظ„ -->
     <div class="bg-slate-900/40 p-6 rounded-2xl border border-slate-800 mb-6">
-        <h3 class="text-xs font-bold text-slate-300 mb-4">📈 الكشف البياني العرضي لكميات العنابر الحالية مقارنة بحدود الأمان والطلب</h3>
+        <h3 class="text-xs font-bold text-slate-300 mb-4">ًں“ˆ ط§ظ„ظƒط´ظپ ط§ظ„ط¨ظٹط§ظ†ظٹ ط§ظ„ط¹ط±ط¶ظٹ ظ„ظƒظ…ظٹط§طھ ط§ظ„ط¹ظ†ط§ط¨ط± ط§ظ„ط­ط§ظ„ظٹط© ظ…ظ‚ط§ط±ظ†ط© ط¨ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ† ظˆط§ظ„ط·ظ„ط¨</h3>
         <div class="h-80">
             <canvas id="limitsChart"></canvas>
         </div>
@@ -209,9 +210,9 @@ $report_data = getInventoryReportData($pdo);
             data: {
                 labels: reportData.map(r => r.item_name),
                 datasets: [
-                    { label: 'الكمية الحالية', data: reportData.map(r => r.stock_qty), backgroundColor: '#06b6d4' },
-                    { label: 'الحد الأدنى (الخطر)', data: reportData.map(r => r.min_limit), backgroundColor: '#ef4444' },
-                    { label: 'حد الطلب', data: reportData.map(r => r.demand_limit), backgroundColor: '#f59e0b' }
+                    { label: 'ط§ظ„ظƒظ…ظٹط© ط§ظ„ط­ط§ظ„ظٹط©', data: reportData.map(r => r.stock_qty), backgroundColor: '#06b6d4' },
+                    { label: 'ط§ظ„ط­ط¯ ط§ظ„ط£ط¯ظ†ظ‰ (ط§ظ„ط®ط·ط±)', data: reportData.map(r => r.min_limit), backgroundColor: '#ef4444' },
+                    { label: 'ط­ط¯ ط§ظ„ط·ظ„ط¨', data: reportData.map(r => r.demand_limit), backgroundColor: '#f59e0b' }
                 ]
             },
             options: {
@@ -231,3 +232,4 @@ $report_data = getInventoryReportData($pdo);
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
 </body>
 </html>
+
