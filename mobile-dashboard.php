@@ -1111,42 +1111,68 @@ try {
         /* ═════════════════════════════════════════════════════════════════
            🧠 PSYCHO-ERGONOMIC FOCUS MAGNIFICATION ENGINE (الراحة النفسية والتركيز)
            ═════════════════════════════════════════════════════════════════ */
-        .m-input, .m-select, select.m-input {
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-                        border-color 0.2s ease,
-                        box-shadow 0.2s ease,
-                        background-color 0.2s ease,
-                        font-size 0.2s ease,
-                        color 0.2s ease !important;
+        .m-input, .m-select, select.m-input, textarea.m-input {
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        border-color 0.22s ease,
+                        box-shadow 0.22s ease,
+                        background-color 0.22s ease,
+                        font-size 0.22s ease,
+                        color 0.22s ease !important;
         }
-        /* When any input is focused: increase scale, vibrant border, elevate depth */
-        .m-input:focus, .m-select:focus, select.m-input:focus {
-            transform: scale(1.025) !important;
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25), 0 8px 24px rgba(0, 0, 0, 0.15) !important;
-            background-color: var(--surface-card) !important;
+        /* When any input is focused / writing: increase font size slightly & change color */
+        .m-input:focus, 
+        .m-select:focus, 
+        select.m-input:focus, 
+        textarea.m-input:focus,
+        input:focus:not([type="checkbox"]):not([type="radio"]):not([type="range"]) {
+            transform: scale(1.02) !important;
+            font-size: 1.16rem !important;
+            color: #38bdf8 !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25) !important;
+            background-color: rgba(15, 23, 42, 0.96) !important;
             z-index: 10;
             position: relative;
         }
-        /* Special treatment for Amount Inputs: psychological magnification */
-        .huge-number:focus {
+        /* Second Degree Magnification & Distinct Color for Amount Inputs */
+        .huge-number, 
+        #tx-amount-local, 
+        #tx-amount-foreign,
+        #pos-split-cash,
+        #pos-split-bank,
+        #tx-exchange-rate {
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+        }
+        .huge-number:focus, 
+        #tx-amount-local:focus, 
+        #pos-split-cash:focus,
+        #pos-split-bank:focus {
             transform: scale(1.04) !important;
-            font-size: 1.65rem !important;
+            font-size: 2.15rem !important;
             font-weight: 900 !important;
-            color: var(--emerald) !important;
-            border-color: var(--emerald) !important;
-            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3), 0 10px 28px rgba(0, 0, 0, 0.2) !important;
+            color: #fef08a !important; /* Glowing gold during writing */
+            border-color: #fef08a !important;
+            background-color: rgba(15, 23, 42, 0.98) !important;
+            box-shadow: 0 0 0 4px rgba(254, 240, 138, 0.35), 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+            text-shadow: 0 0 12px rgba(254, 240, 138, 0.45);
+            letter-spacing: 0.5px;
         }
         #tx-amount-foreign:focus {
-            color: #f87171 !important;
-            border-color: #f87171 !important;
-            box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.3), 0 10px 28px rgba(0, 0, 0, 0.2) !important;
+            transform: scale(1.04) !important;
+            font-size: 2.15rem !important;
+            font-weight: 900 !important;
+            color: #38bdf8 !important; /* Luminous sky cyan for foreign currency */
+            border-color: #38bdf8 !important;
+            background-color: rgba(15, 23, 42, 0.98) !important;
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.35), 0 10px 30px rgba(0, 0, 0, 0.35) !important;
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+            letter-spacing: 0.5px;
         }
         /* Text and Ref inputs when focused: larger font and primary tone */
         #tx-ref:focus, #tx-notes:focus, #tx-beneficiary:focus {
-            font-size: 1.05rem !important;
+            font-size: 1.15rem !important;
             font-weight: 800 !important;
-            color: var(--primary) !important;
+            color: #38bdf8 !important;
         }
         /* Account Selection Box Focus / Visual Hierarchy */
         .box-account-picker {
@@ -1596,23 +1622,24 @@ try {
             gap: 4px;
         }
         .vault-amt-local {
-            font-size: 1.12rem;
+            font-size: 1.08rem;
             font-weight: 900;
-            color: var(--text-main);
+            color: #f8fafc;
             font-family: 'Inter', sans-serif;
             letter-spacing: -0.3px;
         }
         .vault-amt-local small {
-            font-size: 0.68rem;
+            font-size: 0.72rem;
             font-weight: 800;
             color: var(--text-muted);
         }
         .vault-amt-usd {
-            font-size: 0.74rem;
+            font-size: 0.96rem;
             font-weight: 800;
             color: #38bdf8;
-            background: rgba(56, 189, 248, 0.12);
-            padding: 1px 6px;
+            background: rgba(56, 189, 248, 0.14);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 2px 7px;
             border-radius: 6px;
             font-family: 'Inter', sans-serif;
             white-space: nowrap;
@@ -2835,20 +2862,24 @@ try {
             gap: 2px;
         }
         .micro-kpi-amt-local {
-            font-size: 1.18rem;
+            font-size: 1.15rem;
             font-weight: 900;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.4px;
             white-space: nowrap;
+            line-height: 1.2;
         }
         .micro-kpi-amt-foreign {
-            font-size: 0.74rem;
+            font-size: 1.02rem;
             font-weight: 800;
             display: inline-flex;
             align-items: center;
-            gap: 2px;
-            padding: 1px 6px;
+            gap: 3px;
+            padding: 2px 7px;
             border-radius: 6px;
             width: fit-content;
+            white-space: nowrap;
+            line-height: 1.2;
+            letter-spacing: -0.2px;
         }
         .micro-kpi-sub {
             font-size: 0.7rem;
@@ -4675,43 +4706,62 @@ try {
         }
 
         /* ═════════════════════════════════════════════════════════════════
-           OFFLINE-FIRST OUTBOX SYNC ENGINE & STATUS PILL
+           OFFLINE-FIRST OUTBOX SYNC ENGINE & STATUS PILL (ULTRA COMPACT DOT)
            ═════════════════════════════════════════════════════════════════ */
         .outbox-status-pill {
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 0.72rem;
-            font-weight: 800;
+            justify-content: center;
+            width: 22px;
+            height: 22px;
+            min-width: 22px;
+            min-height: 22px;
+            padding: 0;
+            border-radius: 50%;
             background: var(--surface-sub);
-            border: 1px solid var(--border-glass);
-            color: var(--text-main);
+            border: 1.5px solid var(--border-glass);
             cursor: pointer;
             transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .outbox-status-pill #outbox-pill-text {
+            display: none !important;
+        }
+        .outbox-status-pill #outbox-pill-count {
+            display: none !important;
         }
         .outbox-status-pill:hover {
             border-color: var(--primary);
+            transform: scale(1.1);
         }
         .outbox-dot {
-            width: 7px;
-            height: 7px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             display: inline-block;
         }
         .outbox-dot.online {
             background: #10b981;
-            box-shadow: 0 0 6px #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: statusPulseGreen 2.5s infinite;
         }
         .outbox-dot.offline {
             background: #ef4444;
-            box-shadow: 0 0 6px #ef4444;
+            box-shadow: 0 0 8px #ef4444;
+            animation: statusPulseRed 1.2s infinite;
         }
         .outbox-dot.syncing {
             background: #f59e0b;
-            box-shadow: 0 0 6px #f59e0b;
-            animation: pulseSyncDot 1s infinite alternate;
+            box-shadow: 0 0 8px #f59e0b;
+            animation: pulseSyncDot 0.8s infinite alternate;
+        }
+        @keyframes statusPulseGreen {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.55; transform: scale(0.9); }
+        }
+        @keyframes statusPulseRed {
+            0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 8px #ef4444; }
+            50% { opacity: 0.5; transform: scale(1.2); box-shadow: 0 0 14px #ef4444; }
         }
         @keyframes pulseSyncDot {
             0% { transform: scale(0.8); opacity: 0.6; }
@@ -4884,11 +4934,10 @@ try {
                         <span id="header-branch-name">فرع السجانة</span>
                         <i class="fa-solid fa-chevron-down" style="font-size:0.6rem; opacity:0.7;"></i>
                     </button>
-                    <!-- 🛰️ Offline-First Outbox Status Indicator -->
-                    <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="openBottomSheet('sheet-outbox-manager')" title="حالة المزامنة السحابية وطابور الإرسال">
+                    <!-- 🛰️ Offline-First Outbox Status Dot -->
+                    <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="openBottomSheet('sheet-outbox-manager')" title="متصل / متزامن">
                         <span class="outbox-dot online" id="outbox-pill-dot"></span>
-                        <span id="outbox-pill-text">متصل / متزامن</span>
-                        <span class="outbox-count-badge" id="outbox-pill-count" style="display:none;">0</span>
+                        <span id="outbox-pill-text" style="display:none;">متصل</span>
                     </button>
                 </div>
                 <span id="mobile-user-greeting">مرحباً بك 🌟</span>
@@ -4904,13 +4953,13 @@ try {
                 <i class="fa-solid fa-palette text-amber-400" id="current-theme-icon"></i>
                 <span class="theme-dot" id="current-theme-dot"></span>
             </button>
-            <!-- 🔕 Focus Mode: Mute Explanatory Toasts Button -->
-            <button type="button" id="btn-toggle-toast-mute" onclick="toggleMuteToasts()" class="header-icon-btn btn-toast-mute" title="إيقاف الإشعارات التوضيحية أثناء العمل">
+            <!-- 🔕 Focus Mode: Mute Momentary / Explanatory Toasts Button -->
+            <button type="button" id="btn-toggle-toast-mute" onclick="toggleMuteToasts()" class="header-icon-btn btn-toast-mute" title="كتم / إظهار الرسائل اللحظية والتوضيحية أثناء العمل">
                 <i class="fa-solid fa-bell-slash" id="toast-mute-icon"></i>
                 <span class="mute-status-dot" id="toast-mute-dot"></span>
             </button>
             <!-- 🔔 Smart Notification / Alert Center Bell with live counter -->
-            <button type="button" onclick="switchMobileTab('approvals')" class="header-icon-btn notif-bell-btn" title="مركز تنبيهات وقواعد الأعمال">
+            <button type="button" onclick="switchMobileTab('approvals')" class="header-icon-btn notif-bell-btn" title="الرسائل التنبيهية وقواعد الأعمال">
                 <i class="fa-solid fa-bell"></i>
                 <span class="notif-badge" id="header-alert-count">4</span>
             </button>
@@ -4948,11 +4997,11 @@ try {
             <div class="micro-kpi-card" onclick="switchMobileTab('transactions')" style="border-inline-start: 3.5px solid var(--primary);">
                 <div class="micro-kpi-head">
                     <span><i class="fa-solid fa-chart-line text-sky-400"></i> مبيعات اليوم</span>
-                    <span style="font-size:0.78rem; background:rgba(56,189,248,0.15); color:var(--primary); padding:1px 6px; border-radius:6px; font-weight:900;" id="kpi-sales-pct">+14.8% ↗</span>
+                    <span style="font-size:0.76rem; background:rgba(56,189,248,0.15); color:var(--primary); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap; display:inline-flex; align-items:center; gap:3px;" id="kpi-sales-pct">+14.8% ↗</span>
                 </div>
-                <div class="micro-kpi-val" id="micro-sales-val" style="color:var(--primary);">
-                    <div class="micro-kpi-amt-local">0 <small style="font-size:0.68rem;">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.12); color:var(--primary);">≈ $0</div>
+                <div class="micro-kpi-val" id="micro-sales-val">
+                    <div class="micro-kpi-amt-local" style="color:#ffffff;">0 <small style="font-size:0.72rem; color:rgba(255,255,255,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:var(--text-muted);">
                     <i class="fa-solid fa-clock-rotate-left"></i> <span id="micro-sales-count">0 فاتورة</span>
@@ -4963,11 +5012,11 @@ try {
             <div class="micro-kpi-card" onclick="document.getElementById('mobile-total-liquidity').scrollIntoView({behavior:'smooth'})" style="border-inline-start: 3.5px solid var(--emerald);">
                 <div class="micro-kpi-head">
                     <span><i class="fa-solid fa-wallet text-emerald-400"></i> السيولة اللحظية</span>
-                    <span style="font-size:0.78rem; background:rgba(16,185,129,0.15); color:var(--emerald); padding:1px 6px; border-radius:6px; font-weight:900;">خزن وبنوك</span>
+                    <span style="font-size:0.76rem; background:rgba(16,185,129,0.15); color:var(--emerald); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap;">خزن وبنوك</span>
                 </div>
-                <div class="micro-kpi-val" id="micro-cash-val" style="color:var(--emerald);">
-                    <div class="micro-kpi-amt-local">0 <small style="font-size:0.68rem;">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(16,185,129,0.12); color:var(--emerald);">≈ $0</div>
+                <div class="micro-kpi-val" id="micro-cash-val">
+                    <div class="micro-kpi-amt-local" style="color:#34d399;">0 <small style="font-size:0.72rem; color:rgba(52,211,153,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:var(--text-muted);">
                     <i class="fa-solid fa-building-columns"></i> <span id="micro-vaults-count">0 خزن وبنوك</span>
@@ -4978,11 +5027,11 @@ try {
             <div class="micro-kpi-card" onclick="switchMobileTab('ledgers')" style="border-inline-start: 3.5px solid var(--rose);">
                 <div class="micro-kpi-head">
                     <span><i class="fa-solid fa-hand-holding-dollar text-rose-400"></i> مديونيات العملاء</span>
-                    <span style="font-size:0.78rem; background:rgba(244,63,94,0.15); color:var(--rose); padding:1px 6px; border-radius:6px; font-weight:900;">مستحقات</span>
+                    <span style="font-size:0.76rem; background:rgba(244,63,94,0.15); color:var(--rose); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap;">مستحقات</span>
                 </div>
-                <div class="micro-kpi-val" id="micro-receivables-val" style="color:var(--rose);">
-                    <div class="micro-kpi-amt-local">0 <small style="font-size:0.68rem;">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(244,63,94,0.12); color:var(--rose);">≈ $0</div>
+                <div class="micro-kpi-val" id="micro-receivables-val">
+                    <div class="micro-kpi-amt-local" style="color:#fb7185;">0 <small style="font-size:0.72rem; color:rgba(251,113,133,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(252,211,77,0.14); color:#fcd34d; border:1px solid rgba(252,211,77,0.25);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:#ef4444;">
                     <i class="fa-solid fa-triangle-exclamation"></i> <span id="micro-overdue-val">سداد منتظم</span>
@@ -4993,11 +5042,11 @@ try {
             <div class="micro-kpi-card" onclick="switchMobileTab('inventory')" style="border-inline-start: 3.5px solid var(--amber);">
                 <div class="micro-kpi-head">
                     <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> تقييم المخزون</span>
-                    <span style="font-size:0.78rem; background:rgba(245,158,11,0.15); color:var(--amber); padding:1px 6px; border-radius:6px; font-weight:900;" id="micro-stock-items-count">0 صنف</span>
+                    <span style="font-size:0.76rem; background:rgba(245,158,11,0.15); color:var(--amber); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap;" id="micro-stock-items-count">0 صنف</span>
                 </div>
-                <div class="micro-kpi-val" id="micro-inventory-val" style="color:var(--amber);">
-                    <div class="micro-kpi-amt-local">0 <small style="font-size:0.68rem;">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(245,158,11,0.12); color:var(--amber);">≈ $0</div>
+                <div class="micro-kpi-val" id="micro-inventory-val">
+                    <div class="micro-kpi-amt-local" style="color:#fbbf24;">0 <small style="font-size:0.72rem; color:rgba(251,191,36,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(103,232,249,0.14); color:#67e8f9; border:1px solid rgba(103,232,249,0.25);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:var(--text-muted);">
                     <i class="fa-solid fa-circle-exclamation text-amber-400"></i> <span id="micro-critical-stock-count">0 نواقص</span>
@@ -7931,9 +7980,6 @@ try {
             const nextIdx = (idx + 1) % THEMES_7.length;
             const nextTheme = THEMES_7[nextIdx];
             selectTheme(nextTheme.key);
-            if (window.showModernToast) {
-                window.showModernToast(`🎨 السمة الحالية: ${nextTheme.name}`, 'info', 1800);
-            }
         }
 
         function updateThemeUI(themeKey) {
@@ -7966,10 +8012,15 @@ try {
         // 🔕 FOCUS MODE / MUTE EXPLANATORY TOASTS ENGINE
         // ═════════════════════════════════════════════════════════════════
         function isToastsMuted() {
-            return localStorage.getItem('magaiees_mute_toasts') === 'true';
+            const val = localStorage.getItem('magaiees_mute_toasts');
+            if (val === null) {
+                localStorage.setItem('magaiees_mute_toasts', 'true');
+                return true;
+            }
+            return val === 'true';
         }
 
-        function toggleMuteToasts(silent = false) {
+        function toggleMuteToasts(silent = true) {
             triggerHaptic('medium');
             const next = !isToastsMuted();
             localStorage.setItem('magaiees_mute_toasts', next ? 'true' : 'false');
@@ -7977,9 +8028,9 @@ try {
             updateMuteToastsUI(next);
             if (!silent && window.showModernToast) {
                 if (next) {
-                    window.showModernToast('🔕 تم إيقاف الإشعارات التوضيحية لسرعة العمل', 'warning', 2500, { force: true });
+                    window.showModernToast('🔕 تم كتم الرسائل اللحظية لسرعة العمل', 'warning', 2000, { force: true });
                 } else {
-                    window.showModernToast('🔔 تم استئناف الإشعارات التوضيحية', 'info', 2000, { force: true });
+                    window.showModernToast('🔔 تم استئناف الرسائل اللحظية', 'info', 2000, { force: true });
                 }
             }
         }
@@ -8944,8 +8995,8 @@ try {
             if (sVal) {
                 const usd = toUSD(salesToday);
                 sVal.innerHTML = `
-                    <div class="micro-kpi-amt-local">${fmt(salesToday)} <small style="font-size:0.68rem;">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.12); color:var(--primary);">≈ $${fmt(usd)}</div>
+                    <div class="micro-kpi-amt-local" style="color:#ffffff;">${fmt(salesToday)} <small style="font-size:0.72rem; color:rgba(255,255,255,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">≈ $${fmt(usd)}</div>
                 `;
             }
             const sCnt = document.getElementById('micro-sales-count');
@@ -8958,8 +9009,8 @@ try {
             if (cVal) {
                 const usd = toUSD(cashTotal);
                 cVal.innerHTML = `
-                    <div class="micro-kpi-amt-local">${fmt(cashTotal)} <small style="font-size:0.68rem;">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(16,185,129,0.12); color:var(--emerald);">≈ $${fmt(usd)}</div>
+                    <div class="micro-kpi-amt-local" style="color:#34d399;">${fmt(cashTotal)} <small style="font-size:0.72rem; color:rgba(52,211,153,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">≈ $${fmt(usd)}</div>
                 `;
             }
             const vCnt = document.getElementById('micro-vaults-count');
@@ -8975,8 +9026,8 @@ try {
             if (rVal) {
                 const usd = toUSD(debtTotal);
                 rVal.innerHTML = `
-                    <div class="micro-kpi-amt-local">${fmt(debtTotal)} <small style="font-size:0.68rem;">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(244,63,94,0.12); color:var(--rose);">≈ $${fmt(usd)}</div>
+                    <div class="micro-kpi-amt-local" style="color:#fb7185;">${fmt(debtTotal)} <small style="font-size:0.72rem; color:rgba(251,113,133,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(252,211,77,0.14); color:#fcd34d; border:1px solid rgba(252,211,77,0.25);">≈ $${fmt(usd)}</div>
                 `;
             }
             const oVal = document.getElementById('micro-overdue-val');
@@ -8995,8 +9046,8 @@ try {
             if (iVal) {
                 const usd = toUSD(stockVal);
                 iVal.innerHTML = `
-                    <div class="micro-kpi-amt-local">${fmt(stockVal)} <small style="font-size:0.68rem;">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(245,158,11,0.12); color:var(--amber);">≈ $${fmt(usd)}</div>
+                    <div class="micro-kpi-amt-local" style="color:#fbbf24;">${fmt(stockVal)} <small style="font-size:0.72rem; color:rgba(251,191,36,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(103,232,249,0.14); color:#67e8f9; border:1px solid rgba(103,232,249,0.25);">≈ $${fmt(usd)}</div>
                 `;
             }
             const iCnt = document.getElementById('micro-stock-items-count');
@@ -16290,22 +16341,16 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const pillBadge = document.getElementById('outbox-pill-count');
 
                 if (headerPill && pillDot && pillText && pillBadge) {
-                    headerPill.className = `outbox-status-pill ${!online ? 'offline' : (syncingCount > 0 ? 'syncing' : (pendingCount > 0 ? 'offline' : 'online'))}`;
-                    pillDot.className = `outbox-dot ${!online ? 'offline' : (syncingCount > 0 ? 'syncing' : (pendingCount > 0 ? 'offline' : 'online'))}`;
+                    const statusClass = !online ? 'offline' : (syncingCount > 0 ? 'syncing' : (pendingCount > 0 ? 'offline' : 'online'));
+                    headerPill.className = `outbox-status-pill ${statusClass}`;
+                    pillDot.className = `outbox-dot ${statusClass}`;
                     
-                    if (!online) {
-                        pillText.innerText = pendingCount > 0 ? `دون اتصال (${pendingCount} معلق)` : 'دون اتصال';
-                        pillBadge.style.display = 'none';
-                    } else if (syncingCount > 0) {
-                        pillText.innerText = `جاري المزامنة (${syncingCount})...`;
-                        pillBadge.style.display = 'none';
-                    } else if (pendingCount > 0) {
-                        pillText.innerText = `طابور المعلقات (${pendingCount})`;
-                        pillBadge.style.display = 'none';
-                    } else {
-                        pillText.innerText = 'متصل / متزامن';
-                        pillBadge.style.display = 'none';
-                    }
+                    const statusDesc = !online ? (pendingCount > 0 ? `دون اتصال (${pendingCount} معلق)` : 'دون اتصال (Offline)') :
+                                       (syncingCount > 0 ? `جاري المزامنة (${syncingCount})...` :
+                                       (pendingCount > 0 ? `طابور المعلقات (${pendingCount})` : 'متصل ومزامن لحظياً (Online)'));
+                    headerPill.title = statusDesc;
+                    pillText.innerText = statusDesc;
+                    pillBadge.style.display = 'none';
                 }
 
                 // 2. Outbox Manager Sheet Banner
