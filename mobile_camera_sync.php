@@ -25,6 +25,19 @@ $action = $jsonInput['action'] ?? ($_GET['action'] ?? ($_POST['action'] ?? ''));
 $session = preg_replace('/[^a-zA-Z0-9_\-]/', '', $jsonInput['session'] ?? ($_GET['session'] ?? ($_POST['session'] ?? '')));
 $side = in_array($jsonInput['side'] ?? ($_GET['side'] ?? ($_POST['side'] ?? '')), ['A', 'B']) ? ($jsonInput['side'] ?? ($_GET['side'] ?? ($_POST['side'] ?? ''))) : 'A';
 
+// Health Check / Ping Endpoint for Instant Mobile-Laptop Connectivity Verification
+if ($action === 'ping') {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' => true,
+        'pong' => true,
+        'time' => time(),
+        'server_ip' => $_SERVER['SERVER_ADDR'] ?? ($_SERVER['LOCAL_ADDR'] ?? '127.0.0.1'),
+        'client_ip' => $_SERVER['REMOTE_ADDR'] ?? ''
+    ]);
+    exit;
+}
+
 // QR Code Image Generator
 if ($action === 'qr') {
     $text = $_GET['text'] ?? '';
@@ -32,39 +45,39 @@ if ($action === 'qr') {
     exit;
 }
 
-// Endpoints Discovery for Dynamic QR selection (Tunnel, Cloud, Wi-Fi LAN, Local)
+// Endpoints Discovery for Dynamic QR selection (Cloud, Wi-Fi LAN, Local, Tunnel)
 if ($action === 'get_endpoints') {
     header('Content-Type: application/json; charset=utf-8');
     
-    // 1. Live Tunnel
-    $tunnelUrl = '';
-    $tunnelFile = __DIR__ . '/LIVE_TUNNEL_URL.txt';
-    if (file_exists($tunnelFile)) {
-        $raw = trim(file_get_contents($tunnelFile));
-        if (filter_var($raw, FILTER_VALIDATE_URL)) {
-            $tunnelUrl = rtrim($raw, '/') . '/ELSAJANA2/magaies/mobile_camera_sync.php';
-        }
-    }
+    // 1. Cloud Production URL (Fast, Resilient HTTPS - Works everywhere)
+    $cloudUrl = 'https://c.elsajana.com/mobile_camera_sync.php';
     
     // 2. Real LAN IP
     $lanIp = gethostbyname(gethostname());
     if (empty($lanIp) || $lanIp === '127.0.0.1') {
-        $lanIp = '10.85.184.1';
+        $lanIp = '192.168.1.101';
     }
     $wifiUrl = 'http://' . $lanIp . '/ELSAJANA2/magaies/mobile_camera_sync.php';
     
-    // 3. Cloud Production URL
-    $cloudUrl = 'https://elsajana.com/mobile_camera_sync.php';
+    // 3. Live Tunnel (Only if verified and not dead localtunnel)
+    $tunnelUrl = '';
+    $tunnelFile = __DIR__ . '/LIVE_TUNNEL_URL.txt';
+    if (file_exists($tunnelFile)) {
+        $raw = trim(file_get_contents($tunnelFile));
+        if (filter_var($raw, FILTER_VALIDATE_URL) && !str_contains($raw, 'loca.lt')) {
+            $tunnelUrl = rtrim($raw, '/') . '/ELSAJANA2/magaies/mobile_camera_sync.php';
+        }
+    }
     
     // 4. Localhost URL
     $localUrl = 'http://localhost/ELSAJANA2/magaies/mobile_camera_sync.php';
     
     echo json_encode([
         'success' => true,
-        'tunnel_url' => $tunnelUrl,
         'cloud_url' => $cloudUrl,
         'wifi_url' => $wifiUrl,
         'local_url' => $localUrl,
+        'tunnel_url' => $tunnelUrl,
         'lan_ip' => $lanIp,
         'current_origin' => (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost')
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -235,10 +248,25 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
                     <span class="text-xs text-slate-400 font-bold">مزامنة فورية مع شاشة اللابتوب</span>
                 </div>
             </div>
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 pulse-beacon">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                <span>متصل باللابتوب</span>
+            <span id="mobile-conn-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 pulse-beacon">
+                <span id="mobile-conn-dot" class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span id="mobile-conn-text">جاري فحص الاتصال...</span>
             </span>
+        </div>
+
+        <!-- Network Helper Banner (Shown if direct LAN connectivity has issues) -->
+        <div id="mobile-network-helper" class="hidden p-3 rounded-2xl bg-amber-950/80 border border-amber-500/50 text-amber-200 text-xs space-y-2">
+            <div class="flex items-center gap-2 font-black">
+                <i class="fa-solid fa-triangle-exclamation text-amber-400 text-base"></i>
+                <span>تنبيه: تعذر الاتصال المباشر عبر الواي فاي</span>
+            </div>
+            <p class="text-[11px] leading-relaxed text-amber-300/90 font-medium">
+                يبدو أن راوتر الشبكة يفصل الأجهزة عن بعضها (AP Isolation). يمكنك النقر أدناه للتحويل إلى السيرفر السحابي الآمن الذي يعمل فوراً وبدون قيود:
+            </p>
+            <button type="button" onclick="switchToCloudEndpoint()" class="w-full py-2 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-black text-xs shadow flex items-center justify-center gap-1.5 cursor-pointer">
+                <i class="fa-solid fa-cloud"></i>
+                <span>التحويل للسيرفر السحابي (Elsajana HTTPS) ⚡</span>
+            </button>
         </div>
 
         <!-- Target Side Pill -->
@@ -275,6 +303,12 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
                 <span class="text-[10px] text-indigo-100 font-bold">اختيار عدة صور دفعة واحدة</span>
             </button>
             <input type="file" id="mobile-gallery-input" accept="image/*" multiple class="hidden" onchange="handleMobileFilesSelected(event)">
+        </div>
+
+        <!-- Processing Feedback Toast -->
+        <div id="mobile-compress-toast" class="hidden p-3 rounded-2xl bg-slate-900 border border-sky-500/40 text-sky-300 text-xs font-black flex items-center justify-center gap-2">
+            <i class="fa-solid fa-circle-notch fa-spin text-sky-400"></i>
+            <span>جاري تحسين وضغط الصور للذكاء الاصطناعي...</span>
         </div>
 
         <!-- 3. Filmstrip Preview of Captured Photos -->
@@ -321,28 +355,81 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
     <script>
         const SESSION_ID = '<?php echo $session; ?>';
         const TARGET_SIDE = '<?php echo $side; ?>';
+        const CLOUD_FALLBACK_URL = 'https://c.elsajana.com/mobile_camera_sync.php';
         let capturedPhotos = [];
 
+        // 1. High-Performance Client-Side Image Compressor (Reduces 12MB photos to ~250KB)
+        function compressPhoto(file, maxWidth = 1600, quality = 0.82) {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        let w = img.width;
+                        let h = img.height;
+                        if (w > maxWidth || h > maxWidth) {
+                            if (w > h) {
+                                h = Math.round((h * maxWidth) / w);
+                                w = maxWidth;
+                            } else {
+                                w = Math.round((w * maxWidth) / h);
+                                h = maxWidth;
+                            }
+                        }
+                        const canvas = document.createElement('canvas');
+                        canvas.width = w;
+                        canvas.height = h;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, w, h);
+                        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        canvas.toBlob((blob) => {
+                            const cleanName = (file.name || 'photo.jpg').replace(/\.[^.]+$/, '') + '.jpg';
+                            const compressedFile = new File([blob], cleanName, {
+                                type: 'image/jpeg',
+                                lastModified: Date.now()
+                            });
+                            resolve({ file: compressedFile, dataUrl: dataUrl, size: blob.size });
+                        }, 'image/jpeg', quality);
+                    };
+                    img.onerror = () => {
+                        resolve({ file: file, dataUrl: e.target.result, size: file.size });
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // 2. Mobile File Selection Handler
         async function handleMobileFilesSelected(e) {
             const files = Array.from(e.target.files || []);
             if (!files.length) return;
 
+            const compressToast = document.getElementById('mobile-compress-toast');
+            if (compressToast) compressToast.classList.remove('hidden');
+
             for (const file of files) {
-                await new Promise(resolve => {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        capturedPhotos.push({
-                            id: Date.now() + Math.random(),
-                            file: file,
-                            name: file.name || `photo_${capturedPhotos.length + 1}.jpg`,
-                            dataUrl: reader.result
-                        });
-                        resolve();
-                    };
-                    reader.readAsDataURL(file);
-                });
+                try {
+                    const compressed = await compressPhoto(file, 1600, 0.82);
+                    capturedPhotos.push({
+                        id: Date.now() + Math.random(),
+                        file: compressed.file,
+                        name: compressed.file.name,
+                        dataUrl: compressed.dataUrl,
+                        size: compressed.size
+                    });
+                } catch(err) {
+                    console.warn('Compression error, using raw file:', err);
+                    capturedPhotos.push({
+                        id: Date.now() + Math.random(),
+                        file: file,
+                        name: file.name || `photo_${capturedPhotos.length + 1}.jpg`,
+                        dataUrl: ''
+                    });
+                }
             }
 
+            if (compressToast) compressToast.classList.add('hidden');
             e.target.value = '';
             renderMobileFilmstrip();
 
@@ -376,7 +463,7 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
                 strip.innerHTML = capturedPhotos.map((p, idx) => `
                     <div class="relative w-20 h-24 rounded-2xl overflow-hidden border-2 border-slate-700 bg-black shrink-0 shadow-md">
                         <img src="${p.dataUrl}" class="w-full h-full object-cover" alt="لقطة ${idx+1}">
-                        <span class="absolute bottom-0 inset-x-0 bg-slate-950/85 text-[10px] text-center font-black text-rose-300 py-0.5">#${idx+1}</span>
+                        <span class="absolute bottom-0 inset-x-0 bg-slate-950/85 text-[10px] text-center font-black text-rose-300 py-0.5">#${idx+1} (${Math.round((p.size||0)/1024)}KB)</span>
                         <button type="button" onclick="removeMobilePhoto(${p.id})" class="absolute top-1 left-1 w-6 h-6 rounded-full bg-rose-600/90 text-white flex items-center justify-center text-xs font-black shadow" title="حذف">✕</button>
                     </div>
                 `).join('');
@@ -388,6 +475,7 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
             renderMobileFilmstrip();
         }
 
+        // 3. Multi-Channel Upload Engine (Primary origin with automatic Cloud fallback)
         async function sendPhotosToLaptop() {
             if (!capturedPhotos.length) return;
             const btn = document.getElementById('mobile-send-btn');
@@ -397,47 +485,123 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
             btn.disabled = true;
             btnText.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري الإرسال للابتوب...';
 
+            const formData = new FormData();
+            formData.append('action', 'upload');
+            formData.append('session', SESSION_ID);
+            formData.append('side', TARGET_SIDE);
+
+            capturedPhotos.forEach((p, idx) => {
+                formData.append('photos[]', p.file, p.name);
+            });
+
+            let uploadSuccess = false;
+            let responseMessage = '';
+
+            // Attempt A: Direct local / current origin
             try {
-                const formData = new FormData();
-                formData.append('action', 'upload');
-                formData.append('session', SESSION_ID);
-                formData.append('side', TARGET_SIDE);
-
-                capturedPhotos.forEach((p, idx) => {
-                    formData.append('photos[]', p.file, p.name);
-                });
-
-                const res = await fetch(`mobile_camera_sync.php?action=upload&session=${encodeURIComponent(SESSION_ID)}&side=${encodeURIComponent(TARGET_SIDE)}`, {
+                const currentEndpoint = `mobile_camera_sync.php?action=upload&session=${encodeURIComponent(SESSION_ID)}&side=${encodeURIComponent(TARGET_SIDE)}`;
+                const res = await fetch(currentEndpoint, {
                     method: 'POST',
                     body: formData
                 });
 
-                const data = await res.json();
-                if (data.success) {
-                    if (navigator.vibrate) {
-                        try { navigator.vibrate([100, 50, 100]); } catch(err) {}
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data && data.success) {
+                        uploadSuccess = true;
+                        responseMessage = data.message || 'تم تسليم الصور لشاشة اللابتوب بنجاح!';
                     }
-                    toast.classList.remove('hidden');
-                    document.getElementById('mobile-success-msg').textContent = data.message || 'تم تسليم الصور لشاشة اللابتوب بنجاح!';
-                    
-                    // Clear after success
-                    capturedPhotos = [];
-                    renderMobileFilmstrip();
-
-                    setTimeout(() => {
-                        toast.classList.add('hidden');
-                    }, 5000);
-                } else {
-                    alert('خطأ: ' + (data.message || 'تعذر الإرسال'));
                 }
-            } catch (e) {
-                console.error('Upload error:', e);
-                alert('فشل الاتصال باللابتوب، تأكد من اتصال الهاتف واللابتوب بنفس الشبكة.');
-            } finally {
-                btn.disabled = capturedPhotos.length === 0;
-                btnText.textContent = 'إرسال الصور إلى شاشة اللابتوب 🚀';
+            } catch (errLocal) {
+                console.warn('Local/primary upload failed, attempting Cloud fallback:', errLocal);
+            }
+
+            // Attempt B: Automatic Cloud Fallback (Bypasses AP Isolation & Router Restrictions)
+            if (!uploadSuccess && !window.location.hostname.includes('elsajana.com')) {
+                try {
+                    btnText.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-spin"></i> جاري النقل عبر السيرفر السحابي...';
+                    const cloudEndpoint = `${CLOUD_FALLBACK_URL}?action=upload&session=${encodeURIComponent(SESSION_ID)}&side=${encodeURIComponent(TARGET_SIDE)}`;
+                    const cloudRes = await fetch(cloudEndpoint, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (cloudRes.ok) {
+                        const cloudData = await cloudRes.json();
+                        if (cloudData && cloudData.success) {
+                            uploadSuccess = true;
+                            responseMessage = 'تم تسليم الصور لشاشة اللابتوب بنجاح عبر السيرفر السحابي البديل ⚡';
+                        }
+                    }
+                } catch (errCloud) {
+                    console.error('Cloud fallback also failed:', errCloud);
+                }
+            }
+
+            // Handle Result
+            if (uploadSuccess) {
+                if (navigator.vibrate) {
+                    try { navigator.vibrate([100, 50, 100]); } catch(err) {}
+                }
+                toast.classList.remove('hidden');
+                document.getElementById('mobile-success-msg').textContent = responseMessage;
+
+                capturedPhotos = [];
+                renderMobileFilmstrip();
+
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 5000);
+            } else {
+                alert('⚠️ تعذر إرسال الصور للابتوب مباشرة.\n\nالسبب المحتمل: راوتر الواي فاي يفصل الأجهزة عن بعضها.\nيرجى النقر على زر "التحويل للسيرفر السحابي" في أعلى الشاشة والمحاولة مجدداً.');
+                document.getElementById('mobile-network-helper')?.classList.remove('hidden');
+            }
+
+            btn.disabled = capturedPhotos.length === 0;
+            btnText.textContent = 'إرسال الصور إلى شاشة اللابتوب 🚀';
+        }
+
+        // 4. Instant Connectivity Diagnostic
+        async function testSyncConnection() {
+            const badge = document.getElementById('mobile-conn-badge');
+            const dot = document.getElementById('mobile-conn-dot');
+            const text = document.getElementById('mobile-conn-text');
+            const helper = document.getElementById('mobile-network-helper');
+
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+                const res = await fetch(`mobile_camera_sync.php?action=ping&session=${encodeURIComponent(SESSION_ID)}&_t=${Date.now()}`, {
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+
+                if (res.ok) {
+                    badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 pulse-beacon';
+                    dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-ping';
+                    text.textContent = 'متصل وجاهز للنقل ⚡';
+                    if (helper) helper.classList.add('hidden');
+                    return;
+                }
+            } catch(e) {}
+
+            // If not connected
+            badge.className = 'inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-amber-500/20 text-amber-300 border border-amber-500/40';
+            dot.className = 'w-2 h-2 rounded-full bg-amber-400';
+            text.textContent = 'تنبيه: راجع الاتصال';
+            if (!window.location.hostname.includes('elsajana.com')) {
+                if (helper) helper.classList.remove('hidden');
             }
         }
+
+        function switchToCloudEndpoint() {
+            const currentParams = window.location.search || `?session=${SESSION_ID}&side=${TARGET_SIDE}`;
+            window.location.href = `${CLOUD_FALLBACK_URL}${currentParams}`;
+        }
+
+        // Run connectivity test on load
+        window.addEventListener('DOMContentLoaded', testSyncConnection);
     </script>
 </body>
 </html>

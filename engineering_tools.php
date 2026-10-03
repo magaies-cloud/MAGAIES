@@ -27027,18 +27027,14 @@ $pdo = getDBConnection();
 
                             <!-- Link Type Selector (اختر من الرمز QR رابط) -->
                             <div class="w-full max-w-lg bg-slate-950/80 p-1.5 rounded-2xl border border-slate-800 flex items-center justify-center gap-1.5 flex-wrap">
-                                <button type="button" id="btn-qr-link-tunnel" onclick="setReconCameraLink('tunnel')" class="px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 border cursor-pointer bg-gradient-to-r from-rose-600 to-pink-600 text-white border-rose-400/50 shadow-md shadow-rose-600/30">
-                                    <i class="fa-solid fa-bolt text-amber-300"></i>
-                                    <span>نفق حي مشفر (HTTPS)</span>
-                                    <span class="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-full">⭐ موصى به</span>
-                                </button>
-                                <button type="button" id="btn-qr-link-cloud" onclick="setReconCameraLink('cloud')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 bg-slate-900 text-slate-300 hover:text-white cursor-pointer">
-                                    <i class="fa-solid fa-cloud text-sky-400"></i>
-                                    <span>سحابي (Elsajana)</span>
+                                <button type="button" id="btn-qr-link-cloud" onclick="setReconCameraLink('cloud')" class="px-3.5 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 border cursor-pointer bg-gradient-to-r from-rose-600 to-pink-600 text-white border-rose-400/50 shadow-md shadow-rose-600/30">
+                                    <i class="fa-solid fa-cloud text-amber-300"></i>
+                                    <span>سحابي فوري HTTPS</span>
+                                    <span class="text-[9px] bg-white/20 px-1.5 py-0.5 rounded-full">⭐ موصى به ومضمون</span>
                                 </button>
                                 <button type="button" id="btn-qr-link-wifi" onclick="setReconCameraLink('wifi')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 bg-slate-900 text-slate-300 hover:text-white cursor-pointer">
                                     <i class="fa-solid fa-wifi text-emerald-400"></i>
-                                    <span>شبكة الواي فاي (LAN)</span>
+                                    <span>شبكة الواي فاي المحلية (LAN)</span>
                                 </button>
                                 <button type="button" id="btn-qr-link-local" onclick="setReconCameraLink('local')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-slate-700 bg-slate-900 text-slate-300 hover:text-white cursor-pointer">
                                     <i class="fa-solid fa-desktop text-indigo-400"></i>

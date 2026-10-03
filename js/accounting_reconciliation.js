@@ -2831,9 +2831,9 @@
     window.RECON_CAM_SESSION_ID = null;
     window.RECON_CAM_POLL_INTERVAL = null;
     window.RECON_PHONE_CAM_URL = null;
-    window.RECON_SELECTED_LINK_TYPE = 'tunnel';
+    window.RECON_SELECTED_LINK_TYPE = 'cloud';
     window.RECON_CAMERA_ENDPOINTS = null;
-    window.RECON_POLL_BASE_URL = 'mobile_camera_sync.php';
+    window.RECON_POLL_BASE_URL = 'https://c.elsajana.com/mobile_camera_sync.php';
 
     async function fetchReconCameraEndpoints() {
         try {
@@ -2861,18 +2861,12 @@
         const sessionId = 'cam_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
         window.RECON_CAM_SESSION_ID = sessionId;
 
-        // Fetch server-discovered endpoints (tunnel, LAN IP, cloud, local)
+        // Fetch server-discovered endpoints (cloud, LAN IP, local, tunnel)
         await fetchReconCameraEndpoints();
 
-        // Auto-select best link type if not set
-        if (!window.RECON_SELECTED_LINK_TYPE) {
-            if (window.location.hostname.includes('elsajana.com')) {
-                window.RECON_SELECTED_LINK_TYPE = 'cloud';
-            } else if (window.RECON_CAMERA_ENDPOINTS && window.RECON_CAMERA_ENDPOINTS.tunnel_url) {
-                window.RECON_SELECTED_LINK_TYPE = 'tunnel';
-            } else {
-                window.RECON_SELECTED_LINK_TYPE = 'wifi';
-            }
+        // Auto-select best link type if not set (Cloud is 100% resilient across any network / AP isolation)
+        if (!window.RECON_SELECTED_LINK_TYPE || window.RECON_SELECTED_LINK_TYPE === 'tunnel') {
+            window.RECON_SELECTED_LINK_TYPE = 'cloud';
         }
 
         // Apply selected link
@@ -2896,11 +2890,11 @@
 
         switch (type) {
             case 'cloud':
-                baseTargetUrl = 'https://elsajana.com/mobile_camera_sync.php';
-                pollTargetUrl = 'https://elsajana.com/mobile_camera_sync.php';
+                baseTargetUrl = 'https://c.elsajana.com/mobile_camera_sync.php';
+                pollTargetUrl = 'https://c.elsajana.com/mobile_camera_sync.php';
                 break;
             case 'wifi':
-                const lanIp = ep.lan_ip || '10.85.184.1';
+                const lanIp = ep.lan_ip || '192.168.1.101';
                 baseTargetUrl = `http://${lanIp}/ELSAJANA2/magaies/mobile_camera_sync.php`;
                 pollTargetUrl = 'mobile_camera_sync.php';
                 break;
@@ -2912,10 +2906,11 @@
             default:
                 if (ep.tunnel_url) {
                     baseTargetUrl = ep.tunnel_url;
+                    pollTargetUrl = 'mobile_camera_sync.php';
                 } else {
-                    baseTargetUrl = 'https://magaiees-live-erp.loca.lt/ELSAJANA2/magaies/mobile_camera_sync.php';
+                    baseTargetUrl = 'https://c.elsajana.com/mobile_camera_sync.php';
+                    pollTargetUrl = 'https://c.elsajana.com/mobile_camera_sync.php';
                 }
-                pollTargetUrl = 'mobile_camera_sync.php';
                 break;
         }
 
@@ -2942,7 +2937,7 @@
         }
 
         // Update button styles
-        ['tunnel', 'cloud', 'wifi', 'local'].forEach(btnKey => {
+        ['cloud', 'wifi', 'local', 'tunnel'].forEach(btnKey => {
             const btn = document.getElementById('btn-qr-link-' + btnKey);
             if (btn) {
                 if (btnKey === type) {
@@ -2957,20 +2952,20 @@
         const statusEl = document.getElementById('recon-camera-live-sync-status-text');
         if (statusEl) {
             const names = {
-                tunnel: 'النفق السحابي المشفر HTTPS (موصى به للهاتف)',
-                cloud: 'السيرفر الحي السحابي Elsajana.com',
-                wifi: 'شبكة الواي فاي المباشرة ' + (ep.lan_ip || '10.85.184.1'),
-                local: 'المحلي الداخلي Localhost'
+                cloud: 'السيرفر السحابي الآمن HTTPS (⭐ موصى به - يعمل في كل الظروف)',
+                wifi: 'شبكة الواي فاي المباشرة ' + (ep.lan_ip || '192.168.1.101'),
+                local: 'المحلي الداخلي Localhost',
+                tunnel: 'النفق المشفر'
             };
             statusEl.textContent = `تم التفعيل: ${names[type] || type} ⚡`;
         }
 
         if (window.showModernToast) {
             const shortNames = {
-                tunnel: 'النفق الحي المشفر (HTTPS)',
-                cloud: 'خادم السحابة (Elsajana)',
+                cloud: 'خادم السحابة الآمن (HTTPS)',
                 wifi: 'شبكة الواي فاي المحلية',
-                local: 'المحلي (Localhost)'
+                local: 'المحلي (Localhost)',
+                tunnel: 'النفق المشفر'
             };
             window.showModernToast(`📱 تم تفعيل رمز الـ QR عبر: ${shortNames[type]}`, 'info', 2000);
         }
@@ -3003,11 +2998,28 @@
 
         try {
             const pollBase = window.RECON_POLL_BASE_URL || 'mobile_camera_sync.php';
-            const resp = await fetch(`${pollBase}?action=poll&session=${encodeURIComponent(sessionId)}&_t=${Date.now()}`);
-            if (!resp.ok) return;
-            const res = await resp.json();
+            let res = null;
+            try {
+                const resp = await fetch(`${pollBase}?action=poll&session=${encodeURIComponent(sessionId)}&_t=${Date.now()}`);
+                if (resp.ok) {
+                    res = await resp.json();
+                }
+            } catch(e) {}
 
-            if (res.success && res.count > 0 && Array.isArray(res.photos) && res.photos.length > 0) {
+            // Dual-poll: If primary poll returned no photos and primary is not Cloud, check Cloud as automatic fallback!
+            if ((!res || !res.success || !res.count) && !pollBase.includes('elsajana.com')) {
+                try {
+                    const cloudPoll = await fetch(`https://c.elsajana.com/mobile_camera_sync.php?action=poll&session=${encodeURIComponent(sessionId)}&_t=${Date.now()}`);
+                    if (cloudPoll.ok) {
+                        const cloudRes = await cloudPoll.json();
+                        if (cloudRes && cloudRes.success && cloudRes.count > 0) {
+                            res = cloudRes;
+                        }
+                    }
+                } catch(e) {}
+            }
+
+            if (res && res.success && res.count > 0 && Array.isArray(res.photos) && res.photos.length > 0) {
                 // Clear polling interval
                 if (window.RECON_CAM_POLL_INTERVAL) {
                     clearInterval(window.RECON_CAM_POLL_INTERVAL);
