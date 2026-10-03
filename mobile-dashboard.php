@@ -4975,7 +4975,7 @@ try {
                         <i class="fa-solid fa-chevron-down" style="font-size:0.52rem; opacity:0.6;"></i>
                     </button>
                     <!-- 🛰️ Offline-First Outbox Status Dot -->
-                    <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="openBottomSheet('sheet-outbox-manager')" title="متصل ومزامن لحظياً">
+                    <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="if(window.OfflineOutboxEngine && !window.OfflineOutboxEngine.isOnline()){ window.OfflineOutboxEngine.checkHeartbeat(true); } else { openBottomSheet('sheet-outbox-manager'); }" title="حالة الاتصال بالسحابة">
                         <span class="outbox-dot online" id="outbox-pill-dot"></span>
                         <span id="outbox-pill-text" style="display:none;">متصل</span>
                     </button>
@@ -7091,9 +7091,14 @@ try {
                         <div style="font-size:0.78rem; color:var(--text-muted);" id="outbox-banner-sub">زمن الاستجابة: 38ms • البوابة السحابية API Gateway جاهزة</div>
                     </div>
                 </div>
-                <button type="button" id="btn-toggle-sim-offline" class="btn-sm" style="font-size:0.78rem; padding:5px 9px; border-radius:8px; background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); font-weight:800; cursor:pointer;" onclick="OfflineOutboxEngine.toggleOfflineSimulation()">
-                    محاكاة انقطاع الشبكة
-                </button>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    <button type="button" class="btn-sm" style="font-size:0.78rem; padding:5px 9px; border-radius:8px; background:var(--primary); color:#fff; font-weight:800; border:none; cursor:pointer;" onclick="OfflineOutboxEngine.checkHeartbeat(true)" title="فحص مباشر للاتصال بالسحابة">
+                        <i class="fa-solid fa-arrows-rotate"></i> فحص الاتصال
+                    </button>
+                    <button type="button" id="btn-toggle-sim-offline" class="btn-sm" style="font-size:0.78rem; padding:5px 9px; border-radius:8px; background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); font-weight:800; cursor:pointer;" onclick="OfflineOutboxEngine.toggleOfflineSimulation()">
+                        محاكاة انقطاع الشبكة
+                    </button>
+                </div>
             </div>
 
             <!-- 4-Stat Grid: Pending, Syncing, Synced, Conflicts -->
@@ -16046,6 +16051,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             heartbeatInterval: null,
             autoSyncInterval: null,
             failedPings: 0,
+            isCheckingHeartbeat: false,
 
             init() {
                 try {
@@ -16055,29 +16061,30 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     this.queue = [];
                 }
 
-                this.isSimulatedOffline = sessionStorage.getItem('erp_sim_offline') === '1';
+                // Prevent test simulation flags from sticking across app visits
+                try { sessionStorage.removeItem('erp_sim_offline'); } catch(e) {}
+                this.isSimulatedOffline = false;
+                this.realOnline = (typeof navigator !== 'undefined' ? navigator.onLine : true);
 
                 window.addEventListener('online', () => {
-                    // When browser fires online event, verify with actual packet ping immediately
-                    this.checkHeartbeat();
+                    this.failedPings = 0;
+                    this.setConnectionState(true);
+                    this.checkHeartbeat(false);
                 });
                 window.addEventListener('offline', () => {
-                    // Instant switch to RED dot on network cut
+                    this.failedPings = 3;
                     this.setConnectionState(false);
                 });
                 if (navigator.connection) {
                     try {
-                        navigator.connection.addEventListener('change', () => this.checkHeartbeat());
+                        navigator.connection.addEventListener('change', () => this.checkHeartbeat(false));
                     } catch(e) {}
                 }
 
-                // Heartbeat probe every 2.5s: detects internet drop/return instantly and triggers auto-drain
-                if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
-                this.heartbeatInterval = setInterval(() => {
-                    this.checkHeartbeat();
-                }, 2500);
+                // Adaptive heartbeat probe: every 10s when online, every 4s when offline
+                this.startHeartbeatTimer();
 
-                // Auto-sync watcher every 2.5s: if online and pending items exist, flush immediately
+                // Auto-sync watcher every 3s: if online and pending items exist, flush immediately
                 if (this.autoSyncInterval) clearInterval(this.autoSyncInterval);
                 this.autoSyncInterval = setInterval(() => {
                     if (this.isOnline() && !this.isSyncing) {
@@ -16086,11 +16093,20 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             this.flushQueueNow(false);
                         }
                     }
-                }, 2500);
+                }, 3000);
 
-                // Initial probe immediately on load
-                this.checkHeartbeat();
+                // Initial UI render immediately based on navigator.onLine
                 this.renderUI();
+                // Non-blocking initial probe after page resources start settling
+                setTimeout(() => this.checkHeartbeat(false), 500);
+            },
+
+            startHeartbeatTimer() {
+                if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
+                const intervalMs = this.realOnline ? 10000 : 4000;
+                this.heartbeatInterval = setInterval(() => {
+                    this.checkHeartbeat(false);
+                }, intervalMs);
             },
 
             isOnline() {
@@ -16105,6 +16121,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (latency !== null) this.lastHeartbeatMs = latency;
 
                 if (wasOnline !== this.realOnline) {
+                    this.startHeartbeatTimer(); // Adjust interval dynamically
                     this.renderUI();
                     if (this.realOnline) {
                         triggerHaptic('medium');
@@ -16152,7 +16169,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             },
 
             handleNetworkChange() {
-                this.checkHeartbeat();
+                this.checkHeartbeat(false);
             },
 
             toggleOfflineSimulation() {
@@ -16173,50 +16190,87 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
             },
 
-            async checkHeartbeat() {
+            async checkHeartbeat(isUserTriggered = false) {
+                if (this.isCheckingHeartbeat) return;
+                this.isCheckingHeartbeat = true;
+
                 if (this.isSimulatedOffline) {
                     this.setConnectionState(false);
+                    this.isCheckingHeartbeat = false;
                     return;
                 }
                 if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                    this.failedPings = 3;
                     this.setConnectionState(false);
+                    this.isCheckingHeartbeat = false;
                     return;
                 }
 
-                const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-                const timeoutId = controller ? setTimeout(() => controller.abort(), 2500) : null;
-                const startTime = performance.now();
+                if (isUserTriggered && window.showModernToast) {
+                    window.showModernToast('⚡ جاري فحص الاتصال بالخادم وتحديث الحالة...', 'info', 1500);
+                }
+
+                // Generous timeout for challenging mobile / 3G / 4G cellular links
+                const probeOnce = async (url, timeoutMs = 7500) => {
+                    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                    const timeoutId = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+                    const startTime = performance.now();
+                    try {
+                        const resp = await fetch(url, {
+                            method: 'GET',
+                            cache: 'no-store',
+                            headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' },
+                            signal: controller ? controller.signal : undefined
+                        });
+                        if (timeoutId) clearTimeout(timeoutId);
+                        if (resp.ok) {
+                            return Math.round(performance.now() - startTime);
+                        }
+                    } catch(e) {
+                        if (timeoutId) clearTimeout(timeoutId);
+                    }
+                    return null;
+                };
 
                 try {
-                    // Try ultra-lightweight 1-byte ping endpoint first
-                    const pingUrl = 'api/ping.php?t=' + Date.now();
-                    const resp = await fetch(pingUrl, {
-                        method: 'GET',
-                        cache: 'no-store',
-                        signal: controller ? controller.signal : undefined
-                    });
-                    if (timeoutId) clearTimeout(timeoutId);
+                    // 1. Primary probe: dedicated 1-byte ping endpoint
+                    let latency = await probeOnce('api/ping.php?t=' + Date.now(), 7500);
 
-                    if (resp.ok) {
-                        const latency = Math.round(performance.now() - startTime);
+                    // 2. Secondary failover: heartbeat ping query on dashboard itself
+                    if (latency === null) {
+                        latency = await probeOnce('mobile-dashboard.php?action=heartbeat_ping&t=' + Date.now(), 6000);
+                    }
+
+                    if (latency !== null) {
+                        // Confirmed connected to live cloud!
                         this.failedPings = 0;
                         this.setConnectionState(true, latency);
 
-                        // If pending transactions exist and not already syncing, drain immediately!
+                        if (isUserTriggered && window.showModernToast) {
+                            window.showModernToast(`🟢 الاتصال بالخادم ممتاز (النور أخضر) • زمن الاستجابة: ${latency}ms`, 'success', 2500);
+                        }
+
+                        // Auto-drain if pending transactions exist
                         const hasPending = this.queue.some(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
                         if (hasPending && !this.isSyncing) {
                             this.flushQueueNow(false);
                         }
                     } else {
-                        throw new Error('Ping status: ' + resp.status);
+                        // Probe failed
+                        this.failedPings++;
+                        // Only switch to RED if navigator is offline OR 2 consecutive probes fail!
+                        if (!navigator.onLine || this.failedPings >= 2) {
+                            this.setConnectionState(false);
+                            if (isUserTriggered && window.showModernToast) {
+                                window.showModernToast('🔴 تعذر الوصول إلى الخادم — يرجى التأكد من توفر شبكة الإنترنت', 'warning', 3000);
+                            }
+                        }
                     }
-                } catch(err) {
-                    if (timeoutId) clearTimeout(timeoutId);
-                    this.failedPings++;
-                    // Even 1 failed ping on phone means real internet packet flow is interrupted -> turn RED!
-                    this.setConnectionState(false);
+                } finally {
+                    this.isCheckingHeartbeat = false;
                 }
             },
+
 
             generateUUID() {
                 if (typeof crypto !== 'undefined' && crypto.randomUUID) {
