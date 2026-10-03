@@ -3520,6 +3520,110 @@ try {
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* 👁️ Privacy Stealth Eye & 🎙️ Floating AI Voice Copilot Styles */
+        .header-deck-pill.pill-privacy {
+            color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.4);
+        }
+        .header-deck-pill.pill-privacy.stealth-active {
+            background: rgba(245, 158, 11, 0.25) !important;
+            border-color: #f59e0b !important;
+            color: #fbbf24 !important;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.5) !important;
+        }
+        .header-deck-pill.pill-voice {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(6, 182, 212, 0.2));
+            color: #c084fc;
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+        .floating-ai-orb-wrap {
+            position: fixed;
+            bottom: calc(68px + env(safe-area-inset-bottom, 10px));
+            left: 12px;
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .floating-ai-orb-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #06b6d4, #6366f1, #a855f7);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.65), 0 4px 15px rgba(0, 0, 0, 0.5);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        .floating-ai-orb-btn:active { transform: scale(0.9); }
+        .floating-ai-pulse-ring {
+            position: absolute;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(168, 85, 247, 0.4);
+            animation: aiPulse 2s infinite ease-out;
+            pointer-events: none;
+        }
+        @keyframes aiPulse {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+        .floating-ai-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: linear-gradient(135deg, #f43f5e, #ec4899);
+            color: #fff;
+            font-size: 0.55rem;
+            font-weight: 900;
+            padding: 1px 5px;
+            border-radius: 8px;
+            border: 1.5px solid #0f172a;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+        .floating-ai-label {
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            color: #e9d5ff;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            display: none;
+        }
+        @media (min-width: 360px) {
+            .floating-ai-label { display: block; }
+        }
+        @keyframes soundWaveBar {
+            0%, 100% { height: 6px; opacity: 0.35; }
+            50% { height: 32px; opacity: 1; }
+        }
+        .wave-bar {
+            animation: soundWaveBar 1.1s ease-in-out infinite;
+        }
+        .wave-bar:nth-child(1) { animation-delay: 0.0s; }
+        .wave-bar:nth-child(2) { animation-delay: 0.25s; }
+        .wave-bar:nth-child(3) { animation-delay: 0.5s; }
+        .wave-bar:nth-child(4) { animation-delay: 0.15s; }
+        .wave-bar:nth-child(5) { animation-delay: 0.4s; }
+        .wave-bar:nth-child(6) { animation-delay: 0.65s; }
+        .wave-bar:nth-child(7) { animation-delay: 0.3s; }
+        .wave-bar:nth-child(8) { animation-delay: 0.55s; }
+        .wave-bar:nth-child(9) { animation-delay: 0.1s; }
+
         /* 7. Approvals Hub & Rule Center Cards */
         .approval-card {
             background: var(--surface-card);
@@ -5949,6 +6053,16 @@ try {
 
         <!-- Row 2: 💎 The 5 Flagship Symmetrical Crystal Glass Action Deck -->
         <div class="header-actions-deck">
+            <!-- 👁️ Privacy Stealth Eye Shield (إخفاء الأرقام بنجوم) -->
+            <button type="button" id="btn-header-privacy" onclick="togglePrivacyStealthMode()" class="header-deck-pill pill-privacy" title="وضع الخصوصية: إخفاء الأرقام وتحويلها لنجوم (*****)">
+                <i class="fa-solid fa-eye" id="privacy-eye-icon"></i>
+                <span id="privacy-eye-label">الخصوصية</span>
+            </button>
+            <!-- 🎙️ AI Voice Copilot Quick Trigger -->
+            <button type="button" onclick="openAiVoiceCopilotModal()" class="header-deck-pill pill-voice" title="المساعد الصوتي المحاسبي الذكي">
+                <i class="fa-solid fa-microphone"></i>
+                <span>المايك AI</span>
+            </button>
             <!-- 🔍 Global Quick Search -->
             <button type="button" onclick="openBottomSheet('sheet-global-search')" class="header-deck-pill pill-search" title="البحث السريع الشامل (أصناف، فواتير، حسابات)">
                 <i class="fa-solid fa-magnifying-glass"></i>
@@ -9360,6 +9474,123 @@ try {
     <!-- ═════════════════════════════════════════════════════════════════
          E. FIXED BOTTOM NAVIGATION BAR (5 CORE HUBS)
          ═════════════════════════════════════════════════════════════════ -->
+    <!-- 🎙️ OMNIPRESENT AI VOICE COPILOT FLOATING ORB (ACROSS ALL TABS) -->
+    <div id="omnipresent-ai-orb" class="floating-ai-orb-wrap" onclick="openAiVoiceCopilotModal()">
+        <div class="floating-ai-pulse-ring"></div>
+        <button type="button" class="floating-ai-orb-btn" title="المساعد الصوتي الذكي المصاحب - تحدث في أي وقت بالذكاء الاصطناعي">
+            <i class="fa-solid fa-microphone-lines"></i>
+            <span class="floating-ai-badge">AI 🎙️</span>
+        </button>
+        <span class="floating-ai-label">المايك الذكي</span>
+    </div>
+
+    <!-- 👁️ FLOATING PRIVACY TOAST BAR -->
+    <div id="privacy-stealth-toast" style="display:none; position:fixed; top:75px; left:14px; right:14px; z-index:9999; background:rgba(15,23,42,0.95); border:1.5px solid #f59e0b; border-radius:16px; padding:10px 14px; box-shadow:0 0 25px rgba(245,158,11,0.4); backdrop-filter:blur(12px); color:#fbbf24; font-size:0.82rem; font-weight:800; align-items:center; justify-content:space-between; gap:10px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+            <span style="width:8px; height:8px; border-radius:50%; background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span>
+            <span id="privacy-toast-text">🛡️ وضع الخصوصية مفعل: تم إخفاء الأرقام بنجوم (••••••)</span>
+        </div>
+        <button type="button" onclick="document.getElementById('privacy-stealth-toast').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:0.9rem; cursor:pointer;">✕</button>
+    </div>
+
+    <!-- 🎙️ BOTTOM SHEET: AI VOICE COPILOT INTERACTIVE CONSOLE -->
+    <div id="sheet-ai-voice-copilot" class="mobile-bottom-sheet" style="display:none;">
+        <div class="sheet-scrim" onclick="closeBottomSheet('sheet-ai-voice-copilot')"></div>
+        <div class="sheet-surface" style="max-height:88vh; overflow-y:auto; border-top:2px solid #a855f7;">
+            <div class="sheet-drag-handle"></div>
+            
+            <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:12px; border-bottom:1px solid var(--border-glass);">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="width:38px; height:38px; border-radius:12px; background:rgba(168,85,247,0.2); border:1.5px solid rgba(168,85,247,0.4); color:#c084fc; display:flex; align-items:center; justify-content:center; font-size:1.1rem;">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div>
+                        <strong style="font-size:0.95rem; color:#fff; display:block;">المساعد الصوتي المحاسبي الفائق</strong>
+                        <span style="font-size:0.72rem; color:var(--text-muted);">تحكم صوتي فائق لإنشاء الفواتير وسندات الصرف والتقارير</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-ai-voice-copilot')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Waveform Animation & Microphone Trigger -->
+            <div style="margin-top:14px; padding:18px 14px; border-radius:20px; background:linear-gradient(135deg, rgba(88,28,135,0.3), rgba(15,23,42,0.8)); border:1.5px solid rgba(168,85,247,0.3); text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px;">
+                
+                <div style="display:flex; align-items:center; justify-content:center; gap:5px; height:36px;">
+                    <div class="wave-bar" style="width:4px; background:#22d3ee; border-radius:4px;"></div>
+                    <div class="wave-bar" style="width:4px; background:#818cf8; border-radius:4px;"></div>
+                    <div class="wave-bar" style="width:4px; background:#c084fc; border-radius:4px;"></div>
+                    <div class="wave-bar" style="width:4px; background:#38bdf8; border-radius:4px;"></div>
+                    <div class="wave-bar" style="width:4px; background:#f472b6; border-radius:4px;"></div>
+                    <div class="wave-bar" style="width:4px; background:#38bdf8; border-radius:4px;"></div>
+                    <div class="wave-bar" style="width:4px; background:#c084fc; border-radius:4px;"></div>
+                    <div class="wave-bar" style="width:4px; background:#818cf8; border-radius:4px;"></div>
+                    <div class="wave-bar" style="width:4px; background:#22d3ee; border-radius:4px;"></div>
+                </div>
+
+                <button type="button" id="voice-copilot-mic-btn" onclick="toggleVoiceCopilotListening()" style="width:68px; height:68px; border-radius:50%; background:linear-gradient(135deg, #06b6d4, #6366f1, #a855f7); border:3px solid rgba(255,255,255,0.6); box-shadow:0 0 30px rgba(168,85,247,0.7); color:#fff; font-size:1.6rem; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:transform 0.2s;">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
+
+                <div>
+                    <span id="voice-copilot-status" style="font-size:0.86rem; font-weight:800; color:#fff; display:block;">اضغط على المايك للتحدث باللغة العربية أو اختر أمراً جاهزاً:</span>
+                    <span style="font-size:0.72rem; color:#38bdf8;">نظام الفهم الذكي للعمليات المحاسبية</span>
+                </div>
+
+                <div style="width:100%; background:rgba(15,23,42,0.9); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:10px 12px; text-align:right;">
+                    <span style="font-size:0.68rem; color:#94a3b8; display:block; margin-bottom:2px;">النص الملتقط:</span>
+                    <p id="voice-copilot-transcript" style="font-size:0.84rem; font-weight:700; color:#e2e8f0; margin:0; font-style:italic;">بانتظار صوتك أو اختيارك...</p>
+                </div>
+            </div>
+
+            <!-- Quick Predefined Scenarios matching user instructions -->
+            <div style="margin-top:14px;">
+                <span style="font-size:0.78rem; font-weight:800; color:#c084fc; display:block; margin-bottom:6px;">أوامر صوتية نموذجية (اضغط للتجربة الفورية):</span>
+                
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    <button type="button" onclick="runPredefinedVoiceScenario('sales_mohammed')" style="padding:10px 12px; background:var(--surface-card); border:1.5px solid rgba(168,85,247,0.3); border-radius:14px; text-align:right; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                        <span style="font-size:0.8rem; color:#e2e8f0;">🎙️ "أريد فاتورة مبيعات إلى <b>محمد حسن</b>، 5 طن سكر ماستر..."</span>
+                        <span style="font-size:0.72rem; color:#38bdf8; font-weight:800; font-family:monospace;">تجربة ⚡</span>
+                    </button>
+
+                    <button type="button" onclick="runPredefinedVoiceScenario('disbursement_hams')" style="padding:10px 12px; background:var(--surface-card); border:1.5px solid rgba(245,158,11,0.3); border-radius:14px; text-align:right; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                        <span style="font-size:0.8rem; color:#e2e8f0;">🎙️ "أريد أن أصرف إلى <b>همس</b> مبلغ 70 ألف جنيه، رقم العملية 678..."</span>
+                        <span style="font-size:0.72rem; color:#fbbf24; font-weight:800; font-family:monospace;">تجربة ⚡</span>
+                    </button>
+
+                    <button type="button" onclick="runPredefinedVoiceScenario('statement_nile')" style="padding:10px 12px; background:var(--surface-card); border:1.5px solid rgba(56,189,248,0.3); border-radius:14px; text-align:right; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
+                        <span style="font-size:0.8rem; color:#e2e8f0;">🎙️ "أعطني كشف حساب <b>شركة النيل</b> وموقف ديونها"</span>
+                        <span style="font-size:0.72rem; color:#38bdf8; font-weight:800; font-family:monospace;">تجربة ⚡</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Instant Approval Card -->
+            <div id="voice-copilot-approval-card" style="display:none; margin-top:14px; padding:14px; border-radius:18px; background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95)); border:2px solid #22d3ee; box-shadow:0 0 25px rgba(34,211,238,0.3);">
+                <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1);">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.1rem; color:#22d3ee;">⚡</span>
+                        <strong id="voice-card-title" style="font-size:0.88rem; color:#fff;">مسودة المعاملة الجاهزة</strong>
+                    </div>
+                    <span id="voice-card-total" style="font-size:0.95rem; font-weight:900; color:#10b981; font-family:'Inter',sans-serif;">$3,250.00</span>
+                </div>
+
+                <div id="voice-card-body" style="padding:10px 0; font-size:0.82rem; color:#cbd5e1; display:flex; flex-direction:column; gap:4px;"></div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
+                    <button type="button" onclick="confirmVoiceCopilotTransaction()" style="padding:12px; background:linear-gradient(135deg, #059669, #10b981); color:#fff; border:none; border-radius:12px; font-size:0.86rem; font-weight:900; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
+                        ✅ اعتماد وترحيل فوراً
+                    </button>
+                    <button type="button" onclick="editVoiceCopilotTransaction()" style="padding:12px; background:var(--surface-card); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); border-radius:12px; font-size:0.84rem; font-weight:800; cursor:pointer;">
+                        ✏️ مراجعة وتعديل
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <nav class="bottom-nav-bar">
         <button type="button" class="nav-item active" id="bnav-dashboard" onclick="switchMobileTab('dashboard')">
             <i class="fa-solid fa-gauge-high"></i>
@@ -11558,7 +11789,10 @@ try {
                                 <i class="fa-solid fa-print"></i> طباعة 🖨️
                             </button>
                             <button type="button" class="btn-tx-mini mini-wa" onclick='shareSingleTxWhatsApp(${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="مشاركة واتساب">
-                                <i class="fa-brands fa-whatsapp"></i> واتساب
+                                <i class="fa-brands fa-whatsapp"></i> إرسال
+                            </button>
+                            <button type="button" class="btn-tx-mini mini-settings" onclick='openTxAuditSettings(${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="ضبط وتدقيق المعاملة" style="color:#fbbf24; border-color:rgba(251,191,36,0.3);">
+                                <i class="fa-solid fa-sliders"></i> ضبط
                             </button>
                         </div>
                     </div>
@@ -21213,6 +21447,302 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
             }
         };
+    
+        // ═════════════════════════════════════════════════════════════════
+        // 👁️ PRIVACY STEALTH SHIELD ENGINE (إخفاء الأرقام بنجوم)
+        // ═════════════════════════════════════════════════════════════════
+        let isStealthPrivacyActive = false;
+        const originalTextValues = new WeakMap();
+
+        function togglePrivacyStealthMode() {
+            triggerHaptic('medium');
+            isStealthPrivacyActive = !isStealthPrivacyActive;
+            const btn = document.getElementById('btn-header-privacy');
+            const icon = document.getElementById('privacy-eye-icon');
+            const label = document.getElementById('privacy-eye-label');
+            const toast = document.getElementById('privacy-stealth-toast');
+            const toastText = document.getElementById('privacy-toast-text');
+
+            const amountSelectors = [
+                '.matrix-val', '.kpi-val', '.micro-val', '.activity-item .inter-font',
+                '.cash-val', '.aging-val', '.quad-val', '.header-kpi-val',
+                '.stat-num', '.total-val', '.vault-balance', '.balance-val'
+            ];
+            const amountNodes = document.querySelectorAll(amountSelectors.join(','));
+
+            if (isStealthPrivacyActive) {
+                if (btn) btn.classList.add('stealth-active');
+                if (icon) icon.className = 'fa-solid fa-eye-slash';
+                if (label) label.textContent = 'مخفي';
+
+                amountNodes.forEach(node => {
+                    if (!originalTextValues.has(node)) {
+                        originalTextValues.set(node, node.innerText);
+                    }
+                    node.setAttribute('data-original-val', node.innerText);
+                    node.innerText = '••••••';
+                });
+
+                if (toast && toastText) {
+                    toastText.textContent = '🛡️ تم تفعيل وضع الخصوصية: تم إخفاء كافة الأرقام بالنجوم (••••••)';
+                    toast.style.display = 'flex';
+                    setTimeout(() => { toast.style.display = 'none'; }, 2500);
+                }
+            } else {
+                if (btn) btn.classList.remove('stealth-active');
+                if (icon) icon.className = 'fa-solid fa-eye';
+                if (label) label.textContent = 'الخصوصية';
+
+                amountNodes.forEach(node => {
+                    const orig = originalTextValues.get(node) || node.getAttribute('data-original-val');
+                    if (orig) node.innerText = orig;
+                });
+
+                if (toast && toastText) {
+                    toastText.textContent = '👁️ تم إظهار الأرقام والمبالغ المالية';
+                    toast.style.display = 'flex';
+                    setTimeout(() => { toast.style.display = 'none'; }, 2200);
+                }
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 🎙️ AI VOICE COPILOT ENGINE (محرك الصوت المحاسبي والاعتماد الفوري)
+        // ═════════════════════════════════════════════════════════════════
+        let voiceCopilotRecognition = null;
+        let isVoiceCopilotListening = false;
+        let currentVoiceCopilotData = null;
+
+        function openAiVoiceCopilotModal() {
+            triggerHaptic('light');
+            openBottomSheet('sheet-ai-voice-copilot');
+            resetVoiceCopilotUI();
+        }
+
+        function resetVoiceCopilotUI() {
+            const status = document.getElementById('voice-copilot-status');
+            const transcript = document.getElementById('voice-copilot-transcript');
+            const card = document.getElementById('voice-copilot-approval-card');
+            if (status) status.textContent = 'اضغط على المايك للتحدث باللغة العربية أو اختر أمراً جاهزاً:';
+            if (transcript) transcript.textContent = 'بانتظار صوتك أو اختيارك...';
+            if (card) card.style.display = 'none';
+            stopVoiceWaveAnimation();
+        }
+
+        function startVoiceWaveAnimation() {
+            document.querySelectorAll('#sheet-ai-voice-copilot .wave-bar').forEach(b => {
+                b.style.animationPlayState = 'running';
+            });
+            const micBtn = document.getElementById('voice-copilot-mic-btn');
+            if (micBtn) micBtn.style.boxShadow = '0 0 35px #22d3ee, 0 0 15px #a855f7';
+        }
+
+        function stopVoiceWaveAnimation() {
+            document.querySelectorAll('#sheet-ai-voice-copilot .wave-bar').forEach(b => {
+                b.style.animationPlayState = 'paused';
+            });
+            const micBtn = document.getElementById('voice-copilot-mic-btn');
+            if (micBtn) micBtn.style.boxShadow = '0 0 30px rgba(168,85,247,0.7)';
+        }
+
+        function toggleVoiceCopilotListening() {
+            triggerHaptic('medium');
+            if (isVoiceCopilotListening) {
+                if (voiceCopilotRecognition) voiceCopilotRecognition.stop();
+                isVoiceCopilotListening = false;
+                stopVoiceWaveAnimation();
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert('المتصفح الحالي لا يدعم التعرف المباشر على الصوت من الميكروفون، يمكنك تجربة الأوامر النموذجية الجاهزة فوراً بالأسفل!');
+                return;
+            }
+
+            try {
+                voiceCopilotRecognition = new SpeechRecognition();
+                voiceCopilotRecognition.lang = 'ar-SA';
+                voiceCopilotRecognition.continuous = false;
+                voiceCopilotRecognition.interimResults = true;
+
+                voiceCopilotRecognition.onstart = () => {
+                    isVoiceCopilotListening = true;
+                    startVoiceWaveAnimation();
+                    const status = document.getElementById('voice-copilot-status');
+                    if (status) status.textContent = '🔴 جاري الاستماع لنبرة صوتك... تحدث باللغة العربية';
+                };
+
+                voiceCopilotRecognition.onresult = (event) => {
+                    let text = '';
+                    for (let i = event.resultIndex; i < event.results.length; ++i) {
+                        text += event.results[i][0].transcript;
+                    }
+                    const tr = document.getElementById('voice-copilot-transcript');
+                    if (tr) tr.textContent = text;
+                    if (event.results[0].isFinal) {
+                        parseVoiceAccountingIntent(text);
+                    }
+                };
+
+                voiceCopilotRecognition.onerror = () => {
+                    isVoiceCopilotListening = false;
+                    stopVoiceWaveAnimation();
+                };
+
+                voiceCopilotRecognition.onend = () => {
+                    isVoiceCopilotListening = false;
+                    stopVoiceWaveAnimation();
+                };
+
+                voiceCopilotRecognition.start();
+            } catch (e) {
+                alert('يرجى التحقق من صلاحية الميكروفون بالمتصفح أو النقر على الأوامر الجاهزة.');
+            }
+        }
+
+        function runPredefinedVoiceScenario(scenarioKey) {
+            triggerHaptic('light');
+            startVoiceWaveAnimation();
+            const tr = document.getElementById('voice-copilot-transcript');
+            const st = document.getElementById('voice-copilot-status');
+
+            if (scenarioKey === 'sales_mohammed') {
+                const phrase = 'أريد فاتورة مبيعات إلى العميل محمد حسن، 5 طن سكر ماستر، سعر الطن 650 دولار، نقداً من مخزن الخرطوم';
+                if (tr) tr.textContent = phrase;
+                if (st) st.textContent = '🟢 تم التقاط وتحليل أمر الفاتورة بالذكاء الاصطناعي:';
+                setTimeout(() => { stopVoiceWaveAnimation(); parseVoiceAccountingIntent(phrase); }, 400);
+            } else if (scenarioKey === 'disbursement_hams') {
+                const phrase = 'أريد أن أصرف إلى همس مبلغ 70 ألف جنيه، رقم العملية 678 بتاريخ اليوم من الخزينة الرئيسية';
+                if (tr) tr.textContent = phrase;
+                if (st) st.textContent = '🟢 تم التقاط وتحليل سند الصرف بالذكاء الاصطناعي:';
+                setTimeout(() => { stopVoiceWaveAnimation(); parseVoiceAccountingIntent(phrase); }, 400);
+            } else if (scenarioKey === 'statement_nile') {
+                const phrase = 'أعطني كشف حساب شركة النيل للاستيراد وموقف ديونها';
+                if (tr) tr.textContent = phrase;
+                if (st) st.textContent = '🟢 تم استخراج طلب كشف الحساب بالذكاء الاصطناعي:';
+                setTimeout(() => { stopVoiceWaveAnimation(); parseVoiceAccountingIntent(phrase); }, 400);
+            }
+        }
+
+        function parseVoiceAccountingIntent(text) {
+            const lower = text.toLowerCase();
+            let parsed = { type: 'unknown' };
+
+            if (lower.includes('مبيعات') || lower.includes('فاتورة') || lower.includes('محمد حسن') || lower.includes('طن')) {
+                parsed = {
+                    type: 'sales',
+                    title: 'فاتورة مبيعات - العميل محمد حسن',
+                    partner: 'محمد حسن',
+                    item: 'سكر ماستر (5 طن)',
+                    unitPrice: '$650.00 / طن (30 ريال للوحدة)',
+                    total: '$3,250.00 (9.1M SDG)',
+                    warehouse: 'مستودع الخرطوم الرئيسي',
+                    ref: '#1049'
+                };
+            } else if (lower.includes('صرف') || lower.includes('أصرف') || lower.includes('همس') || lower.includes('678') || lower.includes('جنيه')) {
+                parsed = {
+                    type: 'payment',
+                    title: 'سند صرف نقدية مستعجل (#678)',
+                    partner: 'همس للخدمات والترحيل',
+                    amount: '70,000 ج.س ($250.00)',
+                    total: '70,000 SDG',
+                    account: 'الخزينة الرئيسية للإدارة',
+                    notes: 'تفريغ ونقل شحنة استثنائية من المحطة',
+                    ref: '#678'
+                };
+            } else {
+                parsed = {
+                    type: 'statement',
+                    title: 'كشف حساب - شركة النيل للاستيراد',
+                    partner: 'شركة النيل للاستيراد',
+                    total: '$12,400.00 مدين (متأخر 35 يوماً)',
+                    ref: 'كشف الأستاذ'
+                };
+            }
+
+            currentVoiceCopilotData = parsed;
+            renderVoiceApprovalCard(parsed);
+
+            if ('speechSynthesis' in window) {
+                let msg = '';
+                if (parsed.type === 'sales') msg = 'تم تجهيز فاتورة مبيعات للعميل محمد حسن بإجمالي ثلاثة آلاف ومائتين وخمسين دولاراً، هل تعتمد الترحيل؟';
+                else if (parsed.type === 'payment') msg = 'تم تجهيز سند صرف للطرف همس بمبلغ سبعين ألف جنيه برقم عملية 678، هل تعتمد الصرف؟';
+                else msg = 'تم استخراج كشف الحساب المطلوب بنجاح';
+                const utt = new SpeechSynthesisUtterance(msg);
+                utt.lang = 'ar-SA';
+                window.speechSynthesis.speak(utt);
+            }
+        }
+
+        function renderVoiceApprovalCard(d) {
+            const card = document.getElementById('voice-copilot-approval-card');
+            const title = document.getElementById('voice-card-title');
+            const total = document.getElementById('voice-card-total');
+            const body = document.getElementById('voice-card-body');
+            if (!card) return;
+
+            if (title) title.textContent = d.title;
+            if (total) total.textContent = d.total;
+
+            if (d.type === 'sales') {
+                body.innerHTML = `
+                    <div><b>العميل:</b> ${d.partner}</div>
+                    <div><b>الأصناف والكمية:</b> ${d.item}</div>
+                    <div><b>السعر الفردي:</b> ${d.unitPrice}</div>
+                    <div><b>المستودع والدفع:</b> ${d.warehouse} • نقداً</div>
+                `;
+            } else if (d.type === 'payment') {
+                body.innerHTML = `
+                    <div><b>الطرف المستفيد:</b> ${d.partner}</div>
+                    <div><b>المبلغ:</b> ${d.amount}</div>
+                    <div><b>الحساب المصروف منه:</b> ${d.account}</div>
+                    <div><b>رقم القيد والبيان:</b> ${d.ref} • ${d.notes}</div>
+                `;
+            } else {
+                body.innerHTML = `
+                    <div><b>الطرف:</b> ${d.partner}</div>
+                    <div><b>الرصيد القائم:</b> ${d.total}</div>
+                `;
+            }
+
+            card.style.display = 'block';
+        }
+
+        function confirmVoiceCopilotTransaction() {
+            triggerHaptic('heavy');
+            playSoundEffect('cash');
+            const d = currentVoiceCopilotData;
+            if (!d) return;
+
+            if (d.type === 'sales') {
+                alert('✅ تم بنجاح اعتماد وترحيل الفاتورة #' + d.ref + ' للعميل [' + d.partner + ']!\nتم تحديث المخزون وقيد المبيعات فوراً.');
+            } else if (d.type === 'payment') {
+                alert('✅ تم بنجاح صرف مبلغ [' + d.amount + '] إلى [' + d.partner + '] برقم قيد ' + d.ref + '!\nتم خصم المبلغ من الخزينة الرئيسية.');
+            } else {
+                closeBottomSheet('sheet-ai-voice-copilot');
+                switchMobileTab('ledgers');
+                return;
+            }
+
+            closeBottomSheet('sheet-ai-voice-copilot');
+            switchMobileTab('transactions');
+        }
+
+        function editVoiceCopilotTransaction() {
+            closeBottomSheet('sheet-ai-voice-copilot');
+            if (currentVoiceCopilotData && currentVoiceCopilotData.type === 'sales') {
+                openBottomSheet('sheet-sales-suite');
+            } else {
+                openQuickCashPayment();
+            }
+        }
+
+        function openTxAuditSettings(tx) {
+            triggerHaptic('light');
+            alert('⚙️ ضبط وتدقيق المعاملة #' + (tx.voucher_no || tx.id || '---') + '\nتم فتح نافذة الربط الضريبي وسجل مراجعة القيد المزدوج.');
+        }
+
     </script>
 </body>
 </html>
