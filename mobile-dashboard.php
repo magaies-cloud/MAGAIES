@@ -1387,14 +1387,13 @@ try {
         .brand-section {
             display: flex;
             align-items: center;
-            gap: 10px;
-            min-width: 0;
-            flex: 1;
+            gap: 6px;
+            flex-shrink: 0;
         }
         .brand-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 12px;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
             background: #0f172a;
             display: flex;
             align-items: center;
@@ -1413,54 +1412,40 @@ try {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 10px;
+            border-radius: 9px;
             display: block;
         }
-        .brand-meta {
-            min-width: 0;
-            overflow: hidden;
-        }
-        .brand-meta h1 {
-            font-size: 0.98rem;
-            font-weight: 900;
-            color: var(--text-main);
-            line-height: 1.2;
-            letter-spacing: 0.2px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .brand-meta span {
-            font-size: 0.74rem;
-            color: var(--primary);
-            font-weight: 800;
-            display: block;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .brand-controls {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-shrink: 0;
         }
 
         .header-actions {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             flex-shrink: 0;
+            margin-right: auto;
         }
 
         .btn-switch-desktop {
             background: var(--surface-2);
             border: 1.5px solid var(--border-glass);
             color: var(--text-main);
-            padding: 7px 11px;
+            width: 34px;
+            height: 34px;
+            padding: 0;
             border-radius: 10px;
-            font-size: 0.78rem;
-            font-weight: 800;
+            font-size: 0.82rem;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
             text-decoration: none;
+            flex-shrink: 0;
         }
         .btn-switch-desktop:active {
             transform: scale(0.95);
@@ -1472,14 +1457,21 @@ try {
             .btn-switch-desktop span {
                 display: none;
             }
+            .brand-avatar {
+                width: 32px;
+                height: 32px;
+            }
+            .header-icon-btn {
+                width: 32px !important;
+                height: 32px !important;
+                min-width: 32px !important;
+                min-height: 32px !important;
+            }
             .btn-switch-desktop {
-                padding: 8px 10px;
-            }
-            .brand-meta h1 {
-                font-size: 0.88rem;
-            }
-            .brand-meta span {
-                font-size: 0.68rem;
+                width: 32px !important;
+                height: 32px !important;
+                min-width: 32px !important;
+                min-height: 32px !important;
             }
         }
 
@@ -4964,24 +4956,22 @@ try {
     <!-- 1. Sticky Mobile App Header (Thumb-Zone Compact Bar) -->
     <header class="mobile-header">
         <div class="brand-section">
-            <div class="brand-avatar" onclick="calibrateMobileScreen(true)" title="شعار مقاييس المعتمد — اضغط لوزن الشاشة الرئيسية ومطابقة الأزرار">
+            <div class="brand-avatar" onclick="calibrateMobileScreen(true)" title="شعار مقاييس المعتمد — اضغط لوزن الشاشة ومطابقة الأزرار">
                 <img src="assets/icon-192.png?v=2026_logo_official" alt="شعار مقاييس" class="brand-avatar-img">
             </div>
-            <div class="brand-meta">
-                <div style="display:flex; align-items:center; gap:5px;">
-                    <button type="button" class="branch-pill" id="btn-branch-header" onclick="openBottomSheet('sheet-branch-picker')" title="الفرع: فرع السجانة — اضغط لتغيير الفرع">
-                        <i class="fa-solid fa-store" style="color:var(--primary); font-size:0.86rem;"></i>
-                        <span id="header-branch-name" style="display:none;">فرع السجانة</span>
-                        <i class="fa-solid fa-chevron-down" style="font-size:0.52rem; opacity:0.6;"></i>
-                    </button>
-                    <!-- 🛰️ Offline-First Outbox Status Dot -->
-                    <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="if(window.OfflineOutboxEngine && !window.OfflineOutboxEngine.isOnline()){ window.OfflineOutboxEngine.checkHeartbeat(true); } else { openBottomSheet('sheet-outbox-manager'); }" title="حالة الاتصال بالسحابة">
-                        <span class="outbox-dot online" id="outbox-pill-dot"></span>
-                        <span id="outbox-pill-text" style="display:none;">متصل</span>
-                    </button>
-                </div>
-                <span id="mobile-user-greeting">مرحباً بك 🌟</span>
+            <div class="brand-controls" style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
+                <button type="button" class="branch-pill" id="btn-branch-header" onclick="openBottomSheet('sheet-branch-picker')" title="الفرع: فرع السجانة — اضغط لتغيير الفرع">
+                    <i class="fa-solid fa-store" style="color:var(--primary); font-size:0.86rem;"></i>
+                    <span id="header-branch-name" style="display:none;">فرع السجانة</span>
+                    <i class="fa-solid fa-chevron-down" style="font-size:0.52rem; opacity:0.6;"></i>
+                </button>
+                <!-- 🛰️ Offline-First Outbox Status Dot (النور الأخضر / الأحمر) -->
+                <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="if(window.OfflineOutboxEngine && !window.OfflineOutboxEngine.isOnline()){ window.OfflineOutboxEngine.checkHeartbeat(true); } else { openBottomSheet('sheet-outbox-manager'); }" title="حالة الاتصال بالسحابة">
+                    <span class="outbox-dot online" id="outbox-pill-dot"></span>
+                    <span id="outbox-pill-text" style="display:none;">متصل</span>
+                </button>
             </div>
+            <span id="mobile-user-greeting" style="display:none;">مرحباً بك 🌟</span>
         </div>
         <div class="header-actions">
             <!-- 🔍 Global Quick Search (Omni-Search) -->
