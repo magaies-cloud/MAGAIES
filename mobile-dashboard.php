@@ -399,6 +399,75 @@ try {
         exit;
     }
 
+    // 6.2 Direct AJAX Financial Voucher Deletion (Instant delete on MariaDB)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ((isset($_POST['action']) && $_POST['action'] === 'delete_voucher') || (isset($_GET['action']) && $_GET['action'] === 'delete_voucher'))) {
+        header('Content-Type: application/json; charset=UTF-8');
+        try {
+            $rawInput = file_get_contents('php://input');
+            $inputJson = json_decode($rawInput, true) ?: $_POST;
+            $vNo = $inputJson['voucherNo'] ?? ($inputJson['id'] ?? '');
+            if (empty($vNo)) {
+                echo json_encode(['success' => false, 'error' => 'رقم السند مطلوب للحذف']);
+                exit;
+            }
+
+            // Delete matching from single_payments
+            $stmtDelP = $pdo->prepare("DELETE FROM single_payments WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+            $stmtDelP->execute([$currentTenantId, $vNo, $vNo]);
+
+            // Delete matching from single_receipts
+            $stmtDelR = $pdo->prepare("DELETE FROM single_receipts WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+            $stmtDelR->execute([$currentTenantId, $vNo, $vNo]);
+
+            // Push to sync_queue as DELETE for remote sync
+            try {
+                $delUuid = 'del-' . bin2hex(random_bytes(8));
+                $stmtDelQ = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'vouchers', ?, 'DELETE', '{}', 'SYNCED', NOW(), NOW())");
+                $stmtDelQ->execute([$delUuid, $vNo]);
+            } catch (Exception $eq) {}
+
+            echo json_encode(['success' => true, 'message' => 'تم حذف السند بنجاح', 'voucherNo' => $vNo]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
+    // 6.3 Direct AJAX Financial Voucher Modification / Update (Instant write to MariaDB)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ((isset($_POST['action']) && $_POST['action'] === 'update_financial_tx') || (isset($_GET['action']) && $_GET['action'] === 'update_financial_tx'))) {
+        header('Content-Type: application/json; charset=UTF-8');
+        try {
+            $rawInput = file_get_contents('php://input');
+            $inputJson = json_decode($rawInput, true) ?: $_POST;
+            $tx = $inputJson['data'] ?? $inputJson;
+            if (is_string($tx)) $tx = json_decode($tx, true);
+            $vNo = $tx['voucherNo'] ?? ($tx['id'] ?? '');
+            if (!$tx || empty($vNo)) {
+                echo json_encode(['success' => false, 'error' => 'بيانات السند غير صالحة للتعديل']);
+                exit;
+            }
+            $txJson = json_encode($tx, JSON_UNESCAPED_UNICODE);
+
+            $stmtUpP = $pdo->prepare("UPDATE single_payments SET data = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+            $stmtUpP->execute([$txJson, $currentTenantId, $vNo, $vNo]);
+
+            $stmtUpR = $pdo->prepare("UPDATE single_receipts SET data = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+            $stmtUpR->execute([$txJson, $currentTenantId, $vNo, $vNo]);
+
+            // Push to sync_queue as UPDATE for remote sync
+            try {
+                $upUuid = 'up-' . bin2hex(random_bytes(8));
+                $stmtUpQ = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'vouchers', ?, 'UPDATE', ?, 'SYNCED', NOW(), NOW())");
+                $stmtUpQ->execute([$upUuid, $vNo, $txJson]);
+            } catch (Exception $eq) {}
+
+            echo json_encode(['success' => true, 'message' => 'تم حفظ التعديلات بنجاح', 'voucherNo' => $vNo]);
+        } catch (Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
+    }
+
     // 6.5 Direct Sync Queue Batch Processing (MariaDB `sync_queue` Table Integration)
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ((isset($_POST['action']) && $_POST['action'] === 'process_sync_queue') || (isset($_GET['action']) && $_GET['action'] === 'process_sync_queue'))) {
         header('Content-Type: application/json; charset=UTF-8');
@@ -582,7 +651,7 @@ try {
     <meta name="theme-color" content="<?php echo $themeColorHex; ?>">
     <title><?php echo htmlspecialchars($preloadedData['companyName']); ?> - النسخة السريعة</title>
     <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
-    <script src="js/pwa-manager.js" defer></script>
+    <script src="js/pwa-manager.js?v=2026_10_03_v7_buttons" defer></script>
 
     <!-- Dynamic Viewport Auto-Redirect & Auth Gate -->
     <script>
@@ -4964,6 +5033,196 @@ try {
             cursor: pointer;
             flex-shrink: 0;
         }
+
+        /* ═════════════════════════════════════════════════════════════════
+           📱 UNIFIED SCREEN ACTION TOOLBAR (شريط الأزرار الموحد في كل شاشات الجوال)
+           [جديد] [حفظ] [تعديل] [حذف] [طباعة] [بحث] [مشاركة] [تراجع]
+           ═════════════════════════════════════════════════════════════════ */
+        .screen-unified-action-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            background: var(--surface-card);
+            border: 1.5px solid var(--border-glass);
+            border-radius: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .screen-unified-action-bar::-webkit-scrollbar {
+            display: none;
+        }
+        .btn-action-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 7px 13px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            white-space: nowrap;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            flex-shrink: 0;
+        }
+        .btn-action-pill:active {
+            transform: scale(0.93);
+            filter: brightness(1.2);
+        }
+        .btn-act-new {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.35));
+            border-color: #10b981;
+            color: #34d399;
+        }
+        .btn-act-save {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: #059669;
+            color: #ffffff;
+            box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+        }
+        .btn-act-edit {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(217, 119, 6, 0.38));
+            border-color: #f59e0b;
+            color: #fbbf24;
+        }
+        .btn-act-delete {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.35));
+            border-color: #ef4444;
+            color: #f87171;
+        }
+        .btn-act-print {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(2, 132, 199, 0.35));
+            border-color: #38bdf8;
+            color: #38bdf8;
+        }
+        .btn-act-search {
+            background: var(--surface-sub);
+            border-color: var(--border-glass);
+            color: var(--text-main);
+        }
+        .btn-act-share {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.22), rgba(22, 163, 74, 0.38));
+            border-color: #22c55e;
+            color: #4ade80;
+        }
+        .btn-act-cancel {
+            background: var(--surface-sub);
+            border-color: var(--border-glass);
+            color: var(--text-muted);
+        }
+        .btn-act-refresh {
+            background: var(--surface-sub);
+            border-color: var(--border-glass);
+            color: #38bdf8;
+        }
+
+        /* Screen Navigator Bar (الأول | السابق | التالي | الأخير) */
+        .screen-navigator-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4px;
+            padding: 6px 8px;
+            background: var(--surface-sub);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .btn-nav-step {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 0.76rem;
+            font-weight: 800;
+            border: 1px solid var(--border-glass);
+            background: var(--surface-card);
+            color: var(--text-main);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .btn-nav-step:active {
+            transform: scale(0.92);
+        }
+        .nav-record-badge {
+            font-family: 'Inter', monospace;
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: var(--primary);
+            background: rgba(56, 189, 248, 0.15);
+            padding: 3px 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            text-align: center;
+            min-width: 80px;
+        }
+
+        /* Editing Banner Badge */
+        .screen-editing-banner {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.28));
+            border: 1.5px solid #f59e0b;
+            border-radius: 12px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #fbbf24;
+            animation: pulseSubtle 2s infinite ease-in-out;
+        }
+        @keyframes pulseSubtle {
+            0%, 100% { border-color: #f59e0b; }
+            50% { border-color: #fbbf24; }
+        }
+
+        /* Mini Action Buttons Row on Transaction items */
+        .tx-item-actions-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 6px;
+            padding-top: 6px;
+            border-top: 1px dashed var(--border-glass);
+            width: 100%;
+            justify-content: flex-end;
+        }
+        .btn-tx-mini {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            cursor: pointer;
+            border: 1px solid var(--border-glass);
+            background: var(--surface-sub);
+            color: var(--text-muted);
+            transition: all 0.15s ease;
+            user-select: none;
+        }
+        .btn-tx-mini:active {
+            transform: scale(0.92);
+        }
+        .btn-tx-mini.mini-edit { color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.08); }
+        .btn-tx-mini.mini-delete { color: #f87171; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); }
+        .btn-tx-mini.mini-print { color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.08); }
+        .btn-tx-mini.mini-wa { color: #34d399; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); }
     </style>
 </head>
 <body data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
@@ -5042,6 +5301,33 @@ try {
          VIEW CONTAINER 1: 📊 DASHBOARD (الرئيسية)
          ═════════════════════════════════════════════════════════════════ -->
     <div class="view-container active" id="view-dashboard">
+        <!-- Unified Action Toolbar for Dashboard -->
+        <div class="screen-unified-action-bar">
+            <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'dashboard')">
+                <i class="fa-solid fa-plus"></i> جديد
+            </button>
+            <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'dashboard')">
+                <i class="fa-solid fa-floppy-disk"></i> حفظ ومزامنة
+            </button>
+            <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'dashboard')">
+                <i class="fa-solid fa-pen-to-square"></i> تعديل
+            </button>
+            <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'dashboard')">
+                <i class="fa-solid fa-trash-can"></i> حذف
+            </button>
+            <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'dashboard')">
+                <i class="fa-solid fa-print"></i> طباعة
+            </button>
+            <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'dashboard')">
+                <i class="fa-solid fa-magnifying-glass"></i> بحث
+            </button>
+            <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'dashboard')">
+                <i class="fa-brands fa-whatsapp"></i> مشاركة
+            </button>
+            <button type="button" class="btn-action-pill btn-act-refresh" onclick="window.UniversalActionEngine.dispatch('refresh', 'dashboard')">
+                <i class="fa-solid fa-arrows-rotate"></i> تحديث
+            </button>
+        </div>
         <!-- C. Executive Micro-KPI Cards (2x2 Grid) with Dual Currency (SDG + USD) -->
         <div class="micro-kpi-grid">
             <!-- 1. Net Sales Today -->
@@ -5286,6 +5572,33 @@ try {
          ═════════════════════════════════════════════════════════════════ -->
     <div class="view-container" id="view-transactions">
         <div class="mobile-content" style="padding-top:12px;">
+                        <!-- Unified Action Toolbar for Transactions -->
+            <div class="screen-unified-action-bar">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'transactions')">
+                    <i class="fa-solid fa-plus"></i> جديد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'transactions')">
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ ومزامنة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'transactions')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل
+                </button>
+                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'transactions')">
+                    <i class="fa-solid fa-trash-can"></i> حذف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'transactions')">
+                    <i class="fa-solid fa-print"></i> طباعة كشف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'transactions')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'transactions')">
+                    <i class="fa-brands fa-whatsapp"></i> مشاركة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-refresh" onclick="window.UniversalActionEngine.dispatch('refresh', 'transactions')">
+                    <i class="fa-solid fa-arrows-rotate"></i> تحديث
+                </button>
+            </div>
             <div class="section-heading" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-receipt text-sky-400"></i> سجل المعاملات والفواتير</span>
                 <button type="button" onclick="refreshMobileData(true)" class="btn-ai-chip" style="font-size:0.75rem;">
@@ -5320,6 +5633,30 @@ try {
     <div class="view-container" id="view-ledgers">
         <div class="mobile-content" style="padding-top:12px;">
             <!-- Header Section -->
+                        <!-- Unified Action Toolbar for Ledgers -->
+            <div class="screen-unified-action-bar">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'ledgers')">
+                    <i class="fa-solid fa-plus"></i> سند جديد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'ledgers')">
+                    <i class="fa-solid fa-floppy-disk"></i> تصدير PDF
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'ledgers')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'ledgers')">
+                    <i class="fa-solid fa-print"></i> طباعة كشف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'ledgers')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'ledgers')">
+                    <i class="fa-brands fa-whatsapp"></i> مطالبة واتساب
+                </button>
+                <button type="button" class="btn-action-pill btn-act-refresh" onclick="window.UniversalActionEngine.dispatch('refresh', 'ledgers')">
+                    <i class="fa-solid fa-arrows-rotate"></i> تحديث
+                </button>
+            </div>
             <div class="section-heading" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-book-bookmark text-emerald-400"></i> كشوف الحسابات والديون</span>
                 <button type="button" onclick="LedgerEngine.openPdfStatementPreview()" class="btn-ai-chip" style="font-size:0.75rem;">
@@ -5501,6 +5838,30 @@ try {
          ═════════════════════════════════════════════════════════════════ -->
     <div class="view-container" id="view-inventory">
         <div class="mobile-content" style="padding-top:12px;">
+                        <!-- Unified Action Toolbar for Inventory -->
+            <div class="screen-unified-action-bar">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'inventory')">
+                    <i class="fa-solid fa-plus"></i> توريد جديد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'inventory')">
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ وجرد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'inventory')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل صنف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'inventory')">
+                    <i class="fa-solid fa-print"></i> طباعة تقييم
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'inventory')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'inventory')">
+                    <i class="fa-brands fa-whatsapp"></i> تقرير النواقص
+                </button>
+                <button type="button" class="btn-action-pill btn-act-refresh" onclick="window.UniversalActionEngine.dispatch('refresh', 'inventory')">
+                    <i class="fa-solid fa-arrows-rotate"></i> تحديث
+                </button>
+            </div>
             <div class="section-heading" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> المخزون والجرد والتحويلات</span>
                 <span id="inventory-branch-tag" class="branch-pill" style="font-size:0.75rem; cursor:pointer;" onclick="openBottomSheet('sheet-branch-picker')">
@@ -5601,6 +5962,30 @@ try {
     <div class="view-container" id="view-approvals">
         <div class="mobile-content" style="padding-top:12px;">
             <!-- Header Section -->
+                        <!-- Unified Action Toolbar for Approvals -->
+            <div class="screen-unified-action-bar">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'approvals')">
+                    <i class="fa-solid fa-plus"></i> طلب جديد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'approvals')">
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ القرارات
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'approvals')">
+                    <i class="fa-solid fa-pen-to-square"></i> ضبط السقوف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'approvals')">
+                    <i class="fa-solid fa-print"></i> طباعة سجل
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'approvals')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'approvals')">
+                    <i class="fa-brands fa-whatsapp"></i> مشاركة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-refresh" onclick="window.UniversalActionEngine.dispatch('refresh', 'approvals')">
+                    <i class="fa-solid fa-arrows-rotate"></i> تحديث
+                </button>
+            </div>
             <div class="section-heading" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-shield-halved text-rose-400"></i> مركز الموافقات والتحكم التنفيذي</span>
                 <button type="button" onclick="openBottomSheet('sheet-rule-settings')" class="btn-ai-chip" style="font-size:0.75rem; background:var(--surface-sub);">
@@ -5672,28 +6057,63 @@ try {
             <form onsubmit="handleFinancialTxSubmit(event)">
                 <input type="hidden" id="tx-operation-type" value="transfer">
 
-                <!-- 1. Top Bar: التنقل بين السندات بالسيرفر الحي (السابق / التالي) وسعر الصرف -->
-                <div class="tx-top-bar" style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-sub); border:1.5px solid var(--border-glass); padding:8px 10px; border-radius:12px; margin-bottom:12px; width:100%; box-sizing:border-box;">
-                    <!-- Voucher Number & Navigation Arrows (السابق / التالي) -->
-                    <div style="display:flex; align-items:center; gap:5px;">
-                        <span style="font-size:0.82rem; font-weight:800; color:var(--text-muted);">السند:</span>
-                        <button type="button" class="btn-voucher-nav" onclick="VoucherNavigator.prev()" title="السند السابق (أقدم)">
-                            <i class="fa-solid fa-chevron-right"></i> السابق
-                        </button>
-                        <span id="tx-voucher-display" style="font-family:'Inter',monospace; font-size:0.95rem; font-weight:900; color:var(--emerald); background:rgba(16,185,129,0.14); padding:3px 8px; border-radius:8px; border:1px solid rgba(16,185,129,0.35);">...</span>
-                        <button type="button" class="btn-voucher-nav" onclick="VoucherNavigator.next()" title="السند التالي (أحدث)">
-                            التالي <i class="fa-solid fa-chevron-left"></i>
-                        </button>
-                        <button type="button" class="btn-voucher-new" id="btn-voucher-new-entry" onclick="VoucherNavigator.newVoucher()" style="display:none;" title="العودة لإنشاء سند جديد">
-                            <i class="fa-solid fa-plus"></i> جديد
-                        </button>
-                        <input type="hidden" id="tx-voucher-no" value="">
-                    </div>
+                                <!-- 1. Top Bar: شريط الأزرار الموحد والشامل (جديد، حفظ، تعديل، حذف، طباعة، بحث، مشاركة، تراجع) -->
+                <div class="screen-unified-action-bar">
+                    <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'financial-tx')">
+                        <i class="fa-solid fa-plus"></i> جديد
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'financial-tx')">
+                        <i class="fa-solid fa-floppy-disk"></i> حفظ
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'financial-tx')">
+                        <i class="fa-solid fa-pen-to-square"></i> تعديل
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'financial-tx')">
+                        <i class="fa-solid fa-trash-can"></i> حذف
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'financial-tx')">
+                        <i class="fa-solid fa-print"></i> طباعة
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'financial-tx')">
+                        <i class="fa-solid fa-magnifying-glass"></i> بحث
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'financial-tx')">
+                        <i class="fa-brands fa-whatsapp"></i> مشاركة
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'financial-tx')">
+                        <i class="fa-solid fa-rotate-left"></i> تراجع
+                    </button>
+                </div>
 
+                <!-- شريط تنبيه وضع التعديل للسند -->
+                <div id="tx-editing-banner" class="screen-editing-banner">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                        <span>وضع تعديل السند: <strong id="tx-editing-vno-display">---</strong></span>
+                    </div>
+                    <button type="button" onclick="window.VoucherNavigator.cancelEdit()" style="background:none; border:none; color:#f87171; font-weight:900; font-size:0.8rem; cursor:pointer;">إلغاء التعديل ✕</button>
+                </div>
+
+                <!-- شريط التنقل الشامل بين السندات (الأول | السابق | رقم السند | التالي | الأخير) -->
+                <div class="screen-navigator-bar">
+                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'first')" title="أحدث سند">
+                        <i class="fa-solid fa-backward-step"></i> الأول
+                    </button>
+                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'prev')" title="السند السابق (أقدم)">
+                        <i class="fa-solid fa-chevron-right"></i> السابق
+                    </button>
+                    <span id="tx-voucher-display" class="nav-record-badge">...</span>
+                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'next')" title="السند التالي (أحدث)">
+                        التالي <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'last')" title="أقدم سند">
+                        الأخير <i class="fa-solid fa-forward-step"></i>
+                    </button>
+                    <input type="hidden" id="tx-voucher-no" value="">
                     <!-- الصرف -->
-                    <div style="display:flex; align-items:center; gap:4px;">
-                        <span style="font-size:0.82rem; font-weight:800; color:var(--text-muted);">الصرف:</span>
-                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:74px; max-width:80px; height:32px; font-size:0.92rem; font-weight:900; text-align:center; direction:ltr !important; padding:2px 4px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:8px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
+                    <div style="display:inline-flex; align-items:center; gap:3px;">
+                        <span style="font-size:0.74rem; font-weight:800; color:var(--text-muted);">صرف:</span>
+                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:68px; height:28px; font-size:0.82rem; font-weight:900; text-align:center; padding:1px 2px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:6px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
                     </div>
                 </div>
 
@@ -5871,12 +6291,29 @@ try {
                 </div>
 
                 <!-- 7. Submit Buttons -->
+                                <!-- 7. Comprehensive Action Buttons Grid -->
                 <div style="display:flex; flex-direction:column; gap:8px;">
-                    <button type="submit" class="m-btn-submit" id="btn-save-tx" style="background: linear-gradient(135deg, #10b981, #059669);">
-                        <i class="fa-solid fa-check"></i> حفظ الحركة المالية
-                    </button>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+                        <button type="submit" class="m-btn-submit" id="btn-save-tx" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <i class="fa-solid fa-floppy-disk"></i> <span id="btn-save-tx-label">حفظ الحركة المالية</span>
+                        </button>
+                        <button type="button" class="m-btn-submit" id="btn-edit-tx-bottom" onclick="window.UniversalActionEngine.dispatch('edit', 'financial-tx')" style="background: linear-gradient(135deg, #f59e0b, #d97706); color:#fff;">
+                            <i class="fa-solid fa-pen-to-square"></i> تعديل السند
+                        </button>
+                    </div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
+                        <button type="button" class="m-btn-submit" id="btn-del-tx-bottom" onclick="window.UniversalActionEngine.dispatch('delete', 'financial-tx')" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color:#fff; font-size:0.84rem; padding:8px 6px;">
+                            <i class="fa-solid fa-trash-can"></i> حذف
+                        </button>
+                        <button type="button" class="m-btn-submit" id="btn-print-tx-bottom" onclick="window.UniversalActionEngine.dispatch('print', 'financial-tx')" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; font-size:0.84rem; padding:8px 6px;">
+                            <i class="fa-solid fa-print"></i> طباعة 🖨️
+                        </button>
+                        <button type="button" class="m-btn-submit" id="btn-new-tx-bottom" onclick="window.UniversalActionEngine.dispatch('new', 'financial-tx')" style="background: var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); font-size:0.84rem; padding:8px 6px;">
+                            <i class="fa-solid fa-plus"></i> جديد
+                        </button>
+                    </div>
                     <button type="button" class="m-btn-submit" onclick="handleTxWhatsAppShareClick()" style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34,197,94,0.35);">
-                        <i class="fa-brands fa-whatsapp"></i> حفظ ومشاركة عبر واتساب 💬
+                        <i class="fa-brands fa-whatsapp"></i> مشاركة السند عبر واتساب 💬
                     </button>
                 </div>
             </form>
@@ -6064,6 +6501,33 @@ try {
 
         <div class="sheet-body" style="padding-top:12px; padding-bottom:85px;">
             <div class="pos-container">
+                <!-- Unified POS Action Toolbar -->
+                <div class="screen-unified-action-bar">
+                    <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'sale')">
+                        <i class="fa-solid fa-plus"></i> فاتورة جديدة
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'sale')">
+                        <i class="fa-solid fa-floppy-disk"></i> حفظ
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'sale')">
+                        <i class="fa-solid fa-pen-to-square"></i> تعديل
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'sale')">
+                        <i class="fa-solid fa-trash-can"></i> حذف / تفريغ
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'sale')">
+                        <i class="fa-solid fa-print"></i> طباعة حرارية
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'sale')">
+                        <i class="fa-solid fa-magnifying-glass"></i> بحث
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'sale')">
+                        <i class="fa-brands fa-whatsapp"></i> مشاركة
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'sale')">
+                        <i class="fa-solid fa-rotate-left"></i> تفريغ السلة
+                    </button>
+                </div>
                 <!-- 1. Header & Party Selection -->
                 <!-- 1.1 Invoice Type Toggle -->
                 <div class="invoice-type-toggle">
@@ -6213,14 +6677,18 @@ try {
             </div>
 
             <!-- 4.3 Instant Actions: [Save & Print Thermal] + [Save & Share WhatsApp/PDF] -->
-            <div class="pos-actions-row">
-                <button type="button" class="pos-btn-print" onclick="MobilePOS.submitSale(true, false)">
+                        <div class="pos-actions-row" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:6px;">
+                <button type="button" class="pos-btn-print" style="padding:10px 4px; font-size:0.8rem;" onclick="MobilePOS.submitSale(true, false)">
                     <i class="fa-solid fa-print"></i>
-                    <span>حفظ وطباعة حرارية</span>
+                    <span>حفظ وطباعة 🖨️</span>
                 </button>
-                <button type="button" class="pos-btn-share" onclick="MobilePOS.submitSale(false, true)">
+                <button type="button" class="pos-btn-share" style="padding:10px 4px; font-size:0.8rem;" onclick="MobilePOS.submitSale(false, true)">
                     <i class="fa-brands fa-whatsapp"></i>
-                    <span>حفظ ومشاركة واتساب</span>
+                    <span>حفظ ومشاركة 💬</span>
+                </button>
+                <button type="button" class="pos-btn-print" style="background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); padding:10px 4px; font-size:0.8rem;" onclick="MobilePOS.newInvoice()">
+                    <i class="fa-solid fa-plus text-emerald-400"></i>
+                    <span>جديدة ➕</span>
                 </button>
             </div>
         </div>
@@ -6237,6 +6705,30 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-receipt-print')">✕</button>
         </div>
         <div class="sheet-body" style="padding:14px;">
+            <!-- Unified Item Audit Action Toolbar -->
+            <div class="screen-unified-action-bar">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'item-audit')">
+                    <i class="fa-solid fa-plus"></i> جرد صنف آخر
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'item-audit')">
+                    <i class="fa-solid fa-floppy-disk"></i> اعتماد وتسوية
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'item-audit')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل الصنف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'item-audit')">
+                    <i class="fa-solid fa-trash-can"></i> إلغاء الجرد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'item-audit')">
+                    <i class="fa-solid fa-print"></i> طباعة باركود
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'item-audit')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'item-audit')">
+                    <i class="fa-brands fa-whatsapp"></i> مشاركة
+                </button>
+            </div>
             <!-- Thermal Paper Container -->
             <div class="thermal-receipt-paper" id="thermal-receipt-content">
                 <!-- Dynamically generated thermal receipt -->
@@ -6307,6 +6799,30 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-item-audit')">✕</button>
         </div>
         <div class="sheet-body" style="padding:14px;">
+            <!-- Unified Item Audit Action Toolbar -->
+            <div class="screen-unified-action-bar">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'item-audit')">
+                    <i class="fa-solid fa-plus"></i> جرد صنف آخر
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'item-audit')">
+                    <i class="fa-solid fa-floppy-disk"></i> اعتماد وتسوية
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'item-audit')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل الصنف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'item-audit')">
+                    <i class="fa-solid fa-trash-can"></i> إلغاء الجرد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'item-audit')">
+                    <i class="fa-solid fa-print"></i> طباعة باركود
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'item-audit')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'item-audit')">
+                    <i class="fa-brands fa-whatsapp"></i> مشاركة
+                </button>
+            </div>
             <!-- Item Info Card -->
             <div style="background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:14px; padding:10px 12px; margin-bottom:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -6388,6 +6904,33 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-stock-transfer')">✕</button>
         </div>
         <div class="sheet-body" style="padding:12px; padding-bottom:80px;">
+            <!-- Unified Stock Transfer Action Toolbar -->
+            <div class="screen-unified-action-bar">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'stock-transfer')">
+                    <i class="fa-solid fa-plus"></i> تحويل جديد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'stock-transfer')">
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ مسودة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'stock-transfer')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل
+                </button>
+                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'stock-transfer')">
+                    <i class="fa-solid fa-trash-can"></i> حذف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'stock-transfer')">
+                    <i class="fa-solid fa-print"></i> طباعة بوليصة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'stock-transfer')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'stock-transfer')">
+                    <i class="fa-brands fa-whatsapp"></i> مشاركة السائق
+                </button>
+                <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'stock-transfer')">
+                    <i class="fa-solid fa-rotate-left"></i> تراجع
+                </button>
+            </div>
             <!-- 1. Pipeline Status Indicator -->
             <div class="transfer-pipeline">
                 <div class="pipeline-step active" id="pipe-step-draft">
@@ -6517,6 +7060,30 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-transfer-waybill')">✕</button>
         </div>
         <div class="sheet-body" style="padding:14px;">
+            <!-- Unified Item Audit Action Toolbar -->
+            <div class="screen-unified-action-bar">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'item-audit')">
+                    <i class="fa-solid fa-plus"></i> جرد صنف آخر
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'item-audit')">
+                    <i class="fa-solid fa-floppy-disk"></i> اعتماد وتسوية
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'item-audit')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل الصنف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'item-audit')">
+                    <i class="fa-solid fa-trash-can"></i> إلغاء الجرد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'item-audit')">
+                    <i class="fa-solid fa-print"></i> طباعة باركود
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'item-audit')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'item-audit')">
+                    <i class="fa-brands fa-whatsapp"></i> مشاركة
+                </button>
+            </div>
             <div class="thermal-receipt-paper" id="waybill-content-paper" style="border-radius:12px; border:2px solid #000;">
                 <!-- Dynamically generated digital waybill -->
             </div>
@@ -6547,6 +7114,33 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-purchase')">✕</button>
         </div>
         <div class="sheet-body">
+            <!-- Unified Purchase Action Toolbar -->
+            <div class="screen-unified-action-bar">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'purchase')">
+                    <i class="fa-solid fa-plus"></i> فاتورة جديدة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'purchase')">
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ وتوريد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'purchase')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل
+                </button>
+                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'purchase')">
+                    <i class="fa-solid fa-trash-can"></i> حذف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'purchase')">
+                    <i class="fa-solid fa-print"></i> طباعة إذن
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'purchase')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'purchase')">
+                    <i class="fa-brands fa-whatsapp"></i> مشاركة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'purchase')">
+                    <i class="fa-solid fa-rotate-left"></i> تراجع
+                </button>
+            </div>
             <form onsubmit="handleQuickPurchaseSubmit(event)">
                 <div class="m-form-group">
                     <label class="m-label">المورد:</label>
@@ -6602,6 +7196,27 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-statement')">✕</button>
         </div>
         <div class="sheet-body">
+            <!-- Unified Statement Action Toolbar -->
+            <div class="screen-unified-action-bar">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'statement')">
+                    <i class="fa-solid fa-plus"></i> سند قبض / صرف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'statement')">
+                    <i class="fa-solid fa-file-pdf"></i> تصدير PDF
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'statement')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل بيانات العميل
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'statement')">
+                    <i class="fa-solid fa-print"></i> طباعة كشف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'statement')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث الحسابات
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'statement')">
+                    <i class="fa-brands fa-whatsapp"></i> مطالبة واتساب
+                </button>
+            </div>
             <div class="m-form-group">
                 <label class="m-label">اختر العميل:</label>
                 <select id="statement-customer-select" class="m-select" onchange="renderCustomerMiniStatement(this.value)">
@@ -9611,31 +10226,46 @@ try {
                 const amt = parseFloat(tx.amount || tx.total || 0);
                 const isIncoming = tx.type === 'receipt' || tx.type === 'sale';
                 html += `
-                    <div class="activity-item" style="padding:12px; margin-bottom:8px; background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:14px; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-                        <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
-                            <div class="act-icon" style="background:${isIncoming ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)'}; color:${isIncoming ? 'var(--emerald)' : 'var(--rose)'}; border:1px solid ${isIncoming ? 'var(--emerald)' : 'var(--rose)'}; width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-                                <i class="fa-solid ${isIncoming ? 'fa-arrow-down-left' : 'fa-arrow-up-right-from-square'}"></i>
-                            </div>
-                            <div style="min-width:0; flex:1;">
-                                <div style="display:flex; align-items:center; gap:6px;">
-                                    <span style="font-size:0.86rem; font-weight:900; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                        ${tx.to_account || tx.from_account || tx.customer_name || 'حركة مالية'}
-                                    </span>
-                                    <span style="font-size:0.78rem; padding:1px 6px; border-radius:6px; background:var(--surface-2); color:var(--text-muted); font-family:monospace;">
-                                        #${tx.voucher_no || tx.id || '---'}
+                    <div class="activity-item" style="padding:12px; margin-bottom:10px; background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:14px; display:flex; flex-direction:column; gap:8px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; width:100%;">
+                            <div style="display:flex; align-items:center; gap:10px; min-width:0; flex:1;">
+                                <div class="act-icon" style="background:${isIncoming ? 'rgba(16,185,129,0.15)' : 'rgba(244,63,94,0.15)'}; color:${isIncoming ? 'var(--emerald)' : 'var(--rose)'}; border:1px solid ${isIncoming ? 'var(--emerald)' : 'var(--rose)'}; width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                    <i class="fa-solid ${isIncoming ? 'fa-arrow-down-left' : 'fa-arrow-up-right-from-square'}"></i>
+                                </div>
+                                <div style="min-width:0; flex:1;">
+                                    <div style="display:flex; align-items:center; gap:6px;">
+                                        <span style="font-size:0.86rem; font-weight:900; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                            ${tx.to_account || tx.from_account || tx.customer_name || 'حركة مالية'}
+                                        </span>
+                                        <span style="font-size:0.78rem; padding:1px 6px; border-radius:6px; background:var(--surface-2); color:var(--text-muted); font-family:monospace;">
+                                            #${tx.voucher_no || tx.id || '---'}
+                                        </span>
+                                    </div>
+                                    <span style="font-size:0.73rem; color:var(--text-muted); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                                        ${tx.date || 'اليوم'} • ${tx.notes || (isIncoming ? 'سند قبض / بيع' : 'سند صرف / شراء')}
                                     </span>
                                 </div>
-                                <span style="font-size:0.73rem; color:var(--text-muted); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                    ${tx.date || 'اليوم'} • ${tx.notes || (isIncoming ? 'سند قبض / بيع' : 'سند صرف / شراء')}
-                                </span>
+                            </div>
+                            <div style="text-align:left; flex-shrink:0;">
+                                <div style="font-family:'Inter',sans-serif; font-size:1.05rem; font-weight:900; color:${isIncoming ? 'var(--emerald)' : 'var(--rose)'};">
+                                    ${isIncoming ? '+' : '-'}${fmt(amt)} <small style="font-size:0.76rem;">SDG</small>
+                                </div>
                             </div>
                         </div>
-                        <div style="text-align:left; flex-shrink:0;">
-                            <div style="font-family:'Inter',sans-serif; font-size:1.05rem; font-weight:900; color:${isIncoming ? 'var(--emerald)' : 'var(--rose)'};">
-                                ${isIncoming ? '+' : '-'}${fmt(amt)} <small style="font-size:0.76rem;">SDG</small>
-                            </div>
-                            <button type="button" class="btn-ai-chip" style="padding:2px 8px; font-size:0.78rem; margin-top:2px;" onclick='shareSingleTxWhatsApp(${JSON.stringify(tx).replace(/'/g, "&apos;")})'>
-                                <i class="fa-brands fa-whatsapp text-emerald-400"></i> واتساب
+
+                        <!-- شريط الأزرار الموحد لكل حركة: [تعديل] [حذف] [طباعة] [واتساب] -->
+                        <div class="tx-item-actions-row">
+                            <button type="button" class="btn-tx-mini mini-edit" onclick='window.UniversalActionEngine.editItem("transactions", ${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="تعديل السند">
+                                <i class="fa-solid fa-pen-to-square"></i> تعديل
+                            </button>
+                            <button type="button" class="btn-tx-mini mini-delete" onclick='window.UniversalActionEngine.deleteItem("transactions", ${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="حذف السند">
+                                <i class="fa-solid fa-trash-can"></i> حذف
+                            </button>
+                            <button type="button" class="btn-tx-mini mini-print" onclick='window.UniversalActionEngine.printItem("transactions", ${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="طباعة إيصال">
+                                <i class="fa-solid fa-print"></i> طباعة 🖨️
+                            </button>
+                            <button type="button" class="btn-tx-mini mini-wa" onclick='shareSingleTxWhatsApp(${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="مشاركة واتساب">
+                                <i class="fa-brands fa-whatsapp"></i> واتساب
                             </button>
                         </div>
                     </div>
@@ -12940,6 +13570,200 @@ try {
             currentIndex: -1, // -1 = وضع إنشاء سند جديد
             vouchers: [],
             loading: false,
+            isEditing: false,
+            editingVoucher: null,
+
+            first() {
+                triggerHaptic("medium");
+                if (this.vouchers.length === 0) {
+                    this.loadVouchers().then(() => { if (this.vouchers.length > 0) this.first(); });
+                    return;
+                }
+                this.currentIndex = 0;
+                this.displayVoucher(0);
+            },
+
+            last() {
+                triggerHaptic("medium");
+                if (this.vouchers.length === 0) {
+                    this.loadVouchers().then(() => { if (this.vouchers.length > 0) this.last(); });
+                    return;
+                }
+                this.currentIndex = this.vouchers.length - 1;
+                this.displayVoucher(this.currentIndex);
+            },
+
+            enableEdit() {
+                triggerHaptic("success");
+                if (this.currentIndex < 0 || !this.vouchers[this.currentIndex]) {
+                    if (this.vouchers.length > 0) {
+                        this.currentIndex = 0;
+                        this.displayVoucher(0);
+                    } else {
+                        if (window.showModernToast) window.showModernToast("يرجى اختيار سند أولاً لتعديله", "info", 2000);
+                        return;
+                    }
+                }
+                this.isEditing = true;
+                this.editingVoucher = this.vouchers[this.currentIndex];
+                const vNum = this.editingVoucher.voucherNo || this.editingVoucher.id || ("#TX-" + (this.currentIndex + 1));
+
+                const banner = document.getElementById("tx-editing-banner");
+                const bDisp = document.getElementById("tx-editing-vno-display");
+                if (banner) banner.style.display = "flex";
+                if (bDisp) bDisp.textContent = vNum;
+
+                const saveLabel = document.getElementById("btn-save-tx-label");
+                if (saveLabel) saveLabel.textContent = "حفظ التعديلات على السند";
+
+                const locInp = document.getElementById("tx-amount-local");
+                if (locInp) locInp.focus();
+
+                if (window.showModernToast) {
+                    window.showModernToast(`✏️ تم تفعيل وضع تعديل السند [${vNum}] — قم بالتعديل ثم اضغط حفظ`, "warning", 3000);
+                }
+            },
+
+            cancelEdit() {
+                triggerHaptic("light");
+                this.isEditing = false;
+                this.editingVoucher = null;
+
+                const banner = document.getElementById("tx-editing-banner");
+                if (banner) banner.style.display = "none";
+
+                const saveLabel = document.getElementById("btn-save-tx-label");
+                if (saveLabel) saveLabel.textContent = "حفظ الحركة المالية";
+
+                if (this.currentIndex >= 0 && this.vouchers[this.currentIndex]) {
+                    this.displayVoucher(this.currentIndex);
+                } else {
+                    this.newVoucher();
+                }
+            },
+
+            async deleteCurrentVoucher() {
+                triggerHaptic("heavy");
+                if (this.currentIndex < 0 || !this.vouchers[this.currentIndex]) {
+                    if (window.showModernToast) window.showModernToast("يرجى اختيار سند أولاً لحذفه", "info", 2000);
+                    return;
+                }
+                const v = this.vouchers[this.currentIndex];
+                const vNum = v.voucherNo || v.paymentNo || v.receiptNo || v.id;
+                const amt = v.amountLocal || v.amount || 0;
+
+                if (!confirm(`⚠️ هل أنت متأكد من حذف السند [${vNum}] بمبلغ [${fmt(amt)} SDG] نهائياً؟\nسيتم إلغاء أثره المحاسبي محلياً وعلى السيرفر.`)) {
+                    return;
+                }
+
+                try {
+                    await fetch("mobile-dashboard.php?action=delete_voucher", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ voucherNo: vNum, id: vNum })
+                    });
+                } catch(e) {
+                    console.warn("Delete voucher server call:", e);
+                }
+
+                // Delete locally
+                ["erp_financial_txs_v1", "erp_single_payments_v1", "erp_single_receipts_v1"].forEach(k => {
+                    if (typeof loadTenantArray === "function" && typeof saveTenantArray === "function") {
+                        let arr = loadTenantArray(k) || [];
+                        arr = arr.filter(x => (x.voucherNo || x.id) != vNum);
+                        saveTenantArray(k, arr);
+                    }
+                });
+
+                // Remove from M_TRANSACTIONS
+                if (typeof M_TRANSACTIONS !== "undefined" && Array.isArray(M_TRANSACTIONS)) {
+                    const idx = M_TRANSACTIONS.findIndex(x => (x.voucher_no || x.id) == vNum);
+                    if (idx >= 0) M_TRANSACTIONS.splice(idx, 1);
+                }
+
+                // Remove from navigator
+                this.vouchers.splice(this.currentIndex, 1);
+                this.isEditing = false;
+                const banner = document.getElementById("tx-editing-banner");
+                if (banner) banner.style.display = "none";
+
+                if (window.showModernToast) {
+                    window.showModernToast(`🗑️ تم حذف السند [${vNum}] بنجاح`, "success", 2500);
+                }
+
+                if (this.vouchers.length > 0) {
+                    this.currentIndex = Math.min(this.currentIndex, this.vouchers.length - 1);
+                    this.displayVoucher(this.currentIndex);
+                } else {
+                    this.newVoucher();
+                }
+
+                if (typeof renderTransactionsView === "function") renderTransactionsView();
+            },
+
+            printCurrentVoucher() {
+                triggerHaptic("medium");
+                let doc = null;
+                if (this.currentIndex >= 0 && this.vouchers[this.currentIndex]) {
+                    doc = this.vouchers[this.currentIndex];
+                } else {
+                    // Current form values
+                    const amt = parseFloat(document.getElementById("tx-amount-local")?.value || 0);
+                    const vNo = document.getElementById("tx-voucher-no")?.value || "DRAFT";
+                    doc = {
+                        voucherNo: vNo,
+                        amount: amt,
+                        amountLocal: amt,
+                        date: document.getElementById("tx-date")?.value || new Date().toISOString().split("T")[0],
+                        notes: document.getElementById("tx-notes")?.value || "سند حركة مالية",
+                        fromAccount: SELECTED_FROM_ACCOUNT ? SELECTED_FROM_ACCOUNT.name : "الخزينة",
+                        toAccount: SELECTED_TO_ACCOUNT ? SELECTED_TO_ACCOUNT.name : "المستلم",
+                        paymentMethod: document.getElementById("tx-payment-method")?.value || "bank",
+                        refNo: document.getElementById("tx-ref")?.value || "---"
+                    };
+                }
+                if (window.UniversalPrintEngine) {
+                    window.UniversalPrintEngine.printVoucher(doc);
+                }
+            },
+
+            searchPrompt() {
+                triggerHaptic("light");
+                const q = prompt("🔍 أدخل رقم السند، اسم الحساب، أو المبلغ للبحث والاستدعاء الفوري:");
+                if (!q || !q.trim()) return;
+                const query = q.trim().toLowerCase();
+
+                if (this.vouchers.length === 0) {
+                    if (window.showModernToast) window.showModernToast("لا توجد سندات مسجلة للبحث", "info", 2000);
+                    return;
+                }
+
+                const foundIdx = this.vouchers.findIndex(v => {
+                    const text = `${v.voucherNo || ""} ${v.id || ""} ${v.amount || ""} ${v.notes || ""} ${v.statement || ""} ${typeof v.fromAccount === "object" ? v.fromAccount.name : (v.fromAccount || "")} ${typeof v.toAccount === "object" ? v.toAccount.name : (v.toAccount || "")}`.toLowerCase();
+                    return text.includes(query);
+                });
+
+                if (foundIdx >= 0) {
+                    this.currentIndex = foundIdx;
+                    this.displayVoucher(foundIdx);
+                    if (window.showModernToast) {
+                        window.showModernToast(`🎯 تم العثور على السند واستدعاؤه`, "success", 2000);
+                    }
+                } else {
+                    alert(`لم يتم العثور على أي سند يطابق: "${q}"`);
+                }
+            },
+
+            displayVoucherObject(v) {
+                if (!v) return;
+                let existingIdx = this.vouchers.findIndex(x => (x.voucherNo || x.id) == (v.voucher_no || v.id));
+                if (existingIdx === -1) {
+                    this.vouchers.unshift(v);
+                    existingIdx = 0;
+                }
+                this.currentIndex = existingIdx;
+                this.displayVoucher(existingIdx);
+            },
 
             async loadVouchers() {
                 if (this.loading) return;
@@ -13674,14 +14498,23 @@ try {
             // 7. Auto-infer Movement Nature based on chosen accounts
             const nature = inferTransactionNature(SELECTED_FROM_ACCOUNT, SELECTED_TO_ACCOUNT);
             
-            // Dual-Numbering Engine Sequence Assignment (Receipt vs Disbursement)
+            // Check if editing existing voucher
+            const isEditingMode = window.VoucherNavigator && window.VoucherNavigator.isEditing && window.VoucherNavigator.editingVoucher;
             let localVSeq = '';
-            if (nature.type === 'receipt') {
-                localVSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('receipt') : ('IN-OFF-' + Date.now().toString().slice(-4));
+            let actualVNo = '';
+
+            if (isEditingMode) {
+                actualVNo = window.VoucherNavigator.editingVoucher.voucherNo || window.VoucherNavigator.editingVoucher.id || document.getElementById('tx-voucher-no')?.value;
+                localVSeq = actualVNo;
             } else {
-                localVSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('disbursement') : ('OUT-OFF-' + Date.now().toString().slice(-4));
+                // Dual-Numbering Engine Sequence Assignment (Receipt vs Disbursement)
+                if (nature.type === 'receipt') {
+                    localVSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('receipt') : ('IN-OFF-' + Date.now().toString().slice(-4));
+                } else {
+                    localVSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('disbursement') : ('OUT-OFF-' + Date.now().toString().slice(-4));
+                }
+                actualVNo = localVSeq;
             }
-            const actualVNo = localVSeq;
             vNo = actualVNo;
             const finalRef = txRef || actualVNo;
 
@@ -13737,9 +14570,21 @@ try {
                 isPosted: true
             };
 
-            // 8. Save to financial txs array
-            let allFinancialTxs = loadTenantArray('erp_financial_txs_v1');
-            allFinancialTxs.unshift(txRecord);
+            // 8. Save to financial txs array (Update if editing, otherwise unshift)
+            let allFinancialTxs = loadTenantArray('erp_financial_txs_v1') || [];
+            if (isEditingMode) {
+                const exIdx = allFinancialTxs.findIndex(x => (x.voucherNo || x.id) == actualVNo);
+                if (exIdx >= 0) allFinancialTxs[exIdx] = txRecord;
+                else allFinancialTxs.unshift(txRecord);
+                // Call server update endpoint
+                fetch('mobile-dashboard.php?action=update_financial_tx', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ voucherNo: actualVNo, data: txRecord })
+                }).catch(e => console.warn('Update voucher server error:', e));
+            } else {
+                allFinancialTxs.unshift(txRecord);
+            }
             saveTenantArray('erp_financial_txs_v1', allFinancialTxs);
 
             // 9. Adjust Balances
@@ -15664,7 +16509,95 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     url += `?text=${encodeURIComponent(text)}`;
                 }
                 window.open(url, '_blank');
-            }
+            },
+            newInvoice() {
+                triggerHaptic('success');
+                this.state.cart = [];
+                this.state.customerId = 'walkin';
+                this.state.customer = null;
+                this.state.invoiceType = 'cash';
+                this.state.isSplit = false;
+                this.state.splitCash = 0;
+                this.state.splitBank = 0;
+                this.state.creditLimitOverridden = false;
+                this.setInvoiceType('cash');
+                const nextSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('sale') : ('INV-OFF-' + Date.now().toString().slice(-4));
+                const pill = document.getElementById('pos-inv-number-pill');
+                if (pill) pill.textContent = '#' + nextSeq;
+                const custSel = document.getElementById('pos-customer-select');
+                if (custSel) custSel.value = 'walkin';
+                this.onCustomerChange('walkin');
+                this.renderCart();
+                if (window.showModernToast) window.showModernToast(`✨ تم فتح فاتورة مبيعات جديدة #${nextSeq}`, 'success', 2200);
+            },
+
+            editInvoicePrompt() {
+                triggerHaptic('medium');
+                const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
+                if (sales.length === 0) {
+                    if (window.showModernToast) window.showModernToast('لا توجد فواتير مبيعات سابقة مسجلة للتعديل', 'info', 2000);
+                    return;
+                }
+                const q = prompt('🔍 أدخل رقم الفاتورة أو اسم العميل لاستدعاء وتعديل الفاتورة:\nآخر فاتورة مسجلة: ' + (sales[0].invoiceNo || sales[0].id));
+                if (!q || !q.trim()) return;
+                const query = q.trim().toLowerCase();
+                const inv = sales.find(s => `${s.invoiceNo || ''} ${s.id || ''} ${s.customerName || ''}`.toLowerCase().includes(query));
+                if (!inv) {
+                    alert(`لم يتم العثور على فاتورة تطابق: "${q}"`);
+                    return;
+                }
+                // Load into cart
+                this.state.cart = (inv.items || []).map(it => ({ ...it }));
+                this.state.customerId = inv.customer || 'walkin';
+                this.state.invoiceType = inv.paymentMethod || 'cash';
+                this.setInvoiceType(this.state.invoiceType);
+                const pill = document.getElementById('pos-inv-number-pill');
+                if (pill) pill.textContent = '#' + (inv.invoiceNo || inv.id) + ' (تعديل)';
+                const custSel = document.getElementById('pos-customer-select');
+                if (custSel) custSel.value = this.state.customerId;
+                this.renderCart();
+                if (window.showModernToast) window.showModernToast(`✏️ تم استدعاء الفاتورة [${inv.invoiceNo || inv.id}] للتعديل`, 'warning', 2500);
+            },
+
+            deleteCurrentInvoice() {
+                triggerHaptic('heavy');
+                if (this.state.cart.length === 0) {
+                    if (window.showModernToast) window.showModernToast('السلة فارغة بالفعل', 'info', 2000);
+                    return;
+                }
+                if (!confirm('⚠️ هل أنت متأكد من تفريغ وحذف بيانات الفاتورة الحالية؟')) return;
+                this.newInvoice();
+                if (window.showModernToast) window.showModernToast('🗑️ تم تفريغ وحذف الفاتورة', 'success', 2000);
+            },
+
+            searchInvoice() {
+                triggerHaptic('light');
+                const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
+                if (sales.length === 0) {
+                    if (window.showModernToast) window.showModernToast('لا توجد فواتير مبيعات سابقة للبحث', 'info', 2000);
+                    return;
+                }
+                const q = prompt('🔍 أدخل رقم الفاتورة أو اسم العميل للبحث:');
+                if (!q || !q.trim()) return;
+                const query = q.trim().toLowerCase();
+                const inv = sales.find(s => `${s.invoiceNo || ''} ${s.id || ''} ${s.customerName || ''}`.toLowerCase().includes(query));
+                if (inv) {
+                    this.openThermalReceiptSheet(inv);
+                } else {
+                    alert(`لم يتم العثور على أي فاتورة تطابق: "${q}"`);
+                }
+            },
+
+            navigate(dir) {
+                const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
+                if (sales.length === 0) {
+                    if (window.showModernToast) window.showModernToast('لا توجد فواتير سابقة للتنقل', 'info', 2000);
+                    return;
+                }
+                if (dir === 'first') this.openThermalReceiptSheet(sales[0]);
+                else if (dir === 'last') this.openThermalReceiptSheet(sales[sales.length - 1]);
+                else this.openThermalReceiptSheet(sales[0]);
+            },
         };
 
         // Backward compatibility shims for legacy callers
@@ -17160,6 +18093,552 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (vBtn) vBtn.style.display = '';
             }
         });
+    
+        // ═════════════════════════════════════════════════════════════════
+        // 🖨️ UNIVERSAL PRINT ENGINE (طباعة حرارية لجميع السندات والعمليات)
+        // ═════════════════════════════════════════════════════════════════
+        window.UniversalPrintEngine = {
+            printVoucher(v) {
+                if (!v) return;
+                triggerHaptic('light');
+                const paper = document.getElementById('thermal-receipt-content');
+                if (!paper) return;
+
+                const vNum = v.voucherNo || v.paymentNo || v.receiptNo || v.voucher_no || v.id || '#TX-1';
+                const amt = parseFloat(v.amountLocal || v.amount || v.total || 0);
+                const amtForeign = parseFloat(v.amountForeign || 0);
+                const txDate = v.date || new Date().toISOString().split('T')[0];
+                const txTime = v.time || new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' });
+                const fromName = (typeof v.fromAccount === 'object' ? v.fromAccount.name : v.fromAccount) || v.from_account || v.customerName || v.customer || 'الخزينة الرئيسية';
+                const toName = (typeof v.toAccount === 'object' ? v.toAccount.name : v.toAccount) || v.to_account || v.recipient || v.partnerName || 'الحساب المستلم';
+                const notes = v.notes || v.statement || 'حركة مالية معتمدة';
+                const isReceipt = v.type === 'receipt' || (String(vNum).startsWith('R') || String(vNum).startsWith('IN-'));
+                const typeTitle = isReceipt ? 'سند قبض واستلام مالي' : 'سند صرف ودفع مالي';
+                const refNo = v.reference || v.refNo || v.transferNo || v.mobileTransferNo || '---';
+
+                paper.innerHTML = `
+                    <div class="thermal-header">
+                        <h3>مؤسسة الصجانة التجارية</h3>
+                        <p>سوق السجانة لمواد البناء والأخشاب - الخرطوم</p>
+                        <p>هاتف: +249 91 234 5678</p>
+                        <div class="thermal-divider"></div>
+                        <h4>${typeTitle}</h4>
+                        <p style="font-family:monospace; font-weight:900; font-size:1.15rem; margin-top:2px;">#${vNum}</p>
+                        <div style="display:inline-block; background:#059669; color:#ffffff; font-size:0.72rem; font-weight:900; padding:2px 10px; border-radius:6px; margin-top:4px;">
+                            ✅ معتمد بالسيرفر
+                        </div>
+                    </div>
+                    <div class="thermal-divider"></div>
+                    <div class="thermal-row">
+                        <span>التاريخ والوقت:</span>
+                        <span>${txDate} ${txTime}</span>
+                    </div>
+                    <div class="thermal-row">
+                        <span>من حساب (الصارف):</span>
+                        <strong>${fromName}</strong>
+                    </div>
+                    <div class="thermal-row">
+                        <span>إلى حساب (المستلم):</span>
+                        <strong>${toName}</strong>
+                    </div>
+                    ${v.beneficiaryName ? `
+                    <div class="thermal-row">
+                        <span>المستفيد / المسلم:</span>
+                        <span>${v.beneficiaryName}</span>
+                    </div>` : ''}
+                    <div class="thermal-row">
+                        <span>طريقة الدفع:</span>
+                        <span>${v.paymentMethod === 'bank' ? 'تحويل بنكي / بنكك' : (v.paymentMethod === 'cheque' ? 'شيك مصرفي' : 'نقداً (كاش)')}</span>
+                    </div>
+                    <div class="thermal-row">
+                        <span>رقم المرجع / الإشعار:</span>
+                        <span style="font-family:monospace; font-weight:800;">${refNo}</span>
+                    </div>
+                    <div class="thermal-divider"></div>
+                    <div class="thermal-total-row">
+                        <span>المبلغ الصافي:</span>
+                        <span>${fmt(amt)} SDG</span>
+                    </div>
+                    ${amtForeign > 0 ? `
+                    <div class="thermal-row" style="color:#0284c7; font-weight:800;">
+                        <span>المقابل الأجنبي ($):</span>
+                        <span>$${fmt(amtForeign)}</span>
+                    </div>` : ''}
+                    <div class="thermal-divider"></div>
+                    <div class="thermal-row" style="font-size:0.76rem; color:#444;">
+                        <span>البيان:</span>
+                        <span>${notes}</span>
+                    </div>
+                    <div class="thermal-divider"></div>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:center; font-size:0.75rem; margin-top:10px;">
+                        <div>
+                            <div>توقيع الصارف / المحاسب</div>
+                            <div style="border-bottom:1px solid #000; height:30px; margin-top:5px;"></div>
+                        </div>
+                        <div>
+                            <div>توقيع المستلم</div>
+                            <div style="border-bottom:1px solid #000; height:30px; margin-top:5px;"></div>
+                        </div>
+                    </div>
+                    <div class="thermal-footer" style="margin-top:12px;">
+                        <div style="font-family:monospace; letter-spacing:2px; font-size:1.1rem;">*${vNum}*</div>
+                        <div style="font-size:0.76rem; color:#555; margin-top:4px;">
+                            نظام مقاييس المحاسبي 2026 • معتمد سحابياً ومحلياً
+                        </div>
+                    </div>
+                `;
+                openBottomSheet('sheet-receipt-print');
+            },
+
+            printTransactionsReport() {
+                triggerHaptic('light');
+                const paper = document.getElementById('thermal-receipt-content');
+                if (!paper) return;
+                let listHtml = '';
+                let totalIn = 0;
+                let totalOut = 0;
+                (M_TRANSACTIONS || []).slice(0, 30).forEach(tx => {
+                    const a = parseFloat(tx.amount || tx.total || 0);
+                    const isRec = tx.type === 'receipt' || tx.type === 'sale';
+                    if (isRec) totalIn += a; else totalOut += a;
+                    listHtml += `
+                        <div class="thermal-row" style="font-size:0.74rem;">
+                            <span>#${tx.voucher_no || tx.id} (${(tx.to_account || tx.from_account || 'حركة').slice(0, 14)})</span>
+                            <span style="font-weight:800; color:${isRec ? '#059669' : '#dc2626'};">${isRec ? '+' : '-'}${fmt(a)}</span>
+                        </div>
+                    `;
+                });
+
+                paper.innerHTML = `
+                    <div class="thermal-header">
+                        <h3>مؤسسة الصجانة التجارية</h3>
+                        <p>كشف العمليات الميدانية السريع</p>
+                        <div class="thermal-divider"></div>
+                        <h4>ملخص الحركات اليومية</h4>
+                        <p>${new Date().toLocaleDateString('ar-SD')} - ${new Date().toLocaleTimeString('ar-SD')}</p>
+                    </div>
+                    <div class="thermal-divider"></div>
+                    ${listHtml}
+                    <div class="thermal-divider"></div>
+                    <div class="thermal-row" style="color:#059669; font-weight:900;">
+                        <span>إجمالي المقبوضات (+):</span>
+                        <span>+${fmt(totalIn)} SDG</span>
+                    </div>
+                    <div class="thermal-row" style="color:#dc2626; font-weight:900;">
+                        <span>إجمالي المدفوعات (-):</span>
+                        <span>-${fmt(totalOut)} SDG</span>
+                    </div>
+                    <div class="thermal-total-row">
+                        <span>صافي التدفق:</span>
+                        <span>${fmt(totalIn - totalOut)} SDG</span>
+                    </div>
+                `;
+                openBottomSheet('sheet-receipt-print');
+            }
+        };
+
+        // ═════════════════════════════════════════════════════════════════
+        // 🛒 PURCHASE ENGINE (إدارة فواتير الشراء والتوريد السريعة)
+        // ═════════════════════════════════════════════════════════════════
+        window.PurchaseEngine = {
+            newInvoice() {
+                triggerHaptic('success');
+                const itemSel = document.getElementById('purchase-item');
+                const qtyInp = document.getElementById('purchase-qty');
+                const priceInp = document.getElementById('purchase-price');
+                const totalDisp = document.getElementById('purchase-total-display');
+                if (itemSel) itemSel.selectedIndex = 0;
+                if (qtyInp) qtyInp.value = '1';
+                if (priceInp) priceInp.value = '';
+                if (totalDisp) totalDisp.textContent = '0 SDG';
+                if (window.showModernToast) window.showModernToast('✨ فتح فاتورة شراء وتوريد جديدة', 'success', 2000);
+            },
+            saveInvoice() {
+                const form = document.querySelector('#sheet-purchase form');
+                if (form) {
+                    if (form.requestSubmit) form.requestSubmit();
+                    else form.dispatchEvent(new Event('submit', { cancelable: true }));
+                }
+            },
+            editInvoice() {
+                triggerHaptic('medium');
+                const purchases = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_purchase_invoices_v1') || []) : [];
+                if (purchases.length === 0) {
+                    if (window.showModernToast) window.showModernToast('لا توجد فواتير شراء سابقة للتعديل', 'info', 2000);
+                    return;
+                }
+                const q = prompt('🔍 أدخل رقم فاتورة الشراء أو اسم المورد للتعديل:\nآخر فاتورة: ' + (purchases[0].invoiceNo || purchases[0].id));
+                if (!q || !q.trim()) return;
+                const p = purchases.find(x => `${x.invoiceNo || ''} ${x.id || ''} ${x.supplier || ''}`.toLowerCase().includes(q.trim().toLowerCase()));
+                if (p) {
+                    const qtyInp = document.getElementById('purchase-qty');
+                    const priceInp = document.getElementById('purchase-price');
+                    if (qtyInp && p.qty) qtyInp.value = p.qty;
+                    if (priceInp && p.price) priceInp.value = p.price;
+                    if (typeof calculatePurchaseTotal === 'function') calculatePurchaseTotal();
+                    if (window.showModernToast) window.showModernToast('✏️ تم استدعاء بيانات فاتورة الشراء للتعديل', 'warning', 2000);
+                } else {
+                    alert('لم يتم العثور على فاتورة شراء بهذا الرقم');
+                }
+            },
+            deleteInvoice() {
+                triggerHaptic('heavy');
+                if (!confirm('⚠️ هل أنت متأكد من إلغاء وتفريغ فاتورة الشراء الحالية؟')) return;
+                this.newInvoice();
+                if (window.showModernToast) window.showModernToast('🗑️ تم تفريغ فاتورة الشراء', 'success', 2000);
+            },
+            printInvoice() {
+                triggerHaptic('medium');
+                const totalDisp = document.getElementById('purchase-total-display')?.textContent || '0 SDG';
+                const supp = document.getElementById('purchase-supplier')?.value || 'مورد نقدي عام';
+                const item = document.getElementById('purchase-item');
+                const itemName = item && item.selectedIndex > 0 ? item.options[item.selectedIndex].text : 'صنف مشتريات';
+                const qty = document.getElementById('purchase-qty')?.value || '1';
+                const price = document.getElementById('purchase-price')?.value || '0';
+
+                const paper = document.getElementById('thermal-receipt-content');
+                if (!paper) return;
+                paper.innerHTML = `
+                    <div class="thermal-header">
+                        <h3>مؤسسة الصجانة التجارية</h3>
+                        <p>إذن توريد وفاتورة مشتريات مخزنية</p>
+                        <div class="thermal-divider"></div>
+                        <h4>فاتورة شراء بضاعة</h4>
+                        <p style="font-family:monospace; font-weight:900;">#PUR-${new Date().toISOString().slice(2,7).replace('-','')}-${Date.now().toString().slice(-4)}</p>
+                    </div>
+                    <div class="thermal-divider"></div>
+                    <div class="thermal-row"><span>المورد:</span><strong>${supp}</strong></div>
+                    <div class="thermal-row"><span>الصنف المورّد:</span><strong>${itemName}</strong></div>
+                    <div class="thermal-row"><span>الكمية:</span><span>${qty}</span></div>
+                    <div class="thermal-row"><span>سعر الوحدة:</span><span>${fmt(price)} SDG</span></div>
+                    <div class="thermal-divider"></div>
+                    <div class="thermal-total-row"><span>الإجمالي:</span><span>${totalDisp}</span></div>
+                    <div class="thermal-footer" style="margin-top:10px;">
+                        <p>توقيع أمين المستودع والمستلم</p>
+                        <div style="border-bottom:1px solid #000; height:30px;"></div>
+                    </div>
+                `;
+                openBottomSheet('sheet-receipt-print');
+            },
+            searchInvoice() {
+                this.editInvoice();
+            },
+            shareInvoice() {
+                const totalDisp = document.getElementById('purchase-total-display')?.textContent || '0 SDG';
+                const text = `📦 *فاتورة شراء وتوريد - مؤسسة السجانة*\nالمبلغ الإجمالي: ${totalDisp}\nالتاريخ: ${new Date().toLocaleDateString('ar-SD')}`;
+                window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
+            },
+            resetForm() {
+                this.newInvoice();
+            },
+            navigate(dir) {
+                this.editInvoice();
+            }
+        };
+
+        // ═════════════════════════════════════════════════════════════════
+        // ⚡ UNIVERSAL ACTION ENGINE (المحرك الموحد لجميع أزرار شاشات الجوال)
+        // [جديد] [حفظ] [تعديل] [حذف] [طباعة] [بحث] [مشاركة] [تراجع]
+        // ═════════════════════════════════════════════════════════════════
+        window.UniversalActionEngine = {
+            dispatch(action, screen) {
+                triggerHaptic('light');
+                switch(action) {
+                    case 'new':
+                        this.new(screen);
+                        break;
+                    case 'save':
+                        this.save(screen);
+                        break;
+                    case 'edit':
+                        this.edit(screen);
+                        break;
+                    case 'delete':
+                        this.delete(screen);
+                        break;
+                    case 'print':
+                        this.print(screen);
+                        break;
+                    case 'search':
+                        this.search(screen);
+                        break;
+                    case 'share':
+                        this.share(screen);
+                        break;
+                    case 'cancel':
+                        this.cancel(screen);
+                        break;
+                    case 'refresh':
+                        if (typeof refreshMobileData === 'function') refreshMobileData(true);
+                        break;
+                }
+            },
+
+            navigate(screen, direction) {
+                triggerHaptic('light');
+                if (screen === 'financial-tx') {
+                    if (direction === 'first') VoucherNavigator.first();
+                    else if (direction === 'prev') VoucherNavigator.prev();
+                    else if (direction === 'next') VoucherNavigator.next();
+                    else if (direction === 'last') VoucherNavigator.last();
+                } else if (screen === 'sale') {
+                    MobilePOS.navigate(direction);
+                } else if (screen === 'purchase') {
+                    PurchaseEngine.navigate(direction);
+                } else if (screen === 'stock-transfer') {
+                    if (direction === 'first' && typeof StockTransferEngine.loadTransferWaybill === 'function') StockTransferEngine.loadTransferWaybill(0);
+                    else if (direction === 'last' && typeof StockTransferEngine.loadTransferWaybill === 'function') StockTransferEngine.loadTransferWaybill(-1);
+                }
+            },
+
+            new(screen) {
+                if (screen === 'financial-tx') {
+                    openFinancialTxSheet('transfer');
+                    VoucherNavigator.newVoucher();
+                } else if (screen === 'sale') {
+                    openBottomSheet('sheet-sale');
+                    MobilePOS.newInvoice();
+                } else if (screen === 'purchase') {
+                    openBottomSheet('sheet-purchase');
+                    PurchaseEngine.newInvoice();
+                } else if (screen === 'stock-transfer') {
+                    openBottomSheet('sheet-stock-transfer');
+                    if (typeof StockTransferEngine.newTransfer === 'function') StockTransferEngine.newTransfer();
+                } else if (screen === 'item-audit') {
+                    openBottomSheet('sheet-item-audit');
+                } else if (screen === 'statement') {
+                    openFinancialTxSheet('transfer');
+                } else if (screen === 'transactions' || screen === 'dashboard') {
+                    openFinancialTxSheet('transfer');
+                    VoucherNavigator.newVoucher();
+                } else if (screen === 'ledgers') {
+                    openFinancialTxSheet('transfer');
+                } else if (screen === 'inventory') {
+                    openBottomSheet('sheet-purchase');
+                } else if (screen === 'approvals') {
+                    openBottomSheet('sheet-rule-settings');
+                }
+            },
+
+            save(screen) {
+                if (screen === 'financial-tx') {
+                    handleFinancialTxSubmit(null, false);
+                } else if (screen === 'sale') {
+                    MobilePOS.submitSale(false, false);
+                } else if (screen === 'purchase') {
+                    PurchaseEngine.saveInvoice();
+                } else if (screen === 'stock-transfer') {
+                    StockTransferEngine.saveDraft();
+                } else if (screen === 'item-audit') {
+                    InventoryEngine.submitAuditReconciliation();
+                } else if (screen === 'statement') {
+                    if (typeof LedgerEngine.openPdfStatementPreview === 'function') LedgerEngine.openPdfStatementPreview();
+                } else {
+                    if (window.DualNumberingEngine && typeof window.DualNumberingEngine.triggerSyncQueuePush === 'function') {
+                        window.DualNumberingEngine.triggerSyncQueuePush();
+                    } else if (typeof refreshMobileData === 'function') {
+                        refreshMobileData(true);
+                    }
+                    if (window.showModernToast) window.showModernToast('💾 جاري حفظ ومزامنة كافة السجلات مع السيرفر الحي...', 'success', 2200);
+                }
+            },
+
+            edit(screen) {
+                if (screen === 'financial-tx') {
+                    VoucherNavigator.enableEdit();
+                } else if (screen === 'sale') {
+                    MobilePOS.editInvoicePrompt();
+                } else if (screen === 'purchase') {
+                    PurchaseEngine.editInvoice();
+                } else if (screen === 'stock-transfer') {
+                    if (typeof StockTransferEngine.openTransferSheet === 'function') StockTransferEngine.openTransferSheet();
+                } else if (screen === 'item-audit') {
+                    const physicalInp = document.getElementById('audit-physical-input');
+                    if (physicalInp) { physicalInp.focus(); physicalInp.select(); }
+                } else if (screen === 'statement') {
+                    const sel = document.getElementById('statement-customer-select');
+                    if (sel) sel.focus();
+                } else if (screen === 'transactions') {
+                    if (M_TRANSACTIONS && M_TRANSACTIONS.length > 0) {
+                        this.editItem('transactions', M_TRANSACTIONS[0]);
+                    } else {
+                        if (window.showModernToast) window.showModernToast('لا توجد حركات للتعديل', 'info', 2000);
+                    }
+                } else if (screen === 'inventory') {
+                    InventoryEngine.openQuickAudit();
+                } else {
+                    if (window.showModernToast) window.showModernToast('✏️ حدد عنصراً لتعديله', 'info', 2000);
+                }
+            },
+
+            editItem(screen, item) {
+                if (!item) return;
+                triggerHaptic('medium');
+                const vNum = item.voucher_no || item.id || item.invoice_no;
+                openFinancialTxSheet('transfer');
+                setTimeout(() => {
+                    if (window.VoucherNavigator && Array.isArray(window.VoucherNavigator.vouchers)) {
+                        const idx = window.VoucherNavigator.vouchers.findIndex(v => (v.voucherNo || v.id) == vNum);
+                        if (idx >= 0) {
+                            window.VoucherNavigator.currentIndex = idx;
+                            window.VoucherNavigator.displayVoucher(idx);
+                        } else {
+                            window.VoucherNavigator.displayVoucherObject(item);
+                        }
+                        window.VoucherNavigator.enableEdit();
+                    }
+                }, 300);
+            },
+
+            delete(screen) {
+                if (screen === 'financial-tx') {
+                    VoucherNavigator.deleteCurrentVoucher();
+                } else if (screen === 'sale') {
+                    MobilePOS.deleteCurrentInvoice();
+                } else if (screen === 'purchase') {
+                    PurchaseEngine.deleteInvoice();
+                } else if (screen === 'stock-transfer') {
+                    if (typeof StockTransferEngine.resetBasket === 'function') StockTransferEngine.resetBasket();
+                } else if (screen === 'item-audit') {
+                    closeBottomSheet('sheet-item-audit');
+                } else if (screen === 'transactions') {
+                    if (M_TRANSACTIONS && M_TRANSACTIONS.length > 0) {
+                        this.deleteItem('transactions', M_TRANSACTIONS[0]);
+                    }
+                }
+            },
+
+            async deleteItem(screen, item) {
+                if (!item) return;
+                triggerHaptic('heavy');
+                const vNum = item.voucher_no || item.id;
+                const amt = item.amount || item.total || 0;
+                if (!confirm(`⚠️ هل أنت متأكد من حذف الحركة [${vNum}] بمبلغ [${fmt(amt)} SDG]؟ لا يمكن التراجع.`)) return;
+
+                try {
+                    await fetch('mobile-dashboard.php?action=delete_voucher', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ voucherNo: vNum, id: vNum })
+                    });
+                } catch(e) {
+                    console.warn(e);
+                }
+
+                ['erp_financial_txs_v1', 'erp_single_payments_v1', 'erp_single_receipts_v1', 'erp_sales_invoices_v1'].forEach(k => {
+                    if (typeof loadTenantArray === 'function' && typeof saveTenantArray === 'function') {
+                        let arr = loadTenantArray(k) || [];
+                        const origLen = arr.length;
+                        arr = arr.filter(x => (x.voucherNo || x.id || x.invoiceNo) != vNum);
+                        if (arr.length !== origLen) saveTenantArray(k, arr);
+                    }
+                });
+
+                if (typeof M_TRANSACTIONS !== 'undefined' && Array.isArray(M_TRANSACTIONS)) {
+                    const idx = M_TRANSACTIONS.findIndex(x => (x.voucher_no || x.id) == vNum);
+                    if (idx >= 0) M_TRANSACTIONS.splice(idx, 1);
+                }
+
+                if (window.VoucherNavigator && typeof window.VoucherNavigator.loadVouchers === 'function') {
+                    window.VoucherNavigator.loadVouchers();
+                }
+
+                if (typeof renderTransactionsView === 'function') renderTransactionsView();
+                if (window.showModernToast) window.showModernToast(`🗑️ تم حذف الحركة [${vNum}] بنجاح`, 'success', 2200);
+            },
+
+            print(screen) {
+                if (screen === 'financial-tx') {
+                    VoucherNavigator.printCurrentVoucher();
+                } else if (screen === 'sale') {
+                    MobilePOS.printThermalDirect();
+                } else if (screen === 'purchase') {
+                    PurchaseEngine.printInvoice();
+                } else if (screen === 'stock-transfer') {
+                    StockTransferEngine.printThermalWaybill();
+                } else if (screen === 'item-audit') {
+                    const itemName = document.getElementById('audit-item-name')?.textContent || 'صنف';
+                    const sku = document.getElementById('audit-item-sku')?.textContent || 'SKU';
+                    const stock = document.getElementById('audit-system-stock')?.textContent || '0';
+                    alert(`🖨️ طباعة بطاقة الصنف:\n${itemName} (${sku})\nالرصيد: ${stock}`);
+                } else if (screen === 'statement') {
+                    if (typeof LedgerEngine.openPdfStatementPreview === 'function') LedgerEngine.openPdfStatementPreview();
+                } else if (screen === 'transactions') {
+                    UniversalPrintEngine.printTransactionsReport();
+                } else {
+                    window.print();
+                }
+            },
+
+            printItem(screen, item) {
+                if (!item) return;
+                UniversalPrintEngine.printVoucher(item);
+            },
+
+            search(screen) {
+                if (screen === 'financial-tx') {
+                    VoucherNavigator.searchPrompt();
+                } else if (screen === 'sale') {
+                    MobilePOS.searchInvoice();
+                } else if (screen === 'purchase') {
+                    PurchaseEngine.searchInvoice();
+                } else if (screen === 'transactions') {
+                    const inp = document.getElementById('tx-view-search-input');
+                    if (inp) { inp.focus(); inp.scrollIntoView({ behavior: 'smooth' }); }
+                } else if (screen === 'inventory') {
+                    const inp = document.getElementById('inventory-search-input');
+                    if (inp) { inp.focus(); inp.scrollIntoView({ behavior: 'smooth' }); }
+                } else if (screen === 'ledgers') {
+                    const inp = document.getElementById('picker-search-input') || document.getElementById('statement-customer-select');
+                    if (inp) { inp.focus(); }
+                } else {
+                    openBottomSheet('sheet-global-search');
+                }
+            },
+
+            share(screen) {
+                if (screen === 'financial-tx') {
+                    handleTxWhatsAppShareClick();
+                } else if (screen === 'sale') {
+                    MobilePOS.shareThermalWhatsApp();
+                } else if (screen === 'purchase') {
+                    PurchaseEngine.shareInvoice();
+                } else if (screen === 'stock-transfer') {
+                    StockTransferEngine.shareWaybillWhatsApp();
+                } else if (screen === 'statement') {
+                    const sel = document.getElementById('statement-customer-select');
+                    if (sel && sel.value && typeof sendStatementWhatsApp === 'function') {
+                        sendStatementWhatsApp();
+                    } else {
+                        if (window.showModernToast) window.showModernToast('اختر عميلاً أولاً لمشاركة كشف الحساب', 'info', 2000);
+                    }
+                } else {
+                    if (navigator.share) {
+                        navigator.share({
+                            title: 'مقاييس ERP - تقرير سريع',
+                            text: 'تقرير العمليات الميدانية - مؤسسة السجانة التجارية',
+                            url: window.location.href
+                        }).catch(() => {});
+                    } else {
+                        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('تقرير مقاييس ERP: ' + window.location.href), '_blank');
+                    }
+                }
+            },
+
+            cancel(screen) {
+                if (screen === 'financial-tx') {
+                    VoucherNavigator.cancelEdit();
+                } else if (screen === 'sale') {
+                    MobilePOS.clearCart();
+                } else if (screen === 'purchase') {
+                    PurchaseEngine.resetForm();
+                } else if (screen === 'stock-transfer') {
+                    if (typeof StockTransferEngine.resetBasket === 'function') StockTransferEngine.resetBasket();
+                } else if (screen === 'item-audit') {
+                    closeBottomSheet('sheet-item-audit');
+                }
+            }
+        };
     </script>
 </body>
 </html>

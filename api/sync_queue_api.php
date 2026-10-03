@@ -257,7 +257,53 @@ try {
                     (isset($payloadObj['auditNo']) && strpos($payloadObj['auditNo'], 'AUD-') === 0)
                 );
 
-                try {
+                if ($operation === 'DELETE') {
+                    try {
+                        if ($isReceipt) {
+                            $stmtDel = $pdo->prepare("DELETE FROM single_receipts WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                            $stmtDel->execute([$tenantId, $recordId, $recordId]);
+                        } elseif ($isPayment) {
+                            $stmtDel = $pdo->prepare("DELETE FROM single_payments WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                            $stmtDel->execute([$tenantId, $recordId, $recordId]);
+                        } elseif ($isSale) {
+                            $stmtDel = $pdo->prepare("DELETE FROM sales_invoices WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                            $stmtDel->execute([$tenantId, $recordId, $recordId]);
+                        } elseif ($isPurchase) {
+                            $stmtDel = $pdo->prepare("DELETE FROM purchase_invoices WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                            $stmtDel->execute([$tenantId, $recordId, $recordId]);
+                        } elseif ($isTransfer || $isAudit) {
+                            $stmtDel = $pdo->prepare("DELETE FROM stock_transfers WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.transferNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.auditNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                            $stmtDel->execute([$tenantId, $recordId, $recordId, $recordId]);
+                        }
+                    } catch (Exception $delEx) {}
+                    $officialCloudId = 'DELETED-' . $recordId;
+                    $payloadObj['sync_status'] = 'DELETED';
+                    $payloadObj['official_server_id'] = $officialCloudId;
+                } elseif ($operation === 'UPDATE') {
+                    try {
+                        $upData = json_encode($payloadObj, JSON_UNESCAPED_UNICODE);
+                        if ($isReceipt) {
+                            $stmtUp = $pdo->prepare("UPDATE single_receipts SET data = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                            $stmtUp->execute([$upData, $tenantId, $recordId, $recordId]);
+                        } elseif ($isPayment) {
+                            $stmtUp = $pdo->prepare("UPDATE single_payments SET data = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                            $stmtUp->execute([$upData, $tenantId, $recordId, $recordId]);
+                        } elseif ($isSale) {
+                            $stmtUp = $pdo->prepare("UPDATE sales_invoices SET data = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                            $stmtUp->execute([$upData, $tenantId, $recordId, $recordId]);
+                        } elseif ($isPurchase) {
+                            $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET data = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                            $stmtUp->execute([$upData, $tenantId, $recordId, $recordId]);
+                        } elseif ($isTransfer || $isAudit) {
+                            $stmtUp = $pdo->prepare("UPDATE stock_transfers SET data = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.transferNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.auditNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                            $stmtUp->execute([$upData, $tenantId, $recordId, $recordId, $recordId]);
+                        }
+                    } catch (Exception $upEx) {}
+                    $officialCloudId = $recordId;
+                    $payloadObj['sync_status'] = 'SYNCED';
+                    $payloadObj['official_server_id'] = $officialCloudId;
+                } else {
+                    try {
                     if ($isReceipt) {
                         // 1. سند استلام / قبض نقدي أو بنكي (single_receipts)
                         $pfx = 'R' . date('ym');
@@ -415,6 +461,7 @@ try {
                     }
                 } catch (Exception $domEx) {
                     $officialCloudId = $officialCloudId ?: ('#' . (10000 + (abs(crc32($id)) % 89999)));
+                    }
                 }
             }
 
