@@ -984,21 +984,22 @@ try {
         /* Narrow screen adaptive button sizing (< 390px) */
         @media (max-width: 390px) {
             .mobile-header {
-                padding-left: 8px !important;
-                padding-right: 8px !important;
-                gap: 6px !important;
+                padding-left: 6px !important;
+                padding-right: 6px !important;
+                gap: 4px !important;
             }
             .header-actions {
                 gap: 4px !important;
             }
             .header-icon-btn {
-                width: 38px !important;
-                height: 38px !important;
-                min-width: 38px !important;
-                min-height: 38px !important;
+                width: 34px !important;
+                height: 34px !important;
+                min-width: 34px !important;
+                min-height: 34px !important;
+                font-size: 0.86rem !important;
             }
             .btn-switch-desktop {
-                padding: 6px 8px !important;
+                padding: 6px 7px !important;
                 font-size: 0.72rem !important;
             }
             .btn-switch-desktop span {
@@ -2631,6 +2632,34 @@ try {
         @keyframes badgePulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.15); }
+        }
+
+        /* 🔕 Mute Explanatory Toasts Button (Focus Mode) */
+        .header-icon-btn.btn-toast-mute {
+            position: relative;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .header-icon-btn.btn-toast-mute.mute-active {
+            background: rgba(245, 158, 11, 0.16) !important;
+            border-color: rgba(245, 158, 11, 0.6) !important;
+            color: #f59e0b !important;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);
+        }
+        .header-icon-btn.btn-toast-mute .mute-status-dot {
+            position: absolute;
+            bottom: 4px;
+            left: 4px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #f59e0b;
+            box-shadow: 0 0 6px #f59e0b;
+            border: 1px solid var(--bg-base);
+            display: none;
+        }
+        .header-icon-btn.btn-toast-mute.mute-active .mute-status-dot {
+            display: block;
+            animation: badgePulse 2s infinite ease-in-out;
         }
 
         /* 3. Dynamic Alert Snap Carousel (Thumb-Zone Compact Banner) */
@@ -4874,6 +4903,11 @@ try {
             <button type="button" onclick="cycleQuickTheme()" oncontextmenu="event.preventDefault(); openBottomSheet('sheet-theme');" class="header-icon-btn" title="تبديل السمة السريع (7 سمات متكيفة)">
                 <i class="fa-solid fa-palette text-amber-400" id="current-theme-icon"></i>
                 <span class="theme-dot" id="current-theme-dot"></span>
+            </button>
+            <!-- 🔕 Focus Mode: Mute Explanatory Toasts Button -->
+            <button type="button" id="btn-toggle-toast-mute" onclick="toggleMuteToasts()" class="header-icon-btn btn-toast-mute" title="إيقاف الإشعارات التوضيحية أثناء العمل">
+                <i class="fa-solid fa-bell-slash" id="toast-mute-icon"></i>
+                <span class="mute-status-dot" id="toast-mute-dot"></span>
             </button>
             <!-- 🔔 Smart Notification / Alert Center Bell with live counter -->
             <button type="button" onclick="switchMobileTab('approvals')" class="header-icon-btn notif-bell-btn" title="مركز تنبيهات وقواعد الأعمال">
@@ -7926,6 +7960,46 @@ try {
             document.documentElement.setAttribute('data-theme', savedTheme);
             document.body.setAttribute('data-theme', savedTheme);
             updateThemeUI(savedTheme);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 🔕 FOCUS MODE / MUTE EXPLANATORY TOASTS ENGINE
+        // ═════════════════════════════════════════════════════════════════
+        function isToastsMuted() {
+            return localStorage.getItem('magaiees_mute_toasts') === 'true';
+        }
+
+        function toggleMuteToasts(silent = false) {
+            triggerHaptic('medium');
+            const next = !isToastsMuted();
+            localStorage.setItem('magaiees_mute_toasts', next ? 'true' : 'false');
+            window.magaieesToastsMuted = next;
+            updateMuteToastsUI(next);
+            if (!silent && window.showModernToast) {
+                if (next) {
+                    window.showModernToast('🔕 تم إيقاف الإشعارات التوضيحية لسرعة العمل', 'warning', 2500, { force: true });
+                } else {
+                    window.showModernToast('🔔 تم استئناف الإشعارات التوضيحية', 'info', 2000, { force: true });
+                }
+            }
+        }
+
+        function updateMuteToastsUI(isMuted) {
+            const btn = document.getElementById('btn-toggle-toast-mute');
+            const icon = document.getElementById('toast-mute-icon');
+            const dot = document.getElementById('toast-mute-dot');
+            if (!btn) return;
+            if (isMuted) {
+                btn.classList.add('mute-active');
+                btn.title = 'الإشعارات التوضيحية متوقفة أثناء العمل — اضغط للتفعيل';
+                if (icon) { icon.style.color = '#f59e0b'; icon.style.opacity = '1'; }
+                if (dot) dot.style.display = 'block';
+            } else {
+                btn.classList.remove('mute-active');
+                btn.title = 'إيقاف الإشعارات التوضيحية أثناء العمل';
+                if (icon) { icon.style.color = 'var(--text-muted)'; icon.style.opacity = '0.55'; }
+                if (dot) dot.style.display = 'none';
+            }
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -16371,6 +16445,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         // Initialize on DOM load
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
+            updateMuteToastsUI(isToastsMuted());
+            window.magaieesToastsMuted = isToastsMuted();
             runLiveHardwareCalibration(false);
             if (typeof calibrateMobileScreen === 'function') calibrateMobileScreen(false);
             setupFluidKeyboardViewport();

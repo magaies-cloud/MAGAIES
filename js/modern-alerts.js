@@ -479,6 +479,15 @@
     function showModernToast(message, type = 'success', duration = 3800, options = {}) {
         if (!message) return;
         if (typeof document === 'undefined') return;
+
+        // 🔕 Focus Mode / Mute Explanatory Toasts Engine
+        // When muted by the user, suppress toast overlays so they do not obstruct active work
+        const isMuted = (typeof window !== 'undefined' && window.magaieesToastsMuted === true) || 
+                        (typeof localStorage !== 'undefined' && localStorage.getItem('magaiees_mute_toasts') === 'true');
+        if (isMuted && !options.force && type !== 'error' && type !== 'danger') {
+            return;
+        }
+
         const container = getToastContainer();
         const meta = getToastMeta(type);
 
