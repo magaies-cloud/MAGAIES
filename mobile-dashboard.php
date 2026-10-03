@@ -2753,12 +2753,28 @@ try {
         }
         .micro-kpi-val {
             font-family: 'Inter', sans-serif;
-            font-size: 1.28rem;
-            font-weight: 900;
-            letter-spacing: -0.5px;
             margin: 4px 0 2px 0;
             line-height: 1.15;
             color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .micro-kpi-amt-local {
+            font-size: 1.18rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+            white-space: nowrap;
+        }
+        .micro-kpi-amt-foreign {
+            font-size: 0.74rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 2px;
+            padding: 1px 6px;
+            border-radius: 6px;
+            width: fit-content;
         }
         .micro-kpi-sub {
             font-size: 0.7rem;
@@ -4839,7 +4855,7 @@ try {
             </div>
         </div>
         <button type="button" class="btn-install-magaiees-action" onclick="PWAManager.triggerInstall()" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; border-radius:12px; padding:8px 12px; font-size:0.76rem; font-weight:900; cursor:pointer; font-family:inherit; white-space:normal; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px; max-width:100%; box-sizing:border-box;">
-            <i class="fa-solid fa-download"></i> 📲 تثبيت تطبيق مقاييس على الجوال
+            <i class="fa-solid fa-download"></i> 📲 تثبيت تطبيق مقاييس
         </button>
     </div>
 
@@ -4847,18 +4863,7 @@ try {
          VIEW CONTAINER 1: 📊 DASHBOARD (الرئيسية)
          ═════════════════════════════════════════════════════════════════ -->
     <div class="view-container active" id="view-dashboard">
-        <!-- B. Dynamic Alert Feed (Snap Carousel Banner) -->
-        <div class="alert-feed-wrapper" id="dashboard-alert-feed">
-            <div class="alert-feed-header">
-                <span><i class="fa-solid fa-bolt-lightning text-amber-400"></i> تنبيهات قواعد الأعمال اللحظية</span>
-                <span onclick="switchMobileTab('approvals')" style="color:var(--primary); cursor:pointer; font-size:0.75rem; font-weight:800;">عرض الكل (<span id="alert-total-count">4</span>) ‹</span>
-            </div>
-            <div class="alert-snap-carousel" id="alert-carousel-container">
-                <!-- Dynamically Rendered Rule Violation Cards (Type A, B, C, D) -->
-            </div>
-        </div>
-
-        <!-- C. Executive Micro-KPI Cards (2x2 Grid) -->
+        <!-- C. Executive Micro-KPI Cards (2x2 Grid) with Dual Currency (SDG + USD) -->
         <div class="micro-kpi-grid">
             <!-- 1. Net Sales Today -->
             <div class="micro-kpi-card" onclick="switchMobileTab('transactions')" style="border-inline-start: 3.5px solid var(--primary);">
@@ -4867,7 +4872,8 @@ try {
                     <span style="font-size:0.78rem; background:rgba(56,189,248,0.15); color:var(--primary); padding:1px 6px; border-radius:6px; font-weight:900;" id="kpi-sales-pct">+14.8% ↗</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-sales-val" style="color:var(--primary);">
-                    0 <small style="font-size:0.7rem;">SDG</small>
+                    <div class="micro-kpi-amt-local">0 <small style="font-size:0.68rem;">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.12); color:var(--primary);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:var(--text-muted);">
                     <i class="fa-solid fa-clock-rotate-left"></i> <span id="micro-sales-count">0 فاتورة</span>
@@ -4881,10 +4887,11 @@ try {
                     <span style="font-size:0.78rem; background:rgba(16,185,129,0.15); color:var(--emerald); padding:1px 6px; border-radius:6px; font-weight:900;">خزن وبنوك</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-cash-val" style="color:var(--emerald);">
-                    0 <small style="font-size:0.7rem;">SDG</small>
+                    <div class="micro-kpi-amt-local">0 <small style="font-size:0.68rem;">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(16,185,129,0.12); color:var(--emerald);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:var(--text-muted);">
-                    <i class="fa-solid fa-building-columns"></i> <span id="micro-vaults-count">3 خزن / بنوك</span>
+                    <i class="fa-solid fa-building-columns"></i> <span id="micro-vaults-count">0 خزن وبنوك</span>
                 </div>
             </div>
 
@@ -4895,10 +4902,11 @@ try {
                     <span style="font-size:0.78rem; background:rgba(244,63,94,0.15); color:var(--rose); padding:1px 6px; border-radius:6px; font-weight:900;">مستحقات</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-receivables-val" style="color:var(--rose);">
-                    0 <small style="font-size:0.7rem;">SDG</small>
+                    <div class="micro-kpi-amt-local">0 <small style="font-size:0.68rem;">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(244,63,94,0.12); color:var(--rose);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:#ef4444;">
-                    <i class="fa-solid fa-triangle-exclamation"></i> <span id="micro-overdue-val">سداد متأخر</span>
+                    <i class="fa-solid fa-triangle-exclamation"></i> <span id="micro-overdue-val">سداد منتظم</span>
                 </div>
             </div>
 
@@ -4909,10 +4917,11 @@ try {
                     <span style="font-size:0.78rem; background:rgba(245,158,11,0.15); color:var(--amber); padding:1px 6px; border-radius:6px; font-weight:900;" id="micro-stock-items-count">0 صنف</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-inventory-val" style="color:var(--amber);">
-                    0 <small style="font-size:0.7rem;">SDG</small>
+                    <div class="micro-kpi-amt-local">0 <small style="font-size:0.68rem;">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(245,158,11,0.12); color:var(--amber);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:var(--text-muted);">
-                    <i class="fa-solid fa-circle-exclamation text-amber-400"></i> <span id="micro-critical-stock-count">0 نواقص حرجة</span>
+                    <i class="fa-solid fa-circle-exclamation text-amber-400"></i> <span id="micro-critical-stock-count">0 نواقص</span>
                 </div>
             </div>
         </div>
@@ -4922,11 +4931,11 @@ try {
             <div class="mode-segmented-pill">
                 <button type="button" id="tab-btn-operations" class="mode-tab-btn active" onclick="switchMobileMode('operations')">
                     <i class="fa-solid fa-bolt"></i>
-                    <span>⚡ العمليات السريعة</span>
+                    <span>⚡ العمليات</span>
                 </button>
                 <button type="button" id="tab-btn-analytics" class="mode-tab-btn" onclick="switchMobileMode('analytics')">
                     <i class="fa-solid fa-chart-pie"></i>
-                    <span>📊 التقارير الذكية</span>
+                    <span>📊 التقارير</span>
                 </button>
             </div>
         </div>
@@ -4939,7 +4948,7 @@ try {
         <div class="liquidity-card">
             <div class="liquidity-top">
                 <span class="liquidity-title">
-                    <i class="fa-solid fa-wallet text-sky-400"></i> إجمالي السيولة النقدية والبنكية اللحظية
+                    <i class="fa-solid fa-wallet text-sky-400"></i> إجمالي السيولة
                 </span>
                 <span style="font-size:0.75rem; background:rgba(16,185,129,0.18); border:1px solid #10b981; color:#10b981; padding:2px 8px; border-radius:20px; font-weight:800;">
                     مباشر ⚡
@@ -4956,7 +4965,6 @@ try {
         <!-- Power Quick Actions (العمليات السريعة) -->
         <div class="section-heading">
             <span>⚡ العمليات السريعة</span>
-            <small style="color:var(--text-muted); font-size:0.75rem;">لمسة واحدة للتنفيذ</small>
         </div>
         <div class="actions-operations-grid">
             <!-- 1. Quick Financial Movement (حركة مالية - قيد مزدوج) -->
@@ -4966,7 +4974,7 @@ try {
                 </div>
                 <div class="hero-btn-content">
                     <div class="action-title">حركة مالية</div>
-                    <div class="action-subtitle">من حساب إلى حساب (دائن / مدين)</div>
+                    <div class="action-subtitle">تحويل مباشر</div>
                 </div>
                 <div class="hero-btn-actions">
                     <button type="button" class="btn-ai-chip" onclick="event.stopPropagation(); openBottomSheet('sheet-ai-slip');" title="تفريغ إشعار بالذكاء الاصطناعي">
@@ -4982,7 +4990,7 @@ try {
                 </div>
                 <div>
                     <div class="action-title">فاتورة بيع</div>
-                    <div class="action-subtitle">بيع فوري + واتساب</div>
+                    <div class="action-subtitle">نقد / آجل</div>
                 </div>
             </div>
 
@@ -4993,18 +5001,9 @@ try {
                 </div>
                 <div>
                     <div class="action-title">فاتورة شراء</div>
-                    <div class="action-subtitle">توريد بضاعة ومشتريات</div>
+                    <div class="action-subtitle">توريد مخزني</div>
                 </div>
             </div>
-        </div>
-
-        <!-- Real Recent Activity Feed -->
-        <div class="section-heading">
-            <span>🕒 سجل العمليات المباشرة (اليوم)</span>
-            <small id="mobile-tx-count" style="color:var(--text-muted); font-size:0.75rem;">0 حركة</small>
-        </div>
-        <div id="mobile-activity-feed">
-            <!-- Dynamic Feed Loaded Here -->
         </div>
     </main>
 
@@ -8262,19 +8261,19 @@ try {
             const bnavAn = document.getElementById('bnav-analytics');
 
             if (mode === 'operations') {
-                opBtn.classList.add('active');
-                anBtn.classList.remove('active');
-                opSec.style.display = 'block';
-                anSec.style.display = 'none';
-                bnavOp.classList.add('active');
-                bnavAn.classList.remove('active');
+                if (opBtn) opBtn.classList.add('active');
+                if (anBtn) anBtn.classList.remove('active');
+                if (opSec) opSec.style.display = 'block';
+                if (anSec) anSec.style.display = 'none';
+                if (bnavOp) bnavOp.classList.add('active');
+                if (bnavAn) bnavAn.classList.remove('active');
             } else {
-                anBtn.classList.add('active');
-                opBtn.classList.remove('active');
-                anSec.style.display = 'block';
-                opSec.style.display = 'none';
-                bnavAn.classList.add('active');
-                bnavOp.classList.remove('active');
+                if (anBtn) anBtn.classList.add('active');
+                if (opBtn) opBtn.classList.remove('active');
+                if (anSec) anSec.style.display = 'block';
+                if (opSec) opSec.style.display = 'none';
+                if (bnavAn) bnavAn.classList.add('active');
+                if (bnavOp) bnavOp.classList.remove('active');
                 renderAnalyticsKPIs();
             }
         }
@@ -8747,13 +8746,17 @@ try {
         function renderLiquidityDisplay() {
             let total = 0;
             let vaultsHtml = '';
+            const rate = getDollarExchangeRate();
+            const toUSD = (amt) => rate > 0 ? Math.round(amt / rate) : 0;
+
             if (M_VAULTS.length > 0) {
                 M_VAULTS.forEach(v => {
                     total += v.amount;
+                    const vUsd = toUSD(v.amount);
                     vaultsHtml += `
                         <div class="vault-item">
                             <span class="vault-name">🏦 ${v.name}</span>
-                            <span class="vault-amt">${fmt(v.amount)} SDG</span>
+                            <span class="vault-amt">${fmt(v.amount)} SDG <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">(≈ $${fmt(vUsd)})</span></span>
                         </div>
                     `;
                 });
@@ -8761,16 +8764,21 @@ try {
                 vaultsHtml = `
                     <div class="vault-item">
                         <span class="vault-name">💵 الخزينة</span>
-                        <span class="vault-amt">0 SDG</span>
+                        <span class="vault-amt">0 SDG <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">(≈ $0)</span></span>
                     </div>
                     <div class="vault-item">
                         <span class="vault-name">🏦 بنكك</span>
-                        <span class="vault-amt">0 SDG</span>
+                        <span class="vault-amt">0 SDG <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">(≈ $0)</span></span>
                     </div>
                 `;
             }
-            document.getElementById('mobile-total-liquidity').innerHTML = fmt(total) + ' <small>SDG</small>';
-            document.getElementById('mobile-vaults-container').innerHTML = vaultsHtml;
+            const totalUsd = toUSD(total);
+            const liqEl = document.getElementById('mobile-total-liquidity');
+            if (liqEl) {
+                liqEl.innerHTML = `${fmt(total)} <small style="font-size:0.85rem;">SDG</small> <span style="font-size:0.82rem; margin-inline-start:8px; background:rgba(56,189,248,0.18); color:var(--primary); padding:2px 8px; border-radius:8px; font-weight:900; display:inline-flex; align-items:center; vertical-align:middle;">≈ $${fmt(totalUsd)}</span>`;
+            }
+            const vContainer = document.getElementById('mobile-vaults-container');
+            if (vContainer) vContainer.innerHTML = vaultsHtml;
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -8811,18 +8819,34 @@ try {
                 localSales.forEach(inv => salesToday += parseFloat(inv.total || 0));
                 salesCount = M_TRANSACTIONS.length + localSales.length;
             }
+
+            const rate = getDollarExchangeRate();
+            const toUSD = (amt) => rate > 0 ? Math.round(amt / rate) : 0;
+
             const sVal = document.getElementById('micro-sales-val');
-            if (sVal) sVal.innerHTML = `${fmt(salesToday)} <small style="font-size:0.7rem;">SDG</small>`;
+            if (sVal) {
+                const usd = toUSD(salesToday);
+                sVal.innerHTML = `
+                    <div class="micro-kpi-amt-local">${fmt(salesToday)} <small style="font-size:0.68rem;">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.12); color:var(--primary);">≈ $${fmt(usd)}</div>
+                `;
+            }
             const sCnt = document.getElementById('micro-sales-count');
-            if (sCnt) sCnt.innerText = `${salesCount} مبيعات اليوم (محلي + سحابي)`;
+            if (sCnt) sCnt.innerText = `${salesCount} فاتورة`;
 
             // 2. Combined Liquid Cash (Vaults + Banks)
             let cashTotal = 0;
             M_VAULTS.forEach(v => { cashTotal += parseFloat(v.amount || 0); });
             const cVal = document.getElementById('micro-cash-val');
-            if (cVal) cVal.innerHTML = `${fmt(cashTotal)} <small style="font-size:0.7rem;">SDG</small>`;
+            if (cVal) {
+                const usd = toUSD(cashTotal);
+                cVal.innerHTML = `
+                    <div class="micro-kpi-amt-local">${fmt(cashTotal)} <small style="font-size:0.68rem;">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(16,185,129,0.12); color:var(--emerald);">≈ $${fmt(usd)}</div>
+                `;
+            }
             const vCnt = document.getElementById('micro-vaults-count');
-            if (vCnt) vCnt.innerText = `${M_VAULTS.length} خزن وحسابات بنكية`;
+            if (vCnt) vCnt.innerText = `${M_VAULTS.length} خزن وبنوك`;
 
             // 3. Outstanding Receivables (Total Debt + Overdue)
             let debtTotal = 0;
@@ -8831,9 +8855,15 @@ try {
                 if (b > 0) debtTotal += b;
             });
             const rVal = document.getElementById('micro-receivables-val');
-            if (rVal) rVal.innerHTML = `${fmt(debtTotal)} <small style="font-size:0.7rem;">SDG</small>`;
+            if (rVal) {
+                const usd = toUSD(debtTotal);
+                rVal.innerHTML = `
+                    <div class="micro-kpi-amt-local">${fmt(debtTotal)} <small style="font-size:0.68rem;">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(244,63,94,0.12); color:var(--rose);">≈ $${fmt(usd)}</div>
+                `;
+            }
             const oVal = document.getElementById('micro-overdue-val');
-            if (oVal) oVal.innerText = debtTotal > 0 ? `${fmt(debtTotal * 0.35)} SDG متأخر` : 'سداد منتظم 100%';
+            if (oVal) oVal.innerText = debtTotal > 0 ? `${fmt(debtTotal * 0.35)} SDG متأخر` : 'سداد منتظم';
 
             // 4. Inventory Valuation Snapshot
             let stockVal = 0;
@@ -8845,13 +8875,19 @@ try {
                 if (q <= (RuleAlertEngine?.rules?.safetyStockUnits || 15)) criticalCount++;
             });
             const iVal = document.getElementById('micro-inventory-val');
-            if (iVal) iVal.innerHTML = `${fmt(stockVal)} <small style="font-size:0.7rem;">SDG</small>`;
+            if (iVal) {
+                const usd = toUSD(stockVal);
+                iVal.innerHTML = `
+                    <div class="micro-kpi-amt-local">${fmt(stockVal)} <small style="font-size:0.68rem;">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(245,158,11,0.12); color:var(--amber);">≈ $${fmt(usd)}</div>
+                `;
+            }
             const iCnt = document.getElementById('micro-stock-items-count');
             if (iCnt) iCnt.innerText = `${M_ITEMS.length} صنف`;
             const critCnt = document.getElementById('micro-critical-stock-count');
-            if (critCnt) critCnt.innerText = `${criticalCount} نواقص حرجة`;
+            if (critCnt) critCnt.innerText = `${criticalCount} نواقص`;
             const invGrand = document.getElementById('inventory-grand-total');
-            if (invGrand) invGrand.innerHTML = `${fmt(stockVal)} <small style="font-size:0.8rem;">SDG</small>`;
+            if (invGrand) invGrand.innerHTML = `${fmt(stockVal)} <small style="font-size:0.8rem;">SDG</small> <span style="font-size:0.8rem; margin-inline-start:6px; color:var(--text-muted); font-weight:700;">(≈ $${fmt(toUSD(stockVal))})</span>`;
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -11985,7 +12021,8 @@ try {
                 });
             });
 
-            document.getElementById('mobile-tx-count').innerText = `${txs.length} حركة مسجلة`;
+            const txCntEl = document.getElementById('mobile-tx-count');
+            if (txCntEl) txCntEl.innerText = `${txs.length} حركة مسجلة`;
 
             let feedHtml = '';
             if (txs.length === 0) {
@@ -12036,7 +12073,8 @@ try {
                     `;
                 });
             }
-            document.getElementById('mobile-activity-feed').innerHTML = feedHtml;
+            const actFeedEl = document.getElementById('mobile-activity-feed');
+            if (actFeedEl) actFeedEl.innerHTML = feedHtml;
         }
 
         // WhatsApp Share Helper
@@ -15540,10 +15578,18 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (rList.length) receipts = rList.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
             if (pList.length) payments = pList.reduce((a, b) => a + (parseFloat(b.amount) || 0), 0);
 
-            document.getElementById('kpi-today-sales').innerText = fmt(sales);
-            document.getElementById('kpi-today-receipts').innerText = fmt(receipts);
-            document.getElementById('kpi-today-payments').innerText = fmt(payments);
-            document.getElementById('kpi-today-net').innerText = fmt(receipts - payments);
+            const rate = getDollarExchangeRate();
+            const toUSD = (amt) => rate > 0 ? Math.round(amt / rate) : 0;
+
+            const sEl = document.getElementById('kpi-today-sales');
+            if (sEl) sEl.innerHTML = `${fmt(sales)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">≈ $${fmt(toUSD(sales))}</small>`;
+            const rEl = document.getElementById('kpi-today-receipts');
+            if (rEl) rEl.innerHTML = `${fmt(receipts)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">≈ $${fmt(toUSD(receipts))}</small>`;
+            const pEl = document.getElementById('kpi-today-payments');
+            if (pEl) pEl.innerHTML = `${fmt(payments)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">≈ $${fmt(toUSD(payments))}</small>`;
+            const nEl = document.getElementById('kpi-today-net');
+            const netVal = receipts - payments;
+            if (nEl) nEl.innerHTML = `${fmt(netVal)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">≈ $${fmt(toUSD(netVal))}</small>`;
 
             // Populate statement select in smart reports
             populateReportStatementSelect();
