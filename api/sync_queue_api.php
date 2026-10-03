@@ -116,6 +116,21 @@ try {
                 ':created_at' => $createdAt
             ]);
 
+            // Also persist directly into domain tables for immediate desktop & reports visibility
+            try {
+                $tenantId = intval($reqData['tenant_id'] ?? 1);
+                $entLower = strtolower($entityName);
+                if (strpos($entLower, 'voucher') !== false || strpos($entLower, 'payment') !== false || strpos($entLower, 'receipt') !== false || strpos($entLower, 'tx') !== false) {
+                    $stmtDom = $pdo->prepare("INSERT INTO single_payments (tenant_id, data) VALUES (?, ?)");
+                    $stmtDom->execute([$tenantId, $payload]);
+                } elseif (strpos($entLower, 'sale') !== false || $entLower === 'invoices') {
+                    $stmtDom = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, data) VALUES (?, ?)");
+                    $stmtDom->execute([$tenantId, $payload]);
+                }
+            } catch (Exception $domEx) {
+                // sync_queue remains the primary log if schema differs
+            }
+
             $serverId = 'CENTRAL-' . strtoupper(str_replace(' ', '_', $entityName)) . '-' . ($recordId ?: strtoupper(substr(md5($id), 0, 6)));
             $officialCloudId = '#' . (10000 + (abs(crc32($id)) % 89999));
             $results[] = [

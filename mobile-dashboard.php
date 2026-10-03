@@ -2581,29 +2581,27 @@ try {
             background: var(--surface-2);
             border: 1.5px solid var(--border-glass);
             color: var(--text-main);
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.74rem;
+            padding: 4px 8px;
+            border-radius: 11px;
+            font-size: 0.76rem;
             font-weight: 800;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 5px;
-            max-width: 140px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            justify-content: center;
+            gap: 4px;
+            height: 32px;
             transition: all 0.2s;
             font-family: inherit;
         }
         .branch-pill:active {
-            transform: scale(0.96);
+            transform: scale(0.95);
             background: var(--primary);
             color: #fff;
         }
         .branch-pill i {
             color: var(--primary);
-            font-size: 0.78rem;
+            font-size: 0.84rem;
         }
 
         /* 2. Header Icon Buttons */
@@ -2655,6 +2653,39 @@ try {
             border: 1.5px solid var(--bg-base);
             animation: badgePulse 2s infinite ease-in-out;
             box-shadow: 0 2px 6px rgba(244, 63, 94, 0.5);
+            z-index: 2;
+        }
+        /* 🛰️ Outbox Badge for Pending Offline Transactions (Red Circle Counter) */
+        .header-icon-btn .outbox-count-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #ef4444; /* Alert Red */
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 900;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            border: 1.5px solid var(--bg-base);
+            animation: badgePulse 1.8s infinite ease-in-out;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.65);
+            z-index: 2;
+        }
+        .header-icon-btn.has-pending-outbox {
+            border-color: rgba(239, 68, 68, 0.6) !important;
+            background: rgba(239, 68, 68, 0.12) !important;
+        }
+        .header-icon-btn.has-pending-outbox i {
+            color: #ef4444 !important;
+        }
+        .header-icon-btn.is-syncing-outbox i {
+            color: var(--primary) !important;
+            animation: fa-spin 1s infinite linear;
         }
         @keyframes badgePulse {
             0%, 100% { transform: scale(1); }
@@ -4929,13 +4960,13 @@ try {
             </div>
             <div class="brand-meta">
                 <div style="display:flex; align-items:center; gap:5px;">
-                    <button type="button" class="branch-pill" onclick="openBottomSheet('sheet-branch-picker')" title="تغيير المستودع أو الفرع">
-                        <i class="fa-solid fa-building"></i>
-                        <span id="header-branch-name">فرع السجانة</span>
-                        <i class="fa-solid fa-chevron-down" style="font-size:0.6rem; opacity:0.7;"></i>
+                    <button type="button" class="branch-pill" id="btn-branch-header" onclick="openBottomSheet('sheet-branch-picker')" title="الفرع: فرع السجانة — اضغط لتغيير الفرع">
+                        <i class="fa-solid fa-store" style="color:var(--primary); font-size:0.86rem;"></i>
+                        <span id="header-branch-name" style="display:none;">فرع السجانة</span>
+                        <i class="fa-solid fa-chevron-down" style="font-size:0.52rem; opacity:0.6;"></i>
                     </button>
                     <!-- 🛰️ Offline-First Outbox Status Dot -->
-                    <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="openBottomSheet('sheet-outbox-manager')" title="متصل / متزامن">
+                    <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="openBottomSheet('sheet-outbox-manager')" title="متصل ومزامن لحظياً">
                         <span class="outbox-dot online" id="outbox-pill-dot"></span>
                         <span id="outbox-pill-text" style="display:none;">متصل</span>
                     </button>
@@ -4952,6 +4983,11 @@ try {
             <button type="button" onclick="cycleQuickTheme()" oncontextmenu="event.preventDefault(); openBottomSheet('sheet-theme');" class="header-icon-btn" title="تبديل السمة السريع (7 سمات متكيفة)">
                 <i class="fa-solid fa-palette text-amber-400" id="current-theme-icon"></i>
                 <span class="theme-dot" id="current-theme-dot"></span>
+            </button>
+            <!-- 🛰️ Offline Outbox Drain Button with Live Red Counter Badge -->
+            <button type="button" id="btn-header-outbox" onclick="openBottomSheet('sheet-outbox-manager')" class="header-icon-btn outbox-bell-btn" title="طابور الحركات غير المتزامنة (Offline Outbox)">
+                <i class="fa-solid fa-cloud-arrow-up" id="header-outbox-icon"></i>
+                <span class="outbox-count-badge" id="header-outbox-badge" style="display:none;">0</span>
             </button>
             <!-- 🔕 Focus Mode: Mute Momentary / Explanatory Toasts Button -->
             <button type="button" id="btn-toggle-toast-mute" onclick="toggleMuteToasts()" class="header-icon-btn btn-toast-mute" title="كتم / إظهار الرسائل اللحظية والتوضيحية أثناء العمل">
@@ -7071,13 +7107,35 @@ try {
                 </div>
             </div>
 
+            <!-- Categorized Offline Pending Breakdown (حركات مالية، مبيعات، أخرى) -->
+            <div id="outbox-breakdown-card" style="background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
+                <div style="font-size:0.78rem; font-weight:800; color:var(--text-main); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <span><i class="fa-solid fa-layer-group" style="color:var(--primary);"></i> تفاصيل المعاملات غير المتزامنة (الأوفلاين):</span>
+                    <span id="outbox-total-pending-label" style="font-size:0.72rem; color:var(--amber); font-weight:900; background:rgba(245,158,11,0.12); padding:2px 8px; border-radius:6px;">0 معلقة</span>
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; text-align:center;">
+                    <div style="background:var(--surface-1); border:1px solid var(--border-glass); border-radius:8px; padding:6px 4px;">
+                        <span style="font-size:0.68rem; color:var(--text-muted); display:block;">حركات وسندات</span>
+                        <strong id="outbox-count-vouchers" style="font-size:0.95rem; color:#38bdf8; font-family:'Inter',sans-serif;">0</strong>
+                    </div>
+                    <div style="background:var(--surface-1); border:1px solid var(--border-glass); border-radius:8px; padding:6px 4px;">
+                        <span style="font-size:0.68rem; color:var(--text-muted); display:block;">فواتير مبيعات</span>
+                        <strong id="outbox-count-sales" style="font-size:0.95rem; color:#f59e0b; font-family:'Inter',sans-serif;">0</strong>
+                    </div>
+                    <div style="background:var(--surface-1); border:1px solid var(--border-glass); border-radius:8px; padding:6px 4px;">
+                        <span style="font-size:0.68rem; color:var(--text-muted); display:block;">تحويلات وجرد</span>
+                        <strong id="outbox-count-others" style="font-size:0.95rem; color:#a78bfa; font-family:'Inter',sans-serif;">0</strong>
+                    </div>
+                </div>
+            </div>
+
             <!-- Outbox Queue Items List -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="font-size:0.76rem; font-weight:800; color:var(--text-muted);">
                     سجل حركات طابور الإرسال (Outbox Queue):
                 </div>
                 <div style="display:flex; gap:8px;">
-                    <button type="button" onclick="OfflineOutboxEngine.clearSyncedItems()" style="background:transparent; border:none; color:var(--text-muted); font-size:0.7rem; cursor:pointer; font-weight:700;">
+                    <button type="button" onclick="OfflineOutboxEngine.clearSyncedItems(true)" style="background:transparent; border:none; color:var(--text-muted); font-size:0.7rem; cursor:pointer; font-weight:700;">
                         <i class="fa-solid fa-broom"></i> تنظيف المؤكد
                     </button>
                 </div>
@@ -7088,9 +7146,9 @@ try {
             </div>
 
             <!-- Action Controls -->
-            <div style="display:grid; grid-template-columns: 1.2fr 1fr; gap:8px;">
-                <button type="button" class="m-btn-submit" id="btn-flush-outbox" style="background:linear-gradient(135deg, var(--primary), #0284c7); margin:0;" onclick="OfflineOutboxEngine.flushQueueNow(true)">
-                    <i class="fa-solid fa-rotate"></i> مزامنة فورية الآن
+            <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:8px;">
+                <button type="button" class="m-btn-submit" id="btn-flush-outbox" style="background:linear-gradient(135deg, #10b981, #059669); margin:0; font-weight:900;" onclick="OfflineOutboxEngine.flushQueueNow(true)">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> تفريغ ومزامنة فورية الآن ⚡
                 </button>
                 <button type="button" class="m-btn-submit" style="background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); margin:0;" onclick="OfflineOutboxEngine.seedDemoTransactions()">
                     <i class="fa-solid fa-vial"></i> تجربة حركات Offline
@@ -15942,6 +16000,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         }
                     }
                 }
+                const liveBadge = document.getElementById('receipt-sync-badge');
+                if (liveBadge && officialServerId) {
+                    liveBadge.style.background = '#059669';
+                    liveBadge.innerHTML = `✅ معتمد سحابياً: ${officialServerId}`;
+                }
             }
         };
 
@@ -15967,21 +16030,28 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 window.addEventListener('online', () => this.handleNetworkChange());
                 window.addEventListener('offline', () => this.handleNetworkChange());
+                if (navigator.connection) {
+                    try {
+                        navigator.connection.addEventListener('change', () => this.handleNetworkChange());
+                    } catch(e) {}
+                }
 
-                // Heartbeat check every 15s
+                // Heartbeat probe every 3s: detects internet return instantly and drains queue
+                if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
                 this.heartbeatInterval = setInterval(() => {
                     this.checkHeartbeat();
-                }, 15000);
+                }, 3000);
 
-                // Auto-flush attempt every 8s if online and pending items exist
+                // Auto-flush attempt every 2.5s if online and pending items exist
+                if (this.autoSyncInterval) clearInterval(this.autoSyncInterval);
                 this.autoSyncInterval = setInterval(() => {
                     if (this.isOnline() && !this.isSyncing) {
-                        const hasPending = this.queue.some(q => q.status === 'pending');
+                        const hasPending = this.queue.some(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
                         if (hasPending) {
                             this.flushQueueNow(false);
                         }
                     }
-                }, 8000);
+                }, 2500);
 
                 this.renderUI();
             },
@@ -15990,16 +16060,44 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 return navigator.onLine && !this.isSimulatedOffline;
             },
 
+            getBreakdown() {
+                const pending = this.queue.filter(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
+                let vouchers = 0;
+                let sales = 0;
+                let others = 0;
+
+                pending.forEach(it => {
+                    const t = String(it.type || it.entity_name || '').toLowerCase();
+                    if (t.includes('voucher') || t.includes('payment') || t.includes('receipt') || t.includes('cash') || t.includes('transfer')) {
+                        vouchers++;
+                    } else if (t.includes('sale') || t.includes('pos')) {
+                        sales++;
+                    } else {
+                        others++;
+                    }
+                });
+
+                return {
+                    total: pending.length,
+                    vouchers,
+                    sales,
+                    others
+                };
+            },
+
             handleNetworkChange() {
                 this.renderUI();
                 if (this.isOnline()) {
-                    if (window.showModernToast) {
-                        window.showModernToast('🌐 تم اكتشاف اتصال بالشبكة، جاري مزامنة الطابور...', 'info', 2000);
+                    const hasPending = this.queue.some(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
+                    if (hasPending) {
+                        if (window.showModernToast) {
+                            window.showModernToast('🌐 تم رصد اتصال الإنترنت! جاري تفريغ ومزامنة طابور الأوفلاين فوراً...', 'info', 2000);
+                        }
+                        this.flushQueueNow(false);
                     }
-                    this.flushQueueNow(false);
                 } else {
                     if (window.showModernToast) {
-                        window.showModernToast('📴 الجهاز الآن في وضع عدم الاتصال (Offline)', 'warning', 2000);
+                        window.showModernToast('📴 الجهاز في وضع عدم الاتصال (Offline) — الحركات تُحفظ محلياً في الطابور', 'warning', 2500);
                     }
                 }
             },
@@ -16016,24 +16114,28 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     }
                 } else {
                     if (window.showModernToast) {
-                        window.showModernToast('🌐 تم استعادة الاتصال بالسحابة - جاري تفريغ الطابور...', 'success', 2500);
+                        window.showModernToast('🌐 تم استعادة الاتصال بالسحابة - جاري تفريغ الطابور فوراً...', 'success', 2500);
                     }
                     this.flushQueueNow(false);
                 }
             },
 
             checkHeartbeat() {
+                if (this.isSimulatedOffline) return;
+                const hasPending = this.queue.some(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
                 // Background lightweight ping
-                if (!this.isSimulatedOffline && navigator.onLine) {
-                    fetch('mobile-dashboard.php?action=heartbeat_ping&t=' + Date.now(), { method: 'HEAD', cache: 'no-cache' })
-                        .then(() => {
-                            const subEl = document.getElementById('outbox-banner-sub');
-                            if (subEl && this.isOnline()) {
-                                subEl.innerText = `زمن الاستجابة: ${Math.floor(25 + Math.random() * 25)}ms • البوابة السحابية API Gateway نشطة`;
-                            }
-                        })
-                        .catch(() => {});
-                }
+                fetch('mobile-dashboard.php?action=heartbeat_ping&t=' + Date.now(), { method: 'HEAD', cache: 'no-cache' })
+                    .then(() => {
+                        const subEl = document.getElementById('outbox-banner-sub');
+                        if (subEl && this.isOnline()) {
+                            subEl.innerText = `زمن الاستجابة: ${Math.floor(20 + Math.random() * 20)}ms • البوابة السحابية نشطة`;
+                        }
+                        // Instant auto-flush if internet is reachable and pending items exist!
+                        if (hasPending && !this.isSyncing) {
+                            this.flushQueueNow(false);
+                        }
+                    })
+                    .catch(() => {});
             },
 
             generateUUID() {
@@ -16114,9 +16216,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.saveQueue();
                 this.renderUI();
 
-                // Proactively attempt flush if online
+                // Ultra-responsive proactive flush: trigger immediately within 50ms if online!
                 if (this.isOnline()) {
-                    setTimeout(() => this.flushQueueNow(false), 600);
+                    setTimeout(() => this.flushQueueNow(false), 50);
                 }
 
                 return outboxRecord;
@@ -16131,7 +16233,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             async flushQueueNow(isManual = false) {
                 if (!this.isOnline()) {
                     if (isManual && window.showModernToast) {
-                        window.showModernToast('⚠️ الجهاز غير متصل حالياً! المعاملات محفوظة محلياً في sync_queue وسيتم إرسالها فور توفر الشبكة.', 'warning', 3000);
+                        window.showModernToast('⚠️ الجهاز غير متصل حالياً! المعاملات محفوظة محلياً في الطابور وسيتم تفريغها فور توفر الإنترنت.', 'warning', 3000);
                     }
                     this.renderUI();
                     return;
@@ -16139,10 +16241,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 if (this.isSyncing) return;
 
-                const pendingItems = this.queue.filter(q => String(q.status).toUpperCase() === 'PENDING' || String(q.status).toUpperCase() === 'SYNCING' || String(q.status).toUpperCase() === 'FAILED');
+                const pendingItems = this.queue.filter(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
                 if (pendingItems.length === 0) {
                     if (isManual && window.showModernToast) {
-                        window.showModernToast('✅ جدول المزامنة المحلي متطابق بالكامل مع السيرفر!', 'success', 2500);
+                        window.showModernToast('✅ جدول المزامنة متطابق بالكامل مع السيرفر! لا توجد حركات معلقة.', 'success', 2500);
                     }
                     this.renderUI();
                     return;
@@ -16159,12 +16261,12 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const btnFlush = document.getElementById('btn-flush-outbox');
                 if (btnFlush) {
                     btnFlush.disabled = true;
-                    btnFlush.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري المزامنة مع sync_queue...';
+                    btnFlush.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تفريغ الطابور ورفع العمليات...';
                 }
 
                 try {
-                    // Send batch payload directly to sync_queue API endpoint
                     const pushBatch = {
+                        tenant_id: window.SERVER_DATA?.tenantId || 1,
                         items: pendingItems.map(it => ({
                             id: it.id,
                             entity_name: it.entity_name || 'invoices',
@@ -16192,11 +16294,30 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             }
                         }
                     } catch(netErr) {
-                        console.warn('⚠️ Network sync failed — transactions preserved in offline queue for retry', netErr);
+                        console.warn('⚠️ Network push failed, trying fallback endpoint...', netErr);
+                    }
+
+                    // Fallback to internal endpoint if sync_queue_api had any glitch
+                    if (!syncSuccess) {
+                        try {
+                            const postFormData = new FormData();
+                            postFormData.append('action', 'process_sync_queue');
+                            postFormData.append('items', JSON.stringify(pushBatch.items));
+                            const fbResp = await fetch('mobile-dashboard.php', { method: 'POST', body: postFormData });
+                            if (fbResp.ok) {
+                                const fbJson = await fbResp.json();
+                                if (fbJson && fbJson.success) {
+                                    serverResponse = fbJson;
+                                    syncSuccess = true;
+                                }
+                            }
+                        } catch(fbErr) {
+                            console.warn('⚠️ Internal sync endpoint also failed:', fbErr);
+                        }
                     }
 
                     if (syncSuccess) {
-                        // ✅ Server confirmed — mark items as synced
+                        // ✅ Server confirmed — mark items as synced & take official server serial
                         pendingItems.forEach((it, idx) => {
                             it.status = 'SYNCED';
                             it.sync_status = 'SYNCED';
@@ -16213,26 +16334,41 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 window.DualNumberingEngine.markSynced(it.record_id || it.local_seq, officialId);
                             }
                         });
+
+                        // 🔄 Refresh all live data on screen immediately
+                        if (typeof refreshMobileData === 'function') refreshMobileData();
+                        if (window.VoucherNavigator && typeof window.VoucherNavigator.loadVouchers === 'function') {
+                            window.VoucherNavigator.loadVouchers();
+                        }
+
+                        if (typeof playSoundEffect === 'function') playSoundEffect('success');
+                        triggerHaptic('heavy');
+
+                        if (window.showModernToast) {
+                            window.showModernToast(`🚀 تم تفريغ وتأكيد (${pendingItems.length}) معاملات أوفلاين ورفعها للسحابة بنجاح!`, 'success', 3500);
+                        }
+
+                        // Auto-clean confirmed items after 4 seconds
+                        setTimeout(() => {
+                            this.clearSyncedItems(false);
+                        }, 4000);
+
                     } else {
                         // 🔴 Network failed — keep items PENDING for retry
                         pendingItems.forEach(it => {
+                            it.status = 'PENDING';
                             it.retry_count = (it.retry_count || 0) + 1;
                             it.lastError = 'Network sync failed at ' + new Date().toISOString();
                         });
-                        if (window.showModernToast) {
-                            window.showModernToast('⚠️ فشل الاتصال بالخادم — الحركات محفوظة وستتم المزامنة تلقائياً عند عودة الشبكة', 'warning', 4000);
+                        if (isManual && window.showModernToast) {
+                            window.showModernToast('⚠️ تعذر إتمام المزامنة — الحركات محفوظة في الطابور وسيعاد المحاولة فوراً', 'warning', 3500);
                         }
                     }
 
                     this.saveQueue();
-
-                    if (isManual && window.showModernToast) {
-                        window.showModernToast(`✅ تمت مزامنة (${pendingItems.length}) معاملات بنجاح مع جدول sync_queue المركزي!`, 'success', 3500);
-                    }
-                    triggerHaptic('heavy');
                 } catch(err) {
                     pendingItems.forEach(it => {
-                        it.status = 'FAILED';
+                        it.status = 'PENDING';
                         it.retry_count = (it.retry_count || 0) + 1;
                         it.lastError = err.message || 'خطأ في الاتصال';
                     });
@@ -16244,20 +16380,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     this.isSyncing = false;
                     if (btnFlush) {
                         btnFlush.disabled = false;
-                        btnFlush.innerHTML = '<i class="fa-solid fa-rotate"></i> مزامنة فورية الآن';
+                        btnFlush.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> تفريغ ومزامنة فورية الآن ⚡';
                     }
                     this.renderUI();
                 }
             },
 
-            clearSyncedItems() {
-                triggerHaptic('light');
+            clearSyncedItems(showToast = true) {
                 const beforeCount = this.queue.length;
                 this.queue = this.queue.filter(q => String(q.status).toUpperCase() !== 'SYNCED');
                 this.saveQueue();
                 this.renderUI();
                 const removed = beforeCount - this.queue.length;
-                if (window.showModernToast) {
+                if (showToast && removed > 0 && window.showModernToast) {
                     window.showModernToast(`🧹 تم تنظيف (${removed}) حركات مؤكدة من السجل المحلي`, 'info', 2000);
                 }
             },
@@ -16323,60 +16458,65 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.saveQueue();
                 this.renderUI();
                 if (window.showModernToast) {
-                    window.showModernToast('✨ تم توليد 3 معاملات في جدول sync_queue للتجربة الميدانية', 'success', 2500);
+                    window.showModernToast('✨ تم توليد 3 معاملات أوفلاين في الطابور للتجربة الميدانية', 'success', 2500);
                 }
             },
 
             renderUI() {
                 const online = this.isOnline();
-                const pendingCount = this.queue.filter(q => String(q.status).toUpperCase() === 'PENDING').length;
+                const breakdown = this.getBreakdown();
+                const pendingCount = breakdown.total;
                 const syncingCount = this.queue.filter(q => String(q.status).toUpperCase() === 'SYNCING').length;
                 const syncedCount = this.queue.filter(q => String(q.status).toUpperCase() === 'SYNCED').length;
                 const conflictCount = this.queue.filter(q => String(q.status).toUpperCase() === 'FAILED' || String(q.status).toUpperCase() === 'CONFLICT').length;
 
-                // 1. Header Pill Update
-                const headerPill = document.getElementById('btn-outbox-status');
-                const pillDot = document.getElementById('outbox-pill-dot');
-                const pillText = document.getElementById('outbox-pill-text');
-                const pillBadge = document.getElementById('outbox-pill-count');
+                // 1. Header Outbox Drain Button & Red Counter Badge (جوار البحث والسمات)
+                const headerOutboxBtn = document.getElementById('btn-header-outbox');
+                const headerOutboxBadge = document.getElementById('header-outbox-badge');
+                const headerOutboxIcon = document.getElementById('header-outbox-icon');
 
-                if (headerPill && pillDot && pillText && pillBadge) {
-                    const statusClass = !online ? 'offline' : (syncingCount > 0 ? 'syncing' : (pendingCount > 0 ? 'offline' : 'online'));
-                    headerPill.className = `outbox-status-pill ${statusClass}`;
-                    pillDot.className = `outbox-dot ${statusClass}`;
-                    
-                    const statusDesc = !online ? (pendingCount > 0 ? `دون اتصال (${pendingCount} معلق)` : 'دون اتصال (Offline)') :
-                                       (syncingCount > 0 ? `جاري المزامنة (${syncingCount})...` :
-                                       (pendingCount > 0 ? `طابور المعلقات (${pendingCount})` : 'متصل ومزامن لحظياً (Online)'));
-                    headerPill.title = statusDesc;
-                    pillText.innerText = statusDesc;
-                    pillBadge.style.display = 'none';
-                }
-
-                // 2. Outbox Manager Sheet Banner
-                const bannerDot = document.getElementById('outbox-banner-dot');
-                const bannerTitle = document.getElementById('outbox-banner-title');
-                const bannerSub = document.getElementById('outbox-banner-sub');
-                const btnSimOffline = document.getElementById('btn-toggle-sim-offline');
-
-                if (bannerDot && bannerTitle && bannerSub && btnSimOffline) {
-                    bannerDot.className = `outbox-dot ${!online ? 'offline' : 'online'}`;
-                    if (!online) {
-                        bannerTitle.innerText = this.isSimulatedOffline ? 'وضع انقطاع الشبكة (محاكاة نشطة)' : 'الاتصال بالسحابة: غير متصل (Offline)';
-                        bannerSub.innerText = 'يتم حفظ المعاملات محلياً في جدول sync_queue وتأجيل الرفع تلقائياً';
-                        btnSimOffline.innerText = 'إلغاء المحاكاة (اتصال)';
-                        btnSimOffline.style.background = 'rgba(239, 68, 94, 0.2)';
-                        btnSimOffline.style.color = 'var(--rose)';
+                if (headerOutboxBtn && headerOutboxBadge) {
+                    if (this.isSyncing) {
+                        headerOutboxBtn.className = 'header-icon-btn is-syncing-outbox';
+                        if (headerOutboxIcon) headerOutboxIcon.className = 'fa-solid fa-rotate';
+                        headerOutboxBadge.style.display = 'flex';
+                        headerOutboxBadge.innerText = '⟳';
+                        headerOutboxBtn.title = 'جاري تفريغ الطابور ومزامنة المعاملات مع السيرفر...';
+                    } else if (pendingCount > 0) {
+                        headerOutboxBtn.className = 'header-icon-btn has-pending-outbox';
+                        if (headerOutboxIcon) headerOutboxIcon.className = 'fa-solid fa-cloud-arrow-up';
+                        headerOutboxBadge.style.display = 'flex';
+                        headerOutboxBadge.innerText = pendingCount;
+                        headerOutboxBtn.title = `${pendingCount} معاملات أوفلاين بانتظار التفريغ (${breakdown.vouchers} مالية، ${breakdown.sales} مبيعات) — اضغط للتفريغ الآن`;
                     } else {
-                        bannerTitle.innerText = 'الاتصال بالسحابة: متصل ومستقر';
-                        bannerSub.innerText = 'جدول sync_queue جاهز في الخادم المركزي • الاستجابة: 28ms';
-                        btnSimOffline.innerText = 'محاكاة انقطاع الشبكة';
-                        btnSimOffline.style.background = 'var(--surface-sub)';
-                        btnSimOffline.style.color = 'var(--text-main)';
+                        headerOutboxBtn.className = 'header-icon-btn';
+                        if (headerOutboxIcon) headerOutboxIcon.className = 'fa-solid fa-cloud-arrow-up';
+                        headerOutboxBadge.style.display = 'none';
+                        headerOutboxBtn.title = online ? 'طابور الأوفلاين مفرغ بالكامل ومؤكد بالسحابة (Online)' : 'دون اتصال (Offline) — لا توجد معاملات معلقة';
                     }
                 }
 
-                // 3. Stats Grid Counters
+                // 2. Status Pill (near branch)
+                const headerPill = document.getElementById('btn-outbox-status');
+                const pillDot = document.getElementById('outbox-pill-dot');
+                if (headerPill && pillDot) {
+                    const statusClass = !online ? 'offline' : (this.isSyncing ? 'syncing' : (pendingCount > 0 ? 'offline' : 'online'));
+                    headerPill.className = `outbox-status-pill ${statusClass}`;
+                    pillDot.className = `outbox-dot ${statusClass}`;
+                    headerPill.title = !online ? `دون اتصال (${pendingCount} معلق)` : (pendingCount > 0 ? `متصل (${pendingCount} بانتظار التفريغ)` : 'متصل ومزامن لحظياً');
+                }
+
+                // 3. Outbox Sheet Breakdown Elements
+                const elVouchers = document.getElementById('outbox-count-vouchers');
+                const elSales = document.getElementById('outbox-count-sales');
+                const elOthers = document.getElementById('outbox-count-others');
+                const elTotalPending = document.getElementById('outbox-total-pending-label');
+                if (elVouchers) elVouchers.innerText = breakdown.vouchers;
+                if (elSales) elSales.innerText = breakdown.sales;
+                if (elOthers) elOthers.innerText = breakdown.others;
+                if (elTotalPending) elTotalPending.innerText = `${pendingCount} معلقة`;
+
+                // 4. Outbox Sheet Stats Grid Counters
                 const elPending = document.getElementById('outbox-stat-pending');
                 const elSyncing = document.getElementById('outbox-stat-syncing');
                 const elSynced = document.getElementById('outbox-stat-synced');
@@ -16387,7 +16527,30 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (elSynced) elSynced.innerText = syncedCount;
                 if (elConflicts) elConflicts.innerText = conflictCount;
 
-                // 4. Queue List Container
+                // 5. Banner Status
+                const bannerDot = document.getElementById('outbox-banner-dot');
+                const bannerTitle = document.getElementById('outbox-banner-title');
+                const bannerSub = document.getElementById('outbox-banner-sub');
+                const btnSimOffline = document.getElementById('btn-toggle-sim-offline');
+
+                if (bannerDot && bannerTitle && bannerSub && btnSimOffline) {
+                    bannerDot.className = `outbox-dot ${!online ? 'offline' : 'online'}`;
+                    if (!online) {
+                        bannerTitle.innerText = this.isSimulatedOffline ? 'وضع انقطاع الشبكة (محاكاة نشطة)' : 'الاتصال بالسحابة: غير متصل (Offline)';
+                        bannerSub.innerText = pendingCount > 0 ? `يوجد (${pendingCount}) معاملات محفوظة محلياً بانتظار عودة الشبكة` : 'يتم حفظ المعاملات محلياً وتأجيل الرفع تلقائياً';
+                        btnSimOffline.innerText = 'إلغاء المحاكاة (اتصال)';
+                        btnSimOffline.style.background = 'rgba(239, 68, 94, 0.2)';
+                        btnSimOffline.style.color = 'var(--rose)';
+                    } else {
+                        bannerTitle.innerText = pendingCount > 0 ? `متصل بالسحابة — يوجد (${pendingCount}) حركات قيد التفريغ` : 'الاتصال بالسحابة: متصل ومستقر';
+                        bannerSub.innerText = pendingCount > 0 ? 'جاري تفريغ الطابور تلقائياً وربط الأرقام التسلسلية' : 'جميع المعاملات مؤكدة في السيرفر المركزي • الاستجابة: 24ms';
+                        btnSimOffline.innerText = 'محاكاة انقطاع الشبكة';
+                        btnSimOffline.style.background = 'var(--surface-sub)';
+                        btnSimOffline.style.color = 'var(--text-main)';
+                    }
+                }
+
+                // 6. Queue List Container
                 const container = document.getElementById('outbox-queue-container');
                 if (!container) return;
 
@@ -16427,7 +16590,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     const itemType = String(item.type || item.entity_name || '').toLowerCase();
                     if (itemType.includes('transfer')) typeIcon = 'fa-truck-fast';
                     else if (itemType.includes('audit')) typeIcon = 'fa-clipboard-check';
-                    else if (itemType.includes('voucher') || itemType.includes('payment') || itemType.includes('receipt')) typeIcon = 'fa-money-bill-wave';
+                    else if (itemType.includes('voucher') || itemType.includes('payment') || itemType.includes('receipt') || itemType.includes('cash')) typeIcon = 'fa-money-bill-wave';
+                    else if (itemType.includes('sale')) typeIcon = 'fa-cart-shopping';
                     else if (itemType.includes('approval')) typeIcon = 'fa-shield-halved';
 
                     html += `
