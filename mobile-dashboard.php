@@ -7137,6 +7137,29 @@ try {
             }
         }
 
+        // 🔊 Sound Effect Bridge — connects playSoundEffect calls to modern-alerts.js acoustic engine
+        function playSoundEffect(type) {
+            try {
+                if (typeof playModernAcoustic === 'function') {
+                    const typeMap = { 'barcode_beep': 'success', 'cash': 'success', 'error': 'error', 'warning': 'warning', 'success': 'success' };
+                    playModernAcoustic(typeMap[type] || 'success');
+                } else {
+                    // Fallback: Web Audio API simple beep
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.frequency.value = type === 'error' ? 300 : type === 'cash' ? 800 : 660;
+                    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.15);
+                }
+            } catch(e) { /* Audio not available */ }
+        }
+        window.playSoundEffect = playSoundEffect;
+
         // ═════════════════════════════════════════════════════════════════
         // 🎨 THE 7-TIER THEME ENGINE (FROM ULTRA-LIGHT TO DEEP NIGHT)
         // ═════════════════════════════════════════════════════════════════
@@ -8225,22 +8248,7 @@ try {
                         cFound++;
                     }
                 });
-                if (cFound === 0) {
-                    const alertId = 'c_sample_contractor';
-                    list.push({
-                        id: alertId,
-                        type: 'type-c',
-                        typeLabel: '🔴 سقف الائتمان',
-                        priority: 'عاجل جداً',
-                        title: 'تجاوز سقف الائتمان: المقاول طارق عثمان',
-                        desc: `المديونية الحالية ${fmt(4850000)} SDG متجاوزة سقف الائتمان المحدد (${fmt(this.rules.creditLimit)} SDG).`,
-                        amount: 4850000,
-                        resolved: !!resolved[alertId],
-                        resolution: resolved[alertId] || null,
-                        cta1: { label: 'موافقة على التجاوز', action: `RuleAlertEngine.approveOverdraft('${alertId}')`, cls: 'cta-approve' },
-                        cta2: { label: 'إيقاف الطلب', action: `RuleAlertEngine.holdOrder('${alertId}')`, cls: 'cta-reject' }
-                    });
-                }
+                // No sample fallback — only show real credit alerts
 
                 // Alert Type B: "Below-Margin / Cost Violation"
                 let bFound = 0;
@@ -8268,22 +8276,7 @@ try {
                         }
                     }
                 });
-                if (bFound === 0) {
-                    const alertId = 'b_sample_steel';
-                    list.push({
-                        id: alertId,
-                        type: 'type-b',
-                        typeLabel: '⚠️ هامش ربح دون التكلفة',
-                        priority: 'تحذير مالي',
-                        title: 'هامش ربح حرج: سيخ أسود تركي 4 لينيا',
-                        desc: `تم رصد بيع بسعر التكلفة تقريباً (هامش 2.1% فقط) وهو دون حد الأمان المطلوب (${this.rules.minMarginPct}%).`,
-                        amount: 320000,
-                        resolved: !!resolved[alertId],
-                        resolution: resolved[alertId] || null,
-                        cta1: { label: 'تعديل السعر فوراً', action: `RuleAlertEngine.reviewMargin('${alertId}')`, cls: 'cta-action' },
-                        cta2: { label: 'تجاهل مؤقت', action: `RuleAlertEngine.dismissAlert('${alertId}')`, cls: 'cta-reject' }
-                    });
-                }
+                // No sample fallback — only show real margin alerts
 
                 // Alert Type A: "High-Ticket Sale"
                 let aFound = 0;
@@ -8307,22 +8300,7 @@ try {
                         aFound++;
                     }
                 });
-                if (aFound === 0) {
-                    const alertId = 'a_sample_big_invoice';
-                    list.push({
-                        id: alertId,
-                        type: 'type-a',
-                        typeLabel: '💎 فاتورة بيع كبرى',
-                        priority: 'صفقة استثنائية',
-                        title: 'فاتورة كبرى: 12,500,000 SDG',
-                        desc: `تم إصدار فاتورة توريد كبرى لشركة الفهد للمقاولات تخطت حد الصفقات المراقبة (${fmt(this.rules.highTicketLimit)} SDG).`,
-                        amount: 12500000,
-                        resolved: !!resolved[alertId],
-                        resolution: resolved[alertId] || null,
-                        cta1: { label: 'مشاركة واتساب', action: `RuleAlertEngine.shareHighTicket('${alertId}', 12500000)`, cls: 'cta-approve' },
-                        cta2: { label: 'تدقيق الفاتورة', action: `RuleAlertEngine.dismissAlert('${alertId}')`, cls: 'cta-action' }
-                    });
-                }
+                // No sample fallback — only show real big invoice alerts
 
                 // Alert Type D: "Critical Stock Depletion"
                 let dFound = 0;
@@ -8346,22 +8324,7 @@ try {
                         dFound++;
                     }
                 });
-                if (dFound === 0) {
-                    const alertId = 'd_sample_cement';
-                    list.push({
-                        id: alertId,
-                        type: 'type-d',
-                        typeLabel: '📦 نفاد مخزون حرج',
-                        priority: 'نواقص مستودع',
-                        title: 'نفاد مخزون: أسمنت بربر 42.5N',
-                        desc: `المتبقي في مستودع السجانة 8 جوال فقط وبلغ نقطة إعادة الطلب الحرجة (${this.rules.safetyStockUnits} جوال).`,
-                        amount: 8,
-                        resolved: !!resolved[alertId],
-                        resolution: resolved[alertId] || null,
-                        cta1: { label: 'طلب شراء عاجل', action: `RuleAlertEngine.reorderStock('${alertId}')`, cls: 'cta-action' },
-                        cta2: { label: 'تحديث الجرد', action: `RuleAlertEngine.dismissAlert('${alertId}')`, cls: 'cta-reject' }
-                    });
-                }
+                // No sample fallback — only show real stock alerts
 
                 this.alerts = list;
                 const activeAlerts = list.filter(a => !a.resolved);
@@ -9178,16 +9141,26 @@ try {
                 let entries = this.ledgerDatabase[String(this.selectedPartyId)] || [];
                 
                 // Date Filtering
-                if (this.dateFilter === 'today') {
-                    entries = entries.filter(e => e.dateObj === '2026-10-02' || e.dateObj === '2026-10-01');
-                } else if (this.dateFilter === 'week') {
-                    entries = entries.filter(e => e.dateObj >= '2026-09-25');
-                } else if (this.dateFilter === 'month') {
-                    entries = entries.filter(e => e.dateObj >= '2026-09-01');
-                } else if (this.dateFilter === 'custom') {
-                    entries = entries.filter(e => e.dateObj >= '2026-09-15' && e.dateObj <= '2026-10-02');
-                } else if (this.dateFilter === 'last30') {
-                    entries = entries.filter(e => e.dateObj >= '2026-09-02');
+                if (this.dateFilter !== 'all') {
+                    const now = new Date();
+                    const toISO = d => d.toISOString().split('T')[0];
+                    const todayStr = toISO(now);
+                    const yesterdayStr = toISO(new Date(now.getTime() - 86400000));
+                    const weekAgoStr = toISO(new Date(now.getTime() - 7 * 86400000));
+                    const monthStart = toISO(new Date(now.getFullYear(), now.getMonth(), 1));
+                    const thirtyDaysAgo = toISO(new Date(now.getTime() - 30 * 86400000));
+
+                    if (this.dateFilter === 'today') {
+                        entries = entries.filter(e => e.dateObj === todayStr || e.dateObj === yesterdayStr);
+                    } else if (this.dateFilter === 'week') {
+                        entries = entries.filter(e => e.dateObj >= weekAgoStr);
+                    } else if (this.dateFilter === 'month') {
+                        entries = entries.filter(e => e.dateObj >= monthStart);
+                    } else if (this.dateFilter === 'custom') {
+                        entries = entries.filter(e => e.dateObj >= thirtyDaysAgo && e.dateObj <= todayStr);
+                    } else if (this.dateFilter === 'last30') {
+                        entries = entries.filter(e => e.dateObj >= thirtyDaysAgo);
+                    }
                 }
 
                 if (countBadge) countBadge.innerText = `${entries.length} حركات`;
@@ -15062,6 +15035,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     };
 
                     let serverResponse = null;
+                    let syncSuccess = false;
                     try {
                         const response = await fetch('api/sync_queue_api.php?action=push', {
                             method: 'POST',
@@ -15070,28 +15044,42 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         });
                         if (response.ok) {
                             serverResponse = await response.json();
+                            if (serverResponse && serverResponse.success !== false) {
+                                syncSuccess = true;
+                            }
                         }
                     } catch(netErr) {
-                        console.warn('Network call failed, using local offline fallback simulation', netErr);
+                        console.warn('⚠️ Network sync failed — transactions preserved in offline queue for retry', netErr);
                     }
 
-                    // Confirm each pending transaction with official server ID
-                    pendingItems.forEach((it, idx) => {
-                        it.status = 'SYNCED';
-                        it.sync_status = 'SYNCED';
-                        it.synced_at = new Date().toISOString();
-                        const sRef = serverResponse?.results?.find(r => r.id === it.id);
-                        const officialId = sRef?.server_id || sRef?.official_server_id || ('#' + (10500 + idx));
-                        it.server_id = officialId;
-                        it.official_server_id = officialId;
-                        it.serverRef = sRef?.server_ref || officialId;
-                        it.lastError = null;
+                    if (syncSuccess) {
+                        // ✅ Server confirmed — mark items as synced
+                        pendingItems.forEach((it, idx) => {
+                            it.status = 'SYNCED';
+                            it.sync_status = 'SYNCED';
+                            it.synced_at = new Date().toISOString();
+                            const sRef = serverResponse?.results?.find(r => r.id === it.id);
+                            const officialId = sRef?.server_id || sRef?.official_server_id || ('#' + (10500 + idx));
+                            it.server_id = officialId;
+                            it.official_server_id = officialId;
+                            it.serverRef = sRef?.server_ref || officialId;
+                            it.lastError = null;
 
-                        // Dual Numbering sync update
-                        if (window.DualNumberingEngine) {
-                            window.DualNumberingEngine.markSynced(it.record_id || it.local_seq, officialId);
+                            // Dual Numbering sync update
+                            if (window.DualNumberingEngine) {
+                                window.DualNumberingEngine.markSynced(it.record_id || it.local_seq, officialId);
+                            }
+                        });
+                    } else {
+                        // 🔴 Network failed — keep items PENDING for retry
+                        pendingItems.forEach(it => {
+                            it.retry_count = (it.retry_count || 0) + 1;
+                            it.lastError = 'Network sync failed at ' + new Date().toISOString();
+                        });
+                        if (window.showModernToast) {
+                            window.showModernToast('⚠️ فشل الاتصال بالخادم — الحركات محفوظة وستتم المزامنة تلقائياً عند عودة الشبكة', 'warning', 4000);
                         }
-                    });
+                    }
 
                     this.saveQueue();
 

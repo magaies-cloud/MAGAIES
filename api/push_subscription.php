@@ -1,4 +1,12 @@
 <?php
+session_start();
+require_once __DIR__ . '/../db_bridge.php';
+// Security: Require authentication for all push API actions
+if (empty($_SESSION['user_id']) && empty($_SESSION['admin_id']) && empty($_SESSION['tenant_id'])) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Authentication required']);
+    exit;
+}
 /**
  * ═════════════════════════════════════════════════════════════════════
  * 🔔 MAGAIEES ERP 2026 - WEB PUSH & FIREBASE FCM SUBSCRIPTION ENGINE
@@ -75,7 +83,7 @@ if ($action === 'save_subscription' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         'updated_at' => date('Y-m-d H:i:s')
     ];
 
-    file_put_contents($subsFile, json_encode($subs, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+    file_put_contents($subsFile, json_encode($subs, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
 
     echo json_encode([
         'success' => true,
@@ -170,7 +178,7 @@ if ($action === 'save_config' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         'updated_at' => date('Y-m-d H:i:s')
     ];
 
-    file_put_contents($configFile, json_encode($config, JSON_PRETTY_PRINT));
+    file_put_contents($configFile, json_encode($config, JSON_PRETTY_PRINT), LOCK_EX);
 
     echo json_encode([
         'success' => true,
