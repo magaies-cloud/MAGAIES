@@ -6319,19 +6319,65 @@ try {
                     </button>
                 </div>
 
+                <!-- Unified Smart Search & [الأرصدة] Button -->
+                <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
+                    <div style="position:relative; flex:1;">
+                        <input type="text" id="omni-search-kashf" class="m-input" placeholder="اكتب اسم الحساب هنا (عميل، مورد، بنك، خزنة)..." style="padding-left:64px; height:46px; font-size:0.86rem; font-weight:800; border-radius:14px; background:var(--surface-sub); border:1.5px solid var(--border-glass);" oninput="onOmniKashfSearch(this.value)">
+                        <button type="button" onclick="triggerKashfViewFromOmni()" style="position:absolute; left:5px; top:5px; bottom:5px; background:linear-gradient(135deg, #06b6d4, #0891b2); color:#fff; border:none; border-radius:10px; padding:0 14px; font-weight:900; font-size:0.82rem; cursor:pointer; box-shadow:0 2px 10px rgba(6,182,212,0.3);">
+                            عرض
+                        </button>
+                    </div>
+                    <button type="button" onclick="openNonZeroBalancesSheet()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:1px solid rgba(16,185,129,0.4); border-radius:14px; height:46px; padding:0 16px; font-weight:900; font-size:0.86rem; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 18px rgba(16,185,129,0.35); flex-shrink:0;" title="عرض الحسابات التي بها رصيد فقط">
+                        <i class="fa-solid fa-chart-pie" style="font-size:0.95rem;"></i>
+                        <span>الأرصدة</span>
+                    </button>
+                </div>
+                <div id="omni-kashf-suggestions" style="display:none; margin-bottom:10px; background:var(--surface-card); border:1px solid rgba(6,182,212,0.4); border-radius:14px; padding:6px; max-height:180px; overflow-y:auto; box-shadow:0 8px 25px rgba(0,0,0,0.5);"></div>
+
                 <div class="m-form-group" style="margin-bottom:12px;">
                     <select id="report-statement-select" class="m-select" onchange="renderReportStatement(this.value)">
-                        <option value="">-- اختر الحساب لعرض كشف الحساب الفوري --</option>
+                        <option value="">-- أو اختر من قائمة الحسابات مباشرة --</option>
                     </select>
                 </div>
 
                 <div id="report-statement-result" style="display:none;">
                     <div style="background:var(--surface-sub); border:2px solid var(--border-glass); border-radius:14px; padding:16px; text-align:center; margin-bottom:14px;">
-                        <span id="rep-stmt-target-name" style="font-size:0.85rem; color:var(--text-muted); font-weight:800; display:block;"></span>
-                        <div id="rep-stmt-balance" style="font-size:2rem; font-weight:900; color:var(--rose); font-family:'Inter', sans-serif; margin:4px 0;">
-                            0.00
+                        <span id="rep-stmt-target-name" style="font-size:0.88rem; color:var(--text-muted); font-weight:800; display:block; margin-bottom:6px;"></span>
+                        
+                        <!-- Dual Currency Highlight (Bold SDG & Bold USD with beautiful colors) -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0;">
+                            <div style="background:rgba(245,158,11,0.14); border:1.5px solid rgba(245,158,11,0.4); border-radius:12px; padding:10px 6px;">
+                                <span style="font-size:0.72rem; color:#fbbf24; font-weight:800; display:block; margin-bottom:2px;">🇸🇩 بالعملة المحلية (ج.س):</span>
+                                <div id="rep-stmt-balance-sdg" style="font-size:1.15rem; font-weight:900; color:#fbbf24; font-family:'Inter', sans-serif;">
+                                    0 SDG
+                                </div>
+                            </div>
+                            <div style="background:rgba(16,185,129,0.14); border:1.5px solid rgba(16,185,129,0.4); border-radius:12px; padding:10px 6px;">
+                                <span style="font-size:0.72rem; color:#34d399; font-weight:800; display:block; margin-bottom:2px;">💵 المعادل بالدولار (USD):</span>
+                                <div id="rep-stmt-balance-usd" style="font-size:1.15rem; font-weight:900; color:#34d399; font-family:'Inter', sans-serif;">
+                                    $0 USD
+                                </div>
+                            </div>
                         </div>
-                        <span id="rep-stmt-status" style="font-size:0.84rem; font-weight:800; color:var(--text-main);"></span>
+                        <div id="rep-stmt-balance" style="display:none;">0</div>
+                        <span id="rep-stmt-status" style="font-size:0.84rem; font-weight:800; color:var(--text-main); display:inline-block; margin-top:4px;"></span>
+                    </div>
+
+                    <!-- Statement Period Selector: All Time Default (كل الفترة) -->
+                    <div style="margin-bottom:12px; background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:12px; padding:8px 10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                            <span style="font-size:0.75rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-calendar-days text-purple-400"></i> خيار الفترة:</span>
+                            <span id="rep-stmt-period-badge" style="font-size:0.72rem; background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.4); color:#c084fc; padding:2px 8px; border-radius:20px; font-weight:800;">
+                                ✓ كل الفترة (افتراضي)
+                            </span>
+                        </div>
+                        <div style="display:flex; gap:6px; overflow-x:auto;" class="no-scrollbar">
+                            <button type="button" class="date-pill active" id="btn-rep-period-all" onclick="setReportPeriod('all', this)">الكل / كل الفترة (افتراضي)</button>
+                            <button type="button" class="date-pill" id="btn-rep-period-today" onclick="setReportPeriod('today', this)">اليوم</button>
+                            <button type="button" class="date-pill" id="btn-rep-period-week" onclick="setReportPeriod('week', this)">هذا الأسبوع</button>
+                            <button type="button" class="date-pill" id="btn-rep-period-month" onclick="setReportPeriod('month', this)">هذا الشهر</button>
+                            <button type="button" class="date-pill" id="btn-rep-period-custom" onclick="setReportPeriod('custom', this)">نطاق مخصص</button>
+                        </div>
                     </div>
 
                     <div style="display:flex; gap:8px; margin-bottom:14px;">
@@ -6851,7 +6897,7 @@ try {
                         <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.88rem; color:var(--emerald);">
                             المبلغ محلي (SDG)
                         </label>
-                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onLocalAmountInput(this.value)">
+                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0" step="any" required inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onLocalAmountInput(this.value)">
                     </div>
 
                     <!-- أجنبي -->
@@ -6859,7 +6905,7 @@ try {
                         <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.88rem; color:#f87171;">
                             المبلغ أجنبي ($)
                         </label>
-                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0.00" step="any" inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onForeignAmountInput(this.value)">
+                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0" step="any" inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onForeignAmountInput(this.value)">
                     </div>
                 </div>
 
@@ -7366,7 +7412,7 @@ try {
                             <span class="total-title">إجمالي الفاتورة الصافي</span>
                             <span class="total-count-badge" id="pos-banner-item-count">0 أصناف</span>
                         </div>
-                        <div class="total-amount-display" id="pos-banner-netdue">0.00 <small style="font-size:0.55em;">SDG</small></div>
+                        <div class="total-amount-display" id="pos-banner-netdue">0<small style="font-size:0.55em;">SDG</small></div>
                     </div>
 
                     <!-- Subtotal / Tax / Labor / Discount / Net Due Summary Grid -->
@@ -8140,7 +8186,7 @@ try {
                             <span class="total-title" style="color:var(--amber);">إجمالي فاتورة الشراء والتوريد</span>
                             <span class="total-count-badge" id="purchase-banner-count" style="background:rgba(245,158,11,0.25); color:var(--amber);">0 أصناف</span>
                         </div>
-                        <div class="total-amount-display" id="purchase-total-display" style="color:var(--amber);">0.00 <small style="font-size:0.55em;">SDG</small></div>
+                        <div class="total-amount-display" id="purchase-total-display" style="color:var(--amber);">0<small style="font-size:0.55em;">SDG</small></div>
                     </div>
 
                     <!-- Summary Grid -->
@@ -9573,7 +9619,7 @@ try {
                         <span style="font-size:1.1rem; color:#22d3ee;">⚡</span>
                         <strong id="voice-card-title" style="font-size:0.88rem; color:#fff;">مسودة المعاملة الجاهزة</strong>
                     </div>
-                    <span id="voice-card-total" style="font-size:0.95rem; font-weight:900; color:#10b981; font-family:'Inter',sans-serif;">$3,250.00</span>
+                    <span id="voice-card-total" style="font-size:0.95rem; font-weight:900; color:#10b981; font-family:'Inter',sans-serif;">$3,250</span>
                 </div>
 
                 <div id="voice-card-body" style="padding:10px 0; font-size:0.82rem; color:#cbd5e1; display:flex; flex-direction:column; gap:4px;"></div>
@@ -14987,7 +15033,7 @@ try {
                 if (foreignPrev) foreignPrev.textContent = `$${fmt(usd)} USD`;
             } else {
                 if (foreignInp) foreignInp.value = '';
-                if (foreignPrev) foreignPrev.textContent = '$0.00 USD';
+                if (foreignPrev) foreignPrev.textContent = '$0 USD';
             }
             if (localPrev) localPrev.textContent = `${fmt(num)} SDG`;
             if (window.CashVoucherEngine && typeof window.CashVoucherEngine.onAmountChange === 'function') {
@@ -16535,7 +16581,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             const sample = 
 `إشعار تحويل بنكك - بنك الخرطوم
 رقم العملية: 94820148
-المبلغ: 250,000.00 SDG
+المبلغ: 250,000 SDG
 من: محمد عثمان إدريس
 إلى: مؤسسة السجانة التجارية
 التاريخ: ${new Date().toISOString().split('T')[0]} 14:35
@@ -18209,7 +18255,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     </div>` : ''}
                     <div class="thermal-row">
                         <span>ضريبة القيمة المضافة:</span>
-                        <span>0.00 SDG</span>
+                        <span>0 SDG</span>
                     </div>
                     <div class="thermal-total-row">
                         <span>الصافي النهائي:</span>
@@ -19618,14 +19664,18 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             if (nameEl) nameEl.innerText = `${isCust ? 'عميل' : 'مورد'}: ${acc.name}`;
             const bal = acc.balance || 0;
-            if (balEl) {
-                balEl.innerText = fmt(bal) + ' SDG';
-                if (bal > 0) {
-                    balEl.style.color = isCust ? 'var(--rose)' : 'var(--amber)';
-                } else {
-                    balEl.style.color = 'var(--emerald)';
-                }
-            }
+            const rate = (typeof currentUsdRate !== 'undefined' && currentUsdRate > 0) ? currentUsdRate : 2800;
+            const usdVal = Math.round(bal / rate);
+
+            const sdgEl = document.getElementById('rep-stmt-balance-sdg');
+            const usdEl = document.getElementById('rep-stmt-balance-usd');
+
+            if (sdgEl) sdgEl.innerText = fmt(bal) + ' SDG';
+            if (usdEl) usdEl.innerText = '$' + fmt(usdVal) + ' USD';
+            if (balEl) balEl.innerText = fmt(bal) + ' SDG';
+
+            // Ensure "كل الفترة" is selected by default
+            setReportPeriod('all', document.getElementById('btn-rep-period-all'));
             if (statusEl) {
                 if (isCust) {
                     statusEl.innerText = bal > 0 ? '🔴 مطلوب سداد هذا المبلغ للشركة' : '🟢 الحساب خالص / رصيد دائن';
@@ -21635,8 +21685,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     title: 'فاتورة مبيعات - العميل محمد حسن',
                     partner: 'محمد حسن',
                     item: 'سكر ماستر (5 طن)',
-                    unitPrice: '$650.00 / طن (30 ريال للوحدة)',
-                    total: '$3,250.00 (9.1M SDG)',
+                    unitPrice: '$650 / طن (30 ريال للوحدة)',
+                    total: '$3,250 (9.1M SDG)',
                     warehouse: 'مستودع الخرطوم الرئيسي',
                     ref: '#1049'
                 };
@@ -21645,7 +21695,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     type: 'payment',
                     title: 'سند صرف نقدية مستعجل (#678)',
                     partner: 'همس للخدمات والترحيل',
-                    amount: '70,000 ج.س ($250.00)',
+                    amount: '70,000 ج.س ($250)',
                     total: '70,000 SDG',
                     account: 'الخزينة الرئيسية للإدارة',
                     notes: 'تفريغ ونقل شحنة استثنائية من المحطة',
@@ -21656,7 +21706,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     type: 'statement',
                     title: 'كشف حساب - شركة النيل للاستيراد',
                     partner: 'شركة النيل للاستيراد',
-                    total: '$12,400.00 مدين (متأخر 35 يوماً)',
+                    total: '$12,400 مدين (متأخر 35 يوماً)',
                     ref: 'كشف الأستاذ'
                 };
             }
@@ -21743,6 +21793,323 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             alert('⚙️ ضبط وتدقيق المعاملة #' + (tx.voucher_no || tx.id || '---') + '\nتم فتح نافذة الربط الضريبي وسجل مراجعة القيد المزدوج.');
         }
 
-    </script>
+    
+
+    // ═════════════════════════════════════════════════════════════════
+    // 📊 BALANCES MODAL & OMNI SEARCH ENGINE ("الأرصدة" وكشف الحساب)
+    // ═════════════════════════════════════════════════════════════════
+    let currentNonZeroTab = 'all';
+    let currentNonZeroSearch = '';
+    let currentReportPeriodFilter = 'all';
+
+    function openNonZeroBalancesSheet() {
+        triggerHaptic('medium');
+        const sheet = document.getElementById('sheet-balances-nonzero');
+        if (sheet) sheet.classList.add('active');
+        filterNonZeroBalances('all', '');
+    }
+
+    function closeNonZeroBalancesSheet() {
+        triggerHaptic('light');
+        const sheet = document.getElementById('sheet-balances-nonzero');
+        if (sheet) sheet.classList.remove('active');
+    }
+
+    function filterNonZeroBalances(tabType, query) {
+        if (tabType !== undefined) currentNonZeroTab = tabType;
+        if (query !== undefined) currentNonZeroSearch = query;
+
+        const tabs = {
+            'all': document.getElementById('bal-tab-all'),
+            'customer': document.getElementById('bal-tab-cust'),
+            'supplier': document.getElementById('bal-tab-supp'),
+            'cash': document.getElementById('bal-tab-cash')
+        };
+        Object.entries(tabs).forEach(([k, btn]) => {
+            if (!btn) return;
+            if (k === currentNonZeroTab) btn.classList.add('active');
+            else btn.classList.remove('active');
+        });
+
+        const rate = (typeof currentUsdRate !== 'undefined' && currentUsdRate > 0) ? currentUsdRate : 2800;
+        let accounts = [];
+
+        // Aggregate Customers (Non-Zero)
+        if (typeof M_CUSTOMERS !== 'undefined' && M_CUSTOMERS.length > 0) {
+            M_CUSTOMERS.forEach(c => {
+                const bal = parseFloat(c.balance || 0);
+                if (bal !== 0) {
+                    accounts.push({
+                        id: c.id,
+                        name: c.name,
+                        category: 'customer',
+                        typeLabel: 'عميل',
+                        typeClass: 'badge-receivables',
+                        balanceLocal: bal,
+                        balanceUSD: Math.round(bal / rate),
+                        nature: 'مدين (مطلوب سداده لنا)',
+                        natureColor: '#fb7185'
+                    });
+                }
+            });
+        }
+
+        // Aggregate Suppliers (Non-Zero)
+        const supps = (typeof M_SUPPLIERS !== 'undefined' && M_SUPPLIERS.length > 0) ? M_SUPPLIERS : [
+            { id: 'supp_1', name: 'مطاحن الخرطوم للغلال', balance: 51240000 },
+            { id: 'supp_2', name: 'مصانع سيقا للزيوت', balance: 38780000 },
+            { id: 'supp_3', name: 'مصنع أسمنت بربر', balance: 16240000 }
+        ];
+        supps.forEach(s => {
+            const bal = parseFloat(s.balance || 0);
+            if (bal !== 0) {
+                accounts.push({
+                    id: s.id,
+                    name: s.name,
+                    category: 'supplier',
+                    typeLabel: 'مورد',
+                    typeClass: 'badge-payable',
+                    balanceLocal: bal,
+                    balanceUSD: Math.round(bal / rate),
+                    nature: 'دائن (له مستحقات علينا)',
+                    natureColor: '#38bdf8'
+                });
+            }
+        });
+
+        // Aggregate Cash & Banks (Non-Zero)
+        const vaults = (typeof M_VAULTS !== 'undefined' && M_VAULTS.length > 0) ? M_VAULTS : [
+            { id: 'v_1', name: 'الخزينة الرئيسية (الإدارة)', balance: 25060000, type: 'خزينة' },
+            { id: 'v_2', name: 'بنك الخرطوم (الحساب الجاري)', balance: 79520000, type: 'بنك' },
+            { id: 'v_3', name: 'بنك فيصل الإسلامي', balance: 60200000, type: 'بنك' }
+        ];
+        vaults.forEach(v => {
+            const bal = parseFloat(v.balance || 0);
+            if (bal !== 0) {
+                accounts.push({
+                    id: v.id,
+                    name: v.name,
+                    category: 'cash',
+                    typeLabel: v.type || 'نقدية',
+                    typeClass: 'badge-cash',
+                    balanceLocal: bal,
+                    balanceUSD: Math.round(bal / rate),
+                    nature: 'رصيد نقدية متاح',
+                    natureColor: '#34d399'
+                });
+            }
+        });
+
+        // Filter by tab
+        let filtered = accounts;
+        if (currentNonZeroTab === 'customer') filtered = filtered.filter(a => a.category === 'customer');
+        else if (currentNonZeroTab === 'supplier') filtered = filtered.filter(a => a.category === 'supplier');
+        else if (currentNonZeroTab === 'cash') filtered = filtered.filter(a => a.category === 'cash');
+
+        // Filter by search query
+        if (currentNonZeroSearch && currentNonZeroSearch.trim()) {
+            const q = currentNonZeroSearch.trim().toLowerCase();
+            filtered = filtered.filter(a => a.name.toLowerCase().includes(q) || a.typeLabel.toLowerCase().includes(q));
+        }
+
+        const container = document.getElementById('nonzero-balances-container');
+        if (!container) return;
+
+        if (filtered.length === 0) {
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.84rem; font-weight:800;">لا توجد حسابات نشطة تطابق البحث</div>';
+            return;
+        }
+
+        container.innerHTML = filtered.map(acc => {
+            const sdgFormatted = fmt(acc.balanceLocal) + ' SDG';
+            const usdFormatted = '$' + fmt(acc.balanceUSD) + ' USD';
+            return `
+                <div style="background:var(--surface-sub); border:1.5px solid var(--border-glass); border-radius:16px; padding:12px 14px; display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <strong style="color:#fff; font-size:0.92rem;">${acc.name}</strong>
+                            <span style="font-size:0.72rem; padding:2px 8px; border-radius:6px; background:rgba(255,255,255,0.08); color:var(--text-main); font-weight:800;">${acc.typeLabel}</span>
+                        </div>
+                        <span style="font-size:0.70rem; color:${acc.natureColor}; font-weight:800; border:1px solid ${acc.natureColor}40; background:${acc.natureColor}15; padding:2px 8px; border-radius:12px;">${acc.nature}</span>
+                    </div>
+
+                    <!-- Dual Currency Highlight (Bold SDG & Bold USD with beautiful colors) -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                        <div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); border-radius:10px; padding:8px; text-align:right;">
+                            <span style="font-size:0.68rem; color:#fbbf24; font-weight:800; display:block; margin-bottom:2px;">🇸🇩 العملة المحلية:</span>
+                            <span style="font-size:0.95rem; font-weight:900; color:#fbbf24; font-family:'Inter', sans-serif;">${sdgFormatted}</span>
+                        </div>
+                        <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); border-radius:10px; padding:8px; text-align:right;">
+                            <span style="font-size:0.68rem; color:#34d399; font-weight:800; display:block; margin-bottom:2px;">💵 المعادل بالدولار:</span>
+                            <span style="font-size:0.95rem; font-weight:900; color:#34d399; font-family:'Inter', sans-serif;">${usdFormatted}</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display:flex; gap:8px; justify-content:flex-end; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
+                        <button type="button" onclick="viewStatementFromBalances('${acc.id}', '${acc.category}', '${acc.name}')" style="flex:1; background:linear-gradient(135deg, #06b6d4, #0891b2); color:#fff; border:none; border-radius:10px; padding:8px 12px; font-size:0.78rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+                            <i class="fa-solid fa-file-invoice"></i> كشف الحساب (كل الفترة)
+                        </button>
+                        <button type="button" onclick="shareBalanceWhatsAppDirect('${acc.name}', '${sdgFormatted}', '${usdFormatted}')" style="background:#22c55e; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:0.78rem; font-weight:900; cursor:pointer;">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function viewStatementFromBalances(accId, category, name) {
+        closeNonZeroBalancesSheet();
+        if (category === 'customer' || category === 'supplier') {
+            switchMobileTab('ledgers');
+            if (typeof LedgerEngine !== 'undefined') {
+                LedgerEngine.setPartyType(category);
+                LedgerEngine.selectParty(accId);
+                // Guaranteed default to 'all' ("كل الفترة")
+                LedgerEngine.setDateFilter('all');
+            }
+        } else {
+            // Cash / Vault / Bank statement
+            renderReportStatement(accId);
+            const res = document.getElementById('report-statement-result');
+            if (res) res.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    function shareBalanceWhatsAppDirect(name, sdgFormatted, usdFormatted) {
+        const text = encodeURIComponent(`*إشعار رصيد معتمد - شركة السجانة*\nالحساب: ${name}\nالمبلغ: ${sdgFormatted} (ما يعادل ${usdFormatted})\nتاريخ الاستخراج: 2026-10-04`);
+        window.open(`https://wa.me/?text=${text}`, '_blank');
+    }
+
+    // Omni Search functions
+    function onOmniKashfSearch(query) {
+        const drop = document.getElementById('omni-kashf-suggestions');
+        const q = query.trim().toLowerCase();
+        if (!q) {
+            if (drop) drop.style.display = 'none';
+            return;
+        }
+        const rate = (typeof currentUsdRate !== 'undefined' && currentUsdRate > 0) ? currentUsdRate : 2800;
+        let pool = [];
+        if (typeof M_CUSTOMERS !== 'undefined') {
+            M_CUSTOMERS.forEach(c => pool.push({ id: c.id, name: c.name, type: 'عميل', category: 'customer', balance: c.balance || 0 }));
+        }
+        if (typeof M_SUPPLIERS !== 'undefined') {
+            M_SUPPLIERS.forEach(s => pool.push({ id: s.id, name: s.name, type: 'مورد', category: 'supplier', balance: s.balance || 0 }));
+        }
+        if (typeof M_VAULTS !== 'undefined') {
+            M_VAULTS.forEach(v => pool.push({ id: v.id, name: v.name, type: v.type || 'خزينة', category: 'cash', balance: v.balance || 0 }));
+        }
+
+        const matches = pool.filter(p => p.name.toLowerCase().includes(q));
+        if (matches.length === 0) {
+            drop.innerHTML = '<div style="padding:8px; text-align:center; color:var(--text-muted); font-size:0.78rem;">لا توجد نتائج مطابقة</div>';
+        } else {
+            drop.innerHTML = matches.map(m => `
+                <div onclick="selectOmniAccount('${m.id}', '${m.category}', '${m.name}')" style="padding:8px 10px; border-radius:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.80rem;">
+                    <div>
+                        <strong style="color:#fff;">${m.name}</strong>
+                        <span style="font-size:0.70rem; color:var(--text-muted); margin-right:4px;">(${m.type})</span>
+                    </div>
+                    <span style="color:#fbbf24; font-weight:800; font-family:'Inter', sans-serif;">${fmt(m.balance)} SDG</span>
+                </div>
+            `).join('');
+        }
+        drop.style.display = 'block';
+    }
+
+    function selectOmniAccount(id, category, name) {
+        const inp = document.getElementById('omni-search-kashf');
+        if (inp) inp.value = name;
+        const drop = document.getElementById('omni-kashf-suggestions');
+        if (drop) drop.style.display = 'none';
+
+        if (category === 'customer' || category === 'supplier') {
+            setReportStatementType(category);
+            const sel = document.getElementById('report-statement-select');
+            if (sel) sel.value = id;
+            renderReportStatement(id);
+        }
+    }
+
+    function triggerKashfViewFromOmni() {
+        const inp = document.getElementById('omni-search-kashf');
+        const q = (inp ? inp.value : '').trim();
+        if (!q && typeof M_CUSTOMERS !== 'undefined' && M_CUSTOMERS.length > 0) {
+            renderReportStatement(M_CUSTOMERS[0].id);
+            return;
+        }
+        // Match account
+        let match = null;
+        if (typeof M_CUSTOMERS !== 'undefined') match = M_CUSTOMERS.find(c => c.name.includes(q));
+        if (!match && typeof M_SUPPLIERS !== 'undefined') match = M_SUPPLIERS.find(s => s.name.includes(q));
+        if (match) {
+            renderReportStatement(match.id);
+        } else if (typeof M_CUSTOMERS !== 'undefined' && M_CUSTOMERS.length > 0) {
+            renderReportStatement(M_CUSTOMERS[0].id);
+        }
+    }
+
+    function setReportPeriod(periodKey, btn) {
+        currentReportPeriodFilter = periodKey;
+        document.querySelectorAll('#report-statement-result .date-pill').forEach(p => p.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        const badge = document.getElementById('rep-stmt-period-badge');
+        const names = {
+            'all': '✓ كل الفترة (افتراضي)',
+            'today': 'اليوم فقط',
+            'week': 'هذا الأسبوع',
+            'month': 'هذا الشهر',
+            'custom': 'نطاق مخصص'
+        };
+        if (badge && names[periodKey]) badge.textContent = names[periodKey];
+    }
+
+</script>
+
+    <!-- ═════════════════════════════════════════════════════════════════
+         BOTTOM SHEET: 📊 ميزان الأرصدة الحية (الحسابات غير الصفرية فقط)
+         ═════════════════════════════════════════════════════════════════ -->
+    <div class="m-sheet" id="sheet-balances-nonzero" style="z-index:9999;">
+        <div class="m-sheet-scrim" onclick="closeNonZeroBalancesSheet()"></div>
+        <div class="m-sheet-panel" style="max-height:85vh; border-radius:24px 24px 0 0; background:#0f172a; border-top:2px solid #10b981;">
+            <div class="m-sheet-handle"></div>
+            <div class="m-sheet-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-scale-balanced" style="font-size:1.1rem;"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin:0; font-size:1rem; font-weight:900; color:#fff;">ميزان الأرصدة الحية (غير الصفرية)</h3>
+                            <span style="font-size:0.72rem; color:#34d399; font-weight:700;">الحسابات التي بها رصيد بالعملة المحلية وبالدولار</span>
+                        </div>
+                    </div>
+                    <button type="button" class="m-sheet-close" onclick="closeNonZeroBalancesSheet()" style="background:rgba(255,255,255,0.08); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; cursor:pointer;">✕</button>
+                </div>
+
+                <!-- Instant Search input in Sheet -->
+                <div style="margin-top:10px;">
+                    <input type="text" id="sheet-bal-search-input" class="m-input" placeholder="بحث سريع في الحسابات والأرصدة..." style="height:38px; font-size:0.82rem; border-radius:10px;" oninput="filterNonZeroBalances(currentNonZeroTab, this.value)">
+                </div>
+
+                <!-- Category Tabs -->
+                <div style="display:flex; gap:6px; overflow-x:auto; margin-top:8px;" class="no-scrollbar">
+                    <button type="button" class="btn-ai-chip active" id="bal-tab-all" onclick="filterNonZeroBalances('all')" style="font-size:0.75rem; padding:4px 10px;">الكل</button>
+                    <button type="button" class="btn-ai-chip" id="bal-tab-cust" onclick="filterNonZeroBalances('customer')" style="font-size:0.75rem; padding:4px 10px;">عملاء (مدين)</button>
+                    <button type="button" class="btn-ai-chip" id="bal-tab-supp" onclick="filterNonZeroBalances('supplier')" style="font-size:0.75rem; padding:4px 10px;">موردين (دائن)</button>
+                    <button type="button" class="btn-ai-chip" id="bal-tab-cash" onclick="filterNonZeroBalances('cash')" style="font-size:0.75rem; padding:4px 10px;">خزن وبنوك</button>
+                </div>
+            </div>
+
+            <div class="m-sheet-body" style="padding:12px; overflow-y:auto; max-height:calc(85vh - 160px);">
+                <div id="nonzero-balances-container" style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- Rendered Dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
