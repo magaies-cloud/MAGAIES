@@ -201,7 +201,7 @@ $sideLabel = $side === 'A' ? 'الطرف الأول (كشف حسابنا)' : 'ا
     <title>جسر كاميرا الجوال | Al-Sajana ERP</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/tailwind.min.css">
     <style>
         body {
             font-family: 'Cairo', sans-serif;

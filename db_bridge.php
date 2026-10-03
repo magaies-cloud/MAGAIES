@@ -781,13 +781,14 @@ function getRealTimeLiquidity($pdo) {
         
         // 1. جلب الخزن الحقيقية
         try {
-            $stmt = $pdo->query("SELECT data FROM safes WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
+            $tCond = (!empty($GLOBAL_TENANT_ID) && $GLOBAL_TENANT_ID > 0) ? "tenant_id = '{$GLOBAL_TENANT_ID}'" : "1=1";
+            $stmt = $pdo->query("SELECT data FROM safes WHERE ($tCond) AND (is_deleted = 0 OR is_deleted IS NULL)");
             while ($row = $stmt->fetch()) {
                 $data = json_decode($row['data'], true);
-                if ($data) {
+                if ($data && empty($data['deleted'])) {
                     $vaults[] = [
                         'vault_name' => $data['name'] ?? 'خزنة كاش',
-                        'amount' => (float)($data['balance'] ?? 0),
+                        'amount' => (float)($data['currentBalance'] ?? $data['balance'] ?? $data['openingBalance'] ?? 0),
                         'color' => '#10b981'
                     ];
                 }
@@ -796,13 +797,14 @@ function getRealTimeLiquidity($pdo) {
 
         // 2. جلب الحسابات البنكية الحقيقية
         try {
-            $stmt = $pdo->query("SELECT data FROM banks WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
+            $tCond = (!empty($GLOBAL_TENANT_ID) && $GLOBAL_TENANT_ID > 0) ? "tenant_id = '{$GLOBAL_TENANT_ID}'" : "1=1";
+            $stmt = $pdo->query("SELECT data FROM banks WHERE ($tCond) AND (is_deleted = 0 OR is_deleted IS NULL)");
             while ($row = $stmt->fetch()) {
                 $data = json_decode($row['data'], true);
-                if ($data) {
+                if ($data && empty($data['deleted'])) {
                     $vaults[] = [
                         'vault_name' => $data['name'] ?? 'حساب بنكي',
-                        'amount' => (float)($data['balance'] ?? 0),
+                        'amount' => (float)($data['currentBalance'] ?? $data['balance'] ?? $data['openingBalance'] ?? 0),
                         'color' => '#3b82f6'
                     ];
                 }
