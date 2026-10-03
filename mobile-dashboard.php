@@ -544,16 +544,16 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     
     <!-- PWA & Native Standalone Configuration -->
-    <link rel="manifest" href="manifest.json?v=2026_magaiees_v4">
+    <link rel="manifest" href="manifest.json?v=2026_logo_official">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_magaiees">
-    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_magaiees">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_magaiees">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_magaiees">
-    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_magaiees">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_logo_official">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_logo_official">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_logo_official">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_logo_official">
+    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_logo_official">
     <?php
     $themeHexMap = [
         'ultra_white' => '#ffffff',
@@ -4925,7 +4925,7 @@ try {
     <header class="mobile-header">
         <div class="brand-section">
             <div class="brand-avatar" onclick="calibrateMobileScreen(true)" title="شعار مقاييس المعتمد — اضغط لوزن الشاشة الرئيسية ومطابقة الأزرار">
-                <img src="assets/icon-192.png?v=2026_magaiees" alt="شعار مقاييس" class="brand-avatar-img">
+                <img src="assets/icon-192.png?v=2026_logo_official" alt="شعار مقاييس" class="brand-avatar-img">
             </div>
             <div class="brand-meta">
                 <div style="display:flex; align-items:center; gap:5px;">
@@ -4975,7 +4975,7 @@ try {
     <div id="magaiees-native-install-banner" class="magaiees-install-trigger-wrap" style="display:none; margin:10px 14px 4px 14px; background:linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border:1.5px solid rgba(56, 189, 248, 0.4); border-radius:18px; padding:12px 14px; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 10px 25px rgba(0,0,0,0.5); flex-wrap:wrap; max-width:calc(100vw - 28px); box-sizing:border-box;">
         <div style="display:flex; align-items:center; gap:10px; min-width:0;">
             <div style="width:38px; height:38px; border-radius:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.4); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
-                <img src="assets/icon-192.png?v=2026_magaiees" alt="مقاييس" style="width:100%; height:100%; object-fit:cover;">
+                <img src="assets/icon-192.png?v=2026_logo_official" alt="مقاييس" style="width:100%; height:100%; object-fit:cover;">
             </div>
             <div style="min-width:0;">
                 <strong style="font-size:0.86rem; color:#fff; display:block;">تطبيق مقاييس ERP</strong>

@@ -8,7 +8,7 @@
  * - Cache essential shell files, fonts, and brand assets
  */
 
-const CACHE_NAME = 'magaiees-static-pwa-v3';
+const CACHE_NAME = 'magaiees-static-pwa-v2026-official-logo';
 
 const STATIC_ASSETS = [
     './',
