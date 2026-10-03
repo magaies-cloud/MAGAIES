@@ -149,7 +149,7 @@ window.PWAManager = {
 
         container.innerHTML = `
             <div style="width:34px; height:34px; border-radius:10px; background:#0f172a; border:1.5px solid rgba(56, 189, 248, 0.6); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; box-shadow:0 0 12px rgba(56,189,248,0.4);">
-                <img src="assets/icon-192.png?v=2026_m_logo_v4" alt="أيقونة مقاييس" style="width:100%; height:100%; object-fit:cover;">
+                <img src="assets/icon-192.png?v=2026_m_v5" alt="أيقونة مقاييس" style="width:100%; height:100%; object-fit:cover;">
             </div>
             <div style="font-size:0.82rem; font-weight:900; color:#fff; white-space:nowrap;">
                 تطبيق مقاييس ERP
@@ -217,7 +217,7 @@ window.PWAManager = {
             div.innerHTML = `
                 <div style="background:#0f172a; border:2px solid rgba(56,189,248,0.4); border-radius:26px; padding:22px 20px; width:92%; max-width:420px; color:#fff; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.7);">
                     <div style="width:64px; height:64px; border-radius:18px; background:#0f172a; border:2px solid rgba(56,189,248,0.6); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 0 25px rgba(56,189,248,0.5);">
-                        <img src="assets/icon-192.png?v=2026_m_logo_v4" alt="أيقونة مقاييس" style="width:100%; height:100%; object-fit:cover;">
+                        <img src="assets/icon-192.png?v=2026_m_v5" alt="أيقونة مقاييس" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <strong style="font-size:1.1rem; display:block; margin-bottom:6px; color:#f8fafc;">تثبيت تطبيق مقاييس (Magaiees ERP)</strong>
                     <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.6; margin-bottom:16px;">

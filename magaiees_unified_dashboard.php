@@ -56,19 +56,19 @@ function switchToMobileEdition() {
 <?php endif; ?>
     
     <!-- PWA & Native Standalone Configuration -->
-    <link rel="manifest" href="manifest.json?v=2026_m_logo_v4">
+    <link rel="manifest" href="manifest.json?v=2026_m_v5">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_logo_v4">
-    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_logo_v4">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_logo_v4">
-    <link rel="icon" type="image/png" sizes="256x256" href="assets/icon-256.png?v=2026_m_logo_v4">
-    <link rel="icon" type="image/png" sizes="384x384" href="assets/icon-384.png?v=2026_m_logo_v4">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_m_logo_v4">
-    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_logo_v4">
-    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_logo_v4">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_v5">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_v5">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_v5">
+    <link rel="icon" type="image/png" sizes="256x256" href="assets/icon-256.png?v=2026_m_v5">
+    <link rel="icon" type="image/png" sizes="384x384" href="assets/icon-384.png?v=2026_m_v5">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_m_v5">
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_v5">
+    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v5">
     <meta name="theme-color" content="#0F172A">
 
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">

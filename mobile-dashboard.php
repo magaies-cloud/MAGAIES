@@ -622,19 +622,19 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     
     <!-- PWA & Native Standalone Configuration -->
-    <link rel="manifest" href="manifest.json?v=2026_m_logo_v4">
+    <link rel="manifest" href="manifest.json?v=2026_m_v5">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_logo_v4">
-    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_logo_v4">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_logo_v4">
-    <link rel="icon" type="image/png" sizes="256x256" href="assets/icon-256.png?v=2026_m_logo_v4">
-    <link rel="icon" type="image/png" sizes="384x384" href="assets/icon-384.png?v=2026_m_logo_v4">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_m_logo_v4">
-    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_logo_v4">
-    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_logo_v4">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_v5">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_v5">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_v5">
+    <link rel="icon" type="image/png" sizes="256x256" href="assets/icon-256.png?v=2026_m_v5">
+    <link rel="icon" type="image/png" sizes="384x384" href="assets/icon-384.png?v=2026_m_v5">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_m_v5">
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_v5">
+    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v5">
     <?php
     $themeHexMap = [
         'ultra_white' => '#ffffff',
@@ -5235,7 +5235,7 @@ try {
     <header class="mobile-header">
         <div class="brand-section">
             <div class="brand-avatar" onclick="calibrateMobileScreen(true)" title="شعار مقاييس المعتمد — اضغط لوزن الشاشة ومطابقة الأزرار">
-                <img src="assets/icon-192.png?v=2026_m_logo_v4" alt="شعار مقاييس" class="brand-avatar-img">
+                <img src="assets/icon-192.png?v=2026_m_v5" alt="شعار مقاييس" class="brand-avatar-img">
             </div>
             <div class="brand-controls" style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
                 <button type="button" class="branch-pill" id="btn-branch-header" onclick="openBottomSheet('sheet-branch-picker')" title="الفرع: فرع السجانة — اضغط لتغيير الفرع">
@@ -5288,7 +5288,7 @@ try {
     <div id="magaiees-native-install-banner" class="magaiees-install-trigger-wrap" style="display:none; margin:10px 14px 4px 14px; background:linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98)); border:1.5px solid rgba(56, 189, 248, 0.5); border-radius:20px; padding:12px 14px; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 10px 30px rgba(0,0,0,0.6); flex-wrap:wrap; max-width:calc(100vw - 28px); box-sizing:border-box;">
         <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <div style="width:44px; height:44px; border-radius:14px; background:#0f172a; border:2px solid rgba(56,189,248,0.6); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; box-shadow:0 0 15px rgba(56,189,248,0.4);">
-                <img src="assets/icon-192.png?v=2026_m_logo_v4" alt="مقاييس" style="width:100%; height:100%; object-fit:cover;">
+                <img src="assets/icon-192.png?v=2026_m_v5" alt="مقاييس" style="width:100%; height:100%; object-fit:cover;">
             </div>
             <div style="min-width:0;">
                 <strong style="font-size:0.92rem; color:#fff; display:block;">تطبيق مقاييس ERP</strong>
