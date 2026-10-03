@@ -16,49 +16,52 @@
         const style = document.createElement('style');
         style.id = 'magaiees-modern-alert-styles';
         style.innerHTML = `
-            /* ═══ Glassmorphism Toast Container ═══ */
+            /* ═══ Glassmorphism Toast Container — Low-Profile Mobile First ═══ */
             #modern-toast-container {
                 position: fixed;
-                top: 24px;
+                top: 14px;
                 left: 50%;
                 transform: translateX(-50%);
                 z-index: 2147483647;
                 display: flex;
                 flex-direction: column;
                 align-items: center;
-                gap: 12px;
+                gap: 6px;
                 pointer-events: none;
-                width: 92%;
-                max-width: 480px;
+                width: calc(100% - 20px);
+                max-width: 440px;
+                box-sizing: border-box;
                 font-family: 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
                 direction: rtl;
             }
 
-            /* ═══ The Modern Toast Card ═══ */
+            /* ═══ The Modern Toast Card — Ultra-Sleek & Low Height ═══ */
             .modern-toast-card {
                 position: relative;
                 width: 100%;
+                max-width: 100%;
                 box-sizing: border-box;
-                padding: 16px 20px;
-                border-radius: 18px;
+                padding: 7px 12px;
+                border-radius: 12px;
                 backdrop-filter: blur(20px) saturate(190%);
                 -webkit-backdrop-filter: blur(20px) saturate(190%);
                 color: #ffffff;
-                box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.65), 0 0 25px rgba(255, 255, 255, 0.05);
+                box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.65), 0 0 15px rgba(255, 255, 255, 0.05);
                 pointer-events: auto;
                 cursor: default;
                 overflow: hidden;
                 display: flex;
                 flex-direction: column;
-                gap: 10px;
+                gap: 0;
+                min-height: auto;
                 transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease, box-shadow 0.3s ease;
-                animation: modernToastSpringIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                animation: modernToastSpringIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
                 user-select: none;
             }
 
             .modern-toast-card:hover {
-                transform: translateY(-2px) scale(1.015);
-                box-shadow: 0 24px 50px -8px rgba(0, 0, 0, 0.8), 0 0 35px rgba(255, 255, 255, 0.1);
+                transform: translateY(-1px) scale(1.01);
+                box-shadow: 0 12px 30px -4px rgba(0, 0, 0, 0.75);
             }
 
             /* ═══ Glowing Shimmer Top Line ═══ */
@@ -67,53 +70,58 @@
                 top: 0;
                 left: 0;
                 right: 0;
-                height: 3.5px;
+                height: 2px;
                 background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
                 animation: modernShimmerWave 2.5s infinite linear;
             }
 
-            /* ═══ Toast Header & Body ═══ */
+            /* ═══ Toast Header & Body — Compact Horizontal Alignment ═══ */
             .modern-toast-header {
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 12px;
+                gap: 8px;
+                width: 100%;
             }
 
             .modern-toast-icon-wrap {
-                width: 42px;
-                height: 42px;
-                min-width: 42px;
-                border-radius: 12px;
+                width: 26px;
+                height: 26px;
+                min-width: 26px;
+                border-radius: 8px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 1.25rem;
+                font-size: 0.92rem;
                 position: relative;
-                animation: modernIconPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+                flex-shrink: 0;
+                animation: modernIconPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             }
 
             .modern-toast-title-wrap {
                 flex: 1;
+                min-width: 0;
                 display: flex;
                 flex-direction: column;
-                gap: 2px;
+                gap: 1px;
+                justify-content: center;
             }
 
             .modern-toast-title {
                 font-weight: 800;
-                font-size: 1rem;
+                font-size: 0.90rem;
                 letter-spacing: -0.2px;
                 display: flex;
                 align-items: center;
-                gap: 6px;
+                gap: 4px;
+                line-height: 1.2;
             }
 
             .modern-toast-message {
-                font-size: 0.92rem;
-                line-height: 1.6;
-                color: rgba(255, 255, 255, 0.94);
-                font-weight: 600;
+                font-size: 0.88rem;
+                line-height: 1.35;
+                color: rgba(255, 255, 255, 0.96);
+                font-weight: 700;
                 word-break: break-word;
             }
 
@@ -121,14 +129,14 @@
                 background: rgba(255, 255, 255, 0.12);
                 border: 1px solid rgba(255, 255, 255, 0.2);
                 color: rgba(255, 255, 255, 0.85);
-                width: 28px;
-                height: 28px;
+                width: 22px;
+                height: 22px;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
-                font-size: 0.85rem;
+                font-size: 0.72rem;
                 transition: all 0.2s ease;
                 outline: none;
                 flex-shrink: 0;
@@ -137,24 +145,26 @@
             .modern-toast-close-btn:hover {
                 background: rgba(255, 255, 255, 0.28);
                 color: #ffffff;
-                transform: rotate(90deg) scale(1.1);
+                transform: scale(1.1);
             }
 
-            /* ═══ Progress Countdown Bar ═══ */
+            /* ═══ Progress Countdown Bar — Zero Vertical Waste ═══ */
             .modern-toast-progress-track {
-                width: 100%;
-                height: 3px;
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 2px;
                 background: rgba(255, 255, 255, 0.15);
-                border-radius: 4px;
                 overflow: hidden;
-                margin-top: 4px;
+                margin: 0;
+                border-radius: 0 0 12px 12px;
             }
 
             .modern-toast-progress-bar {
                 height: 100%;
                 width: 100%;
                 background: rgba(255, 255, 255, 0.85);
-                border-radius: 4px;
                 transform-origin: right;
                 transition: width linear;
             }
@@ -475,7 +485,8 @@
         const card = document.createElement('div');
         card.className = `modern-toast-card ${meta.cssClass}`;
 
-        const titleText = options.title || meta.defaultTitle;
+        const hasCustomTitle = !!options.title;
+        const titleText = options.title || '';
         const soundEnabled = options.sound !== false;
 
         card.innerHTML = `
@@ -485,7 +496,7 @@
                     ${options.icon || meta.icon}
                 </div>
                 <div class="modern-toast-title-wrap">
-                    <span class="modern-toast-title">${titleText}</span>
+                    ${hasCustomTitle ? `<span class="modern-toast-title">${titleText}</span>` : ''}
                     <div class="modern-toast-message">${message}</div>
                 </div>
                 <button type="button" class="modern-toast-close-btn" title="إغلاق">

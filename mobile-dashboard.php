@@ -605,7 +605,7 @@ try {
 
     <!-- Permissions & Audio System -->
     <script src="js/permissions-manager.js"></script>
-    <script src="js/modern-alerts.js"></script>
+    <script src="js/modern-alerts.js?v=2026_slim_v2"></script>
 
     <!-- Server Preloaded Data Injection -->
     <script>
@@ -1018,6 +1018,55 @@ try {
         }
         .calibrating-target {
             animation: screenCalibratePulse 0.45s ease forwards !important;
+        }
+
+        /* 🔔 LOW-PROFILE SLIM TOAST NOTIFICATIONS (تقليل ارتفاع الإشعارات مع الحفاظ على حجم الخط) */
+        #modern-toast-container {
+            top: max(14px, env(safe-area-inset-top, 14px)) !important;
+            gap: 6px !important;
+            width: calc(100% - 24px) !important;
+            max-width: 440px !important;
+        }
+        .modern-toast-card {
+            padding: 7px 12px !important;
+            min-height: auto !important;
+            border-radius: 12px !important;
+            box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.65) !important;
+            gap: 0 !important;
+        }
+        .modern-toast-header {
+            gap: 8px !important;
+        }
+        .modern-toast-icon-wrap {
+            width: 26px !important;
+            height: 26px !important;
+            min-width: 26px !important;
+            font-size: 0.92rem !important;
+            border-radius: 8px !important;
+        }
+        .modern-toast-message {
+            font-size: 0.88rem !important;
+            font-weight: 700 !important;
+            line-height: 1.35 !important;
+        }
+        .modern-toast-title {
+            font-size: 0.90rem !important;
+            font-weight: 800 !important;
+            line-height: 1.2 !important;
+        }
+        .modern-toast-close-btn {
+            width: 22px !important;
+            height: 22px !important;
+            font-size: 0.72rem !important;
+        }
+        .modern-toast-progress-track {
+            position: absolute !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 2px !important;
+            margin: 0 !important;
+            border-radius: 0 0 12px 12px !important;
         }
 
         /* 🎙️ Voice Input Microphone Button */
