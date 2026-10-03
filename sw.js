@@ -9,11 +9,13 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-03-fast-v7-unified-buttons';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-03-m-official-v4';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
     './assets/icon-192.png',
+    './assets/icon-256.png',
+    './assets/icon-384.png',
     './assets/icon-512.png',
     './assets/icon-maskable-512.png',
     './assets/apple-touch-icon.png',

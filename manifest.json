@@ -2,7 +2,7 @@
   "name": "Magaiees ERP - مقاييس",
   "short_name": "مقاييس",
   "description": "منظومة مقاييس لإدارة الموارد والمبيعات والمخزون والحسابات - Magaiees ERP & POS System",
-  "id": "magaiees-erp-pwa-v2026-official-logo",
+  "id": "magaiees-erp-pwa-v2026-m-official-v4",
   "start_url": "mobile-dashboard.php",
   "scope": "./",
   "display": "standalone",

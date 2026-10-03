@@ -19,16 +19,19 @@
     <link rel="preload" as="image" href="assets/user_bg_fast.jpg">
     <title>مقاييس 2026 - تسجيل الدخول</title>
     <!-- PWA & Favicon Configuration -->
-    <link rel="manifest" href="manifest.json?v=2026_logo_official">
+    <link rel="manifest" href="manifest.json?v=2026_m_logo_v4">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_logo_official">
-    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_logo_official">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_logo_official">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_logo_official">
-    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_logo_official">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_logo_v4">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_logo_v4">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_logo_v4">
+    <link rel="icon" type="image/png" sizes="256x256" href="assets/icon-256.png?v=2026_m_logo_v4">
+    <link rel="icon" type="image/png" sizes="384x384" href="assets/icon-384.png?v=2026_m_logo_v4">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_m_logo_v4">
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_logo_v4">
+    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_logo_v4">
     <meta name="theme-color" content="#0F172A">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14"><link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
