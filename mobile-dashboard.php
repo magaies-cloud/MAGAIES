@@ -33,7 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' && empty($_GET['action'])) {
 }
 
 $page_title = 'مقاييس الموبايل | النسخة السريعة';
-require_once __DIR__ . '/db_bridge.php';
+if (file_exists(__DIR__ . '/db_bridge.php')) {
+    require_once __DIR__ . '/db_bridge.php';
+} elseif (file_exists(__DIR__ . '/ELSAJANA2/magaies/db_bridge.php')) {
+    chdir(__DIR__ . '/ELSAJANA2/magaies');
+    require_once __DIR__ . '/ELSAJANA2/magaies/db_bridge.php';
+}
 
 // Detect active theme from cookie or default to midnight_obsidian
 $activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight_obsidian';
