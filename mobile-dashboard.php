@@ -1350,7 +1350,7 @@ try {
             box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
         }
 
-        /* Ambient Mobile Header */
+        /* Ambient Mobile Header (Dual-Row Ergonomic Layout) */
         .mobile-header {
             position: sticky;
             top: 0;
@@ -1359,11 +1359,10 @@ try {
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1.5px solid var(--border-glass);
-            padding: calc(10px + var(--safe-top)) 16px 12px 16px;
+            padding: calc(6px + var(--safe-top)) 12px 6px 12px;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
+            flex-direction: column;
+            gap: 6px;
         }
 
         /* Universal Desktop Back Button Override: Hidden on mobile dashboard to keep header icons unhindered */
@@ -2678,6 +2677,99 @@ try {
             font-size: 0.84rem;
         }
 
+        /* Dual-Row Ergonomic Header Structure */
+        .header-top-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 8px;
+        }
+        .brand-title-wrap {
+            display: flex;
+            align-items: center;
+            font-size: 0.92rem;
+            font-weight: 900;
+            color: var(--text-main);
+            letter-spacing: -0.2px;
+            white-space: nowrap;
+        }
+        .header-actions-deck {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding: 2px 0;
+        }
+        .header-actions-deck::-webkit-scrollbar {
+            display: none;
+        }
+        .header-deck-pill {
+            height: 32px;
+            min-height: 32px;
+            padding: 4px 11px;
+            border-radius: 11px;
+            background: var(--surface-1);
+            border: 1.5px solid var(--border-glass);
+            color: var(--text-main);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            white-space: nowrap;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            user-select: none;
+            text-decoration: none;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+        }
+        .header-deck-pill:active {
+            transform: scale(0.93);
+            border-color: var(--primary);
+        }
+        .header-deck-pill .theme-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 6px var(--primary);
+            display: inline-block;
+        }
+        .header-deck-pill .notif-badge,
+        .header-deck-pill .outbox-count-badge {
+            background: var(--rose);
+            color: #ffffff;
+            font-size: 0.65rem;
+            font-weight: 900;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+            animation: badgePulse 2s infinite ease-in-out;
+            box-shadow: 0 2px 6px rgba(244, 63, 94, 0.5);
+        }
+        .header-deck-pill .outbox-count-badge {
+            background: #ef4444;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.65);
+        }
+        .header-deck-pill .mute-status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--emerald);
+            display: inline-block;
+        }
+
         /* 2. Header Icon Buttons */
         .header-icon-btn {
             width: 36px;
@@ -2924,23 +3016,23 @@ try {
             color: #ffffff;
         }
 
-        /* 4. Executive Micro-KPI Cards (2x2 Grid) */
+        /* 4. Executive Micro-KPI Cards (2x2 Grid - Rectangular Ergonomic Proportions) */
         .micro-kpi-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            padding: 4px 12px 10px 12px;
+            gap: 8px;
+            padding: 4px 10px 8px 10px;
         }
         .micro-kpi-card {
             background: var(--surface-card);
             border: 1.5px solid var(--border-glass);
-            border-radius: 16px;
-            padding: 12px 13px;
+            border-radius: 14px;
+            padding: 9px 11px;
             box-shadow: var(--shadow-card);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 96px;
+            min-height: 80px; /* Elegant rectangular aspect ratio ~ 2:1 */
             position: relative;
             overflow: hidden;
             cursor: pointer;
@@ -2956,35 +3048,43 @@ try {
             font-size: 0.74rem;
             font-weight: 800;
             color: var(--text-muted);
+            white-space: nowrap;
         }
         .micro-kpi-val {
             font-family: 'Inter', sans-serif;
-            margin: 4px 0 2px 0;
+            margin: 3px 0 2px 0;
             line-height: 1.15;
             color: var(--text-main);
             display: flex;
             flex-direction: column;
             gap: 2px;
+            overflow: hidden;
         }
         .micro-kpi-amt-local {
-            font-size: 1.15rem;
+            font-size: 1.12rem;
             font-weight: 900;
-            letter-spacing: -0.4px;
+            letter-spacing: -0.3px;
             white-space: nowrap;
-            line-height: 1.2;
+            line-height: 1.18;
+            overflow: hidden;
+            font-variant-numeric: tabular-nums;
+            width: 100%;
         }
         .micro-kpi-amt-foreign {
-            font-size: 1.02rem;
+            font-size: 0.88rem;
             font-weight: 800;
             display: inline-flex;
             align-items: center;
             gap: 3px;
-            padding: 2px 7px;
+            padding: 1px 6px;
             border-radius: 6px;
             width: fit-content;
+            max-width: 100%;
             white-space: nowrap;
             line-height: 1.2;
             letter-spacing: -0.2px;
+            overflow: hidden;
+            font-variant-numeric: tabular-nums;
         }
         .micro-kpi-sub {
             font-size: 0.7rem;
@@ -5231,54 +5331,65 @@ try {
 <body data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
 
     <!-- 1. Sticky Mobile App Header -->
-    <!-- 1. Sticky Mobile App Header (Thumb-Zone Compact Bar) -->
+    <!-- 1. Sticky Mobile App Header (Ergonomic Dual-Row Layout) -->
     <header class="mobile-header">
-        <div class="brand-section">
-            <div class="brand-avatar" onclick="calibrateMobileScreen(true)" title="شعار مقاييس المعتمد — اضغط لوزن الشاشة ومطابقة الأزرار">
-                <img src="assets/icon-192.png?v=2026_m_v5" alt="شعار مقاييس" class="brand-avatar-img">
-            </div>
-            <div class="brand-controls" style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
+        <!-- Row 1: Brand + Branch + Cloud Status -->
+        <div class="header-top-row">
+            <div class="brand-section">
+                <div class="brand-avatar" onclick="calibrateMobileScreen(true)" title="شعار مقاييس المعتمد — اضغط لوزن الشاشة ومطابقة الأزرار">
+                    <img src="assets/icon-192.png?v=2026_m_v5" alt="شعار مقاييس" class="brand-avatar-img">
+                </div>
+                <div class="brand-title-wrap">
+                    <span>مقاييس ERP</span>
+                </div>
                 <button type="button" class="branch-pill" id="btn-branch-header" onclick="openBottomSheet('sheet-branch-picker')" title="الفرع: فرع السجانة — اضغط لتغيير الفرع">
-                    <i class="fa-solid fa-store" style="color:var(--primary); font-size:0.86rem;"></i>
-                    <span id="header-branch-name" style="display:none;">فرع السجانة</span>
+                    <i class="fa-solid fa-store" style="color:var(--primary); font-size:0.84rem;"></i>
+                    <span id="header-branch-name">فرع السجانة</span>
                     <i class="fa-solid fa-chevron-down" style="font-size:0.52rem; opacity:0.6;"></i>
                 </button>
-                <!-- 🛰️ Offline-First Outbox Status Dot (النور الأخضر / الأحمر) -->
-                <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="if(window.OfflineOutboxEngine && !window.OfflineOutboxEngine.isOnline()){ window.OfflineOutboxEngine.checkHeartbeat(true); } else { openBottomSheet('sheet-outbox-manager'); }" title="حالة الاتصال بالسحابة">
-                    <span class="outbox-dot online" id="outbox-pill-dot"></span>
-                    <span id="outbox-pill-text">متصل</span>
-                </button>
             </div>
+            <!-- 🛰️ Offline-First Outbox Status Dot (متصل / غير متصل) -->
+            <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="if(window.OfflineOutboxEngine && !window.OfflineOutboxEngine.isOnline()){ window.OfflineOutboxEngine.checkHeartbeat(true); } else { openBottomSheet('sheet-outbox-manager'); }" title="حالة الاتصال بالسحابة">
+                <span class="outbox-dot online" id="outbox-pill-dot"></span>
+                <span id="outbox-pill-text">متصل</span>
+            </button>
             <span id="mobile-user-greeting" style="display:none;">مرحباً بك 🌟</span>
         </div>
-        <div class="header-actions">
-            <!-- 🔍 Global Quick Search (Omni-Search) -->
-            <button type="button" onclick="openBottomSheet('sheet-global-search')" class="header-icon-btn" title="البحث السريع الشامل (أصناف، فواتير، حسابات)">
-                <i class="fa-solid fa-magnifying-glass"></i>
+
+        <!-- Row 2: Horizontally Scrollable Action Deck with uniform pill size matching 'متصل' -->
+        <div class="header-actions-deck">
+            <!-- 🔍 Global Quick Search -->
+            <button type="button" onclick="openBottomSheet('sheet-global-search')" class="header-deck-pill" title="البحث السريع الشامل (أصناف، فواتير، حسابات)">
+                <i class="fa-solid fa-magnifying-glass text-sky-400"></i>
+                <span>بحث</span>
             </button>
             <!-- 🎨 7-Theme Quick Switcher -->
-            <button type="button" onclick="cycleQuickTheme()" oncontextmenu="event.preventDefault(); openBottomSheet('sheet-theme');" class="header-icon-btn" title="تبديل السمة السريع (7 سمات متكيفة)">
+            <button type="button" onclick="cycleQuickTheme()" oncontextmenu="event.preventDefault(); openBottomSheet('sheet-theme');" class="header-deck-pill" title="تبديل السمة السريع (7 سمات متكيفة)">
                 <i class="fa-solid fa-palette text-amber-400" id="current-theme-icon"></i>
+                <span>سمات</span>
                 <span class="theme-dot" id="current-theme-dot"></span>
             </button>
             <!-- 🛰️ Offline Outbox Drain Button with Live Red Counter Badge -->
-            <button type="button" id="btn-header-outbox" onclick="openBottomSheet('sheet-outbox-manager')" class="header-icon-btn outbox-bell-btn" title="طابور الحركات غير المتزامنة (Offline Outbox)">
-                <i class="fa-solid fa-cloud-arrow-up" id="header-outbox-icon"></i>
+            <button type="button" id="btn-header-outbox" onclick="openBottomSheet('sheet-outbox-manager')" class="header-deck-pill outbox-bell-btn" title="طابور الحركات غير المتزامنة (Offline Outbox)">
+                <i class="fa-solid fa-cloud-arrow-up text-emerald-400" id="header-outbox-icon"></i>
+                <span>مزامنة</span>
                 <span class="outbox-count-badge" id="header-outbox-badge" style="display:none;">0</span>
             </button>
-            <!-- 🔕 Focus Mode: Mute Momentary / Explanatory Toasts Button -->
-            <button type="button" id="btn-toggle-toast-mute" onclick="toggleMuteToasts()" class="header-icon-btn btn-toast-mute" title="كتم / إظهار الرسائل اللحظية والتوضيحية أثناء العمل">
-                <i class="fa-solid fa-bell-slash" id="toast-mute-icon"></i>
-                <span class="mute-status-dot" id="toast-mute-dot"></span>
-            </button>
             <!-- 🔔 Smart Notification / Alert Center Bell with live counter -->
-            <button type="button" onclick="switchMobileTab('approvals')" class="header-icon-btn notif-bell-btn" title="الرسائل التنبيهية وقواعد الأعمال">
-                <i class="fa-solid fa-bell"></i>
+            <button type="button" onclick="switchMobileTab('approvals')" class="header-deck-pill notif-bell-btn" title="الرسائل التنبيهية وقواعد الأعمال">
+                <i class="fa-solid fa-bell text-rose-400"></i>
+                <span>تنبيهات</span>
                 <span class="notif-badge" id="header-alert-count">4</span>
             </button>
+            <!-- 🔕 Focus Mode: Mute Momentary / Explanatory Toasts Button -->
+            <button type="button" id="btn-toggle-toast-mute" onclick="toggleMuteToasts()" class="header-deck-pill btn-toast-mute" title="كتم / إظهار الرسائل اللحظية والتوضيحية أثناء العمل">
+                <i class="fa-solid fa-bell-slash" id="toast-mute-icon"></i>
+                <span>كتم</span>
+                <span class="mute-status-dot" id="toast-mute-dot"></span>
+            </button>
             <!-- 🖥️ Switch to Full Desktop Dashboard Button -->
-            <button type="button" onclick="switchToDesktopDashboard()" class="btn-switch-desktop" title="التبديل إلى نسخة سطح المكتب الكاملة">
-                <i class="fa-solid fa-desktop"></i>
+            <button type="button" onclick="switchToDesktopDashboard()" class="header-deck-pill" title="التبديل إلى نسخة سطح المكتب الكاملة">
+                <i class="fa-solid fa-desktop text-purple-400"></i>
                 <span>سطح المكتب</span>
             </button>
         </div>
@@ -5304,43 +5415,16 @@ try {
          VIEW CONTAINER 1: 📊 DASHBOARD (الرئيسية)
          ═════════════════════════════════════════════════════════════════ -->
     <div class="view-container active" id="view-dashboard">
-        <!-- Unified Action Toolbar for Dashboard -->
-        <div class="screen-unified-action-bar">
-            <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'dashboard')">
-                <i class="fa-solid fa-plus"></i> جديد
-            </button>
-            <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'dashboard')">
-                <i class="fa-solid fa-floppy-disk"></i> حفظ ومزامنة
-            </button>
-            <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'dashboard')">
-                <i class="fa-solid fa-pen-to-square"></i> تعديل
-            </button>
-            <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'dashboard')">
-                <i class="fa-solid fa-trash-can"></i> حذف
-            </button>
-            <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'dashboard')">
-                <i class="fa-solid fa-print"></i> طباعة
-            </button>
-            <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'dashboard')">
-                <i class="fa-solid fa-magnifying-glass"></i> بحث
-            </button>
-            <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'dashboard')">
-                <i class="fa-brands fa-whatsapp"></i> مشاركة
-            </button>
-            <button type="button" class="btn-action-pill btn-act-refresh" onclick="window.UniversalActionEngine.dispatch('refresh', 'dashboard')">
-                <i class="fa-solid fa-arrows-rotate"></i> تحديث
-            </button>
-        </div>
-        <!-- C. Executive Micro-KPI Cards (2x2 Grid) with Dual Currency (SDG + USD) -->
+        <!-- C. Executive Micro-KPI Cards (2x2 Grid - Rectangular Proportions) with Dual Currency (SDG + USD) -->
         <div class="micro-kpi-grid">
-            <!-- 1. Net Sales Today -->
+            <!-- 1. Net Sales -->
             <div class="micro-kpi-card" onclick="switchMobileTab('transactions')" style="border-inline-start: 3.5px solid var(--primary);">
                 <div class="micro-kpi-head">
-                    <span><i class="fa-solid fa-chart-line text-sky-400"></i> مبيعات اليوم</span>
-                    <span style="font-size:0.76rem; background:rgba(56,189,248,0.15); color:var(--primary); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap; display:inline-flex; align-items:center; gap:3px;" id="kpi-sales-pct">+14.8% ↗</span>
+                    <span><i class="fa-solid fa-chart-line text-sky-400"></i> مبيعات</span>
+                    <span style="font-size:0.74rem; background:rgba(56,189,248,0.15); color:var(--primary); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap; display:inline-flex; align-items:center; gap:3px;" id="kpi-sales-pct">+14.8% ↗</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-sales-val">
-                    <div class="micro-kpi-amt-local" style="color:#ffffff;">0 <small style="font-size:0.72rem; color:rgba(255,255,255,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-local" style="color:#ffffff;">0 <small style="font-size:0.68rem; color:rgba(255,255,255,0.7);">SDG</small></div>
                     <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:var(--text-muted);">
@@ -5351,12 +5435,11 @@ try {
             <!-- 2. Liquid Cash Balance -->
             <div class="micro-kpi-card" onclick="document.getElementById('mobile-total-liquidity').scrollIntoView({behavior:'smooth'})" style="border-inline-start: 3.5px solid var(--emerald);">
                 <div class="micro-kpi-head">
-                    <span><i class="fa-solid fa-wallet text-emerald-400"></i> السيولة اللحظية</span>
-                    <span style="font-size:0.76rem; background:rgba(16,185,129,0.15); color:var(--emerald); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap;">خزن وبنوك</span>
+                    <span><i class="fa-solid fa-wallet text-emerald-400"></i> السيولة</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-cash-val">
-                    <div class="micro-kpi-amt-local" style="color:#34d399;">0 <small style="font-size:0.72rem; color:rgba(52,211,153,0.7);">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">≈ $0</div>
+                    <div class="micro-kpi-amt-local" style="color:#34d399;">0 <small style="font-size:0.68rem; color:rgba(52,211,153,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(16,185,129,0.14); color:#34d399; border:1px solid rgba(16,185,129,0.25);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:var(--text-muted);">
                     <i class="fa-solid fa-building-columns"></i> <span id="micro-vaults-count">0 خزن وبنوك</span>
@@ -5366,11 +5449,10 @@ try {
             <!-- 3. Outstanding Receivables -->
             <div class="micro-kpi-card" onclick="switchMobileTab('ledgers')" style="border-inline-start: 3.5px solid var(--rose);">
                 <div class="micro-kpi-head">
-                    <span><i class="fa-solid fa-hand-holding-dollar text-rose-400"></i> مديونيات العملاء</span>
-                    <span style="font-size:0.76rem; background:rgba(244,63,94,0.15); color:var(--rose); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap;">مستحقات</span>
+                    <span><i class="fa-solid fa-hand-holding-dollar text-rose-400"></i> مديونية العملاء</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-receivables-val">
-                    <div class="micro-kpi-amt-local" style="color:#fb7185;">0 <small style="font-size:0.72rem; color:rgba(251,113,133,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-local" style="color:#fb7185;">0 <small style="font-size:0.68rem; color:rgba(251,113,133,0.7);">SDG</small></div>
                     <div class="micro-kpi-amt-foreign" style="background:rgba(252,211,77,0.14); color:#fcd34d; border:1px solid rgba(252,211,77,0.25);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:#ef4444;">
@@ -5382,10 +5464,10 @@ try {
             <div class="micro-kpi-card" onclick="switchMobileTab('inventory')" style="border-inline-start: 3.5px solid var(--amber);">
                 <div class="micro-kpi-head">
                     <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> تقييم المخزون</span>
-                    <span style="font-size:0.76rem; background:rgba(245,158,11,0.15); color:var(--amber); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap;" id="micro-stock-items-count">0 صنف</span>
+                    <span style="font-size:0.74rem; background:rgba(245,158,11,0.15); color:var(--amber); padding:2px 6px; border-radius:6px; font-weight:900; white-space:nowrap;" id="micro-stock-items-count">0 صنف</span>
                 </div>
                 <div class="micro-kpi-val" id="micro-inventory-val">
-                    <div class="micro-kpi-amt-local" style="color:#fbbf24;">0 <small style="font-size:0.72rem; color:rgba(251,191,36,0.7);">SDG</small></div>
+                    <div class="micro-kpi-amt-local" style="color:#fbbf24;">0 <small style="font-size:0.68rem; color:rgba(251,191,36,0.7);">SDG</small></div>
                     <div class="micro-kpi-amt-foreign" style="background:rgba(103,232,249,0.14); color:#67e8f9; border:1px solid rgba(103,232,249,0.25);">≈ $0</div>
                 </div>
                 <div class="micro-kpi-sub" style="color:var(--text-muted);">
@@ -5575,33 +5657,6 @@ try {
          ═════════════════════════════════════════════════════════════════ -->
     <div class="view-container" id="view-transactions">
         <div class="mobile-content" style="padding-top:12px;">
-                        <!-- Unified Action Toolbar for Transactions -->
-            <div class="screen-unified-action-bar">
-                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'transactions')">
-                    <i class="fa-solid fa-plus"></i> جديد
-                </button>
-                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'transactions')">
-                    <i class="fa-solid fa-floppy-disk"></i> حفظ ومزامنة
-                </button>
-                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'transactions')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل
-                </button>
-                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'transactions')">
-                    <i class="fa-solid fa-trash-can"></i> حذف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'transactions')">
-                    <i class="fa-solid fa-print"></i> طباعة كشف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'transactions')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
-                </button>
-                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'transactions')">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة
-                </button>
-                <button type="button" class="btn-action-pill btn-act-refresh" onclick="window.UniversalActionEngine.dispatch('refresh', 'transactions')">
-                    <i class="fa-solid fa-arrows-rotate"></i> تحديث
-                </button>
-            </div>
             <div class="section-heading" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-receipt text-sky-400"></i> سجل المعاملات والفواتير</span>
                 <button type="button" onclick="refreshMobileData(true)" class="btn-ai-chip" style="font-size:0.75rem;">
@@ -5636,30 +5691,6 @@ try {
     <div class="view-container" id="view-ledgers">
         <div class="mobile-content" style="padding-top:12px;">
             <!-- Header Section -->
-                        <!-- Unified Action Toolbar for Ledgers -->
-            <div class="screen-unified-action-bar">
-                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'ledgers')">
-                    <i class="fa-solid fa-plus"></i> سند جديد
-                </button>
-                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'ledgers')">
-                    <i class="fa-solid fa-floppy-disk"></i> تصدير PDF
-                </button>
-                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'ledgers')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل
-                </button>
-                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'ledgers')">
-                    <i class="fa-solid fa-print"></i> طباعة كشف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'ledgers')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
-                </button>
-                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'ledgers')">
-                    <i class="fa-brands fa-whatsapp"></i> مطالبة واتساب
-                </button>
-                <button type="button" class="btn-action-pill btn-act-refresh" onclick="window.UniversalActionEngine.dispatch('refresh', 'ledgers')">
-                    <i class="fa-solid fa-arrows-rotate"></i> تحديث
-                </button>
-            </div>
             <div class="section-heading" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-book-bookmark text-emerald-400"></i> كشوف الحسابات والديون</span>
                 <button type="button" onclick="LedgerEngine.openPdfStatementPreview()" class="btn-ai-chip" style="font-size:0.75rem;">
@@ -5841,30 +5872,6 @@ try {
          ═════════════════════════════════════════════════════════════════ -->
     <div class="view-container" id="view-inventory">
         <div class="mobile-content" style="padding-top:12px;">
-                        <!-- Unified Action Toolbar for Inventory -->
-            <div class="screen-unified-action-bar">
-                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'inventory')">
-                    <i class="fa-solid fa-plus"></i> توريد جديد
-                </button>
-                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'inventory')">
-                    <i class="fa-solid fa-floppy-disk"></i> حفظ وجرد
-                </button>
-                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'inventory')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل صنف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'inventory')">
-                    <i class="fa-solid fa-print"></i> طباعة تقييم
-                </button>
-                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'inventory')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
-                </button>
-                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'inventory')">
-                    <i class="fa-brands fa-whatsapp"></i> تقرير النواقص
-                </button>
-                <button type="button" class="btn-action-pill btn-act-refresh" onclick="window.UniversalActionEngine.dispatch('refresh', 'inventory')">
-                    <i class="fa-solid fa-arrows-rotate"></i> تحديث
-                </button>
-            </div>
             <div class="section-heading" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> المخزون والجرد والتحويلات</span>
                 <span id="inventory-branch-tag" class="branch-pill" style="font-size:0.75rem; cursor:pointer;" onclick="openBottomSheet('sheet-branch-picker')">
@@ -5965,30 +5972,6 @@ try {
     <div class="view-container" id="view-approvals">
         <div class="mobile-content" style="padding-top:12px;">
             <!-- Header Section -->
-                        <!-- Unified Action Toolbar for Approvals -->
-            <div class="screen-unified-action-bar">
-                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'approvals')">
-                    <i class="fa-solid fa-plus"></i> طلب جديد
-                </button>
-                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'approvals')">
-                    <i class="fa-solid fa-floppy-disk"></i> حفظ القرارات
-                </button>
-                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'approvals')">
-                    <i class="fa-solid fa-pen-to-square"></i> ضبط السقوف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'approvals')">
-                    <i class="fa-solid fa-print"></i> طباعة سجل
-                </button>
-                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'approvals')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
-                </button>
-                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'approvals')">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة
-                </button>
-                <button type="button" class="btn-action-pill btn-act-refresh" onclick="window.UniversalActionEngine.dispatch('refresh', 'approvals')">
-                    <i class="fa-solid fa-arrows-rotate"></i> تحديث
-                </button>
-            </div>
             <div class="section-heading" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-shield-halved text-rose-400"></i> مركز الموافقات والتحكم التنفيذي</span>
                 <button type="button" onclick="openBottomSheet('sheet-rule-settings')" class="btn-ai-chip" style="font-size:0.75rem; background:var(--surface-sub);">
@@ -6059,34 +6042,6 @@ try {
         <div class="sheet-body" style="padding-top:12px;">
             <form onsubmit="handleFinancialTxSubmit(event)">
                 <input type="hidden" id="tx-operation-type" value="transfer">
-
-                                <!-- 1. Top Bar: شريط الأزرار الموحد والشامل (جديد، حفظ، تعديل، حذف، طباعة، بحث، مشاركة، تراجع) -->
-                <div class="screen-unified-action-bar">
-                    <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'financial-tx')">
-                        <i class="fa-solid fa-plus"></i> جديد
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'financial-tx')">
-                        <i class="fa-solid fa-floppy-disk"></i> حفظ
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'financial-tx')">
-                        <i class="fa-solid fa-pen-to-square"></i> تعديل
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'financial-tx')">
-                        <i class="fa-solid fa-trash-can"></i> حذف
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'financial-tx')">
-                        <i class="fa-solid fa-print"></i> طباعة
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'financial-tx')">
-                        <i class="fa-solid fa-magnifying-glass"></i> بحث
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'financial-tx')">
-                        <i class="fa-brands fa-whatsapp"></i> مشاركة
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'financial-tx')">
-                        <i class="fa-solid fa-rotate-left"></i> تراجع
-                    </button>
-                </div>
 
                 <!-- شريط تنبيه وضع التعديل للسند -->
                 <div id="tx-editing-banner" class="screen-editing-banner">
@@ -6293,31 +6248,36 @@ try {
                     <input type="text" id="tx-notes" class="m-input" placeholder="البيان / ملاحظات السند" style="height:44px;">
                 </div>
 
-                <!-- 7. Submit Buttons -->
-                                <!-- 7. Comprehensive Action Buttons Grid -->
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
-                        <button type="submit" class="m-btn-submit" id="btn-save-tx" style="background: linear-gradient(135deg, #10b981, #059669);">
-                            <i class="fa-solid fa-floppy-disk"></i> <span id="btn-save-tx-label">حفظ الحركة المالية</span>
-                        </button>
-                        <button type="button" class="m-btn-submit" id="btn-edit-tx-bottom" onclick="window.UniversalActionEngine.dispatch('edit', 'financial-tx')" style="background: linear-gradient(135deg, #f59e0b, #d97706); color:#fff;">
-                            <i class="fa-solid fa-pen-to-square"></i> تعديل السند
-                        </button>
-                    </div>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px;">
-                        <button type="button" class="m-btn-submit" id="btn-del-tx-bottom" onclick="window.UniversalActionEngine.dispatch('delete', 'financial-tx')" style="background: linear-gradient(135deg, #ef4444, #b91c1c); color:#fff; font-size:0.84rem; padding:8px 6px;">
-                            <i class="fa-solid fa-trash-can"></i> حذف
-                        </button>
-                        <button type="button" class="m-btn-submit" id="btn-print-tx-bottom" onclick="window.UniversalActionEngine.dispatch('print', 'financial-tx')" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; font-size:0.84rem; padding:8px 6px;">
-                            <i class="fa-solid fa-print"></i> طباعة 🖨️
-                        </button>
-                        <button type="button" class="m-btn-submit" id="btn-new-tx-bottom" onclick="window.UniversalActionEngine.dispatch('new', 'financial-tx')" style="background: var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); font-size:0.84rem; padding:8px 6px;">
+                <!-- 7. Comprehensive Bottom Action Buttons Suite -->
+                <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                    <!-- Primary Save Action -->
+                    <button type="submit" class="m-btn-submit" id="btn-save-tx" style="background: linear-gradient(135deg, #10b981, #059669); height:46px; font-size:1rem; box-shadow:0 4px 15px rgba(16,185,129,0.35);">
+                        <i class="fa-solid fa-floppy-disk"></i> <span id="btn-save-tx-label">حفظ ومزامنة الحركة المالية</span>
+                    </button>
+                    <!-- Bottom Operation Action Toolbar: جديد | تعديل | حذف | طباعة | بحث | مشاركة | تراجع -->
+                    <div class="screen-unified-action-bar" style="margin-bottom:0;">
+                        <button type="button" class="btn-action-pill btn-act-new" id="btn-new-tx-bottom" onclick="window.UniversalActionEngine.dispatch('new', 'financial-tx')">
                             <i class="fa-solid fa-plus"></i> جديد
                         </button>
+                        <button type="button" class="btn-action-pill btn-act-edit" id="btn-edit-tx-bottom" onclick="window.UniversalActionEngine.dispatch('edit', 'financial-tx')">
+                            <i class="fa-solid fa-pen-to-square"></i> تعديل
+                        </button>
+                        <button type="button" class="btn-action-pill btn-act-delete" id="btn-del-tx-bottom" onclick="window.UniversalActionEngine.dispatch('delete', 'financial-tx')">
+                            <i class="fa-solid fa-trash-can"></i> حذف
+                        </button>
+                        <button type="button" class="btn-action-pill btn-act-print" id="btn-print-tx-bottom" onclick="window.UniversalActionEngine.dispatch('print', 'financial-tx')">
+                            <i class="fa-solid fa-print"></i> طباعة 🖨️
+                        </button>
+                        <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'financial-tx')">
+                            <i class="fa-solid fa-magnifying-glass"></i> بحث
+                        </button>
+                        <button type="button" class="btn-action-pill btn-act-share" onclick="handleTxWhatsAppShareClick()">
+                            <i class="fa-brands fa-whatsapp"></i> مشاركة 💬
+                        </button>
+                        <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'financial-tx')">
+                            <i class="fa-solid fa-rotate-left"></i> تراجع
+                        </button>
                     </div>
-                    <button type="button" class="m-btn-submit" onclick="handleTxWhatsAppShareClick()" style="background: linear-gradient(135deg, #22c55e, #16a34a); box-shadow: 0 4px 15px rgba(34,197,94,0.35);">
-                        <i class="fa-brands fa-whatsapp"></i> مشاركة السند عبر واتساب 💬
-                    </button>
                 </div>
             </form>
         </div>
@@ -6504,33 +6464,6 @@ try {
 
         <div class="sheet-body" style="padding-top:12px; padding-bottom:85px;">
             <div class="pos-container">
-                <!-- Unified POS Action Toolbar -->
-                <div class="screen-unified-action-bar">
-                    <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'sale')">
-                        <i class="fa-solid fa-plus"></i> فاتورة جديدة
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'sale')">
-                        <i class="fa-solid fa-floppy-disk"></i> حفظ
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'sale')">
-                        <i class="fa-solid fa-pen-to-square"></i> تعديل
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'sale')">
-                        <i class="fa-solid fa-trash-can"></i> حذف / تفريغ
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'sale')">
-                        <i class="fa-solid fa-print"></i> طباعة حرارية
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'sale')">
-                        <i class="fa-solid fa-magnifying-glass"></i> بحث
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'sale')">
-                        <i class="fa-brands fa-whatsapp"></i> مشاركة
-                    </button>
-                    <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'sale')">
-                        <i class="fa-solid fa-rotate-left"></i> تفريغ السلة
-                    </button>
-                </div>
                 <!-- 1. Header & Party Selection -->
                 <!-- 1.1 Invoice Type Toggle -->
                 <div class="invoice-type-toggle">
@@ -6694,6 +6627,33 @@ try {
                     <span>جديدة ➕</span>
                 </button>
             </div>
+            <!-- Bottom Operational Actions Toolbar for POS -->
+            <div class="screen-unified-action-bar" style="margin-top:6px; margin-bottom:0;">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'sale')">
+                    <i class="fa-solid fa-plus"></i> فاتورة جديدة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'sale')">
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ ومزامنة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'sale')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل
+                </button>
+                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'sale')">
+                    <i class="fa-solid fa-trash-can"></i> حذف / تفريغ
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'sale')">
+                    <i class="fa-solid fa-print"></i> طباعة حرارية
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'sale')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث فواتير
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'sale')">
+                    <i class="fa-brands fa-whatsapp"></i> مشاركة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'sale')">
+                    <i class="fa-solid fa-rotate-left"></i> تفريغ السلة
+                </button>
+            </div>
         </div>
     </div>
 
@@ -6708,30 +6668,6 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-receipt-print')">✕</button>
         </div>
         <div class="sheet-body" style="padding:14px;">
-            <!-- Unified Item Audit Action Toolbar -->
-            <div class="screen-unified-action-bar">
-                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'item-audit')">
-                    <i class="fa-solid fa-plus"></i> جرد صنف آخر
-                </button>
-                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'item-audit')">
-                    <i class="fa-solid fa-floppy-disk"></i> اعتماد وتسوية
-                </button>
-                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'item-audit')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل الصنف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'item-audit')">
-                    <i class="fa-solid fa-trash-can"></i> إلغاء الجرد
-                </button>
-                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'item-audit')">
-                    <i class="fa-solid fa-print"></i> طباعة باركود
-                </button>
-                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'item-audit')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
-                </button>
-                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'item-audit')">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة
-                </button>
-            </div>
             <!-- Thermal Paper Container -->
             <div class="thermal-receipt-paper" id="thermal-receipt-content">
                 <!-- Dynamically generated thermal receipt -->
@@ -6802,30 +6738,6 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-item-audit')">✕</button>
         </div>
         <div class="sheet-body" style="padding:14px;">
-            <!-- Unified Item Audit Action Toolbar -->
-            <div class="screen-unified-action-bar">
-                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'item-audit')">
-                    <i class="fa-solid fa-plus"></i> جرد صنف آخر
-                </button>
-                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'item-audit')">
-                    <i class="fa-solid fa-floppy-disk"></i> اعتماد وتسوية
-                </button>
-                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'item-audit')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل الصنف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'item-audit')">
-                    <i class="fa-solid fa-trash-can"></i> إلغاء الجرد
-                </button>
-                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'item-audit')">
-                    <i class="fa-solid fa-print"></i> طباعة باركود
-                </button>
-                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'item-audit')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
-                </button>
-                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'item-audit')">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة
-                </button>
-            </div>
             <!-- Item Info Card -->
             <div style="background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:14px; padding:10px 12px; margin-bottom:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -6883,9 +6795,30 @@ try {
                 <span id="audit-timestamp">التوقيت: اللحظي</span>
             </div>
 
-            <button type="button" class="m-btn-submit" style="background:linear-gradient(135deg, var(--emerald), #059669); color:#fff;" onclick="InventoryEngine.submitAuditReconciliation()">
+            <button type="button" class="m-btn-submit" style="background:linear-gradient(135deg, var(--emerald), #059669); color:#fff; margin-bottom:8px;" onclick="InventoryEngine.submitAuditReconciliation()">
                 <i class="fa-solid fa-check-double"></i> اعتماد الجرد وتسوية الرصيد فوراً ⚡
             </button>
+            <!-- Bottom Operational Actions Toolbar for Item Audit -->
+            <div class="screen-unified-action-bar" style="margin-bottom:0;">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'item-audit')">
+                    <i class="fa-solid fa-plus"></i> جرد صنف آخر
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'item-audit')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل الصنف
+                </button>
+                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'item-audit')">
+                    <i class="fa-solid fa-trash-can"></i> إلغاء الجرد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'item-audit')">
+                    <i class="fa-solid fa-print"></i> طباعة باركود
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'item-audit')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'item-audit')">
+                    <i class="fa-brands fa-whatsapp"></i> مشاركة
+                </button>
+            </div>
         </div>
     </div>
 
@@ -6907,33 +6840,6 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-stock-transfer')">✕</button>
         </div>
         <div class="sheet-body" style="padding:12px; padding-bottom:80px;">
-            <!-- Unified Stock Transfer Action Toolbar -->
-            <div class="screen-unified-action-bar">
-                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'stock-transfer')">
-                    <i class="fa-solid fa-plus"></i> تحويل جديد
-                </button>
-                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'stock-transfer')">
-                    <i class="fa-solid fa-floppy-disk"></i> حفظ مسودة
-                </button>
-                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'stock-transfer')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل
-                </button>
-                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'stock-transfer')">
-                    <i class="fa-solid fa-trash-can"></i> حذف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'stock-transfer')">
-                    <i class="fa-solid fa-print"></i> طباعة بوليصة
-                </button>
-                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'stock-transfer')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
-                </button>
-                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'stock-transfer')">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة السائق
-                </button>
-                <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'stock-transfer')">
-                    <i class="fa-solid fa-rotate-left"></i> تراجع
-                </button>
-            </div>
             <!-- 1. Pipeline Status Indicator -->
             <div class="transfer-pipeline">
                 <div class="pipeline-step active" id="pipe-step-draft">
@@ -7038,13 +6944,37 @@ try {
         </div>
 
         <!-- Pinned Transfer Action Footer -->
-        <div class="pos-settlement-footer">
+        <div class="pos-settlement-footer" style="display:flex; flex-direction:column; gap:6px;">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                 <button type="button" class="pos-btn-print" style="background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main);" onclick="StockTransferEngine.saveDraft()">
                     <i class="fa-solid fa-file-pen"></i> حفظ كمسودة
                 </button>
                 <button type="button" class="pos-btn-share" style="background:linear-gradient(135deg, var(--purple), #7e22ce); color:#fff;" onclick="StockTransferEngine.confirmAndDispatch()">
                     <i class="fa-solid fa-truck-fast"></i> تأكيد الترحيل والطباعة 🚚
+                </button>
+            </div>
+            <!-- Bottom Operational Actions Toolbar for Stock Transfer -->
+            <div class="screen-unified-action-bar" style="margin-bottom:0;">
+                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'stock-transfer')">
+                    <i class="fa-solid fa-plus"></i> تحويل جديد
+                </button>
+                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'stock-transfer')">
+                    <i class="fa-solid fa-pen-to-square"></i> تعديل
+                </button>
+                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'stock-transfer')">
+                    <i class="fa-solid fa-trash-can"></i> حذف / تفريغ
+                </button>
+                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'stock-transfer')">
+                    <i class="fa-solid fa-print"></i> طباعة بوليصة
+                </button>
+                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'stock-transfer')">
+                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                </button>
+                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'stock-transfer')">
+                    <i class="fa-brands fa-whatsapp"></i> مشاركة السائق
+                </button>
+                <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'stock-transfer')">
+                    <i class="fa-solid fa-rotate-left"></i> تراجع
                 </button>
             </div>
         </div>
@@ -7063,30 +6993,6 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-transfer-waybill')">✕</button>
         </div>
         <div class="sheet-body" style="padding:14px;">
-            <!-- Unified Item Audit Action Toolbar -->
-            <div class="screen-unified-action-bar">
-                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'item-audit')">
-                    <i class="fa-solid fa-plus"></i> جرد صنف آخر
-                </button>
-                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'item-audit')">
-                    <i class="fa-solid fa-floppy-disk"></i> اعتماد وتسوية
-                </button>
-                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'item-audit')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل الصنف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'item-audit')">
-                    <i class="fa-solid fa-trash-can"></i> إلغاء الجرد
-                </button>
-                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'item-audit')">
-                    <i class="fa-solid fa-print"></i> طباعة باركود
-                </button>
-                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'item-audit')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
-                </button>
-                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'item-audit')">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة
-                </button>
-            </div>
             <div class="thermal-receipt-paper" id="waybill-content-paper" style="border-radius:12px; border:2px solid #000;">
                 <!-- Dynamically generated digital waybill -->
             </div>
@@ -7117,33 +7023,6 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-purchase')">✕</button>
         </div>
         <div class="sheet-body">
-            <!-- Unified Purchase Action Toolbar -->
-            <div class="screen-unified-action-bar">
-                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'purchase')">
-                    <i class="fa-solid fa-plus"></i> فاتورة جديدة
-                </button>
-                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'purchase')">
-                    <i class="fa-solid fa-floppy-disk"></i> حفظ وتوريد
-                </button>
-                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'purchase')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل
-                </button>
-                <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'purchase')">
-                    <i class="fa-solid fa-trash-can"></i> حذف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'purchase')">
-                    <i class="fa-solid fa-print"></i> طباعة إذن
-                </button>
-                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'purchase')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
-                </button>
-                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'purchase')">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة
-                </button>
-                <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'purchase')">
-                    <i class="fa-solid fa-rotate-left"></i> تراجع
-                </button>
-            </div>
             <form onsubmit="handleQuickPurchaseSubmit(event)">
                 <div class="m-form-group">
                     <label class="m-label">المورد:</label>
@@ -7181,9 +7060,33 @@ try {
                         <option value="credit">آجل على الحساب (دين للمورد)</option>
                     </select>
                 </div>
-                <button type="submit" class="m-btn-submit" style="background: linear-gradient(135deg, var(--amber), #d97706); color:#000; font-weight:900;">
+                <button type="submit" class="m-btn-submit" style="background: linear-gradient(135deg, var(--amber), #d97706); color:#000; font-weight:900; margin-bottom:8px;">
                     <i class="fa-solid fa-truck-ramp-box"></i> حفظ فاتورة الشراء وتوريد المستودع 📦
                 </button>
+                <!-- Bottom Operational Actions Toolbar for Purchase -->
+                <div class="screen-unified-action-bar" style="margin-bottom:0;">
+                    <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'purchase')">
+                        <i class="fa-solid fa-plus"></i> فاتورة جديدة
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'purchase')">
+                        <i class="fa-solid fa-pen-to-square"></i> تعديل
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'purchase')">
+                        <i class="fa-solid fa-trash-can"></i> حذف
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'purchase')">
+                        <i class="fa-solid fa-print"></i> طباعة إذن
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'purchase')">
+                        <i class="fa-solid fa-magnifying-glass"></i> بحث
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'purchase')">
+                        <i class="fa-brands fa-whatsapp"></i> مشاركة
+                    </button>
+                    <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'purchase')">
+                        <i class="fa-solid fa-rotate-left"></i> تراجع
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -7199,27 +7102,6 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-statement')">✕</button>
         </div>
         <div class="sheet-body">
-            <!-- Unified Statement Action Toolbar -->
-            <div class="screen-unified-action-bar">
-                <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'statement')">
-                    <i class="fa-solid fa-plus"></i> سند قبض / صرف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-save" onclick="window.UniversalActionEngine.dispatch('save', 'statement')">
-                    <i class="fa-solid fa-file-pdf"></i> تصدير PDF
-                </button>
-                <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'statement')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل بيانات العميل
-                </button>
-                <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'statement')">
-                    <i class="fa-solid fa-print"></i> طباعة كشف
-                </button>
-                <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'statement')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث الحسابات
-                </button>
-                <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'statement')">
-                    <i class="fa-brands fa-whatsapp"></i> مطالبة واتساب
-                </button>
-            </div>
             <div class="m-form-group">
                 <label class="m-label">اختر العميل:</label>
                 <select id="statement-customer-select" class="m-select" onchange="renderCustomerMiniStatement(this.value)">
@@ -9810,12 +9692,44 @@ try {
             const rate = getDollarExchangeRate();
             const toUSD = (amt) => rate > 0 ? Math.round(amt / rate) : 0;
 
+            // 🔢 Auto-Scaling Number Helper: dynamically scales font size for 6, 10+ digits ensuring 100% full visibility
+            function formatScaledKpiAmount(num, currency = 'SDG', color = '#ffffff') {
+                const formatted = fmt(num);
+                const len = formatted.length;
+                let fontSize = '1.14rem';
+                let letterSpacing = '-0.3px';
+                if (len >= 14) {
+                    fontSize = '0.74rem';
+                    letterSpacing = '-0.5px';
+                } else if (len >= 12) {
+                    fontSize = '0.80rem';
+                    letterSpacing = '-0.4px';
+                } else if (len >= 10) {
+                    fontSize = '0.88rem';
+                    letterSpacing = '-0.3px';
+                } else if (len >= 8) {
+                    fontSize = '0.98rem';
+                }
+                return `<div class="micro-kpi-amt-local" style="font-size:${fontSize}; letter-spacing:${letterSpacing}; color:${color}; font-variant-numeric:tabular-nums;" title="${formatted} ${currency}">${formatted} <small style="font-size:0.68rem; opacity:0.85;">${currency}</small></div>`;
+            }
+
+            function formatScaledKpiForeign(usdNum, bg = 'rgba(56,189,248,0.14)', color = '#38bdf8', border = 'rgba(56,189,248,0.25)') {
+                const formatted = fmt(usdNum);
+                const len = formatted.length;
+                let fontSize = '0.86rem';
+                if (len >= 12) fontSize = '0.66rem';
+                else if (len >= 10) fontSize = '0.72rem';
+                else if (len >= 8) fontSize = '0.78rem';
+                return `<div class="micro-kpi-amt-foreign" style="font-size:${fontSize}; background:${bg}; color:${color}; border:1px solid ${border}; font-variant-numeric:tabular-nums;" title="≈ $${formatted}">≈ $${formatted}</div>`;
+            }
+
+            // 1. Net Sales
             const sVal = document.getElementById('micro-sales-val');
             if (sVal) {
                 const usd = toUSD(salesToday);
                 sVal.innerHTML = `
-                    <div class="micro-kpi-amt-local" style="color:#ffffff;">${fmt(salesToday)} <small style="font-size:0.72rem; color:rgba(255,255,255,0.7);">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">≈ $${fmt(usd)}</div>
+                    ${formatScaledKpiAmount(salesToday, 'SDG', '#ffffff')}
+                    ${formatScaledKpiForeign(usd, 'rgba(56,189,248,0.14)', '#38bdf8', 'rgba(56,189,248,0.25)')}
                 `;
             }
             const sCnt = document.getElementById('micro-sales-count');
@@ -9828,8 +9742,8 @@ try {
             if (cVal) {
                 const usd = toUSD(cashTotal);
                 cVal.innerHTML = `
-                    <div class="micro-kpi-amt-local" style="color:#34d399;">${fmt(cashTotal)} <small style="font-size:0.72rem; color:rgba(52,211,153,0.7);">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">≈ $${fmt(usd)}</div>
+                    ${formatScaledKpiAmount(cashTotal, 'SDG', '#34d399')}
+                    ${formatScaledKpiForeign(usd, 'rgba(16,185,129,0.14)', '#34d399', 'rgba(16,185,129,0.25)')}
                 `;
             }
             const vCnt = document.getElementById('micro-vaults-count');
@@ -9845,8 +9759,8 @@ try {
             if (rVal) {
                 const usd = toUSD(debtTotal);
                 rVal.innerHTML = `
-                    <div class="micro-kpi-amt-local" style="color:#fb7185;">${fmt(debtTotal)} <small style="font-size:0.72rem; color:rgba(251,113,133,0.7);">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(252,211,77,0.14); color:#fcd34d; border:1px solid rgba(252,211,77,0.25);">≈ $${fmt(usd)}</div>
+                    ${formatScaledKpiAmount(debtTotal, 'SDG', '#fb7185')}
+                    ${formatScaledKpiForeign(usd, 'rgba(252,211,77,0.14)', '#fcd34d', 'rgba(252,211,77,0.25)')}
                 `;
             }
             const oVal = document.getElementById('micro-overdue-val');
@@ -9865,8 +9779,8 @@ try {
             if (iVal) {
                 const usd = toUSD(stockVal);
                 iVal.innerHTML = `
-                    <div class="micro-kpi-amt-local" style="color:#fbbf24;">${fmt(stockVal)} <small style="font-size:0.72rem; color:rgba(251,191,36,0.7);">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(103,232,249,0.14); color:#67e8f9; border:1px solid rgba(103,232,249,0.25);">≈ $${fmt(usd)}</div>
+                    ${formatScaledKpiAmount(stockVal, 'SDG', '#fbbf24')}
+                    ${formatScaledKpiForeign(usd, 'rgba(103,232,249,0.14)', '#67e8f9', 'rgba(103,232,249,0.25)')}
                 `;
             }
             const iCnt = document.getElementById('micro-stock-items-count');
