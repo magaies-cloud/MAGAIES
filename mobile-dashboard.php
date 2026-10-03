@@ -14,7 +14,7 @@ $forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
 $prefCookie = $_COOKIE['magaiees_view_preference'] ?? '';
 
 // Check if accessing from desktop without mobile override
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && empty($_GET['action'])) {
     if ($forceMobile) {
         setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
     } elseif (!$isMobileUserAgent && $prefCookie !== 'mobile') {
@@ -297,6 +297,41 @@ try {
     while ($r = $stmtPay->fetch()) {
         $payObj = json_decode($r['data'], true);
         if ($payObj) $preloadedData['payments'][] = $payObj;
+    }
+
+    // 6.0 Direct Query for Live Vouchers (Previous/Next Navigation Linked with Live Server)
+    if ((isset($_GET['action']) && $_GET['action'] === 'get_live_vouchers') || (isset($_POST['action']) && $_POST['action'] === 'get_live_vouchers')) {
+        header('Content-Type: application/json; charset=UTF-8');
+        try {
+            $stmtV = $pdo->prepare("SELECT id, data FROM single_payments WHERE tenant_id = ? ORDER BY id DESC LIMIT 50");
+            $stmtV->execute([$currentTenantId]);
+            $list = [];
+            while ($row = $stmtV->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($row['data'], true);
+                if ($d) {
+                    $d['_db_id'] = $row['id'];
+                    $list[] = $d;
+                }
+            }
+            $stmtR = $pdo->prepare("SELECT id, data FROM single_receipts WHERE tenant_id = ? ORDER BY id DESC LIMIT 50");
+            $stmtR->execute([$currentTenantId]);
+            while ($row = $stmtR->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($row['data'], true);
+                if ($d) {
+                    $d['_db_id'] = $row['id'];
+                    $list[] = $d;
+                }
+            }
+            usort($list, function($a, $b) {
+                $da = $a['date'] ?? ($a['createdAt'] ?? '');
+                $db = $b['date'] ?? ($b['createdAt'] ?? '');
+                return strcmp($db, $da);
+            });
+            echo json_encode(['success' => true, 'vouchers' => array_slice($list, 0, 50)]);
+        } catch(Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+        exit;
     }
 
     // 6. Direct AJAX Financial Voucher Persistence (Instant write to MariaDB)
@@ -939,8 +974,142 @@ try {
             width: 100%;
             position: relative;
             touch-action: pan-y;
-            padding-bottom: calc(135px + var(--safe-bottom));
+            padding-bottom: calc(75px + var(--safe-bottom));
             transition: background-color 0.25s ease, color 0.25s ease;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════
+           🧠 PSYCHO-ERGONOMIC FOCUS MAGNIFICATION ENGINE (الراحة النفسية والتركيز)
+           ═════════════════════════════════════════════════════════════════ */
+        .m-input, .m-select, select.m-input {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        border-color 0.2s ease,
+                        box-shadow 0.2s ease,
+                        background-color 0.2s ease,
+                        font-size 0.2s ease,
+                        color 0.2s ease !important;
+        }
+        /* When any input is focused: increase scale, vibrant border, elevate depth */
+        .m-input:focus, .m-select:focus, select.m-input:focus {
+            transform: scale(1.025) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25), 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+            background-color: var(--surface-card) !important;
+            z-index: 10;
+            position: relative;
+        }
+        /* Special treatment for Amount Inputs: psychological magnification */
+        .huge-number:focus {
+            transform: scale(1.04) !important;
+            font-size: 1.65rem !important;
+            font-weight: 900 !important;
+            color: var(--emerald) !important;
+            border-color: var(--emerald) !important;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3), 0 10px 28px rgba(0, 0, 0, 0.2) !important;
+        }
+        #tx-amount-foreign:focus {
+            color: #f87171 !important;
+            border-color: #f87171 !important;
+            box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.3), 0 10px 28px rgba(0, 0, 0, 0.2) !important;
+        }
+        /* Text and Ref inputs when focused: larger font and primary tone */
+        #tx-ref:focus, #tx-notes:focus, #tx-beneficiary:focus {
+            font-size: 1.05rem !important;
+            font-weight: 800 !important;
+            color: var(--primary) !important;
+        }
+        /* Account Selection Box Focus / Visual Hierarchy */
+        .box-account-picker {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease !important;
+            cursor: pointer;
+        }
+        .box-account-picker:active {
+            transform: scale(0.98) !important;
+        }
+        .box-account-from {
+            border-inline-start: 6px solid #ef4444 !important;
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.08) 0%, var(--surface-card) 45%) !important;
+        }
+        .box-account-to {
+            border-inline-start: 6px solid #10b981 !important;
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, var(--surface-card) 45%) !important;
+        }
+        .box-account-from .box-acc-tag {
+            color: #ef4444 !important;
+            font-weight: 900 !important;
+            font-size: 0.95rem !important;
+        }
+        .box-account-to .box-acc-tag {
+            color: #10b981 !important;
+            font-weight: 900 !important;
+            font-size: 0.95rem !important;
+        }
+        .box-account-from .box-acc-title,
+        .box-account-to .box-acc-title {
+            font-size: 1.15rem !important;
+            font-weight: 900 !important;
+            line-height: 1.35 !important;
+            margin-top: 3px !important;
+            color: var(--text-main) !important;
+        }
+        /* Payment Method Buttons Styling */
+        .btn-pm-method {
+            height: 42px;
+            border-radius: 10px;
+            background: var(--surface-sub);
+            border: 1.5px solid var(--border-glass);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-pm-method.active {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.18), rgba(2, 132, 199, 0.25));
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 0 2px 10px rgba(37, 99, 235, 0.2);
+            font-weight: 900;
+        }
+        /* Voucher Navigation Buttons */
+        .btn-voucher-nav {
+            height: 32px;
+            padding: 2px 10px;
+            border-radius: 8px;
+            background: var(--surface-2);
+            border: 1px solid var(--border-glass);
+            color: var(--text-main);
+            font-size: 0.84rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.15s ease;
+        }
+        .btn-voucher-nav:active {
+            transform: scale(0.93);
+            background: var(--primary);
+            color: #fff;
+        }
+        .btn-voucher-new {
+            height: 32px;
+            padding: 2px 12px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: #fff;
+            font-size: 0.84rem;
+            font-weight: 900;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
         }
 
         /* Ambient Mobile Header */
@@ -5184,7 +5353,7 @@ try {
         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border);">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span class="sheet-title" id="tx-sheet-title" style="color:var(--primary); font-weight:900;">
-                    <i class="fa-solid fa-money-bill-transfer"></i> حركة مالية
+                    <i class="fa-solid fa-money-bill-transfer"></i> تحويلة مالية (من حساب إلى حساب)
                 </span>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
@@ -5196,76 +5365,34 @@ try {
         </div>
         <div class="sheet-body" style="padding-top:12px;">
             <form onsubmit="handleFinancialTxSubmit(event)">
-                <input type="hidden" id="tx-operation-type" value="financial_movement">
+                <input type="hidden" id="tx-operation-type" value="transfer">
 
-                <!-- 0. Module 2: High-Efficiency Voucher Mode Switcher -->
-                <div class="voucher-mode-toggle" id="tx-mode-segmented">
-                    <button type="button" class="v-mode-btn mode-receipt active" id="btn-vmode-receipt" onclick="CashVoucherEngine.setMode('receipt')">
-                        <i class="fa-solid fa-arrow-down-left"></i> 📥 سند قبض
-                    </button>
-                    <button type="button" class="v-mode-btn mode-disburse" id="btn-vmode-disburse" onclick="CashVoucherEngine.setMode('disbursement')">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i> 📤 سند صرف
-                    </button>
-                    <button type="button" class="v-mode-btn mode-transfer" id="btn-vmode-transfer" onclick="CashVoucherEngine.setMode('transfer')">
-                        <i class="fa-solid fa-money-bill-transfer"></i> 🔄 تحويل / قيد
-                    </button>
-                </div>
-
-                <!-- 0.1 Live Treasury Balance Guard (Active on Disbursement & Cash movements) -->
-                <div id="treasury-guard-card" class="treasury-guard-card guard-safe" style="display:none;">
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <i class="fa-solid fa-shield-halved" id="treasury-guard-icon"></i>
-                        <span id="treasury-guard-text">رصيد الخزينة متاح وكافٍ</span>
-                    </div>
-                    <span id="treasury-guard-balance" style="font-family:'Inter',sans-serif; font-weight:900;">0 SDG</span>
-                </div>
-
-                <!-- 0.2 Disbursement Category Tags (Active on Cash Disbursement) -->
-                <div id="disbursement-category-container" style="display:none; margin-bottom:10px;">
-                    <label class="m-label" style="font-size:0.76rem; font-weight:800; color:var(--text-muted); margin-bottom:4px; display:block;">
-                        <i class="fa-solid fa-tags text-amber-400"></i> تصنيف المصروف:
-                    </label>
-                    <div class="voucher-cat-row">
-                        <button type="button" class="v-cat-pill active" onclick="CashVoucherEngine.setCategory('operational', this)">⚙️ تشغيلي</button>
-                        <button type="button" class="v-cat-pill" onclick="CashVoucherEngine.setCategory('maintenance', this)">🔧 صيانة</button>
-                        <button type="button" class="v-cat-pill" onclick="CashVoucherEngine.setCategory('fuel', this)">⛽ وقود ونقل</button>
-                        <button type="button" class="v-cat-pill" onclick="CashVoucherEngine.setCategory('supplier', this)">🏢 سداد مورد</button>
-                        <button type="button" class="v-cat-pill" onclick="CashVoucherEngine.setCategory('petty', this)">💼 عهدة ونثريات</button>
-                    </div>
-                    <input type="hidden" id="tx-expense-category" value="operational">
-                </div>
-
-                <!-- 0.3 Manager Approval Toggle Card -->
-                <div id="disbursement-approval-card" class="approval-toggle-card" style="display:none;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <i class="fa-solid fa-user-shield text-amber-400" style="font-size:1.15rem;"></i>
-                        <div>
-                            <strong style="font-size:0.8rem; color:var(--text-main); display:block;">طلب موافقة المدير المالي 🔒</strong>
-                            <span style="font-size:0.7rem; color:var(--text-muted);" id="approval-subtext">للمصروفات التي تتجاوز سقف الصرف اللحظي</span>
-                        </div>
-                    </div>
-                    <label style="display:flex; align-items:center; cursor:pointer;">
-                        <input type="checkbox" id="tx-request-approval" style="width:18px; height:18px; accent-color:var(--amber);" onchange="CashVoucherEngine.onApprovalToggle(this.checked)">
-                    </label>
-                </div>
-
-                <!-- 1. Top Bar: رقم السند & سعر الصرف -->
-                <div class="tx-top-bar" style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); padding:8px 12px; border-radius:12px; margin-bottom:10px; width:100%; box-sizing:border-box;">
-                    <!-- رقم السند -->
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">السند:</span>
-                        <span id="tx-voucher-display" style="font-family:'Inter',monospace; font-size:0.95rem; font-weight:900; color:var(--emerald); background:rgba(16,185,129,0.12); padding:2px 8px; border-radius:8px; border:1px solid rgba(16,185,129,0.3);">...</span>
+                <!-- 1. Top Bar: التنقل بين السندات بالسيرفر الحي (السابق / التالي) وسعر الصرف -->
+                <div class="tx-top-bar" style="display:flex; justify-content:space-between; align-items:center; background:var(--surface-sub); border:1.5px solid var(--border-glass); padding:8px 10px; border-radius:12px; margin-bottom:12px; width:100%; box-sizing:border-box;">
+                    <!-- Voucher Number & Navigation Arrows (السابق / التالي) -->
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <span style="font-size:0.82rem; font-weight:800; color:var(--text-muted);">السند:</span>
+                        <button type="button" class="btn-voucher-nav" onclick="VoucherNavigator.prev()" title="السند السابق (أقدم)">
+                            <i class="fa-solid fa-chevron-right"></i> السابق
+                        </button>
+                        <span id="tx-voucher-display" style="font-family:'Inter',monospace; font-size:0.95rem; font-weight:900; color:var(--emerald); background:rgba(16,185,129,0.14); padding:3px 8px; border-radius:8px; border:1px solid rgba(16,185,129,0.35);">...</span>
+                        <button type="button" class="btn-voucher-nav" onclick="VoucherNavigator.next()" title="السند التالي (أحدث)">
+                            التالي <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="btn-voucher-new" id="btn-voucher-new-entry" onclick="VoucherNavigator.newVoucher()" style="display:none;" title="العودة لإنشاء سند جديد">
+                            <i class="fa-solid fa-plus"></i> جديد
+                        </button>
                         <input type="hidden" id="tx-voucher-no" value="">
                     </div>
 
                     <!-- الصرف -->
-                    <div style="display:flex; align-items:center; gap:6px;">
-                        <span style="font-size:0.85rem; font-weight:800; color:var(--text-muted);">الصرف:</span>
-                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:82px; max-width:88px; height:34px; font-size:0.95rem; font-weight:900; text-align:center; direction:ltr !important; padding:2px 4px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:8px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
+                    <div style="display:flex; align-items:center; gap:4px;">
+                        <span style="font-size:0.82rem; font-weight:800; color:var(--text-muted);">الصرف:</span>
+                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:74px; max-width:80px; height:32px; font-size:0.92rem; font-weight:900; text-align:center; direction:ltr !important; padding:2px 4px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:8px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
                     </div>
                 </div>
 
-                <!-- 2. Action Toolbar: زر الوتساب (شعار فقط) ثم ai ثم شعار تحديث ثم شعار الاستديو -->
+                <!-- 2. Action Toolbar: تفريغ الإشعار (واتساب / AI / تحديث / استوديو) -->
                 <div class="whatsapp-slip-action-bar" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:12px; width:100%; box-sizing:border-box;">
                     <!-- 1. زر الوتساب (الشعار فقط) -->
                     <button type="button" onclick="openWhatsAppForSlip()" style="height:44px; background:linear-gradient(135deg, rgba(34,197,94,0.18), rgba(22,163,74,0.28)); border:1.5px solid #22c55e; color:#22c55e; border-radius:12px; font-size:1.35rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(34,197,94,0.15);" title="فتح تطبيق واتساب لنسخ الإشعار">
@@ -5284,7 +5411,7 @@ try {
                     </button>
 
                     <!-- 4. شعار الاستديو -->
-                    <button type="button" onclick="triggerSlipImagePicker()" style="height:44px; background:linear-gradient(135deg, rgba(168,85,247,0.18), rgba(126,34,206,0.28)); border:1.5px solid #a855f7; color:#c084fc; border-radius:12px; font-size:1.2rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(168,85,247,0.15);" title="اختيار صورة الإشعار من الاستوديو أو الكاميرا">
+                    <button type="button" onclick="triggerSlipImagePicker()" style="height:44px; background:linear-gradient(135deg, rgba(168,85,247,0.18), rgba(126,34,206,0.28)); border:1.5px solid #a855f7; color:#c084fc; border-radius:12px; font-size:1.2rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(168,85,247,0.15);" title="اختيار صورة الإشعار من الاستوديو وتفريغها فوراً ⚡">
                         <i class="fa-solid fa-images"></i>
                     </button>
                     <input type="file" id="slip-image-picker" accept="image/*" style="display:none;" onchange="handleSlipImageUpload(event)">
@@ -5312,46 +5439,46 @@ try {
                     </div>
                 </div>
 
-                <!-- 2. Dual Amount Boxes (محلي 50% وأجنبي 50% بدون إعادة للمبلغ) -->
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:4px;">
+                <!-- 3. Dual Amount Boxes (محلي 50% وأجنبي 50%) -->
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:6px;">
                     <!-- محلي -->
                     <div class="m-form-group" style="margin-bottom:0;">
-                        <label class="m-label" style="margin-bottom:4px; font-weight:800; font-size:0.85rem; color:var(--emerald);">
-                            المبلغ محلي
+                        <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.88rem; color:var(--emerald);">
+                            المبلغ محلي (SDG)
                         </label>
-                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal" style="height:54px; font-size:1.3rem; padding:6px 10px; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onLocalAmountInput(this.value); CashVoucherEngine.onAmountChange(this.value)">
+                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0.00" step="any" required inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onLocalAmountInput(this.value)">
                     </div>
 
                     <!-- أجنبي -->
                     <div class="m-form-group" style="margin-bottom:0;">
-                        <label class="m-label" style="margin-bottom:4px; font-weight:800; font-size:0.85rem; color:#f87171;">
+                        <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.88rem; color:#f87171;">
                             المبلغ أجنبي ($)
                         </label>
-                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0.00" step="any" inputmode="decimal" style="height:54px; font-size:1.3rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onForeignAmountInput(this.value)">
+                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0.00" step="any" inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onForeignAmountInput(this.value)">
                     </div>
                 </div>
 
                 <!-- Live Currency Verbalizer Helper -->
-                <div id="tx-amount-verbalizer" style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-bottom:12px; display:none; padding:4px 8px; background:var(--surface-sub); border-radius:8px; border:1px solid var(--border-glass);">
+                <div id="tx-amount-verbalizer" style="font-size:0.78rem; font-weight:800; color:var(--text-muted); margin-bottom:12px; display:none; padding:4px 8px; background:var(--surface-sub); border-radius:8px; border:1px solid var(--border-glass);">
                     0 جنيه سوداني
                 </div>
                 <input type="hidden" id="tx-amount" value="">
 
-                <!-- 3. Dual Account Box (من وإلى) -->
+                <!-- 4. Dual Account Box (من وإلى) بتصميم عالي الوضوح والتركيز -->
                 <div class="account-selector-container" style="margin-bottom:12px;">
-                    <!-- 🔴 FROM (من - الدافع) -->
+                    <!-- 🔴 FROM (من - الدافع ومصدر الأموال) -->
                     <div class="box-account-picker box-account-from" onclick="openAccountPicker('from')">
                         <div class="box-acc-left">
-                            <span class="box-acc-tag" style="font-size:0.85rem; font-weight:900;">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i> من:
+                            <span class="box-acc-tag" style="font-size:0.95rem; font-weight:900;">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> من (الدافع / مصدر الأموال):
                             </span>
-                            <div class="box-acc-title" id="display-from-name" style="font-size:0.95rem; font-weight:800;">-- اضغط لاختيار الحساب --</div>
+                            <div class="box-acc-title" id="display-from-name" style="font-size:1.15rem; font-weight:900;">-- اضغط لتحديد الحساب الصارف --</div>
                             <div class="box-acc-meta" id="display-from-meta">
-                                <span>اختر عميلاً أو خزينة أو بنكاً</span>
+                                <span>اختر عميلاً أو خزينة أو بنكاً للصرف منه</span>
                             </div>
                         </div>
                         <div class="box-acc-right">
-                            <i class="fa-solid fa-chevron-left" style="font-size:0.85rem; opacity:0.6;"></i>
+                            <i class="fa-solid fa-chevron-left" style="font-size:1rem; opacity:0.7;"></i>
                         </div>
                     </div>
                     <input type="hidden" id="tx-from-id" required>
@@ -5364,19 +5491,19 @@ try {
                         <i class="fa-solid fa-arrow-up-down"></i>
                     </button>
 
-                    <!-- 🟢 TO (إلى - المستلم) -->
+                    <!-- 🟢 TO (إلى - المستلم ووجهة الأموال) -->
                     <div class="box-account-picker box-account-to" onclick="openAccountPicker('to')">
                         <div class="box-acc-left">
-                            <span class="box-acc-tag" style="font-size:0.85rem; font-weight:900;">
-                                <i class="fa-solid fa-arrow-down-to-bracket"></i> إلى:
+                            <span class="box-acc-tag" style="font-size:0.95rem; font-weight:900;">
+                                <i class="fa-solid fa-arrow-down-to-bracket"></i> إلى (المستلم / وجهة الأموال):
                             </span>
-                            <div class="box-acc-title" id="display-to-name" style="font-size:0.95rem; font-weight:800;">-- اضغط لاختيار الحساب --</div>
+                            <div class="box-acc-title" id="display-to-name" style="font-size:1.15rem; font-weight:900;">-- اضغط لتحديد الحساب المستلم --</div>
                             <div class="box-acc-meta" id="display-to-meta">
-                                <span>اختر بنكاً أو خزينة أو عميلاً أو مورداً</span>
+                                <span>اختر بنكاً أو خزينة أو عميلاً أو مورداً للإيداع فيه</span>
                             </div>
                         </div>
                         <div class="box-acc-right">
-                            <i class="fa-solid fa-chevron-left" style="font-size:0.85rem; opacity:0.6;"></i>
+                            <i class="fa-solid fa-chevron-left" style="font-size:1rem; opacity:0.7;"></i>
                         </div>
                     </div>
                     <input type="hidden" id="tx-to-id" required>
@@ -5385,13 +5512,38 @@ try {
                     <input type="hidden" id="tx-to-phone">
                 </div>
 
-                <!-- 4. Date & Ref in one compact row -->
+                <!-- 5. Payment Method Selector (تحويلة بنكية / كاش / شيك) -->
+                <div style="margin-bottom:10px;">
+                    <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.85rem; color:var(--text-muted); display:block;">
+                        <i class="fa-solid fa-credit-card"></i> طريقة التحويل / الدفع:
+                    </label>
+                    <div class="payment-method-selector" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+                        <button type="button" class="btn-pm-method active" id="pm-bank" onclick="setTransferPaymentMethod('bank')">
+                            <i class="fa-solid fa-building-columns"></i> تحويلة بنكية
+                        </button>
+                        <button type="button" class="btn-pm-method" id="pm-cash" onclick="setTransferPaymentMethod('cash')">
+                            <i class="fa-solid fa-money-bill-wave"></i> كاش نقدي
+                        </button>
+                        <button type="button" class="btn-pm-method" id="pm-cheque" onclick="setTransferPaymentMethod('cheque')">
+                            <i class="fa-solid fa-money-check-dollar"></i> شيك مصرفي
+                        </button>
+                    </div>
+                    <input type="hidden" id="tx-payment-method" value="bank">
+                </div>
+
+                <!-- 6. Date & Dynamic Reference/Cheque Number -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
                     <div class="m-form-group" style="margin-bottom:0;">
+                        <label class="m-label" style="margin-bottom:4px; font-weight:800; font-size:0.82rem; color:var(--text-muted);">
+                            التاريخ:
+                        </label>
                         <input type="date" id="tx-date" class="m-input" required style="height:44px; font-weight:700;">
                     </div>
                     <div class="m-form-group" style="margin-bottom:0;">
-                        <input type="text" id="tx-ref" class="m-input" placeholder="رقم التحويلة" style="height:44px; font-family:'Inter',monospace; font-weight:800; letter-spacing:0.5px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
+                        <label class="m-label" id="tx-ref-label" style="margin-bottom:4px; font-weight:800; font-size:0.82rem; color:var(--text-muted);">
+                            رقم التحويلة البنكية:
+                        </label>
+                        <input type="text" id="tx-ref" class="m-input" placeholder="رقم التحويلة البنكية" style="height:44px; font-family:'Inter',monospace; font-weight:800; letter-spacing:0.5px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
                     </div>
                 </div>
                 <div id="tx-ref-validation-hint" style="font-size:0.75rem; font-weight:800; margin-top:-4px; margin-bottom:10px; display:none; padding:4px 10px; border-radius:8px;"></div>
@@ -7109,41 +7261,6 @@ try {
                 <span style="font-size:0.8rem;">جاري تحميل التقرير التفاعلي...</span>
             </div>
             <iframe id="rep-viewer-iframe" src="about:blank" style="width:100%; height:100%; border:none;" onload="const ldr=document.getElementById('rep-viewer-loader'); if(ldr) ldr.style.display='none';"></iframe>
-        </div>
-    </div>
-
-    <!-- ═════════════════════════════════════════════════════════════════
-         D. FLOATING BOTTOM ACTION HUB (THUMB-ZONE DOCK)
-         ═════════════════════════════════════════════════════════════════ -->
-    <div class="floating-action-hub">
-        <!-- 1. [ + بيع سريع ] Fast Barcode/Cash Invoice -->
-        <button type="button" class="hub-action-btn btn-sale" onclick="openBottomSheet('sheet-sale')" title="فاتورة بيع سريع">
-            <i class="fa-solid fa-plus"></i>
-            <span>+ بيع سريع</span>
-        </button>
-
-        <!-- 2. [ قبض نقدية ] Instant Cash Receipt -->
-        <button type="button" class="hub-action-btn btn-receipt" onclick="openQuickCashReceipt()" title="سند قبض نقدية">
-            <i class="fa-solid fa-arrow-down"></i>
-            <span>قبض نقدية</span>
-        </button>
-
-        <!-- 3. [ صرف نقدية ] Instant Cash Disbursement -->
-        <button type="button" class="hub-action-btn btn-disburse" onclick="openQuickCashDisbursement()" title="سند صرف نقدية">
-            <i class="fa-solid fa-arrow-up"></i>
-            <span>صرف نقدية</span>
-        </button>
-
-        <!-- 4. [ جرد الصنف ] Instant Stock Audit -->
-        <button type="button" class="hub-action-btn btn-audit" onclick="openBottomSheet('sheet-item-audit')" title="جرد فوري للصنف">
-            <i class="fa-solid fa-clipboard-check"></i>
-            <span>جرد الصنف</span>
-        </button>
-
-        <!-- 5. Voice Command (Instant Voucher via Speech) -->
-        <div class="hub-action-btn act-voice" onclick="VoiceCommandEngine.toggleListening('voucher')" style="border-color:var(--purple); display:none;" id="voice-hub-btn">
-            <i class="fa-solid fa-microphone" style="color:var(--purple); font-size:1.3rem;"></i>
-            <span>🎙️ أمر صوتي</span>
         </div>
     </div>
 
@@ -12118,7 +12235,255 @@ try {
             }
         }
 
-        function openFinancialTxSheet(mode = 'receipt') {
+        // ═════════════════════════════════════════════════════════════════
+        // 💳 PAYMENT METHOD CONTROLLER (تحويلة بنكية / كاش / شيك)
+        // ═════════════════════════════════════════════════════════════════
+        function setTransferPaymentMethod(method) {
+            triggerHaptic('light');
+            const pmInput = document.getElementById('tx-payment-method');
+            if (pmInput) pmInput.value = method;
+
+            ['bank', 'cash', 'cheque'].forEach(m => {
+                const btn = document.getElementById('pm-' + m);
+                if (btn) {
+                    if (m === method) btn.classList.add('active');
+                    else btn.classList.remove('active');
+                }
+            });
+
+            const refLabel = document.getElementById('tx-ref-label');
+            const refInp = document.getElementById('tx-ref');
+            if (method === 'bank') {
+                if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-building-columns" style="color:var(--primary);"></i> رقم التحويلة البنكية:';
+                if (refInp) {
+                    refInp.placeholder = 'أدخل رقم التحويلة البنكية (مثال: 98765432)';
+                    refInp.style.display = 'block';
+                }
+            } else if (method === 'cheque') {
+                if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-money-check-dollar" style="color:var(--purple);"></i> رقم الشيك المصرفي:';
+                if (refInp) {
+                    refInp.placeholder = 'أدخل رقم الشيك المصرفي (مثال: CHQ-554433)';
+                    refInp.style.display = 'block';
+                }
+            } else { // cash
+                if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-money-bill-wave" style="color:var(--emerald);"></i> مرجع الإيصال اليدوي (اختياري):';
+                if (refInp) {
+                    refInp.placeholder = 'رقم إيصال الكاش اليدوي (اختياري)';
+                    refInp.style.display = 'block';
+                }
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // 🧭 VOUCHER NAVIGATOR (التنقل بين السندات السابقة والتالية بالسيرفر الحي)
+        // ═════════════════════════════════════════════════════════════════
+        window.VoucherNavigator = {
+            currentIndex: -1, // -1 = وضع إنشاء سند جديد
+            vouchers: [],
+            loading: false,
+
+            async loadVouchers() {
+                if (this.loading) return;
+                this.loading = true;
+                try {
+                    const resp = await fetch('mobile-dashboard.php?action=get_live_vouchers');
+                    if (resp.ok) {
+                        const res = await resp.json();
+                        if (res.success && Array.isArray(res.vouchers) && res.vouchers.length > 0) {
+                            this.vouchers = res.vouchers;
+                            return;
+                        }
+                    }
+                } catch(e) {
+                    console.warn('Live vouchers fetch fallback to local:', e);
+                } finally {
+                    this.loading = false;
+                }
+
+                // Fallback to local arrays
+                const localTxs = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_financial_txs_v1') || []) : [];
+                const localPay = window.SERVER_DATA?.payments || ((typeof loadTenantArray === 'function') ? loadTenantArray('erp_single_payments_v1') : []) || [];
+                const localRec = window.SERVER_DATA?.receipts || ((typeof loadTenantArray === 'function') ? loadTenantArray('erp_single_receipts_v1') : []) || [];
+                const merged = [...localTxs, ...localPay, ...localRec];
+                merged.sort((a, b) => {
+                    const da = a.date || a.createdAt || '';
+                    const db = b.date || b.createdAt || '';
+                    return db.localeCompare(da);
+                });
+                this.vouchers = merged;
+            },
+
+            init() {
+                this.currentIndex = -1;
+                const newBtn = document.getElementById('btn-voucher-new-entry');
+                if (newBtn) newBtn.style.display = 'none';
+                this.loadVouchers();
+            },
+
+            prev() {
+                triggerHaptic('medium');
+                if (this.vouchers.length === 0) {
+                    this.loadVouchers().then(() => {
+                        if (this.vouchers.length > 0) this.prev();
+                        else if (window.showModernToast) window.showModernToast('لا توجد سندات سابقة مسجلة في النظام', 'info', 2000);
+                    });
+                    return;
+                }
+                if (this.currentIndex < this.vouchers.length - 1) {
+                    this.currentIndex++;
+                    this.displayVoucher(this.currentIndex);
+                } else {
+                    if (window.showModernToast) window.showModernToast('وصلت إلى أقدم سند مسجل في النظام', 'info', 2000);
+                }
+            },
+
+            next() {
+                triggerHaptic('medium');
+                if (this.currentIndex > 0) {
+                    this.currentIndex--;
+                    this.displayVoucher(this.currentIndex);
+                } else if (this.currentIndex === 0) {
+                    this.newVoucher();
+                } else {
+                    if (window.showModernToast) window.showModernToast('أنت بالفعل في وضع إنشاء سند جديد', 'info', 2000);
+                }
+            },
+
+            newVoucher() {
+                triggerHaptic('success');
+                this.currentIndex = -1;
+                const newBtn = document.getElementById('btn-voucher-new-entry');
+                if (newBtn) newBtn.style.display = 'none';
+
+                // تفريغ الحقول لإدخال سند جديد
+                const locInp = document.getElementById('tx-amount-local');
+                const forInp = document.getElementById('tx-amount-foreign');
+                const refInp = document.getElementById('tx-ref');
+                const noteInp = document.getElementById('tx-notes');
+                const benInp = document.getElementById('tx-beneficiary');
+                if (locInp) locInp.value = '';
+                if (forInp) forInp.value = '';
+                if (refInp) refInp.value = '';
+                if (noteInp) noteInp.value = '';
+                if (benInp) benInp.value = '';
+
+                // إعادة حساب الرقم التسلسلي التالي للسند
+                const vObj = computeNextVoucherNo();
+                const vNoEl = document.getElementById('tx-voucher-no');
+                const vDispEl = document.getElementById('tx-voucher-display');
+                if (vNoEl) vNoEl.value = vObj.voucherNo;
+                if (vDispEl) {
+                    vDispEl.textContent = vObj.voucherNo;
+                    vDispEl.style.color = 'var(--emerald)';
+                    vDispEl.style.borderColor = 'rgba(16,185,129,0.3)';
+                    vDispEl.style.background = 'rgba(16,185,129,0.12)';
+                }
+
+                // التاريخ لليوم
+                const dtInp = document.getElementById('tx-date');
+                if (dtInp) dtInp.value = new Date().toISOString().split('T')[0];
+
+                // إعادة مسميات الحسابات
+                const dFrom = document.getElementById('display-from-name');
+                const dTo = document.getElementById('display-to-name');
+                if (dFrom) dFrom.textContent = '-- اضغط لتحديد الحساب الصارف --';
+                if (dTo) dTo.textContent = '-- اضغط لتحديد الحساب المستلم --';
+
+                setTransferPaymentMethod('bank');
+
+                if (window.showModernToast) {
+                    window.showModernToast(`✨ وضع إنشاء سند جديد (${vObj.voucherNo})`, 'success', 2000);
+                }
+            },
+
+            displayVoucher(idx) {
+                const v = this.vouchers[idx];
+                if (!v) return;
+
+                const newBtn = document.getElementById('btn-voucher-new-entry');
+                if (newBtn) newBtn.style.display = 'inline-flex';
+
+                // رقم السند
+                const vNum = v.voucherNo || v.paymentNo || v.receiptNo || v.id || ('#TX-' + (idx + 1));
+                const vNoEl = document.getElementById('tx-voucher-no');
+                const vDispEl = document.getElementById('tx-voucher-display');
+                if (vNoEl) vNoEl.value = vNum;
+                if (vDispEl) {
+                    vDispEl.textContent = vNum;
+                    vDispEl.style.color = 'var(--primary)';
+                    vDispEl.style.borderColor = 'var(--primary)';
+                    vDispEl.style.background = 'rgba(56,189,248,0.18)';
+                }
+
+                // المبلغ
+                const amt = parseFloat(v.amountLocal || v.amount || 0);
+                const locInp = document.getElementById('tx-amount-local');
+                if (locInp) {
+                    locInp.value = amt || '';
+                    onLocalAmountInput(amt);
+                }
+
+                const amtFor = parseFloat(v.amountForeign || 0);
+                const forInp = document.getElementById('tx-amount-foreign');
+                if (forInp) forInp.value = amtFor || '';
+
+                // التاريخ
+                const dtInp = document.getElementById('tx-date');
+                if (dtInp && v.date) dtInp.value = v.date;
+
+                // طريقة الدفع
+                const pm = v.paymentMethod || (v.reference || v.refNo ? 'bank' : 'cash');
+                setTransferPaymentMethod(pm);
+
+                // رقم التحويلة / الشيك
+                const refInp = document.getElementById('tx-ref');
+                const refVal = v.reference || v.refNo || v.transferNo || v.chequeNo || '';
+                if (refInp) {
+                    refInp.value = refVal;
+                    if (typeof validateRefNoLive === 'function' && refVal) validateRefNoLive(refVal);
+                }
+
+                // البيان والمستفيد
+                const noteInp = document.getElementById('tx-notes');
+                if (noteInp) noteInp.value = v.notes || v.statement || '';
+                const benInp = document.getElementById('tx-beneficiary');
+                if (benInp) benInp.value = v.beneficiary || v.collectorName || v.partnerName || '';
+
+                // مطابقة الحسابين
+                if (ALL_ACCOUNTS.length === 0) buildAllAccountsList();
+
+                let fromAccountObj = null;
+                if (v.fromAccount && typeof v.fromAccount === 'object') fromAccountObj = v.fromAccount;
+                else if (v.fromAccount) fromAccountObj = ALL_ACCOUNTS.find(a => String(a.id) === String(v.fromAccount) || a.name.includes(v.fromAccount));
+                else if (v.accountId) fromAccountObj = ALL_ACCOUNTS.find(a => String(a.id) === String(v.accountId));
+
+                let toAccountObj = null;
+                if (v.toAccount && typeof v.toAccount === 'object') toAccountObj = v.toAccount;
+                else if (v.toAccount) toAccountObj = ALL_ACCOUNTS.find(a => String(a.id) === String(v.toAccount) || a.name.includes(v.toAccount));
+                else if (v.partnerId) toAccountObj = ALL_ACCOUNTS.find(a => String(a.id) === String(v.partnerId));
+
+                if (fromAccountObj) selectAccountDirectly('from', fromAccountObj);
+                else {
+                    const dFrom = document.getElementById('display-from-name');
+                    if (dFrom) dFrom.textContent = v.fromAccount || v.partnerName || '-- غير مسجل --';
+                }
+
+                if (toAccountObj) selectAccountDirectly('to', toAccountObj);
+                else {
+                    const dTo = document.getElementById('display-to-name');
+                    if (dTo) dTo.textContent = v.toAccount || v.partnerName || '-- غير مسجل --';
+                }
+
+                if (window.showModernToast) {
+                    window.showModernToast(`👁️ عرض السند المسجل [${vNum}] (${idx + 1} من ${this.vouchers.length})`, 'info', 2200);
+                }
+            }
+        };
+
+        // ═════════════════════════════════════════════════════════════════
+        // 💸 OPEN FINANCIAL TRANSFER SHEET (تحويلة مالية من حساب إلى حساب)
+        // ═════════════════════════════════════════════════════════════════
+        function openFinancialTxSheet(mode = 'transfer') {
             triggerHaptic('light');
             buildAllAccountsList();
 
@@ -12128,49 +12493,41 @@ try {
                 dateInp.value = new Date().toISOString().split('T')[0];
             }
 
-            // Populate sequential voucher number (Cloud Official vs Local Offline)
-            const isOffline = !navigator.onLine || window.IS_OFFLINE_SIMULATED;
-            const targetMode = (mode === 'payment' || mode === 'disbursement') ? 'disbursement' : (mode === 'transfer' ? 'transfer' : 'receipt');
+            const opEl = document.getElementById('tx-operation-type');
+            if (opEl) opEl.value = 'transfer';
+
+            // Sequential voucher number
+            const vObj = computeNextVoucherNo();
             const vNoEl = document.getElementById('tx-voucher-no');
             const vDispEl = document.getElementById('tx-voucher-display');
-
-            if (isOffline && window.DualNumberingEngine && (targetMode === 'receipt' || targetMode === 'disbursement')) {
-                const offSeq = window.DualNumberingEngine.peekNextSequence(targetMode);
-                if (vNoEl) vNoEl.value = offSeq;
-                if (vDispEl) {
-                    vDispEl.innerHTML = `⏳ ${offSeq} <small style="font-size:0.76rem; opacity:0.85;">(أوفلاين)</small>`;
-                    vDispEl.style.color = '#f59e0b';
-                    vDispEl.style.borderColor = '#f59e0b';
-                    vDispEl.style.background = 'rgba(245, 158, 11, 0.15)';
-                }
-            } else {
-                const vObj = computeNextVoucherNo();
-                if (vNoEl) vNoEl.value = vObj.voucherNo;
-                if (vDispEl) {
-                    vDispEl.textContent = vObj.voucherNo;
-                    vDispEl.style.color = 'var(--emerald)';
-                    vDispEl.style.borderColor = 'rgba(16,185,129,0.3)';
-                    vDispEl.style.background = 'rgba(16,185,129,0.12)';
-                }
+            if (vNoEl) vNoEl.value = vObj.voucherNo;
+            if (vDispEl) {
+                vDispEl.textContent = vObj.voucherNo;
+                vDispEl.style.color = 'var(--emerald)';
+                vDispEl.style.borderColor = 'rgba(16,185,129,0.3)';
+                vDispEl.style.background = 'rgba(16,185,129,0.12)';
             }
 
-            // Populate Cost Centers
+            // Populate Cost Centers & Dollar Rate
             populateCostCentersDropdown();
-
-            // Populate Dollar Exchange Rate
             const rate = getDollarExchangeRate();
             const rateInp = document.getElementById('tx-exchange-rate');
             if (rateInp) rateInp.value = rate;
             updateRateDisplayHint(rate);
+
+            // Default Payment Method: bank
+            setTransferPaymentMethod('bank');
+
+            // Init Live Voucher Navigator
+            if (window.VoucherNavigator) {
+                window.VoucherNavigator.init();
+            }
 
             // Clear ref validation hint
             const hint = document.getElementById('tx-ref-validation-hint');
             if (hint) hint.style.display = 'none';
 
             openBottomSheet('sheet-financial-tx');
-            if (window.CashVoucherEngine) {
-                window.CashVoucherEngine.setMode(targetMode);
-            }
         }
 
         // Backward compatibility shim if any legacy button calls setTxType
@@ -12434,12 +12791,18 @@ try {
         function openAccountPicker(target) {
             triggerHaptic('light');
             CURRENT_PICKER_TARGET = target;
+
+            // Highlight the active target box in the transfer form
+            document.querySelectorAll('.box-account-picker').forEach(b => b.classList.remove('active-focus'));
+            const activeBox = document.querySelector(target === 'from' ? '.box-account-from' : '.box-account-to');
+            if (activeBox) activeBox.classList.add('active-focus');
+
             const heading = document.getElementById('picker-modal-heading');
             if (heading) {
                 if (target === 'from') {
-                    heading.innerHTML = '<span style="color:#ef4444;">🔴 اختر الحساب الصارف (المدفوع منه / الدائن)</span>';
+                    heading.innerHTML = '<span style="color:#ef4444; font-size:1.05rem; font-weight:900;"><i class="fa-solid fa-arrow-up-right-from-square"></i> أنت الآن تحدد: [من حساب] (الدافع ومصدر الأموال)</span>';
                 } else {
-                    heading.innerHTML = '<span style="color:#10b981;">🟢 اختر الحساب المستلم (المقبوض إليه / المدين)</span>';
+                    heading.innerHTML = '<span style="color:#10b981; font-size:1.05rem; font-weight:900;"><i class="fa-solid fa-arrow-down-to-bracket"></i> أنت الآن تحدد: [إلى حساب] (المستلم ووجهة الأموال)</span>';
                 }
             }
 
@@ -12663,6 +13026,8 @@ try {
             vNo = actualVNo;
             const finalRef = txRef || actualVNo;
 
+            const chosenPM = document.getElementById('tx-payment-method')?.value || (isBankInvolved ? 'bank' : 'cash');
+
             // Build Transaction Record
             const txRecord = {
                 id: actualVNo,
@@ -12672,7 +13037,8 @@ try {
                 official_server_id: null,
                 voucherSeq: vObj.seq,
                 refNo: finalRef,
-                transferNo: txRef || '',
+                transferNo: (chosenPM === 'bank') ? txRef : '',
+                chequeNo: (chosenPM === 'cheque') ? txRef : '',
                 mobileTransferNo: txRef || '',
                 amount: amt,
                 amountLocal: amt,
@@ -12687,7 +13053,7 @@ try {
                 time: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' }),
                 type: nature.type,
                 natureLabel: nature.label,
-                paymentMethod: isBankInvolved ? 'bank' : 'cash',
+                paymentMethod: chosenPM,
                 fromAccount: {
                     id: SELECTED_FROM_ACCOUNT.id,
                     rawId: SELECTED_FROM_ACCOUNT.rawId,
@@ -12875,6 +13241,10 @@ try {
 
             const hint = document.getElementById('tx-ref-validation-hint');
             if (hint) hint.style.display = 'none';
+
+            if (window.VoucherNavigator && Array.isArray(window.VoucherNavigator.vouchers)) {
+                window.VoucherNavigator.vouchers.unshift(txRecord);
+            }
 
             closeBottomSheet('sheet-financial-tx');
             refreshMobileData();
@@ -13390,7 +13760,12 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         async function processSlipImageBlob(fileOrBlob) {
             triggerHaptic('medium');
             if (window.showModernToast) {
-                window.showModernToast('🔍 جاري فحص وقراءة صورة الإشعار بالذكاء الاصطناعي...', 'info', 4000);
+                window.showModernToast('🔍 جاري فحص وقراءة صورة الإشعار وتفريغها آلياً...', 'info', 4000);
+            }
+
+            // Always ensure Payment Method is set to Bank Transfer
+            if (typeof setTransferPaymentMethod === 'function') {
+                setTransferPaymentMethod('bank');
             }
 
             try {
@@ -13420,8 +13795,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                     if (d.amount) {
                         const locInp = document.getElementById('tx-amount-local');
-                        if (locInp) locInp.value = d.amount;
-                        onLocalAmountInput(d.amount);
+                        if (locInp) {
+                            locInp.value = d.amount;
+                            onLocalAmountInput(d.amount);
+                            locInp.focus();
+                        }
                     }
                     if (d.transaction_ref || d.reference_no) {
                         const refInp = document.getElementById('tx-ref');
@@ -13453,23 +13831,22 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     if (banner) banner.style.display = 'none';
                     sessionStorage.removeItem('waiting_whatsapp_slip');
 
+                    if (typeof playSoundEffect === 'function') playSoundEffect('cash');
                     if (window.showModernToast) {
-                        window.showModernToast('✨ تم استخراج بيانات الإشعار وتعبئة السند بنجاح!', 'success', 3000);
+                        window.showModernToast('✨ تم استخراج بيانات الإشعار وتفريغ السند بنجاح!', 'success', 3500);
                     }
                 } else {
                     if (window.showModernToast) {
-                        window.showModernToast(res.error || 'تعذر استخراج بيانات الإشعار من الصورة، يرجى المحاولة بصورة أوضح أو نسخ النص.', 'warning', 4000);
-                    } else {
-                        alert(res.error || 'تعذر استخراج بيانات الإشعار من الصورة.');
+                        window.showModernToast('📸 تم إرفاق صورة الإشعار بالسند — يرجى إدخال المبلغ ورقم التحويلة', 'info', 4000);
                     }
+                    document.getElementById('tx-amount-local')?.focus();
                 }
             } catch(err) {
                 console.error('OCR Error:', err);
                 if (window.showModernToast) {
-                    window.showModernToast('حدث خطأ أثناء فحص الصورة. يمكنك نسخ نص الإشعار ولصقه مباشرة.', 'warning', 4000);
-                } else {
-                    alert('حدث خطأ أثناء فحص الصورة.');
+                    window.showModernToast('📸 تم حفظ مرفق الإشعار بنجاح بالسند — يرجى إدخال المبلغ ورقم التحويلة يدوياً', 'info', 4000);
                 }
+                document.getElementById('tx-amount-local')?.focus();
             }
         }
 
