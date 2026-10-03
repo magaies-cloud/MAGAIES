@@ -148,14 +148,14 @@ window.PWAManager = {
         `;
 
         container.innerHTML = `
-            <div style="width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg, #0ea5e9, #10b981); display:flex; align-items:center; justify-content:center; color:#fff; font-size:0.8rem; flex-shrink:0;">
-                <i class="fa-solid fa-cloud-arrow-down"></i>
+            <div style="width:34px; height:34px; border-radius:10px; background:#0f172a; border:1.5px solid rgba(56, 189, 248, 0.6); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; box-shadow:0 0 12px rgba(56,189,248,0.4);">
+                <img src="assets/icon-192.png?v=2026_logo_official_v2" alt="أيقونة مقاييس" style="width:100%; height:100%; object-fit:cover;">
             </div>
-            <div style="font-size:0.8rem; font-weight:900; color:#fff; white-space:nowrap;">
+            <div style="font-size:0.82rem; font-weight:900; color:#fff; white-space:nowrap;">
                 تطبيق مقاييس ERP
             </div>
-            <button type="button" id="btn-magaiees-native-install" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; border-radius:20px; padding:5px 12px; font-size:0.75rem; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; box-shadow:0 2px 8px rgba(14,165,233,0.4);">
-                📲 تثبيت تطبيق مقاييس على الجوال
+            <button type="button" id="btn-magaiees-native-install" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; border-radius:20px; padding:6px 14px; font-size:0.75rem; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; box-shadow:0 2px 8px rgba(14,165,233,0.4); display:flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-plus-circle"></i> إضافة أيقونة مقاييس لسطح المكتب
             </button>
             <button type="button" onclick="PWAManager.hideAllInstallBanners()" style="background:transparent; border:none; color:rgba(255,255,255,0.6); font-size:0.9rem; cursor:pointer; padding:2px; line-height:1;">✕</button>
         `;
@@ -216,8 +216,8 @@ window.PWAManager = {
 
             div.innerHTML = `
                 <div style="background:#0f172a; border:2px solid rgba(56,189,248,0.4); border-radius:26px; padding:22px 20px; width:92%; max-width:420px; color:#fff; text-align:center; box-shadow:0 25px 50px rgba(0,0,0,0.7);">
-                    <div style="width:54px; height:54px; border-radius:16px; background:linear-gradient(135deg, #0ea5e9, #10b981); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:1.6rem; color:#fff; box-shadow:0 0 20px rgba(14,165,233,0.5);">
-                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    <div style="width:64px; height:64px; border-radius:18px; background:#0f172a; border:2px solid rgba(56,189,248,0.6); margin:0 auto 12px; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 0 25px rgba(56,189,248,0.5);">
+                        <img src="assets/icon-192.png?v=2026_logo_official_v2" alt="أيقونة مقاييس" style="width:100%; height:100%; object-fit:cover;">
                     </div>
                     <strong style="font-size:1.1rem; display:block; margin-bottom:6px; color:#f8fafc;">تثبيت تطبيق مقاييس (Magaiees ERP)</strong>
                     <p style="font-size:0.84rem; color:#cbd5e1; line-height:1.6; margin-bottom:16px;">
