@@ -116,23 +116,113 @@ try {
                 ':created_at' => $createdAt
             ]);
 
-            // Also persist directly into domain tables for immediate desktop & reports visibility
+            // Also persist directly into domain tables and generate official server sequence numbers
+            $officialCloudId = '#' . (10000 + (abs(crc32($id)) % 89999));
             try {
                 $tenantId = intval($reqData['tenant_id'] ?? 1);
                 $entLower = strtolower($entityName);
-                if (strpos($entLower, 'voucher') !== false || strpos($entLower, 'payment') !== false || strpos($entLower, 'receipt') !== false || strpos($entLower, 'tx') !== false) {
+                $payloadObj = is_string($payload) ? json_decode($payload, true) : $payload;
+                if (!is_array($payloadObj)) $payloadObj = [];
+
+                if (strpos($entLower, 'receipt') !== false || (isset($payloadObj['mode']) && $payloadObj['mode'] === 'receipt') || (isset($payloadObj['type']) && $payloadObj['type'] === 'single_receipt')) {
+                    // 1. سند استلام / قبض نقدي أو بنكي (single_receipts)
+                    $pfx = 'R' . date('ym');
+                    $maxSeq = 0;
+                    $stmtCheck = $pdo->prepare("SELECT data FROM single_receipts WHERE tenant_id = ? ORDER BY id DESC LIMIT 50");
+                    $stmtCheck->execute([$tenantId]);
+                    while ($rRow = $stmtCheck->fetch(PDO::FETCH_ASSOC)) {
+                        $pData = json_decode($rRow['data'] ?? '', true);
+                        if (!$pData) continue;
+                        $c = $pData['voucherNo'] ?? ($pData['id'] ?? '');
+                        if (strpos($c, $pfx) === 0) {
+                            $num = (int)substr($c, strlen($pfx));
+                            if ($num > $maxSeq) $maxSeq = $num;
+                        }
+                    }
+                    $officialCloudId = $pfx . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+                    $payloadObj['id'] = $officialCloudId;
+                    $payloadObj['voucherNo'] = $officialCloudId;
+                    $payloadObj['isPosted'] = true;
+                    $payloadObj['sync_status'] = 'SYNCED';
+                    $payloadObj['official_server_id'] = $officialCloudId;
+                    $stmtDom = $pdo->prepare("INSERT INTO single_receipts (tenant_id, data) VALUES (?, ?)");
+                    $stmtDom->execute([$tenantId, json_encode($payloadObj, JSON_UNESCAPED_UNICODE)]);
+
+                } elseif (strpos($entLower, 'voucher') !== false || strpos($entLower, 'payment') !== false || strpos($entLower, 'disburse') !== false || strpos($entLower, 'tx') !== false) {
+                    // 2. سند صرف نقدي / منصرفات (single_payments)
+                    $pfx = 'E' . date('ym');
+                    $maxSeq = 0;
+                    $stmtCheck = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id DESC LIMIT 50");
+                    $stmtCheck->execute([$tenantId]);
+                    while ($pRow = $stmtCheck->fetch(PDO::FETCH_ASSOC)) {
+                        $pData = json_decode($pRow['data'] ?? '', true);
+                        if (!$pData) continue;
+                        $c = $pData['voucherNo'] ?? ($pData['id'] ?? '');
+                        if (strpos($c, $pfx) === 0) {
+                            $num = (int)substr($c, strlen($pfx));
+                            if ($num > $maxSeq) $maxSeq = $num;
+                        }
+                    }
+                    $officialCloudId = $pfx . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+                    $payloadObj['id'] = $officialCloudId;
+                    $payloadObj['voucherNo'] = $officialCloudId;
+                    $payloadObj['isPosted'] = true;
+                    $payloadObj['sync_status'] = 'SYNCED';
+                    $payloadObj['official_server_id'] = $officialCloudId;
                     $stmtDom = $pdo->prepare("INSERT INTO single_payments (tenant_id, data) VALUES (?, ?)");
-                    $stmtDom->execute([$tenantId, $payload]);
+                    $stmtDom->execute([$tenantId, json_encode($payloadObj, JSON_UNESCAPED_UNICODE)]);
+
                 } elseif (strpos($entLower, 'sale') !== false || $entLower === 'invoices') {
+                    // 3. فواتير مبيعات ونقاط بيع (sales_invoices)
+                    $pfx = 'INV-' . date('ym');
+                    $maxSeq = 0;
+                    $stmtCheck = $pdo->prepare("SELECT data FROM sales_invoices WHERE tenant_id = ? ORDER BY id DESC LIMIT 50");
+                    $stmtCheck->execute([$tenantId]);
+                    while ($sRow = $stmtCheck->fetch(PDO::FETCH_ASSOC)) {
+                        $sData = json_decode($sRow['data'] ?? '', true);
+                        if (!$sData) continue;
+                        $c = $sData['invoiceNo'] ?? ($sData['id'] ?? '');
+                        if (strpos($c, $pfx) === 0) {
+                            $num = (int)substr($c, strlen($pfx));
+                            if ($num > $maxSeq) $maxSeq = $num;
+                        }
+                    }
+                    $officialCloudId = $pfx . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+                    $payloadObj['id'] = $officialCloudId;
+                    $payloadObj['invoiceNo'] = $officialCloudId;
+                    $payloadObj['sync_status'] = 'SYNCED';
+                    $payloadObj['official_server_id'] = $officialCloudId;
                     $stmtDom = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, data) VALUES (?, ?)");
-                    $stmtDom->execute([$tenantId, $payload]);
+                    $stmtDom->execute([$tenantId, json_encode($payloadObj, JSON_UNESCAPED_UNICODE)]);
+
+                } elseif (strpos($entLower, 'purchase') !== false) {
+                    // 4. فواتير مشتريات وتوريد (purchase_invoices)
+                    $pfx = 'PUR-' . date('ym');
+                    $maxSeq = 0;
+                    $stmtCheck = $pdo->prepare("SELECT data FROM purchase_invoices WHERE tenant_id = ? ORDER BY id DESC LIMIT 50");
+                    $stmtCheck->execute([$tenantId]);
+                    while ($purRow = $stmtCheck->fetch(PDO::FETCH_ASSOC)) {
+                        $purData = json_decode($purRow['data'] ?? '', true);
+                        if (!$purData) continue;
+                        $c = $purData['invoiceNo'] ?? ($purData['id'] ?? '');
+                        if (strpos($c, $pfx) === 0) {
+                            $num = (int)substr($c, strlen($pfx));
+                            if ($num > $maxSeq) $maxSeq = $num;
+                        }
+                    }
+                    $officialCloudId = $pfx . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+                    $payloadObj['id'] = $officialCloudId;
+                    $payloadObj['invoiceNo'] = $officialCloudId;
+                    $payloadObj['sync_status'] = 'SYNCED';
+                    $payloadObj['official_server_id'] = $officialCloudId;
+                    $stmtDom = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, data) VALUES (?, ?)");
+                    $stmtDom->execute([$tenantId, json_encode($payloadObj, JSON_UNESCAPED_UNICODE)]);
                 }
             } catch (Exception $domEx) {
                 // sync_queue remains the primary log if schema differs
             }
 
             $serverId = 'CENTRAL-' . strtoupper(str_replace(' ', '_', $entityName)) . '-' . ($recordId ?: strtoupper(substr(md5($id), 0, 6)));
-            $officialCloudId = '#' . (10000 + (abs(crc32($id)) % 89999));
             $results[] = [
                 'queue_id' => $id,
                 'id' => $id,

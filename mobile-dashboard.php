@@ -8,6 +8,15 @@
  * متصل مباشرة بقاعدة البيانات الحقيقية (MariaDB) ويدعم 4 سمات فائقة التباين
  */
 
+// Instant zero-overhead heartbeat probe response
+if ((isset($_GET['action']) && $_GET['action'] === 'heartbeat_ping') || (isset($_POST['action']) && $_POST['action'] === 'heartbeat_ping')) {
+    header('Content-Type: text/plain; charset=UTF-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0');
+    header('X-Magaiees-Heartbeat: 1');
+    echo '1';
+    exit;
+}
+
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $isMobileUserAgent = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent);
 $forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
@@ -13667,42 +13676,45 @@ try {
             const currentSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || '0');
             localStorage.setItem(getTenantKey('erp_single_payment_seq'), Math.max(currentSeq, vObj.seq));
 
-            // 11. Direct AJAX Write to MariaDB single_payments table for instant desktop parity
-            const postFormData = new FormData();
-            postFormData.append('action', 'save_financial_tx');
-            postFormData.append('tenant_id', window.SERVER_DATA?.tenantId || 1);
-            postFormData.append('data', JSON.stringify({
-                id: vNo,
-                voucherNo: vNo,
-                type: 'single_payment',
-                date: txDate,
-                time: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' }),
-                amountLocal: amt,
-                amountForeign: foreignAmt,
-                rate: rate,
-                currency: 'SDG',
-                systemExchangeRate: rate,
-                fromAccount: SELECTED_FROM_ACCOUNT.rawId || SELECTED_FROM_ACCOUNT.id,
-                toAccount: SELECTED_TO_ACCOUNT.rawId || SELECTED_TO_ACCOUNT.id,
-                costCenter: costCenter,
-                beneficiaryName: beneficiary,
-                toStatement: txNotes,
-                fromStatement: txNotes,
-                paymentMethod: isBankInvolved ? 'bank' : 'cash',
-                mobileTransferNo: txRef,
-                transferNo: txRef,
-                isPosted: true,
-                timestamp: new Date().toISOString()
-            }));
+            // 11. Direct AJAX Write to MariaDB if online, otherwise queue in Outbox
+            const isAppOnline = window.OfflineOutboxEngine ? window.OfflineOutboxEngine.isOnline() : navigator.onLine;
+            if (isAppOnline) {
+                const postFormData = new FormData();
+                postFormData.append('action', 'save_financial_tx');
+                postFormData.append('tenant_id', window.SERVER_DATA?.tenantId || 1);
+                postFormData.append('data', JSON.stringify({
+                    id: vNo,
+                    voucherNo: vNo,
+                    type: 'single_payment',
+                    date: txDate,
+                    time: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' }),
+                    amountLocal: amt,
+                    amountForeign: foreignAmt,
+                    rate: rate,
+                    currency: 'SDG',
+                    systemExchangeRate: rate,
+                    fromAccount: SELECTED_FROM_ACCOUNT.rawId || SELECTED_FROM_ACCOUNT.id,
+                    toAccount: SELECTED_TO_ACCOUNT.rawId || SELECTED_TO_ACCOUNT.id,
+                    costCenter: costCenter,
+                    beneficiaryName: beneficiary,
+                    toStatement: txNotes,
+                    fromStatement: txNotes,
+                    paymentMethod: isBankInvolved ? 'bank' : 'cash',
+                    mobileTransferNo: txRef,
+                    transferNo: txRef,
+                    isPosted: true,
+                    timestamp: new Date().toISOString()
+                }));
 
-            fetch('mobile-dashboard.php', { method: 'POST', body: postFormData })
-                .then(r => r.json())
-                .then(res => {
-                    if (res.success && res.seq) {
-                        localStorage.setItem(getTenantKey('erp_single_payment_seq'), Math.max(currentSeq, res.seq));
-                    }
-                })
-                .catch(() => {});
+                fetch('mobile-dashboard.php', { method: 'POST', body: postFormData })
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res.success && res.seq) {
+                            localStorage.setItem(getTenantKey('erp_single_payment_seq'), Math.max(currentSeq, res.seq));
+                        }
+                    })
+                    .catch(() => {});
+            }
 
             // Push to backend sync engine & Outbox
             pushChangesToBackend();
@@ -13731,7 +13743,11 @@ try {
             refreshMobileData();
 
             if (window.showModernToast) {
-                window.showModernToast(`✅ تم حفظ الحركة المالية [${vNo}] بمبلغ (${fmt(amt)} SDG) بنجاح!`, 'success', 3500);
+                if (isAppOnline) {
+                    window.showModernToast(`✅ تم حفظ الحركة المالية [${vNo}] بمبلغ (${fmt(amt)} SDG) بنجاح!`, 'success', 3500);
+                } else {
+                    window.showModernToast(`⏳ تم حفظ السند أوفلاين [${vNo}] (النور أحمر) • سيتم ترحيله وأخذ الرقم الرسمي فور عودة النت ⚡`, 'info', 4000);
+                }
             }
 
             if (openWhatsAppDirect) {
@@ -15314,7 +15330,12 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 closeBottomSheet('sheet-sale');
 
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم حفظ الفاتورة ${invNo} بنجاح (${fmt(totals.netDue)} SDG)`, 'success', 3500);
+                    const isAppOnline = window.OfflineOutboxEngine ? window.OfflineOutboxEngine.isOnline() : navigator.onLine;
+                    if (isAppOnline) {
+                        window.showModernToast(`✅ تم حفظ وترحيل الفاتورة ${invNo} بنجاح (${fmt(totals.netDue)} SDG)`, 'success', 3500);
+                    } else {
+                        window.showModernToast(`⏳ تم حفظ الفاتورة أوفلاين ${invNo} (النور أحمر) • سيتم ترحيلها وأخذ الرقم الرسمي فور عودة النت ⚡`, 'info', 4000);
+                    }
                 }
 
                 refreshMobileData();
@@ -15565,10 +15586,15 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (window.OfflineOutboxEngine) {
                 window.OfflineOutboxEngine.enqueue('purchase_invoice', pur, 'HIGH');
             }
-
             closeBottomSheet('sheet-purchase');
+
             if (window.showModernToast) {
-                window.showModernToast(`✅ تم حفظ فاتورة الشراء ${purNo} بمبلغ ${fmt(total)} SDG بنجاح!`, 'success');
+                const isAppOnline = window.OfflineOutboxEngine ? window.OfflineOutboxEngine.isOnline() : navigator.onLine;
+                if (isAppOnline) {
+                    window.showModernToast(`✅ تم حفظ وترحيل فاتورة الشراء ${purNo} بمبلغ ${fmt(total)} SDG بنجاح!`, 'success');
+                } else {
+                    window.showModernToast(`⏳ تم حفظ فاتورة الشراء أوفلاين ${purNo} (النور أحمر) • سيتم الترحيل للسيرفر فور عودة النت ⚡`, 'info', 4000);
+                }
             }
             refreshMobileData();
 
@@ -16014,9 +16040,12 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         window.OfflineOutboxEngine = {
             queue: [],
             isSimulatedOffline: false,
+            realOnline: (typeof navigator !== 'undefined' ? navigator.onLine : true),
             isSyncing: false,
-            autoSyncInterval: null,
+            lastHeartbeatMs: null,
             heartbeatInterval: null,
+            autoSyncInterval: null,
+            failedPings: 0,
 
             init() {
                 try {
@@ -16028,21 +16057,27 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 this.isSimulatedOffline = sessionStorage.getItem('erp_sim_offline') === '1';
 
-                window.addEventListener('online', () => this.handleNetworkChange());
-                window.addEventListener('offline', () => this.handleNetworkChange());
+                window.addEventListener('online', () => {
+                    // When browser fires online event, verify with actual packet ping immediately
+                    this.checkHeartbeat();
+                });
+                window.addEventListener('offline', () => {
+                    // Instant switch to RED dot on network cut
+                    this.setConnectionState(false);
+                });
                 if (navigator.connection) {
                     try {
-                        navigator.connection.addEventListener('change', () => this.handleNetworkChange());
+                        navigator.connection.addEventListener('change', () => this.checkHeartbeat());
                     } catch(e) {}
                 }
 
-                // Heartbeat probe every 3s: detects internet return instantly and drains queue
+                // Heartbeat probe every 2.5s: detects internet drop/return instantly and triggers auto-drain
                 if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
                 this.heartbeatInterval = setInterval(() => {
                     this.checkHeartbeat();
-                }, 3000);
+                }, 2500);
 
-                // Auto-flush attempt every 2.5s if online and pending items exist
+                // Auto-sync watcher every 2.5s: if online and pending items exist, flush immediately
                 if (this.autoSyncInterval) clearInterval(this.autoSyncInterval);
                 this.autoSyncInterval = setInterval(() => {
                     if (this.isOnline() && !this.isSyncing) {
@@ -16053,11 +16088,42 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     }
                 }, 2500);
 
+                // Initial probe immediately on load
+                this.checkHeartbeat();
                 this.renderUI();
             },
 
             isOnline() {
-                return navigator.onLine && !this.isSimulatedOffline;
+                if (this.isSimulatedOffline) return false;
+                if (typeof navigator !== 'undefined' && !navigator.onLine) return false;
+                return Boolean(this.realOnline);
+            },
+
+            setConnectionState(isOnline, latency = null) {
+                const wasOnline = this.realOnline;
+                this.realOnline = Boolean(isOnline);
+                if (latency !== null) this.lastHeartbeatMs = latency;
+
+                if (wasOnline !== this.realOnline) {
+                    this.renderUI();
+                    if (this.realOnline) {
+                        triggerHaptic('medium');
+                        if (typeof playSoundEffect === 'function') playSoundEffect('success');
+                        if (window.showModernToast) {
+                            window.showModernToast('🟢 تم استعادة اتصال الإنترنت (النور أخضر) — جاري ترحيل ورفع كافة السندات فوراً ⚡', 'success', 3000);
+                        }
+                        // Instantly drain all pending items upon internet recovery
+                        this.flushQueueNow(false);
+                    } else {
+                        triggerHaptic('heavy');
+                        if (typeof playSoundEffect === 'function') playSoundEffect('warning');
+                        if (window.showModernToast) {
+                            window.showModernToast('🔴 انقطع اتصال الإنترنت (النور أحمر) — البرنامج يعمل في وضع الأوفلاين والسندات تُحفظ محلياً', 'warning', 3500);
+                        }
+                    }
+                } else {
+                    this.renderUI();
+                }
             },
 
             getBreakdown() {
@@ -16086,56 +16152,70 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             },
 
             handleNetworkChange() {
-                this.renderUI();
-                if (this.isOnline()) {
-                    const hasPending = this.queue.some(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
-                    if (hasPending) {
-                        if (window.showModernToast) {
-                            window.showModernToast('🌐 تم رصد اتصال الإنترنت! جاري تفريغ ومزامنة طابور الأوفلاين فوراً...', 'info', 2000);
-                        }
-                        this.flushQueueNow(false);
-                    }
-                } else {
-                    if (window.showModernToast) {
-                        window.showModernToast('📴 الجهاز في وضع عدم الاتصال (Offline) — الحركات تُحفظ محلياً في الطابور', 'warning', 2500);
-                    }
-                }
+                this.checkHeartbeat();
             },
 
             toggleOfflineSimulation() {
                 triggerHaptic('heavy');
                 this.isSimulatedOffline = !this.isSimulatedOffline;
                 sessionStorage.setItem('erp_sim_offline', this.isSimulatedOffline ? '1' : '0');
-                this.renderUI();
+                this.setConnectionState(!this.isSimulatedOffline);
 
                 if (this.isSimulatedOffline) {
                     if (window.showModernToast) {
-                        window.showModernToast('📴 تم تفعيل محاكاة انقطاع الشبكة (Offline Mode)', 'warning', 2500);
+                        window.showModernToast('📴 تم تفعيل محاكاة انقطاع الشبكة (النور أحمر)', 'warning', 2500);
                     }
                 } else {
                     if (window.showModernToast) {
-                        window.showModernToast('🌐 تم استعادة الاتصال بالسحابة - جاري تفريغ الطابور فوراً...', 'success', 2500);
+                        window.showModernToast('🌐 تم إلغاء المحاكاة واستعادة الاتصال (النور أخضر) — جاري التفريغ...', 'success', 2500);
                     }
                     this.flushQueueNow(false);
                 }
             },
 
-            checkHeartbeat() {
-                if (this.isSimulatedOffline) return;
-                const hasPending = this.queue.some(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
-                // Background lightweight ping
-                fetch('mobile-dashboard.php?action=heartbeat_ping&t=' + Date.now(), { method: 'HEAD', cache: 'no-cache' })
-                    .then(() => {
-                        const subEl = document.getElementById('outbox-banner-sub');
-                        if (subEl && this.isOnline()) {
-                            subEl.innerText = `زمن الاستجابة: ${Math.floor(20 + Math.random() * 20)}ms • البوابة السحابية نشطة`;
-                        }
-                        // Instant auto-flush if internet is reachable and pending items exist!
+            async checkHeartbeat() {
+                if (this.isSimulatedOffline) {
+                    this.setConnectionState(false);
+                    return;
+                }
+                if (typeof navigator !== 'undefined' && !navigator.onLine) {
+                    this.setConnectionState(false);
+                    return;
+                }
+
+                const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                const timeoutId = controller ? setTimeout(() => controller.abort(), 2500) : null;
+                const startTime = performance.now();
+
+                try {
+                    // Try ultra-lightweight 1-byte ping endpoint first
+                    const pingUrl = 'api/ping.php?t=' + Date.now();
+                    const resp = await fetch(pingUrl, {
+                        method: 'GET',
+                        cache: 'no-store',
+                        signal: controller ? controller.signal : undefined
+                    });
+                    if (timeoutId) clearTimeout(timeoutId);
+
+                    if (resp.ok) {
+                        const latency = Math.round(performance.now() - startTime);
+                        this.failedPings = 0;
+                        this.setConnectionState(true, latency);
+
+                        // If pending transactions exist and not already syncing, drain immediately!
+                        const hasPending = this.queue.some(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
                         if (hasPending && !this.isSyncing) {
                             this.flushQueueNow(false);
                         }
-                    })
-                    .catch(() => {});
+                    } else {
+                        throw new Error('Ping status: ' + resp.status);
+                    }
+                } catch(err) {
+                    if (timeoutId) clearTimeout(timeoutId);
+                    this.failedPings++;
+                    // Even 1 failed ping on phone means real internet packet flow is interrupted -> turn RED!
+                    this.setConnectionState(false);
+                }
             },
 
             generateUUID() {
@@ -16233,7 +16313,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             async flushQueueNow(isManual = false) {
                 if (!this.isOnline()) {
                     if (isManual && window.showModernToast) {
-                        window.showModernToast('⚠️ الجهاز غير متصل حالياً! المعاملات محفوظة محلياً في الطابور وسيتم تفريغها فور توفر الإنترنت.', 'warning', 3000);
+                        window.showModernToast('⚠️ الجهاز غير متصل حالياً (النور أحمر)! السندات محفوظة محلياً وسيتم ترحيلها فور توفر الإنترنت.', 'warning', 3000);
                     }
                     this.renderUI();
                     return;
@@ -16261,7 +16341,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const btnFlush = document.getElementById('btn-flush-outbox');
                 if (btnFlush) {
                     btnFlush.disabled = true;
-                    btnFlush.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري تفريغ الطابور ورفع العمليات...';
+                    btnFlush.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري ترحيل ورفع العمليات إلى السيرفر...';
                 }
 
                 try {
@@ -16281,12 +16361,18 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                     let serverResponse = null;
                     let syncSuccess = false;
+
+                    // 1. Try Batch push with 6s timeout
                     try {
+                        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                        const tId = controller ? setTimeout(() => controller.abort(), 6000) : null;
                         const response = await fetch('api/sync_queue_api.php?action=push', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(pushBatch)
+                            body: JSON.stringify(pushBatch),
+                            signal: controller ? controller.signal : undefined
                         });
+                        if (tId) clearTimeout(tId);
                         if (response.ok) {
                             serverResponse = await response.json();
                             if (serverResponse && serverResponse.success !== false) {
@@ -16294,35 +16380,73 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             }
                         }
                     } catch(netErr) {
-                        console.warn('⚠️ Network push failed, trying fallback endpoint...', netErr);
+                        console.warn('⚠️ Batch sync failed, trying weak-network sequential upload...', netErr);
                     }
 
-                    // Fallback to internal endpoint if sync_queue_api had any glitch
+                    // 2. Weak Connection Adaptive Mode ("نت ضعيف جداً"): Upload one-by-one
                     if (!syncSuccess) {
-                        try {
-                            const postFormData = new FormData();
-                            postFormData.append('action', 'process_sync_queue');
-                            postFormData.append('items', JSON.stringify(pushBatch.items));
-                            const fbResp = await fetch('mobile-dashboard.php', { method: 'POST', body: postFormData });
-                            if (fbResp.ok) {
-                                const fbJson = await fbResp.json();
-                                if (fbJson && fbJson.success) {
-                                    serverResponse = fbJson;
-                                    syncSuccess = true;
-                                }
-                            }
-                        } catch(fbErr) {
-                            console.warn('⚠️ Internal sync endpoint also failed:', fbErr);
-                        }
-                    }
+                        let singleSuccessCount = 0;
+                        for (const it of pendingItems) {
+                            try {
+                                const singleBatch = {
+                                    tenant_id: window.SERVER_DATA?.tenantId || 1,
+                                    items: [{
+                                        id: it.id,
+                                        entity_name: it.entity_name || 'invoices',
+                                        record_id: it.record_id,
+                                        operation: it.operation || 'INSERT',
+                                        payload: it.payload,
+                                        status: 'PENDING',
+                                        retry_count: it.retry_count || 0,
+                                        created_at: it.created_at
+                                    }]
+                                };
+                                const sCtrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+                                const sTid = sCtrl ? setTimeout(() => sCtrl.abort(), 6000) : null;
+                                const sResp = await fetch('api/sync_queue_api.php?action=push', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify(singleBatch),
+                                    signal: sCtrl ? sCtrl.signal : undefined
+                                });
+                                if (sTid) clearTimeout(sTid);
+                                if (sResp.ok) {
+                                    const sJson = await sResp.json();
+                                    if (sJson && sJson.success !== false && sJson.results && sJson.results.length > 0) {
+                                        const rItem = sJson.results[0];
+                                        const officialId = rItem.server_id || rItem.official_server_id;
+                                        it.status = 'SYNCED';
+                                        it.sync_status = 'SYNCED';
+                                        it.synced_at = new Date().toISOString();
+                                        it.server_id = officialId;
+                                        it.official_server_id = officialId;
+                                        it.serverRef = rItem.server_ref || officialId;
+                                        it.lastError = null;
 
-                    if (syncSuccess) {
-                        // ✅ Server confirmed — mark items as synced & take official server serial
+                                        if (window.DualNumberingEngine) {
+                                            window.DualNumberingEngine.markSynced(it.record_id || it.local_seq, officialId);
+                                        }
+                                        singleSuccessCount++;
+                                        this.saveQueue();
+                                        this.renderUI(); // Live decrement of red counter badge
+                                    }
+                                }
+                            } catch(sErr) {
+                                it.status = 'PENDING';
+                                it.retry_count = (it.retry_count || 0) + 1;
+                                break; // Network died again, keep rest in queue
+                            }
+                        }
+                        if (singleSuccessCount > 0) {
+                            syncSuccess = true;
+                        }
+                    } else if (serverResponse && serverResponse.results) {
+                        // Batch confirmed
                         pendingItems.forEach((it, idx) => {
                             it.status = 'SYNCED';
                             it.sync_status = 'SYNCED';
                             it.synced_at = new Date().toISOString();
-                            const sRef = serverResponse?.results?.find(r => r.id === it.id);
+                            const sRef = serverResponse.results.find(r => r.id === it.id);
                             const officialId = sRef?.server_id || sRef?.official_server_id || ('#' + (10500 + idx));
                             it.server_id = officialId;
                             it.official_server_id = officialId;
@@ -16334,7 +16458,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 window.DualNumberingEngine.markSynced(it.record_id || it.local_seq, officialId);
                             }
                         });
+                    }
 
+                    if (syncSuccess) {
                         // 🔄 Refresh all live data on screen immediately
                         if (typeof refreshMobileData === 'function') refreshMobileData();
                         if (window.VoucherNavigator && typeof window.VoucherNavigator.loadVouchers === 'function') {
@@ -16344,8 +16470,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         if (typeof playSoundEffect === 'function') playSoundEffect('success');
                         triggerHaptic('heavy');
 
+                        const syncedCount = pendingItems.filter(it => it.status === 'SYNCED').length;
                         if (window.showModernToast) {
-                            window.showModernToast(`🚀 تم تفريغ وتأكيد (${pendingItems.length}) معاملات أوفلاين ورفعها للسحابة بنجاح!`, 'success', 3500);
+                            window.showModernToast(`🚀 تم ترحيل ورفع (${syncedCount}) سندات وفواتير وأخذ الأرقام التسلسلية الرسمية من السيرفر بنجاح!`, 'success', 3500);
                         }
 
                         // Auto-clean confirmed items after 4 seconds
@@ -16496,14 +16623,18 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     }
                 }
 
-                // 2. Status Pill (near branch)
+                // 2. Connection Light Dot (النور الأخضر / النور الأحمر)
                 const headerPill = document.getElementById('btn-outbox-status');
                 const pillDot = document.getElementById('outbox-pill-dot');
                 if (headerPill && pillDot) {
-                    const statusClass = !online ? 'offline' : (this.isSyncing ? 'syncing' : (pendingCount > 0 ? 'offline' : 'online'));
+                    const statusClass = !online ? 'offline' : (this.isSyncing ? 'syncing' : 'online');
                     headerPill.className = `outbox-status-pill ${statusClass}`;
                     pillDot.className = `outbox-dot ${statusClass}`;
-                    headerPill.title = !online ? `دون اتصال (${pendingCount} معلق)` : (pendingCount > 0 ? `متصل (${pendingCount} بانتظار التفريغ)` : 'متصل ومزامن لحظياً');
+                    headerPill.title = !online 
+                        ? `انقطع النت (النور أحمر) — البرنامج في وضع الأوفلاين والسندات تُحفظ محلياً (${pendingCount} معلق)` 
+                        : (this.isSyncing 
+                            ? 'جاري المزامنة اللحظية مع السيرفر ⚡' 
+                            : `متصل بالسحابة (النور أخضر) • استجابة الشبكة: ${this.lastHeartbeatMs || 24}ms`);
                 }
 
                 // 3. Outbox Sheet Breakdown Elements
