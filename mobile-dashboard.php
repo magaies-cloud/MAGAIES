@@ -657,19 +657,19 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     
     <!-- PWA & Native Standalone Configuration -->
-    <link rel="manifest" href="manifest.json?v=2026_m_v5">
+    <link rel="manifest" href="manifest.json?v=2026_m_v6">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
-    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_v5">
-    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_v5">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_v5">
-    <link rel="icon" type="image/png" sizes="256x256" href="assets/icon-256.png?v=2026_m_v5">
-    <link rel="icon" type="image/png" sizes="384x384" href="assets/icon-384.png?v=2026_m_v5">
-    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_m_v5">
-    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_v5">
-    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v5">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_v6">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_v6">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_v6">
+    <link rel="icon" type="image/png" sizes="256x256" href="assets/icon-256.png?v=2026_m_v6">
+    <link rel="icon" type="image/png" sizes="384x384" href="assets/icon-384.png?v=2026_m_v6">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_m_v6">
+    <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_v6">
+    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v6">
     <?php
     $themeHexMap = [
         'ultra_white' => '#ffffff',
@@ -689,7 +689,7 @@ try {
     <meta name="theme-color" content="<?php echo $themeColorHex; ?>">
     <title><?php echo htmlspecialchars($preloadedData['companyName']); ?> - النسخة السريعة</title>
     <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
-    <script src="js/pwa-manager.js?v=2026_10_03_v7_buttons" defer></script>
+    <script src="js/pwa-manager.js?v=2026_10_03_v8_suite" defer></script>
 
     <!-- Dynamic Viewport Auto-Redirect & Auth Gate -->
     <script>
