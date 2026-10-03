@@ -599,7 +599,8 @@ try {
         }
 
         const token = localStorage.getItem('authToken');
-        const isLocalhost = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
+        const hName = window.location.hostname;
+        const isLocalhost = hName.includes('localhost') || hName.includes('127.0.0.1') || hName.startsWith('192.168.') || hName.startsWith('10.') || hName.startsWith('172.');
         if (!token && !isLocalhost) {
             window.location.replace('login.php?redirect=mobile-dashboard.php');
         }
@@ -4743,28 +4744,43 @@ try {
         .outbox-status-pill {
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            width: 22px;
-            height: 22px;
-            min-width: 22px;
-            min-height: 22px;
-            padding: 0;
-            border-radius: 50%;
+            gap: 5px;
+            height: 24px;
+            padding: 2px 7px;
+            border-radius: 12px;
             background: var(--surface-sub);
             border: 1.5px solid var(--border-glass);
             cursor: pointer;
             transition: all 0.2s;
             flex-shrink: 0;
+            font-size: 0.68rem;
+            font-weight: 800;
+        }
+        .outbox-status-pill.online {
+            border-color: rgba(16, 185, 129, 0.4);
+            background: rgba(16, 185, 129, 0.08);
+            color: var(--emerald);
+        }
+        .outbox-status-pill.offline {
+            border-color: rgba(239, 68, 68, 0.4);
+            background: rgba(239, 68, 68, 0.12);
+            color: var(--rose);
+        }
+        .outbox-status-pill.syncing {
+            border-color: rgba(245, 158, 11, 0.4);
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--amber);
         }
         .outbox-status-pill #outbox-pill-text {
-            display: none !important;
+            display: inline-block !important;
+            line-height: 1;
         }
         .outbox-status-pill #outbox-pill-count {
             display: none !important;
         }
         .outbox-status-pill:hover {
             border-color: var(--primary);
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
         .outbox-dot {
             width: 8px;
@@ -4968,7 +4984,7 @@ try {
                 <!-- 🛰️ Offline-First Outbox Status Dot (النور الأخضر / الأحمر) -->
                 <button type="button" class="outbox-status-pill online" id="btn-outbox-status" onclick="if(window.OfflineOutboxEngine && !window.OfflineOutboxEngine.isOnline()){ window.OfflineOutboxEngine.checkHeartbeat(true); } else { openBottomSheet('sheet-outbox-manager'); }" title="حالة الاتصال بالسحابة">
                     <span class="outbox-dot online" id="outbox-pill-dot"></span>
-                    <span id="outbox-pill-text" style="display:none;">متصل</span>
+                    <span id="outbox-pill-text">متصل</span>
                 </button>
             </div>
             <span id="mobile-user-greeting" style="display:none;">مرحباً بك 🌟</span>
@@ -5273,7 +5289,7 @@ try {
             <div class="section-heading" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
                 <span><i class="fa-solid fa-receipt text-sky-400"></i> سجل المعاملات والفواتير</span>
                 <button type="button" onclick="refreshMobileData(true)" class="btn-ai-chip" style="font-size:0.75rem;">
-                    <i class="fa-solid fa-arrows-rotate"></i> تحديث
+                    <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> تحديث
                 </button>
             </div>
 
@@ -7072,6 +7088,26 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-outbox-manager')">✕</button>
         </div>
         <div class="sheet-body" style="padding-bottom:18px;">
+            <!-- Dual Server Connectivity Selector (السيرفر الحي vs سيرفر اللابتوب) -->
+            <div style="background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span style="font-size:0.80rem; font-weight:900; color:var(--text-main);">
+                        <i class="fa-solid fa-network-wired" style="color:var(--primary);"></i> جهة الاتصال الحالية:
+                    </span>
+                    <span id="current-server-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:6px; background:rgba(16,185,129,0.15); color:var(--emerald); font-weight:800;">
+                        <?php echo (strpos($_SERVER['HTTP_HOST'] ?? '', 'elsajana.com') !== false) ? '🌐 السيرفر الحي (الإنترنت)' : '💻 سيرفر اللابتوب (محلي)'; ?>
+                    </span>
+                </div>
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
+                    <a href="https://c.elsajana.com/mobile-dashboard.php" class="btn-sm" style="font-size:0.74rem; padding:7px 8px; border-radius:8px; background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; font-weight:800; border:none; text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <i class="fa-solid fa-globe"></i> السيرفر الحي
+                    </a>
+                    <a href="http://192.168.1.101/ELSAJANA2/magaies/mobile-dashboard.php" class="btn-sm" style="font-size:0.74rem; padding:7px 8px; border-radius:8px; background:var(--surface-1); border:1px solid var(--border-glass); color:var(--text-main); font-weight:800; text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <i class="fa-solid fa-laptop"></i> سيرفر اللابتوب (Wi-Fi)
+                    </a>
+                </div>
+            </div>
+
             <!-- Connection Status Banner -->
             <div id="outbox-banner-status" style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:10px 14px; margin-bottom:12px; display:flex; align-items:center; justify-content:space-between;">
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -7154,8 +7190,8 @@ try {
                 <button type="button" class="m-btn-submit" id="btn-flush-outbox" style="background:linear-gradient(135deg, #10b981, #059669); margin:0; font-weight:900;" onclick="OfflineOutboxEngine.flushQueueNow(true)">
                     <i class="fa-solid fa-cloud-arrow-up"></i> تفريغ ومزامنة فورية الآن ⚡
                 </button>
-                <button type="button" class="m-btn-submit" style="background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); margin:0;" onclick="OfflineOutboxEngine.seedDemoTransactions()">
-                    <i class="fa-solid fa-vial"></i> تجربة حركات Offline
+                <button type="button" class="m-btn-submit" style="background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); margin:0;" onclick="OfflineOutboxEngine.clearSyncedItems(true)">
+                    <i class="fa-solid fa-broom"></i> تنظيف السجل
                 </button>
             </div>
         </div>
@@ -8618,7 +8654,8 @@ try {
             const icon = document.getElementById('refresh-icon');
             if (icon) icon.classList.add('fa-spin');
 
-            // 1. User & Company
+            try {
+                // 1. User & Company
             try {
                 const u = JSON.parse(localStorage.getItem('user') || '{}');
                 if (u.fullName || u.username) {
@@ -8952,13 +8989,16 @@ try {
 
             // Background Async Sync with Database API
             triggerBackgroundSync();
-
-            setTimeout(() => {
-                if (icon) icon.classList.remove('fa-spin');
-                if (showToastAnim && window.showModernToast) {
-                    window.showModernToast('✅ تم تحديث بيانات الموبايل الحية بنجاح', 'success', 2000);
-                }
-            }, 350);
+            } catch(e) {
+                console.warn('Notice in refreshMobileData:', e);
+            } finally {
+                setTimeout(() => {
+                    if (icon) icon.classList.remove('fa-spin');
+                    if (showToastAnim && window.showModernToast) {
+                        window.showModernToast('✅ تم تحديث بيانات الموبايل الحية بنجاح', 'success', 2000);
+                    }
+                }, 350);
+            }
         }
 
         function renderLiquidityDisplay() {
@@ -16042,11 +16082,17 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             autoSyncInterval: null,
             failedPings: 0,
             isCheckingHeartbeat: false,
+            lastSyncAttempt: 0,
+            lastSyncFailed: false,
 
             init() {
                 try {
                     const saved = localStorage.getItem('erp_outbox_queue_v1');
                     this.queue = saved ? JSON.parse(saved) : [];
+                    // Sanitize stuck items: if an item was left as SYNCING across app reload, reset to PENDING
+                    this.queue.forEach(item => {
+                        if (item.status === 'SYNCING') item.status = 'PENDING';
+                    });
                 } catch(e) {
                     this.queue = [];
                 }
@@ -16058,6 +16104,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 window.addEventListener('online', () => {
                     this.failedPings = 0;
+                    this.lastSyncFailed = false;
                     this.setConnectionState(true);
                     this.checkHeartbeat(false);
                 });
@@ -16074,11 +16121,14 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 // Adaptive heartbeat probe: every 10s when online, every 4s when offline
                 this.startHeartbeatTimer();
 
-                // Auto-sync watcher every 3s: if online and pending items exist, flush immediately
+                // Auto-sync watcher with smart backoff cooldown (never locks or endlessly spins)
                 if (this.autoSyncInterval) clearInterval(this.autoSyncInterval);
                 this.autoSyncInterval = setInterval(() => {
                     if (this.isOnline() && !this.isSyncing) {
-                        const hasPending = this.queue.some(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
+                        const cooldown = this.lastSyncFailed ? 20000 : 5000;
+                        if (Date.now() - (this.lastSyncAttempt || 0) < cooldown) return;
+
+                        const hasPending = this.queue.some(q => ['PENDING', 'FAILED'].includes(String(q.status).toUpperCase()));
                         if (hasPending) {
                             this.flushQueueNow(false);
                         }
@@ -16515,6 +16565,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         triggerHaptic('heavy');
 
                         const syncedCount = pendingItems.filter(it => it.status === 'SYNCED').length;
+                        this.lastSyncFailed = false;
+                        this.lastSyncAttempt = Date.now();
                         if (window.showModernToast) {
                             window.showModernToast(`🚀 تم ترحيل ورفع (${syncedCount}) سندات وفواتير وأخذ الأرقام التسلسلية الرسمية من السيرفر بنجاح!`, 'success', 3500);
                         }
@@ -16525,19 +16577,23 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         }, 4000);
 
                     } else {
-                        // 🔴 Network failed — keep items PENDING for retry
+                        // 🔴 Network failed — keep items PENDING for retry with cooldown
+                        this.lastSyncFailed = true;
+                        this.lastSyncAttempt = Date.now();
                         pendingItems.forEach(it => {
                             it.status = 'PENDING';
                             it.retry_count = (it.retry_count || 0) + 1;
                             it.lastError = 'Network sync failed at ' + new Date().toISOString();
                         });
                         if (isManual && window.showModernToast) {
-                            window.showModernToast('⚠️ تعذر إتمام المزامنة — الحركات محفوظة في الطابور وسيعاد المحاولة فوراً', 'warning', 3500);
+                            window.showModernToast('⚠️ تعذر إتمام المزامنة — الحركات محفوظة في الطابور وسيعاد المحاولة تلقائياً', 'warning', 3500);
                         }
                     }
 
                     this.saveQueue();
                 } catch(err) {
+                    this.lastSyncFailed = true;
+                    this.lastSyncAttempt = Date.now();
                     pendingItems.forEach(it => {
                         it.status = 'PENDING';
                         it.retry_count = (it.retry_count || 0) + 1;
@@ -16670,10 +16726,14 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 // 2. Connection Light Dot (النور الأخضر / النور الأحمر)
                 const headerPill = document.getElementById('btn-outbox-status');
                 const pillDot = document.getElementById('outbox-pill-dot');
+                const pillText = document.getElementById('outbox-pill-text');
                 if (headerPill && pillDot) {
                     const statusClass = !online ? 'offline' : (this.isSyncing ? 'syncing' : 'online');
                     headerPill.className = `outbox-status-pill ${statusClass}`;
                     pillDot.className = `outbox-dot ${statusClass}`;
+                    if (pillText) {
+                        pillText.innerText = !online ? 'أوفلاين' : (this.isSyncing ? 'مزامنة ⚡' : 'متصل');
+                    }
                     headerPill.title = !online 
                         ? `انقطع النت (النور أحمر) — البرنامج في وضع الأوفلاين والسندات تُحفظ محلياً (${pendingCount} معلق)` 
                         : (this.isSyncing 
