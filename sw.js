@@ -9,10 +9,12 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-04-m-flagship-v9';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-04-m-flagship-v10';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
+    './mobile_erp_global_suite.html',
+    './mobile-suite.html',
     './assets/icon-192.png',
     './assets/icon-256.png',
     './assets/icon-384.png',

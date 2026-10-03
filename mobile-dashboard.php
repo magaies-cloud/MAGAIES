@@ -17,6 +17,20 @@ if ((isset($_GET['action']) && $_GET['action'] === 'heartbeat_ping') || (isset($
     exit;
 }
 
+// ═════════════════════════════════════════════════════════════════════
+// 🌟 FLAGSHIP AGREED MOBILE SUITE (mobile_erp_global_suite.html)
+// ═════════════════════════════════════════════════════════════════════
+if (!isset($_GET['legacy']) || $_GET['legacy'] !== '1') {
+    $suiteFile = __DIR__ . '/mobile_erp_global_suite.html';
+    if (!file_exists($suiteFile) && file_exists(__DIR__ . '/ELSAJANA2/magaies/mobile_erp_global_suite.html')) {
+        $suiteFile = __DIR__ . '/ELSAJANA2/magaies/mobile_erp_global_suite.html';
+    }
+    if (file_exists($suiteFile)) {
+        require_once $suiteFile;
+        exit;
+    }
+}
+
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $isMobileUserAgent = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent);
 $forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';

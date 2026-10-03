@@ -1,4 +1,15 @@
-<?php $page_title = 'مقاييس - أذكى نظام سحابي لإدارة الموارد (ERP)'; ?>
+<?php
+$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$isMobile = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $ua);
+$forceDesktop = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
+
+if ($isMobile && !$forceDesktop) {
+    header('Location: /mobile_erp_global_suite.html');
+    exit;
+}
+
+$page_title = 'مقاييس - أذكى نظام سحابي لإدارة الموارد (ERP)';
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
