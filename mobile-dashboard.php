@@ -1531,19 +1531,37 @@ try {
             gap: 6px;
         }
         .liquidity-grand {
-            font-size: 2.2rem;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .liq-grand-local {
+            font-size: 2.15rem;
             font-weight: 900;
             color: var(--grand-color);
             letter-spacing: -0.5px;
             font-family: 'Inter', 'Tajawal', sans-serif;
             line-height: 1.1;
-            margin-bottom: 14px;
         }
-        .liquidity-grand small {
+        .liq-grand-local small {
             font-size: 0.95rem;
             font-weight: 800;
             color: var(--grand-sub);
             margin-right: 4px;
+        }
+        .liq-grand-usd {
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.15);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            padding: 3px 12px;
+            border-radius: 10px;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
         }
         .liquidity-breakdown {
             display: grid;
@@ -1554,22 +1572,49 @@ try {
         }
         .vault-item {
             background: var(--surface-sub);
-            border-radius: 12px;
-            padding: 8px 12px;
+            border-radius: 14px;
+            padding: 9px 12px;
             border: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
         .vault-name {
-            font-size: 0.74rem;
+            font-size: 0.76rem;
             color: var(--text-muted);
             font-weight: 800;
-            display: block;
-            margin-bottom: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .vault-amt {
-            font-size: 1.15rem;
+        .vault-amt-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        .vault-amt-local {
+            font-size: 1.12rem;
             font-weight: 900;
             color: var(--text-main);
-            font-family: 'Inter', 'Tajawal', sans-serif;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: -0.3px;
+        }
+        .vault-amt-local small {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--text-muted);
+        }
+        .vault-amt-usd {
+            font-size: 0.74rem;
+            font-weight: 800;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            padding: 1px 6px;
+            border-radius: 6px;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
         }
 
         /* Power Quick Action Cards (4 Core Buttons) */
@@ -4946,16 +4991,9 @@ try {
     <main id="mode-operations-section" class="mobile-content">
         <!-- Real-Time Liquidity Pulse Card -->
         <div class="liquidity-card">
-            <div class="liquidity-top">
-                <span class="liquidity-title">
-                    <i class="fa-solid fa-wallet text-sky-400"></i> إجمالي السيولة
-                </span>
-                <span style="font-size:0.75rem; background:rgba(16,185,129,0.18); border:1px solid #10b981; color:#10b981; padding:2px 8px; border-radius:20px; font-weight:800;">
-                    مباشر ⚡
-                </span>
-            </div>
             <div class="liquidity-grand" id="mobile-total-liquidity">
-                0 <small>SDG</small>
+                <div class="liq-grand-local">0 <small>SDG</small></div>
+                <div class="liq-grand-usd">≈ $0</div>
             </div>
             <div class="liquidity-breakdown" id="mobile-vaults-container">
                 <!-- Dynamic Vaults Loaded Here -->
@@ -4967,14 +5005,13 @@ try {
             <span>⚡ العمليات السريعة</span>
         </div>
         <div class="actions-operations-grid">
-            <!-- 1. Quick Financial Movement (حركة مالية - قيد مزدوج) -->
+            <!-- 1. Quick Financial Movement (حركة مالية) -->
             <div class="power-action-btn act-receipt hero-btn" onclick="openFinancialTxSheet()">
                 <div class="action-icon-circle">
                     <i class="fa-solid fa-money-bill-transfer"></i>
                 </div>
                 <div class="hero-btn-content">
-                    <div class="action-title">حركة مالية</div>
-                    <div class="action-subtitle">تحويل مباشر</div>
+                    <div class="action-title" style="font-size:1.15rem;">حركة مالية</div>
                 </div>
                 <div class="hero-btn-actions">
                     <button type="button" class="btn-ai-chip" onclick="event.stopPropagation(); openBottomSheet('sheet-ai-slip');" title="تفريغ إشعار بالذكاء الاصطناعي">
@@ -4983,15 +5020,12 @@ try {
                 </div>
             </div>
 
-            <!-- 2. Quick Sales Invoice (فاتورة مبيعات) -->
+            <!-- 2. Quick Sales Invoice (فاتورة بيع) -->
             <div class="power-action-btn act-pos" onclick="openBottomSheet('sheet-sale')">
                 <div class="action-icon-circle">
                     <i class="fa-solid fa-receipt"></i>
                 </div>
-                <div>
-                    <div class="action-title">فاتورة بيع</div>
-                    <div class="action-subtitle">نقد / آجل</div>
-                </div>
+                <div class="action-title">فاتورة بيع</div>
             </div>
 
             <!-- 3. Quick Purchase Invoice (فاتورة شراء) -->
@@ -4999,10 +5033,7 @@ try {
                 <div class="action-icon-circle">
                     <i class="fa-solid fa-cart-shopping"></i>
                 </div>
-                <div>
-                    <div class="action-title">فاتورة شراء</div>
-                    <div class="action-subtitle">توريد مخزني</div>
-                </div>
+                <div class="action-title">فاتورة شراء</div>
             </div>
         </div>
     </main>
@@ -8756,7 +8787,10 @@ try {
                     vaultsHtml += `
                         <div class="vault-item">
                             <span class="vault-name">🏦 ${v.name}</span>
-                            <span class="vault-amt">${fmt(v.amount)} SDG <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">(≈ $${fmt(vUsd)})</span></span>
+                            <div class="vault-amt-row">
+                                <span class="vault-amt-local">${fmt(v.amount)} <small>SDG</small></span>
+                                <span class="vault-amt-usd">≈ $${fmt(vUsd)}</span>
+                            </div>
                         </div>
                     `;
                 });
@@ -8764,18 +8798,27 @@ try {
                 vaultsHtml = `
                     <div class="vault-item">
                         <span class="vault-name">💵 الخزينة</span>
-                        <span class="vault-amt">0 SDG <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">(≈ $0)</span></span>
+                        <div class="vault-amt-row">
+                            <span class="vault-amt-local">0 <small>SDG</small></span>
+                            <span class="vault-amt-usd">≈ $0</span>
+                        </div>
                     </div>
                     <div class="vault-item">
                         <span class="vault-name">🏦 بنكك</span>
-                        <span class="vault-amt">0 SDG <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">(≈ $0)</span></span>
+                        <div class="vault-amt-row">
+                            <span class="vault-amt-local">0 <small>SDG</small></span>
+                            <span class="vault-amt-usd">≈ $0</span>
+                        </div>
                     </div>
                 `;
             }
             const totalUsd = toUSD(total);
             const liqEl = document.getElementById('mobile-total-liquidity');
             if (liqEl) {
-                liqEl.innerHTML = `${fmt(total)} <small style="font-size:0.85rem;">SDG</small> <span style="font-size:0.82rem; margin-inline-start:8px; background:rgba(56,189,248,0.18); color:var(--primary); padding:2px 8px; border-radius:8px; font-weight:900; display:inline-flex; align-items:center; vertical-align:middle;">≈ $${fmt(totalUsd)}</span>`;
+                liqEl.innerHTML = `
+                    <div class="liq-grand-local">${fmt(total)} <small>SDG</small></div>
+                    <div class="liq-grand-usd">≈ $${fmt(totalUsd)}</div>
+                `;
             }
             const vContainer = document.getElementById('mobile-vaults-container');
             if (vContainer) vContainer.innerHTML = vaultsHtml;
