@@ -27,7 +27,7 @@ window.PWAManager = {
     },
 
     checkPushInitialStatus() {
-        if ('Notification' in window && Notification.permission === 'granted' && localStorage.getItem('magaies_push_subscribed') === '1') {
+        if ('Notification' in window && Notification.permission === 'granted' && localStorage.getItem('magaiees_push_subscribed') === '1') {
             this.updatePushUI(true);
         }
     },
@@ -284,8 +284,14 @@ window.PWAManager = {
                     window.location.replace('mobile-dashboard.php');
                 }
                 // If user is on mobile dashboard and screen expands to desktop width (without manual mobile lock)
+                // Skip redirect if device is mobile in landscape — check screen.orientation or touch support
                 else if (width >= 1024 && path.includes('mobile-dashboard') && !hasMobileOverride) {
-                    window.location.replace('magaiees_unified_dashboard.php');
+                    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+                    const isLandscape = window.innerHeight < window.innerWidth;
+                    // Only redirect if NOT a touch device in landscape (i.e. actual desktop resize)
+                    if (!(isTouchDevice && isLandscape)) {
+                        window.location.replace('magaiees_unified_dashboard.php');
+                    }
                 }
             }, 350);
         });

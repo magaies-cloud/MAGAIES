@@ -905,6 +905,21 @@ try {
             -webkit-text-size-adjust: 100%;
         }
 
+        /* 🎙️ Voice Input Microphone Button */
+        .voice-mic-btn {
+            width: 42px; height: 42px; border-radius: 50%;
+            background: var(--surface-sub); border: 1.5px solid var(--border-glass);
+            color: var(--text-muted); font-size: 1.1rem;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: all 0.2s ease; flex-shrink: 0;
+        }
+        .voice-mic-btn.mic-active {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            border-color: #ef4444; color: #fff;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+        }
+        .voice-mic-btn:active { transform: scale(0.92); }
+
         /* 🔤 GLOBAL FONT CLARITY SYSTEM — Minimum readable sizes for mobile */
         /* Raise dangerously small fonts to readable minimums */
         small, .micro-kpi-sub, .outbox-status-pill span,
@@ -5173,6 +5188,9 @@ try {
                 </span>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="voice-mic-btn" onclick="VoiceCommandEngine.toggleListening('voucher')" title="🎙️ أمر صوتي" style="width:36px; height:36px; font-size:0.95rem;">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
                 <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-financial-tx')">✕</button>
             </div>
         </div>
@@ -6379,9 +6397,14 @@ try {
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-global-search')">✕</button>
         </div>
         <div class="sheet-body" style="padding-top:10px;">
-            <div style="position:relative; margin-bottom:10px;">
-                <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:14px; top:13px; color:var(--text-muted);"></i>
-                <input type="text" id="omni-search-input" class="m-input" style="padding-right:38px; height:44px;" placeholder="ابحث عن صنف، عميل، فاتورة، أو حساب..." oninput="runOmniSearch(this.value)" autocomplete="off">
+            <div style="display:flex; gap:8px; margin-bottom:10px; align-items:center;">
+                <div style="position:relative; flex:1;">
+                    <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:14px; top:13px; color:var(--text-muted);"></i>
+                    <input type="text" id="omni-search-input" class="m-input" style="padding-right:38px; height:44px;" placeholder="ابحث عن صنف، عميل، فاتورة، أو حساب..." oninput="runOmniSearch(this.value)" autocomplete="off">
+                </div>
+                <button type="button" class="voice-mic-btn" onclick="VoiceCommandEngine.toggleListening('search', 'omni-search-input')" title="🎙️ بحث صوتي">
+                    <i class="fa-solid fa-microphone"></i>
+                </button>
             </div>
             <div class="picker-category-pills" style="margin-bottom:12px;">
                 <button type="button" class="cat-pill active" onclick="setOmniCategory('all', this)">الكل</button>
@@ -7116,6 +7139,12 @@ try {
             <i class="fa-solid fa-clipboard-check"></i>
             <span>جرد الصنف</span>
         </button>
+
+        <!-- 5. Voice Command (Instant Voucher via Speech) -->
+        <div class="hub-action-btn act-voice" onclick="VoiceCommandEngine.toggleListening('voucher')" style="border-color:var(--purple); display:none;" id="voice-hub-btn">
+            <i class="fa-solid fa-microphone" style="color:var(--purple); font-size:1.3rem;"></i>
+            <span>🎙️ أمر صوتي</span>
+        </div>
     </div>
 
     <!-- ═════════════════════════════════════════════════════════════════
@@ -7275,6 +7304,178 @@ try {
                 const videoEl = document.getElementById('barcode-camera-video');
                 if (videoEl) videoEl.srcObject = null;
                 closeBottomSheet('sheet-barcode-scanner');
+            }
+        };
+
+        // 🎙️ Arabic Voice Command Engine (Web Speech API)
+        window.VoiceCommandEngine = {
+            recognition: null,
+            isListening: false,
+            targetField: null,
+            mode: 'search', // 'search' | 'voucher' | 'freetext'
+
+            init() {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    console.warn('Speech Recognition API not supported');
+                    return false;
+                }
+                this.recognition = new SpeechRecognition();
+                this.recognition.lang = 'ar-SA';
+                this.recognition.continuous = false;
+                this.recognition.interimResults = true;
+                this.recognition.maxAlternatives = 3;
+
+                this.recognition.onresult = (event) => {
+                    let transcript = '';
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        transcript += event.results[i][0].transcript;
+                    }
+                    this.handleResult(transcript, event.results[event.results.length - 1].isFinal);
+                };
+
+                this.recognition.onend = () => {
+                    this.isListening = false;
+                    this.updateMicUI(false);
+                };
+
+                this.recognition.onerror = (event) => {
+                    this.isListening = false;
+                    this.updateMicUI(false);
+                    if (event.error === 'not-allowed') {
+                        if (window.showModernToast) window.showModernToast('⚠️ يرجى السماح باستخدام الميكروفون من إعدادات المتصفح', 'warning', 3000);
+                    }
+                };
+                return true;
+            },
+
+            startListening(mode = 'search', targetInputId = null) {
+                if (!this.recognition && !this.init()) {
+                    if (window.showModernToast) window.showModernToast('⚠️ الإدخال الصوتي غير مدعوم في هذا المتصفح', 'warning', 3000);
+                    return;
+                }
+                this.mode = mode;
+                this.targetField = targetInputId;
+                this.isListening = true;
+                this.updateMicUI(true);
+                triggerHaptic('medium');
+                try { this.recognition.start(); } catch(e) { /* already started */ }
+            },
+
+            stopListening() {
+                if (this.recognition) {
+                    try { this.recognition.stop(); } catch(e) {}
+                }
+                this.isListening = false;
+                this.updateMicUI(false);
+            },
+
+            toggleListening(mode = 'search', targetInputId = null) {
+                if (this.isListening) { this.stopListening(); }
+                else { this.startListening(mode, targetInputId); }
+            },
+
+            handleResult(transcript, isFinal) {
+                const cleaned = transcript.trim();
+                if (!cleaned) return;
+
+                if (this.mode === 'search') {
+                    const inp = document.getElementById(this.targetField || 'omni-search-input');
+                    if (inp) { inp.value = cleaned; inp.dispatchEvent(new Event('input')); }
+                } else if (this.mode === 'voucher' && isFinal) {
+                    this.parseVoucherCommand(cleaned);
+                } else if (this.mode === 'freetext') {
+                    const inp = document.getElementById(this.targetField);
+                    if (inp) { inp.value = cleaned; }
+                }
+
+                if (isFinal) {
+                    this.isListening = false;
+                    this.updateMicUI(false);
+                    if (typeof playSoundEffect === 'function') playSoundEffect('success');
+                }
+            },
+
+            parseVoucherCommand(text) {
+                // Parse Arabic voice commands like:
+                // "أصرف من محمد علي 15 مليون إلى عثمان عبد الله"
+                // "اقبض من شركة الفهد 5 مليون"
+                const t = text.replace(/\s+/g, ' ').trim();
+
+                // Detect operation type
+                let opType = 'receipt';
+                if (/(أصرف|صرف|ادفع|دفع|سدد)/i.test(t)) opType = 'disbursement';
+                else if (/(اقبض|قبض|استلم|تحصيل)/i.test(t)) opType = 'receipt';
+                else if (/(حول|تحويل|انقل)/i.test(t)) opType = 'transfer';
+
+                // Extract amount — support "مليون" and "ألف" and plain numbers
+                let amount = 0;
+                const millionMatch = t.match(/(\d+(?:\.\d+)?)\s*مليون/);
+                const thousandMatch = t.match(/(\d+(?:\.\d+)?)\s*أ?لف/);
+                const plainMatch = t.match(/(\d[\d,\.]+)/);
+                if (millionMatch) amount = parseFloat(millionMatch[1]) * 1000000;
+                else if (thousandMatch) amount = parseFloat(thousandMatch[1]) * 1000;
+                else if (plainMatch) amount = parseFloat(plainMatch[1].replace(/,/g, ''));
+
+                // Extract "from" and "to" names
+                let fromName = '', toName = '';
+                const fromToMatch = t.match(/من\s+(.+?)\s+(?:\d|(?:إلى|الى|لـ?))/i);
+                const toMatch = t.match(/(?:إلى|الى|لـ?)\s+(.+?)(?:\s*$)/i);
+                if (fromToMatch) fromName = fromToMatch[1].trim();
+                if (toMatch) toName = toMatch[1].trim();
+
+                // Open financial sheet and auto-fill
+                if (typeof openFinancialTxSheet === 'function') openFinancialTxSheet(opType);
+
+                setTimeout(() => {
+                    // Set amount
+                    if (amount > 0) {
+                        const amtInp = document.getElementById('tx-amount-input');
+                        if (amtInp) { amtInp.value = amount; amtInp.dispatchEvent(new Event('input')); }
+                    }
+
+                    // Set description/notes
+                    const noteInp = document.getElementById('tx-notes-input');
+                    if (noteInp) noteInp.value = `🎙️ أمر صوتي: ${text}`;
+
+                    // Try to match from/to accounts
+                    if (fromName && typeof buildAllAccountsList === 'function') {
+                        const allAccounts = window.ALL_ACCOUNTS || [];
+                        const fromAcc = allAccounts.find(a => a.name && a.name.includes(fromName));
+                        if (fromAcc && typeof selectAccountDirectly === 'function') {
+                            selectAccountDirectly('from', fromAcc);
+                        }
+                    }
+                    if (toName && typeof buildAllAccountsList === 'function') {
+                        const allAccounts = window.ALL_ACCOUNTS || [];
+                        const toAcc = allAccounts.find(a => a.name && a.name.includes(toName));
+                        if (toAcc && typeof selectAccountDirectly === 'function') {
+                            selectAccountDirectly('to', toAcc);
+                        }
+                    }
+
+                    // Show confirmation
+                    if (window.showModernToast) {
+                        const opLabel = opType === 'receipt' ? 'سند قبض' : opType === 'disbursement' ? 'سند صرف' : 'تحويل';
+                        window.showModernToast(`🎙️ تم إعداد ${opLabel}${amount > 0 ? ' بمبلغ ' + fmt(amount) + ' SDG' : ''} — راجع البيانات وأكد`, 'success', 4000);
+                    }
+                }, 500);
+            },
+
+            updateMicUI(listening) {
+                document.querySelectorAll('.voice-mic-btn').forEach(btn => {
+                    if (listening) {
+                        btn.classList.add('mic-active');
+                        btn.innerHTML = '<i class="fa-solid fa-microphone-lines" style="animation:posPulseBorder 0.8s infinite;"></i>';
+                    } else {
+                        btn.classList.remove('mic-active');
+                        btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
+                    }
+                });
+            },
+
+            isSupported() {
+                return !!(window.SpeechRecognition || window.webkitSpeechRecognition);
             }
         };
 
@@ -7757,6 +7958,8 @@ try {
                 sheet.classList.add('active');
                 document.body.style.overflow = 'hidden';
                 document.documentElement.style.overflow = 'hidden';
+                // Android back button support — push state so back closes sheet
+                history.pushState({ sheet: sheetId }, '', '');
 
                 if (sheetId === 'sheet-sale') {
                     if (window.MobilePOS && typeof window.MobilePOS.init === 'function') {
@@ -7789,6 +7992,19 @@ try {
                 document.documentElement.style.overflow = '';
             }
         }
+
+        // 📱 Android Hardware Back Button — close active bottom sheet instead of exiting app
+        window.addEventListener('popstate', function(event) {
+            if (event.state && event.state.sheet) {
+                closeBottomSheet(event.state.sheet);
+            } else {
+                // Check if any sheet is active and close it
+                const activeSheet = document.querySelector('.mobile-bottom-sheet.active');
+                if (activeSheet) {
+                    closeBottomSheet(activeSheet.id);
+                }
+            }
+        });
 
         // Formats
         function fmt(n) {
@@ -15493,6 +15709,12 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             const savedTab = sessionStorage.getItem('magaiees_active_tab') || 'dashboard';
             switchMobileTab(savedTab);
+
+            // Show voice button only if Speech API is supported
+            if (VoiceCommandEngine.isSupported()) {
+                const vBtn = document.getElementById('voice-hub-btn');
+                if (vBtn) vBtn.style.display = '';
+            }
         });
     </script>
 </body>
