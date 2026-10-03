@@ -544,14 +544,16 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
     
     <!-- PWA & Native Standalone Configuration -->
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json?v=2026_magaiees_v4">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="السجانة ERP">
-    <link rel="apple-touch-icon" href="assets/icon-192.png">
-    <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
-    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+    <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
+    <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_magaiees">
+    <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_magaiees">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_magaiees">
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icon-512.png?v=2026_magaiees">
+    <link rel="shortcut icon" href="assets/favicon.ico?v=2026_magaiees">
     <?php
     $themeHexMap = [
         'ultra_white' => '#ffffff',
@@ -933,11 +935,89 @@ try {
             -webkit-tap-highlight-color: transparent;
         }
 
-        html {
+        html, body {
             overflow-x: hidden !important;
-            max-width: 100vw;
-            width: 100%;
+            max-width: 100vw !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        html {
             -webkit-text-size-adjust: 100%;
+        }
+
+        /* ⚖️ MOBILE SCREEN CALIBRATION & BUTTON CONTAINMENT SYSTEM */
+        .mobile-header,
+        .view-container,
+        .mobile-content,
+        .mode-switcher-container,
+        .actions-operations-grid,
+        .micro-kpi-grid,
+        .liquidity-card,
+        .bottom-nav-bar,
+        .floating-action-hub,
+        .magaiees-install-trigger-wrap,
+        .alert-feed-wrapper {
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Ensure all buttons and touch elements are strictly contained within the mobile viewport */
+        button, .m-btn, .power-action-btn, .micro-kpi-card, .kpi-card, .nav-item, .hub-action-btn {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+        }
+
+        /* Carousel strict containment */
+        .alert-feed-wrapper {
+            max-width: 100vw !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+        }
+        .alert-snap-carousel {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: auto !important;
+            overscroll-behavior-x: contain;
+        }
+
+        /* Narrow screen adaptive button sizing (< 390px) */
+        @media (max-width: 390px) {
+            .mobile-header {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+                gap: 6px !important;
+            }
+            .header-actions {
+                gap: 4px !important;
+            }
+            .header-icon-btn {
+                width: 38px !important;
+                height: 38px !important;
+                min-width: 38px !important;
+                min-height: 38px !important;
+            }
+            .btn-switch-desktop {
+                padding: 6px 8px !important;
+                font-size: 0.72rem !important;
+            }
+            .btn-switch-desktop span {
+                display: none !important;
+            }
+            .nav-item {
+                padding: 4px 4px !important;
+                font-size: 0.68rem !important;
+            }
+        }
+
+        /* Visual pulse calibration feedback animation */
+        @keyframes screenCalibratePulse {
+            0% { outline: 3px solid rgba(56, 189, 248, 0.9); transform: scale(1.03); }
+            50% { outline: 3px solid rgba(16, 185, 129, 0.9); transform: scale(0.98); }
+            100% { outline: 0px solid transparent; transform: scale(1); }
+        }
+        .calibrating-target {
+            animation: screenCalibratePulse 0.45s ease forwards !important;
         }
 
         /* 🎙️ Voice Input Microphone Button */
@@ -1230,14 +1310,26 @@ try {
             width: 38px;
             height: 38px;
             border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary), var(--emerald));
+            background: #0f172a;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.15rem;
-            color: #fff;
             box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
             flex-shrink: 0;
+            overflow: hidden;
+            border: 1.5px solid rgba(56, 189, 248, 0.4);
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+        }
+        .brand-avatar:active {
+            transform: scale(0.92);
+        }
+        .brand-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+            display: block;
         }
         .brand-meta {
             min-width: 0;
@@ -4643,8 +4735,8 @@ try {
     <!-- 1. Sticky Mobile App Header (Thumb-Zone Compact Bar) -->
     <header class="mobile-header">
         <div class="brand-section">
-            <div class="brand-avatar" onclick="openBottomSheet('sheet-branch-picker')" title="تغيير الفرع / المستودع">
-                <i class="fa-solid fa-gem"></i>
+            <div class="brand-avatar" onclick="calibrateMobileScreen(true)" title="شعار مقاييس المعتمد — اضغط لوزن الشاشة الرئيسية ومطابقة الأزرار">
+                <img src="assets/icon-192.png?v=2026_magaiees" alt="شعار مقاييس" class="brand-avatar-img">
             </div>
             <div class="brand-meta">
                 <div style="display:flex; align-items:center; gap:5px;">
@@ -4687,17 +4779,17 @@ try {
     </header>
 
     <!-- 📲 IN-APP VISUAL INSTALL BANNER (MAGAIEES 1-CLICK ENGINE) -->
-    <div id="magaiees-native-install-banner" class="magaiees-install-trigger-wrap" style="display:none; margin:10px 14px 4px 14px; background:linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border:1.5px solid rgba(56, 189, 248, 0.4); border-radius:18px; padding:12px 14px; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 10px 25px rgba(0,0,0,0.5);">
-        <div style="display:flex; align-items:center; gap:10px;">
-            <div style="width:38px; height:38px; border-radius:12px; background:linear-gradient(135deg, #0ea5e9, #10b981); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.1rem; flex-shrink:0;">
-                <i class="fa-solid fa-gem"></i>
+    <div id="magaiees-native-install-banner" class="magaiees-install-trigger-wrap" style="display:none; margin:10px 14px 4px 14px; background:linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.95)); border:1.5px solid rgba(56, 189, 248, 0.4); border-radius:18px; padding:12px 14px; align-items:center; justify-content:space-between; gap:10px; box-shadow:0 10px 25px rgba(0,0,0,0.5); flex-wrap:wrap; max-width:calc(100vw - 28px); box-sizing:border-box;">
+        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#0f172a; border:1px solid rgba(56,189,248,0.4); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0;">
+                <img src="assets/icon-192.png?v=2026_magaiees" alt="مقاييس" style="width:100%; height:100%; object-fit:cover;">
             </div>
-            <div>
+            <div style="min-width:0;">
                 <strong style="font-size:0.86rem; color:#fff; display:block;">تطبيق مقاييس ERP</strong>
                 <span style="font-size:0.72rem; color:var(--text-muted);">شاشة كاملة، تشغيل سريع، بدون متصفح</span>
             </div>
         </div>
-        <button type="button" class="btn-install-magaiees-action" onclick="PWAManager.triggerInstall()" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; border-radius:12px; padding:8px 12px; font-size:0.76rem; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; display:flex; align-items:center; gap:6px;">
+        <button type="button" class="btn-install-magaiees-action" onclick="PWAManager.triggerInstall()" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; border-radius:12px; padding:8px 12px; font-size:0.76rem; font-weight:900; cursor:pointer; font-family:inherit; white-space:normal; text-align:center; display:flex; align-items:center; justify-content:center; gap:6px; max-width:100%; box-sizing:border-box;">
             <i class="fa-solid fa-download"></i> 📲 تثبيت تطبيق مقاييس على الجوال
         </button>
     </div>
@@ -7326,6 +7418,78 @@ try {
         }
         window.playSoundEffect = playSoundEffect;
 
+        // ⚖️ MOBILE SCREEN CALIBRATION & BUTTON CONTAINMENT ENGINE
+        // وزن الشاشة الرئيسية حسب أبعاد شاشة الجوال — ضمان بقاء كافة الأزرار داخل الشاشة بنسبة 100%
+        function calibrateMobileScreen(interactive = false) {
+            try {
+                const vw = Math.min(window.innerWidth, document.documentElement.clientWidth || window.innerWidth);
+                const vh = Math.min(window.innerHeight, document.documentElement.clientHeight || window.innerHeight);
+
+                // 1. Force root containment and eliminate any horizontal offsets
+                document.documentElement.style.maxWidth = '100vw';
+                document.documentElement.style.overflowX = 'hidden';
+                document.body.style.maxWidth = '100vw';
+                document.body.style.overflowX = 'hidden';
+                document.body.style.width = '100%';
+                window.scrollTo({ left: 0, behavior: 'instant' });
+
+                // 2. Set dynamic calibration CSS properties
+                document.documentElement.style.setProperty('--calibrated-vw', `${vw}px`);
+                document.documentElement.style.setProperty('--calibrated-vh', `${vh}px`);
+
+                // 3. Scan & calibrate all key interactive containers & buttons
+                const containers = document.querySelectorAll(
+                    '.mobile-header, .view-container, .mobile-content, .micro-kpi-grid, ' +
+                    '.actions-operations-grid, .power-action-btn, .bottom-nav-bar, .nav-item, ' +
+                    '#magaiees-native-install-banner, .btn-install-magaiees-action, .alert-feed-wrapper, ' +
+                    '.liquidity-card, .mode-switcher-container'
+                );
+
+                containers.forEach(el => {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.right > vw || rect.left < 0 || rect.width > vw) {
+                        el.style.maxWidth = '100%';
+                        el.style.boxSizing = 'border-box';
+                    }
+                });
+
+                // Also run device profile alignment
+                if (typeof runLiveHardwareCalibration === 'function') {
+                    runLiveHardwareCalibration(false);
+                }
+
+                // 4. Interactive sensory feedback when tapped by user
+                if (interactive) {
+                    triggerHaptic('heavy');
+                    if (typeof playSoundEffect === 'function') playSoundEffect('success');
+
+                    // Pulsing animation on brand logo
+                    const logo = document.querySelector('.brand-avatar');
+                    if (logo) {
+                        logo.classList.remove('calibrating-target');
+                        void logo.offsetWidth;
+                        logo.classList.add('calibrating-target');
+                    }
+
+                    // Pulse main action buttons
+                    document.querySelectorAll('.power-action-btn, .nav-item').forEach(btn => {
+                        btn.classList.remove('calibrating-target');
+                        void btn.offsetWidth;
+                        btn.classList.add('calibrating-target');
+                    });
+
+                    if (window.showModernToast) {
+                        window.showModernToast(`⚖️ تم وزن أبعاد الشاشة ومطابقة جميع الأزرار بنجاح (${vw}px)`, 'success', 3500);
+                    }
+                }
+            } catch(e) {
+                console.warn('Screen calibration error:', e);
+            }
+        }
+        window.calibrateMobileScreen = calibrateMobileScreen;
+        window.addEventListener('resize', () => calibrateMobileScreen(false));
+        window.addEventListener('orientationchange', () => setTimeout(() => calibrateMobileScreen(false), 200));
+
         // 📷 Real Camera Barcode Scanner Engine (BarcodeDetector API + Manual Fallback)
         window.BarcodeScannerEngine = {
             stream: null,
@@ -7748,6 +7912,10 @@ try {
             else if (tabKey === 'dashboard') {
                 renderExecutiveMicroKPIs();
                 if (typeof RuleAlertEngine !== 'undefined') RuleAlertEngine.scanAndRender();
+            }
+
+            if (typeof calibrateMobileScreen === 'function') {
+                calibrateMobileScreen(false);
             }
         }
 
@@ -16066,6 +16234,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
             runLiveHardwareCalibration(false);
+            if (typeof calibrateMobileScreen === 'function') calibrateMobileScreen(false);
             setupFluidKeyboardViewport();
             
             const savedBranchLabel = localStorage.getItem('magaiees_branch_label');
