@@ -5205,6 +5205,63 @@
 
   <!-- JAVASCRIPT APP LOGIC & INTERACTIONS -->
   <script>
+    // ================================================================
+    // 📳 FLUTTER SENSORY SYSTEM: AppHaptics
+    // مأخوذ بالكامل ومطابق لكود Flutter AppHaptics:
+    // 1. AppHaptics.success() -> HapticFeedback.lightImpact()
+    // 2. AppHaptics.error()   -> HapticFeedback.heavyImpact()
+    // 3. AppHaptics.click()   -> HapticFeedback.selectionClick()
+    // ================================================================
+    class AppHaptics {
+      // 1. عند إتمام عملية بنجاح (حفظ فاتورة، ترحيل قيد، دفع)
+      static success() {
+        if (typeof isSensoryHapticEnabled !== 'undefined' && !isSensoryHapticEnabled) return;
+        try {
+          if ('vibrate' in navigator) {
+            navigator.vibrate([35, 25, 35]);
+          } else if (typeof triggerHapticPulse === 'function') {
+            triggerHapticPulse(35);
+          }
+        } catch (e) {}
+        if (typeof isSensorySoundEnabled === 'undefined' || isSensorySoundEnabled) {
+          if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('success');
+        }
+      }
+
+      // 2. عند وجود خطأ في الإدخال (حقل فارغ، تجاوز حد الائتمان)
+      static error() {
+        if (typeof isSensoryHapticEnabled !== 'undefined' && !isSensoryHapticEnabled) return;
+        try {
+          if ('vibrate' in navigator) {
+            navigator.vibrate([70, 40, 70, 40, 110]);
+          } else if (typeof triggerHapticPulse === 'function') {
+            triggerHapticPulse(90);
+          }
+        } catch (e) {}
+        if (typeof isSensorySoundEnabled === 'undefined' || isSensorySoundEnabled) {
+          if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('error');
+        }
+      }
+
+      // 3. عند التنقل السريع أو النقر على أزرار عادية
+      static click() {
+        if (typeof isSensoryHapticEnabled !== 'undefined' && !isSensoryHapticEnabled) return;
+        try {
+          if ('vibrate' in navigator) {
+            navigator.vibrate(15);
+          } else if (typeof triggerHapticPulse === 'function') {
+            triggerHapticPulse(15);
+          }
+        } catch (e) {}
+        if (typeof isSensorySoundEnabled === 'undefined' || isSensorySoundEnabled) {
+          if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');
+        }
+      }
+    }
+
+    // إتاحتها عالمياً في كل مكان: window.AppHaptics
+    window.AppHaptics = AppHaptics;
+
     let isPrivacyActive = false;
 
     // Accounts Database with NON-ZERO vs ZERO Balances (Unified Chart of Accounts)
@@ -5801,10 +5858,13 @@
         // محاكاة الاتصال بالسيرفر: await Future.delayed(const Duration(seconds: 1));
         await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // HapticFeedback.mediumImpact(); إشعار لمسي فوري باكتمال المزامنة
-        if (window.triggerHapticPulse) triggerHapticPulse(50);
-        if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
-        if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
+        // AppHaptics.success(); إشعار لمسي فوري باكتمال المزامنة
+        if (window.AppHaptics) AppHaptics.success();
+        else {
+          if (window.triggerHapticPulse) triggerHapticPulse(50);
+          if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+          if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
+        }
 
         this.render();
 
@@ -5824,10 +5884,12 @@
       },
 
       onAccountTap(index) {
-        // Haptic Feedback upon selection
-        if (window.triggerHapticPulse) triggerHapticPulse(25);
-        if (navigator.vibrate) navigator.vibrate(20);
-        if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+        // AppHaptics.click();
+        if (window.AppHaptics) AppHaptics.click();
+        else {
+          if (window.triggerHapticPulse) triggerHapticPulse(25);
+          if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+        }
 
         const acc = this.accounts[index];
         if (typeof showFloatingToast === 'function') {
@@ -6028,10 +6090,12 @@
 
       selectItem(index) {
         const item = this.items[index];
-        // HapticFeedback.lightImpact(); اهتزاز خفيف عند الاختيار
-        if (window.triggerHapticPulse) triggerHapticPulse(25);
-        if (navigator.vibrate) navigator.vibrate(20);
-        if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+        // AppHaptics.click(); اهتزاز خفيف ونقرة صوتية عند الاختيار
+        if (window.AppHaptics) AppHaptics.click();
+        else {
+          if (window.triggerHapticPulse) triggerHapticPulse(25);
+          if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+        }
 
         if (typeof this.callback === 'function') {
           this.callback(item);
@@ -6202,10 +6266,11 @@
       },
 
       showExitConfirmation(modalId) {
-        // اهتزاز تنبيهي وصوتي خفيف كما في Flutter: HapticFeedback.selectionClick()
-        if (window.AudioEngine && window.AudioEngine.play) AudioEngine.play('error');
-        if (window.triggerHapticPulse) triggerHapticPulse(40);
-        if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+        if (window.AppHaptics) AppHaptics.error();
+        else {
+          if (window.AudioEngine && window.AudioEngine.play) AudioEngine.play('error');
+          if (window.triggerHapticPulse) triggerHapticPulse(40);
+        }
 
         this.pendingExitModalId = modalId;
         const dialog = document.getElementById('modalSafeExitConfirm');
@@ -6214,8 +6279,11 @@
 
       onStay() {
         // متابعة التعديل (البقاء في الشاشة)
-        if (window.AudioEngine && window.AudioEngine.play) AudioEngine.play('numpad');
-        if (window.triggerHapticPulse) triggerHapticPulse(20);
+        if (window.AppHaptics) AppHaptics.click();
+        else {
+          if (window.AudioEngine && window.AudioEngine.play) AudioEngine.play('numpad');
+          if (window.triggerHapticPulse) triggerHapticPulse(20);
+        }
         const dialog = document.getElementById('modalSafeExitConfirm');
         if (dialog) dialog.classList.add('hidden');
         try {
@@ -6225,8 +6293,11 @@
 
       onDiscardAndExit() {
         // تجاهل وخروج
-        if (window.AudioEngine && window.AudioEngine.play) AudioEngine.play('trash');
-        if (window.triggerHapticPulse) triggerHapticPulse(30);
+        if (window.AppHaptics) AppHaptics.error();
+        else {
+          if (window.AudioEngine && window.AudioEngine.play) AudioEngine.play('trash');
+          if (window.triggerHapticPulse) triggerHapticPulse(30);
+        }
         const dialog = document.getElementById('modalSafeExitConfirm');
         if (dialog) dialog.classList.add('hidden');
 
@@ -6317,6 +6388,7 @@
     }
 
     function commitOperation(opName) {
+      if (window.AppHaptics) AppHaptics.success();
       if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
       alert("✓ تم بنجاح ترحيل واعتماد: [" + opName + "]\nتم تحديث الخزينة والمخزون وحساب العميل/المورد في شجرة الحسابات فوراً!");
       closeModal('modalOpFinance');
@@ -6506,6 +6578,7 @@
     }
 
     function switchTab(tabId) {
+      if (window.AppHaptics) AppHaptics.click();
       const pages = {
         'dashboard': document.getElementById('pageDashboard'),
         'transactions': document.getElementById('pageTransactions'),
