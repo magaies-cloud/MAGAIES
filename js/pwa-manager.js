@@ -169,7 +169,7 @@ window.PWAManager = {
     registerServiceWorker() {
         if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js?v=2026_10_05_v35_21themes', { scope: './' })
+                navigator.serviceWorker.register('./sw.js?v=2026_10_05_v36_clean_labels', { scope: './' })
                     .then((reg) => {
                         console.log('[Magaiees PWA] SW registered with scope:', reg.scope);
                         // Trigger immediate check for fresh updates

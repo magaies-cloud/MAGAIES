@@ -839,16 +839,17 @@
 
     /* ═══════════════════════════════════════════════════════════════
        0.1 WARM ALABASTER (العاجي الدافئ الملكي - أقصى راحة للعين والذهن)
+       تم تفتيح درجة البيجي نصف درجة لراحة فائقة وتعميمها عبر كامل التطبيق
        ═══════════════════════════════════════════════════════════════ */
-    html[data-theme="warm-alabaster"] body { background: #EDE3D2 !important; color: #1c1917 !important; }
-    html[data-theme="warm-alabaster"] .mobile-app-wrapper { background: #EDE3D2 !important; border-color: #8B6F4E !important; color: #1c1917 !important; }
+    html[data-theme="warm-alabaster"] body { background: #F6F0E6 !important; color: #1c1917 !important; }
+    html[data-theme="warm-alabaster"] .mobile-app-wrapper { background: #F6F0E6 !important; border-color: #8B6F4E !important; color: #1c1917 !important; }
     html[data-theme="warm-alabaster"] header.app-main-header,
-    html[data-theme="warm-alabaster"] nav.glass-dock { background: #EDE3D2 !important; border-color: #8B6F4E !important; }
+    html[data-theme="warm-alabaster"] nav.glass-dock { background: #F6F0E6 !important; border-color: #8B6F4E !important; }
     html[data-theme="warm-alabaster"] .glass-base,
     html[data-theme="warm-alabaster"] .glass-card-interactive,
     html[data-theme="warm-alabaster"] .bg-slate-900,
-    html[data-theme="warm-alabaster"] .bg-slate-950 { background: #ffffff !important; border: 1.5px solid #8B6F4E !important; color: #1c1917 !important; box-shadow: 0 2px 10px rgba(80, 50, 20, 0.06) !important; }
-    html[data-theme="warm-alabaster"] .bg-slate-800 { background: #F5EDE2 !important; border-color: #8B6F4E !important; color: #1c1917 !important; }
+    html[data-theme="warm-alabaster"] .bg-slate-950 { background: #ffffff !important; border: 1.5px solid #8B6F4E !important; color: #1c1917 !important; box-shadow: 0 1px 4px rgba(80, 50, 20, 0.05) !important; }
+    html[data-theme="warm-alabaster"] .bg-slate-800 { background: #EDE4D6 !important; border-color: #8B6F4E !important; color: #1c1917 !important; }
     html[data-theme="warm-alabaster"] .text-slate-100,
     html[data-theme="warm-alabaster"] .text-slate-200,
     html[data-theme="warm-alabaster"] .text-slate-300,
@@ -856,49 +857,186 @@
     html[data-theme="warm-alabaster"] .text-slate-400 { color: #4A3E31 !important; font-weight: 600 !important; }
     html[data-theme="warm-alabaster"] .text-slate-500 { color: #6B5B49 !important; }
     html[data-theme="warm-alabaster"] label { color: #1c1917 !important; font-weight: 800 !important; }
+    html[data-theme="warm-alabaster"] .border-slate-800,
+    html[data-theme="warm-alabaster"] .border-slate-700\/60,
+    html[data-theme="warm-alabaster"] .border-slate-700 { border-color: #DCCFBF !important; }
+
+    /* إلغاء الظلال حول النصوص والهالات الضوئية والغباش في العاجي الدافئ */
+    html[data-theme="warm-alabaster"] *,
+    html[data-theme="warm-alabaster"] .op-btn *,
+    html[data-theme="warm-alabaster"] .glass-base *,
+    html[data-theme="warm-alabaster"] .glass-card-interactive * {
+      text-shadow: none !important;
+    }
+    html[data-theme="warm-alabaster"] .sheen::after {
+      display: none !important;
+    }
+    html[data-theme="warm-alabaster"] [class*="shadow-[0_0_"] {
+      box-shadow: 0 1px 4px rgba(80, 50, 20, 0.05) !important;
+    }
+    html[data-theme="warm-alabaster"] [class*="drop-shadow-"] {
+      filter: none !important;
+    }
 
     /* 13 Operational Buttons in Warm Alabaster (Pure White Cards, Dark Brown Borders, Warm Beige Canvas) */
     html[data-theme="warm-alabaster"] .op-btn {
       background: #ffffff !important;
-      border: 2px solid #8B6F4E !important;
-      box-shadow: 0 3px 10px rgba(80, 50, 20, 0.08) !important;
+      border: 1.5px solid #8B6F4E !important;
+      box-shadow: 0 1px 3px rgba(80, 50, 20, 0.06) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
     }
     html[data-theme="warm-alabaster"] .op-btn:hover,
     html[data-theme="warm-alabaster"] .op-btn:active {
       border-color: #523820 !important;
-      box-shadow: 0 4px 18px rgba(80, 50, 20, 0.22) !important;
+      box-shadow: 0 3px 10px rgba(80, 50, 20, 0.14) !important;
       transform: translateY(-2px);
     }
     html[data-theme="warm-alabaster"] .op-btn .text-slate-200,
     html[data-theme="warm-alabaster"] .op-btn span.text-xs,
     html[data-theme="warm-alabaster"] .op-btn span.font-black {
-      color: #1c1917 !important;
+      color: #1C1917 !important;
       font-weight: 900 !important;
+      text-shadow: none !important;
     }
     html[data-theme="warm-alabaster"] .op-btn .w-9.h-9,
     html[data-theme="warm-alabaster"] .op-btn div[class*="bg-"] {
-      background: #F5EDE2 !important;
+      background: #F7EFE4 !important;
       border: 1.5px solid #8B6F4E !important;
       box-shadow: none !important;
+      filter: none !important;
     }
     html[data-theme="warm-alabaster"] .op-btn .w-9.h-9 i,
     html[data-theme="warm-alabaster"] .op-btn .w-9.h-9 svg,
     html[data-theme="warm-alabaster"] .op-btn .w-9.h-9 [class*="text-"] {
       color: #4A321E !important;
       stroke: #4A321E !important;
+      filter: none !important;
     }
     html[data-theme="warm-alabaster"] .op-btn span.text-\[9\.5px\],
-    html[data-theme="warm-alabaster"] .op-btn span:nth-of-type(2) {
-      color: #5C4B37 !important;
+    html[data-theme="warm-alabaster"] .op-btn span:nth-of-type(2),
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-emerald-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-sky-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-pink-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-indigo-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-amber-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-teal-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-purple-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-blue-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-yellow-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-cyan-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-rose-"],
+    html[data-theme="warm-alabaster"] .op-btn [class*="text-orange-"] {
+      color: #4A3525 !important;
+      font-weight: 800 !important;
+      text-shadow: none !important;
+    }
+
+    /* التباين العالي لمنظومة السيولة والبطاقات المالية في العاجي الدافئ */
+    html[data-theme="warm-alabaster"] h3.text-amber-400,
+    html[data-theme="warm-alabaster"] .text-amber-400,
+    html[data-theme="warm-alabaster"] .text-amber-300,
+    html[data-theme="warm-alabaster"] .text-amber-500,
+    html[data-theme="warm-alabaster"] .text-amber-500\/80 {
+      color: #92400E !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="warm-alabaster"] .bg-amber-400 {
+      background-color: #92400E !important;
+    }
+    html[data-theme="warm-alabaster"] .bg-amber-950\/60,
+    html[data-theme="warm-alabaster"] .bg-amber-950 {
+      background: #FEF3C7 !important;
+      color: #92400E !important;
+      border-color: #D97706 !important;
+    }
+    html[data-theme="warm-alabaster"] .bg-amber-500\/20 {
+      background: #FEF3C7 !important;
+      color: #92400E !important;
+    }
+    html[data-theme="warm-alabaster"] .border-amber-500\/40,
+    html[data-theme="warm-alabaster"] .border-amber-500\/30 {
+      border-color: #8B6F4E !important;
+    }
+
+    /* شيكات اليوم والشيكات المستحقة في العاجي الدافئ */
+    html[data-theme="warm-alabaster"] .text-rose-300,
+    html[data-theme="warm-alabaster"] .text-rose-400,
+    html[data-theme="warm-alabaster"] .text-rose-500,
+    html[data-theme="warm-alabaster"] .text-red-400 {
+      color: #BE123C !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="warm-alabaster"] .bg-rose-950\/20,
+    html[data-theme="warm-alabaster"] .bg-rose-950 {
+      background: #FFFFFF !important;
+    }
+    html[data-theme="warm-alabaster"] .border-rose-500\/40 {
+      border-color: #FECDD3 !important;
+    }
+    html[data-theme="warm-alabaster"] .bg-rose-500\/20 {
+      background: #FFE4E6 !important;
+      color: #BE123C !important;
+    }
+
+    /* إجمالي الشيكات $50,000 في العاجي الدافئ */
+    html[data-theme="warm-alabaster"] .text-indigo-300,
+    html[data-theme="warm-alabaster"] .text-indigo-400,
+    html[data-theme="warm-alabaster"] .text-indigo-500 {
+      color: #3730A3 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="warm-alabaster"] .bg-indigo-500\/20 {
+      background: #EEF2FF !important;
+      color: #3730A3 !important;
+    }
+
+    /* البنوك والسيان في العاجي الدافئ */
+    html[data-theme="warm-alabaster"] .text-cyan-300,
+    html[data-theme="warm-alabaster"] .text-cyan-400,
+    html[data-theme="warm-alabaster"] .text-cyan-500,
+    html[data-theme="warm-alabaster"] .text-sky-400,
+    html[data-theme="warm-alabaster"] .text-sky-300 {
+      color: #0369A1 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="warm-alabaster"] .bg-cyan-500\/20,
+    html[data-theme="warm-alabaster"] .bg-cyan-900\/60 {
+      background: #E0F2FE !important;
+      color: #0369A1 !important;
+      border-color: #38BDF8 !important;
+    }
+    html[data-theme="warm-alabaster"] .border-cyan-500\/40 {
+      border-color: #8B6F4E !important;
+    }
+
+    /* الخزن والزمرد في العاجي الدافئ */
+    html[data-theme="warm-alabaster"] .text-emerald-300,
+    html[data-theme="warm-alabaster"] .text-emerald-400,
+    html[data-theme="warm-alabaster"] .text-emerald-500 {
+      color: #047857 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="warm-alabaster"] .bg-emerald-950,
+    html[data-theme="warm-alabaster"] .bg-emerald-500\/20 {
+      background: #ECFDF5 !important;
+      color: #047857 !important;
+      border-color: #10B981 !important;
+    }
+
+    /* الذمم والمؤشرات في العاجي الدافئ */
+    html[data-theme="warm-alabaster"] .text-purple-300,
+    html[data-theme="warm-alabaster"] .text-purple-400 {
+      color: #6B21A8 !important;
       font-weight: 800 !important;
     }
 
     /* Top Bar (Row 1) in Warm Alabaster */
     html[data-theme="warm-alabaster"] .flagship-tile {
       background: #ffffff !important;
-      border: 2px solid #8B6F4E !important;
+      border: 1.5px solid #8B6F4E !important;
       color: #1c1917 !important;
-      box-shadow: 0 2px 6px rgba(80, 50, 20, 0.08) !important;
+      box-shadow: 0 1px 3px rgba(80, 50, 20, 0.06) !important;
     }
     html[data-theme="warm-alabaster"] .flagship-tile svg {
       stroke: #1c1917 !important;
@@ -909,7 +1047,7 @@
     html[data-theme="warm-alabaster"] .flagship-tile-eye,
     html[data-theme="warm-alabaster"] .flagship-tile-install,
     html[data-theme="warm-alabaster"] .flagship-tile-theme {
-      border: 2px solid #8B6F4E !important;
+      border: 1.5px solid #8B6F4E !important;
       color: #1c1917 !important;
       background: #ffffff !important;
     }
@@ -935,7 +1073,7 @@
       color: #ffffff !important;
     }
     html[data-theme="warm-alabaster"] .flagship-tile-logout {
-      border: 2px solid #fecaca !important;
+      border: 1.5px solid #fecaca !important;
       color: #b91c1c !important;
       background: #ffffff !important;
     }
@@ -944,15 +1082,18 @@
       color: #b91c1c !important;
     }
     html[data-theme="warm-alabaster"] .flagship-brand-badge.is-online {
-      border: 2px solid #059669 !important;
+      border: 1.5px solid #059669 !important;
       background: #ffffff !important;
+      box-shadow: none !important;
     }
     html[data-theme="warm-alabaster"] .flagship-brand-badge.is-online .brand-text {
       color: #065f46 !important;
       font-weight: 900 !important;
+      text-shadow: none !important;
     }
     html[data-theme="warm-alabaster"] .flagship-brand-badge.is-online .status-dot {
       background: #059669 !important;
+      box-shadow: none !important;
     }
     html[data-theme="warm-alabaster"] #activeThemeBadge {
       background: #8B6F4E !important;
@@ -963,9 +1104,9 @@
     /* Row 2 (Quick Bar) in Warm Alabaster */
     html[data-theme="warm-alabaster"] .row2-glass-tile {
       background: #ffffff !important;
-      border: 2px solid #8B6F4E !important;
+      border: 1.5px solid #8B6F4E !important;
       color: #1c1917 !important;
-      box-shadow: 0 2px 6px rgba(80, 50, 20, 0.08) !important;
+      box-shadow: 0 1px 3px rgba(80, 50, 20, 0.06) !important;
     }
     html[data-theme="warm-alabaster"] .row2-glass-tile svg {
       stroke: #1c1917 !important;
@@ -988,8 +1129,8 @@
     /* Row 3 (Crystal Hub) in Warm Alabaster */
     html[data-theme="warm-alabaster"] .crystal-flagship-btn {
       background: #ffffff !important;
-      border: 2px solid #8B6F4E !important;
-      box-shadow: 0 2px 8px rgba(80, 50, 20, 0.08) !important;
+      border: 1.5px solid #8B6F4E !important;
+      box-shadow: 0 1px 3px rgba(80, 50, 20, 0.06) !important;
     }
     html[data-theme="warm-alabaster"] .crystal-flagship-btn .btn-label {
       color: #1c1917 !important;
@@ -997,7 +1138,7 @@
       text-shadow: none !important;
     }
     html[data-theme="warm-alabaster"] .crystal-flagship-btn .btn-emblem {
-      background: #F5EDE2 !important;
+      background: #EDE4D6 !important;
       border: 1.5px solid #8B6F4E !important;
       box-shadow: none !important;
     }
@@ -1029,10 +1170,10 @@
     html[data-theme="warm-alabaster"] .op-cat-btn:not(.active) {
       background: #ffffff !important;
       color: #5C4B37 !important;
-      border: 2px solid #8B6F4E !important;
+      border: 1.5px solid #8B6F4E !important;
     }
     html[data-theme="warm-alabaster"] .op-cat-btn:not(.active) .luminous-number-badge {
-      background: #F5EDE2 !important;
+      background: #EDE4D6 !important;
       color: #4A321E !important;
       border-color: #8B6F4E !important;
     }
@@ -1050,8 +1191,8 @@
     /* Full-width Banners in Warm Alabaster */
     html[data-theme="warm-alabaster"] .banner-strip {
       background: #ffffff !important;
-      border: 2px solid #8B6F4E !important;
-      box-shadow: 0 2px 10px rgba(80, 50, 20, 0.06) !important;
+      border: 1.5px solid #8B6F4E !important;
+      box-shadow: 0 1px 4px rgba(80, 50, 20, 0.05) !important;
       color: #1c1917 !important;
     }
     html[data-theme="warm-alabaster"] .banner-strip span {
@@ -1074,7 +1215,7 @@
       font-weight: 900 !important;
     }
     html[data-theme="warm-alabaster"] .banner-strip .w-10.h-10 {
-      background: #F5EDE2 !important;
+      background: #EDE4D6 !important;
       border: 1.5px solid #8B6F4E !important;
     }
 
@@ -1083,7 +1224,7 @@
     html[data-theme="warm-alabaster"] select,
     html[data-theme="warm-alabaster"] textarea {
       background: #ffffff !important;
-      border: 2px solid #8B6F4E !important;
+      border: 1.5px solid #8B6F4E !important;
       color: #1c1917 !important;
     }
     html[data-theme="warm-alabaster"] input:focus,
@@ -1093,21 +1234,22 @@
       outline: none !important;
     }
     html[data-theme="warm-alabaster"] .modal-backdrop {
-      background: rgba(43, 30, 20, 0.65) !important;
+      background: rgba(43, 30, 20, 0.45) !important;
     }
 
 
     /* ═══════════════════════════════════════════════════════════════
-       0.2 PURE PLATINUM (الفضي البلاتيني الصافي - دقة تحليلية سويسرية)
+       0.2 PURE PLATINUM (الفضي النقي - دقة تحليلية سويسرية)
+       تم تفتيح وتلطيف اللون الرمادي وتعميمه وإلغاء الظلال والغباش والبهتان
        ═══════════════════════════════════════════════════════════════ */
-    html[data-theme="pure-platinum"] body { background: #D4D9E0 !important; color: #0f172a !important; }
-    html[data-theme="pure-platinum"] .mobile-app-wrapper { background: #D4D9E0 !important; border-color: #64748B !important; color: #0f172a !important; }
+    html[data-theme="pure-platinum"] body { background: #EEF2F6 !important; color: #0f172a !important; }
+    html[data-theme="pure-platinum"] .mobile-app-wrapper { background: #EEF2F6 !important; border-color: #64748B !important; color: #0f172a !important; }
     html[data-theme="pure-platinum"] header.app-main-header,
-    html[data-theme="pure-platinum"] nav.glass-dock { background: #D4D9E0 !important; border-color: #64748B !important; }
+    html[data-theme="pure-platinum"] nav.glass-dock { background: #EEF2F6 !important; border-color: #64748B !important; }
     html[data-theme="pure-platinum"] .glass-base,
     html[data-theme="pure-platinum"] .glass-card-interactive,
     html[data-theme="pure-platinum"] .bg-slate-900,
-    html[data-theme="pure-platinum"] .bg-slate-950 { background: #ffffff !important; border: 1.5px solid #64748B !important; color: #0f172a !important; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important; }
+    html[data-theme="pure-platinum"] .bg-slate-950 { background: #ffffff !important; border: 1.5px solid #64748B !important; color: #0f172a !important; box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05) !important; }
     html[data-theme="pure-platinum"] .bg-slate-800 { background: #E2E8F0 !important; border-color: #64748B !important; color: #0f172a !important; }
     html[data-theme="pure-platinum"] .text-slate-100,
     html[data-theme="pure-platinum"] .text-slate-200,
@@ -1116,17 +1258,39 @@
     html[data-theme="pure-platinum"] .text-slate-400 { color: #334155 !important; font-weight: 600 !important; }
     html[data-theme="pure-platinum"] .text-slate-500 { color: #475569 !important; }
     html[data-theme="pure-platinum"] label { color: #0f172a !important; font-weight: 800 !important; }
+    html[data-theme="pure-platinum"] .border-slate-800,
+    html[data-theme="pure-platinum"] .border-slate-700\/60,
+    html[data-theme="pure-platinum"] .border-slate-700 { border-color: #CBD5E1 !important; }
+
+    /* إلغاء الظلال حول النصوص والهالات الضوئية والغباش في الفضي النقي */
+    html[data-theme="pure-platinum"] *,
+    html[data-theme="pure-platinum"] .op-btn *,
+    html[data-theme="pure-platinum"] .glass-base *,
+    html[data-theme="pure-platinum"] .glass-card-interactive * {
+      text-shadow: none !important;
+    }
+    html[data-theme="pure-platinum"] .sheen::after {
+      display: none !important;
+    }
+    html[data-theme="pure-platinum"] [class*="shadow-[0_0_"] {
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05) !important;
+    }
+    html[data-theme="pure-platinum"] [class*="drop-shadow-"] {
+      filter: none !important;
+    }
 
     /* 13 Operational Buttons in Pure Platinum (Pure White Cards, Dark Slate Borders, Silver Canvas) */
     html[data-theme="pure-platinum"] .op-btn {
       background: #ffffff !important;
-      border: 2px solid #64748B !important;
-      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08) !important;
+      border: 1.5px solid #64748B !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+      backdrop-filter: none !important;
+      -webkit-backdrop-filter: none !important;
     }
     html[data-theme="pure-platinum"] .op-btn:hover,
     html[data-theme="pure-platinum"] .op-btn:active {
       border-color: #0f172a !important;
-      box-shadow: 0 4px 18px rgba(15, 23, 42, 0.22) !important;
+      box-shadow: 0 3px 10px rgba(15, 23, 42, 0.14) !important;
       transform: translateY(-2px);
     }
     html[data-theme="pure-platinum"] .op-btn .text-slate-200,
@@ -1134,31 +1298,146 @@
     html[data-theme="pure-platinum"] .op-btn span.font-black {
       color: #0f172a !important;
       font-weight: 900 !important;
+      text-shadow: none !important;
     }
     html[data-theme="pure-platinum"] .op-btn .w-9.h-9,
     html[data-theme="pure-platinum"] .op-btn div[class*="bg-"] {
-      background: #E2E8F0 !important;
+      background: #F1F5F9 !important;
       border: 1.5px solid #64748B !important;
       box-shadow: none !important;
+      filter: none !important;
     }
     html[data-theme="pure-platinum"] .op-btn .w-9.h-9 i,
     html[data-theme="pure-platinum"] .op-btn .w-9.h-9 svg,
     html[data-theme="pure-platinum"] .op-btn .w-9.h-9 [class*="text-"] {
       color: #0f172a !important;
       stroke: #0f172a !important;
+      filter: none !important;
     }
     html[data-theme="pure-platinum"] .op-btn span.text-\[9\.5px\],
-    html[data-theme="pure-platinum"] .op-btn span:nth-of-type(2) {
+    html[data-theme="pure-platinum"] .op-btn span:nth-of-type(2),
+    html[data-theme="pure-platinum"] .op-btn [class*="text-emerald-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-sky-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-pink-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-indigo-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-amber-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-teal-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-purple-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-blue-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-yellow-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-cyan-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-rose-"],
+    html[data-theme="pure-platinum"] .op-btn [class*="text-orange-"] {
       color: #334155 !important;
+      font-weight: 800 !important;
+      text-shadow: none !important;
+    }
+
+    /* التباين الفائق لمنظومة السيولة ومجموع السيولة في الفضي النقي (حل مشكلة اللون الأصفر الباهت والهالة) */
+    html[data-theme="pure-platinum"] h3.text-amber-400,
+    html[data-theme="pure-platinum"] .text-amber-400,
+    html[data-theme="pure-platinum"] .text-amber-300,
+    html[data-theme="pure-platinum"] .text-amber-500,
+    html[data-theme="pure-platinum"] .text-amber-500\/80 {
+      color: #B45309 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pure-platinum"] .bg-amber-400 {
+      background-color: #B45309 !important;
+    }
+    html[data-theme="pure-platinum"] .bg-amber-950\/60,
+    html[data-theme="pure-platinum"] .bg-amber-950 {
+      background: #FEF3C7 !important;
+      color: #92400E !important;
+      border-color: #F59E0B !important;
+    }
+    html[data-theme="pure-platinum"] .bg-amber-500\/20 {
+      background: #FEF3C7 !important;
+      color: #B45309 !important;
+    }
+    html[data-theme="pure-platinum"] .border-amber-500\/40,
+    html[data-theme="pure-platinum"] .border-amber-500\/30 {
+      border-color: #64748B !important;
+    }
+
+    /* شيكات اليوم $3500 شيك يستحق الصرف في الفضي النقي (حل مشكلة اللون الباهت) */
+    html[data-theme="pure-platinum"] .text-rose-300,
+    html[data-theme="pure-platinum"] .text-rose-400,
+    html[data-theme="pure-platinum"] .text-rose-500,
+    html[data-theme="pure-platinum"] .text-red-400 {
+      color: #BE123C !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="pure-platinum"] .bg-rose-950\/20,
+    html[data-theme="pure-platinum"] .bg-rose-950 {
+      background: #FFFFFF !important;
+    }
+    html[data-theme="pure-platinum"] .border-rose-500\/40 {
+      border-color: #FDA4AF !important;
+    }
+    html[data-theme="pure-platinum"] .bg-rose-500\/20 {
+      background: #FFE4E6 !important;
+      color: #BE123C !important;
+    }
+
+    /* إجمالي الشيكات $50,000 في الفضي النقي (حل مشكلة اللون الباهت) */
+    html[data-theme="pure-platinum"] .text-indigo-300,
+    html[data-theme="pure-platinum"] .text-indigo-400,
+    html[data-theme="pure-platinum"] .text-indigo-500 {
+      color: #3730A3 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="pure-platinum"] .bg-indigo-500\/20 {
+      background: #EEF2FF !important;
+      color: #3730A3 !important;
+    }
+
+    /* البنوك والسيان في الفضي النقي */
+    html[data-theme="pure-platinum"] .text-cyan-300,
+    html[data-theme="pure-platinum"] .text-cyan-400,
+    html[data-theme="pure-platinum"] .text-cyan-500,
+    html[data-theme="pure-platinum"] .text-sky-400,
+    html[data-theme="pure-platinum"] .text-sky-300 {
+      color: #0369A1 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="pure-platinum"] .bg-cyan-500\/20,
+    html[data-theme="pure-platinum"] .bg-cyan-900\/60 {
+      background: #E0F2FE !important;
+      color: #0369A1 !important;
+      border-color: #38BDF8 !important;
+    }
+    html[data-theme="pure-platinum"] .border-cyan-500\/40 {
+      border-color: #64748B !important;
+    }
+
+    /* الخزن والزمرد في الفضي النقي */
+    html[data-theme="pure-platinum"] .text-emerald-300,
+    html[data-theme="pure-platinum"] .text-emerald-400,
+    html[data-theme="pure-platinum"] .text-emerald-500 {
+      color: #047857 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="pure-platinum"] .bg-emerald-950,
+    html[data-theme="pure-platinum"] .bg-emerald-500\/20 {
+      background: #ECFDF5 !important;
+      color: #047857 !important;
+      border-color: #10B981 !important;
+    }
+
+    /* الذمم والمؤشرات في الفضي النقي */
+    html[data-theme="pure-platinum"] .text-purple-300,
+    html[data-theme="pure-platinum"] .text-purple-400 {
+      color: #6B21A8 !important;
       font-weight: 800 !important;
     }
 
     /* Top Bar (Row 1) in Pure Platinum */
     html[data-theme="pure-platinum"] .flagship-tile {
       background: #ffffff !important;
-      border: 2px solid #64748B !important;
+      border: 1.5px solid #64748B !important;
       color: #0f172a !important;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08) !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
     }
     html[data-theme="pure-platinum"] .flagship-tile svg {
       stroke: #0f172a !important;
@@ -1169,7 +1448,7 @@
     html[data-theme="pure-platinum"] .flagship-tile-eye,
     html[data-theme="pure-platinum"] .flagship-tile-install,
     html[data-theme="pure-platinum"] .flagship-tile-theme {
-      border: 2px solid #64748B !important;
+      border: 1.5px solid #64748B !important;
       color: #0f172a !important;
       background: #ffffff !important;
     }
@@ -1195,7 +1474,7 @@
       color: #ffffff !important;
     }
     html[data-theme="pure-platinum"] .flagship-tile-logout {
-      border: 2px solid #fecaca !important;
+      border: 1.5px solid #fecaca !important;
       color: #b91c1c !important;
       background: #ffffff !important;
     }
@@ -1204,15 +1483,18 @@
       color: #b91c1c !important;
     }
     html[data-theme="pure-platinum"] .flagship-brand-badge.is-online {
-      border: 2px solid #0f172a !important;
+      border: 1.5px solid #0f172a !important;
       background: #ffffff !important;
+      box-shadow: none !important;
     }
     html[data-theme="pure-platinum"] .flagship-brand-badge.is-online .brand-text {
       color: #0f172a !important;
       font-weight: 900 !important;
+      text-shadow: none !important;
     }
     html[data-theme="pure-platinum"] .flagship-brand-badge.is-online .status-dot {
       background: #059669 !important;
+      box-shadow: none !important;
     }
     html[data-theme="pure-platinum"] #activeThemeBadge {
       background: #64748B !important;
@@ -1223,9 +1505,9 @@
     /* Row 2 (Quick Bar) in Pure Platinum */
     html[data-theme="pure-platinum"] .row2-glass-tile {
       background: #ffffff !important;
-      border: 2px solid #64748B !important;
+      border: 1.5px solid #64748B !important;
       color: #0f172a !important;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08) !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
     }
     html[data-theme="pure-platinum"] .row2-glass-tile svg {
       stroke: #0f172a !important;
@@ -1248,8 +1530,8 @@
     /* Row 3 (Crystal Hub) in Pure Platinum */
     html[data-theme="pure-platinum"] .crystal-flagship-btn {
       background: #ffffff !important;
-      border: 2px solid #64748B !important;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08) !important;
+      border: 1.5px solid #64748B !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
     }
     html[data-theme="pure-platinum"] .crystal-flagship-btn .btn-label {
       color: #0f172a !important;
@@ -1289,7 +1571,7 @@
     html[data-theme="pure-platinum"] .op-cat-btn:not(.active) {
       background: #ffffff !important;
       color: #334155 !important;
-      border: 2px solid #64748B !important;
+      border: 1.5px solid #64748B !important;
     }
     html[data-theme="pure-platinum"] .op-cat-btn:not(.active) .luminous-number-badge {
       background: #E2E8F0 !important;
@@ -1310,8 +1592,8 @@
     /* Full-width Banners in Pure Platinum */
     html[data-theme="pure-platinum"] .banner-strip {
       background: #ffffff !important;
-      border: 2px solid #64748B !important;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05) !important;
+      border: 1.5px solid #64748B !important;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05) !important;
       color: #0f172a !important;
     }
     html[data-theme="pure-platinum"] .banner-strip span {
@@ -1343,7 +1625,7 @@
     html[data-theme="pure-platinum"] select,
     html[data-theme="pure-platinum"] textarea {
       background: #ffffff !important;
-      border: 2px solid #64748B !important;
+      border: 1.5px solid #64748B !important;
       color: #0f172a !important;
     }
     html[data-theme="pure-platinum"] input:focus,
@@ -1353,7 +1635,7 @@
       outline: none !important;
     }
     html[data-theme="pure-platinum"] .modal-backdrop {
-      background: rgba(15, 23, 42, 0.65) !important;
+      background: rgba(15, 23, 42, 0.45) !important;
     }
 
 
@@ -3099,120 +3381,107 @@
 
           <div class="grid grid-cols-3 gap-2" id="operationsGrid">
             <!-- 1. حركة مالية -->
-            <button data-category="finance" onclick="openOperationalForm('financeMovement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="حركة تحويل مالي بين الخزن والحسابات">
-              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
+            <button data-category="finance" onclick="openOperationalForm('financeMovement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="حركة مالية">
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-money-bill-transfer text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">حركة مالية</span>
-              <span class="text-[9.5px] text-emerald-400 font-bold">تحويل (من ➔ إلى)</span>
             </button>
 
             <!-- 2. فاتورة مبيعات -->
-            <button data-category="sales" onclick="openOperationalForm('sales'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="فاتورة مبيعات نقدية وآجلة">
-              <div class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(56,189,248,0.35)] group-hover:scale-110 transition">
+            <button data-category="sales" onclick="openOperationalForm('sales'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="فاتورة مبيعات">
+              <div class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(56,189,248,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-bag-shopping text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">فاتورة مبيعات</span>
-              <span class="text-[9.5px] text-sky-400 font-bold">فاتورة نقد / آجل</span>
             </button>
 
             <!-- 3. تقسيم مبيعات -->
-            <button data-category="sales" onclick="openOperationalForm('salesSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="تقسيم مبيعات وجدولة أقساط">
-              <div class="w-9 h-9 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(244,114,182,0.35)] group-hover:scale-110 transition">
+            <button data-category="sales" onclick="openOperationalForm('salesSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="تقسيم مبيعات">
+              <div class="w-9 h-9 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(244,114,182,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-scissors text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">تقسيم مبيعات</span>
-              <span class="text-[9.5px] text-pink-400 font-bold">أقساط / مجدولة</span>
             </button>
 
             <!-- 4. استلام مبيعات -->
-            <button data-category="sales" onclick="openOperationalForm('salesDelivery'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="إذن تسليم وصرف بضاعة من المخزن">
-              <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(129,140,248,0.35)] group-hover:scale-110 transition">
+            <button data-category="sales" onclick="openOperationalForm('salesDelivery'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="استلام مبيعات">
+              <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(129,140,248,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-truck-ramp-box text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">استلام مبيعات</span>
-              <span class="text-[9.5px] text-indigo-400 font-bold">صرف وتسليم عميل</span>
             </button>
 
             <!-- 5. مشتريات -->
-            <button data-category="purchases" onclick="openOperationalForm('purchaseInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="فاتورة شراء وتوريد بضاعة">
-              <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(245,158,11,0.35)] group-hover:scale-110 transition">
+            <button data-category="purchases" onclick="openOperationalForm('purchaseInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="مشتريات">
+              <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(245,158,11,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-cart-shopping text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">مشتريات</span>
-              <span class="text-[9.5px] text-amber-400 font-bold">توريد للمخزن</span>
             </button>
 
             <!-- 6. استلام مشتريات -->
-            <button data-category="purchases" onclick="openOperationalForm('purchaseReceive'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="استلام فاتورة شراء وفحص مخزني">
-              <div class="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(20,184,166,0.35)] group-hover:scale-110 transition">
+            <button data-category="purchases" onclick="openOperationalForm('purchaseReceive'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="استلام مشتريات">
+              <div class="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(20,184,166,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-boxes-packing text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">استلام مشتريات</span>
-              <span class="text-[9.5px] text-teal-400 font-bold">فحص وإدخال مخزني</span>
             </button>
 
-            <!-- 7. تسوية قيود مالية -->
-            <button data-category="finance" onclick="openOperationalForm('journalSettlement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="تسوية قيود مالية وفروقات محاسبية">
-              <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(168,85,247,0.35)] group-hover:scale-110 transition">
+            <!-- 7. تسوية قيود -->
+            <button data-category="finance" onclick="openOperationalForm('journalSettlement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="تسوية قيود">
+              <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(168,85,247,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-scale-balanced text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">تسوية قيود</span>
-              <span class="text-[9.5px] text-purple-400 font-bold">فروقات وتسوية قيد</span>
             </button>
 
-            <!-- 8. كشف حساب -->
-            <button data-category="finance" onclick="openOperationalForm('accountStatement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="كشف حساب تفصيلي للعملاء والموردين والبنوك">
-              <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(59,130,246,0.35)] group-hover:scale-110 transition">
+            <!-- 8. حساب كشف حساب -->
+            <button data-category="finance" onclick="openOperationalForm('accountStatement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="حساب كشف حساب">
+              <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(59,130,246,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-file-invoice-dollar text-base"></i>
               </div>
-              <span class="text-xs font-black text-slate-200">كشف حساب</span>
-              <span class="text-[9.5px] text-blue-400 font-bold">كشف تفصيلي بالبحث</span>
+              <span class="text-xs font-black text-slate-200">حساب كشف حساب</span>
             </button>
 
-            <!-- 9. استعلام عن الرصيد -->
-            <button data-category="finance" onclick="openOperationalForm('balanceInquiry'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="استعلام فوري عن أرصدة الخزن والبنوك والعملاء">
-              <div class="w-9 h-9 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(234,179,8,0.35)] group-hover:scale-110 transition">
+            <!-- 9. استلام رصيد -->
+            <button data-category="finance" onclick="openOperationalForm('balanceInquiry'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="استلام رصيد">
+              <div class="w-9 h-9 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(234,179,8,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-coins text-base"></i>
               </div>
-              <span class="text-xs font-black text-slate-200">استعلام رصيد</span>
-              <span class="text-[9.5px] text-yellow-400 font-bold">فحص لحظي للأرصدة</span>
+              <span class="text-xs font-black text-slate-200">استلام رصيد</span>
             </button>
 
-            <!-- 10. فحص فوري للكميات المتاحة في المخزن ومواقعها -->
-            <button data-category="inventory" onclick="openOperationalForm('stockLocationCheck'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="فحص الكميات المتاحة ومواقع التخزين والرفوف">
-              <div class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(6,182,212,0.35)] group-hover:scale-110 transition">
+            <!-- 10. فحص المخزن -->
+            <button data-category="inventory" onclick="openOperationalForm('stockLocationCheck'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="فحص المخزن">
+              <div class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(6,182,212,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-warehouse text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">فحص المخزن</span>
-              <span class="text-[9.5px] text-cyan-400 font-bold">الكميات والرف والموقع</span>
             </button>
 
-            <!-- 11. تسوية جرد فوري وفروقات التالف -->
-            <button data-category="inventory" onclick="openOperationalForm('stockAdjustment'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="تسوية جرد فوري ومعالجة فروقات التالف والعجز">
-              <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(244,63,94,0.35)] group-hover:scale-110 transition">
+            <!-- 11. تسوية جرد تالف -->
+            <button data-category="inventory" onclick="openOperationalForm('stockAdjustment'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="تسوية جرد تالف">
+              <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(244,63,94,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-triangle-exclamation text-base"></i>
               </div>
-              <span class="text-xs font-black text-slate-200">تسوية جرد التالف</span>
-              <span class="text-[9.5px] text-rose-400 font-bold">فروقات العجز والهالك</span>
+              <span class="text-xs font-black text-slate-200">تسوية جرد تالف</span>
             </button>
 
-            <!-- 12. تحويل بين المخازن -->
-            <button data-category="inventory" onclick="openOperationalForm('warehouseTransfer'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="تحويل ومناقلة بضاعة بين المستودعات">
-              <div class="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(249,115,22,0.35)] group-hover:scale-110 transition">
+            <!-- 12. تحويل مخازن -->
+            <button data-category="inventory" onclick="openOperationalForm('warehouseTransfer'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="تحويل مخازن">
+              <div class="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(249,115,22,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-dolly text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">تحويل مخازن</span>
-              <span class="text-[9.5px] text-orange-400 font-bold">مناقلة مستودعات</span>
             </button>
 
-            <!-- 13. إذونات الاستلام والصرف -->
-            <button data-category="inventory" onclick="openOperationalForm('inventoryVouchers'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="إصدار واعتماد إذونات الاستلام (GRN) وإذونات الصرف (GIN)">
-              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(52,211,153,0.35)] group-hover:scale-110 transition">
+            <!-- 13. أذونات استلام، صرف -->
+            <button data-category="inventory" onclick="openOperationalForm('inventoryVouchers'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="أذونات استلام، صرف">
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(52,211,153,0.35)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-clipboard-check text-base"></i>
               </div>
-              <span class="text-xs font-black text-slate-200">إذونات استلام وصرف</span>
-              <span class="text-[9.5px] text-emerald-400 font-bold">إذن GRN وإذن GIN</span>
+              <span class="text-xs font-black text-slate-200">أذونات استلام، صرف</span>
             </button>
           </div>
         </section>
@@ -5462,36 +5731,36 @@
       <div id="themeCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
 
         <!-- 0.1 WARM ALABASTER (العاجي الدافئ - موصى بها) -->
-        <button onclick="applyTheme('warm-alabaster')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#8B6F4E] bg-[#EDE3D2] text-right space-y-1 transition active:scale-95 group relative shadow">
+        <button onclick="applyTheme('warm-alabaster')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#8B6F4E] bg-[#F6F0E6] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-[#1C1917] flex items-center gap-1.5">
               <span>📜 العاجي الدافئ</span>
               <span class="px-1.5 py-0.5 rounded bg-[#8B6F4E] text-white text-[9px] font-bold">🌟 موصى بها</span>
             </span>
             <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#EDE3D2] border border-[#8B6F4E]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#F6F0E6] border border-[#8B6F4E]"></span>
               <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border-2 border-[#8B6F4E]"></span>
               <span class="w-3.5 h-3.5 rounded-full bg-[#8B6F4E]"></span>
             </span>
           </div>
-          <p class="text-[10px] text-[#4A3E31] leading-tight font-medium">أزرار بيضاء ناصعة بحواف بنية داكنة فوق أرضية بيج دافئة، تباين مثالي مريح للعين.</p>
-          <span class="text-[9px] text-[#1C1917] font-black block pt-0.5">Warm Alabaster • قمة الرقي • تباين فائق وعاجي دافئ</span>
+          <p class="text-[10px] text-[#4A3E31] leading-tight font-medium">أزرار بيضاء ناصعة بحواف بنية داكنة فوق أرضية عاجية بيج خفيفة، تباين مثالي فائق الراحة والرقي.</p>
+          <span class="text-[9px] text-[#1C1917] font-black block pt-0.5">Warm Alabaster • قمة الرقي • تباين فائق وعاجي هادئ</span>
         </button>
 
         <!-- 0.2 PURE PLATINUM (الفضي النقي - موصى بها) -->
-        <button onclick="applyTheme('pure-platinum')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#64748B] bg-[#D4D9E0] text-right space-y-1 transition active:scale-95 group relative shadow">
+        <button onclick="applyTheme('pure-platinum')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#64748B] bg-[#EEF2F6] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-[#0F172A] flex items-center gap-1.5">
               <span>❄️ الفضي النقي</span>
               <span class="px-1.5 py-0.5 rounded bg-[#64748B] text-white text-[9px] font-bold">🌟 موصى بها</span>
             </span>
             <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#D4D9E0] border border-[#64748B]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#EEF2F6] border border-[#64748B]"></span>
               <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border-2 border-[#64748B]"></span>
               <span class="w-3.5 h-3.5 rounded-full bg-[#0F172A]"></span>
             </span>
           </div>
-          <p class="text-[10px] text-[#334155] leading-tight font-medium">أزرار ناصعة البياض بحواف بلاتينية محددة على أرضية فضية هادئة، دقة تحليلية سويسرية.</p>
+          <p class="text-[10px] text-[#334155] leading-tight font-medium">أزرار ناصعة البياض بحواف بلاتينية محددة على أرضية فضية نقية هادئة، دقة تحليلية سويسرية فائقة التباين.</p>
           <span class="text-[9px] text-[#0F172A] font-black block pt-0.5">Pure Platinum • قمة الرقي • تباين نقي وفضي هادئ</span>
         </button>
 
