@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-04-m-real-sync-pwa-v20';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-04-m-real-sync-pwa-v21-login-gate';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
@@ -62,8 +62,8 @@ self.addEventListener('fetch', (event) => {
 
     const url = new URL(request.url);
 
-    // 1. Never cache dynamic JSON APIs, heartbeat pings, or push synchronization endpoints
-    if (url.pathname.includes('/api/') || url.pathname.includes('api_index') || url.pathname.includes('sync_queue') || url.searchParams.has('api_call') || url.searchParams.has('action')) {
+    // 1. Never cache authentication gateway (index.php / login.php), dynamic JSON APIs, or heartbeat pings
+    if (url.pathname.endsWith('/index.php') || url.pathname.endsWith('/login.php') || url.pathname === '/' || url.pathname.includes('/api/') || url.pathname.includes('api_index') || url.pathname.includes('sync_queue') || url.searchParams.has('api_call') || url.searchParams.has('action')) {
         return;
     }
 
