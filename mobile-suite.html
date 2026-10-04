@@ -1467,7 +1467,9 @@
               <span class="w-2 h-2 rounded-sm bg-cyan-400 rotate-45"></span>
               العمليات السريعة (اضغط لفتح شاشة العمليات)
             </h3>
-            <span class="text-[10px] bg-cyan-950 text-cyan-300 font-bold px-2 py-0.5 rounded-full border border-cyan-500/30">Action Center</span>
+            <button onclick="showItemSelectorSheet()" class="text-[10px] bg-cyan-950 hover:bg-cyan-900 text-cyan-300 font-bold px-2.5 py-1 rounded-full border border-cyan-500/40 flex items-center gap-1 active:scale-95 transition cursor-pointer" title="اختر الصنف من المخزون">
+              <span>📦 اختر الصنف</span>
+            </button>
           </div>
 
           <div class="grid grid-cols-3 gap-2">
@@ -4479,6 +4481,35 @@
       </div>
     </div>
 
+    <!-- 📦 MODAL BOTTOM SHEET: اختيار الصنف (ItemSelectorSheet - مأخوذ من كود Flutter showModalBottomSheet) -->
+    <div id="modalItemSelectorSheet" class="hidden fixed inset-0 z-[9990] flex items-end justify-center select-none" dir="rtl">
+      <!-- Backdrop (نقر الخلفية للإغلاق مثل Navigator.pop) -->
+      <div id="itemSheetBackdrop" onclick="hideItemSelectorSheet()" class="fixed inset-0 bg-slate-950/75 backdrop-blur-sm transition-opacity duration-300 opacity-0 cursor-pointer"></div>
+
+      <!-- Container (الورقة السفلية بارتفاع 65% وحواف علوية دائرية 20px وسحب لأسفل) -->
+      <div id="itemSheetContainer" class="relative z-10 w-full max-w-md bg-slate-900 border-t border-x border-slate-700/80 shadow-[0_-10px_40px_rgba(0,0,0,0.7)] flex flex-col transition-transform duration-300 ease-out transform translate-y-full"
+           style="height: 65vh; max-height: 65vh; border-top-left-radius: 20px; border-top-right-radius: 20px; padding: 16px;">
+        
+        <!-- مقبض بصري علوي يوضح للمستخدم إمكانية السحب لأسفل (Container: width 48, height 5, Colors.grey[400], borderRadius 10) -->
+        <div id="itemSheetDragHandle" class="flex justify-center pt-0.5 pb-2.5 cursor-grab active:cursor-grabbing touch-none">
+          <div style="width: 48px; height: 5px; background-color: #9ca3af; border-radius: 10px;" class="shadow-sm"></div>
+        </div>
+
+        <!-- SizedBox(height: 16) + Text('اختر الصنف', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)) -->
+        <div class="text-center pt-1 pb-2">
+          <h3 style="font-size: 18px;" class="font-bold text-white tracking-wide">اختر الصنف</h3>
+        </div>
+
+        <!-- Divider() -->
+        <div class="border-t border-slate-700/80 mb-3"></div>
+
+        <!-- Expanded(child: ListView.builder(itemCount: 10)) -->
+        <div id="itemSheetListView" class="flex-1 overflow-y-auto space-y-2 pr-1 no-scrollbar">
+          <!-- سيتم تحميل 10 أصناف مع أيقونة Icons.inventory_2_outlined واهتزاز HapticFeedback.lightImpact -->
+        </div>
+      </div>
+    </div>
+
     <!-- 🛡️ SAFE EXIT CONFIRMATION DIALOG (تنبيه: بيانات غير محفوظة - مأخوذ من منطق Flutter AlertDialog) -->
     <div id="modalSafeExitConfirm" class="hidden fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
       <div class="glass-base w-full max-w-sm rounded-3xl border border-rose-500/50 p-5 space-y-4 shadow-[0_0_35px_rgba(244,63,94,0.35)] animate-scale-in bg-slate-900/95 text-right" dir="rtl">
@@ -4534,6 +4565,19 @@
           <div>
             <label class="block text-slate-300 font-bold mb-1">اسم العميل:</label>
             <input type="text" id="salesCustomerInput" value="محلات الصادق للتوزيع" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-cyan-400 outline-none transition" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">الصنف المختار (من المخزون):</label>
+            <div onclick="showItemSelectorSheet((item) => { document.getElementById('salesSelectedItemName').innerText = item.name + ' (' + item.price + ')'; if(window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales'); })" 
+                 class="w-full bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl p-2.5 text-white flex items-center justify-between cursor-pointer active:scale-[0.99] transition">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7H4a1 1 0 00-1 1v2a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zm-1 4v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m5 3h4"/></svg>
+                </div>
+                <span id="salesSelectedItemName" class="font-bold text-slate-200">صنف رقم 1 ($45.00)</span>
+              </div>
+              <span class="text-[10px] bg-cyan-500/20 text-cyan-300 font-bold px-2 py-0.5 rounded-lg border border-cyan-500/30">اختر الصنف ▾</span>
+            </div>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
@@ -5611,6 +5655,208 @@
     }
 
     // ================================================================
+    // 📦 FLUTTER MODAL BOTTOM SHEET: ItemSelectorSheet (اختر الصنف)
+    // مأخوذ بالكامل ومطابق لكود Flutter: showModalBottomSheet & enableDrag
+    // ================================================================
+    window.ItemSelectorSheet = {
+      callback: null,
+      isOpen: false,
+      _inited: false,
+
+      // 10 أصناف مطابقة لـ ListView.builder(itemCount: 10)
+      items: [
+        { id: 1, name: "صنف رقم 1", code: "SKU-1001", cat: "بضاعة عامة", stock: "150 وحدة", price: "$45.00" },
+        { id: 2, name: "صنف رقم 2", code: "SKU-1002", cat: "مواد غذائية", stock: "80 كرتونة", price: "$60.00" },
+        { id: 3, name: "صنف رقم 3", code: "SKU-1003", cat: "حبوب وسكر", stock: "220 جوال", price: "$32.50" },
+        { id: 4, name: "صنف رقم 4", code: "SKU-1004", cat: "زيوت ومشتقات", stock: "95 كرتونة", price: "$85.00" },
+        { id: 5, name: "صنف رقم 5", code: "SKU-1005", cat: "معلبات وتوزيع", stock: "310 طرد", price: "$28.00" },
+        { id: 6, name: "صنف رقم 6", code: "SKU-1006", cat: "بضاعة جاهزة", stock: "60 قطعة", price: "$110.00" },
+        { id: 7, name: "صنف رقم 7", code: "SKU-1007", cat: "مستلزمات تعبئة", stock: "400 ربطة", price: "$15.00" },
+        { id: 8, name: "صنف رقم 8", code: "SKU-1008", cat: "منتجات مجمدة", stock: "75 كرتونة", price: "$92.00" },
+        { id: 9, name: "صنف رقم 9", code: "SKU-1009", cat: "بهارات وتوابل", stock: "130 صندوق", price: "$40.00" },
+        { id: 10, name: "صنف رقم 10", code: "SKU-1010", cat: "أصناف متنوعة", stock: "190 وحدة", price: "$55.00" }
+      ],
+
+      renderList() {
+        const list = document.getElementById('itemSheetListView');
+        if (!list) return;
+        list.innerHTML = this.items.map((item, index) => `
+          <div onclick="ItemSelectorSheet.selectItem(${index})" 
+               class="flex items-center justify-between p-3 rounded-2xl bg-slate-800/60 hover:bg-slate-800 active:bg-cyan-950/40 border border-slate-700/50 hover:border-cyan-500/40 cursor-pointer transition active:scale-[0.98] group select-none">
+            <div class="flex items-center gap-3">
+              <!-- ListTile leading: Icon(Icons.inventory_2_outlined) -->
+              <div class="w-10 h-10 rounded-xl bg-cyan-500/15 text-cyan-400 group-hover:bg-cyan-500/25 flex items-center justify-center shrink-0 border border-cyan-500/30 transition">
+                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7H4a1 1 0 00-1 1v2a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zm-1 4v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m5 3h4"/>
+                </svg>
+              </div>
+              <div class="text-right">
+                <!-- ListTile title: Text('صنف رقم ${index + 1}') -->
+                <div class="text-sm font-bold text-white group-hover:text-cyan-300 transition">${item.name}</div>
+                <div class="text-[11px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                  <span>${item.code}</span>
+                  <span>•</span>
+                  <span class="text-slate-300">${item.stock}</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-left font-mono text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20">
+              ${item.price}
+            </div>
+          </div>
+        `).join('');
+      },
+
+      init() {
+        if (this._inited) return;
+        this._inited = true;
+        this.initDragGesture();
+      },
+
+      show(callback = null) {
+        this.init();
+        this.callback = callback;
+        this.isOpen = true;
+        this.renderList();
+
+        const modal = document.getElementById('modalItemSelectorSheet');
+        const backdrop = document.getElementById('itemSheetBackdrop');
+        const container = document.getElementById('itemSheetContainer');
+
+        if (!modal || !backdrop || !container) return;
+
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => {
+          backdrop.classList.remove('opacity-0');
+          backdrop.classList.add('opacity-100');
+          container.classList.remove('translate-y-full');
+          container.classList.add('translate-y-0');
+        });
+
+        try {
+          history.pushState({ itemSheet: true }, '', window.location.href);
+        } catch(e) {}
+      },
+
+      hide() {
+        if (!this.isOpen) return;
+        this.isOpen = false;
+
+        const modal = document.getElementById('modalItemSelectorSheet');
+        const backdrop = document.getElementById('itemSheetBackdrop');
+        const container = document.getElementById('itemSheetContainer');
+
+        if (!modal || !backdrop || !container) return;
+
+        backdrop.classList.remove('opacity-100');
+        backdrop.classList.add('opacity-0');
+        container.classList.remove('translate-y-0');
+        container.classList.add('translate-y-full');
+
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          container.style.transform = '';
+        }, 300);
+      },
+
+      selectItem(index) {
+        const item = this.items[index];
+        // HapticFeedback.lightImpact(); اهتزاز خفيف عند الاختيار
+        if (window.triggerHapticPulse) triggerHapticPulse(25);
+        if (navigator.vibrate) navigator.vibrate(20);
+        if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+
+        if (typeof this.callback === 'function') {
+          this.callback(item);
+        }
+
+        // تحديث الحقل التلقائي في الفاتورة إن وجد
+        const salesItemLabel = document.getElementById('salesSelectedItemName');
+        if (salesItemLabel) {
+          salesItemLabel.innerText = item.name + ' (' + item.price + ')';
+        }
+
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast('✓ تم اختيار: ' + item.name);
+        }
+
+        // Navigator.pop(context);
+        this.hide();
+      },
+
+      // تفعيل السحب لأسفل للإغلاق (enableDrag: true)
+      initDragGesture() {
+        const container = document.getElementById('itemSheetContainer');
+        const dragHandle = document.getElementById('itemSheetDragHandle');
+        if (!container) return;
+
+        let touchStartY = 0;
+        let deltaY = 0;
+        let isDragging = false;
+
+        const onStart = (e) => {
+          if (e.touches && e.touches.length === 1) {
+            touchStartY = e.touches[0].clientY;
+            deltaY = 0;
+            isDragging = true;
+            container.style.transition = 'none';
+          }
+        };
+
+        const onMove = (e) => {
+          if (!isDragging || !e.touches || e.touches.length === 0) return;
+          const diff = e.touches[0].clientY - touchStartY;
+          if (diff > 0) { // سحب لأسفل فقط
+            deltaY = diff;
+            container.style.transform = `translateY(${diff}px)`;
+            if (e.cancelable) e.preventDefault();
+          }
+        };
+
+        const onEnd = () => {
+          if (!isDragging) return;
+          isDragging = false;
+          container.style.transition = 'transform 0.25s ease-out';
+          if (deltaY > 90) { // مسافة كافية لإغلاق الورقة السفلية
+            ItemSelectorSheet.hide();
+          } else {
+            container.style.transform = 'translateY(0)';
+          }
+          deltaY = 0;
+        };
+
+        if (dragHandle) {
+          dragHandle.addEventListener('touchstart', onStart, { passive: false });
+          dragHandle.addEventListener('touchmove', onMove, { passive: false });
+          dragHandle.addEventListener('touchend', onEnd, { passive: true });
+        }
+
+        container.addEventListener('touchstart', (e) => {
+          const listView = document.getElementById('itemSheetListView');
+          if (listView && listView.scrollTop <= 0) {
+            onStart(e);
+          }
+        }, { passive: true });
+
+        container.addEventListener('touchmove', (e) => {
+          if (isDragging && deltaY > 0) {
+            onMove(e);
+          }
+        }, { passive: false });
+
+        container.addEventListener('touchend', onEnd, { passive: true });
+      }
+    };
+
+    window.showItemSelectorSheet = function(callback) {
+      ItemSelectorSheet.show(callback);
+    };
+
+    window.hideItemSelectorSheet = function() {
+      ItemSelectorSheet.hide();
+    };
+
+    // ================================================================
     // 🛡️ SAFE INVOICE SCREEN & POP-SCOPE SYSTEM (نظام الرجوع الآمن ومنع فقدان البيانات)
     // ================================================================
     window.SafeInvoiceGuard = {
@@ -5735,6 +5981,12 @@
 
     // اعتراض أزرار الرجوع للهاتف (Hardware/Gesture Back Button via PopState)
     window.addEventListener('popstate', (e) => {
+      // إغلاق الورقة السفلية لاختيار الصنف في حال كانت مفتوحة
+      if (window.ItemSelectorSheet && window.ItemSelectorSheet.isOpen) {
+        window.ItemSelectorSheet.hide();
+        return;
+      }
+
       if (window.SafeInvoiceGuard && window.SafeInvoiceGuard.activeModalId) {
         const m = document.getElementById(window.SafeInvoiceGuard.activeModalId);
         if (m && !m.classList.contains('hidden')) {
@@ -6553,6 +6805,7 @@
     // Initialize Default View
     window.addEventListener('DOMContentLoaded', () => {
       switchTab('dashboard');
+      if (window.ItemSelectorSheet) ItemSelectorSheet.init();
     });
 
 
