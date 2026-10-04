@@ -426,6 +426,29 @@ window.PWAManager = {
         const ring = document.getElementById('connectionDotRing');
         const indicator = document.getElementById('headerConnectionIndicator');
 
+        // 1. تحديث الحافة المضيئة لشعار مقاييس (أخضر = متصل بالنت، أحمر = انقطاع النت)
+        const brandBadge = document.getElementById('headerBrandLogoBadge');
+        const brandText = document.getElementById('headerBrandText');
+        if (brandBadge) {
+            if (isOnline) {
+                brandBadge.style.borderColor = 'rgba(16, 185, 129, 0.75)';
+                brandBadge.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.45)';
+                brandBadge.title = 'مقاييس ERP - متصل بالإنترنت وقاعدة البيانات (Online)';
+                if (brandText) {
+                    brandText.style.color = '#6ee7b7';
+                    brandText.style.textShadow = '0 0 8px rgba(16, 185, 129, 0.5)';
+                }
+            } else {
+                brandBadge.style.borderColor = 'rgba(244, 63, 94, 0.85)';
+                brandBadge.style.boxShadow = '0 0 14px rgba(244, 63, 94, 0.55)';
+                brandBadge.title = reason ? `مقاييس ERP - غير متصل (${reason})` : 'مقاييس ERP - انقطع الإنترنت (Offline)';
+                if (brandText) {
+                    brandText.style.color = '#fda4af';
+                    brandText.style.textShadow = '0 0 8px rgba(244, 63, 94, 0.5)';
+                }
+            }
+        }
+
         if (dot && indicator) {
             if (isOnline) {
                 dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] transition-colors duration-300';
