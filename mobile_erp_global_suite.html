@@ -4479,7 +4479,31 @@
       </div>
     </div>
 
-    <!-- OPERATIONAL MODAL: مبيعات تقسيم وأقساط -->
+    <!-- 🛡️ SAFE EXIT CONFIRMATION DIALOG (تنبيه: بيانات غير محفوظة - مأخوذ من منطق Flutter AlertDialog) -->
+    <div id="modalSafeExitConfirm" class="hidden fixed inset-0 z-[9999] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="glass-base w-full max-w-sm rounded-3xl border border-rose-500/50 p-5 space-y-4 shadow-[0_0_35px_rgba(244,63,94,0.35)] animate-scale-in bg-slate-900/95 text-right" dir="rtl">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-rose-500/20 text-rose-400 flex items-center justify-center text-xl shrink-0 border border-rose-500/40">
+            ⚠️
+          </div>
+          <div>
+            <h4 class="text-sm font-black text-white">تنبيه: بيانات غير محفوظة</h4>
+            <p class="text-xs text-slate-300 mt-1 font-medium leading-relaxed">هل تريد الخروج وتجاهل التعديلات الحالية؟</p>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800/80">
+          <button type="button" onclick="SafeInvoiceGuard.onStay()" class="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-200 bg-slate-800 hover:bg-slate-700 active:scale-95 transition border border-slate-700 cursor-pointer">
+            متابعة التعديل
+          </button>
+          <button type="button" onclick="SafeInvoiceGuard.onDiscardAndExit()" class="px-4 py-2.5 rounded-xl text-xs font-black text-white bg-rose-600 hover:bg-rose-500 active:scale-95 transition shadow-[0_0_15px_rgba(244,63,94,0.45)] cursor-pointer">
+            تجاهل وخروج
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPERATIONAL MODAL: فاتورة مبيعات (SafeInvoiceScreen - مجهز بنظام PopScope والرجوع الآمن) -->
     <div id="modalOpSales" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
       <div class="glass-base w-full max-w-md rounded-3xl border border-cyan-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -4488,26 +4512,37 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
             <div>
-              <h4 class="text-sm font-black text-slate-100">فاتورة مبيعات تقسيم وجدولة</h4>
-              <span class="text-[10px] text-cyan-400 font-bold">بيع مباشر مع تقسيم الدفعات والآجل</span>
+              <h4 class="text-sm font-black text-slate-100">فاتورة مبيعات</h4>
+              <span class="text-[10px] text-cyan-400 font-bold flex items-center gap-1">
+                <span>اسحب من الحافة أو اضغط رجوع لتجربة الرجوع الآمن 🛡️</span>
+              </span>
             </div>
           </div>
-          <button onclick="closeModal('modalOpSales')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
+          <button onclick="SafeInvoiceGuard.requestExit('modalOpSales')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90" title="إغلاق الفاتورة بأمان">✕</button>
+        </div>
+
+        <!-- شريط مؤشر حالة الحفظ والتعديل (Unsaved Changes Indicator) -->
+        <div class="flex items-center justify-between text-[11px] bg-slate-900/70 px-3 py-1.5 rounded-xl border border-slate-800">
+          <span class="text-slate-400">حالة البيانات:</span>
+          <span id="modalOpSalesUnsavedBadge" class="flex items-center gap-1.5 font-bold text-slate-400">
+            <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+            <span>جاهز للإدخال (الحماية مفعلة)</span>
+          </span>
         </div>
 
         <div class="space-y-2.5 text-xs">
           <div>
             <label class="block text-slate-300 font-bold mb-1">اسم العميل:</label>
-            <input type="text" value="محلات الصادق للتوزيع" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+            <input type="text" id="salesCustomerInput" value="محلات الصادق للتوزيع" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-cyan-400 outline-none transition" />
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-slate-300 font-bold mb-1">إجمالي الفاتورة ($):</label>
-              <input type="number" value="3200" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-400" />
+              <input type="number" id="salesTotalInput" value="3200" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-400 focus:border-cyan-400 outline-none transition" />
             </div>
             <div>
               <label class="block text-slate-300 font-bold mb-1">المدفوع نقداً مقدماً ($):</label>
-              <input type="number" value="1200" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-emerald-400" />
+              <input type="number" id="salesPaidInput" value="1200" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-emerald-400 focus:border-emerald-400 outline-none transition" />
             </div>
           </div>
           <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800">
@@ -4516,7 +4551,7 @@
           </div>
         </div>
 
-        <button onclick="commitOperation('فاتورة مبيعات تقسيم')" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition">
+        <button onclick="commitOperation('فاتورة مبيعات')" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
           إصدار الفاتورة وجدولة الأقساط وخصم المخزون
         </button>
       </div>
@@ -5575,21 +5610,176 @@
       alert(`🖨️ سند تحويل ومناقلة مالية معتمد:\n\n• من الصارف: ${fromText}\n• إلى المستلم: ${toText}\n• المبلغ: ${amt} ${currentFinTransferCurrency}\n• البيان: ${notes}\n\n✓ جاري التصدير كملف PDF رسمي ومشاركته...`);
     }
 
-    // Backward-compatibility wrappers
+    // ================================================================
+    // 🛡️ SAFE INVOICE SCREEN & POP-SCOPE SYSTEM (نظام الرجوع الآمن ومنع فقدان البيانات)
+    // ================================================================
+    window.SafeInvoiceGuard = {
+      hasUnsavedChanges: false,
+      activeModalId: null,
+      pendingExitModalId: null,
+
+      setUnsavedChanges(val, modalId = null) {
+        this.hasUnsavedChanges = val;
+        const targetId = modalId || this.activeModalId;
+        const badge = document.getElementById(targetId + 'UnsavedBadge') || document.getElementById('modalOpSalesUnsavedBadge');
+        if (badge) {
+          if (val) {
+            badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span><span class="text-amber-300 font-bold">تنبيه: تعديلات غير محفوظة (الحماية مفعلة)</span>';
+          } else {
+            badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400"></span><span class="text-emerald-300 font-bold">✓ البيانات محفوظة</span>';
+          }
+        }
+      },
+
+      attachToModal(modalId) {
+        this.activeModalId = modalId;
+        this.hasUnsavedChanges = false;
+        this.setUnsavedChanges(false, modalId);
+
+        // اعتراض زر الرجوع عبر History API (PopScope Equivalent)
+        try {
+          history.pushState({ safeModal: true, modalId: modalId }, '', window.location.href);
+        } catch (e) {}
+
+        const modalEl = document.getElementById(modalId);
+        if (modalEl) {
+          // مراقبة أي تعديل في الحقول
+          modalEl.querySelectorAll('input, select, textarea').forEach(input => {
+            if (!input.dataset.safeGuardBound) {
+              input.dataset.safeGuardBound = 'true';
+              input.addEventListener('input', () => this.setUnsavedChanges(true, modalId));
+              input.addEventListener('change', () => this.setUnsavedChanges(true, modalId));
+            }
+          });
+
+          // رصد إيماءة سحب الحافة للرجوع (Edge Swipe Back Gesture)
+          this.attachSwipeGesture(modalEl, modalId);
+        }
+      },
+
+      attachSwipeGesture(el, modalId) {
+        let touchStartX = 0;
+        let touchStartY = 0;
+        el.addEventListener('touchstart', (e) => {
+          if (e.touches && e.touches.length === 1) {
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
+          }
+        }, { passive: true });
+
+        el.addEventListener('touchend', (e) => {
+          if (e.changedTouches && e.changedTouches.length === 1) {
+            const deltaX = e.changedTouches[0].clientX - touchStartX;
+            const deltaY = Math.abs(e.changedTouches[0].clientY - touchStartY);
+            const isEdgeStart = touchStartX < 40 || touchStartX > (window.innerWidth - 40);
+            if (isEdgeStart && Math.abs(deltaX) > 55 && deltaY < 60) {
+              this.requestExit(modalId);
+            }
+          }
+        }, { passive: true });
+      },
+
+      requestExit(modalId) {
+        const targetId = modalId || this.activeModalId;
+        if (this.hasUnsavedChanges) {
+          this.showExitConfirmation(targetId);
+        } else {
+          this.forceClose(targetId);
+        }
+      },
+
+      showExitConfirmation(modalId) {
+        // اهتزاز تنبيهي وصوتي خفيف كما في Flutter: HapticFeedback.selectionClick()
+        if (window.AudioEngine && window.AudioEngine.play) AudioEngine.play('error');
+        if (window.triggerHapticPulse) triggerHapticPulse(40);
+        if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
+
+        this.pendingExitModalId = modalId;
+        const dialog = document.getElementById('modalSafeExitConfirm');
+        if (dialog) dialog.classList.remove('hidden');
+      },
+
+      onStay() {
+        // متابعة التعديل (البقاء في الشاشة)
+        if (window.AudioEngine && window.AudioEngine.play) AudioEngine.play('numpad');
+        if (window.triggerHapticPulse) triggerHapticPulse(20);
+        const dialog = document.getElementById('modalSafeExitConfirm');
+        if (dialog) dialog.classList.add('hidden');
+        try {
+          history.pushState({ safeModal: true, modalId: this.activeModalId }, '', window.location.href);
+        } catch (e) {}
+      },
+
+      onDiscardAndExit() {
+        // تجاهل وخروج
+        if (window.AudioEngine && window.AudioEngine.play) AudioEngine.play('trash');
+        if (window.triggerHapticPulse) triggerHapticPulse(30);
+        const dialog = document.getElementById('modalSafeExitConfirm');
+        if (dialog) dialog.classList.add('hidden');
+
+        this.hasUnsavedChanges = false;
+        this.forceClose(this.pendingExitModalId || this.activeModalId);
+        this.pendingExitModalId = null;
+      },
+
+      forceClose(modalId) {
+        const targetId = modalId || this.activeModalId;
+        if (targetId) {
+          const m = document.getElementById(targetId);
+          if (m) m.classList.add('hidden');
+        }
+        this.activeModalId = null;
+        this.hasUnsavedChanges = false;
+      }
+    };
+
+    // اعتراض أزرار الرجوع للهاتف (Hardware/Gesture Back Button via PopState)
+    window.addEventListener('popstate', (e) => {
+      if (window.SafeInvoiceGuard && window.SafeInvoiceGuard.activeModalId) {
+        const m = document.getElementById(window.SafeInvoiceGuard.activeModalId);
+        if (m && !m.classList.contains('hidden')) {
+          if (window.SafeInvoiceGuard.hasUnsavedChanges) {
+            try {
+              history.pushState({ safeModal: true, modalId: window.SafeInvoiceGuard.activeModalId }, '', window.location.href);
+            } catch (err) {}
+            window.SafeInvoiceGuard.showExitConfirmation(window.SafeInvoiceGuard.activeModalId);
+          } else {
+            window.SafeInvoiceGuard.forceClose(window.SafeInvoiceGuard.activeModalId);
+          }
+        }
+      }
+    });
+
+    // تحذير المتصفح عند إغلاق أو تحديث التبويب قبل الحفظ
+    window.addEventListener('beforeunload', (e) => {
+      if (window.SafeInvoiceGuard && window.SafeInvoiceGuard.hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = 'تنبيه: بيانات غير محفوظة في الفاتورة!';
+        return e.returnValue;
+      }
+    });
+
+    // Backward-compatibility wrappers with Safe Guard
     function openOperationalForm(formType) {
+      let modalId = '';
       if (formType === 'financeMovement') {
         initFinancialTransferModal();
-        openModal('modalOpFinance');
+        modalId = 'modalOpFinance';
       } else if (formType === 'salesSplit') {
-        openModal('modalOpSales');
+        modalId = 'modalOpSales';
       } else if (formType === 'salesDelivery') {
-        openModal('modalOpDelivery');
+        modalId = 'modalOpDelivery';
       } else if (formType === 'purchaseInvoice') {
-        openModal('modalOpPurchase');
+        modalId = 'modalOpPurchase';
       } else if (formType === 'purchaseReceipt') {
-        openModal('modalOpReceipt');
+        modalId = 'modalOpReceipt';
       } else if (formType === 'journalEntry') {
-        openModal('modalOpJournal');
+        modalId = 'modalOpJournal';
+      }
+
+      if (modalId) {
+        openModal(modalId);
+        if (window.SafeInvoiceGuard) SafeInvoiceGuard.attachToModal(modalId);
       }
     }
 
@@ -5602,6 +5792,7 @@
     }
 
     function commitOperation(opName) {
+      if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
       alert("✓ تم بنجاح ترحيل واعتماد: [" + opName + "]\nتم تحديث الخزينة والمخزون وحساب العميل/المورد في شجرة الحسابات فوراً!");
       closeModal('modalOpFinance');
       closeModal('modalOpSales');
