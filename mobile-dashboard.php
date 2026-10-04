@@ -6039,14 +6039,14 @@ try {
         <div class="header-top-row">
             <div class="header-top-content" style="display:flex; align-items:center; width:100%; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;">
                 
-                <!-- المجموعة الأساسية الثابتة: 1. مقاييس صفراء + 2. دائرة النت + 3. الزر الأزرق للتثبيت + 4. خروج -->
+                <!-- المجموعة الأساسية الثابتة: 1. شعار مقاييس حرف M الأزرق + 2. دائرة النت الخضراء + 3. زر التثبيت في الأعلى -->
                 <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
-                    <!-- 1. علامة مقاييس صفراء -->
-                    <div class="brand-avatar" style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg, #FACC15, #EAB308); display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(250,204,21,0.4); flex-shrink:0;" title="مقاييس ERP & POS">
-                        <span style="font-weight:900; font-size:14px; color:#0f172a;">م</span>
+                    <!-- 1. علامة مقاييس بحرف M المعتمد بالأزرق -->
+                    <div class="brand-avatar" style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg, #2563eb, #0ea5e9); display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(14,165,233,0.4); flex-shrink:0;" title="مقاييس ERP & POS">
+                        <span style="font-weight:900; font-size:14px; color:#ffffff; font-family:system-ui, -apple-system, sans-serif;">M</span>
                     </div>
                     <div class="brand-title-wrap" style="flex-shrink:0;">
-                        <span style="font-weight:900; font-size:0.98rem; color:#FACC15; letter-spacing:0.2px; text-shadow:0 0 10px rgba(250,204,21,0.5);">مقاييس</span>
+                        <span style="font-weight:900; font-size:0.98rem; color:#38bdf8; letter-spacing:0.2px; text-shadow:0 0 10px rgba(56,189,248,0.5);">مقاييس</span>
                     </div>
 
                     <!-- 2. دائرة خضراء صغيرة دلالة على أن النت شغال، وتكون حمراء عند انقطاع النت (مؤشر صغير) -->
@@ -6054,25 +6054,19 @@ try {
                         <span class="net-status-dot online" id="header-net-dot" style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; display:inline-block;"></span>
                     </button>
 
-                    <!-- 3. زر أزرق فيه سهم تثبيت التطبيق والتثبيت كما طلب المستخدم بدقة -->
+                    <!-- 3. زر أزرق فيه سهم تثبيت التطبيق في الأعلى مجاور للنقطة الخضراء -->
                     <button type="button" class="header-install-btn header-pwa-blue-btn" id="btn-header-install" onclick="triggerNativeAppInstall()" style="display:inline-flex; align-items:center; gap:4px; background:linear-gradient(135deg, #0ea5e9, #2563eb); border:1px solid rgba(56,189,248,0.6); color:#ffffff; padding:4px 9px; border-radius:11px; font-size:0.75rem; font-weight:900; cursor:pointer; flex-shrink:0; box-shadow:0 2px 10px rgba(14,165,233,0.45); transition:all 0.2s;" title="تثبيت التطبيق على الجوال">
                         <i class="fa-solid fa-arrow-down" style="color:#ffffff; font-size:0.72rem;"></i>
                         <span style="color:#ffffff; font-weight:900;">تثبيت</span>
-                    </button>
-
-                    <!-- 4. وبعدها خروج -->
-                    <button type="button" class="header-logout-btn" id="btn-header-logout" onclick="triggerMobileLogout()" style="display:inline-flex; align-items:center; gap:3px; background:rgba(244,63,94,0.16); border:1px solid rgba(244,63,94,0.4); color:#FECDD3; padding:4px 8px; border-radius:11px; font-size:0.74rem; font-weight:800; cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(244,63,94,0.12); transition:all 0.2s;" title="تسجيل الخروج والرجوع لشاشة الدخول">
-                        <i class="fa-solid fa-arrow-right-from-bracket" style="color:#FB7185; font-size:0.72rem;"></i>
-                        <span>خروج</span>
                     </button>
                 </div>
 
                 <!-- فاصل عمودي ناعم -->
                 <div style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
 
-                <!-- 5. بقية الأيقونات: متحركة وسلسة التمرير لعرض كافة أدوات النظام دون انقطاع -->
+                <!-- 5. بقية الأيقونات: متحركة وسلسة التمرير لعرض كافة أدوات النظام دون انقطاع، وزر الخروج في آخر القائمة -->
                 <div class="dynamic-moving-icons-stream" id="header-moving-icons" style="display:flex; align-items:center; gap:5px; flex-shrink:0; scroll-behavior:smooth;">
-                    <!-- المايك AI -->
+                    <!-- المايك AI في السطر الأول -->
                     <button type="button" onclick="openAiVoiceCopilotModal()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(99,102,241,0.25)); border:1px solid rgba(168,85,247,0.45); color:#c084fc; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="المساعد الصوتي المحاسبي الذكي">
                         <i class="fa-solid fa-microphone" style="font-size:0.75rem;"></i>
                     </button>
@@ -6107,22 +6101,23 @@ try {
                     <button type="button" onclick="switchToDesktopDashboard()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#94a3b8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="نسخة سطح المكتب">
                         <i class="fa-solid fa-desktop" style="font-size:0.72rem;"></i>
                     </button>
+
+                    <!-- 🚪 زر تسجيل الخروج في آخر القائمة كما طلب المستخدم -->
+                    <button type="button" class="header-logout-btn" id="btn-header-logout" onclick="triggerMobileLogout()" style="display:inline-flex; align-items:center; gap:4px; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.45); color:#FECDD3; padding:5px 9px; border-radius:11px; font-size:0.75rem; font-weight:800; cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(244,63,94,0.15); transition:all 0.2s;" title="تسجيل الخروج والرجوع لشاشة الدخول">
+                        <i class="fa-solid fa-arrow-right-from-bracket" style="color:#FB7185; font-size:0.75rem;"></i>
+                        <span>خروج</span>
+                    </button>
                 </div>
             </div>
             <span id="mobile-user-greeting" style="display:none;">مرحباً بك 🌟</span>
         </div>
 
-        <!-- Row 2: 💎 The 5 Flagship Symmetrical Crystal Glass Action Deck -->
+        <!-- Row 2: 💎 The Flagship Crystal Glass Action Deck (تم حذف المايك المكرر من السطر الثاني) -->
         <div class="header-actions-deck">
             <!-- 👁️ Privacy Stealth Eye Shield (إخفاء الأرقام بنجوم) -->
             <button type="button" id="btn-header-privacy" onclick="togglePrivacyStealthMode()" class="header-deck-pill pill-privacy" title="وضع الخصوصية: إخفاء الأرقام وتحويلها لنجوم (*****)">
                 <i class="fa-solid fa-eye" id="privacy-eye-icon"></i>
                 <span id="privacy-eye-label">الخصوصية</span>
-            </button>
-            <!-- 🎙️ AI Voice Copilot Quick Trigger -->
-            <button type="button" onclick="openAiVoiceCopilotModal()" class="header-deck-pill pill-voice" title="المساعد الصوتي المحاسبي الذكي">
-                <i class="fa-solid fa-microphone"></i>
-                <span>المايك AI</span>
             </button>
             <!-- 🔍 Global Quick Search -->
             <button type="button" onclick="openBottomSheet('sheet-global-search')" class="header-deck-pill pill-search" title="البحث السريع الشامل (أصناف، فواتير، حسابات)">
@@ -9581,15 +9576,7 @@ try {
     <!-- ═════════════════════════════════════════════════════════════════
          E. FIXED BOTTOM NAVIGATION BAR (5 CORE HUBS)
          ═════════════════════════════════════════════════════════════════ -->
-    <!-- 🎙️ OMNIPRESENT AI VOICE COPILOT FLOATING ORB (ACROSS ALL TABS) -->
-    <div id="omnipresent-ai-orb" class="floating-ai-orb-wrap" onclick="openAiVoiceCopilotModal()">
-        <div class="floating-ai-pulse-ring"></div>
-        <button type="button" class="floating-ai-orb-btn" title="المساعد الصوتي الذكي المصاحب - تحدث في أي وقت بالذكاء الاصطناعي">
-            <i class="fa-solid fa-microphone-lines"></i>
-            <span class="floating-ai-badge">AI 🎙️</span>
-        </button>
-        <span class="floating-ai-label">المايك الذكي</span>
-    </div>
+
 
     <!-- 👁️ FLOATING PRIVACY TOAST BAR -->
     <div id="privacy-stealth-toast" style="display:none; position:fixed; top:75px; left:14px; right:14px; z-index:9999; background:rgba(15,23,42,0.95); border:1.5px solid #f59e0b; border-radius:16px; padding:10px 14px; box-shadow:0 0 25px rgba(245,158,11,0.4); backdrop-filter:blur(12px); color:#fbbf24; font-size:0.82rem; font-weight:800; align-items:center; justify-content:space-between; gap:10px;">
