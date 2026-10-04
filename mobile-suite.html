@@ -1895,62 +1895,135 @@
       <div id="pageDashboard" class="space-y-3">
 
         <!-- ======================================================== -->
-        <!-- منطقة العمليات المباشرة (DIRECT OPERATIONS COMMAND TILES) -->
         <!-- ======================================================== -->
-        <section id="sectionOperations" class="pt-0">
-          <div class="grid grid-cols-3 gap-2">
+        <!-- منطقة العمليات المباشرة (DIRECT OPERATIONS COMMAND TILES - 13 عملية متكاملة) -->
+        <!-- ======================================================== -->
+        <section id="sectionOperations" class="pt-0 space-y-2">
+          <!-- تبويبات التصفية السريعة للعمليات -->
+          <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[11px] font-bold" id="opCategoryTabs">
+            <button type="button" onclick="filterOperationsCategory('all', this)" class="op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer">الكل (13)</button>
+            <button type="button" onclick="filterOperationsCategory('finance', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer">المالية والقيود (4)</button>
+            <button type="button" onclick="filterOperationsCategory('sales', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer">المبيعات (3)</button>
+            <button type="button" onclick="filterOperationsCategory('purchases', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer">المشتريات (2)</button>
+            <button type="button" onclick="filterOperationsCategory('inventory', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer">المخازن والجرد (4)</button>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2" id="operationsGrid">
             <!-- 1. حركة مالية -->
-            <button onclick="openOperationalForm('financeMovement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="حركة تحويل مالي بين الخزن والحسابات">
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+            <button data-category="finance" onclick="openOperationalForm('financeMovement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="حركة تحويل مالي بين الخزن والحسابات">
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-money-bill-transfer text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">حركة مالية</span>
-              <span class="text-[10px] text-emerald-400 font-bold">تحويل (من ➔ إلى)</span>
+              <span class="text-[9.5px] text-emerald-400 font-bold">تحويل (من ➔ إلى)</span>
             </button>
 
             <!-- 2. مبيعات -->
-            <button onclick="openOperationalForm('sales'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="فاتورة مبيعات نقدية وآجلة">
-              <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(56,189,248,0.35)] group-hover:scale-110 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <button data-category="sales" onclick="openOperationalForm('sales'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="فاتورة مبيعات نقدية وآجلة">
+              <div class="w-9 h-9 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(56,189,248,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-bag-shopping text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">مبيعات</span>
-              <span class="text-[10px] text-sky-400 font-bold">فاتورة نقد / آجل</span>
+              <span class="text-[9.5px] text-sky-400 font-bold">فاتورة نقد / آجل</span>
             </button>
 
             <!-- 3. تقسيم مبيعات -->
-            <button onclick="openOperationalForm('salesSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="تقسيم مبيعات وجدولة أقساط">
-              <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(244,114,182,0.35)] group-hover:scale-110 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <button data-category="sales" onclick="openOperationalForm('salesSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="تقسيم مبيعات وجدولة أقساط">
+              <div class="w-9 h-9 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(244,114,182,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-scissors text-base"></i>
               </div>
               <span class="text-xs font-black text-slate-200">تقسيم مبيعات</span>
-              <span class="text-[10px] text-pink-400 font-bold">أقساط / مجدولة</span>
+              <span class="text-[9.5px] text-pink-400 font-bold">أقساط / مجدولة</span>
             </button>
 
-            <!-- 4. تسليم مبيعات -->
-            <button onclick="openOperationalForm('salesDelivery'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="إذن تسليم وصرف بضاعة من المخزن">
-              <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(129,140,248,0.35)] group-hover:scale-110 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+            <!-- 4. استلام مبيعات -->
+            <button data-category="sales" onclick="openOperationalForm('salesDelivery'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="إذن تسليم وصرف بضاعة من المخزن">
+              <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(129,140,248,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-truck-ramp-box text-base"></i>
               </div>
-              <span class="text-xs font-black text-slate-200">تسليم مبيعات</span>
-              <span class="text-[10px] text-indigo-400 font-bold">صرف من المخزن</span>
+              <span class="text-xs font-black text-slate-200">استلام مبيعات</span>
+              <span class="text-[9.5px] text-indigo-400 font-bold">صرف وتسليم عميل</span>
             </button>
 
-            <!-- 5. فاتورة شراء -->
-            <button onclick="openOperationalForm('purchaseInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="فاتورة شراء وتوريد بضاعة">
-              <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(245,158,11,0.35)] group-hover:scale-110 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            <!-- 5. مشتريات -->
+            <button data-category="purchases" onclick="openOperationalForm('purchaseInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="فاتورة شراء وتوريد بضاعة">
+              <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(245,158,11,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-cart-shopping text-base"></i>
               </div>
-              <span class="text-xs font-black text-slate-200">فاتورة شراء</span>
-              <span class="text-[10px] text-amber-400 font-bold">توريد للمخزن</span>
+              <span class="text-xs font-black text-slate-200">مشتريات</span>
+              <span class="text-[9.5px] text-amber-400 font-bold">توريد للمخزن</span>
             </button>
 
-            <!-- 6. استلام فاتورة شراء -->
-            <button onclick="openOperationalForm('purchaseReceive'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="استلام فاتورة شراء وفحص مخزني">
-              <div class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(20,184,166,0.35)] group-hover:scale-110 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            <!-- 6. استلام مشتريات -->
+            <button data-category="purchases" onclick="openOperationalForm('purchaseReceive'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="استلام فاتورة شراء وفحص مخزني">
+              <div class="w-9 h-9 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(20,184,166,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-boxes-packing text-base"></i>
               </div>
-              <span class="text-xs font-black text-slate-200">استلام فاتورة شراء</span>
-              <span class="text-[10px] text-teal-400 font-bold">فحص وإدخال مخزني</span>
+              <span class="text-xs font-black text-slate-200">استلام مشتريات</span>
+              <span class="text-[9.5px] text-teal-400 font-bold">فحص وإدخال مخزني</span>
+            </button>
+
+            <!-- 7. تسوية قيود مالية -->
+            <button data-category="finance" onclick="openOperationalForm('journalSettlement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="تسوية قيود مالية وفروقات محاسبية">
+              <div class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(168,85,247,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-scale-balanced text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">تسوية قيود</span>
+              <span class="text-[9.5px] text-purple-400 font-bold">فروقات وتسوية قيد</span>
+            </button>
+
+            <!-- 8. كشف حساب -->
+            <button data-category="finance" onclick="openOperationalForm('accountStatement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="كشف حساب تفصيلي للعملاء والموردين والبنوك">
+              <div class="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(59,130,246,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-file-invoice-dollar text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">كشف حساب</span>
+              <span class="text-[9.5px] text-blue-400 font-bold">كشف تفصيلي بالبحث</span>
+            </button>
+
+            <!-- 9. استعلام عن الرصيد -->
+            <button data-category="finance" onclick="openOperationalForm('balanceInquiry'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="استعلام فوري عن أرصدة الخزن والبنوك والعملاء">
+              <div class="w-9 h-9 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(234,179,8,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-coins text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">استعلام رصيد</span>
+              <span class="text-[9.5px] text-yellow-400 font-bold">فحص لحظي للأرصدة</span>
+            </button>
+
+            <!-- 10. فحص فوري للكميات المتاحة في المخزن ومواقعها -->
+            <button data-category="inventory" onclick="openOperationalForm('stockLocationCheck'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="فحص الكميات المتاحة ومواقع التخزين والرفوف">
+              <div class="w-9 h-9 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(6,182,212,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-warehouse text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">فحص المخزن</span>
+              <span class="text-[9.5px] text-cyan-400 font-bold">الكميات والرف والموقع</span>
+            </button>
+
+            <!-- 11. تسوية جرد فوري وفروقات التالف -->
+            <button data-category="inventory" onclick="openOperationalForm('stockAdjustment'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="تسوية جرد فوري ومعالجة فروقات التالف والعجز">
+              <div class="w-9 h-9 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(244,63,94,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-triangle-exclamation text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">تسوية جرد وتالف</span>
+              <span class="text-[9.5px] text-rose-400 font-bold">فروقات العجز والهالك</span>
+            </button>
+
+            <!-- 12. تحويل بين المخازن -->
+            <button data-category="inventory" onclick="openOperationalForm('warehouseTransfer'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="تحويل ومناقلة بضاعة بين المستودعات">
+              <div class="w-9 h-9 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(249,115,22,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-dolly text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">تحويل مخازن</span>
+              <span class="text-[9.5px] text-orange-400 font-bold">مناقلة مستودعات</span>
+            </button>
+
+            <!-- 13. إذونات الاستلام والصرف -->
+            <button data-category="inventory" onclick="openOperationalForm('inventoryVouchers'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer" title="إصدار واعتماد إذونات الاستلام (GRN) وإذونات الصرف (GIN)">
+              <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(52,211,153,0.35)] group-hover:scale-110 transition">
+                <i class="fa-solid fa-clipboard-check text-base"></i>
+              </div>
+              <span class="text-xs font-black text-slate-200">إذونات استلام وصرف</span>
+              <span class="text-[9.5px] text-emerald-400 font-bold">إذن GRN وإذن GIN</span>
             </button>
           </div>
         </section>
@@ -5403,6 +5476,701 @@
       </div>
     </div>
 
+    <!-- ======================================================== -->
+    <!-- OPERATIONAL MODAL 7: تسوية قيود مالية (Financial Journal Adjustment) -->
+    <!-- ======================================================== -->
+    <div id="modalOpJournal" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-purple-500/50 p-4 space-y-3.5 max-h-[88vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-scale-balanced"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-100">تسوية قيود مالية ومحاسبية</h4>
+              <span class="text-[10px] text-purple-400 font-bold">تسوية فروقات الحسابات والعجز وقيود الإقفال</span>
+            </div>
+          </div>
+          <button onclick="closeModal('modalOpJournal')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90">✕</button>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">نوع التسوية المحاسبية:</label>
+              <select id="journalSettlementType" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-purple-400">
+                <option value="diff">تسوية فروقات نقدية / بنكية</option>
+                <option value="waste">تسوية عجز وهالك مخزني</option>
+                <option value="closing">قيد تسوية إقفالي دوري</option>
+                <option value="bad_debts">تسوية ديون ومخصصات</option>
+                <option value="general">قيد تسوية عام</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">رقم القيد:</label>
+              <input type="text" id="journalSettlementRef" value="JV-2026-0842" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-purple-300 font-mono font-bold" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">الحساب المدين (منه / له):</label>
+            <select id="journalDebitAccount" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-purple-400">
+              <option value="1">شركة النيل للاستيراد (عميل - $4,250)</option>
+              <option value="7">خزينة الإدارة الرئيسية ($18,450)</option>
+              <option value="8">بنك الخرطوم - تطبيق بنكك ($42,800)</option>
+              <option value="10">مطاحن الخرطوم للغلال (مورد - $14,200)</option>
+              <option value="15">مصروفات عمومية وإدارية</option>
+              <option value="16">مخسرات تالف وهالك البضاعة</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">الحساب الدائن (إليه / عليه):</label>
+            <select id="journalCreditAccount" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-purple-400">
+              <option value="8">بنك الخرطوم - تطبيق بنكك ($42,800)</option>
+              <option value="7">خزينة الإدارة الرئيسية ($18,450)</option>
+              <option value="1">شركة النيل للاستيراد (عميل - $4,250)</option>
+              <option value="2">محلات الصادق للتوزيع (عميل - $9,150)</option>
+              <option value="16">مخسرات تالف وهالك البضاعة</option>
+              <option value="17">فروقات تسوية حسابات</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">المبلغ بالتسوية ($):</label>
+              <input type="number" id="journalAmountUsd" value="350" oninput="document.getElementById('journalAmountSdg').value = (this.value * 2800).toLocaleString() + ' ج.س'" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-purple-300 outline-none focus:border-purple-400" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">المقابل بالجنيه السوداني:</label>
+              <input type="text" id="journalAmountSdg" value="980,000 ج.س" readonly class="w-full bg-slate-900/60 border border-slate-800 rounded-xl p-2.5 font-bold font-mono text-slate-400" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">شرح وبيان القيد المحاسبي:</label>
+            <input type="text" id="journalNotes" value="تسوية قيود مالية وفروقات حسابات معتمدة من الإدارة المالية" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-purple-400" />
+          </div>
+
+          <div class="p-2.5 bg-purple-950/30 border border-purple-500/30 rounded-xl flex items-center justify-between text-[11px]">
+            <span class="text-purple-300 flex items-center gap-1.5 font-bold">
+              <i class="fa-solid fa-check-double text-emerald-400"></i> القيد متزن محاسبياً (المدين = الدائن)
+            </span>
+            <span class="text-slate-400 font-mono">04 أكتوبر 2026</span>
+          </div>
+        </div>
+
+        <button onclick="commitOperation('تسوية قيود مالية')" class="w-full py-3 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          اعتماد وترحيل قيد التسوية لشجرة الحسابات فوراً ✓
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- OPERATIONAL MODAL 8: كشف حساب فوري تفصيلي (Statement of Account) -->
+    <!-- ======================================================== -->
+    <div id="modalOpStatement" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-blue-500/50 p-4 space-y-3.5 max-h-[88vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-file-invoice-dollar"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-100">كشف حساب فوري تفصيلي</h4>
+              <span class="text-[10px] text-blue-300 font-bold">استعلام الحركات والرصيد المتسلسل بالبحث</span>
+            </div>
+          </div>
+          <button onclick="closeModal('modalOpStatement')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90">✕</button>
+        </div>
+
+        <!-- اختيار الحساب والفلترة -->
+        <div class="space-y-2.5 text-xs">
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">اختر الحساب المطلوب كشفه:</label>
+            <select id="quickStatementAccountSelect" onchange="renderQuickStatement(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none focus:border-blue-400">
+              <option value="1">شركة النيل للاستيراد (عميل - $4,250)</option>
+              <option value="2">محلات الصادق للتوزيع (عميل - $9,150)</option>
+              <option value="3">شركة البركة للتجارة (عميل - $8,200)</option>
+              <option value="8">بنك الخرطوم - تطبيق بنكك ($42,800)</option>
+              <option value="7">خزينة الإدارة الرئيسية ($18,450)</option>
+              <option value="10">مطاحن الخرطوم للغلال (مورد - $14,200)</option>
+            </select>
+          </div>
+
+          <!-- فترات الكشف -->
+          <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[10px] font-bold">
+            <button type="button" class="bg-blue-600 text-white px-2.5 py-1 rounded-lg">اليوم</button>
+            <button type="button" class="bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg">آخر 7 أيام</button>
+            <button type="button" class="bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg">الشهر الحالي</button>
+            <button type="button" class="bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg">كافة الحركات</button>
+          </div>
+
+          <!-- بطاقة ملخص الرصيد -->
+          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1.5" id="quickStatementSummary">
+            <div class="flex justify-between items-center text-slate-400">
+              <span>رصيد أول الفترة:</span>
+              <span class="font-mono text-slate-200 font-bold">$3,650.00</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-400">
+              <span>إجمالي الحركات المدينة (+):</span>
+              <span class="font-mono text-emerald-400 font-bold">+$2,100.00</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-400">
+              <span>إجمالي الحركات الدائنة (-):</span>
+              <span class="font-mono text-rose-400 font-bold">-$1,500.00</span>
+            </div>
+            <div class="border-t border-slate-800 pt-1.5 flex justify-between items-center">
+              <span class="font-black text-white">الرصيد الصافي المستحق:</span>
+              <span class="font-mono font-black text-rose-400 text-sm">$4,250.00 (مدين)</span>
+            </div>
+          </div>
+
+          <!-- جدول الحركات التفصيلي -->
+          <div class="space-y-1.5 max-h-40 overflow-y-auto no-scrollbar pr-0.5" id="quickStatementEntries">
+            <div class="p-2 bg-slate-900/70 border border-slate-800/80 rounded-xl flex justify-between items-center text-[11px]">
+              <div>
+                <span class="font-bold text-white block">فاتورة بيع آجل #1048</span>
+                <span class="text-[9.5px] text-slate-400">2026-10-04 • مبيعات مستودع</span>
+              </div>
+              <div class="text-left font-mono">
+                <span class="text-rose-400 font-bold block">+$2,100.00</span>
+                <span class="text-[9.5px] text-slate-400">رصيد: $5,750</span>
+              </div>
+            </div>
+            <div class="p-2 bg-slate-900/70 border border-slate-800/80 rounded-xl flex justify-between items-center text-[11px]">
+              <div>
+                <span class="font-bold text-white block">سند قبض بنكك #TX-774</span>
+                <span class="text-[9.5px] text-slate-400">2026-10-02 • تحويل إلكتروني</span>
+              </div>
+              <div class="text-left font-mono">
+                <span class="text-emerald-400 font-bold block">-$1,500.00</span>
+                <span class="text-[9.5px] text-slate-400">رصيد: $3,650</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- إجراءات كشف الحساب -->
+          <div class="grid grid-cols-3 gap-1.5 pt-1">
+            <button type="button" onclick="alert('💬 تم إرسال كشف الحساب الكامل للعميل عبر واتساب بنجاح!')" class="py-2 px-2 bg-emerald-950/80 border border-emerald-500/40 text-emerald-300 rounded-xl font-bold text-[10.5px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <i class="fa-brands fa-whatsapp text-sm"></i> واتساب
+            </button>
+            <button type="button" onclick="alert('📥 جاري تنزيل ملف كشف الحساب بصيغة PDF الرسمية المعتمدة...')" class="py-2 px-2 bg-blue-950/80 border border-blue-500/40 text-blue-300 rounded-xl font-bold text-[10.5px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <i class="fa-solid fa-file-pdf text-sm"></i> PDF مجمع
+            </button>
+            <button type="button" onclick="alert('🖨️ جاري إرسال كشف الحساب إلى الطابعة الحرارية المحمولة عبر البلوتوث...')" class="py-2 px-2 bg-slate-800 border border-slate-700 text-slate-200 rounded-xl font-bold text-[10.5px] flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <i class="fa-solid fa-print text-sm"></i> طباعة إيصال
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- OPERATIONAL MODAL 9: استعلام فوري عن الرصيد (Live Balance Inquiry) -->
+    <!-- ======================================================== -->
+    <div id="modalOpBalanceInquiry" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-yellow-500/50 p-4 space-y-3.5 max-h-[88vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-yellow-500/20 text-yellow-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-coins"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-100">استعلام فوري عن الأرصدة</h4>
+              <span class="text-[10px] text-yellow-400 font-bold">فحص رصيد أي خزينة، بنك، عميل أو مورد بلحظة واحدة</span>
+            </div>
+          </div>
+          <button onclick="closeModal('modalOpBalanceInquiry')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90">✕</button>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <!-- شريط البحث الفوري -->
+          <div class="relative">
+            <input type="text" id="quickBalanceSearchInput" oninput="filterQuickBalanceList(this.value)" placeholder="ابحث باسم الحساب، البنك، أو كود العميل..." class="w-full bg-slate-900 border border-slate-700 rounded-xl py-2.5 pr-8 pl-3 text-white placeholder-slate-500 outline-none focus:border-yellow-400 text-xs" />
+            <i class="fa-solid fa-magnifying-glass absolute right-2.5 top-3 text-slate-500"></i>
+          </div>
+
+          <!-- فلاتر نوع الحساب -->
+          <div class="flex gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[10px] font-bold">
+            <button type="button" onclick="filterQuickBalanceCategory('all', this)" class="bal-cat-pill active bg-yellow-500 text-slate-950 px-2.5 py-1 rounded-lg cursor-pointer">الكل</button>
+            <button type="button" onclick="filterQuickBalanceCategory('cash', this)" class="bal-cat-pill bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg cursor-pointer">خزن وبنوك</button>
+            <button type="button" onclick="filterQuickBalanceCategory('customer', this)" class="bal-cat-pill bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg cursor-pointer">العملاء</button>
+            <button type="button" onclick="filterQuickBalanceCategory('vendor', this)" class="bal-cat-pill bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg cursor-pointer">الموردين</button>
+          </div>
+
+          <!-- قائمة الأرصدة الحية -->
+          <div class="space-y-2 max-h-56 overflow-y-auto no-scrollbar" id="quickBalanceItemsContainer">
+            <!-- بنكك -->
+            <div class="quick-bal-card p-2.5 bg-slate-900/90 rounded-2xl border border-emerald-500/30 flex justify-between items-center" data-category="cash">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <i class="fa-solid fa-building-columns"></i>
+                </div>
+                <div>
+                  <span class="font-bold text-white block">بنك الخرطوم (تطبيق بنكك)</span>
+                  <span class="text-[10px] text-emerald-400">حساب جاري • نشط 🟢</span>
+                </div>
+              </div>
+              <div class="text-left font-mono">
+                <span class="text-sm font-black text-emerald-400 block">$42,800.00</span>
+                <span class="text-[10px] text-slate-400">119,840,000 ج.س</span>
+              </div>
+            </div>
+
+            <!-- الخزينة الرئيسية -->
+            <div class="quick-bal-card p-2.5 bg-slate-900/90 rounded-2xl border border-emerald-500/30 flex justify-between items-center" data-category="cash">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
+                  <i class="fa-solid fa-vault"></i>
+                </div>
+                <div>
+                  <span class="font-bold text-white block">الخزينة النقدية الرئيسية</span>
+                  <span class="text-[10px] text-emerald-400">سيولة حية بالصندوق 🟢</span>
+                </div>
+              </div>
+              <div class="text-left font-mono">
+                <span class="text-sm font-black text-emerald-400 block">$18,450.00</span>
+                <span class="text-[10px] text-slate-400">51,660,000 ج.س</span>
+              </div>
+            </div>
+
+            <!-- عميل النيل -->
+            <div class="quick-bal-card p-2.5 bg-slate-900/90 rounded-2xl border border-rose-500/30 flex justify-between items-center" data-category="customer">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold">
+                  <i class="fa-solid fa-user"></i>
+                </div>
+                <div>
+                  <span class="font-bold text-white block">شركة النيل للاستيراد</span>
+                  <span class="text-[10px] text-rose-400">عميل مدين (مستحق سداد) 🔴</span>
+                </div>
+              </div>
+              <div class="text-left font-mono">
+                <span class="text-sm font-black text-rose-400 block">$4,250.00</span>
+                <span class="text-[10px] text-slate-400">سقف: $10,000</span>
+              </div>
+            </div>
+
+            <!-- عميل الصادق -->
+            <div class="quick-bal-card p-2.5 bg-slate-900/90 rounded-2xl border border-rose-500/30 flex justify-between items-center" data-category="customer">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold">
+                  <i class="fa-solid fa-shop"></i>
+                </div>
+                <div>
+                  <span class="font-bold text-white block">محلات الصادق للتوزيع</span>
+                  <span class="text-[10px] text-rose-400">عميل مدين (مستحق سداد) 🔴</span>
+                </div>
+              </div>
+              <div class="text-left font-mono">
+                <span class="text-sm font-black text-rose-400 block">$9,150.00</span>
+                <span class="text-[10px] text-slate-400">سقف: $12,000</span>
+              </div>
+            </div>
+
+            <!-- مورد المطاحن -->
+            <div class="quick-bal-card p-2.5 bg-slate-900/90 rounded-2xl border border-amber-500/30 flex justify-between items-center" data-category="vendor">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+                  <i class="fa-solid fa-industry"></i>
+                </div>
+                <div>
+                  <span class="font-bold text-white block">مطاحن الخرطوم للغلال</span>
+                  <span class="text-[10px] text-amber-400">مورد دائن (مستحق له) 🟡</span>
+                </div>
+              </div>
+              <div class="text-left font-mono">
+                <span class="text-sm font-black text-amber-400 block">$14,200.00</span>
+                <span class="text-[10px] text-slate-400">39,760,000 ج.س</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-2.5 bg-yellow-950/20 border border-yellow-500/30 rounded-xl flex items-center justify-between text-[11px]">
+            <span class="text-yellow-300 font-bold">إجمالي السيولة الحاضرة المتاحة:</span>
+            <span class="text-white font-mono font-black text-xs">$61,250.00 (171.5M ج.س)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- OPERATIONAL MODAL 10: فحص فوري للكميات المتاحة ومواقعها (Stock & Bin Location) -->
+    <!-- ======================================================== -->
+    <div id="modalOpStockLocation" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-cyan-500/50 p-4 space-y-3.5 max-h-[88vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-warehouse"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-100">فحص الكميات المتاحة ومواقع التخزين</h4>
+              <span class="text-[10px] text-cyan-400 font-bold">تحديد الجملون، الممر، الرف، والكميات الجاهزة للبيع فوراً</span>
+            </div>
+          </div>
+          <button onclick="closeModal('modalOpStockLocation')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90">✕</button>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <!-- اختيار الصنف أو مسح الباركود -->
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">اختر الصنف المطلوب فحصه وموقعه:</label>
+            <div class="flex gap-2">
+              <select id="stockLocationItemSelect" onchange="updateStockLocationDetails(this.value)" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none focus:border-cyan-400">
+                <option value="1">سكر كنانة 50 كجم (SKU-1001)</option>
+                <option value="2">دقيق سيقا فاخر 50 كجم (SKU-1002)</option>
+                <option value="3">زيت طعام صباح 1 لتر (SKU-1003)</option>
+                <option value="4">حديد تسليح 12 ملم (SKU-1004)</option>
+                <option value="5">معجون طماطم لاما (SKU-1005)</option>
+              </select>
+              <button type="button" onclick="alert('📷 تم فتح كاميرا الهاتف لمسح باركود الصنف وتحديد موقعه بالرف مباشرة!')" class="p-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl active:scale-90 transition cursor-pointer" title="مسح باركود بالهاتف">
+                <i class="fa-solid fa-barcode"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- بطاقة الكميات الكلية والمحجوزة والمتاحة -->
+          <div class="grid grid-cols-3 gap-2 text-center" id="stockLocationKpiGrid">
+            <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
+              <span class="text-[9.5px] text-slate-400 block">الرصيد الكلي</span>
+              <span class="font-mono font-black text-white text-xs" id="stockLocTotalQty">150 جوالاً</span>
+            </div>
+            <div class="bg-slate-900 p-2 rounded-xl border border-slate-800">
+              <span class="text-[9.5px] text-amber-400 block">محجوز بطلبيات</span>
+              <span class="font-mono font-black text-amber-300 text-xs" id="stockLocReservedQty">20 جوالاً</span>
+            </div>
+            <div class="bg-slate-900 p-2 rounded-xl border border-emerald-500/40 bg-emerald-950/20">
+              <span class="text-[9.5px] text-emerald-400 block">متاح للبيع الفوري</span>
+              <span class="font-mono font-black text-emerald-300 text-xs" id="stockLocAvailableQty">130 جوالاً</span>
+            </div>
+          </div>
+
+          <!-- خريطة وتفصيل مواقع التخزين الدقيقة (Bin & Shelf Mapping) -->
+          <div class="space-y-2">
+            <span class="text-xs font-bold text-cyan-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-map-location-dot"></i> مواقع التخزين التفصيلية والرفوف:
+            </span>
+
+            <div class="space-y-1.5" id="stockLocationBinsList">
+              <!-- الموقع 1: المستودع الرئيسي -->
+              <div class="p-2.5 bg-slate-900/90 rounded-2xl border border-cyan-500/30 flex justify-between items-center">
+                <div>
+                  <span class="font-bold text-white block">المستودع الرئيسي (الخرطوم)</span>
+                  <div class="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                    <span class="bg-slate-800 px-1.5 py-0.5 rounded text-cyan-300 font-mono">ممر A3</span>
+                    <span class="bg-slate-800 px-1.5 py-0.5 rounded text-cyan-300 font-mono">رف R-04</span>
+                    <span class="bg-slate-800 px-1.5 py-0.5 rounded text-cyan-300 font-mono">صندوق BIN-102</span>
+                  </div>
+                </div>
+                <div class="text-left">
+                  <span class="text-xs font-black text-cyan-400 font-mono block">80 جوالاً</span>
+                  <span class="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.2 rounded-full">جاهز للصرف ✓</span>
+                </div>
+              </div>
+
+              <!-- الموقع 2: صالة المعرض -->
+              <div class="p-2.5 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
+                <div>
+                  <span class="font-bold text-white block">مخزن صالة المعرض</span>
+                  <div class="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                    <span class="bg-slate-800 px-1.5 py-0.5 rounded text-slate-300 font-mono">صالة أمامية</span>
+                    <span class="bg-slate-800 px-1.5 py-0.5 rounded text-slate-300 font-mono">ستاند العرض D-02</span>
+                  </div>
+                </div>
+                <div class="text-left">
+                  <span class="text-xs font-black text-white font-mono block">35 جوالاً</span>
+                  <span class="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.2 rounded-full">متوفر ✓</span>
+                </div>
+              </div>
+
+              <!-- الموقع 3: فرع بحري -->
+              <div class="p-2.5 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
+                <div>
+                  <span class="font-bold text-white block">مخزن فرع بحري</span>
+                  <div class="text-[10px] text-slate-400 flex items-center gap-1.5 mt-0.5">
+                    <span class="bg-slate-800 px-1.5 py-0.5 rounded text-slate-300 font-mono">قسم التوزيع</span>
+                    <span class="bg-slate-800 px-1.5 py-0.5 rounded text-slate-300 font-mono">رف 01</span>
+                  </div>
+                </div>
+                <div class="text-left">
+                  <span class="text-xs font-black text-amber-300 font-mono block">15 جوالاً</span>
+                  <span class="text-[9px] bg-amber-950 text-amber-300 border border-amber-500/30 px-1.5 py-0.2 rounded-full">حد أمان ⚠️</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2 pt-1">
+            <button type="button" onclick="alert('🏷️ تم إصدار أمر طباعة ملصق الرف والباركود لصندوق التخزين BIN-102!')" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 rounded-xl font-bold text-xs flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <i class="fa-solid fa-tag"></i> طباعة ملصق الرف
+            </button>
+            <button type="button" onclick="closeModal('modalOpStockLocation'); openOperationalForm('warehouseTransfer');" class="py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl font-bold text-xs flex items-center justify-center gap-1 active:scale-95 transition cursor-pointer">
+              <i class="fa-solid fa-dolly"></i> نقل لمستودع آخر
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- OPERATIONAL MODAL 11: تسوية جرد فوري وفروقات التالف (Stocktake & Damage Adjustment) -->
+    <!-- ======================================================== -->
+    <div id="modalOpStockAdjustment" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-rose-500/50 p-4 space-y-3.5 max-h-[88vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-100">تسوية جرد فوري وفروقات التالف</h4>
+              <span class="text-[10px] text-rose-400 font-bold">معالجة العجز والهالك والكسور وتعديل الأرصدة دفترياً</span>
+            </div>
+          </div>
+          <button onclick="closeModal('modalOpStockAdjustment')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90">✕</button>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">المستودع المعني بالجرد:</label>
+              <select id="adjWarehouseSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-rose-400">
+                <option>المستودع الرئيسي (الخرطوم)</option>
+                <option>مخزن صالة المعرض</option>
+                <option>مخزن فرع بحري</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">رقم إذن التسوية:</label>
+              <input type="text" value="ADJ-2026-109" readonly class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-rose-300 font-mono font-bold" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">الصنف المراد تسويته:</label>
+            <select id="adjItemSelect" onchange="document.getElementById('adjBookQty').value = (this.value === '1' ? '150' : (this.value === '2' ? '80' : '95')); calcStockAdjustmentVariance();" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none focus:border-rose-400">
+              <option value="1">سكر كنانة 50 كجم (الرصيد الدفتري: 150)</option>
+              <option value="2">دقيق سيقا فاخر 50 كجم (الرصيد الدفتري: 80)</option>
+              <option value="3">زيت طعام صباح 1 لتر (الرصيد الدفتري: 95)</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">الرصيد الدفتري:</label>
+              <input type="number" id="adjBookQty" value="150" readonly class="w-full bg-slate-900/70 border border-slate-800 rounded-xl p-2.5 font-bold font-mono text-slate-300" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">الجرد الفعلي:</label>
+              <input type="number" id="adjActualQty" value="144" oninput="calcStockAdjustmentVariance()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-white outline-none focus:border-rose-400" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">الفارق (عجز/زيادة):</label>
+              <input type="text" id="adjVarianceQty" value="-6 (عجز وتالف)" readonly class="w-full bg-rose-950/50 border border-rose-500/50 rounded-xl p-2.5 font-bold font-mono text-rose-300 text-center" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">سبب وتصنيف الفارق المخزني:</label>
+            <select id="adjReasonSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-rose-400">
+              <option value="damaged">بضاعة تالفة وكسور أثناء النقل/التخزين</option>
+              <option value="expired">انتهاء تاريخ الصلاحية</option>
+              <option value="shrinkage">عجز طبيعي (تبخر وفاقد تعبئة ورطوبة)</option>
+              <option value="surplus">زيادة غير مقيدة بالدفاتر</option>
+            </select>
+          </div>
+
+          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1">
+            <div class="flex justify-between items-center text-slate-300">
+              <span>حساب التكلفة المحمل عليه:</span>
+              <span class="text-rose-300 font-bold">مخسرات تالف وهالك البضاعة</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300">
+              <span>الأثر المالي المترتب على الأرباح:</span>
+              <span class="text-rose-400 font-bold font-mono" id="adjCostImpact">-$270.00 (756,000 ج.س)</span>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">بيان وملاحظات لجنة الجرد:</label>
+            <input type="text" id="adjNotes" value="تسوية جرد فوري بموجب محضر فحص تالف المخزن المعتمد" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-rose-400" />
+          </div>
+        </div>
+
+        <button onclick="commitOperation('تسوية جرد وفروقات التالف')" class="w-full py-3 bg-gradient-to-r from-rose-600 to-red-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          اعتماد تسوية الجرد وتعديل رصيد المخزن فوراً ✓
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- OPERATIONAL MODAL 12: تحويل بين المخازن (Inter-Warehouse Stock Transfer) -->
+    <!-- ======================================================== -->
+    <div id="modalOpWarehouseTransfer" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-orange-500/50 p-4 space-y-3.5 max-h-[88vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold">
+              <i class="fa-solid fa-dolly"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-100">تحويل ومناقلة بين المخازن</h4>
+              <span class="text-[10px] text-orange-400 font-bold">نقل بضاعة بين المستودعات وتحديث أرصدة المصدر والوجهة</span>
+            </div>
+          </div>
+          <button onclick="closeModal('modalOpWarehouseTransfer')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90">✕</button>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">المستودع المصدر (من):</label>
+              <select id="transferFromWarehouse" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-orange-400">
+                <option>المستودع الرئيسي (الخرطوم)</option>
+                <option>مخزن صالة المعرض</option>
+                <option>مخزن فرع بحري</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">المستودع الوجهة (إلى):</label>
+              <select id="transferToWarehouse" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-orange-400">
+                <option>مخزن صالة المعرض</option>
+                <option>مخزن فرع بحري</option>
+                <option>المستودع الرئيسي (الخرطوم)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">الصنف المراد تحويله:</label>
+            <select id="transferItemSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-bold outline-none focus:border-orange-400">
+              <option value="1">سكر كنانة 50 كجم (المتاح بالمصدر: 80 جوالاً)</option>
+              <option value="2">دقيق سيقا فاخر 50 كجم (المتاح بالمصدر: 50 جوالاً)</option>
+              <option value="3">زيت طعام صباح 1 لتر (المتاح بالمصدر: 60 كرتونة)</option>
+            </select>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">الكمية المحولة:</label>
+              <input type="number" id="transferQtyInput" value="25" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-orange-300 outline-none focus:border-orange-400" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">نوع الشحن والمناقلة:</label>
+              <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-orange-400">
+                <option>مناقلة مباشرة فورية</option>
+                <option>في الطريق (بضاعة عبور)</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">بيانات السائق / وسيلة النقل:</label>
+            <input type="text" id="transferDriver" value="السائق: مصطفى بابكر - شاحنة جامبو لوحة 9104" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-orange-400" />
+          </div>
+
+          <div class="p-2.5 bg-orange-950/30 border border-orange-500/30 rounded-xl flex items-center justify-between text-[11px]">
+            <span class="text-orange-300 font-bold">
+              <i class="fa-solid fa-arrow-right-arrow-left"></i> إذن تحويل مخزني رسمي #TR-2026-551
+            </span>
+            <span class="text-slate-400 font-mono">04 أكتوبر 2026</span>
+          </div>
+        </div>
+
+        <button onclick="commitOperation('تحويل بين المخازن')" class="w-full py-3 bg-gradient-to-r from-orange-600 to-amber-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          اعتماد ترحيل أمر التحويل وخصم المصدر وتغذية الوجهة ✓
+        </button>
+      </div>
+    </div>
+
+    <!-- ======================================================== -->
+    <!-- OPERATIONAL MODAL 13: إذونات الاستلام والصرف (Goods Receipt & Issue Vouchers) -->
+    <!-- ======================================================== -->
+    <div id="modalOpVouchers" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-emerald-500/50 p-4 space-y-3.5 max-h-[88vh] overflow-y-auto shadow-2xl">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold" id="voucherHeaderIcon">
+              <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-100" id="voucherHeaderTitle">إذن استلام وصرف مخزني</h4>
+              <span class="text-[10px] text-emerald-400 font-bold" id="voucherHeaderSubtitle">إصدار واعتماد وثائق حركة البضاعة الرسمية (GRN / GIN)</span>
+            </div>
+          </div>
+          <button onclick="closeModal('modalOpVouchers')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90">✕</button>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <!-- تبديل نوع الإذن -->
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" id="btnVoucherTypeIn" onclick="switchVoucherType('in')" class="py-2 px-3 rounded-xl font-bold text-xs bg-emerald-600 text-white border border-emerald-500/50 shadow flex items-center justify-center gap-1.5 transition cursor-pointer">
+              <i class="fa-solid fa-arrow-down"></i> إذن استلام (GRN)
+            </button>
+            <button type="button" id="btnVoucherTypeOut" onclick="switchVoucherType('out')" class="py-2 px-3 rounded-xl font-bold text-xs bg-slate-900 text-slate-400 hover:text-white border border-slate-700 flex items-center justify-center gap-1.5 transition cursor-pointer">
+              <i class="fa-solid fa-arrow-up"></i> إذن صرف (GIN)
+            </button>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">رقم الإذن:</label>
+              <input type="text" id="voucherDocNumber" value="GRN-2026-118" readonly class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-emerald-300 font-mono font-bold" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">المستودع المعني:</label>
+              <select id="voucherWarehouse" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-400">
+                <option>المستودع الرئيسي (الخرطوم)</option>
+                <option>مخزن صالة المعرض</option>
+                <option>مخزن فرع بحري</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-slate-300 font-bold mb-1" id="voucherPartyLabel">الجهة الموردة / المستفيدة:</label>
+            <input type="text" id="voucherPartyInput" value="شركة النيل الدولية للتجارة والاستيراد" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none focus:border-emerald-400" />
+          </div>
+
+          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1.5">
+            <span class="text-white font-bold block" id="voucherItemsSummaryTitle">البنود المعتمدة في الإذن:</span>
+            <div class="flex justify-between items-center text-slate-300 text-[11px]">
+              <span>سكر كنانة 50 كجم:</span>
+              <span class="font-mono font-bold text-emerald-400">50 جوالاً (سليم ✓)</span>
+            </div>
+            <div class="flex justify-between items-center text-slate-300 text-[11px]">
+              <span>زيت طعام صباح 1 لتر:</span>
+              <span class="font-mono font-bold text-emerald-400">30 كرتونة (سليم ✓)</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">أمين المخزن المسؤول:</label>
+              <input type="text" value="أمين المخزن: عثمان الفكي" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">المستلم / الناقل:</label>
+              <input type="text" value="المستلم: إبراهيم التوم" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white outline-none" />
+            </div>
+          </div>
+
+          <div class="p-2.5 bg-emerald-950/30 border border-emerald-500/30 rounded-xl flex items-center justify-between text-[11px]">
+            <span class="text-emerald-300 font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-certificate text-emerald-400"></i> الفحص الفني: مطابق للمواصفات القياسية ✓
+            </span>
+            <span class="text-slate-400 font-mono">معتمد</span>
+          </div>
+        </div>
+
+        <button onclick="commitOperation('إذن مخزني (استلام / صرف)')" id="btnCommitVoucher" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          اعتماد وطباعة إذن الاستلام المخزني (GRN) وتحديث الأرصدة ✓
+        </button>
+      </div>
+    </div>
+
     <!-- MODAL: ميزان الأرصدة الحية (الحسابات غير الصفرية فقط) -->
     <div id="modalNonZeroBalances" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
       <div class="glass-base w-full max-w-md rounded-3xl border border-emerald-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
@@ -6985,7 +7753,29 @@
       }
     });
 
-    // Backward-compatibility wrappers with Safe Guard
+    // ========================================================
+    // COMPREHENSIVE 13 QUICK OPERATIONS & DISPATCH ENGINE
+    // ========================================================
+    window.filterOperationsCategory = function(cat, btn) {
+      if (window.triggerHapticPulse) triggerHapticPulse(15);
+      const tabs = document.querySelectorAll('.op-cat-btn');
+      tabs.forEach(b => {
+        b.className = 'op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer';
+      });
+      if (btn) {
+        btn.className = 'op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer';
+      }
+      const cards = document.querySelectorAll('#operationsGrid .op-btn');
+      cards.forEach(card => {
+        if (cat === 'all' || card.getAttribute('data-category') === cat) {
+          card.style.display = 'flex';
+          card.classList.add('animate-fadeIn');
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    };
+
     function openOperationalForm(formType) {
       let modalId = '';
       if (formType === 'financeMovement') {
@@ -7001,8 +7791,20 @@
         modalId = 'modalOpPurchase';
       } else if (formType === 'purchaseReceive' || formType === 'purchaseReceipt') {
         modalId = 'modalOpReceipt';
-      } else if (formType === 'journalEntry') {
+      } else if (formType === 'journalEntry' || formType === 'journalSettlement') {
         modalId = 'modalOpJournal';
+      } else if (formType === 'accountStatement') {
+        modalId = 'modalOpStatement';
+      } else if (formType === 'balanceInquiry') {
+        modalId = 'modalOpBalanceInquiry';
+      } else if (formType === 'stockLocationCheck') {
+        modalId = 'modalOpStockLocation';
+      } else if (formType === 'stockAdjustment') {
+        modalId = 'modalOpStockAdjustment';
+      } else if (formType === 'warehouseTransfer') {
+        modalId = 'modalOpWarehouseTransfer';
+      } else if (formType === 'inventoryVouchers') {
+        modalId = 'modalOpVouchers';
       }
 
       if (modalId) {
@@ -7021,6 +7823,7 @@
 
     function commitOperation(opName) {
       if (window.AppHaptics) AppHaptics.success();
+      else if (window.triggerHapticPulse) triggerHapticPulse(40);
       if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
       alert("✓ تم بنجاح ترحيل واعتماد: [" + opName + "]\nتم تحديث الخزينة والمخزون وحساب العميل/المورد في شجرة الحسابات فوراً!");
       closeModal('modalOpFinance');
@@ -7030,7 +7833,157 @@
       closeModal('modalOpPurchase');
       closeModal('modalOpReceipt');
       closeModal('modalOpJournal');
+      closeModal('modalOpStatement');
+      closeModal('modalOpBalanceInquiry');
+      closeModal('modalOpStockLocation');
+      closeModal('modalOpStockAdjustment');
+      closeModal('modalOpWarehouseTransfer');
+      closeModal('modalOpVouchers');
     }
+
+    // Helper: Switch Warehouse Vouchers (GRN / GIN)
+    window.switchVoucherType = function(type) {
+      if (window.triggerHapticPulse) triggerHapticPulse(15);
+      const btnIn = document.getElementById('btnVoucherTypeIn');
+      const btnOut = document.getElementById('btnVoucherTypeOut');
+      const docNum = document.getElementById('voucherDocNumber');
+      const partyLabel = document.getElementById('voucherPartyLabel');
+      const partyInput = document.getElementById('voucherPartyInput');
+      const btnCommit = document.getElementById('btnCommitVoucher');
+      const icon = document.getElementById('voucherHeaderIcon');
+      const title = document.getElementById('voucherHeaderTitle');
+      const subtitle = document.getElementById('voucherHeaderSubtitle');
+
+      if (type === 'in') {
+        btnIn.className = 'py-2 px-3 rounded-xl font-bold text-xs bg-emerald-600 text-white border border-emerald-500/50 shadow flex items-center justify-center gap-1.5 transition cursor-pointer';
+        btnOut.className = 'py-2 px-3 rounded-xl font-bold text-xs bg-slate-900 text-slate-400 hover:text-white border border-slate-700 flex items-center justify-center gap-1.5 transition cursor-pointer';
+        docNum.value = 'GRN-2026-118';
+        docNum.className = 'w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-emerald-300 font-mono font-bold';
+        partyLabel.innerText = 'الجهة الموردة (المورد):';
+        partyInput.value = 'شركة النيل الدولية للتجارة والاستيراد';
+        title.innerText = 'إذن استلام مخزني (GRN)';
+        subtitle.innerText = 'إدخال وتوريد بضاعة للمستودع ومطابقة الفحص الفني';
+        icon.className = 'w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold';
+        btnCommit.className = 'w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer';
+        btnCommit.innerText = 'اعتماد وطباعة إذن الاستلام المخزني (GRN) وتحديث الأرصدة ✓';
+      } else {
+        btnOut.className = 'py-2 px-3 rounded-xl font-bold text-xs bg-indigo-600 text-white border border-indigo-500/50 shadow flex items-center justify-center gap-1.5 transition cursor-pointer';
+        btnIn.className = 'py-2 px-3 rounded-xl font-bold text-xs bg-slate-900 text-slate-400 hover:text-white border border-slate-700 flex items-center justify-center gap-1.5 transition cursor-pointer';
+        docNum.value = 'GIN-2026-402';
+        docNum.className = 'w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-indigo-300 font-mono font-bold';
+        partyLabel.innerText = 'الجهة المستلمة (العميل / الصالة):';
+        partyInput.value = 'محلات الصادق للتوزيع (فاتورة مبيعات #1048)';
+        title.innerText = 'إذن صرف مخزني (GIN)';
+        subtitle.innerText = 'إخراج وصرف بضاعة من المستودع لتسليم المبيعات';
+        icon.className = 'w-8 h-8 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold';
+        btnCommit.className = 'w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer';
+        btnCommit.innerText = 'اعتماد وطباعة إذن الصرف المخزني (GIN) وخصم الكميات ✓';
+      }
+    };
+
+    // Helper: Stock Adjustment Variance Auto-Calculation
+    window.calcStockAdjustmentVariance = function() {
+      const bookQty = parseFloat(document.getElementById('adjBookQty')?.value || '150');
+      const actualQty = parseFloat(document.getElementById('adjActualQty')?.value || '0');
+      const diff = actualQty - bookQty;
+      const varianceInput = document.getElementById('adjVarianceQty');
+      const costImpact = document.getElementById('adjCostImpact');
+
+      if (varianceInput) {
+        if (diff < 0) {
+          varianceInput.value = `${diff} (عجز وتالف)`;
+          varianceInput.className = 'w-full bg-rose-950/50 border border-rose-500/50 rounded-xl p-2.5 font-bold font-mono text-rose-300 text-center';
+        } else if (diff > 0) {
+          varianceInput.value = `+${diff} (زيادة غير مقيدة)`;
+          varianceInput.className = 'w-full bg-emerald-950/50 border border-emerald-500/50 rounded-xl p-2.5 font-bold font-mono text-emerald-300 text-center';
+        } else {
+          varianceInput.value = '0 (مطابق تماماً ✓)';
+          varianceInput.className = 'w-full bg-slate-800 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-300 text-center';
+        }
+      }
+
+      if (costImpact) {
+        const unitCost = 45; // average USD unit cost
+        const impactVal = diff * unitCost;
+        const sdgVal = Math.abs(impactVal * 2800).toLocaleString();
+        costImpact.innerText = (impactVal <= 0 ? `-$${Math.abs(impactVal).toLocaleString()}` : `+$${impactVal.toLocaleString()}`) + ` (${sdgVal} ج.س)`;
+      }
+    };
+
+    // Helper: Update Stock & Bin Location Details
+    window.updateStockLocationDetails = function(itemId) {
+      const data = {
+        '1': { total: '150 جوالاً', res: '20 جوالاً', avail: '130 جوالاً', main: '80 جوالاً', show: '35 جوالاً', bhr: '15 جوالاً' },
+        '2': { total: '80 جوالاً', res: '10 جوالات', avail: '70 جوالاً', main: '50 جوالاً', show: '15 جوالاً', bhr: '5 جوالات' },
+        '3': { total: '95 كرتونة', res: '15 كرتونة', avail: '80 كرتونة', main: '50 كرتونة', show: '20 كرتونة', bhr: '10 كراتين' },
+        '4': { total: '320 سيخة', res: '40 سيخة', avail: '280 سيخة', main: '200 سيخة', show: '50 سيخة', bhr: '30 سيخة' },
+        '5': { total: '240 كرتونة', res: '0 كرتونة', avail: '240 كرتونة', main: '140 كرتونة', show: '60 كرتونة', bhr: '40 كرتونة' }
+      }[itemId] || { total: '150 وحدة', res: '20 وحدة', avail: '130 وحدة', main: '80 وحدة', show: '35 وحدة', bhr: '15 وحدة' };
+
+      document.getElementById('stockLocTotalQty').innerText = data.total;
+      document.getElementById('stockLocReservedQty').innerText = data.res;
+      document.getElementById('stockLocAvailableQty').innerText = data.avail;
+    };
+
+    // Helper: Dynamic Quick Statement Loader
+    window.renderQuickStatement = function(accId) {
+      const accounts = {
+        '1': { name: 'شركة النيل للاستيراد', open: '$3,650.00', dr: '+$2,100.00', cr: '-$1,500.00', net: '$4,250.00 (مدين)', type: 'مدين' },
+        '2': { name: 'محلات الصادق للتوزيع', open: '$8,000.00', dr: '+$3,200.00', cr: '-$2,050.00', net: '$9,150.00 (مدين)', type: 'مدين' },
+        '3': { name: 'شركة البركة للتجارة', open: '$7,500.00', dr: '+$1,700.00', cr: '-$1,000.00', net: '$8,200.00 (مدين)', type: 'مدين' },
+        '8': { name: 'بنك الخرطوم (بنكك)', open: '$38,000.00', dr: '+$12,500.00', cr: '-$7,700.00', net: '$42,800.00 (رصيد جاري)', type: 'رصيد' },
+        '7': { name: 'خزينة الإدارة الرئيسية', open: '$14,200.00', dr: '+$8,400.00', cr: '-$4,150.00', net: '$18,450.00 (سيولة نقدية)', type: 'رصيد' },
+        '10': { name: 'مطاحن الخرطوم للغلال', open: '$10,000.00', dr: '+$4,200.00', cr: '-$0.00', net: '$14,200.00 (دائن للمورد)', type: 'دائن' }
+      }[accId] || { name: 'الحساب المختار', open: '$0.00', dr: '+$0.00', cr: '-$0.00', net: '$0.00', type: 'متزن' };
+
+      const summary = document.getElementById('quickStatementSummary');
+      if (summary) {
+        summary.innerHTML = `
+          <div class="flex justify-between items-center text-slate-400">
+            <span>رصيد أول الفترة:</span>
+            <span class="font-mono text-slate-200 font-bold">${accounts.open}</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span>إجمالي الحركات المدينة (+):</span>
+            <span class="font-mono text-emerald-400 font-bold">${accounts.dr}</span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span>إجمالي الحركات الدائنة (-):</span>
+            <span class="font-mono text-rose-400 font-bold">${accounts.cr}</span>
+          </div>
+          <div class="border-t border-slate-800 pt-1.5 flex justify-between items-center">
+            <span class="font-black text-white">الرصيد الصافي المستحق:</span>
+            <span class="font-mono font-black ${accounts.type === 'دائن' ? 'text-amber-400' : (accounts.type === 'مدين' ? 'text-rose-400' : 'text-emerald-400')} text-sm">${accounts.net}</span>
+          </div>
+        `;
+      }
+    };
+
+    // Helper: Balance Inquiry Filter Functions
+    window.filterQuickBalanceList = function(query) {
+      const q = (query || '').toLowerCase().trim();
+      const cards = document.querySelectorAll('#quickBalanceItemsContainer .quick-bal-card');
+      cards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(q) ? 'flex' : 'none';
+      });
+    };
+
+    window.filterQuickBalanceCategory = function(cat, btn) {
+      if (window.triggerHapticPulse) triggerHapticPulse(10);
+      document.querySelectorAll('.bal-cat-pill').forEach(p => {
+        p.className = 'bal-cat-pill bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg cursor-pointer';
+      });
+      if (btn) btn.className = 'bal-cat-pill active bg-yellow-500 text-slate-950 px-2.5 py-1 rounded-lg font-bold cursor-pointer';
+      const cards = document.querySelectorAll('#quickBalanceItemsContainer .quick-bal-card');
+      cards.forEach(card => {
+        if (cat === 'all' || card.getAttribute('data-category') === cat) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    };
 
     // Transactions 5 Actions
     function txAction(action, txId) {
