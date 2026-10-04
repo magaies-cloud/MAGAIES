@@ -430,6 +430,143 @@
       color: #ffe4e6 !important;
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       💎 ROW 2: LUMINOUS CRYSTAL GLASS ACTION TILES (الصف الثاني الزجاجي الفاخر)
+       ═══════════════════════════════════════════════════════════════════ */
+    .row2-glass-tile {
+      position: relative !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      height: 42px !important;
+      min-width: 42px !important;
+      border-radius: 13px !important;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(255, 255, 255, 0.07) 100%), rgba(15, 23, 42, 0.88) !important;
+      border: 1.5px solid var(--r2-border, rgba(56, 189, 248, 0.55)) !important;
+      backdrop-filter: blur(16px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+      box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.65),
+                  inset 0 -1px 2px rgba(0, 0, 0, 0.3),
+                  0 0 14px var(--r2-glow, rgba(56, 189, 248, 0.28)),
+                  0 5px 16px -2px rgba(0, 0, 0, 0.4) !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      touch-action: manipulation !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+      transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+                  box-shadow 0.22s ease,
+                  border-color 0.22s ease,
+                  background 0.22s ease !important;
+    }
+
+    /* Periodic glass wave reflection sweep across Row 2 */
+    .row2-glass-tile::after {
+      content: '' !important;
+      position: absolute !important;
+      top: -50% !important;
+      left: -120% !important;
+      width: 70% !important;
+      height: 200% !important;
+      background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.55) 50%, transparent 80%) !important;
+      transform: rotate(25deg) !important;
+      pointer-events: none !important;
+      animation: row2GlassShine 5.2s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+      opacity: 0 !important;
+    }
+
+    @keyframes row2GlassShine {
+      0%, 25% { left: -120%; opacity: 0; }
+      40% { opacity: 0.95; }
+      65%, 100% { left: 200%; opacity: 0; }
+    }
+
+    .row2-glass-tile:nth-child(1)::after { animation-delay: 0.1s !important; }
+    .row2-glass-tile:nth-child(2)::after { animation-delay: 0.3s !important; }
+    .row2-glass-tile:nth-child(3)::after { animation-delay: 0.5s !important; }
+    .row2-glass-tile:nth-child(4)::after { animation-delay: 0.7s !important; }
+    .row2-glass-tile:nth-child(5)::after { animation-delay: 0.9s !important; }
+    .row2-glass-tile:nth-child(6)::after { animation-delay: 1.1s !important; }
+    .row2-glass-tile:nth-child(7)::after { animation-delay: 1.3s !important; }
+    .row2-glass-tile:nth-child(8)::after { animation-delay: 1.5s !important; }
+    .row2-glass-tile:nth-child(9)::after { animation-delay: 1.7s !important; }
+
+    /* Interactive micro-vibe and luminous edge explosion on hover/touch */
+    @keyframes row2MicroVibe {
+      0% { transform: translateY(-2px) scale(1.14) rotate(0deg); }
+      20% { transform: translateY(-2px) scale(1.14) rotate(-2deg); }
+      40% { transform: translateY(-2px) scale(1.14) rotate(2deg); }
+      60% { transform: translateY(-2px) scale(1.14) rotate(-1deg); }
+      80% { transform: translateY(-2px) scale(1.14) rotate(1deg); }
+      100% { transform: translateY(-2px) scale(1.14) rotate(0deg); }
+    }
+
+    .row2-glass-tile:hover,
+    .row2-glass-tile:focus-visible,
+    .row2-glass-tile.touch-active {
+      animation: row2MicroVibe 0.4s ease-in-out forwards !important;
+      border-color: rgba(255, 255, 255, 0.95) !important;
+      box-shadow: 0 0 22px var(--r2-glow-active, var(--r2-glow)),
+                  0 8px 24px -2px var(--r2-glow-active, var(--r2-glow)),
+                  inset 0 1px 3px rgba(255, 255, 255, 0.95),
+                  inset 0 0 8px rgba(255, 255, 255, 0.25) !important;
+      z-index: 15 !important;
+    }
+    .row2-glass-tile:active {
+      transform: translateY(0) scale(1.04) !important;
+      box-shadow: 0 0 16px var(--r2-glow-active, var(--r2-glow)),
+                  inset 0 0 6px rgba(255, 255, 255, 0.7) !important;
+    }
+    .row2-glass-tile:hover svg,
+    .row2-glass-tile:focus-visible svg,
+    .row2-glass-tile.touch-active svg {
+      transform: scale(1.15) !important;
+      filter: drop-shadow(0 0 8px currentColor) !important;
+    }
+
+    /* Semantic color variants for Row 2 */
+    .r2-cyan {
+      --r2-border: rgba(56, 189, 248, 0.65);
+      --r2-glow: rgba(56, 189, 248, 0.35);
+      --r2-glow-active: rgba(56, 189, 248, 0.9);
+    }
+    .r2-indigo {
+      --r2-border: rgba(129, 140, 248, 0.65);
+      --r2-glow: rgba(129, 140, 248, 0.35);
+      --r2-glow-active: rgba(129, 140, 248, 0.9);
+    }
+    .r2-emerald {
+      --r2-border: rgba(16, 185, 129, 0.65);
+      --r2-glow: rgba(16, 185, 129, 0.35);
+      --r2-glow-active: rgba(16, 185, 129, 0.9);
+    }
+    .r2-amber {
+      --r2-border: rgba(245, 158, 11, 0.65);
+      --r2-glow: rgba(245, 158, 11, 0.35);
+      --r2-glow-active: rgba(245, 158, 11, 0.9);
+    }
+    .r2-gold {
+      --r2-border: rgba(250, 204, 21, 0.65);
+      --r2-glow: rgba(250, 204, 21, 0.35);
+      --r2-glow-active: rgba(250, 204, 21, 0.9);
+    }
+    .r2-mint {
+      --r2-border: rgba(52, 211, 153, 0.65);
+      --r2-glow: rgba(52, 211, 153, 0.35);
+      --r2-glow-active: rgba(52, 211, 153, 0.9);
+    }
+
+    /* Light Themes Overrides for Flagship Top Bar & Row 2 */
+    html[data-theme="beige"] .row2-glass-tile,
+    html[data-theme="ivory"] .row2-glass-tile,
+    html[data-theme="offwhite"] .row2-glass-tile,
+    html[data-theme="light-linen"] .row2-glass-tile,
+    html[data-theme="pearl-platinum"] .row2-glass-tile,
+    html[data-theme="nordic-paper"] .row2-glass-tile {
+      background: rgba(255, 255, 255, 0.92) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    }
+
     /* Light Themes Overrides for Flagship Top Bar */
     html[data-theme="beige"] .flagship-tile,
     html[data-theme="ivory"] .flagship-tile,
@@ -1031,7 +1168,7 @@
       align-items: center;
       gap: 0.65rem;
       overflow-x: auto;
-      padding: 0.35rem 0.2rem 0.65rem 0.2rem;
+      padding: 2px 0.2rem 4px 0.2rem;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
     }
@@ -1539,24 +1676,24 @@
         </button>
       </div>
 
-      <!-- Action Quick Bar (Secondary Operational Bar) -->
-      <div class="mt-2 flex items-center justify-between gap-1 overflow-x-auto py-1 px-0.5 no-scrollbar">
+      <!-- Action Quick Bar (Secondary Operational Bar - الصف الثاني الزجاجي المنير) -->
+      <div class="mt-1 flex items-center justify-between gap-1.5 overflow-x-auto pt-0.5 pb-0.5 px-0.5 no-scrollbar">
         <!-- زر المزامنة والتحديث الفوري -->
-        <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); if(window.triggerRefreshAnimation)triggerRefreshAnimation();" class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-cyan-300" title="مزامنة وتحديث البيانات من الكمبيوتر">
+        <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); if(window.triggerRefreshAnimation)triggerRefreshAnimation(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-cyan-300" title="مزامنة وتحديث البيانات من الكمبيوتر">
           <svg id="mainRefreshIcon" class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         </button>
 
         <!-- زر مسح الباركود ورمز الـ QR بالكاميرا -->
-        <button id="quickQrBarcodeBtn" onclick="openBarcodeScannerModal(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-indigo-300 relative cursor-pointer active:scale-95 transition" title="مسح باركود / QR بالكاميرا">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+        <button id="quickQrBarcodeBtn" onclick="openBarcodeScannerModal(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-indigo p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-indigo-300 relative cursor-pointer active:scale-95 transition" title="مسح باركود / QR بالكاميرا">
+          <svg class="w-4 h-4 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
           <span class="absolute -top-1 -right-1 bg-indigo-500 text-slate-950 text-[7px] font-black px-1 rounded-full shadow">QR</span>
         </button>
 
         <!-- تايمر الوردية والمطابقة والتركيز 30 دقيقة -->
         <button 
           id="btnTopHeaderTimer" 
-          onclick="openOperationalTimerModal()" 
-          class="glow-cyan px-2 py-1 rounded-xl flex items-center justify-center h-11 shrink-0 bg-slate-800/90 text-cyan-300 border border-cyan-500/40 relative active:scale-95 transition group" 
+          onclick="openOperationalTimerModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" 
+          class="row2-glass-tile r2-cyan px-2 py-1 rounded-xl flex items-center justify-center h-11 shrink-0 text-cyan-300 relative active:scale-95 transition group" 
           title="تايمر الوردية والمطابقة والتركيز (30 دقيقة)">
           <span class="flex items-center gap-1 font-mono text-[11px] font-black">
             <span id="timerPulseDot" class="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
@@ -1566,20 +1703,21 @@
         </button>
 
         <!-- زر المزامنة السحابية الفورية لقاعدة البيانات -->
-        <button id="quickCloudSyncBtn" onclick="handleQuickCloudSync(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="glow-emerald p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-emerald-300 relative cursor-pointer active:scale-95 transition" title="مزامنة السحابة الفورية لقاعدة البيانات">
+        <button id="quickCloudSyncBtn" onclick="handleQuickCloudSync(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-emerald p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-emerald-300 relative cursor-pointer active:scale-95 transition" title="مزامنة السحابة الفورية لقاعدة البيانات">
           <svg id="quickCloudSyncIcon" class="w-4 h-4 text-emerald-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
         </button>
 
-        <button onclick="switchTab('alerts')" class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-cyan-300 relative cursor-pointer active:scale-95 transition" title="التنبيهات ومعمل الضبط">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <!-- التنبيهات -->
+        <button onclick="switchTab('alerts'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-amber p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-amber-300 relative cursor-pointer active:scale-95 transition" title="التنبيهات ومعمل الضبط">
+          <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           <span id="badgeTopBellCount" class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[9px] font-black px-1 rounded-full border border-slate-900 animate-pulse">6</span>
         </button>
 
         <!-- 4-Level Dynamic Font Scaler Button (4 درجات تكبير) -->
         <button 
           id="fontSizeCycleBtn" 
-          onclick="cycleFontSize()" 
-          class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-cyan-300 transition relative group" 
+          onclick="cycleFontSize(); if(window.triggerHapticPulse)triggerHapticPulse(15);" 
+          class="row2-glass-tile r2-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-cyan-300 transition relative group" 
           title="مفتاح تكبير الخط بـ 4 درجات">
           <span class="text-sm font-black tracking-tighter flex items-center">A<span class="text-[10px] text-cyan-400 font-extrabold">+</span></span>
           <span id="fontSizeBadge" class="absolute -top-1 -right-1 bg-cyan-500 text-slate-950 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow">2</span>
@@ -1588,8 +1726,8 @@
         <!-- Bold / Heavy Font Weight Toggle Button (الخط التخين العريض) -->
         <button 
           id="fontBoldToggleBtn" 
-          onclick="toggleFontBold()" 
-          class="glow-amber p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-amber-300 transition relative group" 
+          onclick="toggleFontBold(); if(window.triggerHapticPulse)triggerHapticPulse(15);" 
+          class="row2-glass-tile r2-amber p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-amber-300 transition relative group" 
           title="الخط العريض التخين (أعلى وضوح وتباين للعين والشمس)">
           <span class="text-base font-black">B</span>
         </button>
@@ -1597,8 +1735,8 @@
         <!-- Sunlight High-Contrast Mode Toggle (وضع السطوع الشمسي فائق التباين) -->
         <button 
           id="sunlightModeBtn" 
-          onclick="toggleSunlightMode()" 
-          class="glow-amber p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-yellow-300 transition relative group" 
+          onclick="toggleSunlightMode(); if(window.triggerHapticPulse)triggerHapticPulse(15);" 
+          class="row2-glass-tile r2-gold p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-yellow-300 transition relative group" 
           title="وضع السطوع الشمسي فائق التباين (للعمل الميداني تحت أشعة الشمس)">
           <svg class="w-5 h-5 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
         </button>
@@ -1606,16 +1744,16 @@
         <!-- Smart Bank Receipt OCR Camera Button (قارئ الإشعارات البنكية الذكي بالكاميرا) -->
         <button 
           id="bankOcrQuickBtn" 
-          onclick="openBankReceiptOcrModal()" 
-          class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-cyan-300 transition relative group" 
+          onclick="openBankReceiptOcrModal(); if(window.triggerHapticPulse)triggerHapticPulse(15);" 
+          class="row2-glass-tile r2-mint p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 text-cyan-300 transition relative group" 
           title="قارئ الإشعارات البنكية الذكي بالكاميرا (OCR)">
           <svg class="w-5 h-5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           <span class="absolute -top-1 -right-1 bg-emerald-500 text-slate-950 text-[8px] font-black px-1 rounded-full shadow">OCR</span>
         </button>
       </div>
 
-      <!-- FLAGSHIP CRYSTAL ACTION BUTTONS HUB (أزرار وأيقونة البرنامج العالمية) -->
-      <div class="mt-2 pt-2 border-t border-slate-800/60">
+      <!-- FLAGSHIP CRYSTAL ACTION BUTTONS HUB (أزرار وأيقونة البرنامج العالمية - الصف الثالث المرفوع) -->
+      <div class="mt-1 pt-1 border-t border-slate-800/40">
         <div class="crystal-flagship-container">
 
           <!-- 1. اللوحة المحاسبية العملاقة -->
@@ -1751,77 +1889,62 @@
       <div id="pageDashboard" class="space-y-4">
 
         <!-- ======================================================== -->
-        <!-- منطقة العمليات السريعة في الأعلى (OPERATIONS COMMAND CENTER) -->
+        <!-- منطقة العمليات المباشرة (DIRECT OPERATIONS COMMAND TILES) -->
         <!-- ======================================================== -->
-        <section id="sectionOperations" class="space-y-2.5 pt-1">
-          <div class="flex items-center justify-between px-1">
-            <h3 class="text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-sm bg-cyan-400 rotate-45"></span>
-              العمليات السريعة (اضغط لفتح شاشة العمليات)
-            </h3>
-            <div class="flex items-center gap-1.5">
-              <button onclick="showItemSelectorSheet()" class="text-[10px] bg-cyan-950 hover:bg-cyan-900 text-cyan-300 font-bold px-2.5 py-1 rounded-full border border-cyan-500/40 flex items-center gap-1 active:scale-95 transition cursor-pointer" title="اختر الصنف من المخزون">
-                <span>📦 اختر الصنف</span>
-              </button>
-              <button onclick="openAccountsListScreen()" class="text-[10px] bg-blue-950 hover:bg-blue-900 text-blue-300 font-bold px-2.5 py-1 rounded-full border border-blue-500/40 flex items-center gap-1 active:scale-95 transition cursor-pointer" title="كشف الحسابات (Flutter)">
-                <span>📋 كشف الحسابات</span>
-              </button>
-            </div>
-          </div>
-
+        <section id="sectionOperations" class="pt-0.5">
           <div class="grid grid-cols-3 gap-2">
             <!-- 1. حركة مالية -->
-            <button onclick="openOperationalForm('financeMovement')" class="op-btn p-3 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95">
-              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(168,85,247,0.3)] group-hover:scale-110 transition">
+            <button onclick="openOperationalForm('financeMovement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="حركة تحويل مالي بين الخزن والحسابات">
+              <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
               </div>
-              <span class="text-xs font-bold text-slate-200">حركة مالية</span>
-              <span class="text-[10px] text-cyan-300">تحويل (من ➔ إلى)</span>
+              <span class="text-xs font-black text-slate-200">حركة مالية</span>
+              <span class="text-[10px] text-emerald-400 font-bold">تحويل (من ➔ إلى)</span>
             </button>
 
-            <!-- 2. فاتورة مبيعات تقسيم -->
-            <button onclick="openOperationalForm('salesSplit')" class="op-btn p-3 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95">
-              <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(6,182,212,0.3)] group-hover:scale-110 transition">
+            <!-- 2. مبيعات -->
+            <button onclick="openOperationalForm('sales'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="فاتورة مبيعات نقدية وآجلة">
+              <div class="w-10 h-10 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(56,189,248,0.35)] group-hover:scale-110 transition">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+              </div>
+              <span class="text-xs font-black text-slate-200">مبيعات</span>
+              <span class="text-[10px] text-sky-400 font-bold">فاتورة نقد / آجل</span>
+            </button>
+
+            <!-- 3. تقسيم مبيعات -->
+            <button onclick="openOperationalForm('salesSplit'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="تقسيم مبيعات وجدولة أقساط">
+              <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(244,114,182,0.35)] group-hover:scale-110 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               </div>
-              <span class="text-xs font-bold text-slate-200">مبيعات تقسيم</span>
-              <span class="text-[10px] text-slate-400">أقساط / آجل</span>
+              <span class="text-xs font-black text-slate-200">تقسيم مبيعات</span>
+              <span class="text-[10px] text-pink-400 font-bold">أقساط / مجدولة</span>
             </button>
 
-            <!-- 3. استلام مبيعات (إذن صرف مخزن) -->
-            <button onclick="openOperationalForm('salesDelivery')" class="op-btn p-3 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95">
-              <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(99,102,241,0.3)] group-hover:scale-110 transition">
+            <!-- 4. تسليم مبيعات -->
+            <button onclick="openOperationalForm('salesDelivery'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="إذن تسليم وصرف بضاعة من المخزن">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(129,140,248,0.35)] group-hover:scale-110 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
               </div>
-              <span class="text-xs font-bold text-slate-200">تسليم مبيعات</span>
-              <span class="text-[10px] text-slate-400">صرف من المخزن</span>
+              <span class="text-xs font-black text-slate-200">تسليم مبيعات</span>
+              <span class="text-[10px] text-indigo-400 font-bold">صرف من المخزن</span>
             </button>
 
-            <!-- 4. فواتير المشتريات -->
-            <button onclick="openOperationalForm('purchaseInvoice')" class="op-btn p-3 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95">
-              <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(245,158,11,0.3)] group-hover:scale-110 transition">
+            <!-- 5. فاتورة شراء -->
+            <button onclick="openOperationalForm('purchaseInvoice'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="فاتورة شراء وتوريد بضاعة">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(245,158,11,0.35)] group-hover:scale-110 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
               </div>
-              <span class="text-xs font-bold text-slate-200">فاتورة شراء</span>
-              <span class="text-[10px] text-slate-400">توريد بضاعة</span>
+              <span class="text-xs font-black text-slate-200">فاتورة شراء</span>
+              <span class="text-[10px] text-amber-400 font-bold">توريد للمخزن</span>
             </button>
 
-            <!-- 5. استلام مشتريات (إذن إضافة وفحص) -->
-            <button onclick="openOperationalForm('purchaseReceive')" class="op-btn p-3 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95">
-              <div class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(20,184,166,0.3)] group-hover:scale-110 transition">
+            <!-- 6. استلام فاتورة شراء -->
+            <button onclick="openOperationalForm('purchaseReceive'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2.5 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition" title="استلام فاتورة شراء وفحص مخزني">
+              <div class="w-10 h-10 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center mb-1 shadow-[0_0_12px_rgba(20,184,166,0.35)] group-hover:scale-110 transition">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
               </div>
-              <span class="text-xs font-bold text-slate-200">استلام مشتريات</span>
-              <span class="text-[10px] text-slate-400">فحص وإدخال</span>
-            </button>
-
-            <!-- 6. سند تسوية وقيد محاسبي -->
-            <button onclick="openOperationalForm('journalEntry')" class="op-btn p-3 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95">
-              <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(168,85,247,0.3)] group-hover:scale-110 transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-              </div>
-              <span class="text-xs font-bold text-slate-200">سند تسوية</span>
-              <span class="text-[10px] text-slate-400">قيد محاسبي</span>
+              <span class="text-xs font-black text-slate-200">استلام فاتورة شراء</span>
+              <span class="text-[10px] text-teal-400 font-bold">فحص وإدخال مخزني</span>
             </button>
           </div>
         </section>
@@ -4982,18 +5105,18 @@
       </div>
     </div>
 
-    <!-- OPERATIONAL MODAL: فاتورة مبيعات (SafeInvoiceScreen - مجهز بنظام PopScope والرجوع الآمن) -->
+    <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) -->
     <div id="modalOpSales" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
-      <div class="glass-base w-full max-w-md rounded-3xl border border-cyan-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-sky-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center font-bold">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             </div>
             <div>
               <h4 class="text-sm font-black text-slate-100">فاتورة مبيعات</h4>
-              <span class="text-[10px] text-cyan-400 font-bold flex items-center gap-1">
-                <span>اسحب من الحافة أو اضغط رجوع لتجربة الرجوع الآمن 🛡️</span>
+              <span class="text-[10px] text-sky-400 font-bold flex items-center gap-1">
+                <span>إصدار فاتورة بيع نقدية أو آجلة وخصم المخزن فوراً 🛒</span>
               </span>
             </div>
           </div>
@@ -5012,29 +5135,106 @@
         <div class="space-y-2.5 text-xs">
           <div>
             <label class="block text-slate-300 font-bold mb-1">اسم العميل:</label>
-            <input type="text" id="salesCustomerInput" value="محلات الصادق للتوزيع" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-cyan-400 outline-none transition" />
+            <input type="text" id="salesCustomerInput" value="محلات الصادق للتوزيع" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-sky-400 outline-none transition" />
           </div>
           <div>
             <label class="block text-slate-300 font-bold mb-1">الصنف المختار (من المخزون):</label>
             <div onclick="showItemSelectorSheet((item) => { document.getElementById('salesSelectedItemName').innerText = item.name + ' (' + item.price + ')'; if(window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales'); })" 
-                 class="w-full bg-slate-900 border border-slate-700 hover:border-cyan-400 rounded-xl p-2.5 text-white flex items-center justify-between cursor-pointer active:scale-[0.99] transition">
+                 class="w-full bg-slate-900 border border-slate-700 hover:border-sky-400 rounded-xl p-2.5 text-white flex items-center justify-between cursor-pointer active:scale-[0.99] transition">
               <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                <div class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7H4a1 1 0 00-1 1v2a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zm-1 4v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m5 3h4"/></svg>
                 </div>
                 <span id="salesSelectedItemName" class="font-bold text-slate-200">صنف رقم 1 ($45.00)</span>
               </div>
-              <span class="text-[10px] bg-cyan-500/20 text-cyan-300 font-bold px-2 py-0.5 rounded-lg border border-cyan-500/30">اختر الصنف ▾</span>
+              <span class="text-[10px] bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded-lg border border-sky-500/30">اختر الصنف ▾</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">الكمية:</label>
+              <input type="number" id="salesQtyInput" value="5" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-white focus:border-sky-400 outline-none transition" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">السعر ($):</label>
+              <input type="number" id="salesPriceInput" value="45" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-400 focus:border-sky-400 outline-none transition" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-slate-300 font-bold mb-1">إجمالي الفاتورة ($):</label>
-              <input type="number" id="salesTotalInput" value="3200" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-400 focus:border-cyan-400 outline-none transition" />
+              <input type="number" id="salesTotalInput" value="225" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-emerald-400 focus:border-emerald-400 outline-none transition" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">طريقة السداد:</label>
+              <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-sky-400 outline-none transition">
+                <option>نقداً من الخزينة</option>
+                <option>تحويل بنكك / فيزا</option>
+                <option>آجل على الحساب</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="commitOperation('فاتورة مبيعات')" class="w-full py-3 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          إصدار الفاتورة وحفظ المعاملة وخصم المخزون ✓
+        </button>
+      </div>
+    </div>
+
+    <!-- OPERATIONAL MODAL: 2. تقسيم مبيعات (Sales Split & Installments) -->
+    <div id="modalOpSalesSplit" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-pink-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-100">تقسيم مبيعات وجدولة أقساط</h4>
+              <span class="text-[10px] text-pink-400 font-bold flex items-center gap-1">
+                <span>توزيع المتبقي على أقساط ودفعات مجدولة 📅</span>
+              </span>
+            </div>
+          </div>
+          <button onclick="SafeInvoiceGuard.requestExit('modalOpSalesSplit')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90" title="إغلاق بأمان">✕</button>
+        </div>
+
+        <!-- شريط مؤشر حالة الحفظ والتعديل -->
+        <div class="flex items-center justify-between text-[11px] bg-slate-900/70 px-3 py-1.5 rounded-xl border border-slate-800">
+          <span class="text-slate-400">حالة البيانات:</span>
+          <span id="modalOpSalesSplitUnsavedBadge" class="flex items-center gap-1.5 font-bold text-slate-400">
+            <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+            <span>جاهز للإدخال (الحماية مفعلة)</span>
+          </span>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">اسم العميل:</label>
+            <input type="text" id="salesSplitCustomerInput" value="محلات الصادق للتوزيع" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-pink-400 outline-none transition" />
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">الصنف المختار (من المخزون):</label>
+            <div onclick="showItemSelectorSheet((item) => { document.getElementById('salesSplitSelectedItemName').innerText = item.name + ' (' + item.price + ')'; if(window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSalesSplit'); })" 
+                 class="w-full bg-slate-900 border border-slate-700 hover:border-pink-400 rounded-xl p-2.5 text-white flex items-center justify-between cursor-pointer active:scale-[0.99] transition">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-pink-500/20 text-pink-400 flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7H4a1 1 0 00-1 1v2a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zm-1 4v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m5 3h4"/></svg>
+                </div>
+                <span id="salesSplitSelectedItemName" class="font-bold text-slate-200">حديد تسليح 12 ملم ($850.00)</span>
+              </div>
+              <span class="text-[10px] bg-pink-500/20 text-pink-300 font-bold px-2 py-0.5 rounded-lg border border-pink-500/30">اختر الصنف ▾</span>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">إجمالي الفاتورة ($):</label>
+              <input type="number" id="salesSplitTotalInput" value="3200" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-400 focus:border-pink-400 outline-none transition" />
             </div>
             <div>
               <label class="block text-slate-300 font-bold mb-1">المدفوع نقداً مقدماً ($):</label>
-              <input type="number" id="salesPaidInput" value="1200" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-emerald-400 focus:border-emerald-400 outline-none transition" />
+              <input type="number" id="salesSplitPaidInput" value="1200" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-emerald-400 focus:border-pink-400 outline-none transition" />
             </div>
           </div>
           <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800">
@@ -5043,13 +5243,13 @@
           </div>
         </div>
 
-        <button onclick="commitOperation('فاتورة مبيعات')" class="w-full py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          إصدار الفاتورة وجدولة الأقساط وخصم المخزون
+        <button onclick="commitOperation('تقسيم مبيعات')" class="w-full py-3 bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          إصدار الفاتورة وجدولة الأقساط وخصم المخزون ✓
         </button>
       </div>
     </div>
 
-    <!-- OPERATIONAL MODAL: تسليم مبيعات (إذن صرف) -->
+    <!-- OPERATIONAL MODAL: 3. تسليم مبيعات (إذن صرف مخزن) -->
     <div id="modalOpDelivery" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
       <div class="glass-base w-full max-w-md rounded-3xl border border-indigo-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -5058,7 +5258,7 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
             </div>
             <div>
-              <h4 class="text-sm font-black text-slate-100">إذن تسليم وصرف بضاعة</h4>
+              <h4 class="text-sm font-black text-slate-100">إذن تسليم وصرف بضاعة (تسليم مبيعات)</h4>
               <span class="text-[10px] text-indigo-400 font-bold">صرف من المخزن بموجب فاتورة مبيعات</span>
             </div>
           </div>
@@ -5091,18 +5291,23 @@
         </div>
 
         <button onclick="commitOperation('إذن تسليم مبيعات')" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition">
-          تأكيد التسليم وصرف الكميات من المخزن
+          تأكيد التسليم وصرف الكميات من المخزن ✓
         </button>
       </div>
     </div>
 
-    <!-- OPERATIONAL MODAL: فواتير المشتريات واستلام المشتريات وسند القيد -->
+    <!-- OPERATIONAL MODAL: 4. فواتير المشتريات (Purchase Invoice) -->
     <div id="modalOpPurchase" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
       <div class="glass-base w-full max-w-md rounded-3xl border border-amber-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-          <div>
-            <h4 id="opPurchaseTitle" class="text-sm font-black text-slate-100">فاتورة مشتريات وتوريد بضاعة</h4>
-            <span class="text-[10px] text-amber-400 font-bold">إثبات توريد وتحديث مديونية المورد</span>
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+            </div>
+            <div>
+              <h4 id="opPurchaseTitle" class="text-sm font-black text-slate-100">فاتورة شراء وتوريد بضاعة</h4>
+              <span class="text-[10px] text-amber-400 font-bold">إثبات توريد وتحديث مديونية المورد</span>
+            </div>
           </div>
           <button onclick="closeModal('modalOpPurchase')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
         </div>
@@ -5135,8 +5340,59 @@
           </div>
         </div>
 
-        <button onclick="commitOperation('فاتورة مشتريات')" class="w-full py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition">
-          حفظ الفاتورة وتأكيد إضافة البضاعة للمخزن
+        <button onclick="commitOperation('فاتورة شراء')" class="w-full py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition">
+          حفظ الفاتورة وتأكيد إضافة البضاعة للمخزن ✓
+        </button>
+      </div>
+    </div>
+
+    <!-- OPERATIONAL MODAL: 5. استلام فاتورة شراء وفحص مخزني (Purchase Receipt) -->
+    <div id="modalOpReceipt" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
+      <div class="glass-base w-full max-w-md rounded-3xl border border-teal-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center font-bold">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+            </div>
+            <div>
+              <h4 class="text-sm font-black text-slate-100">استلام فاتورة شراء وفحص مخزني</h4>
+              <span class="text-[10px] text-teal-400 font-bold">فحص البضاعة ومطابقة الكميات وتأكيد إدخالها المستودع 📦</span>
+            </div>
+          </div>
+          <button onclick="closeModal('modalOpReceipt')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
+        </div>
+
+        <div class="space-y-2.5 text-xs">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">رقم فاتورة الشراء:</label>
+              <input type="text" value="#PO-2026-904" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono" />
+            </div>
+            <div>
+              <label class="block text-slate-300 font-bold mb-1">المستودع المستلم:</label>
+              <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+                <option>المستودع الرئيسي (الخرطوم)</option>
+                <option>مخزن صالة المعرض</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">اسم المورد:</label>
+            <input type="text" value="مطاحن الخرطوم للغلال" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+          </div>
+          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1">
+            <span class="text-white font-bold block">الأصناف المفحوصة والمستلمة:</span>
+            <div class="text-[11px] text-slate-400 flex justify-between"><span>دقيق سيقا فاخر 50 كجم:</span> <span class="text-teal-300 font-bold">50 جوالاً (سليم ✓)</span></div>
+            <div class="text-[11px] text-slate-400 flex justify-between"><span>زيت طعام صباح 1 لتر:</span> <span class="text-teal-300 font-bold">30 كرتونة (سليم ✓)</span></div>
+          </div>
+          <div>
+            <label class="block text-slate-300 font-bold mb-1">اسم مسؤول الاستلام والفحص:</label>
+            <input type="text" placeholder="اسم أمين المخزن..." value="أمين المخزن: عثمان الفكي" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+          </div>
+        </div>
+
+        <button onclick="commitOperation('استلام فاتورة شراء')" class="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          تأكيد استلام وتخزين البضاعة في المستودع ✓
         </button>
       </div>
     </div>
@@ -6729,13 +6985,15 @@
       if (formType === 'financeMovement') {
         initFinancialTransferModal();
         modalId = 'modalOpFinance';
-      } else if (formType === 'salesSplit') {
+      } else if (formType === 'sales' || formType === 'salesInvoice') {
         modalId = 'modalOpSales';
+      } else if (formType === 'salesSplit') {
+        modalId = 'modalOpSalesSplit';
       } else if (formType === 'salesDelivery') {
         modalId = 'modalOpDelivery';
       } else if (formType === 'purchaseInvoice') {
         modalId = 'modalOpPurchase';
-      } else if (formType === 'purchaseReceipt') {
+      } else if (formType === 'purchaseReceive' || formType === 'purchaseReceipt') {
         modalId = 'modalOpReceipt';
       } else if (formType === 'journalEntry') {
         modalId = 'modalOpJournal';
@@ -6761,6 +7019,7 @@
       alert("✓ تم بنجاح ترحيل واعتماد: [" + opName + "]\nتم تحديث الخزينة والمخزون وحساب العميل/المورد في شجرة الحسابات فوراً!");
       closeModal('modalOpFinance');
       closeModal('modalOpSales');
+      closeModal('modalOpSalesSplit');
       closeModal('modalOpDelivery');
       closeModal('modalOpPurchase');
       closeModal('modalOpReceipt');
@@ -9084,9 +9343,9 @@
           .catch(function() { syncMagaieesNetUI(false); });
       }, 12000);
 
-      // 4. Kinetic micro-gestures & tactile vibrations for top bar icons
-      var flagshipTiles = document.querySelectorAll('.flagship-tile');
-      flagshipTiles.forEach(function(tile) {
+      // 4. Kinetic micro-gestures & tactile vibrations for top bar icons, Row 2 glass tiles & operation buttons
+      var allInteractiveTiles = document.querySelectorAll('.flagship-tile, .row2-glass-tile, .op-btn');
+      allInteractiveTiles.forEach(function(tile) {
         tile.addEventListener('pointerenter', function() {
           tile.classList.add('touch-active');
           if (typeof triggerHapticPulse === 'function') {
