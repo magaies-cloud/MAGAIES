@@ -9,12 +9,13 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-04-v26-clean-header-blue-btn';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-04-v28-contrast-nav-calculator';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
     './mobile_erp_global_suite.html',
     './mobile-suite.html',
+    './assets/logo.png',
     './assets/icon-192.png',
     './assets/icon-256.png',
     './assets/icon-384.png',
@@ -67,45 +68,23 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // 2. Navigation Requests (HTML / Dashboards): Fast Network (2.5s Timeout) -> Instant Cache Fallback
+    // 2. Navigation Requests (HTML / Dashboards): Fresh Network First -> Fallback to Cache if Offline
     if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
         event.respondWith(
-            new Promise((resolve) => {
-                let resolved = false;
-                const timeoutId = setTimeout(async () => {
-                    if (!resolved) {
-                        // Network slow or weak (>2.5s) — instant fallback to cached shell
-                        const cached = await caches.match(request) || await caches.match('./mobile-dashboard.php') || await caches.match('./dashboard.php');
-                        if (cached) {
-                            resolved = true;
-                            resolve(cached);
-                        }
+            fetch(request)
+                .then((networkResponse) => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        const copy = networkResponse.clone();
+                        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
                     }
-                }, 2500);
-
-                fetch(request)
-                    .then((networkResponse) => {
-                        clearTimeout(timeoutId);
-                        if (networkResponse && networkResponse.status === 200) {
-                            const copy = networkResponse.clone();
-                            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-                        }
-                        if (!resolved) {
-                            resolved = true;
-                            resolve(networkResponse);
-                        }
-                    })
-                    .catch(async () => {
-                        clearTimeout(timeoutId);
-                        if (!resolved) {
-                            resolved = true;
-                            const cached = await caches.match(request) || await caches.match('./mobile-dashboard.php') || await caches.match('./dashboard.php');
-                            if (cached) {
-                                resolve(cached);
-                            }
-                        }
-                    });
-            })
+                    return networkResponse;
+                })
+                .catch(async () => {
+                    // Offline fallback
+                    const cached = await caches.match(request) || await caches.match('./mobile-dashboard.php') || await caches.match('./mobile_erp_global_suite.html');
+                    if (cached) return cached;
+                    return new Response('Offline - No cache available', { status: 503, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+                })
         );
         return;
     }

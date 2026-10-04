@@ -26,6 +26,9 @@ if (!isset($_GET['legacy']) || $_GET['legacy'] !== '1') {
         $suiteFile = __DIR__ . '/ELSAJANA2/magaies/mobile_erp_global_suite.html';
     }
     if (file_exists($suiteFile)) {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0');
+        header('Pragma: no-cache');
+        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
         require_once $suiteFile;
         exit;
     }

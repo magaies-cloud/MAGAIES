@@ -169,13 +169,24 @@ window.PWAManager = {
     registerServiceWorker() {
         if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js', { scope: './' })
+                navigator.serviceWorker.register('./sw.js?v=2026_10_04_v28', { scope: './' })
                     .then((reg) => {
                         console.log('[Magaiees PWA] SW registered with scope:', reg.scope);
+                        // Trigger immediate check for fresh updates
+                        reg.update().catch(() => {});
                     })
                     .catch((err) => {
                         console.warn('[Magaiees PWA] SW notice:', err);
                     });
+
+                // Auto-reload clients when service worker updates to ensure user sees latest changes
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
             });
         }
     },
