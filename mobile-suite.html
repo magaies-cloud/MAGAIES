@@ -1496,6 +1496,76 @@
       transform: scale(0.93);
     }
 
+    /* ═════════════════════════════════════════════════════════════════════
+     * 💎 ULTRA HIGH-VISIBILITY NUMBER BADGES (أرقام واضحة وبارزة وفائقة التباين)
+     * ═════════════════════════════════════════════════════════════════════ */
+    .luminous-number-badge {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-width: 19px !important;
+      height: 19px !important;
+      padding: 0 4px !important;
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      font-family: 'JetBrains Mono', system-ui, -apple-system, sans-serif !important;
+      font-variant-numeric: tabular-nums !important;
+      letter-spacing: -0.03em !important;
+      border-radius: 9999px !important;
+      user-select: none !important;
+      pointer-events: none !important;
+      z-index: 25 !important;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
+    }
+
+    /* 🟡 التنبيهات: أصفر ذهبي ساطع عالي الإشعاع */
+    .badge-amber-glow {
+      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+      color: #020617 !important;
+      border: 1.5px solid #ffffff !important;
+      box-shadow: 0 0 12px rgba(245, 158, 11, 0.95), 0 2px 6px rgba(0, 0, 0, 0.7) !important;
+      text-shadow: 0 0 1px rgba(255, 255, 255, 0.6) !important;
+    }
+
+    /* 🔴 الموافقات: أحمر مرجاني قرمزي ناصع */
+    .badge-rose-glow {
+      background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
+      color: #ffffff !important;
+      border: 1.5px solid #ffffff !important;
+      box-shadow: 0 0 12px rgba(244, 63, 94, 0.95), 0 2px 6px rgba(0, 0, 0, 0.7) !important;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7) !important;
+    }
+
+    /* 🔵 السمات والخيارات: سماوي ساطع */
+    .badge-cyan-glow {
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important;
+      color: #020617 !important;
+      border: 1.5px solid #ffffff !important;
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.95), 0 2px 6px rgba(0, 0, 0, 0.7) !important;
+      text-shadow: 0 0 1px rgba(255, 255, 255, 0.6) !important;
+    }
+
+    /* 🟢 العمليات والمزامنة: أخضر زمردي */
+    .badge-emerald-glow {
+      background: linear-gradient(135deg, #34d399 0%, #059669 100%) !important;
+      color: #020617 !important;
+      border: 1.5px solid #ffffff !important;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.95), 0 2px 6px rgba(0, 0, 0, 0.7) !important;
+      text-shadow: 0 0 1px rgba(255, 255, 255, 0.6) !important;
+    }
+
+    /* Light Themes Overrides for Badges */
+    html[data-theme="beige"] .luminous-number-badge,
+    html[data-theme="ivory"] .luminous-number-badge,
+    html[data-theme="offwhite"] .luminous-number-badge,
+    html[data-theme="light-linen"] .luminous-number-badge,
+    html[data-theme="pearl-platinum"] .luminous-number-badge,
+    html[data-theme="nordic-paper"] .luminous-number-badge {
+      border: 1.5px solid #0f172a !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35) !important;
+    }
+
     /* Light Themes Overrides for Crystal Flagship Buttons */
     html[data-theme="beige"] .crystal-flagship-btn,
     html[data-theme="ivory"] .crystal-flagship-btn,
@@ -1782,7 +1852,7 @@
             <circle cx="9" cy="12" r="1.5" fill="#fbbf24" stroke="none"/>
             <circle cx="15" cy="14" r="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/>
           </svg>
-          <span id="activeThemeBadge" class="absolute -bottom-1 -right-1 text-[8px] bg-amber-500 text-slate-950 font-black px-1 rounded-full shadow">17</span>
+          <span id="activeThemeBadge" class="luminous-number-badge badge-amber-glow absolute -bottom-1.5 -right-1.5 shadow-md">17</span>
         </button>
 
         <!-- 3. أيقونة البحث الذكي الشامل (تم رفعها للصف الأول) -->
@@ -1861,7 +1931,7 @@
         <!-- التنبيهات -->
         <button onclick="switchTab('alerts'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-amber rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-amber-300 relative cursor-pointer active:scale-95 transition" title="التنبيهات ومعمل الضبط">
           <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span id="badgeTopBellCount" class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[9px] font-black px-1 rounded-full border border-slate-900 animate-pulse">6</span>
+          <span id="badgeTopBellCount" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-1.5 animate-pulse">6</span>
         </button>
 
         <!-- 4-Level Dynamic Font Scaler Button (4 درجات تكبير) -->
@@ -1871,7 +1941,7 @@
           class="row2-glass-tile r2-cyan rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-cyan-300 transition relative group" 
           title="مفتاح تكبير الخط بـ 4 درجات">
           <span class="text-sm font-black tracking-tighter flex items-center">A<span class="text-[10px] text-cyan-400 font-extrabold">+</span></span>
-          <span id="fontSizeBadge" class="absolute -top-1 -right-1 bg-cyan-500 text-slate-950 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center shadow">2</span>
+          <span id="fontSizeBadge" class="luminous-number-badge badge-cyan-glow absolute -top-1.5 -right-1.5 shadow">2</span>
         </button>
 
         <!-- Bold / Heavy Font Weight Toggle Button (الخط التخين العريض) -->
@@ -1946,7 +2016,7 @@
               </svg>
             </div>
             <span class="btn-label">الموافقات</span>
-            <span id="badgeApprovalsQuick" class="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full shadow -mr-1">3</span>
+            <span id="badgeApprovalsQuick" class="luminous-number-badge badge-rose-glow mr-1">3</span>
           </button>
 
           <!-- 5. كشوفات (الحسابات والديون) -->
@@ -2036,11 +2106,26 @@
         <section id="sectionOperations" class="pt-0 space-y-2">
           <!-- تبويبات التصفية السريعة للعمليات -->
           <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5 text-[11px] font-bold" id="opCategoryTabs">
-            <button type="button" onclick="filterOperationsCategory('all', this)" class="op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer">الكل (13)</button>
-            <button type="button" onclick="filterOperationsCategory('finance', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer">المالية والقيود (4)</button>
-            <button type="button" onclick="filterOperationsCategory('sales', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer">المبيعات (3)</button>
-            <button type="button" onclick="filterOperationsCategory('purchases', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer">المشتريات (2)</button>
-            <button type="button" onclick="filterOperationsCategory('inventory', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer">المخازن والجرد (4)</button>
+            <button type="button" onclick="filterOperationsCategory('all', this)" class="op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer flex items-center gap-1.5">
+              <span>الكل</span>
+              <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">13</span>
+            </button>
+            <button type="button" onclick="filterOperationsCategory('finance', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
+              <span>المالية والقيود</span>
+              <span class="luminous-number-badge badge-emerald-glow !min-w-[19px] !h-[19px] !text-[11px]">4</span>
+            </button>
+            <button type="button" onclick="filterOperationsCategory('sales', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
+              <span>المبيعات</span>
+              <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">3</span>
+            </button>
+            <button type="button" onclick="filterOperationsCategory('purchases', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
+              <span>المشتريات</span>
+              <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">2</span>
+            </button>
+            <button type="button" onclick="filterOperationsCategory('inventory', this)" class="op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5">
+              <span>المخازن والجرد</span>
+              <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">4</span>
+            </button>
           </div>
 
           <div class="grid grid-cols-3 gap-2" id="operationsGrid">
@@ -3201,7 +3286,7 @@
             </h3>
             <p class="text-[11px] text-slate-400">قرارات الإدارة العليا: تجاوز سقف الائتمان، أذونات الصرف، وأوامر الشراء</p>
           </div>
-          <span id="approvalsPendingCounter" class="text-xs bg-rose-950/80 text-rose-300 border border-rose-500/40 px-2.5 py-1 rounded-full font-bold">
+          <span id="approvalsPendingCounter" class="luminous-number-badge badge-rose-glow !px-3 !py-1 !text-xs !font-black !w-auto !rounded-full shadow-lg">
             3 طلبات بانتظار قرارك
           </span>
         </div>
@@ -3219,10 +3304,22 @@
 
         <!-- FILTER CHIPS -->
         <div class="flex gap-1.5 overflow-x-auto py-1 no-scrollbar text-xs font-bold">
-          <button class="bg-rose-600 text-white px-3 py-1.5 rounded-xl shrink-0 shadow">الكل (3)</button>
-          <button class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">سقف الائتمان (1)</button>
-          <button class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">سندات صرف (1)</button>
-          <button class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">أوامر شراء (1)</button>
+          <button class="bg-rose-600 text-white px-3 py-1.5 rounded-xl shrink-0 shadow flex items-center gap-1.5">
+            <span>الكل</span>
+            <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">3</span>
+          </button>
+          <button class="bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1.5 border border-slate-700">
+            <span>سقف الائتمان</span>
+            <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">1</span>
+          </button>
+          <button class="bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1.5 border border-slate-700">
+            <span>سندات صرف</span>
+            <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">1</span>
+          </button>
+          <button class="bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 flex items-center gap-1.5 border border-slate-700">
+            <span>أوامر شراء</span>
+            <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">1</span>
+          </button>
         </div>
 
         <!-- PENDING APPROVALS LIST -->
@@ -3512,7 +3609,7 @@
                 <p class="text-[10px] text-slate-400">الرقابة المالية الجنائية، مكافحة التلاعب، وسلاسل الإمداد السيادية</p>
               </div>
             </div>
-            <span id="alertsTotalBadge" class="text-[10px] bg-amber-950 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold">8 نشطة</span>
+            <span id="alertsTotalBadge" class="luminous-number-badge badge-amber-glow !px-3 !py-1 !text-xs !font-black !w-auto !rounded-full shadow-md">8 نشطة</span>
           </div>
 
           <!-- Master Sovereign Toggle (المفتاح السيادي العام) -->
@@ -3582,9 +3679,9 @@
 
         <!-- Alerts Section Sub-Tabs (سجل التنبيهات الحية vs معمل ضبط القواعد) -->
         <div class="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-2xl border border-slate-800 text-xs font-bold">
-          <button id="subTabAlertsFeed" onclick="switchAlertSubTab('feed')" class="py-2.5 rounded-xl bg-amber-500 text-slate-950 font-black shadow transition flex items-center justify-center gap-1.5">
+          <button id="subTabAlertsFeed" onclick="switchAlertSubTab('feed')" class="py-2.5 rounded-xl bg-amber-500 text-slate-950 font-black shadow transition flex items-center justify-center gap-2">
             <span>🔔 التنبيهات الحية والمخاطر</span>
-            <span id="feedCountBadge" class="w-4 h-4 rounded-full bg-slate-950 text-amber-300 text-[9px] flex items-center justify-center font-bold">8</span>
+            <span id="feedCountBadge" class="luminous-number-badge badge-amber-glow !text-[11px] !min-w-[20px] !h-[20px]">8</span>
           </button>
           <button id="subTabAlertsLab" onclick="switchAlertSubTab('lab')" class="py-2.5 rounded-xl text-slate-400 hover:text-white font-bold transition flex items-center justify-center gap-1.5">
             <span>⚙️ معمل ضبط التنبيهات</span>
@@ -3598,11 +3695,26 @@
         <div id="subViewAlertsFeed" class="space-y-3">
           <!-- Filter Categories -->
           <div class="flex gap-1.5 overflow-x-auto py-0.5 no-scrollbar text-xs font-bold">
-            <button onclick="filterAlertsFeed('all')" id="afTagAll" class="bg-amber-500 text-slate-950 px-3 py-1.5 rounded-xl shrink-0 font-black shadow">الكل (8)</button>
-            <button onclick="filterAlertsFeed('security')" id="afTagSecurity" class="bg-slate-800 text-rose-300 px-3 py-1.5 rounded-xl shrink-0 border border-rose-500/30">🛡️ الأمان والسرقة (2)</button>
-            <button onclick="filterAlertsFeed('finance')" id="afTagFinance" class="bg-slate-800 text-amber-300 px-3 py-1.5 rounded-xl shrink-0 border border-amber-500/30">💼 المالية والسيولة (2)</button>
-            <button onclick="filterAlertsFeed('inventory')" id="afTagInventory" class="bg-slate-800 text-yellow-300 px-3 py-1.5 rounded-xl shrink-0 border border-yellow-500/30">📦 المخزون وسلاسل الإمداد (2)</button>
-            <button onclick="filterAlertsFeed('customer')" id="afTagCustomer" class="bg-slate-800 text-cyan-300 px-3 py-1.5 rounded-xl shrink-0 border border-cyan-500/30">👥 ذكاء العملاء (2)</button>
+            <button onclick="filterAlertsFeed('all')" id="afTagAll" class="bg-amber-500 text-slate-950 px-3 py-1.5 rounded-xl shrink-0 font-black shadow flex items-center gap-1.5">
+              <span>الكل</span>
+              <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">8</span>
+            </button>
+            <button onclick="filterAlertsFeed('security')" id="afTagSecurity" class="bg-slate-800 text-rose-300 px-3 py-1.5 rounded-xl shrink-0 border border-rose-500/30 flex items-center gap-1.5">
+              <span>🛡️ الأمان والسرقة</span>
+              <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">2</span>
+            </button>
+            <button onclick="filterAlertsFeed('finance')" id="afTagFinance" class="bg-slate-800 text-amber-300 px-3 py-1.5 rounded-xl shrink-0 border border-amber-500/30 flex items-center gap-1.5">
+              <span>💼 المالية والسيولة</span>
+              <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">2</span>
+            </button>
+            <button onclick="filterAlertsFeed('inventory')" id="afTagInventory" class="bg-slate-800 text-yellow-300 px-3 py-1.5 rounded-xl shrink-0 border border-yellow-500/30 flex items-center gap-1.5">
+              <span>📦 المخزون وسلاسل الإمداد</span>
+              <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">2</span>
+            </button>
+            <button onclick="filterAlertsFeed('customer')" id="afTagCustomer" class="bg-slate-800 text-cyan-300 px-3 py-1.5 rounded-xl shrink-0 border border-cyan-500/30 flex items-center gap-1.5">
+              <span>👥 ذكاء العملاء</span>
+              <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">2</span>
+            </button>
           </div>
 
           <!-- Alert Cards Container -->
@@ -4355,10 +4467,22 @@
 
       <!-- Category Filter Pills -->
       <div class="flex gap-1 overflow-x-auto py-0.5 no-scrollbar text-xs font-bold">
-        <button onclick="filterThemeCategory('all')" id="btnTcAll" class="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow">الكل (17)</button>
-        <button onclick="filterThemeCategory('light')" id="btnTcLight" class="px-2.5 py-1 rounded-xl bg-slate-800 text-amber-200 hover:text-white shrink-0 border border-amber-500/30">☀️ الفاتحة والعاجي والبيج (6)</button>
-        <button onclick="filterThemeCategory('blue')" id="btnTcBlue" class="px-2.5 py-1 rounded-xl bg-slate-800 text-cyan-200 hover:text-white shrink-0 border border-cyan-500/30">🌊 درجات الأزرق والكحلي (5)</button>
-        <button onclick="filterThemeCategory('dark')" id="btnTcDark" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700">🌙 الداكنة والملكية (6)</button>
+        <button onclick="filterThemeCategory('all')" id="btnTcAll" class="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5">
+          <span>الكل</span>
+          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">17</span>
+        </button>
+        <button onclick="filterThemeCategory('light')" id="btnTcLight" class="px-2.5 py-1 rounded-xl bg-slate-800 text-amber-200 hover:text-white shrink-0 border border-amber-500/30 flex items-center gap-1.5">
+          <span>☀️ الفاتحة والعاجي</span>
+          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>
+        </button>
+        <button onclick="filterThemeCategory('blue')" id="btnTcBlue" class="px-2.5 py-1 rounded-xl bg-slate-800 text-cyan-200 hover:text-white shrink-0 border border-cyan-500/30 flex items-center gap-1.5">
+          <span>🌊 درجات الأزرق</span>
+          <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">5</span>
+        </button>
+        <button onclick="filterThemeCategory('dark')" id="btnTcDark" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5">
+          <span>🌙 الداكنة والملكية</span>
+          <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>
+        </button>
       </div>
 
       <!-- Themes Grid (All 17 Themes) -->
@@ -4742,7 +4866,7 @@
       <button onclick="switchTab('approvals')" id="navTabApprovals" class="bottom-dock-tab tab-approvals" title="موافقات">
         <div class="dock-tab-emblem relative">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <span id="badgeApprovalsCount" class="absolute -top-1 -right-1.5 bg-rose-500 text-white text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-slate-900 animate-pulse">3</span>
+          <span id="badgeApprovalsCount" class="luminous-number-badge badge-rose-glow absolute -top-1.5 -right-2 animate-pulse">3</span>
         </div>
         <span class="dock-tab-label">موافقات</span>
         <span class="dock-active-pill"></span>
@@ -4770,7 +4894,7 @@
       <button onclick="switchTab('alerts')" id="navTabAlerts" class="bottom-dock-tab tab-alerts" title="تنبيهات">
         <div class="dock-tab-emblem relative">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span id="badgeAlertsCount" class="absolute -top-1 -right-1.5 bg-amber-500 text-slate-950 text-[8px] font-black w-3.5 h-3.5 rounded-full flex items-center justify-center border border-slate-900 animate-pulse">6</span>
+          <span id="badgeAlertsCount" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-2 animate-pulse">6</span>
         </div>
         <span class="dock-tab-label">تنبيهات</span>
         <span class="dock-active-pill"></span>
@@ -7915,10 +8039,10 @@
       if (window.triggerHapticPulse) triggerHapticPulse(15);
       const tabs = document.querySelectorAll('.op-cat-btn');
       tabs.forEach(b => {
-        b.className = 'op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer';
+        b.className = 'op-cat-btn bg-slate-900/80 hover:bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700/60 shrink-0 transition cursor-pointer flex items-center gap-1.5';
       });
       if (btn) {
-        btn.className = 'op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer';
+        btn.className = 'op-cat-btn active bg-cyan-600 text-white px-3 py-1.5 rounded-xl shrink-0 transition shadow-[0_0_10px_rgba(6,182,212,0.4)] cursor-pointer flex items-center gap-1.5';
       }
       const cards = document.querySelectorAll('#operationsGrid .op-btn');
       cards.forEach(card => {
@@ -9998,7 +10122,11 @@
 
       if (badgeTotal) badgeTotal.textContent = `${remainingCards} نشطة`;
       if (badgeFeed) badgeFeed.textContent = remainingCards;
-      if (tagAll) tagAll.textContent = `الكل (${remainingCards})`;
+      if (tagAll) {
+        const numBadge = tagAll.querySelector('.luminous-number-badge');
+        if (numBadge) numBadge.textContent = remainingCards;
+        else tagAll.textContent = `الكل (${remainingCards})`;
+      }
     }
 
     function testSimulateAlertWithHapticAndSound() {
@@ -10185,9 +10313,9 @@
       Object.entries(btns).forEach(([k, btn]) => {
         if (!btn) return;
         if (k === cat) {
-          btn.className = "px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow";
+          btn.className = "px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5";
         } else {
-          btn.className = "px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700";
+          btn.className = "px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5";
         }
       });
 

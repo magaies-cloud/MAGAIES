@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-04-v28-contrast-nav-calculator';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-04-v29-prominent-number-badges';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
