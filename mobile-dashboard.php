@@ -2731,31 +2731,320 @@ try {
             font-size: 0.84rem;
         }
 
-        /* Dual-Row Ergonomic Header Structure */
-        .header-top-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-            gap: 8px;
-            box-sizing: border-box;
+        /* ═════════════════════════════════════════════════════════════════
+           💎 THE FLAGSHIP LUMINOUS GLASS TOP BAR (السطر الأول الفاخر الموحد)
+           Exact 7-Icon Arrangement:
+           1. مقاييس (Net Status: Green Online / Red Offline)
+           2. السمات (Themes - Palette Standard Icon)
+           3. البحث (Smart Global Search)
+           4. المايك (Voice Copilot AI)
+           5. العين (Privacy Stealth Numbers Hide)
+           6. التنزيل أو التثبيت (PWA Install / Download)
+           7. الخروج (Logout)
+           ═════════════════════════════════════════════════════════════════ */
+        .flagship-top-bar {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            gap: 5px !important;
+            box-sizing: border-box !important;
+            padding: 2px 0 !important;
+            overflow: visible !important;
         }
-        .header-top-content {
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            box-sizing: border-box;
+
+        /* Common Tile Styling: Frosted VisionOS Glass with Luminous Edges & Bottom Underglow */
+        .flagship-top-tile {
+            position: relative !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 42px !important;
+            min-height: 42px !important;
+            border-radius: 13px !important;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.03) 50%, rgba(255, 255, 255, 0.08) 100%) !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+            backdrop-filter: blur(20px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(200%) !important;
+            box-shadow: inset 0 1px 1.5px rgba(255, 255, 255, 0.65),
+                        inset 0 -1px 2px rgba(0, 0, 0, 0.25),
+                        0 0 12px var(--tile-glow, rgba(56, 189, 248, 0.25)),
+                        0 7px 18px -3px var(--tile-glow, rgba(56, 189, 248, 0.35)) !important;
+            cursor: pointer !important;
+            user-select: none !important;
+            touch-action: manipulation !important;
+            text-decoration: none !important;
+            overflow: hidden !important;
+            box-sizing: border-box !important;
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+                        box-shadow 0.22s ease,
+                        border-color 0.22s ease,
+                        background 0.22s ease !important;
         }
-        .brand-title-wrap {
-            display: flex;
-            align-items: center;
-            font-size: 0.92rem;
-            font-weight: 900;
-            color: var(--text-main);
-            letter-spacing: -0.2px;
-            white-space: nowrap;
+
+        /* 1. Item 1: Magaiees Brand Badge with Network Status (Distinct Size) */
+        .flagship-brand-tile {
+            flex: 0 0 auto !important;
+            padding: 0 10px !important;
+            gap: 6px !important;
+            z-index: 2 !important;
+        }
+        .flagship-brand-tile .brand-avatar-mini {
+            width: 24px !important;
+            height: 24px !important;
+            border-radius: 7px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            font-weight: 900 !important;
+            font-size: 13px !important;
+            color: #0f172a !important;
+            flex-shrink: 0 !important;
+            transition: all 0.3s ease !important;
+        }
+        .flagship-brand-tile .brand-text-luminous {
+            font-weight: 900 !important;
+            font-size: 0.94rem !important;
+            letter-spacing: -0.2px !important;
+            line-height: 1 !important;
+            white-space: nowrap !important;
+            transition: all 0.3s ease !important;
+        }
+
+        /* Magaiees Online State (Emerald Green Glow & Underglow) */
+        .flagship-brand-tile.online,
+        #header-net-indicator.online {
+            --tile-glow: rgba(16, 185, 129, 0.55);
+            --tile-glow-active: rgba(16, 185, 129, 0.95);
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.24) 0%, rgba(5, 150, 105, 0.08) 50%, rgba(16, 185, 129, 0.16) 100%) !important;
+            border-color: rgba(16, 185, 129, 0.6) !important;
+        }
+        .flagship-brand-tile.online .brand-avatar-mini,
+        #header-net-indicator.online .brand-avatar-mini {
+            background: linear-gradient(135deg, #34d399, #10b981) !important;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.7) !important;
+            color: #064e3b !important;
+        }
+        .flagship-brand-tile.online .brand-text-luminous,
+        #header-net-indicator.online .brand-text-luminous {
+            color: #10b981 !important;
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.75), 0 0 20px rgba(16, 185, 129, 0.4) !important;
+        }
+
+        /* Magaiees Offline State (Crimson Red Alert Glow & Underglow) */
+        .flagship-brand-tile.offline,
+        #header-net-indicator.offline {
+            --tile-glow: rgba(239, 68, 68, 0.65);
+            --tile-glow-active: rgba(239, 68, 68, 0.98);
+            background: linear-gradient(145deg, rgba(239, 68, 68, 0.28) 0%, rgba(185, 28, 28, 0.10) 50%, rgba(239, 68, 68, 0.20) 100%) !important;
+            border-color: rgba(239, 68, 68, 0.7) !important;
+        }
+        .flagship-brand-tile.offline .brand-avatar-mini,
+        #header-net-indicator.offline .brand-avatar-mini {
+            background: linear-gradient(135deg, #f87171, #ef4444) !important;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.8) !important;
+            color: #ffffff !important;
+        }
+        .flagship-brand-tile.offline .brand-text-luminous,
+        #header-net-indicator.offline .brand-text-luminous {
+            color: #ef4444 !important;
+            text-shadow: 0 0 12px rgba(239, 68, 68, 0.85), 0 0 22px rgba(239, 68, 68, 0.5) !important;
+        }
+
+        /* Equal-Size Symmetrical Action Tiles (2 through 7) */
+        .flagship-action-tile {
+            flex: 1 1 0% !important;
+            width: auto !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+        }
+        .flagship-action-tile i {
+            font-size: 1.14rem !important;
+            line-height: 1 !important;
+            transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.22s ease !important;
+        }
+
+        /* 2. Theme Tile (Amber / Gold Jewel) */
+        .flagship-action-tile.tile-theme {
+            --tile-glow: rgba(245, 158, 11, 0.5);
+            --tile-glow-active: rgba(245, 158, 11, 0.95);
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.22) 0%, rgba(217, 119, 6, 0.06) 50%, rgba(245, 158, 11, 0.16) 100%) !important;
+            border-color: rgba(245, 158, 11, 0.5) !important;
+            color: #fbbf24 !important;
+        }
+        .flagship-action-tile.tile-theme i {
+            color: #fbbf24 !important;
+            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.7)) !important;
+        }
+        .flagship-action-tile.tile-theme .theme-gem-dot {
+            position: absolute !important;
+            top: 4px !important;
+            right: 4px !important;
+            width: 7px !important;
+            height: 7px !important;
+            border-radius: 50% !important;
+            background: #fbbf24;
+            box-shadow: 0 0 7px #fbbf24;
+            display: inline-block !important;
+        }
+
+        /* 3. Search Tile (Sapphire / Sky Blue Jewel) */
+        .flagship-action-tile.tile-search {
+            --tile-glow: rgba(14, 165, 233, 0.5);
+            --tile-glow-active: rgba(14, 165, 233, 0.95);
+            background: linear-gradient(145deg, rgba(14, 165, 233, 0.22) 0%, rgba(2, 132, 199, 0.06) 50%, rgba(14, 165, 233, 0.16) 100%) !important;
+            border-color: rgba(14, 165, 233, 0.5) !important;
+            color: #38bdf8 !important;
+        }
+        .flagship-action-tile.tile-search i {
+            color: #38bdf8 !important;
+            filter: drop-shadow(0 0 6px rgba(14, 165, 233, 0.7)) !important;
+        }
+
+        /* 4. Voice Mic Tile (Amethyst Purple AI Jewel) */
+        .flagship-action-tile.tile-voice {
+            --tile-glow: rgba(168, 85, 247, 0.55);
+            --tile-glow-active: rgba(168, 85, 247, 0.95);
+            background: linear-gradient(145deg, rgba(168, 85, 247, 0.24) 0%, rgba(126, 34, 206, 0.06) 50%, rgba(168, 85, 247, 0.18) 100%) !important;
+            border-color: rgba(168, 85, 247, 0.55) !important;
+            color: #c084fc !important;
+        }
+        .flagship-action-tile.tile-voice i {
+            color: #c084fc !important;
+            filter: drop-shadow(0 0 7px rgba(168, 85, 247, 0.75)) !important;
+        }
+
+        /* 5. Privacy Eye Tile (Mint Teal Jewel) */
+        .flagship-action-tile.tile-privacy {
+            --tile-glow: rgba(20, 184, 166, 0.5);
+            --tile-glow-active: rgba(20, 184, 166, 0.95);
+            background: linear-gradient(145deg, rgba(20, 184, 166, 0.22) 0%, rgba(13, 148, 136, 0.06) 50%, rgba(20, 184, 166, 0.16) 100%) !important;
+            border-color: rgba(20, 184, 166, 0.5) !important;
+            color: #2dd4bf !important;
+        }
+        .flagship-action-tile.tile-privacy i {
+            color: #2dd4bf !important;
+            filter: drop-shadow(0 0 6px rgba(20, 184, 166, 0.7)) !important;
+        }
+        .flagship-action-tile.tile-privacy.stealth-active {
+            --tile-glow: rgba(20, 184, 166, 0.85);
+            --tile-glow-active: rgba(20, 184, 166, 1);
+            background: linear-gradient(145deg, rgba(20, 184, 166, 0.35) 0%, rgba(13, 148, 136, 0.12) 50%, rgba(20, 184, 166, 0.28) 100%) !important;
+            border-color: rgba(45, 212, 191, 0.85) !important;
+            box-shadow: 0 0 16px rgba(20, 184, 166, 0.6), 0 6px 18px -2px rgba(20, 184, 166, 0.55), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+        .flagship-action-tile.tile-privacy.stealth-active i {
+            color: #5eead4 !important;
+            filter: drop-shadow(0 0 10px rgba(94, 234, 212, 0.95)) !important;
+        }
+
+        /* 6. Install / Download Tile (Electric Royal Blue Jewel) */
+        .flagship-action-tile.tile-install {
+            --tile-glow: rgba(59, 130, 246, 0.55);
+            --tile-glow-active: rgba(59, 130, 246, 0.95);
+            background: linear-gradient(145deg, rgba(59, 130, 246, 0.24) 0%, rgba(29, 78, 216, 0.06) 50%, rgba(59, 130, 246, 0.18) 100%) !important;
+            border-color: rgba(59, 130, 246, 0.55) !important;
+            color: #60a5fa !important;
+        }
+        .flagship-action-tile.tile-install i {
+            color: #60a5fa !important;
+            filter: drop-shadow(0 0 7px rgba(59, 130, 246, 0.75)) !important;
+        }
+
+        /* 7. Logout Tile (Ruby Rose Red Jewel) */
+        .flagship-action-tile.tile-logout {
+            --tile-glow: rgba(244, 63, 94, 0.55);
+            --tile-glow-active: rgba(244, 63, 94, 0.98);
+            background: linear-gradient(145deg, rgba(244, 63, 94, 0.24) 0%, rgba(190, 18, 60, 0.06) 50%, rgba(244, 63, 94, 0.18) 100%) !important;
+            border-color: rgba(244, 63, 94, 0.55) !important;
+            color: #fb7185 !important;
+        }
+        .flagship-action-tile.tile-logout i {
+            color: #fb7185 !important;
+            filter: drop-shadow(0 0 7px rgba(244, 63, 94, 0.75)) !important;
+        }
+
+        /* 🌈 Periodic Glass Sheen & Diagonal Reflection Sweep (انعكاسات زجاجية من حين لآخر) */
+        .flagship-top-tile::after {
+            content: '' !important;
+            position: absolute !important;
+            top: -50% !important;
+            left: -120% !important;
+            width: 70% !important;
+            height: 200% !important;
+            background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.55) 50%, transparent 80%) !important;
+            transform: rotate(25deg) !important;
+            pointer-events: none !important;
+            animation: flagshipGlassShine 4.8s infinite cubic-bezier(0.4, 0, 0.2, 1) !important;
+            opacity: 0 !important;
+        }
+        @keyframes flagshipGlassShine {
+            0%, 25% { left: -120%; opacity: 0; }
+            40% { opacity: 0.95; }
+            65%, 100% { left: 190%; opacity: 0; }
+        }
+        /* Staggered diamond shine cascading across the icons */
+        .flagship-brand-tile::after { animation-delay: 0.1s !important; }
+        .tile-theme::after { animation-delay: 0.24s !important; }
+        .tile-search::after { animation-delay: 0.38s !important; }
+        .tile-voice::after { animation-delay: 0.52s !important; }
+        .tile-privacy::after { animation-delay: 0.66s !important; }
+        .tile-install::after { animation-delay: 0.80s !important; }
+        .tile-logout::after { animation-delay: 0.94s !important; }
+
+        /* ✨ Interactive Micro-Vibration & Luminous Border Explosion on Hover / Touch / Focus */
+        @keyframes flagshipMicroVibe {
+            0% { transform: translateY(-3px) scale(1.15) rotate(0deg); }
+            20% { transform: translateY(-3px) scale(1.15) rotate(-2.5deg); }
+            40% { transform: translateY(-3px) scale(1.15) rotate(2.5deg); }
+            60% { transform: translateY(-3px) scale(1.15) rotate(-1.5deg); }
+            80% { transform: translateY(-3px) scale(1.15) rotate(1.5deg); }
+            100% { transform: translateY(-3px) scale(1.15) rotate(0deg); }
+        }
+
+        .flagship-top-tile:hover,
+        .flagship-top-tile:focus-visible {
+            animation: flagshipMicroVibe 0.42s ease-in-out forwards !important;
+            border-color: rgba(255, 255, 255, 0.95) !important;
+            box-shadow: 0 0 24px var(--tile-glow-active),
+                        0 12px 26px -2px var(--tile-glow-active),
+                        inset 0 1px 3px rgba(255, 255, 255, 0.95),
+                        inset 0 0 10px rgba(255, 255, 255, 0.25) !important;
+            z-index: 25 !important;
+        }
+        .flagship-top-tile:hover i,
+        .flagship-top-tile:focus-visible i {
+            transform: scale(1.15) !important;
+            filter: drop-shadow(0 0 12px currentColor) !important;
+        }
+
+        .flagship-top-tile:active {
+            transform: translateY(-1px) scale(1.06) !important;
+            box-shadow: 0 0 18px var(--tile-glow-active),
+                        0 6px 16px var(--tile-glow-active),
+                        inset 0 0 8px rgba(255, 255, 255, 0.7) !important;
+        }
+
+        /* Screen-size responsiveness for very compact screens (< 360px) */
+        @media (max-width: 360px) {
+            .flagship-top-bar {
+                gap: 3px !important;
+            }
+            .flagship-top-tile {
+                height: 38px !important;
+                min-height: 38px !important;
+                border-radius: 11px !important;
+            }
+            .flagship-brand-tile {
+                padding: 0 6px !important;
+                gap: 4px !important;
+            }
+            .flagship-brand-tile .brand-text-luminous {
+                font-size: 0.84rem !important;
+            }
+            .flagship-action-tile i {
+                font-size: 1.0rem !important;
+            }
         }
 
         /* 🌐 Live Internet Status Indicator (نقطة خضراء متصل / نقطة حمراء منقطع) */
@@ -6033,105 +6322,99 @@ try {
 <body data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
 
     <!-- 1. Sticky Mobile App Header -->
-    <!-- 1. Sticky Mobile App Header (Ergonomic Dual-Row Layout) -->
+    <!-- 1. Sticky Mobile App Header (Flagship Luminous Glass Header) -->
     <header class="mobile-header">
-        <!-- Row 1: بالتنسيق المطلوب: مقاييس صفراء -> دائرة النت (خضراء/حمراء) -> الزر الأزرق للتثبيت بالسهم -> خروج -> بقية الأيقونات المتحركة -->
-        <div class="header-top-row">
-            <div class="header-top-content" style="display:flex; align-items:center; width:100%; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;">
-                
-                <!-- المجموعة الأساسية: 1. شعار مقاييس حرف M الملون بالألوان الأساسية + الحافة الخضراء المضيئة لكلمة مقاييس (مؤشر النت الحي) -->
-                <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
-                    <!-- 1. علامة مقاييس بحرف M المعتمد بالألوان الأساسية والحافة الخضراء المضيئة الدالة على النت -->
-                    <div id="headerBrandLogoBadge" class="brand-avatar" style="padding:3px 8px; border-radius:10px; background:rgba(15,23,42,0.9); border:1.5px solid rgba(16,185,129,0.7); display:flex; align-items:center; gap:6px; box-shadow:0 0 12px rgba(16,185,129,0.4); flex-shrink:0; cursor:pointer;" title="مقاييس ERP - متصل بالإنترنت (اضغط للرئيسية)" onclick="switchMobileTab('dashboard')">
-                        <img src="assets/icon-192.png" alt="M" style="width:20px; height:20px; border-radius:5px; object-fit:contain; box-shadow:0 0 6px rgba(56,189,248,0.5);">
-                        <span id="headerBrandText" style="font-weight:900; font-size:0.95rem; color:#6ee7b7; letter-spacing:0.2px; text-shadow:0 0 8px rgba(16,185,129,0.5);">مقاييس</span>
-                    </div>
-
-                    <!-- 2. زر أزرق فيه سهم تثبيت التطبيق في الأعلى متساوي مع بقية الأيقونات -->
-                    <button type="button" class="header-install-btn header-pwa-blue-btn" id="btn-header-install" onclick="triggerNativeAppInstall()" style="width:28px; height:28px; border-radius:9px; background:linear-gradient(135deg, #0ea5e9, #2563eb); border:1px solid rgba(56,189,248,0.6); color:#ffffff; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(14,165,233,0.35); transition:all 0.2s;" title="تثبيت التطبيق على الجوال">
-                        <i class="fa-solid fa-arrow-down" style="color:#ffffff; font-size:0.75rem;"></i>
-                    </button>
+        <!-- 💎 Row 1: The Unified Flagship Executive Action Deck (السطر الأول الفاخر الموحد بالترتيب والمواصفات الدقيقة) -->
+        <div class="header-top-row flagship-top-bar" id="flagship-top-header-row">
+            
+            <!-- 1. مقاييس (مؤشر النت الذكي: أخضر عند الاتصال، أحمر عند الانقطاع) -->
+            <button type="button" 
+                    class="flagship-top-tile flagship-brand-tile online" 
+                    id="header-net-indicator" 
+                    onclick="checkNetworkAndNotify()" 
+                    onpointerenter="triggerTileHaptic()"
+                    title="مقاييس ERP: الإنترنت متصل 🟢 (اضغط لاختبار الاتصال أو التبديل)">
+                <div class="brand-avatar-mini" id="header-brand-avatar">
+                    <span>م</span>
                 </div>
+                <span class="brand-text-luminous" id="header-brand-name">مقاييس</span>
+                <span class="net-status-dot online" id="header-net-dot"></span>
+            </button>
 
-                <!-- فاصل عمودي ناعم -->
-                <div style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
+            <!-- 2. أيقونة السمات (شعار السمات المعروف بلوحة الألوان والبريق) -->
+            <button type="button" 
+                    class="flagship-top-tile flagship-action-tile tile-theme" 
+                    id="btn-header-theme" 
+                    onclick="cycleQuickTheme()" 
+                    oncontextmenu="event.preventDefault(); openBottomSheet('sheet-theme');" 
+                    onpointerenter="triggerTileHaptic()"
+                    title="السمات والمظهر (اضغط للتبديل السريع)">
+                <i class="fa-solid fa-palette" id="current-theme-icon"></i>
+                <span class="theme-gem-dot" id="current-theme-dot"></span>
+            </button>
 
-                <!-- 5. بقية الأيقونات: متحركة وسلسة التمرير في مستوى واحد أنيق ومتساوي -->
-                <div class="dynamic-moving-icons-stream" id="header-moving-icons" style="display:flex; align-items:center; gap:5px; flex-shrink:0; scroll-behavior:smooth;">
-                    <!-- المايك AI في السطر الأول -->
-                    <button type="button" onclick="openAiVoiceCopilotModal()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(99,102,241,0.25)); border:1px solid rgba(168,85,247,0.45); color:#c084fc; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="المساعد الصوتي المحاسبي الذكي">
-                        <i class="fa-solid fa-microphone" style="font-size:0.75rem;"></i>
-                    </button>
+            <!-- 3. أيقونة البحث (البحث الذكي الشامل) -->
+            <button type="button" 
+                    class="flagship-top-tile flagship-action-tile tile-search" 
+                    id="btn-header-search" 
+                    onclick="openBottomSheet('sheet-global-search')" 
+                    onpointerenter="triggerTileHaptic()"
+                    title="البحث الذكي الشامل (أصناف، فواتير، حسابات)">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
 
-                    <!-- 🔄 Header Quick Refresh Button -->
-                    <button type="button" class="header-refresh-btn" id="btn-header-refresh" onclick="triggerHeaderRefresh(this)" style="width:28px; height:28px; border-radius:9px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="تحديث فوري لبيانات النظام">
-                        <i class="fa-solid fa-arrows-rotate" id="header-refresh-spinner" style="font-size:0.75rem;"></i>
-                    </button>
+            <!-- 4. أيقونة المايك (المساعد الصوتي المحاسبي الذكي AI) -->
+            <button type="button" 
+                    class="flagship-top-tile flagship-action-tile tile-voice" 
+                    id="btn-header-voice" 
+                    onclick="openAiVoiceCopilotModal()" 
+                    onpointerenter="triggerTileHaptic()"
+                    title="المساعد الصوتي المحاسبي الذكي AI">
+                <i class="fa-solid fa-microphone"></i>
+            </button>
 
-                    <!-- 👁️ درع الخصوصية (في السطر الأول) -->
-                    <button type="button" id="btn-header-privacy" onclick="togglePrivacyStealthMode()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); color:#fbbf24; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="وضع الخصوصية: إخفاء الأرقام بنجوم (*****)">
-                        <i class="fa-solid fa-eye" style="font-size:0.75rem;"></i>
-                    </button>
+            <!-- 5. أيقونة العين (درع الخصوصية لإخفاء الأرقام بنجوم) -->
+            <button type="button" 
+                    class="flagship-top-tile flagship-action-tile tile-privacy" 
+                    id="btn-header-privacy" 
+                    onclick="togglePrivacyStealthMode()" 
+                    onpointerenter="triggerTileHaptic()"
+                    title="وضع الخصوصية: إخفاء الأرقام بنجوم (***)">
+                <i class="fa-solid fa-eye" id="privacy-eye-icon"></i>
+            </button>
 
-                    <!-- 🔍 البحث السريع -->
-                    <button type="button" onclick="openBottomSheet('sheet-global-search')" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="البحث السريع الشامل">
-                        <i class="fa-solid fa-magnifying-glass" style="font-size:0.75rem;"></i>
-                    </button>
+            <!-- 6. أيقونة التنزيل أو التثبيت (تثبيت أو تنزيل التطبيق على الهاتف) -->
+            <button type="button" 
+                    class="flagship-top-tile flagship-action-tile tile-install" 
+                    id="btn-header-install" 
+                    onclick="triggerNativeAppInstall()" 
+                    onpointerenter="triggerTileHaptic()"
+                    title="تثبيت أو تنزيل تطبيق مقاييس على الجوال">
+                <i class="fa-solid fa-download"></i>
+            </button>
 
-                    <!-- 🎨 تبديل السمات -->
-                    <button type="button" onclick="cycleQuickTheme()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#f59e0b; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="تبديل السمات">
-                        <i class="fa-solid fa-palette" style="font-size:0.75rem;"></i>
-                    </button>
-
-                    <!-- 🔔 التنبيهات -->
-                    <button type="button" onclick="switchMobileTab('approvals')" class="header-refresh-btn" style="position:relative; width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="التنبيهات">
-                        <i class="fa-solid fa-bell" style="font-size:0.75rem;"></i>
-                        <span style="position:absolute; top:-2px; right:-2px; width:7px; height:7px; border-radius:50%; background:#ef4444; border:1px solid #0f172a;"></span>
-                    </button>
-
-                    <!-- 🖥️ سطح المكتب -->
-                    <button type="button" onclick="switchToDesktopDashboard()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#94a3b8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="نسخة سطح المكتب">
-                        <i class="fa-solid fa-desktop" style="font-size:0.72rem;"></i>
-                    </button>
-
-                    <!-- 🚪 زر تسجيل الخروج متساوي في الحجم وموضوع في آخر القائمة -->
-                    <button type="button" class="header-logout-btn" id="btn-header-logout" onclick="triggerMobileLogout()" style="width:28px; height:28px; border-radius:9px; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.45); color:#FECDD3; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(244,63,94,0.15); transition:all 0.2s;" title="تسجيل الخروج والرجوع لشاشة الدخول">
-                        <i class="fa-solid fa-arrow-right-from-bracket" style="color:#FB7185; font-size:0.75rem;"></i>
-                    </button>
-                </div>
-            </div>
-            <span id="mobile-user-greeting" style="display:none;">مرحباً بك 🌟</span>
+            <!-- 7. أيقونة الخروج (تسجيل الخروج والعودة لشاشة الدخول) -->
+            <button type="button" 
+                    class="flagship-top-tile flagship-action-tile tile-logout" 
+                    id="btn-header-logout" 
+                    onclick="triggerMobileLogout()" 
+                    onpointerenter="triggerTileHaptic()"
+                    title="تسجيل الخروج والعودة لشاشة تسجيل الدخول">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </button>
         </div>
 
-        <!-- Row 2: 💎 The Flagship Crystal Glass Action Deck (تم حذف زر العين للاكتفاء به في السطر الأول) -->
-        <div class="header-actions-deck">
-            <!-- 🔍 Global Quick Search -->
-            <button type="button" onclick="openBottomSheet('sheet-global-search')" class="header-deck-pill pill-search" title="البحث السريع الشامل (أصناف، فواتير، حسابات)">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <span>البحث</span>
-            </button>
-            <!-- 🎨 7-Theme Quick Switcher -->
-            <button type="button" onclick="cycleQuickTheme()" oncontextmenu="event.preventDefault(); openBottomSheet('sheet-theme');" class="header-deck-pill pill-theme" title="تبديل السمة السريع (7 سمات متكيفة)">
-                <i class="fa-solid fa-palette" id="current-theme-icon"></i>
-                <span>السمات</span>
-                <span class="theme-dot" id="current-theme-dot"></span>
-            </button>
-            <!-- 🛰️ Offline Outbox Drain Button with Live Red Counter Badge -->
-            <button type="button" id="btn-header-outbox" onclick="openBottomSheet('sheet-outbox-manager')" class="header-deck-pill pill-sync" title="طابور الحركات غير المتزامنة (Offline Outbox)">
+        <!-- Hidden DOM Anchor Deck (Preserving background system listener elements without cluttering UI) -->
+        <div class="header-actions-deck" style="display:none !important;" aria-hidden="true">
+            <span id="privacy-eye-label">الخصوصية</span>
+            <button type="button" id="btn-header-outbox" onclick="openBottomSheet('sheet-outbox-manager')">
                 <i class="fa-solid fa-cloud-arrow-up" id="header-outbox-icon"></i>
-                <span>المزامنة</span>
-                <span class="outbox-count-badge" id="header-outbox-badge" style="display:none;">0</span>
+                <span id="header-outbox-badge">0</span>
             </button>
-            <!-- 🔔 Smart Notification / Alert Center Bell with live counter -->
-            <button type="button" onclick="switchMobileTab('approvals')" class="header-deck-pill pill-alerts" title="الرسائل التنبيهية وقواعد الأعمال">
-                <i class="fa-solid fa-bell"></i>
-                <span>التنبيهات</span>
-                <span class="notif-badge" id="header-alert-count">4</span>
-            </button>
-            <!-- 🖥️ Switch to Full Desktop Dashboard Button -->
-            <button type="button" onclick="switchToDesktopDashboard()" class="header-deck-pill pill-desktop" title="التبديل إلى نسخة سطح المكتب الكاملة">
-                <i class="fa-solid fa-desktop"></i>
-                <span>سطح المكتب</span>
+            <span id="header-alert-count">0</span>
+            <span id="mobile-user-greeting">مرحباً بك</span>
+            <button type="button" id="btn-header-refresh" onclick="triggerHeaderRefresh(this)">
+                <i class="fa-solid fa-arrows-rotate" id="header-refresh-spinner"></i>
             </button>
         </div>
     </header>
@@ -6238,7 +6521,7 @@ try {
 
         <!-- Power Quick Actions (العمليات والفواتير السريعة) -->
         <div class="section-heading" style="margin-top:14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-            <span>⚡ العمليات السريعة (اضغط لفتح شاشة العمليات)</span>
+            <span>⚡ العمليات والفواتير السريعة</span>
             <small style="color:var(--text-muted); font-size:0.75rem;">مطابقة لمنظومة اللابتوب</small>
         </div>
         <div class="actions-operations-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px;">
@@ -9562,7 +9845,15 @@ try {
     <!-- ═════════════════════════════════════════════════════════════════
          E. FIXED BOTTOM NAVIGATION BAR (5 CORE HUBS)
          ═════════════════════════════════════════════════════════════════ -->
-
+    <!-- 🎙️ OMNIPRESENT AI VOICE COPILOT FLOATING ORB (ACROSS ALL TABS) -->
+    <div id="omnipresent-ai-orb" class="floating-ai-orb-wrap" onclick="openAiVoiceCopilotModal()">
+        <div class="floating-ai-pulse-ring"></div>
+        <button type="button" class="floating-ai-orb-btn" title="المساعد الصوتي الذكي المصاحب - تحدث في أي وقت بالذكاء الاصطناعي">
+            <i class="fa-solid fa-microphone-lines"></i>
+            <span class="floating-ai-badge">AI 🎙️</span>
+        </button>
+        <span class="floating-ai-label">المايك الذكي</span>
+    </div>
 
     <!-- 👁️ FLOATING PRIVACY TOAST BAR -->
     <div id="privacy-stealth-toast" style="display:none; position:fixed; top:75px; left:14px; right:14px; z-index:9999; background:rgba(15,23,42,0.95); border:1.5px solid #f59e0b; border-radius:16px; padding:10px 14px; box-shadow:0 0 25px rgba(245,158,11,0.4); backdrop-filter:blur(12px); color:#fbbf24; font-size:0.82rem; font-weight:800; align-items:center; justify-content:space-between; gap:10px;">
@@ -10140,8 +10431,16 @@ try {
             const curTheme = THEMES_7.find(t => t.key === themeKey) || THEMES_7[5];
             const iconEl = document.getElementById('current-theme-icon');
             const dotEl = document.getElementById('current-theme-dot');
-            if (iconEl && curTheme) iconEl.className = 'fa-solid ' + curTheme.icon;
-            if (dotEl && curTheme) dotEl.style.background = curTheme.dot;
+            if (iconEl && curTheme) {
+                // Keep the universally recognized theme palette icon (شعار السمات المعروف)
+                iconEl.className = 'fa-solid fa-palette';
+                iconEl.style.color = curTheme.dot;
+                iconEl.style.filter = 'drop-shadow(0 0 6px ' + curTheme.dot + ')';
+            }
+            if (dotEl && curTheme) {
+                dotEl.style.background = curTheme.dot;
+                dotEl.style.boxShadow = '0 0 8px ' + curTheme.dot;
+            }
         }
 
         function initTheme() {
@@ -10729,32 +11028,72 @@ try {
             }, 600);
         };
 
+        window.triggerTileHaptic = function() {
+            if (typeof triggerHaptic === 'function') {
+                triggerHaptic('light');
+            } else if (navigator.vibrate) {
+                try { navigator.vibrate(8); } catch(e){}
+            }
+        };
+
+        window.syncMagaieesNetUI = function(online) {
+            const wrap = document.getElementById('header-net-indicator');
+            const dot = document.getElementById('header-net-dot');
+            const brandName = document.getElementById('header-brand-name');
+            const brandAvatar = document.getElementById('header-brand-avatar');
+
+            if (wrap) {
+                wrap.classList.toggle('online', online);
+                wrap.classList.toggle('offline', !online);
+                wrap.title = online 
+                    ? 'مقاييس ERP: الإنترنت متصل 🟢 (اضغط لاختبار الاتصال)' 
+                    : 'مقاييس ERP: الإنترنت منقطع 🔴 (اضغط لاختبار الاتصال)';
+            }
+            if (dot) {
+                dot.className = online ? 'net-status-dot online' : 'net-status-dot offline';
+            }
+            if (brandName) {
+                brandName.style.color = online ? '#10b981' : '#ef4444';
+                brandName.style.textShadow = online 
+                    ? '0 0 10px rgba(16,185,129,0.75)' 
+                    : '0 0 12px rgba(239,68,68,0.85)';
+            }
+            if (brandAvatar) {
+                brandAvatar.style.background = online 
+                    ? 'linear-gradient(135deg, #34d399, #10b981)' 
+                    : 'linear-gradient(135deg, #f87171, #ef4444)';
+                brandAvatar.style.boxShadow = online 
+                    ? '0 0 10px rgba(16,185,129,0.7)' 
+                    : '0 0 12px rgba(239,68,68,0.8)';
+            }
+        };
+
         window.isSimulatedNetOffline = false;
         window.checkNetworkAndNotify = function() {
             window.isSimulatedNetOffline = !window.isSimulatedNetOffline;
+            if (window.OfflineOutboxEngine) {
+                window.OfflineOutboxEngine.isSimulatedOffline = window.isSimulatedNetOffline;
+            }
             const online = !window.isSimulatedNetOffline && navigator.onLine;
-            if (typeof triggerHaptic === 'function') triggerHaptic('light');
-
-            const dot = document.getElementById('header-net-dot');
-            const wrap = document.getElementById('header-net-indicator');
-            if (dot) dot.className = online ? 'net-status-dot online' : 'net-status-dot offline';
-            if (wrap) {
-                wrap.className = online ? 'header-net-status-mini online' : 'header-net-status-mini offline';
-                wrap.title = online ? 'حالة الإنترنت: متصل (Online)' : 'حالة الإنترنت: غير متصل (Offline)';
+            window.triggerTileHaptic();
+            window.syncMagaieesNetUI(online);
+            if (window.OfflineOutboxEngine) {
+                window.OfflineOutboxEngine.renderUI();
             }
 
             if (online) {
                 if (window.showModernToast) {
-                    window.showModernToast('🟢 النت شغال ومتصل بالكامل بالسيرفر المركزي', 'success', 2500);
+                    window.showModernToast('🟢 مقاييس: النت شغال ومتصل بالسيرفر المركزي', 'success', 2500);
                 }
             } else {
                 if (window.showModernToast) {
-                    window.showModernToast('🔴 انقطع النت — تحول النظام للعمل دون اتصال (Offline)', 'warning', 3000);
+                    window.showModernToast('🔴 مقاييس: انقطع النت — تحول النظام للعمل دون اتصال (Offline)', 'warning', 3000);
                 }
             }
         };
 
         window.triggerNativeAppInstall = function() {
+            window.triggerTileHaptic();
             if (window.deferredPrompt) {
                 window.deferredPrompt.prompt();
                 window.deferredPrompt.userChoice.then(() => { window.deferredPrompt = null; });
@@ -10770,7 +11109,17 @@ try {
         };
 
         window.triggerMobileLogout = function() {
-            if (confirm('هل ترغب بتسجيل الخروج من تطبيق مقاييس والعودة لشاشة الدخول؟')) {
+            window.triggerTileHaptic();
+            const pendingCount = (window.OfflineOutboxEngine && Array.isArray(window.OfflineOutboxEngine.queue))
+                ? window.OfflineOutboxEngine.queue.filter(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase())).length
+                : 0;
+
+            let promptMsg = 'هل ترغب بتسجيل الخروج من تطبيق مقاييس والعودة لشاشة الدخول؟';
+            if (pendingCount > 0) {
+                promptMsg = `⚠️ تنبيه أمني هام:\nلديك (${pendingCount}) حركات وسندات محاسبية محفوظة محلياً بانتظار المزامنة مع السيرفر!\n\nتسجيل الخروج الآن قد يعطل مزامنتها التلقائية.\nهل ترغب بالخروج على أية حال؟`;
+            }
+
+            if (confirm(promptMsg)) {
                 localStorage.removeItem('authToken');
                 localStorage.removeItem('user');
                 sessionStorage.clear();
@@ -10782,13 +11131,7 @@ try {
         // Window Online / Offline Live Listeners
         window.addEventListener('online', () => {
             window.isSimulatedNetOffline = false;
-            const dot = document.getElementById('header-net-dot');
-            const wrap = document.getElementById('header-net-indicator');
-            if (dot) dot.className = 'net-status-dot online';
-            if (wrap) {
-                wrap.className = 'header-net-status-mini online';
-                wrap.title = 'حالة الإنترنت: متصل (Online)';
-            }
+            window.syncMagaieesNetUI(true);
             if (window.showModernToast) {
                 window.showModernToast('🟢 عاد اتصال الإنترنت! جاري المزامنة التلقائية...', 'success', 3000);
             }
@@ -10799,17 +11142,19 @@ try {
 
         window.addEventListener('offline', () => {
             window.isSimulatedNetOffline = true;
-            const dot = document.getElementById('header-net-dot');
-            const wrap = document.getElementById('header-net-indicator');
-            if (dot) dot.className = 'net-status-dot offline';
-            if (wrap) {
-                wrap.className = 'header-net-status-mini offline';
-                wrap.title = 'انقطع اتصال الإنترنت (Offline) — الحركات تحفظ محلياً';
-            }
+            window.syncMagaieesNetUI(false);
             if (window.showModernToast) {
                 window.showModernToast('🔴 انقطع الإنترنت! تحول النظام تلقائياً للوضع المحلي المستقل', 'warning', 3500);
             }
         });
+
+        // Initialize Magaiees Network UI immediately
+        document.addEventListener('DOMContentLoaded', () => {
+            window.syncMagaieesNetUI(navigator.onLine);
+        });
+        setTimeout(() => {
+            window.syncMagaieesNetUI(navigator.onLine);
+        }, 100);
 
         function refreshMobileData(showToastAnim = false) {
             const icon = document.getElementById('refresh-icon');
@@ -20801,25 +21146,13 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
 
                 // 2. Row 1 Live Internet Status Dot (نقطة خضراء متصل / نقطة حمراء منقطع)
-                const headerNetDot = document.getElementById('header-net-dot');
-                const headerNetLabel = document.getElementById('header-net-label');
-                const headerNetWrap = document.getElementById('header-net-indicator');
-                if (headerNetDot) {
-                    if (online) {
-                        headerNetDot.className = 'net-status-dot online';
-                        if (headerNetLabel) headerNetLabel.innerText = this.isSyncing ? 'مزامنة' : 'متصل';
-                        if (headerNetWrap) {
-                            headerNetWrap.className = 'header-net-status-wrap online';
-                            headerNetWrap.title = this.isSyncing ? 'جاري المزامنة مع السيرفر ⚡' : 'الإنترنت متصل (Online)';
-                        }
-                    } else {
-                        headerNetDot.className = 'net-status-dot offline';
-                        if (headerNetLabel) headerNetLabel.innerText = 'منقطع';
-                        if (headerNetWrap) {
-                            headerNetWrap.className = 'header-net-status-wrap offline';
-                            headerNetWrap.title = 'انقطع الإنترنت (Offline) — الحركات تحفظ محلياً';
-                        }
-                    }
+                if (typeof window.syncMagaieesNetUI === 'function') {
+                    window.syncMagaieesNetUI(online);
+                } else {
+                    const headerNetDot = document.getElementById('header-net-dot');
+                    const headerNetWrap = document.getElementById('header-net-indicator');
+                    if (headerNetDot) headerNetDot.className = online ? 'net-status-dot online' : 'net-status-dot offline';
+                    if (headerNetWrap) headerNetWrap.className = online ? 'flagship-top-tile flagship-brand-tile online' : 'flagship-top-tile flagship-brand-tile offline';
                 }
 
                 // Bottom Docked connection indicator (if present)
