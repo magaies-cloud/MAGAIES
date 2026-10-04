@@ -16,7 +16,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if(typeof tailwind==="undefined"){document.write('<script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"><\/script>');}</script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <script src="js/pwa-manager.js?v=2026_10_04_v28_contrast_bottom_nav" defer></script>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <script src="js/pwa-manager.js?v=2026_10_05_v35_21themes" defer></script>
   <script>
   (function enforceAuthGate() {
     var token = localStorage.getItem('authToken');
@@ -564,6 +567,8 @@
     }
 
     /* Light Themes Overrides for Flagship Top Bar & Row 2 */
+    html[data-theme="warm-alabaster"] .row2-glass-tile,
+    html[data-theme="pure-platinum"] .row2-glass-tile,
     html[data-theme="beige"] .row2-glass-tile,
     html[data-theme="ivory"] .row2-glass-tile,
     html[data-theme="offwhite"] .row2-glass-tile,
@@ -575,6 +580,8 @@
     }
 
     /* Light Themes Overrides for Flagship Top Bar */
+    html[data-theme="warm-alabaster"] .flagship-tile,
+    html[data-theme="pure-platinum"] .flagship-tile,
     html[data-theme="beige"] .flagship-tile,
     html[data-theme="ivory"] .flagship-tile,
     html[data-theme="offwhite"] .flagship-tile,
@@ -584,6 +591,8 @@
       background: rgba(255, 255, 255, 0.88) !important;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
     }
+    html[data-theme="warm-alabaster"] .flagship-brand-badge.is-online,
+    html[data-theme="pure-platinum"] .flagship-brand-badge.is-online,
     html[data-theme="beige"] .flagship-brand-badge.is-online,
     html[data-theme="ivory"] .flagship-brand-badge.is-online,
     html[data-theme="offwhite"] .flagship-brand-badge.is-online,
@@ -592,6 +601,8 @@
     html[data-theme="nordic-paper"] .flagship-brand-badge.is-online {
       border-color: #059669 !important;
     }
+    html[data-theme="warm-alabaster"] .flagship-brand-badge.is-online .brand-text,
+    html[data-theme="pure-platinum"] .flagship-brand-badge.is-online .brand-text,
     html[data-theme="beige"] .flagship-brand-badge.is-online .brand-text,
     html[data-theme="ivory"] .flagship-brand-badge.is-online .brand-text,
     html[data-theme="offwhite"] .flagship-brand-badge.is-online .brand-text,
@@ -824,6 +835,72 @@
        17 SCIENTIFIC ERGONOMIC THEMES (سيف السمات والراحة البصرية)
        ═════════════════════════════════════════════════════════════ */
     
+    /* ─── GROUP 0: THE 4 RECOMMENDED SIGNATURE THEMES (الموصى بها - قمة الرقي) ─── */
+
+    /* 0.1 WARM ALABASTER (العاجي الدافئ المريح - موصى بها) */
+    html[data-theme="warm-alabaster"] body { background: #f4efe6 !important; color: #2b2825 !important; }
+    html[data-theme="warm-alabaster"] .mobile-app-wrapper { background: #fbf9f5 !important; border-color: #ede8df !important; color: #2b2825 !important; }
+    html[data-theme="warm-alabaster"] header,
+    html[data-theme="warm-alabaster"] nav.glass-dock { background: rgba(251, 249, 245, 0.98) !important; border-color: #ede8df !important; }
+    html[data-theme="warm-alabaster"] .glass-base,
+    html[data-theme="warm-alabaster"] .glass-card-interactive,
+    html[data-theme="warm-alabaster"] .bg-slate-900,
+    html[data-theme="warm-alabaster"] .bg-slate-950 { background: #ffffff !important; border-color: #ede8df !important; color: #2b2825 !important; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05) !important; }
+    html[data-theme="warm-alabaster"] .bg-slate-800 { background: #f5f0e6 !important; border-color: #e0d7c7 !important; color: #2b2825 !important; }
+    html[data-theme="warm-alabaster"] .text-slate-100,
+    html[data-theme="warm-alabaster"] .text-slate-200,
+    html[data-theme="warm-alabaster"] .text-slate-300 { color: #2b2825 !important; font-weight: 700; }
+    html[data-theme="warm-alabaster"] .text-slate-400 { color: #6e6862 !important; }
+    html[data-theme="warm-alabaster"] .text-slate-500 { color: #8c847b !important; }
+
+    /* 0.2 PURE PLATINUM (الفضي النقي العصري - موصى بها) */
+    html[data-theme="pure-platinum"] body { background: #eceff1 !important; color: #111827 !important; }
+    html[data-theme="pure-platinum"] .mobile-app-wrapper { background: #f8f9fa !important; border-color: #e5e7eb !important; color: #111827 !important; }
+    html[data-theme="pure-platinum"] header,
+    html[data-theme="pure-platinum"] nav.glass-dock { background: rgba(248, 249, 250, 0.98) !important; border-color: #e5e7eb !important; }
+    html[data-theme="pure-platinum"] .glass-base,
+    html[data-theme="pure-platinum"] .glass-card-interactive,
+    html[data-theme="pure-platinum"] .bg-slate-900,
+    html[data-theme="pure-platinum"] .bg-slate-950 { background: #ffffff !important; border-color: #e5e7eb !important; color: #111827 !important; box-shadow: 0 4px 15px rgba(17, 24, 39, 0.05) !important; }
+    html[data-theme="pure-platinum"] .bg-slate-800 { background: #eef1f4 !important; border-color: #d1d5db !important; color: #111827 !important; }
+    html[data-theme="pure-platinum"] .text-slate-100,
+    html[data-theme="pure-platinum"] .text-slate-200,
+    html[data-theme="pure-platinum"] .text-slate-300 { color: #111827 !important; font-weight: 700; }
+    html[data-theme="pure-platinum"] .text-slate-400 { color: #4b5563 !important; }
+    html[data-theme="pure-platinum"] .text-slate-500 { color: #6b7280 !important; }
+
+    /* 0.3 MIDNIGHT EXECUTIVE (كحلي منتصف الليل الملكي - موصى بها) */
+    html[data-theme="midnight-executive"] body { background: #06090e !important; color: #f1f5f9 !important; }
+    html[data-theme="midnight-executive"] .mobile-app-wrapper { background: #0b0f17 !important; border-color: #1e293b !important; color: #f1f5f9 !important; }
+    html[data-theme="midnight-executive"] header,
+    html[data-theme="midnight-executive"] nav.glass-dock { background: rgba(11, 15, 23, 0.96) !important; border-color: #1e293b !important; }
+    html[data-theme="midnight-executive"] .glass-base,
+    html[data-theme="midnight-executive"] .glass-card-interactive,
+    html[data-theme="midnight-executive"] .bg-slate-900,
+    html[data-theme="midnight-executive"] .bg-slate-950 { background: #131b2a !important; border-color: #1e293b !important; color: #f1f5f9 !important; }
+    html[data-theme="midnight-executive"] .bg-slate-800 { background: #1e293b !important; border-color: #334155 !important; color: #f8fafc !important; }
+    html[data-theme="midnight-executive"] .text-slate-100,
+    html[data-theme="midnight-executive"] .text-slate-200,
+    html[data-theme="midnight-executive"] .text-slate-300 { color: #f1f5f9 !important; }
+    html[data-theme="midnight-executive"] .text-slate-400 { color: #94a3b8 !important; }
+    html[data-theme="midnight-executive"] .text-slate-500 { color: #64748b !important; }
+
+    /* 0.4 OBSIDIAN CHARCOAL (حجر السج الجرافيتي المطفأ - موصى بها) */
+    html[data-theme="obsidian-charcoal"] body { background: #0a0a0b !important; color: #ededed !important; }
+    html[data-theme="obsidian-charcoal"] .mobile-app-wrapper { background: #121214 !important; border-color: #2c2c30 !important; color: #ededed !important; }
+    html[data-theme="obsidian-charcoal"] header,
+    html[data-theme="obsidian-charcoal"] nav.glass-dock { background: rgba(18, 18, 20, 0.96) !important; border-color: #2c2c30 !important; }
+    html[data-theme="obsidian-charcoal"] .glass-base,
+    html[data-theme="obsidian-charcoal"] .glass-card-interactive,
+    html[data-theme="obsidian-charcoal"] .bg-slate-900,
+    html[data-theme="obsidian-charcoal"] .bg-slate-950 { background: #1c1c1f !important; border-color: #2c2c30 !important; color: #ededed !important; }
+    html[data-theme="obsidian-charcoal"] .bg-slate-800 { background: #26262a !important; border-color: #3f3f46 !important; color: #f4f4f5 !important; }
+    html[data-theme="obsidian-charcoal"] .text-slate-100,
+    html[data-theme="obsidian-charcoal"] .text-slate-200,
+    html[data-theme="obsidian-charcoal"] .text-slate-300 { color: #ededed !important; }
+    html[data-theme="obsidian-charcoal"] .text-slate-400 { color: #a1a1aa !important; }
+    html[data-theme="obsidian-charcoal"] .text-slate-500 { color: #71717a !important; }
+
     /* ─── GROUP 1: LIGHT, BEIGE, IVORY & OFF-WHITE THEMES ─── */
 
     /* 1. WARM BEIGE (البيج الدافئ المريح) */
@@ -1867,7 +1944,7 @@
         </button>
 
         <!-- 2. أيقونة السمات بشعار السمات المعروف (لوحة ألوان الرسام الفنان العالمية 🎨) -->
-        <button id="btnThemePalette" onclick="openThemePaletteDrawer(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-theme" title="السمات والراحة البصرية (8 سمات علمية مريحة للعين)">
+        <button id="btnThemePalette" onclick="openThemePaletteDrawer(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-theme" title="السمات والراحة البصرية (21 سمة علمية مريحة للعين)">
           <svg class="w-5 h-5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12 2C6.5 2 2 6.5 2 12c0 3.6 2 5.5 4 5.5 1 0 1.5-.5 2-1 .5-.5 1-1 2-1h1.5c4.1 0 7.5-3.4 7.5-7.5C19 4.7 15.8 2 12 2z" fill="rgba(245,158,11,0.15)"/>
             <circle cx="7.5" cy="8" r="1.5" fill="#f43f5e" stroke="none"/>
@@ -1876,7 +1953,7 @@
             <circle cx="9" cy="12" r="1.5" fill="#fbbf24" stroke="none"/>
             <circle cx="15" cy="14" r="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/>
           </svg>
-          <span id="activeThemeBadge" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-1.5 !min-w-[21px] !px-1 shadow-md">17</span>
+          <span id="activeThemeBadge" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-1.5 !min-w-[21px] !px-1 shadow-md">21</span>
         </button>
 
         <!-- 3. أيقونة البحث الذكي الشامل (تم رفعها للصف الأول) -->
@@ -2124,6 +2201,55 @@
       <div id="pageDashboard" class="space-y-3">
 
         <!-- ======================================================== -->
+        <!-- 🌟 شريط السمات الأربع الموصى بها (قمة الرقي وبساطة الألوان - 21 سمة معتمدة) -->
+        <!-- ======================================================== -->
+        <div id="recommendedThemesBanner" class="glass-base p-2.5 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-slate-900/90 via-slate-900/90 to-amber-950/30 space-y-2 shadow-lg">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5">
+              <span class="text-base">🎨</span>
+              <div>
+                <span class="text-xs font-black text-amber-300">السمات الموصى بها (قمة الرقي)</span>
+                <span class="text-[9px] text-slate-400 block">4 سمات نقية فائقة الراحة للعين • مصفوفة 21 سمة علمية</span>
+              </div>
+            </div>
+            <button onclick="openThemePaletteDrawer(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="px-2 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-[10px] font-black flex items-center gap-1 transition active:scale-95 cursor-pointer">
+              <span>تصفح الكل</span>
+              <span class="bg-amber-400 text-slate-950 px-1 rounded-full text-[9px] font-bold">21</span>
+            </button>
+          </div>
+          <!-- الأزرار الأربعة للتبديل الفوري بلمسة واحدة -->
+          <div class="grid grid-cols-2 gap-1.5 pt-0.5">
+            <button onclick="applyTheme('warm-alabaster')" class="p-2 rounded-xl bg-[#FBF9F5] border border-[#EDE8DF] text-right flex items-center justify-between hover:scale-[1.02] active:scale-95 transition shadow-sm group cursor-pointer">
+              <div>
+                <div class="text-[11px] font-black text-[#2B2825] flex items-center gap-1">📜 العاجي الدافئ</div>
+                <div class="text-[8.5px] text-[#7C766F] font-bold">فاتح • مهدئ للعين</div>
+              </div>
+              <span class="w-3 h-3 rounded-full bg-[#EDE8DF] border border-[#2B2825]/40 shrink-0"></span>
+            </button>
+            <button onclick="applyTheme('pure-platinum')" class="p-2 rounded-xl bg-[#F8F9FA] border border-[#E5E7EB] text-right flex items-center justify-between hover:scale-[1.02] active:scale-95 transition shadow-sm group cursor-pointer">
+              <div>
+                <div class="text-[11px] font-black text-[#111827] flex items-center gap-1">❄️ الفضي النقي</div>
+                <div class="text-[8.5px] text-[#6B7280] font-bold">فاتح • منصات عالمية</div>
+              </div>
+              <span class="w-3 h-3 rounded-full bg-[#FFFFFF] border border-[#111827]/40 shrink-0"></span>
+            </button>
+            <button onclick="applyTheme('midnight-executive')" class="p-2 rounded-xl bg-[#0B0F17] border border-[#1E293B] text-right flex items-center justify-between hover:scale-[1.02] active:scale-95 transition shadow-sm group cursor-pointer">
+              <div>
+                <div class="text-[11px] font-black text-[#F1F5F9] flex items-center gap-1">🌌 كحلي منتصف الليل</div>
+                <div class="text-[8.5px] text-cyan-300 font-bold">داكن • أمان وتدقيق</div>
+              </div>
+              <span class="w-3 h-3 rounded-full bg-[#38BDF8] shrink-0"></span>
+            </button>
+            <button onclick="applyTheme('obsidian-charcoal')" class="p-2 rounded-xl bg-[#121214] border border-[#2C2C30] text-right flex items-center justify-between hover:scale-[1.02] active:scale-95 transition shadow-sm group cursor-pointer">
+              <div>
+                <div class="text-[11px] font-black text-[#EDEDED] flex items-center gap-1">🪨 حجر السج</div>
+                <div class="text-[8.5px] text-zinc-400 font-bold">داكن • OLED فخم</div>
+              </div>
+              <span class="w-3 h-3 rounded-full bg-[#E4E4E7] shrink-0"></span>
+            </button>
+          </div>
+        </div>
+
         <!-- ======================================================== -->
         <!-- منطقة العمليات المباشرة (DIRECT OPERATIONS COMMAND TILES - 13 عملية متكاملة) -->
         <!-- ======================================================== -->
@@ -4476,7 +4602,7 @@
           <div>
             <h3 class="text-sm font-black text-slate-100 flex items-center gap-1.5">
               <span>سيف السمات والراحة البصرية للعين</span>
-              <span class="text-[9px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.2 rounded-full border border-amber-500/30">17 سمة معتمدة</span>
+              <span class="text-[9px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.2 rounded-full border border-amber-500/30">21 سمة معتمدة</span>
             </h3>
             <p class="text-[10px] text-slate-400">مصفوفة ألوان نفسية ومحاسبية لمنع إجهاد العين وتداخل الحروف والأرقام</p>
           </div>
@@ -4491,26 +4617,98 @@
 
       <!-- Category Filter Pills -->
       <div class="flex gap-1 overflow-x-auto py-0.5 no-scrollbar text-xs font-bold">
-        <button onclick="filterThemeCategory('all')" id="btnTcAll" class="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5">
+        <button onclick="filterThemeCategory('recommended')" id="btnTcRecommended" class="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5">
+          <span>🌟 الموصى بها</span>
+          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">4</span>
+        </button>
+        <button onclick="filterThemeCategory('all')" id="btnTcAll" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5">
           <span>الكل</span>
-          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">17</span>
+          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">21</span>
         </button>
         <button onclick="filterThemeCategory('light')" id="btnTcLight" class="px-2.5 py-1 rounded-xl bg-slate-800 text-amber-200 hover:text-white shrink-0 border border-amber-500/30 flex items-center gap-1.5">
           <span>☀️ الفاتحة والعاجي</span>
-          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>
+          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">8</span>
         </button>
         <button onclick="filterThemeCategory('blue')" id="btnTcBlue" class="px-2.5 py-1 rounded-xl bg-slate-800 text-cyan-200 hover:text-white shrink-0 border border-cyan-500/30 flex items-center gap-1.5">
           <span>🌊 درجات الأزرق</span>
-          <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">5</span>
+          <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>
         </button>
         <button onclick="filterThemeCategory('dark')" id="btnTcDark" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5">
           <span>🌙 الداكنة والملكية</span>
-          <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>
+          <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">8</span>
         </button>
       </div>
 
-      <!-- Themes Grid (All 17 Themes) -->
+      <!-- Themes Grid (All 21 Themes) -->
       <div id="themeCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
+        <!-- 0.1 WARM ALABASTER (العاجي الدافئ - موصى بها) -->
+        <button onclick="applyTheme('warm-alabaster')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#EDE8DF] bg-[#FBF9F5] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#2B2825] flex items-center gap-1.5">
+              <span>📜 العاجي الدافئ</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-800 text-[9px] font-bold">🌟 موصى بها</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#FBF9F5] border border-[#EDE8DF]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border border-[#EDE8DF]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#2B2825]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#7C766F] leading-tight">مستوحى من ورق الدفاتر الفاخرة، يمتص الوهج بنسبة 85% لراحة بصرية وتركيز مطلق.</p>
+          <span class="text-[9px] text-[#3D3833] font-black block pt-0.5">Warm Alabaster • قمة الرقي • فاتح كلاسيكي</span>
+        </button>
+
+        <!-- 0.2 PURE PLATINUM (الفضي النقي - موصى بها) -->
+        <button onclick="applyTheme('pure-platinum')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#E5E7EB] bg-[#F8F9FA] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#111827] flex items-center gap-1.5">
+              <span>❄️ الفضي النقي</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-800 text-[9px] font-bold">🌟 موصى بها</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#F8F9FA] border border-[#E5E7EB]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border border-[#E5E7EB]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#111827]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#6B7280] leading-tight">طراز المنصات المصرفية العالمية (Stripe & Mercury)، صفاء تحليلي ونقاء بدون أي تشتيت.</p>
+          <span class="text-[9px] text-[#0F172A] font-black block pt-0.5">Pure Platinum • قمة الرقي • فاتح عصري</span>
+        </button>
+
+        <!-- 0.3 MIDNIGHT EXECUTIVE (كحلي منتصف الليل - موصى بها) -->
+        <button onclick="applyTheme('midnight-executive')" class="theme-card tc-recommended tc-blue tc-dark p-3 rounded-2xl border-2 border-[#1E293B] bg-[#0B0F17] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#F1F5F9] flex items-center gap-1.5">
+              <span>🌌 كحلي منتصف الليل</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[9px] font-bold">🌟 موصى بها</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0B0F17] border border-[#1E293B]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#131B2A]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#38BDF8]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#94A3B8] leading-tight">كحلي ليلي سحيق يبعث الأمان المالي والهدوء العصبي، يمنع إجهاد العين في العمل الليلي.</p>
+          <span class="text-[9px] text-[#38BDF8] font-black block pt-0.5">Midnight Executive • قمة الرقي • داكن ملكي</span>
+        </button>
+
+        <!-- 0.4 OBSIDIAN CHARCOAL (حجر السج الجرافيتي - موصى بها) -->
+        <button onclick="applyTheme('obsidian-charcoal')" class="theme-card tc-recommended tc-dark p-3 rounded-2xl border-2 border-[#2C2C30] bg-[#121214] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#EDEDED] flex items-center gap-1.5">
+              <span>🪨 حجر السج الجرافيتي</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[9px] font-bold">🌟 موصى بها</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#121214] border border-[#2C2C30]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#1C1C1F]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#EDEDED]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#A1A1AA] leading-tight">فحم جرافيتي مطفأ وناعم مستوحى من الساعات السويسرية، راحة مطلقة لشاشات OLED.</p>
+          <span class="text-[9px] text-[#E4E4E7] font-black block pt-0.5">Obsidian Charcoal • قمة الرقي • داكن مريح</span>
+        </button>
 
         <!-- 1. BEIGE (البيج الدافئ المريح) -->
         <button onclick="applyTheme('beige')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#d6c5b0] bg-[#f5ebe0] text-right space-y-1 transition active:scale-95 group relative shadow">
@@ -10265,9 +10463,15 @@
 
 
         // ========================================================
-    // 17 SCIENTIFIC ERGONOMIC THEMES ENGINE (سيف السمات والراحة)
+    // 21 SCIENTIFIC ERGONOMIC THEMES ENGINE (سيف السمات والراحة)
     // ========================================================
     const THEMES_PALETTE_CONFIG = {
+      // 🌟 The 4 Recommended Signature Themes (الموصى بها - قمة الرقي)
+      'warm-alabaster': { name: 'العاجي الدافئ', icon: '📜', category: 'recommended', desc: 'مستوحى من ورق الدفاتر الفاخرة لراحة ذهنية مطلقة' },
+      'pure-platinum': { name: 'الفضي النقي', icon: '❄️', category: 'recommended', desc: 'طراز المنصات العالمية بنقاء تحليلي بدون أي تشتيت' },
+      'midnight-executive': { name: 'كحلي منتصف الليل', icon: '🌌', category: 'recommended', desc: 'كحلي سحيق يبعث الأمان المالي ويخفض ضغط العين' },
+      'obsidian-charcoal': { name: 'حجر السج الجرافيتي', icon: '🪨', category: 'recommended', desc: 'فحم جرافيتي مطفأ فخامة صامتة مريح لشاشات OLED' },
+
       // Light, Beige, Ivory & Off-White
       'beige': { name: 'البيج الدافئ المريح', icon: '🌾', category: 'light', desc: 'درجة بيج رملي طبيعي دافئ يمتص الوهج البصري' },
       'ivory': { name: 'العاجي الملكي الكلاسيكي', icon: '🥛', category: 'light', desc: 'نعومة اللون العاجي الكريمي الهادئ تريح البؤبؤ' },
@@ -10292,10 +10496,10 @@
       'sunlight-titanium': { name: 'التيتانيوم الشمسي فائق التباين', icon: '☀️', category: 'dark', desc: 'معيار WCAG AAA للعمل الميداني تحت شمس الظهيرة' }
     };
 
-    let currentActiveTheme = localStorage.getItem('magaies_active_theme') || 'midnight';
+    let currentActiveTheme = localStorage.getItem('magaies_active_theme') || 'warm-alabaster';
 
     function applyTheme(themeKey, showToast = true) {
-      if (!THEMES_PALETTE_CONFIG[themeKey]) themeKey = 'midnight';
+      if (!THEMES_PALETTE_CONFIG[themeKey]) themeKey = 'warm-alabaster';
       currentActiveTheme = themeKey;
       localStorage.setItem('magaies_active_theme', themeKey);
 
@@ -10317,9 +10521,9 @@
     }
 
     function openThemePaletteDrawer() {
-      AudioEngine.play('numpad');
-      triggerHapticPulse(30);
-      filterThemeCategory('all');
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');
+      if (typeof triggerHapticPulse === 'function') triggerHapticPulse(30);
+      filterThemeCategory('recommended');
       openModal('modalThemePaletteDrawer');
     }
 
@@ -10328,12 +10532,13 @@
     }
 
     function filterThemeCategory(cat) {
+      const btnRecommended = document.getElementById('btnTcRecommended');
       const btnAll = document.getElementById('btnTcAll');
       const btnLight = document.getElementById('btnTcLight');
       const btnBlue = document.getElementById('btnTcBlue');
       const btnDark = document.getElementById('btnTcDark');
 
-      const btns = { 'all': btnAll, 'light': btnLight, 'blue': btnBlue, 'dark': btnDark };
+      const btns = { 'recommended': btnRecommended, 'all': btnAll, 'light': btnLight, 'blue': btnBlue, 'dark': btnDark };
       Object.entries(btns).forEach(([k, btn]) => {
         if (!btn) return;
         if (k === cat) {
@@ -10356,8 +10561,8 @@
         }
       });
 
-      AudioEngine.play('numpad');
-      triggerHapticPulse(25);
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');
+      if (typeof triggerHapticPulse === 'function') triggerHapticPulse(25);
     }
 
     // Apply saved theme immediately on startup without blocking toast
@@ -10886,6 +11091,10 @@
       attachNumpadTriggers();
       initAlertRulesUI();
       initFlagshipTopBarEngine();
+
+      if (window.location.search.includes('open_themes=1') || window.location.search.includes('themes=1') || window.location.hash === '#themes') {
+        setTimeout(openThemePaletteDrawer, 300);
+      }
     });
 
 </script>
