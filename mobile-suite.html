@@ -308,14 +308,93 @@
 
     
     /* ═════════════════════════════════════════════════════════════
-       8 SCIENTIFIC ERGONOMIC THEMES (سيف السمات والراحة البصرية)
+       17 SCIENTIFIC ERGONOMIC THEMES (سيف السمات والراحة البصرية)
        ═════════════════════════════════════════════════════════════ */
-    /* 1. OLED MIDNIGHT DARK (الليل الملكي الداكن) */
-    html[data-theme="midnight"] body { background: #050811 !important; color: #f8fafc !important; }
-    html[data-theme="midnight"] .mobile-app-wrapper { background: #0b1120 !important; border-color: #1e293b !important; }
+    
+    /* ─── GROUP 1: LIGHT, BEIGE, IVORY & OFF-WHITE THEMES ─── */
 
-    /* 2. NORDIC PAPER LIGHT (الورقي النوردي المريح) */
-    html[data-theme="nordic-paper"] body { background: #e2e8f0 !important; color: #0f172a !important; }
+    /* 1. WARM BEIGE (البيج الدافئ المريح) */
+    html[data-theme="beige"] body { background: #eadeca !important; color: #23190e !important; }
+    html[data-theme="beige"] .mobile-app-wrapper { background: #f5ebe0 !important; border-color: #d6c5b0 !important; color: #23190e !important; }
+    html[data-theme="beige"] header,
+    html[data-theme="beige"] nav.glass-dock { background: rgba(245, 235, 224, 0.98) !important; border-color: #d6c5b0 !important; }
+    html[data-theme="beige"] .glass-base,
+    html[data-theme="beige"] .glass-card-interactive,
+    html[data-theme="beige"] .bg-slate-900,
+    html[data-theme="beige"] .bg-slate-950 { background: #fffcf7 !important; border-color: #e2d2bd !important; color: #23190e !important; box-shadow: 0 4px 18px rgba(180, 83, 9, 0.05) !important; }
+    html[data-theme="beige"] .bg-slate-800 { background: #eddcd0 !important; border-color: #c9b49e !important; color: #3b2814 !important; }
+    html[data-theme="beige"] .text-slate-100,
+    html[data-theme="beige"] .text-slate-200,
+    html[data-theme="beige"] .text-slate-300 { color: #23190e !important; font-weight: 700; }
+    html[data-theme="beige"] .text-slate-400 { color: #5a4632 !important; }
+    html[data-theme="beige"] .text-slate-500 { color: #78624a !important; }
+
+    /* 2. ROYAL IVORY (العاجي الملكي الهادئ) */
+    html[data-theme="ivory"] body { background: #eee9dc !important; color: #1c1813 !important; }
+    html[data-theme="ivory"] .mobile-app-wrapper { background: #faf7f0 !important; border-color: #ded6c3 !important; color: #1c1813 !important; }
+    html[data-theme="ivory"] header,
+    html[data-theme="ivory"] nav.glass-dock { background: rgba(250, 247, 240, 0.98) !important; border-color: #ded6c3 !important; }
+    html[data-theme="ivory"] .glass-base,
+    html[data-theme="ivory"] .glass-card-interactive,
+    html[data-theme="ivory"] .bg-slate-900,
+    html[data-theme="ivory"] .bg-slate-950 { background: #ffffff !important; border-color: #e6dfcd !important; color: #1c1813 !important; box-shadow: 0 4px 18px rgba(0,0,0,0.05) !important; }
+    html[data-theme="ivory"] .bg-slate-800 { background: #f0ebd8 !important; border-color: #d1c6ab !important; color: #2b231a !important; }
+    html[data-theme="ivory"] .text-slate-100,
+    html[data-theme="ivory"] .text-slate-200,
+    html[data-theme="ivory"] .text-slate-300 { color: #1c1813 !important; font-weight: 700; }
+    html[data-theme="ivory"] .text-slate-400 { color: #52473a !important; }
+    html[data-theme="ivory"] .text-slate-500 { color: #706353 !important; }
+
+    /* 3. MATTE OFF-WHITE (الأوف وايت الحديث المطفأ) */
+    html[data-theme="offwhite"] body { background: #e5e7eb !important; color: #111827 !important; }
+    html[data-theme="offwhite"] .mobile-app-wrapper { background: #f9fafb !important; border-color: #d1d5db !important; color: #111827 !important; }
+    html[data-theme="offwhite"] header,
+    html[data-theme="offwhite"] nav.glass-dock { background: rgba(249, 250, 251, 0.98) !important; border-color: #d1d5db !important; }
+    html[data-theme="offwhite"] .glass-base,
+    html[data-theme="offwhite"] .glass-card-interactive,
+    html[data-theme="offwhite"] .bg-slate-900,
+    html[data-theme="offwhite"] .bg-slate-950 { background: #ffffff !important; border-color: #e5e7eb !important; color: #111827 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.06) !important; }
+    html[data-theme="offwhite"] .bg-slate-800 { background: #f3f4f6 !important; border-color: #d1d5db !important; color: #1f2937 !important; }
+    html[data-theme="offwhite"] .text-slate-100,
+    html[data-theme="offwhite"] .text-slate-200,
+    html[data-theme="offwhite"] .text-slate-300 { color: #111827 !important; font-weight: 700; }
+    html[data-theme="offwhite"] .text-slate-400 { color: #4b5563 !important; }
+    html[data-theme="offwhite"] .text-slate-500 { color: #6b7280 !important; }
+
+    /* 4. SOFT NATURAL LINEN (الكتان الطبيعي الناعم - فاتح 1) */
+    html[data-theme="light-linen"] body { background: #ded7c8 !important; color: #211f1a !important; }
+    html[data-theme="light-linen"] .mobile-app-wrapper { background: #ede7dc !important; border-color: #cfc5b3 !important; color: #211f1a !important; }
+    html[data-theme="light-linen"] header,
+    html[data-theme="light-linen"] nav.glass-dock { background: rgba(237, 231, 220, 0.98) !important; border-color: #cfc5b3 !important; }
+    html[data-theme="light-linen"] .glass-base,
+    html[data-theme="light-linen"] .glass-card-interactive,
+    html[data-theme="light-linen"] .bg-slate-900,
+    html[data-theme="light-linen"] .bg-slate-950 { background: #faf7f2 !important; border-color: #ded6c8 !important; color: #211f1a !important; box-shadow: 0 4px 18px rgba(0,0,0,0.05) !important; }
+    html[data-theme="light-linen"] .bg-slate-800 { background: #e4dcce !important; border-color: #c4b8a2 !important; color: #38342b !important; }
+    html[data-theme="light-linen"] .text-slate-100,
+    html[data-theme="light-linen"] .text-slate-200,
+    html[data-theme="light-linen"] .text-slate-300 { color: #211f1a !important; font-weight: 700; }
+    html[data-theme="light-linen"] .text-slate-400 { color: #575245 !important; }
+    html[data-theme="light-linen"] .text-slate-500 { color: #787161 !important; }
+
+    /* 5. PLATINUM PEARL GREY (اللؤلؤي الفضي المريح - فاتح 2) */
+    html[data-theme="pearl-platinum"] body { background: #dbe0e6 !important; color: #0f172a !important; }
+    html[data-theme="pearl-platinum"] .mobile-app-wrapper { background: #e9ecef !important; border-color: #cbd3dc !important; color: #0f172a !important; }
+    html[data-theme="pearl-platinum"] header,
+    html[data-theme="pearl-platinum"] nav.glass-dock { background: rgba(233, 236, 239, 0.98) !important; border-color: #cbd3dc !important; }
+    html[data-theme="pearl-platinum"] .glass-base,
+    html[data-theme="pearl-platinum"] .glass-card-interactive,
+    html[data-theme="pearl-platinum"] .bg-slate-900,
+    html[data-theme="pearl-platinum"] .bg-slate-950 { background: #f8f9fa !important; border-color: #dee2e6 !important; color: #0f172a !important; box-shadow: 0 4px 15px rgba(15,23,42,0.06) !important; }
+    html[data-theme="pearl-platinum"] .bg-slate-800 { background: #dde2e7 !important; border-color: #bfc8d2 !important; color: #1e293b !important; }
+    html[data-theme="pearl-platinum"] .text-slate-100,
+    html[data-theme="pearl-platinum"] .text-slate-200,
+    html[data-theme="pearl-platinum"] .text-slate-300 { color: #0f172a !important; font-weight: 700; }
+    html[data-theme="pearl-platinum"] .text-slate-400 { color: #475569 !important; }
+    html[data-theme="pearl-platinum"] .text-slate-500 { color: #64748b !important; }
+
+    /* 6. NORDIC PAPER LIGHT (الورقي النوردي المريح) */
+    html[data-theme="nordic-paper"] body { background: #cbd5e1 !important; color: #0f172a !important; }
     html[data-theme="nordic-paper"] .mobile-app-wrapper { background: #f8fafc !important; border-color: #cbd5e1 !important; color: #0f172a !important; }
     html[data-theme="nordic-paper"] header,
     html[data-theme="nordic-paper"] nav.glass-dock { background: rgba(248, 250, 252, 0.98) !important; border-color: #cbd5e1 !important; }
@@ -326,56 +405,43 @@
     html[data-theme="nordic-paper"] .bg-slate-800 { background: #f1f5f9 !important; border-color: #cbd5e1 !important; color: #1e293b !important; }
     html[data-theme="nordic-paper"] .text-slate-100,
     html[data-theme="nordic-paper"] .text-slate-200,
-    html[data-theme="nordic-paper"] .text-slate-300 { color: #0f172a !important; }
+    html[data-theme="nordic-paper"] .text-slate-300 { color: #0f172a !important; font-weight: 700; }
     html[data-theme="nordic-paper"] .text-slate-400 { color: #475569 !important; }
     html[data-theme="nordic-paper"] .text-slate-500 { color: #64748b !important; }
 
-    /* 3. VINTAGE WARM SEPIA & BROWN (البني الدافئ والإسبريسو) */
-    html[data-theme="sepia-brown"] body { background: #141210 !important; color: #fef3c7 !important; }
-    html[data-theme="sepia-brown"] .mobile-app-wrapper { background: #1c1917 !important; border-color: #442a17 !important; color: #fef3c7 !important; }
-    html[data-theme="sepia-brown"] header,
-    html[data-theme="sepia-brown"] nav.glass-dock { background: rgba(28, 25, 23, 0.96) !important; border-color: #573318 !important; }
-    html[data-theme="sepia-brown"] .glass-base,
-    html[data-theme="sepia-brown"] .glass-card-interactive,
-    html[data-theme="sepia-brown"] .bg-slate-900,
-    html[data-theme="sepia-brown"] .bg-slate-950 { background: #292524 !important; border-color: #573318 !important; color: #fef3c7 !important; }
-    html[data-theme="sepia-brown"] .bg-slate-800 { background: #3f3228 !important; border-color: #78350f !important; color: #fed7aa !important; }
-    html[data-theme="sepia-brown"] .text-slate-100,
-    html[data-theme="sepia-brown"] .text-slate-200,
-    html[data-theme="sepia-brown"] .text-slate-300 { color: #fef3c7 !important; }
-    html[data-theme="sepia-brown"] .text-slate-400 { color: #d6bfa8 !important; }
+    /* ─── GROUP 2: BLUE & NAVY THEMES (درجات الأزرق والكحلي) ─── */
 
-    /* 4. MUTED PALE GOLD & CHAMPAGNE (الذهبي الباهت والفخامة الملكية) */
-    html[data-theme="pale-gold"] body { background: #0c0b0a !important; color: #fef08a !important; }
-    html[data-theme="pale-gold"] .mobile-app-wrapper { background: #181614 !important; border-color: #54442b !important; color: #fef9c3 !important; }
-    html[data-theme="pale-gold"] header,
-    html[data-theme="pale-gold"] nav.glass-dock { background: rgba(24, 22, 20, 0.96) !important; border-color: #785e3a !important; }
-    html[data-theme="pale-gold"] .glass-base,
-    html[data-theme="pale-gold"] .glass-card-interactive,
-    html[data-theme="pale-gold"] .bg-slate-900,
-    html[data-theme="pale-gold"] .bg-slate-950 { background: #24201c !important; border-color: #5e4c31 !important; color: #fef08a !important; }
-    html[data-theme="pale-gold"] .bg-slate-800 { background: #383028 !important; border-color: #92723c !important; color: #fde047 !important; }
-    html[data-theme="pale-gold"] .text-slate-100,
-    html[data-theme="pale-gold"] .text-slate-200,
-    html[data-theme="pale-gold"] .text-slate-300 { color: #fef9c3 !important; }
-    html[data-theme="pale-gold"] .text-slate-400 { color: #d4c29d !important; }
+    /* 7. DEEP MIDNIGHT NAVY (الكحلي الملكي الليلي - كحلي) */
+    html[data-theme="navy-kohl"] body { background: #030712 !important; color: #f8fafc !important; }
+    html[data-theme="navy-kohl"] .mobile-app-wrapper { background: #050c1e !important; border-color: #1a2d5a !important; color: #f8fafc !important; }
+    html[data-theme="navy-kohl"] header,
+    html[data-theme="navy-kohl"] nav.glass-dock { background: rgba(5, 12, 30, 0.96) !important; border-color: #1e356d !important; }
+    html[data-theme="navy-kohl"] .glass-base,
+    html[data-theme="navy-kohl"] .glass-card-interactive,
+    html[data-theme="navy-kohl"] .bg-slate-900,
+    html[data-theme="navy-kohl"] .bg-slate-950 { background: #0b1736 !important; border-color: #1d3368 !important; color: #f8fafc !important; box-shadow: 0 4px 20px rgba(5, 12, 30, 0.6) !important; }
+    html[data-theme="navy-kohl"] .bg-slate-800 { background: #13244d !important; border-color: #264387 !important; color: #bae6fd !important; }
+    html[data-theme="navy-kohl"] .text-slate-100,
+    html[data-theme="navy-kohl"] .text-slate-200,
+    html[data-theme="navy-kohl"] .text-slate-300 { color: #f8fafc !important; }
+    html[data-theme="navy-kohl"] .text-slate-400 { color: #94a3b8 !important; }
 
-    /* 5. COGNITIVE FOREST EMERALD (الزمرد والغابات لصفاء الذهن) */
-    html[data-theme="emerald-forest"] body { background: #011a14 !important; color: #d1fae5 !important; }
-    html[data-theme="emerald-forest"] .mobile-app-wrapper { background: #032e24 !important; border-color: #065f46 !important; color: #ecfdf5 !important; }
-    html[data-theme="emerald-forest"] header,
-    html[data-theme="emerald-forest"] nav.glass-dock { background: rgba(3, 46, 36, 0.96) !important; border-color: #047857 !important; }
-    html[data-theme="emerald-forest"] .glass-base,
-    html[data-theme="emerald-forest"] .glass-card-interactive,
-    html[data-theme="emerald-forest"] .bg-slate-900,
-    html[data-theme="emerald-forest"] .bg-slate-950 { background: #064e3b !important; border-color: #047857 !important; color: #ecfdf5 !important; }
-    html[data-theme="emerald-forest"] .bg-slate-800 { background: #065f46 !important; border-color: #10b981 !important; color: #a7f3d0 !important; }
-    html[data-theme="emerald-forest"] .text-slate-100,
-    html[data-theme="emerald-forest"] .text-slate-200,
-    html[data-theme="emerald-forest"] .text-slate-300 { color: #ecfdf5 !important; }
-    html[data-theme="emerald-forest"] .text-slate-400 { color: #a7f3d0 !important; }
+    /* 8. EXECUTIVE ROYAL BLUE (الأزرق الزفيري الحيوي - أزرق) */
+    html[data-theme="royal-blue"] body { background: #071326 !important; color: #ffffff !important; }
+    html[data-theme="royal-blue"] .mobile-app-wrapper { background: #0a1b38 !important; border-color: #1e3e78 !important; color: #ffffff !important; }
+    html[data-theme="royal-blue"] header,
+    html[data-theme="royal-blue"] nav.glass-dock { background: rgba(10, 27, 56, 0.96) !important; border-color: #234d94 !important; }
+    html[data-theme="royal-blue"] .glass-base,
+    html[data-theme="royal-blue"] .glass-card-interactive,
+    html[data-theme="royal-blue"] .bg-slate-900,
+    html[data-theme="royal-blue"] .bg-slate-950 { background: #122852 !important; border-color: #254d8e !important; color: #ffffff !important; }
+    html[data-theme="royal-blue"] .bg-slate-800 { background: #1d3c78 !important; border-color: #3b82f6 !important; color: #dbeafe !important; }
+    html[data-theme="royal-blue"] .text-slate-100,
+    html[data-theme="royal-blue"] .text-slate-200,
+    html[data-theme="royal-blue"] .text-slate-300 { color: #ffffff !important; }
+    html[data-theme="royal-blue"] .text-slate-400 { color: #bfdbfe !important; }
 
-    /* 6. DEEP OCEANIC ROYAL NAVY (الأزرق المحيطي العميق) */
+    /* 9. DEEP OCEANIC ROYAL NAVY (الأزرق المحيطي العميق) */
     html[data-theme="ocean-navy"] body { background: #060e1a !important; color: #e0f2fe !important; }
     html[data-theme="ocean-navy"] .mobile-app-wrapper { background: #0c1a2e !important; border-color: #1e3a8a !important; color: #f0f9ff !important; }
     html[data-theme="ocean-navy"] header,
@@ -390,7 +456,88 @@
     html[data-theme="ocean-navy"] .text-slate-300 { color: #f0f9ff !important; }
     html[data-theme="ocean-navy"] .text-slate-400 { color: #93c5fd !important; }
 
-    /* 7. WARM SAND & DESERT MOCHA (الرمال الصحراوية وموكا دافئة) */
+    /* 10. PETROL CYAN & TEAL (الأزرق البترولي المحيطي - أزرق 1) */
+    html[data-theme="petrol-cyan"] body { background: #041219 !important; color: #f0fdfa !important; }
+    html[data-theme="petrol-cyan"] .mobile-app-wrapper { background: #071c26 !important; border-color: #134658 !important; color: #f0fdfa !important; }
+    html[data-theme="petrol-cyan"] header,
+    html[data-theme="petrol-cyan"] nav.glass-dock { background: rgba(7, 28, 38, 0.96) !important; border-color: #175a72 !important; }
+    html[data-theme="petrol-cyan"] .glass-base,
+    html[data-theme="petrol-cyan"] .glass-card-interactive,
+    html[data-theme="petrol-cyan"] .bg-slate-900,
+    html[data-theme="petrol-cyan"] .bg-slate-950 { background: #0c2b3a !important; border-color: #175269 !important; color: #f0fdfa !important; }
+    html[data-theme="petrol-cyan"] .bg-slate-800 { background: #134154 !important; border-color: #14b8a6 !important; color: #99f6e4 !important; }
+    html[data-theme="petrol-cyan"] .text-slate-100,
+    html[data-theme="petrol-cyan"] .text-slate-200,
+    html[data-theme="petrol-cyan"] .text-slate-300 { color: #f0fdfa !important; }
+    html[data-theme="petrol-cyan"] .text-slate-400 { color: #99f6e4 !important; }
+
+    /* 11. TWILIGHT INDIGO (أزرق الشفق والإنديجو - أزرق 2) */
+    html[data-theme="twilight-indigo"] body { background: #090c1e !important; color: #e0e7ff !important; }
+    html[data-theme="twilight-indigo"] .mobile-app-wrapper { background: #0e122b !important; border-color: #2b356e !important; color: #e0e7ff !important; }
+    html[data-theme="twilight-indigo"] header,
+    html[data-theme="twilight-indigo"] nav.glass-dock { background: rgba(14, 18, 43, 0.96) !important; border-color: #37438c !important; }
+    html[data-theme="twilight-indigo"] .glass-base,
+    html[data-theme="twilight-indigo"] .glass-card-interactive,
+    html[data-theme="twilight-indigo"] .bg-slate-900,
+    html[data-theme="twilight-indigo"] .bg-slate-950 { background: #151b3d !important; border-color: #313d80 !important; color: #e0e7ff !important; }
+    html[data-theme="twilight-indigo"] .bg-slate-800 { background: #222b5e !important; border-color: #6366f1 !important; color: #c7d2fe !important; }
+    html[data-theme="twilight-indigo"] .text-slate-100,
+    html[data-theme="twilight-indigo"] .text-slate-200,
+    html[data-theme="twilight-indigo"] .text-slate-300 { color: #e0e7ff !important; }
+    html[data-theme="twilight-indigo"] .text-slate-400 { color: #a5b4fc !important; }
+
+    /* ─── GROUP 3: DARK, GOLD, BROWN & NATURE THEMES ─── */
+
+    /* 12. OLED MIDNIGHT DARK (الليل الملكي الداكن) */
+    html[data-theme="midnight"] body { background: #050811 !important; color: #f8fafc !important; }
+    html[data-theme="midnight"] .mobile-app-wrapper { background: #0b1120 !important; border-color: #1e293b !important; }
+
+    /* 13. VINTAGE WARM SEPIA & BROWN (البني الإسبريسو والورق القديم) */
+    html[data-theme="sepia-brown"] body { background: #141210 !important; color: #fef3c7 !important; }
+    html[data-theme="sepia-brown"] .mobile-app-wrapper { background: #1c1917 !important; border-color: #442a17 !important; color: #fef3c7 !important; }
+    html[data-theme="sepia-brown"] header,
+    html[data-theme="sepia-brown"] nav.glass-dock { background: rgba(28, 25, 23, 0.96) !important; border-color: #573318 !important; }
+    html[data-theme="sepia-brown"] .glass-base,
+    html[data-theme="sepia-brown"] .glass-card-interactive,
+    html[data-theme="sepia-brown"] .bg-slate-900,
+    html[data-theme="sepia-brown"] .bg-slate-950 { background: #292524 !important; border-color: #573318 !important; color: #fef3c7 !important; }
+    html[data-theme="sepia-brown"] .bg-slate-800 { background: #3f3228 !important; border-color: #78350f !important; color: #fed7aa !important; }
+    html[data-theme="sepia-brown"] .text-slate-100,
+    html[data-theme="sepia-brown"] .text-slate-200,
+    html[data-theme="sepia-brown"] .text-slate-300 { color: #fef3c7 !important; }
+    html[data-theme="sepia-brown"] .text-slate-400 { color: #d6bfa8 !important; }
+
+    /* 14. MUTED PALE GOLD & CHAMPAGNE (الذهبي الباهت والفخامة الملكية) */
+    html[data-theme="pale-gold"] body { background: #0c0b0a !important; color: #fef08a !important; }
+    html[data-theme="pale-gold"] .mobile-app-wrapper { background: #181614 !important; border-color: #54442b !important; color: #fef9c3 !important; }
+    html[data-theme="pale-gold"] header,
+    html[data-theme="pale-gold"] nav.glass-dock { background: rgba(24, 22, 20, 0.96) !important; border-color: #785e3a !important; }
+    html[data-theme="pale-gold"] .glass-base,
+    html[data-theme="pale-gold"] .glass-card-interactive,
+    html[data-theme="pale-gold"] .bg-slate-900,
+    html[data-theme="pale-gold"] .bg-slate-950 { background: #24201c !important; border-color: #5e4c31 !important; color: #fef08a !important; }
+    html[data-theme="pale-gold"] .bg-slate-800 { background: #383028 !important; border-color: #92723c !important; color: #fde047 !important; }
+    html[data-theme="pale-gold"] .text-slate-100,
+    html[data-theme="pale-gold"] .text-slate-200,
+    html[data-theme="pale-gold"] .text-slate-300 { color: #fef9c3 !important; }
+    html[data-theme="pale-gold"] .text-slate-400 { color: #d4c29d !important; }
+
+    /* 15. COGNITIVE FOREST EMERALD (الزمرد والغابات لصفاء الذهن) */
+    html[data-theme="emerald-forest"] body { background: #011a14 !important; color: #d1fae5 !important; }
+    html[data-theme="emerald-forest"] .mobile-app-wrapper { background: #032e24 !important; border-color: #065f46 !important; color: #ecfdf5 !important; }
+    html[data-theme="emerald-forest"] header,
+    html[data-theme="emerald-forest"] nav.glass-dock { background: rgba(3, 46, 36, 0.96) !important; border-color: #047857 !important; }
+    html[data-theme="emerald-forest"] .glass-base,
+    html[data-theme="emerald-forest"] .glass-card-interactive,
+    html[data-theme="emerald-forest"] .bg-slate-900,
+    html[data-theme="emerald-forest"] .bg-slate-950 { background: #064e3b !important; border-color: #047857 !important; color: #ecfdf5 !important; }
+    html[data-theme="emerald-forest"] .bg-slate-800 { background: #065f46 !important; border-color: #10b981 !important; color: #a7f3d0 !important; }
+    html[data-theme="emerald-forest"] .text-slate-100,
+    html[data-theme="emerald-forest"] .text-slate-200,
+    html[data-theme="emerald-forest"] .text-slate-300 { color: #ecfdf5 !important; }
+    html[data-theme="emerald-forest"] .text-slate-400 { color: #a7f3d0 !important; }
+
+    /* 16. WARM SAND & DESERT MOCHA (الرمال الصحراوية وموكا دافئة) */
     html[data-theme="desert-mocha"] body { background: #191614 !important; color: #fef3c7 !important; }
     html[data-theme="desert-mocha"] .mobile-app-wrapper { background: #26211d !important; border-color: #574c43 !important; color: #fef9c3 !important; }
     html[data-theme="desert-mocha"] header,
@@ -405,7 +552,7 @@
     html[data-theme="desert-mocha"] .text-slate-300 { color: #fef9c3 !important; }
     html[data-theme="desert-mocha"] .text-slate-400 { color: #d6c4b2 !important; }
 
-    /* 8. SUNLIGHT MONOCHROME TITANIUM (التيتانيوم الشمسي فائق التباين) */
+    /* 17. SUNLIGHT MONOCHROME TITANIUM (التيتانيوم الشمسي فائق التباين) */
     html[data-theme="sunlight-titanium"] body { background: #000000 !important; color: #ffffff !important; }
     html[data-theme="sunlight-titanium"] .mobile-app-wrapper { background: #000000 !important; border-color: #ffffff !important; color: #ffffff !important; }
     html[data-theme="sunlight-titanium"] header,
@@ -419,6 +566,93 @@
     html[data-theme="sunlight-titanium"] .text-slate-200,
     html[data-theme="sunlight-titanium"] .text-slate-300,
     html[data-theme="sunlight-titanium"] .text-slate-400 { color: #ffffff !important; font-weight: 800 !important; }
+
+    /* ═════════════════════════════════════════════════════════════
+       UNIVERSAL CARD & TEXT OVERRIDES FOR ERGONOMIC THEMES
+       ═════════════════════════════════════════════════════════════ */
+    /* Light Themes Cards & Numbers (Beige, Ivory, Off-White, Linen, Pearl, Nordic) */
+    html[data-theme="beige"] .banner-strip,
+    html[data-theme="ivory"] .banner-strip,
+    html[data-theme="offwhite"] .banner-strip,
+    html[data-theme="light-linen"] .banner-strip,
+    html[data-theme="pearl-platinum"] .banner-strip,
+    html[data-theme="nordic-paper"] .banner-strip {
+      background: #ffffff !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    html[data-theme="beige"] .banner-strip .text-emerald-400,
+    html[data-theme="ivory"] .banner-strip .text-emerald-400,
+    html[data-theme="offwhite"] .banner-strip .text-emerald-400,
+    html[data-theme="light-linen"] .banner-strip .text-emerald-400,
+    html[data-theme="pearl-platinum"] .banner-strip .text-emerald-400,
+    html[data-theme="nordic-paper"] .banner-strip .text-emerald-400 {
+      color: #047857 !important;
+      font-weight: 900 !important;
+    }
+
+    html[data-theme="beige"] .banner-strip .text-amber-400,
+    html[data-theme="ivory"] .banner-strip .text-amber-400,
+    html[data-theme="offwhite"] .banner-strip .text-amber-400,
+    html[data-theme="light-linen"] .banner-strip .text-amber-400,
+    html[data-theme="pearl-platinum"] .banner-strip .text-amber-400,
+    html[data-theme="nordic-paper"] .banner-strip .text-amber-400 {
+      color: #b45309 !important;
+      font-weight: 900 !important;
+    }
+
+    html[data-theme="beige"] .banner-strip .text-cyan-400,
+    html[data-theme="ivory"] .banner-strip .text-cyan-400,
+    html[data-theme="offwhite"] .banner-strip .text-cyan-400,
+    html[data-theme="light-linen"] .banner-strip .text-cyan-400,
+    html[data-theme="pearl-platinum"] .banner-strip .text-cyan-400,
+    html[data-theme="nordic-paper"] .banner-strip .text-cyan-400 {
+      color: #0369a1 !important;
+      font-weight: 900 !important;
+    }
+
+    html[data-theme="beige"] .banner-strip .text-rose-400,
+    html[data-theme="ivory"] .banner-strip .text-rose-400,
+    html[data-theme="offwhite"] .banner-strip .text-rose-400,
+    html[data-theme="light-linen"] .banner-strip .text-rose-400,
+    html[data-theme="pearl-platinum"] .banner-strip .text-rose-400,
+    html[data-theme="nordic-paper"] .banner-strip .text-rose-400 {
+      color: #be123c !important;
+      font-weight: 900 !important;
+    }
+
+    /* Light Themes Text Contrast Overrides */
+    html[data-theme="beige"] .text-white,
+    html[data-theme="ivory"] .text-white,
+    html[data-theme="offwhite"] .text-white,
+    html[data-theme="light-linen"] .text-white,
+    html[data-theme="pearl-platinum"] .text-white,
+    html[data-theme="nordic-paper"] .text-white {
+      color: #0f172a !important;
+    }
+
+    /* Dark/Earth Themes Custom Cards */
+    html[data-theme="sepia-brown"] .banner-strip { background: #231f1d !important; border-color: #573318 !important; }
+    html[data-theme="pale-gold"] .banner-strip { background: #1f1c18 !important; border-color: #785e3a !important; }
+    html[data-theme="emerald-forest"] .banner-strip { background: #062319 !important; border-color: #047857 !important; }
+    html[data-theme="desert-mocha"] .banner-strip { background: #29231f !important; border-color: #6e5e52 !important; }
+    html[data-theme="navy-kohl"] .banner-strip { background: #071530 !important; border-color: #1e3a8a !important; }
+    html[data-theme="royal-blue"] .banner-strip { background: #0e2448 !important; border-color: #2563eb !important; }
+    html[data-theme="petrol-cyan"] .banner-strip { background: #08282b !important; border-color: #0e7490 !important; }
+    html[data-theme="twilight-indigo"] .banner-strip { background: #151638 !important; border-color: #4338ca !important; }
+    html[data-theme="sunlight-titanium"] .banner-strip { background: #000000 !important; border: 2px solid #ffffff !important; }
+
+    /* Universal High-Contrast Toast Notification */
+    #privacyToastBar {
+      background: #0f172a !important;
+      border: 1px solid #334155 !important;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+    }
+    #privacyToastMsg {
+      color: #f8fafc !important;
+      font-weight: 700 !important;
+    }
 
     /* NATIVE MOBILE EDGE-TO-EDGE VIEWPORT */
     @media (max-width: 640px) {
@@ -514,7 +748,7 @@
           class="glow-amber p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-amber-300 relative active:scale-95 transition" 
           title="سيف السمات والراحة البصرية (8 سمات علمية مريحة للعين)">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 015-5c1.1 0 2.2.4 3 1.2M17 3a4 4 0 014 4 5 5 0 01-5 5c-1.1 0-2.2-.4-3-1.2m0 0l-6 6m6-6a4 4 0 010 5.656L9.657 21"/></svg>
-          <span id="activeThemeBadge" class="absolute -bottom-1 -right-1 text-[8px] bg-amber-500 text-slate-950 font-black px-1 rounded-full shadow">8</span>
+          <span id="activeThemeBadge" class="absolute -bottom-1 -right-1 text-[8px] bg-amber-500 text-slate-950 font-black px-1 rounded-full shadow">17</span>
         </button>
 
         <!-- تايمر الوردية والمطابقة والتركيز 30 دقيقة -->
@@ -581,7 +815,7 @@
         <button onclick="switchTab('dashboard')" class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2.5 py-1 rounded-lg shrink-0">🏠 الرئيسية</button>
         <button onclick="openThemePaletteDrawer()" class="bg-gradient-to-r from-amber-500/30 via-yellow-500/30 to-amber-600/30 text-amber-200 border border-amber-500/50 px-2.5 py-1 rounded-lg shrink-0 flex items-center gap-1.5 shadow font-black">
           <span class="text-xs">🎨</span>
-          <span>سيف السمات والراحة (8 سمات)</span>
+          <span>سيف السمات والراحة (17 سمة)</span>
         </button>
         <button onclick="openOperationalTimerModal()" class="bg-gradient-to-r from-cyan-500/30 to-teal-500/30 text-cyan-200 border border-cyan-500/50 px-2.5 py-1 rounded-lg shrink-0 flex items-center gap-1.5 shadow font-black">
           <span class="text-xs">⏱️</span>
@@ -2744,24 +2978,24 @@
     </main>
 
     
-  <!-- ======================================================== -->
-  <!-- MODAL: سيف السمات والراحة البصرية للعين (8 سمات علمية)     -->
+    <!-- ======================================================== -->
+  <!-- MODAL: سيف السمات والراحة البصرية للعين (17 سمة علمية)    -->
   <!-- ======================================================== -->
   <div id="modalThemePaletteDrawer" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
-    <div class="glass-base w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-amber-500/40 p-4 space-y-3.5 shadow-2xl max-h-[90vh] overflow-y-auto bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
+    <div class="glass-base w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-amber-500/40 p-4 space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
       
       <!-- Modal Header -->
       <div class="flex items-center justify-between pb-2 border-b border-slate-800">
         <div class="flex items-center gap-2">
-          <div class="w-9 h-9 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-black border border-amber-500/40 shadow">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-black border border-amber-500/40 shadow">
             🎨
           </div>
           <div>
             <h3 class="text-sm font-black text-slate-100 flex items-center gap-1.5">
               <span>سيف السمات والراحة البصرية للعين</span>
-              <span class="text-[9px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.2 rounded-full border border-amber-500/30">8 خيارات</span>
+              <span class="text-[9px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.2 rounded-full border border-amber-500/30">17 سمة معتمدة</span>
             </h3>
-            <p class="text-[10px] text-slate-400">تصميمات ألوان مدروسة نفسياً وطبياً لمنع إجهاد العين وتداخل الأرقام</p>
+            <p class="text-[10px] text-slate-400">مصفوفة ألوان نفسية ومحاسبية لمنع إجهاد العين وتداخل الحروف والأرقام</p>
           </div>
         </div>
         <button onclick="closeModal('modalThemePaletteDrawer')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
@@ -2769,14 +3003,198 @@
 
       <!-- Quick Guidance Banner -->
       <div class="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 leading-relaxed">
-        💡 <strong>نصيحة خبير علم النفس والمحاسبة:</strong> التباين العالي واختيار السمة المناسبة لإضاءة المكان يحميك من الخطأ في نقل المبالغ (مثل الخلط بين 5,400 و 4,500) ويمنع الصداع الناتج عن الضوء الأزرق.
+        💡 <strong>استشارة خبير علم النفس والمحاسبة:</strong> الألوان الترابية والعاجية والبيج تمتص الوهج الأزرق بنسبة 95%، ودرجات الأزرق والكحلي تحفز التفكير المنطقي والتدقيق المالي دون صداع.
       </div>
 
-      <!-- 8 Themes Grid -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+      <!-- Category Filter Pills -->
+      <div class="flex gap-1 overflow-x-auto py-0.5 no-scrollbar text-xs font-bold">
+        <button onclick="filterThemeCategory('all')" id="btnTcAll" class="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow">الكل (17)</button>
+        <button onclick="filterThemeCategory('light')" id="btnTcLight" class="px-2.5 py-1 rounded-xl bg-slate-800 text-amber-200 hover:text-white shrink-0 border border-amber-500/30">☀️ الفاتحة والعاجي والبيج (6)</button>
+        <button onclick="filterThemeCategory('blue')" id="btnTcBlue" class="px-2.5 py-1 rounded-xl bg-slate-800 text-cyan-200 hover:text-white shrink-0 border border-cyan-500/30">🌊 درجات الأزرق والكحلي (5)</button>
+        <button onclick="filterThemeCategory('dark')" id="btnTcDark" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700">🌙 الداكنة والملكية (6)</button>
+      </div>
 
-        <!-- Theme 1: OLED Midnight Dark -->
-        <button onclick="applyTheme('midnight')" class="theme-card p-3 rounded-2xl border border-slate-700 bg-slate-950 hover:border-cyan-400 text-right space-y-1.5 transition active:scale-95 group relative">
+      <!-- Themes Grid (All 17 Themes) -->
+      <div id="themeCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
+        <!-- 1. BEIGE (البيج الدافئ المريح) -->
+        <button onclick="applyTheme('beige')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#d6c5b0] bg-[#f5ebe0] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#23190e] flex items-center gap-1.5">
+              <span>🌾 البيج الدافئ المريح</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#f5ebe0] border border-[#d6c5b0]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#b45309]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#23190e]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#5a4632] leading-tight">درجة بيج رملي طبيعي دافئ يمتص الوهج، مثالي لقراءة الدفاتر لساعات طويلة.</p>
+          <span class="text-[9px] text-[#b45309] font-black block pt-0.5">Warm Sandstone Beige • فاتح مريح</span>
+        </button>
+
+        <!-- 2. IVORY (العاجي الملكي الهادئ) -->
+        <button onclick="applyTheme('ivory')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#ded6c3] bg-[#faf7f0] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#1c1813] flex items-center gap-1.5">
+              <span>🥛 العاجي الملكي الكلاسيكي</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#faf7f0] border border-[#ded6c3]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#d97706]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#1c1813]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#52473a] leading-tight">نعومة اللون العاجي الكريمي الهادئ، يريح البؤبؤ ولا يجهد العصب البصري.</p>
+          <span class="text-[9px] text-[#d97706] font-black block pt-0.5">Royal Cream Ivory • عاجي ناعم</span>
+        </button>
+
+        <!-- 3. OFF-WHITE (الأوف وايت الحديث المطفأ) -->
+        <button onclick="applyTheme('offwhite')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#d1d5db] bg-[#f9fafb] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#111827] flex items-center gap-1.5">
+              <span>📜 الأوف وايت الحديث المطفأ</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#f9fafb] border border-[#d1d5db]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#2563eb]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#111827]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#4b5563] leading-tight">أوف وايت ألاباستر عصري بدون بياض ساطع، وضوح حاد للأرقام والخطوط.</p>
+          <span class="text-[9px] text-[#2563eb] font-black block pt-0.5">Modern Matte Off-White • مطفأ نقي</span>
+        </button>
+
+        <!-- 4. SOFT NATURAL LINEN (الكتان الطبيعي الناعم - فاتح 1) -->
+        <button onclick="applyTheme('light-linen')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cfc5b3] bg-[#ede7dc] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#211f1a] flex items-center gap-1.5">
+              <span>🧵 الكتان الطبيعي المريح</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#ede7dc] border border-[#cfc5b3]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#4d7c0f]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#211f1a]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#575245] leading-tight">طابع قماش الكتان العضوي الهادئ، يمنح شعوراً بالسكينة أثناء ضغط الحسابات.</p>
+          <span class="text-[9px] text-[#4d7c0f] font-black block pt-0.5">Soft Natural Linen • كتان هادئ</span>
+        </button>
+
+        <!-- 5. PLATINUM PEARL GREY (اللؤلؤي الفضي المريح - فاتح 2) -->
+        <button onclick="applyTheme('pearl-platinum')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cbd3dc] bg-[#e9ecef] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#0f172a] flex items-center gap-1.5">
+              <span>🦪 اللؤلؤي الفضي المريح</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#e9ecef] border border-[#cbd3dc]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0284c7]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0f172a]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#475569] leading-tight">رمادي لؤلؤي بلاتيني بارد وراقي جداً، يقلل انعكاس الضوء المكتبي.</p>
+          <span class="text-[9px] text-[#0284c7] font-black block pt-0.5">Platinum Pearl Grey • لؤلؤي بارد</span>
+        </button>
+
+        <!-- 6. NORDIC PAPER LIGHT (الورقي النوردي المريح) -->
+        <button onclick="applyTheme('nordic-paper')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cbd5e1] bg-[#f8fafc] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#0f172a] flex items-center gap-1.5">
+              <span>📄 الورقي النوردي المريح</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#f8fafc] border border-[#cbd5e1]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#2563eb]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0f172a]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#475569] leading-tight">ملمس الورق المحاسبي النوردي الفاخر، أعلى مقروئية في ضوء النهار الطبيعي.</p>
+          <span class="text-[9px] text-[#2563eb] font-black block pt-0.5">Nordic Paper Light • نهار مشرق</span>
+        </button>
+
+        <!-- 7. DEEP MIDNIGHT NAVY (الكحلي الملكي الليلي - كحلي) -->
+        <button onclick="applyTheme('navy-kohl')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1a2d5a] bg-[#050c1e] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#f8fafc] flex items-center gap-1.5">
+              <span>🌌 الكحلي الملكي الليلي</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#050c1e] border border-[#1a2d5a]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#fbbf24]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#94a3b8] leading-tight">كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية، هيبة رجال الأعمال.</p>
+          <span class="text-[9px] text-[#38bdf8] font-black block pt-0.5">Deep Midnight Navy • كحلي تنفيذي</span>
+        </button>
+
+        <!-- 8. EXECUTIVE ROYAL BLUE (الأزرق الزفيري الحيوي - أزرق) -->
+        <button onclick="applyTheme('royal-blue')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1e3e78] bg-[#0a1b38] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#ffffff] flex items-center gap-1.5">
+              <span>🔷 الأزرق الزفيري الحيوي</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0a1b38] border border-[#1e3e78]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#60a5fa]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#34d399]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#bfdbfe] leading-tight">أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة في إدخال الفواتير السريعة.</p>
+          <span class="text-[9px] text-[#60a5fa] font-black block pt-0.5">Executive Royal Blue • أزرق ملكي</span>
+        </button>
+
+        <!-- 9. DEEP OCEANIC ROYAL NAVY (الأزرق المحيطي العميق) -->
+        <button onclick="applyTheme('ocean-navy')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1e3a8a] bg-[#0c1a2e] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#e0f2fe] flex items-center gap-1.5">
+              <span>🌊 الأزرق المحيطي العميق</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0c1a2e] border border-[#1e3a8a]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#bae6fd]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#93c5fd] leading-tight">يعزز التفكير المنطقي والتحليلي أثناء مراجعة الحسابات ومطابقة القيود.</p>
+          <span class="text-[9px] text-[#38bdf8] font-black block pt-0.5">Royal Oceanic Navy • منطق وتحليل</span>
+        </button>
+
+        <!-- 10. PETROL CYAN & TEAL (الأزرق البترولي المحيطي - أزرق 1) -->
+        <button onclick="applyTheme('petrol-cyan')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#134658] bg-[#071c26] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#f0fdfa] flex items-center gap-1.5">
+              <span>🐬 الأزرق البترولي والتيل</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#071c26] border border-[#134658]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#2dd4bf]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#99f6e4] leading-tight">مزيج من الأزرق البترولي والتيل البحري، يمنح هدوءاً بصرياً فائقاً.</p>
+          <span class="text-[9px] text-[#2dd4bf] font-black block pt-0.5">Petrol Cyan Blue • بترولي مهدئ</span>
+        </button>
+
+        <!-- 11. TWILIGHT INDIGO (أزرق الشفق والإنديجو - أزرق 2) -->
+        <button onclick="applyTheme('twilight-indigo')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#2b356e] bg-[#0e122b] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#e0e7ff] flex items-center gap-1.5">
+              <span>🔮 أزرق الشفق والإنديجو</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0e122b] border border-[#2b356e]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#818cf8]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#f472b6]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#a5b4fc] leading-tight">أزرق شفق نيلي مسائي يخفف التوتر العصبي ويمنع شرود الذهن.</p>
+          <span class="text-[9px] text-[#818cf8] font-black block pt-0.5">Twilight Indigo • إنديجو مسائي</span>
+        </button>
+
+        <!-- 12. OLED MIDNIGHT DARK (الليل الملكي الداكن) -->
+        <button onclick="applyTheme('midnight')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-slate-700 bg-slate-950 text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-slate-100 flex items-center gap-1.5">
               <span>🌙 الليل الملكي الداكن</span>
@@ -2788,27 +3206,11 @@
             </span>
           </div>
           <p class="text-[10px] text-slate-400 leading-tight">سواد عميق OLED موفر للطاقة، أقصى تباين في الإضاءة الليلية الضعيفة.</p>
-          <span class="text-[9px] text-cyan-300 font-bold block pt-0.5">OLED Midnight • افتراضي</span>
+          <span class="text-[9px] text-cyan-300 font-black block pt-0.5">OLED Midnight • افتراضي</span>
         </button>
 
-        <!-- Theme 2: Nordic Paper Light -->
-        <button onclick="applyTheme('nordic-paper')" class="theme-card p-3 rounded-2xl border border-slate-300 bg-slate-100 hover:border-blue-500 text-right space-y-1.5 transition active:scale-95 group relative text-slate-900 shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-slate-900 flex items-center gap-1.5">
-              <span>📄 الورقي النوردي المريح</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-white border border-slate-400"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-slate-900"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-blue-600"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-slate-700 leading-tight">ملمس الورق المحاسبي الفاخر بدون وهج شاشات ساطع، مريح جداً في النهار.</p>
-          <span class="text-[9px] text-blue-700 font-bold block pt-0.5">Nordic Paper Light • نهار مشرق</span>
-        </button>
-
-        <!-- Theme 3: Vintage Warm Sepia & Brown -->
-        <button onclick="applyTheme('sepia-brown')" class="theme-card p-3 rounded-2xl border border-amber-900/60 bg-[#1c1917] hover:border-amber-500 text-right space-y-1.5 transition active:scale-95 group relative">
+        <!-- 13. VINTAGE WARM SEPIA & BROWN (البني الإسبريسو والورق القديم) -->
+        <button onclick="applyTheme('sepia-brown')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-amber-900/60 bg-[#1c1917] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-amber-200 flex items-center gap-1.5">
               <span>📜 البني الإسبريسو والورق القديم</span>
@@ -2820,11 +3222,11 @@
             </span>
           </div>
           <p class="text-[10px] text-amber-200/70 leading-tight">حجب كامل للضوء الأزرق، يريح العصب البصري ويمنع الصداع في العمل الطويل.</p>
-          <span class="text-[9px] text-amber-400 font-bold block pt-0.5">Warm Sepia • مهدئ للأعصاب</span>
+          <span class="text-[9px] text-amber-400 font-black block pt-0.5">Warm Sepia • مهدئ للأعصاب</span>
         </button>
 
-        <!-- Theme 4: Muted Pale Gold & Champagne -->
-        <button onclick="applyTheme('pale-gold')" class="theme-card p-3 rounded-2xl border border-yellow-700/50 bg-[#181614] hover:border-yellow-400 text-right space-y-1.5 transition active:scale-95 group relative">
+        <!-- 14. MUTED PALE GOLD & CHAMPAGNE (الذهبي الباهت والفخامة الملكية) -->
+        <button onclick="applyTheme('pale-gold')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-yellow-700/50 bg-[#181614] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-yellow-200 flex items-center gap-1.5">
               <span>👑 الذهبي الباهت والفخامة</span>
@@ -2836,11 +3238,11 @@
             </span>
           </div>
           <p class="text-[10px] text-yellow-200/70 leading-tight">تناسق ذهبي كلاسيكي باهت وغير مزعج، يضفي هيبة الأرقام المحاسبية.</p>
-          <span class="text-[9px] text-yellow-300 font-bold block pt-0.5">Pale Gold Luxury • فخامة مالية</span>
+          <span class="text-[9px] text-yellow-300 font-black block pt-0.5">Pale Gold Luxury • فخامة مالية</span>
         </button>
 
-        <!-- Theme 5: Cognitive Forest Emerald -->
-        <button onclick="applyTheme('emerald-forest')" class="theme-card p-3 rounded-2xl border border-emerald-800/60 bg-[#032e24] hover:border-emerald-400 text-right space-y-1.5 transition active:scale-95 group relative">
+        <!-- 15. COGNITIVE FOREST EMERALD (الزمرد والغابات لصفاء الذهن) -->
+        <button onclick="applyTheme('emerald-forest')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-emerald-800/60 bg-[#032e24] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-emerald-200 flex items-center gap-1.5">
               <span>🌲 زمرد الغابات لصفاء الذهن</span>
@@ -2852,27 +3254,11 @@
             </span>
           </div>
           <p class="text-[10px] text-emerald-200/70 leading-tight">اللون الأخضر يقع في منتصف شبكية العين، يخفض النبض ويمنع الخلط بالأرقام.</p>
-          <span class="text-[9px] text-emerald-300 font-bold block pt-0.5">Cognitive Forest • تركيز ذهني فائق</span>
+          <span class="text-[9px] text-emerald-300 font-black block pt-0.5">Cognitive Forest • تركيز ذهني فائق</span>
         </button>
 
-        <!-- Theme 6: Deep Oceanic Royal Navy -->
-        <button onclick="applyTheme('ocean-navy')" class="theme-card p-3 rounded-2xl border border-blue-900/60 bg-[#0c1a2e] hover:border-cyan-400 text-right space-y-1.5 transition active:scale-95 group relative">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-cyan-200 flex items-center gap-1.5">
-              <span>🌊 الأزرق المحيطي العميق</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0c1a2e] border border-blue-600"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#bae6fd]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-cyan-200/70 leading-tight">يعزز التفكير المنطقي والتحليلي أثناء مراجعة الحسابات المعقدة.</p>
-          <span class="text-[9px] text-cyan-300 font-bold block pt-0.5">Royal Navy • منطق وتحليل</span>
-        </button>
-
-        <!-- Theme 7: Warm Sand & Desert Mocha -->
-        <button onclick="applyTheme('desert-mocha')" class="theme-card p-3 rounded-2xl border border-stone-700 bg-[#26211d] hover:border-amber-400 text-right space-y-1.5 transition active:scale-95 group relative">
+        <!-- 16. WARM SAND & DESERT MOCHA (الرمال الصحراوية وموكا دافئة) -->
+        <button onclick="applyTheme('desert-mocha')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-stone-700 bg-[#26211d] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-stone-200 flex items-center gap-1.5">
               <span>🏜️ الرمال الصحراوية وموكا</span>
@@ -2884,11 +3270,11 @@
             </span>
           </div>
           <p class="text-[10px] text-stone-300/70 leading-tight">تدرج دافئ وسط بين الفاتح والداكن، مريح جداً للإضاءة المكتبية.</p>
-          <span class="text-[9px] text-amber-300 font-bold block pt-0.5">Desert Mocha • راحة يومية متوازنة</span>
+          <span class="text-[9px] text-amber-300 font-black block pt-0.5">Desert Mocha • راحة يومية متوازنة</span>
         </button>
 
-        <!-- Theme 8: Sunlight Monochrome Titanium -->
-        <button onclick="applyTheme('sunlight-titanium')" class="theme-card p-3 rounded-2xl border-2 border-white bg-black hover:border-yellow-400 text-right space-y-1.5 transition active:scale-95 group relative text-white">
+        <!-- 17. SUNLIGHT MONOCHROME TITANIUM (التيتانيوم الشمسي فائق التباين) -->
+        <button onclick="applyTheme('sunlight-titanium')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-white bg-black text-right space-y-1 transition active:scale-95 group relative text-white shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-white flex items-center gap-1.5">
               <span>☀️ التيتانيوم الشمسي فائق التباين</span>
@@ -2899,8 +3285,8 @@
               <span class="w-3.5 h-3.5 rounded-full bg-[#facc15]"></span>
             </span>
           </div>
-          <p class="text-[10px] text-slate-300 leading-tight">معيار WCAG AAA (21:1)، وضوح تام تحت شمس السودان الحارقة ولضعاف النظر.</p>
-          <span class="text-[9px] text-yellow-300 font-bold block pt-0.5">Titanium High-Contrast • شمس وميدان</span>
+          <p class="text-[10px] text-slate-300 leading-tight">معيار WCAG AAA (21:1)، وضوح تام تحت شمس الظهيرة ولضعاف النظر.</p>
+          <span class="text-[9px] text-yellow-300 font-black block pt-0.5">Titanium High-Contrast • شمس وميدان</span>
         </button>
 
       </div>
@@ -6649,18 +7035,32 @@
     }
 
 
-    // ========================================================
-    // 8 SCIENTIFIC ERGONOMIC THEMES ENGINE (سيف السمات والراحة)
+        // ========================================================
+    // 17 SCIENTIFIC ERGONOMIC THEMES ENGINE (سيف السمات والراحة)
     // ========================================================
     const THEMES_PALETTE_CONFIG = {
-      'midnight': { name: 'الليل الملكي الداكن', icon: '🌙', desc: 'أقصى توفير لبطارية OLED وتدرج أسود عميق' },
-      'nordic-paper': { name: 'الورقي النوردي المريح', icon: '📄', desc: 'ملمس ورق الدفاتر الفاخر بدون وهج ساطع' },
-      'sepia-brown': { name: 'البني الإسبريسو والورق القديم', icon: '📜', desc: 'حجب كامل للضوء الأزرق المسبب لإجهاد العين والصداع' },
-      'pale-gold': { name: 'الذهبي الباهت والفخامة', icon: '👑', desc: 'دفء كلاسيكي ملكي وهيبة الأرقام المحاسبية' },
-      'emerald-forest': { name: 'زمرد الغابات لصفاء الذهن', icon: '🌲', desc: 'راحة عصبية تخفض النبض وتمنع تبديل الأرقام' },
-      'ocean-navy': { name: 'الأزرق المحيطي العميق', icon: '🌊', desc: 'تعزيز التفكير المنطقي والتحليل المالي' },
-      'desert-mocha': { name: 'الرمال الصحراوية وموكا', icon: '🏜️', desc: 'توازن لوني دافئ ومريح للإضاءة المكتبية' },
-      'sunlight-titanium': { name: 'التيتانيوم الشمسي فائق التباين', icon: '☀️', desc: 'معيار WCAG AAA للعمل الميداني تحت شمس الظهيرة' }
+      // Light, Beige, Ivory & Off-White
+      'beige': { name: 'البيج الدافئ المريح', icon: '🌾', category: 'light', desc: 'درجة بيج رملي طبيعي دافئ يمتص الوهج البصري' },
+      'ivory': { name: 'العاجي الملكي الكلاسيكي', icon: '🥛', category: 'light', desc: 'نعومة اللون العاجي الكريمي الهادئ تريح البؤبؤ' },
+      'offwhite': { name: 'الأوف وايت الحديث المطفأ', icon: '📜', category: 'light', desc: 'أوف وايت ألاباستر عصري بدون بياض ساطع' },
+      'light-linen': { name: 'الكتان الطبيعي المريح', icon: '🧵', category: 'light', desc: 'طابع الكتان العضوي الهادئ يمنح السكينة' },
+      'pearl-platinum': { name: 'اللؤلؤي الفضي المريح', icon: '🦪', category: 'light', desc: 'رمادي لؤلؤي بلاتيني بارد يقلل انعكاس الضوء' },
+      'nordic-paper': { name: 'الورقي النوردي المريح', icon: '📄', category: 'light', desc: 'ملمس ورق الدفاتر الفاخر بدون وهج ساطع' },
+
+      // Blue & Navy Themes
+      'navy-kohl': { name: 'الكحلي الملكي الليلي', icon: '🌌', category: 'blue', desc: 'كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية' },
+      'royal-blue': { name: 'الأزرق الزفيري الحيوي', icon: '🔷', category: 'blue', desc: 'أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة' },
+      'ocean-navy': { name: 'الأزرق المحيطي العميق', icon: '🌊', category: 'blue', desc: 'تعزيز التفكير المنطقي والتحليل المالي' },
+      'petrol-cyan': { name: 'الأزرق البترولي والتيل', icon: '🐬', category: 'blue', desc: 'أزرق بترولي محيطي مهدئ للأعصاب' },
+      'twilight-indigo': { name: 'أزرق الشفق والإنديجو', icon: '🔮', category: 'blue', desc: 'أزرق شفق نيلي مسائي يخفف التوتر العصبي' },
+
+      // Dark, Gold & Brown
+      'midnight': { name: 'الليل الملكي الداكن', icon: '🌙', category: 'dark', desc: 'أقصى توفير لبطارية OLED وتدرج أسود عميق' },
+      'sepia-brown': { name: 'البني الإسبريسو والورق القديم', icon: '📜', category: 'dark', desc: 'حجب كامل للضوء الأزرق المسبب لإجهاد العين' },
+      'pale-gold': { name: 'الذهبي الباهت والفخامة', icon: '👑', category: 'dark', desc: 'دفء كلاسيكي ملكي وهيبة الأرقام المحاسبية' },
+      'emerald-forest': { name: 'زمرد الغابات لصفاء الذهن', icon: '🌲', category: 'dark', desc: 'راحة عصبية تخفض النبض وتمنع تبديل الأرقام' },
+      'desert-mocha': { name: 'الرمال الصحراوية وموكا', icon: '🏜️', category: 'dark', desc: 'توازن لوني دافئ ومريح للإضاءة المكتبية' },
+      'sunlight-titanium': { name: 'التيتانيوم الشمسي فائق التباين', icon: '☀️', category: 'dark', desc: 'معيار WCAG AAA للعمل الميداني تحت شمس الظهيرة' }
     };
 
     let currentActiveTheme = localStorage.getItem('magaies_active_theme') || 'midnight';
@@ -6686,6 +7086,7 @@
     function openThemePaletteDrawer() {
       AudioEngine.play('numpad');
       triggerHapticPulse(30);
+      filterThemeCategory('all');
       openModal('modalThemePaletteDrawer');
     }
 
@@ -6693,10 +7094,42 @@
       closeModal('modalThemePaletteDrawer');
     }
 
+    function filterThemeCategory(cat) {
+      const btnAll = document.getElementById('btnTcAll');
+      const btnLight = document.getElementById('btnTcLight');
+      const btnBlue = document.getElementById('btnTcBlue');
+      const btnDark = document.getElementById('btnTcDark');
+
+      const btns = { 'all': btnAll, 'light': btnLight, 'blue': btnBlue, 'dark': btnDark };
+      Object.entries(btns).forEach(([k, btn]) => {
+        if (!btn) return;
+        if (k === cat) {
+          btn.className = "px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700";
+        }
+      });
+
+      const cards = document.querySelectorAll('#themeCardsContainer .theme-card');
+      cards.forEach(card => {
+        if (cat === 'all') {
+          card.classList.remove('hidden');
+        } else {
+          if (card.classList.contains('tc-' + cat)) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        }
+      });
+
+      AudioEngine.play('numpad');
+      triggerHapticPulse(25);
+    }
+
     // Apply saved theme immediately
     applyTheme(currentActiveTheme);
 
-    // ========================================================
     // 30-MINUTE OPERATIONAL / SHIFT / EYE-REST TIMER ENGINE
     // ========================================================
     const OperationalTimer = {

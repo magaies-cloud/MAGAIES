@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-04-m-flagship-v17-8-themes-and-timer';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-04-m-flagship-v18-17-themes-suite';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
