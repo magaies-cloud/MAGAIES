@@ -6120,12 +6120,12 @@ try {
                 <img src="assets/icon-192.png?v=2026_m_v6" alt="مقاييس" style="width:100%; height:100%; object-fit:cover;">
             </div>
             <div style="min-width:0;">
-                <strong style="font-size:0.92rem; color:#fff; display:block;">تطبيق مقاييس ERP</strong>
+                <strong style="font-size:0.92rem; color:#fff; display:block;">تطبيق مقاييس - ثبت الآن</strong>
                 <span style="font-size:0.75rem; color:#94a3b8;">إضافة أيقونة مقاييس الملونة لسطح المكتب والشاشة الرئيسية</span>
             </div>
         </div>
         <button type="button" class="btn-install-magaiees-action" onclick="PWAManager.triggerInstall()" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; border-radius:14px; padding:9px 16px; font-size:0.80rem; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; text-align:center; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 15px rgba(14,165,233,0.4);">
-            <i class="fa-solid fa-plus-circle"></i> 📲 إضافة لسطح المكتب
+            <i class="fa-solid fa-plus-circle"></i> 📲 ثبت الآن
         </button>
     </div>
 

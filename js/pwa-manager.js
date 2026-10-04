@@ -206,9 +206,6 @@ window.PWAManager = {
     renderFirstTimeInstallPrompts() {
         if (this.isStandalone) return;
 
-        // If user hasn't explicitly dismissed the banner this session, show it
-        const isDismissed = sessionStorage.getItem('magaiees_install_banner_dismissed') === '1';
-        
         // Show header install button
         const headerBtn = document.getElementById('headerPwaInstallBtn');
         if (headerBtn) {
@@ -216,9 +213,8 @@ window.PWAManager = {
             headerBtn.style.display = 'inline-flex';
         }
 
-        if (!isDismissed) {
-            this.renderFloatingInstallPill();
-        }
+        // Always present the requested top small screen for installation
+        this.renderFloatingInstallPill();
     },
 
     showInstallUI() {
@@ -246,38 +242,38 @@ window.PWAManager = {
             left: 50%;
             transform: translateX(-50%);
             z-index: 99999;
-            width: 92%;
-            max-width: 430px;
-            background: rgba(15, 23, 42, 0.96);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1.5px solid rgba(56, 189, 248, 0.6);
+            width: 94%;
+            max-width: 440px;
+            background: rgba(15, 23, 42, 0.98);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1.5px solid rgba(56, 189, 248, 0.7);
             border-radius: 24px;
             padding: 10px 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 10px;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 25px rgba(56, 189, 248, 0.25);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.35);
             animation: slideDownMagaiees 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             direction: rtl;
         `;
 
         pill.innerHTML = `
             <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:0;">
-                <div style="width:40px; height:40px; border-radius:12px; background:#0f172a; border:1.5px solid #38bdf8; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; box-shadow:0 0 12px rgba(56,189,248,0.4);">
+                <div style="width:42px; height:42px; border-radius:13px; background:#0f172a; border:1.8px solid #38bdf8; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; box-shadow:0 0 14px rgba(56,189,248,0.5);">
                     <img src="assets/icon-192.png?v=2026_m_v7" alt="أيقونة مقاييس" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='assets/apple-touch-icon.png'">
                 </div>
                 <div style="line-height:1.25; overflow:hidden;">
-                    <div style="font-size:0.84rem; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">تطبيق مقاييس ERP</div>
-                    <div style="font-size:0.7rem; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">تثبيت الأيقونة على الموبايل لسرعة الوصول</div>
+                    <div style="font-size:0.88rem; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">تطبيق مقاييس - ثبت الآن</div>
+                    <div style="font-size:0.72rem; color:#38bdf8; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">تثبيت الأيقونة على هاتفك لسرعة الوصول</div>
                 </div>
             </div>
             <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-                <button type="button" id="btnPwaActionInstall" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; border-radius:18px; padding:7px 14px; font-size:0.75rem; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; box-shadow:0 3px 12px rgba(14,165,233,0.5); display:flex; align-items:center; gap:5px;">
-                    <span>📲 تثبيت الآن</span>
+                <button type="button" id="btnPwaActionInstall" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; border-radius:18px; padding:8px 16px; font-size:0.78rem; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; box-shadow:0 3px 12px rgba(14,165,233,0.5); display:flex; align-items:center; gap:5px;">
+                    <span>📲 ثبت الآن</span>
                 </button>
-                <button type="button" onclick="PWAManager.dismissFloatingPill()" style="background:transparent; border:none; color:rgba(255,255,255,0.5); font-size:1.1rem; cursor:pointer; padding:4px 6px; line-height:1;" title="إغلاق">✕</button>
+                <button type="button" onclick="PWAManager.dismissFloatingPill()" style="background:transparent; border:none; color:rgba(255,255,255,0.6); font-size:1.15rem; cursor:pointer; padding:4px 6px; line-height:1;" title="إغلاق">✕</button>
             </div>
         `;
 
