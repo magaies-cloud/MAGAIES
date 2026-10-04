@@ -248,54 +248,109 @@
   <!-- ========================================================================= -->
   <div id="mainAppWorkspace" class="hidden min-h-screen flex flex-col pb-20 lg:pb-6">
 
-    <!-- MASTER TOP HEADER -->
-    <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-xl border-b border-white/10 px-4 md:px-6 py-2.5 flex items-center justify-between gap-3">
-      
-      <!-- Brand & Branch -->
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-600 via-sky-500 to-emerald-400 flex items-center justify-center font-black text-lg text-slate-950 shadow-md shadow-cyan-500/20">
-          م
+    <!-- MASTER TOP HEADER (MOBILE OPTIMIZED: مقاييس [أصفر] -> دائرة النت [خضراء/حمراء] -> [سهم + تثبيت] -> [خروج] -> [بقية الأيقونات]) -->
+    <header class="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-xl border-b border-white/10 px-3 sm:px-6 py-2.5">
+      <div class="flex items-center justify-between gap-2 overflow-x-auto no-scrollbar">
+        
+        <!-- Sequential Required Block: 1. مقاييس بالأصفر -> 2. دائرة النت -> 3. سهم وتثبيت -> 4. خروج -->
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+          
+          <!-- 1. في الأعلى توجد مقاييس باللون الأصفر -->
+          <div class="flex items-center gap-2 shrink-0 select-none" title="منظومة مقاييس ERP & POS">
+            <div class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 text-slate-950 font-black text-lg flex items-center justify-center shadow-lg shadow-yellow-500/25 ring-1 ring-yellow-400/40">
+              م
+            </div>
+            <div class="flex flex-col">
+              <span class="text-base sm:text-lg font-black text-yellow-400 tracking-tight leading-none drop-shadow-[0_0_10px_rgba(250,204,21,0.35)]">
+                مقاييس
+              </span>
+              <span class="text-[9px] font-bold text-amber-300/80 leading-tight hidden xs:inline">
+                ERP & POS
+              </span>
+            </div>
+          </div>
+
+          <!-- 2. جوارها دائرة خضراء دلالة على أن النت واصل، وتكون حمراء عند انقطاع النت -->
+          <button 
+            id="netStatusBtn" 
+            onclick="toggleNetworkConnection()" 
+            class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-slate-500 transition-all shrink-0 active:scale-95 shadow-sm group" 
+            title="حالة اتصال الإنترنت: انقر للتبديل بين متصل وغير متصل"
+          >
+            <!-- Circular dot indicator: Green (Online) / Red (Offline) -->
+            <span id="netStatusDot" class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.9)]"></span>
+            <span id="netStatusLabel" class="text-[11px] font-bold text-emerald-400 hidden sm:inline transition-colors">النت واصل</span>
+          </button>
+
+          <!-- 3. زر أزرق فيه سهم تثبيت التطبيق والتثبيت -->
+          <button 
+            id="installAppBtn" 
+            onclick="handleInstallApp()" 
+            class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-600 text-white hover:brightness-110 text-xs font-bold transition-all shrink-0 active:scale-95 shadow-md shadow-sky-500/30" 
+            title="تثبيت التطبيق على الجوال / الشاشة الرئيسية"
+          >
+            <!-- Arrow Down / Install Icon -->
+            <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+            <span class="font-bold text-white">تثبيت</span>
+          </button>
+
+          <!-- 4. خروج -->
+          <button 
+            id="logoutHeaderBtn" 
+            onclick="handleLogout()" 
+            class="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/35 hover:border-rose-400 text-rose-300 hover:text-rose-200 text-xs font-bold transition-all shrink-0 active:scale-95 shadow-sm shadow-rose-500/10" 
+            title="تسجيل الخروج من الجوال"
+          >
+            <!-- Logout Exit Icon -->
+            <svg class="w-3.5 h-3.5 text-rose-400 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            <span class="font-bold">خروج</span>
+          </button>
+
         </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h2 class="text-sm md:text-base font-extrabold text-white">مقاييس ERP & POS</h2>
-            <span id="activeBranchHeaderBadge" class="hidden sm:inline-flex px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-semibold">
+
+        <!-- 5. بقية الأيقونات: متحركة وسلسة التمرير (Remaining Utility Icons) -->
+        <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 overflow-x-auto no-scrollbar scroll-smooth" id="header-moving-icons">
+          
+          <!-- أيقونة التنبيهات مع الشارة الرقمية -->
+          <button onclick="navigateToTab('risk')" class="relative p-2 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white text-xs transition-all shrink-0 active:scale-95" title="مركز تنبيهات المخاطر المباشرة">
+            <span class="text-sm">🔔</span>
+            <span class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[9px] font-black flex items-center justify-center shadow-sm animate-pulse">2</span>
+          </button>
+
+          <!-- أيقونة درع الخصوصية (••••••) -->
+          <button id="privacyShieldToggleBtn" onclick="togglePrivacyShield()" class="p-2 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white text-xs transition-all shrink-0 active:scale-95" title="درع الخصوصية الميداني (إخفاء الأرقام)">
+            <span id="privacyIcon" class="text-sm">👁️</span>
+          </button>
+
+          <!-- أيقونة راحة العين الليلية -->
+          <button id="circadianToggleBtn" onclick="toggleCircadianRelief()" class="p-2 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-amber-400 text-slate-200 hover:text-white text-xs transition-all shrink-0 active:scale-95" title="راحة العين الليلية وشاشات OLED">
+            <span id="circadianIcon" class="text-sm">🌙</span>
+          </button>
+
+          <!-- أيقونة السمات والواجهة -->
+          <button onclick="navigateToTab('themes')" class="p-2 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white text-xs transition-all shrink-0 active:scale-95" title="سمات المنظومة الملكية">
+            <span class="text-sm">🎨</span>
+          </button>
+
+          <!-- أيقونة الإعدادات -->
+          <button onclick="showToast('⚙️ تم فتح الإعدادات السريعة للنظام', '⚙️')" class="p-2 rounded-xl bg-slate-900/90 border border-slate-700/80 hover:border-cyan-400 text-slate-200 hover:text-white text-xs transition-all shrink-0 active:scale-95" title="إعدادات التطبيق والمحطة">
+            <span class="text-sm">⚙️</span>
+          </button>
+
+          <!-- معلومات الفرع والوقت (تظهر للشاشات اللوحية والكبيرة) -->
+          <div class="hidden lg:flex items-center gap-2 pr-2 mr-1 border-r border-white/10 text-xs text-slate-400">
+            <span id="activeBranchHeaderBadge" class="px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700 text-slate-300 text-[10px] font-semibold">
               الرياض - الساحة 02
             </span>
-          </div>
-          <div class="flex items-center gap-2 text-[11px] text-slate-400">
-            <span id="currentUserRoleHeader">المدير التنفيذي</span>
-            <span>•</span>
             <span id="liveClockDisplay" class="font-mono text-cyan-300 tabular-num">17:25</span>
           </div>
+
         </div>
-      </div>
 
-      <!-- Quick Action Controls -->
-      <div class="flex items-center gap-2">
-        
-        <!-- Offline / Online Field Toggle -->
-        <button id="netStatusBtn" onclick="toggleNetworkConnection()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold transition-all">
-          <span id="netStatusDot" class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span id="netStatusLabel" class="hidden md:inline">متصل (Online)</span>
-        </button>
-
-        <!-- Privacy Shield (••••••) -->
-        <button id="privacyShieldToggleBtn" onclick="togglePrivacyShield()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-cyan-400 text-slate-200 text-xs font-semibold transition-all" title="درع الخصوصية الميداني">
-          <span id="privacyIcon">👁️</span>
-          <span class="hidden md:inline">الخصوصية</span>
-        </button>
-
-        <!-- Circadian Eye Relief (Night Warmth) -->
-        <button id="circadianToggleBtn" onclick="toggleCircadianRelief()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-amber-400 text-slate-200 text-xs font-semibold transition-all" title="راحة العين الليلية وشاشات OLED">
-          <span id="circadianIcon">🌙</span>
-        </button>
-
-        <!-- Logout Button -->
-        <button onclick="handleLogout()" class="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-300 text-xs font-bold transition-all">
-          <span>خروج</span>
-          <span>🚪</span>
-        </button>
       </div>
     </header>
 
@@ -911,6 +966,51 @@
     </div>
   </div>
 
+  <!-- INSTALL APP MODAL (FOR MOBILE INSTALLATION) -->
+  <div id="installAppModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="royal-glass-card max-w-sm w-full p-5 space-y-4 border border-yellow-500/40 animate-in fade-in zoom-in-95 duration-200">
+      <div class="flex items-center justify-between pb-3 border-b border-white/10">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-yellow-400 text-slate-950 font-black text-sm flex items-center justify-center">
+            م
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-yellow-400">تثبيت تطبيق مقاييس</h3>
+            <p class="text-[10px] text-slate-400">إضافة التطبيق للشاشة الرئيسية للجوال</p>
+          </div>
+        </div>
+        <button onclick="closeInstallModal()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs">✕</button>
+      </div>
+
+      <div class="space-y-2.5 text-xs text-slate-300 leading-relaxed">
+        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700/80 space-y-1">
+          <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+            <span>🤖</span>
+            <span>هواتف أندرويد (Chrome):</span>
+          </span>
+          <p class="text-slate-400 text-[11px]">اضغط على زر القائمة (⋮) أعلى المتصفح، ثم اختر <strong class="text-yellow-400">"تثبيت التطبيق"</strong> أو <strong class="text-yellow-400">"إضافة إلى الشاشة الرئيسية"</strong>.</p>
+        </div>
+
+        <div class="p-3 rounded-xl bg-slate-900/90 border border-slate-700/80 space-y-1">
+          <span class="font-bold text-sky-400 flex items-center gap-1.5">
+            <span>🍏</span>
+            <span>هواتف آيفون (Safari):</span>
+          </span>
+          <p class="text-slate-400 text-[11px]">اضغط على زر المشاركة (<strong class="text-sky-300">Share ⎋</strong>) أسفل الشاشة، ثم اختر <strong class="text-yellow-400">"إضافة إلى الشاشة الرئيسية"</strong>.</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 pt-1">
+        <button onclick="triggerPwaPrompt(); closeInstallModal();" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 text-slate-950 font-black text-xs shadow-lg shadow-yellow-500/20 active:scale-95 transition-all">
+          تثبيت فوري الآن
+        </button>
+        <button onclick="closeInstallModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition-all">
+          إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- CLIENT SCRIPTS & TAFQEET ENGINE -->
   <script>
     // -------------------------------------------------------------------------
@@ -1248,21 +1348,77 @@
       showToast(circadianActive ? '🌙 تم تفعيل نمط راحة العين الليلي وترشيد OLED' : '☀️ الإضاءة النهارية القياسية');
     }
 
+    // Network connectivity status: Green = Online, Red = Disconnected
     let isOnline = true;
-    function toggleNetworkConnection() {
-      isOnline = !isOnline;
+    function updateNetworkDisplay(online) {
+      isOnline = online;
       const dot = document.getElementById('netStatusDot');
       const label = document.getElementById('netStatusLabel');
 
       if (!isOnline) {
-        dot.className = 'w-2 h-2 rounded-full bg-slate-400';
-        label.innerText = 'أوفلاين سريع (< 2ms)';
-        showToast('⚡ تم التحويل لوضع الساحات فائق السرعة بدون إنترنت');
+        // Red dot when offline
+        if (dot) dot.className = 'w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-rose-500 shadow-[0_0_12px_rgba(244,63,94,0.95)] animate-pulse ring-2 ring-rose-500/30';
+        if (label) {
+          label.innerText = 'انقطع النت';
+          label.className = 'text-[11px] font-bold text-rose-400 hidden sm:inline';
+        }
+        showToast('🔴 انقطع النت — تم التبديل تلقائياً لوضع العمل دون اتصال (Offline)', '⚠️');
       } else {
-        dot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
-        label.innerText = 'متصل (Online)';
-        showToast('✓ متصل بالخادم المركزي ومكتمل المزامنة');
+        // Green dot when online
+        if (dot) dot.className = 'w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.95)] animate-pulse ring-2 ring-emerald-500/30';
+        if (label) {
+          label.innerText = 'النت واصل';
+          label.className = 'text-[11px] font-bold text-emerald-400 hidden sm:inline';
+        }
+        showToast('🟢 النت واصل — متصل بالسيرفر المركزي والمزامنة نشطة', '✓');
       }
+    }
+
+    function toggleNetworkConnection() {
+      updateNetworkDisplay(!isOnline);
+    }
+
+    // Auto-detect mobile network status
+    window.addEventListener('online', () => updateNetworkDisplay(true));
+    window.addEventListener('offline', () => updateNetworkDisplay(false));
+
+    // Mobile App Installation (PWA / Home Screen Pinning)
+    let deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+    });
+
+    function handleInstallApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            showToast('✓ جاري تثبيت تطبيق مقاييس على هاتفك...', '📥');
+          }
+          deferredPrompt = null;
+        });
+      } else {
+        openInstallModal();
+      }
+    }
+
+    function triggerPwaPrompt() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+      } else {
+        showToast('📱 اتبع الخطوات الموضحة لإضافة التطبيق للشاشة الرئيسية', '📲');
+      }
+    }
+
+    function openInstallModal() {
+      const modal = document.getElementById('installAppModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeInstallModal() {
+      const modal = document.getElementById('installAppModal');
+      if (modal) modal.classList.add('hidden');
     }
 
     function sendWhatsAppClosureReport() {

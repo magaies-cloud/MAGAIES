@@ -708,7 +708,7 @@ try {
     <meta name="theme-color" content="<?php echo $themeColorHex; ?>">
     <title><?php echo htmlspecialchars($preloadedData['companyName']); ?> - النسخة السريعة</title>
     <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
-    <script src="js/pwa-manager.js?v=2026_10_03_v9_suite" defer></script>
+    <script src="js/pwa-manager.js?v=2026_10_04_v26_blue_install" defer></script>
 
     <!-- Dynamic Viewport Auto-Redirect & Auth Gate -->
     <script>
@@ -6035,35 +6035,77 @@ try {
     <!-- 1. Sticky Mobile App Header -->
     <!-- 1. Sticky Mobile App Header (Ergonomic Dual-Row Layout) -->
     <header class="mobile-header">
-        <!-- Row 1: Brand + Branch + Live Internet Status Dot + Quick Refresh Button -->
+        <!-- Row 1: بالتنسيق المطلوب: مقاييس صفراء -> دائرة النت (خضراء/حمراء) -> الزر الأزرق للتثبيت بالسهم -> خروج -> بقية الأيقونات المتحركة -->
         <div class="header-top-row">
-            <div class="header-top-content">
-                <!-- Brand & Branch on right side -->
-                <div style="display:flex; align-items:center; gap:7px; min-width:0;">
-                    <div class="brand-avatar" onclick="calibrateMobileScreen(true)" title="شعار مقاييس المعتمد — اضغط لوزن الشاشة">
-                        <img src="assets/icon-192.png?v=2026_m_v6" alt="شعار مقاييس" class="brand-avatar-img">
+            <div class="header-top-content" style="display:flex; align-items:center; width:100%; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; scrollbar-width:none; padding-bottom:2px;">
+                
+                <!-- المجموعة الأساسية الثابتة: 1. مقاييس صفراء + 2. دائرة النت + 3. الزر الأزرق للتثبيت + 4. خروج -->
+                <div style="display:flex; align-items:center; gap:5px; flex-shrink:0;">
+                    <!-- 1. علامة مقاييس صفراء -->
+                    <div class="brand-avatar" style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg, #FACC15, #EAB308); display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(250,204,21,0.4); flex-shrink:0;" title="مقاييس ERP & POS">
+                        <span style="font-weight:900; font-size:14px; color:#0f172a;">م</span>
                     </div>
-                    <div class="brand-title-wrap">
-                        <span style="font-weight:900; font-size:0.92rem; letter-spacing:-0.3px;">مقاييس</span>
+                    <div class="brand-title-wrap" style="flex-shrink:0;">
+                        <span style="font-weight:900; font-size:0.98rem; color:#FACC15; letter-spacing:0.2px; text-shadow:0 0 10px rgba(250,204,21,0.5);">مقاييس</span>
                     </div>
-                    <button type="button" class="branch-pill" id="btn-branch-header" onclick="openBottomSheet('sheet-branch-picker')" title="الفرع: فرع السجانة — اضغط لتغيير الفرع">
-                        <i class="fa-solid fa-store" style="color:var(--primary); font-size:0.80rem;"></i>
-                        <span id="header-branch-name" style="max-width:85px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">فرع السجانة</span>
-                        <i class="fa-solid fa-chevron-down" style="font-size:0.50rem; opacity:0.6;"></i>
+
+                    <!-- 2. دائرة خضراء صغيرة دلالة على أن النت شغال، وتكون حمراء عند انقطاع النت (مؤشر صغير) -->
+                    <button type="button" class="header-net-status-mini online" id="header-net-indicator" onclick="checkNetworkAndNotify()" style="width:24px; height:24px; border-radius:50%; background:#0f172a; border:1.5px solid rgba(16,185,129,0.5); display:flex; align-items:center; justify-content:center; cursor:pointer; padding:0; flex-shrink:0; transition:all 0.2s;" title="حالة الإنترنت: أخضر = شغال، أحمر = منقطع (اضغط للتبديل)">
+                        <span class="net-status-dot online" id="header-net-dot" style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981; display:inline-block;"></span>
+                    </button>
+
+                    <!-- 3. زر أزرق فيه سهم تثبيت التطبيق والتثبيت كما طلب المستخدم بدقة -->
+                    <button type="button" class="header-install-btn header-pwa-blue-btn" id="btn-header-install" onclick="triggerNativeAppInstall()" style="display:inline-flex; align-items:center; gap:4px; background:linear-gradient(135deg, #0ea5e9, #2563eb); border:1px solid rgba(56,189,248,0.6); color:#ffffff; padding:4px 9px; border-radius:11px; font-size:0.75rem; font-weight:900; cursor:pointer; flex-shrink:0; box-shadow:0 2px 10px rgba(14,165,233,0.45); transition:all 0.2s;" title="تثبيت التطبيق على الجوال">
+                        <i class="fa-solid fa-arrow-down" style="color:#ffffff; font-size:0.72rem;"></i>
+                        <span style="color:#ffffff; font-weight:900;">تثبيت</span>
+                    </button>
+
+                    <!-- 4. وبعدها خروج -->
+                    <button type="button" class="header-logout-btn" id="btn-header-logout" onclick="triggerMobileLogout()" style="display:inline-flex; align-items:center; gap:3px; background:rgba(244,63,94,0.16); border:1px solid rgba(244,63,94,0.4); color:#FECDD3; padding:4px 8px; border-radius:11px; font-size:0.74rem; font-weight:800; cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(244,63,94,0.12); transition:all 0.2s;" title="تسجيل الخروج والرجوع لشاشة الدخول">
+                        <i class="fa-solid fa-arrow-right-from-bracket" style="color:#FB7185; font-size:0.72rem;"></i>
+                        <span>خروج</span>
                     </button>
                 </div>
 
-                <!-- Live Internet Dot + Refresh Button on left side -->
-                <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-                    <!-- 🟢 Online / 🔴 Offline Indicator Dot -->
-                    <div class="header-net-status-wrap online" id="header-net-indicator" onclick="checkNetworkAndNotify()" title="حالة الإنترنت: متصل (Online)">
-                        <span class="net-status-dot online" id="header-net-dot"></span>
-                        <span class="net-status-label" id="header-net-label">متصل</span>
-                    </div>
+                <!-- فاصل عمودي ناعم -->
+                <div style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
+
+                <!-- 5. بقية الأيقونات: متحركة وسلسة التمرير لعرض كافة أدوات النظام دون انقطاع -->
+                <div class="dynamic-moving-icons-stream" id="header-moving-icons" style="display:flex; align-items:center; gap:5px; flex-shrink:0; scroll-behavior:smooth;">
+                    <!-- المايك AI -->
+                    <button type="button" onclick="openAiVoiceCopilotModal()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(99,102,241,0.25)); border:1px solid rgba(168,85,247,0.45); color:#c084fc; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="المساعد الصوتي المحاسبي الذكي">
+                        <i class="fa-solid fa-microphone" style="font-size:0.75rem;"></i>
+                    </button>
 
                     <!-- 🔄 Header Quick Refresh Button -->
-                    <button type="button" class="header-refresh-btn" id="btn-header-refresh" onclick="triggerHeaderRefresh(this)" title="تحديث فوري لبيانات النظام">
-                        <i class="fa-solid fa-arrows-rotate" id="header-refresh-spinner"></i>
+                    <button type="button" class="header-refresh-btn" id="btn-header-refresh" onclick="triggerHeaderRefresh(this)" style="width:28px; height:28px; border-radius:9px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.35); color:#38bdf8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="تحديث فوري لبيانات النظام">
+                        <i class="fa-solid fa-arrows-rotate" id="header-refresh-spinner" style="font-size:0.75rem;"></i>
+                    </button>
+
+                    <!-- 👁️ درع الخصوصية -->
+                    <button type="button" onclick="togglePrivacyStealthMode()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#38bdf8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="وضع الخصوصية: إخفاء الأرقام بنجوم">
+                        <i class="fa-solid fa-eye" style="font-size:0.75rem;"></i>
+                    </button>
+
+                    <!-- 🔍 البحث السريع -->
+                    <button type="button" onclick="openBottomSheet('sheet-global-search')" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="البحث السريع الشامل">
+                        <i class="fa-solid fa-magnifying-glass" style="font-size:0.75rem;"></i>
+                    </button>
+
+                    <!-- 🎨 تبديل السمات -->
+                    <button type="button" onclick="cycleQuickTheme()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#f59e0b; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="تبديل السمات">
+                        <i class="fa-solid fa-palette" style="font-size:0.75rem;"></i>
+                    </button>
+
+                    <!-- 🔔 التنبيهات -->
+                    <button type="button" onclick="switchMobileTab('approvals')" class="header-refresh-btn" style="position:relative; width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="التنبيهات">
+                        <i class="fa-solid fa-bell" style="font-size:0.75rem;"></i>
+                        <span style="position:absolute; top:-2px; right:-2px; width:7px; height:7px; border-radius:50%; background:#ef4444; border:1px solid #0f172a;"></span>
+                    </button>
+
+                    <!-- 🖥️ سطح المكتب -->
+                    <button type="button" onclick="switchToDesktopDashboard()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#94a3b8; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="نسخة سطح المكتب">
+                        <i class="fa-solid fa-desktop" style="font-size:0.72rem;"></i>
                     </button>
                 </div>
             </div>
@@ -10714,29 +10756,64 @@ try {
             }, 600);
         };
 
+        window.isSimulatedNetOffline = false;
         window.checkNetworkAndNotify = function() {
-            const online = navigator.onLine;
+            window.isSimulatedNetOffline = !window.isSimulatedNetOffline;
+            const online = !window.isSimulatedNetOffline && navigator.onLine;
             if (typeof triggerHaptic === 'function') triggerHaptic('light');
+
+            const dot = document.getElementById('header-net-dot');
+            const wrap = document.getElementById('header-net-indicator');
+            if (dot) dot.className = online ? 'net-status-dot online' : 'net-status-dot offline';
+            if (wrap) {
+                wrap.className = online ? 'header-net-status-mini online' : 'header-net-status-mini offline';
+                wrap.title = online ? 'حالة الإنترنت: متصل (Online)' : 'حالة الإنترنت: غير متصل (Offline)';
+            }
+
             if (online) {
                 if (window.showModernToast) {
-                    window.showModernToast('🟢 الإنترنت متصل بالكامل — جميع العمليات تتزامن لحظياً مع السيرفر', 'success', 3000);
+                    window.showModernToast('🟢 النت شغال ومتصل بالكامل بالسيرفر المركزي', 'success', 2500);
                 }
             } else {
                 if (window.showModernToast) {
-                    window.showModernToast('🔴 انقطع الاتصال بالإنترنت — نظام الأوفلاين نشط ويحفظ كافة الحركات محلياً', 'warning', 4000);
+                    window.showModernToast('🔴 انقطع النت — تحول النظام للعمل دون اتصال (Offline)', 'warning', 3000);
                 }
+            }
+        };
+
+        window.triggerNativeAppInstall = function() {
+            if (window.deferredPrompt) {
+                window.deferredPrompt.prompt();
+                window.deferredPrompt.userChoice.then(() => { window.deferredPrompt = null; });
+            } else if (window.PWAManager && typeof window.PWAManager.triggerInstall === 'function') {
+                window.PWAManager.triggerInstall();
+            } else {
+                if (window.showModernToast) {
+                    window.showModernToast('📲 لتثبيت التطبيق: اضغط خيارات المتصفح (⋮) ثم اختر "تثبيت التطبيق" أو "إضافة للشاشة الرئيسية"', 'info', 4500);
+                } else {
+                    alert('📲 لتثبيت التطبيق: اضغط خيارات المتصفح (⋮) ثم اختر "تثبيت التطبيق" أو "إضافة للشاشة الرئيسية"');
+                }
+            }
+        };
+
+        window.triggerMobileLogout = function() {
+            if (confirm('هل ترغب بتسجيل الخروج من تطبيق مقاييس والعودة لشاشة الدخول؟')) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('user');
+                sessionStorage.clear();
+                document.cookie = "session_active=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = 'login.php';
             }
         };
 
         // Window Online / Offline Live Listeners
         window.addEventListener('online', () => {
+            window.isSimulatedNetOffline = false;
             const dot = document.getElementById('header-net-dot');
-            const label = document.getElementById('header-net-label');
             const wrap = document.getElementById('header-net-indicator');
             if (dot) dot.className = 'net-status-dot online';
-            if (label) label.innerText = 'متصل';
             if (wrap) {
-                wrap.className = 'header-net-status-wrap online';
+                wrap.className = 'header-net-status-mini online';
                 wrap.title = 'حالة الإنترنت: متصل (Online)';
             }
             if (window.showModernToast) {
@@ -10748,13 +10825,12 @@ try {
         });
 
         window.addEventListener('offline', () => {
+            window.isSimulatedNetOffline = true;
             const dot = document.getElementById('header-net-dot');
-            const label = document.getElementById('header-net-label');
             const wrap = document.getElementById('header-net-indicator');
             if (dot) dot.className = 'net-status-dot offline';
-            if (label) label.innerText = 'منقطع';
             if (wrap) {
-                wrap.className = 'header-net-status-wrap offline';
+                wrap.className = 'header-net-status-mini offline';
                 wrap.title = 'انقطع اتصال الإنترنت (Offline) — الحركات تحفظ محلياً';
             }
             if (window.showModernToast) {

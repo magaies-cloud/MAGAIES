@@ -28,6 +28,8 @@ window.PWAManager = {
         this.setupAdaptiveResizeListener();
         this.bindExistingDomButtons();
         this.renderFirstTimeInstallPrompts();
+        this.updateFlagshipInstallButton();
+        this.setupConnectionMonitor();
         this.loadCachedDataFirst();
         this.syncRealData();
 
@@ -48,6 +50,7 @@ window.PWAManager = {
             document.body && document.body.classList.add('is-pwa-standalone');
             this.hideAllInstallBanners();
         }
+        this.updateFlagshipInstallButton();
     },
 
     detectPlatform() {
@@ -136,18 +139,12 @@ window.PWAManager = {
     },
 
     updateCalibrationBadge() {
+        // Completely remove device calibration badge as requested
         const badge = document.getElementById('deviceCalibrationBadge');
-        if (!badge) return;
-
-        const p = this.deviceProfile;
-        const icon = p.deviceType === 'ios' ? '🍎' : '🤖';
-        badge.innerHTML = `
-            <span class="text-xs">${icon}</span>
-            <span class="truncate">${p.deviceName}</span>
-            <span class="text-slate-400 font-mono text-[9px]">(${p.width}×${p.height})</span>
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#10b981]"></span>
-        `;
-        badge.title = `معايرة الشاشة موزونة تلقائياً لجهاز ${p.deviceName} (${p.width}×${p.height}px)`;
+        if (badge) {
+            badge.remove();
+        }
+        document.querySelectorAll('.device-calibration-badge, [data-calibration-badge]').forEach(el => el.remove());
     },
 
     setupAdaptiveResizeListener() {
@@ -194,7 +191,9 @@ window.PWAManager = {
         window.addEventListener('appinstalled', () => {
             this.deferredPrompt = null;
             this.isStandalone = true;
+            try { localStorage.setItem('magaiees_pwa_installed', '1'); } catch (e) {}
             this.hideAllInstallBanners();
+            this.updateFlagshipInstallButton();
             if (window.showModernToast) {
                 window.showModernToast('🎉 تم تثبيت تطبيق مقاييس بنجاح على الشاشة الرئيسية!', 'success', 5000);
             } else {
@@ -208,83 +207,28 @@ window.PWAManager = {
 
         // Show header install button
         const headerBtn = document.getElementById('headerPwaInstallBtn');
+        const headerBtn = document.getElementById('headerPwaInstallBtn') || document.getElementById('btn-header-install');
         if (headerBtn) {
             headerBtn.classList.remove('hidden');
             headerBtn.style.display = 'inline-flex';
         }
-
-        // Always present the requested top small screen for installation
-        this.renderFloatingInstallPill();
     },
 
     showInstallUI() {
         if (this.isStandalone) return;
 
-        const headerBtn = document.getElementById('headerPwaInstallBtn');
+        const headerBtn = document.getElementById('headerPwaInstallBtn') || document.getElementById('btn-header-install');
         if (headerBtn) {
             headerBtn.classList.remove('hidden');
             headerBtn.style.display = 'inline-flex';
         }
-
-        if (!document.getElementById('magaiees-floating-install-pill')) {
-            this.renderFloatingInstallPill();
-        }
     },
 
     renderFloatingInstallPill() {
-        if (this.isStandalone || document.getElementById('magaiees-floating-install-pill')) return;
-
-        const pill = document.createElement('div');
-        pill.id = 'magaiees-floating-install-pill';
-        pill.style.cssText = `
-            position: fixed;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 99999;
-            width: 94%;
-            max-width: 440px;
-            background: rgba(15, 23, 42, 0.98);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1.5px solid rgba(56, 189, 248, 0.7);
-            border-radius: 24px;
-            padding: 10px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(56, 189, 248, 0.35);
-            animation: slideDownMagaiees 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-            direction: rtl;
-        `;
-
-        pill.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px; flex:1; min-width:0;">
-                <div style="width:42px; height:42px; border-radius:13px; background:#0f172a; border:1.8px solid #38bdf8; display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; box-shadow:0 0 14px rgba(56,189,248,0.5);">
-                    <img src="assets/icon-192.png?v=2026_m_v7" alt="أيقونة مقاييس" style="width:100%; height:100%; object-fit:cover;" onerror="this.src='assets/apple-touch-icon.png'">
-                </div>
-                <div style="line-height:1.25; overflow:hidden;">
-                    <div style="font-size:0.88rem; font-weight:900; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">تطبيق مقاييس - ثبت الآن</div>
-                    <div style="font-size:0.72rem; color:#38bdf8; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">تثبيت الأيقونة على هاتفك لسرعة الوصول</div>
-                </div>
-            </div>
-            <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
-                <button type="button" id="btnPwaActionInstall" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; border-radius:18px; padding:8px 16px; font-size:0.78rem; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; box-shadow:0 3px 12px rgba(14,165,233,0.5); display:flex; align-items:center; gap:5px;">
-                    <span>📲 ثبت الآن</span>
-                </button>
-                <button type="button" onclick="PWAManager.dismissFloatingPill()" style="background:transparent; border:none; color:rgba(255,255,255,0.6); font-size:1.15rem; cursor:pointer; padding:4px 6px; line-height:1;" title="إغلاق">✕</button>
-            </div>
-        `;
-
-        document.body.appendChild(pill);
-
-        const btn = document.getElementById('btnPwaActionInstall');
-        if (btn) {
-            btn.onclick = () => this.triggerInstall();
-        }
-    },
-
+        // Disabled so it does not obscure the top header bar
+        const existingPill = document.getElementById('magaiees-floating-install-pill');
+        if (existingPill) existingPill.remove();
+        return;
     dismissFloatingPill() {
         sessionStorage.setItem('magaiees_install_banner_dismissed', '1');
         const pill = document.getElementById('magaiees-floating-install-pill');
@@ -298,6 +242,8 @@ window.PWAManager = {
             this.deferredPrompt.userChoice.then((choiceResult) => {
                 if (choiceResult.outcome === 'accepted') {
                     console.log('[Magaiees PWA] User accepted installation');
+                    try { localStorage.setItem('magaiees_pwa_installed', '1'); } catch (e) {}
+                    this.isStandalone = true;
                 }
                 this.deferredPrompt = null;
                 this.hideAllInstallBanners();
@@ -397,6 +343,139 @@ window.PWAManager = {
         if (pill) pill.remove();
         const headerBtn = document.getElementById('headerPwaInstallBtn');
         if (headerBtn) headerBtn.style.display = 'none';
+        this.updateFlagshipInstallButton();
+    },
+
+    updateFlagshipInstallButton() {
+        const btn = document.getElementById('flagshipPwaInstallBtn');
+        if (!btn) return;
+
+        const isInstalled = this.isStandalone || (function() {
+            try { return localStorage.getItem('magaiees_pwa_installed') === '1'; } catch(e) { return false; }
+        })();
+
+        const emblem = document.getElementById('flagshipPwaEmblem');
+        const label = document.getElementById('flagshipPwaLabel');
+
+        if (isInstalled) {
+            btn.classList.add('is-installed');
+            btn.classList.remove('flagship-sky');
+            btn.classList.add('flagship-emerald');
+            btn.title = 'تطبيق مقاييس مثبت كنسخة أصلية كاملة على هاتفك';
+            if (emblem) {
+                emblem.innerHTML = `
+                    <svg class="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+                    </svg>
+                `;
+            }
+            if (label) {
+                label.textContent = 'مثبت ✓';
+                label.style.color = '#6ee7b7';
+            }
+        } else {
+            btn.classList.remove('is-installed');
+            btn.classList.remove('flagship-emerald');
+            btn.classList.add('flagship-sky');
+            btn.title = 'تثبيت أيقونة التطبيق على شاشة الجوال';
+            if (emblem) {
+                emblem.innerHTML = `
+                    <svg class="w-4 h-4 text-sky-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                    </svg>
+                `;
+            }
+            if (label) {
+                label.textContent = 'تثبيت';
+                label.style.color = '';
+            }
+        }
+    },
+
+    handleInstallClick(btn) {
+        const isInstalled = this.isStandalone || (function() {
+            try { return localStorage.getItem('magaiees_pwa_installed') === '1'; } catch(e) { return false; }
+        })();
+
+        if (isInstalled) {
+            if (window.showModernToast) {
+                window.showModernToast('✨ تطبيق مقاييس مثبت كنسخة أصلية ويعمل بكامل صلاحياته على جهازك!', 'success', 3500);
+            } else {
+                alert('✨ تطبيق مقاييس مثبت كنسخة أصلية ويعمل بكامل صلاحياته على جهازك!');
+            }
+            return;
+        }
+        this.triggerInstall();
+    },
+
+    setupConnectionMonitor() {
+        this.setConnectionState(navigator.onLine);
+        window.addEventListener('online', () => {
+            this.setConnectionState(true);
+            this.syncRealData(false);
+            if (window.showModernToast) window.showModernToast('🌐 تم استعادة الاتصال بالإنترنت', 'success', 3000);
+        });
+        window.addEventListener('offline', () => {
+            this.setConnectionState(false, 'لا يوجد إنترنت');
+            if (window.showModernToast) window.showModernToast('⚠️ انقطع الاتصال بالإنترنت - يعمل بالذاكرة المؤقتة', 'warning', 4000);
+        });
+    },
+
+    setConnectionState(isOnline, reason = '') {
+        const dot = document.getElementById('connectionDot');
+        const ring = document.getElementById('connectionDotRing');
+        const indicator = document.getElementById('headerConnectionIndicator');
+
+        if (dot && indicator) {
+            if (isOnline) {
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] transition-colors duration-300';
+                if (ring) {
+                    ring.className = 'absolute inset-0 rounded-full bg-emerald-500/25 animate-ping';
+                    ring.style.display = 'block';
+                }
+                indicator.title = 'حالة الاتصال: متصل بالإنترنت وقاعدة البيانات (Online)';
+                indicator.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+            } else {
+                dot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e] transition-colors duration-300';
+                if (ring) {
+                    ring.className = 'absolute inset-0 rounded-full bg-rose-500/30 animate-pulse';
+                    ring.style.display = 'block';
+                }
+                indicator.title = reason ? `حالة الاتصال: غير متصل (${reason})` : 'حالة الاتصال: انقطع الإنترنت (Offline)';
+                indicator.style.borderColor = 'rgba(244, 63, 94, 0.5)';
+            }
+        }
+
+        // Also update mobile-dashboard.php indicators if present
+        const netDot = document.getElementById('header-net-dot');
+        const netWrap = document.getElementById('header-net-indicator');
+        if (netDot) {
+            netDot.className = isOnline ? 'net-status-dot online' : 'net-status-dot offline';
+        }
+        if (netWrap) {
+            netWrap.className = isOnline ? 'header-net-status-mini online' : 'header-net-status-mini offline';
+            netWrap.title = isOnline ? 'حالة الإنترنت: متصل (Online)' : 'حالة الإنترنت: انقطع الإنترنت (Offline)';
+        }
+    },
+
+    toggleNetworkSimulation() {
+        this.isSimulatedOffline = !this.isSimulatedOffline;
+        this.setConnectionState(!this.isSimulatedOffline, this.isSimulatedOffline ? 'انقطاع الإنترنت' : '');
+        if (window.showModernToast) {
+            if (this.isSimulatedOffline) {
+                window.showModernToast('🔴 انقطع الإنترنت! النظام يعمل محلياً', 'warning', 3000);
+            } else {
+                window.showModernToast('🟢 الإنترنت شغال ومتصل بنجاح (Online)', 'success', 3000);
+            }
+        }
+    },
+
+    triggerConnectionPulse() {
+        const dot = document.getElementById('connectionDot');
+        if (dot) {
+            dot.style.transform = 'scale(1.5)';
+            setTimeout(() => { if (dot) dot.style.transform = ''; }, 350);
+        }
     },
 
     bindExistingDomButtons() {
@@ -463,6 +542,7 @@ window.PWAManager = {
                 this.lastSyncTimestamp = new Date();
 
                 this.hydrateViewsWithRealData(data, false);
+                this.setConnectionState(true);
 
                 if (syncStatusPill) {
                     const timeStr = this.lastSyncTimestamp.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
@@ -480,6 +560,7 @@ window.PWAManager = {
             }
         } catch (err) {
             console.error('[Sync Error]', err);
+            this.setConnectionState(false, !navigator.onLine ? 'لا يوجد إنترنت' : 'تعذر الاتصال بالخادم');
             if (syncStatusPill) {
                 syncStatusPill.innerHTML = `
                     <span class="w-2 h-2 rounded-full bg-amber-400"></span>
@@ -737,9 +818,45 @@ window.PWAManager = {
     }
 };
 
+window.triggerConnectionPulse = () => window.PWAManager.triggerConnectionPulse();
+
 // Auto-initialize PWA Manager
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => window.PWAManager.init());
 } else {
     window.PWAManager.init();
 }
+
+// 🧹 Auto-Purge any legacy Android badges, resolution markers, or rogue device labels
+function purgeLegacyAndroidBadges() {
+    try {
+        const killList = ['#deviceCalibrationBadge', '#viewport-indicator-label', '.device-calibration-badge', '[data-calibration-badge]', '#magaiees-floating-install-pill'];
+        killList.forEach(sel => document.querySelectorAll(sel).forEach(el => el.remove()));
+        
+        document.querySelectorAll('header *, .mobile-header *, .app-main-header *').forEach(el => {
+            if (el.children.length === 0) {
+                const txt = el.innerText || '';
+                if ((txt.includes('665') && txt.includes('365')) || txt.includes('هاتف ذكي') || (txt.includes('أندرويد') && !txt.includes('مقاييس')) || txt.includes('🤖')) {
+                    el.remove();
+                }
+            }
+        });
+
+        // Trigger gentle horizontal glide on remaining icons so user sees they are interactive and moving
+        const stream = document.getElementById('header-moving-icons');
+        if (stream) {
+            stream.style.scrollBehavior = 'smooth';
+            setTimeout(() => {
+                stream.scrollLeft = 35;
+                setTimeout(() => { stream.scrollLeft = 0; }, 600);
+            }, 600);
+        }
+    } catch(e) {}
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', purgeLegacyAndroidBadges);
+} else {
+    purgeLegacyAndroidBadges();
+}
+window.addEventListener('load', purgeLegacyAndroidBadges);

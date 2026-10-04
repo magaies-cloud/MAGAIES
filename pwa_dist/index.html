@@ -418,10 +418,7 @@
                 <i class="fa-solid fa-layer-group"></i>
             </div>
             <div>
-                <strong style="font-size:0.95rem; font-weight:900; display:block; color:#fff;">Magaiees ERP - مقاييس</strong>
-                <span id="viewport-indicator-label" style="font-size:0.68rem; color:var(--emerald); font-weight:800;">
-                    ● وضع التكيف التلقائي الموحد (Unified Link)
-                </span>
+                <strong style="font-size:0.95rem; font-weight:900; display:block; color:#FACC15;">مقاييس ERP</strong>
             </div>
         </div>
 
@@ -948,14 +945,14 @@
                 if (switcherText) switcherText.innerHTML = '📱 نسخة الجوال';
                 if (switcherIcon) switcherIcon.className = 'fa-solid fa-mobile-screen';
             } else if (width >= 768) {
-                if (indicator) indicator.innerHTML = '● وضع تلقائي: تابلت / آيباد عرض مزدوج (' + width + 'px) 📟';
+                if (indicator) indicator.innerHTML = '';
                 if (switcherText) switcherText.innerHTML = '🖥️ نسخة سطح المكتب';
                 if (switcherIcon) switcherIcon.className = 'fa-solid fa-desktop';
                 // Show both statement & aging in split-view
                 const secAging = document.getElementById('section-aging');
                 if (secAging) secAging.style.display = 'block';
             } else {
-                if (indicator) indicator.innerHTML = '● وضع تلقائي: الهاتف المحمول (' + width + 'px) 📱';
+                if (indicator) indicator.innerHTML = '';
                 if (switcherText) switcherText.innerHTML = '🖥️ نسخة سطح المكتب';
                 if (switcherIcon) switcherIcon.className = 'fa-solid fa-desktop';
             }
