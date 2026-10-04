@@ -2,14 +2,107 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <link rel="manifest" href="manifest.json?v=2026_m_v6">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <link rel="manifest" href="manifest.json?v=2026_m_v7">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="assets/icon-192.png">
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0f172a">
   <title>نظام الإدارة المحاسبية العالمي - Antigravity Mobile ERP</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if(typeof tailwind==="undefined"){document.write('<script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"><\/script>');}</script>
+  <script src="js/pwa-manager.js?v=2026_10_04_v2" defer></script>
+  <script>
+  (function enforceAuthGate() {
+    var token = localStorage.getItem('authToken');
+    var user = localStorage.getItem('user');
+    var sessionActive = sessionStorage.getItem('session_active') === 'true' || document.cookie.includes('session_active=true');
+
+    if (!token && !user && !sessionActive) {
+      var qs = window.location.search;
+      var loginUrl = window.location.pathname.includes('/ELSAJANA2/magaies/') ? 'login.php' : '/ELSAJANA2/magaies/login.php';
+      window.location.replace(loginUrl + qs);
+    }
+  })();
+
+  function handleMobileLogout() {
+    if (confirm('هل ترغب بتسجيل الخروج والعودة لشاشة الدخول؟')) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      sessionStorage.removeItem('session_active');
+      document.cookie = "session_active=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "saas_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      var loginUrl = window.location.pathname.includes('/ELSAJANA2/magaies/') ? 'login.php' : '/ELSAJANA2/magaies/login.php';
+      window.location.replace(loginUrl);
+    }
+  }
+  </script>
+  <script>
+  (function initHardwareEngine() {
+    function calibrateDevice() {
+      var ua = navigator.userAgent || '';
+      var isIOS = /iPhone|iPad|iPod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      var isAndroid = /Android/i.test(ua);
+      var docEl = document.documentElement;
+      var w = window.innerWidth || docEl.clientWidth || screen.width;
+      var h = window.innerHeight || docEl.clientHeight || screen.height;
+      var isTouch = (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+      var isMobile = isIOS || isAndroid || /Mobile|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (w < 1024 && isTouch);
+
+      // Set dynamic CSS viewport height variable for mobile browsers
+      var vh = window.innerHeight || docEl.clientHeight;
+      docEl.style.setProperty('--app-height', vh + 'px');
+
+      if (isMobile) {
+        docEl.classList.add('is-mobile-device');
+        if (document.body) document.body.classList.add('is-mobile-device');
+      }
+      if (isIOS) docEl.classList.add('is-ios', 'is-iphone');
+      if (isAndroid) docEl.classList.add('is-android');
+
+      // Rotational screens calibration (شاشات الدورية - Landscape / Portrait)
+      var isLandscape = (window.orientation === 90 || window.orientation === -90) || (w > h && isMobile);
+      if (isLandscape) {
+        docEl.classList.add('is-landscape');
+        docEl.classList.remove('is-portrait');
+      } else {
+        docEl.classList.add('is-portrait');
+        docEl.classList.remove('is-landscape');
+      }
+
+      // iPhone Dynamic Island & Deep Notch detection (iPhone 14 Pro+, 15, 16 series)
+      var ratio = Math.max(w, h) / Math.min(w, h);
+      if (isIOS && ratio > 2.15) {
+        docEl.classList.add('has-dynamic-island');
+      }
+
+      // Curved screen & waterfall display calibration (شاشات المنحنية)
+      if (isMobile && (ratio > 2.0 || /SM-G|SM-S|SM-N|Galaxy|Edge|Xiaomi|OnePlus|vivo|OPPO/i.test(ua))) {
+        docEl.classList.add('screen-curved');
+      }
+
+      // Compact screens
+      if (w <= 375) {
+        docEl.classList.add('screen-compact');
+      } else {
+        docEl.classList.remove('screen-compact');
+      }
+    }
+
+    calibrateDevice();
+    window.addEventListener('resize', calibrateDevice, { passive: true });
+    window.addEventListener('orientationchange', function() {
+      setTimeout(calibrateDevice, 120);
+    }, { passive: true });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', calibrateDevice);
+    }
+  })();
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
     
@@ -864,32 +957,221 @@
 
 
 
-    /* NATIVE MOBILE EDGE-TO-EDGE VIEWPORT */
-    @media (max-width: 640px) {
+    /* ══════════════════════════════════════════════════════════════════ */
+    /* 📱 HARDWARE & SCREEN AUTO-CALIBRATION FOR IPHONE & ANDROID        */
+    /* ══════════════════════════════════════════════════════════════════ */
+    :root {
+      --app-height: 100dvh;
+      --sat: env(safe-area-inset-top, 0px);
+      --sab: env(safe-area-inset-bottom, 0px);
+      --sal: env(safe-area-inset-left, 0px);
+      --sar: env(safe-area-inset-right, 0px);
+    }
+
+    html, body {
+      min-height: 100dvh;
+      min-height: -webkit-fill-available;
+      overflow-x: hidden;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+
+    /* Prevent Safari/iOS auto-zoom on input focus by keeping min 16px */
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+
+    .mobile-app-wrapper {
+      min-height: var(--app-height, 100dvh) !important;
+      max-height: var(--app-height, 100dvh) !important;
+      height: var(--app-height, 100dvh) !important;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════ */
+    /* 📱 HARDWARE & SCREEN AUTO-CALIBRATION (IPHONE / ANDROID / CURVED / ROTATIONAL) */
+    /* ══════════════════════════════════════════════════════════════════ */
+    
+    /* Auto Fullscreen on all mobile devices, tablets & touch viewports */
+    @media (max-width: 1023px), (hover: none) and (pointer: coarse) {
       body {
         padding: 0 !important;
         margin: 0 !important;
         background: #020617 !important;
+        min-height: var(--app-height, 100dvh) !important;
+        height: var(--app-height, 100dvh) !important;
+        overflow: hidden !important;
       }
       .mobile-app-wrapper {
         border-radius: 0 !important;
         border: none !important;
         max-width: 100vw !important;
         width: 100vw !important;
-        min-height: 100dvh !important;
-        max-height: 100dvh !important;
+        min-height: var(--app-height, 100dvh) !important;
+        max-height: var(--app-height, 100dvh) !important;
+        height: var(--app-height, 100dvh) !important;
         box-shadow: none !important;
       }
       .mock-status-bar {
         display: none !important;
       }
+      header.app-main-header {
+        padding-top: max(env(safe-area-inset-top, 0px), 10px) !important;
+        padding-left: max(env(safe-area-inset-left, 0px), 12px) !important;
+        padding-right: max(env(safe-area-inset-right, 0px), 12px) !important;
+      }
+      nav.app-bottom-nav {
+        padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px) !important;
+        padding-left: max(env(safe-area-inset-left, 0px), 8px) !important;
+        padding-right: max(env(safe-area-inset-right, 0px), 8px) !important;
+        height: calc(62px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+      main.app-main-content {
+        padding-bottom: calc(85px + env(safe-area-inset-bottom, 0px)) !important;
+        padding-left: max(env(safe-area-inset-left, 0px), 12px) !important;
+        padding-right: max(env(safe-area-inset-right, 0px), 12px) !important;
+      }
+    }
+
+    /* Active Mobile Device Marker (Applied by Hardware Engine) */
+    html.is-mobile-device body,
+    body.is-mobile-device {
+      padding: 0 !important;
+      margin: 0 !important;
+      background: #020617 !important;
+      height: var(--app-height, 100dvh) !important;
+      overflow: hidden !important;
+    }
+    html.is-mobile-device .mobile-app-wrapper,
+    body.is-mobile-device .mobile-app-wrapper {
+      border-radius: 0 !important;
+      border: none !important;
+      max-width: 100vw !important;
+      width: 100vw !important;
+      min-height: var(--app-height, 100dvh) !important;
+      max-height: var(--app-height, 100dvh) !important;
+      height: var(--app-height, 100dvh) !important;
+      box-shadow: none !important;
+    }
+    html.is-mobile-device .mock-status-bar,
+    body.is-mobile-device .mock-status-bar {
+      display: none !important;
+    }
+
+    /* 🌊 CURVED SCREENS PROTECTION (شاشات المنحنية والشاشات الحافية) */
+    .screen-curved main.app-main-content,
+    html.screen-curved main.app-main-content {
+      padding-left: max(env(safe-area-inset-left, 0px), 16px) !important;
+      padding-right: max(env(safe-area-inset-right, 0px), 16px) !important;
+    }
+    .screen-curved header.app-main-header,
+    html.screen-curved header.app-main-header {
+      padding-left: max(env(safe-area-inset-left, 0px), 16px) !important;
+      padding-right: max(env(safe-area-inset-right, 0px), 16px) !important;
+    }
+    .screen-curved nav.app-bottom-nav,
+    html.screen-curved nav.app-bottom-nav {
+      padding-left: max(env(safe-area-inset-left, 0px), 16px) !important;
+      padding-right: max(env(safe-area-inset-right, 0px), 16px) !important;
+    }
+    .screen-curved .banner-strip,
+    html.screen-curved .banner-strip {
+      border-radius: 18px !important;
+    }
+
+    /* 🔄 ROTATIONAL SCREENS (شاشات الدورية - التبديل بين الأفقي والرأسي LANDSCAPE / PORTRAIT) */
+    @media (orientation: landscape) and (max-height: 540px) {
+      body {
+        overflow-y: auto !important;
+      }
+      .mobile-app-wrapper {
+        min-height: auto !important;
+        max-height: none !important;
+        height: auto !important;
+      }
+      header.app-main-header {
+        padding-top: max(env(safe-area-inset-top, 0px), 6px) !important;
+        padding-left: max(env(safe-area-inset-left, 0px), 24px) !important;
+        padding-right: max(env(safe-area-inset-right, 0px), 24px) !important;
+      }
+      nav.app-bottom-nav {
+        padding-left: max(env(safe-area-inset-left, 0px), 24px) !important;
+        padding-right: max(env(safe-area-inset-right, 0px), 24px) !important;
+        height: calc(52px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+      main.app-main-content {
+        padding-left: max(env(safe-area-inset-left, 0px), 24px) !important;
+        padding-right: max(env(safe-area-inset-right, 0px), 24px) !important;
+        padding-bottom: calc(75px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+    }
+
+    /* 🍎 IPHONE & DYNAMIC ISLAND TUNING */
+    .is-iphone header.app-main-header,
+    html.is-iphone header.app-main-header {
+      padding-top: max(env(safe-area-inset-top, 0px), 14px) !important;
+    }
+    .has-dynamic-island header.app-main-header,
+    html.has-dynamic-island header.app-main-header {
+      padding-top: max(env(safe-area-inset-top, 0px), 18px) !important;
+    }
+
+    /* 🤖 ANDROID SYSTEM BAR & PUNCH-HOLE TUNING */
+    .is-android header.app-main-header,
+    html.is-android header.app-main-header {
+      padding-top: max(env(safe-area-inset-top, 0px), 12px) !important;
+    }
+    .is-android nav.app-bottom-nav,
+    html.is-android nav.app-bottom-nav {
+      padding-bottom: max(env(safe-area-inset-bottom, 0px), 10px) !important;
+    }
+
+    /* 📐 COMPACT SCREENS (iPhone SE / Small Androids <= 375px) */
+    .screen-compact .crystal-flagship-btn,
+    html.screen-compact .crystal-flagship-btn {
+      padding: 6px 3px !important;
+      font-size: 10px !important;
+    }
+    .screen-compact header.app-main-header,
+    html.screen-compact header.app-main-header {
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+    }
+    
+    /* Desktop Switcher Banner (Visible only when viewing mobile on Laptop/Desktop) */
+    .desktop-preview-banner {
+      display: none;
+      background: linear-gradient(90deg, #1e293b, #0f172a);
+      border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 10px 16px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: 13px;
+      z-index: 9999;
+      width: 100%;
+    }
+    @media (min-width: 1024px) {
+      .desktop-preview-banner {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+      }
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen p-2 md:p-6 flex justify-center items-start">
+<body class="bg-slate-950 text-slate-100 min-h-screen p-2 md:p-6 flex flex-col justify-start items-center">
+
+  <!-- Desktop Switcher Banner for Laptop / PC users -->
+  <div class="desktop-preview-banner">
+    <span>💻 أنت تتصفح نسخة الموبايل الذكية من شاشة كمبيوتر أو لابتوب.</span>
+    <a href="/ELSAJANA2/magaies/dashboard.php?force_desktop=1" class="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-lg font-bold text-xs shadow-md transition flex items-center gap-1.5">
+      <span>🖥️ الدخول لشاشات اللابتوب والكمبيوتر المكتبي الكاملة</span>
+      <span dir="ltr">&rarr;</span>
+    </a>
+  </div>
 
   <!-- Mobile Frame Container -->
-  <div class="mobile-app-wrapper w-full max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col min-h-[940px] max-h-[96vh]">
+  <div class="mobile-app-wrapper w-full max-w-md mx-auto bg-slate-900 border border-slate-800 rounded-[40px] shadow-2xl overflow-hidden relative flex flex-col min-h-screen max-h-screen">
     
     <!-- TOP PHONE HARDWARE NOTCH -->
     <div class="mock-status-bar pt-3 px-6 pb-2 flex justify-between items-center text-xs text-slate-400 border-b border-slate-800/40 bg-slate-900 shrink-0">
@@ -904,34 +1186,47 @@
     </div>
 
     <!-- APP HEADER -->
-    <header class="p-3 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 sticky top-0 z-30 shrink-0">
+    <header class="app-main-header p-3 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 sticky top-0 z-30 shrink-0">
       <div class="flex items-center justify-between gap-2">
         <!-- شعار البرنامج الرئيسي والأيقونة الرئيسية (Brand Logo & Home Action) -->
         <div class="flex items-center gap-1.5 shrink-0">
-          <button onclick="switchTab('dashboard'); AudioEngine.play('numpad'); triggerHapticPulse(25);" class="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 via-slate-800 to-cyan-500/20 hover:from-amber-500/30 hover:to-cyan-500/30 border border-amber-500/40 hover:border-amber-400 rounded-2xl px-2.5 py-1 shadow-[0_0_12px_rgba(245,158,11,0.2)] transition active:scale-95 group cursor-pointer" title="شعار السجانا ERP - العودة للرئيسية">
+          <button onclick="switchTab('dashboard'); AudioEngine.play('numpad'); triggerHapticPulse(25);" class="flex items-center gap-1.5 bg-gradient-to-r from-amber-500/20 via-slate-800 to-cyan-500/20 hover:from-amber-500/30 hover:to-cyan-500/30 border border-amber-500/40 hover:border-amber-400 rounded-2xl px-2.5 py-1 shadow-[0_0_12px_rgba(245,158,11,0.2)] transition active:scale-95 group cursor-pointer" title="شعار مقاييس ERP - العودة للرئيسية">
             <div class="w-6 h-6 rounded-xl bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-slate-950 font-black text-xs shadow-[0_0_8px_#f59e0b] group-hover:rotate-12 transition-transform">
               <span>💎</span>
             </div>
             <div class="flex flex-col text-right leading-none">
-              <span class="text-[11px] font-black text-white group-hover:text-amber-300 transition">السجانا ERP</span>
+              <span class="text-[11px] font-black text-white group-hover:text-amber-300 transition">مقاييس ERP</span>
               <span class="text-[8px] font-bold text-amber-400/90 mt-0.5">الرئيسية</span>
             </div>
           </button>
 
-          <!-- زر تبديل الفرع -->
-          <button class="flex items-center gap-1 bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 rounded-2xl px-2 py-1 transition active:scale-95 text-slate-300">
-            <div class="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_6px_#22d3ee]"></div>
-            <span class="text-[10px] font-bold truncate max-w-[75px]">الخرطوم</span>
-            <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-          </button>
+          <!-- شارة معايرة الشاشة ونوع الموبايل (iPhone / Android) -->
+          <div id="deviceCalibrationBadge" class="flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-800/90 text-slate-300 border border-slate-700/60 shadow">
+            <span class="text-xs">📱</span>
+            <span>جاري المعايرة...</span>
+          </div>
         </div>
 
         <div class="flex items-center gap-1.5 shrink-0">
-          <div class="flex items-center gap-1.5 bg-emerald-950/60 border border-emerald-500/30 px-2 py-1 rounded-full text-[10px] text-emerald-300 font-semibold shadow-[0_0_10px_rgba(16,185,129,0.15)]">
+          <!-- زر تثبيت أيقونة التطبيق على الجوال -->
+          <button id="headerPwaInstallBtn" onclick="PWAManager.triggerInstall()" class="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black bg-gradient-to-r from-sky-500 via-indigo-500 to-blue-600 text-white shadow-[0_0_14px_rgba(14,165,233,0.6)] active:scale-95 transition hover:brightness-110 cursor-pointer shrink-0 animate-pulse" title="تثبيت أيقونة التطبيق على شاشة الجوال">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>تثبيت التطبيق</span>
+          </button>
+
+          <!-- زر تسجيل الخروج -->
+          <button id="headerLogoutBtn" onclick="handleMobileLogout()" class="flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-bold bg-rose-500/15 border border-rose-500/30 text-rose-300 hover:bg-rose-500/25 active:scale-95 transition cursor-pointer shrink-0" title="تسجيل الخروج والرجوع لشاشة الدخول">
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            <span>خروج</span>
+          </button>
+
+          <!-- شارة حالة الربط المباشر بقاعدة بيانات الكمبيوتر -->
+          <div id="liveSyncStatusPill" onclick="PWAManager.syncRealData(true)" class="flex items-center gap-1.5 bg-emerald-950/60 border border-emerald-500/30 px-2 py-1 rounded-full text-[10px] text-emerald-300 font-semibold shadow-[0_0_10px_rgba(16,185,129,0.15)] cursor-pointer active:scale-95 transition" title="مربوط بالبيانات الحقيقية في الكمبيوتر (اضغط للتحديث الفوري)">
             <span class="w-2 h-2 rounded-full bg-emerald-400 online-indicator"></span>
-            <span>متصل</span>
+            <span>مربوط بالقاعدة</span>
           </div>
-          <button id="mainRefreshBtn" onclick="triggerRefreshAnimation()" class="w-7 h-7 rounded-full flex items-center justify-center glow-cyan bg-slate-800 text-cyan-300 transition" title="تحديث البيانات">
+
+          <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); triggerRefreshAnimation();" class="w-7 h-7 rounded-full flex items-center justify-center glow-cyan bg-slate-800 text-cyan-300 transition" title="مزامنة وتحديث البيانات من الكمبيوتر">
             <svg id="mainRefreshIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
           </button>
         </div>
@@ -1162,12 +1457,32 @@
     </div>
 
     <!-- SCROLLABLE PAGE CONTAINER -->
-    <main class="flex-1 overflow-y-auto pb-24 px-3 py-3 space-y-4 no-scrollbar">
+    <main class="app-main-content flex-1 overflow-y-auto pb-24 px-3 py-3 space-y-4 no-scrollbar">
 
       <!-- ======================================================== -->
       <!-- TAB 1: الشاشة الرئيسية (DASHBOARD)                     -->
       <!-- ======================================================== -->
       <div id="pageDashboard" class="space-y-4">
+
+        <!-- 📲 بطاقة زر تثبيت التطبيق على الجوال (PWA Install Card) -->
+        <div id="inlinePwaInstallCard" class="glass-base p-3.5 rounded-2xl flex items-center justify-between gap-3 border border-sky-500/40 bg-gradient-to-r from-sky-950/70 via-slate-900/90 to-blue-950/70 shadow-[0_4px_25px_rgba(14,165,233,0.25)]">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-400 via-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/40 text-xl shrink-0">
+              📲
+            </div>
+            <div>
+              <h4 class="text-xs font-black text-white flex items-center gap-1.5">
+                <span>تثبيت تطبيق مقاييس على الجوال</span>
+                <span class="bg-emerald-500/20 text-emerald-300 text-[9px] px-1.5 py-0.5 rounded-full border border-emerald-500/30 font-bold">أيقونة مباشرة</span>
+              </h4>
+              <p class="text-[11px] text-slate-300 font-medium mt-0.5">ثبّت الأيقونة على هاتفك للتشغيل السريع بشاشة كاملة</p>
+            </div>
+          </div>
+          <button onclick="PWAManager.triggerInstall()" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white text-xs font-black shadow-lg shadow-sky-500/40 active:scale-95 transition shrink-0 flex items-center gap-1.5 cursor-pointer">
+            <svg class="w-4 h-4 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>تثبيت الآن</span>
+          </button>
+        </div>
 
         <!-- EXECUTIVE FINANCIAL HEALTH & 7-DAY TRENDLINE (مؤشر السلامة المالية ورسم 7 أيام) -->
         <div class="glass-base p-3.5 rounded-3xl border border-cyan-500/40 relative overflow-hidden shadow-[0_0_25px_rgba(6,182,212,0.15)] flex items-center justify-between">
@@ -1453,32 +1768,32 @@
           <div class="grid grid-cols-2 gap-2.5">
             <div onclick="openModal('modalSafes')" class="glass-card-interactive p-3 rounded-2xl border border-slate-700/60 cursor-pointer group">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-200">الخزن النقدية (5)</span>
+                <span class="text-xs font-bold text-slate-200">الخزن النقدية (<span id="dashSafesCount">5</span>)</span>
                 <div class="w-7 h-7 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-xs group-hover:scale-110 transition">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                 </div>
               </div>
-              <div class="text-base font-black text-amber-400">
+              <div id="cardSafeBalanceAmt" class="text-base font-black text-amber-400 font-mono">
                 <span class="privacy-mask" data-original="$18,450" data-star="••••••">$18,450</span>
               </div>
               <div class="text-[11px] text-cyan-400 font-semibold mt-1 flex items-center gap-1">
-                <span>عرض تفاصيل 5 خزن</span>
+                <span>عرض تفاصيل الخزن</span>
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </div>
             </div>
 
             <div onclick="openModal('modalBanks')" class="glass-card-interactive p-3 rounded-2xl border border-slate-700/60 cursor-pointer group">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-bold text-slate-200">أرصدة البنوك (4)</span>
+                <span class="text-xs font-bold text-slate-200">أرصدة البنوك والفيزا (<span id="dashBanksCount">4</span>)</span>
                 <div class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs group-hover:scale-110 transition">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
                 </div>
               </div>
-              <div class="text-base font-black text-cyan-400">
+              <div id="cardBankBalanceAmt" class="text-base font-black text-cyan-400 font-mono">
                 <span class="privacy-mask" data-original="$64,200" data-star="••••••">$64,200</span>
               </div>
               <div class="text-[11px] text-cyan-400 font-semibold mt-1 flex items-center gap-1">
-                <span>كل بنك ببنكه</span>
+                <span>كل بنك وفيزا بحسابها</span>
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
               </div>
             </div>
@@ -1551,32 +1866,32 @@
             </div>
 
             <div class="glass-card-interactive p-3 rounded-2xl border border-slate-700/60">
-              <span class="text-xs font-bold text-slate-300 block mb-1">مديونية العملاء</span>
-              <div class="text-base font-black text-purple-300">
+              <span class="text-xs font-bold text-slate-300 block mb-1">مديونية العملاء الحقيقية</span>
+              <div id="dashReceivablesAmt" class="text-base font-black text-purple-300 font-mono">
                 <span class="privacy-mask" data-original="$45,800" data-star="••••••">$45,800</span>
               </div>
               <div class="text-[11px] text-rose-400 mt-1 flex items-center gap-1 font-semibold">
-                <span>منها <span class="privacy-mask" data-original="$12,400" data-star="•••••">$12,400</span> متأخرة</span>
+                <span>أرصدة مدينة مسجلة بالقاعدة</span>
               </div>
             </div>
 
             <div class="glass-card-interactive p-3 rounded-2xl border border-slate-700/60">
-              <span class="text-xs font-bold text-slate-300 block mb-1">مستحقات الموردين</span>
-              <div class="text-base font-black text-rose-300">
+              <span class="text-xs font-bold text-slate-300 block mb-1">مستحقات الموردين الحقيقية</span>
+              <div id="dashPayablesAmt" class="text-base font-black text-rose-300 font-mono">
                 <span class="privacy-mask" data-original="$32,150" data-star="••••••">$32,150</span>
               </div>
               <div class="text-[11px] text-amber-400 mt-1 font-semibold">
-                <span><span class="privacy-mask" data-original="$7,400" data-star="••••">$7,400</span> تستحق هذا الأسبوع</span>
+                <span>التزامات دائنة مسجلة بالقاعدة</span>
               </div>
             </div>
 
             <div class="col-span-2 glass-card-interactive p-3 rounded-2xl border border-slate-700/60 flex items-center justify-between">
               <div>
-                <span class="text-xs font-bold text-slate-300 block">تقييم المخازن الكلي</span>
-                <span class="text-[11px] text-slate-400">سعر التكلفة (FIFO) - 1,420 صنف</span>
+                <span class="text-xs font-bold text-slate-300 block">تقييم المخازن والأصناف الحقيقية</span>
+                <span class="text-[11px] text-slate-400">سعر التكلفة - <span id="dashInventoryItemsCount" class="font-bold text-cyan-300">1,420 صنف</span></span>
               </div>
               <div class="text-left">
-                <div class="text-lg font-black text-emerald-400">
+                <div id="dashInventoryValuation" class="text-lg font-black text-emerald-400 font-mono">
                   <span class="privacy-mask" data-original="$182,400" data-star="•••••••••">$182,400</span>
                 </div>
                 <div class="text-[11px] text-slate-300 font-mono">
@@ -1857,6 +2172,17 @@
           <button class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">مشتريات (12)</button>
           <button class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">قبض وصرف (64)</button>
           <button class="bg-slate-800 text-slate-400 hover:text-white px-3 py-1.5 rounded-xl shrink-0">تسويات وشيكات (24)</button>
+        </div>
+
+        <!-- REAL TIME TRANSACTIONS FEED FROM DATABASE (حركات وفواتير حقيقية) -->
+        <div class="glass-base p-3.5 rounded-3xl border border-cyan-500/40 space-y-2.5">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <span class="text-xs font-black text-cyan-300">⚡ أحدث فواتير وسندات النظام الحقيقية (MariaDB)</span>
+            <span class="text-[10px] text-emerald-400 font-mono">مربوط بالكمبيوتر</span>
+          </div>
+          <div id="realTransactionsFeedList" class="space-y-2.5 max-h-[360px] overflow-y-auto no-scrollbar">
+            <div class="p-4 bg-slate-900/60 rounded-2xl text-center text-xs text-slate-400">جاري تحميل المعاملات من قاعدة البيانات...</div>
+          </div>
         </div>
 
         <!-- Transactions Cards with the 5 Buttons on Each Card -->
@@ -2182,6 +2508,17 @@
               <span class="text-amber-400 block text-[10px]">بضاعة مشحونة في الطريق</span>
               <span class="font-bold text-amber-300 font-mono">$20,000 (حاوية زيوت)</span>
             </div>
+          </div>
+        </div>
+
+        <!-- REAL ITEMS LIST FROM DATABASE (قائمة الأصناف الحقيقية من قاعدة بيانات الكمبيوتر) -->
+        <div class="glass-base p-4 rounded-3xl border border-indigo-500/40 space-y-2.5">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <span class="text-xs font-black text-indigo-300">📦 الأصناف والمخزون الحقيقي (MariaDB)</span>
+            <span class="text-[10px] text-cyan-400 font-mono">ربط حي بالكمبيوتر</span>
+          </div>
+          <div id="realInventoryItemsList" class="space-y-2 max-h-[360px] overflow-y-auto no-scrollbar">
+            <div class="p-4 bg-slate-900/60 rounded-2xl text-center text-xs text-slate-400">جاري تحميل الأصناف الحقيقية من الكمبيوتر...</div>
           </div>
         </div>
 
@@ -3696,7 +4033,7 @@
     </div>
 
     <!-- BOTTOM DOCK NAVIGATION BAR (6 CORE MODULES INCLUDING ALERTS CONTROL LAB) -->
-    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1 flex justify-between items-center z-30">
+    <nav class="app-bottom-nav absolute bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1 flex justify-between items-center z-30">
       <button onclick="switchTab('dashboard')" id="navTabDashboard" class="flex flex-col items-center gap-1 text-cyan-400 flex-1">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
         <span class="text-[11px] font-black">الرئيسية</span>
@@ -4388,62 +4725,21 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z"/></svg>
             </div>
             <div>
-              <h4 class="text-sm font-black text-slate-100">تفصيل أرصدة البنوك (4 بنوك)</h4>
-              <span class="text-[10px] text-cyan-400 font-bold">الإجمالي: <span class="privacy-mask" data-original="$64,200" data-star="••••••">$64,200</span></span>
+              <h4 class="text-sm font-black text-slate-100">أرصدة البنوك والفيزا والمصارف (<span id="banksCountBadge">حسابات حقيقية</span>)</h4>
+              <span class="text-[10px] text-cyan-400 font-bold">مربوطة بقاعدة بيانات الكمبيوتر</span>
             </div>
           </div>
           <button onclick="closeModal('modalBanks')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
         </div>
 
-        <div class="space-y-2">
-          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-              <h5 class="text-xs font-bold text-slate-100">بنك الخرطوم (الحساب الرئيسي)</h5>
-              <span class="text-[10px] text-slate-400 font-mono">حساب رقم: 2408991 • جاري</span>
-            </div>
-            <div class="text-left">
-              <div class="text-sm font-black text-cyan-400"><span class="privacy-mask" data-original="$28,400" data-star="••••••">$28,400</span></div>
-              <div class="text-[10px] text-slate-400 font-mono"><span class="privacy-mask" data-original="79,520,000" data-star="••••••••">79,520,000</span> ج.س</div>
-            </div>
-          </div>
-
-          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-              <h5 class="text-xs font-bold text-slate-100">بنك فيصل الإسلامي</h5>
-              <span class="text-[10px] text-slate-400 font-mono">حساب رقم: 1045582 • استثماري</span>
-            </div>
-            <div class="text-left">
-              <div class="text-sm font-black text-cyan-400"><span class="privacy-mask" data-original="$21,500" data-star="••••••">$21,500</span></div>
-              <div class="text-[10px] text-slate-400 font-mono"><span class="privacy-mask" data-original="60,200,000" data-star="••••••••">60,200,000</span> ج.س</div>
-            </div>
-          </div>
-
-          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-              <h5 class="text-xs font-bold text-slate-100">بنك أم درمان الوطني</h5>
-              <span class="text-[10px] text-slate-400 font-mono">حساب رقم: 900213 • اعتمادات</span>
-            </div>
-            <div class="text-left">
-              <div class="text-sm font-black text-cyan-400"><span class="privacy-mask" data-original="$10,100" data-star="••••••">$10,100</span></div>
-              <div class="text-[10px] text-slate-400 font-mono"><span class="privacy-mask" data-original="28,280,000" data-star="••••••••">28,280,000</span> ج.س</div>
-            </div>
-          </div>
-
-          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-              <h5 class="text-xs font-bold text-slate-100">بنك الخليج</h5>
-              <span class="text-[10px] text-slate-400 font-mono">حساب رقم: 440912 • تحويلات</span>
-            </div>
-            <div class="text-left">
-              <div class="text-sm font-black text-cyan-400"><span class="privacy-mask" data-original="$4,200" data-star="••••••">$4,200</span></div>
-              <div class="text-[10px] text-slate-400 font-mono"><span class="privacy-mask" data-original="11,760,000" data-star="••••••••">11,760,000</span> ج.س</div>
-            </div>
-          </div>
+        <div id="realBanksListContainer" class="space-y-2">
+          <!-- Dynamic real banks populated by PWAManager.syncRealData -->
+          <div class="p-4 bg-slate-900/60 rounded-2xl text-center text-xs text-slate-400">جاري تحميل الحسابات البنكية من الكمبيوتر...</div>
         </div>
       </div>
     </div>
 
-    <!-- MODAL 2: تفصيل الخزن النقدية (5 خزن) -->
+    <!-- MODAL 2: تفصيل الخزن النقدية -->
     <div id="modalSafes" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
       <div class="glass-base w-full max-w-md rounded-3xl border border-amber-500/40 p-4 space-y-3.5 max-h-[80vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -4452,68 +4748,16 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
             </div>
             <div>
-              <h4 class="text-sm font-black text-slate-100">تفصيل الخزن النقدية (5 خزن)</h4>
-              <span class="text-[10px] text-amber-400 font-bold">الإجمالي: <span class="privacy-mask" data-original="$18,450" data-star="••••••">$18,450</span></span>
+              <h4 class="text-sm font-black text-slate-100">تفصيل الخزن النقدية (<span id="safesCountBadge">خزن حقيقية</span>)</h4>
+              <span class="text-[10px] text-amber-400 font-bold">مربوطة بقاعدة بيانات الكمبيوتر</span>
             </div>
           </div>
           <button onclick="closeModal('modalSafes')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
         </div>
 
-        <div class="space-y-2">
-          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-              <h5 class="text-xs font-bold text-slate-100">الخزينة الرئيسية (الإدارة العامة)</h5>
-              <span class="text-[10px] text-slate-400">أمين العهدة: الصادق عثمان</span>
-            </div>
-            <div class="text-left">
-              <div class="text-sm font-black text-amber-400"><span class="privacy-mask" data-original="$8,950" data-star="••••••">$8,950</span></div>
-              <div class="text-[10px] text-slate-400 font-mono"><span class="privacy-mask" data-original="25.0M" data-star="••••">25.0M</span> ج.س</div>
-            </div>
-          </div>
-
-          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-              <h5 class="text-xs font-bold text-slate-100">خزينة معرض الخرطوم (الصالة)</h5>
-              <span class="text-[10px] text-slate-400">كاشير الوردية 1</span>
-            </div>
-            <div class="text-left">
-              <div class="text-sm font-black text-amber-400"><span class="privacy-mask" data-original="$5,200" data-star="••••••">$5,200</span></div>
-              <div class="text-[10px] text-slate-400 font-mono"><span class="privacy-mask" data-original="14.5M" data-star="••••">14.5M</span> ج.س</div>
-            </div>
-          </div>
-
-          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-              <h5 class="text-xs font-bold text-slate-100">خزينة فرع بحري</h5>
-              <span class="text-[10px] text-slate-400">أمين العهدة: أحمد عبد الله</span>
-            </div>
-            <div class="text-left">
-              <div class="text-sm font-black text-amber-400"><span class="privacy-mask" data-original="$2,400" data-star="••••••">$2,400</span></div>
-              <div class="text-[10px] text-slate-400 font-mono"><span class="privacy-mask" data-original="6.7M" data-star="••••">6.7M</span> ج.س</div>
-            </div>
-          </div>
-
-          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-              <h5 class="text-xs font-bold text-slate-100">عهدة سيارات التوزيع المتنقلة</h5>
-              <span class="text-[10px] text-slate-400">3 مناديب مبيعات</span>
-            </div>
-            <div class="text-left">
-              <div class="text-sm font-black text-amber-400"><span class="privacy-mask" data-original="$1,100" data-star="••••••">$1,100</span></div>
-              <div class="text-[10px] text-slate-400 font-mono"><span class="privacy-mask" data-original="3.0M" data-star="••••">3.0M</span> ج.س</div>
-            </div>
-          </div>
-
-          <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 flex justify-between items-center">
-            <div>
-              <h5 class="text-xs font-bold text-slate-100">خزينة الطوارئ والاحتياطي</h5>
-              <span class="text-[10px] text-slate-400">مغلقة ومؤمنة</span>
-            </div>
-            <div class="text-left">
-              <div class="text-sm font-black text-amber-400"><span class="privacy-mask" data-original="$800" data-star="•••••">$800</span></div>
-              <div class="text-[10px] text-slate-400 font-mono"><span class="privacy-mask" data-original="2.2M" data-star="••••">2.2M</span> ج.س</div>
-            </div>
-          </div>
+        <div id="realSafesListContainer" class="space-y-2">
+          <!-- Dynamic real safes populated by PWAManager.syncRealData -->
+          <div class="p-4 bg-slate-900/60 rounded-2xl text-center text-xs text-slate-400">جاري تحميل الخزن النقدية من الكمبيوتر...</div>
         </div>
       </div>
     </div>
@@ -4930,34 +5174,38 @@
 
       if (!fromSelect || !toSelect) return;
 
+      const accounts = (window.masterAccountsList && window.masterAccountsList.length) ? window.masterAccountsList : masterAccountsList;
+
       const groupedOptions = `
         <optgroup label="🏦 الحسابات البنكية والمصرفية">
-          ${masterAccountsList.filter(a => a.type === 'بنك').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+          ${accounts.filter(a => a.type === 'بنك' || a.type === 'فيزا').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
         </optgroup>
         <optgroup label="💵 الخزن النقدية ونقاط البيع">
-          ${masterAccountsList.filter(a => a.type === 'خزينة').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+          ${accounts.filter(a => a.type === 'خزينة').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
         </optgroup>
         <optgroup label="👥 العملاء والمدينون">
-          ${masterAccountsList.filter(a => a.category === 'customer' && a.balanceNum > 0).map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+          ${accounts.filter(a => a.category === 'customer').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
         </optgroup>
         <optgroup label="🏢 الموردون والدائنون">
-          ${masterAccountsList.filter(a => a.category === 'vendor' && a.balanceNum > 0).map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+          ${accounts.filter(a => a.category === 'vendor').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
         </optgroup>
         <optgroup label="📊 المصروفات والتشغيل">
-          ${masterAccountsList.filter(a => a.category === 'expense').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+          ${accounts.filter(a => a.category === 'expense').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
         </optgroup>
         <optgroup label="🤝 الذمم والشركاء والأمانات">
-          ${masterAccountsList.filter(a => a.category === 'partner').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+          ${accounts.filter(a => a.category === 'partner').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
         </optgroup>
       `;
 
       fromSelect.innerHTML = groupedOptions;
       toSelect.innerHTML = groupedOptions;
 
-      // Default From: بنك الخرطوم (الحساب الجاري) (id: 8)
-      fromSelect.value = "8";
-      // Default To: محلات الصادق للتوزيع (id: 2)
-      toSelect.value = "2";
+      // Select default from (bank/safe) and to (vendor/customer)
+      const defaultFrom = accounts.find(a => a.type === 'بنك' || a.type === 'خزينة') || accounts[0];
+      const defaultTo = accounts.find(a => a.category === 'vendor' || a.category === 'customer') || accounts[1] || accounts[0];
+
+      if (defaultFrom) fromSelect.value = String(defaultFrom.id);
+      if (defaultTo) toSelect.value = String(defaultTo.id);
 
       // Method: Default bank
       setFinTransferMethod('bank');
@@ -5040,11 +5288,12 @@
 
       if (!fromSelect || !toSelect || !amtInput) return;
 
-      const fromId = parseInt(fromSelect.value, 10);
-      const toId = parseInt(toSelect.value, 10);
+      const fromVal = fromSelect.value;
+      const toVal = toSelect.value;
+      const accounts = (window.masterAccountsList && window.masterAccountsList.length) ? window.masterAccountsList : masterAccountsList;
 
-      const sender = masterAccountsList.find(a => a.id === fromId);
-      const receiver = masterAccountsList.find(a => a.id === toId);
+      const sender = accounts.find(a => String(a.id) === String(fromVal) || String(a.numericId) === String(fromVal));
+      const receiver = accounts.find(a => String(a.id) === String(toVal) || String(a.numericId) === String(toVal));
 
       const rawAmount = parseFloat(amtInput.value) || 0;
 
@@ -5265,7 +5514,7 @@
       showFloatingToast(`⚡ تم استخراج الرقم المرجعي [${randomRef}] والمبلغ ($1,500) بنجاح عبر OCR!`);
     }
 
-    function commitFinancialTransfer() {
+    async function commitFinancialTransfer() {
       const fromSelect = document.getElementById('finTransferFromAccount');
       const toSelect = document.getElementById('finTransferToAccount');
       const amtInput = document.getElementById('finTransferAmountInput');
@@ -5273,17 +5522,18 @@
 
       if (!fromSelect || !toSelect || !amtInput) return;
 
-      const fromId = parseInt(fromSelect.value, 10);
-      const toId = parseInt(toSelect.value, 10);
+      const fromVal = fromSelect.value;
+      const toVal = toSelect.value;
 
-      if (fromId === toId) {
+      if (fromVal === toVal) {
         AudioEngine.play('error');
         alert("⚠️ خطأ في طرفي المعاملة: لا يمكن إجراء تحويل بين نفس الحساب ونفسه! يرجى اختيار حسابين مختلفين.");
         return;
       }
 
-      const sender = masterAccountsList.find(a => a.id === fromId);
-      const receiver = masterAccountsList.find(a => a.id === toId);
+      const accounts = (window.masterAccountsList && window.masterAccountsList.length) ? window.masterAccountsList : masterAccountsList;
+      const sender = accounts.find(a => String(a.id) === String(fromVal) || String(a.numericId) === String(fromVal));
+      const receiver = accounts.find(a => String(a.id) === String(toVal) || String(a.numericId) === String(toVal));
 
       const rawAmt = parseFloat(amtInput.value) || 0;
       if (rawAmt <= 0) {
@@ -5307,7 +5557,7 @@
       } else if (currentFinTransferMethod === 'check') {
         refStr = (document.getElementById('finTransferCheckNo')?.value || 'CHK-000000').trim();
       } else {
-        refStr = document.getElementById('finTransferCashReceiptNo')?.value || 'CSH-0000';
+        refStr = document.getElementById('finTransferCashReceiptNo')?.value || ('CSH-' + Math.floor(1000 + Math.random() * 9000));
       }
 
       // Calculate USD and SDG values
@@ -5321,7 +5571,7 @@
         amtUsd = Math.round((rawAmt / SDG_RATE) * 100) / 100;
       }
 
-      // Update accounts database balances
+      // Update accounts database balances locally
       if (sender) {
         sender.balanceNum -= amtUsd;
         sender.balanceFormatted = `$${sender.balanceNum.toLocaleString('en-US')}`;
@@ -5337,6 +5587,19 @@
       // Register reference to block future duplicates
       if (refStr && currentFinTransferMethod !== 'cash') {
         registeredTransferReferences.add(refStr);
+      }
+
+      // Send to real backend database!
+      if (window.PWAManager && typeof window.PWAManager.recordFinancialTransferToBackend === 'function') {
+        window.PWAManager.recordFinancialTransferToBackend({
+          from_account_id: fromVal,
+          to_account_id: toVal,
+          amount: amtUsd,
+          currency: currentFinTransferCurrency,
+          method: currentFinTransferMethod,
+          ref_number: refStr,
+          notes: notesInput ? notesInput.value : 'تحويل ومناقلة مالية'
+        });
       }
 
       // Add to Live Transactions Feed
@@ -5481,7 +5744,8 @@
         }
       });
 
-      let filtered = masterAccountsList.filter(acc => acc.balanceNum !== 0);
+      const accounts = (window.masterAccountsList && window.masterAccountsList.length) ? window.masterAccountsList : masterAccountsList;
+      let filtered = accounts.filter(acc => acc.balanceNum !== 0);
 
       if (currentBalFilterType === 'customer') filtered = filtered.filter(acc => acc.category === 'customer');
       else if (currentBalFilterType === 'vendor') filtered = filtered.filter(acc => acc.category === 'vendor');
@@ -5641,7 +5905,8 @@
         return;
       }
 
-      const results = masterAccountsList.filter(acc => acc.name.toLowerCase().includes(q));
+      const accounts = (window.masterAccountsList && window.masterAccountsList.length) ? window.masterAccountsList : masterAccountsList;
+      const results = accounts.filter(acc => acc.name.toLowerCase().includes(q));
 
       if (results.length === 0) {
         dropdown.innerHTML = '<div class="p-2 text-xs text-slate-400 text-center">لا توجد نتائج مطابقة</div>';
@@ -5721,17 +5986,36 @@
       document.getElementById('partnerInputBal').value = "1200";
     }
 
-    function savePartnerAction() {
+    async function savePartnerAction() {
       const name = document.getElementById('partnerInputName').value.trim();
       const phone = document.getElementById('partnerInputPhone').value.trim();
-      const bal = document.getElementById('partnerInputBal').value.trim();
+      const bal = parseFloat(document.getElementById('partnerInputBal').value.trim()) || 0;
 
       if (!name) {
         alert("يرجى إدخال اسم العميل أو المورد");
         return;
       }
 
-      alert("✓ تم حفظ " + (currentPartnerType === 'customer' ? 'العميل' : 'المورد') + ": [" + name + "] بنجاح!\nتم فتح حساب جديد في شجرة الحسابات برصيد افتتاحي: $" + (bal || "0"));
+      const isCustomer = currentPartnerType === 'customer';
+
+      if (window.PWAManager && typeof window.PWAManager.savePartnerToBackend === 'function') {
+        await window.PWAManager.savePartnerToBackend({
+          name: name,
+          phone: phone,
+          openingBalance: bal,
+          type: currentPartnerType
+        });
+      }
+
+      AudioEngine.play('success');
+      triggerHapticPulse([60, 40, 60]);
+      alert("✓ تم حفظ " + (isCustomer ? 'العميل' : 'المورد') + ": [" + name + "] بنجاح في قاعدة البيانات الحقيقية!\nتم فتح حساب جديد في شجرة الحسابات برصيد افتتاحي: $" + bal);
+
+      // Clear input fields
+      document.getElementById('partnerInputName').value = '';
+      document.getElementById('partnerInputPhone').value = '';
+      document.getElementById('partnerInputBal').value = '';
+
       switchTab('dashboard');
     }
 
@@ -6151,12 +6435,13 @@
     function triggerStatementPopup() {
       const input = document.getElementById('omniSearchInput');
       const q = (input ? input.value : '').trim().toLowerCase();
+      const accounts = (window.masterAccountsList && window.masterAccountsList.length) ? window.masterAccountsList : masterAccountsList;
       let acc = null;
       if (q) {
-        acc = masterAccountsList.find(a => a.name.toLowerCase().includes(q));
+        acc = accounts.find(a => a.name.toLowerCase().includes(q));
       }
       if (!acc) {
-        acc = masterAccountsList[0]; // Default to "شركة النيل للاستيراد"
+        acc = accounts[0]; // Default account
       }
       triggerStatementForAccount(acc.name, acc.type, acc.balanceFormatted, acc.sdgFormatted);
     }

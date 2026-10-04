@@ -1,10 +1,35 @@
 <?php
-$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
-$isMobile = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $ua);
-$forceDesktop = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
+session_start();
 
-if ($isMobile && !$forceDesktop) {
-    header('Location: /mobile_erp_global_suite.html');
+$isLoggedIn = (!empty($_COOKIE['session_active']) && $_COOKIE['session_active'] === 'true')
+           || !empty($_COOKIE['saas_token'])
+           || !empty($_SESSION['user'])
+           || !empty($_SESSION['session_active']);
+
+$qs = !empty($_SERVER['QUERY_STRING']) ? ('?' . $_SERVER['QUERY_STRING']) : '';
+
+// 1. If NOT authenticated: Require Username and Password FIRST!
+if (!$isLoggedIn) {
+    header("Location: login.php{$qs}");
+    exit;
+}
+
+// 2. If authenticated: Route to the respective system
+$ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$secChUaMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
+$isMobile = (bool)preg_match(
+    '/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini|opera mobi|samsung|sm-[a-z0-9]+|huawei|honor|harmonyos|xiaomi|redmi|poco|oppo|vivo|oneplus|pixel|meizu|realme)/i',
+    $ua
+) || ($secChUaMobile === '?1');
+
+$forceDesktop = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
+$forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
+
+if ($forceMobile || ($isMobile && !$forceDesktop)) {
+    header("Location: mobile_erp_global_suite.html{$qs}");
+    exit;
+} else {
+    header("Location: dashboard.php{$qs}");
     exit;
 }
 
@@ -13,6 +38,32 @@ $page_title = 'مقاييس - أذكى نظام سحابي لإدارة المو
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+    <script>
+    (function() {
+        var token = localStorage.getItem('authToken');
+        var user = localStorage.getItem('user');
+        var sessionActive = sessionStorage.getItem('session_active') === 'true' || document.cookie.includes('session_active=true');
+        var qs = window.location.search;
+
+        if (!token && !user && !sessionActive) {
+            window.location.replace('login.php' + qs);
+            return;
+        }
+
+        var w = window.innerWidth || document.documentElement.clientWidth || screen.width;
+        var ua = navigator.userAgent || '';
+        var isTouchMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (w < 1024 && navigator.maxTouchPoints > 0);
+        var params = new URLSearchParams(window.location.search);
+
+        if (params.get('force_desktop') === '1') {
+            window.location.replace('dashboard.php?force_desktop=1');
+        } else if (params.get('force_mobile') === '1' || isTouchMobile) {
+            window.location.replace('mobile_erp_global_suite.html' + qs);
+        } else {
+            window.location.replace('dashboard.php' + qs);
+        }
+    })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">

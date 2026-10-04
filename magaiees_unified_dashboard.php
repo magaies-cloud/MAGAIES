@@ -1045,6 +1045,14 @@ function switchToMobileEdition() {
                         </span>
                         <span class="btn-text" style="color: #34d399; font-weight:800;">نسخة الهاتف 📱</span>
                     </button>
+
+                    <!-- PWA Install Button for Desktop / Laptop -->
+                    <button onclick="if(window.PWAManager && PWAManager.triggerInstall){PWAManager.triggerInstall();}else{alert('لتثبيت تطبيق مقاييس: اضغط على أيقونة التثبيت ⊕ في شريط عنوان المتصفح بالأعلى');}" class="qa-master-btn" style="--btn-border-color: #38bdf8; --btn-glow-color: rgba(56, 189, 248, 0.6); background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(99, 102, 241, 0.2)) !important; border-bottom: 3.5px solid #38bdf8 !important; min-width: 145px;" title="تثبيت تطبيق مقاييس على جهازك كبرنامج مستقل">
+                        <span class="qa-icon" style="background: rgba(14, 165, 233, 0.3); border: 1px solid #38bdf8; color: #38bdf8;">
+                            <i class="fa-solid fa-download"></i>
+                        </span>
+                        <span class="btn-text" style="color: #38bdf8; font-weight:800;">تثبيت التطبيق 📲</span>
+                    </button>
                 </div>
             </div>
 
