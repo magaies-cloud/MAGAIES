@@ -1503,56 +1503,80 @@
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
-      min-width: 19px !important;
-      height: 19px !important;
-      padding: 0 4px !important;
+      min-width: 18px !important;
+      height: 18px !important;
+      padding: 0 3.5px !important;
       font-size: 11px !important;
       font-weight: 900 !important;
       line-height: 1 !important;
-      font-family: 'JetBrains Mono', system-ui, -apple-system, sans-serif !important;
-      font-variant-numeric: tabular-nums !important;
-      letter-spacing: -0.03em !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+      font-variant-numeric: tabular-nums lining-nums !important;
+      letter-spacing: 0 !important;
       border-radius: 9999px !important;
       user-select: none !important;
       pointer-events: none !important;
-      z-index: 25 !important;
+      z-index: 40 !important;
+      box-sizing: border-box !important;
+      -webkit-font-smoothing: antialiased !important;
+      text-rendering: geometricPrecision !important;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease !important;
     }
 
-    /* 🟡 التنبيهات: أصفر ذهبي ساطع عالي الإشعاع */
+    /* 🟡 التنبيهات والجرس: أصفر ذهبي ساطع عالي الإشعاع بنص أسود حالك فائق الوضوح */
     .badge-amber-glow {
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
-      color: #020617 !important;
+      background: #fbbf24 !important;
+      background: linear-gradient(135deg, #fde047 0%, #f59e0b 100%) !important;
+      color: #000000 !important;
       border: 1.5px solid #ffffff !important;
-      box-shadow: 0 0 12px rgba(245, 158, 11, 0.95), 0 2px 6px rgba(0, 0, 0, 0.7) !important;
-      text-shadow: 0 0 1px rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.95), 0 2px 6px rgba(0, 0, 0, 0.75) !important;
+      text-shadow: none !important;
     }
 
-    /* 🔴 الموافقات: أحمر مرجاني قرمزي ناصع */
+    /* 🔴 الموافقات: أحمر مرجاني قرمزي ناصع بنص أبيض ناصع */
     .badge-rose-glow {
-      background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important;
+      background: #f43f5e !important;
+      background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%) !important;
       color: #ffffff !important;
       border: 1.5px solid #ffffff !important;
-      box-shadow: 0 0 12px rgba(244, 63, 94, 0.95), 0 2px 6px rgba(0, 0, 0, 0.7) !important;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7) !important;
+      box-shadow: 0 0 10px rgba(244, 63, 94, 0.95), 0 2px 6px rgba(0, 0, 0, 0.75) !important;
+      text-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.9) !important;
     }
 
-    /* 🔵 السمات والخيارات: سماوي ساطع */
+    /* 🔵 حجم الخط والخيارات: سماوي كهربائي ناصع بنص أسود حالك فائق الوضوح */
     .badge-cyan-glow {
-      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%) !important;
-      color: #020617 !important;
+      background: #38bdf8 !important;
+      background: linear-gradient(135deg, #7dd3fc 0%, #0284c7 100%) !important;
+      color: #000000 !important;
       border: 1.5px solid #ffffff !important;
-      box-shadow: 0 0 12px rgba(56, 189, 248, 0.95), 0 2px 6px rgba(0, 0, 0, 0.7) !important;
-      text-shadow: 0 0 1px rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.95), 0 2px 6px rgba(0, 0, 0, 0.75) !important;
+      text-shadow: none !important;
     }
 
-    /* 🟢 العمليات والمزامنة: أخضر زمردي */
+    /* 🟢 العمليات والمزامنة: أخضر زمردي بنص أسود حالك */
     .badge-emerald-glow {
-      background: linear-gradient(135deg, #34d399 0%, #059669 100%) !important;
-      color: #020617 !important;
+      background: #34d399 !important;
+      background: linear-gradient(135deg, #6ee7b7 0%, #059669 100%) !important;
+      color: #000000 !important;
       border: 1.5px solid #ffffff !important;
-      box-shadow: 0 0 12px rgba(16, 185, 129, 0.95), 0 2px 6px rgba(0, 0, 0, 0.7) !important;
-      text-shadow: 0 0 1px rgba(255, 255, 255, 0.6) !important;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.95), 0 2px 6px rgba(0, 0, 0, 0.75) !important;
+      text-shadow: none !important;
+    }
+
+    /* CRITICAL: Ensure buttons with badges never clip their badge */
+    #btnThemePalette,
+    #btnHeaderBell,
+    #fontSizeCycleBtn,
+    #quickQrBarcodeBtn,
+    #bankOcrQuickBtn,
+    .bottom-dock-tab .dock-tab-emblem {
+      overflow: visible !important;
+    }
+    #btnThemePalette::after,
+    #btnHeaderBell::after,
+    #fontSizeCycleBtn::after,
+    #quickQrBarcodeBtn::after,
+    #bankOcrQuickBtn::after {
+      display: none !important;
     }
 
     /* Light Themes Overrides for Badges */
@@ -1852,7 +1876,7 @@
             <circle cx="9" cy="12" r="1.5" fill="#fbbf24" stroke="none"/>
             <circle cx="15" cy="14" r="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/>
           </svg>
-          <span id="activeThemeBadge" class="luminous-number-badge badge-amber-glow absolute -bottom-1.5 -right-1.5 shadow-md">17</span>
+          <span id="activeThemeBadge" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-1.5 !min-w-[21px] !px-1 shadow-md">17</span>
         </button>
 
         <!-- 3. أيقونة البحث الذكي الشامل (تم رفعها للصف الأول) -->
@@ -1898,7 +1922,7 @@
       </div>
 
       <!-- Action Quick Bar (Secondary Operational Bar - الصف الثاني الزجاجي المنير) -->
-      <div class="mt-[10px] flex items-center justify-between gap-[8.5px] overflow-x-auto pt-0 pb-0 px-0.5 no-scrollbar">
+      <div class="mt-[10px] flex items-center justify-between gap-[8.5px] overflow-x-auto pt-1.5 pb-1 px-0.5 no-scrollbar">
         <!-- زر المزامنة والتحديث الفوري -->
         <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); if(window.triggerRefreshAnimation)triggerRefreshAnimation(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-cyan rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-cyan-300" title="مزامنة وتحديث البيانات من الكمبيوتر">
           <svg id="mainRefreshIcon" class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
@@ -1928,8 +1952,8 @@
           <svg id="quickCloudSyncIcon" class="w-4 h-4 text-emerald-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
         </button>
 
-        <!-- التنبيهات -->
-        <button onclick="switchTab('alerts'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-amber rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-amber-300 relative cursor-pointer active:scale-95 transition" title="التنبيهات ومعمل الضبط">
+        <!-- التنبيهات والجرس -->
+        <button id="btnHeaderBell" onclick="switchTab('alerts'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-amber rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-amber-300 relative cursor-pointer active:scale-95 transition" title="التنبيهات ومعمل الضبط">
           <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           <span id="badgeTopBellCount" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-1.5 animate-pulse">6</span>
         </button>
