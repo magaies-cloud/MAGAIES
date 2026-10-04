@@ -1200,20 +1200,19 @@
     <header class="app-main-header p-3 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 sticky top-0 z-30 shrink-0">
       <div class="flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar">
         <!-- 1. الشعار المعتمد: حرف M الملون بالألوان الأساسية + الحافة الخضراء المضيئة لكلمة مقاييس (مؤشر النت الحي) -->
-        <button id="headerBrandLogoBadge" onclick="switchTab('dashboard'); AudioEngine.play('numpad'); triggerHapticPulse(25);" class="flex items-center gap-1.5 bg-slate-900/90 border border-emerald-500/70 shadow-[0_0_12px_rgba(16,185,129,0.35)] rounded-xl px-2.5 h-8 transition-all duration-300 active:scale-95 group cursor-pointer shrink-0" title="مقاييس ERP - متصل بالإنترنت وقاعدة البيانات (اضغط للرئيسية)">
-          <img src="assets/icon-192.png" alt="M" class="w-5 h-5 rounded-md object-contain shrink-0 shadow-[0_0_6px_rgba(56,189,248,0.5)]">
-          <span id="headerBrandText" class="text-[13px] font-black text-emerald-300 tracking-tight drop-shadow-[0_0_8px_rgba(16,185,129,0.4)]">مقاييس</span>
+        <button id="headerBrandLogoBadge" onclick="switchTab('dashboard'); AudioEngine.play('numpad'); triggerHapticPulse(25);" class="flex items-center gap-1.5 bg-slate-900/90 rounded-xl px-2.5 h-8 transition-all duration-300 active:scale-95 group cursor-pointer shrink-0" style="border: 1.5px solid #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.45), inset 0 0 6px rgba(16, 185, 129, 0.15);" title="مقاييس ERP - متصل بالإنترنت وقاعدة البيانات (اضغط للرئيسية)">
+          <img src="assets/icon-192.png" alt="M" class="w-6 h-6 rounded-md object-contain shrink-0 shadow-[0_0_6px_rgba(56,189,248,0.5)]">
+          <span id="headerBrandText" class="text-[13px] font-black text-emerald-300 tracking-tight" style="text-shadow: 0 0 8px rgba(16,185,129,0.6);">مقاييس</span>
         </button>
 
         <!-- فاصل عمودي ناعم -->
         <div class="w-[1px] h-4 bg-slate-700/60 shrink-0"></div>
 
-        <!-- الأيقونات الخمسة: متناسقة وشبه متساوية ومرتبة في مستوى واحد (ارتفاع موحد h-8) -->
+        <!-- الأيقونات الخمسة: متساوية تماماً وأنيقة ومرتبة في مستوى واحد (32x32px) -->
         <div class="flex items-center gap-1.5 shrink-0" id="header-moving-icons">
-          <!-- 1. زر التثبيت في الأعلى -->
-          <button id="headerPwaInstallBtn" onclick="PWAManager.triggerInstall()" class="h-8 px-2 rounded-xl flex items-center gap-1 bg-sky-500/15 border border-sky-400/40 text-sky-300 hover:bg-sky-500/25 active:scale-95 transition cursor-pointer shrink-0 shadow-[0_0_8px_rgba(56,189,248,0.2)]" title="تثبيت أيقونة التطبيق على شاشة الجوال">
-            <svg class="w-3.5 h-3.5 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-            <span class="text-[11px] font-bold">تثبيت</span>
+          <!-- 1. زر التثبيت في الأعلى متساوي في الحجم والمستوى -->
+          <button id="headerPwaInstallBtn" onclick="PWAManager.triggerInstall()" class="w-8 h-8 rounded-xl flex items-center justify-center bg-sky-500/15 border border-sky-400/40 text-sky-300 hover:bg-sky-500/25 active:scale-95 transition cursor-pointer shrink-0 shadow-[0_0_8px_rgba(56,189,248,0.2)]" title="تثبيت أيقونة التطبيق على شاشة الجوال">
+            <svg class="w-4 h-4 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           </button>
 
           <!-- 2. المايك AI في السطر الأول -->
@@ -1237,10 +1236,9 @@
             </svg>
           </button>
 
-          <!-- 5. زر تسجيل الخروج منسق وموضوع في آخر القائمة -->
-          <button id="headerLogoutBtn" onclick="handleMobileLogout()" class="h-8 px-2.5 rounded-xl flex items-center gap-1 text-[11px] font-bold bg-rose-500/15 border border-rose-500/40 text-rose-300 hover:bg-rose-500/25 active:scale-95 transition cursor-pointer shrink-0 shadow-[0_0_8px_rgba(244,63,94,0.2)]" title="تسجيل الخروج والرجوع لشاشة الدخول">
-            <svg class="w-3.5 h-3.5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-            <span>خروج</span>
+          <!-- 5. زر تسجيل الخروج متساوي في الحجم وموضوع في آخر القائمة -->
+          <button id="headerLogoutBtn" onclick="handleMobileLogout()" class="w-8 h-8 rounded-xl flex items-center justify-center bg-rose-500/15 border border-rose-500/40 text-rose-300 hover:bg-rose-500/25 active:scale-95 transition cursor-pointer shrink-0 shadow-[0_0_8px_rgba(244,63,94,0.2)]" title="تسجيل الخروج والرجوع لشاشة الدخول">
+            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
           </button>
         </div>
       </div>

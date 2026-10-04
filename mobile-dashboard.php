@@ -6047,17 +6047,16 @@ try {
                         <span id="headerBrandText" style="font-weight:900; font-size:0.95rem; color:#6ee7b7; letter-spacing:0.2px; text-shadow:0 0 8px rgba(16,185,129,0.5);">مقاييس</span>
                     </div>
 
-                    <!-- 2. زر أزرق فيه سهم تثبيت التطبيق في الأعلى -->
-                    <button type="button" class="header-install-btn header-pwa-blue-btn" id="btn-header-install" onclick="triggerNativeAppInstall()" style="display:inline-flex; align-items:center; gap:4px; background:linear-gradient(135deg, #0ea5e9, #2563eb); border:1px solid rgba(56,189,248,0.6); color:#ffffff; padding:4px 9px; border-radius:11px; font-size:0.75rem; font-weight:900; cursor:pointer; flex-shrink:0; box-shadow:0 2px 10px rgba(14,165,233,0.45); transition:all 0.2s;" title="تثبيت التطبيق على الجوال">
-                        <i class="fa-solid fa-arrow-down" style="color:#ffffff; font-size:0.72rem;"></i>
-                        <span style="color:#ffffff; font-weight:900;">تثبيت</span>
+                    <!-- 2. زر أزرق فيه سهم تثبيت التطبيق في الأعلى متساوي مع بقية الأيقونات -->
+                    <button type="button" class="header-install-btn header-pwa-blue-btn" id="btn-header-install" onclick="triggerNativeAppInstall()" style="width:28px; height:28px; border-radius:9px; background:linear-gradient(135deg, #0ea5e9, #2563eb); border:1px solid rgba(56,189,248,0.6); color:#ffffff; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(14,165,233,0.35); transition:all 0.2s;" title="تثبيت التطبيق على الجوال">
+                        <i class="fa-solid fa-arrow-down" style="color:#ffffff; font-size:0.75rem;"></i>
                     </button>
                 </div>
 
                 <!-- فاصل عمودي ناعم -->
                 <div style="width:1px; height:18px; background:rgba(255,255,255,0.12); flex-shrink:0;"></div>
 
-                <!-- 5. بقية الأيقونات: متحركة وسلسة التمرير في مستوى واحد أنيق -->
+                <!-- 5. بقية الأيقونات: متحركة وسلسة التمرير في مستوى واحد أنيق ومتساوي -->
                 <div class="dynamic-moving-icons-stream" id="header-moving-icons" style="display:flex; align-items:center; gap:5px; flex-shrink:0; scroll-behavior:smooth;">
                     <!-- المايك AI في السطر الأول -->
                     <button type="button" onclick="openAiVoiceCopilotModal()" class="header-refresh-btn" style="width:28px; height:28px; border-radius:9px; background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(99,102,241,0.25)); border:1px solid rgba(168,85,247,0.45); color:#c084fc; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0;" title="المساعد الصوتي المحاسبي الذكي">
@@ -6095,10 +6094,9 @@ try {
                         <i class="fa-solid fa-desktop" style="font-size:0.72rem;"></i>
                     </button>
 
-                    <!-- 🚪 زر تسجيل الخروج في آخر القائمة كما طلب المستخدم -->
-                    <button type="button" class="header-logout-btn" id="btn-header-logout" onclick="triggerMobileLogout()" style="display:inline-flex; align-items:center; gap:4px; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.45); color:#FECDD3; padding:5px 9px; border-radius:11px; font-size:0.75rem; font-weight:800; cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(244,63,94,0.15); transition:all 0.2s;" title="تسجيل الخروج والرجوع لشاشة الدخول">
+                    <!-- 🚪 زر تسجيل الخروج متساوي في الحجم وموضوع في آخر القائمة -->
+                    <button type="button" class="header-logout-btn" id="btn-header-logout" onclick="triggerMobileLogout()" style="width:28px; height:28px; border-radius:9px; background:rgba(244,63,94,0.18); border:1px solid rgba(244,63,94,0.45); color:#FECDD3; display:flex; align-items:center; justify-content:center; cursor:pointer; flex-shrink:0; box-shadow:0 2px 8px rgba(244,63,94,0.15); transition:all 0.2s;" title="تسجيل الخروج والرجوع لشاشة الدخول">
                         <i class="fa-solid fa-arrow-right-from-bracket" style="color:#FB7185; font-size:0.75rem;"></i>
-                        <span>خروج</span>
                     </button>
                 </div>
             </div>
