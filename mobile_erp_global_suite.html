@@ -185,43 +185,44 @@
     
     /* Level 1: Compact (مدمج - 90% للشاشات الصغيرة) */
     html[data-font-scale="1"] {
-      font-size: 14px;
+      font-size: 14.5px;
     }
-    html[data-font-scale="1"] .text-\[10px\] { font-size: 10px !important; }
-    html[data-font-scale="1"] .text-\[11px\] { font-size: 11px !important; }
+    html[data-font-scale="1"] .text-\[10px\] { font-size: 11px !important; }
+    html[data-font-scale="1"] .text-\[11px\] { font-size: 12px !important; }
 
-    /* Level 2: Standard (القياسي المعتدل - 100% افتراضي) */
+    /* Level 2: Standard (القياسي المعتدل المحسن - 100% افتراضي) */
     html[data-font-scale="2"] {
-      font-size: 16px;
+      font-size: 16.5px;
     }
-    html[data-font-scale="2"] .text-\[10px\] { font-size: 11.5px !important; }
-    html[data-font-scale="2"] .text-\[11px\] { font-size: 12.5px !important; }
+    html[data-font-scale="2"] .text-\[10px\] { font-size: 12.5px !important; }
+    html[data-font-scale="2"] .text-\[11px\] { font-size: 13.5px !important; }
+    html[data-font-scale="2"] .text-xs { font-size: 13.5px !important; }
 
     /* Level 3: Large / Comfortable (كبير ومريح للعين والعمل الطويل - 118%) */
     html[data-font-scale="3"] {
-      font-size: 18.5px;
+      font-size: 19px;
     }
-    html[data-font-scale="3"] .text-\[10px\] { font-size: 13.5px !important; line-height: 1.4 !important; }
-    html[data-font-scale="3"] .text-\[11px\] { font-size: 14.5px !important; line-height: 1.4 !important; }
-    html[data-font-scale="3"] .text-xs { font-size: 15px !important; }
-    html[data-font-scale="3"] .text-sm { font-size: 17px !important; }
-    html[data-font-scale="3"] .text-base { font-size: 19px !important; }
-    html[data-font-scale="3"] .text-lg { font-size: 22px !important; }
-    html[data-font-scale="3"] .text-xl { font-size: 25px !important; }
-    html[data-font-scale="3"] .text-2xl { font-size: 29px !important; }
+    html[data-font-scale="3"] .text-\[10px\] { font-size: 14.5px !important; line-height: 1.4 !important; }
+    html[data-font-scale="3"] .text-\[11px\] { font-size: 15.5px !important; line-height: 1.4 !important; }
+    html[data-font-scale="3"] .text-xs { font-size: 16px !important; }
+    html[data-font-scale="3"] .text-sm { font-size: 18px !important; }
+    html[data-font-scale="3"] .text-base { font-size: 20px !important; }
+    html[data-font-scale="3"] .text-lg { font-size: 23px !important; }
+    html[data-font-scale="3"] .text-xl { font-size: 26.5px !important; }
+    html[data-font-scale="3"] .text-2xl { font-size: 30.5px !important; }
 
     /* Level 4: Ultra Clarity / Accessibility (فائق الضخامة - لكبار السن وإجهاد النظر والشمس - 135%) */
     html[data-font-scale="4"] {
-      font-size: 21.5px;
+      font-size: 22px;
     }
-    html[data-font-scale="4"] .text-\[10px\] { font-size: 15.5px !important; line-height: 1.45 !important; }
-    html[data-font-scale="4"] .text-\[11px\] { font-size: 16.5px !important; line-height: 1.45 !important; }
-    html[data-font-scale="4"] .text-xs { font-size: 17px !important; }
-    html[data-font-scale="4"] .text-sm { font-size: 19.5px !important; }
-    html[data-font-scale="4"] .text-base { font-size: 22px !important; }
-    html[data-font-scale="4"] .text-lg { font-size: 25px !important; }
-    html[data-font-scale="4"] .text-xl { font-size: 28.5px !important; }
-    html[data-font-scale="4"] .text-2xl { font-size: 33px !important; }
+    html[data-font-scale="4"] .text-\[10px\] { font-size: 16.5px !important; line-height: 1.45 !important; }
+    html[data-font-scale="4"] .text-\[11px\] { font-size: 17.5px !important; line-height: 1.45 !important; }
+    html[data-font-scale="4"] .text-xs { font-size: 18px !important; }
+    html[data-font-scale="4"] .text-sm { font-size: 20.5px !important; }
+    html[data-font-scale="4"] .text-base { font-size: 23px !important; }
+    html[data-font-scale="4"] .text-lg { font-size: 27px !important; }
+    html[data-font-scale="4"] .text-xl { font-size: 31px !important; }
+    html[data-font-scale="4"] .text-2xl { font-size: 36px !important; }
 
     /* BOLD / HEAVY FONT CONTRAST MODE (الخط التخين فائق البروز) */
     html[data-font-weight="bold"] * {
@@ -1757,12 +1758,12 @@
     <nav class="absolute bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-2 flex justify-between items-center z-30">
       <button onclick="switchTab('dashboard')" id="navTabDashboard" class="flex flex-col items-center gap-1 text-cyan-400 flex-1">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        <span class="text-[10px] font-bold">الرئيسية</span>
+        <span class="text-xs font-black">الرئيسية</span>
       </button>
 
       <button onclick="switchTab('transactions')" id="navTabTransactions" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 flex-1">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-        <span class="text-[10px]">الحركات</span>
+        <span class="text-xs font-extrabold">الحركات</span>
       </button>
 
       <button onclick="switchTab('approvals')" id="navTabApprovals" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 flex-1 relative">
@@ -1770,17 +1771,17 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           <span id="badgeApprovalsCount" class="absolute -top-1 -right-2 bg-rose-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-slate-900 animate-pulse">3</span>
         </div>
-        <span class="text-[10px]">الموافقات</span>
+        <span class="text-xs font-extrabold">الموافقات</span>
       </button>
 
       <button onclick="switchTab('ledgers')" id="navTabLedgers" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 flex-1">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        <span class="text-[10px]">الحسابات</span>
+        <span class="text-xs font-extrabold">الحسابات</span>
       </button>
 
       <button onclick="switchTab('inventory')" id="navTabInventory" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 flex-1">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-        <span class="text-[10px]">المخزون</span>
+        <span class="text-xs font-extrabold">المخزون</span>
       </button>
     </nav>
 
