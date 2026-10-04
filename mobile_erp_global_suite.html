@@ -674,7 +674,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
               </div>
               <span class="text-xs font-bold text-slate-200">حركة مالية</span>
-              <span class="text-[10px] text-slate-400">قبض / صرف</span>
+              <span class="text-[10px] text-cyan-300">تحويل (من ➔ إلى)</span>
             </button>
 
             <!-- 2. فاتورة مبيعات تقسيم -->
@@ -2025,59 +2025,343 @@
 
       </div>
     </div>
-    <!-- OPERATIONAL MODAL: حركة مالية (سند قبض / سند صرف) -->
+    <!-- OPERATIONAL MODAL: حركة مالية وتحويل بين الحسابات (من ➔ إلى) -->
     <div id="modalOpFinance" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
-      <div class="glass-base w-full max-w-md rounded-3xl border border-emerald-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
-        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
+      <div class="glass-base w-full max-w-md rounded-3xl border border-cyan-500/50 p-4 space-y-3.5 max-h-[90vh] overflow-y-auto shadow-2xl">
+        <!-- Header -->
+        <div class="flex justify-between items-center border-b border-slate-800 pb-2.5">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-rose-600 via-cyan-500 to-emerald-500 text-slate-950 flex items-center justify-center font-black shadow-lg shadow-cyan-500/20">
+              <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/></svg>
             </div>
             <div>
-              <h4 class="text-sm font-black text-slate-100">إجراء حركة مالية نقدية / بنكية</h4>
-              <span class="text-[10px] text-emerald-400 font-bold">سند قبض فوري أو سند صرف</span>
+              <h4 class="text-sm font-black text-slate-100 flex items-center gap-1.5">
+                <span>حركة مالية وتحويل بين الحسابات</span>
+                <span class="text-[10px] bg-cyan-950 text-cyan-300 font-mono px-1.5 py-0.5 rounded-full border border-cyan-500/30">من ➔ إلى</span>
+              </h4>
+              <span class="text-[10px] text-slate-400 font-bold block">تحويل فوري مزدوج القيد مع تحديث الأرصدة ومانع التكرار</span>
             </div>
           </div>
-          <button onclick="closeModal('modalOpFinance')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
+          <button onclick="closeModal('modalOpFinance')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm transition">✕</button>
         </div>
 
-        <div class="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-2xl border border-slate-800 text-xs font-bold">
-          <button id="opFinTypeReceipt" onclick="setOpFinType('receipt')" class="py-2 rounded-xl bg-emerald-600 text-white shadow">سند قبض (استلام نقد)</button>
-          <button id="opFinTypePayment" onclick="setOpFinType('payment')" class="py-2 rounded-xl text-slate-400 hover:text-white">سند صرف (دفع نقد)</button>
+        <!-- 1. طريقة التحويل والوسيلة المالية -->
+        <div>
+          <label class="block text-[11px] font-black text-slate-300 mb-1.5 flex items-center justify-between">
+            <span>💳 طريقة التحويل والوسيلة المالية:</span>
+            <span id="finMethodBadge" class="text-[10px] text-cyan-400 font-bold">⚡ تحويلة بنكية إلكترونية</span>
+          </label>
+          <div class="grid grid-cols-4 gap-1 bg-slate-900/90 p-1 rounded-2xl border border-slate-800 text-[11px] font-bold">
+            <button id="finMethodBtnBank" type="button" onclick="setFinTransferMethod('bank')" class="py-2 rounded-xl bg-cyan-600 text-white shadow font-black transition">
+              ⚡ بنكية
+            </button>
+            <button id="finMethodBtnCash" type="button" onclick="setFinTransferMethod('cash')" class="py-2 rounded-xl text-slate-400 hover:text-white transition">
+              💵 كاش
+            </button>
+            <button id="finMethodBtnBankCheck" type="button" onclick="setFinTransferMethod('bank_check')" class="py-2 rounded-xl text-slate-400 hover:text-white transition">
+              🏛️ شيك مصرفي
+            </button>
+            <button id="finMethodBtnCheck" type="button" onclick="setFinTransferMethod('check')" class="py-2 rounded-xl text-slate-400 hover:text-white transition">
+              ✍️ شيك عادي
+            </button>
+          </div>
         </div>
 
-        <div class="space-y-2.5 text-xs">
+        <!-- 2. طرف الصرف (من الصارف / دائن) - أحمر فخم Rose -->
+        <div class="rounded-2xl border-2 border-rose-500/60 bg-gradient-to-b from-rose-950/25 to-slate-900/80 p-3 space-y-2 relative shadow-lg shadow-rose-950/20">
+          <div class="flex items-center justify-between pb-1 border-b border-rose-500/30">
+            <div class="flex items-center gap-1.5">
+              <span class="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs">📤</span>
+              <span class="text-xs font-black text-rose-300">من (حساب الصارف / دائن):</span>
+            </div>
+            <span class="text-[10px] bg-rose-950 text-rose-300 font-bold px-2 py-0.5 rounded-full border border-rose-500/40">صرف وخروج أموال</span>
+          </div>
+
           <div>
-            <label class="block text-slate-300 font-bold mb-1">الطرف الثاني (العميل / المورد / المصروف):</label>
-            <input type="text" placeholder="اكتب اسم الحساب..." value="شركة النيل للاستيراد" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none focus:border-cyan-400" />
+            <select id="finTransferFromAccount" onchange="updateFinTransferBalancesPreview()" class="w-full bg-slate-900 border border-rose-500/40 rounded-xl p-2.5 text-white font-bold text-xs focus:outline-none focus:border-rose-400">
+              <!-- Populated dynamically via JS -->
+            </select>
           </div>
-          <div class="grid grid-cols-2 gap-2">
+
+          <!-- Live Balance Strip for Sender -->
+          <div class="bg-slate-950/80 border border-rose-500/30 rounded-xl p-2 text-xs space-y-1">
+            <div class="flex justify-between items-center text-[11px]">
+              <span class="text-slate-400 font-semibold">الرصيد الحالي المتوفر:</span>
+              <span id="finFromCurrentBalance" class="font-mono font-bold text-slate-200">$28,400</span>
+            </div>
+            <div class="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800">
+              <span class="text-rose-400 font-bold">المبلغ المطلوب خصمه (-):</span>
+              <span id="finFromDeductAmount" class="font-mono font-black text-rose-400">-$1,500</span>
+            </div>
+            <div class="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800 font-bold">
+              <span class="text-slate-300">الرصيد الجديد المتوقع:</span>
+              <span id="finFromNewBalance" class="font-mono font-black text-slate-100">$26,900</span>
+            </div>
+            <div id="finFromSdgPreview" class="text-[10px] text-slate-400 font-mono text-left pt-0.5">
+              ≈ 75,320,000 ج.س
+            </div>
+            <div id="finFromWarning" class="hidden text-[10px] text-rose-300 bg-rose-950/90 border border-rose-500 p-1.5 rounded-lg font-bold mt-1">
+              ⚠️ تنبيه: المبلغ يتجاوز الرصيد المتاح في هذا الحساب!
+            </div>
+          </div>
+        </div>
+
+        <!-- فاصل اتجاه التحويل المالي الذكي -->
+        <div class="flex items-center justify-center gap-2 py-0.5">
+          <div class="h-px bg-gradient-to-r from-rose-500/40 via-cyan-500 to-emerald-500/40 flex-1"></div>
+          <div class="px-2.5 py-0.5 rounded-full bg-slate-900 border border-cyan-500/50 text-[10px] font-black text-cyan-300 flex items-center gap-1 shadow-md">
+            <span>⚡ تحويل مالي فوري</span>
+            <span class="text-emerald-400 font-mono font-bold">⬇️</span>
+          </div>
+          <div class="h-px bg-gradient-to-r from-emerald-500/40 via-cyan-500 to-rose-500/40 flex-1"></div>
+        </div>
+
+        <!-- 3. طرف الاستلام (إلى المستلم / مدين) - أخضر فخم Emerald -->
+        <div class="rounded-2xl border-2 border-emerald-500/60 bg-gradient-to-b from-emerald-950/25 to-slate-900/80 p-3 space-y-2 relative shadow-lg shadow-emerald-950/20">
+          <div class="flex items-center justify-between pb-1 border-b border-emerald-500/30">
+            <div class="flex items-center gap-1.5">
+              <span class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">📥</span>
+              <span class="text-xs font-black text-emerald-300">إلى (حساب المستلم / مدين):</span>
+            </div>
+            <span class="text-[10px] bg-emerald-950 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-500/40">استلام ودخول أموال</span>
+          </div>
+
+          <div>
+            <select id="finTransferToAccount" onchange="updateFinTransferBalancesPreview()" class="w-full bg-slate-900 border border-emerald-500/40 rounded-xl p-2.5 text-white font-bold text-xs focus:outline-none focus:border-emerald-400">
+              <!-- Populated dynamically via JS -->
+            </select>
+          </div>
+
+          <!-- Live Balance Strip for Receiver -->
+          <div class="bg-slate-950/80 border border-emerald-500/30 rounded-xl p-2 text-xs space-y-1">
+            <div class="flex justify-between items-center text-[11px]">
+              <span class="text-slate-400 font-semibold">الرصيد الحالي:</span>
+              <span id="finToCurrentBalance" class="font-mono font-bold text-slate-200">$9,150</span>
+            </div>
+            <div class="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800">
+              <span class="text-emerald-400 font-bold">المبلغ المطلوب إضافته (+):</span>
+              <span id="finToAddAmount" class="font-mono font-black text-emerald-400">+$1,500</span>
+            </div>
+            <div class="flex justify-between items-center text-[11px] pt-1 border-t border-slate-800 font-bold">
+              <span class="text-slate-300">الرصيد الجديد المتوقع:</span>
+              <span id="finToNewBalance" class="font-mono font-black text-emerald-300">$10,650</span>
+            </div>
+            <div id="finToSdgPreview" class="text-[10px] text-slate-400 font-mono text-left pt-0.5">
+              ≈ 29,820,000 ج.س
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. المبلغ والعملة ولوحة الأرقام المحاسبية -->
+        <div class="glass-card-interactive p-3 rounded-2xl border border-cyan-500/40 space-y-2">
+          <div class="flex justify-between items-center">
+            <label class="text-[11px] font-black text-slate-200 flex items-center gap-1">
+              <span>💰 مبلغ الحركة المالية:</span>
+            </label>
+            <button type="button" onclick="openAccountingNumpad('finTransferAmountInput', 'مبلغ التحويل المالي')" class="px-2 py-0.5 rounded-lg bg-cyan-950 border border-cyan-500/40 text-[10px] text-cyan-300 font-bold hover:bg-cyan-900/60 transition flex items-center gap-1">
+              <span>🔢 لوحة الأرقام العملاقة</span>
+            </button>
+          </div>
+
+          <div class="flex gap-1.5">
+            <div class="relative flex-1">
+              <input 
+                id="finTransferAmountInput" 
+                type="number" 
+                value="1500" 
+                placeholder="0.00"
+                oninput="updateFinTransferBalancesPreview()"
+                class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-xl py-2.5 px-3 font-mono font-black text-base text-cyan-300 focus:outline-none" 
+              />
+            </div>
+            <div class="flex bg-slate-900 border border-slate-700 rounded-xl p-0.5">
+              <button id="finCurBtnUsd" type="button" onclick="setFinTransferCurrency('USD')" class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold text-xs transition">$ USD</button>
+              <button id="finCurBtnSdg" type="button" onclick="setFinTransferCurrency('SDG')" class="px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-bold text-xs transition">ج.س SDG</button>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-center text-[10px] text-slate-400 font-mono px-1">
+            <span id="finAmountEquivalent">المعادل: ≈ 4,200,000 ج.س</span>
+            <span class="text-cyan-400/80">1 USD = 2,800 ج.س</span>
+          </div>
+        </div>
+
+        <!-- 5. الحقول الديناميكية حسب وسيلة الدفع (شيك، تحويلة، كاش) -->
+        <div id="finDynamicMethodFields" class="glass-card-interactive p-3 rounded-2xl border border-slate-800 space-y-2 text-xs">
+          <!-- BANK TRANSFER FIELDS -->
+          <div id="finFieldsBank" class="space-y-2">
             <div>
-              <label class="block text-slate-300 font-bold mb-1">الحساب المالي (الخزينة/البنك):</label>
-              <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none">
-                <option>الخزينة الرئيسية</option>
-                <option>خزينة صالة المعرض</option>
-                <option>بنك الخرطوم (جاري)</option>
-                <option>بنك فيصل الإسلامي</option>
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-slate-300 font-bold block">رقم التحويل البنكي / الرقم المرجعي (Ref No):</label>
+                <span class="text-[10px] text-cyan-400 font-mono">6 خانات على الأقل</span>
+              </div>
+              <input 
+                id="finTransferBankRef" 
+                type="text" 
+                placeholder="مثال: BOK-849201 أو 849201" 
+                value="BOK-984210"
+                oninput="validateFinTransferReference()"
+                onblur="validateFinTransferReference()"
+                class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-xl p-2.5 font-mono text-cyan-300 font-bold focus:outline-none" 
+              />
+            </div>
+            <div>
+              <label class="text-slate-300 font-bold block mb-1">التطبيق / البنك المحول عبره:</label>
+              <select id="finTransferBankApp" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-white focus:outline-none">
+                <option>تطبيق بنكك (بنك الخرطوم)</option>
+                <option>تطبيق فوري (بنك فيصل)</option>
+                <option>تطبيق أوكاش (بنك أم درمان الوطني)</option>
+                <option>تحويل بنكي مباشر / سويفت</option>
+                <option>تطبيق مصرفي آخر</option>
               </select>
             </div>
+          </div>
+
+          <!-- BANK CERTIFIED CHECK FIELDS -->
+          <div id="finFieldsBankCheck" class="hidden space-y-2">
             <div>
-              <label class="block text-slate-300 font-bold mb-1">المبلغ والعملة:</label>
-              <div class="flex">
-                <input type="number" placeholder="0" value="1500" class="w-full bg-slate-900 border border-slate-700 rounded-r-xl p-2.5 font-bold font-mono text-white focus:outline-none" />
-                <span class="bg-slate-800 border border-slate-700 border-r-0 rounded-l-xl px-2.5 py-2.5 text-slate-300 font-bold">$</span>
+              <div class="flex justify-between items-center mb-1">
+                <label class="text-slate-300 font-bold block">رقم الشيك المصرفي المعتمد / المصدق:</label>
+                <span class="text-[10px] text-cyan-400 font-mono">6 خانات على الأقل</span>
+              </div>
+              <input 
+                id="finTransferBankCheckNo" 
+                type="text" 
+                placeholder="مثال: CHK-889012" 
+                oninput="validateFinTransferReference()"
+                onblur="validateFinTransferReference()"
+                class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-xl p-2.5 font-mono text-cyan-300 font-bold focus:outline-none" 
+              />
+            </div>
+            <div>
+              <label class="text-slate-300 font-bold block mb-1">البنك المصدر للشيك المصرفي:</label>
+              <select id="finTransferBankCheckIssuer" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-white focus:outline-none">
+                <option>بنك الخرطوم</option>
+                <option>بنك فيصل الإسلامي</option>
+                <option>بنك أم درمان الوطني</option>
+                <option>بنك النيلين</option>
+                <option>بنك الخليج</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- REGULAR CHECK FIELDS -->
+          <div id="finFieldsCheck" class="hidden space-y-2">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-300 font-bold block mb-1">رقم الشيك:</label>
+                <input 
+                  id="finTransferCheckNo" 
+                  type="text" 
+                  placeholder="مثال: 554210" 
+                  oninput="validateFinTransferReference()"
+                  onblur="validateFinTransferReference()"
+                  class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-xl p-2 font-mono text-cyan-300 font-bold focus:outline-none" 
+                />
+              </div>
+              <div>
+                <label class="text-slate-300 font-bold block mb-1">تاريخ الاستحقاق:</label>
+                <input 
+                  id="finTransferCheckDueDate" 
+                  type="date" 
+                  class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-white focus:outline-none" 
+                />
+              </div>
+            </div>
+            <div>
+              <label class="text-slate-300 font-bold block mb-1">البنك المسحوب عليه الشيك:</label>
+              <select id="finTransferCheckDraweeBank" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-white focus:outline-none">
+                <option>بنك الخرطوم</option>
+                <option>بنك فيصل الإسلامي</option>
+                <option>بنك أم درمان الوطني</option>
+                <option>بنك البركة</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- CASH FIELDS -->
+          <div id="finFieldsCash" class="hidden space-y-2">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="text-slate-300 font-bold block mb-1">رقم سند القبض/الصرف:</label>
+                <input id="finTransferCashReceiptNo" type="text" readonly value="CSH-9842" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 font-mono text-amber-400 font-bold" />
+              </div>
+              <div>
+                <label class="text-slate-300 font-bold block mb-1">مسؤول الصندوق/الكاشير:</label>
+                <input type="text" readonly value="أحمد عثمان (الكاشير)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2 text-slate-300 font-bold" />
               </div>
             </div>
           </div>
-          <div>
-            <label class="block text-slate-300 font-bold mb-1">البيان والشرح:</label>
-            <input type="text" placeholder="دفعة تحت الحساب نظير مبيعات..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:outline-none" />
+
+          <!-- Validation & Anti-Duplicate Warning Box -->
+          <div id="finTransferRefError" class="hidden p-2.5 rounded-xl text-xs font-bold transition"></div>
+        </div>
+
+        <!-- 6. تصوير الإشعار بالكاميرا أو السحب من الاستوديو / الواتساب -->
+        <div class="glass-card-interactive p-3 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-xs font-black text-slate-200 flex items-center gap-1.5">
+              <span>📎 إشعار التحويل البنكي أو صورة الشيك:</span>
+            </span>
+            <span class="text-[10px] text-cyan-400 font-bold">توثيق نظامي</span>
+          </div>
+
+          <!-- Hidden inputs for Camera and Gallery -->
+          <input type="file" id="finTransferCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleFinTransferAttachmentSelected(this, 'كاميرا الهاتف')" />
+          <input type="file" id="finTransferGalleryInput" accept="image/*" class="hidden" onchange="handleFinTransferAttachmentSelected(this, 'الاستوديو / الواتساب')" />
+
+          <!-- Action Buttons: Camera / Gallery / Demo -->
+          <div class="grid grid-cols-3 gap-1.5 text-xs font-bold">
+            <button type="button" onclick="document.getElementById('finTransferCameraInput').click()" class="py-2 px-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 flex items-center justify-center gap-1 active:scale-95 transition">
+              <span>📸 تصوير بالكاميرا</span>
+            </button>
+            <button type="button" onclick="document.getElementById('finTransferGalleryInput').click()" class="py-2 px-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 flex items-center justify-center gap-1 active:scale-95 transition">
+              <span>🖼️ سحب من الواتساب</span>
+            </button>
+            <button type="button" onclick="loadDemoFinTransferAttachment()" class="py-2 px-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/30 flex items-center justify-center gap-1 active:scale-95 transition">
+              <span>🧪 إشعار تجريبي</span>
+            </button>
+          </div>
+
+          <!-- Attachment Preview Box -->
+          <div id="finTransferAttachmentCard" class="hidden p-2.5 rounded-xl bg-slate-900/90 border border-cyan-500/30 space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <div id="finAttachmentThumb" class="w-10 h-10 rounded-lg bg-slate-800 border border-cyan-500/40 overflow-hidden flex items-center justify-center text-xs">
+                  📄
+                </div>
+                <div>
+                  <span id="finAttachmentName" class="text-xs font-bold text-slate-100 block">إشعار_بنكك_محول.jpg</span>
+                  <span id="finAttachmentSource" class="text-[10px] text-cyan-400 font-mono">من كاميرا الهاتف • 240 KB</span>
+                </div>
+              </div>
+              <button type="button" onclick="removeFinTransferAttachment()" class="w-6 h-6 rounded-full bg-slate-800 hover:bg-rose-900/50 text-slate-400 hover:text-rose-300 flex items-center justify-center text-xs">✕</button>
+            </div>
+
+            <!-- OCR Quick Auto-Extract from receipt -->
+            <button type="button" onclick="extractFinTransferFromAttachment()" class="w-full py-1.5 bg-gradient-to-r from-cyan-600 to-teal-600 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow active:scale-95 transition">
+              <span>⚡ قراءة الإشعار بالذكاء الاصطناعي وتعبئة المرجع والمبلغ</span>
+            </button>
           </div>
         </div>
 
-        <button onclick="commitOperation('سند مالي')" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-500 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition">
-          اعتماد وترحيل الحركة المالية وطباعة الإيصال
-        </button>
+        <!-- 7. البيان والشرح -->
+        <div>
+          <label class="block text-slate-300 font-bold mb-1 text-xs">البيان والشرح (ملاحظات المحاسب):</label>
+          <input id="finTransferNotes" type="text" placeholder="دفعة تحت الحساب نظير مبيعات / تسوية رصيد..." value="تحويل مالي بين الحسابات - دفعة معتمدة" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white text-xs focus:outline-none focus:border-cyan-400" />
+        </div>
+
+        <!-- 8. أزرار الاعتماد والطباعة -->
+        <div class="space-y-2 pt-1">
+          <button id="finTransferSubmitBtn" type="button" onclick="commitFinancialTransfer()" class="w-full py-3.5 bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-600 text-slate-950 rounded-2xl font-black text-sm shadow-[0_0_20px_rgba(16,185,129,0.35)] active:scale-95 transition flex items-center justify-center gap-2">
+            <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+            <span>اعتماد وترحيل الحركة المالية وتحديث الأرصدة فوراً</span>
+          </button>
+
+          <button type="button" onclick="printFinancialTransferVoucher()" class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl font-bold text-xs border border-slate-700 active:scale-95 transition flex items-center justify-center gap-1.5">
+            <span>🖨️ طباعة سند التحويل والمناقلة المعتمد</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -2743,28 +3027,518 @@
   <script>
     let isPrivacyActive = false;
 
-    // Accounts Database with NON-ZERO vs ZERO Balances
+    // Accounts Database with NON-ZERO vs ZERO Balances (Unified Chart of Accounts)
     const masterAccountsList = [
+      // 1. العملاء والمدينون
       { id: 1, name: "شركة النيل للاستيراد", category: "customer", type: "عميل", balanceNum: 4250, balanceFormatted: "$4,250", sdgFormatted: "11,900,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
       { id: 2, name: "محلات الصادق للتوزيع", category: "customer", type: "عميل", balanceNum: 9150, balanceFormatted: "$9,150", sdgFormatted: "25,620,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
       { id: 3, name: "مؤسسة التاج التجارية", category: "customer", type: "عميل", balanceNum: 8200, balanceFormatted: "$8,200", sdgFormatted: "22,960,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
       { id: 4, name: "أسواق البركة المركزية", category: "customer", type: "عميل", balanceNum: 5800, balanceFormatted: "$5,800", sdgFormatted: "16,240,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
       { id: 5, name: "وكالة الهدى للشحن", category: "customer", type: "عميل", balanceNum: 4350, balanceFormatted: "$4,350", sdgFormatted: "12,180,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
+      { id: 20, name: "شركة همس للتجارة العامة", category: "customer", type: "عميل", balanceNum: 7400, balanceFormatted: "$7,400", sdgFormatted: "20,720,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
+      { id: 21, name: "سوبرماركت الواحة التجاري", category: "customer", type: "عميل", balanceNum: 3900, balanceFormatted: "$3,900", sdgFormatted: "10,920,000 ج.س", nature: "مدين (عليه دين لنا)", natureClass: "text-rose-400 bg-rose-950/60 border-rose-500/30" },
+
+      // 2. الموردون والدائنون
       { id: 6, name: "مطاحن الخرطوم للغلال", category: "vendor", type: "مورد", balanceNum: 18300, balanceFormatted: "$18,300", sdgFormatted: "51,240,000 ج.س", nature: "دائن (له مستحقات علينا)", natureClass: "text-cyan-400 bg-cyan-950/60 border-cyan-500/30" },
       { id: 7, name: "مصانع سيقا للزيوت", category: "vendor", type: "مورد", balanceNum: 13850, balanceFormatted: "$13,850", sdgFormatted: "38,780,000 ج.س", nature: "دائن (له مستحقات علينا)", natureClass: "text-cyan-400 bg-cyan-950/60 border-cyan-500/30" },
+      { id: 22, name: "شركة دال الهندسية", category: "vendor", type: "مورد", balanceNum: 22100, balanceFormatted: "$22,100", sdgFormatted: "61,880,000 ج.س", nature: "دائن (له مستحقات علينا)", natureClass: "text-cyan-400 bg-cyan-950/60 border-cyan-500/30" },
+      { id: 23, name: "مجموعة البرير الصناعية", category: "vendor", type: "مورد", balanceNum: 15400, balanceFormatted: "$15,400", sdgFormatted: "43,120,000 ج.س", nature: "دائن (له مستحقات علينا)", natureClass: "text-cyan-400 bg-cyan-950/60 border-cyan-500/30" },
+      { id: 24, name: "مصنع باعبود للتجارة", category: "vendor", type: "مورد", balanceNum: 11200, balanceFormatted: "$11,200", sdgFormatted: "31,360,000 ج.س", nature: "دائن (له مستحقات علينا)", natureClass: "text-cyan-400 bg-cyan-950/60 border-cyan-500/30" },
+
+      // 3. البنوك والمصارف
       { id: 8, name: "بنك الخرطوم (الحساب الجاري)", category: "cash", type: "بنك", balanceNum: 28400, balanceFormatted: "$28,400", sdgFormatted: "79,520,000 ج.س", nature: "رصيد بنكي متاح", natureClass: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30" },
       { id: 9, name: "بنك فيصل الإسلامي", category: "cash", type: "بنك", balanceNum: 21500, balanceFormatted: "$21,500", sdgFormatted: "60,200,000 ج.س", nature: "رصيد بنكي متاح", natureClass: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30" },
+      { id: 15, name: "تطبيق بنكك (الحساب المباشر)", category: "cash", type: "بنك", balanceNum: 19500, balanceFormatted: "$19,500", sdgFormatted: "54,600,000 ج.س", nature: "رصيد بنكي متاح", natureClass: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30" },
+      { id: 16, name: "بنك أم درمان الوطني", category: "cash", type: "بنك", balanceNum: 16400, balanceFormatted: "$16,400", sdgFormatted: "45,920,000 ج.س", nature: "رصيد بنكي متاح", natureClass: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30" },
+      { id: 17, name: "بنك الخليج", category: "cash", type: "بنك", balanceNum: 9800, balanceFormatted: "$9,800", sdgFormatted: "27,440,000 ج.س", nature: "رصيد بنكي متاح", natureClass: "text-emerald-400 bg-emerald-950/60 border-emerald-500/30" },
+
+      // 4. الخزن النقدية ونقاط البيع
       { id: 10, name: "الخزينة الرئيسية (الإدارة)", category: "cash", type: "خزينة", balanceNum: 8950, balanceFormatted: "$8,950", sdgFormatted: "25,060,000 ج.س", nature: "نقدية بالصندوق", natureClass: "text-amber-400 bg-amber-950/60 border-amber-500/30" },
       { id: 11, name: "خزينة صالة المعرض", category: "cash", type: "خزينة", balanceNum: 5200, balanceFormatted: "$5,200", sdgFormatted: "14,560,000 ج.س", nature: "نقدية بالصندوق", natureClass: "text-amber-400 bg-amber-950/60 border-amber-500/30" },
+      { id: 18, name: "خزينة التحصيل الميداني", category: "cash", type: "خزينة", balanceNum: 3400, balanceFormatted: "$3,400", sdgFormatted: "9,520,000 ج.س", nature: "نقدية بالصندوق", natureClass: "text-amber-400 bg-amber-950/60 border-amber-500/30" },
+      { id: 19, name: "عهدة كاشير المبيعات", category: "cash", type: "خزينة", balanceNum: 2100, balanceFormatted: "$2,100", sdgFormatted: "5,880,000 ج.س", nature: "نقدية بالصندوق", natureClass: "text-amber-400 bg-amber-950/60 border-amber-500/30" },
+
+      // 5. المصروفات والتشغيل
       { id: 12, name: "مصروفات الوقود والترحيل", category: "expense", type: "مصروف", balanceNum: 3120, balanceFormatted: "$3,120", sdgFormatted: "8,736,000 ج.س", nature: "رصيد منصرفات تراكمي", natureClass: "text-purple-400 bg-purple-950/60 border-purple-500/30" },
+      { id: 25, name: "نثريات ومصروفات تشغيلية", category: "expense", type: "مصروف", balanceNum: 4800, balanceFormatted: "$4,800", sdgFormatted: "13,440,000 ج.س", nature: "رصيد منصرفات تراكمي", natureClass: "text-purple-400 bg-purple-950/60 border-purple-500/30" },
+      { id: 26, name: "مرتبات وسلفيات موظفين", category: "expense", type: "مصروف", balanceNum: 6200, balanceFormatted: "$6,200", sdgFormatted: "17,360,000 ج.س", nature: "رصيد منصرفات تراكمي", natureClass: "text-purple-400 bg-purple-950/60 border-purple-500/30" },
+      { id: 27, name: "رسوم شحن وتفريغ", category: "expense", type: "مصروف", balanceNum: 2500, balanceFormatted: "$2,500", sdgFormatted: "7,000,000 ج.س", nature: "رصيد منصرفات تراكمي", natureClass: "text-purple-400 bg-purple-950/60 border-purple-500/30" },
+
+      // 6. الذمم والشركاء والأمانات
+      { id: 28, name: "جاري الشريك محمد", category: "partner", type: "شريك", balanceNum: 35000, balanceFormatted: "$35,000", sdgFormatted: "98,000,000 ج.س", nature: "جاري شريك (دائن)", natureClass: "text-indigo-400 bg-indigo-950/60 border-indigo-500/30" },
+      { id: 29, name: "جاري الشريك أحمد", category: "partner", type: "شريك", balanceNum: 28000, balanceFormatted: "$28,000", sdgFormatted: "78,400,000 ج.س", nature: "جاري شريك (دائن)", natureClass: "text-indigo-400 bg-indigo-950/60 border-indigo-500/30" },
+      { id: 30, name: "عهدة المبيعات والذمم", category: "partner", type: "ذمم", balanceNum: 5600, balanceFormatted: "$5,600", sdgFormatted: "15,680,000 ج.س", nature: "عهدة معلقة (مدين)", natureClass: "text-indigo-400 bg-indigo-950/60 border-indigo-500/30" },
+
       // ZERO-BALANCE ACCOUNTS (FILTERED OUT AUTOMATICALLY)
       { id: 13, name: "شركة الأمل للتجارة (مسدد)", category: "customer", type: "عميل", balanceNum: 0, balanceFormatted: "$0", sdgFormatted: "0 ج.س", nature: "مسدد", natureClass: "" },
       { id: 14, name: "مورد التعبئة الحديثة (مسدد)", category: "vendor", type: "مورد", balanceNum: 0, balanceFormatted: "$0", sdgFormatted: "0 ج.س", nature: "مسدد", natureClass: "" }
     ];
 
-    // Open Operational Forms
+    // ========================================================
+    // COMPREHENSIVE INTER-ACCOUNT FINANCIAL TRANSFER ENGINE
+    // حركة مالية وتحويل بين الحسابات (من ➔ إلى)
+    // ========================================================
+    let currentFinTransferMethod = 'bank';
+    let currentFinTransferCurrency = 'USD';
+    let finTransferAttachedFile = null;
+
+    // Database of registered transfer/check reference numbers to prevent duplicate entry
+    const registeredTransferReferences = new Set([
+      'BOK-9928174', '9928174', 'TX-1042', 'CHK-10892', '882011', '678452', '409123', 'BOK-77218', '772189', 'TRX-554421', 'BOK-554421'
+    ]);
+
+    function initFinancialTransferModal() {
+      const fromSelect = document.getElementById('finTransferFromAccount');
+      const toSelect = document.getElementById('finTransferToAccount');
+
+      if (!fromSelect || !toSelect) return;
+
+      const groupedOptions = `
+        <optgroup label="🏦 الحسابات البنكية والمصرفية">
+          ${masterAccountsList.filter(a => a.type === 'بنك').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+        </optgroup>
+        <optgroup label="💵 الخزن النقدية ونقاط البيع">
+          ${masterAccountsList.filter(a => a.type === 'خزينة').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+        </optgroup>
+        <optgroup label="👥 العملاء والمدينون">
+          ${masterAccountsList.filter(a => a.category === 'customer' && a.balanceNum > 0).map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+        </optgroup>
+        <optgroup label="🏢 الموردون والدائنون">
+          ${masterAccountsList.filter(a => a.category === 'vendor' && a.balanceNum > 0).map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+        </optgroup>
+        <optgroup label="📊 المصروفات والتشغيل">
+          ${masterAccountsList.filter(a => a.category === 'expense').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+        </optgroup>
+        <optgroup label="🤝 الذمم والشركاء والأمانات">
+          ${masterAccountsList.filter(a => a.category === 'partner').map(a => `<option value="${a.id}">${a.name} (${a.balanceFormatted})</option>`).join('')}
+        </optgroup>
+      `;
+
+      fromSelect.innerHTML = groupedOptions;
+      toSelect.innerHTML = groupedOptions;
+
+      // Default From: بنك الخرطوم (الحساب الجاري) (id: 8)
+      fromSelect.value = "8";
+      // Default To: محلات الصادق للتوزيع (id: 2)
+      toSelect.value = "2";
+
+      // Method: Default bank
+      setFinTransferMethod('bank');
+
+      // Update previews
+      updateFinTransferBalancesPreview();
+      validateFinTransferReference();
+    }
+
+    function setFinTransferMethod(method) {
+      currentFinTransferMethod = method;
+      AudioEngine.play('numpad');
+      triggerHapticPulse(25);
+
+      const btns = {
+        'bank': document.getElementById('finMethodBtnBank'),
+        'cash': document.getElementById('finMethodBtnCash'),
+        'bank_check': document.getElementById('finMethodBtnBankCheck'),
+        'check': document.getElementById('finMethodBtnCheck')
+      };
+
+      const sections = {
+        'bank': document.getElementById('finFieldsBank'),
+        'cash': document.getElementById('finFieldsCash'),
+        'bank_check': document.getElementById('finFieldsBankCheck'),
+        'check': document.getElementById('finFieldsCheck')
+      };
+
+      Object.keys(btns).forEach(k => {
+        if (btns[k]) {
+          if (k === method) {
+            btns[k].className = "py-2 rounded-xl bg-cyan-600 text-white shadow font-black transition";
+          } else {
+            btns[k].className = "py-2 rounded-xl text-slate-400 hover:text-white transition";
+          }
+        }
+        if (sections[k]) {
+          if (k === method) {
+            sections[k].classList.remove('hidden');
+          } else {
+            sections[k].classList.add('hidden');
+          }
+        }
+      });
+
+      const badge = document.getElementById('finMethodBadge');
+      if (badge) {
+        if (method === 'bank') badge.textContent = '⚡ تحويلة بنكية إلكترونية';
+        else if (method === 'cash') badge.textContent = '💵 سداد نقدي كاش بالصندوق';
+        else if (method === 'bank_check') badge.textContent = '🏛️ شيك مصرفي معتمد ومصدق';
+        else if (method === 'check') badge.textContent = '✍️ شيك عادي آجل';
+      }
+
+      validateFinTransferReference();
+    }
+
+    function setFinTransferCurrency(curr) {
+      currentFinTransferCurrency = curr;
+      AudioEngine.play('numpad');
+      triggerHapticPulse(25);
+
+      const usdBtn = document.getElementById('finCurBtnUsd');
+      const sdgBtn = document.getElementById('finCurBtnSdg');
+
+      if (curr === 'USD') {
+        if (usdBtn) usdBtn.className = "px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-bold text-xs transition";
+        if (sdgBtn) sdgBtn.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-bold text-xs transition";
+      } else {
+        if (sdgBtn) sdgBtn.className = "px-2.5 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs transition";
+        if (usdBtn) usdBtn.className = "px-2.5 py-1 rounded-lg text-slate-400 hover:text-white font-bold text-xs transition";
+      }
+
+      updateFinTransferBalancesPreview();
+    }
+
+    function updateFinTransferBalancesPreview() {
+      const fromSelect = document.getElementById('finTransferFromAccount');
+      const toSelect = document.getElementById('finTransferToAccount');
+      const amtInput = document.getElementById('finTransferAmountInput');
+
+      if (!fromSelect || !toSelect || !amtInput) return;
+
+      const fromId = parseInt(fromSelect.value, 10);
+      const toId = parseInt(toSelect.value, 10);
+
+      const sender = masterAccountsList.find(a => a.id === fromId);
+      const receiver = masterAccountsList.find(a => a.id === toId);
+
+      const rawAmount = parseFloat(amtInput.value) || 0;
+
+      // Base conversion to USD for standard internal math
+      let amtUsd = 0;
+      let amtSdg = 0;
+
+      if (currentFinTransferCurrency === 'USD') {
+        amtUsd = rawAmount;
+        amtSdg = Math.round(rawAmount * SDG_RATE);
+      } else {
+        amtSdg = rawAmount;
+        amtUsd = Math.round((rawAmount / SDG_RATE) * 100) / 100;
+      }
+
+      // 1. Update Sender (من الصارف - خصم)
+      if (sender) {
+        const curBal = sender.balanceNum;
+        const newBal = curBal - amtUsd;
+        const newBalSdg = Math.round(newBal * SDG_RATE);
+
+        const curBalEl = document.getElementById('finFromCurrentBalance');
+        const deductEl = document.getElementById('finFromDeductAmount');
+        const newBalEl = document.getElementById('finFromNewBalance');
+        const sdgPreviewEl = document.getElementById('finFromSdgPreview');
+        const warnEl = document.getElementById('finFromWarning');
+
+        if (curBalEl) curBalEl.textContent = `$${curBal.toLocaleString('en-US')}`;
+        if (deductEl) deductEl.textContent = `-$${amtUsd.toLocaleString('en-US')}`;
+        if (newBalEl) newBalEl.textContent = `$${newBal.toLocaleString('en-US')}`;
+        if (sdgPreviewEl) sdgPreviewEl.textContent = `الرصيد المتوقع بعد الخصم: ≈ ${newBalSdg.toLocaleString('en-US')} ج.س`;
+
+        if (warnEl) {
+          if (amtUsd > curBal && (sender.type === 'بنك' || sender.type === 'خزينة')) {
+            warnEl.classList.remove('hidden');
+          } else {
+            warnEl.classList.add('hidden');
+          }
+        }
+      }
+
+      // 2. Update Receiver (إلى المستلم - إضافة)
+      if (receiver) {
+        const curBal = receiver.balanceNum;
+        const newBal = curBal + amtUsd;
+        const newBalSdg = Math.round(newBal * SDG_RATE);
+
+        const curBalEl = document.getElementById('finToCurrentBalance');
+        const addEl = document.getElementById('finToAddAmount');
+        const newBalEl = document.getElementById('finToNewBalance');
+        const sdgPreviewEl = document.getElementById('finToSdgPreview');
+
+        if (curBalEl) curBalEl.textContent = `$${curBal.toLocaleString('en-US')}`;
+        if (addEl) addEl.textContent = `+$${amtUsd.toLocaleString('en-US')}`;
+        if (newBalEl) newBalEl.textContent = `$${newBal.toLocaleString('en-US')}`;
+        if (sdgPreviewEl) sdgPreviewEl.textContent = `الرصيد المتوقع بعد الإضافة: ≈ ${newBalSdg.toLocaleString('en-US')} ج.س`;
+      }
+
+      // 3. Update Amount Equivalent Preview
+      const eqEl = document.getElementById('finAmountEquivalent');
+      if (eqEl) {
+        if (currentFinTransferCurrency === 'USD') {
+          eqEl.textContent = `المعادل: ≈ ${amtSdg.toLocaleString('en-US')} ج.س`;
+        } else {
+          eqEl.textContent = `المعادل: ≈ $${amtUsd.toLocaleString('en-US')} USD`;
+        }
+      }
+    }
+
+    function validateFinTransferReference() {
+      const method = currentFinTransferMethod;
+      const errorBox = document.getElementById('finTransferRefError');
+      const submitBtn = document.getElementById('finTransferSubmitBtn');
+
+      if (!errorBox) return true;
+
+      // Cash method does not require external reference validation
+      if (method === 'cash') {
+        errorBox.classList.add('hidden');
+        if (submitBtn) submitBtn.disabled = false;
+        return true;
+      }
+
+      let refVal = '';
+      if (method === 'bank') {
+        refVal = (document.getElementById('finTransferBankRef')?.value || '').trim();
+      } else if (method === 'bank_check') {
+        refVal = (document.getElementById('finTransferBankCheckNo')?.value || '').trim();
+      } else if (method === 'check') {
+        refVal = (document.getElementById('finTransferCheckNo')?.value || '').trim();
+      }
+
+      if (!refVal) {
+        errorBox.innerHTML = `⚠️ يرجى إدخال رقم التحويل / الشيك لتوثيق العملية في النظام.`;
+        errorBox.className = "p-2.5 rounded-xl bg-amber-950/60 border border-amber-500/40 text-amber-300 text-xs font-bold";
+        errorBox.classList.remove('hidden');
+        return false;
+      }
+
+      // Rule 1: Min 6 digits/characters
+      const cleanRef = refVal.replace(/[^a-zA-Z0-9]/g, '');
+      if (cleanRef.length < 6 && refVal.length < 6) {
+        errorBox.innerHTML = `⚠️ تنبيه نظامي: رقم التحويلة / الشيك [<strong>${refVal}</strong>] غير مكتمل! يجب ألا يقل عن 6 أرقام/خانات لضمان التوثيق المحاسبي والربط مع قاعدة البيانات.`;
+        errorBox.className = "p-2.5 rounded-xl bg-amber-950/80 border border-amber-500/60 text-amber-300 text-xs font-bold animate-pulse";
+        errorBox.classList.remove('hidden');
+        AudioEngine.play('error');
+        return false;
+      }
+
+      // Rule 2: Anti-Duplicate Detection against Registered DB References
+      const normalizedInput = refVal.toUpperCase().replace(/[\s-]/g, '');
+      const isDuplicate = Array.from(registeredTransferReferences).some(existing => {
+        const normExist = existing.toUpperCase().replace(/[\s-]/g, '');
+        return normExist === normalizedInput || (normExist.length >= 6 && normalizedInput.endsWith(normExist));
+      });
+
+      if (isDuplicate) {
+        errorBox.innerHTML = `🚫 <strong>تحذير أمني:</strong> رقم التحويلة / المرجع <strong>[${refVal}]</strong> مكرر ومسجل مسبقاً في النظام!<br><span class="text-[11px] font-normal">لا يمكن تكرار قيد نفس الإشعار أو الشيك منعاً للازدواج المالي وحفاظاً على دقة الأرصدة.</span>`;
+        errorBox.className = "p-2.5 rounded-xl bg-rose-950/90 border border-rose-500 text-rose-200 text-xs font-bold shadow-lg shadow-rose-950/50";
+        errorBox.classList.remove('hidden');
+        AudioEngine.play('error');
+        triggerHapticPulse([60, 50, 60]);
+        return false;
+      }
+
+      // Valid Reference
+      errorBox.innerHTML = `✓ الرقم المرجعي [<strong>${refVal}</strong>] فريد وغير مكرر ومعتمد نظامياً بنجاح.`;
+      errorBox.className = "p-2 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 text-xs font-bold";
+      errorBox.classList.remove('hidden');
+      return true;
+    }
+
+    // Camera & Attachment Handlers
+    function handleFinTransferAttachmentSelected(input, source) {
+      if (!input || !input.files || input.files.length === 0) return;
+      const file = input.files[0];
+      finTransferAttachedFile = file;
+
+      const card = document.getElementById('finTransferAttachmentCard');
+      const nameEl = document.getElementById('finAttachmentName');
+      const srcEl = document.getElementById('finAttachmentSource');
+      const thumbEl = document.getElementById('finAttachmentThumb');
+
+      if (nameEl) nameEl.textContent = file.name;
+      if (srcEl) {
+        const kb = Math.round(file.size / 1024);
+        srcEl.textContent = `تم الإرفاق من ${source} • ${kb} KB`;
+      }
+
+      if (thumbEl && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          thumbEl.innerHTML = `<img src="${e.target.result}" class="w-full h-full object-cover rounded-lg" />`;
+        };
+        reader.readAsDataURL(file);
+      }
+
+      if (card) card.classList.remove('hidden');
+      AudioEngine.play('success');
+      showFloatingToast(`📸 تم إرفاق صورة الإشعار بنجاح من ${source}`);
+    }
+
+    function loadDemoFinTransferAttachment() {
+      const card = document.getElementById('finTransferAttachmentCard');
+      const nameEl = document.getElementById('finAttachmentName');
+      const srcEl = document.getElementById('finAttachmentSource');
+      const thumbEl = document.getElementById('finAttachmentThumb');
+
+      if (nameEl) nameEl.textContent = "إشعار_بنكك_معتمد_BOK-849201.jpg";
+      if (srcEl) srcEl.textContent = "إشعار تحويل مصرفي بنكك • 285 KB";
+      if (thumbEl) {
+        thumbEl.innerHTML = `
+          <div class="w-full h-full bg-emerald-950/60 flex flex-col items-center justify-center text-center p-0.5">
+            <span class="text-[9px] text-emerald-300 font-bold font-mono">BOK</span>
+            <span class="text-[8px] text-slate-300 font-mono">70K ج.س</span>
+          </div>
+        `;
+      }
+
+      if (card) card.classList.remove('hidden');
+      AudioEngine.play('success');
+      showFloatingToast('🧪 تم تحميل إشعار بنكك تجريبي للمطابقة والاستخراج');
+    }
+
+    function removeFinTransferAttachment() {
+      finTransferAttachedFile = null;
+      const card = document.getElementById('finTransferAttachmentCard');
+      const camInput = document.getElementById('finTransferCameraInput');
+      const galInput = document.getElementById('finTransferGalleryInput');
+
+      if (card) card.classList.add('hidden');
+      if (camInput) camInput.value = '';
+      if (galInput) galInput.value = '';
+
+      showFloatingToast('🗑️ تم إزالة الإشعار المرفق');
+    }
+
+    function extractFinTransferFromAttachment() {
+      AudioEngine.play('ocr');
+      triggerHapticPulse([40, 30, 40]);
+
+      // Set valid fresh ref no
+      const randomRef = 'BOK-' + Math.floor(100000 + Math.random() * 900000);
+      const refInput = document.getElementById('finTransferBankRef');
+      if (refInput) {
+        refInput.value = randomRef;
+      }
+
+      const amtInput = document.getElementById('finTransferAmountInput');
+      if (amtInput) {
+        amtInput.value = "1500";
+      }
+
+      updateFinTransferBalancesPreview();
+      validateFinTransferReference();
+
+      AudioEngine.play('success');
+      showFloatingToast(`⚡ تم استخراج الرقم المرجعي [${randomRef}] والمبلغ ($1,500) بنجاح عبر OCR!`);
+    }
+
+    function commitFinancialTransfer() {
+      const fromSelect = document.getElementById('finTransferFromAccount');
+      const toSelect = document.getElementById('finTransferToAccount');
+      const amtInput = document.getElementById('finTransferAmountInput');
+      const notesInput = document.getElementById('finTransferNotes');
+
+      if (!fromSelect || !toSelect || !amtInput) return;
+
+      const fromId = parseInt(fromSelect.value, 10);
+      const toId = parseInt(toSelect.value, 10);
+
+      if (fromId === toId) {
+        AudioEngine.play('error');
+        alert("⚠️ خطأ في طرفي المعاملة: لا يمكن إجراء تحويل بين نفس الحساب ونفسه! يرجى اختيار حسابين مختلفين.");
+        return;
+      }
+
+      const sender = masterAccountsList.find(a => a.id === fromId);
+      const receiver = masterAccountsList.find(a => a.id === toId);
+
+      const rawAmt = parseFloat(amtInput.value) || 0;
+      if (rawAmt <= 0) {
+        AudioEngine.play('error');
+        alert("⚠️ يرجى إدخال مبلغ صحيح أكبر من الصفر لإجراء الحركة المالية.");
+        return;
+      }
+
+      // Check reference rules
+      if (!validateFinTransferReference()) {
+        alert("⚠️ لا يمكن إتمام التحويل: يرجى التحقق من الرقم المرجعي للتحويلة أو الشيك والتأكد من عدم تكراره واكتمال خاناته.");
+        return;
+      }
+
+      // Reference number string
+      let refStr = '';
+      if (currentFinTransferMethod === 'bank') {
+        refStr = (document.getElementById('finTransferBankRef')?.value || 'BOK-000000').trim();
+      } else if (currentFinTransferMethod === 'bank_check') {
+        refStr = (document.getElementById('finTransferBankCheckNo')?.value || 'CHK-000000').trim();
+      } else if (currentFinTransferMethod === 'check') {
+        refStr = (document.getElementById('finTransferCheckNo')?.value || 'CHK-000000').trim();
+      } else {
+        refStr = document.getElementById('finTransferCashReceiptNo')?.value || 'CSH-0000';
+      }
+
+      // Calculate USD and SDG values
+      let amtUsd = 0;
+      let amtSdg = 0;
+      if (currentFinTransferCurrency === 'USD') {
+        amtUsd = rawAmt;
+        amtSdg = Math.round(rawAmt * SDG_RATE);
+      } else {
+        amtSdg = rawAmt;
+        amtUsd = Math.round((rawAmt / SDG_RATE) * 100) / 100;
+      }
+
+      // Update accounts database balances
+      if (sender) {
+        sender.balanceNum -= amtUsd;
+        sender.balanceFormatted = `$${sender.balanceNum.toLocaleString('en-US')}`;
+        sender.sdgFormatted = `${Math.round(sender.balanceNum * SDG_RATE).toLocaleString('en-US')} ج.س`;
+      }
+
+      if (receiver) {
+        receiver.balanceNum += amtUsd;
+        receiver.balanceFormatted = `$${receiver.balanceNum.toLocaleString('en-US')}`;
+        receiver.sdgFormatted = `${Math.round(receiver.balanceNum * SDG_RATE).toLocaleString('en-US')} ج.س`;
+      }
+
+      // Register reference to block future duplicates
+      if (refStr && currentFinTransferMethod !== 'cash') {
+        registeredTransferReferences.add(refStr);
+      }
+
+      // Add to Live Transactions Feed
+      const tx = {
+        id: `TX-${Date.now().toString().slice(-4)}`,
+        title: `تحويل مالي: من ${sender ? sender.name : 'صارف'} ➔ إلى ${receiver ? receiver.name : 'مستلم'}`,
+        subtitle: `مرجع #${refStr} • ${currentFinTransferMethod === 'bank' ? 'تحويلة بنكية' : (currentFinTransferMethod === 'cash' ? 'سداد نقدي' : 'شيك')} • ${notesInput ? notesInput.value : 'حركة مالية'}`,
+        amountUsd: `$${amtUsd.toLocaleString('en-US')}`,
+        amountSdg: `${amtSdg.toLocaleString('en-US')} ج.س`,
+        typeColor: 'cyan'
+      };
+      addNewTxToFeed(tx);
+
+      // Audio & notification
+      AudioEngine.play('success');
+      triggerHapticPulse([80, 50, 80]);
+
+      showFloatingToast(`✓ تم بنجاح ترحيل التحويل المالي برقم مرجع [${refStr}] وتحديث أرصدة الطرفين فوراً!`);
+      closeModal('modalOpFinance');
+    }
+
+    function printFinancialTransferVoucher() {
+      AudioEngine.play('numpad');
+      const fromSelect = document.getElementById('finTransferFromAccount');
+      const toSelect = document.getElementById('finTransferToAccount');
+      const amtInput = document.getElementById('finTransferAmountInput');
+      const notes = document.getElementById('finTransferNotes')?.value || 'تحويل مالي بين الحسابات';
+
+      const fromText = fromSelect ? fromSelect.options[fromSelect.selectedIndex].text : '';
+      const toText = toSelect ? toSelect.options[toSelect.selectedIndex].text : '';
+      const amt = amtInput ? amtInput.value : '0';
+
+      alert(`🖨️ سند تحويل ومناقلة مالية معتمد:\n\n• من الصارف: ${fromText}\n• إلى المستلم: ${toText}\n• المبلغ: ${amt} ${currentFinTransferCurrency}\n• البيان: ${notes}\n\n✓ جاري التصدير كملف PDF رسمي ومشاركته...`);
+    }
+
+    // Backward-compatibility wrappers
     function openOperationalForm(formType) {
       if (formType === 'financeMovement') {
+        initFinancialTransferModal();
         openModal('modalOpFinance');
       } else if (formType === 'salesSplit') {
         openModal('modalOpSales');
@@ -2780,14 +3554,10 @@
     }
 
     function setOpFinType(type) {
-      const btnRec = document.getElementById('opFinTypeReceipt');
-      const btnPay = document.getElementById('opFinTypePayment');
       if (type === 'receipt') {
-        btnRec.className = "py-2 rounded-xl bg-emerald-600 text-white shadow";
-        btnPay.className = "py-2 rounded-xl text-slate-400 hover:text-white";
+        setFinTransferMethod('bank');
       } else {
-        btnPay.className = "py-2 rounded-xl bg-rose-600 text-white shadow";
-        btnRec.className = "py-2 rounded-xl text-slate-400 hover:text-white";
+        setFinTransferMethod('cash');
       }
     }
 
@@ -4050,19 +4820,37 @@
     function commitOcrToReceipt() {
       const ref = document.getElementById('ocrRefNo')?.value || 'BOK-77218';
       const amt = document.getElementById('ocrAmount')?.value || '70,000 ج.س';
-      const sender = document.getElementById('ocrSender')?.value || 'شركة همس';
+      const sender = document.getElementById('ocrSender')?.value || 'شركة همس للتجارة العامة';
 
       closeModal('modalBankReceiptOcr');
       openOperationalForm('financeMovement');
-      setOpFinType('receipt');
+      setFinTransferMethod('bank');
 
-      const note = document.getElementById('opFinInputNote');
-      const amount = document.getElementById('opFinInputAmount');
-      if (note) note.value = `سند قبض إلكتروني - إشعار محول من ${sender} برقم مرجع #${ref}`;
-      if (amount) amount.value = amt.replace(/[^0-9.]/g, '') || '70000';
+      // Set To Account to customer: "شركة همس للتجارة العامة" (id: 20)
+      const toSelect = document.getElementById('finTransferToAccount');
+      if (toSelect) toSelect.value = "20";
+
+      // Set From Account to Bank: "بنك الخرطوم (الحساب الجاري)" (id: 8)
+      const fromSelect = document.getElementById('finTransferFromAccount');
+      if (fromSelect) fromSelect.value = "8";
+
+      // Set Ref No
+      const refInput = document.getElementById('finTransferBankRef');
+      if (refInput) refInput.value = ref;
+
+      // Set Currency to SDG
+      setFinTransferCurrency('SDG');
+      const amtInput = document.getElementById('finTransferAmountInput');
+      if (amtInput) amtInput.value = "70000";
+
+      const note = document.getElementById('finTransferNotes');
+      if (note) note.value = `تحويل مالي بنكي - إشعار محول من ${sender} برقم مرجع #${ref}`;
+
+      updateFinTransferBalancesPreview();
+      validateFinTransferReference();
 
       AudioEngine.play('success');
-      showFloatingToast('⚡ تم ترحيل إشعار البنك مباشرة إلى سند القبض المعتمد');
+      showFloatingToast('⚡ تم ترحيل إشعار البنك مباشرة إلى شاشة التحويل المالي');
     }
 
     // ========================================================
