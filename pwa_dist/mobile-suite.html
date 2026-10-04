@@ -835,71 +835,898 @@
        17 SCIENTIFIC ERGONOMIC THEMES (سيف السمات والراحة البصرية)
        ═════════════════════════════════════════════════════════════ */
     
-    /* ─── GROUP 0: THE 4 RECOMMENDED SIGNATURE THEMES (الموصى بها - قمة الرقي) ─── */
+    /* ─── GROUP 0: THE 4 RECOMMENDED SIGNATURE THEMES (الموصى بها - قمة الرقي والبساطة وعالمية التصميم) ─── */
 
-    /* 0.1 WARM ALABASTER (العاجي الدافئ المريح - موصى بها) */
-    html[data-theme="warm-alabaster"] body { background: #f4efe6 !important; color: #2b2825 !important; }
-    html[data-theme="warm-alabaster"] .mobile-app-wrapper { background: #fbf9f5 !important; border-color: #ede8df !important; color: #2b2825 !important; }
-    html[data-theme="warm-alabaster"] header,
-    html[data-theme="warm-alabaster"] nav.glass-dock { background: rgba(251, 249, 245, 0.98) !important; border-color: #ede8df !important; }
+    /* ═══════════════════════════════════════════════════════════════
+       0.1 WARM ALABASTER (العاجي الدافئ الملكي - أقصى راحة للعين والذهن)
+       ═══════════════════════════════════════════════════════════════ */
+    html[data-theme="warm-alabaster"] body { background: #f5f0e8 !important; color: #1c1917 !important; }
+    html[data-theme="warm-alabaster"] .mobile-app-wrapper { background: #fbf9f5 !important; border-color: #ede8df !important; color: #1c1917 !important; }
+    html[data-theme="warm-alabaster"] header.app-main-header,
+    html[data-theme="warm-alabaster"] nav.glass-dock { background: #fbf9f5 !important; border-color: #ede8df !important; }
     html[data-theme="warm-alabaster"] .glass-base,
     html[data-theme="warm-alabaster"] .glass-card-interactive,
     html[data-theme="warm-alabaster"] .bg-slate-900,
-    html[data-theme="warm-alabaster"] .bg-slate-950 { background: #ffffff !important; border-color: #ede8df !important; color: #2b2825 !important; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05) !important; }
-    html[data-theme="warm-alabaster"] .bg-slate-800 { background: #f5f0e6 !important; border-color: #e0d7c7 !important; color: #2b2825 !important; }
+    html[data-theme="warm-alabaster"] .bg-slate-950 { background: #ffffff !important; border: 1.5px solid #ede8df !important; color: #1c1917 !important; box-shadow: 0 2px 10px rgba(43, 40, 37, 0.04) !important; }
+    html[data-theme="warm-alabaster"] .bg-slate-800 { background: #f4efe6 !important; border-color: #e2d9cb !important; color: #1c1917 !important; }
     html[data-theme="warm-alabaster"] .text-slate-100,
     html[data-theme="warm-alabaster"] .text-slate-200,
-    html[data-theme="warm-alabaster"] .text-slate-300 { color: #2b2825 !important; font-weight: 700; }
-    html[data-theme="warm-alabaster"] .text-slate-400 { color: #6e6862 !important; }
-    html[data-theme="warm-alabaster"] .text-slate-500 { color: #8c847b !important; }
+    html[data-theme="warm-alabaster"] .text-slate-300,
+    html[data-theme="warm-alabaster"] .text-white:not(.op-cat-btn.active):not(.op-cat-btn.active *):not(.luminous-number-badge) { color: #1c1917 !important; font-weight: 800 !important; }
+    html[data-theme="warm-alabaster"] .text-slate-400 { color: #57534e !important; font-weight: 600 !important; }
+    html[data-theme="warm-alabaster"] .text-slate-500 { color: #78716c !important; }
 
-    /* 0.2 PURE PLATINUM (الفضي النقي العصري - موصى بها) */
-    html[data-theme="pure-platinum"] body { background: #eceff1 !important; color: #111827 !important; }
-    html[data-theme="pure-platinum"] .mobile-app-wrapper { background: #f8f9fa !important; border-color: #e5e7eb !important; color: #111827 !important; }
-    html[data-theme="pure-platinum"] header,
-    html[data-theme="pure-platinum"] nav.glass-dock { background: rgba(248, 249, 250, 0.98) !important; border-color: #e5e7eb !important; }
+    /* 13 Operational Buttons in Warm Alabaster (Clean White Cards, Deep Crisp Text, Monochromatic Warm Container) */
+    html[data-theme="warm-alabaster"] .op-btn {
+      background: #ffffff !important;
+      border: 1.5px solid #e7dfd3 !important;
+      box-shadow: 0 2px 8px rgba(43, 40, 37, 0.05) !important;
+    }
+    html[data-theme="warm-alabaster"] .op-btn:hover,
+    html[data-theme="warm-alabaster"] .op-btn:active {
+      border-color: #2b2825 !important;
+      box-shadow: 0 4px 16px rgba(43, 40, 37, 0.15) !important;
+    }
+    html[data-theme="warm-alabaster"] .op-btn .text-slate-200,
+    html[data-theme="warm-alabaster"] .op-btn span.text-xs,
+    html[data-theme="warm-alabaster"] .op-btn span.font-black {
+      color: #1c1917 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="warm-alabaster"] .op-btn .w-9.h-9,
+    html[data-theme="warm-alabaster"] .op-btn div[class*="bg-"] {
+      background: #f5efe6 !important;
+      border: 1px solid #e2d7c5 !important;
+      box-shadow: none !important;
+    }
+    html[data-theme="warm-alabaster"] .op-btn .w-9.h-9 i,
+    html[data-theme="warm-alabaster"] .op-btn .w-9.h-9 svg,
+    html[data-theme="warm-alabaster"] .op-btn .w-9.h-9 [class*="text-"] {
+      color: #2b2825 !important;
+    }
+    html[data-theme="warm-alabaster"] .op-btn span.text-\[9\.5px\],
+    html[data-theme="warm-alabaster"] .op-btn span:nth-of-type(2) {
+      color: #57534e !important;
+      font-weight: 700 !important;
+    }
+
+    /* Top Bar (Row 1) in Warm Alabaster (High-Contrast Monochrome, No Washed-Out Faint Neons) */
+    html[data-theme="warm-alabaster"] .flagship-tile {
+      background: #ffffff !important;
+      border: 1.5px solid #e7dfd3 !important;
+      color: #1c1917 !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-tile svg {
+      stroke: #1c1917 !important;
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-tile-search,
+    html[data-theme="warm-alabaster"] .flagship-tile-mic,
+    html[data-theme="warm-alabaster"] .flagship-tile-eye,
+    html[data-theme="warm-alabaster"] .flagship-tile-install,
+    html[data-theme="warm-alabaster"] .flagship-tile-theme {
+      border: 1.5px solid #e7dfd3 !important;
+      color: #1c1917 !important;
+      background: #ffffff !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-tile-search svg,
+    html[data-theme="warm-alabaster"] .flagship-tile-mic svg,
+    html[data-theme="warm-alabaster"] .flagship-tile-eye svg,
+    html[data-theme="warm-alabaster"] .flagship-tile-install svg,
+    html[data-theme="warm-alabaster"] .flagship-tile-theme svg {
+      stroke: #1c1917 !important;
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-tile-mic span {
+      background: #1c1917 !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-tile-eye.privacy-btn-active {
+      background: #2b2825 !important;
+      border-color: #2b2825 !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-tile-eye.privacy-btn-active svg {
+      stroke: #ffffff !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-tile-logout {
+      border: 1.5px solid #fecaca !important;
+      color: #b91c1c !important;
+      background: #ffffff !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-tile-logout svg {
+      stroke: #b91c1c !important;
+      color: #b91c1c !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-brand-badge.is-online {
+      border: 1.5px solid #059669 !important;
+      background: #ffffff !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-brand-badge.is-online .brand-text {
+      color: #065f46 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="warm-alabaster"] .flagship-brand-badge.is-online .status-dot {
+      background: #059669 !important;
+    }
+    html[data-theme="warm-alabaster"] #activeThemeBadge {
+      background: #1c1917 !important;
+      color: #ffffff !important;
+      border-color: #1c1917 !important;
+    }
+
+    /* Row 2 (Quick Bar) in Warm Alabaster */
+    html[data-theme="warm-alabaster"] .row2-glass-tile {
+      background: #ffffff !important;
+      border: 1.5px solid #e7dfd3 !important;
+      color: #1c1917 !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+    }
+    html[data-theme="warm-alabaster"] .row2-glass-tile svg {
+      stroke: #1c1917 !important;
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm-alabaster"] .row2-glass-tile span,
+    html[data-theme="warm-alabaster"] #timerCompactText {
+      color: #1c1917 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="warm-alabaster"] #timerPulseDot {
+      background-color: #2b2825 !important;
+    }
+    html[data-theme="warm-alabaster"] .row2-glass-tile .luminous-number-badge {
+      background: #1c1917 !important;
+      color: #ffffff !important;
+      border-color: #1c1917 !important;
+    }
+
+    /* Row 3 (Crystal Hub) in Warm Alabaster */
+    html[data-theme="warm-alabaster"] .crystal-flagship-btn {
+      background: #ffffff !important;
+      border: 1.5px solid #e7dfd3 !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    }
+    html[data-theme="warm-alabaster"] .crystal-flagship-btn .btn-label {
+      color: #1c1917 !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+    html[data-theme="warm-alabaster"] .crystal-flagship-btn .btn-emblem {
+      background: #f5efe6 !important;
+      border: 1px solid #e2d7c5 !important;
+      box-shadow: none !important;
+    }
+    html[data-theme="warm-alabaster"] .crystal-flagship-btn .btn-emblem svg {
+      color: #2b2825 !important;
+      stroke: #2b2825 !important;
+    }
+    html[data-theme="warm-alabaster"] .crystal-flagship-btn .luminous-number-badge {
+      background: #1c1917 !important;
+      color: #ffffff !important;
+      border-color: #1c1917 !important;
+    }
+
+    /* Operation category tabs in Warm Alabaster */
+    html[data-theme="warm-alabaster"] .op-cat-btn.active {
+      background: #1c1917 !important;
+      color: #ffffff !important;
+      border-color: #1c1917 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="warm-alabaster"] .op-cat-btn.active * {
+      color: #ffffff !important;
+    }
+    html[data-theme="warm-alabaster"] .op-cat-btn.active .luminous-number-badge {
+      background: #ffffff !important;
+      color: #1c1917 !important;
+      border-color: #ffffff !important;
+    }
+    html[data-theme="warm-alabaster"] .op-cat-btn:not(.active) {
+      background: #ffffff !important;
+      color: #57534e !important;
+      border: 1.5px solid #e7dfd3 !important;
+    }
+    html[data-theme="warm-alabaster"] .op-cat-btn:not(.active) .luminous-number-badge {
+      background: #f5efe6 !important;
+      color: #2b2825 !important;
+      border-color: #e2d7c5 !important;
+    }
+    html[data-theme="warm-alabaster"] .bottom-dock-tab {
+      color: #78716c !important;
+    }
+    html[data-theme="warm-alabaster"] .bottom-dock-tab.active {
+      color: #1c1917 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="warm-alabaster"] .bottom-dock-tab.active svg {
+      stroke: #1c1917 !important;
+    }
+
+    /* Full-width Banners in Warm Alabaster */
+    html[data-theme="warm-alabaster"] .banner-strip {
+      background: #ffffff !important;
+      border: 1.5px solid #ede8df !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm-alabaster"] .banner-strip span {
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm-alabaster"] .banner-strip .text-emerald-400 {
+      color: #047857 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="warm-alabaster"] .banner-strip .text-amber-400 {
+      color: #b45309 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="warm-alabaster"] .banner-strip .text-cyan-400 {
+      color: #0369a1 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="warm-alabaster"] .banner-strip .text-rose-400 {
+      color: #be123c !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="warm-alabaster"] .banner-strip .w-10.h-10 {
+      background: #f5efe6 !important;
+      border: 1px solid #e2d7c5 !important;
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════════
+       0.2 PURE PLATINUM (الفضي البلاتيني الصافي - دقة تحليلية سويسرية)
+       ═══════════════════════════════════════════════════════════════ */
+    html[data-theme="pure-platinum"] body { background: #e5e7eb !important; color: #0f172a !important; }
+    html[data-theme="pure-platinum"] .mobile-app-wrapper { background: #f8f9fa !important; border-color: #e5e7eb !important; color: #0f172a !important; }
+    html[data-theme="pure-platinum"] header.app-main-header,
+    html[data-theme="pure-platinum"] nav.glass-dock { background: #f8f9fa !important; border-color: #e5e7eb !important; }
     html[data-theme="pure-platinum"] .glass-base,
     html[data-theme="pure-platinum"] .glass-card-interactive,
     html[data-theme="pure-platinum"] .bg-slate-900,
-    html[data-theme="pure-platinum"] .bg-slate-950 { background: #ffffff !important; border-color: #e5e7eb !important; color: #111827 !important; box-shadow: 0 4px 15px rgba(17, 24, 39, 0.05) !important; }
-    html[data-theme="pure-platinum"] .bg-slate-800 { background: #eef1f4 !important; border-color: #d1d5db !important; color: #111827 !important; }
+    html[data-theme="pure-platinum"] .bg-slate-950 { background: #ffffff !important; border: 1.5px solid #e5e7eb !important; color: #0f172a !important; box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04) !important; }
+    html[data-theme="pure-platinum"] .bg-slate-800 { background: #eef1f4 !important; border-color: #d1d5db !important; color: #0f172a !important; }
     html[data-theme="pure-platinum"] .text-slate-100,
     html[data-theme="pure-platinum"] .text-slate-200,
-    html[data-theme="pure-platinum"] .text-slate-300 { color: #111827 !important; font-weight: 700; }
-    html[data-theme="pure-platinum"] .text-slate-400 { color: #4b5563 !important; }
-    html[data-theme="pure-platinum"] .text-slate-500 { color: #6b7280 !important; }
+    html[data-theme="pure-platinum"] .text-slate-300,
+    html[data-theme="pure-platinum"] .text-white:not(.op-cat-btn.active):not(.op-cat-btn.active *):not(.luminous-number-badge) { color: #0f172a !important; font-weight: 800 !important; }
+    html[data-theme="pure-platinum"] .text-slate-400 { color: #475569 !important; font-weight: 600 !important; }
+    html[data-theme="pure-platinum"] .text-slate-500 { color: #64748b !important; }
 
-    /* 0.3 MIDNIGHT EXECUTIVE (كحلي منتصف الليل الملكي - موصى بها) */
-    html[data-theme="midnight-executive"] body { background: #06090e !important; color: #f1f5f9 !important; }
-    html[data-theme="midnight-executive"] .mobile-app-wrapper { background: #0b0f17 !important; border-color: #1e293b !important; color: #f1f5f9 !important; }
-    html[data-theme="midnight-executive"] header,
-    html[data-theme="midnight-executive"] nav.glass-dock { background: rgba(11, 15, 23, 0.96) !important; border-color: #1e293b !important; }
+    /* 13 Operational Buttons in Pure Platinum (Pure White Cards, Graphite Black Text, Soft Silver Icon Box) */
+    html[data-theme="pure-platinum"] .op-btn {
+      background: #ffffff !important;
+      border: 1.5px solid #d1d5db !important;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+    }
+    html[data-theme="pure-platinum"] .op-btn:hover,
+    html[data-theme="pure-platinum"] .op-btn:active {
+      border-color: #0f172a !important;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.18) !important;
+    }
+    html[data-theme="pure-platinum"] .op-btn .text-slate-200,
+    html[data-theme="pure-platinum"] .op-btn span.text-xs,
+    html[data-theme="pure-platinum"] .op-btn span.font-black {
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pure-platinum"] .op-btn .w-9.h-9,
+    html[data-theme="pure-platinum"] .op-btn div[class*="bg-"] {
+      background: #eef2f6 !important;
+      border: 1px solid #cbd5e1 !important;
+      box-shadow: none !important;
+    }
+    html[data-theme="pure-platinum"] .op-btn .w-9.h-9 i,
+    html[data-theme="pure-platinum"] .op-btn .w-9.h-9 svg,
+    html[data-theme="pure-platinum"] .op-btn .w-9.h-9 [class*="text-"] {
+      color: #0f172a !important;
+    }
+    html[data-theme="pure-platinum"] .op-btn span.text-\[9\.5px\],
+    html[data-theme="pure-platinum"] .op-btn span:nth-of-type(2) {
+      color: #475569 !important;
+      font-weight: 700 !important;
+    }
+
+    /* Top Bar (Row 1) in Pure Platinum */
+    html[data-theme="pure-platinum"] .flagship-tile {
+      background: #ffffff !important;
+      border: 1.5px solid #d1d5db !important;
+      color: #0f172a !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-tile svg {
+      stroke: #0f172a !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-tile-search,
+    html[data-theme="pure-platinum"] .flagship-tile-mic,
+    html[data-theme="pure-platinum"] .flagship-tile-eye,
+    html[data-theme="pure-platinum"] .flagship-tile-install,
+    html[data-theme="pure-platinum"] .flagship-tile-theme {
+      border: 1.5px solid #d1d5db !important;
+      color: #0f172a !important;
+      background: #ffffff !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-tile-search svg,
+    html[data-theme="pure-platinum"] .flagship-tile-mic svg,
+    html[data-theme="pure-platinum"] .flagship-tile-eye svg,
+    html[data-theme="pure-platinum"] .flagship-tile-install svg,
+    html[data-theme="pure-platinum"] .flagship-tile-theme svg {
+      stroke: #0f172a !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-tile-mic span {
+      background: #0f172a !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-tile-eye.privacy-btn-active {
+      background: #0f172a !important;
+      border-color: #0f172a !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-tile-eye.privacy-btn-active svg {
+      stroke: #ffffff !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-tile-logout {
+      border: 1.5px solid #fecaca !important;
+      color: #b91c1c !important;
+      background: #ffffff !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-tile-logout svg {
+      stroke: #b91c1c !important;
+      color: #b91c1c !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-brand-badge.is-online {
+      border: 1.5px solid #0f172a !important;
+      background: #ffffff !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-brand-badge.is-online .brand-text {
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pure-platinum"] .flagship-brand-badge.is-online .status-dot {
+      background: #059669 !important;
+    }
+    html[data-theme="pure-platinum"] #activeThemeBadge {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+    }
+
+    /* Row 2 (Quick Bar) in Pure Platinum */
+    html[data-theme="pure-platinum"] .row2-glass-tile {
+      background: #ffffff !important;
+      border: 1.5px solid #d1d5db !important;
+      color: #0f172a !important;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05) !important;
+    }
+    html[data-theme="pure-platinum"] .row2-glass-tile svg {
+      stroke: #0f172a !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="pure-platinum"] .row2-glass-tile span,
+    html[data-theme="pure-platinum"] #timerCompactText {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="pure-platinum"] #timerPulseDot {
+      background-color: #0f172a !important;
+    }
+    html[data-theme="pure-platinum"] .row2-glass-tile .luminous-number-badge {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+    }
+
+    /* Row 3 (Crystal Hub) in Pure Platinum */
+    html[data-theme="pure-platinum"] .crystal-flagship-btn {
+      background: #ffffff !important;
+      border: 1.5px solid #d1d5db !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    }
+    html[data-theme="pure-platinum"] .crystal-flagship-btn .btn-label {
+      color: #0f172a !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+    html[data-theme="pure-platinum"] .crystal-flagship-btn .btn-emblem {
+      background: #eef2f6 !important;
+      border: 1px solid #cbd5e1 !important;
+      box-shadow: none !important;
+    }
+    html[data-theme="pure-platinum"] .crystal-flagship-btn .btn-emblem svg {
+      color: #0f172a !important;
+      stroke: #0f172a !important;
+    }
+    html[data-theme="pure-platinum"] .crystal-flagship-btn .luminous-number-badge {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+    }
+
+    /* Operation category tabs in Pure Platinum */
+    html[data-theme="pure-platinum"] .op-cat-btn.active {
+      background: #0f172a !important;
+      color: #ffffff !important;
+      border-color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pure-platinum"] .op-cat-btn.active * {
+      color: #ffffff !important;
+    }
+    html[data-theme="pure-platinum"] .op-cat-btn.active .luminous-number-badge {
+      background: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #ffffff !important;
+    }
+    html[data-theme="pure-platinum"] .op-cat-btn:not(.active) {
+      background: #ffffff !important;
+      color: #475569 !important;
+      border: 1.5px solid #d1d5db !important;
+    }
+    html[data-theme="pure-platinum"] .op-cat-btn:not(.active) .luminous-number-badge {
+      background: #eef2f6 !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+    }
+    html[data-theme="pure-platinum"] .bottom-dock-tab {
+      color: #64748b !important;
+    }
+    html[data-theme="pure-platinum"] .bottom-dock-tab.active {
+      color: #0f172a !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pure-platinum"] .bottom-dock-tab.active svg {
+      stroke: #0f172a !important;
+    }
+
+    /* Full-width Banners in Pure Platinum */
+    html[data-theme="pure-platinum"] .banner-strip {
+      background: #ffffff !important;
+      border: 1.5px solid #e5e7eb !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04) !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="pure-platinum"] .banner-strip span {
+      color: #0f172a !important;
+    }
+    html[data-theme="pure-platinum"] .banner-strip .text-emerald-400 {
+      color: #047857 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pure-platinum"] .banner-strip .text-amber-400 {
+      color: #b45309 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pure-platinum"] .banner-strip .text-cyan-400 {
+      color: #0369a1 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pure-platinum"] .banner-strip .text-rose-400 {
+      color: #be123c !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="pure-platinum"] .banner-strip .w-10.h-10 {
+      background: #eef2f6 !important;
+      border: 1px solid #cbd5e1 !important;
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════════
+       0.3 MIDNIGHT EXECUTIVE (كحلي منتصف الليل - فخامة وهيبة مالية)
+       ═══════════════════════════════════════════════════════════════ */
+    html[data-theme="midnight-executive"] body { background: #06090e !important; color: #f8fafc !important; }
+    html[data-theme="midnight-executive"] .mobile-app-wrapper { background: #0b0f17 !important; border-color: #1e293b !important; color: #f8fafc !important; }
+    html[data-theme="midnight-executive"] header.app-main-header,
+    html[data-theme="midnight-executive"] nav.glass-dock { background: rgba(11, 15, 23, 0.98) !important; border-color: #1e293b !important; }
     html[data-theme="midnight-executive"] .glass-base,
     html[data-theme="midnight-executive"] .glass-card-interactive,
     html[data-theme="midnight-executive"] .bg-slate-900,
-    html[data-theme="midnight-executive"] .bg-slate-950 { background: #131b2a !important; border-color: #1e293b !important; color: #f1f5f9 !important; }
-    html[data-theme="midnight-executive"] .bg-slate-800 { background: #1e293b !important; border-color: #334155 !important; color: #f8fafc !important; }
+    html[data-theme="midnight-executive"] .bg-slate-950 { background: #131b2a !important; border: 1.5px solid #1e293b !important; color: #f8fafc !important; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important; }
+    html[data-theme="midnight-executive"] .bg-slate-800 { background: #1a2336 !important; border-color: #27364f !important; color: #f8fafc !important; }
     html[data-theme="midnight-executive"] .text-slate-100,
     html[data-theme="midnight-executive"] .text-slate-200,
-    html[data-theme="midnight-executive"] .text-slate-300 { color: #f1f5f9 !important; }
-    html[data-theme="midnight-executive"] .text-slate-400 { color: #94a3b8 !important; }
+    html[data-theme="midnight-executive"] .text-slate-300,
+    html[data-theme="midnight-executive"] .text-white { color: #ffffff !important; font-weight: 800 !important; }
+    html[data-theme="midnight-executive"] .text-slate-400 { color: #94a3b8 !important; font-weight: 600 !important; }
     html[data-theme="midnight-executive"] .text-slate-500 { color: #64748b !important; }
 
-    /* 0.4 OBSIDIAN CHARCOAL (حجر السج الجرافيتي المطفأ - موصى بها) */
-    html[data-theme="obsidian-charcoal"] body { background: #0a0a0b !important; color: #ededed !important; }
-    html[data-theme="obsidian-charcoal"] .mobile-app-wrapper { background: #121214 !important; border-color: #2c2c30 !important; color: #ededed !important; }
-    html[data-theme="obsidian-charcoal"] header,
-    html[data-theme="obsidian-charcoal"] nav.glass-dock { background: rgba(18, 18, 20, 0.96) !important; border-color: #2c2c30 !important; }
+    /* 13 Operational Buttons in Midnight Executive (Deep Navy Cards, Pure White Text, Midnight Blue Icon Box) */
+    html[data-theme="midnight-executive"] .op-btn {
+      background: #131b2a !important;
+      border: 1.5px solid #233148 !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+    }
+    html[data-theme="midnight-executive"] .op-btn:hover,
+    html[data-theme="midnight-executive"] .op-btn:active {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 4px 18px rgba(56, 189, 248, 0.25) !important;
+    }
+    html[data-theme="midnight-executive"] .op-btn .text-slate-200,
+    html[data-theme="midnight-executive"] .op-btn span.text-xs,
+    html[data-theme="midnight-executive"] .op-btn span.font-black {
+      color: #ffffff !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="midnight-executive"] .op-btn .w-9.h-9,
+    html[data-theme="midnight-executive"] .op-btn div[class*="bg-"] {
+      background: #1c263c !important;
+      border: 1px solid #2e4162 !important;
+      box-shadow: none !important;
+    }
+    html[data-theme="midnight-executive"] .op-btn .w-9.h-9 i,
+    html[data-theme="midnight-executive"] .op-btn .w-9.h-9 svg,
+    html[data-theme="midnight-executive"] .op-btn .w-9.h-9 [class*="text-"] {
+      color: #38bdf8 !important;
+    }
+    html[data-theme="midnight-executive"] .op-btn span.text-\[9\.5px\],
+    html[data-theme="midnight-executive"] .op-btn span:nth-of-type(2) {
+      color: #94a3b8 !important;
+      font-weight: 700 !important;
+    }
+
+    /* Top Bar (Row 1) in Midnight Executive */
+    html[data-theme="midnight-executive"] .flagship-tile {
+      background: #131b2a !important;
+      border: 1.5px solid #233148 !important;
+      color: #f1f5f9 !important;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35) !important;
+    }
+    html[data-theme="midnight-executive"] .flagship-tile svg {
+      stroke: #f1f5f9 !important;
+      color: #f1f5f9 !important;
+    }
+    html[data-theme="midnight-executive"] .flagship-tile-search,
+    html[data-theme="midnight-executive"] .flagship-tile-mic,
+    html[data-theme="midnight-executive"] .flagship-tile-eye,
+    html[data-theme="midnight-executive"] .flagship-tile-install,
+    html[data-theme="midnight-executive"] .flagship-tile-theme {
+      border: 1.5px solid #233148 !important;
+      color: #f1f5f9 !important;
+      background: #131b2a !important;
+    }
+    html[data-theme="midnight-executive"] .flagship-tile-search svg,
+    html[data-theme="midnight-executive"] .flagship-tile-mic svg,
+    html[data-theme="midnight-executive"] .flagship-tile-eye svg,
+    html[data-theme="midnight-executive"] .flagship-tile-install svg,
+    html[data-theme="midnight-executive"] .flagship-tile-theme svg {
+      stroke: #f1f5f9 !important;
+      color: #f1f5f9 !important;
+    }
+    html[data-theme="midnight-executive"] .flagship-tile-logout {
+      border: 1.5px solid #ef4444 !important;
+      color: #f87171 !important;
+      background: #131b2a !important;
+    }
+    html[data-theme="midnight-executive"] .flagship-tile-logout svg {
+      stroke: #f87171 !important;
+      color: #f87171 !important;
+    }
+    html[data-theme="midnight-executive"] .flagship-brand-badge.is-online {
+      border: 1.5px solid #10b981 !important;
+      background: #131b2a !important;
+    }
+    html[data-theme="midnight-executive"] .flagship-brand-badge.is-online .brand-text {
+      color: #38bdf8 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="midnight-executive"] #activeThemeBadge {
+      background: #38bdf8 !important;
+      color: #0b0f17 !important;
+      border-color: #38bdf8 !important;
+    }
+
+    /* Row 2 (Quick Bar) in Midnight Executive */
+    html[data-theme="midnight-executive"] .row2-glass-tile {
+      background: #131b2a !important;
+      border: 1.5px solid #233148 !important;
+      color: #f1f5f9 !important;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35) !important;
+    }
+    html[data-theme="midnight-executive"] .row2-glass-tile svg {
+      stroke: #f1f5f9 !important;
+      color: #f1f5f9 !important;
+    }
+    html[data-theme="midnight-executive"] .row2-glass-tile span,
+    html[data-theme="midnight-executive"] #timerCompactText {
+      color: #f1f5f9 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="midnight-executive"] #timerPulseDot {
+      background-color: #38bdf8 !important;
+    }
+    html[data-theme="midnight-executive"] .row2-glass-tile .luminous-number-badge {
+      background: #38bdf8 !important;
+      color: #0b0f17 !important;
+      border-color: #38bdf8 !important;
+    }
+
+    /* Row 3 (Crystal Hub) in Midnight Executive */
+    html[data-theme="midnight-executive"] .crystal-flagship-btn {
+      background: #131b2a !important;
+      border: 1.5px solid #233148 !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4) !important;
+    }
+    html[data-theme="midnight-executive"] .crystal-flagship-btn .btn-label {
+      color: #ffffff !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+    html[data-theme="midnight-executive"] .crystal-flagship-btn .btn-emblem {
+      background: #1c263c !important;
+      border: 1px solid #2e4162 !important;
+      box-shadow: none !important;
+    }
+    html[data-theme="midnight-executive"] .crystal-flagship-btn .btn-emblem svg {
+      color: #38bdf8 !important;
+      stroke: #38bdf8 !important;
+    }
+    html[data-theme="midnight-executive"] .crystal-flagship-btn .luminous-number-badge {
+      background: #38bdf8 !important;
+      color: #0b0f17 !important;
+      border-color: #38bdf8 !important;
+    }
+
+    /* Operation category tabs in Midnight Executive */
+    html[data-theme="midnight-executive"] .op-cat-btn.active {
+      background: #38bdf8 !important;
+      color: #0b0f17 !important;
+      border-color: #38bdf8 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="midnight-executive"] .op-cat-btn.active * {
+      color: #0b0f17 !important;
+    }
+    html[data-theme="midnight-executive"] .op-cat-btn.active .luminous-number-badge {
+      background: #0b0f17 !important;
+      color: #38bdf8 !important;
+      border-color: #0b0f17 !important;
+    }
+    html[data-theme="midnight-executive"] .op-cat-btn:not(.active) {
+      background: #131b2a !important;
+      color: #94a3b8 !important;
+      border: 1.5px solid #233148 !important;
+    }
+    html[data-theme="midnight-executive"] .op-cat-btn:not(.active) .luminous-number-badge {
+      background: #1c263c !important;
+      color: #94a3b8 !important;
+      border-color: #2e4162 !important;
+    }
+    html[data-theme="midnight-executive"] .bottom-dock-tab {
+      color: #64748b !important;
+    }
+    html[data-theme="midnight-executive"] .bottom-dock-tab.active {
+      color: #38bdf8 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="midnight-executive"] .bottom-dock-tab.active svg {
+      stroke: #38bdf8 !important;
+    }
+
+    /* Full-width Banners in Midnight Executive */
+    html[data-theme="midnight-executive"] .banner-strip {
+      background: #131b2a !important;
+      border: 1.5px solid #233148 !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="midnight-executive"] .banner-strip span {
+      color: #ffffff !important;
+    }
+    html[data-theme="midnight-executive"] .banner-strip .w-10.h-10 {
+      background: #1c263c !important;
+      border: 1px solid #2e4162 !important;
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════════
+       0.4 OBSIDIAN CHARCOAL (حجر السج الجرافيتي المطفأ - راحة مطلقة لشاشات OLED)
+       ═══════════════════════════════════════════════════════════════ */
+    html[data-theme="obsidian-charcoal"] body { background: #09090b !important; color: #fafafa !important; }
+    html[data-theme="obsidian-charcoal"] .mobile-app-wrapper { background: #121214 !important; border-color: #27272a !important; color: #fafafa !important; }
+    html[data-theme="obsidian-charcoal"] header.app-main-header,
+    html[data-theme="obsidian-charcoal"] nav.glass-dock { background: rgba(18, 18, 20, 0.98) !important; border-color: #27272a !important; }
     html[data-theme="obsidian-charcoal"] .glass-base,
     html[data-theme="obsidian-charcoal"] .glass-card-interactive,
     html[data-theme="obsidian-charcoal"] .bg-slate-900,
-    html[data-theme="obsidian-charcoal"] .bg-slate-950 { background: #1c1c1f !important; border-color: #2c2c30 !important; color: #ededed !important; }
-    html[data-theme="obsidian-charcoal"] .bg-slate-800 { background: #26262a !important; border-color: #3f3f46 !important; color: #f4f4f5 !important; }
+    html[data-theme="obsidian-charcoal"] .bg-slate-950 { background: #1c1c1f !important; border: 1.5px solid #27272a !important; color: #fafafa !important; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important; }
+    html[data-theme="obsidian-charcoal"] .bg-slate-800 { background: #27272a !important; border-color: #3f3f46 !important; color: #fafafa !important; }
     html[data-theme="obsidian-charcoal"] .text-slate-100,
     html[data-theme="obsidian-charcoal"] .text-slate-200,
-    html[data-theme="obsidian-charcoal"] .text-slate-300 { color: #ededed !important; }
-    html[data-theme="obsidian-charcoal"] .text-slate-400 { color: #a1a1aa !important; }
+    html[data-theme="obsidian-charcoal"] .text-slate-300,
+    html[data-theme="obsidian-charcoal"] .text-white { color: #fafafa !important; font-weight: 800 !important; }
+    html[data-theme="obsidian-charcoal"] .text-slate-400 { color: #a1a1aa !important; font-weight: 600 !important; }
     html[data-theme="obsidian-charcoal"] .text-slate-500 { color: #71717a !important; }
+
+    /* 13 Operational Buttons in Obsidian Charcoal (Matte Graphite Cards, Titanium White Text, Dark Slate Icon Box) */
+    html[data-theme="obsidian-charcoal"] .op-btn {
+      background: #1c1c1f !important;
+      border: 1.5px solid #2f2f35 !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+    }
+    html[data-theme="obsidian-charcoal"] .op-btn:hover,
+    html[data-theme="obsidian-charcoal"] .op-btn:active {
+      border-color: #e4e4e7 !important;
+      box-shadow: 0 4px 18px rgba(255, 255, 255, 0.12) !important;
+    }
+    html[data-theme="obsidian-charcoal"] .op-btn .text-slate-200,
+    html[data-theme="obsidian-charcoal"] .op-btn span.text-xs,
+    html[data-theme="obsidian-charcoal"] .op-btn span.font-black {
+      color: #ffffff !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .op-btn .w-9.h-9,
+    html[data-theme="obsidian-charcoal"] .op-btn div[class*="bg-"] {
+      background: #27272b !important;
+      border: 1px solid #3f3f46 !important;
+      box-shadow: none !important;
+    }
+    html[data-theme="obsidian-charcoal"] .op-btn .w-9.h-9 i,
+    html[data-theme="obsidian-charcoal"] .op-btn .w-9.h-9 svg,
+    html[data-theme="obsidian-charcoal"] .op-btn .w-9.h-9 [class*="text-"] {
+      color: #f4f4f5 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .op-btn span.text-\[9\.5px\],
+    html[data-theme="obsidian-charcoal"] .op-btn span:nth-of-type(2) {
+      color: #a1a1aa !important;
+      font-weight: 700 !important;
+    }
+
+    /* Top Bar (Row 1) in Obsidian Charcoal */
+    html[data-theme="obsidian-charcoal"] .flagship-tile {
+      background: #1c1c1f !important;
+      border: 1.5px solid #2f2f35 !important;
+      color: #fafafa !important;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45) !important;
+    }
+    html[data-theme="obsidian-charcoal"] .flagship-tile svg {
+      stroke: #fafafa !important;
+      color: #fafafa !important;
+    }
+    html[data-theme="obsidian-charcoal"] .flagship-tile-search,
+    html[data-theme="obsidian-charcoal"] .flagship-tile-mic,
+    html[data-theme="obsidian-charcoal"] .flagship-tile-eye,
+    html[data-theme="obsidian-charcoal"] .flagship-tile-install,
+    html[data-theme="obsidian-charcoal"] .flagship-tile-theme {
+      border: 1.5px solid #2f2f35 !important;
+      color: #fafafa !important;
+      background: #1c1c1f !important;
+    }
+    html[data-theme="obsidian-charcoal"] .flagship-tile-search svg,
+    html[data-theme="obsidian-charcoal"] .flagship-tile-mic svg,
+    html[data-theme="obsidian-charcoal"] .flagship-tile-eye svg,
+    html[data-theme="obsidian-charcoal"] .flagship-tile-install svg,
+    html[data-theme="obsidian-charcoal"] .flagship-tile-theme svg {
+      stroke: #fafafa !important;
+      color: #fafafa !important;
+    }
+    html[data-theme="obsidian-charcoal"] .flagship-tile-logout {
+      border: 1.5px solid #ef4444 !important;
+      color: #f87171 !important;
+      background: #1c1c1f !important;
+    }
+    html[data-theme="obsidian-charcoal"] .flagship-tile-logout svg {
+      stroke: #f87171 !important;
+      color: #f87171 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .flagship-brand-badge.is-online {
+      border: 1.5px solid #3f3f46 !important;
+      background: #1c1c1f !important;
+    }
+    html[data-theme="obsidian-charcoal"] .flagship-brand-badge.is-online .brand-text {
+      color: #fafafa !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="obsidian-charcoal"] #activeThemeBadge {
+      background: #f4f4f5 !important;
+      color: #121214 !important;
+      border-color: #f4f4f5 !important;
+    }
+
+    /* Row 2 (Quick Bar) in Obsidian Charcoal */
+    html[data-theme="obsidian-charcoal"] .row2-glass-tile {
+      background: #1c1c1f !important;
+      border: 1.5px solid #2f2f35 !important;
+      color: #fafafa !important;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.45) !important;
+    }
+    html[data-theme="obsidian-charcoal"] .row2-glass-tile svg {
+      stroke: #fafafa !important;
+      color: #fafafa !important;
+    }
+    html[data-theme="obsidian-charcoal"] .row2-glass-tile span,
+    html[data-theme="obsidian-charcoal"] #timerCompactText {
+      color: #fafafa !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="obsidian-charcoal"] #timerPulseDot {
+      background-color: #f4f4f5 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .row2-glass-tile .luminous-number-badge {
+      background: #f4f4f5 !important;
+      color: #121214 !important;
+      border-color: #f4f4f5 !important;
+    }
+
+    /* Row 3 (Crystal Hub) in Obsidian Charcoal */
+    html[data-theme="obsidian-charcoal"] .crystal-flagship-btn {
+      background: #1c1c1f !important;
+      border: 1.5px solid #2f2f35 !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45) !important;
+    }
+    html[data-theme="obsidian-charcoal"] .crystal-flagship-btn .btn-label {
+      color: #ffffff !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+    html[data-theme="obsidian-charcoal"] .crystal-flagship-btn .btn-emblem {
+      background: #27272b !important;
+      border: 1px solid #3f3f46 !important;
+      box-shadow: none !important;
+    }
+    html[data-theme="obsidian-charcoal"] .crystal-flagship-btn .btn-emblem svg {
+      color: #f4f4f5 !important;
+      stroke: #f4f4f5 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .crystal-flagship-btn .luminous-number-badge {
+      background: #f4f4f5 !important;
+      color: #121214 !important;
+      border-color: #f4f4f5 !important;
+    }
+
+    /* Operation category tabs in Obsidian Charcoal */
+    html[data-theme="obsidian-charcoal"] .op-cat-btn.active {
+      background: #f4f4f5 !important;
+      color: #121214 !important;
+      border-color: #f4f4f5 !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .op-cat-btn.active * {
+      color: #121214 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .op-cat-btn.active .luminous-number-badge {
+      background: #121214 !important;
+      color: #f4f4f5 !important;
+      border-color: #121214 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .op-cat-btn:not(.active) {
+      background: #1c1c1f !important;
+      color: #a1a1aa !important;
+      border: 1.5px solid #2f2f35 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .op-cat-btn:not(.active) .luminous-number-badge {
+      background: #27272b !important;
+      color: #a1a1aa !important;
+      border-color: #3f3f46 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .bottom-dock-tab {
+      color: #71717a !important;
+    }
+    html[data-theme="obsidian-charcoal"] .bottom-dock-tab.active {
+      color: #ffffff !important;
+      font-weight: 900 !important;
+    }
+    html[data-theme="obsidian-charcoal"] .bottom-dock-tab.active svg {
+      stroke: #ffffff !important;
+    }
+
+    /* Full-width Banners in Obsidian Charcoal */
+    html[data-theme="obsidian-charcoal"] .banner-strip {
+      background: #1c1c1f !important;
+      border: 1.5px solid #2f2f35 !important;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45) !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="obsidian-charcoal"] .banner-strip span {
+      color: #ffffff !important;
+    }
+    html[data-theme="obsidian-charcoal"] .banner-strip .w-10.h-10 {
+      background: #27272b !important;
+      border: 1px solid #3f3f46 !important;
+    }
 
     /* ─── GROUP 1: LIGHT, BEIGE, IVORY & OFF-WHITE THEMES ─── */
 
