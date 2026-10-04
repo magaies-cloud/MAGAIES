@@ -15,6 +15,7 @@
   <title>نظام الإدارة المحاسبية العالمي - Antigravity Mobile ERP</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>if(typeof tailwind==="undefined"){document.write('<script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"><\/script>');}</script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   <script src="js/pwa-manager.js?v=2026_10_04_v26_blue_install" defer></script>
   <script>
   (function enforceAuthGate() {
@@ -180,6 +181,281 @@
       box-shadow: 0 0 25px rgba(245, 158, 11, 0.6), inset 0 0 10px rgba(245, 158, 11, 0.3);
       border-color: rgba(245, 158, 11, 0.95);
       transform: scale(1.15);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       🌟 FLAGSHIP TOP BAR & 7-ICON ROW - VISIONOS GLASS GLOW ENGINE
+       ═══════════════════════════════════════════════════════════════════ */
+    .flagship-top-bar {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 5px !important;
+      width: 100% !important;
+      padding: 2px 0 !important;
+      direction: rtl !important;
+      position: relative;
+    }
+
+    /* Base style for all flagship tiles */
+    .flagship-tile {
+      position: relative !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      height: 42px !important;
+      border-radius: 12px !important;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%), rgba(15, 23, 42, 0.82) !important;
+      backdrop-filter: blur(16px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+      cursor: pointer !important;
+      overflow: hidden !important;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+      -webkit-tap-highlight-color: transparent !important;
+      outline: none !important;
+      user-select: none !important;
+    }
+
+    /* Periodic glass shine sweep across tiles */
+    .flagship-tile::after {
+      content: '' !important;
+      position: absolute !important;
+      top: -50% !important;
+      left: -120% !important;
+      width: 60% !important;
+      height: 200% !important;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) 25%,
+        rgba(255, 255, 255, 0.35) 50%,
+        rgba(255, 255, 255, 0.03) 75%,
+        transparent 100%
+      ) !important;
+      transform: rotate(25deg) !important;
+      pointer-events: none !important;
+      animation: flagshipGlassShine 5.5s cubic-bezier(0.4, 0, 0.2, 1) infinite !important;
+    }
+
+    @keyframes flagshipGlassShine {
+      0%, 65% {
+        left: -120%;
+        opacity: 0;
+      }
+      70% {
+        opacity: 1;
+      }
+      85%, 100% {
+        left: 220%;
+        opacity: 0;
+      }
+    }
+
+    .flagship-tile:nth-child(1)::after { animation-delay: 0s !important; }
+    .flagship-tile:nth-child(2)::after { animation-delay: 0.8s !important; }
+    .flagship-tile:nth-child(3)::after { animation-delay: 1.6s !important; }
+    .flagship-tile:nth-child(4)::after { animation-delay: 2.4s !important; }
+    .flagship-tile:nth-child(5)::after { animation-delay: 3.2s !important; }
+    .flagship-tile:nth-child(6)::after { animation-delay: 4.0s !important; }
+    .flagship-tile:nth-child(7)::after { animation-delay: 4.8s !important; }
+
+    /* Micro-vibration animation when touched / hovered */
+    @keyframes flagshipMicroVibe {
+      0% { transform: scale(1.14) translateY(-2px) rotate(0deg); }
+      25% { transform: scale(1.16) translateY(-2px) rotate(-1deg); }
+      50% { transform: scale(1.14) translateY(-2px) rotate(1deg); }
+      75% { transform: scale(1.16) translateY(-2px) rotate(-0.5deg); }
+      100% { transform: scale(1.15) translateY(-2px) rotate(0deg); }
+    }
+
+    .flagship-tile:hover,
+    .flagship-tile:focus-visible,
+    .flagship-tile.touch-active {
+      z-index: 20 !important;
+      animation: flagshipMicroVibe 0.26s ease-in-out forwards !important;
+    }
+
+    .flagship-tile:active {
+      transform: scale(0.94) translateY(0) !important;
+    }
+
+    /* 1. BRAND BADGE (مقاييس - Live Internet indicator) */
+    .flagship-brand-badge {
+      flex: 0 0 auto !important;
+      min-width: 92px !important;
+      padding: 0 7px !important;
+      gap: 5px !important;
+      justify-content: center !important;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+    }
+
+    /* When Online (Emerald Live Neon) */
+    .flagship-brand-badge.is-online {
+      border: 1.5px solid #10b981 !important;
+      box-shadow: 
+        0 0 14px rgba(16, 185, 129, 0.45),
+        0 4px 14px -2px rgba(16, 185, 129, 0.4),
+        inset 0 0 8px rgba(16, 185, 129, 0.2) !important;
+    }
+    .flagship-brand-badge.is-online .brand-text {
+      color: #34d399 !important;
+      text-shadow: 0 0 10px rgba(16, 185, 129, 0.7) !important;
+    }
+    .flagship-brand-badge.is-online .status-dot {
+      background-color: #10b981 !important;
+      box-shadow: 0 0 8px #10b981, 0 0 12px #34d399 !important;
+    }
+    .flagship-brand-badge.is-online:hover,
+    .flagship-brand-badge.is-online.touch-active {
+      border-color: #34d399 !important;
+      box-shadow: 
+        0 0 22px rgba(16, 185, 129, 0.75),
+        0 6px 18px rgba(16, 185, 129, 0.55),
+        inset 0 0 12px rgba(16, 185, 129, 0.35) !important;
+    }
+
+    /* When Offline (Ruby Red Warning Neon) */
+    .flagship-brand-badge.is-offline {
+      border: 1.5px solid #ef4444 !important;
+      box-shadow: 
+        0 0 16px rgba(239, 68, 68, 0.65),
+        0 4px 14px -2px rgba(239, 68, 68, 0.5),
+        inset 0 0 8px rgba(239, 68, 68, 0.25) !important;
+    }
+    .flagship-brand-badge.is-offline .brand-text {
+      color: #f87171 !important;
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.8) !important;
+    }
+    .flagship-brand-badge.is-offline .status-dot {
+      background-color: #ef4444 !important;
+      box-shadow: 0 0 8px #ef4444, 0 0 12px #f87171 !important;
+      animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite !important;
+    }
+    .flagship-brand-badge.is-offline:hover,
+    .flagship-brand-badge.is-offline.touch-active {
+      border-color: #f87171 !important;
+      box-shadow: 
+        0 0 24px rgba(239, 68, 68, 0.85),
+        0 6px 18px rgba(239, 68, 68, 0.6),
+        inset 0 0 12px rgba(239, 68, 68, 0.4) !important;
+    }
+
+    /* 6 ACTION TILES (Identical Equal Size, flex: 1 1 0%) */
+    .flagship-action-tile {
+      flex: 1 1 0% !important;
+      min-width: 0 !important;
+      padding: 0 !important;
+    }
+
+    /* 2. THEMES (Royal Amber / Gold Palette) */
+    .flagship-tile-theme {
+      border: 1.5px solid rgba(245, 158, 11, 0.5) !important;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.3), 0 3px 10px -2px rgba(245, 158, 11, 0.35), inset 0 0 6px rgba(245, 158, 11, 0.15) !important;
+      color: #fbbf24 !important;
+    }
+    .flagship-tile-theme:hover,
+    .flagship-tile-theme.touch-active {
+      border-color: #fbbf24 !important;
+      box-shadow: 0 0 22px rgba(245, 158, 11, 0.7), 0 5px 16px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(245, 158, 11, 0.3) !important;
+      color: #fef08a !important;
+    }
+
+    /* 3. SEARCH (Electric Cyan) */
+    .flagship-tile-search {
+      border: 1.5px solid rgba(6, 182, 212, 0.5) !important;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.3), 0 3px 10px -2px rgba(6, 182, 212, 0.35), inset 0 0 6px rgba(6, 182, 212, 0.15) !important;
+      color: #22d3ee !important;
+    }
+    .flagship-tile-search:hover,
+    .flagship-tile-search.touch-active {
+      border-color: #22d3ee !important;
+      box-shadow: 0 0 22px rgba(6, 182, 212, 0.7), 0 5px 16px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(6, 182, 212, 0.3) !important;
+      color: #a5f3fc !important;
+    }
+
+    /* 4. MIC AI (Neural Purple / Violet) */
+    .flagship-tile-mic {
+      border: 1.5px solid rgba(168, 85, 247, 0.5) !important;
+      box-shadow: 0 0 10px rgba(168, 85, 247, 0.3), 0 3px 10px -2px rgba(168, 85, 247, 0.35), inset 0 0 6px rgba(168, 85, 247, 0.15) !important;
+      color: #c084fc !important;
+    }
+    .flagship-tile-mic:hover,
+    .flagship-tile-mic.touch-active {
+      border-color: #c084fc !important;
+      box-shadow: 0 0 22px rgba(168, 85, 247, 0.7), 0 5px 16px rgba(168, 85, 247, 0.5), inset 0 0 10px rgba(168, 85, 247, 0.3) !important;
+      color: #f3e8ff !important;
+    }
+
+    /* 5. PRIVACY EYE (Emerald / Jade or Active Amber) */
+    .flagship-tile-eye {
+      border: 1.5px solid rgba(16, 185, 129, 0.5) !important;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.3), 0 3px 10px -2px rgba(16, 185, 129, 0.35), inset 0 0 6px rgba(16, 185, 129, 0.15) !important;
+      color: #34d399 !important;
+    }
+    .flagship-tile-eye:hover,
+    .flagship-tile-eye.touch-active {
+      border-color: #34d399 !important;
+      box-shadow: 0 0 22px rgba(16, 185, 129, 0.7), 0 5px 16px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(16, 185, 129, 0.3) !important;
+      color: #d1fae5 !important;
+    }
+    .flagship-tile-eye.privacy-btn-active {
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.6), 0 3px 12px rgba(245, 158, 11, 0.4), inset 0 0 8px rgba(245, 158, 11, 0.25) !important;
+      color: #fbbf24 !important;
+    }
+
+    /* 6. INSTALL / DOWNLOAD (Sky Blue) */
+    .flagship-tile-install {
+      border: 1.5px solid rgba(14, 165, 233, 0.5) !important;
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.3), 0 3px 10px -2px rgba(14, 165, 233, 0.35), inset 0 0 6px rgba(14, 165, 233, 0.15) !important;
+      color: #38bdf8 !important;
+    }
+    .flagship-tile-install:hover,
+    .flagship-tile-install.touch-active {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 22px rgba(14, 165, 233, 0.7), 0 5px 16px rgba(14, 165, 233, 0.5), inset 0 0 10px rgba(14, 165, 233, 0.3) !important;
+      color: #e0f2fe !important;
+    }
+
+    /* 7. LOGOUT (Rose / Coral Red) */
+    .flagship-tile-logout {
+      border: 1.5px solid rgba(244, 63, 94, 0.5) !important;
+      box-shadow: 0 0 10px rgba(244, 63, 94, 0.3), 0 3px 10px -2px rgba(244, 63, 94, 0.35), inset 0 0 6px rgba(244, 63, 94, 0.15) !important;
+      color: #fb7185 !important;
+    }
+    .flagship-tile-logout:hover,
+    .flagship-tile-logout.touch-active {
+      border-color: #fb7185 !important;
+      box-shadow: 0 0 22px rgba(244, 63, 94, 0.7), 0 5px 16px rgba(244, 63, 94, 0.5), inset 0 0 10px rgba(244, 63, 94, 0.3) !important;
+      color: #ffe4e6 !important;
+    }
+
+    /* Light Themes Overrides for Flagship Top Bar */
+    html[data-theme="beige"] .flagship-tile,
+    html[data-theme="ivory"] .flagship-tile,
+    html[data-theme="offwhite"] .flagship-tile,
+    html[data-theme="light-linen"] .flagship-tile,
+    html[data-theme="pearl-platinum"] .flagship-tile,
+    html[data-theme="nordic-paper"] .flagship-tile {
+      background: rgba(255, 255, 255, 0.88) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    }
+    html[data-theme="beige"] .flagship-brand-badge.is-online,
+    html[data-theme="ivory"] .flagship-brand-badge.is-online,
+    html[data-theme="offwhite"] .flagship-brand-badge.is-online,
+    html[data-theme="light-linen"] .flagship-brand-badge.is-online,
+    html[data-theme="pearl-platinum"] .flagship-brand-badge.is-online,
+    html[data-theme="nordic-paper"] .flagship-brand-badge.is-online {
+      border-color: #059669 !important;
+    }
+    html[data-theme="beige"] .flagship-brand-badge.is-online .brand-text,
+    html[data-theme="ivory"] .flagship-brand-badge.is-online .brand-text,
+    html[data-theme="offwhite"] .flagship-brand-badge.is-online .brand-text,
+    html[data-theme="light-linen"] .flagship-brand-badge.is-online .brand-text,
+    html[data-theme="pearl-platinum"] .flagship-brand-badge.is-online .brand-text,
+    html[data-theme="nordic-paper"] .flagship-brand-badge.is-online .brand-text {
+      color: #065f46 !important;
+      text-shadow: none !important;
     }
 
     /* Privacy Eye Active State */
@@ -1197,70 +1473,81 @@
     </div>
 
     <!-- APP HEADER -->
-    <header class="app-main-header p-3 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 sticky top-0 z-30 shrink-0">
-      <div class="flex items-center justify-between gap-1.5 overflow-x-auto no-scrollbar">
-        <!-- 1. الشعار المعتمد: حرف M الملون بالألوان الأساسية + الحافة الخضراء المضيئة لكلمة مقاييس (مؤشر النت الحي) -->
-        <button id="headerBrandLogoBadge" onclick="switchTab('dashboard'); AudioEngine.play('numpad'); triggerHapticPulse(25);" class="flex items-center gap-1.5 bg-slate-900/90 rounded-xl px-2.5 h-8 transition-all duration-300 active:scale-95 group cursor-pointer shrink-0" style="border: 1.5px solid #10b981; box-shadow: 0 0 10px rgba(16,185,129,0.45), inset 0 0 6px rgba(16, 185, 129, 0.15);" title="مقاييس ERP - متصل بالإنترنت وقاعدة البيانات (اضغط للرئيسية)">
-          <img src="assets/icon-192.png" alt="M" class="w-6 h-6 rounded-md object-contain shrink-0 shadow-[0_0_6px_rgba(56,189,248,0.5)]">
-          <span id="headerBrandText" class="text-[13px] font-black text-emerald-300 tracking-tight" style="text-shadow: 0 0 8px rgba(16,185,129,0.6);">مقاييس</span>
+    <!-- APP HEADER -->
+    <header class="app-main-header p-2.5 bg-slate-900/95 backdrop-blur-xl border-b border-slate-800/80 sticky top-0 z-30 shrink-0">
+      <!-- 🌟 صف الأيقونات القيادي الملكي السبعة (Flagship 7-Icon Top Row) -->
+      <div class="flagship-top-bar" id="flagshipTopBar">
+        <!-- 1. الشعار المعتمد مقاييس: مؤشر اتصال الإنترنت الحي (أخضر متصل / أحمر منقطع) -->
+        <button id="headerBrandLogoBadge" onclick="switchTab('dashboard'); if(window.AudioEngine)AudioEngine.play('numpad'); if(window.triggerHapticPulse)triggerHapticPulse(25);" class="flagship-tile flagship-brand-badge is-online" title="مقاييس ERP - متصل بالإنترنت وقاعدة البيانات (اضغط للرئيسية)">
+          <img src="assets/icon-192.png" alt="M" class="w-6 h-6 rounded-md object-contain shrink-0 shadow-[0_0_8px_rgba(56,189,248,0.5)]">
+          <span id="headerBrandText" class="brand-text text-[13px] font-black tracking-tight shrink-0">مقاييس</span>
+          <span id="headerNetDot" class="status-dot w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
         </button>
 
-        <!-- فاصل عمودي ناعم -->
-        <div class="w-[1px] h-4 bg-slate-700/60 shrink-0"></div>
+        <!-- 2. أيقونة السمات بشعار السمات المعروف (لوحة ألوان الرسام الفنان العالمية 🎨) -->
+        <button id="btnThemePalette" onclick="openThemePaletteDrawer(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-theme" title="السمات والراحة البصرية (8 سمات علمية مريحة للعين)">
+          <svg class="w-5 h-5 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2C6.5 2 2 6.5 2 12c0 3.6 2 5.5 4 5.5 1 0 1.5-.5 2-1 .5-.5 1-1 2-1h1.5c4.1 0 7.5-3.4 7.5-7.5C19 4.7 15.8 2 12 2z" fill="rgba(245,158,11,0.15)"/>
+            <circle cx="7.5" cy="8" r="1.5" fill="#f43f5e" stroke="none"/>
+            <circle cx="11.5" cy="6" r="1.5" fill="#38bdf8" stroke="none"/>
+            <circle cx="15.5" cy="8.5" r="1.5" fill="#10b981" stroke="none"/>
+            <circle cx="9" cy="12" r="1.5" fill="#fbbf24" stroke="none"/>
+            <circle cx="15" cy="14" r="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          </svg>
+          <span id="activeThemeBadge" class="absolute -bottom-1 -right-1 text-[8px] bg-amber-500 text-slate-950 font-black px-1 rounded-full shadow">17</span>
+        </button>
 
-        <!-- الأيقونات الخمسة: متساوية تماماً وأنيقة ومرتبة في مستوى واحد (32x32px) -->
-        <div class="flex items-center gap-1.5 shrink-0" id="header-moving-icons">
-          <!-- 1. زر التثبيت في الأعلى متساوي في الحجم والمستوى -->
-          <button id="headerPwaInstallBtn" onclick="PWAManager.triggerInstall()" class="w-8 h-8 rounded-xl flex items-center justify-center bg-sky-500/15 border border-sky-400/40 text-sky-300 hover:bg-sky-500/25 active:scale-95 transition cursor-pointer shrink-0 shadow-[0_0_8px_rgba(56,189,248,0.2)]" title="تثبيت أيقونة التطبيق على شاشة الجوال">
-            <svg class="w-4 h-4 text-sky-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-          </button>
+        <!-- 3. أيقونة البحث الذكي الشامل (تم رفعها للصف الأول) -->
+        <button id="headerOmniSearchBtn" onclick="focusOmniSearch(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-search" title="البحث الذكي الشامل">
+          <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+          </svg>
+        </button>
 
-          <!-- 2. المايك AI في السطر الأول -->
-          <button id="headerAiVoiceBtn" onclick="openAiVoiceConsole()" class="w-8 h-8 rounded-xl flex items-center justify-center bg-purple-500/15 border border-purple-400/40 text-purple-300 hover:bg-purple-500/25 active:scale-95 transition cursor-pointer shrink-0 shadow-[0_0_8px_rgba(168,85,247,0.2)] relative" title="المساعد الصوتي الذكي (AI Voice Copilot)">
-            <svg class="w-4 h-4 text-purple-300 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/></svg>
-            <span class="absolute -top-1 -right-1 bg-cyan-400 text-slate-950 text-[7px] font-black px-0.5 rounded-full shadow">AI</span>
-          </button>
+        <!-- 4. المساعد الصوتي الذكي (المايك AI Copilot) -->
+        <button id="headerAiVoiceBtn" onclick="openAiVoiceConsole(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="flagship-tile flagship-action-tile flagship-tile-mic" title="المساعد الصوتي الذكي (AI Voice Copilot)">
+          <svg class="w-5 h-5 transition-transform animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
+          </svg>
+          <span class="absolute -top-1 -right-1 bg-cyan-400 text-slate-950 text-[7px] font-black px-0.5 rounded-full shadow">AI</span>
+        </button>
 
-          <!-- 3. زر المزامنة والتحديث الفوري -->
-          <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); triggerRefreshAnimation();" class="w-8 h-8 rounded-xl flex items-center justify-center bg-cyan-500/15 border border-cyan-400/40 text-cyan-300 hover:bg-cyan-500/25 active:scale-95 transition cursor-pointer shrink-0 shadow-[0_0_8px_rgba(6,182,212,0.2)]" title="مزامنة وتحديث البيانات من الكمبيوتر">
-            <svg id="mainRefreshIcon" class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-          </button>
+        <!-- 5. درع الخصوصية (العين: إخفاء الأرقام وتحويلها لنجوم) -->
+        <button id="privacyToggleBtn" onclick="togglePrivacyMode(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-eye" title="وضع الخصوصية: إخفاء الأرقام وتحويلها لنجوم (****)">
+          <svg id="privacyIconEyeOpen" class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          <svg id="privacyIconEyeClosed" class="w-5 h-5 transition-transform hidden text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>
+          </svg>
+        </button>
 
-          <!-- 4. درع الخصوصية: إخفاء الأرقام وتحويلها لنجوم (تم الاكتفاء به في السطر الأول) -->
-          <button id="privacyToggleBtn" onclick="togglePrivacyMode()" class="w-8 h-8 rounded-xl flex items-center justify-center bg-amber-500/15 border border-amber-400/40 text-amber-300 hover:bg-amber-500/25 active:scale-95 transition cursor-pointer shrink-0 shadow-[0_0_8px_rgba(245,158,11,0.2)] relative" title="وضع الخصوصية: إخفاء الأرقام وتحويلها لنجوم (****)">
-            <svg id="privacyIconEyeOpen" class="w-4 h-4 text-amber-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            <svg id="privacyIconEyeClosed" class="w-4 h-4 text-rose-400 hidden transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/>
-            </svg>
-          </button>
+        <!-- 6. زر تنزيل وتثبيت التطبيق على الجوال PWA -->
+        <button id="headerPwaInstallBtn" onclick="PWAManager.triggerInstall(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-install" title="تثبيت أيقونة التطبيق على شاشة الجوال">
+          <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+        </button>
 
-          <!-- 5. زر تسجيل الخروج متساوي في الحجم وموضوع في آخر القائمة -->
-          <button id="headerLogoutBtn" onclick="handleMobileLogout()" class="w-8 h-8 rounded-xl flex items-center justify-center bg-rose-500/15 border border-rose-500/40 text-rose-300 hover:bg-rose-500/25 active:scale-95 transition cursor-pointer shrink-0 shadow-[0_0_8px_rgba(244,63,94,0.2)]" title="تسجيل الخروج والرجوع لشاشة الدخول">
-            <svg class="w-4 h-4 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-          </button>
-        </div>
+        <!-- 7. زر تسجيل الخروج الآمن -->
+        <button id="headerLogoutBtn" onclick="handleMobileLogout(); if(window.triggerHapticPulse)triggerHapticPulse(25);" class="flagship-tile flagship-action-tile flagship-tile-logout" title="تسجيل الخروج والرجوع لشاشة الدخول">
+          <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+        </button>
       </div>
 
-      <!-- Action Quick Bar (تم حذف زر العين للاكتفاء به في السطر الأول) -->
-      <div class="mt-2.5 flex items-center justify-between gap-1 overflow-x-auto py-1 px-0.5 no-scrollbar">
-        <button onclick="focusOmniSearch()" class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-cyan-300" title="البحث الذكي">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+      <!-- Action Quick Bar (Secondary Operational Bar) -->
+      <div class="mt-2 flex items-center justify-between gap-1 overflow-x-auto py-1 px-0.5 no-scrollbar">
+        <!-- زر المزامنة والتحديث الفوري -->
+        <button id="mainRefreshBtn" onclick="PWAManager.syncRealData(true); if(window.triggerRefreshAnimation)triggerRefreshAnimation();" class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-cyan-300" title="مزامنة وتحديث البيانات من الكمبيوتر">
+          <svg id="mainRefreshIcon" class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         </button>
-
 
         <button class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-indigo-300" title="مسح باركود / QR">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
-        </button>
-        <!-- سيف السمات والراحة البصرية (8 سمات علمية للعين والتركيز) -->
-        <button 
-          id="btnThemePalette" 
-          onclick="openThemePaletteDrawer()" 
-          class="glow-amber p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-amber-300 relative active:scale-95 transition" 
-          title="سيف السمات والراحة البصرية (8 سمات علمية مريحة للعين)">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4 5 5 0 015-5c1.1 0 2.2.4 3 1.2M17 3a4 4 0 014 4 5 5 0 01-5 5c-1.1 0-2.2-.4-3-1.2m0 0l-6 6m6-6a4 4 0 010 5.656L9.657 21"/></svg>
-          <span id="activeThemeBadge" class="absolute -bottom-1 -right-1 text-[8px] bg-amber-500 text-slate-950 font-black px-1 rounded-full shadow">17</span>
         </button>
 
         <!-- تايمر الوردية والمطابقة والتركيز 30 دقيقة -->
@@ -1275,9 +1562,11 @@
           </span>
           <span class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[8px] font-black px-1 rounded-full">⏱️</span>
         </button>
+
         <button class="glow-emerald p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-emerald-300" title="مزامنة السحابة">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
         </button>
+
         <button onclick="switchTab('alerts')" class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-cyan-300 relative cursor-pointer active:scale-95 transition" title="التنبيهات ومعمل الضبط">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           <span id="badgeTopBellCount" class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[9px] font-black px-1 rounded-full border border-slate-900 animate-pulse">6</span>
@@ -8662,11 +8951,101 @@
       });
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       🌟 FLAGSHIP TOP BAR DYNAMIC GESTURES & REAL-TIME NET ENGINE
+       ═══════════════════════════════════════════════════════════════════ */
+    function syncMagaieesNetUI(online) {
+      var brandBadge = document.getElementById('headerBrandLogoBadge');
+      var brandDot = document.getElementById('headerNetDot');
+      var brandText = document.getElementById('headerBrandText');
+      if (!brandBadge) return;
+
+      if (online) {
+        brandBadge.classList.add('is-online');
+        brandBadge.classList.remove('is-offline');
+        if (brandDot) {
+          brandDot.className = 'status-dot w-2 h-2 rounded-full bg-emerald-400 shrink-0';
+        }
+        if (brandText) {
+          brandText.style.color = '#34d399';
+          brandText.style.textShadow = '0 0 10px rgba(16,185,129,0.7)';
+        }
+        brandBadge.title = 'مقاييس ERP - متصل بالإنترنت وقاعدة البيانات (اضغط للرئيسية)';
+      } else {
+        brandBadge.classList.add('is-offline');
+        brandBadge.classList.remove('is-online');
+        if (brandDot) {
+          brandDot.className = 'status-dot w-2 h-2 rounded-full bg-rose-500 shrink-0 animate-ping';
+        }
+        if (brandText) {
+          brandText.style.color = '#f87171';
+          brandText.style.textShadow = '0 0 10px rgba(239,68,68,0.8)';
+        }
+        brandBadge.title = 'مقاييس ERP - تم انقطاع اتصال الإنترنت (وضع العمل دون اتصال)';
+      }
+    }
+    window.syncMagaieesNetUI = syncMagaieesNetUI;
+
+    function initFlagshipTopBarEngine() {
+      // 1. Initial online status
+      syncMagaieesNetUI(navigator.onLine !== false);
+
+      // 2. Real-time browser event listeners
+      window.addEventListener('online', function() { syncMagaieesNetUI(true); });
+      window.addEventListener('offline', function() { syncMagaieesNetUI(false); });
+
+      // 3. Ultra-light periodic server heartbeat check (every 12 seconds)
+      setInterval(function() {
+        if (navigator.onLine === false) {
+          syncMagaieesNetUI(false);
+          return;
+        }
+        fetch('mobile-dashboard.php?action=heartbeat_ping', { method: 'HEAD', cache: 'no-store' })
+          .then(function(res) { syncMagaieesNetUI(res.ok); })
+          .catch(function() { syncMagaieesNetUI(false); });
+      }, 12000);
+
+      // 4. Kinetic micro-gestures & tactile vibrations for top bar icons
+      var flagshipTiles = document.querySelectorAll('.flagship-tile');
+      flagshipTiles.forEach(function(tile) {
+        tile.addEventListener('pointerenter', function() {
+          tile.classList.add('touch-active');
+          if (typeof triggerHapticPulse === 'function') {
+            triggerHapticPulse(10);
+          } else if (navigator.vibrate) {
+            try { navigator.vibrate(10); } catch(e){}
+          }
+        });
+
+        tile.addEventListener('pointerleave', function() {
+          tile.classList.remove('touch-active');
+        });
+
+        tile.addEventListener('touchstart', function() {
+          tile.classList.add('touch-active');
+          if (typeof triggerHapticPulse === 'function') {
+            triggerHapticPulse(15);
+          } else if (navigator.vibrate) {
+            try { navigator.vibrate(15); } catch(e){}
+          }
+        }, { passive: true });
+
+        tile.addEventListener('touchend', function() {
+          setTimeout(function() { tile.classList.remove('touch-active'); }, 220);
+        }, { passive: true });
+
+        tile.addEventListener('touchcancel', function() {
+          tile.classList.remove('touch-active');
+        }, { passive: true });
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       applySunlightMode();
       initSwipeGestures();
       attachNumpadTriggers();
       initAlertRulesUI();
+      initFlagshipTopBarEngine();
     });
 
 </script>
