@@ -399,9 +399,9 @@
         <button class="glow-emerald p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-emerald-300" title="مزامنة السحابة">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
         </button>
-        <button class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-cyan-300 relative" title="التنبيهات">
+        <button onclick="switchTab('alerts')" class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-cyan-300 relative cursor-pointer active:scale-95 transition" title="التنبيهات ومعمل الضبط">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span class="absolute -top-1 -right-1 bg-rose-500 text-white text-[9px] font-bold px-1 rounded-full border border-slate-900">5</span>
+          <span id="badgeTopBellCount" class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[9px] font-black px-1 rounded-full border border-slate-900 animate-pulse">6</span>
         </button>
 
         <!-- 4-Level Dynamic Font Scaler Button (4 درجات تكبير) -->
@@ -1846,6 +1846,498 @@
         </button>
       </div>
 
+      <!-- ======================================================== -->
+      <!-- 7. ALERTS & NOTIFICATIONS CENTER & CONTROL LAB (التنبيهات) -->
+      <!-- ======================================================== -->
+      <div id="pageAlerts" class="hidden space-y-3.5 pb-6">
+        <!-- Header & Master Sensory Controls (الاهتزاز والصوت) -->
+        <div class="glass-base p-3.5 rounded-3xl border border-amber-500/40 space-y-3 shadow-lg">
+          <div class="flex justify-between items-center">
+            <div class="flex items-center gap-2">
+              <div class="w-9 h-9 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-black border border-amber-500/40 shadow-md">
+                <svg class="w-5 h-5 text-amber-300 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-black text-slate-100 flex items-center gap-1.5">
+                  <span>مركز ومعمل التنبيهات الذكية</span>
+                  <span class="text-[9px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.5 rounded-full border border-amber-500/30">Control Lab</span>
+                </h3>
+                <p class="text-[10px] text-slate-400">تحكم كامل ومباشر في كل تنبيهات العمليات، المخاطر، المخزون، وسلوك العملاء</p>
+              </div>
+            </div>
+            <span id="alertsTotalBadge" class="text-[10px] bg-amber-950 text-amber-300 border border-amber-500/40 px-2 py-0.5 rounded-full font-bold">6 نشطة</span>
+          </div>
+
+          <!-- Master Sensory Controls Bar (أزرار الهزاز والصوت الحركي) -->
+          <div class="pt-2 border-t border-slate-800 grid grid-cols-2 gap-2 text-xs">
+            <!-- Sound Toggle -->
+            <button onclick="toggleAlertSensory('sound')" id="btnSensorySound" class="p-2 rounded-xl bg-slate-800/90 border border-cyan-500/40 text-cyan-300 flex items-center justify-between active:scale-95 transition">
+              <span class="flex items-center gap-1.5 font-bold">
+                <span id="iconSensorySound">🔊</span>
+                <span>صوت التنبيه:</span>
+              </span>
+              <span id="labelSensorySound" class="text-[10px] font-black px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300">مفعل ✓</span>
+            </button>
+
+            <!-- Haptic Vibration Toggle -->
+            <button onclick="toggleAlertSensory('haptic')" id="btnSensoryHaptic" class="p-2 rounded-xl bg-slate-800/90 border border-purple-500/40 text-purple-300 flex items-center justify-between active:scale-95 transition">
+              <span class="flex items-center gap-1.5 font-bold">
+                <span id="iconSensoryHaptic">📳</span>
+                <span>هزاز الموبايل:</span>
+              </span>
+              <span id="labelSensoryHaptic" class="text-[10px] font-black px-1.5 py-0.5 rounded bg-purple-950 text-purple-300">مفعل ✓</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Alerts Section Sub-Tabs (سجل التنبيهات الحية vs معمل ضبط القواعد) -->
+        <div class="grid grid-cols-2 gap-1 bg-slate-900 p-1 rounded-2xl border border-slate-800 text-xs font-bold">
+          <button id="subTabAlertsFeed" onclick="switchAlertSubTab('feed')" class="py-2.5 rounded-xl bg-amber-500 text-slate-950 font-black shadow transition flex items-center justify-center gap-1.5">
+            <span>🔔 التنبيهات الحية</span>
+            <span id="feedCountBadge" class="w-4 h-4 rounded-full bg-slate-950 text-amber-300 text-[9px] flex items-center justify-center font-bold">6</span>
+          </button>
+          <button id="subTabAlertsLab" onclick="switchAlertSubTab('lab')" class="py-2.5 rounded-xl text-slate-400 hover:text-white font-bold transition flex items-center justify-center gap-1.5">
+            <span>⚙️ معمل ضبط التنبيهات</span>
+            <span class="text-[9px] text-cyan-400">Rules Matrix</span>
+          </button>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- SUB-VIEW 1: LIVE ALERTS FEED (التنبيهات الحية)   -->
+        <!-- ============================================== -->
+        <div id="subViewAlertsFeed" class="space-y-3">
+          <!-- Filter Categories -->
+          <div class="flex gap-1.5 overflow-x-auto py-0.5 no-scrollbar text-xs font-bold">
+            <button onclick="filterAlertsFeed('all')" id="afTagAll" class="bg-amber-500 text-slate-950 px-3 py-1.5 rounded-xl shrink-0 font-black">الكل (6)</button>
+            <button onclick="filterAlertsFeed('risk')" id="afTagRisk" class="bg-slate-800 text-rose-300 px-3 py-1.5 rounded-xl shrink-0 border border-rose-500/30">🚨 المخاطر والسيولة (2)</button>
+            <button onclick="filterAlertsFeed('inventory')" id="afTagInventory" class="bg-slate-800 text-yellow-300 px-3 py-1.5 rounded-xl shrink-0 border border-yellow-500/30">📦 المخزون والأصناف (2)</button>
+            <button onclick="filterAlertsFeed('customer')" id="afTagCustomer" class="bg-slate-800 text-cyan-300 px-3 py-1.5 rounded-xl shrink-0 border border-cyan-500/30">👥 ذكاء العملاء (1)</button>
+            <button onclick="filterAlertsFeed('ops')" id="afTagOps" class="bg-slate-800 text-emerald-300 px-3 py-1.5 rounded-xl shrink-0 border border-emerald-500/30">💼 العمليات (1)</button>
+          </div>
+
+          <!-- Alert Cards Container -->
+          <div id="alertsFeedList" class="space-y-2.5">
+            <!-- Alert 1: انخفاض سيولة حرج (Risk) -->
+            <div class="alert-card alert-risk glass-card-interactive p-3 rounded-2xl border border-rose-500/50 bg-gradient-to-b from-rose-950/30 to-slate-900/90 space-y-2 shadow-lg shadow-rose-950/20">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-sm shrink-0 border border-rose-500/40">
+                    🚨
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <h4 class="text-xs font-black text-rose-300">انخفاض حاد في السيولة النقدية المتاحة</h4>
+                      <span class="text-[9px] bg-rose-950 text-rose-300 border border-rose-500/40 px-1.5 py-0.2 rounded-full font-bold">حرج</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400">الخزينة الرئيسية • قبل 9 دقائق</span>
+                  </div>
+                </div>
+                <span class="text-[10px] text-rose-400 font-mono font-bold">$8,950 / $10,000 حد الأمان</span>
+              </div>
+              <p class="text-[11px] text-slate-300 bg-slate-950/60 p-2 rounded-xl border border-slate-800 leading-relaxed">
+                ⚠️ رصيد الخزينة الرئيسية ($8,950) وصل لأقل من سقف الأمان التشغيلي المحدد ($10,000) إثر خروج دفعة نقدية أخيرة. ينصح بتحويل سيولة من بنك الخرطوم فوراً.
+              </p>
+              <div class="flex gap-1.5 pt-1">
+                <button onclick="openOperationalForm('financeMovement')" class="flex-1 py-1.5 px-2 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl text-[10px] font-bold shadow flex items-center justify-center gap-1 active:scale-95 transition">
+                  <span>⚡ تحويل سيولة للخزينة</span>
+                </button>
+                <button onclick="dismissAlert(this)" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold border border-slate-700 transition">
+                  <span>✓ تم الإطلاع</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Alert 2: انحراف سعر وتلاعب فجائي (Risk) -->
+            <div class="alert-card alert-risk glass-card-interactive p-3 rounded-2xl border border-amber-500/50 bg-gradient-to-b from-amber-950/30 to-slate-900/90 space-y-2 shadow-lg shadow-amber-950/20">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-bold text-sm shrink-0 border border-amber-500/40">
+                    📈
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <h4 class="text-xs font-black text-amber-300">انحراف غير طبيعي في سعر البيع المعتمد</h4>
+                      <span class="text-[9px] bg-amber-950 text-amber-300 border border-amber-500/40 px-1.5 py-0.2 rounded-full font-bold">رقابة أسعار</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400">بواسطة الكاشير: أحمد عثمان • قبل 24 دقيقة</span>
+                  </div>
+                </div>
+                <span class="text-[10px] text-amber-300 font-mono font-bold">-18.4% انحراف</span>
+              </div>
+              <p class="text-[11px] text-slate-300 bg-slate-950/60 p-2 rounded-xl border border-slate-800 leading-relaxed">
+                تم إصدار فاتورة لصنف (سيخ حديد 4 لينة) بسعر 46,000 ج.س بينما السعر المقيد بالنظام 56,500 ج.س. تجاوز الانحراف سقف الـ 15% المسموح.
+              </p>
+              <div class="flex gap-1.5 pt-1">
+                <button onclick="alert('🔍 فتح تدقيق الفاتورة ومراجعة هامش ربح الكاشير')" class="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-xl text-[10px] font-bold border border-amber-500/40 flex items-center justify-center gap-1 active:scale-95 transition">
+                  <span>🔍 مراجعة الفاتورة</span>
+                </button>
+                <button onclick="dismissAlert(this)" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold border border-slate-700 transition">
+                  <span>✓ اعتماد استثنائي</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Alert 3: ذكاء سلوك العملاء - غياب عميل منتظم (Customer AI) -->
+            <div class="alert-card alert-customer glass-card-interactive p-3 rounded-2xl border border-cyan-500/50 bg-gradient-to-b from-cyan-950/30 to-slate-900/90 space-y-2 shadow-lg shadow-cyan-950/20">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center font-bold text-sm shrink-0 border border-cyan-500/40">
+                    👥
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <h4 class="text-xs font-black text-cyan-300">ذكاء العملاء: انقطاع عميل منتظم عن الشراء</h4>
+                      <span class="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-500/40 px-1.5 py-0.2 rounded-full font-bold">تنبيه ذكي AI</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400">العميل: محلات الصادق للتوزيع • قبل 1 ساعة</span>
+                  </div>
+                </div>
+                <span class="text-[10px] text-cyan-300 font-mono font-bold">تأخر 4 أيام عن دورته</span>
+              </div>
+              <p class="text-[11px] text-slate-300 bg-slate-950/60 p-2 rounded-xl border border-slate-800 leading-relaxed">
+                🤖 حسب سجل الذكاء الاصطناعي، يطلب العميل بضاعة دورياً كل 5 أيام. مضى الآن 9 أيام كاملة دون تسجيل أي طلبية! يرجى التواصل معه فوراً للحفاظ على ولائه.
+              </p>
+              <div class="flex gap-1.5 pt-1">
+                <button onclick="sendCustomerCareWhatsApp('محلات الصادق للتوزيع', '+249912345678')" class="flex-1 py-1.5 px-2 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl text-[10px] font-bold shadow flex items-center justify-center gap-1 active:scale-95 transition">
+                  <span>📲 مراسلة فورية واتساب بالأسعار الجديدة</span>
+                </button>
+                <button onclick="dismissAlert(this)" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold border border-slate-700 transition">
+                  <span>✓ تم التواصل</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Alert 4: اقتراب نفاد المخزون (Inventory) -->
+            <div class="alert-card alert-inventory glass-card-interactive p-3 rounded-2xl border border-yellow-500/50 bg-gradient-to-b from-yellow-950/30 to-slate-900/90 space-y-2 shadow-lg shadow-yellow-950/20">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-yellow-500/20 text-yellow-300 flex items-center justify-center font-bold text-sm shrink-0 border border-yellow-500/40">
+                    📦
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <h4 class="text-xs font-black text-yellow-300">مخزون حرج: كمية صنف دون حد الأمان</h4>
+                      <span class="text-[9px] bg-yellow-950 text-yellow-300 border border-yellow-500/40 px-1.5 py-0.2 rounded-full font-bold">نقص بضاعة</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400">إسمنت برتغالي 50 كجم • مستودع بحري</span>
+                  </div>
+                </div>
+                <span class="text-[10px] text-yellow-400 font-mono font-bold">متبقي 48 شوال</span>
+              </div>
+              <p class="text-[11px] text-slate-300 bg-slate-950/60 p-2 rounded-xl border border-slate-800 leading-relaxed">
+                معدل السحب اليومي 25 شوال، الكمية الحالية تكفي لأقل من 48 ساعة فقط. يتطلب إصدار أمر شراء عاجل من مورد الإسمنت لتفادي التوقف.
+              </p>
+              <div class="flex gap-1.5 pt-1">
+                <button onclick="openOperationalForm('purchaseInvoice')" class="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-yellow-300 rounded-xl text-[10px] font-bold border border-yellow-500/40 flex items-center justify-center gap-1 active:scale-95 transition">
+                  <span>📝 إصدار أمر شراء عاجل</span>
+                </button>
+                <button onclick="dismissAlert(this)" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold border border-slate-700 transition">
+                  <span>✓ تم الطلب</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Alert 5: بضاعة راكدة وتجميد سيولة (Inventory) -->
+            <div class="alert-card alert-inventory glass-card-interactive p-3 rounded-2xl border border-purple-500/50 bg-gradient-to-b from-purple-950/30 to-slate-900/90 space-y-2 shadow-lg shadow-purple-950/20">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-300 flex items-center justify-center font-bold text-sm shrink-0 border border-purple-500/40">
+                    📉
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <h4 class="text-xs font-black text-purple-300">بضاعة راكدة: تجميد رأس مال لأكثر من 50 يوماً</h4>
+                      <span class="text-[9px] bg-purple-950 text-purple-300 border border-purple-500/40 px-1.5 py-0.2 rounded-full font-bold">ركود صنف</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400">مواسير حديد 2 بوصة • مستودع سوبا</span>
+                  </div>
+                </div>
+                <span class="text-[10px] text-purple-300 font-mono font-bold">$12,400 مجمدة</span>
+              </div>
+              <p class="text-[11px] text-slate-300 bg-slate-950/60 p-2 rounded-xl border border-slate-800 leading-relaxed">
+                420 حبة راكدة بدون حركة سحب لأكثر من 50 يوماً. توصي وحدة الرقابة بتفعيل خصم 10% لتصفية البضاعة وتحرير السيولة.
+              </p>
+              <div class="flex gap-1.5 pt-1">
+                <button onclick="alert('🏷️ تم تفعيل حملة تصفية بخصم 10% على صنف مواسير حديد 2 بوصة')" class="flex-1 py-1.5 px-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl text-[10px] font-bold shadow flex items-center justify-center gap-1 active:scale-95 transition">
+                  <span>🏷️ اعتماد خصم تصفية 10%</span>
+                </button>
+                <button onclick="dismissAlert(this)" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold border border-slate-700 transition">
+                  <span>✓ تجاهل</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Alert 6: عمليات مستخدمين - طباعة تقرير مالي (Ops) -->
+            <div class="alert-card alert-ops glass-card-interactive p-3 rounded-2xl border border-emerald-500/50 bg-gradient-to-b from-emerald-950/30 to-slate-900/90 space-y-2 shadow-lg shadow-emerald-950/20">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center font-bold text-sm shrink-0 border border-emerald-500/40">
+                    🖨️
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-1.5">
+                      <h4 class="text-xs font-black text-emerald-300">رقابة التقارير: طباعة كشف أرباح وخسائر رسمي</h4>
+                      <span class="text-[9px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.2 rounded-full font-bold">تقرير سري</span>
+                    </div>
+                    <span class="text-[10px] text-slate-400">بواسطة المحاسب: طارق الماحي • قبل 32 دقيقة</span>
+                  </div>
+                </div>
+                <span class="text-[10px] text-emerald-400 font-mono font-bold">PDF رسمي</span>
+              </div>
+              <p class="text-[11px] text-slate-300 bg-slate-950/60 p-2 rounded-xl border border-slate-800 leading-relaxed">
+                تم تصدير وطباعة تقرير الأرباح الشامل عن شهر سبتمبر 2026 بواسطة حساب المحاسب طارق الماحي من جهاز فرع الخرطوم.
+              </p>
+              <div class="flex gap-1.5 pt-1">
+                <button onclick="alert('📋 تم مراجعة سجل تدقيق الطباعة وتأكيد هوية المستخدم')" class="flex-1 py-1.5 px-2 bg-slate-800 hover:bg-slate-700 text-emerald-300 rounded-xl text-[10px] font-bold border border-emerald-500/40 flex items-center justify-center gap-1 active:scale-95 transition">
+                  <span>📋 مراجعة سجل التدقيق</span>
+                </button>
+                <button onclick="dismissAlert(this)" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold border border-slate-700 transition">
+                  <span>✓ تم الإشعار</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Tools in Alerts Feed -->
+          <div class="pt-2 flex gap-2">
+            <button onclick="clearAllAlertsFeed()" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 active:scale-95 transition flex items-center justify-center gap-1.5">
+              <span>🧹 مسح وقراءة كافة التنبيهات</span>
+            </button>
+            <button onclick="simulateNewIncomingAlert()" class="py-2.5 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 text-xs font-black shadow active:scale-95 transition flex items-center justify-center gap-1.5">
+              <span>🧪 محاكاة وصول تنبيه حي</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- SUB-VIEW 2: ALERTS RULES & MATRIX LAB (معمل ضبط التنبيهات) -->
+        <!-- ======================================================== -->
+        <div id="subViewAlertsLab" class="hidden space-y-3.5">
+          <!-- Introduction Banner -->
+          <div class="p-3 rounded-2xl bg-slate-900 border border-cyan-500/40 space-y-1">
+            <h4 class="text-xs font-black text-cyan-300 flex items-center gap-1">
+              <span>⚙️ معمل ضبط وتخصيص قواعد التنبيهات:</span>
+            </h4>
+            <p class="text-[11px] text-slate-400 leading-relaxed">
+              أنت المدير وصاحب القرار: حدد أي العمليات والمخاطر تريد استلام تنبيهات عنها فور حدوثها على هاتفك، مع تحديد الحدود الرقمية المسموحة.
+            </p>
+          </div>
+
+          <!-- GROUP 1: تنبيهات العمليات وحركات المستخدمين -->
+          <div class="glass-base p-3.5 rounded-2xl border border-slate-800 space-y-3">
+            <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
+              <span class="text-xs font-black text-emerald-400 flex items-center gap-1.5">
+                <span>💼 عمليات البيع والشراء والمالية</span>
+              </span>
+              <span class="text-[10px] text-slate-400">تنبيهات الموظفين</span>
+            </div>
+
+            <!-- Rule 1: Sales Invoice -->
+            <div class="flex items-center justify-between py-1">
+              <div class="flex-1 ml-2">
+                <span class="text-xs font-bold text-slate-100 block">إصدار فاتورة مبيعات جديدة</span>
+                <span class="text-[10px] text-slate-400">إشعار باسم الكاشير والعميل وقيمة الفاتورة</span>
+              </div>
+              <button onclick="toggleAlertRule('rule_sales_invoice')" id="toggle_rule_sales_invoice" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+              </button>
+            </div>
+
+            <!-- Rule 2: Purchase Order / Receipt -->
+            <div class="flex items-center justify-between py-1 pt-2 border-t border-slate-800/80">
+              <div class="flex-1 ml-2">
+                <span class="text-xs font-bold text-slate-100 block">اعتماد فاتورة أو محضر مشتريات</span>
+                <span class="text-[10px] text-slate-400">إشعار بإضافة بضاعة للمستودع وتعديل مديونية المورد</span>
+              </div>
+              <button onclick="toggleAlertRule('rule_purchase_bill')" id="toggle_rule_purchase_bill" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+              </button>
+            </div>
+
+            <!-- Rule 3: Financial Movements -->
+            <div class="flex items-center justify-between py-1 pt-2 border-t border-slate-800/80">
+              <div class="flex-1 ml-2">
+                <span class="text-xs font-bold text-slate-100 block">حركة مالية وسندات صرف وتحويل</span>
+                <span class="text-[10px] text-slate-400">إشعار فوري عند خروج أي أموال نقدية أو شيكات</span>
+              </div>
+              <button onclick="toggleAlertRule('rule_finance_transfer')" id="toggle_rule_finance_transfer" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+              </button>
+            </div>
+
+            <!-- Rule 4: Reports Printing -->
+            <div class="flex items-center justify-between py-1 pt-2 border-t border-slate-800/80">
+              <div class="flex-1 ml-2">
+                <span class="text-xs font-bold text-slate-100 block">طباعة وتصدير التقارير المالية</span>
+                <span class="text-[10px] text-slate-400">إشعار أمني عند طباعة كشوف الحسابات وموازين الأرباح</span>
+              </div>
+              <button onclick="toggleAlertRule('rule_report_print')" id="toggle_rule_report_print" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- GROUP 2: تنبيهات المخاطر والرقابة المالية (استشارة خبير المخاطر) -->
+          <div class="glass-base p-3.5 rounded-2xl border border-rose-500/40 space-y-3">
+            <div class="flex items-center justify-between pb-1.5 border-b border-rose-500/30">
+              <span class="text-xs font-black text-rose-400 flex items-center gap-1.5">
+                <span>⚠️ رقابة المخاطر والسيولة والأسعار</span>
+              </span>
+              <span class="text-[10px] bg-rose-950 text-rose-300 font-bold px-1.5 py-0.2 rounded-full border border-rose-500/30">حماية الأصول</span>
+            </div>
+
+            <!-- Risk Rule 1: Liquidity Safety Threshold -->
+            <div class="space-y-1.5 py-1">
+              <div class="flex items-center justify-between">
+                <div class="flex-1 ml-2">
+                  <span class="text-xs font-bold text-slate-100 block">تنبيه انخفاض السيولة النقدية والبنكية</span>
+                  <span class="text-[10px] text-slate-400">إنذار عند اقتراب الرصيد من الحد الأدنى</span>
+                </div>
+                <button onclick="toggleAlertRule('rule_liquidity_drop')" id="toggle_rule_liquidity_drop" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                  <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+                </button>
+              </div>
+              <div class="flex items-center gap-2 pt-1">
+                <span class="text-[10px] text-slate-300 font-semibold shrink-0">سقف حد الأمان الأدنى ($):</span>
+                <input type="number" id="thresholdLiquidity" value="10000" class="w-24 bg-slate-900 border border-slate-700 rounded-xl p-1 text-xs font-mono font-bold text-cyan-300 focus:outline-none" />
+                <span class="text-[10px] text-slate-500 font-mono">≈ 28,000,000 ج.س</span>
+              </div>
+            </div>
+
+            <!-- Risk Rule 2: Sudden Price / Margin Deviation -->
+            <div class="space-y-1.5 py-1 pt-2 border-t border-slate-800/80">
+              <div class="flex items-center justify-between">
+                <div class="flex-1 ml-2">
+                  <span class="text-xs font-bold text-slate-100 block">تنبيه التغير الفجائي في أسعار البيع</span>
+                  <span class="text-[10px] text-slate-400">كشف البيع بأسعار غير طبيعية (مثل 5,000 فجأة إلى 50,000)</span>
+                </div>
+                <button onclick="toggleAlertRule('rule_price_anomaly')" id="toggle_rule_price_anomaly" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                  <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+                </button>
+              </div>
+              <div class="flex items-center gap-2 pt-1">
+                <span class="text-[10px] text-slate-300 font-semibold shrink-0">نسبة الانحراف المقلقة عن السعر:</span>
+                <input type="number" id="thresholdPriceDeviation" value="15" class="w-16 bg-slate-900 border border-slate-700 rounded-xl p-1 text-xs font-mono font-bold text-amber-300 focus:outline-none text-center" />
+                <span class="text-[10px] text-slate-400 font-bold">% أو أكثر</span>
+              </div>
+            </div>
+
+            <!-- Risk Rule 3: Credit Limit & Debt Aging -->
+            <div class="space-y-1.5 py-1 pt-2 border-t border-slate-800/80">
+              <div class="flex items-center justify-between">
+                <div class="flex-1 ml-2">
+                  <span class="text-xs font-bold text-slate-100 block">تنبيه تجاوز السقف الائتماني للعميل</span>
+                  <span class="text-[10px] text-slate-400">إيقاف البيع الآجل وتنبيه الإدارة بالمتعثرين</span>
+                </div>
+                <button onclick="toggleAlertRule('rule_credit_limit')" id="toggle_rule_credit_limit" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                  <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+                </button>
+              </div>
+              <div class="flex items-center gap-2 pt-1">
+                <span class="text-[10px] text-slate-300 font-semibold shrink-0">فترة التأخير القصوى المسموحة:</span>
+                <input type="number" id="thresholdDebtDays" value="30" class="w-16 bg-slate-900 border border-slate-700 rounded-xl p-1 text-xs font-mono font-bold text-rose-300 focus:outline-none text-center" />
+                <span class="text-[10px] text-slate-400 font-bold">يوماً قبل إطلاق الإنذار</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- GROUP 3: تنبيهات المخزون وسرعة الدوران والركود -->
+          <div class="glass-base p-3.5 rounded-2xl border border-yellow-500/40 space-y-3">
+            <div class="flex items-center justify-between pb-1.5 border-b border-yellow-500/30">
+              <span class="text-xs font-black text-yellow-400 flex items-center gap-1.5">
+                <span>📦 ذكاء المخزون وتفادي العجز والركود</span>
+              </span>
+              <span class="text-[10px] text-slate-400">حركة الأصناف</span>
+            </div>
+
+            <!-- Stock Rule 1: Stockout Warning -->
+            <div class="flex items-center justify-between py-1">
+              <div class="flex-1 ml-2">
+                <span class="text-xs font-bold text-slate-100 block">تنبيه وصول الصنف لحد إعادة الطلب</span>
+                <span class="text-[10px] text-slate-400">إنذار مبكر قبل نفاد الكمية في أي مستودع</span>
+              </div>
+              <button onclick="toggleAlertRule('rule_stockout_risk')" id="toggle_rule_stockout_risk" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+              </button>
+            </div>
+
+            <!-- Stock Rule 2: Dead / Slow Moving Stock -->
+            <div class="space-y-1.5 py-1 pt-2 border-t border-slate-800/80">
+              <div class="flex items-center justify-between">
+                <div class="flex-1 ml-2">
+                  <span class="text-xs font-bold text-slate-100 block">تنبيه البضاعة الراكدة وتكدس المخزن</span>
+                  <span class="text-[10px] text-slate-400">كشف الأصناف البطيئة التي تجمد رأس المال</span>
+                </div>
+                <button onclick="toggleAlertRule('rule_slow_moving')" id="toggle_rule_slow_moving" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                  <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+                </button>
+              </div>
+              <div class="flex items-center gap-2 pt-1">
+                <span class="text-[10px] text-slate-300 font-semibold shrink-0">اعتبار الصنف راكداً بعد:</span>
+                <input type="number" id="thresholdSlowDays" value="45" class="w-16 bg-slate-900 border border-slate-700 rounded-xl p-1 text-xs font-mono font-bold text-yellow-300 focus:outline-none text-center" />
+                <span class="text-[10px] text-slate-400 font-bold">يوماً دون بيع</span>
+              </div>
+            </div>
+
+            <!-- Stock Rule 3: Sudden High Quantity Withdrawal -->
+            <div class="flex items-center justify-between py-1 pt-2 border-t border-slate-800/80">
+              <div class="flex-1 ml-2">
+                <span class="text-xs font-bold text-slate-100 block">تنبيه سحب كميات ضخمة دفعة واحدة</span>
+                <span class="text-[10px] text-slate-400">إنذار عند صرف أكثر من 25% من رصيد الصنف في إذن واحد</span>
+              </div>
+              <button onclick="toggleAlertRule('rule_bulk_withdrawal')" id="toggle_rule_bulk_withdrawal" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- GROUP 4: تنبيهات الذكاء الاصطناعي لسلوك العملاء (Customer Churn AI) -->
+          <div class="glass-base p-3.5 rounded-2xl border border-cyan-500/40 space-y-3">
+            <div class="flex items-center justify-between pb-1.5 border-b border-cyan-500/30">
+              <span class="text-xs font-black text-cyan-400 flex items-center gap-1.5">
+                <span>🤖 الذكاء الاصطناعي لسلوك وانقطاع الزبائن</span>
+              </span>
+              <span class="text-[10px] text-slate-400">Churn AI</span>
+            </div>
+
+            <!-- Customer Rule 1: Customer Inactivity / Absent Client -->
+            <div class="space-y-1.5 py-1">
+              <div class="flex items-center justify-between">
+                <div class="flex-1 ml-2">
+                  <span class="text-xs font-bold text-slate-100 block">تنبيه غياب العميل عن وتيرة الشراء المعتادة</span>
+                  <span class="text-[10px] text-slate-400">العميل يشتري كل 5 أيام، تأخر أسبوع ➔ تنبيه الإدارة للمتابعة</span>
+                </div>
+                <button onclick="toggleAlertRule('rule_customer_inactivity')" id="toggle_rule_customer_inactivity" class="w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0">
+                  <span class="w-5 h-5 rounded-full bg-white shadow-md"></span>
+                </button>
+              </div>
+              <div class="flex items-center gap-2 pt-1">
+                <span class="text-[10px] text-slate-300 font-semibold shrink-0">مهلة التنبيه بعد انقضاء وتيرة الزبون:</span>
+                <input type="number" id="thresholdCustomerGraceDays" value="3" class="w-16 bg-slate-900 border border-slate-700 rounded-xl p-1 text-xs font-mono font-bold text-cyan-300 focus:outline-none text-center" />
+                <span class="text-[10px] text-slate-400 font-bold">أيام تأخير</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons in Rules Lab -->
+          <div class="space-y-2 pt-1">
+            <button onclick="saveAlertRulesConfig()" class="w-full py-3.5 bg-gradient-to-r from-cyan-600 via-teal-500 to-emerald-600 text-slate-950 rounded-2xl font-black text-sm shadow-[0_0_20px_rgba(6,182,212,0.4)] active:scale-95 transition flex items-center justify-center gap-2">
+              <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              <span>حفظ وتطبيق قواعد معمل التنبيهات فوراً ✓</span>
+            </button>
+
+            <div class="grid grid-cols-2 gap-2 text-xs font-bold">
+              <button onclick="testSimulateAlertWithHapticAndSound()" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded-xl border border-amber-500/40 active:scale-95 transition flex items-center justify-center gap-1.5">
+                <span>🧪 تجربة الصوت والهزاز</span>
+              </button>
+              <button onclick="resetAlertRulesToDefaults()" class="py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl border border-slate-700 active:scale-95 transition flex items-center justify-center gap-1.5">
+                <span>🔄 الإعدادات الذكية</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </main>
 
     <!-- OMNIPRESENT FLOATING AI VOICE COPILOT ORB (PINNED ACROSS ALL SCREENS) -->
@@ -1868,16 +2360,16 @@
       </div>
     </div>
 
-    <!-- BOTTOM DOCK NAVIGATION BAR (5 CORE MODULES) -->
-    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-2 flex justify-between items-center z-30">
+    <!-- BOTTOM DOCK NAVIGATION BAR (6 CORE MODULES INCLUDING ALERTS CONTROL LAB) -->
+    <nav class="absolute bottom-0 left-0 right-0 h-16 bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 px-1 flex justify-between items-center z-30">
       <button onclick="switchTab('dashboard')" id="navTabDashboard" class="flex flex-col items-center gap-1 text-cyan-400 flex-1">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-        <span class="text-xs font-black">الرئيسية</span>
+        <span class="text-[11px] font-black">الرئيسية</span>
       </button>
 
       <button onclick="switchTab('transactions')" id="navTabTransactions" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 flex-1">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-        <span class="text-xs font-extrabold">الحركات</span>
+        <span class="text-[11px] font-extrabold">الحركات</span>
       </button>
 
       <button onclick="switchTab('approvals')" id="navTabApprovals" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 flex-1 relative">
@@ -1885,19 +2377,29 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           <span id="badgeApprovalsCount" class="absolute -top-1 -right-2 bg-rose-500 text-white text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-slate-900 animate-pulse">3</span>
         </div>
-        <span class="text-xs font-extrabold">الموافقات</span>
+        <span class="text-[11px] font-extrabold">الموافقات</span>
       </button>
 
       <button onclick="switchTab('ledgers')" id="navTabLedgers" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 flex-1">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-        <span class="text-xs font-extrabold">الحسابات</span>
+        <span class="text-[11px] font-extrabold">الحسابات</span>
       </button>
 
       <button onclick="switchTab('inventory')" id="navTabInventory" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 flex-1">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-        <span class="text-xs font-extrabold">المخزون</span>
+        <span class="text-[11px] font-extrabold">المخزون</span>
+      </button>
+
+      <!-- 6. التنبيهات ومعمل الضبط -->
+      <button onclick="switchTab('alerts')" id="navTabAlerts" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 flex-1 relative">
+        <div class="relative">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <span id="badgeAlertsCount" class="absolute -top-1 -right-2 bg-amber-500 text-slate-950 text-[9px] font-black w-4 h-4 rounded-full flex items-center justify-center border border-slate-900 animate-pulse">6</span>
+        </div>
+        <span class="text-[11px] font-extrabold">التنبيهات</span>
       </button>
     </nav>
+
 
     <!-- ======================================================== -->
     <!-- INTERACTIVE OPERATIONAL FORMS MODALS (منطقة العمليات)   -->
@@ -3749,6 +4251,7 @@
         'inventory': document.getElementById('pageInventory'),
         'treasury': document.getElementById('pageTreasury'),
         'addPartner': document.getElementById('pageAddPartner'),
+        'alerts': document.getElementById('pageAlerts')
       };
 
       const navButtons = {
@@ -3756,7 +4259,8 @@
         'transactions': document.getElementById('navTabTransactions'),
         'approvals': document.getElementById('navTabApprovals'),
         'ledgers': document.getElementById('navTabLedgers'),
-        'inventory': document.getElementById('navTabInventory')
+        'inventory': document.getElementById('navTabInventory'),
+        'alerts': document.getElementById('navTabAlerts')
       };
 
       Object.values(pages).forEach(p => { if (p) p.classList.add('hidden'); });
@@ -3767,6 +4271,10 @@
 
       if (pages[tabId]) pages[tabId].classList.remove('hidden');
       if (navButtons[tabId]) navButtons[tabId].className = "flex flex-col items-center gap-1 text-cyan-400 flex-1 relative font-bold";
+
+      if (tabId === 'alerts') {
+        if (typeof initAlertRulesUI === 'function') initAlertRulesUI();
+      }
     }
 
     function openModal(modalId) {
@@ -4524,7 +5032,12 @@
       triggerHapticPulse(55);
     }
 
+    // Sensory stimulation settings (Sound & Haptic Vibration)
+    let isSensorySoundEnabled = localStorage.getItem('magaies_alert_sound') !== 'false';
+    let isSensoryHapticEnabled = localStorage.getItem('magaies_alert_haptic') !== 'false';
+
     function triggerHapticPulse(ms = 35) {
+      if (!isSensoryHapticEnabled) return;
       try {
         if ('vibrate' in navigator) navigator.vibrate(ms);
       } catch (e) {}
@@ -4559,6 +5072,7 @@
         }
       },
       play(type) {
+        if (!isSensorySoundEnabled) return;
         try {
           this.init();
           if (!this.ctx) return;
@@ -4601,6 +5115,25 @@
             gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.3);
             osc.start(t);
             osc.stop(t + 0.3);
+          } else if (type === 'alert') {
+            // Harmonic dual-tone notification chime
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(880, t);
+            osc.frequency.setValueAtTime(659.25, t + 0.09);
+            gain.gain.setValueAtTime(0.08, t);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.28);
+            osc.start(t);
+            osc.stop(t + 0.28);
+          } else if (type === 'risk') {
+            // Urgent attention tone for risks and critical drops
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(587.33, t);
+            osc.frequency.setValueAtTime(440, t + 0.1);
+            osc.frequency.setValueAtTime(587.33, t + 0.2);
+            gain.gain.setValueAtTime(0.09, t);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+            osc.start(t);
+            osc.stop(t + 0.35);
           }
         } catch (e) {}
       }
@@ -4934,12 +5467,396 @@
       });
     }
 
+    // ========================================================
+    // ALERTS & NOTIFICATION CONTROL LAB ENGINE (معمل ضبط التنبيهات)
+    // ========================================================
+    const defaultAlertRulesConfig = {
+      // Operations rules
+      rule_sales_invoice: true,
+      rule_purchase_bill: true,
+      rule_finance_transfer: true,
+      rule_report_print: true,
+      // Risk & Liquidity rules
+      rule_liquidity_drop: true,
+      rule_price_anomaly: true,
+      rule_credit_limit: true,
+      // Inventory rules
+      rule_stockout_risk: true,
+      rule_slow_moving: true,
+      rule_bulk_withdrawal: true,
+      // Customer behavior AI rules
+      rule_customer_inactivity: true,
+      // Threshold parameters
+      thresholdLiquidity: 10000,
+      thresholdPriceDeviation: 15,
+      thresholdDebtDays: 30,
+      thresholdSlowDays: 45,
+      thresholdCustomerGraceDays: 3
+    };
+
+    let alertRulesConfig = { ...defaultAlertRulesConfig };
+    try {
+      const savedConfig = localStorage.getItem('magaies_alert_rules_config');
+      if (savedConfig) {
+        alertRulesConfig = Object.assign({}, defaultAlertRulesConfig, JSON.parse(savedConfig));
+      }
+    } catch (e) {
+      alertRulesConfig = { ...defaultAlertRulesConfig };
+    }
+
+    function initAlertRulesUI() {
+      // 1. Sync sensory toggles (Sound & Haptic)
+      updateSensoryButtonsUI();
+
+      // 2. Sync rule toggle buttons
+      const ruleKeys = [
+        'rule_sales_invoice', 'rule_purchase_bill', 'rule_finance_transfer', 'rule_report_print',
+        'rule_liquidity_drop', 'rule_price_anomaly', 'rule_credit_limit',
+        'rule_stockout_risk', 'rule_slow_moving', 'rule_bulk_withdrawal',
+        'rule_customer_inactivity'
+      ];
+
+      ruleKeys.forEach(key => {
+        const btn = document.getElementById('toggle_' + key);
+        if (btn) {
+          const isEnabled = alertRulesConfig[key] !== false;
+          if (isEnabled) {
+            btn.className = "w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0 shadow-[0_0_10px_rgba(6,182,212,0.3)]";
+            btn.innerHTML = '<span class="w-5 h-5 rounded-full bg-white shadow-md transform transition"></span>';
+          } else {
+            btn.className = "w-12 h-6 rounded-full bg-slate-700 transition p-0.5 relative flex items-center justify-start shrink-0";
+            btn.innerHTML = '<span class="w-5 h-5 rounded-full bg-slate-400 shadow-md transform transition"></span>';
+          }
+        }
+      });
+
+      // 3. Sync thresholds
+      const thresholdInputs = {
+        'thresholdLiquidity': alertRulesConfig.thresholdLiquidity,
+        'thresholdPriceDeviation': alertRulesConfig.thresholdPriceDeviation,
+        'thresholdDebtDays': alertRulesConfig.thresholdDebtDays,
+        'thresholdSlowDays': alertRulesConfig.thresholdSlowDays,
+        'thresholdCustomerGraceDays': alertRulesConfig.thresholdCustomerGraceDays
+      };
+
+      Object.entries(thresholdInputs).forEach(([id, val]) => {
+        const inp = document.getElementById(id);
+        if (inp && val !== undefined) inp.value = val;
+      });
+
+      // 4. Update badge counters
+      updateAlertBadgesCount();
+    }
+
+    function updateSensoryButtonsUI() {
+      // Sound button
+      const btnSound = document.getElementById('btnSensorySound');
+      const iconSound = document.getElementById('iconSensorySound');
+      const labelSound = document.getElementById('labelSensorySound');
+      if (btnSound && labelSound) {
+        if (isSensorySoundEnabled) {
+          btnSound.className = "p-2 rounded-xl bg-slate-800/90 border border-cyan-500/40 text-cyan-300 flex items-center justify-between active:scale-95 transition shadow-sm";
+          if (iconSound) iconSound.textContent = '🔊';
+          labelSound.textContent = 'مفعل ✓';
+          labelSound.className = "text-[10px] font-black px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300";
+        } else {
+          btnSound.className = "p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-500 flex items-center justify-between active:scale-95 transition opacity-70";
+          if (iconSound) iconSound.textContent = '🔇';
+          labelSound.textContent = 'مكتوم ✕';
+          labelSound.className = "text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-800 text-slate-400";
+        }
+      }
+
+      // Haptic button
+      const btnHaptic = document.getElementById('btnSensoryHaptic');
+      const iconHaptic = document.getElementById('iconSensoryHaptic');
+      const labelHaptic = document.getElementById('labelSensoryHaptic');
+      if (btnHaptic && labelHaptic) {
+        if (isSensoryHapticEnabled) {
+          btnHaptic.className = "p-2 rounded-xl bg-slate-800/90 border border-purple-500/40 text-purple-300 flex items-center justify-between active:scale-95 transition shadow-sm";
+          if (iconHaptic) iconHaptic.textContent = '📳';
+          labelHaptic.textContent = 'مفعل ✓';
+          labelHaptic.className = "text-[10px] font-black px-1.5 py-0.5 rounded bg-purple-950 text-purple-300";
+        } else {
+          btnHaptic.className = "p-2 rounded-xl bg-slate-900 border border-slate-700 text-slate-500 flex items-center justify-between active:scale-95 transition opacity-70";
+          if (iconHaptic) iconHaptic.textContent = '📴';
+          labelHaptic.textContent = 'متوقف ✕';
+          labelHaptic.className = "text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-800 text-slate-400";
+        }
+      }
+    }
+
+    function toggleAlertSensory(type) {
+      if (type === 'sound') {
+        isSensorySoundEnabled = !isSensorySoundEnabled;
+        localStorage.setItem('magaies_alert_sound', isSensorySoundEnabled ? 'true' : 'false');
+        updateSensoryButtonsUI();
+        if (isSensorySoundEnabled) {
+          AudioEngine.play('alert');
+          showFloatingToast('🔊 تم تفعيل النغمات الصوتية للتنبيهات');
+        } else {
+          showFloatingToast('🔇 تم كتم الصوت (وضع صامت للتنبيهات)');
+        }
+      } else if (type === 'haptic') {
+        isSensoryHapticEnabled = !isSensoryHapticEnabled;
+        localStorage.setItem('magaies_alert_haptic', isSensoryHapticEnabled ? 'true' : 'false');
+        updateSensoryButtonsUI();
+        if (isSensoryHapticEnabled) {
+          triggerHapticPulse([50, 40, 50]);
+          showFloatingToast('📳 تم تفعيل الاهتزاز الحركي (Haptic Feedback) للتنبيهات');
+        } else {
+          showFloatingToast('📴 تم تعطيل اهتزاز الموبايل للتنبيهات');
+        }
+      }
+    }
+
+    function toggleAlertRule(ruleKey) {
+      alertRulesConfig[ruleKey] = !alertRulesConfig[ruleKey];
+      const btn = document.getElementById('toggle_' + ruleKey);
+      if (btn) {
+        if (alertRulesConfig[ruleKey]) {
+          btn.className = "w-12 h-6 rounded-full bg-cyan-600 transition p-0.5 relative flex items-center justify-end shrink-0 shadow-[0_0_10px_rgba(6,182,212,0.3)]";
+          btn.innerHTML = '<span class="w-5 h-5 rounded-full bg-white shadow-md transform transition"></span>';
+        } else {
+          btn.className = "w-12 h-6 rounded-full bg-slate-700 transition p-0.5 relative flex items-center justify-start shrink-0";
+          btn.innerHTML = '<span class="w-5 h-5 rounded-full bg-slate-400 shadow-md transform transition"></span>';
+        }
+      }
+
+      AudioEngine.play('numpad');
+      triggerHapticPulse(30);
+
+      const status = alertRulesConfig[ruleKey] ? 'تفعيل' : 'إيقاف';
+      showFloatingToast(`⚙️ تم ${status} قاعدة التنبيه بنجاح`);
+    }
+
+    function saveAlertRulesConfig() {
+      // Read current thresholds
+      const tLiq = parseFloat(document.getElementById('thresholdLiquidity')?.value) || 10000;
+      const tPrice = parseFloat(document.getElementById('thresholdPriceDeviation')?.value) || 15;
+      const tDebt = parseInt(document.getElementById('thresholdDebtDays')?.value) || 30;
+      const tSlow = parseInt(document.getElementById('thresholdSlowDays')?.value) || 45;
+      const tCust = parseInt(document.getElementById('thresholdCustomerGraceDays')?.value) || 3;
+
+      alertRulesConfig.thresholdLiquidity = tLiq;
+      alertRulesConfig.thresholdPriceDeviation = tPrice;
+      alertRulesConfig.thresholdDebtDays = tDebt;
+      alertRulesConfig.thresholdSlowDays = tSlow;
+      alertRulesConfig.thresholdCustomerGraceDays = tCust;
+
+      try {
+        localStorage.setItem('magaies_alert_rules_config', JSON.stringify(alertRulesConfig));
+      } catch (e) {}
+
+      AudioEngine.play('success');
+      triggerHapticPulse(55);
+      showFloatingToast('✓ تم حفظ وتطبيق معمل قواعد التنبيهات في النظام بنجاح');
+    }
+
+    function resetAlertRulesToDefaults() {
+      alertRulesConfig = { ...defaultAlertRulesConfig };
+      try {
+        localStorage.setItem('magaies_alert_rules_config', JSON.stringify(alertRulesConfig));
+      } catch (e) {}
+      initAlertRulesUI();
+      AudioEngine.play('approve');
+      triggerHapticPulse(45);
+      showFloatingToast('🔄 تم استعادة الإعدادات الذكية الافتراضية لقواعد التنبيهات');
+    }
+
+    function switchAlertSubTab(subTab) {
+      const feedView = document.getElementById('subViewAlertsFeed');
+      const labView = document.getElementById('subViewAlertsLab');
+      const btnFeed = document.getElementById('subTabAlertsFeed');
+      const btnLab = document.getElementById('subTabAlertsLab');
+
+      AudioEngine.play('numpad');
+      triggerHapticPulse(30);
+
+      if (subTab === 'feed') {
+        if (feedView) feedView.classList.remove('hidden');
+        if (labView) labView.classList.add('hidden');
+        if (btnFeed) btnFeed.className = "py-2.5 rounded-xl bg-amber-500 text-slate-950 font-black shadow transition flex items-center justify-center gap-1.5";
+        if (btnLab) btnLab.className = "py-2.5 rounded-xl text-slate-400 hover:text-white font-bold transition flex items-center justify-center gap-1.5";
+      } else {
+        if (feedView) feedView.classList.add('hidden');
+        if (labView) labView.classList.remove('hidden');
+        if (btnLab) btnLab.className = "py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 font-black shadow transition flex items-center justify-center gap-1.5";
+        if (btnFeed) btnFeed.className = "py-2.5 rounded-xl text-slate-400 hover:text-white font-bold transition flex items-center justify-center gap-1.5";
+      }
+    }
+
+    let activeAlertFilter = 'all';
+    function filterAlertsFeed(cat) {
+      activeAlertFilter = cat;
+      const tagButtons = {
+        'all': document.getElementById('afTagAll'),
+        'risk': document.getElementById('afTagRisk'),
+        'inventory': document.getElementById('afTagInventory'),
+        'customer': document.getElementById('afTagCustomer'),
+        'ops': document.getElementById('afTagOps')
+      };
+
+      Object.entries(tagButtons).forEach(([key, btn]) => {
+        if (!btn) return;
+        if (key === cat) {
+          btn.className = "bg-amber-500 text-slate-950 px-3 py-1.5 rounded-xl shrink-0 font-black shadow";
+        } else {
+          btn.className = "bg-slate-800 text-slate-300 hover:text-white px-3 py-1.5 rounded-xl shrink-0 border border-slate-700 font-bold";
+        }
+      });
+
+      const cards = document.querySelectorAll('#alertsFeedList .alert-card');
+      cards.forEach(card => {
+        if (cat === 'all') {
+          card.classList.remove('hidden');
+        } else {
+          if (card.classList.contains('alert-' + cat)) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        }
+      });
+
+      AudioEngine.play('numpad');
+      triggerHapticPulse(25);
+    }
+
+    function dismissAlert(btn) {
+      const card = btn.closest('.alert-card');
+      if (!card) return;
+
+      AudioEngine.play('numpad');
+      triggerHapticPulse(35);
+
+      card.style.transition = 'all 0.3s ease';
+      card.style.opacity = '0';
+      card.style.transform = 'scale(0.95)';
+      setTimeout(() => {
+        card.remove();
+        updateAlertBadgesCount();
+        showFloatingToast('✓ تم تأكيد الإطلاع على التنبيه');
+      }, 300);
+    }
+
+    function clearAllAlertsFeed() {
+      const list = document.getElementById('alertsFeedList');
+      if (!list) return;
+
+      AudioEngine.play('approve');
+      triggerHapticPulse([40, 30, 40]);
+
+      list.innerHTML = `
+        <div class="p-6 text-center bg-slate-900/60 rounded-3xl border border-slate-800 space-y-2">
+          <div class="text-3xl">🎉</div>
+          <h4 class="text-sm font-black text-slate-200">لا توجد تنبيهات جديدة معلقة</h4>
+          <p class="text-[11px] text-slate-400">جميع العمليات والمخاطر والمخزون ضمن الحدود الآمنة المحددة.</p>
+        </div>
+      `;
+
+      updateAlertBadgesCount();
+      showFloatingToast('🧹 تم مسح وقراءة كافة التنبيهات');
+    }
+
+    function updateAlertBadgesCount() {
+      const remainingCards = document.querySelectorAll('#alertsFeedList .alert-card').length;
+      
+      const badgeNav = document.getElementById('badgeAlertsCount');
+      const badgeTop = document.getElementById('badgeTopBellCount');
+      const badgeTotal = document.getElementById('alertsTotalBadge');
+      const badgeFeed = document.getElementById('feedCountBadge');
+      const tagAll = document.getElementById('afTagAll');
+
+      if (badgeNav) {
+        badgeNav.textContent = remainingCards;
+        if (remainingCards === 0) badgeNav.classList.add('hidden');
+        else badgeNav.classList.remove('hidden');
+      }
+
+      if (badgeTop) {
+        badgeTop.textContent = remainingCards;
+        if (remainingCards === 0) badgeTop.classList.add('hidden');
+        else badgeTop.classList.remove('hidden');
+      }
+
+      if (badgeTotal) badgeTotal.textContent = `${remainingCards} نشطة`;
+      if (badgeFeed) badgeFeed.textContent = remainingCards;
+      if (tagAll) tagAll.textContent = `الكل (${remainingCards})`;
+    }
+
+    function testSimulateAlertWithHapticAndSound() {
+      showFloatingToast('📳🔊 جاري تجربة النبض الصوتي والاهتزاز الحركي للهاتف...');
+      AudioEngine.play('risk');
+      triggerHapticPulse([150, 70, 150]);
+    }
+
+    function simulateNewIncomingAlert() {
+      const list = document.getElementById('alertsFeedList');
+      if (!list) return;
+
+      const emptyNotice = list.querySelector('.text-3xl');
+      if (emptyNotice) {
+        list.innerHTML = '';
+      }
+
+      const randomId = Math.floor(1000 + Math.random() * 9000);
+      const newCard = document.createElement('div');
+      newCard.className = "alert-card alert-risk glass-card-interactive p-3 rounded-2xl border border-rose-500/60 bg-gradient-to-b from-rose-950/40 to-slate-900/95 space-y-2 shadow-xl shadow-rose-950/30 animate-pulse";
+      newCard.innerHTML = `
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-rose-500/25 text-rose-300 flex items-center justify-center font-bold text-sm shrink-0 border border-rose-500/50">
+              ⚡
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs font-black text-rose-300">تحويل مالي بنكي فوري #${randomId}</h4>
+                <span class="text-[9px] bg-rose-950 text-rose-200 border border-rose-500/40 px-1.5 py-0.2 rounded-full font-bold">الآن</span>
+              </div>
+              <span class="text-[10px] text-slate-400">بواسطة: عثمان الريح • الحساب: بنك الخرطوم</span>
+            </div>
+          </div>
+          <span class="text-[10px] text-rose-300 font-mono font-bold">$3,200 خروج نقدية</span>
+        </div>
+        <p class="text-[11px] text-slate-300 bg-slate-950/70 p-2 rounded-xl border border-slate-800 leading-relaxed">
+          تم قيد حركة تحويل مالي فورية من حساب بنك الخرطوم للمورد (شركة النيل العالمية) بقيمة 3,200 دولار (مرجع #${randomId}).
+        </p>
+        <div class="flex gap-1.5 pt-1">
+          <button onclick="openOperationalForm('financeMovement')" class="flex-1 py-1.5 px-2 bg-gradient-to-r from-rose-600 to-pink-600 text-white rounded-xl text-[10px] font-bold shadow flex items-center justify-center gap-1 active:scale-95 transition">
+            <span>🔍 تفاصيل السند</span>
+          </button>
+          <button onclick="dismissAlert(this)" class="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white rounded-xl text-[10px] font-bold border border-slate-700 transition">
+            <span>✓ تم الإطلاع</span>
+          </button>
+        </div>
+      `;
+
+      list.prepend(newCard);
+      setTimeout(() => newCard.classList.remove('animate-pulse'), 2500);
+
+      AudioEngine.play('alert');
+      triggerHapticPulse([120, 60, 120]);
+      updateAlertBadgesCount();
+      showFloatingToast('🔔 وصل تنبيه ذكي جديد للتو إلى هاتفك المحمول');
+    }
+
+    function sendCustomerCareWhatsApp(clientName, phone) {
+      AudioEngine.play('success');
+      triggerHapticPulse(40);
+      const text = encodeURIComponent(`السلام عليكم ورحمة الله وبركاته، السادة / ${clientName} المحترمون، نأمل أن تكونوا بخير. نسعد بتواصلنا معكم ونود إحاطتكم بتوفر تشكيلة جديدة وتخفيضات خاصة على طلبياتكم القادمة.`);
+      const url = `https://wa.me/${phone.replace(/[^0-9]/g, '')}?text=${text}`;
+      window.open(url, '_blank');
+      showFloatingToast(`📲 جاري فتح تطبيق واتساب للتواصل مع ${clientName}`);
+    }
+
     // Initialize all global engines
     applySunlightMode();
     document.addEventListener('DOMContentLoaded', () => {
       applySunlightMode();
       initSwipeGestures();
       attachNumpadTriggers();
+      initAlertRulesUI();
     });
 
 </script>
