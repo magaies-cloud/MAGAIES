@@ -206,11 +206,9 @@ window.PWAManager = {
         if (this.isStandalone) return;
 
         // Show header install button
-        const headerBtn = document.getElementById('headerPwaInstallBtn');
         const headerBtn = document.getElementById('headerPwaInstallBtn') || document.getElementById('btn-header-install');
         if (headerBtn) {
             headerBtn.classList.remove('hidden');
-            headerBtn.style.display = 'inline-flex';
         }
     },
 
@@ -220,7 +218,6 @@ window.PWAManager = {
         const headerBtn = document.getElementById('headerPwaInstallBtn') || document.getElementById('btn-header-install');
         if (headerBtn) {
             headerBtn.classList.remove('hidden');
-            headerBtn.style.display = 'inline-flex';
         }
     },
 
@@ -229,6 +226,8 @@ window.PWAManager = {
         const existingPill = document.getElementById('magaiees-floating-install-pill');
         if (existingPill) existingPill.remove();
         return;
+    },
+
     dismissFloatingPill() {
         sessionStorage.setItem('magaiees_install_banner_dismissed', '1');
         const pill = document.getElementById('magaiees-floating-install-pill');
@@ -341,8 +340,6 @@ window.PWAManager = {
     hideAllInstallBanners() {
         const pill = document.getElementById('magaiees-floating-install-pill');
         if (pill) pill.remove();
-        const headerBtn = document.getElementById('headerPwaInstallBtn');
-        if (headerBtn) headerBtn.style.display = 'none';
         this.updateFlagshipInstallButton();
     },
 

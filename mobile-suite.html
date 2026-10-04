@@ -1525,7 +1525,7 @@
         </button>
 
         <!-- 6. زر تنزيل وتثبيت التطبيق على الجوال PWA -->
-        <button id="headerPwaInstallBtn" onclick="PWAManager.triggerInstall(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-install" title="تثبيت أيقونة التطبيق على شاشة الجوال">
+        <button id="headerPwaInstallBtn" onclick="handlePwaInstallClick(); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="flagship-tile flagship-action-tile flagship-tile-install" title="تثبيت أيقونة التطبيق على شاشة الجوال">
           <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
           </svg>
@@ -1546,8 +1546,10 @@
           <svg id="mainRefreshIcon" class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
         </button>
 
-        <button class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-indigo-300" title="مسح باركود / QR">
+        <!-- زر مسح الباركود ورمز الـ QR بالكاميرا -->
+        <button id="quickQrBarcodeBtn" onclick="openBarcodeScannerModal(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-indigo-300 relative cursor-pointer active:scale-95 transition" title="مسح باركود / QR بالكاميرا">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          <span class="absolute -top-1 -right-1 bg-indigo-500 text-slate-950 text-[7px] font-black px-1 rounded-full shadow">QR</span>
         </button>
 
         <!-- تايمر الوردية والمطابقة والتركيز 30 دقيقة -->
@@ -1563,8 +1565,9 @@
           <span class="absolute -top-1 -right-1 bg-amber-500 text-slate-950 text-[8px] font-black px-1 rounded-full">⏱️</span>
         </button>
 
-        <button class="glow-emerald p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-emerald-300" title="مزامنة السحابة">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
+        <!-- زر المزامنة السحابية الفورية لقاعدة البيانات -->
+        <button id="quickCloudSyncBtn" onclick="handleQuickCloudSync(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="glow-emerald p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-emerald-300 relative cursor-pointer active:scale-95 transition" title="مزامنة السحابة الفورية لقاعدة البيانات">
+          <svg id="quickCloudSyncIcon" class="w-4 h-4 text-emerald-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
         </button>
 
         <button onclick="switchTab('alerts')" class="glow-cyan p-2 rounded-xl flex items-center justify-center w-11 h-11 shrink-0 bg-slate-800/90 text-cyan-300 relative cursor-pointer active:scale-95 transition" title="التنبيهات ومعمل الضبط">
@@ -3909,7 +3912,83 @@
     </main>
 
     
-    <!-- ======================================================== -->
+  <!-- ======================================================== -->
+  <!-- 📷 MODAL: قارئ الباركود ورمز الـ QR بالكاميرا الذكية      -->
+  <!-- ======================================================== -->
+  <div id="modalBarcodeScanner" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="glass-base w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl border border-indigo-500/40 overflow-hidden flex flex-col max-h-[92vh] shadow-2xl bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
+      <!-- Header -->
+      <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/90">
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400 shadow">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-slate-100 text-sm">قارئ الباركود ورمز الـ QR</h3>
+            <p class="text-[11px] text-slate-400">وجّه الكاميرا نحو الكود للتعرف الفوري</p>
+          </div>
+        </div>
+        <button onclick="closeBarcodeScannerModal()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold active:scale-95 transition">✕</button>
+      </div>
+
+      <!-- Camera / Scanner Area -->
+      <div class="p-4 space-y-3 overflow-y-auto">
+        <!-- Live Video Viewport -->
+        <div id="barcodeCameraContainer" class="relative w-full h-56 bg-black rounded-2xl overflow-hidden border-2 border-indigo-500/50 shadow-inner flex items-center justify-center">
+          <video id="barcodeScannerVideo" autoplay playsinline muted class="w-full h-full object-cover"></video>
+          <!-- Animated Laser Scan Line -->
+          <div class="absolute inset-x-4 top-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent shadow-[0_0_12px_#22d3ee] animate-[laserScan_2s_ease-in-out_infinite] pointer-events-none"></div>
+          <!-- Framing Target Corners -->
+          <div class="absolute inset-8 border-2 border-dashed border-cyan-400/40 rounded-xl pointer-events-none flex items-center justify-center">
+            <span class="text-[10px] text-cyan-300 font-mono tracking-widest bg-slate-950/60 px-2 py-0.5 rounded">محدد المسح الذكي</span>
+          </div>
+        </div>
+
+        <!-- Camera Status or Fallback Info -->
+        <div id="barcodeScanStatusText" class="text-center text-xs text-slate-300 py-1 flex items-center justify-center gap-1.5 font-bold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>الكاميرا نشطة — وجّه العدسة نحو الباركود أو الـ QR</span>
+        </div>
+
+        <!-- Action Tools: Switch Camera / Upload Image File -->
+        <div class="grid grid-cols-2 gap-2">
+          <input type="file" id="barcodeNativeFileInput" accept="image/*" capture="environment" class="hidden" onchange="handleBarcodeFileSelected(this)">
+          <button type="button" onclick="document.getElementById('barcodeNativeFileInput').click()" class="py-2 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-cyan-300 border border-cyan-500/30 flex items-center justify-center gap-1.5 text-xs font-bold active:scale-95 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>التقاط / صورة من المعرض</span>
+          </button>
+          <button type="button" onclick="switchScannerCamera()" class="py-2 px-3 rounded-xl bg-slate-800/90 hover:bg-slate-700/90 text-indigo-300 border border-indigo-500/30 flex items-center justify-center gap-1.5 text-xs font-bold active:scale-95 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            <span>تبديل الكاميرا</span>
+          </button>
+        </div>
+
+        <!-- Manual Barcode Input Fallback -->
+        <div class="pt-2 border-t border-slate-800/80">
+          <label class="block text-xs font-bold text-slate-300 mb-1.5">أو أدخل رقم الباركود / الكود يدوياً:</label>
+          <div class="flex items-center gap-1.5">
+            <input type="text" id="manualScannerBarcodeInput" placeholder="مثال: 6281000123456" class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-slate-100 font-mono text-sm placeholder-slate-500 focus:outline-none focus:border-cyan-500">
+            <button type="button" onclick="submitManualBarcode()" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white rounded-xl text-xs font-black shadow-lg shadow-cyan-500/20 active:scale-95 transition">
+              بحث
+            </button>
+          </div>
+        </div>
+
+        <!-- Detected Result Card (Initially Hidden) -->
+        <div id="barcodeDetectedCard" class="hidden p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 flex items-center justify-between">
+          <div>
+            <span class="text-[10px] text-emerald-400 block font-bold">تم التعرف على الكود بنجاح ✓</span>
+            <span id="barcodeDetectedValue" class="font-mono text-sm font-black text-white"></span>
+          </div>
+          <button onclick="applyScannedBarcodeResult()" class="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs rounded-xl shadow active:scale-95 transition">
+            تطبيق
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
   <!-- MODAL: سيف السمات والراحة البصرية للعين (17 سمة علمية)    -->
   <!-- ======================================================== -->
   <div id="modalThemePaletteDrawer" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4">
@@ -9039,6 +9118,237 @@
         }, { passive: true });
       });
     }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       📥 PWA INSTALL TRIGGER & GUIDANCE ENGINE
+       ═══════════════════════════════════════════════════════════════════ */
+    function handlePwaInstallClick() {
+      triggerHapticPulse(25);
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.play) {
+        AudioEngine.play('numpad');
+      }
+      if (window.PWAManager && typeof PWAManager.triggerInstall === 'function') {
+        PWAManager.triggerInstall();
+      } else if (window.PWAManager && typeof PWAManager.showIOSInstallModal === 'function') {
+        PWAManager.showIOSInstallModal();
+      } else {
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast('📱 لتثبيت التطبيق: افتح قائمة المتصفح واضغط (إضافة للشاشة الرئيسية)');
+        } else {
+          alert('📱 لتثبيت التطبيق على جوالك:\n1. افتح قائمة المتصفح (⋮ أو زر المشاركة في الآيفون)\n2. اختر "إضافة للشاشة الرئيسية / Add to Home Screen"');
+        }
+      }
+    }
+    window.handlePwaInstallClick = handlePwaInstallClick;
+
+    /* ═══════════════════════════════════════════════════════════════════
+       ☁️ CLOUD SYNC QUICK ACTION ENGINE
+       ═══════════════════════════════════════════════════════════════════ */
+    function handleQuickCloudSync() {
+      triggerHapticPulse(30);
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.play) {
+        AudioEngine.play('numpad');
+      }
+
+      const syncIcon = document.getElementById('quickCloudSyncIcon');
+      if (syncIcon) {
+        syncIcon.classList.add('animate-spin');
+        setTimeout(() => syncIcon.classList.remove('animate-spin'), 1500);
+      }
+
+      if (window.PWAManager && typeof PWAManager.syncRealData === 'function') {
+        PWAManager.syncRealData(true);
+      }
+
+      if (typeof showFloatingToast === 'function') {
+        showFloatingToast('☁️ تم تحديث ومزامنة البيانات السحابية مع الخادم بنجاح!');
+      }
+    }
+    window.handleQuickCloudSync = handleQuickCloudSync;
+
+    /* ═══════════════════════════════════════════════════════════════════
+       📷 REAL-TIME QR & BARCODE CAMERA SCANNER ENGINE
+       ═══════════════════════════════════════════════════════════════════ */
+    let barcodeCameraStream = null;
+    let barcodeDetectorInstance = null;
+    let barcodeScanInterval = null;
+    let currentCameraFacing = 'environment';
+    let lastScannedBarcode = '';
+
+    async function openBarcodeScannerModal() {
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');
+      triggerHapticPulse(25);
+      openModal('modalBarcodeScanner');
+
+      const videoEl = document.getElementById('barcodeScannerVideo');
+      const statusText = document.getElementById('barcodeScanStatusText');
+      const resultCard = document.getElementById('barcodeDetectedCard');
+      if (resultCard) resultCard.classList.add('hidden');
+
+      if ('BarcodeDetector' in window) {
+        try {
+          barcodeDetectorInstance = new BarcodeDetector({
+            formats: ['qr_code', 'ean_13', 'ean_8', 'code_128', 'code_39', 'upc_a', 'upc_e', 'itf']
+          });
+        } catch (e) {
+          barcodeDetectorInstance = null;
+        }
+      }
+
+      await startCameraStream(currentCameraFacing);
+    }
+    window.openBarcodeScannerModal = openBarcodeScannerModal;
+
+    async function startCameraStream(facing) {
+      const videoEl = document.getElementById('barcodeScannerVideo');
+      const statusText = document.getElementById('barcodeScanStatusText');
+
+      if (barcodeCameraStream) {
+        barcodeCameraStream.getTracks().forEach(t => t.stop());
+        barcodeCameraStream = null;
+      }
+      if (barcodeScanInterval) {
+        clearInterval(barcodeScanInterval);
+        barcodeScanInterval = null;
+      }
+
+      try {
+        barcodeCameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: facing, width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        if (videoEl) {
+          videoEl.srcObject = barcodeCameraStream;
+          await videoEl.play();
+        }
+        if (statusText) {
+          statusText.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span><span>الكاميرا نشطة — وجّه العدسة نحو الباركود أو الـ QR</span>';
+        }
+        startBarcodeDetectionLoop(videoEl);
+      } catch (err) {
+        console.warn('Camera stream error:', err);
+        if (statusText) {
+          statusText.innerHTML = '<span class="text-amber-400">⚠️ تعذر فتح الكاميرا مباشرة — أدخل الكود يدوياً أو اختر صورة من المعرض</span>';
+        }
+      }
+    }
+    window.startCameraStream = startCameraStream;
+
+    function startBarcodeDetectionLoop(videoEl) {
+      if (!barcodeDetectorInstance || !videoEl) return;
+
+      barcodeScanInterval = setInterval(async () => {
+        try {
+          if (!barcodeCameraStream || videoEl.readyState < 2) return;
+          const codes = await barcodeDetectorInstance.detect(videoEl);
+          if (codes && codes.length > 0) {
+            const rawCode = codes[0].rawValue;
+            if (rawCode && rawCode !== lastScannedBarcode) {
+              handleBarcodeSuccess(rawCode);
+            }
+          }
+        } catch (e) {
+          // skip frame
+        }
+      }, 280);
+    }
+
+    function handleBarcodeSuccess(code) {
+      lastScannedBarcode = code;
+      triggerHapticPulse(50);
+      if (typeof AudioEngine !== 'undefined' && AudioEngine.play) {
+        AudioEngine.play('numpad');
+      }
+
+      const resultCard = document.getElementById('barcodeDetectedCard');
+      const resultVal = document.getElementById('barcodeDetectedValue');
+      if (resultVal) resultVal.textContent = code;
+      if (resultCard) resultCard.classList.remove('hidden');
+
+      if (typeof showFloatingToast === 'function') {
+        showFloatingToast(`🎯 تم مسح الكود بنجاح: ${code}`);
+      }
+
+      setTimeout(() => {
+        applyScannedBarcodeResult();
+      }, 800);
+    }
+    window.handleBarcodeSuccess = handleBarcodeSuccess;
+
+    function applyScannedBarcodeResult() {
+      const code = lastScannedBarcode || (document.getElementById('manualScannerBarcodeInput') ? document.getElementById('manualScannerBarcodeInput').value.trim() : '');
+      if (!code) return;
+
+      closeBarcodeScannerModal();
+      focusOmniSearch();
+
+      const omniInput = document.getElementById('omniSearchInput');
+      if (omniInput) {
+        omniInput.value = code;
+        omniInput.dispatchEvent(new Event('input', { bubbles: true }));
+        omniInput.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    }
+    window.applyScannedBarcodeResult = applyScannedBarcodeResult;
+
+    function submitManualBarcode() {
+      const inp = document.getElementById('manualScannerBarcodeInput');
+      const val = inp ? inp.value.trim() : '';
+      if (!val) {
+        if (typeof showFloatingToast === 'function') showFloatingToast('⚠️ يرجى إدخال رقم أو كود الباركود');
+        return;
+      }
+      handleBarcodeSuccess(val);
+    }
+    window.submitManualBarcode = submitManualBarcode;
+
+    function handleBarcodeFileSelected(input) {
+      if (!input.files || input.files.length === 0) return;
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = async function(e) {
+        const img = new Image();
+        img.onload = async function() {
+          if ('BarcodeDetector' in window) {
+            try {
+              const detector = new BarcodeDetector({ formats: ['qr_code', 'ean_13', 'ean_8', 'code_128', 'code_39', 'upc_a', 'upc_e'] });
+              const codes = await detector.detect(img);
+              if (codes && codes.length > 0) {
+                handleBarcodeSuccess(codes[0].rawValue);
+                return;
+              }
+            } catch(err){}
+          }
+          if (typeof showFloatingToast === 'function') {
+            showFloatingToast('📷 تم التقاط الصورة، يرجى كتابة الرقم أو مسحه');
+          }
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+    window.handleBarcodeFileSelected = handleBarcodeFileSelected;
+
+    function switchScannerCamera() {
+      currentCameraFacing = (currentCameraFacing === 'environment') ? 'user' : 'environment';
+      startCameraStream(currentCameraFacing);
+    }
+    window.switchScannerCamera = switchScannerCamera;
+
+    function closeBarcodeScannerModal() {
+      if (barcodeScanInterval) {
+        clearInterval(barcodeScanInterval);
+        barcodeScanInterval = null;
+      }
+      if (barcodeCameraStream) {
+        barcodeCameraStream.getTracks().forEach(t => t.stop());
+        barcodeCameraStream = null;
+      }
+      const videoEl = document.getElementById('barcodeScannerVideo');
+      if (videoEl) videoEl.srcObject = null;
+
+      closeModal('modalBarcodeScanner');
+    }
+    window.closeBarcodeScannerModal = closeBarcodeScannerModal;
 
     document.addEventListener('DOMContentLoaded', () => {
       applySunlightMode();
