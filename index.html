@@ -4,6 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>مقاييس ERP - محرك رصد المخاطر والإشعارات التنفيذية</title>
+  <script>
+  (function enforceAuthAndDeviceGate() {
+    var token = localStorage.getItem('authToken');
+    var sessionActive = sessionStorage.getItem('session_active') === 'true' || document.cookie.includes('session_active=true');
+    var qs = window.location.search;
+    if (!token && !sessionActive) {
+      window.location.replace('login.php' + qs);
+      return;
+    }
+    var ua = navigator.userAgent || '';
+    var isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+    var params = new URLSearchParams(window.location.search);
+    if ((isLaptopOrPC || params.get('force_desktop') === '1') && params.get('stay') !== '1') {
+      window.location.replace('magaiees_unified_dashboard.php' + qs);
+    }
+  })();
+  </script>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

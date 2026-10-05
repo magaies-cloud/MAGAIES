@@ -18,6 +18,25 @@ if ((isset($_GET['action']) && $_GET['action'] === 'heartbeat_ping') || (isset($
 }
 
 // ═════════════════════════════════════════════════════════════════════
+// 🌐 LAPTOP & DESKTOP AUTOMATIC ROUTING
+// ═════════════════════════════════════════════════════════════════════
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$isLaptopOrPC = (bool)preg_match('/(windows nt|macintosh|x11; linux x86_64|cros)/i', $userAgent) && !preg_match('/(android|iphone|ipad|ipod|mobile)/i', $userAgent);
+$isMobileUserAgent = !$isLaptopOrPC && (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent);
+$forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
+$prefCookie = $_COOKIE['magaiees_view_preference'] ?? '';
+
+// If accessing from desktop/laptop without explicit force_mobile, redirect to laptop/computer unified dashboard
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' && empty($_GET['action'])) {
+    if ($forceMobile) {
+        setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
+    } elseif ($isLaptopOrPC || (!$isMobileUserAgent && $prefCookie !== 'mobile')) {
+        header('Location: magaiees_unified_dashboard.php?force_desktop=1');
+        exit;
+    }
+}
+
+// ═════════════════════════════════════════════════════════════════════
 // 🌟 FLAGSHIP AGREED MOBILE SUITE (mobile_erp_global_suite.html)
 // ═════════════════════════════════════════════════════════════════════
 if (!isset($_GET['legacy']) || $_GET['legacy'] !== '1') {
@@ -30,21 +49,6 @@ if (!isset($_GET['legacy']) || $_GET['legacy'] !== '1') {
         header('Pragma: no-cache');
         header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
         require_once $suiteFile;
-        exit;
-    }
-}
-
-$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-$isMobileUserAgent = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent);
-$forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
-$prefCookie = $_COOKIE['magaiees_view_preference'] ?? '';
-
-// Check if accessing from desktop without mobile override
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' && empty($_GET['action'])) {
-    if ($forceMobile) {
-        setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
-    } elseif (!$isMobileUserAgent && $prefCookie !== 'mobile') {
-        header('Location: magaiees_unified_dashboard.php');
         exit;
     }
 }
@@ -15956,13 +15960,8 @@ try {
         // 💸 OPEN FINANCIAL TRANSFER SHEET (تحويلة مالية من حساب إلى حساب)
         // ═════════════════════════════════════════════════════════════════
         function openFinancialTxSheet(mode = 'transfer') {
-            triggerHaptic('light');
-            buildAllAccountsList();
-
-            // Set default date to today YYYY-MM-DD
-            const dateInp = document.getElementById('tx-date');
-            if (dateInp && !dateInp.value) {
-                dateInp.value = new Date().toISOString().split('T')[0];
+            window.location.href = 'mobile-voucher.php';
+            return;
             }
 
             const opEl = document.getElementById('tx-operation-type');

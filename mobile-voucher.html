@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#020617">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>حركة مالية - معاينة الجوال المتطورة</title>
+  
+  <!-- CDN Tailwind with fallback styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Cairo Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --app-font: 'Cairo', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      font-family: var(--app-font);
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #020617;
+      color: #f8fafc;
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
+    input, select, textarea, button {
+      font-size: 14.5px;
+      font-family: var(--app-font);
+    }
+    @media (max-width: 600px) {
+      input, select, textarea {
+        font-size: 15.5px !important;
+      }
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* أزرار الدفع الزجاجية العصرية مع إيماءات ضوئية حركية */
+    .glass-pay-btn {
+      position: relative;
+      overflow: hidden;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 4px 15px -1px rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-pay-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(
+        60deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.35) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: rotate(25deg);
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .glass-pay-btn:active::after {
+      opacity: 1;
+      animation: lightSweep 0.55s ease-out;
+    }
+    @keyframes lightSweep {
+      0% { left: -60%; }
+      100% { left: 140%; }
+    }
+    .glass-pay-btn.is-active {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.85) 0%, rgba(30, 58, 138, 0.95) 100%);
+      border-color: rgba(56, 189, 248, 0.8);
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(14, 165, 233, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+      transform: translateY(-1px);
+    }
+    .glass-pay-btn.is-active::after {
+      opacity: 0.8;
+      animation: lightSweep 2.2s infinite ease-in-out;
+    }
+
+    /* زر الإرسال التلقائي الصغير المدمج (ON / OFF) */
+    .auto-send-pill {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+    }
+    .auto-send-pill.is-on {
+      background: linear-gradient(135deg, rgba(5, 150, 105, 0.25) 0%, rgba(16, 185, 129, 0.15) 100%);
+      border-color: rgba(52, 211, 153, 0.6);
+      color: #34d399;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    }
+    .auto-send-pill.is-on .status-dot {
+      background-color: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: autoSendPulse 1.6s infinite;
+    }
+    .auto-send-pill.is-off {
+      background: rgba(30, 41, 59, 0.5);
+      border-color: rgba(71, 85, 105, 0.4);
+      color: #94a3b8;
+    }
+    .auto-send-pill.is-off .status-dot {
+      background-color: #64748b;
+    }
+    @keyframes autoSendPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.3); opacity: 0.6; }
+    }
+
+    .amount-display-card {
+      user-select: none;
+    }
+    .amount-number-input {
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.5px;
+    }
+
+    /* Native mobile view on actual phones (<= 640px) */
+    @media (max-width: 640px) {
+      body {
+        padding: 0 !important;
+        background: #020617 !important;
+      }
+      .mobile-device-outer {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        min-height: 100dvh !important;
+      }
+      .desktop-screen-switcher {
+        display: none !important;
+      }
+      .bottom-bar-fixed {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 50 !important;
+        padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+      }
+    }
+
+    /* Desktop view styling: provides authentic 1:1 mobile scale */
+    @media (min-width: 641px) {
+      body {
+        padding: 16px 12px;
+        background: #090d16;
+      }
+      .bottom-bar-fixed {
+        position: sticky;
+        bottom: 0;
+        z-index: 40;
+      }
+    }
+  </style>
+</head>
+<body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Desktop Mobile Dimension Switcher Bar (يظهر على شاشات الكمبيوتر لمعاينة المقاسات الأصلية) -->
+  <div class="desktop-screen-switcher w-full max-w-lg mb-3 bg-slate-900 border border-slate-800 rounded-2xl p-2.5 shadow-xl flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+        <span class="font-bold text-xs text-white">معاينة المقاسات الأصلية للجوال (1:1)</span>
+      </div>
+      <div class="flex items-center gap-1.5 font-mono text-[11px] text-emerald-400 bg-slate-950 px-2.5 py-0.5 rounded-lg border border-slate-800" id="dimensionBadge">
+        393px × 852px (iPhone)
+      </div>
+    </div>
+
+    <!-- Quick Size Buttons -->
+    <div class="flex items-center justify-between gap-1.5 text-[11px] font-bold">
+      <button onclick="setMobilePreset(393, 'iPhone 15 Pro')" id="btn-p-393" class="preset-btn flex-1 py-1 px-1 rounded-xl bg-blue-600 text-white transition-all text-center">
+        iPhone (393px)
+      </button>
+      <button onclick="setMobilePreset(360, 'Samsung S24')" id="btn-p-360" class="preset-btn flex-1 py-1 px-1 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-all text-center">
+        سامسونج (360px)
+      </button>
+      <button onclick="setMobilePreset(375, 'iPhone SE / صغير')" id="btn-p-375" class="preset-btn flex-1 py-1 px-1 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-all text-center">
+        مدمج (375px)
+      </button>
+      <button onclick="setMobilePreset('100%', 'شاشة كاملة')" id="btn-p-full" class="preset-btn flex-1 py-1 px-1 rounded-xl bg-slate-800 text-slate-400 hover:text-white transition-all text-center">
+        شاشة كاملة
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Device Screen Container -->
+  <div id="mobileContainer" class="mobile-device-outer w-full max-w-[393px] bg-slate-950 sm:rounded-[36px] sm:border-[4px] sm:border-slate-800 sm:shadow-2xl overflow-hidden flex flex-col relative transition-all duration-300 min-h-screen sm:min-h-[852px]">
+
+    <!-- Status Bar (شبكة، بطارية، تبديل وضع أوفلاين/أونلاين) -->
+    <div class="pt-2.5 px-3 pb-1 bg-slate-950 flex justify-between items-center text-xs text-slate-400 select-none border-b border-slate-900">
+      <span id="currentTime" class="font-bold font-mono text-slate-200">13:15</span>
+
+      <!-- Interactive Online/Offline Switch -->
+      <button onclick="toggleOnlineStatus()" id="networkPill" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold transition-all hover:scale-105 active:scale-95" title="انقر لتجربة وضع الأوفلاين">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" id="networkDot"></span>
+        <span id="networkText">متصل بالسيرفر (أونلاين)</span>
+      </button>
+
+      <div class="flex items-center gap-1.5 text-slate-300 font-mono text-[11px]">
+        <span>5G</span>
+        <i class="fa-solid fa-signal text-[10px]"></i>
+        <i class="fa-solid fa-battery-full text-emerald-400 text-xs"></i>
+      </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════════════════
+         1. الهيدر المنسق المطور:
+         خروج + حركة مالية (مباشرة دون فراغ) + التاريخ (نفس مساحة السند) + رقم السند
+         ═════════════════════════════════════════════════════════════════ -->
+    <header class="bg-slate-900/95 px-2.5 py-2 border-b border-slate-800 sticky top-0 z-30 backdrop-blur-md">
+      <div class="flex items-center gap-1.5 w-full">
+        <!-- زر الخروج الفوري -->
+        <button type="button" onclick="alert('خروج للرئيسية')" class="w-8 h-8 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 flex items-center justify-center shrink-0 active:scale-95 transition" title="رجوع للرئيسية">
+          <i class="fa-solid fa-arrow-right text-xs"></i>
+        </button>
+
+        <!-- عنوان الشاشة "حركة مالية" -->
+        <span class="text-sm font-black text-white shrink-0 whitespace-nowrap pl-0.5">حركة مالية</span>
+
+        <!-- 1. مساحة التاريخ (مكبرة ومنسقة بالتساوي مع رقم السند flex-1 h-[38px]) -->
+        <div class="flex-1 min-w-0 bg-slate-950 border border-slate-700/80 rounded-xl px-1.5 flex items-center h-[38px] shadow-inner focus-within:border-cyan-500 transition">
+          <i class="fa-regular fa-calendar text-[11px] text-cyan-400 ml-1 shrink-0"></i>
+          <input type="date" id="voucherDate" value="2026-10-05" class="w-full bg-transparent text-white text-[12px] font-bold focus:outline-none cursor-pointer">
+        </div>
+
+        <!-- 2. مساحة رقم السجل / السند (نفس مساحة التاريخ flex-1 h-[38px] ومكبرة ومنسقة) -->
+        <div class="flex-1 min-w-0 bg-slate-950 border border-slate-700/80 rounded-xl px-1 flex items-center justify-between h-[38px] shadow-inner">
+          <!-- سهم التالي ◀ (يمين في RTL) -->
+          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-6 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-90 text-slate-300 flex items-center justify-center transition disabled:opacity-20 shrink-0" title="السند التالي">
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          </button>
+
+          <!-- رقم السند بحجم واضح وبارز -->
+          <div class="text-center px-0.5 flex-1 min-w-0">
+            <span class="block text-[7.5px] text-slate-400 font-bold uppercase leading-none" id="voucherTag">رقم السند</span>
+            <span class="text-[13px] font-mono font-black text-amber-400 truncate block leading-tight tracking-tight" id="currentVoucherDisplay">842</span>
+          </div>
+
+          <!-- سهم السابق ▶ (يسار في RTL) -->
+          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-6 h-7 rounded-lg bg-slate-800/80 hover:bg-slate-700 active:scale-90 text-slate-300 flex items-center justify-center transition disabled:opacity-20 shrink-0" title="السند السابق">
+            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+          </button>
+
+          <!-- زر سند جديد (+) -->
+          <button type="button" onclick="startNewVoucher()" class="w-6 h-7 rounded-lg bg-cyan-600 hover:bg-cyan-500 active:scale-90 text-white flex items-center justify-center transition mr-0.5 shrink-0 shadow-sm" title="سند جديد">
+            <i class="fa-solid fa-plus text-[10px]"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Offline Sync Banner Notification -->
+    <div id="offlineSyncBanner" class="hidden bg-gradient-to-r from-amber-600 to-orange-600 px-3 py-1.5 text-xs text-white flex items-center justify-between font-medium">
+      <div class="flex items-center gap-1.5">
+        <span>⚠️</span>
+        <span id="offlineBannerText">الوضع أوفلاين: السندات تحفظ كـ (أوفلاين 1...) وترفع تلقائياً فور توفر النت.</span>
+      </div>
+      <span class="text-[10px] bg-black/40 px-1.5 py-0.5 rounded font-mono" id="pendingCount">0 معلق</span>
+    </div>
+
+    <!-- Main Scrollable Content -->
+    <main class="flex-1 overflow-y-auto no-scrollbar p-2.5 space-y-2.5 pb-28 text-xs">
+
+      <!-- ═════════════════════════════════════════════════════════════════
+           2. أزرار الدفع الزجاجية العصرية مع إيماءات ضوئية حركية
+           ═════════════════════════════════════════════════════════════════ -->
+      <div class="p-1 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-sm">
+        <div class="grid grid-cols-4 gap-1.5 text-[11px] font-black" id="paymentMethodsGroup">
+          <button type="button" onclick="setPaymentType('transfer')" id="btn-transfer" class="glass-pay-btn is-active py-2 px-1 rounded-xl text-center flex flex-col items-center justify-center gap-0.5">
+            <i class="fa-solid fa-arrow-right-arrow-left text-xs mb-0.5 text-sky-400"></i>
+            <span>تحويل</span>
+          </button>
+          <button type="button" onclick="setPaymentType('cash')" id="btn-cash" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-300 text-center flex flex-col items-center justify-center gap-0.5">
+            <i class="fa-solid fa-money-bill-wave text-xs mb-0.5 text-emerald-400"></i>
+            <span>كاش</span>
+          </button>
+          <button type="button" onclick="setPaymentType('bank_cheque')" id="btn-bank_cheque" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-300 text-center flex flex-col items-center justify-center gap-0.5">
+            <i class="fa-solid fa-money-check text-xs mb-0.5 text-amber-400"></i>
+            <span>شيك مصرفي</span>
+          </button>
+          <button type="button" onclick="setPaymentType('normal_cheque')" id="btn-normal_cheque" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-300 text-center flex flex-col items-center justify-center gap-0.5">
+            <i class="fa-regular fa-file-lines text-xs mb-0.5 text-indigo-400"></i>
+            <span>شيك عادي</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- ═════════════════════════════════════════════════════════════════
+           3. شريط العملة (ج.س / $) + قيمة الدولار + مركز الكلفة باللون الرمادي الخفيف
+           ═════════════════════════════════════════════════════════════════ -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 flex items-center gap-1.5 shadow-sm">
+        <!-- 1. مساحة العملة بسهم للاختيار بين الجنيه السوداني والدولار -->
+        <div class="relative shrink-0">
+          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="appearance-none bg-slate-950 border border-slate-700/80 rounded-xl px-2.5 py-1.5 pl-6 text-xs font-black text-amber-400 focus:outline-none focus:border-amber-400 cursor-pointer h-[38px]">
+            <option value="SDG" selected>ج.س (SDG)</option>
+            <option value="USD">دولار ($)</option>
+          </select>
+          <div class="absolute left-2 top-3 pointer-events-none text-slate-400 text-[10px]">
+            <i class="fa-solid fa-chevron-down"></i>
+          </div>
+        </div>
+
+        <!-- 2. وبجوارهم طوال قيمة الدولار -->
+        <div class="bg-slate-950 border border-emerald-500/40 rounded-xl px-2 py-1 flex items-center gap-1 w-[96px] shrink-0 h-[38px]" title="قيمة الدولار">
+          <span class="text-slate-400 font-mono text-[11px]">$</span>
+          <input type="number" id="usdRate" value="2650" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-400 font-mono font-bold text-xs focus:outline-none text-center" placeholder="2650">
+        </div>
+
+        <!-- 3. وبجوارهم مباشرة مركز الكلفة ومكتوب داخله باللون الرمادي الخفيف "مركز الكلفة" -->
+        <div class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-2.5 py-1 flex items-center h-[38px] relative">
+          <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="مركز الكلفة" class="w-full bg-transparent text-slate-100 placeholder:text-slate-400 placeholder:font-medium text-xs font-bold focus:outline-none" value="مخزن بحري الرئيسي">
+          <datalist id="costCentersDataList">
+            <option value="مخزن بحري الرئيسي"></option>
+            <option value="مخزن أم درمان"></option>
+            <option value="فرع بورتسودان"></option>
+            <option value="الإدارة العامة"></option>
+          </datalist>
+        </div>
+      </div>
+
+      <!-- ═════════════════════════════════════════════════════════════════
+           4. المبالغ: العملة المحلية على اليمين والعملة الأجنبية على اليسار
+           (المبلغ مكتوب واضح، وكليك يمين أو لمس يعطي خصائص الأرقام)
+           ═════════════════════════════════════════════════════════════════ -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 space-y-2">
+        <div class="flex items-center justify-between px-1">
+          <span class="text-[11px] font-bold text-slate-400">المبالغ المالية (كليك يمين لخصائص الأرقام)</span>
+          <button type="button" onclick="openNumberPropertiesModal()" class="text-[10px] text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-1 bg-cyan-950/50 border border-cyan-500/30 px-2 py-0.5 rounded-lg active:scale-95 transition" title="تخصيص الألوان والحجم والفواصل">
+            <i class="fa-solid fa-sliders"></i>
+            <span>خصائص الأرقام ⚙️</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2.5">
+          <!-- 1. اليمين: العملة المحلية (SDG) -->
+          <div id="sdgAmountCard" class="amount-display-card bg-slate-950 p-2.5 rounded-xl border border-blue-500/40 focus-within:border-blue-500 transition relative cursor-pointer" oncontextmenu="openNumberPropertiesModal(event); return false;" title="كليك يمين أو ضغطة مطولة لفتح خصائص الأرقام">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[11px] font-black text-blue-400">المبلغ محلي</span>
+              <span class="text-[10px] font-mono text-slate-400">ج.س (SDG)</span>
+            </div>
+            <input type="text" id="sdgAmount" placeholder="0" inputmode="decimal" oninput="handleAmountInput('sdg'); updateTafqeet();" class="amount-number-input w-full bg-transparent font-mono font-black text-xl text-white placeholder-slate-600 focus:outline-none">
+          </div>
+
+          <!-- 2. اليسار: العملة الأجنبية ($ USD) -->
+          <div id="usdAmountCard" class="amount-display-card bg-slate-950 p-2.5 rounded-xl border border-emerald-500/40 focus-within:border-emerald-500 transition relative cursor-pointer" oncontextmenu="openNumberPropertiesModal(event); return false;" title="كليك يمين أو ضغطة مطولة لفتح خصائص الأرقام">
+            <div class="flex justify-between items-center mb-1">
+              <span class="text-[11px] font-black text-emerald-400" id="foreignAmountTitle">المبلغ بالدولار</span>
+              <span class="text-[10px] font-mono text-slate-400" id="foreignCurrencyBadge">$ USD</span>
+            </div>
+            <input type="text" id="usdAmount" placeholder="0.00" inputmode="decimal" oninput="handleAmountInput('foreign'); updateTafqeet();" class="amount-number-input w-full bg-transparent font-mono font-black text-xl text-emerald-400 placeholder-slate-600 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- تفقيط المبلغ كتابة بالحروف العربية -->
+        <div id="tafqeetDisplay" class="hidden text-[10.5px] font-bold text-amber-300 bg-amber-950/30 border border-amber-500/30 px-2.5 py-1.5 rounded-xl">
+          <!-- النص العربي للتفقيط -->
+        </div>
+      </div>
+
+      <!-- ═════════════════════════════════════════════════════════════════
+           5. من حساب إلى حساب (أحمر وأخضر وبحث فسيح 52px وزر مسح ✕)
+           ═════════════════════════════════════════════════════════════════ -->
+      <!-- من حساب (باللون الأحمر فقط) -->
+      <div class="bg-gradient-to-b from-red-950/20 to-slate-900/90 border-2 border-red-500/60 rounded-2xl p-2.5 shadow-sm relative">
+        <div class="flex items-center justify-between mb-1.5">
+          <div class="flex items-center gap-1.5">
+            <span class="px-2 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-sm">مِن</span>
+            <span class="text-xs font-black text-red-400">من حساب:</span>
+          </div>
+          <!-- بطاقة الحساب المختار ورصيده -->
+          <span id="fromAccountSummary" class="text-[11px] font-bold text-red-300 bg-red-950/80 px-2.5 py-0.5 rounded-xl border border-red-500/40 truncate max-w-[200px]">
+            بنك الخرطوم (5540) • 14,850,000 ج.س
+          </span>
+        </div>
+
+        <!-- حقل البحث الفسيح -->
+        <div class="relative">
+          <div class="absolute right-3.5 top-3.5 text-red-400 pointer-events-none">
+            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+          </div>
+          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onfocus="liveSearchAccount('from')" placeholder="بحث فوري: بنك، خزينة، عميل، مورد، مصروف..." class="w-full bg-slate-950 border border-red-500/40 rounded-xl pr-9 pl-8 py-2.5 text-white focus:outline-none focus:border-red-400 placeholder-slate-500 font-bold text-xs">
+          <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="hidden absolute left-3 top-3 w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center text-xs" title="مسح البحث">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+          <!-- القائمة المنسدلة الذكية -->
+          <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1 bg-slate-950 border border-slate-700 rounded-2xl shadow-2xl z-40 max-h-52 overflow-y-auto no-scrollbar"></div>
+        </div>
+      </div>
+
+      <!-- زر التبديل الذكي (Swap ⇄) بين الحسابين -->
+      <div class="flex items-center justify-center my-[-6px] relative z-20">
+        <button type="button" onclick="swapAccounts()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 active:scale-90 text-cyan-400 border border-slate-700 shadow-md flex items-center justify-center transition" title="تبديل الحسابين (من ⇄ إلى)">
+          <i class="fa-solid fa-arrow-down-up-across-line text-xs"></i>
+        </button>
+      </div>
+
+      <!-- إلى حساب (باللون الأخضر فقط) -->
+      <div class="bg-gradient-to-b from-emerald-950/20 to-slate-900/90 border-2 border-emerald-500/60 rounded-2xl p-2.5 shadow-sm relative">
+        <div class="flex items-center justify-between mb-1.5">
+          <div class="flex items-center gap-1.5">
+            <span class="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-sm">إلى</span>
+            <span class="text-xs font-black text-emerald-400">إلى حساب:</span>
+          </div>
+          <!-- بطاقة الحساب المختار ورصيده -->
+          <span id="toAccountSummary" class="text-[11px] font-bold text-emerald-300 bg-emerald-950/80 px-2.5 py-0.5 rounded-xl border border-emerald-500/40 truncate max-w-[200px]">
+            شركة النيل للاستيراد (مورد) • 4,200,000 ج.س دائن
+          </span>
+        </div>
+
+        <!-- حقل البحث الفسيح -->
+        <div class="relative">
+          <div class="absolute right-3.5 top-3.5 text-emerald-400 pointer-events-none">
+            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+          </div>
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onfocus="liveSearchAccount('to')" placeholder="بحث فوري: مورد، عميل، بنك، خزينة، مصروف..." class="w-full bg-slate-950 border border-emerald-500/40 rounded-xl pr-9 pl-8 py-2.5 text-white focus:outline-none focus:border-emerald-400 placeholder-slate-500 font-bold text-xs">
+          <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="hidden absolute left-3 top-3 w-5 h-5 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center text-xs" title="مسح البحث">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+
+          <!-- القائمة المنسدلة الذكية -->
+          <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1 bg-slate-950 border border-slate-700 rounded-2xl shadow-2xl z-40 max-h-52 overflow-y-auto no-scrollbar"></div>
+        </div>
+      </div>
+
+      <!-- ═════════════════════════════════════════════════════════════════
+           6. رقم التحويلة / رقم الشيك وبجوارهما مباشرة اسم البنك
+           (بدون كتابات شروط أو تنبيهات مزعجة)
+           ═════════════════════════════════════════════════════════════════ -->
+      <div id="transferContainer" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 space-y-2">
+        <div class="grid grid-cols-2 gap-2">
+          <!-- 1. رقم التحويلة أو رقم الشيك -->
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 mb-1" id="refLabel">رقم التحويلة:</label>
+            <input type="text" id="transferInput" placeholder="رقم التحويلة" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-500 rounded-xl px-3 py-2 text-xs font-mono font-bold text-white focus:outline-none">
+          </div>
+
+          <!-- 2. وبجوارهما مباشرة اسم البنك -->
+          <div>
+            <label class="block text-[11px] font-bold text-slate-300 mb-1">اسم البنك:</label>
+            <input type="text" id="bankNameInput" list="banksDataList" placeholder="اسم البنك" class="w-full bg-slate-950 border border-slate-700 focus:border-cyan-500 rounded-xl px-3 py-2 text-xs font-bold text-white focus:outline-none" value="بنك الخرطوم">
+            <datalist id="banksDataList">
+              <option value="بنك الخرطوم"></option>
+              <option value="بنك فيصل الإسلامي"></option>
+              <option value="بنك أم درمان الوطني"></option>
+              <option value="بنك النيلين"></option>
+              <option value="بنك الخليج"></option>
+              <option value="بنك البركة"></option>
+              <option value="بنك العمال الوطني"></option>
+              <option value="مصرف الساحل والصحراء"></option>
+              <option value="بنك الثروة الحيوانية"></option>
+              <option value="البنك الفرنسي السوداني"></option>
+            </datalist>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. البيان (Description / Notes) -->
+      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5">
+        <label class="block text-[11px] font-bold text-slate-300 mb-1">البيان (سبب الصرف / تفاصيل الحركة):</label>
+        <textarea id="voucherNotes" rows="2" placeholder="اكتب البيان وتفاصيل الحركة هنا..." class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 resize-none font-medium text-xs"></textarea>
+      </div>
+
+      <!-- 8. ثلاثي الميديا: الكاميرا ثم الاستوديو ثم سحب من الواتساب -->
+      <div class="bg-slate-900/80 border border-indigo-500/30 rounded-2xl p-2.5 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-[11px] font-bold text-indigo-300">مرفقات الإشعار وقراءة الذكاء الاصطناعي:</span>
+          <span class="text-[9px] text-slate-400" id="attachStatusText">بانتظار الإرفاق</span>
+        </div>
+        
+        <div class="grid grid-cols-3 gap-2">
+          <!-- 1. الكاميرا -->
+          <button type="button" onclick="simulateMediaIntake('camera')" class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white transition-all shadow-sm">
+            <i class="fa-solid fa-camera text-sm mb-1"></i>
+            <span class="text-[11px] font-bold">الكاميرا</span>
+          </button>
+
+          <!-- 2. الاستوديو -->
+          <button type="button" onclick="simulateMediaIntake('gallery')" class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 transition-all border border-slate-700">
+            <i class="fa-solid fa-image text-sm mb-1 text-amber-400"></i>
+            <span class="text-[11px] font-bold">الاستوديو</span>
+          </button>
+
+          <!-- 3. سحب من الواتساب -->
+          <button type="button" onclick="simulateMediaIntake('whatsapp')" class="flex flex-col items-center justify-center py-2 px-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white transition-all shadow-sm">
+            <i class="fa-brands fa-whatsapp text-sm mb-1"></i>
+            <span class="text-[11px] font-bold">من واتساب</span>
+          </button>
+        </div>
+
+        <div id="mediaToast" class="hidden p-2 rounded-xl bg-indigo-950 border border-indigo-400/40 text-[10px] text-indigo-200 items-center justify-between">
+          <span id="mediaToastText">جارِ المعالجة بالذكاء الاصطناعي...</span>
+          <span class="font-mono text-emerald-400 font-bold">AI OCR ✓</span>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ═════════════════════════════════════════════════════════════════
+         10. الشريط السفلي الثابت: حذف، تعديل، زر الإرسال التلقائي، وحفظ
+         ═════════════════════════════════════════════════════════════════ -->
+    <div class="bottom-bar-fixed bg-slate-950/95 border-t border-slate-800 p-2.5 backdrop-blur-md">
+      <div class="flex items-center gap-1.5">
+        <!-- Delete Button (حذف) -->
+        <button type="button" onclick="handleDelete()" class="w-10 h-11 rounded-xl bg-red-500/10 hover:bg-red-500/20 active:scale-95 text-red-400 border border-red-500/30 flex items-center justify-center transition-all shrink-0" title="حذف السند">
+          <i class="fa-solid fa-trash-can text-sm"></i>
+        </button>
+
+        <!-- Edit Button (تعديل) -->
+        <button type="button" onclick="handleEdit()" class="w-10 h-11 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 active:scale-95 text-amber-400 border border-amber-500/30 flex items-center justify-center transition-all shrink-0" title="تعديل">
+          <i class="fa-solid fa-pen text-sm"></i>
+        </button>
+
+        <!-- زر الإرسال التلقائي الصغير (أون / أوف) -->
+        <button type="button" id="btnAutoSendToggle" onclick="toggleAutoSend()" class="auto-send-pill is-on h-11 px-2 rounded-xl border flex flex-col items-center justify-center gap-0.5 shrink-0 transition" title="انقر لتفعيل أو إيقاف الإرسال التلقائي بعد الحفظ">
+          <div class="flex items-center gap-1">
+            <span class="status-dot w-2 h-2 rounded-full"></span>
+            <span class="text-[9px] font-bold text-slate-300">إرسال تلقائي</span>
+          </div>
+          <span id="autoSendStatusText" class="text-[10px] font-black leading-none">أون ON</span>
+        </button>
+
+        <!-- Save Button (حفظ - الزر الأساسي) -->
+        <button type="button" onclick="handleSave()" id="btnSaveMain" class="flex-1 h-11 rounded-xl bg-gradient-to-r from-blue-600 via-cyan-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 active:scale-98 text-white font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-600/30 transition-all">
+          <i class="fa-solid fa-check text-sm"></i>
+          <span class="text-sm font-bold" id="saveButtonLabel">حفظ الحركة المالية</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       نافذة منبثقة: خصائص الأرقام (تخصيص الألوان والحجم والفواصل والحفظ)
+       ═════════════════════════════════════════════════════════════════ -->
+  <div id="modalNumberProperties" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80 backdrop-blur-sm select-none" dir="rtl">
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-4 shadow-2xl space-y-4">
+      <!-- رأس النافذة -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">⚙️</span>
+          <h3 class="text-sm font-black text-white">خصائص تنسيق الأرقام</h3>
+        </div>
+        <button type="button" onclick="closeNumberPropertiesModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center text-xs">
+          ✕
+        </button>
+      </div>
+
+      <!-- معاينة فورية لشكل الرقم -->
+      <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800 text-center space-y-1">
+        <span class="text-[10px] text-slate-400 font-bold block">معاينة مباشرة للرقم المنسق</span>
+        <div id="numPropLivePreview" class="font-mono font-black text-2xl text-emerald-400 py-1 transition-all">
+          2,650,000.75
+        </div>
+      </div>
+
+      <!-- 1. اختيار اللون -->
+      <div class="space-y-1.5">
+        <div class="flex justify-between items-center text-[11px] font-bold">
+          <span class="text-slate-300">لون الأرقام:</span>
+          <span id="numColorName" class="text-cyan-400 text-[10px]">أخضر زمردي</span>
+        </div>
+        <div class="flex items-center justify-between gap-1.5" id="numPropColorsGroup">
+          <button type="button" onclick="setNumColor('#10b981', 'أخضر زمردي')" data-color="#10b981" class="w-8 h-8 rounded-xl bg-emerald-500 border-2 border-white shadow-lg scale-105 transition"></button>
+          <button type="button" onclick="setNumColor('#06b6d4', 'سماوي فاقع')" data-color="#06b6d4" class="w-8 h-8 rounded-xl bg-cyan-500 border-2 border-transparent transition"></button>
+          <button type="button" onclick="setNumColor('#f59e0b', 'ذهبي عنبري')" data-color="#f59e0b" class="w-8 h-8 rounded-xl bg-amber-500 border-2 border-transparent transition"></button>
+          <button type="button" onclick="setNumColor('#f43f5e', 'وردي فاقع')" data-color="#f43f5e" class="w-8 h-8 rounded-xl bg-rose-500 border-2 border-transparent transition"></button>
+          <button type="button" onclick="setNumColor('#8b5cf6', 'بنفسجي ملكي')" data-color="#8b5cf6" class="w-8 h-8 rounded-xl bg-purple-500 border-2 border-transparent transition"></button>
+          <button type="button" onclick="setNumColor('#ffffff', 'أبيض ناصع')" data-color="#ffffff" class="w-8 h-8 rounded-xl bg-white border-2 border-transparent transition"></button>
+        </div>
+      </div>
+
+      <!-- 2. اختيار حجم الخط -->
+      <div class="space-y-1.5">
+        <label class="block text-[11px] font-bold text-slate-300">حجم الخط:</label>
+        <div class="grid grid-cols-4 gap-1.5 text-xs font-bold font-mono">
+          <button type="button" onclick="setNumSize('18px')" id="btnSize18" class="size-btn py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700">18px</button>
+          <button type="button" onclick="setNumSize('20px')" id="btnSize20" class="size-btn py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700">20px</button>
+          <button type="button" onclick="setNumSize('22px')" id="btnSize22" class="size-btn py-1.5 rounded-xl bg-cyan-600 text-white border-cyan-400">22px</button>
+          <button type="button" onclick="setNumSize('26px')" id="btnSize26" class="size-btn py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700">26px</button>
+        </div>
+      </div>
+
+      <!-- 3. الفواصل (الألفية والعشرية) -->
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div>
+          <label class="block text-[11px] font-bold text-slate-300 mb-1">الفاصلة الألفية:</label>
+          <select id="numThousandsSelect" onchange="updateNumPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
+            <option value="," selected>فاصلة ( , ) 1,000</option>
+            <option value=".">نقطة ( . ) 1.000</option>
+            <option value=" ">مسافة ( 1 000 )</option>
+            <option value="">بدون فاصلة (1000)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold text-slate-300 mb-1">الفاصلة العشرية:</label>
+          <select id="numDecimalSelect" onchange="updateNumPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
+            <option value="." selected>نقطة ( . ) 0.50</option>
+            <option value=",">فاصلة ( , ) 0,50</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 4. عدد الخانات العشرية -->
+      <div class="space-y-1">
+        <label class="block text-[11px] font-bold text-slate-300">الخانات العشرية:</label>
+        <div class="grid grid-cols-3 gap-1.5 text-xs font-bold font-mono">
+          <button type="button" onclick="setNumDecimals(0)" id="btnDec0" class="dec-btn py-1 rounded-xl bg-slate-800 text-slate-300 border border-slate-700">0 (صحيح)</button>
+          <button type="button" onclick="setNumDecimals(2)" id="btnDec2" class="dec-btn py-1 rounded-xl bg-cyan-600 text-white border-cyan-400">2 (0.00)</button>
+          <button type="button" onclick="setNumDecimals(3)" id="btnDec3" class="dec-btn py-1 rounded-xl bg-slate-800 text-slate-300 border border-slate-700">3 (0.000)</button>
+        </div>
+      </div>
+
+      <!-- زر الحفظ النهائي للخصائص -->
+      <div class="pt-2">
+        <button type="button" onclick="saveNumberProperties()" class="w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-600/30 transition">
+          <i class="fa-solid fa-floppy-disk text-xs"></i>
+          <span>حفظ وتطبيق الخصائص للبرنامج</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Logic -->
+  <script>
+    // Accounts Database
+    let accountsDB = [
+      { id: '101001', name: 'الخزينة الرئيسية (كاش)', category: 'خزن ونقدية', balance: '2,450,000 ج.س' },
+      { id: '101002', name: 'بنك الخرطوم (5540)', category: 'بنوك ومصارف', balance: '14,850,000 ج.س' },
+      { id: '101003', name: 'بنك فيصل الإسلامي (3290)', category: 'بنوك ومصارف', balance: '8,210,000 ج.س' },
+      { id: '201015', name: 'شركة النيل للاستيراد (مورد)', category: 'موردين', balance: '4,200,000 ج.س دائن' },
+      { id: '201022', name: 'مؤسسة الرواد التجارية (مورد)', category: 'موردين', balance: '1,750,000 ج.س دائن' },
+      { id: '102008', name: 'العميل: أحمد عثمان النور', category: 'عملاء', balance: '950,000 ج.س مدين' },
+      { id: '501001', name: 'مصروفات إيجار ونولون', category: 'مصروفات', balance: 'مصروف جاري' }
+    ];
+
+    // Synced records matching laptop database
+    let vouchersList = [
+      {
+        id: '840',
+        isOffline: false,
+        date: '2026-10-03',
+        rate: 2640,
+        currency: 'SDG',
+        costCenter: 'مخزن بحري الرئيسي',
+        sdg: 5280000,
+        usd: 2000,
+        payType: 'transfer',
+        from: 'بنك الخرطوم (5540)',
+        to: 'شركة النيل للاستيراد (مورد)',
+        refNo: '7104928',
+        bankName: 'بنك الخرطوم',
+        notes: 'دفعة حساب نولون بضائع محملة من بورتسودان'
+      },
+      {
+        id: '841',
+        isOffline: false,
+        date: '2026-10-04',
+        rate: 2650,
+        currency: 'SDG',
+        costCenter: 'مخزن بحري الرئيسي',
+        sdg: 1325000,
+        usd: 500,
+        payType: 'cash',
+        from: 'الخزينة الرئيسية (كاش)',
+        to: 'مصروفات إيجار ونولون',
+        refNo: '',
+        bankName: '',
+        notes: 'صرف نثريات ضيافة وإيجار مكتبي كاش'
+      },
+      {
+        id: '842',
+        isOffline: false,
+        date: '2026-10-05',
+        rate: 2650,
+        currency: 'SDG',
+        costCenter: 'مخزن بحري الرئيسي',
+        sdg: 2650000,
+        usd: 1000,
+        payType: 'transfer',
+        from: 'بنك الخرطوم (5540)',
+        to: 'مؤسسة الرواد التجارية (مورد)',
+        refNo: '8492015',
+        bankName: 'بنك الخرطوم',
+        notes: 'سداد دفعة بضاعة توريد مواد خام'
+      }
+    ];
+
+    let currentIndex = 2;
+    let isOfflineMode = false;
+    let offlineCounter = 1;
+    let offlineQueue = [];
+    let currentPayType = 'transfer';
+    let currentCurrency = 'SDG';
+
+    // ════════════════════════════════════════════════════════════════
+    // خصائص الأرقام (تخصيص الألوان والحجم والفواصل)
+    // ════════════════════════════════════════════════════════════════
+    let numberConfig = {
+      color: '#10b981',
+      fontSize: '20px',
+      thousandsSep: ',',
+      decimalSep: '.',
+      decimals: 2
+    };
+
+    let tempNumColor = '#10b981';
+    let tempNumSize = '20px';
+    let tempNumDecimals = 2;
+
+    function loadSavedNumberConfig() {
+      try {
+        const saved = localStorage.getItem('magaiees_number_format_config');
+        if (saved) {
+          numberConfig = Object.assign(numberConfig, JSON.parse(saved));
+        }
+      } catch(e) {}
+      applyNumberStylesToInputs();
+    }
+
+    function applyNumberStylesToInputs() {
+      const inputs = document.querySelectorAll('.amount-number-input');
+      inputs.forEach(inp => {
+        inp.style.color = numberConfig.color;
+        inp.style.fontSize = numberConfig.fontSize;
+      });
+      const preview = document.getElementById('numPropLivePreview');
+      if (preview) {
+        preview.style.color = numberConfig.color;
+        preview.style.fontSize = numberConfig.fontSize;
+      }
+    }
+
+    function openNumberPropertiesModal(e) {
+      if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      document.getElementById('numThousandsSelect').value = numberConfig.thousandsSep;
+      document.getElementById('numDecimalSelect').value = numberConfig.decimalSep;
+      setNumColor(numberConfig.color, '', false);
+      setNumSize(numberConfig.fontSize, false);
+      setNumDecimals(numberConfig.decimals, false);
+      updateNumPreview();
+
+      document.getElementById('modalNumberProperties').classList.remove('hidden');
+    }
+
+    function closeNumberPropertiesModal() {
+      document.getElementById('modalNumberProperties').classList.add('hidden');
+    }
+
+    function setNumColor(color, label = '', refresh = true) {
+      tempNumColor = color;
+      if (label) {
+        const nameEl = document.getElementById('numColorName');
+        if (nameEl) nameEl.textContent = label;
+      }
+      document.querySelectorAll('#numPropColorsGroup button').forEach(btn => {
+        if (btn.getAttribute('data-color') === color) {
+          btn.classList.add('border-2', 'border-white', 'shadow-lg', 'scale-105');
+          btn.classList.remove('border-transparent');
+        } else {
+          btn.classList.remove('border-2', 'border-white', 'shadow-lg', 'scale-105');
+          btn.classList.add('border-transparent');
+        }
+      });
+      if (refresh) updateNumPreview();
+    }
+
+    function setNumSize(size, refresh = true) {
+      tempNumSize = size;
+      document.querySelectorAll('.size-btn').forEach(btn => {
+        btn.classList.remove('bg-cyan-600', 'text-white', 'border-cyan-400');
+        btn.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700');
+      });
+      const activeBtn = document.getElementById('btnSize' + parseInt(size));
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700');
+        activeBtn.classList.add('bg-cyan-600', 'text-white', 'border-cyan-400');
+      }
+      if (refresh) updateNumPreview();
+    }
+
+    function setNumDecimals(dec, refresh = true) {
+      tempNumDecimals = dec;
+      document.querySelectorAll('.dec-btn').forEach(btn => {
+        btn.classList.remove('bg-cyan-600', 'text-white', 'border-cyan-400');
+        btn.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700');
+      });
+      const activeBtn = document.getElementById('btnDec' + dec);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700');
+        activeBtn.classList.add('bg-cyan-600', 'text-white', 'border-cyan-400');
+      }
+      if (refresh) updateNumPreview();
+    }
+
+    function formatNumberWithConfig(val, cfg) {
+      if (val === '' || val === null || isNaN(val)) return '';
+      let n = parseFloat(val);
+      if (isNaN(n)) return '';
+
+      const fixed = n.toFixed(cfg.decimals);
+      const parts = fixed.split('.');
+      let integerPart = parts[0];
+      const decimalPart = parts[1];
+
+      if (cfg.thousandsSep) {
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, cfg.thousandsSep);
+      }
+
+      if (cfg.decimals > 0 && decimalPart !== undefined) {
+        return integerPart + cfg.decimalSep + decimalPart;
+      }
+      return integerPart;
+    }
+
+    function updateNumPreview() {
+      const preview = document.getElementById('numPropLivePreview');
+      const thSep = document.getElementById('numThousandsSelect').value;
+      const decSep = document.getElementById('numDecimalSelect').value;
+      
+      const sample = 2650000.75;
+      const formatted = formatNumberWithConfig(sample, {
+        thousandsSep: thSep,
+        decimalSep: decSep,
+        decimals: tempNumDecimals
+      });
+
+      preview.textContent = formatted;
+      preview.style.color = tempNumColor;
+      preview.style.fontSize = tempNumSize;
+    }
+
+    function saveNumberProperties() {
+      numberConfig.color = tempNumColor;
+      numberConfig.fontSize = tempNumSize;
+      numberConfig.decimals = tempNumDecimals;
+      numberConfig.thousandsSep = document.getElementById('numThousandsSelect').value;
+      numberConfig.decimalSep = document.getElementById('numDecimalSelect').value;
+
+      localStorage.setItem('magaiees_number_format_config', JSON.stringify(numberConfig));
+      applyNumberStylesToInputs();
+      closeNumberPropertiesModal();
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // زر الإرسال التلقائي الصغير (أون / أوف)
+    // ════════════════════════════════════════════════════════════════
+    let isAutoSendEnabled = localStorage.getItem('magaiees_voucher_auto_send') !== 'false';
+
+    function updateAutoSendUI() {
+      const btn = document.getElementById('btnAutoSendToggle');
+      const txt = document.getElementById('autoSendStatusText');
+      if (!btn || !txt) return;
+
+      if (isAutoSendEnabled) {
+        btn.classList.add('is-on');
+        btn.classList.remove('is-off');
+        txt.textContent = 'أون ON';
+      } else {
+        btn.classList.add('is-off');
+        btn.classList.remove('is-on');
+        txt.textContent = 'أوف OFF';
+      }
+    }
+
+    function toggleAutoSend() {
+      isAutoSendEnabled = !isAutoSendEnabled;
+      localStorage.setItem('magaiees_voucher_auto_send', isAutoSendEnabled);
+      updateAutoSendUI();
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // المقاسات والتنقل
+    // ════════════════════════════════════════════════════════════════
+    function setMobilePreset(width, label) {
+      const container = document.getElementById('mobileContainer');
+      const badge = document.getElementById('dimensionBadge');
+      
+      document.querySelectorAll('.preset-btn').forEach(b => {
+        b.classList.remove('bg-blue-600', 'text-white');
+        b.classList.add('bg-slate-800', 'text-slate-400');
+      });
+
+      if (width === '100%') {
+        container.style.maxWidth = '100%';
+        badge.textContent = `100% Full Width (${label})`;
+        document.getElementById('btn-p-full').classList.add('bg-blue-600', 'text-white');
+      } else {
+        container.style.maxWidth = `${width}px`;
+        badge.textContent = `${width}px × 852px (${label})`;
+        const activeBtn = document.getElementById(`btn-p-${width}`);
+        if (activeBtn) {
+          activeBtn.classList.add('bg-blue-600', 'text-white');
+          activeBtn.classList.remove('bg-slate-800', 'text-slate-400');
+        }
+      }
+    }
+
+    function loadVoucher(index) {
+      if (index < 0 || index >= vouchersList.length) return;
+      currentIndex = index;
+      const v = vouchersList[index];
+
+      document.getElementById('currentVoucherDisplay').textContent = v.id;
+      document.getElementById('voucherTag').textContent = v.isOffline ? 'أوفلاين' : 'رقم السند';
+      document.getElementById('voucherDate').value = v.date;
+      document.getElementById('usdRate').value = v.rate;
+      if (v.costCenter) document.getElementById('costCenterInput').value = v.costCenter;
+      document.getElementById('sdgAmount').value = v.sdg || '';
+      document.getElementById('usdAmount').value = v.usd || '';
+      document.getElementById('voucherNotes').value = v.notes || '';
+      document.getElementById('fromAccountSummary').textContent = v.from;
+      document.getElementById('toAccountSummary').textContent = v.to;
+      document.getElementById('transferInput').value = v.refNo || '';
+      if (v.bankName) document.getElementById('bankNameInput').value = v.bankName;
+
+      selectCurrency(v.currency || 'SDG', false);
+      setPaymentType(v.payType);
+      updateTafqeet();
+
+      document.getElementById('btnPrevVoucher').disabled = (currentIndex === 0);
+      document.getElementById('btnNextVoucher').disabled = (currentIndex === vouchersList.length - 1);
+    }
+
+    function navigateVoucher(direction) {
+      const newIndex = currentIndex + direction;
+      if (newIndex >= 0 && newIndex < vouchersList.length) {
+        loadVoucher(newIndex);
+      }
+    }
+
+    function startNewVoucher() {
+      let nextId = '';
+      if (isOfflineMode) {
+        nextId = `أوفلاين ${offlineCounter}`;
+      } else {
+        const lastVoucher = vouchersList[vouchersList.length - 1];
+        const lastNum = parseInt(lastVoucher.id.replace(/\D/g, '')) || 842;
+        nextId = String(lastNum + 1);
+      }
+
+      document.getElementById('currentVoucherDisplay').textContent = nextId;
+      document.getElementById('voucherTag').textContent = isOfflineMode ? 'سند أوفلاين' : 'سند جديد';
+      document.getElementById('sdgAmount').value = '';
+      document.getElementById('usdAmount').value = '';
+      document.getElementById('transferInput').value = '';
+      document.getElementById('voucherNotes').value = '';
+      document.getElementById('mediaToast').classList.add('hidden');
+      document.getElementById('attachStatusText').textContent = 'بانتظار الإرفاق';
+      document.getElementById('tafqeetDisplay').classList.add('hidden');
+
+      document.getElementById('btnNextVoucher').disabled = true;
+      document.getElementById('btnPrevVoucher').disabled = false;
+    }
+
+    function setPaymentType(type) {
+      currentPayType = type;
+      const buttons = document.querySelectorAll('.glass-pay-btn');
+      buttons.forEach(b => {
+        b.classList.remove('is-active');
+        b.classList.add('text-slate-300');
+      });
+      const active = document.getElementById('btn-' + type);
+      if (active) {
+        active.classList.add('is-active');
+        active.classList.remove('text-slate-300');
+      }
+
+      const container = document.getElementById('transferContainer');
+      const refLabel = document.getElementById('refLabel');
+      const input = document.getElementById('transferInput');
+
+      if (type === 'transfer') {
+        container.classList.remove('hidden');
+        refLabel.textContent = 'رقم التحويلة:';
+        input.placeholder = 'رقم التحويلة';
+      } else if (type.includes('cheque')) {
+        container.classList.remove('hidden');
+        refLabel.textContent = 'رقم الشيك:';
+        input.placeholder = 'رقم الشيك';
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+
+    function selectCurrency(code, recalculate = true) {
+      currentCurrency = code;
+      const primarySel = document.getElementById('primaryCurrencySelect');
+      if (primarySel && primarySel.value !== code) {
+        primarySel.value = code;
+      }
+      const foreignTitle = document.getElementById('foreignAmountTitle');
+      const foreignBadge = document.getElementById('foreignCurrencyBadge');
+
+      if (code === 'USD') {
+        foreignTitle.textContent = 'المبلغ بالدولار';
+        foreignBadge.textContent = '$ USD';
+      } else {
+        foreignTitle.textContent = 'المبلغ بالأجنبي';
+        foreignBadge.textContent = '$ USD';
+      }
+
+      if (recalculate) {
+        calculateExchange('rate');
+        updateTafqeet();
+      }
+    }
+
+    function parseRawNumber(str) {
+      if (!str) return 0;
+      let cleaned = String(str).replace(/\s/g, '').replace(/,/g, '');
+      const num = parseFloat(cleaned);
+      return isNaN(num) ? 0 : num;
+    }
+
+    function handleAmountInput(source) {
+      calculateExchange(source);
+      updateTafqeet();
+    }
+
+    function calculateExchange(source) {
+      const rate = parseFloat(document.getElementById('usdRate').value) || 2650;
+      const sdg = document.getElementById('sdgAmount');
+      const foreign = document.getElementById('usdAmount');
+      if (rate <= 0) return;
+
+      if (source === 'foreign') {
+        const f = parseRawNumber(foreign.value);
+        sdg.value = f > 0 ? Math.round(f * rate) : '';
+      } else if (source === 'sdg') {
+        const s = parseRawNumber(sdg.value);
+        foreign.value = s > 0 ? (s / rate).toFixed(numberConfig.decimals) : '';
+      } else if (source === 'rate') {
+        const f = parseRawNumber(foreign.value);
+        if (f > 0) sdg.value = Math.round(f * rate);
+      }
+    }
+
+    function updateTafqeet() {
+      const num = parseRawNumber(document.getElementById('sdgAmount').value);
+      const disp = document.getElementById('tafqeetDisplay');
+      if (num <= 0) {
+        disp.classList.add('hidden');
+        return;
+      }
+      disp.textContent = `فقط: ${arabicNumberToWords(num)} جنيه سوداني لا غير`;
+      disp.classList.remove('hidden');
+    }
+
+    function arabicNumberToWords(n) {
+      if (n === 0) return 'صفر';
+      const units = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
+      const teens = ['عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+      const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+      const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+      function convertHundreds(num) {
+        let str = '';
+        const h = Math.floor(num / 100);
+        const rem = num % 100;
+        if (h > 0) str += hundreds[h];
+        if (rem > 0) {
+          if (str) str += ' و';
+          if (rem < 10) str += units[rem];
+          else if (rem < 20) str += teens[rem - 10];
+          else {
+            const u = rem % 10;
+            const t = Math.floor(rem / 10);
+            if (u > 0) str += units[u] + ' و';
+            str += tens[t];
+          }
+        }
+        return str;
+      }
+
+      let res = '';
+      const millions = Math.floor(n / 1000000);
+      const thousands = Math.floor((n % 1000000) / 1000);
+      const remainder = Math.floor(n % 1000);
+
+      if (millions > 0) {
+        res += convertHundreds(millions) + ' مليون';
+      }
+      if (thousands > 0) {
+        if (res) res += ' و';
+        res += convertHundreds(thousands) + ' ألف';
+      }
+      if (remainder > 0) {
+        if (res) res += ' و';
+        res += convertHundreds(remainder);
+      }
+      return res || String(n);
+    }
+
+    function liveSearchAccount(target) {
+      const input = document.getElementById(target + 'SearchInput');
+      const dropdown = document.getElementById(target + 'Dropdown');
+      const clearBtn = document.getElementById(target + 'ClearBtn');
+      const query = input.value.trim().toLowerCase();
+
+      if (clearBtn) {
+        clearBtn.classList.toggle('hidden', query.length === 0);
+      }
+
+      if (!query) {
+        dropdown.classList.add('hidden');
+        return;
+      }
+
+      const results = accountsDB.filter(a => a.name.toLowerCase().includes(query) || a.category.toLowerCase().includes(query));
+      if (results.length === 0) {
+        dropdown.innerHTML = '<div class="p-2.5 text-slate-400 text-center text-xs">لا توجد نتائج مطابقة</div>';
+        dropdown.classList.remove('hidden');
+        return;
+      }
+
+      dropdown.innerHTML = results.map(a => `
+        <div onclick="selectAcc('${target}', '${a.name}', '${a.balance}')" class="p-2.5 hover:bg-slate-900 border-b border-slate-800 cursor-pointer flex items-center justify-between text-xs">
+          <div>
+            <div class="font-bold text-white">${a.name}</div>
+            <div class="text-[10px] text-slate-400">${a.category}</div>
+          </div>
+          <span class="text-[10px] font-mono text-slate-300 bg-slate-900 px-1.5 py-0.5 rounded">${a.balance}</span>
+        </div>
+      `).join('');
+      dropdown.classList.remove('hidden');
+    }
+
+    function clearAccountSearch(target) {
+      const input = document.getElementById(target + 'SearchInput');
+      const dropdown = document.getElementById(target + 'Dropdown');
+      const clearBtn = document.getElementById(target + 'ClearBtn');
+      if (input) input.value = '';
+      if (dropdown) dropdown.classList.add('hidden');
+      if (clearBtn) clearBtn.classList.add('hidden');
+    }
+
+    function selectAcc(target, name, balance) {
+      document.getElementById(target + 'AccountSummary').textContent = `${name} • ${balance}`;
+      clearAccountSearch(target);
+    }
+
+    function swapAccounts() {
+      const fromEl = document.getElementById('fromAccountSummary');
+      const toEl = document.getElementById('toAccountSummary');
+      const temp = fromEl.textContent;
+      fromEl.textContent = toEl.textContent;
+      toEl.textContent = temp;
+    }
+
+    function simulateMediaIntake(source) {
+      const toast = document.getElementById('mediaToast');
+      const text = document.getElementById('mediaToastText');
+      const status = document.getElementById('attachStatusText');
+
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+
+      let srcLabel = (source === 'camera') ? 'الكاميرا' : (source === 'gallery' ? 'الاستوديو' : 'الواتساب');
+      text.textContent = `جاري استيراد الإشعار من ${srcLabel} وتحليل البيانات بالذكاء الاصطناعي...`;
+
+      setTimeout(() => {
+        text.textContent = `✓ تم استخراج رقم التحويلة (9182304) والمبلغ (3,180,000 ج.س) واسم البنك آلياً!`;
+        status.textContent = `مرفق من ${srcLabel}`;
+        
+        setPaymentType('transfer');
+        document.getElementById('transferInput').value = '9182304';
+        document.getElementById('bankNameInput').value = 'بنك الخرطوم';
+        document.getElementById('sdgAmount').value = '3180000';
+        calculateExchange('sdg');
+        updateTafqeet();
+        document.getElementById('voucherNotes').value = `مستخرج بالذكاء الاصطناعي من إشعار (${srcLabel})`;
+      }, 1000);
+    }
+
+    function toggleOnlineStatus() {
+      isOfflineMode = !isOfflineMode;
+      const pill = document.getElementById('networkPill');
+      const dot = document.getElementById('networkDot');
+      const text = document.getElementById('networkText');
+      const banner = document.getElementById('offlineSyncBanner');
+
+      if (isOfflineMode) {
+        pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-bold transition-all';
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse';
+        text.textContent = 'أوفلاين (غير متصل)';
+        banner.classList.remove('hidden');
+        banner.classList.add('flex');
+        document.getElementById('offlineBannerText').textContent = 'الوضع أوفلاين: السندات ستحفظ مؤقتاً كـ (أوفلاين 1، 2...) وترفع عند عودة الإنترنت.';
+        startNewVoucher();
+      } else {
+        pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold transition-all';
+        dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse';
+        text.textContent = 'متصل بالسيرفر (أونلاين)';
+        
+        if (offlineQueue.length > 0) {
+          banner.classList.remove('hidden');
+          banner.classList.add('flex');
+          document.getElementById('offlineBannerText').textContent = `⚡ جارِ رفع ومزامنة ${offlineQueue.length} سندات أوفلاين تلقائياً مع سيرفر اللابتوب...`;
+          
+          setTimeout(() => {
+            const count = offlineQueue.length;
+            offlineQueue = [];
+            offlineCounter = 1;
+            document.getElementById('pendingCount').textContent = '0 معلق';
+            document.getElementById('offlineBannerText').textContent = `✓ تمت مزامنة ${count} سند بنجاح وأخذت أرقام السيستم الرسمية!`;
+            setTimeout(() => { banner.classList.add('hidden'); }, 3000);
+            loadVoucher(vouchersList.length - 1);
+          }, 1500);
+        } else {
+          banner.classList.add('hidden');
+        }
+      }
+    }
+
+    function handleSave() {
+      const sdg = parseRawNumber(document.getElementById('sdgAmount').value);
+      const usd = parseRawNumber(document.getElementById('usdAmount').value);
+
+      if (!sdg && !usd) {
+        alert('⚠️ الرجاء إدخال المبلغ أولاً بالمحلي أو بالدولار.');
+        return;
+      }
+
+      let savedId = '';
+      if (isOfflineMode) {
+        savedId = `أوفلاين ${offlineCounter}`;
+        offlineCounter++;
+        offlineQueue.push(savedId);
+        document.getElementById('pendingCount').textContent = `${offlineQueue.length} معلق`;
+        
+        const newVoucher = {
+          id: savedId,
+          isOffline: true,
+          date: document.getElementById('voucherDate').value,
+          rate: parseFloat(document.getElementById('usdRate').value),
+          currency: currentCurrency,
+          costCenter: document.getElementById('costCenterInput').value,
+          sdg: sdg,
+          usd: usd,
+          payType: currentPayType,
+          from: document.getElementById('fromAccountSummary').textContent,
+          to: document.getElementById('toAccountSummary').textContent,
+          refNo: document.getElementById('transferInput').value,
+          bankName: document.getElementById('bankNameInput').value,
+          notes: document.getElementById('voucherNotes').value
+        };
+        vouchersList.push(newVoucher);
+        alert(`💾 تم حفظ السند محلياً برقم (${savedId})!\nسيرفع إلى سيرفر اللابتوب أوتوماتيكياً فور توفر الإنترنت.`);
+        
+        if (isAutoSendEnabled) {
+          setTimeout(() => {
+            alert(`📲 الإرسال التلقائي (ON): جارِ مشاركة السند عبر الواتساب تلقائياً...`);
+          }, 300);
+        }
+
+        loadVoucher(vouchersList.length - 1);
+      } else {
+        const lastNum = parseInt(vouchersList[vouchersList.length - 1].id.replace(/\D/g, '')) || 842;
+        savedId = String(lastNum + 1);
+
+        const newVoucher = {
+          id: savedId,
+          isOffline: false,
+          date: document.getElementById('voucherDate').value,
+          rate: parseFloat(document.getElementById('usdRate').value),
+          currency: currentCurrency,
+          costCenter: document.getElementById('costCenterInput').value,
+          sdg: sdg,
+          usd: usd,
+          payType: currentPayType,
+          from: document.getElementById('fromAccountSummary').textContent,
+          to: document.getElementById('toAccountSummary').textContent,
+          refNo: document.getElementById('transferInput').value,
+          bankName: document.getElementById('bankNameInput').value,
+          notes: document.getElementById('voucherNotes').value
+        };
+        vouchersList.push(newVoucher);
+        alert(`✅ تم حفظ وترحيل السند بنجاح!\n- رقم السند: ${savedId}\n- متطابق ومحدث مباشرة مع شاشة اللابتوب وقاعدة البيانات.`);
+        
+        if (isAutoSendEnabled) {
+          setTimeout(() => {
+            alert(`📲 الإرسال التلقائي (ON): تم إرسال ومشاركة السند (${savedId}) تلقائياً عبر الواتساب!`);
+          }, 300);
+        }
+
+        loadVoucher(vouchersList.length - 1);
+      }
+    }
+
+    function handleEdit() {
+      alert(`✏️ وضع التعديل: يمكنك تعديل بيانات السند الحالي (رقم: ${vouchersList[currentIndex].id}) ثم النقر على "حفظ الحركة المالية".`);
+    }
+
+    function handleDelete() {
+      if (confirm(`هل أنت متأكد من حذف السند (رقم: ${vouchersList[currentIndex].id}) نهائياً من قاعدة البيانات؟`)) {
+        vouchersList.splice(currentIndex, 1);
+        alert('🗑️ تم حذف السند بنجاح.');
+        if (vouchersList.length > 0) {
+          loadVoucher(Math.max(0, currentIndex - 1));
+        } else {
+          startNewVoucher();
+        }
+      }
+    }
+
+    function setupAmountLongPress(el) {
+      if (!el) return;
+      let pressTimer = null;
+      let isMoved = false;
+      el.addEventListener('touchstart', (e) => {
+        isMoved = false;
+        pressTimer = setTimeout(() => {
+          if (!isMoved) {
+            openNumberPropertiesModal(e);
+          }
+        }, 550);
+      }, { passive: true });
+      el.addEventListener('touchmove', () => {
+        isMoved = true;
+        if (pressTimer) clearTimeout(pressTimer);
+      }, { passive: true });
+      el.addEventListener('touchend', () => {
+        if (pressTimer) clearTimeout(pressTimer);
+      });
+      el.addEventListener('touchcancel', () => {
+        if (pressTimer) clearTimeout(pressTimer);
+      });
+    }
+
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('currentTime').textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    }
+    setInterval(updateClock, 30000);
+
+    // Initial load
+    loadSavedNumberConfig();
+    updateAutoSendUI();
+    setupAmountLongPress(document.getElementById('sdgAmountCard'));
+    setupAmountLongPress(document.getElementById('usdAmountCard'));
+    loadVoucher(2);
+  </script>
+</body>
+</html>

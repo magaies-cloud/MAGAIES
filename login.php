@@ -41,18 +41,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            min-height: 100vh;
+            height: auto;
             background-color: #0c101b !important;
             background: #0c101b url('assets/user_bg_fast.jpg') no-repeat center center fixed !important;
             background-size: cover !important;
             background-image: url('assets/user_bg_fast.jpg') !important;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto !important;
             position: relative;
             animation: none !important;
             transition: none !important;
             transform: none !important;
-            padding: 0 !important;
+            padding: 24px 16px !important;
             margin: 0 !important;
+            box-sizing: border-box;
         }
 
 
@@ -325,7 +328,7 @@
         }
     </style>
 </head>
-<body style="display:flex !important; align-items:center !important; justify-content:center !important; height:100vh !important; padding:0 !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-color:#0c101b !important; background-image:url('assets/user_bg_fast.jpg') !important; background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; background-attachment:fixed !important; overflow:hidden !important;">
+<body style="display:flex !important; align-items:center !important; justify-content:center !important; min-height:100vh !important; height:auto !important; padding:24px 16px !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-color:#0c101b !important; background-image:url('assets/user_bg_fast.jpg') !important; background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; background-attachment:fixed !important; overflow-x:hidden !important; overflow-y:auto !important; box-sizing:border-box !important;">
     <div class="login-card">
         <div class="logo-container" style="margin-bottom: 5px;">
             <img src="assets/logo.png" alt="Logo" loading="lazy" style="width: 130px; height: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));">
@@ -1019,6 +1022,10 @@
         // --- SSO Interceptor ---
         (function() {
             const ssoParams = new URLSearchParams(window.location.search);
+            if (ssoParams.get('force_desktop') === '1') {
+                localStorage.setItem('magaiees_view_preference', 'desktop');
+                document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+            }
             if (ssoParams.has('sso_token')) {
                 localStorage.setItem('authToken', ssoParams.get('sso_token'));
                 if (ssoParams.has('sso_user')) {
@@ -1028,10 +1035,28 @@
                 document.cookie = "saas_token=" + encodeURIComponent(ssoParams.get('sso_token')) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
-                const isMobileDevice = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(navigator.userAgent) 
-                                    || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
-                                    || (window.innerWidth <= 768);
-                const defaultTarget = isMobileDevice ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php';
+                const ua = navigator.userAgent || '';
+                const isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) 
+                                  && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+                const isMobileDevice = !isLaptopOrPC && (
+                                       /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(ua) 
+                                    || (window.innerWidth <= 768)
+                );
+                const ssoPref = localStorage.getItem('magaiees_view_preference') || (document.cookie.match(/magaiees_view_preference=([^;]+)/) || [])[1];
+                const ssoForceDesktop = ssoParams.get('force_desktop') === '1' || ssoPref === 'desktop' || isLaptopOrPC;
+                const ssoForceMobile = ssoParams.get('force_mobile') === '1';
+
+                if (isLaptopOrPC || ssoForceDesktop) {
+                    localStorage.setItem('magaiees_view_preference', 'desktop');
+                    document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+                }
+
+                let defaultTarget = 'magaiees_unified_dashboard.php?force_desktop=1';
+                if (ssoForceMobile && !ssoForceDesktop) {
+                    defaultTarget = 'mobile-dashboard.php?force_mobile=1';
+                } else if (!ssoForceDesktop && isMobileDevice) {
+                    defaultTarget = 'mobile-dashboard.php';
+                }
                 window.location.replace(ssoParams.get('redirect') || defaultTarget);
             }
         })();
@@ -1546,12 +1571,35 @@
             }
 
             // --- START SSO & DEVICE REDIRECT ---
-            const isMobileDevice = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(navigator.userAgent) 
-                                || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
-                                || (window.innerWidth <= 768);
+            const ua = navigator.userAgent || '';
+            const isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) 
+                              && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+            
+            const isMobileDevice = !isLaptopOrPC && (
+                                   /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(ua) 
+                                || (window.innerWidth <= 768)
+            );
             const urlParams = new URLSearchParams(window.location.search);
             const redirectParam = urlParams.get('redirect');
-            let targetUrl = redirectParam || (isMobileDevice ? 'mobile-dashboard.php' : 'magaiees_unified_dashboard.php');
+            const viewPref = localStorage.getItem('magaiees_view_preference') || (document.cookie.match(/magaiees_view_preference=([^;]+)/) || [])[1];
+            const forceDesktop = urlParams.get('force_desktop') === '1' || viewPref === 'desktop' || isLaptopOrPC;
+            const forceMobile = urlParams.get('force_mobile') === '1';
+
+            if (isLaptopOrPC || forceDesktop) {
+                localStorage.setItem('magaiees_view_preference', 'desktop');
+                document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+            }
+
+            let targetUrl = redirectParam;
+            if (!targetUrl) {
+                if (forceMobile && !forceDesktop) {
+                    targetUrl = 'mobile-dashboard.php?force_mobile=1';
+                } else if (isLaptopOrPC || forceDesktop || !isMobileDevice) {
+                    targetUrl = 'magaiees_unified_dashboard.php?force_desktop=1';
+                } else {
+                    targetUrl = 'mobile-dashboard.php';
+                }
+            }
 
             // Only redirect to elsajana.com subdomain if currently hosted strictly on elsajana.com
             const isElsajanaCloud = window.location.hostname.endsWith('elsajana.com');

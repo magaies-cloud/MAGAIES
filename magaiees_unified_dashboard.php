@@ -4,10 +4,11 @@
 // ═════════════════════════════════════════════════════════════════════
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $secChUaMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
-$isMobileUserAgent = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini|samsung|huawei|honor|harmonyos|xiaomi|redmi|poco|oppo|vivo|oneplus|pixel)/i', $userAgent) || ($secChUaMobile === '?1');
+$isLaptopOrPC = (bool)preg_match('/(windows nt|macintosh|x11; linux x86_64|cros)/i', $userAgent) && !preg_match('/(android|iphone|ipad|ipod|mobile)/i', $userAgent);
+$isMobileUserAgent = !$isLaptopOrPC && ((bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini|samsung|huawei|honor|harmonyos|xiaomi|redmi|poco|oppo|vivo|oneplus|pixel)/i', $userAgent) || ($secChUaMobile === '?1'));
 $forceDesktop = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
 
-if ($forceDesktop) {
+if ($forceDesktop || $isLaptopOrPC) {
     setcookie('magaiees_view_preference', 'desktop', time() + (86400 * 365), '/');
 } elseif ($isMobileUserAgent) {
     header('Location: mobile-dashboard.php');
@@ -26,15 +27,19 @@ $page_title = 'لوحة التحكم';
         document.documentElement.setAttribute('lang','en');
     }
     // Check force desktop flag or mobile auto-redirect
+    var ua = navigator.userAgent || '';
+    var isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
     var params = new URLSearchParams(window.location.search);
-    if (params.get('force_desktop') === '1') {
+    if (params.get('force_desktop') === '1' || isLaptopOrPC) {
         localStorage.setItem('magaiees_view_preference', 'desktop');
         document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+    } else if (params.get('force_mobile') === '1') {
+        localStorage.setItem('magaiees_view_preference', 'mobile');
+        document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
+        window.location.replace('mobile-dashboard.php?force_mobile=1');
     } else {
         var screenWidth = window.innerWidth || document.documentElement.clientWidth || screen.width;
-        var isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(navigator.userAgent) 
-                    || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && screenWidth < 1024)
-                    || (screenWidth < 1024);
+        var isMobile = !isLaptopOrPC && (/Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(ua) || screenWidth < 768);
         var pref = localStorage.getItem('magaiees_view_preference');
         if (isMobile && pref !== 'desktop') {
             window.location.replace('mobile-dashboard.php');
@@ -49,11 +54,7 @@ function switchToMobileEdition() {
 </script>
 <head>
     <meta charset="UTF-8">
-<?php if ($forceDesktop || ($_COOKIE['magaiees_view_preference'] ?? '') === 'desktop'): ?>
-    <meta name="viewport" content="width=1280, initial-scale=0.35, minimum-scale=0.2, maximum-scale=3.0, user-scalable=yes">
-<?php else: ?>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<?php endif; ?>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     
     <!-- PWA & Native Standalone Configuration -->
     <link rel="manifest" href="manifest.json?v=2026_m_v5">
@@ -82,7 +83,13 @@ function switchToMobileEdition() {
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         html {
-            font-size: 20px !important;
+            font-size: 16px;
+        }
+        @media (min-width: 1440px) {
+            html { font-size: 17px; }
+        }
+        @media (min-width: 1920px) {
+            html { font-size: 18px; }
         }
 
         :root {
@@ -1408,26 +1415,8 @@ function switchToMobileEdition() {
         function initDashboardApp() {
             let token = localStorage.getItem('authToken');
             if (!token) {
-                // في البيئة المحلية، تأسيس الجلسة تلقائياً لمنع أي حلقة تحويل
-                if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
-                    token = 'offline_token_' + Date.now();
-                    localStorage.setItem('authToken', token);
-                    localStorage.setItem('user', JSON.stringify({
-                        id: 1,
-                        username: 'admin',
-                        fullName: 'مدير النظام (الباشمهندس مهدي)',
-                        role: 'admin',
-                        roleId: 'admin_fallback',
-                        securityLevel: 10,
-                        subdomain: ''
-                    }));
-                    document.cookie = "session_active=true; path=/";
-                    sessionStorage.setItem('session_active', 'true');
-                    sessionStorage.setItem('dashboard_unlocked', '1');
-                } else {
-                    window.location.href = 'login.php';
-                    return;
-                }
+                window.location.href = 'login.php';
+                return;
             }
 
             // تأكيد فتح القفل الموحد

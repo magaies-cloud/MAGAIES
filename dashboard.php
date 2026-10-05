@@ -34,16 +34,22 @@ if ($forceMobile) {
 }
 
 // 2. Server-Side Mobile Hardware & Client Hints Detection
-$isMobileUserAgent = (bool)preg_match(
+$isLaptopOrPC = (bool)preg_match('/(windows nt|macintosh|x11; linux x86_64|cros)/i', $userAgent) && !preg_match('/(android|iphone|ipad|ipod|mobile)/i', $userAgent);
+$isMobileUserAgent = !$isLaptopOrPC && ((bool)preg_match(
     '/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini|opera mobi|samsung|sm-[a-z0-9]+|huawei|honor|harmonyos|xiaomi|redmi|poco|oppo|vivo|oneplus|pixel|meizu|realme)/i',
     $userAgent
-) || ($secChUaMobile === '?1');
+) || ($secChUaMobile === '?1'));
 
 $savedPref = $_COOKIE['magaiees_view_preference'] ?? '';
 
 // If mobile device visits without desktop preference, route to mobile dashboard
 if ($isMobileUserAgent && $savedPref !== 'desktop') {
     header("Location: mobile-dashboard.php{$qPrefix}");
+    exit;
+}
+
+if ($isLaptopOrPC || $savedPref === 'desktop') {
+    header("Location: magaiees_unified_dashboard.php{$qPrefix}");
     exit;
 }
 
@@ -82,17 +88,19 @@ if (!$isMobileUserAgent && $savedPref === 'mobile') {
     (function() {
         var width = window.innerWidth || document.documentElement.clientWidth || screen.width;
         var ua = navigator.userAgent || '';
-        var isMobileUA = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(ua);
-        var isTouch = (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+        var isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+        var isMobileUA = !isLaptopOrPC && /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(ua);
         
         var params = new URLSearchParams(window.location.search);
         var qs = window.location.search;
 
-        if (params.get('force_desktop') === '1') {
+        if (params.get('force_desktop') === '1' || isLaptopOrPC) {
+            localStorage.setItem('magaiees_view_preference', 'desktop');
+            document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
             window.location.replace('magaiees_unified_dashboard.php' + qs);
         } else if (params.get('force_mobile') === '1') {
             window.location.replace('mobile-dashboard.php' + qs);
-        } else if (width < 1024 || (isTouch && isMobileUA)) {
+        } else if (isMobileUA || (width < 768 && !isLaptopOrPC)) {
             window.location.replace('mobile-dashboard.php' + qs);
         } else {
             window.location.replace('magaiees_unified_dashboard.php' + qs);
