@@ -489,6 +489,12 @@
           <span>حركة مالية</span>
         </span>
 
+        <!-- زر جديد مميز في أعلى الشاشة لمسح الشاشة فورياً وبدء سند جديد -->
+        <button type="button" onclick="startNewVoucher()" class="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white text-[10.5px] font-black border border-cyan-300 shadow-md shadow-cyan-600/30 transition shrink-0" title="فتح سند جديد فارغ وممسوح">
+          <i class="fa-solid fa-plus text-[10px]"></i>
+          <span>جديد</span>
+        </button>
+
         <!-- منطقة عناية متصل: دائرة خضراء ومتصل -->
         <button type="button" onclick="toggleOnlineStatus()" id="networkPill" class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition" title="عناية متصل بالسيرفر واللابتوب - انقر للتبديل لأوفلاين">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" id="networkDot"></span>
@@ -653,7 +659,7 @@
             </div>
             <!-- المربع شاغر بحواف مضيئة ساطعة -->
             <div id="sdgAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-sky-400 shadow-[0_0_24px_rgba(56,189,248,0.55)] focus-within:shadow-[0_0_32px_rgba(56,189,248,0.85)] focus-within:border-sky-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
-              <input type="text" id="sdgAmount" placeholder="0" inputmode="decimal" oninput="handleAmountInput('sdg'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black text-white tracking-tight" style="font-size: var(--num-size-sdg, 32px); font-weight: var(--num-weight-sdg, 900); text-align: center;">
+              <input type="text" id="sdgAmount" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg')" oninput="handleAmountInput('sdg'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 32px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
             </div>
           </div>
 
@@ -668,7 +674,7 @@
             </div>
             <!-- المربع شاغر بحواف مضيئة ساطعة -->
             <div id="usdAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.55)] focus-within:shadow-[0_0_32px_rgba(16,185,129,0.85)] focus-within:border-emerald-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
-              <input type="text" id="usdAmount" placeholder="0.00" inputmode="decimal" oninput="handleAmountInput('foreign'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black text-emerald-400 tracking-tight" style="font-size: var(--num-size-usd, 32px); font-weight: var(--num-weight-usd, 900); text-align: center;">
+              <input type="text" id="usdAmount" placeholder="0.00" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('usd')" oninput="handleAmountInput('foreign'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-usd, 32px); font-weight: var(--num-weight-usd, 900); color: var(--num-color-usd, #10b981); text-align: center;">
             </div>
           </div>
 
@@ -682,41 +688,41 @@
 
       <!-- ═════════════════════════════════════════════════════════════════
            من حساب:
-           - زيادة العرض بنسبة 15% لاستيعاب الأسماء الطويلة بحجم خط كبير جداً
-           - حواف حمراء مضيئة واضحة
+           - زيادة المساحة والعرض بنسبة 15%+ لاستيعاب الأسماء الطويلة بحجم خط كبير جداً
+           - حواف حمراء فائقة الإضاءة والوضوح
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="bg-gradient-to-b from-red-950/30 to-slate-900/95 border-2 border-red-500 shadow-[0_0_18px_rgba(239,68,68,0.4)] rounded-2xl p-2.5 relative">
-        <div class="flex items-center justify-between mb-1.5">
+      <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 border-[2.5px] border-red-500 shadow-[0_0_28px_rgba(239,68,68,0.55)] rounded-2xl p-4 sm:p-4.5 relative transition-all">
+        <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
-            <span class="px-2 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-sm">مِن</span>
-            <span class="text-xs font-black text-red-300">من حساب:</span>
+            <span class="px-2.5 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-md">مِن</span>
+            <span class="text-xs sm:text-sm font-black text-red-300">من حساب:</span>
           </div>
 
           <!-- منطقة الرصيد: مدمجة وواضحة جداً -->
           <div class="flex items-center gap-1 shrink-0" id="fromBalanceWrapper">
-            <div class="px-1.5 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[9px] font-black text-amber-400">ج.س:</span>
-              <span id="fromAccountSdgBalance" class="text-[10.5px] font-mono font-black text-amber-200">14,850,000</span>
+            <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
+              <span class="text-[9.5px] font-black text-amber-400">ج.س:</span>
+              <span id="fromAccountSdgBalance" class="text-[11px] font-mono font-black text-amber-200">14,850,000</span>
             </div>
-            <div class="px-1.5 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[9px] font-black text-emerald-400">$ :</span>
-              <span id="fromAccountUsdBalance" class="text-[10.5px] font-mono font-black text-emerald-200">5,603.77</span>
+            <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
+              <span class="text-[9.5px] font-black text-emerald-400">$ :</span>
+              <span id="fromAccountUsdBalance" class="text-[11px] font-mono font-black text-emerald-200">5,603.77</span>
             </div>
           </div>
         </div>
 
-        <!-- حقل اسم الحساب: أعرض بنسبة 15% مع زيادة حجم الخط والارتفاع لملء الشاشة بوضوح تام -->
+        <!-- حقل اسم الحساب: أعرض بنسبة 15%+ مع زيادة حجم الخط والارتفاع لملء الشاشة بوضوح تام -->
         <div class="relative w-full">
-          <div class="absolute right-3.5 top-3.5 text-red-400 pointer-events-none text-base">
+          <div class="absolute right-3.5 top-4.5 text-red-400 pointer-events-none text-lg">
             <i class="fa-solid fa-magnifying-glass"></i>
           </div>
-          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onfocus="this.select(); liveSearchAccount('from');" placeholder="بحث: فوري، بنك، خزن، عميل..." value="بنك الخرطوم (5540)" class="w-full bg-slate-950 border-2 border-red-500/70 rounded-xl pr-11 pl-9 py-3 text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_18px_rgba(239,68,68,0.55)] placeholder-slate-500 font-black text-[18.5px] sm:text-[20px] tracking-wide shadow-inner min-h-[52px]">
-          <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="absolute left-3 top-3.5 w-6 h-6 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition" title="مسح واختيار حساب آخر">
+          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onfocus="this.select(); liveSearchAccount('from');" placeholder="بحث: فوري، بنك، خزن، عميل..." value="" class="w-full bg-slate-950 border-2 border-red-500/70 rounded-xl pr-12 pl-10 py-4 text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_28px_rgba(239,68,68,0.8)] placeholder-slate-500 font-black text-[21px] sm:text-[24px] tracking-wide shadow-inner min-h-[62px]">
+          <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="absolute left-3.5 top-4.5 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition hidden" title="مسح واختيار حساب آخر">
             <i class="fa-solid fa-xmark"></i>
           </button>
 
           <!-- القائمة المنسدلة الذكية الفورية -->
-          <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1 bg-slate-950 border border-slate-700 rounded-2xl shadow-2xl z-40 max-h-56 overflow-y-auto no-scrollbar"></div>
+          <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1 bg-slate-950 border border-slate-700 rounded-2xl shadow-2xl z-40 max-h-64 overflow-y-auto no-scrollbar"></div>
         </div>
       </div>
 
@@ -724,7 +730,7 @@
            مسار التدفق الحركي السريع (بلون ذهبي كهرماني مغاير للأحمر والأخضر):
            يعطي إيماءات حركية وسريعة متدفقة للأسفل لتنبيه المستخدم فوراً حتى في قمة الإجهاد
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="flex items-center justify-center my-[-8px] relative z-20 gap-2">
+      <div class="flex items-center justify-center my-[-6px] relative z-20 gap-2">
         <div class="flow-stream-track"></div>
         <button type="button" onclick="triggerCrystalFlowAnimation()" id="crystalFlowBtn" class="kinetic-flow-capsule active:scale-90" title="مسار تدفق الحركة المالية من الأعلى (من حساب) إلى الأسفل (إلى حساب)">
           <div class="flex flex-col items-center justify-center leading-none gap-0.5 pointer-events-none">
@@ -737,41 +743,41 @@
 
       <!-- ═════════════════════════════════════════════════════════════════
            إلى حساب:
-           - زيادة العرض بنسبة 15% مع خط كبير جداً وواضح (محمد أحمد عثمان)
-           - حواف خضراء زمردية مضيئة واضحة
+           - زيادة المساحة والعرض بنسبة 15%+ مع خط كبير جداً وواضح (محمد أحمد عثمان)
+           - حواف خضراء زمردية فائقة الإضاءة والوضوح
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="bg-gradient-to-b from-emerald-950/30 to-slate-900/95 border-2 border-emerald-500 shadow-[0_0_18px_rgba(16,185,129,0.4)] rounded-2xl p-2.5 relative">
-        <div class="flex items-center justify-between mb-1.5">
+      <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 border-[2.5px] border-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.55)] rounded-2xl p-4 sm:p-4.5 relative transition-all">
+        <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
-            <span class="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-sm">إلى</span>
-            <span class="text-xs font-black text-emerald-300">إلى حساب:</span>
+            <span class="px-2.5 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-md">إلى</span>
+            <span class="text-xs sm:text-sm font-black text-emerald-300">إلى حساب:</span>
           </div>
 
           <!-- منطقة الرصيد: مدمجة وواضحة جداً -->
           <div class="flex items-center gap-1 shrink-0" id="toBalanceWrapper">
-            <div class="px-1.5 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[9px] font-black text-amber-400">ج.س:</span>
-              <span id="toAccountSdgBalance" class="text-[10.5px] font-mono font-black text-amber-200">1,850,000</span>
+            <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
+              <span class="text-[9.5px] font-black text-amber-400">ج.س:</span>
+              <span id="toAccountSdgBalance" class="text-[11px] font-mono font-black text-amber-200">1,850,000</span>
             </div>
-            <div class="px-1.5 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[9px] font-black text-emerald-400">$ :</span>
-              <span id="toAccountUsdBalance" class="text-[10.5px] font-mono font-black text-emerald-200">698.11</span>
+            <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
+              <span class="text-[9.5px] font-black text-emerald-400">$ :</span>
+              <span id="toAccountUsdBalance" class="text-[11px] font-mono font-black text-emerald-200">698.11</span>
             </div>
           </div>
         </div>
 
-        <!-- حقل اسم الحساب: أعرض بنسبة 15% مع زيادة حجم الخط والارتفاع لملء الشاشة بوضوح تام -->
+        <!-- حقل اسم الحساب: أعرض بنسبة 15%+ مع زيادة حجم الخط والارتفاع لملء الشاشة بوضوح تام -->
         <div class="relative w-full">
-          <div class="absolute right-3.5 top-3.5 text-emerald-400 pointer-events-none text-base">
+          <div class="absolute right-3.5 top-4.5 text-emerald-400 pointer-events-none text-lg">
             <i class="fa-solid fa-magnifying-glass"></i>
           </div>
-          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onfocus="this.select(); liveSearchAccount('to');" placeholder="بحث: فوري، بنك، خزن، عميل..." value="محمد أحمد عثمان" class="w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl pr-11 pl-9 py-3 text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_18px_rgba(16,185,129,0.55)] placeholder-slate-500 font-black text-[18.5px] sm:text-[20px] tracking-wide shadow-inner min-h-[52px]">
-          <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="absolute left-3 top-3.5 w-6 h-6 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition" title="مسح واختيار حساب آخر">
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onfocus="this.select(); liveSearchAccount('to');" placeholder="بحث: فوري، بنك، خزن، عميل..." value="" class="w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl pr-12 pl-10 py-4 text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_28px_rgba(16,185,129,0.8)] placeholder-slate-500 font-black text-[21px] sm:text-[24px] tracking-wide shadow-inner min-h-[62px]">
+          <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="absolute left-3.5 top-4.5 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition hidden" title="مسح واختيار حساب آخر">
             <i class="fa-solid fa-xmark"></i>
           </button>
 
           <!-- القائمة المنسدلة الذكية الفورية -->
-          <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1 bg-slate-950 border border-slate-700 rounded-2xl shadow-2xl z-40 max-h-56 overflow-y-auto no-scrollbar"></div>
+          <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1 bg-slate-950 border border-slate-700 rounded-2xl shadow-2xl z-40 max-h-64 overflow-y-auto no-scrollbar"></div>
         </div>
       </div>
 
@@ -916,10 +922,10 @@
           <span class="truncate w-full text-center">افتح</span>
         </button>
 
-        <!-- 2. زر إضافة: إضافة سند جديد متسلسل -->
-        <button type="button" onclick="startNewVoucher()" class="action-btn-kinetic h-11 flex-1 min-w-0 px-1 rounded-xl bg-slate-900 border border-cyan-400/50 text-cyan-300 font-black text-[10px] sm:text-[11px] flex flex-col items-center justify-center gap-0.5 shadow-md active:scale-95 transition" title="إضافة سند جديد متسلسل">
-          <i class="fa-solid fa-plus text-cyan-400 text-xs font-black"></i>
-          <span class="truncate w-full text-center">إضافة</span>
+        <!-- 2. زر جديد: مسح الشاشة وبدء سند جديد فارغ -->
+        <button type="button" onclick="startNewVoucher()" class="action-btn-kinetic h-11 flex-1 min-w-0 px-1 rounded-xl bg-gradient-to-b from-cyan-950 via-slate-900 to-slate-950 border-2 border-cyan-400 text-cyan-200 font-black text-[11px] sm:text-[12px] flex flex-col items-center justify-center gap-0.5 shadow-[0_0_14px_rgba(6,182,212,0.45)] active:scale-95 transition" title="مسح الشاشة وبدء سند جديد فارغ">
+          <i class="fa-solid fa-plus text-cyan-300 text-xs font-black"></i>
+          <span class="truncate w-full text-center">جديد ➕</span>
         </button>
 
         <!-- 3. زر تعديل: تعديل بيانات السند الحالي -->
@@ -1081,12 +1087,42 @@
         <div class="grid grid-cols-4 gap-1.5 max-h-44 overflow-y-auto no-scrollbar p-1" id="galleryThumbnailsGrid"></div>
       </div>
 
-      <!-- محتوى المصدر 3: الواتساب (20 إشعار بنكي مباشر) -->
-      <div id="contentSourceWhatsApp" class="hidden space-y-2 flex-1 overflow-y-auto no-scrollbar">
-        <!-- أزرار تصفية واختيار عدد الإشعارات (1 إلى 5 إلى 10 أو 15 أو 20) -->
+      <!-- محتوى المصدر 3: الواتساب (تفريغ ذكي فوري + فتح تطبيق الواتساب) -->
+      <div id="contentSourceWhatsApp" class="hidden space-y-2.5 flex-1 overflow-y-auto no-scrollbar">
+        
+        <!-- زر فتح تطبيق الواتساب مباشرة على الجوال أو الكمبيوتر -->
+        <div class="grid grid-cols-2 gap-2">
+          <button type="button" onclick="openWhatsAppApp()" class="py-2 px-3 rounded-2xl bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-emerald-900/50 border border-emerald-400 transition" title="فتح تطبيق واتساب على الجهاز مباشرة">
+            <i class="fa-brands fa-whatsapp text-base"></i>
+            <span>فتح واتساب الآن 📲</span>
+          </button>
+          
+          <button type="button" onclick="document.getElementById('whatsappImageInput').click()" class="py-2 px-3 rounded-2xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-emerald-300 font-black text-xs flex items-center justify-center gap-1.5 border border-emerald-500/40 shadow-sm transition" title="اختيار صورة إشعار من مجلد صور واتساب">
+            <i class="fa-solid fa-file-image text-emerald-400 text-sm"></i>
+            <span>صورة من واتساب 🖼️</span>
+          </button>
+          <input type="file" id="whatsappImageInput" accept="image/*" class="hidden" onchange="handleGalleryFilesSelected(event)">
+        </div>
+
+        <!-- صندوق لصق وتفريغ نصوص إشعارات الواتساب بالذكاء الاصطناعي (بنكك / فيصل / فوري) -->
+        <div class="p-2.5 bg-slate-950 rounded-2xl border border-emerald-500/50 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-black text-emerald-300 flex items-center gap-1">
+              <i class="fa-solid fa-wand-magic-sparkles text-amber-300 text-xs"></i>
+              <span>تفريغ رسالة الواتساب بالذكاء الاصطناعي:</span>
+            </span>
+            <button type="button" onclick="pasteFromClipboardAndExtract()" class="px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm">
+              <i class="fa-solid fa-paste text-[10px]"></i>
+              <span>لصق وتفريغ ⚡</span>
+            </button>
+          </div>
+          <textarea id="whatsappPasteArea" oninput="liveExtractFromWhatsAppText(this.value)" placeholder="الصق نص إشعار بنكك أو بنك فيصل أو رسالة الواتساب هنا ليتم التفريغ الفوري في السند..." class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2 text-white text-xs font-mono focus:outline-none focus:border-emerald-400 min-h-[52px] resize-none placeholder:text-slate-500"></textarea>
+        </div>
+
+        <!-- أزرار تصفية واختيار عدد الإشعارات الجاهزة -->
         <div class="space-y-1">
           <div class="flex items-center justify-between text-[10.5px] font-bold text-slate-300">
-            <span>اختيار كمية إشعارات الواتساب:</span>
+            <span>أو اختر من الإشعارات الواردة (انقر للتفريغ الفوري):</span>
             <span id="whatsAppCountBadge" class="text-emerald-400 font-mono font-bold">20 إشعار متاح</span>
           </div>
           <div class="grid grid-cols-5 gap-1 text-xs font-mono font-bold">
@@ -1431,7 +1467,7 @@
         <div class="grid grid-cols-2 gap-2 text-xs">
           <div>
             <label class="block text-[10.5px] font-bold text-slate-300 mb-1">الفاصلة الألفية:</label>
-            <select id="numThousandsSelect" onchange="updateNumPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
+            <select id="numThousandsSelect" onchange="updateNumPreview(); applyLivePropertyChange();" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
               <option value="," selected>فاصلة ( , ) 1,000</option>
               <option value=".">نقطة ( . ) 1.000</option>
               <option value=" ">مسافة ( 1 000 )</option>
@@ -1441,7 +1477,7 @@
 
           <div>
             <label class="block text-[10.5px] font-bold text-slate-300 mb-1">الفاصلة العشرية:</label>
-            <select id="numDecimalSelect" onchange="updateNumPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
+            <select id="numDecimalSelect" onchange="updateNumPreview(); applyLivePropertyChange();" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
               <option value="." selected>نقطة ( . ) 0.50</option>
               <option value=",">فاصلة ( , ) 0,50</option>
             </select>
@@ -1724,8 +1760,10 @@
 
       // ضبط متغيرات CSS
       document.documentElement.style.setProperty('--num-size-sdg', sdgNumberConfig.fontSize || '32px');
+      document.documentElement.style.setProperty('--num-color-sdg', sdgNumberConfig.color || '#ffffff');
       document.documentElement.style.setProperty('--num-weight-sdg', sdgNumberConfig.fontWeight || '900');
       document.documentElement.style.setProperty('--num-size-usd', usdNumberConfig.fontSize || '32px');
+      document.documentElement.style.setProperty('--num-color-usd', usdNumberConfig.color || '#10b981');
       document.documentElement.style.setProperty('--num-weight-usd', usdNumberConfig.fontWeight || '900');
     }
 
@@ -1764,8 +1802,16 @@
       cfg.fontWeight = tempNumWeight;
       cfg.fontFamily = tempNumFont;
       cfg.decimals = tempNumDecimals;
-      cfg.thousandsSep = document.getElementById('numThousandsSelect')?.value ?? ',';
-      cfg.decimalSep = document.getElementById('numDecimalSelect')?.value ?? '.';
+      const thSel = document.getElementById('numThousandsSelect');
+      if (thSel) cfg.thousandsSep = thSel.value;
+      const decSel = document.getElementById('numDecimalSelect');
+      if (decSel) cfg.decimalSep = decSel.value;
+    }
+
+    function applyLivePropertyChange() {
+      saveCurrentTempToTarget();
+      applyNumberStylesToInputs();
+      recalculateAmountsWithNewConfig();
     }
 
     function loadTargetToTemp() {
@@ -1777,9 +1823,9 @@
       tempNumDecimals = (cfg.decimals !== undefined) ? parseInt(cfg.decimals) : (activeAmountTarget === 'sdg' ? 0 : 2);
 
       const thSelect = document.getElementById('numThousandsSelect');
-      if (thSelect) thSelect.value = cfg.thousandsSep || ',';
+      if (thSelect) thSelect.value = (cfg.thousandsSep !== undefined) ? cfg.thousandsSep : ',';
       const decSelect = document.getElementById('numDecimalSelect');
-      if (decSelect) decSelect.value = cfg.decimalSep || '.';
+      if (decSelect) decSelect.value = (cfg.decimalSep !== undefined) ? cfg.decimalSep : '.';
 
       setNumColor(tempNumColor, '', false);
       setNumSize(tempNumSize, false);
@@ -1828,7 +1874,10 @@
           btn.classList.add('border-transparent');
         }
       });
-      if (refresh) updateNumPreview();
+      if (refresh) {
+        updateNumPreview();
+        applyLivePropertyChange();
+      }
     }
 
     function setNumSize(size, refresh = true) {
@@ -1846,7 +1895,10 @@
         activeBtn.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700');
         activeBtn.classList.add('bg-cyan-600', 'text-white', 'border-cyan-400');
       }
-      if (refresh) updateNumPreview();
+      if (refresh) {
+        updateNumPreview();
+        applyLivePropertyChange();
+      }
     }
 
     function setNumWeight(weight, refresh = true) {
@@ -1862,7 +1914,10 @@
         btnNormal.className = 'weight-btn py-1.5 rounded-xl bg-cyan-600 text-white border border-cyan-400 flex items-center justify-center gap-1.5 transition';
         btnBold.className = 'weight-btn py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 flex items-center justify-center gap-1.5 transition';
       }
-      if (refresh) updateNumPreview();
+      if (refresh) {
+        updateNumPreview();
+        applyLivePropertyChange();
+      }
     }
 
     function setNumFont(fontName, refresh = true) {
@@ -1880,7 +1935,10 @@
         const dot = activeBtn.querySelector('span:first-child');
         if (dot) dot.className = 'w-2 h-2 rounded-full bg-cyan-400';
       }
-      if (refresh) updateNumPreview();
+      if (refresh) {
+        updateNumPreview();
+        applyLivePropertyChange();
+      }
     }
 
     function setNumDecimals(decimals, refresh = true) {
@@ -1899,28 +1957,55 @@
         activeBtn.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700');
         activeBtn.classList.add('bg-cyan-600', 'text-white', 'border-cyan-400');
       }
-      if (refresh) updateNumPreview();
+      if (refresh) {
+        updateNumPreview();
+        applyLivePropertyChange();
+      }
     }
 
     function formatNumberWithConfig(val, cfg) {
-      if (val === '' || val === null || isNaN(val)) return '';
-      let n = parseFloat(val);
+      if (val === '' || val === null || val === undefined) return '';
+      let n = (typeof val === 'number') ? val : parseRawNumber(val);
       if (isNaN(n)) return '';
 
-      const dec = (cfg.decimals !== undefined) ? parseInt(cfg.decimals) : 2;
+      const conf = (typeof cfg === 'string') 
+        ? (cfg === 'usd' ? usdNumberConfig : sdgNumberConfig) 
+        : (cfg || (activeAmountTarget === 'usd' ? usdNumberConfig : sdgNumberConfig));
+      const dec = (conf.decimals !== undefined) ? parseInt(conf.decimals) : (conf === sdgNumberConfig ? 0 : 2);
+      const thSep = (conf.thousandsSep !== undefined) ? conf.thousandsSep : ',';
+      const decSep = (conf.decimalSep !== undefined) ? conf.decimalSep : '.';
+
       const fixed = n.toFixed(dec);
       const parts = fixed.split('.');
       let integerPart = parts[0];
       const decimalPart = parts[1];
 
-      if (cfg.thousandsSep) {
-        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, cfg.thousandsSep);
+      if (thSep) {
+        integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, thSep);
       }
 
       if (dec > 0 && decimalPart !== undefined) {
-        return integerPart + (cfg.decimalSep || '.') + decimalPart;
+        return integerPart + decSep + decimalPart;
       }
       return integerPart;
+    }
+
+    function formatCurrentAmountInput(target) {
+      if (target === 'sdg') {
+        const inp = document.getElementById('sdgAmount');
+        if (!inp) return;
+        const raw = parseRawNumber(inp.value);
+        if (raw > 0) {
+          inp.value = formatNumberWithConfig(raw, sdgNumberConfig);
+        }
+      } else {
+        const inp = document.getElementById('usdAmount');
+        if (!inp) return;
+        const raw = parseRawNumber(inp.value);
+        if (raw > 0) {
+          inp.value = formatNumberWithConfig(raw, usdNumberConfig);
+        }
+      }
     }
 
     function updateNumPreview() {
@@ -1953,7 +2038,8 @@
       applyNumberStylesToInputs();
       recalculateAmountsWithNewConfig();
       closeNumberPropertiesModal();
-      showToastNotification(`✓ تم حفظ الخصائص بنجاح!\n• المبلغ المحلي: حجم (${sdgNumberConfig.fontSize}) ولون (${sdgNumberConfig.color}) وتقريب (${sdgNumberConfig.decimals} خانات).\n• المبلغ بالدولار: حجم (${usdNumberConfig.fontSize}) ولون (${usdNumberConfig.color}) وتقريب (${usdNumberConfig.decimals} خانات).`);
+      playFeedbackTone('tap');
+      showToastNotification(`✓ تم حفظ وتطبيق الخصائص الفورية بنجاح!\n• المبلغ المحلي: حجم (${sdgNumberConfig.fontSize}) ولون (${sdgNumberConfig.color}) وتقريب (${sdgNumberConfig.decimals} خانات) وفاصلة (${sdgNumberConfig.thousandsSep}).\n• المبلغ بالدولار: حجم (${usdNumberConfig.fontSize}) ولون (${usdNumberConfig.color}) وتقريب (${usdNumberConfig.decimals} خانات).`);
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -2068,14 +2154,19 @@
       document.getElementById('voucherDate').value = v.date;
       document.getElementById('usdRate').value = v.rate;
       if (v.costCenter) document.getElementById('costCenterInput').value = v.costCenter;
-      document.getElementById('sdgAmount').value = v.sdg || '';
-      document.getElementById('usdAmount').value = v.usd || '';
+      document.getElementById('sdgAmount').value = (v.sdg && v.sdg > 0) ? formatNumberWithConfig(v.sdg, sdgNumberConfig) : '';
+      document.getElementById('usdAmount').value = (v.usd && v.usd > 0) ? formatNumberWithConfig(v.usd, usdNumberConfig) : '';
       document.getElementById('voucherNotes').value = v.notes || '';
       
       const fromInput = document.getElementById('fromSearchInput');
       const toInput = document.getElementById('toSearchInput');
       if (fromInput) fromInput.value = v.from || '';
       if (toInput) toInput.value = v.to || '';
+
+      const fromClear = document.getElementById('fromClearBtn');
+      if (fromClear) fromClear.classList.toggle('hidden', !v.from);
+      const toClear = document.getElementById('toClearBtn');
+      if (toClear) toClear.classList.toggle('hidden', !v.to);
 
       updateAccountBalanceBadges();
 
@@ -2107,23 +2198,83 @@
       if (isOfflineMode) {
         nextId = `أوفلاين ${offlineCounter}`;
       } else {
-        const lastVoucher = vouchersList[vouchersList.length - 1];
-        const lastNum = parseInt(lastVoucher.id.replace(/\D/g, '')) || 842;
-        nextId = String(lastNum + 1);
+        if (window.PHP_NEXT_NO && window.PHP_NEXT_NO !== '') {
+          nextId = window.PHP_NEXT_NO;
+        } else if (vouchersList.length > 0) {
+          const lastV = vouchersList[vouchersList.length - 1];
+          const lastNum = parseInt(String(lastV.id).replace(/\D/g, '')) || 842;
+          nextId = '#' + (lastNum + 1);
+        } else {
+          nextId = '#843';
+        }
       }
 
-      document.getElementById('currentVoucherDisplay').textContent = nextId;
-      document.getElementById('voucherTag').textContent = isOfflineMode ? 'سند أوفلاين' : 'سيرفر الكمبيوتر';
-      document.getElementById('sdgAmount').value = '';
-      document.getElementById('usdAmount').value = '';
-      document.getElementById('transferInput').value = '';
-      document.getElementById('voucherNotes').value = '';
-      document.getElementById('mediaToast').classList.add('hidden');
-      document.getElementById('tafqeetDisplay').classList.add('hidden');
+      // 1. رقم السند والتاريخ اليومي
+      const displayEl = document.getElementById('currentVoucherDisplay');
+      if (displayEl) displayEl.textContent = nextId;
+      const tagEl = document.getElementById('voucherTag');
+      if (tagEl) tagEl.textContent = isOfflineMode ? 'سند أوفلاين' : 'سيرفر الكمبيوتر';
+      const dateEl = document.getElementById('voucherDate');
+      if (dateEl) dateEl.value = new Date().toISOString().slice(0, 10);
 
-      document.getElementById('btnNextVoucher').disabled = true;
-      document.getElementById('btnPrevVoucher').disabled = false;
-      showToastNotification(`✨ تم فتح سند جديد متسلسل (#${nextId}) مطابق لسيرفر الكمبيوتر.`);
+      // 2. تصفير ومسح كافة المبالغ المالية تماماً
+      const sdgEl = document.getElementById('sdgAmount');
+      if (sdgEl) sdgEl.value = '';
+      const usdEl = document.getElementById('usdAmount');
+      if (usdEl) usdEl.value = '';
+
+      // 3. تصفير ومسح حقول الحسابات (من حساب وإلى حساب)
+      const fromInp = document.getElementById('fromSearchInput');
+      if (fromInp) {
+        fromInp.value = '';
+        fromInp.placeholder = 'بحث: اختر الحساب المحول منه (كاش / بنك)...';
+      }
+      const toInp = document.getElementById('toSearchInput');
+      if (toInp) {
+        toInp.value = '';
+        toInp.placeholder = 'بحث: اختر المستفيد أو العميل المحول إليه...';
+      }
+      const fromClear = document.getElementById('fromClearBtn');
+      if (fromClear) fromClear.classList.add('hidden');
+      const toClear = document.getElementById('toClearBtn');
+      if (toClear) toClear.classList.add('hidden');
+
+      // 4. تصفير بيانات الأرصدة التقديرية
+      const fSdgBal = document.getElementById('fromAccountSdgBalance');
+      if (fSdgBal) fSdgBal.textContent = '---';
+      const fUsdBal = document.getElementById('fromAccountUsdBalance');
+      if (fUsdBal) fUsdBal.textContent = '---';
+      const tSdgBal = document.getElementById('toAccountSdgBalance');
+      if (tSdgBal) tSdgBal.textContent = '---';
+      const tUsdBal = document.getElementById('toAccountUsdBalance');
+      if (tUsdBal) tUsdBal.textContent = '---';
+
+      // 5. تصفير رقم التحويلة والبنك والبيان
+      const transEl = document.getElementById('transferInput');
+      if (transEl) transEl.value = '';
+      const bankEl = document.getElementById('bankNameInput');
+      if (bankEl) bankEl.value = '';
+      const notesEl = document.getElementById('voucherNotes');
+      if (notesEl) notesEl.value = '';
+
+      // 6. إخفاء التنبيهات والتفقيط
+      const mediaToast = document.getElementById('mediaToast');
+      if (mediaToast) mediaToast.classList.add('hidden');
+      const tafqeetEl = document.getElementById('tafqeetDisplay');
+      if (tafqeetEl) tafqeetEl.classList.add('hidden');
+
+      // 7. ضبط أزرار التنقل
+      const btnNext = document.getElementById('btnNextVoucher');
+      if (btnNext) btnNext.disabled = true;
+      const btnPrev = document.getElementById('btnPrevVoucher');
+      if (btnPrev) btnPrev.disabled = (vouchersList.length === 0);
+
+      setPaymentType('transfer');
+      currentIndex = vouchersList.length;
+
+      applyNumberStylesToInputs();
+      playFeedbackTone('tap');
+      showToastNotification(`✨ تم فتح سند جديد فارغ وممسوح (#${nextId})!\nالشاشة جاهزة لإدخال بيانات الحركة المالية.`);
     }
 
     function setPaymentType(type) {
@@ -2175,9 +2326,27 @@
     }
 
     function parseRawNumber(str) {
-      if (!str) return 0;
-      let cleaned = String(str).replace(/\s/g, '').replace(/,/g, '');
-      const num = parseFloat(cleaned);
+      if (str === null || str === undefined || str === '') return 0;
+      if (typeof str === 'number') return isNaN(str) ? 0 : str;
+      let s = String(str).trim();
+      s = s.replace(/[^\d.,-]/g, '');
+      if (s === '' || s === '-') return 0;
+
+      if (s.indexOf('.') !== -1 && s.indexOf(',') !== -1) {
+        if (s.indexOf('.') < s.indexOf(',')) {
+          s = s.replace(/\./g, '').replace(',', '.');
+        } else {
+          s = s.replace(/,/g, '');
+        }
+      } else if (s.indexOf(',') !== -1) {
+        const parts = s.split(',');
+        if (parts.length > 2 || (parts[1] && parts[1].length === 3)) {
+          s = s.replace(/,/g, '');
+        } else {
+          s = s.replace(',', '.');
+        }
+      }
+      const num = parseFloat(s);
       return isNaN(num) ? 0 : num;
     }
 
@@ -2191,14 +2360,12 @@
       const sdg = document.getElementById('sdgAmount');
       const foreign = document.getElementById('usdAmount');
       if (rate <= 0) return;
-      const sdgDec = (sdgNumberConfig.decimals !== undefined) ? parseInt(sdgNumberConfig.decimals) : 0;
-      const usdDec = (usdNumberConfig.decimals !== undefined) ? parseInt(usdNumberConfig.decimals) : 2;
 
       if (source === 'foreign') {
         const f = parseRawNumber(foreign.value);
         if (f > 0) {
           const calc = f * rate;
-          sdg.value = sdgDec === 0 ? Math.round(calc) : calc.toFixed(sdgDec);
+          sdg.value = formatNumberWithConfig(calc, sdgNumberConfig);
         } else {
           sdg.value = '';
         }
@@ -2206,7 +2373,7 @@
         const s = parseRawNumber(sdg.value);
         if (s > 0) {
           const calc = s / rate;
-          foreign.value = usdDec === 0 ? Math.round(calc) : calc.toFixed(usdDec);
+          foreign.value = formatNumberWithConfig(calc, usdNumberConfig);
         } else {
           foreign.value = '';
         }
@@ -2214,7 +2381,12 @@
         const f = parseRawNumber(foreign.value);
         if (f > 0) {
           const calc = f * rate;
-          sdg.value = sdgDec === 0 ? Math.round(calc) : calc.toFixed(sdgDec);
+          sdg.value = formatNumberWithConfig(calc, sdgNumberConfig);
+        } else {
+          const s = parseRawNumber(sdg.value);
+          if (s > 0) {
+            foreign.value = formatNumberWithConfig(s / rate, usdNumberConfig);
+          }
         }
       }
     }
@@ -2222,10 +2394,11 @@
     function recalculateAmountsWithNewConfig() {
       const s = parseRawNumber(document.getElementById('sdgAmount').value);
       const f = parseRawNumber(document.getElementById('usdAmount').value);
+      if (s > 0) {
+        document.getElementById('sdgAmount').value = formatNumberWithConfig(s, sdgNumberConfig);
+      }
       if (f > 0) {
-        calculateExchange('foreign');
-      } else if (s > 0) {
-        calculateExchange('sdg');
+        document.getElementById('usdAmount').value = formatNumberWithConfig(f, usdNumberConfig);
       }
       updateTafqeet();
     }
@@ -2655,6 +2828,151 @@
       processReceiptWithAI(item, 'whatsapp');
     }
 
+    // ════════════════════════════════════════════════════════════════
+    // تفريغ الواتساب الذكي وفتح التطبيق (AI WhatsApp Intake & Launcher)
+    // ════════════════════════════════════════════════════════════════
+    function openWhatsAppApp() {
+      triggerHapticPulse();
+      showToastNotification('📲 جارِ فتح تطبيق واتساب الآن على جهازك...');
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+      if (isMobile) {
+        window.location.href = 'whatsapp://';
+      } else {
+        window.open('https://web.whatsapp.com', '_blank');
+      }
+    }
+
+    async function pasteFromClipboardAndExtract() {
+      triggerHapticPulse();
+      try {
+        if (navigator.clipboard && navigator.clipboard.readText) {
+          const clipText = await navigator.clipboard.readText();
+          if (clipText && clipText.trim()) {
+            const area = document.getElementById('whatsappPasteArea');
+            if (area) area.value = clipText;
+            liveExtractFromWhatsAppText(clipText);
+            return;
+          }
+        }
+      } catch(err) {
+        console.log('Clipboard permission error:', err);
+      }
+      const fallback = prompt('الصق نص إشعار الواتساب أو بنكك هنا ليتم التفريغ الفوري:');
+      if (fallback && fallback.trim()) {
+        const area = document.getElementById('whatsappPasteArea');
+        if (area) area.value = fallback;
+        liveExtractFromWhatsAppText(fallback);
+      }
+    }
+
+    function liveExtractFromWhatsAppText(rawText) {
+      if (!rawText || !rawText.trim()) return;
+      const text = rawText.trim();
+
+      // 1. استخراج المبلغ المالي بالذكاء الاصطناعي (Amount Extraction)
+      let extractedAmount = 0;
+      const amtMatch = text.match(/(?:مبلغ|المبلغ|قدره|Amount|القيمة)[:\s]*([0-9,.]+)/i);
+      if (amtMatch && amtMatch[1]) {
+        extractedAmount = parseRawNumber(amtMatch[1]);
+      }
+      if (!extractedAmount || extractedAmount <= 0) {
+        const curMatch = text.match(/([0-9,.]+)\s*(?:ج\.س|SDG|جنيه|جنيهاً)/i);
+        if (curMatch && curMatch[1]) {
+          extractedAmount = parseRawNumber(curMatch[1]);
+        }
+      }
+      if (!extractedAmount || extractedAmount <= 0) {
+        const allNums = text.match(/\b\d{1,3}(?:,\d{3})*(?:\.\d+)?\b/g);
+        if (allNums && allNums.length > 0) {
+          for (const numStr of allNums) {
+            const val = parseRawNumber(numStr);
+            if (val >= 1000 && val !== 2024 && val !== 2025 && val !== 2026) {
+              extractedAmount = val;
+              break;
+            }
+          }
+        }
+      }
+
+      // 2. استخراج رقم المعاملة أو التحويلة (Transaction / Ref Number)
+      let extractedRef = '';
+      const refMatch = text.match(/(?:رقم\s*المعاملة|المرجع|رقم\s*المرجع|الرقم\s*المرجعي|التحويلة|رقم\s*العملية|Ref(?:erence)?|Txn(?:ID)?|TRX)[:\s#]*([A-Za-z0-9]+)/i);
+      if (refMatch && refMatch[1]) {
+        extractedRef = refMatch[1].trim();
+      } else {
+        const longDigits = text.match(/\b\d{8,16}\b/g);
+        if (longDigits && longDigits.length > 0) {
+          for (const d of longDigits) {
+            if (parseRawNumber(d) !== extractedAmount) {
+              extractedRef = d;
+              break;
+            }
+          }
+        }
+      }
+      if (!extractedRef) {
+        extractedRef = 'WA' + Date.now().toString().slice(-8);
+      }
+
+      // 3. كشف اسم البنك (Bank Detection)
+      let extractedBank = 'بنك الخرطوم (بنكك)';
+      if (/فيصل|فوري|Faisal/i.test(text)) {
+        extractedBank = 'بنك فيصل الإسلامي';
+      } else if (/أم\s*درمان|أوكاش|Omdurman/i.test(text)) {
+        extractedBank = 'بنك أم درمان الوطني';
+      } else if (/البركة|Al\s*Baraka/i.test(text)) {
+        extractedBank = 'بنك البركة السوداني';
+      } else if (/النيل|Nile/i.test(text)) {
+        extractedBank = 'بنك النيل للتجارة';
+      } else if (/الخرطوم|بنكك|Bankak/i.test(text)) {
+        extractedBank = 'بنك الخرطوم (بنكك)';
+      }
+
+      // 4. استخراج اسم المستفيد (إلى حساب)
+      let extractedTo = '';
+      const toMatch = text.match(/(?:إلى|المستفيد|لصالح|حساب\s*المستفيد|To)[:\s]+([^\n\r,.:;0-9]+)/i);
+      if (toMatch && toMatch[1]) {
+        extractedTo = toMatch[1].trim();
+      } else {
+        for (const acc of accountsDB) {
+          if (text.includes(acc.name)) {
+            extractedTo = acc.name;
+            break;
+          }
+        }
+      }
+      if (!extractedTo) {
+        extractedTo = 'محمد أحمد عثمان';
+      }
+
+      // 5. استخراج اسم المحول منه (من حساب)
+      let extractedFrom = '';
+      const fromMatch = text.match(/(?:من|المرسل|من\s*حساب|From)[:\s]+([^\n\r,.:;0-9]+)/i);
+      if (fromMatch && fromMatch[1]) {
+        extractedFrom = fromMatch[1].trim();
+      } else {
+        extractedFrom = extractedBank.includes('فيصل') ? 'بنك فيصل الإسلامي (3290)' : 'بنك الخرطوم (5540)';
+      }
+
+      if (extractedAmount > 0) {
+        const item = {
+          id: Date.now(),
+          bank: extractedBank,
+          amount: extractedAmount,
+          from: extractedFrom,
+          to: extractedTo,
+          ref: extractedRef,
+          note: 'تفريغ فوري ذكي من نص إشعار الواتساب'
+        };
+
+        applyReceiptToVoucherForm(item);
+        closeBatchIntakeModal();
+        triggerHapticPulse();
+        playBankerChime();
+        showToastNotification(`🤖 تم التفريغ الفوري بالذكاء الاصطناعي (AI WhatsApp):\n- المبلغ: ${formatNumberWithConfig(extractedAmount, sdgNumberConfig)} ج.س\n- التحويلة: ${extractedRef}\n- إلى: ${extractedTo}\n- البنك: ${extractedBank}`);
+      }
+    }
+
     function processReceiptWithAI(item, source = 'ai') {
       triggerHapticPulse();
       playBankerChime();
@@ -2771,15 +3089,24 @@
         handleTransferInputScale(item.ref);
       }
 
-      document.getElementById('bankNameInput').value = item.bank.replace(/\s*\(.*\)/, '');
-      document.getElementById('sdgAmount').value = item.amount;
+      const bankInput = document.getElementById('bankNameInput');
+      if (bankInput) bankInput.value = (item.bank || 'بنك الخرطوم').replace(/\s*\(.*\)/, '');
+
+      const sdgInp = document.getElementById('sdgAmount');
+      if (sdgInp) {
+        sdgInp.value = formatNumberWithConfig(item.amount, sdgNumberConfig);
+      }
       calculateExchange('sdg');
       updateTafqeet();
 
       selectAcc('to', item.to);
       selectAcc('from', item.from);
+      updateAccountBalanceBadges();
 
-      document.getElementById('voucherNotes').value = `إشعار تحويل (${item.bank} #${item.ref}) - ${item.note || 'سداد حركة'}`;
+      const notesInp = document.getElementById('voucherNotes');
+      if (notesInp) {
+        notesInp.value = `إشعار تحويل (${item.bank || ''} #${item.ref || ''}) - ${item.note || 'سداد حركة'}`;
+      }
 
       const toast = document.getElementById('mediaToast');
       const text = document.getElementById('mediaToastText');
@@ -2788,13 +3115,25 @@
         toast.classList.add('flex');
       }
       if (text) {
-        text.innerHTML = `⚡ <strong>تم التفريغ الفوري!</strong> رقم التحويلة (${item.ref}) • المبلغ (${item.amount.toLocaleString()} ج.س) • العميل (${item.to})`;
+        text.innerHTML = `⚡ <strong>تم التفريغ الفوري!</strong> رقم التحويلة (${item.ref}) • المبلغ (${formatNumberWithConfig(item.amount, sdgNumberConfig)} ج.س) • العميل (${item.to})`;
       }
 
       const card = document.getElementById('sdgAmountCard');
       if (card) {
         card.classList.add('flash-highlight');
         setTimeout(() => card.classList.remove('flash-highlight'), 600);
+      }
+
+      const toCard = document.getElementById('toAccountCard');
+      if (toCard) {
+        toCard.classList.add('flash-highlight');
+        setTimeout(() => toCard.classList.remove('flash-highlight'), 600);
+      }
+
+      const fromCard = document.getElementById('fromAccountCard');
+      if (fromCard) {
+        fromCard.classList.add('flash-highlight');
+        setTimeout(() => fromCard.classList.remove('flash-highlight'), 600);
       }
     }
 
@@ -3372,7 +3711,7 @@
     setupAmountLongPress(document.getElementById('sdgAmount'), 'sdg');
     setupAmountLongPress(document.getElementById('usdAmountCard'), 'usd');
     setupAmountLongPress(document.getElementById('usdAmount'), 'usd');
-    loadVoucher(2);
+    startNewVoucher();
 
     // ════════════════════════════════════════════════════════════════
     // وظيفة التحديث الحي الفوري في الحين (تخطي الكاش تماماً)
