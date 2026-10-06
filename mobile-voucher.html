@@ -839,9 +839,9 @@
           <div>
             <label class="block text-xs sm:text-sm font-black text-amber-300 mb-1 flex items-center gap-1" id="refLabel">
               <i class="fa-solid fa-receipt text-amber-400 text-xs"></i>
-              <span>رقم التحويلة:</span>
+              <span>رقم التحويل:</span>
             </label>
-            <input type="text" id="transferInput" oninput="handleTransferInputScale(this.value)" onblur="checkDuplicateTransferLive(this.value)" placeholder="التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2.5 h-[50px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_12px_rgba(245,158,11,0.2)]" style="font-size: 20px; text-align: center; direction: ltr;">
+            <input type="text" id="transferInput" oninput="handleTransferInputScale(this.value)" onblur="checkDuplicateTransferLive(this.value)" placeholder="رقم التحويل" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2.5 h-[50px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_12px_rgba(245,158,11,0.2)]" style="font-size: 20px; text-align: center; direction: ltr;">
           </div>
 
           <!-- 2. اسم البنك بأناقة الفيروزي الجليدي والخط الواضح المعزز -->
@@ -3130,9 +3130,9 @@
 
       if (type === 'transfer') {
         container.classList.remove('hidden');
-        if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-receipt text-amber-400 text-xs"></i> <span>رقم التحويلة (6 أرقام+):</span>';
+        if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-receipt text-amber-400 text-xs"></i> <span>رقم التحويل:</span>';
         if (input) {
-          input.placeholder = 'رقم التحويلة (6 أرقام فأكثر)';
+          input.placeholder = 'رقم التحويل';
           input.setAttribute('inputmode', 'numeric');
         }
         if (bankLabel) bankLabel.innerHTML = '<i class="fa-solid fa-building-columns text-cyan-400 text-xs"></i> <span>اسم البنك:</span>';
