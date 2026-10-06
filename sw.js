@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-05-v37-mobile-voucher-sync';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-06-v38-mobile-voucher-kinetic-live';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
@@ -64,8 +64,8 @@ self.addEventListener('fetch', (event) => {
 
     const url = new URL(request.url);
 
-    // 1. Never cache authentication gateway (index.php / login.php), dynamic JSON APIs, or heartbeat pings
-    if (url.pathname.endsWith('/index.php') || url.pathname.endsWith('/login.php') || url.pathname === '/' || url.pathname.includes('/api/') || url.pathname.includes('api_index') || url.pathname.includes('sync_queue') || url.searchParams.has('api_call') || url.searchParams.has('action')) {
+    // 1. Never cache authentication gateway (index.php / login.php), dynamic JSON APIs, or live parameters
+    if (url.pathname.endsWith('/index.php') || url.pathname.endsWith('/login.php') || url.pathname === '/' || url.pathname.includes('/api/') || url.pathname.includes('api_index') || url.pathname.includes('sync_queue') || url.searchParams.has('api_call') || url.searchParams.has('action') || url.searchParams.has('api') || url.searchParams.has('t') || url.searchParams.has('live') || url.searchParams.has('nocache')) {
         return;
     }
 

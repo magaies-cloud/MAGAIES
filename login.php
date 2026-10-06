@@ -336,6 +336,12 @@
         <div class="title" style="background: linear-gradient(to right, #ffffff, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; font-weight: 900; letter-spacing: 1px;">مقاييس MAGAIEES ERP</div>
         <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -15px; font-weight: 700;">نظام إدارة موارد المؤسسات المتكامل الذكي</p>
         
+        <!-- زر الدخول المباشر لشاشة الحركة المالية المحدثة -->
+        <a href="mobile-voucher.php" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(16, 185, 129, 0.25) 100%); border: 1.5px solid #06b6d4; padding: 10px 14px; border-radius: 16px; color: #a5f3fc; text-decoration: none; font-weight: 800; font-size: 0.95rem; margin-bottom: 12px; box-shadow: 0 0 15px rgba(6, 182, 212, 0.3); transition: all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+            <span style="font-size: 1.2rem;">📱</span>
+            <span>شاشة الحركة المالية الذكية (مباشر) ➔</span>
+        </a>
+
         <div class="input-group">
             <label>اسم المستخدم</label>
             <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
