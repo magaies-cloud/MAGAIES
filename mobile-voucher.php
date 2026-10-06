@@ -29,6 +29,19 @@ $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
 $currentTenantId = $GLOBAL_TENANT_ID ?? 1;
 
+// التحقق من وجود tenant_id صالح في جدول tenants لتجنب أخطاء Foreign Key
+try {
+    $stmtT = $pdo->prepare("SELECT id FROM tenants WHERE id = ?");
+    $stmtT->execute([$currentTenantId]);
+    if (!$stmtT->fetchColumn()) {
+        $stmtFirst = $pdo->query("SELECT id FROM tenants ORDER BY id ASC LIMIT 1");
+        $firstT = $stmtFirst ? $stmtFirst->fetchColumn() : null;
+        if ($firstT) {
+            $currentTenantId = (int)$firstT;
+        }
+    }
+} catch (Exception $et) {}
+
 // ────────────────────────────────────────────────────────────────────────────
 // 1. API BACKEND ENDPOINTS (AJAX: Save, Delete, Check Duplicate, Sync)
 // ────────────────────────────────────────────────────────────────────────────
