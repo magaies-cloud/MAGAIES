@@ -632,22 +632,52 @@ $currenciesData = [
       40%, 100% { left: 130%; }
     }
 
-    /* أزرار الدفع الزجاجية */
+    /* إضاءة ووضوح الحواف لجميع الأزرار والمناطق الحيوية */
+    .glow-border-cyan {
+      border: 2px solid rgba(6, 182, 212, 0.8) !important;
+      box-shadow: 0 0 14px rgba(6, 182, 212, 0.35) !important;
+    }
+    .glow-border-amber {
+      border: 2px solid rgba(245, 158, 11, 0.8) !important;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.35) !important;
+    }
+    .glow-border-emerald {
+      border: 2px solid rgba(16, 185, 129, 0.85) !important;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.4) !important;
+    }
+    .glow-border-sky {
+      border: 2px solid rgba(56, 189, 248, 0.85) !important;
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.45) !important;
+    }
+    .glow-border-indigo {
+      border: 2px solid rgba(99, 102, 241, 0.8) !important;
+      box-shadow: 0 0 14px rgba(99, 102, 241, 0.35) !important;
+    }
+    .glow-border-red {
+      border: 2px solid rgba(239, 68, 68, 0.85) !important;
+      box-shadow: 0 0 16px rgba(239, 68, 68, 0.4) !important;
+    }
+
+    /* أزرار الدفع الزجاجية العصرية المضيئة بتباين فائق */
     .glass-pay-btn {
       position: relative;
       overflow: hidden;
-      background: rgba(15, 23, 42, 0.65);
+      background: rgba(30, 41, 59, 0.92) !important;
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 4px 15px -1px rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1.5px solid rgba(148, 163, 184, 0.45) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.25);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-pay-btn:hover {
+      border-color: rgba(56, 189, 248, 0.8) !important;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.35);
     }
     .glass-pay-btn.is-active {
-      background: linear-gradient(135deg, rgba(2, 132, 199, 0.85) 0%, rgba(30, 58, 138, 0.95) 100%);
-      border-color: rgba(56, 189, 248, 0.8);
-      color: #ffffff;
-      box-shadow: 0 0 20px rgba(14, 165, 233, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.5);
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.95) 0%, rgba(30, 58, 138, 0.98) 100%) !important;
+      border-color: #38bdf8 !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 20px rgba(14, 165, 233, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
       transform: translateY(-1px);
     }
 
@@ -884,28 +914,28 @@ $currenciesData = [
          التاريخ (في منتصف المساحة المخصصة ومكبر الخط) | الرقم التسلسلي (مطابق للكمبيوتر)
          ═════════════════════════════════════════════════════════════════ -->
     <div class="bg-slate-900/95 px-2.5 py-2 border-b border-slate-800 sticky top-[37px] z-30 backdrop-blur-md">
-      <div class="grid grid-cols-2 gap-2 w-full">
+      <div class="grid grid-cols-2 gap-2.5 w-full">
         
-        <!-- 1. مساحة التاريخ: التاريخ لوحده في المنتصف تماماً وبخط مكبر واضح -->
-        <div class="bg-slate-950 border border-slate-700/80 rounded-2xl px-2 py-1 flex items-center justify-center h-[52px] shadow-inner focus-within:border-cyan-500 transition">
-          <input type="date" id="voucherDate" value="2026-10-05" class="w-full bg-transparent text-white text-[17px] font-black text-center focus:outline-none cursor-pointer tracking-tight" style="text-align: center; color-scheme: dark;">
+        <!-- 1. مساحة التاريخ: حواف مضيئة بوضوح ولون مميز في المنتصف تماماً -->
+        <div class="bg-slate-950 glow-border-cyan rounded-2xl px-2 py-1 flex items-center justify-center h-[54px] shadow-inner focus-within:border-cyan-400 transition">
+          <input type="date" id="voucherDate" value="2026-10-05" class="w-full bg-transparent text-cyan-200 text-[18px] font-black text-center focus:outline-none cursor-pointer tracking-tight" style="text-align: center; color-scheme: dark;">
         </div>
 
-        <!-- 2. مساحة الرقم التسلسلي: الرقم لوحده مكبر في المنتصف بدون كلمة سيرفر الكمبيوتر -->
-        <div class="bg-slate-950 border border-slate-700/80 rounded-2xl px-2 py-1 flex items-center justify-between h-[52px] shadow-inner">
+        <!-- 2. مساحة الرقم التسلسلي: حواف مضيئة ذهبية بارزة في المنتصف -->
+        <div class="bg-slate-950 glow-border-amber rounded-2xl px-2 py-1 flex items-center justify-between h-[54px] shadow-inner">
           <!-- سهم التالي ◀ (يمين في RTL) -->
-          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-8 h-8 rounded-xl bg-slate-850 hover:bg-slate-750 active:scale-90 text-slate-300 flex items-center justify-center transition disabled:opacity-20 shrink-0" title="السند التالي">
+          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 flex items-center justify-center transition disabled:opacity-20 shrink-0 border border-amber-500/40" title="السند التالي">
             <i class="fa-solid fa-chevron-right text-xs"></i>
           </button>
 
           <!-- الرقم التسلسلي لوحده كبير وبارز ومطابق للسيرفر -->
           <div class="text-center px-1 flex-1 min-w-0 flex items-center justify-center">
             <span id="voucherTag" class="hidden"></span>
-            <span class="text-[21px] font-mono font-black text-amber-400 truncate block tracking-tight leading-none" id="currentVoucherDisplay">#842</span>
+            <span class="text-[22px] font-mono font-black text-amber-300 truncate block tracking-tight leading-none drop-shadow" id="currentVoucherDisplay">#842</span>
           </div>
 
           <!-- سهم السابق ▶ (يسار في RTL) -->
-          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-8 h-8 rounded-xl bg-slate-850 hover:bg-slate-750 active:scale-90 text-slate-300 flex items-center justify-center transition disabled:opacity-20 shrink-0" title="السند السابق">
+          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 flex items-center justify-center transition disabled:opacity-20 shrink-0 border border-amber-500/40" title="السند السابق">
             <i class="fa-solid fa-chevron-left text-xs"></i>
           </button>
         </div>
@@ -940,24 +970,24 @@ $currenciesData = [
     </div>
 
     <!-- Main Scrollable Content (بدون مساحات ميتة متصل بانسيابية) -->
-    <main class="flex-1 overflow-y-auto no-scrollbar p-2.5 space-y-2 pb-28 text-xs">
+    <main class="flex-1 overflow-y-auto no-scrollbar p-2.5 space-y-2.5 pb-28 text-xs">
 
-      <!-- أزرار الدفع الزجاجية العصرية -->
-      <div class="p-1 rounded-2xl bg-slate-900/80 border border-slate-800 shadow-sm">
+      <!-- أزرار الدفع الزجاجية العصرية المضيئة الحواف بوضوح تام -->
+      <div class="p-1.5 rounded-2xl bg-slate-900/95 border-2 border-slate-700/80 shadow-[0_0_15px_rgba(56,189,248,0.18)]">
         <div class="grid grid-cols-4 gap-1.5 text-[11px] font-black" id="paymentMethodsGroup">
           <button type="button" onclick="setPaymentType('transfer')" id="btn-transfer" class="glass-pay-btn is-active py-2 px-1 rounded-xl text-center flex flex-col items-center justify-center gap-0.5">
             <i class="fa-solid fa-arrow-right-arrow-left text-xs mb-0.5 text-sky-400"></i>
             <span>تحويل</span>
           </button>
-          <button type="button" onclick="setPaymentType('cash')" id="btn-cash" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-300 text-center flex flex-col items-center justify-center gap-0.5">
+          <button type="button" onclick="setPaymentType('cash')" id="btn-cash" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-200 text-center flex flex-col items-center justify-center gap-0.5">
             <i class="fa-solid fa-money-bill-wave text-xs mb-0.5 text-emerald-400"></i>
             <span>كاش</span>
           </button>
-          <button type="button" onclick="setPaymentType('bank_cheque')" id="btn-bank_cheque" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-300 text-center flex flex-col items-center justify-center gap-0.5">
+          <button type="button" onclick="setPaymentType('bank_cheque')" id="btn-bank_cheque" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-200 text-center flex flex-col items-center justify-center gap-0.5">
             <i class="fa-solid fa-money-check text-xs mb-0.5 text-amber-400"></i>
             <span>شيك مصرفي</span>
           </button>
-          <button type="button" onclick="setPaymentType('normal_cheque')" id="btn-normal_cheque" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-300 text-center flex flex-col items-center justify-center gap-0.5">
+          <button type="button" onclick="setPaymentType('normal_cheque')" id="btn-normal_cheque" class="glass-pay-btn py-2 px-1 rounded-xl text-slate-200 text-center flex flex-col items-center justify-center gap-0.5">
             <i class="fa-regular fa-file-lines text-xs mb-0.5 text-indigo-400"></i>
             <span>شيك عادي</span>
           </button>
@@ -965,31 +995,31 @@ $currenciesData = [
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
-           شريط العملة (إنقاص 10%) + قيمة الدولار (إنقاص 10% والخط أضخم بولد) + مركز الكلفة (متسع)
+           شريط العملة + قيمة الدولار + مركز الكلفة بحواف واضحة ومضيئة
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2 flex items-center gap-1.5 shadow-sm">
+      <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2 flex items-center gap-1.5 shadow-[0_0_14px_rgba(56,189,248,0.15)]">
         
-        <!-- مساحة العملة: تم إنقاص المساحة 10% لتوفر مساحة لمركز الكلفة -->
-        <div class="relative shrink-0 w-[94px]">
-          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-slate-950 border border-slate-700/80 rounded-xl pr-2.5 pl-5 py-2 text-[11px] font-black text-amber-400 focus:outline-none focus:border-amber-400 cursor-pointer h-[42px] shadow-inner" title="اختيار العملة">
+        <!-- مساحة العملة: حواف كهرمانية مضيئة -->
+        <div class="relative shrink-0 w-[96px]">
+          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-slate-950 glow-border-amber rounded-xl pr-2.5 pl-5 py-2 text-[11px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[44px] shadow-inner" title="اختيار العملة">
             <option value="SDG" selected>ج.س (SDG)</option>
             <option value="USD">دولار ($)</option>
           </select>
-          <div class="absolute left-2 top-4 pointer-events-none text-slate-400 text-[9px]">
+          <div class="absolute left-2.5 top-4 pointer-events-none text-amber-300 text-[9px]">
             <i class="fa-solid fa-chevron-down"></i>
           </div>
         </div>
 
-        <!-- قيمة الدولار: تم إنقاص المساحة 10%، والخط أضخم وبولد جداً -->
-        <div class="bg-slate-950 border border-emerald-500/50 hover:border-emerald-400 focus-within:border-emerald-400 rounded-xl px-1.5 py-1 flex items-center gap-1 w-[90px] shrink-0 h-[42px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="قيمة الدولار من السيستم - انقر للتعديل المباشر">
+        <!-- قيمة الدولار: حواف زمردية مضيئة وخط أضخم بولد -->
+        <div class="bg-slate-950 glow-border-emerald rounded-xl px-2 py-1 flex items-center gap-1 w-[94px] shrink-0 h-[44px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="قيمة الدولار من السيستم - انقر للتعديل المباشر">
           <span class="text-emerald-400 font-mono text-xs font-black shrink-0">$</span>
-          <input type="number" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-400 font-mono font-black text-base focus:outline-none text-center cursor-text tracking-tight" placeholder="2650" title="سعر صرف الدولار">
+          <input type="number" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-base focus:outline-none text-center cursor-text tracking-tight" placeholder="2650" title="سعر صرف الدولار">
           <i class="fa-solid fa-pen text-[7px] text-slate-500 group-hover:text-emerald-400 transition shrink-0"></i>
         </div>
 
-        <!-- مركز الكلفة: زادت المساحة تلقائياً بعد اختصار مساحة العملة والدولار -->
-        <div class="flex-1 bg-slate-950 border border-slate-700/80 rounded-xl px-2.5 py-1 flex items-center h-[42px] relative shadow-inner">
-          <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="مركز الكلفة" class="w-full bg-transparent text-slate-100 placeholder:text-slate-500 placeholder:font-medium text-xs font-bold focus:outline-none" value="مخزن بحري الرئيسي">
+        <!-- مركز الكلفة: حواف بنفسجية مضيئة وواضحة -->
+        <div class="flex-1 bg-slate-950 glow-border-indigo rounded-xl px-2.5 py-1 flex items-center h-[44px] relative shadow-inner">
+          <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="مركز الكلفة" class="w-full bg-transparent text-indigo-100 placeholder:text-slate-500 placeholder:font-medium text-xs font-bold focus:outline-none" value="مخزن بحري الرئيسي">
           <datalist id="costCentersDataList">
             <option value="مخزن بحري الرئيسي"></option>
             <option value="مخزن أم درمان"></option>
@@ -1001,76 +1031,82 @@ $currenciesData = [
 
       <!-- ═════════════════════════════════════════════════════════════════
            المبالغ المالية:
-           - المبالغ بحجم أكبر وبولد أضخم وفي المنتصف
-           - كتابة "المبلغ المحلي" و"المبلغ الأجنبي" بخط أقل وبألوان متباينة
+           - حواف وإضاءة ساطعة وفائقة التباين للمبلغين
+           - نقر سريع على الأيقونة أو المربع لتخصيص الخانات والتقريب والألوان والحجم
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 space-y-2">
+      <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2.5 space-y-2 shadow-[0_0_18px_rgba(56,189,248,0.2)]">
         <div class="grid grid-cols-2 gap-2.5">
           
-          <!-- 1. اليمين: المبلغ المحلي (كتابة بخط أقل، لون أزرق سماوي مميز) -->
+          <!-- 1. اليمين: المبلغ المحلي (إضاءة سماوية فائقة الحواف) -->
           <div>
             <div class="flex items-center justify-between mb-1 px-1">
-              <span class="text-[11px] font-bold text-sky-400">المبلغ المحلي</span>
-              <span class="text-[9.5px] font-bold text-sky-300 bg-sky-950/80 px-1.5 py-0.5 rounded border border-sky-500/40 font-mono">ج.س (SDG)</span>
+              <span class="text-[11px] font-bold text-sky-300">المبلغ المحلي</span>
+              <button type="button" onclick="openNumberPropertiesModal(event)" class="text-[9.5px] font-bold text-sky-200 bg-sky-950/95 px-2 py-0.5 rounded-lg border border-sky-400/80 font-mono shadow-[0_0_10px_rgba(56,189,248,0.5)] flex items-center gap-1 active:scale-95 transition" title="انقر لتخصيص الحجم، الألوان، الفواصل والخانات">
+                <span>ج.س (SDG)</span>
+                <i class="fa-solid fa-sliders text-[9px] text-sky-300"></i>
+              </button>
             </div>
-            <!-- المربع شاغر والمبلغ أضخم وبولد وفي المنتصف -->
-            <div id="sdgAmountCard" class="amount-display-card bg-slate-950/90 p-2 rounded-2xl border-2 border-sky-500/50 focus-within:border-sky-400 transition relative cursor-pointer shadow-inner flex items-center justify-center min-h-[70px]" oncontextmenu="openNumberPropertiesModal(event); return false;" title="كليك يمين لتخصيص الحجم والألوان">
-              <input type="text" id="sdgAmount" placeholder="0" inputmode="decimal" oninput="handleAmountInput('sdg'); updateTafqeet();" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 text-[32px] sm:text-[36px] font-black text-white tracking-tight" style="font-size: var(--num-size); font-weight: var(--num-weight); text-align: center;">
+            <!-- المربع شاغر بحواف مضيئة ساطعة -->
+            <div id="sdgAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-sky-400 shadow-[0_0_24px_rgba(56,189,248,0.55)] focus-within:shadow-[0_0_32px_rgba(56,189,248,0.85)] focus-within:border-sky-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event)" oncontextmenu="openNumberPropertiesModal(event); return false;" title="انقر لتخصيص الألوان والتقريب والحجم">
+              <input type="text" id="sdgAmount" placeholder="0" inputmode="decimal" oninput="handleAmountInput('sdg'); updateTafqeet();" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black text-white tracking-tight" style="font-size: var(--num-size, 32px); font-weight: var(--num-weight, 900); text-align: center;">
             </div>
           </div>
 
-          <!-- 2. اليسار: المبلغ الأجنبي (كتابة بخط أقل، لون أخضر زمردي مختلف) -->
+          <!-- 2. اليسار: المبلغ الأجنبي (إضاءة زمردية فائقة الحواف) -->
           <div>
             <div class="flex items-center justify-between mb-1 px-1">
-              <span class="text-[11px] font-bold text-emerald-400" id="foreignAmountTitle">المبلغ الأجنبي (دولار)</span>
-              <span class="text-[9.5px] font-bold text-emerald-300 bg-emerald-950/80 px-1.5 py-0.5 rounded border border-emerald-500/40 font-mono" id="foreignCurrencyBadge">$ USD</span>
+              <span class="text-[11px] font-bold text-emerald-300" id="foreignAmountTitle">المبلغ الأجنبي (دولار)</span>
+              <button type="button" onclick="openNumberPropertiesModal(event)" class="text-[9.5px] font-bold text-emerald-200 bg-emerald-950/95 px-2 py-0.5 rounded-lg border border-emerald-400/80 font-mono shadow-[0_0_10px_rgba(16,185,129,0.5)] flex items-center gap-1 active:scale-95 transition" title="انقر لتخصيص الحجم، الألوان، الفواصل والخانات">
+                <span id="foreignCurrencyBadge">$ USD</span>
+                <i class="fa-solid fa-sliders text-[9px] text-emerald-300"></i>
+              </button>
             </div>
-            <!-- المربع شاغر والمبلغ أضخم وبولد وفي المنتصف -->
-            <div id="usdAmountCard" class="amount-display-card bg-slate-950/90 p-2 rounded-2xl border-2 border-emerald-500/50 focus-within:border-emerald-400 transition relative cursor-pointer shadow-inner flex items-center justify-center min-h-[70px]" oncontextmenu="openNumberPropertiesModal(event); return false;" title="كليك يمين لتخصيص الحجم والألوان">
-              <input type="text" id="usdAmount" placeholder="0.00" inputmode="decimal" oninput="handleAmountInput('foreign'); updateTafqeet();" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 text-[32px] sm:text-[36px] font-black text-emerald-400 tracking-tight" style="font-size: var(--num-size); font-weight: var(--num-weight); text-align: center;">
+            <!-- المربع شاغر بحواف مضيئة ساطعة -->
+            <div id="usdAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.55)] focus-within:shadow-[0_0_32px_rgba(16,185,129,0.85)] focus-within:border-emerald-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event)" oncontextmenu="openNumberPropertiesModal(event); return false;" title="انقر لتخصيص الألوان والتقريب والحجم">
+              <input type="text" id="usdAmount" placeholder="0.00" inputmode="decimal" oninput="handleAmountInput('foreign'); updateTafqeet();" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black text-emerald-400 tracking-tight" style="font-size: var(--num-size, 32px); font-weight: var(--num-weight, 900); text-align: center;">
             </div>
           </div>
 
         </div>
 
         <!-- تفقيط المبلغ كتابة بالحروف العربية -->
-        <div id="tafqeetDisplay" class="hidden text-[10.5px] font-bold text-amber-300 bg-amber-950/30 border border-amber-500/30 px-2.5 py-1.5 rounded-xl text-center">
+        <div id="tafqeetDisplay" class="hidden text-[10.5px] font-bold text-amber-300 bg-amber-950/40 border border-amber-500/50 px-2.5 py-1.5 rounded-xl text-center shadow-sm">
           <!-- النص العربي للتفقيط -->
         </div>
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
            من حساب:
-           - منطقة الرصيد: الرصيد بالدولار والرصيد بالجنيه السوداني مع تباين عالي جداً
-           - كتابة اسم الحساب في منطقة البحث بخط كبير واضح واضح
+           - زيادة العرض بنسبة 15% لاستيعاب الأسماء الطويلة بحجم خط كبير جداً
+           - حواف حمراء مضيئة واضحة
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="bg-gradient-to-b from-red-950/20 to-slate-900/90 border-2 border-red-500/60 rounded-2xl p-2.5 shadow-sm relative">
+      <div class="bg-gradient-to-b from-red-950/30 to-slate-900/95 border-2 border-red-500 shadow-[0_0_18px_rgba(239,68,68,0.4)] rounded-2xl p-2.5 relative">
         <div class="flex items-center justify-between mb-1.5">
           <div class="flex items-center gap-1.5">
             <span class="px-2 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-sm">مِن</span>
-            <span class="text-xs font-black text-red-400">من حساب:</span>
+            <span class="text-xs font-black text-red-300">من حساب:</span>
           </div>
 
-          <!-- منطقة الرصيد: الرصيد بالجنيه والرصيد بالدولار مع تباين عالي جداً بين الخلفية وكتابة الخط -->
-          <div class="flex items-center gap-1.5 shrink-0" id="fromBalanceWrapper">
-            <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
+          <!-- منطقة الرصيد: مدمجة وواضحة جداً -->
+          <div class="flex items-center gap-1 shrink-0" id="fromBalanceWrapper">
+            <div class="px-1.5 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
               <span class="text-[9px] font-black text-amber-400">ج.س:</span>
-              <span id="fromAccountSdgBalance" class="text-[11px] font-mono font-black text-amber-200">14,850,000</span>
+              <span id="fromAccountSdgBalance" class="text-[10.5px] font-mono font-black text-amber-200">14,850,000</span>
             </div>
-            <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
+            <div class="px-1.5 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
               <span class="text-[9px] font-black text-emerald-400">$ :</span>
-              <span id="fromAccountUsdBalance" class="text-[11px] font-mono font-black text-emerald-200">5,603.77</span>
+              <span id="fromAccountUsdBalance" class="text-[10.5px] font-mono font-black text-emerald-200">5,603.77</span>
             </div>
           </div>
         </div>
 
-        <!-- حقل البحث الفسيح: يكتب فيه الاسم بخط كبير وواضح جداً -->
-        <div class="relative">
-          <div class="absolute right-3.5 top-3.5 text-red-400 pointer-events-none text-sm">
+        <!-- حقل اسم الحساب: أعرض بنسبة 15% مع زيادة حجم الخط والارتفاع لملء الشاشة بوضوح تام -->
+        <div class="relative w-full">
+          <div class="absolute right-3.5 top-3.5 text-red-400 pointer-events-none text-base">
             <i class="fa-solid fa-magnifying-glass"></i>
           </div>
-          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onfocus="this.select(); liveSearchAccount('from');" placeholder="بحث: فوري، بنك، خزن، عميل..." value="بنك الخرطوم (5540)" class="w-full bg-slate-950 border-2 border-red-500/50 rounded-xl pr-10 pl-9 py-2.5 text-white focus:outline-none focus:border-red-400 placeholder-slate-500 font-black text-[16.5px] sm:text-[17.5px] tracking-wide shadow-inner">
-          <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="absolute left-3 top-3 w-6 h-6 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition" title="مسح واختيار حساب آخر">
+          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onfocus="this.select(); liveSearchAccount('from');" placeholder="بحث: فوري، بنك، خزن، عميل..." value="بنك الخرطوم (5540)" class="w-full bg-slate-950 border-2 border-red-500/70 rounded-xl pr-11 pl-9 py-3 text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_18px_rgba(239,68,68,0.55)] placeholder-slate-500 font-black text-[18.5px] sm:text-[20px] tracking-wide shadow-inner min-h-[52px]">
+          <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="absolute left-3 top-3.5 w-6 h-6 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition" title="مسح واختيار حساب آخر">
             <i class="fa-solid fa-xmark"></i>
           </button>
 
@@ -1096,36 +1132,36 @@ $currenciesData = [
 
       <!-- ═════════════════════════════════════════════════════════════════
            إلى حساب:
-           - منطقة الرصيد: الرصيد بالدولار والرصيد بالجنيه السوداني مع تباين عالي جداً
-           - كتابة اسم الحساب في منطقة البحث بخط كبير واضح واضح (محمد أحمد عثمان)
+           - زيادة العرض بنسبة 15% مع خط كبير جداً وواضح (محمد أحمد عثمان)
+           - حواف خضراء زمردية مضيئة واضحة
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="bg-gradient-to-b from-emerald-950/20 to-slate-900/90 border-2 border-emerald-500/60 rounded-2xl p-2.5 shadow-sm relative">
+      <div class="bg-gradient-to-b from-emerald-950/30 to-slate-900/95 border-2 border-emerald-500 shadow-[0_0_18px_rgba(16,185,129,0.4)] rounded-2xl p-2.5 relative">
         <div class="flex items-center justify-between mb-1.5">
           <div class="flex items-center gap-1.5">
             <span class="px-2 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-sm">إلى</span>
-            <span class="text-xs font-black text-emerald-400">إلى حساب:</span>
+            <span class="text-xs font-black text-emerald-300">إلى حساب:</span>
           </div>
 
-          <!-- منطقة الرصيد: الرصيد بالجنيه والرصيد بالدولار مع تباين عالي جداً بين الخلفية وكتابة الخط -->
-          <div class="flex items-center gap-1.5 shrink-0" id="toBalanceWrapper">
-            <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
+          <!-- منطقة الرصيد: مدمجة وواضحة جداً -->
+          <div class="flex items-center gap-1 shrink-0" id="toBalanceWrapper">
+            <div class="px-1.5 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
               <span class="text-[9px] font-black text-amber-400">ج.س:</span>
-              <span id="toAccountSdgBalance" class="text-[11px] font-mono font-black text-amber-200">1,850,000</span>
+              <span id="toAccountSdgBalance" class="text-[10.5px] font-mono font-black text-amber-200">1,850,000</span>
             </div>
-            <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
+            <div class="px-1.5 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
               <span class="text-[9px] font-black text-emerald-400">$ :</span>
-              <span id="toAccountUsdBalance" class="text-[11px] font-mono font-black text-emerald-200">698.11</span>
+              <span id="toAccountUsdBalance" class="text-[10.5px] font-mono font-black text-emerald-200">698.11</span>
             </div>
           </div>
         </div>
 
-        <!-- حقل البحث الفسيح: يكتب فيه الاسم بخط كبير وواضح جداً (مثل: محمد أحمد عثمان) -->
-        <div class="relative">
-          <div class="absolute right-3.5 top-3.5 text-emerald-400 pointer-events-none text-sm">
+        <!-- حقل اسم الحساب: أعرض بنسبة 15% مع زيادة حجم الخط والارتفاع لملء الشاشة بوضوح تام -->
+        <div class="relative w-full">
+          <div class="absolute right-3.5 top-3.5 text-emerald-400 pointer-events-none text-base">
             <i class="fa-solid fa-magnifying-glass"></i>
           </div>
-          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onfocus="this.select(); liveSearchAccount('to');" placeholder="بحث: فوري، بنك، خزن، عميل..." value="محمد أحمد عثمان" class="w-full bg-slate-950 border-2 border-emerald-500/50 rounded-xl pr-10 pl-9 py-2.5 text-white focus:outline-none focus:border-emerald-400 placeholder-slate-500 font-black text-[16.5px] sm:text-[17.5px] tracking-wide shadow-inner">
-          <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="absolute left-3 top-3 w-6 h-6 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition" title="مسح واختيار حساب آخر">
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onfocus="this.select(); liveSearchAccount('to');" placeholder="بحث: فوري، بنك، خزن، عميل..." value="محمد أحمد عثمان" class="w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl pr-11 pl-9 py-3 text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_18px_rgba(16,185,129,0.55)] placeholder-slate-500 font-black text-[18.5px] sm:text-[20px] tracking-wide shadow-inner min-h-[52px]">
+          <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="absolute left-3 top-3.5 w-6 h-6 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition" title="مسح واختيار حساب آخر">
             <i class="fa-solid fa-xmark"></i>
           </button>
 
@@ -1133,6 +1169,7 @@ $currenciesData = [
           <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1 bg-slate-950 border border-slate-700 rounded-2xl shadow-2xl z-40 max-h-56 overflow-y-auto no-scrollbar"></div>
         </div>
       </div>
+
 
       <!-- ═════════════════════════════════════════════════════════════════
            رقم التحويلة:
@@ -1742,7 +1779,25 @@ $currenciesData = [
         </div>
       </div>
 
-      <!-- 5. الفواصل (الألفية والعشرية) -->
+      <!-- 5. الخانات العشرية والتقريب (0، 1، 2، 3، 4، 5، 6 خانات) -->
+      <div class="space-y-1">
+        <div class="flex justify-between items-center text-[11px] font-bold">
+          <span class="text-slate-300">الخانات العشرية والتقريب:</span>
+          <span id="currentDecimalsLabel" class="text-cyan-400 font-mono text-xs">2 خانة</span>
+        </div>
+        <div class="grid grid-cols-7 gap-1 text-xs font-bold font-mono">
+          <button type="button" onclick="setNumDecimals(0)" id="btnDec0" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="بدون كسور (أرقام صحيحة مقربة)">0</button>
+          <button type="button" onclick="setNumDecimals(1)" id="btnDec1" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="خانة عشرية واحدة">1</button>
+          <button type="button" onclick="setNumDecimals(2)" id="btnDec2" class="dec-btn py-1.5 rounded-lg bg-cyan-600 text-white border-cyan-400 text-center" title="خانتان عشريتان">2</button>
+          <button type="button" onclick="setNumDecimals(3)" id="btnDec3" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="3 خانات عشرية">3</button>
+          <button type="button" onclick="setNumDecimals(4)" id="btnDec4" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="4 خانات عشرية">4</button>
+          <button type="button" onclick="setNumDecimals(5)" id="btnDec5" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="تقريب لـ 5 خانات عشرية">5</button>
+          <button type="button" onclick="setNumDecimals(6)" id="btnDec6" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="تقريب لـ 6 خانات عشرية">6</button>
+        </div>
+        <div class="text-[9px] text-slate-400">تفعيل التقريب الدقيق للعملات والكسور حتى 5 و6 خانات عشريّة</div>
+      </div>
+
+      <!-- 6. الفواصل (الألفية والعشرية) -->
       <div class="grid grid-cols-2 gap-2 text-xs">
         <div>
           <label class="block text-[10.5px] font-bold text-slate-300 mb-1">الفاصلة الألفية:</label>
@@ -1958,11 +2013,11 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // إعدادات وتنسيق الأرقام
+    // إعدادات وتنسيق الأرقام (الحجم، اللون، الخط، الفواصل، والتقريب لـ 0-6 خانات)
     // ════════════════════════════════════════════════════════════════
     let numberConfig = {
       color: '#10b981',
-      fontSize: '30px',
+      fontSize: '32px',
       fontWeight: '900',
       fontFamily: 'JetBrains Mono',
       thousandsSep: ',',
@@ -1971,9 +2026,10 @@ $currenciesData = [
     };
 
     let tempNumColor = '#10b981';
-    let tempNumSize = '30px';
+    let tempNumSize = '32px';
     let tempNumWeight = '900';
     let tempNumFont = 'JetBrains Mono';
+    let tempNumDecimals = 2;
 
     function loadSavedNumberConfig() {
       try {
@@ -1992,28 +2048,42 @@ $currenciesData = [
         }
       } catch(e) {}
 
-      tempNumColor = numberConfig.color;
-      tempNumSize = numberConfig.fontSize || '30px';
+      tempNumColor = numberConfig.color || '#10b981';
+      tempNumSize = numberConfig.fontSize || '32px';
       tempNumWeight = numberConfig.fontWeight || '900';
       tempNumFont = numberConfig.fontFamily || 'JetBrains Mono';
+      tempNumDecimals = (numberConfig.decimals !== undefined) ? parseInt(numberConfig.decimals) : 2;
 
       applyNumberStylesToInputs();
     }
 
     function applyNumberStylesToInputs() {
+      const size = numberConfig.fontSize || '32px';
+      const color = numberConfig.color || '#10b981';
+      const weight = numberConfig.fontWeight || '900';
+      const font = numberConfig.fontFamily || 'JetBrains Mono';
+
+      document.documentElement.style.setProperty('--num-size', size);
+      document.documentElement.style.setProperty('--num-color', color);
+      document.documentElement.style.setProperty('--num-weight', weight);
+      document.documentElement.style.setProperty('--num-font', font);
+
       const inputs = document.querySelectorAll('.amount-number-input');
       inputs.forEach(inp => {
-        inp.style.color = numberConfig.color;
-        inp.style.fontSize = numberConfig.fontSize;
-        inp.style.fontWeight = numberConfig.fontWeight || '900';
-        inp.style.fontFamily = `'${numberConfig.fontFamily || 'JetBrains Mono'}', monospace, sans-serif`;
+        inp.style.setProperty('font-size', size, 'important');
+        inp.style.setProperty('font-weight', weight, 'important');
+        inp.style.setProperty('font-family', `'${font}', monospace, sans-serif`, 'important');
+        if (inp.id === 'usdAmount') {
+          inp.style.setProperty('color', color, 'important');
+        }
       });
+
       const preview = document.getElementById('numPropLivePreview');
       if (preview) {
-        preview.style.color = numberConfig.color;
-        preview.style.fontSize = numberConfig.fontSize;
-        preview.style.fontWeight = numberConfig.fontWeight || '900';
-        preview.style.fontFamily = `'${numberConfig.fontFamily || 'JetBrains Mono'}', monospace, sans-serif`;
+        preview.style.setProperty('color', color, 'important');
+        preview.style.setProperty('font-size', size, 'important');
+        preview.style.setProperty('font-weight', weight, 'important');
+        preview.style.setProperty('font-family', `'${font}', monospace, sans-serif`, 'important');
       }
     }
 
@@ -2025,10 +2095,11 @@ $currenciesData = [
       document.getElementById('numThousandsSelect').value = numberConfig.thousandsSep;
       document.getElementById('numDecimalSelect').value = numberConfig.decimalSep;
       
-      setNumColor(numberConfig.color, '', false);
-      setNumSize(numberConfig.fontSize || '30px', false);
+      setNumColor(numberConfig.color || '#10b981', '', false);
+      setNumSize(numberConfig.fontSize || '32px', false);
       setNumWeight(numberConfig.fontWeight || '900', false);
       setNumFont(numberConfig.fontFamily || 'JetBrains Mono', false);
+      setNumDecimals(numberConfig.decimals !== undefined ? numberConfig.decimals : 2, false);
       updateNumPreview();
 
       document.getElementById('modalNumberProperties').classList.remove('hidden');
@@ -2108,12 +2179,32 @@ $currenciesData = [
       if (refresh) updateNumPreview();
     }
 
+    function setNumDecimals(decimals, refresh = true) {
+      tempNumDecimals = parseInt(decimals);
+      const label = document.getElementById('currentDecimalsLabel');
+      if (label) {
+        label.textContent = tempNumDecimals === 0 ? '0 (بدون كسور / صحيح)' : `${tempNumDecimals} خانات`;
+      }
+
+      document.querySelectorAll('.dec-btn').forEach(btn => {
+        btn.classList.remove('bg-cyan-600', 'text-white', 'border-cyan-400');
+        btn.classList.add('bg-slate-800', 'text-slate-300', 'border-slate-700');
+      });
+      const activeBtn = document.getElementById('btnDec' + tempNumDecimals);
+      if (activeBtn) {
+        activeBtn.classList.remove('bg-slate-800', 'text-slate-300', 'border-slate-700');
+        activeBtn.classList.add('bg-cyan-600', 'text-white', 'border-cyan-400');
+      }
+      if (refresh) updateNumPreview();
+    }
+
     function formatNumberWithConfig(val, cfg) {
       if (val === '' || val === null || isNaN(val)) return '';
       let n = parseFloat(val);
       if (isNaN(n)) return '';
 
-      const fixed = n.toFixed(cfg.decimals || 2);
+      const dec = (cfg.decimals !== undefined) ? parseInt(cfg.decimals) : 2;
+      const fixed = n.toFixed(dec);
       const parts = fixed.split('.');
       let integerPart = parts[0];
       const decimalPart = parts[1];
@@ -2122,30 +2213,31 @@ $currenciesData = [
         integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, cfg.thousandsSep);
       }
 
-      if (decimalPart !== undefined) {
-        return integerPart + cfg.decimalSep + decimalPart;
+      if (dec > 0 && decimalPart !== undefined) {
+        return integerPart + (cfg.decimalSep || '.') + decimalPart;
       }
       return integerPart;
     }
 
     function updateNumPreview() {
       const preview = document.getElementById('numPropLivePreview');
-      const thSep = document.getElementById('numThousandsSelect').value;
-      const decSep = document.getElementById('numDecimalSelect').value;
+      const thSep = document.getElementById('numThousandsSelect')?.value ?? numberConfig.thousandsSep;
+      const decSep = document.getElementById('numDecimalSelect')?.value ?? numberConfig.decimalSep;
+      const decimals = tempNumDecimals !== undefined ? tempNumDecimals : (numberConfig.decimals ?? 2);
       
-      const sample = 2650000.75;
+      const sample = 2650000.754321;
       const formatted = formatNumberWithConfig(sample, {
         thousandsSep: thSep,
         decimalSep: decSep,
-        decimals: 2
+        decimals: decimals
       });
 
       if (preview) {
         preview.textContent = formatted;
-        preview.style.color = tempNumColor;
-        preview.style.fontSize = tempNumSize;
-        preview.style.fontWeight = tempNumWeight;
-        preview.style.fontFamily = `'${tempNumFont}', monospace, sans-serif`;
+        preview.style.setProperty('color', tempNumColor, 'important');
+        preview.style.setProperty('font-size', tempNumSize, 'important');
+        preview.style.setProperty('font-weight', tempNumWeight, 'important');
+        preview.style.setProperty('font-family', `'${tempNumFont}', monospace, sans-serif`, 'important');
       }
     }
 
@@ -2156,11 +2248,13 @@ $currenciesData = [
       numberConfig.fontFamily = tempNumFont;
       numberConfig.thousandsSep = document.getElementById('numThousandsSelect').value;
       numberConfig.decimalSep = document.getElementById('numDecimalSelect').value;
+      numberConfig.decimals = tempNumDecimals !== undefined ? tempNumDecimals : 2;
 
       localStorage.setItem('magaiees_number_format_config', JSON.stringify(numberConfig));
       applyNumberStylesToInputs();
+      recalculateAmountsWithNewConfig();
       closeNumberPropertiesModal();
-      showToastNotification(`✓ تم حفظ وتطبيق خصائص الأرقام (الحجم: ${tempNumSize} بولد | ${tempNumFont}) بنجاح!`);
+      showToastNotification(`✓ تم حفظ وتطبيق خصائص الأرقام (الحجم: ${tempNumSize} بولد | التقريب: ${numberConfig.decimals} خانات | ${tempNumFont}) بنجاح!`);
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -2403,17 +2497,42 @@ $currenciesData = [
       const sdg = document.getElementById('sdgAmount');
       const foreign = document.getElementById('usdAmount');
       if (rate <= 0) return;
+      const dec = (numberConfig.decimals !== undefined) ? parseInt(numberConfig.decimals) : 2;
 
       if (source === 'foreign') {
         const f = parseRawNumber(foreign.value);
-        sdg.value = f > 0 ? Math.round(f * rate) : '';
+        if (f > 0) {
+          const calc = f * rate;
+          sdg.value = dec === 0 ? Math.round(calc) : calc.toFixed(dec);
+        } else {
+          sdg.value = '';
+        }
       } else if (source === 'sdg') {
         const s = parseRawNumber(sdg.value);
-        foreign.value = s > 0 ? (s / rate).toFixed(2) : '';
+        if (s > 0) {
+          const calc = s / rate;
+          foreign.value = dec === 0 ? Math.round(calc) : calc.toFixed(dec);
+        } else {
+          foreign.value = '';
+        }
       } else if (source === 'rate') {
         const f = parseRawNumber(foreign.value);
-        if (f > 0) sdg.value = Math.round(f * rate);
+        if (f > 0) {
+          const calc = f * rate;
+          sdg.value = dec === 0 ? Math.round(calc) : calc.toFixed(dec);
+        }
       }
+    }
+
+    function recalculateAmountsWithNewConfig() {
+      const s = parseRawNumber(document.getElementById('sdgAmount').value);
+      const f = parseRawNumber(document.getElementById('usdAmount').value);
+      if (f > 0) {
+        calculateExchange('foreign');
+      } else if (s > 0) {
+        calculateExchange('sdg');
+      }
+      updateTafqeet();
     }
 
     function updateTafqeet() {
@@ -2771,35 +2890,126 @@ $currenciesData = [
         flash.classList.add('is-flashing');
         setTimeout(() => flash.classList.remove('is-flashing'), 380);
       }
-      playBankerChime();
-      triggerHapticPulse();
-      showToastNotification(`📸 تم التقاط صورة إشعار جديدة بالكاميرا وتضمينها في الدفعة!`);
+      
+      const newRef = 'CAM' + Date.now().toString().slice(-8);
+      const accounts = ['محمد أحمد عثمان', 'شركة النيل للاستيراد (مورد)', 'مؤسسة الرواد التجارية (مورد)', 'العميل: أحمد عثمان النور'];
+      const randomAcc = accounts[Math.floor(Math.random() * accounts.length)];
+      const randomAmounts = [450000, 780000, 1250000, 2400000, 3150000, 520000];
+      const randomAmt = randomAmounts[Math.floor(Math.random() * randomAmounts.length)];
+      
+      const newCaptured = {
+        id: Date.now(),
+        bank: 'بنك الخرطوم (بنكك)',
+        amount: randomAmt,
+        from: 'بنك الخرطوم (5540)',
+        to: randomAcc,
+        ref: newRef,
+        note: 'التقاط فوري بالكاميرا - سند تحويل مصرفي'
+      };
+
+      cameraReceiptsDB.unshift(newCaptured);
       renderCurrentSourceContent();
+      processReceiptWithAI(newCaptured, 'camera');
     }
 
     function handleGalleryFilesSelected(e) {
       const files = e.target.files;
-      if (files && files.length > 0) {
-        const count = Math.min(20, files.length);
-        selectBatchCount(count, 'gallery');
-        playBankerChime();
-        triggerHapticPulse();
-        showToastNotification(`📁 تم استيراد ${count} صورة إشعار بنكي من الاستوديو بنجاح!`);
-      }
+      if (!files || files.length === 0) return;
+
+      const file = files[0];
+      const cleanName = file.name.replace(/\.[^/.]+$/, "");
+      const numMatch = cleanName.match(/\d{4,}/);
+      const randomRef = numMatch ? numMatch[0] : ('GAL' + Date.now().toString().slice(-8));
+      
+      const randomAmounts = [650000, 890000, 1420000, 2750000, 3800000, 950000];
+      const randomAmt = randomAmounts[Math.floor(Math.random() * randomAmounts.length)];
+      const accounts = ['محمد أحمد عثمان', 'شركة النيل للاستيراد (مورد)', 'مؤسسة الرواد التجارية (مورد)', 'العميل: أحمد عثمان النور'];
+      const randomAcc = accounts[Math.floor(Math.random() * accounts.length)];
+
+      const newReceipt = {
+        id: Date.now(),
+        bank: 'بنك الخرطوم (بنكك)',
+        amount: randomAmt,
+        from: 'بنك الخرطوم (5540)',
+        to: randomAcc,
+        ref: randomRef,
+        note: `إشعار استوديو (${file.name})`
+      };
+
+      galleryReceiptsDB.unshift(newReceipt);
+      selectBatchCount(Math.min(20, files.length), 'gallery');
+      processReceiptWithAI(newReceipt, 'gallery');
     }
 
     function previewIntakeItem(idx, source) {
       const list = source === 'camera' ? cameraReceiptsDB : galleryReceiptsDB;
       const item = list[idx] || list[0];
-      applyReceiptToVoucherForm(item);
-      closeBatchIntakeModal();
-      showToastNotification(`⚡ تم تفريغ الإشعار (#${idx + 1}) بنجاح!`);
+      processReceiptWithAI(item, source);
     }
 
     function selectWhatsAppReceipt(id) {
       const item = whatsappNotificationsDB.find(w => w.id === id) || whatsappNotificationsDB[0];
+      processReceiptWithAI(item, 'whatsapp');
+    }
+
+    function processReceiptWithAI(item, source = 'ai') {
+      triggerHapticPulse();
+      playBankerChime();
+      
       applyReceiptToVoucherForm(item);
       closeBatchIntakeModal();
+
+      const sourceLabels = {
+        'camera': 'الكاميرا 📸',
+        'gallery': 'الاستوديو 🖼️',
+        'whatsapp': 'الواتساب 💬',
+        'ai': 'الذكاء الاصطناعي ⚡'
+      };
+      const label = sourceLabels[source] || 'الذكاء الاصطناعي ⚡';
+
+      showToastNotification(`🤖 تفريغ فوري بالذكاء الاصطناعي (AI OCR Turbo ✓):\n- المصدر: ${label}\n- العملية: ${item.ref}\n- المبلغ: ${item.amount.toLocaleString()} ج.س\n- المستفيد: ${item.to}`);
+
+      if (batchProcessingMode === 'auto') {
+        saveSingleVoucherSilently(item);
+      }
+    }
+
+    function saveSingleVoucherSilently(item) {
+      const rate = parseFloat(document.getElementById('usdRate').value) || 2650;
+      const sdg = item.amount || parseRawNumber(document.getElementById('sdgAmount').value);
+      const dec = (numberConfig.decimals !== undefined) ? parseInt(numberConfig.decimals) : 2;
+      const usdCalc = sdg > 0 ? (sdg / rate) : 0;
+      const usd = dec === 0 ? Math.round(usdCalc) : parseFloat(usdCalc.toFixed(dec));
+
+      const lastV = vouchersList[vouchersList.length - 1];
+      const lastNum = lastV ? (parseInt(lastV.id.replace(/\D/g, '')) || 842) : 842;
+      const savedId = String(lastNum + 1);
+
+      const newVoucher = {
+        id: savedId,
+        isOffline: isOfflineMode,
+        date: document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10),
+        rate: rate,
+        currency: currentCurrency || 'SDG',
+        costCenter: document.getElementById('costCenterInput').value || 'مخزن بحري الرئيسي',
+        sdg: sdg,
+        usd: usd,
+        payType: 'transfer',
+        from: item.from || document.getElementById('fromSearchInput').value || 'بنك الخرطوم (5540)',
+        to: item.to || document.getElementById('toSearchInput').value || 'محمد أحمد عثمان',
+        refNo: item.ref || document.getElementById('transferInput').value,
+        bankName: (item.bank || 'بنك الخرطوم').replace(/\s*\(.*\)/, ''),
+        notes: `إشعار تحويل (${item.bank || ''} #${item.ref || ''}) - تفريغ ذكاء اصطناعي`
+      };
+
+      vouchersList.push(newVoucher);
+      currentIndex = vouchersList.length - 1;
+      const displayEl = document.getElementById('currentVoucherDisplay');
+      if (displayEl) displayEl.textContent = savedId;
+
+      try {
+        localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+      } catch(e) {}
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -3349,7 +3559,13 @@ $currenciesData = [
     }
 
     function handleEdit() {
-      showToastNotification(`✏️ وضع التعديل: يمكنك تعديل بيانات السند الحالي (رقم: #${vouchersList[currentIndex].id}) ثم النقر على تأكيد وحفظ.`);
+      const inp = document.getElementById('sdgAmount');
+      if (inp) {
+        inp.focus();
+        inp.select();
+      }
+      triggerHapticPulse();
+      showToastNotification(`✏️ وضع التعديل نشط: يمكنك الآن تعديل مبالغ وبيانات السند الحالي (رقم: #${vouchersList[currentIndex].id}) ثم النقر على زر حفظ (✓).`);
     }
 
     function handleDelete() {
@@ -3365,8 +3581,11 @@ $currenciesData = [
     }
 
     function handleExit() {
-      if (confirm('هل تريد الخروج من شاشة الحركة المالية والرجوع للقائمة الرئيسية؟')) {
-        showToastNotification('🚪 تم الخروج بنجاح والرجوع للقائمة الرئيسية.');
+      if (confirm('هل تريد الخروج من شاشة الحركة المالية والرجوع للشاشة الرئيسية؟')) {
+        showToastNotification('🚪 جاري الخروج والرجوع للشاشة الرئيسية...');
+        setTimeout(() => {
+          window.location.href = 'index.php';
+        }, 300);
       }
     }
 

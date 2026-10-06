@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-06-v39-adaptive-unified-login-live';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-06-v40-glowing-borders-ai-live';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
