@@ -1140,24 +1140,19 @@ $currenciesData = [
          ═════════════════════════════════════════════════════════════════ -->
     <div class="px-3 py-2 bg-slate-950 border-b border-slate-900 flex items-center justify-between sticky top-0 z-40 select-none">
       
-      <!-- اليمين: زر الخروج الآمن + عنوان الشاشة + منطقة عناية متصل -->
-      <div class="flex items-center gap-1.5">
-        <!-- زر الخروج الأحمر: مكانه الآمن في الأعلى لمنع الضغط بالخطأ -->
-        <button type="button" onclick="handleExit()" class="w-7 h-7 rounded-lg bg-red-600/90 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center shrink-0 border border-red-400/30 shadow-sm transition" title="خروج من الشاشة">
-          <i class="fa-solid fa-power-off text-[11px]"></i>
+      <!-- اليمين: مايك الذكاء الصوتي الشامل + عنوان الشاشة (حركة مالية) + منطقة عناية متصل -->
+      <div class="flex items-center gap-2">
+        <!-- زر المايك الصوتي الذكي الشامل للشاشة بأكملها (في مكان زر الخروج قبل حركة مالية) -->
+        <button type="button" onclick="toggleMasterVoiceInput()" id="masterMicBtn" class="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 active:scale-95 text-white flex items-center justify-center shrink-0 border border-cyan-300 shadow-[0_0_16px_rgba(6,182,212,0.6)] transition cursor-pointer relative group" title="المايك الصوتي الذكي الشامل: اضغط وتحدث لتعبئة كامل السند تلقائياً">
+          <i class="fa-solid fa-microphone text-sm text-yellow-300" id="masterMicIcon"></i>
+          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping hidden" id="masterMicListeningPing"></span>
         </button>
 
-        <!-- حركة مالية (صرف مالي) مرفوعة في هذا السطر بخط أكبر وأوضح -->
+        <!-- حركة مالية فقط بخط واضح وفخم (تم حذف صرف مالي) -->
         <span class="text-sm sm:text-base font-black text-white tracking-wide flex items-center gap-1.5 shrink-0">
           <i class="fa-solid fa-money-bill-transfer text-cyan-400 text-sm"></i>
-          <span>حركة مالية (صرف مالي)</span>
+          <span>حركة مالية</span>
         </span>
-
-        <!-- زر جديد مميز في أعلى الشاشة لمسح الشاشة فورياً وبدء سند جديد -->
-        <button type="button" onclick="startNewVoucher()" class="flex items-center gap-1 px-2 py-0.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white text-[10.5px] font-black border border-cyan-300 shadow-md shadow-cyan-600/30 transition shrink-0" title="فتح سند جديد فارغ وممسوح">
-          <i class="fa-solid fa-plus text-[10px]"></i>
-          <span>جديد</span>
-        </button>
 
         <!-- منطقة عناية متصل: دائرة خضراء ومتصل بالداتابيز -->
         <button type="button" onclick="toggleOnlineStatus()" id="networkPill" class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition" title="متصل مباشرة بقاعدة البيانات MariaDB وسيرفر اللابتوب - انقر للتبديل لأوفلاين">
@@ -1311,18 +1306,13 @@ $currenciesData = [
            ═════════════════════════════════════════════════════════════════ -->
       <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2.5 space-y-2 shadow-[0_0_18px_rgba(56,189,248,0.2)]">
         
-        <!-- شريط رأس المبالغ مع مايك الإدخال الصوتي الذكي في الركن اليسار -->
+        <!-- شريط رأس المبالغ المالية نظيف ومرتب -->
         <div class="flex items-center justify-between pb-1.5 border-b border-slate-800 px-1">
           <div class="flex items-center gap-1.5">
             <i class="fa-solid fa-coins text-amber-400 text-sm"></i>
             <span class="text-xs sm:text-sm font-black text-slate-200">المبالغ المالية</span>
           </div>
-
-          <!-- زر المايك في الركن اليسار: التحدث لنطق المبالغ بالدولار أو بالجنيه -->
-          <button type="button" onclick="startVoiceInput('amount')" id="micAmountBtn" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-emerald-600 hover:from-sky-500 hover:to-emerald-500 active:scale-95 text-white text-xs font-black border border-sky-400 shadow-[0_0_14px_rgba(56,189,248,0.6)] transition cursor-pointer" title="تحدث بالمبلغ صوتياً (مثال: 65,000 دولار أو 3,720 جنيه سوداني)">
-            <i class="fa-solid fa-microphone text-xs text-yellow-300 animate-pulse"></i>
-            <span>مايك المبالغ 🎙️</span>
-          </button>
+          <span class="text-[10px] text-slate-400 font-medium">سعر الصرف والحساب الفوري</span>
         </div>
 
         <div class="grid grid-cols-2 gap-2.5">
@@ -1373,10 +1363,6 @@ $currenciesData = [
       <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 border-[2.5px] border-red-500 shadow-[0_0_28px_rgba(239,68,68,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
-            <!-- مايك الإدخال الصوتي قبل "مِن" مباشرة لنطق اسم الحساب -->
-            <button type="button" onclick="startVoiceInput('from')" id="fromMicBtn" class="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center border border-red-300 shadow-[0_0_12px_rgba(239,68,68,0.7)] transition cursor-pointer shrink-0" title="انطق اسم حساب الصرف بالمايك (مثال: شلهان أحمد عثمان)">
-              <i class="fa-solid fa-microphone text-xs animate-pulse"></i>
-            </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-md">مِن</span>
             <span class="text-sm sm:text-base font-black text-red-300">من حساب:</span>
             <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="hidden px-2 py-0.5 rounded-lg bg-red-950/90 hover:bg-red-900 border border-red-500/50 text-red-300 text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm" title="مسح الحساب لاختيار حساب آخر">
@@ -1430,10 +1416,6 @@ $currenciesData = [
       <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 border-[2.5px] border-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
-            <!-- مايك الإدخال الصوتي قبل "إلى" مباشرة لنطق اسم المستفيد -->
-            <button type="button" onclick="startVoiceInput('to')" id="toMicBtn" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white flex items-center justify-center border border-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.7)] transition cursor-pointer shrink-0" title="انطق اسم المستفيد أو العميل بالمايك">
-              <i class="fa-solid fa-microphone text-xs animate-pulse"></i>
-            </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-md">إلى</span>
             <span class="text-sm sm:text-base font-black text-emerald-300">إلى حساب:</span>
             <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="hidden px-2 py-0.5 rounded-lg bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm" title="مسح الحساب واختيار حساب آخر">
@@ -2288,134 +2270,334 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // تقنية الإدخال الصوتي الذكي بالمايكروفون (AI Arabic Voice Engine)
+    // تقنية المايك الصوتي الذكي الشامل للشاشة بالكامل (Master AI Voice Engine)
     // ════════════════════════════════════════════════════════════════
-    let activeSpeechRecognizer = null;
+    let masterVoiceRecognizer = null;
+    let isMasterVoiceActive = false;
 
-    function startVoiceInput(targetField) {
+    function toggleMasterVoiceInput() {
+      if (isMasterVoiceActive) {
+        stopMasterVoiceInput();
+      } else {
+        startMasterVoiceInput();
+      }
+    }
+
+    function setMasterMicButtonState(active) {
+      isMasterVoiceActive = active;
+      const btn = document.getElementById('masterMicBtn');
+      const icon = document.getElementById('masterMicIcon');
+      const ping = document.getElementById('masterMicListeningPing');
+
+      if (!btn) return;
+
+      if (active) {
+        btn.classList.remove('bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-indigo-600');
+        btn.classList.add('bg-red-600', 'ring-4', 'ring-red-400', 'scale-105', 'shadow-[0_0_22px_#ef4444]');
+        if (icon) {
+          icon.className = 'fa-solid fa-microphone-lines text-sm text-white animate-pulse';
+        }
+        if (ping) ping.classList.remove('hidden');
+      } else {
+        btn.classList.add('bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-indigo-600');
+        btn.classList.remove('bg-red-600', 'ring-4', 'ring-red-400', 'scale-105', 'shadow-[0_0_22px_#ef4444]');
+        if (icon) {
+          icon.className = 'fa-solid fa-microphone text-sm text-yellow-300';
+        }
+        if (ping) ping.classList.add('hidden');
+      }
+    }
+
+    function startMasterVoiceInput() {
       triggerHapticPulse();
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
       if (!SpeechRecognition) {
-        showToastNotification('⚠️ المتصفح لا يدعم التعرف الصوتي المباشر، تم فتح نافذة الإدخال');
-        fallbackManualVoiceInput(targetField);
+        showToastNotification('⚠️ المتصفح لا يدعم التعرف الصوتي المباشر، تم فتح نافذة الإدخال الذكي');
+        fallbackMasterVoicePrompt();
         return;
       }
 
-      if (activeSpeechRecognizer) {
-        try { activeSpeechRecognizer.abort(); } catch(e) {}
-        activeSpeechRecognizer = null;
+      if (masterVoiceRecognizer) {
+        try { masterVoiceRecognizer.abort(); } catch(e) {}
+        masterVoiceRecognizer = null;
       }
 
       try {
         const recognition = new SpeechRecognition();
-        activeSpeechRecognizer = recognition;
-        recognition.lang = 'ar-SA';
+        masterVoiceRecognizer = recognition;
+        recognition.lang = 'ar-SD'; // لهجة سودانية وعربية ذكية
         recognition.continuous = false;
         recognition.interimResults = false;
         recognition.maxAlternatives = 3;
 
-        highlightActiveMicButton(targetField, true);
-
-        const prompts = {
-          'amount': '🎙️ المايك يستمع إليك... انطق المبلغ والعملة الآن (مثال: 65,000 دولار أو 3,720 جنيه سوداني)',
-          'from': '🎙️ المايك يستمع إليك... انطق اسم حساب الصرف (مثال: الخزينة أو بنك الخرطوم)',
-          'to': '🎙️ المايك يستمع إليك... انطق اسم المستفيد أو العميل'
-        };
-        showToastNotification(prompts[targetField] || '🎙️ المايك يستمع إليك... تحدث الآن باللغة العربية');
+        setMasterMicButtonState(true);
+        showToastNotification('🎙️ المايك الذكي يستمع إليك...\nتحدث الآن بالسند كاملاً:\n(المبلغ، مِن، إلى، رقم التحويلة، البنك، البيان)');
 
         recognition.onstart = function() {
           playBankerChime();
         };
 
         recognition.onresult = function(event) {
-          highlightActiveMicButton(targetField, false);
+          setMasterMicButtonState(false);
           if (event.results && event.results[0] && event.results[0][0]) {
             const transcript = event.results[0][0].transcript.trim();
-            handleSpokenResult(targetField, transcript);
+            parseAndApplyMasterVoiceInput(transcript);
           }
         };
 
         recognition.onerror = function(event) {
-          highlightActiveMicButton(targetField, false);
-          console.warn('Speech Recognition error:', event.error);
+          setMasterMicButtonState(false);
+          console.warn('Master Speech Recognition error:', event.error);
           if (event.error === 'not-allowed') {
-            alert('⚠️ يرجى السماح بصلاحية المايكروفون في متصفح الجوال لتفعيل ميزة الصوت.');
+            alert('⚠️ يرجى السماح بصلاحية المايكروفون في المتصفح لتفعيل التحدث الصوتي.');
           } else if (event.error !== 'no-speech') {
-            showToastNotification('⚠️ لم نتمكن من التقاط الصوت بدقة، يمكنك النقر والمحاولة مجدداً.');
+            showToastNotification('⚠️ تعذر التقاط الصوت بدقة، يمكنك النقر والمحاولة مجدداً.');
           }
         };
 
         recognition.onend = function() {
-          highlightActiveMicButton(targetField, false);
-          activeSpeechRecognizer = null;
+          setMasterMicButtonState(false);
+          masterVoiceRecognizer = null;
         };
 
         recognition.start();
       } catch (err) {
-        console.error('Speech recognition exception:', err);
-        fallbackManualVoiceInput(targetField);
+        console.error('Master speech recognition exception:', err);
+        setMasterMicButtonState(false);
+        fallbackMasterVoicePrompt();
       }
     }
 
-    function highlightActiveMicButton(field, active) {
-      const btnIds = {
-        'amount': 'micAmountBtn',
-        'from': 'fromMicBtn',
-        'to': 'toMicBtn'
-      };
-      const btn = document.getElementById(btnIds[field]);
-      if (!btn) return;
-      if (active) {
-        btn.classList.add('ring-4', 'ring-red-400', 'scale-110');
-      } else {
-        btn.classList.remove('ring-4', 'ring-red-400', 'scale-110');
+    function stopMasterVoiceInput() {
+      if (masterVoiceRecognizer) {
+        try { masterVoiceRecognizer.stop(); } catch(e) {}
+      }
+      setMasterMicButtonState(false);
+    }
+
+    function startVoiceInput(targetField) {
+      startMasterVoiceInput();
+    }
+
+    function fallbackMasterVoicePrompt() {
+      const val = prompt('🎙️ المايك الذكي للشاشة كلها:\nأدخل أو الصق جملة السند الكاملة، مثال:\n50,000 جنيه سوداني من محمد عثمان أحمد إلى أحمد عبد الله شادول رقم التحويلة 684 بنك الخرطوم');
+      if (val && val.trim()) {
+        parseAndApplyMasterVoiceInput(val.trim());
       }
     }
 
-    function handleSpokenResult(targetField, spokenText) {
+    function parseAndApplyMasterVoiceInput(spokenText) {
       if (!spokenText || !spokenText.trim()) return;
+
       playBankerChime();
       triggerHapticPulse();
 
-      if (targetField === 'amount') {
-        const isDollar = /دولار|dollar|\$|امريكي|أمريكي/i.test(spokenText);
-        const parsedAmt = parseArabicSpokenNumber(spokenText);
+      let norm = spokenText.trim();
+      const easternDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+      for (let i = 0; i < 10; i++) {
+        norm = norm.split(easternDigits[i]).join(i.toString());
+      }
+      // تنظيف علامات الترقيم
+      norm = norm.replace(/[،؛_#]/g, ' ');
 
-        if (parsedAmt <= 0) {
-          showToastNotification(`⚠️ تم سماع: "${spokenText}" ولكن لم يتم تمييز المبلغ كرقم.`);
-          return;
+      const parsed = {
+        raw: spokenText,
+        amount: null,
+        currency: 'SDG',
+        from: null,
+        to: null,
+        refNo: null,
+        bank: null,
+        notes: null,
+        costCenter: null,
+        payType: null
+      };
+
+      // 1. فحص وتحديد العملة
+      if (/(دولار|dollar|\$|امريكي|أمريكي|دولارات)/i.test(norm)) {
+        parsed.currency = 'USD';
+      } else if (/(ريال|سعودي)/i.test(norm)) {
+        parsed.currency = 'SAR';
+      } else if (/(درهم|إماراتي)/i.test(norm)) {
+        parsed.currency = 'AED';
+      } else if (/(يورو|euro)/i.test(norm)) {
+        parsed.currency = 'EUR';
+      } else {
+        parsed.currency = 'SDG';
+      }
+
+      // 2. استخراج رقم التحويلة البنكية
+      const refMatch = norm.match(/(?:رقم التحويلة|رقم تحويلة|التحويلة|تحويلة|إشعار رقم|اشعار رقم|مرجع رقم|مرجع|المرجع|تحويله|رقم العمليه|رقم العملية)\s*[:#-]?\s*([0-9a-zA-Z]+)/i);
+      if (refMatch && refMatch[1]) {
+        parsed.refNo = refMatch[1].trim();
+        parsed.payType = 'transfer';
+        norm = norm.replace(refMatch[0], ' ');
+      }
+
+      // 3. استخراج اسم البنك
+      const knownBanks = [
+        { name: 'بنك الخرطوم', aliases: ['بنك الخرطوم', 'بنكك', 'خرطوم'] },
+        { name: 'بنك فيصل الإسلامي', aliases: ['بنك فيصل الإسلامي', 'بنك فيصل', 'فيصل الإسلامي', 'فوري', 'فيصل'] },
+        { name: 'بنك أم درمان الوطني', aliases: ['بنك أم درمان الوطني', 'بنك أم درمان', 'بنك أمدرمان', 'أم درمان الوطني', 'أمدرمان', 'أوكاش', 'اوكاش'] },
+        { name: 'بنك النيلين', aliases: ['بنك النيلين', 'النيلين'] },
+        { name: 'بنك الخليج', aliases: ['بنك الخليج', 'الخليج'] },
+        { name: 'بنك البركة', aliases: ['بنك البركة', 'البركة'] },
+        { name: 'بنك العمال الوطني', aliases: ['بنك العمال الوطني', 'بنك العمال'] },
+        { name: 'مصرف الساحل والصحراء', aliases: ['مصرف الساحل والصحراء', 'الساحل والصحراء'] },
+        { name: 'بنك الثروة الحيوانية', aliases: ['بنك الثروة الحيوانية', 'الثروة الحيوانية'] },
+        { name: 'البنك الفرنسي السوداني', aliases: ['البنك الفرنسي السوداني', 'البنك الفرنسي'] }
+      ];
+
+      for (const b of knownBanks) {
+        for (const alias of b.aliases) {
+          const re = new RegExp('(?:^|\\s)' + alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\s|$)', 'i');
+          if (re.test(norm)) {
+            parsed.bank = b.name;
+            parsed.payType = 'transfer';
+            norm = norm.replace(re, ' ');
+            break;
+          }
         }
+        if (parsed.bank) break;
+      }
 
-        if (isDollar) {
+      // 4. استخراج وتحديد طريقة الدفع إذا ذُكرت صراحة
+      if (/(?:^|\s)(كاش|نقداً|نقدا|نقد)(?:\s|$)/i.test(norm) && !parsed.refNo && !parsed.bank) {
+        parsed.payType = 'cash';
+      } else if (/(?:^|\s)(شيك مصرفي|شيك بنكي)(?:\s|$)/i.test(norm)) {
+        parsed.payType = 'bank_check';
+      } else if (/(?:^|\s)(شيك)(?:\s|$)/i.test(norm)) {
+        parsed.payType = 'check';
+      }
+
+      // 5. استخراج البيان أو الملاحظات
+      const notesMatch = norm.match(/(?:^|\s)(?:بيان|البيان|ملاحظات|ملاحظة|عبارة عن|شرح)\s*[:#-]?\s*([^\s]+(?:\s+[^\s]+){0,8})/i);
+      if (notesMatch && notesMatch[1]) {
+        parsed.notes = notesMatch[1].trim();
+        norm = norm.replace(notesMatch[0], ' ');
+      }
+
+      // 6. استخراج حساب الصرف (مِن حساب)
+      const fromMatch = norm.match(/(?:^|\s)(?:من حساب|من طرف|صرف من|من)\s+(.+?)(?=(?:\s+(?:إلى|الى|لصالح|المستفيد|لـ|رقم التحويلة|التحويلة|تحويلة|بنك|بيان|ملاحظات|مركز|كاش|شيك|مبلغ|قيمة))|\s*$)/i);
+      if (fromMatch && fromMatch[1]) {
+        parsed.from = fromMatch[1].trim();
+        norm = norm.replace(fromMatch[0], ' ');
+      }
+
+      // 7. استخراج حساب المستفيد (إلى حساب)
+      const toMatch = norm.match(/(?:^|\s)(?:إلى حساب|الى حساب|إلى|الى|لصالح|المستفيد|لـ)\s+(.+?)(?=(?:\s+(?:رقم التحويلة|التحويلة|تحويلة|بنك|بيان|ملاحظات|مركز|كاش|شيك|مبلغ|قيمة))|\s*$)/i);
+      if (toMatch && toMatch[1]) {
+        parsed.to = toMatch[1].trim();
+        norm = norm.replace(toMatch[0], ' ');
+      }
+
+      // 8. استخراج المبلغ المالي
+      const amtMatch = norm.match(/(?:مبلغ|قيمة)?\s*([0-9]+(?:[.,][0-9]+)?)\s*(?:ألف|الف|آلاف|مليون|ملايين|k|m)?/i);
+      if (amtMatch && amtMatch[1]) {
+        let numVal = parseFloat(amtMatch[1].replace(/,/g, ''));
+        const multiplierStr = amtMatch[0];
+        if (/(مليون|ملايين|m)/i.test(multiplierStr)) {
+          numVal *= 1000000;
+        } else if (/(ألف|الف|آلاف|k)/i.test(multiplierStr) && numVal < 1000) {
+          numVal *= 1000;
+        }
+        parsed.amount = numVal;
+      } else {
+        const spokenAmt = parseArabicSpokenNumber(norm);
+        if (spokenAmt > 0) {
+          parsed.amount = spokenAmt;
+        }
+      }
+
+      // ════════════════════════════════════════════════════════════
+      // تطبيق وتغذية الحقول في الشاشة بدقة فائقة وسرعة لحظية
+      // ════════════════════════════════════════════════════════════
+      const updatedHighlights = [];
+
+      // 1. تطبيق طريقة الدفع
+      if (parsed.payType) {
+        selectPayType(parsed.payType);
+      }
+
+      // 2. تطبيق المبلغ والعملة والتفقيط
+      if (parsed.amount && parsed.amount > 0) {
+        const primarySelect = document.getElementById('primaryCurrencySelect');
+        if (parsed.currency === 'USD') {
+          if (primarySelect) primarySelect.value = 'USD';
+          selectCurrency('USD');
           const usdInp = document.getElementById('usdAmount');
           if (usdInp) {
-            usdInp.value = formatNumberWithConfig(parsedAmt, usdNumberConfig);
+            usdInp.value = formatNumberWithConfig(parsed.amount, usdNumberConfig);
             calculateExchange('foreign');
             updateTafqeet();
+            updatedHighlights.push(`💰 المبلغ: ${formatNumberWithConfig(parsed.amount, usdNumberConfig)} $`);
           }
-          showToastNotification(`🎙️ تم التعرف الصوتي: ${parsedAmt.toLocaleString()} دولار ($) وتمت إضافتها في خانة الدولار!`);
         } else {
+          if (primarySelect) primarySelect.value = 'SDG';
+          selectCurrency('SDG');
           const sdgInp = document.getElementById('sdgAmount');
           if (sdgInp) {
-            sdgInp.value = formatNumberWithConfig(parsedAmt, sdgNumberConfig);
+            sdgInp.value = formatNumberWithConfig(parsed.amount, sdgNumberConfig);
             calculateExchange('sdg');
             updateTafqeet();
+            updatedHighlights.push(`💰 المبلغ: ${formatNumberWithConfig(parsed.amount, sdgNumberConfig)} ج.س`);
           }
-          showToastNotification(`🎙️ تم التعرف الصوتي: ${parsedAmt.toLocaleString()} جنيه سوداني وتمت إضافتها في خانة المحلي!`);
         }
-      } else if (targetField === 'from') {
-        const cleanSpoken = spokenText.replace(/^(من|حساب|من حساب)\s+/i, '').trim();
-        const match = accountsList.find(a => a.name.includes(cleanSpoken) || cleanSpoken.includes(a.name));
-        const finalName = match ? match.name : cleanSpoken;
-        selectAcc('from', finalName);
-        showToastNotification(`🎙️ تم التعرف الصوتي: "${finalName}" وتم تحديد من حساب!`);
-      } else if (targetField === 'to') {
-        const cleanSpoken = spokenText.replace(/^(إلى|الى|حساب|إلى حساب)\s+/i, '').trim();
-        const match = accountsList.find(a => a.name.includes(cleanSpoken) || cleanSpoken.includes(a.name));
-        const finalName = match ? match.name : cleanSpoken;
-        selectAcc('to', finalName);
-        showToastNotification(`🎙️ تم التعرف الصوتي: "${finalName}" وتم تحديد إلى حساب!`);
+      }
+
+      // 3. تطبيق (مِن حساب)
+      if (parsed.from) {
+        const cleanFrom = parsed.from.trim();
+        const matched = accountsDB.find(a => a && a.name && (a.name.includes(cleanFrom) || cleanFrom.includes(a.name)));
+        const finalFromName = matched ? matched.name : cleanFrom;
+        selectAcc('from', finalFromName);
+        updatedHighlights.push(`📤 مِن: ${finalFromName}`);
+      }
+
+      // 4. تطبيق (إلى حساب)
+      if (parsed.to) {
+        const cleanTo = parsed.to.trim();
+        const matched = accountsDB.find(a => a && a.name && (a.name.includes(cleanTo) || cleanTo.includes(a.name)));
+        const finalToName = matched ? matched.name : cleanTo;
+        selectAcc('to', finalToName);
+        updatedHighlights.push(`📥 إلى: ${finalToName}`);
+      }
+
+      // 5. تطبيق رقم التحويلة
+      if (parsed.refNo) {
+        const ti = document.getElementById('transferInput');
+        if (ti) {
+          ti.value = parsed.refNo;
+          handleTransferInputScale(parsed.refNo);
+          checkDuplicateTransferLive(parsed.refNo);
+          updatedHighlights.push(`🔢 التحويلة: ${parsed.refNo}`);
+        }
+      }
+
+      // 6. تطبيق اسم البنك
+      if (parsed.bank) {
+        const bi = document.getElementById('bankNameInput');
+        if (bi) {
+          bi.value = parsed.bank;
+          updatedHighlights.push(`🏦 البنك: ${parsed.bank}`);
+        }
+      }
+
+      // 7. تطبيق البيان
+      if (parsed.notes) {
+        const ni = document.getElementById('voucherNotes');
+        if (ni) {
+          ni.value = parsed.notes;
+          updatedHighlights.push(`📝 البيان: ${parsed.notes}`);
+        }
+      }
+
+      // إشعار ملخص سريع وفوري بكل ما تم تغذيته في الشاشة
+      if (updatedHighlights.length > 0) {
+        showToastNotification(`🎙️ تم التعرف الذكي الشامل:\n` + updatedHighlights.join(' | '));
+      } else {
+        showToastNotification(`🎙️ تم سماع النص: "${spokenText}"`);
       }
     }
 
@@ -2488,15 +2670,7 @@ $currenciesData = [
     }
 
     function fallbackManualVoiceInput(targetField) {
-      const titles = {
-        'amount': 'أدخل أو انطق المبلغ والعملة (مثال: 65,000 دولار أو 3,720 جنيه سوداني):',
-        'from': 'أدخل أو انطق اسم حساب الصرف:',
-        'to': 'أدخل أو انطق اسم المستفيد أو العميل:'
-      };
-      const val = prompt(titles[targetField] || 'أدخل النص:');
-      if (val && val.trim()) {
-        handleSpokenResult(targetField, val.trim());
-      }
+      fallbackMasterVoicePrompt();
     }
 
     // ════════════════════════════════════════════════════════════════
