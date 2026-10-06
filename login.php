@@ -33,6 +33,7 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_v5">
     <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v5">
     <meta name="theme-color" content="#0F172A">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14"><link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
@@ -42,7 +43,8 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            height: auto;
+            min-height: 100dvh;
+            height: 100dvh;
             background-color: #0c101b !important;
             background: #0c101b url('assets/user_bg_fast.jpg') no-repeat center center fixed !important;
             background-size: cover !important;
@@ -53,37 +55,53 @@
             animation: none !important;
             transition: none !important;
             transform: none !important;
-            padding: 24px 16px !important;
+            padding: max(10px, env(safe-area-inset-top, 10px)) max(12px, env(safe-area-inset-right, 12px)) max(10px, env(safe-area-inset-bottom, 10px)) max(12px, env(safe-area-inset-left, 12px)) !important;
             margin: 0 !important;
             box-sizing: border-box;
         }
 
-
-
         .login-card {
-            width: 90%;
-            max-width: 420px;
-            padding: 45px 35px;
+            width: 92%;
+            max-width: 400px;
+            padding: clamp(16px, 2.8vh, 26px) clamp(16px, 4vw, 28px) !important;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 0 !important;
             text-align: center;
             /* Glassmorphism */
             backdrop-filter: blur(25px) saturate(190%);
             -webkit-backdrop-filter: blur(25px) saturate(190%);
-            border-radius: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.16) !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55), 
                         inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
-            background: rgba(15, 22, 38, 0.55) !important;
+            background: rgba(15, 22, 38, 0.68) !important;
             z-index: 10;
-            
-            /* Guaranteed Static & Centered */
             position: relative;
-            margin: auto !important; /* ensures equal margins left/right/top/bottom in flex container */
+            margin: auto !important;
+            box-sizing: border-box;
             animation: none !important;
             transition: none !important;
             transform: none !important;
+        }
+
+        /* 📱 معايرة الشاشات المنحنية (Honor Magic, Huawei Mate, Samsung Edge/Ultra) */
+        html[data-device-brand="honor"] .login-card,
+        html[data-device-brand="huawei"] .login-card {
+            margin-inline: max(8px, env(safe-area-inset-left, 8px)) !important;
+            border-color: rgba(129, 140, 248, 0.35) !important;
+        }
+        html[data-device-brand="samsung"] .login-card {
+            border-color: rgba(56, 189, 248, 0.35) !important;
+        }
+        html[data-device-brand="iphone"] .login-card {
+            border-color: rgba(255, 255, 255, 0.25) !important;
+        }
+        @media (min-width: 1024px) {
+            .login-card {
+                max-width: 420px;
+                padding: 30px 32px 24px 32px !important;
+            }
         }
         .logo {
             font-size: 3rem;
@@ -328,33 +346,42 @@
         }
     </style>
 </head>
-<body style="display:flex !important; align-items:center !important; justify-content:center !important; min-height:100vh !important; height:auto !important; padding:24px 16px !important; margin:0 !important; animation:none !important; transition:none !important; transform:none !important; background-color:#0c101b !important; background-image:url('assets/user_bg_fast.jpg') !important; background-size:cover !important; background-position:center center !important; background-repeat:no-repeat !important; background-attachment:fixed !important; overflow-x:hidden !important; overflow-y:auto !important; box-sizing:border-box !important;">
+<body class="magaiees-login-body">
     <div class="login-card">
-        <div class="logo-container" style="margin-bottom: 5px;">
-            <img src="assets/logo.png" alt="Logo" loading="lazy" style="width: 130px; height: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));">
+        <!-- 🌟 شعار مقاييس والكتابة الواضحة الرسمية -->
+        <div class="logo-container" style="margin-bottom: 2px;">
+            <img src="assets/logo.png" alt="MAGAIEES Logo" loading="eager" style="width: 78px; max-width: 24vw; height: auto; filter: drop-shadow(0 8px 16px rgba(0,0,0,0.45));">
         </div>
-        <div class="title" style="background: linear-gradient(to right, #ffffff, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; font-weight: 900; letter-spacing: 1px;">مقاييس MAGAIEES ERP</div>
-        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: -15px; font-weight: 700;">نظام إدارة موارد المؤسسات المتكامل الذكي</p>
-        
-        <!-- زر الدخول المباشر لشاشة الحركة المالية المحدثة -->
-        <a href="mobile-voucher.php" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(16, 185, 129, 0.25) 100%); border: 1.5px solid #06b6d4; padding: 10px 14px; border-radius: 16px; color: #a5f3fc; text-decoration: none; font-weight: 800; font-size: 0.95rem; margin-bottom: 12px; box-shadow: 0 0 15px rgba(6, 182, 212, 0.3); transition: all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
-            <span style="font-size: 1.2rem;">📱</span>
-            <span>شاشة الحركة المالية الذكية (مباشر) ➔</span>
-        </a>
+        <div class="title" style="background: linear-gradient(135deg, #ffffff 25%, #38bdf8 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 2px; font-weight: 900; font-size: 1.35rem; letter-spacing: 0.5px;">
+            مقاييس MAGAIEES ERP
+        </div>
+        <p style="color: rgba(255, 255, 255, 0.72); font-size: 0.82rem; margin: 0 0 10px 0; font-weight: 700;">
+            مؤسسة المقاييس للتجارة والخدمات
+        </p>
 
-        <div class="input-group">
-            <label>اسم المستخدم</label>
-            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
+        <!-- 👤 اسم المستخدم (تم رفعه لأعلى وإنقاص المسافة لبعده بنسبة 10%) -->
+        <div class="input-group" style="text-align: right; margin-bottom: 13.5px;">
+            <label style="display: block; margin-bottom: 4px; color: rgba(255, 255, 255, 0.95); font-size: 0.88rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.4);">
+                اسم المستخدم
+            </label>
+            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" style="padding: 11px 15px; font-size: 0.98rem; border-radius: 12px;">
         </div>
         
-        <div class="input-group" style="position: relative; margin-bottom: 8px;">
-            <label>كلمة المرور</label>
-            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" autocapitalize="none" autocorrect="off" style="padding-left: 50px;">
-            <button type="button" class="toggle-pwd-btn" onclick="togglePassword()" title="إظهار/إخفاء كلمة المرور" id="toggle-pwd-icon">👁️</button>
+        <!-- 🔑 كلمة المرور (تم إنقاص المسافة إلى زر الدخول بنسبة 30%) -->
+        <div class="input-group" style="position: relative; text-align: right; margin-bottom: 4px;">
+            <label style="display: block; margin-bottom: 4px; color: rgba(255, 255, 255, 0.95); font-size: 0.88rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.4);">
+                كلمة المرور
+            </label>
+            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" autocapitalize="none" autocorrect="off" style="padding: 11px 45px 11px 15px; font-size: 0.98rem; border-radius: 12px;">
+            <button type="button" class="toggle-pwd-btn" onclick="togglePassword()" title="إظهار/إخفاء كلمة المرور" id="toggle-pwd-icon" style="top: 29px; left: 10px;">👁️</button>
         </div>
 
-        <div style="text-align: left; margin-bottom: 12px; direction: ltr;">
-            <a href="javascript:void(0)" onclick="openResetModal('identity')" style="color: #38bdf8; text-decoration: none; font-size: 0.88rem; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#0ea5e9'; this.style.textDecoration='underline';" onmouseout="this.style.color='#38bdf8'; this.style.textDecoration='none';">نسيت كلمة المرور؟</a>
+        <!-- سطر نسيت كلمة المرور ومعايرة الشاشة الذكية مدمجة في مسافة 10px فقط -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px;">
+            <span id="screen-adaptive-badge" style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; opacity: 0.9;">
+                <!-- يتم تعبئته آلياً بنوع الشاشة -->
+            </span>
+            <a href="javascript:void(0)" onclick="openResetModal('identity')" style="color: #94a3b8; text-decoration: none; font-size: 0.82rem; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#38bdf8';" onmouseout="this.style.color='#94a3b8';">نسيت كلمة المرور؟</a>
         </div>
         
         <script>
@@ -371,19 +398,24 @@
             }
         </script>
         
-        <button class="btn-login" onclick="handleLogin()">دخول آمن</button>
-        
-        <button type="button" class="btn-login-back" onclick="if(typeof window.magaieesGoBack==='function'){window.magaieesGoBack();}else{window.history.back();}" style="width: 100%; margin-top: 10px; padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.22); color: #f8fafc; font-size: 0.96rem; font-weight: 800; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; gap: 8px; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.25);" onmouseover="this.style.background='linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.35))'; this.style.borderColor='#fef08a'; this.style.color='#fef08a'; this.style.boxShadow='0 0 20px rgba(245,158,11,0.5)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.22)'; this.style.color='#f8fafc'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.25)';">
-            <svg style="width: 18px; height: 18px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 19 12 12 5"></polyline></svg>
-            <span>الرجوع للشاشة السابقة</span>
+        <!-- 🛡️ زر دخول آمن (بارز وظاهر في كامل الشاشة بدون حاجة لرفع الشاشة) -->
+        <button class="btn-login" onclick="handleLogin()" style="width: 100%; padding: 13px; border-radius: 14px; background: linear-gradient(135deg, #0284c7, #2563eb 50%, #4f46e5); box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45); color: white; font-size: 1.05rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <i class="fa-solid fa-shield-halved" style="font-size: 1.05rem; color: #7dd3fc;"></i>
+            <span>دخول آمن</span>
         </button>
 
-        <!-- Fast Local Login Helper -->
-        <div id="local-login-hints" style="margin-top: 15px; padding: 10px; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 10px; text-align: center; display: none;">
-            <div style="font-size: 0.8rem; color: #38bdf8; font-weight: 700; margin-bottom: 8px;">🚀 تسجيل دخول سريع ومباشر:</div>
-            <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
-                <button type="button" onclick="fillCreds('c', '0000')" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 6px; padding: 6px 12px; font-size: 0.82rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.35)'" onmouseout="this.style.background='rgba(16,185,129,0.2)'">🏢 الحساب الرئيسي (c / 0000)</button>
-                <button type="button" onclick="fillCreds('admin', '123456')" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; border-radius: 6px; padding: 6px 12px; font-size: 0.82rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.35)'" onmouseout="this.style.background='rgba(59,130,246,0.2)'">⚙️ المدير (admin / 123456)</button>
+        <!-- بطاقة التكيف الذكي مع نوع ومقاس الشاشة (هونر، هواوي، سامسونج، آيفون، أندرويد، لابتوب) -->
+        <div class="device-adaptive-card" id="adaptive-device-card" style="margin-top: 10px; padding: 6px 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.74rem; color: #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 6px;">
+            <span id="device-icon">📱</span>
+            <span id="device-adaptive-desc">جاري المعايرة والتكيف الذكي مع مقاس الشاشة...</span>
+        </div>
+
+        <!-- Fast Local Login Helper (مساعد التطوير المحلي) -->
+        <div id="local-login-hints" style="margin-top: 10px; padding: 8px; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 10px; text-align: center; display: none;">
+            <div style="font-size: 0.76rem; color: #38bdf8; font-weight: 700; margin-bottom: 6px;">🚀 تسجيل دخول سريع ومباشر:</div>
+            <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
+                <button type="button" onclick="fillCreds('c', '0000')" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.35)'" onmouseout="this.style.background='rgba(16,185,129,0.2)'">🏢 الرئيسي (c / 0000)</button>
+                <button type="button" onclick="fillCreds('admin', '123456')" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.35)'" onmouseout="this.style.background='rgba(59,130,246,0.2)'">⚙️ المدير (admin / 123456)</button>
             </div>
         </div>
         <script>
@@ -402,7 +434,7 @@
             }
         </script>
         
-        <div class="device-info" id="device-id-display">جاري التحقق من الجهاز...</div>
+        <div class="device-info" id="device-id-display" style="display:none;"></div>
     </div>
 
     <!-- ==================== FORGOT PASSWORD MODALS ==================== -->
@@ -1067,7 +1099,9 @@
             }
         })();
 
-        // Generate or get Device UUID & detection info
+        // ═════════════════════════════════════════════════════════════════
+        // 🧠 المحرك الذكي للتعرف التلقائي على الأجهزة ونوع الشاشات (AI Adaptive Hardware Engine)
+        // ═════════════════════════════════════════════════════════════════
         function getDeviceDetails() {
             let uuid = localStorage.getItem('deviceUuid');
             if (!uuid) {
@@ -1076,28 +1110,126 @@
             }
             
             const ua = navigator.userAgent || '';
-            let type = 'desktop';
-            let name = 'كمبيوتر (PC)';
-            
-            if (/iPhone/i.test(ua)) {
-                type = 'iphone';
-                name = 'هاتف آيفون (Apple iPhone)';
-            } else if (/iPad/i.test(ua)) {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            const dpr = window.devicePixelRatio || 1;
+            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            const hasSafeAreas = CSS.supports('padding-top: env(safe-area-inset-top)');
+
+            let type = 'android';
+            let brand = 'android';
+            let name = 'هاتف أندرويد الذكي';
+            let screenType = 'شاشة أندرويد متكيفة';
+            let icon = '📱';
+            let badge = '⚡ أندرويد متكيف';
+            let color = '#10b981';
+            let isLaptop = false;
+            let isTablet = false;
+
+            // 1. Laptop / Desktop / PC
+            const isDesktopUA = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+            if (isDesktopUA && width >= 992 && !isTouch) {
+                type = /Windows/i.test(ua) ? 'windows' : (/Mac/i.test(ua) ? 'mac' : 'desktop');
+                brand = 'desktop';
+                name = /Windows/i.test(ua) ? 'كمبيوتر ويندوز (Windows PC)' : (/Mac/i.test(ua) ? 'كمبيوتر ماك (Apple Mac)' : 'كمبيوتر مكتبي (Desktop)');
+                screenType = 'شاشة عريضة لابتوب / كمبيوتر';
+                icon = '💻';
+                badge = '🖥️ لابتوب / كمبيوتر';
+                color = '#38bdf8';
+                isLaptop = true;
+            }
+            // 2. Apple iPad / Tablet
+            else if (/iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua)) || (width >= 768 && width < 1024 && isTouch)) {
                 type = 'ipad';
-                name = 'جهاز آيباد (Apple iPad)';
-            } else if (/Android/i.test(ua)) {
-                type = 'android';
-                name = /Mobile/i.test(ua) ? 'هاتف أندرويد (Android Mobile)' : 'تابلت أندرويد (Android Tablet)';
-            } else if (/Macintosh|Mac OS/i.test(ua)) {
-                type = 'mac';
-                name = 'كمبيوتر ماك (Apple Mac)';
-            } else if (/Windows/i.test(ua)) {
-                type = 'windows';
-                name = 'كمبيوتر ويندوز (Windows PC)';
+                brand = 'ipad';
+                name = /iPad/i.test(ua) ? 'آبل آيباد (Apple iPad)' : 'جهاز لوحي (Tablet)';
+                screenType = 'شاشة لوحية متكيفة (Adaptive Tablet)';
+                icon = '📟';
+                badge = '📟 جهاز لوحي / آيباد';
+                color = '#c084fc';
+                isTablet = true;
+            }
+            // 3. Apple iPhone
+            else if (/iPhone/i.test(ua)) {
+                type = 'iphone';
+                brand = 'iphone';
+                name = 'آبل آيفون (Apple iPhone)';
+                let isIsland = (hasSafeAreas && height >= 840 && dpr >= 3);
+                screenType = isIsland ? 'شاشة Retina مع Dynamic Island' : 'شاشة Retina دقيقة';
+                icon = '🍏';
+                badge = '🍏 آيفون Retina';
+                color = '#f8fafc';
+            }
+            // 4. Honor (MagicOS - Quad-Curved Waterfall)
+            else if (/HONOR|MagicOS|MagicUI|\b(HNY|ANY|NTH|CRT|RMO|PGT|FRI|ALI|BND|ELZ|BVX)-/i.test(ua)) {
+                type = 'honor';
+                brand = 'honor';
+                name = 'هونر (Honor Magic / Curved)';
+                screenType = 'شاشة منحنية (Quad-Curved 120Hz)';
+                icon = '⚡';
+                badge = '⚡ هونر شاشة منحنية';
+                color = '#818cf8';
+            }
+            // 5. Huawei (HarmonyOS / EMUI - OLED Curve)
+            else if (/HUAWEI|HarmonyOS|HuaweiBrowser|HMSCore|\b(AL00|TL00|HMA|VOG|ELE|NOH|NOP|BLA|LYA|POT|TAS|ANA|ELS|JAD|ALN|BRA)-/i.test(ua)) {
+                type = 'huawei';
+                brand = 'huawei';
+                name = 'هواوي (Huawei Mate / Pura)';
+                screenType = 'شاشة OLED منحنية متكيفة';
+                icon = '💎';
+                badge = '💎 هواوي HarmonyOS';
+                color = '#f43f5e';
+            }
+            // 6. Samsung Galaxy (One UI - Foldable / Ultra / Flat)
+            else if (/SamsungBrowser|SAMSUNG|\b(SM|GT|SCH|SPH|SGH)-[A-Z0-9]+/i.test(ua)) {
+                type = 'samsung';
+                brand = 'samsung';
+                let isFold = /SM-(F9|F7)/i.test(ua);
+                let isUltra = /SM-(S9[0-9]{2})/i.test(ua);
+                name = isFold ? 'سامسونج فولد (Galaxy Foldable)' : (isUltra ? 'سامسونج ألترا (Galaxy Ultra)' : 'سامسونج جالاكسي (Samsung Galaxy)');
+                screenType = isFold ? 'شاشة مرنة قابلة للطي (Foldable)' : (isUltra ? 'شاشة ديناميكية منحنية (Dynamic AMOLED)' : 'شاشة Super AMOLED');
+                icon = '📱';
+                badge = isFold ? '📱 سامسونج فولد' : '📱 سامسونج One UI';
+                color = '#38bdf8';
             }
 
-            return { deviceUuid: uuid, deviceName: name, deviceType: type };
+            // تطبيق السمة والبيانات على مستند الـ HTML
+            document.documentElement.setAttribute('data-device-brand', brand);
+            document.documentElement.setAttribute('data-screen-type', screenType);
+
+            // تحديث بطاقات المعايرة التلقائية في الواجهة
+            setTimeout(() => {
+                const badgeEl = document.getElementById('screen-adaptive-badge');
+                if (badgeEl) {
+                    badgeEl.innerHTML = `<span style="color: ${color};"><i class="fa-solid fa-microchip" style="font-size: 0.65rem; margin-left: 2px;"></i> ${badge}</span>`;
+                }
+
+                const descEl = document.getElementById('device-adaptive-desc');
+                const iconEl = document.getElementById('device-icon');
+                if (descEl && iconEl) {
+                    iconEl.textContent = icon;
+                    descEl.innerHTML = `<strong style="color: ${color}; font-weight:800;">${name}</strong> • ${screenType}`;
+                }
+
+                // للابتوب والكمبيوتر: التركيز التلقائي على اسم المستخدم لسرعة الكتابة
+                if (isLaptop) {
+                    const u = document.getElementById('username');
+                    if (u && !u.value) u.focus();
+                }
+            }, 60);
+
+            return { 
+                deviceUuid: uuid, 
+                deviceName: name, 
+                deviceType: type,
+                brand: brand,
+                screenType: screenType,
+                isLaptop: isLaptop,
+                isTablet: isTablet,
+                isMobile: !isLaptop && !isTablet
+            };
         }
+
 
         const currentDevice = getDeviceDetails();
         let deviceUuid = currentDevice.deviceUuid;
@@ -1598,10 +1730,13 @@
 
             let targetUrl = redirectParam;
             if (!targetUrl) {
+                const dev = typeof currentDevice !== 'undefined' ? currentDevice : getDeviceDetails();
                 if (forceMobile && !forceDesktop) {
                     targetUrl = 'mobile-dashboard.php?force_mobile=1';
-                } else if (isLaptopOrPC || forceDesktop || !isMobileDevice) {
+                } else if (dev.isLaptop || forceDesktop) {
                     targetUrl = 'magaiees_unified_dashboard.php?force_desktop=1';
+                } else if (dev.isTablet) {
+                    targetUrl = 'mobile-dashboard.php?device=tablet';
                 } else {
                     targetUrl = 'mobile-dashboard.php';
                 }
