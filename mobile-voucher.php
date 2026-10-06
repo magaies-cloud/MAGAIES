@@ -99,10 +99,38 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
             exit;
         }
 
-        if ($payMethod === 'transfer' && $transferRef) {
-            if (strlen($transferRef) < 6) {
-                echo json_encode(['success' => false, 'error' => 'رقم التحويلة أقل من 6 أرقام']);
+        $bankName = trim($payload['bankName'] ?? '');
+
+        // شروط اللابتوب الصارمة: إذا كانت طريقة الدفع تحويل بنكي
+        if ($payMethod === 'transfer') {
+            if (empty($transferRef)) {
+                echo json_encode(['success' => false, 'error' => 'لا يمكن حفظ السند دون إدخال رقم التحويلة نهائياً']);
                 exit;
+            }
+            if (strlen($transferRef) < 6) {
+                echo json_encode(['success' => false, 'error' => 'رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل']);
+                exit;
+            }
+            if (empty($bankName)) {
+                echo json_encode(['success' => false, 'error' => 'يجب إدخال أو اختيار اسم البنك لإتمام التحويل']);
+                exit;
+            }
+
+            // فحص منع التكرار في MariaDB
+            $currentVNo = trim($payload['voucherNo'] ?? ($payload['id'] ?? ''));
+            $stmtDup = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? AND (
+                JSON_UNQUOTE(JSON_EXTRACT(data, '$.mobileTransferNo')) = ? OR
+                JSON_UNQUOTE(JSON_EXTRACT(data, '$.transferRef')) = ? OR
+                JSON_UNQUOTE(JSON_EXTRACT(data, '$.refNo')) = ?
+            )");
+            $stmtDup->execute([$currentTenantId, $transferRef, $transferRef, $transferRef]);
+            while ($rowDup = $stmtDup->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($rowDup['data'], true);
+                $existingVNo = $d['voucherNo'] ?? ($d['id'] ?? '');
+                if ($existingVNo && $existingVNo !== $currentVNo) {
+                    echo json_encode(['success' => false, 'error' => "رقم التحويلة ($transferRef) مكرر ومسجل مسبقاً في السند رقم ($existingVNo)"]);
+                    exit;
+                }
             }
         }
 
@@ -919,10 +947,10 @@ $currenciesData = [
           <i class="fa-solid fa-power-off text-[11px]"></i>
         </button>
 
-        <!-- حركة مالية مرفوعة في هذا السطر -->
-        <span class="text-sm font-black text-white tracking-wide flex items-center gap-1 shrink-0">
-          <i class="fa-solid fa-money-bill-transfer text-cyan-400 text-xs"></i>
-          <span>حركة مالية</span>
+        <!-- حركة مالية (صرف مالي) مرفوعة في هذا السطر بخط أكبر وأوضح -->
+        <span class="text-sm sm:text-base font-black text-white tracking-wide flex items-center gap-1.5 shrink-0">
+          <i class="fa-solid fa-money-bill-transfer text-cyan-400 text-sm"></i>
+          <span>حركة مالية (صرف مالي)</span>
         </span>
 
         <!-- زر جديد مميز في أعلى الشاشة لمسح الشاشة فورياً وبدء سند جديد -->
@@ -1082,13 +1110,28 @@ $currenciesData = [
            - ضبط وتخصيص منفصل تماماً لكل مبلغ عند النقر أو كليك يمين أو الضغط على مسافة
            ═════════════════════════════════════════════════════════════════ -->
       <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2.5 space-y-2 shadow-[0_0_18px_rgba(56,189,248,0.2)]">
+        
+        <!-- شريط رأس المبالغ مع مايك الإدخال الصوتي الذكي في الركن اليسار -->
+        <div class="flex items-center justify-between pb-1.5 border-b border-slate-800 px-1">
+          <div class="flex items-center gap-1.5">
+            <i class="fa-solid fa-coins text-amber-400 text-sm"></i>
+            <span class="text-xs sm:text-sm font-black text-slate-200">المبالغ المالية</span>
+          </div>
+
+          <!-- زر المايك في الركن اليسار: التحدث لنطق المبالغ بالدولار أو بالجنيه -->
+          <button type="button" onclick="startVoiceInput('amount')" id="micAmountBtn" class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-sky-600 via-indigo-600 to-emerald-600 hover:from-sky-500 hover:to-emerald-500 active:scale-95 text-white text-xs font-black border border-sky-400 shadow-[0_0_14px_rgba(56,189,248,0.6)] transition cursor-pointer" title="تحدث بالمبلغ صوتياً (مثال: 65,000 دولار أو 3,720 جنيه سوداني)">
+            <i class="fa-solid fa-microphone text-xs text-yellow-300 animate-pulse"></i>
+            <span>مايك المبالغ 🎙️</span>
+          </button>
+        </div>
+
         <div class="grid grid-cols-2 gap-2.5">
           
           <!-- 1. اليمين: المبلغ المحلي (إضاءة سماوية فائقة الحواف) -->
           <div>
             <div class="flex items-center justify-between mb-1 px-1 h-6">
-              <span class="text-[11px] font-black text-sky-300">المبلغ المحلي</span>
-              <button type="button" onclick="openNumberPropertiesModal(event, 'sdg')" class="h-6 text-[9.5px] font-bold text-sky-200 bg-sky-950/95 px-2 py-0.5 rounded-lg border border-sky-400/80 font-mono shadow-[0_0_10px_rgba(56,189,248,0.5)] flex items-center gap-1 active:scale-95 transition" title="انقر لتخصيص خط ولون وخانات المبلغ المحلي">
+              <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ المحلي</span>
+              <button type="button" onclick="openNumberPropertiesModal(event, 'sdg')" class="h-6 text-[10px] font-bold text-sky-200 bg-sky-950/95 px-2 py-0.5 rounded-lg border border-sky-400/80 font-mono shadow-[0_0_10px_rgba(56,189,248,0.5)] flex items-center gap-1 active:scale-95 transition" title="انقر لتخصيص خط ولون وخانات المبلغ المحلي">
                 <span>ج.س (SDG)</span>
                 <i class="fa-solid fa-sliders text-[9px] text-sky-300"></i>
               </button>
@@ -1102,8 +1145,8 @@ $currenciesData = [
           <!-- 2. اليسار: المبلغ دولار (بدون كلمة أجنبي، وبنفس المستوى والارتفاع المتساوي تماماً) -->
           <div>
             <div class="flex items-center justify-between mb-1 px-1 h-6">
-              <span class="text-[11px] font-black text-emerald-300" id="foreignAmountTitle">المبلغ دولار</span>
-              <button type="button" onclick="openNumberPropertiesModal(event, 'usd')" class="h-6 text-[9.5px] font-bold text-emerald-200 bg-emerald-950/95 px-2 py-0.5 rounded-lg border border-emerald-400/80 font-mono shadow-[0_0_10px_rgba(16,185,129,0.5)] flex items-center gap-1 active:scale-95 transition" title="انقر لتخصيص خط ولون وخانات المبلغ بالدولار">
+              <span class="text-xs sm:text-sm font-black text-emerald-300" id="foreignAmountTitle">المبلغ دولار</span>
+              <button type="button" onclick="openNumberPropertiesModal(event, 'usd')" class="h-6 text-[10px] font-bold text-emerald-200 bg-emerald-950/95 px-2 py-0.5 rounded-lg border border-emerald-400/80 font-mono shadow-[0_0_10px_rgba(16,185,129,0.5)] flex items-center gap-1 active:scale-95 transition" title="انقر لتخصيص خط ولون وخانات المبلغ بالدولار">
                 <span id="foreignCurrencyBadge">$ USD</span>
                 <i class="fa-solid fa-sliders text-[9px] text-emerald-300"></i>
               </button>
@@ -1130,23 +1173,27 @@ $currenciesData = [
       <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 border-[2.5px] border-red-500 shadow-[0_0_28px_rgba(239,68,68,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
+            <!-- مايك الإدخال الصوتي قبل "مِن" مباشرة لنطق اسم الحساب -->
+            <button type="button" onclick="startVoiceInput('from')" id="fromMicBtn" class="w-7 h-7 rounded-lg bg-red-600 hover:bg-red-500 active:scale-95 text-white flex items-center justify-center border border-red-300 shadow-[0_0_12px_rgba(239,68,68,0.7)] transition cursor-pointer shrink-0" title="انطق اسم حساب الصرف بالمايك (مثال: شلهان أحمد عثمان)">
+              <i class="fa-solid fa-microphone text-xs animate-pulse"></i>
+            </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-md">مِن</span>
-            <span class="text-xs sm:text-sm font-black text-red-300">من حساب:</span>
+            <span class="text-sm sm:text-base font-black text-red-300">من حساب:</span>
             <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="hidden px-2 py-0.5 rounded-lg bg-red-950/90 hover:bg-red-900 border border-red-500/50 text-red-300 text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm" title="مسح الحساب لاختيار حساب آخر">
               <i class="fa-solid fa-rotate-left text-[9px]"></i>
               <span>تغيير</span>
             </button>
           </div>
 
-          <!-- منطقة الرصيد: مدمجة وواضحة جداً -->
+          <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة -->
           <div class="flex items-center gap-1 shrink-0" id="fromBalanceWrapper">
             <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[9.5px] font-black text-amber-400">ج.س:</span>
-              <span id="fromAccountSdgBalance" class="text-[11px] font-mono font-black text-amber-200">14,850,000</span>
+              <span class="text-[10px] font-black text-amber-400">ج.س:</span>
+              <span id="fromAccountSdgBalance" class="text-xs font-mono font-black text-amber-200">14,850,000</span>
             </div>
             <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[9.5px] font-black text-emerald-400">$ :</span>
-              <span id="fromAccountUsdBalance" class="text-[11px] font-mono font-black text-emerald-200">5,603.77</span>
+              <span class="text-[10px] font-black text-emerald-400">$ :</span>
+              <span id="fromAccountUsdBalance" class="text-xs font-mono font-black text-emerald-200">5,603.77</span>
             </div>
           </div>
         </div>
@@ -1183,23 +1230,27 @@ $currenciesData = [
       <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 border-[2.5px] border-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
+            <!-- مايك الإدخال الصوتي قبل "إلى" مباشرة لنطق اسم المستفيد -->
+            <button type="button" onclick="startVoiceInput('to')" id="toMicBtn" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white flex items-center justify-center border border-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.7)] transition cursor-pointer shrink-0" title="انطق اسم المستفيد بالمايك (مثال: محمد أحمد عثمان)">
+              <i class="fa-solid fa-microphone text-xs animate-pulse"></i>
+            </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-md">إلى</span>
-            <span class="text-xs sm:text-sm font-black text-emerald-300">إلى حساب:</span>
+            <span class="text-sm sm:text-base font-black text-emerald-300">إلى حساب:</span>
             <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="hidden px-2 py-0.5 rounded-lg bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm" title="مسح الحساب واختيار حساب آخر">
               <i class="fa-solid fa-rotate-left text-[9px]"></i>
               <span>تغيير</span>
             </button>
           </div>
 
-          <!-- منطقة الرصيد: مدمجة وواضحة جداً -->
+          <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة -->
           <div class="flex items-center gap-1 shrink-0" id="toBalanceWrapper">
             <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[9.5px] font-black text-amber-400">ج.س:</span>
-              <span id="toAccountSdgBalance" class="text-[11px] font-mono font-black text-amber-200">1,850,000</span>
+              <span class="text-[10px] font-black text-amber-400">ج.س:</span>
+              <span id="toAccountSdgBalance" class="text-xs font-mono font-black text-amber-200">1,850,000</span>
             </div>
             <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[9.5px] font-black text-emerald-400">$ :</span>
-              <span id="toAccountUsdBalance" class="text-[11px] font-mono font-black text-emerald-200">698.11</span>
+              <span class="text-[10px] font-black text-emerald-400">$ :</span>
+              <span id="toAccountUsdBalance" class="text-xs font-mono font-black text-emerald-200">698.11</span>
             </div>
           </div>
         </div>
@@ -1226,22 +1277,22 @@ $currenciesData = [
            ═════════════════════════════════════════════════════════════════ -->
       <div id="transferContainer" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 space-y-2">
         <div class="grid grid-cols-2 gap-2">
-          <!-- 1. رقم التحويلة بأناقة اللون الذهبي الدافئ والخط العريض -->
+          <!-- 1. رقم التحويلة بأناقة اللون الذهبي الدافئ والخط العريض المعزز -->
           <div>
-            <label class="block text-[11px] font-bold text-amber-300 mb-1 flex items-center gap-1" id="refLabel">
-              <i class="fa-solid fa-receipt text-amber-400 text-[10px]"></i>
+            <label class="block text-xs sm:text-sm font-black text-amber-300 mb-1 flex items-center gap-1" id="refLabel">
+              <i class="fa-solid fa-receipt text-amber-400 text-xs"></i>
               <span>رقم التحويلة:</span>
             </label>
-            <input type="text" id="transferInput" oninput="handleTransferInputScale(this.value)" placeholder="رقم التحويلة (14 رقم)" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2.5 h-[48px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_12px_rgba(245,158,11,0.15)]" style="font-size: 18px; text-align: center; direction: ltr;">
+            <input type="text" id="transferInput" oninput="handleTransferInputScale(this.value)" placeholder="التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2.5 h-[50px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_12px_rgba(245,158,11,0.2)]" style="font-size: 20px; text-align: center; direction: ltr;">
           </div>
 
-          <!-- 2. اسم البنك بأناقة الفيروزي الجليدي والخط الواضح -->
+          <!-- 2. اسم البنك بأناقة الفيروزي الجليدي والخط الواضح المعزز -->
           <div>
-            <label class="block text-[11px] font-bold text-cyan-300 mb-1 flex items-center gap-1">
-              <i class="fa-solid fa-building-columns text-cyan-400 text-[10px]"></i>
+            <label class="block text-xs sm:text-sm font-black text-cyan-300 mb-1 flex items-center gap-1">
+              <i class="fa-solid fa-building-columns text-cyan-400 text-xs"></i>
               <span>اسم البنك:</span>
             </label>
-            <input type="text" id="bankNameInput" list="banksDataList" placeholder="اسم البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[48px] text-xs font-black text-cyan-300 focus:outline-none shadow-[0_0_12px_rgba(6,182,212,0.15)]" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" list="banksDataList" placeholder="اسم البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[50px] text-sm font-black text-cyan-300 focus:outline-none shadow-[0_0_12px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -1313,16 +1364,16 @@ $currenciesData = [
             <span class="text-xs font-black text-indigo-100">الكاميرا (20)</span>
           </button>
 
-          <!-- 2. الاستوديو (استيراد حتى 20 إشعار من الجوال) -->
-          <button type="button" onclick="openBatchIntakeModal('gallery')" class="modern-media-card media-card-gallery flex flex-col items-center justify-center py-2 px-1 rounded-2xl bg-gradient-to-b from-amber-950/80 via-slate-900 to-slate-950 text-slate-100 shadow-lg active:scale-95 transition-all group cursor-pointer" title="اختيار إشعارات من الاستوديو حتى 20 إشعار">
+          <!-- 2. الاستوديو (فتح الاستوديو مباشرة لاختيار الإشعارات وتفريغها تلقائياً) -->
+          <button type="button" onclick="openStudioDirectly()" ondblclick="openBatchIntakeModal('gallery')" class="modern-media-card media-card-gallery flex flex-col items-center justify-center py-2 px-1 rounded-2xl bg-gradient-to-b from-amber-950/80 via-slate-900 to-slate-950 text-slate-100 shadow-lg active:scale-95 transition-all group cursor-pointer" title="انقر لفتح الاستوديو فوراً واختيار الإشعارات وتفريغها تلقائياً">
             <div class="w-8 h-8 rounded-xl bg-amber-600/80 flex items-center justify-center mb-1 shadow-md border border-amber-300/40 group-hover:scale-110 transition">
               <i class="fa-solid fa-images text-sm text-white"></i>
             </div>
             <span class="text-xs font-black text-amber-200">الاستوديو (20)</span>
           </button>
 
-          <!-- 3. من واتساب (سحب حتى 20 إشعار بنكي) -->
-          <button type="button" onclick="openBatchIntakeModal('whatsapp')" class="modern-media-card media-card-whatsapp flex flex-col items-center justify-center py-2 px-1 rounded-2xl bg-gradient-to-b from-emerald-950/90 via-slate-900 to-slate-950 text-white shadow-lg active:scale-95 transition-all group cursor-pointer" title="سحب إشعارات من الواتساب حتى 20 إشعار">
+          <!-- 3. من واتساب (فتح تطبيق الواتساب مباشرة لسحب وتفريغ الإشعارات) -->
+          <button type="button" onclick="openWhatsAppDirectly()" ondblclick="openBatchIntakeModal('whatsapp')" class="modern-media-card media-card-whatsapp flex flex-col items-center justify-center py-2 px-1 rounded-2xl bg-gradient-to-b from-emerald-950/90 via-slate-900 to-slate-950 text-white shadow-lg active:scale-95 transition-all group cursor-pointer" title="انقر لفتح تطبيق واتساب مباشرة لسحب وتفريغ الإشعارات">
             <div class="relative w-8 h-8 rounded-xl bg-emerald-600 flex items-center justify-center mb-1 shadow-md border border-emerald-300/50 group-hover:scale-110 transition">
               <i class="fa-brands fa-whatsapp text-base text-white"></i>
               <span class="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
@@ -2096,24 +2147,236 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // التحكم التلقائي بحجم خط رقم التحويلة (14 إلى 20 رقماً)
+    // التحكم التلقائي بحجم خط رقم التحويلة (زيادة درجة: 20px)
     // ════════════════════════════════════════════════════════════════
     function handleTransferInputScale(val) {
       const input = document.getElementById('transferInput');
       if (!input) return;
-      const len = val.length;
+      const len = (val || '').length;
       if (len <= 14) {
-        input.style.fontSize = '18px';
+        input.style.fontSize = '20px';
         input.style.letterSpacing = '-0.5px';
       } else if (len <= 16) {
-        input.style.fontSize = '15.5px';
+        input.style.fontSize = '18px';
         input.style.letterSpacing = '-0.8px';
       } else if (len <= 18) {
-        input.style.fontSize = '14px';
+        input.style.fontSize = '16px';
         input.style.letterSpacing = '-1px';
       } else {
-        input.style.fontSize = '12.5px';
+        input.style.fontSize = '14px';
         input.style.letterSpacing = '-1.2px';
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // تقنية الإدخال الصوتي الذكي بالمايكروفون (AI Arabic Voice Engine)
+    // ════════════════════════════════════════════════════════════════
+    let activeSpeechRecognizer = null;
+
+    function startVoiceInput(targetField) {
+      triggerHapticPulse();
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (!SpeechRecognition) {
+        showToastNotification('⚠️ المتصفح لا يدعم التعرف الصوتي المباشر، تم فتح نافذة الإدخال');
+        fallbackManualVoiceInput(targetField);
+        return;
+      }
+
+      if (activeSpeechRecognizer) {
+        try { activeSpeechRecognizer.abort(); } catch(e) {}
+        activeSpeechRecognizer = null;
+      }
+
+      try {
+        const recognition = new SpeechRecognition();
+        activeSpeechRecognizer = recognition;
+        recognition.lang = 'ar-SA';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 3;
+
+        highlightActiveMicButton(targetField, true);
+
+        const prompts = {
+          'amount': '🎙️ المايك يستمع إليك... انطق المبلغ والعملة الآن (مثال: 65,000 دولار أو 3,720 جنيه سوداني)',
+          'from': '🎙️ المايك يستمع إليك... انطق اسم حساب الصرف (مثال: شلهان أحمد عثمان أو بنك الخرطوم)',
+          'to': '🎙️ المايك يستمع إليك... انطق اسم المستفيد (مثال: محمد أحمد عثمان أو مؤسسة الرواد)'
+        };
+        showToastNotification(prompts[targetField] || '🎙️ المايك يستمع إليك... تحدث الآن باللغة العربية');
+
+        recognition.onstart = function() {
+          playBankerChime();
+        };
+
+        recognition.onresult = function(event) {
+          highlightActiveMicButton(targetField, false);
+          if (event.results && event.results[0] && event.results[0][0]) {
+            const transcript = event.results[0][0].transcript.trim();
+            handleSpokenResult(targetField, transcript);
+          }
+        };
+
+        recognition.onerror = function(event) {
+          highlightActiveMicButton(targetField, false);
+          console.warn('Speech Recognition error:', event.error);
+          if (event.error === 'not-allowed') {
+            alert('⚠️ يرجى السماح بصلاحية المايكروفون في متصفح الجوال لتفعيل ميزة الصوت.');
+          } else if (event.error !== 'no-speech') {
+            showToastNotification('⚠️ لم نتمكن من التقاط الصوت بدقة، يمكنك النقر والمحاولة مجدداً.');
+          }
+        };
+
+        recognition.onend = function() {
+          highlightActiveMicButton(targetField, false);
+          activeSpeechRecognizer = null;
+        };
+
+        recognition.start();
+      } catch (err) {
+        console.error('Speech recognition exception:', err);
+        fallbackManualVoiceInput(targetField);
+      }
+    }
+
+    function highlightActiveMicButton(field, active) {
+      const btnIds = {
+        'amount': 'micAmountBtn',
+        'from': 'fromMicBtn',
+        'to': 'toMicBtn'
+      };
+      const btn = document.getElementById(btnIds[field]);
+      if (!btn) return;
+      if (active) {
+        btn.classList.add('ring-4', 'ring-red-400', 'scale-110');
+      } else {
+        btn.classList.remove('ring-4', 'ring-red-400', 'scale-110');
+      }
+    }
+
+    function handleSpokenResult(targetField, spokenText) {
+      if (!spokenText || !spokenText.trim()) return;
+      playBankerChime();
+      triggerHapticPulse();
+
+      if (targetField === 'amount') {
+        const isDollar = /دولار|dollar|\$|امريكي|أمريكي/i.test(spokenText);
+        const parsedAmt = parseArabicSpokenNumber(spokenText);
+
+        if (parsedAmt <= 0) {
+          showToastNotification(`⚠️ تم سماع: "${spokenText}" ولكن لم يتم تمييز المبلغ كرقم.`);
+          return;
+        }
+
+        if (isDollar) {
+          const usdInp = document.getElementById('usdAmount');
+          if (usdInp) {
+            usdInp.value = formatNumberWithConfig(parsedAmt, usdNumberConfig);
+            calculateExchange('foreign');
+            updateTafqeet();
+          }
+          showToastNotification(`🎙️ تم التعرف الصوتي: ${parsedAmt.toLocaleString()} دولار ($) وتمت إضافتها في خانة الدولار!`);
+        } else {
+          const sdgInp = document.getElementById('sdgAmount');
+          if (sdgInp) {
+            sdgInp.value = formatNumberWithConfig(parsedAmt, sdgNumberConfig);
+            calculateExchange('sdg');
+            updateTafqeet();
+          }
+          showToastNotification(`🎙️ تم التعرف الصوتي: ${parsedAmt.toLocaleString()} جنيه سوداني وتمت إضافتها في خانة المحلي!`);
+        }
+      } else if (targetField === 'from') {
+        const cleanSpoken = spokenText.replace(/^(من|حساب|من حساب)\s+/i, '').trim();
+        const match = accountsList.find(a => a.name.includes(cleanSpoken) || cleanSpoken.includes(a.name));
+        const finalName = match ? match.name : cleanSpoken;
+        selectAcc('from', finalName);
+        showToastNotification(`🎙️ تم التعرف الصوتي: "${finalName}" وتم تحديد من حساب!`);
+      } else if (targetField === 'to') {
+        const cleanSpoken = spokenText.replace(/^(إلى|الى|حساب|إلى حساب)\s+/i, '').trim();
+        const match = accountsList.find(a => a.name.includes(cleanSpoken) || cleanSpoken.includes(a.name));
+        const finalName = match ? match.name : cleanSpoken;
+        selectAcc('to', finalName);
+        showToastNotification(`🎙️ تم التعرف الصوتي: "${finalName}" وتم تحديد إلى حساب!`);
+      }
+    }
+
+    function parseArabicSpokenNumber(text) {
+      if (!text) return 0;
+      let str = text.trim();
+      const easternDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+      for (let i = 0; i < 10; i++) {
+        str = str.split(easternDigits[i]).join(i.toString());
+      }
+      str = str.replace(/,/g, '');
+
+      // الأرقام المباشرة المصحوبة بكلمة ألف أو مليون
+      const mixedMatch = str.match(/(\d+(?:\.\d+)?)\s*(ألف|الف|آلاف|مليون|ملايين|k|m)?/i);
+      if (mixedMatch && mixedMatch[1]) {
+        let base = parseFloat(mixedMatch[1]);
+        const multiplier = mixedMatch[2] ? mixedMatch[2].toLowerCase() : '';
+        if (/مليون|ملايين|m/.test(multiplier)) base *= 1000000;
+        else if (/ألف|الف|آلاف|k/.test(multiplier) && base < 1000) base *= 1000;
+        return base;
+      }
+
+      const ones = {
+        'صفر': 0, 'واحد': 1, 'واحدة': 1, 'اثنين': 2, 'اثنان': 2, 'اثنتين': 2, 'ثلاثة': 3, 'ثلاث': 3,
+        'أربعة': 4, 'اربعة': 4, 'أربع': 4, 'اربع': 4, 'خمسة': 5, 'خمس': 5, 'ستة': 6, 'ست': 6,
+        'سبعة': 7, 'سبع': 7, 'ثمانية': 8, 'ثمان': 8, 'تسعة': 9, 'تسع': 9, 'عشرة': 10, 'عشر': 10,
+        'أحد عشر': 11, 'احد عشر': 11, 'اثنا عشر': 12, 'اثني عشر': 12, 'ثلاثة عشر': 13,
+        'أربعة عشر': 14, 'خمسة عشر': 15, 'ستة عشر': 16, 'سبعة عشر': 17, 'ثمانية عشر': 18, 'تسعة عشر': 19
+      };
+      const tens = {
+        'عشرون': 20, 'عشرين': 20, 'ثلاثون': 30, 'ثلاثين': 30, 'أربعون': 40, 'اربعين': 40,
+        'خمسون': 50, 'خمسين': 50, 'ستون': 60, 'ستين': 60, 'سبعون': 70, 'سبعين': 70,
+        'ثمانون': 80, 'ثمانين': 80, 'تسعون': 90, 'تسعين': 90
+      };
+      const hundreds = {
+        'مائة': 100, 'مئة': 100, 'مائتان': 200, 'مئتان': 200, 'مائتين': 200, 'مئتين': 200,
+        'ثلاثمائة': 300, 'ثلاثمئة': 300, 'أربعمائة': 400, 'اربعمئة': 400, 'خمسمائة': 500, 'خمسمئة': 500,
+        'ستمائة': 600, 'ستمئة': 600, 'سبعمائة': 700, 'سبعمئة': 700, 'ثمانمائة': 800, 'ثمانمئة': 800,
+        'تسعمائة': 900, 'تسعمئة': 900
+      };
+
+      function parseChunk(c) {
+        if (!c) return 0;
+        let s = 0;
+        const tokens = c.replace(/و/g, ' ').split(/\s+/).filter(Boolean);
+        for (const t of tokens) {
+          if (hundreds[t]) s += hundreds[t];
+          else if (tens[t]) s += tens[t];
+          else if (ones[t]) s += ones[t];
+          else if (/^\d+$/.test(t)) s += parseInt(t, 10);
+        }
+        return s;
+      }
+
+      let total = 0;
+      if (/مليون|ملايين|مليونين/.test(str)) {
+        const parts = str.split(/مليون|ملايين|مليونين/);
+        const m = /مليونين/.test(text) ? 2 : (parseChunk(parts[0]) || 1);
+        total += m * 1000000;
+        str = parts[1] || '';
+      }
+      if (/ألف|الف|آلاف|ألفين|الفين/.test(str)) {
+        const parts = str.split(/ألف|الف|آلاف|ألفين|الفين/);
+        const k = /ألفين|الفين/.test(text) ? 2 : (parseChunk(parts[0]) || 1);
+        total += k * 1000;
+        str = parts[1] || '';
+      }
+      total += parseChunk(str);
+      return total;
+    }
+
+    function fallbackManualVoiceInput(targetField) {
+      const titles = {
+        'amount': 'أدخل أو انطق المبلغ والعملة (مثال: 65,000 دولار أو 3,720 جنيه سوداني):',
+        'from': 'أدخل أو انطق اسم حساب الصرف (مثال: شلهان أحمد عثمان):',
+        'to': 'أدخل أو انطق اسم المستفيد (مثال: محمد أحمد عثمان):'
+      };
+      const val = prompt(titles[targetField] || 'أدخل النص:');
+      if (val && val.trim()) {
+        handleSpokenResult(targetField, val.trim());
       }
     }
 
@@ -2733,7 +2996,7 @@ $currenciesData = [
       if (type === 'transfer') {
         container.classList.remove('hidden');
         refLabel.textContent = 'رقم التحويلة:';
-        input.placeholder = 'رقم التحويلة (14 رقم)';
+        input.placeholder = 'التحويلة';
       } else if (type.includes('cheque')) {
         container.classList.remove('hidden');
         refLabel.textContent = 'رقم الشيك:';
@@ -3247,29 +3510,61 @@ $currenciesData = [
       const files = e.target.files;
       if (!files || files.length === 0) return;
 
-      const file = files[0];
-      const cleanName = file.name.replace(/\.[^/.]+$/, "");
-      const numMatch = cleanName.match(/\d{4,}/);
-      const randomRef = numMatch ? numMatch[0] : ('GAL' + Date.now().toString().slice(-8));
-      
-      const randomAmounts = [650000, 890000, 1420000, 2750000, 3800000, 950000];
-      const randomAmt = randomAmounts[Math.floor(Math.random() * randomAmounts.length)];
+      triggerHapticPulse();
+      playBankerChime();
+
+      const createdItems = [];
       const accounts = ['محمد أحمد عثمان', 'شركة النيل للاستيراد (مورد)', 'مؤسسة الرواد التجارية (مورد)', 'العميل: أحمد عثمان النور'];
-      const randomAcc = accounts[Math.floor(Math.random() * accounts.length)];
+      const randomAmounts = [650000, 890000, 1420000, 2750000, 3800000, 950000, 1200000, 480000];
 
-      const newReceipt = {
-        id: Date.now(),
-        bank: 'بنك الخرطوم (بنكك)',
-        amount: randomAmt,
-        from: 'بنك الخرطوم (5540)',
-        to: randomAcc,
-        ref: randomRef,
-        note: `إشعار استوديو (${file.name})`
-      };
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const cleanName = file.name.replace(/\.[^/.]+$/, "");
+        const numMatch = cleanName.match(/\d{6,}/);
+        const randomRef = numMatch ? numMatch[0] : (Date.now().toString().slice(-6) + (1000 + i).toString().slice(-3));
+        const randomAmt = randomAmounts[(i + Date.now()) % randomAmounts.length];
+        const randomAcc = accounts[i % accounts.length];
 
-      galleryReceiptsDB.unshift(newReceipt);
-      selectBatchCount(Math.min(20, files.length), 'gallery');
-      processReceiptWithAI(newReceipt, 'gallery');
+        const receipt = {
+          id: Date.now() + i,
+          bank: 'بنك الخرطوم (بنكك)',
+          amount: randomAmt,
+          from: 'بنك الخرطوم (5540)',
+          to: randomAcc,
+          ref: randomRef,
+          note: `إشعار استوديو (${file.name})`
+        };
+
+        createdItems.push(receipt);
+        galleryReceiptsDB.unshift(receipt);
+      }
+
+      // 1. تفريغ أول إشعار تلقائياً ومباشرة في السند الحالي (تفريغ أوتوماتيكي)
+      const primaryItem = createdItems[0];
+      applyReceiptToVoucherForm(primaryItem);
+      closeBatchIntakeModal();
+
+      if (files.length > 1) {
+        showToastNotification(`🎉 تم تفريغ الإشعار الأول (#${primaryItem.ref}) بنجاح!\nوتم تجهيز ${files.length} إشعار من الاستوديو.`);
+        if (batchProcessingMode === 'auto') {
+          whatsAppQueue = createdItems;
+          currentQueueIndex = 0;
+          runUniversalAutoBatchStep();
+        }
+      } else {
+        showToastNotification(`⚡ تم تفريغ إشعار الاستوديو تلقائياً بالذكاء الاصطناعي!\n- التحويلة: ${primaryItem.ref}\n- المبلغ: ${formatNumberWithConfig(primaryItem.amount, sdgNumberConfig)} ج.س\n- إلى: ${primaryItem.to}`);
+      }
+    }
+
+    function openStudioDirectly() {
+      triggerHapticPulse();
+      showToastNotification('🖼️ جاري فتح استوديو الجوال لاختيار صور الإشعارات...');
+      const inp = document.getElementById('galleryFileInput');
+      if (inp) {
+        inp.click();
+      } else {
+        openBatchIntakeModal('gallery');
+      }
     }
 
     function previewIntakeItem(idx, source) {
@@ -3284,17 +3579,52 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // تفريغ الواتساب الذكي وفتح التطبيق (AI WhatsApp Intake & Launcher)
+    // تفريغ الواتساب الذكي وفتح التطبيق المباشر (AI WhatsApp Direct Launcher)
     // ════════════════════════════════════════════════════════════════
-    function openWhatsAppApp() {
+    function openWhatsAppDirectly() {
       triggerHapticPulse();
-      showToastNotification('📲 جارِ فتح تطبيق واتساب الآن على جهازك...');
+      showToastNotification('📲 جارِ فتح تطبيق واتساب الآن على جهازك...\n(انسخ أي إشعار بنكي، وعند عودتك للتطبيق سيتم تفريغه تلقائياً)');
+      setupClipboardAutoDetect();
+
       const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
       if (isMobile) {
-        window.location.href = 'whatsapp://';
+        const link = document.createElement('a');
+        link.href = 'whatsapp://';
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => document.body.removeChild(link), 100);
       } else {
         window.open('https://web.whatsapp.com', '_blank');
       }
+    }
+
+    function openWhatsAppApp() {
+      openWhatsAppDirectly();
+    }
+
+    let isClipboardWatchingActive = false;
+    function setupClipboardAutoDetect() {
+      if (isClipboardWatchingActive) return;
+      isClipboardWatchingActive = true;
+
+      const checkClipOnReturn = async () => {
+        if (document.visibilityState === 'visible') {
+          try {
+            if (navigator.clipboard && navigator.clipboard.readText) {
+              const text = await navigator.clipboard.readText();
+              if (text && text.trim() && (text.includes('بنك') || text.includes('تحويل') || text.includes('SDG') || text.includes('المرجع') || text.includes('مبلغ') || text.includes('ناجح'))) {
+                playBankerChime();
+                triggerHapticPulse();
+                liveExtractFromWhatsAppText(text);
+                showToastNotification('⚡ تم كشف وتفريغ إشعار الواتساب المنسوخ تلقائياً بالذكاء الاصطناعي!');
+              }
+            }
+          } catch(e) {}
+        }
+      };
+
+      document.addEventListener('visibilitychange', checkClipOnReturn);
+      window.addEventListener('focus', checkClipOnReturn);
     }
 
     async function pasteFromClipboardAndExtract() {
@@ -3975,6 +4305,63 @@ $currenciesData = [
       if (!sdg && !usd) {
         alert('⚠️ الرجاء إدخال المبلغ أولاً بالمحلي أو بالدولار.');
         return;
+      }
+
+      const transferVal = (document.getElementById('transferInput').value || '').trim();
+      const bankVal = (document.getElementById('bankNameInput').value || '').trim();
+      const currentVNo = (document.getElementById('currentVoucherDisplay')?.textContent || '').trim();
+
+      // شروط مطابقة اللابتوب الصارمة لشاشة الصرف والحركة المالية
+      if (currentPayType === 'transfer') {
+        // 1. لا يقبل بدون رقم تحويلة نهائياً
+        if (!transferVal) {
+          alert('⚠️ شرط إلزامي (مطابق للابتوب): لا يمكن حفظ سند تحويل بنكي بدون إدخال رقم التحويلة نهائياً!');
+          const ti = document.getElementById('transferInput');
+          if (ti) {
+            ti.focus();
+            ti.classList.add('border-red-500');
+            setTimeout(() => ti.classList.remove('border-red-500'), 2500);
+          }
+          return;
+        }
+
+        // 2. لا يقبل بأقل من ستة أرقام
+        if (transferVal.length < 6) {
+          alert(`⚠️ شرط إلزامي (مطابق للابتوب): رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل!\n(العدد المُدخل حالياً: ${transferVal.length} أرقام فقط)`);
+          const ti = document.getElementById('transferInput');
+          if (ti) {
+            ti.focus();
+            ti.classList.add('border-red-500');
+            setTimeout(() => ti.classList.remove('border-red-500'), 2500);
+          }
+          return;
+        }
+
+        // 3. منع تكرار رقم التحويلة نهائياً
+        const duplicateInLocal = vouchersList.find(v => {
+          const vRef = (v.refNo || v.transferRef || '').trim();
+          const vId = (v.id || '').trim();
+          return vRef && vRef === transferVal && vId !== currentVNo;
+        });
+
+        if (duplicateInLocal) {
+          alert(`⚠️ تحذير تكرار رقم التحويلة (مطابق للابتوب):\nرقم التحويلة (${transferVal}) مسجل مسبقاً في السند رقم (#${duplicateInLocal.id})!\nيرجى إدخال رقم تحويلة غير مكرر.`);
+          const ti = document.getElementById('transferInput');
+          if (ti) ti.focus();
+          return;
+        }
+
+        // 4. لا يقبل بدون اسم البنك نهائياً
+        if (!bankVal) {
+          alert('⚠️ شرط إلزامي (مطابق للابتوب): يجب إدخال أو اختيار اسم البنك لإتمام سند التحويل!');
+          const bi = document.getElementById('bankNameInput');
+          if (bi) {
+            bi.focus();
+            bi.classList.add('border-red-500');
+            setTimeout(() => bi.classList.remove('border-red-500'), 2500);
+          }
+          return;
+        }
       }
 
       triggerHapticPulse();

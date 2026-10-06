@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-06-v44-fixed-account-name-area-no-jitter-live';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-06-v45-voice-mics-transfer-rules-studio-whatsapp-live';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
