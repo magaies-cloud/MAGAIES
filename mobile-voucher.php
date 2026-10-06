@@ -19,10 +19,6 @@
  * ════════════════════════════════════════════════════════════════════════════
  */
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
@@ -518,9 +514,18 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 if (!$d) continue;
                 $vNo = $d['voucherNo'] ?? ($d['id'] ?? '');
                 if ($vNo) {
-                    $fromName = $d['fromAccountName'] ?? ($accLookup[$d['fromAccount'] ?? ''] ?? ($d['fromAccount'] ?? ''));
-                    $toName = $d['toAccountName'] ?? ($d['beneficiaryName'] ?? ($d['recipient'] ?? ($accLookup[$d['toAccount'] ?? ''] ?? ($d['toAccount'] ?? ''))));
+                    $rawFrom = $d['fromAccount'] ?? '';
+                    $fromKey = is_array($rawFrom) ? ($rawFrom['id'] ?? ($rawFrom['name'] ?? '')) : (string)$rawFrom;
+                    $fromName = $d['fromAccountName'] ?? ($accLookup[$fromKey] ?? $fromKey);
+                    if (is_array($fromName)) $fromName = $fromName['name'] ?? '';
+
+                    $rawTo = $d['toAccount'] ?? '';
+                    $toKey = is_array($rawTo) ? ($rawTo['id'] ?? ($rawTo['name'] ?? '')) : (string)$rawTo;
+                    $toName = $d['toAccountName'] ?? ($d['beneficiaryName'] ?? ($d['recipient'] ?? ($accLookup[$toKey] ?? $toKey)));
+                    if (is_array($toName)) $toName = $toName['name'] ?? '';
+
                     $bankName = $d['bankName'] ?? ($d['bank'] ?? '');
+                    if (is_array($bankName)) $bankName = $bankName['name'] ?? '';
 
                     $liveVouchers[] = [
                         'id' => $vNo,
@@ -528,19 +533,19 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                         'date' => $d['date'] ?? date('Y-m-d'),
                         'currency' => $d['currency'] ?? 'SDG',
                         'rate' => (float)($d['rate'] ?? 2650),
-                        'costCenter' => $d['costCenter'] ?? '',
+                        'costCenter' => is_array($d['costCenter'] ?? '') ? '' : ($d['costCenter'] ?? ''),
                         'sdg' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
                         'foreignAmt' => (float)($d['amountForeign'] ?? 0),
                         'payType' => $d['paymentMethod'] ?? 'transfer',
-                        'fromId' => $d['fromAccount'] ?? '',
+                        'fromId' => $fromKey,
                         'from' => $fromName,
                         'fromName' => $fromName,
-                        'toId' => $d['toAccount'] ?? '',
+                        'toId' => $toKey,
                         'to' => $toName,
                         'toName' => $toName,
-                        'refNo' => $d['mobileTransferNo'] ?? ($d['refNo'] ?? ''),
+                        'refNo' => is_array($d['mobileTransferNo'] ?? null) ? '' : ($d['mobileTransferNo'] ?? ($d['refNo'] ?? '')),
                         'bankName' => $bankName,
-                        'notes' => $d['notes'] ?? ($d['toStatement'] ?? '')
+                        'notes' => is_array($d['notes'] ?? null) ? '' : ($d['notes'] ?? ($d['toStatement'] ?? ''))
                     ];
 
                     $vId = (string)$vNo;
@@ -592,26 +597,35 @@ try {
     while ($row = $stmtV->fetch(PDO::FETCH_ASSOC)) {
         $d = json_decode($row['data'], true);
         if ($d && !empty($d['voucherNo'])) {
-            $fromName = $d['fromAccountName'] ?? ($accLookupHistory[$d['fromAccount'] ?? ''] ?? ($d['fromAccount'] ?? ''));
-            $toName = $d['toAccountName'] ?? ($d['beneficiaryName'] ?? ($d['recipient'] ?? ($accLookupHistory[$d['toAccount'] ?? ''] ?? ($d['toAccount'] ?? ''))));
+            $rawFrom = $d['fromAccount'] ?? '';
+            $fromKey = is_array($rawFrom) ? ($rawFrom['id'] ?? ($rawFrom['name'] ?? '')) : (string)$rawFrom;
+            $fromName = $d['fromAccountName'] ?? ($accLookupHistory[$fromKey] ?? $fromKey);
+            if (is_array($fromName)) $fromName = $fromName['name'] ?? '';
+
+            $rawTo = $d['toAccount'] ?? '';
+            $toKey = is_array($rawTo) ? ($rawTo['id'] ?? ($rawTo['name'] ?? '')) : (string)$rawTo;
+            $toName = $d['toAccountName'] ?? ($d['beneficiaryName'] ?? ($d['recipient'] ?? ($accLookupHistory[$toKey] ?? $toKey)));
+            if (is_array($toName)) $toName = $toName['name'] ?? '';
+
             $bankName = $d['bankName'] ?? ($d['bank'] ?? '');
+            if (is_array($bankName)) $bankName = $bankName['name'] ?? '';
 
             $vouchersHistory[] = [
                 'id' => $d['voucherNo'],
                 'date' => $d['date'] ?? date('Y-m-d'),
                 'currency' => $d['currency'] ?? 'SDG',
                 'rate' => (float)($d['rate'] ?? 2650),
-                'costCenter' => $d['costCenter'] ?? '',
+                'costCenter' => is_array($d['costCenter'] ?? '') ? '' : ($d['costCenter'] ?? ''),
                 'sdg' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
                 'foreignAmt' => (float)($d['amountForeign'] ?? 0),
                 'payType' => $d['paymentMethod'] ?? 'transfer',
-                'fromId' => $d['fromAccount'] ?? '',
+                'fromId' => $fromKey,
                 'fromName' => $fromName,
-                'toId' => $d['toAccount'] ?? '',
+                'toId' => $toKey,
                 'toName' => $toName,
-                'refNo' => $d['mobileTransferNo'] ?? ($d['refNo'] ?? ''),
+                'refNo' => is_array($d['mobileTransferNo'] ?? null) ? '' : ($d['mobileTransferNo'] ?? ($d['refNo'] ?? '')),
                 'bankName' => $bankName,
-                'notes' => $d['notes'] ?? ($d['toStatement'] ?? '')
+                'notes' => is_array($d['notes'] ?? null) ? '' : ($d['notes'] ?? ($d['toStatement'] ?? ''))
             ];
 
             $vId = (string)$d['voucherNo'];
