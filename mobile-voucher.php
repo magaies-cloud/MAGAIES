@@ -27,7 +27,12 @@ require_once __DIR__ . '/db_bridge.php';
 
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
-$currentTenantId = $GLOBAL_TENANT_ID ?? 1;
+$reqTenant = $_REQUEST['tenant_id'] ?? ($_COOKIE['currentTenantId'] ?? null);
+if (!empty($reqTenant) && is_numeric($reqTenant)) {
+    $currentTenantId = (int)$reqTenant;
+} else {
+    $currentTenantId = $GLOBAL_TENANT_ID ?? 1;
+}
 
 // التحقق من وجود tenant_id صالح في جدول tenants لتجنب أخطاء Foreign Key
 try {
@@ -354,13 +359,26 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         $liveVouchers = [];
         $prefix = 'E' . date('ym');
         $maxSeq = 0;
+
+        $accLookup = [];
+        foreach ($liveAccounts as $la) {
+            $accLookup[$la['id']] = $la['name'];
+            $cleanId = preg_replace('/^(safe_|bank_|cust_|supp_|acc_)/', '', $la['id']);
+            if ($cleanId) $accLookup[$cleanId] = $la['name'];
+        }
+
         try {
             $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
             $stmtV->execute([$currentTenantId]);
             while ($row = $stmtV->fetch(PDO::FETCH_ASSOC)) {
                 $d = json_decode($row['data'], true);
+                if (!$d) continue;
                 $vNo = $d['voucherNo'] ?? ($d['id'] ?? '');
                 if ($vNo) {
+                    $fromName = $d['fromAccountName'] ?? ($accLookup[$d['fromAccount'] ?? ''] ?? ($d['fromAccount'] ?? ''));
+                    $toName = $d['toAccountName'] ?? ($d['beneficiaryName'] ?? ($d['recipient'] ?? ($accLookup[$d['toAccount'] ?? ''] ?? ($d['toAccount'] ?? ''))));
+                    $bankName = $d['bankName'] ?? ($d['bank'] ?? '');
+
                     $liveVouchers[] = [
                         'id' => $vNo,
                         'voucherNo' => $vNo,
@@ -372,13 +390,13 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                         'foreignAmt' => (float)($d['amountForeign'] ?? 0),
                         'payType' => $d['paymentMethod'] ?? 'transfer',
                         'fromId' => $d['fromAccount'] ?? '',
-                        'from' => $d['fromAccountName'] ?? 'حساب الصرف',
-                        'fromName' => $d['fromAccountName'] ?? 'حساب الصرف',
+                        'from' => $fromName,
+                        'fromName' => $fromName,
                         'toId' => $d['toAccount'] ?? '',
-                        'to' => $d['toAccountName'] ?? ($d['beneficiaryName'] ?? 'المستفيد'),
-                        'toName' => $d['toAccountName'] ?? ($d['beneficiaryName'] ?? 'المستفيد'),
+                        'to' => $toName,
+                        'toName' => $toName,
                         'refNo' => $d['mobileTransferNo'] ?? ($d['refNo'] ?? ''),
-                        'bankName' => $d['bankName'] ?? ($d['bank'] ?? 'بنك الخرطوم'),
+                        'bankName' => $bankName,
                         'notes' => $d['notes'] ?? ($d['toStatement'] ?? '')
                     ];
 
@@ -557,12 +575,23 @@ $vouchersHistory = [];
 $prefix = 'E' . date('ym');
 $maxSeq = 0;
 
+$accLookupHistory = [];
+foreach ($accountsList as $al) {
+    $accLookupHistory[$al['id']] = $al['name'];
+    $cleanId = preg_replace('/^(safe_|bank_|cust_|supp_|acc_)/', '', $al['id']);
+    if ($cleanId) $accLookupHistory[$cleanId] = $al['name'];
+}
+
 try {
     $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
     $stmtV->execute([$currentTenantId]);
     while ($row = $stmtV->fetch(PDO::FETCH_ASSOC)) {
         $d = json_decode($row['data'], true);
         if ($d && !empty($d['voucherNo'])) {
+            $fromName = $d['fromAccountName'] ?? ($accLookupHistory[$d['fromAccount'] ?? ''] ?? ($d['fromAccount'] ?? ''));
+            $toName = $d['toAccountName'] ?? ($d['beneficiaryName'] ?? ($d['recipient'] ?? ($accLookupHistory[$d['toAccount'] ?? ''] ?? ($d['toAccount'] ?? ''))));
+            $bankName = $d['bankName'] ?? ($d['bank'] ?? '');
+
             $vouchersHistory[] = [
                 'id' => $d['voucherNo'],
                 'date' => $d['date'] ?? date('Y-m-d'),
@@ -573,10 +602,11 @@ try {
                 'foreignAmt' => (float)($d['amountForeign'] ?? 0),
                 'payType' => $d['paymentMethod'] ?? 'transfer',
                 'fromId' => $d['fromAccount'] ?? '',
-                'fromName' => $d['fromAccountName'] ?? 'حساب الصرف',
+                'fromName' => $fromName,
                 'toId' => $d['toAccount'] ?? '',
-                'toName' => $d['toAccountName'] ?? ($d['beneficiaryName'] ?? 'المستفيد'),
+                'toName' => $toName,
                 'refNo' => $d['mobileTransferNo'] ?? ($d['refNo'] ?? ''),
+                'bankName' => $bankName,
                 'notes' => $d['notes'] ?? ($d['toStatement'] ?? '')
             ];
 
@@ -1162,7 +1192,7 @@ $currenciesData = [
         
         <!-- 1. مساحة التاريخ: زيادة مقاس خط التاريخ درجة واحدة ليصبح 20px -->
         <div class="bg-slate-950 glow-border-cyan rounded-2xl px-2 py-1 flex items-center justify-center h-[54px] shadow-inner focus-within:border-cyan-400 transition">
-          <input type="date" id="voucherDate" value="2026-10-05" class="w-full bg-transparent text-cyan-200 text-[20px] font-black text-center focus:outline-none cursor-pointer tracking-tight" style="text-align: center; color-scheme: dark;">
+          <input type="date" id="voucherDate" value="<?php echo date('Y-m-d'); ?>" class="w-full bg-transparent text-cyan-200 text-[20px] font-black text-center focus:outline-none cursor-pointer tracking-tight" style="text-align: center; color-scheme: dark;">
         </div>
 
         <!-- 2. مساحة الرقم التسلسلي: تصغير الأسهم وتنقيص حجم الرقم ليظهر الرقم بالكامل بدون أي قص -->
@@ -1175,7 +1205,7 @@ $currenciesData = [
           <!-- الرقم التسلسلي لوحده كامل وظاهر دون أي قص -->
           <div class="text-center px-1 flex-1 min-w-0 flex items-center justify-center overflow-visible">
             <span id="voucherTag" class="hidden"></span>
-            <span class="text-[16px] sm:text-[17px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-normal leading-none drop-shadow" id="currentVoucherDisplay">#842</span>
+            <span class="text-[16px] sm:text-[17px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-normal leading-none drop-shadow" id="currentVoucherDisplay"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
           </div>
 
           <!-- سهم السابق ▶ (يسار في RTL) - أصغر لإتاحة مساحة كاملة للرقم -->
@@ -1394,14 +1424,14 @@ $currenciesData = [
 
       <!-- ═════════════════════════════════════════════════════════════════
            إلى حساب:
-           - زيادة المساحة والعرض بنسبة 15%+ مع خط كبير جداً وواضح (محمد أحمد عثمان)
+           - زيادة المساحة والعرض بنسبة 15%+ مع خط كبير جداً وواضح
            - حواف خضراء زمردية فائقة الإضاءة والوضوح
            ═════════════════════════════════════════════════════════════════ -->
       <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 border-[2.5px] border-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
             <!-- مايك الإدخال الصوتي قبل "إلى" مباشرة لنطق اسم المستفيد -->
-            <button type="button" onclick="startVoiceInput('to')" id="toMicBtn" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white flex items-center justify-center border border-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.7)] transition cursor-pointer shrink-0" title="انطق اسم المستفيد بالمايك (مثال: محمد أحمد عثمان)">
+            <button type="button" onclick="startVoiceInput('to')" id="toMicBtn" class="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white flex items-center justify-center border border-emerald-300 shadow-[0_0_12px_rgba(16,185,129,0.7)] transition cursor-pointer shrink-0" title="انطق اسم المستفيد أو العميل بالمايك">
               <i class="fa-solid fa-microphone text-xs animate-pulse"></i>
             </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-md">إلى</span>
@@ -1670,8 +1700,9 @@ $currenciesData = [
         </div>
       </div>
 
-      <!-- محتوى المصدر 1: الكاميرا (تصوير حتى 20 إشعار دفعة واحدة) -->
+      <!-- محتوى المصدر 1: الكاميرا (تصوير الإشعارات بالكاميرا مباشرة) -->
       <div id="contentSourceCamera" class="space-y-2 flex-1 overflow-y-auto no-scrollbar">
+        <input type="file" id="cameraCaptureInput" accept="image/*" capture="environment" class="hidden" onchange="handleCameraFileSelected(event)">
         <div class="p-2.5 rounded-2xl bg-indigo-950/40 border border-indigo-500/40 flex items-center justify-between">
           <div class="flex items-center gap-2">
             <div class="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center text-white text-base shadow-md">
@@ -1679,7 +1710,7 @@ $currenciesData = [
             </div>
             <div>
               <span class="text-xs font-black text-white block">تصوير الإشعارات المتتابعة</span>
-              <span class="text-[10px] text-indigo-300 font-bold" id="cameraCountLabel">تم تجهيز: 20 صورة إشعار</span>
+              <span class="text-[10px] text-indigo-300 font-bold" id="cameraCountLabel">جاهز لالتقاط صور الإشعارات</span>
             </div>
           </div>
           <button type="button" onclick="triggerCameraCapture()" class="py-1.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white font-black text-xs flex items-center gap-1.5 shadow-md">
@@ -1715,7 +1746,7 @@ $currenciesData = [
             </div>
             <div>
               <span class="text-xs font-black text-white block">معرض صور الجوال</span>
-              <span class="text-[10px] text-amber-300 font-bold" id="galleryCountLabel">تم اختيار: 20 صورة إشعار</span>
+              <span class="text-[10px] text-amber-300 font-bold" id="galleryCountLabel">جاهز لاختيار صور من المعرض</span>
             </div>
           </div>
           <button type="button" onclick="document.getElementById('galleryFileInput').click()" class="py-1.5 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-white font-black text-xs flex items-center gap-1.5 shadow-md">
@@ -1776,7 +1807,7 @@ $currenciesData = [
         <div class="space-y-1">
           <div class="flex items-center justify-between text-[10.5px] font-bold text-slate-300">
             <span>أو اختر من الإشعارات الواردة (انقر للتفريغ الفوري):</span>
-            <span id="whatsAppCountBadge" class="text-emerald-400 font-mono font-bold">20 إشعار متاح</span>
+            <span id="whatsAppCountBadge" class="text-emerald-400 font-mono font-bold">0 إشعار</span>
           </div>
           <div class="grid grid-cols-5 gap-1 text-xs font-mono font-bold">
             <button type="button" onclick="selectBatchCount(1, 'whatsapp')" id="btnWa-1" class="wa-filter-btn py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700">1</button>
@@ -1836,11 +1867,11 @@ $currenciesData = [
         <div class="grid grid-cols-2 gap-2 text-xs font-bold">
           <button type="button" onclick="selectWhatsAppRecipient('to')" id="btnRecipientTo" class="py-2 px-2 rounded-xl bg-emerald-600 text-white border border-emerald-400 flex flex-col items-center justify-center gap-0.5 shadow-sm transition">
             <span class="text-[10px] opacity-80">المستلم (إلى حساب)</span>
-            <span class="font-black truncate max-w-[130px]" id="recipientToNameDisplay">محمد أحمد عثمان</span>
+            <span class="font-black truncate max-w-[130px]" id="recipientToNameDisplay">---</span>
           </button>
           <button type="button" onclick="selectWhatsAppRecipient('from')" id="btnRecipientFrom" class="py-2 px-2 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 flex flex-col items-center justify-center gap-0.5 hover:bg-slate-700 transition">
             <span class="text-[10px] opacity-80">المرسل (من حساب)</span>
-            <span class="font-black truncate max-w-[130px]" id="recipientFromNameDisplay">بنك الخرطوم (5540)</span>
+            <span class="font-black truncate max-w-[130px]" id="recipientFromNameDisplay">---</span>
           </button>
         </div>
 
@@ -1849,7 +1880,7 @@ $currenciesData = [
           <label class="block text-[10.5px] font-bold text-slate-400 mb-1">رقم الواتساب (مع رمز الدولة):</label>
           <div class="relative">
             <i class="fa-solid fa-phone absolute left-3 top-3 text-slate-400 text-xs"></i>
-            <input type="tel" id="whatsAppRecipientPhone" value="+249912345678" placeholder="+249XXXXXXXXX" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono font-bold text-xs focus:outline-none focus:border-emerald-400" style="direction: ltr; text-align: left;">
+            <input type="tel" id="whatsAppRecipientPhone" value="" placeholder="+249XXXXXXXXX" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-white font-mono font-bold text-xs focus:outline-none focus:border-emerald-400" style="direction: ltr; text-align: left;">
           </div>
         </div>
       </div>
@@ -2157,104 +2188,22 @@ $currenciesData = [
   <!-- Application Logic -->
   <script>
     // ════════════════════════════════════════════════════════════════
-    // قاعدة بيانات الحسابات مع الأرصدة بالجنيه وبالدولار
+    // قاعدة بيانات الحسابات المباشرة من MariaDB وذاكرة النظام (حقيقية 100%)
     // ════════════════════════════════════════════════════════════════
-    let accountsDB = [
-      { id: '102001', name: 'محمد أحمد عثمان', category: 'عملاء', sdgBalance: 1850000, balanceType: 'مدين' },
-      { id: '101002', name: 'بنك الخرطوم (5540)', category: 'بنوك ومصارف', sdgBalance: 14850000, balanceType: '' },
-      { id: '101003', name: 'بنك فيصل الإسلامي (3290)', category: 'بنوك ومصارف', sdgBalance: 8210000, balanceType: '' },
-      { id: '103001', name: 'فوري كاش (سريع)', category: 'فوري ودفع إلكتروني', sdgBalance: 3420000, balanceType: '' },
-      { id: '101001', name: 'الخزينة الرئيسية (كاش)', category: 'خزن ونقدية', sdgBalance: 2450000, balanceType: '' },
-      { id: '101004', name: 'خزينة الفرع الثاني (بحري)', category: 'خزن ونقدية', sdgBalance: 1120000, balanceType: '' },
-      { id: '201015', name: 'شركة النيل للاستيراد (مورد)', category: 'موردين', sdgBalance: 4200000, balanceType: 'دائن' },
-      { id: '201022', name: 'مؤسسة الرواد التجارية (مورد)', category: 'موردين', sdgBalance: 1750000, balanceType: 'دائن' },
-      { id: '102008', name: 'العميل: أحمد عثمان النور', category: 'عملاء', sdgBalance: 950000, balanceType: 'مدين' },
-      { id: '501001', name: 'مصروفات إيجار ونولون', category: 'مصروفات', sdgBalance: 0, balanceType: 'جاري' }
-    ];
+    let accountsDB = [];
 
-    // قاعدة بيانات 20 إشعار واتساب بنكي حقيقي جاهز للاختيار والتفريغ الفوري
-    const whatsappNotificationsDB = [
-      { id: 1, bank: 'بنك الخرطوم (بنكك)', ref: '91823049182304', amount: 3180000, from: 'بنك الخرطوم (5540)', to: 'محمد أحمد عثمان', time: 'منذ دقيقة', note: 'تحويل بنكك مباشر' },
-      { id: 2, bank: 'بنك فيصل (فوري)', ref: '84920158492015', amount: 1250000, from: 'بنك فيصل الإسلامي (3290)', to: 'محمد أحمد عثمان', time: 'منذ 3 دقائق', note: 'سداد دفعة نقدية' },
-      { id: 3, bank: 'بنك الخرطوم (بنكك)', ref: '77219037721903', amount: 5400000, from: 'بنك الخرطوم (5540)', to: 'شركة النيل للاستيراد (مورد)', time: 'منذ 6 دقائق', note: 'توريد مواد خام بورتسودان' },
-      { id: 4, bank: 'فوري كاش', ref: '66102946610294', amount: 750000, from: 'فوري كاش (سريع)', to: 'العميل: أحمد عثمان النور', time: 'منذ 10 دقائق', note: 'تحويل تطبيق فوري' },
-      { id: 5, bank: 'بنك أم درمان الوطني', ref: '55392015539201', amount: 2100000, from: 'الخزينة الرئيسية (كاش)', to: 'مؤسسة الرواد التجارية (مورد)', time: 'منذ 15 دقيقة', note: 'دفعة بضائع جاهزة' },
-      { id: 6, bank: 'بنك الخرطوم (بنكك)', ref: '90124819012481', amount: 10500000, from: 'بنك الخرطوم (5540)', to: 'شركة النيل للاستيراد (مورد)', time: 'اليوم 11:20 ص', note: 'شحنة استيراد رئيسية' },
-      { id: 7, bank: 'بنك فيصل (فوري)', ref: '43920184392018', amount: 890000, from: 'بنك فيصل الإسلامي (3290)', to: 'محمد أحمد عثمان', time: 'اليوم 10:45 ص', note: 'سداد حساب عميل' },
-      { id: 8, bank: 'بنك النيلين', ref: '33910243391024', amount: 4350000, from: 'بنك الخرطوم (5540)', to: 'مؤسسة الرواد التجارية (مورد)', time: 'اليوم 10:12 ص', note: 'دفعة توريد مستلزمات' },
-      { id: 9, bank: 'بنك الخرطوم (بنكك)', ref: '88201948820194', amount: 6200000, from: 'بنك الخرطوم (5540)', to: 'محمد أحمد عثمان', time: 'اليوم 09:30 ص', note: 'تحويل بنكك - تجارة عامة' },
-      { id: 10, bank: 'فوري كاش', ref: '71049287104928', amount: 1800000, from: 'فوري كاش (سريع)', to: 'الخزينة الرئيسية (كاش)', time: 'اليوم 08:50 ص', note: 'تغذية خزينة فورية' },
-      { id: 11, bank: 'بنك الخرطوم (بنكك)', ref: '95820149582014', amount: 3650000, from: 'بنك الخرطوم (5540)', to: 'محمد أحمد عثمان', time: 'أمس 08:30 م', note: 'سداد بضاعة محملة' },
-      { id: 12, bank: 'بنك أم درمان الوطني', ref: '64810296481029', amount: 9150000, from: 'بنك فيصل الإسلامي (3290)', to: 'شركة النيل للاستيراد (مورد)', time: 'أمس 07:15 م', note: 'دفعة اعتمادات مستندية' },
-      { id: 13, bank: 'بنك فيصل (فوري)', ref: '22819042281904', amount: 500000, from: 'بنك فيصل الإسلامي (3290)', to: 'العميل: أحمد عثمان النور', time: 'أمس 05:40 م', note: 'تحويل نقدي سريع' },
-      { id: 14, bank: 'بنك الخرطوم (بنكك)', ref: '81920478192047', amount: 2750000, from: 'بنك الخرطوم (5540)', to: 'محمد أحمد عثمان', time: 'أمس 04:10 م', note: 'دفعة تصفية حساب' },
-      { id: 15, bank: 'بنك الخليج', ref: '99401829940182', amount: 12000000, from: 'بنك الخرطوم (5540)', to: 'شركة النيل للاستيراد (مورد)', time: 'أمس 02:30 م', note: 'سداد فاتورة بضائع' },
-      { id: 16, bank: 'فوري كاش', ref: '55910245591024', amount: 3300000, from: 'فوري كاش (سريع)', to: 'محمد أحمد عثمان', time: 'أمس 01:15 م', note: 'تسوية مبيعات فرع' },
-      { id: 17, bank: 'بنك الخرطوم (بنكك)', ref: '44910284491028', amount: 4100000, from: 'بنك الخرطوم (5540)', to: 'مؤسسة الرواد التجارية (مورد)', time: 'أمس 11:00 ص', note: 'دفعة حساب نولون' },
-      { id: 18, bank: 'بنك فيصل (فوري)', ref: '33810293381029', amount: 850000, from: 'بنك فيصل الإسلامي (3290)', to: 'محمد أحمد عثمان', time: 'قبل يومين', note: 'سداد متبقي حساب' },
-      { id: 19, bank: 'بنك أم درمان الوطني', ref: '77491027749102', amount: 7600000, from: 'الخزينة الرئيسية (كاش)', to: 'شركة النيل للاستيراد (مورد)', time: 'قبل يومين', note: 'دفعة نقدية موردين' },
-      { id: 20, bank: 'بنك الخرطوم (بنكك)', ref: '91823999182399', amount: 1950000, from: 'بنك الخرطوم (5540)', to: 'محمد أحمد عثمان', time: 'قبل يومين', note: 'تحويل بنكك - ختامي' }
-    ];
+    // إشعارات واتساب بنكية مستلمة من التطبيق أو الحافظة (حقيقية فقط)
+    let whatsappNotificationsDB = [];
 
     let currentWaLimit = 20;
-    let selectedWaReceiptId = 1;
+    let selectedWaReceiptId = null;
     let batchProcessingMode = 'auto'; // 'auto' (هزة ورنة وحفظ تلقائي) or 'manual' (إشعاراً بإشعار)
     let whatsAppQueue = [];
     let currentQueueIndex = 0;
 
-    // السندات المتزامنة المتطابقة مع سيرفر اللابتوب والكمبيوتر
-    let vouchersList = [
-      {
-        id: '840',
-        isOffline: false,
-        date: '2026-10-03',
-        rate: 2650,
-        currency: 'SDG',
-        costCenter: 'مخزن بحري الرئيسي',
-        sdg: 5300000,
-        usd: 2000,
-        payType: 'transfer',
-        from: 'بنك الخرطوم (5540)',
-        to: 'شركة النيل للاستيراد (مورد)',
-        refNo: '71049287104928',
-        bankName: 'بنك الخرطوم',
-        notes: 'دفعة حساب نولون بضائع محملة من بورتسودان'
-      },
-      {
-        id: '841',
-        isOffline: false,
-        date: '2026-10-04',
-        rate: 2650,
-        currency: 'SDG',
-        costCenter: 'مخزن بحري الرئيسي',
-        sdg: 1325000,
-        usd: 500,
-        payType: 'cash',
-        from: 'الخزينة الرئيسية (كاش)',
-        to: 'مصروفات إيجار ونولون',
-        refNo: '',
-        bankName: '',
-        notes: 'صرف نثريات ضيافة وإيجار مكتبي كاش'
-      },
-      {
-        id: '842',
-        isOffline: false,
-        date: '2026-10-05',
-        rate: 2650,
-        currency: 'SDG',
-        costCenter: 'مخزن بحري الرئيسي',
-        sdg: 2650000,
-        usd: 1000,
-        payType: 'transfer',
-        from: 'بنك الخرطوم (5540)',
-        to: 'محمد أحمد عثمان',
-        refNo: '84920158492015',
-        bankName: 'بنك الخرطوم',
-        notes: 'سداد دفعة بضاعة توريد مواد خام'
-      }
-    ];
-
-    let currentIndex = 2;
+    // السندات المتزامنة الحقيقية من قاعدة بيانات MariaDB وسيرفر الكمبيوتر
+    let vouchersList = [];
+    let currentIndex = -1;
     let isOfflineMode = false;
     let offlineCounter = 1;
     let offlineQueue = [];
@@ -2370,8 +2319,8 @@ $currenciesData = [
 
         const prompts = {
           'amount': '🎙️ المايك يستمع إليك... انطق المبلغ والعملة الآن (مثال: 65,000 دولار أو 3,720 جنيه سوداني)',
-          'from': '🎙️ المايك يستمع إليك... انطق اسم حساب الصرف (مثال: شلهان أحمد عثمان أو بنك الخرطوم)',
-          'to': '🎙️ المايك يستمع إليك... انطق اسم المستفيد (مثال: محمد أحمد عثمان أو مؤسسة الرواد)'
+          'from': '🎙️ المايك يستمع إليك... انطق اسم حساب الصرف (مثال: الخزينة أو بنك الخرطوم)',
+          'to': '🎙️ المايك يستمع إليك... انطق اسم المستفيد أو العميل'
         };
         showToastNotification(prompts[targetField] || '🎙️ المايك يستمع إليك... تحدث الآن باللغة العربية');
 
@@ -2541,8 +2490,8 @@ $currenciesData = [
     function fallbackManualVoiceInput(targetField) {
       const titles = {
         'amount': 'أدخل أو انطق المبلغ والعملة (مثال: 65,000 دولار أو 3,720 جنيه سوداني):',
-        'from': 'أدخل أو انطق اسم حساب الصرف (مثال: شلهان أحمد عثمان):',
-        'to': 'أدخل أو انطق اسم المستفيد (مثال: محمد أحمد عثمان):'
+        'from': 'أدخل أو انطق اسم حساب الصرف:',
+        'to': 'أدخل أو انطق اسم المستفيد أو العميل:'
       };
       const val = prompt(titles[targetField] || 'أدخل النص:');
       if (val && val.trim()) {
@@ -2932,8 +2881,8 @@ $currenciesData = [
     // ════════════════════════════════════════════════════════════════
     function updateAccountBalanceBadges() {
       const rate = parseFloat(document.getElementById('usdRate').value) || 2650;
-      const fromName = document.getElementById('fromSearchInput').value;
-      const toName = document.getElementById('toSearchInput').value;
+      const fromName = (document.getElementById('fromSearchInput')?.value || '').trim();
+      const toName = (document.getElementById('toSearchInput')?.value || '').trim();
 
       const fromAcc = accountsDB.find(a => a.name === fromName);
       const toAcc = accountsDB.find(a => a.name === toName);
@@ -2942,17 +2891,22 @@ $currenciesData = [
         document.getElementById('fromAccountSdgBalance').textContent = fromAcc.sdgBalance.toLocaleString('en-US');
         document.getElementById('fromAccountUsdBalance').textContent = (fromAcc.sdgBalance / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       } else {
-        document.getElementById('fromAccountSdgBalance').textContent = '0';
-        document.getElementById('fromAccountUsdBalance').textContent = '0.00';
+        document.getElementById('fromAccountSdgBalance').textContent = '---';
+        document.getElementById('fromAccountUsdBalance').textContent = '---';
       }
 
       if (toAcc) {
         document.getElementById('toAccountSdgBalance').textContent = toAcc.sdgBalance.toLocaleString('en-US');
         document.getElementById('toAccountUsdBalance').textContent = (toAcc.sdgBalance / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       } else {
-        document.getElementById('toAccountSdgBalance').textContent = '0';
-        document.getElementById('toAccountUsdBalance').textContent = '0.00';
+        document.getElementById('toAccountSdgBalance').textContent = '---';
+        document.getElementById('toAccountUsdBalance').textContent = '---';
       }
+
+      const recTo = document.getElementById('recipientToNameDisplay');
+      if (recTo) recTo.textContent = toName || '---';
+      const recFrom = document.getElementById('recipientFromNameDisplay');
+      if (recFrom) recFrom.textContent = fromName || '---';
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -3052,9 +3006,18 @@ $currenciesData = [
     }
 
     function navigateVoucher(direction) {
+      if (vouchersList.length === 0) return;
+      if (currentIndex === -1 || currentIndex >= vouchersList.length) {
+        if (direction === -1) {
+          loadVoucher(vouchersList.length - 1);
+        }
+        return;
+      }
       const newIndex = currentIndex + direction;
       if (newIndex >= 0 && newIndex < vouchersList.length) {
         loadVoucher(newIndex);
+      } else if (newIndex >= vouchersList.length) {
+        startNewVoucher();
       }
     }
 
@@ -3065,12 +3028,18 @@ $currenciesData = [
       } else {
         if (window.PHP_NEXT_NO && window.PHP_NEXT_NO !== '') {
           nextId = window.PHP_NEXT_NO;
-        } else if (vouchersList.length > 0) {
-          const lastV = vouchersList[vouchersList.length - 1];
-          const lastNum = parseInt(String(lastV.id).replace(/\D/g, '')) || 842;
-          nextId = '#' + (lastNum + 1);
         } else {
-          nextId = '#843';
+          const now = new Date();
+          const prefix = 'E' + String(now.getFullYear()).slice(-2) + String(now.getMonth() + 1).padStart(2, '0');
+          let maxSeq = 0;
+          vouchersList.forEach(v => {
+            const vid = String(v.id || '');
+            if (vid.startsWith(prefix)) {
+              const seq = parseInt(vid.substring(prefix.length)) || 0;
+              if (seq > maxSeq) maxSeq = seq;
+            }
+          });
+          nextId = prefix + String(maxSeq + 1).padStart(4, '0');
         }
       }
 
@@ -3108,7 +3077,7 @@ $currenciesData = [
       const toClear = document.getElementById('toClearBtn');
       if (toClear) toClear.classList.add('hidden');
 
-      // 4. تصفير بيانات الأرصدة التقديرية
+      // 4. تصفير بيانات الأرصدة التقديرية وأسماء المشاركة
       const fSdgBal = document.getElementById('fromAccountSdgBalance');
       if (fSdgBal) fSdgBal.textContent = '---';
       const fUsdBal = document.getElementById('fromAccountUsdBalance');
@@ -3117,6 +3086,10 @@ $currenciesData = [
       if (tSdgBal) tSdgBal.textContent = '---';
       const tUsdBal = document.getElementById('toAccountUsdBalance');
       if (tUsdBal) tUsdBal.textContent = '---';
+      const recTo = document.getElementById('recipientToNameDisplay');
+      if (recTo) recTo.textContent = '---';
+      const recFrom = document.getElementById('recipientFromNameDisplay');
+      if (recFrom) recFrom.textContent = '---';
 
       // 5. تصفير رقم التحويلة والبنك والبيان
       const transEl = document.getElementById('transferInput');
@@ -3143,7 +3116,7 @@ $currenciesData = [
 
       applyNumberStylesToInputs();
       playFeedbackTone('tap');
-      showToastNotification(`✨ تم فتح سند جديد فارغ وممسوح (#${nextId})!\nالشاشة جاهزة لإدخال بيانات الحركة المالية.`);
+      showToastNotification(`✨ تم فتح سند جديد فارغ وممسوح (${nextId})!\nالشاشة جاهزة لإدخال بيانات الحركة المالية.`);
     }
 
     function setPaymentType(type) {
@@ -3440,36 +3413,9 @@ $currenciesData = [
     let currentIntakeSource = 'camera';
     let currentBatchLimit = 20;
 
-    // بنك بيانات إشعارات الكاميرا الملتقطة (20 إشعار واقعي)
-    const cameraReceiptsDB = [
-      { id: 101, bank: 'بنك الخرطوم (بنكك)', amount: 620000, from: 'بنك الخرطوم (5540)', to: 'عمر صديق التاجر', ref: '20261005882101', note: 'شراء بضاعة - سكر كنانة' },
-      { id: 102, bank: 'بنك فيصل (فوري)', amount: 310000, from: 'بنك فيصل الإسلامي (3210)', to: 'شركة الجزيرة للمواد الغذائية', ref: '20261005882102', note: 'دفعة حساب دقيق سيقا' },
-      { id: 103, bank: 'بنك أم درمان الوطني', amount: 890000, from: 'بنك أم درمان الوطني', to: 'محمد أحمد عثمان', ref: '20261005882103', note: 'سداد مديونية مستحقة' },
-      { id: 104, bank: 'بنك النيلين', amount: 450000, from: 'بنك النيلين', to: 'خزينة الفرع بورتسودان', ref: '20261005882104', note: 'تغذية خزينة نقدية' },
-      { id: 105, bank: 'بنك الخليج', amount: 1250000, from: 'بنك الخليج (4120)', to: 'مؤسسة النور للاستيراد', ref: '20261005882105', note: 'تخليص جمركي بضائع' },
-      { id: 106, bank: 'بنك الخرطوم (بنكك)', amount: 275000, from: 'بنك الخرطوم (5540)', to: 'سامي عبد الله عمر', ref: '20261005882106', note: 'سداد إيجار مخزن' },
-      { id: 107, bank: 'بنك فيصل (فوري)', amount: 530000, from: 'بنك فيصل الإسلامي', to: 'المهندس مصطفى حسن', ref: '20261005882107', note: 'صيانة وتأهيل مولدات' },
-      { id: 108, bank: 'بنك البركة', amount: 390000, from: 'بنك البركة السوداني', to: 'محمود عبد الرحيم', ref: '20261005882108', note: 'توريد قطع غيار' },
-      { id: 109, bank: 'مصرف الساحل والصحراء', amount: 780000, from: 'مصرف الساحل والصحراء', to: 'شركة النيل للشحن', ref: '20261005882109', note: 'رسوم شحن وترحيل' },
-      { id: 110, bank: 'بنك الخرطوم (بنكك)', amount: 410000, from: 'بنك الخرطوم (5540)', to: 'الطيب أحمد إبراهيم', ref: '20261005882110', note: 'سداد فواتير وقود' },
-      { id: 111, bank: 'بنك العمال الوطني', amount: 195000, from: 'بنك العمال الوطني', to: 'عثمان عبد القادر', ref: '20261005882111', note: 'أتعاب نقل بضائع' },
-      { id: 112, bank: 'بنك فيصل (فوري)', amount: 670000, from: 'بنك فيصل الإسلامي', to: 'خالد ميرغني عثمان', ref: '20261005882112', note: 'دفعة مواد تعبئة' },
-      { id: 113, bank: 'بنك أم درمان الوطني', amount: 820000, from: 'بنك أم درمان الوطني', to: 'مؤسسة البركة للورق', ref: '20261005882113', note: 'شراء كراتين ومطبوعات' },
-      { id: 114, bank: 'بنك الخليج', amount: 340000, from: 'بنك الخليج', to: 'حسن كمال الدين', ref: '20261005882114', note: 'مصاريف تسويق ومبيعات' },
-      { id: 115, bank: 'بنك الخرطوم (بنكك)', amount: 960000, from: 'بنك الخرطوم (5540)', to: 'شركة الفداء للأغذية', ref: '20261005882115', note: 'توريد زيوت طعام' },
-      { id: 116, bank: 'بنك النيلين', amount: 230000, from: 'بنك النيلين', to: 'ياسر محمد علي', ref: '20261005882116', note: 'عهدة نثرية مبيعات' },
-      { id: 117, bank: 'بنك الثروة الحيوانية', amount: 510000, from: 'بنك الثروة الحيوانية', to: 'صالح بابكر عبد الله', ref: '20261005882117', note: 'سداد أعلاف ومواد خام' },
-      { id: 118, bank: 'بنك الخرطوم (بنكك)', amount: 740000, from: 'بنك الخرطوم (5540)', to: 'فاروق عثمان التاجر', ref: '20261005882118', note: 'دفعة صابون ومنظفات' },
-      { id: 119, bank: 'بنك فيصل (فوري)', amount: 380000, from: 'بنك فيصل الإسلامي', to: 'إبراهيم يوسف عوض', ref: '20261005882119', note: 'إيجار مستودع الخرطوم' },
-      { id: 120, bank: 'بنك أم درمان الوطني', amount: 1150000, from: 'بنك أم درمان الوطني', to: 'الشركة السودانية المركزية', ref: '20261005882120', note: 'شراء أرز وعدس بالجملة' }
-    ];
-
-    // بنك بيانات إشعارات الاستوديو (20 إشعار)
-    const galleryReceiptsDB = cameraReceiptsDB.map((c, i) => ({
-      ...c,
-      id: 201 + i,
-      ref: `GAL-${c.ref.slice(8)}`
-    }));
+    // إشعارات الكاميرا والاستوديو الملتقطة والمختارة (حقيقية فقط)
+    let cameraReceiptsDB = [];
+    let galleryReceiptsDB = [];
 
     function openBatchIntakeModal(source = 'camera') {
       currentIntakeSource = source;
@@ -3585,32 +3531,44 @@ $currenciesData = [
         const grid = document.getElementById('cameraThumbnailsGrid');
         if (!grid) return;
         const items = cameraReceiptsDB.slice(0, currentBatchLimit);
-        grid.innerHTML = items.map((c, idx) => `
-          <div class="p-1.5 rounded-xl bg-slate-950 border border-indigo-500/40 text-center flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-indigo-400 transition" onclick="previewIntakeItem(${idx}, 'camera')">
-            <div class="w-full h-11 rounded-lg bg-indigo-950/80 border border-indigo-400/30 flex flex-col items-center justify-center relative overflow-hidden">
-              <i class="fa-solid fa-receipt text-indigo-300 text-xs"></i>
-              <span class="text-[8px] font-mono text-indigo-200">#${idx + 1}</span>
-              <span class="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        if (items.length === 0) {
+          grid.innerHTML = '<div class="col-span-4 p-5 text-center text-slate-400 text-xs font-bold leading-relaxed border border-dashed border-slate-800 rounded-2xl bg-slate-950/60">📷 لا توجد صور ملتقطة بعد.<br><span class="text-cyan-400">اضغط "التقاط صورة 📸" لفتح الكاميرا والتقاط إشعار بنكي حقيقي وتفريغه فورياً.</span></div>';
+          const lbl = document.getElementById('cameraCountLabel');
+          if (lbl) lbl.textContent = 'جاهز لالتقاط صور الإشعارات';
+        } else {
+          grid.innerHTML = items.map((c, idx) => `
+            <div class="p-1.5 rounded-xl bg-slate-950 border border-indigo-500/40 text-center flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-indigo-400 transition" onclick="previewIntakeItem(${idx}, 'camera')">
+              <div class="w-full h-11 rounded-lg bg-indigo-950/80 border border-indigo-400/30 flex flex-col items-center justify-center relative overflow-hidden">
+                ${c.imgUrl ? `<img src="${c.imgUrl}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-receipt text-indigo-300 text-xs"></i>`}
+                <span class="absolute top-0.5 right-0.5 px-1 rounded bg-black/70 text-[8px] font-mono text-indigo-200">#${idx + 1}</span>
+              </div>
+              <span class="text-[9px] font-mono font-black text-amber-300 truncate w-full">${c.amount > 0 ? c.amount.toLocaleString() : (c.ref || 'إشعار')}</span>
             </div>
-            <span class="text-[9px] font-mono font-black text-amber-300 truncate w-full">${(c.amount).toLocaleString()}</span>
-          </div>
-        `).join('');
-        document.getElementById('cameraCountLabel').textContent = `تم تجهيز: ${items.length} صورة إشعار جاهزة للتفريغ`;
+          `).join('');
+          const lbl = document.getElementById('cameraCountLabel');
+          if (lbl) lbl.textContent = `تم تجهيز: ${items.length} صورة إشعار`;
+        }
       } else if (currentIntakeSource === 'gallery') {
         const grid = document.getElementById('galleryThumbnailsGrid');
         if (!grid) return;
         const items = galleryReceiptsDB.slice(0, currentBatchLimit);
-        grid.innerHTML = items.map((c, idx) => `
-          <div class="p-1.5 rounded-xl bg-slate-950 border border-amber-500/40 text-center flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-amber-400 transition" onclick="previewIntakeItem(${idx}, 'gallery')">
-            <div class="w-full h-11 rounded-lg bg-amber-950/80 border border-amber-400/30 flex flex-col items-center justify-center relative overflow-hidden">
-              <i class="fa-solid fa-image text-amber-300 text-xs"></i>
-              <span class="text-[8px] font-mono text-amber-200">#${idx + 1}</span>
-              <span class="absolute top-0.5 right-0.5 w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
+        if (items.length === 0) {
+          grid.innerHTML = '<div class="col-span-4 p-5 text-center text-slate-400 text-xs font-bold leading-relaxed border border-dashed border-slate-800 rounded-2xl bg-slate-950/60">🖼️ لا توجد صور مختارة من الاستوديو بعد.<br><span class="text-amber-400">اضغط "اختر صور 📁" لاختيار صور إشعاراتك البنكية الحقيقية.</span></div>';
+          const lbl = document.getElementById('galleryCountLabel');
+          if (lbl) lbl.textContent = 'جاهز لاختيار صور من المعرض';
+        } else {
+          grid.innerHTML = items.map((c, idx) => `
+            <div class="p-1.5 rounded-xl bg-slate-950 border border-amber-500/40 text-center flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-amber-400 transition" onclick="previewIntakeItem(${idx}, 'gallery')">
+              <div class="w-full h-11 rounded-lg bg-amber-950/80 border border-amber-400/30 flex flex-col items-center justify-center relative overflow-hidden">
+                ${c.imgUrl ? `<img src="${c.imgUrl}" class="w-full h-full object-cover">` : `<i class="fa-solid fa-image text-amber-300 text-xs"></i>`}
+                <span class="absolute top-0.5 right-0.5 px-1 rounded bg-black/70 text-[8px] font-mono text-amber-200">#${idx + 1}</span>
+              </div>
+              <span class="text-[9px] font-mono font-black text-amber-300 truncate w-full">${c.amount > 0 ? c.amount.toLocaleString() : (c.ref || 'إشعار')}</span>
             </div>
-            <span class="text-[9px] font-mono font-black text-amber-300 truncate w-full">${(c.amount).toLocaleString()}</span>
-          </div>
-        `).join('');
-        document.getElementById('galleryCountLabel').textContent = `تم اختيار: ${items.length} صورة إشعار من المعرض`;
+          `).join('');
+          const lbl = document.getElementById('galleryCountLabel');
+          if (lbl) lbl.textContent = `تم اختيار: ${items.length} صورة إشعار من المعرض`;
+        }
       } else if (currentIntakeSource === 'whatsapp') {
         renderWhatsAppList();
       }
@@ -3621,6 +3579,13 @@ $currenciesData = [
       if (!container) return;
       const list = whatsappNotificationsDB.slice(0, currentBatchLimit);
 
+      if (list.length === 0) {
+        container.innerHTML = '<div class="p-5 text-center text-slate-400 text-xs font-bold leading-relaxed border border-dashed border-slate-800 rounded-2xl bg-slate-950/60">💬 لا توجد إشعارات واتساب بنكية محفوظة حالياً.<br><span class="text-emerald-400">قم بنسخ أي إشعار بنكي من واتساب ثم انقر "لصق وتفريغ ⚡" أعلاه، أو اضغط "فتح واتساب الآن 📲" لنسخ إشعارك.</span></div>';
+        const countBadge = document.getElementById('whatsAppCountBadge');
+        if (countBadge) countBadge.textContent = '0 إشعار';
+        return;
+      }
+
       container.innerHTML = list.map((item, idx) => `
         <div onclick="selectWhatsAppReceipt(${item.id})" class="whatsapp-card p-2.5 rounded-2xl bg-slate-950 border border-slate-800 hover:border-emerald-400 cursor-pointer flex items-center justify-between gap-2">
           <div class="flex items-center gap-2 min-w-0">
@@ -3629,16 +3594,16 @@ $currenciesData = [
             </div>
             <div class="min-w-0">
               <div class="flex items-center gap-1.5">
-                <span class="font-black text-white text-xs truncate">${item.to}</span>
-                <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">${item.bank}</span>
+                <span class="font-black text-white text-xs truncate">${item.to || '---'}</span>
+                <span class="text-[9px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400 font-mono">${item.bank || 'بنك'}</span>
               </div>
               <div class="text-[10px] text-slate-400 font-mono mt-0.5 truncate">
-                تحويلة: ${item.ref}
+                تحويلة: ${item.ref || '---'}
               </div>
             </div>
           </div>
           <div class="text-left shrink-0">
-            <div class="font-mono font-black text-emerald-400 text-xs sm:text-sm">${item.amount.toLocaleString()} ج.س</div>
+            <div class="font-mono font-black text-emerald-400 text-xs sm:text-sm">${item.amount > 0 ? item.amount.toLocaleString() + ' ج.س' : '---'}</div>
             <span class="text-[8.5px] text-cyan-400 font-bold block">تفريغ فوري ⚡</span>
           </div>
         </div>
@@ -3655,25 +3620,48 @@ $currenciesData = [
         setTimeout(() => flash.classList.remove('is-flashing'), 380);
       }
       
-      const newRef = 'CAM' + Date.now().toString().slice(-8);
-      const accounts = ['محمد أحمد عثمان', 'شركة النيل للاستيراد (مورد)', 'مؤسسة الرواد التجارية (مورد)', 'العميل: أحمد عثمان النور'];
-      const randomAcc = accounts[Math.floor(Math.random() * accounts.length)];
-      const randomAmounts = [450000, 780000, 1250000, 2400000, 3150000, 520000];
-      const randomAmt = randomAmounts[Math.floor(Math.random() * randomAmounts.length)];
-      
-      const newCaptured = {
-        id: Date.now(),
-        bank: 'بنك الخرطوم (بنكك)',
-        amount: randomAmt,
-        from: 'بنك الخرطوم (5540)',
-        to: randomAcc,
-        ref: newRef,
-        note: 'التقاط فوري بالكاميرا - سند تحويل مصرفي'
-      };
+      const camInp = document.getElementById('cameraCaptureInput');
+      if (camInp) {
+        camInp.click();
+      } else {
+        openBatchIntakeModal('camera');
+      }
+    }
 
-      cameraReceiptsDB.unshift(newCaptured);
-      renderCurrentSourceContent();
-      processReceiptWithAI(newCaptured, 'camera');
+    function handleCameraFileSelected(e) {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+
+      triggerHapticPulse();
+      playBankerChime();
+
+      const file = files[0];
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const imgData = evt.target.result;
+        const cleanName = file.name.replace(/\.[^/.]+$/, "");
+        const numMatch = cleanName.match(/\d{6,}/);
+        const refNo = numMatch ? numMatch[0] : '';
+
+        const receipt = {
+          id: Date.now(),
+          bank: '',
+          amount: 0,
+          from: '',
+          to: '',
+          ref: refNo,
+          imgUrl: imgData,
+          fileName: file.name,
+          note: `التقاط صورة بالكاميرا (${file.name})`
+        };
+
+        cameraReceiptsDB.unshift(receipt);
+        renderCurrentSourceContent();
+        applyReceiptToVoucherForm(receipt);
+        closeBatchIntakeModal();
+        showToastNotification('📸 تم التقاط وحفظ صورة الإشعار بنجاح وتم إرفاقها بالسند.');
+      };
+      reader.readAsDataURL(file);
     }
 
     function handleGalleryFilesSelected(e) {
@@ -3684,45 +3672,44 @@ $currenciesData = [
       playBankerChime();
 
       const createdItems = [];
-      const accounts = ['محمد أحمد عثمان', 'شركة النيل للاستيراد (مورد)', 'مؤسسة الرواد التجارية (مورد)', 'العميل: أحمد عثمان النور'];
-      const randomAmounts = [650000, 890000, 1420000, 2750000, 3800000, 950000, 1200000, 480000];
+      let pendingFiles = files.length;
 
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const cleanName = file.name.replace(/\.[^/.]+$/, "");
         const numMatch = cleanName.match(/\d{6,}/);
-        const randomRef = numMatch ? numMatch[0] : (Date.now().toString().slice(-6) + (1000 + i).toString().slice(-3));
-        const randomAmt = randomAmounts[(i + Date.now()) % randomAmounts.length];
-        const randomAcc = accounts[i % accounts.length];
+        const refNo = numMatch ? numMatch[0] : '';
 
-        const receipt = {
-          id: Date.now() + i,
-          bank: 'بنك الخرطوم (بنكك)',
-          amount: randomAmt,
-          from: 'بنك الخرطوم (5540)',
-          to: randomAcc,
-          ref: randomRef,
-          note: `إشعار استوديو (${file.name})`
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const imgData = evt.target.result;
+          const receipt = {
+            id: Date.now() + i,
+            bank: '',
+            amount: 0,
+            from: '',
+            to: '',
+            ref: refNo,
+            imgUrl: imgData,
+            fileName: file.name,
+            note: `إشعار استوديو (${file.name})`
+          };
+
+          createdItems.push(receipt);
+          galleryReceiptsDB.unshift(receipt);
+          pendingFiles--;
+
+          if (pendingFiles === 0) {
+            renderCurrentSourceContent();
+            if (createdItems.length > 0) {
+              const primaryItem = createdItems[0];
+              applyReceiptToVoucherForm(primaryItem);
+              closeBatchIntakeModal();
+              showToastNotification(`🖼️ تم تحميل ${createdItems.length} صورة إشعار من الاستوديو بنجاح!`);
+            }
+          }
         };
-
-        createdItems.push(receipt);
-        galleryReceiptsDB.unshift(receipt);
-      }
-
-      // 1. تفريغ أول إشعار تلقائياً ومباشرة في السند الحالي (تفريغ أوتوماتيكي)
-      const primaryItem = createdItems[0];
-      applyReceiptToVoucherForm(primaryItem);
-      closeBatchIntakeModal();
-
-      if (files.length > 1) {
-        showToastNotification(`🎉 تم تفريغ الإشعار الأول (#${primaryItem.ref}) بنجاح!\nوتم تجهيز ${files.length} إشعار من الاستوديو.`);
-        if (batchProcessingMode === 'auto') {
-          whatsAppQueue = createdItems;
-          currentQueueIndex = 0;
-          runUniversalAutoBatchStep();
-        }
-      } else {
-        showToastNotification(`⚡ تم تفريغ إشعار الاستوديو تلقائياً بالذكاء الاصطناعي!\n- التحويلة: ${primaryItem.ref}\n- المبلغ: ${formatNumberWithConfig(primaryItem.amount, sdgNumberConfig)} ج.س\n- إلى: ${primaryItem.to}`);
+        reader.readAsDataURL(file);
       }
     }
 
@@ -3896,9 +3883,6 @@ $currenciesData = [
           }
         }
       }
-      if (!extractedTo) {
-        extractedTo = 'محمد أحمد عثمان';
-      }
 
       // 5. استخراج اسم المحول منه (من حساب)
       let extractedFrom = '';
@@ -3906,10 +3890,11 @@ $currenciesData = [
       if (fromMatch && fromMatch[1]) {
         extractedFrom = fromMatch[1].trim();
       } else {
-        extractedFrom = extractedBank.includes('فيصل') ? 'بنك فيصل الإسلامي (3290)' : 'بنك الخرطوم (5540)';
+        const foundBankAcc = accountsDB.find(a => a.category === 'بنوك ومصارف' && a.name.includes(extractedBank.replace(/\s*\(.*\)/, '')));
+        extractedFrom = foundBankAcc ? foundBankAcc.name : extractedBank;
       }
 
-      if (extractedAmount > 0) {
+      if (extractedAmount > 0 || extractedRef) {
         const item = {
           id: Date.now(),
           bank: extractedBank,
@@ -3920,11 +3905,13 @@ $currenciesData = [
           note: 'تفريغ فوري ذكي من نص إشعار الواتساب'
         };
 
+        whatsappNotificationsDB.unshift(item);
+        renderWhatsAppList();
         applyReceiptToVoucherForm(item);
         closeBatchIntakeModal();
         triggerHapticPulse();
         playBankerChime();
-        showToastNotification(`🤖 تم التفريغ الفوري بالذكاء الاصطناعي (AI WhatsApp):\n- المبلغ: ${formatNumberWithConfig(extractedAmount, sdgNumberConfig)} ج.س\n- التحويلة: ${extractedRef}\n- إلى: ${extractedTo}\n- البنك: ${extractedBank}`);
+        showToastNotification(`🤖 تم التفريغ الفوري بالذكاء الاصطناعي (AI WhatsApp):\n- المبلغ: ${extractedAmount > 0 ? formatNumberWithConfig(extractedAmount, sdgNumberConfig) + ' ج.س' : 'يرجى إدخاله'}\n- التحويلة: ${extractedRef || '---'}\n- إلى: ${extractedTo || '---'}\n- البنك: ${extractedBank}`);
       }
     }
 
@@ -3957,12 +3944,17 @@ $currenciesData = [
       const usdCalc = sdg > 0 ? (sdg / rate) : 0;
       const usd = dec === 0 ? Math.round(usdCalc) : parseFloat(usdCalc.toFixed(dec));
 
-      const bankClean = (item.bank || 'بنك الخرطوم').replace(/\s*\(.*\)/, '').trim() || 'بنك الخرطوم';
+      const bankClean = (item.bank || document.getElementById('bankNameInput')?.value || '').replace(/\s*\(.*\)/, '').trim();
       const refVal = item.ref || document.getElementById('transferInput').value || '';
-      const toVal = item.to || document.getElementById('toSearchInput').value || 'محمد أحمد عثمان';
-      const fromVal = item.from || document.getElementById('fromSearchInput').value || 'بنك الخرطوم (5540)';
+      const toVal = (item.to || document.getElementById('toSearchInput')?.value || '').trim();
+      const fromVal = (item.from || document.getElementById('fromSearchInput')?.value || '').trim();
       const dateVal = document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10);
       const notesVal = `إشعار تحويل (${bankClean} #${refVal}) - تفريغ ذكاء اصطناعي`;
+
+      if (!fromVal || !toVal || sdg <= 0) {
+        showToastNotification('⚠️ يرجى اختيار الحسابات والتأكد من صحة المبلغ لإتمام الحفظ');
+        return;
+      }
 
       let savedId = '';
       if (!isOfflineMode) {
@@ -3975,7 +3967,7 @@ $currenciesData = [
             amountForeign: usd,
             currency: currentCurrency || 'SDG',
             rate: rate,
-            costCenter: document.getElementById('costCenterInput').value || 'مخزن بحري الرئيسي',
+            costCenter: document.getElementById('costCenterInput').value || '',
             fromAccountName: fromVal,
             toAccountName: toVal,
             mobileTransferNo: refVal,
@@ -3996,9 +3988,17 @@ $currenciesData = [
       }
 
       if (!savedId) {
-        const lastV = vouchersList[vouchersList.length - 1];
-        const lastNum = lastV ? (parseInt(lastV.id.replace(/\D/g, '')) || 842) : 842;
-        savedId = String(lastNum + 1);
+        const now = new Date();
+        const prefix = 'E' + String(now.getFullYear()).slice(-2) + String(now.getMonth() + 1).padStart(2, '0');
+        let maxSeq = 0;
+        vouchersList.forEach(v => {
+          const vid = String(v.id || '');
+          if (vid.startsWith(prefix)) {
+            const seq = parseInt(vid.substring(prefix.length)) || 0;
+            if (seq > maxSeq) maxSeq = seq;
+          }
+        });
+        savedId = prefix + String(maxSeq + 1).padStart(4, '0');
       }
 
       const newVoucher = {
@@ -4007,7 +4007,7 @@ $currenciesData = [
         date: dateVal,
         rate: rate,
         currency: currentCurrency || 'SDG',
-        costCenter: document.getElementById('costCenterInput').value || 'مخزن بحري الرئيسي',
+        costCenter: document.getElementById('costCenterInput').value || '',
         sdg: sdg,
         usd: usd,
         payType: 'transfer',
@@ -4440,41 +4440,19 @@ $currenciesData = [
       triggerHapticPulse();
       playFeedbackTone('tap');
       showToastNotification('📡 جارٍ سحب التحديثات الحية للسندات من سيرفر اللابتوب وMariaDB...');
+      const previousCount = vouchersList.length;
       const ok = await fetchLiveDbData(false);
       if (ok) {
-        showToastNotification(`💻 متزامن مع اللابتوب: تم سحب كافة الحركات المسجلة في قاعدة البيانات MariaDB!\nإجمالي السندات: ${vouchersList.length}`);
-        if (vouchersList.length > 0) {
+        if (vouchersList.length > previousCount) {
+          showToastNotification(`💻 وارد من اللابتوب: تم سحب حركات مالية جديدة مسجلة على سيرفر الكمبيوتر!\n- إجمالي السندات: ${vouchersList.length}`);
           loadVoucher(vouchersList.length - 1);
+          playBankerChime();
+        } else {
+          showToastNotification(`💻 متزامن بالكامل مع سيرفر اللابتوب وMariaDB\n- إجمالي السندات المحفوظة: ${vouchersList.length}\n- لا توجد حركات جديدة غير مسجلة حالياً.`);
         }
-        playBankerChime();
-        return;
+      } else {
+        showToastNotification('⚠️ تعذر الاتصال بسيرفر اللابتوب حالياً. يرجى التأكد من تشغيل السيرفر أو الشبكة.');
       }
-      
-      const lastVoucher = vouchersList[vouchersList.length - 1];
-      const lastNum = lastVoucher ? (parseInt(lastVoucher.id.replace(/\D/g, '')) || 842) : 842;
-      const nextId = String(lastNum + 1);
-
-      const laptopVoucher = {
-        id: nextId,
-        isOffline: false,
-        date: new Date().toISOString().split('T')[0],
-        rate: parseFloat(document.getElementById('usdRate').value) || 2650,
-        currency: 'SDG',
-        costCenter: 'الإدارة العامة - لابتوب',
-        sdg: 4500000,
-        usd: 1698.11,
-        payType: 'transfer',
-        from: 'بنك فيصل الإسلامي (3290)',
-        to: 'محمد أحمد عثمان',
-        refNo: '99201849920184',
-        bankName: 'بنك فيصل الإسلامي',
-        notes: 'سند مدخل عبر شاشة اللابتوب - متزامن فورياً مع الجوال'
-      };
-
-      vouchersList.push(laptopVoucher);
-      loadVoucher(vouchersList.length - 1);
-      playBankerChime();
-      showToastNotification(`💻 وارد من اللابتوب: ظهر السند الجديد (#${nextId}) فور إدخاله في الكمبيوتر!`);
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -4779,6 +4757,31 @@ $currenciesData = [
       triggerHapticPulse();
       playBankerChime();
 
+      const fromAccountName = (document.getElementById('fromSearchInput')?.value || '').trim();
+      const toAccountName = (document.getElementById('toSearchInput')?.value || '').trim();
+
+      if (!fromAccountName) {
+        alert('⚠️ شرط إلزامي: يرجى تحديد حساب الصرف (من حساب) لإتمام حفظ السند!');
+        const fi = document.getElementById('fromSearchInput');
+        if (fi) {
+          fi.focus();
+          fi.classList.add('border-red-500');
+          setTimeout(() => fi.classList.remove('border-red-500'), 2500);
+        }
+        return;
+      }
+
+      if (!toAccountName) {
+        alert('⚠️ شرط إلزامي: يرجى تحديد حساب المستفيد أو الطرف المستلم (إلى حساب) لإتمام حفظ السند!');
+        const ti = document.getElementById('toSearchInput');
+        if (ti) {
+          ti.focus();
+          ti.classList.add('border-red-500');
+          setTimeout(() => ti.classList.remove('border-red-500'), 2500);
+        }
+        return;
+      }
+
       const isEditing = (currentIndex >= 0 && currentIndex < vouchersList.length && vouchersList[currentIndex].id === currentVNo);
       const voucherPayload = {
         isEditing: isEditing,
@@ -4791,8 +4794,8 @@ $currenciesData = [
         paymentMethod: currentPayType,
         amountLocal: sdg,
         amountForeign: usd,
-        fromAccountName: document.getElementById('fromSearchInput').value || 'الخزينة الرئيسية (كاش)',
-        toAccountName: document.getElementById('toSearchInput').value || 'محمد أحمد عثمان',
+        fromAccountName: fromAccountName,
+        toAccountName: toAccountName,
         mobileTransferNo: transferVal,
         refNo: transferVal,
         bankName: bankVal,
@@ -5040,36 +5043,96 @@ $currenciesData = [
     setInterval(updateClock, 30000);
     updateClock();
 
-    // دمج بيانات الحسابات الحقيقية من قاعدة بيانات MariaDB
-    if (window.PHP_ACCOUNTS && Array.isArray(window.PHP_ACCOUNTS) && window.PHP_ACCOUNTS.length > 0) {
-      accountsDB = window.PHP_ACCOUNTS.map(a => ({
-        id: a.id,
-        name: a.name,
-        category: a.category || 'عام',
-        sdgBalance: a.rawBalance || 0,
-        balanceType: ''
-      }));
+    // 1. مزامنة ودمج الحسابات الحقيقية من MariaDB وذاكرة نظام ERP باللابتوب
+    function syncAccountsFromSources() {
+      const mergedMap = new Map();
+
+      // حسابات MariaDB من السيرفر
+      if (window.PHP_ACCOUNTS && Array.isArray(window.PHP_ACCOUNTS)) {
+        window.PHP_ACCOUNTS.forEach(a => {
+          if (a && a.name) {
+            mergedMap.set(a.name.trim(), {
+              id: a.id,
+              name: a.name.trim(),
+              category: a.category || 'عام',
+              sdgBalance: a.rawBalance || 0,
+              balanceType: ''
+            });
+          }
+        });
+      }
+
+      // حسابات ERP المخزنة في المتصفح بالكمبيوتر واللابتوب
+      const storageSources = [
+        { key: 'erp_accounts_v1', cat: 'دليل الحسابات' },
+        { key: 'erp_customers_v1', cat: 'حسابات العملاء' },
+        { key: 'erp_suppliers_v1', cat: 'حسابات الموردين' },
+        { key: 'erp_banks_v1', cat: 'بنوك ومصارف' },
+        { key: 'erp_safes_v1', cat: 'خزن نقدية' }
+      ];
+
+      storageSources.forEach(s => {
+        try {
+          const raw = localStorage.getItem(s.key);
+          if (raw) {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) {
+              arr.forEach(item => {
+                const name = (item.name || item.bankName || item.safeName || '').trim();
+                if (name && !mergedMap.has(name)) {
+                  mergedMap.set(name, {
+                    id: item.id || ('local_' + Date.now()),
+                    name: name,
+                    category: s.cat,
+                    sdgBalance: parseFloat(item.balance || item.currentBalance || 0) || 0,
+                    balanceType: ''
+                  });
+                }
+              });
+            }
+          }
+        } catch(e) {}
+      });
+
+      accountsDB = Array.from(mergedMap.values());
     }
 
-    // دمج بيانات السندات الحقيقية من قاعدة بيانات السيرفر
-    if (window.PHP_VOUCHERS && window.PHP_VOUCHERS.length > 0) {
+    syncAccountsFromSources();
+
+    // 2. تطهير أي سندات وهمية قديمة من الكاش المحلي للمتصفح
+    try {
+      const cachedHistory = localStorage.getItem('magaiees_vouchers_history');
+      if (cachedHistory) {
+        const parsed = JSON.parse(cachedHistory);
+        if (Array.isArray(parsed)) {
+          const cleaned = parsed.filter(v => v && v.id && !['840', '841', '842'].includes(String(v.id)) && v.to !== 'محمد أحمد عثمان');
+          localStorage.setItem('magaiees_vouchers_history', JSON.stringify(cleaned));
+        }
+      }
+    } catch(e) {}
+
+    // 3. دمج بيانات السندات الحقيقية من قاعدة بيانات السيرفر
+    if (window.PHP_VOUCHERS && Array.isArray(window.PHP_VOUCHERS) && window.PHP_VOUCHERS.length > 0) {
       vouchersList = window.PHP_VOUCHERS.map(v => ({
         id: v.id,
         isOffline: false,
         date: v.date || new Date().toISOString().slice(0, 10),
         rate: v.rate || 2650,
         currency: v.currency || 'SDG',
-        costCenter: v.costCenter || 'مخزن بحري الرئيسي',
+        costCenter: v.costCenter || '',
         sdg: v.sdg || 0,
         usd: v.foreignAmt || 0,
         payType: v.payType || 'transfer',
-        from: v.fromName || 'بنك الخرطوم (5540)',
-        to: v.toName || 'محمد أحمد عثمان',
+        from: v.fromName || v.from || '',
+        to: v.toName || v.to || '',
         refNo: v.refNo || '',
-        bankName: v.bankName || 'بنك الخرطوم',
+        bankName: v.bankName || '',
         notes: v.notes || ''
       }));
       currentIndex = vouchersList.length - 1;
+    } else {
+      vouchersList = [];
+      currentIndex = -1;
     }
 
     // استرجاع طابور السندات الأوفلاين إن وجد
