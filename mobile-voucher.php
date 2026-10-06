@@ -1154,16 +1154,11 @@ $currenciesData = [
           <span>حركة مالية</span>
         </span>
 
-        <!-- منطقة عناية متصل: دائرة خضراء ومتصل بالداتابيز -->
-        <button type="button" onclick="toggleOnlineStatus()" id="networkPill" class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition" title="متصل مباشرة بقاعدة البيانات MariaDB وسيرفر اللابتوب - انقر للتبديل لأوفلاين">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" id="networkDot"></span>
-          <span id="networkText">متصل بالداتابيز 🗄️</span>
-        </button>
-
-        <!-- زر التحديث الحي الفوري على الجوال -->
-        <button type="button" onclick="forceLiveRefresh()" class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-cyan-500/20 hover:bg-cyan-500/35 border border-cyan-400/40 text-cyan-300 text-[10px] font-black active:scale-95 transition shadow-sm" title="تحديث الحي فوري في الحين">
-          <i class="fa-solid fa-arrows-rotate text-[9px] text-cyan-300"></i>
-          <span>تحديث</span>
+        <!-- مؤشر مزامنة وتحديث البيانات الذكي: دائرة خضراء بعد المزامنة، وتتحول لحمراء مع زر التحديث عند الحاجة -->
+        <button type="button" onclick="handleUnifiedSyncRefresh()" id="networkPill" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10.5px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition shadow-sm" title="البيانات متزامنة - انقر للتحديث الفوري">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" id="networkDot"></span>
+          <i class="fa-solid fa-arrows-rotate text-[9.5px] text-red-300 hidden" id="networkRefreshIcon"></i>
+          <span id="networkText">متزامن</span>
         </button>
       </div>
 
@@ -1306,21 +1301,13 @@ $currenciesData = [
            ═════════════════════════════════════════════════════════════════ -->
       <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2.5 space-y-2 shadow-[0_0_18px_rgba(56,189,248,0.2)]">
         
-        <!-- شريط رأس المبالغ المالية نظيف ومرتب -->
-        <div class="flex items-center justify-between pb-1.5 border-b border-slate-800 px-1">
-          <div class="flex items-center gap-1.5">
-            <i class="fa-solid fa-coins text-amber-400 text-sm"></i>
-            <span class="text-xs sm:text-sm font-black text-slate-200">المبالغ المالية</span>
-          </div>
-          <span class="text-[10px] text-slate-400 font-medium">سعر الصرف والحساب الفوري</span>
-        </div>
-
+        <!-- في نفس السطر: المبلغ محلي (يمين) والمبلغ دولار (يسار) بدون أي كلمات إضافية -->
         <div class="grid grid-cols-2 gap-2.5">
           
-          <!-- 1. اليمين: المبلغ المحلي (إضاءة سماوية فائقة الحواف) -->
+          <!-- 1. اليمين: المبلغ محلي (إضاءة سماوية فائقة الحواف) -->
           <div>
             <div class="flex items-center justify-between mb-1 px-1 h-6">
-              <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ المحلي</span>
+              <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ محلي</span>
               <button type="button" onclick="openNumberPropertiesModal(event, 'sdg')" class="h-6 text-[10px] font-bold text-sky-200 bg-sky-950/95 px-2 py-0.5 rounded-lg border border-sky-400/80 font-mono shadow-[0_0_10px_rgba(56,189,248,0.5)] flex items-center gap-1 active:scale-95 transition" title="انقر لتخصيص خط ولون وخانات المبلغ المحلي">
                 <span>ج.س (SDG)</span>
                 <i class="fa-solid fa-sliders text-[9px] text-sky-300"></i>
@@ -1332,7 +1319,7 @@ $currenciesData = [
             </div>
           </div>
 
-          <!-- 2. اليسار: المبلغ دولار (بدون كلمة أجنبي، وبنفس المستوى والارتفاع المتساوي تماماً) -->
+          <!-- 2. اليسار: المبلغ دولار (في نفس السطر ومستوى متساوٍ تماماً) -->
           <div>
             <div class="flex items-center justify-between mb-1 px-1 h-6">
               <span class="text-xs sm:text-sm font-black text-emerald-300" id="foreignAmountTitle">المبلغ دولار</span>
@@ -4630,36 +4617,73 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // التبديل بين أونلاين وأوفلاين
+    // مؤشر مزامنة وتحديث البيانات الذكي (Unified Sync & Status Engine)
+    // - دائرة خضراء (متزامن) بعد مزامنة البيانات
+    // - دائرة حمراء (تحديث) عند الحاجة للتحديث أو انقطاع الاتصال
     // ════════════════════════════════════════════════════════════════
-    function toggleOnlineStatus() {
-      isOfflineMode = !isOfflineMode;
+    function updateNetworkStatusUI(isSynced, customText = '') {
       const pill = document.getElementById('networkPill');
       const dot = document.getElementById('networkDot');
       const text = document.getElementById('networkText');
-      const banner = document.getElementById('offlineSyncBanner');
+      const icon = document.getElementById('networkRefreshIcon');
+      if (!pill || !dot || !text) return;
 
-      if (isOfflineMode) {
-        pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-400 text-[10px] font-black cursor-pointer';
-        dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse';
-        text.textContent = 'أوفلاين ⚠️';
-        banner.classList.remove('hidden');
-        banner.classList.add('flex');
-        startNewVoucher();
-        showToastNotification('⚠️ تم التبديل إلى وضع الأوفلاين (غير متصل بالداتابيز)');
-      } else {
-        pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10px] font-black cursor-pointer';
-        dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]';
-        text.textContent = 'متصل بالداتابيز 🗄️';
-        
-        if (offlineQueue.length > 0) {
-          flushOfflineQueue();
-        } else {
-          banner.classList.add('hidden');
-          showToastNotification('🟢 متصل مباشرة بقاعدة البيانات MariaDB وسيرفر الكمبيوتر');
-          fetchLiveDbData(false);
+      if (isSynced) {
+        isOfflineMode = false;
+        pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10.5px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition shadow-sm';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]';
+        if (icon) {
+          icon.classList.add('hidden');
+          icon.classList.remove('animate-spin');
         }
+        text.textContent = customText || 'متزامن';
+        pill.title = 'البيانات متزامنة مع السيرفر وقاعدة البيانات - انقر للتحديث الفوري';
+        const banner = document.getElementById('offlineSyncBanner');
+        if (banner) banner.classList.add('hidden');
+      } else {
+        isOfflineMode = true;
+        pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/50 text-red-300 text-[10.5px] font-black cursor-pointer hover:bg-red-500/30 active:scale-95 transition shadow-sm';
+        dot.className = 'w-2 h-2 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#ef4444]';
+        if (icon) icon.classList.remove('hidden');
+        text.textContent = customText || 'تحديث';
+        pill.title = 'غير متزامن مع السيرفر - انقر هنا للتحديث والمزامنة الآن';
       }
+    }
+
+    async function handleUnifiedSyncRefresh() {
+      triggerHapticPulse();
+      const dot = document.getElementById('networkDot');
+      const text = document.getElementById('networkText');
+      const icon = document.getElementById('networkRefreshIcon');
+
+      if (icon) {
+        icon.classList.remove('hidden');
+        icon.classList.add('animate-spin');
+      }
+      if (text) text.textContent = 'مزامنة...';
+
+      try {
+        const res = await fetch('mobile-voucher.php?api=ping&t=' + Date.now());
+        const data = await res.json();
+        if (data && data.success) {
+          await fetchLiveDbData(false);
+          updateNetworkStatusUI(true, 'متزامن');
+          playBankerChime();
+          showToastNotification('🟢 تم مزامنة وتحديث البيانات بنجاح مع قاعدة البيانات MariaDB');
+        } else {
+          updateNetworkStatusUI(false, 'تحديث');
+          showToastNotification('⚠️ تعذر المزامنة: السيرفر لم يستجب - انقر "تحديث" للمحاولة');
+        }
+      } catch (e) {
+        updateNetworkStatusUI(false, 'تحديث');
+        showToastNotification('🔴 تعذر الاتصال بالسيرفر - انقر "تحديث" لإعادة المحاولة');
+      } finally {
+        if (icon) icon.classList.remove('animate-spin');
+      }
+    }
+
+    function toggleOnlineStatus() {
+      handleUnifiedSyncRefresh();
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -4756,8 +4780,7 @@ $currenciesData = [
             }
           }
 
-          const netText = document.getElementById('networkText');
-          if (netText) netText.textContent = 'متصل بالداتابيز 🗄️';
+          updateNetworkStatusUI(true, 'متزامن');
 
           // رفع أي سندات أوفلاين معلقة
           if (offlineQueue.length > 0 && !isOfflineMode) {
@@ -4771,6 +4794,7 @@ $currenciesData = [
         }
       } catch (err) {
         console.warn('Failed to fetch live DB data:', err);
+        updateNetworkStatusUI(false, 'تحديث');
         if (showFeedback) {
           showToastNotification('⚠️ تعذر سحب البيانات من MariaDB حالياً، يتم الاعتماد على الذاكرة المحلية');
         }
@@ -5332,6 +5356,10 @@ $currenciesData = [
 
     // فحص وجلب أحدث بيانات السيرفر وقاعدة البيانات MariaDB بالخلفية
     fetchLiveDbData(false);
+
+    // استماع لحظي لحالة اتصال الشبكة
+    window.addEventListener('online', () => { handleUnifiedSyncRefresh(); });
+    window.addEventListener('offline', () => { updateNetworkStatusUI(false, 'تحديث'); });
 
     // ════════════════════════════════════════════════════════════════
     // وظيفة التحديث الحي الفوري في الحين (تخطي الكاش ومزامنة MariaDB)
