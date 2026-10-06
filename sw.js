@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-06-v41-independent-amounts-equal-height-live';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-06-v42-scrollable-number-properties-modal-live';
 
 const PRECACHE_ASSETS = [
     './manifest.json',

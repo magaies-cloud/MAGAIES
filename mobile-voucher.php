@@ -479,6 +479,26 @@ $currenciesData = [
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+    /* شريط التمرير الانسيابي للنافذة المنبثقة لخصائص الأرقام للتحرك لأعلى ولأسفل بسهولة */
+    .modal-scrollable-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .modal-scrollable-body::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.7);
+      border-radius: 8px;
+    }
+    .modal-scrollable-body::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #0ea5e9, #0284c7);
+      border-radius: 8px;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+    .modal-scrollable-body {
+      scrollbar-width: thin;
+      scrollbar-color: #0ea5e9 rgba(15, 23, 42, 0.7);
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior: contain;
+    }
+
     /* ═════════════════════════════════════════════════════════════════
        سهم التدفق الحركي السريع (لون ذهبي كهرماني مشع مغاير للأحمر والأخضر)
        يعطي إيماءات حركية سريعة ومستمرة للأسفل للتنبيه حتى لو كان المستخدم مجهداً
@@ -1672,175 +1692,192 @@ $currenciesData = [
   </div>
 
   <!-- ═════════════════════════════════════════════════════════════════
+  <!-- ═════════════════════════════════════════════════════════════════
        نافذة منبثقة: خصائص وتنسيق الأرقام
-       (درجات التكبير 18, 22, 26, 30, 32, 34, 36، الألوان، الخط بلوط، و3 خطوط إنجليزية)
+       (تتحرك لأعلى وأسفل بسلاسة لإظهار كافة الأزرار مع تثبيت الهيدر وزر الحفظ)
        ═════════════════════════════════════════════════════════════════ -->
-  <div id="modalNumberProperties" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/80 backdrop-blur-sm select-none" dir="rtl">
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-sm rounded-3xl p-4 shadow-2xl space-y-3.5">
+  <div id="modalNumberProperties" class="hidden fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md select-none overflow-y-auto" dir="rtl" onclick="if(event.target === this) closeNumberPropertiesModal()">
+    <div class="bg-slate-900 border-2 border-slate-700/80 shadow-[0_0_35px_rgba(14,165,233,0.3)] w-full max-w-md rounded-3xl flex flex-col max-h-[92vh] max-h-[92dvh] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
       
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+      <!-- الهيدر الثابت في الأعلى مع زر الإغلاق والتبديل السريع -->
+      <div class="flex items-center justify-between border-b border-slate-800 px-4 py-3 shrink-0 bg-slate-900/95 sticky top-0 z-10 backdrop-blur-md">
         <div class="flex items-center gap-2">
-          <span class="text-lg">⚙️</span>
-          <h3 class="text-sm font-black text-white">خصائص وتنسيق الأرقام</h3>
+          <div class="w-8 h-8 rounded-xl bg-cyan-600/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300 text-sm">
+            <i class="fa-solid fa-sliders"></i>
+          </div>
+          <div>
+            <h3 class="text-xs sm:text-sm font-black text-white">خصائص وتنسيق الأرقام</h3>
+            <span class="text-[9.5px] text-cyan-400 font-medium">مرر لأعلى ولأسفل لتعديل كافة الأزرار والخيارات ↕</span>
+          </div>
         </div>
-        <button type="button" onclick="closeNumberPropertiesModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center text-xs">
+        <button type="button" onclick="closeNumberPropertiesModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 active:scale-90 text-slate-300 hover:text-white flex items-center justify-center text-sm transition" title="إغلاق">
           ✕
         </button>
       </div>
 
-      <!-- تبديل واختيار المبلغ المراد ضبطه: المحلي (ج.س) أو الدولار ($) -->
-      <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-950 rounded-2xl border border-slate-800">
-        <button type="button" onclick="switchActiveAmountTarget('sdg')" id="targetBtnSdg" class="py-2 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition bg-sky-600 text-white shadow-sm border border-sky-400">
-          <i class="fa-solid fa-money-bill-wave text-sky-200"></i>
-          <span>المبلغ المحلي (ج.س)</span>
-        </button>
-        <button type="button" onclick="switchActiveAmountTarget('usd')" id="targetBtnUsd" class="py-2 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition bg-slate-800 text-slate-300 border border-slate-700 hover:text-white">
-          <i class="fa-solid fa-dollar-sign text-emerald-400"></i>
-          <span>المبلغ بالدولار ($)</span>
-        </button>
-      </div>
+      <!-- جسم النافذة القابل للتحريك والتمرير لأعلى وأسفل بسلاسة فائقة لإظهار كافة الأزرار -->
+      <div class="flex-1 overflow-y-auto px-4 py-3 space-y-3.5 modal-scrollable-body overscroll-contain" style="-webkit-overflow-scrolling: touch;">
 
-      <!-- معاينة فورية لشكل الرقم المنسق -->
-      <div class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 text-center space-y-1">
-        <div class="flex items-center justify-between text-[10px] text-slate-400 font-bold px-1">
-          <span>معاينة مباشرة للرقم المنسق</span>
-          <span id="targetPreviewTitle" class="text-sky-400 font-black">المبلغ المحلي (ج.س)</span>
-        </div>
-        <div id="numPropLivePreview" class="py-1 transition-all" style="direction: ltr; font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 900; color: #ffffff;">
-          2,650,000
-        </div>
-      </div>
-
-      <!-- 1. درجات التكبير: (18, 22, 26, 30, 32, 34, 36) -->
-      <div class="space-y-1">
-        <div class="flex justify-between items-center text-[11px] font-bold">
-          <span class="text-slate-300">تكبير الدرجات (حجم الخط):</span>
-          <span id="currentSizeLabel" class="text-cyan-400 font-mono text-xs">30px</span>
-        </div>
-        <div class="grid grid-cols-7 gap-1 text-xs font-bold font-mono">
-          <button type="button" onclick="setNumSize('18px')" id="btnSize18" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center">18</button>
-          <button type="button" onclick="setNumSize('22px')" id="btnSize22" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center">22</button>
-          <button type="button" onclick="setNumSize('26px')" id="btnSize26" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center">26</button>
-          <button type="button" onclick="setNumSize('30px')" id="btnSize30" class="size-btn py-1.5 rounded-lg bg-cyan-600 text-white border-cyan-400 text-center">30</button>
-          <button type="button" onclick="setNumSize('32px')" id="btnSize32" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center">32</button>
-          <button type="button" onclick="setNumSize('34px')" id="btnSize34" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center">34</button>
-          <button type="button" onclick="setNumSize('36px')" id="btnSize36" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center">36</button>
-        </div>
-      </div>
-
-      <!-- 2. اختيار اللون المفضل -->
-      <div class="space-y-1">
-        <div class="flex justify-between items-center text-[11px] font-bold">
-          <span class="text-slate-300">لون الأرقام:</span>
-          <span id="numColorName" class="text-cyan-400 text-[10px]">أخضر زمردي</span>
-        </div>
-        <div class="flex items-center justify-between gap-1" id="numPropColorsGroup">
-          <button type="button" onclick="setNumColor('#10b981', 'أخضر زمردي')" data-color="#10b981" class="w-7 h-7 rounded-xl bg-emerald-500 border-2 border-white shadow-lg scale-105 transition" title="أخضر زمردي"></button>
-          <button type="button" onclick="setNumColor('#06b6d4', 'سماوي فاقع')" data-color="#06b6d4" class="w-7 h-7 rounded-xl bg-cyan-500 border-2 border-transparent transition" title="سماوي فاقع"></button>
-          <button type="button" onclick="setNumColor('#f59e0b', 'ذهبي عنبري')" data-color="#f59e0b" class="w-7 h-7 rounded-xl bg-amber-500 border-2 border-transparent transition" title="ذهبي عنبري"></button>
-          <button type="button" onclick="setNumColor('#f43f5e', 'وردي فاقع')" data-color="#f43f5e" class="w-7 h-7 rounded-xl bg-rose-500 border-2 border-transparent transition" title="وردي فاقع"></button>
-          <button type="button" onclick="setNumColor('#8b5cf6', 'بنفسجي ملكي')" data-color="#8b5cf6" class="w-7 h-7 rounded-xl bg-purple-500 border-2 border-transparent transition" title="بنفسجي ملكي"></button>
-          <button type="button" onclick="setNumColor('#ffffff', 'أبيض ناصع')" data-color="#ffffff" class="w-7 h-7 rounded-xl bg-white border-2 border-transparent transition" title="أبيض ناصع"></button>
-          <label class="w-7 h-7 rounded-xl bg-gradient-to-tr from-rose-500 via-amber-500 to-indigo-500 border-2 border-transparent cursor-pointer flex items-center justify-center transition" title="منتقي ألوان حر">
-            <input type="color" id="customColorInput" onchange="setNumColor(this.value, 'لون مخصص')" class="opacity-0 w-0 h-0">
-            <i class="fa-solid fa-palette text-[10px] text-white drop-shadow"></i>
-          </label>
-        </div>
-      </div>
-
-      <!-- 3. الخط بلوط (Bold / عريض) أو غير بلوط (Regular / عادي) -->
-      <div class="space-y-1">
-        <label class="block text-[11px] font-bold text-slate-300">سماكة الخط (بلوط / غير بلوط):</label>
-        <div class="grid grid-cols-2 gap-1.5 text-xs font-bold">
-          <button type="button" onclick="setNumWeight('900')" id="btnWeightBold" class="weight-btn py-1.5 rounded-xl bg-cyan-600 text-white border border-cyan-400 flex items-center justify-center gap-1.5 transition">
-            <i class="fa-solid fa-bold text-xs"></i>
-            <span>خط بلوط (Bold / عريض)</span>
+        <!-- تبديل واختيار المبلغ المراد ضبطه: المحلي (ج.س) أو الدولار ($) -->
+        <div class="grid grid-cols-2 gap-1.5 p-1 bg-slate-950 rounded-2xl border border-slate-800">
+          <button type="button" onclick="switchActiveAmountTarget('sdg')" id="targetBtnSdg" class="py-2 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition bg-sky-600 text-white shadow-sm border border-sky-400">
+            <i class="fa-solid fa-money-bill-wave text-sky-200"></i>
+            <span>المبلغ المحلي (ج.س)</span>
           </button>
-          <button type="button" onclick="setNumWeight('500')" id="btnWeightNormal" class="weight-btn py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 flex items-center justify-center gap-1.5 transition">
-            <span>غير بلوط (عادي / Regular)</span>
+          <button type="button" onclick="switchActiveAmountTarget('usd')" id="targetBtnUsd" class="py-2 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition bg-slate-800 text-slate-300 border border-slate-700 hover:text-white">
+            <i class="fa-solid fa-dollar-sign text-emerald-400"></i>
+            <span>المبلغ بالدولار ($)</span>
           </button>
         </div>
-      </div>
 
-      <!-- 4. أكثر 3 خطوط وضوحاً في اللغة الإنجليزية بالنسبة للأرقام -->
-      <div class="space-y-1">
-        <label class="block text-[11px] font-bold text-slate-300">أكثر 3 خطوط وضوحاً للأرقام (English Numbers):</label>
+        <!-- معاينة فورية لشكل الرقم المنسق -->
+        <div class="bg-slate-950 p-2.5 rounded-2xl border border-slate-800 text-center space-y-1">
+          <div class="flex items-center justify-between text-[10px] text-slate-400 font-bold px-1">
+            <span>معاينة مباشرة للرقم المنسق</span>
+            <span id="targetPreviewTitle" class="text-sky-400 font-black">المبلغ المحلي (ج.س)</span>
+          </div>
+          <div id="numPropLivePreview" class="py-1 transition-all" style="direction: ltr; font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 900; color: #ffffff;">
+            2,650,000 ج.س
+          </div>
+        </div>
+
+        <!-- 1. درجات التكبير: (18, 22, 26, 30, 32, 34, 36) -->
         <div class="space-y-1">
-          <button type="button" onclick="setNumFont('JetBrains Mono')" id="btnFont-JetBrainsMono" class="font-btn w-full p-2 rounded-xl bg-cyan-600/20 text-cyan-300 border border-cyan-500/50 flex items-center justify-between text-xs transition">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
-              <span class="font-bold">JetBrains Mono</span>
-              <span class="text-[9.5px] text-slate-400">(مونو سبيس مالي فائق الوضوح)</span>
-            </div>
-            <span class="font-mono font-black text-xs">1,234,567.89</span>
-          </button>
-
-          <button type="button" onclick="setNumFont('Inter')" id="btnFont-Inter" class="font-btn w-full p-2 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 flex items-center justify-between text-xs transition">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-slate-500"></span>
-              <span class="font-bold">Inter</span>
-              <span class="text-[9.5px] text-slate-400">(أرقام بنكية حديثة نقية)</span>
-            </div>
-            <span class="font-black text-xs" style="font-family: 'Inter', sans-serif;">1,234,567.89</span>
-          </button>
-
-          <button type="button" onclick="setNumFont('Montserrat')" id="btnFont-Montserrat" class="font-btn w-full p-2 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 flex items-center justify-between text-xs transition">
-            <div class="flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full bg-slate-500"></span>
-              <span class="font-bold">Montserrat</span>
-              <span class="text-[9.5px] text-slate-400">(أرقام هندسية بارزة عريضة)</span>
-            </div>
-            <span class="font-black text-xs" style="font-family: 'Montserrat', sans-serif;">1,234,567.89</span>
-          </button>
+          <div class="flex justify-between items-center text-[11px] font-bold">
+            <span class="text-slate-300">تكبير الدرجات (حجم الخط):</span>
+            <span id="currentSizeLabel" class="text-cyan-400 font-mono text-xs">30px</span>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-xs font-bold font-mono">
+            <button type="button" onclick="setNumSize('18px')" id="btnSize18" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700 active:scale-95 transition">18</button>
+            <button type="button" onclick="setNumSize('22px')" id="btnSize22" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700 active:scale-95 transition">22</button>
+            <button type="button" onclick="setNumSize('26px')" id="btnSize26" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700 active:scale-95 transition">26</button>
+            <button type="button" onclick="setNumSize('30px')" id="btnSize30" class="size-btn py-1.5 rounded-lg bg-cyan-600 text-white border-cyan-400 text-center hover:bg-cyan-500 active:scale-95 transition">30</button>
+            <button type="button" onclick="setNumSize('32px')" id="btnSize32" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700 active:scale-95 transition">32</button>
+            <button type="button" onclick="setNumSize('34px')" id="btnSize34" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700 active:scale-95 transition">34</button>
+            <button type="button" onclick="setNumSize('36px')" id="btnSize36" class="size-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700 active:scale-95 transition">36</button>
+          </div>
         </div>
+
+        <!-- 2. اختيار اللون المفضل -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center text-[11px] font-bold">
+            <span class="text-slate-300">لون الأرقام:</span>
+            <span id="numColorName" class="text-cyan-400 text-[10px]">أخضر زمردي</span>
+          </div>
+          <div class="flex items-center justify-between gap-1" id="numPropColorsGroup">
+            <button type="button" onclick="setNumColor('#10b981', 'أخضر زمردي')" data-color="#10b981" class="w-7 h-7 rounded-xl bg-emerald-500 border-2 border-white shadow-lg scale-105 transition" title="أخضر زمردي"></button>
+            <button type="button" onclick="setNumColor('#06b6d4', 'سماوي فاقع')" data-color="#06b6d4" class="w-7 h-7 rounded-xl bg-cyan-500 border-2 border-transparent transition" title="سماوي فاقع"></button>
+            <button type="button" onclick="setNumColor('#f59e0b', 'ذهبي عنبري')" data-color="#f59e0b" class="w-7 h-7 rounded-xl bg-amber-500 border-2 border-transparent transition" title="ذهبي عنبري"></button>
+            <button type="button" onclick="setNumColor('#f43f5e', 'وردي فاقع')" data-color="#f43f5e" class="w-7 h-7 rounded-xl bg-rose-500 border-2 border-transparent transition" title="وردي فاقع"></button>
+            <button type="button" onclick="setNumColor('#8b5cf6', 'بنفسجي ملكي')" data-color="#8b5cf6" class="w-7 h-7 rounded-xl bg-purple-500 border-2 border-transparent transition" title="بنفسجي ملكي"></button>
+            <button type="button" onclick="setNumColor('#ffffff', 'أبيض ناصع')" data-color="#ffffff" class="w-7 h-7 rounded-xl bg-white border-2 border-transparent transition" title="أبيض ناصع"></button>
+            <label class="w-7 h-7 rounded-xl bg-gradient-to-tr from-rose-500 via-amber-500 to-indigo-500 border-2 border-transparent cursor-pointer flex items-center justify-center transition" title="منتقي ألوان حر">
+              <input type="color" id="customColorInput" onchange="setNumColor(this.value, 'لون مخصص')" class="opacity-0 w-0 h-0">
+              <i class="fa-solid fa-palette text-[10px] text-white drop-shadow"></i>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3. الخط بلوط (Bold / عريض) أو غير بلوط (Regular / عادي) -->
+        <div class="space-y-1">
+          <label class="block text-[11px] font-bold text-slate-300">سماكة الخط (بلوط / غير بلوط):</label>
+          <div class="grid grid-cols-2 gap-1.5 text-xs font-bold">
+            <button type="button" onclick="setNumWeight('900')" id="btnWeightBold" class="weight-btn py-1.5 rounded-xl bg-cyan-600 text-white border border-cyan-400 flex items-center justify-center gap-1.5 transition">
+              <i class="fa-solid fa-bold text-xs"></i>
+              <span>خط بلوط (Bold / عريض)</span>
+            </button>
+            <button type="button" onclick="setNumWeight('500')" id="btnWeightNormal" class="weight-btn py-1.5 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 flex items-center justify-center gap-1.5 transition">
+              <span>غير بلوط (عادي / Regular)</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 4. أكثر 3 خطوط وضوحاً في اللغة الإنجليزية بالنسبة للأرقام -->
+        <div class="space-y-1">
+          <label class="block text-[11px] font-bold text-slate-300">أكثر 3 خطوط وضوحاً للأرقام (English Numbers):</label>
+          <div class="space-y-1">
+            <button type="button" onclick="setNumFont('JetBrains Mono')" id="btnFont-JetBrainsMono" class="font-btn w-full p-2 rounded-xl bg-cyan-600/20 text-cyan-300 border border-cyan-500/50 flex items-center justify-between text-xs transition">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                <span class="font-bold">JetBrains Mono</span>
+                <span class="text-[9.5px] text-slate-400">(مونو سبيس مالي فائق الوضوح)</span>
+              </div>
+              <span class="font-mono font-black text-xs">1,234,567.89</span>
+            </button>
+
+            <button type="button" onclick="setNumFont('Inter')" id="btnFont-Inter" class="font-btn w-full p-2 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 flex items-center justify-between text-xs transition">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                <span class="font-bold">Inter</span>
+                <span class="text-[9.5px] text-slate-400">(أرقام بنكية حديثة نقية)</span>
+              </div>
+              <span class="font-black text-xs" style="font-family: 'Inter', sans-serif;">1,234,567.89</span>
+            </button>
+
+            <button type="button" onclick="setNumFont('Montserrat')" id="btnFont-Montserrat" class="font-btn w-full p-2 rounded-xl bg-slate-800 text-slate-300 border border-slate-700 hover:bg-slate-700 flex items-center justify-between text-xs transition">
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-slate-500"></span>
+                <span class="font-bold">Montserrat</span>
+                <span class="text-[9.5px] text-slate-400">(أرقام هندسية بارزة عريضة)</span>
+              </div>
+              <span class="font-black text-xs" style="font-family: 'Montserrat', sans-serif;">1,234,567.89</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 5. الخانات العشرية والتقريب (0، 1، 2، 3، 4، 5، 6 خانات) -->
+        <div class="space-y-1">
+          <div class="flex justify-between items-center text-[11px] font-bold">
+            <span class="text-slate-300">الخانات العشرية والتقريب:</span>
+            <span id="currentDecimalsLabel" class="text-cyan-400 font-mono text-xs">2 خانة</span>
+          </div>
+          <div class="grid grid-cols-7 gap-1 text-xs font-bold font-mono">
+            <button type="button" onclick="setNumDecimals(0)" id="btnDec0" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="بدون كسور (أرقام صحيحة مقربة)">0</button>
+            <button type="button" onclick="setNumDecimals(1)" id="btnDec1" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="خانة عشرية واحدة">1</button>
+            <button type="button" onclick="setNumDecimals(2)" id="btnDec2" class="dec-btn py-1.5 rounded-lg bg-cyan-600 text-white border-cyan-400 text-center" title="خانتان عشريتان">2</button>
+            <button type="button" onclick="setNumDecimals(3)" id="btnDec3" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="3 خانات عشرية">3</button>
+            <button type="button" onclick="setNumDecimals(4)" id="btnDec4" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="4 خانات عشرية">4</button>
+            <button type="button" onclick="setNumDecimals(5)" id="btnDec5" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="تقريب لـ 5 خانات عشرية">5</button>
+            <button type="button" onclick="setNumDecimals(6)" id="btnDec6" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="تقريب لـ 6 خانات عشرية">6</button>
+          </div>
+          <div class="text-[9px] text-slate-400">تفعيل التقريب الدقيق للعملات والكسور حتى 5 و6 خانات عشريّة</div>
+        </div>
+
+        <!-- 6. الفواصل (الألفية والعشرية) -->
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div>
+            <label class="block text-[10.5px] font-bold text-slate-300 mb-1">الفاصلة الألفية:</label>
+            <select id="numThousandsSelect" onchange="updateNumPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
+              <option value="," selected>فاصلة ( , ) 1,000</option>
+              <option value=".">نقطة ( . ) 1.000</option>
+              <option value=" ">مسافة ( 1 000 )</option>
+              <option value="">بدون فاصلة (1000)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[10.5px] font-bold text-slate-300 mb-1">الفاصلة العشرية:</label>
+            <select id="numDecimalSelect" onchange="updateNumPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
+              <option value="." selected>نقطة ( . ) 0.50</option>
+              <option value=",">فاصلة ( , ) 0,50</option>
+            </select>
+          </div>
+        </div>
+
       </div>
 
-      <!-- 5. الخانات العشرية والتقريب (0، 1، 2، 3، 4، 5، 6 خانات) -->
-      <div class="space-y-1">
-        <div class="flex justify-between items-center text-[11px] font-bold">
-          <span class="text-slate-300">الخانات العشرية والتقريب:</span>
-          <span id="currentDecimalsLabel" class="text-cyan-400 font-mono text-xs">2 خانة</span>
-        </div>
-        <div class="grid grid-cols-7 gap-1 text-xs font-bold font-mono">
-          <button type="button" onclick="setNumDecimals(0)" id="btnDec0" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="بدون كسور (أرقام صحيحة مقربة)">0</button>
-          <button type="button" onclick="setNumDecimals(1)" id="btnDec1" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="خانة عشرية واحدة">1</button>
-          <button type="button" onclick="setNumDecimals(2)" id="btnDec2" class="dec-btn py-1.5 rounded-lg bg-cyan-600 text-white border-cyan-400 text-center" title="خانتان عشريتان">2</button>
-          <button type="button" onclick="setNumDecimals(3)" id="btnDec3" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="3 خانات عشرية">3</button>
-          <button type="button" onclick="setNumDecimals(4)" id="btnDec4" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="4 خانات عشرية">4</button>
-          <button type="button" onclick="setNumDecimals(5)" id="btnDec5" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="تقريب لـ 5 خانات عشرية">5</button>
-          <button type="button" onclick="setNumDecimals(6)" id="btnDec6" class="dec-btn py-1.5 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 text-center hover:bg-slate-700" title="تقريب لـ 6 خانات عشرية">6</button>
-        </div>
-        <div class="text-[9px] text-slate-400">تفعيل التقريب الدقيق للعملات والكسور حتى 5 و6 خانات عشريّة</div>
-      </div>
-
-      <!-- 6. الفواصل (الألفية والعشرية) -->
-      <div class="grid grid-cols-2 gap-2 text-xs">
-        <div>
-          <label class="block text-[10.5px] font-bold text-slate-300 mb-1">الفاصلة الألفية:</label>
-          <select id="numThousandsSelect" onchange="updateNumPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
-            <option value="," selected>فاصلة ( , ) 1,000</option>
-            <option value=".">نقطة ( . ) 1.000</option>
-            <option value=" ">مسافة ( 1 000 )</option>
-            <option value="">بدون فاصلة (1000)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-[10.5px] font-bold text-slate-300 mb-1">الفاصلة العشرية:</label>
-          <select id="numDecimalSelect" onchange="updateNumPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-2 py-1.5 text-white font-mono text-xs focus:outline-none focus:border-cyan-500">
-            <option value="." selected>نقطة ( . ) 0.50</option>
-            <option value=",">فاصلة ( , ) 0,50</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- زر الحفظ النهائي للخصائص -->
-      <div class="pt-1">
-        <button type="button" onclick="saveNumberProperties()" class="w-full py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-600/30 transition">
+      <!-- شريط الأزرار السفلي الثابت في الأسفل دائماً لسهولة الحفظ الفوري من أي مكان -->
+      <div class="px-4 py-3 bg-slate-950/95 border-t border-slate-800 shrink-0 flex items-center gap-2">
+        <button type="button" onclick="closeNumberPropertiesModal()" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-bold text-xs flex items-center justify-center gap-1 transition">
+          <i class="fa-solid fa-xmark text-xs"></i>
+          <span>إلغاء</span>
+        </button>
+        <button type="button" onclick="saveNumberProperties()" class="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-sky-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 active:scale-95 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-cyan-900/40 border border-cyan-400/40 transition">
           <i class="fa-solid fa-floppy-disk text-xs"></i>
           <span>حفظ وتطبيق الخصائص للبرنامج</span>
         </button>
       </div>
+
     </div>
   </div>
 
@@ -2177,11 +2214,19 @@ $currenciesData = [
       const chosenTarget = target || activeAmountTarget || 'sdg';
       switchActiveAmountTarget(chosenTarget);
 
-      document.getElementById('modalNumberProperties').classList.remove('hidden');
+      const modal = document.getElementById('modalNumberProperties');
+      if (modal) {
+        modal.classList.remove('hidden');
+        const scrollable = modal.querySelector('.modal-scrollable-body');
+        if (scrollable) {
+          scrollable.scrollTop = 0;
+        }
+      }
     }
 
     function closeNumberPropertiesModal() {
-      document.getElementById('modalNumberProperties').classList.add('hidden');
+      const modal = document.getElementById('modalNumberProperties');
+      if (modal) modal.classList.add('hidden');
     }
 
     function setNumColor(color, label = '', refresh = true) {
