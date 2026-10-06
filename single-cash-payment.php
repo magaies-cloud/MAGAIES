@@ -17,6 +17,52 @@ if ($isMobileDevice && !$isDesktopParam && empty($_POST)) {
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
+
+// API endpoint لحفظ وترحيل السند مباشرة إلى قاعدة البيانات MariaDB من اللابتوب
+if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['api']) && $_POST['api'] === 'save_voucher')) {
+    header('Content-Type: application/json; charset=UTF-8');
+    $raw = file_get_contents('php://input');
+    $payload = json_decode($raw, true) ?: $_POST;
+    if ($payload) {
+        $voucherNo = trim($payload['id'] ?? ($payload['voucherNo'] ?? ''));
+        $idempotencyKey = trim($payload['idempotencyKey'] ?? ($payload['client_draft_id'] ?? ''));
+        $tId = $GLOBAL_TENANT_ID ?? 1;
+        try {
+            if (!empty($idempotencyKey)) {
+                $stmtCheckIdem = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+                $stmtCheckIdem->execute([$tId, $idempotencyKey]);
+                $existingIdem = $stmtCheckIdem->fetch(PDO::FETCH_ASSOC);
+                if ($existingIdem) {
+                    $d = json_decode($existingIdem['data'], true);
+                    echo json_encode(['success' => true, 'id' => $d['voucherNo'] ?? ($d['id'] ?? $voucherNo), 'idempotent' => true]);
+                    exit;
+                }
+            }
+            $jsonRecord = json_encode($payload, JSON_UNESCAPED_UNICODE);
+            $stmtCheck = $pdo->prepare("SELECT id FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+            $stmtCheck->execute([$tId, $voucherNo, $voucherNo]);
+            $existingDbId = $stmtCheck->fetchColumn();
+            if ($existingDbId) {
+                $stmtUp = $pdo->prepare("UPDATE single_payments SET data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp->execute([$jsonRecord, $existingDbId]);
+            } else {
+                $stmtIns = $pdo->prepare("INSERT INTO single_payments (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tId, $jsonRecord]);
+            }
+            try {
+                $syncId = 'sync-' . bin2hex(random_bytes(6));
+                $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'single_payments', ?, ?, ?, 'SYNCED', NOW(), NOW())");
+                $stmtSync->execute([$syncId, $voucherNo, $existingDbId ? 'UPDATE' : 'INSERT', $jsonRecord]);
+            } catch(Exception $es) {}
+            echo json_encode(['success' => true, 'id' => $voucherNo]);
+        } catch(Exception $e) {
+            echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+        }
+    } else {
+        echo json_encode(['success' => false, 'error' => 'No payload']);
+    }
+    exit;
+}
 $prefix = 'E' . date('ym');
 $maxSeq = 0;
 try {

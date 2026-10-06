@@ -205,73 +205,202 @@ if (!function_exists('fetchAllLiveAccounts')) {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// الدوال المساعدة لفحص وتتبع وتدقيق أرقام التحويلات في قاعدة البيانات MariaDB
+// ────────────────────────────────────────────────────────────────────────────
+if (!function_exists('extractAllTransfersFromRecord')) {
+    function extractAllTransfersFromRecord($d) {
+        $refs = [];
+        if (!empty($d['mobileTransferNo']) && is_string($d['mobileTransferNo'])) $refs[] = trim($d['mobileTransferNo']);
+        if (!empty($d['transferRef']) && is_string($d['transferRef'])) $refs[] = trim($d['transferRef']);
+        if (!empty($d['refNo']) && is_string($d['refNo'])) $refs[] = trim($d['refNo']);
+        if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
+            foreach ($d['bankTransfers'] as $bt) {
+                if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+            }
+        }
+        if (!empty($d['details']) && is_array($d['details'])) {
+            foreach ($d['details'] as $det) {
+                if (!empty($det['transferNo']) && is_string($det['transferNo'])) $refs[] = trim($det['transferNo']);
+                if (!empty($det['bankTransfers']) && is_array($det['bankTransfers'])) {
+                    foreach ($det['bankTransfers'] as $bt) {
+                        if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+                    }
+                }
+            }
+        }
+        if (!empty($d['items']) && is_array($d['items'])) {
+            foreach ($d['items'] as $item) {
+                if (!empty($item['transferNo']) && is_string($item['transferNo'])) $refs[] = trim($item['transferNo']);
+                if (!empty($item['bankTransfers']) && is_array($item['bankTransfers'])) {
+                    foreach ($item['bankTransfers'] as $bt) {
+                        if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+                    }
+                }
+            }
+        }
+        return array_values(array_unique(array_filter($refs)));
+    }
+}
+
+if (!function_exists('fetchAllDbTransfers')) {
+    function fetchAllDbTransfers($pdo, $currentTenantId = null) {
+        $results = [];
+        $seen = [];
+        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
+        foreach ($tables as $tbl) {
+            try {
+                $stmt = $pdo->query("SELECT id, tenant_id, data FROM `$tbl`");
+                while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $d = json_decode($r['data'], true);
+                    if (!$d) continue;
+                    $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    $refs = extractAllTransfersFromRecord($d);
+                    foreach ($refs as $ref) {
+                        $clean = preg_replace('/\D/', '', (string)$ref);
+                        $key = $vNo . '_' . $ref;
+                        if (isset($seen[$key])) continue;
+                        $seen[$key] = true;
+                        $results[] = [
+                            'voucherNo' => $vNo,
+                            'table' => $tbl,
+                            'tenantId' => $r['tenant_id'],
+                            'ref' => (string)$ref,
+                            'cleanRef' => $clean ?: (string)$ref,
+                            'date' => $d['date'] ?? '',
+                            'amount' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
+                            'bank' => $d['bankName'] ?? ($d['bank'] ?? '')
+                        ];
+                    }
+                }
+            } catch(Exception $e) {}
+        }
+        return $results;
+    }
+}
+
+if (!function_exists('findTransferDuplicateInDb')) {
+    function findTransferDuplicateInDb($pdo, $ref, $currentVNo = '', $currentTenantId = null) {
+        $ref = trim((string)$ref);
+        if ($ref === '') return null;
+        $cleanRef = preg_replace('/\D/', '', $ref) ?: strtolower($ref);
+        $compLen = strlen($cleanRef);
+
+        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
+        foreach ($tables as $tbl) {
+            try {
+                $stmt = $pdo->query("SELECT id, tenant_id, data FROM `$tbl`");
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $d = json_decode($row['data'], true);
+                    if (!$d) continue;
+                    $existingVNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    if ($existingVNo !== '' && $currentVNo !== '' && $existingVNo === $currentVNo) {
+                        continue;
+                    }
+                    $candidates = extractAllTransfersFromRecord($d);
+                    foreach ($candidates as $cr) {
+                        $strCr = trim((string)$cr);
+                        $cleanCr = preg_replace('/\D/', '', $strCr) ?: strtolower($strCr);
+                        if ($cleanCr === '') continue;
+
+                        $matched = false;
+                        $matchType = '';
+
+                        // 1. التطابق التام (سواء كان 4 أو 5 أو 6 أرقام مثل 54016 أو 5416)
+                        if ($cleanCr === $cleanRef || $strCr === $ref) {
+                            $matched = true;
+                            $matchType = 'تطابق تام';
+                        }
+                        // 2. تطابق آخر 6 أرقام
+                        elseif ($compLen >= 6 && strlen($cleanCr) >= 6 && substr($cleanCr, -6) === substr($cleanRef, -6)) {
+                            $matched = true;
+                            $matchType = 'تطابق آخر 6 أرقام';
+                        }
+                        // 3. تطابق اللواحق للأرقام ذات 4 أو 5 أرقام
+                        elseif ($compLen >= 4 && strlen($cleanCr) >= $compLen && substr($cleanCr, -$compLen) === $cleanRef) {
+                            $matched = true;
+                            $matchType = 'تطابق لاحقة الرقم';
+                        }
+                        elseif (strlen($cleanCr) >= 4 && $compLen >= strlen($cleanCr) && substr($cleanRef, -strlen($cleanCr)) === $cleanCr) {
+                            $matched = true;
+                            $matchType = 'تطابق لاحقة الرقم';
+                        }
+                        // 4. تشابه رقمي شديد (فرق رقم واحد typo مثل 54016 vs 5416)
+                        elseif ($compLen >= 4 && abs($compLen - strlen($cleanCr)) <= 1 && levenshtein($cleanRef, $cleanCr) <= 1) {
+                            $matched = true;
+                            $matchType = 'تشابه رقمي شديد';
+                        }
+
+                        if ($matched) {
+                            return [
+                                'voucherNo' => $existingVNo ?: 'سابق',
+                                'ref' => $strCr,
+                                'date' => $d['date'] ?? '',
+                                'amount' => $d['amountLocal'] ?? ($d['amount'] ?? 0),
+                                'bank' => $d['bankName'] ?? ($d['bank'] ?? ''),
+                                'from' => $d['fromAccountName'] ?? ($d['from'] ?? ''),
+                                'to' => $d['toAccountName'] ?? ($d['to'] ?? ($d['beneficiaryName'] ?? '')),
+                                'table' => $tbl,
+                                'matchType' => $matchType
+                            ];
+                        }
+                    }
+                }
+            } catch(Exception $e) {}
+        }
+        return null;
+    }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // 1. API BACKEND ENDPOINTS (AJAX: Save, Delete, Check Duplicate, Sync)
 // ────────────────────────────────────────────────────────────────────────────
 if (isset($_GET['api']) || isset($_POST['api'])) {
     header('Content-Type: application/json; charset=UTF-8');
     $action = $_GET['api'] ?? ($_POST['api'] ?? '');
 
-    // 1.1 فحص رقم التحويلة البنكية (منع التكرار وشرط 6 أرقام على الأقل ومطابقة آخر 6 أرقام على اليمين)
+    // 1.1 فحص رقم التحويلة البنكية ومطابقة قاعدة البيانات MariaDB فورياً وسريعاً جداً
     if ($action === 'check_duplicate') {
         $ref = trim($_GET['ref'] ?? ($_POST['ref'] ?? ''));
         $currentVNo = trim($_GET['voucherNo'] ?? ($_POST['voucherNo'] ?? ''));
         
-        if (strlen($ref) < 6) {
-            echo json_encode(['valid' => false, 'error' => 'رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل لضمان الدقة وتفادي الأخطاء']);
+        if ($ref === '') {
+            echo json_encode(['valid' => true, 'duplicate' => false, 'message' => 'رقم فارغ']);
             exit;
         }
 
-        $targetSuffix = substr($ref, -6);
+        $cleanRef = preg_replace('/\D/', '', $ref);
+        $refLen = strlen($cleanRef ?: $ref);
+        $isShort = ($refLen < 6);
 
-        try {
-            $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL)");
-            $stmt->execute([$currentTenantId]);
-            
-            $duplicateFound = false;
-            $matchedVoucher = '';
-            $matchedRef = '';
-            while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                $d = json_decode($row['data'], true);
-                if (!$d) continue;
-                $existingVNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
-                if ($existingVNo && $existingVNo === $currentVNo) {
-                    continue;
-                }
+        $dup = findTransferDuplicateInDb($pdo, $ref, $currentVNo, $currentTenantId);
 
-                $candidateRefs = [];
-                if (!empty($d['mobileTransferNo'])) $candidateRefs[] = $d['mobileTransferNo'];
-                if (!empty($d['transferRef'])) $candidateRefs[] = $d['transferRef'];
-                if (!empty($d['refNo'])) $candidateRefs[] = $d['refNo'];
-                if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
-                    foreach ($d['bankTransfers'] as $bt) {
-                        if (!empty($bt['transferNo'])) $candidateRefs[] = $bt['transferNo'];
-                    }
-                }
+        if ($dup) {
+            $msg = "عفواً، رقم التحويلة ({$ref}) مكرر ومسجل مسبقاً في السند رقم ({$dup['voucherNo']})";
+            if (!empty($dup['date'])) $msg .= " بتاريخ ({$dup['date']})";
+            if (!empty($dup['bank'])) $msg .= " لدى ({$dup['bank']})";
+            $msg .= " ({$dup['matchType']}).";
 
-                foreach ($candidateRefs as $cr) {
-                    $crStr = trim((string)$cr);
-                    if (strlen($crStr) >= 6 && substr($crStr, -6) === $targetSuffix) {
-                        $duplicateFound = true;
-                        $matchedVoucher = $existingVNo ?: 'سابق';
-                        $matchedRef = $crStr;
-                        break 2;
-                    }
-                }
-            }
-
-            if ($duplicateFound) {
-                echo json_encode([
-                    'valid' => false, 
-                    'error' => "عفواً، رقم التحويلة ($ref) مسجل مسبقاً في السند رقم ($matchedVoucher) لتطابق آخر 6 أرقام ($targetSuffix).",
-                    'matchedVoucher' => $matchedVoucher,
-                    'matchedRef' => $matchedRef,
-                    'suffix' => $targetSuffix
-                ], JSON_UNESCAPED_UNICODE);
-            } else {
-                echo json_encode(['valid' => true, 'message' => 'رقم التحويلة سليم وغير مسجل مسبقاً']);
-            }
-        } catch (Exception $e) {
-            echo json_encode(['valid' => true, 'note' => 'تم الفحص المحلي بنجاح']);
+            echo json_encode([
+                'valid' => false,
+                'duplicate' => true,
+                'isShort' => $isShort,
+                'error' => $msg,
+                'matchedVoucher' => $dup['voucherNo'],
+                'matchedRef' => $dup['ref'],
+                'matchedDate' => $dup['date'],
+                'matchedAmount' => $dup['amount'],
+                'matchedBank' => $dup['bank'],
+                'matchedFrom' => $dup['from'],
+                'matchedTo' => $dup['to'],
+                'matchType' => $dup['matchType']
+            ], JSON_UNESCAPED_UNICODE);
+        } else {
+            echo json_encode([
+                'valid' => true,
+                'duplicate' => false,
+                'isShort' => $isShort,
+                'message' => 'رقم التحويلة سليم وغير مسجل مسبقاً في قاعدة البيانات'
+            ], JSON_UNESCAPED_UNICODE);
         }
         exit;
     }
@@ -284,6 +413,28 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         if (!$payload) {
             echo json_encode(['success' => false, 'error' => 'بيانات السند غير صالحة']);
             exit;
+        }
+
+        $isNew = empty($payload['isEditing']) || strpos((string)($payload['voucherNo'] ?? ''), 'أوفلاين') !== false;
+        $idempotencyKey = trim($payload['idempotencyKey'] ?? ($payload['client_draft_id'] ?? ''));
+
+        // فحص مفتاح منع تكرار النقر المزدوج (Idempotency Protection)
+        // يتم الفحص أولاً قبل قيود رقم التحويلة لمنع حدوث خطأ كاذب بتكرار التحويلة إذا تم إرسال الطلب مرتين
+        if ($isNew && !empty($idempotencyKey)) {
+            $stmtCheckIdem = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+            $stmtCheckIdem->execute([$currentTenantId, $idempotencyKey]);
+            $existingRow = $stmtCheckIdem->fetch(PDO::FETCH_ASSOC);
+            if ($existingRow) {
+                $existingRecord = json_decode($existingRow['data'], true);
+                echo json_encode([
+                    'success' => true,
+                    'voucherNo' => $existingRecord['voucherNo'] ?? ($existingRecord['id'] ?? ''),
+                    'record' => $existingRecord,
+                    'idempotent' => true,
+                    'message' => 'تم استرجاع السند المعتمد مسبقاً لمنع التكرار (Idempotency Protection)'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
         }
 
         $amt = (float)($payload['amountLocal'] ?? 0);
@@ -303,12 +454,12 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         $toAccName = trim($payload['toAccountName'] ?? ($payload['to'] ?? ''));
 
         if (empty($fromAccName)) {
-            echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: يرجى تحديد حساب الصرف (من حساب) لإتمام حفظ السند'], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['success' => false, 'error' => 'يرجى اختيار حساب الدفع (الدافع)'], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
         if (empty($toAccName)) {
-            echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: يرجى تحديد حساب المستفيد أو الطرف المستلم (إلى حساب) لإتمام حفظ السند'], JSON_UNESCAPED_UNICODE);
+            echo json_encode(['success' => false, 'error' => 'يرجى اختيار الحساب المستفيد'], JSON_UNESCAPED_UNICODE);
             exit;
         }
 
@@ -316,64 +467,46 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         // 1. إذا كانت طريقة الدفع تحويل بنكي
         if ($payMethod === 'transfer') {
             if (empty($transferRef)) {
-                echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: لا يمكن حفظ سند التحويل دون إدخال رقم التحويلة نهائياً'], JSON_UNESCAPED_UNICODE);
+                echo json_encode(['success' => false, 'error' => 'يرجى إدخال رقم حساب التحويل'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
-            if (strlen($transferRef) < 6) {
-                echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل لضمان المطابقة'], JSON_UNESCAPED_UNICODE);
+            $cleanTrLen = strlen(preg_replace('/\D/', '', $transferRef) ?: $transferRef);
+            if ($cleanTrLen < 3) {
+                echo json_encode(['success' => false, 'error' => 'رقم التحويلة قصير جداً! يرجى التأكد من كتابة رقم التحويل بشكل صحيح.'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
             if (empty($bankName)) {
-                echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: يجب إدخال أو اختيار اسم البنك لإتمام التحويل'], JSON_UNESCAPED_UNICODE);
+                echo json_encode(['success' => false, 'error' => 'اسم البنك إجباري، يرجى كتابة اسم البنك'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
 
-            // فحص منع التكرار بمطابقة آخر 6 أرقام على اليمين
-            $targetSuffix = substr($transferRef, -6);
+            // فحص منع التكرار مباشرة عبر كافة جداول وسندات قاعدة البيانات MariaDB
             $currentVNo = trim($payload['voucherNo'] ?? ($payload['id'] ?? ''));
-            $stmtDup = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL)");
-            $stmtDup->execute([$currentTenantId]);
-            while ($rowDup = $stmtDup->fetch(PDO::FETCH_ASSOC)) {
-                $d = json_decode($rowDup['data'], true);
-                if (!$d) continue;
-                $existingVNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
-                if ($existingVNo && $existingVNo === $currentVNo) continue;
-
-                $candidateRefs = [];
-                if (!empty($d['mobileTransferNo'])) $candidateRefs[] = $d['mobileTransferNo'];
-                if (!empty($d['transferRef'])) $candidateRefs[] = $d['transferRef'];
-                if (!empty($d['refNo'])) $candidateRefs[] = $d['refNo'];
-                if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
-                    foreach ($d['bankTransfers'] as $bt) {
-                        if (!empty($bt['transferNo'])) $candidateRefs[] = $bt['transferNo'];
-                    }
-                }
-                foreach ($candidateRefs as $cr) {
-                    $crStr = trim((string)$cr);
-                    if (strlen($crStr) >= 6 && substr($crStr, -6) === $targetSuffix) {
-                        echo json_encode(['success' => false, 'error' => "عذراً ولطفاً: رقم التحويلة ($transferRef) ينتهي بالأرقام ($targetSuffix) وهو مطابق ومسجل مسبقاً في السند رقم ($existingVNo). يرجى التكرم بمراجعة الرقم."], JSON_UNESCAPED_UNICODE);
-                        exit;
-                    }
-                }
+            $dup = findTransferDuplicateInDb($pdo, $transferRef, $currentVNo, $currentTenantId);
+            if ($dup) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => "تحويلة مكررة: رقم التحويلة ({$transferRef}) تم تسجيله مسبقاً في النظام بالسند رقم ({$dup['voucherNo']})" . (!empty($dup['date']) ? " بتاريخ {$dup['date']}" : "") . " لتطابقه ({$dup['matchType']})."
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
             }
         } elseif (stripos($payMethod, 'cheque') !== false) {
-            // شروط الشيك: كتابة رقم الشيك واسم البنك
-            if (empty($transferRef)) {
-                echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: لا يمكن حفظ سند الشيك دون كتابة رقم الشيك'], JSON_UNESCAPED_UNICODE);
+            // شروط الشيك: كتابة اسم البنك ورقم الشيك
+            if (empty($bankName)) {
+                echo json_encode(['success' => false, 'error' => 'اسم البنك إجباري، يرجى كتابة اسم البنك'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
-            if (empty($bankName)) {
-                echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: يجب إدخال أو اختيار اسم بنك الشيك لإتمام العملية'], JSON_UNESCAPED_UNICODE);
+            if (empty($transferRef)) {
+                echo json_encode(['success' => false, 'error' => 'رقم الشيك إجباري، لابد من كتابة رقم الشيك'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
         }
 
         try {
-            $isNew = empty($payload['isEditing']) || strpos((string)($payload['voucherNo'] ?? ''), 'أوفلاين') !== false;
-            $prefix = 'E' . date('ym');
-            $maxSeq = 0;
-
             if ($isNew) {
+                // توليد رقم سند جديد متسلسل
+                $prefix = 'E' . date('ym');
+                $maxSeq = 0;
                 $stmtSeq = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
                 $stmtSeq->execute([$currentTenantId]);
                 while ($row = $stmtSeq->fetch(PDO::FETCH_ASSOC)) {
@@ -387,6 +520,34 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 $voucherNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
             } else {
                 $voucherNo = $payload['voucherNo'] ?? $payload['id'];
+            }
+
+            // معالجة وحفظ صورة الإشعار البنكي المرفقة كمستند ثبوتي في السيرفر
+            $attachmentPath = null;
+            if (!empty($payload['attachment'])) {
+                $att = $payload['attachment'];
+                if (is_array($att) && isset($att['dataUrl'])) {
+                    $att = $att['dataUrl'];
+                }
+                if (is_string($att) && preg_match('/^data:image\/(\w+);base64,/', $att, $type)) {
+                    $base64Data = substr($att, strpos($att, ',') + 1);
+                    $ext = strtolower($type[1]);
+                    if ($ext === 'jpeg') $ext = 'jpg';
+                    $decoded = base64_decode($base64Data);
+                    if ($decoded !== false) {
+                        $dir = __DIR__ . '/uploads/receipts/';
+                        if (!is_dir($dir)) {
+                            @mkdir($dir, 0777, true);
+                        }
+                        $cleanVNo = preg_replace('/[^a-zA-Z0-9_-]/', '', $voucherNo);
+                        $fileName = 'receipt_' . $cleanVNo . '_' . time() . '.' . $ext;
+                        if (@file_put_contents($dir . $fileName, $decoded)) {
+                            $attachmentPath = 'uploads/receipts/' . $fileName;
+                        }
+                    }
+                } elseif (is_string($att) && (str_starts_with($att, 'uploads/') || str_starts_with($att, 'http'))) {
+                    $attachmentPath = $att;
+                }
             }
 
             $record = [
@@ -414,7 +575,8 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 'refNo' => $transferRef,
                 'notes' => $payload['notes'] ?? '',
                 'toStatement' => $payload['notes'] ?? '',
-                'attachment' => $payload['attachment'] ?? null,
+                'attachment' => $attachmentPath,
+                'idempotencyKey' => $idempotencyKey,
                 'isPosted' => true,
                 'source' => 'mobile_v2',
                 'timestamp' => date('c')
@@ -558,6 +720,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         } catch(Exception $e) {}
 
         $nextVNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+        $allDbTransfersLive = fetchAllDbTransfers($pdo, $currentTenantId);
 
         echo json_encode([
             'success' => true,
@@ -568,7 +731,8 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
             'totalVouchers' => count($liveVouchers),
             'nextVoucherNo' => $nextVNo,
             'accounts' => $liveAccounts,
-            'vouchers' => $liveVouchers
+            'vouchers' => $liveVouchers,
+            'allTransferRefs' => $allDbTransfersLive
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
@@ -578,6 +742,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
 // 2. DATA PRELOADING: الحسابات، مراكز الكلفة، العملات، السندات السابقة
 // ────────────────────────────────────────────────────────────────────────────
 $accountsList = fetchAllLiveAccounts($pdo, $currentTenantId);
+$allDbTransfersPreload = fetchAllDbTransfers($pdo, $currentTenantId);
 
 // 2.6 جلب السندات السابقة من single_payments لمطابقة اللابتوب والتنقل (◀ ▶)
 $vouchersHistory = [];
@@ -667,6 +832,7 @@ $currenciesData = [
     window.PHP_ACCOUNTS = <?php echo json_encode($accountsList, JSON_UNESCAPED_UNICODE); ?>;
     window.PHP_VOUCHERS = <?php echo json_encode($vouchersHistory, JSON_UNESCAPED_UNICODE); ?>;
     window.PHP_NEXT_NO = <?php echo json_encode($nextSequentialVoucherNo); ?>;
+    window.DB_ALL_TRANSFER_REFS = <?php echo json_encode($allDbTransfersPreload, JSON_UNESCAPED_UNICODE); ?>;
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -678,8 +844,8 @@ $currenciesData = [
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>حركة مالية - تصميم شاشات الجوال المتطورة</title>
   
-  <!-- CDN Tailwind with fallback styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Local Tailwind CSS -->
+  <link rel="stylesheet" href="css/tailwind.min.css">
   
   <!-- FontAwesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -754,6 +920,126 @@ $currenciesData = [
     .voice-field-glow {
       animation: voiceGlowPulse 2.4s ease-out;
       border-color: #06b6d4 !important;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       نظام التنبيهات والتوست المركزي الفاخر المقتبس من شاشة حركة مالية (single-cash-payment)
+       ═════════════════════════════════════════════════════════════════ */
+    .toast-container {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      z-index: 1000000 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 15px !important;
+      pointer-events: none !important;
+      width: auto !important;
+      max-width: 94vw !important;
+    }
+
+    .toast {
+      padding: 16px 28px !important;
+      border-radius: 20px !important;
+      font-weight: 800 !important;
+      font-size: 1.15rem !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 14px !important;
+      pointer-events: auto !important;
+      backdrop-filter: blur(25px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+      box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+      animation: toastCenterIn 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275) both !important;
+      font-family: 'Cairo', 'Tajawal', system-ui, sans-serif !important;
+      min-width: 280px !important;
+      max-width: 94vw !important;
+      text-align: center !important;
+      direction: rtl !important;
+      letter-spacing: 0.3px !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      transition: transform 0.2s ease, opacity 0.3s ease !important;
+    }
+
+    .toast:hover {
+      transform: scale(1.02) !important;
+    }
+
+    .toast .toast-icon {
+      font-size: 1.5rem !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex-shrink: 0 !important;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4)) !important;
+    }
+
+    .toast .toast-text {
+      flex: 1 !important;
+      line-height: 1.5 !important;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
+    }
+
+    .toast.error, .toast.danger {
+      background: linear-gradient(145deg, rgba(38, 8, 16, 0.96), rgba(80, 15, 28, 0.94)) !important;
+      border: 1.5px solid rgba(248, 113, 113, 0.65) !important;
+      color: #ffffff !important;
+      box-shadow: 0 20px 60px rgba(239, 68, 68, 0.35), 0 0 30px rgba(239, 68, 68, 0.2), inset 0 0 15px rgba(239, 68, 68, 0.15) !important;
+    }
+
+    .toast.warning {
+      background: linear-gradient(145deg, rgba(40, 24, 6, 0.96), rgba(85, 48, 12, 0.94)) !important;
+      border: 1.5px solid rgba(251, 191, 36, 0.65) !important;
+      color: #ffffff !important;
+      box-shadow: 0 20px 60px rgba(245, 158, 11, 0.35), 0 0 30px rgba(245, 158, 11, 0.2), inset 0 0 15px rgba(245, 158, 11, 0.15) !important;
+    }
+
+    .toast.success {
+      background: linear-gradient(145deg, rgba(6, 36, 24, 0.96), rgba(12, 70, 45, 0.94)) !important;
+      border: 1.5px solid rgba(52, 211, 153, 0.65) !important;
+      color: #ffffff !important;
+      box-shadow: 0 20px 60px rgba(16, 185, 129, 0.35), 0 0 30px rgba(16, 185, 129, 0.2), inset 0 0 15px rgba(16, 185, 129, 0.15) !important;
+    }
+
+    .toast.info {
+      background: linear-gradient(145deg, rgba(12, 30, 52, 0.96), rgba(20, 60, 100, 0.94)) !important;
+      border: 1.5px solid rgba(56, 189, 248, 0.65) !important;
+      color: #ffffff !important;
+      box-shadow: 0 20px 60px rgba(56, 189, 248, 0.35), 0 0 30px rgba(56, 189, 248, 0.2), inset 0 0 15px rgba(56, 189, 248, 0.15) !important;
+    }
+
+    .toast.hide {
+      animation: toastCenterOut 0.32s cubic-bezier(0.4, 0, 1, 1) forwards !important;
+    }
+
+    @keyframes toastCenterIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(20px);
+        filter: blur(10px);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes toastCenterOut {
+      0% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0.8) translateY(-20px);
+        filter: blur(8px);
+      }
     }
 
     /* شريط التمرير الانسيابي للنافذة المنبثقة لخصائص الأرقام للتحرك لأعلى ولأسفل بسهولة */
@@ -1271,7 +1557,7 @@ $currenciesData = [
           <!-- الرقم التسلسلي لوحده كامل ومصغر درجة واحدة لراحة العين -->
           <div class="text-center px-1 flex-1 min-w-0 flex items-center justify-center overflow-visible">
             <span id="voucherTag" class="hidden"></span>
-            <span class="text-[15px] sm:text-[16px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow" id="currentVoucherDisplay"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
+            <span class="text-[15px] sm:text-[16px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow cursor-pointer hover:underline" id="currentVoucherDisplay" onclick="showDigitalVoucherReceipt()" title="اضغط لعرض الإيصال الرقمي الرسمي المعتمد ورمز الـ QR 📜"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
           </div>
 
           <!-- سهم شمال صغير على الطرف (للنزول للأقدم) -->
@@ -1412,16 +1698,17 @@ $currenciesData = [
 
         </div>
 
-        <!-- تفقيط المبلغ كتابة بالحروف العربية -->
-        <div id="tafqeetDisplay" class="hidden text-[10.5px] font-bold text-amber-300 bg-amber-950/40 border border-amber-500/50 px-2.5 py-1.5 rounded-xl text-center shadow-sm">
-          <!-- النص العربي للتفقيط -->
+        <!-- تفقيط المبلغ كتابة بالحروف العربية بتصميم فاخر ومريح للأعصاب -->
+        <div id="tafqeetDisplay" class="hidden transition-all duration-300 bg-gradient-to-r from-amber-950/70 via-slate-950 to-amber-950/70 border border-amber-500/60 px-3 py-2 rounded-xl text-center shadow-[0_0_15px_rgba(245,158,11,0.2)] flex items-center justify-center gap-2">
+          <i class="fa-solid fa-feather-pointed text-amber-400 text-xs shrink-0 animate-pulse"></i>
+          <span id="tafqeetText" class="text-xs sm:text-sm font-black text-amber-300 tracking-wide font-sans leading-relaxed"></span>
         </div>
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
            من حساب:
            - زيادة المساحة والعرض بنسبة 15%+ لاستيعاب الأسماء الطويلة بحجم خط كبير جداً
-           - حواف حمراء فائقة الإضاءة والوضوح
+           - حواف حمراء فائقة الإضاءة والوضوح مع عرض الرصيد المتوقع بعد الحركة
            ═════════════════════════════════════════════════════════════════ -->
       <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 border-[2.5px] border-red-500 shadow-[0_0_28px_rgba(239,68,68,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
@@ -1434,15 +1721,22 @@ $currenciesData = [
             </button>
           </div>
 
-          <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة -->
-          <div class="flex items-center gap-1 shrink-0" id="fromBalanceWrapper">
-            <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[10px] font-black text-amber-400">ج.س:</span>
-              <span id="fromAccountSdgBalance" class="text-xs font-mono font-black text-amber-200">14,850,000</span>
+          <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة مع الرصيد المتوقع بعد الحركة -->
+          <div class="flex flex-col items-end gap-1 shrink-0" id="fromBalanceWrapper">
+            <div class="flex items-center gap-1">
+              <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
+                <span class="text-[10px] font-black text-amber-400">ج.س:</span>
+                <span id="fromAccountSdgBalance" class="text-xs font-mono font-black text-amber-200">0</span>
+              </div>
+              <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
+                <span class="text-[10px] font-black text-emerald-400">$ :</span>
+                <span id="fromAccountUsdBalance" class="text-xs font-mono font-black text-emerald-200">0.00</span>
+              </div>
             </div>
-            <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[10px] font-black text-emerald-400">$ :</span>
-              <span id="fromAccountUsdBalance" class="text-xs font-mono font-black text-emerald-200">5,603.77</span>
+            <!-- الرصيد المتوقع بعد الصرف -->
+            <div id="fromProjectedBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1">
+              <span class="opacity-80">بعد الصرف:</span>
+              <span id="fromProjectedAmount" class="font-mono font-black"></span>
             </div>
           </div>
         </div>
@@ -1474,7 +1768,7 @@ $currenciesData = [
       <!-- ═════════════════════════════════════════════════════════════════
            إلى حساب:
            - زيادة المساحة والعرض بنسبة 15%+ مع خط كبير جداً وواضح
-           - حواف خضراء زمردية فائقة الإضاءة والوضوح
+           - حواف خضراء زمردية فائقة الإضاءة والوضوح مع عرض الرصيد بعد الاستلام
            ═════════════════════════════════════════════════════════════════ -->
       <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 border-[2.5px] border-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
@@ -1487,15 +1781,22 @@ $currenciesData = [
             </button>
           </div>
 
-          <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة -->
-          <div class="flex items-center gap-1 shrink-0" id="toBalanceWrapper">
-            <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[10px] font-black text-amber-400">ج.س:</span>
-              <span id="toAccountSdgBalance" class="text-xs font-mono font-black text-amber-200">1,850,000</span>
+          <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة مع الرصيد المتوقع بعد الاستلام -->
+          <div class="flex flex-col items-end gap-1 shrink-0" id="toBalanceWrapper">
+            <div class="flex items-center gap-1">
+              <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
+                <span class="text-[10px] font-black text-amber-400">ج.س:</span>
+                <span id="toAccountSdgBalance" class="text-xs font-mono font-black text-amber-200">0</span>
+              </div>
+              <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
+                <span class="text-[10px] font-black text-emerald-400">$ :</span>
+                <span id="toAccountUsdBalance" class="text-xs font-mono font-black text-emerald-200">0.00</span>
+              </div>
             </div>
-            <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
-              <span class="text-[10px] font-black text-emerald-400">$ :</span>
-              <span id="toAccountUsdBalance" class="text-xs font-mono font-black text-emerald-200">698.11</span>
+            <!-- الرصيد المتوقع بعد الاستلام -->
+            <div id="toProjectedBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1">
+              <span class="opacity-80">بعد الاستلام:</span>
+              <span id="toProjectedAmount" class="font-mono font-black"></span>
             </div>
           </div>
         </div>
@@ -1521,14 +1822,25 @@ $currenciesData = [
            - اسم البنك: لون أزرق جليدي فيروزي أنيق
            ═════════════════════════════════════════════════════════════════ -->
       <div id="transferContainer" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 space-y-2">
+        <input type="file" id="directReceiptCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleDirectReceiptSelected(event)">
+        <input type="file" id="directReceiptGalleryInput" accept="image/*" class="hidden" onchange="handleDirectReceiptSelected(event)">
+
         <div class="grid grid-cols-2 gap-2">
-          <!-- 1. رقم التحويلة بأناقة اللون الذهبي الدافئ والخط العريض المعزز -->
+          <!-- 1. رقم التحويلة بأناقة اللون الذهبي الدافئ والخط العريض مع زر الكاميرا وقراءة الـ OCR -->
           <div>
-            <label class="block text-xs sm:text-sm font-black text-amber-300 mb-1 flex items-center gap-1" id="refLabel">
-              <i class="fa-solid fa-receipt text-amber-400 text-xs"></i>
-              <span>رقم التحويل:</span>
-            </label>
-            <input type="text" id="transferInput" oninput="handleTransferInputScale(this.value)" onblur="checkDuplicateTransferLive(this.value)" placeholder="رقم التحويل" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2.5 h-[50px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_12px_rgba(245,158,11,0.2)]" style="font-size: 20px; text-align: center; direction: ltr;">
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1" id="refLabel">
+                <i class="fa-solid fa-receipt text-amber-400 text-xs"></i>
+                <span>رقم التحويل:</span>
+              </label>
+              <!-- زر تصوير إشعار البنك والقراءة الذكية OCR -->
+              <button type="button" onclick="triggerDirectReceiptCapture()" class="px-2 py-0.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-[10px] flex items-center gap-1 border border-emerald-400 shadow-sm active:scale-95 transition" title="تصوير أو رفع إشعار البنك (بنكك، فوري، أوكاش) واستخراج البيانات بالذكاء الاصطناعي">
+                <i class="fa-solid fa-camera text-[10px]"></i>
+                <span>إشعار (OCR) 📸</span>
+              </button>
+            </div>
+            <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويل" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2.5 h-[50px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_12px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 20px; text-align: center; direction: ltr;">
+            <div id="transferFeedbackBadge" class="mt-1 min-h-[20px] transition-all flex items-center justify-center"></div>
           </div>
 
           <!-- 2. اسم البنك بأناقة الفيروزي الجليدي والخط الواضح المعزز -->
@@ -1550,6 +1862,33 @@ $currenciesData = [
               <option value="بنك الثروة الحيوانية"></option>
               <option value="البنك الفرنسي السوداني"></option>
             </datalist>
+          </div>
+        </div>
+
+        <!-- بطاقة الإشعار البنكي المرفق والمثبت كمستند ثبوتي -->
+        <div id="receiptAttachmentCard" class="hidden p-2 rounded-xl bg-slate-950 border border-emerald-500/50 flex items-center justify-between gap-2 shadow-inner">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="w-10 h-10 rounded-lg border border-emerald-400/40 overflow-hidden bg-black shrink-0 cursor-pointer" onclick="openAttachedReceiptModal()">
+              <img id="receiptAttachmentThumb" src="" alt="إشعار البنك" class="w-full h-full object-cover">
+            </div>
+            <div class="min-w-0 text-right">
+              <div class="text-[11px] font-black text-emerald-300 flex items-center gap-1">
+                <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                <span>مستند ثبوتي معتمد (مرفق)</span>
+              </div>
+              <div id="receiptAttachmentSummary" class="text-[10px] text-slate-300 font-mono truncate">إشعار بنكك</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <button type="button" onclick="openAttachedReceiptModal()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs flex items-center justify-center border border-slate-700 active:scale-90" title="معاينة وتكبير الإشعار">
+              <i class="fa-solid fa-eye"></i>
+            </button>
+            <button type="button" onclick="triggerDirectReceiptCapture()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-xs flex items-center justify-center border border-slate-700 active:scale-90" title="إعادة التصوير">
+              <i class="fa-solid fa-camera-rotate"></i>
+            </button>
+            <button type="button" onclick="removeAttachedReceipt()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-red-950/50 text-red-400 text-xs flex items-center justify-center border border-slate-700 active:scale-90" title="حذف المرفق">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -2009,6 +2348,56 @@ $currenciesData = [
   <!-- حاوية خاصة مخفية تظهر فقط عند أمر الطباعة عبر الطابعة (Thermal POS Output) -->
   <div id="printableThermalSlip" class="hidden"></div>
 
+  <!-- نافذة خيارات التقاط إشعار البنك (كاميرا حية / استوديو سكرين شوت) -->
+  <div id="modalReceiptActionSheet" class="hidden fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-3 bg-black/85 backdrop-blur-md select-none" dir="rtl" onclick="closeReceiptActionSheet()">
+    <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border border-emerald-500/50 w-full max-w-sm rounded-t-3xl sm:rounded-3xl p-4 shadow-2xl space-y-3" onclick="event.stopPropagation()">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-xl bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-sm">
+            <i class="fa-solid fa-camera"></i>
+          </div>
+          <div>
+            <div class="text-xs font-black text-white">إرفاق إشعار البنك بالذكاء الاصطناعي (OCR)</div>
+            <div class="text-[10px] text-slate-400">بنكك، فوري، أوكاش مع استخراج تلقائي للرقم والمبلغ</div>
+          </div>
+        </div>
+        <button type="button" onclick="closeReceiptActionSheet()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 flex items-center justify-center text-xs">✕</button>
+      </div>
+
+      <div class="space-y-2 pt-1">
+        <button type="button" onclick="document.getElementById('directReceiptCameraInput').click(); closeReceiptActionSheet();" class="w-full py-3 px-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs flex items-center justify-between shadow-md active:scale-95 transition">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-camera text-base"></i>
+            <span class="text-right">تصوير الإشعار بالكاميرا الحية 📸</span>
+          </div>
+          <i class="fa-solid fa-chevron-left text-[10px] opacity-70"></i>
+        </button>
+
+        <button type="button" onclick="document.getElementById('directReceiptGalleryInput').click(); closeReceiptActionSheet();" class="w-full py-3 px-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-black text-xs flex items-center justify-between active:scale-95 transition">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-images text-base text-cyan-400"></i>
+            <span class="text-right">اختيار سكرين شوت من المعرض 🖼️</span>
+          </div>
+          <i class="fa-solid fa-chevron-left text-[10px] opacity-70"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- نافذة تكبير وعرض مستند إشعار البنك الثبوتي المرفق بالسند -->
+  <div id="modalReceiptViewer" class="hidden fixed inset-0 z-[1000001] bg-black/90 backdrop-blur-md flex items-center justify-center p-3 select-none" dir="rtl" onclick="this.classList.add('hidden')">
+    <div class="max-w-md w-full max-h-[90vh] bg-slate-900 border border-slate-700 rounded-3xl p-3 relative flex flex-col items-center" onclick="event.stopPropagation()">
+      <button type="button" onclick="document.getElementById('modalReceiptViewer').classList.add('hidden')" class="absolute top-3 left-3 w-8 h-8 rounded-full bg-slate-800 text-white font-bold flex items-center justify-center text-xs">✕</button>
+      <div class="text-xs font-black text-emerald-400 mb-2 flex items-center gap-1.5">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>مستند إشعار البنك الثبوتي المرفق بالسند</span>
+      </div>
+      <div class="flex-1 overflow-auto rounded-2xl bg-black w-full flex items-center justify-center p-1">
+        <img id="receiptViewerImg" src="" alt="إشعار البنك" class="max-h-[75vh] w-auto object-contain rounded-xl">
+      </div>
+    </div>
+  </div>
+
   <!-- ═════════════════════════════════════════════════════════════════
        نافذة منبثقة: افتح واستعراض السندات المسجلة (📂 افتح)
        ═════════════════════════════════════════════════════════════════ -->
@@ -2237,8 +2626,9 @@ $currenciesData = [
        نافذة التنبيه اللطيف والمهذب والتحذيري (Polite Gentle & Warning Modal)
        تدعم التنبيه اللطيف العادي والتنبيه التحذيري باللون الأحمر لرقم التحويلة المكرر وأقل من 6 أرقام
        ═════════════════════════════════════════════════════════════════ -->
-  <div id="politeWarningModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div id="politeModalCard" class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-500/70 rounded-3xl p-5 max-w-sm w-full text-center shadow-[0_0_50px_rgba(245,158,11,0.25)] space-y-4 animate-in fade-in zoom-in-95 duration-200">
+  <div id="politeWarningModal" onclick="if(event.target === this) closePoliteWarningModal()" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div id="politeModalCard" class="relative bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-500/70 rounded-3xl p-5 max-w-sm w-full text-center shadow-[0_0_50px_rgba(245,158,11,0.25)] space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      <button type="button" onclick="closePoliteWarningModal()" title="إغلاق التنبيه" class="absolute top-3 left-3 w-8 h-8 rounded-full bg-slate-800/80 hover:bg-red-500/30 text-slate-300 hover:text-white flex items-center justify-center text-sm font-bold border border-slate-700 transition">✕</button>
       
       <!-- أيقونة التنبيه اللطيفة أو التحذيرية -->
       <div id="politeModalIconWrapper" class="relative mx-auto w-16 h-16 rounded-2xl bg-amber-500/15 border-2 border-amber-400/40 flex items-center justify-center shadow-inner">
@@ -2314,11 +2704,15 @@ $currenciesData = [
         </div>
       </div>
 
-      <!-- زر الإغلاق السريع والمتابعة -->
-      <div class="pt-1">
-        <button id="saveFeedbackBtn" type="button" onclick="closeSaveFeedbackModal()" class="w-full py-3 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95">
+      <!-- أزرار الإجراء السريع: عرض الإيصال والمتابعة -->
+      <div class="grid grid-cols-2 gap-2 pt-1">
+        <button type="button" onclick="closeSaveFeedbackModal(); showDigitalVoucherReceipt();" class="py-2.5 px-2 rounded-xl font-black text-xs flex items-center justify-center gap-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-lg shadow-indigo-950 transition active:scale-95">
+          <i class="fa-solid fa-receipt text-xs"></i>
+          <span>الإيصال والـ QR 📜</span>
+        </button>
+        <button id="saveFeedbackBtn" type="button" onclick="closeSaveFeedbackModal()" class="w-full py-2.5 px-2 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-1.5 shadow-lg transition active:scale-95">
           <i class="fa-solid fa-check text-sm"></i>
-          <span>حسناً، متابعة العمل ✓</span>
+          <span>متابعة العمل ✓</span>
         </button>
       </div>
 
@@ -2327,6 +2721,1341 @@ $currenciesData = [
 
   <!-- Application Logic -->
   <script>
+    // ════════════════════════════════════════════════════════════════
+    // نظام التوست والرسائل المركزي المقتبس من شاشة حركة مالية (single-cash-payment)
+    // ════════════════════════════════════════════════════════════════
+    function showToast(msg, type = 'success', ms = 3500) {
+      let c = document.getElementById('toast-container');
+      if (!c) {
+        c = document.createElement('div');
+        c.id = 'toast-container';
+        c.className = 'toast-container';
+        document.body.appendChild(c);
+      }
+
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+
+      let icon = '✨';
+      if (type === 'error' || type === 'danger') icon = '❌';
+      else if (type === 'warning') icon = '⚠️';
+      else if (type === 'info') icon = 'ℹ️';
+      else if (type === 'success') icon = '✅';
+
+      t.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-text">${msg}</span>`;
+
+      t.onclick = function() {
+        t.classList.add('hide');
+        setTimeout(() => { if (t.parentNode) t.remove(); }, 320);
+      };
+
+      c.appendChild(t);
+      setTimeout(() => {
+        if (t.parentNode) {
+          t.classList.add('hide');
+          setTimeout(() => { if (t.parentNode) t.remove(); }, 350);
+        }
+      }, ms);
+    }
+    window.showToast = showToast;
+
+    // ════════════════════════════════════════════════════════════════
+    // نافذة التحذير الأمني لطول رقم التحويلة (< 6 أرقام) من شاشة حركة مالية
+    // ════════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════════
+    // نافذة التحذير الأمني لطول رقم التحويلة (< 6 أرقام) مع وسائل خروج متعددة
+    // ════════════════════════════════════════════════════════════════
+    let _lengthModalEscHandler = null;
+    let _dupModalEscHandler = null;
+    let _suppressTransferBlur = false;
+    let _shortTransferAllowed = false;
+    let _wasAttemptingSave = false;
+
+    function closeLengthWarningModal(proceed = false, focusInput = false) {
+      const m = document.getElementById('critical-alert-modal');
+      if (m) m.remove();
+      if (_lengthModalEscHandler) {
+        document.removeEventListener('keydown', _lengthModalEscHandler);
+        _lengthModalEscHandler = null;
+      }
+      _suppressTransferBlur = true;
+      if (proceed) {
+        _shortTransferAllowed = true;
+        showToast("تم اعتماد رقم التحويلة، جاري المتابعة...", "success", 2000);
+        if (_wasAttemptingSave) {
+          _wasAttemptingSave = false;
+          setTimeout(() => {
+            if (typeof saveMobileVoucher === 'function') {
+              saveMobileVoucher();
+            }
+          }, 150);
+        }
+      } else {
+        _wasAttemptingSave = false;
+      }
+      if (focusInput) {
+        const ti = document.getElementById('transferInput');
+        if (ti) {
+          ti.focus();
+          ti.select();
+        }
+      }
+      setTimeout(() => { _suppressTransferBlur = false; }, 400);
+    }
+    window.closeLengthWarningModal = closeLengthWarningModal;
+
+    function showLengthWarningModal(transferNo) {
+      const existing = document.getElementById('critical-alert-modal');
+      if (existing) existing.remove();
+
+      _lengthModalEscHandler = (e) => {
+        if (e.key === 'Escape') closeLengthWarningModal(false);
+      };
+      document.addEventListener('keydown', _lengthModalEscHandler);
+
+      const modalHTML = `
+        <div id="critical-alert-modal" onclick="if(event.target === this) closeLengthWarningModal(false)" style="position:fixed; inset:0; z-index:999999; display:flex; justify-content:center; align-items:center; background:rgba(10,0,0,0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:16px; box-sizing:border-box;">
+          <div style="position:relative; width:min(440px, 94vw); max-width:440px; background: radial-gradient(circle, #8b0000 0%, #3e0000 100%); border-radius:24px; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 3px solid rgba(255,100,100,0.5); padding: 30px 20px; text-align:center; box-sizing:border-box; box-shadow:0 0 50px rgba(220, 20, 60, 0.4);">
+            <!-- زر الخروج X في الزاوية العلوية -->
+            <button type="button" onclick="closeLengthWarningModal(false)" title="إغلاق التحذير" style="position:absolute; top:12px; left:12px; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; font-size:16px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseover="this.style.background='rgba(255,0,0,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">✕</button>
+
+            <div style="font-size: 3.8rem; text-shadow: 0 0 20px #ff0000; line-height:1;">⚠️</div>
+            <h2 style="color: #ffcccc; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 1.8rem; margin: 12px 0 8px; text-shadow: 0 0 10px #ff0000; font-weight:900;">تنبيه: رقم التحويلة قصير</h2>
+            <p style="color: #fff; font-size: 1.15rem; font-weight:bold; line-height: 1.6;">رقم التحويلة <span style="color:#ffeb3b; font-size:1.6rem; font-family:monospace;">${transferNo}</span><br>أقل من 6 أرقام (${(transferNo||'').length} خانات)</p>
+            <p style="color: #ffaaaa; font-size: 0.9rem; margin-bottom: 24px; line-height:1.5;">يفضل أن يتكون رقم التحويل من 6 أرقام لتفادي الأخطاء، ولكن يمكنك المتابعة إذا كان الرقم صحيحاً.</p>
+
+            <!-- أزرار الخروج والاختيار -->
+            <div style="display:flex; gap:10px; width:100%;">
+              <button type="button" onclick="closeLengthWarningModal(true)" style="flex:1; background: linear-gradient(45deg, #10b981, #059669); color: white; border: 2px solid #6ee7b7; border-radius: 18px; padding: 12px 14px; font-size: 1rem; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px rgba(16,185,129,0.4); transition: all 0.2s; font-family: 'Cairo', 'Tajawal', sans-serif;">
+                ✓ فهمت ومتابعة
+              </button>
+              <button type="button" onclick="closeLengthWarningModal(false, true)" style="flex:1; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 18px; padding: 12px 14px; font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: all 0.2s; font-family: 'Cairo', 'Tajawal', sans-serif;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                ✏️ تعديل الرقم
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+      if (typeof triggerHapticPulse === 'function') triggerHapticPulse();
+    }
+    window.showLengthWarningModal = showLengthWarningModal;
+
+    // ════════════════════════════════════════════════════════════════
+    // نافذة تحذير التكرار المطابق مع أرقام وسندات النظام وقاعدة البيانات
+    // ════════════════════════════════════════════════════════════════
+    function closeDuplicateWarningModal(focusInput = false) {
+      const m = document.getElementById('duplicate-alert-modal');
+      if (m) m.remove();
+      if (_dupModalEscHandler) {
+        document.removeEventListener('keydown', _dupModalEscHandler);
+        _dupModalEscHandler = null;
+      }
+      _suppressTransferBlur = true;
+      if (focusInput) {
+        const ti = document.getElementById('transferInput');
+        if (ti) {
+          ti.focus();
+          ti.select();
+        }
+      }
+      setTimeout(() => { _suppressTransferBlur = false; }, 400);
+    }
+    window.closeDuplicateWarningModal = closeDuplicateWarningModal;
+
+    function showDuplicateWarningModal(transferNo, duplicateInfo = null) {
+      const existing = document.getElementById('duplicate-alert-modal');
+      if (existing) existing.remove();
+
+      _dupModalEscHandler = (e) => {
+        if (e.key === 'Escape') closeDuplicateWarningModal(false);
+      };
+      document.addEventListener('keydown', _dupModalEscHandler);
+
+      const vNo = duplicateInfo?.voucherNo || duplicateInfo?.matchedVoucher || 'سابق';
+      const vDate = duplicateInfo?.date || duplicateInfo?.matchedDate || '';
+      const vBank = duplicateInfo?.bank || duplicateInfo?.matchedBank || '';
+      const vAmt = duplicateInfo?.amount || duplicateInfo?.matchedAmount || '';
+      const vFrom = duplicateInfo?.from || duplicateInfo?.matchedFrom || '';
+      const vTo = duplicateInfo?.to || duplicateInfo?.matchedTo || '';
+
+      const modalHTML = `
+        <div id="duplicate-alert-modal" onclick="if(event.target === this) closeDuplicateWarningModal(false)" style="position:fixed; inset:0; z-index:999999; display:flex; justify-content:center; align-items:center; background:radial-gradient(circle at center, rgba(30,0,0,0.92) 0%, rgba(0,0,0,1) 100%); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:16px; box-sizing:border-box;">
+          <div style="position:relative; width:min(480px, 94vw); max-width:480px; background: rgba(18,5,12,0.96); border-radius:24px; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 3px solid #ff0044; padding: 32px 22px; text-align:center; z-index:2; box-shadow:0 0 50px rgba(255,0,68,0.4); box-sizing:border-box;">
+            <!-- زر الخروج X في الزاوية العلوية -->
+            <button type="button" onclick="closeDuplicateWarningModal(false)" title="إغلاق التحذير" style="position:absolute; top:12px; left:12px; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; font-size:16px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseover="this.style.background='rgba(255,0,68,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">✕</button>
+
+            <div style="font-size: 4rem; line-height:1; color: #ff0044; text-shadow: 2px 2px 0px #00ffff; font-family: monospace; font-weight:900;">⚠️ ERROR!</div>
+            <h2 style="color: #fff; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 1.8rem; margin: 12px 0 6px; letter-spacing:1px; font-weight:900;">تحويلة مكررة</h2>
+            <div style="width:100%; height:2px; background:#ff0044; margin:8px 0 14px;"></div>
+            
+            <p style="color: #ddd; font-size: 1.15rem; line-height: 1.5; font-weight:bold;">تم اكتشاف تطابق هذا الرقم في قاعدة البيانات!</p>
+            <div style="color: #fff; font-size: 1.05rem; margin: 8px 0 16px; line-height:1.7; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,0,68,0.3); border-radius: 14px; padding: 12px; width: 100%; text-align: right;">
+              <div>رقم التحويلة: <strong style="background:#ff0044; color:#fff; padding:2px 8px; border-radius:6px; font-family:monospace; font-size:1.3rem;">${transferNo}</strong></div>
+              <div class="mt-1">مسجل بالسند: <strong style="color:#fde047; font-size:1.15rem;">#${vNo}</strong></div>
+              ${vDate ? `<div style="color:#cbd5e1; font-size:0.85rem;" class="mt-0.5">التاريخ: ${vDate} ${vBank ? '| ' + vBank : ''}</div>` : ''}
+              ${(vFrom || vTo) ? `<div style="color:#cbd5e1; font-size:0.85rem;" class="mt-0.5">الأطراف: ${vFrom} ⬅️ ${vTo}</div>` : ''}
+              ${vAmt ? `<div style="color:#86efac; font-size:0.9rem;" class="mt-0.5 font-bold">المبلغ: ${Number(vAmt).toLocaleString()} ج.س</div>` : ''}
+            </div>
+
+            <!-- أزرار الخروج من الرسالة -->
+            <div style="display:flex; gap:10px; width:100%;">
+              <button type="button" onclick="closeDuplicateWarningModal(true)" style="flex:1; background: #ff0044; color: white; border: none; border-radius:18px; padding: 12px 14px; font-size: 1.05rem; font-weight: 900; cursor: pointer; transition: 0.2s; font-family: 'Cairo', 'Tajawal', sans-serif; box-shadow:0 0 15px rgba(255,0,68,0.4);" onmouseover="this.style.background='#d9003a'" onmouseout="this.style.background='#ff0044'">
+                ✏️ تعديل رقم التحويل
+              </button>
+              <button type="button" onclick="closeDuplicateWarningModal(false)" style="background: rgba(255,255,255,0.1); color: #ddd; border: 1px solid rgba(255,255,255,0.3); border-radius:18px; padding: 12px 18px; font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: 0.2s; font-family: 'Cairo', 'Tajawal', sans-serif;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                تجاهل وإغلاق
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modalHTML);
+      if (typeof triggerHapticPulse === 'function') triggerHapticPulse();
+    }
+    window.showDuplicateWarningModal = showDuplicateWarningModal;
+
+    // ════════════════════════════════════════════════════════════════
+    // بطاقة النجاح الاحترافية عند الحفظ والاعتماد المقتبسة من شاشة حركة مالية
+    // ════════════════════════════════════════════════════════════════
+    // ════════════════════════════════════════════════════════════════
+    // بصمة التحقق الرقمية التشفيرية المعتمدة (Cryptographic Verification Hash)
+    // ════════════════════════════════════════════════════════════════
+    function generateVoucherHash(vId, date, amount, from, to) {
+      const str = `${vId || ''}|${date || ''}|${amount || 0}|${from || ''}|${to || ''}|ELSAJANA2026`;
+      let hash = 0;
+      for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      const hex1 = Math.abs(hash).toString(16).toUpperCase().padStart(8, '0');
+      const hex2 = ((Math.abs(hash * 31) >>> 0) % 0xFFFFFF).toString(16).toUpperCase().padStart(6, '0');
+      return `VER-${hex1.slice(0, 4)}-${hex1.slice(4)}-${hex2}`;
+    }
+    window.generateVoucherHash = generateVoucherHash;
+
+    // ════════════════════════════════════════════════════════════════
+    // بطاقة النجاح الاحترافية عند الحفظ والاعتماد المقتبسة من شاشة حركة مالية
+    // ════════════════════════════════════════════════════════════════
+    let professionalSuccessTimer = null;
+    function showProfessionalSuccess(voucherId, fromName, toName, amountLocal, currency, title, vData) {
+      const existing = document.getElementById('professional-success-modal');
+      if (existing) existing.remove();
+      if (professionalSuccessTimer) clearTimeout(professionalSuccessTimer);
+
+      const overlay = document.createElement('div');
+      overlay.id = 'professional-success-modal';
+      overlay.style.position = 'fixed';
+      overlay.style.inset = '0';
+      overlay.style.width = '100vw'; overlay.style.height = '100vh';
+      overlay.style.background = 'rgba(5, 3, 14, 0.82)';
+      overlay.style.backdropFilter = 'blur(14px)';
+      overlay.style.webkitBackdropFilter = 'blur(14px)';
+      overlay.style.zIndex = '999998';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.padding = '16px';
+      overlay.style.opacity = '0';
+      overlay.style.direction = 'rtl';
+      overlay.style.transition = 'opacity 0.35s ease';
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.remove();
+        }
+      });
+
+      const box = document.createElement('div');
+      box.style.background = 'linear-gradient(155deg, #0f172a 0%, #1e1b4b 55%, #172554 100%)';
+      box.style.padding = '26px 20px';
+      box.style.borderRadius = '26px';
+      box.style.boxShadow = '0 30px 70px rgba(0,0,0,0.9), 0 0 45px rgba(99, 102, 241, 0.45) inset';
+      box.style.border = '1.5px solid rgba(167, 139, 250, 0.5)';
+      box.style.textAlign = 'center';
+      box.style.transform = 'scale(0.85) translateY(25px)';
+      box.style.transition = 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      box.style.color = '#fff';
+      box.style.width = 'min(430px, 94vw)';
+      box.style.boxSizing = 'border-box';
+      box.style.position = 'relative';
+
+      const vDataJson = JSON.stringify(vData || {
+        id: voucherId,
+        voucherNo: voucherId,
+        from: fromName,
+        to: toName,
+        sdg: amountLocal,
+        amountLocal: amountLocal,
+        currency: currency || 'SDG'
+      }).replace(/"/g, '&quot;');
+
+      box.innerHTML = `
+        <style>
+          @keyframes drawCheck {
+            0% { stroke-dasharray: 0, 100; stroke-dashoffset: 0; opacity: 0; }
+            50% { opacity: 1; }
+            100% { stroke-dasharray: 100, 0; stroke-dashoffset: 0; opacity: 1; }
+          }
+          @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.6); }
+            70% { box-shadow: 0 0 0 24px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+          }
+          @keyframes slideRight {
+            0% { transform: translateX(-25px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+          }
+          @keyframes slideLeft {
+            0% { transform: translateX(25px); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+          }
+          @keyframes arrowMove {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(-8px); text-shadow: 0 0 15px rgba(99,102,241,1); }
+            100% { transform: translateX(0); }
+          }
+        </style>
+
+        <button type="button" onclick="document.getElementById('professional-success-modal').remove()" style="position:absolute; top:14px; left:14px; width:30px; height:30px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#94a3b8; font-size:0.9rem; cursor:pointer; display:flex; align-items:center; justify-content:center;" title="إغلاق">✕</button>
+
+        <div style="width: 72px; height: 72px; background: linear-gradient(135deg, #10b981, #059669); border-radius: 50%; margin: 0 auto 16px auto; display: flex; align-items: center; justify-content: center; animation: pulseGlow 2s infinite; border: 4px solid #34d399; box-shadow: 0 0 20px rgba(16,185,129,0.5);">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray: 100; animation: drawCheck 0.8s ease-out forwards;">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+
+        <h2 style="margin: 0 0 6px 0; font-size: 1.65rem; font-weight: 900; color: #34d399; text-shadow: 0 2px 10px rgba(0,0,0,0.5); font-family:'Cairo','Tajawal',sans-serif;">${title || 'تم الحفظ والاعتماد'}</h2>
+        <p style="margin: 0 0 18px 0; font-size: 1.05rem; color: #e2e8f0;">تم اعتماد وترحيل السند المالي رقم <strong style="color: #fde047; background: rgba(0,0,0,0.35); padding: 3px 12px; border-radius: 8px; font-family:monospace; border:1px solid rgba(250,204,21,0.3); font-size:1.1rem;">#${voucherId}</strong></p>
+        
+        <div style="background: rgba(0,0,0,0.5); padding: 14px; border-radius: 18px; display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 10px 25px rgba(0,0,0,0.5) inset;">
+          <div style="flex: 1; text-align: right; animation: slideRight 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: 0.15s; opacity: 0;">
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 3px; font-weight:bold;">من حساب (الدافع)</div>
+            <div style="font-weight: 900; color: #38bdf8; font-size: 0.95rem; line-height: 1.3;">${fromName}</div>
+          </div>
+          
+          <div style="display: flex; flex-direction: column; align-items: center; animation: arrowMove 1.5s ease-in-out infinite;">
+            <div style="color: #34d399; font-weight: 900; font-size: 1.25rem; margin-bottom: 2px; text-shadow: 0 0 10px rgba(52,211,153,0.5); font-family:monospace;">${Number(amountLocal).toLocaleString()}</div>
+            <div style="font-size: 0.72rem; font-weight: 900; color: #059669; background: #d1fae5; padding: 2px 7px; border-radius: 6px;">${currency}</div>
+            <div style="font-size: 1.5rem; color: #818cf8; margin-top: 3px;">⬅️</div>
+          </div>
+          
+          <div style="flex: 1; text-align: left; animation: slideLeft 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; animation-delay: 0.3s; opacity: 0;">
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-bottom: 3px; font-weight:bold;">إلى حساب (المستفيد)</div>
+            <div style="font-weight: 900; color: #f472b6; font-size: 0.95rem; line-height: 1.3;">${toName}</div>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:18px;">
+          <!-- زر عرض الإيصال الرقمي الرسمي المعتمد -->
+          <button type="button" onclick="document.getElementById('professional-success-modal').remove(); showDigitalVoucherReceipt(${vDataJson});" style="width:100%; padding:12px; background:linear-gradient(135deg, #6366f1, #4f46e5); color:white; border:1px solid #818cf8; border-radius:14px; font-weight:900; font-size:0.98rem; cursor:pointer; font-family:'Cairo','Tajawal',sans-serif; box-shadow:0 6px 20px rgba(99,102,241,0.5); display:flex; align-items:center; justify-content:center; gap:8px;">
+            <span style="font-size:1.15rem;">📜</span>
+            <span>عرض الإيصال الرسمي المعتمد والـ QR Code</span>
+          </button>
+
+          <div style="display:flex; gap:8px;">
+            <!-- زر التراجع الفوري عن السند -->
+            <button type="button" onclick="document.getElementById('professional-success-modal').remove(); executeUndoVoucher('${voucherId}');" style="flex:1; padding:10px 8px; background:rgba(239,68,68,0.15); border:1.5px solid #ef4444; color:#fca5a5; border-radius:12px; font-weight:900; font-size:0.85rem; cursor:pointer; font-family:'Cairo','Tajawal',sans-serif; display:flex; align-items:center; justify-content:center; gap:5px;">
+              <span>↩️ تراجع عن السند</span>
+            </button>
+
+            <!-- زر إغلاق ومتابعة العمل -->
+            <button type="button" onclick="document.getElementById('professional-success-modal').remove();" style="flex:1.2; padding:10px 12px; background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; border-radius:12px; font-weight:900; font-size:0.88rem; cursor:pointer; font-family:'Cairo','Tajawal',sans-serif; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
+              <span>✓ متابعة العمل</span>
+            </button>
+          </div>
+        </div>
+      `;
+
+      overlay.appendChild(box);
+      document.body.appendChild(overlay);
+
+      requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        box.style.transform = 'scale(1) translateY(0)';
+      });
+
+      professionalSuccessTimer = setTimeout(() => {
+        if (overlay && overlay.parentNode) {
+          overlay.style.opacity = '0';
+          box.style.transform = 'scale(0.85) translateY(-20px)';
+          setTimeout(() => { if (overlay.parentNode) overlay.remove(); }, 350);
+        }
+      }, 9000);
+    }
+    window.showProfessionalSuccess = showProfessionalSuccess;
+
+    // ════════════════════════════════════════════════════════════════
+    // نافذة الإيصال الرقمي الرسمي المعتمد مع الـ QR Code والمشاركة والطباعة
+    // (Official Bank-Grade Digital Receipt Modal with Live Tafqeet & QR)
+    // ════════════════════════════════════════════════════════════════
+    function showDigitalVoucherReceipt(vData) {
+      const existing = document.getElementById('digitalReceiptModal');
+      if (existing) existing.remove();
+
+      // إذا لم يتم تمرير كائن سند، نأخذ السند الحالي من الشاشة أو من الذاكرة
+      if (!vData) {
+        const v = (currentIndex >= 0 && currentIndex < vouchersList.length) ? vouchersList[currentIndex] : null;
+        const vNum = (document.getElementById('currentVoucherDisplay')?.textContent || v?.id || 'E24-001').trim();
+        const dateVal = document.getElementById('voucherDate')?.value || v?.date || new Date().toISOString().slice(0, 10);
+        const sdgVal = (typeof parseRawNumber === 'function' ? parseRawNumber(document.getElementById('sdgAmount')?.value) : Number(document.getElementById('sdgAmount')?.value)) || v?.sdg || 0;
+        const usdVal = (typeof parseRawNumber === 'function' ? parseRawNumber(document.getElementById('usdAmount')?.value) : Number(document.getElementById('usdAmount')?.value)) || v?.usd || 0;
+
+        vData = {
+          id: vNum,
+          voucherNo: vNum,
+          date: dateVal,
+          time: v?.time || new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}),
+          sdg: sdgVal,
+          usd: usdVal,
+          amountLocal: sdgVal || usdVal,
+          currency: currentCurrency || v?.currency || 'SDG',
+          from: (document.getElementById('fromSearchInput')?.value || v?.from || '---').trim(),
+          to: (document.getElementById('toSearchInput')?.value || v?.to || '---').trim(),
+          refNo: (document.getElementById('transferInput')?.value || v?.refNo || '---').trim(),
+          bankName: (document.getElementById('bankNameInput')?.value || v?.bankName || 'بنك الخرطوم').trim(),
+          payType: currentPayType || v?.payType || 'cash',
+          notes: (document.getElementById('voucherNotes')?.value || v?.notes || 'سند حركة مالية معتمد').trim(),
+          costCenter: (document.getElementById('costCenterInput')?.value || v?.costCenter || 'مخزن بحري الرئيسي').trim()
+        };
+      }
+
+      const vId = vData.id || vData.voucherNo || 'E24-001';
+      const amount = Number(vData.sdg || vData.amountLocal || vData.usd || 0);
+      const cur = vData.currency || 'SDG';
+      const curSymbol = (cur === 'USD') ? '$' : (cur === 'SAR' ? 'ر.س' : (cur === 'AED' ? 'د.إ' : (cur === 'EUR' ? '€' : 'ج.س')));
+      const date = vData.date || new Date().toISOString().slice(0, 10);
+      const time = vData.time || new Date().toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+      const from = vData.from || vData.fromAccountName || '---';
+      const to = vData.to || vData.toAccountName || '---';
+      const refNo = vData.refNo || vData.mobileTransferNo || '---';
+      const bank = vData.bankName || 'بنك الخرطوم';
+      const payType = vData.payType || vData.paymentMethod || 'cash';
+      const payTypeLabel = (payType === 'transfer') ? '⚡ تحويل بنكي فوري' : (payType === 'cheque' ? '📑 شيك مصرفي' : '💵 نقداً (كاش)');
+      const notes = vData.notes || 'سند قيد وحركة مالية رسمية';
+      const costCenter = vData.costCenter || 'مخزن بحري الرئيسي';
+
+      const tafqeetText = (typeof arabicNumberToWords === 'function') ? arabicNumberToWords(amount, cur) : `${amount} ${cur}`;
+      const hash = generateVoucherHash(vId, date, amount, from, to);
+
+      const qrPayload = `https://elsajana.com/v?no=${encodeURIComponent(vId)}&amt=${amount}&cur=${encodeURIComponent(cur)}&ref=${encodeURIComponent(refNo)}&hash=${encodeURIComponent(hash)}`;
+      const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=2&data=${encodeURIComponent(qrPayload)}`;
+
+      const overlay = document.createElement('div');
+      overlay.id = 'digitalReceiptModal';
+      overlay.style.position = 'fixed';
+      overlay.style.inset = '0';
+      overlay.style.width = '100vw'; overlay.style.height = '100vh';
+      overlay.style.background = 'rgba(2, 6, 23, 0.88)';
+      overlay.style.backdropFilter = 'blur(14px)';
+      overlay.style.webkitBackdropFilter = 'blur(14px)';
+      overlay.style.zIndex = '999999';
+      overlay.style.display = 'flex';
+      overlay.style.alignItems = 'center';
+      overlay.style.justifyContent = 'center';
+      overlay.style.padding = '14px';
+      overlay.style.opacity = '0';
+      overlay.style.direction = 'rtl';
+      overlay.style.transition = 'opacity 0.3s ease';
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) closeDigitalReceiptModal();
+      });
+
+      const card = document.createElement('div');
+      card.id = 'digitalReceiptCard';
+      card.style.background = 'linear-gradient(165deg, #090d16 0%, #0f172a 45%, #1e1b4b 100%)';
+      card.style.border = '2px solid #818cf8';
+      card.style.borderRadius = '28px';
+      card.style.width = 'min(440px, 96vw)';
+      card.style.maxHeight = '92vh';
+      card.style.overflowY = 'auto';
+      card.style.boxShadow = '0 25px 70px rgba(0,0,0,0.95), 0 0 40px rgba(99,102,241,0.25) inset';
+      card.style.color = '#fff';
+      card.style.padding = '20px 18px';
+      card.style.boxSizing = 'border-box';
+      card.style.fontFamily = "'Cairo', 'Tajawal', sans-serif";
+      card.style.transform = 'scale(0.9) translateY(20px)';
+      card.style.transition = 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      card.style.position = 'relative';
+
+      card.innerHTML = `
+        <!-- زر الإغلاق السريع ✕ -->
+        <button type="button" onclick="closeDigitalReceiptModal()" style="position:absolute; top:16px; left:16px; width:34px; height:34px; border-radius:12px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#cbd5e1; font-size:1.1rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s;" title="إغلاق الإيصال">✕</button>
+
+        <!-- الهيدر والشعار الرسمي -->
+        <div style="text-align:center; padding-bottom:14px; border-bottom:1px dashed rgba(255,255,255,0.15);">
+          <div style="display:inline-flex; align-items:center; gap:6px; background:linear-gradient(90deg, rgba(16,185,129,0.2), rgba(6,182,212,0.2)); border:1px solid #10b981; padding:3px 12px; border-radius:20px; font-size:0.75rem; font-weight:900; color:#34d399; margin-bottom:8px;">
+            <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#10b981; box-shadow:0 0 8px #10b981;"></span>
+            <span>إشعار سند مالي معتمد ومرحّل | VERIFIED</span>
+          </div>
+          <h1 style="margin:0 0 3px 0; font-size:1.35rem; font-weight:900; color:#fff; letter-spacing:-0.3px;">مؤسسة سجانه للأنشطة المتعددة</h1>
+          <div style="font-size:0.75rem; color:#94a3b8; font-weight:700;">نظام المقاييس المحاسبي الموحد - إشعار قيد رسمي</div>
+        </div>
+
+        <!-- شريط رقم السند والتاريخ -->
+        <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.4); padding:10px 14px; border-radius:14px; margin:14px 0; border:1px solid rgba(255,255,255,0.08);">
+          <div style="text-align:right;">
+            <div style="font-size:0.72rem; color:#94a3b8; font-weight:700;">رقم السند المالي:</div>
+            <div style="font-family:monospace; font-size:1.15rem; font-weight:900; color:#fde047;">#${vId}</div>
+          </div>
+          <div style="text-align:left;">
+            <div style="font-size:0.72rem; color:#94a3b8; font-weight:700;">تاريخ وتوقيت القيد:</div>
+            <div style="font-family:monospace; font-size:0.85rem; font-weight:700; color:#e2e8f0;">${date} <span style="color:#64748b;">|</span> ${time}</div>
+          </div>
+        </div>
+
+        <!-- بطاقة المبلغ والتفقيط العربي الفاخر -->
+        <div style="background:linear-gradient(135deg, rgba(6,78,59,0.45), rgba(15,23,42,0.7)); border:1.5px solid rgba(16,185,129,0.5); border-radius:18px; padding:14px; text-align:center; box-shadow:0 10px 25px rgba(0,0,0,0.3) inset;">
+          <div style="font-size:0.75rem; color:#6ee7b7; font-weight:800; margin-bottom:4px;">المبلغ المعتمد في السند</div>
+          <div style="font-family:monospace; font-size:1.9rem; font-weight:900; color:#34d399; text-shadow:0 0 15px rgba(52,211,153,0.4); line-height:1.2;">
+            ${Number(amount).toLocaleString()} <span style="font-size:1rem; color:#a7f3d0; font-family:'Cairo',sans-serif;">${curSymbol}</span>
+          </div>
+          ${vData.usd && vData.usd > 0 && cur !== 'USD' ? `<div style="font-family:monospace; font-size:0.82rem; color:#94a3b8; margin-top:2px;">(المقابل: $${Number(vData.usd).toLocaleString()} USD)</div>` : ''}
+
+          <!-- التفقيط العربي التلقائي -->
+          <div style="margin-top:8px; padding:8px 10px; background:rgba(0,0,0,0.4); border-radius:10px; border:1px solid rgba(255,255,255,0.08); font-size:0.82rem; font-weight:800; color:#f1f5f9; line-height:1.4;">
+            <span style="color:#fde047;">فقط:</span> ${tafqeetText} <span style="color:#fde047;">لا غير.</span>
+          </div>
+        </div>
+
+        <!-- حركة أطراف السند (الدافع والمستفيد) -->
+        <div style="background:rgba(0,0,0,0.35); border-radius:16px; padding:12px; margin:12px 0; border:1px solid rgba(255,255,255,0.08); display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="flex:1; text-align:right;">
+            <div style="font-size:0.72rem; color:#94a3b8; font-weight:700;">من حساب (الدافع):</div>
+            <div style="font-weight:900; color:#38bdf8; font-size:0.95rem; line-height:1.3; margin-top:2px;">${from}</div>
+          </div>
+          <div style="font-size:1.3rem; color:#818cf8; flex-shrink:0;">⬅️</div>
+          <div style="flex:1; text-align:left;">
+            <div style="font-size:0.72rem; color:#94a3b8; font-weight:700;">إلى حساب (المستفيد):</div>
+            <div style="font-weight:900; color:#f472b6; font-size:0.95rem; line-height:1.3; margin-top:2px;">${to}</div>
+          </div>
+        </div>
+
+        <!-- جدول تفاصيل العملية -->
+        <div style="background:rgba(0,0,0,0.3); border-radius:14px; padding:10px 12px; font-size:0.78rem; space-y:6px; border:1px solid rgba(255,255,255,0.06); margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span style="color:#94a3b8;">طريقة الدفع:</span>
+            <span style="font-weight:800; color:#e2e8f0;">${payTypeLabel}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span style="color:#94a3b8;">البنك المعتمد:</span>
+            <span style="font-weight:800; color:#e2e8f0;">${bank}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span style="color:#94a3b8;">رقم التحويلة / الشيك:</span>
+            <span style="font-family:monospace; font-weight:900; color:#fde047; font-size:0.85rem;">${refNo}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:3px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+            <span style="color:#94a3b8;">مركز التكلفة:</span>
+            <span style="font-weight:800; color:#cbd5e1;">${costCenter}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:3px 0;">
+            <span style="color:#94a3b8;">البيان:</span>
+            <span style="font-weight:800; color:#f1f5f9; text-align:left; max-width:200px;" class="truncate">${notes}</span>
+          </div>
+        </div>
+
+        <!-- رمز الاستجابة السريعة QR Code وبصمة التوثيق المشفرة -->
+        <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(129,140,248,0.3); border-radius:18px; padding:12px; text-align:center; margin-bottom:16px;">
+          <div style="width:130px; height:130px; margin:0 auto; background:#ffffff; border-radius:12px; padding:5px; box-shadow:0 6px 18px rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center;">
+            <img src="${qrApiUrl}" width="120" height="120" style="display:block; border-radius:8px;" alt="QR Code" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22120%22 height=%22120%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 fill=%22%23ffffff%22/><path d=%22M10 10h30v30h-30zM60 10h30v30h-30zM10 60h30v30h-30z%22 fill=%22%23000000%22/><text x=%2250%22 y=%2255%22 font-size=%228%22 text-anchor=%22middle%22 fill=%22%23059669%22 font-weight=%22bold%22>VERIFIED QR</text><rect x=%2245%22 y=%2245%22 width=%2210%22 height=%2210%22 fill=%22%23059669%22/></svg>';">
+          </div>
+          <div style="font-family:monospace; font-size:0.75rem; color:#38bdf8; font-weight:800; margin-top:8px; letter-spacing:0.5px;">
+            ${hash}
+          </div>
+          <div style="font-size:0.7rem; color:#34d399; font-weight:700; margin-top:2px;">
+            ✓ بصمة أمنية موثقة ومطابقة لسجلات الداتابيز MariaDB
+          </div>
+        </div>
+
+        <!-- أزرار الإجراءات التفاعلية: مشاركة واتساب، طباعة، نسخ، إغلاق -->
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <!-- زر المشاركة عبر الواتساب -->
+          <button type="button" onclick="shareReceiptOnWhatsApp(${JSON.stringify(vData).replace(/"/g, '&quot;')})" style="width:100%; padding:11px; background:linear-gradient(135deg, #059669, #10b981); color:#fff; border:none; border-radius:12px; font-weight:900; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 15px rgba(16,185,129,0.4); active:scale-98;">
+            <i class="fa-brands fa-whatsapp" style="font-size:1.15rem;"></i>
+            <span>إرسال ومشاركة الإيصال عبر الواتساب</span>
+          </button>
+
+          <div style="display:flex; gap:8px;">
+            <!-- زر الطباعة الفورية POS / A4 -->
+            <button type="button" onclick="closeDigitalReceiptModal(); handlePrintVoucher();" style="flex:1; padding:10px; background:linear-gradient(135deg, #7c3aed, #6d28d9); color:#fff; border:1px solid #a78bfa; border-radius:12px; font-weight:900; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+              <i class="fa-solid fa-print"></i>
+              <span>طباعة إيصال 🖨️</span>
+            </button>
+
+            <!-- زر نسخ الإشعار للحافظة -->
+            <button type="button" onclick="copyReceiptText(${JSON.stringify(vData).replace(/"/g, '&quot;')})" style="flex:1; padding:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#e2e8f0; border-radius:12px; font-weight:900; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
+              <i class="fa-solid fa-copy"></i>
+              <span>نسخ الإشعار 📋</span>
+            </button>
+          </div>
+
+          <!-- زر الإغلاق والمتابعة -->
+          <button type="button" onclick="closeDigitalReceiptModal()" style="width:100%; padding:9px; background:transparent; border:none; color:#94a3b8; font-weight:800; font-size:0.85rem; cursor:pointer; text-decoration:underline;">
+            إغلاق النافذة
+          </button>
+        </div>
+      `;
+
+      overlay.appendChild(card);
+      document.body.appendChild(overlay);
+
+      requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        card.style.transform = 'scale(1) translateY(0)';
+      });
+
+      triggerHapticPulse();
+      playBankerChime();
+    }
+    window.showDigitalVoucherReceipt = showDigitalVoucherReceipt;
+
+    function closeDigitalReceiptModal() {
+      const modal = document.getElementById('digitalReceiptModal');
+      if (!modal) return;
+      modal.style.opacity = '0';
+      const card = document.getElementById('digitalReceiptCard');
+      if (card) card.style.transform = 'scale(0.9) translateY(20px)';
+      setTimeout(() => { if (modal.parentNode) modal.remove(); }, 300);
+    }
+    window.closeDigitalReceiptModal = closeDigitalReceiptModal;
+
+    function shareReceiptOnWhatsApp(vData) {
+      if (!vData) return;
+      const vId = vData.id || vData.voucherNo || '---';
+      const amount = Number(vData.sdg || vData.amountLocal || vData.usd || 0);
+      const cur = vData.currency || 'SDG';
+      const curSymbol = (cur === 'USD') ? '$' : (cur === 'SAR' ? 'ر.س' : (cur === 'AED' ? 'د.إ' : (cur === 'EUR' ? '€' : 'ج.س')));
+      const date = vData.date || '';
+      const time = vData.time || '';
+      const from = vData.from || '---';
+      const to = vData.to || '---';
+      const refNo = vData.refNo || vData.mobileTransferNo || '---';
+      const bank = vData.bankName || 'بنك الخرطوم';
+      const notes = vData.notes || 'سند حركة مالية معتمد';
+      const tafqeet = typeof arabicNumberToWords === 'function' ? arabicNumberToWords(amount, cur) : '';
+      const hash = generateVoucherHash(vId, date, amount, from, to);
+
+      const text = `🏢 *مؤسسة سجانه للأنشطة المتعددة*
+━━━━━━━━━━━━━━━━━━━
+🧾 *إشعار سند مالي معتمد ومرحّل*
+🔢 *رقم السند:* #${vId}
+📅 *التاريخ والوقت:* ${date} ${time ? ' | ' + time : ''}
+💰 *المبلغ:* ${amount.toLocaleString()} ${curSymbol} (${cur})
+✍️ *فقط:* ${tafqeet} لا غير
+━━━━━━━━━━━━━━━━━━━
+🔴 *من حساب (الدافع):* ${from}
+🟢 *إلى حساب (المستفيد):* ${to}
+🏦 *البنك المعتمد:* ${bank}
+🔢 *رقم التحويلة / الإشعار:* ${refNo}
+📝 *البيان:* ${notes}
+🔐 *بصمة التوثيق الرقمية:* ${hash}
+━━━━━━━━━━━━━━━━━━━
+✅ *عملية مالية رسمية موثقة ومرحلة بنجاح في قاعدة البيانات MariaDB*`;
+
+      const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+      showToastNotification('📲 تم فتح الواتساب لمشاركة الإشعار المالي الرسمي!');
+    }
+    window.shareReceiptOnWhatsApp = shareReceiptOnWhatsApp;
+
+    function copyReceiptText(vData) {
+      if (!vData) return;
+      const vId = vData.id || vData.voucherNo || '---';
+      const amount = Number(vData.sdg || vData.amountLocal || vData.usd || 0);
+      const cur = vData.currency || 'SDG';
+      const date = vData.date || '';
+      const time = vData.time || '';
+      const from = vData.from || '---';
+      const to = vData.to || '---';
+      const refNo = vData.refNo || vData.mobileTransferNo || '---';
+      const bank = vData.bankName || 'بنك الخرطوم';
+      const notes = vData.notes || 'سند حركة مالية معتمد';
+      const tafqeet = typeof arabicNumberToWords === 'function' ? arabicNumberToWords(amount, cur) : '';
+      const hash = generateVoucherHash(vId, date, amount, from, to);
+
+      const text = `🏢 مؤسسة سجانه للأنشطة المتعددة
+إشعار سند مالي معتمد ومرحّل (#${vId})
+التاريخ: ${date} ${time}
+المبلغ: ${amount.toLocaleString()} ${cur}
+فقط: ${tafqeet} لا غير
+من حساب: ${from}
+إلى حساب: ${to}
+البنك: ${bank} | رقم التحويلة: ${refNo}
+البيان: ${notes}
+بصمة التوثيق: ${hash}
+تم الاعتماد في قاعدة البيانات MariaDB بنجاح.`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToastNotification('📋 ✓ تم نسخ إشعار السند المالي للحافظة بنجاح!');
+        }).catch(() => {
+          fallbackClipboardCopy(text);
+        });
+      } else {
+        fallbackClipboardCopy(text);
+      }
+    }
+    window.copyReceiptText = copyReceiptText;
+
+    function fallbackClipboardCopy(text) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.left = '-9999px';
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      ta.remove();
+      showToastNotification('📋 ✓ تم نسخ إشعار السند المالي للحافظة بنجاح!');
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // نافذة التراجع المرن العائمة (5-Second Floating Undo Buffer Toast)
+    // ════════════════════════════════════════════════════════════════
+    // 1. مفتاح منع تكرار النقر المزدوج (Idempotency Key Engine)
+    // ════════════════════════════════════════════════════════════════
+    function generateUUID() {
+      if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+    window.generateUUID = generateUUID;
+
+    let currentDraftIdempotencyKey = generateUUID();
+    let currentReceiptAttachment = null;
+    let isSavingInProgress = false;
+
+    // ════════════════════════════════════════════════════════════════
+    // 2. نظام إرفاق وتصوير إشعارات البنوك مع القراءة الذكية (Receipt Attachment & Smart OCR)
+    // ════════════════════════════════════════════════════════════════
+    function triggerDirectReceiptCapture() {
+      const sheet = document.getElementById('modalReceiptActionSheet');
+      if (sheet) {
+        sheet.classList.remove('hidden');
+      } else {
+        const camInp = document.getElementById('directReceiptCameraInput');
+        if (camInp) camInp.click();
+      }
+    }
+    window.triggerDirectReceiptCapture = triggerDirectReceiptCapture;
+
+    function closeReceiptActionSheet() {
+      const sheet = document.getElementById('modalReceiptActionSheet');
+      if (sheet) sheet.classList.add('hidden');
+    }
+    window.closeReceiptActionSheet = closeReceiptActionSheet;
+
+    function openAttachedReceiptModal() {
+      if (!currentReceiptAttachment) return;
+      const modal = document.getElementById('modalReceiptViewer');
+      const img = document.getElementById('receiptViewerImg');
+      if (modal && img) {
+        img.src = currentReceiptAttachment;
+        modal.classList.remove('hidden');
+      }
+    }
+    window.openAttachedReceiptModal = openAttachedReceiptModal;
+
+    function removeAttachedReceipt() {
+      currentReceiptAttachment = null;
+      const card = document.getElementById('receiptAttachmentCard');
+      if (card) card.classList.add('hidden');
+      showToastNotification('🗑️ تم إزالة المستند المرفق من السند');
+    }
+    window.removeAttachedReceipt = removeAttachedReceipt;
+
+    function loadTesseractIfNeeded() {
+      if (window.Tesseract) return Promise.resolve(window.Tesseract);
+      return new Promise((resolve) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+        s.onload = () => resolve(window.Tesseract);
+        s.onerror = () => resolve(null);
+        document.head.appendChild(s);
+      });
+    }
+
+    async function handleDirectReceiptSelected(e) {
+      const files = e.target.files;
+      if (!files || files.length === 0) return;
+      const file = files[0];
+
+      triggerHapticPulse();
+      showToastNotification('⏳ جارٍ تحميل وقراءة إشعار التحويل البنكي بالذكاء الاصطناعي (OCR)...');
+
+      const reader = new FileReader();
+      reader.onload = async function(evt) {
+        const dataUrl = evt.target.result;
+        currentReceiptAttachment = dataUrl;
+
+        // إظهار بطاقة المرفق ومعاينته في الواجهة فورياً
+        const card = document.getElementById('receiptAttachmentCard');
+        const thumb = document.getElementById('receiptAttachmentThumb');
+        const summary = document.getElementById('receiptAttachmentSummary');
+        if (card && thumb) {
+          thumb.src = dataUrl;
+          card.classList.remove('hidden');
+        }
+
+        // محاولة القراءة الذكية عبر OCR
+        let recognizedText = '';
+        try {
+          const tesseract = await loadTesseractIfNeeded();
+          if (tesseract) {
+            showToastNotification('🔍 جاري التحليل الضوئي وقراءة أرقام الإشعار...');
+            const result = await tesseract.recognize(dataUrl, 'ara+eng');
+            recognizedText = result?.data?.text || '';
+          }
+        } catch(err) {
+          console.warn('Tesseract OCR error:', err);
+        }
+
+        // استخراج وتعبئة البيانات الذكية (المبلغ، رقم التحويلة، البنك، المستفيد)
+        parseAndApplyBankReceipt(recognizedText, file.name, dataUrl);
+      };
+      reader.readAsDataURL(file);
+    }
+    window.handleDirectReceiptSelected = handleDirectReceiptSelected;
+
+    function parseAndApplyBankReceipt(ocrText, fileName = '', dataUrl = '') {
+      ocrText = ocrText || '';
+      const textToSearch = (ocrText + ' ' + fileName).toLowerCase();
+
+      // 1. استكشاف البنك (بنكك / بنك الخرطوم، فوري / بنك فيصل، أوكاش / بنك أم درمان)
+      let detectedBank = 'بنك الخرطوم';
+      if (/فوري|فيصل|faisal/i.test(textToSearch)) {
+        detectedBank = 'بنك فيصل الإسلامي';
+      } else if (/أوكاش|اوكاش|أم درمان|امدرمان|omdurman/i.test(textToSearch)) {
+        detectedBank = 'بنك أم درمان الوطني';
+      } else if (/النيلين|nilein/i.test(textToSearch)) {
+        detectedBank = 'بنك النيلين';
+      } else if (/البركة|baraka/i.test(textToSearch)) {
+        detectedBank = 'بنك البركة';
+      } else if (/الخليج|gulf/i.test(textToSearch)) {
+        detectedBank = 'بنك الخليج';
+      }
+
+      // 2. استخراج رقم التحويلة / رقم العملية / المرجع (4 إلى 12 رقم)
+      let extractedRef = '';
+      const refPatterns = [
+        /(?:رقم\s*(?:العملية|المعاملة|المرجع|الإشعار)|الرقم\s*المرجعي|tran(?:saction)?\s*id|ref(?:erence)?\s*(?:no)?)\s*[:#\-]?\s*(\d{4,14})/i,
+        /(\b\d{5,12}\b)/
+      ];
+
+      for (const pattern of refPatterns) {
+        const match = ocrText.match(pattern);
+        if (match && match[1]) {
+          extractedRef = match[1].trim();
+          break;
+        }
+      }
+
+      if (!extractedRef) {
+        const fileNumMatch = fileName.match(/\d{4,12}/);
+        if (fileNumMatch) extractedRef = fileNumMatch[0];
+      }
+
+      // 3. استخراج المبلغ (الأرقام المقترنة بـ ج.س أو SDG أو المبلغ)
+      let extractedAmount = 0;
+      const amtPatterns = [
+        /(?:المبلغ|القيمة|amount|sdg)\s*[:#\-]?\s*([0-9,]+(?:\.[0-9]{1,2})?)/i,
+        /([0-9,]{3,}(?:\.[0-9]{1,2})?)\s*(?:ج\.س|جنيه|sdg)/i,
+        /([1-9][0-9]{2,}(?:,[0-9]{3})*)/
+      ];
+
+      for (const pattern of amtPatterns) {
+        const match = ocrText.match(pattern);
+        if (match && match[1]) {
+          const rawNum = match[1].replace(/,/g, '');
+          const parsed = parseFloat(rawNum);
+          if (parsed > 0 && parsed !== parseFloat(extractedRef)) {
+            extractedAmount = parsed;
+            break;
+          }
+        }
+      }
+
+      // 4. استخراج المستفيد ومطابقته مع دليل الحسابات
+      let matchedBeneficiary = '';
+      if (window.accountsDB && window.accountsDB.length > 0) {
+        for (const acc of window.accountsDB) {
+          if (acc && acc.name && acc.name.length > 2) {
+            if (ocrText.includes(acc.name)) {
+              matchedBeneficiary = acc.name;
+              break;
+            }
+          }
+        }
+      }
+
+      // 5. تطبيق البيانات المستخرجة في حقول الشاشة فورياً
+      if (extractedRef) {
+        const ti = document.getElementById('transferInput');
+        if (ti) {
+          ti.value = extractedRef;
+          handleTransferLiveInput(extractedRef);
+        }
+      }
+
+      if (extractedAmount > 0) {
+        const amtInp = document.getElementById('sdgAmount');
+        if (amtInp) {
+          amtInp.value = extractedAmount;
+          if (typeof handleAmountInput === 'function') handleAmountInput();
+        }
+      }
+
+      const bi = document.getElementById('bankNameInput');
+      if (bi) bi.value = detectedBank;
+
+      if (matchedBeneficiary) {
+        const toInp = document.getElementById('toSearchInput');
+        if (toInp) toInp.value = matchedBeneficiary;
+      }
+
+      // تحديث ملخص بطاقة المرفق
+      const summary = document.getElementById('receiptAttachmentSummary');
+      if (summary) {
+        const details = [];
+        if (detectedBank) details.push(detectedBank);
+        if (extractedAmount > 0) details.push(Number(extractedAmount).toLocaleString() + ' ج.س');
+        if (extractedRef) details.push('تحويلة: ' + extractedRef);
+        summary.textContent = details.join(' | ') || 'مستند إشعار بنكي';
+      }
+
+      playBankerChime();
+      triggerHapticPulse();
+
+      const successMsg = `📸 تم إرفاق إشعار (${detectedBank}) وقراءة البيانات بنجاح!\n` +
+        (extractedRef ? `• رقم التحويلة: ${extractedRef}\n` : '') +
+        (extractedAmount > 0 ? `• المبلغ: ${Number(extractedAmount).toLocaleString()} ج.س\n` : '') +
+        `• تم حفظ الصورة كمستند ثبوتي للسند.`;
+
+      showToastNotification(successMsg);
+    }
+    window.parseAndApplyBankReceipt = parseAndApplyBankReceipt;
+
+    // ════════════════════════════════════════════════════════════════
+    // 3. نافذة التراجع المرن العائمة (The 5-Second "Undo" Buffer)
+    // ════════════════════════════════════════════════════════════════
+    let undoToastTimeout = null;
+    let undoCountdownInterval = null;
+    let lastSavedVoucherData = null;
+    let lastSavedId = null;
+    let lastIsEditing = false;
+    let lastPreviousData = null;
+
+    function showUndoToast(savedId, voucherPayload, isEditing = false, previousData = null) {
+      lastSavedId = savedId;
+      lastSavedVoucherData = voucherPayload;
+      lastIsEditing = isEditing;
+      lastPreviousData = previousData;
+
+      dismissUndoToast(false);
+
+      const container = document.createElement('div');
+      container.id = 'undoToastContainer';
+      container.style.position = 'fixed';
+      container.style.bottom = '78px';
+      container.style.left = '50%';
+      container.style.transform = 'translateX(-50%) translateY(25px)';
+      container.style.opacity = '0';
+      container.style.zIndex = '999999';
+      container.style.width = 'min(410px, 94vw)';
+      container.style.background = 'rgba(15, 23, 42, 0.96)';
+      container.style.backdropFilter = 'blur(16px)';
+      container.style.webkitBackdropFilter = 'blur(16px)';
+      container.style.border = '1.5px solid #38bdf8';
+      container.style.borderRadius = '18px';
+      container.style.padding = '10px 14px';
+      container.style.boxShadow = '0 15px 35px rgba(0,0,0,0.85), 0 0 25px rgba(56, 189, 248, 0.35)';
+      container.style.color = '#fff';
+      container.style.direction = 'rtl';
+      container.style.fontFamily = "'Cairo', 'Tajawal', sans-serif";
+      container.style.transition = 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)';
+
+      let remaining = 5;
+
+      container.innerHTML = `
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+            <div style="width:34px; height:34px; border-radius:10px; background:rgba(56,189,248,0.18); border:1px solid #38bdf8; display:flex; align-items:center; justify-content:center; color:#38bdf8; font-size:1rem; flex-shrink:0;">
+              ↩️
+            </div>
+            <div style="min-width:0; text-align:right;">
+              <div style="font-weight:900; font-size:0.86rem; color:#f8fafc; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                تم ترحيل السند <span style="font-family:monospace; color:#38bdf8; font-weight:bold;">#${savedId}</span> بنجاح...
+              </div>
+              <div style="font-size:0.72rem; color:#94a3b8; font-weight:700;">
+                تراجع متاح خلال <span id="undoSecondsCounter" style="color:#38bdf8; font-weight:900; font-family:monospace;">${remaining}</span> ثوانٍ
+              </div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; flex-shrink:0;">
+            <button type="button" onclick="executeUndoVoucher('${savedId}')" style="background:linear-gradient(135deg, #0284c7, #0369a1); border:1.5px solid #38bdf8; color:#fff; font-weight:900; font-size:0.8rem; padding:6px 14px; border-radius:10px; cursor:pointer; box-shadow:0 3px 12px rgba(2,132,199,0.5); display:flex; align-items:center; gap:4px; active:scale-95;">
+              <span>↩️ تراجع Undo</span>
+            </button>
+            <button type="button" onclick="dismissUndoToast(true)" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#94a3b8; width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.8rem;" title="إغلاق">
+              ✕
+            </button>
+          </div>
+        </div>
+        <div style="height:3px; background:rgba(255,255,255,0.12); border-radius:2px; margin-top:8px; overflow:hidden;">
+          <div id="undoProgressBar" style="height:100%; width:100%; background:linear-gradient(90deg, #38bdf8, #818cf8); transition:width 5000ms linear;"></div>
+        </div>
+      `;
+
+      document.body.appendChild(container);
+
+      requestAnimationFrame(() => {
+        container.style.opacity = '1';
+        container.style.transform = 'translateX(-50%) translateY(0)';
+        const bar = document.getElementById('undoProgressBar');
+        if (bar) {
+          requestAnimationFrame(() => {
+            bar.style.width = '0%';
+          });
+        }
+      });
+
+      undoCountdownInterval = setInterval(() => {
+        remaining--;
+        const counterEl = document.getElementById('undoSecondsCounter');
+        if (counterEl) counterEl.textContent = String(remaining);
+        if (remaining <= 0) {
+          clearInterval(undoCountdownInterval);
+          undoCountdownInterval = null;
+        }
+      }, 1000);
+
+      undoToastTimeout = setTimeout(() => {
+        dismissUndoToast(true);
+        showToastNotification(`🔒 تم التثبيت والاعتماد النهائي للسند (#${savedId}) في السيرفر بنجاح`);
+      }, 5200);
+    }
+    window.showUndoToast = showUndoToast;
+
+    function dismissUndoToast(animated = true) {
+      if (undoCountdownInterval) {
+        clearInterval(undoCountdownInterval);
+        undoCountdownInterval = null;
+      }
+      if (undoToastTimeout) {
+        clearTimeout(undoToastTimeout);
+        undoToastTimeout = null;
+      }
+      const el = document.getElementById('undoToastContainer');
+      if (!el) return;
+      if (animated) {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(-50%) translateY(25px)';
+        setTimeout(() => { if (el.parentNode) el.remove(); }, 350);
+      } else {
+        el.remove();
+      }
+    }
+    window.dismissUndoToast = dismissUndoToast;
+
+    async function executeUndoVoucher(savedId) {
+      dismissUndoToast(false);
+      const successModal = document.getElementById('professional-success-modal');
+      if (successModal) successModal.remove();
+      const feedbackModal = document.getElementById('saveFeedbackModal');
+      if (feedbackModal) feedbackModal.classList.add('hidden');
+
+      triggerHapticPulse();
+      showToastNotification(`⏳ جاري التراجع عن السند #${savedId}...`);
+
+      const payload = lastSavedVoucherData || {};
+      const isEdit = lastIsEditing;
+      const prevData = lastPreviousData;
+
+      // 1. إذا كان تعديلاً لسند سابق، نسترجع البيانات السابقة الأصلية
+      if (isEdit && prevData) {
+        const idx = vouchersList.findIndex(v => String(v.id) === String(savedId));
+        if (idx !== -1) {
+          vouchersList[idx] = prevData;
+          try {
+            localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+          } catch(e) {}
+        }
+        try {
+          await fetch('mobile-voucher.php?api=save_voucher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...prevData, isEditing: true, voucherNo: savedId, id: savedId })
+          });
+        } catch(e) {}
+      } else {
+        // 2. إذا كان سنداً جديداً، نقوم بحذفه من قاعدة البيانات وسجلات النظام
+        try {
+          await fetch('mobile-voucher.php?api=delete_voucher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ voucherNo: savedId, id: savedId })
+          });
+        } catch(err) {
+          console.warn('Undo DB delete notice:', err);
+        }
+
+        const idx = vouchersList.findIndex(v => String(v.id) === String(savedId));
+        if (idx !== -1) {
+          vouchersList.splice(idx, 1);
+          try {
+            localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+          } catch(e) {}
+        }
+
+        const offIdx = offlineQueue.findIndex(v => String(v.id) === String(savedId));
+        if (offIdx !== -1) {
+          offlineQueue.splice(offIdx, 1);
+          try {
+            localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue));
+          } catch(e) {}
+        }
+      }
+
+      // 3. استرجاع وتعبئة الشاشة بجميع بيانات السند فورياً للتعديل
+      if (payload) {
+        if (document.getElementById('voucherDate')) document.getElementById('voucherDate').value = payload.date || new Date().toISOString().slice(0, 10);
+        if (document.getElementById('sdgAmount')) document.getElementById('sdgAmount').value = payload.sdg || payload.amountLocal || '';
+        if (document.getElementById('usdAmount')) document.getElementById('usdAmount').value = payload.usd || payload.amountForeign || '';
+        if (document.getElementById('fromSearchInput')) document.getElementById('fromSearchInput').value = payload.from || payload.fromAccountName || '';
+        if (document.getElementById('toSearchInput')) document.getElementById('toSearchInput').value = payload.to || payload.toAccountName || '';
+        if (document.getElementById('transferInput')) document.getElementById('transferInput').value = payload.refNo || payload.mobileTransferNo || '';
+        if (document.getElementById('bankNameInput')) document.getElementById('bankNameInput').value = payload.bankName || '';
+        if (document.getElementById('voucherNotes')) document.getElementById('voucherNotes').value = payload.notes || '';
+        if (document.getElementById('costCenterInput')) document.getElementById('costCenterInput').value = payload.costCenter || '';
+        if (payload.currency) currentCurrency = payload.currency;
+        if (payload.payType || payload.paymentMethod) currentPayType = payload.payType || payload.paymentMethod;
+
+        if (typeof updateTafqeet === 'function') updateTafqeet();
+        if (typeof updateAccountBalanceBadges === 'function') updateAccountBalanceBadges();
+        if (typeof handleTransferLiveInput === 'function') handleTransferLiveInput(payload.refNo || payload.mobileTransferNo || '');
+      }
+
+      playBankerChime();
+      triggerHapticPulse();
+      showToastNotification(`↩️ تم التراجع عن حفظ السند (#${savedId}) وحذفه بنجاح، وبياناته مسترجعة على الشاشة للتعديل.`);
+    }
+    window.executeUndoVoucher = executeUndoVoucher;
+
+    // ════════════════════════════════════════════════════════════════
+    // فحص منع وتكرار التحويل الفوري السريع جداً مع قاعدة البيانات MariaDB وكافة شاشات وسجلات النظام
+    // ════════════════════════════════════════════════════════════════
+    function isLevenshteinClose(s1, s2) {
+      if (s1 === s2) return true;
+      const l1 = s1.length, l2 = s2.length;
+      if (Math.abs(l1 - l2) > 1) return false;
+      let diffs = 0, i = 0, j = 0;
+      while (i < l1 && j < l2) {
+        if (s1[i] !== s2[j]) {
+          diffs++;
+          if (diffs > 1) return false;
+          if (l1 > l2) i++;
+          else if (l2 > l1) j++;
+          else { i++; j++; }
+        } else {
+          i++; j++;
+        }
+      }
+      return true;
+    }
+
+    function checkTransferDuplicate(tno, currentVoucherId) {
+      if (!tno) return null;
+      const rawInput = String(tno).trim();
+      const cleanCandidate = rawInput.replace(/\D/g, '') || rawInput.toLowerCase();
+      if (!cleanCandidate || cleanCandidate.length < 3) return null;
+
+      const testMatch = (refNo) => {
+        if (!refNo) return null;
+        const rawRef = String(refNo).trim();
+        const cleanRef = rawRef.replace(/\D/g, '') || rawRef.toLowerCase();
+        if (!cleanRef || cleanRef.length < 3) return null;
+
+        // 1. التطابق التام (54016 === 54016 أو 5416 === 5416)
+        if (cleanRef === cleanCandidate || rawRef === rawInput) {
+          return { match: true, matchType: 'تطابق تام' };
+        }
+
+        // 2. تطابق آخر 6 أرقام (لأرقام التحويلات الطويلة >= 6)
+        if (cleanCandidate.length >= 6 && cleanRef.length >= 6 && cleanCandidate.slice(-6) === cleanRef.slice(-6)) {
+          return { match: true, matchType: 'تطابق آخر 6 أرقام' };
+        }
+
+        // 3. تطابق لاحقة الرقم (Suffix match للأرقام >= 4 خانات)
+        if (cleanCandidate.length >= 4 && cleanRef.length >= cleanCandidate.length && cleanRef.endsWith(cleanCandidate)) {
+          return { match: true, matchType: 'تطابق لاحقة الرقم' };
+        }
+        if (cleanRef.length >= 4 && cleanCandidate.length >= cleanRef.length && cleanCandidate.endsWith(cleanRef)) {
+          return { match: true, matchType: 'تطابق لاحقة الرقم' };
+        }
+
+        // 4. فحص التشابه الإملائي / الرقمي المتقارب جداً (فرق حرف أو رقم واحد typo مثل 54016 vs 5416)
+        if (cleanCandidate.length >= 4 && Math.abs(cleanCandidate.length - cleanRef.length) <= 1) {
+          if (isLevenshteinClose(cleanCandidate, cleanRef)) {
+            return { match: true, matchType: 'تشابه رقمي شديد' };
+          }
+        }
+
+        return null;
+      };
+
+      // 1. أولاً: فحص أرقام التحويلات النازلة مباشرة من قاعدة البيانات MariaDB (0ms في الذاكرة)
+      if (Array.isArray(window.DB_ALL_TRANSFER_REFS) && window.DB_ALL_TRANSFER_REFS.length > 0) {
+        for (const item of window.DB_ALL_TRANSFER_REFS) {
+          if (!item || !item.ref) continue;
+          if (currentVoucherId && (String(item.voucherNo).trim() === String(currentVoucherId).trim())) continue;
+
+          const matchRes = testMatch(item.cleanRef || item.ref);
+          if (matchRes && matchRes.match) {
+            return {
+              isDuplicate: true,
+              voucherNo: item.voucherNo || 'سابق',
+              ref: item.ref,
+              date: item.date || '',
+              amount: item.amount || 0,
+              bank: item.bank || '',
+              from: item.from || '',
+              to: item.to || '',
+              matchType: matchRes.matchType,
+              source: 'قاعدة البيانات (MariaDB)'
+            };
+          }
+        }
+      }
+
+      // 2. ثانياً: فحص قائمة السندات الحالية في واجهة الجوال
+      if (typeof vouchersList !== 'undefined' && Array.isArray(vouchersList)) {
+        for (let v of vouchersList) {
+          if (!v) continue;
+          if (currentVoucherId && (String(v.id).trim() === String(currentVoucherId).trim() || String(v.voucherNo).trim() === String(currentVoucherId).trim())) continue;
+          const refs = [v.refNo, v.transferRef, v.mobileTransferNo].filter(Boolean);
+          for (let r of refs) {
+            const matchRes = testMatch(r);
+            if (matchRes && matchRes.match) {
+              return {
+                isDuplicate: true,
+                voucherNo: v.id || v.voucherNo || 'سابق',
+                ref: r,
+                date: v.date || '',
+                amount: v.sdg || v.amountLocal || 0,
+                bank: v.bankName || v.bank || '',
+                from: v.from || '',
+                to: v.to || '',
+                matchType: matchRes.matchType,
+                source: 'سجلات الجوال الحالية'
+              };
+            }
+          }
+        }
+      }
+
+      // 3. ثالثاً: فحص التخزين المحلي عبر كافة مفاتيح النظام (ERP)
+      const getTenantKey = window.getTenantKey || ((k) => k);
+      const keys = [
+        getTenantKey('erp_single_payments_v1'),
+        getTenantKey('erp_payments_v1'),
+        getTenantKey('erp_receipts_v1'),
+        getTenantKey('erp_comprehensive_payments_v1'),
+        getTenantKey('erp_comprehensive_receipts_v1'),
+        getTenantKey('erp_journal_v1'),
+        'magaiees_vouchers_history'
+      ];
+
+      for (let key of keys) {
+        let vouchers = [];
+        try {
+          vouchers = JSON.parse(localStorage.getItem(key)) || [];
+        } catch(e) { continue; }
+
+        for (let v of vouchers) {
+          if (!v || v.deleted) continue;
+          if (currentVoucherId && (String(v.id).trim() === String(currentVoucherId).trim() || String(v.voucherNo).trim() === String(currentVoucherId).trim())) continue;
+
+          let matchedRef = null;
+          let matchResult = null;
+
+          if (v.bankTransfers && Array.isArray(v.bankTransfers)) {
+            for (let bt of v.bankTransfers) {
+              const res = testMatch(bt.transferNo);
+              if (res) { matchedRef = bt.transferNo; matchResult = res; break; }
+            }
+          } else if (v.mobileTransferNo && (matchResult = testMatch(v.mobileTransferNo))) {
+            matchedRef = v.mobileTransferNo;
+          } else if (v.refNo && (matchResult = testMatch(v.refNo))) {
+            matchedRef = v.refNo;
+          }
+
+          if (!matchedRef && v.items && Array.isArray(v.items)) {
+            for (let item of v.items) {
+              if (!item) continue;
+              if (item.bankTransfers && Array.isArray(item.bankTransfers)) {
+                for (let bt of item.bankTransfers) {
+                  const res = testMatch(bt.transferNo);
+                  if (res) { matchedRef = bt.transferNo; matchResult = res; break; }
+                }
+              } else if (item.transferNo && (matchResult = testMatch(item.transferNo))) {
+                matchedRef = item.transferNo;
+                break;
+              }
+              if (matchedRef) break;
+            }
+          }
+
+          if (!matchedRef && v.details && Array.isArray(v.details)) {
+            for (let det of v.details) {
+              if (!det) continue;
+              if (det.bankTransfers && Array.isArray(det.bankTransfers)) {
+                for (let bt of det.bankTransfers) {
+                  const res = testMatch(bt.transferNo);
+                  if (res) { matchedRef = bt.transferNo; matchResult = res; break; }
+                }
+              } else if (det.transferNo && (matchResult = testMatch(det.transferNo))) {
+                matchedRef = det.transferNo;
+                break;
+              }
+              if (matchedRef) break;
+            }
+          }
+
+          if (!matchedRef && v.subTransactions && Array.isArray(v.subTransactions)) {
+            for (let sub of v.subTransactions) {
+              if (!sub) continue;
+              if (sub.transferNo && (matchResult = testMatch(sub.transferNo))) {
+                matchedRef = sub.transferNo;
+                break;
+              }
+            }
+          }
+
+          if (matchedRef && matchResult) {
+            return {
+              isDuplicate: true,
+              voucherNo: v.id || v.voucherNo || 'سابق',
+              ref: matchedRef,
+              date: v.date || '',
+              amount: v.amountLocal || v.sdg || v.amount || 0,
+              bank: v.bankName || v.bank || '',
+              from: v.fromAccountName || v.from || '',
+              to: v.toAccountName || v.to || '',
+              matchType: matchResult.matchType,
+              source: 'النظام المحاسبي'
+            };
+          }
+        }
+      }
+      return null;
+    }
+    window.checkTransferDuplicate = checkTransferDuplicate;
+
     // ════════════════════════════════════════════════════════════════
     // نافذة التنبيه اللطيف والمهذب والتحذيري (Polite Modal Functions)
     // ════════════════════════════════════════════════════════════════
@@ -2594,8 +4323,101 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // التحكم التلقائي بحجم خط رقم التحويلة (زيادة درجة: 20px)
+    // التحكم التلقائي بحجم خط رقم التحويلة والمقارنة الفورية السريعة جداً مع MariaDB
     // ════════════════════════════════════════════════════════════════
+    let _transferCheckDebounce = null;
+
+    function handleTransferLiveInput(val) {
+      val = (val || '').trim();
+      handleTransferInputScale(val);
+      _shortTransferAllowed = false;
+
+      const badge = document.getElementById('transferFeedbackBadge');
+      const input = document.getElementById('transferInput');
+      if (!badge || !input) return;
+
+      if (!val) {
+        badge.innerHTML = '';
+        input.classList.remove('border-red-500', 'border-emerald-500', 'shadow-[0_0_15px_rgba(239,68,68,0.4)]', 'shadow-[0_0_15px_rgba(16,185,129,0.3)]');
+        return;
+      }
+
+      const currentVNo = (document.getElementById('currentVoucherDisplay')?.textContent || '').trim();
+
+      // 1. فحص فوري وسريع جداً في الذاكرة مع أرقام MariaDB النازلة (0ms)
+      const dup = checkTransferDuplicate(val, currentVNo);
+      if (dup) {
+        badge.innerHTML = `
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-950/80 text-rose-300 border border-rose-500/50 shadow-sm animate-pulse">
+            <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+            <span>⚠️ مكرر بالسند <strong>#${dup.voucherNo}</strong> (${dup.matchType || 'مسجل'})</span>
+          </span>
+        `;
+        input.classList.add('border-red-500', 'shadow-[0_0_15px_rgba(239,68,68,0.4)]');
+        input.classList.remove('border-emerald-500', 'shadow-[0_0_15px_rgba(16,185,129,0.3)]');
+        return;
+      }
+
+      // 2. إذا كان الرقم كافياً (>= 4 أرقام) وغير مكرر
+      const digits = val.replace(/\D/g, '');
+      if (digits.length >= 4) {
+        badge.innerHTML = `
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 shadow-sm">
+            <i class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span>✓ رقم متاح وغير مكرر</span>
+          </span>
+        `;
+        input.classList.add('border-emerald-500', 'shadow-[0_0_15px_rgba(16,185,129,0.3)]');
+        input.classList.remove('border-red-500', 'shadow-[0_0_15px_rgba(239,68,68,0.4)]');
+      } else {
+        badge.innerHTML = `
+          <span class="inline-flex items-center gap-1 px-2 py-0.5 text-[11px] font-bold text-amber-400/80">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>أدخل رقم التحويل كاملاً</span>
+          </span>
+        `;
+        input.classList.remove('border-red-500', 'border-emerald-500', 'shadow-[0_0_15px_rgba(239,68,68,0.4)]', 'shadow-[0_0_15px_rgba(16,185,129,0.3)]');
+      }
+
+      // 3. فحص خلفي هادئ غير معطل عبر الـ API مع قاعدة البيانات MariaDB
+      if (digits.length >= 3 && !isOfflineMode) {
+        clearTimeout(_transferCheckDebounce);
+        _transferCheckDebounce = setTimeout(async () => {
+          try {
+            const res = await fetch(`mobile-voucher.php?api=check_duplicate&ref=${encodeURIComponent(val)}&voucherNo=${encodeURIComponent(currentVNo)}`);
+            if (res.ok) {
+              const data = await res.json();
+              if (data && !data.valid && data.duplicate) {
+                badge.innerHTML = `
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-950/80 text-rose-300 border border-rose-500/50 shadow-sm animate-pulse">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+                    <span>⚠️ مكرر في قاعدة البيانات (سند #${data.matchedVoucher || 'سابق'})</span>
+                  </span>
+                `;
+                input.classList.add('border-red-500', 'shadow-[0_0_15px_rgba(239,68,68,0.4)]');
+                input.classList.remove('border-emerald-500', 'shadow-[0_0_15px_rgba(16,185,129,0.3)]');
+              }
+            }
+          } catch(e) {}
+        }, 350);
+      }
+    }
+    window.handleTransferLiveInput = handleTransferLiveInput;
+
+    function handleTransferBlur(val) {
+      if (_suppressTransferBlur) return;
+      val = (val || '').trim();
+      if (!val || currentPayType !== 'transfer') return;
+
+      const currentVNo = (document.getElementById('currentVoucherDisplay')?.textContent || '').trim();
+      const dup = checkTransferDuplicate(val, currentVNo);
+      if (dup) {
+        showDuplicateWarningModal(val, dup);
+        return;
+      }
+    }
+    window.handleTransferBlur = handleTransferBlur;
+
     function handleTransferInputScale(val) {
       const input = document.getElementById('transferInput');
       if (!input) return;
@@ -3947,27 +5769,67 @@ $currenciesData = [
     // حساب وعرض الرصيد بالدولار وبالجنيه السوداني بتباين عالي جداً
     // ════════════════════════════════════════════════════════════════
     function updateAccountBalanceBadges() {
-      const rate = parseFloat(document.getElementById('usdRate').value) || 2650;
+      const rate = parseFloat(document.getElementById('usdRate')?.value) || 2650;
       const fromName = (document.getElementById('fromSearchInput')?.value || '').trim();
       const toName = (document.getElementById('toSearchInput')?.value || '').trim();
+      const activeSdgAmt = parseRawNumber(document.getElementById('sdgAmount')?.value || 0);
 
       const fromAcc = accountsDB.find(a => a.name === fromName);
       const toAcc = accountsDB.find(a => a.name === toName);
 
+      // حساب من حساب (الدافع)
+      const fromSdgEl = document.getElementById('fromAccountSdgBalance');
+      const fromUsdEl = document.getElementById('fromAccountUsdBalance');
+      const fromBadge = document.getElementById('fromProjectedBadge');
+      const fromAmtEl = document.getElementById('fromProjectedAmount');
+
       if (fromAcc) {
-        document.getElementById('fromAccountSdgBalance').textContent = fromAcc.sdgBalance.toLocaleString('en-US');
-        document.getElementById('fromAccountUsdBalance').textContent = (fromAcc.sdgBalance / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (fromSdgEl) fromSdgEl.textContent = Number(fromAcc.sdgBalance).toLocaleString('en-US');
+        if (fromUsdEl) fromUsdEl.textContent = (fromAcc.sdgBalance / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        if (activeSdgAmt > 0 && fromBadge && fromAmtEl) {
+          const projected = fromAcc.sdgBalance - activeSdgAmt;
+          fromAmtEl.textContent = Number(projected).toLocaleString('en-US') + ' ج.س';
+          if (projected < 0) {
+            fromBadge.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 bg-rose-950/90 text-rose-300 border-rose-500/70 shadow-[0_0_10px_rgba(244,63,94,0.4)] animate-pulse';
+            fromBadge.firstElementChild.textContent = '⚠️ مكشوف:';
+          } else {
+            fromBadge.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 bg-sky-950/80 text-sky-300 border-sky-500/50';
+            fromBadge.firstElementChild.textContent = 'بعد الصرف:';
+          }
+          fromBadge.classList.remove('hidden');
+        } else if (fromBadge) {
+          fromBadge.classList.add('hidden');
+        }
       } else {
-        document.getElementById('fromAccountSdgBalance').textContent = '---';
-        document.getElementById('fromAccountUsdBalance').textContent = '---';
+        if (fromSdgEl) fromSdgEl.textContent = '---';
+        if (fromUsdEl) fromUsdEl.textContent = '---';
+        if (fromBadge) fromBadge.classList.add('hidden');
       }
 
+      // حساب إلى حساب (المستفيد)
+      const toSdgEl = document.getElementById('toAccountSdgBalance');
+      const toUsdEl = document.getElementById('toAccountUsdBalance');
+      const toBadge = document.getElementById('toProjectedBadge');
+      const toAmtEl = document.getElementById('toProjectedAmount');
+
       if (toAcc) {
-        document.getElementById('toAccountSdgBalance').textContent = toAcc.sdgBalance.toLocaleString('en-US');
-        document.getElementById('toAccountUsdBalance').textContent = (toAcc.sdgBalance / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (toSdgEl) toSdgEl.textContent = Number(toAcc.sdgBalance).toLocaleString('en-US');
+        if (toUsdEl) toUsdEl.textContent = (toAcc.sdgBalance / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        if (activeSdgAmt > 0 && toBadge && toAmtEl) {
+          const projected = toAcc.sdgBalance + activeSdgAmt;
+          toAmtEl.textContent = Number(projected).toLocaleString('en-US') + ' ج.س';
+          toBadge.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1 bg-emerald-950/80 text-emerald-300 border-emerald-500/50 shadow-sm';
+          toBadge.firstElementChild.textContent = 'بعد الاستلام:';
+          toBadge.classList.remove('hidden');
+        } else if (toBadge) {
+          toBadge.classList.add('hidden');
+        }
       } else {
-        document.getElementById('toAccountSdgBalance').textContent = '---';
-        document.getElementById('toAccountUsdBalance').textContent = '---';
+        if (toSdgEl) toSdgEl.textContent = '---';
+        if (toUsdEl) toUsdEl.textContent = '---';
+        if (toBadge) toBadge.classList.add('hidden');
       }
 
       const recTo = document.getElementById('recipientToNameDisplay');
@@ -4093,6 +5955,21 @@ $currenciesData = [
 
       updateAccountBalanceBadges();
 
+      currentDraftIdempotencyKey = v.idempotencyKey || generateUUID();
+      if (v.attachment) {
+        currentReceiptAttachment = v.attachment;
+        const card = document.getElementById('receiptAttachmentCard');
+        const thumb = document.getElementById('receiptAttachmentThumb');
+        const summary = document.getElementById('receiptAttachmentSummary');
+        if (card && thumb) {
+          thumb.src = v.attachment;
+          card.classList.remove('hidden');
+        }
+        if (summary) summary.textContent = `مستند ثبوتي (${v.bankName || 'إشعار بنكي'})`;
+      } else {
+        if (typeof removeAttachedReceipt === 'function') removeAttachedReceipt();
+      }
+
       const transferInp = document.getElementById('transferInput');
       if (transferInp) {
         transferInp.value = v.refNo || '';
@@ -4144,6 +6021,9 @@ $currenciesData = [
     }
 
     function startNewVoucher() {
+      currentDraftIdempotencyKey = generateUUID();
+      if (typeof removeAttachedReceipt === 'function') removeAttachedReceipt();
+
       let nextId = '';
       if (isOfflineMode) {
         nextId = `أوفلاين ${offlineCounter}`;
@@ -4336,6 +6216,7 @@ $currenciesData = [
     function handleAmountInput(source) {
       calculateExchange(source);
       updateTafqeet();
+      updateAccountBalanceBadges();
     }
 
     function calculateExchange(source) {
@@ -4384,63 +6265,128 @@ $currenciesData = [
         document.getElementById('usdAmount').value = formatNumberWithConfig(f, usdNumberConfig);
       }
       updateTafqeet();
+      updateAccountBalanceBadges();
     }
 
-    function updateTafqeet() {
-      const num = parseRawNumber(document.getElementById('sdgAmount').value);
-      const disp = document.getElementById('tafqeetDisplay');
-      if (num <= 0) {
-        disp.classList.add('hidden');
-        return;
-      }
-      disp.textContent = `فقط: ${arabicNumberToWords(num)} جنيه سوداني لا غير`;
-      disp.classList.remove('hidden');
-    }
+    // ════════════════════════════════════════════════════════════════
+    // محرك التفقيط المالي العربي المتقدم فائق الدقة (Master Arabic Tafqeet 4.0)
+    // - يدعم الأرقام بالمليارات والترليونات
+    // - يدعم القواعد النحوية العربية (المثنى، جمع التكسير، والتمييز المنصوب)
+    // - يدعم كافة العملات (SDG, USD, SAR, AED, EUR) والأجزاء العشرية
+    // ════════════════════════════════════════════════════════════════
+    function arabicNumberToWords(n, currency = 'SDG') {
+      if (isNaN(n) || n === 0) return 'صفر';
+      n = Math.abs(Number(n));
+      const intPart = Math.floor(n);
+      const decPart = Math.round((n - intPart) * 100);
 
-    function arabicNumberToWords(n) {
-      if (n === 0) return 'صفر';
-      const units = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
+      const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
       const teens = ['عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
       const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
       const hundreds = ['', 'مائة', 'مائتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
 
-      function convertHundreds(num) {
-        let str = '';
-        const h = Math.floor(num / 100);
-        const rem = num % 100;
-        if (h > 0) str += hundreds[h];
+      function convertGroup(val) {
+        let s = '';
+        const h = Math.floor(val / 100);
+        const rem = val % 100;
+        if (h > 0) s += hundreds[h];
         if (rem > 0) {
-          if (str) str += ' و';
-          if (rem < 10) str += units[rem];
-          else if (rem < 20) str += teens[rem - 10];
+          if (s) s += ' و';
+          if (rem < 10) s += ones[rem];
+          else if (rem < 20) s += teens[rem - 10];
           else {
             const u = rem % 10;
             const t = Math.floor(rem / 10);
-            if (u > 0) str += units[u] + ' و';
-            str += tens[t];
+            if (u > 0) s += ones[u] + ' و';
+            s += tens[t];
           }
         }
-        return str;
+        return s;
       }
 
-      let res = '';
-      const millions = Math.floor(n / 1000000);
-      const thousands = Math.floor((n % 1000000) / 1000);
-      const remainder = Math.floor(n % 1000);
+      const scales = [
+        { val: 1000000000000, singular: 'ترليون', dual: 'ترليونان', plural: 'ترليونات', accusative: 'ترليوناً' },
+        { val: 1000000000, singular: 'مليار', dual: 'ملياران', plural: 'مليارات', accusative: 'ملياراً' },
+        { val: 1000000, singular: 'مليون', dual: 'مليونان', plural: 'ملايين', accusative: 'مليوناً' },
+        { val: 1000, singular: 'ألف', dual: 'ألفان', plural: 'آلاف', accusative: 'ألفاً' }
+      ];
 
-      if (millions > 0) {
-        res += convertHundreds(millions) + ' مليون';
+      let parts = [];
+      let remInt = intPart;
+
+      for (let sc of scales) {
+        if (remInt >= sc.val) {
+          const count = Math.floor(remInt / sc.val);
+          remInt = remInt % sc.val;
+          if (count === 1) parts.push(sc.singular);
+          else if (count === 2) parts.push(sc.dual);
+          else if (count >= 3 && count <= 10) parts.push(convertGroup(count) + ' ' + sc.plural);
+          else parts.push(convertGroup(count) + ' ' + sc.accusative);
+        }
       }
-      if (thousands > 0) {
-        if (res) res += ' و';
-        res += convertHundreds(thousands) + ' ألف';
+
+      if (remInt > 0) {
+        parts.push(convertGroup(remInt));
       }
-      if (remainder > 0) {
-        if (res) res += ' و';
-        res += convertHundreds(remainder);
+
+      let intWords = parts.join(' و');
+
+      // تفقيط مسميات العملات
+      const currNames = {
+        'SDG': { main: 'جنيه سوداني', accusative: 'جنيهاً سودانياً', sub: 'قرش', subAcc: 'قرشاً' },
+        'USD': { main: 'دولار أمريكي', accusative: 'دولاراً أمريكياً', sub: 'سنت', subAcc: 'سنتاً' },
+        'SAR': { main: 'ريال سعودي', accusative: 'ريالاً سعودياً', sub: 'هللة', subAcc: 'هللة' },
+        'AED': { main: 'درهم إماراتي', accusative: 'درهماً إماراتياً', sub: 'فلس', subAcc: 'فلساً' },
+        'EUR': { main: 'يورو أوروبي', accusative: 'يورو أوروبي', sub: 'سنت', subAcc: 'سنتاً' }
+      };
+
+      const cObj = currNames[currency] || currNames['SDG'];
+      const cLabel = intPart > 10 ? cObj.accusative : cObj.main;
+
+      let result = intWords ? (intWords + ' ' + cLabel) : '';
+
+      if (decPart > 0) {
+        const decWords = convertGroup(decPart);
+        const subLabel = decPart > 10 ? cObj.subAcc : cObj.sub;
+        if (result) {
+          result += ' و' + decWords + ' ' + subLabel;
+        } else {
+          result = decWords + ' ' + subLabel;
+        }
       }
-      return res || String(n);
+
+      return result || 'صفر';
     }
+    window.arabicNumberToWords = arabicNumberToWords;
+
+    function updateTafqeet() {
+      const curSelect = document.getElementById('primaryCurrencySelect')?.value || currentCurrency || 'SDG';
+      let num = 0;
+      if (curSelect === 'USD' || curSelect === 'foreign') {
+        num = parseRawNumber(document.getElementById('usdAmount')?.value || 0);
+      } else {
+        num = parseRawNumber(document.getElementById('sdgAmount')?.value || 0);
+      }
+
+      const disp = document.getElementById('tafqeetDisplay');
+      const txt = document.getElementById('tafqeetText');
+      if (!disp) return;
+
+      if (!num || num <= 0) {
+        disp.classList.add('hidden');
+        if (txt) txt.textContent = '';
+        return;
+      }
+
+      const words = arabicNumberToWords(num, curSelect);
+      if (txt) {
+        txt.textContent = `فقط ${words} لا غير`;
+      } else {
+        disp.textContent = `فقط ${words} لا غير`;
+      }
+      disp.classList.remove('hidden');
+    }
+    window.updateTafqeet = updateTafqeet;
 
     // ════════════════════════════════════════════════════════════════
     // البحث الفوري عن الحسابات مع تبويبات التصنيف المباشرة
@@ -5860,40 +7806,20 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // فحص رقم التحويلة المكرر ومطابقة آخر 6 أرقام على اليمين مع رسالة بلطف
+    // فحص رقم التحويلة المكرر والمقارنة مع قاعدة بيانات MariaDB وشاشات النظام
     // ════════════════════════════════════════════════════════════════
     async function checkDuplicateTransferLive(val, isSaveAction = false) {
       if (currentPayType !== 'transfer') return true;
+      if (_suppressTransferBlur && !isSaveAction) return true;
       val = (val || '').trim();
       const currentVNo = (document.getElementById('currentVoucherDisplay')?.textContent || '').trim();
 
       if (!val) {
         if (isSaveAction) {
-          showPoliteWarningModal(
-            'عذراً ولطفاً: رقم التحويلة مطلوب',
-            'يرجى التكرم بكتابة رقم التحويلة البنكية، حيث يُعد شرطاً أساسياً وإلزامياً لإتمام حفظ سند التحويل المالي (مطابق لشروط حركة مالية في الكمبيوتر).',
-            'transferInput',
-            'حسناً، سأكتب رقم التحويلة',
-            'amber'
-          );
-          return false;
-        }
-        return true;
-      }
-
-      // 1. شرط أن يكون رقم التحويلة 6 أرقام على الأقل (رسالة لطيفة باللون الأحمر التحذيري)
-      const digitsOnly = val.replace(/\D/g, '');
-      if (val.length < 6 || digitsOnly.length < 6) {
-        if (isSaveAction || val.length >= 3) {
-          showPoliteWarningModal(
-            '⚠️ تحذير: عدد خانات التحويلة أقل من 6 أرقام',
-            `عذراً ولطفاً يا غالي:\nرقم التحويلة البنكية يجب أن يتكون من 6 أرقام على الأقل لضمان التوافق والمطابقة المصرفية ومنع التكرار.\n(الرقم المُدخل حالياً: "${val}" يتكون من ${digitsOnly.length} أرقام فقط).\n\nيرجى التكرم بإكمال رقم التحويلة ليصبح 6 أرقام أو أكثر.`,
-            'transferInput',
-            'حسناً، سأكمل الخانات إلى 6 أرقام',
-            'red'
-          );
+          showToast("يرجى إدخال رقم حساب التحويل", "error");
           const ti = document.getElementById('transferInput');
           if (ti) {
+            ti.focus();
             ti.classList.add('border-red-500');
             setTimeout(() => ti.classList.remove('border-red-500'), 3500);
           }
@@ -5902,18 +7828,10 @@ $currenciesData = [
         return true;
       }
 
-      const candSuffix = extractLast6Digits(val);
-
-      // 2. فحص تكرار آخر 6 أرقام في الذاكرة المحلية (رسالة لطيفة باللون الأحمر التحذيري)
-      const localDup = findLocalDuplicateTransfer(val, currentVNo);
+      // 1. فحص التكرار فورياً مع قاعدة البيانات MariaDB وسجلات الذاكرة (0ms)
+      const localDup = checkTransferDuplicate(val, currentVNo);
       if (localDup) {
-        showPoliteWarningModal(
-          '⚠️ تحذير تدقيق مالي: رقم التحويلة مكرر',
-          `عذراً ولطفاً يا غالي:\nرقم التحويلة المُدخل (${val}) ينتهي بالأرقام (${localDup.matchedSuffix})، وهو مكرر ومسجل مسبقاً في السند رقم (#${localDup.voucherId}) بمبلغ (${Number(localDup.amount).toLocaleString()} ج.س - ${localDup.bank}).\n\nيرجى التكرم بمراجعة رقم التحويلة لضمان دقة العمليات وعدم تكرار القيد.`,
-          'transferInput',
-          'حسناً، سأقوم بمراجعة وتعديل رقم التحويلة',
-          'red'
-        );
+        showDuplicateWarningModal(val, localDup);
         const ti = document.getElementById('transferInput');
         if (ti) {
           ti.classList.add('border-red-500');
@@ -5922,28 +7840,39 @@ $currenciesData = [
         return false;
       }
 
-      // 3. فحص تكرار آخر 6 أرقام مباشرة في MariaDB (رسالة لطيفة باللون الأحمر التحذيري)
+      // 2. فحص حي ومباشر عبر الـ API مع قاعدة بيانات MariaDB (في حال حفظ تحويلة قبل ثوانٍ على اللابتوب)
       if (!isOfflineMode) {
         try {
           const res = await fetch(`mobile-voucher.php?api=check_duplicate&ref=${encodeURIComponent(val)}&voucherNo=${encodeURIComponent(currentVNo)}`);
-          const data = await res.json();
-          if (data && !data.valid) {
-            showPoliteWarningModal(
-              '⚠️ تحذير تدقيق مالي: رقم التحويلة مكرر',
-              data.error || `عذراً ولطفاً يا غالي:\nرقم التحويلة ينتهي بالأرقام (${candSuffix}) وهو مكرر ومسجل مسبقاً في قاعدة البيانات MariaDB.\n\nيرجى التكرم بمراجعة رقم التحويلة لضمان دقة العمليات وعدم تكرار القيد.`,
-              'transferInput',
-              'حسناً، سأقوم بمراجعة وتعديل رقم التحويلة',
-              'red'
-            );
-            const ti = document.getElementById('transferInput');
-            if (ti) {
-              ti.classList.add('border-red-500');
-              setTimeout(() => ti.classList.remove('border-red-500'), 3500);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && !data.valid && data.duplicate) {
+              showDuplicateWarningModal(val, data);
+              const ti = document.getElementById('transferInput');
+              if (ti) {
+                ti.classList.add('border-red-500');
+                setTimeout(() => ti.classList.remove('border-red-500'), 3500);
+              }
+              return false;
             }
-            return false;
           }
         } catch(e) {
           console.warn('Check duplicate DB bypass:', e);
+        }
+      }
+
+      // 3. فحص طول رقم التحويلة (السماح بالأرقام مثل 54016 و 5416 بعد التنبيه أو التأكيد)
+      const digitsOnly = val.replace(/\D/g, '');
+      if (digitsOnly.length < 3) {
+        if (isSaveAction) {
+          showToast("رقم التحويلة قصير جداً (أقل من 3 أرقام)", "error");
+          return false;
+        }
+      } else if (digitsOnly.length < 6 && !_shortTransferAllowed) {
+        if (isSaveAction) {
+          _wasAttemptingSave = true;
+          showLengthWarningModal(val);
+          return false;
         }
       }
 
@@ -5959,6 +7888,11 @@ $currenciesData = [
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (data && data.success) {
+          // تحديث مصفوفة التحويلات العالمية للتحقق الفوري (0ms)
+          if (Array.isArray(data.allTransferRefs)) {
+            window.DB_ALL_TRANSFER_REFS = data.allTransferRefs;
+          }
+
           // 1. تحديث الحسابات من MariaDB
           if (Array.isArray(data.accounts) && data.accounts.length > 0) {
             accountsDB = data.accounts.map(a => ({
@@ -6103,70 +8037,64 @@ $currenciesData = [
     async function handleSave(isQuickCheck = false) {
       const sdg = parseRawNumber(document.getElementById('sdgAmount').value);
       const usd = parseRawNumber(document.getElementById('usdAmount').value);
+      const totalAmt = sdg > 0 ? sdg : (usd > 0 ? usd : 0);
 
-      if (!sdg && !usd) {
-        showPoliteWarningModal(
-          'عذراً ولطفاً: المبلغ مطلوب',
-          'يرجى التكرم بإدخال مبلغ الحركة المالية أولاً (سواء بالجنيه المحلي أو بالدولار).',
-          'sdgAmount'
-        );
+      // 1. فحص المبلغ (مطابق لحركة مالية: لا يمكن اعتماد سند بقيمة صفر)
+      if (totalAmt <= 0) {
+        showToast("لا يمكن اعتماد سند بقيمة صفر", "error");
+        const amtInput = document.getElementById('sdgAmount');
+        if (amtInput) {
+          amtInput.focus();
+          amtInput.classList.add('border-red-500');
+          setTimeout(() => amtInput.classList.remove('border-red-500'), 3500);
+        }
         return;
       }
 
       const fromAccountName = (document.getElementById('fromSearchInput')?.value || '').trim();
       const toAccountName = (document.getElementById('toSearchInput')?.value || '').trim();
 
+      // 2. الطرف الأول: حساب الصرف / الدافع (مطابق لحركة مالية: يرجى اختيار حساب الدفع (الدافع))
       if (!fromAccountName) {
-        showPoliteWarningModal(
-          'عذراً ولطفاً: حساب الصرف مطلوب',
-          'يرجى التكرم باختيار أو تحديد حساب الصرف (من حساب) لإتمام حفظ السند.',
-          'fromSearchInput'
-        );
+        showToast("يرجى اختيار حساب الدفع (الدافع)", "error");
+        const fromInput = document.getElementById('fromSearchInput');
+        if (fromInput) {
+          fromInput.focus();
+          fromInput.classList.add('border-red-500');
+          setTimeout(() => fromInput.classList.remove('border-red-500'), 3500);
+        }
         return;
       }
 
+      // 3. الطرف الثاني: حساب المستفيد (مطابق لحركة مالية: يرجى اختيار الحساب المستفيد)
       if (!toAccountName) {
-        showPoliteWarningModal(
-          'عذراً ولطفاً: حساب المستفيد مطلوب',
-          'يرجى التكرم باختيار أو تحديد حساب المستفيد أو الطرف المستلم (إلى حساب) لإتمام حفظ السند.',
-          'toSearchInput'
-        );
+        showToast("يرجى اختيار الحساب المستفيد", "error");
+        const toInput = document.getElementById('toSearchInput');
+        if (toInput) {
+          toInput.focus();
+          toInput.classList.add('border-red-500');
+          setTimeout(() => toInput.classList.remove('border-red-500'), 3500);
+        }
         return;
       }
 
-      // التحقق الصارم من أن الحسابات مسجلة ومعرفة في البيانات الأساسية (عملاء، موردين، بنوك، خزن، مصروفات)
-      const isFromRegistered = accountsDB.some(a => a && a.name && (a.name.trim() === fromAccountName || normalizeArabicText(a.name) === normalizeArabicText(fromAccountName)));
-      if (!isFromRegistered) {
-        showPoliteWarningModal(
-          'عذراً ولطفاً: حساب الصرف غير مسجل',
-          `الحساب المُدخل في (مِن حساب): "${fromAccountName}" غير موجود ضمن الحسابات المعرفة في البيانات الأساسية (عملاء، موردين، بنوك، خزائن، مصروفات).\n\nيشترط النظام أن يكون الحساب مسجلاً مسبقاً في الدليل الأساسي لضمان صحة القيود والترحيل.`,
-          'fromSearchInput',
-          'حسناً، سأختار حساباً مسجلاً',
-          'amber'
-        );
-        return;
-      }
+      // التحقق من أن الحسابات مسجلة ومعرفة في البيانات الأساسية إذا توفر الدليل
+      if (accountsDB && accountsDB.length > 0) {
+        const isFromRegistered = accountsDB.some(a => a && a.name && (a.name.trim() === fromAccountName || normalizeArabicText(a.name) === normalizeArabicText(fromAccountName)));
+        if (!isFromRegistered) {
+          showToast(`الحساب (من حساب): "${fromAccountName}" غير مسجل في الدليل`, "warning");
+        }
 
-      const isToRegistered = accountsDB.some(a => a && a.name && (a.name.trim() === toAccountName || normalizeArabicText(a.name) === normalizeArabicText(toAccountName)));
-      if (!isToRegistered) {
-        showPoliteWarningModal(
-          'عذراً ولطفاً: حساب المستفيد غير مسجل',
-          `الحساب المُدخل في (إلى حساب): "${toAccountName}" غير موجود ضمن الحسابات المعرفة في البيانات الأساسية (عملاء، موردين، بنوك، خزائن، مصروفات).\n\nيشترط النظام أن يكون الحساب مسجلاً مسبقاً في الدليل الأساسي لضمان صحة القيود والترحيل.`,
-          'toSearchInput',
-          'حسناً، سأختار حساباً مسجلاً',
-          'amber'
-        );
-        return;
+        const isToRegistered = accountsDB.some(a => a && a.name && (a.name.trim() === toAccountName || normalizeArabicText(a.name) === normalizeArabicText(toAccountName)));
+        if (!isToRegistered) {
+          showToast(`الحساب (إلى حساب): "${toAccountName}" غير مسجل في الدليل`, "warning");
+        }
       }
 
       if (normalizeArabicText(fromAccountName) === normalizeArabicText(toAccountName)) {
-        showPoliteWarningModal(
-          'عذراً ولطفاً: الحسابات متطابقة',
-          'لا يمكن أن يكون حساب الصرف (مِن حساب) مطابقاً لحساب المستفيد (إلى حساب). يرجى التكرم باختيار حسابين مختلفين لإتمام القيد المالي.',
-          'toSearchInput',
-          'حسناً، سأختار حساباً مختلفاً',
-          'amber'
-        );
+        showToast("لا يمكن أن يكون حساب الدفع مطابقاً لحساب المستفيد", "warning");
+        const toInput = document.getElementById('toSearchInput');
+        if (toInput) toInput.focus();
         return;
       }
 
@@ -6174,50 +8102,86 @@ $currenciesData = [
       const bankVal = (document.getElementById('bankNameInput').value || '').trim();
       const currentVNo = (document.getElementById('currentVoucherDisplay')?.textContent || '').trim();
 
-      // شروط مطابقة شاشة حركة مالية في الكمبيوتر:
-      // 1. التحويل البنكي: رقم التحويلة (6 أرقام على الأقل، غير مكرر مع فحص آخر 6 أرقام) + اسم البنك
+      // 4. شروط مطابقة شاشة حركة مالية: التحويل البنكي
       if (currentPayType === 'transfer') {
+        if (!transferVal) {
+          showToast("يرجى إدخال رقم حساب التحويل", "error");
+          const ti = document.getElementById('transferInput');
+          if (ti) {
+            ti.focus();
+            ti.classList.add('border-red-500');
+            setTimeout(() => ti.classList.remove('border-red-500'), 3500);
+          }
+          return;
+        }
+
         const isTransferValid = await checkDuplicateTransferLive(transferVal, true);
         if (!isTransferValid) return;
 
         if (!bankVal) {
-          showPoliteWarningModal(
-            'عذراً ولطفاً: اسم البنك مطلوب',
-            'يرجى التكرم بكتابة أو اختيار اسم البنك لإتمام سند التحويل البنكي.',
-            'bankNameInput'
-          );
+          showToast("اسم البنك إجباري، يرجى كتابة اسم البنك", "error");
+          const bi = document.getElementById('bankNameInput');
+          if (bi) {
+            bi.focus();
+            bi.classList.add('border-red-500');
+            setTimeout(() => bi.classList.remove('border-red-500'), 3500);
+          }
           return;
         }
       }
 
-      // 2. الشيك: رقم الشيك واسم البنك إلزاميان
+      // 5. شروط مطابقة شاشة حركة مالية: الشيكات
       if (currentPayType === 'cheque' || currentPayType.includes('cheque')) {
-        if (!transferVal) {
-          showPoliteWarningModal(
-            'عذراً ولطفاً: رقم الشيك مطلوب',
-            'يرجى التكرم بكتابة رقم الشيك، حيث يُعد شرطاً أساسياً وإلزامياً لإتمام حركة الشيكات المالية.',
-            'transferInput'
-          );
+        if (totalAmt <= 0) {
+          showToast("يرجى إدخال مبلغ الشيك", "error");
+          const amtInput = document.getElementById('sdgAmount');
+          if (amtInput) amtInput.focus();
           return;
         }
         if (!bankVal) {
-          showPoliteWarningModal(
-            'عذراً ولطفاً: اسم بنك الشيك مطلوب',
-            'يرجى التكرم بكتابة أو اختيار اسم البنك الصادر منه الشيك لإتمام العملية.',
-            'bankNameInput'
-          );
+          showToast("اسم البنك إجباري، يرجى كتابة اسم البنك", "error");
+          const bi = document.getElementById('bankNameInput');
+          if (bi) {
+            bi.focus();
+            bi.classList.add('border-red-500');
+            setTimeout(() => bi.classList.remove('border-red-500'), 3500);
+          }
           return;
         }
+        if (!transferVal) {
+          showToast("رقم الشيك إجباري، لابد من كتابة رقم الشيك", "error");
+          const ti = document.getElementById('transferInput');
+          if (ti) {
+            ti.focus();
+            ti.classList.add('border-red-500');
+            setTimeout(() => ti.classList.remove('border-red-500'), 3500);
+          }
+          return;
+        }
+      }
+
+      if (isSavingInProgress) {
+        showToastNotification('⏳ جاري اعتماد وترحيل السند حالياً، يرجى الانتظار...');
+        return;
+      }
+      isSavingInProgress = true;
+      const saveBtn = document.getElementById('btnSaveMain');
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.classList.add('opacity-70', 'cursor-not-allowed');
       }
 
       triggerHapticPulse();
       playBankerChime();
 
       const isEditing = (currentIndex >= 0 && currentIndex < vouchersList.length && vouchersList[currentIndex].id === currentVNo);
+      const previousVoucherData = isEditing ? JSON.parse(JSON.stringify(vouchersList[currentIndex])) : null;
       const voucherPayload = {
         isEditing: isEditing,
         voucherNo: isEditing ? vouchersList[currentIndex].id : '',
         id: isEditing ? vouchersList[currentIndex].id : '',
+        idempotencyKey: currentDraftIdempotencyKey,
+        attachment: currentReceiptAttachment || null,
         date: document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10),
         rate: parseFloat(document.getElementById('usdRate').value) || 2650,
         currency: currentCurrency || 'SDG',
@@ -6236,134 +8200,216 @@ $currenciesData = [
       let savedId = '';
       let isDbSuccess = false;
 
-      if (!isOfflineMode) {
-        showToastNotification('⏳ جارٍ الحفظ والترحيل إلى قاعدة البيانات MariaDB...');
-        try {
-          const res = await fetch('mobile-voucher.php?api=save_voucher', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(voucherPayload)
-          });
-          const resData = await res.json();
-          if (resData && resData.success) {
-            isDbSuccess = true;
-            savedId = resData.voucherNo;
+      try {
+        if (!isOfflineMode) {
+          showToastNotification('⏳ جارٍ الحفظ والترحيل إلى قاعدة البيانات MariaDB...');
+          try {
+            const res = await fetch('mobile-voucher.php?api=save_voucher', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(voucherPayload)
+            });
+            const resData = await res.json();
+            if (resData && resData.success) {
+              isDbSuccess = true;
+              savedId = resData.voucherNo;
 
-            const savedVoucher = {
-              id: savedId,
-              isOffline: false,
-              date: voucherPayload.date,
-              rate: voucherPayload.rate,
-              currency: voucherPayload.currency,
-              costCenter: voucherPayload.costCenter,
-              sdg: sdg,
-              usd: usd,
-              payType: currentPayType,
-              from: voucherPayload.fromAccountName,
-              to: voucherPayload.toAccountName,
-              refNo: transferVal,
-              bankName: bankVal,
-              notes: voucherPayload.notes
-            };
+              const savedVoucher = {
+                id: savedId,
+                isOffline: false,
+                idempotencyKey: currentDraftIdempotencyKey,
+                attachment: resData.record?.attachment || currentReceiptAttachment || null,
+                date: voucherPayload.date,
+                rate: voucherPayload.rate,
+                currency: voucherPayload.currency,
+                costCenter: voucherPayload.costCenter,
+                sdg: sdg,
+                usd: usd,
+                payType: currentPayType,
+                from: voucherPayload.fromAccountName,
+                to: voucherPayload.toAccountName,
+                refNo: transferVal,
+                bankName: bankVal,
+                notes: voucherPayload.notes
+              };
 
-            if (isEditing) {
-              vouchersList[currentIndex] = savedVoucher;
+              if (isEditing) {
+                vouchersList[currentIndex] = savedVoucher;
+              } else {
+                vouchersList.push(savedVoucher);
+                currentIndex = vouchersList.length - 1;
+              }
+
+              try {
+                localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+              } catch(e) {}
+
+              const displayEl = document.getElementById('currentVoucherDisplay');
+              if (displayEl) displayEl.textContent = savedId;
+              const tagEl = document.getElementById('voucherTag');
+              if (tagEl) tagEl.textContent = 'MariaDB مرحل';
+
+              // إظهار بطاقة النجاح الاحترافية المطابقة لحركة مالية
+              showProfessionalSuccess(savedId, fromAccountName, toAccountName, sdg || usd, currentCurrency || 'SDG', isEditing ? 'تم التعديل بنجاح' : 'تم الحفظ بنجاح', savedVoucher);
+              showToast(isEditing ? `تم تعديل السند رقم (${savedId}) بنجاح` : `تم حفظ السند رقم (${savedId}) بنجاح`, 'success');
+              showUndoToast(savedId, savedVoucher, isEditing, previousVoucherData);
+
+              // مزامنة فورية مع جدول السندات الفردية لسطح المكتب (erp_single_payments_v1)
+              try {
+                const getTenantKey = window.getTenantKey || ((k) => k);
+                const tKey = getTenantKey('erp_single_payments_v1');
+                let existingSP = JSON.parse(localStorage.getItem(tKey) || '[]');
+                const spItem = {
+                  id: savedId,
+                  date: voucherPayload.date,
+                  time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
+                  type: 'single_payment',
+                  fromAccount: fromAccountName,
+                  toAccount: toAccountName,
+                  amountLocal: sdg,
+                  currency: currentCurrency || 'SDG',
+                  rate: voucherPayload.rate,
+                  amountForeign: usd,
+                  paymentMethod: currentPayType,
+                  bankName: bankVal,
+                  mobileTransferNo: transferVal,
+                  refNo: transferVal,
+                  notes: voucherPayload.notes,
+                  costCenter: voucherPayload.costCenter
+                };
+                const exIdx = existingSP.findIndex(x => String(x.id) === String(savedId));
+                if (exIdx > -1) existingSP[exIdx] = spItem;
+                else existingSP.push(spItem);
+                localStorage.setItem(tKey, JSON.stringify(existingSP));
+              } catch(e) {}
+
+              if (isAutoSendEnabled) {
+                setTimeout(() => {
+                  showToastNotification(`📲 الإرسال التلقائي: تم إرسال السند (${savedId}) عبر الواتساب للعميل (${savedVoucher.to})!`);
+                }, 500);
+              }
+
+              // تصفير المرفق وتوليد مفتاح عدم تكرار جديد للسند التالي
+              currentDraftIdempotencyKey = generateUUID();
+              currentReceiptAttachment = null;
+              if (typeof removeAttachedReceipt === 'function') removeAttachedReceipt();
+
+              loadVoucher(currentIndex);
             } else {
-              vouchersList.push(savedVoucher);
-              currentIndex = vouchersList.length - 1;
+              throw new Error(resData?.error || 'فشل الاستجابة من الخادم');
             }
-
-            try {
-              localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
-            } catch(e) {}
-
-            const displayEl = document.getElementById('currentVoucherDisplay');
-            if (displayEl) displayEl.textContent = savedId;
-            const tagEl = document.getElementById('voucherTag');
-            if (tagEl) tagEl.textContent = 'MariaDB مرحل';
-
-            // إظهار نافذة التأكيد الجمالية الأنيقة (تم الحفظ أو تم التعديل)
-            showSaveSuccessModal(isEditing ? 'edit' : 'save', savedVoucher);
-            showToastNotification(`✅ ${isQuickCheck ? 'تأكيد وحفظ (✓): ' : ''}${isEditing ? 'تم تعديل السند بنجاح' : 'تم حفظ السند بنجاح'} وترحيله في قاعدة البيانات MariaDB!\n- رقم السند التسلسلي: #${savedId}`);
-
-            if (isAutoSendEnabled) {
-              setTimeout(() => {
-                showToastNotification(`📲 الإرسال التلقائي: تم إرسال السند (${savedId}) عبر الواتساب للعميل (${savedVoucher.to})!`);
-              }, 500);
-            }
-
-            loadVoucher(currentIndex);
-          } else {
-            throw new Error(resData?.error || 'فشل الاستجابة من الخادم');
+          } catch(err) {
+            console.warn('DB save error, fallback to offline:', err);
+            showToastNotification(`⚠️ تعذر الحفظ المباشر في الداتابيز: ${err.message}\nسيتم حفظ السند محلياً وترحيله تلقائياً.`);
+            isDbSuccess = false;
           }
-        } catch(err) {
-          console.warn('DB save error, fallback to offline:', err);
-          showToastNotification(`⚠️ تعذر الحفظ المباشر في الداتابيز: ${err.message}\nسيتم حفظ السند محلياً وترحيله تلقائياً.`);
-          isDbSuccess = false;
-        }
-      }
-
-      if (isOfflineMode || !isDbSuccess) {
-        savedId = `أوفلاين ${offlineCounter++}`;
-        voucherPayload.id = savedId;
-        voucherPayload.voucherNo = savedId;
-        offlineQueue.push(voucherPayload);
-        try {
-          localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue));
-        } catch(e) {}
-
-        const pendingEl = document.getElementById('pendingCount');
-        if (pendingEl) pendingEl.textContent = `${offlineQueue.length} معلق`;
-
-        const newVoucher = {
-          id: savedId,
-          isOffline: true,
-          date: voucherPayload.date,
-          rate: voucherPayload.rate,
-          currency: voucherPayload.currency,
-          costCenter: voucherPayload.costCenter,
-          sdg: sdg,
-          usd: usd,
-          payType: currentPayType,
-          from: voucherPayload.fromAccountName,
-          to: voucherPayload.toAccountName,
-          refNo: transferVal,
-          bankName: bankVal,
-          notes: voucherPayload.notes
-        };
-
-        if (isEditing) {
-          vouchersList[currentIndex] = newVoucher;
-        } else {
-          vouchersList.push(newVoucher);
-          currentIndex = vouchersList.length - 1;
         }
 
-        try {
-          localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
-        } catch(e) {}
+        if (isOfflineMode || !isDbSuccess) {
+          savedId = `أوفلاين ${offlineCounter++}`;
+          voucherPayload.id = savedId;
+          voucherPayload.voucherNo = savedId;
+          offlineQueue.push(voucherPayload);
+          try {
+            localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue));
+          } catch(e) {}
 
-        // إظهار نافذة التأكيد الجمالية الأنيقة (تم الحفظ أو تم التعديل)
-        showSaveSuccessModal(isEditing ? 'edit' : 'save', newVoucher);
-        showToastNotification(`💾 ${isEditing ? 'تم تعديل السند محلياً' : 'تم حفظ السند محلياً'} برقم (${savedId})!\nسيرفع إلى سيرفر MariaDB أوتوماتيكياً فور عودة الاتصال.`);
+          const pendingEl = document.getElementById('pendingCount');
+          if (pendingEl) pendingEl.textContent = `${offlineQueue.length} معلق`;
 
-        if (isAutoSendEnabled) {
+          const newVoucher = {
+            id: savedId,
+            isOffline: true,
+            idempotencyKey: currentDraftIdempotencyKey,
+            attachment: currentReceiptAttachment || null,
+            date: voucherPayload.date,
+            rate: voucherPayload.rate,
+            currency: voucherPayload.currency,
+            costCenter: voucherPayload.costCenter,
+            sdg: sdg,
+            usd: usd,
+            payType: currentPayType,
+            from: voucherPayload.fromAccountName,
+            to: voucherPayload.toAccountName,
+            refNo: transferVal,
+            bankName: bankVal,
+            notes: voucherPayload.notes
+          };
+
+          if (isEditing) {
+            vouchersList[currentIndex] = newVoucher;
+          } else {
+            vouchersList.push(newVoucher);
+            currentIndex = vouchersList.length - 1;
+          }
+
+          try {
+            localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+          } catch(e) {}
+
+          // إظهار بطاقة النجاح الاحترافية المطابقة لحركة مالية
+          showProfessionalSuccess(savedId, fromAccountName, toAccountName, sdg || usd, currentCurrency || 'SDG', isEditing ? 'تم التعديل محلياً' : 'تم الحفظ محلياً', newVoucher);
+          showToast(isEditing ? `تم تعديل السند محلياً (${savedId})` : `تم حفظ السند محلياً (${savedId})`, 'success');
+          showUndoToast(savedId, newVoucher, isEditing, previousVoucherData);
+
+          // مزامنة مع erp_single_payments_v1 محلياً
+          try {
+            const getTenantKey = window.getTenantKey || ((k) => k);
+            const tKey = getTenantKey('erp_single_payments_v1');
+            let existingSP = JSON.parse(localStorage.getItem(tKey) || '[]');
+            const spItem = {
+              id: savedId,
+              date: voucherPayload.date,
+              time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
+              type: 'single_payment',
+              fromAccount: fromAccountName,
+              toAccount: toAccountName,
+              amountLocal: sdg,
+              currency: currentCurrency || 'SDG',
+              rate: voucherPayload.rate,
+              amountForeign: usd,
+              paymentMethod: currentPayType,
+              bankName: bankVal,
+              mobileTransferNo: transferVal,
+              refNo: transferVal,
+              notes: voucherPayload.notes,
+              costCenter: voucherPayload.costCenter
+            };
+            const exIdx = existingSP.findIndex(x => String(x.id) === String(savedId));
+            if (exIdx > -1) existingSP[exIdx] = spItem;
+            else existingSP.push(spItem);
+            localStorage.setItem(tKey, JSON.stringify(existingSP));
+          } catch(e) {}
+
+          if (isAutoSendEnabled) {
+            setTimeout(() => {
+              showToastNotification(`📲 الإرسال التلقائي: تم إرسال السند (${savedId}) عبر الواتساب!`);
+            }, 400);
+          }
+
+          currentDraftIdempotencyKey = generateUUID();
+          currentReceiptAttachment = null;
+          if (typeof removeAttachedReceipt === 'function') removeAttachedReceipt();
+
+          loadVoucher(currentIndex);
+        }
+
+        // إذا كنا في وضع التدفق اليدوي (إشعاراً بإشعار): الانتقال للإشعار التالي تلقائياً!
+        if (whatsAppQueue.length > 0 && batchProcessingMode === 'manual') {
+          currentQueueIndex++;
           setTimeout(() => {
-            showToastNotification(`📲 الإرسال التلقائي: تم إرسال السند (${savedId}) عبر الواتساب!`);
-          }, 400);
+            loadNextManualQueueItem();
+          }, 500);
         }
-
-        loadVoucher(currentIndex);
-      }
-
-      // إذا كنا في وضع التدفق اليدوي (إشعاراً بإشعار): الانتقال للإشعار التالي تلقائياً!
-      if (whatsAppQueue.length > 0 && batchProcessingMode === 'manual') {
-        currentQueueIndex++;
-        setTimeout(() => {
-          loadNextManualQueueItem();
-        }, 500);
+      } finally {
+        isSavingInProgress = false;
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.classList.remove('opacity-70', 'cursor-not-allowed');
+        }
       }
     }
+    window.saveMobileVoucher = handleSave;
 
     function handleEdit() {
       const inp = document.getElementById('sdgAmount');
