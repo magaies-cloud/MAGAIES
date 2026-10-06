@@ -588,9 +588,15 @@
     <div class="bg-slate-900/95 px-2.5 py-2 border-b border-slate-800 sticky top-[37px] z-30 backdrop-blur-md">
       <div class="grid grid-cols-2 gap-2.5 w-full">
         
-        <!-- 1. مساحة التاريخ: تكبير خط التاريخ درجة إضافية ليصبح 26px فائق الوضوح والبروز والتوسيط -->
-        <div class="bg-slate-950 glow-border-cyan rounded-2xl px-1.5 py-0.5 flex items-center justify-center h-[54px] shadow-inner focus-within:border-cyan-400 transition">
-          <input type="date" id="voucherDate" value="2026-10-06" class="w-full bg-transparent text-cyan-200 text-[26px] font-black text-center focus:outline-none cursor-pointer tracking-tight" style="text-align: center; color-scheme: dark; font-size: 26px; font-weight: 900; line-height: 1.1;">
+        <!-- 1. مساحة التاريخ: تصغير الخط وعكس اليوم والشهر ليظهر اليوم أولاً ثم الشهر ثم السنة (DD / MM / YYYY) -->
+        <div class="relative bg-slate-950 glow-border-cyan rounded-2xl px-2 py-1 flex items-center justify-center h-[54px] shadow-inner focus-within:border-cyan-400 transition cursor-pointer select-none" onclick="triggerDatePicker()" title="انقر لتعديل التاريخ">
+          <!-- العرض المرئي الأنيق بالتنسيق المحاسبي: اليوم / الشهر / السنة بخط مصغر مريح -->
+          <div class="flex items-center justify-center gap-1.5 pointer-events-none select-none" dir="ltr">
+            <i class="fa-regular fa-calendar text-cyan-400/80 text-xs mr-0.5"></i>
+            <span id="voucherDateDisplay" class="text-cyan-200 text-[18px] sm:text-[19px] font-mono font-black tracking-tight leading-none">06 / 10 / 2026</span>
+          </div>
+          <!-- حقل التاريخ الفعلي المتزامن مع النظام والتقويم وقاعدة البيانات -->
+          <input type="date" id="voucherDate" value="2026-10-06" oninput="updateVoucherDateDisplay()" onchange="updateVoucherDateDisplay()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;">
         </div>
 
         <!-- 2. مساحة الرقم التسلسلي: تصغير الرقم درجة، وتصغير الأسهم يمين وشمال على الأطراف -->
@@ -3362,6 +3368,42 @@
       }
     }
 
+    // ════════════════════════════════════════════════════════════════
+    // تحديث عرض التاريخ بالتنسيق المعكوس (اليوم / الشهر / السنة) بخط مريح
+    // ════════════════════════════════════════════════════════════════
+    function updateVoucherDateDisplay() {
+      const input = document.getElementById('voucherDate');
+      const display = document.getElementById('voucherDateDisplay');
+      if (!input || !display) return;
+      const val = (input.value || '').trim();
+      if (!val) {
+        display.textContent = '-- / -- / ----';
+        return;
+      }
+      if (val.includes('-')) {
+        const parts = val.split('-');
+        if (parts.length === 3) {
+          const yyyy = parts[0];
+          const mm = parts[1];
+          const dd = parts[2];
+          display.textContent = `${dd} / ${mm} / ${yyyy}`;
+          return;
+        }
+      }
+      display.textContent = val;
+    }
+
+    function triggerDatePicker() {
+      const el = document.getElementById('voucherDate');
+      if (el) {
+        if (typeof el.showPicker === 'function') {
+          try { el.showPicker(); } catch(e) { el.focus(); }
+        } else {
+          el.focus();
+        }
+      }
+    }
+
     function loadVoucher(index) {
       if (index < 0 || index >= vouchersList.length) return;
       currentIndex = index;
@@ -3370,6 +3412,7 @@
       document.getElementById('currentVoucherDisplay').textContent = v.id;
       document.getElementById('voucherTag').textContent = v.isOffline ? 'سند أوفلاين' : 'سيرفر الكمبيوتر';
       document.getElementById('voucherDate').value = v.date;
+      updateVoucherDateDisplay();
       document.getElementById('usdRate').value = v.rate;
       if (v.costCenter) document.getElementById('costCenterInput').value = v.costCenter;
       document.getElementById('sdgAmount').value = (v.sdg && v.sdg > 0) ? formatNumberWithConfig(v.sdg, sdgNumberConfig) : '';
@@ -3467,6 +3510,7 @@
       if (tagEl) tagEl.textContent = isOfflineMode ? 'سند أوفلاين' : 'سيرفر الكمبيوتر';
       const dateEl = document.getElementById('voucherDate');
       if (dateEl) dateEl.value = new Date().toISOString().slice(0, 10);
+      updateVoucherDateDisplay();
 
       // 2. تصفير ومسح كافة المبالغ المالية تماماً
       const sdgEl = document.getElementById('sdgAmount');
