@@ -66,3 +66,5 @@ search_script.php
 test_logistics_stock.js
 cloudflared.exe
 *.bat
+*.bak*
+*.vbs
