@@ -259,12 +259,18 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
 
     // 1.4 فحص الاتصال الحي بقاعدة البيانات (Ping MariaDB)
     if ($action === 'ping') {
+        $availTenants = [];
+        try {
+            $stmtAllT = $pdo->query("SELECT id, name, subdomain FROM tenants LIMIT 10");
+            $availTenants = $stmtAllT ? $stmtAllT->fetchAll(PDO::FETCH_ASSOC) : [];
+        } catch (Exception $e) { $availTenants = ['error' => $e->getMessage()]; }
         echo json_encode([
             'success' => true,
             'db' => 'MariaDB',
             'status' => 'connected',
             'time' => date('c'),
-            'tenantId' => $currentTenantId
+            'tenantId' => $currentTenantId,
+            'availableTenants' => $availTenants
         ]);
         exit;
     }
