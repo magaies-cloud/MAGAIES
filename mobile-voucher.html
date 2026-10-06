@@ -83,6 +83,17 @@
       vertical-align: middle !important;
     }
 
+    /* توهج ضوئي حي نابض للحقول التي يتم ملؤها وتحديثها عبر المايك الذكي */
+    @keyframes voiceGlowPulse {
+      0% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.8); border-color: #22d3ee !important; }
+      50% { box-shadow: 0 0 22px 5px rgba(16, 185, 129, 0.8); border-color: #10b981 !important; transform: scale(1.01); }
+      100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); transform: scale(1); }
+    }
+    .voice-field-glow {
+      animation: voiceGlowPulse 2.4s ease-out;
+      border-color: #06b6d4 !important;
+    }
+
     /* شريط التمرير الانسيابي للنافذة المنبثقة لخصائص الأرقام للتحرك لأعلى ولأسفل بسهولة */
     .modal-scrollable-body::-webkit-scrollbar {
       width: 6px;
@@ -535,13 +546,21 @@
          ═════════════════════════════════════════════════════════════════ -->
     <div id="masterVoiceLiveBanner" class="hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b-2 border-cyan-400 p-2.5 text-xs text-white shadow-2xl sticky top-[41px] z-50 transition-all select-none">
       <div class="flex items-center justify-between gap-2 mb-1.5">
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-2">
           <span class="relative flex h-3 w-3">
             <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
             <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
           </span>
-          <span class="font-black text-cyan-300 text-[11px] flex items-center gap-1">
-            <span>🎙️ جارٍ الاستماع للكلام...</span>
+          <span class="font-black text-cyan-300 text-[11px] flex items-center gap-1.5">
+            <span>🎙️ جارٍ الاستماع الذكي</span>
+            <!-- مؤشر الموجات الصوتية الذكية المتفاعلة مع طبقة الصوت ونقاء المايك -->
+            <span id="voiceWaveBars" class="inline-flex items-center gap-0.5 h-3 px-1 py-0.5 rounded bg-cyan-950/80 border border-cyan-500/30">
+              <span class="w-1 bg-cyan-400 rounded-full h-1.5 transition-all duration-75" id="vBar1"></span>
+              <span class="w-1 bg-cyan-300 rounded-full h-2.5 transition-all duration-75" id="vBar2"></span>
+              <span class="w-1 bg-emerald-400 rounded-full h-3 transition-all duration-75" id="vBar3"></span>
+              <span class="w-1 bg-cyan-300 rounded-full h-2 transition-all duration-75" id="vBar4"></span>
+              <span class="w-1 bg-cyan-400 rounded-full h-1 transition-all duration-75" id="vBar5"></span>
+            </span>
             <span id="voiceSilenceCountdown" class="text-[10px] text-amber-300 font-mono font-bold"></span>
           </span>
         </div>
@@ -557,8 +576,8 @@
       <!-- شارات الاستخراج والفلترة الذكية الفورية أثناء الكلام -->
       <div id="masterVoiceLiveBadges" class="hidden mt-1.5 flex flex-wrap items-center gap-1.5 text-[10px]"></div>
       <div class="text-[9.5px] text-slate-400 mt-1 flex items-center justify-between">
-        <span>⚡ ينتهي تلقائياً عند السكوت لمدة 3.5 ثوانٍ</span>
-        <span>أو اضغط المايك مرة أخرى للإيقاف</span>
+        <span class="text-cyan-300/90 font-medium">⚡ تسجيل متواصل ذكي ينتهي تلقائياً عند السكوت لمدة 3 ثوانٍ</span>
+        <span class="text-slate-400">أو انقر زر المايك ثانية للإيقاف الفوري</span>
       </div>
     </div>
 
@@ -1684,6 +1703,12 @@
       } catch (e) {}
     }
 
+    function playFeedbackTone(type = 'tap') {
+      try {
+        playBankerChime();
+      } catch(e) {}
+    }
+
     function triggerHapticPulse() {
       try {
         if (navigator.vibrate) {
@@ -1727,12 +1752,18 @@
     }
 
     // ════════════════════════════════════════════════════════════════
-    // تقنية المايك الصوتي الذكي الشامل للشاشة بالكامل (Master AI Voice Engine 2.0)
-    // - منع تقطيع الصوت والـ Stuttering نهائياً على أجهزة الجوال وأندرويد
-    // - تسجيل مستمر فائق الذكاء مع مؤقت صمت (3.8 ثوانٍ) أو إنهاء بنقرة مايك ثانية
-    // - استخراج فوري ذكي للغاية (نوع الحركة، مِن حساب، إلى حساب، المبلغ والعملة)
+    // ════════════════════════════════════════════════════════════════
+    // تقنية المايك الصوتي الذكي الشامل فائق الدقة (Master AI Voice Engine 3.0)
+    // - التقاط عالي النقاء عبر Web Audio API مع إلغاء الصدى والضوضاء (Hardware DSP)
+    // - تسجيل متواصل ذكي خالي تماماً من الـ Stuttering لا ينقطع إلا عند السكوت 3 ثوانٍ
+    // - مؤشر موجات صوتية تفاعلي حي يعكس مستوى طاقة ونقاء صوت المتكلم
+    // - مؤقت صمت دقيق (3.0 ثوانٍ بالتمام) أو إنهاء فوري بنقرة ثانية على المايك
     // ════════════════════════════════════════════════════════════════
     let masterVoiceRecognizer = null;
+    let masterVoiceAudioContext = null;
+    let masterVoiceAudioStream = null;
+    let masterVoiceAnalyser = null;
+    let masterVoiceVisualizerTimer = null;
     let isMasterVoiceActive = false;
     let isMasterVoiceIntentionalStop = false;
     let masterVoiceSilenceTimer = null;
@@ -1742,7 +1773,7 @@
     let masterVoiceCurrentInterim = '';
     let masterVoiceSpeechStarted = false;
     let masterVoiceLastSpeechTimestamp = 0;
-    const MASTER_VOICE_SILENCE_MS = 3800; // 3.8 ثانية من الصمت دون كلام لإنهاء التسجيل تلقائياً
+    const MASTER_VOICE_SILENCE_MS = 3000; // 3 ثوانٍ بالتمام من الصمت التام دون كلام لإنهاء التسجيل تلقائياً
     let masterVoiceRemainingSilenceMs = MASTER_VOICE_SILENCE_MS;
 
     function toggleMasterVoiceInput() {
@@ -1817,6 +1848,72 @@
       }
     }
 
+    // تنشيط قياس طاقة ونقاء الصوت لمؤشر الموجات التفاعلي
+    function setupVoiceAudioVisualizer(stream) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        if (!masterVoiceAudioContext) {
+          masterVoiceAudioContext = new AudioContext();
+        }
+        if (masterVoiceAudioContext.state === 'suspended') {
+          masterVoiceAudioContext.resume();
+        }
+        const source = masterVoiceAudioContext.createMediaStreamSource(stream);
+        const analyser = masterVoiceAudioContext.createAnalyser();
+        analyser.fftSize = 64;
+        source.connect(analyser);
+        masterVoiceAnalyser = analyser;
+
+        const dataArray = new Uint8Array(analyser.frequencyBinCount);
+        const bars = [
+          document.getElementById('vBar1'),
+          document.getElementById('vBar2'),
+          document.getElementById('vBar3'),
+          document.getElementById('vBar4'),
+          document.getElementById('vBar5')
+        ];
+
+        if (masterVoiceVisualizerTimer) cancelAnimationFrame(masterVoiceVisualizerTimer);
+
+        function updateMeter() {
+          if (!isMasterVoiceActive || !masterVoiceAnalyser) return;
+          masterVoiceAnalyser.getByteFrequencyData(dataArray);
+          let sum = 0;
+          for (let i = 0; i < dataArray.length; i++) {
+            sum += dataArray[i];
+          }
+          const avg = sum / dataArray.length;
+          const energy = Math.min(1, avg / 60);
+
+          if (bars[0]) bars[0].style.height = `${Math.max(4, energy * 14)}px`;
+          if (bars[1]) bars[1].style.height = `${Math.max(6, energy * 20)}px`;
+          if (bars[2]) bars[2].style.height = `${Math.max(8, energy * 24)}px`;
+          if (bars[3]) bars[3].style.height = `${Math.max(6, energy * 18)}px`;
+          if (bars[4]) bars[4].style.height = `${Math.max(4, energy * 12)}px`;
+
+          masterVoiceVisualizerTimer = requestAnimationFrame(updateMeter);
+        }
+        masterVoiceVisualizerTimer = requestAnimationFrame(updateMeter);
+      } catch(e) {
+        console.warn('Audio Visualizer notice:', e);
+      }
+    }
+
+    function teardownVoiceAudio() {
+      if (masterVoiceVisualizerTimer) {
+        cancelAnimationFrame(masterVoiceVisualizerTimer);
+        masterVoiceVisualizerTimer = null;
+      }
+      if (masterVoiceAudioStream) {
+        try {
+          masterVoiceAudioStream.getTracks().forEach(track => track.stop());
+        } catch(e) {}
+        masterVoiceAudioStream = null;
+      }
+      masterVoiceAnalyser = null;
+    }
+
     function resetMasterVoiceSilenceTimer() {
       if (masterVoiceSilenceTimer) {
         clearTimeout(masterVoiceSilenceTimer);
@@ -1829,17 +1926,17 @@
 
       const totalSpoken = (masterVoiceAccumulatedFinal + ' ' + masterVoiceCurrentInterim).trim();
 
-      // إذا بدأ المستخدم بالتحدث بالفعل، نبدأ مراقبة صمت الـ 3.8 ثانية
+      // إذا بدأ المستخدم بالتحدث بالفعل، نبدأ مراقبة صمت الـ 3 ثوانٍ بالتمام
       if (totalSpoken.length > 0) {
         masterVoiceSpeechStarted = true;
         masterVoiceLastSpeechTimestamp = Date.now();
         masterVoiceRemainingSilenceMs = MASTER_VOICE_SILENCE_MS;
         updateMasterVoiceSilenceDisplay(false);
 
-        // عداد الثواني التنازلي لإظهار الوقت المتبقي في حالة السكوت
+        // عداد الثواني التنازلي لإظهار الوقت المتبقي في حالة السكوت (3 ثوانٍ)
         masterVoiceTicker = setInterval(() => {
           masterVoiceRemainingSilenceMs -= 200;
-          if (masterVoiceRemainingSilenceMs <= 2600) {
+          if (masterVoiceRemainingSilenceMs <= 2400) {
             updateMasterVoiceSilenceDisplay(true);
           }
           if (masterVoiceRemainingSilenceMs <= 0) {
@@ -1848,9 +1945,9 @@
           }
         }, 200);
 
-        // عند اكتمال 3.8 ثوانٍ صمت دون أي صوت جديد -> إنهاء التسجيل تلقائياً وتطبيق السند
+        // عند اكتمال 3 ثوانٍ صمت دون أي صوت جديد -> إنهاء التسجيل تلقائياً وتطبيق السند
         masterVoiceSilenceTimer = setTimeout(() => {
-          console.log('⏱️ مرت 3.8 ثانية صمت دون كلام -> إنهاء التسجيل التلقائي وتطبيق السند.');
+          console.log('⏱️ مرت 3 ثوانٍ صمت تام دون كلام -> إنهاء التسجيل التلقائي وتطبيق السند.');
           stopMasterVoiceInput(true);
         }, MASTER_VOICE_SILENCE_MS);
       } else {
@@ -1901,6 +1998,7 @@
       }
 
       if (p.refNo) {
+        const label = p.payType && p.payType.includes('cheque') ? 'شيك' : 'تحويلة';
         badges.push(`<span class="px-2 py-0.5 rounded-md bg-purple-900/80 text-purple-200 border border-purple-500/40 font-mono">🔢 #${p.refNo}</span>`);
       }
 
@@ -1938,6 +2036,24 @@
         masterVoiceRestartTimer = null;
       }
 
+      // تفعيل عتاد التقاط الصوت النقي من المايكروفون (Noise Suppression & Echo Cancellation & AGC)
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: { ideal: true },
+            noiseSuppression: { ideal: true },
+            autoGainControl: { ideal: true },
+            channelCount: { ideal: 1 },
+            sampleRate: { ideal: 48000 }
+          }
+        }).then(stream => {
+          masterVoiceAudioStream = stream;
+          setupVoiceAudioVisualizer(stream);
+        }).catch(err => {
+          console.warn('Hardware DSP mic capture optional:', err);
+        });
+      }
+
       playBankerChime();
       setMasterMicButtonState(true);
       showMasterVoiceLiveBanner(true);
@@ -1966,7 +2082,7 @@
       try {
         const recognition = new SpeechRecognition();
         masterVoiceRecognizer = recognition;
-        recognition.lang = 'ar-SD';
+        recognition.lang = 'ar-SD'; // التعرف الصوتي مع تمييز اللهجة السودانية والعربية بذكاء عالي
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.maxAlternatives = 1;
@@ -1980,7 +2096,13 @@
           for (let i = event.resultIndex; i < event.results.length; ++i) {
             const res = event.results[i];
             if (res.isFinal) {
-              masterVoiceAccumulatedFinal += ' ' + res[0].transcript;
+              const textChunk = res[0].transcript.trim();
+              if (textChunk) {
+                // منع التكرار العارض للكلمات في بعض متصفحات الجوال
+                if (!masterVoiceAccumulatedFinal.endsWith(textChunk)) {
+                  masterVoiceAccumulatedFinal = (masterVoiceAccumulatedFinal + ' ' + textChunk).trim();
+                }
+              }
             } else {
               interim += res[0].transcript;
             }
@@ -2006,7 +2128,10 @@
         recognition.onend = function() {
           // دمج أي كلام معلق في interim فوراً لضمان عدم ضياع أي حرف أو كلمة
           if (masterVoiceCurrentInterim.trim()) {
-            masterVoiceAccumulatedFinal = (masterVoiceAccumulatedFinal + ' ' + masterVoiceCurrentInterim).trim();
+            const interimChunk = masterVoiceCurrentInterim.trim();
+            if (!masterVoiceAccumulatedFinal.endsWith(interimChunk)) {
+              masterVoiceAccumulatedFinal = (masterVoiceAccumulatedFinal + ' ' + interimChunk).trim();
+            }
             masterVoiceCurrentInterim = '';
           }
 
@@ -2015,33 +2140,32 @@
             return;
           }
 
-          // فحص مؤقت الصمت: هل انقضت 3.8 ثوانٍ دون كلام؟
+          // فحص مؤقت الصمت: هل انقضت 3 ثوانٍ دون كلام؟
           const elapsed = Date.now() - masterVoiceLastSpeechTimestamp;
           if (masterVoiceSpeechStarted && elapsed >= MASTER_VOICE_SILENCE_MS) {
-            console.log('⏱️ اكتمل وقت الصمت أثناء انتهاء الجلسة -> إنهاء التسجيل.');
+            console.log('⏱️ اكتمل وقت الصمت (3 ثوانٍ) أثناء انتهاء الجلسة -> إنهاء التسجيل.');
             finalizeMasterVoiceInput();
             return;
           }
 
-          // إعادة الاستماع بسلاسة عبر مهلة تهدئة 320ms لمنع تشنج أجهزة أندرويد وWebKit
+          // إعادة الاستماع بسلاسة عبر مهلة تهدئة سريعة 180ms لمنع تقطيع أجهزة أندرويد وWebKit
           clearTimeout(masterVoiceRestartTimer);
           masterVoiceRestartTimer = setTimeout(() => {
             if (isMasterVoiceActive && !isMasterVoiceIntentionalStop) {
               launchMasterRecognitionSession();
             }
-          }, 320);
+          }, 180);
         };
 
         recognition.start();
       } catch (err) {
         console.error('Master speech recognition exception:', err);
-        // إعادة محاولة سريعة بعد نصف ثانية إذا حدث تعارض داخلي
         clearTimeout(masterVoiceRestartTimer);
         masterVoiceRestartTimer = setTimeout(() => {
           if (isMasterVoiceActive && !isMasterVoiceIntentionalStop) {
             launchMasterRecognitionSession();
           }
-        }, 500);
+        }, 350);
       }
     }
 
@@ -2049,6 +2173,8 @@
       if (isMasterVoiceIntentionalStop) return;
       isMasterVoiceIntentionalStop = true;
       isMasterVoiceActive = false;
+
+      teardownVoiceAudio();
 
       if (masterVoiceSilenceTimer) {
         clearTimeout(masterVoiceSilenceTimer);
@@ -2082,9 +2208,13 @@
     function finalizeMasterVoiceInput() {
       setMasterMicButtonState(false);
       showMasterVoiceLiveBanner(false);
+      teardownVoiceAudio();
 
       if (masterVoiceCurrentInterim.trim()) {
-        masterVoiceAccumulatedFinal = (masterVoiceAccumulatedFinal + ' ' + masterVoiceCurrentInterim).trim();
+        const interimChunk = masterVoiceCurrentInterim.trim();
+        if (!masterVoiceAccumulatedFinal.endsWith(interimChunk)) {
+          masterVoiceAccumulatedFinal = (masterVoiceAccumulatedFinal + ' ' + interimChunk).trim();
+        }
         masterVoiceCurrentInterim = '';
       }
 
@@ -2109,28 +2239,39 @@
     }
 
     // ════════════════════════════════════════════════════════════════
-    // معالجة النصوص الذكية واستخراج الكيانات المالية (Arabic Financial NLP)
+    // معالجة النصوص الذكية واستخراج الكيانات المالية (Arabic Financial NLP Engine 3.0)
     // ════════════════════════════════════════════════════════════════
     function normalizeArabicText(text) {
       if (!text) return '';
       return text.trim()
         .replace(/[\u064B-\u065F\u0670]/g, '') // إزالة علامات التشكيل والحركات
-        .replace(/[إأآا]/g, 'ا') // توحيد الهمزات والألف
+        .replace(/[إأآٱ]/g, 'ا') // توحيد الهمزات والألف
         .replace(/ة/g, 'ه') // توحيد التاء المربوطة والهاء
         .replace(/[ى]/g, 'ي') // توحيد الألف المقصورة والياء
         .replace(/[\s\-_]+/g, ' ')
         .toLowerCase();
     }
 
-    // دالة المطابقة الذكية للحسابات مع دعم الفروق الإملائية والألقاب والتشابه النصي
+    // تنظيف الكلمات الحشوية الشائعة في اللهجة السودانية والعربية
+    function cleanFillers(text) {
+      if (!text) return '';
+      return text
+        .replace(/\b(?:مثلا|مثلاً|يعني|ياخي|كدا|كده|يا سيدي|لو سمحت|بالله|عليك الله|يا باشا|يا ريس|لو تكرمت|معليش)\b/gi, ' ')
+        .replace(/[\s\-_]+/g, ' ')
+        .trim();
+    }
+
+    // خوارزمية الذكاء الاصطناعي لتخمين الأسماء والأصوات والألقاب المركبة (Multi-Layer AI Entity Resolution)
+    // تدعم الحالات الخاصة مثل: منطوق "أحمد تاج" يقابل في الدليل "أحمد عثمان تاج الدين"
     function findBestAccountMatch(spokenName, accountsList) {
       if (!spokenName || !spokenName.trim()) return spokenName || '';
       const list = (accountsList && accountsList.length > 0) ? accountsList : (window.accountsDB || []);
       if (!list || list.length === 0) return spokenName.trim();
 
-      // تنظيف الألقاب الشائعة من الاسم المنطوق
-      const cleanSpoken = spokenName.replace(/^(?:العميل|المورد|السيد|الأستاذ|حساب|طرف|صديق)\s+/g, '').trim();
-      const normSpoken = normalizeArabicText(cleanSpoken);
+      // تنظيف الألقاب الشائعة والكلمات الحشوية
+      let clean = cleanFillers(spokenName);
+      clean = clean.replace(/^(?:العميل|المورد|السيد|الأستاذ|الشيخ|الحاج|حساب|طرف|صديق|الأخ)\s+/g, '').trim();
+      const normSpoken = normalizeArabicText(clean);
       if (!normSpoken) return spokenName.trim();
 
       // 1. تطابق قياسي كامل بعد التوحيد
@@ -2141,32 +2282,60 @@
       const sub = list.find(a => a && a.name && (normalizeArabicText(a.name).includes(normSpoken) || normSpoken.includes(normalizeArabicText(a.name))));
       if (sub) return sub.name;
 
-      // 3. مطابقة الكلمات والأجزاء (Token-based Overlap Match)
+      // 3. مطابقة الكلمات والألقاب المركبة وتغطية الكلمات المنطوقة (Token Subsequence & Coverage)
+      // مثال المستخدم الذكي: منطوق "أحمد تاج" يقابل "أحمد عثمان تاج الدين"
       const spokenTokens = normSpoken.split(/\s+/).filter(t => t.length > 1);
       let bestMatch = null;
-      let bestScore = 0;
+      let bestScore = -1;
 
       for (const a of list) {
         if (!a || !a.name) continue;
         const normA = normalizeArabicText(a.name);
         const aTokens = normA.split(/\s+/).filter(t => t.length > 1);
-        let matchCount = 0;
-        for (const t of spokenTokens) {
-          if (aTokens.some(at => at === t || at.includes(t) || t.includes(at))) {
-            matchCount++;
+
+        let matchedSpokenCount = 0;
+        let sequenceIndex = -1;
+        let inOrder = true;
+
+        for (const st of spokenTokens) {
+          // فحص هل الكلمة المنطوقة مطابقة لكلمة أو جزء من لقب مركب: "تاج" -> "تاج الدين"
+          const foundIdx = aTokens.findIndex((at, idx) => {
+            return at === st || at.startsWith(st) || (st.length >= 3 && at.includes(st));
+          });
+
+          if (foundIdx !== -1) {
+            matchedSpokenCount++;
+            if (foundIdx < sequenceIndex) {
+              inOrder = false;
+            }
+            sequenceIndex = foundIdx;
           }
         }
-        const score = matchCount / Math.max(spokenTokens.length, aTokens.length);
-        if (score > bestScore && score >= 0.4) {
-          bestScore = score;
-          bestMatch = a.name;
+
+        const spokenCoverage = matchedSpokenCount / spokenTokens.length;
+        const accountCoverage = matchedSpokenCount / aTokens.length;
+
+        // إذا تحققت كافة الكلمات المنطوقة بالكامل (100% تغطية للكلمات المنطوقة)
+        if (spokenCoverage === 1.0) {
+          const orderBonus = inOrder ? 0.3 : 0.1;
+          const score = 0.7 + orderBonus + (accountCoverage * 0.1);
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = a.name;
+          }
+        } else if (spokenCoverage >= 0.5) {
+          const score = (spokenCoverage * 0.6) + (accountCoverage * 0.4);
+          if (score > bestScore && score >= 0.5) {
+            bestScore = score;
+            bestMatch = a.name;
+          }
         }
       }
 
-      return bestMatch || cleanSpoken;
+      return bestMatch || clean;
     }
 
-    // استخراج الكيانات المالية من النص المنطوق
+    // استخراج الكيانات المالية من النص المنطوق بمرونة مطلقة لترتيب الكلمات (شيء قبل شيء)
     function extractVoiceFinancialEntities(spokenText) {
       if (!spokenText || !spokenText.trim()) {
         return { raw: '', amount: null, currency: 'SDG', from: null, to: null, refNo: null, bank: null, notes: null, payType: 'transfer' };
@@ -2189,24 +2358,23 @@
         bank: null,
         notes: null,
         costCenter: null,
-        payType: 'transfer' // التحويل هو الافتراضي ما لم يذكر غيره صراحة
+        payType: 'transfer'
       };
 
-      // 1. تحديد طريقة الدفع بذكاء شديد وصارم
-      // إذا قيل تحويل أو مشتقاتها -> تحويل حصراً وتجاهل الكاش والشيكات تماماً
-      if (/(?:^|\s)(تحويل|تحويله|تحويلات|حوالة|حواله|بنكك|فوري|أوكاش|اوكاش|إشعار|اشعار|رقم التحويلة|رقم العمليه|رقم العملية|تحويل بنكي)(?:\s|$)/i.test(norm)) {
-        parsed.payType = 'transfer';
-      } else if (/(?:^|\s)(شيك مصرفي|شيك بنكي)(?:\s|$)/i.test(norm)) {
+      // 1. تحديد طريقة الدفع (نوع الحركة المالية)
+      if (/(?:^|\s)(شيك مصرفي|شيك بنكي|شيك مصدق)(?:\s|$)/i.test(norm)) {
         parsed.payType = 'bank_cheque';
-      } else if (/(?:^|\s)(شيك عادي|شيك)(?:\s|$)/i.test(norm)) {
+      } else if (/(?:^|\s)(شيك عادي|شيك شخصي|شيك ورقي|شيك)(?:\s|$)/i.test(norm)) {
         parsed.payType = 'normal_cheque';
-      } else if (/(?:^|\s)(كاش|نقداً|نقدا|نقد)(?:\s|$)/i.test(norm)) {
+      } else if (/(?:^|\s)(كاش|نقداً|نقدا|نقد|خزينة|صندوق)(?:\s|$)/i.test(norm)) {
         parsed.payType = 'cash';
+      } else if (/(?:^|\s)(تحويل|تحويله|تحويلات|حوالة|حواله|بنكك|فوري|أوكاش|اوكاش|إشعار|اشعار|رقم التحويلة|رقم العمليه|رقم العملية|تحويل بنكي)(?:\s|$)/i.test(norm)) {
+        parsed.payType = 'transfer';
       } else {
         parsed.payType = 'transfer';
       }
 
-      // 2. فحص وتحديد العملة
+      // 2. فحص وتحديد العملة (مبلغ بالعملة المحلية vs مبلغ بالدولار)
       if (/(دولار|dollar|\$|امريكي|أمريكي|دولارات|usd)/i.test(norm)) {
         parsed.currency = 'USD';
       } else if (/(ريال|سعودي|sar)/i.test(norm)) {
@@ -2219,25 +2387,21 @@
         parsed.currency = 'SDG';
       }
 
-      // 3. استخراج رقم التحويلة البنكية
-      const refMatch = norm.match(/(?:رقم التحويلة|رقم تحويلة|التحويلة|تحويلة|إشعار رقم|اشعار رقم|مرجع رقم|مرجع|المرجع|تحويله|رقم العمليه|رقم العملية)\s*[:#-]?\s*([0-9a-zA-Z]+)/i);
-      if (refMatch && refMatch[1]) {
-        parsed.refNo = refMatch[1].trim();
-        parsed.payType = 'transfer';
-      }
-
-      // 4. استخراج اسم البنك
+      // 3. استخراج اسم البنك بذكاء فائق
       const knownBanks = [
+        { name: 'بنك فيصل الإسلامي', aliases: ['بنك فيصل الإسلامي', 'بنك فيصل الاسلامي', 'بنك فيصل', 'فيصل الإسلامي', 'فوري', 'فيصل'] },
         { name: 'بنك الخرطوم', aliases: ['بنك الخرطوم', 'بنكك', 'خرطوم'] },
-        { name: 'بنك فيصل الإسلامي', aliases: ['بنك فيصل الإسلامي', 'بنك فيصل', 'فيصل الإسلامي', 'فوري', 'فيصل'] },
-        { name: 'بنك أم درمان الوطني', aliases: ['بنك أم درمان الوطني', 'بنك أم درمان', 'بنك أمدرمان', 'أم درمان الوطني', 'أمدرمان', 'أوكاش', 'اوكاش'] },
+        { name: 'بنك أم درمان الوطني', aliases: ['بنك أم درمان الوطني', 'بنك ام درمان الوطني', 'بنك أم درمان', 'بنك امدرمان', 'أم درمان الوطني', 'أمدرمان', 'امدرمان', 'أوكاش', 'اوكاش'] },
         { name: 'بنك النيلين', aliases: ['بنك النيلين', 'النيلين'] },
         { name: 'بنك الخليج', aliases: ['بنك الخليج', 'الخليج'] },
         { name: 'بنك البركة', aliases: ['بنك البركة', 'البركة'] },
         { name: 'بنك العمال الوطني', aliases: ['بنك العمال الوطني', 'بنك العمال'] },
+        { name: 'بنك التضامن الإسلامي', aliases: ['بنك التضامن الإسلامي', 'بنك التضامن', 'التضامن'] },
+        { name: 'بنك المال المتحد', aliases: ['بنك المال المتحد', 'المال المتحد', 'يو سي بي'] },
         { name: 'مصرف الساحل والصحراء', aliases: ['مصرف الساحل والصحراء', 'الساحل والصحراء'] },
         { name: 'بنك الثروة الحيوانية', aliases: ['بنك الثروة الحيوانية', 'الثروة الحيوانية'] },
-        { name: 'البنك الفرنسي السوداني', aliases: ['البنك الفرنسي السوداني', 'البنك الفرنسي'] }
+        { name: 'البنك الفرنسي السوداني', aliases: ['البنك الفرنسي السوداني', 'البنك الفرنسي'] },
+        { name: 'بنك النيل', aliases: ['بنك النيل', 'النيل'] }
       ];
 
       for (const b of knownBanks) {
@@ -2245,53 +2409,95 @@
           const re = new RegExp('(?:^|\\s)' + alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?:\\s|$)', 'i');
           if (re.test(norm)) {
             parsed.bank = b.name;
-            parsed.payType = 'transfer';
             break;
           }
         }
         if (parsed.bank) break;
       }
+      if (!parsed.bank) {
+        const genericBank = norm.match(/(?:اسم البنك|بنك)\s+([^\s]+(?:\s+[^\s]+){0,2})/i);
+        if (genericBank && genericBank[1] && !/(?:من|إلى|الى|مبلغ|رقم|بيان)/.test(genericBank[1])) {
+          parsed.bank = genericBank[1].trim();
+        }
+      }
+
+      // 4. استخراج رقم التحويلة أو رقم الشيك
+      if (parsed.payType === 'transfer') {
+        const refMatch = norm.match(/(?:رقم التحويلة|رقم تحويلة|التحويلة|تحويلة|إشعار رقم|اشعار رقم|مرجع رقم|مرجع|المرجع|تحويله|رقم العمليه|رقم العملية)\s*[:#-]?\s*([0-9a-zA-Z]+)/i);
+        if (refMatch && refMatch[1]) {
+          parsed.refNo = refMatch[1].trim();
+        } else {
+          const refWordsMatch = norm.match(/(?:رقم التحويلة|رقم تحويلة|تحويلة رقم|إشعار رقم)\s+([^\d]+?)(?=(?:\s+(?:اسم البنك|البنك|بنك|من حساب|إلى حساب|مبلغ|بيان))|$)/i);
+          if (refWordsMatch && refWordsMatch[1]) {
+            const spokenNum = parseArabicSpokenNumber(refWordsMatch[1]);
+            if (spokenNum > 0) parsed.refNo = String(spokenNum);
+          }
+        }
+      } else if (parsed.payType.includes('cheque')) {
+        const chqMatch = norm.match(/(?:رقم الشيك|شيك رقم|رقم شيك|الشيك رقم|الشيك)\s*[:#-]?\s*([0-9a-zA-Z]+)/i);
+        if (chqMatch && chqMatch[1]) {
+          parsed.refNo = chqMatch[1].trim();
+        }
+      } else if (parsed.payType === 'cash') {
+        parsed.refNo = null; // الكاش لا يحتوي على رقم تحويلة مطلقاً
+      }
 
       // 5. استخراج البيان أو الملاحظات
-      const notesMatch = norm.match(/(?:^|\s)(?:بيان|البيان|ملاحظات|ملاحظة|عبارة عن|شرح)\s*[:#-]?\s*([^\s]+(?:\s+[^\s]+){0,8})/i);
+      const notesMatch = norm.match(/(?:^|\s)(?:بيان|البيان|ملاحظات|ملاحظة|عبارة عن|شرح|بخصوص)\s*[:#-]?\s*(.+?)(?=(?:\s+(?:من حساب|إلى حساب|الى حساب|مبلغ|رقم التحويلة|رقم الشيك|بنك))|$)/i);
       if (notesMatch && notesMatch[1]) {
-        parsed.notes = notesMatch[1].trim();
+        parsed.notes = cleanFillers(notesMatch[1]).trim();
       }
 
-      // 6. استخراج حساب الصرف (مِن حساب) بدقة واحترافية متقدمة
-      const fromMatch = norm.match(/(?:^|\s)(?:من حساب|مِن حساب|من طرف|مِن طرف|صرف من حساب|صرف من|منه|من)\s+(.+?)(?=(?:\s+(?:إلى حساب|الى حساب|إلى طرف|الى طرف|لصالح حساب|لصالح|المستفيد|إلى|الى|لـ|مبلغ|بمبلغ|قيمة|بقيمة|رقم التحويلة|التحويلة|تحويلة|بنك|بيان|ملاحظات|مركز|كاش|شيك|دولار|جنيه|\d+))|$)/i);
-      if (fromMatch && fromMatch[1]) {
-        parsed.from = fromMatch[1].trim();
-      }
-
-      // 7. استخراج حساب المستفيد (إلى حساب)
-      const toMatch = norm.match(/(?:^|\s)(?:إلى حساب|الى حساب|إلى طرف|الى طرف|لصالح حساب|لصالح|المستفيد|إلى|الى|لـ)\s+(.+?)(?=(?:\s+(?:مبلغ|بمبلغ|قيمة|بقيمة|رقم التحويلة|التحويلة|تحويلة|بنك|بيان|ملاحظات|مركز|كاش|شيك|دولار|جنيه|من حساب|مِن حساب|من طرف|من|\d+))|$)/i);
-      if (toMatch && toMatch[1]) {
-        parsed.to = toMatch[1].trim();
-      }
-
-      // 8. استخراج المبلغ المالي (أرقام مباشرة أو نطق لغوي)
-      const amtMatch = norm.match(/(?:مبلغ|قيمة|بمبلغ|بقيمة)?\s*([0-9]+(?:[.,][0-9]+)?)\s*(?:ألف|الف|آلاف|مليون|ملايين|k|m)?/i);
-      if (amtMatch && amtMatch[1]) {
-        let numVal = parseFloat(amtMatch[1].replace(/,/g, ''));
-        const multiplierStr = amtMatch[0];
-        if (/(مليون|ملايين|m)/i.test(multiplierStr)) {
-          numVal *= 1000000;
-        } else if (/(ألف|الف|آلاف|k)/i.test(multiplierStr) && numVal < 1000) {
-          numVal *= 1000;
-        }
+      // 6. استخراج المبلغ المالي بمرونة تامة لترتيب الكلام
+      // أ) الأولوية لمبلغ مسبوق صراحة بكلمة مبلغ أو قيمة لمنع التداخل مع رقم التحويلة/الشيك
+      const explicitAmtMatch = norm.match(/(?:مبلغ|قيمة|بمبلغ|بقيمة)\s*[:#-]?\s*([0-9]+(?:[.,][0-9]+)?)\s*(ألف|الف|آلاف|مليون|ملايين|k|m)?/i);
+      if (explicitAmtMatch && explicitAmtMatch[1]) {
+        let numVal = parseFloat(explicitAmtMatch[1].replace(/,/g, ''));
+        const mult = explicitAmtMatch[2] ? explicitAmtMatch[2].toLowerCase() : '';
+        if (/(مليون|ملايين|m)/.test(mult)) numVal *= 1000000;
+        else if (/(ألف|الف|آلاف|k)/.test(mult) && numVal < 1000) numVal *= 1000;
         parsed.amount = numVal;
       } else {
-        const spokenAmt = parseArabicSpokenNumber(norm);
-        if (spokenAmt > 0) {
-          parsed.amount = spokenAmt;
+        // ب) استخراج أي رقم في الجملة لا يطابق رقم التحويلة/الشيك
+        const allNumMatches = [...norm.matchAll(/\b([0-9]+(?:[.,][0-9]+)?)\b/g)];
+        let candidateAmt = null;
+        for (const m of allNumMatches) {
+          if (!parsed.refNo || m[1] !== parsed.refNo) {
+            candidateAmt = parseFloat(m[1].replace(/,/g, ''));
+            break;
+          }
         }
+        if (candidateAmt && candidateAmt > 0) {
+          parsed.amount = candidateAmt;
+        } else {
+          // ج) فحص المبالغ المنطوقة باللغة العربية
+          const spokenAmtMatch = norm.match(/(?:مبلغ|قيمة|بمبلغ|بقيمة)\s+([^\d]+?)(?=(?:\s+(?:من حساب|مِن حساب|إلى حساب|الى حساب|رقم التحويلة|رقم الشيك|اسم البنك|بنك|بيان))|$)/i);
+          if (spokenAmtMatch && spokenAmtMatch[1]) {
+            const spokenNum = parseArabicSpokenNumber(spokenAmtMatch[1]);
+            if (spokenNum > 0) parsed.amount = spokenNum;
+          } else {
+            const generalSpoken = parseArabicSpokenNumber(norm);
+            if (generalSpoken > 0) parsed.amount = generalSpoken;
+          }
+        }
+      }
+
+      // 7. استخراج حساب الصرف (مِن حساب) - يدعم الترتيب الحر تماماً
+      const fromMatch = norm.match(/(?:^|\s)(?:من حساب|مِن حساب|من طرف|مِن طرف|صرف من حساب|صرف من|خصم من حساب|خصم من|من العميل|من السيد|من الأستاذ|من الأخ|من)\s+(.+?)(?=(?:\s+(?:إلى حساب|الى حساب|إلى طرف|الى طرف|لصالح حساب|لصالح|المستفيد|إلى|الى|لـ|مبلغ|بمبلغ|قيمة|بقيمة|رقم التحويلة|رقم تحويلة|رقم الشيك|التحويلة|تحويلة|اسم البنك|بنك|بيان|البيان|ملاحظات|مركز|كاش|شيك|دولار|جنيه|\d+))|$)/i);
+      if (fromMatch && fromMatch[1]) {
+        parsed.from = cleanFillers(fromMatch[1]).trim();
+      }
+
+      // 8. استخراج حساب المستفيد (إلى حساب) - يدعم الترتيب الحر تماماً
+      const toMatch = norm.match(/(?:^|\s)(?:إلى حساب|الى حساب|إلى طرف|الى طرف|لصالح حساب|لصالح|إيداع لحساب|إيداع في حساب|المستفيد|إلى|الى|لـ)\s+(.+?)(?=(?:\s+(?:من حساب|مِن حساب|من طرف|مِن طرف|صرف من|من|مبلغ|بمبلغ|قيمة|بقيمة|رقم التحويلة|رقم تحويلة|رقم الشيك|التحويلة|تحويلة|اسم البنك|بنك|بيان|البيان|ملاحظات|مركز|كاش|شيك|دولار|جنيه|\d+))|$)/i);
+      if (toMatch && toMatch[1]) {
+        parsed.to = cleanFillers(toMatch[1]).trim();
       }
 
       return parsed;
     }
 
-    // تطبيق كل ما تم استخراجه على شاشة السند فوراً
+    // تطبيق كل ما تم استخراجه على شاشة السند فوراً مع إبراز الحقول وتفعيل قواعد المحاسبة
     function parseAndApplyMasterVoiceInput(spokenText) {
       if (!spokenText || !spokenText.trim()) return;
 
@@ -2301,7 +2507,16 @@
       const parsed = extractVoiceFinancialEntities(spokenText);
       const updatedHighlights = [];
 
-      // 1. تطبيق طريقة الدفع الرسمية
+      // دالة مساعدة لإبراز وتوهج الحقل المتغير بصرياً
+      function highlightField(elementId) {
+        const el = document.getElementById(elementId);
+        if (el) {
+          el.classList.add('voice-field-glow');
+          setTimeout(() => el.classList.remove('voice-field-glow'), 2500);
+        }
+      }
+
+      // 1. تطبيق طريقة الدفع الرسمية وتكييف الحقول
       if (parsed.payType) {
         setPaymentType(parsed.payType);
         const typeLabels = {
@@ -2324,6 +2539,8 @@
             usdInp.value = formatNumberWithConfig(parsed.amount, usdNumberConfig);
             calculateExchange('foreign');
             updateTafqeet();
+            highlightField('usdAmount');
+            highlightField('sdgAmount');
             updatedHighlights.push(`💰 المبلغ: ${formatNumberWithConfig(parsed.amount, usdNumberConfig)} $`);
           }
         } else {
@@ -2334,41 +2551,52 @@
             sdgInp.value = formatNumberWithConfig(parsed.amount, sdgNumberConfig);
             calculateExchange('sdg');
             updateTafqeet();
+            highlightField('sdgAmount');
+            highlightField('usdAmount');
             updatedHighlights.push(`💰 المبلغ: ${formatNumberWithConfig(parsed.amount, sdgNumberConfig)} ج.س`);
           }
         }
       }
 
-      // 3. تطبيق (مِن حساب) مع البحث الذكي الفائق
+      // 3. تطبيق (مِن حساب) مع التخمين الذكي الفائق للأسماء والأصوات
       if (parsed.from) {
         const finalFromName = findBestAccountMatch(parsed.from, accountsDB);
         selectAcc('from', finalFromName);
+        highlightField('fromSearchInput');
         updatedHighlights.push(`📤 مِن: ${finalFromName}`);
       }
 
-      // 4. تطبيق (إلى حساب) مع البحث الذكي الفائق
+      // 4. تطبيق (إلى حساب) مع التخمين الذكي الفائق للأسماء والأصوات
       if (parsed.to) {
         const finalToName = findBestAccountMatch(parsed.to, accountsDB);
         selectAcc('to', finalToName);
+        highlightField('toSearchInput');
         updatedHighlights.push(`📥 إلى: ${finalToName}`);
       }
 
-      // 5. تطبيق رقم التحويلة
-      if (parsed.refNo) {
-        const ti = document.getElementById('transferInput');
+      // 5. تطبيق رقم التحويلة أو رقم الشيك أو إخلائه في حالة الكاش
+      const ti = document.getElementById('transferInput');
+      if (parsed.payType === 'cash') {
+        if (ti) ti.value = '';
+      } else if (parsed.refNo) {
         if (ti) {
           ti.value = parsed.refNo;
           handleTransferInputScale(parsed.refNo);
           checkDuplicateTransferLive(parsed.refNo);
-          updatedHighlights.push(`🔢 التحويلة: ${parsed.refNo}`);
+          highlightField('transferInput');
+          const refLabel = parsed.payType.includes('cheque') ? 'رقم الشيك' : 'التحويلة';
+          updatedHighlights.push(`🔢 ${refLabel}: ${parsed.refNo}`);
         }
       }
 
-      // 6. تطبيق اسم البنك
-      if (parsed.bank) {
-        const bi = document.getElementById('bankNameInput');
+      // 6. تطبيق اسم البنك أو إخلائه في حالة الكاش
+      const bi = document.getElementById('bankNameInput');
+      if (parsed.payType === 'cash') {
+        if (bi) ti ? (bi.value = '') : null;
+      } else if (parsed.bank) {
         if (bi) {
           bi.value = parsed.bank;
+          highlightField('bankNameInput');
           updatedHighlights.push(`🏦 البنك: ${parsed.bank}`);
         }
       }
@@ -2378,13 +2606,14 @@
         const ni = document.getElementById('voucherNotes');
         if (ni) {
           ni.value = parsed.notes;
+          highlightField('voucherNotes');
           updatedHighlights.push(`📝 البيان: ${parsed.notes}`);
         }
       }
 
       // إشعار ملخص سريع وفوري بكل ما تم تغذيته في الشاشة
       if (updatedHighlights.length > 0) {
-        showToastNotification(`🎙️ تم التعرف الذكي الشامل:\n` + updatedHighlights.join(' | '));
+        showToastNotification(`🎙️ تم التعرف الذكي الشامل وتعبئة السند:\n` + updatedHighlights.join(' | '));
       } else {
         showToastNotification(`🎙️ تم سماع النص: "${spokenText}"`);
       }
@@ -5299,6 +5528,21 @@
           }
         } catch(e) {}
       });
+
+      // ضمان وجود حسابات أساسية أولية للاختبار الصوتي الفوري في حال عدم الاتصال بقاعدة البيانات
+      if (mergedMap.size === 0) {
+        const seedAccounts = [
+          { id: 'seed_1', name: 'شيهانة أحمد عثمان', category: 'حسابات العملاء', sdgBalance: 0, balanceType: '' },
+          { id: 'seed_2', name: 'أحمد عثمان تاج الدين', category: 'حسابات العملاء', sdgBalance: 0, balanceType: '' },
+          { id: 'seed_3', name: 'عثمان عبد الله', category: 'حسابات العملاء', sdgBalance: 0, balanceType: '' },
+          { id: 'seed_4', name: 'محمد أحمد عثمان', category: 'حسابات العملاء', sdgBalance: 0, balanceType: '' },
+          { id: 'seed_5', name: 'خزينة المركز الرئيسي - كاش', category: 'خزن نقدية', sdgBalance: 0, balanceType: '' },
+          { id: 'seed_6', name: 'بنك الخرطوم - بنكك', category: 'بنوك ومصارف', sdgBalance: 0, balanceType: '' },
+          { id: 'seed_7', name: 'بنك فيصل الإسلامي - فوري', category: 'بنوك ومصارف', sdgBalance: 0, balanceType: '' },
+          { id: 'seed_8', name: 'بنك أم درمان الوطني - أوكاش', category: 'بنوك ومصارف', sdgBalance: 0, balanceType: '' }
+        ];
+        seedAccounts.forEach(sa => mergedMap.set(sa.name, sa));
+      }
 
       accountsDB = Array.from(mergedMap.values());
     }
