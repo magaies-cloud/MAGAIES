@@ -569,27 +569,27 @@
     <div class="bg-slate-900/95 px-2.5 py-2 border-b border-slate-800 sticky top-[37px] z-30 backdrop-blur-md">
       <div class="grid grid-cols-2 gap-2.5 w-full">
         
-        <!-- 1. مساحة التاريخ: زيادة مقاس خط التاريخ درجة واحدة ليصبح 20px -->
+        <!-- 1. مساحة التاريخ: تكبير خط التاريخ درجتين ليصبح 24px فائق الوضوح والبروز -->
         <div class="bg-slate-950 glow-border-cyan rounded-2xl px-2 py-1 flex items-center justify-center h-[54px] shadow-inner focus-within:border-cyan-400 transition">
-          <input type="date" id="voucherDate" value="2026-10-06" class="w-full bg-transparent text-cyan-200 text-[20px] font-black text-center focus:outline-none cursor-pointer tracking-tight" style="text-align: center; color-scheme: dark;">
+          <input type="date" id="voucherDate" value="2026-10-06" class="w-full bg-transparent text-cyan-200 text-[24px] font-black text-center focus:outline-none cursor-pointer tracking-tight" style="text-align: center; color-scheme: dark; font-size: 24px; font-weight: 900; line-height: 1.1;">
         </div>
 
-        <!-- 2. مساحة الرقم التسلسلي: تصغير الأسهم وتنقيص حجم الرقم ليظهر الرقم بالكامل بدون أي قص -->
-        <div class="bg-slate-950 glow-border-amber rounded-2xl px-1.5 py-1 flex items-center justify-between h-[54px] shadow-inner">
-          <!-- سهم التالي ◀ (يمين في RTL) - أصغر لإتاحة مساحة كاملة للرقم -->
-          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 flex items-center justify-center transition disabled:opacity-20 shrink-0 border border-amber-500/40" title="السند التالي">
-            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+        <!-- 2. مساحة الرقم التسلسلي: إظهار سهم يمين وسهم شمال للطلوع والنزول مع ظهور الرقم بالكامل -->
+        <div class="bg-slate-950 glow-border-amber rounded-2xl px-2 py-1 flex items-center justify-between h-[54px] shadow-inner">
+          <!-- سهم يمين (للطلوع للأحدث) -->
+          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/50 shadow shrink-0" title="سهم يمين: السند التالي (للطلوع للأحدث)">
+            <i class="fa-solid fa-arrow-right text-xs"></i>
           </button>
 
           <!-- الرقم التسلسلي لوحده كامل وظاهر دون أي قص -->
           <div class="text-center px-1 flex-1 min-w-0 flex items-center justify-center overflow-visible">
             <span id="voucherTag" class="hidden"></span>
-            <span class="text-[16px] sm:text-[17px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-normal leading-none drop-shadow" id="currentVoucherDisplay">E26100001</span>
+            <span class="text-[17px] sm:text-[18px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow" id="currentVoucherDisplay">E26100001</span>
           </div>
 
-          <!-- سهم السابق ▶ (يسار في RTL) - أصغر لإتاحة مساحة كاملة للرقم -->
-          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-6 h-6 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 flex items-center justify-center transition disabled:opacity-20 shrink-0 border border-amber-500/40" title="السند السابق">
-            <i class="fa-solid fa-chevron-left text-[10px]"></i>
+          <!-- سهم شمال (للنزول للأقدم) -->
+          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/50 shadow shrink-0" title="سهم شمال: السند السابق (للنزول للأقدم)">
+            <i class="fa-solid fa-arrow-left text-xs"></i>
           </button>
         </div>
 
@@ -2967,23 +2967,41 @@
       updateTafqeet();
       applyNumberStylesToInputs();
 
-      document.getElementById('btnPrevVoucher').disabled = (currentIndex === 0);
-      document.getElementById('btnNextVoucher').disabled = (currentIndex === vouchersList.length - 1);
+      const btnPrev = document.getElementById('btnPrevVoucher');
+      if (btnPrev) {
+        btnPrev.disabled = false;
+        btnPrev.classList.toggle('opacity-50', currentIndex === 0);
+      }
+      const btnNext = document.getElementById('btnNextVoucher');
+      if (btnNext) {
+        btnNext.disabled = false;
+        btnNext.classList.toggle('opacity-50', currentIndex >= vouchersList.length - 1);
+      }
     }
 
     function navigateVoucher(direction) {
-      if (vouchersList.length === 0) return;
+      triggerHapticPulse();
+      if (!vouchersList || vouchersList.length === 0) {
+        showToastNotification('ℹ️ لا توجد سندات مسجلة سابقة في السجل بعد');
+        return;
+      }
       if (currentIndex === -1 || currentIndex >= vouchersList.length) {
         if (direction === -1) {
           loadVoucher(vouchersList.length - 1);
+          showToastNotification(`📑 تم النزول للسند السابق (#${vouchersList[vouchersList.length - 1].id})`);
+        } else {
+          showToastNotification('✨ أنت الآن في أحدث سند (سند جديد فارغ جاهز للإدخال)');
         }
         return;
       }
       const newIndex = currentIndex + direction;
       if (newIndex >= 0 && newIndex < vouchersList.length) {
         loadVoucher(newIndex);
+        showToastNotification(`📑 سند #${vouchersList[newIndex].id} (${newIndex + 1} من ${vouchersList.length})`);
       } else if (newIndex >= vouchersList.length) {
         startNewVoucher();
+      } else if (newIndex < 0) {
+        showToastNotification('⏮️ هذا هو أول وأقدم سند مسجل في السجل');
       }
     }
 
@@ -3071,11 +3089,17 @@
       const tafqeetEl = document.getElementById('tafqeetDisplay');
       if (tafqeetEl) tafqeetEl.classList.add('hidden');
 
-      // 7. ضبط أزرار التنقل
+      // 7. ضبط أزرار التنقل (سهم يمين وسهم شمال)
       const btnNext = document.getElementById('btnNextVoucher');
-      if (btnNext) btnNext.disabled = true;
+      if (btnNext) {
+        btnNext.disabled = false;
+        btnNext.classList.add('opacity-50');
+      }
       const btnPrev = document.getElementById('btnPrevVoucher');
-      if (btnPrev) btnPrev.disabled = (vouchersList.length === 0);
+      if (btnPrev) {
+        btnPrev.disabled = false;
+        btnPrev.classList.toggle('opacity-50', vouchersList.length === 0);
+      }
 
       setPaymentType('transfer');
       currentIndex = vouchersList.length;
