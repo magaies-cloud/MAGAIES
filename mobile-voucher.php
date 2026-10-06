@@ -189,11 +189,11 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
             $jsonRecord = json_encode($record, JSON_UNESCAPED_UNICODE);
 
             if ($isNew) {
-                $stmtIns = $pdo->prepare("INSERT INTO single_payments (tenant_id, data, frontend_id, status_val, date_val) VALUES (?, ?, ?, 'POSTED', ?)");
-                $stmtIns->execute([$currentTenantId, $jsonRecord, $voucherNo, $record['date']]);
+                $stmtIns = $pdo->prepare("INSERT INTO single_payments (tenant_id, data) VALUES (?, ?)");
+                $stmtIns->execute([$currentTenantId, $jsonRecord]);
             } else {
-                $stmtUp = $pdo->prepare("UPDATE single_payments SET data = ?, status_val = 'POSTED', date_val = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ? OR frontend_id = ?)");
-                $stmtUp->execute([$jsonRecord, $record['date'], $currentTenantId, $voucherNo, $voucherNo, $voucherNo]);
+                $stmtUp = $pdo->prepare("UPDATE single_payments SET data = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtUp->execute([$jsonRecord, $currentTenantId, $voucherNo, $voucherNo]);
             }
 
             // إرسال لطابور المزامنة التلقائية لضمان مطابقة اللابتوب
@@ -227,8 +227,8 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         }
 
         try {
-            $stmtDel = $pdo->prepare("DELETE FROM single_payments WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ? OR frontend_id = ?)");
-            $stmtDel->execute([$currentTenantId, $vNo, $vNo, $vNo]);
+            $stmtDel = $pdo->prepare("DELETE FROM single_payments WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+            $stmtDel->execute([$currentTenantId, $vNo, $vNo]);
 
             // إضافة أمر حذف في طابور المزامنة
             try {
@@ -342,11 +342,11 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         $prefix = 'E' . date('ym');
         $maxSeq = 0;
         try {
-            $stmtV = $pdo->prepare("SELECT data, frontend_id FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
+            $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
             $stmtV->execute([$currentTenantId]);
             while ($row = $stmtV->fetch(PDO::FETCH_ASSOC)) {
                 $d = json_decode($row['data'], true);
-                $vNo = $d['voucherNo'] ?? ($d['id'] ?? ($row['frontend_id'] ?? ''));
+                $vNo = $d['voucherNo'] ?? ($d['id'] ?? '');
                 if ($vNo) {
                     $liveVouchers[] = [
                         'id' => $vNo,
