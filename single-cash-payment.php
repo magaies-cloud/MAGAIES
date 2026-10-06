@@ -3,6 +3,17 @@ header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+
+$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
+$secMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
+$isDesktopParam = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
+$isMobileDevice = (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent) || ($secMobile === '?1');
+if ($isMobileDevice && !$isDesktopParam && empty($_POST)) {
+    $qs = !empty($_SERVER['QUERY_STRING']) ? ('?' . $_SERVER['QUERY_STRING']) : '';
+    header("Location: mobile-voucher.php{$qs}");
+    exit;
+}
+
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
@@ -45,6 +56,12 @@ try {
     if(l==='en') {
         document.documentElement.setAttribute('dir','ltr');
         document.documentElement.setAttribute('lang','en');
+    }
+    var width = window.innerWidth || screen.width;
+    var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('force_desktop') !== '1' && (width < 1024 || isTouch)) {
+        window.location.replace('mobile-voucher.php' + window.location.search);
     }
 })();
 </script>

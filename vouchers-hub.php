@@ -486,7 +486,7 @@
     <div class="vouchers-grid">
 
         <!-- 3. Single Payment -->
-        <a data-href="single-cash-payment.php" onclick="window.location.href='single-cash-payment.php'" class="premium-card" style="--card-color: #f43f5e; --card-rgb: 244, 63, 94;">
+        <a data-href="single-cash-payment.php" onclick="if(window.innerWidth < 1024 || ('ontouchstart' in window) || navigator.maxTouchPoints > 0) { window.location.href='mobile-voucher.php'; } else { window.location.href='single-cash-payment.php'; }" class="premium-card" style="--card-color: #f43f5e; --card-rgb: 244, 63, 94;">
             <div class="card-glow"></div>
             <div class="flow-badge" style="background: rgba(244, 63, 94, 0.1); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.2);">
                 <span>🔴</span> مدفوعات

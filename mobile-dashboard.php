@@ -6533,7 +6533,7 @@ try {
         </div>
         <div class="actions-operations-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px;">
             <!-- 1. Quick Financial Movement (حركة مالية) -->
-            <div class="power-action-btn act-receipt hero-btn" style="grid-column: span 2;" onclick="openFinancialTxSheet()">
+            <div class="power-action-btn act-receipt hero-btn" style="grid-column: span 2;" onclick="window.location.href='mobile-voucher.php';">
                 <div class="action-icon-circle">
                     <i class="fa-solid fa-money-bill-transfer"></i>
                 </div>
