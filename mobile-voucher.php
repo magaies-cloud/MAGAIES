@@ -165,12 +165,19 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 'fromAccountName' => $payload['fromAccountName'] ?? '',
                 'toAccount' => $payload['toAccountId'] ?? '',
                 'toAccountName' => $payload['toAccountName'] ?? '',
+                'beneficiaryName' => $payload['toAccountName'] ?? '',
+                'recipient' => $payload['toAccountName'] ?? '',
+                'amount' => $amt > 0 ? $amt : $foreignAmt,
                 'amountLocal' => $amt,
                 'amountForeign' => $foreignAmt,
                 'currency' => $currency,
                 'rate' => (float)($payload['rate'] ?? 2650),
                 'costCenter' => $costCenter,
+                'bankName' => $bankName,
+                'bank' => $bankName,
                 'mobileTransferNo' => $transferRef,
+                'transferRef' => $transferRef,
+                'refNo' => $transferRef,
                 'notes' => $payload['notes'] ?? '',
                 'toStatement' => $payload['notes'] ?? '',
                 'attachment' => $payload['attachment'] ?? null,
@@ -182,11 +189,11 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
             $jsonRecord = json_encode($record, JSON_UNESCAPED_UNICODE);
 
             if ($isNew) {
-                $stmtIns = $pdo->prepare("INSERT INTO single_payments (tenant_id, data) VALUES (?, ?)");
-                $stmtIns->execute([$currentTenantId, $jsonRecord]);
+                $stmtIns = $pdo->prepare("INSERT INTO single_payments (tenant_id, data, frontend_id, status_val, date_val) VALUES (?, ?, ?, 'POSTED', ?)");
+                $stmtIns->execute([$currentTenantId, $jsonRecord, $voucherNo, $record['date']]);
             } else {
-                $stmtUp = $pdo->prepare("UPDATE single_payments SET data = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-                $stmtUp->execute([$jsonRecord, $currentTenantId, $voucherNo, $voucherNo]);
+                $stmtUp = $pdo->prepare("UPDATE single_payments SET data = ?, status_val = 'POSTED', date_val = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ? OR frontend_id = ?)");
+                $stmtUp->execute([$jsonRecord, $record['date'], $currentTenantId, $voucherNo, $voucherNo, $voucherNo]);
             }
 
             // إرسال لطابور المزامنة التلقائية لضمان مطابقة اللابتوب
@@ -200,8 +207,8 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 'success' => true,
                 'voucherNo' => $voucherNo,
                 'record' => $record,
-                'message' => 'تم حفظ السند وترحيله إلى قاعدة البيانات بنجاح'
-            ]);
+                'message' => 'تم حفظ وترحيل السند بنجاح في قاعدة البيانات MariaDB وسيرفر الكمبيوتر'
+            ], JSON_UNESCAPED_UNICODE);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => 'خطأ SQL: ' . $e->getMessage()]);
         }
@@ -220,8 +227,8 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         }
 
         try {
-            $stmtDel = $pdo->prepare("DELETE FROM single_payments WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-            $stmtDel->execute([$currentTenantId, $vNo, $vNo]);
+            $stmtDel = $pdo->prepare("DELETE FROM single_payments WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ? OR frontend_id = ?)");
+            $stmtDel->execute([$currentTenantId, $vNo, $vNo, $vNo]);
 
             // إضافة أمر حذف في طابور المزامنة
             try {
@@ -234,6 +241,156 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => 'خطأ SQL: ' . $e->getMessage()]);
         }
+        exit;
+    }
+
+    // 1.4 فحص الاتصال الحي بقاعدة البيانات (Ping MariaDB)
+    if ($action === 'ping') {
+        echo json_encode([
+            'success' => true,
+            'db' => 'MariaDB',
+            'status' => 'connected',
+            'time' => date('c'),
+            'tenantId' => $currentTenantId
+        ]);
+        exit;
+    }
+
+    // 1.5 جلب وسحب البيانات المباشرة الحية من قاعدة البيانات MariaDB
+    if ($action === 'get_data' || $action === 'sync_data') {
+        $liveAccounts = [];
+        // خزن نقدية
+        try {
+            $stmtSafes = $pdo->prepare("SELECT * FROM safes WHERE tenant_id = ? ORDER BY id ASC");
+            $stmtSafes->execute([$currentTenantId]);
+            while ($r = $stmtSafes->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
+                $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
+                $liveAccounts[] = [
+                    'id' => 'safe_' . ($r['id'] ?? count($liveAccounts)),
+                    'name' => $d['name'] ?? ($r['name'] ?? 'خزينة نقدية'),
+                    'category' => 'خزن نقدية',
+                    'type' => 'safe',
+                    'balance' => number_format($bal, 2) . ' ج.س',
+                    'rawBalance' => $bal,
+                    'icon' => '💵'
+                ];
+            }
+        } catch(Exception $e) {}
+
+        // بنوك ومصارف
+        try {
+            $stmtBanks = $pdo->prepare("SELECT * FROM banks WHERE tenant_id = ? ORDER BY id ASC");
+            $stmtBanks->execute([$currentTenantId]);
+            while ($r = $stmtBanks->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
+                $name = $d['name'] ?? ($r['name'] ?? 'حساب بنكي');
+                $accNo = $d['accountNumber'] ?? ($r['account_number'] ?? '');
+                $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
+                $liveAccounts[] = [
+                    'id' => 'bank_' . ($r['id'] ?? count($liveAccounts)),
+                    'name' => $name . ($accNo ? " ($accNo)" : ''),
+                    'category' => 'بنوك ومصارف',
+                    'type' => 'bank',
+                    'balance' => number_format($bal, 2) . ' ج.س',
+                    'rawBalance' => $bal,
+                    'icon' => '🏦'
+                ];
+            }
+        } catch(Exception $e) {}
+
+        // عملاء
+        try {
+            $stmtCust = $pdo->prepare("SELECT * FROM customers WHERE tenant_id = ? ORDER BY id ASC LIMIT 150");
+            $stmtCust->execute([$currentTenantId]);
+            while ($r = $stmtCust->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
+                $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
+                $liveAccounts[] = [
+                    'id' => 'cust_' . ($r['id'] ?? count($liveAccounts)),
+                    'name' => $d['name'] ?? ($r['name'] ?? 'عميل'),
+                    'category' => 'حسابات العملاء',
+                    'type' => 'customer',
+                    'balance' => number_format($bal, 2) . ' ج.س',
+                    'rawBalance' => $bal,
+                    'icon' => '👤'
+                ];
+            }
+        } catch(Exception $e) {}
+
+        // موردين
+        try {
+            $stmtSupp = $pdo->prepare("SELECT * FROM suppliers WHERE tenant_id = ? ORDER BY id ASC LIMIT 150");
+            $stmtSupp->execute([$currentTenantId]);
+            while ($r = $stmtSupp->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
+                $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
+                $liveAccounts[] = [
+                    'id' => 'supp_' . ($r['id'] ?? count($liveAccounts)),
+                    'name' => $d['name'] ?? ($r['name'] ?? 'مورد'),
+                    'category' => 'حسابات الموردين',
+                    'type' => 'supplier',
+                    'balance' => number_format($bal, 2) . ' ج.س',
+                    'rawBalance' => $bal,
+                    'icon' => '🏭'
+                ];
+            }
+        } catch(Exception $e) {}
+
+        // سندات سابقة من single_payments
+        $liveVouchers = [];
+        $prefix = 'E' . date('ym');
+        $maxSeq = 0;
+        try {
+            $stmtV = $pdo->prepare("SELECT data, frontend_id FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
+            $stmtV->execute([$currentTenantId]);
+            while ($row = $stmtV->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($row['data'], true);
+                $vNo = $d['voucherNo'] ?? ($d['id'] ?? ($row['frontend_id'] ?? ''));
+                if ($vNo) {
+                    $liveVouchers[] = [
+                        'id' => $vNo,
+                        'voucherNo' => $vNo,
+                        'date' => $d['date'] ?? date('Y-m-d'),
+                        'currency' => $d['currency'] ?? 'SDG',
+                        'rate' => (float)($d['rate'] ?? 2650),
+                        'costCenter' => $d['costCenter'] ?? '',
+                        'sdg' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
+                        'foreignAmt' => (float)($d['amountForeign'] ?? 0),
+                        'payType' => $d['paymentMethod'] ?? 'transfer',
+                        'fromId' => $d['fromAccount'] ?? '',
+                        'from' => $d['fromAccountName'] ?? 'حساب الصرف',
+                        'fromName' => $d['fromAccountName'] ?? 'حساب الصرف',
+                        'toId' => $d['toAccount'] ?? '',
+                        'to' => $d['toAccountName'] ?? ($d['beneficiaryName'] ?? 'المستفيد'),
+                        'toName' => $d['toAccountName'] ?? ($d['beneficiaryName'] ?? 'المستفيد'),
+                        'refNo' => $d['mobileTransferNo'] ?? ($d['refNo'] ?? ''),
+                        'bankName' => $d['bankName'] ?? ($d['bank'] ?? 'بنك الخرطوم'),
+                        'notes' => $d['notes'] ?? ($d['toStatement'] ?? '')
+                    ];
+
+                    $vId = (string)$vNo;
+                    if (strpos($vId, $prefix) === 0) {
+                        $s = (int)substr($vId, strlen($prefix));
+                        if ($s > $maxSeq) $maxSeq = $s;
+                    }
+                }
+            }
+        } catch(Exception $e) {}
+
+        $nextVNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+
+        echo json_encode([
+            'success' => true,
+            'dbConnected' => true,
+            'serverTime' => date('Y-m-d H:i:s'),
+            'tenantId' => $currentTenantId,
+            'totalAccounts' => count($liveAccounts),
+            'totalVouchers' => count($liveVouchers),
+            'nextVoucherNo' => $nextVNo,
+            'accounts' => $liveAccounts,
+            'vouchers' => $liveVouchers
+        ], JSON_UNESCAPED_UNICODE);
         exit;
     }
 }
@@ -959,10 +1116,10 @@ $currenciesData = [
           <span>جديد</span>
         </button>
 
-        <!-- منطقة عناية متصل: دائرة خضراء ومتصل -->
-        <button type="button" onclick="toggleOnlineStatus()" id="networkPill" class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition" title="عناية متصل بالسيرفر واللابتوب - انقر للتبديل لأوفلاين">
+        <!-- منطقة عناية متصل: دائرة خضراء ومتصل بالداتابيز -->
+        <button type="button" onclick="toggleOnlineStatus()" id="networkPill" class="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition" title="متصل مباشرة بقاعدة البيانات MariaDB وسيرفر اللابتوب - انقر للتبديل لأوفلاين">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" id="networkDot"></span>
-          <span id="networkText">متصل</span>
+          <span id="networkText">متصل بالداتابيز 🗄️</span>
         </button>
 
         <!-- زر التحديث الحي الفوري على الجوال -->
@@ -1283,7 +1440,7 @@ $currenciesData = [
               <i class="fa-solid fa-receipt text-amber-400 text-xs"></i>
               <span>رقم التحويلة:</span>
             </label>
-            <input type="text" id="transferInput" oninput="handleTransferInputScale(this.value)" placeholder="التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2.5 h-[50px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_12px_rgba(245,158,11,0.2)]" style="font-size: 20px; text-align: center; direction: ltr;">
+            <input type="text" id="transferInput" oninput="handleTransferInputScale(this.value)" onblur="checkDuplicateTransferLive(this.value)" placeholder="التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2.5 h-[50px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_12px_rgba(245,158,11,0.2)]" style="font-size: 20px; text-align: center; direction: ltr;">
           </div>
 
           <!-- 2. اسم البنك بأناقة الفيروزي الجليدي والخط الواضح المعزز -->
@@ -3780,32 +3937,72 @@ $currenciesData = [
       }
     }
 
-    function saveSingleVoucherSilently(item) {
+    async function saveSingleVoucherSilently(item) {
       const rate = parseFloat(document.getElementById('usdRate').value) || 2650;
       const sdg = item.amount || parseRawNumber(document.getElementById('sdgAmount').value);
       const dec = (numberConfig.decimals !== undefined) ? parseInt(numberConfig.decimals) : 2;
       const usdCalc = sdg > 0 ? (sdg / rate) : 0;
       const usd = dec === 0 ? Math.round(usdCalc) : parseFloat(usdCalc.toFixed(dec));
 
-      const lastV = vouchersList[vouchersList.length - 1];
-      const lastNum = lastV ? (parseInt(lastV.id.replace(/\D/g, '')) || 842) : 842;
-      const savedId = String(lastNum + 1);
+      const bankClean = (item.bank || 'بنك الخرطوم').replace(/\s*\(.*\)/, '').trim() || 'بنك الخرطوم';
+      const refVal = item.ref || document.getElementById('transferInput').value || '';
+      const toVal = item.to || document.getElementById('toSearchInput').value || 'محمد أحمد عثمان';
+      const fromVal = item.from || document.getElementById('fromSearchInput').value || 'بنك الخرطوم (5540)';
+      const dateVal = document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10);
+      const notesVal = `إشعار تحويل (${bankClean} #${refVal}) - تفريغ ذكاء اصطناعي`;
+
+      let savedId = '';
+      if (!isOfflineMode) {
+        try {
+          const payload = {
+            isEditing: false,
+            date: dateVal,
+            paymentMethod: 'transfer',
+            amountLocal: sdg,
+            amountForeign: usd,
+            currency: currentCurrency || 'SDG',
+            rate: rate,
+            costCenter: document.getElementById('costCenterInput').value || 'مخزن بحري الرئيسي',
+            fromAccountName: fromVal,
+            toAccountName: toVal,
+            mobileTransferNo: refVal,
+            refNo: refVal,
+            bankName: bankClean,
+            notes: notesVal
+          };
+          const res = await fetch('mobile-voucher.php?api=save_voucher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const resData = await res.json();
+          if (resData && resData.success) {
+            savedId = resData.voucherNo;
+          }
+        } catch(e) {}
+      }
+
+      if (!savedId) {
+        const lastV = vouchersList[vouchersList.length - 1];
+        const lastNum = lastV ? (parseInt(lastV.id.replace(/\D/g, '')) || 842) : 842;
+        savedId = String(lastNum + 1);
+      }
 
       const newVoucher = {
         id: savedId,
         isOffline: isOfflineMode,
-        date: document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10),
+        date: dateVal,
         rate: rate,
         currency: currentCurrency || 'SDG',
         costCenter: document.getElementById('costCenterInput').value || 'مخزن بحري الرئيسي',
         sdg: sdg,
         usd: usd,
         payType: 'transfer',
-        from: item.from || document.getElementById('fromSearchInput').value || 'بنك الخرطوم (5540)',
-        to: item.to || document.getElementById('toSearchInput').value || 'محمد أحمد عثمان',
-        refNo: item.ref || document.getElementById('transferInput').value,
-        bankName: (item.bank || 'بنك الخرطوم').replace(/\s*\(.*\)/, ''),
-        notes: `إشعار تحويل (${item.bank || ''} #${item.ref || ''}) - تفريغ ذكاء اصطناعي`
+        from: fromVal,
+        to: toVal,
+        refNo: refVal,
+        bankName: bankClean,
+        notes: notesVal
       };
 
       vouchersList.push(newVoucher);
@@ -4195,8 +4392,11 @@ $currenciesData = [
         return;
       }
 
-      container.innerHTML = filtered.map((v, idx) => `
-        <div onclick="selectVoucherFromModal(${idx})" class="p-3 rounded-2xl bg-slate-950 border ${vouchersList[currentIndex].id === v.id ? 'border-amber-400 bg-amber-950/20' : 'border-slate-800'} hover:border-amber-400/60 cursor-pointer flex items-center justify-between text-xs transition">
+      container.innerHTML = filtered.map((v) => {
+        const realIdx = vouchersList.findIndex(item => item.id === v.id);
+        const isActive = (currentIndex >= 0 && currentIndex < vouchersList.length && vouchersList[currentIndex].id === v.id);
+        return `
+        <div onclick="selectVoucherFromModal(${realIdx})" class="p-3 rounded-2xl bg-slate-950 border ${isActive ? 'border-amber-400 bg-amber-950/20' : 'border-slate-800'} hover:border-amber-400/60 cursor-pointer flex items-center justify-between text-xs transition">
           <div>
             <div class="flex items-center gap-1.5 mb-1">
               <span class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 font-mono font-black text-xs">#${v.id}</span>
@@ -4208,21 +4408,37 @@ $currenciesData = [
             ${(v.sdg || 0).toLocaleString()} ج.س
           </div>
         </div>
-      `).join('');
+      `;
+      }).join('');
     }
 
     function selectVoucherFromModal(idx) {
-      loadVoucher(idx);
-      closeSearchVouchersModal();
-      showToastNotification(`📂 تم فتح السند رقم (#${vouchersList[idx].id}) بنجاح.`);
+      if (idx >= 0 && idx < vouchersList.length) {
+        loadVoucher(idx);
+        closeSearchVouchersModal();
+        showToastNotification(`📂 تم فتح السند رقم (#${vouchersList[idx].id}) بنجاح.`);
+      }
     }
 
     // ════════════════════════════════════════════════════════════════
-    // محاكاة إدخال سند جديد من اللابتوب
+    // جلب التحديثات الحية من سيرفر اللابتوب وMariaDB
     // ════════════════════════════════════════════════════════════════
-    function simulateIncomingLaptopVoucher() {
+    async function simulateIncomingLaptopVoucher() {
+      triggerHapticPulse();
+      playFeedbackTone('tap');
+      showToastNotification('📡 جارٍ سحب التحديثات الحية للسندات من سيرفر اللابتوب وMariaDB...');
+      const ok = await fetchLiveDbData(false);
+      if (ok) {
+        showToastNotification(`💻 متزامن مع اللابتوب: تم سحب كافة الحركات المسجلة في قاعدة البيانات MariaDB!\nإجمالي السندات: ${vouchersList.length}`);
+        if (vouchersList.length > 0) {
+          loadVoucher(vouchersList.length - 1);
+        }
+        playBankerChime();
+        return;
+      }
+      
       const lastVoucher = vouchersList[vouchersList.length - 1];
-      const lastNum = parseInt(lastVoucher.id.replace(/\D/g, '')) || 842;
+      const lastNum = lastVoucher ? (parseInt(lastVoucher.id.replace(/\D/g, '')) || 842) : 842;
       const nextId = String(lastNum + 1);
 
       const laptopVoucher = {
@@ -4244,7 +4460,6 @@ $currenciesData = [
 
       vouchersList.push(laptopVoucher);
       loadVoucher(vouchersList.length - 1);
-      triggerHapticPulse();
       playBankerChime();
       showToastNotification(`💻 وارد من اللابتوب: ظهر السند الجديد (#${nextId}) فور إدخاله في الكمبيوتر!`);
     }
@@ -4262,43 +4477,207 @@ $currenciesData = [
       if (isOfflineMode) {
         pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/40 text-amber-400 text-[10px] font-black cursor-pointer';
         dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse';
-        text.textContent = 'أوفلاين';
+        text.textContent = 'أوفلاين ⚠️';
         banner.classList.remove('hidden');
         banner.classList.add('flex');
         startNewVoucher();
-        showToastNotification('⚠️ تم التبديل إلى وضع الأوفلاين (غير متصل بالسيرفر)');
+        showToastNotification('⚠️ تم التبديل إلى وضع الأوفلاين (غير متصل بالداتابيز)');
       } else {
         pill.className = 'flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10px] font-black cursor-pointer';
         dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]';
-        text.textContent = 'متصل';
+        text.textContent = 'متصل بالداتابيز 🗄️';
         
         if (offlineQueue.length > 0) {
-          banner.classList.remove('hidden');
-          banner.classList.add('flex');
-          setTimeout(() => {
-            const count = offlineQueue.length;
-            offlineQueue = [];
-            offlineCounter = 1;
-            document.getElementById('pendingCount').textContent = '0 معلق';
-            banner.classList.add('hidden');
-            loadVoucher(vouchersList.length - 1);
-            showToastNotification(`✓ تم رفع ومزامنة ${count} سندات مع سيرفر اللابتوب والكمبيوتر!`);
-          }, 1000);
+          flushOfflineQueue();
         } else {
           banner.classList.add('hidden');
-          showToastNotification('🟢 متصل بسيرفر الكمبيوتر (أونلاين)');
+          showToastNotification('🟢 متصل مباشرة بقاعدة البيانات MariaDB وسيرفر الكمبيوتر');
+          fetchLiveDbData(false);
         }
       }
     }
 
     // ════════════════════════════════════════════════════════════════
-    // الحفظ والتأكيد والخروج
+    // فحص رقم التحويلة المكرر في MariaDB لحظياً عند الكتابة أو الانتقال
+    // ════════════════════════════════════════════════════════════════
+    async function checkDuplicateTransferLive(val) {
+      val = (val || '').trim();
+      if (!val || val.length < 6) return;
+      const currentVNo = (document.getElementById('currentVoucherDisplay')?.textContent || '').trim();
+
+      // 1. فحص محلي فوري في الذاكرة
+      const localDup = vouchersList.find(v => {
+        const vRef = (v.refNo || v.transferRef || '').trim();
+        const vId = (v.id || '').trim();
+        return vRef && vRef === val && vId !== currentVNo;
+      });
+      if (localDup) {
+        showToastNotification(`⚠️ تحذير تكرار: رقم التحويلة (${val}) مسجل مسبقاً في السند (#${localDup.id})!`);
+        const ti = document.getElementById('transferInput');
+        if (ti) {
+          ti.classList.add('border-red-500');
+          setTimeout(() => ti.classList.remove('border-red-500'), 3000);
+        }
+        return;
+      }
+
+      // 2. فحص مباشر وحي في قاعدة بيانات MariaDB
+      if (!isOfflineMode) {
+        try {
+          const res = await fetch(`mobile-voucher.php?api=check_duplicate&ref=${encodeURIComponent(val)}&voucherNo=${encodeURIComponent(currentVNo)}`);
+          const data = await res.json();
+          if (data && !data.valid) {
+            showToastNotification(`⚠️ تحذير تكرار من قاعدة البيانات MariaDB:\n${data.error}`);
+            const ti = document.getElementById('transferInput');
+            if (ti) {
+              ti.classList.add('border-red-500');
+              setTimeout(() => ti.classList.remove('border-red-500'), 4000);
+            }
+          }
+        } catch(e) {}
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // جلب ومزامنة البيانات الحية مباشرة من قاعدة البيانات MariaDB
+    // ════════════════════════════════════════════════════════════════
+    async function fetchLiveDbData(showFeedback = false) {
+      try {
+        const res = await fetch('mobile-voucher.php?api=get_data&t=' + Date.now());
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (data && data.success) {
+          // 1. تحديث الحسابات من MariaDB
+          if (Array.isArray(data.accounts) && data.accounts.length > 0) {
+            accountsDB = data.accounts.map(a => ({
+              id: a.id,
+              name: a.name,
+              category: a.category || 'عام',
+              sdgBalance: a.rawBalance || 0,
+              balanceType: ''
+            }));
+          }
+
+          // 2. تحديث السندات الحقيقية من single_payments
+          if (Array.isArray(data.vouchers) && data.vouchers.length > 0) {
+            vouchersList = data.vouchers.map(v => ({
+              id: v.id,
+              isOffline: false,
+              date: v.date || new Date().toISOString().slice(0, 10),
+              rate: v.rate || 2650,
+              currency: v.currency || 'SDG',
+              costCenter: v.costCenter || '',
+              sdg: v.sdg || 0,
+              usd: v.foreignAmt || 0,
+              payType: v.payType || 'transfer',
+              from: v.from || 'بنك الخرطوم',
+              to: v.to || 'المستفيد',
+              refNo: v.refNo || '',
+              bankName: v.bankName || 'بنك الخرطوم',
+              notes: v.notes || ''
+            }));
+            currentIndex = vouchersList.length - 1;
+          }
+
+          // 3. تحديث رقم السند القادم
+          if (data.nextVoucherNo) {
+            window.PHP_NEXT_NO = data.nextVoucherNo;
+            const currentDisp = document.getElementById('currentVoucherDisplay')?.textContent || '';
+            if (!currentDisp || currentDisp.startsWith('#84') || currentDisp.startsWith('أوفلاين')) {
+              const displayEl = document.getElementById('currentVoucherDisplay');
+              if (displayEl && currentIndex >= vouchersList.length) {
+                displayEl.textContent = data.nextVoucherNo;
+              }
+            }
+          }
+
+          const netText = document.getElementById('networkText');
+          if (netText) netText.textContent = 'متصل بالداتابيز 🗄️';
+
+          // رفع أي سندات أوفلاين معلقة
+          if (offlineQueue.length > 0 && !isOfflineMode) {
+            flushOfflineQueue();
+          }
+
+          if (showFeedback) {
+            showToastNotification(`🗄️ متصل بـ MariaDB مباشرة!\n- الحسابات: ${accountsDB.length} حساب نشط\n- السندات: ${vouchersList.length} سند محفوظ ومرحل`);
+          }
+          return true;
+        }
+      } catch (err) {
+        console.warn('Failed to fetch live DB data:', err);
+        if (showFeedback) {
+          showToastNotification('⚠️ تعذر سحب البيانات من MariaDB حالياً، يتم الاعتماد على الذاكرة المحلية');
+        }
+        return false;
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // رفع وترحيل السندات المحفوظة أوفلاين إلى MariaDB فور توفر الاتصال
+    // ════════════════════════════════════════════════════════════════
+    async function flushOfflineQueue() {
+      if (offlineQueue.length === 0) return;
+      const banner = document.getElementById('offlineSyncBanner');
+      if (banner) {
+        banner.classList.remove('hidden');
+        banner.classList.add('flex');
+      }
+
+      let syncedCount = 0;
+      const remaining = [];
+
+      for (const item of offlineQueue) {
+        try {
+          const res = await fetch('mobile-voucher.php?api=save_voucher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(item)
+          });
+          const data = await res.json();
+          if (data && data.success) {
+            syncedCount++;
+            const foundIdx = vouchersList.findIndex(v => v.id === item.id);
+            if (foundIdx !== -1) {
+              vouchersList[foundIdx].id = data.voucherNo;
+              vouchersList[foundIdx].isOffline = false;
+            }
+          } else {
+            remaining.push(item);
+          }
+        } catch(e) {
+          remaining.push(item);
+        }
+      }
+
+      offlineQueue = remaining;
+      try {
+        localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue));
+        localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+      } catch(e) {}
+
+      const pendingEl = document.getElementById('pendingCount');
+      if (pendingEl) pendingEl.textContent = `${offlineQueue.length} معلق`;
+      if (offlineQueue.length === 0 && banner) {
+        banner.classList.add('hidden');
+      }
+
+      if (syncedCount > 0) {
+        showToastNotification(`🟢 تم رفع وترحيل ${syncedCount} سندات معلقة بنجاح إلى قاعدة البيانات MariaDB!`);
+        if (vouchersList.length > 0) {
+          loadVoucher(vouchersList.length - 1);
+        }
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // الحفظ والتأكيد والخروج (الربط المباشر بقاعدة البيانات MariaDB)
     // ════════════════════════════════════════════════════════════════
     function handleQuickCheckSave() {
       handleSave(true);
     }
 
-    function handleSave(isQuickCheck = false) {
+    async function handleSave(isQuickCheck = false) {
       const sdg = parseRawNumber(document.getElementById('sdgAmount').value);
       const usd = parseRawNumber(document.getElementById('usdAmount').value);
 
@@ -4337,7 +4716,7 @@ $currenciesData = [
           return;
         }
 
-        // 3. منع تكرار رقم التحويلة نهائياً
+        // 3. فحص التكرار محلياً أولاً
         const duplicateInLocal = vouchersList.find(v => {
           const vRef = (v.refNo || v.transferRef || '').trim();
           const vId = (v.id || '').trim();
@@ -4351,7 +4730,27 @@ $currenciesData = [
           return;
         }
 
-        // 4. لا يقبل بدون اسم البنك نهائياً
+        // 4. فحص التكرار مباشرة في MariaDB
+        if (!isOfflineMode) {
+          try {
+            const chkRes = await fetch(`mobile-voucher.php?api=check_duplicate&ref=${encodeURIComponent(transferVal)}&voucherNo=${encodeURIComponent(currentVNo)}`);
+            const chkData = await chkRes.json();
+            if (chkData && !chkData.valid) {
+              alert(`⚠️ تحذير تكرار من قاعدة البيانات MariaDB:\n${chkData.error || 'رقم التحويلة مكرر ومسجل مسبقاً'}`);
+              const ti = document.getElementById('transferInput');
+              if (ti) {
+                ti.focus();
+                ti.classList.add('border-red-500');
+                setTimeout(() => ti.classList.remove('border-red-500'), 3000);
+              }
+              return;
+            }
+          } catch(e) {
+            console.warn('Check duplicate DB bypass:', e);
+          }
+        }
+
+        // 5. لا يقبل بدون اسم البنك نهائياً
         if (!bankVal) {
           alert('⚠️ شرط إلزامي (مطابق للابتوب): يجب إدخال أو اختيار اسم البنك لإتمام سند التحويل!');
           const bi = document.getElementById('bankNameInput');
@@ -4367,70 +4766,143 @@ $currenciesData = [
       triggerHapticPulse();
       playBankerChime();
 
+      const isEditing = (currentIndex >= 0 && currentIndex < vouchersList.length && vouchersList[currentIndex].id === currentVNo);
+      const voucherPayload = {
+        isEditing: isEditing,
+        voucherNo: isEditing ? vouchersList[currentIndex].id : '',
+        id: isEditing ? vouchersList[currentIndex].id : '',
+        date: document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10),
+        rate: parseFloat(document.getElementById('usdRate').value) || 2650,
+        currency: currentCurrency || 'SDG',
+        costCenter: document.getElementById('costCenterInput').value || '',
+        paymentMethod: currentPayType,
+        amountLocal: sdg,
+        amountForeign: usd,
+        fromAccountName: document.getElementById('fromSearchInput').value || 'الخزينة الرئيسية (كاش)',
+        toAccountName: document.getElementById('toSearchInput').value || 'محمد أحمد عثمان',
+        mobileTransferNo: transferVal,
+        refNo: transferVal,
+        bankName: bankVal,
+        notes: document.getElementById('voucherNotes').value || ''
+      };
+
       let savedId = '';
-      if (isOfflineMode) {
-        savedId = `أوفلاين ${offlineCounter}`;
-        offlineCounter++;
-        offlineQueue.push(savedId);
-        document.getElementById('pendingCount').textContent = `${offlineQueue.length} معلق`;
-        
+      let isDbSuccess = false;
+
+      if (!isOfflineMode) {
+        showToastNotification('⏳ جارٍ الحفظ والترحيل إلى قاعدة البيانات MariaDB...');
+        try {
+          const res = await fetch('mobile-voucher.php?api=save_voucher', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(voucherPayload)
+          });
+          const resData = await res.json();
+          if (resData && resData.success) {
+            isDbSuccess = true;
+            savedId = resData.voucherNo;
+
+            const savedVoucher = {
+              id: savedId,
+              isOffline: false,
+              date: voucherPayload.date,
+              rate: voucherPayload.rate,
+              currency: voucherPayload.currency,
+              costCenter: voucherPayload.costCenter,
+              sdg: sdg,
+              usd: usd,
+              payType: currentPayType,
+              from: voucherPayload.fromAccountName,
+              to: voucherPayload.toAccountName,
+              refNo: transferVal,
+              bankName: bankVal,
+              notes: voucherPayload.notes
+            };
+
+            if (isEditing) {
+              vouchersList[currentIndex] = savedVoucher;
+            } else {
+              vouchersList.push(savedVoucher);
+              currentIndex = vouchersList.length - 1;
+            }
+
+            try {
+              localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+            } catch(e) {}
+
+            const displayEl = document.getElementById('currentVoucherDisplay');
+            if (displayEl) displayEl.textContent = savedId;
+            const tagEl = document.getElementById('voucherTag');
+            if (tagEl) tagEl.textContent = 'MariaDB مرحل';
+
+            showToastNotification(`✅ ${isQuickCheck ? 'تأكيد وحفظ (✓): ' : ''}تم حفظ وترحيل السند بنجاح في قاعدة البيانات MariaDB!\n- رقم السند التسلسلي: #${savedId}\n- متزامن فورياً مع الكمبيوتر واللابتوب!`);
+
+            if (isAutoSendEnabled) {
+              setTimeout(() => {
+                showToastNotification(`📲 الإرسال التلقائي: تم إرسال السند (${savedId}) عبر الواتساب للعميل (${savedVoucher.to})!`);
+              }, 500);
+            }
+
+            loadVoucher(currentIndex);
+          } else {
+            throw new Error(resData?.error || 'فشل الاستجابة من الخادم');
+          }
+        } catch(err) {
+          console.warn('DB save error, fallback to offline:', err);
+          showToastNotification(`⚠️ تعذر الحفظ المباشر في الداتابيز: ${err.message}\nسيتم حفظ السند محلياً وترحيله تلقائياً.`);
+          isDbSuccess = false;
+        }
+      }
+
+      if (isOfflineMode || !isDbSuccess) {
+        savedId = `أوفلاين ${offlineCounter++}`;
+        voucherPayload.id = savedId;
+        voucherPayload.voucherNo = savedId;
+        offlineQueue.push(voucherPayload);
+        try {
+          localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue));
+        } catch(e) {}
+
+        const pendingEl = document.getElementById('pendingCount');
+        if (pendingEl) pendingEl.textContent = `${offlineQueue.length} معلق`;
+
         const newVoucher = {
           id: savedId,
           isOffline: true,
-          date: document.getElementById('voucherDate').value,
-          rate: parseFloat(document.getElementById('usdRate').value),
-          currency: currentCurrency,
-          costCenter: document.getElementById('costCenterInput').value,
+          date: voucherPayload.date,
+          rate: voucherPayload.rate,
+          currency: voucherPayload.currency,
+          costCenter: voucherPayload.costCenter,
           sdg: sdg,
           usd: usd,
           payType: currentPayType,
-          from: document.getElementById('fromSearchInput').value || 'الخزينة الرئيسية (كاش)',
-          to: document.getElementById('toSearchInput').value || 'محمد أحمد عثمان',
-          refNo: document.getElementById('transferInput').value,
-          bankName: document.getElementById('bankNameInput').value,
-          notes: document.getElementById('voucherNotes').value
+          from: voucherPayload.fromAccountName,
+          to: voucherPayload.toAccountName,
+          refNo: transferVal,
+          bankName: bankVal,
+          notes: voucherPayload.notes
         };
-        vouchersList.push(newVoucher);
-        showToastNotification(`💾 تم حفظ السند محلياً برقم (${savedId})!\nسيرفع إلى سيرفر الكمبيوتر أوتوماتيكياً فور توفر الإنترنت.`);
-        
+
+        if (isEditing) {
+          vouchersList[currentIndex] = newVoucher;
+        } else {
+          vouchersList.push(newVoucher);
+          currentIndex = vouchersList.length - 1;
+        }
+
+        try {
+          localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+        } catch(e) {}
+
+        showToastNotification(`💾 تم حفظ السند محلياً برقم (${savedId})!\nسيرفع إلى سيرفر MariaDB أوتوماتيكياً فور عودة الاتصال.`);
+
         if (isAutoSendEnabled) {
           setTimeout(() => {
             showToastNotification(`📲 الإرسال التلقائي: تم إرسال السند (${savedId}) عبر الواتساب!`);
           }, 400);
         }
 
-        loadVoucher(vouchersList.length - 1);
-      } else {
-        const lastNum = parseInt(vouchersList[vouchersList.length - 1].id.replace(/\D/g, '')) || 842;
-        savedId = String(lastNum + 1);
-
-        const newVoucher = {
-          id: savedId,
-          isOffline: false,
-          date: document.getElementById('voucherDate').value,
-          rate: parseFloat(document.getElementById('usdRate').value),
-          currency: currentCurrency,
-          costCenter: document.getElementById('costCenterInput').value,
-          sdg: sdg,
-          usd: usd,
-          payType: currentPayType,
-          from: document.getElementById('fromSearchInput').value || 'بنك الخرطوم (5540)',
-          to: document.getElementById('toSearchInput').value || 'محمد أحمد عثمان',
-          refNo: document.getElementById('transferInput').value,
-          bankName: document.getElementById('bankNameInput').value,
-          notes: document.getElementById('voucherNotes').value
-        };
-        vouchersList.push(newVoucher);
-        
-        showToastNotification(`✅ ${isQuickCheck ? 'تأكيد وحفظ (✓): ' : ''}تم الحفظ والترحيل إلى سيرفر الكمبيوتر!\n- رقم السند التسلسلي: #${savedId}\n- متطابق مع شاشة الكمبيوتر الآن!`);
-        
-        if (isAutoSendEnabled) {
-          setTimeout(() => {
-            showToastNotification(`📲 الإرسال التلقائي: تم إرسال السند (${savedId}) عبر الواتساب للعميل (${newVoucher.to})!`);
-          }, 500);
-        }
-
-        loadVoucher(vouchersList.length - 1);
+        loadVoucher(currentIndex);
       }
 
       // إذا كنا في وضع التدفق اليدوي (إشعاراً بإشعار): الانتقال للإشعار التالي تلقائياً!
@@ -4452,15 +4924,46 @@ $currenciesData = [
       showToastNotification(`✏️ وضع التعديل نشط: يمكنك الآن تعديل مبالغ وبيانات السند الحالي (رقم: #${vouchersList[currentIndex].id}) ثم النقر على زر حفظ (✓).`);
     }
 
-    function handleDelete() {
-      if (confirm(`هل أنت متأكد من حذف السند (رقم: #${vouchersList[currentIndex].id}) نهائياً من قاعدة البيانات وسيرفر الكمبيوتر؟`)) {
-        vouchersList.splice(currentIndex, 1);
-        showToastNotification('🗑️ تم حذف السند بنجاح من قاعدة البيانات.');
-        if (vouchersList.length > 0) {
-          loadVoucher(Math.max(0, currentIndex - 1));
+    async function handleDelete() {
+      if (vouchersList.length === 0 || currentIndex < 0 || currentIndex >= vouchersList.length) {
+        alert('⚠️ لا يوجد سند محدد للحذف.');
+        return;
+      }
+      const v = vouchersList[currentIndex];
+      if (!confirm(`هل أنت متأكد من حذف السند (رقم: #${v.id}) نهائياً من قاعدة البيانات وسيرفر الكمبيوتر؟`)) {
+        return;
+      }
+
+      triggerHapticPulse();
+      showToastNotification('⏳ جارٍ حذف السند من قاعدة البيانات MariaDB...');
+
+      let deletedFromDb = false;
+      try {
+        const resp = await fetch('mobile-voucher.php?api=delete_voucher', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ voucherNo: v.id, id: v.id })
+        });
+        const resData = await resp.json();
+        if (resData && resData.success) {
+          deletedFromDb = true;
+          showToastNotification(`🗑️ ${resData.message || 'تم حذف السند نهائياً من قاعدة البيانات MariaDB'}`);
         } else {
-          startNewVoucher();
+          showToastNotification(`⚠️ تنبيه: ${resData?.error || 'فشل الحذف من الخادم'}`);
         }
+      } catch (err) {
+        showToastNotification('⚠️ تم حذف السند محلياً لعدم توفر الاتصال اللحظي بالقاعدة');
+      }
+
+      vouchersList.splice(currentIndex, 1);
+      try {
+        localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
+      } catch(e) {}
+
+      if (vouchersList.length > 0) {
+        loadVoucher(Math.max(0, currentIndex - 1));
+      } else {
+        startNewVoucher();
       }
     }
 
@@ -4524,13 +5027,23 @@ $currenciesData = [
     setInterval(updateClock, 30000);
     updateClock();
 
-    
+    // دمج بيانات الحسابات الحقيقية من قاعدة بيانات MariaDB
+    if (window.PHP_ACCOUNTS && Array.isArray(window.PHP_ACCOUNTS) && window.PHP_ACCOUNTS.length > 0) {
+      accountsDB = window.PHP_ACCOUNTS.map(a => ({
+        id: a.id,
+        name: a.name,
+        category: a.category || 'عام',
+        sdgBalance: a.rawBalance || 0,
+        balanceType: ''
+      }));
+    }
+
     // دمج بيانات السندات الحقيقية من قاعدة بيانات السيرفر
     if (window.PHP_VOUCHERS && window.PHP_VOUCHERS.length > 0) {
       vouchersList = window.PHP_VOUCHERS.map(v => ({
         id: v.id,
         isOffline: false,
-        date: v.date || '2026-10-06',
+        date: v.date || new Date().toISOString().slice(0, 10),
         rate: v.rate || 2650,
         currency: v.currency || 'SDG',
         costCenter: v.costCenter || 'مخزن بحري الرئيسي',
@@ -4546,6 +5059,18 @@ $currenciesData = [
       currentIndex = vouchersList.length - 1;
     }
 
+    // استرجاع طابور السندات الأوفلاين إن وجد
+    try {
+      const savedQueue = localStorage.getItem('magaies_mobile_offline_queue');
+      if (savedQueue) {
+        offlineQueue = JSON.parse(savedQueue) || [];
+        const pendingEl = document.getElementById('pendingCount');
+        if (pendingEl && offlineQueue.length > 0) {
+          pendingEl.textContent = `${offlineQueue.length} معلق`;
+        }
+      }
+    } catch(e) {}
+
     // تشغيل الإعدادات المبدئية
     loadSavedNumberConfig();
     updateAutoSendUI();
@@ -4555,17 +5080,23 @@ $currenciesData = [
     setupAmountLongPress(document.getElementById('usdAmount'), 'usd');
     startNewVoucher();
 
+    // فحص وجلب أحدث بيانات السيرفر وقاعدة البيانات MariaDB بالخلفية
+    fetchLiveDbData(false);
+
     // ════════════════════════════════════════════════════════════════
-    // وظيفة التحديث الحي الفوري في الحين (تخطي الكاش تماماً)
+    // وظيفة التحديث الحي الفوري في الحين (تخطي الكاش ومزامنة MariaDB)
     // ════════════════════════════════════════════════════════════════
-    function forceLiveRefresh() {
+    async function forceLiveRefresh() {
       playFeedbackTone('tap');
-      showToast('🔄 جارٍ التحديث الحي الفوري...');
+      showToastNotification('🔄 جارٍ التحديث الحي ومزامنة قاعدة البيانات MariaDB...');
+      try {
+        await fetchLiveDbData(true);
+      } catch(e) {}
       // إرسال إشارة للسيرفر لتحديث كافة الأجهزة المتصلة
       fetch('/trigger-reload').catch(() => {});
       setTimeout(() => {
         window.location.href = window.location.pathname + '?live=' + Date.now();
-      }, 300);
+      }, 500);
     }
 
     // ════════════════════════════════════════════════════════════════
