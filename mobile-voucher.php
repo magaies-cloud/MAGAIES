@@ -1245,32 +1245,32 @@ $currenciesData = [
 
     <!-- ═════════════════════════════════════════════════════════════════
          2. السطر الثاني المخصص (نظيف وغير مزدحم نهائياً):
-         التاريخ (في منتصف المساحة المخصصة ومكبر الخط) | الرقم التسلسلي (مطابق للكمبيوتر)
-         ═════════════════════════════════════════════════════════════════ -->
+          التاريخ (في منتصف المساحة المخصصة ومكبر الخط درجة) | الرقم التسلسلي (مصغر درجة) والأسهم صغيرة على الأطراف
+          ═════════════════════════════════════════════════════════════════ -->
     <div class="bg-slate-900/95 px-2.5 py-2 border-b border-slate-800 sticky top-[37px] z-30 backdrop-blur-md">
       <div class="grid grid-cols-2 gap-2.5 w-full">
         
-        <!-- 1. مساحة التاريخ: تكبير خط التاريخ درجتين ليصبح 24px فائق الوضوح والبروز -->
-        <div class="bg-slate-950 glow-border-cyan rounded-2xl px-2 py-1 flex items-center justify-center h-[54px] shadow-inner focus-within:border-cyan-400 transition">
-          <input type="date" id="voucherDate" value="<?php echo date('Y-m-d'); ?>" class="w-full bg-transparent text-cyan-200 text-[24px] font-black text-center focus:outline-none cursor-pointer tracking-tight" style="text-align: center; color-scheme: dark; font-size: 24px; font-weight: 900; line-height: 1.1;">
+        <!-- 1. مساحة التاريخ: تكبير خط التاريخ درجة إضافية ليصبح 26px فائق الوضوح والبروز والتوسيط -->
+        <div class="bg-slate-950 glow-border-cyan rounded-2xl px-1.5 py-0.5 flex items-center justify-center h-[54px] shadow-inner focus-within:border-cyan-400 transition">
+          <input type="date" id="voucherDate" value="<?php echo date('Y-m-d'); ?>" class="w-full bg-transparent text-cyan-200 text-[26px] font-black text-center focus:outline-none cursor-pointer tracking-tight" style="text-align: center; color-scheme: dark; font-size: 26px; font-weight: 900; line-height: 1.1;">
         </div>
 
-        <!-- 2. مساحة الرقم التسلسلي: إظهار سهم يمين وسهم شمال للطلوع والنزول مع ظهور الرقم بالكامل -->
-        <div class="bg-slate-950 glow-border-amber rounded-2xl px-2 py-1 flex items-center justify-between h-[54px] shadow-inner">
-          <!-- سهم يمين (للطلوع للأحدث) -->
-          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/50 shadow shrink-0" title="سهم يمين: السند التالي (للطلوع للأحدث)">
-            <i class="fa-solid fa-arrow-right text-xs"></i>
+        <!-- 2. مساحة الرقم التسلسلي: تصغير الرقم درجة، وتصغير الأسهم يمين وشمال على الأطراف -->
+        <div class="bg-slate-950 glow-border-amber rounded-2xl px-1.5 py-1 flex items-center justify-between h-[54px] shadow-inner">
+          <!-- سهم يمين صغير على الطرف (للطلوع للأحدث) -->
+          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم يمين: السند التالي (للطلوع للأحدث)">
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
           </button>
 
-          <!-- الرقم التسلسلي لوحده كامل وظاهر دون أي قص -->
+          <!-- الرقم التسلسلي لوحده كامل ومصغر درجة واحدة لراحة العين -->
           <div class="text-center px-1 flex-1 min-w-0 flex items-center justify-center overflow-visible">
             <span id="voucherTag" class="hidden"></span>
-            <span class="text-[17px] sm:text-[18px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow" id="currentVoucherDisplay"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
+            <span class="text-[15px] sm:text-[16px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow" id="currentVoucherDisplay"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
           </div>
 
-          <!-- سهم شمال (للنزول للأقدم) -->
-          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/50 shadow shrink-0" title="سهم شمال: السند السابق (للنزول للأقدم)">
-            <i class="fa-solid fa-arrow-left text-xs"></i>
+          <!-- سهم شمال صغير على الطرف (للنزول للأقدم) -->
+          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم شمال: السند السابق (للنزول للأقدم)">
+            <i class="fa-solid fa-arrow-left text-[10px]"></i>
           </button>
         </div>
 
@@ -1443,7 +1443,7 @@ $currenciesData = [
 
         <!-- حقل اسم الحساب: المساحة بالكامل 100% مخصصة للاسم دون أي تشويش أو حركة رأسية -->
         <div class="relative w-full">
-          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-red-500/70 rounded-xl text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_28px_rgba(239,68,68,0.8)] placeholder-slate-500 shadow-inner">
+          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onblur="handleAccountInputBlur('from')" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-red-500/70 rounded-xl text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_28px_rgba(239,68,68,0.8)] placeholder-slate-500 shadow-inner">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
           <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-red-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
@@ -1496,7 +1496,7 @@ $currenciesData = [
 
         <!-- حقل اسم الحساب: المساحة بالكامل 100% مخصصة للاسم دون أي تشويش أو حركة رأسية -->
         <div class="relative w-full">
-          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستفيد..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_28px_rgba(16,185,129,0.8)] placeholder-slate-500 shadow-inner">
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onblur="handleAccountInputBlur('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستفيد..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_28px_rgba(16,185,129,0.8)] placeholder-slate-500 shadow-inner">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
           <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-emerald-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
@@ -2227,19 +2227,23 @@ $currenciesData = [
        نافذة التنبيه اللطيف والمهذب (Polite Gentle Warning Modal)
        إشعارات تدقيق مالي لطيفة ومهذبة ومريحة بصرياً بدون أي إزعاج
        ═════════════════════════════════════════════════════════════════ -->
+  <!-- ═════════════════════════════════════════════════════════════════
+       نافذة التنبيه اللطيف والمهذب والتحذيري (Polite Gentle & Warning Modal)
+       تدعم التنبيه اللطيف العادي والتنبيه التحذيري باللون الأحمر لرقم التحويلة المكرر وأقل من 6 أرقام
+       ═════════════════════════════════════════════════════════════════ -->
   <div id="politeWarningModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-500/70 rounded-3xl p-5 max-w-sm w-full text-center shadow-[0_0_50px_rgba(245,158,11,0.25)] space-y-4 animate-in fade-in zoom-in-95 duration-200">
+    <div id="politeModalCard" class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-500/70 rounded-3xl p-5 max-w-sm w-full text-center shadow-[0_0_50px_rgba(245,158,11,0.25)] space-y-4 animate-in fade-in zoom-in-95 duration-200">
       
-      <!-- أيقونة التنبيه اللطيفة -->
-      <div class="relative mx-auto w-16 h-16 rounded-2xl bg-amber-500/15 border-2 border-amber-400/40 flex items-center justify-center shadow-inner">
+      <!-- أيقونة التنبيه اللطيفة أو التحذيرية -->
+      <div id="politeModalIconWrapper" class="relative mx-auto w-16 h-16 rounded-2xl bg-amber-500/15 border-2 border-amber-400/40 flex items-center justify-center shadow-inner">
         <i id="politeModalIcon" class="fa-solid fa-bell text-2xl text-amber-400 animate-bounce"></i>
         <span class="absolute -top-1 -right-1 flex h-3 w-3">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+          <span id="politeModalPing" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span id="politeModalDot" class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
         </span>
       </div>
 
-      <!-- العنوان والرسالة اللطيفة المهذبة -->
+      <!-- العنوان والرسالة اللطيفة المهذبة أو التحذيرية -->
       <div class="space-y-2">
         <h3 id="politeModalTitle" class="text-base font-black text-amber-300 flex items-center justify-center gap-1.5">
           <span>تنبيه تدقيق مالي لطيف</span>
@@ -2251,9 +2255,64 @@ $currenciesData = [
 
       <!-- زر المتابعة والإغلاق -->
       <div class="pt-1 flex gap-2">
-        <button type="button" onclick="closePoliteWarningModal()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 active:scale-95 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/50 transition">
+        <button id="politeModalBtn" type="button" onclick="closePoliteWarningModal()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 active:scale-95 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/50 transition">
           <i class="fa-solid fa-check text-sm"></i>
           <span id="politeModalBtnText">حسناً، فهمت وسأقوم بالمراجعة</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       نافذة تأكيد الحفظ والتعديل الجذابة الأنيقة (Save & Edit Success Modal)
+       تصميم جمالي ظريف وفخم يعرض "تم الحفظ" أو "تم التعديل" بوضوح ورونق
+       ═════════════════════════════════════════════════════════════════ -->
+  <div id="saveFeedbackModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div id="saveFeedbackCard" class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 rounded-3xl p-5 max-w-sm w-full text-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- الأيقونة المتحركة اللامعة -->
+      <div id="saveFeedbackIconBox" class="relative mx-auto w-16 h-16 rounded-2xl flex items-center justify-center shadow-inner">
+        <i id="saveFeedbackIcon" class="fa-solid fa-circle-check text-3xl"></i>
+        <span class="absolute -top-1 -right-1 flex h-3 w-3">
+          <span id="saveFeedbackPing" class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"></span>
+          <span id="saveFeedbackDot" class="relative inline-flex rounded-full h-3 w-3"></span>
+        </span>
+      </div>
+
+      <!-- العنوان والرسالة الجذابة -->
+      <div class="space-y-1.5">
+        <h3 id="saveFeedbackTitle" class="text-xl font-black flex items-center justify-center gap-1.5">
+          <span>تم الحفظ</span>
+        </h3>
+        <p id="saveFeedbackSub" class="text-xs font-bold text-slate-300"></p>
+        
+        <!-- ملخص السند اللطيف -->
+        <div id="saveFeedbackDetails" class="mt-2 text-xs font-semibold text-slate-200 bg-slate-950/80 border border-slate-800 rounded-2xl p-3 text-right space-y-1.5 shadow-inner">
+          <div class="flex justify-between items-center text-slate-400">
+            <span>رقم السند:</span>
+            <span id="saveFeedbackVNo" class="font-mono font-black text-amber-300"></span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span>المبلغ:</span>
+            <span id="saveFeedbackAmount" class="font-mono font-bold text-emerald-400"></span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span>مِن حساب:</span>
+            <span id="saveFeedbackFrom" class="text-white truncate max-w-[170px]"></span>
+          </div>
+          <div class="flex justify-between items-center text-slate-400">
+            <span>إلى حساب:</span>
+            <span id="saveFeedbackTo" class="text-white truncate max-w-[170px]"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- زر الإغلاق السريع والمتابعة -->
+      <div class="pt-1">
+        <button id="saveFeedbackBtn" type="button" onclick="closeSaveFeedbackModal()" class="w-full py-3 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95">
+          <i class="fa-solid fa-check text-sm"></i>
+          <span>حسناً، متابعة العمل ✓</span>
         </button>
       </div>
 
@@ -2263,20 +2322,63 @@ $currenciesData = [
   <!-- Application Logic -->
   <script>
     // ════════════════════════════════════════════════════════════════
-    // نافذة التنبيه اللطيف والمهذب (Polite Modal Functions)
+    // نافذة التنبيه اللطيف والمهذب والتحذيري (Polite Modal Functions)
     // ════════════════════════════════════════════════════════════════
     let pendingFocusInputId = null;
 
-    function showPoliteWarningModal(title, message, focusInputId = null, btnText = 'حسناً، فهمت وسأقوم بالمراجعة') {
+    function showPoliteWarningModal(title, message, focusInputId = null, btnText = 'حسناً، فهمت وسأقوم بالمراجعة', theme = 'amber') {
       const modal = document.getElementById('politeWarningModal');
+      const card = document.getElementById('politeModalCard');
+      const iconWrapper = document.getElementById('politeModalIconWrapper');
+      const iconEl = document.getElementById('politeModalIcon');
+      const pingEl = document.getElementById('politeModalPing');
+      const dotEl = document.getElementById('politeModalDot');
       const titleEl = document.getElementById('politeModalTitle');
       const msgEl = document.getElementById('politeModalMessage');
       const btnEl = document.getElementById('politeModalBtnText');
+      const btnContainer = document.getElementById('politeModalBtn');
       pendingFocusInputId = focusInputId;
 
-      if (titleEl) titleEl.textContent = title || 'تنبيه تدقيق مالي لطيف';
-      if (msgEl) msgEl.textContent = message;
+      const isRed = (theme === 'red' || theme === 'danger');
+
+      if (card) {
+        card.className = isRed
+          ? 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-red-500/80 rounded-3xl p-5 max-w-sm w-full text-center shadow-[0_0_60px_rgba(239,68,68,0.35)] space-y-4 animate-in fade-in zoom-in-95 duration-200'
+          : 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-500/70 rounded-3xl p-5 max-w-sm w-full text-center shadow-[0_0_50px_rgba(245,158,11,0.25)] space-y-4 animate-in fade-in zoom-in-95 duration-200';
+      }
+
+      if (iconWrapper) {
+        iconWrapper.className = isRed
+          ? 'relative mx-auto w-16 h-16 rounded-2xl bg-red-500/15 border-2 border-red-500/40 flex items-center justify-center shadow-inner'
+          : 'relative mx-auto w-16 h-16 rounded-2xl bg-amber-500/15 border-2 border-amber-400/40 flex items-center justify-center shadow-inner';
+      }
+
+      if (iconEl) {
+        iconEl.className = isRed
+          ? 'fa-solid fa-triangle-exclamation text-2xl text-red-400 animate-bounce'
+          : 'fa-solid fa-bell text-2xl text-amber-400 animate-bounce';
+      }
+
+      if (pingEl) pingEl.className = `animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isRed ? 'bg-red-400' : 'bg-amber-400'}`;
+      if (dotEl) dotEl.className = `relative inline-flex rounded-full h-3 w-3 ${isRed ? 'bg-red-500' : 'bg-amber-500'}`;
+
+      if (titleEl) {
+        titleEl.textContent = title || (isRed ? 'تحذير تدقيق مالي' : 'تنبيه تدقيق مالي لطيف');
+        titleEl.className = `text-base font-black flex items-center justify-center gap-1.5 ${isRed ? 'text-red-400' : 'text-amber-300'}`;
+      }
+
+      if (msgEl) {
+        msgEl.textContent = message;
+        msgEl.className = `text-xs sm:text-sm font-semibold leading-relaxed bg-slate-950/80 border rounded-2xl p-3.5 text-right whitespace-pre-line shadow-inner max-h-52 overflow-y-auto ${isRed ? 'border-red-900/60 text-rose-100' : 'border-slate-800 text-slate-200'}`;
+      }
+
       if (btnEl) btnEl.textContent = btnText;
+
+      if (btnContainer) {
+        btnContainer.className = isRed
+          ? 'flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-600 hover:from-red-500 hover:to-rose-500 active:scale-95 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-red-950/50 transition'
+          : 'flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 active:scale-95 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/50 transition';
+      }
 
       if (modal) {
         modal.classList.remove('hidden');
@@ -2304,6 +2406,100 @@ $currenciesData = [
           } catch(e) {}
         }
         pendingFocusInputId = null;
+      }
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // نافذة تأكيد الحفظ والتعديل الجذابة الأنيقة (Save & Edit Feedback)
+    // ════════════════════════════════════════════════════════════════
+    let saveFeedbackTimer = null;
+    function showSaveSuccessModal(mode, vData) {
+      const modal = document.getElementById('saveFeedbackModal');
+      const card = document.getElementById('saveFeedbackCard');
+      const iconBox = document.getElementById('saveFeedbackIconBox');
+      const icon = document.getElementById('saveFeedbackIcon');
+      const ping = document.getElementById('saveFeedbackPing');
+      const dot = document.getElementById('saveFeedbackDot');
+      const title = document.getElementById('saveFeedbackTitle');
+      const sub = document.getElementById('saveFeedbackSub');
+      const btn = document.getElementById('saveFeedbackBtn');
+      const vNo = document.getElementById('saveFeedbackVNo');
+      const amt = document.getElementById('saveFeedbackAmount');
+      const fromEl = document.getElementById('saveFeedbackFrom');
+      const toEl = document.getElementById('saveFeedbackTo');
+
+      if (!modal) return;
+
+      const isEdit = (mode === 'edit');
+
+      // نصوص العنوان والوصف
+      if (title) {
+        title.textContent = isEdit ? '🔄 تم التعديل' : '✨ تم الحفظ';
+        title.className = `text-xl font-black flex items-center justify-center gap-1.5 ${isEdit ? 'text-sky-300' : 'text-emerald-300'}`;
+      }
+      if (sub) {
+        sub.textContent = isEdit ? 'تم تحديث وتعديل بيانات الحركة المالية بنجاح' : 'تم حفظ وترحيل سند الحركة المالية بنجاح';
+      }
+
+      // الألوان والتنسيقات الفخمة
+      if (card) {
+        card.className = isEdit
+          ? 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-sky-500/80 rounded-3xl p-5 max-w-sm w-full text-center space-y-4 shadow-[0_0_55px_rgba(14,165,233,0.35)] animate-in fade-in zoom-in-95 duration-200'
+          : 'bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-emerald-500/80 rounded-3xl p-5 max-w-sm w-full text-center space-y-4 shadow-[0_0_55px_rgba(16,185,129,0.35)] animate-in fade-in zoom-in-95 duration-200';
+      }
+
+      if (iconBox) {
+        iconBox.className = isEdit
+          ? 'relative mx-auto w-16 h-16 rounded-2xl bg-sky-500/15 border-2 border-sky-400/40 flex items-center justify-center shadow-inner'
+          : 'relative mx-auto w-16 h-16 rounded-2xl bg-emerald-500/15 border-2 border-emerald-400/40 flex items-center justify-center shadow-inner';
+      }
+
+      if (icon) {
+        icon.className = isEdit
+          ? 'fa-solid fa-pen-to-square text-3xl text-sky-400 animate-pulse'
+          : 'fa-solid fa-circle-check text-3xl text-emerald-400 animate-bounce';
+      }
+
+      if (ping) ping.className = `animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isEdit ? 'bg-sky-400' : 'bg-emerald-400'}`;
+      if (dot) dot.className = `relative inline-flex rounded-full h-3 w-3 ${isEdit ? 'bg-sky-500' : 'bg-emerald-500'}`;
+
+      if (btn) {
+        btn.className = isEdit
+          ? 'w-full py-3 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 bg-gradient-to-r from-sky-600 via-sky-500 to-sky-600 hover:from-sky-500 hover:to-sky-400 text-white shadow-sky-950/50'
+          : 'w-full py-3 px-4 rounded-xl font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 bg-gradient-to-r from-emerald-600 via-emerald-500 to-emerald-600 hover:from-emerald-500 hover:to-emerald-400 text-white shadow-emerald-950/50';
+      }
+
+      if (vData) {
+        if (vNo) vNo.textContent = '#' + (vData.id || vData.voucherNo || '');
+        if (amt) {
+          const amtVal = (vData.sdg && vData.sdg > 0) ? `${Number(vData.sdg).toLocaleString()} ج.س` : (vData.usd ? `$${Number(vData.usd).toLocaleString()}` : '');
+          amt.textContent = amtVal || '---';
+        }
+        if (fromEl) fromEl.textContent = vData.from || '---';
+        if (toEl) toEl.textContent = vData.to || '---';
+      }
+
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+
+      triggerHapticPulse();
+      playBankerChime();
+
+      if (saveFeedbackTimer) clearTimeout(saveFeedbackTimer);
+      saveFeedbackTimer = setTimeout(() => {
+        closeSaveFeedbackModal();
+      }, 2800);
+    }
+
+    function closeSaveFeedbackModal() {
+      const modal = document.getElementById('saveFeedbackModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+      if (saveFeedbackTimer) {
+        clearTimeout(saveFeedbackTimer);
+        saveFeedbackTimer = null;
       }
     }
 
@@ -2926,15 +3122,15 @@ $currenciesData = [
     // خوارزمية الذكاء الاصطناعي لتخمين الأسماء والأصوات والألقاب المركبة (Multi-Layer AI Entity Resolution)
     // تدعم الحالات الخاصة مثل: منطوق "أحمد تاج" يقابل في الدليل "أحمد عثمان تاج الدين"
     function findBestAccountMatch(spokenName, accountsList) {
-      if (!spokenName || !spokenName.trim()) return spokenName || '';
+      if (!spokenName || !spokenName.trim()) return null;
       const list = (accountsList && accountsList.length > 0) ? accountsList : (window.accountsDB || []);
-      if (!list || list.length === 0) return spokenName.trim();
+      if (!list || list.length === 0) return null;
 
       // تنظيف الألقاب الشائعة والكلمات الحشوية
       let clean = cleanFillers(spokenName);
       clean = clean.replace(/^(?:العميل|المورد|السيد|الأستاذ|الشيخ|الحاج|حساب|طرف|صديق|الأخ)\s+/g, '').trim();
       const normSpoken = normalizeArabicText(clean);
-      if (!normSpoken) return spokenName.trim();
+      if (!normSpoken) return null;
 
       // 1. تطابق قياسي كامل بعد التوحيد
       const exact = list.find(a => a && a.name && normalizeArabicText(a.name) === normSpoken);
@@ -2994,7 +3190,7 @@ $currenciesData = [
         }
       }
 
-      return bestMatch || clean;
+      return bestMatch || null;
     }
 
     // استخراج الكيانات المالية من النص المنطوق بمرونة مطلقة لترتيب الكلمات (شيء قبل شيء)
@@ -3220,20 +3416,28 @@ $currenciesData = [
         }
       }
 
-      // 3. تطبيق (مِن حساب) مع التخمين الذكي الفائق للأسماء والأصوات
+      // 3. تطبيق (مِن حساب) مع التخمين الذكي الفائق وضمان أنه من الحسابات المسجلة فقط
       if (parsed.from) {
         const finalFromName = findBestAccountMatch(parsed.from, accountsDB);
-        selectAcc('from', finalFromName);
-        highlightField('fromSearchInput');
-        updatedHighlights.push(`📤 مِن: ${finalFromName}`);
+        if (finalFromName) {
+          selectAcc('from', finalFromName);
+          highlightField('fromSearchInput');
+          updatedHighlights.push(`📤 مِن: ${finalFromName}`);
+        } else {
+          showToastNotification(`⚠️ الحساب المنطوق (مِن: "${parsed.from}") غير مسجل في الدليل الأساسي`);
+        }
       }
 
-      // 4. تطبيق (إلى حساب) مع التخمين الذكي الفائق للأسماء والأصوات
+      // 4. تطبيق (إلى حساب) مع التخمين الذكي الفائق وضمان أنه من الحسابات المسجلة فقط
       if (parsed.to) {
         const finalToName = findBestAccountMatch(parsed.to, accountsDB);
-        selectAcc('to', finalToName);
-        highlightField('toSearchInput');
-        updatedHighlights.push(`📥 إلى: ${finalToName}`);
+        if (finalToName) {
+          selectAcc('to', finalToName);
+          highlightField('toSearchInput');
+          updatedHighlights.push(`📥 إلى: ${finalToName}`);
+        } else {
+          showToastNotification(`⚠️ الحساب المنطوق (إلى: "${parsed.to}") غير مسجل في الدليل الأساسي`);
+        }
       }
 
       // 5. تطبيق رقم التحويلة أو رقم الشيك أو إخلائه في حالة الكاش
@@ -4377,6 +4581,7 @@ $currenciesData = [
 
       if (input) {
         input.value = name;
+        input.classList.remove('border-red-500');
         // تثبيت الإزاحات الأفقية والرأسية فوراً لمنع أي انزلاق أو تشويش
         input.scrollTop = 0;
         input.scrollLeft = 0;
@@ -4396,6 +4601,42 @@ $currenciesData = [
           card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         } catch(e) {}
       }
+    }
+
+    // التحقق الصارم من الحساب عند انتهاء الكتابة اليدوية (Blur) لضمان عدم إدخال حساب غير مسجل
+    function handleAccountInputBlur(target) {
+      setTimeout(() => {
+        const input = document.getElementById(target + 'SearchInput');
+        if (!input) return;
+        const val = (input.value || '').trim();
+        if (!val) {
+          input.classList.remove('border-red-500');
+          updateAccountBalanceBadges();
+          return;
+        }
+
+        // 1. هل يطابق حساباً مسجلاً بشكل تام؟
+        const exactMatch = accountsDB.find(a => a && a.name && (a.name.trim() === val || normalizeArabicText(a.name) === normalizeArabicText(val)));
+        if (exactMatch) {
+          input.value = exactMatch.name;
+          input.classList.remove('border-red-500');
+          updateAccountBalanceBadges();
+          return;
+        }
+
+        // 2. هل يطابق بالذكاء الاصطناعي لحساب مسجل (مثلاً: "احمد تاج" -> "أحمد عثمان تاج الدين")؟
+        const best = findBestAccountMatch(val, accountsDB);
+        if (best) {
+          input.value = best;
+          input.classList.remove('border-red-500');
+          showToastNotification(`✨ تم تثبيت الحساب المسجل: "${best}"`);
+          updateAccountBalanceBadges();
+        } else {
+          // غير مسجل نهائياً: تنبيه وعدم قبول الحساب غير المسجل
+          input.classList.add('border-red-500');
+          showToastNotification(`⚠️ الحساب "${val}" غير مسجل في البيانات الأساسية (يجب اختيار حساب مسجل)`);
+        }
+      }, 200);
     }
 
     document.addEventListener('click', (e) => {
@@ -5587,22 +5828,31 @@ $currenciesData = [
           showPoliteWarningModal(
             'عذراً ولطفاً: رقم التحويلة مطلوب',
             'يرجى التكرم بكتابة رقم التحويلة البنكية، حيث يُعد شرطاً أساسياً وإلزامياً لإتمام حفظ سند التحويل المالي (مطابق لشروط حركة مالية في الكمبيوتر).',
-            'transferInput'
+            'transferInput',
+            'حسناً، سأكتب رقم التحويلة',
+            'amber'
           );
           return false;
         }
         return true;
       }
 
-      // 1. شرط أن يكون رقم التحويلة 6 أرقام على الأقل
+      // 1. شرط أن يكون رقم التحويلة 6 أرقام على الأقل (رسالة لطيفة باللون الأحمر التحذيري)
       const digitsOnly = val.replace(/\D/g, '');
       if (val.length < 6 || digitsOnly.length < 6) {
         if (isSaveAction || val.length >= 3) {
           showPoliteWarningModal(
-            'عذراً ولطفاً: عدد خانات التحويلة',
-            `رقم التحويلة البنكية يجب أن يتكون من 6 أرقام على الأقل لضمان التوافق والمطابقة المصرفية.\n(الرقم المُدخل حالياً: ${val} يتكون من ${digitsOnly.length} أرقام فقط).`,
-            'transferInput'
+            '⚠️ تحذير: عدد خانات التحويلة أقل من 6 أرقام',
+            `عذراً ولطفاً يا غالي:\nرقم التحويلة البنكية يجب أن يتكون من 6 أرقام على الأقل لضمان التوافق والمطابقة المصرفية ومنع التكرار.\n(الرقم المُدخل حالياً: "${val}" يتكون من ${digitsOnly.length} أرقام فقط).\n\nيرجى التكرم بإكمال رقم التحويلة ليصبح 6 أرقام أو أكثر.`,
+            'transferInput',
+            'حسناً، سأكمل الخانات إلى 6 أرقام',
+            'red'
           );
+          const ti = document.getElementById('transferInput');
+          if (ti) {
+            ti.classList.add('border-red-500');
+            setTimeout(() => ti.classList.remove('border-red-500'), 3500);
+          }
           return false;
         }
         return true;
@@ -5610,13 +5860,15 @@ $currenciesData = [
 
       const candSuffix = extractLast6Digits(val);
 
-      // 2. فحص تكرار آخر 6 أرقام في الذاكرة المحلية
+      // 2. فحص تكرار آخر 6 أرقام في الذاكرة المحلية (رسالة لطيفة باللون الأحمر التحذيري)
       const localDup = findLocalDuplicateTransfer(val, currentVNo);
       if (localDup) {
         showPoliteWarningModal(
-          'تنبيه تدقيق مالي لطيف',
-          `عذراً ولطفاً يا غالي:\nرقم التحويلة المُدخل (${val}) ينتهي بالأرقام (${localDup.matchedSuffix})، وهو مطابق ومسجل مسبقاً في السند رقم (#${localDup.voucherId}) بمبلغ (${Number(localDup.amount).toLocaleString()} ج.س - ${localDup.bank}).\n\nيرجى التكرم بمراجعة رقم التحويلة لضمان دقة العمليات وعدم تكرار القيد.`,
-          'transferInput'
+          '⚠️ تحذير تدقيق مالي: رقم التحويلة مكرر',
+          `عذراً ولطفاً يا غالي:\nرقم التحويلة المُدخل (${val}) ينتهي بالأرقام (${localDup.matchedSuffix})، وهو مكرر ومسجل مسبقاً في السند رقم (#${localDup.voucherId}) بمبلغ (${Number(localDup.amount).toLocaleString()} ج.س - ${localDup.bank}).\n\nيرجى التكرم بمراجعة رقم التحويلة لضمان دقة العمليات وعدم تكرار القيد.`,
+          'transferInput',
+          'حسناً، سأقوم بمراجعة وتعديل رقم التحويلة',
+          'red'
         );
         const ti = document.getElementById('transferInput');
         if (ti) {
@@ -5626,16 +5878,18 @@ $currenciesData = [
         return false;
       }
 
-      // 3. فحص تكرار آخر 6 أرقام مباشرة في MariaDB
+      // 3. فحص تكرار آخر 6 أرقام مباشرة في MariaDB (رسالة لطيفة باللون الأحمر التحذيري)
       if (!isOfflineMode) {
         try {
           const res = await fetch(`mobile-voucher.php?api=check_duplicate&ref=${encodeURIComponent(val)}&voucherNo=${encodeURIComponent(currentVNo)}`);
           const data = await res.json();
           if (data && !data.valid) {
             showPoliteWarningModal(
-              'تنبيه تدقيق مالي لطيف',
-              data.error || `عذراً ولطفاً يا غالي: رقم التحويلة ينتهي بالأرقام (${candSuffix}) وهو مسجل مسبقاً في قاعدة البيانات MariaDB. يرجى التكرم بمراجعة الرقم.`,
-              'transferInput'
+              '⚠️ تحذير تدقيق مالي: رقم التحويلة مكرر',
+              data.error || `عذراً ولطفاً يا غالي:\nرقم التحويلة ينتهي بالأرقام (${candSuffix}) وهو مكرر ومسجل مسبقاً في قاعدة البيانات MariaDB.\n\nيرجى التكرم بمراجعة رقم التحويلة لضمان دقة العمليات وعدم تكرار القيد.`,
+              'transferInput',
+              'حسناً، سأقوم بمراجعة وتعديل رقم التحويلة',
+              'red'
             );
             const ti = document.getElementById('transferInput');
             if (ti) {
@@ -5836,6 +6090,42 @@ $currenciesData = [
         return;
       }
 
+      // التحقق الصارم من أن الحسابات مسجلة ومعرفة في البيانات الأساسية (عملاء، موردين، بنوك، خزن، مصروفات)
+      const isFromRegistered = accountsDB.some(a => a && a.name && (a.name.trim() === fromAccountName || normalizeArabicText(a.name) === normalizeArabicText(fromAccountName)));
+      if (!isFromRegistered) {
+        showPoliteWarningModal(
+          'عذراً ولطفاً: حساب الصرف غير مسجل',
+          `الحساب المُدخل في (مِن حساب): "${fromAccountName}" غير موجود ضمن الحسابات المعرفة في البيانات الأساسية (عملاء، موردين، بنوك، خزائن، مصروفات).\n\nيشترط النظام أن يكون الحساب مسجلاً مسبقاً في الدليل الأساسي لضمان صحة القيود والترحيل.`,
+          'fromSearchInput',
+          'حسناً، سأختار حساباً مسجلاً',
+          'amber'
+        );
+        return;
+      }
+
+      const isToRegistered = accountsDB.some(a => a && a.name && (a.name.trim() === toAccountName || normalizeArabicText(a.name) === normalizeArabicText(toAccountName)));
+      if (!isToRegistered) {
+        showPoliteWarningModal(
+          'عذراً ولطفاً: حساب المستفيد غير مسجل',
+          `الحساب المُدخل في (إلى حساب): "${toAccountName}" غير موجود ضمن الحسابات المعرفة في البيانات الأساسية (عملاء، موردين، بنوك، خزائن، مصروفات).\n\nيشترط النظام أن يكون الحساب مسجلاً مسبقاً في الدليل الأساسي لضمان صحة القيود والترحيل.`,
+          'toSearchInput',
+          'حسناً، سأختار حساباً مسجلاً',
+          'amber'
+        );
+        return;
+      }
+
+      if (normalizeArabicText(fromAccountName) === normalizeArabicText(toAccountName)) {
+        showPoliteWarningModal(
+          'عذراً ولطفاً: الحسابات متطابقة',
+          'لا يمكن أن يكون حساب الصرف (مِن حساب) مطابقاً لحساب المستفيد (إلى حساب). يرجى التكرم باختيار حسابين مختلفين لإتمام القيد المالي.',
+          'toSearchInput',
+          'حسناً، سأختار حساباً مختلفاً',
+          'amber'
+        );
+        return;
+      }
+
       const transferVal = (document.getElementById('transferInput').value || '').trim();
       const bankVal = (document.getElementById('bankNameInput').value || '').trim();
       const currentVNo = (document.getElementById('currentVoucherDisplay')?.textContent || '').trim();
@@ -5948,7 +6238,9 @@ $currenciesData = [
             const tagEl = document.getElementById('voucherTag');
             if (tagEl) tagEl.textContent = 'MariaDB مرحل';
 
-            showToastNotification(`✅ ${isQuickCheck ? 'تأكيد وحفظ (✓): ' : ''}تم حفظ وترحيل السند بنجاح في قاعدة البيانات MariaDB!\n- رقم السند التسلسلي: #${savedId}\n- متزامن فورياً مع الكمبيوتر واللابتوب!`);
+            // إظهار نافذة التأكيد الجمالية الأنيقة (تم الحفظ أو تم التعديل)
+            showSaveSuccessModal(isEditing ? 'edit' : 'save', savedVoucher);
+            showToastNotification(`✅ ${isQuickCheck ? 'تأكيد وحفظ (✓): ' : ''}${isEditing ? 'تم تعديل السند بنجاح' : 'تم حفظ السند بنجاح'} وترحيله في قاعدة البيانات MariaDB!\n- رقم السند التسلسلي: #${savedId}`);
 
             if (isAutoSendEnabled) {
               setTimeout(() => {
@@ -6007,7 +6299,9 @@ $currenciesData = [
           localStorage.setItem('magaiees_vouchers_history', JSON.stringify(vouchersList));
         } catch(e) {}
 
-        showToastNotification(`💾 تم حفظ السند محلياً برقم (${savedId})!\nسيرفع إلى سيرفر MariaDB أوتوماتيكياً فور عودة الاتصال.`);
+        // إظهار نافذة التأكيد الجمالية الأنيقة (تم الحفظ أو تم التعديل)
+        showSaveSuccessModal(isEditing ? 'edit' : 'save', newVoucher);
+        showToastNotification(`💾 ${isEditing ? 'تم تعديل السند محلياً' : 'تم حفظ السند محلياً'} برقم (${savedId})!\nسيرفع إلى سيرفر MariaDB أوتوماتيكياً فور عودة الاتصال.`);
 
         if (isAutoSendEnabled) {
           setTimeout(() => {
