@@ -48,44 +48,225 @@ try {
 } catch (Exception $et) {}
 
 // ────────────────────────────────────────────────────────────────────────────
+// دالة الجلب الموحدة لجميع الحسابات الحية من قاعدة البيانات MariaDB
+// تشمل: الموردين، العملاء والزبائن، المصروفات، البنوك، الخزن، وكل الحسابات
+// ────────────────────────────────────────────────────────────────────────────
+if (!function_exists('fetchAllLiveAccounts')) {
+    function fetchAllLiveAccounts($pdo, $currentTenantId) {
+        $accountsList = [];
+        
+        // 1. الخزن النقدية
+        try {
+            $stmtSafes = $pdo->prepare("SELECT * FROM safes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+            $stmtSafes->execute([$currentTenantId]);
+            while ($r = $stmtSafes->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
+                if (!empty($d['deleted'])) continue;
+                $id = $r['id'] ?? ($d['id'] ?? 'safe_' . count($accountsList));
+                $name = trim($d['name'] ?? ($r['name'] ?? 'خزينة نقدية'));
+                if (!$name) continue;
+                $bal = (float)($d['currentBalance'] ?? ($d['balance'] ?? ($r['balance'] ?? 0)));
+                $accountsList[] = [
+                    'id' => 'safe_' . $id,
+                    'name' => $name,
+                    'category' => 'الخزن',
+                    'type' => 'safe',
+                    'balance' => number_format($bal, 2) . ' ج.س',
+                    'rawBalance' => $bal,
+                    'icon' => '💵'
+                ];
+            }
+        } catch(Exception $e) {}
+
+        // 2. البنوك والمصارف
+        try {
+            $stmtBanks = $pdo->prepare("SELECT * FROM banks WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+            $stmtBanks->execute([$currentTenantId]);
+            while ($r = $stmtBanks->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
+                if (!empty($d['deleted'])) continue;
+                $id = $r['id'] ?? ($d['id'] ?? 'bank_' . count($accountsList));
+                $name = trim($d['name'] ?? ($r['name'] ?? 'حساب بنكي'));
+                if (!$name) continue;
+                $accNo = trim($d['accountNumber'] ?? ($d['accountNo'] ?? ($r['account_number'] ?? '')));
+                $bal = (float)($d['currentBalance'] ?? ($d['balance'] ?? ($r['balance'] ?? 0)));
+                $accountsList[] = [
+                    'id' => 'bank_' . $id,
+                    'name' => $name . ($accNo ? " ($accNo)" : ''),
+                    'category' => 'البنوك',
+                    'type' => 'bank',
+                    'balance' => number_format($bal, 2) . ' ج.س',
+                    'rawBalance' => $bal,
+                    'icon' => '🏦'
+                ];
+            }
+        } catch(Exception $e) {}
+
+        // 3. العملاء والزبائن
+        try {
+            $stmtCust = $pdo->prepare("SELECT * FROM customers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+            $stmtCust->execute([$currentTenantId]);
+            while ($r = $stmtCust->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
+                if (!empty($d['deleted'])) continue;
+                $id = $r['id'] ?? ($d['id'] ?? 'cust_' . count($accountsList));
+                $name = trim($d['name'] ?? ($r['name'] ?? ''));
+                if (!$name) continue;
+                $bal = (float)($d['currentBalance'] ?? ($d['balance'] ?? 0));
+                $accountsList[] = [
+                    'id' => 'cust_' . $id,
+                    'name' => $name,
+                    'category' => 'العملاء والزبائن',
+                    'type' => 'customer',
+                    'balance' => number_format($bal, 2) . ' ج.س',
+                    'rawBalance' => $bal,
+                    'icon' => '👤'
+                ];
+            }
+        } catch(Exception $e) {}
+
+        // 4. الموردين
+        try {
+            $stmtSupp = $pdo->prepare("SELECT * FROM suppliers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+            $stmtSupp->execute([$currentTenantId]);
+            while ($r = $stmtSupp->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
+                if (!empty($d['deleted'])) continue;
+                $id = $r['id'] ?? ($d['id'] ?? 'supp_' . count($accountsList));
+                $name = trim($d['name'] ?? ($r['name'] ?? ''));
+                if (!$name) continue;
+                $bal = (float)($d['currentBalance'] ?? ($d['balance'] ?? 0));
+                $accountsList[] = [
+                    'id' => 'supp_' . $id,
+                    'name' => $name,
+                    'category' => 'الموردين',
+                    'type' => 'supplier',
+                    'balance' => number_format($bal, 2) . ' ج.س',
+                    'rawBalance' => $bal,
+                    'icon' => '🏭'
+                ];
+            }
+        } catch(Exception $e) {}
+
+        // 5. دليل الحسابات العام والمصروفات
+        try {
+            $stmtAcc = $pdo->prepare("SELECT * FROM accounts WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+            $stmtAcc->execute([$currentTenantId]);
+            while ($r = $stmtAcc->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
+                if (!empty($d['deleted'])) continue;
+                $id = $r['id'] ?? ($d['id'] ?? '');
+                $name = trim($d['name'] ?? ($r['name'] ?? ''));
+                if (!$name) continue;
+                $type = $d['type'] ?? ($r['type'] ?? 'general');
+                $bal = (float)($d['currentBalance'] ?? ($d['balance'] ?? 0));
+
+                $isExpense = (stripos($type, 'expense') !== false || stripos($name, 'مصروف') !== false || stripos($name, 'إيجار') !== false || stripos($name, 'مرتب') !== false || stripos($name, 'صيانة') !== false);
+                $catLabel = $isExpense ? 'المصروفات' : 'كل الحسابات';
+                $icon = $isExpense ? '📉' : '📑';
+
+                $accountsList[] = [
+                    'id' => 'acc_' . $id,
+                    'name' => $name,
+                    'category' => $catLabel,
+                    'type' => $isExpense ? 'expense' : 'general',
+                    'balance' => number_format($bal, 2) . ' ج.س',
+                    'rawBalance' => $bal,
+                    'icon' => $icon
+                ];
+            }
+        } catch(Exception $e) {}
+
+        // 6. قائمة بنود المصروفات المحاسبية الأساسية القياسية (المصروفات)
+        $standardExpenses = [
+            ['id' => 'exp_general', 'name' => 'مصروفات عمومية وإدارية', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '📉'],
+            ['id' => 'exp_salaries', 'name' => 'مرتبات وأجور العاملين', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '👥'],
+            ['id' => 'exp_rent', 'name' => 'إيجار مقرات ومخازن', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '🏢'],
+            ['id' => 'exp_utilities', 'name' => 'كهرباء ومياه وإنترنت', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '⚡'],
+            ['id' => 'exp_fuel', 'name' => 'وقود ونقليات وترحيل', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '🚚'],
+            ['id' => 'exp_hospitality', 'name' => 'نثريات وضيافة', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '☕'],
+            ['id' => 'exp_maintenance', 'name' => 'صيانة وتشغيل', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '🔧'],
+            ['id' => 'exp_purchases', 'name' => 'مشتريات بضاعة نقدية', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '🛒'],
+            ['id' => 'exp_taxes', 'name' => 'ضرائب ورسوم حكومية', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '🏛️'],
+            ['id' => 'exp_marketing', 'name' => 'دعاية وإعلان وتسويق', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '📢'],
+            ['id' => 'exp_bank_charges', 'name' => 'عمولات ومصروفات بنكية', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '💳'],
+            ['id' => 'exp_other', 'name' => 'مصروفات متنوعة أخرى', 'category' => 'المصروفات', 'type' => 'expense', 'balance' => '0.00 ج.س', 'rawBalance' => 0, 'icon' => '📌']
+        ];
+
+        $existingNames = array_column($accountsList, 'name');
+        foreach ($standardExpenses as $se) {
+            if (!in_array($se['name'], $existingNames)) {
+                $accountsList[] = $se;
+            }
+        }
+
+        return $accountsList;
+    }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // 1. API BACKEND ENDPOINTS (AJAX: Save, Delete, Check Duplicate, Sync)
 // ────────────────────────────────────────────────────────────────────────────
 if (isset($_GET['api']) || isset($_POST['api'])) {
     header('Content-Type: application/json; charset=UTF-8');
     $action = $_GET['api'] ?? ($_POST['api'] ?? '');
 
-    // 1.1 فحص رقم التحويلة البنكية (منع التكرار وشرط 6 أرقام على الأقل)
+    // 1.1 فحص رقم التحويلة البنكية (منع التكرار وشرط 6 أرقام على الأقل ومطابقة آخر 6 أرقام على اليمين)
     if ($action === 'check_duplicate') {
         $ref = trim($_GET['ref'] ?? ($_POST['ref'] ?? ''));
         $currentVNo = trim($_GET['voucherNo'] ?? ($_POST['voucherNo'] ?? ''));
         
         if (strlen($ref) < 6) {
-            echo json_encode(['valid' => false, 'error' => 'رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل']);
+            echo json_encode(['valid' => false, 'error' => 'رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل لضمان الدقة وتفادي الأخطاء']);
             exit;
         }
 
+        $targetSuffix = substr($ref, -6);
+
         try {
-            $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? AND (
-                JSON_UNQUOTE(JSON_EXTRACT(data, '$.mobileTransferNo')) = ? OR
-                JSON_UNQUOTE(JSON_EXTRACT(data, '$.transferRef')) = ? OR
-                JSON_UNQUOTE(JSON_EXTRACT(data, '$.refNo')) = ?
-            )");
-            $stmt->execute([$currentTenantId, $ref, $ref, $ref]);
+            $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL)");
+            $stmt->execute([$currentTenantId]);
             
             $duplicateFound = false;
             $matchedVoucher = '';
+            $matchedRef = '';
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $d = json_decode($row['data'], true);
-                $existingVNo = $d['voucherNo'] ?? ($d['id'] ?? '');
-                if ($existingVNo && $existingVNo !== $currentVNo) {
-                    $duplicateFound = true;
-                    $matchedVoucher = $existingVNo;
-                    break;
+                if (!$d) continue;
+                $existingVNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                if ($existingVNo && $existingVNo === $currentVNo) {
+                    continue;
+                }
+
+                $candidateRefs = [];
+                if (!empty($d['mobileTransferNo'])) $candidateRefs[] = $d['mobileTransferNo'];
+                if (!empty($d['transferRef'])) $candidateRefs[] = $d['transferRef'];
+                if (!empty($d['refNo'])) $candidateRefs[] = $d['refNo'];
+                if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
+                    foreach ($d['bankTransfers'] as $bt) {
+                        if (!empty($bt['transferNo'])) $candidateRefs[] = $bt['transferNo'];
+                    }
+                }
+
+                foreach ($candidateRefs as $cr) {
+                    $crStr = trim((string)$cr);
+                    if (strlen($crStr) >= 6 && substr($crStr, -6) === $targetSuffix) {
+                        $duplicateFound = true;
+                        $matchedVoucher = $existingVNo ?: 'سابق';
+                        $matchedRef = $crStr;
+                        break 2;
+                    }
                 }
             }
 
             if ($duplicateFound) {
-                echo json_encode(['valid' => false, 'error' => "رقم التحويلة ($ref) مكرر ومسجل مسبقاً في السند رقم ($matchedVoucher)"]);
+                echo json_encode([
+                    'valid' => false, 
+                    'error' => "عفواً، رقم التحويلة ($ref) مسجل مسبقاً في السند رقم ($matchedVoucher) لتطابق آخر 6 أرقام ($targetSuffix).",
+                    'matchedVoucher' => $matchedVoucher,
+                    'matchedRef' => $matchedRef,
+                    'suffix' => $targetSuffix
+                ], JSON_UNESCAPED_UNICODE);
             } else {
                 echo json_encode(['valid' => true, 'message' => 'رقم التحويلة سليم وغير مسجل مسبقاً']);
             }
@@ -118,37 +299,72 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         }
 
         $bankName = trim($payload['bankName'] ?? '');
+        $fromAccName = trim($payload['fromAccountName'] ?? ($payload['from'] ?? ''));
+        $toAccName = trim($payload['toAccountName'] ?? ($payload['to'] ?? ''));
 
-        // شروط اللابتوب الصارمة: إذا كانت طريقة الدفع تحويل بنكي
+        if (empty($fromAccName)) {
+            echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: يرجى تحديد حساب الصرف (من حساب) لإتمام حفظ السند'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        if (empty($toAccName)) {
+            echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: يرجى تحديد حساب المستفيد أو الطرف المستلم (إلى حساب) لإتمام حفظ السند'], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
+        // شروط حركة مالية في الكمبيوتر:
+        // 1. إذا كانت طريقة الدفع تحويل بنكي
         if ($payMethod === 'transfer') {
             if (empty($transferRef)) {
-                echo json_encode(['success' => false, 'error' => 'لا يمكن حفظ السند دون إدخال رقم التحويلة نهائياً']);
+                echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: لا يمكن حفظ سند التحويل دون إدخال رقم التحويلة نهائياً'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
             if (strlen($transferRef) < 6) {
-                echo json_encode(['success' => false, 'error' => 'رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل']);
+                echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل لضمان المطابقة'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
             if (empty($bankName)) {
-                echo json_encode(['success' => false, 'error' => 'يجب إدخال أو اختيار اسم البنك لإتمام التحويل']);
+                echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: يجب إدخال أو اختيار اسم البنك لإتمام التحويل'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
 
-            // فحص منع التكرار في MariaDB
+            // فحص منع التكرار بمطابقة آخر 6 أرقام على اليمين
+            $targetSuffix = substr($transferRef, -6);
             $currentVNo = trim($payload['voucherNo'] ?? ($payload['id'] ?? ''));
-            $stmtDup = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? AND (
-                JSON_UNQUOTE(JSON_EXTRACT(data, '$.mobileTransferNo')) = ? OR
-                JSON_UNQUOTE(JSON_EXTRACT(data, '$.transferRef')) = ? OR
-                JSON_UNQUOTE(JSON_EXTRACT(data, '$.refNo')) = ?
-            )");
-            $stmtDup->execute([$currentTenantId, $transferRef, $transferRef, $transferRef]);
+            $stmtDup = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL)");
+            $stmtDup->execute([$currentTenantId]);
             while ($rowDup = $stmtDup->fetch(PDO::FETCH_ASSOC)) {
                 $d = json_decode($rowDup['data'], true);
-                $existingVNo = $d['voucherNo'] ?? ($d['id'] ?? '');
-                if ($existingVNo && $existingVNo !== $currentVNo) {
-                    echo json_encode(['success' => false, 'error' => "رقم التحويلة ($transferRef) مكرر ومسجل مسبقاً في السند رقم ($existingVNo)"]);
-                    exit;
+                if (!$d) continue;
+                $existingVNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                if ($existingVNo && $existingVNo === $currentVNo) continue;
+
+                $candidateRefs = [];
+                if (!empty($d['mobileTransferNo'])) $candidateRefs[] = $d['mobileTransferNo'];
+                if (!empty($d['transferRef'])) $candidateRefs[] = $d['transferRef'];
+                if (!empty($d['refNo'])) $candidateRefs[] = $d['refNo'];
+                if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
+                    foreach ($d['bankTransfers'] as $bt) {
+                        if (!empty($bt['transferNo'])) $candidateRefs[] = $bt['transferNo'];
+                    }
                 }
+                foreach ($candidateRefs as $cr) {
+                    $crStr = trim((string)$cr);
+                    if (strlen($crStr) >= 6 && substr($crStr, -6) === $targetSuffix) {
+                        echo json_encode(['success' => false, 'error' => "عذراً ولطفاً: رقم التحويلة ($transferRef) ينتهي بالأرقام ($targetSuffix) وهو مطابق ومسجل مسبقاً في السند رقم ($existingVNo). يرجى التكرم بمراجعة الرقم."], JSON_UNESCAPED_UNICODE);
+                        exit;
+                    }
+                }
+            }
+        } elseif (stripos($payMethod, 'cheque') !== false) {
+            // شروط الشيك: كتابة رقم الشيك واسم البنك
+            if (empty($transferRef)) {
+                echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: لا يمكن حفظ سند الشيك دون كتابة رقم الشيك'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            if (empty($bankName)) {
+                echo json_encode(['success' => false, 'error' => 'عذراً ولطفاً: يجب إدخال أو اختيار اسم بنك الشيك لإتمام العملية'], JSON_UNESCAPED_UNICODE);
+                exit;
             }
         }
 
@@ -276,84 +492,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
 
     // 1.5 جلب وسحب البيانات المباشرة الحية من قاعدة البيانات MariaDB
     if ($action === 'get_data' || $action === 'sync_data') {
-        $liveAccounts = [];
-        // خزن نقدية
-        try {
-            $stmtSafes = $pdo->prepare("SELECT * FROM safes WHERE tenant_id = ? ORDER BY id ASC");
-            $stmtSafes->execute([$currentTenantId]);
-            while ($r = $stmtSafes->fetch(PDO::FETCH_ASSOC)) {
-                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
-                $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
-                $liveAccounts[] = [
-                    'id' => 'safe_' . ($r['id'] ?? count($liveAccounts)),
-                    'name' => $d['name'] ?? ($r['name'] ?? 'خزينة نقدية'),
-                    'category' => 'خزن نقدية',
-                    'type' => 'safe',
-                    'balance' => number_format($bal, 2) . ' ج.س',
-                    'rawBalance' => $bal,
-                    'icon' => '💵'
-                ];
-            }
-        } catch(Exception $e) {}
-
-        // بنوك ومصارف
-        try {
-            $stmtBanks = $pdo->prepare("SELECT * FROM banks WHERE tenant_id = ? ORDER BY id ASC");
-            $stmtBanks->execute([$currentTenantId]);
-            while ($r = $stmtBanks->fetch(PDO::FETCH_ASSOC)) {
-                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
-                $name = $d['name'] ?? ($r['name'] ?? 'حساب بنكي');
-                $accNo = $d['accountNumber'] ?? ($r['account_number'] ?? '');
-                $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
-                $liveAccounts[] = [
-                    'id' => 'bank_' . ($r['id'] ?? count($liveAccounts)),
-                    'name' => $name . ($accNo ? " ($accNo)" : ''),
-                    'category' => 'بنوك ومصارف',
-                    'type' => 'bank',
-                    'balance' => number_format($bal, 2) . ' ج.س',
-                    'rawBalance' => $bal,
-                    'icon' => '🏦'
-                ];
-            }
-        } catch(Exception $e) {}
-
-        // عملاء
-        try {
-            $stmtCust = $pdo->prepare("SELECT * FROM customers WHERE tenant_id = ? ORDER BY id ASC LIMIT 150");
-            $stmtCust->execute([$currentTenantId]);
-            while ($r = $stmtCust->fetch(PDO::FETCH_ASSOC)) {
-                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
-                $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
-                $liveAccounts[] = [
-                    'id' => 'cust_' . ($r['id'] ?? count($liveAccounts)),
-                    'name' => $d['name'] ?? ($r['name'] ?? 'عميل'),
-                    'category' => 'حسابات العملاء',
-                    'type' => 'customer',
-                    'balance' => number_format($bal, 2) . ' ج.س',
-                    'rawBalance' => $bal,
-                    'icon' => '👤'
-                ];
-            }
-        } catch(Exception $e) {}
-
-        // موردين
-        try {
-            $stmtSupp = $pdo->prepare("SELECT * FROM suppliers WHERE tenant_id = ? ORDER BY id ASC LIMIT 150");
-            $stmtSupp->execute([$currentTenantId]);
-            while ($r = $stmtSupp->fetch(PDO::FETCH_ASSOC)) {
-                $d = json_decode($r['data'] ?? '{}', true) ?: $r;
-                $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
-                $liveAccounts[] = [
-                    'id' => 'supp_' . ($r['id'] ?? count($liveAccounts)),
-                    'name' => $d['name'] ?? ($r['name'] ?? 'مورد'),
-                    'category' => 'حسابات الموردين',
-                    'type' => 'supplier',
-                    'balance' => number_format($bal, 2) . ' ج.س',
-                    'rawBalance' => $bal,
-                    'icon' => '🏭'
-                ];
-            }
-        } catch(Exception $e) {}
+        $liveAccounts = fetchAllLiveAccounts($pdo, $currentTenantId);
 
         // سندات سابقة من single_payments
         $liveVouchers = [];
@@ -363,12 +502,12 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
         $accLookup = [];
         foreach ($liveAccounts as $la) {
             $accLookup[$la['id']] = $la['name'];
-            $cleanId = preg_replace('/^(safe_|bank_|cust_|supp_|acc_)/', '', $la['id']);
+            $cleanId = preg_replace('/^(safe_|bank_|cust_|supp_|acc_|exp_)/', '', $la['id']);
             if ($cleanId) $accLookup[$cleanId] = $la['name'];
         }
 
         try {
-            $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
+            $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id ASC");
             $stmtV->execute([$currentTenantId]);
             while ($row = $stmtV->fetch(PDO::FETCH_ASSOC)) {
                 $d = json_decode($row['data'], true);
@@ -429,146 +568,7 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
 // ────────────────────────────────────────────────────────────────────────────
 // 2. DATA PRELOADING: الحسابات، مراكز الكلفة، العملات، السندات السابقة
 // ────────────────────────────────────────────────────────────────────────────
-$accountsList = [];
-
-// 2.1 الخزن النقدية
-try {
-    $stmtSafes = $pdo->prepare("SELECT * FROM safes WHERE tenant_id = ? ORDER BY id ASC");
-    $stmtSafes->execute([$currentTenantId]);
-    while ($r = $stmtSafes->fetch(PDO::FETCH_ASSOC)) {
-        $d = json_decode($r['data'] ?? '{}', true) ?: $r;
-        $id = $r['id'] ?? ($d['id'] ?? 'safe_' . count($accountsList));
-        $name = $d['name'] ?? ($r['name'] ?? 'خزينة نقدية');
-        $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
-        $accountsList[] = [
-            'id' => 'safe_' . $id,
-            'name' => $name,
-            'category' => 'خزن نقدية',
-            'type' => 'safe',
-            'balance' => number_format($bal, 2) . ' ج.س',
-            'rawBalance' => $bal,
-            'icon' => '💵'
-        ];
-    }
-} catch (Exception $e) {}
-
-// 2.2 البنوك والمصارف
-try {
-    $stmtBanks = $pdo->prepare("SELECT * FROM banks WHERE tenant_id = ? ORDER BY id ASC");
-    $stmtBanks->execute([$currentTenantId]);
-    while ($r = $stmtBanks->fetch(PDO::FETCH_ASSOC)) {
-        $d = json_decode($r['data'] ?? '{}', true) ?: $r;
-        $id = $r['id'] ?? ($d['id'] ?? 'bank_' . count($accountsList));
-        $name = $d['name'] ?? ($r['name'] ?? 'حساب بنكي');
-        $accNo = $d['accountNumber'] ?? ($r['account_number'] ?? '');
-        $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
-        $accountsList[] = [
-            'id' => 'bank_' . $id,
-            'name' => $name . ($accNo ? " ($accNo)" : ''),
-            'category' => 'بنوك ومصارف',
-            'type' => 'bank',
-            'balance' => number_format($bal, 2) . ' ج.س',
-            'rawBalance' => $bal,
-            'icon' => '🏦'
-        ];
-    }
-} catch (Exception $e) {}
-
-// 2.3 العملاء
-try {
-    $stmtCust = $pdo->prepare("SELECT * FROM customers WHERE tenant_id = ? ORDER BY id ASC LIMIT 80");
-    $stmtCust->execute([$currentTenantId]);
-    while ($r = $stmtCust->fetch(PDO::FETCH_ASSOC)) {
-        $d = json_decode($r['data'] ?? '{}', true) ?: $r;
-        $id = $r['id'] ?? ($d['id'] ?? 'cust_' . count($accountsList));
-        $name = $d['name'] ?? ($r['name'] ?? 'عميل');
-        $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
-        $accountsList[] = [
-            'id' => 'cust_' . $id,
-            'name' => $name,
-            'category' => 'حسابات العملاء',
-            'type' => 'customer',
-            'balance' => number_format($bal, 2) . ' ج.س',
-            'rawBalance' => $bal,
-            'icon' => '👤'
-        ];
-    }
-} catch (Exception $e) {}
-
-// 2.4 الموردين
-try {
-    $stmtSupp = $pdo->prepare("SELECT * FROM suppliers WHERE tenant_id = ? ORDER BY id ASC LIMIT 80");
-    $stmtSupp->execute([$currentTenantId]);
-    while ($r = $stmtSupp->fetch(PDO::FETCH_ASSOC)) {
-        $d = json_decode($r['data'] ?? '{}', true) ?: $r;
-        $id = $r['id'] ?? ($d['id'] ?? 'supp_' . count($accountsList));
-        $name = $d['name'] ?? ($r['name'] ?? 'مورد');
-        $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
-        $accountsList[] = [
-            'id' => 'supp_' . $id,
-            'name' => $name,
-            'category' => 'حسابات الموردين',
-            'type' => 'supplier',
-            'balance' => number_format($bal, 2) . ' ج.س',
-            'rawBalance' => $bal,
-            'icon' => '🏭'
-        ];
-    }
-} catch (Exception $e) {}
-
-// 2.5 دليل الحسابات العام
-try {
-    $stmtAcc = $pdo->prepare("SELECT * FROM accounts WHERE tenant_id = ? ORDER BY id ASC LIMIT 100");
-    $stmtAcc->execute([$currentTenantId]);
-    while ($r = $stmtAcc->fetch(PDO::FETCH_ASSOC)) {
-        $d = json_decode($r['data'] ?? '{}', true) ?: $r;
-        $id = $r['id'] ?? ($d['id'] ?? '');
-        $name = $d['name'] ?? ($r['name'] ?? '');
-        $type = $d['type'] ?? ($r['type'] ?? 'general');
-        $bal = (float)($d['balance'] ?? ($r['balance'] ?? 0));
-
-        $catLabel = 'دليل الحسابات';
-        $icon = '📑';
-        if (stripos($type, 'expense') !== false || stripos($name, 'مصروف') !== false) {
-            $catLabel = 'مصروفات تشغيلية';
-            $icon = '📉';
-        } elseif (stripos($type, 'revenue') !== false || stripos($name, 'إيراد') !== false) {
-            $catLabel = 'إيرادات عامة';
-            $icon = '📈';
-        }
-
-        if ($name) {
-            $accountsList[] = [
-                'id' => 'acc_' . $id,
-                'name' => $name,
-                'category' => $catLabel,
-                'type' => (stripos($type, 'expense') !== false) ? 'expense' : 'general',
-                'balance' => number_format($bal, 2) . ' ج.س',
-                'rawBalance' => $bal,
-                'icon' => $icon
-            ];
-        }
-    }
-} catch (Exception $e) {}
-
-// بنود المصروفات التشغيلية لضمان ظهورها الفوري عند البحث عن المصروفات
-$standardExpenses = [
-    ['id' => 'exp_general', 'name' => 'مصروفات عمومية وإدارية', 'category' => 'مصروفات تشغيلية', 'type' => 'expense', 'balance' => '0 ج.س', 'rawBalance' => 0, 'icon' => '📉'],
-    ['id' => 'exp_salaries', 'name' => 'مرتبات وأجور العاملين', 'category' => 'مصروفات تشغيلية', 'type' => 'expense', 'balance' => '0 ج.س', 'rawBalance' => 0, 'icon' => '👥'],
-    ['id' => 'exp_rent', 'name' => 'إيجار مقرات ومخازن', 'category' => 'مصروفات تشغيلية', 'type' => 'expense', 'balance' => '0 ج.س', 'rawBalance' => 0, 'icon' => '🏢'],
-    ['id' => 'exp_utilities', 'name' => 'كهرباء ومياه وإنترنت', 'category' => 'مصروفات تشغيلية', 'type' => 'expense', 'balance' => '0 ج.س', 'rawBalance' => 0, 'icon' => '⚡'],
-    ['id' => 'exp_fuel', 'name' => 'وقود ونقليات وترحيل', 'category' => 'مصروفات تشغيلية', 'type' => 'expense', 'balance' => '0 ج.س', 'rawBalance' => 0, 'icon' => '🚚'],
-    ['id' => 'exp_hospitality', 'name' => 'نثريات وضيافة', 'category' => 'مصروفات تشغيلية', 'type' => 'expense', 'balance' => '0 ج.س', 'rawBalance' => 0, 'icon' => '☕'],
-    ['id' => 'exp_maintenance', 'name' => 'صيانة وتشغيل', 'category' => 'مصروفات تشغيلية', 'type' => 'expense', 'balance' => '0 ج.س', 'rawBalance' => 0, 'icon' => '🔧'],
-    ['id' => 'exp_purchases', 'name' => 'مشتريات بضاعة نقدية', 'category' => 'مصروفات تشغيلية', 'type' => 'expense', 'balance' => '0 ج.س', 'rawBalance' => 0, 'icon' => '🛒']
-];
-foreach ($standardExpenses as $se) {
-    $exists = false;
-    foreach ($accountsList as $al) {
-        if ($al['name'] === $se['name']) { $exists = true; break; }
-    }
-    if (!$exists) { $accountsList[] = $se; }
-}
+$accountsList = fetchAllLiveAccounts($pdo, $currentTenantId);
 
 // 2.6 جلب السندات السابقة من single_payments لمطابقة اللابتوب والتنقل (◀ ▶)
 $vouchersHistory = [];
@@ -1174,6 +1174,37 @@ $currenciesData = [
     </div>
 
     <!-- ═════════════════════════════════════════════════════════════════
+         شريط الاستماع الصوتي الذكي المباشر (HUD Live Audio Visualizer)
+         يظهر فقط أثناء الاستماع بالمايك، ويعرض النص المباشر + عداد الصمت + زر إيقاف
+         ═════════════════════════════════════════════════════════════════ -->
+    <div id="masterVoiceLiveBanner" class="hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b-2 border-cyan-400 p-2.5 text-xs text-white shadow-2xl sticky top-[41px] z-50 transition-all select-none">
+      <div class="flex items-center justify-between gap-2 mb-1.5">
+        <div class="flex items-center gap-1.5">
+          <span class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+          </span>
+          <span class="font-black text-cyan-300 text-[11px] flex items-center gap-1">
+            <span>🎙️ جارٍ الاستماع للكلام...</span>
+            <span id="voiceSilenceCountdown" class="text-[10px] text-amber-300 font-mono font-bold"></span>
+          </span>
+        </div>
+        <button type="button" onclick="stopMasterVoiceInput(true)" class="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white font-black text-[10.5px] active:scale-95 shadow transition flex items-center gap-1">
+          <i class="fa-solid fa-stop text-[9px]"></i>
+          <span>إنهاء وتطبيق</span>
+        </button>
+      </div>
+      <!-- نص الكلام المباشر المسموع لحظة بلحظة -->
+      <div class="bg-black/60 rounded-xl p-2 border border-cyan-500/30 text-[11.5px] font-medium text-slate-100 min-h-[34px] max-h-[75px] overflow-y-auto leading-relaxed shadow-inner select-text" id="masterVoiceLiveTranscript">
+        تحدث الآن بالسند كاملاً... (المبلغ، مِن، إلى، رقم التحويلة، البنك، البيان)
+      </div>
+      <div class="text-[9.5px] text-slate-400 mt-1 flex items-center justify-between">
+        <span>⚡ ينتهي تلقائياً عند السكوت لمدة 3.5 ثوانٍ</span>
+        <span>أو اضغط المايك مرة أخرى للإيقاف</span>
+      </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════════════════
          2. السطر الثاني المخصص (نظيف وغير مزدحم نهائياً):
          التاريخ (في منتصف المساحة المخصصة ومكبر الخط) | الرقم التسلسلي (مطابق للكمبيوتر)
          ═════════════════════════════════════════════════════════════════ -->
@@ -1373,10 +1404,10 @@ $currenciesData = [
 
         <!-- حقل اسم الحساب: المساحة بالكامل 100% مخصصة للاسم دون أي تشويش أو حركة رأسية -->
         <div class="relative w-full">
-          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onclick="liveSearchAccount('from')" onfocus="liveSearchAccount('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-red-500/70 rounded-xl text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_28px_rgba(239,68,68,0.8)] placeholder-slate-500 shadow-inner">
+          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-red-500/70 rounded-xl text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_28px_rgba(239,68,68,0.8)] placeholder-slate-500 shadow-inner">
           
-          <!-- القائمة المنسدلة الذكية الفورية -->
-          <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-red-500/60 rounded-2xl shadow-2xl z-40 max-h-56 overflow-y-auto no-scrollbar"></div>
+          <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
+          <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-red-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
         </div>
       </div>
 
@@ -1426,10 +1457,10 @@ $currenciesData = [
 
         <!-- حقل اسم الحساب: المساحة بالكامل 100% مخصصة للاسم دون أي تشويش أو حركة رأسية -->
         <div class="relative w-full">
-          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onclick="liveSearchAccount('to')" onfocus="liveSearchAccount('to')" placeholder="اضغط لاختيار أو كتابة اسم المستفيد..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_28px_rgba(16,185,129,0.8)] placeholder-slate-500 shadow-inner">
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستفيد..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_28px_rgba(16,185,129,0.8)] placeholder-slate-500 shadow-inner">
           
-          <!-- القائمة المنسدلة الذكية الفورية -->
-          <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-emerald-500/60 rounded-2xl shadow-2xl z-40 max-h-56 overflow-y-auto no-scrollbar"></div>
+          <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
+          <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-emerald-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
         </div>
       </div>
 
@@ -1457,7 +1488,7 @@ $currenciesData = [
 
           <!-- 2. اسم البنك بأناقة الفيروزي الجليدي والخط الواضح المعزز -->
           <div>
-            <label class="block text-xs sm:text-sm font-black text-cyan-300 mb-1 flex items-center gap-1">
+            <label class="block text-xs sm:text-sm font-black text-cyan-300 mb-1 flex items-center gap-1" id="bankNameLabel">
               <i class="fa-solid fa-building-columns text-cyan-400 text-xs"></i>
               <span>اسم البنك:</span>
             </label>
@@ -2152,10 +2183,91 @@ $currenciesData = [
       </div>
 
     </div>
+
+  <!-- ═════════════════════════════════════════════════════════════════
+       نافذة التنبيه اللطيف والمهذب (Polite Gentle Warning Modal)
+       إشعارات تدقيق مالي لطيفة ومهذبة ومريحة بصرياً بدون أي إزعاج
+       ═════════════════════════════════════════════════════════════════ -->
+  <div id="politeWarningModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 border-2 border-amber-500/70 rounded-3xl p-5 max-w-sm w-full text-center shadow-[0_0_50px_rgba(245,158,11,0.25)] space-y-4 animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- أيقونة التنبيه اللطيفة -->
+      <div class="relative mx-auto w-16 h-16 rounded-2xl bg-amber-500/15 border-2 border-amber-400/40 flex items-center justify-center shadow-inner">
+        <i id="politeModalIcon" class="fa-solid fa-bell text-2xl text-amber-400 animate-bounce"></i>
+        <span class="absolute -top-1 -right-1 flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+        </span>
+      </div>
+
+      <!-- العنوان والرسالة اللطيفة المهذبة -->
+      <div class="space-y-2">
+        <h3 id="politeModalTitle" class="text-base font-black text-amber-300 flex items-center justify-center gap-1.5">
+          <span>تنبيه تدقيق مالي لطيف</span>
+        </h3>
+        <div id="politeModalMessage" class="text-xs sm:text-sm font-semibold text-slate-200 leading-relaxed bg-slate-950/80 border border-slate-800 rounded-2xl p-3.5 text-right whitespace-pre-line shadow-inner max-h-52 overflow-y-auto">
+          عذراً ولطفاً: يرجى مراجعة بيانات الحركة المالية
+        </div>
+      </div>
+
+      <!-- زر المتابعة والإغلاق -->
+      <div class="pt-1 flex gap-2">
+        <button type="button" onclick="closePoliteWarningModal()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 active:scale-95 text-slate-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-amber-950/50 transition">
+          <i class="fa-solid fa-check text-sm"></i>
+          <span id="politeModalBtnText">حسناً، فهمت وسأقوم بالمراجعة</span>
+        </button>
+      </div>
+
+    </div>
   </div>
 
   <!-- Application Logic -->
   <script>
+    // ════════════════════════════════════════════════════════════════
+    // نافذة التنبيه اللطيف والمهذب (Polite Modal Functions)
+    // ════════════════════════════════════════════════════════════════
+    let pendingFocusInputId = null;
+
+    function showPoliteWarningModal(title, message, focusInputId = null, btnText = 'حسناً، فهمت وسأقوم بالمراجعة') {
+      const modal = document.getElementById('politeWarningModal');
+      const titleEl = document.getElementById('politeModalTitle');
+      const msgEl = document.getElementById('politeModalMessage');
+      const btnEl = document.getElementById('politeModalBtnText');
+      pendingFocusInputId = focusInputId;
+
+      if (titleEl) titleEl.textContent = title || 'تنبيه تدقيق مالي لطيف';
+      if (msgEl) msgEl.textContent = message;
+      if (btnEl) btnEl.textContent = btnText;
+
+      if (modal) {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      if (typeof triggerHapticPulse === 'function') {
+        triggerHapticPulse();
+      }
+    }
+
+    function closePoliteWarningModal() {
+      const modal = document.getElementById('politeWarningModal');
+      if (modal) {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+      if (pendingFocusInputId) {
+        const el = document.getElementById(pendingFocusInputId);
+        if (el) {
+          try {
+            el.focus();
+            el.classList.add('border-amber-400');
+            setTimeout(() => el.classList.remove('border-amber-400'), 3000);
+          } catch(e) {}
+        }
+        pendingFocusInputId = null;
+      }
+    }
+
     // ════════════════════════════════════════════════════════════════
     // قاعدة بيانات الحسابات المباشرة من MariaDB وذاكرة النظام (حقيقية 100%)
     // ════════════════════════════════════════════════════════════════
@@ -2261,10 +2373,20 @@ $currenciesData = [
     // ════════════════════════════════════════════════════════════════
     let masterVoiceRecognizer = null;
     let isMasterVoiceActive = false;
+    let isMasterVoiceIntentionalStop = false;
+    let masterVoiceSilenceTimer = null;
+    let masterVoiceTicker = null;
+    let masterVoiceAccumulatedFinal = '';
+    let masterVoiceCurrentInterim = '';
+    let masterVoiceSpeechStarted = false;
+    const MASTER_VOICE_SILENCE_MS = 3500; // 3.5 ثانية من الصمت لإنهاء التسجيل تلقائياً (بين 3 و 4 ثوانٍ)
+    let masterVoiceRemainingSilenceMs = MASTER_VOICE_SILENCE_MS;
 
     function toggleMasterVoiceInput() {
       if (isMasterVoiceActive) {
-        stopMasterVoiceInput();
+        // الضغط على المايك مرة أخرى أثناء التسجيل يُنهي التسجيل فوراً ويطبق البيانات
+        triggerHapticPulse();
+        stopMasterVoiceInput(true);
       } else {
         startMasterVoiceInput();
       }
@@ -2295,6 +2417,84 @@ $currenciesData = [
       }
     }
 
+    function showMasterVoiceLiveBanner(show) {
+      const banner = document.getElementById('masterVoiceLiveBanner');
+      if (!banner) return;
+      if (show) {
+        banner.classList.remove('hidden');
+        const transcriptEl = document.getElementById('masterVoiceLiveTranscript');
+        if (transcriptEl) transcriptEl.innerText = 'تحدث الآن بالسند كاملاً... (المبلغ، مِن، إلى، رقم التحويلة، البنك، البيان)';
+        const countEl = document.getElementById('voiceSilenceCountdown');
+        if (countEl) countEl.innerText = '';
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    function updateMasterVoiceLiveHUD(text) {
+      const transcriptEl = document.getElementById('masterVoiceLiveTranscript');
+      if (transcriptEl && text) {
+        transcriptEl.innerText = text;
+      }
+    }
+
+    function updateMasterVoiceSilenceDisplay(isSilent) {
+      const countEl = document.getElementById('voiceSilenceCountdown');
+      if (!countEl) return;
+      if (isSilent && masterVoiceRemainingSilenceMs > 0) {
+        const secs = (masterVoiceRemainingSilenceMs / 1000).toFixed(1);
+        countEl.innerText = `(⏳ صمت: ينتهي خلال ${secs} ث)`;
+      } else {
+        countEl.innerText = '';
+      }
+    }
+
+    function resetMasterVoiceSilenceTimer() {
+      if (masterVoiceSilenceTimer) {
+        clearTimeout(masterVoiceSilenceTimer);
+        masterVoiceSilenceTimer = null;
+      }
+      if (masterVoiceTicker) {
+        clearInterval(masterVoiceTicker);
+        masterVoiceTicker = null;
+      }
+
+      const totalSpoken = (masterVoiceAccumulatedFinal + ' ' + masterVoiceCurrentInterim).trim();
+
+      // إذا بدأ المستخدم بالتحدث بالفعل، نبدأ مراقبة صمت الـ 3.5 ثانية
+      if (totalSpoken.length > 0) {
+        masterVoiceSpeechStarted = true;
+        masterVoiceRemainingSilenceMs = MASTER_VOICE_SILENCE_MS;
+        updateMasterVoiceSilenceDisplay(false);
+
+        // عداد الثواني التنازلي لإظهار الوقت المتبقي في حالة السكوت
+        masterVoiceTicker = setInterval(() => {
+          masterVoiceRemainingSilenceMs -= 250;
+          if (masterVoiceRemainingSilenceMs <= 2500) {
+            updateMasterVoiceSilenceDisplay(true);
+          }
+          if (masterVoiceRemainingSilenceMs <= 0) {
+            clearInterval(masterVoiceTicker);
+            masterVoiceTicker = null;
+          }
+        }, 250);
+
+        // عند اكتمال 3.5 ثانية دون أي صوت جديد -> انتهاء التسجيل تلقائياً
+        masterVoiceSilenceTimer = setTimeout(() => {
+          console.log('⏱️ مرت 3.5 ثانية صمت دون كلام -> إنهاء التسجيل التلقائي وتطبيق السند.');
+          stopMasterVoiceInput(true);
+        }, MASTER_VOICE_SILENCE_MS);
+      } else {
+        // إذا لم يبدأ الكلام بعد: ننتظر حتى 12 ثانية كحد أقصى قبل الإيقاف التلقائي
+        masterVoiceSilenceTimer = setTimeout(() => {
+          if (!masterVoiceSpeechStarted && isMasterVoiceActive) {
+            showToastNotification('لم يتم التقاط أي صوت، تم إيقاف المايك.');
+            stopMasterVoiceInput(false);
+          }
+        }, 12000);
+      }
+    }
+
     function startMasterVoiceInput() {
       triggerHapticPulse();
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -2305,6 +2505,12 @@ $currenciesData = [
         return;
       }
 
+      // تصفير المتغيرات والتسجيل السابق
+      masterVoiceAccumulatedFinal = '';
+      masterVoiceCurrentInterim = '';
+      masterVoiceSpeechStarted = false;
+      isMasterVoiceIntentionalStop = false;
+
       if (masterVoiceRecognizer) {
         try { masterVoiceRecognizer.abort(); } catch(e) {}
         masterVoiceRecognizer = null;
@@ -2313,54 +2519,111 @@ $currenciesData = [
       try {
         const recognition = new SpeechRecognition();
         masterVoiceRecognizer = recognition;
-        recognition.lang = 'ar-SD'; // لهجة سودانية وعربية ذكية
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        // لهجة عربية ملائمة للتعرف الصوتي
+        recognition.lang = 'ar-SD';
+        // continuous = true لضمان استمرار التسجيل للكلام الطويل دون انقطاع
+        recognition.continuous = true;
+        // interimResults = true لالتقاط الكلمات حياً وإعادة تصفير مؤقت الصمت
+        recognition.interimResults = true;
         recognition.maxAlternatives = 3;
 
         setMasterMicButtonState(true);
-        showToastNotification('🎙️ المايك الذكي يستمع إليك...\nتحدث الآن بالسند كاملاً:\n(المبلغ، مِن، إلى، رقم التحويلة، البنك، البيان)');
+        showMasterVoiceLiveBanner(true);
 
         recognition.onstart = function() {
           playBankerChime();
+          resetMasterVoiceSilenceTimer();
         };
 
         recognition.onresult = function(event) {
-          setMasterMicButtonState(false);
-          if (event.results && event.results[0] && event.results[0][0]) {
-            const transcript = event.results[0][0].transcript.trim();
-            parseAndApplyMasterVoiceInput(transcript);
+          let interim = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              masterVoiceAccumulatedFinal += ' ' + transcript;
+            } else {
+              interim += transcript;
+            }
           }
+          masterVoiceCurrentInterim = interim;
+
+          const fullText = (masterVoiceAccumulatedFinal + ' ' + masterVoiceCurrentInterim).trim();
+          updateMasterVoiceLiveHUD(fullText);
+
+          // إعادة ضبط مؤقت الصمت (3.5 ثوانٍ) في كل مرة يتكلم فيها المستخدم
+          resetMasterVoiceSilenceTimer();
         };
 
         recognition.onerror = function(event) {
-          setMasterMicButtonState(false);
           console.warn('Master Speech Recognition error:', event.error);
           if (event.error === 'not-allowed') {
             alert('⚠️ يرجى السماح بصلاحية المايكروفون في المتصفح لتفعيل التحدث الصوتي.');
+            stopMasterVoiceInput(false);
           } else if (event.error !== 'no-speech') {
-            showToastNotification('⚠️ تعذر التقاط الصوت بدقة، يمكنك النقر والمحاولة مجدداً.');
+            // أخطاء ثانوية لا توقف التسجيل
           }
         };
 
         recognition.onend = function() {
-          setMasterMicButtonState(false);
-          masterVoiceRecognizer = null;
+          // إذا انفصل التسجيل في الجوال قبل انتهاء المستخدم أو قبل انتهاء مؤقت الصمت:
+          if (isMasterVoiceActive && !isMasterVoiceIntentionalStop) {
+            console.log('🔄 استئناف الاستماع التلقائي لضمان عدم انقطاع الكلام الطويل...');
+            try {
+              recognition.start();
+              return;
+            } catch(e) {
+              console.warn('Recognition resume error:', e);
+            }
+          }
+
+          finalizeMasterVoiceInput();
         };
 
         recognition.start();
       } catch (err) {
         console.error('Master speech recognition exception:', err);
-        setMasterMicButtonState(false);
+        stopMasterVoiceInput(false);
         fallbackMasterVoicePrompt();
       }
     }
 
-    function stopMasterVoiceInput() {
+    function stopMasterVoiceInput(apply = true) {
+      isMasterVoiceIntentionalStop = true;
+      isMasterVoiceActive = false;
+
+      if (masterVoiceSilenceTimer) {
+        clearTimeout(masterVoiceSilenceTimer);
+        masterVoiceSilenceTimer = null;
+      }
+      if (masterVoiceTicker) {
+        clearInterval(masterVoiceTicker);
+        masterVoiceTicker = null;
+      }
+
       if (masterVoiceRecognizer) {
         try { masterVoiceRecognizer.stop(); } catch(e) {}
       }
+
       setMasterMicButtonState(false);
+      showMasterVoiceLiveBanner(false);
+
+      if (apply) {
+        finalizeMasterVoiceInput();
+      }
+    }
+
+    function finalizeMasterVoiceInput() {
+      setMasterMicButtonState(false);
+      showMasterVoiceLiveBanner(false);
+
+      const finalRecordedText = (masterVoiceAccumulatedFinal + ' ' + masterVoiceCurrentInterim).trim();
+      masterVoiceAccumulatedFinal = '';
+      masterVoiceCurrentInterim = '';
+
+      if (finalRecordedText && finalRecordedText.length > 2) {
+        showToastNotification('✅ تم اكتمال التسجيل، وجارٍ استخراج وتطبيق بيانات السند...');
+        parseAndApplyMasterVoiceInput(finalRecordedText);
+      }
     }
 
     function startVoiceInput(targetField) {
@@ -3295,16 +3558,28 @@ $currenciesData = [
 
       const container = document.getElementById('transferContainer');
       const refLabel = document.getElementById('refLabel');
+      const bankLabel = document.getElementById('bankNameLabel');
       const input = document.getElementById('transferInput');
+      const bankInput = document.getElementById('bankNameInput');
 
       if (type === 'transfer') {
         container.classList.remove('hidden');
-        refLabel.textContent = 'رقم التحويلة:';
-        input.placeholder = 'التحويلة';
+        if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-receipt text-amber-400 text-xs"></i> <span>رقم التحويلة (6 أرقام+):</span>';
+        if (input) {
+          input.placeholder = 'رقم التحويلة (6 أرقام فأكثر)';
+          input.setAttribute('inputmode', 'numeric');
+        }
+        if (bankLabel) bankLabel.innerHTML = '<i class="fa-solid fa-building-columns text-cyan-400 text-xs"></i> <span>اسم البنك:</span>';
+        if (bankInput) bankInput.placeholder = 'اسم البنك';
       } else if (type.includes('cheque')) {
         container.classList.remove('hidden');
-        refLabel.textContent = 'رقم الشيك:';
-        input.placeholder = 'رقم الشيك';
+        if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-money-check text-emerald-400 text-xs"></i> <span>رقم الشيك:</span>';
+        if (input) {
+          input.placeholder = 'رقم الشيك (إلزامي)';
+          input.removeAttribute('inputmode');
+        }
+        if (bankLabel) bankLabel.innerHTML = '<i class="fa-solid fa-building-columns text-cyan-400 text-xs"></i> <span>اسم بنك الشيك:</span>';
+        if (bankInput) bankInput.placeholder = 'اسم بنك الشيك (إلزامي)';
       } else {
         container.classList.add('hidden');
       }
@@ -3463,8 +3738,78 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // البحث الفوري عن الحسابات وكتابة الاسم بخط كبير وواضح
+    // البحث الفوري عن الحسابات مع تبويبات التصنيف المباشرة
+    // (العملاء، الموردين، المصروفات، الزبائن، البنوك، الخزن، وكل الحسابات)
     // ════════════════════════════════════════════════════════════════
+    let activeCategoryFilter = { from: 'all', to: 'all' };
+
+    function matchesCategory(accountCategory, filterKey) {
+      if (!filterKey || filterKey === 'all') return true;
+      const cat = (accountCategory || '').toLowerCase();
+      if (filterKey === 'customers') {
+        return cat.includes('عميل') || cat.includes('عملاء') || cat.includes('زبون') || cat.includes('زبائن');
+      }
+      if (filterKey === 'suppliers') {
+        return cat.includes('مورد') || cat.includes('موردين');
+      }
+      if (filterKey === 'expenses') {
+        return cat.includes('مصروف') || cat.includes('مصروفات') || cat.includes('نفقات');
+      }
+      if (filterKey === 'banks') {
+        return cat.includes('بنك') || cat.includes('مصرف') || cat.includes('بنوك');
+      }
+      if (filterKey === 'safes') {
+        return cat.includes('خزن') || cat.includes('خزينة') || cat.includes('صندوق') || cat.includes('خزائن');
+      }
+      if (filterKey === 'general') {
+        return true;
+      }
+      return true;
+    }
+
+    function setAccountCategoryFilter(target, cat, ev) {
+      if (ev) {
+        ev.stopPropagation();
+        ev.preventDefault();
+      }
+      activeCategoryFilter[target] = cat;
+      liveSearchAccount(target);
+      const input = document.getElementById(target + 'SearchInput');
+      if (input) input.focus();
+    }
+
+    async function onAccountInputFocus(target) {
+      liveSearchAccount(target);
+      // سحب فوري مباشر من الداتابيز في الخلفية لضمان ظهور أي عميل/مورد/مصروف أضيف الآن على اللابتوب
+      try {
+        await fetchLiveDbData(false);
+        const dd = document.getElementById(target + 'Dropdown');
+        if (dd && !dd.classList.contains('hidden')) {
+          liveSearchAccount(target);
+        }
+      } catch(e) {}
+    }
+
+    function getCategoryBadge(cat) {
+      const c = (cat || '').toLowerCase();
+      if (c.includes('بنك') || c.includes('مصرف') || c.includes('بنوك')) {
+        return `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-cyan-950 text-cyan-300 border border-cyan-800/60 flex items-center gap-0.5"><i class="fa-solid fa-building-columns text-[8px]"></i> ${cat}</span>`;
+      }
+      if (c.includes('خزن') || c.includes('صندوق') || c.includes('خزينة') || c.includes('خزائن')) {
+        return `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-amber-950 text-amber-300 border border-amber-800/60 flex items-center gap-0.5"><i class="fa-solid fa-vault text-[8px]"></i> ${cat}</span>`;
+      }
+      if (c.includes('عميل') || c.includes('عملاء') || c.includes('زبون') || c.includes('زبائن')) {
+        return `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800/60 flex items-center gap-0.5"><i class="fa-solid fa-user text-[8px]"></i> ${cat}</span>`;
+      }
+      if (c.includes('مورد') || c.includes('موردين')) {
+        return `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-purple-950 text-purple-300 border border-purple-800/60 flex items-center gap-0.5"><i class="fa-solid fa-truck-field text-[8px]"></i> ${cat}</span>`;
+      }
+      if (c.includes('مصروف') || c.includes('مصروفات') || c.includes('نفقات')) {
+        return `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-rose-950 text-rose-300 border border-rose-800/60 flex items-center gap-0.5"><i class="fa-solid fa-receipt text-[8px]"></i> ${cat}</span>`;
+      }
+      return `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-0.5"><i class="fa-solid fa-folder text-[8px]"></i> ${cat}</span>`;
+    }
+
     function liveSearchAccount(target) {
       const input = document.getElementById(target + 'SearchInput');
       const dropdown = document.getElementById(target + 'Dropdown');
@@ -3481,33 +3826,73 @@ $currenciesData = [
       const otherDropdown = document.getElementById(otherTarget + 'Dropdown');
       if (otherDropdown) otherDropdown.classList.add('hidden');
 
-      const results = !query 
-        ? accountsDB 
-        : accountsDB.filter(a => a.name.toLowerCase().includes(query) || a.category.toLowerCase().includes(query));
+      const countAll = accountsDB.length;
+      const countCustomers = accountsDB.filter(a => matchesCategory(a.category, 'customers')).length;
+      const countSuppliers = accountsDB.filter(a => matchesCategory(a.category, 'suppliers')).length;
+      const countExpenses = accountsDB.filter(a => matchesCategory(a.category, 'expenses')).length;
+      const countBanks = accountsDB.filter(a => matchesCategory(a.category, 'banks')).length;
+      const countSafes = accountsDB.filter(a => matchesCategory(a.category, 'safes')).length;
 
-      if (results.length === 0) {
-        dropdown.innerHTML = '<div class="p-3 text-slate-400 text-center text-xs">لا توجد حسابات مطابقة للبحث</div>';
-        dropdown.classList.remove('hidden');
-        return;
+      const currentCat = activeCategoryFilter[target] || 'all';
+
+      const tabs = [
+        { key: 'all', label: 'الكل', count: countAll, icon: 'fa-layer-group' },
+        { key: 'customers', label: 'العملاء والزبائن', count: countCustomers, icon: 'fa-user' },
+        { key: 'suppliers', label: 'الموردين', count: countSuppliers, icon: 'fa-truck-field' },
+        { key: 'expenses', label: 'المصروفات', count: countExpenses, icon: 'fa-receipt' },
+        { key: 'banks', label: 'البنوك', count: countBanks, icon: 'fa-building-columns' },
+        { key: 'safes', label: 'الخزن', count: countSafes, icon: 'fa-vault' },
+        { key: 'general', label: 'كل الحسابات', count: countAll, icon: 'fa-book-bookmark' },
+      ];
+
+      const tabsHtml = `
+        <div class="sticky top-0 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 p-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar z-10 select-none shadow-md">
+          ${tabs.map(t => {
+            const isActive = (currentCat === t.key);
+            const activeClass = isActive
+              ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black shadow-md shadow-amber-500/30'
+              : 'bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 font-bold';
+            return `
+              <button type="button" onmousedown="setAccountCategoryFilter('${target}', '${t.key}', event)" onclick="setAccountCategoryFilter('${target}', '${t.key}', event)" class="shrink-0 px-2 py-1 rounded-xl text-[10.5px] flex items-center gap-1 transition ${activeClass}">
+                <i class="fa-solid ${t.icon} text-[9px]"></i>
+                <span>${t.label}</span>
+                <span class="text-[9px] px-1 rounded-full ${isActive ? 'bg-black/30 text-white' : 'bg-slate-800 text-slate-400'}">${t.count}</span>
+              </button>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      let results = accountsDB.filter(a => matchesCategory(a.category, currentCat));
+      if (query) {
+        results = results.filter(a => a.name.toLowerCase().includes(query) || a.category.toLowerCase().includes(query));
       }
 
       const rate = parseFloat(document.getElementById('usdRate').value) || 2650;
 
-      dropdown.innerHTML = results.map(a => {
-        const safeName = a.name.replace(/'/g, "\\'");
-        return `
-          <div onmousedown="event.preventDefault(); selectAcc('${target}', '${safeName}')" onclick="selectAcc('${target}', '${safeName}')" class="p-3 hover:bg-slate-900 active:bg-slate-800 border-b border-slate-800/80 cursor-pointer flex items-center justify-between text-xs transition select-none">
-            <div class="min-w-0 pr-1">
-              <div class="font-black text-white text-[15px] truncate">${a.name}</div>
-              <div class="text-[10px] text-slate-400 font-bold">${a.category}</div>
-            </div>
-            <div class="text-left font-mono shrink-0">
-              <div class="text-amber-400 font-bold text-[11px]">${a.sdgBalance.toLocaleString()} ج.س</div>
-              <div class="text-emerald-400 font-bold text-[10px]">$${(a.sdgBalance / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-            </div>
-          </div>
-        `;
-      }).join('');
+      const itemsHtml = results.length === 0
+        ? `<div class="p-4 text-slate-400 text-center text-xs space-y-1">
+            <i class="fa-solid fa-magnifying-glass text-slate-600 text-base"></i>
+            <div>لا توجد حسابات مطابقة للبحث في هذا التصنيف</div>
+            <div class="text-[10px] text-slate-500">اختر "الكل" أو تأكد من الاسم المكتوب</div>
+           </div>`
+        : results.map(a => {
+            const safeName = a.name.replace(/'/g, "\\'");
+            return `
+              <div onmousedown="event.preventDefault(); selectAcc('${target}', '${safeName}')" onclick="selectAcc('${target}', '${safeName}')" class="p-3 hover:bg-slate-900 active:bg-slate-800 border-b border-slate-800/80 cursor-pointer flex items-center justify-between text-xs transition select-none">
+                <div class="min-w-0 pr-1 space-y-0.5">
+                  <div class="font-black text-white text-[15px] truncate">${a.name}</div>
+                  <div class="flex items-center gap-1">${getCategoryBadge(a.category)}</div>
+                </div>
+                <div class="text-left font-mono shrink-0 pl-1">
+                  <div class="text-amber-400 font-bold text-[11px]">${Number(a.sdgBalance).toLocaleString()} ج.س</div>
+                  <div class="text-emerald-400 font-bold text-[10px]">$${(Number(a.sdgBalance) / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+      dropdown.innerHTML = tabsHtml + itemsHtml;
       dropdown.classList.remove('hidden');
     }
 
@@ -4687,44 +5072,127 @@ $currenciesData = [
     }
 
     // ════════════════════════════════════════════════════════════════
-    // فحص رقم التحويلة المكرر في MariaDB لحظياً عند الكتابة أو الانتقال
+    // استخراج آخر 6 أرقام على اليمين للمقارنة ومنع التكرار (مطابق للكمبيوتر)
     // ════════════════════════════════════════════════════════════════
-    async function checkDuplicateTransferLive(val) {
+    function extractLast6Digits(str) {
+      if (!str) return '';
+      const digitsOnly = String(str).replace(/\D/g, '');
+      if (digitsOnly.length >= 6) {
+        return digitsOnly.slice(-6);
+      }
+      const trimmed = String(str).trim();
+      return trimmed.length >= 6 ? trimmed.slice(-6) : trimmed;
+    }
+
+    // البحث عن تكرار آخر 6 أرقام محلياً في الذاكرة
+    function findLocalDuplicateTransfer(candidateVal, currentVoucherNo) {
+      if (!candidateVal) return null;
+      const candSuffix = extractLast6Digits(candidateVal);
+      if (!candSuffix || candSuffix.length < 6) return null;
+
+      for (const v of vouchersList) {
+        const vId = String(v.id || '').trim();
+        if (vId && vId === String(currentVoucherNo || '').trim()) continue;
+
+        const refsToCheck = [
+          v.refNo,
+          v.transferRef,
+          v.mobileTransferNo
+        ].filter(Boolean);
+
+        for (const ref of refsToCheck) {
+          const refSuffix = extractLast6Digits(ref);
+          if (refSuffix && refSuffix.length >= 6 && refSuffix === candSuffix) {
+            return {
+              voucherId: v.id,
+              date: v.date || '',
+              amount: v.sdg || v.amountLocal || 0,
+              bank: v.bankName || 'البنك',
+              fullRef: ref,
+              matchedSuffix: candSuffix
+            };
+          }
+        }
+      }
+      return null;
+    }
+
+    // ════════════════════════════════════════════════════════════════
+    // فحص رقم التحويلة المكرر ومطابقة آخر 6 أرقام على اليمين مع رسالة بلطف
+    // ════════════════════════════════════════════════════════════════
+    async function checkDuplicateTransferLive(val, isSaveAction = false) {
+      if (currentPayType !== 'transfer') return true;
       val = (val || '').trim();
-      if (!val || val.length < 6) return;
       const currentVNo = (document.getElementById('currentVoucherDisplay')?.textContent || '').trim();
 
-      // 1. فحص محلي فوري في الذاكرة
-      const localDup = vouchersList.find(v => {
-        const vRef = (v.refNo || v.transferRef || '').trim();
-        const vId = (v.id || '').trim();
-        return vRef && vRef === val && vId !== currentVNo;
-      });
+      if (!val) {
+        if (isSaveAction) {
+          showPoliteWarningModal(
+            'عذراً ولطفاً: رقم التحويلة مطلوب',
+            'يرجى التكرم بكتابة رقم التحويلة البنكية، حيث يُعد شرطاً أساسياً وإلزامياً لإتمام حفظ سند التحويل المالي (مطابق لشروط حركة مالية في الكمبيوتر).',
+            'transferInput'
+          );
+          return false;
+        }
+        return true;
+      }
+
+      // 1. شرط أن يكون رقم التحويلة 6 أرقام على الأقل
+      const digitsOnly = val.replace(/\D/g, '');
+      if (val.length < 6 || digitsOnly.length < 6) {
+        if (isSaveAction || val.length >= 3) {
+          showPoliteWarningModal(
+            'عذراً ولطفاً: عدد خانات التحويلة',
+            `رقم التحويلة البنكية يجب أن يتكون من 6 أرقام على الأقل لضمان التوافق والمطابقة المصرفية.\n(الرقم المُدخل حالياً: ${val} يتكون من ${digitsOnly.length} أرقام فقط).`,
+            'transferInput'
+          );
+          return false;
+        }
+        return true;
+      }
+
+      const candSuffix = extractLast6Digits(val);
+
+      // 2. فحص تكرار آخر 6 أرقام في الذاكرة المحلية
+      const localDup = findLocalDuplicateTransfer(val, currentVNo);
       if (localDup) {
-        showToastNotification(`⚠️ تحذير تكرار: رقم التحويلة (${val}) مسجل مسبقاً في السند (#${localDup.id})!`);
+        showPoliteWarningModal(
+          'تنبيه تدقيق مالي لطيف',
+          `عذراً ولطفاً يا غالي:\nرقم التحويلة المُدخل (${val}) ينتهي بالأرقام (${localDup.matchedSuffix})، وهو مطابق ومسجل مسبقاً في السند رقم (#${localDup.voucherId}) بمبلغ (${Number(localDup.amount).toLocaleString()} ج.س - ${localDup.bank}).\n\nيرجى التكرم بمراجعة رقم التحويلة لضمان دقة العمليات وعدم تكرار القيد.`,
+          'transferInput'
+        );
         const ti = document.getElementById('transferInput');
         if (ti) {
           ti.classList.add('border-red-500');
-          setTimeout(() => ti.classList.remove('border-red-500'), 3000);
+          setTimeout(() => ti.classList.remove('border-red-500'), 3500);
         }
-        return;
+        return false;
       }
 
-      // 2. فحص مباشر وحي في قاعدة بيانات MariaDB
+      // 3. فحص تكرار آخر 6 أرقام مباشرة في MariaDB
       if (!isOfflineMode) {
         try {
           const res = await fetch(`mobile-voucher.php?api=check_duplicate&ref=${encodeURIComponent(val)}&voucherNo=${encodeURIComponent(currentVNo)}`);
           const data = await res.json();
           if (data && !data.valid) {
-            showToastNotification(`⚠️ تحذير تكرار من قاعدة البيانات MariaDB:\n${data.error}`);
+            showPoliteWarningModal(
+              'تنبيه تدقيق مالي لطيف',
+              data.error || `عذراً ولطفاً يا غالي: رقم التحويلة ينتهي بالأرقام (${candSuffix}) وهو مسجل مسبقاً في قاعدة البيانات MariaDB. يرجى التكرم بمراجعة الرقم.`,
+              'transferInput'
+            );
             const ti = document.getElementById('transferInput');
             if (ti) {
               ti.classList.add('border-red-500');
-              setTimeout(() => ti.classList.remove('border-red-500'), 4000);
+              setTimeout(() => ti.classList.remove('border-red-500'), 3500);
             }
+            return false;
           }
-        } catch(e) {}
+        } catch(e) {
+          console.warn('Check duplicate DB bypass:', e);
+        }
       }
+
+      return true;
     }
 
     // ════════════════════════════════════════════════════════════════
@@ -4781,6 +5249,17 @@ $currenciesData = [
           }
 
           updateNetworkStatusUI(true, 'متزامن');
+
+          // إذا كانت إحدى القوائم المنسدلة مفتوحة حالياً، نقوم بتحديثها فوراً ليظهر أي حساب مضاف حديثاً في اللابتوب
+          const fromDd = document.getElementById('fromDropdown');
+          if (fromDd && !fromDd.classList.contains('hidden')) {
+            liveSearchAccount('from');
+          }
+          const toDd = document.getElementById('toDropdown');
+          if (toDd && !toDd.classList.contains('hidden')) {
+            liveSearchAccount('to');
+          }
+          updateAccountBalanceBadges();
 
           // رفع أي سندات أوفلاين معلقة
           if (offlineQueue.length > 0 && !isOfflineMode) {
@@ -4871,7 +5350,32 @@ $currenciesData = [
       const usd = parseRawNumber(document.getElementById('usdAmount').value);
 
       if (!sdg && !usd) {
-        alert('⚠️ الرجاء إدخال المبلغ أولاً بالمحلي أو بالدولار.');
+        showPoliteWarningModal(
+          'عذراً ولطفاً: المبلغ مطلوب',
+          'يرجى التكرم بإدخال مبلغ الحركة المالية أولاً (سواء بالجنيه المحلي أو بالدولار).',
+          'sdgAmount'
+        );
+        return;
+      }
+
+      const fromAccountName = (document.getElementById('fromSearchInput')?.value || '').trim();
+      const toAccountName = (document.getElementById('toSearchInput')?.value || '').trim();
+
+      if (!fromAccountName) {
+        showPoliteWarningModal(
+          'عذراً ولطفاً: حساب الصرف مطلوب',
+          'يرجى التكرم باختيار أو تحديد حساب الصرف (من حساب) لإتمام حفظ السند.',
+          'fromSearchInput'
+        );
+        return;
+      }
+
+      if (!toAccountName) {
+        showPoliteWarningModal(
+          'عذراً ولطفاً: حساب المستفيد مطلوب',
+          'يرجى التكرم باختيار أو تحديد حساب المستفيد أو الطرف المستلم (إلى حساب) لإتمام حفظ السند.',
+          'toSearchInput'
+        );
         return;
       }
 
@@ -4879,106 +5383,44 @@ $currenciesData = [
       const bankVal = (document.getElementById('bankNameInput').value || '').trim();
       const currentVNo = (document.getElementById('currentVoucherDisplay')?.textContent || '').trim();
 
-      // شروط مطابقة اللابتوب الصارمة لشاشة الصرف والحركة المالية
+      // شروط مطابقة شاشة حركة مالية في الكمبيوتر:
+      // 1. التحويل البنكي: رقم التحويلة (6 أرقام على الأقل، غير مكرر مع فحص آخر 6 أرقام) + اسم البنك
       if (currentPayType === 'transfer') {
-        // 1. لا يقبل بدون رقم تحويلة نهائياً
-        if (!transferVal) {
-          alert('⚠️ شرط إلزامي (مطابق للابتوب): لا يمكن حفظ سند تحويل بنكي بدون إدخال رقم التحويلة نهائياً!');
-          const ti = document.getElementById('transferInput');
-          if (ti) {
-            ti.focus();
-            ti.classList.add('border-red-500');
-            setTimeout(() => ti.classList.remove('border-red-500'), 2500);
-          }
-          return;
-        }
+        const isTransferValid = await checkDuplicateTransferLive(transferVal, true);
+        if (!isTransferValid) return;
 
-        // 2. لا يقبل بأقل من ستة أرقام
-        if (transferVal.length < 6) {
-          alert(`⚠️ شرط إلزامي (مطابق للابتوب): رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل!\n(العدد المُدخل حالياً: ${transferVal.length} أرقام فقط)`);
-          const ti = document.getElementById('transferInput');
-          if (ti) {
-            ti.focus();
-            ti.classList.add('border-red-500');
-            setTimeout(() => ti.classList.remove('border-red-500'), 2500);
-          }
-          return;
-        }
-
-        // 3. فحص التكرار محلياً أولاً
-        const duplicateInLocal = vouchersList.find(v => {
-          const vRef = (v.refNo || v.transferRef || '').trim();
-          const vId = (v.id || '').trim();
-          return vRef && vRef === transferVal && vId !== currentVNo;
-        });
-
-        if (duplicateInLocal) {
-          alert(`⚠️ تحذير تكرار رقم التحويلة (مطابق للابتوب):\nرقم التحويلة (${transferVal}) مسجل مسبقاً في السند رقم (#${duplicateInLocal.id})!\nيرجى إدخال رقم تحويلة غير مكرر.`);
-          const ti = document.getElementById('transferInput');
-          if (ti) ti.focus();
-          return;
-        }
-
-        // 4. فحص التكرار مباشرة في MariaDB
-        if (!isOfflineMode) {
-          try {
-            const chkRes = await fetch(`mobile-voucher.php?api=check_duplicate&ref=${encodeURIComponent(transferVal)}&voucherNo=${encodeURIComponent(currentVNo)}`);
-            const chkData = await chkRes.json();
-            if (chkData && !chkData.valid) {
-              alert(`⚠️ تحذير تكرار من قاعدة البيانات MariaDB:\n${chkData.error || 'رقم التحويلة مكرر ومسجل مسبقاً'}`);
-              const ti = document.getElementById('transferInput');
-              if (ti) {
-                ti.focus();
-                ti.classList.add('border-red-500');
-                setTimeout(() => ti.classList.remove('border-red-500'), 3000);
-              }
-              return;
-            }
-          } catch(e) {
-            console.warn('Check duplicate DB bypass:', e);
-          }
-        }
-
-        // 5. لا يقبل بدون اسم البنك نهائياً
         if (!bankVal) {
-          alert('⚠️ شرط إلزامي (مطابق للابتوب): يجب إدخال أو اختيار اسم البنك لإتمام سند التحويل!');
-          const bi = document.getElementById('bankNameInput');
-          if (bi) {
-            bi.focus();
-            bi.classList.add('border-red-500');
-            setTimeout(() => bi.classList.remove('border-red-500'), 2500);
-          }
+          showPoliteWarningModal(
+            'عذراً ولطفاً: اسم البنك مطلوب',
+            'يرجى التكرم بكتابة أو اختيار اسم البنك لإتمام سند التحويل البنكي.',
+            'bankNameInput'
+          );
+          return;
+        }
+      }
+
+      // 2. الشيك: رقم الشيك واسم البنك إلزاميان
+      if (currentPayType === 'cheque' || currentPayType.includes('cheque')) {
+        if (!transferVal) {
+          showPoliteWarningModal(
+            'عذراً ولطفاً: رقم الشيك مطلوب',
+            'يرجى التكرم بكتابة رقم الشيك، حيث يُعد شرطاً أساسياً وإلزامياً لإتمام حركة الشيكات المالية.',
+            'transferInput'
+          );
+          return;
+        }
+        if (!bankVal) {
+          showPoliteWarningModal(
+            'عذراً ولطفاً: اسم بنك الشيك مطلوب',
+            'يرجى التكرم بكتابة أو اختيار اسم البنك الصادر منه الشيك لإتمام العملية.',
+            'bankNameInput'
+          );
           return;
         }
       }
 
       triggerHapticPulse();
       playBankerChime();
-
-      const fromAccountName = (document.getElementById('fromSearchInput')?.value || '').trim();
-      const toAccountName = (document.getElementById('toSearchInput')?.value || '').trim();
-
-      if (!fromAccountName) {
-        alert('⚠️ شرط إلزامي: يرجى تحديد حساب الصرف (من حساب) لإتمام حفظ السند!');
-        const fi = document.getElementById('fromSearchInput');
-        if (fi) {
-          fi.focus();
-          fi.classList.add('border-red-500');
-          setTimeout(() => fi.classList.remove('border-red-500'), 2500);
-        }
-        return;
-      }
-
-      if (!toAccountName) {
-        alert('⚠️ شرط إلزامي: يرجى تحديد حساب المستفيد أو الطرف المستلم (إلى حساب) لإتمام حفظ السند!');
-        const ti = document.getElementById('toSearchInput');
-        if (ti) {
-          ti.focus();
-          ti.classList.add('border-red-500');
-          setTimeout(() => ti.classList.remove('border-red-500'), 2500);
-        }
-        return;
-      }
 
       const isEditing = (currentIndex >= 0 && currentIndex < vouchersList.length && vouchersList[currentIndex].id === currentVNo);
       const voucherPayload = {
@@ -5356,6 +5798,19 @@ $currenciesData = [
 
     // فحص وجلب أحدث بيانات السيرفر وقاعدة البيانات MariaDB بالخلفية
     fetchLiveDbData(false);
+
+    // التحديث التلقائي الدوري كل 4 ثوانٍ لسحب أي حسابات (عملاء، موردين، مصروفات، خزن، بنوك) تضاف على اللابتوب فوراً
+    setInterval(() => {
+      if (!isOfflineMode && document.visibilityState !== 'hidden') {
+        fetchLiveDbData(false);
+      }
+    }, 4000);
+
+    // تحديث فوري عند العودة إلى تطبيق الموبايل أو التركيز على الشاشة
+    window.addEventListener('focus', () => { fetchLiveDbData(false); });
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) fetchLiveDbData(false);
+    });
 
     // استماع لحظي لحالة اتصال الشبكة
     window.addEventListener('online', () => { handleUnifiedSyncRefresh(); });

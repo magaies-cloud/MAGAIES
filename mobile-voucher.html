@@ -530,6 +530,37 @@
     </div>
 
     <!-- ═════════════════════════════════════════════════════════════════
+         شريط الاستماع الصوتي الذكي المباشر (HUD Live Audio Visualizer)
+         يظهر فقط أثناء الاستماع بالمايك، ويعرض النص المباشر + عداد الصمت + زر إيقاف
+         ═════════════════════════════════════════════════════════════════ -->
+    <div id="masterVoiceLiveBanner" class="hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border-b-2 border-cyan-400 p-2.5 text-xs text-white shadow-2xl sticky top-[41px] z-50 transition-all select-none">
+      <div class="flex items-center justify-between gap-2 mb-1.5">
+        <div class="flex items-center gap-1.5">
+          <span class="relative flex h-3 w-3">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+          </span>
+          <span class="font-black text-cyan-300 text-[11px] flex items-center gap-1">
+            <span>🎙️ جارٍ الاستماع للكلام...</span>
+            <span id="voiceSilenceCountdown" class="text-[10px] text-amber-300 font-mono font-bold"></span>
+          </span>
+        </div>
+        <button type="button" onclick="stopMasterVoiceInput(true)" class="px-2.5 py-1 rounded-lg bg-red-600 hover:bg-red-500 text-white font-black text-[10.5px] active:scale-95 shadow transition flex items-center gap-1">
+          <i class="fa-solid fa-stop text-[9px]"></i>
+          <span>إنهاء وتطبيق</span>
+        </button>
+      </div>
+      <!-- نص الكلام المباشر المسموع لحظة بلحظة -->
+      <div class="bg-black/60 rounded-xl p-2 border border-cyan-500/30 text-[11.5px] font-medium text-slate-100 min-h-[34px] max-h-[75px] overflow-y-auto leading-relaxed shadow-inner select-text" id="masterVoiceLiveTranscript">
+        تحدث الآن بالسند كاملاً... (المبلغ، مِن، إلى، رقم التحويلة، البنك، البيان)
+      </div>
+      <div class="text-[9.5px] text-slate-400 mt-1 flex items-center justify-between">
+        <span>⚡ ينتهي تلقائياً عند السكوت لمدة 3.5 ثوانٍ</span>
+        <span>أو اضغط المايك مرة أخرى للإيقاف</span>
+      </div>
+    </div>
+
+    <!-- ═════════════════════════════════════════════════════════════════
          2. السطر الثاني المخصص (نظيف وغير مزدحم نهائياً):
          التاريخ (في منتصف المساحة المخصصة ومكبر الخط) | الرقم التسلسلي (مطابق للكمبيوتر)
          ═════════════════════════════════════════════════════════════════ -->
@@ -1617,10 +1648,20 @@
     // ════════════════════════════════════════════════════════════════
     let masterVoiceRecognizer = null;
     let isMasterVoiceActive = false;
+    let isMasterVoiceIntentionalStop = false;
+    let masterVoiceSilenceTimer = null;
+    let masterVoiceTicker = null;
+    let masterVoiceAccumulatedFinal = '';
+    let masterVoiceCurrentInterim = '';
+    let masterVoiceSpeechStarted = false;
+    const MASTER_VOICE_SILENCE_MS = 3500; // 3.5 ثانية من الصمت لإنهاء التسجيل تلقائياً (بين 3 و 4 ثوانٍ)
+    let masterVoiceRemainingSilenceMs = MASTER_VOICE_SILENCE_MS;
 
     function toggleMasterVoiceInput() {
       if (isMasterVoiceActive) {
-        stopMasterVoiceInput();
+        // الضغط على المايك مرة أخرى أثناء التسجيل يُنهي التسجيل فوراً ويطبق البيانات
+        triggerHapticPulse();
+        stopMasterVoiceInput(true);
       } else {
         startMasterVoiceInput();
       }
@@ -1651,6 +1692,84 @@
       }
     }
 
+    function showMasterVoiceLiveBanner(show) {
+      const banner = document.getElementById('masterVoiceLiveBanner');
+      if (!banner) return;
+      if (show) {
+        banner.classList.remove('hidden');
+        const transcriptEl = document.getElementById('masterVoiceLiveTranscript');
+        if (transcriptEl) transcriptEl.innerText = 'تحدث الآن بالسند كاملاً... (المبلغ، مِن، إلى، رقم التحويلة، البنك، البيان)';
+        const countEl = document.getElementById('voiceSilenceCountdown');
+        if (countEl) countEl.innerText = '';
+      } else {
+        banner.classList.add('hidden');
+      }
+    }
+
+    function updateMasterVoiceLiveHUD(text) {
+      const transcriptEl = document.getElementById('masterVoiceLiveTranscript');
+      if (transcriptEl && text) {
+        transcriptEl.innerText = text;
+      }
+    }
+
+    function updateMasterVoiceSilenceDisplay(isSilent) {
+      const countEl = document.getElementById('voiceSilenceCountdown');
+      if (!countEl) return;
+      if (isSilent && masterVoiceRemainingSilenceMs > 0) {
+        const secs = (masterVoiceRemainingSilenceMs / 1000).toFixed(1);
+        countEl.innerText = `(⏳ صمت: ينتهي خلال ${secs} ث)`;
+      } else {
+        countEl.innerText = '';
+      }
+    }
+
+    function resetMasterVoiceSilenceTimer() {
+      if (masterVoiceSilenceTimer) {
+        clearTimeout(masterVoiceSilenceTimer);
+        masterVoiceSilenceTimer = null;
+      }
+      if (masterVoiceTicker) {
+        clearInterval(masterVoiceTicker);
+        masterVoiceTicker = null;
+      }
+
+      const totalSpoken = (masterVoiceAccumulatedFinal + ' ' + masterVoiceCurrentInterim).trim();
+
+      // إذا بدأ المستخدم بالتحدث بالفعل، نبدأ مراقبة صمت الـ 3.5 ثانية
+      if (totalSpoken.length > 0) {
+        masterVoiceSpeechStarted = true;
+        masterVoiceRemainingSilenceMs = MASTER_VOICE_SILENCE_MS;
+        updateMasterVoiceSilenceDisplay(false);
+
+        // عداد الثواني التنازلي لإظهار الوقت المتبقي في حالة السكوت
+        masterVoiceTicker = setInterval(() => {
+          masterVoiceRemainingSilenceMs -= 250;
+          if (masterVoiceRemainingSilenceMs <= 2500) {
+            updateMasterVoiceSilenceDisplay(true);
+          }
+          if (masterVoiceRemainingSilenceMs <= 0) {
+            clearInterval(masterVoiceTicker);
+            masterVoiceTicker = null;
+          }
+        }, 250);
+
+        // عند اكتمال 3.5 ثانية دون أي صوت جديد -> انتهاء التسجيل تلقائياً
+        masterVoiceSilenceTimer = setTimeout(() => {
+          console.log('⏱️ مرت 3.5 ثانية صمت دون كلام -> إنهاء التسجيل التلقائي وتطبيق السند.');
+          stopMasterVoiceInput(true);
+        }, MASTER_VOICE_SILENCE_MS);
+      } else {
+        // إذا لم يبدأ الكلام بعد: ننتظر حتى 12 ثانية كحد أقصى قبل الإيقاف التلقائي
+        masterVoiceSilenceTimer = setTimeout(() => {
+          if (!masterVoiceSpeechStarted && isMasterVoiceActive) {
+            showToastNotification('لم يتم التقاط أي صوت، تم إيقاف المايك.');
+            stopMasterVoiceInput(false);
+          }
+        }, 12000);
+      }
+    }
+
     function startMasterVoiceInput() {
       triggerHapticPulse();
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1661,6 +1780,12 @@
         return;
       }
 
+      // تصفير المتغيرات والتسجيل السابق
+      masterVoiceAccumulatedFinal = '';
+      masterVoiceCurrentInterim = '';
+      masterVoiceSpeechStarted = false;
+      isMasterVoiceIntentionalStop = false;
+
       if (masterVoiceRecognizer) {
         try { masterVoiceRecognizer.abort(); } catch(e) {}
         masterVoiceRecognizer = null;
@@ -1669,54 +1794,111 @@
       try {
         const recognition = new SpeechRecognition();
         masterVoiceRecognizer = recognition;
-        recognition.lang = 'ar-SD'; // لهجة سودانية وعربية ذكية
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        // لهجة عربية ملائمة للتعرف الصوتي
+        recognition.lang = 'ar-SD';
+        // continuous = true لضمان استمرار التسجيل للكلام الطويل دون انقطاع
+        recognition.continuous = true;
+        // interimResults = true لالتقاط الكلمات حياً وإعادة تصفير مؤقت الصمت
+        recognition.interimResults = true;
         recognition.maxAlternatives = 3;
 
         setMasterMicButtonState(true);
-        showToastNotification('🎙️ المايك الذكي يستمع إليك...\nتحدث الآن بالسند كاملاً:\n(المبلغ، مِن، إلى، رقم التحويلة، البنك، البيان)');
+        showMasterVoiceLiveBanner(true);
 
         recognition.onstart = function() {
           playBankerChime();
+          resetMasterVoiceSilenceTimer();
         };
 
         recognition.onresult = function(event) {
-          setMasterMicButtonState(false);
-          if (event.results && event.results[0] && event.results[0][0]) {
-            const transcript = event.results[0][0].transcript.trim();
-            parseAndApplyMasterVoiceInput(transcript);
+          let interim = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              masterVoiceAccumulatedFinal += ' ' + transcript;
+            } else {
+              interim += transcript;
+            }
           }
+          masterVoiceCurrentInterim = interim;
+
+          const fullText = (masterVoiceAccumulatedFinal + ' ' + masterVoiceCurrentInterim).trim();
+          updateMasterVoiceLiveHUD(fullText);
+
+          // إعادة ضبط مؤقت الصمت (3.5 ثوانٍ) في كل مرة يتكلم فيها المستخدم
+          resetMasterVoiceSilenceTimer();
         };
 
         recognition.onerror = function(event) {
-          setMasterMicButtonState(false);
           console.warn('Master Speech Recognition error:', event.error);
           if (event.error === 'not-allowed') {
             alert('⚠️ يرجى السماح بصلاحية المايكروفون في المتصفح لتفعيل التحدث الصوتي.');
+            stopMasterVoiceInput(false);
           } else if (event.error !== 'no-speech') {
-            showToastNotification('⚠️ تعذر التقاط الصوت بدقة، يمكنك النقر والمحاولة مجدداً.');
+            // أخطاء ثانوية لا توقف التسجيل
           }
         };
 
         recognition.onend = function() {
-          setMasterMicButtonState(false);
-          masterVoiceRecognizer = null;
+          // إذا انفصل التسجيل في الجوال قبل انتهاء المستخدم أو قبل انتهاء مؤقت الصمت:
+          if (isMasterVoiceActive && !isMasterVoiceIntentionalStop) {
+            console.log('🔄 استئناف الاستماع التلقائي لضمان عدم انقطاع الكلام الطويل...');
+            try {
+              recognition.start();
+              return;
+            } catch(e) {
+              console.warn('Recognition resume error:', e);
+            }
+          }
+
+          finalizeMasterVoiceInput();
         };
 
         recognition.start();
       } catch (err) {
         console.error('Master speech recognition exception:', err);
-        setMasterMicButtonState(false);
+        stopMasterVoiceInput(false);
         fallbackMasterVoicePrompt();
       }
     }
 
-    function stopMasterVoiceInput() {
+    function stopMasterVoiceInput(apply = true) {
+      isMasterVoiceIntentionalStop = true;
+      isMasterVoiceActive = false;
+
+      if (masterVoiceSilenceTimer) {
+        clearTimeout(masterVoiceSilenceTimer);
+        masterVoiceSilenceTimer = null;
+      }
+      if (masterVoiceTicker) {
+        clearInterval(masterVoiceTicker);
+        masterVoiceTicker = null;
+      }
+
       if (masterVoiceRecognizer) {
         try { masterVoiceRecognizer.stop(); } catch(e) {}
       }
+
       setMasterMicButtonState(false);
+      showMasterVoiceLiveBanner(false);
+
+      if (apply) {
+        finalizeMasterVoiceInput();
+      }
+    }
+
+    function finalizeMasterVoiceInput() {
+      setMasterMicButtonState(false);
+      showMasterVoiceLiveBanner(false);
+
+      const finalRecordedText = (masterVoiceAccumulatedFinal + ' ' + masterVoiceCurrentInterim).trim();
+      masterVoiceAccumulatedFinal = '';
+      masterVoiceCurrentInterim = '';
+
+      if (finalRecordedText && finalRecordedText.length > 2) {
+        showToastNotification('✅ تم اكتمال التسجيل، وجارٍ استخراج وتطبيق بيانات السند...');
+        parseAndApplyMasterVoiceInput(finalRecordedText);
+      }
     }
 
     function startVoiceInput(targetField) {
