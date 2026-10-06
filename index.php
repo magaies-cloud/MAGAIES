@@ -28,24 +28,26 @@ if (isset($_GET['voucher']) || (isset($_GET['screen']) && $_GET['screen'] === 'v
 // 2. الكشف الذكي عن نوع الجهاز وشاشته
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $secMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
-$isLaptopOrPC = (bool)preg_match('/(windows nt|macintosh|x11; linux x86_64|cros)/i', $userAgent) 
-                && !preg_match('/(android|iphone|ipad|ipod|mobile)/i', $userAgent);
-$isTablet = (bool)preg_match('/(ipad|tablet)/i', $userAgent) || (preg_match('/macintosh/i', $userAgent) && $secMobile === '?1');
-$isMobile = !$isLaptopOrPC && !$isTablet;
+$isWindowsOrLinux = (bool)preg_match('/(windows nt|x11; linux x86_64|cros)/i', $userAgent);
+$isExplicitTablet = (bool)preg_match('/(ipad|tablet)/i', $userAgent) || (preg_match('/macintosh/i', $userAgent) && $secMobile === '?1');
+$isPureMobile = (bool)preg_match('/(android.*mobile|iphone|ipod|blackberry|iemobile|opera mini)/i', $userAgent) || ($secMobile === '?1');
 
 // 3. التحقق من وجود جلسة دخول نشطة مسبقاً
 $isLoggedIn = !empty($_COOKIE['session_active']) && $_COOKIE['session_active'] === 'true' && !empty($_COOKIE['saas_token']);
 $forceLogin = isset($_GET['login']) || isset($_GET['logout']);
 
 if ($isLoggedIn && !$forceLogin) {
-    if ($isLaptopOrPC) {
+    if ($isWindowsOrLinux) {
         header("Location: magaiees_unified_dashboard.php?force_desktop=1");
         exit;
-    } elseif ($isTablet) {
+    } elseif ($isExplicitTablet) {
         header("Location: mobile-dashboard.php?device=tablet");
         exit;
-    } else {
+    } elseif ($isPureMobile) {
         header("Location: mobile-dashboard.php");
+        exit;
+    } else {
+        header("Location: dashboard.php{$qs}");
         exit;
     }
 }

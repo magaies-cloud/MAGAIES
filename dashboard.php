@@ -34,27 +34,24 @@ if ($forceMobile) {
 }
 
 // 2. Server-Side Mobile Hardware & Client Hints Detection
-$isLaptopOrPC = (bool)preg_match('/(windows nt|macintosh|x11; linux x86_64|cros)/i', $userAgent) && !preg_match('/(android|iphone|ipad|ipod|mobile)/i', $userAgent);
-$isMobileUserAgent = !$isLaptopOrPC && ((bool)preg_match(
-    '/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini|opera mobi|samsung|sm-[a-z0-9]+|huawei|honor|harmonyos|xiaomi|redmi|poco|oppo|vivo|oneplus|pixel|meizu|realme)/i',
-    $userAgent
-) || ($secChUaMobile === '?1'));
+$isExplicitTablet = (bool)preg_match('/(ipad|tablet)/i', $userAgent);
+$isPureMobile = (bool)preg_match('/(android.*mobile|iphone|ipod|blackberry|iemobile|opera mini)/i', $userAgent) || ($secChUaMobile === '?1');
+$isWindowsOrLinux = (bool)preg_match('/(windows nt|x11; linux x86_64|cros)/i', $userAgent);
 
 $savedPref = $_COOKIE['magaiees_view_preference'] ?? '';
 
-// If mobile device visits without desktop preference, route to mobile dashboard
-if ($isMobileUserAgent && $savedPref !== 'desktop') {
+if ($isExplicitTablet && $savedPref !== 'desktop') {
+    header("Location: mobile-dashboard.php?device=tablet" . ($queryString ? '&' . $queryString : ''));
+    exit;
+}
+
+if ($isPureMobile && $savedPref !== 'desktop') {
     header("Location: mobile-dashboard.php{$qPrefix}");
     exit;
 }
 
-if ($isLaptopOrPC || $savedPref === 'desktop') {
+if ($isWindowsOrLinux && $savedPref !== 'mobile') {
     header("Location: magaiees_unified_dashboard.php{$qPrefix}");
-    exit;
-}
-
-if (!$isMobileUserAgent && $savedPref === 'mobile') {
-    header("Location: mobile-dashboard.php{$qPrefix}");
     exit;
 }
 
@@ -87,23 +84,41 @@ if (!$isMobileUserAgent && $savedPref === 'mobile') {
     <script>
     (function() {
         var width = window.innerWidth || document.documentElement.clientWidth || screen.width;
+        var height = window.innerHeight || document.documentElement.clientHeight || screen.height;
         var ua = navigator.userAgent || '';
-        var isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-        var isMobileUA = !isLaptopOrPC && /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(ua);
+        var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
         
+        var isAppleTablet = /iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua));
+        var isAndroidTablet = (/Android/i.test(ua) && !/Mobile/i.test(ua)) || /Tablet/i.test(ua);
+        var isTouchTabletSize = isTouch && (Math.min(width, height) >= 600 && Math.max(width, height) <= 1366);
+        var isTablet = isAppleTablet || isAndroidTablet || (isTouch && isTouchTabletSize && !/iPhone|Mobile/i.test(ua));
+        
+        var isLaptop = !isTouch && (/Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) || width >= 1024);
+        var isMobile = !isLaptop && !isTablet;
+
         var params = new URLSearchParams(window.location.search);
         var qs = window.location.search;
 
-        if (params.get('force_desktop') === '1' || isLaptopOrPC) {
+        if (params.get('force_desktop') === '1') {
             localStorage.setItem('magaiees_view_preference', 'desktop');
             document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
             window.location.replace('magaiees_unified_dashboard.php' + qs);
         } else if (params.get('force_mobile') === '1') {
+            localStorage.setItem('magaiees_view_preference', 'mobile');
+            document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
             window.location.replace('mobile-dashboard.php' + qs);
-        } else if (isMobileUA || (width < 768 && !isLaptopOrPC)) {
-            window.location.replace('mobile-dashboard.php' + qs);
-        } else {
+        } else if (isTablet) {
+            localStorage.setItem('magaiees_view_preference', 'tablet');
+            document.cookie = "magaiees_view_preference=tablet; path=/; max-age=31536000; SameSite=Lax";
+            window.location.replace('mobile-dashboard.php?device=tablet' + (qs ? '&' + qs.replace(/^\?/, '') : ''));
+        } else if (isLaptop) {
+            localStorage.setItem('magaiees_view_preference', 'desktop');
+            document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
             window.location.replace('magaiees_unified_dashboard.php' + qs);
+        } else {
+            localStorage.setItem('magaiees_view_preference', 'mobile');
+            document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
+            window.location.replace('mobile-dashboard.php' + qs);
         }
     })();
     </script>

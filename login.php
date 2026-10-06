@@ -1073,28 +1073,34 @@
                 document.cookie = "saas_token=" + encodeURIComponent(ssoParams.get('sso_token')) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
-                const ua = navigator.userAgent || '';
-                const isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) 
-                                  && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-                const isMobileDevice = !isLaptopOrPC && (
-                                       /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(ua) 
-                                    || (window.innerWidth <= 768)
-                );
-                const ssoPref = localStorage.getItem('magaiees_view_preference') || (document.cookie.match(/magaiees_view_preference=([^;]+)/) || [])[1];
-                const ssoForceDesktop = ssoParams.get('force_desktop') === '1' || ssoPref === 'desktop' || isLaptopOrPC;
+                const dev = typeof currentDevice !== 'undefined' ? currentDevice : getDeviceDetails();
+                const ssoForceDesktop = ssoParams.get('force_desktop') === '1';
                 const ssoForceMobile = ssoParams.get('force_mobile') === '1';
 
-                if (isLaptopOrPC || ssoForceDesktop) {
-                    localStorage.setItem('magaiees_view_preference', 'desktop');
-                    document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
-                }
-
-                let defaultTarget = 'magaiees_unified_dashboard.php?force_desktop=1';
-                if (ssoForceMobile && !ssoForceDesktop) {
+                let defaultTarget = 'mobile-dashboard.php';
+                if (ssoForceMobile) {
                     defaultTarget = 'mobile-dashboard.php?force_mobile=1';
-                } else if (!ssoForceDesktop && isMobileDevice) {
+                } else if (ssoForceDesktop) {
+                    defaultTarget = 'magaiees_unified_dashboard.php?force_desktop=1';
+                } else if (dev.isTablet) {
+                    defaultTarget = 'mobile-dashboard.php?device=tablet';
+                } else if (dev.isLaptop) {
+                    defaultTarget = 'magaiees_unified_dashboard.php?force_desktop=1';
+                } else {
                     defaultTarget = 'mobile-dashboard.php';
                 }
+
+                if (ssoForceDesktop || (!ssoForceMobile && dev.isLaptop)) {
+                    localStorage.setItem('magaiees_view_preference', 'desktop');
+                    document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+                } else if (dev.isTablet) {
+                    localStorage.setItem('magaiees_view_preference', 'tablet');
+                    document.cookie = "magaiees_view_preference=tablet; path=/; max-age=31536000; SameSite=Lax";
+                } else {
+                    localStorage.setItem('magaiees_view_preference', 'mobile');
+                    document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
+                }
+
                 window.location.replace(ssoParams.get('redirect') || defaultTarget);
             }
         })();
@@ -1111,9 +1117,9 @@
             
             const ua = navigator.userAgent || '';
             const width = window.innerWidth;
-            const height = window.innerHeight;
+            const height = window.innerHeight || screen.height;
             const dpr = window.devicePixelRatio || 1;
-            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
             const hasSafeAreas = CSS.supports('padding-top: env(safe-area-inset-top)');
 
             let type = 'android';
@@ -1126,28 +1132,31 @@
             let isLaptop = false;
             let isTablet = false;
 
-            // 1. Laptop / Desktop / PC
-            const isDesktopUA = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-            if (isDesktopUA && width >= 992 && !isTouch) {
-                type = /Windows/i.test(ua) ? 'windows' : (/Mac/i.test(ua) ? 'mac' : 'desktop');
-                brand = 'desktop';
-                name = /Windows/i.test(ua) ? 'كمبيوتر ويندوز (Windows PC)' : (/Mac/i.test(ua) ? 'كمبيوتر ماك (Apple Mac)' : 'كمبيوتر مكتبي (Desktop)');
-                screenType = 'شاشة عريضة لابتوب / كمبيوتر';
-                icon = '💻';
-                badge = '🖥️ لابتوب / كمبيوتر';
-                color = '#38bdf8';
-                isLaptop = true;
-            }
-            // 2. Apple iPad / Tablet
-            else if (/iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua)) || (width >= 768 && width < 1024 && isTouch)) {
-                type = 'ipad';
-                brand = 'ipad';
-                name = /iPad/i.test(ua) ? 'آبل آيباد (Apple iPad)' : 'جهاز لوحي (Tablet)';
+            // 1. Tablet / Apple iPad / Android Tablet
+            const isAppleTablet = /iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua));
+            const isAndroidTablet = (/Android/i.test(ua) && !/Mobile/i.test(ua)) || /Tablet/i.test(ua);
+            const isTouchTabletSize = isTouch && (Math.min(width, height) >= 600 && Math.max(width, height) <= 1366);
+
+            if (isAppleTablet || isAndroidTablet || (isTouch && isTouchTabletSize && !/iPhone|Mobile/i.test(ua))) {
+                type = isAppleTablet ? 'ipad' : 'tablet';
+                brand = isAppleTablet ? 'ipad' : 'tablet';
+                name = isAppleTablet ? 'آبل آيباد (Apple iPad)' : 'جهاز لوحي (Tablet)';
                 screenType = 'شاشة لوحية متكيفة (Adaptive Tablet)';
                 icon = '📟';
                 badge = '📟 جهاز لوحي / آيباد';
                 color = '#c084fc';
                 isTablet = true;
+            }
+            // 2. Laptop / Desktop / PC (Windows, Mac without touch, Linux)
+            else if (!isTouch && (/Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) || width >= 1024)) {
+                type = /Windows/i.test(ua) ? 'windows' : (/Mac/i.test(ua) ? 'mac' : 'desktop');
+                brand = 'desktop';
+                name = /Windows/i.test(ua) ? 'كمبيوتر ويندوز (Windows PC)' : (/Mac/i.test(ua) ? 'كمبيوتر ماك (Apple Mac)' : 'كمبيوتر مكتبي / لابتوب');
+                screenType = 'شاشة عريضة لابتوب / كمبيوتر';
+                icon = '💻';
+                badge = '🖥️ لابتوب / كمبيوتر';
+                color = '#38bdf8';
+                isLaptop = true;
             }
             // 3. Apple iPhone
             else if (/iPhone/i.test(ua)) {
@@ -1709,37 +1718,37 @@
             }
 
             // --- START SSO & DEVICE REDIRECT ---
-            const ua = navigator.userAgent || '';
-            const isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) 
-                              && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-            
-            const isMobileDevice = !isLaptopOrPC && (
-                                   /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(ua) 
-                                || (window.innerWidth <= 768)
-            );
+            const dev = typeof currentDevice !== 'undefined' ? currentDevice : getDeviceDetails();
             const urlParams = new URLSearchParams(window.location.search);
             const redirectParam = urlParams.get('redirect');
-            const viewPref = localStorage.getItem('magaiees_view_preference') || (document.cookie.match(/magaiees_view_preference=([^;]+)/) || [])[1];
-            const forceDesktop = urlParams.get('force_desktop') === '1' || viewPref === 'desktop' || isLaptopOrPC;
-            const forceMobile = urlParams.get('force_mobile') === '1';
-
-            if (isLaptopOrPC || forceDesktop) {
-                localStorage.setItem('magaiees_view_preference', 'desktop');
-                document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
-            }
+            const explicitForceDesktop = urlParams.get('force_desktop') === '1';
+            const explicitForceMobile = urlParams.get('force_mobile') === '1';
 
             let targetUrl = redirectParam;
             if (!targetUrl) {
-                const dev = typeof currentDevice !== 'undefined' ? currentDevice : getDeviceDetails();
-                if (forceMobile && !forceDesktop) {
+                if (explicitForceMobile) {
                     targetUrl = 'mobile-dashboard.php?force_mobile=1';
-                } else if (dev.isLaptop || forceDesktop) {
+                } else if (explicitForceDesktop) {
                     targetUrl = 'magaiees_unified_dashboard.php?force_desktop=1';
                 } else if (dev.isTablet) {
                     targetUrl = 'mobile-dashboard.php?device=tablet';
+                } else if (dev.isLaptop) {
+                    targetUrl = 'magaiees_unified_dashboard.php?force_desktop=1';
                 } else {
                     targetUrl = 'mobile-dashboard.php';
                 }
+            }
+
+            // Save adaptive view preference
+            if (explicitForceDesktop || (!explicitForceMobile && dev.isLaptop)) {
+                localStorage.setItem('magaiees_view_preference', 'desktop');
+                document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+            } else if (dev.isTablet) {
+                localStorage.setItem('magaiees_view_preference', 'tablet');
+                document.cookie = "magaiees_view_preference=tablet; path=/; max-age=31536000; SameSite=Lax";
+            } else {
+                localStorage.setItem('magaiees_view_preference', 'mobile');
+                document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
             }
 
             // Only redirect to elsajana.com subdomain if currently hosted strictly on elsajana.com
