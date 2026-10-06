@@ -63,6 +63,26 @@
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+    /* تثبيت حقول أسماء الحسابات ومنع أي تشويش أو حركة رأسية داخل الصندوق والمساحة بالكامل للاسم */
+    .account-search-input {
+      height: 58px !important;
+      max-height: 58px !important;
+      line-height: 56px !important;
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+      padding-right: 16px !important;
+      padding-left: 16px !important;
+      overflow: hidden !important;
+      white-space: nowrap !important;
+      text-overflow: ellipsis !important;
+      box-sizing: border-box !important;
+      text-align: right !important;
+      direction: rtl !important;
+      font-weight: 900 !important;
+      font-size: 20px !important;
+      vertical-align: middle !important;
+    }
+
     /* شريط التمرير الانسيابي للنافذة المنبثقة لخصائص الأرقام للتحرك لأعلى ولأسفل بسهولة */
     .modal-scrollable-body::-webkit-scrollbar {
       width: 6px;
@@ -691,11 +711,15 @@
            - زيادة المساحة والعرض بنسبة 15%+ لاستيعاب الأسماء الطويلة بحجم خط كبير جداً
            - حواف حمراء فائقة الإضاءة والوضوح
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 border-[2.5px] border-red-500 shadow-[0_0_28px_rgba(239,68,68,0.55)] rounded-2xl p-4 sm:p-4.5 relative transition-all">
+      <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 border-[2.5px] border-red-500 shadow-[0_0_28px_rgba(239,68,68,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
             <span class="px-2.5 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-md">مِن</span>
             <span class="text-xs sm:text-sm font-black text-red-300">من حساب:</span>
+            <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="hidden px-2 py-0.5 rounded-lg bg-red-950/90 hover:bg-red-900 border border-red-500/50 text-red-300 text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm" title="مسح الحساب لاختيار حساب آخر">
+              <i class="fa-solid fa-rotate-left text-[9px]"></i>
+              <span>تغيير</span>
+            </button>
           </div>
 
           <!-- منطقة الرصيد: مدمجة وواضحة جداً -->
@@ -711,18 +735,12 @@
           </div>
         </div>
 
-        <!-- حقل اسم الحساب: أعرض بنسبة 15%+ مع زيادة حجم الخط والارتفاع لملء الشاشة بوضوح تام -->
+        <!-- حقل اسم الحساب: المساحة بالكامل 100% مخصصة للاسم دون أي تشويش أو حركة رأسية -->
         <div class="relative w-full">
-          <div class="absolute right-3.5 top-4.5 text-red-400 pointer-events-none text-lg">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </div>
-          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onfocus="this.select(); liveSearchAccount('from');" placeholder="بحث: فوري، بنك، خزن، عميل..." value="" class="w-full bg-slate-950 border-2 border-red-500/70 rounded-xl pr-12 pl-10 py-4 text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_28px_rgba(239,68,68,0.8)] placeholder-slate-500 font-black text-[21px] sm:text-[24px] tracking-wide shadow-inner min-h-[62px]">
-          <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="absolute left-3.5 top-4.5 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition hidden" title="مسح واختيار حساب آخر">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-
+          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onclick="liveSearchAccount('from')" onfocus="liveSearchAccount('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-red-500/70 rounded-xl text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_28px_rgba(239,68,68,0.8)] placeholder-slate-500 shadow-inner">
+          
           <!-- القائمة المنسدلة الذكية الفورية -->
-          <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1 bg-slate-950 border border-slate-700 rounded-2xl shadow-2xl z-40 max-h-64 overflow-y-auto no-scrollbar"></div>
+          <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-red-500/60 rounded-2xl shadow-2xl z-40 max-h-56 overflow-y-auto no-scrollbar"></div>
         </div>
       </div>
 
@@ -746,11 +764,15 @@
            - زيادة المساحة والعرض بنسبة 15%+ مع خط كبير جداً وواضح (محمد أحمد عثمان)
            - حواف خضراء زمردية فائقة الإضاءة والوضوح
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 border-[2.5px] border-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.55)] rounded-2xl p-4 sm:p-4.5 relative transition-all">
+      <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 border-[2.5px] border-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
             <span class="px-2.5 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-md">إلى</span>
             <span class="text-xs sm:text-sm font-black text-emerald-300">إلى حساب:</span>
+            <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="hidden px-2 py-0.5 rounded-lg bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm" title="مسح الحساب واختيار حساب آخر">
+              <i class="fa-solid fa-rotate-left text-[9px]"></i>
+              <span>تغيير</span>
+            </button>
           </div>
 
           <!-- منطقة الرصيد: مدمجة وواضحة جداً -->
@@ -766,18 +788,12 @@
           </div>
         </div>
 
-        <!-- حقل اسم الحساب: أعرض بنسبة 15%+ مع زيادة حجم الخط والارتفاع لملء الشاشة بوضوح تام -->
+        <!-- حقل اسم الحساب: المساحة بالكامل 100% مخصصة للاسم دون أي تشويش أو حركة رأسية -->
         <div class="relative w-full">
-          <div class="absolute right-3.5 top-4.5 text-emerald-400 pointer-events-none text-lg">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </div>
-          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onfocus="this.select(); liveSearchAccount('to');" placeholder="بحث: فوري، بنك، خزن، عميل..." value="" class="w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl pr-12 pl-10 py-4 text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_28px_rgba(16,185,129,0.8)] placeholder-slate-500 font-black text-[21px] sm:text-[24px] tracking-wide shadow-inner min-h-[62px]">
-          <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="absolute left-3.5 top-4.5 w-7 h-7 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 flex items-center justify-center text-xs transition hidden" title="مسح واختيار حساب آخر">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onclick="liveSearchAccount('to')" onfocus="liveSearchAccount('to')" placeholder="اضغط لاختيار أو كتابة اسم المستفيد..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_28px_rgba(16,185,129,0.8)] placeholder-slate-500 shadow-inner">
+          
           <!-- القائمة المنسدلة الذكية الفورية -->
-          <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1 bg-slate-950 border border-slate-700 rounded-2xl shadow-2xl z-40 max-h-64 overflow-y-auto no-scrollbar"></div>
+          <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-emerald-500/60 rounded-2xl shadow-2xl z-40 max-h-56 overflow-y-auto no-scrollbar"></div>
         </div>
       </div>
 
@@ -2227,12 +2243,16 @@
       const fromInp = document.getElementById('fromSearchInput');
       if (fromInp) {
         fromInp.value = '';
-        fromInp.placeholder = 'بحث: اختر الحساب المحول منه (كاش / بنك)...';
+        fromInp.placeholder = 'اضغط لاختيار أو كتابة اسم الحساب...';
+        fromInp.scrollTop = 0;
+        fromInp.scrollLeft = 0;
       }
       const toInp = document.getElementById('toSearchInput');
       if (toInp) {
         toInp.value = '';
-        toInp.placeholder = 'بحث: اختر المستفيد أو العميل المحول إليه...';
+        toInp.placeholder = 'اضغط لاختيار أو كتابة اسم المستفيد...';
+        toInp.scrollTop = 0;
+        toInp.scrollLeft = 0;
       }
       const fromClear = document.getElementById('fromClearBtn');
       if (fromClear) fromClear.classList.add('hidden');
@@ -2466,11 +2486,17 @@
       const input = document.getElementById(target + 'SearchInput');
       const dropdown = document.getElementById(target + 'Dropdown');
       const clearBtn = document.getElementById(target + 'ClearBtn');
+      if (!input || !dropdown) return;
       const query = input.value.trim().toLowerCase();
 
       if (clearBtn) {
         clearBtn.classList.toggle('hidden', query.length === 0);
       }
+
+      // إغلاق القائمة الأخرى لمنع أي تداخل
+      const otherTarget = target === 'from' ? 'to' : 'from';
+      const otherDropdown = document.getElementById(otherTarget + 'Dropdown');
+      if (otherDropdown) otherDropdown.classList.add('hidden');
 
       const results = !query 
         ? accountsDB 
@@ -2484,18 +2510,21 @@
 
       const rate = parseFloat(document.getElementById('usdRate').value) || 2650;
 
-      dropdown.innerHTML = results.map(a => `
-        <div onclick="selectAcc('${target}', '${a.name}')" class="p-2.5 hover:bg-slate-900 border-b border-slate-800 cursor-pointer flex items-center justify-between text-xs transition">
-          <div>
-            <div class="font-black text-white text-[14px]">${a.name}</div>
-            <div class="text-[10px] text-slate-400">${a.category}</div>
+      dropdown.innerHTML = results.map(a => {
+        const safeName = a.name.replace(/'/g, "\\'");
+        return `
+          <div onmousedown="event.preventDefault(); selectAcc('${target}', '${safeName}')" onclick="selectAcc('${target}', '${safeName}')" class="p-3 hover:bg-slate-900 active:bg-slate-800 border-b border-slate-800/80 cursor-pointer flex items-center justify-between text-xs transition select-none">
+            <div class="min-w-0 pr-1">
+              <div class="font-black text-white text-[15px] truncate">${a.name}</div>
+              <div class="text-[10px] text-slate-400 font-bold">${a.category}</div>
+            </div>
+            <div class="text-left font-mono shrink-0">
+              <div class="text-amber-400 font-bold text-[11px]">${a.sdgBalance.toLocaleString()} ج.س</div>
+              <div class="text-emerald-400 font-bold text-[10px]">$${(a.sdgBalance / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+            </div>
           </div>
-          <div class="text-left font-mono">
-            <div class="text-amber-400 font-bold text-[11px]">${a.sdgBalance.toLocaleString()} ج.س</div>
-            <div class="text-emerald-400 font-bold text-[10px]">$${(a.sdgBalance / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-          </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
       dropdown.classList.remove('hidden');
     }
 
@@ -2505,41 +2534,51 @@
       const clearBtn = document.getElementById(target + 'ClearBtn');
       if (input) {
         input.value = '';
+        input.scrollTop = 0;
+        input.scrollLeft = 0;
         input.focus();
       }
       if (dropdown) dropdown.classList.add('hidden');
       if (clearBtn) clearBtn.classList.add('hidden');
       updateAccountBalanceBadges();
+      liveSearchAccount(target);
     }
 
     function selectAcc(target, name) {
       const input = document.getElementById(target + 'SearchInput');
       const clearBtn = document.getElementById(target + 'ClearBtn');
       const dropdown = document.getElementById(target + 'Dropdown');
+      const card = document.getElementById(target + 'AccountCard');
 
       if (input) {
         input.value = name;
-        // تكبير وتكييف حجم الخط أوتوماتيكياً حسب طول الاسم ليكون واضحاً وغير مقصوص نهائياً
-        if (name.length > 28) {
-          input.style.fontSize = '16px';
-        } else if (name.length > 20) {
-          input.style.fontSize = '17.5px';
-        } else {
-          input.style.fontSize = '19.5px';
-        }
+        // تثبيت الإزاحات الأفقية والرأسية فوراً لمنع أي انزلاق أو تشويش
+        input.scrollTop = 0;
+        input.scrollLeft = 0;
+        input.style.lineHeight = '56px';
+        // إغلاق لوحة مفاتيح الجوال فوراً حتى لا تقفز الشاشة للأعلى أو للأسفل
+        input.blur();
       }
+
       if (clearBtn) clearBtn.classList.remove('hidden');
       if (dropdown) dropdown.classList.add('hidden');
 
       updateAccountBalanceBadges();
+
+      // تثبيت مكان البطاقة على الشاشة تماماً لكي لا يختفي الحساب تحت الهيدر أو خارج الشاشة
+      if (card) {
+        try {
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch(e) {}
+      }
     }
 
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('#fromSearchInput') && !e.target.closest('#fromDropdown')) {
+      if (!e.target.closest('#fromSearchInput') && !e.target.closest('#fromDropdown') && !e.target.closest('#fromClearBtn')) {
         const d = document.getElementById('fromDropdown');
         if (d) d.classList.add('hidden');
       }
-      if (!e.target.closest('#toSearchInput') && !e.target.closest('#toDropdown')) {
+      if (!e.target.closest('#toSearchInput') && !e.target.closest('#toDropdown') && !e.target.closest('#toClearBtn')) {
         const d = document.getElementById('toDropdown');
         if (d) d.classList.add('hidden');
       }
@@ -3126,14 +3165,14 @@
 
       const toCard = document.getElementById('toAccountCard');
       if (toCard) {
-        toCard.classList.add('flash-highlight');
-        setTimeout(() => toCard.classList.remove('flash-highlight'), 600);
+        toCard.style.boxShadow = '0 0 35px rgba(16, 185, 129, 0.9)';
+        setTimeout(() => { if (toCard) toCard.style.boxShadow = ''; }, 800);
       }
 
       const fromCard = document.getElementById('fromAccountCard');
       if (fromCard) {
-        fromCard.classList.add('flash-highlight');
-        setTimeout(() => fromCard.classList.remove('flash-highlight'), 600);
+        fromCard.style.boxShadow = '0 0 35px rgba(239, 68, 68, 0.9)';
+        setTimeout(() => { if (fromCard) fromCard.style.boxShadow = ''; }, 800);
       }
     }
 
