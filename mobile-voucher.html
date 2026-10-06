@@ -2120,13 +2120,8 @@
       const foreignTitle = document.getElementById('foreignAmountTitle');
       const foreignBadge = document.getElementById('foreignCurrencyBadge');
 
-      if (code === 'USD') {
-        foreignTitle.textContent = 'المبلغ بالدولار';
-        foreignBadge.textContent = '$ USD';
-      } else {
-        foreignTitle.textContent = 'المبلغ الأجنبي (دولار)';
-        foreignBadge.textContent = '$ USD';
-      }
+      foreignTitle.textContent = 'المبلغ دولار';
+      foreignBadge.textContent = '$ USD';
 
       if (recalculate) {
         calculateExchange('rate');
