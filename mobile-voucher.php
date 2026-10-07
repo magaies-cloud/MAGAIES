@@ -2006,9 +2006,9 @@ $currenciesData = [
            ═════════════════════════════════════════════════════════════════ -->
       <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2 flex items-center gap-1.5 shadow-[0_0_14px_rgba(56,189,248,0.15)]">
         
-        <!-- مساحة العملة: خط بولد عريض ومكبر 3 درجات مع خيارات كاملة (جنيه سوداني / دولار) -->
-        <div class="relative shrink-0 w-[114px]">
-          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-slate-950 glow-border-amber rounded-xl pr-2.5 pl-5 py-1 text-[13.5px] sm:text-[14px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[44px] shadow-inner" title="اختيار العملة">
+        <!-- مساحة العملة: تصغير درجة واحدة (12.5px) لتناسب أنيق وفخم -->
+        <div class="relative shrink-0 w-[108px]">
+          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-slate-950 glow-border-amber rounded-xl pr-2.5 pl-5 py-1 text-[12.5px] sm:text-[13px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[44px] shadow-inner" title="اختيار العملة">
             <option value="SDG" selected>جنيه سوداني</option>
             <option value="USD">دولار</option>
           </select>
@@ -2017,10 +2017,10 @@ $currenciesData = [
           </div>
         </div>
 
-        <!-- قيمة الدولار: كتابة بدون أسهم زيادة/نقصان ومكبر الخط درجة (18px) -->
-        <div class="bg-slate-950 glow-border-emerald rounded-xl px-2 py-1 flex items-center gap-1 w-[104px] shrink-0 h-[44px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="قيمة الدولار من السيستم - كتابة مباشرة">
-          <span class="text-emerald-400 font-mono text-sm font-black shrink-0">$</span>
-          <input type="text" inputmode="numeric" pattern="[0-9]*" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-[18px] sm:text-[19px] focus:outline-none text-center cursor-text tracking-tight" placeholder="2650" title="سعر صرف الدولار">
+        <!-- قيمة الدولار: زيادة درجة واحدة ومفخم بلوط عريض (19.5px - 20.5px / font-black 900) -->
+        <div class="bg-slate-950 glow-border-emerald rounded-xl px-2 py-1 flex items-center gap-1 w-[108px] shrink-0 h-[44px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="قيمة الدولار من السيستم - كتابة مباشرة">
+          <span class="text-emerald-400 font-mono text-base font-black shrink-0">$</span>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-[19.5px] sm:text-[20.5px] focus:outline-none text-center cursor-text tracking-tight" style="font-weight: 900 !important; text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);" placeholder="2650" title="سعر صرف الدولار">
           <i class="fa-solid fa-pen text-[8px] text-slate-500 group-hover:text-emerald-400 transition shrink-0"></i>
         </div>
 
@@ -2202,7 +2202,7 @@ $currenciesData = [
                 <span>رقم التحويلة:</span>
               </label>
             </div>
-            <input type="text" id="transferInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="handleTransferFocus(this.value)" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[52px] sm:h-[54px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 21px; font-weight: 900; text-align: center; direction: ltr; letter-spacing: 0.5px;">
+            <input type="text" id="transferInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="handleTransferFocus(this.value)" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[54px] sm:h-[56px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 24px; font-weight: 900; text-align: center; direction: ltr; letter-spacing: 0.5px;">
             <div id="transferFeedbackBadge" class="transition-all flex items-center justify-center"></div>
           </div>
 
@@ -2214,7 +2214,7 @@ $currenciesData = [
                 <span>اسم التحويلة / البنك:</span>
               </label>
             </div>
-            <input type="text" id="bankNameInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[52px] sm:h-[54px] text-sm sm:text-base font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[54px] sm:h-[56px] text-sm sm:text-base font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -4714,39 +4714,39 @@ $currenciesData = [
       const len = val.length;
 
       if (_transferIsActiveTyping) {
-        // أثناء الكتابة: يكبر درجتين إضافيتين (تكبير ضخم ومريح للعين لسهولة ودقة كتابة الأرقام)
+        // أثناء الكتابة: يكبر درجتين إضافيتين (تكبير ضخم ومريح للعين لسهولة ودقة كتابة الأرقام - زيادة 3 درجات)
         if (len <= 8) {
-          input.style.fontSize = '26px';
+          input.style.fontSize = '29px';
           input.style.letterSpacing = '0.8px';
         } else if (len <= 11) {
-          input.style.fontSize = '23.5px';
+          input.style.fontSize = '26.5px';
           input.style.letterSpacing = '0.4px';
         } else if (len <= 14) {
-          input.style.fontSize = '21px';
+          input.style.fontSize = '24px';
           input.style.letterSpacing = '0px';
         } else if (len <= 17) {
-          input.style.fontSize = '18.5px';
+          input.style.fontSize = '21.5px';
           input.style.letterSpacing = '-0.4px';
         } else {
-          input.style.fontSize = '16px';
+          input.style.fontSize = '19px';
           input.style.letterSpacing = '-0.8px';
         }
       } else {
-        // حين الانتهاء من الكتابة: يرجع إلى التكبير 3 درجات (الوضع المستقر الأنيق المتناسب)
+        // حين الانتهاء من الكتابة: الوضع المستقر الأنيق المتناسب (زيادة رقم التحويلة 3 درجات)
         if (len <= 8) {
-          input.style.fontSize = '21px';
+          input.style.fontSize = '24px';
           input.style.letterSpacing = '0.5px';
         } else if (len <= 11) {
-          input.style.fontSize = '19px';
+          input.style.fontSize = '22px';
           input.style.letterSpacing = '0.2px';
         } else if (len <= 14) {
-          input.style.fontSize = '17px';
+          input.style.fontSize = '20px';
           input.style.letterSpacing = '-0.2px';
         } else if (len <= 17) {
-          input.style.fontSize = '15px';
+          input.style.fontSize = '18px';
           input.style.letterSpacing = '-0.5px';
         } else {
-          input.style.fontSize = '13.5px';
+          input.style.fontSize = '16.5px';
           input.style.letterSpacing = '-0.8px';
         }
       }
