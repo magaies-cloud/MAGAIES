@@ -180,7 +180,39 @@ function detectMobileHardwareProfile() {
         return $profile;
     }
 
-    // 6. Desktop / Computer
+    // 6. Sony Xperia (21:9 CinemaWide)
+    if (preg_match('/Xperia|Sony|\b(SO-|SOG|XQ-)/i', $ua)) {
+        $profile['brand'] = 'sony';
+        $profile['brandKey'] = 'sony';
+        $profile['brandName'] = 'Sony Xperia';
+        $profile['os'] = 'Android (Xperia)';
+        $profile['icon'] = 'fa-solid fa-film';
+        $profile['color'] = '#38bdf8';
+        $profile['model'] = 'Sony Xperia (21:9 CinemaWide)';
+        $profile['safeTop'] = '14px';
+        $profile['safeBottom'] = '18px';
+        $profile['refreshRate'] = '120Hz OLED 4K/FHD';
+        $profile['tuningNote'] = 'معايرة الشاشة السينمائية الطولية 21:9 ومكبرات الصوت المزدوجة';
+        return $profile;
+    }
+
+    // 7. Motorola (Edge & Razr)
+    if (preg_match('/moto|motorola|XT[0-9]{4}|edge|razr/i', $ua)) {
+        $profile['brand'] = 'motorola';
+        $profile['brandKey'] = 'motorola';
+        $profile['brandName'] = 'Motorola';
+        $profile['os'] = 'My UX / Hello UI';
+        $profile['icon'] = 'fa-solid fa-m';
+        $profile['color'] = '#06b6d4';
+        $profile['model'] = preg_match('/razr/i', $ua) ? 'Motorola Razr (Foldable)' : (preg_match('/edge/i', $ua) ? 'Motorola Edge (Endless)' : 'Motorola Moto');
+        $profile['safeTop'] = '14px';
+        $profile['safeBottom'] = '16px';
+        $profile['refreshRate'] = '144Hz - 165Hz pOLED';
+        $profile['tuningNote'] = 'معايرة شاشات موتورولا المنحنية والشاشات القابلة للطي';
+        return $profile;
+    }
+
+    // 8. Desktop / Computer
     if (!preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $ua) && $secMobile !== '?1') {
         $profile['brand'] = 'desktop';
         $profile['brandKey'] = 'desktop';
@@ -1506,7 +1538,29 @@ try {
             padding-right: calc(16px + var(--device-gutter));
         }
 
-        /* 5. GENERAL ANDROID / XIAOMI / OPPO / VIVO */
+        /* 6. SONY XPERIA (21:9 CINEMAWIDE RATIO ADAPTATION) */
+        html[data-device-brand="sony"],
+        body[data-device-brand="sony"] {
+            --safe-top: max(14px, env(safe-area-inset-top, 14px));
+            --safe-bottom: max(18px, env(safe-area-inset-bottom, 18px));
+        }
+        html[data-device-brand="sony"] .mobile-content {
+            padding-bottom: 110px;
+        }
+
+        /* 7. MOTOROLA (MOTO EDGE ENDLESS CURVE & RAZR FOLDABLE) */
+        html[data-device-brand="motorola"],
+        body[data-device-brand="motorola"] {
+            --safe-top: max(14px, env(safe-area-inset-top, 14px));
+            --safe-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+            --device-gutter: 6px;
+        }
+        html[data-device-brand="motorola"] .mobile-content {
+            padding-left: calc(16px + var(--device-gutter));
+            padding-right: calc(16px + var(--device-gutter));
+        }
+
+        /* 8. GENERAL ANDROID / XIAOMI / OPPO / VIVO */
         html[data-device-brand="android"],
         html[data-device-brand="xiaomi"],
         body[data-device-brand="android"],
@@ -1515,7 +1569,6 @@ try {
             --safe-bottom: max(14px, env(safe-area-inset-bottom, 14px));
             touch-action: manipulation;
         }
-
 
         .brand-section {
             display: flex;

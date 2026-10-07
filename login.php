@@ -36,6 +36,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14"><link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <script src="js/master-device-engine.js?v=2026_master_v1"></script>
     <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
         <style>
         body, body.has-sidebar, body.has-sidebar.sidebar-open {
@@ -344,6 +345,77 @@
             display: inline-block;
             margin-top: 5px;
         }
+
+        /* 🎙️ أنماط المايك الصوتي الذكي ومبدل الشاشات */
+        .voice-mic-btn {
+            position: absolute;
+            top: 29px;
+            left: 10px;
+            background: none;
+            border: none;
+            color: #38bdf8;
+            font-size: 1.05rem;
+            cursor: pointer;
+            padding: 4px 7px;
+            border-radius: 8px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .voice-mic-btn:hover {
+            color: #7dd3fc;
+            background: rgba(56, 189, 248, 0.18);
+            transform: scale(1.1);
+        }
+        @keyframes micPulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 12px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .mic-active-pulse {
+            color: #ef4444 !important;
+            background: rgba(239, 68, 68, 0.2) !important;
+            border-radius: 50% !important;
+            animation: micPulseGlow 1.5s infinite !important;
+        }
+        .device-view-switcher {
+            display: flex;
+            gap: 3px;
+            justify-content: center;
+            margin-top: 8px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 3px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .view-switch-btn {
+            flex: 1;
+            padding: 4px 5px;
+            border-radius: 7px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            font-size: 0.7rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+        }
+        .view-switch-btn:hover {
+            color: #f8fafc;
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .view-switch-btn.active {
+            background: rgba(56, 189, 248, 0.25);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            box-shadow: 0 2px 8px rgba(56, 189, 248, 0.2);
+        }
     </style>
 </head>
 <body class="magaiees-login-body">
@@ -359,12 +431,15 @@
             مؤسسة المقاييس للتجارة والخدمات
         </p>
 
-        <!-- 👤 اسم المستخدم (تم رفعه لأعلى وإنقاص المسافة لبعده بنسبة 10%) -->
-        <div class="input-group" style="text-align: right; margin-bottom: 13.5px;">
+        <!-- 👤 اسم المستخدم (مع المايك الصوتي الذكي للتحدث بالإملاء) -->
+        <div class="input-group" style="position: relative; text-align: right; margin-bottom: 13.5px;">
             <label style="display: block; margin-bottom: 4px; color: rgba(255, 255, 255, 0.95); font-size: 0.88rem; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,0.4);">
                 اسم المستخدم
             </label>
-            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" style="padding: 11px 15px; font-size: 0.98rem; border-radius: 12px;">
+            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم أو اضغط المايك" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" style="padding: 11px 45px 11px 15px; font-size: 0.98rem; border-radius: 12px;">
+            <button type="button" class="voice-mic-btn" id="voice-mic-btn" title="تحدث لإدخال اسم المستخدم بالصوت (المايك الذكي)">
+                <i class="fa-solid fa-microphone"></i>
+            </button>
         </div>
         
         <!-- 🔑 كلمة المرور (تم إنقاص المسافة إلى زر الدخول بنسبة 30%) -->
@@ -404,10 +479,30 @@
             <span>دخول آمن</span>
         </button>
 
-        <!-- بطاقة التكيف الذكي مع نوع ومقاس الشاشة (هونر، هواوي، سامسونج، آيفون، أندرويد، لابتوب) -->
-        <div class="device-adaptive-card" id="adaptive-device-card" style="margin-top: 10px; padding: 6px 10px; border-radius: 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.74rem; color: #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 6px;">
-            <span id="device-icon">📱</span>
-            <span id="device-adaptive-desc">جاري المعايرة والتكيف الذكي مع مقاس الشاشة...</span>
+        <!-- بطاقة التكيف الذكي الشامل مع العتاد والشاشات (ماستر لابتوب، ديسكتوب، تابلت، آيباد، جوال) -->
+        <div class="device-adaptive-card" id="adaptive-device-card" style="margin-top: 10px; padding: 8px 10px; border-radius: 14px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
+                    <span id="device-icon" style="font-size: 1.25rem;">📱</span>
+                    <span id="device-adaptive-desc" style="flex: 1; text-align: right;">جاري المعايرة والتكيف الذكي مع مقاس الشاشة...</span>
+                </div>
+            </div>
+            
+            <!-- مبدل نمط العرض الفوري (تلقائي / جوال / تابلت / لابتوب وكمبيوتر) -->
+            <div class="device-view-switcher" id="view-mode-switcher" style="margin-top: 6px;">
+                <button type="button" class="view-switch-btn active" id="btn-view-auto" onclick="switchMasterView('auto')">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span>تلقائي</span>
+                </button>
+                <button type="button" class="view-switch-btn" id="btn-view-mobile" onclick="switchMasterView('mobile')">
+                    <i class="fa-solid fa-mobile-screen"></i> <span>جوال</span>
+                </button>
+                <button type="button" class="view-switch-btn" id="btn-view-tablet" onclick="switchMasterView('tablet')">
+                    <i class="fa-solid fa-tablet-screen-button"></i> <span>تابلت</span>
+                </button>
+                <button type="button" class="view-switch-btn" id="btn-view-desktop" onclick="switchMasterView('desktop')">
+                    <i class="fa-solid fa-laptop"></i> <span>كمبيوتر</span>
+                </button>
+            </div>
         </div>
 
         <!-- Fast Local Login Helper (مساعد التطوير المحلي) -->
@@ -1109,139 +1204,87 @@
         // 🧠 المحرك الذكي للتعرف التلقائي على الأجهزة ونوع الشاشات (AI Adaptive Hardware Engine)
         // ═════════════════════════════════════════════════════════════════
         function getDeviceDetails() {
+            if (typeof window.MasterDeviceEngine !== 'undefined' && typeof window.MasterDeviceEngine.detect === 'function') {
+                const masterDev = window.MasterDeviceEngine.detect();
+                return {
+                    deviceUuid: masterDev.uuid,
+                    deviceName: `${masterDev.brandName} - ${masterDev.modelName}`,
+                    deviceType: masterDev.brand,
+                    brand: masterDev.brand,
+                    screenType: masterDev.screenType,
+                    isLaptop: masterDev.isLaptop,
+                    isDesktop: masterDev.isDesktop,
+                    isTablet: masterDev.isTablet,
+                    isMobile: masterDev.isMobile,
+                    raw: masterDev
+                };
+            }
+
             let uuid = localStorage.getItem('deviceUuid');
             if (!uuid) {
                 uuid = 'DEV-' + Math.random().toString(36).substr(2, 8).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
                 localStorage.setItem('deviceUuid', uuid);
             }
-            
-            const ua = navigator.userAgent || '';
-            const width = window.innerWidth;
-            const height = window.innerHeight || screen.height;
-            const dpr = window.devicePixelRatio || 1;
-            const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
-            const hasSafeAreas = CSS.supports('padding-top: env(safe-area-inset-top)');
-
-            let type = 'android';
-            let brand = 'android';
-            let name = 'هاتف أندرويد الذكي';
-            let screenType = 'شاشة أندرويد متكيفة';
-            let icon = '📱';
-            let badge = '⚡ أندرويد متكيف';
-            let color = '#10b981';
-            let isLaptop = false;
-            let isTablet = false;
-
-            // 1. Tablet / Apple iPad / Android Tablet
-            const isAppleTablet = /iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua));
-            const isAndroidTablet = (/Android/i.test(ua) && !/Mobile/i.test(ua)) || /Tablet/i.test(ua);
-            const isTouchTabletSize = isTouch && (Math.min(width, height) >= 600 && Math.max(width, height) <= 1366);
-
-            if (isAppleTablet || isAndroidTablet || (isTouch && isTouchTabletSize && !/iPhone|Mobile/i.test(ua))) {
-                type = isAppleTablet ? 'ipad' : 'tablet';
-                brand = isAppleTablet ? 'ipad' : 'tablet';
-                name = isAppleTablet ? 'آبل آيباد (Apple iPad)' : 'جهاز لوحي (Tablet)';
-                screenType = 'شاشة لوحية متكيفة (Adaptive Tablet)';
-                icon = '📟';
-                badge = '📟 جهاز لوحي / آيباد';
-                color = '#c084fc';
-                isTablet = true;
-            }
-            // 2. Laptop / Desktop / PC (Windows, Mac without touch, Linux)
-            else if (!isTouch && (/Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) || width >= 1024)) {
-                type = /Windows/i.test(ua) ? 'windows' : (/Mac/i.test(ua) ? 'mac' : 'desktop');
-                brand = 'desktop';
-                name = /Windows/i.test(ua) ? 'كمبيوتر ويندوز (Windows PC)' : (/Mac/i.test(ua) ? 'كمبيوتر ماك (Apple Mac)' : 'كمبيوتر مكتبي / لابتوب');
-                screenType = 'شاشة عريضة لابتوب / كمبيوتر';
-                icon = '💻';
-                badge = '🖥️ لابتوب / كمبيوتر';
-                color = '#38bdf8';
-                isLaptop = true;
-            }
-            // 3. Apple iPhone
-            else if (/iPhone/i.test(ua)) {
-                type = 'iphone';
-                brand = 'iphone';
-                name = 'آبل آيفون (Apple iPhone)';
-                let isIsland = (hasSafeAreas && height >= 840 && dpr >= 3);
-                screenType = isIsland ? 'شاشة Retina مع Dynamic Island' : 'شاشة Retina دقيقة';
-                icon = '🍏';
-                badge = '🍏 آيفون Retina';
-                color = '#f8fafc';
-            }
-            // 4. Honor (MagicOS - Quad-Curved Waterfall)
-            else if (/HONOR|MagicOS|MagicUI|\b(HNY|ANY|NTH|CRT|RMO|PGT|FRI|ALI|BND|ELZ|BVX)-/i.test(ua)) {
-                type = 'honor';
-                brand = 'honor';
-                name = 'هونر (Honor Magic / Curved)';
-                screenType = 'شاشة منحنية (Quad-Curved 120Hz)';
-                icon = '⚡';
-                badge = '⚡ هونر شاشة منحنية';
-                color = '#818cf8';
-            }
-            // 5. Huawei (HarmonyOS / EMUI - OLED Curve)
-            else if (/HUAWEI|HarmonyOS|HuaweiBrowser|HMSCore|\b(AL00|TL00|HMA|VOG|ELE|NOH|NOP|BLA|LYA|POT|TAS|ANA|ELS|JAD|ALN|BRA)-/i.test(ua)) {
-                type = 'huawei';
-                brand = 'huawei';
-                name = 'هواوي (Huawei Mate / Pura)';
-                screenType = 'شاشة OLED منحنية متكيفة';
-                icon = '💎';
-                badge = '💎 هواوي HarmonyOS';
-                color = '#f43f5e';
-            }
-            // 6. Samsung Galaxy (One UI - Foldable / Ultra / Flat)
-            else if (/SamsungBrowser|SAMSUNG|\b(SM|GT|SCH|SPH|SGH)-[A-Z0-9]+/i.test(ua)) {
-                type = 'samsung';
-                brand = 'samsung';
-                let isFold = /SM-(F9|F7)/i.test(ua);
-                let isUltra = /SM-(S9[0-9]{2})/i.test(ua);
-                name = isFold ? 'سامسونج فولد (Galaxy Foldable)' : (isUltra ? 'سامسونج ألترا (Galaxy Ultra)' : 'سامسونج جالاكسي (Samsung Galaxy)');
-                screenType = isFold ? 'شاشة مرنة قابلة للطي (Foldable)' : (isUltra ? 'شاشة ديناميكية منحنية (Dynamic AMOLED)' : 'شاشة Super AMOLED');
-                icon = '📱';
-                badge = isFold ? '📱 سامسونج فولد' : '📱 سامسونج One UI';
-                color = '#38bdf8';
-            }
-
-            // تطبيق السمة والبيانات على مستند الـ HTML
-            document.documentElement.setAttribute('data-device-brand', brand);
-            document.documentElement.setAttribute('data-screen-type', screenType);
-
-            // تحديث بطاقات المعايرة التلقائية في الواجهة
-            setTimeout(() => {
-                const badgeEl = document.getElementById('screen-adaptive-badge');
-                if (badgeEl) {
-                    badgeEl.innerHTML = `<span style="color: ${color};"><i class="fa-solid fa-microchip" style="font-size: 0.65rem; margin-left: 2px;"></i> ${badge}</span>`;
-                }
-
-                const descEl = document.getElementById('device-adaptive-desc');
-                const iconEl = document.getElementById('device-icon');
-                if (descEl && iconEl) {
-                    iconEl.textContent = icon;
-                    descEl.innerHTML = `<strong style="color: ${color}; font-weight:800;">${name}</strong> • ${screenType}`;
-                }
-
-                // للابتوب والكمبيوتر: التركيز التلقائي على اسم المستخدم لسرعة الكتابة
-                if (isLaptop) {
-                    const u = document.getElementById('username');
-                    if (u && !u.value) u.focus();
-                }
-            }, 60);
-
-            return { 
-                deviceUuid: uuid, 
-                deviceName: name, 
-                deviceType: type,
-                brand: brand,
-                screenType: screenType,
-                isLaptop: isLaptop,
-                isTablet: isTablet,
-                isMobile: !isLaptop && !isTablet
+            return {
+                deviceUuid: uuid,
+                deviceName: 'جهاز ذكي متكيف',
+                deviceType: 'android',
+                brand: 'android',
+                screenType: 'شاشة ذكية متكيفة',
+                isLaptop: false,
+                isDesktop: false,
+                isTablet: false,
+                isMobile: true
             };
         }
 
-
         const currentDevice = getDeviceDetails();
         let deviceUuid = currentDevice.deviceUuid;
+
+        // مبدل نمط العرض السريع (تلقائي / جوال / تابلت / كمبيوتر)
+        function switchMasterView(mode) {
+            const btns = {
+                'auto': document.getElementById('btn-view-auto'),
+                'mobile': document.getElementById('btn-view-mobile'),
+                'tablet': document.getElementById('btn-view-tablet'),
+                'desktop': document.getElementById('btn-view-desktop')
+            };
+
+            Object.keys(btns).forEach(k => {
+                if (btns[k]) btns[k].classList.remove('active');
+            });
+            if (btns[mode]) btns[mode].classList.add('active');
+
+            if (mode === 'auto') {
+                localStorage.removeItem('magaiees_view_preference');
+                document.cookie = "magaiees_view_preference=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            } else {
+                localStorage.setItem('magaiees_view_preference', mode);
+                document.cookie = "magaiees_view_preference=" + mode + "; path=/; max-age=31536000; SameSite=Lax";
+            }
+
+            if (typeof window.MasterDeviceEngine !== 'undefined') {
+                window.MasterDeviceEngine.apply();
+            }
+        }
+
+        // ضبط الزر النشط حسب التفضيل الحالي المحفوظ
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedPref = localStorage.getItem('magaiees_view_preference') || 'auto';
+            const activeBtn = document.getElementById('btn-view-' + savedPref);
+            if (activeBtn) {
+                ['auto', 'mobile', 'tablet', 'desktop'].forEach(m => {
+                    const b = document.getElementById('btn-view-' + m);
+                    if (b) b.classList.remove('active');
+                });
+                activeBtn.classList.add('active');
+            }
+
+            // تفعيل المايك الصوتي الذكي لإملاء اسم المستخدم
+            if (typeof window.MasterDeviceEngine !== 'undefined' && typeof window.MasterDeviceEngine.initVoiceMic === 'function') {
+                window.MasterDeviceEngine.initVoiceMic('username', 'voice-mic-btn');
+            }
+        });
         
         function getSubdomain() {
             const params = new URLSearchParams(window.location.search);
@@ -1720,19 +1763,21 @@
             // --- START SSO & DEVICE REDIRECT ---
             const dev = typeof currentDevice !== 'undefined' ? currentDevice : getDeviceDetails();
             const urlParams = new URLSearchParams(window.location.search);
-            const redirectParam = urlParams.get('redirect');
+            const redirectParam = urlParams.get('url') || urlParams.get('target') || urlParams.get('target_url') || urlParams.get('redirect');
             const explicitForceDesktop = urlParams.get('force_desktop') === '1';
             const explicitForceMobile = urlParams.get('force_mobile') === '1';
+            const explicitDevice = urlParams.get('device');
+            const savedPref = localStorage.getItem('magaiees_view_preference') || '';
 
             let targetUrl = redirectParam;
             if (!targetUrl) {
-                if (explicitForceMobile) {
+                if (explicitForceMobile || savedPref === 'mobile') {
                     targetUrl = 'mobile-dashboard.php?force_mobile=1';
-                } else if (explicitForceDesktop) {
+                } else if (explicitForceDesktop || savedPref === 'desktop') {
                     targetUrl = 'magaiees_unified_dashboard.php?force_desktop=1';
-                } else if (dev.isTablet) {
+                } else if (explicitDevice === 'tablet' || savedPref === 'tablet' || dev.isTablet) {
                     targetUrl = 'mobile-dashboard.php?device=tablet';
-                } else if (dev.isLaptop) {
+                } else if (dev.isLaptop || dev.isDesktop) {
                     targetUrl = 'magaiees_unified_dashboard.php?force_desktop=1';
                 } else {
                     targetUrl = 'mobile-dashboard.php';
