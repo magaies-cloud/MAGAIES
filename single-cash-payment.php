@@ -15,27 +15,21 @@ if ($isMobileDevice && !$isDesktopParam && empty($_POST)) {
 }
 
 require_once 'db_bridge.php';
-require_once __DIR__ . '/auth_guard.php';
+require_once __DIR__ . '/mobile_auth_guard.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
 
 // API endpoint لحفظ وترحيل السند مباشرة إلى قاعدة البيانات MariaDB من اللابتوب
 if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['api']) && $_POST['api'] === 'save_voucher')) {
-    // حارس الأمان: لا يُسمح بالحفظ إلا لمستخدم موثّق، والشركة تُؤخذ من حسابه فقط
-    $scpAuthUser = mvResolveAuthUser($pdo);
-    if (!$scpAuthUser && !mvIsLoopbackRequest()) {
-        mvDenyUnauthenticatedApi();
-    }
-    if ($scpAuthUser) {
-        $GLOBAL_TENANT_ID = (int)$scpAuthUser['tenant_id'];
-    }
     header('Content-Type: application/json; charset=UTF-8');
+    // يتطلب مستخدماً موثّقاً، ورقم الشركة من حسابه فقط
+    $authUser = requireMobileAuth($pdo, true);
     $raw = file_get_contents('php://input');
     $payload = json_decode($raw, true) ?: $_POST;
     if ($payload) {
         $voucherNo = trim($payload['id'] ?? ($payload['voucherNo'] ?? ''));
         $idempotencyKey = trim($payload['idempotencyKey'] ?? ($payload['client_draft_id'] ?? ''));
-        $tId = $GLOBAL_TENANT_ID ?? 1;
+        $tId = (int)$authUser['tenant_id'];
         try {
             if (!empty($idempotencyKey)) {
                 $stmtCheckIdem = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");

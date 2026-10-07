@@ -24,36 +24,29 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 require_once __DIR__ . '/db_bridge.php';
+require_once __DIR__ . '/mobile_auth_guard.php';
 
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
 
 // ────────────────────────────────────────────────────────────────────────────
-// حارس الأمان: التحقق من هوية المستخدم قبل عرض الشاشة أو تنفيذ أي API
-// - الهوية تُستخرج من رمز الدخول (saas_token / Bearer) أو جلسة PHP فقط
-// - رقم الشركة (tenant_id) يُؤخذ من حساب المستخدم الموثّق، وليس من الرابط أو الكوكي
+// المصادقة وتحديد الشركة: رقم الشركة يُؤخذ من حساب المستخدم الموثّق فقط
+// (لا يُقبل tenant_id من الرابط أو الكوكي لمنع الوصول لبيانات شركة أخرى)
+// طلب ping فقط مسموح بدون دخول لأنه يفحص الاتصال ولا يكشف بيانات
 // ────────────────────────────────────────────────────────────────────────────
-require_once __DIR__ . '/auth_guard.php';
-
-$mvAuthUser = mvResolveAuthUser($pdo);
-$mvIsLoopback = mvIsLoopbackRequest();
-$mvIsApiRequest = isset($_GET['api']) || isset($_POST['api']);
-
-if (!$mvAuthUser && !$mvIsLoopback) {
-    if ($mvIsApiRequest) {
-        mvDenyUnauthenticatedApi();
+$isApiRequest = isset($_GET['api']) || isset($_POST['api']);
+$requestedApiAction = $_GET['api'] ?? ($_POST['api'] ?? '');
+$authUser = null;
+if ($isApiRequest && $requestedApiAction === 'ping') {
+    $authUser = mg_authenticate_user($pdo);
+    if (!$authUser && mg_is_loopback_request()) {
+        $authUser = ['id' => 0, 'tenant_id' => 1, 'username' => 'localhost-dev', 'role' => 'admin', 'source' => 'loopback-dev'];
     }
-    header('Location: login.php?redirect=' . rawurlencode('mobile-voucher.php'));
-    exit;
-}
-
-if ($mvAuthUser) {
-    $currentTenantId = (int)$mvAuthUser['tenant_id'];
 } else {
-    // وضع المطور المحلي: نستخدم ما حدّده db_bridge
-    $currentTenantId = (int)($GLOBAL_TENANT_ID ?? 1);
+    $authUser = requireMobileAuth($pdo, $isApiRequest);
 }
-$GLOBAL_TENANT_ID = $currentTenantId;
+$currentTenantId = $authUser ? (int)$authUser['tenant_id'] : 0;
+$GLOBAL_TENANT_ID = $currentTenantId ?: $GLOBAL_TENANT_ID;
 
 // ────────────────────────────────────────────────────────────────────────────
 // دالة الجلب الموحدة لجميع الحسابات الحية من قاعدة البيانات MariaDB
@@ -614,7 +607,9 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
                 'message' => 'تم حفظ وترحيل السند بنجاح في قاعدة البيانات MariaDB وسيرفر الكمبيوتر'
             ], JSON_UNESCAPED_UNICODE);
         } catch (Exception $e) {
-            echo json_encode(['success' => false, 'error' => 'خطأ SQL: ' . $e->getMessage()]);
+            $errRef = strtoupper(bin2hex(random_bytes(3)));
+            error_log("mobile-voucher save_voucher [$errRef] tenant=$currentTenantId user=" . ($authUser['id'] ?? 0) . ': ' . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => "تعذّر حفظ السند بسبب خطأ في الخادم. لم يتم ترحيل أي مبلغ. رمز المرجع: $errRef"], JSON_UNESCAPED_UNICODE);
         }
         exit;
     }
@@ -643,7 +638,9 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
 
             echo json_encode(['success' => true, 'message' => "تم حذف السند ($vNo) نهائياً من قاعدة البيانات بنجاح"]);
         } catch (Exception $e) {
-            echo json_encode(['success' => false, 'error' => 'خطأ SQL: ' . $e->getMessage()]);
+            $errRef = strtoupper(bin2hex(random_bytes(3)));
+            error_log("mobile-voucher delete_voucher [$errRef] tenant=$currentTenantId user=" . ($authUser['id'] ?? 0) . ': ' . $e->getMessage());
+            echo json_encode(['success' => false, 'error' => "تعذّر حذف السند بسبب خطأ في الخادم. رمز المرجع: $errRef"], JSON_UNESCAPED_UNICODE);
         }
         exit;
     }
@@ -655,7 +652,8 @@ if (isset($_GET['api']) || isset($_POST['api'])) {
             'db' => 'MariaDB',
             'status' => 'connected',
             'time' => date('c'),
-            'tenantId' => $currentTenantId
+            'authenticated' => (bool)$authUser,
+            'tenantId' => $authUser ? $currentTenantId : null
         ]);
         exit;
     }
@@ -837,37 +835,46 @@ $currenciesData = [
 <html lang="ar" dir="rtl">
 <head>
   <script>
-    window.PHP_ACCOUNTS = <?php echo json_encode($accountsList, JSON_UNESCAPED_UNICODE); ?>;
-    window.PHP_VOUCHERS = <?php echo json_encode($vouchersHistory, JSON_UNESCAPED_UNICODE); ?>;
-    window.PHP_NEXT_NO = <?php echo json_encode($nextSequentialVoucherNo); ?>;
-    window.DB_ALL_TRANSFER_REFS = <?php echo json_encode($allDbTransfersPreload, JSON_UNESCAPED_UNICODE); ?>;
+    <?php $mgJsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT; ?>
+    window.PHP_ACCOUNTS = <?php echo json_encode($accountsList, $mgJsonFlags); ?>;
+    window.PHP_VOUCHERS = <?php echo json_encode($vouchersHistory, $mgJsonFlags); ?>;
+    window.PHP_NEXT_NO = <?php echo json_encode($nextSequentialVoucherNo, $mgJsonFlags); ?>;
+    window.DB_ALL_TRANSFER_REFS = <?php echo json_encode($allDbTransfersPreload, $mgJsonFlags); ?>;
 
-    // ── اعتراض انتهاء الجلسة (401): تنبيه واضح دون فقدان البيانات المكتوبة على الشاشة ──
+    // ── اعتراض انتهاء الجلسة (401) لكل طلبات الـ API: رسالة واضحة بدل الحفظ الصامت أوفلاين ──
     (function () {
       const nativeFetch = window.fetch.bind(window);
+      let bannerShown = false;
       function showSessionExpiredBanner(msg) {
-        if (document.getElementById('mvSessionExpiredBanner')) return;
-        const render = () => {
+        if (bannerShown) return;
+        bannerShown = true;
+        const show = () => {
           const bar = document.createElement('div');
-          bar.id = 'mvSessionExpiredBanner';
+          bar.id = 'sessionExpiredBanner';
           bar.setAttribute('role', 'alert');
-          bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#b91c1c;color:#fff;padding:10px 14px;font:700 13px Cairo,system-ui,sans-serif;direction:rtl;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 4px 18px rgba(0,0,0,.5)';
-          bar.innerHTML = '<span>🔒 ' + (msg || 'انتهت جلسة الدخول. البيانات غير المرفوعة محفوظة في الجهاز.') + '</span>' +
-            '<a href="login.php?redirect=' + encodeURIComponent('mobile-voucher.php') + '" style="background:#fff;color:#b91c1c;padding:6px 12px;border-radius:10px;text-decoration:none;white-space:nowrap">تسجيل الدخول</a>';
+          bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#7f1d1d;color:#fff;border-bottom:2px solid #f87171;padding:12px 14px;direction:rtl;font-family:Cairo,system-ui,sans-serif;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.6)';
+          const text = document.createElement('span');
+          text.textContent = '🔒 ' + (msg || 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.') + ' (بيانات السند الحالي لم تُحذف)';
+          const btn = document.createElement('a');
+          btn.href = 'login.php?redirect=' + encodeURIComponent('mobile-voucher.php');
+          btn.textContent = 'تسجيل الدخول';
+          btn.style.cssText = 'background:#fff;color:#7f1d1d;padding:8px 14px;border-radius:10px;text-decoration:none;white-space:nowrap;font-weight:900';
+          bar.appendChild(text);
+          bar.appendChild(btn);
           document.body.appendChild(bar);
         };
-        if (document.body) render(); else document.addEventListener('DOMContentLoaded', render);
+        if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
       }
       window.fetch = async function (input, init) {
-        const res = await nativeFetch(input, init);
-        try {
-          const url = typeof input === 'string' ? input : (input && input.url) || '';
-          if (res.status === 401 && url.indexOf('api=') !== -1) {
-            let msg = '';
-            try { msg = (await res.clone().json()).error || ''; } catch (e) {}
-            showSessionExpiredBanner(msg);
-          }
-        } catch (e) {}
+        const url = typeof input === 'string' ? input : (input && input.url) || '';
+        const isOwnApi = url.indexOf('mobile-voucher.php?api=') !== -1;
+        const opts = isOwnApi ? Object.assign({ credentials: 'same-origin' }, init || {}) : init;
+        const res = await nativeFetch(input, opts);
+        if (isOwnApi && res.status === 401) {
+          window.MG_SESSION_EXPIRED = true;
+          try { const j = await res.clone().json(); showSessionExpiredBanner(j && j.error); }
+          catch (e) { showSessionExpiredBanner(); }
+        }
         return res;
       };
     })();
@@ -7229,53 +7236,62 @@ $currenciesData = [
       }
 
       let savedId = '';
+      let queuedOffline = isOfflineMode;
+      const payload = {
+        isEditing: false,
+        date: dateVal,
+        paymentMethod: 'transfer',
+        amountLocal: sdg,
+        amountForeign: usd,
+        currency: currentCurrency || 'SDG',
+        rate: rate,
+        costCenter: document.getElementById('costCenterInput').value || '',
+        fromAccountName: fromVal,
+        toAccountName: toVal,
+        mobileTransferNo: refVal,
+        refNo: refVal,
+        bankName: bankClean,
+        notes: notesVal,
+        idempotencyKey: (typeof generateUUID === 'function') ? generateUUID() : String(Date.now())
+      };
       if (!isOfflineMode) {
+        let res = null;
         try {
-          const payload = {
-            isEditing: false,
-            date: dateVal,
-            paymentMethod: 'transfer',
-            amountLocal: sdg,
-            amountForeign: usd,
-            currency: currentCurrency || 'SDG',
-            rate: rate,
-            costCenter: document.getElementById('costCenterInput').value || '',
-            fromAccountName: fromVal,
-            toAccountName: toVal,
-            mobileTransferNo: refVal,
-            refNo: refVal,
-            bankName: bankClean,
-            notes: notesVal
-          };
-          const res = await fetch('mobile-voucher.php?api=save_voucher', {
+          res = await fetch('mobile-voucher.php?api=save_voucher', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
           });
-          const resData = await res.json();
+        } catch(e) {
+          queuedOffline = true; // انقطاع شبكة فعلي فقط
+        }
+        if (res) {
+          let resData = null;
+          try { resData = await res.json(); } catch(e) {}
           if (resData && resData.success) {
             savedId = resData.voucherNo;
+          } else {
+            // رفض من الخادم (جلسة منتهية، تحويلة مكررة، بيانات ناقصة): لا نخترع رقم سند
+            showToastNotification('❌ لم يُحفظ الإشعار: ' + ((resData && resData.error) || 'رفض الخادم الحفظ'));
+            return;
           }
-        } catch(e) {}
+        }
       }
 
       if (!savedId) {
-        const now = new Date();
-        const prefix = 'E' + String(now.getFullYear()).slice(-2) + String(now.getMonth() + 1).padStart(2, '0');
-        let maxSeq = 0;
-        vouchersList.forEach(v => {
-          const vid = String(v.id || '');
-          if (vid.startsWith(prefix)) {
-            const seq = parseInt(vid.substring(prefix.length)) || 0;
-            if (seq > maxSeq) maxSeq = seq;
-          }
-        });
-        savedId = prefix + String(maxSeq + 1).padStart(4, '0');
+        // حفظ محلي بانتظار الرفع، برقم أوفلاين واضح وليس رقماً تسلسلياً يوهم بالترحيل
+        savedId = `أوفلاين ${offlineCounter++}`;
+        payload.id = savedId;
+        payload.voucherNo = savedId;
+        offlineQueue.push(payload);
+        try { localStorage.setItem('magaies_mobile_offline_queue', JSON.stringify(offlineQueue)); } catch(e) {}
+        const pendingEl = document.getElementById('pendingCount');
+        if (pendingEl) pendingEl.textContent = `${offlineQueue.length} معلق`;
       }
 
       const newVoucher = {
         id: savedId,
-        isOffline: isOfflineMode,
+        isOffline: queuedOffline,
         date: dateVal,
         rate: rate,
         currency: currentCurrency || 'SDG',
