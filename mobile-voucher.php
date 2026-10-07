@@ -1560,7 +1560,69 @@ $currenciesData = [
         z-index: 40;
       }
     }
-  </style>
+  
+    /* ═════════════════════════════════════════════════════════════════
+       🔍 أزرار وعدسة تكبير المديونيات الذكية التفاعلية (جنيه سوداني ودولار)
+       - أزرار صغيرة بالاسم في الوضع الطبيعي («جنيه سوداني»، «دولار»)
+       - تكبير الرقم بشكل ضخم ومضيء عند الضغط، وتصغيره وعودته محله عند الإفلات
+       ═════════════════════════════════════════════════════════════════ */
+    .debt-magnifier-btn {
+      position: relative;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      touch-action: manipulation;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+    .debt-magnifier-btn:hover {
+      transform: translateY(-1.5px);
+    }
+    .debt-magnifier-btn:active {
+      transform: scale(0.92);
+    }
+    .debt-sdg-btn {
+      background: linear-gradient(135deg, rgba(120, 53, 15, 0.45) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1px solid rgba(245, 158, 11, 0.75);
+      box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+    }
+    .debt-sdg-btn:hover {
+      border-color: #f59e0b;
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.45);
+    }
+    .debt-usd-btn {
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.45) 0%, rgba(15, 23, 42, 0.95) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.75);
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    }
+    .debt-usd-btn:hover {
+      border-color: #10b981;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
+    }
+
+    #debtMagnifierPopup {
+      position: fixed;
+      z-index: 99999;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-select: none;
+      opacity: 0;
+      transform: scale(0.65) translateY(12px);
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-origin: center bottom;
+      filter: drop-shadow(0 20px 40px rgba(0,0,0,0.92));
+    }
+    #debtMagnifierPopup.is-active {
+      display: block !important;
+      opacity: 1 !important;
+      transform: scale(1) translateY(0) !important;
+    }
+    #debtMagnifierPopup.is-shrinking {
+      opacity: 0 !important;
+      transform: scale(0.65) translateY(12px) !important;
+    }
+
+</style>
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
 
@@ -1876,15 +1938,30 @@ $currenciesData = [
 
           <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة مع الرصيد المتوقع بعد الحركة -->
           <div class="flex flex-col items-end gap-1 shrink-0" id="fromBalanceWrapper">
-            <div class="flex items-center gap-1">
-              <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
-                <span class="text-[10px] font-black text-amber-400">ج.س:</span>
-                <span id="fromAccountSdgBalance" class="text-xs font-mono font-black text-amber-200">0</span>
-              </div>
-              <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
-                <span class="text-[10px] font-black text-emerald-400">$ :</span>
-                <span id="fromAccountUsdBalance" class="text-xs font-mono font-black text-emerald-200">0.00</span>
-              </div>
+            <div class="flex items-center gap-1.5" id="fromDebtButtonsRow">
+              <!-- زر رصيد الجنيه السوداني (الأصفر) -->
+              <button type="button" 
+                      id="fromBtnDebtSdg"
+                      class="debt-magnifier-btn debt-sdg-btn px-2.5 py-1 rounded-xl text-amber-300 flex items-center gap-1.5 active:scale-95 transition-all select-none cursor-pointer group"
+                      data-target="from"
+                      data-currency="sdg"
+                      title="اضغط مع الاستمرار لتكبير رصيد الجنيه السوداني">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+                <span class="text-[10.5px] font-black text-amber-300 tracking-tight">جنيه سوداني</span>
+                <span id="fromAccountSdgBalance" class="hidden font-mono font-bold text-amber-200">0</span>
+              </button>
+
+              <!-- زر رصيد الدولار (الأخضر) -->
+              <button type="button" 
+                      id="fromBtnDebtUsd"
+                      class="debt-magnifier-btn debt-usd-btn px-2.5 py-1 rounded-xl text-emerald-300 flex items-center gap-1.5 active:scale-95 transition-all select-none cursor-pointer group"
+                      data-target="from"
+                      data-currency="usd"
+                      title="اضغط مع الاستمرار لتكبير رصيد الدولار">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                <span class="text-[10.5px] font-black text-emerald-300 tracking-tight">دولار</span>
+                <span id="fromAccountUsdBalance" class="hidden font-mono font-bold text-emerald-200">0.00</span>
+              </button>
             </div>
             <!-- الرصيد المتوقع بعد الصرف -->
             <div id="fromProjectedBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1">
@@ -1939,15 +2016,30 @@ $currenciesData = [
 
           <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة مع الرصيد المتوقع بعد الاستلام -->
           <div class="flex flex-col items-end gap-1 shrink-0" id="toBalanceWrapper">
-            <div class="flex items-center gap-1">
-              <div class="px-2 py-0.5 rounded-lg bg-black border border-amber-500/80 shadow-sm flex items-center gap-1">
-                <span class="text-[10px] font-black text-amber-400">ج.س:</span>
-                <span id="toAccountSdgBalance" class="text-xs font-mono font-black text-amber-200">0</span>
-              </div>
-              <div class="px-2 py-0.5 rounded-lg bg-black border border-emerald-500/80 shadow-sm flex items-center gap-1">
-                <span class="text-[10px] font-black text-emerald-400">$ :</span>
-                <span id="toAccountUsdBalance" class="text-xs font-mono font-black text-emerald-200">0.00</span>
-              </div>
+            <div class="flex items-center gap-1.5" id="toDebtButtonsRow">
+              <!-- زر مديونية الجنيه السوداني (الأصفر) -->
+              <button type="button" 
+                      id="toBtnDebtSdg"
+                      class="debt-magnifier-btn debt-sdg-btn px-2.5 py-1 rounded-xl text-amber-300 flex items-center gap-1.5 active:scale-95 transition-all select-none cursor-pointer group"
+                      data-target="to"
+                      data-currency="sdg"
+                      title="اضغط مع الاستمرار لتكبير مديونية الجنيه السوداني">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
+                <span class="text-[10.5px] font-black text-amber-300 tracking-tight">جنيه سوداني</span>
+                <span id="toAccountSdgBalance" class="hidden font-mono font-bold text-amber-200">0</span>
+              </button>
+
+              <!-- زر مديونية الدولار (الأخضر) -->
+              <button type="button" 
+                      id="toBtnDebtUsd"
+                      class="debt-magnifier-btn debt-usd-btn px-2.5 py-1 rounded-xl text-emerald-300 flex items-center gap-1.5 active:scale-95 transition-all select-none cursor-pointer group"
+                      data-target="to"
+                      data-currency="usd"
+                      title="اضغط مع الاستمرار لتكبير مديونية الدولار">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                <span class="text-[10.5px] font-black text-emerald-300 tracking-tight">دولار</span>
+                <span id="toAccountUsdBalance" class="hidden font-mono font-bold text-emerald-200">0.00</span>
+              </button>
             </div>
             <!-- الرصيد المتوقع بعد الاستلام -->
             <div id="toProjectedBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1">
@@ -4002,7 +4094,7 @@ $currenciesData = [
         if (payload.payType || payload.paymentMethod) currentPayType = payload.payType || payload.paymentMethod;
 
         if (typeof updateTafqeet === 'function') updateTafqeet();
-        if (typeof updateAccountBalanceBadges === 'function') updateAccountBalanceBadges();
+        if (typeof updateAccountBalanceBadges === 'function') updateAccountBalanceBadges(); if (typeof initDebtMagnifierButtons === 'function') initDebtMagnifierButtons();
         if (typeof handleTransferLiveInput === 'function') handleTransferLiveInput(payload.refNo || payload.mobileTransferNo || '');
       }
 
@@ -9614,5 +9706,285 @@ $currenciesData = [
       connect();
     })();
   </script>
+<script>
+
+    // ═════════════════════════════════════════════════════════════════
+    // 🔍 محرك عدسة تكبير المديونيات الذكية (تكبير الرقم عند الضغط وتصغيره عند الإفلات)
+    // ═════════════════════════════════════════════════════════════════
+    let debtMagnifierTimeout = null;
+    let isDebtMagnifierOpen = false;
+
+    function showDebtMagnifier(btn, e) {
+      clearTimeout(debtMagnifierTimeout);
+
+      const popup = document.getElementById('debtMagnifierPopup');
+      const card = document.getElementById('debtMagnifierCard');
+      const arrow = document.getElementById('debtMagnifierArrow');
+      const iconEl = document.getElementById('debtMagnifierIcon');
+      const titleEl = document.getElementById('debtMagnifierTitle');
+      const accNameEl = document.getElementById('debtMagnifierAccountName');
+      const numEl = document.getElementById('debtMagnifierBigNumber');
+      const subTitleEl = document.getElementById('debtMagnifierSubTitle');
+      const statusBadge = document.getElementById('debtMagnifierStatusBadge');
+      const projRow = document.getElementById('debtMagnifierProjectedRow');
+      const projLabel = document.getElementById('debtMagnifierProjectedLabel');
+      const projVal = document.getElementById('debtMagnifierProjectedValue');
+
+      if (!popup || !card) return;
+
+      const targetType = btn.getAttribute('data-target') || 'to'; // 'to' or 'from'
+      const currency = btn.getAttribute('data-currency') || 'sdg'; // 'sdg' or 'usd'
+      const accountInputId = targetType === 'to' ? 'toSearchInput' : 'fromSearchInput';
+      const accountName = (document.getElementById(accountInputId)?.value || '').trim();
+      const rate = parseFloat(document.getElementById('usdRate')?.value) || 2650;
+      const activeSdgAmt = (typeof parseRawNumber === 'function') 
+        ? parseRawNumber(document.getElementById('sdgAmount')?.value || 0) 
+        : parseFloat(document.getElementById('sdgAmount')?.value || 0);
+
+      // البحث عن الحساب في قاعدة البيانات
+      const acc = (typeof accountsDB !== 'undefined' && Array.isArray(accountsDB)) 
+        ? accountsDB.find(a => a && a.name === accountName) 
+        : null;
+
+      // قراءة القيمة الاحتياطية من العنصر المخزن إذا وُجدت
+      const fallbackSdgEl = document.getElementById(targetType === 'to' ? 'toAccountSdgBalance' : 'fromAccountSdgBalance');
+      const fallbackUsdEl = document.getElementById(targetType === 'to' ? 'toAccountUsdBalance' : 'fromAccountUsdBalance');
+      const fallbackVal = (currency === 'sdg' ? fallbackSdgEl?.textContent : fallbackUsdEl?.textContent) || '0';
+
+      accNameEl.textContent = accountName || (targetType === 'to' ? 'إلى حساب (المستفيد)' : 'من حساب (الدافع)');
+
+      if (currency === 'sdg') {
+        iconEl.textContent = '🪙';
+        titleEl.textContent = targetType === 'to' ? 'مديونية الجنيه السوداني' : 'رصيد الجنيه السوداني';
+        titleEl.className = 'text-xs font-black text-amber-400';
+        
+        card.style.borderColor = '#f59e0b';
+        card.style.boxShadow = '0 20px 50px rgba(0,0,0,0.95), 0 0 35px rgba(245, 158, 11, 0.65)';
+        arrow.style.borderColor = '#f59e0b';
+        numEl.className = 'text-3xl sm:text-4xl font-mono font-black text-amber-300 tracking-tight drop-shadow-[0_4px_16px_rgba(245,158,11,0.5)] my-1';
+
+        if (acc || (fallbackVal && fallbackVal !== '---')) {
+          const bal = acc ? Number(acc.sdgBalance || 0) : (parseFloat(fallbackVal.replace(/,/g, '')) || 0);
+          subTitleEl.textContent = 'الرصيد / المديونية:';
+          numEl.innerHTML = bal.toLocaleString('en-US') + ' <span class="text-base font-bold text-amber-400">ج.س</span>';
+
+          if (statusBadge) {
+            statusBadge.classList.remove('hidden');
+            if (bal < 0) {
+              statusBadge.textContent = 'مدين (عليه)';
+              statusBadge.className = 'text-[10px] font-black px-1.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-600/60';
+            } else if (bal > 0) {
+              statusBadge.textContent = 'دائن (له)';
+              statusBadge.className = 'text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-600/60';
+            } else {
+              statusBadge.textContent = 'متزن (0)';
+              statusBadge.className = 'text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-600';
+            }
+          }
+          
+          if (activeSdgAmt > 0 && projRow && projLabel && projVal) {
+            const projected = targetType === 'to' ? (bal + activeSdgAmt) : (bal - activeSdgAmt);
+            projLabel.textContent = targetType === 'to' ? 'بعد الاستلام (+):' : 'بعد الصرف (-):';
+            projVal.textContent = Number(projected).toLocaleString('en-US') + ' ج.س';
+            projVal.className = 'font-mono font-black text-xs ' + (projected < 0 ? 'text-rose-400' : 'text-emerald-400');
+            projRow.classList.remove('hidden');
+          } else if (projRow) {
+            projRow.classList.add('hidden');
+          }
+        } else {
+          subTitleEl.textContent = 'لم يتم اختيار الحساب:';
+          numEl.innerHTML = '<span class="text-2xl text-slate-400">0</span> <span class="text-sm font-bold text-amber-400/70">ج.س</span>';
+          if (statusBadge) statusBadge.classList.add('hidden');
+          if (projRow) projRow.classList.add('hidden');
+        }
+      } else {
+        // USD
+        iconEl.textContent = '💵';
+        titleEl.textContent = targetType === 'to' ? 'مديونية الدولار الأمريكي' : 'رصيد الدولار الأمريكي';
+        titleEl.className = 'text-xs font-black text-emerald-400';
+
+        card.style.borderColor = '#10b981';
+        card.style.boxShadow = '0 20px 50px rgba(0,0,0,0.95), 0 0 35px rgba(16, 185, 129, 0.65)';
+        arrow.style.borderColor = '#10b981';
+        numEl.className = 'text-3xl sm:text-4xl font-mono font-black text-emerald-300 tracking-tight drop-shadow-[0_4px_16px_rgba(16,185,129,0.5)] my-1';
+
+        if (acc || (fallbackVal && fallbackVal !== '---')) {
+          const bal = acc ? Number(acc.sdgBalance || 0) : ((parseFloat(fallbackVal.replace(/,/g, '')) || 0) * rate);
+          subTitleEl.textContent = 'المعادل بالدولار:';
+          const usdBal = (bal / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+          numEl.innerHTML = '$ ' + usdBal + ' <span class="text-base font-bold text-emerald-400">USD</span>';
+
+          if (statusBadge) {
+            statusBadge.classList.remove('hidden');
+            if (bal < 0) {
+              statusBadge.textContent = 'مدين (عليه)';
+              statusBadge.className = 'text-[10px] font-black px-1.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-600/60';
+            } else if (bal > 0) {
+              statusBadge.textContent = 'دائن (له)';
+              statusBadge.className = 'text-[10px] font-black px-1.5 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-600/60';
+            } else {
+              statusBadge.textContent = 'متزن (0)';
+              statusBadge.className = 'text-[10px] font-black px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-600';
+            }
+          }
+
+          if (activeSdgAmt > 0 && projRow && projLabel && projVal) {
+            const projectedSdg = targetType === 'to' ? (bal + activeSdgAmt) : (bal - activeSdgAmt);
+            const projectedUsd = (projectedSdg / rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            projLabel.textContent = targetType === 'to' ? 'بعد الاستلام (+):' : 'بعد الصرف (-):';
+            projVal.textContent = '$ ' + projectedUsd + ' USD';
+            projVal.className = 'font-mono font-black text-xs ' + (projectedSdg < 0 ? 'text-rose-400' : 'text-emerald-400');
+            projRow.classList.remove('hidden');
+          } else if (projRow) {
+            projRow.classList.add('hidden');
+          }
+        } else {
+          subTitleEl.textContent = 'لم يتم اختيار الحساب:';
+          numEl.innerHTML = '$ 0.00 <span class="text-sm font-bold text-emerald-400/70">USD</span>';
+          if (statusBadge) statusBadge.classList.add('hidden');
+          if (projRow) projRow.classList.add('hidden');
+        }
+      }
+
+      // حساب الموضع الهندسي للعدسة فوق الزر مباشرة مع مراعاة أبعاد الشاشات
+      popup.style.display = 'block';
+      popup.classList.remove('is-shrinking');
+      
+      const rect = btn.getBoundingClientRect();
+      const popupW = Math.min(320, window.innerWidth - 24);
+      const popupH = 165;
+      
+      let left = rect.left + (rect.width / 2) - (popupW / 2);
+      if (left < 12) left = 12;
+      if (left + popupW > window.innerWidth - 12) left = window.innerWidth - popupW - 12;
+      
+      let top = rect.top - popupH - 12;
+      let isBelow = false;
+      if (top < 10) {
+        top = rect.bottom + 12;
+        isBelow = true;
+      }
+
+      popup.style.left = left + 'px';
+      popup.style.top = top + 'px';
+      popup.style.width = popupW + 'px';
+
+      // محاذاة السهم بدقة مع مركز الزر
+      const arrowX = rect.left + (rect.width / 2) - left;
+      const clampedArrowX = Math.max(20, Math.min(popupW - 20, arrowX));
+
+      if (isBelow) {
+        arrow.className = 'absolute -top-2 w-4 h-4 rotate-45 border-t-[2.5px] border-l-[2.5px] bg-slate-950';
+        arrow.style.left = clampedArrowX + 'px';
+        arrow.style.transform = 'translateX(-50%) rotate(45deg)';
+        popup.style.transformOrigin = clampedArrowX + 'px top';
+      } else {
+        arrow.className = 'absolute -bottom-2 w-4 h-4 rotate-45 border-b-[2.5px] border-r-[2.5px] bg-slate-950';
+        arrow.style.left = clampedArrowX + 'px';
+        arrow.style.transform = 'translateX(-50%) rotate(45deg)';
+        popup.style.transformOrigin = clampedArrowX + 'px bottom';
+      }
+
+      // تفعيل الحركة الانسيابية
+      requestAnimationFrame(() => {
+        popup.classList.add('is-active');
+      });
+
+      isDebtMagnifierOpen = true;
+
+      // اهتزاز لمسي خفيف
+      if (navigator.vibrate) {
+        try { navigator.vibrate(12); } catch(err) {}
+      }
+    }
+
+    function hideDebtMagnifier(immediate = false) {
+      const popup = document.getElementById('debtMagnifierPopup');
+      if (!popup || !isDebtMagnifierOpen) return;
+
+      clearTimeout(debtMagnifierTimeout);
+
+      if (immediate) {
+        popup.classList.remove('is-active', 'is-shrinking');
+        popup.style.display = 'none';
+        isDebtMagnifierOpen = false;
+        return;
+      }
+
+      popup.classList.add('is-shrinking');
+      popup.classList.remove('is-active');
+
+      debtMagnifierTimeout = setTimeout(() => {
+        popup.style.display = 'none';
+        popup.classList.remove('is-shrinking');
+        isDebtMagnifierOpen = false;
+      }, 190);
+    }
+
+    function initDebtMagnifierButtons() {
+      const buttons = document.querySelectorAll('.debt-magnifier-btn');
+      buttons.forEach(btn => {
+        if (btn.__debtBound) return;
+        btn.__debtBound = true;
+
+        let pressStartTime = 0;
+        let holdTriggered = false;
+
+        btn.addEventListener('contextmenu', e => e.preventDefault());
+
+        // 1. الضغط واللمس مع الاستمرار (Touch & Hold / Pointerdown)
+        btn.addEventListener('pointerdown', function(e) {
+          pressStartTime = Date.now();
+          holdTriggered = true;
+          showDebtMagnifier(this, e);
+        });
+
+        const handleRelease = function() {
+          if (!holdTriggered) return;
+          holdTriggered = false;
+          const pressDuration = Date.now() - pressStartTime;
+          if (pressDuration > 280) {
+            // كان ضغطاً مطولاً -> يصغر فوراً عند رفع الإصبع
+            hideDebtMagnifier();
+          } else {
+            // كانت نقرة سريعة -> يظل ظاهراً لمدة ثانيتين ونصف للمعاينة ثم يصغر تلقائياً
+            clearTimeout(debtMagnifierTimeout);
+            debtMagnifierTimeout = setTimeout(() => {
+              hideDebtMagnifier();
+            }, 2500);
+          }
+        };
+
+        btn.addEventListener('pointerup', handleRelease);
+        btn.addEventListener('pointercancel', handleRelease);
+        btn.addEventListener('pointerleave', function() {
+          if (holdTriggered) {
+            holdTriggered = false;
+            hideDebtMagnifier();
+          }
+        });
+
+        // 2. النقر السريع (Click toggle)
+        btn.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      });
+
+      // إغلاق العدسة فوراً عند النقر في أي مكان آخر
+      document.addEventListener('pointerdown', function(e) {
+        if (isDebtMagnifierOpen && !e.target.closest('.debt-magnifier-btn') && !e.target.closest('#debtMagnifierPopup')) {
+          hideDebtMagnifier();
+        }
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initDebtMagnifierButtons);
+    } else {
+      initDebtMagnifierButtons();
+    }
+
+</script>
 </body>
 </html>
