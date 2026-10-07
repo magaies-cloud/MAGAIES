@@ -954,9 +954,6 @@
             try {
                 const getResetApiUrl = () => {
                     const origin = window.location.origin;
-                    if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
-                        return 'https://c.elsajana.com/';
-                    }
                     const path = window.location.pathname;
                     let dir = path.substring(0, path.lastIndexOf('/'));
                     if (dir.endsWith('/')) dir = dir.slice(0, -1);
@@ -970,7 +967,7 @@
                 try {
                     const localUrl = getResetApiUrl() + 'api_index.php?r=public&a=request-reset-otp';
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 6000);
+                    const timeoutId = setTimeout(() => controller.abort(), 8000);
                     const res = await fetch(localUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -1068,9 +1065,6 @@
             try {
                 const getResetApiUrl = () => {
                     const origin = window.location.origin;
-                    if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
-                        return 'https://c.elsajana.com/';
-                    }
                     const path = window.location.pathname;
                     let dir = path.substring(0, path.lastIndexOf('/'));
                     if (dir.endsWith('/')) dir = dir.slice(0, -1);
@@ -1085,7 +1079,7 @@
                 try {
                     const localUrl = getResetApiUrl() + 'api_index.php?r=public&a=verify-reset-otp';
                     const ctrl = new AbortController();
-                    const tid = setTimeout(() => ctrl.abort(), 6000);
+                    const tid = setTimeout(() => ctrl.abort(), 8000);
                     const res = await fetch(localUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal });
                     clearTimeout(tid);
                     data = await res.json().catch(() => ({}));
@@ -1149,9 +1143,6 @@
             try {
                 const getResetApiUrl = () => {
                     const origin = window.location.origin;
-                    if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
-                        return 'https://c.elsajana.com/';
-                    }
                     const path = window.location.pathname;
                     let dir = path.substring(0, path.lastIndexOf('/'));
                     if (dir.endsWith('/')) dir = dir.slice(0, -1);
@@ -1166,7 +1157,7 @@
                 try {
                     const localUrl = getResetApiUrl() + 'api_index.php?r=public&a=reset-password';
                     const ctrl = new AbortController();
-                    const tid = setTimeout(() => ctrl.abort(), 6000);
+                    const tid = setTimeout(() => ctrl.abort(), 8000);
                     const res = await fetch(localUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: ctrl.signal });
                     clearTimeout(tid);
                     data = await res.json().catch(() => ({}));
@@ -1401,9 +1392,6 @@
 
             const getBaseUrl = () => {
                 const origin = window.location.origin;
-                if (origin === 'https://elsajana.com' || origin === 'https://www.elsajana.com') {
-                    return 'https://c.elsajana.com/';
-                }
                 const path = window.location.pathname;
                 let dir = path.substring(0, path.lastIndexOf('/'));
                 if (dir.endsWith('/')) dir = dir.slice(0, -1);
@@ -1421,10 +1409,10 @@
                 deviceType: currentDevice.deviceType
             };
 
-            // 1. Fast Local Server API Attempt
+            // 1. Fast Native Server API Attempt (8s timeout for all mobile & tablet networks)
             try {
                 const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 2500); // 2.5s fast timeout
+                const timeoutId = setTimeout(() => controller.abort(), 8000);
 
                 const localUrl = getBaseUrl() + 'api_index.php/auth/login';
                 res = await fetch(localUrl, {
@@ -1436,15 +1424,16 @@
                 clearTimeout(timeoutId);
                 data = await res.json().catch(() => ({}));
             } catch (localError) {
-                console.warn('Local API login attempt failed or timed out:', localError);
+                console.warn('Native API login attempt failed or timed out:', localError);
             }
 
-            // 2. Cloud Server Fallback (ONLY if strictly hosted on *.elsajana.com and local failed without explicit response)
+            // 2. Cloud Server Fallback (ONLY if currently not already on c.elsajana.com and native failed without explicit response)
             const isElsajanaHost = window.location.hostname.endsWith('elsajana.com');
-            if (isElsajanaHost && (!res || !res.ok) && !(data && data.remaining_seconds) && !(res && (res.status === 403 || res.status === 401 || res.status === 400))) {
+            const isAlreadyOnC = window.location.hostname === 'c.elsajana.com';
+            if (isElsajanaHost && !isAlreadyOnC && (!res || !res.ok) && !(data && data.remaining_seconds) && !(res && (res.status === 403 || res.status === 401 || res.status === 400))) {
                 try {
                     const cloudController = new AbortController();
-                    const cloudTimeoutId = setTimeout(() => cloudController.abort(), 3000);
+                    const cloudTimeoutId = setTimeout(() => cloudController.abort(), 8000);
 
                     const cloudUrl = 'https://c.elsajana.com/api_index.php/auth/login';
                     const cloudRes = await fetch(cloudUrl, {
