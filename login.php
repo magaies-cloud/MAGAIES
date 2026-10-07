@@ -9,10 +9,29 @@
 (function() {
     try {
         var urlParams = new URLSearchParams(window.location.search);
+        var isDirect = urlParams.has('direct') || urlParams.has('dashboard') || urlParams.has('app');
         var isForced = urlParams.has('login') || urlParams.has('logout') || urlParams.has('reauth');
         var token = localStorage.getItem('authToken');
         
-        if (token && !isForced) {
+        // مزامنة الكوكيز للعمل المستمر لمدة عام كامل عبر elsajana.com وكافة النطاقات
+        var isHttps = window.location.protocol === 'https:';
+        var host = window.location.hostname;
+        var isElsajana = host.endsWith('elsajana.com');
+        var domainPart = isElsajana ? '; domain=.elsajana.com' : '';
+        var cookieFlags = '; path=/; max-age=31536000; SameSite=Lax' + (isHttps ? '; Secure' : '') + domainPart;
+        if (token) {
+            document.cookie = 'session_active=true' + cookieFlags;
+            document.cookie = 'saas_token=' + encodeURIComponent(token) + cookieFlags;
+        }
+
+        var customTarget = urlParams.get('url') || urlParams.get('target') || urlParams.get('target_url') || urlParams.get('redirect');
+        if (customTarget) {
+            window.location.replace(customTarget);
+            return;
+        }
+
+        // يتم التحويل للوحة التحكم مباشرة فقط عند طلب ?direct=1 صراحة
+        if (isDirect && token && !isForced) {
             // مزامنة الكوكيز للعمل المستمر لمدة عام كامل عبر elsajana.com وكافة النطاقات
             var isHttps = window.location.protocol === 'https:';
             var host = window.location.hostname;
@@ -1395,6 +1414,41 @@
             if (typeof window.MasterDeviceEngine !== 'undefined' && typeof window.MasterDeviceEngine.initVoiceMic === 'function') {
                 window.MasterDeviceEngine.initVoiceMic('username', 'voice-mic-btn');
             }
+            // 🌟 تعبئة اسم المستخدم وكلمة المرور من الرابط الخارجي (?user=...&pass=... أو ?u=...&p=...) أو الذاكرة
+            const uInput = document.getElementById('username');
+            const pInput = document.getElementById('password');
+
+            const urlUser = urlParams.get('username') || urlParams.get('user') || urlParams.get('u');
+            const urlPass = urlParams.get('password') || urlParams.get('pass') || urlParams.get('pwd') || urlParams.get('p');
+
+            if (urlUser && uInput) {
+                uInput.value = urlUser;
+            } else if (uInput && !uInput.value) {
+                let savedUser = localStorage.getItem('magaiees_last_username');
+                if (!savedUser) {
+                    try {
+                        const uObj = JSON.parse(localStorage.getItem('user') || '{}');
+                        if (uObj && uObj.username) savedUser = uObj.username;
+                    } catch(e) {}
+                }
+                if (savedUser) uInput.value = savedUser;
+            }
+
+            if (urlPass && pInput) {
+                pInput.value = urlPass;
+            }
+
+            if (urlUser && urlPass && (urlParams.get('autologin') === '1' || urlParams.get('auto') === '1')) {
+                setTimeout(function() {
+                    if (typeof handleLogin === 'function') handleLogin();
+                }, 200);
+            } else {
+                if (uInput && uInput.value && pInput && !pInput.value) {
+                    pInput.focus();
+                } else if (uInput && !uInput.value) {
+                    uInput.focus();
+                }
+            }
         });
         
         function getSubdomain() {
@@ -1584,6 +1638,7 @@
                 sessionStorage.setItem('dashboard_unlocked', '1');
                 sessionStorage.removeItem('cloud_synced');
                 localStorage.setItem('authToken', data.token);
+                localStorage.setItem('magaiees_last_username', username);
                 localStorage.setItem('user', JSON.stringify(data.user));
 
                 // 🛡️ IRON-CLAD BARRIER: Clear cross-tenant memory & legacy un-prefixed keys

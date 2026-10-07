@@ -31,21 +31,22 @@ if (isset($_GET['voucher']) || (isset($_GET['screen']) && $_GET['screen'] === 'v
     exit;
 }
 
-// 2. فحص وجود جلسة نشطة أو رمز دخول مسجل مسبقاً
+// 2. فحص وجود رابط مخصص أو طلب صريح للوحة التحكم مباشرة (?direct=1 أو ?dashboard=1)
+$customTarget = $_GET['url'] ?? $_GET['target'] ?? $_GET['target_url'] ?? $_GET['redirect'] ?? null;
+if (!empty($customTarget)) {
+    header("Location: " . $customTarget);
+    exit;
+}
+
+$directRequested = isset($_GET['direct']) || isset($_GET['dashboard']) || isset($_GET['app']);
 $token = $_COOKIE['saas_token'] ?? ($_COOKIE['authToken'] ?? null);
 $hasSessionActive = !empty($_COOKIE['session_active']) && $_COOKIE['session_active'] === 'true';
 $isLoggedIn = !empty($token) || $hasSessionActive;
 $forceLogin = isset($_GET['login']) || isset($_GET['logout']) || isset($_GET['reauth']);
-$customTarget = $_GET['url'] ?? $_GET['target'] ?? $_GET['target_url'] ?? $_GET['redirect'] ?? null;
 $viewPref = $_COOKIE['magaiees_view_preference'] ?? '';
 
-// إذا كان المستخدم مسجلاً دخوله مسبقاً ولم يطلب تسجيل الدخول صراحة:
-if ($isLoggedIn && !$forceLogin) {
-    if (!empty($customTarget)) {
-        header("Location: " . $customTarget);
-        exit;
-    }
-
+// يتم التحويل التلقائي للوحة التحكم فقط عند طلب الدخول المباشر صراحة (?direct=1):
+if ($directRequested && $isLoggedIn && !$forceLogin) {
     $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
     $secMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
     $isWindowsOrLinux = (bool)preg_match('/(windows nt|x11; linux x86_64|cros)/i', $userAgent) && !preg_match('/(android|mobile)/i', $userAgent);
