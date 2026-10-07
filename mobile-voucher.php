@@ -1755,7 +1755,7 @@ $currenciesData = [
           <!-- العرض المرئي الأنيق بالتنسيق المحاسبي: اليوم / الشهر / السنة بخط مصغر درجتان -->
           <div class="flex items-center justify-center gap-1.5 pointer-events-none select-none" dir="ltr">
             <i class="fa-regular fa-calendar text-cyan-400/80 text-xs mr-0.5"></i>
-            <span id="voucherDateDisplay" class="text-cyan-200 text-[16px] sm:text-[17px] font-mono font-black tracking-tight leading-none"><?php echo date('d / m / Y'); ?></span>
+            <span id="voucherDateDisplay" class="text-cyan-200 text-[13.5px] sm:text-[14px] font-mono font-black tracking-normal leading-none"><?php echo date('d/m/Y'); ?></span>
           </div>
           <!-- حقل التاريخ الفعلي المتزامن مع النظام والتقويم وقاعدة البيانات -->
           <input type="date" id="voucherDate" value="<?php echo date('Y-m-d'); ?>" oninput="updateVoucherDateDisplay()" onchange="updateVoucherDateDisplay()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;">
@@ -1930,10 +1930,7 @@ $currenciesData = [
             </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-md">مِن</span>
             <span class="text-sm sm:text-base font-black text-red-300">من حساب:</span>
-            <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="hidden px-2 py-0.5 rounded-lg bg-red-950/90 hover:bg-red-900 border border-red-500/50 text-red-300 text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm" title="مسح الحساب لاختيار حساب آخر">
-              <i class="fa-solid fa-rotate-left text-[9px]"></i>
-              <span>تغيير</span>
-            </button>
+            <button type="button" id="fromClearBtn" class="hidden" style="display:none !important;"></button>
           </div>
 
           <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة مع الرصيد المتوقع بعد الحركة -->
@@ -1945,9 +1942,9 @@ $currenciesData = [
                       class="debt-magnifier-btn debt-sdg-btn px-2.5 py-1 rounded-xl text-amber-300 flex items-center gap-1.5 active:scale-95 transition-all select-none cursor-pointer group"
                       data-target="from"
                       data-currency="sdg"
-                      title="اضغط مع الاستمرار لتكبير رصيد الجنيه السوداني">
+                      title="اضغط مع الاستمرار لتكبير رصيد الجنيه">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
-                <span class="text-[10.5px] font-black text-amber-300 tracking-tight">جنيه سوداني</span>
+                <span class="text-[10.5px] font-black text-amber-300 tracking-tight">جنيه</span>
                 <span id="fromAccountSdgBalance" class="hidden font-mono font-bold text-amber-200">0</span>
               </button>
 
@@ -1973,7 +1970,7 @@ $currenciesData = [
 
         <!-- حقل اسم الحساب: المساحة بالكامل 100% مخصصة للاسم دون أي تشويش أو حركة رأسية -->
         <div class="relative w-full">
-          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onblur="handleAccountInputBlur('from')" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-red-500/70 rounded-xl text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_28px_rgba(239,68,68,0.8)] placeholder-slate-500 shadow-inner">
+          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onblur="handleAccountInputBlur('from')" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" ondblclick="handleAccountDblClick('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-red-500/70 rounded-xl text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_28px_rgba(239,68,68,0.8)] placeholder-slate-500 shadow-inner">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
           <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-red-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
@@ -2008,10 +2005,7 @@ $currenciesData = [
             </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-md">إلى</span>
             <span class="text-sm sm:text-base font-black text-emerald-300">إلى حساب:</span>
-            <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="hidden px-2 py-0.5 rounded-lg bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm" title="مسح الحساب واختيار حساب آخر">
-              <i class="fa-solid fa-rotate-left text-[9px]"></i>
-              <span>تغيير</span>
-            </button>
+            <button type="button" id="toClearBtn" class="hidden" style="display:none !important;"></button>
           </div>
 
           <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة مع الرصيد المتوقع بعد الاستلام -->
@@ -2023,9 +2017,9 @@ $currenciesData = [
                       class="debt-magnifier-btn debt-sdg-btn px-2.5 py-1 rounded-xl text-amber-300 flex items-center gap-1.5 active:scale-95 transition-all select-none cursor-pointer group"
                       data-target="to"
                       data-currency="sdg"
-                      title="اضغط مع الاستمرار لتكبير مديونية الجنيه السوداني">
+                      title="اضغط مع الاستمرار لتكبير مديونية الجنيه">
                 <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
-                <span class="text-[10.5px] font-black text-amber-300 tracking-tight">جنيه سوداني</span>
+                <span class="text-[10.5px] font-black text-amber-300 tracking-tight">جنيه</span>
                 <span id="toAccountSdgBalance" class="hidden font-mono font-bold text-amber-200">0</span>
               </button>
 
@@ -2051,7 +2045,7 @@ $currenciesData = [
 
         <!-- حقل اسم الحساب: المساحة بالكامل 100% مخصصة للاسم دون أي تشويش أو حركة رأسية -->
         <div class="relative w-full">
-          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onblur="handleAccountInputBlur('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستفيد..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_28px_rgba(16,185,129,0.8)] placeholder-slate-500 shadow-inner">
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onblur="handleAccountInputBlur('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" ondblclick="handleAccountDblClick('to')" placeholder="اضغط لاختيار أو كتابة اسم المستفيد..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_28px_rgba(16,185,129,0.8)] placeholder-slate-500 shadow-inner">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
           <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-emerald-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
@@ -2069,35 +2063,35 @@ $currenciesData = [
            - رقم التحويلة: لون ذهبي دافئ أنيق بخط كبير
            - اسم البنك: لون أزرق جليدي فيروزي أنيق
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="transferContainer" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 space-y-2">
+      <div id="transferContainer" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2">
         <input type="file" id="directReceiptCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleDirectReceiptSelected(event)">
         <input type="file" id="directReceiptGalleryInput" accept="image/*" class="hidden" onchange="handleDirectReceiptSelected(event)">
 
         <div class="grid grid-cols-2 gap-2">
-          <!-- 1. رقم التحويلة بأناقة اللون الذهبي الدافئ والخط العريض -->
+          <!-- 1. رقم التحويلة بأناقة متناسبة ومضغوطة -->
           <div>
-            <div class="flex items-center gap-1.5 mb-1 px-1 h-6">
-              <button type="button" onclick="startFieldVoiceInput('transfer', this)" class="field-mic-btn w-6 h-6 rounded-full bg-amber-950/95 border border-amber-400/80 text-amber-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لرقم التحويلة فقط" aria-label="تسجيل صوتي لرقم التحويلة">
-                <i class="fa-solid fa-microphone text-[10px]"></i>
+            <div class="flex items-center gap-1 mb-1 px-1 h-5">
+              <button type="button" onclick="startFieldVoiceInput('transfer', this)" class="field-mic-btn w-5 h-5 rounded-full bg-amber-950/95 border border-amber-400/80 text-amber-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لرقم التحويلة" aria-label="تسجيل صوتي لرقم التحويلة">
+                <i class="fa-solid fa-microphone text-[9px]"></i>
               </button>
-              <label class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1" id="refLabel">
-                <i class="fa-solid fa-receipt text-amber-400 text-xs"></i>
-                <span>رقم التحويل:</span>
+              <label class="text-xs font-black text-amber-300 flex items-center gap-1" id="refLabel">
+                <i class="fa-solid fa-receipt text-amber-400 text-[10px]"></i>
+                <span>رقم التحويلة:</span>
               </label>
             </div>
-            <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويل" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2.5 h-[50px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_12px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 20px; text-align: center; direction: ltr;">
-            <div id="transferFeedbackBadge" class="mt-1 min-h-[20px] transition-all flex items-center justify-center"></div>
+            <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[38px] sm:h-[40px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 15px; text-align: center; direction: ltr;">
+            <div id="transferFeedbackBadge" class="transition-all flex items-center justify-center"></div>
           </div>
 
-          <!-- 2. اسم البنك بأناقة الفيروزي الجليدي والخط الواضح المعزز -->
+          <!-- 2. اسم التحويلة / البنك متناسب بدقة -->
           <div>
-            <div class="flex items-center gap-1.5 mb-1 px-1 h-6">
-              <label class="block text-xs sm:text-sm font-black text-cyan-300 flex items-center gap-1" id="bankNameLabel">
-                <i class="fa-solid fa-building-columns text-cyan-400 text-xs"></i>
-                <span>اسم البنك:</span>
+            <div class="flex items-center gap-1 mb-1 px-1 h-5">
+              <label class="block text-xs font-black text-cyan-300 flex items-center gap-1" id="bankNameLabel">
+                <i class="fa-solid fa-building-columns text-cyan-400 text-[10px]"></i>
+                <span>اسم التحويلة / البنك:</span>
               </label>
             </div>
-            <input type="text" id="bankNameInput" list="banksDataList" placeholder="اسم البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[50px] text-sm font-black text-cyan-300 focus:outline-none shadow-[0_0_12px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[38px] sm:h-[40px] text-xs sm:text-sm font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -4681,17 +4675,17 @@ $currenciesData = [
       if (!input) return;
       const len = (val || '').length;
       if (len <= 14) {
-        input.style.fontSize = '20px';
-        input.style.letterSpacing = '-0.5px';
+        input.style.fontSize = '15px';
+        input.style.letterSpacing = '-0.3px';
       } else if (len <= 16) {
-        input.style.fontSize = '18px';
-        input.style.letterSpacing = '-0.8px';
+        input.style.fontSize = '13.5px';
+        input.style.letterSpacing = '-0.5px';
       } else if (len <= 18) {
-        input.style.fontSize = '16px';
-        input.style.letterSpacing = '-1px';
+        input.style.fontSize = '12.5px';
+        input.style.letterSpacing = '-0.8px';
       } else {
-        input.style.fontSize = '14px';
-        input.style.letterSpacing = '-1.2px';
+        input.style.fontSize = '11.5px';
+        input.style.letterSpacing = '-1px';
       }
     }
 
@@ -6867,7 +6861,7 @@ $currenciesData = [
       if (!input || !display) return;
       const val = (input.value || '').trim();
       if (!val) {
-        display.textContent = '-- / -- / ----';
+        display.textContent = '--/--/----';
         return;
       }
       if (val.includes('-')) {
@@ -6876,7 +6870,7 @@ $currenciesData = [
           const yyyy = parts[0];
           const mm = parts[1];
           const dd = parts[2];
-          display.textContent = `${dd} / ${mm} / ${yyyy}`;
+          display.textContent = `${dd}/${mm}/${yyyy}`;
           return;
         }
       }
@@ -7395,6 +7389,20 @@ $currenciesData = [
       if (input) input.focus();
     }
 
+    
+    // فتح قائمة الحسابات فوراً عند النقر المزدوج (Double-Click) في حقل البحث
+    function handleAccountDblClick(target) {
+      const input = document.getElementById(target + 'SearchInput');
+      const dropdown = document.getElementById(target + 'Dropdown');
+      if (!input) return;
+      input.select();
+      if (typeof activeCategoryFilter !== 'undefined') {
+        activeCategoryFilter[target] = 'all';
+      }
+      liveSearchAccount(target, true);
+      if (dropdown) dropdown.classList.remove('hidden');
+    }
+
     async function onAccountInputFocus(target) {
       liveSearchAccount(target);
       // سحب فوري مباشر من الداتابيز في الخلفية لضمان ظهور أي عميل/مورد/مصروف أضيف الآن على اللابتوب
@@ -7427,12 +7435,12 @@ $currenciesData = [
       return `<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-0.5"><i class="fa-solid fa-folder text-[8px]"></i> ${cat}</span>`;
     }
 
-    function liveSearchAccount(target) {
+    function liveSearchAccount(target, forceShowAll = false) {
       const input = document.getElementById(target + 'SearchInput');
       const dropdown = document.getElementById(target + 'Dropdown');
       const clearBtn = document.getElementById(target + 'ClearBtn');
       if (!input || !dropdown) return;
-      const query = input.value.trim().toLowerCase();
+      const query = forceShowAll ? '' : input.value.trim().toLowerCase();
 
       if (clearBtn) {
         clearBtn.classList.toggle('hidden', query.length === 0);
@@ -9755,7 +9763,7 @@ $currenciesData = [
 
       if (currency === 'sdg') {
         iconEl.textContent = '🪙';
-        titleEl.textContent = targetType === 'to' ? 'مديونية الجنيه السوداني' : 'رصيد الجنيه السوداني';
+        titleEl.textContent = targetType === 'to' ? 'مديونية الجنيه' : 'رصيد الجنيه';
         titleEl.className = 'text-xs font-black text-amber-400';
         
         card.style.borderColor = '#f59e0b';
@@ -9800,7 +9808,7 @@ $currenciesData = [
       } else {
         // USD
         iconEl.textContent = '💵';
-        titleEl.textContent = targetType === 'to' ? 'مديونية الدولار الأمريكي' : 'رصيد الدولار الأمريكي';
+        titleEl.textContent = targetType === 'to' ? 'مديونية الدولار' : 'رصيد الدولار';
         titleEl.className = 'text-xs font-black text-emerald-400';
 
         card.style.borderColor = '#10b981';
