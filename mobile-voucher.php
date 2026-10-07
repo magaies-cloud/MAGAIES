@@ -967,6 +967,21 @@ $currenciesData = [
       border-color: #06b6d4 !important;
     }
 
+    /* المايكات الصغيرة لكل حقل */
+    .field-mic-btn { position: relative; }
+    .field-mic-btn::after { content: ''; position: absolute; inset: -8px; border-radius: 9999px; } /* مساحة لمس أكبر من الزر الظاهر */
+    @keyframes fieldMicPulse {
+      0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.75); }
+      70% { box-shadow: 0 0 0 9px rgba(239, 68, 68, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    }
+    .field-mic-btn.field-mic-listening {
+      background: #dc2626 !important;
+      border-color: #fca5a5 !important;
+      color: #fff !important;
+      animation: fieldMicPulse 1.2s infinite;
+    }
+
     /* ═════════════════════════════════════════════════════════════════
        نظام التنبيهات والتوست المركزي الفاخر المقتبس من شاشة حركة مالية (single-cash-payment)
        ═════════════════════════════════════════════════════════════════ */
@@ -1673,7 +1688,7 @@ $currenciesData = [
         <!-- مساحة العملة: تصغير الخط درجة واحدة (10px) -->
         <div class="relative shrink-0 w-[96px]">
           <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-slate-950 glow-border-amber rounded-xl pr-2.5 pl-5 py-2 text-[10px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[44px] shadow-inner" title="اختيار العملة">
-            <option value="SDG" selected>ج.س (SDG)</option>
+            <option value="SDG" selected>ج.س</option>
             <option value="USD">دولار ($)</option>
           </select>
           <div class="absolute left-2.5 top-4 pointer-events-none text-amber-300 text-[9px]">
@@ -1714,9 +1729,14 @@ $currenciesData = [
           <!-- 1. اليمين: المبلغ محلي (إضاءة سماوية فائقة الحواف) -->
           <div>
             <div class="flex items-center justify-between mb-1 px-1 h-6">
-              <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ محلي</span>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="startFieldVoiceInput('sdg', this)" class="field-mic-btn w-6 h-6 rounded-full bg-sky-950/95 border border-sky-400/80 text-sky-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي للمبلغ المحلي فقط" aria-label="تسجيل صوتي للمبلغ المحلي">
+                  <i class="fa-solid fa-microphone text-[10px]"></i>
+                </button>
+                <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ محلي</span>
+              </div>
               <button type="button" onclick="openNumberPropertiesModal(event, 'sdg')" class="h-6 text-[10px] font-bold text-sky-200 bg-sky-950/95 px-2 py-0.5 rounded-lg border border-sky-400/80 font-mono shadow-[0_0_10px_rgba(56,189,248,0.5)] flex items-center gap-1 active:scale-95 transition" title="انقر لتخصيص خط ولون وخانات المبلغ المحلي">
-                <span>ج.س (SDG)</span>
+                <span>ج.س</span>
                 <i class="fa-solid fa-sliders text-[9px] text-sky-300"></i>
               </button>
             </div>
@@ -1730,10 +1750,15 @@ $currenciesData = [
           <div>
             <div class="flex items-center justify-between mb-1 px-1 h-6">
               <span class="text-xs sm:text-sm font-black text-emerald-300" id="foreignAmountTitle">المبلغ دولار</span>
-              <button type="button" onclick="openNumberPropertiesModal(event, 'usd')" class="h-6 text-[10px] font-bold text-emerald-200 bg-emerald-950/95 px-2 py-0.5 rounded-lg border border-emerald-400/80 font-mono shadow-[0_0_10px_rgba(16,185,129,0.5)] flex items-center gap-1 active:scale-95 transition" title="انقر لتخصيص خط ولون وخانات المبلغ بالدولار">
-                <span id="foreignCurrencyBadge">$ USD</span>
-                <i class="fa-solid fa-sliders text-[9px] text-emerald-300"></i>
-              </button>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="openNumberPropertiesModal(event, 'usd')" class="h-6 text-[10px] font-bold text-emerald-200 bg-emerald-950/95 px-2 py-0.5 rounded-lg border border-emerald-400/80 font-mono shadow-[0_0_10px_rgba(16,185,129,0.5)] flex items-center gap-1 active:scale-95 transition" title="انقر لتخصيص خط ولون وخانات المبلغ بالدولار">
+                  <span id="foreignCurrencyBadge">$ USD</span>
+                  <i class="fa-solid fa-sliders text-[9px] text-emerald-300"></i>
+                </button>
+                <button type="button" onclick="startFieldVoiceInput('usd', this)" class="field-mic-btn w-6 h-6 rounded-full bg-emerald-950/95 border border-emerald-400/80 text-emerald-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي للمبلغ بالدولار فقط" aria-label="تسجيل صوتي للمبلغ بالدولار">
+                  <i class="fa-solid fa-microphone text-[10px]"></i>
+                </button>
+              </div>
             </div>
             <!-- المربع شاغر بحواف مضيئة ساطعة -->
             <div id="usdAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.55)] focus-within:shadow-[0_0_32px_rgba(16,185,129,0.85)] focus-within:border-emerald-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
@@ -1758,6 +1783,9 @@ $currenciesData = [
       <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 border-[2.5px] border-red-500 shadow-[0_0_28px_rgba(239,68,68,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
+            <button type="button" onclick="startFieldVoiceInput('from', this)" class="field-mic-btn w-7 h-7 rounded-full bg-red-950/90 border border-red-400/70 text-red-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (مِن) فقط" aria-label="تسجيل صوتي لحساب من">
+              <i class="fa-solid fa-microphone text-[11px]"></i>
+            </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-md">مِن</span>
             <span class="text-sm sm:text-base font-black text-red-300">من حساب:</span>
             <button type="button" onclick="clearAccountSearch('from')" id="fromClearBtn" class="hidden px-2 py-0.5 rounded-lg bg-red-950/90 hover:bg-red-900 border border-red-500/50 text-red-300 text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm" title="مسح الحساب لاختيار حساب آخر">
@@ -1818,6 +1846,9 @@ $currenciesData = [
       <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 border-[2.5px] border-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
+            <button type="button" onclick="startFieldVoiceInput('to', this)" class="field-mic-btn w-7 h-7 rounded-full bg-emerald-950/90 border border-emerald-400/70 text-emerald-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (إلى) فقط" aria-label="تسجيل صوتي لحساب إلى">
+              <i class="fa-solid fa-microphone text-[11px]"></i>
+            </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-md">إلى</span>
             <span class="text-sm sm:text-base font-black text-emerald-300">إلى حساب:</span>
             <button type="button" onclick="clearAccountSearch('to')" id="toClearBtn" class="hidden px-2 py-0.5 rounded-lg bg-emerald-950/90 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-300 text-[10px] font-black flex items-center gap-1 active:scale-95 transition shadow-sm" title="مسح الحساب واختيار حساب آخر">
@@ -1874,10 +1905,15 @@ $currenciesData = [
           <!-- 1. رقم التحويلة بأناقة اللون الذهبي الدافئ والخط العريض مع زر الكاميرا وقراءة الـ OCR -->
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1" id="refLabel">
-                <i class="fa-solid fa-receipt text-amber-400 text-xs"></i>
-                <span>رقم التحويل:</span>
-              </label>
+              <div class="flex items-center gap-1">
+                <button type="button" onclick="startFieldVoiceInput('transfer', this)" class="field-mic-btn w-6 h-6 rounded-full bg-amber-950/95 border border-amber-400/80 text-amber-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لرقم التحويلة فقط" aria-label="تسجيل صوتي لرقم التحويلة">
+                  <i class="fa-solid fa-microphone text-[10px]"></i>
+                </button>
+                <label class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1" id="refLabel">
+                  <i class="fa-solid fa-receipt text-amber-400 text-xs"></i>
+                  <span>رقم التحويل:</span>
+                </label>
+              </div>
               <!-- زر تصوير إشعار البنك والقراءة الذكية OCR -->
               <button type="button" onclick="triggerDirectReceiptCapture()" class="px-2 py-0.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-[10px] flex items-center gap-1 border border-emerald-400 shadow-sm active:scale-95 transition" title="تصوير أو رفع إشعار البنك (بنكك، فوري، أوكاش) واستخراج البيانات بالذكاء الاصطناعي">
                 <i class="fa-solid fa-camera text-[10px]"></i>
@@ -4747,6 +4783,7 @@ $currenciesData = [
 
     function startMasterVoiceInput() {
       triggerHapticPulse();
+      if (typeof stopFieldVoiceInput === 'function') stopFieldVoiceInput();
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
       if (!SpeechRecognition) {
@@ -5432,6 +5469,203 @@ $currenciesData = [
     function fallbackManualVoiceInput(targetField) {
       fallbackMasterVoicePrompt();
     }
+
+    // ════════════════════════════════════════════════════════════════
+    // المايكات الصغيرة لكل حقل: كل مايك يسجّل في حقله فقط
+    // (من / إلى / المبلغ المحلي / الدولار / رقم التحويلة)
+    // المايك الرئيسي في الأعلى يبقى للشاشة كاملة
+    // ════════════════════════════════════════════════════════════════
+    let fieldVoiceRecognizer = null;
+    let fieldVoiceBtn = null;
+    let fieldVoiceTarget = null;
+    let fieldVoiceGotResult = false;
+
+    const FIELD_VOICE_LABELS = { from: 'مِن حساب', to: 'إلى حساب', sdg: 'المبلغ المحلي', usd: 'المبلغ بالدولار', transfer: 'رقم التحويلة' };
+    const FIELD_VOICE_INPUTS = { from: 'fromSearchInput', to: 'toSearchInput', sdg: 'sdgAmount', usd: 'usdAmount', transfer: 'transferInput' };
+
+    // تحويل الأرقام المنطوقة رقماً رقماً (خمسة أربعة صفر...) إلى سلسلة أرقام لرقم التحويلة
+    function spokenToDigitString(text) {
+      let s = String(text || '');
+      const eastern = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+      for (let i = 0; i < 10; i++) s = s.split(eastern[i]).join(String(i));
+      const words = {
+        'صفر': '0', 'زيرو': '0', 'واحد': '1', 'واحدة': '1', 'اثنين': '2', 'اتنين': '2', 'اثنان': '2', 'إثنين': '2',
+        'ثلاثة': '3', 'ثلاث': '3', 'تلاتة': '3', 'تلاته': '3', 'تلات': '3', 'أربعة': '4', 'اربعة': '4', 'أربع': '4', 'اربع': '4', 'اربعه': '4',
+        'خمسة': '5', 'خمس': '5', 'خمسه': '5', 'ستة': '6', 'ست': '6', 'سته': '6', 'سبعة': '7', 'سبع': '7', 'سبعه': '7',
+        'ثمانية': '8', 'ثمان': '8', 'تمانية': '8', 'تمنية': '8', 'تمانيه': '8', 'تسعة': '9', 'تسع': '9', 'تسعه': '9'
+      };
+      let out = '';
+      s.replace(/[،,.\-_/]/g, ' ').split(/\s+/).filter(Boolean).forEach(tok => {
+        let t = tok;
+        if (/^\d+$/.test(t)) { out += t; return; }
+        if (!words[t] && t.length > 1 && t[0] === 'و' && words[t.slice(1)]) t = t.slice(1);
+        if (words[t]) out += words[t];
+      });
+      return out;
+    }
+
+    function resetFieldVoiceButton() {
+      if (fieldVoiceBtn) {
+        fieldVoiceBtn.classList.remove('field-mic-listening');
+        const ic = fieldVoiceBtn.querySelector('i');
+        if (ic) ic.className = ic.className.replace('fa-microphone-lines', 'fa-microphone').replace(' animate-pulse', '');
+      }
+      fieldVoiceBtn = null;
+      fieldVoiceTarget = null;
+    }
+
+    function stopFieldVoiceInput() {
+      if (fieldVoiceRecognizer) {
+        try { fieldVoiceRecognizer.onresult = null; fieldVoiceRecognizer.onend = null; fieldVoiceRecognizer.abort(); } catch (e) {}
+        fieldVoiceRecognizer = null;
+      }
+      resetFieldVoiceButton();
+    }
+    window.stopFieldVoiceInput = stopFieldVoiceInput;
+
+    function glowFieldVoice(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add('voice-field-glow');
+      setTimeout(() => el.classList.remove('voice-field-glow'), 2500);
+    }
+
+    function applyFieldVoiceResult(target, spokenText) {
+      const text = (spokenText || '').trim();
+      if (!text) return;
+
+      if (target === 'from' || target === 'to') {
+        // الحسابات المسجلة في الدليل فقط
+        const name = findBestAccountMatch(text, accountsDB);
+        if (name) {
+          selectAcc(target, name);
+          glowFieldVoice(FIELD_VOICE_INPUTS[target]);
+          playBankerChime();
+          triggerHapticPulse();
+          showToastNotification(`🎙️ ${FIELD_VOICE_LABELS[target]}: ${name}`);
+        } else {
+          showToastNotification(`⚠️ لم أجد حساباً مسجلاً يطابق "${text}" في ${FIELD_VOICE_LABELS[target]}`);
+        }
+        return;
+      }
+
+      if (target === 'sdg' || target === 'usd') {
+        const amount = parseArabicSpokenNumber(text);
+        if (!(amount > 0)) {
+          showToastNotification(`⚠️ لم أفهم المبلغ من "${text}". حاول مرة أخرى بوضوح`);
+          return;
+        }
+        const inp = document.getElementById(FIELD_VOICE_INPUTS[target]);
+        if (!inp) return;
+        // نفس مسار الكتابة اليدوية: الإدخال ثم التفقيط والتحويل ثم التنسيق
+        inp.value = String(amount);
+        handleAmountInput(target === 'sdg' ? 'sdg' : 'foreign');
+        updateTafqeet();
+        if (typeof formatCurrentAmountInput === 'function') formatCurrentAmountInput(target);
+        glowFieldVoice(FIELD_VOICE_INPUTS[target]);
+        playBankerChime();
+        triggerHapticPulse();
+        showToastNotification(`🎙️ ${FIELD_VOICE_LABELS[target]}: ${inp.value}`);
+        return;
+      }
+
+      if (target === 'transfer') {
+        const digits = spokenToDigitString(text);
+        if (!digits) {
+          showToastNotification(`⚠️ لم أسمع أرقاماً في "${text}". انطق رقم التحويلة رقماً رقماً`);
+          return;
+        }
+        const ti = document.getElementById('transferInput');
+        if (!ti) return;
+        ti.value = digits;
+        if (typeof handleTransferInputScale === 'function') handleTransferInputScale(digits);
+        // نفس مسار الكتابة اليدوية: يشمل فحص التكرار الفوري مع قاعدة البيانات
+        handleTransferLiveInput(digits);
+        glowFieldVoice('transferInput');
+        playBankerChime();
+        triggerHapticPulse();
+        showToastNotification(`🎙️ رقم التحويلة: ${digits}`);
+      }
+    }
+
+    function startFieldVoiceInput(target, btn) {
+      triggerHapticPulse();
+
+      // الضغط مرة ثانية على نفس المايك يوقف التسجيل
+      if (fieldVoiceRecognizer && fieldVoiceTarget === target) {
+        stopFieldVoiceInput();
+        return;
+      }
+      stopFieldVoiceInput();
+
+      if (typeof isMasterVoiceActive !== 'undefined' && isMasterVoiceActive) {
+        showToastNotification('⚠️ المايك الرئيسي يعمل الآن. أوقفه أولاً ثم استخدم مايك الحقل');
+        return;
+      }
+
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        showToastNotification('⚠️ المتصفح لا يدعم التسجيل الصوتي. اكتب في الحقل مباشرة');
+        const el = document.getElementById(FIELD_VOICE_INPUTS[target]);
+        if (el) el.focus();
+        return;
+      }
+
+      const rec = new SR();
+      rec.lang = 'ar-SD';
+      rec.continuous = false;
+      rec.interimResults = false;
+      rec.maxAlternatives = 3;
+
+      fieldVoiceRecognizer = rec;
+      fieldVoiceBtn = btn || null;
+      fieldVoiceTarget = target;
+      fieldVoiceGotResult = false;
+
+      if (fieldVoiceBtn) {
+        fieldVoiceBtn.classList.add('field-mic-listening');
+        const ic = fieldVoiceBtn.querySelector('i');
+        if (ic) ic.className = ic.className.replace('fa-microphone', 'fa-microphone-lines') + ' animate-pulse';
+      }
+
+      rec.onresult = function (event) {
+        const res = event.results[event.results.length - 1];
+        if (!res || !res[0]) return;
+        fieldVoiceGotResult = true;
+        let best = res[0].transcript;
+        // لرقم التحويلة نختار البديل الذي يحتوي أكبر عدد من الأرقام
+        if (target === 'transfer') {
+          for (let i = 0; i < res.length; i++) {
+            if (spokenToDigitString(res[i].transcript).length > spokenToDigitString(best).length) best = res[i].transcript;
+          }
+        }
+        applyFieldVoiceResult(target, best);
+      };
+
+      rec.onerror = function (event) {
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          showToastNotification('⚠️ يرجى السماح بصلاحية المايكروفون في المتصفح');
+        } else if (event.error === 'no-speech') {
+          showToastNotification('🎙️ لم أسمع شيئاً. اضغط المايك وتحدث مرة أخرى');
+        } else if (event.error !== 'aborted') {
+          showToastNotification('⚠️ تعذّر التسجيل الصوتي، حاول مرة أخرى');
+        }
+      };
+
+      rec.onend = function () {
+        fieldVoiceRecognizer = null;
+        resetFieldVoiceButton();
+      };
+
+      try {
+        rec.start();
+        showToastNotification(`🎙️ تحدث الآن: ${FIELD_VOICE_LABELS[target]} فقط`);
+      } catch (e) {
+        stopFieldVoiceInput();
+        showToastNotification('⚠️ تعذّر تشغيل المايك، حاول مرة أخرى');
+      }
+    }
+    window.startFieldVoiceInput = startFieldVoiceInput;
 
     // ════════════════════════════════════════════════════════════════
     // إعدادات وتنسيق الأرقام المستقل تماماً للمبلغ المحلي والمبلغ بالدولار
