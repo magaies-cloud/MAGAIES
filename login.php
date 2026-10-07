@@ -2,6 +2,69 @@
 <!-- c:\mynewapp\frontend-pwa\login.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// ⚡ ZERO-LATENCY INSTANT MASTER ROUTER (الدخول المباشر الفوري وفائق السرعة)
+// ═══════════════════════════════════════════════════════════════════════════
+(function() {
+    try {
+        var urlParams = new URLSearchParams(window.location.search);
+        var isForced = urlParams.has('login') || urlParams.has('logout') || urlParams.has('reauth');
+        var token = localStorage.getItem('authToken');
+        
+        if (token && !isForced) {
+            // مزامنة الكوكيز للعمل المستمر لمدة عام كامل عبر elsajana.com وكافة النطاقات
+            var isHttps = window.location.protocol === 'https:';
+            var host = window.location.hostname;
+            var isElsajana = host.endsWith('elsajana.com');
+            var domainPart = isElsajana ? '; domain=.elsajana.com' : '';
+            var cookieFlags = '; path=/; max-age=31536000; SameSite=Lax' + (isHttps ? '; Secure' : '') + domainPart;
+            document.cookie = 'session_active=true' + cookieFlags;
+            document.cookie = 'saas_token=' + encodeURIComponent(token) + cookieFlags;
+            
+            var customTarget = urlParams.get('url') || urlParams.get('target') || urlParams.get('target_url') || urlParams.get('redirect');
+            if (customTarget) {
+                window.location.replace(customTarget);
+                return;
+            }
+            
+            var explicitForceDesktop = urlParams.get('force_desktop') === '1';
+            var explicitForceMobile = urlParams.get('force_mobile') === '1';
+            var explicitDevice = urlParams.get('device');
+            var savedPref = localStorage.getItem('magaiees_view_preference') || '';
+            var ua = navigator.userAgent || '';
+            var isPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+            var isTablet = /iPad|tablet/i.test(ua);
+            
+            var target = 'mobile-dashboard.php';
+            if (explicitForceMobile || savedPref === 'mobile') {
+                target = 'mobile-dashboard.php?force_mobile=1';
+            } else if (explicitForceDesktop || savedPref === 'desktop' || (isPC && savedPref !== 'mobile' && savedPref !== 'tablet')) {
+                target = 'magaiees_unified_dashboard.php?force_desktop=1';
+            } else if (explicitDevice === 'tablet' || savedPref === 'tablet' || isTablet) {
+                target = 'mobile-dashboard.php?device=tablet';
+            }
+            
+            // التوجيه للنطاق المخصص للشركة إن وجد
+            var userStr = localStorage.getItem('user');
+            if (userStr && isElsajana) {
+                try {
+                    var u = JSON.parse(userStr);
+                    if (u && u.subdomain) {
+                        document.cookie = 'currentTenantSubdomain=' + encodeURIComponent(u.subdomain) + cookieFlags;
+                    }
+                    if (u && u.subdomain && host !== u.subdomain + '.elsajana.com') {
+                        target = 'https://' + u.subdomain + '.elsajana.com/' + target;
+                    }
+                } catch(e) {}
+            }
+            
+            window.location.replace(target);
+            return;
+        }
+    } catch(e) {}
+})();
+</script>
 <script src="js/lang.js"></script>
 <script>
 (function(){
@@ -500,12 +563,9 @@
             <button type="button" class="toggle-pwd-btn" onclick="togglePassword()" title="إظهار/إخفاء كلمة المرور" id="toggle-pwd-icon" style="top: 29px; left: 10px;">👁️</button>
         </div>
 
-        <!-- سطر نسيت كلمة المرور ومعايرة الشاشة الذكية مدمجة في مسافة 10px فقط -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 0 4px;">
-            <span id="screen-adaptive-badge" style="font-size: 0.72rem; color: #38bdf8; font-weight: 700; opacity: 0.9;">
-                <!-- يتم تعبئته آلياً بنوع الشاشة -->
-            </span>
-            <a href="javascript:void(0)" onclick="openResetModal('identity')" style="color: #94a3b8; text-decoration: none; font-size: 0.82rem; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#38bdf8';" onmouseout="this.style.color='#94a3b8';">نسيت كلمة المرور؟</a>
+        <!-- سطر نسيت كلمة المرور -->
+        <div style="display: flex; justify-content: flex-end; align-items: center; margin-bottom: 12px; padding: 0 4px;">
+            <a href="javascript:void(0)" onclick="openResetModal('identity')" style="color: #94a3b8; text-decoration: none; font-size: 0.84rem; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.color='#38bdf8';" onmouseout="this.style.color='#94a3b8';">نسيت كلمة المرور؟</a>
         </div>
         
         <script>
@@ -522,69 +582,34 @@
             }
         </script>
         
-        <!-- 🛡️ زر دخول آمن (بارز وظاهر في كامل الشاشة بدون حاجة لرفع الشاشة) -->
+        <!-- 🛡️ زر دخول آمن -->
         <button class="btn-login" onclick="handleLogin()" style="width: 100%; padding: 13px; border-radius: 14px; background: linear-gradient(135deg, #0284c7, #2563eb 50%, #4f46e5); box-shadow: 0 6px 20px rgba(2, 132, 199, 0.45); color: white; font-size: 1.05rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.2); cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px;">
             <i class="fa-solid fa-shield-halved" style="font-size: 1.05rem; color: #7dd3fc;"></i>
             <span>دخول آمن</span>
         </button>
 
+        <!-- ↩️ زر الرجوع للشاشة السابقة -->
         <button type="button" class="btn-login-back" onclick="if(typeof window.magaieesGoBack==='function'){window.magaieesGoBack();}else{window.history.back();}" style="width: 100%; margin-top: 10px; padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.22); color: #f8fafc; font-size: 0.96rem; font-weight: 800; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; gap: 8px; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.25);" onmouseover="this.style.background='linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.35))'; this.style.borderColor='#fef08a'; this.style.color='#fef08a'; this.style.boxShadow='0 0 20px rgba(245,158,11,0.5)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.22)'; this.style.color='#f8fafc'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.25)';">
             <svg style="width: 18px; height: 18px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 19 12 12 5"></polyline></svg>
             <span>الرجوع للشاشة السابقة</span>
         </button>
 
-        <!-- بطاقة التكيف الذكي الشامل مع العتاد والشاشات (ماستر لابتوب، ديسكتوب، تابلت، آيباد، جوال) -->
-        <div class="device-adaptive-card" id="adaptive-device-card" style="margin-top: 10px; padding: 8px 10px; border-radius: 14px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 8px; flex: 1;">
-                    <span id="device-icon" style="font-size: 1.25rem;">📱</span>
-                    <span id="device-adaptive-desc" style="flex: 1; text-align: right;">جاري المعايرة والتكيف الذكي مع مقاس الشاشة...</span>
+        <!-- 🧠 عناصر المعايرة الخلفية الصامتة (تعمل 100% في الكواليس بدون أي ظهور على الشاشة) -->
+        <div style="display: none !important;" aria-hidden="true">
+            <span id="screen-adaptive-badge"></span>
+            <div class="device-adaptive-card" id="adaptive-device-card">
+                <span id="device-icon"></span>
+                <span id="device-adaptive-desc"></span>
+                <div class="device-view-switcher" id="view-mode-switcher">
+                    <button type="button" class="view-switch-btn active" id="btn-view-auto" onclick="switchMasterView('auto')"></button>
+                    <button type="button" class="view-switch-btn" id="btn-view-mobile" onclick="switchMasterView('mobile')"></button>
+                    <button type="button" class="view-switch-btn" id="btn-view-tablet" onclick="switchMasterView('tablet')"></button>
+                    <button type="button" class="view-switch-btn" id="btn-view-desktop" onclick="switchMasterView('desktop')"></button>
                 </div>
             </div>
-            
-            <!-- مبدل نمط العرض الفوري (تلقائي / جوال / تابلت / لابتوب وكمبيوتر) -->
-            <div class="device-view-switcher" id="view-mode-switcher" style="margin-top: 6px;">
-                <button type="button" class="view-switch-btn active" id="btn-view-auto" onclick="switchMasterView('auto')">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> <span>تلقائي</span>
-                </button>
-                <button type="button" class="view-switch-btn" id="btn-view-mobile" onclick="switchMasterView('mobile')">
-                    <i class="fa-solid fa-mobile-screen"></i> <span>جوال</span>
-                </button>
-                <button type="button" class="view-switch-btn" id="btn-view-tablet" onclick="switchMasterView('tablet')">
-                    <i class="fa-solid fa-tablet-screen-button"></i> <span>تابلت</span>
-                </button>
-                <button type="button" class="view-switch-btn" id="btn-view-desktop" onclick="switchMasterView('desktop')">
-                    <i class="fa-solid fa-laptop"></i> <span>كمبيوتر</span>
-                </button>
-            </div>
+            <div id="local-login-hints"></div>
+            <div class="device-info" id="device-id-display"></div>
         </div>
-
-        <!-- Fast Local Login Helper (مساعد التطوير المحلي) -->
-        <div id="local-login-hints" style="margin-top: 10px; padding: 8px; background: rgba(56, 189, 248, 0.08); border: 1px dashed rgba(56, 189, 248, 0.3); border-radius: 10px; text-align: center; display: none;">
-            <div style="font-size: 0.76rem; color: #38bdf8; font-weight: 700; margin-bottom: 6px;">🚀 تسجيل دخول سريع ومباشر:</div>
-            <div style="display: flex; gap: 6px; justify-content: center; flex-wrap: wrap;">
-                <button type="button" onclick="fillCreds('c', '0000')" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.35)'" onmouseout="this.style.background='rgba(16,185,129,0.2)'">🏢 الرئيسي (c / 0000)</button>
-                <button type="button" onclick="fillCreds('admin', '123456')" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.35)'" onmouseout="this.style.background='rgba(59,130,246,0.2)'">⚙️ المدير (admin / 123456)</button>
-            </div>
-        </div>            </div>
-        </div>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname.includes('trycloudflare.com') || window.location.hostname.includes('loca.lt')) {
-                    const hintBox = document.getElementById('local-login-hints');
-                    if (hintBox) hintBox.style.display = 'block';
-                }
-            });
-            function fillCreds(u, p) {
-                const uInput = document.getElementById('username');
-                const pInput = document.getElementById('password');
-                if (uInput) uInput.value = u;
-                if (pInput) pInput.value = p;
-                if (typeof handleLogin === 'function') handleLogin();
-            }
-        </script>
-        
-        <div class="device-info" id="device-id-display" style="display:none;"></div>
     </div>
 
     <!-- ==================== FORGOT PASSWORD MODALS ==================== -->
@@ -1198,52 +1223,15 @@
     </script>
     
     <script>
-        // --- SSO Interceptor ---
-        (function() {
-            const ssoParams = new URLSearchParams(window.location.search);
-            if (ssoParams.get('force_desktop') === '1') {
-                localStorage.setItem('magaiees_view_preference', 'desktop');
-                document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
-            }
-            if (ssoParams.has('sso_token')) {
-                localStorage.setItem('authToken', ssoParams.get('sso_token'));
-                if (ssoParams.has('sso_user')) {
-                    localStorage.setItem('user', ssoParams.get('sso_user'));
-                }
-                document.cookie = "session_active=true; path=/";
-                document.cookie = "saas_token=" + encodeURIComponent(ssoParams.get('sso_token')) + "; path=/; max-age=2592000; SameSite=Lax";
-                sessionStorage.setItem('session_active', 'true');
-                sessionStorage.setItem('dashboard_unlocked', '1');
-                const dev = typeof currentDevice !== 'undefined' ? currentDevice : getDeviceDetails();
-                const ssoForceDesktop = ssoParams.get('force_desktop') === '1';
-                const ssoForceMobile = ssoParams.get('force_mobile') === '1';
-
-                let defaultTarget = 'mobile-dashboard.php';
-                if (ssoForceMobile) {
-                    defaultTarget = 'mobile-dashboard.php?force_mobile=1';
-                } else if (ssoForceDesktop) {
-                    defaultTarget = 'magaiees_unified_dashboard.php?force_desktop=1';
-                } else if (dev.isTablet) {
-                    defaultTarget = 'mobile-dashboard.php?device=tablet';
-                } else if (dev.isLaptop) {
-                    defaultTarget = 'magaiees_unified_dashboard.php?force_desktop=1';
-                } else {
-                    defaultTarget = 'mobile-dashboard.php';
-                }
-
-                if (ssoForceDesktop || (!ssoForceMobile && dev.isLaptop)) {
-                    localStorage.setItem('magaiees_view_preference', 'desktop');
-                    document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
-                } else if (dev.isTablet) {
-                    localStorage.setItem('magaiees_view_preference', 'tablet');
-                    document.cookie = "magaiees_view_preference=tablet; path=/; max-age=31536000; SameSite=Lax";
-                } else {
-                    localStorage.setItem('magaiees_view_preference', 'mobile');
-                    document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
-                }
-                window.location.replace(ssoParams.get('redirect') || defaultTarget);
-            }
-        })();
+        function setPersistentCookie(name, value) {
+            try {
+                const isHttps = window.location.protocol === 'https:';
+                const isElsajana = window.location.hostname.endsWith('elsajana.com');
+                const domainStr = isElsajana ? '; domain=.elsajana.com' : '';
+                const secureStr = isHttps ? '; Secure' : '';
+                document.cookie = name + '=' + encodeURIComponent(value) + '; path=/; max-age=31536000; SameSite=Lax' + secureStr + domainStr;
+            } catch(e) {}
+        }
 
         // ═════════════════════════════════════════════════════════════════
         // 🧠 المحرك الذكي للتعرف التلقائي على الأجهزة ونوع الشاشات (AI Adaptive Hardware Engine)
@@ -1316,6 +1304,54 @@
         const currentDevice = getDeviceDetails();
         let deviceUuid = currentDevice.deviceUuid;
 
+        // --- SSO Interceptor ---
+        (function() {
+            const ssoParams = new URLSearchParams(window.location.search);
+            if (ssoParams.get('force_desktop') === '1') {
+                localStorage.setItem('magaiees_view_preference', 'desktop');
+                document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+            }
+            if (ssoParams.has('sso_token')) {
+                localStorage.setItem('authToken', ssoParams.get('sso_token'));
+                if (ssoParams.has('sso_user')) {
+                    localStorage.setItem('user', ssoParams.get('sso_user'));
+                }
+                setPersistentCookie('session_active', 'true');
+                setPersistentCookie('saas_token', ssoParams.get('sso_token'));
+                sessionStorage.setItem('session_active', 'true');
+                sessionStorage.setItem('dashboard_unlocked', '1');
+                const dev = currentDevice || getDeviceDetails();
+                const ssoForceDesktop = ssoParams.get('force_desktop') === '1';
+                const ssoForceMobile = ssoParams.get('force_mobile') === '1';
+
+                let defaultTarget = 'mobile-dashboard.php';
+                if (ssoForceMobile) {
+                    defaultTarget = 'mobile-dashboard.php?force_mobile=1';
+                } else if (ssoForceDesktop) {
+                    defaultTarget = 'magaiees_unified_dashboard.php?force_desktop=1';
+                } else if (dev.isTablet) {
+                    defaultTarget = 'mobile-dashboard.php?device=tablet';
+                } else if (dev.isLaptop) {
+                    defaultTarget = 'magaiees_unified_dashboard.php?force_desktop=1';
+                } else {
+                    defaultTarget = 'mobile-dashboard.php';
+                }
+
+                if (ssoForceDesktop || (!ssoForceMobile && dev.isLaptop)) {
+                    localStorage.setItem('magaiees_view_preference', 'desktop');
+                    document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+                } else if (dev.isTablet) {
+                    localStorage.setItem('magaiees_view_preference', 'tablet');
+                    document.cookie = "magaiees_view_preference=tablet; path=/; max-age=31536000; SameSite=Lax";
+                } else {
+                    localStorage.setItem('magaiees_view_preference', 'mobile');
+                    document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
+                }
+                window.location.replace(ssoParams.get('redirect') || defaultTarget);
+            }
+        })();
+
+
         // مبدل نمط العرض السريع (تلقائي / جوال / تابلت / كمبيوتر)
         function switchMasterView(mode) {
             const btns = {
@@ -1335,7 +1371,7 @@
                 document.cookie = "magaiees_view_preference=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
             } else {
                 localStorage.setItem('magaiees_view_preference', mode);
-                document.cookie = "magaiees_view_preference=" + mode + "; path=/; max-age=31536000; SameSite=Lax";
+                setPersistentCookie('magaiees_view_preference', mode);
             }
 
             if (typeof window.MasterDeviceEngine !== 'undefined') {
@@ -1372,7 +1408,7 @@
             return null;
         }
         
-        document.getElementById('device-id-display').innerText = `معرف الجهاز: ${currentDevice.deviceUuid} (${currentDevice.deviceName})`;
+        const devIdEl = document.getElementById('device-id-display'); if (devIdEl && currentDevice) devIdEl.innerText = `معرف الجهاز: ${currentDevice.deviceUuid} (${currentDevice.deviceName})`;
 
         async function handleLogin() {
             const username = document.getElementById('username').value.trim().toLowerCase();
@@ -1535,9 +1571,13 @@
                 }
 
                 document.cookie = "session_active=true; path=/";
-                document.cookie = "saas_token=" + encodeURIComponent(data.token) + "; path=/; max-age=2592000; SameSite=Lax";
+                setPersistentCookie('saas_token', data.token);
+                if (data.user && data.user.subdomain) {
+                    setPersistentCookie('currentTenantSubdomain', String(data.user.subdomain));
+                    localStorage.setItem('currentTenantSubdomain', String(data.user.subdomain));
+                }
                 if (data.user && data.user.tenant_id) {
-                    document.cookie = "currentTenantId=" + encodeURIComponent(data.user.tenant_id) + "; path=/; max-age=2592000; SameSite=Lax";
+                    setPersistentCookie('currentTenantId', String(data.user.tenant_id));
                     localStorage.setItem('currentTenantId', String(data.user.tenant_id));
                 }
                 sessionStorage.setItem('session_active', 'true');
@@ -1783,8 +1823,12 @@
 
                 const offlineToken = 'offline_token_' + Date.now();
                 document.cookie = "session_active=true; path=/";
-                document.cookie = "saas_token=" + encodeURIComponent(offlineToken) + "; path=/; max-age=2592000; SameSite=Lax";
-                document.cookie = "currentTenantId=" + encodeURIComponent(fallbackUser.tenant_id) + "; path=/; max-age=2592000; SameSite=Lax";
+                setPersistentCookie('saas_token', offlineToken);
+                if (fallbackUser.subdomain) {
+                    setPersistentCookie('currentTenantSubdomain', String(fallbackUser.subdomain));
+                    localStorage.setItem('currentTenantSubdomain', String(fallbackUser.subdomain));
+                }
+                setPersistentCookie('currentTenantId', String(fallbackUser.tenant_id));
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
                 sessionStorage.setItem('cloud_synced', 'false');
@@ -1834,7 +1878,7 @@
             }
 
             // --- START SSO & DEVICE REDIRECT ---
-            const dev = typeof currentDevice !== 'undefined' ? currentDevice : getDeviceDetails();
+            const dev = currentDevice || getDeviceDetails();
             const urlParams = new URLSearchParams(window.location.search);
             const redirectParam = urlParams.get('url') || urlParams.get('target') || urlParams.get('target_url') || urlParams.get('redirect');
             const explicitForceDesktop = urlParams.get('force_desktop') === '1';

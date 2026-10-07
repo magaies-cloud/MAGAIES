@@ -31,8 +31,10 @@ if (isset($_GET['voucher']) || (isset($_GET['screen']) && $_GET['screen'] === 'v
     exit;
 }
 
-// 2. فحص وجود جلسة نشطة مسجلة مسبقاً
-$isLoggedIn = !empty($_COOKIE['session_active']) && $_COOKIE['session_active'] === 'true' && !empty($_COOKIE['saas_token']);
+// 2. فحص وجود جلسة نشطة أو رمز دخول مسجل مسبقاً
+$token = $_COOKIE['saas_token'] ?? ($_COOKIE['authToken'] ?? null);
+$hasSessionActive = !empty($_COOKIE['session_active']) && $_COOKIE['session_active'] === 'true';
+$isLoggedIn = !empty($token) || $hasSessionActive;
 $forceLogin = isset($_GET['login']) || isset($_GET['logout']) || isset($_GET['reauth']);
 $customTarget = $_GET['url'] ?? $_GET['target'] ?? $_GET['target_url'] ?? $_GET['redirect'] ?? null;
 $viewPref = $_COOKIE['magaiees_view_preference'] ?? '';
@@ -53,16 +55,22 @@ if ($isLoggedIn && !$forceLogin) {
     $isAndroidTablet = (bool)preg_match('/(android)/i', $userAgent) && !preg_match('/(mobile)/i', $userAgent);
     $isTablet = $isAppleTablet || $isAndroidTablet || (bool)preg_match('/tablet/i', $userAgent);
 
+    $target = 'mobile-dashboard.php';
     if ($viewPref === 'desktop' || ($isDesktopOrLaptop && $viewPref !== 'mobile' && $viewPref !== 'tablet')) {
-        header("Location: magaiees_unified_dashboard.php?force_desktop=1");
-        exit;
+        $target = 'magaiees_unified_dashboard.php?force_desktop=1';
     } elseif ($viewPref === 'tablet' || ($isTablet && $viewPref !== 'desktop' && $viewPref !== 'mobile')) {
-        header("Location: mobile-dashboard.php?device=tablet");
-        exit;
-    } else {
-        header("Location: mobile-dashboard.php");
+        $target = 'mobile-dashboard.php?device=tablet';
+    }
+
+    $tenantSub = $_COOKIE['currentTenantSubdomain'] ?? ($_COOKIE['tenant_subdomain'] ?? '');
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    if (!empty($tenantSub) && strpos($host, 'elsajana.com') !== false && strpos($host, $tenantSub . '.elsajana.com') === false) {
+        header("Location: https://{$tenantSub}.elsajana.com/{$target}");
         exit;
     }
+
+    header("Location: " . $target);
+    exit;
 }
 
 // 3. المستخدم غير مسجل، أو طلب الدخول صراحة:
