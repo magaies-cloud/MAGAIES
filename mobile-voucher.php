@@ -1622,6 +1622,17 @@ $currenciesData = [
       transform: scale(0.65) translateY(12px) !important;
     }
 
+
+    /* إخفاء أسهم الزيادة والنقصان نهائياً لكتابة الأرقام يدوياً */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none !important;
+      margin: 0 !important;
+    }
+    input[type=number] {
+      -moz-appearance: textfield !important;
+    }
+  
 </style>
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
@@ -1839,22 +1850,22 @@ $currenciesData = [
            ═════════════════════════════════════════════════════════════════ -->
       <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2 flex items-center gap-1.5 shadow-[0_0_14px_rgba(56,189,248,0.15)]">
         
-        <!-- مساحة العملة: تصغير الخط درجة واحدة (10px) -->
-        <div class="relative shrink-0 w-[96px]">
-          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-slate-950 glow-border-amber rounded-xl pr-2.5 pl-5 py-2 text-[10px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[44px] shadow-inner" title="اختيار العملة">
-            <option value="SDG" selected>ج.س</option>
-            <option value="USD">دولار ($)</option>
+        <!-- مساحة العملة: خط بولد عريض ومكبر 3 درجات مع خيارات كاملة (جنيه سوداني / دولار) -->
+        <div class="relative shrink-0 w-[114px]">
+          <select id="primaryCurrencySelect" onchange="selectCurrency(this.value)" class="w-full appearance-none bg-slate-950 glow-border-amber rounded-xl pr-2.5 pl-5 py-1 text-[13.5px] sm:text-[14px] font-black text-amber-300 focus:outline-none focus:border-amber-400 cursor-pointer h-[44px] shadow-inner" title="اختيار العملة">
+            <option value="SDG" selected>جنيه سوداني</option>
+            <option value="USD">دولار</option>
           </select>
-          <div class="absolute left-2.5 top-4 pointer-events-none text-amber-300 text-[9px]">
+          <div class="absolute left-2 top-4 pointer-events-none text-amber-300 text-[10px]">
             <i class="fa-solid fa-chevron-down"></i>
           </div>
         </div>
 
-        <!-- قيمة الدولار: حواف زمردية مضيئة وخط أضخم بولد -->
-        <div class="bg-slate-950 glow-border-emerald rounded-xl px-2 py-1 flex items-center gap-1 w-[94px] shrink-0 h-[44px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="قيمة الدولار من السيستم - انقر للتعديل المباشر">
-          <span class="text-emerald-400 font-mono text-xs font-black shrink-0">$</span>
-          <input type="number" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-base focus:outline-none text-center cursor-text tracking-tight" placeholder="2650" title="سعر صرف الدولار">
-          <i class="fa-solid fa-pen text-[7px] text-slate-500 group-hover:text-emerald-400 transition shrink-0"></i>
+        <!-- قيمة الدولار: كتابة بدون أسهم زيادة/نقصان ومكبر الخط درجة (18px) -->
+        <div class="bg-slate-950 glow-border-emerald rounded-xl px-2 py-1 flex items-center gap-1 w-[104px] shrink-0 h-[44px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="قيمة الدولار من السيستم - كتابة مباشرة">
+          <span class="text-emerald-400 font-mono text-sm font-black shrink-0">$</span>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-[18px] sm:text-[19px] focus:outline-none text-center cursor-text tracking-tight" placeholder="2650" title="سعر صرف الدولار">
+          <i class="fa-solid fa-pen text-[8px] text-slate-500 group-hover:text-emerald-400 transition shrink-0"></i>
         </div>
 
         <!-- مركز الكلفة: تصغير الخط درجة واحدة (11px) -->
