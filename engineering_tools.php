@@ -23197,9 +23197,9 @@ $pdo = getDBConnection();
 
                     <!-- Quick Action Buttons: Account Statement, Sample Loader, Reset -->
                     <div class="flex items-center gap-2">
-                        <button type="button" onclick="openSystemAccountSelector('A')" class="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600/30 via-indigo-600/30 to-purple-600/30 hover:from-sky-600/50 hover:to-indigo-600/50 border-2 border-indigo-400/60 text-indigo-200 hover:text-white text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer transition shadow-md hover:scale-[1.02]" title="فتح شاشة دفتر الأستاذ والبحث في الحسابات">
-                            <i class="fa-solid fa-book-bookmark text-base text-sky-300"></i>
-                            <span>دفتر الأستاذ</span>
+                        <button type="button" onclick="openSystemAccountSelector('A')" class="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600/30 via-indigo-600/30 to-purple-600/30 hover:from-sky-600/50 hover:to-indigo-600/50 border-2 border-indigo-400/60 text-indigo-200 hover:text-white text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer transition shadow-md hover:scale-[1.02]" title="فتح شاشة اختيار كشف حساب والبحث في جميع حسابات البرنامج">
+                            <i class="fa-solid fa-file-invoice-dollar text-base text-sky-300"></i>
+                            <span>كشف حساب</span>
                         </button>
                         <button type="button" onclick="loadReconciliationSampleData()" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500/25 to-orange-500/25 hover:from-amber-500/35 hover:to-orange-500/35 border-2 border-amber-400/60 text-amber-200 text-xs sm:text-sm font-black flex items-center gap-2 cursor-pointer transition shadow-md hover:scale-[1.02]">
                             <i class="fa-solid fa-flask-vial text-base text-amber-300"></i>
@@ -23271,9 +23271,9 @@ $pdo = getDBConnection();
 
                             <!-- Omnichannel Sources Bar for Side A -->
                             <div class="flex flex-wrap items-center gap-1.5 mb-3 p-2 rounded-xl bg-slate-950/70 border border-sky-500/20 text-xs">
-                                <button type="button" onclick="openSystemAccountSelector('A')" class="omni-source-btn omni-source-btn-primary" title="فتح شاشة دفتر الأستاذ العام والدليل المحاسبي">
-                                    <i class="fa-solid fa-book-bookmark text-sky-400"></i>
-                                    <span class="font-black text-sky-200">دفتر الأستاذ</span>
+                                <button type="button" onclick="openSystemAccountSelector('A')" class="omni-source-btn omni-source-btn-primary" title="جلب واستعراض كشف حساب مباشرة من دليل الحسابات ودفتر الأستاذ">
+                                    <i class="fa-solid fa-file-invoice-dollar text-sky-400"></i>
+                                    <span class="font-black text-sky-200">كشف حساب</span>
                                 </button>
                                 
                                 <button type="button" onclick="document.getElementById('omni-file-gallery-A').click()" class="omni-source-btn" title="اختيار صور متعددة من استوديو ومعرض الصور بالجهاز">
@@ -23282,7 +23282,7 @@ $pdo = getDBConnection();
                                 </button>
                                 <input type="file" id="omni-file-gallery-A" accept="image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'A', 'gallery')">
 
-                                <button type="button" onclick="openLiveCameraCapture('A')" class="omni-source-btn" title="تشغيل الكاميرا والتقاط صورة الكشف مباشرة">
+                                <button type="button" onclick="openLiveCameraCapture('A')" class="omni-source-btn" title="تشغيل الكاميرا الحية والتقاط صورة الكشف مباشرة">
                                     <i class="fa-solid fa-camera text-rose-400"></i>
                                     <span>الكاميرا</span>
                                 </button>
@@ -23311,9 +23311,9 @@ $pdo = getDBConnection();
                                 <input type="text" id="inline-acc-search-input-A" onfocus="handleInlineAccSearchFocus('A')" oninput="handleInlineAccSearchInput('A', this.value)"
                                        placeholder="🔍 اكتب اسم الحساب (بنكك، الأسعد، آية مهدي، الخزينة، نقل)..."
                                        class="w-full bg-transparent text-slate-100 placeholder-slate-400 text-xs font-bold focus:outline-none">
-                                <button type="button" onclick="openSystemAccountSelector('A')" class="px-3 py-1.5 rounded-xl bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white text-xs font-bold transition shrink-0 border border-sky-500/40 flex items-center gap-1.5 shadow-sm cursor-pointer" title="فتح شاشة دفتر الأستاذ والبحث في الحسابات">
-                                    <i class="fa-solid fa-book-bookmark text-[11px]"></i>
-                                    <span>دفتر الأستاذ</span>
+                                <button type="button" onclick="openSystemAccountSelector('A')" class="px-3 py-1.5 rounded-xl bg-sky-600/30 hover:bg-sky-600 text-sky-200 hover:text-white text-xs font-bold transition shrink-0 border border-sky-500/40 flex items-center gap-1.5 shadow-sm cursor-pointer" title="فتح نافذة البحث الموسطة الشاملة">
+                                    <i class="fa-solid fa-expand text-[10px]"></i>
+                                    <span>بحث شامل</span>
                                 </button>
                                 <!-- Live Autocomplete Dropdown -->
                                 <div id="inline-acc-search-dropdown-A" class="hidden absolute top-full right-0 left-0 mt-1.5 max-h-64 overflow-y-auto rounded-2xl bg-slate-900 border-2 border-sky-500/50 shadow-2xl z-50 p-2 space-y-1 custom-scrollbar"></div>
@@ -23350,9 +23350,9 @@ $pdo = getDBConnection();
 
                             <!-- Omnichannel Sources Bar for Side B -->
                             <div class="flex flex-wrap items-center gap-1.5 mb-3 p-2 rounded-xl bg-slate-950/70 border border-purple-500/20 text-xs">
-                                <button type="button" onclick="openSystemAccountSelector('B')" class="omni-source-btn omni-source-btn-primary" title="فتح شاشة دفتر الأستاذ العام والدليل المحاسبي">
-                                    <i class="fa-solid fa-book-bookmark text-purple-400"></i>
-                                    <span class="font-black text-purple-200">دفتر الأستاذ</span>
+                                <button type="button" onclick="openSystemAccountSelector('B')" class="omni-source-btn omni-source-btn-primary" title="جلب واستعراض كشف حساب مباشرة من دليل الحسابات ودفتر الأستاذ">
+                                    <i class="fa-solid fa-file-invoice-dollar text-purple-400"></i>
+                                    <span class="font-black text-purple-200">كشف حساب</span>
                                 </button>
                                 
                                 <button type="button" onclick="document.getElementById('omni-file-gallery-B').click()" class="omni-source-btn" title="اختيار صور متعددة من استوديو ومعرض الصور بالجهاز">
@@ -23361,7 +23361,7 @@ $pdo = getDBConnection();
                                 </button>
                                 <input type="file" id="omni-file-gallery-B" accept="image/*" multiple class="hidden" onchange="handleOmniUpload(event, 'B', 'gallery')">
 
-                                <button type="button" onclick="openLiveCameraCapture('B')" class="omni-source-btn" title="تشغيل الكاميرا والتقاط صورة الكشف مباشرة">
+                                <button type="button" onclick="openLiveCameraCapture('B')" class="omni-source-btn" title="تشغيل الكاميرا الحية والتقاط صورة الكشف مباشرة">
                                     <i class="fa-solid fa-camera text-rose-400"></i>
                                     <span>الكاميرا</span>
                                 </button>
@@ -23390,9 +23390,9 @@ $pdo = getDBConnection();
                                 <input type="text" id="inline-acc-search-input-B" onfocus="handleInlineAccSearchFocus('B')" oninput="handleInlineAccSearchInput('B', this.value)"
                                        placeholder="🔍 اكتب اسم الحساب (المورد، المصنع، الشريك، البنك المقابل)..."
                                        class="w-full bg-transparent text-slate-100 placeholder-slate-400 text-xs font-bold focus:outline-none">
-                                <button type="button" onclick="openSystemAccountSelector('B')" class="px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white text-xs font-bold transition shrink-0 border border-purple-500/40 flex items-center gap-1.5 shadow-sm cursor-pointer" title="فتح شاشة دفتر الأستاذ والبحث في الحسابات">
-                                    <i class="fa-solid fa-book-bookmark text-[11px]"></i>
-                                    <span>دفتر الأستاذ</span>
+                                <button type="button" onclick="openSystemAccountSelector('B')" class="px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600 text-purple-200 hover:text-white text-xs font-bold transition shrink-0 border border-purple-500/40 flex items-center gap-1.5 shadow-sm cursor-pointer" title="فتح نافذة البحث الموسطة الشاملة">
+                                    <i class="fa-solid fa-expand text-[10px]"></i>
+                                    <span>بحث شامل</span>
                                 </button>
                                 <!-- Live Autocomplete Dropdown -->
                                 <div id="inline-acc-search-dropdown-B" class="hidden absolute top-full right-0 left-0 mt-1.5 max-h-64 overflow-y-auto rounded-2xl bg-slate-900 border-2 border-purple-500/50 shadow-2xl z-50 p-2 space-y-1 custom-scrollbar"></div>
@@ -26657,11 +26657,11 @@ $pdo = getDBConnection();
                     <div style="padding: 12px 16px; background: linear-gradient(90deg, #0f172a, #1e1b4b 90%); border-bottom: 1px solid rgba(51, 65, 85, 0.6); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-shrink: 0;">
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <span style="width: 36px; height: 36px; border-radius: 12px; background: linear-gradient(135deg, #0284c7, #4f46e5); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);">
-                                <i class="fa-solid fa-book-bookmark"></i>
+                                <i class="fa-solid fa-file-invoice-dollar"></i>
                             </span>
                             <div>
                                 <h4 style="font-weight: 900; font-size: 15px; color: #f8fafc; margin: 0; line-height: 1.2;">
-                                    دفتر الأستاذ العام والدليل المحاسبي
+                                    كشف حساب / دفتر الأستاذ العام
                                 </h4>
                                 <span id="recon-modal-target-side-label" style="display: inline-block; margin-top: 2px; font-size: 11px; font-weight: 700; padding: 1px 8px; border-radius: 9999px; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8;">
                                     كشف حساب الطرف الأول
@@ -26692,41 +26692,19 @@ $pdo = getDBConnection();
                                 </button>
                             </div>
                             <button type="button" onclick="searchReconAccountsList()" style="padding: 9px 16px; border-radius: 12px; background: linear-gradient(90deg, #0284c7, #4f46e5); color: #fff; font-weight: 800; font-size: 12.5px; border: 1px solid rgba(56,189,248,0.4); box-shadow: 0 4px 12px rgba(2, 132, 199, 0.3); display: flex; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0;" title="بدء البحث">
-                                <i class="fa-solid fa-magnifying-glass" style="font-size: 11px;"></i>
+                                <i class="fa-solid fa-bolt"></i>
                                 <span>بحث</span>
                             </button>
                         </div>
 
-                        <!-- Quick Category Filter Pills with Live Counter Badges -->
-                        <div id="recon-acc-cat-filters" style="display: flex; align-items: center; gap: 6px; overflow-x: auto; padding: 2px 0 2px 0; -ms-overflow-style: none; scrollbar-width: none;" class="no-scrollbar">
-                            <button type="button" onclick="filterReconAccountsList('all', this)" class="recon-cat-btn px-2.5 py-1 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-black text-xs cursor-pointer shadow-md shadow-sky-500/25 border border-sky-400/40 transition shrink-0 flex items-center gap-1">
-                                <span>🌟 الكل</span>
-                                <span id="recon-cat-count-all" class="text-[10px] opacity-80 font-mono"></span>
-                            </button>
-                            <button type="button" onclick="filterReconAccountsList('العملاء', this)" class="recon-cat-btn px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition shrink-0 flex items-center gap-1">
-                                <span>👥 العملاء</span>
-                                <span id="recon-cat-count-cust" class="text-[10px] opacity-80 font-mono"></span>
-                            </button>
-                            <button type="button" onclick="filterReconAccountsList('الموردين', this)" class="recon-cat-btn px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition shrink-0 flex items-center gap-1">
-                                <span>🏭 الموردين</span>
-                                <span id="recon-cat-count-supp" class="text-[10px] opacity-80 font-mono"></span>
-                            </button>
-                            <button type="button" onclick="filterReconAccountsList('البنوك', this)" class="recon-cat-btn px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition shrink-0 flex items-center gap-1">
-                                <span>🏦 البنوك</span>
-                                <span id="recon-cat-count-banks" class="text-[10px] opacity-80 font-mono"></span>
-                            </button>
-                            <button type="button" onclick="filterReconAccountsList('الخزن', this)" class="recon-cat-btn px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition shrink-0 flex items-center gap-1">
-                                <span>💵 الخزن</span>
-                                <span id="recon-cat-count-safes" class="text-[10px] opacity-80 font-mono"></span>
-                            </button>
-                            <button type="button" onclick="filterReconAccountsList('المصروفات', this)" class="recon-cat-btn px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition shrink-0 flex items-center gap-1">
-                                <span>📑 المصروفات</span>
-                                <span id="recon-cat-count-exp" class="text-[10px] opacity-80 font-mono"></span>
-                            </button>
-                            <button type="button" onclick="filterReconAccountsList('الحسابات العامة', this)" class="recon-cat-btn px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-slate-700 text-slate-300 font-bold text-xs cursor-pointer border border-slate-700/80 transition shrink-0 flex items-center gap-1">
-                                <span>🏛️ الدليل المحاسبي</span>
-                                <span id="recon-cat-count-gl" class="text-[10px] opacity-80 font-mono"></span>
-                            </button>
+                        <!-- Quick Category Filter Pills -->
+                        <div id="recon-acc-cat-filters" style="display: flex; align-items: center; gap: 6px; overflow-x: auto; padding-top: 2px;" class="custom-scrollbar">
+                            <button type="button" onclick="filterReconAccountsList('all', this)" class="recon-cat-btn active" style="padding: 4px 10px; border-radius: 8px; background: linear-gradient(135deg, #0284c7, #4f46e5); color: #fff; font-weight: 800; font-size: 11px; border: 1px solid rgba(56,189,248,0.5); cursor: pointer; white-space: nowrap; flex-shrink: 0;">الكل</button>
+                            <button type="button" onclick="filterReconAccountsList('البنوك', this)" class="recon-cat-btn" style="padding: 4px 10px; border-radius: 8px; background: #1e293b; color: #cbd5e1; font-weight: 700; font-size: 11px; border: 1px solid #334155; cursor: pointer; white-space: nowrap; flex-shrink: 0;">🏦 البنوك</button>
+                            <button type="button" onclick="filterReconAccountsList('الموردين', this)" class="recon-cat-btn" style="padding: 4px 10px; border-radius: 8px; background: #1e293b; color: #cbd5e1; font-weight: 700; font-size: 11px; border: 1px solid #334155; cursor: pointer; white-space: nowrap; flex-shrink: 0;">🏭 الموردين</button>
+                            <button type="button" onclick="filterReconAccountsList('العملاء', this)" class="recon-cat-btn" style="padding: 4px 10px; border-radius: 8px; background: #1e293b; color: #cbd5e1; font-weight: 700; font-size: 11px; border: 1px solid #334155; cursor: pointer; white-space: nowrap; flex-shrink: 0;">👥 العملاء</button>
+                            <button type="button" onclick="filterReconAccountsList('الخزن', this)" class="recon-cat-btn" style="padding: 4px 10px; border-radius: 8px; background: #1e293b; color: #cbd5e1; font-weight: 700; font-size: 11px; border: 1px solid #334155; cursor: pointer; white-space: nowrap; flex-shrink: 0;">💵 الخزن</button>
+                            <button type="button" onclick="filterReconAccountsList('المصروفات', this)" class="recon-cat-btn" style="padding: 4px 10px; border-radius: 8px; background: #1e293b; color: #cbd5e1; font-weight: 700; font-size: 11px; border: 1px solid #334155; cursor: pointer; white-space: nowrap; flex-shrink: 0;">📑 المصروفات</button>
                         </div>
                     </div>
 
@@ -26759,13 +26737,11 @@ $pdo = getDBConnection();
                             </span>
                         </span>
                         <button type="button" onclick="closeReconModals()" style="padding: 4px 14px; border-radius: 10px; background: #1e293b; color: #cbd5e1; font-weight: 700; font-size: 11.5px; border: 1px solid #334155; cursor: pointer; transition: all 0.2s;" onmouseenter="this.style.background='#334155'; this.style.color='#fff';" onmouseleave="this.style.background='#1e293b'; this.style.color='#cbd5e1';">
-                            إغلاق
+                            <span>إلغاء</span>
                         </button>
                     </div>
-
                 </div>
             </div>
-
             <!-- ════════════════════════════════════════════════════════════════ -->
             <!-- MODAL 2: WHATSAPP & CLIPBOARD TEXT / NOTIFICATION EXTRACTOR     -->
             <!-- ════════════════════════════════════════════════════════════════ -->

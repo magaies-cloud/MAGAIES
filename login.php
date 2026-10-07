@@ -479,6 +479,11 @@
             <span>دخول آمن</span>
         </button>
 
+        <button type="button" class="btn-login-back" onclick="if(typeof window.magaieesGoBack==='function'){window.magaieesGoBack();}else{window.history.back();}" style="width: 100%; margin-top: 10px; padding: 12px; border-radius: 14px; background: rgba(255, 255, 255, 0.08); border: 1.5px solid rgba(255, 255, 255, 0.22); color: #f8fafc; font-size: 0.96rem; font-weight: 800; cursor: pointer; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; justify-content: center; gap: 8px; backdrop-filter: blur(10px); box-shadow: 0 4px 12px rgba(0,0,0,0.25);" onmouseover="this.style.background='linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.35))'; this.style.borderColor='#fef08a'; this.style.color='#fef08a'; this.style.boxShadow='0 0 20px rgba(245,158,11,0.5)';" onmouseout="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.22)'; this.style.color='#f8fafc'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.25)';">
+            <svg style="width: 18px; height: 18px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 19 12 12 5"></polyline></svg>
+            <span>الرجوع للشاشة السابقة</span>
+        </button>
+
         <!-- بطاقة التكيف الذكي الشامل مع العتاد والشاشات (ماستر لابتوب، ديسكتوب، تابلت، آيباد، جوال) -->
         <div class="device-adaptive-card" id="adaptive-device-card" style="margin-top: 10px; padding: 8px 10px; border-radius: 14px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
             <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
@@ -512,6 +517,7 @@
                 <button type="button" onclick="fillCreds('c', '0000')" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #6ee7b7; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.35)'" onmouseout="this.style.background='rgba(16,185,129,0.2)'">🏢 الرئيسي (c / 0000)</button>
                 <button type="button" onclick="fillCreds('admin', '123456')" style="background: rgba(59, 130, 246, 0.2); border: 1px solid #3b82f6; color: #93c5fd; border-radius: 6px; padding: 5px 10px; font-size: 0.78rem; cursor: pointer; font-weight: 700; transition: all 0.2s;" onmouseover="this.style.background='rgba(59,130,246,0.35)'" onmouseout="this.style.background='rgba(59,130,246,0.2)'">⚙️ المدير (admin / 123456)</button>
             </div>
+        </div>            </div>
         </div>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
@@ -1195,7 +1201,6 @@
                     localStorage.setItem('magaiees_view_preference', 'mobile');
                     document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
                 }
-
                 window.location.replace(ssoParams.get('redirect') || defaultTarget);
             }
         })();
@@ -1225,16 +1230,46 @@
                 uuid = 'DEV-' + Math.random().toString(36).substr(2, 8).toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
                 localStorage.setItem('deviceUuid', uuid);
             }
-            return {
-                deviceUuid: uuid,
-                deviceName: 'جهاز ذكي متكيف',
-                deviceType: 'android',
-                brand: 'android',
-                screenType: 'شاشة ذكية متكيفة',
-                isLaptop: false,
-                isDesktop: false,
-                isTablet: false,
-                isMobile: true
+            
+            const ua = navigator.userAgent || '';
+            let type = 'desktop';
+            let name = 'كمبيوتر (PC)';
+            let isMob = false;
+            let isTab = false;
+            let isLap = true;
+            
+            if (/iPhone/i.test(ua)) {
+                type = 'iphone';
+                name = 'هاتف آيفون (Apple iPhone)';
+                isMob = true; isLap = false;
+            } else if (/iPad/i.test(ua)) {
+                type = 'ipad';
+                name = 'جهاز آيباد (Apple iPad)';
+                isTab = true; isLap = false;
+            } else if (/Android/i.test(ua)) {
+                type = 'android';
+                isMob = /Mobile/i.test(ua);
+                isTab = !isMob;
+                isLap = false;
+                name = isMob ? 'هاتف أندرويد (Android Mobile)' : 'تابلت أندرويد (Android Tablet)';
+            } else if (/Macintosh|Mac OS/i.test(ua)) {
+                type = 'mac';
+                name = 'كمبيوتر ماك (Apple Mac)';
+            } else if (/Windows/i.test(ua)) {
+                type = 'windows';
+                name = 'كمبيوتر ويندوز (Windows PC)';
+            }
+
+            return { 
+                deviceUuid: uuid, 
+                deviceName: name, 
+                deviceType: type,
+                brand: type,
+                screenType: isMob ? 'جوال' : (isTab ? 'تابلت' : 'كمبيوتر'),
+                isLaptop: isLap,
+                isDesktop: isLap,
+                isTablet: isTab,
+                isMobile: isMob
             };
         }
 
