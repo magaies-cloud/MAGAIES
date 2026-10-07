@@ -86,18 +86,67 @@
             transform: none !important;
         }
 
-        /* 📱 معايرة الشاشات المنحنية (Honor Magic, Huawei Mate, Samsung Edge/Ultra) */
+        /* 📱 معايرة الشاشات المنحنية والشلالية (Honor Magic, Huawei Mate, Moto Edge, Samsung Ultra) */
         html[data-device-brand="honor"] .login-card,
-        html[data-device-brand="huawei"] .login-card {
-            margin-inline: max(8px, env(safe-area-inset-left, 8px)) !important;
-            border-color: rgba(129, 140, 248, 0.35) !important;
+        html[data-device-brand="huawei"] .login-card,
+        body.has-curved-edges .login-card {
+            margin-left: max(12px, var(--curve-guard-left, 12px)) !important;
+            margin-right: max(12px, var(--curve-guard-right, 12px)) !important;
+            border-color: rgba(129, 140, 248, 0.4) !important;
+            border-width: 1.5px !important;
         }
         html[data-device-brand="samsung"] .login-card {
-            border-color: rgba(56, 189, 248, 0.35) !important;
+            border-color: rgba(56, 189, 248, 0.4) !important;
         }
         html[data-device-brand="iphone"] .login-card {
-            border-color: rgba(255, 255, 255, 0.25) !important;
+            border-color: rgba(255, 255, 255, 0.3) !important;
         }
+        html[data-device-brand="sony"] .login-card {
+            border-color: rgba(14, 165, 233, 0.45) !important;
+        }
+        html[data-device-brand="motorola"] .login-card {
+            border-color: rgba(6, 182, 212, 0.45) !important;
+        }
+
+        /* 🍎 معايرة أجهزة آيفون والجزيرة الديناميكية (Dynamic Island & Notch) */
+        body.has-dynamic-island {
+            padding-top: max(20px, var(--safe-top, 54px)) !important;
+        }
+
+        /* 🖥️ معايرة الشاشات فائقة العرض (Ultrawide 21:9 & Super Ultrawide 32:9) */
+        body.is-ultrawide .login-card,
+        body.is-super-ultrawide .login-card {
+            max-width: var(--card-max-width, 460px) !important;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.85), 0 0 40px rgba(56,189,248,0.25) !important;
+        }
+
+        /* 💻 معايرة اللابتوبات المدمجة (1366x768 & 1440x900) لمنع الحاجة للتمرير الرأسي */
+        @media (max-height: 820px) and (min-width: 1024px) {
+            body {
+                padding-top: 8px !important;
+                padding-bottom: 8px !important;
+            }
+            .login-card {
+                padding: 16px 26px !important;
+                max-height: 98vh !important;
+            }
+            .logo {
+                font-size: 2.2rem !important;
+                margin-bottom: 4px !important;
+            }
+            .title {
+                font-size: 1.25rem !important;
+                margin-bottom: 8px !important;
+            }
+            .input-group {
+                margin-bottom: 10px !important;
+            }
+            .input-field {
+                padding: 10px 14px !important;
+                font-size: 0.95rem !important;
+            }
+        }
+
         @media (min-width: 1024px) {
             .login-card {
                 max-width: 420px;
