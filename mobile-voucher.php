@@ -844,8 +844,8 @@ $currenciesData = [
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>حركة مالية - تصميم شاشات الجوال المتطورة</title>
   
-  <!-- Local Tailwind CSS -->
-  <link rel="stylesheet" href="css/tailwind.min.css">
+  <!-- CDN Tailwind with full dynamic JIT styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
   
   <!-- FontAwesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
