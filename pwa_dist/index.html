@@ -1,6 +1,18 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+  <script>
+  (function initEarlyTheme() {
+    try {
+      var t = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_mobile_theme');
+      if (!t) {
+        var m = document.cookie.match(/(?:^|;\s*)(?:magaies_active_theme|magaiees_mobile_theme)=([^;]+)/);
+        if (m) t = decodeURIComponent(m[1]);
+      }
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch(e) {}
+  })();
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <link rel="manifest" href="manifest.json?v=2026_m_v7">
@@ -19,6 +31,32 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
+  <script>
+  // ═════════════════════════════════════════════════════════════════════
+  // ⚡ SMART DESKTOP & LAPTOP GATE (التحويل الفوري للكمبيوتر ومنع الجوال نهائياً)
+  // ═════════════════════════════════════════════════════════════════════
+  (function enforceLaptopDesktopGate() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('force_mobile') === '1') return;
+
+      var ua = navigator.userAgent || '';
+      var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+      var isWindowsPC = /Windows NT/i.test(ua);
+      var isMacPC = /Macintosh/i.test(ua) && !(navigator.maxTouchPoints > 1 && screen.width < 1024);
+      var isLinuxPC = (/X11; Linux x86_64/i.test(ua) || /CrOS/i.test(ua)) && !/Android/i.test(ua);
+      var isLargeScreen = Math.max(window.screen.width, window.screen.height) >= 1024;
+      var hasFinePointer = window.matchMedia && (window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches);
+
+      var isDesktopOrLaptop = !isPureMobile && (isWindowsPC || isMacPC || isLinuxPC || (isLargeScreen && hasFinePointer));
+      if (isDesktopOrLaptop) {
+        localStorage.setItem('magaiees_view_preference', 'desktop');
+        document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+        window.location.replace('magaiees_unified_dashboard.php?force_desktop=1');
+      }
+    } catch(e) {}
+  })();
+  </script>
   <script src="js/pwa-manager.js?v=2026_10_05_v35_21themes" defer></script>
   <script>
   (function enforceAuthGate() {
@@ -2052,103 +2090,499 @@
       border: 1px solid #3f3f46 !important;
     }
 
-    /* ─── GROUP 1: LIGHT, BEIGE, IVORY & OFF-WHITE THEMES ─── */
+    /* ─── GROUP 1: UNIVERSAL LIGHT, BEIGE, IVORY & OFF-WHITE THEMES ENGINE ─── */
+    html[data-theme="warm-alabaster"],
+    html[data-theme="pure-platinum"],
+    html[data-theme="beige"],
+    html[data-theme="ivory"],
+    html[data-theme="offwhite"],
+    html[data-theme="light-linen"],
+    html[data-theme="pearl-platinum"],
+    html[data-theme="nordic-paper"] {
+      color-scheme: light !important;
+    }
 
-    /* 1. WARM BEIGE (البيج الدافئ المريح) */
-    html[data-theme="beige"] body { background: #eadeca !important; color: #23190e !important; }
-    html[data-theme="beige"] .mobile-app-wrapper { background: #f5ebe0 !important; border-color: #d6c5b0 !important; color: #23190e !important; }
-    html[data-theme="beige"] header,
-    html[data-theme="beige"] nav.glass-dock { background: rgba(245, 235, 224, 0.98) !important; border-color: #d6c5b0 !important; }
+    /* 1. المتغيرات اللونية الدقيقة لكل سمة فاتحة */
+    html[data-theme="warm-alabaster"] {
+      --lt-body-bg: #F6F0E6;
+      --lt-card-bg: #ffffff;
+      --lt-card-secondary: #EDE4D6;
+      --lt-border: #DCCFBF;
+      --lt-border-accent: #8B6F4E;
+      --lt-text: #1c1917;
+      --lt-text-secondary: #4A3E31;
+      --lt-text-muted: #6B5B49;
+      --lt-accent: #8B6F4E;
+    }
+    html[data-theme="pure-platinum"] {
+      --lt-body-bg: #EEF2F6;
+      --lt-card-bg: #ffffff;
+      --lt-card-secondary: #E2E8F0;
+      --lt-border: #CBD5E1;
+      --lt-border-accent: #64748B;
+      --lt-text: #0f172a;
+      --lt-text-secondary: #334155;
+      --lt-text-muted: #475569;
+      --lt-accent: #64748B;
+    }
+    html[data-theme="beige"] {
+      --lt-body-bg: #f5ebe0;
+      --lt-card-bg: #fffcf7;
+      --lt-card-secondary: #eddcd0;
+      --lt-border: #e2d2bd;
+      --lt-border-accent: #d6c5b0;
+      --lt-text: #23190e;
+      --lt-text-secondary: #5a4632;
+      --lt-text-muted: #78624a;
+      --lt-accent: #b45309;
+    }
+    html[data-theme="ivory"] {
+      --lt-body-bg: #faf7f0;
+      --lt-card-bg: #ffffff;
+      --lt-card-secondary: #f0ebd8;
+      --lt-border: #ded6c3;
+      --lt-border-accent: #d1c6ab;
+      --lt-text: #1c1813;
+      --lt-text-secondary: #52473a;
+      --lt-text-muted: #706353;
+      --lt-accent: #785e3a;
+    }
+    html[data-theme="offwhite"] {
+      --lt-body-bg: #f9fafb;
+      --lt-card-bg: #ffffff;
+      --lt-card-secondary: #f3f4f6;
+      --lt-border: #d1d5db;
+      --lt-border-accent: #9ca3af;
+      --lt-text: #111827;
+      --lt-text-secondary: #4b5563;
+      --lt-text-muted: #6b7280;
+      --lt-accent: #374151;
+    }
+    html[data-theme="light-linen"] {
+      --lt-body-bg: #ede7dc;
+      --lt-card-bg: #faf7f2;
+      --lt-card-secondary: #e4dcce;
+      --lt-border: #cfc5b3;
+      --lt-border-accent: #b8ab96;
+      --lt-text: #211f1a;
+      --lt-text-secondary: #575245;
+      --lt-text-muted: #787161;
+      --lt-accent: #8b7355;
+    }
+    html[data-theme="pearl-platinum"] {
+      --lt-body-bg: #e9ecef;
+      --lt-card-bg: #f8f9fa;
+      --lt-card-secondary: #dde2e7;
+      --lt-border: #cbd3dc;
+      --lt-border-accent: #94a3b8;
+      --lt-text: #0f172a;
+      --lt-text-secondary: #475569;
+      --lt-text-muted: #64748b;
+      --lt-accent: #475569;
+    }
+    html[data-theme="nordic-paper"] {
+      --lt-body-bg: #f8fafc;
+      --lt-card-bg: #ffffff;
+      --lt-card-secondary: #f1f5f9;
+      --lt-border: #cbd5e1;
+      --lt-border-accent: #94a3b8;
+      --lt-text: #0f172a;
+      --lt-text-secondary: #334155;
+      --lt-text-muted: #475569;
+      --lt-accent: #0284c7;
+    }
+
+    /* 2. القواعد الموحدة الشاملة لكافة السمات الفاتحة في التطبيق */
+    html[data-theme="warm-alabaster"] body,
+    html[data-theme="pure-platinum"] body,
+    html[data-theme="beige"] body,
+    html[data-theme="ivory"] body,
+    html[data-theme="offwhite"] body,
+    html[data-theme="light-linen"] body,
+    html[data-theme="pearl-platinum"] body,
+    html[data-theme="nordic-paper"] body {
+      background: var(--lt-body-bg) !important;
+      color: var(--lt-text) !important;
+    }
+
+    html[data-theme="warm-alabaster"] .mobile-app-wrapper,
+    html[data-theme="pure-platinum"] .mobile-app-wrapper,
+    html[data-theme="beige"] .mobile-app-wrapper,
+    html[data-theme="ivory"] .mobile-app-wrapper,
+    html[data-theme="offwhite"] .mobile-app-wrapper,
+    html[data-theme="light-linen"] .mobile-app-wrapper,
+    html[data-theme="pearl-platinum"] .mobile-app-wrapper,
+    html[data-theme="nordic-paper"] .mobile-app-wrapper {
+      background: var(--lt-body-bg) !important;
+      border-color: var(--lt-border) !important;
+      color: var(--lt-text) !important;
+    }
+
+    /* هيدر التطبيق والدك السفلي */
+    html[data-theme="warm-alabaster"] header.app-main-header,
+    html[data-theme="pure-platinum"] header.app-main-header,
+    html[data-theme="beige"] header.app-main-header,
+    html[data-theme="ivory"] header.app-main-header,
+    html[data-theme="offwhite"] header.app-main-header,
+    html[data-theme="light-linen"] header.app-main-header,
+    html[data-theme="pearl-platinum"] header.app-main-header,
+    html[data-theme="nordic-paper"] header.app-main-header,
+    html[data-theme="warm-alabaster"] nav.glass-dock,
+    html[data-theme="pure-platinum"] nav.glass-dock,
+    html[data-theme="beige"] nav.glass-dock,
+    html[data-theme="ivory"] nav.glass-dock,
+    html[data-theme="offwhite"] nav.glass-dock,
+    html[data-theme="light-linen"] nav.glass-dock,
+    html[data-theme="pearl-platinum"] nav.glass-dock,
+    html[data-theme="nordic-paper"] nav.glass-dock {
+      background: var(--lt-body-bg) !important;
+      border-color: var(--lt-border) !important;
+    }
+
+    /* إلغاء كافة التدرجات الداكنة والسوداء في جميع السمات الفاتحة */
+    html[data-theme="warm-alabaster"] [class*="from-slate-"],
+    html[data-theme="pure-platinum"] [class*="from-slate-"],
+    html[data-theme="beige"] [class*="from-slate-"],
+    html[data-theme="ivory"] [class*="from-slate-"],
+    html[data-theme="offwhite"] [class*="from-slate-"],
+    html[data-theme="light-linen"] [class*="from-slate-"],
+    html[data-theme="pearl-platinum"] [class*="from-slate-"],
+    html[data-theme="nordic-paper"] [class*="from-slate-"],
+    html[data-theme="warm-alabaster"] [class*="to-slate-"],
+    html[data-theme="pure-platinum"] [class*="to-slate-"],
+    html[data-theme="beige"] [class*="to-slate-"],
+    html[data-theme="ivory"] [class*="to-slate-"],
+    html[data-theme="offwhite"] [class*="to-slate-"],
+    html[data-theme="light-linen"] [class*="to-slate-"],
+    html[data-theme="pearl-platinum"] [class*="to-slate-"],
+    html[data-theme="nordic-paper"] [class*="to-slate-"],
+    html[data-theme="warm-alabaster"] [class*="via-slate-"],
+    html[data-theme="pure-platinum"] [class*="via-slate-"],
+    html[data-theme="beige"] [class*="via-slate-"],
+    html[data-theme="ivory"] [class*="via-slate-"],
+    html[data-theme="offwhite"] [class*="via-slate-"],
+    html[data-theme="light-linen"] [class*="via-slate-"],
+    html[data-theme="pearl-platinum"] [class*="via-slate-"],
+    html[data-theme="nordic-paper"] [class*="via-slate-"] {
+      background-image: none !important;
+    }
+
+    /* البطاقات والكروت والحاويات الأساسية والزجاجية */
+    html[data-theme="warm-alabaster"] .glass-base,
+    html[data-theme="pure-platinum"] .glass-base,
     html[data-theme="beige"] .glass-base,
-    html[data-theme="beige"] .glass-card-interactive,
-    html[data-theme="beige"] .bg-slate-900,
-    html[data-theme="beige"] .bg-slate-950 { background: #fffcf7 !important; border-color: #e2d2bd !important; color: #23190e !important; box-shadow: 0 4px 18px rgba(180, 83, 9, 0.05) !important; }
-    html[data-theme="beige"] .bg-slate-800 { background: #eddcd0 !important; border-color: #c9b49e !important; color: #3b2814 !important; }
-    html[data-theme="beige"] .text-slate-100,
-    html[data-theme="beige"] .text-slate-200,
-    html[data-theme="beige"] .text-slate-300 { color: #23190e !important; font-weight: 700; }
-    html[data-theme="beige"] .text-slate-400 { color: #5a4632 !important; }
-    html[data-theme="beige"] .text-slate-500 { color: #78624a !important; }
-
-    /* 2. ROYAL IVORY (العاجي الملكي الهادئ) */
-    html[data-theme="ivory"] body { background: #eee9dc !important; color: #1c1813 !important; }
-    html[data-theme="ivory"] .mobile-app-wrapper { background: #faf7f0 !important; border-color: #ded6c3 !important; color: #1c1813 !important; }
-    html[data-theme="ivory"] header,
-    html[data-theme="ivory"] nav.glass-dock { background: rgba(250, 247, 240, 0.98) !important; border-color: #ded6c3 !important; }
     html[data-theme="ivory"] .glass-base,
-    html[data-theme="ivory"] .glass-card-interactive,
-    html[data-theme="ivory"] .bg-slate-900,
-    html[data-theme="ivory"] .bg-slate-950 { background: #ffffff !important; border-color: #e6dfcd !important; color: #1c1813 !important; box-shadow: 0 4px 18px rgba(0,0,0,0.05) !important; }
-    html[data-theme="ivory"] .bg-slate-800 { background: #f0ebd8 !important; border-color: #d1c6ab !important; color: #2b231a !important; }
-    html[data-theme="ivory"] .text-slate-100,
-    html[data-theme="ivory"] .text-slate-200,
-    html[data-theme="ivory"] .text-slate-300 { color: #1c1813 !important; font-weight: 700; }
-    html[data-theme="ivory"] .text-slate-400 { color: #52473a !important; }
-    html[data-theme="ivory"] .text-slate-500 { color: #706353 !important; }
-
-    /* 3. MATTE OFF-WHITE (الأوف وايت الحديث المطفأ) */
-    html[data-theme="offwhite"] body { background: #e5e7eb !important; color: #111827 !important; }
-    html[data-theme="offwhite"] .mobile-app-wrapper { background: #f9fafb !important; border-color: #d1d5db !important; color: #111827 !important; }
-    html[data-theme="offwhite"] header,
-    html[data-theme="offwhite"] nav.glass-dock { background: rgba(249, 250, 251, 0.98) !important; border-color: #d1d5db !important; }
     html[data-theme="offwhite"] .glass-base,
-    html[data-theme="offwhite"] .glass-card-interactive,
-    html[data-theme="offwhite"] .bg-slate-900,
-    html[data-theme="offwhite"] .bg-slate-950 { background: #ffffff !important; border-color: #e5e7eb !important; color: #111827 !important; box-shadow: 0 4px 15px rgba(0,0,0,0.06) !important; }
-    html[data-theme="offwhite"] .bg-slate-800 { background: #f3f4f6 !important; border-color: #d1d5db !important; color: #1f2937 !important; }
-    html[data-theme="offwhite"] .text-slate-100,
-    html[data-theme="offwhite"] .text-slate-200,
-    html[data-theme="offwhite"] .text-slate-300 { color: #111827 !important; font-weight: 700; }
-    html[data-theme="offwhite"] .text-slate-400 { color: #4b5563 !important; }
-    html[data-theme="offwhite"] .text-slate-500 { color: #6b7280 !important; }
-
-    /* 4. SOFT NATURAL LINEN (الكتان الطبيعي الناعم - فاتح 1) */
-    html[data-theme="light-linen"] body { background: #ded7c8 !important; color: #211f1a !important; }
-    html[data-theme="light-linen"] .mobile-app-wrapper { background: #ede7dc !important; border-color: #cfc5b3 !important; color: #211f1a !important; }
-    html[data-theme="light-linen"] header,
-    html[data-theme="light-linen"] nav.glass-dock { background: rgba(237, 231, 220, 0.98) !important; border-color: #cfc5b3 !important; }
     html[data-theme="light-linen"] .glass-base,
-    html[data-theme="light-linen"] .glass-card-interactive,
-    html[data-theme="light-linen"] .bg-slate-900,
-    html[data-theme="light-linen"] .bg-slate-950 { background: #faf7f2 !important; border-color: #ded6c8 !important; color: #211f1a !important; box-shadow: 0 4px 18px rgba(0,0,0,0.05) !important; }
-    html[data-theme="light-linen"] .bg-slate-800 { background: #e4dcce !important; border-color: #c4b8a2 !important; color: #38342b !important; }
-    html[data-theme="light-linen"] .text-slate-100,
-    html[data-theme="light-linen"] .text-slate-200,
-    html[data-theme="light-linen"] .text-slate-300 { color: #211f1a !important; font-weight: 700; }
-    html[data-theme="light-linen"] .text-slate-400 { color: #575245 !important; }
-    html[data-theme="light-linen"] .text-slate-500 { color: #787161 !important; }
-
-    /* 5. PLATINUM PEARL GREY (اللؤلؤي الفضي المريح - فاتح 2) */
-    html[data-theme="pearl-platinum"] body { background: #dbe0e6 !important; color: #0f172a !important; }
-    html[data-theme="pearl-platinum"] .mobile-app-wrapper { background: #e9ecef !important; border-color: #cbd3dc !important; color: #0f172a !important; }
-    html[data-theme="pearl-platinum"] header,
-    html[data-theme="pearl-platinum"] nav.glass-dock { background: rgba(233, 236, 239, 0.98) !important; border-color: #cbd3dc !important; }
     html[data-theme="pearl-platinum"] .glass-base,
-    html[data-theme="pearl-platinum"] .glass-card-interactive,
-    html[data-theme="pearl-platinum"] .bg-slate-900,
-    html[data-theme="pearl-platinum"] .bg-slate-950 { background: #f8f9fa !important; border-color: #dee2e6 !important; color: #0f172a !important; box-shadow: 0 4px 15px rgba(15,23,42,0.06) !important; }
-    html[data-theme="pearl-platinum"] .bg-slate-800 { background: #dde2e7 !important; border-color: #bfc8d2 !important; color: #1e293b !important; }
-    html[data-theme="pearl-platinum"] .text-slate-100,
-    html[data-theme="pearl-platinum"] .text-slate-200,
-    html[data-theme="pearl-platinum"] .text-slate-300 { color: #0f172a !important; font-weight: 700; }
-    html[data-theme="pearl-platinum"] .text-slate-400 { color: #475569 !important; }
-    html[data-theme="pearl-platinum"] .text-slate-500 { color: #64748b !important; }
-
-    /* 6. NORDIC PAPER LIGHT (الورقي النوردي المريح) */
-    html[data-theme="nordic-paper"] body { background: #cbd5e1 !important; color: #0f172a !important; }
-    html[data-theme="nordic-paper"] .mobile-app-wrapper { background: #f8fafc !important; border-color: #cbd5e1 !important; color: #0f172a !important; }
-    html[data-theme="nordic-paper"] header,
-    html[data-theme="nordic-paper"] nav.glass-dock { background: rgba(248, 250, 252, 0.98) !important; border-color: #cbd5e1 !important; }
     html[data-theme="nordic-paper"] .glass-base,
+    html[data-theme="warm-alabaster"] .glass-card-interactive,
+    html[data-theme="pure-platinum"] .glass-card-interactive,
+    html[data-theme="beige"] .glass-card-interactive,
+    html[data-theme="ivory"] .glass-card-interactive,
+    html[data-theme="offwhite"] .glass-card-interactive,
+    html[data-theme="light-linen"] .glass-card-interactive,
+    html[data-theme="pearl-platinum"] .glass-card-interactive,
     html[data-theme="nordic-paper"] .glass-card-interactive,
-    html[data-theme="nordic-paper"] .bg-slate-900,
-    html[data-theme="nordic-paper"] .bg-slate-950 { background: #ffffff !important; border-color: #e2e8f0 !important; color: #0f172a !important; box-shadow: 0 4px 15px rgba(0,0,0,0.06) !important; }
-    html[data-theme="nordic-paper"] .bg-slate-800 { background: #f1f5f9 !important; border-color: #cbd5e1 !important; color: #1e293b !important; }
-    html[data-theme="nordic-paper"] .text-slate-100,
-    html[data-theme="nordic-paper"] .text-slate-200,
-    html[data-theme="nordic-paper"] .text-slate-300 { color: #0f172a !important; font-weight: 700; }
-    html[data-theme="nordic-paper"] .text-slate-400 { color: #475569 !important; }
-    html[data-theme="nordic-paper"] .text-slate-500 { color: #64748b !important; }
+    html[data-theme="warm-alabaster"] [class*="bg-slate-950"],
+    html[data-theme="pure-platinum"] [class*="bg-slate-950"],
+    html[data-theme="beige"] [class*="bg-slate-950"],
+    html[data-theme="ivory"] [class*="bg-slate-950"],
+    html[data-theme="offwhite"] [class*="bg-slate-950"],
+    html[data-theme="light-linen"] [class*="bg-slate-950"],
+    html[data-theme="pearl-platinum"] [class*="bg-slate-950"],
+    html[data-theme="nordic-paper"] [class*="bg-slate-950"],
+    html[data-theme="warm-alabaster"] [class*="bg-slate-900"],
+    html[data-theme="pure-platinum"] [class*="bg-slate-900"],
+    html[data-theme="beige"] [class*="bg-slate-900"],
+    html[data-theme="ivory"] [class*="bg-slate-900"],
+    html[data-theme="offwhite"] [class*="bg-slate-900"],
+    html[data-theme="light-linen"] [class*="bg-slate-900"],
+    html[data-theme="pearl-platinum"] [class*="bg-slate-900"],
+    html[data-theme="nordic-paper"] [class*="bg-slate-900"] {
+      background-color: var(--lt-card-bg) !important;
+      border-color: var(--lt-border) !important;
+      color: var(--lt-text) !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* البطاقات الفرعية والشرائح الصغيرة */
+    html[data-theme="warm-alabaster"] [class*="bg-slate-800"],
+    html[data-theme="pure-platinum"] [class*="bg-slate-800"],
+    html[data-theme="beige"] [class*="bg-slate-800"],
+    html[data-theme="ivory"] [class*="bg-slate-800"],
+    html[data-theme="offwhite"] [class*="bg-slate-800"],
+    html[data-theme="light-linen"] [class*="bg-slate-800"],
+    html[data-theme="pearl-platinum"] [class*="bg-slate-800"],
+    html[data-theme="nordic-paper"] [class*="bg-slate-800"] {
+      background-color: var(--lt-card-secondary) !important;
+      border-color: var(--lt-border) !important;
+      color: var(--lt-text) !important;
+    }
+
+    /* النوافذ المنبثقة والقوائم السفلية (Modals & Bottom Sheets) - إلغاء السواد تماماً */
+    html[data-theme="warm-alabaster"] .modal-backdrop,
+    html[data-theme="pure-platinum"] .modal-backdrop,
+    html[data-theme="beige"] .modal-backdrop,
+    html[data-theme="ivory"] .modal-backdrop,
+    html[data-theme="offwhite"] .modal-backdrop,
+    html[data-theme="light-linen"] .modal-backdrop,
+    html[data-theme="pearl-platinum"] .modal-backdrop,
+    html[data-theme="nordic-paper"] .modal-backdrop,
+    html[data-theme="warm-alabaster"] [id^="modal"],
+    html[data-theme="pure-platinum"] [id^="modal"],
+    html[data-theme="beige"] [id^="modal"],
+    html[data-theme="ivory"] [id^="modal"],
+    html[data-theme="offwhite"] [id^="modal"],
+    html[data-theme="light-linen"] [id^="modal"],
+    html[data-theme="pearl-platinum"] [id^="modal"],
+    html[data-theme="nordic-paper"] [id^="modal"] {
+      background-color: rgba(15, 23, 42, 0.45) !important;
+      backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+    }
+
+    /* محتوى النوافذ المنبثقة الداخلي */
+    html[data-theme="warm-alabaster"] [id^="modal"] > div,
+    html[data-theme="pure-platinum"] [id^="modal"] > div,
+    html[data-theme="beige"] [id^="modal"] > div,
+    html[data-theme="ivory"] [id^="modal"] > div,
+    html[data-theme="offwhite"] [id^="modal"] > div,
+    html[data-theme="light-linen"] [id^="modal"] > div,
+    html[data-theme="pearl-platinum"] [id^="modal"] > div,
+    html[data-theme="nordic-paper"] [id^="modal"] > div,
+    html[data-theme="warm-alabaster"] [id^="modal"] .glass-base,
+    html[data-theme="pure-platinum"] [id^="modal"] .glass-base,
+    html[data-theme="beige"] [id^="modal"] .glass-base,
+    html[data-theme="ivory"] [id^="modal"] .glass-base,
+    html[data-theme="offwhite"] [id^="modal"] .glass-base,
+    html[data-theme="light-linen"] [id^="modal"] .glass-base,
+    html[data-theme="pearl-platinum"] [id^="modal"] .glass-base,
+    html[data-theme="nordic-paper"] [id^="modal"] .glass-base {
+      background-color: var(--lt-card-bg) !important;
+      background-image: none !important;
+      color: var(--lt-text) !important;
+      border-color: var(--lt-border) !important;
+    }
+
+    /* حقول الإدخال والاختيار في جميع السمات الفاتحة */
+    html[data-theme="warm-alabaster"] input,
+    html[data-theme="pure-platinum"] input,
+    html[data-theme="beige"] input,
+    html[data-theme="ivory"] input,
+    html[data-theme="offwhite"] input,
+    html[data-theme="light-linen"] input,
+    html[data-theme="pearl-platinum"] input,
+    html[data-theme="nordic-paper"] input,
+    html[data-theme="warm-alabaster"] select,
+    html[data-theme="pure-platinum"] select,
+    html[data-theme="beige"] select,
+    html[data-theme="ivory"] select,
+    html[data-theme="offwhite"] select,
+    html[data-theme="light-linen"] select,
+    html[data-theme="pearl-platinum"] select,
+    html[data-theme="nordic-paper"] select,
+    html[data-theme="warm-alabaster"] textarea,
+    html[data-theme="pure-platinum"] textarea,
+    html[data-theme="beige"] textarea,
+    html[data-theme="ivory"] textarea,
+    html[data-theme="offwhite"] textarea,
+    html[data-theme="light-linen"] textarea,
+    html[data-theme="pearl-platinum"] textarea,
+    html[data-theme="nordic-paper"] textarea {
+      background-color: #ffffff !important;
+      color: var(--lt-text) !important;
+      border-color: var(--lt-border) !important;
+    }
+    html[data-theme="warm-alabaster"] input:focus,
+    html[data-theme="pure-platinum"] input:focus,
+    html[data-theme="beige"] input:focus,
+    html[data-theme="ivory"] input:focus,
+    html[data-theme="offwhite"] input:focus,
+    html[data-theme="light-linen"] input:focus,
+    html[data-theme="pearl-platinum"] input:focus,
+    html[data-theme="nordic-paper"] input:focus,
+    html[data-theme="warm-alabaster"] select:focus,
+    html[data-theme="pure-platinum"] select:focus,
+    html[data-theme="beige"] select:focus,
+    html[data-theme="ivory"] select:focus,
+    html[data-theme="offwhite"] select:focus,
+    html[data-theme="light-linen"] select:focus,
+    html[data-theme="pearl-platinum"] select:focus,
+    html[data-theme="nordic-paper"] select:focus {
+      border-color: var(--lt-border-accent) !important;
+      outline: none !important;
+    }
+
+    /* النصوص الداكنة المقروءة بوضوح فائق */
+    html[data-theme="warm-alabaster"] [class*="text-slate-100"],
+    html[data-theme="pure-platinum"] [class*="text-slate-100"],
+    html[data-theme="beige"] [class*="text-slate-100"],
+    html[data-theme="ivory"] [class*="text-slate-100"],
+    html[data-theme="offwhite"] [class*="text-slate-100"],
+    html[data-theme="light-linen"] [class*="text-slate-100"],
+    html[data-theme="pearl-platinum"] [class*="text-slate-100"],
+    html[data-theme="nordic-paper"] [class*="text-slate-100"],
+    html[data-theme="warm-alabaster"] [class*="text-slate-200"],
+    html[data-theme="pure-platinum"] [class*="text-slate-200"],
+    html[data-theme="beige"] [class*="text-slate-200"],
+    html[data-theme="ivory"] [class*="text-slate-200"],
+    html[data-theme="offwhite"] [class*="text-slate-200"],
+    html[data-theme="light-linen"] [class*="text-slate-200"],
+    html[data-theme="pearl-platinum"] [class*="text-slate-200"],
+    html[data-theme="nordic-paper"] [class*="text-slate-200"],
+    html[data-theme="warm-alabaster"] [class*="text-slate-300"],
+    html[data-theme="pure-platinum"] [class*="text-slate-300"],
+    html[data-theme="beige"] [class*="text-slate-300"],
+    html[data-theme="ivory"] [class*="text-slate-300"],
+    html[data-theme="offwhite"] [class*="text-slate-300"],
+    html[data-theme="light-linen"] [class*="text-slate-300"],
+    html[data-theme="pearl-platinum"] [class*="text-slate-300"],
+    html[data-theme="nordic-paper"] [class*="text-slate-300"] {
+      color: var(--lt-text) !important;
+      font-weight: 700 !important;
+    }
+
+    html[data-theme="warm-alabaster"] [class*="text-slate-400"],
+    html[data-theme="pure-platinum"] [class*="text-slate-400"],
+    html[data-theme="beige"] [class*="text-slate-400"],
+    html[data-theme="ivory"] [class*="text-slate-400"],
+    html[data-theme="offwhite"] [class*="text-slate-400"],
+    html[data-theme="light-linen"] [class*="text-slate-400"],
+    html[data-theme="pearl-platinum"] [class*="text-slate-400"],
+    html[data-theme="nordic-paper"] [class*="text-slate-400"] {
+      color: var(--lt-text-secondary) !important;
+      font-weight: 600 !important;
+    }
+
+    html[data-theme="warm-alabaster"] [class*="text-slate-500"],
+    html[data-theme="pure-platinum"] [class*="text-slate-500"],
+    html[data-theme="beige"] [class*="text-slate-500"],
+    html[data-theme="ivory"] [class*="text-slate-500"],
+    html[data-theme="offwhite"] [class*="text-slate-500"],
+    html[data-theme="light-linen"] [class*="text-slate-500"],
+    html[data-theme="pearl-platinum"] [class*="text-slate-500"],
+    html[data-theme="nordic-paper"] [class*="text-slate-500"] {
+      color: var(--lt-text-muted) !important;
+    }
+
+    /* الحدود والفواصل */
+    html[data-theme="warm-alabaster"] [class*="border-slate-800"],
+    html[data-theme="pure-platinum"] [class*="border-slate-800"],
+    html[data-theme="beige"] [class*="border-slate-800"],
+    html[data-theme="ivory"] [class*="border-slate-800"],
+    html[data-theme="offwhite"] [class*="border-slate-800"],
+    html[data-theme="light-linen"] [class*="border-slate-800"],
+    html[data-theme="pearl-platinum"] [class*="border-slate-800"],
+    html[data-theme="nordic-paper"] [class*="border-slate-800"],
+    html[data-theme="warm-alabaster"] [class*="border-slate-700"],
+    html[data-theme="pure-platinum"] [class*="border-slate-700"],
+    html[data-theme="beige"] [class*="border-slate-700"],
+    html[data-theme="ivory"] [class*="border-slate-700"],
+    html[data-theme="offwhite"] [class*="border-slate-700"],
+    html[data-theme="light-linen"] [class*="border-slate-700"],
+    html[data-theme="pearl-platinum"] [class*="border-slate-700"],
+    html[data-theme="nordic-paper"] [class*="border-slate-700"] {
+      border-color: var(--lt-border) !important;
+    }
+
+    /* القوائم الحية التي يتم جلبها من قاعدة البيانات (البنوك، الخزن، الشيكات، المخزون، الحركات) */
+    html[data-theme="warm-alabaster"] #realBanksListContainer > div,
+    html[data-theme="pure-platinum"] #realBanksListContainer > div,
+    html[data-theme="beige"] #realBanksListContainer > div,
+    html[data-theme="ivory"] #realBanksListContainer > div,
+    html[data-theme="offwhite"] #realBanksListContainer > div,
+    html[data-theme="light-linen"] #realBanksListContainer > div,
+    html[data-theme="pearl-platinum"] #realBanksListContainer > div,
+    html[data-theme="nordic-paper"] #realBanksListContainer > div,
+    html[data-theme="warm-alabaster"] #realSafesListContainer > div,
+    html[data-theme="pure-platinum"] #realSafesListContainer > div,
+    html[data-theme="beige"] #realSafesListContainer > div,
+    html[data-theme="ivory"] #realSafesListContainer > div,
+    html[data-theme="offwhite"] #realSafesListContainer > div,
+    html[data-theme="light-linen"] #realSafesListContainer > div,
+    html[data-theme="pearl-platinum"] #realSafesListContainer > div,
+    html[data-theme="nordic-paper"] #realSafesListContainer > div,
+    html[data-theme="warm-alabaster"] #realInventoryItemsList > div,
+    html[data-theme="pure-platinum"] #realInventoryItemsList > div,
+    html[data-theme="beige"] #realInventoryItemsList > div,
+    html[data-theme="ivory"] #realInventoryItemsList > div,
+    html[data-theme="offwhite"] #realInventoryItemsList > div,
+    html[data-theme="light-linen"] #realInventoryItemsList > div,
+    html[data-theme="pearl-platinum"] #realInventoryItemsList > div,
+    html[data-theme="nordic-paper"] #realInventoryItemsList > div,
+    html[data-theme="warm-alabaster"] #realTransactionsFeedList > div,
+    html[data-theme="pure-platinum"] #realTransactionsFeedList > div,
+    html[data-theme="beige"] #realTransactionsFeedList > div,
+    html[data-theme="ivory"] #realTransactionsFeedList > div,
+    html[data-theme="offwhite"] #realTransactionsFeedList > div,
+    html[data-theme="light-linen"] #realTransactionsFeedList > div,
+    html[data-theme="pearl-platinum"] #realTransactionsFeedList > div,
+    html[data-theme="nordic-paper"] #realTransactionsFeedList > div,
+    html[data-theme="warm-alabaster"] #realNonZeroBalancesListContainer > div,
+    html[data-theme="pure-platinum"] #realNonZeroBalancesListContainer > div,
+    html[data-theme="beige"] #realNonZeroBalancesListContainer > div,
+    html[data-theme="ivory"] #realNonZeroBalancesListContainer > div,
+    html[data-theme="offwhite"] #realNonZeroBalancesListContainer > div,
+    html[data-theme="light-linen"] #realNonZeroBalancesListContainer > div,
+    html[data-theme="pearl-platinum"] #realNonZeroBalancesListContainer > div,
+    html[data-theme="nordic-paper"] #realNonZeroBalancesListContainer > div,
+    html[data-theme="warm-alabaster"] #accountsListContainer > div,
+    html[data-theme="pure-platinum"] #accountsListContainer > div,
+    html[data-theme="beige"] #accountsListContainer > div,
+    html[data-theme="ivory"] #accountsListContainer > div,
+    html[data-theme="offwhite"] #accountsListContainer > div,
+    html[data-theme="light-linen"] #accountsListContainer > div,
+    html[data-theme="pearl-platinum"] #accountsListContainer > div,
+    html[data-theme="nordic-paper"] #accountsListContainer > div,
+    html[data-theme="warm-alabaster"] #accountsListEmbeddedContainer > div,
+    html[data-theme="pure-platinum"] #accountsListEmbeddedContainer > div,
+    html[data-theme="beige"] #accountsListEmbeddedContainer > div,
+    html[data-theme="ivory"] #accountsListEmbeddedContainer > div,
+    html[data-theme="offwhite"] #accountsListEmbeddedContainer > div,
+    html[data-theme="light-linen"] #accountsListEmbeddedContainer > div,
+    html[data-theme="pearl-platinum"] #accountsListEmbeddedContainer > div,
+    html[data-theme="nordic-paper"] #accountsListEmbeddedContainer > div,
+    html[data-theme="warm-alabaster"] #itemSheetListView > div,
+    html[data-theme="pure-platinum"] #itemSheetListView > div,
+    html[data-theme="beige"] #itemSheetListView > div,
+    html[data-theme="ivory"] #itemSheetListView > div,
+    html[data-theme="offwhite"] #itemSheetListView > div,
+    html[data-theme="light-linen"] #itemSheetListView > div,
+    html[data-theme="pearl-platinum"] #itemSheetListView > div,
+    html[data-theme="nordic-paper"] #itemSheetListView > div,
+    html[data-theme="warm-alabaster"] #nonZeroBalancesList > div,
+    html[data-theme="pure-platinum"] #nonZeroBalancesList > div,
+    html[data-theme="beige"] #nonZeroBalancesList > div,
+    html[data-theme="ivory"] #nonZeroBalancesList > div,
+    html[data-theme="offwhite"] #nonZeroBalancesList > div,
+    html[data-theme="light-linen"] #nonZeroBalancesList > div,
+    html[data-theme="pearl-platinum"] #nonZeroBalancesList > div,
+    html[data-theme="nordic-paper"] #nonZeroBalancesList > div,
+    html[data-theme="warm-alabaster"] #itemSheetContainer,
+    html[data-theme="pure-platinum"] #itemSheetContainer,
+    html[data-theme="beige"] #itemSheetContainer,
+    html[data-theme="ivory"] #itemSheetContainer,
+    html[data-theme="offwhite"] #itemSheetContainer,
+    html[data-theme="light-linen"] #itemSheetContainer,
+    html[data-theme="pearl-platinum"] #itemSheetContainer,
+    html[data-theme="nordic-paper"] #itemSheetContainer {
+      background-color: #ffffff !important;
+      border: 1px solid var(--lt-border) !important;
+      color: var(--lt-text) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    html[data-theme="warm-alabaster"] #itemSheetBackdrop,
+    html[data-theme="pure-platinum"] #itemSheetBackdrop,
+    html[data-theme="beige"] #itemSheetBackdrop,
+    html[data-theme="ivory"] #itemSheetBackdrop,
+    html[data-theme="offwhite"] #itemSheetBackdrop,
+    html[data-theme="light-linen"] #itemSheetBackdrop,
+    html[data-theme="pearl-platinum"] #itemSheetBackdrop,
+    html[data-theme="nordic-paper"] #itemSheetBackdrop {
+      background-color: rgba(15, 23, 42, 0.45) !important;
+    }
 
     /* ─── GROUP 2: BLUE & NAVY THEMES (درجات الأزرق والكحلي) ─── */
 
@@ -2894,7 +3328,6 @@
       body {
         padding: 0 !important;
         margin: 0 !important;
-        background: #020617 !important;
         min-height: var(--app-height, 100dvh) !important;
         height: var(--app-height, 100dvh) !important;
         overflow: hidden !important;
@@ -2935,7 +3368,6 @@
     body.is-mobile-device {
       padding: 0 !important;
       margin: 0 !important;
-      background: #020617 !important;
       height: var(--app-height, 100dvh) !important;
       overflow: hidden !important;
     }
@@ -3381,7 +3813,7 @@
 
           <div class="grid grid-cols-3 gap-2" id="operationsGrid">
             <!-- 1. حركة مالية -->
-            <button data-category="finance" onclick="openOperationalForm('financeMovement'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="حركة مالية">
+            <button data-category="finance" onclick="window.location.href='mobile-voucher.php'; if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="حركة مالية">
               <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-money-bill-transfer text-base"></i>
               </div>
@@ -9366,11 +9798,12 @@
     };
 
     function openOperationalForm(formType) {
-      let modalId = '';
       if (formType === 'financeMovement') {
-        initFinancialTransferModal();
-        modalId = 'modalOpFinance';
-      } else if (formType === 'sales' || formType === 'salesInvoice') {
+        window.location.href = 'mobile-voucher.php';
+        return;
+      }
+      let modalId = '';
+      if (formType === 'sales' || formType === 'salesInvoice') {
         modalId = 'modalOpSales';
       } else if (formType === 'salesSplit') {
         modalId = 'modalOpSalesSplit';
@@ -11584,14 +12017,21 @@
       'sunlight-titanium': { name: 'التيتانيوم الشمسي فائق التباين', icon: '☀️', category: 'dark', desc: 'معيار WCAG AAA للعمل الميداني تحت شمس الظهيرة' }
     };
 
-    let currentActiveTheme = localStorage.getItem('magaies_active_theme') || 'warm-alabaster';
+    let currentActiveTheme = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_mobile_theme') || 'warm-alabaster';
 
     function applyTheme(themeKey, showToast = true) {
       if (!THEMES_PALETTE_CONFIG[themeKey]) themeKey = 'warm-alabaster';
       currentActiveTheme = themeKey;
-      localStorage.setItem('magaies_active_theme', themeKey);
+      try {
+        localStorage.setItem('magaies_active_theme', themeKey);
+        localStorage.setItem('magaiees_mobile_theme', themeKey);
+        localStorage.setItem('magaiees_theme', themeKey);
+        document.cookie = "magaies_active_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
+        document.cookie = "magaiees_mobile_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
+      } catch(e) {}
 
       document.documentElement.setAttribute('data-theme', themeKey);
+      if (document.body) document.body.setAttribute('data-theme', themeKey);
 
       // Play audio and haptic feedback
       if (showToast) {
@@ -11607,6 +12047,15 @@
         showFloatingToast(`🎨 تم تفعيل سمة: ${conf.icon} ${conf.name} (${conf.desc})`);
       }
     }
+
+    // الاستماع الفوري لتغيير السمة من شاشة أخرى (مثل شاشة السند المالي) للمزامنة اللحظية الموحدة
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'magaies_active_theme' || e.key === 'magaiees_mobile_theme') {
+        if (e.newValue && e.newValue !== currentActiveTheme) {
+          applyTheme(e.newValue, false);
+        }
+      }
+    });
 
     function openThemePaletteDrawer() {
       if (typeof AudioEngine !== 'undefined' && AudioEngine.play) AudioEngine.play('numpad');

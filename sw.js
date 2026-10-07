@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-07-v48-voucher-currency-rate-transfer';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-07-v49-theme-unification-transfer-font';
 
 const PRECACHE_ASSETS = [
     './manifest.json',

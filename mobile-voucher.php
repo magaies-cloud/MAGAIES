@@ -927,10 +927,25 @@ $currenciesData = [
     'EGP' => ['name' => 'جنيه مصري', 'symbol' => 'ج.م', 'flag' => '🇪🇬', 'defaultRate' => 55, 'isBase' => false],
     'EUR' => ['name' => 'يورو أوروبي', 'symbol' => '€', 'flag' => '🇪🇺', 'defaultRate' => 2900, 'isBase' => false],
 ];
+
+// السمة النشطة المتزامنة مع لوحة التحكم وكافة الشاشات
+$activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_theme'] ?? 'warm-alabaster';
 ?>
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
 <head>
+  <script>
+  (function initEarlyTheme() {
+    try {
+      var t = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_mobile_theme');
+      if (!t) {
+        var m = document.cookie.match(/(?:^|;\s*)(?:magaies_active_theme|magaiees_mobile_theme)=([^;]+)/);
+        if (m) t = decodeURIComponent(m[1]);
+      }
+      if (t) document.documentElement.setAttribute('data-theme', t);
+    } catch(e) {}
+  })();
+  </script>
   <!-- ⚡ SMART LAPTOP VOUCHER GATE (تحويل ذكي للكمبيوتر ومنع الجوال نهائياً) -->
   <script>
   (function enforceLaptopVoucherGate() {
@@ -1789,6 +1804,466 @@ $currenciesData = [
       outline: none !important;
     }
 
+    /* ═════════════════════════════════════════════════════════════════
+       🌟 UNIVERSAL THEMES ENGINE FOR MOBILE VOUCHER (توحيد السمات الـ 21 بالكامل)
+       ═════════════════════════════════════════════════════════════════ */
+    html[data-theme="warm-alabaster"],
+    html[data-theme="pure-platinum"],
+    html[data-theme="beige"],
+    html[data-theme="ivory"],
+    html[data-theme="offwhite"],
+    html[data-theme="light-linen"],
+    html[data-theme="pearl-platinum"],
+    html[data-theme="nordic-paper"] {
+      color-scheme: light !important;
+    }
+
+    /* 1. المتغيرات اللونية الدقيقة للسمات الفاتحة في شاشة السند */
+    html[data-theme="warm-alabaster"] {
+      --lt-body-bg: #F6F0E6;
+      --lt-card-bg: #ffffff;
+      --lt-card-secondary: #EDE4D6;
+      --lt-border: #DCCFBF;
+      --lt-text: #1c1917;
+      --lt-text-secondary: #4A3E31;
+      --lt-text-muted: #6B5B49;
+    }
+    html[data-theme="pure-platinum"] {
+      --lt-body-bg: #EEF2F6;
+      --lt-card-bg: #ffffff;
+      --lt-card-secondary: #E2E8F0;
+      --lt-border: #CBD5E1;
+      --lt-text: #0f172a;
+      --lt-text-secondary: #334155;
+      --lt-text-muted: #475569;
+    }
+    html[data-theme="beige"] {
+      --lt-body-bg: #f5ebe0;
+      --lt-card-bg: #fffcf7;
+      --lt-card-secondary: #eddcd0;
+      --lt-border: #e2d2bd;
+      --lt-text: #23190e;
+      --lt-text-secondary: #5a4632;
+      --lt-text-muted: #78624a;
+    }
+    html[data-theme="ivory"] {
+      --lt-body-bg: #faf7f0;
+      --lt-card-bg: #ffffff;
+      --lt-card-secondary: #f0ebd8;
+      --lt-border: #ded6c3;
+      --lt-text: #1c1813;
+      --lt-text-secondary: #52473a;
+      --lt-text-muted: #706353;
+    }
+    html[data-theme="offwhite"] {
+      --lt-body-bg: #f9fafb;
+      --lt-card-bg: #ffffff;
+      --lt-card-secondary: #f3f4f6;
+      --lt-border: #d1d5db;
+      --lt-text: #111827;
+      --lt-text-secondary: #4b5563;
+      --lt-text-muted: #6b7280;
+    }
+    html[data-theme="light-linen"] {
+      --lt-body-bg: #ede7dc;
+      --lt-card-bg: #faf7f2;
+      --lt-card-secondary: #e4dcce;
+      --lt-border: #cfc5b3;
+      --lt-text: #211f1a;
+      --lt-text-secondary: #575245;
+      --lt-text-muted: #787161;
+    }
+    html[data-theme="pearl-platinum"] {
+      --lt-body-bg: #e9ecef;
+      --lt-card-bg: #f8f9fa;
+      --lt-card-secondary: #dde2e7;
+      --lt-border: #cbd3dc;
+      --lt-text: #0f172a;
+      --lt-text-secondary: #475569;
+      --lt-text-muted: #64748b;
+    }
+    html[data-theme="nordic-paper"] {
+      --lt-body-bg: #f8fafc;
+      --lt-card-bg: #ffffff;
+      --lt-card-secondary: #f1f5f9;
+      --lt-border: #cbd5e1;
+      --lt-text: #0f172a;
+      --lt-text-secondary: #334155;
+      --lt-text-muted: #475569;
+    }
+
+    /* تطبيق القواعد المشتركة للسمات الفاتحة في شاشة السند */
+    html[data-theme="warm-alabaster"] body, html[data-theme="warm-alabaster"] #mobileContainer,
+    html[data-theme="pure-platinum"] body, html[data-theme="pure-platinum"] #mobileContainer,
+    html[data-theme="beige"] body, html[data-theme="beige"] #mobileContainer,
+    html[data-theme="ivory"] body, html[data-theme="ivory"] #mobileContainer,
+    html[data-theme="offwhite"] body, html[data-theme="offwhite"] #mobileContainer,
+    html[data-theme="light-linen"] body, html[data-theme="light-linen"] #mobileContainer,
+    html[data-theme="pearl-platinum"] body, html[data-theme="pearl-platinum"] #mobileContainer,
+    html[data-theme="nordic-paper"] body, html[data-theme="nordic-paper"] #mobileContainer {
+      background: var(--lt-body-bg) !important;
+      background-color: var(--lt-body-bg) !important;
+      color: var(--lt-text) !important;
+    }
+
+    /* الهيدر العلوي */
+    html[data-theme="warm-alabaster"] .sticky.top-0,
+    html[data-theme="pure-platinum"] .sticky.top-0,
+    html[data-theme="beige"] .sticky.top-0,
+    html[data-theme="ivory"] .sticky.top-0,
+    html[data-theme="offwhite"] .sticky.top-0,
+    html[data-theme="light-linen"] .sticky.top-0,
+    html[data-theme="pearl-platinum"] .sticky.top-0,
+    html[data-theme="nordic-paper"] .sticky.top-0 {
+      background: var(--lt-body-bg) !important;
+      border-color: var(--lt-border) !important;
+    }
+    html[data-theme="warm-alabaster"] .sticky.top-0 span.text-white,
+    html[data-theme="pure-platinum"] .sticky.top-0 span.text-white,
+    html[data-theme="beige"] .sticky.top-0 span.text-white,
+    html[data-theme="ivory"] .sticky.top-0 span.text-white,
+    html[data-theme="offwhite"] .sticky.top-0 span.text-white,
+    html[data-theme="light-linen"] .sticky.top-0 span.text-white,
+    html[data-theme="pearl-platinum"] .sticky.top-0 span.text-white,
+    html[data-theme="nordic-paper"] .sticky.top-0 span.text-white {
+      color: var(--lt-text) !important;
+    }
+
+    /* سطر التاريخ والرقم التسلسلي */
+    html[data-theme="warm-alabaster"] .sticky.top-\[37px\],
+    html[data-theme="pure-platinum"] .sticky.top-\[37px\],
+    html[data-theme="beige"] .sticky.top-\[37px\],
+    html[data-theme="ivory"] .sticky.top-\[37px\],
+    html[data-theme="offwhite"] .sticky.top-\[37px\],
+    html[data-theme="light-linen"] .sticky.top-\[37px\],
+    html[data-theme="pearl-platinum"] .sticky.top-\[37px\],
+    html[data-theme="nordic-paper"] .sticky.top-\[37px\] {
+      background: var(--lt-body-bg) !important;
+      border-color: var(--lt-border) !important;
+    }
+    html[data-theme="warm-alabaster"] #voucherDateDisplay,
+    html[data-theme="pure-platinum"] #voucherDateDisplay,
+    html[data-theme="beige"] #voucherDateDisplay,
+    html[data-theme="ivory"] #voucherDateDisplay,
+    html[data-theme="offwhite"] #voucherDateDisplay,
+    html[data-theme="light-linen"] #voucherDateDisplay,
+    html[data-theme="pearl-platinum"] #voucherDateDisplay,
+    html[data-theme="nordic-paper"] #voucherDateDisplay {
+      color: #0e7490 !important;
+    }
+    html[data-theme="warm-alabaster"] #currentVoucherDisplay,
+    html[data-theme="pure-platinum"] #currentVoucherDisplay,
+    html[data-theme="beige"] #currentVoucherDisplay,
+    html[data-theme="ivory"] #currentVoucherDisplay,
+    html[data-theme="offwhite"] #currentVoucherDisplay,
+    html[data-theme="light-linen"] #currentVoucherDisplay,
+    html[data-theme="pearl-platinum"] #currentVoucherDisplay,
+    html[data-theme="nordic-paper"] #currentVoucherDisplay {
+      color: #b45309 !important;
+      text-shadow: none !important;
+    }
+
+    /* البطاقات والكروت الأساسية في السند */
+    html[data-theme="warm-alabaster"] main > div,
+    html[data-theme="pure-platinum"] main > div,
+    html[data-theme="beige"] main > div,
+    html[data-theme="ivory"] main > div,
+    html[data-theme="offwhite"] main > div,
+    html[data-theme="light-linen"] main > div,
+    html[data-theme="pearl-platinum"] main > div,
+    html[data-theme="nordic-paper"] main > div,
+    html[data-theme="warm-alabaster"] [class*="bg-slate-900"],
+    html[data-theme="pure-platinum"] [class*="bg-slate-900"],
+    html[data-theme="beige"] [class*="bg-slate-900"],
+    html[data-theme="ivory"] [class*="bg-slate-900"],
+    html[data-theme="offwhite"] [class*="bg-slate-900"],
+    html[data-theme="light-linen"] [class*="bg-slate-900"],
+    html[data-theme="pearl-platinum"] [class*="bg-slate-900"],
+    html[data-theme="nordic-paper"] [class*="bg-slate-900"],
+    html[data-theme="warm-alabaster"] [class*="bg-slate-950"],
+    html[data-theme="pure-platinum"] [class*="bg-slate-950"],
+    html[data-theme="beige"] [class*="bg-slate-950"],
+    html[data-theme="ivory"] [class*="bg-slate-950"],
+    html[data-theme="offwhite"] [class*="bg-slate-950"],
+    html[data-theme="light-linen"] [class*="bg-slate-950"],
+    html[data-theme="pearl-platinum"] [class*="bg-slate-950"],
+    html[data-theme="nordic-paper"] [class*="bg-slate-950"] {
+      background-color: var(--lt-card-bg) !important;
+      border-color: var(--lt-border) !important;
+      color: var(--lt-text) !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* إلغاء التدرجات الداكنة في شاشة السند */
+    html[data-theme="warm-alabaster"] [class*="from-slate-"],
+    html[data-theme="pure-platinum"] [class*="from-slate-"],
+    html[data-theme="beige"] [class*="from-slate-"],
+    html[data-theme="ivory"] [class*="from-slate-"],
+    html[data-theme="offwhite"] [class*="from-slate-"],
+    html[data-theme="light-linen"] [class*="from-slate-"],
+    html[data-theme="pearl-platinum"] [class*="from-slate-"],
+    html[data-theme="nordic-paper"] [class*="from-slate-"],
+    html[data-theme="warm-alabaster"] [class*="to-slate-"],
+    html[data-theme="pure-platinum"] [class*="to-slate-"],
+    html[data-theme="beige"] [class*="to-slate-"],
+    html[data-theme="ivory"] [class*="to-slate-"],
+    html[data-theme="offwhite"] [class*="to-slate-"],
+    html[data-theme="light-linen"] [class*="to-slate-"],
+    html[data-theme="pearl-platinum"] [class*="to-slate-"],
+    html[data-theme="nordic-paper"] [class*="to-slate-"] {
+      background-image: none !important;
+    }
+
+    /* حقل رقم التحويلة وحقل اسم البنك في السمات الفاتحة (وضوح فائق وخلفية بيضاء نقية) */
+    html[data-theme="warm-alabaster"] #transferInput,
+    html[data-theme="pure-platinum"] #transferInput,
+    html[data-theme="beige"] #transferInput,
+    html[data-theme="ivory"] #transferInput,
+    html[data-theme="offwhite"] #transferInput,
+    html[data-theme="light-linen"] #transferInput,
+    html[data-theme="pearl-platinum"] #transferInput,
+    html[data-theme="nordic-paper"] #transferInput,
+    html[data-theme="warm-alabaster"] #transferInput:focus,
+    html[data-theme="pure-platinum"] #transferInput:focus,
+    html[data-theme="beige"] #transferInput:focus,
+    html[data-theme="ivory"] #transferInput:focus,
+    html[data-theme="offwhite"] #transferInput:focus,
+    html[data-theme="light-linen"] #transferInput:focus,
+    html[data-theme="pearl-platinum"] #transferInput:focus,
+    html[data-theme="nordic-paper"] #transferInput:focus {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+      box-shadow: 0 0 0 1000px #ffffff inset !important;
+      color: #b45309 !important;
+      -webkit-text-fill-color: #b45309 !important;
+      caret-color: #b45309 !important;
+      border-color: #f59e0b !important;
+    }
+
+    html[data-theme="warm-alabaster"] #bankNameInput,
+    html[data-theme="pure-platinum"] #bankNameInput,
+    html[data-theme="beige"] #bankNameInput,
+    html[data-theme="ivory"] #bankNameInput,
+    html[data-theme="offwhite"] #bankNameInput,
+    html[data-theme="light-linen"] #bankNameInput,
+    html[data-theme="pearl-platinum"] #bankNameInput,
+    html[data-theme="nordic-paper"] #bankNameInput,
+    html[data-theme="warm-alabaster"] #bankNameInput:focus,
+    html[data-theme="pure-platinum"] #bankNameInput:focus,
+    html[data-theme="beige"] #bankNameInput:focus,
+    html[data-theme="ivory"] #bankNameInput:focus,
+    html[data-theme="offwhite"] #bankNameInput:focus,
+    html[data-theme="light-linen"] #bankNameInput:focus,
+    html[data-theme="pearl-platinum"] #bankNameInput:focus,
+    html[data-theme="nordic-paper"] #bankNameInput:focus {
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
+      box-shadow: 0 0 0 1000px #ffffff inset !important;
+      color: #0e7490 !important;
+      -webkit-text-fill-color: #0e7490 !important;
+      caret-color: #0e7490 !important;
+      border-color: #06b6d4 !important;
+    }
+
+    /* حقول المبالغ المالية (محلي ودولار) */
+    html[data-theme="warm-alabaster"] #sdgAmount,
+    html[data-theme="pure-platinum"] #sdgAmount,
+    html[data-theme="beige"] #sdgAmount,
+    html[data-theme="ivory"] #sdgAmount,
+    html[data-theme="offwhite"] #sdgAmount,
+    html[data-theme="light-linen"] #sdgAmount,
+    html[data-theme="pearl-platinum"] #sdgAmount,
+    html[data-theme="nordic-paper"] #sdgAmount {
+      color: #0369a1 !important;
+      -webkit-text-fill-color: #0369a1 !important;
+      caret-color: #0369a1 !important;
+    }
+    html[data-theme="warm-alabaster"] #usdAmount,
+    html[data-theme="pure-platinum"] #usdAmount,
+    html[data-theme="beige"] #usdAmount,
+    html[data-theme="ivory"] #usdAmount,
+    html[data-theme="offwhite"] #usdAmount,
+    html[data-theme="light-linen"] #usdAmount,
+    html[data-theme="pearl-platinum"] #usdAmount,
+    html[data-theme="nordic-paper"] #usdAmount {
+      color: #047857 !important;
+      -webkit-text-fill-color: #047857 !important;
+      caret-color: #047857 !important;
+    }
+
+    /* حقول أسماء الحسابات وملاحظات السند والعملة وسعر الدولار */
+    html[data-theme="warm-alabaster"] .account-search-input,
+    html[data-theme="pure-platinum"] .account-search-input,
+    html[data-theme="beige"] .account-search-input,
+    html[data-theme="ivory"] .account-search-input,
+    html[data-theme="offwhite"] .account-search-input,
+    html[data-theme="light-linen"] .account-search-input,
+    html[data-theme="pearl-platinum"] .account-search-input,
+    html[data-theme="nordic-paper"] .account-search-input,
+    html[data-theme="warm-alabaster"] #voucherNotes,
+    html[data-theme="pure-platinum"] #voucherNotes,
+    html[data-theme="beige"] #voucherNotes,
+    html[data-theme="ivory"] #voucherNotes,
+    html[data-theme="offwhite"] #voucherNotes,
+    html[data-theme="light-linen"] #voucherNotes,
+    html[data-theme="pearl-platinum"] #voucherNotes,
+    html[data-theme="nordic-paper"] #voucherNotes,
+    html[data-theme="warm-alabaster"] #primaryCurrencySelect,
+    html[data-theme="pure-platinum"] #primaryCurrencySelect,
+    html[data-theme="beige"] #primaryCurrencySelect,
+    html[data-theme="ivory"] #primaryCurrencySelect,
+    html[data-theme="offwhite"] #primaryCurrencySelect,
+    html[data-theme="light-linen"] #primaryCurrencySelect,
+    html[data-theme="pearl-platinum"] #primaryCurrencySelect,
+    html[data-theme="nordic-paper"] #primaryCurrencySelect,
+    html[data-theme="warm-alabaster"] #usdRate,
+    html[data-theme="pure-platinum"] #usdRate,
+    html[data-theme="beige"] #usdRate,
+    html[data-theme="ivory"] #usdRate,
+    html[data-theme="offwhite"] #usdRate,
+    html[data-theme="light-linen"] #usdRate,
+    html[data-theme="pearl-platinum"] #usdRate,
+    html[data-theme="nordic-paper"] #usdRate,
+    html[data-theme="warm-alabaster"] #costCenterInput,
+    html[data-theme="pure-platinum"] #costCenterInput,
+    html[data-theme="beige"] #costCenterInput,
+    html[data-theme="ivory"] #costCenterInput,
+    html[data-theme="offwhite"] #costCenterInput,
+    html[data-theme="light-linen"] #costCenterInput,
+    html[data-theme="pearl-platinum"] #costCenterInput,
+    html[data-theme="nordic-paper"] #costCenterInput {
+      background-color: #ffffff !important;
+      color: var(--lt-text) !important;
+      -webkit-text-fill-color: var(--lt-text) !important;
+    }
+    html[data-theme="warm-alabaster"] #fromSearchInput,
+    html[data-theme="pure-platinum"] #fromSearchInput,
+    html[data-theme="beige"] #fromSearchInput,
+    html[data-theme="ivory"] #fromSearchInput,
+    html[data-theme="offwhite"] #fromSearchInput,
+    html[data-theme="light-linen"] #fromSearchInput,
+    html[data-theme="pearl-platinum"] #fromSearchInput,
+    html[data-theme="nordic-paper"] #fromSearchInput {
+      color: #991b1b !important;
+      -webkit-text-fill-color: #991b1b !important;
+    }
+    html[data-theme="warm-alabaster"] #toSearchInput,
+    html[data-theme="pure-platinum"] #toSearchInput,
+    html[data-theme="beige"] #toSearchInput,
+    html[data-theme="ivory"] #toSearchInput,
+    html[data-theme="offwhite"] #toSearchInput,
+    html[data-theme="light-linen"] #toSearchInput,
+    html[data-theme="pearl-platinum"] #toSearchInput,
+    html[data-theme="nordic-paper"] #toSearchInput {
+      color: #065f46 !important;
+      -webkit-text-fill-color: #065f46 !important;
+    }
+
+    /* الشريط السفلي التفاعلي المريح */
+    html[data-theme="warm-alabaster"] .bottom-bar-fixed,
+    html[data-theme="pure-platinum"] .bottom-bar-fixed,
+    html[data-theme="beige"] .bottom-bar-fixed,
+    html[data-theme="ivory"] .bottom-bar-fixed,
+    html[data-theme="offwhite"] .bottom-bar-fixed,
+    html[data-theme="light-linen"] .bottom-bar-fixed,
+    html[data-theme="pearl-platinum"] .bottom-bar-fixed,
+    html[data-theme="nordic-paper"] .bottom-bar-fixed {
+      background: var(--lt-body-bg) !important;
+      border-color: var(--lt-border) !important;
+    }
+    html[data-theme="warm-alabaster"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="pure-platinum"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="beige"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="ivory"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="offwhite"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="light-linen"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="pearl-platinum"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="nordic-paper"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) {
+      background: #ffffff !important;
+      border-color: var(--lt-border) !important;
+      color: var(--lt-text) !important;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+    }
+
+    /* النوافذ المنبثقة في شاشة السند */
+    html[data-theme="warm-alabaster"] [id^="modal"],
+    html[data-theme="pure-platinum"] [id^="modal"],
+    html[data-theme="beige"] [id^="modal"],
+    html[data-theme="ivory"] [id^="modal"],
+    html[data-theme="offwhite"] [id^="modal"],
+    html[data-theme="light-linen"] [id^="modal"],
+    html[data-theme="pearl-platinum"] [id^="modal"],
+    html[data-theme="nordic-paper"] [id^="modal"] {
+      background-color: rgba(15, 23, 42, 0.45) !important;
+      backdrop-filter: blur(8px) !important;
+    }
+    html[data-theme="warm-alabaster"] [id^="modal"] > div,
+    html[data-theme="pure-platinum"] [id^="modal"] > div,
+    html[data-theme="beige"] [id^="modal"] > div,
+    html[data-theme="ivory"] [id^="modal"] > div,
+    html[data-theme="offwhite"] [id^="modal"] > div,
+    html[data-theme="light-linen"] [id^="modal"] > div,
+    html[data-theme="pearl-platinum"] [id^="modal"] > div,
+    html[data-theme="nordic-paper"] [id^="modal"] > div {
+      background-color: var(--lt-card-bg) !important;
+      border-color: var(--lt-border) !important;
+      color: var(--lt-text) !important;
+    }
+
+    /* ─── GROUP 2: BLUE & NAVY THEMES FOR VOUCHER ─── */
+    html[data-theme="navy-kohl"] body, html[data-theme="navy-kohl"] #mobileContainer { background: #050c1e !important; color: #f8fafc !important; }
+    html[data-theme="navy-kohl"] main > div { background-color: #0b1736 !important; border-color: #1d3368 !important; }
+    html[data-theme="royal-blue"] body, html[data-theme="royal-blue"] #mobileContainer { background: #0a1b38 !important; color: #ffffff !important; }
+    html[data-theme="royal-blue"] main > div { background-color: #122852 !important; border-color: #254d8e !important; }
+    html[data-theme="ocean-navy"] body, html[data-theme="ocean-navy"] #mobileContainer { background: #0c1a2e !important; color: #f0f9ff !important; }
+    html[data-theme="ocean-navy"] main > div { background-color: #132742 !important; border-color: #1e40af !important; }
+    html[data-theme="petrol-cyan"] body, html[data-theme="petrol-cyan"] #mobileContainer { background: #071c26 !important; color: #f0fdfa !important; }
+    html[data-theme="petrol-cyan"] main > div { background-color: #0c2b3a !important; border-color: #175269 !important; }
+    html[data-theme="twilight-indigo"] body, html[data-theme="twilight-indigo"] #mobileContainer { background: #0e122b !important; color: #e0e7ff !important; }
+    html[data-theme="twilight-indigo"] main > div { background-color: #151b3d !important; border-color: #313d80 !important; }
+
+    /* ─── GROUP 3: DARK & NATURE THEMES FOR VOUCHER ─── */
+    html[data-theme="midnight-executive"] body, html[data-theme="midnight-executive"] #mobileContainer { background: #0b0f17 !important; color: #f8fafc !important; }
+    html[data-theme="obsidian-charcoal"] body, html[data-theme="obsidian-charcoal"] #mobileContainer { background: #121214 !important; color: #f8fafc !important; }
+    html[data-theme="sepia-brown"] body, html[data-theme="sepia-brown"] #mobileContainer { background: #1c1917 !important; color: #fef3c7 !important; }
+    html[data-theme="sepia-brown"] main > div { background-color: #292524 !important; border-color: #78350f !important; }
+    html[data-theme="pale-gold"] body, html[data-theme="pale-gold"] #mobileContainer { background: #181614 !important; color: #fef08a !important; }
+    html[data-theme="emerald-forest"] body, html[data-theme="emerald-forest"] #mobileContainer { background: #032e24 !important; color: #d1fae5 !important; }
+    html[data-theme="desert-mocha"] body, html[data-theme="desert-mocha"] #mobileContainer { background: #26211d !important; color: #f5f5f4 !important; }
+    html[data-theme="sunlight-titanium"] body, html[data-theme="sunlight-titanium"] #mobileContainer { background: #000000 !important; color: #ffffff !important; }
+
+    /* 💎 High-Visibility Badges for Theme Palette Drawer */
+    .luminous-number-badge {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-width: 18px !important;
+      height: 18px !important;
+      padding: 0 3.5px !important;
+      font-size: 11px !important;
+      font-weight: 900 !important;
+      line-height: 1 !important;
+      border-radius: 9999px !important;
+      user-select: none !important;
+    }
+    .badge-amber-glow {
+      background: #fbbf24 !important;
+      color: #000000 !important;
+      border: 1.5px solid #ffffff !important;
+    }
+    .badge-rose-glow {
+      background: #f43f5e !important;
+      color: #ffffff !important;
+      border: 1.5px solid #ffffff !important;
+    }
+    .badge-cyan-glow {
+      background: #38bdf8 !important;
+      color: #000000 !important;
+      border: 1.5px solid #ffffff !important;
+    }
+
   </style>
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
@@ -1858,12 +2333,17 @@ $currenciesData = [
         </button>
       </div>
 
-      <!-- اليسار: الساعة و 5G والإشارات -->
-      <div class="flex items-center gap-2 text-slate-300">
-        <span id="currentTime" class="font-bold font-mono text-slate-200 text-xs">13:15</span>
+      <!-- اليسار: أزرار التحكم بالسمات والرئيسية + الساعة و 5G -->
+      <div class="flex items-center gap-1.5 text-slate-300">
+        <a href="mobile-dashboard.php?force_mobile=1" class="w-7 h-7 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center shrink-0 border border-slate-700 transition" title="العودة للوحة التحكم الرئيسية 🏠">
+          <i class="fa-solid fa-house text-[11px]"></i>
+        </a>
+        <button type="button" onclick="openThemePaletteDrawer()" class="w-7 h-7 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 flex items-center justify-center shrink-0 border border-amber-500/40 transition" title="سيف السمات والراحة البصرية 🎨">
+          <i class="fa-solid fa-palette text-[11px]"></i>
+        </button>
+        <span id="currentTime" class="font-bold font-mono text-slate-200 text-xs ml-0.5">13:15</span>
         <div class="flex items-center gap-1 font-mono text-slate-300">
           <span class="font-black text-[11px] text-cyan-400">5G</span>
-          <i class="fa-solid fa-signal text-[9px] text-slate-300"></i>
           <i class="fa-solid fa-battery-full text-emerald-400 text-xs"></i>
         </div>
       </div>
@@ -2202,11 +2682,11 @@ $currenciesData = [
                 <span>رقم التحويلة:</span>
               </label>
             </div>
-            <input type="text" id="transferInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="handleTransferFocus(this.value)" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[54px] sm:h-[56px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 24px; font-weight: 900; text-align: center; direction: ltr; letter-spacing: 0.5px;">
+            <input type="text" id="transferInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="handleTransferFocus(this.value)" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[56px] sm:h-[58px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 27px; font-weight: 900; text-align: center; direction: ltr; letter-spacing: 0.5px;">
             <div id="transferFeedbackBadge" class="transition-all flex items-center justify-center"></div>
           </div>
 
-          <!-- 2. اسم التحويلة / البنك متناسب بدقة -->
+          <!-- 2. اسم التحويلة / البنك متناسب بدقة (تكبير درجتان) -->
           <div>
             <div class="flex items-center gap-1 mb-1 px-1 h-5">
               <label class="block text-xs font-black text-cyan-300 flex items-center gap-1" id="bankNameLabel">
@@ -2214,7 +2694,7 @@ $currenciesData = [
                 <span>اسم التحويلة / البنك:</span>
               </label>
             </div>
-            <input type="text" id="bankNameInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[54px] sm:h-[56px] text-sm sm:text-base font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[56px] sm:h-[58px] text-[17.5px] sm:text-[18.5px] font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" style="font-weight: 900 !important;" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -4714,39 +5194,39 @@ $currenciesData = [
       const len = val.length;
 
       if (_transferIsActiveTyping) {
-        // أثناء الكتابة: يكبر درجتين إضافيتين (تكبير ضخم ومريح للعين لسهولة ودقة كتابة الأرقام - زيادة 3 درجات)
+        // أثناء الكتابة: يزيد خمس درجات كاملة (تكبير ضخم ومريح للعين 32px لسهولة ودقة كتابة الأرقام)
         if (len <= 8) {
-          input.style.fontSize = '29px';
+          input.style.fontSize = '32px';
           input.style.letterSpacing = '0.8px';
         } else if (len <= 11) {
-          input.style.fontSize = '26.5px';
+          input.style.fontSize = '29.5px';
           input.style.letterSpacing = '0.4px';
         } else if (len <= 14) {
-          input.style.fontSize = '24px';
+          input.style.fontSize = '27px';
           input.style.letterSpacing = '0px';
         } else if (len <= 17) {
-          input.style.fontSize = '21.5px';
+          input.style.fontSize = '24.5px';
           input.style.letterSpacing = '-0.4px';
         } else {
-          input.style.fontSize = '19px';
+          input.style.fontSize = '22px';
           input.style.letterSpacing = '-0.8px';
         }
       } else {
-        // حين الانتهاء من الكتابة: الوضع المستقر الأنيق المتناسب (زيادة رقم التحويلة 3 درجات)
+        // حين الانتهاء من الكتابة (الوضع الطبيعي): زيادة 3 درجات (27px)
         if (len <= 8) {
-          input.style.fontSize = '24px';
+          input.style.fontSize = '27px';
           input.style.letterSpacing = '0.5px';
         } else if (len <= 11) {
-          input.style.fontSize = '22px';
+          input.style.fontSize = '25px';
           input.style.letterSpacing = '0.2px';
         } else if (len <= 14) {
-          input.style.fontSize = '20px';
-          input.style.letterSpacing = '-0.2px';
+          input.style.fontSize = '23px';
+          input.style.letterSpacing = '0px';
         } else if (len <= 17) {
-          input.style.fontSize = '18px';
-          input.style.letterSpacing = '-0.5px';
+          input.style.fontSize = '21px';
+          input.style.letterSpacing = '-0.4px';
         } else {
-          input.style.fontSize = '16.5px';
+          input.style.fontSize = '19px';
           input.style.letterSpacing = '-0.8px';
         }
       }
@@ -9640,7 +10120,7 @@ $currenciesData = [
       if (confirm('هل تريد الخروج من شاشة الحركة المالية والرجوع للشاشة الرئيسية؟')) {
         showToastNotification('🚪 جاري الخروج والرجوع للشاشة الرئيسية...');
         setTimeout(() => {
-          window.location.href = 'index.php';
+          window.location.href = 'mobile-dashboard.php?force_mobile=1';
         }, 300);
       }
     }
@@ -10182,6 +10662,530 @@ $currenciesData = [
       initDebtMagnifierButtons();
     }
 
-</script>
+    // ═════════════════════════════════════════════════════════════════════
+    // 🎨 21 SCIENTIFIC ERGONOMIC THEMES ENGINE (توحيد السمات لكافة الشاشات)
+    // ═════════════════════════════════════════════════════════════════════
+    const THEMES_PALETTE_CONFIG = {
+      // 🌟 The 4 Recommended Signature Themes (الموصى بها - قمة الرقي)
+      'warm-alabaster': { name: 'العاجي الدافئ', icon: '📜', category: 'recommended', desc: 'مستوحى من ورق الدفاتر الفاخرة لراحة ذهنية مطلقة' },
+      'pure-platinum': { name: 'الفضي النقي', icon: '❄️', category: 'recommended', desc: 'طراز المنصات العالمية بنقاء تحليلي بدون أي تشتيت' },
+      'midnight-executive': { name: 'كحلي منتصف الليل', icon: '🌌', category: 'recommended', desc: 'كحلي سحيق يبعث الأمان المالي ويخفض ضغط العين' },
+      'obsidian-charcoal': { name: 'حجر السج الجرافيتي', icon: '🪨', category: 'recommended', desc: 'فحم جرافيتي مطفأ فخامة صامتة مريح لشاشات OLED' },
+
+      // Light, Beige, Ivory & Off-White
+      'beige': { name: 'البيج الدافئ المريح', icon: '🌾', category: 'light', desc: 'درجة بيج رملي طبيعي دافئ يمتص الوهج البصري' },
+      'ivory': { name: 'العاجي الملكي الكلاسيكي', icon: '🥛', category: 'light', desc: 'نعومة اللون العاجي الكريمي الهادئ تريح البؤبؤ' },
+      'offwhite': { name: 'الأوف وايت الحديث المطفأ', icon: '📜', category: 'light', desc: 'أوف وايت ألاباستر عصري بدون بياض ساطع' },
+      'light-linen': { name: 'الكتان الطبيعي المريح', icon: '🧵', category: 'light', desc: 'طابع الكتان العضوي الهادئ يمنح السكينة' },
+      'pearl-platinum': { name: 'اللؤلؤي الفضي المريح', icon: '🦪', category: 'light', desc: 'رمادي لؤلؤي بلاتيني بارد يقلل انعكاس الضوء' },
+      'nordic-paper': { name: 'الورقي النوردي المريح', icon: '📄', category: 'light', desc: 'ملمس ورق الدفاتر الفاخر بدون وهج ساطع' },
+
+      // Blue & Navy Themes
+      'navy-kohl': { name: 'الكحلي الملكي الليلي', icon: '🌌', category: 'blue', desc: 'كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية' },
+      'royal-blue': { name: 'الأزرق الزفيري الحيوي', icon: '🔷', category: 'blue', desc: 'أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة' },
+      'ocean-navy': { name: 'الأزرق المحيطي العميق', icon: '🌊', category: 'blue', desc: 'تعزيز التفكير المنطقي والتحليل المالي' },
+      'petrol-cyan': { name: 'الأزرق البترولي والتيل', icon: '🐬', category: 'blue', desc: 'أزرق بترولي محيطي مهدئ للأعصاب' },
+      'twilight-indigo': { name: 'أزرق الشفق والإنديجو', icon: '🔮', category: 'blue', desc: 'أزرق شفق نيلي مسائي يخفف التوتر العصبي' },
+
+      // Dark, Gold & Brown
+      'midnight': { name: 'الليل الملكي الداكن', icon: '🌙', category: 'dark', desc: 'أقصى توفير لبطارية OLED وتدرج أسود عميق' },
+      'sepia-brown': { name: 'البني الإسبريسو والورق القديم', icon: '📜', category: 'dark', desc: 'حجب كامل للضوء الأزرق المسبب لإجهاد العين' },
+      'pale-gold': { name: 'الذهبي الباهت والفخامة', icon: '👑', category: 'dark', desc: 'دفء كلاسيكي ملكي وهيبة الأرقام المحاسبية' },
+      'emerald-forest': { name: 'زمرد الغابات لصفاء الذهن', icon: '🌲', category: 'dark', desc: 'راحة عصبية تخفض النبض وتمنع تبديل الأرقام' },
+      'desert-mocha': { name: 'الرمال الصحراوية وموكا', icon: '🏜️', category: 'dark', desc: 'توازن لوني دافئ ومريح للإضاءة المكتبية' },
+      'sunlight-titanium': { name: 'التيتانيوم الشمسي فائق التباين', icon: '☀️', category: 'dark', desc: 'معيار WCAG AAA للعمل الميداني تحت شمس الظهيرة' }
+    };
+
+    let currentActiveTheme = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_mobile_theme') || 'warm-alabaster';
+
+    function applyTheme(themeKey, showToast = true) {
+      if (!THEMES_PALETTE_CONFIG[themeKey]) themeKey = 'warm-alabaster';
+      currentActiveTheme = themeKey;
+      try {
+        localStorage.setItem('magaies_active_theme', themeKey);
+        localStorage.setItem('magaiees_mobile_theme', themeKey);
+        localStorage.setItem('magaiees_theme', themeKey);
+        document.cookie = "magaies_active_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
+        document.cookie = "magaiees_mobile_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
+      } catch(e) {}
+
+      document.documentElement.setAttribute('data-theme', themeKey);
+      if (document.body) document.body.setAttribute('data-theme', themeKey);
+
+      closeModal('modalThemePaletteDrawer');
+
+      if (showToast) {
+        const conf = THEMES_PALETTE_CONFIG[themeKey];
+        if (typeof showToastNotification === 'function') {
+          showToastNotification(`🎨 تم توحيد السمة: ${conf.icon} ${conf.name} (${conf.desc})`);
+        }
+      }
+    }
+
+    // الاستماع الفوري لتغيير السمة من شاشة أخرى (مثل الشاشة الرئيسية) للمزامنة اللحظية الموحدة
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'magaies_active_theme' || e.key === 'magaiees_mobile_theme') {
+        if (e.newValue && e.newValue !== currentActiveTheme) {
+          applyTheme(e.newValue, false);
+        }
+      }
+    });
+
+    function openThemePaletteDrawer() {
+      filterThemeCategory('recommended');
+      openModal('modalThemePaletteDrawer');
+    }
+
+    function closeThemePaletteDrawer() {
+      closeModal('modalThemePaletteDrawer');
+    }
+
+    function filterThemeCategory(cat) {
+      const btnRecommended = document.getElementById('btnTcRecommended');
+      const btnAll = document.getElementById('btnTcAll');
+      const btnLight = document.getElementById('btnTcLight');
+      const btnBlue = document.getElementById('btnTcBlue');
+      const btnDark = document.getElementById('btnTcDark');
+
+      const btns = { 'recommended': btnRecommended, 'all': btnAll, 'light': btnLight, 'blue': btnBlue, 'dark': btnDark };
+      Object.entries(btns).forEach(([k, btn]) => {
+        if (!btn) return;
+        if (k === cat) {
+          btn.className = "px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5";
+        }
+      });
+
+      const cards = document.querySelectorAll('#themeCardsContainer .theme-card');
+      cards.forEach(card => {
+        if (cat === 'all') {
+          card.classList.remove('hidden');
+        } else {
+          if (card.classList.contains('tc-' + cat)) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        }
+      });
+    }
+
+    function openModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      const modal = document.getElementById(id);
+      if (modal) modal.classList.add('hidden');
+    }
+  </script>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: سيف السمات والراحة البصرية للعين (21 سمة علمية)    -->
+  <!-- ======================================================== -->
+  <div id="modalThemePaletteDrawer" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4" dir="rtl">
+    <div class="glass-base w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-amber-500/40 p-4 space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-black border border-amber-500/40 shadow">
+            🎨
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-slate-100 flex items-center gap-1.5">
+              <span>سيف السمات والراحة البصرية للعين</span>
+              <span class="text-[9px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.2 rounded-full border border-amber-500/30">21 سمة معتمدة</span>
+            </h3>
+            <p class="text-[10px] text-slate-400">مصفوفة ألوان نفسية ومحاسبية لمنع إجهاد العين وتداخل الحروف والأرقام</p>
+          </div>
+        </div>
+        <button onclick="closeModal('modalThemePaletteDrawer')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
+      </div>
+
+      <!-- Quick Guidance Banner -->
+      <div class="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 leading-relaxed">
+        💡 <strong>استشارة خبير علم النفس والمحاسبة:</strong> الألوان الترابية والعاجية والبيج تمتص الوهج الأزرق بنسبة 95%، ودرجات الأزرق والكحلي تحفز التفكير المنطقي والتدقيق المالي دون صداع.
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="flex gap-1 overflow-x-auto py-0.5 no-scrollbar text-xs font-bold">
+        <button onclick="filterThemeCategory('recommended')" id="btnTcRecommended" class="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5">
+          <span>🌟 الموصى بها</span>
+          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">4</span>
+        </button>
+        <button onclick="filterThemeCategory('all')" id="btnTcAll" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5">
+          <span>الكل</span>
+          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">21</span>
+        </button>
+        <button onclick="filterThemeCategory('light')" id="btnTcLight" class="px-2.5 py-1 rounded-xl bg-slate-800 text-amber-200 hover:text-white shrink-0 border border-amber-500/30 flex items-center gap-1.5">
+          <span>☀️ الفاتحة والعاجي</span>
+          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">8</span>
+        </button>
+        <button onclick="filterThemeCategory('blue')" id="btnTcBlue" class="px-2.5 py-1 rounded-xl bg-slate-800 text-cyan-200 hover:text-white shrink-0 border border-cyan-500/30 flex items-center gap-1.5">
+          <span>🌊 درجات الأزرق</span>
+          <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>
+        </button>
+        <button onclick="filterThemeCategory('dark')" id="btnTcDark" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5">
+          <span>🌙 الداكنة والملكية</span>
+          <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">8</span>
+        </button>
+      </div>
+
+      <!-- Themes Grid (All 21 Themes) -->
+      <div id="themeCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+
+        <!-- 0.1 WARM ALABASTER (العاجي الدافئ - موصى بها) -->
+        <button onclick="applyTheme('warm-alabaster')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#8B6F4E] bg-[#F6F0E6] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#1C1917] flex items-center gap-1.5">
+              <span>📜 العاجي الدافئ</span>
+              <span class="px-1.5 py-0.5 rounded bg-[#8B6F4E] text-white text-[9px] font-bold">🌟 موصى بها</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#F6F0E6] border border-[#8B6F4E]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border-2 border-[#8B6F4E]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#8B6F4E]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#4A3E31] leading-tight font-medium">أزرار بيضاء ناصعة بحواف بنية داكنة فوق أرضية عاجية بيج خفيفة، تباين مثالي فائق الراحة والرقي.</p>
+          <span class="text-[9px] text-[#1C1917] font-black block pt-0.5">Warm Alabaster • قمة الرقي • تباين فائق وعاجي هادئ</span>
+        </button>
+
+        <!-- 0.2 PURE PLATINUM (الفضي النقي - موصى بها) -->
+        <button onclick="applyTheme('pure-platinum')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#64748B] bg-[#EEF2F6] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#0F172A] flex items-center gap-1.5">
+              <span>❄️ الفضي النقي</span>
+              <span class="px-1.5 py-0.5 rounded bg-[#64748B] text-white text-[9px] font-bold">🌟 موصى بها</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#EEF2F6] border border-[#64748B]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border-2 border-[#64748B]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0F172A]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#334155] leading-tight font-medium">أزرار ناصعة البياض بحواف بلاتينية محددة على أرضية فضية نقية هادئة، دقة تحليلية سويسرية فائقة التباين.</p>
+          <span class="text-[9px] text-[#0F172A] font-black block pt-0.5">Pure Platinum • قمة الرقي • تباين نقي وفضي هادئ</span>
+        </button>
+
+        <!-- 0.3 MIDNIGHT EXECUTIVE (كحلي منتصف الليل - موصى بها) -->
+        <button onclick="applyTheme('midnight-executive')" class="theme-card tc-recommended tc-blue tc-dark p-3 rounded-2xl border-2 border-[#1E293B] bg-[#0B0F17] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#F1F5F9] flex items-center gap-1.5">
+              <span>🌌 كحلي منتصف الليل</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[9px] font-bold">🌟 موصى بها</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0B0F17] border border-[#1E293B]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#131B2A]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#38BDF8]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#94A3B8] leading-tight">كحلي ليلي سحيق يبعث الأمان المالي والهدوء العصبي، يمنع إجهاد العين في العمل الليلي.</p>
+          <span class="text-[9px] text-[#38BDF8] font-black block pt-0.5">Midnight Executive • قمة الرقي • داكن ملكي</span>
+        </button>
+
+        <!-- 0.4 OBSIDIAN CHARCOAL (حجر السج الجرافيتي - موصى بها) -->
+        <button onclick="applyTheme('obsidian-charcoal')" class="theme-card tc-recommended tc-dark p-3 rounded-2xl border-2 border-[#2C2C30] bg-[#121214] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#EDEDED] flex items-center gap-1.5">
+              <span>🪨 حجر السج الجرافيتي</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[9px] font-bold">🌟 موصى بها</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#121214] border border-[#2C2C30]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#1C1C1F]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#EDEDED]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#A1A1AA] leading-tight">فحم جرافيتي مطفأ وناعم مستوحى من الساعات السويسرية، راحة مطلقة لشاشات OLED.</p>
+          <span class="text-[9px] text-[#E4E4E7] font-black block pt-0.5">Obsidian Charcoal • قمة الرقي • داكن مريح</span>
+        </button>
+
+        <!-- 1. BEIGE (البيج الدافئ المريح) -->
+        <button onclick="applyTheme('beige')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#d6c5b0] bg-[#f5ebe0] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#23190e] flex items-center gap-1.5">
+              <span>🌾 البيج الدافئ المريح</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#f5ebe0] border border-[#d6c5b0]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#b45309]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#23190e]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#5a4632] leading-tight">درجة بيج رملي طبيعي دافئ يمتص الوهج، مثالي لقراءة الدفاتر لساعات طويلة.</p>
+          <span class="text-[9px] text-[#b45309] font-black block pt-0.5">Warm Sandstone Beige • فاتح مريح</span>
+        </button>
+
+        <!-- 2. IVORY (العاجي الملكي الهادئ) -->
+        <button onclick="applyTheme('ivory')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#ded6c3] bg-[#faf7f0] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#1c1813] flex items-center gap-1.5">
+              <span>🥛 العاجي الملكي الكلاسيكي</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#faf7f0] border border-[#ded6c3]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#d97706]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#1c1813]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#52473a] leading-tight">نعومة اللون العاجي الكريمي الهادئ، يريح البؤبؤ ولا يجهد العصب البصري.</p>
+          <span class="text-[9px] text-[#d97706] font-black block pt-0.5">Royal Cream Ivory • عاجي ناعم</span>
+        </button>
+
+        <!-- 3. OFF-WHITE (الأوف وايت الحديث المطفأ) -->
+        <button onclick="applyTheme('offwhite')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#d1d5db] bg-[#f9fafb] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#111827] flex items-center gap-1.5">
+              <span>📜 الأوف وايت الحديث المطفأ</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#f9fafb] border border-[#d1d5db]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#2563eb]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#111827]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#4b5563] leading-tight">أوف وايت ألاباستر عصري بدون بياض ساطع، وضوح حاد للأرقام والخطوط.</p>
+          <span class="text-[9px] text-[#2563eb] font-black block pt-0.5">Modern Matte Off-White • مطفأ نقي</span>
+        </button>
+
+        <!-- 4. SOFT NATURAL LINEN (الكتان الطبيعي الناعم - فاتح 1) -->
+        <button onclick="applyTheme('light-linen')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cfc5b3] bg-[#ede7dc] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#211f1a] flex items-center gap-1.5">
+              <span>🧵 الكتان الطبيعي المريح</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#ede7dc] border border-[#cfc5b3]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#4d7c0f]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#211f1a]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#575245] leading-tight">طابع قماش الكتان العضوي الهادئ، يمنح شعوراً بالسكينة أثناء ضغط الحسابات.</p>
+          <span class="text-[9px] text-[#4d7c0f] font-black block pt-0.5">Soft Natural Linen • كتان هادئ</span>
+        </button>
+
+        <!-- 5. PLATINUM PEARL GREY (اللؤلؤي الفضي المريح - فاتح 2) -->
+        <button onclick="applyTheme('pearl-platinum')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cbd3dc] bg-[#e9ecef] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#0f172a] flex items-center gap-1.5">
+              <span>🦪 اللؤلؤي الفضي المريح</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#e9ecef] border border-[#cbd3dc]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0284c7]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0f172a]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#475569] leading-tight">رمادي لؤلؤي بلاتيني بارد وراقي جداً، يقلل انعكاس الضوء المكتبي.</p>
+          <span class="text-[9px] text-[#0284c7] font-black block pt-0.5">Platinum Pearl Grey • لؤلؤي بارد</span>
+        </button>
+
+        <!-- 6. NORDIC PAPER LIGHT (الورقي النوردي المريح) -->
+        <button onclick="applyTheme('nordic-paper')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cbd5e1] bg-[#f8fafc] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#0f172a] flex items-center gap-1.5">
+              <span>📄 الورقي النوردي المريح</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#f8fafc] border border-[#cbd5e1]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#2563eb]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0f172a]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#475569] leading-tight">ملمس الورق المحاسبي النوردي الفاخر، أعلى مقروئية في ضوء النهار الطبيعي.</p>
+          <span class="text-[9px] text-[#2563eb] font-black block pt-0.5">Nordic Paper Light • نهار مشرق</span>
+        </button>
+
+        <!-- 7. DEEP MIDNIGHT NAVY (الكحلي الملكي الليلي - كحلي) -->
+        <button onclick="applyTheme('navy-kohl')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1a2d5a] bg-[#050c1e] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#f8fafc] flex items-center gap-1.5">
+              <span>🌌 الكحلي الملكي الليلي</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#050c1e] border border-[#1a2d5a]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#fbbf24]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#94a3b8] leading-tight">كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية، هيبة رجال الأعمال.</p>
+          <span class="text-[9px] text-[#38bdf8] font-black block pt-0.5">Deep Midnight Navy • كحلي تنفيذي</span>
+        </button>
+
+        <!-- 8. EXECUTIVE ROYAL BLUE (الأزرق الزفيري الحيوي - أزرق) -->
+        <button onclick="applyTheme('royal-blue')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1e3e78] bg-[#0a1b38] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#ffffff] flex items-center gap-1.5">
+              <span>🔷 الأزرق الزفيري الحيوي</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0a1b38] border border-[#1e3e78]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#60a5fa]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#34d399]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#bfdbfe] leading-tight">أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة في إدخال الفواتير السريعة.</p>
+          <span class="text-[9px] text-[#60a5fa] font-black block pt-0.5">Executive Royal Blue • أزرق ملكي</span>
+        </button>
+
+        <!-- 9. DEEP OCEANIC ROYAL NAVY (الأزرق المحيطي العميق) -->
+        <button onclick="applyTheme('ocean-navy')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1e3a8a] bg-[#0c1a2e] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#e0f2fe] flex items-center gap-1.5">
+              <span>🌊 الأزرق المحيطي العميق</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0c1a2e] border border-[#1e3a8a]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#bae6fd]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#93c5fd] leading-tight">يعزز التفكير المنطقي والتحليلي أثناء مراجعة الحسابات ومطابقة القيود.</p>
+          <span class="text-[9px] text-[#38bdf8] font-black block pt-0.5">Royal Oceanic Navy • منطق وتحليل</span>
+        </button>
+
+        <!-- 10. PETROL CYAN & TEAL (الأزرق البترولي المحيطي - أزرق 1) -->
+        <button onclick="applyTheme('petrol-cyan')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#134658] bg-[#071c26] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#f0fdfa] flex items-center gap-1.5">
+              <span>🐬 الأزرق البترولي والتيل</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#071c26] border border-[#134658]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#2dd4bf]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#99f6e4] leading-tight">مزيج من الأزرق البترولي والتيل البحري، يمنح هدوءاً بصرياً فائقاً.</p>
+          <span class="text-[9px] text-[#2dd4bf] font-black block pt-0.5">Petrol Cyan Blue • بترولي مهدئ</span>
+        </button>
+
+        <!-- 11. TWILIGHT INDIGO (أزرق الشفق والإنديجو - أزرق 2) -->
+        <button onclick="applyTheme('twilight-indigo')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#2b356e] bg-[#0e122b] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#e0e7ff] flex items-center gap-1.5">
+              <span>🔮 أزرق الشفق والإنديجو</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0e122b] border border-[#2b356e]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#818cf8]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#f472b6]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-[#a5b4fc] leading-tight">أزرق شفق نيلي مسائي يخفف التوتر العصبي ويمنع شرود الذهن.</p>
+          <span class="text-[9px] text-[#818cf8] font-black block pt-0.5">Twilight Indigo • إنديجو مسائي</span>
+        </button>
+
+        <!-- 12. OLED MIDNIGHT DARK (الليل الملكي الداكن) -->
+        <button onclick="applyTheme('midnight')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-slate-700 bg-slate-950 text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-slate-100 flex items-center gap-1.5">
+              <span>🌙 الليل الملكي الداكن</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-slate-950 border border-slate-700"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-cyan-400"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-emerald-400"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-slate-400 leading-tight">سواد عميق OLED موفر للطاقة، أقصى تباين في الإضاءة الليلية الضعيفة.</p>
+          <span class="text-[9px] text-cyan-300 font-black block pt-0.5">OLED Midnight • افتراضي</span>
+        </button>
+
+        <!-- 13. VINTAGE WARM SEPIA & BROWN (البني الإسبريسو والورق القديم) -->
+        <button onclick="applyTheme('sepia-brown')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-amber-900/60 bg-[#1c1917] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-amber-200 flex items-center gap-1.5">
+              <span>📜 البني الإسبريسو والورق القديم</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#1c1917] border border-amber-800"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#d97706]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#fef3c7]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-amber-200/70 leading-tight">حجب كامل للضوء الأزرق، يريح العصب البصري ويمنع الصداع في العمل الطويل.</p>
+          <span class="text-[9px] text-amber-400 font-black block pt-0.5">Warm Sepia • مهدئ للأعصاب</span>
+        </button>
+
+        <!-- 14. MUTED PALE GOLD & CHAMPAGNE (الذهبي الباهت والفخامة الملكية) -->
+        <button onclick="applyTheme('pale-gold')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-yellow-700/50 bg-[#181614] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-yellow-200 flex items-center gap-1.5">
+              <span>👑 الذهبي الباهت والفخامة</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#181614] border border-yellow-600"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#eab308]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#fef08a]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-yellow-200/70 leading-tight">تناسق ذهبي كلاسيكي باهت وغير مزعج، يضفي هيبة الأرقام المحاسبية.</p>
+          <span class="text-[9px] text-yellow-300 font-black block pt-0.5">Pale Gold Luxury • فخامة مالية</span>
+        </button>
+
+        <!-- 15. COGNITIVE FOREST EMERALD (الزمرد والغابات لصفاء الذهن) -->
+        <button onclick="applyTheme('emerald-forest')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-emerald-800/60 bg-[#032e24] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-emerald-200 flex items-center gap-1.5">
+              <span>🌲 زمرد الغابات لصفاء الذهن</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#032e24] border border-emerald-600"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#10b981]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#a7f3d0]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-emerald-200/70 leading-tight">اللون الأخضر يقع في منتصف شبكية العين، يخفض النبض ويمنع الخلط بالأرقام.</p>
+          <span class="text-[9px] text-emerald-300 font-black block pt-0.5">Cognitive Forest • تركيز ذهني فائق</span>
+        </button>
+
+        <!-- 16. WARM SAND & DESERT MOCHA (الرمال الصحراوية وموكا دافئة) -->
+        <button onclick="applyTheme('desert-mocha')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-stone-700 bg-[#26211d] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-stone-200 flex items-center gap-1.5">
+              <span>🏜️ الرمال الصحراوية وموكا</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#26211d] border border-stone-600"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#f59e0b]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#fde68a]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-stone-300/70 leading-tight">تدرج دافئ وسط بين الفاتح والداكن، مريح جداً للإضاءة المكتبية.</p>
+          <span class="text-[9px] text-amber-300 font-black block pt-0.5">Desert Mocha • راحة يومية متوازنة</span>
+        </button>
+
+        <!-- 17. SUNLIGHT MONOCHROME TITANIUM (التيتانيوم الشمسي فائق التباين) -->
+        <button onclick="applyTheme('sunlight-titanium')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-white bg-black text-right space-y-1 transition active:scale-95 group relative text-white shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-white flex items-center gap-1.5">
+              <span>☀️ التيتانيوم الشمسي فائق التباين</span>
+            </span>
+            <span class="flex gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-black border border-white"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-white"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#facc15]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-slate-300 leading-tight">معيار WCAG AAA (21:1)، وضوح تام تحت شمس الظهيرة ولضعاف النظر.</p>
+          <span class="text-[9px] text-yellow-300 font-black block pt-0.5">Titanium High-Contrast • شمس وميدان</span>
+        </button>
+
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="pt-2 flex gap-2">
+        <button onclick="closeModal('modalThemePaletteDrawer')" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition">
+          ✓ إغلاق والاحتفاظ بالسمة
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
