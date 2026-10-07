@@ -27,25 +27,33 @@ require_once __DIR__ . '/db_bridge.php';
 
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
-$reqTenant = $_REQUEST['tenant_id'] ?? ($_COOKIE['currentTenantId'] ?? null);
-if (!empty($reqTenant) && is_numeric($reqTenant)) {
-    $currentTenantId = (int)$reqTenant;
-} else {
-    $currentTenantId = $GLOBAL_TENANT_ID ?? 1;
+
+// ────────────────────────────────────────────────────────────────────────────
+// حارس الأمان: التحقق من هوية المستخدم قبل عرض الشاشة أو تنفيذ أي API
+// - الهوية تُستخرج من رمز الدخول (saas_token / Bearer) أو جلسة PHP فقط
+// - رقم الشركة (tenant_id) يُؤخذ من حساب المستخدم الموثّق، وليس من الرابط أو الكوكي
+// ────────────────────────────────────────────────────────────────────────────
+require_once __DIR__ . '/auth_guard.php';
+
+$mvAuthUser = mvResolveAuthUser($pdo);
+$mvIsLoopback = mvIsLoopbackRequest();
+$mvIsApiRequest = isset($_GET['api']) || isset($_POST['api']);
+
+if (!$mvAuthUser && !$mvIsLoopback) {
+    if ($mvIsApiRequest) {
+        mvDenyUnauthenticatedApi();
+    }
+    header('Location: login.php?redirect=' . rawurlencode('mobile-voucher.php'));
+    exit;
 }
 
-// التحقق من وجود tenant_id صالح في جدول tenants لتجنب أخطاء Foreign Key
-try {
-    $stmtT = $pdo->prepare("SELECT id FROM tenants WHERE id = ?");
-    $stmtT->execute([$currentTenantId]);
-    if (!$stmtT->fetchColumn()) {
-        $stmtFirst = $pdo->query("SELECT id FROM tenants ORDER BY id ASC LIMIT 1");
-        $firstT = $stmtFirst ? $stmtFirst->fetchColumn() : null;
-        if ($firstT) {
-            $currentTenantId = (int)$firstT;
-        }
-    }
-} catch (Exception $et) {}
+if ($mvAuthUser) {
+    $currentTenantId = (int)$mvAuthUser['tenant_id'];
+} else {
+    // وضع المطور المحلي: نستخدم ما حدّده db_bridge
+    $currentTenantId = (int)($GLOBAL_TENANT_ID ?? 1);
+}
+$GLOBAL_TENANT_ID = $currentTenantId;
 
 // ────────────────────────────────────────────────────────────────────────────
 // دالة الجلب الموحدة لجميع الحسابات الحية من قاعدة البيانات MariaDB
@@ -833,6 +841,36 @@ $currenciesData = [
     window.PHP_VOUCHERS = <?php echo json_encode($vouchersHistory, JSON_UNESCAPED_UNICODE); ?>;
     window.PHP_NEXT_NO = <?php echo json_encode($nextSequentialVoucherNo); ?>;
     window.DB_ALL_TRANSFER_REFS = <?php echo json_encode($allDbTransfersPreload, JSON_UNESCAPED_UNICODE); ?>;
+
+    // ── اعتراض انتهاء الجلسة (401): تنبيه واضح دون فقدان البيانات المكتوبة على الشاشة ──
+    (function () {
+      const nativeFetch = window.fetch.bind(window);
+      function showSessionExpiredBanner(msg) {
+        if (document.getElementById('mvSessionExpiredBanner')) return;
+        const render = () => {
+          const bar = document.createElement('div');
+          bar.id = 'mvSessionExpiredBanner';
+          bar.setAttribute('role', 'alert');
+          bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#b91c1c;color:#fff;padding:10px 14px;font:700 13px Cairo,system-ui,sans-serif;direction:rtl;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 4px 18px rgba(0,0,0,.5)';
+          bar.innerHTML = '<span>🔒 ' + (msg || 'انتهت جلسة الدخول. البيانات غير المرفوعة محفوظة في الجهاز.') + '</span>' +
+            '<a href="login.php?redirect=' + encodeURIComponent('mobile-voucher.php') + '" style="background:#fff;color:#b91c1c;padding:6px 12px;border-radius:10px;text-decoration:none;white-space:nowrap">تسجيل الدخول</a>';
+          document.body.appendChild(bar);
+        };
+        if (document.body) render(); else document.addEventListener('DOMContentLoaded', render);
+      }
+      window.fetch = async function (input, init) {
+        const res = await nativeFetch(input, init);
+        try {
+          const url = typeof input === 'string' ? input : (input && input.url) || '';
+          if (res.status === 401 && url.indexOf('api=') !== -1) {
+            let msg = '';
+            try { msg = (await res.clone().json()).error || ''; } catch (e) {}
+            showSessionExpiredBanner(msg);
+          }
+        } catch (e) {}
+        return res;
+      };
+    })();
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
