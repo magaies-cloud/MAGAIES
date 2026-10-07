@@ -9,11 +9,10 @@
 (function() {
     try {
         var urlParams = new URLSearchParams(window.location.search);
-        var isDirect = urlParams.has('direct') || urlParams.has('dashboard') || urlParams.has('app');
         var isForced = urlParams.has('login') || urlParams.has('logout') || urlParams.has('reauth');
         var token = localStorage.getItem('authToken');
+        var sessionActive = sessionStorage.getItem('session_active') === 'true' || document.cookie.includes('session_active=true');
         
-        // مزامنة الكوكيز للعمل المستمر لمدة عام كامل عبر elsajana.com وكافة النطاقات
         var isHttps = window.location.protocol === 'https:';
         var host = window.location.hostname;
         var isElsajana = host.endsWith('elsajana.com');
@@ -30,41 +29,33 @@
             return;
         }
 
-        // يتم التحويل للوحة التحكم مباشرة فقط عند طلب ?direct=1 صراحة
-        if (isDirect && token && !isForced) {
-            // مزامنة الكوكيز للعمل المستمر لمدة عام كامل عبر elsajana.com وكافة النطاقات
-            var isHttps = window.location.protocol === 'https:';
-            var host = window.location.hostname;
-            var isElsajana = host.endsWith('elsajana.com');
-            var domainPart = isElsajana ? '; domain=.elsajana.com' : '';
-            var cookieFlags = '; path=/; max-age=31536000; SameSite=Lax' + (isHttps ? '; Secure' : '') + domainPart;
-            document.cookie = 'session_active=true' + cookieFlags;
-            document.cookie = 'saas_token=' + encodeURIComponent(token) + cookieFlags;
-            
-            var customTarget = urlParams.get('url') || urlParams.get('target') || urlParams.get('target_url') || urlParams.get('redirect');
-            if (customTarget) {
-                window.location.replace(customTarget);
-                return;
-            }
-            
-            var explicitForceDesktop = urlParams.get('force_desktop') === '1';
-            var explicitForceMobile = urlParams.get('force_mobile') === '1';
-            var explicitDevice = urlParams.get('device');
-            var savedPref = localStorage.getItem('magaiees_view_preference') || '';
-            var ua = navigator.userAgent || '';
-            var isPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
-            var isTablet = /iPad|tablet/i.test(ua);
-            
+        var explicitForceDesktop = urlParams.get('force_desktop') === '1';
+        var explicitForceMobile = urlParams.get('force_mobile') === '1';
+        var explicitDevice = urlParams.get('device');
+        var ua = navigator.userAgent || '';
+        var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+        var isWindowsPC = /Windows NT/i.test(ua);
+        var isMacPC = /Macintosh/i.test(ua) && !(navigator.maxTouchPoints > 1 && screen.width < 1024);
+        var isLinuxPC = (/X11; Linux x86_64/i.test(ua) || /CrOS/i.test(ua)) && !/Android/i.test(ua);
+        var isLargeScreen = Math.max(window.screen.width, window.screen.height) >= 1024;
+        var hasFinePointer = window.matchMedia && (window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches);
+        var isDesktopOrLaptop = !isPureMobile && (isWindowsPC || isMacPC || isLinuxPC || (isLargeScreen && hasFinePointer));
+
+        // إذا كان المستخدم مسجلاً بالفعل، يتم توجيهه فوراً للشاشة الذكية لجهازه دون الحاجة لطلب ?direct=1
+        if ((token || sessionActive) && !isForced) {
             var target = 'mobile-dashboard.php';
-            if (explicitForceMobile || savedPref === 'mobile') {
+            if (explicitForceMobile) {
                 target = 'mobile-dashboard.php?force_mobile=1';
-            } else if (explicitForceDesktop || savedPref === 'desktop' || (isPC && savedPref !== 'mobile' && savedPref !== 'tablet')) {
+            } else if (explicitForceDesktop || isDesktopOrLaptop) {
+                localStorage.setItem('magaiees_view_preference', 'desktop');
+                document.cookie = 'magaiees_view_preference=desktop' + cookieFlags;
                 target = 'magaiees_unified_dashboard.php?force_desktop=1';
-            } else if (explicitDevice === 'tablet' || savedPref === 'tablet' || isTablet) {
+            } else if (explicitDevice === 'tablet') {
                 target = 'mobile-dashboard.php?device=tablet';
+            } else {
+                target = 'mobile-dashboard.php';
             }
-            
-            // التوجيه للنطاق المخصص للشركة إن وجد
+
             var userStr = localStorage.getItem('user');
             if (userStr && isElsajana) {
                 try {
@@ -77,9 +68,18 @@
                     }
                 } catch(e) {}
             }
-            
+
             window.location.replace(target);
             return;
+        }
+
+        // حفظ التفضيل الذكي للجهاز
+        if (isDesktopOrLaptop) {
+            localStorage.setItem('magaiees_view_preference', 'desktop');
+            document.cookie = 'magaiees_view_preference=desktop' + cookieFlags;
+        } else {
+            localStorage.setItem('magaiees_view_preference', 'mobile');
+            document.cookie = 'magaiees_view_preference=mobile' + cookieFlags;
         }
     } catch(e) {}
 })();
@@ -1941,23 +1941,30 @@
             const explicitDevice = urlParams.get('device');
             const savedPref = localStorage.getItem('magaiees_view_preference') || '';
 
+            const ua = navigator.userAgent || '';
+            const isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+            const isWindowsPC = /Windows NT/i.test(ua);
+            const isMacPC = /Macintosh/i.test(ua) && !(navigator.maxTouchPoints > 1 && screen.width < 1024);
+            const isLinuxPC = (/X11; Linux x86_64/i.test(ua) || /CrOS/i.test(ua)) && !/Android/i.test(ua);
+            const isLargeScreen = Math.max(window.screen.width, window.screen.height) >= 1024;
+            const hasFinePointer = window.matchMedia && (window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches);
+            const isLaptopOrDesktop = !isPureMobile && (isWindowsPC || isMacPC || isLinuxPC || (isLargeScreen && hasFinePointer) || dev.isLaptop || dev.isDesktop);
+
             let targetUrl = redirectParam;
             if (!targetUrl) {
-                if (explicitForceMobile || savedPref === 'mobile') {
+                if (explicitForceMobile) {
                     targetUrl = 'mobile-dashboard.php?force_mobile=1';
-                } else if (explicitForceDesktop || savedPref === 'desktop') {
+                } else if (explicitForceDesktop || isLaptopOrDesktop) {
                     targetUrl = 'magaiees_unified_dashboard.php?force_desktop=1';
-                } else if (explicitDevice === 'tablet' || savedPref === 'tablet' || dev.isTablet) {
+                } else if (explicitDevice === 'tablet' || dev.isTablet) {
                     targetUrl = 'mobile-dashboard.php?device=tablet';
-                } else if (dev.isLaptop || dev.isDesktop) {
-                    targetUrl = 'magaiees_unified_dashboard.php?force_desktop=1';
                 } else {
                     targetUrl = 'mobile-dashboard.php';
                 }
             }
 
             // Save adaptive view preference
-            if (explicitForceDesktop || (!explicitForceMobile && dev.isLaptop)) {
+            if (isLaptopOrDesktop || explicitForceDesktop) {
                 localStorage.setItem('magaiees_view_preference', 'desktop');
                 document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
             } else if (dev.isTablet) {

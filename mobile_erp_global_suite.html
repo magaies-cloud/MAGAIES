@@ -19,6 +19,32 @@
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
+  <script>
+  // ═════════════════════════════════════════════════════════════════════
+  // ⚡ SMART DESKTOP & LAPTOP GATE (التحويل الفوري للكمبيوتر ومنع الجوال نهائياً)
+  // ═════════════════════════════════════════════════════════════════════
+  (function enforceLaptopDesktopGate() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('force_mobile') === '1') return;
+
+      var ua = navigator.userAgent || '';
+      var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+      var isWindowsPC = /Windows NT/i.test(ua);
+      var isMacPC = /Macintosh/i.test(ua) && !(navigator.maxTouchPoints > 1 && screen.width < 1024);
+      var isLinuxPC = (/X11; Linux x86_64/i.test(ua) || /CrOS/i.test(ua)) && !/Android/i.test(ua);
+      var isLargeScreen = Math.max(window.screen.width, window.screen.height) >= 1024;
+      var hasFinePointer = window.matchMedia && (window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches);
+
+      var isDesktopOrLaptop = !isPureMobile && (isWindowsPC || isMacPC || isLinuxPC || (isLargeScreen && hasFinePointer));
+      if (isDesktopOrLaptop) {
+        localStorage.setItem('magaiees_view_preference', 'desktop');
+        document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+        window.location.replace('magaiees_unified_dashboard.php?force_desktop=1');
+      }
+    } catch(e) {}
+  })();
+  </script>
   <script src="js/pwa-manager.js?v=2026_10_05_v35_21themes" defer></script>
   <script>
   (function enforceAuthGate() {

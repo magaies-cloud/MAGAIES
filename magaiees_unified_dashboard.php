@@ -2,15 +2,17 @@
 // ═════════════════════════════════════════════════════════════════════
 // 🌐 SMART DEVICE ROUTER (Unified Link Architecture)
 // ═════════════════════════════════════════════════════════════════════
-$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-$secChUaMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
-$isLaptopOrPC = (bool)preg_match('/(windows nt|macintosh|x11; linux x86_64|cros)/i', $userAgent) && !preg_match('/(android|iphone|ipad|ipod|mobile)/i', $userAgent);
-$isMobileUserAgent = !$isLaptopOrPC && ((bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini|samsung|huawei|honor|harmonyos|xiaomi|redmi|poco|oppo|vivo|oneplus|pixel)/i', $userAgent) || ($secChUaMobile === '?1'));
+require_once __DIR__ . '/device_detector.php';
 $forceDesktop = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
+$forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
+$isLaptopOrPC = isDeviceDesktopOrLaptop();
 
-if ($forceDesktop || $isLaptopOrPC) {
+if ($forceMobile) {
+    header('Location: mobile-dashboard.php?force_mobile=1');
+    exit;
+} elseif ($forceDesktop || $isLaptopOrPC) {
     setcookie('magaiees_view_preference', 'desktop', time() + (86400 * 365), '/');
-} elseif ($isMobileUserAgent) {
+} else {
     header('Location: mobile-dashboard.php');
     exit;
 }
@@ -28,7 +30,14 @@ $page_title = 'لوحة التحكم';
     }
     // Check force desktop flag or mobile auto-redirect
     var ua = navigator.userAgent || '';
-    var isLaptopOrPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPad|iPod|Mobile/i.test(ua);
+    var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+    var isWindowsPC = /Windows NT/i.test(ua);
+    var isMacPC = /Macintosh/i.test(ua) && !(navigator.maxTouchPoints > 1 && screen.width < 1024);
+    var isLinuxPC = (/X11; Linux x86_64/i.test(ua) || /CrOS/i.test(ua)) && !/Android/i.test(ua);
+    var isLargeScreen = Math.max(window.screen.width, window.screen.height) >= 1024;
+    var hasFinePointer = window.matchMedia && (window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches);
+
+    var isLaptopOrPC = !isPureMobile && (isWindowsPC || isMacPC || isLinuxPC || (isLargeScreen && hasFinePointer));
     var params = new URLSearchParams(window.location.search);
     if (params.get('force_desktop') === '1' || isLaptopOrPC) {
         localStorage.setItem('magaiees_view_preference', 'desktop');
@@ -38,12 +47,7 @@ $page_title = 'لوحة التحكم';
         document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
         window.location.replace('mobile-dashboard.php?force_mobile=1');
     } else {
-        var screenWidth = window.innerWidth || document.documentElement.clientWidth || screen.width;
-        var isMobile = !isLaptopOrPC && (/Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor|HarmonyOS|Xiaomi|POCO|Redmi|OPPO|vivo|OnePlus|Pixel/i.test(ua) || screenWidth < 768);
-        var pref = localStorage.getItem('magaiees_view_preference');
-        if (isMobile && pref !== 'desktop') {
-            window.location.replace('mobile-dashboard.php');
-        }
+        window.location.replace('mobile-dashboard.php');
     }
 })();
 function switchToMobileEdition() {

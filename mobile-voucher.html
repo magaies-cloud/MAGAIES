@@ -1,6 +1,31 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+  <!-- ⚡ SMART LAPTOP VOUCHER GATE (تحويل ذكي للكمبيوتر ومنع الجوال نهائياً) -->
+  <script>
+  (function enforceLaptopVoucherGate() {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('force_mobile') === '1' || params.get('preview') === '1') return;
+
+      var ua = navigator.userAgent || '';
+      var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+      var isWindowsPC = /Windows NT/i.test(ua);
+      var isMacPC = /Macintosh/i.test(ua) && !(navigator.maxTouchPoints > 1 && screen.width < 1024);
+      var isLinuxPC = (/X11; Linux x86_64/i.test(ua) || /CrOS/i.test(ua)) && !/Android/i.test(ua);
+      var isLargeScreen = Math.max(window.screen.width, window.screen.height) >= 1024;
+      var hasFinePointer = window.matchMedia && (window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches);
+
+      var isDesktopOrLaptop = !isPureMobile && (isWindowsPC || isMacPC || isLinuxPC || (isLargeScreen && hasFinePointer));
+      if (isDesktopOrLaptop) {
+        localStorage.setItem('magaiees_view_preference', 'desktop');
+        document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+        window.location.replace('vouchers-hub.php' + window.location.search);
+      }
+    } catch(e) {}
+  })();
+  </script>
+
   <script>
     <?php $mgJsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT; ?>
     window.PHP_ACCOUNTS = <?php echo json_encode($accountsList, $mgJsonFlags); ?>;
@@ -715,7 +740,126 @@
       -moz-appearance: textfield !important;
     }
   
-</style>
+
+    /* ═════════════════════════════════════════════════════════════════
+       تثبيت الخلفية السوداء الفاخرة ومنع تحولها إلى الأبيض نهائياً عند الكتابة أو التركيز
+       وتنسيق الخطوط لتكون كبيرة وواضحة ومالية للمساحة
+       ═════════════════════════════════════════════════════════════════ */
+    :root, html, body, input, select, textarea, button {
+      color-scheme: dark !important;
+    }
+
+    /* منع تحول الخلفية إلى الأبيض أو الخط للأسود عند الإكمال التلقائي أو الكتابة لكروم والأندرويد والآيفون */
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:active,
+    textarea:-webkit-autofill,
+    textarea:-webkit-autofill:hover,
+    textarea:-webkit-autofill:focus,
+    textarea:-webkit-autofill:active,
+    select:-webkit-autofill,
+    select:-webkit-autofill:hover,
+    select:-webkit-autofill:focus,
+    select:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #020617 inset !important;
+      box-shadow: 0 0 0 1000px #020617 inset !important;
+      -webkit-text-fill-color: #ffffff !important;
+      color: #ffffff !important;
+      background-color: #020617 !important;
+      background: #020617 !important;
+      caret-color: #ffffff !important;
+      transition: background-color 5000000s ease-in-out 0s !important;
+    }
+
+    #sdgAmount:-webkit-autofill,
+    #sdgAmount:-webkit-autofill:hover,
+    #sdgAmount:-webkit-autofill:focus,
+    #sdgAmount:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #020617 inset !important;
+      box-shadow: 0 0 0 1000px #020617 inset !important;
+      -webkit-text-fill-color: var(--num-color-sdg, #ffffff) !important;
+      color: var(--num-color-sdg, #ffffff) !important;
+      background-color: #020617 !important;
+      background: #020617 !important;
+      caret-color: #ffffff !important;
+    }
+
+    #usdAmount:-webkit-autofill,
+    #usdAmount:-webkit-autofill:hover,
+    #usdAmount:-webkit-autofill:focus,
+    #usdAmount:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #020617 inset !important;
+      box-shadow: 0 0 0 1000px #020617 inset !important;
+      -webkit-text-fill-color: var(--num-color-usd, #10b981) !important;
+      color: var(--num-color-usd, #10b981) !important;
+      background-color: #020617 !important;
+      background: #020617 !important;
+      caret-color: #10b981 !important;
+    }
+
+    #transferInput:-webkit-autofill,
+    #transferInput:-webkit-autofill:hover,
+    #transferInput:-webkit-autofill:focus,
+    #transferInput:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px #020617 inset !important;
+      box-shadow: 0 0 0 1000px #020617 inset !important;
+      -webkit-text-fill-color: #fde047 !important;
+      color: #fde047 !important;
+      background-color: #020617 !important;
+      background: #020617 !important;
+      caret-color: #fde047 !important;
+    }
+
+    /* حقول المبالغ: خلفية داكنة ثابتة وخط كبير جداً وواضح يملأ المساحة */
+    .amount-number-input,
+    .amount-number-input:focus,
+    .amount-number-input:active {
+      background-color: transparent !important;
+      background: transparent !important;
+      outline: none !important;
+    }
+
+    #sdgAmount, #sdgAmount:focus, #sdgAmount:active {
+      color: var(--num-color-sdg, #ffffff) !important;
+      -webkit-text-fill-color: var(--num-color-sdg, #ffffff) !important;
+      caret-color: #ffffff !important;
+    }
+
+    #usdAmount, #usdAmount:focus, #usdAmount:active {
+      color: var(--num-color-usd, #10b981) !important;
+      -webkit-text-fill-color: var(--num-color-usd, #10b981) !important;
+      caret-color: #10b981 !important;
+    }
+
+    /* حقل التحويلة: خلفية سوداء داكنة دائماً وخط ذهبي كبير وواضح يملأ المساحة بالكامل */
+    #transferInput,
+    #transferInput:focus,
+    #transferInput:active,
+    #transferInput:hover {
+      background-color: #020617 !important;
+      background: #020617 !important;
+      color: #fde047 !important;
+      -webkit-text-fill-color: #fde047 !important;
+      caret-color: #fde047 !important;
+      outline: none !important;
+    }
+    #transferInput {
+      transition: font-size 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease !important;
+    }
+
+    #bankNameInput,
+    #bankNameInput:focus,
+    #bankNameInput:active {
+      background-color: #020617 !important;
+      background: #020617 !important;
+      color: #67e8f9 !important;
+      -webkit-text-fill-color: #67e8f9 !important;
+      caret-color: #67e8f9 !important;
+      outline: none !important;
+    }
+
+  </style>
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
 
@@ -983,7 +1127,7 @@
             </div>
             <!-- المربع شاغر بحواف مضيئة ساطعة -->
             <div id="sdgAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-sky-400 shadow-[0_0_24px_rgba(56,189,248,0.55)] focus-within:shadow-[0_0_32px_rgba(56,189,248,0.85)] focus-within:border-sky-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
-              <input type="text" id="sdgAmount" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg')" oninput="handleAmountInput('sdg'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 32px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
+              <input type="text" id="sdgAmount" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg')" oninput="handleAmountInput('sdg'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 32px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
             </div>
           </div>
 
@@ -997,7 +1141,7 @@
             </div>
             <!-- المربع شاغر بحواف مضيئة ساطعة -->
             <div id="usdAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.55)] focus-within:shadow-[0_0_32px_rgba(16,185,129,0.85)] focus-within:border-emerald-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
-              <input type="text" id="usdAmount" placeholder="0.00" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('usd')" oninput="handleAmountInput('foreign'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-usd, 32px); font-weight: var(--num-weight-usd, 900); color: var(--num-color-usd, #10b981); text-align: center;">
+              <input type="text" id="usdAmount" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="0.00" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('usd')" oninput="handleAmountInput('foreign'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-usd, 32px); font-weight: var(--num-weight-usd, 900); color: var(--num-color-usd, #10b981); text-align: center;">
             </div>
           </div>
 
@@ -1028,31 +1172,9 @@
 
           <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة مع الرصيد المتوقع بعد الحركة -->
           <div class="flex flex-col items-end gap-1 shrink-0" id="fromBalanceWrapper">
-            <div class="flex items-center gap-1.5" id="fromDebtButtonsRow">
-              <!-- زر رصيد الجنيه السوداني (الأصفر) -->
-              <button type="button" 
-                      id="fromBtnDebtSdg"
-                      class="debt-magnifier-btn debt-sdg-btn px-2.5 py-1 rounded-xl text-amber-300 flex items-center gap-1.5 active:scale-95 transition-all select-none cursor-pointer group"
-                      data-target="from"
-                      data-currency="sdg"
-                      title="اضغط مع الاستمرار لتكبير رصيد الجنيه">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
-                <span class="text-[10.5px] font-black text-amber-300 tracking-tight">جنيه</span>
-                <span id="fromAccountSdgBalance" class="hidden font-mono font-bold text-amber-200">0</span>
-              </button>
-
-              <!-- زر رصيد الدولار (الأخضر) -->
-              <button type="button" 
-                      id="fromBtnDebtUsd"
-                      class="debt-magnifier-btn debt-usd-btn px-2.5 py-1 rounded-xl text-emerald-300 flex items-center gap-1.5 active:scale-95 transition-all select-none cursor-pointer group"
-                      data-target="from"
-                      data-currency="usd"
-                      title="اضغط مع الاستمرار لتكبير رصيد الدولار">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-                <span class="text-[10.5px] font-black text-emerald-300 tracking-tight">دولار</span>
-                <span id="fromAccountUsdBalance" class="hidden font-mono font-bold text-emerald-200">0.00</span>
-              </button>
-            </div>
+            <!-- تم حذف مربعات الجنيه والدولار حسب طلب العميل مع الحفاظ على العناصر المخفية للبرمجة -->
+            <span id="fromAccountSdgBalance" class="hidden font-mono font-bold text-amber-200">0</span>
+            <span id="fromAccountUsdBalance" class="hidden font-mono font-bold text-emerald-200">0.00</span>
             <!-- الرصيد المتوقع بعد الصرف -->
             <div id="fromProjectedBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1">
               <span class="opacity-80">بعد الصرف:</span>
@@ -1103,31 +1225,9 @@
 
           <!-- منطقة الرصيد: مدمجة وواضحة جداً بخطوط معززة مع الرصيد المتوقع بعد الاستلام -->
           <div class="flex flex-col items-end gap-1 shrink-0" id="toBalanceWrapper">
-            <div class="flex items-center gap-1.5" id="toDebtButtonsRow">
-              <!-- زر مديونية الجنيه السوداني (الأصفر) -->
-              <button type="button" 
-                      id="toBtnDebtSdg"
-                      class="debt-magnifier-btn debt-sdg-btn px-2.5 py-1 rounded-xl text-amber-300 flex items-center gap-1.5 active:scale-95 transition-all select-none cursor-pointer group"
-                      data-target="to"
-                      data-currency="sdg"
-                      title="اضغط مع الاستمرار لتكبير مديونية الجنيه">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0"></span>
-                <span class="text-[10.5px] font-black text-amber-300 tracking-tight">جنيه</span>
-                <span id="toAccountSdgBalance" class="hidden font-mono font-bold text-amber-200">0</span>
-              </button>
-
-              <!-- زر مديونية الدولار (الأخضر) -->
-              <button type="button" 
-                      id="toBtnDebtUsd"
-                      class="debt-magnifier-btn debt-usd-btn px-2.5 py-1 rounded-xl text-emerald-300 flex items-center gap-1.5 active:scale-95 transition-all select-none cursor-pointer group"
-                      data-target="to"
-                      data-currency="usd"
-                      title="اضغط مع الاستمرار لتكبير مديونية الدولار">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-                <span class="text-[10.5px] font-black text-emerald-300 tracking-tight">دولار</span>
-                <span id="toAccountUsdBalance" class="hidden font-mono font-bold text-emerald-200">0.00</span>
-              </button>
-            </div>
+            <!-- تم حذف مربعات الجنيه والدولار حسب طلب العميل مع الحفاظ على العناصر المخفية للبرمجة -->
+            <span id="toAccountSdgBalance" class="hidden font-mono font-bold text-amber-200">0</span>
+            <span id="toAccountUsdBalance" class="hidden font-mono font-bold text-emerald-200">0.00</span>
             <!-- الرصيد المتوقع بعد الاستلام -->
             <div id="toProjectedBadge" class="hidden px-2 py-0.5 rounded-md text-[10px] font-bold border transition-all flex items-center gap-1">
               <span class="opacity-80">بعد الاستلام:</span>
@@ -1172,7 +1272,7 @@
                 <span>رقم التحويلة:</span>
               </label>
             </div>
-            <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[38px] sm:h-[40px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 15px; text-align: center; direction: ltr;">
+            <input type="text" id="transferInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="handleTransferFocus(this.value)" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[52px] sm:h-[54px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 21px; font-weight: 900; text-align: center; direction: ltr; letter-spacing: 0.5px;">
             <div id="transferFeedbackBadge" class="transition-all flex items-center justify-center"></div>
           </div>
 
@@ -1184,7 +1284,7 @@
                 <span>اسم التحويلة / البنك:</span>
               </label>
             </div>
-            <input type="text" id="bankNameInput" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[38px] sm:h-[40px] text-xs sm:text-sm font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[52px] sm:h-[54px] text-sm sm:text-base font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -3671,11 +3771,74 @@
     // التحكم التلقائي بحجم خط رقم التحويلة والمقارنة الفورية السريعة جداً مع MariaDB
     // ════════════════════════════════════════════════════════════════
     let _transferCheckDebounce = null;
+    let _transferTypingTimer = null;
+    let _transferIsActiveTyping = false;
+
+    function handleTransferInputScale(val, isTyping) {
+      const input = document.getElementById('transferInput');
+      if (!input) return;
+      if (typeof isTyping === 'boolean') {
+        _transferIsActiveTyping = isTyping;
+      }
+      val = (val || '').trim();
+      const len = val.length;
+
+      if (_transferIsActiveTyping) {
+        // أثناء الكتابة: يكبر درجتين إضافيتين (تكبير ضخم ومريح للعين لسهولة ودقة كتابة الأرقام)
+        if (len <= 8) {
+          input.style.fontSize = '26px';
+          input.style.letterSpacing = '0.8px';
+        } else if (len <= 11) {
+          input.style.fontSize = '23.5px';
+          input.style.letterSpacing = '0.4px';
+        } else if (len <= 14) {
+          input.style.fontSize = '21px';
+          input.style.letterSpacing = '0px';
+        } else if (len <= 17) {
+          input.style.fontSize = '18.5px';
+          input.style.letterSpacing = '-0.4px';
+        } else {
+          input.style.fontSize = '16px';
+          input.style.letterSpacing = '-0.8px';
+        }
+      } else {
+        // حين الانتهاء من الكتابة: يرجع إلى التكبير 3 درجات (الوضع المستقر الأنيق المتناسب)
+        if (len <= 8) {
+          input.style.fontSize = '21px';
+          input.style.letterSpacing = '0.5px';
+        } else if (len <= 11) {
+          input.style.fontSize = '19px';
+          input.style.letterSpacing = '0.2px';
+        } else if (len <= 14) {
+          input.style.fontSize = '17px';
+          input.style.letterSpacing = '-0.2px';
+        } else if (len <= 17) {
+          input.style.fontSize = '15px';
+          input.style.letterSpacing = '-0.5px';
+        } else {
+          input.style.fontSize = '13.5px';
+          input.style.letterSpacing = '-0.8px';
+        }
+      }
+    }
+    window.handleTransferInputScale = handleTransferInputScale;
+
+    function handleTransferFocus(val) {
+      handleTransferInputScale(val, true);
+    }
+    window.handleTransferFocus = handleTransferFocus;
 
     function handleTransferLiveInput(val) {
       val = (val || '').trim();
-      handleTransferInputScale(val);
+      // أثناء الكتابة: تكبير الخط درجتين إضافيتين فورياً
+      handleTransferInputScale(val, true);
       _shortTransferAllowed = false;
+
+      // عند الانتهاء من الكتابة والتوقف لمدة 1.8 ثانية: العودة السلسة للتكبير 3 درجات
+      if (_transferTypingTimer) clearTimeout(_transferTypingTimer);
+      _transferTypingTimer = setTimeout(() => {
+        handleTransferInputScale(document.getElementById('transferInput')?.value || '', false);
+      }, 1800);
 
       const badge = document.getElementById('transferFeedbackBadge');
       const input = document.getElementById('transferInput');
@@ -3750,6 +3913,10 @@
     window.handleTransferLiveInput = handleTransferLiveInput;
 
     function handleTransferBlur(val) {
+      // حين ننتهي من الكتابة (الخروج من الحقل): إلغاء المؤقت والرجوع فوراً للتكبير 3 درجات
+      if (_transferTypingTimer) clearTimeout(_transferTypingTimer);
+      handleTransferInputScale(val, false);
+
       if (_suppressTransferBlur) return;
       val = (val || '').trim();
       if (!val || currentPayType !== 'transfer') return;
@@ -3762,25 +3929,6 @@
       }
     }
     window.handleTransferBlur = handleTransferBlur;
-
-    function handleTransferInputScale(val) {
-      const input = document.getElementById('transferInput');
-      if (!input) return;
-      const len = (val || '').length;
-      if (len <= 14) {
-        input.style.fontSize = '15px';
-        input.style.letterSpacing = '-0.3px';
-      } else if (len <= 16) {
-        input.style.fontSize = '13.5px';
-        input.style.letterSpacing = '-0.5px';
-      } else if (len <= 18) {
-        input.style.fontSize = '12.5px';
-        input.style.letterSpacing = '-0.8px';
-      } else {
-        input.style.fontSize = '11.5px';
-        input.style.letterSpacing = '-1px';
-      }
-    }
 
     // ════════════════════════════════════════════════════════════════
     // ════════════════════════════════════════════════════════════════
@@ -6266,10 +6414,28 @@
       return isNaN(num) ? 0 : num;
     }
 
+    function fitAmountFontSize(el, target) {
+      if (!el) return;
+      const len = (el.value || '').length;
+      const cfg = (target === 'usd' ? usdNumberConfig : sdgNumberConfig) || {};
+      const base = parseInt(cfg.fontSize) || 34;
+      if (len <= 7) {
+        el.style.fontSize = base + 'px';
+      } else if (len <= 10) {
+        el.style.fontSize = Math.max(26, base - 6) + 'px';
+      } else if (len <= 13) {
+        el.style.fontSize = Math.max(22, base - 10) + 'px';
+      } else {
+        el.style.fontSize = Math.max(18, base - 14) + 'px';
+      }
+    }
+
     function handleAmountInput(source) {
       calculateExchange(source);
       updateTafqeet();
       updateAccountBalanceBadges();
+      fitAmountFontSize(document.getElementById('sdgAmount'), 'sdg');
+      fitAmountFontSize(document.getElementById('usdAmount'), 'usd');
     }
 
     function calculateExchange(source) {

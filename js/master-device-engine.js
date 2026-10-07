@@ -153,11 +153,19 @@
         let refreshRateEstimate = '60Hz - 120Hz';
 
         // ═════════════════════════════════════════════════════════════════════
-        // الفئة الأولى: أجهزة التابلت والآيباد (Tablets & iPads)
+        // تشخيص أنظمة تشغيل الكمبيوتر واللابتوب بدقة (Windows NT / Mac / Linux)
         // ═════════════════════════════════════════════════════════════════════
-        const isAppleTablet = /iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua) && navigator.maxTouchPoints > 1);
+        const isWindowsPC = /Windows NT/i.test(ua);
+        const isMacPC = /Macintosh/i.test(ua) && !(navigator.maxTouchPoints > 1 && screen.width < 1024);
+        const isLinuxPC = (/X11; Linux x86_64/i.test(ua) || /CrOS/i.test(ua)) && !/Android/i.test(ua);
+        const isDesktopOrLaptopDevice = isWindowsPC || isMacPC || isLinuxPC || (!isTouch && width >= 1024);
+
+        // ═════════════════════════════════════════════════════════════════════
+        // الفئة الأولى: أجهزة التابلت والآيباد (Tablets & iPads) - تستثني الكمبيوتر نهائياً
+        // ═════════════════════════════════════════════════════════════════════
+        const isAppleTablet = !isWindowsPC && (/iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua) && navigator.maxTouchPoints > 1));
         const isAndroidTablet = (/Android/i.test(ua) && !/Mobile/i.test(ua)) || /Tablet/i.test(ua);
-        const isTabletSize = isTouch && (minDim >= 600 && maxDim <= 1366 && !/iPhone/i.test(ua) && !/SM-(F9|F7)/i.test(ua));
+        const isTabletSize = !isDesktopOrLaptopDevice && isTouch && (minDim >= 600 && maxDim <= 1366 && !/iPhone/i.test(ua) && !/SM-(F9|F7)/i.test(ua));
 
         // الكشف الخاص بتابلت هواوي MatePad
         const isHuaweiTablet = isAndroidTablet && (/HUAWEI|HarmonyOS|HuaweiBrowser/i.test(ua) || /BAH|AGS|MRX|WGR|GOT|DBY/i.test(ua) || /MatePad/i.test(ua));
@@ -166,7 +174,7 @@
         // الكشف الخاص بتابلت سامسونج Galaxy Tab
         const isSamsungTablet = isAndroidTablet && (/SamsungBrowser|SAMSUNG/i.test(ua) || /SM-T|SM-X/i.test(ua) || /GalaxyTab/i.test(ua));
 
-        if (isAppleTablet || isAndroidTablet || isTabletSize) {
+        if (!isDesktopOrLaptopDevice && (isAppleTablet || isAndroidTablet || isTabletSize)) {
             category = 'tablet';
             layoutMode = 'tablet';
             safeTop = '20px';
@@ -260,10 +268,7 @@
             aspectDesc = 'نسبة لوحية متوازنة (4:3 / 16:10 / 3:2)';
         }
 
-        // ═════════════════════════════════════════════════════════════════════
-        // الفئة الثانية: الكمبيوتر المكتبي واللابتوب (Desktop & Laptop)
-        // ═════════════════════════════════════════════════════════════════════
-        else if (!isTouch && (width >= 1024 || /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua))) {
+        else if (isDesktopOrLaptopDevice) {
             layoutMode = 'desktop';
             safeTop = '0px';
             safeBottom = '0px';
@@ -1166,20 +1171,22 @@
 
         const dev = detectMasterHardware();
 
-        if (explicitForceMobile || savedPref === 'mobile') {
+        if (explicitForceMobile) {
             return 'mobile-dashboard.php?force_mobile=1';
         }
-        if (explicitForceDesktop || savedPref === 'desktop') {
+        if (explicitForceDesktop || dev.isLaptop || dev.isDesktop) {
+            localStorage.setItem('magaiees_view_preference', 'desktop');
+            document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
             return 'magaiees_unified_dashboard.php?force_desktop=1';
         }
-        if (explicitDevice === 'tablet' || savedPref === 'tablet' || dev.isTablet) {
+        if (explicitDevice === 'tablet' || dev.isTablet) {
             return 'mobile-dashboard.php?device=tablet';
         }
-        if (dev.isLaptop || dev.isDesktop) {
-            return 'magaiees_unified_dashboard.php?force_desktop=1';
+        if (dev.isMobile || savedPref === 'mobile') {
+            return 'mobile-dashboard.php';
         }
 
-        return defaultFallback || 'mobile-dashboard.php';
+        return defaultFallback || (dev.isLaptop || dev.isDesktop ? 'magaiees_unified_dashboard.php?force_desktop=1' : 'mobile-dashboard.php');
     }
 
     // ─────────────────────────────────────────────────────────────────────────────

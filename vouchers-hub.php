@@ -1,4 +1,13 @@
-<?php $page_title = 'الحسابات'; ?>
+<?php
+require_once __DIR__ . '/device_detector.php';
+$forceDesktop = isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1';
+if (!isDeviceDesktopOrLaptop() && !$forceDesktop) {
+    $qs = !empty($_SERVER['QUERY_STRING']) ? ('?' . $_SERVER['QUERY_STRING']) : '';
+    header("Location: mobile-voucher.php{$qs}");
+    exit;
+}
+$page_title = 'الحسابات';
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -12,6 +21,21 @@
 })();
 </script>
 <head>
+<script>
+(function smartVouchersHubMobileGate(){
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('force_desktop') === '1') return;
+    var ua = navigator.userAgent || '';
+    var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+    var isPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPod|Mobile/i.test(ua);
+    if (isPureMobile || (!isPC && (window.innerWidth || screen.width) < 768)) {
+        window.location.replace('mobile-voucher.php' + window.location.search);
+    } else {
+        localStorage.setItem('magaiees_view_preference', 'desktop');
+        document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+    }
+})();
+</script>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">

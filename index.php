@@ -3,64 +3,59 @@
  * ═══════════════════════════════════════════════════════════════════════════
  * 🌐 MAGAIEES ERP 2026 - UNIFIED MASTER SMART ROUTER & ENTRY GATEWAY
  * ═══════════════════════════════════════════════════════════════════════════
- * الرابط الموحد المعتمد لجميع وظائف النظام والحي (https://elsajana.com/index.php):
- * 1. يبدأ فوراً من شاشة الدخول الذكية المتكيفة (اسم المستخدم، كلمة المرور، المايك الصوتي)
- * 2. يدعم تشغيل هذا الرابط أو أي رابط آخر ممرر عبر (?url=... أو ?target=...)
- * 3. يتكيف بنسبة 100% مع كافة أجهزة العالم ومقاسات الشاشات:
- *    - جميع اللابتوبات: 12"، 13"، 14"، 15.6"، 16"، 17" بمختلف الدقات (1366x768, 1440x900, 1920x1080, 2560x1600 ريتينا)
- *    - جميع الديسكتوب: 1080p، 2K، 4K، 8K، وشاشات Ultrawide فائقة العرض (21:9 و 32:9)
- *    - جميع التابلت والآيباد: iPad Mini/Air/Pro 11" و 12.9"/13"، هواوي MatePad، هونر Pad، سامسونج Galaxy Tab و Ultra 14.6"
- *    - جميع أجهزة الآيفون: Classic/SE، X، 11، 12، 13، 14، 15، 16، 17، 18، 20، 28 والمستقبل (برو ماكس، بلس، عادي، ميني)
- *    - جميع أجهزة هواوي: سلسلة Mate المنحنية (Mate 20, 30, 40, 50, 60, 70, 80)، وسلسلة P و Pura (P20, 30, 40, 50, 60, 70, Pura 70 Ultra)
- *    - جميع أجهزة هونر: سلسلة Magic الشلالية (Magic 3, 4, 5, 6, 7, V, Vs, V2, V3)، وسلسلة الأرقام (Honor 20 إلى 800) وسلسلة X
- *    - جميع أجهزة سامسونج: سلسلة Galaxy Ultra (S20 Ultra إلى S27 Ultra)، وسلسلة S، وسلسلة Z Fold القابلة للطي و Flip
- *    - جميع أجهزة سوني: شاشات Sony Xperia السينمائية 21:9 CinemaWide
- *    - جميع أجهزة موتورولا: شاشات Moto Edge المنحنية و Moto Razr القابلة للطي و Moto G
- * 4. حماية فائقة من الكاش (Zero Cache) لضمان العمل الفوري
+ * الرابط الموحد المعتمد لنظام مقاييس ERP (https://elsajana.com/index.php):
+ * 1. ذكاء تلقائي فوري 100%:
+ *    - عند فتح الرابط على اللابتوب أو الديسك توب: تفتح فوراً شاشات الكمبيوتر واللابتوب المتكاملة (لا تفتح شاشة الجوال نهائياً).
+ *    - عند فتح الرابط على الجوال: تفتح فوراً شاشات الجوال المتكيفة مع الهاتف.
+ * 2. التوجيه الذكي للحركات المالية والسندات:
+ *    - على اللابتوب: تفتح شاشة السندات والحسابات المتكاملة (vouchers-hub.php).
+ *    - على الجوال: تفتح شاشة السند المالي السريع للهاتف (mobile-voucher.php).
+ * 3. حماية تامة من الكاش لضمان التوجيه الفوري.
  */
 
 header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0');
 header('Pragma: no-cache');
 header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
 
-$qs = !empty($_SERVER['QUERY_STRING']) ? ('?' . $_SERVER['QUERY_STRING']) : '';
+require_once __DIR__ . '/device_detector.php';
 
-// 1. التوجيه المباشر لشاشة الحركة المالية بالجوال عند طلبها صراحة
+$qs = !empty($_SERVER['QUERY_STRING']) ? ('?' . $_SERVER['QUERY_STRING']) : '';
+$isLaptop = isDeviceDesktopOrLaptop();
+
+// 1. التوجيه الذكي لشاشات الحركة المالية والسندات بحسب الجهاز
 if (isset($_GET['voucher']) || (isset($_GET['screen']) && $_GET['screen'] === 'voucher') || (isset($_GET['page']) && $_GET['page'] === 'voucher')) {
-    header("Location: mobile-voucher.php{$qs}");
-    exit;
+    if ($isLaptop) {
+        setcookie('magaiees_view_preference', 'desktop', time() + (86400 * 365), '/');
+        header("Location: vouchers-hub.php{$qs}");
+        exit;
+    } else {
+        setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
+        header("Location: mobile-voucher.php{$qs}");
+        exit;
+    }
 }
 
-// 2. فحص وجود رابط مخصص أو طلب صريح للوحة التحكم مباشرة (?direct=1 أو ?dashboard=1)
+// 2. فحص وجود رابط مخصص ممرر بالرابط
 $customTarget = $_GET['url'] ?? $_GET['target'] ?? $_GET['target_url'] ?? $_GET['redirect'] ?? null;
 if (!empty($customTarget)) {
     header("Location: " . $customTarget);
     exit;
 }
 
-$directRequested = isset($_GET['direct']) || isset($_GET['dashboard']) || isset($_GET['app']);
+// 3. فحص حالة المصادقة والدخول
 $token = $_COOKIE['saas_token'] ?? ($_COOKIE['authToken'] ?? null);
 $hasSessionActive = !empty($_COOKIE['session_active']) && $_COOKIE['session_active'] === 'true';
 $isLoggedIn = !empty($token) || $hasSessionActive;
 $forceLogin = isset($_GET['login']) || isset($_GET['logout']) || isset($_GET['reauth']);
-$viewPref = $_COOKIE['magaiees_view_preference'] ?? '';
 
-// يتم التحويل التلقائي للوحة التحكم فقط عند طلب الدخول المباشر صراحة (?direct=1):
-if ($directRequested && $isLoggedIn && !$forceLogin) {
-    $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-    $secMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
-    $isWindowsOrLinux = (bool)preg_match('/(windows nt|x11; linux x86_64|cros)/i', $userAgent) && !preg_match('/(android|mobile)/i', $userAgent);
-    $isMacPC = (bool)preg_match('/macintosh/i', $userAgent) && $secMobile !== '?1';
-    $isDesktopOrLaptop = $isWindowsOrLinux || $isMacPC;
-    $isAppleTablet = (bool)preg_match('/(ipad)/i', $userAgent) || (preg_match('/macintosh/i', $userAgent) && $secMobile === '?1');
-    $isAndroidTablet = (bool)preg_match('/(android)/i', $userAgent) && !preg_match('/(mobile)/i', $userAgent);
-    $isTablet = $isAppleTablet || $isAndroidTablet || (bool)preg_match('/tablet/i', $userAgent);
-
-    $target = 'mobile-dashboard.php';
-    if ($viewPref === 'desktop' || ($isDesktopOrLaptop && $viewPref !== 'mobile' && $viewPref !== 'tablet')) {
+// 4. إذا كان المستخدم مسجلاً بالفعل، يتم توجيهه فوراً وذكياً إلى لوحة التحكم المناسبة لجهازه
+if ($isLoggedIn && !$forceLogin) {
+    if ($isLaptop) {
+        setcookie('magaiees_view_preference', 'desktop', time() + (86400 * 365), '/');
         $target = 'magaiees_unified_dashboard.php?force_desktop=1';
-    } elseif ($viewPref === 'tablet' || ($isTablet && $viewPref !== 'desktop' && $viewPref !== 'mobile')) {
-        $target = 'mobile-dashboard.php?device=tablet';
+    } else {
+        setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
+        $target = 'mobile-dashboard.php';
     }
 
     $tenantSub = $_COOKIE['currentTenantSubdomain'] ?? ($_COOKIE['tenant_subdomain'] ?? '');
@@ -74,6 +69,10 @@ if ($directRequested && $isLoggedIn && !$forceLogin) {
     exit;
 }
 
-// 3. المستخدم غير مسجل، أو طلب الدخول صراحة:
-// تشغيل شاشة الدخول الذكية المتكيفة مباشرة في نفس الرابط index.php بدون أي تحويل
+// 5. إذا لم يكن مسجلاً، فتح شاشة الدخول المتكيفة مع حفظ نوع الجهاز
+if ($isLaptop) {
+    setcookie('magaiees_view_preference', 'desktop', time() + (86400 * 365), '/');
+} else {
+    setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
+}
 require __DIR__ . '/login.php';

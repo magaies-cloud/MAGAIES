@@ -18,20 +18,16 @@ if ((isset($_GET['action']) && $_GET['action'] === 'heartbeat_ping') || (isset($
 }
 
 // ═════════════════════════════════════════════════════════════════════
-// 🌐 LAPTOP & DESKTOP AUTOMATIC ROUTING
+// 🌐 LAPTOP & DESKTOP AUTOMATIC ROUTING (منع فتح شاشة الجوال على اللابتوب نهائياً)
 // ═════════════════════════════════════════════════════════════════════
-$userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
-$isLaptopOrPC = (bool)preg_match('/(windows nt|macintosh|x11; linux x86_64|cros)/i', $userAgent) && !preg_match('/(android|iphone|ipad|ipod|mobile)/i', $userAgent);
-$isMobileUserAgent = !$isLaptopOrPC && (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent);
+require_once __DIR__ . '/device_detector.php';
 $forceMobile = isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1';
-$prefCookie = $_COOKIE['magaiees_view_preference'] ?? '';
 
-// If accessing from desktop/laptop without explicit force_mobile, redirect to laptop/computer unified dashboard
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' && empty($_GET['action'])) {
-    if ($forceMobile) {
-        setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
-    } elseif ($isLaptopOrPC || (!$isMobileUserAgent && $prefCookie !== 'mobile')) {
-        header('Location: magaiees_unified_dashboard.php?force_desktop=1');
+    if (!$forceMobile && isDeviceDesktopOrLaptop()) {
+        setcookie('magaiees_view_preference', 'desktop', time() + (86400 * 365), '/');
+        $qs = !empty($_SERVER['QUERY_STRING']) ? ('?' . $_SERVER['QUERY_STRING']) : '';
+        header('Location: magaiees_unified_dashboard.php' . ($qs ? ($qs . '&force_desktop=1') : '?force_desktop=1'));
         exit;
     }
 }

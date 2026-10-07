@@ -33,25 +33,17 @@ if ($forceMobile) {
     exit;
 }
 
-// 2. Server-Side Mobile Hardware & Client Hints Detection
-$isExplicitTablet = (bool)preg_match('/(ipad|tablet)/i', $userAgent);
-$isPureMobile = (bool)preg_match('/(android.*mobile|iphone|ipod|blackberry|iemobile|opera mini)/i', $userAgent) || ($secChUaMobile === '?1');
-$isWindowsOrLinux = (bool)preg_match('/(windows nt|x11; linux x86_64|cros)/i', $userAgent);
+// 2. Server-Side Intelligent Hardware & Client Hints Detection
+require_once __DIR__ . '/device_detector.php';
+$isLaptopDevice = isDeviceDesktopOrLaptop();
 
-$savedPref = $_COOKIE['magaiees_view_preference'] ?? '';
-
-if ($isExplicitTablet && $savedPref !== 'desktop') {
-    header("Location: mobile-dashboard.php?device=tablet" . ($queryString ? '&' . $queryString : ''));
-    exit;
-}
-
-if ($isPureMobile && $savedPref !== 'desktop') {
-    header("Location: mobile-dashboard.php{$qPrefix}");
-    exit;
-}
-
-if ($isWindowsOrLinux && $savedPref !== 'mobile') {
+if ($isLaptopDevice) {
+    setcookie('magaiees_view_preference', 'desktop', time() + (86400 * 365), '/');
     header("Location: magaiees_unified_dashboard.php{$qPrefix}");
+    exit;
+} else {
+    setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
+    header("Location: mobile-dashboard.php{$qPrefix}");
     exit;
 }
 
@@ -83,17 +75,16 @@ if ($isWindowsOrLinux && $savedPref !== 'mobile') {
     
     <script>
     (function() {
-        var width = window.innerWidth || document.documentElement.clientWidth || screen.width;
-        var height = window.innerHeight || document.documentElement.clientHeight || screen.height;
         var ua = navigator.userAgent || '';
-        var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0) || (navigator.msMaxTouchPoints > 0);
-        
-        var isAppleTablet = /iPad/i.test(ua) || (isTouch && /Macintosh/i.test(ua));
-        var isAndroidTablet = (/Android/i.test(ua) && !/Mobile/i.test(ua)) || /Tablet/i.test(ua);
-        var isTouchTabletSize = isTouch && (Math.min(width, height) >= 600 && Math.max(width, height) <= 1366);
-        var isTablet = isAppleTablet || isAndroidTablet || (isTouch && isTouchTabletSize && !/iPhone|Mobile/i.test(ua));
-        
-        var isLaptop = !isTouch && (/Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) || width >= 1024);
+        var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+        var isWindowsPC = /Windows NT/i.test(ua);
+        var isMacPC = /Macintosh/i.test(ua) && !(navigator.maxTouchPoints > 1 && screen.width < 1024);
+        var isLinuxPC = (/X11; Linux x86_64/i.test(ua) || /CrOS/i.test(ua)) && !/Android/i.test(ua);
+        var isLargeScreen = Math.max(window.screen.width, window.screen.height) >= 1024;
+        var hasFinePointer = window.matchMedia && (window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches);
+
+        var isLaptop = !isPureMobile && (isWindowsPC || isMacPC || isLinuxPC || (isLargeScreen && hasFinePointer));
+        var isTablet = !isLaptop && (/iPad/i.test(ua) || (/Android/i.test(ua) && !/Mobile/i.test(ua)));
         var isMobile = !isLaptop && !isTablet;
 
         var params = new URLSearchParams(window.location.search);

@@ -295,7 +295,10 @@ $page_title = 'حركة مالية مجمعة';
     var width = window.innerWidth || screen.width;
     var isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
     var params = new URLSearchParams(window.location.search);
-    if (params.get('force_desktop') !== '1' && (width < 1024 || isTouch)) {
+    var ua = navigator.userAgent || '';
+    var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
+    var isPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPod|Mobile/i.test(ua);
+    if (params.get('force_desktop') !== '1' && (isPureMobile || (!isPC && width < 768))) {
         window.location.replace('mobile-voucher.php' + window.location.search);
     }
 })();
