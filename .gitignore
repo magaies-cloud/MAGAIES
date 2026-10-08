@@ -68,3 +68,5 @@ cloudflared.exe
 *.bat
 *.bak*
 *.vbs
+backups/live_backup_*.sql
+backups/local_backup_*.sql
