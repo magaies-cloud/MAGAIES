@@ -91,7 +91,7 @@
             if (aliasMap[savedTheme]) savedTheme = aliasMap[savedTheme];
             
             document.documentElement.setAttribute('data-theme', savedTheme);
-            var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+            var lightThemes = ['ultra_white', 'warm_cream', 'exec_gray', 'solar_contrast'];
             if (lightThemes.indexOf(savedTheme) !== -1) {
                 document.documentElement.classList.add('light-theme');
             } else {
@@ -126,7 +126,7 @@
         var t = document.documentElement.getAttribute('data-theme') || 'warm-alabaster';
         if (document.body) {
             document.body.setAttribute('data-theme', t);
-            var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+            var lightThemes = ['ultra_white', 'warm_cream', 'exec_gray', 'solar_contrast'];
             if (lightThemes.indexOf(t) !== -1) {
                 document.body.classList.add('light-theme');
             } else {
@@ -623,7 +623,7 @@
                     <button class="desktop-theme-palette-btn" id="header-desktop-theme-btn" type="button" onclick="openDesktopThemePaletteModal()" title="مصفوفة سمات النظام وراحة العين (21 سمة علمية معتمدة)">
                         <span class="theme-btn-icon">🎨</span>
                         <span class="theme-btn-text">السمات</span>
-                        <span class="theme-btn-badge">21</span>
+                        <span class="theme-btn-badge">7</span>
                     </button>
 
                     <!-- 📱 زر نسخة الجوال -->

@@ -11001,36 +11001,17 @@ try {
         // ═════════════════════════════════════════════════════════════════
         // 🎨 THE 21-TIER SCIENTIFIC THEME ENGINE (WCAG AAA ERGONOMIC MATRIX)
         // ═════════════════════════════════════════════════════════════════
-        const THEMES_21 = [
-            // ☀️ الفاتحة والعاجي (8)
-            { key: 'warm-alabaster', name: 'العاجي الدافئ Warm Alabaster', icon: 'fa-scroll text-amber-700', dot: '#8B6F4E', meta: '#F6F0E6', isLight: true },
-            { key: 'pure-platinum', name: 'الفضي النقي Pure Platinum', icon: 'fa-gem text-blue-600', dot: '#2563EB', meta: '#EEF2F6', isLight: true },
-            { key: 'beige', name: 'البيج الدافئ Warm Sandstone Beige', icon: 'fa-wheat-awn text-amber-600', dot: '#B45309', meta: '#F5EBE0', isLight: true },
-            { key: 'ivory', name: 'العاجي الملكي Royal Cream Ivory', icon: 'fa-wine-glass text-yellow-600', dot: '#D97706', meta: '#FAF7F0', isLight: true },
-            { key: 'offwhite', name: 'الأوف وايت Modern Matte Offwhite', icon: 'fa-file-lines text-slate-700', dot: '#2563EB', meta: '#F9FAFB', isLight: true },
-            { key: 'light-linen', name: 'الكتان الطبيعي Soft Natural Linen', icon: 'fa-spa text-lime-700', dot: '#4D7C0F', meta: '#EDE7DC', isLight: true },
-            { key: 'pearl-platinum', name: 'اللؤلؤي الفضي Platinum Pearl Grey', icon: 'fa-circle-dot text-sky-600', dot: '#0284C7', meta: '#E9ECEF', isLight: true },
-            { key: 'nordic-paper', name: 'الورقي النوردي Nordic Paper Soft', icon: 'fa-book-open text-cyan-700', dot: '#0E7490', meta: '#F0F4F8', isLight: true },
-
-            // 🌊 درجات الأزرق والكحلي (6)
-            { key: 'midnight-executive', name: 'كحلي منتصف الليل Midnight Executive', icon: 'fa-briefcase text-sky-400', dot: '#38BDF8', meta: '#0B0F17', isLight: false },
-            { key: 'navy-kohl', name: 'الكحلي الملكي Deep Royal Navy Kohl', icon: 'fa-compass text-blue-400', dot: '#60A5FA', meta: '#080C14', isLight: false },
-            { key: 'royal-blue', name: 'الأزرق الزفيري Sapphire Royal Blue', icon: 'fa-crown text-blue-500', dot: '#4F8CFF', meta: '#0A1128', isLight: false },
-            { key: 'ocean-navy', name: 'الأزرق المحيطي Deep Ocean Navy', icon: 'fa-water text-teal-400', dot: '#38BDF8', meta: '#061826', isLight: false },
-            { key: 'petrol-cyan', name: 'البترولي والتيل Petrol Teal Cyan', icon: 'fa-gas-pump text-teal-300', dot: '#2DD4BF', meta: '#061E24', isLight: false },
-            { key: 'twilight-indigo', name: 'أزرق الشفق Twilight Indigo', icon: 'fa-cloud-moon text-indigo-400', dot: '#818CF8', meta: '#0E0E24', isLight: false },
-
-            // 🌙 الداكنة والتنفيذية (7)
-            { key: 'obsidian-charcoal', name: 'حجر السج الجرافيتي Obsidian Charcoal', icon: 'fa-mountain text-slate-300', dot: '#E2E8F0', meta: '#121214', isLight: false },
-            { key: 'midnight', name: 'الليل الملكي الداكن Pure OLED Black', icon: 'fa-moon text-emerald-400', dot: '#00E676', meta: '#000000', isLight: false },
-            { key: 'sepia-brown', name: 'البني الإسبريسو Espresso Sepia Brown', icon: 'fa-mug-hot text-amber-500', dot: '#F59E0B', meta: '#18120C', isLight: false },
-            { key: 'pale-gold', name: 'الذهبي الباهت Pale Gold Luxury', icon: 'fa-coins text-yellow-400', dot: '#EAB308', meta: '#141209', isLight: false },
-            { key: 'emerald-forest', name: 'زمرد الغابات Deep Emerald Forest', icon: 'fa-tree text-emerald-400', dot: '#34D399', meta: '#061910', isLight: false },
-            { key: 'desert-mocha', name: 'الرمال وموكا Desert Mocha Sand', icon: 'fa-cubes text-amber-500', dot: '#D97706', meta: '#1A1412', isLight: false },
-            { key: 'sunlight-titanium', name: 'التيتانيوم الشمسي Sunlight Titanium', icon: 'fa-sun text-yellow-400', dot: '#FFFF00', meta: '#FFFF00', isLight: true }
+        const THEMES_7 = [
+            { key: 'ultra_white', name: 'أبيض فائق النقاء Ultra-Clean White', icon: 'fa-circle text-blue-500', isLight: true, dot: '#2563eb', meta: '#ffffff', desc: 'إضاءة نهارية مكتبية ناصعة مع نصوص سوداء حادة لأعلى وضوح' },
+            { key: 'warm_cream', name: 'ورق سيبيا دافئ Warm Paper Sepia', icon: 'fa-scroll text-amber-600', isLight: true, dot: '#b45309', meta: '#fbf7ee', desc: 'مستوحى من ورق الدفاتر الفاخرة لمنع جفاف وإجهاد العين أثناء العمل الطويل' },
+            { key: 'exec_gray', name: 'رمادي تنفيذي بارد Cool Executive Gray', icon: 'fa-briefcase text-blue-600', isLight: true, dot: '#1d4ed8', meta: '#f1f5f9', desc: 'أسطح رمادية هادئة وأناقة الشركات الكبرى والبنوك العالمية' },
+            { key: 'solar_contrast', name: 'شمس ساطعة عالي التباين Solar Sun', icon: 'fa-sun text-yellow-500', isLight: true, dot: '#000000', meta: '#ffff00', desc: 'أعلى تباين معتمد طبياً (WCAG AAA) للعمل تحت أشعة الشمس المباشرة' },
+            { key: 'slate_twilight', name: 'سليت مسائي هادئ Twilight Slate', icon: 'fa-cloud-moon text-sky-400', isLight: false, dot: '#38bdf8', meta: '#0f172a', desc: 'رمادي داكن مائل للزرقة هادئ جداً لأوقات المساء' },
+            { key: 'midnight_obsidian', name: 'كحلي فاحم ملكي Midnight Obsidian', icon: 'fa-gem text-cyan-400', isLight: false, dot: '#00f2fe', meta: '#0a1128', desc: 'السمة المصرفية الفخمة باللون الكحلي السحيق والأمان المالي' },
+            { key: 'pure_oled', name: 'سواد مطلق Pure OLED Black', icon: 'fa-moon text-emerald-400', isLight: false, dot: '#10b981', meta: '#000000', desc: 'سواد حالك لإطفاء البكسلات وتوفير طاقة البطارية بنسبة 30%' }
         ];
+        const THEMES_21 = THEMES_7;
 
-        const THEMES_7 = THEMES_21; // Compatibility alias
 
         const THEME_ALIAS_MAP = {
             'solar': 'sunlight-titanium',

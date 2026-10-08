@@ -859,7 +859,217 @@
       outline: none !important;
     }
 
+  
+    /* ═════════════════════════════════════════════════════════════════
+       🎨 7 MASTER THEMES - ZERO DARK ISLANDS & HIGH CONTRAST MATRIX
+       ═════════════════════════════════════════════════════════════════ */
+    html.light-theme,
+    html.light-theme body {
+      background-color: var(--bg-color, #f8fafc) !important;
+      color: var(--text-main, #0f172a) !important;
+    }
+
+    /* 1. All containers and outer frame in light themes */
+    html.light-theme .mobile-device-outer,
+    html.light-theme #mobileContainer {
+      background-color: var(--surface, #ffffff) !important;
+      border-color: var(--border, #cbd5e1) !important;
+      color: var(--text-main, #0f172a) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    /* 2. ELIMINATE ALL DARK ISLANDS: Override all dark background utility classes */
+    html.light-theme .bg-slate-950,
+    html.light-theme .bg-slate-900,
+    html.light-theme .bg-slate-900\/90,
+    html.light-theme .bg-slate-900\/80,
+    html.light-theme .bg-slate-800,
+    html.light-theme .amount-display-card,
+    html.light-theme .desktop-screen-switcher {
+      background-color: var(--surface, #ffffff) !important;
+      border-color: var(--border, #cbd5e1) !important;
+      color: var(--text-main, #0f172a) !important;
+    }
+
+    /* 3. High Contrast Text Overrides in Light Themes */
+    html.light-theme .text-slate-100,
+    html.light-theme .text-slate-200,
+    html.light-theme .text-slate-300,
+    html.light-theme .text-slate-400,
+    html.light-theme .text-white,
+    html.light-theme span:not(.theme-badge),
+    html.light-theme label,
+    html.light-theme strong {
+      color: var(--text-main, #0f172a) !important;
+    }
+
+    /* 4. Inputs in Light Themes */
+    html.light-theme input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html.light-theme select,
+    html.light-theme textarea {
+      background-color: #ffffff !important;
+      color: #0f172a !important;
+      border-color: #cbd5e1 !important;
+      font-weight: 700 !important;
+    }
+
+    html.light-theme input::placeholder,
+    html.light-theme textarea::placeholder {
+      color: #64748b !important;
+      opacity: 1 !important;
+    }
+
+    /* 5. Key Financial Fields Contrast */
+    html.light-theme #currentVoucherDisplay {
+      color: #b45309 !important;
+      font-weight: 900 !important;
+    }
+
+    html.light-theme #sdgAmount {
+      color: #0284c7 !important;
+      font-weight: 900 !important;
+    }
+
+    html.light-theme #usdAmount {
+      color: #047857 !important;
+      font-weight: 900 !important;
+    }
+
+    html.light-theme #usdRate {
+      color: #0f766e !important;
+      font-weight: 900 !important;
+    }
+
+    html.light-theme #transferInput {
+      background-color: #fffbeb !important;
+      color: #b45309 !important;
+      border-color: #f59e0b !important;
+    }
+
+    html.light-theme #bankNameInput {
+      background-color: #f0fdfa !important;
+      color: #0f766e !important;
+      border-color: #0d9488 !important;
+    }
+
+    html.light-theme .bottom-bar-fixed {
+      background-color: #ffffff !important;
+      border-top: 1.5px solid #cbd5e1 !important;
+    }
+
+    html.light-theme #currentTime {
+      color: #0f172a !important;
+    }
+
+    html.light-theme #voucherThemeBtn {
+      background-color: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+
+    /* 6. Sepia/Warm Paper Theme specific adjustments */
+    html[data-theme="warm_cream"].light-theme .mobile-device-outer,
+    html[data-theme="warm_cream"].light-theme #mobileContainer,
+    html[data-theme="warm_cream"].light-theme .amount-display-card {
+      background-color: #fcf8f2 !important;
+      border-color: #dcd1be !important;
+    }
+
+    /* 7. Solar Contrast High Vis Theme adjustments */
+    html[data-theme="solar_contrast"].light-theme .mobile-device-outer,
+    html[data-theme="solar_contrast"].light-theme #mobileContainer {
+      border: 3px solid #000000 !important;
+    }
+    html[data-theme="solar_contrast"].light-theme input {
+      border: 2px solid #000000 !important;
+      color: #000000 !important;
+    }
+
   </style>
+
+  <!-- 🎨 Master 7 Themes Engine Integration -->
+  <link rel="stylesheet" href="css/theme.css?v=20261008_7themes_unified">
+  <script>
+    (function() {
+      const THEMES_7 = ['ultra_white', 'warm_cream', 'exec_gray', 'solar_contrast', 'slate_twilight', 'midnight_obsidian', 'pure_oled'];
+      const LIGHT_THEMES = ['ultra_white', 'warm_cream', 'exec_gray', 'solar_contrast'];
+      const ALIAS_MAP = {
+        'warm-alabaster': 'warm_cream', 'pure-platinum': 'ultra_white', 'midnight-executive': 'midnight_obsidian',
+        'obsidian-charcoal': 'pure_oled', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'offwhite': 'ultra_white',
+        'light-linen': 'warm_cream', 'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream',
+        'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian',
+        'petrol-cyan': 'midnight_obsidian', 'twilight-indigo': 'slate_twilight', 'midnight': 'pure_oled',
+        'sepia-brown': 'warm_cream', 'pale-gold': 'warm_cream', 'emerald-forest': 'slate_twilight',
+        'desert-mocha': 'warm_cream', 'sunlight-titanium': 'solar_contrast', 'solar': 'solar_contrast',
+        'navy': 'midnight_obsidian', 'forest': 'slate_twilight', 'light': 'ultra_white', 'dark': 'midnight_obsidian'
+      };
+
+      function getSavedTheme() {
+        let t = localStorage.getItem('magaies_active_theme') || 
+                localStorage.getItem('magaiees_mobile_theme') || 
+                localStorage.getItem('magaiees_theme') || 
+                localStorage.getItem('erp_theme');
+        if (!t) {
+          const m = document.cookie.match(/(?:^|;\s*)(?:magaies_active_theme|magaiees_mobile_theme|magaiees_theme|erp_theme)=([^;]+)/);
+          if (m) t = decodeURIComponent(m[1]);
+        }
+        if (!t) t = 'midnight_obsidian';
+        if (ALIAS_MAP[t]) t = ALIAS_MAP[t];
+        return t;
+      }
+
+      window.applyVoucherTheme = function(themeKey) {
+        if (!themeKey) themeKey = 'midnight_obsidian';
+        if (ALIAS_MAP[themeKey]) themeKey = ALIAS_MAP[themeKey];
+        if (!THEMES_7.includes(themeKey)) themeKey = 'midnight_obsidian';
+
+        document.documentElement.setAttribute('data-theme', themeKey);
+        if (document.body) document.body.setAttribute('data-theme', themeKey);
+
+        const isLight = LIGHT_THEMES.includes(themeKey);
+        if (isLight) {
+          document.documentElement.classList.add('light-theme');
+          document.documentElement.classList.remove('dark-theme');
+          if (document.body) {
+            document.body.classList.add('light-theme');
+            document.body.classList.remove('dark-theme');
+          }
+        } else {
+          document.documentElement.classList.remove('light-theme');
+          document.documentElement.classList.add('dark-theme');
+          if (document.body) {
+            document.body.classList.remove('light-theme');
+            document.body.classList.add('dark-theme');
+          }
+        }
+
+        try {
+          localStorage.setItem('magaies_active_theme', themeKey);
+          localStorage.setItem('magaiees_mobile_theme', themeKey);
+          localStorage.setItem('magaiees_theme', themeKey);
+          localStorage.setItem('erp_theme', themeKey);
+          document.cookie = 'magaies_active_theme=' + encodeURIComponent(themeKey) + '; path=/; max-age=31536000; SameSite=Lax';
+          document.cookie = 'magaiees_mobile_theme=' + encodeURIComponent(themeKey) + '; path=/; max-age=31536000; SameSite=Lax';
+          document.cookie = 'erp_theme=' + encodeURIComponent(themeKey) + '; path=/; max-age=31536000; SameSite=Lax';
+        } catch(e) {}
+      };
+
+      window.cycleVoucherTheme = function() {
+        const cur = document.documentElement.getAttribute('data-theme') || getSavedTheme();
+        const idx = THEMES_7.indexOf(cur);
+        const next = THEMES_7[(idx + 1) % THEMES_7.length];
+        window.applyVoucherTheme(next);
+      };
+
+      const initial = getSavedTheme();
+      window.applyVoucherTheme(initial);
+
+      document.addEventListener('DOMContentLoaded', function() {
+        window.applyVoucherTheme(getSavedTheme());
+      });
+    })();
+  </script>
+
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
 
@@ -921,6 +1131,9 @@
         </span>
 
         <!-- مؤشر مزامنة وتحديث البيانات الذكي: دائرة خضراء بعد المزامنة، وتتحول لحمراء مع زر التحديث عند الحاجة -->
+        <button type="button" onclick="cycleVoucherTheme()" id="voucherThemeBtn" class="w-6 h-6 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center shrink-0 border border-slate-700 text-[11px] transition active:scale-95 shadow-sm" title="تبديل السمة (7 سمات رئيسية موحدة) 🎨">
+          <i class="fa-solid fa-palette text-amber-300"></i>
+        </button>
         <button type="button" onclick="handleUnifiedSyncRefresh()" id="networkPill" class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 text-[10.5px] font-black cursor-pointer hover:bg-emerald-500/25 active:scale-95 transition shadow-sm" title="البيانات متزامنة - انقر للتحديث الفوري">
           <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_#10b981]" id="networkDot"></span>
           <i class="fa-solid fa-arrows-rotate text-[9.5px] text-red-300 hidden" id="networkRefreshIcon"></i>

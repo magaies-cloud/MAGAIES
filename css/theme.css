@@ -1,3 +1,371 @@
+/* ═══════════════════════════════════════════════════════════════════════════════
+   🎨 ELSAJANA ERP 2026 - THE 7 OFFICIAL MASTER THEMES (WCAG AAA HIGH CONTRAST)
+   ═══════════════════════════════════════════════════════════════════════════════
+   1. ultra_white      : أبيض فائق النقاء Ultra-Clean White (نهار مكتب بأعلى وضوح)
+   2. warm_cream        : ورق سيبيا دافئ Warm Paper Sepia (حماية العين من الإجهاد)
+   3. exec_gray         : رمادي تنفيذي بارد Cool Executive Gray (أناقة الشركات الكبرى)
+   4. solar_contrast    : شمس ساطعة عالي التباين Solar Sun (ميداني أصفر/أسود WCAG AAA)
+   5. slate_twilight    : سليت مسائي هادئ Twilight Slate (رمادي داكن مزرق)
+   6. midnight_obsidian : كحلي فاحم ملكي Midnight Obsidian (كحلي مصرفي آمن)
+   7. pure_oled         : سواد مطلق Pure OLED Black (توفير البطارية 30%)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. ⚪ ULTRA-CLEAN WHITE (أبيض فائق النقاء) ── */
+:root[data-theme="ultra_white"],
+html[data-theme="ultra_white"],
+body[data-theme="ultra_white"],
+[data-theme="ultra_white"] {
+  --bg-color: #f8fafc !important;
+  --bg-secondary: #ffffff !important;
+  --surface: #ffffff !important;
+  --surface-color: #ffffff !important;
+  --surface-hover: #f1f5f9 !important;
+  --border: #cbd5e1 !important;
+  --border-color: #cbd5e1 !important;
+  --border-glass: rgba(0, 0, 0, 0.1) !important;
+  --bg-dark: #f8fafc !important;
+  --panel-bg: #ffffff !important;
+  --text-primary: #0f172a !important;
+  --text-secondary: #1e293b !important;
+  --text-muted: #475569 !important;
+  --text-main: #0f172a !important;
+  --text-dim: #64748b !important;
+  --primary-accent: #2563eb !important;
+  --accent-color: #2563eb !important;
+  --primary: #2563eb !important;
+  --amber: #b45309 !important;
+  --green: #047857 !important;
+  --red: #dc2626 !important;
+  --blue: #2563eb !important;
+}
+
+/* ── 2. 📜 WARM PAPER SEPIA (ورق سيبيا دافئ) ── */
+:root[data-theme="warm_cream"],
+html[data-theme="warm_cream"],
+body[data-theme="warm_cream"],
+[data-theme="warm_cream"] {
+  --bg-color: #fbf7ee !important;
+  --bg-secondary: #f5eedd !important;
+  --surface: #ffffff !important;
+  --surface-color: #ffffff !important;
+  --surface-hover: #f5eedd !important;
+  --border: #dcd1be !important;
+  --border-color: #dcd1be !important;
+  --border-glass: rgba(180, 83, 9, 0.12) !important;
+  --bg-dark: #fbf7ee !important;
+  --panel-bg: #fdfbf7 !important;
+  --text-primary: #292019 !important;
+  --text-secondary: #3d3027 !important;
+  --text-muted: #6b5b4e !important;
+  --text-main: #292019 !important;
+  --text-dim: #8c7866 !important;
+  --primary-accent: #b45309 !important;
+  --accent-color: #b45309 !important;
+  --primary: #b45309 !important;
+  --amber: #b45309 !important;
+  --green: #15803d !important;
+  --red: #b91c1c !important;
+  --blue: #0369a1 !important;
+}
+
+/* ── 3. 🏢 COOL EXECUTIVE GRAY (رمادي تنفيذي بارد) ── */
+:root[data-theme="exec_gray"],
+html[data-theme="exec_gray"],
+body[data-theme="exec_gray"],
+[data-theme="exec_gray"] {
+  --bg-color: #f1f5f9 !important;
+  --bg-secondary: #ffffff !important;
+  --surface: #ffffff !important;
+  --surface-color: #ffffff !important;
+  --surface-hover: #e2e8f0 !important;
+  --border: #cbd5e1 !important;
+  --border-color: #cbd5e1 !important;
+  --border-glass: rgba(0, 0, 0, 0.1) !important;
+  --bg-dark: #f1f5f9 !important;
+  --panel-bg: #ffffff !important;
+  --text-primary: #0f172a !important;
+  --text-secondary: #1e293b !important;
+  --text-muted: #475569 !important;
+  --text-main: #0f172a !important;
+  --text-dim: #64748b !important;
+  --primary-accent: #1d4ed8 !important;
+  --accent-color: #1d4ed8 !important;
+  --primary: #1d4ed8 !important;
+  --amber: #b45309 !important;
+  --green: #047857 !important;
+  --red: #b91c1c !important;
+  --blue: #1d4ed8 !important;
+}
+
+/* ── 4. ☀️ HIGH-CONTRAST SOLAR SUN (شمس ساطعة عالي التباين) ── */
+:root[data-theme="solar_contrast"],
+html[data-theme="solar_contrast"],
+body[data-theme="solar_contrast"],
+[data-theme="solar_contrast"] {
+  --bg-color: #fef08a !important;
+  --bg-secondary: #ffffff !important;
+  --surface: #ffffff !important;
+  --surface-color: #ffffff !important;
+  --surface-hover: #fef9c3 !important;
+  --border: #000000 !important;
+  --border-color: #000000 !important;
+  --border-glass: #000000 !important;
+  --bg-dark: #fef08a !important;
+  --panel-bg: #ffffff !important;
+  --text-primary: #000000 !important;
+  --text-secondary: #000000 !important;
+  --text-muted: #1c1917 !important;
+  --text-main: #000000 !important;
+  --text-dim: #292524 !important;
+  --primary-accent: #000000 !important;
+  --accent-color: #000000 !important;
+  --primary: #000000 !important;
+  --amber: #78350f !important;
+  --green: #14532d !important;
+  --red: #7f1d1d !important;
+  --blue: #000000 !important;
+}
+
+/* ── 5. 🌆 TWILIGHT SLATE (سليت مسائي هادئ) ── */
+:root[data-theme="slate_twilight"],
+html[data-theme="slate_twilight"],
+body[data-theme="slate_twilight"],
+[data-theme="slate_twilight"] {
+  --bg-color: #0f172a !important;
+  --bg-secondary: #1e293b !important;
+  --surface: #1e293b !important;
+  --surface-color: #1e293b !important;
+  --surface-hover: #334155 !important;
+  --border: #334155 !important;
+  --border-color: #334155 !important;
+  --border-glass: rgba(56, 189, 248, 0.15) !important;
+  --bg-dark: #0f172a !important;
+  --panel-bg: #1e293b !important;
+  --text-primary: #f8fafc !important;
+  --text-secondary: #e2e8f0 !important;
+  --text-muted: #94a3b8 !important;
+  --text-main: #f8fafc !important;
+  --text-dim: #64748b !important;
+  --primary-accent: #38bdf8 !important;
+  --accent-color: #38bdf8 !important;
+  --primary: #38bdf8 !important;
+  --amber: #fbbf24 !important;
+  --green: #34d399 !important;
+  --red: #f87171 !important;
+  --blue: #38bdf8 !important;
+}
+
+/* ── 6. 🌌 MIDNIGHT OBSIDIAN (كحلي فاحم ملكي) ── */
+:root[data-theme="midnight_obsidian"],
+html[data-theme="midnight_obsidian"],
+body[data-theme="midnight_obsidian"],
+[data-theme="midnight_obsidian"] {
+  --bg-color: #0a1128 !important;
+  --bg-secondary: #0b132b !important;
+  --surface: #111c44 !important;
+  --surface-color: #111c44 !important;
+  --surface-hover: #1c2a5e !important;
+  --border: rgba(56, 189, 248, 0.22) !important;
+  --border-color: rgba(56, 189, 248, 0.22) !important;
+  --border-glass: rgba(56, 189, 248, 0.25) !important;
+  --bg-dark: #0a1128 !important;
+  --panel-bg: #111c44 !important;
+  --text-primary: #ffffff !important;
+  --text-secondary: #e0f2fe !important;
+  --text-muted: #94a3b8 !important;
+  --text-main: #ffffff !important;
+  --text-dim: #64748b !important;
+  --primary-accent: #00f2fe !important;
+  --accent-color: #00f2fe !important;
+  --primary: #00f2fe !important;
+  --amber: #fbbf24 !important;
+  --green: #10b981 !important;
+  --red: #ef4444 !important;
+  --blue: #38bdf8 !important;
+}
+
+/* ── 7. 🖤 PURE OLED BLACK (سواد مطلق) ── */
+:root[data-theme="pure_oled"],
+html[data-theme="pure_oled"],
+body[data-theme="pure_oled"],
+[data-theme="pure_oled"] {
+  --bg-color: #000000 !important;
+  --bg-secondary: #050505 !important;
+  --surface: #080808 !important;
+  --surface-color: #080808 !important;
+  --surface-hover: #141414 !important;
+  --border: #222222 !important;
+  --border-color: #222222 !important;
+  --border-glass: rgba(255, 255, 255, 0.15) !important;
+  --bg-dark: #000000 !important;
+  --panel-bg: #080808 !important;
+  --text-primary: #ffffff !important;
+  --text-secondary: #ffffff !important;
+  --text-muted: #a3a3a3 !important;
+  --text-main: #ffffff !important;
+  --text-dim: #737373 !important;
+  --primary-accent: #10b981 !important;
+  --accent-color: #10b981 !important;
+  --primary: #10b981 !important;
+  --amber: #f59e0b !important;
+  --green: #10b981 !important;
+  --red: #ef4444 !important;
+  --blue: #38bdf8 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   🌟 UNIVERSAL HIGH CONTRAST & ZERO DARK ISLANDS RULES FOR ALL LIGHT THEMES
+   ═══════════════════════════════════════════════════════════════════════════════
+   When any light theme is active, ensure:
+   1. All dark background classes (slate-950, slate-900, slate-800, etc.) turn light.
+   2. All text colors (text-slate-100, text-white, etc.) turn deep dark charcoal (#0f172a).
+   3. All table headers, rows, inputs, cards, and modals turn crisp white/light with dark text.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+html.light-theme body,
+body.light-theme,
+html[data-theme="ultra_white"] body,
+html[data-theme="warm_cream"] body,
+html[data-theme="exec_gray"] body,
+html[data-theme="solar_contrast"] body {
+  background-color: var(--bg-color) !important;
+  color: var(--text-main) !important;
+}
+
+/* 1. Eliminate dark islands on all containers and cards */
+html.light-theme .bg-slate-950,
+html.light-theme .bg-slate-900,
+html.light-theme .bg-slate-900\/90,
+html.light-theme .bg-slate-900\/80,
+html.light-theme .bg-slate-800,
+html.light-theme .bg-slate-800\/80,
+html.light-theme .bg-gray-900,
+html.light-theme .bg-neutral-900,
+html.light-theme .magical-glass-header,
+html.light-theme .mobile-device-outer,
+html.light-theme #mobileContainer,
+html.light-theme .amount-display-card,
+html.light-theme .card,
+html.light-theme .panel,
+html.light-theme .box-card,
+html.light-theme .modal-content,
+html.light-theme .table-container,
+html.light-theme .ribbon-container {
+  background-color: var(--surface) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-main) !important;
+}
+
+/* 2. Enforce high contrast text in all light themes */
+html.light-theme .text-slate-100,
+html.light-theme .text-slate-200,
+html.light-theme .text-slate-300,
+html.light-theme .text-slate-400,
+html.light-theme .text-gray-100,
+html.light-theme .text-gray-200,
+html.light-theme .text-gray-300,
+html.light-theme .text-white,
+html.light-theme h1,
+html.light-theme h2,
+html.light-theme h3,
+html.light-theme h4,
+html.light-theme h5,
+html.light-theme h6,
+html.light-theme strong,
+html.light-theme th,
+html.light-theme td {
+  color: var(--text-main) !important;
+}
+
+/* 3. Inputs, Selects, and Textareas in light themes */
+html.light-theme input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+html.light-theme select,
+html.light-theme textarea {
+  background-color: var(--surface) !important;
+  color: var(--text-main) !important;
+  border: 1.5px solid var(--border-color) !important;
+}
+
+html.light-theme input::placeholder,
+html.light-theme textarea::placeholder {
+  color: var(--text-dim) !important;
+  opacity: 1 !important;
+}
+
+/* 4. Tables in Desktop Screens (Direct Sales, Purchases, Vouchers, Reports) */
+html.light-theme table {
+  background-color: var(--surface) !important;
+  color: var(--text-main) !important;
+}
+
+html.light-theme thead th,
+html.light-theme .table thead th,
+html.light-theme .data-table thead th {
+  background-color: var(--surface-hover) !important;
+  color: var(--text-main) !important;
+  border-bottom: 2px solid var(--border-color) !important;
+  font-weight: 800 !important;
+}
+
+html.light-theme tbody tr,
+html.light-theme .table tbody tr {
+  background-color: var(--surface) !important;
+  color: var(--text-main) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+html.light-theme tbody tr:nth-child(even) {
+  background-color: var(--surface-hover) !important;
+}
+
+html.light-theme tbody td {
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+
+/* 5. Mobile Voucher Screen specific light styling */
+html.light-theme #currentVoucherDisplay {
+  color: #b45309 !important;
+  font-weight: 900 !important;
+}
+
+html.light-theme #sdgAmount {
+  color: #0369a1 !important;
+  font-weight: 900 !important;
+}
+
+html.light-theme #usdAmount {
+  color: #047857 !important;
+  font-weight: 900 !important;
+}
+
+html.light-theme #transferInput {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #f59e0b !important;
+}
+
+html.light-theme #bankNameInput {
+  background-color: #f0fdfa !important;
+  color: #0f766e !important;
+  border-color: #0d9488 !important;
+}
+
+html.light-theme .bottom-bar-fixed {
+  background-color: var(--surface) !important;
+  border-top: 1.5px solid var(--border-color) !important;
+}
+
+html.light-theme #currentTime {
+  color: var(--text-main) !important;
+}
+
+html.light-theme #dimensionBadge {
+  background-color: var(--surface-hover) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+
+
 /* c:\mynewapp\frontend-pwa\css\theme.css — v5.0 Professional Overhaul */
 
 
