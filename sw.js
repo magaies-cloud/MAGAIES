@@ -9,13 +9,17 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-08-v50-desktop-laptop-elegant-theme-btn';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-09-offline-hybrid-v1';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
     './mobile_erp_global_suite.html',
     './mobile-suite.html',
     './mobile-voucher.php',
+    './direct-sales.php',
+    './single-cash-payment.php',
+    './purchase.php',
+    './sales-delivery.php',
     './assets/logo.png',
     './assets/icon-192.png',
     './assets/icon-256.png',
@@ -27,6 +31,17 @@ const PRECACHE_ASSETS = [
     './assets/favicon.ico',
     './css/design-system.css',
     './css/theme.css',
+    './css/cairo.css',
+    './css/tajawal.css',
+    './css/all.min.css',
+    './webfonts/fa-solid-900.woff2',
+    './webfonts/fa-regular-400.woff2',
+    './webfonts/fa-brands-400.woff2',
+    './webfonts/cairo/cairo-arabic-400.woff2',
+    './webfonts/cairo/cairo-arabic-700.woff2',
+    './webfonts/tajawal/tajawal-arabic-400.woff2',
+    './webfonts/tajawal/tajawal-arabic-700.woff2',
+    './js/offline-sync-engine.js',
     './js/desktop-theme-switcher.js',
     './js/pwa-manager.js'
 ];

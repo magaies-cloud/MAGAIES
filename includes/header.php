@@ -1,4 +1,8 @@
+<link rel="stylesheet" href="css/cairo.css">
+<link rel="stylesheet" href="css/tajawal.css">
+<link rel="stylesheet" href="css/all.min.css">
 <link rel="stylesheet" href="css/theme.css?v=20261008_v21themes_elegant">
+<script src="js/offline-sync-engine.js?v=20261009_v1"></script>
 <script src="js/desktop-theme-switcher.js?v=20261008_v21themes_elegant"></script>
 <script src="js/hls.light.min.js"></script>
 <script src="js/bban_auto_helper.js"></script>

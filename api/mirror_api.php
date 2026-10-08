@@ -102,6 +102,28 @@ if (!$tenant_id) {
 // ── تضمين المحرك المركزي للتحقق من التحويلات ومنع تكرار آخر 6 أرقام ──
 require_once __DIR__ . '/transfer_validator.php';
 
+// ── محرك الحصانة ضد التكرار (Idempotency Engine) ──
+function checkIdempotencyInDb($pdo, $table, $idempotencyKey, $tenant_id) {
+    if (empty($idempotencyKey)) return null;
+    try {
+        $stmt = $pdo->prepare("SELECT data FROM {$table} WHERE (tenant_id = ? OR tenant_id IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? AND (is_deleted = 0 OR is_deleted IS NULL) LIMIT 1");
+        $stmt->execute([$tenant_id, $idempotencyKey]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && !empty($row['data'])) {
+            return json_decode($row['data'], true);
+        }
+    } catch (Exception $e) {}
+    return null;
+}
+
+// ── فحص المعرفات المؤقتة لوضع الأوفلاين (مثل: 1-أوفلاين، 2-أوفلاين...) ──
+function isOfflineDocIdentifier($docNo) {
+    if (empty($docNo) || $docNo === 'preliminary' || $docNo === '---') return true;
+    if (strpos($docNo, 'أوفلاين') !== false || strpos($docNo, 'offline') !== false || strpos($docNo, 'OFF-') !== false) return true;
+    return false;
+}
+
+
 
 if (php_sapi_name() === 'cli' && !empty($_SERVER['argv'])) {
     for ($i = 1; $i < count($_SERVER['argv']); $i++) {
@@ -378,8 +400,32 @@ try {
                 exit;
             }
 
-            $invoiceNo = trim((string)($saleData['invoiceNo'] ?? ($saleData['id'] ?? '')));
-            if ($invoiceNo === '' || $invoiceNo === 'preliminary' || $invoiceNo === '---') {
+            // فحص مفتاح الحصانة ضد التكرار (Idempotency Key)
+            $idempotencyKey = trim((string)($saleData['idempotencyKey'] ?? ''));
+            if ($idempotencyKey !== '') {
+                $existingDoc = checkIdempotencyInDb($pdo, 'sales_invoices', $idempotencyKey, $tenant_id);
+                if ($existingDoc) {
+                    $exNo = $existingDoc['invoiceNo'] ?? ($existingDoc['id'] ?? '');
+                    echo json_encode([
+                        'success' => true,
+                        'already_processed' => true,
+                        'invoiceNo' => $exNo,
+                        'id' => $exNo,
+                        'officialNo' => $exNo,
+                        'offlineRef' => $existingDoc['offlineRef'] ?? ($existingDoc['offlineTempNo'] ?? ''),
+                        'idempotencyKey' => $idempotencyKey,
+                        'message' => 'المعاملة معتمدة ومسجلة مسبقاً بنفس مفتاح الحصانة'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+            }
+
+            $rawInvoiceNo = trim((string)($saleData['invoiceNo'] ?? ($saleData['id'] ?? '')));
+            $isOfflineDoc = isOfflineDocIdentifier($rawInvoiceNo) || !empty($saleData['isOfflinePending']);
+            $offlineRef = $isOfflineDoc ? $rawInvoiceNo : '';
+
+            $invoiceNo = $rawInvoiceNo;
+            if ($isOfflineDoc || $invoiceNo === '' || $invoiceNo === 'preliminary' || $invoiceNo === '---') {
                 // توليد الرقم التسلسلي تلقائياً
                 $now = new DateTime('now');
                 $prefix = 'S' . $now->format('ym');
@@ -396,6 +442,11 @@ try {
                 $invoiceNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
                 $saleData['invoiceNo'] = $invoiceNo;
                 $saleData['id'] = $invoiceNo;
+            }
+
+            if (!empty($offlineRef)) {
+                $saleData['offlineRef'] = $offlineRef;
+                $saleData['offlineTempNo'] = $offlineRef;
             }
 
             $dateVal = $saleData['date'] ?? ($saleData['fullDate'] ?? date('Y-m-d'));
@@ -459,9 +510,15 @@ try {
                 'success' => true,
                 'invoiceNo' => $invoiceNo,
                 'id' => $invoiceNo,
+                'officialNo' => $invoiceNo,
+                'offlineRef' => $offlineRef,
+                'idempotencyKey' => $idempotencyKey,
+                'isOfflineConverted' => !empty($offlineRef),
                 'record' => $saleData,
                 'isNew' => !$existingId,
-                'message' => 'تم حفظ وترحيل فاتورة المبيعات بنجاح في قاعدة البيانات وسيرفر المرآة'
+                'message' => !empty($offlineRef)
+                    ? "تم اعتماد الفاتورة رسمياً بالرقم ({$invoiceNo}) وربطها برقم الأوفلاين ({$offlineRef})"
+                    : 'تم حفظ وترحيل فاتورة المبيعات بنجاح في قاعدة البيانات وسيرفر المرآة'
             ], JSON_UNESCAPED_UNICODE);
             exit;
 
@@ -520,8 +577,32 @@ try {
                 exit;
             }
 
-            $invoiceNo = trim((string)($purData['invoiceNo'] ?? ($purData['id'] ?? '')));
-            if ($invoiceNo === '' || $invoiceNo === '---') {
+            // فحص مفتاح الحصانة ضد التكرار (Idempotency Key)
+            $idempotencyKey = trim((string)($purData['idempotencyKey'] ?? ''));
+            if ($idempotencyKey !== '') {
+                $existingDoc = checkIdempotencyInDb($pdo, 'purchase_invoices', $idempotencyKey, $tenant_id);
+                if ($existingDoc) {
+                    $exNo = $existingDoc['invoiceNo'] ?? ($existingDoc['id'] ?? '');
+                    echo json_encode([
+                        'success' => true,
+                        'already_processed' => true,
+                        'invoiceNo' => $exNo,
+                        'id' => $exNo,
+                        'officialNo' => $exNo,
+                        'offlineRef' => $existingDoc['offlineRef'] ?? ($existingDoc['offlineTempNo'] ?? ''),
+                        'idempotencyKey' => $idempotencyKey,
+                        'message' => 'فاتورة المشتريات معتمدة ومسجلة مسبقاً بنفس مفتاح الحصانة'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+            }
+
+            $rawInvoiceNo = trim((string)($purData['invoiceNo'] ?? ($purData['id'] ?? '')));
+            $isOfflineDoc = isOfflineDocIdentifier($rawInvoiceNo) || !empty($purData['isOfflinePending']);
+            $offlineRef = $isOfflineDoc ? $rawInvoiceNo : '';
+
+            $invoiceNo = $rawInvoiceNo;
+            if ($isOfflineDoc || $invoiceNo === '' || $invoiceNo === '---') {
                 $now = new DateTime('now');
                 $prefix = 'P' . $now->format('ym');
                 $maxSeq = 0;
@@ -537,6 +618,11 @@ try {
                 $invoiceNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
                 $purData['invoiceNo'] = $invoiceNo;
                 $purData['id'] = $invoiceNo;
+            }
+
+            if (!empty($offlineRef)) {
+                $purData['offlineRef'] = $offlineRef;
+                $purData['offlineTempNo'] = $offlineRef;
             }
 
             $dateVal = $purData['date'] ?? ($purData['fullDate'] ?? date('Y-m-d'));
@@ -591,9 +677,15 @@ try {
                 'success' => true,
                 'invoiceNo' => $invoiceNo,
                 'id' => $invoiceNo,
+                'officialNo' => $invoiceNo,
+                'offlineRef' => $offlineRef,
+                'idempotencyKey' => $idempotencyKey,
+                'isOfflineConverted' => !empty($offlineRef),
                 'record' => $purData,
                 'isNew' => !$existingId,
-                'message' => 'تم حفظ وترحيل فاتورة المشتريات بنجاح في قاعدة البيانات وسيرفر المرآة'
+                'message' => !empty($offlineRef)
+                    ? "تم اعتماد فاتورة المشتريات رسمياً بالرقم ({$invoiceNo}) وربطها برقم الأوفلاين ({$offlineRef})"
+                    : 'تم حفظ وترحيل فاتورة المشتريات بنجاح في قاعدة البيانات وسيرفر المرآة'
             ], JSON_UNESCAPED_UNICODE);
             exit;
 
@@ -694,8 +786,31 @@ try {
             $bankName = trim((string)($vData['bankName'] ?? ($vData['bank'] ?? ($vData['mobileNote'] ?? ''))));
             $chNo = trim((string)($vData['checkNo'] ?? ($vData['refNo'] ?? '')));
 
-            $voucherNo = trim((string)($vData['voucherNo'] ?? ($vData['id'] ?? '')));
-            $isNew = empty($voucherNo) || $voucherNo === 'preliminary' || $voucherNo === '---' || !empty($vData['isNew']);
+            // فحص مفتاح الحصانة ضد التكرار للسند المالي
+            $idempotencyKey = trim((string)($vData['idempotencyKey'] ?? ''));
+            if ($idempotencyKey !== '') {
+                $existingDoc = checkIdempotencyInDb($pdo, 'single_payments', $idempotencyKey, $tenant_id);
+                if ($existingDoc) {
+                    $exNo = $existingDoc['voucherNo'] ?? ($existingDoc['id'] ?? '');
+                    echo json_encode([
+                        'success' => true,
+                        'already_processed' => true,
+                        'voucherNo' => $exNo,
+                        'id' => $exNo,
+                        'officialNo' => $exNo,
+                        'offlineRef' => $existingDoc['offlineRef'] ?? ($existingDoc['offlineTempNo'] ?? ''),
+                        'idempotencyKey' => $idempotencyKey,
+                        'message' => 'السند المالي معتمد ومسجل مسبقاً بنفس مفتاح الحصانة'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+            }
+
+            $rawVoucherNo = trim((string)($vData['voucherNo'] ?? ($vData['id'] ?? '')));
+            $isOfflineDoc = isOfflineDocIdentifier($rawVoucherNo) || !empty($vData['isOfflinePending']);
+            $offlineRef = $isOfflineDoc ? $rawVoucherNo : '';
+            $isNew = $isOfflineDoc || empty($rawVoucherNo) || $rawVoucherNo === 'preliminary' || $rawVoucherNo === '---' || !empty($vData['isNew']);
+            $voucherNo = $rawVoucherNo;
 
             // شروط التحويلة
             if ($payMethod === 'transfer') {
@@ -755,6 +870,12 @@ try {
 
             if ($isNew) {
                 $voucherNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+                $vData['voucherNo'] = $voucherNo;
+                $vData['id'] = $voucherNo;
+            }
+            if (!empty($offlineRef)) {
+                $vData['offlineRef'] = $offlineRef;
+                $vData['offlineTempNo'] = $offlineRef;
             }
 
             // سعر الصرف المعتمد
@@ -865,12 +986,18 @@ try {
                 'success' => true,
                 'voucherNo' => $voucherNo,
                 'id' => $voucherNo,
+                'officialNo' => $voucherNo,
+                'offlineRef' => $offlineRef,
+                'idempotencyKey' => $idempotencyKey,
+                'isOfflineConverted' => !empty($offlineRef),
                 'nextNo' => $nextVoucherNo,
                 'nextVoucherNo' => $nextVoucherNo,
                 'usdRate' => $rate,
                 'record' => $vData,
                 'isNew' => !$existingId,
-                'message' => 'تم حفظ وترحيل السند المالي بنجاح في قاعدة البيانات وسيرفر المرآة'
+                'message' => !empty($offlineRef)
+                    ? "تم اعتماد السند المالي رسمياً بالرقم ({$voucherNo}) وربطه برقم الأوفلاين ({$offlineRef})"
+                    : 'تم حفظ وترحيل السند المالي بنجاح في قاعدة البيانات وسيرفر المرآة'
             ], JSON_UNESCAPED_UNICODE);
             exit;
 
@@ -1013,9 +1140,12 @@ try {
         case 'save_receipt':
             $docData = $input['data'] ?? $input;
             $type = ($action === 'save_receipt') ? 'purchase_receipt' : 'sales_delivery';
-            $docId = trim((string)($docData['id'] ?? ''));
+            $rawDocId = trim((string)($docData['id'] ?? ''));
+            $isOfflineDoc = isOfflineDocIdentifier($rawDocId) || !empty($docData['isOfflinePending']);
+            $offlineRef = $isOfflineDoc ? $rawDocId : '';
+            $docId = $rawDocId;
 
-            if ($docId === '' || strpos($docId, 'OFF-') !== false) {
+            if ($isOfflineDoc || $docId === '') {
                 $prefix = ($type === 'purchase_receipt') ? 'RCP-' : 'DLV-';
                 $prefix .= date('ym');
                 $maxSeq = 0;
@@ -1030,6 +1160,11 @@ try {
                 }
                 $docId = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
                 $docData['id'] = $docId;
+            }
+
+            if (!empty($offlineRef)) {
+                $docData['offlineRef'] = $offlineRef;
+                $docData['offlineTempNo'] = $offlineRef;
             }
 
             $docData['type'] = $type;
@@ -1052,9 +1187,13 @@ try {
             echo json_encode([
                 'success' => true,
                 'id' => $docId,
+                'officialNo' => $docId,
+                'offlineRef' => $offlineRef,
                 'type' => $type,
                 'record' => $docData,
-                'message' => 'تم حفظ وترحيل الإذن بنجاح في قاعدة البيانات'
+                'message' => !empty($offlineRef)
+                    ? "تم اعتماد الإذن رسمياً بالرقم ({$docId}) وربطه برقم الأوفلاين ({$offlineRef})"
+                    : 'تم حفظ وترحيل الإذن بنجاح في قاعدة البيانات'
             ], JSON_UNESCAPED_UNICODE);
             exit;
 
