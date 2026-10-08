@@ -961,7 +961,9 @@
       color: #0f172a !important;
     }
 
-    html.light-theme #voucherThemeBtn {
+    html.light-theme #voucherThemeBtn,
+    html.light-theme #btnHeaderHome,
+    html.light-theme #btnHeaderDesktop {
       background-color: #f1f5f9 !important;
       border-color: #cbd5e1 !important;
       color: #0f172a !important;
@@ -1068,6 +1070,14 @@
         window.applyVoucherTheme(getSavedTheme());
       });
     })();
+
+    window.switchToDesktopEdition = function(targetUrl) {
+      try {
+        localStorage.setItem('magaiees_view_preference', 'desktop');
+        document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+      } catch(e) {}
+      window.location.href = targetUrl || 'single-cash-payment.php?force_desktop=1';
+    };
   </script>
 
 </head>
@@ -1125,10 +1135,20 @@
         </button>
 
         <!-- حركة مالية فقط بخط واضح وفخم (تم حذف صرف مالي) -->
-        <span class="text-sm sm:text-base font-black text-white tracking-wide flex items-center gap-1.5 shrink-0">
+        <span class="text-sm sm:text-base font-black text-white tracking-wide flex items-center gap-1 shrink-0">
           <i class="fa-solid fa-money-bill-transfer text-cyan-400 text-sm"></i>
           <span>حركة مالية</span>
         </span>
+
+        <!-- زر الرئيسية (لوحة تحكم الجوال 🏠) -->
+        <button type="button" onclick="window.location.href='mobile-dashboard.php'" id="btnHeaderHome" class="w-6 h-6 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-emerald-400 hover:text-emerald-300 flex items-center justify-center shrink-0 border border-slate-700 text-[11px] transition active:scale-95 shadow-sm" title="الرئيسية: الانتقال إلى لوحة تحكم الجوال 🏠">
+          <i class="fa-solid fa-house"></i>
+        </button>
+
+        <!-- زر التبديل لشاشة الكمبيوتر (الديسكتوب واللابتوب 💻) -->
+        <button type="button" onclick="switchToDesktopEdition('single-cash-payment.php?force_desktop=1')" id="btnHeaderDesktop" class="w-6 h-6 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-sky-400 hover:text-sky-300 flex items-center justify-center shrink-0 border border-slate-700 text-[11px] transition active:scale-95 shadow-sm" title="الكمبيوتر: التبديل إلى شاشة الديسكتوب واللابتوب 💻">
+          <i class="fa-solid fa-laptop"></i>
+        </button>
 
         <!-- مؤشر مزامنة وتحديث البيانات الذكي: دائرة خضراء بعد المزامنة، وتتحول لحمراء مع زر التحديث عند الحاجة -->
         <button type="button" onclick="cycleVoucherTheme()" id="voucherThemeBtn" class="w-6 h-6 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center shrink-0 border border-slate-700 text-[11px] transition active:scale-95 shadow-sm" title="تبديل السمة (7 سمات رئيسية موحدة) 🎨">
