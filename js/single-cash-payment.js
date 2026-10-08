@@ -142,8 +142,7 @@ function showToast(msg, type = 'success', ms = 3500) {
 }
 window.showToast = showToast;
 
-let _laptopShortTransferAllowed = false;
-function showLengthWarningModal(transferNo, onProceed) {
+function showLengthWarningModal(transferNo) {
     const existing = document.getElementById('critical-alert-modal');
     if (existing) existing.remove();
 
@@ -156,31 +155,20 @@ function showLengthWarningModal(transferNo, onProceed) {
     document.addEventListener('keydown', handleEsc);
 
     const modalHTML = `
-        <div id="critical-alert-modal" onclick="if(event.target===this) document.getElementById('critical-alert-modal').remove()" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(10,0,0,0.85); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:99999; display:flex; justify-content:center; align-items:center; padding:15px; box-sizing:border-box;">
-            <div style="position:relative; width:min(440px, 92vw); max-width:440px; background: radial-gradient(circle, #8b0000 0%, #3e0000 100%); border-radius:24px; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 3px solid rgba(255,100,100,0.5); padding: 35px 25px; text-align:center; box-sizing:border-box; box-shadow:0 0 50px rgba(220, 20, 60, 0.4);">
+        <div id="critical-alert-modal" onclick="if(event.target===this) document.getElementById('critical-alert-modal').remove()" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(10,0,0,0.88); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:99999; display:flex; justify-content:center; align-items:center; padding:15px; box-sizing:border-box;">
+            <div style="position:relative; width:min(440px, 92vw); max-width:440px; background: radial-gradient(circle, #8b0000 0%, #3e0000 100%); border-radius:24px; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 3px solid rgba(255,100,100,0.6); padding: 35px 25px; text-align:center; box-sizing:border-box; box-shadow:0 0 50px rgba(220, 20, 60, 0.5);">
                 <button type="button" onclick="document.getElementById('critical-alert-modal').remove()" style="position:absolute; top:12px; left:12px; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; font-size:16px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseover="this.style.background='rgba(255,0,0,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">✕</button>
-                <div style="font-size: 4rem; text-shadow: 0 0 20px #ff0000;">⚠️</div>
-                <h2 style="color: #ffcccc; font-family: 'Tajawal', sans-serif; font-size: 1.8rem; margin: 12px 0; text-shadow: 0 0 10px #ff0000;">تحذير: رقم التحويلة قصير</h2>
-                <p style="color: #fff; font-size: 1.15rem; font-weight:bold; line-height: 1.6;">رقم التحويلة <span style="color:#ffeb3b; font-size:1.6rem; font-family:monospace;">${transferNo}</span><br>أقل من 6 أرقام (${(transferNo||'').length} خانات)</p>
-                <p style="color: #ffaaaa; font-size: 0.9rem; margin-bottom: 25px;">يفضل أن يتكون رقم التحويلة من 6 أرقام لتفادي الأخطاء، ولكن يمكنك المتابعة إذا كان الرقم صحيحاً.</p>
+                <div style="font-size: 4rem; text-shadow: 0 0 20px #ff0000; animation: bounce 1s infinite alternate;">⛔</div>
+                <h2 style="color: #ffcccc; font-family: 'Tajawal', sans-serif; font-size: 1.8rem; margin: 12px 0; text-shadow: 0 0 10px #ff0000;">منع الحفظ: رقم التحويلة قصير</h2>
+                <p style="color: #fff; font-size: 1.15rem; font-weight:bold; line-height: 1.6;">رقم التحويلة <span style="color:#ffeb3b; font-size:1.6rem; font-family:monospace; background:rgba(0,0,0,0.4); padding:2px 8px; border-radius:6px;">${transferNo}</span><br>أقل من 6 أرقام (${(transferNo||'').length} خانات)</p>
+                <p style="color: #ffaaaa; font-size: 0.95rem; margin-bottom: 25px; font-weight:600;">ممنوع منعاً باتاً حفظ أي سند برقم تحويلة يقل عن 6 أرقام لضمان دقة وتطابق الحسابات.</p>
                 <div style="display:flex; gap:10px; width:100%;">
-                    <button type="button" id="confirmShortTransferBtn" style="flex:1; background: linear-gradient(45deg, #10b981, #059669); color: white; border: 2px solid #6ee7b7; border-radius: 20px; padding: 10px 20px; font-size: 1rem; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px rgba(16,185,129,0.4); transition: all 0.3s; font-family: 'Tajawal', sans-serif;">✓ فهمت ومتابعة</button>
-                    <button type="button" onclick="document.getElementById('critical-alert-modal').remove()" style="background: transparent; color: #ddd; border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 10px 18px; font-size: 0.95rem; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif;">تعديل الرقم</button>
+                    <button type="button" onclick="document.getElementById('critical-alert-modal').remove()" style="flex:1; background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color: white; border: 2px solid #f87171; border-radius: 20px; padding: 12px 20px; font-size: 1.05rem; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(239,68,68,0.5); transition: all 0.3s; font-family: 'Tajawal', sans-serif;">تعديل وتصحيح رقم التحويلة ✍️</button>
                 </div>
             </div>
         </div>
     `;
     document.body.insertAdjacentHTML('beforeend', modalHTML);
-    const confirmBtn = document.getElementById('confirmShortTransferBtn');
-    if (confirmBtn) {
-        confirmBtn.onclick = () => {
-            _laptopShortTransferAllowed = true;
-            closeModal();
-            if (typeof onProceed === 'function') {
-                onProceed();
-            }
-        };
-    }
 }
 
 function showDuplicateWarningModal(transferNo) {
@@ -1499,12 +1487,8 @@ function submitVoucherInner() {
                 if (trNoInput) trNoInput.focus();
                 hasInvalidTransfer = true;
                 return;
-            }
-            if (trNo.length < 6 && !_laptopShortTransferAllowed) {
-                showLengthWarningModal(trNo, () => {
-                    _laptopShortTransferAllowed = true;
-                    submitVoucher();
-                });
+            if (trNo.length < 6) {
+                showLengthWarningModal(trNo);
                 if (trNoInput) trNoInput.focus();
                 hasInvalidTransfer = true;
                 return;

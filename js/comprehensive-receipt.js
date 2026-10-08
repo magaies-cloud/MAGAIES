@@ -57,7 +57,7 @@ function setType(type) {
 }
 
 // Save Voucher
-function saveVoucher() {
+async function saveVoucher() {
     const accountId = document.getElementById('from-account').value;
     const amount = Number(document.getElementById('amount').value);
     const depositAccount = document.getElementById('deposit-account').value;
@@ -123,6 +123,19 @@ function saveVoucher() {
             alert('الرجاء إدخال رقم التحويلة البنكية.');
             return;
         }
+        const cleanRef = bankRef.replace(/\D/g, '') || bankRef;
+        if (cleanRef.length < 6) {
+            alert('⛔ منع الحفظ: رقم التحويلة البنكية قصير جداً (' + cleanRef.length + ' خانات). الحد الأدنى 6 أرقام!');
+            return;
+        }
+        try {
+            const chk = await fetch(`api/mirror_api.php?action=check_duplicate&ref=${encodeURIComponent(bankRef)}`);
+            const d = await chk.json();
+            if (d && d.exists) {
+                alert(`⛔ منع الحفظ: رقم التحويلة (${bankRef}) مكرر في النظام (مطابق لآخر 6 أرقام مع سند آخر)!`);
+                return;
+            }
+        } catch(e) {}
         
         voucher.bankRef = bankRef;
         const bankSourceName = document.getElementById('bank-source-name').value;
@@ -139,6 +152,19 @@ function saveVoucher() {
             alert('الرجاء إدخال رقم المرجع للتحويل.');
             return;
         }
+        const cleanRef = mobileRef.replace(/\D/g, '') || mobileRef;
+        if (cleanRef.length < 6) {
+            alert('⛔ منع الحفظ: رقم مرجع التحويل قصير جداً (' + cleanRef.length + ' خانات). الحد الأدنى 6 أرقام!');
+            return;
+        }
+        try {
+            const chk = await fetch(`api/mirror_api.php?action=check_duplicate&ref=${encodeURIComponent(mobileRef)}`);
+            const d = await chk.json();
+            if (d && d.exists) {
+                alert(`⛔ منع الحفظ: رقم مرجع التحويل (${mobileRef}) مكرر في النظام (مطابق لآخر 6 أرقام مع سند آخر)!`);
+                return;
+            }
+        } catch(e) {}
         
         const mobileWallet = document.getElementById('mobile-wallet').value;
         if (!mobileWallet) {

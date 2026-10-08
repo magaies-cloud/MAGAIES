@@ -99,104 +99,9 @@ if (!$tenant_id) {
     $tenant_id = 12; // القيمة الموحدة للشركة c
 }
 
-// ── دوال فحص التكرار الشامل للتحويلات البنكية ──
-if (!function_exists('extractAllTransfersFromRecord')) {
-    function extractAllTransfersFromRecord($d) {
-        $refs = [];
-        if (!is_array($d)) return $refs;
-        foreach (['mobileTransferNo', 'refNo', 'transferRef', 'bankTransferNo', 'checkNo'] as $k) {
-            if (!empty($d[$k]) && is_string($d[$k])) $refs[] = trim($d[$k]);
-        }
-        if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
-            foreach ($d['bankTransfers'] as $bt) {
-                if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
-            }
-        }
-        if (!empty($d['cheques']) && is_array($d['cheques'])) {
-            foreach ($d['cheques'] as $ch) {
-                if (!empty($ch['checkNo']) && is_string($ch['checkNo'])) $refs[] = trim($ch['checkNo']);
-            }
-        }
-        return array_values(array_unique(array_filter($refs)));
-    }
-}
+// ── تضمين المحرك المركزي للتحقق من التحويلات ومنع تكرار آخر 6 أرقام ──
+require_once __DIR__ . '/transfer_validator.php';
 
-if (!function_exists('findTransferDuplicateInDb')) {
-    function findTransferDuplicateInDb($pdo, $ref, $currentVNo = '', $currentTenantId = null) {
-        $ref = trim((string)$ref);
-        if ($ref === '') return null;
-        $cleanRef = preg_replace('/\D/', '', $ref) ?: strtolower($ref);
-        $compLen = strlen($cleanRef);
-
-        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
-        foreach ($tables as $tbl) {
-            try {
-                $sql = "SELECT id, tenant_id, data FROM `$tbl` WHERE (is_deleted = 0 OR is_deleted IS NULL)";
-                if ($currentTenantId) {
-                    $sql .= " AND (tenant_id = " . (int)$currentTenantId . " OR tenant_id IS NULL)";
-                }
-                $stmt = $pdo->query($sql);
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $d = json_decode($row['data'], true);
-                    if (!$d) continue;
-                    $existingVNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
-                    if ($existingVNo !== '' && $currentVNo !== '' && $existingVNo === $currentVNo) {
-                        continue;
-                    }
-                    $candidates = extractAllTransfersFromRecord($d);
-                    foreach ($candidates as $cr) {
-                        $strCr = trim((string)$cr);
-                        $cleanCr = preg_replace('/\D/', '', $strCr) ?: strtolower($strCr);
-                        if ($cleanCr === '') continue;
-
-                        $matched = false;
-                        $matchType = '';
-
-                        // 1. التطابق التام
-                        if ($cleanCr === $cleanRef || $strCr === $ref) {
-                            $matched = true;
-                            $matchType = 'تطابق تام';
-                        }
-                        // 2. تطابق آخر 6 أرقام
-                        elseif ($compLen >= 6 && strlen($cleanCr) >= 6 && substr($cleanCr, -6) === substr($cleanRef, -6)) {
-                            $matched = true;
-                            $matchType = 'تطابق آخر 6 أرقام';
-                        }
-                        // 3. تطابق اللواحق للأرقام ذات 4 أو 5 أرقام
-                        elseif ($compLen >= 4 && strlen($cleanCr) >= $compLen && substr($cleanCr, -$compLen) === $cleanRef) {
-                            $matched = true;
-                            $matchType = 'تطابق لاحقة الرقم';
-                        }
-                        elseif (strlen($cleanCr) >= 4 && $compLen >= strlen($cleanCr) && substr($cleanRef, -strlen($cleanCr)) === $cleanCr) {
-                            $matched = true;
-                            $matchType = 'تطابق لاحقة الرقم';
-                        }
-                        // 4. تشابه رقمي شديد
-                        elseif ($compLen >= 4 && abs($compLen - strlen($cleanCr)) <= 1 && levenshtein($cleanRef, $cleanCr) <= 1) {
-                            $matched = true;
-                            $matchType = 'تشابه رقمي شديد';
-                        }
-
-                        if ($matched) {
-                            return [
-                                'voucherNo' => $existingVNo ?: ('#' . $row['id']),
-                                'ref' => $strCr,
-                                'date' => $d['date'] ?? '',
-                                'amount' => $d['amountLocal'] ?? ($d['amount'] ?? 0),
-                                'bank' => $d['bankName'] ?? ($d['bank'] ?? ''),
-                                'from' => $d['fromAccountName'] ?? ($d['from'] ?? ''),
-                                'to' => $d['toAccountName'] ?? ($d['to'] ?? ($d['beneficiaryName'] ?? '')),
-                                'table' => $tbl,
-                                'matchType' => $matchType
-                            ];
-                        }
-                    }
-                }
-            } catch (Exception $e) {}
-        }
-        return null;
-    }
-}
 
 if (php_sapi_name() === 'cli' && !empty($_SERVER['argv'])) {
     for ($i = 1; $i < count($_SERVER['argv']); $i++) {
@@ -500,6 +405,25 @@ try {
             $statusVal = $saleData['status'] ?? 'posted';
             $currencyVal = $saleData['currency'] ?? 'SDG';
 
+            // فحص التحويلات البنكية المرفقة بفاتورة المبيعات (الحد الأدنى 6 أرقام ومنع تكرار آخر 6 أرقام)
+            $saleTransfers = extractAllTransfersFromRecord($saleData);
+            foreach ($saleTransfers as $strTr) {
+                $digits = preg_replace('/\D/', '', $strTr);
+                if (strlen($digits) < 6) {
+                    echo json_encode(['success' => false, 'error' => "رقم التحويلة البنكية ({$strTr}) في المبيعات غير مكتمل، يمنع منعاً باتاً الحفظ برقم أقل من 6 أرقام"], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+                $dup = findTransferDuplicateInDb($pdo, $strTr, $invoiceNo, $tenant_id);
+                if ($dup) {
+                    echo json_encode([
+                        'success' => false,
+                        'duplicate' => true,
+                        'error' => "رقم التحويلة ({$strTr}) في المبيعات مكرر! تطابقت آخر 6 أرقام ({$dup['matchedSuffix']}) مع ({$dup['voucherNo']})، يمنع التكرار نهائياً!"
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+            }
+
             // ضمان وجود الحقول الموحدة داخل JSON
             $saleData['id'] = $invoiceNo;
             $saleData['invoiceNo'] = $invoiceNo;
@@ -621,6 +545,25 @@ try {
             $suppId = $purData['supplierId'] ?? ($purData['supplier'] ?? '');
             $statusVal = $purData['status'] ?? 'posted';
             $currencyVal = $purData['currency'] ?? 'SDG';
+
+            // فحص التحويلات البنكية المرفقة بفاتورة المشتريات (الحد الأدنى 6 أرقام ومنع تكرار آخر 6 أرقام)
+            $purTransfers = extractAllTransfersFromRecord($purData);
+            foreach ($purTransfers as $strTr) {
+                $digits = preg_replace('/\D/', '', $strTr);
+                if (strlen($digits) < 6) {
+                    echo json_encode(['success' => false, 'error' => "رقم التحويلة البنكية ({$strTr}) في المشتريات غير مكتمل، يمنع منعاً باتاً الحفظ برقم أقل من 6 أرقام"], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+                $dup = findTransferDuplicateInDb($pdo, $strTr, $invoiceNo, $tenant_id);
+                if ($dup) {
+                    echo json_encode([
+                        'success' => false,
+                        'duplicate' => true,
+                        'error' => "رقم التحويلة ({$strTr}) في المشتريات مكرر! تطابقت آخر 6 أرقام ({$dup['matchedSuffix']}) مع ({$dup['voucherNo']})، يمنع التكرار نهائياً!"
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+            }
 
             $purData['id'] = $invoiceNo;
             $purData['invoiceNo'] = $invoiceNo;
@@ -762,20 +705,20 @@ try {
                 }
                 $digitsOnly = preg_replace('/\D/', '', $trNo);
                 if (strlen($digitsOnly) < 6) {
-                    echo json_encode(['success' => false, 'error' => 'رقم التحويلة غير مكتمل، يجب أن لا يقل عن 6 أرقام'], JSON_UNESCAPED_UNICODE);
+                    echo json_encode(['success' => false, 'error' => 'رقم التحويلة غير مكتمل (' . strlen($digitsOnly) . ' أرقام)، يمنع منعاً باتاً الحفظ برقم تحويلة يقل عن 6 أرقام'], JSON_UNESCAPED_UNICODE);
                     exit;
                 }
                 if ($bankName === '') {
                     echo json_encode(['success' => false, 'error' => 'اسم البنك إجباري، يرجى كتابة اسم البنك'], JSON_UNESCAPED_UNICODE);
                     exit;
                 }
-                // فحص التكرار الحاسم في قاعدة البيانات MariaDB
+                // فحص التكرار الحاسم في قاعدة البيانات MariaDB ومقارنة آخر 6 أرقام
                 $dup = findTransferDuplicateInDb($pdo, $trNo, $isNew ? '' : $voucherNo, $tenant_id);
                 if ($dup) {
                     echo json_encode([
                         'success' => false,
                         'duplicate' => true,
-                        'error' => "رقم التحويلة ({$trNo}) مسجل مسبقاً في السند ({$dup['voucherNo']})، لا يمكن تكرار رقم التحويلة نهائياً!"
+                        'error' => "رقم التحويلة ({$trNo}) مكرر! تطابقت آخر 6 أرقام ({$dup['matchedSuffix']}) مع ({$dup['voucherNo']})، لا يمكن تكرار رقم التحويلة نهائياً!"
                     ], JSON_UNESCAPED_UNICODE);
                     exit;
                 }
@@ -989,14 +932,25 @@ try {
         case 'check_duplicate':
             $ref = trim($_GET['ref'] ?? ($input['ref'] ?? ''));
             $currentVNo = trim($_GET['voucherNo'] ?? ($input['voucherNo'] ?? ''));
+            $cleanDigits = preg_replace('/\D/', '', $ref);
+            if (strlen($cleanDigits) < 6) {
+                echo json_encode([
+                    'valid' => false,
+                    'duplicate' => false,
+                    'tooShort' => true,
+                    'error' => "رقم التحويلة غير مكتمل (" . strlen($cleanDigits) . " أرقام)، يمنع منعاً باتاً الحفظ برقم أقل من 6 أرقام."
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
             $dup = findTransferDuplicateInDb($pdo, $ref, $currentVNo, $tenant_id);
             if ($dup) {
                 echo json_encode([
                     'valid' => false,
                     'duplicate' => true,
-                    'error' => "رقم التحويلة ({$ref}) مسجل مسبقاً في السند رقم ({$dup['voucherNo']})" . (!empty($dup['date']) ? " بتاريخ {$dup['date']}" : ""),
+                    'error' => "رقم التحويلة ({$ref}) مكرر! تطابقت آخر 6 أرقام ({$dup['matchedSuffix']}) مع ({$dup['voucherNo']})" . (!empty($dup['date']) ? " بتاريخ {$dup['date']}" : ""),
                     'matchedVoucher' => $dup['voucherNo'],
                     'matchedRef' => $dup['ref'],
+                    'matchedSuffix' => $dup['matchedSuffix'] ?? '',
                     'date' => $dup['date'] ?? ''
                 ], JSON_UNESCAPED_UNICODE);
             } else {

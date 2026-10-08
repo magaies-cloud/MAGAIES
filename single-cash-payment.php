@@ -57,6 +57,14 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
                 } catch(Exception $e) {}
             }
 
+            // فحص التحويلات البنكية ومطابقة آخر 6 أرقام ومنع الأرقام الأقل من 6 نهائياً
+            require_once __DIR__ . '/api/transfer_validator.php';
+            $valRes = validatePayloadTransfers($pdo, $payload, $voucherNo, $tId);
+            if (!$valRes['valid']) {
+                echo json_encode(['success' => false, 'error' => $valRes['error'], 'duplicate' => !empty($valRes['duplicate'])], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
             $jsonRecord = json_encode($payload, JSON_UNESCAPED_UNICODE);
             $stmtCheck = $pdo->prepare("SELECT id FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
             $stmtCheck->execute([$tId, $voucherNo, $voucherNo]);

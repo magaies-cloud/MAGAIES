@@ -4089,17 +4089,29 @@ function submitInvoice(ignoreWarnings = false) {
         }
         
         if (bankActive) {
-            document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
+            let hasInvalidTransfer = false;
+            document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach((row, idx) => {
                 const bankAccountId = row.querySelector('.bt-bank-select') ? row.querySelector('.bt-bank-select').value : '';
                 const refEl = row.querySelector('.bt-ref-input') || row.querySelector('.bt-no-input');
                 const reference = refEl ? refEl.value.trim() : '';
                 const amountEl = row.querySelector('.bt-amount-input');
                 const amount = amountEl ? parseNum(amountEl.value) : 0;
                 if (amount > 0) {
-                    bankTransfers.push({ bankAccountId, reference, amount });
+                    const digitsOnly = reference.replace(/\D/g, '');
+                    if (digitsOnly.length < 6) {
+                        showToast(`السطر ${idx + 1}: رقم التحويلة البنكية (${reference || 'فارغ'}) غير مكتمل! يمنع منعاً باتاً الحفظ برقم يقل عن 6 أرقام.`, 'error');
+                        if (refEl) { refEl.focus(); refEl.classList.add('border-red-500'); }
+                        hasInvalidTransfer = true;
+                        return;
+                    }
+                    bankTransfers.push({ bankAccountId, reference, transferNo: reference, amount });
                     transfersSum += amount;
                 }
             });
+            if (hasInvalidTransfer) {
+                window.isSubmitting = false;
+                return;
+            }
         }
         
         if (chequeActive) {

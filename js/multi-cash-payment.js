@@ -4249,6 +4249,20 @@ window.openLedgerForBlockAccount = function(blockId) {
 window.checkTransferDuplicate = async function(tno, currentVoucherId) {
     if (!tno || String(tno).trim().length < 6) return true;
     const targetSuffix = String(tno).trim().slice(-6);
+
+    // 0. Live check with backend MariaDB database (all 6 tables: single_payments, single_receipts, payments, receipts, sales_invoices, purchase_invoices)
+    try {
+        const cParam = encodeURIComponent(currentVoucherId || '');
+        const rParam = encodeURIComponent(String(tno).trim());
+        const resp = await fetch(`api/mirror_api.php?action=check_duplicate&ref=${rParam}&current_vno=${cParam}`);
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data && data.exists) {
+                return false;
+            }
+        }
+    } catch(netErr) {}
+
     const getTenantKey = window.getTenantKey || ((k) => k);
     const keys = [
         getTenantKey('erp_payments_v1'),

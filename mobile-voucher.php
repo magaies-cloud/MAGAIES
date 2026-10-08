@@ -223,34 +223,26 @@ if (!function_exists('fetchAllLiveAccounts')) {
 if (!function_exists('extractAllTransfersFromRecord')) {
     function extractAllTransfersFromRecord($d) {
         $refs = [];
-        if (!empty($d['mobileTransferNo']) && is_string($d['mobileTransferNo'])) $refs[] = trim($d['mobileTransferNo']);
-        if (!empty($d['transferRef']) && is_string($d['transferRef'])) $refs[] = trim($d['transferRef']);
-        if (!empty($d['refNo']) && is_string($d['refNo'])) $refs[] = trim($d['refNo']);
-        if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
-            foreach ($d['bankTransfers'] as $bt) {
-                if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
-            }
-        }
-        if (!empty($d['details']) && is_array($d['details'])) {
-            foreach ($d['details'] as $det) {
-                if (!empty($det['transferNo']) && is_string($det['transferNo'])) $refs[] = trim($det['transferNo']);
-                if (!empty($det['bankTransfers']) && is_array($det['bankTransfers'])) {
-                    foreach ($det['bankTransfers'] as $bt) {
-                        if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+        if (!is_array($d)) return $refs;
+        $targetKeys = ['transferNo', 'mobileTransferNo', 'transferRef', 'bankTransferNo', 'refNo', 'reference', 'ref', 'checkNo'];
+        
+        $walker = function($item) use (&$walker, &$refs, $targetKeys) {
+            if (!is_array($item)) return;
+            foreach ($item as $k => $v) {
+                if (is_string($k) && in_array($k, $targetKeys, true)) {
+                    if (is_string($v) || is_numeric($v)) {
+                        $str = trim((string)$v);
+                        if ($str !== '' && !in_array(strtolower($str), ['cash', 'credit', 'bank', 'transfer', 'cheque', '---', '-'], true)) {
+                            $refs[] = $str;
+                        }
                     }
                 }
-            }
-        }
-        if (!empty($d['items']) && is_array($d['items'])) {
-            foreach ($d['items'] as $item) {
-                if (!empty($item['transferNo']) && is_string($item['transferNo'])) $refs[] = trim($item['transferNo']);
-                if (!empty($item['bankTransfers']) && is_array($item['bankTransfers'])) {
-                    foreach ($item['bankTransfers'] as $bt) {
-                        if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
-                    }
+                if (is_array($v)) {
+                    $walker($v);
                 }
             }
-        }
+        };
+        $walker($d);
         return array_values(array_unique(array_filter($refs)));
     }
 }
@@ -259,14 +251,26 @@ if (!function_exists('fetchAllDbTransfers')) {
     function fetchAllDbTransfers($pdo, $currentTenantId = null) {
         $results = [];
         $seen = [];
-        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
+        // شمول كافة شاشات وجداول النظام (حركة مالية، مشتريات، مبيعات، سندات مجمعة)
+        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts', 'purchase_invoices', 'sales_invoices'];
         foreach ($tables as $tbl) {
             try {
-                $stmt = $pdo->query("SELECT id, tenant_id, data FROM `$tbl`");
+                $sql = "SELECT id, tenant_id, data FROM `$tbl` WHERE (is_deleted = 0 OR is_deleted IS NULL)";
+                if ($currentTenantId) {
+                    $sql .= " AND (tenant_id = " . (int)$currentTenantId . " OR tenant_id IS NULL)";
+                }
+                $stmt = $pdo->query($sql);
                 while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($r['data'], true);
                     if (!$d) continue;
-                    $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    if (!empty($d['deleted']) || !empty($d['is_deleted'])) continue;
+
+                    $vNo = trim((string)($d['voucherNo'] ?? ($d['invoiceNo'] ?? ($d['id'] ?? ''))));
+                    if ($tbl === 'sales_invoices') $vNo = 'فاتورة مبيعات ' . $vNo;
+                    elseif ($tbl === 'purchase_invoices') $vNo = 'فاتورة مشتريات ' . $vNo;
+                    elseif ($tbl === 'payments' || $tbl === 'single_payments') $vNo = 'سند صرف ' . $vNo;
+                    elseif ($tbl === 'receipts' || $tbl === 'single_receipts') $vNo = 'سند قبض ' . $vNo;
+
                     $refs = extractAllTransfersFromRecord($d);
                     foreach ($refs as $ref) {
                         $clean = preg_replace('/\D/', '', (string)$ref);
@@ -280,7 +284,7 @@ if (!function_exists('fetchAllDbTransfers')) {
                             'ref' => (string)$ref,
                             'cleanRef' => $clean ?: (string)$ref,
                             'date' => $d['date'] ?? '',
-                            'amount' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
+                            'amount' => (float)($d['amountLocal'] ?? ($d['amount'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0)))),
                             'bank' => $d['bankName'] ?? ($d['bank'] ?? '')
                         ];
                     }
@@ -295,62 +299,74 @@ if (!function_exists('findTransferDuplicateInDb')) {
     function findTransferDuplicateInDb($pdo, $ref, $currentVNo = '', $currentTenantId = null) {
         $ref = trim((string)$ref);
         if ($ref === '') return null;
-        $cleanRef = preg_replace('/\D/', '', $ref) ?: strtolower($ref);
-        $compLen = strlen($cleanRef);
+        $cleanRef = preg_replace('/\D/', '', $ref);
+        if (strlen($cleanRef) < 6) {
+            return [
+                'isTooShort' => true,
+                'length' => strlen($cleanRef),
+                'error' => 'رقم التحويلة غير مكتمل، يمنع الحفظ برقم تحويلة يقل عن 6 أرقام نهائياً'
+            ];
+        }
+        $candSuffix = substr($cleanRef, -6);
 
-        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
+        // شمل كافة شاشات وجداول النظام
+        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts', 'purchase_invoices', 'sales_invoices'];
         foreach ($tables as $tbl) {
             try {
-                $stmt = $pdo->query("SELECT id, tenant_id, data FROM `$tbl`");
+                $sql = "SELECT id, tenant_id, data FROM `$tbl` WHERE (is_deleted = 0 OR is_deleted IS NULL)";
+                if ($currentTenantId) {
+                    $sql .= " AND (tenant_id = " . (int)$currentTenantId . " OR tenant_id IS NULL)";
+                }
+                $stmt = $pdo->query($sql);
                 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($row['data'], true);
                     if (!$d) continue;
-                    $existingVNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    if (!empty($d['deleted']) || !empty($d['is_deleted'])) continue;
+
+                    $existingVNo = trim((string)($d['voucherNo'] ?? ($d['invoiceNo'] ?? ($d['id'] ?? ''))));
                     if ($existingVNo !== '' && $currentVNo !== '' && $existingVNo === $currentVNo) {
                         continue;
                     }
+
                     $candidates = extractAllTransfersFromRecord($d);
                     foreach ($candidates as $cr) {
                         $strCr = trim((string)$cr);
-                        $cleanCr = preg_replace('/\D/', '', $strCr) ?: strtolower($strCr);
+                        $cleanCr = preg_replace('/\D/', '', $strCr);
                         if ($cleanCr === '') continue;
 
                         $matched = false;
                         $matchType = '';
 
-                        // 1. التطابق التام (سواء كان 4 أو 5 أو 6 أرقام مثل 54016 أو 5416)
-                        if ($cleanCr === $cleanRef || $strCr === $ref) {
-                            $matched = true;
-                            $matchType = 'تطابق تام';
-                        }
-                        // 2. تطابق آخر 6 أرقام
-                        elseif ($compLen >= 6 && strlen($cleanCr) >= 6 && substr($cleanCr, -6) === substr($cleanRef, -6)) {
-                            $matched = true;
-                            $matchType = 'تطابق آخر 6 أرقام';
-                        }
-                        // 3. تطابق اللواحق للأرقام ذات 4 أو 5 أرقام
-                        elseif ($compLen >= 4 && strlen($cleanCr) >= $compLen && substr($cleanCr, -$compLen) === $cleanRef) {
-                            $matched = true;
-                            $matchType = 'تطابق لاحقة الرقم';
-                        }
-                        elseif (strlen($cleanCr) >= 4 && $compLen >= strlen($cleanCr) && substr($cleanRef, -strlen($cleanCr)) === $cleanCr) {
-                            $matched = true;
-                            $matchType = 'تطابق لاحقة الرقم';
-                        }
-                        // 4. تشابه رقمي شديد (فرق رقم واحد typo مثل 54016 vs 5416)
-                        elseif ($compLen >= 4 && abs($compLen - strlen($cleanCr)) <= 1 && levenshtein($cleanRef, $cleanCr) <= 1) {
-                            $matched = true;
-                            $matchType = 'تشابه رقمي شديد';
+                        // المقارنة الصارمة لآخر 6 أرقام (سواء الرقم 6 أو 7 أو 10 أو 15 أو 16 رقماً)
+                        if (strlen($cleanCr) >= 6) {
+                            $existSuffix = substr($cleanCr, -6);
+                            if ($candSuffix === $existSuffix) {
+                                $matched = true;
+                                $matchType = "تطابق آخر 6 أرقام ({$candSuffix})";
+                            }
+                        } else {
+                            if ($cleanRef === $cleanCr || substr($cleanRef, -strlen($cleanCr)) === $cleanCr) {
+                                $matched = true;
+                                $matchType = 'تطابق مع رقم تحويلة مسجل';
+                            }
                         }
 
                         if ($matched) {
+                            $docLabel = $existingVNo ?: ('#' . $row['id']);
+                            if ($tbl === 'sales_invoices') $docLabel = 'فاتورة مبيعات ' . $docLabel;
+                            elseif ($tbl === 'purchase_invoices') $docLabel = 'فاتورة مشتريات ' . $docLabel;
+                            elseif ($tbl === 'payments' || $tbl === 'single_payments') $docLabel = 'سند صرف ' . $docLabel;
+                            elseif ($tbl === 'receipts' || $tbl === 'single_receipts') $docLabel = 'سند قبض ' . $docLabel;
+
                             return [
-                                'voucherNo' => $existingVNo ?: 'سابق',
+                                'voucherNo' => $docLabel,
+                                'matchedId' => $existingVNo ?: ('#' . $row['id']),
                                 'ref' => $strCr,
+                                'matchedSuffix' => $candSuffix,
                                 'date' => $d['date'] ?? '',
-                                'amount' => $d['amountLocal'] ?? ($d['amount'] ?? 0),
+                                'amount' => $d['amountLocal'] ?? ($d['amount'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0))),
                                 'bank' => $d['bankName'] ?? ($d['bank'] ?? ''),
-                                'from' => $d['fromAccountName'] ?? ($d['from'] ?? ''),
+                                'from' => $d['fromAccountName'] ?? ($d['from'] ?? ($d['customerName'] ?? ($d['supplierName'] ?? ''))),
                                 'to' => $d['toAccountName'] ?? ($d['to'] ?? ($d['beneficiaryName'] ?? '')),
                                 'table' => $tbl,
                                 'matchType' => $matchType
@@ -468,23 +484,33 @@ PROMPT;
 
         $cleanRef = preg_replace('/\D/', '', $ref);
         $refLen = strlen($cleanRef ?: $ref);
-        $isShort = ($refLen < 6);
+        if ($refLen < 6) {
+            echo json_encode([
+                'valid' => false,
+                'duplicate' => false,
+                'isShort' => true,
+                'tooShort' => true,
+                'error' => "رقم التحويلة غير مكتمل ({$refLen} أرقام)، يمنع منعاً باتاً الحفظ برقم تحويلة يقل عن 6 أرقام."
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
 
         $dup = findTransferDuplicateInDb($pdo, $ref, $currentVNo, $currentTenantId);
 
         if ($dup) {
-            $msg = "عفواً، رقم التحويلة ({$ref}) مكرر ومسجل مسبقاً في السند رقم ({$dup['voucherNo']})";
+            $msg = "عفواً، رقم التحويلة ({$ref}) مكرر ومسجل مسبقاً في ({$dup['voucherNo']})";
             if (!empty($dup['date'])) $msg .= " بتاريخ ({$dup['date']})";
             if (!empty($dup['bank'])) $msg .= " لدى ({$dup['bank']})";
-            $msg .= " ({$dup['matchType']}).";
+            $msg .= " لتطابق آخر 6 أرقام ({$dup['matchedSuffix']}).";
 
             echo json_encode([
                 'valid' => false,
                 'duplicate' => true,
-                'isShort' => $isShort,
+                'isShort' => false,
                 'error' => $msg,
                 'matchedVoucher' => $dup['voucherNo'],
                 'matchedRef' => $dup['ref'],
+                'matchedSuffix' => $dup['matchedSuffix'] ?? '',
                 'matchedDate' => $dup['date'],
                 'matchedAmount' => $dup['amount'],
                 'matchedBank' => $dup['bank'],
@@ -496,7 +522,7 @@ PROMPT;
             echo json_encode([
                 'valid' => true,
                 'duplicate' => false,
-                'isShort' => $isShort,
+                'isShort' => false,
                 'message' => 'رقم التحويلة سليم وغير مسجل مسبقاً في قاعدة البيانات'
             ], JSON_UNESCAPED_UNICODE);
         }
@@ -569,8 +595,8 @@ PROMPT;
                 exit;
             }
             $cleanTrLen = strlen(preg_replace('/\D/', '', $transferRef) ?: $transferRef);
-            if ($cleanTrLen < 3) {
-                echo json_encode(['success' => false, 'error' => 'رقم التحويلة قصير جداً! يرجى التأكد من كتابة رقم التحويل بشكل صحيح.'], JSON_UNESCAPED_UNICODE);
+            if ($cleanTrLen < 6) {
+                echo json_encode(['success' => false, 'error' => "رقم التحويلة غير مكتمل ({$cleanTrLen} أرقام)، يمنع منعاً باتاً الحفظ برقم تحويلة يقل عن 6 أرقام."], JSON_UNESCAPED_UNICODE);
                 exit;
             }
             if (empty($bankName)) {
@@ -578,13 +604,13 @@ PROMPT;
                 exit;
             }
 
-            // فحص منع التكرار مباشرة عبر كافة جداول وسندات قاعدة البيانات MariaDB
+            // فحص منع التكرار مباشرة عبر كافة جداول وسندات قاعدة البيانات MariaDB ومقارنة آخر 6 أرقام
             $currentVNo = trim($payload['voucherNo'] ?? ($payload['id'] ?? ''));
             $dup = findTransferDuplicateInDb($pdo, $transferRef, $currentVNo, $currentTenantId);
             if ($dup) {
                 echo json_encode([
                     'success' => false,
-                    'error' => "تحويلة مكررة: رقم التحويلة ({$transferRef}) تم تسجيله مسبقاً في النظام بالسند رقم ({$dup['voucherNo']})" . (!empty($dup['date']) ? " بتاريخ {$dup['date']}" : "") . " لتطابقه ({$dup['matchType']})."
+                    'error' => "تحويلة مكررة: رقم التحويلة ({$transferRef}) تم تسجيله مسبقاً في النظام بـ ({$dup['voucherNo']})" . (!empty($dup['date']) ? " بتاريخ {$dup['date']}" : "") . " لتطابق آخر 6 أرقام ({$dup['matchedSuffix']})."
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
@@ -3368,7 +3394,7 @@ $currenciesData = [
     let _shortTransferAllowed = false;
     let _wasAttemptingSave = false;
 
-    function closeLengthWarningModal(proceed = false, focusInput = false) {
+    function closeLengthWarningModal(focusInput = true) {
       const m = document.getElementById('critical-alert-modal');
       if (m) m.remove();
       if (_lengthModalEscHandler) {
@@ -3376,20 +3402,7 @@ $currenciesData = [
         _lengthModalEscHandler = null;
       }
       _suppressTransferBlur = true;
-      if (proceed) {
-        _shortTransferAllowed = true;
-        showToast("تم اعتماد رقم التحويلة، جاري المتابعة...", "success", 2000);
-        if (_wasAttemptingSave) {
-          _wasAttemptingSave = false;
-          setTimeout(() => {
-            if (typeof saveMobileVoucher === 'function') {
-              saveMobileVoucher();
-            }
-          }, 150);
-        }
-      } else {
-        _wasAttemptingSave = false;
-      }
+      _wasAttemptingSave = false;
       if (focusInput) {
         const ti = document.getElementById('transferInput');
         if (ti) {
@@ -3406,28 +3419,26 @@ $currenciesData = [
       if (existing) existing.remove();
 
       _lengthModalEscHandler = (e) => {
-        if (e.key === 'Escape') closeLengthWarningModal(false);
+        if (e.key === 'Escape') closeLengthWarningModal(true);
       };
       document.addEventListener('keydown', _lengthModalEscHandler);
 
+      const digitsOnly = String(transferNo || '').replace(/\D/g, '');
       const modalHTML = `
-        <div id="critical-alert-modal" onclick="if(event.target === this) closeLengthWarningModal(false)" style="position:fixed; inset:0; z-index:999999; display:flex; justify-content:center; align-items:center; background:rgba(10,0,0,0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:16px; box-sizing:border-box;">
-          <div style="position:relative; width:min(440px, 94vw); max-width:440px; background: radial-gradient(circle, #8b0000 0%, #3e0000 100%); border-radius:24px; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 3px solid rgba(255,100,100,0.5); padding: 30px 20px; text-align:center; box-sizing:border-box; box-shadow:0 0 50px rgba(220, 20, 60, 0.4);">
+        <div id="critical-alert-modal" onclick="if(event.target === this) closeLengthWarningModal(true)" style="position:fixed; inset:0; z-index:999999; display:flex; justify-content:center; align-items:center; background:rgba(10,0,0,0.85); backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px); padding:16px; box-sizing:border-box;">
+          <div style="position:relative; width:min(440px, 94vw); max-width:440px; background: radial-gradient(circle, #8b0000 0%, #3e0000 100%); border-radius:24px; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 3px solid rgba(255,100,100,0.6); padding: 30px 20px; text-align:center; box-sizing:border-box; box-shadow:0 0 50px rgba(220, 20, 60, 0.5);">
             <!-- زر الخروج X في الزاوية العلوية -->
-            <button type="button" onclick="closeLengthWarningModal(false)" title="إغلاق التحذير" style="position:absolute; top:12px; left:12px; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; font-size:16px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseover="this.style.background='rgba(255,0,0,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">✕</button>
+            <button type="button" onclick="closeLengthWarningModal(true)" title="إغلاق التحذير" style="position:absolute; top:12px; left:12px; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:#fff; font-size:16px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:0.2s;" onmouseover="this.style.background='rgba(255,0,0,0.5)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">✕</button>
 
-            <div style="font-size: 3.8rem; text-shadow: 0 0 20px #ff0000; line-height:1;">⚠️</div>
-            <h2 style="color: #ffcccc; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 1.8rem; margin: 12px 0 8px; text-shadow: 0 0 10px #ff0000; font-weight:900;">تنبيه: رقم التحويلة قصير</h2>
-            <p style="color: #fff; font-size: 1.15rem; font-weight:bold; line-height: 1.6;">رقم التحويلة <span style="color:#ffeb3b; font-size:1.6rem; font-family:monospace;">${transferNo}</span><br>أقل من 6 أرقام (${(transferNo||'').length} خانات)</p>
-            <p style="color: #ffaaaa; font-size: 0.9rem; margin-bottom: 24px; line-height:1.5;">يفضل أن يتكون رقم التحويل من 6 أرقام لتفادي الأخطاء، ولكن يمكنك المتابعة إذا كان الرقم صحيحاً.</p>
+            <div style="font-size: 3.8rem; text-shadow: 0 0 20px #ff0000; line-height:1;">🚫</div>
+            <h2 style="color: #ffcccc; font-family: 'Cairo', 'Tajawal', sans-serif; font-size: 1.6rem; margin: 12px 0 8px; text-shadow: 0 0 10px #ff0000; font-weight:900;">يمنع الحفظ: رقم التحويلة غير مكتمل</h2>
+            <p style="color: #fff; font-size: 1.15rem; font-weight:bold; line-height: 1.6;">رقم التحويلة <span style="color:#ffeb3b; font-size:1.6rem; font-family:monospace;">${transferNo}</span><br>مكون من (${digitsOnly.length} أرقام) فقط!</p>
+            <p style="color: #ffaaaa; font-size: 0.95rem; margin-bottom: 24px; line-height:1.5;">يمنع منعاً باتاً تسجيل أو حفظ أي رقم تحويلة يقل عن 6 أرقام لضمان دقة الحسابات ومنع التكرار نهائياً.</p>
 
-            <!-- أزرار الخروج والاختيار -->
-            <div style="display:flex; gap:10px; width:100%;">
-              <button type="button" onclick="closeLengthWarningModal(true)" style="flex:1; background: linear-gradient(45deg, #10b981, #059669); color: white; border: 2px solid #6ee7b7; border-radius: 18px; padding: 12px 14px; font-size: 1rem; font-weight: 900; cursor: pointer; box-shadow: 0 0 15px rgba(16,185,129,0.4); transition: all 0.2s; font-family: 'Cairo', 'Tajawal', sans-serif;">
-                ✓ فهمت ومتابعة
-              </button>
-              <button type="button" onclick="closeLengthWarningModal(false, true)" style="flex:1; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 18px; padding: 12px 14px; font-size: 0.95rem; font-weight: bold; cursor: pointer; transition: all 0.2s; font-family: 'Cairo', 'Tajawal', sans-serif;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-                ✏️ تعديل الرقم
+            <!-- زر التعديل الإلزامي -->
+            <div style="display:flex; justify-content:center; width:100%;">
+              <button type="button" onclick="closeLengthWarningModal(true)" style="width:100%; max-width:280px; background: linear-gradient(45deg, #ef4444, #b91c1c); color: white; border: 2px solid #fca5a5; border-radius: 18px; padding: 12px 14px; font-size: 1.05rem; font-weight: 900; cursor: pointer; box-shadow: 0 0 20px rgba(239,68,68,0.5); transition: all 0.2s; font-family: 'Cairo', 'Tajawal', sans-serif;">
+                ✏️ تعديل وتصحيح رقم التحويلة
               </button>
             </div>
           </div>
@@ -9222,7 +9233,24 @@ $currenciesData = [
         return true;
       }
 
-      // 1. فحص التكرار فورياً مع قاعدة البيانات MariaDB وسجلات الذاكرة (0ms)
+      // 1. فحص طول رقم التحويلة بصرامة (يمنع الحفظ منعاً باتاً لأي رقم يقل عن 6 خانات)
+      const digitsOnly = val.replace(/\D/g, '');
+      if (digitsOnly.length < 6) {
+        if (isSaveAction) {
+          _wasAttemptingSave = true;
+          showLengthWarningModal(val);
+          const ti = document.getElementById('transferInput');
+          if (ti) {
+            ti.focus();
+            ti.classList.add('border-red-500');
+            setTimeout(() => ti.classList.remove('border-red-500'), 3500);
+          }
+          return false;
+        }
+        return false;
+      }
+
+      // 2. فحص التكرار فورياً مع قاعدة البيانات MariaDB وسجلات الذاكرة (0ms)
       const localDup = checkTransferDuplicate(val, currentVNo);
       if (localDup) {
         showDuplicateWarningModal(val, localDup);
@@ -9234,7 +9262,7 @@ $currenciesData = [
         return false;
       }
 
-      // 2. فحص حي ومباشر عبر الـ API مع قاعدة بيانات MariaDB (في حال حفظ تحويلة قبل ثوانٍ على اللابتوب)
+      // 3. فحص حي ومباشر عبر الـ API مع قاعدة بيانات MariaDB لكافة الجداول والشاشات
       if (!isOfflineMode) {
         try {
           const res = await fetch(`mobile-voucher.php?api=check_duplicate&ref=${encodeURIComponent(val)}&voucherNo=${encodeURIComponent(currentVNo)}`);
@@ -9252,21 +9280,6 @@ $currenciesData = [
           }
         } catch(e) {
           console.warn('Check duplicate DB bypass:', e);
-        }
-      }
-
-      // 3. فحص طول رقم التحويلة (السماح بالأرقام مثل 54016 و 5416 بعد التنبيه أو التأكيد)
-      const digitsOnly = val.replace(/\D/g, '');
-      if (digitsOnly.length < 3) {
-        if (isSaveAction) {
-          showToast("رقم التحويلة قصير جداً (أقل من 3 أرقام)", "error");
-          return false;
-        }
-      } else if (digitsOnly.length < 6 && !_shortTransferAllowed) {
-        if (isSaveAction) {
-          _wasAttemptingSave = true;
-          showLengthWarningModal(val);
-          return false;
         }
       }
 
