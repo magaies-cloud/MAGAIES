@@ -317,6 +317,8 @@ try {
                     'lastSeq' => $maxSeq,
                     'nextSeq' => $nextSeq,
                     'nextNo' => $formattedNextNo,
+                    'nextPurNo' => $formattedNextNo,
+                    'formattedNextNo' => $formattedNextNo,
                     'numericNo' => (string)$nextSeq,
                     'prefix' => $prefix
                 ], JSON_UNESCAPED_UNICODE);
@@ -394,8 +396,11 @@ try {
                     'success' => true,
                     'entity' => 'deliveries',
                     'tenant_id' => $tenant_id,
+                    'lastSeq' => $maxSeq,
                     'nextSeq' => $nextSeq,
-                    'nextNo' => $formattedNextNo
+                    'nextNo' => $formattedNextNo,
+                    'formattedNextNo' => $formattedNextNo,
+                    'numericNo' => (string)$nextSeq
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
 
@@ -424,8 +429,11 @@ try {
                     'success' => true,
                     'entity' => 'receipts',
                     'tenant_id' => $tenant_id,
+                    'lastSeq' => $maxSeq,
                     'nextSeq' => $nextSeq,
-                    'nextNo' => $formattedNextNo
+                    'nextNo' => $formattedNextNo,
+                    'formattedNextNo' => $formattedNextNo,
+                    'numericNo' => (string)$nextSeq
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
 
@@ -509,11 +517,11 @@ try {
             $existingId = $stmtCheck->fetchColumn();
 
             if ($existingId) {
-                $stmtUp = $pdo->prepare("UPDATE sales_invoices SET data = ?, updated_at = NOW() WHERE id = ?");
-                $stmtUp->execute([$jsonRecord, $existingId]);
+                $stmtUp = $pdo->prepare("UPDATE sales_invoices SET invoice_no = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp->execute([$invoiceNo, $jsonRecord, $existingId]);
             } else {
-                $stmtIns = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
-                $stmtIns->execute([$tenant_id, $jsonRecord]);
+                $stmtIns = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tenant_id, $invoiceNo, $jsonRecord]);
             }
 
             // إدراج بطابور المزامنة
@@ -629,11 +637,11 @@ try {
             $existingId = $stmtCheck->fetchColumn();
 
             if ($existingId) {
-                $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET data = ?, updated_at = NOW() WHERE id = ?");
-                $stmtUp->execute([$jsonRecord, $existingId]);
+                $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET invoice_no = ?, data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp->execute([$invoiceNo, $jsonRecord, $existingId]);
             } else {
-                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
-                $stmtIns->execute([$tenant_id, $jsonRecord]);
+                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, invoice_no, data, created_at, updated_at) VALUES (?, ?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tenant_id, $invoiceNo, $jsonRecord]);
             }
 
             echo json_encode([
