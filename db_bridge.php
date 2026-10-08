@@ -57,7 +57,14 @@ function getDBConnection() {
         }
 
         if (!$tenantId) {
-            $tenantId = 2; // شركة السجانة النشطة (Company 'c' Tenant 2)
+            try {
+                $stmtC = $pdo->query("SELECT id FROM tenants WHERE subdomain = 'c' LIMIT 1");
+                $cTenant = $stmtC ? $stmtC->fetchColumn() : false;
+                if ($cTenant) $tenantId = (int)$cTenant;
+            } catch (Exception $e) {}
+        }
+        if (!$tenantId) {
+            $tenantId = 12; // شركة السجانة النشطة (Company 'c' Tenant 12)
         }
         $GLOBAL_TENANT_ID = (int)$tenantId;
     }

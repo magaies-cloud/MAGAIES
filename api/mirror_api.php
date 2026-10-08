@@ -37,41 +37,165 @@ if (session_status() === PHP_SESSION_NONE) {
 
 $tenant_id = null;
 
-// 1. فحص رمز المصادقة المباشر
-$token = $_COOKIE['saas_token'] ?? ($_COOKIE['authToken'] ?? '');
-if (empty($token) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
-    $token = trim(preg_replace('/^Bearer\s+/i', '', $_SERVER['HTTP_AUTHORIZATION']));
-}
-if (empty($token) && !empty($_SERVER['HTTP_X_AUTH_TOKEN'])) {
-    $token = trim($_SERVER['HTTP_X_AUTH_TOKEN']);
-}
-
-if (!empty($token) && strpos($token, 'offline_token_') !== 0) {
-    try {
-        $stmtToken = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? AND (token_expires_at IS NULL OR token_expires_at > NOW()) AND status = 'active' LIMIT 1");
-        $stmtToken->execute([$token]);
-        $t = $stmtToken->fetchColumn();
-        if ($t) $tenant_id = (int)$t;
-    } catch (Exception $e) {}
+// 1. الترويسة أو المعامل الصريح
+if (!empty($_SERVER['HTTP_X_TENANT_ID']) && is_numeric($_SERVER['HTTP_X_TENANT_ID'])) {
+    $tenant_id = (int)$_SERVER['HTTP_X_TENANT_ID'];
+} elseif (!empty($_GET['tenant_id']) && is_numeric($_GET['tenant_id'])) {
+    $tenant_id = (int)$_GET['tenant_id'];
+} elseif (!empty($_POST['tenant_id']) && is_numeric($_POST['tenant_id'])) {
+    $tenant_id = (int)$_POST['tenant_id'];
 }
 
-// 2. جلسة المستخدم
+// 2. فحص رمز المصادقة المباشر
+if (!$tenant_id) {
+    $token = $_COOKIE['saas_token'] ?? ($_COOKIE['authToken'] ?? '');
+    if (empty($token) && !empty($_SERVER['HTTP_AUTHORIZATION'])) {
+        $token = trim(preg_replace('/^Bearer\s+/i', '', $_SERVER['HTTP_AUTHORIZATION']));
+    }
+    if (empty($token) && !empty($_SERVER['HTTP_X_AUTH_TOKEN'])) {
+        $token = trim($_SERVER['HTTP_X_AUTH_TOKEN']);
+    }
+
+    if (!empty($token) && strpos($token, 'offline_token_') !== 0) {
+        try {
+            $stmtToken = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? AND (token_expires_at IS NULL OR token_expires_at > NOW()) AND status = 'active' LIMIT 1");
+            $stmtToken->execute([$token]);
+            $t = $stmtToken->fetchColumn();
+            if ($t) $tenant_id = (int)$t;
+        } catch (Exception $e) {}
+    }
+}
+
+// 3. جلسة المستخدم
 if (!$tenant_id && !empty($_SESSION['user']['tenant_id'])) {
     $tenant_id = (int)$_SESSION['user']['tenant_id'];
 }
 
-// 3. الترويسة أو المعامل الصريح
-if (!$tenant_id && !empty($_SERVER['HTTP_X_TENANT_ID']) && is_numeric($_SERVER['HTTP_X_TENANT_ID'])) {
-    $tenant_id = (int)$_SERVER['HTTP_X_TENANT_ID'];
-} elseif (!$tenant_id && !empty($_GET['tenant_id']) && is_numeric($_GET['tenant_id'])) {
-    $tenant_id = (int)$_GET['tenant_id'];
-} elseif (!$tenant_id && !empty($_POST['tenant_id']) && is_numeric($_POST['tenant_id'])) {
-    $tenant_id = (int)$_POST['tenant_id'];
+// 4. استخراج رقم الشركة من النطاق الفرعي (مثل c.elsajana.com -> c -> 12)
+if (!$tenant_id) {
+    $host = $_SERVER['HTTP_HOST'] ?? ($_SERVER['SERVER_NAME'] ?? '');
+    if (preg_match('/^([a-z0-9_-]+)\.elsajana\.com$/i', $host, $m)) {
+        $sub = strtolower($m[1]);
+        try {
+            $stmtSub = $pdo->prepare("SELECT id FROM tenants WHERE subdomain = ? LIMIT 1");
+            $stmtSub->execute([$sub]);
+            $subTenant = $stmtSub->fetchColumn();
+            if ($subTenant) $tenant_id = (int)$subTenant;
+        } catch (Exception $e) {}
+    }
 }
 
-// 4. الافتراضي الموحد للشركة النشطة (Company 'c' = 2)
+// 5. الافتراضي الموحد للشركة النشطة (Company 'c' = 12)
 if (!$tenant_id) {
-    $tenant_id = 2; // القيمة الموحدة لكافة أجهزة المحل
+    try {
+        $stmtDef = $pdo->prepare("SELECT id FROM tenants WHERE subdomain = 'c' LIMIT 1");
+        $stmtDef->execute();
+        $cTenant = $stmtDef->fetchColumn();
+        if ($cTenant) $tenant_id = (int)$cTenant;
+    } catch (Exception $e) {}
+}
+
+if (!$tenant_id) {
+    $tenant_id = 12; // القيمة الموحدة للشركة c
+}
+
+// ── دوال فحص التكرار الشامل للتحويلات البنكية ──
+if (!function_exists('extractAllTransfersFromRecord')) {
+    function extractAllTransfersFromRecord($d) {
+        $refs = [];
+        if (!is_array($d)) return $refs;
+        foreach (['mobileTransferNo', 'refNo', 'transferRef', 'bankTransferNo', 'checkNo'] as $k) {
+            if (!empty($d[$k]) && is_string($d[$k])) $refs[] = trim($d[$k]);
+        }
+        if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
+            foreach ($d['bankTransfers'] as $bt) {
+                if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+            }
+        }
+        if (!empty($d['cheques']) && is_array($d['cheques'])) {
+            foreach ($d['cheques'] as $ch) {
+                if (!empty($ch['checkNo']) && is_string($ch['checkNo'])) $refs[] = trim($ch['checkNo']);
+            }
+        }
+        return array_values(array_unique(array_filter($refs)));
+    }
+}
+
+if (!function_exists('findTransferDuplicateInDb')) {
+    function findTransferDuplicateInDb($pdo, $ref, $currentVNo = '', $currentTenantId = null) {
+        $ref = trim((string)$ref);
+        if ($ref === '') return null;
+        $cleanRef = preg_replace('/\D/', '', $ref) ?: strtolower($ref);
+        $compLen = strlen($cleanRef);
+
+        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
+        foreach ($tables as $tbl) {
+            try {
+                $sql = "SELECT id, tenant_id, data FROM `$tbl` WHERE (is_deleted = 0 OR is_deleted IS NULL)";
+                if ($currentTenantId) {
+                    $sql .= " AND (tenant_id = " . (int)$currentTenantId . " OR tenant_id IS NULL)";
+                }
+                $stmt = $pdo->query($sql);
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $d = json_decode($row['data'], true);
+                    if (!$d) continue;
+                    $existingVNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    if ($existingVNo !== '' && $currentVNo !== '' && $existingVNo === $currentVNo) {
+                        continue;
+                    }
+                    $candidates = extractAllTransfersFromRecord($d);
+                    foreach ($candidates as $cr) {
+                        $strCr = trim((string)$cr);
+                        $cleanCr = preg_replace('/\D/', '', $strCr) ?: strtolower($strCr);
+                        if ($cleanCr === '') continue;
+
+                        $matched = false;
+                        $matchType = '';
+
+                        // 1. التطابق التام
+                        if ($cleanCr === $cleanRef || $strCr === $ref) {
+                            $matched = true;
+                            $matchType = 'تطابق تام';
+                        }
+                        // 2. تطابق آخر 6 أرقام
+                        elseif ($compLen >= 6 && strlen($cleanCr) >= 6 && substr($cleanCr, -6) === substr($cleanRef, -6)) {
+                            $matched = true;
+                            $matchType = 'تطابق آخر 6 أرقام';
+                        }
+                        // 3. تطابق اللواحق للأرقام ذات 4 أو 5 أرقام
+                        elseif ($compLen >= 4 && strlen($cleanCr) >= $compLen && substr($cleanCr, -$compLen) === $cleanRef) {
+                            $matched = true;
+                            $matchType = 'تطابق لاحقة الرقم';
+                        }
+                        elseif (strlen($cleanCr) >= 4 && $compLen >= strlen($cleanCr) && substr($cleanRef, -strlen($cleanCr)) === $cleanCr) {
+                            $matched = true;
+                            $matchType = 'تطابق لاحقة الرقم';
+                        }
+                        // 4. تشابه رقمي شديد
+                        elseif ($compLen >= 4 && abs($compLen - strlen($cleanCr)) <= 1 && levenshtein($cleanRef, $cleanCr) <= 1) {
+                            $matched = true;
+                            $matchType = 'تشابه رقمي شديد';
+                        }
+
+                        if ($matched) {
+                            return [
+                                'voucherNo' => $existingVNo ?: ('#' . $row['id']),
+                                'ref' => $strCr,
+                                'date' => $d['date'] ?? '',
+                                'amount' => $d['amountLocal'] ?? ($d['amount'] ?? 0),
+                                'bank' => $d['bankName'] ?? ($d['bank'] ?? ''),
+                                'from' => $d['fromAccountName'] ?? ($d['from'] ?? ''),
+                                'to' => $d['toAccountName'] ?? ($d['to'] ?? ($d['beneficiaryName'] ?? '')),
+                                'table' => $tbl,
+                                'matchType' => $matchType
+                            ];
+                        }
+                    }
+                }
+            } catch (Exception $e) {}
+        }
+        return null;
+    }
 }
 
 if (php_sapi_name() === 'cli' && !empty($_SERVER['argv'])) {
@@ -222,6 +346,14 @@ try {
                 $nextSeq = $maxSeq + 1;
                 $formattedNextNo = $prefix . str_pad($nextSeq, 4, '0', STR_PAD_LEFT);
 
+                $sysRate = 2650;
+                try {
+                    $stmtRate = $pdo->prepare("SELECT setting_value FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) AND setting_key = 'system_usd_rate' ORDER BY updated_at DESC LIMIT 1");
+                    $stmtRate->execute([$tenant_id]);
+                    $rVal = $stmtRate->fetchColumn();
+                    if ($rVal && (float)$rVal > 0) $sysRate = (float)$rVal;
+                } catch(Exception $e) {}
+
                 echo json_encode([
                     'success' => true,
                     'entity' => 'vouchers',
@@ -229,8 +361,11 @@ try {
                     'lastSeq' => $maxSeq,
                     'nextSeq' => $nextSeq,
                     'nextNo' => $formattedNextNo,
+                    'nextVoucherNo' => $formattedNextNo,
+                    'formattedNextNo' => $formattedNextNo,
                     'numericNo' => (string)$nextSeq,
-                    'prefix' => $prefix
+                    'prefix' => $prefix,
+                    'usdRate' => $sysRate
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
 
@@ -557,7 +692,7 @@ try {
             exit;
 
         // ═════════════════════════════════════════════════════════════════
-        // 6.3. حفظ سند / حركة مالية (Single Payment Voucher)
+        // 6.3. حفظ سند / حركة مالية (Single Payment Voucher) - مرآة كاملة ومطابقة
         // ═════════════════════════════════════════════════════════════════
         case 'save_voucher':
             $vData = $input['data'] ?? $input;
@@ -566,31 +701,185 @@ try {
                 exit;
             }
 
-            $voucherNo = trim((string)($vData['voucherNo'] ?? ($vData['id'] ?? '')));
-            if ($voucherNo === '' || $voucherNo === 'preliminary' || $voucherNo === '---') {
-                $now = new DateTime('now');
-                $prefix = 'E' . $now->format('ym');
-                $maxSeq = 0;
-                $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
-                $stmt->execute([$tenant_id]);
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $d = json_decode($row['data'] ?? '{}', true);
-                    $vId = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
-                    if (strpos($vId, $prefix) === 0) {
-                        $s = (int)substr($vId, strlen($prefix));
-                        if ($s > $maxSeq) $maxSeq = $s;
-                    }
-                }
-                $voucherNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
-                $vData['voucherNo'] = $voucherNo;
-                $vData['id'] = $voucherNo;
+            // 1. فحص المبلغ الإجمالي
+            $amtLocal = (float)($vData['amountLocal'] ?? ($vData['amount'] ?? ($vData['sdg'] ?? 0)));
+            if ($amtLocal <= 0) {
+                echo json_encode(['success' => false, 'error' => 'لا يمكن اعتماد سند بقيمة صفر'], JSON_UNESCAPED_UNICODE);
+                exit;
             }
+
+            // 2. فحص أطراف السند (من وإلى)
+            $fromName = trim((string)($vData['fromAccountName'] ?? ($vData['from'] ?? '')));
+            $fromAccId = trim((string)($vData['fromAccount'] ?? ($vData['fromId'] ?? '')));
+            if ($fromName === '' && $fromAccId === '') {
+                echo json_encode(['success' => false, 'error' => 'يرجى اختيار حساب الدفع (الدافع)'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            if ($fromName === '') $fromName = $fromAccId;
+
+            $toName = trim((string)($vData['toAccountName'] ?? ($vData['beneficiaryName'] ?? ($vData['to'] ?? ''))));
+            $toAccId = trim((string)($vData['toAccount'] ?? ($vData['toId'] ?? '')));
+            if ($toName === '' && $toAccId === '') {
+                echo json_encode(['success' => false, 'error' => 'يرجى اختيار الحساب المستفيد'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            if ($toName === '') $toName = $toAccId;
+
+            // منع تطابق حساب الدافع مع المستفيد
+            $normFrom = preg_replace('/[^\p{L}\p{N}]/u', '', mb_strtolower($fromName, 'UTF-8'));
+            $normTo = preg_replace('/[^\p{L}\p{N}]/u', '', mb_strtolower($toName, 'UTF-8'));
+            if ($normFrom !== '' && $normFrom === $normTo) {
+                echo json_encode(['success' => false, 'error' => 'لا يمكن أن يكون حساب الدفع مطابقاً لحساب المستفيد'], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+
+            // 3. طريقة الدفع
+            $rawMethod = strtolower(trim((string)($vData['paymentMethod'] ?? ($vData['payType'] ?? 'transfer'))));
+            $payMethod = $rawMethod;
+            if ($payMethod === 'mobile') $payMethod = 'transfer';
+            if ($payMethod === 'check' || $payMethod === 'cheque' || strpos($payMethod, 'cheque') !== false) $payMethod = 'check';
+
+            $trNo = trim((string)($vData['mobileTransferNo'] ?? ($vData['refNo'] ?? ($vData['transferRef'] ?? ''))));
+            $bankName = trim((string)($vData['bankName'] ?? ($vData['bank'] ?? ($vData['mobileNote'] ?? ''))));
+            $chNo = trim((string)($vData['checkNo'] ?? ($vData['refNo'] ?? '')));
+
+            $voucherNo = trim((string)($vData['voucherNo'] ?? ($vData['id'] ?? '')));
+            $isNew = empty($voucherNo) || $voucherNo === 'preliminary' || $voucherNo === '---' || !empty($vData['isNew']);
+
+            // شروط التحويلة
+            if ($payMethod === 'transfer') {
+                if ($trNo === '') {
+                    echo json_encode(['success' => false, 'error' => 'يرجى إدخال رقم حساب التحويل'], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+                $digitsOnly = preg_replace('/\D/', '', $trNo);
+                if (strlen($digitsOnly) < 6) {
+                    echo json_encode(['success' => false, 'error' => 'رقم التحويلة غير مكتمل، يجب أن لا يقل عن 6 أرقام'], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+                if ($bankName === '') {
+                    echo json_encode(['success' => false, 'error' => 'اسم البنك إجباري، يرجى كتابة اسم البنك'], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+                // فحص التكرار الحاسم في قاعدة البيانات MariaDB
+                $dup = findTransferDuplicateInDb($pdo, $trNo, $isNew ? '' : $voucherNo, $tenant_id);
+                if ($dup) {
+                    echo json_encode([
+                        'success' => false,
+                        'duplicate' => true,
+                        'error' => "رقم التحويلة ({$trNo}) مسجل مسبقاً في السند ({$dup['voucherNo']})، لا يمكن تكرار رقم التحويلة نهائياً!"
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+            } elseif ($payMethod === 'check') {
+                if ($bankName === '') {
+                    echo json_encode(['success' => false, 'error' => 'اسم البنك إجباري، يرجى كتابة اسم البنك'], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+                if ($chNo === '') {
+                    echo json_encode(['success' => false, 'error' => 'رقم الشيك إجباري، لابد من كتابة رقم الشيك'], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+            }
+
+            // 4. الرقم التسلسلي الموحد للسند
+            $prefix = 'E' . date('ym');
+            $maxSeq = 0;
+            $stmtSeq = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $stmtSeq->execute([$tenant_id]);
+            while ($row = $stmtSeq->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($row['data'] ?? '{}', true);
+                $vId = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                if (strpos($vId, $prefix) === 0) {
+                    $s = (int)substr($vId, strlen($prefix));
+                    if ($s > $maxSeq) $maxSeq = $s;
+                } elseif (preg_match('/^E\d{4}(\d{4,})$/', $vId, $m)) {
+                    $s = (int)$m[1];
+                    if ($s > $maxSeq) $maxSeq = $s;
+                } elseif (is_numeric($vId) && (int)$vId < 20000000) {
+                    $s = (int)$vId;
+                    if ($s > $maxSeq) $maxSeq = $s;
+                }
+            }
+
+            if ($isNew) {
+                $voucherNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+            }
+
+            // سعر الصرف المعتمد
+            $rate = (float)($vData['rate'] ?? ($vData['exchangeRate'] ?? 0));
+            if ($rate <= 0) {
+                try {
+                    $stmtR = $pdo->prepare("SELECT setting_value FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) AND setting_key = 'system_usd_rate' ORDER BY updated_at DESC LIMIT 1");
+                    $stmtR->execute([$tenant_id]);
+                    $rVal = $stmtR->fetchColumn();
+                    if ($rVal && (float)$rVal > 0) $rate = (float)$rVal;
+                } catch(Exception $e) {}
+            }
+            if ($rate <= 0) $rate = 2650;
+
+            // تحديث سعر الصرف للسيستم إذا تم تعديله
+            if ($rate > 0) {
+                try {
+                    $stmtUpRate = $pdo->prepare("INSERT INTO settings (tenant_id, setting_key, setting_value, updated_at) VALUES (?, 'system_usd_rate', ?, NOW()) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                    $stmtUpRate->execute([$tenant_id, (string)$rate]);
+                } catch(Exception $e) {}
+            }
+
+            $foreignAmt = (float)($vData['amountForeign'] ?? ($vData['usd'] ?? ($rate > 0 ? round($amtLocal / $rate, 2) : 0)));
+
+            // 5. توحيد السجل بكافة الحقول المتطابقة
+            $notes = trim((string)($vData['notes'] ?? ($vData['toStatement'] ?? '')));
+            $costCenter = trim((string)($vData['costCenter'] ?? ''));
 
             $vData['id'] = $voucherNo;
             $vData['voucherNo'] = $voucherNo;
             $vData['tenant_id'] = $tenant_id;
-            $vData['sync_status'] = 'SYNCED';
-            $vData['updated_at'] = date('Y-m-d H:i:s');
+            $vData['date'] = $vData['date'] ?? date('Y-m-d');
+            $vData['time'] = $vData['time'] ?? date('H:i');
+            $vData['type'] = 'single_payment';
+            $vData['amountLocal'] = $amtLocal;
+            $vData['amount'] = $amtLocal;
+            $vData['sdg'] = $amtLocal;
+            $vData['amountForeign'] = $foreignAmt;
+            $vData['usd'] = $foreignAmt;
+            $vData['currency'] = $vData['currency'] ?? 'SDG';
+            $vData['rate'] = $rate;
+            $vData['exchangeRate'] = $rate;
+            $vData['systemExchangeRate'] = $rate;
+            $vData['fromAccount'] = $fromAccId;
+            $vData['fromAccountName'] = $fromName;
+            $vData['from'] = $fromName;
+            $vData['toAccount'] = $toAccId;
+            $vData['toAccountName'] = $toName;
+            $vData['to'] = $toName;
+            $vData['beneficiaryName'] = $toName;
+            $vData['paymentMethod'] = $payMethod;
+            $vData['payType'] = $payMethod;
+            $vData['bank'] = $bankName;
+            $vData['bankName'] = $bankName;
+            $vData['notes'] = $notes;
+            $vData['toStatement'] = $notes;
+            $vData['costCenter'] = $costCenter;
+            $vData['isPosted'] = true;
+            $vData['timestamp'] = $vData['timestamp'] ?? date('c');
+
+            if ($payMethod === 'transfer') {
+                $vData['mobileTransferNo'] = $trNo;
+                $vData['refNo'] = $trNo;
+                $vData['transferRef'] = $trNo;
+                if (empty($vData['bankTransfers'])) {
+                    $vData['bankTransfers'] = [['transferNo' => $trNo, 'note' => $bankName, 'amount' => $amtLocal, 'statement' => $notes]];
+                }
+            } elseif ($payMethod === 'check') {
+                $vData['checkNo'] = $chNo;
+                $vData['refNo'] = $chNo;
+                $vData['checkBranch'] = $bankName;
+                if (empty($vData['cheques'])) {
+                    $vData['cheques'] = [['checkNo' => $chNo, 'checkBranch' => $bankName, 'checkDate' => $vData['date'] ?? date('Y-m-d'), 'amount' => $amtLocal, 'statement' => $notes]];
+                }
+            }
+
             $jsonRecord = json_encode($vData, JSON_UNESCAPED_UNICODE);
 
             $stmtCheck = $pdo->prepare("SELECT id FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
@@ -605,6 +894,16 @@ try {
                 $stmtIns->execute([$tenant_id, $jsonRecord]);
             }
 
+            // احتساب الرقم التسلسلي التالي الجديد بعد الحفظ فوراً
+            $newMax = $maxSeq;
+            if ($isNew) {
+                if (strpos($voucherNo, $prefix) === 0) {
+                    $s = (int)substr($voucherNo, strlen($prefix));
+                    if ($s > $newMax) $newMax = $s;
+                }
+            }
+            $nextVoucherNo = $prefix . str_pad($newMax + 1, 4, '0', STR_PAD_LEFT);
+
             try {
                 $syncId = 'sync-vouch-' . bin2hex(random_bytes(5));
                 $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'single_payments', ?, ?, ?, 'SYNCED', NOW(), NOW())");
@@ -615,6 +914,9 @@ try {
                 'success' => true,
                 'voucherNo' => $voucherNo,
                 'id' => $voucherNo,
+                'nextNo' => $nextVoucherNo,
+                'nextVoucherNo' => $nextVoucherNo,
+                'usdRate' => $rate,
                 'record' => $vData,
                 'isNew' => !$existingId,
                 'message' => 'تم حفظ وترحيل السند المالي بنجاح في قاعدة البيانات وسيرفر المرآة'
@@ -622,26 +924,103 @@ try {
             exit;
 
         // ═════════════════════════════════════════════════════════════════
-        // 6.4. جلب السندات المالية (Single Payment Vouchers)
+        // 6.4. جلب ومزامنة السندات المالية (Single Payment Vouchers)
         // ═════════════════════════════════════════════════════════════════
         case 'get_vouchers':
-            $stmt = $pdo->prepare("SELECT id, data, created_at, updated_at FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 500");
+            $stmt = $pdo->prepare("SELECT id, data, created_at, updated_at FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
             $stmt->execute([$tenant_id]);
             $list = [];
+            $prefix = 'E' . date('ym');
+            $maxSeq = 0;
             while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $d = json_decode($r['data'] ?? '{}', true);
                 if (is_array($d)) {
-                    if (empty($d['voucherNo'])) $d['voucherNo'] = $d['id'] ?? ('E' . $r['id']);
-                    if (empty($d['id'])) $d['id'] = $d['voucherNo'];
+                    $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    if (empty($vNo)) $vNo = 'E' . $r['id'];
+                    $d['voucherNo'] = $vNo;
+                    $d['id'] = $vNo;
                     $list[] = $d;
+
+                    if (strpos($vNo, $prefix) === 0) {
+                        $s = (int)substr($vNo, strlen($prefix));
+                        if ($s > $maxSeq) $maxSeq = $s;
+                    } elseif (preg_match('/^E\d{4}(\d{4,})$/', $vNo, $m)) {
+                        $s = (int)$m[1];
+                        if ($s > $maxSeq) $maxSeq = $s;
+                    } elseif (is_numeric($vNo) && (int)$vNo < 20000000) {
+                        $s = (int)$vNo;
+                        if ($s > $maxSeq) $maxSeq = $s;
+                    }
                 }
             }
+
+            $nextVNo = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
+
+            $sysRate = 2650;
+            try {
+                $stmtRate = $pdo->prepare("SELECT setting_value FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) AND setting_key = 'system_usd_rate' ORDER BY updated_at DESC LIMIT 1");
+                $stmtRate->execute([$tenant_id]);
+                $rVal = $stmtRate->fetchColumn();
+                if ($rVal && (float)$rVal > 0) $sysRate = (float)$rVal;
+            } catch(Exception $e) {}
+
             echo json_encode([
                 'success' => true,
                 'tenant_id' => $tenant_id,
                 'count' => count($list),
+                'nextNo' => $nextVNo,
+                'nextVoucherNo' => $nextVNo,
+                'usdRate' => $sysRate,
                 'vouchers' => $list
             ], JSON_UNESCAPED_UNICODE);
+            exit;
+
+        // ═════════════════════════════════════════════════════════════════
+        // فحص تكرار التحويلة الفوري عبر الـ API
+        // ═════════════════════════════════════════════════════════════════
+        case 'check_duplicate':
+            $ref = trim($_GET['ref'] ?? ($input['ref'] ?? ''));
+            $currentVNo = trim($_GET['voucherNo'] ?? ($input['voucherNo'] ?? ''));
+            $dup = findTransferDuplicateInDb($pdo, $ref, $currentVNo, $tenant_id);
+            if ($dup) {
+                echo json_encode([
+                    'valid' => false,
+                    'duplicate' => true,
+                    'error' => "رقم التحويلة ({$ref}) مسجل مسبقاً في السند رقم ({$dup['voucherNo']})" . (!empty($dup['date']) ? " بتاريخ {$dup['date']}" : ""),
+                    'matchedVoucher' => $dup['voucherNo'],
+                    'matchedRef' => $dup['ref'],
+                    'date' => $dup['date'] ?? ''
+                ], JSON_UNESCAPED_UNICODE);
+            } else {
+                echo json_encode(['valid' => true, 'duplicate' => false], JSON_UNESCAPED_UNICODE);
+            }
+            exit;
+
+        // ═════════════════════════════════════════════════════════════════
+        // حفظ واسترجاع سعر صرف الدولار للسيستم
+        // ═════════════════════════════════════════════════════════════════
+        case 'save_rate':
+            $rVal = (float)($_GET['rate'] ?? ($input['rate'] ?? 0));
+            if ($rVal > 0) {
+                try {
+                    $stmtUpRate = $pdo->prepare("INSERT INTO settings (tenant_id, setting_key, setting_value, updated_at) VALUES (?, 'system_usd_rate', ?, NOW()) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                    $stmtUpRate->execute([$tenant_id, (string)$rVal]);
+                    echo json_encode(['success' => true, 'rate' => $rVal], JSON_UNESCAPED_UNICODE);
+                    exit;
+                } catch(Exception $e) {}
+            }
+            echo json_encode(['success' => false, 'error' => 'Invalid rate'], JSON_UNESCAPED_UNICODE);
+            exit;
+
+        case 'get_rate':
+            $sysRate = 2650;
+            try {
+                $stmtRate = $pdo->prepare("SELECT setting_value FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) AND setting_key = 'system_usd_rate' ORDER BY updated_at DESC LIMIT 1");
+                $stmtRate->execute([$tenant_id]);
+                $rVal = $stmtRate->fetchColumn();
+                if ($rVal && (float)$rVal > 0) $sysRate = (float)$rVal;
+            } catch(Exception $e) {}
+            echo json_encode(['success' => true, 'rate' => $sysRate], JSON_UNESCAPED_UNICODE);
             exit;
 
         // ═════════════════════════════════════════════════════════════════

@@ -22,17 +22,63 @@ window.fetchNextMirrorVoucherNo = function() {
         .then(res => {
             if (res && res.success && res.formattedNextNo) {
                 window._latestMirrorVoucherNo = res.formattedNextNo;
-                const elVNo = document.getElementById('voucher-no');
-                if (elVNo && (!window.currentEditingVoucherId) && (!elVNo.value || elVNo.value.startsWith('E'))) {
-                    elVNo.value = res.formattedNextNo;
+                if (!window.currentEditingVoucherId && (typeof currentViewedIndex === 'undefined' || currentViewedIndex === -1)) {
+                    const elSpan = document.getElementById('voucher-number');
+                    if (elSpan) elSpan.innerText = res.formattedNextNo;
+                }
+                if (res.usdRate) {
+                    window.SYSTEM_USD_RATE = res.usdRate;
                 }
             }
         }).catch(() => {});
 };
 
+window.syncMirrorWithServer = function() {
+    fetch('api/mirror_api.php?action=get_vouchers')
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.success && Array.isArray(data.vouchers)) {
+                window.SERVER_SINGLE_PAYMENTS = data.vouchers;
+                if (data.usdRate) window.SYSTEM_USD_RATE = data.usdRate;
+                if (data.nextVoucherNo) window._latestMirrorVoucherNo = data.nextVoucherNo;
+
+                if (typeof singlePaymentsData !== 'undefined' && Array.isArray(singlePaymentsData)) {
+                    const map = new Map();
+                    singlePaymentsData.forEach(v => {
+                        const k = String(v.id || v.voucherNo || '');
+                        if (k) map.set(k, v);
+                    });
+                    data.vouchers.forEach(v => {
+                        const k = String(v.id || v.voucherNo || '');
+                        if (k) map.set(k, v);
+                    });
+                    singlePaymentsData = Array.from(map.values());
+                }
+
+                if (!window.currentEditingVoucherId && (typeof currentViewedIndex === 'undefined' || currentViewedIndex === -1)) {
+                    const elSpan = document.getElementById('voucher-number');
+                    if (elSpan && data.nextVoucherNo) {
+                        elSpan.innerText = data.nextVoucherNo;
+                    }
+                }
+            }
+        }).catch(() => {});
+};
+
+setInterval(() => {
+    if (document.visibilityState !== 'hidden') {
+        window.syncMirrorWithServer();
+    }
+}, 4000);
+
 window.addEventListener('focus', () => {
-    if (typeof window.fetchNextMirrorVoucherNo === 'function' && !window.currentEditingVoucherId) {
-        window.fetchNextMirrorVoucherNo();
+    if (typeof window.syncMirrorWithServer === 'function') {
+        window.syncMirrorWithServer();
+    }
+});
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && typeof window.syncMirrorWithServer === 'function') {
+        window.syncMirrorWithServer();
     }
 });
 /* ═══════════════════════════════════════════════════════
@@ -588,7 +634,14 @@ function setNextVoucherNumber() {
         }
     });
 
-    const nextNo = `${datePrefix}${String(max + 1).padStart(4, '0')}`;
+    let nextNo = `${datePrefix}${String(max + 1).padStart(4, '0')}`;
+    if (window._latestMirrorVoucherNo && window._latestMirrorVoucherNo.startsWith(datePrefix)) {
+        const mirrorSeq = parseInt(window._latestMirrorVoucherNo.substring(datePrefix.length), 10);
+        if (!isNaN(mirrorSeq) && mirrorSeq > max + 1) {
+            nextNo = window._latestMirrorVoucherNo;
+        }
+    }
+
     const vNumEl = document.getElementById('voucher-number');
     if (vNumEl) {
         vNumEl.innerText = nextNo;
@@ -832,7 +885,8 @@ function resetVoucherSilent() {
     if (typeof initPaymentContainers === 'function') initPaymentContainers();
 
     updateBalances();
-    // setNextVoucherNumber();
+    setNextVoucherNumber();
+    if (typeof window.fetchNextMirrorVoucherNo === 'function') window.fetchNextMirrorVoucherNo();
     updateLedgerButtons();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
     if (window.renderDocumentUserBadge) {
@@ -878,27 +932,29 @@ function renderVoucher(v) {
     let dt = v.date || (v.createdAt ? String(v.createdAt).split('T')[0] : '');
     if (dt && document.getElementById('hdr-date')) document.getElementById('hdr-date').value = dt;
     
-    let toAcc = v.toAccount || v.depositAccount || v.accountId || '';
-    let fromAcc = v.fromAccount || v.withdrawalAccount || v.cashSafe || v.mainAccount || 'safe-001';
+    let toAcc = v.toAccount || v.toAccountId || v.depositAccount || v.accountId || '';
+    let toAccName = v.toAccountName || v.beneficiaryName || v.recipient || (typeof getAccountName === 'function' ? getAccountName(toAcc) : '') || toAcc;
+    let fromAcc = v.fromAccount || v.fromAccountId || v.withdrawalAccount || v.cashSafe || v.mainAccount || 'safe-001';
+    let fromAccName = v.fromAccountName || (typeof getAccountName === 'function' ? getAccountName(fromAcc) : '') || fromAcc;
     
     if (document.getElementById('to-account')) document.getElementById('to-account').value = toAcc;
-    if (document.getElementById('to-account-search')) document.getElementById('to-account-search').value = getAccountName(toAcc) || toAcc;
+    if (document.getElementById('to-account-search')) document.getElementById('to-account-search').value = toAccName;
 
-    let amt = (v.amountLocal !== undefined && v.amountLocal !== null) ? v.amountLocal : (v.amount !== undefined ? v.amount : (v.totalAmount || 0));
+    let amt = (v.amountLocal !== undefined && v.amountLocal !== null) ? v.amountLocal : (v.amount !== undefined ? v.amount : (v.totalAmount || v.sdg || 0));
     if (document.getElementById('amount-local')) document.getElementById('amount-local').value = fmtNum(amt);
     if (document.getElementById('currency')) document.getElementById('currency').value = v.currency || 'SDG';
     
     let rate = v.rate || v.exchangeRate || 1.0;
     if (document.getElementById('exchange-rate')) document.getElementById('exchange-rate').value = rate;
     
-    let amtForeign = (v.amountForeign !== undefined && v.amountForeign !== null) ? v.amountForeign : (parseNum(amt) / parseNum(rate));
+    let amtForeign = (v.amountForeign !== undefined && v.amountForeign !== null) ? v.amountForeign : (v.usd !== undefined ? v.usd : (parseNum(amt) / parseNum(rate)));
     if (document.getElementById('amount-foreign')) document.getElementById('amount-foreign').value = fmtNum(amtForeign);
     
     if (document.getElementById('to-statement')) document.getElementById('to-statement').value = v.toStatement || v.statement || v.description || v.notes || '';
-    if (document.getElementById('beneficiary-name')) document.getElementById('beneficiary-name').value = v.beneficiaryName || v.beneficiary || '';
+    if (document.getElementById('beneficiary-name')) document.getElementById('beneficiary-name').value = v.beneficiaryName || toAccName || '';
     
     if (document.getElementById('from-account')) document.getElementById('from-account').value = fromAcc;
-    if (document.getElementById('from-account-search')) document.getElementById('from-account-search').value = getAccountName(fromAcc) || fromAcc;
+    if (document.getElementById('from-account-search')) document.getElementById('from-account-search').value = fromAccName;
     if (window.fromAccChoice) window.fromAccChoice.setChoiceByValue(fromAcc);
 
     const costCenterEl = document.getElementById('cost-center');
@@ -910,7 +966,9 @@ function renderVoucher(v) {
     if (document.getElementById('from-statement')) document.getElementById('from-statement').value = v.fromStatement || v.statement || v.description || '';
 
     // Set Payment Method
-    const method = v.paymentMethod || v.method || (v.cheques && v.cheques.length > 0 ? 'check' : (v.bankTransfers && v.bankTransfers.length > 0 ? 'mobile' : 'cash'));
+    let method = v.paymentMethod || v.method || (v.payType === 'transfer' ? 'mobile' : (v.payType === 'check' || v.payType === 'cheque' ? 'check' : (v.payType || (v.cheques && v.cheques.length > 0 ? 'check' : (v.bankTransfers && v.bankTransfers.length > 0 ? 'mobile' : 'cash')))));
+    if (method === 'transfer') method = 'mobile';
+    if (method === 'cheque') method = 'check';
     const methodEl = document.querySelector(`input[name="payment_method"][value="${method}"]`); 
     if (methodEl) { methodEl.checked = true; } 
     else { const firstMethod = document.querySelector(`input[name="payment_method"]`); if(firstMethod) firstMethod.checked = true; }
@@ -1158,6 +1216,10 @@ function submitVoucherInner() {
         showToast("يرجى اختيار حساب الدفع (الدافع)", "error");
         return;
     }
+    if (toAcc === fromAcc) {
+        showToast("لا يمكن أن يكون حساب الدفع مطابقاً لحساب المستفيد", "error");
+        return;
+    }
 
     const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
     if (!window.canCreateRecord(_docDateStr)) return;
@@ -1172,6 +1234,10 @@ function submitVoucherInner() {
     singlePaymentsData = (typeof window.getAllSinglePayments === 'function') ? window.getAllSinglePayments() : (singlePaymentsData || []);
     const oldVoucher = (currentViewedIndex !== -1 && singlePaymentsData && singlePaymentsData[currentViewedIndex]) ? singlePaymentsData[currentViewedIndex] : null;
 
+    const fromAccName = document.getElementById('from-account-search')?.value || (typeof getAccountName === 'function' ? getAccountName(fromAcc) : '') || fromAcc;
+    const toAccName = document.getElementById('to-account-search')?.value || (typeof getAccountName === 'function' ? getAccountName(toAcc) : '') || toAcc;
+    const beneficiaryName = document.getElementById('beneficiary-name')?.value || toAccName;
+
     const voucherData = {
         createdBy: oldVoucher?.createdBy || curUser.id,
         createdByName: oldVoucher?.createdByName || curUser.fullName || curUser.name,
@@ -1180,19 +1246,26 @@ function submitVoucherInner() {
         updatedByName: oldVoucher ? (curUser.fullName || curUser.name) : (oldVoucher?.updatedByName || null),
         updatedAt: oldVoucher ? new Date().toISOString() : (oldVoucher?.updatedAt || null),
         id: document.getElementById('voucher-number').innerText,
+        voucherNo: document.getElementById('voucher-number').innerText,
         date: document.getElementById('hdr-date').value,
         time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         type: 'single_payment',
+        payType: (method === 'mobile') ? 'transfer' : (method === 'check' ? 'check' : 'cash'),
         
         toAccount: toAcc,
+        toAccountName: toAccName,
+        beneficiaryName: beneficiaryName,
+        recipient: toAccName,
         amountLocal: amtLocal,
+        amount: amtLocal,
         currency: document.getElementById('currency').value,
-        rate: parseNum(document.getElementById('exchange-rate').value),
+        rate: parseNum(document.getElementById('exchange-rate').value) || window.SYSTEM_USD_RATE || 2650,
         amountForeign: parseNum(document.getElementById('amount-foreign').value),
         toStatement: document.getElementById('to-statement').value,
-        beneficiaryName: document.getElementById('beneficiary-name').value,
+        notes: document.getElementById('to-statement').value,
         
-        fromAccount: document.getElementById('from-account').value,
+        fromAccount: fromAcc,
+        fromAccountName: fromAccName,
         fromStatement: document.getElementById('from-statement').value,
         costCenter: document.getElementById('cost-center') ? document.getElementById('cost-center').value : '',
         
@@ -1238,22 +1311,21 @@ function submitVoucherInner() {
                 hasInvalidTransfer = true;
                 return;
             }
-            if (trNo.length < 3) {
-                showToast(`السطر ${idx + 1}: رقم التحويل قصير جداً (أقل من 3 أرقام)`, "error");
+            const cleanDigits = trNo.replace(/\D/g, '');
+            if (cleanDigits.length < 6) {
+                showToast(`السطر ${idx + 1}: رقم التحويلة قصير جداً! رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل`, "error");
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
             }
-            if (trNo.length < 6 && !_laptopShortTransferAllowed) {
-                showLengthWarningModal(trNo, () => {
-                    _laptopShortTransferAllowed = true;
-                    submitVoucher();
-                });
-                row.querySelector('.transfer-no').focus();
+            if (!trNote) {
+                showToast(`السطر ${idx + 1}: اسم البنك إجباري، يرجى كتابة أو اختيار اسم البنك للتحويلة`, "error");
+                row.querySelector('.transfer-note').focus();
                 hasInvalidTransfer = true;
                 return;
             }
             if (checkTransferDuplicate(trNo, document.getElementById('voucher-number').innerText)) {
+                showToast(`رقم التحويلة (${trNo}) مسجل مسبقاً في النظام ولا يمكن تكراره`, "error");
                 showDuplicateWarningModal(trNo);
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
@@ -1274,7 +1346,12 @@ function submitVoucherInner() {
         voucherData.bankTransfers = transfers;
         if (transfers.length > 0) {
             voucherData.mobileTransferNo = transfers[0].transferNo;
+            voucherData.transferRef = transfers[0].transferNo;
+            voucherData.refNo = transfers[0].transferNo;
             voucherData.mobileNote = transfers[0].note;
+            voucherData.bankName = transfers[0].note;
+            voucherData.bank = transfers[0].note;
+            voucherData.transferBank = transfers[0].note;
         }
     } else if (method === 'check') {
         const chContainer = document.getElementById('cheques-container');
@@ -1358,6 +1435,9 @@ function submitVoucherInner() {
         if (cheques.length > 0) {
             voucherData.checkNo = cheques[0].checkNo;
             voucherData.checkBranch = cheques[0].checkBranch;
+            voucherData.bankName = cheques[0].checkBranch;
+            voucherData.bank = cheques[0].checkBranch;
+            voucherData.refNo = cheques[0].checkNo;
             voucherData.checkDate = cheques[0].checkDate;
             voucherData.checkDueDate = '';
             voucherData.checkRef = '';
@@ -1651,10 +1731,14 @@ function submitVoucherInner() {
             }
             // مزامنة فورية مباشرة مع قاعدة البيانات MariaDB
             try {
-                fetch('single-cash-payment.php?api=save_voucher', {
+                fetch('api/mirror_api.php?action=save_voucher', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(voucherData)
+                }).then(r => r.json()).then(res => {
+                    if (res && res.success && (res.nextNo || res.nextVoucherNo)) {
+                        window._latestMirrorVoucherNo = res.nextNo || res.nextVoucherNo;
+                    }
                 }).catch(e => console.warn('[MariaDB Sync] Edit sync failed:', e));
             } catch(e) {}
         } else {
@@ -1679,10 +1763,14 @@ function submitVoucherInner() {
             }
             // مزامنة فورية مباشرة مع قاعدة البيانات MariaDB
             try {
-                fetch('single-cash-payment.php?api=save_voucher', {
+                fetch('api/mirror_api.php?action=save_voucher', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(voucherData)
+                }).then(r => r.json()).then(res => {
+                    if (res && res.success && (res.nextNo || res.nextVoucherNo)) {
+                        window._latestMirrorVoucherNo = res.nextNo || res.nextVoucherNo;
+                    }
                 }).catch(e => console.warn('[MariaDB Sync] Save sync failed:', e));
             } catch(e) {}
         }
@@ -3301,7 +3389,9 @@ window.syncFirstRowAmount = function() {
 };
 
 window.loadVoucherPaymentDetails = function(v) {
-    const method = v.paymentMethod || 'cash';
+    let method = v.paymentMethod || v.method || (v.payType === 'transfer' ? 'mobile' : (v.payType === 'check' || v.payType === 'cheque' ? 'check' : (v.payType || 'cash')));
+    if (method === 'transfer') method = 'mobile';
+    if (method === 'cheque') method = 'check';
     const transfersContainer = document.getElementById('transfers-container');
     const chequesContainer = document.getElementById('cheques-container');
     if (transfersContainer) transfersContainer.innerHTML = '';
@@ -3310,19 +3400,21 @@ window.loadVoucherPaymentDetails = function(v) {
     if (method === 'mobile' || method === 'hybrid') {
         if (v.bankTransfers && Array.isArray(v.bankTransfers) && v.bankTransfers.length > 0) {
             v.bankTransfers.forEach(tr => {
-                addTransferRow(tr.transferNo, tr.note, tr.amount, tr.statement || '');
+                addTransferRow(tr.transferNo || tr.refNo || '', tr.note || tr.bank || tr.bankName || '', tr.amount || v.amountLocal || 0, tr.statement || '');
             });
         } else {
-            addTransferRow(v.mobileTransferNo || '', v.mobileNote || '', v.amountLocal || 0, v.statement || '');
+            const trNo = v.mobileTransferNo || v.transferRef || v.refNo || '';
+            const trBank = v.mobileNote || v.bankName || v.bank || v.transferBank || '';
+            addTransferRow(trNo, trBank, v.amountLocal || v.sdg || v.amount || 0, v.statement || v.toStatement || v.notes || '');
         }
     }
     if (method === 'check' || method === 'hybrid') {
         if (v.cheques && Array.isArray(v.cheques) && v.cheques.length > 0) {
             v.cheques.forEach(ch => {
-                addChequeRow(ch.checkBranch, ch.checkNo, ch.checkDate, ch.amount, ch.statement || '');
+                addChequeRow(ch.checkBranch || ch.bank || ch.bankName || '', ch.checkNo || ch.refNo || '', ch.checkDate || v.date || '', ch.amount || v.amountLocal || 0, ch.statement || '');
             });
         } else {
-            addChequeRow(v.checkBranch || '', v.checkNo || '', v.checkDate || '', v.amountLocal || 0, v.statement || '');
+            addChequeRow(v.checkBranch || v.bankName || v.bank || '', v.checkNo || v.transferRef || v.refNo || '', v.checkDate || v.date || '', v.amountLocal || v.sdg || v.amount || 0, v.statement || v.toStatement || v.notes || '');
         }
     }
     if (method === 'cash') {

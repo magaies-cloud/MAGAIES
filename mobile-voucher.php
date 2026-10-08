@@ -574,8 +574,8 @@ PROMPT;
                 exit;
             }
             $cleanTrLen = strlen(preg_replace('/\D/', '', $transferRef) ?: $transferRef);
-            if ($cleanTrLen < 3) {
-                echo json_encode(['success' => false, 'error' => 'رقم التحويلة قصير جداً! يرجى التأكد من كتابة رقم التحويل بشكل صحيح.'], JSON_UNESCAPED_UNICODE);
+            if ($cleanTrLen < 6) {
+                echo json_encode(['success' => false, 'error' => 'رقم التحويلة قصير جداً (أقل من 6 أرقام)! يجب أن يتكون رقم التحويلة من 6 أرقام على الأقل.'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
             if (empty($bankName)) {
@@ -701,6 +701,14 @@ PROMPT;
                 $stmtUp->execute([$jsonRecord, $currentTenantId, $voucherNo, $voucherNo]);
             }
 
+            $rateVal = (float)($payload['rate'] ?? ($payload['usdRate'] ?? 0));
+            if ($rateVal > 0) {
+                try {
+                    $stmtUpRate = $pdo->prepare("INSERT INTO settings (tenant_id, setting_key, setting_value, updated_at) VALUES (?, 'system_usd_rate', ?, NOW()) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                    $stmtUpRate->execute([$currentTenantId, (string)$rateVal]);
+                } catch(Exception $e) {}
+            }
+
             // إرسال لطابور المزامنة التلقائية لضمان مطابقة اللابتوب
             try {
                 $syncId = 'sync-' . bin2hex(random_bytes(6));
@@ -708,9 +716,27 @@ PROMPT;
                 $stmtSync->execute([$syncId, $voucherNo, $isNew ? 'INSERT' : 'UPDATE', $jsonRecord]);
             } catch (Exception $es) {}
 
+            $prefix = 'E' . date('ym');
+            $newMax = 0;
+            $stmtN = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $stmtN->execute([$currentTenantId]);
+            while ($r = $stmtN->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true);
+                $v = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                if (strpos($v, $prefix) === 0) {
+                    $s = (int)substr($v, strlen($prefix));
+                    if ($s > $newMax) $newMax = $s;
+                }
+            }
+            $nextVNo = $prefix . str_pad($newMax + 1, 4, '0', STR_PAD_LEFT);
+
             echo json_encode([
                 'success' => true,
                 'voucherNo' => $voucherNo,
+                'id' => $voucherNo,
+                'nextNo' => $nextVNo,
+                'nextVoucherNo' => $nextVNo,
+                'usdRate' => $rateVal > 0 ? $rateVal : 2650,
                 'record' => $record,
                 'message' => 'تم حفظ وترحيل السند بنجاح في قاعدة البيانات MariaDB وسيرفر الكمبيوتر'
             ], JSON_UNESCAPED_UNICODE);
@@ -871,12 +897,21 @@ foreach ($accountsList as $al) {
     if ($cleanId) $accLookupHistory[$cleanId] = $al['name'];
 }
 
+$sysUsdRate = 2650;
 try {
-    $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
+    $stmtRate = $pdo->prepare("SELECT setting_value FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) AND setting_key = 'system_usd_rate' ORDER BY updated_at DESC LIMIT 1");
+    $stmtRate->execute([$currentTenantId]);
+    $rVal = $stmtRate->fetchColumn();
+    if ($rVal && (float)$rVal > 0) $sysUsdRate = (float)$rVal;
+} catch(Exception $e) {}
+
+try {
+    $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
     $stmtV->execute([$currentTenantId]);
     while ($row = $stmtV->fetch(PDO::FETCH_ASSOC)) {
         $d = json_decode($row['data'], true);
-        if ($d && !empty($d['voucherNo'])) {
+        $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+        if ($d && $vNo !== '') {
             $rawFrom = $d['fromAccount'] ?? '';
             $fromKey = is_array($rawFrom) ? ($rawFrom['id'] ?? ($rawFrom['name'] ?? '')) : (string)$rawFrom;
             $fromName = $d['fromAccountName'] ?? ($accLookupHistory[$fromKey] ?? $fromKey);
@@ -891,10 +926,11 @@ try {
             if (is_array($bankName)) $bankName = $bankName['name'] ?? '';
 
             $vouchersHistory[] = [
-                'id' => $d['voucherNo'],
+                'id' => $vNo,
+                'voucherNo' => $vNo,
                 'date' => $d['date'] ?? date('Y-m-d'),
                 'currency' => $d['currency'] ?? 'SDG',
-                'rate' => (float)($d['rate'] ?? 2650),
+                'rate' => (float)($d['rate'] ?? $sysUsdRate),
                 'costCenter' => is_array($d['costCenter'] ?? '') ? '' : ($d['costCenter'] ?? ''),
                 'sdg' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
                 'foreignAmt' => (float)($d['amountForeign'] ?? 0),
@@ -908,7 +944,7 @@ try {
                 'notes' => is_array($d['notes'] ?? null) ? '' : ($d['notes'] ?? ($d['toStatement'] ?? ''))
             ];
 
-            $vId = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+            $vId = $vNo;
             if (strpos($vId, $prefix) === 0) {
                 $s = (int)substr($vId, strlen($prefix));
                 if ($s > $maxSeq) $maxSeq = $s;
@@ -1026,6 +1062,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
     window.PHP_VOUCHERS = <?php echo json_encode($vouchersHistory, $mgJsonFlags); ?>;
     window.PHP_NEXT_NO = <?php echo json_encode($nextSequentialVoucherNo, $mgJsonFlags); ?>;
     window.DB_ALL_TRANSFER_REFS = <?php echo json_encode($allDbTransfersPreload, $mgJsonFlags); ?>;
+    window.SYSTEM_USD_RATE = <?php echo (float)$sysUsdRate; ?>;
 
     // ── اعتراض انتهاء الجلسة (401) لكل طلبات الـ API: رسالة واضحة بدل الحفظ الصامت أوفلاين ──
     (function () {
@@ -3326,7 +3363,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
         <!-- قيمة الدولار: زيادة درجة واحدة ومفخم بلوط عريض (19.5px - 20.5px / font-black 900) -->
         <div class="bg-slate-950 glow-border-emerald rounded-xl px-2 py-1 flex items-center gap-1 w-[108px] shrink-0 h-[44px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="قيمة الدولار من السيستم - كتابة مباشرة">
           <span class="text-emerald-400 font-mono text-base font-black shrink-0">$</span>
-          <input type="text" inputmode="numeric" pattern="[0-9]*" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-[19.5px] sm:text-[20.5px] focus:outline-none text-center cursor-text tracking-tight" style="font-weight: 900 !important; text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);" placeholder="2650" title="سعر صرف الدولار">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="usdRate" value="<?php echo (float)$sysUsdRate; ?>" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-[19.5px] sm:text-[20.5px] focus:outline-none text-center cursor-text tracking-tight" style="font-weight: 900 !important; text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);" placeholder="<?php echo (float)$sysUsdRate; ?>" title="سعر صرف الدولار">
           <i class="fa-solid fa-pen text-[8px] text-slate-500 group-hover:text-emerald-400 transition shrink-0"></i>
         </div>
 
@@ -8201,6 +8238,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       if (!rate || rate <= 0) rate = 2650;
       
       localStorage.setItem('magaiees_system_usd_rate', rate);
+      window.SYSTEM_USD_RATE = rate;
       
       if (vouchersList[currentIndex]) {
         vouchersList[currentIndex].rate = rate;
@@ -8209,6 +8247,9 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       calculateExchange('rate');
       updateTafqeet();
       updateAccountBalanceBadges();
+
+      fetch('api/mirror_api.php?action=save_rate&rate=' + encodeURIComponent(rate))
+        .catch(e => console.warn('Failed to sync rate to server', e));
 
       showToastNotification(`✓ تم تحديث سعر صرف الدولار في السيستم إلى (${rate.toLocaleString()}) ومزامنته فورياً مع شاشة الكمبيوتر!`);
     }
@@ -10350,17 +10391,17 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
         }
       }
 
-      // 3. فحص طول رقم التحويلة (السماح بالأرقام مثل 54016 و 5416 بعد التنبيه أو التأكيد)
+      // 3. فحص طول رقم التحويلة (يجب أن لا يقل عن 6 أرقام نهائياً)
       const digitsOnly = val.replace(/\D/g, '');
-      if (digitsOnly.length < 3) {
+      if (digitsOnly.length < 6) {
         if (isSaveAction) {
-          showToast("رقم التحويلة قصير جداً (أقل من 3 أرقام)", "error");
-          return false;
-        }
-      } else if (digitsOnly.length < 6 && !_shortTransferAllowed) {
-        if (isSaveAction) {
-          _wasAttemptingSave = true;
-          showLengthWarningModal(val);
+          showToast("رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل", "error");
+          const ti = document.getElementById('transferInput');
+          if (ti) {
+            ti.focus();
+            ti.classList.add('border-red-500');
+            setTimeout(() => ti.classList.remove('border-red-500'), 3500);
+          }
           return false;
         }
       }
@@ -10394,9 +10435,11 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
           }
 
           // 2. تحديث السندات الحقيقية من single_payments
+          const isAtNewVoucher = (currentIndex >= vouchersList.length);
           if (Array.isArray(data.vouchers) && data.vouchers.length > 0) {
             vouchersList = data.vouchers.map(v => ({
               id: v.id,
+              voucherNo: v.id,
               isOffline: false,
               date: v.date || new Date().toISOString().slice(0, 10),
               rate: v.rate || 2650,
@@ -10406,21 +10449,26 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
               usd: v.foreignAmt || 0,
               payType: v.payType || 'transfer',
               from: v.from || 'بنك الخرطوم',
+              fromName: v.fromName || v.from || 'بنك الخرطوم',
               to: v.to || 'المستفيد',
+              toName: v.toName || v.to || 'المستفيد',
               refNo: v.refNo || '',
               bankName: v.bankName || 'بنك الخرطوم',
               notes: v.notes || ''
             }));
-            currentIndex = vouchersList.length - 1;
+            if (isAtNewVoucher) {
+              currentIndex = vouchersList.length;
+            } else if (currentIndex >= vouchersList.length) {
+              currentIndex = vouchersList.length - 1;
+            }
           }
 
-          // 3. تحديث رقم السند القادم
+          // 3. تحديث رقم السند القادم فورياً كالمرآة
           if (data.nextVoucherNo) {
             window.PHP_NEXT_NO = data.nextVoucherNo;
-            const currentDisp = document.getElementById('currentVoucherDisplay')?.textContent || '';
-            if (!currentDisp || currentDisp.startsWith('#84') || currentDisp.startsWith('أوفلاين')) {
+            if (isAtNewVoucher) {
               const displayEl = document.getElementById('currentVoucherDisplay');
-              if (displayEl && currentIndex >= vouchersList.length) {
+              if (displayEl) {
                 displayEl.textContent = data.nextVoucherNo;
               }
             }
@@ -10673,17 +10721,27 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
         attachment: currentReceiptAttachment || null,
         date: document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10),
         rate: parseFloat(document.getElementById('usdRate').value) || 2650,
+        usdRate: parseFloat(document.getElementById('usdRate').value) || 2650,
         currency: currentCurrency || 'SDG',
         costCenter: document.getElementById('costCenterInput').value || '',
         paymentMethod: currentPayType,
+        payType: currentPayType,
         amountLocal: sdg,
         amountForeign: usd,
+        amount: sdg > 0 ? sdg : usd,
+        fromAccount: fromAccountName,
         fromAccountName: fromAccountName,
+        toAccount: toAccountName,
         toAccountName: toAccountName,
+        beneficiaryName: toAccountName,
         mobileTransferNo: transferVal,
+        transferRef: transferVal,
         refNo: transferVal,
         bankName: bankVal,
-        notes: document.getElementById('voucherNotes').value || ''
+        bank: bankVal,
+        transferBank: bankVal,
+        notes: document.getElementById('voucherNotes').value || '',
+        toStatement: document.getElementById('voucherNotes').value || ''
       };
 
       let savedId = '';
@@ -10702,6 +10760,9 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
             if (resData && resData.success) {
               isDbSuccess = true;
               savedId = resData.voucherNo;
+              if (resData.nextVoucherNo) {
+                window.PHP_NEXT_NO = resData.nextVoucherNo;
+              }
 
               const savedVoucher = {
                 id: savedId,

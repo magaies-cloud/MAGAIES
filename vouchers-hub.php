@@ -12,8 +12,10 @@ $preloadedVouchersJson = '[]';
 try {
     require_once __DIR__ . '/api/db.php';
     if (isset($pdo)) {
-        $stmtPay = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = 2 OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 200");
-        $stmtPay->execute();
+        $hubTenantId = 12;
+        if (!empty($GLOBAL_TENANT_ID)) $hubTenantId = (int)$GLOBAL_TENANT_ID;
+        $stmtPay = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 200");
+        $stmtPay->execute([$hubTenantId]);
         $pPay = [];
         while ($r = $stmtPay->fetch(PDO::FETCH_ASSOC)) {
             $d = json_decode($r['data'] ?? '{}', true);

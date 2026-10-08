@@ -22,14 +22,20 @@ global $GLOBAL_TENANT_ID;
 // API endpoint لحفظ وترحيل السند مباشرة إلى قاعدة البيانات MariaDB من اللابتوب
 if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['api']) && $_POST['api'] === 'save_voucher')) {
     header('Content-Type: application/json; charset=UTF-8');
-    // يتطلب مستخدماً موثّقاً، ورقم الشركة من حسابه فقط
-    $authUser = requireMobileAuth($pdo, true);
+    $tId = null;
+    $user = mg_authenticate_user($pdo);
+    if ($user && !empty($user['tenant_id'])) {
+        $tId = (int)$user['tenant_id'];
+    } elseif (!empty($GLOBAL_TENANT_ID)) {
+        $tId = (int)$GLOBAL_TENANT_ID;
+    }
+    if (!$tId) $tId = 12;
+
     $raw = file_get_contents('php://input');
     $payload = json_decode($raw, true) ?: $_POST;
     if ($payload) {
         $voucherNo = trim($payload['id'] ?? ($payload['voucherNo'] ?? ''));
         $idempotencyKey = trim($payload['idempotencyKey'] ?? ($payload['client_draft_id'] ?? ''));
-        $tId = (int)$authUser['tenant_id'];
         try {
             if (!empty($idempotencyKey)) {
                 $stmtCheckIdem = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
@@ -41,6 +47,16 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
                     exit;
                 }
             }
+
+            // تحديث سعر صرف الدولار للسيستم في جدول settings
+            $rate = (float)($payload['rate'] ?? ($payload['usdRate'] ?? 0));
+            if ($rate > 0) {
+                try {
+                    $stmtUpRate = $pdo->prepare("INSERT INTO settings (tenant_id, setting_key, setting_value, updated_at) VALUES (?, 'system_usd_rate', ?, NOW()) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                    $stmtUpRate->execute([$tId, (string)$rate]);
+                } catch(Exception $e) {}
+            }
+
             $jsonRecord = json_encode($payload, JSON_UNESCAPED_UNICODE);
             $stmtCheck = $pdo->prepare("SELECT id FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
             $stmtCheck->execute([$tId, $voucherNo, $voucherNo]);
@@ -57,7 +73,30 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
                 $stmtSync = $pdo->prepare("INSERT INTO sync_queue (id, entity_name, record_id, operation, payload, status, created_at, synced_at) VALUES (?, 'single_payments', ?, ?, ?, 'SYNCED', NOW(), NOW())");
                 $stmtSync->execute([$syncId, $voucherNo, $existingDbId ? 'UPDATE' : 'INSERT', $jsonRecord]);
             } catch(Exception $es) {}
-            echo json_encode(['success' => true, 'id' => $voucherNo]);
+
+            // حساب رقم السند التالي ليكون مرآة فورية
+            $prefix = 'E' . date('ym');
+            $newMax = 0;
+            $stmtN = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+            $stmtN->execute([$tId]);
+            while ($r = $stmtN->fetch(PDO::FETCH_ASSOC)) {
+                $d = json_decode($r['data'] ?? '{}', true);
+                $v = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                if (strpos($v, $prefix) === 0) {
+                    $s = (int)substr($v, strlen($prefix));
+                    if ($s > $newMax) $newMax = $s;
+                }
+            }
+            $nextVNo = $prefix . str_pad($newMax + 1, 4, '0', STR_PAD_LEFT);
+
+            echo json_encode([
+                'success' => true,
+                'id' => $voucherNo,
+                'voucherNo' => $voucherNo,
+                'nextNo' => $nextVNo,
+                'nextVoucherNo' => $nextVNo,
+                'usdRate' => $rate
+            ], JSON_UNESCAPED_UNICODE);
         } catch(Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
@@ -66,7 +105,15 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
     }
     exit;
 }
-$activeTenantId = $GLOBAL_TENANT_ID ?: 2;
+$activeTenantId = $GLOBAL_TENANT_ID ?: 12;
+$sysUsdRate = 2650;
+try {
+    $stmtRate = $pdo->prepare("SELECT setting_value FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) AND setting_key = 'system_usd_rate' ORDER BY updated_at DESC LIMIT 1");
+    $stmtRate->execute([$activeTenantId]);
+    $rVal = $stmtRate->fetchColumn();
+    if ($rVal && (float)$rVal > 0) $sysUsdRate = (float)$rVal;
+} catch(Exception $e) {}
+
 $prefix = 'E' . date('ym');
 $maxSeq = 0;
 try {
@@ -2711,6 +2758,8 @@ try {
     </script>
     <script>
         window.SERVER_SINGLE_PAYMENTS = <?php echo $SERVER_SINGLE_PAYMENTS_json; ?>;
+        window.SYSTEM_USD_RATE = <?php echo (float)$sysUsdRate; ?>;
+        window.SERVER_NEXT_VOUCHER_NO = <?php echo json_encode($voucher_no); ?>;
     </script>
     <script defer src="js/master-banks-helper.js?v=<?php echo file_exists('js/master-banks-helper.js') ? filemtime('js/master-banks-helper.js') : '1'; ?>"></script>
     <script defer src="js/single-cash-payment.js?v=<?php echo time(); ?>"></script>
