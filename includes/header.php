@@ -556,6 +556,12 @@
                 <span class="theme-btn-text">السمات</span>
                 <span class="theme-btn-badge">21</span>
             </button>
+
+            <!-- 📱 Mobile Edition Switcher Button in Header -->
+            <button class="desktop-mobile-switch-btn" type="button" onclick="switchToMobileEdition()" style="background:linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2)); border:1.5px solid #10b981; border-radius:12px; height:34px; padding:0 12px; display:inline-flex; align-items:center; gap:6px; cursor:pointer; color:#34d399; font-weight:800; font-size:0.75rem; text-decoration:none; transition:0.2s;" title="التبديل إلى نسخة الهاتف المحمول (الجوال)">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+                <span>نسخة الجوال 📱</span>
+            </button>
         </div>
 
         <!-- 📺 SACRED TV & QURAN MINI CONTROLLER (1cm x 2.5cm - Non-Obtrusive) -->
@@ -576,6 +582,15 @@
             <span class="back-btn-text">الرجوع للخلف</span>
         </button>
         <script>
+        if (!window.switchToMobileEdition) {
+            window.switchToMobileEdition = function() {
+                try {
+                    localStorage.setItem('magaiees_view_preference', 'mobile');
+                    document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
+                } catch(e) {}
+                window.location.href = 'mobile-dashboard.php?force_mobile=1';
+            };
+        }
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {

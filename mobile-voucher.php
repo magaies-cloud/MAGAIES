@@ -28,7 +28,12 @@ require_once __DIR__ . '/device_detector.php';
 
 // ── توجيه ذكي فوري: منع فتح شاشة الجوال على اللابتوب وتحويله لشاشة السندات المتكاملة ──
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !isset($_GET['api']) && !isset($_GET['action'])) {
-    if (isDeviceDesktopOrLaptop() && !isset($_GET['force_mobile']) && !isset($_GET['preview'])) {
+    if (isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1') {
+        setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
+        $_COOKIE['magaiees_view_preference'] = 'mobile';
+    }
+    $pref = $_COOKIE['magaiees_view_preference'] ?? '';
+    if ($pref !== 'mobile' && isDeviceDesktopOrLaptop() && !isset($_GET['force_mobile']) && !isset($_GET['preview'])) {
         $qs = !empty($_SERVER['QUERY_STRING']) ? ('?' . $_SERVER['QUERY_STRING']) : '';
         header("Location: vouchers-hub.php{$qs}");
         exit;
@@ -980,7 +985,15 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
   (function enforceLaptopVoucherGate() {
     try {
       var params = new URLSearchParams(window.location.search);
-      if (params.get('force_mobile') === '1' || params.get('preview') === '1') return;
+      if (params.get('force_mobile') === '1' || params.get('preview') === '1') {
+        try {
+          localStorage.setItem('magaiees_view_preference', 'mobile');
+          document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
+        } catch(e) {}
+        return;
+      }
+      var pref = localStorage.getItem('magaiees_view_preference') || (document.cookie.match(/(?:^|;\s*)magaiees_view_preference=([^;]+)/) || [])[1];
+      if (pref === 'mobile') return;
 
       var ua = navigator.userAgent || '';
       var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
@@ -998,6 +1011,13 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       }
     } catch(e) {}
   })();
+  window.switchToDesktopEdition = function(targetUrl) {
+    try {
+      localStorage.setItem('magaiees_view_preference', 'desktop');
+      document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
+    } catch(e) {}
+    window.location.href = targetUrl || 'magaiees_unified_dashboard.php?force_desktop=1';
+  };
   </script>
   <script>
     <?php $mgJsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT; ?>
@@ -3604,6 +3624,20 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
         <div id="mediaToast" class="hidden p-2 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-[10px] text-emerald-200 items-center justify-between transition-all">
           <span id="mediaToastText">⚡ تم التفريغ الفوري في كسر من الثانية!</span>
           <span class="font-mono text-emerald-400 font-black">AI Turbo OCR ✓</span>
+        </div>
+      </div>
+
+      <!-- 💻 التبديل إلى نسخة اللابتوب والديسك توب للمعاينة والمراجعة (بناءً على طلب المستخدم) -->
+      <div class="pt-4 pb-2 px-1 text-center">
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="switchToDesktopEdition('vouchers-hub.php?force_desktop=1')" class="flex-1 py-2.5 px-2 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:bg-slate-800 text-sky-300 font-black rounded-xl border border-sky-500/50 shadow-md flex items-center justify-center gap-1.5 text-[11px] sm:text-xs transition active:scale-98 cursor-pointer" title="الانتقال إلى شاشة السندات باللابتوب للمعاينة">
+            <i class="fa-solid fa-laptop text-xs text-sky-400"></i>
+            <span>🖥️ سندات اللابتوب (معاينة)</span>
+          </button>
+          <button type="button" onclick="switchToDesktopEdition('magaiees_unified_dashboard.php?force_desktop=1')" class="flex-1 py-2.5 px-2 bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 hover:bg-slate-800 text-purple-300 font-black rounded-xl border border-purple-500/50 shadow-md flex items-center justify-center gap-1.5 text-[11px] sm:text-xs transition active:scale-98 cursor-pointer" title="الانتقال إلى لوحة تحكم اللابتوب والديسك توب للمراجعة">
+            <i class="fa-solid fa-desktop text-xs text-purple-400"></i>
+            <span>💻 نسخة اللابتوب والديسك توب</span>
+          </button>
         </div>
       </div>
 
