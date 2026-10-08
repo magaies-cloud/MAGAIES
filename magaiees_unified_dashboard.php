@@ -173,7 +173,7 @@ function switchToMobileEdition() {
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(15px); }
-            to { opacity: 1; transform: translateY(0); }
+            to { opacity: 1; transform: none; }
         }
 
         /* Athkar Ticker */
@@ -265,7 +265,7 @@ function switchToMobileEdition() {
             border-radius: 10px !important;
             min-height: 44px !important;
         }
-        .kpi-title { color: #ffffff !important; font-size: 0.74rem !important; font-weight: 800 !important; letter-spacing: 0.2px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .kpi-title { color: var(--kpi-title-color, rgba(255, 255, 255, 0.95)); font-size: 0.74rem !important; font-weight: 800 !important; letter-spacing: 0.2px; }
         .kpi-icon-bg { padding: 2px 5px !important; border-radius: 6px !important; }
         .kpi-icon-bg span { font-size: 0.75rem !important; }
         .kpi-val { margin:0 !important; font-size:0.80rem !important; font-weight:800; font-family: 'Outfit', 'Tajawal', sans-serif; line-height: 1.1 !important; }
@@ -992,6 +992,230 @@ function switchToMobileEdition() {
             border-color: rgba(0, 0, 0, 0.18) !important;
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06) !important;
         }
+
+        /* ═════════════════════════════════════════════════════════════════
+           🌟 21 THEMES UNIFIED DASHBOARD HIGH-CONTRAST ENGINE
+           ═════════════════════════════════════════════════════════════════ */
+        html.light-theme,
+        body.light-theme,
+        html[data-theme="warm-alabaster"],
+        html[data-theme="pure-platinum"],
+        html[data-theme="beige"],
+        html[data-theme="ivory"],
+        html[data-theme="offwhite"],
+        html[data-theme="light-linen"],
+        html[data-theme="pearl-platinum"],
+        html[data-theme="nordic-paper"],
+        html[data-theme="ultra_white"],
+        html[data-theme="warm_cream"],
+        html[data-theme="exec_gray"] {
+            --bg-color: #f8fafc;
+            --surface: #ffffff;
+            --surface-hover: #f1f5f9;
+            --border: rgba(0, 0, 0, 0.1);
+            --border-highlight: rgba(0, 0, 0, 0.2);
+            --text-primary: #0f172a;
+            --text-secondary: #334155;
+            --kpi-title-color: #0f172a;
+        }
+
+        html.light-theme body,
+        body.light-theme,
+        html[data-theme="warm-alabaster"] body,
+        html[data-theme="pure-platinum"] body,
+        html[data-theme="beige"] body,
+        html[data-theme="ivory"] body,
+        html[data-theme="offwhite"] body,
+        html[data-theme="light-linen"] body,
+        html[data-theme="pearl-platinum"] body,
+        html[data-theme="nordic-paper"] body {
+            background-color: var(--bg-color, #f8fafc) !important;
+            color: #0f172a !important;
+        }
+
+        /* 1. Eliminate dark ambient background orbs completely in light themes */
+        html.light-theme .ambient-bg,
+        body.light-theme .ambient-bg,
+        html[data-theme="warm-alabaster"] .ambient-bg,
+        html[data-theme="pure-platinum"] .ambient-bg,
+        html[data-theme="beige"] .ambient-bg,
+        html[data-theme="ivory"] .ambient-bg,
+        html[data-theme="offwhite"] .ambient-bg,
+        html[data-theme="light-linen"] .ambient-bg,
+        html[data-theme="pearl-platinum"] .ambient-bg,
+        html[data-theme="nordic-paper"] .ambient-bg {
+            display: none !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+        }
+
+        /* 2. Glass panels: pure white, clean borders, high contrast */
+        html.light-theme .glass-panel,
+        body.light-theme .glass-panel,
+        html.light-theme #qa-bar-container,
+        html.light-theme #category-hubs-container,
+        html.light-theme #dashboard-scope-filter-bar,
+        html[data-theme="warm-alabaster"] .glass-panel,
+        html[data-theme="pure-platinum"] .glass-panel,
+        html[data-theme="beige"] .glass-panel,
+        html[data-theme="ivory"] .glass-panel,
+        html[data-theme="offwhite"] .glass-panel,
+        html[data-theme="light-linen"] .glass-panel,
+        html[data-theme="pearl-platinum"] .glass-panel,
+        html[data-theme="nordic-paper"] .glass-panel {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.1) !important;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+            color: #0f172a !important;
+        }
+
+        html.light-theme .glass-panel h3,
+        body.light-theme .glass-panel h3,
+        html.light-theme .glass-panel h4,
+        body.light-theme .glass-panel h4,
+        html[data-theme="warm-alabaster"] .glass-panel h3,
+        html[data-theme="pure-platinum"] .glass-panel h3 {
+            color: #0f172a !important;
+            text-shadow: none !important;
+        }
+
+        /* 3. KPI Titles & Values in Light Themes */
+        html.light-theme .kpi-title,
+        body.light-theme .kpi-title,
+        html[data-theme="warm-alabaster"] .kpi-title,
+        html[data-theme="pure-platinum"] .kpi-title,
+        html[data-theme="beige"] .kpi-title,
+        html[data-theme="ivory"] .kpi-title,
+        html[data-theme="offwhite"] .kpi-title,
+        html[data-theme="light-linen"] .kpi-title,
+        html[data-theme="pearl-platinum"] .kpi-title,
+        html[data-theme="nordic-paper"] .kpi-title {
+            color: #0f172a !important;
+            text-shadow: none !important;
+            font-weight: 900 !important;
+        }
+
+        /* 4. Quick Actions & Category Buttons in Light Themes */
+        html.light-theme .qa-master-btn,
+        body.light-theme .qa-master-btn,
+        html[data-theme="warm-alabaster"] .qa-master-btn,
+        html[data-theme="pure-platinum"] .qa-master-btn {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.12) !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+        }
+        html.light-theme .qa-master-btn .btn-text,
+        body.light-theme .qa-master-btn .btn-text,
+        html[data-theme="warm-alabaster"] .qa-master-btn .btn-text,
+        html[data-theme="pure-platinum"] .qa-master-btn .btn-text {
+            color: #0f172a !important;
+            text-shadow: none !important;
+        }
+        html.light-theme .hub-action-btn,
+        body.light-theme .hub-action-btn,
+        html[data-theme="warm-alabaster"] .hub-action-btn,
+        html[data-theme="pure-platinum"] .hub-action-btn {
+            background: #ffffff !important;
+            border-color: rgba(0, 0, 0, 0.12) !important;
+            color: #0f172a !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04) !important;
+        }
+        html.light-theme .hub-action-btn:hover,
+        body.light-theme .hub-action-btn:hover {
+            background: #f1f5f9 !important;
+            border-color: #0284c7 !important;
+            color: #0284c7 !important;
+        }
+
+        /* 5. Floating Popovers & Lists in Light Themes */
+        html.light-theme #category-dropdown-popover,
+        html.light-theme #screens-dropdown-menu,
+        body.light-theme #category-dropdown-popover,
+        body.light-theme #screens-dropdown-menu,
+        html.light-theme .floating-popover-panel,
+        html[data-theme="warm-alabaster"] .floating-popover-panel,
+        html[data-theme="pure-platinum"] .floating-popover-panel {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.16) !important;
+            color: #0f172a !important;
+        }
+        html.light-theme #screens-search-input,
+        body.light-theme #screens-search-input {
+            background: #f8fafc !important;
+            border: 1.5px solid #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+        html.light-theme #screens-search-input::placeholder,
+        body.light-theme #screens-search-input::placeholder {
+            color: #64748b !important;
+        }
+        html.light-theme .screen-popover-item,
+        html.light-theme .cat-popover-item,
+        body.light-theme .screen-popover-item,
+        body.light-theme .cat-popover-item {
+            background: #f8fafc !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #0f172a !important;
+        }
+        html.light-theme .screen-popover-item:hover,
+        html.light-theme .cat-popover-item:hover,
+        body.light-theme .screen-popover-item:hover,
+        body.light-theme .cat-popover-item:hover {
+            background: #f1f5f9 !important;
+            border-color: #38bdf8 !important;
+        }
+        html.light-theme .screen-popover-item .screen-title,
+        html.light-theme .cat-popover-item .cat-item-title,
+        body.light-theme .screen-popover-item .screen-title,
+        body.light-theme .cat-popover-item .cat-item-title {
+            color: #0f172a !important;
+            text-shadow: none !important;
+        }
+
+        /* 6. Premium Tables in Light Themes */
+        html.light-theme .premium-table th,
+        body.light-theme .premium-table th {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+            font-weight: 800 !important;
+        }
+        html.light-theme .premium-table td,
+        body.light-theme .premium-table td {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border-color: #e2e8f0 !important;
+            font-weight: 700 !important;
+        }
+        html.light-theme .premium-table tr:hover td,
+        body.light-theme .premium-table tr:hover td {
+            background: #f8fafc !important;
+        }
+
+        /* 7. Scope Filter Bar */
+        html.light-theme .scope-btn,
+        body.light-theme .scope-btn {
+            background: #f8fafc !important;
+            color: #334155 !important;
+            border-color: #cbd5e1 !important;
+        }
+        html.light-theme .scope-btn.active,
+        body.light-theme .scope-btn.active {
+            background: #2563eb !important;
+            color: #ffffff !important;
+            border-color: #2563eb !important;
+        }
+
+        /* 8. Modals in Light Themes */
+        html.light-theme .modal-overlay .glass-panel,
+        body.light-theme .modal-overlay .glass-panel {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border: 1.5px solid #cbd5e1 !important;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25) !important;
+        }
     
 </style>
     
@@ -1048,22 +1272,6 @@ function switchToMobileEdition() {
                         <span class="btn-text" style="color: #fff;">الشاشات</span>
                         <i class="fa-solid fa-chevron-down" id="screens-chevron" style="font-size: 0.75rem; transition: transform 0.3s ease; color: #c084fc;"></i>
                     </button>
-
-                    <!-- Mobile Dashboard Switcher Button -->
-                    <button onclick="switchToMobileEdition()" class="qa-master-btn" style="--btn-border-color: #10b981; --btn-glow-color: rgba(16, 185, 129, 0.6); background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.2)) !important; border-bottom: 3.5px solid #10b981 !important; min-width: 145px;" title="التبديل إلى نسخة الموبايل والتابلت السريعة">
-                        <span class="qa-icon" style="background: rgba(16, 185, 129, 0.3); border: 1px solid #10b981; color: #34d399;">
-                            <i class="fa-solid fa-mobile-screen-button"></i>
-                        </span>
-                        <span class="btn-text" style="color: #34d399; font-weight:800;">نسخة الهاتف 📱</span>
-                    </button>
-
-                    <!-- PWA Install Button for Desktop / Laptop -->
-                    <button onclick="if(window.PWAManager && PWAManager.triggerInstall){PWAManager.triggerInstall();}else{alert('لتثبيت تطبيق مقاييس: اضغط على أيقونة التثبيت ⊕ في شريط عنوان المتصفح بالأعلى');}" class="qa-master-btn" style="--btn-border-color: #38bdf8; --btn-glow-color: rgba(56, 189, 248, 0.6); background: linear-gradient(135deg, rgba(14, 165, 233, 0.25), rgba(99, 102, 241, 0.2)) !important; border-bottom: 3.5px solid #38bdf8 !important; min-width: 145px;" title="تثبيت تطبيق مقاييس على جهازك كبرنامج مستقل">
-                        <span class="qa-icon" style="background: rgba(14, 165, 233, 0.3); border: 1px solid #38bdf8; color: #38bdf8;">
-                            <i class="fa-solid fa-download"></i>
-                        </span>
-                        <span class="btn-text" style="color: #38bdf8; font-weight:800;">تثبيت التطبيق 📲</span>
-                    </button>
                 </div>
             </div>
 
@@ -1074,7 +1282,7 @@ function switchToMobileEdition() {
         </div>
 
         <!-- Categorized Navigation Hub Bar ("تجميع حسب الاختصاصات") -->
-        <div class="glass-panel" id="category-hubs-container" style="padding: 14px 18px; border-radius: 18px; border: 1.5px solid rgba(56, 189, 248, 0.25); background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.8)); margin-bottom: 14px; position: relative;">
+        <div class="glass-panel" id="category-hubs-container" style="padding: 14px 18px; border-radius: 18px; border: 1.5px solid var(--border-color, rgba(56, 189, 248, 0.25)); background: var(--surface); margin-bottom: 14px; position: relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
                 <div style="font-weight: 900; font-size: 0.9rem; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-layer-group text-sky-400" style="font-size: 1.1rem;"></i> الشاشات والتقارير مجمعة حسب الاختصاص والقطاع 📂
@@ -1089,7 +1297,7 @@ function switchToMobileEdition() {
         </div>
 
         <!-- Floating Popover Container for Domain Dropdowns -->
-        <div id="category-dropdown-popover" style="display: none; position: fixed; width: 380px; max-width: 94vw; background: #070a12 !important; border: 2px solid #38bdf8; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(56, 189, 248, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
+        <div id="category-dropdown-popover" class="floating-popover-panel" style="display: none; position: fixed; width: 380px; max-width: 94vw; border: 2px solid #38bdf8; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(56, 189, 248, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.12);">
                 <div id="cat-popover-title" style="font-size: 0.95rem; font-weight: 900; color: #38bdf8; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-briefcase"></i> قائمة الاختصاص
@@ -1104,7 +1312,7 @@ function switchToMobileEdition() {
         </div>
 
         <!-- 100% OPAQUE Floating Popover Menu for Uncustomized Screens (Zero Transparency, Covers Top Bar) -->
-        <div id="screens-dropdown-menu" style="display: none; position: fixed; width: 500px; max-width: 96vw; background: #070a12 !important; border: 2px solid #a855f7; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(168, 85, 247, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
+        <div id="screens-dropdown-menu" class="floating-popover-panel" style="display: none; position: fixed; width: 500px; max-width: 96vw; border: 2px solid #a855f7; border-radius: 18px; box-shadow: 0 25px 95px rgba(0,0,0,0.99), 0 0 45px rgba(168, 85, 247, 0.55); z-index: 999999; padding: 14px; direction: rtl;">
             <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.12);">
                 <div style="font-size: 0.98rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 8px;">
                     <i class="fa-solid fa-desktop" style="font-size: 1.1rem; color: #a855f7;"></i> بقية الشاشات (غير المخصصة)
@@ -1139,7 +1347,7 @@ function switchToMobileEdition() {
         </div>
 
         <!-- Global Date Scope Filter Bar -->
-        <div class="glass-panel" style="padding: 10px 16px; margin-bottom: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(56, 189, 248, 0.25);">
+        <div class="glass-panel" id="dashboard-scope-filter-bar" style="padding: 10px 16px; margin-bottom: 15px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; background: var(--surface); border: 1px solid var(--border-color, rgba(56, 189, 248, 0.25));">
             <div style="display: flex; align-items: center; gap: 8px;">
                 <i class="fa-solid fa-calendar-days text-sky-400" style="font-size: 1.1rem;"></i>
                 <span style="font-size: 0.9rem; font-weight: 800; color: #fff;">نطاق التقرير والتحليلات:</span>
@@ -1158,7 +1366,7 @@ function switchToMobileEdition() {
             <!-- 1. Sales KPI (Title changes dynamically with scope) -->
             <div class="glass-panel spotlight-card neon-border-primary" style="padding: 5px 10px !important; border-radius: 10px !important;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span id="kpi-sales-title" class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">إجمالي المبيعات</span>
+                    <span id="kpi-sales-title" class="kpi-title" style="font-size: 0.74rem; font-weight: 800;">إجمالي المبيعات</span>
                     <div class="kpi-icon-bg" style="background: rgba(59, 130, 246, 0.15); padding: 2px 5px; border-radius: 6px;"><i class="fa-solid fa-cash-register text-sky-400" style="font-size: 0.75rem;"></i></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px;">
@@ -1170,7 +1378,7 @@ function switchToMobileEdition() {
             <!-- 2. Vault Cash Liquidity -->
             <div class="glass-panel spotlight-card neon-border-success" style="padding: 5px 10px !important; border-radius: 10px !important;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">سيولة الصندوق</span>
+                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800;">سيولة الصندوق</span>
                     <div class="kpi-icon-bg" style="background: rgba(16, 185, 129, 0.15); padding: 2px 5px; border-radius: 6px;"><span style="font-size: 0.75rem;">💵</span></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px;">
@@ -1182,7 +1390,7 @@ function switchToMobileEdition() {
             <!-- 3. Total Liquidity (Cash + Bank) -->
             <div class="glass-panel spotlight-card neon-border-success" style="padding: 5px 10px !important; border-radius: 10px !important;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">إجمالي السيولة</span>
+                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800;">إجمالي السيولة</span>
                     <div class="kpi-icon-bg" style="background: rgba(16, 185, 129, 0.15); padding: 2px 5px; border-radius: 6px;"><span style="font-size: 0.75rem;">💰</span></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px;">
@@ -1194,7 +1402,7 @@ function switchToMobileEdition() {
             <!-- 4. Current Month Profit -->
             <div class="glass-panel spotlight-card neon-border-purple" style="padding: 5px 10px !important; border-radius: 10px !important;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">أرباح النطاق الجاري</span>
+                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800;">أرباح النطاق الجاري</span>
                     <div class="kpi-icon-bg" style="background: rgba(168, 85, 247, 0.15); padding: 2px 5px; border-radius: 6px;"><i class="fa-solid fa-arrow-trend-up text-purple-400" style="font-size: 0.75rem;"></i></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px;">
@@ -1206,7 +1414,7 @@ function switchToMobileEdition() {
             <!-- 5. Total Inventory -->
             <div class="glass-panel spotlight-card neon-border-warning" style="padding: 5px 10px !important; border-radius: 10px !important;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">إجمالي المخزون</span>
+                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800;">إجمالي المخزون</span>
                     <div class="kpi-icon-bg" style="background: rgba(245, 158, 11, 0.15); padding: 2px 5px; border-radius: 6px;"><i class="fa-solid fa-warehouse text-amber-400" style="font-size: 0.75rem;"></i></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px;">
@@ -1218,7 +1426,7 @@ function switchToMobileEdition() {
             <!-- 6. Inventory Alerts -->
             <div class="glass-panel spotlight-card neon-border-danger" style="padding: 5px 10px !important; border-radius: 10px !important;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800; color: #ffffff !important;">تنبيهات المخزون</span>
+                    <span class="kpi-title" style="font-size: 0.74rem; font-weight: 800;">تنبيهات المخزون</span>
                     <div class="kpi-icon-bg" style="background: rgba(248, 113, 113, 0.15); padding: 2px 5px; border-radius: 6px;"><i class="fa-solid fa-triangle-exclamation text-rose-400" style="font-size: 0.75rem;"></i></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-top: 2px;">

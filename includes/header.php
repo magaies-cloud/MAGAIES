@@ -6,6 +6,12 @@
 <script src="js/permissions-manager.js"></script>
 <script src="js/audit-tracker.js?v=20260927"></script>
 <script>
+    window.magaieesDeferredInstallPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e) {
+        e.preventDefault();
+        window.magaieesDeferredInstallPrompt = e;
+    });
+
     // ═══════════════════════════════════════════════════════════════════
     // 🛡️ الحماية المطلقة الشاملة لمنع ظهور رسالة المتصفح (Leave Site) نهائياً
     // ═══════════════════════════════════════════════════════════════════
@@ -279,6 +285,61 @@
         padding: 10px !important;
         border-radius: 16px !important;
     }
+/* 🌟 2-Tier Stacked Controls Cluster (فوق بعض) */
+.header-action-cluster {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    justify-content: center;
+}
+.header-cluster-top-row,
+.header-cluster-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.desktop-theme-palette-btn {
+    height: 29px !important;
+    padding: 0 10px !important;
+    font-size: 0.78rem !important;
+    border-radius: 9px !important;
+    gap: 5px !important;
+    white-space: nowrap !important;
+}
+.desktop-theme-palette-btn .theme-btn-badge {
+    padding: 1px 5px !important;
+    font-size: 0.65rem !important;
+}
+.desktop-mobile-switch-btn {
+    height: 29px !important;
+    padding: 0 10px !important;
+    font-size: 0.75rem !important;
+    border-radius: 9px !important;
+    gap: 5px !important;
+    white-space: nowrap !important;
+}
+.desktop-mobile-switch-btn:hover {
+    transform: translateY(-2px);
+    border-color: #10b981 !important;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(6, 182, 212, 0.35)) !important;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4) !important;
+    color: #a7f3d0 !important;
+}
+
+.desktop-pwa-install-btn {
+    height: 29px !important;
+    padding: 0 10px !important;
+    font-size: 0.75rem !important;
+    border-radius: 9px !important;
+    gap: 5px !important;
+    white-space: nowrap !important;
+}
+.desktop-pwa-install-btn:hover {
+    transform: translateY(-2px);
+    border-color: #38bdf8 !important;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.35), rgba(99, 102, 241, 0.35)) !important;
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4) !important;
+    color: #e0f2fe !important;
 }
 
 .header-tv-mini-btn {
@@ -286,9 +347,10 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    height: 34px;
-    padding: 4px 12px;
-    border-radius: 12px;
+    height: 29px !important;
+    padding: 0 12px !important;
+    font-size: 0.76rem !important;
+    border-radius: 9px !important;
     background: linear-gradient(135deg, rgba(30, 20, 50, 0.85), rgba(15, 23, 42, 0.95));
     border: 1.5px solid rgba(192, 132, 252, 0.4);
     color: #f8fafc;
@@ -533,7 +595,7 @@
                 </span>
             </div>
         </div>
-        <!-- Theme & Currency -->
+        <!-- Theme & Actions Area: Mini Controls + 2-Tier Stacked Actions (فوق بعض) -->
         <div style="display:flex; align-items:center; gap:8px;">
             <?php
             $current_page_name = basename($_SERVER['PHP_SELF']);
@@ -544,44 +606,80 @@
             <?php endif; ?>
 
             <!-- Mini Utility Controls: Audit Tracker & Fullscreen & Quick Theme Toggle -->
-            <div style="display:flex; align-items:center; gap:5px;">
-                <button class="audit-tracker-btn" type="button" onclick="window.openAuditTrackerModal()" style="background:rgba(56,189,248,0.18); border:1.5px solid rgba(56,189,248,0.4); border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.95rem; color:#38bdf8; transition:0.2s; box-shadow:0 0 8px rgba(56,189,248,0.2);" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
-                <button class="fullscreen-toggle-btn" type="button" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.05rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
-                <button class="theme-toggle-btn" type="button" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل السمة السريع (فاتح/داكن)">🌓</button>
+            <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;">
+                <div style="display:flex; align-items:center; gap:4px;">
+                    <button class="audit-tracker-btn" type="button" onclick="window.openAuditTrackerModal()" style="background:rgba(56,189,248,0.18); border:1.5px solid rgba(56,189,248,0.4); border-radius:50%; width:29px; height:29px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.85rem; color:#38bdf8; transition:0.2s; box-shadow:0 0 8px rgba(56,189,248,0.2);" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
+                    <button class="fullscreen-toggle-btn" type="button" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:29px; height:29px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.95rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
+                    <button class="theme-toggle-btn" type="button" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:29px; height:29px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.92rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل السمة السريع (فاتح/داكن)">🌓</button>
+                </div>
             </div>
 
-            <!-- 🎨 Standout Luxury Theme Switcher Button (Desktop & Laptop) -->
-            <button class="desktop-theme-palette-btn" id="header-desktop-theme-btn" type="button" onclick="openDesktopThemePaletteModal()" title="مصفوفة سمات النظام وراحة العين (21 سمة علمية معتمدة)">
-                <span class="theme-btn-icon">🎨</span>
-                <span class="theme-btn-text">السمات</span>
-                <span class="theme-btn-badge">21</span>
-            </button>
+            <!-- 🌟 2-Tier Stacked Action Controls Cluster (الأزرار فوق بعض: صف علوي وتحته صف سفلي) -->
+            <div class="header-action-cluster" style="display:flex; flex-direction:column; gap:5px; justify-content:center;">
+                
+                <!-- Tier 1: الصف العلوي (فوق): سمات | نسخة الجوال | تثبيت التطبيق -->
+                <div class="header-cluster-top-row" style="display:flex; align-items:center; gap:5px;">
+                    <!-- 🎨 زر السمات -->
+                    <button class="desktop-theme-palette-btn" id="header-desktop-theme-btn" type="button" onclick="openDesktopThemePaletteModal()" title="مصفوفة سمات النظام وراحة العين (21 سمة علمية معتمدة)">
+                        <span class="theme-btn-icon">🎨</span>
+                        <span class="theme-btn-text">السمات</span>
+                        <span class="theme-btn-badge">21</span>
+                    </button>
 
-            <!-- 📱 Mobile Edition Switcher Button in Header -->
-            <button class="desktop-mobile-switch-btn" type="button" onclick="switchToMobileEdition()" style="background:linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2)); border:1.5px solid #10b981; border-radius:12px; height:34px; padding:0 12px; display:inline-flex; align-items:center; gap:6px; cursor:pointer; color:#34d399; font-weight:800; font-size:0.75rem; text-decoration:none; transition:0.2s;" title="التبديل إلى نسخة الهاتف المحمول (الجوال)">
-                <i class="fa-solid fa-mobile-screen-button"></i>
-                <span>نسخة الجوال 📱</span>
-            </button>
+                    <!-- 📱 زر نسخة الجوال -->
+                    <button class="desktop-mobile-switch-btn" type="button" onclick="switchToMobileEdition()" style="background:linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2)); border:1.5px solid #10b981; border-radius:9px; height:29px; padding:0 10px; display:inline-flex; align-items:center; gap:5px; cursor:pointer; color:#34d399; font-weight:800; font-size:0.75rem; text-decoration:none; transition:0.2s; white-space:nowrap;" title="التبديل إلى نسخة الهاتف المحمول (الجوال)">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <span>نسخة الجوال 📱</span>
+                    </button>
+
+                    <!-- 📲 زر تثبيت التطبيق -->
+                    <button class="desktop-pwa-install-btn" id="header-desktop-install-btn" type="button" onclick="magaieesTriggerInstall()" style="background:linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(99, 102, 241, 0.2)); border:1.5px solid #38bdf8; border-radius:9px; height:29px; padding:0 10px; display:inline-flex; align-items:center; gap:5px; cursor:pointer; color:#38bdf8; font-weight:800; font-size:0.75rem; text-decoration:none; transition:0.2s; white-space:nowrap;" title="تثبيت تطبيق مقاييس على جهازك كبرنامج مستقل">
+                        <i class="fa-solid fa-download"></i>
+                        <span>تثبيت التطبيق 📲</span>
+                    </button>
+                </div>
+
+                <!-- Tier 2: الصف السفلي (تحته): التلفاز | الرجوع للخلف -->
+                <div class="header-cluster-bottom-row" style="display:flex; align-items:center; gap:5px;">
+                    <!-- 📺 SACRED TV & QURAN MINI CONTROLLER -->
+                    <div id="header-media-control-wrap" style="position:relative; display:flex; align-items:center; flex:1;">
+                        <button id="header-media-btn" type="button" onclick="toggleHeaderMediaPopover(event)" class="header-tv-mini-btn" style="width:100%; height:29px; padding:0 12px; font-size:0.76rem; border-radius:9px; justify-content:center; display:flex; align-items:center; gap:5px;" title="قنوات التلفاز والقرآن الكريم (بث حي في الخلفية)">
+                            <span id="header-media-icon" class="header-tv-icon">📺</span>
+                            <span id="header-media-label" class="header-tv-label">التلفاز</span>
+                            <span id="header-media-dot" class="header-tv-status-dot" style="display: none;"></span>
+                        </button>
+                    </div>
+
+                    <!-- ↩️ زر الرجوع للخلف (رويو) -->
+                    <button id="magaiees-master-back-btn" class="magaiees-back-btn" onclick="magaieesGoBack()" style="flex:1; height:29px; padding:0 12px; font-size:0.76rem; border-radius:9px; margin:0 !important; justify-content:center; display:flex; align-items:center; gap:5px;" title="الرجوع للخلف (الشاشة السابقة)">
+                        <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="width:14px; height:14px;">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 19 12 12 5"></polyline>
+                        </svg>
+                        <span class="back-btn-text">الرجوع للخلف</span>
+                    </button>
+                </div>
+
+            </div>
         </div>
-
-        <!-- 📺 SACRED TV & QURAN MINI CONTROLLER (1cm x 2.5cm - Non-Obtrusive) -->
-        <div id="header-media-control-wrap" style="position:relative; display:flex; align-items:center;">
-            <button id="header-media-btn" type="button" onclick="toggleHeaderMediaPopover(event)" class="header-tv-mini-btn" title="قنوات التلفاز والقرآن الكريم (بث حي في الخلفية)">
-                <span id="header-media-icon" class="header-tv-icon">📺</span>
-                <span id="header-media-label" class="header-tv-label">التلفاز</span>
-                <span id="header-media-dot" class="header-tv-status-dot" style="display: none;"></span>
-            </button>
-        </div>
-
-        <!-- Universal Go Back Master Button (Amber-Gold Luxury) -->
-        <button id="magaiees-master-back-btn" class="magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
-            <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 19 12 12 5"></polyline>
-            </svg>
-            <span class="back-btn-text">الرجوع للخلف</span>
-        </button>
         <script>
+        if (!window.magaieesTriggerInstall) {
+            window.magaieesTriggerInstall = function() {
+                if (window.magaieesDeferredInstallPrompt) {
+                    window.magaieesDeferredInstallPrompt.prompt();
+                    window.magaieesDeferredInstallPrompt.userChoice.then(function(choiceResult) {
+                        if (choiceResult.outcome === 'accepted') {
+                            try { localStorage.setItem('magaiees_pwa_installed', '1'); } catch (e) {}
+                        }
+                        window.magaieesDeferredInstallPrompt = null;
+                    });
+                } else if (window.PWAManager && typeof PWAManager.triggerInstall === 'function') {
+                    PWAManager.triggerInstall();
+                } else {
+                    alert('لتثبيت تطبيق مقاييس كبرنامج مستقل على جهازك:\n- اضغط على أيقونة التثبيت (⊕ أو تثبيت) في شريط عنوان المتصفح بالأعلى');
+                }
+            };
+        }
         if (!window.switchToMobileEdition) {
             window.switchToMobileEdition = function() {
                 try {
@@ -643,10 +741,19 @@
         ];
 
         function openDesktopThemePaletteModal() {
-            const modal = document.getElementById('desktopThemePaletteModal');
+            let modal = document.getElementById('desktopThemePaletteModal');
             if (!modal) return;
+            if (modal.parentElement !== document.body) {
+                document.body.appendChild(modal);
+            }
             modal.style.display = 'flex';
+            modal.style.position = 'fixed';
+            modal.style.inset = '0';
+            modal.style.width = '100vw';
+            modal.style.height = '100vh';
+            modal.style.zIndex = '2147483647';
             document.body.style.overflow = 'hidden';
+            filterDesktopThemeCategory('all');
             highlightActiveDesktopThemeCard();
         }
 
@@ -702,23 +809,35 @@
             window.setUniversalTheme(themeKey, showToast);
         }
 
+        window.openDesktopThemePaletteModal = openDesktopThemePaletteModal;
+        window.closeDesktopThemePaletteModal = closeDesktopThemePaletteModal;
+        window.applyDesktopTheme = applyDesktopTheme;
+        window.filterDesktopThemeCategory = filterDesktopThemeCategory;
+
         window.setUniversalTheme = function(themeKey, showToast = true) {
             if (!themeKey) return;
             const aliasMap = {
-                'light': 'ultra_white',
-                'white': 'ultra_white',
-                'dark': 'midnight_obsidian',
-                'navy': 'midnight_obsidian',
-                'midnight': 'pure_oled',
-                'oled': 'pure_oled',
-                'cream': 'warm_cream',
-                'solar': 'solar_contrast',
-                'forest': 'slate_twilight'
+                'light': 'pure-platinum',
+                'white': 'pure-platinum',
+                'ultra_white': 'pure-platinum',
+                'warm_cream': 'warm-alabaster',
+                'cream': 'warm-alabaster',
+                'exec_gray': 'pearl-platinum',
+                'solar': 'sunlight-titanium',
+                'solar_contrast': 'sunlight-titanium',
+                'dark': 'midnight-executive',
+                'midnight_obsidian': 'midnight-executive',
+                'slate_twilight': 'midnight-executive',
+                'pure_oled': 'midnight',
+                'oled': 'midnight',
+                'navy': 'navy-kohl',
+                'forest': 'emerald-forest',
+                'theme-imperial': 'warm-alabaster'
             };
             if (aliasMap[themeKey]) themeKey = aliasMap[themeKey];
+            if (!DESKTOP_THEME_NAMES[themeKey]) themeKey = 'warm-alabaster';
 
-            let themeObj = window.MASTER_THEMES.find(t => t.key === themeKey);
-            const isLight = DESKTOP_LIGHT_THEMES.indexOf(themeKey) !== -1 || (themeObj && themeObj.isLight);
+            const isLight = DESKTOP_LIGHT_THEMES.indexOf(themeKey) !== -1;
 
             document.documentElement.setAttribute('data-theme', themeKey);
             if (document.body) document.body.setAttribute('data-theme', themeKey);
@@ -743,6 +862,7 @@
                 localStorage.setItem('magaies_active_theme', themeKey);
                 localStorage.setItem('magaiees_mobile_theme', themeKey);
                 localStorage.setItem('magaiees_theme', themeKey);
+                localStorage.setItem('magaiees_global_theme', themeKey);
                 localStorage.setItem('erp_theme', isLight ? 'light' : 'dark');
                 document.cookie = "magaies_active_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
                 document.cookie = "magaiees_mobile_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
@@ -751,6 +871,8 @@
             } catch(e) {}
 
             highlightActiveDesktopThemeCard();
+
+            const themeObj = (window.MASTER_THEMES && window.MASTER_THEMES.find(t => t.key === themeKey)) || null;
 
             const btn = document.querySelector('.theme-toggle-btn');
             if (btn) {
@@ -864,13 +986,13 @@
 
         <!-- Filter Tabs -->
         <div class="desktop-theme-filter-row">
-            <button type="button" class="desktop-theme-tab-btn active-tab" data-cat="recommended" onclick="filterDesktopThemeCategory('recommended')">
-                <span>🌟 الموصى بها</span>
-                <span class="desktop-tab-count">4</span>
-            </button>
-            <button type="button" class="desktop-theme-tab-btn" data-cat="all" onclick="filterDesktopThemeCategory('all')">
+            <button type="button" class="desktop-theme-tab-btn active-tab" data-cat="all" onclick="filterDesktopThemeCategory('all')">
                 <span>الكل</span>
                 <span class="desktop-tab-count">21</span>
+            </button>
+            <button type="button" class="desktop-theme-tab-btn" data-cat="recommended" onclick="filterDesktopThemeCategory('recommended')">
+                <span>🌟 الموصى بها</span>
+                <span class="desktop-tab-count">4</span>
             </button>
             <button type="button" class="desktop-theme-tab-btn" data-cat="light" onclick="filterDesktopThemeCategory('light')">
                 <span>☀️ الفاتحة والعاجي</span>

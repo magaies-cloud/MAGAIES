@@ -58,8 +58,17 @@ if (file_exists(__DIR__ . '/db_bridge.php')) {
 }
 
 // Detect active theme from cookie or default to midnight_obsidian
-$activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? 'midnight_obsidian';
-$validThemes = ['ultra_white', 'warm_cream', 'exec_gray', 'solar_contrast', 'slate_twilight', 'midnight_obsidian', 'pure_oled', 'midnight', 'solar', 'navy', 'forest'];
+$activeTheme = $_COOKIE['magaiees_mobile_theme'] ?? $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_theme'] ?? 'midnight_obsidian';
+$validThemes = [
+    'warm-alabaster', 'pure-platinum', 'midnight-executive', 'obsidian-charcoal',
+    'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper',
+    'navy-kohl', 'royal-blue', 'ocean-navy', 'petrol-cyan', 'twilight-indigo',
+    'midnight', 'sepia-brown', 'pale-gold', 'emerald-forest', 'desert-mocha',
+    'sunlight-titanium',
+    // Legacy aliases
+    'ultra_white', 'warm_cream', 'exec_gray', 'solar_contrast', 'slate_twilight',
+    'midnight_obsidian', 'pure_oled', 'solar', 'navy', 'forest'
+];
 if (!in_array($activeTheme, $validThemes)) {
     $activeTheme = 'midnight_obsidian';
 }
@@ -1045,6 +1054,304 @@ try {
         html[data-theme="solar_contrast"] .radar-card {
             border-width: 2px !important;
             border-color: #000000 !important;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════
+           🎨 21 WCAG AAA SCIENTIFIC THEMES SPECIFICATION FOR MOBILE
+           ═════════════════════════════════════════════════════════════════ */
+        
+        /* 1. WARM ALABASTER */
+        html[data-theme="warm-alabaster"], body[data-theme="warm-alabaster"] {
+            --bg-base: #f6f0e6; --surface-1: #fbf7ee; --surface-2: #ede3d2; --surface-card: #ffffff;
+            --border-glass: rgba(139, 111, 78, 0.2); --border-card: #d9cdbd; --primary: #8b6f4e;
+            --emerald: #15803d; --amber: #b45309; --rose: #b91c1c; --purple: #7e22ce;
+            --text-main: #1c1917; --text-muted: #57534e; --header-bg: #f6f0e6; --nav-bg: #f6f0e6;
+            --sheet-bg: #ffffff; --input-bg: #fbf7ee; --input-border: #d9cdbd; --input-color: #1c1917;
+            --pill-bg: #ede3d2; --pill-active-bg: #8b6f4e; --pill-active-text: #ffffff;
+            --grand-color: #15803d; --grand-sub: #16a34a; --shadow-card: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        /* 2. PURE PLATINUM */
+        html[data-theme="pure-platinum"], body[data-theme="pure-platinum"] {
+            --bg-base: #eef2f6; --surface-1: #f8fafc; --surface-2: #e2e8f0; --surface-card: #ffffff;
+            --border-glass: rgba(100, 116, 139, 0.2); --border-card: #cbd5e1; --primary: #2563eb;
+            --emerald: #059669; --amber: #d97706; --rose: #e11d48; --purple: #7c3aed;
+            --text-main: #0f172a; --text-muted: #475569; --header-bg: #eef2f6; --nav-bg: #eef2f6;
+            --sheet-bg: #ffffff; --input-bg: #f8fafc; --input-border: #cbd5e1; --input-color: #0f172a;
+            --pill-bg: #e2e8f0; --pill-active-bg: #2563eb; --pill-active-text: #ffffff;
+            --grand-color: #059669; --grand-sub: #10b981; --shadow-card: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        /* 3. BEIGE */
+        html[data-theme="beige"], body[data-theme="beige"] {
+            --bg-base: #f5ebe0; --surface-1: #fcf8f2; --surface-2: #ede0cf; --surface-card: #ffffff;
+            --border-glass: rgba(180, 83, 9, 0.18); --border-card: #d6c5b0; --primary: #b45309;
+            --emerald: #15803d; --amber: #c2410c; --rose: #b91c1c; --purple: #7e22ce;
+            --text-main: #23190e; --text-muted: #786b59; --header-bg: #f5ebe0; --nav-bg: #f5ebe0;
+            --sheet-bg: #ffffff; --input-bg: #fcf8f2; --input-border: #d6c5b0; --input-color: #23190e;
+            --pill-bg: #ede0cf; --pill-active-bg: #b45309; --pill-active-text: #ffffff;
+            --grand-color: #15803d; --grand-sub: #22c55e; --shadow-card: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        /* 4. IVORY */
+        html[data-theme="ivory"], body[data-theme="ivory"] {
+            --bg-base: #faf7f0; --surface-1: #ffffff; --surface-2: #f3ede2; --surface-card: #ffffff;
+            --border-glass: rgba(120, 80, 40, 0.15); --border-card: #ded6c3; --primary: #d97706;
+            --emerald: #059669; --amber: #b45309; --rose: #dc2626; --purple: #9333ea;
+            --text-main: #1c1813; --text-muted: #736b5e; --header-bg: #faf7f0; --nav-bg: #faf7f0;
+            --sheet-bg: #ffffff; --input-bg: #fcfbf7; --input-border: #ded6c3; --input-color: #1c1813;
+            --pill-bg: #f3ede2; --pill-active-bg: #d97706; --pill-active-text: #ffffff;
+            --grand-color: #059669; --grand-sub: #10b981; --shadow-card: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        /* 5. OFFWHITE */
+        html[data-theme="offwhite"], body[data-theme="offwhite"] {
+            --bg-base: #f9fafb; --surface-1: #ffffff; --surface-2: #f3f4f6; --surface-card: #ffffff;
+            --border-glass: rgba(0, 0, 0, 0.12); --border-card: #d1d5db; --primary: #2563eb;
+            --emerald: #059669; --amber: #d97706; --rose: #dc2626; --purple: #7c3aed;
+            --text-main: #111827; --text-muted: #4b5563; --header-bg: #f9fafb; --nav-bg: #f9fafb;
+            --sheet-bg: #ffffff; --input-bg: #ffffff; --input-border: #d1d5db; --input-color: #111827;
+            --pill-bg: #f3f4f6; --pill-active-bg: #2563eb; --pill-active-text: #ffffff;
+            --grand-color: #059669; --grand-sub: #10b981; --shadow-card: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        /* 6. LIGHT LINEN */
+        html[data-theme="light-linen"], body[data-theme="light-linen"] {
+            --bg-base: #ede7dc; --surface-1: #f7f4ee; --surface-2: #e3dbc9; --surface-card: #ffffff;
+            --border-glass: rgba(77, 124, 15, 0.2); --border-card: #cfc5b3; --primary: #4d7c0f;
+            --emerald: #15803d; --amber: #b45309; --rose: #b91c1c; --purple: #7e22ce;
+            --text-main: #211f1a; --text-muted: #6b6355; --header-bg: #ede7dc; --nav-bg: #ede7dc;
+            --sheet-bg: #ffffff; --input-bg: #f7f4ee; --input-border: #cfc5b3; --input-color: #211f1a;
+            --pill-bg: #e3dbc9; --pill-active-bg: #4d7c0f; --pill-active-text: #ffffff;
+            --grand-color: #15803d; --grand-sub: #16a34a; --shadow-card: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        /* 7. PEARL PLATINUM */
+        html[data-theme="pearl-platinum"], body[data-theme="pearl-platinum"] {
+            --bg-base: #e9ecef; --surface-1: #f8fafc; --surface-2: #dee2e6; --surface-card: #ffffff;
+            --border-glass: rgba(15, 23, 42, 0.12); --border-card: #cbd3dc; --primary: #0284c7;
+            --emerald: #059669; --amber: #d97706; --rose: #e11d48; --purple: #7c3aed;
+            --text-main: #0f172a; --text-muted: #475569; --header-bg: #e9ecef; --nav-bg: #e9ecef;
+            --sheet-bg: #ffffff; --input-bg: #f8fafc; --input-border: #cbd3dc; --input-color: #0f172a;
+            --pill-bg: #dee2e6; --pill-active-bg: #0284c7; --pill-active-text: #ffffff;
+            --grand-color: #059669; --grand-sub: #10b981; --shadow-card: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        /* 8. NORDIC PAPER */
+        html[data-theme="nordic-paper"], body[data-theme="nordic-paper"] {
+            --bg-base: #f0f4f8; --surface-1: #ffffff; --surface-2: #e1e7ee; --surface-card: #ffffff;
+            --border-glass: rgba(14, 116, 144, 0.16); --border-card: #cbd5e1; --primary: #0e7490;
+            --emerald: #059669; --amber: #d97706; --rose: #e11d48; --purple: #6d28d9;
+            --text-main: #0c1a24; --text-muted: #475569; --header-bg: #f0f4f8; --nav-bg: #f0f4f8;
+            --sheet-bg: #ffffff; --input-bg: #ffffff; --input-border: #cbd5e1; --input-color: #0c1a24;
+            --pill-bg: #e1e7ee; --pill-active-bg: #0e7490; --pill-active-text: #ffffff;
+            --grand-color: #059669; --grand-sub: #10b981; --shadow-card: 0 4px 16px rgba(0,0,0,0.05);
+        }
+
+        /* 9. MIDNIGHT EXECUTIVE */
+        html[data-theme="midnight-executive"], body[data-theme="midnight-executive"] {
+            --bg-base: #0b0f17; --surface-1: #111827; --surface-2: #1e293b; --surface-card: #131b2a;
+            --border-glass: rgba(56, 189, 248, 0.25); --border-card: #1e293b; --primary: #38bdf8;
+            --emerald: #10b981; --amber: #f59e0b; --rose: #f43f5e; --purple: #818cf8;
+            --text-main: #f1f5f9; --text-muted: #94a3b8; --header-bg: rgba(11, 15, 23, 0.95);
+            --nav-bg: rgba(11, 15, 23, 0.96); --sheet-bg: #0f172a; --input-bg: #1e293b;
+            --input-border: rgba(56, 189, 248, 0.3); --input-color: #ffffff; --pill-bg: #1e293b;
+            --pill-active-bg: #38bdf8; --pill-active-text: #0b0f17; --grand-color: #38bdf8;
+            --grand-sub: #7dd3fc; --shadow-card: 0 8px 30px rgba(0,0,0,0.6);
+        }
+
+        /* 10. NAVY KOHL */
+        html[data-theme="navy-kohl"], body[data-theme="navy-kohl"] {
+            --bg-base: #080c14; --surface-1: #0e1524; --surface-2: #17223b; --surface-card: #0f1829;
+            --border-glass: rgba(96, 165, 250, 0.25); --border-card: rgba(96, 165, 250, 0.3);
+            --primary: #60a5fa; --emerald: #34d399; --amber: #fbbf24; --rose: #f87171;
+            --purple: #a78bfa; --text-main: #f8fafc; --text-muted: #94a3b8; --header-bg: #080c14;
+            --nav-bg: #080c14; --sheet-bg: #0e1524; --input-bg: #17223b;
+            --input-border: rgba(96, 165, 250, 0.3); --input-color: #ffffff; --pill-bg: #17223b;
+            --pill-active-bg: #60a5fa; --pill-active-text: #080c14; --grand-color: #60a5fa;
+            --grand-sub: #93c5fd; --shadow-card: 0 8px 30px rgba(0,0,0,0.7);
+        }
+
+        /* 11. ROYAL BLUE */
+        html[data-theme="royal-blue"], body[data-theme="royal-blue"] {
+            --bg-base: #0a1128; --surface-1: #101d42; --surface-2: #1c2e63; --surface-card: #12214d;
+            --border-glass: rgba(79, 140, 255, 0.28); --border-card: rgba(79, 140, 255, 0.35);
+            --primary: #4f8cff; --emerald: #10b981; --amber: #f59e0b; --rose: #f43f5e;
+            --purple: #c084fc; --text-main: #f0f4ff; --text-muted: #a0aec0; --header-bg: #0a1128;
+            --nav-bg: #0a1128; --sheet-bg: #101d42; --input-bg: #1c2e63;
+            --input-border: rgba(79, 140, 255, 0.35); --input-color: #ffffff; --pill-bg: #1c2e63;
+            --pill-active-bg: #4f8cff; --pill-active-text: #ffffff; --grand-color: #4f8cff;
+            --grand-sub: #93c5fd; --shadow-card: 0 8px 30px rgba(0,0,0,0.7);
+        }
+
+        /* 12. OCEAN NAVY */
+        html[data-theme="ocean-navy"], body[data-theme="ocean-navy"] {
+            --bg-base: #061826; --surface-1: #0b253a; --surface-2: #123856; --surface-card: #0d2b44;
+            --border-glass: rgba(56, 189, 248, 0.25); --border-card: rgba(56, 189, 248, 0.3);
+            --primary: #38bdf8; --emerald: #2dd4bf; --amber: #fbbf24; --rose: #fb7185;
+            --purple: #818cf8; --text-main: #f0fdf4; --text-muted: #94a3b8; --header-bg: #061826;
+            --nav-bg: #061826; --sheet-bg: #0b253a; --input-bg: #123856;
+            --input-border: rgba(56, 189, 248, 0.3); --input-color: #ffffff; --pill-bg: #123856;
+            --pill-active-bg: #38bdf8; --pill-active-text: #061826; --grand-color: #2dd4bf;
+            --grand-sub: #5eead4; --shadow-card: 0 8px 30px rgba(0,0,0,0.7);
+        }
+
+        /* 13. PETROL CYAN */
+        html[data-theme="petrol-cyan"], body[data-theme="petrol-cyan"] {
+            --bg-base: #061e24; --surface-1: #0c2e36; --surface-2: #144450; --surface-card: #0e343d;
+            --border-glass: rgba(45, 212, 191, 0.25); --border-card: rgba(45, 212, 191, 0.3);
+            --primary: #2dd4bf; --emerald: #34d399; --amber: #f59e0b; --rose: #f43f5e;
+            --purple: #a78bfa; --text-main: #f0fdfa; --text-muted: #99f6e4; --header-bg: #061e24;
+            --nav-bg: #061e24; --sheet-bg: #0c2e36; --input-bg: #144450;
+            --input-border: rgba(45, 212, 191, 0.3); --input-color: #ffffff; --pill-bg: #144450;
+            --pill-active-bg: #2dd4bf; --pill-active-text: #061e24; --grand-color: #2dd4bf;
+            --grand-sub: #5eead4; --shadow-card: 0 8px 30px rgba(0,0,0,0.7);
+        }
+
+        /* 14. TWILIGHT INDIGO */
+        html[data-theme="twilight-indigo"], body[data-theme="twilight-indigo"] {
+            --bg-base: #0e0e24; --surface-1: #161638; --surface-2: #212152; --surface-card: #1a1a42;
+            --border-glass: rgba(129, 140, 248, 0.25); --border-card: rgba(129, 140, 248, 0.32);
+            --primary: #818cf8; --emerald: #34d399; --amber: #fbbf24; --rose: #f87171;
+            --purple: #c084fc; --text-main: #f5f3ff; --text-muted: #c7d2fe; --header-bg: #0e0e24;
+            --nav-bg: #0e0e24; --sheet-bg: #161638; --input-bg: #212152;
+            --input-border: rgba(129, 140, 248, 0.32); --input-color: #ffffff; --pill-bg: #212152;
+            --pill-active-bg: #818cf8; --pill-active-text: #0e0e24; --grand-color: #818cf8;
+            --grand-sub: #a5b4fc; --shadow-card: 0 8px 30px rgba(0,0,0,0.7);
+        }
+
+        /* 15. OBSIDIAN CHARCOAL */
+        html[data-theme="obsidian-charcoal"], body[data-theme="obsidian-charcoal"] {
+            --bg-base: #121214; --surface-1: #1a1a1e; --surface-2: #26262c; --surface-card: #1c1c20;
+            --border-glass: rgba(255, 255, 255, 0.12); --border-card: #2c2c30; --primary: #e2e8f0;
+            --emerald: #10b981; --amber: #f59e0b; --rose: #ef4444; --purple: #a855f7;
+            --text-main: #ededed; --text-muted: #9e9ea7; --header-bg: #121214; --nav-bg: #121214;
+            --sheet-bg: #1a1a1e; --input-bg: #26262c; --input-border: #3f3f46;
+            --input-color: #ededed; --pill-bg: #26262c; --pill-active-bg: #ededed;
+            --pill-active-text: #121214; --grand-color: #10b981; --grand-sub: #34d399;
+            --shadow-card: 0 8px 30px rgba(0,0,0,0.8);
+        }
+
+        /* 16. SEPIA BROWN */
+        html[data-theme="sepia-brown"], body[data-theme="sepia-brown"] {
+            --bg-base: #18120c; --surface-1: #241c14; --surface-2: #34281e; --surface-card: #281e15;
+            --border-glass: rgba(217, 119, 6, 0.25); --border-card: rgba(217, 119, 6, 0.32);
+            --primary: #f59e0b; --emerald: #34d399; --amber: #d97706; --rose: #f87171;
+            --purple: #c084fc; --text-main: #fef3c7; --text-muted: #d97706; --header-bg: #18120c;
+            --nav-bg: #18120c; --sheet-bg: #241c14; --input-bg: #34281e;
+            --input-border: rgba(217, 119, 6, 0.32); --input-color: #ffffff; --pill-bg: #34281e;
+            --pill-active-bg: #f59e0b; --pill-active-text: #18120c; --grand-color: #f59e0b;
+            --grand-sub: #fde68a; --shadow-card: 0 8px 30px rgba(0,0,0,0.7);
+        }
+
+        /* 17. PALE GOLD */
+        html[data-theme="pale-gold"], body[data-theme="pale-gold"] {
+            --bg-base: #141209; --surface-1: #211d0e; --surface-2: #302b15; --surface-card: #252010;
+            --border-glass: rgba(234, 179, 8, 0.28); --border-card: rgba(234, 179, 8, 0.35);
+            --primary: #eab308; --emerald: #10b981; --amber: #f59e0b; --rose: #f43f5e;
+            --purple: #a855f7; --text-main: #fef9c3; --text-muted: #ca8a04; --header-bg: #141209;
+            --nav-bg: #141209; --sheet-bg: #211d0e; --input-bg: #302b15;
+            --input-border: rgba(234, 179, 8, 0.35); --input-color: #ffffff; --pill-bg: #302b15;
+            --pill-active-bg: #eab308; --pill-active-text: #141209; --grand-color: #eab308;
+            --grand-sub: #fef08a; --shadow-card: 0 8px 30px rgba(0,0,0,0.7);
+        }
+
+        /* 18. EMERALD FOREST */
+        html[data-theme="emerald-forest"], body[data-theme="emerald-forest"] {
+            --bg-base: #061910; --surface-1: #0d281a; --surface-2: #133a27; --surface-card: #0f2d1e;
+            --border-glass: rgba(16, 185, 129, 0.25); --border-card: rgba(16, 185, 129, 0.32);
+            --primary: #34d399; --emerald: #10b981; --amber: #fbbf24; --rose: #f87171;
+            --purple: #c084fc; --text-main: #ecfdf5; --text-muted: #6ee7b7; --header-bg: #061910;
+            --nav-bg: #061910; --sheet-bg: #0d281a; --input-bg: #133a27;
+            --input-border: rgba(16, 185, 129, 0.32); --input-color: #ffffff; --pill-bg: #133a27;
+            --pill-active-bg: #10b981; --pill-active-text: #061910; --grand-color: #34d399;
+            --grand-sub: #a7f3d0; --shadow-card: 0 8px 30px rgba(0,0,0,0.7);
+        }
+
+        /* 19. DESERT MOCHA */
+        html[data-theme="desert-mocha"], body[data-theme="desert-mocha"] {
+            --bg-base: #1a1412; --surface-1: #261f1c; --surface-2: #382e2a; --surface-card: #2a221f;
+            --border-glass: rgba(180, 83, 9, 0.25); --border-card: rgba(180, 83, 9, 0.32);
+            --primary: #d97706; --emerald: #10b981; --amber: #f59e0b; --rose: #ef4444;
+            --purple: #a855f7; --text-main: #fef3c7; --text-muted: #d97706; --header-bg: #1a1412;
+            --nav-bg: #1a1412; --sheet-bg: #261f1c; --input-bg: #382e2a;
+            --input-border: rgba(180, 83, 9, 0.32); --input-color: #ffffff; --pill-bg: #382e2a;
+            --pill-active-bg: #d97706; --pill-active-text: #1a1412; --grand-color: #f59e0b;
+            --grand-sub: #fde68a; --shadow-card: 0 8px 30px rgba(0,0,0,0.7);
+        }
+
+        /* 20. SUNLIGHT TITANIUM */
+        html[data-theme="sunlight-titanium"], body[data-theme="sunlight-titanium"] {
+            --bg-base: #ffff00; --surface-1: #ffffff; --surface-2: #fff500; --surface-card: #ffffff;
+            --border-glass: #000000; --border-card: #000000; --primary: #000000;
+            --emerald: #005a20; --amber: #804000; --rose: #b00000; --purple: #4a0072;
+            --text-main: #000000; --text-muted: #111111; --header-bg: #ffff00; --nav-bg: #ffff00;
+            --sheet-bg: #ffff00; --input-bg: #ffffff; --input-border: #000000; --input-color: #000000;
+            --pill-bg: #ffffff; --pill-active-bg: #000000; --pill-active-text: #ffff00;
+            --grand-color: #000000; --grand-sub: #005a20; --shadow-card: none;
+        }
+
+        /* ═════════════════════════════════════════════════════════════════
+           ☀️ LIGHT THEMES CONSISTENT CARD & TEXT STYLING ON MOBILE
+           ═════════════════════════════════════════════════════════════════ */
+        html.light-theme,
+        body.light-theme,
+        html[data-theme="warm-alabaster"],
+        html[data-theme="pure-platinum"],
+        html[data-theme="beige"],
+        html[data-theme="ivory"],
+        html[data-theme="offwhite"],
+        html[data-theme="light-linen"],
+        html[data-theme="pearl-platinum"],
+        html[data-theme="nordic-paper"] {
+            color-scheme: light !important;
+        }
+
+        html.light-theme .micro-kpi-card,
+        html[data-theme="warm-alabaster"] .micro-kpi-card,
+        html[data-theme="pure-platinum"] .micro-kpi-card,
+        html[data-theme="beige"] .micro-kpi-card,
+        html[data-theme="ivory"] .micro-kpi-card,
+        html[data-theme="offwhite"] .micro-kpi-card,
+        html[data-theme="light-linen"] .micro-kpi-card,
+        html[data-theme="pearl-platinum"] .micro-kpi-card,
+        html[data-theme="nordic-paper"] .micro-kpi-card,
+        html.light-theme .hub-action-btn,
+        html.light-theme .alert-card-snap,
+        html.light-theme .liquidity-card,
+        html.light-theme .power-action-btn,
+        html.light-theme .radar-card {
+            background: #ffffff !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        html.light-theme .micro-kpi-title,
+        html.light-theme .hub-action-title,
+        html.light-theme .alert-title,
+        html.light-theme .section-title {
+            color: #0f172a !important;
+            text-shadow: none !important;
+            font-weight: 800 !important;
+        }
+
+        html.light-theme .mobile-bottom-sheet {
+            background: #ffffff !important;
+            color: #0f172a !important;
+        }
+        html.light-theme .mobile-bottom-sheet .sheet-header {
+            border-bottom-color: #e2e8f0 !important;
+        }
+        html.light-theme .theme-card-option {
+            background: #f8fafc !important;
+            border-color: #cbd5e1 !important;
+            color: #0f172a !important;
+        }
+        html.light-theme .theme-card-option.active {
+            background: #ffffff !important;
+            border-color: #2563eb !important;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15) !important;
         }
 
         /* ═════════════════════════════════════════════════════════════════
@@ -6401,10 +6708,10 @@ try {
             <button type="button" 
                     class="flagship-top-tile flagship-action-tile tile-theme" 
                     id="btn-header-theme" 
-                    onclick="cycleQuickTheme()" 
-                    oncontextmenu="event.preventDefault(); openBottomSheet('sheet-theme');" 
+                    onclick="openBottomSheet('sheet-theme')" 
+                    oncontextmenu="event.preventDefault(); cycleQuickTheme();" 
                     onpointerenter="triggerTileHaptic()"
-                    title="السمات والمظهر (اضغط للتبديل السريع)">
+                    title="السمات الـ 21 والمظهر (اضغط لعرض مصفوفة السمات)">
                 <i class="fa-solid fa-palette" id="current-theme-icon"></i>
                 <span class="theme-gem-dot" id="current-theme-dot"></span>
             </button>
@@ -8924,117 +9231,297 @@ try {
             </p>
             
             <div class="theme-options-grid" style="display: flex; flex-direction: column; gap: 10px;">
-                <!-- 1. Ultra-Clean White -->
-                <div class="theme-card-option" id="theme-opt-ultra_white" onclick="selectTheme('ultra_white')">
-                    <div class="theme-swatch-box" style="background: #ffffff; border: 2px solid #cbd5e1;">
-                        <span style="background: #0f172a; width: 12px; height: 12px; border-radius: 50%;"></span>
+
+                <!-- ══════ القسم الأول: ☀️ السمات الفاتحة والعاجي (8 سمات) ══════ -->
+                <div style="font-size:0.8rem; font-weight:800; color:var(--primary); padding:6px 4px 2px; border-bottom:1.5px solid var(--border-glass); display:flex; align-items:center; gap:6px;">
+                    <i class="fa-solid fa-sun text-amber-500"></i>
+                    <span>السمات الفاتحة والعاجي (8 سمات مريحة للقراءة النهارية)</span>
+                </div>
+
+                <!-- 1. Warm Alabaster -->
+                <div class="theme-card-option" id="theme-opt-warm-alabaster" onclick="selectTheme('warm-alabaster')">
+                    <div class="theme-swatch-box" style="background: #f6f0e6; border: 2px solid #8b6f4e;">
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%; border:1px solid #8b6f4e;"></span>
+                        <span style="background: #8b6f4e; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #15803d; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>📜 العاجي الدافئ</strong>
+                            <span class="theme-badge" style="background: #ede3d2; color: #8b6f4e; font-weight:900;">🌟 موصى بها</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Warm Alabaster</div>
+                        <p>أرضية عاجية بيج خفيفة مع أزرار ناصعة، تباين مثالي فائق الراحة والهدوء البصري.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 2. Pure Platinum -->
+                <div class="theme-card-option" id="theme-opt-pure-platinum" onclick="selectTheme('pure-platinum')">
+                    <div class="theme-swatch-box" style="background: #eef2f6; border: 2px solid #64748b;">
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%; border:1px solid #cbd5e1;"></span>
                         <span style="background: #2563eb; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #059669; width: 12px; height: 12px; border-radius: 50%;"></span>
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>⚪ أبيض فائق النقاء</strong>
-                            <span class="theme-badge" style="background: #f1f5f9; color: #0f172a; font-weight:900;">إضاءة مكتبية نهارية</span>
+                            <strong>❄️ الفضي النقي</strong>
+                            <span class="theme-badge" style="background: #e2e8f0; color: #2563eb; font-weight:900;">🌟 موصى بها</span>
                         </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Ultra-Clean White</div>
-                        <p>خلفية بيضاء نقية 100% مع نصوص كحلية فاحمة slate-900 مريحة للعمل المكتبي في وضح النهار.</p>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Pure Platinum</div>
+                        <p>أرضية فضية بلاتينية باردة هادئة مع تباين سويسري حاد للأرقام والبيانات.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <!-- 2. Warm Cream / Paper -->
-                <div class="theme-card-option" id="theme-opt-warm_cream" onclick="selectTheme('warm_cream')">
-                    <div class="theme-swatch-box" style="background: #fcf8f2; border: 2px solid #e4d8c8;">
-                        <span style="background: #292019; width: 12px; height: 12px; border-radius: 50%;"></span>
+                <!-- 3. Beige -->
+                <div class="theme-card-option" id="theme-opt-beige" onclick="selectTheme('beige')">
+                    <div class="theme-swatch-box" style="background: #f5ebe0; border: 2px solid #d6c5b0;">
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #b45309; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #15803d; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #23190e; width: 12px; height: 12px; border-radius: 50%;"></span>
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>📜 ورق ناعم دافئ</strong>
-                            <span class="theme-badge" style="background: #f5ede2; color: #b45309; font-weight:900;">حماية العين من الإجهاد</span>
+                            <strong>🌾 البيج الدافئ المريح</strong>
+                            <span class="theme-badge" style="background: #ede0cf; color: #b45309; font-weight:900;">رملي طبيعي</span>
                         </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Warm Cream / Paper</div>
-                        <p>نغمة السيبيا والورق الطبيعي تمنع جفاف العين أثناء القراءة الطويلة لكشوفات الحساب والتقارير.</p>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Warm Sandstone Beige</div>
+                        <p>بيج رملي طبيعي يمتص التوهج الضوئي بنسبة 95% ومريح في كشوفات الحسابات الطويلة.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <!-- 3. Executive Light Gray -->
-                <div class="theme-card-option" id="theme-opt-exec_gray" onclick="selectTheme('exec_gray')">
-                    <div class="theme-swatch-box" style="background: #f1f5f9; border: 2px solid #cbd5e1;">
-                        <span style="background: #1e293b; width: 12px; height: 12px; border-radius: 50%;"></span>
+                <!-- 4. Ivory -->
+                <div class="theme-card-option" id="theme-opt-ivory" onclick="selectTheme('ivory')">
+                    <div class="theme-swatch-box" style="background: #faf7f0; border: 2px solid #ded6c3;">
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #d97706; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #1c1813; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🥛 العاجي الملكي الكلاسيكي</strong>
+                            <span class="theme-badge" style="background: #f3ede2; color: #d97706; font-weight:900;">كريمي ناعم</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Royal Cream Ivory</div>
+                        <p>نعومة اللون العاجي الكريمي الهادئ بدون سطوع مفرط لحماية العصب البصري.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 5. Offwhite -->
+                <div class="theme-card-option" id="theme-opt-offwhite" onclick="selectTheme('offwhite')">
+                    <div class="theme-swatch-box" style="background: #f9fafb; border: 2px solid #d1d5db;">
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #2563eb; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #111827; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>📄 الأوف وايت الحديث المطفأ</strong>
+                            <span class="theme-badge" style="background: #f3f4f6; color: #2563eb; font-weight:900;">مطفأ عصري</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Modern Matte Offwhite</div>
+                        <p>أوف وايت ألاباستر عصري بدون بياض ساطع، وضوح حاد للأرقام والخطوط.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 6. Light Linen -->
+                <div class="theme-card-option" id="theme-opt-light-linen" onclick="selectTheme('light-linen')">
+                    <div class="theme-swatch-box" style="background: #ede7dc; border: 2px solid #cfc5b3;">
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #4d7c0f; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #211f1a; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🧵 الكتان الطبيعي المريح</strong>
+                            <span class="theme-badge" style="background: #e3dbc9; color: #4d7c0f; font-weight:900;">طبيعي مريح</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Soft Natural Linen</div>
+                        <p>طابع قماش الكتان العضوي الهادئ، يمنح شعوراً بالسكينة أثناء ضغط العمل المالي.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 7. Pearl Platinum -->
+                <div class="theme-card-option" id="theme-opt-pearl-platinum" onclick="selectTheme('pearl-platinum')">
+                    <div class="theme-swatch-box" style="background: #e9ecef; border: 2px solid #cbd3dc;">
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #0284c7; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #0f172a; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🦪 اللؤلؤي الفضي المريح</strong>
+                            <span class="theme-badge" style="background: #dee2e6; color: #0284c7; font-weight:900;">فضي هادئ</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Platinum Pearl Grey</div>
+                        <p>رمادي لؤلؤي بلاتيني بارد وراقي جداً يقلل انعكاس الضوء المكتبي ويوضح الحسابات.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 8. Nordic Paper -->
+                <div class="theme-card-option" id="theme-opt-nordic-paper" onclick="selectTheme('nordic-paper')">
+                    <div class="theme-swatch-box" style="background: #f0f4f8; border: 2px solid #cbd5e1;">
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #0e7490; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #0c1a24; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>📰 الورقي النوردي المريح</strong>
+                            <span class="theme-badge" style="background: #e1e7ee; color: #0e7490; font-weight:900;">إسكندنافي نقي</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Nordic Paper Soft</div>
+                        <p>مستوحى من تصميم مكاتب الشمال الأوروبي، تباين عالي ونقاء بصري مع لمسات تيل هادئة.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- ══════ القسم الثاني: 🌊 درجات الأزرق والكحلي (6 سمات) ══════ -->
+                <div style="font-size:0.8rem; font-weight:800; color:#38bdf8; padding:10px 4px 2px; border-bottom:1.5px solid var(--border-glass); display:flex; align-items:center; gap:6px; margin-top:8px;">
+                    <i class="fa-solid fa-water text-sky-400"></i>
+                    <span>درجات الأزرق والكحلي (6 سمات للتركيز الذهني والتدقيق المالي)</span>
+                </div>
+
+                <!-- 9. Midnight Executive -->
+                <div class="theme-card-option" id="theme-opt-midnight-executive" onclick="selectTheme('midnight-executive')">
+                    <div class="theme-swatch-box" style="background: #0b0f17; border: 2px solid #1e293b;">
+                        <span style="background: #131b2a; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #38bdf8; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>🏢 رمادي تنفيذي حديث</strong>
-                            <span class="theme-badge" style="background: #e2e8f0; color: #2563eb; font-weight:900;">أناقة الشركات الكبرى</span>
+                            <strong>🌌 كحلي منتصف الليل</strong>
+                            <span class="theme-badge" style="background: rgba(56,189,248,0.2); color: #38bdf8; font-weight:900;">🌟 موصى بها</span>
                         </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Executive Light Gray</div>
-                        <p>أسطح رمادية باردة مع لمسات زرقاء ملكية كلاسيكية تعكس بيئة عمل مصرفية راقية.</p>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Midnight Executive</div>
+                        <p>كحلي ليلي سحيق يبعث الأمان المالي والهدوء العصبي، يمنع إجهاد العين في العمل الليلي.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <!-- 4. High-Contrast Solar -->
-                <!-- 4. High-Contrast Solar Sun -->
-                <div class="theme-card-option" id="theme-opt-solar_contrast" onclick="selectTheme('solar_contrast')">
-                    <div class="theme-swatch-box" style="background: #ffff00; border: 2px solid #000000;">
-                        <span style="background: #000000; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #b00000; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #005a20; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>☀️ شمس ساطعة Solar Sun</strong>
-                            <span class="theme-badge" style="background: #000000; color: #ffff00; font-weight:900;">تباين 21:1 | شمس الساحات</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">High-Contrast Solar Sun (#FFFF00)</div>
-                        <p>أصفر فاقع مع كتابة سوداء حادة وحدود 2px للقراءة الفورية تحت وهج شمس الساحات والمخازن المفتوحة.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 5. Dimmed Twilight / Slate -->
-                <div class="theme-card-option" id="theme-opt-slate_twilight" onclick="selectTheme('slate_twilight')">
-                    <div class="theme-swatch-box" style="background: #1e293b; border: 2px solid rgba(255,255,255,0.2);">
-                        <span style="background: #f8fafc; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #38bdf8; width: 12px; height: 12px; border-radius: 50%;"></span>
+                <!-- 10. Navy Kohl -->
+                <div class="theme-card-option" id="theme-opt-navy-kohl" onclick="selectTheme('navy-kohl')">
+                    <div class="theme-swatch-box" style="background: #080c14; border: 2px solid rgba(96,165,250,0.3);">
+                        <span style="background: #0f1829; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #60a5fa; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #34d399; width: 12px; height: 12px; border-radius: 50%;"></span>
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>🌆 سليت مسائي هادئ</strong>
-                            <span class="theme-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight:900;">مكتب مسائي مريح</span>
+                            <strong>🧭 الكحلي الملكي الليلي</strong>
+                            <span class="theme-badge" style="background: rgba(96,165,250,0.2); color: #60a5fa; font-weight:900;">كحلي كلاسيكي</span>
                         </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Dimmed Twilight / Slate</div>
-                        <p>درجة كحلية مسائية ناعمة تقلل الوهج بنسبة 70% وتلائم العمل الليلي المكتبي بدون إبهار للعين.</p>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Deep Royal Navy Kohl</div>
+                        <p>أزرق كحلي أندلسي عميق يعزز التركيز الذهني الصارم أثناء التدقيق والمراجعة.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <!-- 6. Midnight Obsidian (Default) -->
-                <div class="theme-card-option" id="theme-opt-midnight_obsidian" onclick="selectTheme('midnight_obsidian')">
-                    <div class="theme-swatch-box" style="background: #0b0f19; border: 2px solid rgba(56,189,248,0.35);">
-                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #38bdf8; width: 12px; height: 12px; border-radius: 50%;"></span>
+                <!-- 11. Royal Blue -->
+                <div class="theme-card-option" id="theme-opt-royal-blue" onclick="selectTheme('royal-blue')">
+                    <div class="theme-swatch-box" style="background: #0a1128; border: 2px solid rgba(79,140,255,0.35);">
+                        <span style="background: #12214d; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #4f8cff; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>🌌 كحلي أوبسيديان فاحم</strong>
-                            <span class="theme-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight:900;">الافتراضي | نيون زاهي</span>
+                            <strong>👑 الأزرق الزفيري الحيوي</strong>
+                            <span class="theme-badge" style="background: rgba(79,140,255,0.2); color: #4f8cff; font-weight:900;">طاقة وإنتاجية</span>
                         </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Midnight Obsidian</div>
-                        <p>سواد كحلي عميق 0B0F19 مع مؤشرات رقمية فسفورية مشعة لإبراز أهم مؤشرات السيولة والأرباح.</p>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Sapphire Royal Blue</div>
+                        <p>أزرق زفيري حيوي يحفز النشاط الذهني واليقظة أثناء متابعة الفواتير وحركة الصندوق.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <!-- 7. Pure OLED Black -->
-                <div class="theme-card-option" id="theme-opt-pure_oled" onclick="selectTheme('pure_oled')">
+                <!-- 12. Ocean Navy -->
+                <div class="theme-card-option" id="theme-opt-ocean-navy" onclick="selectTheme('ocean-navy')">
+                    <div class="theme-swatch-box" style="background: #061826; border: 2px solid rgba(56,189,248,0.3);">
+                        <span style="background: #0d2b44; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #38bdf8; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #2dd4bf; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🌊 الأزرق المحيطي العميق</strong>
+                            <span class="theme-badge" style="background: rgba(56,189,248,0.2); color: #38bdf8; font-weight:900;">محيطي هادئ</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Deep Ocean Navy</div>
+                        <p>أعماق المحيط الأطلسي، لون يبعث السكينة ويخفض التوتر أثناء إغلاق الحسابات.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 13. Petrol Cyan -->
+                <div class="theme-card-option" id="theme-opt-petrol-cyan" onclick="selectTheme('petrol-cyan')">
+                    <div class="theme-swatch-box" style="background: #061e24; border: 2px solid rgba(45,212,191,0.3);">
+                        <span style="background: #0e343d; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #2dd4bf; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #34d399; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>💎 الأزرق البترولي والتيل</strong>
+                            <span class="theme-badge" style="background: rgba(45,212,191,0.2); color: #2dd4bf; font-weight:900;">بترولي راقي</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Petrol Teal Cyan</div>
+                        <p>مزيج البترولي مع التيل الأخضر المزرق الحديث، راحة ممتازة للبصر أثناء العمل المتواصل.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 14. Twilight Indigo -->
+                <div class="theme-card-option" id="theme-opt-twilight-indigo" onclick="selectTheme('twilight-indigo')">
+                    <div class="theme-swatch-box" style="background: #0e0e24; border: 2px solid rgba(129,140,248,0.32);">
+                        <span style="background: #1a1a42; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #818cf8; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #c084fc; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🌌 أزرق الشفق والإنديجو</strong>
+                            <span class="theme-badge" style="background: rgba(129,140,248,0.2); color: #818cf8; font-weight:900;">شفق بنفسجي</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Twilight Indigo</div>
+                        <p>سكون الشفق المسائي ودرجات النيلي البنفسجي، مثالي لمن يعملون في الساعات المتأخرة.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- ══════ القسم الثالث: 🌙 السمات الداكنة والشمسي (7 سمات) ══════ -->
+                <div style="font-size:0.8rem; font-weight:800; color:#e2e8f0; padding:10px 4px 2px; border-bottom:1.5px solid var(--border-glass); display:flex; align-items:center; gap:6px; margin-top:8px;">
+                    <i class="fa-solid fa-moon text-emerald-400"></i>
+                    <span>السمات الداكنة والتنفيذية والشمسي (7 سمات لظروف الإضاءة الخاصة)</span>
+                </div>
+
+                <!-- 15. Obsidian Charcoal -->
+                <div class="theme-card-option" id="theme-opt-obsidian-charcoal" onclick="selectTheme('obsidian-charcoal')">
+                    <div class="theme-swatch-box" style="background: #121214; border: 2px solid #2c2c30;">
+                        <span style="background: #1c1c20; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #ededed; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🪨 حجر السج الجرافيتي</strong>
+                            <span class="theme-badge" style="background: #26262c; color: #ededed; font-weight:900;">🌟 موصى بها</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Obsidian Charcoal</div>
+                        <p>فحم جرافيتي مطفأ وناعم مستوحى من الساعات السويسرية، راحة مطلقة لشاشات AMOLED.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 16. Midnight Pure OLED -->
+                <div class="theme-card-option" id="theme-opt-midnight" onclick="selectTheme('midnight')">
                     <div class="theme-swatch-box" style="background: #000000; border: 2px solid rgba(255,255,255,0.3);">
                         <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #00e5ff; width: 12px; height: 12px; border-radius: 50%;"></span>
@@ -9042,14 +9529,105 @@ try {
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>🖤 سواد حقيقي فاحم</strong>
+                            <strong>🖤 الليل الملكي وسواد OLED</strong>
                             <span class="theme-badge" style="background: rgba(255,255,255,0.15); color: #ffffff; font-weight:900;">سواد 100% | صفر طاقة</span>
                         </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Pure OLED Black</div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Pure OLED Black (#000000)</div>
                         <p>إطفاء كامل لبكسلات شاشة OLED لتوفير البطارية أثناء السفر وأقصى تباين ليلي في الظلام التام.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
+
+                <!-- 17. Sepia Brown -->
+                <div class="theme-card-option" id="theme-opt-sepia-brown" onclick="selectTheme('sepia-brown')">
+                    <div class="theme-swatch-box" style="background: #18120c; border: 2px solid rgba(217,119,6,0.32);">
+                        <span style="background: #281e15; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #f59e0b; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #34d399; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>☕ البني الإسبريسو والورق القديم</strong>
+                            <span class="theme-badge" style="background: rgba(245,158,11,0.2); color: #f59e0b; font-weight:900;">إسبريسو دافئ</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Espresso Sepia Brown</div>
+                        <p>بني محمص دافئ خالي من الألوان الصارخة، يمنح الراحة العميقة أثناء التركيز الحسابي.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 18. Pale Gold -->
+                <div class="theme-card-option" id="theme-opt-pale-gold" onclick="selectTheme('pale-gold')">
+                    <div class="theme-swatch-box" style="background: #141209; border: 2px solid rgba(234,179,8,0.35);">
+                        <span style="background: #252010; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #eab308; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>⚜️ الذهبي الباهت والفخامة</strong>
+                            <span class="theme-badge" style="background: rgba(234,179,8,0.2); color: #eab308; font-weight:900;">ذهبي فاخر</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Pale Gold Luxury</div>
+                        <p>فخامة الذهب الباهت مع خلفية داكنة راقية تليق برؤساء مجالس الإدارة والمدراء الماليين.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 19. Emerald Forest -->
+                <div class="theme-card-option" id="theme-opt-emerald-forest" onclick="selectTheme('emerald-forest')">
+                    <div class="theme-swatch-box" style="background: #061910; border: 2px solid rgba(16,185,129,0.32);">
+                        <span style="background: #0f2d1e; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #34d399; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #fbbf24; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🌲 زمرد الغابات لصفاء الذهن</strong>
+                            <span class="theme-badge" style="background: rgba(16,185,129,0.2); color: #34d399; font-weight:900;">غابات زمردية</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Deep Emerald Forest</div>
+                        <p>الأخضر يهدئ ضربات القلب ويوفر أعلى درجات الصفاء الذهني أثناء الجرد والمراجعة.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 20. Desert Mocha -->
+                <div class="theme-card-option" id="theme-opt-desert-mocha" onclick="selectTheme('desert-mocha')">
+                    <div class="theme-swatch-box" style="background: #1a1412; border: 2px solid rgba(180,83,9,0.32);">
+                        <span style="background: #2a221f; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #d97706; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🏜️ الرمال الصحراوية وموكا</strong>
+                            <span class="theme-badge" style="background: rgba(180,83,9,0.2); color: #d97706; font-weight:900;">طبيعة ترابية</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Desert Mocha Sand</div>
+                        <p>ألوان الطبيعة الترابية والموكا، تعطي إحساساً بالأصالة والاتزان أثناء العمل اليومي.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 21. Sunlight Titanium -->
+                <div class="theme-card-option" id="theme-opt-sunlight-titanium" onclick="selectTheme('sunlight-titanium')">
+                    <div class="theme-swatch-box" style="background: #ffff00; border: 2px solid #000000;">
+                        <span style="background: #000000; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #b00000; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #005a20; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>☀️ التيتانيوم الشمسي (تباين 21:1)</strong>
+                            <span class="theme-badge" style="background: #000000; color: #ffff00; font-weight:900;">شمس الساحات والمخازن</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Sunlight Titanium (#FFFF00)</div>
+                        <p>أصفر فاقع مع كتابة سوداء حادة وحدود 2px للقراءة الفورية تحت وهج شمس الساحات والمخازن المفتوحة.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
             </div>
         </div>
     </div>
@@ -10420,36 +10998,91 @@ try {
         };
 
         // ═════════════════════════════════════════════════════════════════
-        // 🎨 THE 7-TIER THEME ENGINE (FROM ULTRA-LIGHT TO DEEP NIGHT)
         // ═════════════════════════════════════════════════════════════════
-        const THEMES_7 = [
-            { key: 'ultra_white', name: 'أبيض فائق النقاء Ultra-Clean White', icon: 'fa-circle text-blue-500', dot: '#2563eb', meta: '#ffffff' },
-            { key: 'warm_cream', name: 'ورق سيبيا دافئ Warm Paper Sepia', icon: 'fa-scroll text-amber-600', dot: '#b45309', meta: '#fbf7ee' },
-            { key: 'exec_gray', name: 'رمادي تنفيذي بارد Cool Industrial Gray', icon: 'fa-briefcase text-blue-600', dot: '#2563eb', meta: '#f1f5f9' },
-            { key: 'solar_contrast', name: 'شمس ساطعة High-Contrast Solar Sun', icon: 'fa-sun text-yellow-500', dot: '#ffff00', meta: '#ffff00' },
-            { key: 'slate_twilight', name: 'سليت مسائي هادئ Twilight Slate', icon: 'fa-cloud-moon text-sky-400', dot: '#38bdf8', meta: '#1e293b' },
-            { key: 'midnight_obsidian', name: 'كحلي فاحم Midnight Obsidian', icon: 'fa-gem text-cyan-400', dot: '#00f2fe', meta: '#0b0f19' },
-            { key: 'pure_oled', name: 'سواد مطلق Pure OLED Black', icon: 'fa-moon text-emerald-400', dot: '#00e676', meta: '#000000' }
+        // 🎨 THE 21-TIER SCIENTIFIC THEME ENGINE (WCAG AAA ERGONOMIC MATRIX)
+        // ═════════════════════════════════════════════════════════════════
+        const THEMES_21 = [
+            // ☀️ الفاتحة والعاجي (8)
+            { key: 'warm-alabaster', name: 'العاجي الدافئ Warm Alabaster', icon: 'fa-scroll text-amber-700', dot: '#8B6F4E', meta: '#F6F0E6', isLight: true },
+            { key: 'pure-platinum', name: 'الفضي النقي Pure Platinum', icon: 'fa-gem text-blue-600', dot: '#2563EB', meta: '#EEF2F6', isLight: true },
+            { key: 'beige', name: 'البيج الدافئ Warm Sandstone Beige', icon: 'fa-wheat-awn text-amber-600', dot: '#B45309', meta: '#F5EBE0', isLight: true },
+            { key: 'ivory', name: 'العاجي الملكي Royal Cream Ivory', icon: 'fa-wine-glass text-yellow-600', dot: '#D97706', meta: '#FAF7F0', isLight: true },
+            { key: 'offwhite', name: 'الأوف وايت Modern Matte Offwhite', icon: 'fa-file-lines text-slate-700', dot: '#2563EB', meta: '#F9FAFB', isLight: true },
+            { key: 'light-linen', name: 'الكتان الطبيعي Soft Natural Linen', icon: 'fa-spa text-lime-700', dot: '#4D7C0F', meta: '#EDE7DC', isLight: true },
+            { key: 'pearl-platinum', name: 'اللؤلؤي الفضي Platinum Pearl Grey', icon: 'fa-circle-dot text-sky-600', dot: '#0284C7', meta: '#E9ECEF', isLight: true },
+            { key: 'nordic-paper', name: 'الورقي النوردي Nordic Paper Soft', icon: 'fa-book-open text-cyan-700', dot: '#0E7490', meta: '#F0F4F8', isLight: true },
+
+            // 🌊 درجات الأزرق والكحلي (6)
+            { key: 'midnight-executive', name: 'كحلي منتصف الليل Midnight Executive', icon: 'fa-briefcase text-sky-400', dot: '#38BDF8', meta: '#0B0F17', isLight: false },
+            { key: 'navy-kohl', name: 'الكحلي الملكي Deep Royal Navy Kohl', icon: 'fa-compass text-blue-400', dot: '#60A5FA', meta: '#080C14', isLight: false },
+            { key: 'royal-blue', name: 'الأزرق الزفيري Sapphire Royal Blue', icon: 'fa-crown text-blue-500', dot: '#4F8CFF', meta: '#0A1128', isLight: false },
+            { key: 'ocean-navy', name: 'الأزرق المحيطي Deep Ocean Navy', icon: 'fa-water text-teal-400', dot: '#38BDF8', meta: '#061826', isLight: false },
+            { key: 'petrol-cyan', name: 'البترولي والتيل Petrol Teal Cyan', icon: 'fa-gas-pump text-teal-300', dot: '#2DD4BF', meta: '#061E24', isLight: false },
+            { key: 'twilight-indigo', name: 'أزرق الشفق Twilight Indigo', icon: 'fa-cloud-moon text-indigo-400', dot: '#818CF8', meta: '#0E0E24', isLight: false },
+
+            // 🌙 الداكنة والتنفيذية (7)
+            { key: 'obsidian-charcoal', name: 'حجر السج الجرافيتي Obsidian Charcoal', icon: 'fa-mountain text-slate-300', dot: '#E2E8F0', meta: '#121214', isLight: false },
+            { key: 'midnight', name: 'الليل الملكي الداكن Pure OLED Black', icon: 'fa-moon text-emerald-400', dot: '#00E676', meta: '#000000', isLight: false },
+            { key: 'sepia-brown', name: 'البني الإسبريسو Espresso Sepia Brown', icon: 'fa-mug-hot text-amber-500', dot: '#F59E0B', meta: '#18120C', isLight: false },
+            { key: 'pale-gold', name: 'الذهبي الباهت Pale Gold Luxury', icon: 'fa-coins text-yellow-400', dot: '#EAB308', meta: '#141209', isLight: false },
+            { key: 'emerald-forest', name: 'زمرد الغابات Deep Emerald Forest', icon: 'fa-tree text-emerald-400', dot: '#34D399', meta: '#061910', isLight: false },
+            { key: 'desert-mocha', name: 'الرمال وموكا Desert Mocha Sand', icon: 'fa-cubes text-amber-500', dot: '#D97706', meta: '#1A1412', isLight: false },
+            { key: 'sunlight-titanium', name: 'التيتانيوم الشمسي Sunlight Titanium', icon: 'fa-sun text-yellow-400', dot: '#FFFF00', meta: '#FFFF00', isLight: true }
         ];
+
+        const THEMES_7 = THEMES_21; // Compatibility alias
+
+        const THEME_ALIAS_MAP = {
+            'solar': 'sunlight-titanium',
+            'solar_contrast': 'sunlight-titanium',
+            'midnight_obsidian': 'midnight-executive',
+            'slate_twilight': 'midnight-executive',
+            'dark': 'midnight-executive',
+            'pure_oled': 'midnight',
+            'oled': 'midnight',
+            'ultra_white': 'pure-platinum',
+            'white': 'pure-platinum',
+            'light': 'pure-platinum',
+            'warm_cream': 'warm-alabaster',
+            'cream': 'warm-alabaster',
+            'exec_gray': 'pearl-platinum',
+            'navy': 'navy-kohl',
+            'forest': 'emerald-forest'
+        };
 
         function selectTheme(themeKey) {
             triggerHaptic('medium');
             
-            // Map legacy aliases
-            const aliasMap = {
-                'solar': 'solar_contrast',
-                'midnight': 'pure_oled',
-                'navy': 'midnight_obsidian',
-                'forest': 'slate_twilight'
-            };
-            if (aliasMap[themeKey]) themeKey = aliasMap[themeKey];
+            if (THEME_ALIAS_MAP[themeKey]) themeKey = THEME_ALIAS_MAP[themeKey];
+
+            const curTheme = THEMES_21.find(t => t.key === themeKey) || THEMES_21[0];
+            const isLight = curTheme ? curTheme.isLight : false;
 
             document.documentElement.setAttribute('data-theme', themeKey);
             document.body.setAttribute('data-theme', themeKey);
-            localStorage.setItem('magaiees_mobile_theme', themeKey);
-            document.cookie = "magaiees_mobile_theme=" + themeKey + "; path=/; max-age=31536000; SameSite=Lax";
+
+            if (isLight) {
+                document.documentElement.classList.add('light-theme');
+                document.body.classList.add('light-theme');
+            } else {
+                document.documentElement.classList.remove('light-theme');
+                document.body.classList.remove('light-theme');
+            }
+
+            try {
+                localStorage.setItem('magaiees_mobile_theme', themeKey);
+                localStorage.setItem('magaies_active_theme', themeKey);
+                localStorage.setItem('magaiees_theme', themeKey);
+                localStorage.setItem('magaiees_global_theme', themeKey);
+                localStorage.setItem('erp_theme', isLight ? 'light' : 'dark');
+
+                const isHttps = location.protocol === 'https:';
+                const secureFlag = isHttps ? '; SameSite=Lax; Secure' : '; SameSite=Lax';
+                document.cookie = "magaiees_mobile_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000" + secureFlag;
+                document.cookie = "magaies_active_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000" + secureFlag;
+                document.cookie = "magaiees_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000" + secureFlag;
+            } catch(e) {}
             
-            const curTheme = THEMES_7.find(t => t.key === themeKey) || THEMES_7[5];
             const metaTag = document.querySelector('meta[name="theme-color"]');
             if (metaTag && curTheme) {
                 metaTag.setAttribute('content', curTheme.meta);
@@ -10463,32 +11096,26 @@ try {
 
         function cycleQuickTheme() {
             triggerHaptic('light');
-            let current = document.body.getAttribute('data-theme') || 'midnight_obsidian';
-            const aliasMap = {
-                'solar': 'solar_contrast',
-                'midnight': 'pure_oled',
-                'navy': 'midnight_obsidian',
-                'forest': 'slate_twilight'
-            };
-            if (aliasMap[current]) current = aliasMap[current];
+            let current = document.body.getAttribute('data-theme') || 'warm-alabaster';
+            if (THEME_ALIAS_MAP[current]) current = THEME_ALIAS_MAP[current];
 
-            let idx = THEMES_7.findIndex(t => t.key === current);
-            if (idx === -1) idx = 5; // default to midnight_obsidian
-            const nextIdx = (idx + 1) % THEMES_7.length;
-            const nextTheme = THEMES_7[nextIdx];
+            let idx = THEMES_21.findIndex(t => t.key === current);
+            if (idx === -1) idx = 0;
+            const nextIdx = (idx + 1) % THEMES_21.length;
+            const nextTheme = THEMES_21[nextIdx];
             selectTheme(nextTheme.key);
         }
 
         function updateThemeUI(themeKey) {
+            if (THEME_ALIAS_MAP[themeKey]) themeKey = THEME_ALIAS_MAP[themeKey];
             document.querySelectorAll('.theme-card-option').forEach(el => el.classList.remove('active'));
             const activeCard = document.getElementById('theme-opt-' + themeKey);
             if (activeCard) activeCard.classList.add('active');
 
-            const curTheme = THEMES_7.find(t => t.key === themeKey) || THEMES_7[5];
+            const curTheme = THEMES_21.find(t => t.key === themeKey) || THEMES_21[0];
             const iconEl = document.getElementById('current-theme-icon');
             const dotEl = document.getElementById('current-theme-dot');
             if (iconEl && curTheme) {
-                // Keep the universally recognized theme palette icon (شعار السمات المعروف)
                 iconEl.className = 'fa-solid fa-palette';
                 iconEl.style.color = curTheme.dot;
                 iconEl.style.filter = 'drop-shadow(0 0 6px ' + curTheme.dot + ')';
@@ -10500,16 +11127,21 @@ try {
         }
 
         function initTheme() {
-            let savedTheme = localStorage.getItem('magaiees_mobile_theme') || document.body.getAttribute('data-theme') || 'midnight_obsidian';
-            const aliasMap = {
-                'solar': 'solar_contrast',
-                'midnight': 'pure_oled',
-                'navy': 'midnight_obsidian',
-                'forest': 'slate_twilight'
-            };
-            if (aliasMap[savedTheme]) savedTheme = aliasMap[savedTheme];
+            let savedTheme = localStorage.getItem('magaiees_mobile_theme') || localStorage.getItem('magaies_active_theme') || document.body.getAttribute('data-theme') || 'warm-alabaster';
+            if (THEME_ALIAS_MAP[savedTheme]) savedTheme = THEME_ALIAS_MAP[savedTheme];
+            const curTheme = THEMES_21.find(t => t.key === savedTheme) || THEMES_21[0];
+            const isLight = curTheme ? curTheme.isLight : false;
+
             document.documentElement.setAttribute('data-theme', savedTheme);
             document.body.setAttribute('data-theme', savedTheme);
+
+            if (isLight) {
+                document.documentElement.classList.add('light-theme');
+                document.body.classList.add('light-theme');
+            } else {
+                document.documentElement.classList.remove('light-theme');
+                document.body.classList.remove('light-theme');
+            }
             updateThemeUI(savedTheme);
         }
 

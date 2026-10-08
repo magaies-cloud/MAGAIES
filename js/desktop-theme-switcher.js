@@ -113,9 +113,17 @@
 
     // ═══ Modal Control ═══
     function openModal() {
-        const modal = document.getElementById('desktopThemePaletteModal');
+        let modal = document.getElementById('desktopThemePaletteModal');
         if (!modal) return;
+        if (modal.parentElement !== document.body) {
+            document.body.appendChild(modal);
+        }
         modal.style.display = 'flex';
+        modal.style.position = 'fixed';
+        modal.style.inset = '0';
+        modal.style.width = '100vw';
+        modal.style.height = '100vh';
+        modal.style.zIndex = '2147483647';
         document.body.style.overflow = 'hidden';
         highlightActiveThemeCard();
     }
