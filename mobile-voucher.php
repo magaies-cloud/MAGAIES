@@ -605,13 +605,19 @@ PROMPT;
                 // توليد رقم سند جديد متسلسل
                 $prefix = 'E' . date('ym');
                 $maxSeq = 0;
-                $stmtSeq = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
+                $stmtSeq = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
                 $stmtSeq->execute([$currentTenantId]);
                 while ($row = $stmtSeq->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($row['data'], true);
-                    $id = $d['voucherNo'] ?? ($d['id'] ?? '');
+                    $id = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
                     if (strpos($id, $prefix) === 0) {
                         $seq = (int)substr($id, strlen($prefix));
+                        if ($seq > $maxSeq) $maxSeq = $seq;
+                    } elseif (preg_match('/^E\d{4}(\d{4,})$/', $id, $m)) {
+                        $seq = (int)$m[1];
+                        if ($seq > $maxSeq) $maxSeq = $seq;
+                    } elseif (is_numeric($id) && (int)$id < 20000000) {
+                        $seq = (int)$id;
                         if ($seq > $maxSeq) $maxSeq = $seq;
                     }
                 }
@@ -896,9 +902,15 @@ try {
                 'notes' => is_array($d['notes'] ?? null) ? '' : ($d['notes'] ?? ($d['toStatement'] ?? ''))
             ];
 
-            $vId = (string)$d['voucherNo'];
+            $vId = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
             if (strpos($vId, $prefix) === 0) {
                 $s = (int)substr($vId, strlen($prefix));
+                if ($s > $maxSeq) $maxSeq = $s;
+            } elseif (preg_match('/^E\d{4}(\d{4,})$/', $vId, $m)) {
+                $s = (int)$m[1];
+                if ($s > $maxSeq) $maxSeq = $s;
+            } elseif (is_numeric($vId) && (int)$vId < 20000000) {
+                $s = (int)$vId;
                 if ($s > $maxSeq) $maxSeq = $s;
             }
         }

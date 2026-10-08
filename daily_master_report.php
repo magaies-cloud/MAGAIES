@@ -7,6 +7,56 @@
 $selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
 $page_title = 'التقرير اليومي الشامل للمؤسسة';
 $header_theme_class = 'header-theme-reports';
+
+$preloadedSalesJson = '[]';
+$preloadedPurchasesJson = '[]';
+$preloadedPaymentsJson = '[]';
+try {
+    require_once __DIR__ . '/api/db.php';
+    if (isset($pdo)) {
+        $tId = 2;
+        if (session_status() === PHP_SESSION_NONE) @session_start();
+        if (!empty($_SESSION['user']['tenant_id'])) $tId = (int)$_SESSION['user']['tenant_id'];
+        elseif (!empty($_COOKIE['currentTenantId'])) $tId = (int)$_COOKIE['currentTenantId'];
+
+        $stmtSales = $pdo->prepare("SELECT invoice_no, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 500");
+        $stmtSales->execute([$tId]);
+        $pSales = [];
+        while ($r = $stmtSales->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($r['data'] ?? '{}', true);
+            if (is_array($d)) {
+                if (empty($d['invoiceNo'])) $d['invoiceNo'] = $r['invoice_no'];
+                if (empty($d['id'])) $d['id'] = $d['invoiceNo'];
+                $pSales[] = $d;
+            }
+        }
+        $preloadedSalesJson = json_encode($pSales, JSON_UNESCAPED_UNICODE);
+
+        $stmtPur = $pdo->prepare("SELECT invoice_no, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 500");
+        $stmtPur->execute([$tId]);
+        $pPur = [];
+        while ($r = $stmtPur->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($r['data'] ?? '{}', true);
+            if (is_array($d)) {
+                if (empty($d['invoiceNo'])) $d['invoiceNo'] = $r['invoice_no'];
+                if (empty($d['id'])) $d['id'] = $d['invoiceNo'];
+                $pPur[] = $d;
+            }
+        }
+        $preloadedPurchasesJson = json_encode($pPur, JSON_UNESCAPED_UNICODE);
+
+        $stmtPay = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 500");
+        $stmtPay->execute([$tId]);
+        $pPay = [];
+        while ($r = $stmtPay->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($r['data'] ?? '{}', true);
+            if (is_array($d)) {
+                $pPay[] = $d;
+            }
+        }
+        $preloadedPaymentsJson = json_encode($pPay, JSON_UNESCAPED_UNICODE);
+    }
+} catch (Exception $e) {}
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -356,6 +406,36 @@ $header_theme_class = 'header-theme-reports';
 
     <!-- Master Daily Data Script -->
     <script>
+        window._PRELOADED_SALES = <?php echo $preloadedSalesJson ?: '[]'; ?>;
+        window._PRELOADED_PURCHASES = <?php echo $preloadedPurchasesJson ?: '[]'; ?>;
+        window._PRELOADED_PAYMENTS = <?php echo $preloadedPaymentsJson ?: '[]'; ?>;
+
+        (function() {
+            function mergeCollection(key, serverItems, idField) {
+                if (!serverItems || !serverItems.length) return;
+                try {
+                    var local = JSON.parse(localStorage.getItem(key) || '[]');
+                    var map = {};
+                    local.forEach(function(item) {
+                        var id = item[idField] || item.id || item.voucherNo || item.invoiceNo;
+                        if (id) map[id] = item;
+                    });
+                    serverItems.forEach(function(item) {
+                        var id = item[idField] || item.id || item.voucherNo || item.invoiceNo;
+                        if (id) {
+                            map[id] = Object.assign({}, map[id] || {}, item);
+                        }
+                    });
+                    localStorage.setItem(key, JSON.stringify(Object.values(map)));
+                } catch (e) {
+                    console.warn('Hydration failed for ' + key, e);
+                }
+            }
+            mergeCollection('erp_sales_invoices_v1', window._PRELOADED_SALES, 'invoiceNo');
+            mergeCollection('erp_purchase_invoices_v1', window._PRELOADED_PURCHASES, 'invoiceNo');
+            mergeCollection('erp_single_payments_v1', window._PRELOADED_PAYMENTS, 'voucherNo');
+        })();
+
         document.addEventListener('DOMContentLoaded', function () {
             const dateInput = document.getElementById('report-date-input');
             const todayStr = new Date().toISOString().split('T')[0];
@@ -366,6 +446,12 @@ $header_theme_class = 'header-theme-reports';
             });
 
             renderMasterDailyReport(todayStr);
+
+            // Re-render when window regains focus to mirror any real-time edits
+            window.addEventListener('focus', function() {
+                var curDate = document.getElementById('report-date-input')?.value || todayStr;
+                renderMasterDailyReport(curDate);
+            });
         });
 
         function renderMasterDailyReport(targetDate) {

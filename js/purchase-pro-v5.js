@@ -259,8 +259,37 @@ function peekNextInvoiceNumber(type) {
             }
         }
     });
+    if (window._latestMirrorPurchaseNo && String(window._latestMirrorPurchaseNo).startsWith(datePrefix)) {
+        const pSeq = parseInt(String(window._latestMirrorPurchaseNo).substring(datePrefix.length), 10);
+        if (!isNaN(pSeq) && pSeq > max) {
+            max = pSeq - 1;
+        }
+    }
     return `${datePrefix}${String(max + 1).padStart(4, '0')}`;
 }
+
+// 🪞 Universal Mirror Sequence Sync for Desktop Purchases
+window.fetchNextMirrorPurchaseNo = function() {
+    fetch('api/mirror_api.php?action=get_next_no&entity=purchases')
+        .then(r => r.json())
+        .then(res => {
+            if (res && res.success && res.formattedNextNo) {
+                window._latestMirrorPurchaseNo = res.formattedNextNo;
+                if (!window.currentViewedInvoiceNo) {
+                    const elHdr = document.getElementById('hdr-inv-no');
+                    const elBadge = document.getElementById('inv-number');
+                    if (elHdr && (!elHdr.value || elHdr.value.startsWith('P'))) elHdr.value = res.formattedNextNo;
+                    if (elBadge && (!elBadge.textContent || elBadge.textContent.startsWith('P'))) elBadge.textContent = res.formattedNextNo;
+                }
+            }
+        }).catch(() => {});
+};
+
+window.addEventListener('focus', () => {
+    if (!window.currentViewedInvoiceNo && typeof window.fetchNextMirrorPurchaseNo === 'function') {
+        window.fetchNextMirrorPurchaseNo();
+    }
+});
 
 // Commit: actually increment the counter (only on real save/submit)
 function commitInvoiceNumber(type) {
@@ -271,6 +300,9 @@ function commitInvoiceNumber(type) {
 //  INIT
 // ════════════════════════════════════════
 function initPurchaseApp() {
+    if (typeof window.fetchNextMirrorPurchaseNo === 'function') {
+        window.fetchNextMirrorPurchaseNo();
+    }
     window.refreshAllMasterData = function() {
         try {
             WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1'));
@@ -2889,6 +2921,24 @@ function submitInvoice(ignoreWarnings = false) {
         allPurchases.push(data);
     }
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+
+    // 🪞 UNIVERSAL MIRROR ENGINE: Push purchase directly to MariaDB
+    try {
+        fetch('api/mirror_api.php?action=save_purchase', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(r => r.json()).then(res => {
+            if (res && res.success) {
+                console.log('[Mirror] Purchase mirrored successfully to MariaDB:', res.invoiceNo);
+                if (typeof window.fetchNextMirrorPurchaseNo === 'function') {
+                    window.fetchNextMirrorPurchaseNo();
+                }
+            }
+        }).catch(err => console.warn('[Mirror] Purchase sync pending:', err));
+    } catch(eMirror) {
+        console.warn('[Mirror] Error dispatching purchase:', eMirror);
+    }
     if (typeof window.logSystemAction === 'function') {
         const actionLabel = currentViewedInvoiceNo ? 'تعديل فاتورة مشتريات' : 'حفظ فاتورة مشتريات';
         window.logSystemAction(actionLabel, 'المشتريات', 

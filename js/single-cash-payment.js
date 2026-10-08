@@ -3,10 +3,38 @@ window.getAllSinglePayments = function() {
     try { localInvs = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []; } catch(e){}
     let serverInvs = window.SERVER_SINGLE_PAYMENTS || [];
     let map = new Map();
-    serverInvs.forEach(inv => map.set(inv.id, inv));
-    localInvs.forEach(inv => map.set(inv.id, inv));
+    // Prioritize authoritative server records while preserving unsynced local records
+    localInvs.forEach(inv => {
+        const k = String(inv.voucherNo || inv.id || '');
+        if (k) map.set(k, inv);
+    });
+    serverInvs.forEach(inv => {
+        const k = String(inv.voucherNo || inv.id || '');
+        if (k) map.set(k, inv);
+    });
     return Array.from(map.values());
 };
+
+// 🪞 Universal Mirror Sequence Sync for Financial Vouchers
+window.fetchNextMirrorVoucherNo = function() {
+    fetch('api/mirror_api.php?action=get_next_no&entity=vouchers')
+        .then(r => r.json())
+        .then(res => {
+            if (res && res.success && res.formattedNextNo) {
+                window._latestMirrorVoucherNo = res.formattedNextNo;
+                const elVNo = document.getElementById('voucher-no');
+                if (elVNo && (!window.currentEditingVoucherId) && (!elVNo.value || elVNo.value.startsWith('E'))) {
+                    elVNo.value = res.formattedNextNo;
+                }
+            }
+        }).catch(() => {});
+};
+
+window.addEventListener('focus', () => {
+    if (typeof window.fetchNextMirrorVoucherNo === 'function' && !window.currentEditingVoucherId) {
+        window.fetchNextMirrorVoucherNo();
+    }
+});
 /* ═══════════════════════════════════════════════════════
    single-cash-payment.js — Single Cash/Check Disbursement Module
    ═══════════════════════════════════════════════════════ */

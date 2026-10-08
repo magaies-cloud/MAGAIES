@@ -17805,30 +17805,47 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.populateItems(cat);
             },
 
-            generateInvoiceNumber() {
-                const isOffline = !navigator.onLine || window.IS_OFFLINE_SIMULATED;
+            syncNextInvoiceNo() {
                 const pill = document.getElementById('pos-inv-number-pill');
-                let invNo;
-                if (isOffline) {
-                    const peek = window.DualNumberingEngine ? window.DualNumberingEngine.peekNextSequence('sale') : 'INV-OFF-1';
-                    invNo = peek;
+                fetch('api/mirror_api.php?action=get_next_no&entity=sales')
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res && res.success && res.formattedNextNo) {
+                            this.state.nextMirrorInvoiceNo = res.formattedNextNo;
+                            this.state.nextMirrorNumericNo = res.numericNo;
+                            if (pill) {
+                                pill.innerHTML = `🟢 #${res.formattedNextNo} (${res.numericNo})`;
+                                pill.style.background = 'rgba(56, 189, 248, 0.15)';
+                                pill.style.borderColor = 'rgba(56, 189, 248, 0.3)';
+                                pill.style.color = 'var(--primary)';
+                            }
+                        }
+                    }).catch(() => {});
+            },
+
+            generateInvoiceNumber() {
+                const pill = document.getElementById('pos-inv-number-pill');
+                if (this.state.nextMirrorInvoiceNo) {
                     if (pill) {
-                        pill.innerHTML = `⏳ أوفلاين ${invNo} <span style="font-size:0.76rem; opacity:0.85;">(معلق)</span>`;
-                        pill.style.background = 'rgba(245, 158, 11, 0.2)';
-                        pill.style.borderColor = '#f59e0b';
-                        pill.style.color = '#f59e0b';
-                    }
-                } else {
-                    const rnd = Math.floor(1000 + Math.random() * 9000);
-                    invNo = 'INV-' + rnd;
-                    if (pill) {
-                        pill.innerHTML = `🟢 #${invNo}`;
+                        pill.innerHTML = `🟢 #${this.state.nextMirrorInvoiceNo} (${this.state.nextMirrorNumericNo || ''})`;
                         pill.style.background = 'rgba(56, 189, 248, 0.15)';
                         pill.style.borderColor = 'rgba(56, 189, 248, 0.3)';
                         pill.style.color = 'var(--primary)';
                     }
+                    return this.state.nextMirrorInvoiceNo;
                 }
-                return invNo;
+                this.syncNextInvoiceNo();
+                const now = new Date();
+                const yy = String(now.getFullYear()).substring(2, 4);
+                const mm = String(now.getMonth() + 1).padStart(2, '0');
+                const fallbackNo = 'S' + yy + mm + '0001';
+                if (pill) {
+                    pill.innerHTML = `🟢 #${fallbackNo}`;
+                    pill.style.background = 'rgba(56, 189, 248, 0.15)';
+                    pill.style.borderColor = 'rgba(56, 189, 248, 0.3)';
+                    pill.style.color = 'var(--primary)';
+                }
+                return fallbackNo;
             },
 
             setInvoiceType(type) {
@@ -18525,16 +18542,15 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     if (!confirmMargin) return false;
                 }
 
-                // Local collision-proof sequence generation (Dual-Numbering Engine)
-                const localSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('sale') : ('INV-OFF-' + Date.now().toString().slice(-4));
-                const invNo = localSeq;
+                // Authoritative sequence generation from Universal Mirror Engine
+                const invNo = this.state.nextMirrorInvoiceNo || this.generateInvoiceNumber();
                 const custName = this.state.customer?.name || (this.state.customerId === 'walkin' ? 'عميل نقدي عام' : 'عميل');
                 const invoiceData = {
                     id: invNo,
                     invoiceNo: invNo,
-                    local_seq: localSeq,
-                    sync_status: 'PENDING_OFFLINE',
-                    official_server_id: null,
+                    local_seq: invNo,
+                    sync_status: 'SYNCED',
+                    official_server_id: invNo,
                     customer: this.state.customerId,
                     customerName: custName,
                     customerPhone: this.state.customer?.phone || '',
@@ -18611,6 +18627,20 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         saveTenantArray('erp_banks_v1', banks);
                     }
                 }
+
+                // 🪞 UNIVERSAL MIRROR ENGINE: Push sale directly to MariaDB
+                try {
+                    fetch('api/mirror_api.php?action=save_sale', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(invoiceData)
+                    }).then(r => r.json()).then(res => {
+                        if (res && res.success) {
+                            console.log('[Mirror] Mobile sale mirrored to MariaDB:', res.invoiceNo);
+                            if (typeof this.syncNextInvoiceNo === 'function') this.syncNextInvoiceNo();
+                        }
+                    }).catch(err => console.warn('[Mirror] Sale sync pending:', err));
+                } catch(eMirror) {}
 
                 // Push to backend sync engine & Outbox
                 pushChangesToBackend();
@@ -19252,6 +19282,24 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
             },
 
+            syncNextPurNo() {
+                const pill = document.getElementById('purchase-inv-number-pill');
+                fetch('api/mirror_api.php?action=get_next_no&entity=purchases')
+                    .then(r => r.json())
+                    .then(res => {
+                        if (res && res.success && res.formattedNextNo) {
+                            this.state.nextMirrorPurNo = res.formattedNextNo;
+                            this.state.nextMirrorNumericNo = res.numericNo;
+                            if (pill) {
+                                pill.innerHTML = `🟢 #${res.formattedNextNo} (${res.numericNo})`;
+                                pill.style.background = 'rgba(245, 158, 11, 0.15)';
+                                pill.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                                pill.style.color = 'var(--amber)';
+                            }
+                        }
+                    }).catch(() => {});
+            },
+
             saveInvoice() {
                 triggerHaptic('heavy');
                 if (this.state.cart.length === 0) {
@@ -19270,15 +19318,20 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const supName = supSel ? (supSel.selectedOptions[0]?.text || 'مورد نقدي') : 'مورد نقدي';
                 const payMethod = document.getElementById('purchase-payment-method')?.value || 'cash';
 
-                const localSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('purchase') : ('PUR-OFF-' + Date.now().toString().slice(-4));
-                const purNo = localSeq;
+                let purNo = this.state.nextMirrorPurNo;
+                if (!purNo) {
+                    const now = new Date();
+                    const yy = String(now.getFullYear()).substring(2, 4);
+                    const mm = String(now.getMonth() + 1).padStart(2, '0');
+                    purNo = 'P' + yy + mm + '0001';
+                }
 
                 const purData = {
                     id: purNo,
                     invoiceNo: purNo,
-                    local_seq: localSeq,
-                    sync_status: 'PENDING_OFFLINE',
-                    official_server_id: null,
+                    local_seq: purNo,
+                    sync_status: 'SYNCED',
+                    official_server_id: purNo,
                     supplier: supId,
                     supplierName: supName,
                     paymentMethod: payMethod,
@@ -19329,6 +19382,20 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (typeof saveTenantArray === 'function') {
                     saveTenantArray('erp_items_v1', items);
                 }
+
+                // 🪞 UNIVERSAL MIRROR ENGINE: Push purchase directly to MariaDB
+                try {
+                    fetch('api/mirror_api.php?action=save_purchase', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(purData)
+                    }).then(r => r.json()).then(res => {
+                        if (res && res.success) {
+                            console.log('[Mirror] Mobile purchase mirrored to MariaDB:', res.invoiceNo);
+                            if (typeof this.syncNextPurNo === 'function') this.syncNextPurNo();
+                        }
+                    }).catch(err => console.warn('[Mirror] Purchase sync pending:', err));
+                } catch(eMirror) {}
 
                 if (typeof pushChangesToBackend === 'function') pushChangesToBackend();
                 if (window.OfflineOutboxEngine) {
@@ -19531,6 +19598,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 splits.unshift(splitRecord);
                 if (typeof saveTenantArray === 'function') saveTenantArray('erp_sales_splits_v1', splits);
 
+                try {
+                    fetch('api/mirror_api.php?action=save_split', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(splitRecord)
+                    }).then(r => r.json()).then(res => {
+                        if (res && res.id) {
+                            splitRecord.id = res.id;
+                            if (typeof saveTenantArray === 'function') saveTenantArray('erp_sales_splits_v1', splits);
+                        }
+                    }).catch(() => {});
+                } catch(eMirror) {}
+
                 if (window.showModernToast) {
                     window.showModernToast(`✅ تم حفظ واعتماد خطة تقسيم الشحنة #${splitRecord.id} بنجاح!`, 'success', 3500);
                 }
@@ -19644,6 +19724,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 deliveries.unshift(dlvRecord);
                 if (typeof saveTenantArray === 'function') saveTenantArray('erp_sales_deliveries_v1', deliveries);
 
+                try {
+                    fetch('api/mirror_api.php?action=save_delivery', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(dlvRecord)
+                    }).then(r => r.json()).then(res => {
+                        if (res && res.id) {
+                            dlvRecord.id = res.id;
+                            if (typeof saveTenantArray === 'function') saveTenantArray('erp_sales_deliveries_v1', deliveries);
+                        }
+                    }).catch(() => {});
+                } catch(eMirror) {}
+
                 if (window.showModernToast) {
                     window.showModernToast(`✅ تم حفظ وترحيل إذن التسليم #${dlvRecord.id} بنجاح!`, 'success', 3500);
                 }
@@ -19750,6 +19843,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 receipts.unshift(rcptRecord);
                 if (typeof saveTenantArray === 'function') saveTenantArray('erp_purchase_receipts_v1', receipts);
 
+                try {
+                    fetch('api/mirror_api.php?action=save_receipt', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(rcptRecord)
+                    }).then(r => r.json()).then(res => {
+                        if (res && res.id) {
+                            rcptRecord.id = res.id;
+                            if (typeof saveTenantArray === 'function') saveTenantArray('erp_purchase_receipts_v1', receipts);
+                        }
+                    }).catch(() => {});
+                } catch(eMirror) {}
+
                 if (window.showModernToast) {
                     window.showModernToast(`✅ تم حفظ إذن استلام المشتريات #${rcptRecord.id} وتحديث المخزن بنجاح!`, 'success', 3500);
                 }
@@ -19851,9 +19957,23 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     fullDate: new Date().toISOString().split('T')[0]
                 };
 
+                record.type = 'purchase_split';
                 let splits = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_purchase_splits_v1') || []) : [];
                 splits.unshift(record);
                 if (typeof saveTenantArray === 'function') saveTenantArray('erp_purchase_splits_v1', splits);
+
+                try {
+                    fetch('api/mirror_api.php?action=save_split', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(record)
+                    }).then(r => r.json()).then(res => {
+                        if (res && res.id) {
+                            record.id = res.id;
+                            if (typeof saveTenantArray === 'function') saveTenantArray('erp_purchase_splits_v1', splits);
+                        }
+                    }).catch(() => {});
+                } catch(eMirror) {}
 
                 if (window.showModernToast) {
                     window.showModernToast(`✅ تم حفظ وتوزيع كميات الشراء #${record.id} بنجاح!`, 'success', 3500);

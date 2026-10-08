@@ -286,9 +286,38 @@ function peekNextInvoiceNumber(type) {
                 }
             }
         });
+        if (window._latestMirrorSalesNo && String(window._latestMirrorSalesNo).startsWith(datePrefix)) {
+            const sSeq = parseInt(String(window._latestMirrorSalesNo).substring(datePrefix.length), 10);
+            if (!isNaN(sSeq) && sSeq > max) {
+                max = sSeq - 1;
+            }
+        }
         return `${datePrefix}${String(max + 1).padStart(4, '0')}`;
     }
 }
+
+// 🪞 Universal Mirror Sequence Sync for Desktop Sales
+window.fetchNextMirrorSalesNo = function() {
+    fetch('api/mirror_api.php?action=get_next_no&entity=sales')
+        .then(r => r.json())
+        .then(res => {
+            if (res && res.success && res.formattedNextNo) {
+                window._latestMirrorSalesNo = res.formattedNextNo;
+                if (!window.currentViewedInvoiceNo) {
+                    const elHdr = document.getElementById('hdr-inv-no');
+                    const elBadge = document.getElementById('inv-number');
+                    if (elHdr && (!elHdr.value || elHdr.value.startsWith('S'))) elHdr.value = res.formattedNextNo;
+                    if (elBadge && (!elBadge.textContent || elBadge.textContent.startsWith('S'))) elBadge.textContent = res.formattedNextNo;
+                }
+            }
+        }).catch(() => {});
+};
+
+window.addEventListener('focus', () => {
+    if (!window.currentViewedInvoiceNo && typeof window.fetchNextMirrorSalesNo === 'function') {
+        window.fetchNextMirrorSalesNo();
+    }
+});
 
 // Commit: actually increment the counter (only on real save/submit)
 function commitInvoiceNumber(type) {
@@ -299,6 +328,9 @@ function commitInvoiceNumber(type) {
 //  INIT
 // ════════════════════════════════════════
 function initSalesApp() {
+    if (typeof window.fetchNextMirrorSalesNo === 'function') {
+        window.fetchNextMirrorSalesNo();
+    }
     // ────── MIGRATE OLD INVOICE NUMBERS TO S+YYMM+SEQ ──────
     try {
         let allInv = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
@@ -4356,6 +4388,24 @@ function submitInvoice(ignoreWarnings = false) {
     }
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
 
+    // 🪞 UNIVERSAL MIRROR ENGINE: Push directly to MariaDB database
+    try {
+        fetch('api/mirror_api.php?action=save_sale', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(r => r.json()).then(res => {
+            if (res && res.success) {
+                console.log('[Mirror] Sale mirrored successfully to MariaDB:', res.invoiceNo);
+                if (typeof window.fetchNextMirrorSalesNo === 'function') {
+                    window.fetchNextMirrorSalesNo();
+                }
+            }
+        }).catch(err => console.warn('[Mirror] Sales sync pending:', err));
+    } catch(eMirror) {
+        console.warn('[Mirror] Error dispatching sale:', eMirror);
+    }
+
     if (window.logSystemAction) {
         const actionType = currentViewedInvoiceNo ? 'تعديل فاتورة مبيعات' : (currentSaleType === 'preliminary' ? 'فاتورة مبيعات مبدئية' : 'إصدار فاتورة مبيعات');
         const actionDetails = `${actionType} رقم ${committedNo} بقيمة ${grandTotal} ${cur} للعميل ${cust ? cust.name : 'نقدي'}`;
@@ -4666,6 +4716,17 @@ function executeDeleteTransaction() {
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
     allSales = allSales.filter(inv => inv.invoiceNo !== currentInvNo);
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
+
+    // 🪞 UNIVERSAL MIRROR ENGINE: Delete from MariaDB
+    try {
+        fetch('api/mirror_api.php?action=delete_sale', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ invoiceNo: currentInvNo })
+        }).then(() => {
+            if (typeof window.fetchNextMirrorSalesNo === 'function') window.fetchNextMirrorSalesNo();
+        }).catch(e => console.warn('[Mirror] Delete pending sync:', e));
+    } catch(eDel) {}
 
     if (window.logSystemAction) {
         window.logSystemAction('حذف فاتورة مبيعات', 'المبيعات', currentInvNo, `تم حذف فاتورة المبيعات رقم ${currentInvNo} وإلغاء تأثيراتها المالية والمخزنية`);

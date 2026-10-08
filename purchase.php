@@ -3,6 +3,7 @@ $page_title = 'المشتريات';
 $db_purchase_grid_config = null;
 $preloadedUnitsJson = '[]';
 $preloadedItemsJson = '[]';
+$preloadedPurchasesJson = '[]';
 try {
     require_once __DIR__ . '/api/db.php';
     if (isset($pdo)) {
@@ -26,6 +27,25 @@ try {
             }
         }
         $preloadedItemsJson = json_encode($pItems, JSON_UNESCAPED_UNICODE);
+
+        // Preload purchases for tenant to mirror all devices
+        $tId = 2;
+        if (session_status() === PHP_SESSION_NONE) @session_start();
+        if (!empty($_SESSION['user']['tenant_id'])) $tId = (int)$_SESSION['user']['tenant_id'];
+        elseif (!empty($_COOKIE['currentTenantId'])) $tId = (int)$_COOKIE['currentTenantId'];
+
+        $stmtPurchases = $pdo->prepare("SELECT invoice_no, data FROM purchase_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 500");
+        $stmtPurchases->execute([$tId]);
+        $pPurchases = [];
+        while ($r = $stmtPurchases->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($r['data'] ?? '{}', true);
+            if (is_array($d)) {
+                if (empty($d['invoiceNo'])) $d['invoiceNo'] = $r['invoice_no'];
+                if (empty($d['id'])) $d['id'] = $d['invoiceNo'];
+                $pPurchases[] = $d;
+            }
+        }
+        $preloadedPurchasesJson = json_encode($pPurchases, JSON_UNESCAPED_UNICODE);
     }
 } catch (Exception $e) {}
 ?>
@@ -35,12 +55,27 @@ try {
 <script>
 window._PRELOADED_UNITS = <?= $preloadedUnitsJson ?: '[]' ?>;
 window._PRELOADED_ITEMS = <?= $preloadedItemsJson ?: '[]' ?>;
+window._PRELOADED_PURCHASES = <?= $preloadedPurchasesJson ?: '[]' ?>;
 try {
     if (Array.isArray(window._PRELOADED_UNITS) && window._PRELOADED_UNITS.length > 0) {
         localStorage.setItem('erp_global_units_v1', JSON.stringify(window._PRELOADED_UNITS));
     }
     if (Array.isArray(window._PRELOADED_ITEMS) && window._PRELOADED_ITEMS.length > 0) {
         localStorage.setItem('erp_items_v1', JSON.stringify(window._PRELOADED_ITEMS));
+    }
+    if (Array.isArray(window._PRELOADED_PURCHASES) && window._PRELOADED_PURCHASES.length > 0) {
+        let curPurchases = [];
+        try { curPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []; } catch(e){}
+        const pMap = new Map();
+        curPurchases.forEach(inv => {
+            const k = String(inv.invoiceNo || inv.id || '');
+            if (k) pMap.set(k, inv);
+        });
+        window._PRELOADED_PURCHASES.forEach(inv => {
+            const k = String(inv.invoiceNo || inv.id || '');
+            if (k) pMap.set(k, inv);
+        });
+        localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(Array.from(pMap.values())));
     }
 } catch(e) {}
 </script>
@@ -3108,6 +3143,16 @@ try {
                 invoices = invoices.filter(i => i.invoiceNo !== invNo);
                 localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(invoices));
             }
+            // 🪞 Universal Mirror Engine: Delete from MariaDB
+            try {
+                fetch('api/mirror_api.php?action=delete_purchase', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ invoiceNo: invNo })
+                }).then(() => {
+                    if (typeof window.fetchNextMirrorPurchaseNo === 'function') window.fetchNextMirrorPurchaseNo();
+                }).catch(() => {});
+            } catch(eDel) {}
             if (typeof window.pushToCloud === 'function') {
                 window.pushToCloud(true).catch(e => console.warn("Delete push failed:", e));
             }

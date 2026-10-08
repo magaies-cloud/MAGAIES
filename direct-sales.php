@@ -2,6 +2,7 @@
 $db_sales_grid_config = null;
 $preloadedUnitsJson = '[]';
 $preloadedItemsJson = '[]';
+$preloadedSalesJson = '[]';
 try {
     require_once __DIR__ . '/api/db.php';
     if (isset($pdo)) {
@@ -25,6 +26,25 @@ try {
             }
         }
         $preloadedItemsJson = json_encode($pItems, JSON_UNESCAPED_UNICODE);
+
+        // Preload sales invoices for tenant to mirror all devices
+        $tId = 2;
+        if (session_status() === PHP_SESSION_NONE) @session_start();
+        if (!empty($_SESSION['user']['tenant_id'])) $tId = (int)$_SESSION['user']['tenant_id'];
+        elseif (!empty($_COOKIE['currentTenantId'])) $tId = (int)$_COOKIE['currentTenantId'];
+
+        $stmtSales = $pdo->prepare("SELECT invoice_no, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 500");
+        $stmtSales->execute([$tId]);
+        $pSales = [];
+        while ($r = $stmtSales->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($r['data'] ?? '{}', true);
+            if (is_array($d)) {
+                if (empty($d['invoiceNo'])) $d['invoiceNo'] = $r['invoice_no'];
+                if (empty($d['id'])) $d['id'] = $d['invoiceNo'];
+                $pSales[] = $d;
+            }
+        }
+        $preloadedSalesJson = json_encode($pSales, JSON_UNESCAPED_UNICODE);
     }
 } catch (Exception $e) {}
 ?>
@@ -51,12 +71,27 @@ if (typeof caches !== 'undefined') {
 <script>
 window._PRELOADED_UNITS = <?= $preloadedUnitsJson ?: '[]' ?>;
 window._PRELOADED_ITEMS = <?= $preloadedItemsJson ?: '[]' ?>;
+window._PRELOADED_SALES = <?= $preloadedSalesJson ?: '[]' ?>;
 try {
     if (Array.isArray(window._PRELOADED_UNITS) && window._PRELOADED_UNITS.length > 0) {
         localStorage.setItem('erp_global_units_v1', JSON.stringify(window._PRELOADED_UNITS));
     }
     if (Array.isArray(window._PRELOADED_ITEMS) && window._PRELOADED_ITEMS.length > 0) {
         localStorage.setItem('erp_items_v1', JSON.stringify(window._PRELOADED_ITEMS));
+    }
+    if (Array.isArray(window._PRELOADED_SALES) && window._PRELOADED_SALES.length > 0) {
+        let curSales = [];
+        try { curSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e){}
+        const sMap = new Map();
+        curSales.forEach(inv => {
+            const k = String(inv.invoiceNo || inv.id || '');
+            if (k) sMap.set(k, inv);
+        });
+        window._PRELOADED_SALES.forEach(inv => {
+            const k = String(inv.invoiceNo || inv.id || '');
+            if (k) sMap.set(k, inv);
+        });
+        localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(Array.from(sMap.values())));
     }
 } catch(e) {}
 </script>

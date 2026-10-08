@@ -66,16 +66,23 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
     }
     exit;
 }
+$activeTenantId = $GLOBAL_TENANT_ID ?: 2;
 $prefix = 'E' . date('ym');
 $maxSeq = 0;
 try {
-    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
-    $stmt->execute([$GLOBAL_TENANT_ID]);
+    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+    $stmt->execute([$activeTenantId]);
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $d = json_decode($row['data'], true);
-        $id = isset($d['id']) ? (string)$d['id'] : '';
+        $id = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
         if (strpos($id, $prefix) === 0) {
             $seq = (int)substr($id, strlen($prefix));
+            if ($seq > $maxSeq) $maxSeq = $seq;
+        } elseif (preg_match('/^E\d{4}(\d{4,})$/', $id, $m)) {
+            $seq = (int)$m[1];
+            if ($seq > $maxSeq) $maxSeq = $seq;
+        } elseif (is_numeric($id) && (int)$id < 20000000) {
+            $seq = (int)$id;
             if ($seq > $maxSeq) $maxSeq = $seq;
         }
     }
@@ -86,11 +93,16 @@ $voucher_no = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
 $page_title = 'حركة مالية';
 $SERVER_SINGLE_PAYMENTS_json = '[]';
 try {
-    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
-    $stmt->execute([$GLOBAL_TENANT_ID]);
+    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+    $stmt->execute([$activeTenantId]);
     $arr = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        $arr[] = json_decode($row['data'], true);
+        $d = json_decode($row['data'], true);
+        if (is_array($d)) {
+            if (empty($d['voucherNo'])) $d['voucherNo'] = $d['id'] ?? '';
+            if (empty($d['id'])) $d['id'] = $d['voucherNo'];
+            $arr[] = $d;
+        }
     }
     $SERVER_SINGLE_PAYMENTS_json = json_encode($arr);
 } catch (Exception $e) {}
