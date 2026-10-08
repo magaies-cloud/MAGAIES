@@ -374,11 +374,11 @@ try {
             $existingId = $stmtCheck->fetchColumn();
 
             if ($existingId) {
-                $stmtUp = $pdo->prepare("UPDATE sales_invoices SET data = ?, invoice_no = ?, customer_id_val = ?, date_val = ?, total_val = ?, status_val = ?, currency_val = ?, updated_at = NOW() WHERE id = ?");
-                $stmtUp->execute([$jsonRecord, $invoiceNo, $custId, $dateVal, $totalVal, $statusVal, $currencyVal, $existingId]);
+                $stmtUp = $pdo->prepare("UPDATE sales_invoices SET data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp->execute([$jsonRecord, $existingId]);
             } else {
-                $stmtIns = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, data, invoice_no, customer_id_val, date_val, total_val, status_val, currency_val, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
-                $stmtIns->execute([$tenant_id, $jsonRecord, $invoiceNo, $custId, $dateVal, $totalVal, $statusVal, $currencyVal]);
+                $stmtIns = $pdo->prepare("INSERT INTO sales_invoices (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tenant_id, $jsonRecord]);
             }
 
             // إدراج بطابور المزامنة
@@ -426,9 +426,9 @@ try {
         // 4. حذف فاتورة مبيعات
         // ═════════════════════════════════════════════════════════════════
         case 'delete_sale':
-            $invoiceNo = trim((string)($input['invoiceNo'] ?? ($input['id'] ?? '')));
+            $invoiceNo = trim((string)($_GET['invoice_no'] ?? ($_GET['invoiceNo'] ?? ($input['invoiceNo'] ?? ($input['id'] ?? '')))));
             if ($invoiceNo !== '') {
-                $stmt = $pdo->prepare("UPDATE sales_invoices SET is_deleted = 1, updated_at = NOW() WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmt = $pdo->prepare("UPDATE sales_invoices SET data = JSON_SET(data, '$.deleted', true), updated_at = NOW() WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmt->execute([$tenant_id, $invoiceNo, $invoiceNo, $invoiceNo]);
 
                 try {
@@ -494,11 +494,11 @@ try {
             $existingId = $stmtCheck->fetchColumn();
 
             if ($existingId) {
-                $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET data = ?, invoice_no = ?, supplier_id_val = ?, date_val = ?, total_val = ?, status_val = ?, currency_val = ?, updated_at = NOW() WHERE id = ?");
-                $stmtUp->execute([$jsonRecord, $invoiceNo, $suppId, $dateVal, $totalVal, $statusVal, $currencyVal, $existingId]);
+                $stmtUp = $pdo->prepare("UPDATE purchase_invoices SET data = ?, updated_at = NOW() WHERE id = ?");
+                $stmtUp->execute([$jsonRecord, $existingId]);
             } else {
-                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, data, invoice_no, supplier_id_val, date_val, total_val, status_val, currency_val, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())");
-                $stmtIns->execute([$tenant_id, $jsonRecord, $invoiceNo, $suppId, $dateVal, $totalVal, $statusVal, $currencyVal]);
+                $stmtIns = $pdo->prepare("INSERT INTO purchase_invoices (tenant_id, data, created_at, updated_at) VALUES (?, ?, NOW(), NOW())");
+                $stmtIns->execute([$tenant_id, $jsonRecord]);
             }
 
             echo json_encode([
@@ -539,9 +539,9 @@ try {
         // 6.2. حذف فاتورة مشتريات
         // ═════════════════════════════════════════════════════════════════
         case 'delete_purchase':
-            $invoiceNo = trim((string)($input['invoiceNo'] ?? ($input['id'] ?? '')));
+            $invoiceNo = trim((string)($_GET['invoice_no'] ?? ($_GET['invoiceNo'] ?? ($input['invoiceNo'] ?? ($input['id'] ?? '')))));
             if ($invoiceNo !== '') {
-                $stmt = $pdo->prepare("UPDATE purchase_invoices SET is_deleted = 1, updated_at = NOW() WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmt = $pdo->prepare("UPDATE purchase_invoices SET data = JSON_SET(data, '$.deleted', true), updated_at = NOW() WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmt->execute([$tenant_id, $invoiceNo, $invoiceNo, $invoiceNo]);
 
                 try {
@@ -648,9 +648,9 @@ try {
         // 6.5. حذف سند مالي
         // ═════════════════════════════════════════════════════════════════
         case 'delete_voucher':
-            $vNo = trim((string)($input['voucherNo'] ?? ($input['id'] ?? '')));
+            $vNo = trim((string)($_GET['voucher_no'] ?? ($_GET['voucherNo'] ?? ($input['voucherNo'] ?? ($input['id'] ?? '')))));
             if ($vNo !== '') {
-                $stmt = $pdo->prepare("UPDATE single_payments SET is_deleted = 1, updated_at = NOW() WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmt = $pdo->prepare("UPDATE single_payments SET data = JSON_SET(data, '$.deleted', true), updated_at = NOW() WHERE (tenant_id = ? OR tenant_id IS NULL) AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmt->execute([$tenant_id, $vNo, $vNo]);
 
                 try {
