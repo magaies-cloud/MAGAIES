@@ -74,7 +74,7 @@ if (!function_exists('findTransferDuplicateInDb')) {
                     foreach ($candidates as $cr) {
                         $strCr = trim((string)$cr);
                         $cleanCr = preg_replace('/\D/', '', $strCr);
-                        if ($cleanCr === '') continue;
+                        if (strlen($cleanCr) < 3) continue;
 
                         $matched = false;
                         $matchType = '';
@@ -87,9 +87,10 @@ if (!function_exists('findTransferDuplicateInDb')) {
                                 $matchType = "تطابق آخر 6 أرقام ({$candSuffix})";
                             }
                         } else {
-                            if ($cleanRef === $cleanCr || substr($cleanRef, -strlen($cleanCr)) === $cleanCr) {
+                            // للأرقام القديمة المسجلة مسبقاً بأقل من 6 أرقام: يشترط التطابق التام فقط
+                            if ($cleanRef === $cleanCr) {
                                 $matched = true;
-                                $matchType = 'تطابق مع رقم تحويلة مسجل';
+                                $matchType = 'تطابق تام مع رقم تحويلة مسجل مسبقاً';
                             }
                         }
 
