@@ -4,9 +4,13 @@
 /* ═══════════════════════════════════════════════════════
    CSS CUSTOM PROPERTIES — Design Tokens
    ═══════════════════════════════════════════════════════ */
-:root.light-theme {
+:root.light-theme,
+[data-theme="light"],
+[data-theme="ultra_white"],
+html[data-theme="light"],
+html[data-theme="ultra_white"] {
   /* Core Colors */
-  --bg-color:         #f1f5f9 !important;
+  --bg-color:         #f8fafc !important;
   --bg-secondary:     #ffffff !important;
   --surface:          #ffffff !important;
   --surface-color:    #ffffff !important;
@@ -14,40 +18,197 @@
   --border:           rgba(0, 0, 0, 0.08) !important;
   --border-color:     rgba(0, 0, 0, 0.08) !important;
   --border-highlight: rgba(0, 0, 0, 0.15) !important;
-  --glass-bg:         rgba(255, 255, 255, 0.9) !important;
+  --glass-bg:         rgba(255, 255, 255, 0.95) !important;
   --glass-border:     rgba(0, 0, 0, 0.08) !important;
   --glass-border-hover: rgba(0, 0, 0, 0.15) !important;
 
   /* Page specific variable overrides */
-  --bg-dark:          #f1f5f9 !important;
+  --bg-dark:          #f8fafc !important;
   --panel-bg:         #ffffff !important;
-  --grn-primary:      #2563eb !important;
-  --grn-hover:        #1d4ed8 !important;
+  --grn-primary:      #1d4ed8 !important;
+  --grn-hover:        #1e40af !important;
 
-  /* Text */
+  /* Text - High Contrast */
   --text-primary:     #000000 !important;
-  --text-secondary:   #1e293b !important;
-  --text-muted:       #475569 !important;
+  --text-secondary:   #0f172a !important;
+  --text-muted:       #334155 !important;
   --text-main:        #000000 !important;
 
-  /* Brand Accents — Sleek Light Palette */
-  --primary-accent:   #2563eb;   /* Deep Blue */
-  --primary-glow:     rgba(37, 99, 235, 0.15);
-  --success-color:    #059669;   /* Emerald Deep */
-  --success-glow:     rgba(5, 150, 105, 0.15);
-  --warning-color:    #d97706;   /* Amber Deep */
-  --warning-glow:     rgba(217, 119, 6, 0.15);
-  --danger-color:     #dc2626;   /* Red Deep */
-  --danger-glow:      rgba(220, 38, 38, 0.15);
-  --purple-color:     #7c3aed;   /* Purple Deep */
-  --purple-glow:      rgba(124, 58, 237, 0.15);
-  --pink-color:       #db2777;   /* Pink Deep */
-  --pink-glow:        rgba(219, 39, 119, 0.15);
+  /* Brand Accents — Sleek High Contrast Light Palette */
+  --primary-accent:   #1d4ed8;   /* Royal Blue */
+  --primary-glow:     rgba(29, 78, 216, 0.15);
+  --success-color:    #047857;   /* Emerald Deep */
+  --success-glow:     rgba(4, 120, 87, 0.15);
+  --warning-color:    #b45309;   /* High Contrast Dark Amber / Bronze (Fully readable on white) */
+  --warning-glow:     rgba(180, 83, 9, 0.15);
+  --danger-color:     #b91c1c;   /* Red Deep */
+  --danger-glow:      rgba(185, 28, 28, 0.15);
+  --purple-color:     #6d28d9;   /* Purple Deep */
+  --purple-glow:      rgba(109, 40, 217, 0.15);
+  --pink-color:       #be185d;   /* Pink Deep */
+  --pink-glow:        rgba(190, 24, 93, 0.15);
 
   /* Shadows */
   --shadow-sm:        0 2px 8px rgba(0, 0, 0, 0.04);
   --shadow-md:        0 8px 32px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(255,255,255,0.8) inset;
   --shadow-lg:        0 20px 60px rgba(0, 0, 0, 0.12);
+
+  --bg-grad-1:        rgba(29, 78, 216, 0.04);
+  --bg-grad-2:        rgba(14, 165, 233, 0.03);
+  --bg-grad-3:        rgba(4, 120, 87, 0.02);
+}
+
+/* ═══════════════════════════════════════════════════════
+   2. WARM CREAM THEME (بيج كلاسيكي - ورق سيبيا دافئ مريح للعين)
+   ═══════════════════════════════════════════════════════ */
+[data-theme="warm_cream"],
+html[data-theme="warm_cream"] {
+  --bg-color:         #fbf7ee !important;
+  --bg-secondary:     #f5ede2 !important;
+  --surface:          #ffffff !important;
+  --surface-color:    #ffffff !important;
+  --surface-hover:    #fdfaf3 !important;
+  --border:           rgba(120, 80, 40, 0.18) !important;
+  --border-color:     rgba(120, 80, 40, 0.18) !important;
+  --border-highlight: rgba(120, 80, 40, 0.28) !important;
+  --glass-bg:         rgba(255, 253, 248, 0.95) !important;
+  --glass-border:     rgba(120, 80, 40, 0.16) !important;
+  --glass-border-hover: rgba(120, 80, 40, 0.25) !important;
+
+  --bg-dark:          #fbf7ee !important;
+  --panel-bg:         #ffffff !important;
+  --grn-primary:      #b45309 !important;
+  --grn-hover:        #92400e !important;
+
+  /* Text - Warm Espresso / Deep Charcoal (Readable & High Contrast) */
+  --text-primary:     #1c1917 !important;
+  --text-secondary:   #292524 !important;
+  --text-muted:       #44403c !important;
+  --text-main:        #1c1917 !important;
+
+  /* Accents */
+  --primary-accent:   #c2410c;   /* Warm Terracotta */
+  --primary-glow:     rgba(194, 65, 12, 0.15);
+  --success-color:    #15803d;   /* Warm Forest Green */
+  --success-glow:     rgba(21, 128, 61, 0.15);
+  --warning-color:    #92400e;   /* Deep Bronze */
+  --warning-glow:     rgba(146, 64, 14, 0.15);
+  --danger-color:     #b91c1c;   /* Warm Brick Red */
+  --danger-glow:      rgba(185, 28, 28, 0.15);
+  --purple-color:     #7e22ce;   /* Warm Plum */
+  --purple-glow:      rgba(126, 34, 206, 0.15);
+  --pink-color:       #be123c;   /* Warm Ruby */
+  --pink-glow:        rgba(190, 18, 60, 0.15);
+
+  --shadow-sm:        0 2px 8px rgba(120, 80, 40, 0.05);
+  --shadow-md:        0 8px 30px rgba(120, 80, 40, 0.08);
+  --shadow-lg:        0 20px 60px rgba(120, 80, 40, 0.12);
+
+  --bg-grad-1:        rgba(194, 65, 12, 0.03);
+  --bg-grad-2:        rgba(180, 83, 9, 0.03);
+  --bg-grad-3:        rgba(21, 128, 61, 0.02);
+}
+
+/* ═══════════════════════════════════════════════════════
+   3. UNIFIED BLUE THEME (كحلي موحد 100% - كحلي ملكي بدون ألوان متنافرة)
+   ═══════════════════════════════════════════════════════ */
+[data-theme="midnight_obsidian"],
+[data-theme="navy"],
+html[data-theme="midnight_obsidian"],
+html[data-theme="navy"] {
+  --bg-color:         #0a1128 !important;
+  --bg-secondary:     #0d1738 !important;
+  --surface:          #111c44 !important;
+  --surface-color:    #111c44 !important;
+  --surface-hover:    #172554 !important;
+  --border:           rgba(56, 189, 248, 0.25) !important;
+  --border-color:     rgba(56, 189, 248, 0.25) !important;
+  --border-highlight: rgba(56, 189, 248, 0.5) !important;
+  --glass-bg:         rgba(13, 23, 56, 0.85) !important;
+  --glass-border:     rgba(56, 189, 248, 0.25) !important;
+  --glass-border-hover: rgba(56, 189, 248, 0.5) !important;
+
+  --bg-dark:          #0a1128 !important;
+  --panel-bg:         #111c44 !important;
+  --grn-primary:      #2563eb !important;
+  --grn-hover:        #1d4ed8 !important;
+
+  --text-primary:     #ffffff !important;
+  --text-secondary:   #93c5fd !important;
+  --text-muted:       #60a5fa !important;
+  --text-main:        #ffffff !important;
+
+  --primary-accent:   #38bdf8;   /* Electric Sky Blue */
+  --primary-glow:     rgba(56, 189, 248, 0.35);
+  --success-color:    #10b981;   /* Clear Emerald */
+  --success-glow:     rgba(16, 185, 129, 0.25);
+  --warning-color:    #38bdf8;   /* Unified Cyan Accent */
+  --warning-glow:     rgba(56, 189, 248, 0.25);
+  --danger-color:     #ef4444;   /* Crimson */
+  --danger-glow:      rgba(239, 68, 68, 0.25);
+  --purple-color:     #60a5fa;   /* Royal Blue */
+  --purple-glow:      rgba(96, 165, 250, 0.25);
+  --pink-color:       #38bdf8;   /* Sky Cyan */
+  --pink-glow:        rgba(56, 189, 248, 0.25);
+
+  --shadow-sm:        0 2px 8px rgba(0, 0, 0, 0.6);
+  --shadow-md:        0 8px 32px rgba(0, 0, 0, 0.7);
+  --shadow-lg:        0 20px 60px rgba(0, 0, 0, 0.85);
+
+  --bg-grad-1:        rgba(30, 64, 175, 0.12) !important;
+  --bg-grad-2:        rgba(56, 189, 248, 0.08) !important;
+  --bg-grad-3:        rgba(14, 165, 233, 0.06) !important;
+}
+
+/* ═══════════════════════════════════════════════════════
+   4. PURE OLED THEME (أسود مطلق 000000 - سواد تام وأقصى تباين)
+   ═══════════════════════════════════════════════════════ */
+[data-theme="pure_oled"],
+[data-theme="midnight"],
+html[data-theme="pure_oled"],
+html[data-theme="midnight"] {
+  --bg-color:         #000000 !important;
+  --bg-secondary:     #050505 !important;
+  --surface:          #080808 !important;
+  --surface-color:    #080808 !important;
+  --surface-hover:    #121212 !important;
+  --border:           rgba(255, 255, 255, 0.18) !important;
+  --border-color:     rgba(255, 255, 255, 0.18) !important;
+  --border-highlight: rgba(255, 255, 255, 0.4) !important;
+  --glass-bg:         rgba(5, 5, 5, 0.95) !important;
+  --glass-border:     rgba(255, 255, 255, 0.18) !important;
+  --glass-border-hover: rgba(255, 255, 255, 0.35) !important;
+
+  --bg-dark:          #000000 !important;
+  --panel-bg:         #080808 !important;
+  --grn-primary:      #10b981 !important;
+  --grn-hover:        #059669 !important;
+
+  --text-primary:     #ffffff !important;
+  --text-secondary:   #d4d4d8 !important;
+  --text-muted:       #a1a1aa !important;
+  --text-main:        #ffffff !important;
+
+  --primary-accent:   #00e5ff;   /* Neon Cyan */
+  --primary-glow:     rgba(0, 229, 255, 0.3);
+  --success-color:    #00e676;   /* Neon Emerald */
+  --success-glow:     rgba(0, 230, 118, 0.3);
+  --warning-color:    #ffd600;   /* Bright Yellow */
+  --warning-glow:     rgba(255, 214, 0, 0.3);
+  --danger-color:     #ff1744;   /* Neon Red */
+  --danger-glow:      rgba(255, 23, 68, 0.3);
+  --purple-color:     #d500f9;   /* Neon Magenta */
+  --purple-glow:      rgba(213, 0, 249, 0.3);
+  --pink-color:       #ff4081;   /* Neon Pink */
+  --pink-glow:        rgba(255, 64, 129, 0.3);
+
+  --shadow-sm:        0 2px 8px rgba(0, 0, 0, 1);
+  --shadow-md:        0 8px 32px rgba(0, 0, 0, 1);
+  --shadow-lg:        0 20px 60px rgba(0, 0, 0, 1);
+
+  --bg-grad-1:        transparent !important;
+  --bg-grad-2:        transparent !important;
+  --bg-grad-3:        transparent !important;
 }
 
 /* Light Theme Elements Helper Styling rules */
@@ -1275,7 +1436,6 @@ html.inventory-hub-page .badge-category, html.hub-report-page .badge-category {
     color: #b45309 !important;
 }
 
-
 /* ═══════════════════════════════════════════════════════════════════
    💎 UNIVERSAL 21 SCIENTIFIC ERGONOMIC THEMES ENGINE (DESKTOP & MOBILE)
    ═══════════════════════════════════════════════════════════════════
@@ -1790,7 +1950,6 @@ html.inventory-hub-page .badge-category, html.hub-report-page .badge-category {
   --hdr-bg: rgba(10, 13, 18, 0.94) !important;
   --hdr-border: rgba(255, 255, 255, 0.35) !important;
 }
-
 
 /* ═══════════════════════════════════════════════════════════════════
    ── 2. GROUP RULES: THE 8 LIGHT / WARM THEMES
@@ -3393,6 +3552,235 @@ html[data-theme="nordic-paper"] .floating-theme-dock .floating-theme-text {
     .floating-theme-dock {
         display: none !important;
     }
+
+/* ═══════════════════════════════════════════════════════
+   5. COMPREHENSIVE THEME CONTRAST & LEGIBILITY ENFORCEMENT
+   ═══════════════════════════════════════════════════════ */
+
+/* Strict Contrast in Light Modes: NO yellow / amber / beige text on white! */
+:root.light-theme .text-amber-400,
+:root.light-theme .text-amber-300,
+:root.light-theme .text-amber-500,
+:root.light-theme .text-yellow-400,
+:root.light-theme .text-yellow-300,
+:root.light-theme .text-yellow-500,
+:root.light-theme span[style*="color: #fbbf24"],
+:root.light-theme span[style*="color:#fbbf24"],
+:root.light-theme span[style*="color: #f59e0b"],
+:root.light-theme span[style*="color:#f59e0b"],
+:root.light-theme span[style*="color: #facc15"],
+:root.light-theme span[style*="color:#facc15"],
+[data-theme="ultra_white"] .text-amber-400,
+[data-theme="ultra_white"] .text-amber-300,
+[data-theme="ultra_white"] .text-yellow-400,
+[data-theme="ultra_white"] span[style*="color: #fbbf24"],
+[data-theme="ultra_white"] span[style*="color: #f59e0b"],
+[data-theme="warm_cream"] .text-amber-400,
+[data-theme="warm_cream"] .text-amber-300,
+[data-theme="warm_cream"] .text-yellow-400,
+[data-theme="warm_cream"] span[style*="color: #fbbf24"],
+[data-theme="warm_cream"] span[style*="color: #f59e0b"] {
+    color: #92400e !important; /* High contrast dark bronze/amber: 100% readable on light backgrounds */
+    text-shadow: none !important;
 }
 
+/* Clear readable Cyan / Sky in Light Modes */
+:root.light-theme .text-cyan-400,
+:root.light-theme .text-sky-400,
+:root.light-theme span[style*="color: #38bdf8"],
+:root.light-theme span[style*="color:#38bdf8"],
+[data-theme="ultra_white"] .text-cyan-400,
+[data-theme="ultra_white"] .text-sky-400,
+[data-theme="warm_cream"] .text-cyan-400,
+[data-theme="warm_cream"] .text-sky-400 {
+    color: #0369a1 !important; /* Deep sapphire blue */
+    text-shadow: none !important;
 
+/* Clear Emerald in Light Modes */
+:root.light-theme .text-emerald-400,
+:root.light-theme span[style*="color: #34d399"],
+:root.light-theme span[style*="color:#34d399"],
+[data-theme="ultra_white"] .text-emerald-400,
+[data-theme="warm_cream"] .text-emerald-400 {
+    color: #047857 !important; /* Deep emerald */
+    text-shadow: none !important;
+}
+
+/* Clear Crimson in Light Modes */
+:root.light-theme .text-rose-400,
+:root.light-theme .text-red-400,
+:root.light-theme span[style*="color: #f87171"],
+:root.light-theme span[style*="color:#f87171"],
+[data-theme="ultra_white"] .text-rose-400,
+[data-theme="warm_cream"] .text-rose-400 {
+    color: #b91c1c !important; /* Deep red */
+    text-shadow: none !important;
+}
+
+/* Clear Purple in Light Modes */
+:root.light-theme .text-purple-400,
+:root.light-theme span[style*="color: #c084fc"],
+:root.light-theme span[style*="color:#c084fc"],
+[data-theme="ultra_white"] .text-purple-400,
+[data-theme="warm_cream"] .text-purple-400 {
+    color: #6d28d9 !important; /* Deep royal purple */
+    text-shadow: none !important;
+}
+
+/* Universal Inputs & Form Controls in Light Mode */
+:root.light-theme input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+:root.light-theme select,
+:root.light-theme textarea,
+[data-theme="ultra_white"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+[data-theme="ultra_white"] select,
+[data-theme="ultra_white"] textarea,
+[data-theme="warm_cream"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+[data-theme="warm_cream"] select,
+[data-theme="warm_cream"] textarea {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1.5px solid #cbd5e1 !important;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+:root.light-theme input::placeholder,
+:root.light-theme textarea::placeholder,
+[data-theme="ultra_white"] input::placeholder,
+[data-theme="ultra_white"] textarea::placeholder,
+[data-theme="warm_cream"] input::placeholder,
+[data-theme="warm_cream"] textarea::placeholder {
+    color: #64748b !important;
+    opacity: 1 !important;
+}
+
+/* Choices.js and Custom Dropdowns in Light Modes */
+:root.light-theme .choices__inner,
+[data-theme="ultra_white"] .choices__inner,
+[data-theme="warm_cream"] .choices__inner {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1.5px solid #cbd5e1 !important;
+}
+
+:root.light-theme .choices__list--dropdown,
+:root.light-theme .custom-dropdown-list,
+[data-theme="ultra_white"] .choices__list--dropdown,
+[data-theme="ultra_white"] .custom-dropdown-list,
+[data-theme="warm_cream"] .choices__list--dropdown,
+[data-theme="warm_cream"] .custom-dropdown-list {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12) !important;
+}
+
+:root.light-theme .choices__list--dropdown .choices__item--selectable,
+:root.light-theme .custom-dropdown-list *,
+[data-theme="ultra_white"] .choices__list--dropdown .choices__item--selectable,
+[data-theme="warm_cream"] .choices__list--dropdown .choices__item--selectable {
+    color: #0f172a !important;
+}
+
+:root.light-theme .choices__list--dropdown .choices__item--selectable.is-highlighted,
+[data-theme="ultra_white"] .choices__list--dropdown .choices__item--selectable.is-highlighted,
+[data-theme="warm_cream"] .choices__list--dropdown .choices__item--selectable.is-highlighted {
+    background-color: #e2e8f0 !important;
+    color: #000000 !important;
+}
+
+/* Dynamic Focus Inputs (as used in voucher screens) in Light Theme */
+:root.light-theme .dynamic-focus-input,
+[data-theme="ultra_white"] .dynamic-focus-input,
+[data-theme="warm_cream"] .dynamic-focus-input {
+    color: #000000 !important;
+}
+:root.light-theme .dynamic-focus-input:focus,
+[data-theme="ultra_white"] .dynamic-focus-input:focus,
+[data-theme="warm_cream"] .dynamic-focus-input:focus {
+    background: #ffffff !important;
+    color: #000000 !important;
+    border-color: #2563eb !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* WARM CREAM SPECIFIC CARD & BACKGROUND STYLES */
+[data-theme="warm_cream"] body,
+[data-theme="warm_cream"] .ambient-bg {
+    background: #fbf7ee !important;
+    color: #1c1917 !important;
+}
+
+[data-theme="warm_cream"] .glass-panel,
+[data-theme="warm_cream"] .panel,
+[data-theme="warm_cream"] .neo-card,
+[data-theme="warm_cream"] .summary-card,
+[data-theme="warm_cream"] .filter-panel,
+[data-theme="warm_cream"] .chart-card,
+[data-theme="warm_cream"] .kpi-card,
+[data-theme="warm_cream"] .premium-header,
+[data-theme="warm_cream"] .global-sidebar {
+    background: #ffffff !important;
+    border-color: #e4d8c8 !important;
+    color: #1c1917 !important;
+    box-shadow: 0 4px 20px rgba(120, 80, 40, 0.06) !important;
+}
+
+/* PURE OLED SPECIFIC ENFORCEMENT */
+[data-theme="pure_oled"] body,
+[data-theme="pure_oled"] .ambient-bg {
+    background: #000000 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="pure_oled"] .glass-panel,
+[data-theme="pure_oled"] .panel,
+[data-theme="pure_oled"] .neo-card,
+[data-theme="pure_oled"] .summary-card,
+[data-theme="pure_oled"] .filter-panel,
+[data-theme="pure_oled"] .chart-card,
+[data-theme="pure_oled"] .kpi-card,
+[data-theme="pure_oled"] .premium-header,
+[data-theme="pure_oled"] .global-sidebar {
+    background: #080808 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 25px rgba(0, 0, 0, 1) !important;
+}
+
+[data-theme="pure_oled"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+[data-theme="pure_oled"] select,
+[data-theme="pure_oled"] textarea {
+    background: #050505 !important;
+    color: #ffffff !important;
+    border-color: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* UNIFIED BLUE SPECIFIC ENFORCEMENT (100% Blue / Navy Palette) */
+[data-theme="midnight_obsidian"] body,
+[data-theme="midnight_obsidian"] .ambient-bg {
+    background: #0a1128 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="midnight_obsidian"] .glass-panel,
+[data-theme="midnight_obsidian"] .panel,
+[data-theme="midnight_obsidian"] .neo-card,
+[data-theme="midnight_obsidian"] .summary-card,
+[data-theme="midnight_obsidian"] .filter-panel,
+[data-theme="midnight_obsidian"] .chart-card,
+[data-theme="midnight_obsidian"] .kpi-card,
+[data-theme="midnight_obsidian"] .premium-header,
+[data-theme="midnight_obsidian"] .global-sidebar {
+    background: #111c44 !important;
+    border-color: rgba(56, 189, 248, 0.25) !important;
+    color: #ffffff !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7) !important;
+}
+
+[data-theme="midnight_obsidian"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+[data-theme="midnight_obsidian"] select,
+[data-theme="midnight_obsidian"] textarea {
+    background: #0b132b !important;
+    color: #ffffff !important;
+    border-color: rgba(56, 189, 248, 0.35) !important;
+}

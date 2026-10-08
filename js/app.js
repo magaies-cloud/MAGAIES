@@ -1835,11 +1835,16 @@ JSON.parse = function(val) {
 
 // --- Global Theme Initialization (runs immediately to prevent flashing) ---
 (function() {
-    const savedTheme = localStorage.getItem('erp_theme') || 'dark';
-    if (savedTheme === 'light') {
-        document.documentElement.setAttribute('data-theme', 'light');
+    let saved = localStorage.getItem('magaiees_mobile_theme') || localStorage.getItem('erp_theme') || 'midnight_obsidian';
+    if (saved === 'light') saved = 'ultra_white';
+    if (saved === 'dark') saved = 'midnight_obsidian';
+    document.documentElement.setAttribute('data-theme', saved);
+    if (saved === 'ultra_white' || saved === 'warm_cream' || saved === 'exec_gray') {
+        document.documentElement.classList.add('light-theme');
+        document.documentElement.classList.remove('dark-theme');
     } else {
-        document.documentElement.removeAttribute('data-theme');
+        document.documentElement.classList.remove('light-theme');
+        document.documentElement.classList.add('dark-theme');
     }
 })();
 
@@ -1952,20 +1957,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Global Theme Toggle Binding (Delegated) ---
     document.body.addEventListener('click', (e) => {
         if (e.target.closest('.theme-toggle-btn')) {
-            const currentTheme = document.documentElement.getAttribute('data-theme');
-            if (currentTheme === 'light') {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('erp_theme', 'dark');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'light');
-                localStorage.setItem('erp_theme', 'light');
+            if (typeof window.toggleTheme === 'function') {
+                // Handled by header toggleTheme
+                return;
             }
-            // Update charts if present on page
-            if (typeof initCharts === 'function') {
-                try { initCharts(); } catch(err) {}
-            }
-            if (typeof initProCharts === 'function') {
-                try { initProCharts(); } catch(err) {}
+            if (typeof window.setUniversalTheme === 'function') {
+                const cur = document.documentElement.getAttribute('data-theme') || 'midnight_obsidian';
+                const next = (cur === 'ultra_white' || cur === 'light') ? 'midnight_obsidian' : 'ultra_white';
+                window.setUniversalTheme(next);
             }
         }
     });

@@ -591,7 +591,7 @@
         // ═══════════════════════════════════════════════════════════════════
         // 🎨 DESKTOP & LAPTOP 21 ERGONOMIC THEMES CONTROLLER
         // ═══════════════════════════════════════════════════════════════════
-        const DESKTOP_LIGHT_THEMES = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+        const DESKTOP_LIGHT_THEMES = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper', 'ultra_white', 'warm_cream', 'exec_gray'];
         const DESKTOP_THEME_NAMES = {
             'warm-alabaster': 'العاجي الدافئ',
             'pure-platinum': 'الفضي النقي',
@@ -613,8 +613,19 @@
             'pale-gold': 'الذهبي الباهت والفخامة',
             'emerald-forest': 'زمرد الغابات لصفاء الذهن',
             'desert-mocha': 'الرمال الصحراوية وموكا',
-            'sunlight-titanium': 'التيتانيوم الشمسي فائق التباين'
+            'sunlight-titanium': 'التيتانيوم الشمسي فائق التباين',
+            'ultra_white': 'السمة البيضاء الناصعة',
+            'warm_cream': 'السمة الفاتحة (بيج دافئ)',
+            'midnight_obsidian': 'السمة الكحلية الموحدة',
+            'pure_oled': 'السمة السوداء الفاحمة'
         };
+
+        window.MASTER_THEMES = [
+            { key: 'ultra_white', name: 'السمة البيضاء الناصعة', icon: '⚪', dot: '#ffffff', isLight: true, title: 'أبيض فائق النقاء - تباين أسود ناصع' },
+            { key: 'warm_cream', name: 'السمة الفاتحة (بيج دافئ)', icon: '📜', dot: '#fbf7ee', isLight: true, title: 'ورق سيبيا دافئ مريح للعين' },
+            { key: 'midnight_obsidian', name: 'السمة الكحلية الزرقاء', icon: '🌌', dot: '#0b0f19', isLight: false, title: 'كحلي أزرق ملكي - نيون فسفوري' },
+            { key: 'pure_oled', name: 'السمة السوداء الفاحمة', icon: '🖤', dot: '#000000', isLight: false, title: 'سواد مطلق OLED - تباين كامل 100%' }
+        ];
 
         function openDesktopThemePaletteModal() {
             const modal = document.getElementById('desktopThemePaletteModal');
@@ -673,30 +684,46 @@
         }
 
         function applyDesktopTheme(themeKey, showToast = true) {
+            window.setUniversalTheme(themeKey, showToast);
+        }
+
+        window.setUniversalTheme = function(themeKey, showToast = true) {
+            if (!themeKey) return;
             const aliasMap = {
-                'ultra_white': 'pure-platinum', 'warm_cream': 'warm-alabaster', 'exec_gray': 'pearl-platinum',
-                'solar_contrast': 'sunlight-titanium', 'solar': 'sunlight-titanium',
-                'slate_twilight': 'midnight-executive', 'midnight_obsidian': 'midnight-executive',
-                'pure_oled': 'midnight', 'navy': 'navy-kohl', 'forest': 'emerald-forest',
-                'theme-imperial': 'warm-alabaster'
+                'light': 'ultra_white',
+                'white': 'ultra_white',
+                'dark': 'midnight_obsidian',
+                'navy': 'midnight_obsidian',
+                'midnight': 'pure_oled',
+                'oled': 'pure_oled',
+                'cream': 'warm_cream',
+                'solar': 'solar_contrast',
+                'forest': 'slate_twilight'
             };
             if (aliasMap[themeKey]) themeKey = aliasMap[themeKey];
-            if (!DESKTOP_THEME_NAMES[themeKey]) themeKey = 'warm-alabaster';
 
-            // Apply attributes
+            let themeObj = window.MASTER_THEMES.find(t => t.key === themeKey);
+            const isLight = DESKTOP_LIGHT_THEMES.indexOf(themeKey) !== -1 || (themeObj && themeObj.isLight);
+
             document.documentElement.setAttribute('data-theme', themeKey);
             if (document.body) document.body.setAttribute('data-theme', themeKey);
 
-            const isLight = DESKTOP_LIGHT_THEMES.indexOf(themeKey) !== -1;
             if (isLight) {
                 document.documentElement.classList.add('light-theme');
-                if (document.body) document.body.classList.add('light-theme');
+                document.documentElement.classList.remove('dark-theme');
+                if (document.body) {
+                    document.body.classList.add('light-theme');
+                    document.body.classList.remove('dark-theme');
+                }
             } else {
                 document.documentElement.classList.remove('light-theme');
-                if (document.body) document.body.classList.remove('light-theme');
+                document.documentElement.classList.add('dark-theme');
+                if (document.body) {
+                    document.body.classList.remove('light-theme');
+                    document.body.classList.add('dark-theme');
+                }
             }
 
-            // Sync persistence
             try {
                 localStorage.setItem('magaies_active_theme', themeKey);
                 localStorage.setItem('magaiees_mobile_theme', themeKey);
@@ -709,36 +736,73 @@
             } catch(e) {}
 
             highlightActiveDesktopThemeCard();
-            window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: themeKey } }));
+
+            const btn = document.querySelector('.theme-toggle-btn');
+            if (btn) {
+                const icon = themeObj ? themeObj.icon : (isLight ? '☀️' : '🌌');
+                const name = DESKTOP_THEME_NAMES[themeKey] || (themeObj ? themeObj.name : themeKey);
+                btn.innerHTML = `<span style="font-size:1.15rem; filter:drop-shadow(0 0 5px ${isLight ? 'rgba(0,0,0,0.3)' : 'rgba(56,189,248,0.5)'});">${icon}</span>`;
+                btn.setAttribute('title', `${name} (انقر للتبديل السريع)`);
+            }
+
+            if (typeof initCharts === 'function') { try { initCharts(); } catch(err) {} }
+            if (typeof initProCharts === 'function') { try { initProCharts(); } catch(err) {} }
+
+            window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: themeKey, isLight: isLight } }));
 
             if (showToast) {
-                showDesktopThemeToast(DESKTOP_THEME_NAMES[themeKey] || themeKey);
+                const displayName = DESKTOP_THEME_NAMES[themeKey] || (themeObj ? themeObj.name : themeKey);
+                showThemeToast(displayName, isLight, themeObj ? themeObj.icon : (isLight ? '☀️' : '🌌'));
             }
-        }
+        };
 
-        function toggleTheme() {
-            const currentTheme = document.documentElement.getAttribute('data-theme') || 'warm-alabaster';
-            const isLight = DESKTOP_LIGHT_THEMES.indexOf(currentTheme) !== -1;
-            const nextTheme = isLight ? 'midnight-executive' : 'warm-alabaster';
-            applyDesktopTheme(nextTheme, true);
-        }
+        window.toggleTheme = function() {
+            const cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('magaiees_mobile_theme') || (localStorage.getItem('erp_theme') === 'light' ? 'ultra_white' : 'midnight_obsidian');
+            let idx = window.MASTER_THEMES.findIndex(t => t.key === cur);
+            if (idx === -1) {
+                const isLight = DESKTOP_LIGHT_THEMES.indexOf(cur) !== -1;
+                idx = isLight ? 0 : 2;
+            }
+            const nextIdx = (idx + 1) % window.MASTER_THEMES.length;
+            const nextTheme = window.MASTER_THEMES[nextIdx];
+            window.setUniversalTheme(nextTheme.key, true);
+        };
 
-        function showDesktopThemeToast(themeName) {
-            let toast = document.getElementById('desktopThemeToastBox');
+        function showThemeToast(themeName, isLight, icon) {
+            let toast = document.getElementById('universal-theme-toast');
             if (!toast) {
                 toast = document.createElement('div');
-                toast.id = 'desktopThemeToastBox';
-                toast.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg, #10b981, #059669); color:#ffffff; font-weight:800; font-size:14px; padding:12px 24px; border-radius:30px; box-shadow:0 10px 30px rgba(0,0,0,0.35); z-index:999999; display:flex; align-items:center; gap:10px; pointer-events:none; transition:all 0.3s ease; opacity:0;';
+                toast.id = 'universal-theme-toast';
+                toast.style.cssText = `
+                    position: fixed; top: 80px; left: 50%; transform: translateX(-50%) translateY(-20px);
+                    background: rgba(15, 23, 42, 0.95); color: #ffffff; padding: 10px 22px;
+                    border-radius: 20px; font-weight: 800; font-size: 0.92rem;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1.5px solid rgba(56,189,248,0.4);
+                    z-index: 999999; display: flex; align-items: center; gap: 10px;
+                    pointer-events: none; opacity: 0; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); direction: rtl;
+                `;
                 document.body.appendChild(toast);
             }
-            toast.innerHTML = '<span>🎨</span><span>تم تفعيل سمة: <strong>' + themeName + '</strong> بنجاح</span>';
+            toast.innerHTML = `<span style="font-size:1.3rem;">${icon || '🎨'}</span> <span>تم تفعيل: <strong>${themeName}</strong></span>`;
+            if (isLight) {
+                toast.style.background = '#ffffff';
+                toast.style.color = '#0f172a';
+                toast.style.borderColor = 'rgba(0,0,0,0.15)';
+                toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
+            } else {
+                toast.style.background = 'rgba(15, 23, 42, 0.96)';
+                toast.style.color = '#ffffff';
+                toast.style.borderColor = 'rgba(56,189,248,0.4)';
+                toast.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+            }
             toast.style.opacity = '1';
             toast.style.transform = 'translateX(-50%) translateY(0)';
-            clearTimeout(window._desktopThemeToastTimer);
-            window._desktopThemeToastTimer = setTimeout(() => {
+            clearTimeout(window._themeToastTimer);
+            window._themeToastTimer = setTimeout(() => {
                 toast.style.opacity = '0';
-                toast.style.transform = 'translateX(-50%) translateY(15px)';
-            }, 2500);
+                toast.style.transform = 'translateX(-50%) translateY(-20px)';
+            }, 1800);
         }
 
         // Close on Escape
@@ -747,6 +811,14 @@
                 closeDesktopThemePaletteModal();
             }
         });
+
+        // Apply immediately on load
+        (function() {
+            let initial = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_mobile_theme') || localStorage.getItem('erp_theme') || 'midnight_obsidian';
+            if (initial === 'light') initial = 'ultra_white';
+            if (initial === 'dark') initial = 'midnight_obsidian';
+            window.setUniversalTheme(initial, false);
+        })();
         </script>
     </div>
 </header>

@@ -929,26 +929,34 @@ $currenciesData = [
 ];
 
 // السمة النشطة المتزامنة مع لوحة التحكم وكافة الشاشات
-$activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_theme'] ?? 'warm-alabaster';
+$activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_theme'] ?? $_COOKIE['erp_theme'] ?? 'warm-alabaster';
+if ($activeTheme === 'light') $activeTheme = 'ultra_white';
+if ($activeTheme === 'dark') $activeTheme = 'midnight_obsidian';
+$lightThemesList = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper', 'ultra_white', 'warm_cream', 'exec_gray'];
+$isLight = in_array($activeTheme, $lightThemesList, true);
 ?>
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
+<html lang="ar" dir="rtl" data-theme="<?php echo htmlspecialchars($activeTheme); ?>" class="<?php echo $isLight ? 'light-theme' : 'dark-theme'; ?>">
 <head>
   <script>
   (function initEarlyTheme() {
     try {
-      var t = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_mobile_theme');
+      var t = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_mobile_theme') || localStorage.getItem('erp_theme') || '<?php echo $activeTheme; ?>';
+      if (t === 'light') t = 'ultra_white';
+      if (t === 'dark') t = 'midnight_obsidian';
       if (!t) {
-        var m = document.cookie.match(/(?:^|;\s*)(?:magaies_active_theme|magaiees_mobile_theme)=([^;]+)/);
+        var m = document.cookie.match(/(?:^|;\s*)(?:magaies_active_theme|magaiees_mobile_theme|erp_theme)=([^;]+)/);
         if (m) t = decodeURIComponent(m[1]);
       }
       if (t) {
         document.documentElement.setAttribute('data-theme', t);
-        var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+        var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper', 'ultra_white', 'warm_cream', 'exec_gray'];
         if (lightThemes.indexOf(t) !== -1) {
           document.documentElement.classList.add('light-theme');
+          document.documentElement.classList.remove('dark-theme');
         } else {
           document.documentElement.classList.remove('light-theme');
+          document.documentElement.classList.add('dark-theme');
         }
       }
     } catch(e) {}
@@ -979,7 +987,6 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
     } catch(e) {}
   })();
   </script>
-
   <script>
     <?php $mgJsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT; ?>
     window.PHP_ACCOUNTS = <?php echo json_encode($accountsList, $mgJsonFlags); ?>;
@@ -1586,7 +1593,7 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
     @media (max-width: 640px) {
       body {
         padding: 0 !important;
-        background: #020617 !important;
+        background: #020617;
       }
       .mobile-device-outer {
         width: 100% !important;
@@ -2636,6 +2643,390 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
       border: 1.5px solid #ffffff !important;
     }
 
+
+
+    /* ═════════════════════════════════════════════════════════════════
+       🎨 UNIVERSAL 4-THEME OVERRIDE SYSTEM FOR MOBILE VOUCHER (حركة مالية)
+       ═════════════════════════════════════════════════════════════════ */
+
+    /* ── 1. ☀️ ULTRA WHITE THEME (أبيض فائق) ── */
+    html[data-theme="ultra_white"],
+    html.light-theme {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="ultra_white"] body,
+    html.light-theme body {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    @media (max-width: 640px) {
+      html[data-theme="ultra_white"] body,
+      html.light-theme body {
+        background-color: #ffffff !important;
+      }
+    }
+    html[data-theme="ultra_white"] .desktop-screen-switcher,
+    html.light-theme .desktop-screen-switcher {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
+    }
+    html[data-theme="ultra_white"] .desktop-screen-switcher .text-white,
+    html.light-theme .desktop-screen-switcher .text-white {
+      color: #0f172a !important;
+    }
+    html[data-theme="ultra_white"] #dimensionBadge,
+    html.light-theme #dimensionBadge {
+      background-color: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #047857 !important;
+    }
+    html[data-theme="ultra_white"] #mobileContainer,
+    html.light-theme #mobileContainer {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08) !important;
+    }
+    html[data-theme="ultra_white"] .bg-slate-950,
+    html[data-theme="ultra_white"] .bg-slate-900,
+    html[data-theme="ultra_white"] .bg-slate-900\/90,
+    html[data-theme="ultra_white"] .bg-slate-900\/80,
+    html[data-theme="ultra_white"] .bg-slate-900\/95,
+    html[data-theme="ultra_white"] .bg-slate-950\/95,
+    html[data-theme="ultra_white"] .bg-slate-950\/90,
+    html[data-theme="ultra_white"] .bg-slate-800,
+    html[data-theme="ultra_white"] .bg-slate-800\/80,
+    html[data-theme="ultra_white"] .bg-slate-800\/50,
+    html.light-theme .bg-slate-950,
+    html.light-theme .bg-slate-900,
+    html.light-theme .bg-slate-900\/90,
+    html.light-theme .bg-slate-900\/80,
+    html.light-theme .bg-slate-900\/95,
+    html.light-theme .bg-slate-950\/95,
+    html.light-theme .bg-slate-950\/90,
+    html.light-theme .bg-slate-800,
+    html.light-theme .bg-slate-800\/80,
+    html.light-theme .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="ultra_white"] .border-slate-900,
+    html[data-theme="ultra_white"] .border-slate-800,
+    html[data-theme="ultra_white"] .border-slate-700,
+    html.light-theme .border-slate-900,
+    html.light-theme .border-slate-800,
+    html.light-theme .border-slate-700 {
+      border-color: #e2e8f0 !important;
+    }
+    html[data-theme="ultra_white"] .text-white,
+    html[data-theme="ultra_white"] .text-slate-100,
+    html[data-theme="ultra_white"] .text-slate-200,
+    html[data-theme="ultra_white"] .text-slate-300,
+    html.light-theme .text-white,
+    html.light-theme .text-slate-100,
+    html.light-theme .text-slate-200,
+    html.light-theme .text-slate-300 {
+      color: #0f172a !important;
+    }
+    html[data-theme="ultra_white"] .text-slate-400,
+    html[data-theme="ultra_white"] .text-slate-500,
+    html.light-theme .text-slate-400,
+    html.light-theme .text-slate-500 {
+      color: #475569 !important;
+    }
+    html[data-theme="ultra_white"] .text-amber-400,
+    html[data-theme="ultra_white"] .text-yellow-400,
+    html[data-theme="ultra_white"] .text-amber-300,
+    html[data-theme="ultra_white"] .text-yellow-300,
+    html.light-theme .text-amber-400,
+    html.light-theme .text-yellow-400,
+    html.light-theme .text-amber-300,
+    html.light-theme .text-yellow-300 {
+      color: #92400e !important;
+    }
+    html[data-theme="ultra_white"] .text-emerald-400,
+    html.light-theme .text-emerald-400 {
+      color: #047857 !important;
+    }
+    html[data-theme="ultra_white"] .text-cyan-400,
+    html.light-theme .text-cyan-400 {
+      color: #0369a1 !important;
+    }
+    html[data-theme="ultra_white"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html[data-theme="ultra_white"] select,
+    html[data-theme="ultra_white"] textarea,
+    html.light-theme input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html.light-theme select,
+    html.light-theme textarea {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      border-color: #cbd5e1 !important;
+    }
+    html[data-theme="ultra_white"] input::placeholder,
+    html[data-theme="ultra_white"] textarea::placeholder,
+    html.light-theme input::placeholder,
+    html.light-theme textarea::placeholder {
+      color: #94a3b8 !important;
+    }
+    html[data-theme="ultra_white"] #fromDropdown,
+    html[data-theme="ultra_white"] #toDropdown,
+    html.light-theme #fromDropdown,
+    html.light-theme #toDropdown {
+      background-color: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;
+    }
+    html[data-theme="ultra_white"] #fromDropdown *,
+    html[data-theme="ultra_white"] #toDropdown *,
+    html.light-theme #fromDropdown *,
+    html.light-theme #toDropdown * {
+      border-color: #e2e8f0 !important;
+    }
+    html[data-theme="ultra_white"] .bottom-bar-fixed,
+    html.light-theme .bottom-bar-fixed {
+      background-color: rgba(255, 255, 255, 0.96) !important;
+      border-top-color: #e2e8f0 !important;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.06) !important;
+    }
+    html[data-theme="ultra_white"] #currentTime,
+    html.light-theme #currentTime {
+      color: #0f172a !important;
+    }
+    html[data-theme="ultra_white"] #mobileThemeToggleBtn,
+    html.light-theme #mobileThemeToggleBtn {
+      background-color: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+
+    /* ── 2. 📜 WARM CREAM THEME (بيج كلاسيكي) ── */
+    html[data-theme="warm_cream"] {
+      background-color: #fbf7ee !important;
+      color: #292524 !important;
+    }
+    html[data-theme="warm_cream"] body {
+      background-color: #fbf7ee !important;
+      color: #292524 !important;
+    }
+    @media (max-width: 640px) {
+      html[data-theme="warm_cream"] body {
+        background-color: #fffdfa !important;
+      }
+    }
+    html[data-theme="warm_cream"] .desktop-screen-switcher {
+      background-color: #fffdf9 !important;
+      border-color: #e7ded1 !important;
+      color: #292524 !important;
+      box-shadow: 0 4px 20px rgba(120,80,40,0.06) !important;
+    }
+    html[data-theme="warm_cream"] .desktop-screen-switcher .text-white {
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm_cream"] #dimensionBadge {
+      background-color: #f5ede2 !important;
+      border-color: #e4d8c8 !important;
+      color: #15803d !important;
+    }
+    html[data-theme="warm_cream"] #mobileContainer {
+      background-color: #fffdfa !important;
+      border-color: #e4d8c8 !important;
+      color: #1c1917 !important;
+      box-shadow: 0 10px 40px rgba(120,80,40,0.08) !important;
+    }
+    html[data-theme="warm_cream"] .bg-slate-950,
+    html[data-theme="warm_cream"] .bg-slate-900,
+    html[data-theme="warm_cream"] .bg-slate-900\/90,
+    html[data-theme="warm_cream"] .bg-slate-900\/80,
+    html[data-theme="warm_cream"] .bg-slate-900\/95,
+    html[data-theme="warm_cream"] .bg-slate-950\/95,
+    html[data-theme="warm_cream"] .bg-slate-950\/90,
+    html[data-theme="warm_cream"] .bg-slate-800,
+    html[data-theme="warm_cream"] .bg-slate-800\/80,
+    html[data-theme="warm_cream"] .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #e4d8c8 !important;
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm_cream"] .border-slate-900,
+    html[data-theme="warm_cream"] .border-slate-800,
+    html[data-theme="warm_cream"] .border-slate-700 {
+      border-color: #e4d8c8 !important;
+    }
+    html[data-theme="warm_cream"] .text-white,
+    html[data-theme="warm_cream"] .text-slate-100,
+    html[data-theme="warm_cream"] .text-slate-200,
+    html[data-theme="warm_cream"] .text-slate-300 {
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm_cream"] .text-slate-400,
+    html[data-theme="warm_cream"] .text-slate-500 {
+      color: #57534e !important;
+    }
+    html[data-theme="warm_cream"] .text-amber-400,
+    html[data-theme="warm_cream"] .text-yellow-400 {
+      color: #92400e !important;
+    }
+    html[data-theme="warm_cream"] .text-emerald-400 {
+      color: #15803d !important;
+    }
+    html[data-theme="warm_cream"] .text-cyan-400 {
+      color: #0369a1 !important;
+    }
+    html[data-theme="warm_cream"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html[data-theme="warm_cream"] select,
+    html[data-theme="warm_cream"] textarea {
+      background-color: #ffffff !important;
+      color: #1c1917 !important;
+      border-color: #d6c7b2 !important;
+    }
+    html[data-theme="warm_cream"] input::placeholder,
+    html[data-theme="warm_cream"] textarea::placeholder {
+      color: #a8a29e !important;
+    }
+    html[data-theme="warm_cream"] #fromDropdown,
+    html[data-theme="warm_cream"] #toDropdown {
+      background-color: #ffffff !important;
+      border: 1.5px solid #e4d8c8 !important;
+      box-shadow: 0 15px 35px rgba(120,80,40,0.1) !important;
+    }
+    html[data-theme="warm_cream"] #fromDropdown *,
+    html[data-theme="warm_cream"] #toDropdown * {
+      border-color: #ede2d3 !important;
+    }
+    html[data-theme="warm_cream"] .bottom-bar-fixed {
+      background-color: rgba(255, 253, 250, 0.96) !important;
+      border-top-color: #e4d8c8 !important;
+      box-shadow: 0 -4px 20px rgba(120,80,40,0.06) !important;
+    }
+    html[data-theme="warm_cream"] #currentTime {
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm_cream"] #mobileThemeToggleBtn {
+      background-color: #f5ede2 !important;
+      border-color: #e4d8c8 !important;
+      color: #1c1917 !important;
+    }
+
+    /* ── 3. 🌌 UNIFIED BLUE THEME (كحلي موحد) ── */
+    html[data-theme="midnight_obsidian"],
+    html[data-theme="navy"] {
+      background-color: #0a1128 !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="midnight_obsidian"] body,
+    html[data-theme="navy"] body {
+      background-color: #0a1128 !important;
+      color: #ffffff !important;
+    }
+    @media (max-width: 640px) {
+      html[data-theme="midnight_obsidian"] body,
+      html[data-theme="navy"] body {
+        background-color: #0b132b !important;
+      }
+    }
+    html[data-theme="midnight_obsidian"] .desktop-screen-switcher,
+    html[data-theme="navy"] .desktop-screen-switcher {
+      background-color: #0d1738 !important;
+      border-color: rgba(56, 189, 248, 0.25) !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
+    }
+    html[data-theme="midnight_obsidian"] #mobileContainer,
+    html[data-theme="navy"] #mobileContainer {
+      background-color: #0b132b !important;
+      border-color: rgba(56, 189, 248, 0.3) !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.85) !important;
+    }
+    html[data-theme="midnight_obsidian"] .bg-slate-950,
+    html[data-theme="midnight_obsidian"] .bg-slate-900,
+    html[data-theme="midnight_obsidian"] .bg-slate-900\/90,
+    html[data-theme="midnight_obsidian"] .bg-slate-900\/80,
+    html[data-theme="navy"] .bg-slate-950,
+    html[data-theme="navy"] .bg-slate-900 {
+      background-color: #111c44 !important;
+      border-color: rgba(56, 189, 248, 0.2) !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="midnight_obsidian"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html[data-theme="midnight_obsidian"] select,
+    html[data-theme="midnight_obsidian"] textarea {
+      background-color: #0b132b !important;
+      color: #ffffff !important;
+      border-color: rgba(56, 189, 248, 0.35) !important;
+    }
+    html[data-theme="midnight_obsidian"] .bottom-bar-fixed,
+    html[data-theme="navy"] .bottom-bar-fixed {
+      background-color: rgba(13, 23, 56, 0.96) !important;
+      border-top-color: rgba(56, 189, 248, 0.25) !important;
+    }
+    html[data-theme="midnight_obsidian"] #mobileThemeToggleBtn {
+      background-color: #111c44 !important;
+      border-color: rgba(56, 189, 248, 0.35) !important;
+      color: #38bdf8 !important;
+    }
+
+    /* ── 4. 🌑 PURE OLED THEME (أسود مطلق) ── */
+    html[data-theme="pure_oled"],
+    html[data-theme="midnight"] {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="pure_oled"] body,
+    html[data-theme="midnight"] body {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    @media (max-width: 640px) {
+      html[data-theme="pure_oled"] body,
+      html[data-theme="midnight"] body {
+        background-color: #000000 !important;
+      }
+    }
+    html[data-theme="pure_oled"] .desktop-screen-switcher,
+    html[data-theme="midnight"] .desktop-screen-switcher {
+      background-color: #050505 !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="pure_oled"] #mobileContainer,
+    html[data-theme="midnight"] #mobileContainer {
+      background-color: #000000 !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,1) !important;
+    }
+    html[data-theme="pure_oled"] .bg-slate-950,
+    html[data-theme="pure_oled"] .bg-slate-900,
+    html[data-theme="pure_oled"] .bg-slate-900\/90,
+    html[data-theme="pure_oled"] .bg-slate-900\/80,
+    html[data-theme="midnight"] .bg-slate-950,
+    html[data-theme="midnight"] .bg-slate-900 {
+      background-color: #080808 !important;
+      border-color: rgba(255, 255, 255, 0.18) !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="pure_oled"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html[data-theme="pure_oled"] select,
+    html[data-theme="pure_oled"] textarea {
+      background-color: #050505 !important;
+      color: #ffffff !important;
+      border-color: rgba(255, 255, 255, 0.28) !important;
+    }
+    html[data-theme="pure_oled"] .bottom-bar-fixed,
+    html[data-theme="midnight"] .bottom-bar-fixed {
+      background-color: rgba(0, 0, 0, 0.98) !important;
+      border-top-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    html[data-theme="pure_oled"] #mobileThemeToggleBtn {
+      background-color: #080808 !important;
+      border-color: rgba(255, 255, 255, 0.3) !important;
+      color: #ffffff !important;
+    }
   </style>
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
@@ -2705,13 +3096,16 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
         </button>
       </div>
 
-      <!-- اليسار: أزرار التحكم بالسمات والرئيسية + الساعة و 5G -->
+      <!-- اليسار: أزرار التحكم بالسمات والرئيسية + التبديل السريع + الساعة و 5G -->
       <div class="flex items-center gap-1.5 text-slate-300">
         <a href="mobile-dashboard.php?force_mobile=1" class="w-7 h-7 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center shrink-0 border border-slate-700 transition" title="العودة للوحة التحكم الرئيسية 🏠">
           <i class="fa-solid fa-house text-[11px]"></i>
         </a>
         <button type="button" onclick="openThemePaletteDrawer()" class="w-7 h-7 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 flex items-center justify-center shrink-0 border border-amber-500/40 transition" title="سيف السمات والراحة البصرية 🎨">
           <i class="fa-solid fa-palette text-[11px]"></i>
+        </button>
+        <button type="button" onclick="cycleMobileTheme()" id="mobileThemeToggleBtn" class="w-7 h-7 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-cyan-400 text-xs flex items-center justify-center transition active:scale-95 shadow-sm" title="تبديل سريع للسمة (أبيض / بيج / كحلي / أسود)">
+          <span id="mobileThemeIcon"><?php echo ($isLight ? '☀️' : ($activeTheme === 'pure_oled' ? '🌑' : '🌌')); ?></span>
         </button>
         <span id="currentTime" class="font-bold font-mono text-slate-200 text-xs ml-0.5">13:15</span>
         <div class="flex items-center gap-1 font-mono text-slate-300">
@@ -11573,5 +11967,48 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
       </div>
     </div>
   </div>
+  <script>
+    const MOBILE_MASTER_THEMES = [
+      { key: 'ultra_white', name: 'أبيض فائق (Ultra White)', icon: '☀️', isLight: true },
+      { key: 'warm_cream', name: 'بيج كلاسيكي (Warm Cream)', icon: '📜', isLight: true },
+      { key: 'midnight_obsidian', name: 'كحلي موحد (Unified Blue)', icon: '🌌', isLight: false },
+      { key: 'pure_oled', name: 'أسود مطلق (Pure OLED)', icon: '🌑', isLight: false }
+    ];
+
+    window.setMobileTheme = function(themeKey, showToast) {
+      if (typeof applyTheme === 'function') {
+        applyTheme(themeKey, showToast);
+      } else {
+        document.documentElement.setAttribute('data-theme', themeKey);
+      }
+      const iconEl = document.getElementById('mobileThemeIcon');
+      if (iconEl) {
+        if (themeKey === 'ultra_white' || themeKey === 'pure-platinum') iconEl.textContent = '☀️';
+        else if (themeKey === 'warm_cream' || themeKey === 'warm-alabaster') iconEl.textContent = '📜';
+        else if (themeKey === 'pure_oled' || themeKey === 'midnight') iconEl.textContent = '🌑';
+        else {
+          const lightList = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper', 'ultra_white', 'warm_cream', 'exec_gray'];
+          iconEl.textContent = (lightList.indexOf(themeKey) !== -1) ? '☀️' : '🌌';
+        }
+      }
+    };
+
+    window.cycleMobileTheme = function() {
+      const cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('magaiees_mobile_theme') || 'midnight_obsidian';
+      let idx = MOBILE_MASTER_THEMES.findIndex(t => t.key === cur);
+      if (idx === -1) {
+        const lightList = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper', 'ultra_white', 'warm_cream', 'exec_gray'];
+        idx = (lightList.indexOf(cur) !== -1) ? 0 : 2;
+      }
+      const nextIdx = (idx + 1) % MOBILE_MASTER_THEMES.length;
+      window.setMobileTheme(MOBILE_MASTER_THEMES[nextIdx].key, true);
+    };
+
+    // مزامنة حالة الأيقونة فور تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', () => {
+      const cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('magaiees_mobile_theme') || 'midnight_obsidian';
+      window.setMobileTheme(cur, false);
+    });
+  </script>
 </body>
 </html>

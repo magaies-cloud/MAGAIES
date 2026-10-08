@@ -207,8 +207,8 @@ try {
         #amount-local { animation: subtleShine 3s infinite alternate; }
 
         /* Typography Scale for Clarity */
-        .label { font-size: 1.3rem !important; font-weight: 900 !important; color: #f8fafc !important; text-shadow: 0 2px 4px rgba(0,0,0,0.9) !important; }
-        .form-input, textarea.form-input { font-size: 1.25rem !important; font-weight: 800 !important; color: #ffffff !important; background: #0f172a !important; border: 1px solid #38bdf8 !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
+        .label { font-size: 1.3rem !important; font-weight: 900 !important; color: var(--text-primary, #f8fafc); text-shadow: none !important; }
+        .form-input, textarea.form-input { font-size: 1.25rem !important; font-weight: 800 !important; color: var(--text-primary, #ffffff); background: var(--bg-secondary, #0f172a); border: 1px solid var(--border-highlight, #38bdf8); box-shadow: inset 0 2px 5px rgba(0,0,0,0.2); text-shadow: none !important; }
         .form-input:not(#amount-local):not(#amount-foreign) { height: 48px !important; }
         textarea.form-input { height: auto !important; min-height: 48px; }
         #to-statement, #from-statement { font-size: 0.95rem !important; }
@@ -230,11 +230,48 @@ try {
         }
         
         .choices { margin-bottom: 0 !important; }
-        .choices__inner { font-size: 1.1rem !important; font-weight: 800 !important; min-height: 48px !important; padding: 6px 12px !important; border-radius: 8px !important; background: #0f172a !important; border: 1px solid #38bdf8 !important; color: #ffffff !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
-        .choices__input { color: #ffffff !important; font-size: 1.1rem !important; font-weight: 700 !important; }
-        .choices__list--dropdown { background: #1e293b !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 1000 !important; }
+        .choices__inner { font-size: 1.1rem !important; font-weight: 800 !important; min-height: 48px !important; padding: 6px 12px !important; border-radius: 8px !important; background: var(--bg-secondary, #0f172a); border: 1px solid var(--border-highlight, #38bdf8); color: var(--text-primary, #ffffff); }
+        .choices__input { color: var(--text-primary, #ffffff) !important; font-size: 1.1rem !important; font-weight: 700 !important; }
+        .choices__list--dropdown { background: var(--surface, #1e293b) !important; color: var(--text-primary, #fff) !important; border: 1px solid var(--border, rgba(255,255,255,0.1)) !important; z-index: 1000 !important; }
         .choices__list--dropdown .choices__item { font-size: 1.1rem !important; font-weight: 500 !important; }
         .choices__list--dropdown .choices__item--selectable.is-highlighted { background: #38bdf8 !important; color: #fff !important; }
+
+        /* Light & Warm Cream Theme Overrides for Single Cash Payment */
+        :root.light-theme .label, [data-theme="ultra_white"] .label, [data-theme="warm_cream"] .label { color: #000000 !important; text-shadow: none !important; }
+        :root.light-theme .form-input, :root.light-theme textarea.form-input,
+        [data-theme="ultra_white"] .form-input, [data-theme="ultra_white"] textarea.form-input,
+        [data-theme="warm_cream"] .form-input, [data-theme="warm_cream"] textarea.form-input {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1.5px solid #cbd5e1 !important;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.06) !important;
+        }
+        :root.light-theme .choices__inner, [data-theme="ultra_white"] .choices__inner, [data-theme="warm_cream"] .choices__inner {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1.5px solid #cbd5e1 !important;
+        }
+        :root.light-theme .choices__input, [data-theme="ultra_white"] .choices__input, [data-theme="warm_cream"] .choices__input {
+            color: #000000 !important;
+        }
+        :root.light-theme .choices__list--dropdown, [data-theme="ultra_white"] .choices__list--dropdown, [data-theme="warm_cream"] .choices__list--dropdown,
+        :root.light-theme .custom-dropdown-list, [data-theme="ultra_white"] .custom-dropdown-list, [data-theme="warm_cream"] .custom-dropdown-list {
+            background: #ffffff !important;
+            color: #000000 !important;
+            border: 1px solid rgba(0,0,0,0.12) !important;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12) !important;
+        }
+        :root.light-theme .choices__list--dropdown .choices__item--selectable,
+        [data-theme="ultra_white"] .choices__list--dropdown .choices__item--selectable,
+        [data-theme="warm_cream"] .choices__list--dropdown .choices__item--selectable {
+            color: #0f172a !important;
+        }
+        :root.light-theme .choices__list--dropdown .choices__item--selectable.is-highlighted,
+        [data-theme="ultra_white"] .choices__list--dropdown .choices__item--selectable.is-highlighted,
+        [data-theme="warm_cream"] .choices__list--dropdown .choices__item--selectable.is-highlighted {
+            background-color: #e2e8f0 !important;
+            color: #000000 !important;
+        }
         /* Center Screen Premium Toast & Alert System */
         .toast-container {
             position: fixed !important;

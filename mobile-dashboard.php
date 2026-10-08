@@ -968,7 +968,7 @@ try {
         body[data-theme="navy"] {
             --bg-base: #0b0f19;
             --bg-gradient: radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.12) 0%, transparent 45%),
-                           radial-gradient(circle at 90% 80%, rgba(168, 85, 247, 0.1) 0%, transparent 45%);
+                           radial-gradient(circle at 90% 80%, rgba(30, 64, 175, 0.15) 0%, transparent 45%);
             --surface-1: #111827;
             --surface-2: #1f2937;
             --surface-card: #111b2b;
@@ -979,7 +979,7 @@ try {
             --emerald: #10b981;
             --amber: #f59e0b;
             --rose: #f43f5e;
-            --purple: #a855f7;
+            --purple: #38bdf8;
             --text-main: #ffffff;
             --text-muted: #94a3b8;
             --header-bg: rgba(11, 15, 25, 0.94);
@@ -989,7 +989,7 @@ try {
             --input-border: rgba(56, 189, 248, 0.32);
             --input-color: #ffffff;
             --pill-bg: #152033;
-            --pill-active-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(168, 85, 247, 0.3));
+            --pill-active-bg: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(30, 64, 175, 0.3));
             --pill-active-text: #38bdf8;
             --grand-color: #00f2fe;
             --grand-sub: #4facfe;

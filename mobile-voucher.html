@@ -3,6 +3,26 @@
 <head>
   <!-- ⚡ SMART LAPTOP VOUCHER GATE (تحويل ذكي للكمبيوتر ومنع الجوال نهائياً) -->
   <script>
+  <script>
+    (function() {
+      try {
+        let t = localStorage.getItem('magaiees_mobile_theme') || localStorage.getItem('erp_theme') || 'midnight_obsidian';
+        if (t === 'light') t = 'ultra_white';
+        if (t === 'dark') t = 'midnight_obsidian';
+        document.documentElement.setAttribute('data-theme', t);
+        const light = (t === 'ultra_white' || t === 'warm_cream' || t === 'exec_gray');
+        if (light) {
+          document.documentElement.classList.add('light-theme');
+          document.documentElement.classList.remove('dark-theme');
+        } else {
+          document.documentElement.classList.remove('light-theme');
+          document.documentElement.classList.add('dark-theme');
+        }
+      } catch(e) {}
+    })();
+  </script>
+  <!-- ⚡ SMART LAPTOP VOUCHER GATE (تحويل ذكي للكمبيوتر ومنع الجوال نهائياً) -->
+  <script>
   (function enforceLaptopVoucherGate() {
     try {
       var params = new URLSearchParams(window.location.search);
@@ -25,51 +45,10 @@
     } catch(e) {}
   })();
   </script>
-
   <script>
-    <?php $mgJsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT; ?>
-    window.PHP_ACCOUNTS = <?php echo json_encode($accountsList, $mgJsonFlags); ?>;
-    window.PHP_VOUCHERS = <?php echo json_encode($vouchersHistory, $mgJsonFlags); ?>;
-    window.PHP_NEXT_NO = <?php echo json_encode($nextSequentialVoucherNo, $mgJsonFlags); ?>;
-    window.DB_ALL_TRANSFER_REFS = <?php echo json_encode($allDbTransfersPreload, $mgJsonFlags); ?>;
-
-    // ── اعتراض انتهاء الجلسة (401) لكل طلبات الـ API: رسالة واضحة بدل الحفظ الصامت أوفلاين ──
-    (function () {
-      const nativeFetch = window.fetch.bind(window);
-      let bannerShown = false;
-      function showSessionExpiredBanner(msg) {
-        if (bannerShown) return;
-        bannerShown = true;
-        const show = () => {
-          const bar = document.createElement('div');
-          bar.id = 'sessionExpiredBanner';
-          bar.setAttribute('role', 'alert');
-          bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#7f1d1d;color:#fff;border-bottom:2px solid #f87171;padding:12px 14px;direction:rtl;font-family:Cairo,system-ui,sans-serif;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.6)';
-          const text = document.createElement('span');
-          text.textContent = '🔒 ' + (msg || 'انتهت جلسة الدخول. يرجى تسجيل الدخول مرة أخرى.') + ' (بيانات السند الحالي لم تُحذف)';
-          const btn = document.createElement('a');
-          btn.href = 'login.php?redirect=' + encodeURIComponent('mobile-voucher.php');
-          btn.textContent = 'تسجيل الدخول';
-          btn.style.cssText = 'background:#fff;color:#7f1d1d;padding:8px 14px;border-radius:10px;text-decoration:none;white-space:nowrap;font-weight:900';
-          bar.appendChild(text);
-          bar.appendChild(btn);
-          document.body.appendChild(bar);
-        };
-        if (document.body) show(); else document.addEventListener('DOMContentLoaded', show);
-      }
-      window.fetch = async function (input, init) {
-        const url = typeof input === 'string' ? input : (input && input.url) || '';
-        const isOwnApi = url.indexOf('mobile-voucher.php?api=') !== -1;
-        const opts = isOwnApi ? Object.assign({ credentials: 'same-origin' }, init || {}) : init;
-        const res = await nativeFetch(input, opts);
-        if (isOwnApi && res.status === 401) {
-          window.MG_SESSION_EXPIRED = true;
-          try { const j = await res.clone().json(); showSessionExpiredBanner(j && j.error); }
-          catch (e) { showSessionExpiredBanner(); }
-        }
-        return res;
-      };
-    })();
+    window.PHP_ACCOUNTS = [];
+    window.PHP_VOUCHERS = [];
+    window.PHP_NEXT_NO = "E26100001";
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
@@ -632,7 +611,7 @@
     @media (max-width: 640px) {
       body {
         padding: 0 !important;
-        background: #020617 !important;
+        background: #020617;
       }
       .mobile-device-outer {
         width: 100% !important;
@@ -1680,6 +1659,390 @@
     }
 
 
+
+
+    /* ═════════════════════════════════════════════════════════════════
+       🎨 UNIVERSAL 4-THEME OVERRIDE SYSTEM FOR MOBILE VOUCHER (حركة مالية)
+       ═════════════════════════════════════════════════════════════════ */
+
+    /* ── 1. ☀️ ULTRA WHITE THEME (أبيض فائق) ── */
+    html[data-theme="ultra_white"],
+    html.light-theme {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="ultra_white"] body,
+    html.light-theme body {
+      background-color: #f1f5f9 !important;
+      color: #0f172a !important;
+    }
+    @media (max-width: 640px) {
+      html[data-theme="ultra_white"] body,
+      html.light-theme body {
+        background-color: #ffffff !important;
+      }
+    }
+    html[data-theme="ultra_white"] .desktop-screen-switcher,
+    html.light-theme .desktop-screen-switcher {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
+    }
+    html[data-theme="ultra_white"] .desktop-screen-switcher .text-white,
+    html.light-theme .desktop-screen-switcher .text-white {
+      color: #0f172a !important;
+    }
+    html[data-theme="ultra_white"] #dimensionBadge,
+    html.light-theme #dimensionBadge {
+      background-color: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #047857 !important;
+    }
+    html[data-theme="ultra_white"] #mobileContainer,
+    html.light-theme #mobileContainer {
+      background-color: #ffffff !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08) !important;
+    }
+    html[data-theme="ultra_white"] .bg-slate-950,
+    html[data-theme="ultra_white"] .bg-slate-900,
+    html[data-theme="ultra_white"] .bg-slate-900\/90,
+    html[data-theme="ultra_white"] .bg-slate-900\/80,
+    html[data-theme="ultra_white"] .bg-slate-900\/95,
+    html[data-theme="ultra_white"] .bg-slate-950\/95,
+    html[data-theme="ultra_white"] .bg-slate-950\/90,
+    html[data-theme="ultra_white"] .bg-slate-800,
+    html[data-theme="ultra_white"] .bg-slate-800\/80,
+    html[data-theme="ultra_white"] .bg-slate-800\/50,
+    html.light-theme .bg-slate-950,
+    html.light-theme .bg-slate-900,
+    html.light-theme .bg-slate-900\/90,
+    html.light-theme .bg-slate-900\/80,
+    html.light-theme .bg-slate-900\/95,
+    html.light-theme .bg-slate-950\/95,
+    html.light-theme .bg-slate-950\/90,
+    html.light-theme .bg-slate-800,
+    html.light-theme .bg-slate-800\/80,
+    html.light-theme .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #e2e8f0 !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="ultra_white"] .border-slate-900,
+    html[data-theme="ultra_white"] .border-slate-800,
+    html[data-theme="ultra_white"] .border-slate-700,
+    html.light-theme .border-slate-900,
+    html.light-theme .border-slate-800,
+    html.light-theme .border-slate-700 {
+      border-color: #e2e8f0 !important;
+    }
+    html[data-theme="ultra_white"] .text-white,
+    html[data-theme="ultra_white"] .text-slate-100,
+    html[data-theme="ultra_white"] .text-slate-200,
+    html[data-theme="ultra_white"] .text-slate-300,
+    html.light-theme .text-white,
+    html.light-theme .text-slate-100,
+    html.light-theme .text-slate-200,
+    html.light-theme .text-slate-300 {
+      color: #0f172a !important;
+    }
+    html[data-theme="ultra_white"] .text-slate-400,
+    html[data-theme="ultra_white"] .text-slate-500,
+    html.light-theme .text-slate-400,
+    html.light-theme .text-slate-500 {
+      color: #475569 !important;
+    }
+    html[data-theme="ultra_white"] .text-amber-400,
+    html[data-theme="ultra_white"] .text-yellow-400,
+    html[data-theme="ultra_white"] .text-amber-300,
+    html[data-theme="ultra_white"] .text-yellow-300,
+    html.light-theme .text-amber-400,
+    html.light-theme .text-yellow-400,
+    html.light-theme .text-amber-300,
+    html.light-theme .text-yellow-300 {
+      color: #92400e !important;
+    }
+    html[data-theme="ultra_white"] .text-emerald-400,
+    html.light-theme .text-emerald-400 {
+      color: #047857 !important;
+    }
+    html[data-theme="ultra_white"] .text-cyan-400,
+    html.light-theme .text-cyan-400 {
+      color: #0369a1 !important;
+    }
+    html[data-theme="ultra_white"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html[data-theme="ultra_white"] select,
+    html[data-theme="ultra_white"] textarea,
+    html.light-theme input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html.light-theme select,
+    html.light-theme textarea {
+      background-color: #ffffff !important;
+      color: #000000 !important;
+      border-color: #cbd5e1 !important;
+    }
+    html[data-theme="ultra_white"] input::placeholder,
+    html[data-theme="ultra_white"] textarea::placeholder,
+    html.light-theme input::placeholder,
+    html.light-theme textarea::placeholder {
+      color: #94a3b8 !important;
+    }
+    html[data-theme="ultra_white"] #fromDropdown,
+    html[data-theme="ultra_white"] #toDropdown,
+    html.light-theme #fromDropdown,
+    html.light-theme #toDropdown {
+      background-color: #ffffff !important;
+      border: 1.5px solid #cbd5e1 !important;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;
+    }
+    html[data-theme="ultra_white"] #fromDropdown *,
+    html[data-theme="ultra_white"] #toDropdown *,
+    html.light-theme #fromDropdown *,
+    html.light-theme #toDropdown * {
+      border-color: #e2e8f0 !important;
+    }
+    html[data-theme="ultra_white"] .bottom-bar-fixed,
+    html.light-theme .bottom-bar-fixed {
+      background-color: rgba(255, 255, 255, 0.96) !important;
+      border-top-color: #e2e8f0 !important;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.06) !important;
+    }
+    html[data-theme="ultra_white"] #currentTime,
+    html.light-theme #currentTime {
+      color: #0f172a !important;
+    }
+    html[data-theme="ultra_white"] #mobileThemeToggleBtn,
+    html.light-theme #mobileThemeToggleBtn {
+      background-color: #f1f5f9 !important;
+      border-color: #cbd5e1 !important;
+      color: #0f172a !important;
+    }
+
+    /* ── 2. 📜 WARM CREAM THEME (بيج كلاسيكي) ── */
+    html[data-theme="warm_cream"] {
+      background-color: #fbf7ee !important;
+      color: #292524 !important;
+    }
+    html[data-theme="warm_cream"] body {
+      background-color: #fbf7ee !important;
+      color: #292524 !important;
+    }
+    @media (max-width: 640px) {
+      html[data-theme="warm_cream"] body {
+        background-color: #fffdfa !important;
+      }
+    }
+    html[data-theme="warm_cream"] .desktop-screen-switcher {
+      background-color: #fffdf9 !important;
+      border-color: #e7ded1 !important;
+      color: #292524 !important;
+      box-shadow: 0 4px 20px rgba(120,80,40,0.06) !important;
+    }
+    html[data-theme="warm_cream"] .desktop-screen-switcher .text-white {
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm_cream"] #dimensionBadge {
+      background-color: #f5ede2 !important;
+      border-color: #e4d8c8 !important;
+      color: #15803d !important;
+    }
+    html[data-theme="warm_cream"] #mobileContainer {
+      background-color: #fffdfa !important;
+      border-color: #e4d8c8 !important;
+      color: #1c1917 !important;
+      box-shadow: 0 10px 40px rgba(120,80,40,0.08) !important;
+    }
+    html[data-theme="warm_cream"] .bg-slate-950,
+    html[data-theme="warm_cream"] .bg-slate-900,
+    html[data-theme="warm_cream"] .bg-slate-900\/90,
+    html[data-theme="warm_cream"] .bg-slate-900\/80,
+    html[data-theme="warm_cream"] .bg-slate-900\/95,
+    html[data-theme="warm_cream"] .bg-slate-950\/95,
+    html[data-theme="warm_cream"] .bg-slate-950\/90,
+    html[data-theme="warm_cream"] .bg-slate-800,
+    html[data-theme="warm_cream"] .bg-slate-800\/80,
+    html[data-theme="warm_cream"] .bg-slate-800\/50 {
+      background-color: #ffffff !important;
+      border-color: #e4d8c8 !important;
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm_cream"] .border-slate-900,
+    html[data-theme="warm_cream"] .border-slate-800,
+    html[data-theme="warm_cream"] .border-slate-700 {
+      border-color: #e4d8c8 !important;
+    }
+    html[data-theme="warm_cream"] .text-white,
+    html[data-theme="warm_cream"] .text-slate-100,
+    html[data-theme="warm_cream"] .text-slate-200,
+    html[data-theme="warm_cream"] .text-slate-300 {
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm_cream"] .text-slate-400,
+    html[data-theme="warm_cream"] .text-slate-500 {
+      color: #57534e !important;
+    }
+    html[data-theme="warm_cream"] .text-amber-400,
+    html[data-theme="warm_cream"] .text-yellow-400 {
+      color: #92400e !important;
+    }
+    html[data-theme="warm_cream"] .text-emerald-400 {
+      color: #15803d !important;
+    }
+    html[data-theme="warm_cream"] .text-cyan-400 {
+      color: #0369a1 !important;
+    }
+    html[data-theme="warm_cream"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html[data-theme="warm_cream"] select,
+    html[data-theme="warm_cream"] textarea {
+      background-color: #ffffff !important;
+      color: #1c1917 !important;
+      border-color: #d6c7b2 !important;
+    }
+    html[data-theme="warm_cream"] input::placeholder,
+    html[data-theme="warm_cream"] textarea::placeholder {
+      color: #a8a29e !important;
+    }
+    html[data-theme="warm_cream"] #fromDropdown,
+    html[data-theme="warm_cream"] #toDropdown {
+      background-color: #ffffff !important;
+      border: 1.5px solid #e4d8c8 !important;
+      box-shadow: 0 15px 35px rgba(120,80,40,0.1) !important;
+    }
+    html[data-theme="warm_cream"] #fromDropdown *,
+    html[data-theme="warm_cream"] #toDropdown * {
+      border-color: #ede2d3 !important;
+    }
+    html[data-theme="warm_cream"] .bottom-bar-fixed {
+      background-color: rgba(255, 253, 250, 0.96) !important;
+      border-top-color: #e4d8c8 !important;
+      box-shadow: 0 -4px 20px rgba(120,80,40,0.06) !important;
+    }
+    html[data-theme="warm_cream"] #currentTime {
+      color: #1c1917 !important;
+    }
+    html[data-theme="warm_cream"] #mobileThemeToggleBtn {
+      background-color: #f5ede2 !important;
+      border-color: #e4d8c8 !important;
+      color: #1c1917 !important;
+    }
+
+    /* ── 3. 🌌 UNIFIED BLUE THEME (كحلي موحد) ── */
+    html[data-theme="midnight_obsidian"],
+    html[data-theme="navy"] {
+      background-color: #0a1128 !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="midnight_obsidian"] body,
+    html[data-theme="navy"] body {
+      background-color: #0a1128 !important;
+      color: #ffffff !important;
+    }
+    @media (max-width: 640px) {
+      html[data-theme="midnight_obsidian"] body,
+      html[data-theme="navy"] body {
+        background-color: #0b132b !important;
+      }
+    }
+    html[data-theme="midnight_obsidian"] .desktop-screen-switcher,
+    html[data-theme="navy"] .desktop-screen-switcher {
+      background-color: #0d1738 !important;
+      border-color: rgba(56, 189, 248, 0.25) !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
+    }
+    html[data-theme="midnight_obsidian"] #mobileContainer,
+    html[data-theme="navy"] #mobileContainer {
+      background-color: #0b132b !important;
+      border-color: rgba(56, 189, 248, 0.3) !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.85) !important;
+    }
+    html[data-theme="midnight_obsidian"] .bg-slate-950,
+    html[data-theme="midnight_obsidian"] .bg-slate-900,
+    html[data-theme="midnight_obsidian"] .bg-slate-900\/90,
+    html[data-theme="midnight_obsidian"] .bg-slate-900\/80,
+    html[data-theme="navy"] .bg-slate-950,
+    html[data-theme="navy"] .bg-slate-900 {
+      background-color: #111c44 !important;
+      border-color: rgba(56, 189, 248, 0.2) !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="midnight_obsidian"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html[data-theme="midnight_obsidian"] select,
+    html[data-theme="midnight_obsidian"] textarea {
+      background-color: #0b132b !important;
+      color: #ffffff !important;
+      border-color: rgba(56, 189, 248, 0.35) !important;
+    }
+    html[data-theme="midnight_obsidian"] .bottom-bar-fixed,
+    html[data-theme="navy"] .bottom-bar-fixed {
+      background-color: rgba(13, 23, 56, 0.96) !important;
+      border-top-color: rgba(56, 189, 248, 0.25) !important;
+    }
+    html[data-theme="midnight_obsidian"] #mobileThemeToggleBtn {
+      background-color: #111c44 !important;
+      border-color: rgba(56, 189, 248, 0.35) !important;
+      color: #38bdf8 !important;
+    }
+
+    /* ── 4. 🌑 PURE OLED THEME (أسود مطلق) ── */
+    html[data-theme="pure_oled"],
+    html[data-theme="midnight"] {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="pure_oled"] body,
+    html[data-theme="midnight"] body {
+      background-color: #000000 !important;
+      color: #ffffff !important;
+    }
+    @media (max-width: 640px) {
+      html[data-theme="pure_oled"] body,
+      html[data-theme="midnight"] body {
+        background-color: #000000 !important;
+      }
+    }
+    html[data-theme="pure_oled"] .desktop-screen-switcher,
+    html[data-theme="midnight"] .desktop-screen-switcher {
+      background-color: #050505 !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="pure_oled"] #mobileContainer,
+    html[data-theme="midnight"] #mobileContainer {
+      background-color: #000000 !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      color: #ffffff !important;
+      box-shadow: 0 10px 40px rgba(0,0,0,1) !important;
+    }
+    html[data-theme="pure_oled"] .bg-slate-950,
+    html[data-theme="pure_oled"] .bg-slate-900,
+    html[data-theme="pure_oled"] .bg-slate-900\/90,
+    html[data-theme="pure_oled"] .bg-slate-900\/80,
+    html[data-theme="midnight"] .bg-slate-950,
+    html[data-theme="midnight"] .bg-slate-900 {
+      background-color: #080808 !important;
+      border-color: rgba(255, 255, 255, 0.18) !important;
+      color: #ffffff !important;
+    }
+    html[data-theme="pure_oled"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
+    html[data-theme="pure_oled"] select,
+    html[data-theme="pure_oled"] textarea {
+      background-color: #050505 !important;
+      color: #ffffff !important;
+      border-color: rgba(255, 255, 255, 0.28) !important;
+    }
+    html[data-theme="pure_oled"] .bottom-bar-fixed,
+    html[data-theme="midnight"] .bottom-bar-fixed {
+      background-color: rgba(0, 0, 0, 0.98) !important;
+      border-top-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    html[data-theme="pure_oled"] #mobileThemeToggleBtn {
+      background-color: #080808 !important;
+      border-color: rgba(255, 255, 255, 0.3) !important;
+      color: #ffffff !important;
+    }
   </style>
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
@@ -1749,8 +2112,11 @@
         </button>
       </div>
 
-      <!-- اليسار: الساعة و 5G والإشارات -->
+      <!-- اليسار: زر تبديل السمة الذكي + الساعة و 5G والإشارات -->
       <div class="flex items-center gap-2 text-slate-300">
+        <button type="button" onclick="cycleMobileTheme()" id="mobileThemeToggleBtn" class="w-7 h-7 rounded-lg bg-slate-900 border border-slate-700 hover:border-cyan-400 text-xs flex items-center justify-center transition active:scale-95 shadow-sm" title="تبديل السمة (أبيض / بيج / كحلي / أسود)">
+          <span id="mobileThemeIcon">☀️</span>
+        </button>
         <span id="currentTime" class="font-bold font-mono text-slate-200 text-xs">13:15</span>
         <div class="flex items-center gap-1 font-mono text-slate-300">
           <span class="font-black text-[11px] text-cyan-400">5G</span>
@@ -10074,5 +10440,80 @@
     }
 
 </script>
+
+  <script>
+    const MOBILE_MASTER_THEMES = [
+      { key: 'ultra_white', name: 'أبيض فائق (Ultra White)', icon: '☀️', isLight: true },
+      { key: 'warm_cream', name: 'بيج كلاسيكي (Warm Cream)', icon: '📜', isLight: true },
+      { key: 'midnight_obsidian', name: 'كحلي موحد (Unified Blue)', icon: '🌌', isLight: false },
+      { key: 'pure_oled', name: 'أسود مطلق (Pure OLED)', icon: '🌑', isLight: false }
+    ];
+
+    window.setMobileTheme = function(themeKey, showToast) {
+      let themeObj = MOBILE_MASTER_THEMES.find(t => t.key === themeKey);
+      if (!themeObj) {
+        if (themeKey === 'light') themeObj = MOBILE_MASTER_THEMES[0];
+        else if (themeKey === 'dark' || themeKey === 'navy') themeObj = MOBILE_MASTER_THEMES[2];
+        else if (themeKey === 'midnight') themeObj = MOBILE_MASTER_THEMES[3];
+        else themeObj = MOBILE_MASTER_THEMES[2];
+      }
+      const finalKey = themeObj.key;
+      const isLight = themeObj.isLight;
+
+      document.documentElement.setAttribute('data-theme', finalKey);
+      if (document.body) document.body.setAttribute('data-theme', finalKey);
+
+      if (isLight) {
+        document.documentElement.classList.add('light-theme');
+        document.documentElement.classList.remove('dark-theme');
+        if (document.body) {
+          document.body.classList.add('light-theme');
+          document.body.classList.remove('dark-theme');
+        }
+      } else {
+        document.documentElement.classList.remove('light-theme');
+        document.documentElement.classList.add('dark-theme');
+        if (document.body) {
+          document.body.classList.remove('light-theme');
+          document.body.classList.add('dark-theme');
+        }
+      }
+
+      try {
+        localStorage.setItem('magaiees_mobile_theme', finalKey);
+        localStorage.setItem('erp_theme', isLight ? 'light' : 'dark');
+        document.cookie = "magaiees_mobile_theme=" + finalKey + "; path=/; max-age=31536000; SameSite=Lax";
+        document.cookie = "erp_theme=" + (isLight ? 'light' : 'dark') + "; path=/; max-age=31536000; SameSite=Lax";
+      } catch(e) {}
+
+      const iconSpan = document.getElementById('mobileThemeIcon');
+      if (iconSpan) iconSpan.textContent = themeObj.icon;
+
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) {
+        metaTheme.setAttribute('content', isLight ? (finalKey === 'warm_cream' ? '#fbf7ee' : '#ffffff') : (finalKey === 'pure_oled' ? '#000000' : '#0a1128'));
+      }
+
+      if (showToast && typeof showToastCentral === 'function') {
+        showToastCentral(`تم تفعيل السمة: ${themeObj.name}`, 'info', 1800);
+      }
+
+      window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: finalKey, isLight: isLight } }));
+    };
+
+    window.cycleMobileTheme = function() {
+      const cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('magaiees_mobile_theme') || 'midnight_obsidian';
+      let idx = MOBILE_MASTER_THEMES.findIndex(t => t.key === cur);
+      if (idx === -1) idx = 2;
+      const nextIdx = (idx + 1) % MOBILE_MASTER_THEMES.length;
+      window.setMobileTheme(MOBILE_MASTER_THEMES[nextIdx].key, true);
+    };
+
+    // مزامنة حالة الأيقونة فور تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', () => {
+      const cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('magaiees_mobile_theme') || 'midnight_obsidian';
+      window.setMobileTheme(cur, false);
+    });
+  </script>
 </body>
 </html>
