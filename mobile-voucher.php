@@ -1137,7 +1137,16 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       -webkit-tap-highlight-color: transparent;
       font-family: var(--app-font);
     }
-    html, body {
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    body {
       margin: 0;
       padding: 0;
       background-color: #020617;
@@ -1145,22 +1154,25 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       width: 100%;
       min-height: 100%;
       overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: none;
-      touch-action: pan-y;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y !important;
       text-rendering: optimizeSpeed;
     }
     #mobileContainer {
-      transform: translateZ(0);
-      -webkit-transform: translateZ(0);
-      backface-visibility: hidden;
-      contain: layout style;
+      width: 100%;
+      max-width: 393px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      position: relative;
+      overflow: visible !important;
     }
     main {
-      -webkit-overflow-scrolling: touch;
-      scroll-behavior: smooth;
-      will-change: scroll-position;
-      transform: translateZ(0);
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y !important;
+      overflow: visible !important;
+      height: auto !important;
+      min-height: auto !important;
     }
     button, a, input, select {
       touch-action: manipulation;
@@ -1681,28 +1693,57 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
 
     /* Native mobile view on actual phones (<= 640px) */
     @media (max-width: 640px) {
+      html, body {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
+      }
       body {
         padding: 0 !important;
         background: #020617;
+        display: block !important;
       }
-      .mobile-device-outer {
+      .mobile-device-outer,
+      #mobileContainer {
         width: 100% !important;
         max-width: 100% !important;
         border-radius: 0 !important;
         border: none !important;
         box-shadow: none !important;
+        min-height: 100vh !important;
         min-height: 100dvh !important;
+        height: auto !important;
+        overflow: visible !important;
+        transform: none !important;
+        contain: none !important;
+        display: block !important;
       }
       .desktop-screen-switcher {
         display: none !important;
+      }
+      main {
+        overflow: visible !important;
+        height: auto !important;
+        min-height: auto !important;
+        max-height: none !important;
+        padding-bottom: 120px !important;
+        transform: none !important;
+        touch-action: pan-y !important;
       }
       .bottom-bar-fixed {
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
-        z-index: 50 !important;
-        padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        z-index: 45 !important;
+        padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6) !important;
       }
     }
 
@@ -1711,11 +1752,30 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       body {
         padding: 16px 12px;
         background: #090d16;
+        min-height: 100vh;
+      }
+      .mobile-device-outer,
+      #mobileContainer {
+        overflow: visible !important;
+        height: auto !important;
+        min-height: 100vh !important;
+      }
+      main {
+        overflow: visible !important;
+        height: auto !important;
+        padding-bottom: 120px !important;
       }
       .bottom-bar-fixed {
-        position: sticky;
-        bottom: 0;
-        z-index: 40;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        max-width: 393px !important;
+        width: 100% !important;
+        z-index: 45 !important;
+        box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.7) !important;
       }
     }
   
@@ -3156,7 +3216,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
   </div>
 
   <!-- Mobile Device Screen Container -->
-  <div id="mobileContainer" class="mobile-device-outer w-full max-w-[393px] bg-slate-950 sm:rounded-[36px] sm:border-[4px] sm:border-slate-800 sm:shadow-2xl overflow-hidden flex flex-col relative transition-all duration-300 min-h-screen sm:min-h-[852px]">
+  <div id="mobileContainer" class="mobile-device-outer w-full max-w-[393px] bg-slate-950 sm:rounded-[36px] sm:border-[4px] sm:border-slate-800 sm:shadow-2xl flex flex-col relative transition-all duration-300 min-h-screen">
 
     <!-- ═════════════════════════════════════════════════════════════════
          1. السطر الأول المرفوع (الهيدر العلوي):
@@ -3320,7 +3380,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
     </div>
 
     <!-- Main Scrollable Content (بدون مساحات ميتة متصل بانسيابية) -->
-    <main class="flex-1 overflow-y-auto no-scrollbar p-2.5 space-y-2.5 pb-28 text-xs">
+    <main class="flex-1 p-2.5 space-y-2.5 pb-32 text-xs">
 
       <!-- أزرار الدفع الزجاجية العصرية المضيئة الحواف بوضوح تام -->
       <div class="p-1.5 rounded-2xl bg-slate-900/95 border-2 border-slate-700/80 shadow-[0_0_15px_rgba(56,189,248,0.18)]">
@@ -8360,6 +8420,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
     function setMobilePreset(width, label) {
       const container = document.getElementById('mobileContainer');
       const badge = document.getElementById('dimensionBadge');
+      const bottomBar = document.querySelector('.bottom-bar-fixed');
       
       document.querySelectorAll('.preset-btn').forEach(b => {
         b.classList.remove('bg-blue-600', 'text-white');
@@ -8368,10 +8429,13 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
 
       if (width === '100%') {
         container.style.maxWidth = '100%';
+        if (bottomBar) bottomBar.style.maxWidth = '100%';
         badge.textContent = `100% Full Width (${label})`;
-        document.getElementById('btn-p-full').classList.add('bg-blue-600', 'text-white');
+        const btnFull = document.getElementById('btn-p-full');
+        if (btnFull) btnFull.classList.add('bg-blue-600', 'text-white');
       } else {
         container.style.maxWidth = `${width}px`;
+        if (bottomBar) bottomBar.style.maxWidth = `${width}px`;
         badge.textContent = `${width}px × 852px (${label})`;
         const activeBtn = document.getElementById(`btn-p-${width}`);
         if (activeBtn) {
