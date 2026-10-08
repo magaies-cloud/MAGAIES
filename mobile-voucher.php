@@ -28,12 +28,7 @@ require_once __DIR__ . '/device_detector.php';
 
 // ── توجيه ذكي فوري: منع فتح شاشة الجوال على اللابتوب وتحويله لشاشة السندات المتكاملة ──
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !isset($_GET['api']) && !isset($_GET['action'])) {
-    if (isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1') {
-        setcookie('magaiees_view_preference', 'mobile', time() + (86400 * 365), '/');
-        $_COOKIE['magaiees_view_preference'] = 'mobile';
-    }
-    $pref = $_COOKIE['magaiees_view_preference'] ?? '';
-    if ($pref !== 'mobile' && isDeviceDesktopOrLaptop() && !isset($_GET['force_mobile']) && !isset($_GET['preview'])) {
+    if (isDeviceDesktopOrLaptop() && !isset($_GET['force_mobile']) && !isset($_GET['preview'])) {
         $qs = !empty($_SERVER['QUERY_STRING']) ? ('?' . $_SERVER['QUERY_STRING']) : '';
         header("Location: vouchers-hub.php{$qs}");
         exit;
@@ -524,7 +519,7 @@ PROMPT;
         // فحص مفتاح منع تكرار النقر المزدوج (Idempotency Protection)
         // يتم الفحص أولاً قبل قيود رقم التحويلة لمنع حدوث خطأ كاذب بتكرار التحويلة إذا تم إرسال الطلب مرتين
         if ($isNew && !empty($idempotencyKey)) {
-            $stmtCheckIdem = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
+            $stmtCheckIdem = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
             $stmtCheckIdem->execute([$currentTenantId, $idempotencyKey]);
             $existingRow = $stmtCheckIdem->fetch(PDO::FETCH_ASSOC);
             if ($existingRow) {
@@ -574,8 +569,8 @@ PROMPT;
                 exit;
             }
             $cleanTrLen = strlen(preg_replace('/\D/', '', $transferRef) ?: $transferRef);
-            if ($cleanTrLen < 6) {
-                echo json_encode(['success' => false, 'error' => 'رقم التحويلة قصير جداً (أقل من 6 أرقام)! يجب أن يتكون رقم التحويلة من 6 أرقام على الأقل.'], JSON_UNESCAPED_UNICODE);
+            if ($cleanTrLen < 3) {
+                echo json_encode(['success' => false, 'error' => 'رقم التحويلة قصير جداً! يرجى التأكد من كتابة رقم التحويل بشكل صحيح.'], JSON_UNESCAPED_UNICODE);
                 exit;
             }
             if (empty($bankName)) {
@@ -610,19 +605,13 @@ PROMPT;
                 // توليد رقم سند جديد متسلسل
                 $prefix = 'E' . date('ym');
                 $maxSeq = 0;
-                $stmtSeq = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
+                $stmtSeq = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
                 $stmtSeq->execute([$currentTenantId]);
                 while ($row = $stmtSeq->fetch(PDO::FETCH_ASSOC)) {
                     $d = json_decode($row['data'], true);
-                    $id = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    $id = $d['voucherNo'] ?? ($d['id'] ?? '');
                     if (strpos($id, $prefix) === 0) {
                         $seq = (int)substr($id, strlen($prefix));
-                        if ($seq > $maxSeq) $maxSeq = $seq;
-                    } elseif (preg_match('/^E\d{4}(\d{4,})$/', $id, $m)) {
-                        $seq = (int)$m[1];
-                        if ($seq > $maxSeq) $maxSeq = $seq;
-                    } elseif (is_numeric($id) && (int)$id < 20000000) {
-                        $seq = (int)$id;
                         if ($seq > $maxSeq) $maxSeq = $seq;
                     }
                 }
@@ -699,7 +688,6 @@ PROMPT;
             } else {
                 $stmtUp = $pdo->prepare("UPDATE single_payments SET data = ? WHERE tenant_id = ? AND (JSON_UNQUOTE(JSON_EXTRACT(data, '$.voucherNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
                 $stmtUp->execute([$jsonRecord, $currentTenantId, $voucherNo, $voucherNo]);
-            }
 
             $rateVal = (float)($payload['rate'] ?? ($payload['usdRate'] ?? 0));
             if ($rateVal > 0) {
@@ -707,6 +695,7 @@ PROMPT;
                     $stmtUpRate = $pdo->prepare("INSERT INTO settings (tenant_id, setting_key, setting_value, updated_at) VALUES (?, 'system_usd_rate', ?, NOW()) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
                     $stmtUpRate->execute([$currentTenantId, (string)$rateVal]);
                 } catch(Exception $e) {}
+            }
             }
 
             // إرسال لطابور المزامنة التلقائية لضمان مطابقة اللابتوب
@@ -716,27 +705,9 @@ PROMPT;
                 $stmtSync->execute([$syncId, $voucherNo, $isNew ? 'INSERT' : 'UPDATE', $jsonRecord]);
             } catch (Exception $es) {}
 
-            $prefix = 'E' . date('ym');
-            $newMax = 0;
-            $stmtN = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL)");
-            $stmtN->execute([$currentTenantId]);
-            while ($r = $stmtN->fetch(PDO::FETCH_ASSOC)) {
-                $d = json_decode($r['data'] ?? '{}', true);
-                $v = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
-                if (strpos($v, $prefix) === 0) {
-                    $s = (int)substr($v, strlen($prefix));
-                    if ($s > $newMax) $newMax = $s;
-                }
-            }
-            $nextVNo = $prefix . str_pad($newMax + 1, 4, '0', STR_PAD_LEFT);
-
             echo json_encode([
                 'success' => true,
                 'voucherNo' => $voucherNo,
-                'id' => $voucherNo,
-                'nextNo' => $nextVNo,
-                'nextVoucherNo' => $nextVNo,
-                'usdRate' => $rateVal > 0 ? $rateVal : 2650,
                 'record' => $record,
                 'message' => 'تم حفظ وترحيل السند بنجاح في قاعدة البيانات MariaDB وسيرفر الكمبيوتر'
             ], JSON_UNESCAPED_UNICODE);
@@ -882,7 +853,7 @@ PROMPT;
 // 2. DATA PRELOADING: الحسابات، مراكز الكلفة، العملات، السندات السابقة
 // ────────────────────────────────────────────────────────────────────────────
 $accountsList = fetchAllLiveAccounts($pdo, $currentTenantId);
-// التحميل المتأخر للتحويلات في الخلفية دون تعطيل فتح الصفحة (وزن الريشة Instant Load)
+// التحميل الفوري خفيف الوزن (Instant Load)
 $allDbTransfersPreload = [];
 
 // 2.6 جلب السندات السابقة من single_payments لمطابقة اللابتوب والتنقل (◀ ▶)
@@ -897,21 +868,12 @@ foreach ($accountsList as $al) {
     if ($cleanId) $accLookupHistory[$cleanId] = $al['name'];
 }
 
-$sysUsdRate = 2650;
 try {
-    $stmtRate = $pdo->prepare("SELECT setting_value FROM settings WHERE (tenant_id = ? OR tenant_id IS NULL) AND setting_key = 'system_usd_rate' ORDER BY updated_at DESC LIMIT 1");
-    $stmtRate->execute([$currentTenantId]);
-    $rVal = $stmtRate->fetchColumn();
-    if ($rVal && (float)$rVal > 0) $sysUsdRate = (float)$rVal;
-} catch(Exception $e) {}
-
-try {
-    $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
+    $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
     $stmtV->execute([$currentTenantId]);
     while ($row = $stmtV->fetch(PDO::FETCH_ASSOC)) {
         $d = json_decode($row['data'], true);
-        $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
-        if ($d && $vNo !== '') {
+        if ($d && !empty($d['voucherNo'])) {
             $rawFrom = $d['fromAccount'] ?? '';
             $fromKey = is_array($rawFrom) ? ($rawFrom['id'] ?? ($rawFrom['name'] ?? '')) : (string)$rawFrom;
             $fromName = $d['fromAccountName'] ?? ($accLookupHistory[$fromKey] ?? $fromKey);
@@ -926,11 +888,10 @@ try {
             if (is_array($bankName)) $bankName = $bankName['name'] ?? '';
 
             $vouchersHistory[] = [
-                'id' => $vNo,
-                'voucherNo' => $vNo,
+                'id' => $d['voucherNo'],
                 'date' => $d['date'] ?? date('Y-m-d'),
                 'currency' => $d['currency'] ?? 'SDG',
-                'rate' => (float)($d['rate'] ?? $sysUsdRate),
+                'rate' => (float)($d['rate'] ?? 2650),
                 'costCenter' => is_array($d['costCenter'] ?? '') ? '' : ($d['costCenter'] ?? ''),
                 'sdg' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
                 'foreignAmt' => (float)($d['amountForeign'] ?? 0),
@@ -944,15 +905,9 @@ try {
                 'notes' => is_array($d['notes'] ?? null) ? '' : ($d['notes'] ?? ($d['toStatement'] ?? ''))
             ];
 
-            $vId = $vNo;
+            $vId = (string)$d['voucherNo'];
             if (strpos($vId, $prefix) === 0) {
                 $s = (int)substr($vId, strlen($prefix));
-                if ($s > $maxSeq) $maxSeq = $s;
-            } elseif (preg_match('/^E\d{4}(\d{4,})$/', $vId, $m)) {
-                $s = (int)$m[1];
-                if ($s > $maxSeq) $maxSeq = $s;
-            } elseif (is_numeric($vId) && (int)$vId < 20000000) {
-                $s = (int)$vId;
                 if ($s > $maxSeq) $maxSeq = $s;
             }
         }
@@ -981,56 +936,16 @@ $currenciesData = [
     'EGP' => ['name' => 'جنيه مصري', 'symbol' => 'ج.م', 'flag' => '🇪🇬', 'defaultRate' => 55, 'isBase' => false],
     'EUR' => ['name' => 'يورو أوروبي', 'symbol' => '€', 'flag' => '🇪🇺', 'defaultRate' => 2900, 'isBase' => false],
 ];
-
-// السمة النشطة المتزامنة مع لوحة التحكم وكافة الشاشات
-$activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_theme'] ?? $_COOKIE['erp_theme'] ?? 'warm-alabaster';
-if ($activeTheme === 'light') $activeTheme = 'ultra_white';
-if ($activeTheme === 'dark') $activeTheme = 'midnight_obsidian';
-$lightThemesList = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper', 'ultra_white', 'warm_cream', 'exec_gray'];
-$isLight = in_array($activeTheme, $lightThemesList, true);
 ?>
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="<?php echo htmlspecialchars($activeTheme); ?>" class="<?php echo $isLight ? 'light-theme' : 'dark-theme'; ?>">
+<html lang="ar" dir="rtl">
 <head>
-  <script>
-  (function initEarlyTheme() {
-    try {
-      var t = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_mobile_theme') || localStorage.getItem('erp_theme') || '<?php echo $activeTheme; ?>';
-      if (t === 'light') t = 'ultra_white';
-      if (t === 'dark') t = 'midnight_obsidian';
-      if (!t) {
-        var m = document.cookie.match(/(?:^|;\s*)(?:magaies_active_theme|magaiees_mobile_theme|erp_theme)=([^;]+)/);
-        if (m) t = decodeURIComponent(m[1]);
-      }
-      if (t) {
-        document.documentElement.setAttribute('data-theme', t);
-        var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper', 'ultra_white', 'warm_cream', 'exec_gray'];
-        if (lightThemes.indexOf(t) !== -1) {
-          document.documentElement.classList.add('light-theme');
-          document.documentElement.classList.remove('dark-theme');
-        } else {
-          document.documentElement.classList.remove('light-theme');
-          document.documentElement.classList.add('dark-theme');
-        }
-      }
-    } catch(e) {}
-  })();
-  </script>
-  <link rel="stylesheet" href="css/theme.css?v=20261007_v21themes">
   <!-- ⚡ SMART LAPTOP VOUCHER GATE (تحويل ذكي للكمبيوتر ومنع الجوال نهائياً) -->
   <script>
   (function enforceLaptopVoucherGate() {
     try {
       var params = new URLSearchParams(window.location.search);
-      if (params.get('force_mobile') === '1' || params.get('preview') === '1') {
-        try {
-          localStorage.setItem('magaiees_view_preference', 'mobile');
-          document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
-        } catch(e) {}
-        return;
-      }
-      var pref = localStorage.getItem('magaiees_view_preference') || (document.cookie.match(/(?:^|;\s*)magaiees_view_preference=([^;]+)/) || [])[1];
-      if (pref === 'mobile') return;
+      if (params.get('force_mobile') === '1' || params.get('preview') === '1') return;
 
       var ua = navigator.userAgent || '';
       var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
@@ -1048,21 +963,14 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       }
     } catch(e) {}
   })();
-  window.switchToDesktopEdition = function(targetUrl) {
-    try {
-      localStorage.setItem('magaiees_view_preference', 'desktop');
-      document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
-    } catch(e) {}
-    window.location.href = targetUrl || 'magaiees_unified_dashboard.php?force_desktop=1';
-  };
   </script>
+
   <script>
     <?php $mgJsonFlags = JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT; ?>
     window.PHP_ACCOUNTS = <?php echo json_encode($accountsList, $mgJsonFlags); ?>;
     window.PHP_VOUCHERS = <?php echo json_encode($vouchersHistory, $mgJsonFlags); ?>;
     window.PHP_NEXT_NO = <?php echo json_encode($nextSequentialVoucherNo, $mgJsonFlags); ?>;
     window.DB_ALL_TRANSFER_REFS = <?php echo json_encode($allDbTransfersPreload, $mgJsonFlags); ?>;
-    window.SYSTEM_USD_RATE = <?php echo (float)$sysUsdRate; ?>;
 
     // ── اعتراض انتهاء الجلسة (401) لكل طلبات الـ API: رسالة واضحة بدل الحفظ الصامت أوفلاين ──
     (function () {
@@ -1112,12 +1020,11 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>حركة مالية - تصميم شاشات الجوال المتطورة</title>
   
-  <!-- High Performance Local Core Styles & Local Tailwind Engine (Zero External Latency) -->
-  <link rel="stylesheet" href="css/tailwind.min.css">
-  <link rel="stylesheet" href="css/all.min.css">
-  <link rel="stylesheet" href="css/theme.css?v=20261008_v21themes_elegant">
-  <script src="js/tailwind.min.js"></script>
-  <link rel="prefetch" href="mobile-dashboard.php?force_mobile=1" as="document">
+  <!-- CDN Tailwind with full dynamic JIT styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
   <!-- Google Fonts: Cairo (Arabic) + Top 3 Clear Number Fonts (JetBrains Mono, Inter, Montserrat) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1137,16 +1044,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       -webkit-tap-highlight-color: transparent;
       font-family: var(--app-font);
     }
-    html {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      min-height: 100%;
-      overflow-x: hidden;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch !important;
-    }
-    body {
+    html, body {
       margin: 0;
       padding: 0;
       background-color: #020617;
@@ -1154,28 +1052,6 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       width: 100%;
       min-height: 100%;
       overflow-x: hidden;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch !important;
-      touch-action: pan-y !important;
-      text-rendering: optimizeSpeed;
-    }
-    #mobileContainer {
-      width: 100%;
-      max-width: 393px;
-      min-height: 100vh;
-      min-height: 100dvh;
-      position: relative;
-      overflow: visible !important;
-    }
-    main {
-      -webkit-overflow-scrolling: touch !important;
-      touch-action: pan-y !important;
-      overflow: visible !important;
-      height: auto !important;
-      min-height: auto !important;
-    }
-    button, a, input, select {
-      touch-action: manipulation;
     }
 
     input, select, textarea, button {
@@ -1693,57 +1569,28 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
 
     /* Native mobile view on actual phones (<= 640px) */
     @media (max-width: 640px) {
-      html, body {
-        height: auto !important;
-        min-height: 100% !important;
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        -webkit-overflow-scrolling: touch !important;
-        touch-action: pan-y !important;
-      }
       body {
         padding: 0 !important;
-        background: #020617;
-        display: block !important;
+        background: #020617 !important;
       }
-      .mobile-device-outer,
-      #mobileContainer {
+      .mobile-device-outer {
         width: 100% !important;
         max-width: 100% !important;
         border-radius: 0 !important;
         border: none !important;
         box-shadow: none !important;
-        min-height: 100vh !important;
         min-height: 100dvh !important;
-        height: auto !important;
-        overflow: visible !important;
-        transform: none !important;
-        contain: none !important;
-        display: block !important;
       }
       .desktop-screen-switcher {
         display: none !important;
-      }
-      main {
-        overflow: visible !important;
-        height: auto !important;
-        min-height: auto !important;
-        max-height: none !important;
-        padding-bottom: 120px !important;
-        transform: none !important;
-        touch-action: pan-y !important;
       }
       .bottom-bar-fixed {
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        margin: 0 !important;
-        z-index: 45 !important;
-        padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
-        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6) !important;
+        z-index: 50 !important;
+        padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
       }
     }
 
@@ -1752,30 +1599,11 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       body {
         padding: 16px 12px;
         background: #090d16;
-        min-height: 100vh;
-      }
-      .mobile-device-outer,
-      #mobileContainer {
-        overflow: visible !important;
-        height: auto !important;
-        min-height: 100vh !important;
-      }
-      main {
-        overflow: visible !important;
-        height: auto !important;
-        padding-bottom: 120px !important;
       }
       .bottom-bar-fixed {
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        margin-left: auto !important;
-        margin-right: auto !important;
-        max-width: 393px !important;
-        width: 100% !important;
-        z-index: 45 !important;
-        box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.7) !important;
+        position: sticky;
+        bottom: 0;
+        z-index: 40;
       }
     }
   
@@ -1970,1213 +1798,6 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       outline: none !important;
     }
 
-    /* ═════════════════════════════════════════════════════════════════
-       🌟 UNIVERSAL THEMES ENGINE FOR MOBILE VOUCHER (توحيد السمات الـ 21 بالكامل)
-       ═════════════════════════════════════════════════════════════════ */
-    html[data-theme="warm-alabaster"],
-    html[data-theme="pure-platinum"],
-    html[data-theme="beige"],
-    html[data-theme="ivory"],
-    html[data-theme="offwhite"],
-    html[data-theme="light-linen"],
-    html[data-theme="pearl-platinum"],
-    html[data-theme="nordic-paper"] {
-      color-scheme: light !important;
-    }
-
-    /* 1. المتغيرات اللونية الدقيقة للسمات الفاتحة في شاشة السند */
-    html[data-theme="warm-alabaster"] {
-      --lt-body-bg: #F6F0E6;
-      --lt-card-bg: #ffffff;
-      --lt-card-secondary: #EDE4D6;
-      --lt-border: #DCCFBF;
-      --lt-text: #1c1917;
-      --lt-text-secondary: #4A3E31;
-      --lt-text-muted: #6B5B49;
-    }
-    html[data-theme="pure-platinum"] {
-      --lt-body-bg: #EEF2F6;
-      --lt-card-bg: #ffffff;
-      --lt-card-secondary: #E2E8F0;
-      --lt-border: #CBD5E1;
-      --lt-text: #0f172a;
-      --lt-text-secondary: #334155;
-      --lt-text-muted: #475569;
-    }
-    html[data-theme="beige"] {
-      --lt-body-bg: #f5ebe0;
-      --lt-card-bg: #fffcf7;
-      --lt-card-secondary: #eddcd0;
-      --lt-border: #e2d2bd;
-      --lt-text: #23190e;
-      --lt-text-secondary: #5a4632;
-      --lt-text-muted: #78624a;
-    }
-    html[data-theme="ivory"] {
-      --lt-body-bg: #faf7f0;
-      --lt-card-bg: #ffffff;
-      --lt-card-secondary: #f0ebd8;
-      --lt-border: #ded6c3;
-      --lt-text: #1c1813;
-      --lt-text-secondary: #52473a;
-      --lt-text-muted: #706353;
-    }
-    html[data-theme="offwhite"] {
-      --lt-body-bg: #f9fafb;
-      --lt-card-bg: #ffffff;
-      --lt-card-secondary: #f3f4f6;
-      --lt-border: #d1d5db;
-      --lt-text: #111827;
-      --lt-text-secondary: #4b5563;
-      --lt-text-muted: #6b7280;
-    }
-    html[data-theme="light-linen"] {
-      --lt-body-bg: #ede7dc;
-      --lt-card-bg: #faf7f2;
-      --lt-card-secondary: #e4dcce;
-      --lt-border: #cfc5b3;
-      --lt-text: #211f1a;
-      --lt-text-secondary: #575245;
-      --lt-text-muted: #787161;
-    }
-    html[data-theme="pearl-platinum"] {
-      --lt-body-bg: #e9ecef;
-      --lt-card-bg: #f8f9fa;
-      --lt-card-secondary: #dde2e7;
-      --lt-border: #cbd3dc;
-      --lt-text: #0f172a;
-      --lt-text-secondary: #475569;
-      --lt-text-muted: #64748b;
-    }
-    html[data-theme="nordic-paper"] {
-      --lt-body-bg: #f8fafc;
-      --lt-card-bg: #ffffff;
-      --lt-card-secondary: #f1f5f9;
-      --lt-border: #cbd5e1;
-      --lt-text: #0f172a;
-      --lt-text-secondary: #334155;
-      --lt-text-muted: #475569;
-    }
-
-    /* تطبيق القواعد المشتركة للسمات الفاتحة في شاشة السند */
-    html[data-theme="warm-alabaster"] body, html[data-theme="warm-alabaster"] #mobileContainer,
-    html[data-theme="pure-platinum"] body, html[data-theme="pure-platinum"] #mobileContainer,
-    html[data-theme="beige"] body, html[data-theme="beige"] #mobileContainer,
-    html[data-theme="ivory"] body, html[data-theme="ivory"] #mobileContainer,
-    html[data-theme="offwhite"] body, html[data-theme="offwhite"] #mobileContainer,
-    html[data-theme="light-linen"] body, html[data-theme="light-linen"] #mobileContainer,
-    html[data-theme="pearl-platinum"] body, html[data-theme="pearl-platinum"] #mobileContainer,
-    html[data-theme="nordic-paper"] body, html[data-theme="nordic-paper"] #mobileContainer {
-      background: var(--lt-body-bg) !important;
-      background-color: var(--lt-body-bg) !important;
-      color: var(--lt-text) !important;
-    }
-
-    /* الهيدر العلوي */
-    html[data-theme="warm-alabaster"] .sticky.top-0,
-    html[data-theme="pure-platinum"] .sticky.top-0,
-    html[data-theme="beige"] .sticky.top-0,
-    html[data-theme="ivory"] .sticky.top-0,
-    html[data-theme="offwhite"] .sticky.top-0,
-    html[data-theme="light-linen"] .sticky.top-0,
-    html[data-theme="pearl-platinum"] .sticky.top-0,
-    html[data-theme="nordic-paper"] .sticky.top-0 {
-      background: var(--lt-body-bg) !important;
-      border-color: var(--lt-border) !important;
-    }
-    html[data-theme="warm-alabaster"] .sticky.top-0 span.text-white,
-    html[data-theme="pure-platinum"] .sticky.top-0 span.text-white,
-    html[data-theme="beige"] .sticky.top-0 span.text-white,
-    html[data-theme="ivory"] .sticky.top-0 span.text-white,
-    html[data-theme="offwhite"] .sticky.top-0 span.text-white,
-    html[data-theme="light-linen"] .sticky.top-0 span.text-white,
-    html[data-theme="pearl-platinum"] .sticky.top-0 span.text-white,
-    html[data-theme="nordic-paper"] .sticky.top-0 span.text-white {
-      color: var(--lt-text) !important;
-    }
-
-    /* سطر التاريخ والرقم التسلسلي */
-    html[data-theme="warm-alabaster"] .sticky.top-\[37px\],
-    html[data-theme="pure-platinum"] .sticky.top-\[37px\],
-    html[data-theme="beige"] .sticky.top-\[37px\],
-    html[data-theme="ivory"] .sticky.top-\[37px\],
-    html[data-theme="offwhite"] .sticky.top-\[37px\],
-    html[data-theme="light-linen"] .sticky.top-\[37px\],
-    html[data-theme="pearl-platinum"] .sticky.top-\[37px\],
-    html[data-theme="nordic-paper"] .sticky.top-\[37px\] {
-      background: var(--lt-body-bg) !important;
-      border-color: var(--lt-border) !important;
-    }
-    html[data-theme="warm-alabaster"] #voucherDateDisplay,
-    html[data-theme="pure-platinum"] #voucherDateDisplay,
-    html[data-theme="beige"] #voucherDateDisplay,
-    html[data-theme="ivory"] #voucherDateDisplay,
-    html[data-theme="offwhite"] #voucherDateDisplay,
-    html[data-theme="light-linen"] #voucherDateDisplay,
-    html[data-theme="pearl-platinum"] #voucherDateDisplay,
-    html[data-theme="nordic-paper"] #voucherDateDisplay {
-      color: #0e7490 !important;
-    }
-    html[data-theme="warm-alabaster"] #currentVoucherDisplay,
-    html[data-theme="pure-platinum"] #currentVoucherDisplay,
-    html[data-theme="beige"] #currentVoucherDisplay,
-    html[data-theme="ivory"] #currentVoucherDisplay,
-    html[data-theme="offwhite"] #currentVoucherDisplay,
-    html[data-theme="light-linen"] #currentVoucherDisplay,
-    html[data-theme="pearl-platinum"] #currentVoucherDisplay,
-    html[data-theme="nordic-paper"] #currentVoucherDisplay {
-      color: #b45309 !important;
-      text-shadow: none !important;
-    }
-
-    /* البطاقات والكروت الأساسية في السند */
-    html[data-theme="warm-alabaster"] main > div,
-    html[data-theme="pure-platinum"] main > div,
-    html[data-theme="beige"] main > div,
-    html[data-theme="ivory"] main > div,
-    html[data-theme="offwhite"] main > div,
-    html[data-theme="light-linen"] main > div,
-    html[data-theme="pearl-platinum"] main > div,
-    html[data-theme="nordic-paper"] main > div,
-    html[data-theme="warm-alabaster"] [class*="bg-slate-900"],
-    html[data-theme="pure-platinum"] [class*="bg-slate-900"],
-    html[data-theme="beige"] [class*="bg-slate-900"],
-    html[data-theme="ivory"] [class*="bg-slate-900"],
-    html[data-theme="offwhite"] [class*="bg-slate-900"],
-    html[data-theme="light-linen"] [class*="bg-slate-900"],
-    html[data-theme="pearl-platinum"] [class*="bg-slate-900"],
-    html[data-theme="nordic-paper"] [class*="bg-slate-900"],
-    html[data-theme="warm-alabaster"] [class*="bg-slate-950"],
-    html[data-theme="pure-platinum"] [class*="bg-slate-950"],
-    html[data-theme="beige"] [class*="bg-slate-950"],
-    html[data-theme="ivory"] [class*="bg-slate-950"],
-    html[data-theme="offwhite"] [class*="bg-slate-950"],
-    html[data-theme="light-linen"] [class*="bg-slate-950"],
-    html[data-theme="pearl-platinum"] [class*="bg-slate-950"],
-    html[data-theme="nordic-paper"] [class*="bg-slate-950"] {
-      background-color: var(--lt-card-bg) !important;
-      border-color: var(--lt-border) !important;
-      color: var(--lt-text) !important;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
-    }
-
-    /* إلغاء التدرجات الداكنة في شاشة السند */
-    html[data-theme="warm-alabaster"] [class*="from-slate-"],
-    html[data-theme="pure-platinum"] [class*="from-slate-"],
-    html[data-theme="beige"] [class*="from-slate-"],
-    html[data-theme="ivory"] [class*="from-slate-"],
-    html[data-theme="offwhite"] [class*="from-slate-"],
-    html[data-theme="light-linen"] [class*="from-slate-"],
-    html[data-theme="pearl-platinum"] [class*="from-slate-"],
-    html[data-theme="nordic-paper"] [class*="from-slate-"],
-    html[data-theme="warm-alabaster"] [class*="to-slate-"],
-    html[data-theme="pure-platinum"] [class*="to-slate-"],
-    html[data-theme="beige"] [class*="to-slate-"],
-    html[data-theme="ivory"] [class*="to-slate-"],
-    html[data-theme="offwhite"] [class*="to-slate-"],
-    html[data-theme="light-linen"] [class*="to-slate-"],
-    html[data-theme="pearl-platinum"] [class*="to-slate-"],
-    html[data-theme="nordic-paper"] [class*="to-slate-"] {
-      background-image: none !important;
-    }
-
-    /* حقل رقم التحويلة وحقل اسم البنك في السمات الفاتحة (وضوح فائق وخلفية بيضاء نقية) */
-    html[data-theme="warm-alabaster"] #transferInput,
-    html[data-theme="pure-platinum"] #transferInput,
-    html[data-theme="beige"] #transferInput,
-    html[data-theme="ivory"] #transferInput,
-    html[data-theme="offwhite"] #transferInput,
-    html[data-theme="light-linen"] #transferInput,
-    html[data-theme="pearl-platinum"] #transferInput,
-    html[data-theme="nordic-paper"] #transferInput,
-    html[data-theme="warm-alabaster"] #transferInput:focus,
-    html[data-theme="pure-platinum"] #transferInput:focus,
-    html[data-theme="beige"] #transferInput:focus,
-    html[data-theme="ivory"] #transferInput:focus,
-    html[data-theme="offwhite"] #transferInput:focus,
-    html[data-theme="light-linen"] #transferInput:focus,
-    html[data-theme="pearl-platinum"] #transferInput:focus,
-    html[data-theme="nordic-paper"] #transferInput:focus {
-      background: #ffffff !important;
-      background-color: #ffffff !important;
-      -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-      box-shadow: 0 0 0 1000px #ffffff inset !important;
-      color: #b45309 !important;
-      -webkit-text-fill-color: #b45309 !important;
-      caret-color: #b45309 !important;
-      border-color: #f59e0b !important;
-    }
-
-    html[data-theme="warm-alabaster"] #bankNameInput,
-    html[data-theme="pure-platinum"] #bankNameInput,
-    html[data-theme="beige"] #bankNameInput,
-    html[data-theme="ivory"] #bankNameInput,
-    html[data-theme="offwhite"] #bankNameInput,
-    html[data-theme="light-linen"] #bankNameInput,
-    html[data-theme="pearl-platinum"] #bankNameInput,
-    html[data-theme="nordic-paper"] #bankNameInput,
-    html[data-theme="warm-alabaster"] #bankNameInput:focus,
-    html[data-theme="pure-platinum"] #bankNameInput:focus,
-    html[data-theme="beige"] #bankNameInput:focus,
-    html[data-theme="ivory"] #bankNameInput:focus,
-    html[data-theme="offwhite"] #bankNameInput:focus,
-    html[data-theme="light-linen"] #bankNameInput:focus,
-    html[data-theme="pearl-platinum"] #bankNameInput:focus,
-    html[data-theme="nordic-paper"] #bankNameInput:focus {
-      background: #ffffff !important;
-      background-color: #ffffff !important;
-      -webkit-box-shadow: 0 0 0 1000px #ffffff inset !important;
-      box-shadow: 0 0 0 1000px #ffffff inset !important;
-      color: #0e7490 !important;
-      -webkit-text-fill-color: #0e7490 !important;
-      caret-color: #0e7490 !important;
-      border-color: #06b6d4 !important;
-    }
-
-    /* حقول المبالغ المالية (محلي ودولار) */
-    html[data-theme="warm-alabaster"] #sdgAmount,
-    html[data-theme="pure-platinum"] #sdgAmount,
-    html[data-theme="beige"] #sdgAmount,
-    html[data-theme="ivory"] #sdgAmount,
-    html[data-theme="offwhite"] #sdgAmount,
-    html[data-theme="light-linen"] #sdgAmount,
-    html[data-theme="pearl-platinum"] #sdgAmount,
-    html[data-theme="nordic-paper"] #sdgAmount {
-      color: #0369a1 !important;
-      -webkit-text-fill-color: #0369a1 !important;
-      caret-color: #0369a1 !important;
-    }
-    html[data-theme="warm-alabaster"] #usdAmount,
-    html[data-theme="pure-platinum"] #usdAmount,
-    html[data-theme="beige"] #usdAmount,
-    html[data-theme="ivory"] #usdAmount,
-    html[data-theme="offwhite"] #usdAmount,
-    html[data-theme="light-linen"] #usdAmount,
-    html[data-theme="pearl-platinum"] #usdAmount,
-    html[data-theme="nordic-paper"] #usdAmount {
-      color: #047857 !important;
-      -webkit-text-fill-color: #047857 !important;
-      caret-color: #047857 !important;
-    }
-
-    /* حقول أسماء الحسابات وملاحظات السند والعملة وسعر الدولار */
-    html[data-theme="warm-alabaster"] .account-search-input,
-    html[data-theme="pure-platinum"] .account-search-input,
-    html[data-theme="beige"] .account-search-input,
-    html[data-theme="ivory"] .account-search-input,
-    html[data-theme="offwhite"] .account-search-input,
-    html[data-theme="light-linen"] .account-search-input,
-    html[data-theme="pearl-platinum"] .account-search-input,
-    html[data-theme="nordic-paper"] .account-search-input,
-    html[data-theme="warm-alabaster"] #voucherNotes,
-    html[data-theme="pure-platinum"] #voucherNotes,
-    html[data-theme="beige"] #voucherNotes,
-    html[data-theme="ivory"] #voucherNotes,
-    html[data-theme="offwhite"] #voucherNotes,
-    html[data-theme="light-linen"] #voucherNotes,
-    html[data-theme="pearl-platinum"] #voucherNotes,
-    html[data-theme="nordic-paper"] #voucherNotes,
-    html[data-theme="warm-alabaster"] #primaryCurrencySelect,
-    html[data-theme="pure-platinum"] #primaryCurrencySelect,
-    html[data-theme="beige"] #primaryCurrencySelect,
-    html[data-theme="ivory"] #primaryCurrencySelect,
-    html[data-theme="offwhite"] #primaryCurrencySelect,
-    html[data-theme="light-linen"] #primaryCurrencySelect,
-    html[data-theme="pearl-platinum"] #primaryCurrencySelect,
-    html[data-theme="nordic-paper"] #primaryCurrencySelect,
-    html[data-theme="warm-alabaster"] #usdRate,
-    html[data-theme="pure-platinum"] #usdRate,
-    html[data-theme="beige"] #usdRate,
-    html[data-theme="ivory"] #usdRate,
-    html[data-theme="offwhite"] #usdRate,
-    html[data-theme="light-linen"] #usdRate,
-    html[data-theme="pearl-platinum"] #usdRate,
-    html[data-theme="nordic-paper"] #usdRate,
-    html[data-theme="warm-alabaster"] #costCenterInput,
-    html[data-theme="pure-platinum"] #costCenterInput,
-    html[data-theme="beige"] #costCenterInput,
-    html[data-theme="ivory"] #costCenterInput,
-    html[data-theme="offwhite"] #costCenterInput,
-    html[data-theme="light-linen"] #costCenterInput,
-    html[data-theme="pearl-platinum"] #costCenterInput,
-    html[data-theme="nordic-paper"] #costCenterInput {
-      background-color: #ffffff !important;
-      color: var(--lt-text) !important;
-      -webkit-text-fill-color: var(--lt-text) !important;
-    }
-    html[data-theme="warm-alabaster"] #fromSearchInput,
-    html[data-theme="pure-platinum"] #fromSearchInput,
-    html[data-theme="beige"] #fromSearchInput,
-    html[data-theme="ivory"] #fromSearchInput,
-    html[data-theme="offwhite"] #fromSearchInput,
-    html[data-theme="light-linen"] #fromSearchInput,
-    html[data-theme="pearl-platinum"] #fromSearchInput,
-    html[data-theme="nordic-paper"] #fromSearchInput {
-      color: #991b1b !important;
-      -webkit-text-fill-color: #991b1b !important;
-    }
-    html[data-theme="warm-alabaster"] #toSearchInput,
-    html[data-theme="pure-platinum"] #toSearchInput,
-    html[data-theme="beige"] #toSearchInput,
-    html[data-theme="ivory"] #toSearchInput,
-    html[data-theme="offwhite"] #toSearchInput,
-    html[data-theme="light-linen"] #toSearchInput,
-    html[data-theme="pearl-platinum"] #toSearchInput,
-    html[data-theme="nordic-paper"] #toSearchInput {
-      color: #065f46 !important;
-      -webkit-text-fill-color: #065f46 !important;
-    }
-
-    /* ═════════════════════════════════════════════════════════════════
-       💎 SHARP CONTRAST & MEDIA ICONS ENGINE (الكاميرا، الاستوديو، OCR، الواتساب)
-       - السمة البيضاء: خلفية بيضاء نقية، كتابة داكنة جداً وحبرية حادة، منع تام للأصفر الفاتح
-       - السمة السوداء: خلفية فاحمة داكنة، كتابة بيضاء ناصعة 100% عالية التباين
-       ═════════════════════════════════════════════════════════════════ */
-
-    /* أزرار المرفقات الأربعة في الوضع الفاتح / الأبيض (أبيض نقاء عالي + خطوط داكنة حبرية) */
-    html[data-theme="warm-alabaster"] .modern-media-card,
-    html[data-theme="pure-platinum"] .modern-media-card,
-    html[data-theme="beige"] .modern-media-card,
-    html[data-theme="ivory"] .modern-media-card,
-    html[data-theme="offwhite"] .modern-media-card,
-    html[data-theme="light-linen"] .modern-media-card,
-    html[data-theme="pearl-platinum"] .modern-media-card,
-    html[data-theme="nordic-paper"] .modern-media-card,
-    html[data-theme="ultra_white"] .modern-media-card,
-    html[data-theme="warm_cream"] .modern-media-card,
-    html[data-theme="exec_gray"] .modern-media-card {
-      background: #ffffff !important;
-      background-image: none !important;
-      border: 1.5px solid var(--lt-border) !important;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
-    }
-
-    /* نصوص أزرار المرفقات الأربعة في الوضع الفاتح: خط داكن أسود حبري فائق الوضوح (منع أي اصفرار) */
-    html[data-theme="warm-alabaster"] .modern-media-card span,
-    html[data-theme="pure-platinum"] .modern-media-card span,
-    html[data-theme="beige"] .modern-media-card span,
-    html[data-theme="ivory"] .modern-media-card span,
-    html[data-theme="offwhite"] .modern-media-card span,
-    html[data-theme="light-linen"] .modern-media-card span,
-    html[data-theme="pearl-platinum"] .modern-media-card span,
-    html[data-theme="nordic-paper"] .modern-media-card span,
-    html[data-theme="ultra_white"] .modern-media-card span,
-    html[data-theme="warm_cream"] .modern-media-card span,
-    html[data-theme="exec_gray"] .modern-media-card span {
-      color: #0f172a !important;
-      -webkit-text-fill-color: #0f172a !important;
-      font-weight: 900 !important;
-      text-shadow: none !important;
-    }
-
-    /* أزرار المرفقات الأربعة في الوضع المظلم / الأسود (خلفية داكنة فخمة + كتابة بيضاء ناصعة حادة 100%) */
-    :root:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="pearl-platinum"]):not([data-theme="nordic-paper"]):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .modern-media-card,
-    html[data-theme="midnight-executive"] .modern-media-card,
-    html[data-theme="obsidian-charcoal"] .modern-media-card,
-    html[data-theme="midnight"] .modern-media-card,
-    html[data-theme="sepia-brown"] .modern-media-card,
-    html[data-theme="pale-gold"] .modern-media-card,
-    html[data-theme="emerald-forest"] .modern-media-card,
-    html[data-theme="desert-mocha"] .modern-media-card,
-    html[data-theme="sunlight-titanium"] .modern-media-card,
-    html[data-theme="navy-kohl"] .modern-media-card,
-    html[data-theme="royal-blue"] .modern-media-card,
-    html[data-theme="ocean-navy"] .modern-media-card,
-    html[data-theme="petrol-cyan"] .modern-media-card,
-    html[data-theme="twilight-indigo"] .modern-media-card,
-    html[data-theme="pure_oled"] .modern-media-card,
-    html[data-theme="slate_twilight"] .modern-media-card,
-    html[data-theme="midnight_obsidian"] .modern-media-card {
-      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
-    }
-
-    :root:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="pearl-platinum"]):not([data-theme="nordic-paper"]):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .modern-media-card span,
-    html[data-theme="midnight-executive"] .modern-media-card span,
-    html[data-theme="obsidian-charcoal"] .modern-media-card span,
-    html[data-theme="midnight"] .modern-media-card span,
-    html[data-theme="sepia-brown"] .modern-media-card span,
-    html[data-theme="pale-gold"] .modern-media-card span,
-    html[data-theme="emerald-forest"] .modern-media-card span,
-    html[data-theme="desert-mocha"] .modern-media-card span,
-    html[data-theme="sunlight-titanium"] .modern-media-card span,
-    html[data-theme="navy-kohl"] .modern-media-card span,
-    html[data-theme="royal-blue"] .modern-media-card span,
-    html[data-theme="ocean-navy"] .modern-media-card span,
-    html[data-theme="petrol-cyan"] .modern-media-card span,
-    html[data-theme="twilight-indigo"] .modern-media-card span,
-    html[data-theme="pure_oled"] .modern-media-card span,
-    html[data-theme="slate_twilight"] .modern-media-card span,
-    html[data-theme="midnight_obsidian"] .modern-media-card span {
-      color: #ffffff !important;
-      -webkit-text-fill-color: #ffffff !important;
-      font-weight: 900 !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
-      opacity: 1 !important;
-    }
-
-    /* الشريط السفلي التفاعلي المريح (Thumb Zone) في الوضع الفاتح */
-    html[data-theme="warm-alabaster"] .bottom-bar-fixed,
-    html[data-theme="pure-platinum"] .bottom-bar-fixed,
-    html[data-theme="beige"] .bottom-bar-fixed,
-    html[data-theme="ivory"] .bottom-bar-fixed,
-    html[data-theme="offwhite"] .bottom-bar-fixed,
-    html[data-theme="light-linen"] .bottom-bar-fixed,
-    html[data-theme="pearl-platinum"] .bottom-bar-fixed,
-    html[data-theme="nordic-paper"] .bottom-bar-fixed,
-    html[data-theme="ultra_white"] .bottom-bar-fixed,
-    html[data-theme="warm_cream"] .bottom-bar-fixed,
-    html[data-theme="exec_gray"] .bottom-bar-fixed {
-      background: #ffffff !important;
-      border-top: 1.5px solid var(--lt-border) !important;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
-    }
-
-    /* أزرار الشريط السفلي في الوضع الفاتح (خلفية بيضاء مع حدود واضحة وكتابة سوداء داكنة) */
-    html[data-theme="warm-alabaster"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="pure-platinum"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="beige"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="ivory"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="offwhite"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="light-linen"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="pearl-platinum"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="nordic-paper"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="ultra_white"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="warm_cream"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="exec_gray"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) {
-      background: #f8fafc !important;
-      border: 1.5px solid var(--lt-border) !important;
-      color: #0f172a !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
-    }
-    html[data-theme="warm-alabaster"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="pure-platinum"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="beige"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="ivory"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="offwhite"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="light-linen"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="pearl-platinum"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="nordic-paper"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="ultra_white"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="warm_cream"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="exec_gray"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span {
-      color: #0f172a !important;
-      -webkit-text-fill-color: #0f172a !important;
-      font-weight: 900 !important;
-      text-shadow: none !important;
-    }
-
-    /* ألوان أيقونات الشريط السفلي في الوضع الفاتح */
-    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-folder-open,
-    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-folder-open,
-    html[data-theme="beige"] .bottom-bar-fixed .fa-folder-open,
-    html[data-theme="ivory"] .bottom-bar-fixed .fa-folder-open,
-    html[data-theme="offwhite"] .bottom-bar-fixed .fa-folder-open,
-    html[data-theme="light-linen"] .bottom-bar-fixed .fa-folder-open,
-    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-folder-open,
-    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-folder-open { color: #b45309 !important; }
-    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-plus,
-    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-plus,
-    html[data-theme="beige"] .bottom-bar-fixed .fa-plus,
-    html[data-theme="ivory"] .bottom-bar-fixed .fa-plus,
-    html[data-theme="offwhite"] .bottom-bar-fixed .fa-plus,
-    html[data-theme="light-linen"] .bottom-bar-fixed .fa-plus,
-    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-plus,
-    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-plus { color: #0284c7 !important; }
-    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-pen,
-    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-pen,
-    html[data-theme="beige"] .bottom-bar-fixed .fa-pen,
-    html[data-theme="ivory"] .bottom-bar-fixed .fa-pen,
-    html[data-theme="offwhite"] .bottom-bar-fixed .fa-pen,
-    html[data-theme="light-linen"] .bottom-bar-fixed .fa-pen,
-    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-pen,
-    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-pen { color: #4f46e5 !important; }
-    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-print,
-    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-print,
-    html[data-theme="beige"] .bottom-bar-fixed .fa-print,
-    html[data-theme="ivory"] .bottom-bar-fixed .fa-print,
-    html[data-theme="offwhite"] .bottom-bar-fixed .fa-print,
-    html[data-theme="light-linen"] .bottom-bar-fixed .fa-print,
-    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-print,
-    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-print { color: #7c3aed !important; }
-    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-whatsapp,
-    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-whatsapp,
-    html[data-theme="beige"] .bottom-bar-fixed .fa-whatsapp,
-    html[data-theme="ivory"] .bottom-bar-fixed .fa-whatsapp,
-    html[data-theme="offwhite"] .bottom-bar-fixed .fa-whatsapp,
-    html[data-theme="light-linen"] .bottom-bar-fixed .fa-whatsapp,
-    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-whatsapp,
-    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-whatsapp { color: #059669 !important; }
-    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-power-off,
-    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-power-off,
-    html[data-theme="beige"] .bottom-bar-fixed .fa-power-off,
-    html[data-theme="ivory"] .bottom-bar-fixed .fa-power-off,
-    html[data-theme="offwhite"] .bottom-bar-fixed .fa-power-off,
-    html[data-theme="light-linen"] .bottom-bar-fixed .fa-power-off,
-    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-power-off,
-    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-power-off { color: #dc2626 !important; }
-
-    /* الشريط السفلي التفاعلي المريح في الوضع المظلم (خلفية داكنة + كتابة بيضاء ناصعة 100%) */
-    :root:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="pearl-platinum"]):not([data-theme="nordic-paper"]):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="midnight-executive"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="obsidian-charcoal"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="midnight"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="sunlight-titanium"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="navy-kohl"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="royal-blue"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="ocean-navy"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="petrol-cyan"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="twilight-indigo"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="sepia-brown"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="pale-gold"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="emerald-forest"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="desert-mocha"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) {
-      background: #0f172a !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
-      color: #ffffff !important;
-    }
-
-    :root:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="pearl-platinum"]):not([data-theme="nordic-paper"]):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="midnight-executive"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="obsidian-charcoal"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="midnight"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="sunlight-titanium"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="navy-kohl"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="royal-blue"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="ocean-navy"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="petrol-cyan"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="twilight-indigo"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="sepia-brown"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="pale-gold"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="emerald-forest"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
-    html[data-theme="desert-mocha"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span {
-      color: #ffffff !important;
-      -webkit-text-fill-color: #ffffff !important;
-      font-weight: 900 !important;
-      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
-    }
-
-    /* ═════════════════════════════════════════════════════════════════
-       🚫 إزالة الخطوط الصفراء والرمادية الباهتة في كافة السمات الفاتحة (HIGH CONTRAST)
-       ═════════════════════════════════════════════════════════════════ */
-    html[data-theme="warm-alabaster"] [class*="text-yellow-"],
-    html[data-theme="pure-platinum"] [class*="text-yellow-"],
-    html[data-theme="beige"] [class*="text-yellow-"],
-    html[data-theme="ivory"] [class*="text-yellow-"],
-    html[data-theme="offwhite"] [class*="text-yellow-"],
-    html[data-theme="light-linen"] [class*="text-yellow-"],
-    html[data-theme="pearl-platinum"] [class*="text-yellow-"],
-    html[data-theme="nordic-paper"] [class*="text-yellow-"],
-    html[data-theme="ultra_white"] [class*="text-yellow-"],
-    html[data-theme="warm_cream"] [class*="text-yellow-"],
-    html[data-theme="exec_gray"] [class*="text-yellow-"],
-    html[data-theme="warm-alabaster"] [class*="text-amber-100"],
-    html[data-theme="pure-platinum"] [class*="text-amber-100"],
-    html[data-theme="beige"] [class*="text-amber-100"],
-    html[data-theme="ivory"] [class*="text-amber-100"],
-    html[data-theme="offwhite"] [class*="text-amber-100"],
-    html[data-theme="light-linen"] [class*="text-amber-100"],
-    html[data-theme="pearl-platinum"] [class*="text-amber-100"],
-    html[data-theme="nordic-paper"] [class*="text-amber-100"],
-    html[data-theme="warm-alabaster"] [class*="text-amber-200"],
-    html[data-theme="pure-platinum"] [class*="text-amber-200"],
-    html[data-theme="beige"] [class*="text-amber-200"],
-    html[data-theme="ivory"] [class*="text-amber-200"],
-    html[data-theme="offwhite"] [class*="text-amber-200"],
-    html[data-theme="light-linen"] [class*="text-amber-200"],
-    html[data-theme="pearl-platinum"] [class*="text-amber-200"],
-    html[data-theme="nordic-paper"] [class*="text-amber-200"],
-    html[data-theme="warm-alabaster"] [class*="text-amber-300"],
-    html[data-theme="pure-platinum"] [class*="text-amber-300"],
-    html[data-theme="beige"] [class*="text-amber-300"],
-    html[data-theme="ivory"] [class*="text-amber-300"],
-    html[data-theme="offwhite"] [class*="text-amber-300"],
-    html[data-theme="light-linen"] [class*="text-amber-300"],
-    html[data-theme="pearl-platinum"] [class*="text-amber-300"],
-    html[data-theme="nordic-paper"] [class*="text-amber-300"],
-    html[data-theme="warm-alabaster"] [class*="text-amber-400"],
-    html[data-theme="pure-platinum"] [class*="text-amber-400"],
-    html[data-theme="beige"] [class*="text-amber-400"],
-    html[data-theme="ivory"] [class*="text-amber-400"],
-    html[data-theme="offwhite"] [class*="text-amber-400"],
-    html[data-theme="light-linen"] [class*="text-amber-400"],
-    html[data-theme="pearl-platinum"] [class*="text-amber-400"],
-    html[data-theme="nordic-paper"] [class*="text-amber-400"] {
-      color: #92400e !important;
-      -webkit-text-fill-color: #92400e !important;
-      font-weight: 800 !important;
-    }
-
-    /* نصوص خضراء وزرقاء وحمراء عالية التباين في الوضع الفاتح */
-    html[data-theme="warm-alabaster"] [class*="text-cyan-"],
-    html[data-theme="pure-platinum"] [class*="text-cyan-"],
-    html[data-theme="beige"] [class*="text-cyan-"],
-    html[data-theme="ivory"] [class*="text-cyan-"],
-    html[data-theme="offwhite"] [class*="text-cyan-"],
-    html[data-theme="light-linen"] [class*="text-cyan-"],
-    html[data-theme="pearl-platinum"] [class*="text-cyan-"],
-    html[data-theme="nordic-paper"] [class*="text-cyan-"] {
-      color: #0369a1 !important;
-      -webkit-text-fill-color: #0369a1 !important;
-      font-weight: 800 !important;
-    }
-    html[data-theme="warm-alabaster"] [class*="text-emerald-"],
-    html[data-theme="pure-platinum"] [class*="text-emerald-"],
-    html[data-theme="beige"] [class*="text-emerald-"],
-    html[data-theme="ivory"] [class*="text-emerald-"],
-    html[data-theme="offwhite"] [class*="text-emerald-"],
-    html[data-theme="light-linen"] [class*="text-emerald-"],
-    html[data-theme="pearl-platinum"] [class*="text-emerald-"],
-    html[data-theme="nordic-paper"] [class*="text-emerald-"] {
-      color: #065f46 !important;
-      -webkit-text-fill-color: #065f46 !important;
-      font-weight: 800 !important;
-    }
-    html[data-theme="warm-alabaster"] [class*="text-indigo-"],
-    html[data-theme="pure-platinum"] [class*="text-indigo-"],
-    html[data-theme="beige"] [class*="text-indigo-"],
-    html[data-theme="ivory"] [class*="text-indigo-"],
-    html[data-theme="offwhite"] [class*="text-indigo-"],
-    html[data-theme="light-linen"] [class*="text-indigo-"],
-    html[data-theme="pearl-platinum"] [class*="text-indigo-"],
-    html[data-theme="nordic-paper"] [class*="text-indigo-"],
-    html[data-theme="warm-alabaster"] [class*="text-purple-"],
-    html[data-theme="pure-platinum"] [class*="text-purple-"],
-    html[data-theme="beige"] [class*="text-purple-"],
-    html[data-theme="ivory"] [class*="text-purple-"],
-    html[data-theme="offwhite"] [class*="text-purple-"],
-    html[data-theme="light-linen"] [class*="text-purple-"],
-    html[data-theme="pearl-platinum"] [class*="text-purple-"],
-    html[data-theme="nordic-paper"] [class*="text-purple-"] {
-      color: #4338ca !important;
-      -webkit-text-fill-color: #4338ca !important;
-      font-weight: 800 !important;
-    }
-    html[data-theme="warm-alabaster"] [class*="text-slate-400"],
-    html[data-theme="pure-platinum"] [class*="text-slate-400"],
-    html[data-theme="beige"] [class*="text-slate-400"],
-    html[data-theme="ivory"] [class*="text-slate-400"],
-    html[data-theme="offwhite"] [class*="text-slate-400"],
-    html[data-theme="light-linen"] [class*="text-slate-400"],
-    html[data-theme="pearl-platinum"] [class*="text-slate-400"],
-    html[data-theme="nordic-paper"] [class*="text-slate-400"] {
-      color: #334155 !important;
-      -webkit-text-fill-color: #334155 !important;
-      font-weight: 700 !important;
-    }
-
-    /* النوافذ المنبثقة الشاملة في شاشة السند للوضع الفاتح */
-    html[data-theme="warm-alabaster"] [id^="modal"],
-    html[data-theme="pure-platinum"] [id^="modal"],
-    html[data-theme="beige"] [id^="modal"],
-    html[data-theme="ivory"] [id^="modal"],
-    html[data-theme="offwhite"] [id^="modal"],
-    html[data-theme="light-linen"] [id^="modal"],
-    html[data-theme="pearl-platinum"] [id^="modal"],
-    html[data-theme="nordic-paper"] [id^="modal"] {
-      background-color: rgba(15, 23, 42, 0.45) !important;
-      backdrop-filter: blur(8px) !important;
-    }
-    html[data-theme="warm-alabaster"] [id^="modal"] > div,
-    html[data-theme="pure-platinum"] [id^="modal"] > div,
-    html[data-theme="beige"] [id^="modal"] > div,
-    html[data-theme="ivory"] [id^="modal"] > div,
-    html[data-theme="offwhite"] [id^="modal"] > div,
-    html[data-theme="light-linen"] [id^="modal"] > div,
-    html[data-theme="pearl-platinum"] [id^="modal"] > div,
-    html[data-theme="nordic-paper"] [id^="modal"] > div {
-      background-color: #ffffff !important;
-      border-color: var(--lt-border) !important;
-      color: #0f172a !important;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
-    }
-    html[data-theme="warm-alabaster"] [id^="modal"] [class*="bg-slate-950"],
-    html[data-theme="pure-platinum"] [id^="modal"] [class*="bg-slate-950"],
-    html[data-theme="beige"] [id^="modal"] [class*="bg-slate-950"],
-    html[data-theme="ivory"] [id^="modal"] [class*="bg-slate-950"],
-    html[data-theme="offwhite"] [id^="modal"] [class*="bg-slate-950"],
-    html[data-theme="light-linen"] [id^="modal"] [class*="bg-slate-950"],
-    html[data-theme="pearl-platinum"] [id^="modal"] [class*="bg-slate-950"],
-    html[data-theme="nordic-paper"] [id^="modal"] [class*="bg-slate-950"],
-    html[data-theme="warm-alabaster"] [id^="modal"] [class*="bg-slate-900"],
-    html[data-theme="pure-platinum"] [id^="modal"] [class*="bg-slate-900"],
-    html[data-theme="beige"] [id^="modal"] [class*="bg-slate-900"],
-    html[data-theme="ivory"] [id^="modal"] [class*="bg-slate-900"],
-    html[data-theme="offwhite"] [id^="modal"] [class*="bg-slate-900"],
-    html[data-theme="light-linen"] [id^="modal"] [class*="bg-slate-900"],
-    html[data-theme="pearl-platinum"] [id^="modal"] [class*="bg-slate-900"],
-    html[data-theme="nordic-paper"] [id^="modal"] [class*="bg-slate-900"],
-    html[data-theme="warm-alabaster"] [id^="modal"] [class*="bg-slate-800"],
-    html[data-theme="pure-platinum"] [id^="modal"] [class*="bg-slate-800"],
-    html[data-theme="beige"] [id^="modal"] [class*="bg-slate-800"],
-    html[data-theme="ivory"] [id^="modal"] [class*="bg-slate-800"],
-    html[data-theme="offwhite"] [id^="modal"] [class*="bg-slate-800"],
-    html[data-theme="light-linen"] [id^="modal"] [class*="bg-slate-800"],
-    html[data-theme="pearl-platinum"] [id^="modal"] [class*="bg-slate-800"],
-    html[data-theme="nordic-paper"] [id^="modal"] [class*="bg-slate-800"] {
-      background-color: #f8fafc !important;
-      border-color: var(--lt-border) !important;
-      color: #0f172a !important;
-    }
-    html[data-theme="warm-alabaster"] [id^="modal"] input,
-    html[data-theme="pure-platinum"] [id^="modal"] input,
-    html[data-theme="beige"] [id^="modal"] input,
-    html[data-theme="ivory"] [id^="modal"] input,
-    html[data-theme="offwhite"] [id^="modal"] input,
-    html[data-theme="light-linen"] [id^="modal"] input,
-    html[data-theme="pearl-platinum"] [id^="modal"] input,
-    html[data-theme="nordic-paper"] [id^="modal"] input {
-      background-color: #ffffff !important;
-      border-color: var(--lt-border) !important;
-      color: #0f172a !important;
-      -webkit-text-fill-color: #0f172a !important;
-    }
-
-    /* ─── GROUP 2: BLUE & NAVY THEMES FOR VOUCHER ─── */
-    html[data-theme="navy-kohl"] body, html[data-theme="navy-kohl"] #mobileContainer { background: #050c1e !important; color: #f8fafc !important; }
-    html[data-theme="navy-kohl"] main > div { background-color: #0b1736 !important; border-color: #1d3368 !important; }
-    html[data-theme="royal-blue"] body, html[data-theme="royal-blue"] #mobileContainer { background: #0a1b38 !important; color: #ffffff !important; }
-    html[data-theme="royal-blue"] main > div { background-color: #122852 !important; border-color: #254d8e !important; }
-    html[data-theme="ocean-navy"] body, html[data-theme="ocean-navy"] #mobileContainer { background: #0c1a2e !important; color: #f0f9ff !important; }
-    html[data-theme="ocean-navy"] main > div { background-color: #132742 !important; border-color: #1e40af !important; }
-    html[data-theme="petrol-cyan"] body, html[data-theme="petrol-cyan"] #mobileContainer { background: #071c26 !important; color: #f0fdfa !important; }
-    html[data-theme="petrol-cyan"] main > div { background-color: #0c2b3a !important; border-color: #175269 !important; }
-    html[data-theme="twilight-indigo"] body, html[data-theme="twilight-indigo"] #mobileContainer { background: #0e122b !important; color: #e0e7ff !important; }
-    html[data-theme="twilight-indigo"] main > div { background-color: #151b3d !important; border-color: #313d80 !important; }
-
-    /* ─── GROUP 3: DARK & NATURE THEMES FOR VOUCHER (سواد كامل وتوحيد الشاشات) ─── */
-    html[data-theme="midnight-executive"] body, html[data-theme="midnight-executive"] #mobileContainer { background: #0b0f17 !important; color: #ffffff !important; }
-    html[data-theme="midnight-executive"] main > div { background-color: #111827 !important; border-color: #1e293b !important; }
-    html[data-theme="obsidian-charcoal"] body, html[data-theme="obsidian-charcoal"] #mobileContainer { background: #121214 !important; color: #ffffff !important; }
-    html[data-theme="obsidian-charcoal"] main > div { background-color: #1c1c1f !important; border-color: #2f2f35 !important; }
-    html[data-theme="midnight"] body, html[data-theme="midnight"] #mobileContainer { background: #000000 !important; color: #ffffff !important; }
-    html[data-theme="midnight"] main > div { background-color: #080808 !important; border-color: #222222 !important; }
-    html[data-theme="sepia-brown"] body, html[data-theme="sepia-brown"] #mobileContainer { background: #1c1917 !important; color: #fef3c7 !important; }
-    html[data-theme="sepia-brown"] main > div { background-color: #292524 !important; border-color: #78350f !important; }
-    html[data-theme="pale-gold"] body, html[data-theme="pale-gold"] #mobileContainer { background: #181614 !important; color: #fef08a !important; }
-    html[data-theme="pale-gold"] main > div { background-color: #24201c !important; border-color: #5e4c31 !important; }
-    html[data-theme="emerald-forest"] body, html[data-theme="emerald-forest"] #mobileContainer { background: #032e24 !important; color: #d1fae5 !important; }
-    html[data-theme="emerald-forest"] main > div { background-color: #064e3b !important; border-color: #047857 !important; }
-    html[data-theme="desert-mocha"] body, html[data-theme="desert-mocha"] #mobileContainer { background: #26211d !important; color: #f5f5f4 !important; }
-    html[data-theme="desert-mocha"] main > div { background-color: #38302a !important; border-color: #6e5e52 !important; }
-    html[data-theme="sunlight-titanium"] body, html[data-theme="sunlight-titanium"] #mobileContainer { background: #000000 !important; color: #ffffff !important; }
-    html[data-theme="sunlight-titanium"] main > div { background-color: #000000 !important; border: 2px solid #ffffff !important; color: #ffffff !important; }
-
-    /* 💎 High-Visibility Badges for Theme Palette Drawer */
-    .luminous-number-badge {
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      min-width: 18px !important;
-      height: 18px !important;
-      padding: 0 3.5px !important;
-      font-size: 11px !important;
-      font-weight: 900 !important;
-      line-height: 1 !important;
-      border-radius: 9999px !important;
-      user-select: none !important;
-    }
-    .badge-amber-glow {
-      background: #fbbf24 !important;
-      color: #000000 !important;
-      border: 1.5px solid #ffffff !important;
-    }
-    .badge-rose-glow {
-      background: #f43f5e !important;
-      color: #ffffff !important;
-      border: 1.5px solid #ffffff !important;
-    }
-    .badge-cyan-glow {
-      background: #38bdf8 !important;
-      color: #000000 !important;
-      border: 1.5px solid #ffffff !important;
-    }
-
-
-
-    /* ═════════════════════════════════════════════════════════════════
-       🎨 UNIVERSAL 4-THEME OVERRIDE SYSTEM FOR MOBILE VOUCHER (حركة مالية)
-       ═════════════════════════════════════════════════════════════════ */
-
-    /* ── 1. ☀️ ULTRA WHITE THEME (أبيض فائق) ── */
-    html[data-theme="ultra_white"],
-    html.light-theme {
-      background-color: #f1f5f9 !important;
-      color: #0f172a !important;
-    }
-    html[data-theme="ultra_white"] body,
-    html.light-theme body {
-      background-color: #f1f5f9 !important;
-      color: #0f172a !important;
-    }
-    @media (max-width: 640px) {
-      html[data-theme="ultra_white"] body,
-      html.light-theme body {
-        background-color: #ffffff !important;
-      }
-    }
-    html[data-theme="ultra_white"] .desktop-screen-switcher,
-    html.light-theme .desktop-screen-switcher {
-      background-color: #ffffff !important;
-      border-color: #e2e8f0 !important;
-      color: #0f172a !important;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.06) !important;
-    }
-    html[data-theme="ultra_white"] .desktop-screen-switcher .text-white,
-    html.light-theme .desktop-screen-switcher .text-white {
-      color: #0f172a !important;
-    }
-    html[data-theme="ultra_white"] #dimensionBadge,
-    html.light-theme #dimensionBadge {
-      background-color: #f1f5f9 !important;
-      border-color: #cbd5e1 !important;
-      color: #047857 !important;
-    }
-    html[data-theme="ultra_white"] #mobileContainer,
-    html.light-theme #mobileContainer {
-      background-color: #ffffff !important;
-      border-color: #cbd5e1 !important;
-      color: #0f172a !important;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.08) !important;
-    }
-    html[data-theme="ultra_white"] .bg-slate-950,
-    html[data-theme="ultra_white"] .bg-slate-900,
-    html[data-theme="ultra_white"] .bg-slate-900\/90,
-    html[data-theme="ultra_white"] .bg-slate-900\/80,
-    html[data-theme="ultra_white"] .bg-slate-900\/95,
-    html[data-theme="ultra_white"] .bg-slate-950\/95,
-    html[data-theme="ultra_white"] .bg-slate-950\/90,
-    html[data-theme="ultra_white"] .bg-slate-800,
-    html[data-theme="ultra_white"] .bg-slate-800\/80,
-    html[data-theme="ultra_white"] .bg-slate-800\/50,
-    html.light-theme .bg-slate-950,
-    html.light-theme .bg-slate-900,
-    html.light-theme .bg-slate-900\/90,
-    html.light-theme .bg-slate-900\/80,
-    html.light-theme .bg-slate-900\/95,
-    html.light-theme .bg-slate-950\/95,
-    html.light-theme .bg-slate-950\/90,
-    html.light-theme .bg-slate-800,
-    html.light-theme .bg-slate-800\/80,
-    html.light-theme .bg-slate-800\/50 {
-      background-color: #ffffff !important;
-      border-color: #e2e8f0 !important;
-      color: #0f172a !important;
-    }
-    html[data-theme="ultra_white"] .border-slate-900,
-    html[data-theme="ultra_white"] .border-slate-800,
-    html[data-theme="ultra_white"] .border-slate-700,
-    html.light-theme .border-slate-900,
-    html.light-theme .border-slate-800,
-    html.light-theme .border-slate-700 {
-      border-color: #e2e8f0 !important;
-    }
-    html[data-theme="ultra_white"] .text-white,
-    html[data-theme="ultra_white"] .text-slate-100,
-    html[data-theme="ultra_white"] .text-slate-200,
-    html[data-theme="ultra_white"] .text-slate-300,
-    html.light-theme .text-white,
-    html.light-theme .text-slate-100,
-    html.light-theme .text-slate-200,
-    html.light-theme .text-slate-300 {
-      color: #0f172a !important;
-    }
-    html[data-theme="ultra_white"] .text-slate-400,
-    html[data-theme="ultra_white"] .text-slate-500,
-    html.light-theme .text-slate-400,
-    html.light-theme .text-slate-500 {
-      color: #475569 !important;
-    }
-    html[data-theme="ultra_white"] .text-amber-400,
-    html[data-theme="ultra_white"] .text-yellow-400,
-    html[data-theme="ultra_white"] .text-amber-300,
-    html[data-theme="ultra_white"] .text-yellow-300,
-    html.light-theme .text-amber-400,
-    html.light-theme .text-yellow-400,
-    html.light-theme .text-amber-300,
-    html.light-theme .text-yellow-300 {
-      color: #92400e !important;
-    }
-    html[data-theme="ultra_white"] .text-emerald-400,
-    html.light-theme .text-emerald-400 {
-      color: #047857 !important;
-    }
-    html[data-theme="ultra_white"] .text-cyan-400,
-    html.light-theme .text-cyan-400 {
-      color: #0369a1 !important;
-    }
-    html[data-theme="ultra_white"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
-    html[data-theme="ultra_white"] select,
-    html[data-theme="ultra_white"] textarea,
-    html.light-theme input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
-    html.light-theme select,
-    html.light-theme textarea {
-      background-color: #ffffff !important;
-      color: #000000 !important;
-      border-color: #cbd5e1 !important;
-    }
-    html[data-theme="ultra_white"] input::placeholder,
-    html[data-theme="ultra_white"] textarea::placeholder,
-    html.light-theme input::placeholder,
-    html.light-theme textarea::placeholder {
-      color: #94a3b8 !important;
-    }
-    html[data-theme="ultra_white"] #fromDropdown,
-    html[data-theme="ultra_white"] #toDropdown,
-    html.light-theme #fromDropdown,
-    html.light-theme #toDropdown {
-      background-color: #ffffff !important;
-      border: 1.5px solid #cbd5e1 !important;
-      box-shadow: 0 15px 35px rgba(0,0,0,0.12) !important;
-    }
-    html[data-theme="ultra_white"] #fromDropdown *,
-    html[data-theme="ultra_white"] #toDropdown *,
-    html.light-theme #fromDropdown *,
-    html.light-theme #toDropdown * {
-      border-color: #e2e8f0 !important;
-    }
-    html[data-theme="ultra_white"] .bottom-bar-fixed,
-    html.light-theme .bottom-bar-fixed {
-      background-color: rgba(255, 255, 255, 0.96) !important;
-      border-top-color: #e2e8f0 !important;
-      box-shadow: 0 -4px 20px rgba(0,0,0,0.06) !important;
-    }
-    html[data-theme="ultra_white"] #currentTime,
-    html.light-theme #currentTime {
-      color: #0f172a !important;
-    }
-    html[data-theme="ultra_white"] #mobileThemeToggleBtn,
-    html.light-theme #mobileThemeToggleBtn {
-      background-color: #f1f5f9 !important;
-      border-color: #cbd5e1 !important;
-      color: #0f172a !important;
-    }
-
-    /* ── 2. 📜 WARM CREAM THEME (بيج كلاسيكي) ── */
-    html[data-theme="warm_cream"] {
-      background-color: #fbf7ee !important;
-      color: #292524 !important;
-    }
-    html[data-theme="warm_cream"] body {
-      background-color: #fbf7ee !important;
-      color: #292524 !important;
-    }
-    @media (max-width: 640px) {
-      html[data-theme="warm_cream"] body {
-        background-color: #fffdfa !important;
-      }
-    }
-    html[data-theme="warm_cream"] .desktop-screen-switcher {
-      background-color: #fffdf9 !important;
-      border-color: #e7ded1 !important;
-      color: #292524 !important;
-      box-shadow: 0 4px 20px rgba(120,80,40,0.06) !important;
-    }
-    html[data-theme="warm_cream"] .desktop-screen-switcher .text-white {
-      color: #1c1917 !important;
-    }
-    html[data-theme="warm_cream"] #dimensionBadge {
-      background-color: #f5ede2 !important;
-      border-color: #e4d8c8 !important;
-      color: #15803d !important;
-    }
-    html[data-theme="warm_cream"] #mobileContainer {
-      background-color: #fffdfa !important;
-      border-color: #e4d8c8 !important;
-      color: #1c1917 !important;
-      box-shadow: 0 10px 40px rgba(120,80,40,0.08) !important;
-    }
-    html[data-theme="warm_cream"] .bg-slate-950,
-    html[data-theme="warm_cream"] .bg-slate-900,
-    html[data-theme="warm_cream"] .bg-slate-900\/90,
-    html[data-theme="warm_cream"] .bg-slate-900\/80,
-    html[data-theme="warm_cream"] .bg-slate-900\/95,
-    html[data-theme="warm_cream"] .bg-slate-950\/95,
-    html[data-theme="warm_cream"] .bg-slate-950\/90,
-    html[data-theme="warm_cream"] .bg-slate-800,
-    html[data-theme="warm_cream"] .bg-slate-800\/80,
-    html[data-theme="warm_cream"] .bg-slate-800\/50 {
-      background-color: #ffffff !important;
-      border-color: #e4d8c8 !important;
-      color: #1c1917 !important;
-    }
-    html[data-theme="warm_cream"] .border-slate-900,
-    html[data-theme="warm_cream"] .border-slate-800,
-    html[data-theme="warm_cream"] .border-slate-700 {
-      border-color: #e4d8c8 !important;
-    }
-    html[data-theme="warm_cream"] .text-white,
-    html[data-theme="warm_cream"] .text-slate-100,
-    html[data-theme="warm_cream"] .text-slate-200,
-    html[data-theme="warm_cream"] .text-slate-300 {
-      color: #1c1917 !important;
-    }
-    html[data-theme="warm_cream"] .text-slate-400,
-    html[data-theme="warm_cream"] .text-slate-500 {
-      color: #57534e !important;
-    }
-    html[data-theme="warm_cream"] .text-amber-400,
-    html[data-theme="warm_cream"] .text-yellow-400 {
-      color: #92400e !important;
-    }
-    html[data-theme="warm_cream"] .text-emerald-400 {
-      color: #15803d !important;
-    }
-    html[data-theme="warm_cream"] .text-cyan-400 {
-      color: #0369a1 !important;
-    }
-    html[data-theme="warm_cream"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
-    html[data-theme="warm_cream"] select,
-    html[data-theme="warm_cream"] textarea {
-      background-color: #ffffff !important;
-      color: #1c1917 !important;
-      border-color: #d6c7b2 !important;
-    }
-    html[data-theme="warm_cream"] input::placeholder,
-    html[data-theme="warm_cream"] textarea::placeholder {
-      color: #a8a29e !important;
-    }
-    html[data-theme="warm_cream"] #fromDropdown,
-    html[data-theme="warm_cream"] #toDropdown {
-      background-color: #ffffff !important;
-      border: 1.5px solid #e4d8c8 !important;
-      box-shadow: 0 15px 35px rgba(120,80,40,0.1) !important;
-    }
-    html[data-theme="warm_cream"] #fromDropdown *,
-    html[data-theme="warm_cream"] #toDropdown * {
-      border-color: #ede2d3 !important;
-    }
-    html[data-theme="warm_cream"] .bottom-bar-fixed {
-      background-color: rgba(255, 253, 250, 0.96) !important;
-      border-top-color: #e4d8c8 !important;
-      box-shadow: 0 -4px 20px rgba(120,80,40,0.06) !important;
-    }
-    html[data-theme="warm_cream"] #currentTime {
-      color: #1c1917 !important;
-    }
-    html[data-theme="warm_cream"] #mobileThemeToggleBtn {
-      background-color: #f5ede2 !important;
-      border-color: #e4d8c8 !important;
-      color: #1c1917 !important;
-    }
-
-    /* ── 3. 🌌 UNIFIED BLUE THEME (كحلي موحد) ── */
-    html[data-theme="midnight_obsidian"],
-    html[data-theme="navy"] {
-      background-color: #0a1128 !important;
-      color: #ffffff !important;
-    }
-    html[data-theme="midnight_obsidian"] body,
-    html[data-theme="navy"] body {
-      background-color: #0a1128 !important;
-      color: #ffffff !important;
-    }
-    @media (max-width: 640px) {
-      html[data-theme="midnight_obsidian"] body,
-      html[data-theme="navy"] body {
-        background-color: #0b132b !important;
-      }
-    }
-    html[data-theme="midnight_obsidian"] .desktop-screen-switcher,
-    html[data-theme="navy"] .desktop-screen-switcher {
-      background-color: #0d1738 !important;
-      border-color: rgba(56, 189, 248, 0.25) !important;
-      color: #ffffff !important;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.6) !important;
-    }
-    html[data-theme="midnight_obsidian"] #mobileContainer,
-    html[data-theme="navy"] #mobileContainer {
-      background-color: #0b132b !important;
-      border-color: rgba(56, 189, 248, 0.3) !important;
-      color: #ffffff !important;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.85) !important;
-    }
-    html[data-theme="midnight_obsidian"] .bg-slate-950,
-    html[data-theme="midnight_obsidian"] .bg-slate-900,
-    html[data-theme="midnight_obsidian"] .bg-slate-900\/90,
-    html[data-theme="midnight_obsidian"] .bg-slate-900\/80,
-    html[data-theme="navy"] .bg-slate-950,
-    html[data-theme="navy"] .bg-slate-900 {
-      background-color: #111c44 !important;
-      border-color: rgba(56, 189, 248, 0.2) !important;
-      color: #ffffff !important;
-    }
-    html[data-theme="midnight_obsidian"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
-    html[data-theme="midnight_obsidian"] select,
-    html[data-theme="midnight_obsidian"] textarea {
-      background-color: #0b132b !important;
-      color: #ffffff !important;
-      border-color: rgba(56, 189, 248, 0.35) !important;
-    }
-    html[data-theme="midnight_obsidian"] .bottom-bar-fixed,
-    html[data-theme="navy"] .bottom-bar-fixed {
-      background-color: rgba(13, 23, 56, 0.96) !important;
-      border-top-color: rgba(56, 189, 248, 0.25) !important;
-    }
-    html[data-theme="midnight_obsidian"] #mobileThemeToggleBtn {
-      background-color: #111c44 !important;
-      border-color: rgba(56, 189, 248, 0.35) !important;
-      color: #38bdf8 !important;
-    }
-
-    /* ── 4. 🌑 PURE OLED THEME (أسود مطلق) ── */
-    html[data-theme="pure_oled"],
-    html[data-theme="midnight"] {
-      background-color: #000000 !important;
-      color: #ffffff !important;
-    }
-    html[data-theme="pure_oled"] body,
-    html[data-theme="midnight"] body {
-      background-color: #000000 !important;
-      color: #ffffff !important;
-    }
-    @media (max-width: 640px) {
-      html[data-theme="pure_oled"] body,
-      html[data-theme="midnight"] body {
-        background-color: #000000 !important;
-      }
-    }
-    html[data-theme="pure_oled"] .desktop-screen-switcher,
-    html[data-theme="midnight"] .desktop-screen-switcher {
-      background-color: #050505 !important;
-      border-color: rgba(255, 255, 255, 0.2) !important;
-      color: #ffffff !important;
-    }
-    html[data-theme="pure_oled"] #mobileContainer,
-    html[data-theme="midnight"] #mobileContainer {
-      background-color: #000000 !important;
-      border-color: rgba(255, 255, 255, 0.2) !important;
-      color: #ffffff !important;
-      box-shadow: 0 10px 40px rgba(0,0,0,1) !important;
-    }
-    html[data-theme="pure_oled"] .bg-slate-950,
-    html[data-theme="pure_oled"] .bg-slate-900,
-    html[data-theme="pure_oled"] .bg-slate-900\/90,
-    html[data-theme="pure_oled"] .bg-slate-900\/80,
-    html[data-theme="midnight"] .bg-slate-950,
-    html[data-theme="midnight"] .bg-slate-900 {
-      background-color: #080808 !important;
-      border-color: rgba(255, 255, 255, 0.18) !important;
-      color: #ffffff !important;
-    }
-    html[data-theme="pure_oled"] input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),
-    html[data-theme="pure_oled"] select,
-    html[data-theme="pure_oled"] textarea {
-      background-color: #050505 !important;
-      color: #ffffff !important;
-      border-color: rgba(255, 255, 255, 0.28) !important;
-    }
-    html[data-theme="pure_oled"] .bottom-bar-fixed,
-    html[data-theme="midnight"] .bottom-bar-fixed {
-      background-color: rgba(0, 0, 0, 0.98) !important;
-      border-top-color: rgba(255, 255, 255, 0.2) !important;
-    }
-    html[data-theme="pure_oled"] #mobileThemeToggleBtn {
-      background-color: #080808 !important;
-      border-color: rgba(255, 255, 255, 0.3) !important;
-      color: #ffffff !important;
-    }
   </style>
 </head>
 <body class="flex flex-col items-center justify-start antialiased selection:bg-blue-600 selection:text-white">
@@ -3216,7 +1837,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
   </div>
 
   <!-- Mobile Device Screen Container -->
-  <div id="mobileContainer" class="mobile-device-outer w-full max-w-[393px] bg-slate-950 sm:rounded-[36px] sm:border-[4px] sm:border-slate-800 sm:shadow-2xl flex flex-col relative transition-all duration-300 min-h-screen">
+  <div id="mobileContainer" class="mobile-device-outer w-full max-w-[393px] bg-slate-950 sm:rounded-[36px] sm:border-[4px] sm:border-slate-800 sm:shadow-2xl overflow-hidden flex flex-col relative transition-all duration-300 min-h-screen sm:min-h-[852px]">
 
     <!-- ═════════════════════════════════════════════════════════════════
          1. السطر الأول المرفوع (الهيدر العلوي):
@@ -3226,15 +1847,10 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       
       <!-- اليمين: مايك الذكاء الصوتي الشامل + عنوان الشاشة (حركة مالية) + منطقة عناية متصل -->
       <div class="flex items-center gap-2">
-        <!-- زر المايك الصوتي الذكي في دائرة واضحة مع إظهار صورة المايك الذهبية (بناءً على طلب المستخدم) -->
-        <button type="button" onclick="toggleMasterVoiceInput()" id="masterMicBtn" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-cyan-600 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 active:scale-95 text-white flex items-center justify-center shrink-0 border-2 border-cyan-200/90 shadow-[0_0_18px_rgba(6,182,212,0.7)] transition cursor-pointer relative group" title="المايك الصوتي الذكي الشامل: اضغط وتحدث لتعبئة كامل السند تلقائياً">
-          <!-- صورة المايك SVG الذهبية واضحة وساطعة دائماً داخل الدائرة -->
-          <svg class="w-5 h-5 text-yellow-300 drop-shadow" id="masterMicSvg" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
-            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
-          </svg>
-          <i class="fa-solid fa-microphone text-sm text-yellow-300 hidden" id="masterMicIcon"></i>
-          <span class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border border-white animate-ping hidden" id="masterMicListeningPing"></span>
+        <!-- زر المايك الصوتي الذكي الشامل للشاشة بأكملها (في مكان زر الخروج قبل حركة مالية) -->
+        <button type="button" onclick="toggleMasterVoiceInput()" id="masterMicBtn" class="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 active:scale-95 text-white flex items-center justify-center shrink-0 border border-cyan-300 shadow-[0_0_16px_rgba(6,182,212,0.6)] transition cursor-pointer relative group" title="المايك الصوتي الذكي الشامل: اضغط وتحدث لتعبئة كامل السند تلقائياً">
+          <i class="fa-solid fa-microphone text-sm text-yellow-300" id="masterMicIcon"></i>
+          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping hidden" id="masterMicListeningPing"></span>
         </button>
 
         <!-- حركة مالية فقط بخط واضح وفخم (تم حذف صرف مالي) -->
@@ -3251,20 +1867,12 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
         </button>
       </div>
 
-      <!-- اليسار: أزرار التحكم بالسمات والرئيسية + التبديل السريع + الساعة و 5G -->
-      <div class="flex items-center gap-1.5 text-slate-300">
-        <a href="mobile-dashboard.php?force_mobile=1" class="w-7 h-7 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center shrink-0 border border-slate-700 transition" title="العودة للوحة التحكم الرئيسية 🏠">
-          <i class="fa-solid fa-house text-[11px]"></i>
-        </a>
-        <button type="button" onclick="openThemePaletteDrawer()" class="w-7 h-7 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 flex items-center justify-center shrink-0 border border-amber-500/40 transition" title="سيف السمات والراحة البصرية 🎨">
-          <i class="fa-solid fa-palette text-[11px]"></i>
-        </button>
-        <button type="button" onclick="cycleMobileTheme()" id="mobileThemeToggleBtn" class="w-7 h-7 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-cyan-400 text-xs flex items-center justify-center transition active:scale-95 shadow-sm" title="تبديل سريع للسمة (أبيض / بيج / كحلي / أسود)">
-          <span id="mobileThemeIcon"><?php echo ($isLight ? '☀️' : ($activeTheme === 'pure_oled' ? '🌑' : '🌌')); ?></span>
-        </button>
-        <span id="currentTime" class="font-bold font-mono text-slate-200 text-xs ml-0.5">13:15</span>
+      <!-- اليسار: الساعة و 5G والإشارات -->
+      <div class="flex items-center gap-2 text-slate-300">
+        <span id="currentTime" class="font-bold font-mono text-slate-200 text-xs">13:15</span>
         <div class="flex items-center gap-1 font-mono text-slate-300">
           <span class="font-black text-[11px] text-cyan-400">5G</span>
+          <i class="fa-solid fa-signal text-[9px] text-slate-300"></i>
           <i class="fa-solid fa-battery-full text-emerald-400 text-xs"></i>
         </div>
       </div>
@@ -3329,24 +1937,22 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
           <input type="date" id="voucherDate" value="<?php echo date('Y-m-d'); ?>" oninput="updateVoucherDateDisplay()" onchange="updateVoucherDateDisplay()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;">
         </div>
 
-        <!-- 2. مساحة الرقم التسلسلي مع إظهار الأسهم بوضوح تام يمين ويسار (بناءً على طلب المستخدم) -->
-        <div class="bg-slate-950 glow-border-amber rounded-2xl px-2 py-1 flex items-center justify-between h-[54px] shadow-inner">
-          <!-- سهم يمين ظاهر وواضح (للسند التالي للأحدث ▶) -->
-          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 active:scale-90 text-amber-300 hover:text-amber-100 flex items-center justify-center transition border-2 border-amber-400/80 shadow-[0_0_10px_rgba(245,158,11,0.3)] shrink-0 cursor-pointer" title="السند التالي ▶ (للأحدث)">
-            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-            <i class="fa-solid fa-arrow-right text-xs hidden"></i>
+        <!-- 2. مساحة الرقم التسلسلي: تصغير الرقم درجة، وتصغير الأسهم يمين وشمال على الأطراف -->
+        <div class="bg-slate-950 glow-border-amber rounded-2xl px-1.5 py-1 flex items-center justify-between h-[54px] shadow-inner">
+          <!-- سهم يمين صغير على الطرف (للطلوع للأحدث) -->
+          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم يمين: السند التالي (للطلوع للأحدث)">
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
           </button>
 
-          <!-- الرقم التسلسلي لوحده كامل ومريح للعين -->
+          <!-- الرقم التسلسلي لوحده كامل ومصغر درجة واحدة لراحة العين -->
           <div class="text-center px-1 flex-1 min-w-0 flex items-center justify-center overflow-visible">
             <span id="voucherTag" class="hidden"></span>
-            <span class="text-[16px] sm:text-[17.5px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow cursor-pointer hover:underline" id="currentVoucherDisplay" onclick="showDigitalVoucherReceipt()" title="اضغط لعرض الإيصال الرقمي الرسمي المعتمد ورمز الـ QR 📜"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
+            <span class="text-[15px] sm:text-[16px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow cursor-pointer hover:underline" id="currentVoucherDisplay" onclick="showDigitalVoucherReceipt()" title="اضغط لعرض الإيصال الرقمي الرسمي المعتمد ورمز الـ QR 📜"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
           </div>
 
-          <!-- سهم شمال ظاهر وواضح (للسند السابق للأقدم ◀) -->
-          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 active:scale-90 text-amber-300 hover:text-amber-100 flex items-center justify-center transition border-2 border-amber-400/80 shadow-[0_0_10px_rgba(245,158,11,0.3)] shrink-0 cursor-pointer" title="◀ السند السابق (للأقدم)">
-            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
-            <i class="fa-solid fa-arrow-left text-xs hidden"></i>
+          <!-- سهم شمال صغير على الطرف (للنزول للأقدم) -->
+          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم شمال: السند السابق (للنزول للأقدم)">
+            <i class="fa-solid fa-arrow-left text-[10px]"></i>
           </button>
         </div>
 
@@ -3380,7 +1986,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
     </div>
 
     <!-- Main Scrollable Content (بدون مساحات ميتة متصل بانسيابية) -->
-    <main class="flex-1 p-2.5 space-y-2.5 pb-32 text-xs">
+    <main class="flex-1 overflow-y-auto no-scrollbar p-2.5 space-y-2.5 pb-28 text-xs">
 
       <!-- أزرار الدفع الزجاجية العصرية المضيئة الحواف بوضوح تام -->
       <div class="p-1.5 rounded-2xl bg-slate-900/95 border-2 border-slate-700/80 shadow-[0_0_15px_rgba(56,189,248,0.18)]">
@@ -3423,34 +2029,32 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
         <!-- قيمة الدولار: زيادة درجة واحدة ومفخم بلوط عريض (19.5px - 20.5px / font-black 900) -->
         <div class="bg-slate-950 glow-border-emerald rounded-xl px-2 py-1 flex items-center gap-1 w-[108px] shrink-0 h-[44px] shadow-inner transition cursor-pointer group" onclick="document.getElementById('usdRate').focus()" title="قيمة الدولار من السيستم - كتابة مباشرة">
           <span class="text-emerald-400 font-mono text-base font-black shrink-0">$</span>
-          <input type="text" inputmode="numeric" pattern="[0-9]*" id="usdRate" value="<?php echo (float)$sysUsdRate; ?>" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-[19.5px] sm:text-[20.5px] focus:outline-none text-center cursor-text tracking-tight" style="font-weight: 900 !important; text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);" placeholder="<?php echo (float)$sysUsdRate; ?>" title="سعر صرف الدولار">
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="usdRate" value="2650" onchange="updateSystemUsdRate(this.value)" oninput="calculateExchange('rate')" class="w-full bg-transparent text-emerald-300 font-mono font-black text-[19.5px] sm:text-[20.5px] focus:outline-none text-center cursor-text tracking-tight" style="font-weight: 900 !important; text-shadow: 0 0 6px rgba(16, 185, 129, 0.4);" placeholder="2650" title="سعر صرف الدولار">
           <i class="fa-solid fa-pen text-[8px] text-slate-500 group-hover:text-emerald-400 transition shrink-0"></i>
         </div>
 
-        <!-- مركز الكلفة والمخزن: المساحة بالكامل مخصصة للمخزن بدون خطوط داخلية خفيفة -->
-        <div class="flex-1 bg-slate-950 border-2 border-indigo-400/80 rounded-xl px-2.5 flex items-center h-[44px] shadow-inner transition focus-within:border-indigo-300">
-          <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="المخزن / مركز الكلفة" class="w-full h-full bg-transparent text-indigo-100 placeholder:text-indigo-400/60 font-black text-xs sm:text-[13px] focus:outline-none text-right" value="مخزن بحري الرئيسي" title="المخزن / مركز الكلفة">
+        <!-- مركز الكلفة: تصغير الخط درجة واحدة (11px) -->
+        <div class="flex-1 bg-slate-950 glow-border-indigo rounded-xl px-2.5 py-1 flex items-center h-[44px] relative shadow-inner">
+          <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="مركز الكلفة" class="w-full bg-transparent text-indigo-100 placeholder:text-slate-500 placeholder:font-medium text-[11px] font-bold focus:outline-none" value="مخزن بحري الرئيسي">
           <datalist id="costCentersDataList">
             <option value="مخزن بحري الرئيسي"></option>
             <option value="مخزن أم درمان"></option>
-            <option value="مخزن بحري الفرعي"></option>
             <option value="فرع بورتسودان"></option>
-            <option value="مخزن عطبرة"></option>
             <option value="الإدارة العامة"></option>
           </datalist>
         </div>
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
-           المبالغ المالية (كامل المساحة مخصصة للمبالغ بدون خطوط داخلية خفيفة):
-           - اليمين: المبلغ محلي بكامل المساحة
-           - اليسار: المبلغ دولار بكامل المساحة
-           - إزالة الإطار المزدوج الخارجي لضمان تخصيص 100% من المساحة للأرقام
+           المبالغ المالية (مستوى متساوٍ ومحاذاة تامة):
+           - اليمين: المبلغ المحلي
+           - اليسار: المبلغ دولار (بدون كلمة أجنبي) مع علامة الدولار ومستوى متساوٍ تماماً
+           - ضبط وتخصيص منفصل تماماً لكل مبلغ عند النقر أو كليك يمين أو الضغط على مسافة
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="space-y-2">
+      <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2.5 space-y-2 shadow-[0_0_18px_rgba(56,189,248,0.2)]">
         
-        <!-- في نفس السطر: المبلغ محلي (يمين) والمبلغ دولار (يسار) بدون خطوط متداخلة -->
-        <div class="grid grid-cols-2 gap-2">
+        <!-- في نفس السطر: المبلغ محلي (يمين) والمبلغ دولار (يسار) بدون أي كلمات إضافية -->
+        <div class="grid grid-cols-2 gap-2.5">
           
           <!-- 1. اليمين: المبلغ محلي (إضاءة سماوية فائقة الحواف) -->
           <div>
@@ -3460,9 +2064,9 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
               </button>
               <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ محلي</span>
             </div>
-            <!-- المربع شاغر بحواف مضيئة ساطعة وبكامل المساحة للمبلغ -->
-            <div id="sdgAmountCard" class="amount-display-card bg-slate-950 p-1.5 rounded-2xl border-2 border-sky-400 shadow-[0_0_24px_rgba(56,189,248,0.45)] focus-within:shadow-[0_0_32px_rgba(56,189,248,0.85)] focus-within:border-sky-300 transition relative cursor-pointer flex items-center justify-center min-h-[74px] w-full" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
-              <input type="text" id="sdgAmount" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg')" oninput="handleAmountInput('sdg'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full h-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 34px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
+            <!-- المربع شاغر بحواف مضيئة ساطعة -->
+            <div id="sdgAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-sky-400 shadow-[0_0_24px_rgba(56,189,248,0.55)] focus-within:shadow-[0_0_32px_rgba(56,189,248,0.85)] focus-within:border-sky-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
+              <input type="text" id="sdgAmount" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg')" oninput="handleAmountInput('sdg'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 32px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
             </div>
           </div>
 
@@ -3474,9 +2078,9 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
               </button>
               <span class="text-xs sm:text-sm font-black text-emerald-300" id="foreignAmountTitle">المبلغ دولار</span>
             </div>
-            <!-- المربع شاغر بحواف مضيئة ساطعة وبكامل المساحة للمبلغ -->
-            <div id="usdAmountCard" class="amount-display-card bg-slate-950 p-1.5 rounded-2xl border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.45)] focus-within:shadow-[0_0_32px_rgba(16,185,129,0.85)] focus-within:border-emerald-300 transition relative cursor-pointer flex items-center justify-center min-h-[74px] w-full" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
-              <input type="text" id="usdAmount" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="0.00" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('usd')" oninput="handleAmountInput('foreign'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full h-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-usd, 34px); font-weight: var(--num-weight-usd, 900); color: var(--num-color-usd, #10b981); text-align: center;">
+            <!-- المربع شاغر بحواف مضيئة ساطعة -->
+            <div id="usdAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.55)] focus-within:shadow-[0_0_32px_rgba(16,185,129,0.85)] focus-within:border-emerald-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
+              <input type="text" id="usdAmount" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="0.00" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('usd')" oninput="handleAmountInput('foreign'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-usd, 32px); font-weight: var(--num-weight-usd, 900); color: var(--num-color-usd, #10b981); text-align: center;">
             </div>
           </div>
 
@@ -3607,11 +2211,11 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
                 <span>رقم التحويلة:</span>
               </label>
             </div>
-            <input type="text" id="transferInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="handleTransferFocus(this.value)" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[56px] sm:h-[58px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 27px; font-weight: 900; text-align: center; direction: ltr; letter-spacing: 0.5px;">
+            <input type="text" id="transferInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="handleTransferFocus(this.value)" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[54px] sm:h-[56px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 24px; font-weight: 900; text-align: center; direction: ltr; letter-spacing: 0.5px;">
             <div id="transferFeedbackBadge" class="transition-all flex items-center justify-center"></div>
           </div>
 
-          <!-- 2. اسم التحويلة / البنك متناسب بدقة (تكبير درجتان) -->
+          <!-- 2. اسم التحويلة / البنك متناسب بدقة -->
           <div>
             <div class="flex items-center gap-1 mb-1 px-1 h-5">
               <label class="block text-xs font-black text-cyan-300 flex items-center gap-1" id="bankNameLabel">
@@ -3619,7 +2223,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
                 <span>اسم التحويلة / البنك:</span>
               </label>
             </div>
-            <input type="text" id="bankNameInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[56px] sm:h-[58px] text-[17.5px] sm:text-[18.5px] font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" style="font-weight: 900 !important;" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[54px] sm:h-[56px] text-sm sm:text-base font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -6119,39 +4723,39 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       const len = val.length;
 
       if (_transferIsActiveTyping) {
-        // أثناء الكتابة: يزيد خمس درجات كاملة (تكبير ضخم ومريح للعين 32px لسهولة ودقة كتابة الأرقام)
+        // أثناء الكتابة: يكبر درجتين إضافيتين (تكبير ضخم ومريح للعين لسهولة ودقة كتابة الأرقام - زيادة 3 درجات)
         if (len <= 8) {
-          input.style.fontSize = '32px';
+          input.style.fontSize = '29px';
           input.style.letterSpacing = '0.8px';
         } else if (len <= 11) {
-          input.style.fontSize = '29.5px';
+          input.style.fontSize = '26.5px';
           input.style.letterSpacing = '0.4px';
         } else if (len <= 14) {
-          input.style.fontSize = '27px';
+          input.style.fontSize = '24px';
           input.style.letterSpacing = '0px';
         } else if (len <= 17) {
-          input.style.fontSize = '24.5px';
-          input.style.letterSpacing = '-0.4px';
-        } else {
-          input.style.fontSize = '22px';
-          input.style.letterSpacing = '-0.8px';
-        }
-      } else {
-        // حين الانتهاء من الكتابة (الوضع الطبيعي): زيادة 3 درجات (27px)
-        if (len <= 8) {
-          input.style.fontSize = '27px';
-          input.style.letterSpacing = '0.5px';
-        } else if (len <= 11) {
-          input.style.fontSize = '25px';
-          input.style.letterSpacing = '0.2px';
-        } else if (len <= 14) {
-          input.style.fontSize = '23px';
-          input.style.letterSpacing = '0px';
-        } else if (len <= 17) {
-          input.style.fontSize = '21px';
+          input.style.fontSize = '21.5px';
           input.style.letterSpacing = '-0.4px';
         } else {
           input.style.fontSize = '19px';
+          input.style.letterSpacing = '-0.8px';
+        }
+      } else {
+        // حين الانتهاء من الكتابة: الوضع المستقر الأنيق المتناسب (زيادة رقم التحويلة 3 درجات)
+        if (len <= 8) {
+          input.style.fontSize = '24px';
+          input.style.letterSpacing = '0.5px';
+        } else if (len <= 11) {
+          input.style.fontSize = '22px';
+          input.style.letterSpacing = '0.2px';
+        } else if (len <= 14) {
+          input.style.fontSize = '20px';
+          input.style.letterSpacing = '-0.2px';
+        } else if (len <= 17) {
+          input.style.fontSize = '18px';
+          input.style.letterSpacing = '-0.5px';
+        } else {
+          input.style.fontSize = '16.5px';
           input.style.letterSpacing = '-0.8px';
         }
       }
@@ -6304,31 +4908,22 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       isMasterVoiceActive = active;
       const btn = document.getElementById('masterMicBtn');
       const icon = document.getElementById('masterMicIcon');
-      const svg = document.getElementById('masterMicSvg');
       const ping = document.getElementById('masterMicListeningPing');
 
       if (!btn) return;
 
       if (active) {
-        btn.classList.remove('from-cyan-600', 'via-sky-500', 'to-indigo-600', 'from-cyan-500');
+        btn.classList.remove('bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-indigo-600');
         btn.classList.add('bg-red-600', 'ring-4', 'ring-red-400', 'scale-105', 'shadow-[0_0_22px_#ef4444]');
-        if (svg) {
-          svg.classList.remove('text-yellow-300');
-          svg.classList.add('text-white', 'animate-pulse');
-        }
         if (icon) {
           icon.className = 'fa-solid fa-microphone-lines text-sm text-white animate-pulse';
         }
         if (ping) ping.classList.remove('hidden');
       } else {
-        btn.classList.add('bg-gradient-to-tr', 'from-cyan-600', 'via-sky-500', 'to-indigo-600');
+        btn.classList.add('bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-indigo-600');
         btn.classList.remove('bg-red-600', 'ring-4', 'ring-red-400', 'scale-105', 'shadow-[0_0_22px_#ef4444]');
-        if (svg) {
-          svg.classList.remove('text-white', 'animate-pulse');
-          svg.classList.add('text-yellow-300');
-        }
         if (icon) {
-          icon.className = 'fa-solid fa-microphone text-sm text-yellow-300 hidden';
+          icon.className = 'fa-solid fa-microphone text-sm text-yellow-300';
         }
         if (ping) ping.classList.add('hidden');
       }
@@ -8298,7 +6893,6 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       if (!rate || rate <= 0) rate = 2650;
       
       localStorage.setItem('magaiees_system_usd_rate', rate);
-      window.SYSTEM_USD_RATE = rate;
       
       if (vouchersList[currentIndex]) {
         vouchersList[currentIndex].rate = rate;
@@ -8307,9 +6901,6 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       calculateExchange('rate');
       updateTafqeet();
       updateAccountBalanceBadges();
-
-      fetch('api/mirror_api.php?action=save_rate&rate=' + encodeURIComponent(rate))
-        .catch(e => console.warn('Failed to sync rate to server', e));
 
       showToastNotification(`✓ تم تحديث سعر صرف الدولار في السيستم إلى (${rate.toLocaleString()}) ومزامنته فورياً مع شاشة الكمبيوتر!`);
     }
@@ -8420,7 +7011,6 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
     function setMobilePreset(width, label) {
       const container = document.getElementById('mobileContainer');
       const badge = document.getElementById('dimensionBadge');
-      const bottomBar = document.querySelector('.bottom-bar-fixed');
       
       document.querySelectorAll('.preset-btn').forEach(b => {
         b.classList.remove('bg-blue-600', 'text-white');
@@ -8429,13 +7019,10 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
 
       if (width === '100%') {
         container.style.maxWidth = '100%';
-        if (bottomBar) bottomBar.style.maxWidth = '100%';
         badge.textContent = `100% Full Width (${label})`;
-        const btnFull = document.getElementById('btn-p-full');
-        if (btnFull) btnFull.classList.add('bg-blue-600', 'text-white');
+        document.getElementById('btn-p-full').classList.add('bg-blue-600', 'text-white');
       } else {
         container.style.maxWidth = `${width}px`;
-        if (bottomBar) bottomBar.style.maxWidth = `${width}px`;
         badge.textContent = `${width}px × 852px (${label})`;
         const activeBtn = document.getElementById(`btn-p-${width}`);
         if (activeBtn) {
@@ -8538,12 +7125,12 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       const btnPrev = document.getElementById('btnPrevVoucher');
       if (btnPrev) {
         btnPrev.disabled = false;
-        btnPrev.classList.remove('opacity-50');
+        btnPrev.classList.toggle('opacity-50', currentIndex === 0);
       }
       const btnNext = document.getElementById('btnNextVoucher');
       if (btnNext) {
         btnNext.disabled = false;
-        btnNext.classList.remove('opacity-50');
+        btnNext.classList.toggle('opacity-50', currentIndex >= vouchersList.length - 1);
       }
     }
 
@@ -8661,16 +7248,16 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       const tafqeetEl = document.getElementById('tafqeetDisplay');
       if (tafqeetEl) tafqeetEl.classList.add('hidden');
 
-      // 7. ضبط أزرار التنقل (سهم يمين وسهم شمال) - ظاهرة بوضوح تام دائماً
+      // 7. ضبط أزرار التنقل (سهم يمين وسهم شمال)
       const btnNext = document.getElementById('btnNextVoucher');
       if (btnNext) {
         btnNext.disabled = false;
-        btnNext.classList.remove('opacity-50');
+        btnNext.classList.add('opacity-50');
       }
       const btnPrev = document.getElementById('btnPrevVoucher');
       if (btnPrev) {
         btnPrev.disabled = false;
-        btnPrev.classList.remove('opacity-50');
+        btnPrev.classList.toggle('opacity-50', vouchersList.length === 0);
       }
 
       setPaymentType('transfer');
@@ -10455,17 +9042,17 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
         }
       }
 
-      // 3. فحص طول رقم التحويلة (يجب أن لا يقل عن 6 أرقام نهائياً)
+      // 3. فحص طول رقم التحويلة (السماح بالأرقام مثل 54016 و 5416 بعد التنبيه أو التأكيد)
       const digitsOnly = val.replace(/\D/g, '');
-      if (digitsOnly.length < 6) {
+      if (digitsOnly.length < 3) {
         if (isSaveAction) {
-          showToast("رقم التحويلة يجب أن يتكون من 6 أرقام على الأقل", "error");
-          const ti = document.getElementById('transferInput');
-          if (ti) {
-            ti.focus();
-            ti.classList.add('border-red-500');
-            setTimeout(() => ti.classList.remove('border-red-500'), 3500);
-          }
+          showToast("رقم التحويلة قصير جداً (أقل من 3 أرقام)", "error");
+          return false;
+        }
+      } else if (digitsOnly.length < 6 && !_shortTransferAllowed) {
+        if (isSaveAction) {
+          _wasAttemptingSave = true;
+          showLengthWarningModal(val);
           return false;
         }
       }
@@ -10499,11 +9086,9 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
           }
 
           // 2. تحديث السندات الحقيقية من single_payments
-          const isAtNewVoucher = (currentIndex >= vouchersList.length);
           if (Array.isArray(data.vouchers) && data.vouchers.length > 0) {
             vouchersList = data.vouchers.map(v => ({
               id: v.id,
-              voucherNo: v.id,
               isOffline: false,
               date: v.date || new Date().toISOString().slice(0, 10),
               rate: v.rate || 2650,
@@ -10513,26 +9098,21 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
               usd: v.foreignAmt || 0,
               payType: v.payType || 'transfer',
               from: v.from || 'بنك الخرطوم',
-              fromName: v.fromName || v.from || 'بنك الخرطوم',
               to: v.to || 'المستفيد',
-              toName: v.toName || v.to || 'المستفيد',
               refNo: v.refNo || '',
               bankName: v.bankName || 'بنك الخرطوم',
               notes: v.notes || ''
             }));
-            if (isAtNewVoucher) {
-              currentIndex = vouchersList.length;
-            } else if (currentIndex >= vouchersList.length) {
-              currentIndex = vouchersList.length - 1;
-            }
+            currentIndex = vouchersList.length - 1;
           }
 
-          // 3. تحديث رقم السند القادم فورياً كالمرآة
+          // 3. تحديث رقم السند القادم
           if (data.nextVoucherNo) {
             window.PHP_NEXT_NO = data.nextVoucherNo;
-            if (isAtNewVoucher) {
+            const currentDisp = document.getElementById('currentVoucherDisplay')?.textContent || '';
+            if (!currentDisp || currentDisp.startsWith('#84') || currentDisp.startsWith('أوفلاين')) {
               const displayEl = document.getElementById('currentVoucherDisplay');
-              if (displayEl) {
+              if (displayEl && currentIndex >= vouchersList.length) {
                 displayEl.textContent = data.nextVoucherNo;
               }
             }
@@ -10785,27 +9365,26 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
         attachment: currentReceiptAttachment || null,
         date: document.getElementById('voucherDate').value || new Date().toISOString().slice(0, 10),
         rate: parseFloat(document.getElementById('usdRate').value) || 2650,
-        usdRate: parseFloat(document.getElementById('usdRate').value) || 2650,
         currency: currentCurrency || 'SDG',
         costCenter: document.getElementById('costCenterInput').value || '',
         paymentMethod: currentPayType,
-        payType: currentPayType,
         amountLocal: sdg,
         amountForeign: usd,
-        amount: sdg > 0 ? sdg : usd,
-        fromAccount: fromAccountName,
         fromAccountName: fromAccountName,
-        toAccount: toAccountName,
         toAccountName: toAccountName,
-        beneficiaryName: toAccountName,
         mobileTransferNo: transferVal,
-        transferRef: transferVal,
         refNo: transferVal,
         bankName: bankVal,
+        usdRate: parseFloat(document.getElementById('usdRate').value) || 2650,
+        payType: currentPayType,
+        amount: sdg > 0 ? sdg : usd,
+        fromAccount: fromAccountName,
+        toAccount: toAccountName,
+        beneficiaryName: toAccountName,
+        transferRef: transferVal,
         bank: bankVal,
         transferBank: bankVal,
-        notes: document.getElementById('voucherNotes').value || '',
-        toStatement: document.getElementById('voucherNotes').value || ''
+        notes: document.getElementById('voucherNotes').value || ''
       };
 
       let savedId = '';
@@ -10824,9 +9403,6 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
             if (resData && resData.success) {
               isDbSuccess = true;
               savedId = resData.voucherNo;
-              if (resData.nextVoucherNo) {
-                window.PHP_NEXT_NO = resData.nextVoucherNo;
-              }
 
               const savedVoucher = {
                 id: savedId,
@@ -11082,7 +9658,7 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       if (confirm('هل تريد الخروج من شاشة الحركة المالية والرجوع للشاشة الرئيسية؟')) {
         showToastNotification('🚪 جاري الخروج والرجوع للشاشة الرئيسية...');
         setTimeout(() => {
-          window.location.href = 'mobile-dashboard.php?force_mobile=1';
+          window.location.href = 'index.php';
         }, 300);
       }
     }
@@ -11624,587 +10200,6 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       initDebtMagnifierButtons();
     }
 
-    // ═════════════════════════════════════════════════════════════════════
-    // 🎨 21 SCIENTIFIC ERGONOMIC THEMES ENGINE (توحيد السمات لكافة الشاشات)
-    // ═════════════════════════════════════════════════════════════════════
-    const THEMES_PALETTE_CONFIG = {
-      // 🌟 The 4 Recommended Signature Themes (الموصى بها - قمة الرقي)
-      'warm-alabaster': { name: 'العاجي الدافئ', icon: '📜', category: 'recommended', desc: 'مستوحى من ورق الدفاتر الفاخرة لراحة ذهنية مطلقة' },
-      'pure-platinum': { name: 'الفضي النقي', icon: '❄️', category: 'recommended', desc: 'طراز المنصات العالمية بنقاء تحليلي بدون أي تشتيت' },
-      'midnight-executive': { name: 'كحلي منتصف الليل', icon: '🌌', category: 'recommended', desc: 'كحلي سحيق يبعث الأمان المالي ويخفض ضغط العين' },
-      'obsidian-charcoal': { name: 'حجر السج الجرافيتي', icon: '🪨', category: 'recommended', desc: 'فحم جرافيتي مطفأ فخامة صامتة مريح لشاشات OLED' },
-
-      // Light, Beige, Ivory & Off-White
-      'beige': { name: 'البيج الدافئ المريح', icon: '🌾', category: 'light', desc: 'درجة بيج رملي طبيعي دافئ يمتص الوهج البصري' },
-      'ivory': { name: 'العاجي الملكي الكلاسيكي', icon: '🥛', category: 'light', desc: 'نعومة اللون العاجي الكريمي الهادئ تريح البؤبؤ' },
-      'offwhite': { name: 'الأوف وايت الحديث المطفأ', icon: '📜', category: 'light', desc: 'أوف وايت ألاباستر عصري بدون بياض ساطع' },
-      'light-linen': { name: 'الكتان الطبيعي المريح', icon: '🧵', category: 'light', desc: 'طابع الكتان العضوي الهادئ يمنح السكينة' },
-      'pearl-platinum': { name: 'اللؤلؤي الفضي المريح', icon: '🦪', category: 'light', desc: 'رمادي لؤلؤي بلاتيني بارد يقلل انعكاس الضوء' },
-      'nordic-paper': { name: 'الورقي النوردي المريح', icon: '📄', category: 'light', desc: 'ملمس ورق الدفاتر الفاخر بدون وهج ساطع' },
-
-      // Blue & Navy Themes
-      'navy-kohl': { name: 'الكحلي الملكي الليلي', icon: '🌌', category: 'blue', desc: 'كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية' },
-      'royal-blue': { name: 'الأزرق الزفيري الحيوي', icon: '🔷', category: 'blue', desc: 'أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة' },
-      'ocean-navy': { name: 'الأزرق المحيطي العميق', icon: '🌊', category: 'blue', desc: 'تعزيز التفكير المنطقي والتحليل المالي' },
-      'petrol-cyan': { name: 'الأزرق البترولي والتيل', icon: '🐬', category: 'blue', desc: 'أزرق بترولي محيطي مهدئ للأعصاب' },
-      'twilight-indigo': { name: 'أزرق الشفق والإنديجو', icon: '🔮', category: 'blue', desc: 'أزرق شفق نيلي مسائي يخفف التوتر العصبي' },
-
-      // Dark, Gold & Brown
-      'midnight': { name: 'الليل الملكي الداكن', icon: '🌙', category: 'dark', desc: 'أقصى توفير لبطارية OLED وتدرج أسود عميق' },
-      'sepia-brown': { name: 'البني الإسبريسو والورق القديم', icon: '📜', category: 'dark', desc: 'حجب كامل للضوء الأزرق المسبب لإجهاد العين' },
-      'pale-gold': { name: 'الذهبي الباهت والفخامة', icon: '👑', category: 'dark', desc: 'دفء كلاسيكي ملكي وهيبة الأرقام المحاسبية' },
-      'emerald-forest': { name: 'زمرد الغابات لصفاء الذهن', icon: '🌲', category: 'dark', desc: 'راحة عصبية تخفض النبض وتمنع تبديل الأرقام' },
-      'desert-mocha': { name: 'الرمال الصحراوية وموكا', icon: '🏜️', category: 'dark', desc: 'توازن لوني دافئ ومريح للإضاءة المكتبية' },
-      'sunlight-titanium': { name: 'التيتانيوم الشمسي فائق التباين', icon: '☀️', category: 'dark', desc: 'معيار WCAG AAA للعمل الميداني تحت شمس الظهيرة' }
-    };
-
-    let currentActiveTheme = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_mobile_theme') || 'warm-alabaster';
-
-    function applyTheme(themeKey, showToast = true) {
-      if (!THEMES_PALETTE_CONFIG[themeKey]) themeKey = 'warm-alabaster';
-      currentActiveTheme = themeKey;
-      try {
-        localStorage.setItem('magaies_active_theme', themeKey);
-        localStorage.setItem('magaiees_mobile_theme', themeKey);
-        localStorage.setItem('magaiees_theme', themeKey);
-        document.cookie = "magaies_active_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
-        document.cookie = "magaiees_mobile_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
-      } catch(e) {}
-
-      document.documentElement.setAttribute('data-theme', themeKey);
-      if (document.body) document.body.setAttribute('data-theme', themeKey);
-
-      var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
-      var isLight = lightThemes.indexOf(themeKey) !== -1;
-      if (isLight) {
-        document.documentElement.classList.add('light-theme');
-        if (document.body) document.body.classList.add('light-theme');
-      } else {
-        document.documentElement.classList.remove('light-theme');
-        if (document.body) document.body.classList.remove('light-theme');
-      }
-      try {
-        localStorage.setItem('erp_theme', isLight ? 'light' : 'dark');
-        document.cookie = "erp_theme=" + (isLight ? 'light' : 'dark') + "; path=/; max-age=31536000; SameSite=Lax";
-      } catch(e) {}
-
-      closeModal('modalThemePaletteDrawer');
-
-      if (showToast) {
-        const conf = THEMES_PALETTE_CONFIG[themeKey];
-        if (typeof showToastNotification === 'function') {
-          showToastNotification(`🎨 تم توحيد السمة: ${conf.icon} ${conf.name} (${conf.desc})`);
-        }
-      }
-    }
-
-    // الاستماع الفوري لتغيير السمة من شاشة أخرى (مثل الشاشة الرئيسية) للمزامنة اللحظية الموحدة
-    window.addEventListener('storage', function(e) {
-      if (e.key === 'magaies_active_theme' || e.key === 'magaiees_mobile_theme') {
-        if (e.newValue && e.newValue !== currentActiveTheme) {
-          applyTheme(e.newValue, false);
-        }
-      }
-    });
-
-    function openThemePaletteDrawer() {
-      filterThemeCategory('recommended');
-      openModal('modalThemePaletteDrawer');
-    }
-
-    function closeThemePaletteDrawer() {
-      closeModal('modalThemePaletteDrawer');
-    }
-
-    function filterThemeCategory(cat) {
-      const btnRecommended = document.getElementById('btnTcRecommended');
-      const btnAll = document.getElementById('btnTcAll');
-      const btnLight = document.getElementById('btnTcLight');
-      const btnBlue = document.getElementById('btnTcBlue');
-      const btnDark = document.getElementById('btnTcDark');
-
-      const btns = { 'recommended': btnRecommended, 'all': btnAll, 'light': btnLight, 'blue': btnBlue, 'dark': btnDark };
-      Object.entries(btns).forEach(([k, btn]) => {
-        if (!btn) return;
-        if (k === cat) {
-          btn.className = "px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5";
-        } else {
-          btn.className = "px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5";
-        }
-      });
-
-      const cards = document.querySelectorAll('#themeCardsContainer .theme-card');
-      cards.forEach(card => {
-        if (cat === 'all') {
-          card.classList.remove('hidden');
-        } else {
-          if (card.classList.contains('tc-' + cat)) {
-            card.classList.remove('hidden');
-          } else {
-            card.classList.add('hidden');
-          }
-        }
-      });
-    }
-
-    function openModal(id) {
-      const modal = document.getElementById(id);
-      if (modal) modal.classList.remove('hidden');
-    }
-
-    function closeModal(id) {
-      const modal = document.getElementById(id);
-      if (modal) modal.classList.add('hidden');
-    }
-  </script>
-
-  <!-- ======================================================== -->
-  <!-- MODAL: سيف السمات والراحة البصرية للعين (21 سمة علمية)    -->
-  <!-- ======================================================== -->
-  <div id="modalThemePaletteDrawer" class="hidden fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4" dir="rtl">
-    <div class="glass-base w-full max-w-lg rounded-t-3xl sm:rounded-3xl border border-amber-500/40 p-4 space-y-3 shadow-2xl max-h-[92vh] overflow-y-auto bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950">
-      
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-        <div class="flex items-center gap-2">
-          <div class="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center font-black border border-amber-500/40 shadow">
-            🎨
-          </div>
-          <div>
-            <h3 class="text-sm font-black text-slate-100 flex items-center gap-1.5">
-              <span>سيف السمات والراحة البصرية للعين</span>
-              <span class="text-[9px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.2 rounded-full border border-amber-500/30">21 سمة معتمدة</span>
-            </h3>
-            <p class="text-[10px] text-slate-400">مصفوفة ألوان نفسية ومحاسبية لمنع إجهاد العين وتداخل الحروف والأرقام</p>
-          </div>
-        </div>
-        <button onclick="closeModal('modalThemePaletteDrawer')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition">✕</button>
-      </div>
-
-      <!-- Quick Guidance Banner -->
-      <div class="p-2.5 rounded-2xl bg-slate-950/80 border border-slate-800 text-[11px] text-slate-300 leading-relaxed">
-        💡 <strong>استشارة خبير علم النفس والمحاسبة:</strong> الألوان الترابية والعاجية والبيج تمتص الوهج الأزرق بنسبة 95%، ودرجات الأزرق والكحلي تحفز التفكير المنطقي والتدقيق المالي دون صداع.
-      </div>
-
-      <!-- Category Filter Pills -->
-      <div class="flex gap-1 overflow-x-auto py-0.5 no-scrollbar text-xs font-bold">
-        <button onclick="filterThemeCategory('recommended')" id="btnTcRecommended" class="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5">
-          <span>🌟 الموصى بها</span>
-          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">4</span>
-        </button>
-        <button onclick="filterThemeCategory('all')" id="btnTcAll" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5">
-          <span>الكل</span>
-          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">21</span>
-        </button>
-        <button onclick="filterThemeCategory('light')" id="btnTcLight" class="px-2.5 py-1 rounded-xl bg-slate-800 text-amber-200 hover:text-white shrink-0 border border-amber-500/30 flex items-center gap-1.5">
-          <span>☀️ الفاتحة والعاجي</span>
-          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">8</span>
-        </button>
-        <button onclick="filterThemeCategory('blue')" id="btnTcBlue" class="px-2.5 py-1 rounded-xl bg-slate-800 text-cyan-200 hover:text-white shrink-0 border border-cyan-500/30 flex items-center gap-1.5">
-          <span>🌊 درجات الأزرق</span>
-          <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>
-        </button>
-        <button onclick="filterThemeCategory('dark')" id="btnTcDark" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5">
-          <span>🌙 الداكنة والملكية</span>
-          <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">8</span>
-        </button>
-      </div>
-
-      <!-- Themes Grid (All 21 Themes) -->
-      <div id="themeCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-
-        <!-- 0.1 WARM ALABASTER (العاجي الدافئ - موصى بها) -->
-        <button onclick="applyTheme('warm-alabaster')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#8B6F4E] bg-[#F6F0E6] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#1C1917] flex items-center gap-1.5">
-              <span>📜 العاجي الدافئ</span>
-              <span class="px-1.5 py-0.5 rounded bg-[#8B6F4E] text-white text-[9px] font-bold">🌟 موصى بها</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#F6F0E6] border border-[#8B6F4E]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border-2 border-[#8B6F4E]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#8B6F4E]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#4A3E31] leading-tight font-medium">أزرار بيضاء ناصعة بحواف بنية داكنة فوق أرضية عاجية بيج خفيفة، تباين مثالي فائق الراحة والرقي.</p>
-          <span class="text-[9px] text-[#1C1917] font-black block pt-0.5">Warm Alabaster • قمة الرقي • تباين فائق وعاجي هادئ</span>
-        </button>
-
-        <!-- 0.2 PURE PLATINUM (الفضي النقي - موصى بها) -->
-        <button onclick="applyTheme('pure-platinum')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#64748B] bg-[#EEF2F6] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#0F172A] flex items-center gap-1.5">
-              <span>❄️ الفضي النقي</span>
-              <span class="px-1.5 py-0.5 rounded bg-[#64748B] text-white text-[9px] font-bold">🌟 موصى بها</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#EEF2F6] border border-[#64748B]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border-2 border-[#64748B]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0F172A]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#334155] leading-tight font-medium">أزرار ناصعة البياض بحواف بلاتينية محددة على أرضية فضية نقية هادئة، دقة تحليلية سويسرية فائقة التباين.</p>
-          <span class="text-[9px] text-[#0F172A] font-black block pt-0.5">Pure Platinum • قمة الرقي • تباين نقي وفضي هادئ</span>
-        </button>
-
-        <!-- 0.3 MIDNIGHT EXECUTIVE (كحلي منتصف الليل - موصى بها) -->
-        <button onclick="applyTheme('midnight-executive')" class="theme-card tc-recommended tc-blue tc-dark p-3 rounded-2xl border-2 border-[#1E293B] bg-[#0B0F17] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#F1F5F9] flex items-center gap-1.5">
-              <span>🌌 كحلي منتصف الليل</span>
-              <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[9px] font-bold">🌟 موصى بها</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0B0F17] border border-[#1E293B]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#131B2A]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#38BDF8]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#94A3B8] leading-tight">كحلي ليلي سحيق يبعث الأمان المالي والهدوء العصبي، يمنع إجهاد العين في العمل الليلي.</p>
-          <span class="text-[9px] text-[#38BDF8] font-black block pt-0.5">Midnight Executive • قمة الرقي • داكن ملكي</span>
-        </button>
-
-        <!-- 0.4 OBSIDIAN CHARCOAL (حجر السج الجرافيتي - موصى بها) -->
-        <button onclick="applyTheme('obsidian-charcoal')" class="theme-card tc-recommended tc-dark p-3 rounded-2xl border-2 border-[#2C2C30] bg-[#121214] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#EDEDED] flex items-center gap-1.5">
-              <span>🪨 حجر السج الجرافيتي</span>
-              <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[9px] font-bold">🌟 موصى بها</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#121214] border border-[#2C2C30]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#1C1C1F]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#EDEDED]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#A1A1AA] leading-tight">فحم جرافيتي مطفأ وناعم مستوحى من الساعات السويسرية، راحة مطلقة لشاشات OLED.</p>
-          <span class="text-[9px] text-[#E4E4E7] font-black block pt-0.5">Obsidian Charcoal • قمة الرقي • داكن مريح</span>
-        </button>
-
-        <!-- 1. BEIGE (البيج الدافئ المريح) -->
-        <button onclick="applyTheme('beige')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#d6c5b0] bg-[#f5ebe0] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#23190e] flex items-center gap-1.5">
-              <span>🌾 البيج الدافئ المريح</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#f5ebe0] border border-[#d6c5b0]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#b45309]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#23190e]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#5a4632] leading-tight">درجة بيج رملي طبيعي دافئ يمتص الوهج، مثالي لقراءة الدفاتر لساعات طويلة.</p>
-          <span class="text-[9px] text-[#b45309] font-black block pt-0.5">Warm Sandstone Beige • فاتح مريح</span>
-        </button>
-
-        <!-- 2. IVORY (العاجي الملكي الهادئ) -->
-        <button onclick="applyTheme('ivory')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#ded6c3] bg-[#faf7f0] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#1c1813] flex items-center gap-1.5">
-              <span>🥛 العاجي الملكي الكلاسيكي</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#faf7f0] border border-[#ded6c3]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#d97706]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#1c1813]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#52473a] leading-tight">نعومة اللون العاجي الكريمي الهادئ، يريح البؤبؤ ولا يجهد العصب البصري.</p>
-          <span class="text-[9px] text-[#d97706] font-black block pt-0.5">Royal Cream Ivory • عاجي ناعم</span>
-        </button>
-
-        <!-- 3. OFF-WHITE (الأوف وايت الحديث المطفأ) -->
-        <button onclick="applyTheme('offwhite')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#d1d5db] bg-[#f9fafb] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#111827] flex items-center gap-1.5">
-              <span>📜 الأوف وايت الحديث المطفأ</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#f9fafb] border border-[#d1d5db]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#2563eb]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#111827]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#4b5563] leading-tight">أوف وايت ألاباستر عصري بدون بياض ساطع، وضوح حاد للأرقام والخطوط.</p>
-          <span class="text-[9px] text-[#2563eb] font-black block pt-0.5">Modern Matte Off-White • مطفأ نقي</span>
-        </button>
-
-        <!-- 4. SOFT NATURAL LINEN (الكتان الطبيعي الناعم - فاتح 1) -->
-        <button onclick="applyTheme('light-linen')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cfc5b3] bg-[#ede7dc] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#211f1a] flex items-center gap-1.5">
-              <span>🧵 الكتان الطبيعي المريح</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#ede7dc] border border-[#cfc5b3]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#4d7c0f]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#211f1a]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#575245] leading-tight">طابع قماش الكتان العضوي الهادئ، يمنح شعوراً بالسكينة أثناء ضغط الحسابات.</p>
-          <span class="text-[9px] text-[#4d7c0f] font-black block pt-0.5">Soft Natural Linen • كتان هادئ</span>
-        </button>
-
-        <!-- 5. PLATINUM PEARL GREY (اللؤلؤي الفضي المريح - فاتح 2) -->
-        <button onclick="applyTheme('pearl-platinum')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cbd3dc] bg-[#e9ecef] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#0f172a] flex items-center gap-1.5">
-              <span>🦪 اللؤلؤي الفضي المريح</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#e9ecef] border border-[#cbd3dc]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0284c7]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0f172a]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#475569] leading-tight">رمادي لؤلؤي بلاتيني بارد وراقي جداً، يقلل انعكاس الضوء المكتبي.</p>
-          <span class="text-[9px] text-[#0284c7] font-black block pt-0.5">Platinum Pearl Grey • لؤلؤي بارد</span>
-        </button>
-
-        <!-- 6. NORDIC PAPER LIGHT (الورقي النوردي المريح) -->
-        <button onclick="applyTheme('nordic-paper')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cbd5e1] bg-[#f8fafc] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#0f172a] flex items-center gap-1.5">
-              <span>📄 الورقي النوردي المريح</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#f8fafc] border border-[#cbd5e1]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#2563eb]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0f172a]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#475569] leading-tight">ملمس الورق المحاسبي النوردي الفاخر، أعلى مقروئية في ضوء النهار الطبيعي.</p>
-          <span class="text-[9px] text-[#2563eb] font-black block pt-0.5">Nordic Paper Light • نهار مشرق</span>
-        </button>
-
-        <!-- 7. DEEP MIDNIGHT NAVY (الكحلي الملكي الليلي - كحلي) -->
-        <button onclick="applyTheme('navy-kohl')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1a2d5a] bg-[#050c1e] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#f8fafc] flex items-center gap-1.5">
-              <span>🌌 الكحلي الملكي الليلي</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#050c1e] border border-[#1a2d5a]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#fbbf24]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#94a3b8] leading-tight">كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية، هيبة رجال الأعمال.</p>
-          <span class="text-[9px] text-[#38bdf8] font-black block pt-0.5">Deep Midnight Navy • كحلي تنفيذي</span>
-        </button>
-
-        <!-- 8. EXECUTIVE ROYAL BLUE (الأزرق الزفيري الحيوي - أزرق) -->
-        <button onclick="applyTheme('royal-blue')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1e3e78] bg-[#0a1b38] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#ffffff] flex items-center gap-1.5">
-              <span>🔷 الأزرق الزفيري الحيوي</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0a1b38] border border-[#1e3e78]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#60a5fa]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#34d399]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#bfdbfe] leading-tight">أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة في إدخال الفواتير السريعة.</p>
-          <span class="text-[9px] text-[#60a5fa] font-black block pt-0.5">Executive Royal Blue • أزرق ملكي</span>
-        </button>
-
-        <!-- 9. DEEP OCEANIC ROYAL NAVY (الأزرق المحيطي العميق) -->
-        <button onclick="applyTheme('ocean-navy')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1e3a8a] bg-[#0c1a2e] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#e0f2fe] flex items-center gap-1.5">
-              <span>🌊 الأزرق المحيطي العميق</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0c1a2e] border border-[#1e3a8a]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#bae6fd]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#93c5fd] leading-tight">يعزز التفكير المنطقي والتحليلي أثناء مراجعة الحسابات ومطابقة القيود.</p>
-          <span class="text-[9px] text-[#38bdf8] font-black block pt-0.5">Royal Oceanic Navy • منطق وتحليل</span>
-        </button>
-
-        <!-- 10. PETROL CYAN & TEAL (الأزرق البترولي المحيطي - أزرق 1) -->
-        <button onclick="applyTheme('petrol-cyan')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#134658] bg-[#071c26] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#f0fdfa] flex items-center gap-1.5">
-              <span>🐬 الأزرق البترولي والتيل</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#071c26] border border-[#134658]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#2dd4bf]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#99f6e4] leading-tight">مزيج من الأزرق البترولي والتيل البحري، يمنح هدوءاً بصرياً فائقاً.</p>
-          <span class="text-[9px] text-[#2dd4bf] font-black block pt-0.5">Petrol Cyan Blue • بترولي مهدئ</span>
-        </button>
-
-        <!-- 11. TWILIGHT INDIGO (أزرق الشفق والإنديجو - أزرق 2) -->
-        <button onclick="applyTheme('twilight-indigo')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#2b356e] bg-[#0e122b] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#e0e7ff] flex items-center gap-1.5">
-              <span>🔮 أزرق الشفق والإنديجو</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0e122b] border border-[#2b356e]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#818cf8]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#f472b6]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#a5b4fc] leading-tight">أزرق شفق نيلي مسائي يخفف التوتر العصبي ويمنع شرود الذهن.</p>
-          <span class="text-[9px] text-[#818cf8] font-black block pt-0.5">Twilight Indigo • إنديجو مسائي</span>
-        </button>
-
-        <!-- 12. OLED MIDNIGHT DARK (الليل الملكي الداكن) -->
-        <button onclick="applyTheme('midnight')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-slate-700 bg-slate-950 text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-slate-100 flex items-center gap-1.5">
-              <span>🌙 الليل الملكي الداكن</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-slate-950 border border-slate-700"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-cyan-400"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-emerald-400"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-slate-400 leading-tight">سواد عميق OLED موفر للطاقة، أقصى تباين في الإضاءة الليلية الضعيفة.</p>
-          <span class="text-[9px] text-cyan-300 font-black block pt-0.5">OLED Midnight • افتراضي</span>
-        </button>
-
-        <!-- 13. VINTAGE WARM SEPIA & BROWN (البني الإسبريسو والورق القديم) -->
-        <button onclick="applyTheme('sepia-brown')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-amber-900/60 bg-[#1c1917] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-amber-200 flex items-center gap-1.5">
-              <span>📜 البني الإسبريسو والورق القديم</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#1c1917] border border-amber-800"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#d97706]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#fef3c7]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-amber-200/70 leading-tight">حجب كامل للضوء الأزرق، يريح العصب البصري ويمنع الصداع في العمل الطويل.</p>
-          <span class="text-[9px] text-amber-400 font-black block pt-0.5">Warm Sepia • مهدئ للأعصاب</span>
-        </button>
-
-        <!-- 14. MUTED PALE GOLD & CHAMPAGNE (الذهبي الباهت والفخامة الملكية) -->
-        <button onclick="applyTheme('pale-gold')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-yellow-700/50 bg-[#181614] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-yellow-200 flex items-center gap-1.5">
-              <span>👑 الذهبي الباهت والفخامة</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#181614] border border-yellow-600"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#eab308]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#fef08a]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-yellow-200/70 leading-tight">تناسق ذهبي كلاسيكي باهت وغير مزعج، يضفي هيبة الأرقام المحاسبية.</p>
-          <span class="text-[9px] text-yellow-300 font-black block pt-0.5">Pale Gold Luxury • فخامة مالية</span>
-        </button>
-
-        <!-- 15. COGNITIVE FOREST EMERALD (الزمرد والغابات لصفاء الذهن) -->
-        <button onclick="applyTheme('emerald-forest')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-emerald-800/60 bg-[#032e24] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-emerald-200 flex items-center gap-1.5">
-              <span>🌲 زمرد الغابات لصفاء الذهن</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#032e24] border border-emerald-600"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#10b981]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#a7f3d0]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-emerald-200/70 leading-tight">اللون الأخضر يقع في منتصف شبكية العين، يخفض النبض ويمنع الخلط بالأرقام.</p>
-          <span class="text-[9px] text-emerald-300 font-black block pt-0.5">Cognitive Forest • تركيز ذهني فائق</span>
-        </button>
-
-        <!-- 16. WARM SAND & DESERT MOCHA (الرمال الصحراوية وموكا دافئة) -->
-        <button onclick="applyTheme('desert-mocha')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-stone-700 bg-[#26211d] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-stone-200 flex items-center gap-1.5">
-              <span>🏜️ الرمال الصحراوية وموكا</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#26211d] border border-stone-600"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#f59e0b]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#fde68a]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-stone-300/70 leading-tight">تدرج دافئ وسط بين الفاتح والداكن، مريح جداً للإضاءة المكتبية.</p>
-          <span class="text-[9px] text-amber-300 font-black block pt-0.5">Desert Mocha • راحة يومية متوازنة</span>
-        </button>
-
-        <!-- 17. SUNLIGHT MONOCHROME TITANIUM (التيتانيوم الشمسي فائق التباين) -->
-        <button onclick="applyTheme('sunlight-titanium')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-white bg-black text-right space-y-1 transition active:scale-95 group relative text-white shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-white flex items-center gap-1.5">
-              <span>☀️ التيتانيوم الشمسي فائق التباين</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-black border border-white"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-white"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#facc15]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-slate-300 leading-tight">معيار WCAG AAA (21:1)، وضوح تام تحت شمس الظهيرة ولضعاف النظر.</p>
-          <span class="text-[9px] text-yellow-300 font-black block pt-0.5">Titanium High-Contrast • شمس وميدان</span>
-        </button>
-
-      </div>
-
-      <!-- Footer Buttons -->
-      <div class="pt-2 flex gap-2">
-        <button onclick="closeModal('modalThemePaletteDrawer')" class="flex-1 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition">
-          ✓ إغلاق والاحتفاظ بالسمة
-        </button>
-      </div>
-    </div>
-  </div>
-  <script>
-    const MOBILE_MASTER_THEMES = [
-      { key: 'ultra_white', name: 'أبيض فائق (Ultra White)', icon: '☀️', isLight: true },
-      { key: 'warm_cream', name: 'بيج كلاسيكي (Warm Cream)', icon: '📜', isLight: true },
-      { key: 'midnight_obsidian', name: 'كحلي موحد (Unified Blue)', icon: '🌌', isLight: false },
-      { key: 'pure_oled', name: 'أسود مطلق (Pure OLED)', icon: '🌑', isLight: false }
-    ];
-
-    window.setMobileTheme = function(themeKey, showToast) {
-      if (typeof applyTheme === 'function') {
-        applyTheme(themeKey, showToast);
-      } else {
-        document.documentElement.setAttribute('data-theme', themeKey);
-      }
-      const iconEl = document.getElementById('mobileThemeIcon');
-      if (iconEl) {
-        if (themeKey === 'ultra_white' || themeKey === 'pure-platinum') iconEl.textContent = '☀️';
-        else if (themeKey === 'warm_cream' || themeKey === 'warm-alabaster') iconEl.textContent = '📜';
-        else if (themeKey === 'pure_oled' || themeKey === 'midnight') iconEl.textContent = '🌑';
-        else {
-          const lightList = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper', 'ultra_white', 'warm_cream', 'exec_gray'];
-          iconEl.textContent = (lightList.indexOf(themeKey) !== -1) ? '☀️' : '🌌';
-        }
-      }
-    };
-
-    window.cycleMobileTheme = function() {
-      const cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('magaiees_mobile_theme') || 'midnight_obsidian';
-      let idx = MOBILE_MASTER_THEMES.findIndex(t => t.key === cur);
-      if (idx === -1) {
-        const lightList = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper', 'ultra_white', 'warm_cream', 'exec_gray'];
-        idx = (lightList.indexOf(cur) !== -1) ? 0 : 2;
-      }
-      const nextIdx = (idx + 1) % MOBILE_MASTER_THEMES.length;
-      window.setMobileTheme(MOBILE_MASTER_THEMES[nextIdx].key, true);
-    };
-
-    // مزامنة حالة الأيقونة فور تحميل الصفحة
-    document.addEventListener('DOMContentLoaded', () => {
-      const cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('magaiees_mobile_theme') || 'midnight_obsidian';
-      window.setMobileTheme(cur, false);
-    });
-  </script>
+</script>
 </body>
 </html>
