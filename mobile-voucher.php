@@ -1057,6 +1057,12 @@ $currenciesData = [
   <!-- CDN Tailwind with full dynamic JIT styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   
+  <!-- Local Fonts, Icons & Offline Sync Engine (100% Zero-CDN Offline) -->
+  <link rel="stylesheet" href="css/cairo.css">
+  <link rel="stylesheet" href="css/tajawal.css">
+  <link rel="stylesheet" href="css/all.min.css">
+  <script src="js/offline-sync-engine.js?v=20261009_v1"></script>
+
   <!-- FontAwesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
