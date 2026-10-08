@@ -2470,7 +2470,7 @@ $currenciesData = [
                 <span>رقم التحويلة:</span>
               </label>
             </div>
-            <input type="text" id="transferInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="handleTransferFocus(this.value)" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[54px] sm:h-[56px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 24px; font-weight: 900; text-align: center; direction: ltr; letter-spacing: 0.5px;">
+            <input type="text" id="transferInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" onfocus="handleTransferFocus(this.value)" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويلة" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2 h-[56px] sm:h-[60px] min-h-[56px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_10px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 26px; font-weight: 900; text-align: center; direction: ltr; letter-spacing: 0.5px;">
             <div id="transferFeedbackBadge" class="transition-all flex items-center justify-center"></div>
           </div>
 
@@ -2482,7 +2482,7 @@ $currenciesData = [
                 <span>اسم التحويلة / البنك:</span>
               </label>
             </div>
-            <input type="text" id="bankNameInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[54px] sm:h-[56px] text-sm sm:text-base font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
+            <input type="text" id="bankNameInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" list="banksDataList" placeholder="اسم التحويلة أو البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[56px] sm:h-[60px] min-h-[56px] text-sm sm:text-base font-black text-cyan-300 focus:outline-none shadow-[0_0_10px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -4967,36 +4967,36 @@ $currenciesData = [
       const len = val.length;
 
       if (_transferIsActiveTyping) {
-        // أثناء الكتابة: يكبر درجتين إضافيتين (تكبير ضخم ومريح للعين لسهولة ودقة كتابة الأرقام - زيادة 3 درجات)
+        // أثناء الكتابة: تضخيم الخط إلى 33px بناءً على طلب المستخدم لسهولة ودقة كتابة الأرقام
         if (len <= 8) {
-          input.style.fontSize = '29px';
+          input.style.fontSize = '33px';
           input.style.letterSpacing = '0.8px';
         } else if (len <= 11) {
-          input.style.fontSize = '26.5px';
+          input.style.fontSize = '29.5px';
           input.style.letterSpacing = '0.4px';
         } else if (len <= 14) {
-          input.style.fontSize = '24px';
+          input.style.fontSize = '26px';
           input.style.letterSpacing = '0px';
         } else if (len <= 17) {
-          input.style.fontSize = '21.5px';
+          input.style.fontSize = '23px';
           input.style.letterSpacing = '-0.4px';
         } else {
-          input.style.fontSize = '19px';
+          input.style.fontSize = '20px';
           input.style.letterSpacing = '-0.8px';
         }
       } else {
-        // حين الانتهاء من الكتابة: الوضع المستقر الأنيق المتناسب (زيادة رقم التحويلة 3 درجات)
+        // حين الانتهاء من الكتابة: الوضع المستقر الأنيق المتناسب
         if (len <= 8) {
-          input.style.fontSize = '24px';
+          input.style.fontSize = '26px';
           input.style.letterSpacing = '0.5px';
         } else if (len <= 11) {
-          input.style.fontSize = '22px';
+          input.style.fontSize = '23px';
           input.style.letterSpacing = '0.2px';
         } else if (len <= 14) {
-          input.style.fontSize = '20px';
+          input.style.fontSize = '20.5px';
           input.style.letterSpacing = '-0.2px';
         } else if (len <= 17) {
-          input.style.fontSize = '18px';
+          input.style.fontSize = '18.5px';
           input.style.letterSpacing = '-0.5px';
         } else {
           input.style.fontSize = '16.5px';
