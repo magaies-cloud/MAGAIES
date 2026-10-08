@@ -856,7 +856,8 @@ PROMPT;
 // 2. DATA PRELOADING: الحسابات، مراكز الكلفة، العملات، السندات السابقة
 // ────────────────────────────────────────────────────────────────────────────
 $accountsList = fetchAllLiveAccounts($pdo, $currentTenantId);
-$allDbTransfersPreload = fetchAllDbTransfers($pdo, $currentTenantId);
+// التحميل المتأخر للتحويلات في الخلفية دون تعطيل فتح الصفحة (وزن الريشة Instant Load)
+$allDbTransfersPreload = [];
 
 // 2.6 جلب السندات السابقة من single_payments لمطابقة اللابتوب والتنقل (◀ ▶)
 $vouchersHistory = [];
@@ -1074,11 +1075,12 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>حركة مالية - تصميم شاشات الجوال المتطورة</title>
   
-  <!-- CDN Tailwind with full dynamic JIT styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- FontAwesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- High Performance Local Core Styles & Local Tailwind Engine (Zero External Latency) -->
+  <link rel="stylesheet" href="css/tailwind.min.css">
+  <link rel="stylesheet" href="css/all.min.css">
+  <link rel="stylesheet" href="css/theme.css?v=20261008_v21themes_elegant">
+  <script src="js/tailwind.min.js"></script>
+  <link rel="prefetch" href="mobile-dashboard.php?force_mobile=1" as="document">
   
   <!-- Google Fonts: Cairo (Arabic) + Top 3 Clear Number Fonts (JetBrains Mono, Inter, Montserrat) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1106,6 +1108,25 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       width: 100%;
       min-height: 100%;
       overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: none;
+      touch-action: pan-y;
+      text-rendering: optimizeSpeed;
+    }
+    #mobileContainer {
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      backface-visibility: hidden;
+      contain: layout style;
+    }
+    main {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      will-change: scroll-position;
+      transform: translateZ(0);
+    }
+    button, a, input, select {
+      touch-action: manipulation;
     }
 
     input, select, textarea, button {
@@ -3108,10 +3129,15 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       
       <!-- اليمين: مايك الذكاء الصوتي الشامل + عنوان الشاشة (حركة مالية) + منطقة عناية متصل -->
       <div class="flex items-center gap-2">
-        <!-- زر المايك الصوتي الذكي الشامل للشاشة بأكملها (في مكان زر الخروج قبل حركة مالية) -->
-        <button type="button" onclick="toggleMasterVoiceInput()" id="masterMicBtn" class="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 active:scale-95 text-white flex items-center justify-center shrink-0 border border-cyan-300 shadow-[0_0_16px_rgba(6,182,212,0.6)] transition cursor-pointer relative group" title="المايك الصوتي الذكي الشامل: اضغط وتحدث لتعبئة كامل السند تلقائياً">
-          <i class="fa-solid fa-microphone text-sm text-yellow-300" id="masterMicIcon"></i>
-          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping hidden" id="masterMicListeningPing"></span>
+        <!-- زر المايك الصوتي الذكي في دائرة واضحة مع إظهار صورة المايك الذهبية (بناءً على طلب المستخدم) -->
+        <button type="button" onclick="toggleMasterVoiceInput()" id="masterMicBtn" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-cyan-600 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 active:scale-95 text-white flex items-center justify-center shrink-0 border-2 border-cyan-200/90 shadow-[0_0_18px_rgba(6,182,212,0.7)] transition cursor-pointer relative group" title="المايك الصوتي الذكي الشامل: اضغط وتحدث لتعبئة كامل السند تلقائياً">
+          <!-- صورة المايك SVG الذهبية واضحة وساطعة دائماً داخل الدائرة -->
+          <svg class="w-5 h-5 text-yellow-300 drop-shadow" id="masterMicSvg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/>
+            <path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/>
+          </svg>
+          <i class="fa-solid fa-microphone text-sm text-yellow-300 hidden" id="masterMicIcon"></i>
+          <span class="absolute -top-0.5 -right-0.5 w-3 h-3 bg-red-500 rounded-full border border-white animate-ping hidden" id="masterMicListeningPing"></span>
         </button>
 
         <!-- حركة مالية فقط بخط واضح وفخم (تم حذف صرف مالي) -->
@@ -3206,22 +3232,24 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
           <input type="date" id="voucherDate" value="<?php echo date('Y-m-d'); ?>" oninput="updateVoucherDateDisplay()" onchange="updateVoucherDateDisplay()" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;">
         </div>
 
-        <!-- 2. مساحة الرقم التسلسلي: تصغير الرقم درجة، وتصغير الأسهم يمين وشمال على الأطراف -->
-        <div class="bg-slate-950 glow-border-amber rounded-2xl px-1.5 py-1 flex items-center justify-between h-[54px] shadow-inner">
-          <!-- سهم يمين صغير على الطرف (للطلوع للأحدث) -->
-          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم يمين: السند التالي (للطلوع للأحدث)">
-            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+        <!-- 2. مساحة الرقم التسلسلي مع إظهار الأسهم بوضوح تام يمين ويسار (بناءً على طلب المستخدم) -->
+        <div class="bg-slate-950 glow-border-amber rounded-2xl px-2 py-1 flex items-center justify-between h-[54px] shadow-inner">
+          <!-- سهم يمين ظاهر وواضح (للسند التالي للأحدث ▶) -->
+          <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 active:scale-90 text-amber-300 hover:text-amber-100 flex items-center justify-center transition border-2 border-amber-400/80 shadow-[0_0_10px_rgba(245,158,11,0.3)] shrink-0 cursor-pointer" title="السند التالي ▶ (للأحدث)">
+            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            <i class="fa-solid fa-arrow-right text-xs hidden"></i>
           </button>
 
-          <!-- الرقم التسلسلي لوحده كامل ومصغر درجة واحدة لراحة العين -->
+          <!-- الرقم التسلسلي لوحده كامل ومريح للعين -->
           <div class="text-center px-1 flex-1 min-w-0 flex items-center justify-center overflow-visible">
             <span id="voucherTag" class="hidden"></span>
-            <span class="text-[15px] sm:text-[16px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow cursor-pointer hover:underline" id="currentVoucherDisplay" onclick="showDigitalVoucherReceipt()" title="اضغط لعرض الإيصال الرقمي الرسمي المعتمد ورمز الـ QR 📜"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
+            <span class="text-[16px] sm:text-[17.5px] font-mono font-black text-amber-300 whitespace-nowrap block tracking-tight leading-none drop-shadow cursor-pointer hover:underline" id="currentVoucherDisplay" onclick="showDigitalVoucherReceipt()" title="اضغط لعرض الإيصال الرقمي الرسمي المعتمد ورمز الـ QR 📜"><?php echo htmlspecialchars($nextSequentialVoucherNo); ?></span>
           </div>
 
-          <!-- سهم شمال صغير على الطرف (للنزول للأقدم) -->
-          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم شمال: السند السابق (للنزول للأقدم)">
-            <i class="fa-solid fa-arrow-left text-[10px]"></i>
+          <!-- سهم شمال ظاهر وواضح (للسند السابق للأقدم ◀) -->
+          <button type="button" onclick="navigateVoucher(-1)" id="btnPrevVoucher" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 active:scale-90 text-amber-300 hover:text-amber-100 flex items-center justify-center transition border-2 border-amber-400/80 shadow-[0_0_10px_rgba(245,158,11,0.3)] shrink-0 cursor-pointer" title="◀ السند السابق (للأقدم)">
+            <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            <i class="fa-solid fa-arrow-left text-xs hidden"></i>
           </button>
         </div>
 
@@ -3302,28 +3330,30 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
           <i class="fa-solid fa-pen text-[8px] text-slate-500 group-hover:text-emerald-400 transition shrink-0"></i>
         </div>
 
-        <!-- مركز الكلفة: تصغير الخط درجة واحدة (11px) -->
-        <div class="flex-1 bg-slate-950 glow-border-indigo rounded-xl px-2.5 py-1 flex items-center h-[44px] relative shadow-inner">
-          <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="مركز الكلفة" class="w-full bg-transparent text-indigo-100 placeholder:text-slate-500 placeholder:font-medium text-[11px] font-bold focus:outline-none" value="مخزن بحري الرئيسي">
+        <!-- مركز الكلفة والمخزن: المساحة بالكامل مخصصة للمخزن بدون خطوط داخلية خفيفة -->
+        <div class="flex-1 bg-slate-950 border-2 border-indigo-400/80 rounded-xl px-2.5 flex items-center h-[44px] shadow-inner transition focus-within:border-indigo-300">
+          <input type="text" id="costCenterInput" list="costCentersDataList" placeholder="المخزن / مركز الكلفة" class="w-full h-full bg-transparent text-indigo-100 placeholder:text-indigo-400/60 font-black text-xs sm:text-[13px] focus:outline-none text-right" value="مخزن بحري الرئيسي" title="المخزن / مركز الكلفة">
           <datalist id="costCentersDataList">
             <option value="مخزن بحري الرئيسي"></option>
             <option value="مخزن أم درمان"></option>
+            <option value="مخزن بحري الفرعي"></option>
             <option value="فرع بورتسودان"></option>
+            <option value="مخزن عطبرة"></option>
             <option value="الإدارة العامة"></option>
           </datalist>
         </div>
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
-           المبالغ المالية (مستوى متساوٍ ومحاذاة تامة):
-           - اليمين: المبلغ المحلي
-           - اليسار: المبلغ دولار (بدون كلمة أجنبي) مع علامة الدولار ومستوى متساوٍ تماماً
-           - ضبط وتخصيص منفصل تماماً لكل مبلغ عند النقر أو كليك يمين أو الضغط على مسافة
+           المبالغ المالية (كامل المساحة مخصصة للمبالغ بدون خطوط داخلية خفيفة):
+           - اليمين: المبلغ محلي بكامل المساحة
+           - اليسار: المبلغ دولار بكامل المساحة
+           - إزالة الإطار المزدوج الخارجي لضمان تخصيص 100% من المساحة للأرقام
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2.5 space-y-2 shadow-[0_0_18px_rgba(56,189,248,0.2)]">
+      <div class="space-y-2">
         
-        <!-- في نفس السطر: المبلغ محلي (يمين) والمبلغ دولار (يسار) بدون أي كلمات إضافية -->
-        <div class="grid grid-cols-2 gap-2.5">
+        <!-- في نفس السطر: المبلغ محلي (يمين) والمبلغ دولار (يسار) بدون خطوط متداخلة -->
+        <div class="grid grid-cols-2 gap-2">
           
           <!-- 1. اليمين: المبلغ محلي (إضاءة سماوية فائقة الحواف) -->
           <div>
@@ -3333,9 +3363,9 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
               </button>
               <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ محلي</span>
             </div>
-            <!-- المربع شاغر بحواف مضيئة ساطعة -->
-            <div id="sdgAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-sky-400 shadow-[0_0_24px_rgba(56,189,248,0.55)] focus-within:shadow-[0_0_32px_rgba(56,189,248,0.85)] focus-within:border-sky-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
-              <input type="text" id="sdgAmount" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg')" oninput="handleAmountInput('sdg'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 32px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
+            <!-- المربع شاغر بحواف مضيئة ساطعة وبكامل المساحة للمبلغ -->
+            <div id="sdgAmountCard" class="amount-display-card bg-slate-950 p-1.5 rounded-2xl border-2 border-sky-400 shadow-[0_0_24px_rgba(56,189,248,0.45)] focus-within:shadow-[0_0_32px_rgba(56,189,248,0.85)] focus-within:border-sky-300 transition relative cursor-pointer flex items-center justify-center min-h-[74px] w-full" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
+              <input type="text" id="sdgAmount" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg')" oninput="handleAmountInput('sdg'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full h-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 34px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
             </div>
           </div>
 
@@ -3347,9 +3377,9 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
               </button>
               <span class="text-xs sm:text-sm font-black text-emerald-300" id="foreignAmountTitle">المبلغ دولار</span>
             </div>
-            <!-- المربع شاغر بحواف مضيئة ساطعة -->
-            <div id="usdAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.55)] focus-within:shadow-[0_0_32px_rgba(16,185,129,0.85)] focus-within:border-emerald-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
-              <input type="text" id="usdAmount" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="0.00" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('usd')" oninput="handleAmountInput('foreign'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-usd, 32px); font-weight: var(--num-weight-usd, 900); color: var(--num-color-usd, #10b981); text-align: center;">
+            <!-- المربع شاغر بحواف مضيئة ساطعة وبكامل المساحة للمبلغ -->
+            <div id="usdAmountCard" class="amount-display-card bg-slate-950 p-1.5 rounded-2xl border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.45)] focus-within:shadow-[0_0_32px_rgba(16,185,129,0.85)] focus-within:border-emerald-300 transition relative cursor-pointer flex items-center justify-center min-h-[74px] w-full" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
+              <input type="text" id="usdAmount" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="0.00" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('usd')" oninput="handleAmountInput('foreign'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full h-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-usd, 34px); font-weight: var(--num-weight-usd, 900); color: var(--num-color-usd, #10b981); text-align: center;">
             </div>
           </div>
 
@@ -3624,20 +3654,6 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
         <div id="mediaToast" class="hidden p-2 rounded-xl bg-emerald-950/80 border border-emerald-500/50 text-[10px] text-emerald-200 items-center justify-between transition-all">
           <span id="mediaToastText">⚡ تم التفريغ الفوري في كسر من الثانية!</span>
           <span class="font-mono text-emerald-400 font-black">AI Turbo OCR ✓</span>
-        </div>
-      </div>
-
-      <!-- 💻 التبديل إلى نسخة اللابتوب والديسك توب للمعاينة والمراجعة (بناءً على طلب المستخدم) -->
-      <div class="pt-4 pb-2 px-1 text-center">
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="switchToDesktopEdition('vouchers-hub.php?force_desktop=1')" class="flex-1 py-2.5 px-2 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 hover:bg-slate-800 text-sky-300 font-black rounded-xl border border-sky-500/50 shadow-md flex items-center justify-center gap-1.5 text-[11px] sm:text-xs transition active:scale-98 cursor-pointer" title="الانتقال إلى شاشة السندات باللابتوب للمعاينة">
-            <i class="fa-solid fa-laptop text-xs text-sky-400"></i>
-            <span>🖥️ سندات اللابتوب (معاينة)</span>
-          </button>
-          <button type="button" onclick="switchToDesktopEdition('magaiees_unified_dashboard.php?force_desktop=1')" class="flex-1 py-2.5 px-2 bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 hover:bg-slate-800 text-purple-300 font-black rounded-xl border border-purple-500/50 shadow-md flex items-center justify-center gap-1.5 text-[11px] sm:text-xs transition active:scale-98 cursor-pointer" title="الانتقال إلى لوحة تحكم اللابتوب والديسك توب للمراجعة">
-            <i class="fa-solid fa-desktop text-xs text-purple-400"></i>
-            <span>💻 نسخة اللابتوب والديسك توب</span>
-          </button>
         </div>
       </div>
 
@@ -6191,22 +6207,31 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       isMasterVoiceActive = active;
       const btn = document.getElementById('masterMicBtn');
       const icon = document.getElementById('masterMicIcon');
+      const svg = document.getElementById('masterMicSvg');
       const ping = document.getElementById('masterMicListeningPing');
 
       if (!btn) return;
 
       if (active) {
-        btn.classList.remove('bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-indigo-600');
+        btn.classList.remove('from-cyan-600', 'via-sky-500', 'to-indigo-600', 'from-cyan-500');
         btn.classList.add('bg-red-600', 'ring-4', 'ring-red-400', 'scale-105', 'shadow-[0_0_22px_#ef4444]');
+        if (svg) {
+          svg.classList.remove('text-yellow-300');
+          svg.classList.add('text-white', 'animate-pulse');
+        }
         if (icon) {
           icon.className = 'fa-solid fa-microphone-lines text-sm text-white animate-pulse';
         }
         if (ping) ping.classList.remove('hidden');
       } else {
-        btn.classList.add('bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-indigo-600');
+        btn.classList.add('bg-gradient-to-tr', 'from-cyan-600', 'via-sky-500', 'to-indigo-600');
         btn.classList.remove('bg-red-600', 'ring-4', 'ring-red-400', 'scale-105', 'shadow-[0_0_22px_#ef4444]');
+        if (svg) {
+          svg.classList.remove('text-white', 'animate-pulse');
+          svg.classList.add('text-yellow-300');
+        }
         if (icon) {
-          icon.className = 'fa-solid fa-microphone text-sm text-yellow-300';
+          icon.className = 'fa-solid fa-microphone text-sm text-yellow-300 hidden';
         }
         if (ping) ping.classList.add('hidden');
       }
@@ -8408,12 +8433,12 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       const btnPrev = document.getElementById('btnPrevVoucher');
       if (btnPrev) {
         btnPrev.disabled = false;
-        btnPrev.classList.toggle('opacity-50', currentIndex === 0);
+        btnPrev.classList.remove('opacity-50');
       }
       const btnNext = document.getElementById('btnNextVoucher');
       if (btnNext) {
         btnNext.disabled = false;
-        btnNext.classList.toggle('opacity-50', currentIndex >= vouchersList.length - 1);
+        btnNext.classList.remove('opacity-50');
       }
     }
 
@@ -8531,16 +8556,16 @@ $isLight = in_array($activeTheme, $lightThemesList, true);
       const tafqeetEl = document.getElementById('tafqeetDisplay');
       if (tafqeetEl) tafqeetEl.classList.add('hidden');
 
-      // 7. ضبط أزرار التنقل (سهم يمين وسهم شمال)
+      // 7. ضبط أزرار التنقل (سهم يمين وسهم شمال) - ظاهرة بوضوح تام دائماً
       const btnNext = document.getElementById('btnNextVoucher');
       if (btnNext) {
         btnNext.disabled = false;
-        btnNext.classList.add('opacity-50');
+        btnNext.classList.remove('opacity-50');
       }
       const btnPrev = document.getElementById('btnPrevVoucher');
       if (btnPrev) {
         btnPrev.disabled = false;
-        btnPrev.classList.toggle('opacity-50', vouchersList.length === 0);
+        btnPrev.classList.remove('opacity-50');
       }
 
       setPaymentType('transfer');
