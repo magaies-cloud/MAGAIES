@@ -74,7 +74,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>المبيعات | Al-Sajana Protocol</title>
-    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css?v=20261008_v21themes_elegant">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/sales-invoice.css">
     <link rel="stylesheet" href="css/print-invoice.css">
@@ -3228,7 +3228,7 @@ try {
     </style>
 
             <!-- ══ FULL-WIDTH: تفاصيل الدفع ══ -->
-            <div class="panel" id="payment-panel" style="display: block; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important;">
+            <div class="panel" id="payment-panel" style="display: block; z-index: 40; margin-top: 15px; padding: 0 !important; background: var(--surface); border: 1px solid var(--border-color);">
                 <style>
                     #payment-panel {
                         animation: none;

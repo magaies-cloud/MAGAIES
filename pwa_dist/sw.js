@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-07-v49-theme-unification-transfer-font';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-08-v50-desktop-laptop-elegant-theme-btn';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
@@ -27,6 +27,7 @@ const PRECACHE_ASSETS = [
     './assets/favicon.ico',
     './css/design-system.css',
     './css/theme.css',
+    './js/desktop-theme-switcher.js',
     './js/pwa-manager.js'
 ];
 

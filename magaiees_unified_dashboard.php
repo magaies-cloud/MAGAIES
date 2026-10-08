@@ -80,7 +80,7 @@ function switchToMobileEdition() {
     <title>Magaiees ERP - مقاييس | لوحة التحكم المتكاملة</title>
     <link rel="preload" href="css/design-system.css?v=20260723_v14" as="style">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
-    <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/theme.css?v=20261008_v21themes_elegant">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/unified-brain.css?v=20260722">
     <script src="js/pwa-manager.js" defer></script>
@@ -2697,12 +2697,12 @@ function switchToMobileEdition() {
                     popoverList.innerHTML = '<div style="padding:20px; text-align:center; color:#94a3b8; font-size:0.9rem;">🚫 لا تملك صلاحية للوصول إلى أي شاشة في هذا القسم.</div>';
                 } else {
                     popoverList.innerHTML = visibleScreens.map(scr => `
-                        <a href="${scr.href}" onclick="window.location.href='${scr.href}'" class="screen-popover-item" style="--item-border-color: ${scr.border}; --item-glow-color: ${scr.bg}; border-bottom: 2.5px solid ${scr.border} !important; background: rgba(15, 23, 42, 0.95) !important;">
+                        <a href="${scr.href}" onclick="window.location.href='${scr.href}'" class="screen-popover-item" style="--item-border-color: ${scr.border}; --item-glow-color: ${scr.bg}; border-bottom: 2.5px solid ${scr.border} !important; background: var(--surface) !important;">
                             <div style="display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1;">
                                 <span class="qa-icon" style="width: 32px; height: 32px; min-width: 32px; font-size: 0.88rem; border-radius: 8px; background: ${scr.bg}; border: 1px solid ${scr.border}; color: ${scr.color}; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
                                     <i class="fa-solid ${scr.icon}"></i>
                                 </span>
-                                <span class="screen-title" style="font-size: 0.92rem; font-weight: 800; color: #ffffff;">${scr.label}</span>
+                                <span class="screen-title" style="font-size: 0.92rem; font-weight: 800; color: var(--text-primary);">${scr.label}</span>
                             </div>
                             <i class="fa-solid fa-arrow-left screen-arrow" style="font-size: 0.8rem; color: ${scr.color}; opacity: 0.9;"></i>
                         </a>

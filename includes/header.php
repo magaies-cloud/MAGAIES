@@ -1,3 +1,5 @@
+<link rel="stylesheet" href="css/theme.css?v=20261008_v21themes_elegant">
+<script src="js/desktop-theme-switcher.js?v=20261008_v21themes_elegant"></script>
 <script src="js/hls.light.min.js"></script>
 <script src="js/bban_auto_helper.js"></script>
 <script src="js/master-banks-helper.js?v=20260924_v1"></script>
@@ -58,9 +60,39 @@
         }, true);
     })();
 
-    // قراءة الثيم الذي اختاره الباشمهندس مهدي من الشاشة الموحدة وتطبيقه طالما الصفحة تفتح
-    const currentTheme = localStorage.getItem('magaiees_global_theme') || 'theme-imperial';
-    document.documentElement.className = currentTheme;
+    // ═══════════════════════════════════════════════════════════════════
+    // 🎨 UNIVERSAL 21 THEMES INITIALIZATION FOR DESKTOP & LAPTOP
+    // ═══════════════════════════════════════════════════════════════════
+    (function initErpSystemTheme() {
+        try {
+            var savedTheme = localStorage.getItem('magaies_active_theme') || 
+                             localStorage.getItem('magaiees_mobile_theme') || 
+                             localStorage.getItem('magaiees_theme') || 
+                             localStorage.getItem('magaiees_global_theme');
+            if (!savedTheme) {
+                var m = document.cookie.match(/(?:^|;\s*)(?:magaies_active_theme|magaiees_mobile_theme|magaiees_theme)=([^;]+)/);
+                if (m) savedTheme = decodeURIComponent(m[1]);
+            }
+            if (!savedTheme) savedTheme = 'warm-alabaster';
+            
+            var aliasMap = {
+                'ultra_white': 'pure-platinum', 'warm_cream': 'warm-alabaster', 'exec_gray': 'pearl-platinum',
+                'solar_contrast': 'sunlight-titanium', 'solar': 'sunlight-titanium',
+                'slate_twilight': 'midnight-executive', 'midnight_obsidian': 'midnight-executive',
+                'pure_oled': 'midnight', 'navy': 'navy-kohl', 'forest': 'emerald-forest',
+                'theme-imperial': 'warm-alabaster'
+            };
+            if (aliasMap[savedTheme]) savedTheme = aliasMap[savedTheme];
+            
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+            if (lightThemes.indexOf(savedTheme) !== -1) {
+                document.documentElement.classList.add('light-theme');
+            } else {
+                document.documentElement.classList.remove('light-theme');
+            }
+        } catch(e) {}
+    })();
     
     // رصد وتطبيق كلاس الشريط الجانبي فورا على HTML و Body لمنع اختفاء/تداخل الشاشة خلف الشريط الجانبي عند بداية الفتح
     const pageName = window.location.pathname.split('/').pop().toLowerCase();
@@ -85,8 +117,15 @@
     }
 
     document.addEventListener("DOMContentLoaded", function() {
+        var t = document.documentElement.getAttribute('data-theme') || 'warm-alabaster';
         if (document.body) {
-            document.body.classList.add(currentTheme);
+            document.body.setAttribute('data-theme', t);
+            var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+            if (lightThemes.indexOf(t) !== -1) {
+                document.body.classList.add('light-theme');
+            } else {
+                document.body.classList.remove('light-theme');
+            }
             if (document.documentElement.classList.contains('has-sidebar')) {
                 document.body.classList.add('has-sidebar');
             }
@@ -161,14 +200,14 @@
     100% { transform: translateX(200%) skewX(-15deg); }
 }
 .magical-glass-header {
-    background: linear-gradient(135deg, rgba(20, 10, 35, 0.65), rgba(35, 15, 60, 0.45)) !important;
-    backdrop-filter: blur(28px) saturate(220%) !important;
-    -webkit-backdrop-filter: blur(28px) saturate(220%) !important;
-    border: 1px solid rgba(192, 132, 252, 0.4) !important;
-    border-top: 2px solid rgba(192, 132, 252, 0.9) !important;
-    border-radius: 20px !important;
-    margin: 15px 25px !important;
-    padding: 12px 25px !important;
+    background: var(--hdr-bg, linear-gradient(135deg, rgba(20, 10, 35, 0.65), rgba(35, 15, 60, 0.45)));
+    backdrop-filter: blur(28px) saturate(220%);
+    -webkit-backdrop-filter: blur(28px) saturate(220%);
+    border: 1px solid var(--hdr-border, rgba(192, 132, 252, 0.4));
+    border-top: 2px solid var(--hdr-border, rgba(192, 132, 252, 0.9));
+    border-radius: 20px;
+    margin: 15px 25px;
+    padding: 12px 25px;
     animation: neonPulseHeader 4s infinite alternate ease-in-out;
     position: relative;
     z-index: 1000;
@@ -177,7 +216,7 @@
 }
 .magical-glass-header:hover {
     transform: translateY(-3px) scale(1.005);
-    box-shadow: 0 15px 45px rgba(192, 132, 252, 0.6), inset 0 0 25px rgba(192, 132, 252, 0.4) !important;
+    box-shadow: 0 15px 45px rgba(192, 132, 252, 0.6), inset 0 0 25px rgba(192, 132, 252, 0.4);
 }
 .magical-glass-header::before {
     content: '';
@@ -198,24 +237,23 @@
 .magical-glass-header .user-info, 
 .magical-glass-header #online-users-badge,
 .magical-glass-header #global-exchange-rate-box {
-    background: rgba(20, 10, 40, 0.6) !important;
-    border: 1px solid rgba(192, 132, 252, 0.25) !important;
+    background: var(--surface, rgba(20, 10, 40, 0.6));
+    border: 1px solid rgba(192, 132, 252, 0.25);
     backdrop-filter: blur(12px);
-    border-radius: 14px !important;
+    border-radius: 14px;
     transition: all 0.3s ease;
 }
 .magical-glass-header .clock-container:hover, 
 .magical-glass-header .user-info:hover, 
 .magical-glass-header #online-users-badge:hover,
 .magical-glass-header #global-exchange-rate-box:hover {
-    border-color: rgba(192, 132, 252, 0.8) !important;
-    box-shadow: 0 0 20px rgba(192, 132, 252, 0.4), inset 0 0 10px rgba(192, 132, 252, 0.2) !important;
+    border-color: rgba(192, 132, 252, 0.8);
+    box-shadow: 0 0 20px rgba(192, 132, 252, 0.4), inset 0 0 10px rgba(192, 132, 252, 0.2);
     transform: translateY(-2px);
-    background: rgba(30, 15, 60, 0.7) !important;
 }
 .magical-glass-header .header-page-title {
     text-shadow: 0 0 15px rgba(192, 132, 252, 0.8), 0 0 30px rgba(192, 132, 252, 0.4);
-    color: #fff !important;
+    color: var(--text-primary, #fff);
 }
 .magical-glass-header button.fullscreen-toggle-btn,
 .magical-glass-header button.theme-toggle-btn {
@@ -505,13 +543,19 @@
             ?>
             <?php endif; ?>
 
-            <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-                <button class="audit-tracker-btn" onclick="window.openAuditTrackerModal()" style="background:rgba(56,189,248,0.18); border:1.5px solid rgba(56,189,248,0.4); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem; color:#38bdf8; transition:0.2s; box-shadow:0 0 10px rgba(56,189,248,0.25);" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
-                <button class="fullscreen-toggle-btn" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.15rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
+            <!-- Mini Utility Controls: Audit Tracker & Fullscreen & Quick Theme Toggle -->
+            <div style="display:flex; align-items:center; gap:5px;">
+                <button class="audit-tracker-btn" type="button" onclick="window.openAuditTrackerModal()" style="background:rgba(56,189,248,0.18); border:1.5px solid rgba(56,189,248,0.4); border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:0.95rem; color:#38bdf8; transition:0.2s; box-shadow:0 0 8px rgba(56,189,248,0.2);" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
+                <button class="fullscreen-toggle-btn" type="button" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.05rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
+                <button class="theme-toggle-btn" type="button" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:34px; height:34px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل السمة السريع (فاتح/داكن)">🌓</button>
             </div>
-            <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
-                <button class="theme-toggle-btn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل المظهر">🌓</button>
-            </div>
+
+            <!-- 🎨 Standout Luxury Theme Switcher Button (Desktop & Laptop) -->
+            <button class="desktop-theme-palette-btn" id="header-desktop-theme-btn" type="button" onclick="openDesktopThemePaletteModal()" title="مصفوفة سمات النظام وراحة العين (21 سمة علمية معتمدة)">
+                <span class="theme-btn-icon">🎨</span>
+                <span class="theme-btn-text">السمات</span>
+                <span class="theme-btn-badge">21</span>
+            </button>
         </div>
 
         <!-- 📺 SACRED TV & QURAN MINI CONTROLLER (1cm x 2.5cm - Non-Obtrusive) -->
@@ -544,18 +588,852 @@
             }
         }
         
-        // Theme initialization and toggle logic
-        if (localStorage.getItem('erp_theme') === 'light') {
-            document.documentElement.classList.add('light-theme');
+        // ═══════════════════════════════════════════════════════════════════
+        // 🎨 DESKTOP & LAPTOP 21 ERGONOMIC THEMES CONTROLLER
+        // ═══════════════════════════════════════════════════════════════════
+        const DESKTOP_LIGHT_THEMES = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+        const DESKTOP_THEME_NAMES = {
+            'warm-alabaster': 'العاجي الدافئ',
+            'pure-platinum': 'الفضي النقي',
+            'midnight-executive': 'كحلي منتصف الليل',
+            'obsidian-charcoal': 'حجر السج الجرافيتي',
+            'beige': 'البيج الدافئ المريح',
+            'ivory': 'العاجي الملكي الكلاسيكي',
+            'offwhite': 'الأوف وايت الحديث المطفأ',
+            'light-linen': 'الكتان الطبيعي المريح',
+            'pearl-platinum': 'اللؤلؤي الفضي المريح',
+            'nordic-paper': 'الورقي النوردي المريح',
+            'navy-kohl': 'الكحلي الملكي الليلي',
+            'royal-blue': 'الأزرق الزفيري الحيوي',
+            'ocean-navy': 'الأزرق المحيطي العميق',
+            'petrol-cyan': 'الأزرق البترولي والتيل',
+            'twilight-indigo': 'أزرق الشفق والإنديجو',
+            'midnight': 'الليل الملكي الداكن',
+            'sepia-brown': 'البني الإسبريسو والورق القديم',
+            'pale-gold': 'الذهبي الباهت والفخامة',
+            'emerald-forest': 'زمرد الغابات لصفاء الذهن',
+            'desert-mocha': 'الرمال الصحراوية وموكا',
+            'sunlight-titanium': 'التيتانيوم الشمسي فائق التباين'
+        };
+
+        function openDesktopThemePaletteModal() {
+            const modal = document.getElementById('desktopThemePaletteModal');
+            if (!modal) return;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            highlightActiveDesktopThemeCard();
         }
+
+        function closeDesktopThemePaletteModal() {
+            const modal = document.getElementById('desktopThemePaletteModal');
+            if (!modal) return;
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function highlightActiveDesktopThemeCard() {
+            const activeTheme = document.documentElement.getAttribute('data-theme') || 'warm-alabaster';
+            const cards = document.querySelectorAll('.desktop-theme-card');
+            cards.forEach(card => {
+                const key = card.getAttribute('data-theme-key');
+                const badge = card.querySelector('.desktop-active-indicator');
+                if (key === activeTheme) {
+                    card.classList.add('is-current-active');
+                    if (badge) badge.style.display = 'inline-flex';
+                } else {
+                    card.classList.remove('is-current-active');
+                    if (badge) badge.style.display = 'none';
+                }
+            });
+            const lbl = document.getElementById('desktopCurrentThemeLabel');
+            if (lbl) {
+                lbl.textContent = DESKTOP_THEME_NAMES[activeTheme] || activeTheme;
+            }
+        }
+
+        function filterDesktopThemeCategory(category) {
+            const tabs = document.querySelectorAll('.desktop-theme-tab-btn');
+            tabs.forEach(tab => {
+                if (tab.getAttribute('data-cat') === category) {
+                    tab.classList.add('active-tab');
+                } else {
+                    tab.classList.remove('active-tab');
+                }
+            });
+
+            const cards = document.querySelectorAll('.desktop-theme-card');
+            cards.forEach(card => {
+                const cats = (card.getAttribute('data-category') || '').split(' ');
+                if (category === 'all' || cats.includes(category)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function applyDesktopTheme(themeKey, showToast = true) {
+            const aliasMap = {
+                'ultra_white': 'pure-platinum', 'warm_cream': 'warm-alabaster', 'exec_gray': 'pearl-platinum',
+                'solar_contrast': 'sunlight-titanium', 'solar': 'sunlight-titanium',
+                'slate_twilight': 'midnight-executive', 'midnight_obsidian': 'midnight-executive',
+                'pure_oled': 'midnight', 'navy': 'navy-kohl', 'forest': 'emerald-forest',
+                'theme-imperial': 'warm-alabaster'
+            };
+            if (aliasMap[themeKey]) themeKey = aliasMap[themeKey];
+            if (!DESKTOP_THEME_NAMES[themeKey]) themeKey = 'warm-alabaster';
+
+            // Apply attributes
+            document.documentElement.setAttribute('data-theme', themeKey);
+            if (document.body) document.body.setAttribute('data-theme', themeKey);
+
+            const isLight = DESKTOP_LIGHT_THEMES.indexOf(themeKey) !== -1;
+            if (isLight) {
+                document.documentElement.classList.add('light-theme');
+                if (document.body) document.body.classList.add('light-theme');
+            } else {
+                document.documentElement.classList.remove('light-theme');
+                if (document.body) document.body.classList.remove('light-theme');
+            }
+
+            // Sync persistence
+            try {
+                localStorage.setItem('magaies_active_theme', themeKey);
+                localStorage.setItem('magaiees_mobile_theme', themeKey);
+                localStorage.setItem('magaiees_theme', themeKey);
+                localStorage.setItem('erp_theme', isLight ? 'light' : 'dark');
+                document.cookie = "magaies_active_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
+                document.cookie = "magaiees_mobile_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
+                document.cookie = "magaiees_theme=" + encodeURIComponent(themeKey) + "; path=/; max-age=31536000; SameSite=Lax";
+                document.cookie = "erp_theme=" + (isLight ? 'light' : 'dark') + "; path=/; max-age=31536000; SameSite=Lax";
+            } catch(e) {}
+
+            highlightActiveDesktopThemeCard();
+            window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: themeKey } }));
+
+            if (showToast) {
+                showDesktopThemeToast(DESKTOP_THEME_NAMES[themeKey] || themeKey);
+            }
+        }
+
         function toggleTheme() {
-            document.documentElement.classList.toggle('light-theme');
-            localStorage.setItem('erp_theme', document.documentElement.classList.contains('light-theme') ? 'light' : 'dark');
-            window.dispatchEvent(new Event('themeChanged'));
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'warm-alabaster';
+            const isLight = DESKTOP_LIGHT_THEMES.indexOf(currentTheme) !== -1;
+            const nextTheme = isLight ? 'midnight-executive' : 'warm-alabaster';
+            applyDesktopTheme(nextTheme, true);
         }
+
+        function showDesktopThemeToast(themeName) {
+            let toast = document.getElementById('desktopThemeToastBox');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'desktopThemeToastBox';
+                toast.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg, #10b981, #059669); color:#ffffff; font-weight:800; font-size:14px; padding:12px 24px; border-radius:30px; box-shadow:0 10px 30px rgba(0,0,0,0.35); z-index:999999; display:flex; align-items:center; gap:10px; pointer-events:none; transition:all 0.3s ease; opacity:0;';
+                document.body.appendChild(toast);
+            }
+            toast.innerHTML = '<span>🎨</span><span>تم تفعيل سمة: <strong>' + themeName + '</strong> بنجاح</span>';
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+            clearTimeout(window._desktopThemeToastTimer);
+            window._desktopThemeToastTimer = setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(15px)';
+            }, 2500);
+        }
+
+        // Close on Escape
+        window.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeDesktopThemePaletteModal();
+            }
+        });
         </script>
     </div>
 </header>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     🎨 DESKTOP & LAPTOP 21 ERGONOMIC THEMES PALETTE MODAL
+     ═══════════════════════════════════════════════════════════════════ -->
+<div id="desktopThemePaletteModal" class="desktop-theme-modal-backdrop" onclick="if(event.target === this) closeDesktopThemePaletteModal();" style="display: none;">
+    <div class="desktop-theme-modal-dialog" onclick="event.stopPropagation();">
+        
+        <!-- Modal Top Bar -->
+        <div class="desktop-theme-modal-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="desktop-theme-header-icon-box">🎨</div>
+                <div>
+                    <h2 class="desktop-theme-modal-title">مصفوفة سمات النظام وراحة العين (21 سمة علمية معتمدة)</h2>
+                    <p class="desktop-theme-modal-subtitle">تصميم سويسري عالي التباين متوافق مع معايير WCAG AAA • حماية الشبكية ومنع إجهاد العين أثناء العمل المحاسبي الطويل</p>
+                </div>
+            </div>
+            <button type="button" class="desktop-theme-close-btn" onclick="closeDesktopThemePaletteModal()" title="إغلاق النافذة">✕</button>
+        </div>
+
+        <!-- Guidance Banner -->
+        <div class="desktop-theme-guidance-banner">
+            <span style="font-size:16px;">💡</span>
+            <div><strong>استشارة خبير علم النفس والألوان:</strong> الألوان الترابية والعاجية والبيج تمتص الوهج الأزرق بنسبة 95% وتريح البؤبؤ، ودرجات الأزرق والكحلي تحفز التركيز الذهني والتدقيق المالي، والداكنة توفر أقصى راحة في الإضاءة الخافتة.</div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="desktop-theme-filter-row">
+            <button type="button" class="desktop-theme-tab-btn active-tab" data-cat="recommended" onclick="filterDesktopThemeCategory('recommended')">
+                <span>🌟 الموصى بها</span>
+                <span class="desktop-tab-count">4</span>
+            </button>
+            <button type="button" class="desktop-theme-tab-btn" data-cat="all" onclick="filterDesktopThemeCategory('all')">
+                <span>الكل</span>
+                <span class="desktop-tab-count">21</span>
+            </button>
+            <button type="button" class="desktop-theme-tab-btn" data-cat="light" onclick="filterDesktopThemeCategory('light')">
+                <span>☀️ الفاتحة والعاجي</span>
+                <span class="desktop-tab-count">8</span>
+            </button>
+            <button type="button" class="desktop-theme-tab-btn" data-cat="blue" onclick="filterDesktopThemeCategory('blue')">
+                <span>🌊 درجات الأزرق</span>
+                <span class="desktop-tab-count">6</span>
+            </button>
+            <button type="button" class="desktop-theme-tab-btn" data-cat="dark" onclick="filterDesktopThemeCategory('dark')">
+                <span>🌙 الداكنة والملكية</span>
+                <span class="desktop-tab-count">8</span>
+            </button>
+        </div>
+
+        <!-- Themes Grid (All 21 Themes) -->
+        <div class="desktop-theme-grid-container">
+
+            <!-- 0.1 WARM ALABASTER -->
+            <div class="desktop-theme-card" data-category="recommended light" data-theme-key="warm-alabaster" onclick="applyDesktopTheme('warm-alabaster')" style="--card-border:#8B6F4E; --card-bg:#F6F0E6; --card-text:#1C1917;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">📜 العاجي الدافئ</span>
+                    <span class="desktop-rec-badge">🌟 موصى بها</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#F6F0E6; border:1px solid #8B6F4E;"></span>
+                        <span class="desktop-swatch" style="background:#FFFFFF; border:1px solid #8B6F4E;"></span>
+                        <span class="desktop-swatch" style="background:#8B6F4E;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">أزرار بيضاء ناصعة بحواف بنية داكنة فوق أرضية عاجية بيج خفيفة، تباين مثالي فائق الراحة والرقي.</p>
+                <div class="desktop-theme-card-foot">Warm Alabaster • قمة الرقي • تباين فائق وعاجي هادئ</div>
+            </div>
+
+            <!-- 0.2 PURE PLATINUM -->
+            <div class="desktop-theme-card" data-category="recommended light" data-theme-key="pure-platinum" onclick="applyDesktopTheme('pure-platinum')" style="--card-border:#64748B; --card-bg:#EEF2F6; --card-text:#0F172A;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">❄️ الفضي النقي</span>
+                    <span class="desktop-rec-badge">🌟 موصى بها</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#EEF2F6; border:1px solid #64748B;"></span>
+                        <span class="desktop-swatch" style="background:#FFFFFF; border:1px solid #64748B;"></span>
+                        <span class="desktop-swatch" style="background:#0F172A;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">أزرار ناصعة البياض بحواف بلاتينية محددة على أرضية فضية نقية هادئة، دقة تحليلية سويسرية فائقة التباين.</p>
+                <div class="desktop-theme-card-foot">Pure Platinum • قمة الرقي • تباين نقي وفضي هادئ</div>
+            </div>
+
+            <!-- 0.3 MIDNIGHT EXECUTIVE -->
+            <div class="desktop-theme-card" data-category="recommended blue dark" data-theme-key="midnight-executive" onclick="applyDesktopTheme('midnight-executive')" style="--card-border:#1E293B; --card-bg:#0B0F17; --card-text:#F1F5F9;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🌌 كحلي منتصف الليل</span>
+                    <span class="desktop-rec-badge">🌟 موصى بها</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#0B0F17; border:1px solid #1E293B;"></span>
+                        <span class="desktop-swatch" style="background:#131B2A;"></span>
+                        <span class="desktop-swatch" style="background:#38BDF8;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">كحلي ليلي سحيق يبعث الأمان المالي والهدوء العصبي، يمنع إجهاد العين في العمل الليلي.</p>
+                <div class="desktop-theme-card-foot">Midnight Executive • قمة الرقي • داكن ملكي</div>
+            </div>
+
+            <!-- 0.4 OBSIDIAN CHARCOAL -->
+            <div class="desktop-theme-card" data-category="recommended dark" data-theme-key="obsidian-charcoal" onclick="applyDesktopTheme('obsidian-charcoal')" style="--card-border:#2C2C30; --card-bg:#121214; --card-text:#EDEDED;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🪨 حجر السج الجرافيتي</span>
+                    <span class="desktop-rec-badge">🌟 موصى بها</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#121214; border:1px solid #2C2C30;"></span>
+                        <span class="desktop-swatch" style="background:#1C1C1F;"></span>
+                        <span class="desktop-swatch" style="background:#EDEDED;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">فحم جرافيتي مطفأ وناعم مستوحى من الساعات السويسرية، راحة مطلقة لشاشات OLED.</p>
+                <div class="desktop-theme-card-foot">Obsidian Charcoal • قمة الرقي • داكن مريح</div>
+            </div>
+
+            <!-- 1. BEIGE -->
+            <div class="desktop-theme-card" data-category="light" data-theme-key="beige" onclick="applyDesktopTheme('beige')" style="--card-border:#d6c5b0; --card-bg:#f5ebe0; --card-text:#23190e;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🌾 البيج الدافئ المريح</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#f5ebe0; border:1px solid #d6c5b0;"></span>
+                        <span class="desktop-swatch" style="background:#b45309;"></span>
+                        <span class="desktop-swatch" style="background:#23190e;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">درجة بيج رملي طبيعي دافئ يمتص الوهج، مثالي لقراءة الدفاتر لساعات طويلة.</p>
+                <div class="desktop-theme-card-foot">Warm Sandstone Beige • فاتح مريح</div>
+            </div>
+
+            <!-- 2. IVORY -->
+            <div class="desktop-theme-card" data-category="light" data-theme-key="ivory" onclick="applyDesktopTheme('ivory')" style="--card-border:#ded6c3; --card-bg:#faf7f0; --card-text:#1c1813;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🥛 العاجي الملكي الكلاسيكي</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#faf7f0; border:1px solid #ded6c3;"></span>
+                        <span class="desktop-swatch" style="background:#d97706;"></span>
+                        <span class="desktop-swatch" style="background:#1c1813;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">نعومة اللون العاجي الكريمي الهادئ، يريح البؤبؤ ولا يجهد العصب البصري.</p>
+                <div class="desktop-theme-card-foot">Royal Cream Ivory • عاجي ناعم</div>
+            </div>
+
+            <!-- 3. OFF-WHITE -->
+            <div class="desktop-theme-card" data-category="light" data-theme-key="offwhite" onclick="applyDesktopTheme('offwhite')" style="--card-border:#d1d5db; --card-bg:#f9fafb; --card-text:#111827;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">📜 الأوف وايت الحديث المطفأ</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#f9fafb; border:1px solid #d1d5db;"></span>
+                        <span class="desktop-swatch" style="background:#2563eb;"></span>
+                        <span class="desktop-swatch" style="background:#111827;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">أوف وايت ألاباستر عصري بدون بياض ساطع، وضوح حاد للأرقام والخطوط.</p>
+                <div class="desktop-theme-card-foot">Modern Matte Off-White • مطفأ نقي</div>
+            </div>
+
+            <!-- 4. LIGHT LINEN -->
+            <div class="desktop-theme-card" data-category="light" data-theme-key="light-linen" onclick="applyDesktopTheme('light-linen')" style="--card-border:#cfc5b3; --card-bg:#ede7dc; --card-text:#211f1a;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🧵 الكتان الطبيعي المريح</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#ede7dc; border:1px solid #cfc5b3;"></span>
+                        <span class="desktop-swatch" style="background:#4d7c0f;"></span>
+                        <span class="desktop-swatch" style="background:#211f1a;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">طابع قماش الكتان العضوي الهادئ، يمنح شعوراً بالسكينة أثناء ضغط الحسابات.</p>
+                <div class="desktop-theme-card-foot">Soft Natural Linen • كتان هادئ</div>
+            </div>
+
+            <!-- 5. PEARL PLATINUM -->
+            <div class="desktop-theme-card" data-category="light" data-theme-key="pearl-platinum" onclick="applyDesktopTheme('pearl-platinum')" style="--card-border:#cbd3dc; --card-bg:#e9ecef; --card-text:#0f172a;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🦪 اللؤلؤي الفضي المريح</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#e9ecef; border:1px solid #cbd3dc;"></span>
+                        <span class="desktop-swatch" style="background:#0284c7;"></span>
+                        <span class="desktop-swatch" style="background:#0f172a;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">رمادي لؤلؤي بلاتيني بارد وراقي جداً، يقلل انعكاس الضوء المكتبي.</p>
+                <div class="desktop-theme-card-foot">Platinum Pearl Grey • لؤلؤي بارد</div>
+            </div>
+
+            <!-- 6. NORDIC PAPER -->
+            <div class="desktop-theme-card" data-category="light" data-theme-key="nordic-paper" onclick="applyDesktopTheme('nordic-paper')" style="--card-border:#cbd5e1; --card-bg:#f8fafc; --card-text:#0f172a;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">📄 الورقي النوردي المريح</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#f8fafc; border:1px solid #cbd5e1;"></span>
+                        <span class="desktop-swatch" style="background:#2563eb;"></span>
+                        <span class="desktop-swatch" style="background:#0f172a;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">ملمس الورق المحاسبي النوردي الفاخر، أعلى مقروئية في ضوء النهار الطبيعي.</p>
+                <div class="desktop-theme-card-foot">Nordic Paper Light • نهار مشرق</div>
+            </div>
+
+            <!-- 7. NAVY KOHL -->
+            <div class="desktop-theme-card" data-category="blue dark" data-theme-key="navy-kohl" onclick="applyDesktopTheme('navy-kohl')" style="--card-border:#1a2d5a; --card-bg:#050c1e; --card-text:#f8fafc;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🌌 الكحلي الملكي الليلي</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#050c1e; border:1px solid #1a2d5a;"></span>
+                        <span class="desktop-swatch" style="background:#38bdf8;"></span>
+                        <span class="desktop-swatch" style="background:#fbbf24;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية، هيبة رجال الأعمال.</p>
+                <div class="desktop-theme-card-foot">Deep Midnight Navy • كحلي تنفيذي</div>
+            </div>
+
+            <!-- 8. ROYAL BLUE -->
+            <div class="desktop-theme-card" data-category="blue" data-theme-key="royal-blue" onclick="applyDesktopTheme('royal-blue')" style="--card-border:#1e3e78; --card-bg:#0a1b38; --card-text:#ffffff;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🔷 الأزرق الزفيري الحيوي</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#0a1b38; border:1px solid #1e3e78;"></span>
+                        <span class="desktop-swatch" style="background:#60a5fa;"></span>
+                        <span class="desktop-swatch" style="background:#34d399;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة في إدخال الفواتير السريعة.</p>
+                <div class="desktop-theme-card-foot">Executive Royal Blue • أزرق ملكي</div>
+            </div>
+
+            <!-- 9. OCEAN NAVY -->
+            <div class="desktop-theme-card" data-category="blue" data-theme-key="ocean-navy" onclick="applyDesktopTheme('ocean-navy')" style="--card-border:#1e3a8a; --card-bg:#0c1a2e; --card-text:#e0f2fe;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🌊 الأزرق المحيطي العميق</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#0c1a2e; border:1px solid #1e3a8a;"></span>
+                        <span class="desktop-swatch" style="background:#38bdf8;"></span>
+                        <span class="desktop-swatch" style="background:#bae6fd;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">يعزز التفكير المنطقي والتحليلي أثناء مراجعة الحسابات ومطابقة القيود.</p>
+                <div class="desktop-theme-card-foot">Royal Oceanic Navy • منطق وتحليل</div>
+            </div>
+
+            <!-- 10. PETROL CYAN -->
+            <div class="desktop-theme-card" data-category="blue" data-theme-key="petrol-cyan" onclick="applyDesktopTheme('petrol-cyan')" style="--card-border:#134658; --card-bg:#071c26; --card-text:#f0fdfa;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🐬 الأزرق البترولي والتيل</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#071c26; border:1px solid #134658;"></span>
+                        <span class="desktop-swatch" style="background:#2dd4bf;"></span>
+                        <span class="desktop-swatch" style="background:#38bdf8;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">مزيج من الأزرق البترولي والتيل البحري، يمنح هدوءاً بصرياً فائقاً.</p>
+                <div class="desktop-theme-card-foot">Petrol Cyan Blue • بترولي مهدئ</div>
+            </div>
+
+            <!-- 11. TWILIGHT INDIGO -->
+            <div class="desktop-theme-card" data-category="blue" data-theme-key="twilight-indigo" onclick="applyDesktopTheme('twilight-indigo')" style="--card-border:#2b356e; --card-bg:#0e122b; --card-text:#e0e7ff;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🔮 أزرق الشفق والإنديجو</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#0e122b; border:1px solid #2b356e;"></span>
+                        <span class="desktop-swatch" style="background:#818cf8;"></span>
+                        <span class="desktop-swatch" style="background:#f472b6;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">أزرق شفق نيلي مسائي يخفف التوتر العصبي ويمنع شرود الذهن.</p>
+                <div class="desktop-theme-card-foot">Twilight Indigo • إنديجو مسائي</div>
+            </div>
+
+            <!-- 12. OLED MIDNIGHT -->
+            <div class="desktop-theme-card" data-category="dark" data-theme-key="midnight" onclick="applyDesktopTheme('midnight')" style="--card-border:#334155; --card-bg:#020617; --card-text:#f8fafc;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🌙 الليل الملكي الداكن (OLED)</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#020617; border:1px solid #334155;"></span>
+                        <span class="desktop-swatch" style="background:#22d3ee;"></span>
+                        <span class="desktop-swatch" style="background:#34d399;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">سواد عميق OLED موفر للطاقة، أقصى تباين في الإضاءة الليلية الضعيفة.</p>
+                <div class="desktop-theme-card-foot">OLED Midnight • افتراضي</div>
+            </div>
+
+            <!-- 13. SEPIA BROWN -->
+            <div class="desktop-theme-card" data-category="dark" data-theme-key="sepia-brown" onclick="applyDesktopTheme('sepia-brown')" style="--card-border:#78350f; --card-bg:#1c1917; --card-text:#fef3c7;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">📜 البني الإسبريسو والورق القديم</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#1c1917; border:1px solid #78350f;"></span>
+                        <span class="desktop-swatch" style="background:#d97706;"></span>
+                        <span class="desktop-swatch" style="background:#fef3c7;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">حجب كامل للضوء الأزرق، يريح العصب البصري ويمنع الصداع في العمل الطويل.</p>
+                <div class="desktop-theme-card-foot">Warm Sepia • مهدئ للأعصاب</div>
+            </div>
+
+            <!-- 14. PALE GOLD -->
+            <div class="desktop-theme-card" data-category="dark" data-theme-key="pale-gold" onclick="applyDesktopTheme('pale-gold')" style="--card-border:#854d0e; --card-bg:#181614; --card-text:#fef08a;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">👑 الذهبي الباهت والفخامة</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#181614; border:1px solid #854d0e;"></span>
+                        <span class="desktop-swatch" style="background:#eab308;"></span>
+                        <span class="desktop-swatch" style="background:#fef08a;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">تناسق ذهبي كلاسيكي باهت وغير مزعج، يضفي هيبة الأرقام المحاسبية.</p>
+                <div class="desktop-theme-card-foot">Pale Gold Luxury • فخامة مالية</div>
+            </div>
+
+            <!-- 15. EMERALD FOREST -->
+            <div class="desktop-theme-card" data-category="dark" data-theme-key="emerald-forest" onclick="applyDesktopTheme('emerald-forest')" style="--card-border:#065f46; --card-bg:#032e24; --card-text:#a7f3d0;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🌲 زمرد الغابات لصفاء الذهن</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#032e24; border:1px solid #065f46;"></span>
+                        <span class="desktop-swatch" style="background:#10b981;"></span>
+                        <span class="desktop-swatch" style="background:#a7f3d0;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">اللون الأخضر يقع في منتصف شبكية العين، يخفض النبض ويمنع الخلط بالأرقام.</p>
+                <div class="desktop-theme-card-foot">Cognitive Forest • تركيز ذهني فائق</div>
+            </div>
+
+            <!-- 16. DESERT MOCHA -->
+            <div class="desktop-theme-card" data-category="dark" data-theme-key="desert-mocha" onclick="applyDesktopTheme('desert-mocha')" style="--card-border:#78350f; --card-bg:#26211d; --card-text:#fde68a;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">🏜️ الرمال الصحراوية وموكا</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#26211d; border:1px solid #78350f;"></span>
+                        <span class="desktop-swatch" style="background:#f59e0b;"></span>
+                        <span class="desktop-swatch" style="background:#fde68a;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">تدرج دافئ وسط بين الفاتح والداكن، مريح جداً للإضاءة المكتبية.</p>
+                <div class="desktop-theme-card-foot">Desert Mocha • راحة يومية متوازنة</div>
+            </div>
+
+            <!-- 17. SUNLIGHT TITANIUM -->
+            <div class="desktop-theme-card" data-category="dark" data-theme-key="sunlight-titanium" onclick="applyDesktopTheme('sunlight-titanium')" style="--card-border:#ffffff; --card-bg:#000000; --card-text:#ffffff;">
+                <div class="desktop-theme-card-top">
+                    <span class="desktop-theme-card-title">☀️ التيتانيوم الشمسي فائق التباين</span>
+                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
+                    <div class="desktop-swatch-group">
+                        <span class="desktop-swatch" style="background:#000000; border:1px solid #ffffff;"></span>
+                        <span class="desktop-swatch" style="background:#ffffff;"></span>
+                        <span class="desktop-swatch" style="background:#facc15;"></span>
+                    </div>
+                </div>
+                <p class="desktop-theme-card-desc">معيار WCAG AAA (21:1)، وضوح تام تحت شمس الظهيرة ولضعاف النظر.</p>
+                <div class="desktop-theme-card-foot">Titanium High-Contrast • شمس وميدان</div>
+            </div>
+
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="desktop-theme-modal-footer">
+            <div class="desktop-theme-footer-status">
+                <span>السمة النشطة حالياً:</span>
+                <strong id="desktopCurrentThemeLabel" style="color:var(--primary-accent, #38bdf8);">العاجي الدافئ</strong>
+            </div>
+            <button type="button" class="desktop-theme-footer-close-btn" onclick="closeDesktopThemePaletteModal()">
+                ✓ تم والاحتفاظ بالسمة
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   🎨 STYLING FOR DESKTOP THEMES MODAL (WCAG CONTRAST ENGINE)
+   ═══════════════════════════════════════════════════════════════════ */
+.desktop-theme-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    animation: desktopThemeFadeIn 0.2s ease-out;
+}
+@keyframes desktopThemeFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+.desktop-theme-modal-dialog {
+    background: #0f172a;
+    color: #f8fafc;
+    border: 2px solid #334155;
+    border-radius: 24px;
+    width: 95%;
+    max-width: 940px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    overflow: hidden;
+    position: relative;
+    font-family: 'Tajawal', system-ui, sans-serif;
+}
+html.light-theme .desktop-theme-modal-dialog {
+    background: #ffffff;
+    color: #0f172a;
+    border-color: #cbd5e1;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+.desktop-theme-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.03);
+}
+html.light-theme .desktop-theme-modal-header {
+    border-bottom: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+}
+.desktop-theme-header-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(16, 185, 129, 0.2));
+    border: 1.5px solid rgba(245, 158, 11, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+.desktop-theme-modal-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+}
+.desktop-theme-modal-subtitle {
+    margin: 3px 0 0 0;
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+html.light-theme .desktop-theme-modal-subtitle {
+    color: #64748b;
+}
+.desktop-theme-close-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.desktop-theme-close-btn:hover {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+}
+.desktop-theme-guidance-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 20px;
+    margin: 14px 24px 8px 24px;
+    border-radius: 14px;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1.5px solid rgba(245, 158, 11, 0.35);
+    font-size: 0.8rem;
+    line-height: 1.45;
+    color: #fde68a;
+}
+html.light-theme .desktop-theme-guidance-banner {
+    background: #fefce8;
+    border-color: #fde047;
+    color: #713f12;
+}
+.desktop-theme-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 24px;
+    overflow-x: auto;
+}
+.desktop-theme-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+html.light-theme .desktop-theme-tab-btn {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #334155;
+}
+.desktop-theme-tab-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+}
+html.light-theme .desktop-theme-tab-btn:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+}
+.desktop-theme-tab-btn.active-tab {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #000000;
+    border-color: #f59e0b;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+.desktop-tab-count {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    font-weight: 900;
+}
+.desktop-theme-grid-container {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px 24px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+@media (max-width: 900px) {
+    .desktop-theme-grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (max-width: 600px) {
+    .desktop-theme-grid-container {
+        grid-template-columns: 1fr;
+    }
+}
+.desktop-theme-card {
+    background: var(--card-bg, #1e293b);
+    color: var(--card-text, #ffffff);
+    border: 2px solid var(--card-border, #334155);
+    border-radius: 16px;
+    padding: 14px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    transition: all 0.2s ease;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+.desktop-theme-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    filter: brightness(1.05);
+}
+.desktop-theme-card.is-current-active {
+    outline: 3px solid #f59e0b;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.5) !important;
+}
+.desktop-theme-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.desktop-theme-card-title {
+    font-size: 0.88rem;
+    font-weight: 900;
+}
+.desktop-rec-badge {
+    background: #f59e0b;
+    color: #000000;
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 6px;
+}
+.desktop-active-indicator {
+    background: #10b981;
+    color: #ffffff;
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 2px 7px;
+    border-radius: 6px;
+}
+.desktop-swatch-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.desktop-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+.desktop-theme-card-desc {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    opacity: 0.9;
+    margin: 0;
+    font-weight: 500;
+}
+.desktop-theme-card-foot {
+    font-size: 0.68rem;
+    font-weight: 800;
+    opacity: 0.85;
+    border-top: 1px dashed rgba(125, 125, 125, 0.25);
+    padding-top: 6px;
+}
+.desktop-theme-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    border-top: 1.5px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+}
+html.light-theme .desktop-theme-modal-footer {
+    border-top: 1.5px solid #e2e8f0;
+    background: #f8fafc;
+}
+.desktop-theme-footer-status {
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.desktop-theme-footer-close-btn {
+    padding: 8px 24px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.2s;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+.desktop-theme-footer-close-btn:hover {
+    filter: brightness(1.1);
+    transform: scale(1.02);
+}
+</style>
 
 <!-- 🌟 زر عائم ذكي لإظهار الترويسة العلوية في أي وقت لجميع الشاشات -->
 <div id="auto-scroll-header-pill" class="auto-scroll-return-pill" onclick="if(window.AutoHeaderScroll) window.AutoHeaderScroll.scrollToHeader()" title="الرجوع إلى أعلى الصفحة وإظهار الترويسة">

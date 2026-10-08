@@ -1,0 +1,367 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500;700&family=Inter:wght@500;700&family=JetBrains+Mono:wght@500;700;800&family=Poppins:wght@500;700;800&display=swap');
+
+/* 
+  4 Professional Table Themes for Al-Sajana ERP 
+  With Heavy, Prominent Borders and Crystal UI animations 
+*/
+
+/* Base transition and spacing for smooth theme switching & elevated table height */
+.ledger-table {
+    transition: background 0.4s ease, border 0.4s ease, box-shadow 0.4s ease;
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+.ledger-table th {
+    transition: background 0.4s ease, color 0.4s ease, border 0.4s ease;
+    padding: 14px 16px !important;
+    font-size: 0.95rem !important;
+    vertical-align: middle !important;
+}
+.ledger-table td {
+    transition: background 0.4s ease, color 0.4s ease, border 0.4s ease;
+    padding: 12px 16px !important;
+    font-size: 0.92rem !important;
+    vertical-align: middle !important;
+}
+
+/* 1. Theme Deep Blue (الاحترافي الأزرق العميق) */
+.table-theme-blue {
+    background: #ffffff !important;
+    border: 4px solid #1e3a8a !important; /* Heavy navy border */
+}
+.table-theme-blue th {
+    background: #1e3a8a !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    border: 3px solid #172554 !important;
+}
+.table-theme-blue td {
+    border: 3px solid #93c5fd !important; /* Prominent inner lines */
+    color: #0f172a !important;
+    font-weight: 600 !important;
+}
+.table-theme-blue tbody tr:hover td {
+    background: #eff6ff !important;
+    color: #1d4ed8 !important;
+}
+
+/* 2. Theme Luxury Black (الأسود الفاخر) */
+.table-theme-black {
+    background: #ffffff !important;
+    border: 4px solid #0f172a !important; /* Heavy black border */
+}
+.table-theme-black th {
+    background: #0f172a !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    border: 3px solid #000000 !important;
+}
+.table-theme-black td {
+    border: 3px solid #94a3b8 !important;
+    color: #1e293b !important;
+    font-weight: 600 !important;
+}
+.table-theme-black tbody tr:hover td {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+}
+
+/* 3. Theme Emerald Financial (الزمردي المالي) */
+.table-theme-emerald {
+    background: #ffffff !important;
+    border: 4px solid #064e3b !important; /* Heavy dark green border */
+}
+.table-theme-emerald th {
+    background: #064e3b !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    border: 3px solid #022c22 !important;
+}
+.table-theme-emerald td {
+    border: 3px solid #6ee7b7 !important;
+    color: #022c22 !important;
+    font-weight: 600 !important;
+}
+.table-theme-emerald tbody tr:hover td {
+    background: #ecfdf5 !important;
+    color: #047857 !important;
+}
+
+/* ─── CRYSTAL THEME SELECTOR UI ─── */
+.crystal-theme-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 15px;
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px);
+    box-shadow: inset 0 0 20px rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.3);
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Light Sweep Animation over the container */
+.crystal-theme-container::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.1) 25%, transparent 50%);
+    animation: rotateSweep 8s linear infinite;
+    pointer-events: none;
+}
+@keyframes rotateSweep {
+    100% { transform: rotate(360deg); }
+}
+
+.crystal-btn {
+    position: relative;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    z-index: 1;
+}
+
+.crystal-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,0.4), transparent);
+    transform: skewX(-25deg);
+    transition: 0.5s;
+    z-index: -1;
+}
+
+.crystal-btn:hover::before {
+    animation: crystalShine 0.8s forwards;
+}
+
+@keyframes crystalShine {
+    100% { left: 200%; }
+}
+
+.crystal-btn:hover {
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.4), inset 0 0 15px rgba(255,255,255,0.3);
+}
+
+.crystal-btn.active {
+    border-color: #38bdf8;
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.6), inset 0 0 15px rgba(255,255,255,0.2);
+    background: rgba(56, 189, 248, 0.2);
+}
+
+/* Color specific glows */
+.c-blue:hover { border-color: #60a5fa; box-shadow: 0 0 20px rgba(96, 165, 250, 0.6); }
+.c-black:hover { border-color: #475569; box-shadow: 0 0 20px rgba(71, 85, 105, 0.6); }
+.c-emerald:hover { border-color: #34d399; box-shadow: 0 0 20px rgba(52, 211, 153, 0.6); }
+.c-std:hover { border-color: #94a3b8; box-shadow: 0 0 20px rgba(148, 163, 184, 0.6); }
+
+/* ─── COMPACT ROWS & CENTER ALIGNMENT ─── */
+.ledger-table th, .ledger-table td {
+    padding: 10px 10px !important; /* Slightly larger for big numbers */
+    white-space: nowrap; 
+    position: relative;
+    text-align: center; /* Center horizontally */
+    vertical-align: middle !important; /* Center vertically */
+}
+
+/* ─── NUMBER FONTS ─── */
+.num-font-roboto {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1.15rem !important; /* Big size */
+    font-weight: 700 !important;
+}
+.num-font-inter {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.15rem !important; /* Big size */
+    font-weight: 700 !important;
+    font-variant-numeric: tabular-nums;
+}
+.num-font-jetbrains {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important; /* Very thick and clear */
+}
+.num-font-poppins {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    font-variant-numeric: tabular-nums;
+}
+.num-font-tahoma {
+    font-family: 'Tahoma', 'Segoe UI', sans-serif;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    font-variant-numeric: tabular-nums;
+}
+.num-font-space {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    font-variant-numeric: tabular-nums;
+}
+.num-font-arial {
+    font-family: 'Arial', 'Helvetica', sans-serif;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    font-variant-numeric: tabular-nums;
+}
+.num-font-montserrat {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.15rem !important;
+    font-weight: 700 !important;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ─── ELEGANT FONT CHIPS (UI) ─── */
+.font-chips-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+.font-chip {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 10px;
+    color: #cbd5e1;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.font-chip:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #38bdf8;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+}
+.font-chip.active {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: #38bdf8;
+    color: #38bdf8;
+    box-shadow: 0 0 15px rgba(56, 189, 248, 0.5), inset 0 0 10px rgba(56,189,248,0.2);
+}
+
+/* ─── REVIEW MODE (Left Click on Numbers) ─── */
+.num-cell-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    user-select: none;
+}
+.num-cell-wrapper:hover {
+    background: rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);
+}
+.num-cell-wrapper.reviewed-cell {
+    background: #dcfce7 !important; /* Light green */
+    color: #166534 !important;
+    transform: scale(1.15); /* Grow the number visibly */
+    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+    border: 1px solid #4ade80;
+}
+.num-cell-wrapper.reviewed-cell::before {
+    content: '✔️';
+    font-size: 0.8rem;
+    margin-left: 5px;
+    opacity: 0.8;
+}
+
+/* ─── CONTEXT MENU (Right Click) ─── */
+.custom-context-menu {
+    position: fixed;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    padding: 8px 0;
+    min-width: 220px;
+    z-index: 999999;
+    display: none;
+    transform-origin: top right;
+    animation: menuIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.custom-context-menu.show {
+    display: block;
+}
+.context-menu-item {
+    padding: 12px 20px;
+    font-family: 'Tajawal', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s;
+}
+.context-menu-item:hover {
+    background: #f1f5f9;
+    color: #2563eb;
+}
+@keyframes menuIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Draggable Column Handle (Light & Visible, Centered on Borders) */
+.resize-handle {
+    position: absolute;
+    top: 0;
+    left: -5px; /* Centered over the column boundary line */
+    width: 10px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 100; /* Ensure it is clickable over headers */
+    background: transparent;
+}
+.resize-handle::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 4px;
+    width: 2px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.25);
+    transition: all 0.2s;
+}
+.resize-handle:hover::after, .resize-handle:active::after {
+    background: #38bdf8;
+    width: 4px;
+    left: 3px;
+    box-shadow: 0 0 10px rgba(56,189,248,0.8);
+}
+/* Ensure dark themes have visible handles too */
+.table-theme-blue .resize-handle::after, .table-theme-emerald .resize-handle::after {
+    background: rgba(255, 255, 255, 0.15);
+}
+.table-theme-blue .resize-handle:hover::after, .table-theme-emerald .resize-handle:hover::after {
+    background: #60a5fa;
+}

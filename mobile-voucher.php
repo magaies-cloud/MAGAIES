@@ -942,10 +942,19 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
         var m = document.cookie.match(/(?:^|;\s*)(?:magaies_active_theme|magaiees_mobile_theme)=([^;]+)/);
         if (m) t = decodeURIComponent(m[1]);
       }
-      if (t) document.documentElement.setAttribute('data-theme', t);
+      if (t) {
+        document.documentElement.setAttribute('data-theme', t);
+        var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+        if (lightThemes.indexOf(t) !== -1) {
+          document.documentElement.classList.add('light-theme');
+        } else {
+          document.documentElement.classList.remove('light-theme');
+        }
+      }
     } catch(e) {}
   })();
   </script>
+  <link rel="stylesheet" href="css/theme.css?v=20261007_v21themes">
   <!-- ⚡ SMART LAPTOP VOUCHER GATE (تحويل ذكي للكمبيوتر ومنع الجوال نهائياً) -->
   <script>
   (function enforceLaptopVoucherGate() {
@@ -2161,7 +2170,96 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
       -webkit-text-fill-color: #065f46 !important;
     }
 
-    /* الشريط السفلي التفاعلي المريح */
+    /* ═════════════════════════════════════════════════════════════════
+       💎 SHARP CONTRAST & MEDIA ICONS ENGINE (الكاميرا، الاستوديو، OCR، الواتساب)
+       - السمة البيضاء: خلفية بيضاء نقية، كتابة داكنة جداً وحبرية حادة، منع تام للأصفر الفاتح
+       - السمة السوداء: خلفية فاحمة داكنة، كتابة بيضاء ناصعة 100% عالية التباين
+       ═════════════════════════════════════════════════════════════════ */
+
+    /* أزرار المرفقات الأربعة في الوضع الفاتح / الأبيض (أبيض نقاء عالي + خطوط داكنة حبرية) */
+    html[data-theme="warm-alabaster"] .modern-media-card,
+    html[data-theme="pure-platinum"] .modern-media-card,
+    html[data-theme="beige"] .modern-media-card,
+    html[data-theme="ivory"] .modern-media-card,
+    html[data-theme="offwhite"] .modern-media-card,
+    html[data-theme="light-linen"] .modern-media-card,
+    html[data-theme="pearl-platinum"] .modern-media-card,
+    html[data-theme="nordic-paper"] .modern-media-card,
+    html[data-theme="ultra_white"] .modern-media-card,
+    html[data-theme="warm_cream"] .modern-media-card,
+    html[data-theme="exec_gray"] .modern-media-card {
+      background: #ffffff !important;
+      background-image: none !important;
+      border: 1.5px solid var(--lt-border) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* نصوص أزرار المرفقات الأربعة في الوضع الفاتح: خط داكن أسود حبري فائق الوضوح (منع أي اصفرار) */
+    html[data-theme="warm-alabaster"] .modern-media-card span,
+    html[data-theme="pure-platinum"] .modern-media-card span,
+    html[data-theme="beige"] .modern-media-card span,
+    html[data-theme="ivory"] .modern-media-card span,
+    html[data-theme="offwhite"] .modern-media-card span,
+    html[data-theme="light-linen"] .modern-media-card span,
+    html[data-theme="pearl-platinum"] .modern-media-card span,
+    html[data-theme="nordic-paper"] .modern-media-card span,
+    html[data-theme="ultra_white"] .modern-media-card span,
+    html[data-theme="warm_cream"] .modern-media-card span,
+    html[data-theme="exec_gray"] .modern-media-card span {
+      color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
+    }
+
+    /* أزرار المرفقات الأربعة في الوضع المظلم / الأسود (خلفية داكنة فخمة + كتابة بيضاء ناصعة حادة 100%) */
+    :root:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="pearl-platinum"]):not([data-theme="nordic-paper"]):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .modern-media-card,
+    html[data-theme="midnight-executive"] .modern-media-card,
+    html[data-theme="obsidian-charcoal"] .modern-media-card,
+    html[data-theme="midnight"] .modern-media-card,
+    html[data-theme="sepia-brown"] .modern-media-card,
+    html[data-theme="pale-gold"] .modern-media-card,
+    html[data-theme="emerald-forest"] .modern-media-card,
+    html[data-theme="desert-mocha"] .modern-media-card,
+    html[data-theme="sunlight-titanium"] .modern-media-card,
+    html[data-theme="navy-kohl"] .modern-media-card,
+    html[data-theme="royal-blue"] .modern-media-card,
+    html[data-theme="ocean-navy"] .modern-media-card,
+    html[data-theme="petrol-cyan"] .modern-media-card,
+    html[data-theme="twilight-indigo"] .modern-media-card,
+    html[data-theme="pure_oled"] .modern-media-card,
+    html[data-theme="slate_twilight"] .modern-media-card,
+    html[data-theme="midnight_obsidian"] .modern-media-card {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%) !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+    }
+
+    :root:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="pearl-platinum"]):not([data-theme="nordic-paper"]):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .modern-media-card span,
+    html[data-theme="midnight-executive"] .modern-media-card span,
+    html[data-theme="obsidian-charcoal"] .modern-media-card span,
+    html[data-theme="midnight"] .modern-media-card span,
+    html[data-theme="sepia-brown"] .modern-media-card span,
+    html[data-theme="pale-gold"] .modern-media-card span,
+    html[data-theme="emerald-forest"] .modern-media-card span,
+    html[data-theme="desert-mocha"] .modern-media-card span,
+    html[data-theme="sunlight-titanium"] .modern-media-card span,
+    html[data-theme="navy-kohl"] .modern-media-card span,
+    html[data-theme="royal-blue"] .modern-media-card span,
+    html[data-theme="ocean-navy"] .modern-media-card span,
+    html[data-theme="petrol-cyan"] .modern-media-card span,
+    html[data-theme="twilight-indigo"] .modern-media-card span,
+    html[data-theme="pure_oled"] .modern-media-card span,
+    html[data-theme="slate_twilight"] .modern-media-card span,
+    html[data-theme="midnight_obsidian"] .modern-media-card span {
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+      font-weight: 900 !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
+      opacity: 1 !important;
+    }
+
+    /* الشريط السفلي التفاعلي المريح (Thumb Zone) في الوضع الفاتح */
     html[data-theme="warm-alabaster"] .bottom-bar-fixed,
     html[data-theme="pure-platinum"] .bottom-bar-fixed,
     html[data-theme="beige"] .bottom-bar-fixed,
@@ -2169,10 +2267,16 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
     html[data-theme="offwhite"] .bottom-bar-fixed,
     html[data-theme="light-linen"] .bottom-bar-fixed,
     html[data-theme="pearl-platinum"] .bottom-bar-fixed,
-    html[data-theme="nordic-paper"] .bottom-bar-fixed {
-      background: var(--lt-body-bg) !important;
-      border-color: var(--lt-border) !important;
+    html[data-theme="nordic-paper"] .bottom-bar-fixed,
+    html[data-theme="ultra_white"] .bottom-bar-fixed,
+    html[data-theme="warm_cream"] .bottom-bar-fixed,
+    html[data-theme="exec_gray"] .bottom-bar-fixed {
+      background: #ffffff !important;
+      border-top: 1.5px solid var(--lt-border) !important;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08) !important;
     }
+
+    /* أزرار الشريط السفلي في الوضع الفاتح (خلفية بيضاء مع حدود واضحة وكتابة سوداء داكنة) */
     html[data-theme="warm-alabaster"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
     html[data-theme="pure-platinum"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
     html[data-theme="beige"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
@@ -2180,14 +2284,232 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
     html[data-theme="offwhite"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
     html[data-theme="light-linen"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
     html[data-theme="pearl-platinum"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
-    html[data-theme="nordic-paper"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) {
-      background: #ffffff !important;
-      border-color: var(--lt-border) !important;
-      color: var(--lt-text) !important;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.06) !important;
+    html[data-theme="nordic-paper"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="ultra_white"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="warm_cream"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="exec_gray"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) {
+      background: #f8fafc !important;
+      border: 1.5px solid var(--lt-border) !important;
+      color: #0f172a !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+    }
+    html[data-theme="warm-alabaster"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="pure-platinum"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="beige"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="ivory"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="offwhite"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="light-linen"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="pearl-platinum"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="nordic-paper"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="ultra_white"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="warm_cream"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="exec_gray"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span {
+      color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
+      font-weight: 900 !important;
+      text-shadow: none !important;
     }
 
-    /* النوافذ المنبثقة في شاشة السند */
+    /* ألوان أيقونات الشريط السفلي في الوضع الفاتح */
+    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-folder-open,
+    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-folder-open,
+    html[data-theme="beige"] .bottom-bar-fixed .fa-folder-open,
+    html[data-theme="ivory"] .bottom-bar-fixed .fa-folder-open,
+    html[data-theme="offwhite"] .bottom-bar-fixed .fa-folder-open,
+    html[data-theme="light-linen"] .bottom-bar-fixed .fa-folder-open,
+    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-folder-open,
+    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-folder-open { color: #b45309 !important; }
+    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-plus,
+    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-plus,
+    html[data-theme="beige"] .bottom-bar-fixed .fa-plus,
+    html[data-theme="ivory"] .bottom-bar-fixed .fa-plus,
+    html[data-theme="offwhite"] .bottom-bar-fixed .fa-plus,
+    html[data-theme="light-linen"] .bottom-bar-fixed .fa-plus,
+    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-plus,
+    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-plus { color: #0284c7 !important; }
+    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-pen,
+    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-pen,
+    html[data-theme="beige"] .bottom-bar-fixed .fa-pen,
+    html[data-theme="ivory"] .bottom-bar-fixed .fa-pen,
+    html[data-theme="offwhite"] .bottom-bar-fixed .fa-pen,
+    html[data-theme="light-linen"] .bottom-bar-fixed .fa-pen,
+    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-pen,
+    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-pen { color: #4f46e5 !important; }
+    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-print,
+    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-print,
+    html[data-theme="beige"] .bottom-bar-fixed .fa-print,
+    html[data-theme="ivory"] .bottom-bar-fixed .fa-print,
+    html[data-theme="offwhite"] .bottom-bar-fixed .fa-print,
+    html[data-theme="light-linen"] .bottom-bar-fixed .fa-print,
+    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-print,
+    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-print { color: #7c3aed !important; }
+    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-whatsapp,
+    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-whatsapp,
+    html[data-theme="beige"] .bottom-bar-fixed .fa-whatsapp,
+    html[data-theme="ivory"] .bottom-bar-fixed .fa-whatsapp,
+    html[data-theme="offwhite"] .bottom-bar-fixed .fa-whatsapp,
+    html[data-theme="light-linen"] .bottom-bar-fixed .fa-whatsapp,
+    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-whatsapp,
+    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-whatsapp { color: #059669 !important; }
+    html[data-theme="warm-alabaster"] .bottom-bar-fixed .fa-power-off,
+    html[data-theme="pure-platinum"] .bottom-bar-fixed .fa-power-off,
+    html[data-theme="beige"] .bottom-bar-fixed .fa-power-off,
+    html[data-theme="ivory"] .bottom-bar-fixed .fa-power-off,
+    html[data-theme="offwhite"] .bottom-bar-fixed .fa-power-off,
+    html[data-theme="light-linen"] .bottom-bar-fixed .fa-power-off,
+    html[data-theme="pearl-platinum"] .bottom-bar-fixed .fa-power-off,
+    html[data-theme="nordic-paper"] .bottom-bar-fixed .fa-power-off { color: #dc2626 !important; }
+
+    /* الشريط السفلي التفاعلي المريح في الوضع المظلم (خلفية داكنة + كتابة بيضاء ناصعة 100%) */
+    :root:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="pearl-platinum"]):not([data-theme="nordic-paper"]):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="midnight-executive"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="obsidian-charcoal"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="midnight"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="sunlight-titanium"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="navy-kohl"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="royal-blue"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="ocean-navy"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="petrol-cyan"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="twilight-indigo"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="sepia-brown"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="pale-gold"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="emerald-forest"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain),
+    html[data-theme="desert-mocha"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) {
+      background: #0f172a !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+      color: #ffffff !important;
+    }
+
+    :root:not([data-theme="warm-alabaster"]):not([data-theme="pure-platinum"]):not([data-theme="beige"]):not([data-theme="ivory"]):not([data-theme="offwhite"]):not([data-theme="light-linen"]):not([data-theme="pearl-platinum"]):not([data-theme="nordic-paper"]):not([data-theme="ultra_white"]):not([data-theme="warm_cream"]):not([data-theme="exec_gray"]) .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="midnight-executive"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="obsidian-charcoal"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="midnight"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="sunlight-titanium"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="navy-kohl"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="royal-blue"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="ocean-navy"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="petrol-cyan"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="twilight-indigo"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="sepia-brown"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="pale-gold"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="emerald-forest"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span,
+    html[data-theme="desert-mocha"] .bottom-bar-fixed .action-btn-kinetic:not(#btnSaveMain) span {
+      color: #ffffff !important;
+      -webkit-text-fill-color: #ffffff !important;
+      font-weight: 900 !important;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
+    }
+
+    /* ═════════════════════════════════════════════════════════════════
+       🚫 إزالة الخطوط الصفراء والرمادية الباهتة في كافة السمات الفاتحة (HIGH CONTRAST)
+       ═════════════════════════════════════════════════════════════════ */
+    html[data-theme="warm-alabaster"] [class*="text-yellow-"],
+    html[data-theme="pure-platinum"] [class*="text-yellow-"],
+    html[data-theme="beige"] [class*="text-yellow-"],
+    html[data-theme="ivory"] [class*="text-yellow-"],
+    html[data-theme="offwhite"] [class*="text-yellow-"],
+    html[data-theme="light-linen"] [class*="text-yellow-"],
+    html[data-theme="pearl-platinum"] [class*="text-yellow-"],
+    html[data-theme="nordic-paper"] [class*="text-yellow-"],
+    html[data-theme="ultra_white"] [class*="text-yellow-"],
+    html[data-theme="warm_cream"] [class*="text-yellow-"],
+    html[data-theme="exec_gray"] [class*="text-yellow-"],
+    html[data-theme="warm-alabaster"] [class*="text-amber-100"],
+    html[data-theme="pure-platinum"] [class*="text-amber-100"],
+    html[data-theme="beige"] [class*="text-amber-100"],
+    html[data-theme="ivory"] [class*="text-amber-100"],
+    html[data-theme="offwhite"] [class*="text-amber-100"],
+    html[data-theme="light-linen"] [class*="text-amber-100"],
+    html[data-theme="pearl-platinum"] [class*="text-amber-100"],
+    html[data-theme="nordic-paper"] [class*="text-amber-100"],
+    html[data-theme="warm-alabaster"] [class*="text-amber-200"],
+    html[data-theme="pure-platinum"] [class*="text-amber-200"],
+    html[data-theme="beige"] [class*="text-amber-200"],
+    html[data-theme="ivory"] [class*="text-amber-200"],
+    html[data-theme="offwhite"] [class*="text-amber-200"],
+    html[data-theme="light-linen"] [class*="text-amber-200"],
+    html[data-theme="pearl-platinum"] [class*="text-amber-200"],
+    html[data-theme="nordic-paper"] [class*="text-amber-200"],
+    html[data-theme="warm-alabaster"] [class*="text-amber-300"],
+    html[data-theme="pure-platinum"] [class*="text-amber-300"],
+    html[data-theme="beige"] [class*="text-amber-300"],
+    html[data-theme="ivory"] [class*="text-amber-300"],
+    html[data-theme="offwhite"] [class*="text-amber-300"],
+    html[data-theme="light-linen"] [class*="text-amber-300"],
+    html[data-theme="pearl-platinum"] [class*="text-amber-300"],
+    html[data-theme="nordic-paper"] [class*="text-amber-300"],
+    html[data-theme="warm-alabaster"] [class*="text-amber-400"],
+    html[data-theme="pure-platinum"] [class*="text-amber-400"],
+    html[data-theme="beige"] [class*="text-amber-400"],
+    html[data-theme="ivory"] [class*="text-amber-400"],
+    html[data-theme="offwhite"] [class*="text-amber-400"],
+    html[data-theme="light-linen"] [class*="text-amber-400"],
+    html[data-theme="pearl-platinum"] [class*="text-amber-400"],
+    html[data-theme="nordic-paper"] [class*="text-amber-400"] {
+      color: #92400e !important;
+      -webkit-text-fill-color: #92400e !important;
+      font-weight: 800 !important;
+    }
+
+    /* نصوص خضراء وزرقاء وحمراء عالية التباين في الوضع الفاتح */
+    html[data-theme="warm-alabaster"] [class*="text-cyan-"],
+    html[data-theme="pure-platinum"] [class*="text-cyan-"],
+    html[data-theme="beige"] [class*="text-cyan-"],
+    html[data-theme="ivory"] [class*="text-cyan-"],
+    html[data-theme="offwhite"] [class*="text-cyan-"],
+    html[data-theme="light-linen"] [class*="text-cyan-"],
+    html[data-theme="pearl-platinum"] [class*="text-cyan-"],
+    html[data-theme="nordic-paper"] [class*="text-cyan-"] {
+      color: #0369a1 !important;
+      -webkit-text-fill-color: #0369a1 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="warm-alabaster"] [class*="text-emerald-"],
+    html[data-theme="pure-platinum"] [class*="text-emerald-"],
+    html[data-theme="beige"] [class*="text-emerald-"],
+    html[data-theme="ivory"] [class*="text-emerald-"],
+    html[data-theme="offwhite"] [class*="text-emerald-"],
+    html[data-theme="light-linen"] [class*="text-emerald-"],
+    html[data-theme="pearl-platinum"] [class*="text-emerald-"],
+    html[data-theme="nordic-paper"] [class*="text-emerald-"] {
+      color: #065f46 !important;
+      -webkit-text-fill-color: #065f46 !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="warm-alabaster"] [class*="text-indigo-"],
+    html[data-theme="pure-platinum"] [class*="text-indigo-"],
+    html[data-theme="beige"] [class*="text-indigo-"],
+    html[data-theme="ivory"] [class*="text-indigo-"],
+    html[data-theme="offwhite"] [class*="text-indigo-"],
+    html[data-theme="light-linen"] [class*="text-indigo-"],
+    html[data-theme="pearl-platinum"] [class*="text-indigo-"],
+    html[data-theme="nordic-paper"] [class*="text-indigo-"],
+    html[data-theme="warm-alabaster"] [class*="text-purple-"],
+    html[data-theme="pure-platinum"] [class*="text-purple-"],
+    html[data-theme="beige"] [class*="text-purple-"],
+    html[data-theme="ivory"] [class*="text-purple-"],
+    html[data-theme="offwhite"] [class*="text-purple-"],
+    html[data-theme="light-linen"] [class*="text-purple-"],
+    html[data-theme="pearl-platinum"] [class*="text-purple-"],
+    html[data-theme="nordic-paper"] [class*="text-purple-"] {
+      color: #4338ca !important;
+      -webkit-text-fill-color: #4338ca !important;
+      font-weight: 800 !important;
+    }
+    html[data-theme="warm-alabaster"] [class*="text-slate-400"],
+    html[data-theme="pure-platinum"] [class*="text-slate-400"],
+    html[data-theme="beige"] [class*="text-slate-400"],
+    html[data-theme="ivory"] [class*="text-slate-400"],
+    html[data-theme="offwhite"] [class*="text-slate-400"],
+    html[data-theme="light-linen"] [class*="text-slate-400"],
+    html[data-theme="pearl-platinum"] [class*="text-slate-400"],
+    html[data-theme="nordic-paper"] [class*="text-slate-400"] {
+      color: #334155 !important;
+      -webkit-text-fill-color: #334155 !important;
+      font-weight: 700 !important;
+    }
+
+    /* النوافذ المنبثقة الشاملة في شاشة السند للوضع الفاتح */
     html[data-theme="warm-alabaster"] [id^="modal"],
     html[data-theme="pure-platinum"] [id^="modal"],
     html[data-theme="beige"] [id^="modal"],
@@ -2207,9 +2529,51 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
     html[data-theme="light-linen"] [id^="modal"] > div,
     html[data-theme="pearl-platinum"] [id^="modal"] > div,
     html[data-theme="nordic-paper"] [id^="modal"] > div {
-      background-color: var(--lt-card-bg) !important;
+      background-color: #ffffff !important;
       border-color: var(--lt-border) !important;
-      color: var(--lt-text) !important;
+      color: #0f172a !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+    html[data-theme="warm-alabaster"] [id^="modal"] [class*="bg-slate-950"],
+    html[data-theme="pure-platinum"] [id^="modal"] [class*="bg-slate-950"],
+    html[data-theme="beige"] [id^="modal"] [class*="bg-slate-950"],
+    html[data-theme="ivory"] [id^="modal"] [class*="bg-slate-950"],
+    html[data-theme="offwhite"] [id^="modal"] [class*="bg-slate-950"],
+    html[data-theme="light-linen"] [id^="modal"] [class*="bg-slate-950"],
+    html[data-theme="pearl-platinum"] [id^="modal"] [class*="bg-slate-950"],
+    html[data-theme="nordic-paper"] [id^="modal"] [class*="bg-slate-950"],
+    html[data-theme="warm-alabaster"] [id^="modal"] [class*="bg-slate-900"],
+    html[data-theme="pure-platinum"] [id^="modal"] [class*="bg-slate-900"],
+    html[data-theme="beige"] [id^="modal"] [class*="bg-slate-900"],
+    html[data-theme="ivory"] [id^="modal"] [class*="bg-slate-900"],
+    html[data-theme="offwhite"] [id^="modal"] [class*="bg-slate-900"],
+    html[data-theme="light-linen"] [id^="modal"] [class*="bg-slate-900"],
+    html[data-theme="pearl-platinum"] [id^="modal"] [class*="bg-slate-900"],
+    html[data-theme="nordic-paper"] [id^="modal"] [class*="bg-slate-900"],
+    html[data-theme="warm-alabaster"] [id^="modal"] [class*="bg-slate-800"],
+    html[data-theme="pure-platinum"] [id^="modal"] [class*="bg-slate-800"],
+    html[data-theme="beige"] [id^="modal"] [class*="bg-slate-800"],
+    html[data-theme="ivory"] [id^="modal"] [class*="bg-slate-800"],
+    html[data-theme="offwhite"] [id^="modal"] [class*="bg-slate-800"],
+    html[data-theme="light-linen"] [id^="modal"] [class*="bg-slate-800"],
+    html[data-theme="pearl-platinum"] [id^="modal"] [class*="bg-slate-800"],
+    html[data-theme="nordic-paper"] [id^="modal"] [class*="bg-slate-800"] {
+      background-color: #f8fafc !important;
+      border-color: var(--lt-border) !important;
+      color: #0f172a !important;
+    }
+    html[data-theme="warm-alabaster"] [id^="modal"] input,
+    html[data-theme="pure-platinum"] [id^="modal"] input,
+    html[data-theme="beige"] [id^="modal"] input,
+    html[data-theme="ivory"] [id^="modal"] input,
+    html[data-theme="offwhite"] [id^="modal"] input,
+    html[data-theme="light-linen"] [id^="modal"] input,
+    html[data-theme="pearl-platinum"] [id^="modal"] input,
+    html[data-theme="nordic-paper"] [id^="modal"] input {
+      background-color: #ffffff !important;
+      border-color: var(--lt-border) !important;
+      color: #0f172a !important;
+      -webkit-text-fill-color: #0f172a !important;
     }
 
     /* ─── GROUP 2: BLUE & NAVY THEMES FOR VOUCHER ─── */
@@ -2224,15 +2588,23 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
     html[data-theme="twilight-indigo"] body, html[data-theme="twilight-indigo"] #mobileContainer { background: #0e122b !important; color: #e0e7ff !important; }
     html[data-theme="twilight-indigo"] main > div { background-color: #151b3d !important; border-color: #313d80 !important; }
 
-    /* ─── GROUP 3: DARK & NATURE THEMES FOR VOUCHER ─── */
-    html[data-theme="midnight-executive"] body, html[data-theme="midnight-executive"] #mobileContainer { background: #0b0f17 !important; color: #f8fafc !important; }
-    html[data-theme="obsidian-charcoal"] body, html[data-theme="obsidian-charcoal"] #mobileContainer { background: #121214 !important; color: #f8fafc !important; }
+    /* ─── GROUP 3: DARK & NATURE THEMES FOR VOUCHER (سواد كامل وتوحيد الشاشات) ─── */
+    html[data-theme="midnight-executive"] body, html[data-theme="midnight-executive"] #mobileContainer { background: #0b0f17 !important; color: #ffffff !important; }
+    html[data-theme="midnight-executive"] main > div { background-color: #111827 !important; border-color: #1e293b !important; }
+    html[data-theme="obsidian-charcoal"] body, html[data-theme="obsidian-charcoal"] #mobileContainer { background: #121214 !important; color: #ffffff !important; }
+    html[data-theme="obsidian-charcoal"] main > div { background-color: #1c1c1f !important; border-color: #2f2f35 !important; }
+    html[data-theme="midnight"] body, html[data-theme="midnight"] #mobileContainer { background: #000000 !important; color: #ffffff !important; }
+    html[data-theme="midnight"] main > div { background-color: #080808 !important; border-color: #222222 !important; }
     html[data-theme="sepia-brown"] body, html[data-theme="sepia-brown"] #mobileContainer { background: #1c1917 !important; color: #fef3c7 !important; }
     html[data-theme="sepia-brown"] main > div { background-color: #292524 !important; border-color: #78350f !important; }
     html[data-theme="pale-gold"] body, html[data-theme="pale-gold"] #mobileContainer { background: #181614 !important; color: #fef08a !important; }
+    html[data-theme="pale-gold"] main > div { background-color: #24201c !important; border-color: #5e4c31 !important; }
     html[data-theme="emerald-forest"] body, html[data-theme="emerald-forest"] #mobileContainer { background: #032e24 !important; color: #d1fae5 !important; }
+    html[data-theme="emerald-forest"] main > div { background-color: #064e3b !important; border-color: #047857 !important; }
     html[data-theme="desert-mocha"] body, html[data-theme="desert-mocha"] #mobileContainer { background: #26211d !important; color: #f5f5f4 !important; }
+    html[data-theme="desert-mocha"] main > div { background-color: #38302a !important; border-color: #6e5e52 !important; }
     html[data-theme="sunlight-titanium"] body, html[data-theme="sunlight-titanium"] #mobileContainer { background: #000000 !important; color: #ffffff !important; }
+    html[data-theme="sunlight-titanium"] main > div { background-color: #000000 !important; border: 2px solid #ffffff !important; color: #ffffff !important; }
 
     /* 💎 High-Visibility Badges for Theme Palette Drawer */
     .luminous-number-badge {
@@ -10711,6 +11083,20 @@ $activeTheme = $_COOKIE['magaies_active_theme'] ?? $_COOKIE['magaiees_mobile_the
 
       document.documentElement.setAttribute('data-theme', themeKey);
       if (document.body) document.body.setAttribute('data-theme', themeKey);
+
+      var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+      var isLight = lightThemes.indexOf(themeKey) !== -1;
+      if (isLight) {
+        document.documentElement.classList.add('light-theme');
+        if (document.body) document.body.classList.add('light-theme');
+      } else {
+        document.documentElement.classList.remove('light-theme');
+        if (document.body) document.body.classList.remove('light-theme');
+      }
+      try {
+        localStorage.setItem('erp_theme', isLight ? 'light' : 'dark');
+        document.cookie = "erp_theme=" + (isLight ? 'light' : 'dark') + "; path=/; max-age=31536000; SameSite=Lax";
+      } catch(e) {}
 
       closeModal('modalThemePaletteDrawer');
 

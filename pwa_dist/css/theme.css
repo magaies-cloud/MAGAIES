@@ -1,0 +1,3398 @@
+/* c:\mynewapp\frontend-pwa\css\theme.css — v5.0 Professional Overhaul */
+
+
+/* ═══════════════════════════════════════════════════════
+   CSS CUSTOM PROPERTIES — Design Tokens
+   ═══════════════════════════════════════════════════════ */
+:root.light-theme {
+  /* Core Colors */
+  --bg-color:         #f1f5f9 !important;
+  --bg-secondary:     #ffffff !important;
+  --surface:          #ffffff !important;
+  --surface-color:    #ffffff !important;
+  --surface-hover:    rgba(241, 245, 249, 0.98) !important;
+  --border:           rgba(0, 0, 0, 0.08) !important;
+  --border-color:     rgba(0, 0, 0, 0.08) !important;
+  --border-highlight: rgba(0, 0, 0, 0.15) !important;
+  --glass-bg:         rgba(255, 255, 255, 0.9) !important;
+  --glass-border:     rgba(0, 0, 0, 0.08) !important;
+  --glass-border-hover: rgba(0, 0, 0, 0.15) !important;
+
+  /* Page specific variable overrides */
+  --bg-dark:          #f1f5f9 !important;
+  --panel-bg:         #ffffff !important;
+  --grn-primary:      #2563eb !important;
+  --grn-hover:        #1d4ed8 !important;
+
+  /* Text */
+  --text-primary:     #000000 !important;
+  --text-secondary:   #1e293b !important;
+  --text-muted:       #475569 !important;
+  --text-main:        #000000 !important;
+
+  /* Brand Accents — Sleek Light Palette */
+  --primary-accent:   #2563eb;   /* Deep Blue */
+  --primary-glow:     rgba(37, 99, 235, 0.15);
+  --success-color:    #059669;   /* Emerald Deep */
+  --success-glow:     rgba(5, 150, 105, 0.15);
+  --warning-color:    #d97706;   /* Amber Deep */
+  --warning-glow:     rgba(217, 119, 6, 0.15);
+  --danger-color:     #dc2626;   /* Red Deep */
+  --danger-glow:      rgba(220, 38, 38, 0.15);
+  --purple-color:     #7c3aed;   /* Purple Deep */
+  --purple-glow:      rgba(124, 58, 237, 0.15);
+  --pink-color:       #db2777;   /* Pink Deep */
+  --pink-glow:        rgba(219, 39, 119, 0.15);
+
+  /* Shadows */
+  --shadow-sm:        0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md:        0 8px 32px rgba(0, 0, 0, 0.08), 0 1px 0 rgba(255,255,255,0.8) inset;
+  --shadow-lg:        0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+/* Light Theme Elements Helper Styling rules */
+:root.light-theme body,
+:root.light-theme p,
+:root.light-theme td,
+:root.light-theme th,
+:root.light-theme tr,
+:root.light-theme label,
+:root.light-theme .panel-title,
+:root.light-theme .kpi-title,
+:root.light-theme .tot-lbl,
+:root.light-theme .list-title,
+:root.light-theme .list-sub,
+:root.light-theme .sidebar-text,
+:root.light-theme .header-company-name-top,
+:root.light-theme .header-page-title,
+:root.light-theme #header-user-name,
+:root.light-theme #header-clock,
+:root.light-theme #header-user-role,
+:root.light-theme .brand-text h1,
+:root.light-theme .brand-text p,
+:root.light-theme h1,
+:root.light-theme h2,
+:root.light-theme h3,
+:root.light-theme h4,
+:root.light-theme h5,
+:root.light-theme h6 {
+  color: #000000 !important;
+  text-shadow: none !important;
+}
+
+/* Header widgets override in Light Mode */
+:root.light-theme .user-info {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+:root.light-theme #header-user-name {
+  color: #000000 !important;
+}
+:root.light-theme #header-user-role {
+  color: #1e3a8a !important; /* Dark Blue */
+}
+:root.light-theme .clock-container {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+:root.light-theme #header-clock {
+  color: #059669 !important; /* High contrast green */
+  text-shadow: none !important;
+}
+:root.light-theme #header-date-mini {
+  color: #475569 !important;
+}
+:root.light-theme #online-users-badge {
+  background: rgba(5, 150, 105, 0.1) !important;
+  border-color: rgba(5, 150, 105, 0.2) !important;
+}
+:root.light-theme #online-users-badge span {
+  color: #047857 !important;
+}
+:root.light-theme #online-users-count {
+  color: #000000 !important;
+}
+:root.light-theme #global-exchange-rate-box {
+  background: rgba(217, 119, 6, 0.1) !important;
+  border-color: rgba(217, 119, 6, 0.2) !important;
+}
+:root.light-theme #global-exchange-rate-box span {
+  color: #b45309 !important;
+}
+:root.light-theme #global-exchange-rate-val {
+  color: #000000 !important;
+}
+:root.light-theme .islamic-ticker-container {
+  background: rgba(0, 0, 0, 0.04) !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+:root.light-theme .ambient-bg {
+  background: radial-gradient(circle at 50% 50%, #f8fafc 0%, #cbd5e1 100%) !important;
+}
+:root.light-theme .glass-panel,
+:root.light-theme .panel,
+:root.light-theme .neo-card,
+:root.light-theme .editor-left,
+:root.light-theme .info-card,
+:root.light-theme .recent-receipts-card,
+:root.light-theme .premium-card,
+:root.light-theme .action-card,
+:root.light-theme .action-row,
+:root.light-theme .admin-actions-row,
+:root.light-theme .operations-actions-row,
+:root.light-theme div[style*="background: rgba(30, 41, 59, 0.4)"],
+:root.light-theme div[style*="background: rgba(15, 23, 42, 0.65)"] {
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08) !important;
+  color: #000000 !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05) !important;
+}
+:root.light-theme td, :root.light-theme th, :root.light-theme tr {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+:root.light-theme input, :root.light-theme select, :root.light-theme select option, :root.light-theme textarea,
+:root.light-theme .v-input,
+:root.light-theme .wh-select,
+:root.light-theme .qty-input,
+:root.light-theme .ctrl-input {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid rgba(0, 0, 0, 0.18) !important;
+}
+:root.light-theme .h-label,
+:root.light-theme .form-label,
+:root.light-theme .setting-title,
+:root.light-theme .tot-lbl,
+:root.light-theme .lbl {
+  color: #334155 !important;
+  text-shadow: none !important;
+}
+:root.light-theme .tot-val,
+:root.light-theme .val {
+  color: #0f172a !important;
+}
+:root.light-theme input::placeholder {
+  color: #64748b !important;
+}
+/* Choices.js Light Theme Overrides */
+:root.light-theme .choices__inner {
+  background-color: #ffffff !important;
+  border-color: rgba(0,0,0,0.18) !important;
+  color: #000000 !important;
+}
+:root.light-theme .choices__inner .choices__item,
+:root.light-theme .choices__inner .choices__item--selectable {
+  color: #0f172a !important;
+}
+:root.light-theme .choices__list--dropdown {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1) !important;
+}
+:root.light-theme .choices__list--dropdown .choices__item--selectable {
+  color: #1e293b !important;
+}
+:root.light-theme .choices__item--selectable.is-highlighted,
+:root.light-theme .choices__list--dropdown .choices__item--selectable.is-highlighted {
+  background-color: #e2e8f0 !important;
+  color: #000000 !important;
+}
+:root.light-theme .choices__input {
+  color: #000000 !important;
+  background-color: transparent !important;
+}
+:root.light-theme .choices[data-type*="select-one"]::after {
+  border-color: #000000 transparent transparent transparent !important;
+}
+:root.light-theme .choices.is-open[data-type*="select-one"]::after {
+  border-color: transparent transparent #000000 transparent !important;
+}
+:root.light-theme .choices__input::placeholder {
+  color: #64748b !important;
+}
+:root.light-theme .quick-action-btn,
+:root.light-theme .quick-action-btn.qa-purple {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  color: #000000 !important;
+}
+:root.light-theme .quick-action-btn:hover {
+  background: #e2e8f0 !important;
+  color: #000000 !important;
+}
+:root.light-theme .list-item {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  color: #000000 !important;
+}
+
+/* Vibrant Light Mode Header Glow Colors */
+:root.light-theme .premium-header {
+    background: rgba(255, 255, 255, 0.55) !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05) !important;
+}
+:root.light-theme .premium-header.header-theme-dashboard { --glow-color: rgba(99, 102, 241, 0.8); }
+:root.light-theme .premium-header.header-theme-sales { --glow-color: rgba(16, 185, 129, 0.8); }
+:root.light-theme .premium-header.header-theme-purchase { --glow-color: rgba(168, 85, 247, 0.8); }
+:root.light-theme .premium-header.header-theme-inventory { --glow-color: rgba(245, 158, 11, 0.8); }
+:root.light-theme .premium-header.header-theme-masterdata { --glow-color: rgba(217, 70, 239, 0.8); }
+:root.light-theme .premium-header.header-theme-reports { --glow-color: rgba(20, 184, 166, 0.8); }
+:root.light-theme .premium-header.header-theme-alarm { --glow-color: rgba(239, 68, 68, 0.8); }
+:root.light-theme .premium-header.header-theme-settings { --glow-color: rgba(100, 116, 139, 0.8); }
+:root.light-theme .premium-header.header-theme-audit { --glow-color: rgba(244, 114, 182, 0.8); }
+
+/* Light Theme Header Controls Glassmorphism */
+:root.light-theme .user-info,
+:root.light-theme .clock-container,
+:root.light-theme #online-users-badge,
+:root.light-theme #global-exchange-rate-box,
+:root.light-theme .icon-btn,
+:root.light-theme .fullscreen-toggle-btn,
+:root.light-theme .theme-toggle-btn,
+:root.light-theme .back-arrow-btn {
+    background: rgba(255, 255, 255, 0.45) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+    color: #0f172a !important;
+}
+
+:root.light-theme .icon-btn:hover,
+:root.light-theme .fullscreen-toggle-btn:hover,
+:root.light-theme .theme-toggle-btn:hover,
+:root.light-theme .back-arrow-btn:hover,
+:root.light-theme .user-info:hover {
+    background: rgba(255, 255, 255, 0.8) !important;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+:root.light-theme #header-user-name,
+:root.light-theme #header-clock,
+:root.light-theme .fullscreen-toggle-btn,
+:root.light-theme .theme-toggle-btn,
+:root.light-theme .back-arrow-btn {
+    color: #0f172a !important;
+    text-shadow: none !important;
+}
+
+:root.light-theme #header-user-role,
+:root.light-theme #header-date-mini {
+    color: #334155 !important;
+    text-shadow: none !important;
+}
+
+:root.light-theme #online-users-badge span,
+:root.light-theme #online-users-count {
+    color: #047857 !important;
+    text-shadow: none !important;
+}
+:root.light-theme #global-exchange-rate-box span,
+:root.light-theme #global-exchange-rate-val {
+    color: #b45309 !important;
+    text-shadow: none !important;
+}
+
+:root.light-theme .global-sidebar {
+  background: #ffffff !important;
+  border-left: 2.5px solid #000000 !important; /* Bold border */
+  box-shadow: -4px 0 25px rgba(0,0,0,0.08) !important;
+}
+:root.light-theme .sidebar-header {
+  border-bottom: 2px solid #000000 !important;
+}
+:root.light-theme .sidebar-logo-text {
+  color: #000000 !important;
+  font-weight: 900 !important;
+}
+:root.light-theme .sidebar-item {
+  color: #000000 !important; /* Deep black text */
+  transition: all 0.2s ease !important;
+}
+:root.light-theme .sidebar-item:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: #000000 !important;
+}
+:root.light-theme .sidebar-item.active {
+  background: rgba(37, 99, 235, 0.08) !important;
+  color: #2563eb !important;
+  border-right: 4px solid #2563eb !important;
+}
+:root.light-theme .sidebar-text {
+  color: #000000 !important; /* Bold black text */
+  font-weight: 800 !important; /* Thick bold */
+  font-size: 19px !important; /* Increased font size by 1 step */
+}
+:root.light-theme .sidebar-item.active .sidebar-text {
+  color: #2563eb !important;
+}
+
+/* Light Mode Deeper Icon Colors for High Contrast */
+:root.light-theme .sidebar-item[onclick*="settings.php"] .sidebar-icon,
+:root.light-theme .sidebar-item[data-href="settings.php"] .sidebar-icon { color: #65a30d !important; } /* Deeper lime */
+
+:root.light-theme .sidebar-item[onclick*="dashboard-pro.php"] .sidebar-icon,
+:root.light-theme .sidebar-item[data-href="dashboard-pro.php"] .sidebar-icon { color: #0891b2 !important; } /* Deeper cyan */
+
+:root.light-theme .sidebar-item[onclick*="direct-sales.php"] .sidebar-icon,
+:root.light-theme .sidebar-item[data-href="direct-sales.php"] .sidebar-icon { color: #059669 !important; } /* Deeper emerald */
+
+:root.light-theme .sidebar-item[onclick*="purchase.php"] .sidebar-icon,
+:root.light-theme .sidebar-item[data-href="purchase.php"] .sidebar-icon { color: #ea580c !important; } /* Deeper orange */
+
+:root.light-theme .sidebar-item[onclick*="inventory-report.php"] .sidebar-icon,
+:root.light-theme .sidebar-item[data-href="inventory-report.php"] .sidebar-icon { color: #6d28d9 !important; } /* Deeper purple */
+
+:root.light-theme .sidebar-item[onclick*="vouchers-hub.php"] .sidebar-icon,
+:root.light-theme .sidebar-item[data-href="vouchers-hub.php"] .sidebar-icon { color: #d97706 !important; } /* Deeper amber */
+
+:root.light-theme .sidebar-item[onclick*="master-data.php"] .sidebar-icon,
+:root.light-theme .sidebar-item[data-href="master-data.php"] .sidebar-icon { color: #db2777 !important; } /* Deeper pink */
+
+:root.light-theme .sidebar-item[onclick*="analytics.php"] .sidebar-icon,
+:root.light-theme .sidebar-item[data-href="analytics.php"] .sidebar-icon { color: #0284c7 !important; } /* Deeper sky blue */
+
+:root.light-theme .sidebar-item[onclick*="alarm.php"] .sidebar-icon,
+:root.light-theme .sidebar-item[data-href="alarm.php"] .sidebar-icon { color: #dc2626 !important; } /* Deeper red */
+
+:root.light-theme .sidebar-item[onclick*="audit-log.php"] .sidebar-icon,
+:root.light-theme .sidebar-item[data-href="audit-log.php"] .sidebar-icon { color: #1e293b !important; } /* Dark slate */
+
+/* Sidebar Hover scale increase */
+.sidebar-item:hover .sidebar-icon {
+  transform: translateY(-50%) scale(1.3) !important;
+}
+
+:root {
+  /* Core Colors */
+  --bg-color:         #1E293B;
+  --bg-secondary:     #0f172a;
+  --surface-color:    rgba(15, 23, 42, 0.75);
+  --surface-hover:    rgba(30, 41, 59, 0.9);
+
+  /* Text */
+  --text-primary:     #f8fafc;
+  --text-secondary:   #94a3b8;
+  --text-muted:       #64748b;
+
+  /* Brand Accents — Cyberpunk Neon Palette */
+  --primary-accent:   #3B82F6;   /* Electric Blue */
+  --primary-glow:     rgba(59, 130, 246, 0.3);
+  --success-color:    #10B981;   /* Emerald */
+  --success-glow:     rgba(16, 185, 129, 0.3);
+  --warning-color:    #f59e0b;   /* Amber */
+  --warning-glow:     rgba(245, 158, 11, 0.3);
+  --danger-color:     #ef4444;   /* Red */
+  --danger-glow:      rgba(239, 68, 68, 0.3);
+  --purple-color:     #a855f7;   /* Purple */
+  --purple-glow:      rgba(168, 85, 247, 0.3);
+  --pink-color:       #ec4899;   /* Pink */
+  --pink-glow:        rgba(236, 72, 153, 0.3);
+
+  /* Glassmorphism */
+  --glass-bg:         rgba(10, 17, 40, 0.7);
+  --glass-border:     rgba(34, 211, 238, 0.1);
+  --glass-border-hover: rgba(34, 211, 238, 0.3);
+  --glass-blur:       16px;
+
+  /* Shadows */
+  --shadow-sm:        0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md:        0 8px 32px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255,255,255,0.04) inset;
+  --shadow-lg:        0 20px 60px rgba(0, 0, 0, 0.8);
+  --shadow-neon:      0 0 20px var(--primary-glow), 0 0 40px rgba(34, 211, 238, 0.1);
+
+  /* Layout */
+  --border-radius:    16px;
+  --border-radius-sm: 10px;
+  --border-radius-lg: 24px;
+
+  /* Typography */
+  --font-base:        'Tajawal', 'Inter', system-ui, sans-serif;
+  --font-size:        15px;
+  --font-size-sm:     13px;
+  --font-size-lg:     18px;
+
+  /* Sidebar dimensions */
+  --sb-collapsed:     64px;
+  --sb-expanded:      252px;
+  --sb-bg:            rgba(2, 5, 16, 0.98);
+  --sb-border:        rgba(34, 211, 238, 0.15);
+  --sb-item-h:        54px;
+
+  /* Transitions */
+  --transition-fast:  all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-med:   all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow:  all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Background Gradients */
+  --bg-grad-1: rgba(34, 211, 238, 0.05);
+  --bg-grad-2: rgba(168, 85, 247, 0.05);
+  --bg-grad-3: rgba(16, 185, 129, 0.04);
+}
+
+/* ── Light Mode Override ── */
+:root.light-theme, [data-theme="light"] {
+  --bg-color:       #f8fafc;
+  --bg-secondary:   #f1f5f9;
+  --surface-color:  rgba(255, 255, 255, 0.95);
+  --surface-hover:  rgba(241, 245, 249, 0.95);
+  
+  --text-primary:   #0f172a;
+  --text-secondary: #475569;
+  --text-muted:     #94a3b8;
+  
+  --primary-accent: #2563eb;
+  --primary-glow:   rgba(37, 99, 235, 0.15);
+  --success-color:  #059669;
+  --success-glow:   rgba(5, 150, 105, 0.15);
+  --warning-color:  #d97706;
+  --warning-glow:   rgba(217, 119, 6, 0.15);
+  --danger-color:   #dc2626;
+  --danger-glow:    rgba(220, 38, 38, 0.15);
+  --purple-color:   #7c3aed;
+  --purple-glow:    rgba(124, 58, 237, 0.15);
+  --pink-color:     #db2777;
+  --pink-glow:      rgba(219, 39, 119, 0.15);
+
+  --glass-bg:       rgba(255, 255, 255, 0.85);
+  --glass-border:   rgba(15, 23, 42, 0.08);
+  --glass-border-hover: rgba(15, 23, 42, 0.15);
+  
+  --shadow-sm:      0 2px 5px rgba(15, 23, 42, 0.05);
+  --shadow-md:      0 8px 25px rgba(15, 23, 42, 0.06), 0 1px 0 rgba(255,255,255,0.6) inset;
+  --shadow-lg:      0 20px 40px rgba(15, 23, 42, 0.08);
+  --shadow-neon:    0 0 15px var(--primary-glow), 0 0 25px rgba(37, 99, 235, 0.05);
+  
+  --sb-bg:          #ffffff;
+  --sb-border:      rgba(15, 23, 42, 0.08);
+
+  --bg-grad-1:      rgba(37, 99, 235, 0.04);
+  --bg-grad-2:      rgba(124, 58, 237, 0.04);
+  --bg-grad-3:      rgba(5, 150, 105, 0.03);
+}
+
+/* ═══════════════════════════════════════════════════════
+   GLOBAL RESET & BASE STYLES
+   ═══════════════════════════════════════════════════════ */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: 'Tajawal', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* عناصر النماذج تحتاج تصريحاً صريحاً في بعض المتصفحات */
+input, select, textarea, button {
+  font-family: 'Tajawal', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-base);
+  font-size: var(--font-size);
+  line-height: 1.6;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  direction: rtl;
+  min-height: 100vh;
+  /* Allow natural scrolling — NO overflow:hidden */
+  overflow-x: hidden;
+  /* Animated background */
+  background-image:
+    radial-gradient(ellipse at 20% 20%, var(--bg-grad-1) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, var(--bg-grad-2) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 0%, var(--bg-grad-3) 0%, transparent 40%);
+  background-attachment: fixed;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Prevent pull-to-refresh while keeping scroll */
+body {
+  overscroll-behavior-y: contain;
+}
+
+/* ── Body when sidebar is present ── */
+html.has-sidebar body,
+body.has-sidebar {
+  margin-right: var(--sb-collapsed, 62px);
+  padding-right: 0 !important;
+  transition: margin-right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html.has-sidebar body.sidebar-open,
+body.has-sidebar.sidebar-open {
+  margin-right: var(--sb-expanded, 240px);
+}
+
+/* ── Page Wrapper for inner scrollable pages ── */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-content {
+  flex: 1;
+  padding: 20px 24px;
+  overflow-y: auto;
+}
+
+/* ═══════════════════════════════════════════════════════
+   SELECT & FORM ELEMENT FIXES
+   ═══════════════════════════════════════════════════════ */
+select option {
+  background-color: #0a1128;
+  color: var(--text-primary);
+}
+
+/* ═══════════════════════════════════════════════════════
+   GLASSMORPHISM UTILITIES
+   ═══════════════════════════════════════════════════════ */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid var(--glass-border);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+  position: relative;
+  transition: var(--transition-med);
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════════
+   CUSTOM SCROLLBAR — WebKit
+   ═══════════════════════════════════════════════════════ */
+::-webkit-scrollbar              { width: 6px; height: 6px; }
+::-webkit-scrollbar-track        { background: rgba(2, 5, 16, 0.5); }
+::-webkit-scrollbar-thumb        { background: rgba(34, 211, 238, 0.4); border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover  { background: rgba(34, 211, 238, 0.7); }
+::-webkit-scrollbar-corner       { background: transparent; }
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE MEDIA QUERIES — Base Layout
+   ═══════════════════════════════════════════════════════ */
+@media screen and (min-width: 768px) {
+  body { --font-size: 15px; }
+  .page-content { padding: 28px 36px; }
+}
+
+@media screen and (min-width: 1200px) {
+  .page-content { padding: 32px 48px; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   GLOBAL ANIMATION KEYFRAMES
+   ═══════════════════════════════════════════════════════ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes neonPulse {
+  0%, 100% { box-shadow: var(--shadow-md); }
+  50%       { box-shadow: var(--shadow-md), 0 0 30px var(--primary-glow); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+@keyframes rotateIn {
+  from { opacity: 0; transform: rotate(-10deg) scale(0.9); }
+  to   { opacity: 1; transform: rotate(0)      scale(1); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes bgShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   UTILITY ANIMATION CLASSES
+   ═══════════════════════════════════════════════════════ */
+.animate-fade-in-up    { animation: fadeInUp    0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in-down  { animation: fadeInDown  0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.animate-fade-in-right { animation: fadeInRight 0.4s cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pulse-glow            { animation: neonPulse   3s ease-in-out infinite; }
+
+/* Stagger helpers */
+.stagger-1  { animation-delay: 0.05s; }
+.stagger-2  { animation-delay: 0.10s; }
+.stagger-3  { animation-delay: 0.15s; }
+.stagger-4  { animation-delay: 0.20s; }
+.stagger-5  { animation-delay: 0.25s; }
+.stagger-6  { animation-delay: 0.30s; }
+
+/* ═══════════════════════════════════════════════════════
+   PRINT STYLES
+   ═══════════════════════════════════════════════════════ */
+@media print {
+    body {
+        background: #fff !important;
+        color: #000 !important;
+    }
+    body > *:not(#print-area) {
+        display: none !important;
+    }
+    #print-area {
+        display: block !important;
+        width: 100%;
+        background: #fff;
+        color: #000;
+        margin: 0;
+        padding: 0;
+    }
+    .print-page {
+        page-break-after: always;
+        background: #fff;
+        color: #000;
+        box-sizing: border-box;
+    }
+    .modal-overlay, .toast-container, .quick-add-box { 
+        display: none !important; 
+    }
+}
+
+/* ═══════════════════════════════════════════════════════
+   GLOBAL INTERACTION EFFECTS (Hover/Active Zoom)
+   ═══════════════════════════════════════════════════════ */
+.btn, .btn-primary, .btn-success, .btn-secondary, .btn-ghost, .btn-action, .numpad-btn, .action-tab {
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn:hover:not(:disabled), .btn-primary:hover:not(:disabled), .btn-success:hover:not(:disabled), .btn-secondary:hover:not(:disabled), .btn-action:hover:not(:disabled), .action-tab:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 6px 20px rgba(56, 189, 248, 0.25);
+    z-index: 10;
+}
+.btn:active:not(:disabled), .btn-primary:active:not(:disabled), .btn-success:active:not(:disabled), .btn-secondary:active:not(:disabled), .btn-action:active:not(:disabled), .action-tab:active, .numpad-btn:active {
+    transform: scale(0.95) !important;
+}
+/* Ensure icon-only buttons have a smooth interaction */
+.btn-icon, .modal-close, .back-arrow-btn {
+    transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.btn-icon:hover:not(:disabled), .modal-close:hover, .back-arrow-btn:hover {
+    transform: scale(1.1);
+}
+.btn-icon:active:not(:disabled), .modal-close:active, .back-arrow-btn:active {
+    transform: scale(0.9) !important;
+}
+
+
+/* =========================================================
+   PREMIUM OVERHAUL INJECTED CSS
+   ========================================================= */
+/* Ambient Animated Background Orbs */
+.ambient-bg {
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    overflow: hidden; z-index: -1; pointer-events: none;
+    background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%);
+}
+
+.orb {
+    position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15;
+    animation: floatOrb 20s infinite alternate ease-in-out;
+}
+
+.orb-1 { width: 500px; height: 500px; background: var(--primary-accent); top: -5%; right: -5%; }
+.orb-2 { width: 450px; height: 450px; background: var(--theme-pink); bottom: -10%; left: -5%; animation-delay: -7s; }
+.orb-3 { width: 600px; height: 600px; background: var(--theme-blue); top: 30%; left: 30%; animation-duration: 25s; opacity: 0.1; }
+
+@keyframes floatOrb {
+    0% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-30px, 30px) scale(0.9); }
+    100% { transform: translate(0, 0) scale(1); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   UNIFIED PREMIUM HEADER - Standardized Across All Pages
+   ═══════════════════════════════════════════════════════ */
+.premium-header {
+    --glow-color: rgba(99, 102, 241, 0.65); /* لون الوهج الافتراضي */
+    background: rgba(15, 23, 42, 0.45) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 16px !important; /* نفس انحناء بطاقات الأرصدة */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 1px 1px rgba(255,255,255,0.03) !important;
+    
+    position: relative !important;
+    overflow: hidden !important;
+    z-index: 10 !important;
+    
+    /* توحيد الهوامش */
+    margin-top: 20px !important;
+    margin-bottom: 25px !important;
+    width: 100%;
+    height: 110px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    
+    /* إضافة الانتقال السلس للمؤثرات اللطيفة دون التأثير على الارتفاع الميكانيكي */
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+}
+
+/* تأثير التحليق ملغى بناءً على طلبك - الترويسة ثابتة تماماً */
+
+/* الطبقة العلوية المضيئة الثابتة */
+.premium-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--glow-color, rgba(255,255,255,0.5)), transparent);
+    opacity: 0.5;
+}
+
+/* توهج خلفي ناعم ثابت */
+.premium-header::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60%; height: 100%;
+    background: radial-gradient(ellipse at top, var(--glow-color, rgba(255,255,255,0.15)) 0%, transparent 70%);
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: -1;
+}
+
+@keyframes slideDown { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+
+/* --- Page-Specific Header Color Themes (Glows only, keeping premium 0.45 transparent background) --- */
+.premium-header.header-theme-dashboard { --glow-color: rgba(99, 102, 241, 0.65); }
+.premium-header.header-theme-sales { --glow-color: rgba(16, 185, 129, 0.65); }
+.premium-header.header-theme-purchase { --glow-color: rgba(168, 85, 247, 0.65); }
+.premium-header.header-theme-inventory { --glow-color: rgba(245, 158, 11, 0.65); }
+.premium-header.header-theme-masterdata { --glow-color: rgba(217, 70, 239, 0.65); }
+.premium-header.header-theme-reports { --glow-color: rgba(20, 184, 166, 0.65); }
+.premium-header.header-theme-alarm { --glow-color: rgba(239, 68, 68, 0.65); }
+.premium-header.header-theme-settings { --glow-color: rgba(100, 116, 139, 0.65); }
+.premium-header.header-theme-audit { --glow-color: rgba(244, 114, 182, 0.65); }
+
+/* Responsive Header */
+@media (max-width: 768px) {
+    .premium-header {
+        height: auto !important;
+        flex-direction: column;
+        gap: 12px;
+    }
+}
+
+.header-brand { display: flex; align-items: center; gap: 12px; }
+.brand-icon {
+    width: 40px; height: 40px; border-radius: 12px;
+    background: linear-gradient(135deg, #38bdf8, #818cf8);
+    display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    box-shadow: 0 6px 15px rgba(56, 189, 248, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2);
+}
+.brand-text h1 { margin: 0; font-size: 1.1rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 5px rgba(255,255,255,0.1); }
+.brand-text p { margin: 0; font-size: 0.75rem; color: #94a3b8; font-weight: 500; }
+
+/* --- Global Reset for Header Alignment --- */
+.pos-wrapper, .dash-main, .hub-container, .settings-container, .audit-container, .alarm-main {
+    padding-top: 0px !important;
+}
+
+/* ==========================================================================
+   6 SPECIAL STRATEGIC THEMES (Imperial, Emerald, Cyber, Crystal, Papyrus, Slate)
+   ========================================================================== */
+
+/* 1. Theme Imperial (Default Sovereign Dark) */
+:root.theme-imperial {
+  --bg-color:         #060913 !important;
+  --bg-secondary:     #0f1424 !important;
+  --surface-color:    rgba(15, 20, 36, 0.75) !important;
+  --surface-hover:    rgba(30, 41, 59, 0.9) !important;
+  --text-primary:     #f1f5f9 !important;
+  --text-secondary:   #94a3b8 !important;
+  --primary-accent:   #38bdf8 !important;
+  --primary-glow:     rgba(56, 189, 248, 0.3) !important;
+  --glass-bg:         rgba(15, 20, 36, 0.7) !important;
+  --glass-border:     rgba(56, 189, 248, 0.1) !important;
+  --sb-bg:            rgba(6, 9, 19, 0.98) !important;
+  --sb-border:        rgba(56, 189, 248, 0.15) !important;
+  --bg-grad-1:        rgba(56, 189, 248, 0.05) !important;
+  --bg-grad-2:        rgba(129, 140, 248, 0.05) !important;
+  --bg-grad-3:        rgba(15, 20, 36, 0.04) !important;
+}
+:root.theme-imperial .ambient-bg {
+  background: radial-gradient(circle at 50% 50%, #060913 0%, #030712 100%) !important;
+}
+
+/* 2. Theme Emerald (Accounting Shield) */
+:root.theme-emerald {
+  --bg-color:         #050c08 !important;
+  --bg-secondary:     #0c1a12 !important;
+  --surface-color:    rgba(12, 26, 18, 0.75) !important;
+  --surface-hover:    rgba(27, 56, 39, 0.9) !important;
+  --text-primary:     #e6f4ea !important;
+  --text-secondary:   #a3d9c9 !important;
+  --primary-accent:   #34d399 !important;
+  --primary-glow:     rgba(52, 211, 153, 0.3) !important;
+  --glass-bg:         rgba(12, 26, 18, 0.7) !important;
+  --glass-border:     rgba(52, 211, 153, 0.1) !important;
+  --sb-bg:            rgba(5, 12, 8, 0.98) !important;
+  --sb-border:        rgba(52, 211, 153, 0.15) !important;
+  --bg-grad-1:        rgba(52, 211, 153, 0.05) !important;
+  --bg-grad-2:        rgba(5, 150, 105, 0.05) !important;
+  --bg-grad-3:        rgba(12, 26, 18, 0.04) !important;
+}
+:root.theme-emerald .ambient-bg {
+  background: radial-gradient(circle at 50% 50%, #0c1a12 0%, #050c08 100%) !important;
+}
+
+/* 3. Theme Cyber (Cyber Obsidian) */
+:root.theme-cyber {
+  --bg-color:         #000000 !important;
+  --bg-secondary:     #080808 !important;
+  --surface-color:    rgba(8, 8, 8, 0.85) !important;
+  --surface-hover:    rgba(24, 24, 24, 0.9) !important;
+  --text-primary:     #00ffcc !important;
+  --text-secondary:   #ffffff !important;
+  --primary-accent:   #ff00ff !important;
+  --primary-glow:     rgba(255, 0, 255, 0.4) !important;
+  --glass-bg:         rgba(8, 8, 8, 0.8) !important;
+  --glass-border:     #00ffcc !important;
+  --glass-border-hover: #ff00ff !important;
+  --sb-bg:            #000000 !important;
+  --sb-border:        #00ffcc !important;
+  --bg-grad-1:        rgba(255, 0, 255, 0.05) !important;
+  --bg-grad-2:        rgba(0, 255, 204, 0.05) !important;
+  --bg-grad-3:        #000000 !important;
+}
+:root.theme-cyber .ambient-bg {
+  background: #000000 !important;
+}
+
+/* 4. Theme Crystal (Ice Crystal) */
+:root.theme-crystal {
+  --bg-color:         #f0f4f8 !important;
+  --bg-secondary:     #ffffff !important;
+  --surface-color:    rgba(255, 255, 255, 0.95) !important;
+  --surface-hover:    rgba(240, 244, 248, 0.95) !important;
+  --text-primary:     #1e293b !important;
+  --text-secondary:   #475569 !important;
+  --primary-accent:   #0284c7 !important;
+  --primary-glow:     rgba(2, 132, 199, 0.15) !important;
+  --glass-bg:         rgba(255, 255, 255, 0.85) !important;
+  --glass-border:     rgba(2, 132, 199, 0.15) !important;
+  --sb-bg:            #ffffff !important;
+  --sb-border:        rgba(2, 132, 199, 0.15) !important;
+  --bg-grad-1:        rgba(2, 132, 199, 0.04) !important;
+  --bg-grad-2:        rgba(14, 165, 233, 0.04) !important;
+  --bg-grad-3:        rgba(255, 255, 255, 0.3) !important;
+}
+:root.theme-crystal body,
+:root.theme-crystal p,
+:root.theme-crystal td,
+:root.theme-crystal th,
+:root.theme-crystal tr,
+:root.theme-crystal label,
+:root.theme-crystal h1,
+:root.theme-crystal h2,
+:root.theme-crystal h3,
+:root.theme-crystal h4,
+:root.theme-crystal h5,
+:root.theme-crystal h6,
+:root.theme-crystal .brand-text h1,
+:root.theme-crystal .brand-text p,
+:root.theme-crystal .sidebar-text,
+:root.theme-crystal .header-company-name-top,
+:root.theme-crystal .header-page-title,
+:root.theme-crystal #header-user-name,
+:root.theme-crystal #header-clock,
+:root.theme-crystal #header-user-role,
+:root.theme-crystal .kpi-val,
+:root.theme-crystal .kpi-title,
+:root.theme-crystal .list-sub,
+:root.theme-crystal .list-title,
+:root.theme-crystal .tot-lbl,
+:root.theme-crystal .tot-val,
+:root.theme-crystal .val,
+:root.theme-crystal .lbl {
+  color: #1e293b !important;
+  text-shadow: none !important;
+}
+
+/* 5. Theme Papyrus (Desert Papyrus) */
+:root.theme-papyrus {
+  --bg-color:         #f7f2e8 !important;
+  --bg-secondary:     #eee6d5 !important;
+  --surface-color:    rgba(238, 230, 213, 0.95) !important;
+  --surface-hover:    rgba(212, 197, 169, 0.95) !important;
+  --text-primary:     #2e1f10 !important;
+  --text-secondary:   #4a3728 !important;
+  --primary-accent:   #85581A !important;
+  --primary-glow:     rgba(133, 88, 26, 0.2) !important;
+  --glass-bg:         rgba(238, 230, 213, 0.9) !important;
+  --glass-border:     rgba(133, 88, 26, 0.15) !important;
+  --sb-bg:            #eee6d5 !important;
+  --sb-border:        rgba(133, 88, 26, 0.15) !important;
+  --bg-grad-1:        rgba(133, 88, 26, 0.04) !important;
+  --bg-grad-2:        rgba(74, 55, 40, 0.04) !important;
+  --bg-grad-3:        rgba(238, 230, 213, 0.3) !important;
+}
+:root.theme-papyrus .ambient-bg {
+  background: radial-gradient(circle at 50% 50%, #f7f2e8 0%, #e6dec3 100%) !important;
+}
+:root.theme-papyrus body,
+:root.theme-papyrus p,
+:root.theme-papyrus td,
+:root.theme-papyrus th,
+:root.theme-papyrus tr,
+:root.theme-papyrus label,
+:root.theme-papyrus h1,
+:root.theme-papyrus h2,
+:root.theme-papyrus h3,
+:root.theme-papyrus h4,
+:root.theme-papyrus h5,
+:root.theme-papyrus h6,
+:root.theme-papyrus .brand-text h1,
+:root.theme-papyrus .brand-text p,
+:root.theme-papyrus .sidebar-text,
+:root.theme-papyrus .header-company-name-top,
+:root.theme-papyrus .header-page-title,
+:root.theme-papyrus #header-user-name,
+:root.theme-papyrus #header-clock,
+:root.theme-papyrus #header-user-role,
+:root.theme-papyrus .kpi-val,
+:root.theme-papyrus .kpi-title,
+:root.theme-papyrus .list-sub,
+:root.theme-papyrus .list-title,
+:root.theme-papyrus .tot-lbl,
+:root.theme-papyrus .tot-val,
+:root.theme-papyrus .val,
+:root.theme-papyrus .lbl {
+  color: #2e1f10 !important;
+  text-shadow: none !important;
+}
+
+/* 6. Theme Slate (Muted Slate) */
+:root.theme-slate {
+  --bg-color:         #1e293b !important;
+  --bg-secondary:     #334155 !important;
+  --surface-color:    rgba(51, 65, 85, 0.85) !important;
+  --surface-hover:    rgba(71, 85, 105, 0.95) !important;
+  --text-primary:     #f8fafc !important;
+  --text-secondary:   #cbd5e1 !important;
+  --primary-accent:   #38bdf8 !important;
+  --primary-glow:     rgba(56, 189, 248, 0.3) !important;
+  --glass-bg:         rgba(51, 65, 85, 0.8) !important;
+  --glass-border:     rgba(71, 85, 105, 0.15) !important;
+  --sb-bg:            #1e293b !important;
+  --sb-border:        rgba(71, 85, 105, 0.15) !important;
+  --bg-grad-1:        rgba(56, 189, 248, 0.05) !important;
+  --bg-grad-2:        rgba(51, 65, 85, 0.05) !important;
+  --bg-grad-3:        rgba(51, 65, 85, 0.4) !important;
+}
+
+/* ==========================================================================
+   🔍 TYPOGRAPHY ENHANCEMENT FOR BETTER READABILITY (BUTTONS +2px, INNER REPORTS +4px)
+   ========================================================================== */
+
+/* 1. Enlarge all buttons by 2px (2 degrees) globally */
+button,
+.btn,
+.theme-btn,
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-filter,
+.btn-reset,
+.curr-btn,
+.action-card,
+.report-card,
+.numpad-btn,
+.quick-action-btn {
+    font-size: 16px !important;
+}
+
+/* 2. Specific button size overrides */
+.btn-primary, .btn-secondary {
+    font-size: 1.3rem !important; /* was 1.2rem */
+}
+.numpad-btn {
+    font-size: 2.0rem !important; /* was 1.8rem */
+}
+.theme-btn {
+    font-size: 13px !important; /* was 11px */
+}
+.action-card {
+    font-size: 0.92rem !important; /* was 0.8rem */
+}
+
+/* 3. Enlarge all fonts in inner report pages by 4px (4 degrees) */
+html.inner-report-page body {
+    font-size: 19px !important; /* was 15px */
+}
+html.inner-report-page td {
+    font-size: 17px !important; /* was 13px */
+}
+html.inner-report-page th {
+    font-size: 17px !important; /* was 13px */
+}
+html.inner-report-page p {
+    font-size: 19px !important; /* was 15px */
+}
+html.inner-report-page label {
+    font-size: 17px !important; /* was 13px */
+}
+html.inner-report-page input,
+html.inner-report-page select,
+html.inner-report-page textarea {
+    font-size: 18px !important; /* was 14px */
+}
+html.inner-report-page h1 { font-size: 30px !important; }
+html.inner-report-page h2 { font-size: 24px !important; }
+html.inner-report-page h3 { font-size: 20px !important; }
+html.inner-report-page h4 { font-size: 18px !important; }
+
+/* Scale metrics cards inside report pages */
+html.inner-report-page .kpi-val,
+html.inner-report-page .metric-value {
+    font-size: 32px !important;
+}
+
+/* Scale badges inside report pages */
+html.inner-report-page .badge-percent,
+html.inner-report-page .badge-negative {
+    font-size: 16px !important; /* was 12px */
+}
+html.inner-report-page .badge-category {
+    font-size: 15px !important; /* was 11px */
+}
+
+/* Buttons inside the inner report page get +4px instead of +2px */
+html.inner-report-page button,
+html.inner-report-page .btn,
+html.inner-report-page .theme-btn,
+html.inner-report-page .btn-primary,
+html.inner-report-page .btn-secondary,
+html.inner-report-page .btn-success,
+html.inner-report-page .btn-filter,
+html.inner-report-page .btn-reset,
+html.inner-report-page .curr-btn,
+html.inner-report-page .quick-action-btn {
+    font-size: 18px !important; /* standard button default 14px + 4px */
+}
+
+/* 4. Enlarge all fonts in inventory hub page (inventory-report.php) and general report portals (analytics.php) by 2px (2 degrees) */
+html.inventory-hub-page body, html.hub-report-page body {
+    font-size: 17px !important; /* was 15px */
+}
+html.inventory-hub-page td, html.hub-report-page td {
+    font-size: 15px !important; /* was 13px */
+}
+html.inventory-hub-page th, html.hub-report-page th {
+    font-size: 15px !important; /* was 13px */
+}
+html.inventory-hub-page p, html.hub-report-page p {
+    font-size: 17px !important; /* was 15px */
+}
+html.inventory-hub-page label, html.hub-report-page label {
+    font-size: 15px !important; /* was 13px */
+}
+html.inventory-hub-page input, html.hub-report-page input,
+html.inventory-hub-page select, html.hub-report-page select,
+html.inventory-hub-page textarea, html.hub-report-page textarea {
+    font-size: 16px !important; /* was 14px */
+}
+html.inventory-hub-page h1, html.hub-report-page h1 { font-size: 28px !important; }
+html.inventory-hub-page h2, html.hub-report-page h2 { font-size: 22px !important; }
+html.inventory-hub-page h3, html.hub-report-page h3 { font-size: 18px !important; }
+html.inventory-hub-page h4, html.hub-report-page h4 { font-size: 16px !important; }
+
+/* Scale metrics cards inside inventory hub page */
+html.inventory-hub-page .kpi-val, html.hub-report-page .kpi-val,
+html.inventory-hub-page .metric-value, html.hub-report-page .metric-value {
+    font-size: 30px !important;
+}
+
+/* Scale badges inside inventory hub page */
+html.inventory-hub-page .badge-percent, html.hub-report-page .badge-percent,
+html.inventory-hub-page .badge-negative, html.hub-report-page .badge-negative {
+    font-size: 14px !important; /* was 12px */
+}
+html.inventory-hub-page .badge-category, html.hub-report-page .badge-category {
+    font-size: 13px !important; /* was 11px */
+}
+
+/* ═══════════════════════════════════════════════════════
+   UNIVERSAL LIGHT THEME OVERRIDES FOR INTERNAL SCREENS
+   ═══════════════════════════════════════════════════════ */
+.light-theme .val { color: #0f172a !important; text-shadow: none !important; }
+.light-theme .neo-card-title { color: #0ea5e9 !important; }
+
+:root.light-theme body,
+:root.light-theme .ambient-bg {
+    background: #f8fafc !important;
+}
+
+:root.light-theme .glass-panel,
+:root.light-theme .neo-card,
+:root.light-theme .summary-card,
+:root.light-theme .filter-panel,
+:root.light-theme .chart-card,
+:root.light-theme .kpi-card,
+:root.light-theme .premium-header,
+:root.light-theme .top-header,
+:root.light-theme .header-area {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
+    color: #0f172a !important;
+}
+
+:root.light-theme .glass-panel *,
+:root.light-theme .neo-card *,
+:root.light-theme .summary-card * {
+    text-shadow: none !important;
+}
+
+:root.light-theme table.pro-table th,
+:root.light-theme .pos-grid thead th,
+:root.light-theme .ledger-table th,
+:root.light-theme .report-table th {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+}
+
+:root.light-theme table.pro-table td,
+:root.light-theme .pos-grid tbody td,
+:root.light-theme .ledger-table td,
+:root.light-theme .report-table td {
+    color: #1e293b !important;
+    border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+}
+
+:root.light-theme table.pro-table tbody tr:hover td,
+:root.light-theme .pos-grid tbody tr:hover td,
+:root.light-theme .ledger-table tbody tr:hover td,
+:root.light-theme .report-table tbody tr:hover td {
+    background: rgba(0,0,0,0.02) !important;
+}
+
+:root.light-theme .h-label,
+:root.light-theme .form-label,
+:root.light-theme .tot-lbl,
+:root.light-theme .lbl,
+:root.light-theme label,
+:root.light-theme .table-header {
+    color: #334155 !important;
+}
+
+:root.light-theme .tot-val,
+:root.light-theme .val {
+    color: #0f172a !important;
+}
+
+:root.light-theme .h-form-group,
+:root.light-theme .control-panel {
+    background: transparent !important;
+    border-color: rgba(0,0,0,0.08) !important;
+}
+
+:root.light-theme .modern-btn {
+    color: #1e293b !important;
+}
+
+:root.light-theme .modern-btn:hover {
+    color: #0f172a !important;
+}
+
+/* Neon text colors correction for light theme */
+:root.light-theme .text-emerald-400,
+:root.light-theme span[style*="color: #34d399"],
+:root.light-theme span[style*="color:#34d399"] {
+    color: #059669 !important;
+}
+
+:root.light-theme .text-rose-400,
+:root.light-theme span[style*="color: #f87171"],
+:root.light-theme span[style*="color:#f87171"] {
+    color: #e11d48 !important;
+}
+
+:root.light-theme .text-sky-400,
+:root.light-theme span[style*="color: #38bdf8"],
+:root.light-theme span[style*="color:#38bdf8"] {
+    color: #0284c7 !important;
+}
+
+:root.light-theme .text-purple-400,
+:root.light-theme span[style*="color: #c084fc"],
+:root.light-theme span[style*="color:#c084fc"] {
+    color: #7c3aed !important;
+}
+
+:root.light-theme .text-amber-400,
+:root.light-theme span[style*="color: #fbbf24"],
+:root.light-theme span[style*="color:#fbbf24"] {
+    color: #b45309 !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   💎 UNIVERSAL 21 SCIENTIFIC ERGONOMIC THEMES ENGINE (DESKTOP & MOBILE)
+   ═══════════════════════════════════════════════════════════════════
+   - 4 Recommended: warm-alabaster, pure-platinum, midnight-executive, obsidian-charcoal
+   - 6 Light/Warm:  beige, ivory, offwhite, light-linen, pearl-platinum, nordic-paper
+   - 5 Blue/Navy:   navy-kohl, royal-blue, ocean-navy, petrol-cyan, twilight-indigo
+   - 6 Dark/Earth:  midnight, sepia-brown, pale-gold, emerald-forest, desert-mocha, sunlight-titanium
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 1. TOKENS PER THEME ── */
+
+/* 0.1 WARM ALABASTER (العاجي الدافئ - موصى بها) */
+:root[data-theme="warm-alabaster"], html[data-theme="warm-alabaster"] {
+  --bg-color: #F6F0E6 !important;
+  --bg-secondary: #EDE4D6 !important;
+  --surface: #FFFFFF !important;
+  --surface-base: #FFFFFF !important;
+  --surface-raised: #FFFFFF !important;
+  --surface-secondary: #EDE4D6 !important;
+  --surface-hover: #F2E8DC !important;
+  --border-color: #8B6F4E !important;
+  --border-subtle: #DCCFBF !important;
+  --border: #8B6F4E !important;
+  --text-primary: #1C1917 !important;
+  --text-secondary: #4A3E31 !important;
+  --text-muted: #6B5B49 !important;
+  --text-main: #1C1917 !important;
+  --accent-color: #92400E !important;
+  --primary-accent: #92400E !important;
+  --sb-bg: #FFFFFF !important;
+  --sb-border: #DCCFBF !important;
+  --hdr-bg: rgba(246, 240, 230, 0.94) !important;
+  --hdr-border: #8B6F4E !important;
+}
+
+/* 0.2 PURE PLATINUM (الفضي النقي - موصى بها) */
+:root[data-theme="pure-platinum"], html[data-theme="pure-platinum"] {
+  --bg-color: #EEF2F6 !important;
+  --bg-secondary: #E2E8F0 !important;
+  --surface: #FFFFFF !important;
+  --surface-base: #FFFFFF !important;
+  --surface-raised: #FFFFFF !important;
+  --surface-secondary: #E2E8F0 !important;
+  --surface-hover: #F1F5F9 !important;
+  --border-color: #64748B !important;
+  --border-subtle: #CBD5E1 !important;
+  --border: #64748B !important;
+  --text-primary: #0F172A !important;
+  --text-secondary: #334155 !important;
+  --text-muted: #475569 !important;
+  --text-main: #0F172A !important;
+  --accent-color: #2563EB !important;
+  --primary-accent: #2563EB !important;
+  --sb-bg: #FFFFFF !important;
+  --sb-border: #CBD5E1 !important;
+  --hdr-bg: rgba(238, 242, 246, 0.94) !important;
+  --hdr-border: #64748B !important;
+}
+
+/* 0.3 MIDNIGHT EXECUTIVE (كحلي منتصف الليل - موصى بها) */
+:root[data-theme="midnight-executive"], html[data-theme="midnight-executive"] {
+  --bg-color: #0B0F17 !important;
+  --bg-secondary: #131B2A !important;
+  --surface: #131B2A !important;
+  --surface-base: #131B2A !important;
+  --surface-raised: #1A2337 !important;
+  --surface-secondary: #1E293B !important;
+  --surface-hover: #22304A !important;
+  --border-color: rgba(56, 189, 248, 0.3) !important;
+  --border-subtle: rgba(255, 255, 255, 0.12) !important;
+  --border: rgba(56, 189, 248, 0.3) !important;
+  --text-primary: #F1F5F9 !important;
+  --text-secondary: #94A3B8 !important;
+  --text-muted: #64748B !important;
+  --text-main: #F1F5F9 !important;
+  --accent-color: #38BDF8 !important;
+  --primary-accent: #38BDF8 !important;
+  --sb-bg: #0B0F17 !important;
+  --sb-border: rgba(56, 189, 248, 0.25) !important;
+  --hdr-bg: rgba(11, 15, 23, 0.94) !important;
+  --hdr-border: rgba(56, 189, 248, 0.4) !important;
+}
+
+/* 0.4 OBSIDIAN CHARCOAL (حجر السج الجرافيتي - موصى بها) */
+:root[data-theme="obsidian-charcoal"], html[data-theme="obsidian-charcoal"] {
+  --bg-color: #121214 !important;
+  --bg-secondary: #1C1C1F !important;
+  --surface: #1C1C1F !important;
+  --surface-base: #1C1C1F !important;
+  --surface-raised: #242428 !important;
+  --surface-secondary: #27272A !important;
+  --surface-hover: #313136 !important;
+  --border-color: #3F3F46 !important;
+  --border-subtle: rgba(255, 255, 255, 0.12) !important;
+  --border: #3F3F46 !important;
+  --text-primary: #EDEDED !important;
+  --text-secondary: #A1A1AA !important;
+  --text-muted: #71717A !important;
+  --text-main: #EDEDED !important;
+  --accent-color: #F59E0B !important;
+  --primary-accent: #F59E0B !important;
+  --sb-bg: #121214 !important;
+  --sb-border: rgba(255, 255, 255, 0.12) !important;
+  --hdr-bg: rgba(18, 18, 20, 0.94) !important;
+  --hdr-border: #3F3F46 !important;
+}
+
+/* 1. BEIGE (البيج الدافئ المريح) */
+:root[data-theme="beige"], html[data-theme="beige"] {
+  --bg-color: #F5EBE0 !important;
+  --bg-secondary: #EDDCD0 !important;
+  --surface: #FFFCF7 !important;
+  --surface-base: #FFFCF7 !important;
+  --surface-raised: #FFFFFF !important;
+  --surface-secondary: #EDDCD0 !important;
+  --surface-hover: #E8D5C6 !important;
+  --border-color: #D6C5B0 !important;
+  --border-subtle: #E2D2BD !important;
+  --border: #D6C5B0 !important;
+  --text-primary: #23190E !important;
+  --text-secondary: #5A4632 !important;
+  --text-muted: #78624A !important;
+  --text-main: #23190E !important;
+  --accent-color: #B45309 !important;
+  --primary-accent: #B45309 !important;
+  --sb-bg: #FFFCF7 !important;
+  --sb-border: #D6C5B0 !important;
+  --hdr-bg: rgba(245, 235, 224, 0.94) !important;
+  --hdr-border: #D6C5B0 !important;
+}
+
+/* 2. IVORY (العاجي الملكي الكلاسيكي) */
+:root[data-theme="ivory"], html[data-theme="ivory"] {
+  --bg-color: #FAF7F0 !important;
+  --bg-secondary: #F0EBD8 !important;
+  --surface: #FFFFFF !important;
+  --surface-base: #FFFFFF !important;
+  --surface-raised: #FFFFFF !important;
+  --surface-secondary: #F0EBD8 !important;
+  --surface-hover: #ECE4CC !important;
+  --border-color: #DED6C3 !important;
+  --border-subtle: #E8E2D2 !important;
+  --border: #DED6C3 !important;
+  --text-primary: #1C1813 !important;
+  --text-secondary: #52473A !important;
+  --text-muted: #706353 !important;
+  --text-main: #1C1813 !important;
+  --accent-color: #D97706 !important;
+  --primary-accent: #D97706 !important;
+  --sb-bg: #FFFFFF !important;
+  --sb-border: #DED6C3 !important;
+  --hdr-bg: rgba(250, 247, 240, 0.94) !important;
+  --hdr-border: #DED6C3 !important;
+}
+
+/* 3. OFFWHITE (الأوف وايت الحديث المطفأ) */
+:root[data-theme="offwhite"], html[data-theme="offwhite"] {
+  --bg-color: #F9FAFB !important;
+  --bg-secondary: #F3F4F6 !important;
+  --surface: #FFFFFF !important;
+  --surface-base: #FFFFFF !important;
+  --surface-raised: #FFFFFF !important;
+  --surface-secondary: #F3F4F6 !important;
+  --surface-hover: #E5E7EB !important;
+  --border-color: #D1D5DB !important;
+  --border-subtle: #E5E7EB !important;
+  --border: #D1D5DB !important;
+  --text-primary: #111827 !important;
+  --text-secondary: #4B5563 !important;
+  --text-muted: #6B7280 !important;
+  --text-main: #111827 !important;
+  --accent-color: #4F46E5 !important;
+  --primary-accent: #4F46E5 !important;
+  --sb-bg: #FFFFFF !important;
+  --sb-border: #D1D5DB !important;
+  --hdr-bg: rgba(249, 250, 251, 0.94) !important;
+  --hdr-border: #D1D5DB !important;
+}
+
+/* 4. LIGHT LINEN (الكتان الطبيعي المريح) */
+:root[data-theme="light-linen"], html[data-theme="light-linen"] {
+  --bg-color: #EDE7DC !important;
+  --bg-secondary: #E4DCCE !important;
+  --surface: #FAF7F2 !important;
+  --surface-base: #FAF7F2 !important;
+  --surface-raised: #FFFFFF !important;
+  --surface-secondary: #E4DCCE !important;
+  --surface-hover: #DDD3C3 !important;
+  --border-color: #CFC5B3 !important;
+  --border-subtle: #DCD3C3 !important;
+  --border: #CFC5B3 !important;
+  --text-primary: #211F1A !important;
+  --text-secondary: #575245 !important;
+  --text-muted: #787161 !important;
+  --text-main: #211F1A !important;
+  --accent-color: #059669 !important;
+  --primary-accent: #059669 !important;
+  --sb-bg: #FAF7F2 !important;
+  --sb-border: #CFC5B3 !important;
+  --hdr-bg: rgba(237, 231, 220, 0.94) !important;
+  --hdr-border: #CFC5B3 !important;
+}
+
+/* 5. PEARL PLATINUM (اللؤلؤي الفضي المريح) */
+:root[data-theme="pearl-platinum"], html[data-theme="pearl-platinum"] {
+  --bg-color: #E9ECEF !important;
+  --bg-secondary: #DDE2E7 !important;
+  --surface: #F8F9FA !important;
+  --surface-base: #F8F9FA !important;
+  --surface-raised: #FFFFFF !important;
+  --surface-secondary: #DDE2E7 !important;
+  --surface-hover: #D3DAE2 !important;
+  --border-color: #CBD3DC !important;
+  --border-subtle: #D8DFE7 !important;
+  --border: #CBD3DC !important;
+  --text-primary: #0F172A !important;
+  --text-secondary: #475569 !important;
+  --text-muted: #64748B !important;
+  --text-main: #0F172A !important;
+  --accent-color: #2563EB !important;
+  --primary-accent: #2563EB !important;
+  --sb-bg: #F8F9FA !important;
+  --sb-border: #CBD3DC !important;
+  --hdr-bg: rgba(233, 236, 239, 0.94) !important;
+  --hdr-border: #CBD3DC !important;
+}
+
+/* 6. NORDIC PAPER (الورقي النوردي المريح) */
+:root[data-theme="nordic-paper"], html[data-theme="nordic-paper"] {
+  --bg-color: #F8FAFC !important;
+  --bg-secondary: #F1F5F9 !important;
+  --surface: #FFFFFF !important;
+  --surface-base: #FFFFFF !important;
+  --surface-raised: #FFFFFF !important;
+  --surface-secondary: #F1F5F9 !important;
+  --surface-hover: #E2E8F0 !important;
+  --border-color: #CBD5E1 !important;
+  --border-subtle: #E2E8F0 !important;
+  --border: #CBD5E1 !important;
+  --text-primary: #0F172A !important;
+  --text-secondary: #334155 !important;
+  --text-muted: #475569 !important;
+  --text-main: #0F172A !important;
+  --accent-color: #0891B2 !important;
+  --primary-accent: #0891B2 !important;
+  --sb-bg: #FFFFFF !important;
+  --sb-border: #CBD5E1 !important;
+  --hdr-bg: rgba(248, 250, 252, 0.94) !important;
+  --hdr-border: #CBD5E1 !important;
+}
+
+/* 7. NAVY KOHL (الكحلي الملكي الليلي) */
+:root[data-theme="navy-kohl"], html[data-theme="navy-kohl"] {
+  --bg-color: #070B14 !important;
+  --bg-secondary: #0E1726 !important;
+  --surface: #0E1726 !important;
+  --surface-base: #0E1726 !important;
+  --surface-raised: #142035 !important;
+  --surface-secondary: #162238 !important;
+  --surface-hover: #1A2B47 !important;
+  --border-color: rgba(59, 130, 246, 0.35) !important;
+  --border-subtle: rgba(255, 255, 255, 0.12) !important;
+  --border: rgba(59, 130, 246, 0.35) !important;
+  --text-primary: #FFFFFF !important;
+  --text-secondary: #93C5FD !important;
+  --text-muted: #60A5FA !important;
+  --text-main: #FFFFFF !important;
+  --accent-color: #F59E0B !important;
+  --primary-accent: #3B82F6 !important;
+  --sb-bg: #070B14 !important;
+  --sb-border: rgba(59, 130, 246, 0.3) !important;
+  --hdr-bg: rgba(7, 11, 20, 0.94) !important;
+  --hdr-border: rgba(59, 130, 246, 0.4) !important;
+}
+
+/* 8. ROYAL BLUE (الأزرق الزفيري الحيوي) */
+:root[data-theme="royal-blue"], html[data-theme="royal-blue"] {
+  --bg-color: #081024 !important;
+  --bg-secondary: #0F1E3D !important;
+  --surface: #0F1E3D !important;
+  --surface-base: #0F1E3D !important;
+  --surface-raised: #162A52 !important;
+  --surface-secondary: #172E5A !important;
+  --surface-hover: #1D3B73 !important;
+  --border-color: rgba(56, 189, 248, 0.4) !important;
+  --border-subtle: rgba(255, 255, 255, 0.14) !important;
+  --border: rgba(56, 189, 248, 0.4) !important;
+  --text-primary: #FFFFFF !important;
+  --text-secondary: #67E8F9 !important;
+  --text-muted: #38BDF8 !important;
+  --text-main: #FFFFFF !important;
+  --accent-color: #38BDF8 !important;
+  --primary-accent: #38BDF8 !important;
+  --sb-bg: #081024 !important;
+  --sb-border: rgba(56, 189, 248, 0.3) !important;
+  --hdr-bg: rgba(8, 16, 36, 0.94) !important;
+  --hdr-border: rgba(56, 189, 248, 0.45) !important;
+}
+
+/* 9. OCEAN NAVY (الأزرق المحيطي العميق) */
+:root[data-theme="ocean-navy"], html[data-theme="ocean-navy"] {
+  --bg-color: #05131E !important;
+  --bg-secondary: #0A2234 !important;
+  --surface: #0A2234 !important;
+  --surface-base: #0A2234 !important;
+  --surface-raised: #0F2F47 !important;
+  --surface-secondary: #0F324D !important;
+  --surface-hover: #143F5E !important;
+  --border-color: rgba(6, 182, 212, 0.4) !important;
+  --border-subtle: rgba(255, 255, 255, 0.12) !important;
+  --border: rgba(6, 182, 212, 0.4) !important;
+  --text-primary: #FFFFFF !important;
+  --text-secondary: #7DD3FC !important;
+  --text-muted: #38BDF8 !important;
+  --text-main: #FFFFFF !important;
+  --accent-color: #06B6D4 !important;
+  --primary-accent: #06B6D4 !important;
+  --sb-bg: #05131E !important;
+  --sb-border: rgba(6, 182, 212, 0.3) !important;
+  --hdr-bg: rgba(5, 19, 30, 0.94) !important;
+  --hdr-border: rgba(6, 182, 212, 0.45) !important;
+}
+
+/* 10. PETROL CYAN (الأزرق البترولي والتيل) */
+:root[data-theme="petrol-cyan"], html[data-theme="petrol-cyan"] {
+  --bg-color: #041618 !important;
+  --bg-secondary: #08282C !important;
+  --surface: #08282C !important;
+  --surface-base: #08282C !important;
+  --surface-raised: #0D373C !important;
+  --surface-secondary: #0D3A40 !important;
+  --surface-hover: #124B53 !important;
+  --border-color: rgba(20, 184, 166, 0.4) !important;
+  --border-subtle: rgba(255, 255, 255, 0.12) !important;
+  --border: rgba(20, 184, 166, 0.4) !important;
+  --text-primary: #FFFFFF !important;
+  --text-secondary: #5EEAD4 !important;
+  --text-muted: #2DD4BF !important;
+  --text-main: #FFFFFF !important;
+  --accent-color: #14B8A6 !important;
+  --primary-accent: #14B8A6 !important;
+  --sb-bg: #041618 !important;
+  --sb-border: rgba(20, 184, 166, 0.3) !important;
+  --hdr-bg: rgba(4, 22, 24, 0.94) !important;
+  --hdr-border: rgba(20, 184, 166, 0.45) !important;
+}
+
+/* 11. TWILIGHT INDIGO (أزرق الشفق والإنديجو) */
+:root[data-theme="twilight-indigo"], html[data-theme="twilight-indigo"] {
+  --bg-color: #0B081A !important;
+  --bg-secondary: #151032 !important;
+  --surface: #151032 !important;
+  --surface-base: #151032 !important;
+  --surface-raised: #1D1645 !important;
+  --surface-secondary: #20184A !important;
+  --surface-hover: #2B2163 !important;
+  --border-color: rgba(168, 85, 247, 0.4) !important;
+  --border-subtle: rgba(255, 255, 255, 0.12) !important;
+  --border: rgba(168, 85, 247, 0.4) !important;
+  --text-primary: #FFFFFF !important;
+  --text-secondary: #C4B5FD !important;
+  --text-muted: #A78BFA !important;
+  --text-main: #FFFFFF !important;
+  --accent-color: #A855F7 !important;
+  --primary-accent: #A855F7 !important;
+  --sb-bg: #0B081A !important;
+  --sb-border: rgba(168, 85, 247, 0.3) !important;
+  --hdr-bg: rgba(11, 8, 26, 0.94) !important;
+  --hdr-border: rgba(168, 85, 247, 0.45) !important;
+}
+
+/* 12. MIDNIGHT (الليل الملكي الداكن / OLED) */
+:root[data-theme="midnight"], html[data-theme="midnight"] {
+  --bg-color: #000000 !important;
+  --bg-secondary: #0A0A0E !important;
+  --surface: #0A0A0E !important;
+  --surface-base: #0A0A0E !important;
+  --surface-raised: #141419 !important;
+  --surface-secondary: #141419 !important;
+  --surface-hover: #1E1E24 !important;
+  --border-color: rgba(255, 255, 255, 0.18) !important;
+  --border-subtle: rgba(255, 255, 255, 0.1) !important;
+  --border: rgba(255, 255, 255, 0.18) !important;
+  --text-primary: #FFFFFF !important;
+  --text-secondary: #A1A1AA !important;
+  --text-muted: #71717A !important;
+  --text-main: #FFFFFF !important;
+  --accent-color: #10B981 !important;
+  --primary-accent: #10B981 !important;
+  --sb-bg: #000000 !important;
+  --sb-border: rgba(255, 255, 255, 0.14) !important;
+  --hdr-bg: rgba(5, 5, 8, 0.94) !important;
+  --hdr-border: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 13. SEPIA BROWN (البني الإسبريسو والورق القديم) */
+:root[data-theme="sepia-brown"], html[data-theme="sepia-brown"] {
+  --bg-color: #140E0A !important;
+  --bg-secondary: #1F1610 !important;
+  --surface: #1F1610 !important;
+  --surface-base: #1F1610 !important;
+  --surface-raised: #281D15 !important;
+  --surface-secondary: #2D2017 !important;
+  --surface-hover: #38281E !important;
+  --border-color: rgba(217, 119, 6, 0.4) !important;
+  --border-subtle: rgba(255, 255, 255, 0.12) !important;
+  --border: rgba(217, 119, 6, 0.4) !important;
+  --text-primary: #F7EFE6 !important;
+  --text-secondary: #D5C3A5 !important;
+  --text-muted: #B8A07E !important;
+  --text-main: #F7EFE6 !important;
+  --accent-color: #D97706 !important;
+  --primary-accent: #D97706 !important;
+  --sb-bg: #140E0A !important;
+  --sb-border: rgba(217, 119, 6, 0.3) !important;
+  --hdr-bg: rgba(20, 14, 10, 0.94) !important;
+  --hdr-border: rgba(217, 119, 6, 0.45) !important;
+}
+
+/* 14. PALE GOLD (الذهبي الباهت والفخامة) */
+:root[data-theme="pale-gold"], html[data-theme="pale-gold"] {
+  --bg-color: #121008 !important;
+  --bg-secondary: #1C190D !important;
+  --surface: #1C190D !important;
+  --surface-base: #1C190D !important;
+  --surface-raised: #242010 !important;
+  --surface-secondary: #292413 !important;
+  --surface-hover: #332D18 !important;
+  --border-color: rgba(245, 158, 11, 0.4) !important;
+  --border-subtle: rgba(255, 255, 255, 0.12) !important;
+  --border: rgba(245, 158, 11, 0.4) !important;
+  --text-primary: #FEF3C7 !important;
+  --text-secondary: #D4AF37 !important;
+  --text-muted: #A88B2A !important;
+  --text-main: #FEF3C7 !important;
+  --accent-color: #F59E0B !important;
+  --primary-accent: #F59E0B !important;
+  --sb-bg: #121008 !important;
+  --sb-border: rgba(245, 158, 11, 0.3) !important;
+  --hdr-bg: rgba(18, 16, 8, 0.94) !important;
+  --hdr-border: rgba(245, 158, 11, 0.45) !important;
+}
+
+/* 15. EMERALD FOREST (زمرد الغابات لصفاء الذهن) */
+:root[data-theme="emerald-forest"], html[data-theme="emerald-forest"] {
+  --bg-color: #06120E !important;
+  --bg-secondary: #0D221A !important;
+  --surface: #0D221A !important;
+  --surface-base: #0D221A !important;
+  --surface-raised: #112C22 !important;
+  --surface-secondary: #133126 !important;
+  --surface-hover: #183E30 !important;
+  --border-color: rgba(16, 185, 129, 0.4) !important;
+  --border-subtle: rgba(255, 255, 255, 0.12) !important;
+  --border: rgba(16, 185, 129, 0.4) !important;
+  --text-primary: #FFFFFF !important;
+  --text-secondary: #86EFAC !important;
+  --text-muted: #4ADE80 !important;
+  --text-main: #FFFFFF !important;
+  --accent-color: #10B981 !important;
+  --primary-accent: #10B981 !important;
+  --sb-bg: #06120E !important;
+  --sb-border: rgba(16, 185, 129, 0.3) !important;
+  --hdr-bg: rgba(6, 18, 14, 0.94) !important;
+  --hdr-border: rgba(16, 185, 129, 0.45) !important;
+}
+
+/* 16. DESERT MOCHA (الرمال الصحراوية وموكا) */
+:root[data-theme="desert-mocha"], html[data-theme="desert-mocha"] {
+  --bg-color: #16110D !important;
+  --bg-secondary: #221B15 !important;
+  --surface: #221B15 !important;
+  --surface-base: #221B15 !important;
+  --surface-raised: #2B221B !important;
+  --surface-secondary: #30261E !important;
+  --surface-hover: #3C3026 !important;
+  --border-color: rgba(234, 88, 12, 0.38) !important;
+  --border-subtle: rgba(255, 255, 255, 0.12) !important;
+  --border: rgba(234, 88, 12, 0.38) !important;
+  --text-primary: #FDE68A !important;
+  --text-secondary: #D6BC97 !important;
+  --text-muted: #B89D78 !important;
+  --text-main: #FDE68A !important;
+  --accent-color: #EA580C !important;
+  --primary-accent: #EA580C !important;
+  --sb-bg: #16110D !important;
+  --sb-border: rgba(234, 88, 12, 0.3) !important;
+  --hdr-bg: rgba(22, 17, 13, 0.94) !important;
+  --hdr-border: rgba(234, 88, 12, 0.45) !important;
+}
+
+/* 17. SUNLIGHT TITANIUM (التيتانيوم الشمسي فائق التباين AAA) */
+:root[data-theme="sunlight-titanium"], html[data-theme="sunlight-titanium"] {
+  --bg-color: #0A0D12 !important;
+  --bg-secondary: #151B24 !important;
+  --surface: #151B24 !important;
+  --surface-base: #151B24 !important;
+  --surface-raised: #1C2430 !important;
+  --surface-secondary: #1E2633 !important;
+  --surface-hover: #252F3F !important;
+  --border-color: rgba(255, 255, 255, 0.32) !important;
+  --border-subtle: rgba(255, 255, 255, 0.16) !important;
+  --border: rgba(255, 255, 255, 0.32) !important;
+  --text-primary: #FFFFFF !important;
+  --text-secondary: #E2E8F0 !important;
+  --text-muted: #CBD5E1 !important;
+  --text-main: #FFFFFF !important;
+  --accent-color: #FACC15 !important;
+  --primary-accent: #FACC15 !important;
+  --sb-bg: #0A0D12 !important;
+  --sb-border: rgba(255, 255, 255, 0.25) !important;
+  --hdr-bg: rgba(10, 13, 18, 0.94) !important;
+  --hdr-border: rgba(255, 255, 255, 0.35) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ── 2. GROUP RULES: THE 8 LIGHT / WARM THEMES
+   ═══════════════════════════════════════════════════════════════════ */
+html[data-theme="warm-alabaster"],
+html[data-theme="pure-platinum"],
+html[data-theme="beige"],
+html[data-theme="ivory"],
+html[data-theme="offwhite"],
+html[data-theme="light-linen"],
+html[data-theme="pearl-platinum"],
+html[data-theme="nordic-paper"] {
+  color-scheme: light !important;
+}
+
+/* Page Canvas & Body */
+html[data-theme="warm-alabaster"] body,
+html[data-theme="pure-platinum"] body,
+html[data-theme="beige"] body,
+html[data-theme="ivory"] body,
+html[data-theme="offwhite"] body,
+html[data-theme="light-linen"] body,
+html[data-theme="pearl-platinum"] body,
+html[data-theme="nordic-paper"] body,
+html[data-theme="warm-alabaster"] .ambient-bg,
+html[data-theme="pure-platinum"] .ambient-bg,
+html[data-theme="beige"] .ambient-bg,
+html[data-theme="ivory"] .ambient-bg,
+html[data-theme="offwhite"] .ambient-bg,
+html[data-theme="light-linen"] .ambient-bg,
+html[data-theme="pearl-platinum"] .ambient-bg,
+html[data-theme="nordic-paper"] .ambient-bg {
+  background-color: var(--bg-color) !important;
+  background: var(--bg-color) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Desktop Header (.magical-glass-header, .premium-header, .top-header) */
+html[data-theme="warm-alabaster"] .magical-glass-header,
+html[data-theme="pure-platinum"] .magical-glass-header,
+html[data-theme="beige"] .magical-glass-header,
+html[data-theme="ivory"] .magical-glass-header,
+html[data-theme="offwhite"] .magical-glass-header,
+html[data-theme="light-linen"] .magical-glass-header,
+html[data-theme="pearl-platinum"] .magical-glass-header,
+html[data-theme="nordic-paper"] .magical-glass-header,
+html[data-theme="warm-alabaster"] .premium-header,
+html[data-theme="pure-platinum"] .premium-header,
+html[data-theme="beige"] .premium-header,
+html[data-theme="ivory"] .premium-header,
+html[data-theme="offwhite"] .premium-header,
+html[data-theme="light-linen"] .premium-header,
+html[data-theme="pearl-platinum"] .premium-header,
+html[data-theme="nordic-paper"] .premium-header,
+html[data-theme="warm-alabaster"] .top-header,
+html[data-theme="pure-platinum"] .top-header,
+html[data-theme="beige"] .top-header,
+html[data-theme="ivory"] .top-header,
+html[data-theme="offwhite"] .top-header,
+html[data-theme="light-linen"] .top-header,
+html[data-theme="pearl-platinum"] .top-header,
+html[data-theme="nordic-paper"] .top-header {
+  background: var(--hdr-bg, rgba(255, 255, 255, 0.94)) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1.5px solid var(--hdr-border, var(--border-color)) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06) !important;
+  animation: none !important;
+}
+
+/* Header Text Contrast in Light Themes */
+html[data-theme="warm-alabaster"] .header-page-title,
+html[data-theme="pure-platinum"] .header-page-title,
+html[data-theme="beige"] .header-page-title,
+html[data-theme="ivory"] .header-page-title,
+html[data-theme="offwhite"] .header-page-title,
+html[data-theme="light-linen"] .header-page-title,
+html[data-theme="pearl-platinum"] .header-page-title,
+html[data-theme="nordic-paper"] .header-page-title,
+html[data-theme="warm-alabaster"] #header-company-name-top,
+html[data-theme="pure-platinum"] #header-company-name-top,
+html[data-theme="beige"] #header-company-name-top,
+html[data-theme="ivory"] #header-company-name-top,
+html[data-theme="offwhite"] #header-company-name-top,
+html[data-theme="light-linen"] #header-company-name-top,
+html[data-theme="pearl-platinum"] #header-company-name-top,
+html[data-theme="nordic-paper"] #header-company-name-top,
+html[data-theme="warm-alabaster"] #header-user-name,
+html[data-theme="pure-platinum"] #header-user-name,
+html[data-theme="beige"] #header-user-name,
+html[data-theme="ivory"] #header-user-name,
+html[data-theme="offwhite"] #header-user-name,
+html[data-theme="light-linen"] #header-user-name,
+html[data-theme="pearl-platinum"] #header-user-name,
+html[data-theme="nordic-paper"] #header-user-name {
+  color: var(--text-primary, #0f172a) !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+
+/* Header Widgets (User Info, Clock, Badges, TV Button) in Light Themes */
+html[data-theme="warm-alabaster"] .magical-glass-header .clock-container,
+html[data-theme="pure-platinum"] .magical-glass-header .clock-container,
+html[data-theme="beige"] .magical-glass-header .clock-container,
+html[data-theme="ivory"] .magical-glass-header .clock-container,
+html[data-theme="offwhite"] .magical-glass-header .clock-container,
+html[data-theme="light-linen"] .magical-glass-header .clock-container,
+html[data-theme="pearl-platinum"] .magical-glass-header .clock-container,
+html[data-theme="nordic-paper"] .magical-glass-header .clock-container,
+html[data-theme="warm-alabaster"] .magical-glass-header .user-info,
+html[data-theme="pure-platinum"] .magical-glass-header .user-info,
+html[data-theme="beige"] .magical-glass-header .user-info,
+html[data-theme="ivory"] .magical-glass-header .user-info,
+html[data-theme="offwhite"] .magical-glass-header .user-info,
+html[data-theme="light-linen"] .magical-glass-header .user-info,
+html[data-theme="pearl-platinum"] .magical-glass-header .user-info,
+html[data-theme="nordic-paper"] .magical-glass-header .user-info {
+  background: #ffffff !important;
+  border: 1.5px solid var(--border-color) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="warm-alabaster"] #header-clock,
+html[data-theme="pure-platinum"] #header-clock,
+html[data-theme="beige"] #header-clock,
+html[data-theme="ivory"] #header-clock,
+html[data-theme="offwhite"] #header-clock,
+html[data-theme="light-linen"] #header-clock,
+html[data-theme="pearl-platinum"] #header-clock,
+html[data-theme="nordic-paper"] #header-clock {
+  color: #059669 !important;
+  text-shadow: none !important;
+  font-weight: 900 !important;
+}
+
+html[data-theme="warm-alabaster"] #header-user-role,
+html[data-theme="pure-platinum"] #header-user-role,
+html[data-theme="beige"] #header-user-role,
+html[data-theme="ivory"] #header-user-role,
+html[data-theme="offwhite"] #header-user-role,
+html[data-theme="light-linen"] #header-user-role,
+html[data-theme="pearl-platinum"] #header-user-role,
+html[data-theme="nordic-paper"] #header-user-role,
+html[data-theme="warm-alabaster"] #header-date-mini,
+html[data-theme="pure-platinum"] #header-date-mini,
+html[data-theme="beige"] #header-date-mini,
+html[data-theme="ivory"] #header-date-mini,
+html[data-theme="offwhite"] #header-date-mini,
+html[data-theme="light-linen"] #header-date-mini,
+html[data-theme="pearl-platinum"] #header-date-mini,
+html[data-theme="nordic-paper"] #header-date-mini {
+  color: var(--text-secondary, #475569) !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="warm-alabaster"] .header-tv-mini-btn,
+html[data-theme="pure-platinum"] .header-tv-mini-btn,
+html[data-theme="beige"] .header-tv-mini-btn,
+html[data-theme="ivory"] .header-tv-mini-btn,
+html[data-theme="offwhite"] .header-tv-mini-btn,
+html[data-theme="light-linen"] .header-tv-mini-btn,
+html[data-theme="pearl-platinum"] .header-tv-mini-btn,
+html[data-theme="nordic-paper"] .header-tv-mini-btn {
+  background: #ffffff !important;
+  border: 1.5px solid #d97706 !important;
+  color: #b45309 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="warm-alabaster"] button.fullscreen-toggle-btn,
+html[data-theme="pure-platinum"] button.fullscreen-toggle-btn,
+html[data-theme="beige"] button.fullscreen-toggle-btn,
+html[data-theme="ivory"] button.fullscreen-toggle-btn,
+html[data-theme="offwhite"] button.fullscreen-toggle-btn,
+html[data-theme="light-linen"] button.fullscreen-toggle-btn,
+html[data-theme="pearl-platinum"] button.fullscreen-toggle-btn,
+html[data-theme="nordic-paper"] button.fullscreen-toggle-btn,
+html[data-theme="warm-alabaster"] button.theme-toggle-btn,
+html[data-theme="pure-platinum"] button.theme-toggle-btn,
+html[data-theme="beige"] button.theme-toggle-btn,
+html[data-theme="ivory"] button.theme-toggle-btn,
+html[data-theme="offwhite"] button.theme-toggle-btn,
+html[data-theme="light-linen"] button.theme-toggle-btn,
+html[data-theme="pearl-platinum"] button.theme-toggle-btn,
+html[data-theme="nordic-paper"] button.theme-toggle-btn,
+html[data-theme="warm-alabaster"] .audit-tracker-btn,
+html[data-theme="pure-platinum"] .audit-tracker-btn,
+html[data-theme="beige"] .audit-tracker-btn,
+html[data-theme="ivory"] .audit-tracker-btn,
+html[data-theme="offwhite"] .audit-tracker-btn,
+html[data-theme="light-linen"] .audit-tracker-btn,
+html[data-theme="pearl-platinum"] .audit-tracker-btn,
+html[data-theme="nordic-paper"] .audit-tracker-btn {
+  background: #ffffff !important;
+  border: 1.5px solid var(--border-color) !important;
+  color: var(--text-primary, #0f172a) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Global Desktop Sidebar in Light Themes */
+html[data-theme="warm-alabaster"] .global-sidebar,
+html[data-theme="pure-platinum"] .global-sidebar,
+html[data-theme="beige"] .global-sidebar,
+html[data-theme="ivory"] .global-sidebar,
+html[data-theme="offwhite"] .global-sidebar,
+html[data-theme="light-linen"] .global-sidebar,
+html[data-theme="pearl-platinum"] .global-sidebar,
+html[data-theme="nordic-paper"] .global-sidebar {
+  background: var(--sb-bg, #ffffff) !important;
+  border-left: 2px solid var(--sb-border, var(--border-color)) !important;
+  box-shadow: -4px 0 25px rgba(0, 0, 0, 0.06) !important;
+}
+
+html[data-theme="warm-alabaster"] .sidebar-header,
+html[data-theme="pure-platinum"] .sidebar-header,
+html[data-theme="beige"] .sidebar-header,
+html[data-theme="ivory"] .sidebar-header,
+html[data-theme="offwhite"] .sidebar-header,
+html[data-theme="light-linen"] .sidebar-header,
+html[data-theme="pearl-platinum"] .sidebar-header,
+html[data-theme="nordic-paper"] .sidebar-header {
+  border-bottom: 1.5px solid var(--border-subtle, var(--border-color)) !important;
+}
+
+html[data-theme="warm-alabaster"] .sidebar-logo-text,
+html[data-theme="pure-platinum"] .sidebar-logo-text,
+html[data-theme="beige"] .sidebar-logo-text,
+html[data-theme="ivory"] .sidebar-logo-text,
+html[data-theme="offwhite"] .sidebar-logo-text,
+html[data-theme="light-linen"] .sidebar-logo-text,
+html[data-theme="pearl-platinum"] .sidebar-logo-text,
+html[data-theme="nordic-paper"] .sidebar-logo-text,
+html[data-theme="warm-alabaster"] .sidebar-text,
+html[data-theme="pure-platinum"] .sidebar-text,
+html[data-theme="beige"] .sidebar-text,
+html[data-theme="ivory"] .sidebar-text,
+html[data-theme="offwhite"] .sidebar-text,
+html[data-theme="light-linen"] .sidebar-text,
+html[data-theme="pearl-platinum"] .sidebar-text,
+html[data-theme="nordic-paper"] .sidebar-text {
+  color: var(--text-primary, #0f172a) !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="warm-alabaster"] .sidebar-item,
+html[data-theme="pure-platinum"] .sidebar-item,
+html[data-theme="beige"] .sidebar-item,
+html[data-theme="ivory"] .sidebar-item,
+html[data-theme="offwhite"] .sidebar-item,
+html[data-theme="light-linen"] .sidebar-item,
+html[data-theme="pearl-platinum"] .sidebar-item,
+html[data-theme="nordic-paper"] .sidebar-item {
+  color: var(--text-secondary, #334155) !important;
+}
+
+html[data-theme="warm-alabaster"] .sidebar-item:hover,
+html[data-theme="pure-platinum"] .sidebar-item:hover,
+html[data-theme="beige"] .sidebar-item:hover,
+html[data-theme="ivory"] .sidebar-item:hover,
+html[data-theme="offwhite"] .sidebar-item:hover,
+html[data-theme="light-linen"] .sidebar-item:hover,
+html[data-theme="pearl-platinum"] .sidebar-item:hover,
+html[data-theme="nordic-paper"] .sidebar-item:hover {
+  background: rgba(0, 0, 0, 0.05) !important;
+}
+
+html[data-theme="warm-alabaster"] .sidebar-item.active,
+html[data-theme="pure-platinum"] .sidebar-item.active,
+html[data-theme="beige"] .sidebar-item.active,
+html[data-theme="ivory"] .sidebar-item.active,
+html[data-theme="offwhite"] .sidebar-item.active,
+html[data-theme="light-linen"] .sidebar-item.active,
+html[data-theme="pearl-platinum"] .sidebar-item.active,
+html[data-theme="nordic-paper"] .sidebar-item.active {
+  background: rgba(37, 99, 235, 0.09) !important;
+  color: #2563eb !important;
+  border-right: 4px solid #2563eb !important;
+}
+
+/* Cards, Panels, Boxes in Light Themes (Eliminating Dark/Black patches completely) */
+html[data-theme="warm-alabaster"] .panel,
+html[data-theme="pure-platinum"] .panel,
+html[data-theme="beige"] .panel,
+html[data-theme="ivory"] .panel,
+html[data-theme="offwhite"] .panel,
+html[data-theme="light-linen"] .panel,
+html[data-theme="pearl-platinum"] .panel,
+html[data-theme="nordic-paper"] .panel,
+html[data-theme="warm-alabaster"] .glass-panel,
+html[data-theme="pure-platinum"] .glass-panel,
+html[data-theme="beige"] .glass-panel,
+html[data-theme="ivory"] .glass-panel,
+html[data-theme="offwhite"] .glass-panel,
+html[data-theme="light-linen"] .glass-panel,
+html[data-theme="pearl-platinum"] .glass-panel,
+html[data-theme="nordic-paper"] .glass-panel,
+html[data-theme="warm-alabaster"] .neo-card,
+html[data-theme="pure-platinum"] .neo-card,
+html[data-theme="beige"] .neo-card,
+html[data-theme="ivory"] .neo-card,
+html[data-theme="offwhite"] .neo-card,
+html[data-theme="light-linen"] .neo-card,
+html[data-theme="pearl-platinum"] .neo-card,
+html[data-theme="nordic-paper"] .neo-card,
+html[data-theme="warm-alabaster"] .summary-card,
+html[data-theme="pure-platinum"] .summary-card,
+html[data-theme="beige"] .summary-card,
+html[data-theme="ivory"] .summary-card,
+html[data-theme="offwhite"] .summary-card,
+html[data-theme="light-linen"] .summary-card,
+html[data-theme="pearl-platinum"] .summary-card,
+html[data-theme="nordic-paper"] .summary-card,
+html[data-theme="warm-alabaster"] .filter-panel,
+html[data-theme="pure-platinum"] .filter-panel,
+html[data-theme="beige"] .filter-panel,
+html[data-theme="ivory"] .filter-panel,
+html[data-theme="offwhite"] .filter-panel,
+html[data-theme="light-linen"] .filter-panel,
+html[data-theme="pearl-platinum"] .filter-panel,
+html[data-theme="nordic-paper"] .filter-panel,
+html[data-theme="warm-alabaster"] .chart-card,
+html[data-theme="pure-platinum"] .chart-card,
+html[data-theme="beige"] .chart-card,
+html[data-theme="ivory"] .chart-card,
+html[data-theme="offwhite"] .chart-card,
+html[data-theme="light-linen"] .chart-card,
+html[data-theme="pearl-platinum"] .chart-card,
+html[data-theme="nordic-paper"] .chart-card,
+html[data-theme="warm-alabaster"] .kpi-card,
+html[data-theme="pure-platinum"] .kpi-card,
+html[data-theme="beige"] .kpi-card,
+html[data-theme="ivory"] .kpi-card,
+html[data-theme="offwhite"] .kpi-card,
+html[data-theme="light-linen"] .kpi-card,
+html[data-theme="pearl-platinum"] .kpi-card,
+html[data-theme="nordic-paper"] .kpi-card,
+html[data-theme="warm-alabaster"] .info-card,
+html[data-theme="pure-platinum"] .info-card,
+html[data-theme="beige"] .info-card,
+html[data-theme="ivory"] .info-card,
+html[data-theme="offwhite"] .info-card,
+html[data-theme="light-linen"] .info-card,
+html[data-theme="pearl-platinum"] .info-card,
+html[data-theme="nordic-paper"] .info-card,
+html[data-theme="warm-alabaster"] .recent-receipts-card,
+html[data-theme="pure-platinum"] .recent-receipts-card,
+html[data-theme="beige"] .recent-receipts-card,
+html[data-theme="ivory"] .recent-receipts-card,
+html[data-theme="offwhite"] .recent-receipts-card,
+html[data-theme="light-linen"] .recent-receipts-card,
+html[data-theme="pearl-platinum"] .recent-receipts-card,
+html[data-theme="nordic-paper"] .recent-receipts-card,
+html[data-theme="warm-alabaster"] .report-header,
+html[data-theme="pure-platinum"] .report-header,
+html[data-theme="beige"] .report-header,
+html[data-theme="ivory"] .report-header,
+html[data-theme="offwhite"] .report-header,
+html[data-theme="light-linen"] .report-header,
+html[data-theme="pearl-platinum"] .report-header,
+html[data-theme="nordic-paper"] .report-header,
+html[data-theme="warm-alabaster"] .pos-wrapper,
+html[data-theme="pure-platinum"] .pos-wrapper,
+html[data-theme="beige"] .pos-wrapper,
+html[data-theme="ivory"] .pos-wrapper,
+html[data-theme="offwhite"] .pos-wrapper,
+html[data-theme="light-linen"] .pos-wrapper,
+html[data-theme="pearl-platinum"] .pos-wrapper,
+html[data-theme="nordic-paper"] .pos-wrapper,
+html[data-theme="warm-alabaster"] .editor-left,
+html[data-theme="pure-platinum"] .editor-left,
+html[data-theme="beige"] .editor-left,
+html[data-theme="ivory"] .editor-left,
+html[data-theme="offwhite"] .editor-left,
+html[data-theme="light-linen"] .editor-left,
+html[data-theme="pearl-platinum"] .editor-left,
+html[data-theme="nordic-paper"] .editor-left,
+html[data-theme="warm-alabaster"] div[style*="background: #0f172a"],
+html[data-theme="pure-platinum"] div[style*="background: #0f172a"],
+html[data-theme="beige"] div[style*="background: #0f172a"],
+html[data-theme="ivory"] div[style*="background: #0f172a"],
+html[data-theme="offwhite"] div[style*="background: #0f172a"],
+html[data-theme="light-linen"] div[style*="background: #0f172a"],
+html[data-theme="pearl-platinum"] div[style*="background: #0f172a"],
+html[data-theme="nordic-paper"] div[style*="background: #0f172a"],
+html[data-theme="warm-alabaster"] div[style*="background:#0f172a"],
+html[data-theme="pure-platinum"] div[style*="background:#0f172a"],
+html[data-theme="beige"] div[style*="background:#0f172a"],
+html[data-theme="ivory"] div[style*="background:#0f172a"],
+html[data-theme="offwhite"] div[style*="background:#0f172a"],
+html[data-theme="light-linen"] div[style*="background:#0f172a"],
+html[data-theme="pearl-platinum"] div[style*="background:#0f172a"],
+html[data-theme="nordic-paper"] div[style*="background:#0f172a"],
+html[data-theme="warm-alabaster"] div[style*="background: rgba(15, 23, 42"],
+html[data-theme="pure-platinum"] div[style*="background: rgba(15, 23, 42"],
+html[data-theme="beige"] div[style*="background: rgba(15, 23, 42"],
+html[data-theme="ivory"] div[style*="background: rgba(15, 23, 42"],
+html[data-theme="offwhite"] div[style*="background: rgba(15, 23, 42"],
+html[data-theme="light-linen"] div[style*="background: rgba(15, 23, 42"],
+html[data-theme="pearl-platinum"] div[style*="background: rgba(15, 23, 42"],
+html[data-theme="nordic-paper"] div[style*="background: rgba(15, 23, 42"],
+html[data-theme="warm-alabaster"] div[style*="background: rgba(30, 41, 59"],
+html[data-theme="pure-platinum"] div[style*="background: rgba(30, 41, 59"],
+html[data-theme="beige"] div[style*="background: rgba(30, 41, 59"],
+html[data-theme="ivory"] div[style*="background: rgba(30, 41, 59"],
+html[data-theme="offwhite"] div[style*="background: rgba(30, 41, 59"],
+html[data-theme="light-linen"] div[style*="background: rgba(30, 41, 59"],
+html[data-theme="pearl-platinum"] div[style*="background: rgba(30, 41, 59"],
+html[data-theme="nordic-paper"] div[style*="background: rgba(30, 41, 59"],
+html[data-theme="warm-alabaster"] div[style*="background: #0b0f17"],
+html[data-theme="pure-platinum"] div[style*="background: #0b0f17"],
+html[data-theme="beige"] div[style*="background: #0b0f17"],
+html[data-theme="ivory"] div[style*="background: #0b0f17"],
+html[data-theme="offwhite"] div[style*="background: #0b0f17"],
+html[data-theme="light-linen"] div[style*="background: #0b0f17"],
+html[data-theme="pearl-platinum"] div[style*="background: #0b0f17"],
+html[data-theme="nordic-paper"] div[style*="background: #0b0f17"],
+html[data-theme="warm-alabaster"] div[style*="background: #050308"],
+html[data-theme="pure-platinum"] div[style*="background: #050308"],
+html[data-theme="beige"] div[style*="background: #050308"],
+html[data-theme="ivory"] div[style*="background: #050308"],
+html[data-theme="offwhite"] div[style*="background: #050308"],
+html[data-theme="light-linen"] div[style*="background: #050308"],
+html[data-theme="pearl-platinum"] div[style*="background: #050308"],
+html[data-theme="nordic-paper"] div[style*="background: #050308"],
+html[data-theme="warm-alabaster"] [class*="bg-slate-900"],
+html[data-theme="pure-platinum"] [class*="bg-slate-900"],
+html[data-theme="beige"] [class*="bg-slate-900"],
+html[data-theme="ivory"] [class*="bg-slate-900"],
+html[data-theme="offwhite"] [class*="bg-slate-900"],
+html[data-theme="light-linen"] [class*="bg-slate-900"],
+html[data-theme="pearl-platinum"] [class*="bg-slate-900"],
+html[data-theme="nordic-paper"] [class*="bg-slate-900"],
+html[data-theme="warm-alabaster"] [class*="bg-slate-950"],
+html[data-theme="pure-platinum"] [class*="bg-slate-950"],
+html[data-theme="beige"] [class*="bg-slate-950"],
+html[data-theme="ivory"] [class*="bg-slate-950"],
+html[data-theme="offwhite"] [class*="bg-slate-950"],
+html[data-theme="light-linen"] [class*="bg-slate-950"],
+html[data-theme="pearl-platinum"] [class*="bg-slate-950"],
+html[data-theme="nordic-paper"] [class*="bg-slate-950"] {
+  background: var(--surface, #ffffff) !important;
+  background-color: var(--surface, #ffffff) !important;
+  background-image: none !important;
+  border: 1.5px solid var(--border-color, #cbd5e1) !important;
+  color: var(--text-primary, #0f172a) !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Secondary Panels / Rows in Light Themes */
+html[data-theme="warm-alabaster"] [class*="bg-slate-800"],
+html[data-theme="pure-platinum"] [class*="bg-slate-800"],
+html[data-theme="beige"] [class*="bg-slate-800"],
+html[data-theme="ivory"] [class*="bg-slate-800"],
+html[data-theme="offwhite"] [class*="bg-slate-800"],
+html[data-theme="light-linen"] [class*="bg-slate-800"],
+html[data-theme="pearl-platinum"] [class*="bg-slate-800"],
+html[data-theme="nordic-paper"] [class*="bg-slate-800"] {
+  background: var(--surface-secondary, #f1f5f9) !important;
+  background-color: var(--surface-secondary, #f1f5f9) !important;
+  background-image: none !important;
+  border-color: var(--border-color, #cbd5e1) !important;
+  color: var(--text-primary, #0f172a) !important;
+}
+
+/* Tables across ALL Screens in Light Themes */
+html[data-theme="warm-alabaster"] table,
+html[data-theme="pure-platinum"] table,
+html[data-theme="beige"] table,
+html[data-theme="ivory"] table,
+html[data-theme="offwhite"] table,
+html[data-theme="light-linen"] table,
+html[data-theme="pearl-platinum"] table,
+html[data-theme="nordic-paper"] table,
+html[data-theme="warm-alabaster"] table.pro-table,
+html[data-theme="pure-platinum"] table.pro-table,
+html[data-theme="beige"] table.pro-table,
+html[data-theme="ivory"] table.pro-table,
+html[data-theme="offwhite"] table.pro-table,
+html[data-theme="light-linen"] table.pro-table,
+html[data-theme="pearl-platinum"] table.pro-table,
+html[data-theme="nordic-paper"] table.pro-table,
+html[data-theme="warm-alabaster"] .pos-grid,
+html[data-theme="pure-platinum"] .pos-grid,
+html[data-theme="beige"] .pos-grid,
+html[data-theme="ivory"] .pos-grid,
+html[data-theme="offwhite"] .pos-grid,
+html[data-theme="light-linen"] .pos-grid,
+html[data-theme="pearl-platinum"] .pos-grid,
+html[data-theme="nordic-paper"] .pos-grid,
+html[data-theme="warm-alabaster"] .ledger-table,
+html[data-theme="pure-platinum"] .ledger-table,
+html[data-theme="beige"] .ledger-table,
+html[data-theme="ivory"] .ledger-table,
+html[data-theme="offwhite"] .ledger-table,
+html[data-theme="light-linen"] .ledger-table,
+html[data-theme="pearl-platinum"] .ledger-table,
+html[data-theme="nordic-paper"] .ledger-table,
+html[data-theme="warm-alabaster"] .report-table,
+html[data-theme="pure-platinum"] .report-table,
+html[data-theme="beige"] .report-table,
+html[data-theme="ivory"] .report-table,
+html[data-theme="offwhite"] .report-table,
+html[data-theme="light-linen"] .report-table,
+html[data-theme="pearl-platinum"] .report-table,
+html[data-theme="nordic-paper"] .report-table {
+  background: #ffffff !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="warm-alabaster"] th,
+html[data-theme="pure-platinum"] th,
+html[data-theme="beige"] th,
+html[data-theme="ivory"] th,
+html[data-theme="offwhite"] th,
+html[data-theme="light-linen"] th,
+html[data-theme="pearl-platinum"] th,
+html[data-theme="nordic-paper"] th,
+html[data-theme="warm-alabaster"] thead th,
+html[data-theme="pure-platinum"] thead th,
+html[data-theme="beige"] thead th,
+html[data-theme="ivory"] thead th,
+html[data-theme="offwhite"] thead th,
+html[data-theme="light-linen"] thead th,
+html[data-theme="pearl-platinum"] thead th,
+html[data-theme="nordic-paper"] thead th {
+  background: var(--surface-secondary, #f1f5f9) !important;
+  color: var(--text-primary, #0f172a) !important;
+  border: 1.5px solid var(--border-color) !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="warm-alabaster"] td,
+html[data-theme="pure-platinum"] td,
+html[data-theme="beige"] td,
+html[data-theme="ivory"] td,
+html[data-theme="offwhite"] td,
+html[data-theme="light-linen"] td,
+html[data-theme="pearl-platinum"] td,
+html[data-theme="nordic-paper"] td,
+html[data-theme="warm-alabaster"] tbody td,
+html[data-theme="pure-platinum"] tbody td,
+html[data-theme="beige"] tbody td,
+html[data-theme="ivory"] tbody td,
+html[data-theme="offwhite"] tbody td,
+html[data-theme="light-linen"] tbody td,
+html[data-theme="pearl-platinum"] tbody td,
+html[data-theme="nordic-paper"] tbody td {
+  background: #ffffff !important;
+  color: var(--text-primary, #0f172a) !important;
+  border: 1px solid var(--border-subtle, var(--border-color)) !important;
+  font-weight: 700 !important;
+  text-shadow: none !important;
+}
+
+html[data-theme="warm-alabaster"] tbody tr:hover td,
+html[data-theme="pure-platinum"] tbody tr:hover td,
+html[data-theme="beige"] tbody tr:hover td,
+html[data-theme="ivory"] tbody tr:hover td,
+html[data-theme="offwhite"] tbody tr:hover td,
+html[data-theme="light-linen"] tbody tr:hover td,
+html[data-theme="pearl-platinum"] tbody tr:hover td,
+html[data-theme="nordic-paper"] tbody tr:hover td {
+  background: var(--surface-hover, #f8fafc) !important;
+  color: var(--text-primary, #0f172a) !important;
+}
+
+/* Form Controls & Inputs in Light Themes */
+html[data-theme="warm-alabaster"] input,
+html[data-theme="pure-platinum"] input,
+html[data-theme="beige"] input,
+html[data-theme="ivory"] input,
+html[data-theme="offwhite"] input,
+html[data-theme="light-linen"] input,
+html[data-theme="pearl-platinum"] input,
+html[data-theme="nordic-paper"] input,
+html[data-theme="warm-alabaster"] select,
+html[data-theme="pure-platinum"] select,
+html[data-theme="beige"] select,
+html[data-theme="ivory"] select,
+html[data-theme="offwhite"] select,
+html[data-theme="light-linen"] select,
+html[data-theme="pearl-platinum"] select,
+html[data-theme="nordic-paper"] select,
+html[data-theme="warm-alabaster"] textarea,
+html[data-theme="pure-platinum"] textarea,
+html[data-theme="beige"] textarea,
+html[data-theme="ivory"] textarea,
+html[data-theme="offwhite"] textarea,
+html[data-theme="light-linen"] textarea,
+html[data-theme="pearl-platinum"] textarea,
+html[data-theme="nordic-paper"] textarea,
+html[data-theme="warm-alabaster"] .choices__inner,
+html[data-theme="pure-platinum"] .choices__inner,
+html[data-theme="beige"] .choices__inner,
+html[data-theme="ivory"] .choices__inner,
+html[data-theme="offwhite"] .choices__inner,
+html[data-theme="light-linen"] .choices__inner,
+html[data-theme="pearl-platinum"] .choices__inner,
+html[data-theme="nordic-paper"] .choices__inner,
+html[data-theme="warm-alabaster"] .choices__list--dropdown,
+html[data-theme="pure-platinum"] .choices__list--dropdown,
+html[data-theme="beige"] .choices__list--dropdown,
+html[data-theme="ivory"] .choices__list--dropdown,
+html[data-theme="offwhite"] .choices__list--dropdown,
+html[data-theme="light-linen"] .choices__list--dropdown,
+html[data-theme="pearl-platinum"] .choices__list--dropdown,
+html[data-theme="nordic-paper"] .choices__list--dropdown,
+html[data-theme="warm-alabaster"] .v-input,
+html[data-theme="pure-platinum"] .v-input,
+html[data-theme="beige"] .v-input,
+html[data-theme="ivory"] .v-input,
+html[data-theme="offwhite"] .v-input,
+html[data-theme="light-linen"] .v-input,
+html[data-theme="pearl-platinum"] .v-input,
+html[data-theme="nordic-paper"] .v-input,
+html[data-theme="warm-alabaster"] .ctrl-input,
+html[data-theme="pure-platinum"] .ctrl-input,
+html[data-theme="beige"] .ctrl-input,
+html[data-theme="ivory"] .ctrl-input,
+html[data-theme="offwhite"] .ctrl-input,
+html[data-theme="light-linen"] .ctrl-input,
+html[data-theme="pearl-platinum"] .ctrl-input,
+html[data-theme="nordic-paper"] .ctrl-input,
+html[data-theme="warm-alabaster"] .g-input,
+html[data-theme="pure-platinum"] .g-input,
+html[data-theme="beige"] .g-input,
+html[data-theme="ivory"] .g-input,
+html[data-theme="offwhite"] .g-input,
+html[data-theme="light-linen"] .g-input,
+html[data-theme="pearl-platinum"] .g-input,
+html[data-theme="nordic-paper"] .g-input,
+html[data-theme="warm-alabaster"] .filter-input,
+html[data-theme="pure-platinum"] .filter-input,
+html[data-theme="beige"] .filter-input,
+html[data-theme="ivory"] .filter-input,
+html[data-theme="offwhite"] .filter-input,
+html[data-theme="light-linen"] .filter-input,
+html[data-theme="pearl-platinum"] .filter-input,
+html[data-theme="nordic-paper"] .filter-input {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: var(--text-primary, #0f172a) !important;
+  -webkit-text-fill-color: var(--text-primary, #0f172a) !important;
+  border: 1.5px solid var(--border-color) !important;
+  caret-color: var(--text-primary, #0f172a) !important;
+}
+
+html[data-theme="warm-alabaster"] input::placeholder,
+html[data-theme="pure-platinum"] input::placeholder,
+html[data-theme="beige"] input::placeholder,
+html[data-theme="ivory"] input::placeholder,
+html[data-theme="offwhite"] input::placeholder,
+html[data-theme="light-linen"] input::placeholder,
+html[data-theme="pearl-platinum"] input::placeholder,
+html[data-theme="nordic-paper"] input::placeholder,
+html[data-theme="warm-alabaster"] textarea::placeholder,
+html[data-theme="pure-platinum"] textarea::placeholder,
+html[data-theme="beige"] textarea::placeholder,
+html[data-theme="ivory"] textarea::placeholder,
+html[data-theme="offwhite"] textarea::placeholder,
+html[data-theme="light-linen"] textarea::placeholder,
+html[data-theme="pearl-platinum"] textarea::placeholder,
+html[data-theme="nordic-paper"] textarea::placeholder {
+  color: #64748b !important;
+  -webkit-text-fill-color: #64748b !important;
+  opacity: 1 !important;
+}
+
+/* Typography, Headings & Labels in Light Themes */
+html[data-theme="warm-alabaster"] label,
+html[data-theme="pure-platinum"] label,
+html[data-theme="beige"] label,
+html[data-theme="ivory"] label,
+html[data-theme="offwhite"] label,
+html[data-theme="light-linen"] label,
+html[data-theme="pearl-platinum"] label,
+html[data-theme="nordic-paper"] label,
+html[data-theme="warm-alabaster"] .h-label,
+html[data-theme="pure-platinum"] .h-label,
+html[data-theme="beige"] .h-label,
+html[data-theme="ivory"] .h-label,
+html[data-theme="offwhite"] .h-label,
+html[data-theme="light-linen"] .h-label,
+html[data-theme="pearl-platinum"] .h-label,
+html[data-theme="nordic-paper"] .h-label,
+html[data-theme="warm-alabaster"] .form-label,
+html[data-theme="pure-platinum"] .form-label,
+html[data-theme="beige"] .form-label,
+html[data-theme="ivory"] .form-label,
+html[data-theme="offwhite"] .form-label,
+html[data-theme="light-linen"] .form-label,
+html[data-theme="pearl-platinum"] .form-label,
+html[data-theme="nordic-paper"] .form-label,
+html[data-theme="warm-alabaster"] .setting-title,
+html[data-theme="pure-platinum"] .setting-title,
+html[data-theme="beige"] .setting-title,
+html[data-theme="ivory"] .setting-title,
+html[data-theme="offwhite"] .setting-title,
+html[data-theme="light-linen"] .setting-title,
+html[data-theme="pearl-platinum"] .setting-title,
+html[data-theme="nordic-paper"] .setting-title,
+html[data-theme="warm-alabaster"] .tot-lbl,
+html[data-theme="pure-platinum"] .tot-lbl,
+html[data-theme="beige"] .tot-lbl,
+html[data-theme="ivory"] .tot-lbl,
+html[data-theme="offwhite"] .tot-lbl,
+html[data-theme="light-linen"] .tot-lbl,
+html[data-theme="pearl-platinum"] .tot-lbl,
+html[data-theme="nordic-paper"] .tot-lbl,
+html[data-theme="warm-alabaster"] .lbl,
+html[data-theme="pure-platinum"] .lbl,
+html[data-theme="beige"] .lbl,
+html[data-theme="ivory"] .lbl,
+html[data-theme="offwhite"] .lbl,
+html[data-theme="light-linen"] .lbl,
+html[data-theme="pearl-platinum"] .lbl,
+html[data-theme="nordic-paper"] .lbl,
+html[data-theme="warm-alabaster"] .panel-title,
+html[data-theme="pure-platinum"] .panel-title,
+html[data-theme="beige"] .panel-title,
+html[data-theme="ivory"] .panel-title,
+html[data-theme="offwhite"] .panel-title,
+html[data-theme="light-linen"] .panel-title,
+html[data-theme="pearl-platinum"] .panel-title,
+html[data-theme="nordic-paper"] .panel-title,
+html[data-theme="warm-alabaster"] .kpi-title,
+html[data-theme="pure-platinum"] .kpi-title,
+html[data-theme="beige"] .kpi-title,
+html[data-theme="ivory"] .kpi-title,
+html[data-theme="offwhite"] .kpi-title,
+html[data-theme="light-linen"] .kpi-title,
+html[data-theme="pearl-platinum"] .kpi-title,
+html[data-theme="nordic-paper"] .kpi-title,
+html[data-theme="warm-alabaster"] .list-title,
+html[data-theme="pure-platinum"] .list-title,
+html[data-theme="beige"] .list-title,
+html[data-theme="ivory"] .list-title,
+html[data-theme="offwhite"] .list-title,
+html[data-theme="light-linen"] .list-title,
+html[data-theme="pearl-platinum"] .list-title,
+html[data-theme="nordic-paper"] .list-title,
+html[data-theme="warm-alabaster"] h1,
+html[data-theme="pure-platinum"] h1,
+html[data-theme="beige"] h1,
+html[data-theme="ivory"] h1,
+html[data-theme="offwhite"] h1,
+html[data-theme="light-linen"] h1,
+html[data-theme="pearl-platinum"] h1,
+html[data-theme="nordic-paper"] h1,
+html[data-theme="warm-alabaster"] h2,
+html[data-theme="pure-platinum"] h2,
+html[data-theme="beige"] h2,
+html[data-theme="ivory"] h2,
+html[data-theme="offwhite"] h2,
+html[data-theme="light-linen"] h2,
+html[data-theme="pearl-platinum"] h2,
+html[data-theme="nordic-paper"] h2,
+html[data-theme="warm-alabaster"] h3,
+html[data-theme="pure-platinum"] h3,
+html[data-theme="beige"] h3,
+html[data-theme="ivory"] h3,
+html[data-theme="offwhite"] h3,
+html[data-theme="light-linen"] h3,
+html[data-theme="pearl-platinum"] h3,
+html[data-theme="nordic-paper"] h3,
+html[data-theme="warm-alabaster"] h4,
+html[data-theme="pure-platinum"] h4,
+html[data-theme="beige"] h4,
+html[data-theme="ivory"] h4,
+html[data-theme="offwhite"] h4,
+html[data-theme="light-linen"] h4,
+html[data-theme="pearl-platinum"] h4,
+html[data-theme="nordic-paper"] h4,
+html[data-theme="warm-alabaster"] h5,
+html[data-theme="pure-platinum"] h5,
+html[data-theme="beige"] h5,
+html[data-theme="ivory"] h5,
+html[data-theme="offwhite"] h5,
+html[data-theme="light-linen"] h5,
+html[data-theme="pearl-platinum"] h5,
+html[data-theme="nordic-paper"] h5,
+html[data-theme="warm-alabaster"] h6,
+html[data-theme="pure-platinum"] h6,
+html[data-theme="beige"] h6,
+html[data-theme="ivory"] h6,
+html[data-theme="offwhite"] h6,
+html[data-theme="light-linen"] h6,
+html[data-theme="pearl-platinum"] h6,
+html[data-theme="nordic-paper"] h6 {
+  color: var(--text-primary, #0f172a) !important;
+  font-weight: 800 !important;
+  text-shadow: none !important;
+}
+
+/* Values & KPIs in Light Themes */
+html[data-theme="warm-alabaster"] .tot-val,
+html[data-theme="pure-platinum"] .tot-val,
+html[data-theme="beige"] .tot-val,
+html[data-theme="ivory"] .tot-val,
+html[data-theme="offwhite"] .tot-val,
+html[data-theme="light-linen"] .tot-val,
+html[data-theme="pearl-platinum"] .tot-val,
+html[data-theme="nordic-paper"] .tot-val,
+html[data-theme="warm-alabaster"] .val,
+html[data-theme="pure-platinum"] .val,
+html[data-theme="beige"] .val,
+html[data-theme="ivory"] .val,
+html[data-theme="offwhite"] .val,
+html[data-theme="light-linen"] .val,
+html[data-theme="pearl-platinum"] .val,
+html[data-theme="nordic-paper"] .val,
+html[data-theme="warm-alabaster"] .kpi-val,
+html[data-theme="pure-platinum"] .kpi-val,
+html[data-theme="beige"] .kpi-val,
+html[data-theme="ivory"] .kpi-val,
+html[data-theme="offwhite"] .kpi-val,
+html[data-theme="light-linen"] .kpi-val,
+html[data-theme="pearl-platinum"] .kpi-val,
+html[data-theme="nordic-paper"] .kpi-val,
+html[data-theme="warm-alabaster"] .metric-value,
+html[data-theme="pure-platinum"] .metric-value,
+html[data-theme="beige"] .metric-value,
+html[data-theme="ivory"] .metric-value,
+html[data-theme="offwhite"] .metric-value,
+html[data-theme="light-linen"] .metric-value,
+html[data-theme="pearl-platinum"] .metric-value,
+html[data-theme="nordic-paper"] .metric-value {
+  color: var(--text-primary, #0f172a) !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+
+/* Subtle Text, Secondary Descriptions in Light Themes */
+html[data-theme="warm-alabaster"] p,
+html[data-theme="pure-platinum"] p,
+html[data-theme="beige"] p,
+html[data-theme="ivory"] p,
+html[data-theme="offwhite"] p,
+html[data-theme="light-linen"] p,
+html[data-theme="pearl-platinum"] p,
+html[data-theme="nordic-paper"] p,
+html[data-theme="warm-alabaster"] .list-sub,
+html[data-theme="pure-platinum"] .list-sub,
+html[data-theme="beige"] .list-sub,
+html[data-theme="ivory"] .list-sub,
+html[data-theme="offwhite"] .list-sub,
+html[data-theme="light-linen"] .list-sub,
+html[data-theme="pearl-platinum"] .list-sub,
+html[data-theme="nordic-paper"] .list-sub,
+html[data-theme="warm-alabaster"] .text-muted,
+html[data-theme="pure-platinum"] .text-muted,
+html[data-theme="beige"] .text-muted,
+html[data-theme="ivory"] .text-muted,
+html[data-theme="offwhite"] .text-muted,
+html[data-theme="light-linen"] .text-muted,
+html[data-theme="pearl-platinum"] .text-muted,
+html[data-theme="nordic-paper"] .text-muted,
+html[data-theme="warm-alabaster"] .text-slate-400,
+html[data-theme="pure-platinum"] .text-slate-400,
+html[data-theme="beige"] .text-slate-400,
+html[data-theme="ivory"] .text-slate-400,
+html[data-theme="offwhite"] .text-slate-400,
+html[data-theme="light-linen"] .text-slate-400,
+html[data-theme="pearl-platinum"] .text-slate-400,
+html[data-theme="nordic-paper"] .text-slate-400,
+html[data-theme="warm-alabaster"] .text-slate-500,
+html[data-theme="pure-platinum"] .text-slate-500,
+html[data-theme="beige"] .text-slate-500,
+html[data-theme="ivory"] .text-slate-500,
+html[data-theme="offwhite"] .text-slate-500,
+html[data-theme="light-linen"] .text-slate-500,
+html[data-theme="pearl-platinum"] .text-slate-500,
+html[data-theme="nordic-paper"] .text-slate-500 {
+  color: var(--text-secondary, #475569) !important;
+  text-shadow: none !important;
+}
+
+/* Modals & Dialogs in Light Themes */
+html[data-theme="warm-alabaster"] .modal-content,
+html[data-theme="pure-platinum"] .modal-content,
+html[data-theme="beige"] .modal-content,
+html[data-theme="ivory"] .modal-content,
+html[data-theme="offwhite"] .modal-content,
+html[data-theme="light-linen"] .modal-content,
+html[data-theme="pearl-platinum"] .modal-content,
+html[data-theme="nordic-paper"] .modal-content,
+html[data-theme="warm-alabaster"] .modal-header,
+html[data-theme="pure-platinum"] .modal-header,
+html[data-theme="beige"] .modal-header,
+html[data-theme="ivory"] .modal-header,
+html[data-theme="offwhite"] .modal-header,
+html[data-theme="light-linen"] .modal-header,
+html[data-theme="pearl-platinum"] .modal-header,
+html[data-theme="nordic-paper"] .modal-header,
+html[data-theme="warm-alabaster"] .modal-body,
+html[data-theme="pure-platinum"] .modal-body,
+html[data-theme="beige"] .modal-body,
+html[data-theme="ivory"] .modal-body,
+html[data-theme="offwhite"] .modal-body,
+html[data-theme="light-linen"] .modal-body,
+html[data-theme="pearl-platinum"] .modal-body,
+html[data-theme="nordic-paper"] .modal-body,
+html[data-theme="warm-alabaster"] .modal-footer,
+html[data-theme="pure-platinum"] .modal-footer,
+html[data-theme="beige"] .modal-footer,
+html[data-theme="ivory"] .modal-footer,
+html[data-theme="offwhite"] .modal-footer,
+html[data-theme="light-linen"] .modal-footer,
+html[data-theme="pearl-platinum"] .modal-footer,
+html[data-theme="nordic-paper"] .modal-footer {
+  background: #ffffff !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary, #0f172a) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ── 3. GROUP RULES: THE 6 BLUE & NAVY THEMES
+   ═══════════════════════════════════════════════════════════════════ */
+html[data-theme="midnight-executive"],
+html[data-theme="navy-kohl"],
+html[data-theme="royal-blue"],
+html[data-theme="ocean-navy"],
+html[data-theme="petrol-cyan"],
+html[data-theme="twilight-indigo"] {
+  color-scheme: dark !important;
+}
+
+html[data-theme="midnight-executive"] body,
+html[data-theme="navy-kohl"] body,
+html[data-theme="royal-blue"] body,
+html[data-theme="ocean-navy"] body,
+html[data-theme="petrol-cyan"] body,
+html[data-theme="twilight-indigo"] body {
+  background-color: var(--bg-color) !important;
+  background: var(--bg-color) !important;
+  color: #f8fafc !important;
+}
+
+html[data-theme="midnight-executive"] .magical-glass-header,
+html[data-theme="navy-kohl"] .magical-glass-header,
+html[data-theme="royal-blue"] .magical-glass-header,
+html[data-theme="ocean-navy"] .magical-glass-header,
+html[data-theme="petrol-cyan"] .magical-glass-header,
+html[data-theme="twilight-indigo"] .magical-glass-header,
+html[data-theme="midnight-executive"] .premium-header,
+html[data-theme="navy-kohl"] .premium-header,
+html[data-theme="royal-blue"] .premium-header,
+html[data-theme="ocean-navy"] .premium-header,
+html[data-theme="petrol-cyan"] .premium-header,
+html[data-theme="twilight-indigo"] .premium-header {
+  background: var(--hdr-bg) !important;
+  border: 1.5px solid var(--hdr-border) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5) !important;
+}
+
+html[data-theme="midnight-executive"] .global-sidebar,
+html[data-theme="navy-kohl"] .global-sidebar,
+html[data-theme="royal-blue"] .global-sidebar,
+html[data-theme="ocean-navy"] .global-sidebar,
+html[data-theme="petrol-cyan"] .global-sidebar,
+html[data-theme="twilight-indigo"] .global-sidebar {
+  background: var(--sb-bg) !important;
+  border-left: 2px solid var(--sb-border) !important;
+}
+
+html[data-theme="midnight-executive"] .sidebar-text,
+html[data-theme="navy-kohl"] .sidebar-text,
+html[data-theme="royal-blue"] .sidebar-text,
+html[data-theme="ocean-navy"] .sidebar-text,
+html[data-theme="petrol-cyan"] .sidebar-text,
+html[data-theme="twilight-indigo"] .sidebar-text,
+html[data-theme="midnight-executive"] .header-page-title,
+html[data-theme="navy-kohl"] .header-page-title,
+html[data-theme="royal-blue"] .header-page-title,
+html[data-theme="ocean-navy"] .header-page-title,
+html[data-theme="petrol-cyan"] .header-page-title,
+html[data-theme="twilight-indigo"] .header-page-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="midnight-executive"] table,
+html[data-theme="navy-kohl"] table,
+html[data-theme="royal-blue"] table,
+html[data-theme="ocean-navy"] table,
+html[data-theme="petrol-cyan"] table,
+html[data-theme="twilight-indigo"] table {
+  background: var(--surface) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="midnight-executive"] th,
+html[data-theme="navy-kohl"] th,
+html[data-theme="royal-blue"] th,
+html[data-theme="ocean-navy"] th,
+html[data-theme="petrol-cyan"] th,
+html[data-theme="twilight-indigo"] th {
+  background: var(--surface-raised, #162a52) !important;
+  color: #ffffff !important;
+  border: 1.5px solid var(--border-color) !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="midnight-executive"] td,
+html[data-theme="navy-kohl"] td,
+html[data-theme="royal-blue"] td,
+html[data-theme="ocean-navy"] td,
+html[data-theme="petrol-cyan"] td,
+html[data-theme="twilight-indigo"] td {
+  background: var(--surface) !important;
+  color: #f1f5f9 !important;
+  border: 1px solid var(--border-subtle) !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="midnight-executive"] input,
+html[data-theme="navy-kohl"] input,
+html[data-theme="royal-blue"] input,
+html[data-theme="ocean-navy"] input,
+html[data-theme="petrol-cyan"] input,
+html[data-theme="twilight-indigo"] input,
+html[data-theme="midnight-executive"] select,
+html[data-theme="navy-kohl"] select,
+html[data-theme="royal-blue"] select,
+html[data-theme="ocean-navy"] select,
+html[data-theme="petrol-cyan"] select,
+html[data-theme="twilight-indigo"] select {
+  background: var(--bg-color) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 1.5px solid var(--border-color) !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   ── 4. GROUP RULES: THE 7 DARK & EARTH THEMES
+   ═══════════════════════════════════════════════════════════════════ */
+html[data-theme="obsidian-charcoal"],
+html[data-theme="midnight"],
+html[data-theme="sepia-brown"],
+html[data-theme="pale-gold"],
+html[data-theme="emerald-forest"],
+html[data-theme="desert-mocha"],
+html[data-theme="sunlight-titanium"] {
+  color-scheme: dark !important;
+}
+
+html[data-theme="obsidian-charcoal"] body,
+html[data-theme="midnight"] body,
+html[data-theme="sepia-brown"] body,
+html[data-theme="pale-gold"] body,
+html[data-theme="emerald-forest"] body,
+html[data-theme="desert-mocha"] body,
+html[data-theme="sunlight-titanium"] body {
+  background-color: var(--bg-color) !important;
+  background: var(--bg-color) !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="obsidian-charcoal"] .magical-glass-header,
+html[data-theme="midnight"] .magical-glass-header,
+html[data-theme="sepia-brown"] .magical-glass-header,
+html[data-theme="pale-gold"] .magical-glass-header,
+html[data-theme="emerald-forest"] .magical-glass-header,
+html[data-theme="desert-mocha"] .magical-glass-header,
+html[data-theme="sunlight-titanium"] .magical-glass-header,
+html[data-theme="obsidian-charcoal"] .premium-header,
+html[data-theme="midnight"] .premium-header,
+html[data-theme="sepia-brown"] .premium-header,
+html[data-theme="pale-gold"] .premium-header,
+html[data-theme="emerald-forest"] .premium-header,
+html[data-theme="desert-mocha"] .premium-header,
+html[data-theme="sunlight-titanium"] .premium-header {
+  background: var(--hdr-bg) !important;
+  border: 1.5px solid var(--hdr-border) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6) !important;
+}
+
+html[data-theme="obsidian-charcoal"] .global-sidebar,
+html[data-theme="midnight"] .global-sidebar,
+html[data-theme="sepia-brown"] .global-sidebar,
+html[data-theme="pale-gold"] .global-sidebar,
+html[data-theme="emerald-forest"] .global-sidebar,
+html[data-theme="desert-mocha"] .global-sidebar,
+html[data-theme="sunlight-titanium"] .global-sidebar {
+  background: var(--sb-bg) !important;
+  border-left: 2px solid var(--sb-border) !important;
+}
+
+html[data-theme="obsidian-charcoal"] .sidebar-text,
+html[data-theme="midnight"] .sidebar-text,
+html[data-theme="sepia-brown"] .sidebar-text,
+html[data-theme="pale-gold"] .sidebar-text,
+html[data-theme="emerald-forest"] .sidebar-text,
+html[data-theme="desert-mocha"] .sidebar-text,
+html[data-theme="sunlight-titanium"] .sidebar-text,
+html[data-theme="obsidian-charcoal"] .header-page-title,
+html[data-theme="midnight"] .header-page-title,
+html[data-theme="sepia-brown"] .header-page-title,
+html[data-theme="pale-gold"] .header-page-title,
+html[data-theme="emerald-forest"] .header-page-title,
+html[data-theme="desert-mocha"] .header-page-title,
+html[data-theme="sunlight-titanium"] .header-page-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="obsidian-charcoal"] table,
+html[data-theme="midnight"] table,
+html[data-theme="sepia-brown"] table,
+html[data-theme="pale-gold"] table,
+html[data-theme="emerald-forest"] table,
+html[data-theme="desert-mocha"] table,
+html[data-theme="sunlight-titanium"] table {
+  background: var(--surface) !important;
+  border-color: var(--border-color) !important;
+}
+
+html[data-theme="obsidian-charcoal"] th,
+html[data-theme="midnight"] th,
+html[data-theme="sepia-brown"] th,
+html[data-theme="pale-gold"] th,
+html[data-theme="emerald-forest"] th,
+html[data-theme="desert-mocha"] th,
+html[data-theme="sunlight-titanium"] th {
+  background: var(--surface-raised, #242428) !important;
+  color: #ffffff !important;
+  border: 1.5px solid var(--border-color) !important;
+  font-weight: 800 !important;
+}
+
+html[data-theme="obsidian-charcoal"] td,
+html[data-theme="midnight"] td,
+html[data-theme="sepia-brown"] td,
+html[data-theme="pale-gold"] td,
+html[data-theme="emerald-forest"] td,
+html[data-theme="desert-mocha"] td,
+html[data-theme="sunlight-titanium"] td {
+  background: var(--surface) !important;
+  color: #f4f4f5 !important;
+  border: 1px solid var(--border-subtle) !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="obsidian-charcoal"] input,
+html[data-theme="midnight"] input,
+html[data-theme="sepia-brown"] input,
+html[data-theme="pale-gold"] input,
+html[data-theme="emerald-forest"] input,
+html[data-theme="desert-mocha"] input,
+html[data-theme="sunlight-titanium"] input,
+html[data-theme="obsidian-charcoal"] select,
+html[data-theme="midnight"] select,
+html[data-theme="sepia-brown"] select,
+html[data-theme="pale-gold"] select,
+html[data-theme="emerald-forest"] select,
+html[data-theme="desert-mocha"] select,
+html[data-theme="sunlight-titanium"] select {
+  background: var(--bg-color) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 1.5px solid var(--border-color) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ── 5. ADVANCED DESKTOP DASHBOARD & HUB HARMONY (21 THEMES)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Light Themes: Complete Elimination of Dark Patches in Dashboard & Hubs */
+html.light-theme .qa-card-wrapper,
+html[data-theme="warm-alabaster"] .qa-card-wrapper,
+html[data-theme="pure-platinum"] .qa-card-wrapper,
+html[data-theme="beige"] .qa-card-wrapper,
+html[data-theme="ivory"] .qa-card-wrapper,
+html[data-theme="offwhite"] .qa-card-wrapper,
+html[data-theme="light-linen"] .qa-card-wrapper,
+html[data-theme="pearl-platinum"] .qa-card-wrapper,
+html[data-theme="nordic-paper"] .qa-card-wrapper {
+  background: #ffffff !important;
+  border: 1.5px solid var(--border-color, #cbd5e1) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light-theme .qa-card-wrapper h4,
+html[data-theme="warm-alabaster"] .qa-card-wrapper h4,
+html[data-theme="pure-platinum"] .qa-card-wrapper h4,
+html[data-theme="beige"] .qa-card-wrapper h4,
+html[data-theme="ivory"] .qa-card-wrapper h4,
+html[data-theme="offwhite"] .qa-card-wrapper h4,
+html[data-theme="light-linen"] .qa-card-wrapper h4,
+html[data-theme="pearl-platinum"] .qa-card-wrapper h4,
+html[data-theme="nordic-paper"] .qa-card-wrapper h4 {
+  color: var(--text-primary, #0f172a) !important;
+  font-weight: 900 !important;
+}
+
+html.light-theme .quick-action-btn,
+html.light-theme .admin-action-btn,
+html[data-theme="warm-alabaster"] .quick-action-btn,
+html[data-theme="pure-platinum"] .quick-action-btn,
+html[data-theme="beige"] .quick-action-btn,
+html[data-theme="ivory"] .quick-action-btn,
+html[data-theme="offwhite"] .quick-action-btn,
+html[data-theme="light-linen"] .quick-action-btn,
+html[data-theme="pearl-platinum"] .quick-action-btn,
+html[data-theme="nordic-paper"] .quick-action-btn,
+html[data-theme="warm-alabaster"] .admin-action-btn,
+html[data-theme="pure-platinum"] .admin-action-btn,
+html[data-theme="beige"] .admin-action-btn,
+html[data-theme="ivory"] .admin-action-btn,
+html[data-theme="offwhite"] .admin-action-btn,
+html[data-theme="light-linen"] .admin-action-btn,
+html[data-theme="pearl-platinum"] .admin-action-btn,
+html[data-theme="nordic-paper"] .admin-action-btn {
+  background: #ffffff !important;
+  color: var(--text-primary, #0f172a) !important;
+  border: 1.5px solid var(--border-color, #cbd5e1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light-theme .quick-action-btn:hover,
+html.light-theme .admin-action-btn:hover,
+html[data-theme="warm-alabaster"] .quick-action-btn:hover,
+html[data-theme="pure-platinum"] .quick-action-btn:hover,
+html[data-theme="beige"] .quick-action-btn:hover,
+html[data-theme="ivory"] .quick-action-btn:hover,
+html[data-theme="offwhite"] .quick-action-btn:hover,
+html[data-theme="light-linen"] .quick-action-btn:hover,
+html[data-theme="pearl-platinum"] .quick-action-btn:hover,
+html[data-theme="nordic-paper"] .quick-action-btn:hover {
+  background: var(--surface-hover, #f8fafc) !important;
+  border-color: var(--primary-accent, #2563eb) !important;
+}
+
+html.light-theme .qa-icon,
+html[data-theme="warm-alabaster"] .qa-icon,
+html[data-theme="pure-platinum"] .qa-icon,
+html[data-theme="beige"] .qa-icon,
+html[data-theme="ivory"] .qa-icon,
+html[data-theme="offwhite"] .qa-icon,
+html[data-theme="light-linen"] .qa-icon,
+html[data-theme="pearl-platinum"] .qa-icon,
+html[data-theme="nordic-paper"] .qa-icon {
+  border-color: var(--border-color, #cbd5e1) !important;
+  background: rgba(0, 0, 0, 0.04) !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+}
+
+html.light-theme .premium-table th,
+html[data-theme="warm-alabaster"] .premium-table th,
+html[data-theme="pure-platinum"] .premium-table th,
+html[data-theme="beige"] .premium-table th,
+html[data-theme="ivory"] .premium-table th,
+html[data-theme="offwhite"] .premium-table th,
+html[data-theme="light-linen"] .premium-table th,
+html[data-theme="pearl-platinum"] .premium-table th,
+html[data-theme="nordic-paper"] .premium-table th {
+  background: var(--surface-secondary, #f1f5f9) !important;
+  color: var(--text-primary, #0f172a) !important;
+  border-bottom: 1.5px solid var(--border-color, #cbd5e1) !important;
+  font-weight: 800 !important;
+}
+
+html.light-theme .premium-table td,
+html[data-theme="warm-alabaster"] .premium-table td,
+html[data-theme="pure-platinum"] .premium-table td,
+html[data-theme="beige"] .premium-table td,
+html[data-theme="ivory"] .premium-table td,
+html[data-theme="offwhite"] .premium-table td,
+html[data-theme="light-linen"] .premium-table td,
+html[data-theme="pearl-platinum"] .premium-table td,
+html[data-theme="nordic-paper"] .premium-table td {
+  background: #ffffff !important;
+  color: var(--text-primary, #0f172a) !important;
+  border-bottom: 1px solid var(--border-subtle, #e2e8f0) !important;
+}
+
+html.light-theme .premium-table tbody tr:hover td,
+html[data-theme="warm-alabaster"] .premium-table tbody tr:hover td,
+html[data-theme="pure-platinum"] .premium-table tbody tr:hover td {
+  background: var(--surface-hover, #f8fafc) !important;
+}
+
+html.light-theme .kpi-cards .glass-panel,
+html[data-theme="warm-alabaster"] .kpi-cards .glass-panel,
+html[data-theme="pure-platinum"] .kpi-cards .glass-panel,
+html[data-theme="beige"] .kpi-cards .glass-panel,
+html[data-theme="ivory"] .kpi-cards .glass-panel,
+html[data-theme="offwhite"] .kpi-cards .glass-panel,
+html[data-theme="light-linen"] .kpi-cards .glass-panel,
+html[data-theme="pearl-platinum"] .kpi-cards .glass-panel,
+html[data-theme="nordic-paper"] .kpi-cards .glass-panel {
+  background: #ffffff !important;
+  border: 1.5px solid var(--border-color, #cbd5e1) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light-theme .kpi-title,
+html[data-theme="warm-alabaster"] .kpi-title,
+html[data-theme="pure-platinum"] .kpi-title,
+html[data-theme="beige"] .kpi-title,
+html[data-theme="ivory"] .kpi-title,
+html[data-theme="offwhite"] .kpi-title,
+html[data-theme="light-linen"] .kpi-title,
+html[data-theme="pearl-platinum"] .kpi-title,
+html[data-theme="nordic-paper"] .kpi-title {
+  color: var(--text-secondary, #334155) !important;
+  text-shadow: none !important;
+  font-weight: 800 !important;
+}
+
+html.light-theme .kpi-desc,
+html[data-theme="warm-alabaster"] .kpi-desc,
+html[data-theme="pure-platinum"] .kpi-desc {
+  color: var(--text-muted, #64748b) !important;
+}
+
+html.light-theme .orb {
+  opacity: 0.02 !important;
+}
+
+html.light-theme .hub-action-card,
+html[data-theme="warm-alabaster"] .hub-action-card,
+html[data-theme="pure-platinum"] .hub-action-card,
+html[data-theme="beige"] .hub-action-card,
+html[data-theme="ivory"] .hub-action-card,
+html[data-theme="offwhite"] .hub-action-card,
+html[data-theme="light-linen"] .hub-action-card,
+html[data-theme="pearl-platinum"] .hub-action-card,
+html[data-theme="nordic-paper"] .hub-action-card {
+  background: #ffffff !important;
+  border: 1.5px solid var(--border-color, #cbd5e1) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06) !important;
+  color: var(--text-primary, #0f172a) !important;
+}
+
+html.light-theme #payment-panel,
+html[data-theme="warm-alabaster"] #payment-panel,
+html[data-theme="pure-platinum"] #payment-panel,
+html[data-theme="beige"] #payment-panel,
+html[data-theme="ivory"] #payment-panel,
+html[data-theme="offwhite"] #payment-panel,
+html[data-theme="light-linen"] #payment-panel,
+html[data-theme="pearl-platinum"] #payment-panel,
+html[data-theme="nordic-paper"] #payment-panel {
+  background: #ffffff !important;
+  border: 1.5px solid var(--border-color, #cbd5e1) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06) !important;
+  color: var(--text-primary, #0f172a) !important;
+}
+
+html.light-theme .tot-toggle-btn {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+/* Blue & Dark Themes Harmony for Dashboard & Hubs */
+html[data-theme="midnight-executive"] .qa-card-wrapper,
+html[data-theme="navy-kohl"] .qa-card-wrapper,
+html[data-theme="royal-blue"] .qa-card-wrapper,
+html[data-theme="ocean-navy"] .qa-card-wrapper,
+html[data-theme="petrol-cyan"] .qa-card-wrapper,
+html[data-theme="twilight-indigo"] .qa-card-wrapper {
+  background: var(--surface) !important;
+  border: 1.5px solid var(--border-color) !important;
+}
+
+html[data-theme="midnight-executive"] .quick-action-btn,
+html[data-theme="navy-kohl"] .quick-action-btn,
+html[data-theme="royal-blue"] .quick-action-btn,
+html[data-theme="ocean-navy"] .quick-action-btn,
+html[data-theme="petrol-cyan"] .quick-action-btn,
+html[data-theme="twilight-indigo"] .quick-action-btn {
+  background: var(--surface-secondary, rgba(15,23,42,0.6)) !important;
+  color: #ffffff !important;
+  border: 1.5px solid var(--border-color) !important;
+}
+
+html[data-theme="obsidian-charcoal"] .qa-card-wrapper,
+html[data-theme="midnight"] .qa-card-wrapper,
+html[data-theme="sepia-brown"] .qa-card-wrapper,
+html[data-theme="pale-gold"] .qa-card-wrapper,
+html[data-theme="emerald-forest"] .qa-card-wrapper,
+html[data-theme="desert-mocha"] .qa-card-wrapper,
+html[data-theme="sunlight-titanium"] .qa-card-wrapper {
+  background: var(--surface) !important;
+  border: 1.5px solid var(--border-color) !important;
+}
+
+html[data-theme="obsidian-charcoal"] .quick-action-btn,
+html[data-theme="midnight"] .quick-action-btn,
+html[data-theme="sepia-brown"] .quick-action-btn,
+html[data-theme="pale-gold"] .quick-action-btn,
+html[data-theme="emerald-forest"] .quick-action-btn,
+html[data-theme="desert-mocha"] .quick-action-btn,
+html[data-theme="sunlight-titanium"] .quick-action-btn {
+  background: var(--surface-secondary, rgba(20,20,22,0.7)) !important;
+  color: #ffffff !important;
+  border: 1.5px solid var(--border-color) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   🎨 ULTRA-ELEGANT THEME SWITCHER CONTROLS (DESKTOP & LAPTOP)
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* 1. HEADER THEME BUTTON (.desktop-theme-palette-btn) */
+.desktop-theme-palette-btn {
+    position: relative !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    height: 38px !important;
+    padding: 0 16px !important;
+    border-radius: 20px !important;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(16, 185, 129, 0.28)) !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.65) !important;
+    color: #fde047 !important;
+    font-weight: 800 !important;
+    font-size: 0.88rem !important;
+    cursor: pointer !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    white-space: nowrap !important;
+    user-select: none !important;
+}
+
+.desktop-theme-palette-btn:hover {
+    transform: translateY(-2px) scale(1.04) !important;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.36), rgba(16, 185, 129, 0.42)) !important;
+    border-color: #fbbf24 !important;
+    color: #ffffff !important;
+    box-shadow: 0 6px 24px rgba(245, 158, 11, 0.55), 0 0 20px rgba(16, 185, 129, 0.4) !important;
+}
+
+.desktop-theme-palette-btn:active {
+    transform: translateY(0) scale(0.98) !important;
+}
+
+.desktop-theme-palette-btn .theme-btn-icon {
+    font-size: 1.2rem !important;
+    line-height: 1 !important;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
+    transition: transform 0.3s ease;
+}
+
+.desktop-theme-palette-btn:hover .theme-btn-icon {
+    transform: rotate(18deg) scale(1.18);
+}
+
+.desktop-theme-palette-btn .theme-btn-text {
+    font-weight: 800 !important;
+    letter-spacing: 0.3px !important;
+    color: #fef08a !important;
+    font-family: inherit !important;
+}
+
+.desktop-theme-palette-btn .theme-btn-badge {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: #0f172a !important;
+    font-weight: 900 !important;
+    font-size: 0.72rem !important;
+    padding: 1px 7px !important;
+    border-radius: 10px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+    line-height: 1.3 !important;
+}
+
+/* Light themes override for Header Button */
+html.light-theme .desktop-theme-palette-btn,
+html[data-theme="warm-alabaster"] .desktop-theme-palette-btn,
+html[data-theme="pure-platinum"] .desktop-theme-palette-btn,
+html[data-theme="beige"] .desktop-theme-palette-btn,
+html[data-theme="ivory"] .desktop-theme-palette-btn,
+html[data-theme="offwhite"] .desktop-theme-palette-btn,
+html[data-theme="light-linen"] .desktop-theme-palette-btn,
+html[data-theme="pearl-platinum"] .desktop-theme-palette-btn,
+html[data-theme="nordic-paper"] .desktop-theme-palette-btn {
+    background: linear-gradient(135deg, #fffbeb, #ecfdf5) !important;
+    border: 1.5px solid #d97706 !important;
+    color: #92400e !important;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25) !important;
+}
+
+html.light-theme .desktop-theme-palette-btn .theme-btn-text,
+html[data-theme="warm-alabaster"] .desktop-theme-palette-btn .theme-btn-text,
+html[data-theme="pure-platinum"] .desktop-theme-palette-btn .theme-btn-text,
+html[data-theme="beige"] .desktop-theme-palette-btn .theme-btn-text,
+html[data-theme="ivory"] .desktop-theme-palette-btn .theme-btn-text,
+html[data-theme="offwhite"] .desktop-theme-palette-btn .theme-btn-text,
+html[data-theme="light-linen"] .desktop-theme-palette-btn .theme-btn-text,
+html[data-theme="pearl-platinum"] .desktop-theme-palette-btn .theme-btn-text,
+html[data-theme="nordic-paper"] .desktop-theme-palette-btn .theme-btn-text {
+    color: #92400e !important;
+}
+
+html.light-theme .desktop-theme-palette-btn:hover {
+    background: linear-gradient(135deg, #fef3c7, #d1fae5) !important;
+    border-color: #b45309 !important;
+    box-shadow: 0 6px 18px rgba(217, 119, 6, 0.35) !important;
+}
+
+/* 2. FLOATING THEME DOCK (ALWAYS VISIBLE ON DESKTOP & LAPTOP) */
+.floating-theme-dock {
+    position: fixed !important;
+    bottom: 24px !important;
+    left: 24px !important;
+    z-index: 999980 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    padding: 8px 16px 8px 12px !important;
+    background: rgba(15, 23, 42, 0.88) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1.5px solid rgba(245, 158, 11, 0.55) !important;
+    border-radius: 30px !important;
+    color: #fde047 !important;
+    cursor: pointer !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 20px rgba(245, 158, 11, 0.35) !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    user-select: none !important;
+    animation: floatingThemePulse 4s ease-in-out infinite alternate !important;
+}
+
+@keyframes floatingThemePulse {
+    0% { transform: translateY(0); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), 0 0 16px rgba(245, 158, 11, 0.25); }
+    100% { transform: translateY(-4px); box-shadow: 0 14px 35px rgba(0, 0, 0, 0.65), 0 0 26px rgba(245, 158, 11, 0.45); }
+}
+
+.floating-theme-dock:hover {
+    transform: translateY(-6px) scale(1.05) !important;
+    border-color: #fbbf24 !important;
+    background: rgba(15, 23, 42, 0.96) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 35px rgba(245, 158, 11, 0.6) !important;
+}
+
+.floating-theme-dock .floating-theme-icon {
+    font-size: 1.3rem !important;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    transition: transform 0.3s ease;
+}
+
+.floating-theme-dock:hover .floating-theme-icon {
+    transform: rotate(20deg) scale(1.15);
+}
+
+.floating-theme-dock .floating-theme-text {
+    font-weight: 800 !important;
+    font-size: 0.88rem !important;
+    color: #ffffff !important;
+    letter-spacing: 0.3px !important;
+    white-space: nowrap !important;
+    font-family: inherit !important;
+}
+
+.floating-theme-dock .floating-theme-count {
+    background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+    color: #0f172a !important;
+    font-size: 0.72rem !important;
+    font-weight: 900 !important;
+    padding: 1px 7px !important;
+    border-radius: 10px !important;
+    line-height: 1.3 !important;
+}
+
+/* Light themes for Floating Dock */
+html.light-theme .floating-theme-dock,
+html[data-theme="warm-alabaster"] .floating-theme-dock,
+html[data-theme="pure-platinum"] .floating-theme-dock,
+html[data-theme="beige"] .floating-theme-dock,
+html[data-theme="ivory"] .floating-theme-dock,
+html[data-theme="offwhite"] .floating-theme-dock,
+html[data-theme="light-linen"] .floating-theme-dock,
+html[data-theme="pearl-platinum"] .floating-theme-dock,
+html[data-theme="nordic-paper"] .floating-theme-dock {
+    background: rgba(255, 255, 255, 0.94) !important;
+    border: 1.5px solid #d97706 !important;
+    color: #92400e !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 0 20px rgba(217, 119, 6, 0.3) !important;
+}
+
+html.light-theme .floating-theme-dock .floating-theme-text,
+html[data-theme="warm-alabaster"] .floating-theme-dock .floating-theme-text,
+html[data-theme="pure-platinum"] .floating-theme-dock .floating-theme-text,
+html[data-theme="beige"] .floating-theme-dock .floating-theme-text,
+html[data-theme="ivory"] .floating-theme-dock .floating-theme-text,
+html[data-theme="offwhite"] .floating-theme-dock .floating-theme-text,
+html[data-theme="light-linen"] .floating-theme-dock .floating-theme-text,
+html[data-theme="pearl-platinum"] .floating-theme-dock .floating-theme-text,
+html[data-theme="nordic-paper"] .floating-theme-dock .floating-theme-text {
+    color: #1e293b !important;
+}
+
+/* Hide floating dock on small screens / mobile */
+@media (max-width: 768px) {
+    .floating-theme-dock {
+        display: none !important;
+    }
+}
+
+
