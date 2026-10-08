@@ -1632,6 +1632,14 @@
 
             localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(freshPurchases));
             allPurchases = freshPurchases; // Update local memory reference
+
+            try {
+                fetch('api/mirror_api.php?action=save_receipt', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(grnInv)
+                });
+            } catch(e) {}
             
             // 🔥 CRITICAL: Force immediate cloud sync to prevent data loss when navigating to reports
             if (typeof window.pushToCloud === 'function') {

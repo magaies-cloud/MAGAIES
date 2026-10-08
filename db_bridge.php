@@ -57,11 +57,7 @@ function getDBConnection() {
         }
 
         if (!$tenantId) {
-            if ($isLocalhost) {
-                $tenantId = 1; // تجاوز تلقائي للمطورين على السيرفر المحلي
-            } else {
-                $tenantId = 2; // Default fallback to tenant 2 for company c
-            }
+            $tenantId = 2; // شركة السجانة النشطة (Company 'c' Tenant 2)
         }
         $GLOBAL_TENANT_ID = (int)$tenantId;
     }

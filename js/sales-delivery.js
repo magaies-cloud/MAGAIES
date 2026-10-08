@@ -488,6 +488,24 @@ function executeDelivery() {
 
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
 
+    try {
+        fetch('api/mirror_api.php?action=save_delivery', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                invoiceNo: currentLoadedInvoice.invoiceNo,
+                deliveryStatus: 'Delivered_Pending_Admin',
+                deliveredBy: curUser.fullName || curUser.username || 'admin',
+                deliveredAt: new Date().toISOString()
+            })
+        });
+        fetch('api/mirror_api.php?action=save_sale', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(allSales[invIndex])
+        });
+    } catch(e) {}
+
     if (typeof window.logSystemAction === 'function') {
         window.logSystemAction('تسليم بضاعة', 'المستودعات / المبيعات', currentLoadedInvoice.invoiceNo,
             `تسليم بضاعة للإذن ${currentLoadedInvoice.invoiceNo} عبر ${verificationMethod} | المستودع: ${currentLoadedInvoice.warehouse || 'الرئيسي'} | ملاحظات: ${warehouseNotesVal}`);

@@ -1,8 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <!-- ⚡ SMART LAPTOP VOUCHER GATE (تحويل ذكي للكمبيوتر ومنع الجوال نهائياً) -->
   <script>
+  if (!window.location.pathname.endsWith('.php')) {
+    window.location.replace('mobile-voucher.php' + window.location.search + window.location.hash);
+  }
+  </script>
   <script>
     (function() {
       try {

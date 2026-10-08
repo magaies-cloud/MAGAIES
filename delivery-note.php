@@ -358,14 +358,23 @@
 
             // Save delivery record
             const deliveries = JSON.parse(localStorage.getItem('erp_delivery_notes_v1') || '[]');
-            deliveries.push({
+            const deliveryRec = {
                 id:          'dn_' + Date.now(),
                 invoiceNo:   invoiceNo,
                 driverName:  driver || '-',
                 deliveredAt: new Date().toISOString(),
                 deliveredBy: JSON.parse(localStorage.getItem('user') || '{}').fullName || 'system'
-            });
+            };
+            deliveries.push(deliveryRec);
             localStorage.setItem('erp_delivery_notes_v1', JSON.stringify(deliveries));
+
+            try {
+                fetch('api/mirror_api.php?action=save_delivery', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(deliveryRec)
+                });
+            } catch(e) {}
 
             // Update invoice status in sales invoices
             const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');

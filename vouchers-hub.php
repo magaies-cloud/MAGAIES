@@ -7,6 +7,21 @@ if (!isDeviceDesktopOrLaptop() && !$forceDesktop) {
     exit;
 }
 $page_title = 'الحسابات';
+
+$preloadedVouchersJson = '[]';
+try {
+    require_once __DIR__ . '/api/db.php';
+    if (isset($pdo)) {
+        $stmtPay = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = 2 OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 200");
+        $stmtPay->execute();
+        $pPay = [];
+        while ($r = $stmtPay->fetch(PDO::FETCH_ASSOC)) {
+            $d = json_decode($r['data'] ?? '{}', true);
+            if (is_array($d)) $pPay[] = $d;
+        }
+        $preloadedVouchersJson = json_encode($pPay, JSON_UNESCAPED_UNICODE);
+    }
+} catch (Exception $e) {}
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -642,6 +657,9 @@ $page_title = 'الحسابات';
 <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
+    window._PRELOADED_VOUCHERS = <?php echo $preloadedVouchersJson ?: '[]'; ?>;
+    </script>
+    <script>
     document.addEventListener('DBReady', async () => {
         try {
             const tkSR = window.getTenantKey ? window.getTenantKey('erp_single_receipts_v1') : 'erp_single_receipts_v1';
@@ -668,6 +686,20 @@ $page_title = 'الحسابات';
             if (!Array.isArray(bp) || bp.length === 0) bp = JSON.parse(localStorage.getItem(tkBP) || localStorage.getItem('erp_payments_v1') || '[]');
             if (!Array.isArray(cr) || cr.length === 0) cr = JSON.parse(localStorage.getItem(tkCR) || localStorage.getItem('erp_comprehensive_receipts_v1') || '[]');
             if (!Array.isArray(cp) || cp.length === 0) cp = JSON.parse(localStorage.getItem(tkCP) || localStorage.getItem('erp_comprehensive_payments_v1') || '[]');
+
+            // Mirror MariaDB server vouchers into local cache
+            if (window._PRELOADED_VOUCHERS && window._PRELOADED_VOUCHERS.length) {
+                let spMap = {};
+                (Array.isArray(sp) ? sp : []).forEach(x => {
+                    let k = x.voucherNo || x.id;
+                    if (k) spMap[k] = x;
+                });
+                window._PRELOADED_VOUCHERS.forEach(x => {
+                    let k = x.voucherNo || x.id;
+                    if (k) spMap[k] = Object.assign({}, spMap[k] || {}, x);
+                });
+                sp = Object.values(spMap);
+            }
 
             sr = Array.isArray(sr) ? sr : Object.values(sr);
             br = Array.isArray(br) ? br : Object.values(br);
@@ -825,6 +857,13 @@ $page_title = 'الحسابات';
                 data[idx].deleted = true;
                 await localforage.setItem(storeKey, data);
                 localStorage.setItem(storeKey, JSON.stringify(data)); // Fallback
+                try {
+                    fetch('api/mirror_api.php?action=delete_voucher', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ voucherNo: id })
+                    });
+                } catch(e) {}
                 if (window.rebuildGLFromAllTables) window.rebuildGLFromAllTables(false);
                 if (window.logSystemAction) {
                     window.logSystemAction('حذف سند من المركز المالي', 'المعاملات المالية', id, `تم حذف السند رقم ${id}`);
