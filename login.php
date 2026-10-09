@@ -23,12 +23,6 @@
             document.cookie = 'saas_token=' + encodeURIComponent(token) + cookieFlags;
         }
 
-        var customTarget = urlParams.get('url') || urlParams.get('target') || urlParams.get('target_url') || urlParams.get('redirect');
-        if (customTarget) {
-            window.location.replace(customTarget);
-            return;
-        }
-
         var explicitForceDesktop = urlParams.get('force_desktop') === '1';
         var explicitForceMobile = urlParams.get('force_mobile') === '1';
         var explicitDevice = urlParams.get('device');
@@ -41,8 +35,14 @@
         var hasFinePointer = window.matchMedia && (window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches);
         var isDesktopOrLaptop = !isPureMobile && (isWindowsPC || isMacPC || isLinuxPC || (isLargeScreen && hasFinePointer));
 
-        // إذا كان المستخدم مسجلاً بالفعل، يتم توجيهه فوراً للشاشة الذكية لجهازه دون الحاجة لطلب ?direct=1
+        // إذا كان المستخدم مسجلاً بالفعل، يتم توجيهه فوراً للرابط المطلوب أو للشاشة الذكية لجهازه دون الحاجة لطلب ?direct=1
         if ((token || sessionActive) && !isForced) {
+            var customTarget = urlParams.get('url') || urlParams.get('target') || urlParams.get('target_url') || urlParams.get('redirect');
+            if (customTarget) {
+                window.location.replace(customTarget);
+                return;
+            }
+
             var target = 'mobile-dashboard.php';
             if (explicitForceMobile) {
                 target = 'mobile-dashboard.php?force_mobile=1';

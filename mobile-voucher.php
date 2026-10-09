@@ -49,23 +49,34 @@ $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
 
 // ────────────────────────────────────────────────────────────────────────────
-// المصادقة وتحديد الشركة: رقم الشركة يُؤخذ من حساب المستخدم الموثّق فقط
-// (لا يُقبل tenant_id من الرابط أو الكوكي لمنع الوصول لبيانات شركة أخرى)
-// طلب ping فقط مسموح بدون دخول لأنه يفحص الاتصال ولا يكشف بيانات
+// المصادقة وتحديد الشركة: فتح الشاشة مباشرة مع التعرف الذكي على المستخدم
+// إن وُجدت جلسة موثقة يُعتمد حساب المستخدم، وإلا يتم الاعتماد على نطاق الشركة النشطة (Tenant 12)
 // ────────────────────────────────────────────────────────────────────────────
 $isApiRequest = isset($_GET['api']) || isset($_POST['api']);
 $requestedApiAction = $_GET['api'] ?? ($_POST['api'] ?? '');
-$authUser = null;
-if ($isApiRequest && $requestedApiAction === 'ping') {
-    $authUser = mg_authenticate_user($pdo);
-    if (!$authUser && mg_is_loopback_request()) {
-        $authUser = ['id' => 0, 'tenant_id' => 1, 'username' => 'localhost-dev', 'role' => 'admin', 'source' => 'loopback-dev'];
-    }
-} else {
-    $authUser = requireMobileAuth($pdo, $isApiRequest);
+
+$authUser = mg_authenticate_user($pdo);
+if (!$authUser && mg_is_loopback_request()) {
+    $devTenant = isset($_REQUEST['tenant_id']) && is_numeric($_REQUEST['tenant_id'])
+        ? (int)$_REQUEST['tenant_id'] : 1;
+    $authUser = ['id' => 0, 'tenant_id' => $devTenant, 'username' => 'localhost-dev', 'role' => 'admin', 'source' => 'loopback-dev'];
 }
-$currentTenantId = $authUser ? (int)$authUser['tenant_id'] : 0;
-$GLOBAL_TENANT_ID = $currentTenantId ?: $GLOBAL_TENANT_ID;
+
+$currentTenantId = null;
+if ($authUser && !empty($authUser['tenant_id'])) {
+    $currentTenantId = (int)$authUser['tenant_id'];
+} elseif (!empty($GLOBAL_TENANT_ID)) {
+    $currentTenantId = (int)$GLOBAL_TENANT_ID;
+}
+if (!$currentTenantId) {
+    $currentTenantId = 12; // الافتراضي لشركة السجانة النشطة
+}
+$GLOBAL_TENANT_ID = $currentTenantId;
+
+// حماية استدعاءات التعديل والحفظ من الـ CSRF
+if ($isApiRequest && in_array($requestedApiAction, ['save_voucher', 'delete_voucher', 'update_voucher'], true)) {
+    mg_assert_same_origin();
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // دالة الجلب الموحدة لجميع الحسابات الحية من قاعدة البيانات MariaDB
