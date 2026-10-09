@@ -731,10 +731,34 @@
       transform: rotate(25deg);
     }
 
-    /* Bottom Sheet / Modal animations */
+    /* Bottom Sheet / Modal animations & Universal Scroll Architecture */
     .modal-backdrop {
-      background: rgba(3, 7, 18, 0.82);
-      backdrop-filter: blur(14px);
+      background: rgba(3, 7, 18, 0.85) !important;
+      backdrop-filter: blur(14px) !important;
+      -webkit-backdrop-filter: blur(14px) !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior-y: contain !important;
+      touch-action: pan-y !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: flex-start !important;
+      padding: 12px 8px max(16px, env(safe-area-inset-bottom)) 8px !important;
+    }
+    .modal-backdrop.hidden {
+      display: none !important;
+    }
+    .modal-backdrop > .glass-base,
+    .modal-backdrop > div[class*="glass"] {
+      margin-top: auto !important;
+      margin-bottom: 0 !important;
+      max-height: min(92vh, 100%) !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      overscroll-behavior-y: contain !important;
+      touch-action: pan-y !important;
+      flex-shrink: 0 !important;
     }
 
     /* Custom Hide Scrollbar */
@@ -4398,7 +4422,7 @@
 
           <div class="grid grid-cols-3 gap-2" id="operationsGrid">
             <!-- 1. حركة مالية -->
-            <button data-category="finance" onclick="window.location.href='mobile-voucher.php?force_mobile=1'; if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="حركة مالية">
+            <button data-category="finance" onclick="openOperationalForm('finance'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="op-btn p-2 rounded-2xl flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer min-h-[76px]" title="حركة مالية">
               <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-1.5 shadow-[0_0_12px_rgba(16,185,129,0.3)] group-hover:scale-110 transition">
                 <i class="fa-solid fa-money-bill-transfer text-base"></i>
               </div>
@@ -7152,7 +7176,12 @@
               <span class="text-[10px] text-slate-400 font-bold block">تحويل فوري مزدوج القيد مع تحديث الأرصدة ومانع التكرار</span>
             </div>
           </div>
-          <button onclick="closeModal('modalOpFinance')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm transition">✕</button>
+          <div class="flex items-center gap-2">
+            <a href="mobile-voucher.php?force_mobile=1" title="فتح شاشة السند المتقدم بالكاميرا والمرفقات" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-cyan-500/40 text-[11px] font-bold flex items-center gap-1 transition">
+              <span>سند بالكاميرا</span> 📷
+            </a>
+            <button onclick="closeModal('modalOpFinance')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm transition">✕</button>
+          </div>
         </div>
 
         <!-- 1. طريقة التحويل والوسيلة المالية -->
@@ -10163,12 +10192,13 @@
     };
 
     function openOperationalForm(formType) {
-      if (formType === 'financeMovement') {
-        window.location.href = 'mobile-voucher.php?force_mobile=1';
-        return;
-      }
       let modalId = '';
-      if (formType === 'sales' || formType === 'salesInvoice') {
+      if (formType === 'finance' || formType === 'financeMovement' || formType === 'finTransfer') {
+        modalId = 'modalOpFinance';
+        if (typeof initFinancialTransferModal === 'function') {
+          initFinancialTransferModal();
+        }
+      } else if (formType === 'sales' || formType === 'salesInvoice') {
         modalId = 'modalOpSales';
       } else if (formType === 'salesSplit') {
         modalId = 'modalOpSalesSplit';
@@ -10746,7 +10776,12 @@
 
     function openModal(modalId) {
       const m = document.getElementById(modalId);
-      if (m) m.classList.remove('hidden');
+      if (m) {
+        m.classList.remove('hidden');
+        m.scrollTop = 0;
+        const inner = m.querySelector('.glass-base') || m.firstElementChild;
+        if (inner) inner.scrollTop = 0;
+      }
     }
     function closeModal(modalId) {
       const m = document.getElementById(modalId);

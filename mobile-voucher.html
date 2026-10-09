@@ -116,9 +116,10 @@
       color: #f8fafc;
       width: 100%;
       min-height: 100%;
-      overflow: visible !important;
-      -webkit-overflow-scrolling: auto !important;
-      touch-action: manipulation;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y !important;
     }
 
     input, select, textarea, button {
@@ -643,13 +644,13 @@
     /* Native mobile and responsive outer styling */
     .mobile-device-outer {
       overflow: visible !important;
-      touch-action: manipulation;
+      touch-action: pan-y !important;
     }
     .mobile-device-outer > main {
       overflow: visible !important;
       height: auto !important;
-      padding-bottom: 140px !important;
-      touch-action: manipulation;
+      padding-bottom: 180px !important;
+      touch-action: pan-y !important;
     }
 
     /* Native mobile view on actual phones (<= 640px) */
@@ -666,8 +667,10 @@
         background: #020617 !important;
         height: auto !important;
         min-height: 100% !important;
-        overflow: visible !important;
-        -webkit-overflow-scrolling: auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
       }
       .mobile-device-outer {
         width: 100% !important;
@@ -682,7 +685,8 @@
       .mobile-device-outer > main {
         overflow: visible !important;
         height: auto !important;
-        padding-bottom: 140px !important;
+        padding-bottom: 180px !important;
+        touch-action: pan-y !important;
       }
       .desktop-screen-switcher {
         display: none !important;
@@ -694,25 +698,40 @@
         right: 0 !important;
         z-index: 50 !important;
         max-width: 100% !important;
-        padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
+        padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
+        box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.7) !important;
       }
     }
 
     /* Desktop view styling: provides authentic 1:1 mobile scale */
     @media (min-width: 641px) {
       body {
-        padding: 16px 12px;
-        background: #090d16;
+        padding: 16px 12px 100px 12px !important;
+        background: #090d16 !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
       }
       .mobile-device-outer {
-        min-height: 852px;
+        min-height: auto !important;
+        margin-bottom: 30px !important;
+      }
+      .mobile-device-outer > main {
+        padding-bottom: 160px !important;
       }
       .bottom-bar-fixed {
-        position: sticky;
-        bottom: 0;
-        z-index: 40;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 100% !important;
+        max-width: 393px !important;
+        z-index: 50 !important;
+        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.8) !important;
+        border-radius: 20px 20px 0 0 !important;
       }
     }
+   
   
     /* ═════════════════════════════════════════════════════════════════
        🔍 أزرار وعدسة تكبير المديونيات الذكية التفاعلية (جنيه سوداني ودولار)

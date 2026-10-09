@@ -1487,6 +1487,7 @@ function submitVoucherInner() {
                 if (trNoInput) trNoInput.focus();
                 hasInvalidTransfer = true;
                 return;
+            }
             if (trNo.length < 6) {
                 showLengthWarningModal(trNo);
                 if (trNoInput) trNoInput.focus();
