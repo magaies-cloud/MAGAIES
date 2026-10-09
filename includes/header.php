@@ -86,11 +86,16 @@
             if (!savedTheme) savedTheme = 'warm-alabaster';
             
             var aliasMap = {
-                'ultra_white': 'pure-platinum', 'warm_cream': 'warm-alabaster', 'exec_gray': 'pearl-platinum',
-                'solar_contrast': 'sunlight-titanium', 'solar': 'sunlight-titanium',
-                'slate_twilight': 'midnight-executive', 'midnight_obsidian': 'midnight-executive',
-                'pure_oled': 'midnight', 'navy': 'navy-kohl', 'forest': 'emerald-forest',
-                'theme-imperial': 'warm-alabaster'
+                'pure-platinum': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white', 'offwhite': 'ultra_white',
+                'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+                'nordic-paper': 'warm_cream', 'sepia-brown': 'warm_cream', 'pale-gold': 'warm_cream', 'desert-mocha': 'warm_cream',
+                'theme-imperial': 'warm_cream', 'cream': 'warm_cream',
+                'pearl-platinum': 'exec_gray',
+                'sunlight-titanium': 'solar_contrast', 'solar': 'solar_contrast',
+                'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight',
+                'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian',
+                'ocean-navy': 'midnight_obsidian', 'petrol-cyan': 'midnight_obsidian', 'navy': 'midnight_obsidian', 'dark': 'midnight_obsidian',
+                'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'oled': 'pure_oled'
             };
             if (aliasMap[savedTheme]) savedTheme = aliasMap[savedTheme];
             
@@ -624,7 +629,7 @@
                 <!-- Tier 1: الصف العلوي (فوق): سمات | نسخة الجوال | تثبيت التطبيق -->
                 <div class="header-cluster-top-row" style="display:flex; align-items:center; gap:5px;">
                     <!-- 🎨 زر السمات -->
-                    <button class="desktop-theme-palette-btn" id="header-desktop-theme-btn" type="button" onclick="openDesktopThemePaletteModal()" title="مصفوفة سمات النظام وراحة العين (21 سمة علمية معتمدة)">
+                    <button class="desktop-theme-palette-btn" id="header-desktop-theme-btn" type="button" onclick="openDesktopThemePaletteModal()" title="السمات السبعة المعتمدة والموحدة (7 سمات رئيسية) 🎨">
                         <span class="theme-btn-icon">🎨</span>
                         <span class="theme-btn-text">السمات</span>
                         <span class="theme-btn-badge">7</span>
@@ -708,40 +713,25 @@
         // ═══════════════════════════════════════════════════════════════════
         // 🎨 DESKTOP & LAPTOP 21 ERGONOMIC THEMES CONTROLLER
         // ═══════════════════════════════════════════════════════════════════
-        const DESKTOP_LIGHT_THEMES = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper', 'ultra_white', 'warm_cream', 'exec_gray'];
+        const DESKTOP_LIGHT_THEMES = ['ultra_white', 'warm_cream', 'exec_gray', 'solar_contrast'];
         const DESKTOP_THEME_NAMES = {
-            'warm-alabaster': 'العاجي الدافئ',
-            'pure-platinum': 'الفضي النقي',
-            'midnight-executive': 'كحلي منتصف الليل',
-            'obsidian-charcoal': 'حجر السج الجرافيتي',
-            'beige': 'البيج الدافئ المريح',
-            'ivory': 'العاجي الملكي الكلاسيكي',
-            'offwhite': 'الأوف وايت الحديث المطفأ',
-            'light-linen': 'الكتان الطبيعي المريح',
-            'pearl-platinum': 'اللؤلؤي الفضي المريح',
-            'nordic-paper': 'الورقي النوردي المريح',
-            'navy-kohl': 'الكحلي الملكي الليلي',
-            'royal-blue': 'الأزرق الزفيري الحيوي',
-            'ocean-navy': 'الأزرق المحيطي العميق',
-            'petrol-cyan': 'الأزرق البترولي والتيل',
-            'twilight-indigo': 'أزرق الشفق والإنديجو',
-            'midnight': 'الليل الملكي الداكن',
-            'sepia-brown': 'البني الإسبريسو والورق القديم',
-            'pale-gold': 'الذهبي الباهت والفخامة',
-            'emerald-forest': 'زمرد الغابات لصفاء الذهن',
-            'desert-mocha': 'الرمال الصحراوية وموكا',
-            'sunlight-titanium': 'التيتانيوم الشمسي فائق التباين',
-            'ultra_white': 'السمة البيضاء الناصعة',
-            'warm_cream': 'السمة الفاتحة (بيج دافئ)',
-            'midnight_obsidian': 'السمة الكحلية الموحدة',
-            'pure_oled': 'السمة السوداء الفاحمة'
+            'ultra_white': 'أبيض فائق النقاء Ultra-Clean White',
+            'warm_cream': 'ورق سيبيا دافئ Warm Paper Sepia',
+            'exec_gray': 'رمادي تنفيذي بارد Cool Executive Gray',
+            'solar_contrast': 'شمس ساطعة عالي التباين Solar Sun',
+            'slate_twilight': 'سليت مسائي هادئ Twilight Slate',
+            'midnight_obsidian': 'كحلي فاحم ملكي Midnight Obsidian',
+            'pure_oled': 'سواد مطلق Pure OLED Black'
         };
 
         window.MASTER_THEMES = [
-            { key: 'ultra_white', name: 'السمة البيضاء الناصعة', icon: '⚪', dot: '#ffffff', isLight: true, title: 'أبيض فائق النقاء - تباين أسود ناصع' },
-            { key: 'warm_cream', name: 'السمة الفاتحة (بيج دافئ)', icon: '📜', dot: '#fbf7ee', isLight: true, title: 'ورق سيبيا دافئ مريح للعين' },
-            { key: 'midnight_obsidian', name: 'السمة الكحلية الزرقاء', icon: '🌌', dot: '#0b0f19', isLight: false, title: 'كحلي أزرق ملكي - نيون فسفوري' },
-            { key: 'pure_oled', name: 'السمة السوداء الفاحمة', icon: '🖤', dot: '#000000', isLight: false, title: 'سواد مطلق OLED - تباين كامل 100%' }
+            { key: 'ultra_white', name: 'أبيض فائق النقاء Ultra-Clean White', icon: '⚪', dot: '#2563eb', isLight: true, title: 'أبيض فائق النقاء - تباين أسود ناصع' },
+            { key: 'warm_cream', name: 'ورق سيبيا دافئ Warm Paper Sepia', icon: '📜', dot: '#b45309', isLight: true, title: 'ورق سيبيا دافئ مريح للعين' },
+            { key: 'exec_gray', name: 'رمادي تنفيذي بارد Cool Executive Gray', icon: '💼', dot: '#1d4ed8', isLight: true, title: 'رمادي تنفيذي بارد وأناقة مصرفية' },
+            { key: 'solar_contrast', name: 'شمس ساطعة عالي التباين Solar Sun', icon: '☀️', dot: '#000000', isLight: true, title: 'شمس ساطعة عالي التباين WCAG AAA' },
+            { key: 'slate_twilight', name: 'سليت مسائي هادئ Twilight Slate', icon: '🌌', dot: '#38bdf8', isLight: false, title: 'سليت مسائي هادئ' },
+            { key: 'midnight_obsidian', name: 'كحلي فاحم ملكي Midnight Obsidian', icon: '💎', dot: '#00f2fe', isLight: false, title: 'كحلي فاحم ملكي - نيون فسفوري' },
+            { key: 'pure_oled', name: 'سواد مطلق Pure OLED Black', icon: '🖤', dot: '#10b981', isLight: false, title: 'سواد مطلق OLED - تباين كامل 100%' }
         ];
 
         function openDesktopThemePaletteModal() {
@@ -821,25 +811,19 @@
         window.setUniversalTheme = function(themeKey, showToast = true) {
             if (!themeKey) return;
             const aliasMap = {
-                'light': 'pure-platinum',
-                'white': 'pure-platinum',
-                'ultra_white': 'pure-platinum',
-                'warm_cream': 'warm-alabaster',
-                'cream': 'warm-alabaster',
-                'exec_gray': 'pearl-platinum',
-                'solar': 'sunlight-titanium',
-                'solar_contrast': 'sunlight-titanium',
-                'dark': 'midnight-executive',
-                'midnight_obsidian': 'midnight-executive',
-                'slate_twilight': 'midnight-executive',
-                'pure_oled': 'midnight',
-                'oled': 'midnight',
-                'navy': 'navy-kohl',
-                'forest': 'emerald-forest',
-                'theme-imperial': 'warm-alabaster'
+                'pure-platinum': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white', 'offwhite': 'ultra_white',
+                'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+                'nordic-paper': 'warm_cream', 'sepia-brown': 'warm_cream', 'pale-gold': 'warm_cream', 'desert-mocha': 'warm_cream',
+                'theme-imperial': 'warm_cream', 'cream': 'warm_cream',
+                'pearl-platinum': 'exec_gray',
+                'sunlight-titanium': 'solar_contrast', 'solar': 'solar_contrast',
+                'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight',
+                'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian',
+                'ocean-navy': 'midnight_obsidian', 'petrol-cyan': 'midnight_obsidian', 'navy': 'midnight_obsidian', 'dark': 'midnight_obsidian',
+                'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'oled': 'pure_oled'
             };
             if (aliasMap[themeKey]) themeKey = aliasMap[themeKey];
-            if (!DESKTOP_THEME_NAMES[themeKey]) themeKey = 'warm-alabaster';
+            if (!DESKTOP_THEME_NAMES[themeKey]) themeKey = 'midnight_obsidian';
 
             const isLight = DESKTOP_LIGHT_THEMES.indexOf(themeKey) !== -1;
 
@@ -965,18 +949,18 @@
 </header>
 
 <!-- ═══════════════════════════════════════════════════════════════════
-     🎨 DESKTOP & LAPTOP 21 ERGONOMIC THEMES PALETTE MODAL
+     🎨 DESKTOP & LAPTOP 7 MASTER THEMES PALETTE MODAL
      ═══════════════════════════════════════════════════════════════════ -->
 <div id="desktopThemePaletteModal" class="desktop-theme-modal-backdrop" onclick="if(event.target === this) closeDesktopThemePaletteModal();" style="display: none;">
-    <div class="desktop-theme-modal-dialog" onclick="event.stopPropagation();">
+    <div class="desktop-theme-modal-dialog" onclick="event.stopPropagation();" style="max-width: 780px;">
         
         <!-- Modal Top Bar -->
         <div class="desktop-theme-modal-header">
             <div style="display:flex; align-items:center; gap:12px;">
                 <div class="desktop-theme-header-icon-box">🎨</div>
                 <div>
-                    <h2 class="desktop-theme-modal-title">مصفوفة سمات النظام وراحة العين (21 سمة علمية معتمدة)</h2>
-                    <p class="desktop-theme-modal-subtitle">تصميم سويسري عالي التباين متوافق مع معايير WCAG AAA • حماية الشبكية ومنع إجهاد العين أثناء العمل المحاسبي الطويل</p>
+                    <h2 class="desktop-theme-modal-title">السمات السبعة المعتمدة والموحدة (Magaiees 7 Master Themes)</h2>
+                    <p class="desktop-theme-modal-subtitle">سمات مدروسة علمياً لراحة العين وأعلى تباين • تتزامن فورياً على كافة شاشات الكمبيوتر واللابتوب والجوال</p>
                 </div>
             </div>
             <button type="button" class="desktop-theme-close-btn" onclick="closeDesktopThemePaletteModal()" title="إغلاق النافذة">✕</button>
@@ -985,353 +969,124 @@
         <!-- Guidance Banner -->
         <div class="desktop-theme-guidance-banner">
             <span style="font-size:16px;">💡</span>
-            <div><strong>استشارة خبير علم النفس والألوان:</strong> الألوان الترابية والعاجية والبيج تمتص الوهج الأزرق بنسبة 95% وتريح البؤبؤ، ودرجات الأزرق والكحلي تحفز التركيز الذهني والتدقيق المالي، والداكنة توفر أقصى راحة في الإضاءة الخافتة.</div>
+            <div><strong>السمات السبعة القياسية الموحدة:</strong> تم اعتماد 7 سمات رئيسية تحقق أعلى درجات الراحة البصرية وتوفر استهلاك البطارية بدون تشتيت مفرط.</div>
         </div>
 
         <!-- Filter Tabs -->
         <div class="desktop-theme-filter-row">
             <button type="button" class="desktop-theme-tab-btn active-tab" data-cat="all" onclick="filterDesktopThemeCategory('all')">
                 <span>الكل</span>
-                <span class="desktop-tab-count">21</span>
-            </button>
-            <button type="button" class="desktop-theme-tab-btn" data-cat="recommended" onclick="filterDesktopThemeCategory('recommended')">
-                <span>🌟 الموصى بها</span>
-                <span class="desktop-tab-count">4</span>
+                <span class="desktop-tab-count">7</span>
             </button>
             <button type="button" class="desktop-theme-tab-btn" data-cat="light" onclick="filterDesktopThemeCategory('light')">
-                <span>☀️ الفاتحة والعاجي</span>
-                <span class="desktop-tab-count">8</span>
-            </button>
-            <button type="button" class="desktop-theme-tab-btn" data-cat="blue" onclick="filterDesktopThemeCategory('blue')">
-                <span>🌊 درجات الأزرق</span>
-                <span class="desktop-tab-count">6</span>
+                <span>☀️ الفاتحة والنهارية</span>
+                <span class="desktop-tab-count">4</span>
             </button>
             <button type="button" class="desktop-theme-tab-btn" data-cat="dark" onclick="filterDesktopThemeCategory('dark')">
-                <span>🌙 الداكنة والملكية</span>
-                <span class="desktop-tab-count">8</span>
+                <span>🌙 الداكنة والمسائية</span>
+                <span class="desktop-tab-count">3</span>
             </button>
         </div>
 
-        <!-- Themes Grid (All 21 Themes) -->
-        <div class="desktop-theme-grid-container">
+        <!-- Themes Grid (The 7 Master Themes) -->
+        <div class="desktop-theme-grid-container" style="grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));">
 
-            <!-- 0.1 WARM ALABASTER -->
-            <div class="desktop-theme-card" data-category="recommended light" data-theme-key="warm-alabaster" onclick="applyDesktopTheme('warm-alabaster')" style="--card-border:#8B6F4E; --card-bg:#F6F0E6; --card-text:#1C1917;">
+            <!-- 1. Ultra-Clean White -->
+            <div class="desktop-theme-card" data-category="light" data-theme-key="ultra_white" onclick="applyDesktopTheme('ultra_white')" style="--card-border:#2563eb; --card-bg:#ffffff; --card-text:#0f172a;">
                 <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">📜 العاجي الدافئ</span>
-                    <span class="desktop-rec-badge">🌟 موصى بها</span>
+                    <span class="desktop-theme-card-title">⚪ أبيض فائق النقاء Ultra-Clean White</span>
                     <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
                     <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#F6F0E6; border:1px solid #8B6F4E;"></span>
-                        <span class="desktop-swatch" style="background:#FFFFFF; border:1px solid #8B6F4E;"></span>
-                        <span class="desktop-swatch" style="background:#8B6F4E;"></span>
+                        <span class="desktop-swatch" style="background:#ffffff; border:1px solid #2563eb;"></span>
+                        <span class="desktop-swatch" style="background:#2563eb;"></span>
                     </div>
                 </div>
-                <p class="desktop-theme-card-desc">أزرار بيضاء ناصعة بحواف بنية داكنة فوق أرضية عاجية بيج خفيفة، تباين مثالي فائق الراحة والرقي.</p>
-                <div class="desktop-theme-card-foot">Warm Alabaster • قمة الرقي • تباين فائق وعاجي هادئ</div>
+                <p class="desktop-theme-card-desc">إضاءة نهارية مكتبية ناصعة مع نصوص سوداء حادة لأعلى وضوح وتباين مكتبي.</p>
+                <div class="desktop-theme-card-foot">Ultra White • نهاري مكتبي ناصع</div>
             </div>
 
-            <!-- 0.2 PURE PLATINUM -->
-            <div class="desktop-theme-card" data-category="recommended light" data-theme-key="pure-platinum" onclick="applyDesktopTheme('pure-platinum')" style="--card-border:#64748B; --card-bg:#EEF2F6; --card-text:#0F172A;">
+            <!-- 2. Warm Paper Sepia -->
+            <div class="desktop-theme-card" data-category="light" data-theme-key="warm_cream" onclick="applyDesktopTheme('warm_cream')" style="--card-border:#b45309; --card-bg:#fbf7ee; --card-text:#1c1917;">
                 <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">❄️ الفضي النقي</span>
-                    <span class="desktop-rec-badge">🌟 موصى بها</span>
+                    <span class="desktop-theme-card-title">📜 ورق سيبيا دافئ Warm Paper Sepia</span>
                     <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
                     <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#EEF2F6; border:1px solid #64748B;"></span>
-                        <span class="desktop-swatch" style="background:#FFFFFF; border:1px solid #64748B;"></span>
-                        <span class="desktop-swatch" style="background:#0F172A;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">أزرار ناصعة البياض بحواف بلاتينية محددة على أرضية فضية نقية هادئة، دقة تحليلية سويسرية فائقة التباين.</p>
-                <div class="desktop-theme-card-foot">Pure Platinum • قمة الرقي • تباين نقي وفضي هادئ</div>
-            </div>
-
-            <!-- 0.3 MIDNIGHT EXECUTIVE -->
-            <div class="desktop-theme-card" data-category="recommended blue dark" data-theme-key="midnight-executive" onclick="applyDesktopTheme('midnight-executive')" style="--card-border:#1E293B; --card-bg:#0B0F17; --card-text:#F1F5F9;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🌌 كحلي منتصف الليل</span>
-                    <span class="desktop-rec-badge">🌟 موصى بها</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#0B0F17; border:1px solid #1E293B;"></span>
-                        <span class="desktop-swatch" style="background:#131B2A;"></span>
-                        <span class="desktop-swatch" style="background:#38BDF8;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">كحلي ليلي سحيق يبعث الأمان المالي والهدوء العصبي، يمنع إجهاد العين في العمل الليلي.</p>
-                <div class="desktop-theme-card-foot">Midnight Executive • قمة الرقي • داكن ملكي</div>
-            </div>
-
-            <!-- 0.4 OBSIDIAN CHARCOAL -->
-            <div class="desktop-theme-card" data-category="recommended dark" data-theme-key="obsidian-charcoal" onclick="applyDesktopTheme('obsidian-charcoal')" style="--card-border:#2C2C30; --card-bg:#121214; --card-text:#EDEDED;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🪨 حجر السج الجرافيتي</span>
-                    <span class="desktop-rec-badge">🌟 موصى بها</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#121214; border:1px solid #2C2C30;"></span>
-                        <span class="desktop-swatch" style="background:#1C1C1F;"></span>
-                        <span class="desktop-swatch" style="background:#EDEDED;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">فحم جرافيتي مطفأ وناعم مستوحى من الساعات السويسرية، راحة مطلقة لشاشات OLED.</p>
-                <div class="desktop-theme-card-foot">Obsidian Charcoal • قمة الرقي • داكن مريح</div>
-            </div>
-
-            <!-- 1. BEIGE -->
-            <div class="desktop-theme-card" data-category="light" data-theme-key="beige" onclick="applyDesktopTheme('beige')" style="--card-border:#d6c5b0; --card-bg:#f5ebe0; --card-text:#23190e;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🌾 البيج الدافئ المريح</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#f5ebe0; border:1px solid #d6c5b0;"></span>
+                        <span class="desktop-swatch" style="background:#fbf7ee; border:1px solid #b45309;"></span>
                         <span class="desktop-swatch" style="background:#b45309;"></span>
-                        <span class="desktop-swatch" style="background:#23190e;"></span>
                     </div>
                 </div>
-                <p class="desktop-theme-card-desc">درجة بيج رملي طبيعي دافئ يمتص الوهج، مثالي لقراءة الدفاتر لساعات طويلة.</p>
-                <div class="desktop-theme-card-foot">Warm Sandstone Beige • فاتح مريح</div>
+                <p class="desktop-theme-card-desc">مستوحى من ورق الدفاتر الفاخرة لامتصاص الوهج الأزرق ومنع جفاف وإجهاد العين أثناء العمل الطويل.</p>
+                <div class="desktop-theme-card-foot">Warm Cream • عاجي وورقي مريح للعين</div>
             </div>
 
-            <!-- 2. IVORY -->
-            <div class="desktop-theme-card" data-category="light" data-theme-key="ivory" onclick="applyDesktopTheme('ivory')" style="--card-border:#ded6c3; --card-bg:#faf7f0; --card-text:#1c1813;">
+            <!-- 3. Cool Executive Gray -->
+            <div class="desktop-theme-card" data-category="light" data-theme-key="exec_gray" onclick="applyDesktopTheme('exec_gray')" style="--card-border:#1d4ed8; --card-bg:#f1f5f9; --card-text:#0f172a;">
                 <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🥛 العاجي الملكي الكلاسيكي</span>
+                    <span class="desktop-theme-card-title">💼 رمادي تنفيذي بارد Cool Executive Gray</span>
                     <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
                     <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#faf7f0; border:1px solid #ded6c3;"></span>
-                        <span class="desktop-swatch" style="background:#d97706;"></span>
-                        <span class="desktop-swatch" style="background:#1c1813;"></span>
+                        <span class="desktop-swatch" style="background:#f1f5f9; border:1px solid #1d4ed8;"></span>
+                        <span class="desktop-swatch" style="background:#1d4ed8;"></span>
                     </div>
                 </div>
-                <p class="desktop-theme-card-desc">نعومة اللون العاجي الكريمي الهادئ، يريح البؤبؤ ولا يجهد العصب البصري.</p>
-                <div class="desktop-theme-card-foot">Royal Cream Ivory • عاجي ناعم</div>
+                <p class="desktop-theme-card-desc">أسطح رمادية هادئة تعكس أناقة الشركات الكبرى والبنوك العالمية لتقليل الانعكاسات.</p>
+                <div class="desktop-theme-card-foot">Executive Gray • رمادي تنفيذي مصرفي</div>
             </div>
 
-            <!-- 3. OFF-WHITE -->
-            <div class="desktop-theme-card" data-category="light" data-theme-key="offwhite" onclick="applyDesktopTheme('offwhite')" style="--card-border:#d1d5db; --card-bg:#f9fafb; --card-text:#111827;">
+            <!-- 4. High-Contrast Solar Sun -->
+            <div class="desktop-theme-card" data-category="light" data-theme-key="solar_contrast" onclick="applyDesktopTheme('solar_contrast')" style="--card-border:#000000; --card-bg:#ffff00; --card-text:#000000;">
                 <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">📜 الأوف وايت الحديث المطفأ</span>
+                    <span class="desktop-theme-card-title">☀️ شمس ساطعة عالي التباين Solar Sun</span>
                     <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
                     <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#f9fafb; border:1px solid #d1d5db;"></span>
-                        <span class="desktop-swatch" style="background:#2563eb;"></span>
-                        <span class="desktop-swatch" style="background:#111827;"></span>
+                        <span class="desktop-swatch" style="background:#ffff00; border:1px solid #000000;"></span>
+                        <span class="desktop-swatch" style="background:#000000;"></span>
                     </div>
                 </div>
-                <p class="desktop-theme-card-desc">أوف وايت ألاباستر عصري بدون بياض ساطع، وضوح حاد للأرقام والخطوط.</p>
-                <div class="desktop-theme-card-foot">Modern Matte Off-White • مطفأ نقي</div>
+                <p class="desktop-theme-card-desc">أعلى تباين معتمد طبياً (WCAG AAA) للقراءة الفورية تحت أشعة الشمس المباشرة أو المخازن المفتوحة.</p>
+                <div class="desktop-theme-card-foot">Solar Contrast • فائق التباين تحت الشمس</div>
             </div>
 
-            <!-- 4. LIGHT LINEN -->
-            <div class="desktop-theme-card" data-category="light" data-theme-key="light-linen" onclick="applyDesktopTheme('light-linen')" style="--card-border:#cfc5b3; --card-bg:#ede7dc; --card-text:#211f1a;">
+            <!-- 5. Twilight Slate -->
+            <div class="desktop-theme-card" data-category="dark" data-theme-key="slate_twilight" onclick="applyDesktopTheme('slate_twilight')" style="--card-border:#38bdf8; --card-bg:#0f172a; --card-text:#f8fafc;">
                 <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🧵 الكتان الطبيعي المريح</span>
+                    <span class="desktop-theme-card-title">🌌 سليت مسائي هادئ Twilight Slate</span>
                     <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
                     <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#ede7dc; border:1px solid #cfc5b3;"></span>
-                        <span class="desktop-swatch" style="background:#4d7c0f;"></span>
-                        <span class="desktop-swatch" style="background:#211f1a;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">طابع قماش الكتان العضوي الهادئ، يمنح شعوراً بالسكينة أثناء ضغط الحسابات.</p>
-                <div class="desktop-theme-card-foot">Soft Natural Linen • كتان هادئ</div>
-            </div>
-
-            <!-- 5. PEARL PLATINUM -->
-            <div class="desktop-theme-card" data-category="light" data-theme-key="pearl-platinum" onclick="applyDesktopTheme('pearl-platinum')" style="--card-border:#cbd3dc; --card-bg:#e9ecef; --card-text:#0f172a;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🦪 اللؤلؤي الفضي المريح</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#e9ecef; border:1px solid #cbd3dc;"></span>
-                        <span class="desktop-swatch" style="background:#0284c7;"></span>
-                        <span class="desktop-swatch" style="background:#0f172a;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">رمادي لؤلؤي بلاتيني بارد وراقي جداً، يقلل انعكاس الضوء المكتبي.</p>
-                <div class="desktop-theme-card-foot">Platinum Pearl Grey • لؤلؤي بارد</div>
-            </div>
-
-            <!-- 6. NORDIC PAPER -->
-            <div class="desktop-theme-card" data-category="light" data-theme-key="nordic-paper" onclick="applyDesktopTheme('nordic-paper')" style="--card-border:#cbd5e1; --card-bg:#f8fafc; --card-text:#0f172a;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">📄 الورقي النوردي المريح</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#f8fafc; border:1px solid #cbd5e1;"></span>
-                        <span class="desktop-swatch" style="background:#2563eb;"></span>
-                        <span class="desktop-swatch" style="background:#0f172a;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">ملمس الورق المحاسبي النوردي الفاخر، أعلى مقروئية في ضوء النهار الطبيعي.</p>
-                <div class="desktop-theme-card-foot">Nordic Paper Light • نهار مشرق</div>
-            </div>
-
-            <!-- 7. NAVY KOHL -->
-            <div class="desktop-theme-card" data-category="blue dark" data-theme-key="navy-kohl" onclick="applyDesktopTheme('navy-kohl')" style="--card-border:#1a2d5a; --card-bg:#050c1e; --card-text:#f8fafc;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🌌 الكحلي الملكي الليلي</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#050c1e; border:1px solid #1a2d5a;"></span>
-                        <span class="desktop-swatch" style="background:#38bdf8;"></span>
-                        <span class="desktop-swatch" style="background:#fbbf24;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية، هيبة رجال الأعمال.</p>
-                <div class="desktop-theme-card-foot">Deep Midnight Navy • كحلي تنفيذي</div>
-            </div>
-
-            <!-- 8. ROYAL BLUE -->
-            <div class="desktop-theme-card" data-category="blue" data-theme-key="royal-blue" onclick="applyDesktopTheme('royal-blue')" style="--card-border:#1e3e78; --card-bg:#0a1b38; --card-text:#ffffff;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🔷 الأزرق الزفيري الحيوي</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#0a1b38; border:1px solid #1e3e78;"></span>
-                        <span class="desktop-swatch" style="background:#60a5fa;"></span>
-                        <span class="desktop-swatch" style="background:#34d399;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة في إدخال الفواتير السريعة.</p>
-                <div class="desktop-theme-card-foot">Executive Royal Blue • أزرق ملكي</div>
-            </div>
-
-            <!-- 9. OCEAN NAVY -->
-            <div class="desktop-theme-card" data-category="blue" data-theme-key="ocean-navy" onclick="applyDesktopTheme('ocean-navy')" style="--card-border:#1e3a8a; --card-bg:#0c1a2e; --card-text:#e0f2fe;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🌊 الأزرق المحيطي العميق</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#0c1a2e; border:1px solid #1e3a8a;"></span>
-                        <span class="desktop-swatch" style="background:#38bdf8;"></span>
-                        <span class="desktop-swatch" style="background:#bae6fd;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">يعزز التفكير المنطقي والتحليلي أثناء مراجعة الحسابات ومطابقة القيود.</p>
-                <div class="desktop-theme-card-foot">Royal Oceanic Navy • منطق وتحليل</div>
-            </div>
-
-            <!-- 10. PETROL CYAN -->
-            <div class="desktop-theme-card" data-category="blue" data-theme-key="petrol-cyan" onclick="applyDesktopTheme('petrol-cyan')" style="--card-border:#134658; --card-bg:#071c26; --card-text:#f0fdfa;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🐬 الأزرق البترولي والتيل</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#071c26; border:1px solid #134658;"></span>
-                        <span class="desktop-swatch" style="background:#2dd4bf;"></span>
+                        <span class="desktop-swatch" style="background:#0f172a; border:1px solid #38bdf8;"></span>
                         <span class="desktop-swatch" style="background:#38bdf8;"></span>
                     </div>
                 </div>
-                <p class="desktop-theme-card-desc">مزيج من الأزرق البترولي والتيل البحري، يمنح هدوءاً بصرياً فائقاً.</p>
-                <div class="desktop-theme-card-foot">Petrol Cyan Blue • بترولي مهدئ</div>
+                <p class="desktop-theme-card-desc">رمادي داكن مائل للزرقة هادئ جداً لأوقات المساء والسكون البصري دون سواد تام.</p>
+                <div class="desktop-theme-card-foot">Twilight Slate • رمادي مسائي هادئ</div>
             </div>
 
-            <!-- 11. TWILIGHT INDIGO -->
-            <div class="desktop-theme-card" data-category="blue" data-theme-key="twilight-indigo" onclick="applyDesktopTheme('twilight-indigo')" style="--card-border:#2b356e; --card-bg:#0e122b; --card-text:#e0e7ff;">
+            <!-- 6. Midnight Obsidian -->
+            <div class="desktop-theme-card" data-category="dark" data-theme-key="midnight_obsidian" onclick="applyDesktopTheme('midnight_obsidian')" style="--card-border:#00f2fe; --card-bg:#0a1128; --card-text:#f8fafc;">
                 <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🔮 أزرق الشفق والإنديجو</span>
+                    <span class="desktop-theme-card-title">💎 كحلي فاحم ملكي Midnight Obsidian</span>
                     <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
                     <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#0e122b; border:1px solid #2b356e;"></span>
-                        <span class="desktop-swatch" style="background:#818cf8;"></span>
-                        <span class="desktop-swatch" style="background:#f472b6;"></span>
+                        <span class="desktop-swatch" style="background:#0a1128; border:1px solid #00f2fe;"></span>
+                        <span class="desktop-swatch" style="background:#00f2fe;"></span>
                     </div>
                 </div>
-                <p class="desktop-theme-card-desc">أزرق شفق نيلي مسائي يخفف التوتر العصبي ويمنع شرود الذهن.</p>
-                <div class="desktop-theme-card-foot">Twilight Indigo • إنديجو مسائي</div>
+                <p class="desktop-theme-card-desc">السمة المصرفية الفخمة باللون الكحلي السحيق والنيون والتركيز المالي العالي.</p>
+                <div class="desktop-theme-card-foot">Midnight Obsidian • كحلي مصرفي ملكي</div>
             </div>
 
-            <!-- 12. OLED MIDNIGHT -->
-            <div class="desktop-theme-card" data-category="dark" data-theme-key="midnight" onclick="applyDesktopTheme('midnight')" style="--card-border:#334155; --card-bg:#020617; --card-text:#f8fafc;">
+            <!-- 7. Pure OLED Black -->
+            <div class="desktop-theme-card" data-category="dark" data-theme-key="pure_oled" onclick="applyDesktopTheme('pure_oled')" style="--card-border:#10b981; --card-bg:#000000; --card-text:#ffffff;">
                 <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🌙 الليل الملكي الداكن (OLED)</span>
+                    <span class="desktop-theme-card-title">🖤 سواد مطلق Pure OLED Black</span>
                     <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
                     <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#020617; border:1px solid #334155;"></span>
-                        <span class="desktop-swatch" style="background:#22d3ee;"></span>
-                        <span class="desktop-swatch" style="background:#34d399;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">سواد عميق OLED موفر للطاقة، أقصى تباين في الإضاءة الليلية الضعيفة.</p>
-                <div class="desktop-theme-card-foot">OLED Midnight • افتراضي</div>
-            </div>
-
-            <!-- 13. SEPIA BROWN -->
-            <div class="desktop-theme-card" data-category="dark" data-theme-key="sepia-brown" onclick="applyDesktopTheme('sepia-brown')" style="--card-border:#78350f; --card-bg:#1c1917; --card-text:#fef3c7;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">📜 البني الإسبريسو والورق القديم</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#1c1917; border:1px solid #78350f;"></span>
-                        <span class="desktop-swatch" style="background:#d97706;"></span>
-                        <span class="desktop-swatch" style="background:#fef3c7;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">حجب كامل للضوء الأزرق، يريح العصب البصري ويمنع الصداع في العمل الطويل.</p>
-                <div class="desktop-theme-card-foot">Warm Sepia • مهدئ للأعصاب</div>
-            </div>
-
-            <!-- 14. PALE GOLD -->
-            <div class="desktop-theme-card" data-category="dark" data-theme-key="pale-gold" onclick="applyDesktopTheme('pale-gold')" style="--card-border:#854d0e; --card-bg:#181614; --card-text:#fef08a;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">👑 الذهبي الباهت والفخامة</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#181614; border:1px solid #854d0e;"></span>
-                        <span class="desktop-swatch" style="background:#eab308;"></span>
-                        <span class="desktop-swatch" style="background:#fef08a;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">تناسق ذهبي كلاسيكي باهت وغير مزعج، يضفي هيبة الأرقام المحاسبية.</p>
-                <div class="desktop-theme-card-foot">Pale Gold Luxury • فخامة مالية</div>
-            </div>
-
-            <!-- 15. EMERALD FOREST -->
-            <div class="desktop-theme-card" data-category="dark" data-theme-key="emerald-forest" onclick="applyDesktopTheme('emerald-forest')" style="--card-border:#065f46; --card-bg:#032e24; --card-text:#a7f3d0;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🌲 زمرد الغابات لصفاء الذهن</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#032e24; border:1px solid #065f46;"></span>
+                        <span class="desktop-swatch" style="background:#000000; border:1px solid #10b981;"></span>
                         <span class="desktop-swatch" style="background:#10b981;"></span>
-                        <span class="desktop-swatch" style="background:#a7f3d0;"></span>
                     </div>
                 </div>
-                <p class="desktop-theme-card-desc">اللون الأخضر يقع في منتصف شبكية العين، يخفض النبض ويمنع الخلط بالأرقام.</p>
-                <div class="desktop-theme-card-foot">Cognitive Forest • تركيز ذهني فائق</div>
-            </div>
-
-            <!-- 16. DESERT MOCHA -->
-            <div class="desktop-theme-card" data-category="dark" data-theme-key="desert-mocha" onclick="applyDesktopTheme('desert-mocha')" style="--card-border:#78350f; --card-bg:#26211d; --card-text:#fde68a;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">🏜️ الرمال الصحراوية وموكا</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#26211d; border:1px solid #78350f;"></span>
-                        <span class="desktop-swatch" style="background:#f59e0b;"></span>
-                        <span class="desktop-swatch" style="background:#fde68a;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">تدرج دافئ وسط بين الفاتح والداكن، مريح جداً للإضاءة المكتبية.</p>
-                <div class="desktop-theme-card-foot">Desert Mocha • راحة يومية متوازنة</div>
-            </div>
-
-            <!-- 17. SUNLIGHT TITANIUM -->
-            <div class="desktop-theme-card" data-category="dark" data-theme-key="sunlight-titanium" onclick="applyDesktopTheme('sunlight-titanium')" style="--card-border:#ffffff; --card-bg:#000000; --card-text:#ffffff;">
-                <div class="desktop-theme-card-top">
-                    <span class="desktop-theme-card-title">☀️ التيتانيوم الشمسي فائق التباين</span>
-                    <span class="desktop-active-indicator" style="display:none;">✓ مفعلة</span>
-                    <div class="desktop-swatch-group">
-                        <span class="desktop-swatch" style="background:#000000; border:1px solid #ffffff;"></span>
-                        <span class="desktop-swatch" style="background:#ffffff;"></span>
-                        <span class="desktop-swatch" style="background:#facc15;"></span>
-                    </div>
-                </div>
-                <p class="desktop-theme-card-desc">معيار WCAG AAA (21:1)، وضوح تام تحت شمس الظهيرة ولضعاف النظر.</p>
-                <div class="desktop-theme-card-foot">Titanium High-Contrast • شمس وميدان</div>
+                <p class="desktop-theme-card-desc">سواد حالك 100% لإطفاء بكسلات الشاشة وتوفير طاقة بطارية اللابتوب والجوال بنسبة 30%.</p>
+                <div class="desktop-theme-card-foot">Pure OLED • سواد مطلق وتوفير طاقة</div>
             </div>
 
         </div>
@@ -1340,7 +1095,7 @@
         <div class="desktop-theme-modal-footer">
             <div class="desktop-theme-footer-status">
                 <span>السمة النشطة حالياً:</span>
-                <strong id="desktopCurrentThemeLabel" style="color:var(--primary-accent, #38bdf8);">العاجي الدافئ</strong>
+                <strong id="desktopCurrentThemeLabel" style="color:var(--primary-accent, #38bdf8);">كحلي فاحم ملكي</strong>
             </div>
             <button type="button" class="desktop-theme-footer-close-btn" onclick="closeDesktopThemePaletteModal()">
                 ✓ تم والاحتفاظ بالسمة

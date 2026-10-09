@@ -3473,25 +3473,7 @@ function switchToMobileEdition() {
             input.focus();
         }
         </script>
-<!-- Floating Return to Mobile Button (Only displays when viewed on mobile / small screen) -->
-<div id="mobile-return-float-container" style="position:fixed; bottom:22px; right:22px; z-index:99999; display:none;">
-    <button type="button" onclick="switchToMobileEdition()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:2px solid #34d399; padding:12px 22px; border-radius:30px; font-weight:900; font-size:0.95rem; box-shadow:0 10px 30px rgba(16,185,129,0.5); cursor:pointer; display:flex; align-items:center; gap:8px; font-family:'Tajawal',sans-serif;">
-        <i class="fa-solid fa-mobile-screen-button"></i> 📱 العودة لنسخة الجوال / Mobile View
-    </button>
-</div>
-<script>
-(function() {
-    var params = new URLSearchParams(window.location.search);
-    var isMobile = /Mobile|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini|Samsung|Huawei|Honor/i.test(navigator.userAgent) 
-                || (navigator.maxTouchPoints && navigator.maxTouchPoints > 0 && window.innerWidth <= 1024)
-                || (window.screen.width <= 1024)
-                || (params.get('force_desktop') === '1');
-    if (isMobile) {
-        var btn = document.getElementById('mobile-return-float-container');
-        if (btn) btn.style.display = 'block';
-    }
-})();
-</script>
+
 <script src="js/unified-brain.js?v=20260722"></script>
 </body>
 </html>

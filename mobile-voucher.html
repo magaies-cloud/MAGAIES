@@ -636,9 +636,19 @@
 
     /* Native mobile view on actual phones (<= 640px) */
     @media (max-width: 640px) {
+      html {
+        height: auto !important;
+        min-height: 100% !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+      }
       body {
         padding: 0 !important;
         background: #020617 !important;
+        height: auto !important;
+        min-height: 100% !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
       }
       .mobile-device-outer {
         width: 100% !important;
@@ -646,7 +656,14 @@
         border-radius: 0 !important;
         border: none !important;
         box-shadow: none !important;
+        height: auto !important;
         min-height: 100dvh !important;
+        overflow: visible !important;
+      }
+      .mobile-device-outer > main {
+        overflow: visible !important;
+        height: auto !important;
+        padding-bottom: 120px !important;
       }
       .desktop-screen-switcher {
         display: none !important;

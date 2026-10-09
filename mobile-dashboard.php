@@ -6711,7 +6711,7 @@ try {
                     onclick="openBottomSheet('sheet-theme')" 
                     oncontextmenu="event.preventDefault(); cycleQuickTheme();" 
                     onpointerenter="triggerTileHaptic()"
-                    title="السمات الـ 21 والمظهر (اضغط لعرض مصفوفة السمات)">
+                    title="السمات السبعة المعتمدة والموحدة (اضغط لاختيار السمة) 🎨">
                 <i class="fa-solid fa-palette" id="current-theme-icon"></i>
                 <span class="theme-gem-dot" id="current-theme-dot"></span>
             </button>
@@ -9215,403 +9215,79 @@ try {
         </div>
     </div>
 
-    <!-- SHEET 5: 🎨 سمات التباين والراحة البصرية -->
+    <!-- SHEET 5: 🎨 سمات التباين والراحة البصرية (7 سمات معتمدة) -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-theme" onclick="closeBottomSheet('sheet-theme')"></div>
     <div class="mobile-bottom-sheet" id="sheet-theme">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--amber);">
-                <i class="fa-solid fa-palette"></i> سمات التباين والراحة البصرية
+                <i class="fa-solid fa-palette"></i> سمات التباين والراحة البصرية (7 سمات)
             </span>
             <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-theme')">✕</button>
         </div>
         <div class="sheet-body" style="padding-bottom: 24px;">
             <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px; font-weight: 700;">
-                اختر السمة المناسبة لظروف إضاءتك وحركتك الحالية:
+                السمات السبعة المعتمدة والمدروسة علمياً لراحة العين والأداء فائق السرعة على الجوال:
             </p>
             
             <div class="theme-options-grid" style="display: flex; flex-direction: column; gap: 10px;">
 
-                <!-- ══════ القسم الأول: ☀️ السمات الفاتحة والعاجي (8 سمات) ══════ -->
-                <div style="font-size:0.8rem; font-weight:800; color:var(--primary); padding:6px 4px 2px; border-bottom:1.5px solid var(--border-glass); display:flex; align-items:center; gap:6px;">
-                    <i class="fa-solid fa-sun text-amber-500"></i>
-                    <span>السمات الفاتحة والعاجي (8 سمات مريحة للقراءة النهارية)</span>
-                </div>
-
-                <!-- 1. Warm Alabaster -->
-                <div class="theme-card-option" id="theme-opt-warm-alabaster" onclick="selectTheme('warm-alabaster')">
-                    <div class="theme-swatch-box" style="background: #f6f0e6; border: 2px solid #8b6f4e;">
-                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%; border:1px solid #8b6f4e;"></span>
-                        <span style="background: #8b6f4e; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #15803d; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>📜 العاجي الدافئ</strong>
-                            <span class="theme-badge" style="background: #ede3d2; color: #8b6f4e; font-weight:900;">🌟 موصى بها</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Warm Alabaster</div>
-                        <p>أرضية عاجية بيج خفيفة مع أزرار ناصعة، تباين مثالي فائق الراحة والهدوء البصري.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 2. Pure Platinum -->
-                <div class="theme-card-option" id="theme-opt-pure-platinum" onclick="selectTheme('pure-platinum')">
-                    <div class="theme-swatch-box" style="background: #eef2f6; border: 2px solid #64748b;">
-                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%; border:1px solid #cbd5e1;"></span>
+                <!-- 1. Ultra-Clean White -->
+                <div class="theme-card-option" id="theme-opt-ultra_white" onclick="selectTheme('ultra_white')">
+                    <div class="theme-swatch-box" style="background: #ffffff; border: 2px solid #2563eb;">
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%; border:1px solid #2563eb;"></span>
                         <span style="background: #2563eb; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #059669; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>❄️ الفضي النقي</strong>
-                            <span class="theme-badge" style="background: #e2e8f0; color: #2563eb; font-weight:900;">🌟 موصى بها</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Pure Platinum</div>
-                        <p>أرضية فضية بلاتينية باردة هادئة مع تباين سويسري حاد للأرقام والبيانات.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 3. Beige -->
-                <div class="theme-card-option" id="theme-opt-beige" onclick="selectTheme('beige')">
-                    <div class="theme-swatch-box" style="background: #f5ebe0; border: 2px solid #d6c5b0;">
-                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #b45309; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #23190e; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>🌾 البيج الدافئ المريح</strong>
-                            <span class="theme-badge" style="background: #ede0cf; color: #b45309; font-weight:900;">رملي طبيعي</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Warm Sandstone Beige</div>
-                        <p>بيج رملي طبيعي يمتص التوهج الضوئي بنسبة 95% ومريح في كشوفات الحسابات الطويلة.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 4. Ivory -->
-                <div class="theme-card-option" id="theme-opt-ivory" onclick="selectTheme('ivory')">
-                    <div class="theme-swatch-box" style="background: #faf7f0; border: 2px solid #ded6c3;">
-                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #d97706; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #1c1813; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>🥛 العاجي الملكي الكلاسيكي</strong>
-                            <span class="theme-badge" style="background: #f3ede2; color: #d97706; font-weight:900;">كريمي ناعم</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Royal Cream Ivory</div>
-                        <p>نعومة اللون العاجي الكريمي الهادئ بدون سطوع مفرط لحماية العصب البصري.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 5. Offwhite -->
-                <div class="theme-card-option" id="theme-opt-offwhite" onclick="selectTheme('offwhite')">
-                    <div class="theme-swatch-box" style="background: #f9fafb; border: 2px solid #d1d5db;">
-                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #2563eb; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #111827; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>📄 الأوف وايت الحديث المطفأ</strong>
-                            <span class="theme-badge" style="background: #f3f4f6; color: #2563eb; font-weight:900;">مطفأ عصري</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Modern Matte Offwhite</div>
-                        <p>أوف وايت ألاباستر عصري بدون بياض ساطع، وضوح حاد للأرقام والخطوط.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 6. Light Linen -->
-                <div class="theme-card-option" id="theme-opt-light-linen" onclick="selectTheme('light-linen')">
-                    <div class="theme-swatch-box" style="background: #ede7dc; border: 2px solid #cfc5b3;">
-                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #4d7c0f; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #211f1a; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>🧵 الكتان الطبيعي المريح</strong>
-                            <span class="theme-badge" style="background: #e3dbc9; color: #4d7c0f; font-weight:900;">طبيعي مريح</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Soft Natural Linen</div>
-                        <p>طابع قماش الكتان العضوي الهادئ، يمنح شعوراً بالسكينة أثناء ضغط العمل المالي.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 7. Pearl Platinum -->
-                <div class="theme-card-option" id="theme-opt-pearl-platinum" onclick="selectTheme('pearl-platinum')">
-                    <div class="theme-swatch-box" style="background: #e9ecef; border: 2px solid #cbd3dc;">
-                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #0284c7; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #0f172a; width: 12px; height: 12px; border-radius: 50%;"></span>
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>🦪 اللؤلؤي الفضي المريح</strong>
-                            <span class="theme-badge" style="background: #dee2e6; color: #0284c7; font-weight:900;">فضي هادئ</span>
+                            <strong>⚪ أبيض فائق النقاء</strong>
+                            <span class="theme-badge" style="background: #e0f2fe; color: #0284c7; font-weight:900;">نهاري ناصع</span>
                         </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Platinum Pearl Grey</div>
-                        <p>رمادي لؤلؤي بلاتيني بارد وراقي جداً يقلل انعكاس الضوء المكتبي ويوضح الحسابات.</p>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Ultra-Clean White</div>
+                        <p>إضاءة نهارية مكتبية ناصعة مع نصوص سوداء حادة لأعلى وضوح ومطابقة سريعة.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <!-- 8. Nordic Paper -->
-                <div class="theme-card-option" id="theme-opt-nordic-paper" onclick="selectTheme('nordic-paper')">
-                    <div class="theme-swatch-box" style="background: #f0f4f8; border: 2px solid #cbd5e1;">
-                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #0e7490; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #0c1a24; width: 12px; height: 12px; border-radius: 50%;"></span>
+                <!-- 2. Warm Paper Sepia -->
+                <div class="theme-card-option" id="theme-opt-warm_cream" onclick="selectTheme('warm_cream')">
+                    <div class="theme-swatch-box" style="background: #fbf7ee; border: 2px solid #b45309;">
+                        <span style="background: #fbf7ee; width: 12px; height: 12px; border-radius: 50%; border:1px solid #b45309;"></span>
+                        <span style="background: #b45309; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #15803d; width: 12px; height: 12px; border-radius: 50%;"></span>
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>📰 الورقي النوردي المريح</strong>
-                            <span class="theme-badge" style="background: #e1e7ee; color: #0e7490; font-weight:900;">إسكندنافي نقي</span>
+                            <strong>📜 ورق سيبيا دافئ (عاجي)</strong>
+                            <span class="theme-badge" style="background: #fef3c7; color: #b45309; font-weight:900;">مريح للعين</span>
                         </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Nordic Paper Soft</div>
-                        <p>مستوحى من تصميم مكاتب الشمال الأوروبي، تباين عالي ونقاء بصري مع لمسات تيل هادئة.</p>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Warm Paper Sepia</div>
+                        <p>مستوحى من ورق الدفاتر الفاخرة لمنع جفاف وإجهاد العين أثناء العمل الطويل.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <!-- ══════ القسم الثاني: 🌊 درجات الأزرق والكحلي (6 سمات) ══════ -->
-                <div style="font-size:0.8rem; font-weight:800; color:#38bdf8; padding:10px 4px 2px; border-bottom:1.5px solid var(--border-glass); display:flex; align-items:center; gap:6px; margin-top:8px;">
-                    <i class="fa-solid fa-water text-sky-400"></i>
-                    <span>درجات الأزرق والكحلي (6 سمات للتركيز الذهني والتدقيق المالي)</span>
-                </div>
-
-                <!-- 9. Midnight Executive -->
-                <div class="theme-card-option" id="theme-opt-midnight-executive" onclick="selectTheme('midnight-executive')">
-                    <div class="theme-swatch-box" style="background: #0b0f17; border: 2px solid #1e293b;">
-                        <span style="background: #131b2a; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #38bdf8; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
+                <!-- 3. Cool Executive Gray -->
+                <div class="theme-card-option" id="theme-opt-exec_gray" onclick="selectTheme('exec_gray')">
+                    <div class="theme-swatch-box" style="background: #f1f5f9; border: 2px solid #1d4ed8;">
+                        <span style="background: #f1f5f9; width: 12px; height: 12px; border-radius: 50%; border:1px solid #1d4ed8;"></span>
+                        <span style="background: #1d4ed8; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #0f172a; width: 12px; height: 12px; border-radius: 50%;"></span>
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>🌌 كحلي منتصف الليل</strong>
-                            <span class="theme-badge" style="background: rgba(56,189,248,0.2); color: #38bdf8; font-weight:900;">🌟 موصى بها</span>
+                            <strong>💼 رمادي تنفيذي بارد</strong>
+                            <span class="theme-badge" style="background: #e2e8f0; color: #1e293b; font-weight:900;">تنفيذي راقي</span>
                         </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Midnight Executive</div>
-                        <p>كحلي ليلي سحيق يبعث الأمان المالي والهدوء العصبي، يمنع إجهاد العين في العمل الليلي.</p>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Cool Executive Gray</div>
+                        <p>أسطح رمادية هادئة وأناقة الشركات الكبرى والبنوك لتقليل انعكاس الضوء المكتبي.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <!-- 10. Navy Kohl -->
-                <div class="theme-card-option" id="theme-opt-navy-kohl" onclick="selectTheme('navy-kohl')">
-                    <div class="theme-swatch-box" style="background: #080c14; border: 2px solid rgba(96,165,250,0.3);">
-                        <span style="background: #0f1829; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #60a5fa; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #34d399; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>🧭 الكحلي الملكي الليلي</strong>
-                            <span class="theme-badge" style="background: rgba(96,165,250,0.2); color: #60a5fa; font-weight:900;">كحلي كلاسيكي</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Deep Royal Navy Kohl</div>
-                        <p>أزرق كحلي أندلسي عميق يعزز التركيز الذهني الصارم أثناء التدقيق والمراجعة.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 11. Royal Blue -->
-                <div class="theme-card-option" id="theme-opt-royal-blue" onclick="selectTheme('royal-blue')">
-                    <div class="theme-swatch-box" style="background: #0a1128; border: 2px solid rgba(79,140,255,0.35);">
-                        <span style="background: #12214d; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #4f8cff; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>👑 الأزرق الزفيري الحيوي</strong>
-                            <span class="theme-badge" style="background: rgba(79,140,255,0.2); color: #4f8cff; font-weight:900;">طاقة وإنتاجية</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Sapphire Royal Blue</div>
-                        <p>أزرق زفيري حيوي يحفز النشاط الذهني واليقظة أثناء متابعة الفواتير وحركة الصندوق.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 12. Ocean Navy -->
-                <div class="theme-card-option" id="theme-opt-ocean-navy" onclick="selectTheme('ocean-navy')">
-                    <div class="theme-swatch-box" style="background: #061826; border: 2px solid rgba(56,189,248,0.3);">
-                        <span style="background: #0d2b44; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #38bdf8; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #2dd4bf; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>🌊 الأزرق المحيطي العميق</strong>
-                            <span class="theme-badge" style="background: rgba(56,189,248,0.2); color: #38bdf8; font-weight:900;">محيطي هادئ</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Deep Ocean Navy</div>
-                        <p>أعماق المحيط الأطلسي، لون يبعث السكينة ويخفض التوتر أثناء إغلاق الحسابات.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 13. Petrol Cyan -->
-                <div class="theme-card-option" id="theme-opt-petrol-cyan" onclick="selectTheme('petrol-cyan')">
-                    <div class="theme-swatch-box" style="background: #061e24; border: 2px solid rgba(45,212,191,0.3);">
-                        <span style="background: #0e343d; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #2dd4bf; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #34d399; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>💎 الأزرق البترولي والتيل</strong>
-                            <span class="theme-badge" style="background: rgba(45,212,191,0.2); color: #2dd4bf; font-weight:900;">بترولي راقي</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Petrol Teal Cyan</div>
-                        <p>مزيج البترولي مع التيل الأخضر المزرق الحديث، راحة ممتازة للبصر أثناء العمل المتواصل.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 14. Twilight Indigo -->
-                <div class="theme-card-option" id="theme-opt-twilight-indigo" onclick="selectTheme('twilight-indigo')">
-                    <div class="theme-swatch-box" style="background: #0e0e24; border: 2px solid rgba(129,140,248,0.32);">
-                        <span style="background: #1a1a42; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #818cf8; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #c084fc; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>🌌 أزرق الشفق والإنديجو</strong>
-                            <span class="theme-badge" style="background: rgba(129,140,248,0.2); color: #818cf8; font-weight:900;">شفق بنفسجي</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Twilight Indigo</div>
-                        <p>سكون الشفق المسائي ودرجات النيلي البنفسجي، مثالي لمن يعملون في الساعات المتأخرة.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- ══════ القسم الثالث: 🌙 السمات الداكنة والشمسي (7 سمات) ══════ -->
-                <div style="font-size:0.8rem; font-weight:800; color:#e2e8f0; padding:10px 4px 2px; border-bottom:1.5px solid var(--border-glass); display:flex; align-items:center; gap:6px; margin-top:8px;">
-                    <i class="fa-solid fa-moon text-emerald-400"></i>
-                    <span>السمات الداكنة والتنفيذية والشمسي (7 سمات لظروف الإضاءة الخاصة)</span>
-                </div>
-
-                <!-- 15. Obsidian Charcoal -->
-                <div class="theme-card-option" id="theme-opt-obsidian-charcoal" onclick="selectTheme('obsidian-charcoal')">
-                    <div class="theme-swatch-box" style="background: #121214; border: 2px solid #2c2c30;">
-                        <span style="background: #1c1c20; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #ededed; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>🪨 حجر السج الجرافيتي</strong>
-                            <span class="theme-badge" style="background: #26262c; color: #ededed; font-weight:900;">🌟 موصى بها</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Obsidian Charcoal</div>
-                        <p>فحم جرافيتي مطفأ وناعم مستوحى من الساعات السويسرية، راحة مطلقة لشاشات AMOLED.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 16. Midnight Pure OLED -->
-                <div class="theme-card-option" id="theme-opt-midnight" onclick="selectTheme('midnight')">
-                    <div class="theme-swatch-box" style="background: #000000; border: 2px solid rgba(255,255,255,0.3);">
-                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #00e5ff; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #00e676; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>🖤 الليل الملكي وسواد OLED</strong>
-                            <span class="theme-badge" style="background: rgba(255,255,255,0.15); color: #ffffff; font-weight:900;">سواد 100% | صفر طاقة</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Pure OLED Black (#000000)</div>
-                        <p>إطفاء كامل لبكسلات شاشة OLED لتوفير البطارية أثناء السفر وأقصى تباين ليلي في الظلام التام.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 17. Sepia Brown -->
-                <div class="theme-card-option" id="theme-opt-sepia-brown" onclick="selectTheme('sepia-brown')">
-                    <div class="theme-swatch-box" style="background: #18120c; border: 2px solid rgba(217,119,6,0.32);">
-                        <span style="background: #281e15; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #f59e0b; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #34d399; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>☕ البني الإسبريسو والورق القديم</strong>
-                            <span class="theme-badge" style="background: rgba(245,158,11,0.2); color: #f59e0b; font-weight:900;">إسبريسو دافئ</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Espresso Sepia Brown</div>
-                        <p>بني محمص دافئ خالي من الألوان الصارخة، يمنح الراحة العميقة أثناء التركيز الحسابي.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 18. Pale Gold -->
-                <div class="theme-card-option" id="theme-opt-pale-gold" onclick="selectTheme('pale-gold')">
-                    <div class="theme-swatch-box" style="background: #141209; border: 2px solid rgba(234,179,8,0.35);">
-                        <span style="background: #252010; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #eab308; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>⚜️ الذهبي الباهت والفخامة</strong>
-                            <span class="theme-badge" style="background: rgba(234,179,8,0.2); color: #eab308; font-weight:900;">ذهبي فاخر</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Pale Gold Luxury</div>
-                        <p>فخامة الذهب الباهت مع خلفية داكنة راقية تليق برؤساء مجالس الإدارة والمدراء الماليين.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 19. Emerald Forest -->
-                <div class="theme-card-option" id="theme-opt-emerald-forest" onclick="selectTheme('emerald-forest')">
-                    <div class="theme-swatch-box" style="background: #061910; border: 2px solid rgba(16,185,129,0.32);">
-                        <span style="background: #0f2d1e; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #34d399; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #fbbf24; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>🌲 زمرد الغابات لصفاء الذهن</strong>
-                            <span class="theme-badge" style="background: rgba(16,185,129,0.2); color: #34d399; font-weight:900;">غابات زمردية</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Deep Emerald Forest</div>
-                        <p>الأخضر يهدئ ضربات القلب ويوفر أعلى درجات الصفاء الذهني أثناء الجرد والمراجعة.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 20. Desert Mocha -->
-                <div class="theme-card-option" id="theme-opt-desert-mocha" onclick="selectTheme('desert-mocha')">
-                    <div class="theme-swatch-box" style="background: #1a1412; border: 2px solid rgba(180,83,9,0.32);">
-                        <span style="background: #2a221f; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #d97706; width: 12px; height: 12px; border-radius: 50%;"></span>
-                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
-                    </div>
-                    <div class="theme-info-box">
-                        <div class="theme-title-row">
-                            <strong>🏜️ الرمال الصحراوية وموكا</strong>
-                            <span class="theme-badge" style="background: rgba(180,83,9,0.2); color: #d97706; font-weight:900;">طبيعة ترابية</span>
-                        </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Desert Mocha Sand</div>
-                        <p>ألوان الطبيعة الترابية والموكا، تعطي إحساساً بالأصالة والاتزان أثناء العمل اليومي.</p>
-                    </div>
-                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
-                </div>
-
-                <!-- 21. Sunlight Titanium -->
-                <div class="theme-card-option" id="theme-opt-sunlight-titanium" onclick="selectTheme('sunlight-titanium')">
+                <!-- 4. High-Contrast Solar Sun -->
+                <div class="theme-card-option" id="theme-opt-solar_contrast" onclick="selectTheme('solar_contrast')">
                     <div class="theme-swatch-box" style="background: #ffff00; border: 2px solid #000000;">
                         <span style="background: #000000; width: 12px; height: 12px; border-radius: 50%;"></span>
                         <span style="background: #b00000; width: 12px; height: 12px; border-radius: 50%;"></span>
@@ -9619,11 +9295,65 @@ try {
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>☀️ التيتانيوم الشمسي (تباين 21:1)</strong>
-                            <span class="theme-badge" style="background: #000000; color: #ffff00; font-weight:900;">شمس الساحات والمخازن</span>
+                            <strong>☀️ شمس ساطعة عالي التباين</strong>
+                            <span class="theme-badge" style="background: #000000; color: #ffff00; font-weight:900;">شمس وميدان WCAG AAA</span>
                         </div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Sunlight Titanium (#FFFF00)</div>
-                        <p>أصفر فاقع مع كتابة سوداء حادة وحدود 2px للقراءة الفورية تحت وهج شمس الساحات والمخازن المفتوحة.</p>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Solar Sun High-Contrast</div>
+                        <p>أعلى تباين معتمد طبياً للقراءة الفورية تحت أشعة الشمس المباشرة أو المخازن المفتوحة.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 5. Twilight Slate -->
+                <div class="theme-card-option" id="theme-opt-slate_twilight" onclick="selectTheme('slate_twilight')">
+                    <div class="theme-swatch-box" style="background: #0f172a; border: 2px solid #38bdf8;">
+                        <span style="background: #1e293b; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #38bdf8; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #a855f7; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🌌 سليت مسائي هادئ</strong>
+                            <span class="theme-badge" style="background: rgba(56,189,248,0.2); color: #38bdf8; font-weight:900;">مسائي خفيف</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Twilight Slate</div>
+                        <p>رمادي داكن مائل للزرقة هادئ جداً لأوقات المساء والسكون البصري دون سواد تام.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 6. Midnight Obsidian -->
+                <div class="theme-card-option" id="theme-opt-midnight_obsidian" onclick="selectTheme('midnight_obsidian')">
+                    <div class="theme-swatch-box" style="background: #0a1128; border: 2px solid #00f2fe;">
+                        <span style="background: #0a1128; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #00f2fe; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #38bdf8; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>💎 كحلي فاحم ملكي</strong>
+                            <span class="theme-badge" style="background: rgba(0,242,254,0.18); color: #00f2fe; font-weight:900;">السمة الملكية 🌟</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Midnight Obsidian</div>
+                        <p>السمة المصرفية الفخمة باللون الكحلي السحيق والنيون والتركيز المالي العالي.</p>
+                    </div>
+                    <i class="fa-solid fa-circle-check theme-check-icon"></i>
+                </div>
+
+                <!-- 7. Pure OLED Black -->
+                <div class="theme-card-option" id="theme-opt-pure_oled" onclick="selectTheme('pure_oled')">
+                    <div class="theme-swatch-box" style="background: #000000; border: 2px solid #10b981;">
+                        <span style="background: #000000; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #ffffff; width: 12px; height: 12px; border-radius: 50%;"></span>
+                        <span style="background: #10b981; width: 12px; height: 12px; border-radius: 50%;"></span>
+                    </div>
+                    <div class="theme-info-box">
+                        <div class="theme-title-row">
+                            <strong>🖤 سواد مطلق وتوفير البطارية</strong>
+                            <span class="theme-badge" style="background: rgba(16,185,129,0.2); color: #34d399; font-weight:900;">OLED 100% | بطارية +30%</span>
+                        </div>
+                        <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:2px; direction:ltr; text-align:right;">Pure OLED Black (#000000)</div>
+                        <p>سواد حالك لإطفاء بكسلات الشاشة وتوفير طاقة بطارية الهاتف بنسبة 30% مع تباين تام.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>

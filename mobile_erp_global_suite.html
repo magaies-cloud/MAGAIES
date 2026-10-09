@@ -11,7 +11,7 @@
       }
       if (t) {
         document.documentElement.setAttribute('data-theme', t);
-        var lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+        var lightThemes = ['ultra_white', 'warm_cream', 'exec_gray', 'solar_contrast', 'warm-alabaster', 'pure-platinum'];
         if (lightThemes.indexOf(t) !== -1) {
           document.documentElement.classList.add('light-theme');
         } else {
@@ -33,6 +33,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0f172a">
   <!-- Local High-Speed Tailwind & Core Styles (Zero External Latency) -->
+  <link rel="stylesheet" href="css/cairo.css">
+  <link rel="stylesheet" href="css/tajawal.css">
+  <script src="js/offline-sync-engine.js?v=20261009_v1"></script>
   <link rel="stylesheet" href="css/tailwind.min.css">
   <link rel="stylesheet" href="css/all.min.css">
   <link rel="stylesheet" href="css/theme.css?v=20261008_v21themes_elegant">
@@ -4124,7 +4127,7 @@
             <circle cx="9" cy="12" r="1.5" fill="#fbbf24" stroke="none"/>
             <circle cx="15" cy="14" r="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/>
           </svg>
-          <span id="activeThemeBadge" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-1.5 !min-w-[21px] !px-1 shadow-md">21</span>
+          <span id="activeThemeBadge" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-1.5 !min-w-[21px] !px-1 shadow-md">7</span>
         </button>
 
         <!-- 3. أيقونة البحث الذكي الشامل (تم رفعها للصف الأول) -->
@@ -6721,7 +6724,7 @@
           <div>
             <h3 class="text-sm font-black text-slate-100 flex items-center gap-1.5">
               <span>سيف السمات والراحة البصرية للعين</span>
-              <span class="text-[9px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.2 rounded-full border border-amber-500/30">21 سمة معتمدة</span>
+              <span class="text-[9px] bg-amber-950 text-amber-300 font-bold px-1.5 py-0.2 rounded-full border border-amber-500/30">7 سمات رئيسية موحدة</span>
             </h3>
             <p class="text-[10px] text-slate-400">مصفوفة ألوان نفسية ومحاسبية لمنع إجهاد العين وتداخل الحروف والأرقام</p>
           </div>
@@ -6736,369 +6739,130 @@
 
       <!-- Category Filter Pills -->
       <div class="flex gap-1 overflow-x-auto py-0.5 no-scrollbar text-xs font-bold">
-        <button onclick="filterThemeCategory('recommended')" id="btnTcRecommended" class="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5">
-          <span>🌟 الموصى بها</span>
-          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">4</span>
-        </button>
-        <button onclick="filterThemeCategory('all')" id="btnTcAll" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5">
+        <button onclick="filterThemeCategory('all')" id="btnTcAll" class="px-2.5 py-1 rounded-xl bg-amber-500 text-slate-950 font-black shrink-0 shadow flex items-center gap-1.5">
           <span>الكل</span>
-          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">21</span>
+          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">7</span>
         </button>
         <button onclick="filterThemeCategory('light')" id="btnTcLight" class="px-2.5 py-1 rounded-xl bg-slate-800 text-amber-200 hover:text-white shrink-0 border border-amber-500/30 flex items-center gap-1.5">
-          <span>☀️ الفاتحة والعاجي</span>
-          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">8</span>
-        </button>
-        <button onclick="filterThemeCategory('blue')" id="btnTcBlue" class="px-2.5 py-1 rounded-xl bg-slate-800 text-cyan-200 hover:text-white shrink-0 border border-cyan-500/30 flex items-center gap-1.5">
-          <span>🌊 درجات الأزرق</span>
-          <span class="luminous-number-badge badge-cyan-glow !min-w-[19px] !h-[19px] !text-[11px]">6</span>
+          <span>☀️ الفاتحة والنهارية</span>
+          <span class="luminous-number-badge badge-amber-glow !min-w-[19px] !h-[19px] !text-[11px]">4</span>
         </button>
         <button onclick="filterThemeCategory('dark')" id="btnTcDark" class="px-2.5 py-1 rounded-xl bg-slate-800 text-slate-300 hover:text-white shrink-0 border border-slate-700 flex items-center gap-1.5">
-          <span>🌙 الداكنة والملكية</span>
-          <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">8</span>
+          <span>🌙 الداكنة والمسائية</span>
+          <span class="luminous-number-badge badge-rose-glow !min-w-[19px] !h-[19px] !text-[11px]">3</span>
         </button>
       </div>
 
-      <!-- Themes Grid (All 21 Themes) -->
+      <!-- Themes Grid (The 7 Master Themes) -->
       <div id="themeCardsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
 
-        <!-- 0.1 WARM ALABASTER (العاجي الدافئ - موصى بها) -->
-        <button onclick="applyTheme('warm-alabaster')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#8B6F4E] bg-[#F6F0E6] text-right space-y-1 transition active:scale-95 group relative shadow">
+        <!-- 1. Ultra-Clean White -->
+        <button onclick="applyTheme('ultra_white')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#2563eb] bg-[#ffffff] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#1C1917] flex items-center gap-1.5">
-              <span>📜 العاجي الدافئ</span>
-              <span class="px-1.5 py-0.5 rounded bg-[#8B6F4E] text-white text-[9px] font-bold">🌟 موصى بها</span>
+            <span class="text-xs font-black text-[#0f172a] flex items-center gap-1.5">
+              <span>⚪ أبيض فائق النقاء</span>
             </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#F6F0E6] border border-[#8B6F4E]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border-2 border-[#8B6F4E]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#8B6F4E]"></span>
+            <span class="flex items-center gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#ffffff] border border-[#2563eb]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#2563eb]"></span>
             </span>
           </div>
-          <p class="text-[10px] text-[#4A3E31] leading-tight font-medium">أزرار بيضاء ناصعة بحواف بنية داكنة فوق أرضية عاجية بيج خفيفة، تباين مثالي فائق الراحة والرقي.</p>
-          <span class="text-[9px] text-[#1C1917] font-black block pt-0.5">Warm Alabaster • قمة الرقي • تباين فائق وعاجي هادئ</span>
+          <p class="text-[10px] text-slate-600 leading-tight">إضاءة نهارية مكتبية ناصعة مع نصوص سوداء حادة لأعلى وضوح ومطابقة.</p>
+          <span class="text-[9px] text-blue-600 font-black block pt-0.5">Ultra White • نهاري ناصع</span>
         </button>
 
-        <!-- 0.2 PURE PLATINUM (الفضي النقي - موصى بها) -->
-        <button onclick="applyTheme('pure-platinum')" class="theme-card tc-recommended tc-light p-3 rounded-2xl border-2 border-[#64748B] bg-[#EEF2F6] text-right space-y-1 transition active:scale-95 group relative shadow">
+        <!-- 2. Warm Paper Sepia -->
+        <button onclick="applyTheme('warm_cream')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#b45309] bg-[#fbf7ee] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#0F172A] flex items-center gap-1.5">
-              <span>❄️ الفضي النقي</span>
-              <span class="px-1.5 py-0.5 rounded bg-[#64748B] text-white text-[9px] font-bold">🌟 موصى بها</span>
+            <span class="text-xs font-black text-[#1c1917] flex items-center gap-1.5">
+              <span>📜 ورق سيبيا دافئ (عاجي)</span>
+              <span class="text-[9px] bg-amber-500/20 text-amber-900 font-black px-1 rounded-md">موصى بها</span>
             </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#EEF2F6] border border-[#64748B]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#FFFFFF] border-2 border-[#64748B]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0F172A]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#334155] leading-tight font-medium">أزرار ناصعة البياض بحواف بلاتينية محددة على أرضية فضية نقية هادئة، دقة تحليلية سويسرية فائقة التباين.</p>
-          <span class="text-[9px] text-[#0F172A] font-black block pt-0.5">Pure Platinum • قمة الرقي • تباين نقي وفضي هادئ</span>
-        </button>
-
-        <!-- 0.3 MIDNIGHT EXECUTIVE (كحلي منتصف الليل - موصى بها) -->
-        <button onclick="applyTheme('midnight-executive')" class="theme-card tc-recommended tc-blue tc-dark p-3 rounded-2xl border-2 border-[#1E293B] bg-[#0B0F17] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#F1F5F9] flex items-center gap-1.5">
-              <span>🌌 كحلي منتصف الليل</span>
-              <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[9px] font-bold">🌟 موصى بها</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0B0F17] border border-[#1E293B]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#131B2A]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#38BDF8]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#94A3B8] leading-tight">كحلي ليلي سحيق يبعث الأمان المالي والهدوء العصبي، يمنع إجهاد العين في العمل الليلي.</p>
-          <span class="text-[9px] text-[#38BDF8] font-black block pt-0.5">Midnight Executive • قمة الرقي • داكن ملكي</span>
-        </button>
-
-        <!-- 0.4 OBSIDIAN CHARCOAL (حجر السج الجرافيتي - موصى بها) -->
-        <button onclick="applyTheme('obsidian-charcoal')" class="theme-card tc-recommended tc-dark p-3 rounded-2xl border-2 border-[#2C2C30] bg-[#121214] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#EDEDED] flex items-center gap-1.5">
-              <span>🪨 حجر السج الجرافيتي</span>
-              <span class="px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 text-[9px] font-bold">🌟 موصى بها</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#121214] border border-[#2C2C30]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#1C1C1F]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#EDEDED]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#A1A1AA] leading-tight">فحم جرافيتي مطفأ وناعم مستوحى من الساعات السويسرية، راحة مطلقة لشاشات OLED.</p>
-          <span class="text-[9px] text-[#E4E4E7] font-black block pt-0.5">Obsidian Charcoal • قمة الرقي • داكن مريح</span>
-        </button>
-
-        <!-- 1. BEIGE (البيج الدافئ المريح) -->
-        <button onclick="applyTheme('beige')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#d6c5b0] bg-[#f5ebe0] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#23190e] flex items-center gap-1.5">
-              <span>🌾 البيج الدافئ المريح</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#f5ebe0] border border-[#d6c5b0]"></span>
+            <span class="flex items-center gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#fbf7ee] border border-[#b45309]"></span>
               <span class="w-3.5 h-3.5 rounded-full bg-[#b45309]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#23190e]"></span>
             </span>
           </div>
-          <p class="text-[10px] text-[#5a4632] leading-tight">درجة بيج رملي طبيعي دافئ يمتص الوهج، مثالي لقراءة الدفاتر لساعات طويلة.</p>
-          <span class="text-[9px] text-[#b45309] font-black block pt-0.5">Warm Sandstone Beige • فاتح مريح</span>
+          <p class="text-[10px] text-stone-700 leading-tight">مستوحى من ورق الدفاتر الفاخرة لمنع جفاف وإجهاد العين أثناء العمل الطويل.</p>
+          <span class="text-[9px] text-amber-800 font-black block pt-0.5">Warm Cream • عاجي مريح للعين</span>
         </button>
 
-        <!-- 2. IVORY (العاجي الملكي الهادئ) -->
-        <button onclick="applyTheme('ivory')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#ded6c3] bg-[#faf7f0] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#1c1813] flex items-center gap-1.5">
-              <span>🥛 العاجي الملكي الكلاسيكي</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#faf7f0] border border-[#ded6c3]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#d97706]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#1c1813]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#52473a] leading-tight">نعومة اللون العاجي الكريمي الهادئ، يريح البؤبؤ ولا يجهد العصب البصري.</p>
-          <span class="text-[9px] text-[#d97706] font-black block pt-0.5">Royal Cream Ivory • عاجي ناعم</span>
-        </button>
-
-        <!-- 3. OFF-WHITE (الأوف وايت الحديث المطفأ) -->
-        <button onclick="applyTheme('offwhite')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#d1d5db] bg-[#f9fafb] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#111827] flex items-center gap-1.5">
-              <span>📜 الأوف وايت الحديث المطفأ</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#f9fafb] border border-[#d1d5db]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#2563eb]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#111827]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#4b5563] leading-tight">أوف وايت ألاباستر عصري بدون بياض ساطع، وضوح حاد للأرقام والخطوط.</p>
-          <span class="text-[9px] text-[#2563eb] font-black block pt-0.5">Modern Matte Off-White • مطفأ نقي</span>
-        </button>
-
-        <!-- 4. SOFT NATURAL LINEN (الكتان الطبيعي الناعم - فاتح 1) -->
-        <button onclick="applyTheme('light-linen')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cfc5b3] bg-[#ede7dc] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#211f1a] flex items-center gap-1.5">
-              <span>🧵 الكتان الطبيعي المريح</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#ede7dc] border border-[#cfc5b3]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#4d7c0f]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#211f1a]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#575245] leading-tight">طابع قماش الكتان العضوي الهادئ، يمنح شعوراً بالسكينة أثناء ضغط الحسابات.</p>
-          <span class="text-[9px] text-[#4d7c0f] font-black block pt-0.5">Soft Natural Linen • كتان هادئ</span>
-        </button>
-
-        <!-- 5. PLATINUM PEARL GREY (اللؤلؤي الفضي المريح - فاتح 2) -->
-        <button onclick="applyTheme('pearl-platinum')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cbd3dc] bg-[#e9ecef] text-right space-y-1 transition active:scale-95 group relative shadow">
+        <!-- 3. Cool Executive Gray -->
+        <button onclick="applyTheme('exec_gray')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#1d4ed8] bg-[#f1f5f9] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-[#0f172a] flex items-center gap-1.5">
-              <span>🦪 اللؤلؤي الفضي المريح</span>
+              <span>💼 رمادي تنفيذي بارد</span>
             </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#e9ecef] border border-[#cbd3dc]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0284c7]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0f172a]"></span>
+            <span class="flex items-center gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#f1f5f9] border border-[#1d4ed8]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#1d4ed8]"></span>
             </span>
           </div>
-          <p class="text-[10px] text-[#475569] leading-tight">رمادي لؤلؤي بلاتيني بارد وراقي جداً، يقلل انعكاس الضوء المكتبي.</p>
-          <span class="text-[9px] text-[#0284c7] font-black block pt-0.5">Platinum Pearl Grey • لؤلؤي بارد</span>
+          <p class="text-[10px] text-slate-600 leading-tight">أسطح رمادية هادئة وأناقة الشركات الكبرى والبنوك لتقليل انعكاس الضوء.</p>
+          <span class="text-[9px] text-blue-700 font-black block pt-0.5">Executive Gray • رمادي مصرفي</span>
         </button>
 
-        <!-- 6. NORDIC PAPER LIGHT (الورقي النوردي المريح) -->
-        <button onclick="applyTheme('nordic-paper')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#cbd5e1] bg-[#f8fafc] text-right space-y-1 transition active:scale-95 group relative shadow">
+        <!-- 4. High-Contrast Solar Sun -->
+        <button onclick="applyTheme('solar_contrast')" class="theme-card tc-light p-3 rounded-2xl border-2 border-[#000000] bg-[#ffff00] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#0f172a] flex items-center gap-1.5">
-              <span>📄 الورقي النوردي المريح</span>
+            <span class="text-xs font-black text-[#000000] flex items-center gap-1.5">
+              <span>☀️ شمس ساطعة عالي التباين</span>
+              <span class="text-[9px] bg-black text-yellow-300 font-black px-1 rounded-md">WCAG AAA</span>
             </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#f8fafc] border border-[#cbd5e1]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#2563eb]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0f172a]"></span>
+            <span class="flex items-center gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#ffff00] border border-[#000000]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#000000]"></span>
             </span>
           </div>
-          <p class="text-[10px] text-[#475569] leading-tight">ملمس الورق المحاسبي النوردي الفاخر، أعلى مقروئية في ضوء النهار الطبيعي.</p>
-          <span class="text-[9px] text-[#2563eb] font-black block pt-0.5">Nordic Paper Light • نهار مشرق</span>
+          <p class="text-[10px] text-black font-bold leading-tight">أعلى تباين معتمد طبياً للقراءة الفورية تحت أشعة الشمس المباشرة أو المخازن.</p>
+          <span class="text-[9px] text-black font-black block pt-0.5">Solar Contrast • شمس وميدان</span>
         </button>
 
-        <!-- 7. DEEP MIDNIGHT NAVY (الكحلي الملكي الليلي - كحلي) -->
-        <button onclick="applyTheme('navy-kohl')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1a2d5a] bg-[#050c1e] text-right space-y-1 transition active:scale-95 group relative shadow">
+        <!-- 5. Twilight Slate -->
+        <button onclick="applyTheme('slate_twilight')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-[#38bdf8] bg-[#0f172a] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-[#f8fafc] flex items-center gap-1.5">
-              <span>🌌 الكحلي الملكي الليلي</span>
+              <span>🌌 سليت مسائي هادئ</span>
             </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#050c1e] border border-[#1a2d5a]"></span>
+            <span class="flex items-center gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0f172a] border border-[#38bdf8]"></span>
               <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#fbbf24]"></span>
             </span>
           </div>
-          <p class="text-[10px] text-[#94a3b8] leading-tight">كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية، هيبة رجال الأعمال.</p>
-          <span class="text-[9px] text-[#38bdf8] font-black block pt-0.5">Deep Midnight Navy • كحلي تنفيذي</span>
+          <p class="text-[10px] text-slate-300 leading-tight">رمادي داكن مائل للزرقة هادئ جداً لأوقات المساء والسكون البصري دون سواد تام.</p>
+          <span class="text-[9px] text-sky-400 font-black block pt-0.5">Twilight Slate • رمادي مسائي</span>
         </button>
 
-        <!-- 8. EXECUTIVE ROYAL BLUE (الأزرق الزفيري الحيوي - أزرق) -->
-        <button onclick="applyTheme('royal-blue')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1e3e78] bg-[#0a1b38] text-right space-y-1 transition active:scale-95 group relative shadow">
+        <!-- 6. Midnight Obsidian -->
+        <button onclick="applyTheme('midnight_obsidian')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-[#00f2fe] bg-[#0a1128] text-right space-y-1 transition active:scale-95 group relative shadow">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-[#f8fafc] flex items-center gap-1.5">
+              <span>💎 كحلي فاحم ملكي</span>
+              <span class="text-[9px] bg-cyan-500/20 text-cyan-300 font-black px-1 rounded-md">السمة الملكية 🌟</span>
+            </span>
+            <span class="flex items-center gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#0a1128] border border-[#00f2fe]"></span>
+              <span class="w-3.5 h-3.5 rounded-full bg-[#00f2fe]"></span>
+            </span>
+          </div>
+          <p class="text-[10px] text-slate-300 leading-tight">السمة المصرفية الفخمة باللون الكحلي السحيق والنيون والتركيز المالي العالي.</p>
+          <span class="text-[9px] text-cyan-300 font-black block pt-0.5">Midnight Obsidian • كحلي مصرفي ملكي</span>
+        </button>
+
+        <!-- 7. Pure OLED Black -->
+        <button onclick="applyTheme('pure_oled')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-[#10b981] bg-[#000000] text-right space-y-1 transition active:scale-95 group relative shadow">
           <div class="flex items-center justify-between">
             <span class="text-xs font-black text-[#ffffff] flex items-center gap-1.5">
-              <span>🔷 الأزرق الزفيري الحيوي</span>
+              <span>🖤 سواد مطلق وتوفير البطارية</span>
+              <span class="text-[9px] bg-emerald-500/20 text-emerald-300 font-black px-1 rounded-md">OLED 100%</span>
             </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0a1b38] border border-[#1e3e78]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#60a5fa]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#34d399]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#bfdbfe] leading-tight">أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة في إدخال الفواتير السريعة.</p>
-          <span class="text-[9px] text-[#60a5fa] font-black block pt-0.5">Executive Royal Blue • أزرق ملكي</span>
-        </button>
-
-        <!-- 9. DEEP OCEANIC ROYAL NAVY (الأزرق المحيطي العميق) -->
-        <button onclick="applyTheme('ocean-navy')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#1e3a8a] bg-[#0c1a2e] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#e0f2fe] flex items-center gap-1.5">
-              <span>🌊 الأزرق المحيطي العميق</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0c1a2e] border border-[#1e3a8a]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#bae6fd]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#93c5fd] leading-tight">يعزز التفكير المنطقي والتحليلي أثناء مراجعة الحسابات ومطابقة القيود.</p>
-          <span class="text-[9px] text-[#38bdf8] font-black block pt-0.5">Royal Oceanic Navy • منطق وتحليل</span>
-        </button>
-
-        <!-- 10. PETROL CYAN & TEAL (الأزرق البترولي المحيطي - أزرق 1) -->
-        <button onclick="applyTheme('petrol-cyan')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#134658] bg-[#071c26] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#f0fdfa] flex items-center gap-1.5">
-              <span>🐬 الأزرق البترولي والتيل</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#071c26] border border-[#134658]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#2dd4bf]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#38bdf8]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#99f6e4] leading-tight">مزيج من الأزرق البترولي والتيل البحري، يمنح هدوءاً بصرياً فائقاً.</p>
-          <span class="text-[9px] text-[#2dd4bf] font-black block pt-0.5">Petrol Cyan Blue • بترولي مهدئ</span>
-        </button>
-
-        <!-- 11. TWILIGHT INDIGO (أزرق الشفق والإنديجو - أزرق 2) -->
-        <button onclick="applyTheme('twilight-indigo')" class="theme-card tc-blue p-3 rounded-2xl border-2 border-[#2b356e] bg-[#0e122b] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-[#e0e7ff] flex items-center gap-1.5">
-              <span>🔮 أزرق الشفق والإنديجو</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#0e122b] border border-[#2b356e]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#818cf8]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#f472b6]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-[#a5b4fc] leading-tight">أزرق شفق نيلي مسائي يخفف التوتر العصبي ويمنع شرود الذهن.</p>
-          <span class="text-[9px] text-[#818cf8] font-black block pt-0.5">Twilight Indigo • إنديجو مسائي</span>
-        </button>
-
-        <!-- 12. OLED MIDNIGHT DARK (الليل الملكي الداكن) -->
-        <button onclick="applyTheme('midnight')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-slate-700 bg-slate-950 text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-slate-100 flex items-center gap-1.5">
-              <span>🌙 الليل الملكي الداكن</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-slate-950 border border-slate-700"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-cyan-400"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-emerald-400"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-slate-400 leading-tight">سواد عميق OLED موفر للطاقة، أقصى تباين في الإضاءة الليلية الضعيفة.</p>
-          <span class="text-[9px] text-cyan-300 font-black block pt-0.5">OLED Midnight • افتراضي</span>
-        </button>
-
-        <!-- 13. VINTAGE WARM SEPIA & BROWN (البني الإسبريسو والورق القديم) -->
-        <button onclick="applyTheme('sepia-brown')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-amber-900/60 bg-[#1c1917] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-amber-200 flex items-center gap-1.5">
-              <span>📜 البني الإسبريسو والورق القديم</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#1c1917] border border-amber-800"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#d97706]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#fef3c7]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-amber-200/70 leading-tight">حجب كامل للضوء الأزرق، يريح العصب البصري ويمنع الصداع في العمل الطويل.</p>
-          <span class="text-[9px] text-amber-400 font-black block pt-0.5">Warm Sepia • مهدئ للأعصاب</span>
-        </button>
-
-        <!-- 14. MUTED PALE GOLD & CHAMPAGNE (الذهبي الباهت والفخامة الملكية) -->
-        <button onclick="applyTheme('pale-gold')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-yellow-700/50 bg-[#181614] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-yellow-200 flex items-center gap-1.5">
-              <span>👑 الذهبي الباهت والفخامة</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#181614] border border-yellow-600"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#eab308]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#fef08a]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-yellow-200/70 leading-tight">تناسق ذهبي كلاسيكي باهت وغير مزعج، يضفي هيبة الأرقام المحاسبية.</p>
-          <span class="text-[9px] text-yellow-300 font-black block pt-0.5">Pale Gold Luxury • فخامة مالية</span>
-        </button>
-
-        <!-- 15. COGNITIVE FOREST EMERALD (الزمرد والغابات لصفاء الذهن) -->
-        <button onclick="applyTheme('emerald-forest')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-emerald-800/60 bg-[#032e24] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-emerald-200 flex items-center gap-1.5">
-              <span>🌲 زمرد الغابات لصفاء الذهن</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#032e24] border border-emerald-600"></span>
+            <span class="flex items-center gap-1">
+              <span class="w-3.5 h-3.5 rounded-full bg-[#000000] border border-[#10b981]"></span>
               <span class="w-3.5 h-3.5 rounded-full bg-[#10b981]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#a7f3d0]"></span>
             </span>
           </div>
-          <p class="text-[10px] text-emerald-200/70 leading-tight">اللون الأخضر يقع في منتصف شبكية العين، يخفض النبض ويمنع الخلط بالأرقام.</p>
-          <span class="text-[9px] text-emerald-300 font-black block pt-0.5">Cognitive Forest • تركيز ذهني فائق</span>
-        </button>
-
-        <!-- 16. WARM SAND & DESERT MOCHA (الرمال الصحراوية وموكا دافئة) -->
-        <button onclick="applyTheme('desert-mocha')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-stone-700 bg-[#26211d] text-right space-y-1 transition active:scale-95 group relative shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-stone-200 flex items-center gap-1.5">
-              <span>🏜️ الرمال الصحراوية وموكا</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-[#26211d] border border-stone-600"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#f59e0b]"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#fde68a]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-stone-300/70 leading-tight">تدرج دافئ وسط بين الفاتح والداكن، مريح جداً للإضاءة المكتبية.</p>
-          <span class="text-[9px] text-amber-300 font-black block pt-0.5">Desert Mocha • راحة يومية متوازنة</span>
-        </button>
-
-        <!-- 17. SUNLIGHT MONOCHROME TITANIUM (التيتانيوم الشمسي فائق التباين) -->
-        <button onclick="applyTheme('sunlight-titanium')" class="theme-card tc-dark p-3 rounded-2xl border-2 border-white bg-black text-right space-y-1 transition active:scale-95 group relative text-white shadow">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black text-white flex items-center gap-1.5">
-              <span>☀️ التيتانيوم الشمسي فائق التباين</span>
-            </span>
-            <span class="flex gap-1">
-              <span class="w-3.5 h-3.5 rounded-full bg-black border border-white"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-white"></span>
-              <span class="w-3.5 h-3.5 rounded-full bg-[#facc15]"></span>
-            </span>
-          </div>
-          <p class="text-[10px] text-slate-300 leading-tight">معيار WCAG AAA (21:1)، وضوح تام تحت شمس الظهيرة ولضعاف النظر.</p>
-          <span class="text-[9px] text-yellow-300 font-black block pt-0.5">Titanium High-Contrast • شمس وميدان</span>
+          <p class="text-[10px] text-slate-300 leading-tight">سواد حالك لإطفاء بكسلات الشاشة وتوفير طاقة بطارية الهاتف بنسبة 30% مع تباين تام.</p>
+          <span class="text-[9px] text-emerald-400 font-black block pt-0.5">Pure OLED • سواد مطلق وبطارية +30%</span>
         </button>
 
       </div>
@@ -12744,47 +12508,32 @@
     // 21 SCIENTIFIC ERGONOMIC THEMES ENGINE (سيف السمات والراحة)
     // ========================================================
     const THEMES_PALETTE_CONFIG = {
-      // 🌟 The 4 Recommended Signature Themes (الموصى بها - قمة الرقي)
-      'warm-alabaster': { name: 'العاجي الدافئ', icon: '📜', category: 'recommended', desc: 'مستوحى من ورق الدفاتر الفاخرة لراحة ذهنية مطلقة' },
-      'pure-platinum': { name: 'الفضي النقي', icon: '❄️', category: 'recommended', desc: 'طراز المنصات العالمية بنقاء تحليلي بدون أي تشتيت' },
-      'midnight-executive': { name: 'كحلي منتصف الليل', icon: '🌌', category: 'recommended', desc: 'كحلي سحيق يبعث الأمان المالي ويخفض ضغط العين' },
-      'obsidian-charcoal': { name: 'حجر السج الجرافيتي', icon: '🪨', category: 'recommended', desc: 'فحم جرافيتي مطفأ فخامة صامتة مريح لشاشات OLED' },
-
-      // Light, Beige, Ivory & Off-White
-      'beige': { name: 'البيج الدافئ المريح', icon: '🌾', category: 'light', desc: 'درجة بيج رملي طبيعي دافئ يمتص الوهج البصري' },
-      'ivory': { name: 'العاجي الملكي الكلاسيكي', icon: '🥛', category: 'light', desc: 'نعومة اللون العاجي الكريمي الهادئ تريح البؤبؤ' },
-      'offwhite': { name: 'الأوف وايت الحديث المطفأ', icon: '📜', category: 'light', desc: 'أوف وايت ألاباستر عصري بدون بياض ساطع' },
-      'light-linen': { name: 'الكتان الطبيعي المريح', icon: '🧵', category: 'light', desc: 'طابع الكتان العضوي الهادئ يمنح السكينة' },
-      'pearl-platinum': { name: 'اللؤلؤي الفضي المريح', icon: '🦪', category: 'light', desc: 'رمادي لؤلؤي بلاتيني بارد يقلل انعكاس الضوء' },
-      'nordic-paper': { name: 'الورقي النوردي المريح', icon: '📄', category: 'light', desc: 'ملمس ورق الدفاتر الفاخر بدون وهج ساطع' },
-
-      // Blue & Navy Themes
-      'navy-kohl': { name: 'الكحلي الملكي الليلي', icon: '🌌', category: 'blue', desc: 'كحلي عميق فاخر مع نصوص بيضاء ناصعة ولمسات ذهبية' },
-      'royal-blue': { name: 'الأزرق الزفيري الحيوي', icon: '🔷', category: 'blue', desc: 'أزرق ملكي ساطع ينشط الذاكرة وسرعة البديهة' },
-      'ocean-navy': { name: 'الأزرق المحيطي العميق', icon: '🌊', category: 'blue', desc: 'تعزيز التفكير المنطقي والتحليل المالي' },
-      'petrol-cyan': { name: 'الأزرق البترولي والتيل', icon: '🐬', category: 'blue', desc: 'أزرق بترولي محيطي مهدئ للأعصاب' },
-      'twilight-indigo': { name: 'أزرق الشفق والإنديجو', icon: '🔮', category: 'blue', desc: 'أزرق شفق نيلي مسائي يخفف التوتر العصبي' },
-
-      // Dark, Gold & Brown
-      'midnight': { name: 'الليل الملكي الداكن', icon: '🌙', category: 'dark', desc: 'أقصى توفير لبطارية OLED وتدرج أسود عميق' },
-      'sepia-brown': { name: 'البني الإسبريسو والورق القديم', icon: '📜', category: 'dark', desc: 'حجب كامل للضوء الأزرق المسبب لإجهاد العين' },
-      'pale-gold': { name: 'الذهبي الباهت والفخامة', icon: '👑', category: 'dark', desc: 'دفء كلاسيكي ملكي وهيبة الأرقام المحاسبية' },
-      'emerald-forest': { name: 'زمرد الغابات لصفاء الذهن', icon: '🌲', category: 'dark', desc: 'راحة عصبية تخفض النبض وتمنع تبديل الأرقام' },
-      'desert-mocha': { name: 'الرمال الصحراوية وموكا', icon: '🏜️', category: 'dark', desc: 'توازن لوني دافئ ومريح للإضاءة المكتبية' },
-      'sunlight-titanium': { name: 'التيتانيوم الشمسي فائق التباين', icon: '☀️', category: 'dark', desc: 'معيار WCAG AAA للعمل الميداني تحت شمس الظهيرة' }
+      'ultra_white': { name: 'أبيض فائق النقاء Ultra-Clean White', icon: '⚪', category: 'light', desc: 'إضاءة نهارية مكتبية ناصعة مع نصوص سوداء حادة لأعلى وضوح' },
+      'warm_cream': { name: 'ورق سيبيا دافئ Warm Paper Sepia', icon: '📜', category: 'light', desc: 'مستوحى من ورق الدفاتر الفاخرة لمنع جفاف وإجهاد العين أثناء العمل الطويل' },
+      'exec_gray': { name: 'رمادي تنفيذي بارد Cool Executive Gray', icon: '💼', category: 'light', desc: 'أسطح رمادية هادئة وأناقة الشركات الكبرى والبنوك العالمية' },
+      'solar_contrast': { name: 'شمس ساطعة عالي التباين Solar Sun', icon: '☀️', category: 'light', desc: 'أعلى تباين معتمد طبياً (WCAG AAA) للعمل تحت أشعة الشمس المباشرة' },
+      'slate_twilight': { name: 'سليت مسائي هادئ Twilight Slate', icon: '🌌', category: 'dark', desc: 'رمادي داكن مائل للزرقة هادئ جداً لأوقات المساء' },
+      'midnight_obsidian': { name: 'كحلي فاحم ملكي Midnight Obsidian', icon: '💎', category: 'dark', desc: 'السمة المصرفية الفخمة باللون الكحلي السحيق والأمان المالي' },
+      'pure_oled': { name: 'سواد مطلق Pure OLED Black', icon: '🖤', category: 'dark', desc: 'سواد حالك لإطفاء البكسلات وتوفير طاقة البطارية بنسبة 30%' }
     };
 
     let currentActiveTheme = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_mobile_theme') || 'warm-alabaster';
 
     function applyTheme(themeKey, showToast = true) {
       const aliasMap = {
-        'ultra_white': 'pure-platinum', 'warm_cream': 'warm-alabaster', 'exec_gray': 'pearl-platinum',
-        'solar_contrast': 'sunlight-titanium', 'solar': 'sunlight-titanium',
-        'slate_twilight': 'midnight-executive', 'midnight_obsidian': 'midnight-executive',
-        'pure_oled': 'midnight', 'navy': 'navy-kohl', 'forest': 'emerald-forest'
+        'pure-platinum': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white', 'offwhite': 'ultra_white',
+        'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+        'nordic-paper': 'warm_cream', 'sepia-brown': 'warm_cream', 'pale-gold': 'warm_cream', 'desert-mocha': 'warm_cream',
+        'theme-imperial': 'warm_cream', 'cream': 'warm_cream',
+        'pearl-platinum': 'exec_gray',
+        'sunlight-titanium': 'solar_contrast', 'solar': 'solar_contrast',
+        'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight',
+        'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian',
+        'ocean-navy': 'midnight_obsidian', 'petrol-cyan': 'midnight_obsidian', 'navy': 'midnight_obsidian', 'dark': 'midnight_obsidian',
+        'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'oled': 'pure_oled'
       };
       if (aliasMap[themeKey]) themeKey = aliasMap[themeKey];
-      if (!THEMES_PALETTE_CONFIG[themeKey]) themeKey = 'warm-alabaster';
+      if (!THEMES_PALETTE_CONFIG[themeKey]) themeKey = 'midnight_obsidian';
       currentActiveTheme = themeKey;
       try {
         localStorage.setItem('magaies_active_theme', themeKey);
@@ -12797,7 +12546,7 @@
       document.documentElement.setAttribute('data-theme', themeKey);
       if (document.body) document.body.setAttribute('data-theme', themeKey);
 
-      const lightThemes = ['warm-alabaster', 'pure-platinum', 'beige', 'ivory', 'offwhite', 'light-linen', 'pearl-platinum', 'nordic-paper'];
+      const lightThemes = ['ultra_white', 'warm_cream', 'exec_gray', 'solar_contrast'];
       const isLight = lightThemes.indexOf(themeKey) !== -1;
       if (isLight) {
         document.documentElement.classList.add('light-theme');
