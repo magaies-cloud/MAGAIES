@@ -177,11 +177,17 @@
       70% { box-shadow: 0 0 0 9px rgba(239, 68, 68, 0); }
       100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
+    .field-mic-btn { position: relative; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
+    .field-mic-btn::after { content: ''; position: absolute; inset: -6px; border-radius: 9999px; }
+    @keyframes fieldMicPulseAnim {
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+      50% { transform: scale(1.15); box-shadow: 0 0 0 8px rgba(239, 68, 68, 0); }
+    }
     .field-mic-btn.field-mic-listening {
-      background: #dc2626 !important;
-      border-color: #fca5a5 !important;
-      color: #fff !important;
-      animation: fieldMicPulse 1.2s infinite;
+      background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+      border-color: #fecaca !important;
+      box-shadow: 0 0 18px rgba(239, 68, 68, 0.9) !important;
+      animation: fieldMicPulseAnim 1s infinite !important;
     }
 
     /* ═════════════════════════════════════════════════════════════════
@@ -1172,9 +1178,16 @@
       <!-- اليمين: مايك الذكاء الصوتي الشامل + عنوان الشاشة (حركة مالية) + منطقة عناية متصل -->
       <div class="flex items-center gap-2">
         <!-- زر المايك الصوتي الذكي الشامل للشاشة بأكملها (في مكان زر الخروج قبل حركة مالية) -->
-        <button type="button" onclick="toggleMasterVoiceInput()" id="masterMicBtn" class="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 active:scale-95 text-white flex items-center justify-center shrink-0 border border-cyan-300 shadow-[0_0_16px_rgba(6,182,212,0.6)] transition cursor-pointer relative group" title="المايك الصوتي الذكي الشامل: اضغط وتحدث لتعبئة كامل السند تلقائياً">
-          <i class="fa-solid fa-microphone text-sm text-yellow-300" id="masterMicIcon"></i>
-          <span class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-ping hidden" id="masterMicListeningPing"></span>
+        <button type="button" onclick="toggleMasterVoiceInput()" id="masterMicBtn" class="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-yellow-400 to-amber-600 hover:from-amber-400 hover:to-yellow-300 active:scale-95 text-slate-950 flex items-center justify-center shrink-0 border-2 border-yellow-200 shadow-[0_0_18px_rgba(245,158,11,0.65)] transition-all cursor-pointer relative group" title="المايك الصوتي الذكي الشامل: اضغط وتحدث لتعبئة كامل السند تلقائياً">
+          <svg id="masterMicSvg" class="w-5 h-5 text-slate-950 transition-transform group-hover:scale-110 drop-shadow pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="9" y="2" width="6" height="11" rx="3" fill="#0f172a" stroke="#0f172a"/>
+  <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" stroke="#facc15" stroke-width="1.2"/>
+  <line x1="9.5" y1="8" x2="14.5" y2="8" stroke="#facc15" stroke-width="1.2"/>
+  <path d="M5 10v1a7 7 0 0 0 14 0v-1" stroke="#0f172a" stroke-width="2.2"/>
+  <line x1="12" y1="18" x2="12" y2="22" stroke="#0f172a" stroke-width="2.2"/>
+  <line x1="8" y1="22" x2="16" y2="22" stroke="#0f172a" stroke-width="2.5"/>
+</svg>
+          <span class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping hidden" id="masterMicListeningPing"></span>
         </button>
 
         <!-- حركة مالية فقط بخط واضح وفخم (تم حذف صرف مالي) -->
@@ -1396,8 +1409,15 @@
           <!-- 1. اليمين: المبلغ محلي (إضاءة سماوية فائقة الحواف) -->
           <div>
             <div class="flex items-center gap-1.5 mb-1 px-1 h-6">
-              <button type="button" onclick="startFieldVoiceInput('sdg', this)" class="field-mic-btn w-6 h-6 rounded-full bg-sky-950/95 border border-sky-400/80 text-sky-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي للمبلغ المحلي فقط" aria-label="تسجيل صوتي للمبلغ المحلي">
-                <i class="fa-solid fa-microphone text-[10px]"></i>
+              <button type="button" onclick="startFieldVoiceInput('sdg', this)" class="field-mic-btn w-7 h-7 rounded-xl bg-gradient-to-tr from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 border border-sky-300 text-yellow-300 flex items-center justify-center active:scale-95 shadow-[0_0_10px_rgba(56,189,248,0.4)] transition shrink-0 cursor-pointer" title="تحدث لتسجيل المبلغ محلي" aria-label="مايك المبلغ محلي">
+                <svg class="w-3.5 h-3.5 text-yellow-300 drop-shadow pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="9" y="2" width="6" height="11" rx="3" fill="#facc15" stroke="#facc15"/>
+  <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" stroke="#0f172a" stroke-width="1.2"/>
+  <line x1="9.5" y1="8" x2="14.5" y2="8" stroke="#0f172a" stroke-width="1.2"/>
+  <path d="M5 10v1a7 7 0 0 0 14 0v-1" stroke="#facc15" stroke-width="2.2"/>
+  <line x1="12" y1="18" x2="12" y2="22" stroke="#facc15" stroke-width="2.2"/>
+  <line x1="8" y1="22" x2="16" y2="22" stroke="#facc15" stroke-width="2.5"/>
+</svg>
               </button>
               <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ محلي</span>
             </div>
@@ -1410,8 +1430,15 @@
           <!-- 2. اليسار: المبلغ دولار (في نفس السطر ومستوى متساوٍ تماماً) -->
           <div>
             <div class="flex items-center gap-1.5 mb-1 px-1 h-6">
-              <button type="button" onclick="startFieldVoiceInput('usd', this)" class="field-mic-btn w-6 h-6 rounded-full bg-emerald-950/95 border border-emerald-400/80 text-emerald-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي للمبلغ بالدولار فقط" aria-label="تسجيل صوتي للمبلغ بالدولار">
-                <i class="fa-solid fa-microphone text-[10px]"></i>
+              <button type="button" onclick="startFieldVoiceInput('usd', this)" class="field-mic-btn w-7 h-7 rounded-xl bg-gradient-to-tr from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 border border-emerald-300 text-yellow-300 flex items-center justify-center active:scale-95 shadow-[0_0_10px_rgba(16,185,129,0.4)] transition shrink-0 cursor-pointer" title="تحدث لتسجيل المبلغ بالدولار" aria-label="مايك المبلغ دولار">
+                <svg class="w-3.5 h-3.5 text-yellow-300 drop-shadow pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="9" y="2" width="6" height="11" rx="3" fill="#facc15" stroke="#facc15"/>
+  <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" stroke="#0f172a" stroke-width="1.2"/>
+  <line x1="9.5" y1="8" x2="14.5" y2="8" stroke="#0f172a" stroke-width="1.2"/>
+  <path d="M5 10v1a7 7 0 0 0 14 0v-1" stroke="#facc15" stroke-width="2.2"/>
+  <line x1="12" y1="18" x2="12" y2="22" stroke="#facc15" stroke-width="2.2"/>
+  <line x1="8" y1="22" x2="16" y2="22" stroke="#facc15" stroke-width="2.5"/>
+</svg>
               </button>
               <span class="text-xs sm:text-sm font-black text-emerald-300" id="foreignAmountTitle">المبلغ دولار</span>
             </div>
@@ -1438,8 +1465,15 @@
       <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 border-[2.5px] border-red-500 shadow-[0_0_28px_rgba(239,68,68,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
-            <button type="button" onclick="startFieldVoiceInput('from', this)" class="field-mic-btn w-7 h-7 rounded-full bg-red-950/90 border border-red-400/70 text-red-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (مِن) فقط" aria-label="تسجيل صوتي لحساب من">
-              <i class="fa-solid fa-microphone text-[11px]"></i>
+            <button type="button" onclick="startFieldVoiceInput('from', this)" class="field-mic-btn w-8 h-8 rounded-xl bg-gradient-to-tr from-red-600 to-rose-500 hover:from-red-500 hover:to-rose-400 border-2 border-red-200 text-yellow-300 flex items-center justify-center active:scale-95 shadow-[0_0_14px_rgba(239,68,68,0.55)] transition shrink-0 cursor-pointer" title="تحدث لإدخال الحساب المحول منه (مِن)" aria-label="مايك حساب من">
+              <svg class="w-4 h-4 text-yellow-300 drop-shadow pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="9" y="2" width="6" height="11" rx="3" fill="#facc15" stroke="#facc15"/>
+  <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" stroke="#0f172a" stroke-width="1.2"/>
+  <line x1="9.5" y1="8" x2="14.5" y2="8" stroke="#0f172a" stroke-width="1.2"/>
+  <path d="M5 10v1a7 7 0 0 0 14 0v-1" stroke="#facc15" stroke-width="2.2"/>
+  <line x1="12" y1="18" x2="12" y2="22" stroke="#facc15" stroke-width="2.2"/>
+  <line x1="8" y1="22" x2="16" y2="22" stroke="#facc15" stroke-width="2.5"/>
+</svg>
             </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-red-600 text-white font-black text-xs shadow-md">مِن</span>
             <span class="text-sm sm:text-base font-black text-red-300">من حساب:</span>
@@ -1491,8 +1525,15 @@
       <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 border-[2.5px] border-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
-            <button type="button" onclick="startFieldVoiceInput('to', this)" class="field-mic-btn w-7 h-7 rounded-full bg-emerald-950/90 border border-emerald-400/70 text-emerald-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (إلى) فقط" aria-label="تسجيل صوتي لحساب إلى">
-              <i class="fa-solid fa-microphone text-[11px]"></i>
+            <button type="button" onclick="startFieldVoiceInput('to', this)" class="field-mic-btn w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 border-2 border-emerald-200 text-yellow-300 flex items-center justify-center active:scale-95 shadow-[0_0_14px_rgba(16,185,129,0.55)] transition shrink-0 cursor-pointer" title="تحدث لإدخال الحساب المحول إليه (إلى)" aria-label="مايك حساب إلى">
+              <svg class="w-4 h-4 text-yellow-300 drop-shadow pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="9" y="2" width="6" height="11" rx="3" fill="#facc15" stroke="#facc15"/>
+  <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" stroke="#0f172a" stroke-width="1.2"/>
+  <line x1="9.5" y1="8" x2="14.5" y2="8" stroke="#0f172a" stroke-width="1.2"/>
+  <path d="M5 10v1a7 7 0 0 0 14 0v-1" stroke="#facc15" stroke-width="2.2"/>
+  <line x1="12" y1="18" x2="12" y2="22" stroke="#facc15" stroke-width="2.2"/>
+  <line x1="8" y1="22" x2="16" y2="22" stroke="#facc15" stroke-width="2.5"/>
+</svg>
             </button>
             <span class="px-2.5 py-0.5 rounded-lg bg-emerald-600 text-white font-black text-xs shadow-md">إلى</span>
             <span class="text-sm sm:text-base font-black text-emerald-300">إلى حساب:</span>
@@ -1540,8 +1581,15 @@
           <!-- 1. رقم التحويلة بأناقة متناسبة ومضغوطة -->
           <div>
             <div class="flex items-center gap-1 mb-1 px-1 h-5">
-              <button type="button" onclick="startFieldVoiceInput('transfer', this)" class="field-mic-btn w-5 h-5 rounded-full bg-amber-950/95 border border-amber-400/80 text-amber-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لرقم التحويلة" aria-label="تسجيل صوتي لرقم التحويلة">
-                <i class="fa-solid fa-microphone text-[9px]"></i>
+              <button type="button" onclick="startFieldVoiceInput('transfer', this)" class="field-mic-btn w-7 h-7 rounded-lg bg-gradient-to-tr from-amber-600 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 border border-amber-200 text-slate-950 flex items-center justify-center active:scale-95 shadow-[0_0_10px_rgba(245,158,11,0.4)] transition shrink-0 cursor-pointer" title="تحدث لنطق أرقام التحويلة" aria-label="مايك رقم التحويلة">
+                <svg class="w-3.5 h-3.5 text-yellow-300 drop-shadow pointer-events-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="9" y="2" width="6" height="11" rx="3" fill="#facc15" stroke="#facc15"/>
+  <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" stroke="#0f172a" stroke-width="1.2"/>
+  <line x1="9.5" y1="8" x2="14.5" y2="8" stroke="#0f172a" stroke-width="1.2"/>
+  <path d="M5 10v1a7 7 0 0 0 14 0v-1" stroke="#facc15" stroke-width="2.2"/>
+  <line x1="12" y1="18" x2="12" y2="22" stroke="#facc15" stroke-width="2.2"/>
+  <line x1="8" y1="22" x2="16" y2="22" stroke="#facc15" stroke-width="2.5"/>
+</svg>
               </button>
               <label class="text-xs font-black text-amber-300 flex items-center gap-1" id="refLabel">
                 <i class="fa-solid fa-receipt text-amber-400 text-[10px]"></i>
@@ -4229,23 +4277,25 @@
     function setMasterMicButtonState(active) {
       isMasterVoiceActive = active;
       const btn = document.getElementById('masterMicBtn');
-      const icon = document.getElementById('masterMicIcon');
       const ping = document.getElementById('masterMicListeningPing');
+      const svg = document.getElementById('masterMicSvg');
 
       if (!btn) return;
 
       if (active) {
-        btn.classList.remove('bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-indigo-600');
-        btn.classList.add('bg-red-600', 'ring-4', 'ring-red-400', 'scale-105', 'shadow-[0_0_22px_#ef4444]');
-        if (icon) {
-          icon.className = 'fa-solid fa-microphone-lines text-sm text-white animate-pulse';
+        btn.classList.remove('from-amber-500', 'via-yellow-400', 'to-amber-600');
+        btn.classList.add('bg-red-600', 'ring-4', 'ring-red-400', 'scale-105', 'shadow-[0_0_24px_#ef4444]');
+        if (svg) {
+          svg.classList.add('text-white', 'animate-pulse');
+          svg.classList.remove('text-slate-950');
         }
         if (ping) ping.classList.remove('hidden');
       } else {
-        btn.classList.add('bg-gradient-to-r', 'from-cyan-500', 'via-sky-500', 'to-indigo-600');
-        btn.classList.remove('bg-red-600', 'ring-4', 'ring-red-400', 'scale-105', 'shadow-[0_0_22px_#ef4444]');
-        if (icon) {
-          icon.className = 'fa-solid fa-microphone text-sm text-yellow-300';
+        btn.classList.add('from-amber-500', 'via-yellow-400', 'to-amber-600');
+        btn.classList.remove('bg-red-600', 'ring-4', 'ring-red-400', 'scale-105', 'shadow-[0_0_24px_#ef4444]');
+        if (svg) {
+          svg.classList.remove('text-white', 'animate-pulse');
+          svg.classList.add('text-slate-950');
         }
         if (ping) ping.classList.add('hidden');
       }
@@ -5690,8 +5740,6 @@
     function resetFieldVoiceButton() {
       if (fieldVoiceBtn) {
         fieldVoiceBtn.classList.remove('field-mic-listening');
-        const ic = fieldVoiceBtn.querySelector('i');
-        if (ic) ic.className = ic.className.replace('fa-microphone-lines', 'fa-microphone').replace(' animate-pulse', '');
       }
       fieldVoiceBtn = null;
       fieldVoiceTarget = null;
@@ -5770,6 +5818,15 @@
         showToastNotification(`🎙️ رقم التحويلة: ${digits}`);
       }
     }
+
+    function openSmartVoiceFallback(target) {
+      const label = FIELD_VOICE_LABELS[target] || 'الحقل';
+      const promptVal = prompt(`🎙️ مايك ${label} الذكي:\nتحدث أو اكتب القيمة المطلوبة:\n(نصيحة: يمكنك النقر على أيقونة المايك 🎙️ في كيبورد هاتفك للنطق المباشر)`, '');
+      if (promptVal && promptVal.trim()) {
+        applyFieldVoiceResult(target, promptVal.trim());
+      }
+    }
+    window.openSmartVoiceFallback = openSmartVoiceFallback;
 
     function startFieldVoiceInput(target, btn) {
       triggerHapticPulse();

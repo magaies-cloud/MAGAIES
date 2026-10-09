@@ -2007,6 +2007,19 @@ try {
                                         <span class="badge-label">رقم السند</span>
                                         <span id="voucher-number" class="badge-val"><?php echo $voucher_no; ?></span>
                                     </div>
+                                    <!-- 🎙️ المايك الصوتي الذكي في اللابتوب -->
+                                    <button type="button" class="crystal-btn-sm hover-scale laptop-field-mic" id="laptopMasterMicBtn" onclick="toggleLaptopMasterVoice()" style="background: linear-gradient(135deg, #f59e0b, #d97706); border: 1.5px solid #fde047; border-radius: 10px; padding: 4px 12px; margin-right: 8px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; color: #0f172a; font-weight: 900; box-shadow: 0 0 12px rgba(245,158,11,0.4);" title="المايك الصوتي الذكي: تحدث لإدخال السند كاملاً">
+                                        <svg id="laptopMasterMicSvg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="9" y="2" width="6" height="11" rx="3" fill="#0f172a" stroke="#0f172a"/>
+                                            <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" stroke="#fde047" stroke-width="1.2"/>
+                                            <line x1="9.5" y1="8" x2="14.5" y2="8" stroke="#fde047" stroke-width="1.2"/>
+                                            <path d="M5 10v1a7 7 0 0 0 14 0v-1" stroke="#0f172a" stroke-width="2.2"/>
+                                            <line x1="12" y1="18" x2="12" y2="22" stroke="#0f172a" stroke-width="2.2"/>
+                                            <line x1="8" y1="22" x2="16" y2="22" stroke="#0f172a" stroke-width="2.5"/>
+                                        </svg>
+                                        <span style="font-size: 0.95rem; color: #0f172a;">المايك الذكي 🎙️</span>
+                                        <span class="pulse-dot" style="display: none; width: 8px; height: 8px; background: #ef4444; border-radius: 50%;"></span>
+                                    </button>
                                     <button class="crystal-btn-sm btn-blue-glass crystal-btn-icon-only next-btn" onclick="loadNextVoucher()" title="السند التالي">
                                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
                                     </button>
@@ -2026,7 +2039,19 @@ try {
                                 </select>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px; position: relative;">
-                                <label id="label-box-1" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;"><span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (محلي)</label>
+                                <label id="label-box-1" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">
+                                    <button type="button" id="mic-btn-amount" onclick="startLaptopVoiceField('amount')" class="laptop-field-mic" style="background: linear-gradient(135deg, #0284c7, #0369a1); border: 1.5px solid #38bdf8; border-radius: 8px; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 4px;" title="نطق المبلغ صوتياً">
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="9" y="2" width="6" height="11" rx="3" fill="#facc15" stroke="#facc15"/>
+                                            <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" stroke="#0f172a" stroke-width="1.2"/>
+                                            <line x1="9.5" y1="8" x2="14.5" y2="8" stroke="#0f172a" stroke-width="1.2"/>
+                                            <path d="M5 10v1a7 7 0 0 0 14 0v-1" stroke="#facc15" stroke-width="2.2"/>
+                                            <line x1="12" y1="18" x2="12" y2="22" stroke="#facc15" stroke-width="2.2"/>
+                                            <line x1="8" y1="22" x2="16" y2="22" stroke="#facc15" stroke-width="2.5"/>
+                                        </svg>
+                                    </button>
+                                    <span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (محلي)
+                                </label>
                                 <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
                                     <span id="amount-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: var(--primary-color, #3b82f6); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">SDG</span>
                                     <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="from-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('local');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('local'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 94px !important; box-sizing: border-box !important; font-size: 2.35rem !important; font-weight: 900; text-align: center; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
@@ -2079,7 +2104,16 @@ try {
                                     <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(244, 63, 94, 0.15); border-radius: 50%;">
                                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                                     </span>
-                                    من حساب <span style="color:#ffffff !important;">(صرف)</span>
+                                    <button type="button" id="mic-btn-from" onclick="startLaptopVoiceField('from')" class="laptop-field-mic" style="background: linear-gradient(135deg, #e11d48, #be123c); border: 1.5px solid #fda4af; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 4px;" title="نطق حساب الصرف (مِن)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="9" y="2" width="6" height="11" rx="3" fill="#facc15" stroke="#facc15"/>
+                                            <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" stroke="#0f172a" stroke-width="1.2"/>
+                                            <line x1="9.5" y1="8" x2="14.5" y2="8" stroke="#0f172a" stroke-width="1.2"/>
+                                            <path d="M5 10v1a7 7 0 0 0 14 0v-1" stroke="#facc15" stroke-width="2.2"/>
+                                            <line x1="12" y1="18" x2="12" y2="22" stroke="#facc15" stroke-width="2.2"/>
+                                            <line x1="8" y1="22" x2="16" y2="22" stroke="#facc15" stroke-width="2.5"/>
+                                        </svg>
+                                    </button> من حساب <span style="color:#ffffff !important;">(صرف)</span>
                                 </label>
                                 <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                     <input type="hidden" id="from-account">
@@ -2094,7 +2128,16 @@ try {
                                     <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(16, 185, 129, 0.15); border-radius: 50%;">
                                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
                                     </span>
-                                    إلى حساب <span style="color:#ffffff !important;">(استلام)</span>
+                                    <button type="button" id="mic-btn-to" onclick="startLaptopVoiceField('to')" class="laptop-field-mic" style="background: linear-gradient(135deg, #059669, #047857); border: 1.5px solid #a7f3d0; border-radius: 8px; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin-left: 4px;" title="نطق حساب الاستلام (إلى)">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="9" y="2" width="6" height="11" rx="3" fill="#facc15" stroke="#facc15"/>
+                                            <line x1="9.5" y1="5.5" x2="14.5" y2="5.5" stroke="#0f172a" stroke-width="1.2"/>
+                                            <line x1="9.5" y1="8" x2="14.5" y2="8" stroke="#0f172a" stroke-width="1.2"/>
+                                            <path d="M5 10v1a7 7 0 0 0 14 0v-1" stroke="#facc15" stroke-width="2.2"/>
+                                            <line x1="12" y1="18" x2="12" y2="22" stroke="#facc15" stroke-width="2.2"/>
+                                            <line x1="8" y1="22" x2="16" y2="22" stroke="#facc15" stroke-width="2.5"/>
+                                        </svg>
+                                    </button> إلى حساب <span style="color:#ffffff !important;">(استلام)</span>
                                 </label>
                                 <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                     <input type="hidden" id="to-account">
@@ -3376,6 +3419,7 @@ try {
     <!-- Financial OCR Modal & Script -->
     <?php include 'includes/financial-ocr-modal.php'; ?>
     <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
+<script src="js/laptop-voice-engine.js?v=20261009_v1"></script>
 </body>
 </html>
 
