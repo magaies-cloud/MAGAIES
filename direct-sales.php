@@ -70,6 +70,41 @@ try {
 })();
 </script>
 <head>
+
+<script>
+(function initScreenMaster7ThemeEarly() {
+  var raw = localStorage.getItem('magaies_active_theme') || 
+            localStorage.getItem('magaiees_global_theme') || 
+            localStorage.getItem('magaiees_mobile_theme') || 
+            localStorage.getItem('ui_theme') || 
+            'warm_cream';
+  var aliasMap = {
+    'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+    'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
+    'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
+    'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
+    'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
+    'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
+    'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
+  };
+  var activeKey = aliasMap[raw] || raw;
+  var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
+  if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
+  var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
+
+  document.documentElement.setAttribute('data-theme', activeKey);
+  if (isLight) document.documentElement.classList.add('light-theme');
+  else document.documentElement.classList.remove('light-theme');
+
+  document.addEventListener("DOMContentLoaded", function() {
+    if (document.body) {
+      document.body.setAttribute('data-theme', activeKey);
+      if (isLight) document.body.classList.add('light-theme');
+      else document.body.classList.remove('light-theme');
+    }
+  });
+})();
+</script>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -5358,5 +5393,63 @@ try {
     <!-- Financial OCR Modal & Script -->
     <?php include 'includes/financial-ocr-modal.php'; ?>
     <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
+    <script>
+    (function initDesktopSalesMirrorSync() {
+        let isSyncing = false;
+        async function syncSalesWithMariaDB() {
+            if (isSyncing) return;
+            isSyncing = true;
+            try {
+                const res = await fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now());
+                const data = await res.json();
+                if (data && data.success && Array.isArray(data.sales)) {
+                    let localSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+                    let localMap = new Map();
+                    localSales.forEach(inv => {
+                        const no = inv.invoiceNo || inv.id;
+                        if (no) localMap.set(String(no), inv);
+                    });
+
+                    let hasNew = false;
+                    data.sales.forEach(serverInv => {
+                        const sNo = String(serverInv.invoiceNo || serverInv.id);
+                        if (!localMap.has(sNo)) {
+                            localSales.push(serverInv);
+                            localMap.set(sNo, serverInv);
+                            hasNew = true;
+                        }
+                    });
+
+                    if (hasNew) {
+                        localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(localSales));
+                        if (typeof loadHubTransactions === 'function' && typeof currentView !== 'undefined' && currentView === 'hub') {
+                            loadHubTransactions();
+                        }
+                    }
+
+                    const invInput = document.getElementById('hdr-inv-no');
+                    const invSpan = document.getElementById('inv-number');
+                    const isCreatingNew = !window.currentViewedInvoiceNo || window.currentViewedInvoiceNo === '---';
+                    if (isCreatingNew && data.nextInvoiceNo && invInput && invSpan) {
+                        if (invInput.value !== data.nextInvoiceNo) {
+                            invInput.value = data.nextInvoiceNo;
+                            invSpan.textContent = data.nextInvoiceNo;
+                        }
+                    }
+                }
+            } catch(e) {
+                console.warn('Desktop sales mirror sync check:', e);
+            } finally {
+                isSyncing = false;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(syncSalesWithMariaDB, 600);
+        });
+        setInterval(syncSalesWithMariaDB, 4000);
+        window.addEventListener('focus', syncSalesWithMariaDB);
+    })();
+    </script>
 </body>
 </html>

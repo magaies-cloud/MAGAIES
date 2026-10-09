@@ -10,6 +10,77 @@ if ($isMobileDevice && !$isDesktopParam && empty($_POST)) {
 }
 
 require_once 'db_bridge.php';
+if (!function_exists('extractAllTransfersFromRecord')) {
+    function extractAllTransfersFromRecord($d) {
+        $refs = [];
+        if (!empty($d['mobileTransferNo']) && is_string($d['mobileTransferNo'])) $refs[] = trim($d['mobileTransferNo']);
+        if (!empty($d['transferRef']) && is_string($d['transferRef'])) $refs[] = trim($d['transferRef']);
+        if (!empty($d['refNo']) && is_string($d['refNo'])) $refs[] = trim($d['refNo']);
+        if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
+            foreach ($d['bankTransfers'] as $bt) {
+                if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+            }
+        }
+        if (!empty($d['details']) && is_array($d['details'])) {
+            foreach ($d['details'] as $det) {
+                if (!empty($det['transferNo']) && is_string($det['transferNo'])) $refs[] = trim($det['transferNo']);
+                if (!empty($det['bankTransfers']) && is_array($det['bankTransfers'])) {
+                    foreach ($det['bankTransfers'] as $bt) {
+                        if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+                    }
+                }
+            }
+        }
+        if (!empty($d['items']) && is_array($d['items'])) {
+            foreach ($d['items'] as $item) {
+                if (!empty($item['transferNo']) && is_string($item['transferNo'])) $refs[] = trim($item['transferNo']);
+                if (!empty($item['bankTransfers']) && is_array($item['bankTransfers'])) {
+                    foreach ($item['bankTransfers'] as $bt) {
+                        if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+                    }
+                }
+            }
+        }
+        return array_values(array_unique(array_filter($refs)));
+    }
+}
+
+if (!function_exists('fetchAllDbTransfers')) {
+    function fetchAllDbTransfers($pdo, $currentTenantId = null) {
+        $results = [];
+        $seen = [];
+        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
+        foreach ($tables as $tbl) {
+            try {
+                $stmt = $pdo->query("SELECT id, tenant_id, data FROM `$tbl`");
+                while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $d = json_decode($r['data'], true);
+                    if (!$d) continue;
+                    $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    $refs = extractAllTransfersFromRecord($d);
+                    foreach ($refs as $ref) {
+                        $clean = preg_replace('/\D/', '', (string)$ref);
+                        $key = $vNo . '_' . $ref;
+                        if (isset($seen[$key])) continue;
+                        $seen[$key] = true;
+                        $results[] = [
+                            'voucherNo' => $vNo,
+                            'table' => $tbl,
+                            'tenantId' => $r['tenant_id'],
+                            'ref' => (string)$ref,
+                            'cleanRef' => $clean ?: (string)$ref,
+                            'date' => $d['date'] ?? '',
+                            'amount' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
+                            'bank' => $d['bankName'] ?? ($d['bank'] ?? ($d['fromAccount'] ?? ''))
+                        ];
+                    }
+                }
+            } catch(Exception $e) {}
+        }
+        return $results;
+    }
+}
+
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
 
@@ -300,10 +371,46 @@ $page_title = 'حركة مالية مجمعة';
     }
 })();
 window.SERVER_PAYMENTS = <?php echo $SERVER_PAYMENTS_json; ?>;
+window.DB_ALL_TRANSFER_REFS = <?php echo json_encode(fetchAllDbTransfers($pdo, $GLOBAL_TENANT_ID), JSON_UNESCAPED_UNICODE); ?>;
 window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
 </script>
 <head>
+
+<script>
+(function initScreenMaster7ThemeEarly() {
+  var raw = localStorage.getItem('magaies_active_theme') || 
+            localStorage.getItem('magaiees_global_theme') || 
+            localStorage.getItem('magaiees_mobile_theme') || 
+            localStorage.getItem('ui_theme') || 
+            'warm_cream';
+  var aliasMap = {
+    'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+    'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
+    'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
+    'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
+    'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
+    'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
+    'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
+  };
+  var activeKey = aliasMap[raw] || raw;
+  var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
+  if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
+  var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
+
+  document.documentElement.setAttribute('data-theme', activeKey);
+  if (isLight) document.documentElement.classList.add('light-theme');
+  else document.documentElement.classList.remove('light-theme');
+
+  document.addEventListener("DOMContentLoaded", function() {
+    if (document.body) {
+      document.body.setAttribute('data-theme', activeKey);
+      if (isLight) document.body.classList.add('light-theme');
+      else document.body.classList.remove('light-theme');
+    }
+  });
+})();
+</script>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -515,22 +622,13 @@ window.SERVER_COST_CENTERS = <?php echo $SERVER_COST_CENTERS_json; ?>;
             opacity: 1 !important;
         }
 
-        input, select, textarea, .form-input, .form-select, .multi-input {
-            color: #ffffff !important;
-        }
+        input, select, textarea, .form-input, .form-select, .multi-input { color: var(--text-primary, #ffffff) !important; }
 
-        .glass-container label {
-            color: #e2e8f0;
-        }
+        .glass-container label { color: var(--text-primary, #e2e8f0); }
 
         /* High Contrast for Payment Method Details Inputs & Labels */
-        .payment-method-box label {
-            color: #e2e8f0 !important;
-            opacity: 1 !important;
-        }
-        .payment-method-box input {
-            color: #ffffff !important;
-        }
+        .payment-method-box label { color: var(--text-primary, #e2e8f0) !important; opacity: 1 !important; }
+        .payment-method-box input { color: var(--text-primary, #ffffff) !important; }
         .payment-method-box input::placeholder {
             color: rgba(255, 255, 255, 0.6) !important;
             opacity: 1 !important;

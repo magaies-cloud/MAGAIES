@@ -59,8 +59,52 @@
     })();
 
     // قراءة الثيم الذي اختاره الباشمهندس مهدي من الشاشة الموحدة وتطبيقه طالما الصفحة تفتح
-    const currentTheme = localStorage.getItem('magaiees_global_theme') || 'theme-imperial';
-    document.documentElement.className = currentTheme;
+    // ═══════════════════════════════════════════════════════════════════
+    // 🎨 تطبيق فوري ومبكر لأحد السمات السبعة المعتمدة (7 Master Themes)
+    // ═══════════════════════════════════════════════════════════════════
+    (function initMaster7ThemeEarly() {
+        var rawTheme = localStorage.getItem('magaies_active_theme') || 
+                       localStorage.getItem('magaiees_global_theme') || 
+                       localStorage.getItem('ui_theme') || 
+                       'warm_cream';
+        var aliasMap = {
+            'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+            'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
+            'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
+            'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
+            'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
+            'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
+            'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight',
+            'theme-imperial': 'warm_cream'
+        };
+        var activeKey = aliasMap[rawTheme] || rawTheme;
+        var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
+        if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
+
+        var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
+
+        document.documentElement.setAttribute('data-theme', activeKey);
+        if (isLight) {
+            document.documentElement.classList.add('light-theme');
+            document.documentElement.classList.remove('dark-theme');
+        } else {
+            document.documentElement.classList.remove('light-theme');
+            document.documentElement.classList.add('dark-theme');
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            if (document.body) {
+                document.body.setAttribute('data-theme', activeKey);
+                if (isLight) {
+                    document.body.classList.add('light-theme');
+                    document.body.classList.remove('dark-theme');
+                } else {
+                    document.body.classList.remove('light-theme');
+                    document.body.classList.add('dark-theme');
+                }
+            }
+        });
+    })();
     
     // رصد وتطبيق كلاس الشريط الجانبي فورا على HTML و Body لمنع اختفاء/تداخل الشاشة خلف الشريط الجانبي عند بداية الفتح
     const pageName = window.location.pathname.split('/').pop().toLowerCase();
@@ -112,7 +156,8 @@
         tol: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/>',
         set: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065zM15 12a3 3 0 11-6 0 3 3 0 016 0z"/>',
         out: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>',
-        brand: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>'
+        brand: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>',
+        mob: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/>'
     };
     var items = [
         ['magaiees_unified_dashboard.php','لوحة التحكم','#22d3ee','dash'],
@@ -124,13 +169,15 @@
         ['master-data.php','البيانات الأساسية','#f472b6','mas'],
         ['alarm.php','التنبيهات','#f87171','alr'],
         ['engineering_tools.php','أدوات مساعدة','#ec4899','tol'],
-        ['settings.php','الإعدادات','#a3e635','set']
+        ['settings.php','الإعدادات','#a3e635','set'],
+        ['mobile-dashboard.php','نسخة الجوال 📱','#38bdf8','mob']
     ];
     var mk = function(ic,c){return '<svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">'+icons[ic]+'</svg>';};
     var nav = '';
     for(var i=0;i<items.length;i++){
         var it=items[i], ac=(p===it[0]?' active':'');
-        nav+='<a style="cursor:pointer" data-href="'+it[0]+'" onclick="window.location.href=\''+it[0]+'\'" class="sidebar-item'+ac+'"><span class="sidebar-icon" style="color:'+it[2]+'">'+mk(it[3],it[2])+'</span><span class="sidebar-text">'+it[1]+'</span></a>';
+        var clk = (it[0] === 'mobile-dashboard.php') ? "try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}; window.location.href='mobile-dashboard.php?force_mobile=1';" : "window.location.href='"+it[0]+"';";
+        nav+='<a style="cursor:pointer" data-href="'+it[0]+'" onclick="'+clk+'" class="sidebar-item'+ac+'"><span class="sidebar-icon" style="color:'+it[2]+'">'+mk(it[3],it[2])+'</span><span class="sidebar-text">'+it[1]+'</span></a>';
     }
     var html='<aside class="global-sidebar"><div class="sidebar-header"><span class="sidebar-logo-icon"><svg width="26" height="26" fill="none" stroke="#38bdf8" viewBox="0 0 24 24">'+icons.brand+'</svg></span><span class="sidebar-logo-text">مقاييس (MAGAIEES)</span></div><nav class="sidebar-nav">'+nav+'</nav><div class="sidebar-footer"><a href="#" onclick="logout();return false;" class="sidebar-item sidebar-logout"><span class="sidebar-icon" style="color:#f87171"><svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24">'+icons.out+'</svg></span><span class="sidebar-text">خروج</span></a></div></aside>';
     
@@ -506,6 +553,7 @@
             <?php endif; ?>
 
             <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+                <a href="mobile-dashboard.php?force_mobile=1" target="_blank" id="header-mobile-quick-btn" onclick="try{localStorage.setItem('magaiees_view_preference','mobile');document.cookie='magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax';}catch(e){}" style="background:rgba(56,189,248,0.18); border:1.5px solid rgba(56,189,248,0.5); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; text-decoration:none; font-size:1.1rem; color:#38bdf8; transition:0.2s; box-shadow:0 0 10px rgba(56,189,248,0.25);" title="📱 فتح نسخة الجوال الذكية (Mobile Edition) في نافذة مستقلة">📱</a>
                 <button class="audit-tracker-btn" onclick="window.openAuditTrackerModal()" style="background:rgba(56,189,248,0.18); border:1.5px solid rgba(56,189,248,0.4); border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1rem; color:#38bdf8; transition:0.2s; box-shadow:0 0 10px rgba(56,189,248,0.25);" title="متعقب المستندات وسجل تتبع المستخدمين (من فعل ماذا) - اضغط Alt+T">🔍</button>
                 <button class="fullscreen-toggle-btn" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.15rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
             </div>
@@ -524,6 +572,13 @@
         </div>
 
         <!-- Universal Go Back Master Button (Amber-Gold Luxury) -->
+        <!-- 🎨 زر السمات السبعة المعتمدة والموحدة (بجوار زر الرجوع مباشرة) -->
+        <button id="magaiees-master-themes-btn" type="button" class="magaiees-theme-btn-top" onclick="openMaster7ThemesModal()" title="السمات السبعة المعتمدة والموحدة (7 سمات رئيسية)">
+            <span class="theme-icon-art">🎨</span>
+            <span class="theme-btn-text">السمات</span>
+            <span class="theme-count-badge">7</span>
+        </button>
+
         <button id="magaiees-master-back-btn" class="magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
             <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="19" y1="12" x2="5" y2="12"></line>
@@ -668,3 +723,515 @@
 <script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
 <script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script>
 <script src="js/auto-header-scroll.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-header-scroll.js') ? filemtime(__DIR__ . '/../js/auto-header-scroll.js') : time(); ?>" defer></script>
+
+
+<!-- ═══════════════════════════════════════════════════════════════════
+     🎨 MASTER 7 THEMES MODAL (نافذة السمات السبعة المعتمدة الموحدة)
+     ═══════════════════════════════════════════════════════════════════ -->
+<div id="master7ThemesModal" class="m7-modal-backdrop" onclick="if(event.target===this) closeMaster7ThemesModal();" style="display:none;">
+    <div class="m7-modal-dialog" onclick="event.stopPropagation();">
+        
+        <!-- Header -->
+        <div class="m7-modal-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div class="m7-header-icon-box">🎨</div>
+                <div>
+                    <h2 class="m7-modal-title">السمات السبعة المعتمدة والموحدة</h2>
+                    <p class="m7-modal-subtitle">7 سمات رئيسية مدروسة بعناية لأعلى تباين وراحة بصرية • مطبقة بالتطابق على كافة الشاشات</p>
+                </div>
+            </div>
+            <button type="button" class="m7-close-btn" onclick="closeMaster7ThemesModal()" title="إغلاق">✕</button>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="m7-filter-bar">
+            <button type="button" class="m7-tab-btn active" data-cat="all" onclick="filterMaster7ThemeCategory('all')">
+                <span>الكل</span>
+                <span class="m7-badge">7</span>
+            </button>
+            <button type="button" class="m7-tab-btn" data-cat="light" onclick="filterMaster7ThemeCategory('light')">
+                <span>☀️ الفاتحة والنهارية</span>
+                <span class="m7-badge">3</span>
+            </button>
+            <button type="button" class="m7-tab-btn" data-cat="dark" onclick="filterMaster7ThemeCategory('dark')">
+                <span>🌙 الداكنة والمسائية</span>
+                <span class="m7-badge">4</span>
+            </button>
+        </div>
+
+        <!-- Themes Grid (The 7 Master Themes) -->
+        <div class="m7-themes-grid">
+
+            <!-- 1. Warm Paper Beige (الفاتح البيج) -->
+            <div class="m7-theme-card" data-cat="light" data-key="warm_cream" onclick="applyMasterTheme('warm_cream')" style="--t-border:#b45309; --t-bg:#fbf7ee; --t-text:#1c1917;">
+                <div class="m7-card-head">
+                    <span class="m7-card-name">📜 ورق سيبيا وبيج دافئ (Beige)</span>
+                    <span class="m7-active-tag" style="display:none;">✓ مفعلة</span>
+                    <div class="m7-swatches">
+                        <span style="background:#fbf7ee; border:1px solid #b45309;"></span>
+                        <span style="background:#b45309;"></span>
+                    </div>
+                </div>
+                <p class="m7-card-desc">لون بيج عاجي وورقي مريح جداً للأعين يمتص الوهج الأزرق. الخطوط باللون البني الداكن الحاد لأعلى تباين ومطابقة.</p>
+                <div class="m7-card-foot">Warm Beige • فاتح نهاري مريح للعين</div>
+            </div>
+
+            <!-- 2. Ultra-Clean White -->
+            <div class="m7-theme-card" data-cat="light" data-key="ultra_white" onclick="applyMasterTheme('ultra_white')" style="--t-border:#2563eb; --t-bg:#ffffff; --t-text:#0f172a;">
+                <div class="m7-card-head">
+                    <span class="m7-card-name">⚪ أبيض مكتبي ناصع (Ultra White)</span>
+                    <span class="m7-active-tag" style="display:none;">✓ مفعلة</span>
+                    <div class="m7-swatches">
+                        <span style="background:#ffffff; border:1px solid #2563eb;"></span>
+                        <span style="background:#2563eb;"></span>
+                    </div>
+                </div>
+                <p class="m7-card-desc">إضاءة مكتبية ناصعة بأعلى نقاء مكتبي، مع خطوط كحلية داكنة شديدة الوضوح والحدة.</p>
+                <div class="m7-card-foot">Ultra White • نهاري مكتبي ناصع</div>
+            </div>
+
+            <!-- 3. Cool Executive Gray -->
+            <div class="m7-theme-card" data-cat="light" data-key="exec_gray" onclick="applyMasterTheme('exec_gray')" style="--t-border:#1d4ed8; --t-bg:#f1f5f9; --t-text:#0f172a;">
+                <div class="m7-card-head">
+                    <span class="m7-card-name">💼 رمادي تنفيذي بارد (Exec Gray)</span>
+                    <span class="m7-active-tag" style="display:none;">✓ مفعلة</span>
+                    <div class="m7-swatches">
+                        <span style="background:#f1f5f9; border:1px solid #1d4ed8;"></span>
+                        <span style="background:#1d4ed8;"></span>
+                    </div>
+                </div>
+                <p class="m7-card-desc">أسطح رمادية بلاتينية هادئة تعكس أناقة البنوك والشركات الكبرى بدون انعكاسات ضوئية.</p>
+                <div class="m7-card-foot">Executive Gray • رمادي تنفيذي مصرفي</div>
+            </div>
+
+            <!-- 4. Royal Midnight Navy (الكحلي) -->
+            <div class="m7-theme-card" data-cat="dark" data-key="midnight_obsidian" onclick="applyMasterTheme('midnight_obsidian')" style="--t-border:#00f2fe; --t-bg:#0a1128; --t-text:#ffffff;">
+                <div class="m7-card-head">
+                    <span class="m7-card-name">💎 كحلي فاحم ملكي (Midnight Navy)</span>
+                    <span class="m7-active-tag" style="display:none;">✓ مفعلة</span>
+                    <div class="m7-swatches">
+                        <span style="background:#0a1128; border:1px solid #00f2fe;"></span>
+                        <span style="background:#00f2fe;"></span>
+                    </div>
+                </div>
+                <p class="m7-card-desc">السمة المصرفية الفخمة باللون الكحلي السحيق، مع خطوط بيضاء وسماوية مضيئة متباينة بوضوح.</p>
+                <div class="m7-card-foot">Midnight Navy • كحلي ملكي فخم</div>
+            </div>
+
+            <!-- 5. Mocha Royal Brown (البني) -->
+            <div class="m7-theme-card" data-cat="dark" data-key="mocha_brown" onclick="applyMasterTheme('mocha_brown')" style="--t-border:#f59e0b; --t-bg:#1a0f0a; --t-text:#fffbeb;">
+                <div class="m7-card-head">
+                    <span class="m7-card-name">☕ بني ملكي دافئ (Mocha Brown)</span>
+                    <span class="m7-active-tag" style="display:none;">✓ مفعلة</span>
+                    <div class="m7-swatches">
+                        <span style="background:#1a0f0a; border:1px solid #f59e0b;"></span>
+                        <span style="background:#f59e0b;"></span>
+                    </div>
+                </div>
+                <p class="m7-card-desc">بني شوكولاتة داكن ودافئ فاخر جداً، مع خطوط عاجية وذهبية واضحة ومتباينة تماماً لمنع أي عتمة.</p>
+                <div class="m7-card-foot">Mocha Brown • بني ملكي دافئ فاخر</div>
+            </div>
+
+            <!-- 6. Pure OLED Black (الأسود) -->
+            <div class="m7-theme-card" data-cat="dark" data-key="pure_oled" onclick="applyMasterTheme('pure_oled')" style="--t-border:#10b981; --t-bg:#000000; --t-text:#ffffff;">
+                <div class="m7-card-head">
+                    <span class="m7-card-name">🖤 سواد مطلق فاحم (Pure OLED Black)</span>
+                    <span class="m7-active-tag" style="display:none;">✓ مفعلة</span>
+                    <div class="m7-swatches">
+                        <span style="background:#000000; border:1px solid #10b981;"></span>
+                        <span style="background:#10b981;"></span>
+                    </div>
+                </div>
+                <p class="m7-card-desc">سواد حالك 100% لإطفاء بكسلات الشاشة وتوفير طاقة بطارية اللابتوب والجوال بنسبة 30% مع خطوط بيضاء نقية.</p>
+                <div class="m7-card-foot">Pure OLED • سواد مطلق وتوفير طاقة</div>
+            </div>
+
+            <!-- 7. Twilight Slate -->
+            <div class="m7-theme-card" data-cat="dark" data-key="slate_twilight" onclick="applyMasterTheme('slate_twilight')" style="--t-border:#38bdf8; --t-bg:#0f172a; --t-text:#f8fafc;">
+                <div class="m7-card-head">
+                    <span class="m7-card-name">🌌 سليت فحمي مسائي (Twilight Slate)</span>
+                    <span class="m7-active-tag" style="display:none;">✓ مفعلة</span>
+                    <div class="m7-swatches">
+                        <span style="background:#0f172a; border:1px solid #38bdf8;"></span>
+                        <span style="background:#38bdf8;"></span>
+                    </div>
+                </div>
+                <p class="m7-card-desc">رمادي فحمي داكن مائل للزرقة هادئ جداً لأوقات المساء والراحة البصرية بدون سواد تام.</p>
+                <div class="m7-card-foot">Twilight Slate • رمادي مسائي هادئ</div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="m7-modal-footer">
+            <div style="font-size:13px; color:#94a3b8;">
+                السمة النشطة حالياً: <strong id="m7CurrentThemeLabel" style="color:#38bdf8;">ورق سيبيا وبيج دافئ</strong>
+            </div>
+            <button type="button" class="m7-confirm-btn" onclick="closeMaster7ThemesModal()">
+                ✓ تم والاحتفاظ بالسمة
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<style>
+/* ── الأزرار العلوية للسمات بجوار زر الرجوع ── */
+.magaiees-theme-btn-top {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.28)) !important;
+    border: 1.8px solid #fbbf24 !important;
+    color: #fde047 !important;
+    padding: 6px 14px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.magaiees-theme-btn-top:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.4)) !important;
+}
+.magaiees-theme-btn-top .theme-icon-art {
+    font-size: 1.15rem;
+}
+.magaiees-theme-btn-top .theme-count-badge {
+    background: #f59e0b;
+    color: #000000;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 1px 6px;
+    border-radius: 999px;
+}
+
+/* Light Mode header button adaptation */
+html.light-theme .magaiees-theme-btn-top {
+    background: linear-gradient(135deg, #fef3c7, #fde68a) !important;
+    border-color: #d97706 !important;
+    color: #92400e !important;
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.2);
+}
+
+/* ── Modal Styles ── */
+.m7-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    animation: m7FadeIn 0.25s ease;
+}
+.m7-modal-dialog {
+    background: #0f172a;
+    color: #f8fafc;
+    border: 1.5px solid rgba(255, 255, 255, 0.12);
+    border-radius: 24px;
+    width: 100%;
+    max-width: 820px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(245, 158, 11, 0.15);
+}
+.m7-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.6);
+}
+.m7-header-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: rgba(245, 158, 11, 0.18);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+.m7-modal-title {
+    font-size: 1.15rem;
+    font-weight: 900;
+    margin: 0;
+    color: #f8fafc;
+}
+.m7-modal-subtitle {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin: 2px 0 0 0;
+}
+.m7-close-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #94a3b8;
+    border-radius: 10px;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+.m7-close-btn:hover {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+.m7-filter-bar {
+    display: flex;
+    gap: 8px;
+    padding: 12px 24px;
+    background: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.m7-tab-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #cbd5e1;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.2s;
+}
+.m7-tab-btn.active {
+    background: #f59e0b;
+    color: #000000;
+    border-color: #f59e0b;
+    font-weight: 900;
+}
+.m7-badge {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 1px 6px;
+    border-radius: 999px;
+    font-size: 11px;
+}
+.m7-tab-btn.active .m7-badge {
+    background: rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+}
+.m7-themes-grid {
+    padding: 20px 24px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 12px;
+    overflow-y: auto;
+    flex: 1;
+}
+.m7-theme-card {
+    background: var(--t-bg);
+    color: var(--t-text);
+    border: 2px solid var(--t-border);
+    border-radius: 18px;
+    padding: 14px 16px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+.m7-theme-card:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+.m7-theme-card.active-card {
+    outline: 3px solid #38bdf8;
+    box-shadow: 0 0 25px rgba(56, 189, 248, 0.4);
+}
+.m7-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.m7-card-name {
+    font-size: 0.95rem;
+    font-weight: 900;
+}
+.m7-active-tag {
+    background: #10b981;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 900;
+    padding: 2px 8px;
+    border-radius: 999px;
+}
+.m7-swatches {
+    display: flex;
+    gap: 4px;
+}
+.m7-swatches span {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
+.m7-card-desc {
+    font-size: 0.78rem;
+    line-height: 1.4;
+    opacity: 0.85;
+    margin: 0;
+}
+.m7-card-foot {
+    font-size: 0.72rem;
+    font-weight: 800;
+    opacity: 0.7;
+    margin-top: 4px;
+}
+.m7-modal-footer {
+    padding: 14px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(15, 23, 42, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.m7-confirm-btn {
+    background: #10b981;
+    color: #ffffff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.m7-confirm-btn:hover {
+    background: #059669;
+}
+@keyframes m7FadeIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// 🎨 MASTER 7 THEMES JAVASCRIPT CONTROLLER
+// ═══════════════════════════════════════════════════════════════════
+const MASTER_7_THEMES_INFO = {
+    'warm_cream': { name: 'ورق سيبيا وبيج دافئ (Beige)', isLight: true },
+    'ultra_white': { name: 'أبيض مكتبي ناصع (Ultra White)', isLight: true },
+    'exec_gray': { name: 'رمادي تنفيذي بارد (Exec Gray)', isLight: true },
+    'midnight_obsidian': { name: 'كحلي فاحم ملكي (Midnight Navy)', isLight: false },
+    'mocha_brown': { name: 'بني ملكي دافئ (Mocha Brown)', isLight: false },
+    'pure_oled': { name: 'سواد مطلق فاحم (Pure OLED Black)', isLight: false },
+    'slate_twilight': { name: 'سليت فحمي مسائي (Twilight Slate)', isLight: false }
+};
+
+function openMaster7ThemesModal() {
+    var modal = document.getElementById('master7ThemesModal');
+    if (!modal) return;
+    modal.style.display = 'flex';
+    syncMaster7ThemeActiveUI();
+}
+
+function closeMaster7ThemesModal() {
+    var modal = document.getElementById('master7ThemesModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function filterMaster7ThemeCategory(cat) {
+    document.querySelectorAll('.m7-tab-btn').forEach(b => b.classList.remove('active'));
+    var activeBtn = document.querySelector('.m7-tab-btn[data-cat="' + cat + '"]');
+    if (activeBtn) activeBtn.classList.add('active');
+
+    document.querySelectorAll('.m7-theme-card').forEach(card => {
+        if (cat === 'all' || card.getAttribute('data-cat') === cat) {
+            card.style.display = 'flex';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function applyMasterTheme(themeKey, notify = true) {
+    if (!MASTER_7_THEMES_INFO[themeKey]) themeKey = 'warm_cream';
+    var isLight = MASTER_7_THEMES_INFO[themeKey].isLight;
+
+    // Apply to DOM
+    document.documentElement.setAttribute('data-theme', themeKey);
+    if (document.body) document.body.setAttribute('data-theme', themeKey);
+
+    if (isLight) {
+        document.documentElement.classList.add('light-theme');
+        document.documentElement.classList.remove('dark-theme');
+        if (document.body) {
+            document.body.classList.add('light-theme');
+            document.body.classList.remove('dark-theme');
+        }
+    } else {
+        document.documentElement.classList.remove('light-theme');
+        document.documentElement.classList.add('dark-theme');
+        if (document.body) {
+            document.body.classList.remove('light-theme');
+            document.body.classList.add('dark-theme');
+        }
+    }
+
+    // Save across all 5 unified keys for complete ecosystem consistency
+    try {
+        localStorage.setItem('magaies_active_theme', themeKey);
+        localStorage.setItem('magaiees_global_theme', themeKey);
+        localStorage.setItem('magaiees_mobile_theme', themeKey);
+        localStorage.setItem('ui_theme', themeKey);
+        localStorage.setItem('erp_theme', isLight ? 'light' : 'dark');
+    } catch(e) {}
+
+    syncMaster7ThemeActiveUI();
+
+    // Broadcast event
+    window.dispatchEvent(new CustomEvent('themeChanged', { detail: { theme: themeKey, isLight: isLight } }));
+}
+
+function syncMaster7ThemeActiveUI() {
+    var cur = document.documentElement.getAttribute('data-theme') || 
+              localStorage.getItem('magaies_active_theme') || 
+              'warm_cream';
+
+    var info = MASTER_7_THEMES_INFO[cur] || MASTER_7_THEMES_INFO['warm_cream'];
+    var lbl = document.getElementById('m7CurrentThemeLabel');
+    if (lbl) lbl.textContent = info.name;
+
+    document.querySelectorAll('.m7-theme-card').forEach(card => {
+        var k = card.getAttribute('data-key');
+        var tag = card.querySelector('.m7-active-tag');
+        if (k === cur) {
+            card.classList.add('active-card');
+            if (tag) tag.style.display = 'inline-block';
+        } else {
+            card.classList.remove('active-card');
+            if (tag) tag.style.display = 'none';
+        }
+    });
+}
+
+// Global keyboard shortcut: Alt + T opens Themes Modal
+window.addEventListener('keydown', function(e) {
+    if (e.altKey && (e.key === 't' || e.key === 'T' || e.key === 'ف')) {
+        e.preventDefault();
+        openMaster7ThemesModal();
+    }
+});
+</script>

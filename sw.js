@@ -9,13 +9,14 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-06-v46-direct-mariadb-database-sync-live';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-10-offline-sync-v1';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
     './mobile_erp_global_suite.html',
     './mobile-suite.html',
     './mobile-voucher.php',
+    './mobile-dashboard.php',
     './assets/logo.png',
     './assets/icon-192.png',
     './assets/icon-256.png',
@@ -27,7 +28,8 @@ const PRECACHE_ASSETS = [
     './assets/favicon.ico',
     './css/design-system.css',
     './css/theme.css',
-    './js/pwa-manager.js'
+    './js/pwa-manager.js',
+    './js/magaies-offline-sync.js'
 ];
 
 // Install Event: Pre-cache Essential Shell Assets

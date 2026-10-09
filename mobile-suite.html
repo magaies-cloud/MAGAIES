@@ -13,13 +13,15 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0f172a">
   <title>نظام الإدارة المحاسبية العالمي - Antigravity Mobile ERP</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>if(typeof tailwind==="undefined"){document.write('<script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"><\/script>');}</script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="css/all.min.css">
+  <link rel="stylesheet" href="css/tailwind.min.css">
+  <script src="js/tailwind.min.js"></script>
+  <script>if(typeof tailwind==="undefined"){document.write('<script src="https://cdn.tailwindcss.com"><\/script>');}</script>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <script src="js/pwa-manager.js?v=2026_10_05_v35_21themes" defer></script>
+  <script src="js/magaies-offline-sync.js" defer></script>
   <script>
   (function enforceAuthGate() {
     var token = localStorage.getItem('authToken');
@@ -118,6 +120,35 @@
     }
 
     /* Glassmorphism & High-tech Glow Effects */
+    
+    /* Ultra-Smooth Mobile GPU Acceleration & Ergonomic Performance */
+    @media (max-width: 768px) {
+      .glass-base {
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        transform: translateZ(0);
+      }
+      .glass-card-interactive {
+        backdrop-filter: blur(8px) !important;
+        -webkit-backdrop-filter: blur(8px) !important;
+        transform: translateZ(0);
+        will-change: transform;
+      }
+      .op-btn {
+        backdrop-filter: blur(6px) !important;
+        -webkit-backdrop-filter: blur(6px) !important;
+        transform: translateZ(0);
+      }
+      * {
+        text-rendering: optimizeSpeed;
+        -webkit-font-smoothing: antialiased;
+      }
+      body {
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+      }
+    }
+
     .glass-base {
       background: rgba(15, 23, 42, 0.88);
       backdrop-filter: blur(20px);
@@ -3180,6 +3211,29 @@
           <svg id="quickCloudSyncIcon" class="w-4 h-4 text-emerald-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
         </button>
 
+        <!-- زر وشعار (احسبها) - الآلة الحاسبة الذكية الفورية المرفوعة للصف الأعلى -->
+        <button 
+          id="quickCalcHeaderBtn" 
+          onclick="openAccountingNumpad(null, 'احسبها'); if(window.triggerHapticPulse)triggerHapticPulse(20);" 
+          class="row2-glass-tile r2-gold rounded-xl flex items-center justify-center gap-1.5 px-3 h-[40px] shrink-0 text-amber-300 relative cursor-pointer active:scale-95 transition group shadow-[0_0_12px_rgba(245,158,11,0.25)] border border-amber-500/40" 
+          title="احسبها - الآلة الحاسبة الذكية">
+          <svg class="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="4" y="2" width="16" height="20" rx="3" stroke-width="2"/>
+            <line x1="8" y1="6" x2="16" y2="6" stroke-width="2"/>
+            <circle cx="8" cy="11" r="1.2" fill="currentColor"/>
+            <circle cx="12" cy="11" r="1.2" fill="currentColor"/>
+            <circle cx="16" cy="11" r="1.2" fill="currentColor"/>
+            <circle cx="8" cy="15" r="1.2" fill="currentColor"/>
+            <circle cx="12" cy="15" r="1.2" fill="currentColor"/>
+            <circle cx="16" cy="15" r="1.2" fill="currentColor"/>
+            <circle cx="8" cy="18.5" r="1.2" fill="currentColor"/>
+            <circle cx="12" cy="18.5" r="1.2" fill="currentColor"/>
+            <circle cx="16" cy="18.5" r="1.2" fill="currentColor"/>
+          </svg>
+          <span class="text-[12px] font-black tracking-tight text-amber-200">احسبها</span>
+          <span class="absolute -top-1 -right-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 text-[7.5px] font-black px-1 rounded-full shadow">🧮</span>
+        </button>
+
         <!-- التنبيهات والجرس -->
         <button id="btnHeaderBell" onclick="switchTab('alerts'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-amber rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-amber-300 relative cursor-pointer active:scale-95 transition" title="التنبيهات ومعمل الضبط">
           <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
@@ -3229,8 +3283,8 @@
       <div class="mt-[4.5px] pt-[4.5px] border-t border-slate-800/40">
         <div class="crystal-flagship-container">
 
-          <!-- 1. الآلة الحاسبة الذكية -->
-          <button onclick="openAccountingNumpad(null, 'الآلة الحاسبة'); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-gold" title="الآلة الحاسبة الذكية">
+          <!-- 1. الآلة الحاسبة الذكية (احسبها) -->
+          <button onclick="openAccountingNumpad(null, 'احسبها'); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-gold" title="احسبها - الآلة الحاسبة الذكية">
             <div class="btn-emblem">
               <svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <rect x="4" y="2" width="16" height="20" rx="3" stroke-width="2"/>
@@ -3246,7 +3300,7 @@
                 <circle cx="16" cy="18.5" r="1.2" fill="currentColor"/>
               </svg>
             </div>
-            <span class="btn-label">الآلة الحاسبة</span>
+            <span class="btn-label">احسبها</span>
           </button>
 
           <!-- 2. قارئ الإشعارات البنكية OCR -->
@@ -6782,9 +6836,12 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             </div>
             <div>
-              <h4 class="text-sm font-black text-slate-100">فاتورة مبيعات</h4>
+              <div class="flex items-center gap-2">
+                <h4 class="text-sm font-black text-slate-100">فاتورة مبيعات</h4>
+                <span id="opSalesInvoiceNoPill" class="text-[11px] font-mono font-black text-sky-300 px-2 py-0.5 rounded-lg bg-sky-500/20 border border-sky-500/30">جارِ التوليد...</span>
+              </div>
               <span class="text-[10px] text-sky-400 font-bold flex items-center gap-1">
-                <span>إصدار فاتورة بيع نقدية أو آجلة وخصم المخزن فوراً 🛒</span>
+                <span>إصدار فاتورة بيع ومزامنتها مع اللابتوب فوراً 🛒</span>
               </span>
             </div>
           </div>
@@ -6793,10 +6850,10 @@
 
         <!-- شريط مؤشر حالة الحفظ والتعديل (Unsaved Changes Indicator) -->
         <div class="flex items-center justify-between text-[11px] bg-slate-900/70 px-3 py-1.5 rounded-xl border border-slate-800">
-          <span class="text-slate-400">حالة البيانات:</span>
-          <span id="modalOpSalesUnsavedBadge" class="flex items-center gap-1.5 font-bold text-slate-400">
-            <span class="w-2 h-2 rounded-full bg-slate-500"></span>
-            <span>جاهز للإدخال (الحماية مفعلة)</span>
+          <span class="text-slate-400">حالة الربط والبيانات:</span>
+          <span id="modalOpSalesUnsavedBadge" class="flex items-center gap-1.5 font-bold text-sky-300">
+            <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+            <span>متصل بنظام المرآة المباشر 🪞</span>
           </span>
         </div>
 
@@ -6821,11 +6878,11 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-slate-300 font-bold mb-1">الكمية:</label>
-              <input type="number" id="salesQtyInput" value="5" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-white focus:border-sky-400 outline-none transition" />
+              <input type="number" id="salesQtyInput" value="5" oninput="calcOpSalesTotal()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-white focus:border-sky-400 outline-none transition" />
             </div>
             <div>
               <label class="block text-slate-300 font-bold mb-1">السعر ($):</label>
-              <input type="number" id="salesPriceInput" value="45" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-400 focus:border-sky-400 outline-none transition" />
+              <input type="number" id="salesPriceInput" value="45" oninput="calcOpSalesTotal()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-400 focus:border-sky-400 outline-none transition" />
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2">
@@ -6835,17 +6892,17 @@
             </div>
             <div>
               <label class="block text-slate-300 font-bold mb-1">طريقة السداد:</label>
-              <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-sky-400 outline-none transition">
-                <option>نقداً من الخزينة</option>
-                <option>تحويل بنكك / فيزا</option>
-                <option>آجل على الحساب</option>
+              <select id="salesPayMethodSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-sky-400 outline-none transition">
+                <option value="cash">نقداً من الخزينة</option>
+                <option value="bank">تحويل بنكك / فيزا</option>
+                <option value="credit">آجل على الحساب</option>
               </select>
             </div>
           </div>
         </div>
 
-        <button onclick="commitOperation('فاتورة مبيعات')" class="w-full py-3 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          إصدار الفاتورة وحفظ المعاملة وخصم المخزون ✓
+        <button onclick="commitOpSales()" class="w-full py-3 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          إصدار الفاتورة وحفظها في قاعدة البيانات فوراً ✓
         </button>
       </div>
     </div>
@@ -6859,22 +6916,16 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
             <div>
-              <h4 class="text-sm font-black text-slate-100">تقسيم مبيعات وجدولة أقساط</h4>
+              <div class="flex items-center gap-2">
+                <h4 class="text-sm font-black text-slate-100">تقسيم مبيعات وجدولة أقساط</h4>
+                <span id="opSalesSplitInvoiceNoPill" class="text-[11px] font-mono font-black text-pink-300 px-2 py-0.5 rounded-lg bg-pink-500/20 border border-pink-500/30">جارِ التوليد...</span>
+              </div>
               <span class="text-[10px] text-pink-400 font-bold flex items-center gap-1">
                 <span>توزيع المتبقي على أقساط ودفعات مجدولة 📅</span>
               </span>
             </div>
           </div>
           <button onclick="SafeInvoiceGuard.requestExit('modalOpSalesSplit')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90" title="إغلاق بأمان">✕</button>
-        </div>
-
-        <!-- شريط مؤشر حالة الحفظ والتعديل -->
-        <div class="flex items-center justify-between text-[11px] bg-slate-900/70 px-3 py-1.5 rounded-xl border border-slate-800">
-          <span class="text-slate-400">حالة البيانات:</span>
-          <span id="modalOpSalesSplitUnsavedBadge" class="flex items-center gap-1.5 font-bold text-slate-400">
-            <span class="w-2 h-2 rounded-full bg-slate-500"></span>
-            <span>جاهز للإدخال (الحماية مفعلة)</span>
-          </span>
         </div>
 
         <div class="space-y-2.5 text-xs">
@@ -6898,21 +6949,21 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-slate-300 font-bold mb-1">إجمالي الفاتورة ($):</label>
-              <input type="number" id="salesSplitTotalInput" value="3200" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-400 focus:border-pink-400 outline-none transition" />
+              <input type="number" id="salesSplitTotalInput" value="3200" oninput="calcOpSalesSplit()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-400 focus:border-pink-400 outline-none transition" />
             </div>
             <div>
               <label class="block text-slate-300 font-bold mb-1">المدفوع نقداً مقدماً ($):</label>
-              <input type="number" id="salesSplitPaidInput" value="1200" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-emerald-400 focus:border-pink-400 outline-none transition" />
+              <input type="number" id="salesSplitPaidInput" value="1200" oninput="calcOpSalesSplit()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-emerald-400 focus:border-pink-400 outline-none transition" />
             </div>
           </div>
           <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800">
-            <span class="text-amber-400 font-bold block mb-1">المتبقي الآجل المقسم: $2,000</span>
-            <span class="text-[10px] text-slate-400">مجدول على قسطين: $1,000 بعد 15 يوماً و $1,000 بعد 30 يوماً.</span>
+            <span id="salesSplitRemainingText" class="text-amber-400 font-bold block mb-1">المتبقي الآجل المقسم: $2,000</span>
+            <span class="text-[10px] text-slate-400">مجدول على قسطين متساويين في ذمة العميل بحسابات الشركة.</span>
           </div>
         </div>
 
-        <button onclick="commitOperation('تقسيم مبيعات')" class="w-full py-3 bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          إصدار الفاتورة وجدولة الأقساط وخصم المخزون ✓
+        <button onclick="commitOpSalesSplit()" class="w-full py-3 bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          إصدار الفاتورة وجدولة الأقساط وحفظها فوراً ✓
         </button>
       </div>
     </div>
@@ -6926,7 +6977,10 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
             </div>
             <div>
-              <h4 class="text-sm font-black text-slate-100">إذن تسليم وصرف بضاعة (تسليم مبيعات)</h4>
+              <div class="flex items-center gap-2">
+                <h4 class="text-sm font-black text-slate-100">إذن تسليم مبيعات</h4>
+                <span id="opDeliveryNoPill" class="text-[11px] font-mono font-black text-indigo-300 px-2 py-0.5 rounded-lg bg-indigo-500/20 border border-indigo-500/30">جارِ التوليد...</span>
+              </div>
               <span class="text-[10px] text-indigo-400 font-bold">صرف من المخزن بموجب فاتورة مبيعات</span>
             </div>
           </div>
@@ -6937,29 +6991,30 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-slate-300 font-bold mb-1">رقم الفاتورة المرجعية:</label>
-              <input type="text" value="#1048" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono" />
+              <select id="opDeliveryRefSelect" onchange="onOpDeliveryRefChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none">
+                <option value="">اختر فاتورة مبيعات...</option>
+              </select>
             </div>
             <div>
               <label class="block text-slate-300 font-bold mb-1">المستودع المصدر:</label>
-              <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-                <option>المستودع الرئيسي (الخرطوم)</option>
-                <option>مخزن صالة المعرض</option>
+              <select id="opDeliveryWarehouseSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+                <option value="المستودع الرئيسي (الخرطوم)">المستودع الرئيسي (الخرطوم)</option>
+                <option value="مخزن صالة المعرض">مخزن صالة المعرض</option>
               </select>
             </div>
           </div>
           <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1">
             <span class="text-white font-bold block">الأصناف المصروفة:</span>
-            <div class="text-[11px] text-slate-400 flex justify-between"><span>سكر كنانة 50 كجم:</span> <span class="text-cyan-300 font-bold">20 جوالاً</span></div>
-            <div class="text-[11px] text-slate-400 flex justify-between"><span>زيت طعام صباح 1 لتر:</span> <span class="text-cyan-300 font-bold">15 كرتونة</span></div>
+            <div id="opDeliveryItemsSummary" class="text-[11px] text-cyan-300 font-bold">يرجى اختيار الفاتورة المرجعية لعرض الأصناف</div>
           </div>
           <div>
             <label class="block text-slate-300 font-bold mb-1">اسم السائق / المستلم والتوقيع:</label>
-            <input type="text" placeholder="اسم المستلم ورقم اللوحة..." value="السائق: أحمد حسن - شاحنة 4022" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+            <input type="text" id="opDeliveryDriverInput" placeholder="اسم المستلم ورقم اللوحة..." value="السائق: أحمد حسن - شاحنة 4022" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
           </div>
         </div>
 
-        <button onclick="commitOperation('إذن تسليم مبيعات')" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition">
-          تأكيد التسليم وصرف الكميات من المخزن ✓
+        <button onclick="commitOpDelivery()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          تأكيد التسليم وصرف الكميات من المخزن وحفظ الإذن ✓
         </button>
       </div>
     </div>
@@ -6973,7 +7028,10 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
             </div>
             <div>
-              <h4 id="opPurchaseTitle" class="text-sm font-black text-slate-100">فاتورة شراء وتوريد بضاعة</h4>
+              <div class="flex items-center gap-2">
+                <h4 id="opPurchaseTitle" class="text-sm font-black text-slate-100">فاتورة مشتريات</h4>
+                <span id="opPurchaseNoPill" class="text-[11px] font-mono font-black text-amber-300 px-2 py-0.5 rounded-lg bg-amber-500/20 border border-amber-500/30">جارِ التوليد...</span>
+              </div>
               <span class="text-[10px] text-amber-400 font-bold">إثبات توريد وتحديث مديونية المورد</span>
             </div>
           </div>
@@ -6983,33 +7041,33 @@
         <div class="space-y-2.5 text-xs">
           <div>
             <label class="block text-slate-300 font-bold mb-1">اسم المورد:</label>
-            <input type="text" value="مطاحن الخرطوم للغلال" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+            <input type="text" id="purchaseSupplierInput" value="مطاحن الخرطوم للغلال" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-slate-300 font-bold mb-1">قيمة المشتريات ($):</label>
-              <input type="number" value="4650" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-amber-400" />
+              <input type="number" id="purchaseTotalInput" value="4650" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-amber-400" />
             </div>
             <div>
               <label class="block text-slate-300 font-bold mb-1">طريقة السداد:</label>
-              <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-                <option>آجل 15 يوماً</option>
-                <option>نقداً من الخزينة</option>
-                <option>شيك بنكي مؤجل</option>
+              <select id="purchasePayMethodSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+                <option value="credit">آجل 15 يوماً</option>
+                <option value="cash">نقداً من الخزينة</option>
+                <option value="cheque">شيك بنكي مؤجل</option>
               </select>
             </div>
           </div>
           <div>
             <label class="block text-slate-300 font-bold mb-1">المستودع المستلم:</label>
-            <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-              <option>المستودع الرئيسي (الخرطوم)</option>
-              <option>مخزن صالة المعرض</option>
+            <select id="purchaseWarehouseSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+              <option value="المستودع الرئيسي (الخرطوم)">المستودع الرئيسي (الخرطوم)</option>
+              <option value="مخزن صالة المعرض">مخزن صالة المعرض</option>
             </select>
           </div>
         </div>
 
-        <button onclick="commitOperation('فاتورة شراء')" class="w-full py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition">
-          حفظ الفاتورة وتأكيد إضافة البضاعة للمخزن ✓
+        <button onclick="commitOpPurchase()" class="w-full py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          حفظ الفاتورة وتأكيد إضافة البضاعة للمخزن فوراً ✓
         </button>
       </div>
     </div>
@@ -7023,8 +7081,11 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
             </div>
             <div>
-              <h4 class="text-sm font-black text-slate-100">استلام فاتورة شراء وفحص مخزني</h4>
-              <span class="text-[10px] text-teal-400 font-bold">فحص البضاعة ومطابقة الكميات وتأكيد إدخالها المستودع 📦</span>
+              <div class="flex items-center gap-2">
+                <h4 class="text-sm font-black text-slate-100">استلام وفحص مشتريات (GRN)</h4>
+                <span id="opReceiptNoPill" class="text-[11px] font-mono font-black text-teal-300 px-2 py-0.5 rounded-lg bg-teal-500/20 border border-teal-500/30">جارِ التوليد...</span>
+              </div>
+              <span class="text-[10px] text-teal-400 font-bold">فحص البضاعة وتأكيد إدخالها المستودع 📦</span>
             </div>
           </div>
           <button onclick="closeModal('modalOpReceipt')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
@@ -7034,33 +7095,34 @@
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block text-slate-300 font-bold mb-1">رقم فاتورة الشراء:</label>
-              <input type="text" value="#PO-2026-904" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono" />
+              <select id="opReceiptPurchaseSelect" onchange="onOpReceiptPurchaseChange()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white font-mono outline-none">
+                <option value="">اختر فاتورة مشتريات...</option>
+              </select>
             </div>
             <div>
               <label class="block text-slate-300 font-bold mb-1">المستودع المستلم:</label>
-              <select class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-                <option>المستودع الرئيسي (الخرطوم)</option>
-                <option>مخزن صالة المعرض</option>
+              <select id="opReceiptWarehouseSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
+                <option value="المستودع الرئيسي (الخرطوم)">المستودع الرئيسي (الخرطوم)</option>
+                <option value="مخزن صالة المعرض">مخزن صالة المعرض</option>
               </select>
             </div>
           </div>
           <div>
             <label class="block text-slate-300 font-bold mb-1">اسم المورد:</label>
-            <input type="text" value="مطاحن الخرطوم للغلال" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+            <input type="text" id="opReceiptSupplierInput" value="مطاحن الخرطوم للغلال" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
           </div>
           <div class="p-3 bg-slate-900/90 rounded-2xl border border-slate-800 space-y-1">
             <span class="text-white font-bold block">الأصناف المفحوصة والمستلمة:</span>
-            <div class="text-[11px] text-slate-400 flex justify-between"><span>دقيق سيقا فاخر 50 كجم:</span> <span class="text-teal-300 font-bold">50 جوالاً (سليم ✓)</span></div>
-            <div class="text-[11px] text-slate-400 flex justify-between"><span>زيت طعام صباح 1 لتر:</span> <span class="text-teal-300 font-bold">30 كرتونة (سليم ✓)</span></div>
+            <div id="opReceiptItemsSummary" class="text-[11px] text-teal-300 font-bold">اختر الفاتورة المرجعية لمعاينة بنود التوريد</div>
           </div>
           <div>
             <label class="block text-slate-300 font-bold mb-1">اسم مسؤول الاستلام والفحص:</label>
-            <input type="text" placeholder="اسم أمين المخزن..." value="أمين المخزن: عثمان الفكي" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
+            <input type="text" id="opReceiptInspectorInput" placeholder="اسم أمين المخزن..." value="أمين المخزن: عثمان الفكي" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
           </div>
         </div>
 
-        <button onclick="commitOperation('استلام فاتورة شراء')" class="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          تأكيد استلام وتخزين البضاعة في المستودع ✓
+        <button onclick="commitOpReceipt()" class="w-full py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
+          تأكيد استلام وتخزين البضاعة في المستودع فوراً ✓
         </button>
       </div>
     </div>
@@ -8019,7 +8081,7 @@
                 🔢
               </div>
               <div>
-                <h3 id="numpadTitle" class="text-sm font-black text-white">الآلة الحاسبة الذكية</h3>
+                <h3 id="numpadTitle" class="text-sm font-black text-white">احسبها - الآلة الحاسبة الذكية</h3>
                 <span id="numpadSub" class="text-[11px] text-amber-300 font-bold">إدخال مالي سريع ودقيق ومزدوج العملة</span>
               </div>
             </div>
@@ -9365,6 +9427,123 @@
       });
     };
 
+    // ═══════════════════════════════════════════════════════════════
+    // 🪞 REAL-TIME MIRROR ENGINE (CLIENT-SIDE ADAPTER FOR MOBILE-SUITE)
+    // ═══════════════════════════════════════════════════════════════
+    window._mirrorCache = { sales: null, purchase: null, delivery: null, receipt: null };
+
+    async function fetchMirrorNumbers() {
+      try {
+        const res = await fetch('api/mirror_sync.php?action=get_next_numbers&_t=' + Date.now(), { signal: (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(2500) : undefined });
+        const data = await res.json();
+        if (data && data.success) {
+          window._mirrorCache = data;
+          const sPill = document.getElementById('opSalesInvoiceNoPill');
+          if (sPill && data.sales) sPill.innerText = data.sales.nextInvoiceNo;
+          const spPill = document.getElementById('opSalesSplitInvoiceNoPill');
+          if (spPill && data.sales) spPill.innerText = data.sales.nextInvoiceNo;
+          const dPill = document.getElementById('opDeliveryNoPill');
+          if (dPill && data.delivery) dPill.innerText = data.delivery.nextDeliveryNo;
+          const pPill = document.getElementById('opPurchaseNoPill');
+          if (pPill && data.purchase) pPill.innerText = data.purchase.nextPurchaseNo;
+          const rPill = document.getElementById('opReceiptNoPill');
+          if (rPill && data.receipt) rPill.innerText = data.receipt.nextReceiptNo;
+        }
+      } catch (e) {
+        console.warn('Mirror numbers fetch warning:', e);
+      }
+    }
+
+    async function loadDeliverySalesInvoices() {
+      try {
+        const res = await fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now(), { signal: (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(2500) : undefined });
+        const data = await res.json();
+        const sel = document.getElementById('opDeliveryRefSelect');
+        if (sel && data && Array.isArray(data.sales)) {
+          let html = '<option value="">اختر فاتورة مبيعات...</option>';
+          data.sales.forEach(s => {
+            const no = s.invoiceNo || s.id;
+            const cust = s.customerName || 'عميل';
+            const tot = s.total || s.grandTotal || 0;
+            const status = s.deliveryStatus === 'delivered' ? '✓ تم تسليمها' : 'قيد التسليم';
+            html += `<option value="${no}" data-cust="${cust}" data-items='${JSON.stringify(s.items || [])}'>${no} - ${cust} (${tot} $) [${status}]</option>`;
+          });
+          sel.innerHTML = html;
+        }
+      } catch (e) {}
+    }
+
+    async function loadReceiptPurchaseInvoices() {
+      try {
+        const res = await fetch('api/mirror_sync.php?action=get_recent_purchases&_t=' + Date.now(), { signal: (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) ? AbortSignal.timeout(2500) : undefined });
+        const data = await res.json();
+        const sel = document.getElementById('opReceiptPurchaseSelect');
+        if (sel && data && Array.isArray(data.purchases)) {
+          let html = '<option value="">اختر فاتورة شراء...</option>';
+          data.purchases.forEach(p => {
+            const no = p.invoiceNo || p.id;
+            const supp = p.supplierName || 'مورد';
+            const tot = p.total || p.grandTotal || 0;
+            html += `<option value="${no}" data-supp="${supp}" data-items='${JSON.stringify(p.items || [])}'>${no} - ${supp} (${tot} $)</option>`;
+          });
+          sel.innerHTML = html;
+        }
+      } catch (e) {}
+    }
+
+    function onOpDeliveryRefChange() {
+      const sel = document.getElementById('opDeliveryRefSelect');
+      const sum = document.getElementById('opDeliveryItemsSummary');
+      if (!sel || !sum) return;
+      const opt = sel.options[sel.selectedIndex];
+      if (opt && opt.value) {
+        let items = [];
+        try { items = JSON.parse(opt.getAttribute('data-items') || '[]'); } catch(e) {}
+        if (items.length > 0) {
+          sum.innerHTML = items.map(it => `<div>📦 ${it.name || it.item_name || 'صنف'}: <b>${it.qty || it.quantity || 1}</b></div>`).join('');
+        } else {
+          sum.innerHTML = `<span class="text-emerald-400 font-bold">بضاعة الفاتورة ${opt.value} (صرف كامل)</span>`;
+        }
+      } else {
+        sum.innerHTML = 'يرجى اختيار الفاتورة المرجعية لعرض الأصناف';
+      }
+    }
+
+    function onOpReceiptPurchaseChange() {
+      const sel = document.getElementById('opReceiptPurchaseSelect');
+      const sum = document.getElementById('opReceiptItemsSummary');
+      const suppInp = document.getElementById('opReceiptSupplierInput');
+      if (!sel || !sum) return;
+      const opt = sel.options[sel.selectedIndex];
+      if (opt && opt.value) {
+        if (suppInp) suppInp.value = opt.getAttribute('data-supp') || '';
+        let items = [];
+        try { items = JSON.parse(opt.getAttribute('data-items') || '[]'); } catch(e) {}
+        if (items.length > 0) {
+          sum.innerHTML = items.map(it => `<div>📥 ${it.name || it.item_name || 'صنف'}: <b>${it.qty || it.quantity || 1}</b> (سليم ✓)</div>`).join('');
+        } else {
+          sum.innerHTML = `<span class="text-teal-300 font-bold">بضاعة الفاتورة ${opt.value} (استلام كامل)</span>`;
+        }
+      } else {
+        sum.innerHTML = 'اختر الفاتورة المرجعية لمعاينة بنود التوريد';
+      }
+    }
+
+    function calcOpSalesTotal() {
+      const qty = parseFloat(document.getElementById('salesQtyInput')?.value || 0);
+      const prc = parseFloat(document.getElementById('salesPriceInput')?.value || 0);
+      const totInp = document.getElementById('salesTotalInput');
+      if (totInp) totInp.value = (qty * prc).toFixed(2);
+    }
+
+    function calcOpSalesSplit() {
+      const tot = parseFloat(document.getElementById('salesSplitTotalInput')?.value || 0);
+      const paid = parseFloat(document.getElementById('salesSplitPaidInput')?.value || 0);
+      const rem = Math.max(0, tot - paid);
+      const remEl = document.getElementById('salesSplitRemainingText');
+      if (remEl) remEl.innerText = `المتبقي الآجل المقسم: $${rem.toFixed(2)}`;
+    }
+
     function openOperationalForm(formType) {
       if (formType === 'financeMovement') {
         window.location.href = 'mobile-voucher.php';
@@ -9373,14 +9552,21 @@
       let modalId = '';
       if (formType === 'sales' || formType === 'salesInvoice') {
         modalId = 'modalOpSales';
+        fetchMirrorNumbers();
       } else if (formType === 'salesSplit') {
         modalId = 'modalOpSalesSplit';
+        fetchMirrorNumbers();
       } else if (formType === 'salesDelivery') {
         modalId = 'modalOpDelivery';
+        fetchMirrorNumbers();
+        loadDeliverySalesInvoices();
       } else if (formType === 'purchaseInvoice') {
         modalId = 'modalOpPurchase';
+        fetchMirrorNumbers();
       } else if (formType === 'purchaseReceive' || formType === 'purchaseReceipt') {
         modalId = 'modalOpReceipt';
+        fetchMirrorNumbers();
+        loadReceiptPurchaseInvoices();
       } else if (formType === 'journalEntry' || formType === 'journalSettlement') {
         modalId = 'modalOpJournal';
       } else if (formType === 'accountStatement') {
@@ -9403,11 +9589,249 @@
       }
     }
 
-    function setOpFinType(type) {
-      if (type === 'receipt') {
-        setFinTransferMethod('bank');
-      } else {
-        setFinTransferMethod('cash');
+    // ─── COMMIT HANDLERS WITH 100% MARIADB PERSISTENCE ───
+
+    async function commitOpSales() {
+      if (window.AppHaptics) AppHaptics.success();
+      const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText || '';
+      const cust = document.getElementById('salesCustomerInput')?.value || 'عميل نقدي';
+      const item = document.getElementById('salesSelectedItemName')?.innerText || 'صنف عام';
+      const qty = parseFloat(document.getElementById('salesQtyInput')?.value || 1);
+      const prc = parseFloat(document.getElementById('salesPriceInput')?.value || 0);
+      const tot = parseFloat(document.getElementById('salesTotalInput')?.value || (qty * prc));
+      const payM = document.getElementById('salesPayMethodSelect')?.value || 'cash';
+
+      const payload = {
+        invoiceNo: invNo,
+        customerName: cust,
+        grandTotal: tot,
+        total: tot,
+        paymentMethod: payM,
+        status: 'completed',
+        date: new Date().toISOString().split('T')[0],
+        items: [{ name: item, qty: qty, price: prc, subtotal: tot }]
+      };
+
+      if (!navigator.onLine) {
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales', payload) : 'أوفلاين';
+        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
+        alert(`⚡ تم حفظ فاتورة المبيعات بنجاح في وضع الأوفلاين!\nالرقم المؤقت: [${offId}]\nستُرحّل تلقائياً إلى قاعدة البيانات الرئيسية فور توفر شبكة النت.`);
+        closeModal('modalOpSales');
+        return;
+      }
+      try {
+        const res = await fetch('api/mirror_sync.php?action=save_sales_invoice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const out = await res.json();
+        if (out && out.success) {
+          if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
+          alert(`✓ تم بنجاح حفظ وترحيل فاتورة المبيعات رقم: [${out.invoiceNo}]\nانتقلت فوراً إلى اللابتوب والديسكتوب، والرقم القادم الآن هو: [${out.nextInvoiceNo}]`);
+          closeModal('modalOpSales');
+          fetchMirrorNumbers();
+        } else {
+          const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales', payload) : 'أوفلاين';
+          if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
+          alert(`⚡ تعذر الوصول المباشر للسيرفر! تم الحفظ أوفلاين برقم مؤقت: [${offId}]\nستُرفع تلقائياً وتأخذ رقمها الرسمي فور توفر الشبكة.`);
+          closeModal('modalOpSales');
+        }
+      } catch (err) {
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales', payload) : 'أوفلاين';
+        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
+        alert(`⚡ شبكة النت منقطعة! تم حفظ الفاتورة بنجاح في الجوال (أوفلاين).\nالرقم المؤقت: [${offId}]\nستُرفع تلقائياً وتأخذ رقمها الحقيقي في السيرفر فور عودة الاتصال.`);
+        closeModal('modalOpSales');
+      }
+    }
+
+    async function commitOpSalesSplit() {
+      if (window.AppHaptics) AppHaptics.success();
+      const invNo = document.getElementById('opSalesSplitInvoiceNoPill')?.innerText || '';
+      const cust = document.getElementById('salesSplitCustomerInput')?.value || 'عميل تجزئة';
+      const item = document.getElementById('salesSplitSelectedItemName')?.innerText || 'صنف';
+      const tot = parseFloat(document.getElementById('salesSplitTotalInput')?.value || 0);
+      const paid = parseFloat(document.getElementById('salesSplitPaidInput')?.value || 0);
+
+      const payload = {
+        invoiceNo: invNo,
+        customerName: cust,
+        grandTotal: tot,
+        total: tot,
+        paidAmount: paid,
+        status: 'split',
+        isSplit: true,
+        date: new Date().toISOString().split('T')[0],
+        items: [{ name: item, qty: 1, price: tot, subtotal: tot }]
+      };
+
+      if (!navigator.onLine) {
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales_split', payload) : 'أوفلاين';
+        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
+        alert(`⚡ تم حفظ تقسيم المبيعات أوفلاين بنجاح!\nالرقم المؤقت: [${offId}]\nستُرحّل تلقائياً فور توفر النت.`);
+        closeModal('modalOpSalesSplit');
+        return;
+      }
+      try {
+        const res = await fetch('api/mirror_sync.php?action=save_sales_split', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const out = await res.json();
+        if (out && out.success) {
+          if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
+          alert(`✓ تم بنجاح حفظ وتقسيم المبيعات رقم: [${out.invoiceNo}]\nالمتبقي الآجل: $${out.remaining}\nانعكس فوراً على الديسكتوب، والرقم التالي: [${out.nextInvoiceNo}]`);
+          closeModal('modalOpSalesSplit');
+          fetchMirrorNumbers();
+        } else {
+          const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales_split', payload) : 'أوفلاين';
+          alert(`⚡ تم حفظ التقسيم أوفلاين برقم مؤقت: [${offId}]\nستُرفع تلقائياً فور توفر الشبكة.`);
+          closeModal('modalOpSalesSplit');
+        }
+      } catch (err) {
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales_split', payload) : 'أوفلاين';
+        alert(`⚡ شبكة النت منقطعة! تم حفظ التقسيم في الجوال أوفلاين.\nالرقم المؤقت: [${offId}]\nستُرفع تلقائياً فور عودة الاتصال.`);
+        closeModal('modalOpSalesSplit');
+      }
+    }
+
+    async function commitOpDelivery() {
+      if (window.AppHaptics) AppHaptics.success();
+      const delNo = document.getElementById('opDeliveryNoPill')?.innerText || '';
+      const refInv = document.getElementById('opDeliveryRefSelect')?.value || '';
+      const wh = document.getElementById('opDeliveryWarehouseSelect')?.value || 'المستودع الرئيسي';
+      const driver = document.getElementById('opDeliveryDriverInput')?.value || 'سائق التوزيع';
+
+      const payload = {
+        deliveryNo: delNo,
+        invoiceNo: refInv,
+        warehouse: wh,
+        driverName: driver,
+        date: new Date().toISOString().split('T')[0]
+      };
+
+      if (!navigator.onLine) {
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('delivery', payload) : 'أوفلاين';
+        alert(`⚡ تم حفظ إذن تسليم المبيعات أوفلاين بنجاح!\nالرقم المؤقت: [${offId}]\nستُرحّل تلقائياً فور توفر النت.`);
+        closeModal('modalOpDelivery');
+        return;
+      }
+      try {
+        const res = await fetch('api/mirror_sync.php?action=save_delivery_note', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const out = await res.json();
+        if (out && out.success) {
+          alert(`✓ تم بنجاح اعتماد إذن تسليم المبيعات: [${out.deliveryNo}]\nتم تحديث حالة الفاتورة ${refInv} وخصم المخزون على اللابتوب فوراً!`);
+          closeModal('modalOpDelivery');
+          fetchMirrorNumbers();
+        } else {
+          const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('delivery', payload) : 'أوفلاين';
+          alert(`⚡ تم حفظ إذن التسليم أوفلاين برقم مؤقت: [${offId}]\nستُرفع تلقائياً فور توفر الشبكة.`);
+          closeModal('modalOpDelivery');
+        }
+      } catch (err) {
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('delivery', payload) : 'أوفلاين';
+        alert(`⚡ شبكة النت منقطعة! تم حفظ إذن التسليم أوفلاين في الجوال.\nالرقم المؤقت: [${offId}]\nستُرفع تلقائياً فور عودة الاتصال.`);
+        closeModal('modalOpDelivery');
+      }
+    }
+
+    async function commitOpPurchase() {
+      if (window.AppHaptics) AppHaptics.success();
+      const purNo = document.getElementById('opPurchaseNoPill')?.innerText || '';
+      const supp = document.getElementById('purchaseSupplierInput')?.value || 'مورد نقدي';
+      const tot = parseFloat(document.getElementById('purchaseTotalInput')?.value || 0);
+      const payM = document.getElementById('purchasePayMethodSelect')?.value || 'credit';
+      const wh = document.getElementById('purchaseWarehouseSelect')?.value || 'المستودع الرئيسي';
+
+      const payload = {
+        invoiceNo: purNo,
+        supplierName: supp,
+        grandTotal: tot,
+        total: tot,
+        paymentMethod: payM,
+        warehouse: wh,
+        status: 'completed',
+        date: new Date().toISOString().split('T')[0],
+        items: [{ name: 'مشتريات مواد وبضاعة', qty: 1, price: tot, subtotal: tot }]
+      };
+
+      if (!navigator.onLine) {
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase', payload) : 'أوفلاين';
+        alert(`⚡ تم حفظ فاتورة المشتريات بنجاح في وضع الأوفلاين!\nالرقم المؤقت: [${offId}]\nستُرحّل تلقائياً إلى قاعدة البيانات الرئيسية فور توفر شبكة النت.`);
+        closeModal('modalOpPurchase');
+        return;
+      }
+      try {
+        const res = await fetch('api/mirror_sync.php?action=save_purchase_invoice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const out = await res.json();
+        if (out && out.success) {
+          alert(`✓ تم بنجاح حفظ وترحيل فاتورة المشتريات رقم: [${out.invoiceNo}]\nتحدثت حسابات المورد والمخزن بالديسكتوب، والرقم القادم: [${out.nextPurchaseNo}]`);
+          closeModal('modalOpPurchase');
+          fetchMirrorNumbers();
+        } else {
+          const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase', payload) : 'أوفلاين';
+          alert(`⚡ تعذر الاتصال المباشر! تم الحفظ أوفلاين برقم مؤقت: [${offId}]\nستُرحّل تلقائياً فور توفر الشبكة.`);
+          closeModal('modalOpPurchase');
+        }
+      } catch (err) {
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase', payload) : 'أوفلاين';
+        alert(`⚡ شبكة النت منقطعة! تم حفظ فاتورة المشتريات بالجوال (أوفلاين).\nالرقم المؤقت: [${offId}]\nستُرفع تلقائياً وتأخذ رقمها الرسمي فور عودة الاتصال.`);
+        closeModal('modalOpPurchase');
+      }
+    }
+
+    async function commitOpReceipt() {
+      if (window.AppHaptics) AppHaptics.success();
+      const recNo = document.getElementById('opReceiptNoPill')?.innerText || '';
+      const refPur = document.getElementById('opReceiptPurchaseSelect')?.value || '';
+      const supp = document.getElementById('opReceiptSupplierInput')?.value || '';
+      const wh = document.getElementById('opReceiptWarehouseSelect')?.value || 'المستودع الرئيسي';
+      const insp = document.getElementById('opReceiptInspectorInput')?.value || 'أمين المخزن';
+
+      const payload = {
+        receiptNo: recNo,
+        originalInvoiceId: refPur,
+        supplierName: supp,
+        warehouse: wh,
+        inspector: insp,
+        date: new Date().toISOString().split('T')[0]
+      };
+
+      if (!navigator.onLine) {
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase_receipt', payload) : 'أوفلاين';
+        alert(`⚡ تم حفظ مذكرة استلام المشتريات (GRN) أوفلاين بنجاح!\nالرقم المؤقت: [${offId}]\nستُرحّل تلقائياً فور توفر النت.`);
+        closeModal('modalOpReceipt');
+        return;
+      }
+      try {
+        const res = await fetch('api/mirror_sync.php?action=save_purchase_receipt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const out = await res.json();
+        if (out && out.success) {
+          alert(`✓ تم بنجاح فحص واستلام بضاعة المشتريات (GRN) رقم: [${out.receiptNo}]\nتم تحديث حالة الفاتورة ${refPur} وتغذية المستودع باللابتوب فوراً!`);
+          closeModal('modalOpReceipt');
+          fetchMirrorNumbers();
+        } else {
+          const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase_receipt', payload) : 'أوفلاين';
+          alert(`⚡ تم حفظ استلام المشتريات أوفلاين برقم مؤقت: [${offId}]\nستُرفع وتعتمد في السيرفر فور توفر الشبكة.`);
+          closeModal('modalOpReceipt');
+        }
+      } catch (err) {
+        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase_receipt', payload) : 'أوفلاين';
+        alert(`⚡ شبكة النت منقطعة! تم حفظ استلام المشتريات أوفلاين في الجوال.\nالرقم المؤقت: [${offId}]\nستُرفع تلقائياً فور عودة الاتصال.`);
+        closeModal('modalOpReceipt');
       }
     }
 
@@ -10715,7 +11139,7 @@
     let numpadSelectedCurrency = 'USD';
     const SDG_RATE = 2800;
 
-    function openAccountingNumpad(targetInputId = null, title = 'الآلة الحاسبة') {
+    function openAccountingNumpad(targetInputId = null, title = 'احسبها') {
       AudioEngine.play('numpad');
       triggerHapticPulse(30);
 

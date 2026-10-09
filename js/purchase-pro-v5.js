@@ -2985,6 +2985,19 @@ function submitInvoice(ignoreWarnings = false) {
         window.pushToCloud(true).catch(e => console.warn("Immediate cloud sync failed:", e));
     }
 
+    // 🪞 REAL-TIME MIRROR SYNC: Commit purchase invoice directly to MariaDB
+    try {
+        fetch('api/mirror_sync.php?action=save_purchase_invoice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(r => r.json()).then(res => {
+            if (res && res.success && res.nextPurchaseNo) {
+                window._mirrorNextPurchaseNo = res.nextPurchaseNo;
+            }
+        }).catch(e => console.warn("Mirror sync purchase failed:", e));
+    } catch(eMirror) {}
+
     // Show professional success modal
     let finalWarnings = [];
 

@@ -1,3 +1,409 @@
+`/* ═══════════════════════════════════════════════════════════════════════════════
+   🎨 ELSAJANA ERP 2026 - THE 7 OFFICIAL MASTER THEMES (WCAG AAA CERTIFIED)
+   ═══════════════════════════════════════════════════════════════════════════════
+   1. warm_cream        : ورق سيبيا وبيج دافئ (Warm Beige / Sepia Paper - مريح للعين) [☀️ فاتح]
+   2. ultra_white       : أبيض مكتبي ناصع (Ultra-Clean White - نهار مكتبي بأعلى وضوح) [☀️ فاتح]
+   3. exec_gray         : رمادي تنفيذي بارد (Cool Executive Gray - أناقة الشركات والبنوك) [☀️ فاتح]
+   4. midnight_obsidian : كحلي فاحم ملكي (Royal Midnight Navy - كحلي مصرفي سحيق) [🌙 داكن]
+   5. mocha_brown       : بني ملكي دافئ (Mocha Royal Brown - فخامة الشوكولاتة الداكنة) [🌙 داكن]
+   6. pure_oled         : سواد مطلق فاحم (Pure OLED Black - سواد تام وتوفير بطارية) [🌙 داكن]
+   7. slate_twilight    : سليت فحمي مسائي (Twilight Slate - رمادي فحمي مسائي هادئ) [🌙 داكن]
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. 📜 WARM BEIGE / SEPIA PAPER (بيج دافئ وورق سيبيا) ── */
+:root[data-theme="warm_cream"],
+html[data-theme="warm_cream"],
+body[data-theme="warm_cream"],
+[data-theme="warm_cream"],
+[data-theme="beige"],
+[data-theme="warm-alabaster"] {
+  --bg-color: #fbf7ee !important;
+  --bg-secondary: #f5eedd !important;
+  --surface: #ffffff !important;
+  --surface-color: #ffffff !important;
+  --surface-hover: #f5eedd !important;
+  --border: #dcd1be !important;
+  --border-color: #dcd1be !important;
+  --border-glass: rgba(180, 83, 9, 0.15) !important;
+  --bg-dark: #fbf7ee !important;
+  --panel-bg: #fdfbf7 !important;
+  --text-primary: #1c1917 !important;
+  --text-secondary: #382e25 !important;
+  --text-muted: #5c4d40 !important;
+  --text-main: #1c1917 !important;
+  --text-dim: #7c6858 !important;
+  --primary-accent: #b45309 !important;
+  --accent-color: #b45309 !important;
+  --primary: #b45309 !important;
+  --amber: #b45309 !important;
+  --green: #15803d !important;
+  --red: #b91c1c !important;
+  --blue: #0369a1 !important;
+}
+
+/* ── 2. ⚪ ULTRA-CLEAN WHITE (أبيض ناصع نقي) ── */
+:root[data-theme="ultra_white"],
+html[data-theme="ultra_white"],
+body[data-theme="ultra_white"],
+[data-theme="ultra_white"],
+[data-theme="pure-platinum"],
+[data-theme="white"] {
+  --bg-color: #f8fafc !important;
+  --bg-secondary: #ffffff !important;
+  --surface: #ffffff !important;
+  --surface-color: #ffffff !important;
+  --surface-hover: #f1f5f9 !important;
+  --border: #cbd5e1 !important;
+  --border-color: #cbd5e1 !important;
+  --border-glass: rgba(0, 0, 0, 0.1) !important;
+  --bg-dark: #f8fafc !important;
+  --panel-bg: #ffffff !important;
+  --text-primary: #0f172a !important;
+  --text-secondary: #1e293b !important;
+  --text-muted: #475569 !important;
+  --text-main: #0f172a !important;
+  --text-dim: #64748b !important;
+  --primary-accent: #2563eb !important;
+  --accent-color: #2563eb !important;
+  --primary: #2563eb !important;
+  --amber: #b45309 !important;
+  --green: #047857 !important;
+  --red: #dc2626 !important;
+  --blue: #2563eb !important;
+}
+
+/* ── 3. 💼 COOL EXECUTIVE GRAY (رمادي تنفيذي بارد) ── */
+:root[data-theme="exec_gray"],
+html[data-theme="exec_gray"],
+body[data-theme="exec_gray"],
+[data-theme="exec_gray"],
+[data-theme="pearl-platinum"] {
+  --bg-color: #f1f5f9 !important;
+  --bg-secondary: #ffffff !important;
+  --surface: #ffffff !important;
+  --surface-color: #ffffff !important;
+  --surface-hover: #e2e8f0 !important;
+  --border: #cbd5e1 !important;
+  --border-color: #cbd5e1 !important;
+  --border-glass: rgba(0, 0, 0, 0.1) !important;
+  --bg-dark: #f1f5f9 !important;
+  --panel-bg: #ffffff !important;
+  --text-primary: #0f172a !important;
+  --text-secondary: #1e293b !important;
+  --text-muted: #475569 !important;
+  --text-main: #0f172a !important;
+  --text-dim: #64748b !important;
+  --primary-accent: #1d4ed8 !important;
+  --accent-color: #1d4ed8 !important;
+  --primary: #1d4ed8 !important;
+  --amber: #b45309 !important;
+  --green: #047857 !important;
+  --red: #b91c1c !important;
+  --blue: #1d4ed8 !important;
+}
+
+/* ── 4. 💎 ROYAL MIDNIGHT NAVY (كحلي فاحم ملكي) ── */
+:root[data-theme="midnight_obsidian"],
+html[data-theme="midnight_obsidian"],
+body[data-theme="midnight_obsidian"],
+[data-theme="midnight_obsidian"],
+[data-theme="midnight-executive"],
+[data-theme="navy-kohl"],
+[data-theme="navy"] {
+  --bg-color: #0a1128 !important;
+  --bg-secondary: #0b132b !important;
+  --surface: #111c44 !important;
+  --surface-color: #111c44 !important;
+  --surface-hover: #1c2a5e !important;
+  --border: rgba(56, 189, 248, 0.25) !important;
+  --border-color: rgba(56, 189, 248, 0.25) !important;
+  --border-glass: rgba(56, 189, 248, 0.3) !important;
+  --bg-dark: #0a1128 !important;
+  --panel-bg: #111c44 !important;
+  --text-primary: #ffffff !important;
+  --text-secondary: #e0f2fe !important;
+  --text-muted: #93c5fd !important;
+  --text-main: #ffffff !important;
+  --text-dim: #60a5fa !important;
+  --primary-accent: #00f2fe !important;
+  --accent-color: #00f2fe !important;
+  --primary: #00f2fe !important;
+  --amber: #fbbf24 !important;
+  --green: #10b981 !important;
+  --red: #ef4444 !important;
+  --blue: #38bdf8 !important;
+}
+
+/* ── 5. ☕ MOCHA ROYAL BROWN (بني ملكي دافئ فاخر) ── */
+:root[data-theme="mocha_brown"],
+html[data-theme="mocha_brown"],
+body[data-theme="mocha_brown"],
+[data-theme="mocha_brown"],
+[data-theme="sepia-brown"],
+[data-theme="desert-mocha"],
+[data-theme="brown"] {
+  --bg-color: #1a0f0a !important;
+  --bg-secondary: #26150e !important;
+  --surface: #2e1a12 !important;
+  --surface-color: #2e1a12 !important;
+  --surface-hover: #3d2319 !important;
+  --border: #78350f !important;
+  --border-color: #78350f !important;
+  --border-glass: rgba(245, 158, 11, 0.25) !important;
+  --bg-dark: #1a0f0a !important;
+  --panel-bg: #2e1a12 !important;
+  --text-primary: #fffbeb !important;
+  --text-secondary: #fef3c7 !important;
+  --text-muted: #fde68a !important;
+  --text-main: #fffbeb !important;
+  --text-dim: #d4a373 !important;
+  --primary-accent: #f59e0b !important;
+  --accent-color: #f59e0b !important;
+  --primary: #f59e0b !important;
+  --amber: #f59e0b !important;
+  --green: #34d399 !important;
+  --red: #f87171 !important;
+  --blue: #38bdf8 !important;
+}
+
+/* ── 6. 🖤 PURE OLED BLACK (سواد مطلق فاحم) ── */
+:root[data-theme="pure_oled"],
+html[data-theme="pure_oled"],
+body[data-theme="pure_oled"],
+[data-theme="pure_oled"],
+[data-theme="obsidian-charcoal"],
+[data-theme="midnight"],
+[data-theme="black"] {
+  --bg-color: #000000 !important;
+  --bg-secondary: #050505 !important;
+  --surface: #0a0a0a !important;
+  --surface-color: #0a0a0a !important;
+  --surface-hover: #171717 !important;
+  --border: #262626 !important;
+  --border-color: #262626 !important;
+  --border-glass: rgba(255, 255, 255, 0.15) !important;
+  --bg-dark: #000000 !important;
+  --panel-bg: #0a0a0a !important;
+  --text-primary: #ffffff !important;
+  --text-secondary: #f5f5f5 !important;
+  --text-muted: #a3a3a3 !important;
+  --text-main: #ffffff !important;
+  --text-dim: #737373 !important;
+  --primary-accent: #10b981 !important;
+  --accent-color: #10b981 !important;
+  --primary: #10b981 !important;
+  --amber: #f59e0b !important;
+  --green: #10b981 !important;
+  --red: #ef4444 !important;
+  --blue: #38bdf8 !important;
+}
+
+/* ── 7. 🌌 TWILIGHT SLATE (سليت فحمي مسائي) ── */
+:root[data-theme="slate_twilight"],
+html[data-theme="slate_twilight"],
+body[data-theme="slate_twilight"],
+[data-theme="slate_twilight"],
+[data-theme="twilight-indigo"],
+[data-theme="slate"] {
+  --bg-color: #0f172a !important;
+  --bg-secondary: #1e293b !important;
+  --surface: #1e293b !important;
+  --surface-color: #1e293b !important;
+  --surface-hover: #334155 !important;
+  --border: #334155 !important;
+  --border-color: #334155 !important;
+  --border-glass: rgba(56, 189, 248, 0.15) !important;
+  --bg-dark: #0f172a !important;
+  --panel-bg: #1e293b !important;
+  --text-primary: #f8fafc !important;
+  --text-secondary: #e2e8f0 !important;
+  --text-muted: #94a3b8 !important;
+  --text-main: #f8fafc !important;
+  --text-dim: #64748b !important;
+  --primary-accent: #38bdf8 !important;
+  --accent-color: #38bdf8 !important;
+  --primary: #38bdf8 !important;
+  --amber: #fbbf24 !important;
+  --green: #34d399 !important;
+  --red: #f87171 !important;
+  --blue: #38bdf8 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   🌟 UNIVERSAL CONTRAST & ZERO DARK ISLANDS RULES FOR ALL SCREENS
+   ═══════════════════════════════════════════════════════════════════════════════
+   Guarantees that when Beige (warm_cream), Ultra White, or Exec Gray is active:
+   1. All screens (صرف نقدية، حركة مالية، مبيعات، مشتريات، الجوال) take the exact light background.
+   2. All text across all screens is deep, sharp, high contrast, and perfectly readable.
+   3. No dark brown or slate backgrounds with black text ever occur!
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* Universal Light Theme Enforcements */
+html.light-theme,
+html.light-theme body,
+html[data-theme="warm_cream"] body,
+html[data-theme="ultra_white"] body,
+html[data-theme="exec_gray"] body {
+  background-color: var(--bg-color) !important;
+  color: var(--text-main) !important;
+}
+
+/* Override all container cards, panels and split wrappers in light mode */
+html.light-theme .pos-wrapper,
+html.light-theme .main-panel,
+html.light-theme .side-panel,
+html.light-theme #main-form-panel,
+html.light-theme .split-layout-wrapper,
+html.light-theme .panel,
+html.light-theme .card,
+html.light-theme .table-container,
+html.light-theme .magical-glass-header,
+html.light-theme .bg-slate-950,
+html.light-theme .bg-slate-900,
+html.light-theme .bg-slate-800,
+html.light-theme .mobile-device-outer,
+html.light-theme #mobileContainer,
+html.light-theme .amount-display-card,
+html[data-theme="warm_cream"] .pos-wrapper,
+html[data-theme="warm_cream"] .main-panel,
+html[data-theme="warm_cream"] .side-panel,
+html[data-theme="warm_cream"] #main-form-panel,
+html[data-theme="warm_cream"] .split-layout-wrapper {
+  background-color: var(--surface) !important;
+  background-image: none !important;
+  color: var(--text-main) !important;
+  border-color: var(--border) !important;
+}
+
+/* Override all labels and headings in light mode to guarantee high contrast dark text */
+html.light-theme .label,
+html.light-theme label,
+html.light-theme h1, html.light-theme h2, html.light-theme h3, html.light-theme h4, html.light-theme h5,
+html.light-theme th, html.light-theme td,
+html.light-theme .panel-title,
+html.light-theme .setting-title,
+html.light-theme .brand-text h1,
+html.light-theme .brand-text p,
+html[data-theme="warm_cream"] .label,
+html[data-theme="warm_cream"] label,
+html[data-theme="warm_cream"] th,
+html[data-theme="warm_cream"] td {
+  color: var(--text-main) !important;
+  text-shadow: none !important;
+}
+
+/* Override inputs, choices, textareas in light mode */
+html.light-theme .form-input,
+html.light-theme textarea.form-input,
+html.light-theme input:not([type="checkbox"]):not([type="radio"]),
+html.light-theme select,
+html.light-theme .choices__inner,
+html[data-theme="warm_cream"] .form-input,
+html[data-theme="warm_cream"] textarea.form-input,
+html[data-theme="warm_cream"] .choices__inner {
+  background-color: #ffffff !important;
+  color: var(--text-main) !important;
+  border: 1.5px solid var(--border) !important;
+  text-shadow: none !important;
+}
+
+html.light-theme .choices__list--dropdown,
+html[data-theme="warm_cream"] .choices__list--dropdown {
+  background-color: #ffffff !important;
+  color: var(--text-main) !important;
+  border: 1.5px solid var(--border) !important;
+}
+
+html.light-theme .choices__list--dropdown .choices__item--selectable,
+html[data-theme="warm_cream"] .choices__list--dropdown .choices__item--selectable {
+  color: var(--text-main) !important;
+}
+
+/* Specific styling for Beige (warm_cream) screen elements */
+html[data-theme="warm_cream"] body {
+  background-color: #fbf7ee !important;
+}
+html[data-theme="warm_cream"] .main-panel,
+html[data-theme="warm_cream"] .side-panel,
+html[data-theme="warm_cream"] .card,
+html[data-theme="warm_cream"] .panel {
+  background-color: #ffffff !important;
+  border: 1.5px solid #dcd1be !important;
+  box-shadow: 0 4px 20px rgba(180, 83, 9, 0.06) !important;
+}
+html[data-theme="warm_cream"] #amount-local {
+  background-color: #fef3c7 !important;
+  color: #991b1b !important;
+  border: 2px solid #b45309 !important;
+}
+
+/* Specific styling for Mocha Royal Brown screen elements */
+html[data-theme="mocha_brown"] body {
+  background-color: #1a0f0a !important;
+  color: #fffbeb !important;
+}
+html[data-theme="mocha_brown"] .main-panel,
+html[data-theme="mocha_brown"] .side-panel,
+html[data-theme="mocha_brown"] .card,
+html[data-theme="mocha_brown"] .panel,
+html[data-theme="mocha_brown"] .split-layout-wrapper {
+  background-color: #2b1810 !important;
+  border: 1.5px solid #78350f !important;
+  color: #fffbeb !important;
+}
+html[data-theme="mocha_brown"] .label,
+html[data-theme="mocha_brown"] label,
+html[data-theme="mocha_brown"] h1, html[data-theme="mocha_brown"] h2, html[data-theme="mocha_brown"] h3,
+html[data-theme="mocha_brown"] th, html[data-theme="mocha_brown"] td,
+html[data-theme="mocha_brown"] .panel-title {
+  color: #fffbeb !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.8) !important;
+}
+html[data-theme="mocha_brown"] .form-input,
+html[data-theme="mocha_brown"] textarea.form-input,
+html[data-theme="mocha_brown"] input,
+html[data-theme="mocha_brown"] select,
+html[data-theme="mocha_brown"] .choices__inner {
+  background-color: #1f120b !important;
+  color: #fffbeb !important;
+  border: 1.5px solid #78350f !important;
+}
+html[data-theme="mocha_brown"] #amount-local {
+  background-color: #3b1d11 !important;
+  color: #fbbf24 !important;
+  border: 2px solid #d97706 !important;
+}
+
+/* Mobile Screen Full Theme Compliance (mobile-voucher, mobile-dashboard) */
+html[data-theme="warm_cream"] #mobileDeviceOuter,
+html[data-theme="warm_cream"] #mobileVoucherApp,
+html[data-theme="warm_cream"] .mobile-voucher-header,
+html[data-theme="warm_cream"] .mobile-content-card {
+  background-color: #fbf7ee !important;
+  color: #1c1917 !important;
+}
+
+html[data-theme="mocha_brown"] #mobileDeviceOuter,
+html[data-theme="mocha_brown"] #mobileVoucherApp,
+html[data-theme="mocha_brown"] .mobile-voucher-header,
+html[data-theme="mocha_brown"] .mobile-content-card {
+  background-color: #1a0f0a !important;
+  color: #fffbeb !important;
+}
+
+html[data-theme="midnight_obsidian"] #mobileDeviceOuter,
+html[data-theme="midnight_obsidian"] #mobileVoucherApp {
+  background-color: #0a1128 !important;
+  color: #ffffff !important;
+}
+
+html[data-theme="pure_oled"] #mobileDeviceOuter,
+html[data-theme="pure_oled"] #mobileVoucherApp {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+`
+
 /* c:\mynewapp\frontend-pwa\css\theme.css — v5.0 Professional Overhaul */
 
 

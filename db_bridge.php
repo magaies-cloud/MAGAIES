@@ -57,13 +57,19 @@ function getDBConnection() {
         }
 
         if (!$tenantId) {
-            if ($isLocalhost) {
-                $tenantId = 1; // تجاوز تلقائي للمطورين على السيرفر المحلي
-            } else {
-                $tenantId = 2; // Default fallback to tenant 2 for company c
+            try {
+                // البحث الذكي عن رقم الشركة الفعلي الأكثر نشاطاً في قاعدة البيانات (الافتراضي 12 لشركة C)
+                $stmtBest = $pdo->query("SELECT tenant_id FROM sales_invoices WHERE tenant_id IS NOT NULL AND (is_deleted = 0 OR is_deleted IS NULL) GROUP BY tenant_id ORDER BY COUNT(*) DESC LIMIT 1");
+                $bestTenant = $stmtBest ? $stmtBest->fetchColumn() : false;
+                $tenantId = $bestTenant ? (int)$bestTenant : 12;
+            } catch (Exception $e) {
+                $tenantId = 12;
             }
         }
         $GLOBAL_TENANT_ID = (int)$tenantId;
+        if (empty($_COOKIE['currentTenantId']) && !headers_sent()) {
+            @setcookie('currentTenantId', (string)$tenantId, time() + 31536000, '/');
+        }
     }
     
     return $pdo;

@@ -18,7 +18,8 @@ if (!function_exists('loadEnv')) {
 
 loadEnv(__DIR__ . '/../.env');
 
-$host = $_ENV['DB_HOST'] ?? 'localhost';
+$host = $_ENV['DB_HOST'] ?? '127.0.0.1';
+if ($host === 'localhost') $host = '127.0.0.1';
 $port = $_ENV['DB_PORT'] ?? '3306';
 $user = $_ENV['DB_USER'] ?? 'root';
 $pass = $_ENV['DB_PASS'] ?? '';
@@ -32,7 +33,7 @@ $options = [
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
     PDO::ATTR_PERSISTENT         => false,
-    PDO::ATTR_TIMEOUT            => 5,
+    PDO::ATTR_TIMEOUT            => 2,
 ];
 
 // إضافة SSL إذا توفر مسار الشهادة

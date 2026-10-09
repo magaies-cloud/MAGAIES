@@ -2295,16 +2295,17 @@ async function _saveVoucherCore() {
                         hasInvalidTransfer = true;
                         break;
                     }
-                    if (tno.length < 6) {
-                        showCenterError(`رقم التحويل البنكي للحساب ( ${accountName} - السطر ${i + 1} ) قصير جداً!<br><br>يجب أن لا يقل عن 6 أرقام`, 'short');
+                    const cleanDigits = String(tno).replace(/\D/g, '');
+                    if (cleanDigits.length < 6) {
+                        showCenterError(`رقم التحويل البنكي للحساب ( ${accountName} - السطر ${i + 1} ) غير صالح!<br><br>يحتوي على ${cleanDigits.length} أرقام فقط. يشترط النظام 6 أرقام على الأقل، ويمنع الحفظ نهائياً لأي تحويلة أقل من 6 أرقام.`, 'short');
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
                     }
                     
-                    const targetSuffix = String(tno).trim().slice(-6);
+                    const targetSuffix = cleanDigits.slice(-6);
                     if (seenTransfers.has(targetSuffix)) {
-                        showCenterError(`رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مكرر داخل نفس الشاشة!<br><br>يوجد تطابق في آخر 6 أرقام مع تحويلة أخرى أدخلتها الآن.`, 'duplicate');
+                        showCenterError(`رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مكرر داخل نفس الشاشة!<br><br>يوجد تطابق في آخر 6 أرقام (${targetSuffix}) مع تحويلة أخرى أدخلتها الآن.`, 'duplicate');
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
@@ -2314,7 +2315,7 @@ async function _saveVoucherCore() {
                     const cvNo = document.getElementById('voucher-no-display') ? document.getElementById('voucher-no-display').value : '';
                     const isUnique = await window.checkTransferDuplicate(tno, cvNo);
                     if (!isUnique) {
-                        showCenterError(`رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مستخدم من قبل!<br><br>يوجد تطابق في آخر 6 أرقام مع سند آخر في النظام.`, 'duplicate');
+                        showCenterError(`رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مستخدم من قبل!<br><br>يوجد تطابق في آخر 6 أرقام (${targetSuffix}) مع سند آخر مسجل مسبقاً في النظام. يمنع النظام تكرار آخر 6 أرقام نهائياً.`, 'duplicate');
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;

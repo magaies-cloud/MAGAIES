@@ -19,6 +19,193 @@ require_once __DIR__ . '/mobile_auth_guard.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
 
+if (!function_exists('extractAllTransfersFromRecord')) {
+    function extractAllTransfersFromRecord($d) {
+        $refs = [];
+        if (!empty($d['mobileTransferNo']) && is_string($d['mobileTransferNo'])) $refs[] = trim($d['mobileTransferNo']);
+        if (!empty($d['transferRef']) && is_string($d['transferRef'])) $refs[] = trim($d['transferRef']);
+        if (!empty($d['refNo']) && is_string($d['refNo'])) $refs[] = trim($d['refNo']);
+        if (!empty($d['bankTransfers']) && is_array($d['bankTransfers'])) {
+            foreach ($d['bankTransfers'] as $bt) {
+                if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+            }
+        }
+        if (!empty($d['details']) && is_array($d['details'])) {
+            foreach ($d['details'] as $det) {
+                if (!empty($det['transferNo']) && is_string($det['transferNo'])) $refs[] = trim($det['transferNo']);
+                if (!empty($det['bankTransfers']) && is_array($det['bankTransfers'])) {
+                    foreach ($det['bankTransfers'] as $bt) {
+                        if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+                    }
+                }
+            }
+        }
+        if (!empty($d['items']) && is_array($d['items'])) {
+            foreach ($d['items'] as $item) {
+                if (!empty($item['transferNo']) && is_string($item['transferNo'])) $refs[] = trim($item['transferNo']);
+                if (!empty($item['bankTransfers']) && is_array($item['bankTransfers'])) {
+                    foreach ($item['bankTransfers'] as $bt) {
+                        if (!empty($bt['transferNo']) && is_string($bt['transferNo'])) $refs[] = trim($bt['transferNo']);
+                    }
+                }
+            }
+        }
+        return array_values(array_unique(array_filter($refs)));
+    }
+}
+
+if (!function_exists('findTransferDuplicateInDb')) {
+    function findTransferDuplicateInDb($pdo, $ref, $currentVNo = '', $currentTenantId = null) {
+        $ref = trim((string)$ref);
+        if ($ref === '') return null;
+        $cleanRefDigits = preg_replace('/\D/', '', $ref);
+        if (strlen($cleanRefDigits) < 6) return null; // لا يتم فحص التطابق إلا للتحويلات الصالحة (6 خانات فما فوق)
+        $candSuffix = substr($cleanRefDigits, -6);
+
+        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
+        foreach ($tables as $tbl) {
+            try {
+                $stmt = $pdo->query("SELECT id, tenant_id, data FROM `$tbl`");
+                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $d = json_decode($row['data'], true);
+                    if (!$d) continue;
+                    $existingVNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    if ($existingVNo !== '' && $currentVNo !== '' && $existingVNo === $currentVNo) {
+                        continue;
+                    }
+                    $candidates = extractAllTransfersFromRecord($d);
+                    foreach ($candidates as $cr) {
+                        $strCr = trim((string)$cr);
+                        $cleanCrDigits = preg_replace('/\D/', '', $strCr);
+                        if ($cleanCrDigits === '') continue;
+
+                        $matched = false;
+                        $matchedSuffix = '';
+                        $matchType = '';
+
+                        if (strlen($cleanCrDigits) >= 6) {
+                            $existSuffix = substr($cleanCrDigits, -6);
+                            if ($candSuffix === $existSuffix) {
+                                $matched = true;
+                                $matchedSuffix = $candSuffix;
+                                $matchType = 'تطابق آخر 6 أرقام على اليمين';
+                            }
+                        } else {
+                            if ($cleanRefDigits === $cleanCrDigits || substr($cleanRefDigits, -strlen($cleanCrDigits)) === $cleanCrDigits) {
+                                $matched = true;
+                                $matchedSuffix = $cleanCrDigits;
+                                $matchType = 'تطابق مع تحويلة قديمة';
+                            }
+                        }
+
+                        if ($matched) {
+                            return [
+                                'voucherNo' => $existingVNo ?: 'سابق',
+                                'ref' => $strCr,
+                                'date' => $d['date'] ?? '',
+                                'amount' => $d['amountLocal'] ?? ($d['amount'] ?? 0),
+                                'bank' => $d['bankName'] ?? ($d['bank'] ?? ($d['fromAccount'] ?? '')),
+                                'from' => $d['fromAccountName'] ?? ($d['fromAccount'] ?? ($d['from'] ?? '')),
+                                'to' => $d['toAccountName'] ?? ($d['toAccount'] ?? ($d['to'] ?? ($d['beneficiaryName'] ?? ''))),
+                                'table' => $tbl,
+                                'matchedSuffix' => $matchedSuffix,
+                                'matchType' => $matchType
+                            ];
+                        }
+                    }
+                }
+            } catch(Exception $e) {}
+        }
+        return null;
+    }
+}
+
+if (!function_exists('fetchAllDbTransfers')) {
+    function fetchAllDbTransfers($pdo, $currentTenantId = null) {
+        $results = [];
+        $seen = [];
+        $tables = ['single_payments', 'single_receipts', 'payments', 'receipts'];
+        foreach ($tables as $tbl) {
+            try {
+                $stmt = $pdo->query("SELECT id, tenant_id, data FROM `$tbl`");
+                while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                    $d = json_decode($r['data'], true);
+                    if (!$d) continue;
+                    $vNo = trim((string)($d['voucherNo'] ?? ($d['id'] ?? '')));
+                    $refs = extractAllTransfersFromRecord($d);
+                    foreach ($refs as $ref) {
+                        $clean = preg_replace('/\D/', '', (string)$ref);
+                        $key = $vNo . '_' . $ref;
+                        if (isset($seen[$key])) continue;
+                        $seen[$key] = true;
+                        $results[] = [
+                            'voucherNo' => $vNo,
+                            'table' => $tbl,
+                            'tenantId' => $r['tenant_id'],
+                            'ref' => (string)$ref,
+                            'cleanRef' => $clean ?: (string)$ref,
+                            'date' => $d['date'] ?? '',
+                            'amount' => (float)($d['amountLocal'] ?? ($d['amount'] ?? 0)),
+                            'bank' => $d['bankName'] ?? ($d['bank'] ?? ($d['fromAccount'] ?? ''))
+                        ];
+                    }
+                }
+            } catch(Exception $e) {}
+        }
+        return $results;
+    }
+}
+
+// API endpoint لفحص رقم التحويلة فورياً ومطابقة قاعدة بيانات MariaDB
+if ((isset($_GET['api']) && $_GET['api'] === 'check_duplicate') || (isset($_POST['api']) && $_POST['api'] === 'check_duplicate')) {
+    header('Content-Type: application/json; charset=UTF-8');
+    $ref = trim($_GET['ref'] ?? ($_POST['ref'] ?? ''));
+    $currentVNo = trim($_GET['voucherNo'] ?? ($_POST['voucherNo'] ?? ''));
+    $tId = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
+
+    if ($ref === '') {
+        echo json_encode(['valid' => true, 'duplicate' => false, 'message' => 'رقم فارغ']);
+        exit;
+    }
+
+    $cleanDigits = preg_replace('/\D/', '', $ref);
+    if (strlen($cleanDigits) < 6) {
+        echo json_encode([
+            'valid' => false,
+            'isShort' => true,
+            'duplicate' => false,
+            'length' => strlen($cleanDigits),
+            'error' => "رقم التحويلة ({$ref}) أقل من 6 أرقام! يشترط النظام 6 أرقام على الأقل، ويمنع الحفظ نهائياً لأي تحويلة أقل من 6 أرقام."
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $dup = findTransferDuplicateInDb($pdo, $ref, $currentVNo, $tId);
+    if ($dup) {
+        echo json_encode([
+            'valid' => false,
+            'duplicate' => true,
+            'isShort' => false,
+            'error' => "عفواً، رقم التحويلة ({$ref}) مكرر ومسجل مسبقاً في السند رقم ({$dup['voucherNo']}) لتطابق آخر 6 أرقام ({$dup['matchedSuffix']}).",
+            'matchedVoucher' => $dup['voucherNo'],
+            'matchedRef' => $dup['ref'],
+            'matchedDate' => $dup['date'],
+            'matchedAmount' => $dup['amount'],
+            'matchedBank' => $dup['bank'],
+            'matchedSuffix' => $dup['matchedSuffix'],
+            'matchType' => $dup['matchType']
+        ], JSON_UNESCAPED_UNICODE);
+    } else {
+        echo json_encode([
+            'valid' => true,
+            'duplicate' => false,
+            'isShort' => false,
+            'message' => 'رقم التحويلة سليم وغير مسجل مسبقاً'
+        ], JSON_UNESCAPED_UNICODE);
+    }
+    exit;
+}
+
 // API endpoint لحفظ وترحيل السند مباشرة إلى قاعدة البيانات MariaDB من اللابتوب
 if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['api']) && $_POST['api'] === 'save_voucher')) {
     header('Content-Type: application/json; charset=UTF-8');
@@ -29,7 +216,51 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
     if ($payload) {
         $voucherNo = trim($payload['id'] ?? ($payload['voucherNo'] ?? ''));
         $idempotencyKey = trim($payload['idempotencyKey'] ?? ($payload['client_draft_id'] ?? ''));
-        $tId = (int)$authUser['tenant_id'];
+        $tId = !empty($authUser['tenant_id']) ? (int)$authUser['tenant_id'] : (int)($GLOBAL_TENANT_ID ?: 12);
+
+        // شروط التحويل المالي الصارمة لنسخة اللابتوب:
+        // 1. يمنع الحفظ نهائياً إذا كانت التحويلة أقل من ستة أرقام.
+        // 2. يمنع تكرار آخر ستة أرقام نهائياً مع أي تحويلة في النظام أو داخل السند نفسه.
+        $bankTransfers = [];
+        if (!empty($payload['bankTransfers']) && is_array($payload['bankTransfers'])) {
+            $bankTransfers = $payload['bankTransfers'];
+        } elseif (!empty($payload['mobileTransferNo'])) {
+            $bankTransfers[] = ['transferNo' => $payload['mobileTransferNo']];
+        }
+
+        $seenSuffixes = [];
+        foreach ($bankTransfers as $bt) {
+            $trNo = trim((string)($bt['transferNo'] ?? ''));
+            if ($trNo === '') continue;
+            $cleanDigits = preg_replace('/\D/', '', $trNo);
+            if (strlen($cleanDigits) < 6) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => "لا يمكن حفظ السند: رقم التحويلة ({$trNo}) يتكون من " . strlen($cleanDigits) . " أرقام فقط! يشترط النظام 6 أرقام على الأقل، ويمنع الحفظ نهائياً لأي تحويلة أقل من 6 أرقام."
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            $last6 = substr($cleanDigits, -6);
+            if (isset($seenSuffixes[$last6])) {
+                echo json_encode([
+                    'success' => false,
+                    'error' => "لا يمكن حفظ السند: يوجد تكرار في رقم التحويلة داخل نفس السند! تطابق آخر 6 أرقام ({$last6})."
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            $seenSuffixes[$last6] = true;
+
+            $dup = findTransferDuplicateInDb($pdo, $trNo, $voucherNo, $tId);
+            if ($dup) {
+                $msg = "لا يمكن حفظ السند: رقم التحويلة ({$trNo}) مكرر ومسجل مسبقاً في السند رقم ({$dup['voucherNo']})";
+                if (!empty($dup['date'])) $msg .= " بتاريخ ({$dup['date']})";
+                if (!empty($dup['bank'])) $msg .= " لدى ({$dup['bank']})";
+                $msg .= " لتطابق آخر 6 أرقام ({$dup['matchedSuffix']}). يمنع النظام تكرار آخر 6 أرقام نهائياً.";
+                echo json_encode(['success' => false, 'error' => $msg], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+        }
+
         try {
             if (!empty($idempotencyKey)) {
                 $stmtCheckIdem = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) AND JSON_UNQUOTE(JSON_EXTRACT(data, '$.idempotencyKey')) = ? LIMIT 1");
@@ -69,8 +300,9 @@ if ((isset($_GET['api']) && $_GET['api'] === 'save_voucher') || (isset($_POST['a
 $prefix = 'E' . date('ym');
 $maxSeq = 0;
 try {
-    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");
-    $stmt->execute([$GLOBAL_TENANT_ID]);
+    $effTenant = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
+    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL)");
+    $stmt->execute([$effTenant]);
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $d = json_decode($row['data'], true);
         $id = isset($d['id']) ? (string)$d['id'] : '';
@@ -85,14 +317,17 @@ try {
 $voucher_no = $prefix . str_pad($maxSeq + 1, 4, '0', STR_PAD_LEFT);
 $page_title = 'حركة مالية';
 $SERVER_SINGLE_PAYMENTS_json = '[]';
+$SERVER_ALL_TRANSFERS_json = '[]';
 try {
-    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
-    $stmt->execute([$GLOBAL_TENANT_ID]);
+    $effTenant = !empty($GLOBAL_TENANT_ID) ? (int)$GLOBAL_TENANT_ID : 12;
+    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE (tenant_id = ? OR tenant_id IS NULL) ORDER BY id ASC");
+    $stmt->execute([$effTenant]);
     $arr = [];
     while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
         $arr[] = json_decode($row['data'], true);
     }
     $SERVER_SINGLE_PAYMENTS_json = json_encode($arr);
+    $SERVER_ALL_TRANSFERS_json = json_encode(fetchAllDbTransfers($pdo, $effTenant), JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {}
 ?>
 
@@ -115,6 +350,41 @@ try {
 })();
 </script>
 <head>
+
+<script>
+(function initScreenMaster7ThemeEarly() {
+  var raw = localStorage.getItem('magaies_active_theme') || 
+            localStorage.getItem('magaiees_global_theme') || 
+            localStorage.getItem('magaiees_mobile_theme') || 
+            localStorage.getItem('ui_theme') || 
+            'warm_cream';
+  var aliasMap = {
+    'warm-alabaster': 'warm_cream', 'beige': 'warm_cream', 'ivory': 'warm_cream', 'light-linen': 'warm_cream',
+    'pure-platinum': 'ultra_white', 'offwhite': 'ultra_white', 'white': 'ultra_white', 'light': 'ultra_white',
+    'pearl-platinum': 'exec_gray', 'nordic-paper': 'warm_cream', 'solar_contrast': 'warm_cream',
+    'midnight-executive': 'midnight_obsidian', 'navy-kohl': 'midnight_obsidian', 'royal-blue': 'midnight_obsidian', 'ocean-navy': 'midnight_obsidian', 'navy': 'midnight_obsidian',
+    'sepia-brown': 'mocha_brown', 'desert-mocha': 'mocha_brown', 'brown': 'mocha_brown',
+    'obsidian-charcoal': 'pure_oled', 'midnight': 'pure_oled', 'black': 'pure_oled', 'dark': 'pure_oled',
+    'twilight-indigo': 'slate_twilight', 'emerald-forest': 'slate_twilight', 'forest': 'slate_twilight'
+  };
+  var activeKey = aliasMap[raw] || raw;
+  var valid7 = ['warm_cream', 'ultra_white', 'exec_gray', 'midnight_obsidian', 'mocha_brown', 'pure_oled', 'slate_twilight'];
+  if (!valid7.includes(activeKey)) activeKey = 'warm_cream';
+  var isLight = ['warm_cream', 'ultra_white', 'exec_gray'].includes(activeKey);
+
+  document.documentElement.setAttribute('data-theme', activeKey);
+  if (isLight) document.documentElement.classList.add('light-theme');
+  else document.documentElement.classList.remove('light-theme');
+
+  document.addEventListener("DOMContentLoaded", function() {
+    if (document.body) {
+      document.body.setAttribute('data-theme', activeKey);
+      if (isLight) document.body.classList.add('light-theme');
+      else document.body.classList.remove('light-theme');
+    }
+  });
+})();
+</script>
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -204,8 +474,8 @@ try {
         #amount-local { animation: subtleShine 3s infinite alternate; }
 
         /* Typography Scale for Clarity */
-        .label { font-size: 1.3rem !important; font-weight: 900 !important; color: #f8fafc !important; text-shadow: 0 2px 4px rgba(0,0,0,0.9) !important; }
-        .form-input, textarea.form-input { font-size: 1.25rem !important; font-weight: 800 !important; color: #ffffff !important; background: #0f172a !important; border: 1px solid #38bdf8 !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
+        .label { font-size: 1.3rem !important; font-weight: 900 !important; color: var(--text-primary, #f8fafc) !important; text-shadow: none !important; }
+        .form-input, textarea.form-input { font-size: 1.25rem !important; font-weight: 800 !important; color: var(--text-primary, #ffffff) !important; background: var(--surface, #0f172a) !important; border: 1.5px solid var(--border, #38bdf8) !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
         .form-input:not(#amount-local):not(#amount-foreign) { height: 48px !important; }
         textarea.form-input { height: auto !important; min-height: 48px; }
         #to-statement, #from-statement { font-size: 0.95rem !important; }
@@ -227,9 +497,9 @@ try {
         }
         
         .choices { margin-bottom: 0 !important; }
-        .choices__inner { font-size: 1.1rem !important; font-weight: 800 !important; min-height: 48px !important; padding: 6px 12px !important; border-radius: 8px !important; background: #0f172a !important; border: 1px solid #38bdf8 !important; color: #ffffff !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
-        .choices__input { color: #ffffff !important; font-size: 1.1rem !important; font-weight: 700 !important; }
-        .choices__list--dropdown { background: #1e293b !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 1000 !important; }
+        .choices__inner { font-size: 1.1rem !important; font-weight: 800 !important; min-height: 48px !important; padding: 6px 12px !important; border-radius: 8px !important; background: var(--surface, #0f172a) !important; border: 1.5px solid var(--border, #38bdf8) !important; color: var(--text-primary, #ffffff) !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
+        .choices__input { color: var(--text-primary, #ffffff) !important; font-size: 1.1rem !important; font-weight: 700 !important; }
+        .choices__list--dropdown { background: var(--surface, #1e293b) !important; color: var(--text-primary, #fff) !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 1000 !important; }
         .choices__list--dropdown .choices__item { font-size: 1.1rem !important; font-weight: 500 !important; }
         .choices__list--dropdown .choices__item--selectable.is-highlighted { background: #38bdf8 !important; color: #fff !important; }
         /* Center Screen Premium Toast & Alert System */
@@ -567,7 +837,7 @@ try {
         /* Side Panel */
         .side-panel {
             width: 0; opacity: 0; overflow: hidden; transform: translateX(-80px) scale(0.95);
-            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border-radius: 16px;
+            background: var(--surface, rgba(15, 23, 42, 0.8)); backdrop-filter: blur(25px); border-radius: 16px;
             border: none; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
             transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1); flex-shrink: 0;
             padding: 0; /* Padding is 0 when hidden */
@@ -583,7 +853,7 @@ try {
         /* Main Panel */
         .main-panel {
             flex-grow: 1; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
-            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px);
+            background: var(--surface, rgba(15, 23, 42, 0.4)); backdrop-filter: blur(12px);
             border-radius: 16px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             transform-origin: left center;
@@ -762,7 +1032,7 @@ try {
         /* Side Panel */
         .side-panel {
             width: 0; opacity: 0; overflow: hidden; transform: translateX(-80px) scale(0.95);
-            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border-radius: 16px;
+            background: var(--surface, rgba(15, 23, 42, 0.8)); backdrop-filter: blur(25px); border-radius: 16px;
             border: none; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
             transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1); flex-shrink: 0;
             padding: 0; /* Padding is 0 when hidden */
@@ -778,7 +1048,7 @@ try {
         /* Main Panel */
         .main-panel {
             flex-grow: 1; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
-            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px);
+            background: var(--surface, rgba(15, 23, 42, 0.4)); backdrop-filter: blur(12px);
             border-radius: 16px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             transform-origin: left center;
@@ -1849,7 +2119,7 @@ try {
 
                 <div class="interactive-columns" style="display: block;">
                     <!-- ONE SINGLE RECTANGLE -->
-                    <div class="focus-zone single-unified-form" style="padding: 25px; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                    <div class="focus-zone single-unified-form" style="padding: 25px; background: var(--surface, rgba(15, 23, 42, 0.4)); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
                         
                         <!-- Top Row: Date, Balances, Voucher Number -->
                         <div class="sub-header-bar" style="margin-top: 0; margin-bottom: 25px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
@@ -2101,8 +2371,8 @@ try {
         #num-props-menu button.prop-btn { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #60a5fa; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
         #num-props-menu button.prop-btn:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
     </style>
-                        <div id="payment-panel" style="display: block; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
-                            <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
+                        <div id="payment-panel" style="display: block; background: var(--surface, rgba(15, 23, 42, 0.4)); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
+                            <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: var(--surface, rgba(15, 23, 42, 0.4)); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
                                 <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
                                     <span>💳</span> طريقة وتفاصيل الدفع للمستند المجمع
                                 </div>
@@ -2659,6 +2929,7 @@ try {
     </script>
     <script>
         window.SERVER_SINGLE_PAYMENTS = <?php echo $SERVER_SINGLE_PAYMENTS_json; ?>;
+        window.DB_ALL_TRANSFER_REFS = <?php echo $SERVER_ALL_TRANSFERS_json; ?>;
     </script>
     <script defer src="js/master-banks-helper.js?v=<?php echo file_exists('js/master-banks-helper.js') ? filemtime('js/master-banks-helper.js') : '1'; ?>"></script>
     <script defer src="js/single-cash-payment.js?v=<?php echo time(); ?>"></script>

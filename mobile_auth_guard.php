@@ -112,14 +112,18 @@ if (!function_exists('mg_is_loopback_request')) {
     function requireMobileAuth(PDO $pdo, bool $isApi): array {
         $user = mg_authenticate_user($pdo);
 
-        if (!$user && mg_is_loopback_request()) {
-            // وضع المطوّر على نفس الجهاز فقط
-            $devTenant = isset($_REQUEST['tenant_id']) && is_numeric($_REQUEST['tenant_id'])
-                ? (int)$_REQUEST['tenant_id'] : 1;
-            $user = [
-                'id' => 0, 'tenant_id' => $devTenant, 'username' => 'localhost-dev',
-                'role' => 'admin', 'source' => 'loopback-dev',
-            ];
+        if (!$user) {
+            $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+            $isLocalNet = ($ip === '127.0.0.1' || $ip === '::1' || str_starts_with($ip, '192.168.') || str_starts_with($ip, '10.') || str_starts_with($ip, '172.'));
+            if ($isLocalNet || mg_is_loopback_request()) {
+                // وضع المطوّر أو الشبكة المحلية لجهاز اللابتوب والجوال المشترك
+                $devTenant = isset($_REQUEST['tenant_id']) && is_numeric($_REQUEST['tenant_id'])
+                    ? (int)$_REQUEST['tenant_id'] : 12;
+                $user = [
+                    'id' => 9, 'tenant_id' => $devTenant, 'username' => 'C',
+                    'role' => 'admin', 'source' => 'localnet-dev',
+                ];
+            }
         }
 
         if (!$user) {

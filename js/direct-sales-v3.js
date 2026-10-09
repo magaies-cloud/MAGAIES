@@ -4379,6 +4379,18 @@ function submitInvoice(ignoreWarnings = false) {
             console.warn("Cloud push warning:", eCloud);
         }
     }
+    // 🪞 REAL-TIME MIRROR SYNC: Commit sales invoice directly to MariaDB
+    try {
+        fetch('api/mirror_sync.php?action=save_sales_invoice', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(r => r.json()).then(res => {
+            if (res && res.success && res.nextInvoiceNo) {
+                window._mirrorNextSalesNo = res.nextInvoiceNo;
+            }
+        }).catch(e => console.warn("Mirror sync sales failed:", e));
+    } catch(eMirror) {}
 
     // Notice: Inventory is NO LONGER DEDUCTED HERE for new invoices!
     // It will be deducted only upon Delivery.
