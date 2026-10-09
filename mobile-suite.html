@@ -3903,8 +3903,9 @@
         padding: 0 !important;
         margin: 0 !important;
         min-height: var(--app-height, 100dvh) !important;
-        height: var(--app-height, 100dvh) !important;
-        overflow: hidden !important;
+        height: auto !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
       }
       .mobile-app-wrapper {
         border-radius: 0 !important;
@@ -3912,8 +3913,9 @@
         max-width: 100vw !important;
         width: 100vw !important;
         min-height: var(--app-height, 100dvh) !important;
-        max-height: var(--app-height, 100dvh) !important;
-        height: var(--app-height, 100dvh) !important;
+        max-height: none !important;
+        overflow: visible !important;
+        height: auto !important;
         box-shadow: none !important;
       }
       .mock-status-bar {
@@ -3925,12 +3927,19 @@
         padding-right: max(env(safe-area-inset-right, 0px), 12px) !important;
       }
       nav.app-bottom-nav {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        z-index: 50 !important;
         padding-bottom: max(env(safe-area-inset-bottom, 0px), 8px) !important;
         padding-left: max(env(safe-area-inset-left, 0px), 8px) !important;
         padding-right: max(env(safe-area-inset-right, 0px), 8px) !important;
         height: calc(62px + env(safe-area-inset-bottom, 0px)) !important;
       }
       main.app-main-content {
+        overflow: visible !important;
+        height: auto !important;
         padding-bottom: calc(85px + env(safe-area-inset-bottom, 0px)) !important;
         padding-left: max(env(safe-area-inset-left, 0px), 12px) !important;
         padding-right: max(env(safe-area-inset-right, 0px), 12px) !important;
@@ -3942,8 +3951,9 @@
     body.is-mobile-device {
       padding: 0 !important;
       margin: 0 !important;
-      height: var(--app-height, 100dvh) !important;
-      overflow: hidden !important;
+      height: auto !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
     }
     html.is-mobile-device .mobile-app-wrapper,
     body.is-mobile-device .mobile-app-wrapper {
@@ -3952,8 +3962,9 @@
       max-width: 100vw !important;
       width: 100vw !important;
       min-height: var(--app-height, 100dvh) !important;
-      max-height: var(--app-height, 100dvh) !important;
-      height: var(--app-height, 100dvh) !important;
+      max-height: none !important;
+      overflow: visible !important;
+      height: auto !important;
       box-shadow: none !important;
     }
     html.is-mobile-device .mock-status-bar,

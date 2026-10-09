@@ -1092,6 +1092,10 @@ $currenciesData = [
       width: 100%;
       min-height: 100%;
       overflow-x: hidden;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+      touch-action: pan-y pinch-zoom;
+      overscroll-behavior-y: auto;
     }
 
     input, select, textarea, button {
@@ -1607,6 +1611,18 @@ $currenciesData = [
       }
     }
 
+    /* Native mobile and responsive outer styling */
+    .mobile-device-outer {
+      overflow: visible !important;
+      touch-action: pan-y pinch-zoom;
+    }
+    .mobile-device-outer > main {
+      overflow: visible !important;
+      height: auto !important;
+      padding-bottom: 140px !important;
+      touch-action: pan-y pinch-zoom;
+    }
+
     /* Native mobile view on actual phones (<= 640px) */
     @media (max-width: 640px) {
       html {
@@ -1636,7 +1652,7 @@ $currenciesData = [
       .mobile-device-outer > main {
         overflow: visible !important;
         height: auto !important;
-        padding-bottom: 120px !important;
+        padding-bottom: 140px !important;
       }
       .desktop-screen-switcher {
         display: none !important;
@@ -1647,7 +1663,8 @@ $currenciesData = [
         left: 0 !important;
         right: 0 !important;
         z-index: 50 !important;
-        padding-bottom: max(10px, env(safe-area-inset-bottom)) !important;
+        max-width: 100% !important;
+        padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
       }
     }
 
@@ -1656,6 +1673,9 @@ $currenciesData = [
       body {
         padding: 16px 12px;
         background: #090d16;
+      }
+      .mobile-device-outer {
+        min-height: 852px;
       }
       .bottom-bar-fixed {
         position: sticky;
@@ -2106,7 +2126,7 @@ $currenciesData = [
   </div>
 
   <!-- Mobile Device Screen Container -->
-  <div id="mobileContainer" class="mobile-device-outer w-full max-w-[393px] bg-slate-950 sm:rounded-[36px] sm:border-[4px] sm:border-slate-800 sm:shadow-2xl overflow-hidden flex flex-col relative transition-all duration-300 min-h-screen sm:min-h-[852px]">
+  <div id="mobileContainer" class="mobile-device-outer w-full max-w-[393px] bg-slate-950 sm:rounded-[36px] sm:border-[4px] sm:border-slate-800 sm:shadow-2xl flex flex-col relative transition-all duration-300 min-h-screen sm:min-h-[852px]" style="overflow: visible !important;">
 
     <!-- ═════════════════════════════════════════════════════════════════
          1. السطر الأول المرفوع (الهيدر العلوي):
@@ -2268,7 +2288,7 @@ $currenciesData = [
     </div>
 
     <!-- Main Scrollable Content (بدون مساحات ميتة متصل بانسيابية) -->
-    <main class="flex-1 overflow-y-auto no-scrollbar p-2.5 space-y-2.5 pb-28 text-xs">
+    <main class="w-full p-2.5 space-y-2.5 pb-36 text-xs" style="overflow: visible !important; touch-action: pan-y pinch-zoom;">
 
       <!-- أزرار الدفع الزجاجية العصرية المضيئة الحواف بوضوح تام -->
       <div class="p-1.5 rounded-2xl bg-slate-900/95 border-2 border-slate-700/80 shadow-[0_0_15px_rgba(56,189,248,0.18)]">
@@ -7868,16 +7888,15 @@ $currenciesData = [
       if (dropdown) dropdown.classList.remove('hidden');
     }
 
-    async function onAccountInputFocus(target) {
+    function onAccountInputFocus(target) {
       liveSearchAccount(target);
-      // سحب فوري مباشر من الداتابيز في الخلفية لضمان ظهور أي عميل/مورد/مصروف أضيف الآن على اللابتوب
-      try {
-        await fetchLiveDbData(false);
+      // سحب فوري صامت في الخلفية دون تعطيل واجهة المستخدم (0ms Instant Focus)
+      fetchLiveDbData(false).then(() => {
         const dd = document.getElementById(target + 'Dropdown');
         if (dd && !dd.classList.contains('hidden')) {
           liveSearchAccount(target);
         }
-      } catch(e) {}
+      }).catch(() => {});
     }
 
     function getCategoryBadge(cat) {
@@ -7966,7 +7985,7 @@ $currenciesData = [
             <div>لا توجد حسابات مطابقة للبحث في هذا التصنيف</div>
             <div class="text-[10px] text-slate-500">اختر "الكل" أو تأكد من الاسم المكتوب</div>
            </div>`
-        : results.map(a => {
+        : results.slice(0, 40).map(a => {
             const safeName = a.name.replace(/'/g, "\\'");
             return `
               <div onmousedown="event.preventDefault(); selectAcc('${target}', '${safeName}')" onclick="selectAcc('${target}', '${safeName}')" class="p-3 hover:bg-slate-900 active:bg-slate-800 border-b border-slate-800/80 cursor-pointer flex items-center justify-between text-xs transition select-none">
