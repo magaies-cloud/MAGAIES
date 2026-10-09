@@ -46,8 +46,10 @@ try {
     var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
     var isPC = /Windows NT|Macintosh|X11; Linux x86_64|CrOS/i.test(ua) && !/Android|iPhone|iPod|Mobile/i.test(ua);
     if (isPureMobile || (!isPC && (window.innerWidth || screen.width) < 768)) {
-        window.location.replace('mobile-voucher.php' + window.location.search);
-    } else {
+        var qs = window.location.search || '';
+        var extra = qs.includes('force_mobile=1') ? '' : (qs ? '&force_mobile=1' : '?force_mobile=1');
+        window.location.replace('mobile-voucher.php' + qs + extra);
+    } else if (isPC) {
         localStorage.setItem('magaiees_view_preference', 'desktop');
         document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
     }

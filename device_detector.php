@@ -14,24 +14,25 @@ if (!function_exists('isDeviceDesktopOrLaptop')) {
         if (isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1') return true;
         if (isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1') return false;
 
-        // 1. أولوية اختيار المستخدم الصريح المحفوظ (User View Preference)
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $secMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
+
+        // 1. فحص هيدر Client Hints المعتمد من المتصفحات الحديثة (?1 للجوال الصريح)
+        if ($secMobile === '?1') return false;
+
+        // 2. بصمات الهواتف الذكية والأجهزة اللوحية الصريحة (تأخذ الأولوية القصوى لمنع أي طرد)
+        if (preg_match('/(android.*mobile|iphone|ipod|blackberry|iemobile|opera mini|windows phone|mobile)/i', $ua)) {
+            return false;
+        }
+
+        // 3. أولوية اختيار المستخدم الصريح المحفوظ إن لم يكن الجهاز جوالاً
         $pref = $_COOKIE['magaiees_view_preference'] ?? '';
         if ($pref === 'mobile') return false;
         if ($pref === 'desktop') return true;
 
-        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
-        $secMobile = $_SERVER['HTTP_SEC_CH_UA_MOBILE'] ?? '';
-
-        // 2. فحص هيدر Client Hints المعتمد من المتصفحات الحديثة (?1 للجوال، ?0 للكمبيوتر)
-        if ($secMobile === '?1') return false;
         if ($secMobile === '?0') return true;
 
-        // 3. بصمات الهواتف الذكية الصريحة
-        if (preg_match('/(android.*mobile|iphone|ipod|blackberry|iemobile|opera mini|windows phone)/i', $ua)) {
-            return false;
-        }
-
-        // 4. أنظمة تشغيل الكمبيوتر واللابتوب (Windows NT هو دائماً لابتوب أو ديسكتوب حتى لو كان بشاشة لمس)
+        // 4. أنظمة تشغيل الكمبيوتر واللابتوب (Windows NT هو لابتوب أو ديسكتوب)
         if (preg_match('/windows nt/i', $ua)) {
             return true;
         }

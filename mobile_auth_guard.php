@@ -35,6 +35,12 @@ if (!function_exists('mg_is_loopback_request')) {
         if ($token === '' && !empty($_SERVER['HTTP_X_AUTH_TOKEN'])) {
             $token = trim($_SERVER['HTTP_X_AUTH_TOKEN']);
         }
+        if ($token === '' && !empty($_REQUEST['token'])) {
+            $token = trim((string)$_REQUEST['token']);
+        }
+        if ($token === '' && !empty($_REQUEST['saas_token'])) {
+            $token = trim((string)$_REQUEST['saas_token']);
+        }
         return trim(urldecode((string)$token));
     }
 
@@ -133,7 +139,45 @@ if (!function_exists('mg_is_loopback_request')) {
                 ], JSON_UNESCAPED_UNICODE);
             } else {
                 $back = basename($_SERVER['SCRIPT_NAME'] ?? 'mobile-voucher.php');
-                header('Location: login.php?redirect=' . rawurlencode($back));
+                $qs = !empty($_SERVER['QUERY_STRING']) ? ('?' . $_SERVER['QUERY_STRING']) : '';
+                $targetUrl = rawurlencode($back . $qs);
+                ?>
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تأكيد تسجيل الدخول</title>
+    <script>
+    (function() {
+        try {
+            var token = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
+            if (token) {
+                var isHttps = window.location.protocol === 'https:';
+                var host = window.location.hostname;
+                var isElsajana = host.endsWith('elsajana.com');
+                var domainPart = isElsajana ? '; domain=.elsajana.com' : '';
+                var cookieFlags = '; path=/; max-age=31536000; SameSite=Lax' + (isHttps ? '; Secure' : '') + domainPart;
+                document.cookie = 'saas_token=' + encodeURIComponent(token) + cookieFlags;
+                document.cookie = 'authToken=' + encodeURIComponent(token) + cookieFlags;
+                document.cookie = 'session_active=true' + cookieFlags;
+                window.location.reload();
+                return;
+            }
+        } catch(e) {}
+        window.location.replace('login.php?redirect=<?php echo $targetUrl; ?>');
+    })();
+    </script>
+</head>
+<body style="background:#020617;color:#fff;font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">
+    <div style="text-align:center;">
+        <div style="width:36px;height:36px;border:3px solid #38bdf8;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px;"></div>
+        <p style="font-size:14px;color:#94a3b8;">جارٍ تأكيد الجلسة والتحقق الآمن...</p>
+    </div>
+    <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+</body>
+</html>
+                <?php
             }
             exit;
         }

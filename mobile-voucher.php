@@ -26,9 +26,16 @@ header("Pragma: no-cache");
 
 require_once __DIR__ . '/device_detector.php';
 
-// ── توجيه ذكي فوري: منع فتح شاشة الجوال على اللابتوب وتحويله لشاشة السندات المتكاملة ──
+// ── استقرار شاشة الجوال: تعيين تفضيل العرض للجوال لمنع أي طرد خاطئ ──
+if (!isset($_GET['force_desktop'])) {
+    if (!isset($_COOKIE['magaiees_view_preference']) || $_COOKIE['magaiees_view_preference'] !== 'mobile') {
+        @setcookie('magaiees_view_preference', 'mobile', time() + 31536000, '/', '', isset($_SERVER['HTTPS']), false);
+    }
+}
+
+// ── توجيه ذكي: تحويل للكمبيوتر فقط إذا طُلب صراحة force_desktop=1 ──
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' && !isset($_GET['api']) && !isset($_GET['action'])) {
-    if (isDeviceDesktopOrLaptop() && !isset($_GET['force_mobile']) && !isset($_GET['preview'])) {
+    if (isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1') {
         $qs = !empty($_SERVER['QUERY_STRING']) ? ('?' . $_SERVER['QUERY_STRING']) : '';
         header("Location: vouchers-hub.php{$qs}");
         exit;
@@ -895,9 +902,11 @@ foreach ($accountsList as $al) {
 }
 
 try {
-    $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");
+    $stmtV = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id DESC LIMIT 60");
     $stmtV->execute([$currentTenantId]);
-    while ($row = $stmtV->fetch(PDO::FETCH_ASSOC)) {
+    $rawRows = $stmtV->fetchAll(PDO::FETCH_ASSOC);
+    $rawRows = array_reverse($rawRows);
+    foreach ($rawRows as $row) {
         $d = json_decode($row['data'], true);
         if ($d && !empty($d['voucherNo'])) {
             $rawFrom = $d['fromAccount'] ?? '';
@@ -966,26 +975,16 @@ $currenciesData = [
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <!-- ⚡ SMART LAPTOP VOUCHER GATE (تحويل ذكي للكمبيوتر ومنع الجوال نهائياً) -->
+  <!-- ⚡ استقرار شاشة حركة مالية للجوال ومنع أي تحويل خاطئ -->
   <script>
-  (function enforceLaptopVoucherGate() {
+  (function enforceMobileStability() {
     try {
+      localStorage.setItem('magaiees_view_preference', 'mobile');
+      document.cookie = "magaiees_view_preference=mobile; path=/; max-age=31536000; SameSite=Lax";
+
       var params = new URLSearchParams(window.location.search);
-      if (params.get('force_mobile') === '1' || params.get('preview') === '1') return;
-
-      var ua = navigator.userAgent || '';
-      var isPureMobile = /iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua) || (/Android/i.test(ua) && /Mobile/i.test(ua));
-      var isWindowsPC = /Windows NT/i.test(ua);
-      var isMacPC = /Macintosh/i.test(ua) && !(navigator.maxTouchPoints > 1 && screen.width < 1024);
-      var isLinuxPC = (/X11; Linux x86_64/i.test(ua) || /CrOS/i.test(ua)) && !/Android/i.test(ua);
-      var isLargeScreen = Math.max(window.screen.width, window.screen.height) >= 1024;
-      var hasFinePointer = window.matchMedia && (window.matchMedia('(pointer: fine)').matches || window.matchMedia('(any-pointer: fine)').matches);
-
-      var isDesktopOrLaptop = !isPureMobile && (isWindowsPC || isMacPC || isLinuxPC || (isLargeScreen && hasFinePointer));
-      if (isDesktopOrLaptop) {
-        localStorage.setItem('magaiees_view_preference', 'desktop');
-        document.cookie = "magaiees_view_preference=desktop; path=/; max-age=31536000; SameSite=Lax";
-        window.location.replace('vouchers-hub.php' + window.location.search);
+      if (params.get('force_desktop') === '1') {
+        window.location.replace('single-cash-payment.php?force_desktop=1');
       }
     } catch(e) {}
   })();
@@ -1053,23 +1052,13 @@ $currenciesData = [
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>حركة مالية - تصميم شاشات الجوال المتطورة</title>
-  
-  <!-- CDN Tailwind with full dynamic JIT styling -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Local Fonts, Icons & Offline Sync Engine (100% Zero-CDN Offline) -->
+  <!-- ⚡ 100% Zero-CDN Local High-Speed Styles & Icons (سرعة فورية 0ms بدون انتظار الإنترنت) -->
   <link rel="stylesheet" href="css/cairo.css">
   <link rel="stylesheet" href="css/tajawal.css">
   <link rel="stylesheet" href="css/all.min.css">
+  <link rel="stylesheet" href="css/tailwind.min.css">
+  <script src="js/tailwind.min.js"></script>
   <script src="js/offline-sync-engine.js?v=20261009_v1"></script>
-
-  <!-- FontAwesome 6 -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  
-  <!-- Google Fonts: Cairo (Arabic) + Top 3 Clear Number Fonts (JetBrains Mono, Inter, Montserrat) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
   
   <style>
     :root {
@@ -10187,84 +10176,41 @@ $currenciesData = [
     setupAmountLongPress(document.getElementById('usdAmount'), 'usd');
     startNewVoucher();
 
-    // فحص وجلب أحدث بيانات السيرفر وقاعدة البيانات MariaDB بالخلفية
+    // جلب أحدث بيانات السيرفر بالخلفية لمرة واحدة عند بدء التشغيل
     fetchLiveDbData(false);
 
-    // التحديث التلقائي الدوري كل 4 ثوانٍ لسحب أي حسابات (عملاء، موردين، مصروفات، خزن، بنوك) تضاف على اللابتوب فوراً
-    setInterval(() => {
-      if (!isOfflineMode && document.visibilityState !== 'hidden') {
+    // تحديث ذكي ومكبوح زمنياً (Throttled Background Refresh) عند العودة للتطبيق (كل 60 ثانية على الأقل)
+    let lastFocusFetchTime = Date.now();
+    function throttledBackgroundRefresh() {
+      const now = Date.now();
+      if (now - lastFocusFetchTime > 60000 && !isOfflineMode) {
+        lastFocusFetchTime = now;
         fetchLiveDbData(false);
       }
-    }, 4000);
+    }
 
-    // تحديث فوري عند العودة إلى تطبيق الموبايل أو التركيز على الشاشة
-    window.addEventListener('focus', () => { fetchLiveDbData(false); });
+    window.addEventListener('focus', throttledBackgroundRefresh);
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden) fetchLiveDbData(false);
+      if (!document.hidden) throttledBackgroundRefresh();
     });
 
     // استماع لحظي لحالة اتصال الشبكة
     window.addEventListener('online', () => { handleUnifiedSyncRefresh(); });
-    window.addEventListener('offline', () => { updateNetworkStatusUI(false, 'تحديث'); });
+    window.addEventListener('offline', () => { updateNetworkStatusUI(false, 'أوفلاين'); });
 
     // ════════════════════════════════════════════════════════════════
-    // وظيفة التحديث الحي الفوري في الحين (تخطي الكاش ومزامنة MariaDB)
+    // وظيفة التحديث الحي الفوري عند الطلب اليدوي
     // ════════════════════════════════════════════════════════════════
     async function forceLiveRefresh() {
       playFeedbackTone('tap');
-      showToastNotification('🔄 جارٍ التحديث الحي ومزامنة قاعدة البيانات MariaDB...');
+      showToastNotification('🔄 جارٍ التحديث ومزامنة قاعدة البيانات MariaDB...');
       try {
         await fetchLiveDbData(true);
       } catch(e) {}
-      // إرسال إشارة للسيرفر لتحديث كافة الأجهزة المتصلة
-      fetch('/trigger-reload').catch(() => {});
       setTimeout(() => {
-        window.location.href = window.location.pathname + '?live=' + Date.now();
-      }, 500);
+        window.location.reload();
+      }, 400);
     }
-
-    // ════════════════════════════════════════════════════════════════
-    // اتصال التحديث الحي المباشر (Live Reload) لظهور التعديلات فورياً في الحين
-    // ════════════════════════════════════════════════════════════════
-    (function initLiveReload() {
-      let evtSource = null;
-      let reconnectTimer = null;
-
-      function connect() {
-        if (evtSource) {
-          try { evtSource.close(); } catch(e) {}
-        }
-        try {
-          evtSource = new EventSource('/live-reload-sse');
-          evtSource.onopen = function() {
-            console.log('⚡ متصل بخادم التحديث الحي المباشر');
-          };
-          evtSource.onmessage = function(e) {
-            if (e.data === 'reload') {
-              console.log('🔄 تم استلام إشارة تحديث فوري من الخادم - إعادة التحميل الآن...');
-              window.location.href = window.location.pathname + '?live=' + Date.now();
-            }
-          };
-          evtSource.onerror = function() {
-            try { evtSource.close(); } catch(e) {}
-            if (!reconnectTimer) {
-              reconnectTimer = setTimeout(() => {
-                reconnectTimer = null;
-                connect();
-              }, 2500);
-            }
-          };
-        } catch(err) {
-          if (!reconnectTimer) {
-            reconnectTimer = setTimeout(() => {
-              reconnectTimer = null;
-              connect();
-            }, 3000);
-          }
-        }
-      }
-      connect();
-    })();
   </script>
 <script>
 
