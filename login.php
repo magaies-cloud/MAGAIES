@@ -38,7 +38,7 @@
         // إذا كان المستخدم مسجلاً بالفعل، يتم توجيهه فوراً للرابط المطلوب أو للشاشة الذكية لجهازه دون الحاجة لطلب ?direct=1
         if ((token || sessionActive) && !isForced) {
             var customTarget = urlParams.get('url') || urlParams.get('target') || urlParams.get('target_url') || urlParams.get('redirect');
-            if (customTarget) {
+            if (customTarget && !/^\s*([a-z][a-z0-9+.-]*:|\/\/|\\)/i.test(customTarget)) {
                 window.location.replace(customTarget);
                 return;
             }

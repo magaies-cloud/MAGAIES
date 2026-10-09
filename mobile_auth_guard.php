@@ -150,9 +150,14 @@ if (!function_exists('mg_is_loopback_request')) {
     <title>تأكيد تسجيل الدخول</title>
     <script>
     (function() {
+        var loginUrl = 'login.php?reauth=1&redirect=<?php echo $targetUrl; ?>';
         try {
             var token = localStorage.getItem('authToken') || localStorage.getItem('saas_token');
-            if (token) {
+            // محاولة واحدة فقط لكل تبويب: إذا رفض السيرفر الرمز (منتهي أو أوفلاين) لا نعيد التحميل مرة أخرى
+            var tried = sessionStorage.getItem('mg_auth_bridge_tried') === '1';
+            var usable = token && token.indexOf('offline_token_') !== 0;
+            if (usable && !tried) {
+                sessionStorage.setItem('mg_auth_bridge_tried', '1');
                 var isHttps = window.location.protocol === 'https:';
                 var host = window.location.hostname;
                 var isElsajana = host.endsWith('elsajana.com');
@@ -160,12 +165,12 @@ if (!function_exists('mg_is_loopback_request')) {
                 var cookieFlags = '; path=/; max-age=31536000; SameSite=Lax' + (isHttps ? '; Secure' : '') + domainPart;
                 document.cookie = 'saas_token=' + encodeURIComponent(token) + cookieFlags;
                 document.cookie = 'authToken=' + encodeURIComponent(token) + cookieFlags;
-                document.cookie = 'session_active=true' + cookieFlags;
                 window.location.reload();
                 return;
             }
+            sessionStorage.removeItem('mg_auth_bridge_tried');
         } catch(e) {}
-        window.location.replace('login.php?redirect=<?php echo $targetUrl; ?>');
+        window.location.replace(loginUrl);
     })();
     </script>
 </head>
