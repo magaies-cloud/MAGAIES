@@ -84,7 +84,7 @@
     } catch(e) {}
 })();
 </script>
-<script src="js/lang.js"></script>
+<script src="js/lang.js" defer></script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
@@ -95,7 +95,7 @@
 })();
 </script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/tajawal.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="preload" as="image" href="assets/user_bg_fast.jpg">
@@ -115,10 +115,10 @@
     <link rel="icon" type="image/x-icon" href="favicon.ico?v=2026_m_v5">
     <link rel="shortcut icon" href="assets/favicon.ico?v=2026_m_v5">
     <meta name="theme-color" content="#0F172A">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/all.min.css">
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14"><link rel="stylesheet" href="css/theme.css?v=20260723_v14">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
-    <script src="js/master-device-engine.js?v=2026_master_v1"></script>
+    <script src="js/master-device-engine.js?v=2026_master_v1" defer></script>
     <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
         <style>
         body, body.has-sidebar, body.has-sidebar.sidebar-open {

@@ -287,7 +287,7 @@
 
         // Listen for storage events (multi-tab sync)
         window.addEventListener('storage', (e) => {
-            if (e.key === 'magaies_active_theme' || e.key === 'magaiees_mobile_theme' || e.key === 'erp_theme') {
+            if (e.key === 'magaies_active_theme') {
                 if (e.newValue) applyTheme(e.newValue, false);
             }
         });

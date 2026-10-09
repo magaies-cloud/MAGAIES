@@ -39,9 +39,7 @@
   <link rel="stylesheet" href="css/tailwind.min.css">
   <link rel="stylesheet" href="css/all.min.css">
   <link rel="stylesheet" href="css/theme.css?v=20261008_v21themes_elegant">
-  <script src="js/tailwind.min.js"></script>
-  <link rel="prefetch" href="mobile-voucher.php?force_mobile=1" as="document">
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Cache-Control" content="no-cache, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <script>
@@ -79,8 +77,7 @@
 
     if (!token && !user && !sessionActive) {
       var qs = window.location.search;
-      var loginUrl = window.location.pathname.includes('/ELSAJANA2/magaies/') ? 'login.php' : '/ELSAJANA2/magaies/login.php';
-      window.location.replace(loginUrl + qs);
+      window.location.replace('login.php' + qs);
     }
   })();
 
@@ -91,8 +88,7 @@
       sessionStorage.removeItem('session_active');
       document.cookie = "session_active=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       document.cookie = "saas_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      var loginUrl = window.location.pathname.includes('/ELSAJANA2/magaies/') ? 'login.php' : '/ELSAJANA2/magaies/login.php';
-      window.location.replace(loginUrl);
+      window.location.replace('login.php');
     }
   }
   </script>
@@ -160,7 +156,6 @@
   </script>
   <style>
     @import url('css/cairo.css');
-    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap');
     
     * {
       font-family: 'Cairo', system-ui, -apple-system, sans-serif;
@@ -172,7 +167,7 @@
     html, body {
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-y: auto;
-      touch-action: pan-y pinch-zoom;
+      touch-action: manipulation;
       text-rendering: optimizeSpeed;
     }
     @media (max-width: 768px) {
@@ -180,6 +175,12 @@
         backdrop-filter: blur(6px) !important;
         -webkit-backdrop-filter: blur(6px) !important;
       }
+    }
+    [id^="modalOp"] > div.glass-base {
+      max-height: calc(100dvh - 24px) !important;
+      padding-bottom: max(24px, env(safe-area-inset-bottom, 24px)) !important;
+      overscroll-behavior: contain !important;
+      -webkit-overflow-scrolling: touch !important;
     }
     .op-btn, .glass-card-interactive {
       transform: translateZ(0);
@@ -12883,16 +12884,16 @@
       window.addEventListener('online', function() { syncMagaieesNetUI(true); });
       window.addEventListener('offline', function() { syncMagaieesNetUI(false); });
 
-      // 3. Ultra-light periodic server heartbeat check (every 12 seconds)
+      // 3. Ultra-light periodic server heartbeat check (every 45 seconds when visible)
       setInterval(function() {
-        if (navigator.onLine === false) {
-          syncMagaieesNetUI(false);
+        if (document.hidden || navigator.onLine === false) {
+          if (navigator.onLine === false) syncMagaieesNetUI(false);
           return;
         }
         fetch('mobile-dashboard.php?action=heartbeat_ping', { method: 'HEAD', cache: 'no-store' })
           .then(function(res) { syncMagaieesNetUI(res.ok); })
           .catch(function() { syncMagaieesNetUI(false); });
-      }, 12000);
+      }, 45000);
 
       // 4. Kinetic micro-gestures & tactile vibrations for top bar icons, Row 2 glass tiles & operation buttons
       var allInteractiveTiles = document.querySelectorAll('.flagship-tile, .row2-glass-tile, .op-btn');

@@ -17,7 +17,15 @@ try {
         $uVal = $stmtUnits ? $stmtUnits->fetchColumn() : null;
         if ($uVal) $preloadedUnitsJson = $uVal;
 
-        $stmtItems = $pdo->query("SELECT data FROM items WHERE is_deleted = 0 OR is_deleted IS NULL");
+        // Resolve active tenant ID
+        $tId = 2;
+        if (session_status() === PHP_SESSION_NONE) @session_start();
+        if (!empty($_SESSION['user']['tenant_id'])) $tId = (int)$_SESSION['user']['tenant_id'];
+        elseif (!empty($_COOKIE['currentTenantId'])) $tId = (int)$_COOKIE['currentTenantId'];
+        elseif (!empty($GLOBAL_TENANT_ID)) $tId = (int)$GLOBAL_TENANT_ID;
+
+        $stmtItems = $pdo->prepare("SELECT data FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 500");
+        $stmtItems->execute([$tId]);
         $pItems = [];
         while ($r = $stmtItems->fetch(PDO::FETCH_ASSOC)) {
             if (!empty($r['data'])) {
@@ -28,11 +36,6 @@ try {
         $preloadedItemsJson = json_encode($pItems, JSON_UNESCAPED_UNICODE);
 
         // Preload sales invoices for tenant to mirror all devices
-        $tId = 2;
-        if (session_status() === PHP_SESSION_NONE) @session_start();
-        if (!empty($_SESSION['user']['tenant_id'])) $tId = (int)$_SESSION['user']['tenant_id'];
-        elseif (!empty($_COOKIE['currentTenantId'])) $tId = (int)$_COOKIE['currentTenantId'];
-
         $stmtSales = $pdo->prepare("SELECT invoice_no, data FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id DESC LIMIT 500");
         $stmtSales->execute([$tId]);
         $pSales = [];
@@ -436,8 +439,7 @@ try {
         .custom-dropdown-list.show { display: flex; }
         td:has(.custom-dropdown-list.show),
         .m-card-full:has(.custom-dropdown-list.show),
-        .custom-dropdown-input-wrap:has(.custom-dropdown-list.show) { z-index: 99999 !important; }
-        .grid-scroll-wrap { min-height: 350px !important; overflow: visible !important; }
+        .grid-scroll-wrap { min-height: 350px !important; overflow-x: auto !important; overflow-y: visible !important; -webkit-overflow-scrolling: touch !important; max-width: 100% !important; }
 
         .custom-dropdown-item {
             padding: 11px 15px; cursor: pointer; font-size: 1.05rem; font-weight: 600;
@@ -750,10 +752,13 @@ try {
         }
 
         /* ── Items panel ── */
-        #items-panel { flex: 1; }
+        #items-panel { flex: 1; min-width: 0; }
         #items-panel .grid-scroll-wrap {
             min-height: unset !important;
-            overflow: visible !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+            -webkit-overflow-scrolling: touch !important;
+            max-width: 100% !important;
         }
         .panel-header-row { margin-bottom: 10px; }
         .quick-add-box { max-width: 280px !important; }
@@ -1036,16 +1041,24 @@ try {
         box-shadow: 0 12px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(16, 185, 129, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.08) !important;
     }
 
+    #sales-top-container {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 15px !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
     #sales-top-container #form-fields-card {
-        flex: 1; 
-        min-width: 0; 
+        flex: 1 1 500px !important; 
+        min-width: 0 !important; 
+        max-width: 100% !important;
         transition: flex 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), max-width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
     }
     #sales-top-container #totals-calc-card {
         display: flex !important;
-        flex: 0 0 360px;
-        min-width: 360px;
-        max-width: 360px;
+        flex: 1 1 340px !important;
+        min-width: 280px !important;
+        max-width: 100% !important;
         opacity: 1;
         overflow: hidden;
         white-space: nowrap;

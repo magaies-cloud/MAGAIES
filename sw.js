@@ -9,17 +9,11 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-09-featherweight-v2';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-09-featherweight-v4';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
     './mobile_erp_global_suite.html',
-    './mobile-suite.html',
-    './mobile-voucher.php',
-    './direct-sales.php',
-    './single-cash-payment.php',
-    './purchase.php',
-    './sales-delivery.php',
     './assets/logo.png',
     './assets/icon-192.png',
     './assets/icon-256.png',
@@ -43,7 +37,6 @@ const PRECACHE_ASSETS = [
     './webfonts/tajawal/tajawal-arabic-400.woff2',
     './webfonts/tajawal/tajawal-arabic-700.woff2',
     './js/offline-sync-engine.js',
-    './js/tailwind.min.js',
     './js/laptop-voice-engine.js',
     './js/desktop-theme-switcher.js',
     './js/pwa-manager.js'

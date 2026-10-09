@@ -179,10 +179,16 @@
         },
 
         startMicroHeartbeat() {
-            // نبضة خفيفة كل 5 ثوانٍ لفحص الاتصال الحقيقي بالسيرفر
+            let lastPing = 0;
+            // فحص ذكي وغير مجهد للشبكة والبطارية: يتوقف تلقائياً إذا كان التطبيق في الخلفية
             this.heartbeatTimer = setInterval(async () => {
+                if (document.hidden) return;
                 const pending = this.getPendingCount();
-                // إذا كان هناك فواتير معلقة، نقلل زمن النبضة إلى 3 ثوانٍ لالتقاط أي ثانية إنترنت خاطفة!
+                const now = Date.now();
+                const minInterval = pending > 0 ? 10000 : 35000;
+                if (now - lastPing < minInterval) return;
+                lastPing = now;
+
                 const isReachable = await this.pingServer();
                 const prevState = this.isOnlineState;
                 this.isOnlineState = isReachable;
@@ -194,7 +200,7 @@
                 if (isReachable && pending > 0 && !this.isSyncing) {
                     this.checkAndSync();
                 }
-            }, 4500);
+            }, 5000);
         },
 
         async pingServer() {

@@ -372,7 +372,8 @@ html.light-theme #dimensionBadge {
 /* ═══════════════════════════════════════════════════════
    CSS CUSTOM PROPERTIES — Design Tokens
    ═══════════════════════════════════════════════════════ */
-:root.light-theme,
+:root[data-theme="ultra_white"],
+:root[data-theme="light"],
 [data-theme="light"],
 [data-theme="ultra_white"],
 html[data-theme="light"],

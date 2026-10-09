@@ -4,11 +4,11 @@
 <link rel="stylesheet" href="css/theme.css?v=20261008_v21themes_elegant">
 <script src="js/offline-sync-engine.js?v=20261009_v1"></script>
 <script src="js/desktop-theme-switcher.js?v=20261008_v21themes_elegant"></script>
-<script src="js/hls.light.min.js"></script>
-<script src="js/bban_auto_helper.js"></script>
-<script src="js/master-banks-helper.js?v=20260924_v1"></script>
-<script src="js/permissions-manager.js"></script>
-<script src="js/audit-tracker.js?v=20260927"></script>
+<script src="js/hls.light.min.js" defer></script>
+<script src="js/bban_auto_helper.js" defer></script>
+<script src="js/master-banks-helper.js?v=20260924_v1" defer></script>
+<script src="js/permissions-manager.js" defer></script>
+<script src="js/audit-tracker.js?v=20260927" defer></script>
 <script>
     window.magaieesDeferredInstallPrompt = null;
     window.addEventListener('beforeinstallprompt', function(e) {
@@ -1509,8 +1509,8 @@ html.light-theme .desktop-theme-modal-footer {
         </a>
     </div>
 </div>
-<script src="js/auto-charts.js?v=<?php echo time(); ?>"></script>
-<script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : time(); ?>"></script>
+<script src="js/auto-charts.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-charts.js') ? filemtime(__DIR__ . '/../js/auto-charts.js') : '20261009'; ?>" defer></script>
+<script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : '20261009'; ?>" defer></script>
 <script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
 <script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script>
 <script src="js/auto-header-scroll.js?v=<?php echo file_exists(__DIR__ . '/../js/auto-header-scroll.js') ? filemtime(__DIR__ . '/../js/auto-header-scroll.js') : time(); ?>" defer></script>

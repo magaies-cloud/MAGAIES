@@ -83,7 +83,6 @@
   <link rel="stylesheet" href="css/tajawal.css">
   <link rel="stylesheet" href="css/all.min.css">
   <link rel="stylesheet" href="css/tailwind.min.css">
-  <script src="js/tailwind.min.js"></script>
   <script src="js/offline-sync-engine.js?v=20261009_v1"></script>
   
   <style>
@@ -99,18 +98,27 @@
       -webkit-tap-highlight-color: transparent;
       font-family: var(--app-font);
     }
-    html, body {
+    html {
       margin: 0;
       padding: 0;
       background-color: #020617;
       color: #f8fafc;
       width: 100%;
       min-height: 100%;
-      overflow-x: hidden;
+      overflow-x: clip;
       overflow-y: auto !important;
       -webkit-overflow-scrolling: touch !important;
-      touch-action: pan-y pinch-zoom;
-      overscroll-behavior-y: auto;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #020617;
+      color: #f8fafc;
+      width: 100%;
+      min-height: 100%;
+      overflow: visible !important;
+      -webkit-overflow-scrolling: auto !important;
+      touch-action: manipulation;
     }
 
     input, select, textarea, button {
@@ -635,13 +643,13 @@
     /* Native mobile and responsive outer styling */
     .mobile-device-outer {
       overflow: visible !important;
-      touch-action: pan-y pinch-zoom;
+      touch-action: manipulation;
     }
     .mobile-device-outer > main {
       overflow: visible !important;
       height: auto !important;
       padding-bottom: 140px !important;
-      touch-action: pan-y pinch-zoom;
+      touch-action: manipulation;
     }
 
     /* Native mobile view on actual phones (<= 640px) */
@@ -649,6 +657,7 @@
       html {
         height: auto !important;
         min-height: 100% !important;
+        overflow-x: clip !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
       }
@@ -657,8 +666,8 @@
         background: #020617 !important;
         height: auto !important;
         min-height: 100% !important;
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch !important;
+        overflow: visible !important;
+        -webkit-overflow-scrolling: auto !important;
       }
       .mobile-device-outer {
         width: 100% !important;
@@ -1324,7 +1333,7 @@
     </div>
 
     <!-- Main Scrollable Content (بدون مساحات ميتة متصل بانسيابية) -->
-    <main class="w-full p-2.5 space-y-2.5 pb-36 text-xs" style="overflow: visible !important; touch-action: pan-y pinch-zoom;">
+    <main class="w-full p-2.5 space-y-2.5 pb-36 text-xs" style="overflow: visible !important; touch-action: manipulation;">
 
       <!-- أزرار الدفع الزجاجية العصرية المضيئة الحواف بوضوح تام -->
       <div class="p-1.5 rounded-2xl bg-slate-900/95 border-2 border-slate-700/80 shadow-[0_0_15px_rgba(56,189,248,0.18)]">

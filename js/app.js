@@ -1835,16 +1835,28 @@ JSON.parse = function(val) {
 
 // --- Global Theme Initialization (runs immediately to prevent flashing) ---
 (function() {
-    let saved = localStorage.getItem('magaiees_mobile_theme') || localStorage.getItem('erp_theme') || 'midnight_obsidian';
-    if (saved === 'light') saved = 'ultra_white';
-    if (saved === 'dark') saved = 'midnight_obsidian';
+    const LIGHT_THEMES = ['ultra_white', 'warm_cream', 'exec_gray', 'solar_contrast'];
+    const ALIAS_MAP = { 'light': 'ultra_white', 'dark': 'midnight_obsidian', 'warm-alabaster': 'warm_cream', 'pure-platinum': 'exec_gray' };
+    let saved = localStorage.getItem('magaies_active_theme') || localStorage.getItem('magaiees_theme') || localStorage.getItem('magaiees_mobile_theme') || localStorage.getItem('erp_theme') || 'midnight_obsidian';
+    if (ALIAS_MAP[saved]) saved = ALIAS_MAP[saved];
     document.documentElement.setAttribute('data-theme', saved);
-    if (saved === 'ultra_white' || saved === 'warm_cream' || saved === 'exec_gray') {
+    const isLight = LIGHT_THEMES.includes(saved);
+    if (isLight) {
         document.documentElement.classList.add('light-theme');
         document.documentElement.classList.remove('dark-theme');
     } else {
         document.documentElement.classList.remove('light-theme');
         document.documentElement.classList.add('dark-theme');
+    }
+    if (document.body) {
+        document.body.setAttribute('data-theme', saved);
+        if (isLight) {
+            document.body.classList.add('light-theme');
+            document.body.classList.remove('dark-theme');
+        } else {
+            document.body.classList.remove('light-theme');
+            document.body.classList.add('dark-theme');
+        }
     }
 })();
 

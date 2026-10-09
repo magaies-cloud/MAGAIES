@@ -25,27 +25,24 @@ if (!function_exists('isDeviceDesktopOrLaptop')) {
             return false;
         }
 
-        // 3. أولوية اختيار المستخدم الصريح المحفوظ إن لم يكن الجهاز جوالاً
-        $pref = $_COOKIE['magaiees_view_preference'] ?? '';
-        if ($pref === 'mobile') return false;
-        if ($pref === 'desktop') return true;
-
-        if ($secMobile === '?0') return true;
-
-        // 4. أنظمة تشغيل الكمبيوتر واللابتوب (Windows NT هو لابتوب أو ديسكتوب)
+        // 3. أنظمة تشغيل الكمبيوتر واللابتوب الصريحة (Windows, Mac, Linux Desktop)
+        // تأخذ الأولوية لمنع حبس شاشات اللابتوب في إطار الجوال 400px بسبب كوكيز قديم
         if (preg_match('/windows nt/i', $ua)) {
             return true;
         }
-
-        // أجهزة ماك (MacBook / iMac)
         if (preg_match('/macintosh/i', $ua) && !preg_match('/(ipad)/i', $ua)) {
             return true;
         }
-
-        // أجهزة لينكس المكتبية وكروم بوك
         if (preg_match('/(x11; linux x86_64|cros)/i', $ua) && !preg_match('/android/i', $ua)) {
             return true;
         }
+
+        if ($secMobile === '?0') return true;
+
+        // 4. أولوية اختيار المستخدم الصريح للأجهزة المشتركة/غير المحددة
+        $pref = $_COOKIE['magaiees_view_preference'] ?? '';
+        if ($pref === 'mobile') return false;
+        if ($pref === 'desktop') return true;
 
         return false;
     }
