@@ -70,3 +70,4 @@ cloudflared.exe
 *.vbs
 backups/live_backup_*.sql
 backups/local_backup_*.sql
+backups/db_backup_*.sql
