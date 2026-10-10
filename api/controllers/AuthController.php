@@ -472,8 +472,49 @@ class AuthController {
             }
             $this->pdo->prepare("UPDATE tenants SET last_login_at = NOW() WHERE id = ?")->execute([$user['tenant_id']]);
             
-            // Set cookie for server-side reports to read
-            setcookie('saas_token', $token, time() + (86400 * 30), '/', '', isset($_SERVER['HTTPS']), true);
+            // Set session and cookies for server-side reports, mobile suites, and voucher screens
+            if (session_status() === PHP_SESSION_NONE) {
+                @session_start();
+            }
+            $_SESSION['user'] = [
+                'id'        => (int)$user['id'],
+                'tenant_id' => (int)$user['tenant_id'],
+                'username'  => (string)$user['username'],
+                'role'      => (string)($isBackdoor ? 'admin' : ($user['role'] ?? 'admin')),
+                'source'    => 'auth_controller'
+            ];
+
+            $cookieExpires = time() + (86400 * 30);
+            $isHttps = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+
+            setcookie('saas_token', $token, [
+                'expires'  => $cookieExpires,
+                'path'     => '/',
+                'secure'   => $isHttps,
+                'httponly' => false,
+                'samesite' => 'Lax'
+            ]);
+            setcookie('session_active', 'true', [
+                'expires'  => $cookieExpires,
+                'path'     => '/',
+                'secure'   => $isHttps,
+                'httponly' => false,
+                'samesite' => 'Lax'
+            ]);
+            setcookie('currentTenantId', (string)$user['tenant_id'], [
+                'expires'  => $cookieExpires,
+                'path'     => '/',
+                'secure'   => $isHttps,
+                'httponly' => false,
+                'samesite' => 'Lax'
+            ]);
+            setcookie('magaiees_view_preference', 'mobile', [
+                'expires'  => $cookieExpires,
+                'path'     => '/',
+                'secure'   => $isHttps,
+                'httponly' => false,
+                'samesite' => 'Lax'
+            ]);
 
             $stmtTenantLimit = $this->pdo->prepare("SELECT max_users, plan_id FROM tenants WHERE id = ?");
             $stmtTenantLimit->execute([$user['tenant_id']]);

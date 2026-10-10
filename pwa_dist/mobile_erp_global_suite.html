@@ -23,15 +23,19 @@
   <script src="js/pwa-manager.js?v=2026_10_05_v35_21themes" defer></script>
   <script src="js/magaies-offline-sync.js" defer></script>
   <script>
-  (function enforceAuthGate() {
+    (function enforceAuthGate() {
     var token = localStorage.getItem('authToken');
-    var user = localStorage.getItem('user');
-    var sessionActive = sessionStorage.getItem('session_active') === 'true' || document.cookie.includes('session_active=true');
+    var sessionCookie = document.cookie.includes('session_active=true') || document.cookie.includes('saas_token=');
+    var sessionActive = sessionStorage.getItem('session_active') === 'true' || sessionCookie;
 
-    if (!token && !user && !sessionActive) {
+    if (!token && !sessionActive) {
       var qs = window.location.search;
-      var loginUrl = window.location.pathname.includes('/ELSAJANA2/magaies/') ? 'login.php' : '/ELSAJANA2/magaies/login.php';
-      window.location.replace(loginUrl + qs);
+      var curFile = window.location.pathname.split('/').pop() || 'mobile-dashboard.php';
+      var sep = qs ? '&' : '?';
+      var isPwaDist = window.location.pathname.includes('/pwa_dist/');
+      var loginBase = isPwaDist ? '../login.php' : 'login.php';
+      var loginUrl = loginBase + qs + (qs.includes('redirect=') ? '' : sep + 'redirect=' + encodeURIComponent(curFile));
+      window.location.replace(loginUrl);
     }
   })();
 
@@ -40,10 +44,12 @@
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
       sessionStorage.removeItem('session_active');
+      sessionStorage.removeItem('dashboard_unlocked');
       document.cookie = "session_active=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       document.cookie = "saas_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-      var loginUrl = window.location.pathname.includes('/ELSAJANA2/magaies/') ? 'login.php' : '/ELSAJANA2/magaies/login.php';
-      window.location.replace(loginUrl);
+      var isPwaDist = window.location.pathname.includes('/pwa_dist/');
+      var loginBase = isPwaDist ? '../login.php' : 'login.php';
+      window.location.replace(loginBase + '?logout=1');
     }
   }
   </script>

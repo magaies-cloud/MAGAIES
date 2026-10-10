@@ -35,15 +35,22 @@ if (isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1') {
 // ═════════════════════════════════════════════════════════════════════
 // 🌟 FLAGSHIP AGREED MOBILE SUITE (mobile_erp_global_suite.html)
 // ═════════════════════════════════════════════════════════════════════
+if (file_exists(__DIR__ . '/db_bridge.php')) {
+    require_once __DIR__ . '/db_bridge.php';
+} elseif (file_exists(__DIR__ . '/ELSAJANA2/magaies/db_bridge.php')) {
+    require_once __DIR__ . '/ELSAJANA2/magaies/db_bridge.php';
+}
+
+if (file_exists(__DIR__ . '/mobile_auth_guard.php')) {
+    require_once __DIR__ . '/mobile_auth_guard.php';
+} elseif (file_exists(__DIR__ . '/ELSAJANA2/magaies/mobile_auth_guard.php')) {
+    require_once __DIR__ . '/ELSAJANA2/magaies/mobile_auth_guard.php';
+}
+
+$pdo = getDBConnection();
+$authUser = requireMobileAuth($pdo, false);
+
 if (!isset($_GET['legacy']) || $_GET['legacy'] !== '1') {
-    $clientIp = $_SERVER['REMOTE_ADDR'] ?? '';
-    $isLocalNetwork = ($clientIp === '127.0.0.1' || $clientIp === '::1' || str_starts_with($clientIp, '192.168.') || str_starts_with($clientIp, '10.') || str_starts_with($clientIp, '172.'));
-    if ($isLocalNetwork) {
-        setcookie('session_active', 'true', time() + 2592000, '/');
-        setcookie('saas_token', 'magaiees_sovereign_token_c', time() + 2592000, '/');
-        setcookie('currentTenantId', '12', time() + 2592000, '/');
-        setcookie('magaiees_view_preference', 'mobile', time() + 2592000, '/');
-    }
     $suiteFile = __DIR__ . '/mobile_erp_global_suite.html';
     if (!file_exists($suiteFile) && file_exists(__DIR__ . '/ELSAJANA2/magaies/mobile_erp_global_suite.html')) {
         $suiteFile = __DIR__ . '/ELSAJANA2/magaies/mobile_erp_global_suite.html';
