@@ -222,6 +222,23 @@ function getReceiptSequence($pdo, $tenantId) {
 
 try {
     switch ($action) {
+        case 'check_git_version':
+            $gitHead = trim(@shell_exec('git rev-parse HEAD') ?: 'unknown');
+            $gitLog = trim(@shell_exec('git log -n 1 --oneline') ?: 'unknown');
+            $suitePath = __DIR__ . '/../mobile_erp_global_suite.html';
+            $suiteContent = file_exists($suitePath) ? file_get_contents($suitePath) : '';
+            echo json_encode([
+                'success' => true,
+                'git_head' => $gitHead,
+                'git_log' => $gitLog,
+                'suite_exists' => file_exists($suitePath),
+                'suite_size' => strlen($suiteContent),
+                'suite_has_pos' => strpos($suiteContent, 'SuiteSalesPOS') !== false,
+                'suite_has_calc' => strpos($suiteContent, 'suiteSmartCalcModal') !== false,
+                'server_time' => date('Y-m-d H:i:s')
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+
 
         // ═════════════════════════════════════════════════════════
         // 1. GET ALL MIRROR SEQUENCES & LATEST RECORDS
