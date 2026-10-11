@@ -6807,86 +6807,218 @@
     </div>
 
     <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) -->
-    <div id="modalOpSales" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
-      <div class="glass-base w-full max-w-md rounded-3xl border border-sky-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
-        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 flex items-center justify-center font-bold">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+        <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) - RADICAL UPGRADE -->
+    <div id="modalOpSales" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
+      <div class="glass-base w-full max-w-lg rounded-3xl border border-purple-500/50 p-4 space-y-3 max-h-[92vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(11,15,25,0.99));">
+        
+        <!-- Header -->
+        <div class="p-3 rounded-2xl flex justify-between items-center relative overflow-hidden" style="background: linear-gradient(135deg, rgba(30,15,50,0.8), rgba(45,20,80,0.6)); border: 1px solid rgba(192,132,252,0.4); box-shadow: 0 0 20px rgba(168,85,247,0.25);">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">جديدة</span>
+              <span id="opSalesInvoiceNoPill" class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">S26101012</span>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 class="text-sm font-black text-slate-100">فاتورة مبيعات</h4>
-                <span id="opSalesInvoiceNoPill" class="text-[11px] font-mono font-black text-sky-300 px-2 py-0.5 rounded-lg bg-sky-500/20 border border-sky-500/30">جارِ التوليد...</span>
-              </div>
-              <span class="text-[10px] text-sky-400 font-bold flex items-center gap-1">
-                <span>إصدار فاتورة بيع ومزامنتها مع اللابتوب فوراً 🛒</span>
-              </span>
-            </div>
+            <h3 class="text-base font-black text-white flex items-center gap-2 drop-shadow-[0_0_10px_rgba(192,132,252,0.8)]">
+              <i class="fa-solid fa-file-invoice-dollar text-purple-400"></i> فاتورة مبيعات (مطابقة للابتوب)
+            </h3>
           </div>
-          <button onclick="SafeInvoiceGuard.requestExit('modalOpSales')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90" title="إغلاق الفاتورة بأمان">✕</button>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" class="px-2.5 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 text-xs font-bold transition flex items-center gap-1.5 shadow-sm" title="الآلة الحاسبة الذكية">
+              <i class="fa-solid fa-calculator"></i> <span class="hidden sm:inline">الحاسبة</span>
+            </button>
+            <button type="button" onclick="SafeInvoiceGuard.requestExit('modalOpSales')" class="w-8 h-8 rounded-full bg-slate-800/80 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90" title="إغلاق">✕</button>
+          </div>
         </div>
 
-        <!-- شريط مؤشر حالة الحفظ والتعديل (Unsaved Changes Indicator) -->
-        <div class="flex items-center justify-between text-[11px] bg-slate-900/70 px-3 py-1.5 rounded-xl border border-slate-800">
-          <span class="text-slate-400">حالة الربط والبيانات:</span>
-          <span id="modalOpSalesUnsavedBadge" class="flex items-center gap-1.5 font-bold text-sky-300">
-            <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
-            <span>متصل بنظام المرآة المباشر 🪞</span>
+        <!-- Safe Indicator -->
+        <div class="flex items-center justify-between text-[11px] bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800">
+          <span class="text-slate-400">حالة الربط وقاعدة البيانات:</span>
+          <span id="modalOpSalesUnsavedBadge" class="flex items-center gap-1.5 font-bold text-emerald-400">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>متصل بـ MariaDB ونظام المرآة المباشر 🪞</span>
           </span>
         </div>
 
-        <div class="space-y-2.5 text-xs">
-          <div>
-            <label class="block text-slate-300 font-bold mb-1">اسم العميل:</label>
-            <input type="text" id="salesCustomerInput" value="محلات الصادق للتوزيع" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-sky-400 outline-none transition" />
+        <!-- SMART CALCULATOR POPUP (Nested) -->
+        <div id="suiteSmartCalcModal" class="hidden p-3 rounded-2xl bg-slate-950/95 border border-purple-500/60 shadow-2xl space-y-2">
+          <div class="flex justify-between items-center pb-1 border-b border-slate-800">
+            <span class="text-xs font-black text-purple-300"><i class="fa-solid fa-calculator"></i> آلة حاسبة ذكية متقدمة</span>
+            <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" class="text-slate-400 hover:text-white text-xs">✕</button>
           </div>
+          <div class="bg-slate-900 rounded-xl p-2 text-right border border-purple-500/30">
+            <div id="suiteCalcHistory" class="text-[10px] text-slate-400 h-4 overflow-hidden font-mono"></div>
+            <div id="suiteCalcScreen" class="text-lg font-mono font-black text-emerald-400">0</div>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5 text-xs font-bold font-mono">
+            <button type="button" onclick="SuiteSalesPOS.calcInput('C')" class="p-2 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/30">C</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('/')" class="p-2 rounded-lg bg-slate-800 text-sky-400 border border-slate-700">÷</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('*')" class="p-2 rounded-lg bg-slate-800 text-sky-400 border border-slate-700">×</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('BACK')" class="p-2 rounded-lg bg-slate-800 text-amber-400 border border-slate-700">⌫</button>
+
+            <button type="button" onclick="SuiteSalesPOS.calcInput('7')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">7</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('8')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">8</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('9')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">9</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('-')" class="p-2 rounded-lg bg-slate-800 text-sky-400 border border-slate-700">-</button>
+
+            <button type="button" onclick="SuiteSalesPOS.calcInput('4')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">4</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('5')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">5</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('6')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">6</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('+')" class="p-2 rounded-lg bg-slate-800 text-sky-400 border border-slate-700">+</button>
+
+            <button type="button" onclick="SuiteSalesPOS.calcInput('1')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">1</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('2')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">2</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('3')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">3</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('=')" class="row-span-2 p-2 rounded-lg bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-lg">=</button>
+
+            <button type="button" onclick="SuiteSalesPOS.calcInput('0')" class="col-span-2 p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">0</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('.')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">.</button>
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button type="button" onclick="SuiteSalesPOS.pasteCalcToField('price')" class="flex-1 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[11px] font-bold">إدراج في السعر ↵</button>
+            <button type="button" onclick="SuiteSalesPOS.pasteCalcToField('qty')" class="flex-1 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">إدراج في الكمية ↵</button>
+          </div>
+        </div>
+
+        <!-- Customer & Meta Section -->
+        <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2 text-xs">
           <div>
-            <label class="block text-slate-300 font-bold mb-1">الصنف المختار (من المخزون):</label>
-            <div onclick="showItemSelectorSheet((item) => { document.getElementById('salesSelectedItemName').innerText = item.name + ' (' + item.price + ')'; if(window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales'); })" 
-                 class="w-full bg-slate-900 border border-slate-700 hover:border-sky-400 rounded-xl p-2.5 text-white flex items-center justify-between cursor-pointer active:scale-[0.99] transition">
-              <div class="flex items-center gap-2">
-                <div class="w-7 h-7 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7H4a1 1 0 00-1 1v2a1 1 0 001 1h16a1 1 0 001-1V8a1 1 0 00-1-1zm-1 4v8a2 2 0 01-2 2H7a2 2 0 01-2-2v-8m5 3h4"/></svg>
-                </div>
-                <span id="salesSelectedItemName" class="font-bold text-slate-200">صنف رقم 1 ($45.00)</span>
-              </div>
-              <span class="text-[10px] bg-sky-500/20 text-sky-300 font-bold px-2 py-0.5 rounded-lg border border-sky-500/30">اختر الصنف ▾</span>
+            <div class="flex justify-between items-center mb-1">
+              <label class="font-bold text-slate-300"><i class="fa-solid fa-user-tag text-sky-400"></i> العميل (قاعدة البيانات) <span class="text-rose-500">*</span>:</label>
+              <span id="suiteCustBalanceBadge" class="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">رصيد: 0 SDG</span>
             </div>
+            <select id="salesCustomerInput" onchange="SuiteSalesPOS.onCustomerChange(this)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold focus:border-sky-400 outline-none transition">
+              <!-- Populated dynamically -->
+            </select>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-slate-300 font-bold mb-1">الكمية:</label>
-              <input type="number" id="salesQtyInput" value="5" oninput="calcOpSalesTotal()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-white focus:border-sky-400 outline-none transition" />
+              <label class="block text-[11px] text-slate-400 font-bold mb-1">تاريخ الفاتورة:</label>
+              <input type="date" id="salesInvoiceDate" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-mono text-center outline-none">
             </div>
             <div>
-              <label class="block text-slate-300 font-bold mb-1">السعر ($):</label>
-              <input type="number" id="salesPriceInput" value="45" oninput="calcOpSalesTotal()" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-cyan-400 focus:border-sky-400 outline-none transition" />
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-slate-300 font-bold mb-1">إجمالي الفاتورة ($):</label>
-              <input type="number" id="salesTotalInput" value="225" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-emerald-400 focus:border-emerald-400 outline-none transition" />
-            </div>
-            <div>
-              <label class="block text-slate-300 font-bold mb-1">طريقة السداد:</label>
-              <select id="salesPayMethodSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white focus:border-sky-400 outline-none transition">
-                <option value="cash">نقداً من الخزينة</option>
-                <option value="bank">تحويل بنكك / فيزا</option>
-                <option value="credit">آجل على الحساب</option>
-              </select>
+              <label class="block text-[11px] text-slate-400 font-bold mb-1">المندوب / الكاشير:</label>
+              <input type="text" id="salesRepInput" value="حساب الكاشير" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-slate-200 text-center font-bold outline-none">
             </div>
           </div>
         </div>
 
-        <button onclick="commitOpSales()" class="w-full py-3 bg-gradient-to-r from-sky-600 to-blue-600 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          إصدار الفاتورة وحفظها في قاعدة البيانات فوراً ✓
+        <!-- 3. DETAILED ITEM ENTRY FORM (الخانات المطلوبة حرفياً) -->
+        <div class="p-3.5 rounded-2xl border border-amber-500/30 space-y-2.5 text-xs shadow-inner" style="background: rgba(18, 24, 38, 0.9);">
+          <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
+            <span class="font-black text-amber-400 flex items-center gap-1.5 text-sm">
+              <i class="fa-solid fa-layer-group"></i> إضافة صنف (خانات قاعدة البيانات)
+            </span>
+            <span class="text-[10px] text-slate-400 font-mono font-bold">23 صنف متاح</span>
+          </div>
+
+          <!-- ROW 1: الصنف + الوحدة -->
+          <div class="grid grid-cols-12 gap-2">
+            <div class="col-span-8">
+              <label class="block text-[11px] text-slate-300 font-bold mb-1">الصنف <span class="text-rose-500">*</span>:</label>
+              <select id="salesItemSelect" onchange="SuiteSalesPOS.onItemSelect(this)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold focus:border-amber-400 outline-none transition text-xs">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="col-span-4">
+              <label class="block text-[11px] text-slate-300 font-bold mb-1">الوحدة:</label>
+              <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-bold text-center outline-none text-xs">
+                <!-- Dynamically filled per item -->
+              </select>
+            </div>
+          </div>
+
+          <!-- ROW 2: المخزن + الكمية + السعر -->
+          <div class="grid grid-cols-12 gap-2">
+            <div class="col-span-5">
+              <label class="block text-[11px] text-slate-300 font-bold mb-1">المخزن:</label>
+              <select id="salesWarehouseSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-slate-200 font-bold text-[11px] outline-none">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="col-span-3">
+              <label class="block text-[11px] text-slate-300 font-bold mb-1">الكمية:</label>
+              <input type="number" id="salesQtyInput" value="1" min="0.01" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-bold font-mono text-center text-white focus:border-amber-400 outline-none text-xs" />
+            </div>
+            <div class="col-span-4">
+              <label class="block text-[11px] text-slate-300 font-bold mb-1">السعر (SDG):</label>
+              <input type="number" id="salesPriceInput" value="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-bold font-mono text-center text-cyan-300 focus:border-cyan-400 outline-none text-xs" />
+            </div>
+          </div>
+
+          <!-- ROW 3: الخصم + الإضافة + العتالة -->
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[11px] text-rose-400 font-bold mb-1">الخصم:</label>
+              <input type="number" id="salesDiscountInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-bold font-mono text-center text-rose-400 focus:border-rose-400 outline-none text-xs" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-purple-400 font-bold mb-1">الإضافة:</label>
+              <input type="number" id="salesTaxInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-bold font-mono text-center text-purple-300 focus:border-purple-400 outline-none text-xs" />
+            </div>
+            <div>
+              <label class="block text-[11px] text-amber-400 font-bold mb-1">العتالة:</label>
+              <input type="number" id="salesLaborInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-bold font-mono text-center text-amber-300 focus:border-amber-400 outline-none text-xs" />
+            </div>
+          </div>
+
+          <!-- ROW 4: الجملة للصنف + زر الإضافة -->
+          <div class="grid grid-cols-12 gap-2 pt-1 items-end">
+            <div class="col-span-6">
+              <label class="block text-[11px] text-emerald-400 font-black mb-1">الجملة (المجموع للصنف):</label>
+              <input type="text" id="salesTotalInput" readonly value="0.00" class="w-full bg-emerald-950/30 border border-emerald-500/40 rounded-xl p-2 font-black font-mono text-center text-emerald-400 text-sm outline-none" />
+            </div>
+            <div class="col-span-6">
+              <button type="button" onclick="SuiteSalesPOS.addItemToCart()" class="w-full py-2.5 rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); box-shadow: 0 4px 14px rgba(14,165,233,0.4);">
+                <i class="fa-solid fa-plus-circle"></i> إضافة للصنف
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. CART ITEMS LIST (قائمة الأصناف بالفاتورة) -->
+        <div class="space-y-2">
+          <div class="flex justify-between items-center px-1">
+            <span class="text-xs font-black text-slate-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-list-check text-purple-400"></i> بنود الفاتورة (<span id="suiteCartCount" class="font-mono text-purple-300">0</span>)
+            </span>
+            <button type="button" onclick="SuiteSalesPOS.clearCart()" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold cursor-pointer">تفريغ السلة 🗑️</button>
+          </div>
+
+          <div id="suiteCartItemsContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+            <div class="text-center py-6 text-slate-500 text-xs bg-slate-900/40 rounded-2xl border border-slate-800/80">
+              <i class="fa-solid fa-cart-shopping text-2xl mb-1.5 block opacity-40"></i>
+              لم يتم إضافة أي صنف للفاتورة بعد
+            </div>
+          </div>
+        </div>
+
+        <!-- 5. PAYMENT METHOD & GRAND TOTAL -->
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+          <div>
+            <label class="block text-[11px] text-slate-400 font-bold mb-1.5">طريقة الدفع:</label>
+            <div class="grid grid-cols-4 gap-1.5">
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('cash')" id="suitePayBtnCash" class="suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-emerald-600 text-white border-emerald-400 shadow-md">نقداً (كاش)</button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('bank')" id="suitePayBtnBank" class="suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800">تحويل بنكك</button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('credit')" id="suitePayBtnCredit" class="suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800">آجل (ديون)</button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('split')" id="suitePayBtnSplit" class="suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800">دفع مجزأ</button>
+            </div>
+            <input type="hidden" id="salesPayMethodSelect" value="cash">
+          </div>
+
+          <div class="flex justify-between items-center p-3 rounded-xl bg-slate-950 border border-emerald-500/40 shadow-lg">
+            <span class="text-xs font-black text-slate-200">الصافي الكلي النهائي:</span>
+            <span id="suiteGrandTotalDisplay" class="text-lg font-black text-emerald-400 font-mono drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]">0.00 SDG</span>
+          </div>
+        </div>
+
+        <!-- SAVE BUTTON -->
+        <button type="button" onclick="commitOpSales()" class="w-full py-3.5 rounded-2xl font-black text-sm text-white shadow-xl flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 6px 20px rgba(16,185,129,0.45);">
+          <i class="fa-solid fa-check-double"></i> حفظ واعتماد الفاتورة في قاعدة البيانات فوراً
         </button>
+
       </div>
     </div>
 
-    <!-- OPERATIONAL MODAL: 2. تقسيم مبيعات (Sales Split & Installments) -->
     <div id="modalOpSalesSplit" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
       <div class="glass-base w-full max-w-md rounded-3xl border border-pink-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
         <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -9531,6 +9663,7 @@
       if (formType === 'sales' || formType === 'salesInvoice') {
         modalId = 'modalOpSales';
         fetchMirrorNumbers();
+        setTimeout(() => { if (window.SuiteSalesPOS) SuiteSalesPOS.init(); }, 50);
       } else if (formType === 'salesSplit') {
         modalId = 'modalOpSalesSplit';
         fetchMirrorNumbers();
@@ -9569,34 +9702,364 @@
 
     // ─── COMMIT HANDLERS WITH 100% MARIADB PERSISTENCE ───
 
+    
+    // ═════════════════════════════════════════════════════════════════════
+    // 💎 SUITE SALES POS ENGINE - DIRECT LAPTOP PARITY & MARIADB SYNC
+    // ═════════════════════════════════════════════════════════════════════
+    window.SuiteSalesPOS = {
+      cart: [],
+      dbItems: [{"id":"ITEM-1781116468152","name":"ccc44","unit":"c","image":"","price":0,"stock":[],"barcode":"22","baseUnit":"c","createdBy":9,"unitsArray":[{"name":"c","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782492860575","name":"سيخ 3 لينيا fj","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":68547},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":135},{"name":"طن وزني","factor":146}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559307727","name":"سيخ 4 لينيا fj","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":11053},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن العددي","factor":92},{"name":"طن وزني","factor":111}],"averageCost":1.8565095449199311,"bundleFactor":10,"averageCostFc":1.8565095449199311,"conversionFactor":1,"lastPurchaseCost":4.956521739130435,"lastPurchaseCostFc":4.956521739130435},{"id":"ITEM-1782559457671","name":"سيخ 3 لينيا الاسعد","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":675},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":135},{"name":"طن وزني","factor":140}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559559372","name":"سيخ 4 لينيا الاسعد","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":92},{"name":"طن وزني","factor":140}],"bundleFactor":10,"conversionFactor":1},{"id":"ITEM-1782561316951","name":"سيخ 5 لينيا الامجد","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":66}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782562286396","name":"سيخ 5 لينيا التركي","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":55}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782567905125","name":"سيخ 5 لينيا صيني","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":66}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782250715067","name":"سيخ44","unit":"طن","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن","createdBy":9,"unitsArray":[{"name":"طن","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782509115624","name":"سيخ 3 لينية","unit":"طن وزني","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن وزني","createdBy":9,"unitsArray":[{"name":"طن وزني","factor":1},{"name":"طن وزني","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782511169954","name":"سيخ 5ل","unit":"طن عددي","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن عددي","createdBy":9,"unitsArray":[{"name":"طن عددي","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"item-001","name":"أسمنت بورتلاندي 50 كجم","unit":"كيس","barcode":"1001","baseUnit":"كيس","createdBy":7,"unitsArray":[{"name":"كيس","factor":1},{"name":"طن","factor":20}],"sellingPrice":4500},{"id":"item-002","name":"حديد تسليح 12 ملم","unit":"سيخة / عود","barcode":"1002","baseUnit":"سيخة / عود","createdBy":7,"unitsArray":[{"name":"سيخة / عود","factor":1},{"name":"طن","factor":120}],"sellingPrice":12500},{"id":"item-003","name":"طوب مفرغ 20×20×40","unit":"حبة","barcode":"1003","baseUnit":"حبة","createdBy":7,"unitsArray":[{"name":"حبة","factor":1},{"name":"ألف حبة","factor":1000}],"sellingPrice":650},{"id":"item-004","name":"رمل بناء ممتاز","unit":"متر مكعب","barcode":"1004","baseUnit":"متر مكعب","createdBy":7,"unitsArray":[{"name":"متر مكعب","factor":1},{"name":"قلاب 12متر","factor":12}],"sellingPrice":8500},{"id":"item-005","name":"دهان بلاستيك مط داخلي","unit":"جالون","barcode":"1005","baseUnit":"جالون","createdBy":7,"unitsArray":[{"name":"جالون","factor":1},{"name":"كرتونة (4 جالون)","factor":4}],"sellingPrice":14000},{"id":"ITEM-1786316992222","name":"سيخ 5 لينيا fj m","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":57}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1786727449011","name":"سيخ 5 لينيا  الاسعد","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":230},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":58}],"bundleFactor":5,"conversionFactor":1},{"id":"item-001","name":"أسمنت بورتلاندي 50 كجم","unit":"كيس","barcode":"1001","baseUnit":"كيس","createdBy":405,"unitsArray":[{"name":"كيس","factor":1},{"name":"طن","factor":20}],"sellingPrice":4500},{"id":"item-002","name":"حديد تسليح 12 ملم","unit":"سيخة / عود","barcode":"1002","baseUnit":"سيخة / عود","createdBy":405,"unitsArray":[{"name":"سيخة / عود","factor":1},{"name":"طن","factor":120}],"sellingPrice":12500},{"id":"item-003","name":"طوب مفرغ 20×20×40","unit":"حبة","barcode":"1003","baseUnit":"حبة","createdBy":405,"unitsArray":[{"name":"حبة","factor":1},{"name":"ألف حبة","factor":1000}],"sellingPrice":650},{"id":"item-004","name":"رمل بناء ممتاز","unit":"متر مكعب","barcode":"1004","baseUnit":"متر مكعب","createdBy":405,"unitsArray":[{"name":"متر مكعب","factor":1},{"name":"قلاب 12متر","factor":12}],"sellingPrice":8500},{"id":"item-005","name":"دهان بلاستيك مط داخلي","unit":"جالون","barcode":"1005","baseUnit":"جالون","createdBy":405,"unitsArray":[{"name":"جالون","factor":1},{"name":"كرتونة (4 جالون)","factor":4}],"sellingPrice":14000}],
+      dbCustomers: [{"id":"CUST-1781084281123","name":"A","notes":"","phone":"333","status":"active","address":"3سبي","createdBy":7,"bankDetails":{"bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1},"creditLimit":23,"securityLevel":1,"currentBalance":323,"openingBalance":323},{"id":"CUST-1781089536278","name":"C","notes":"","phone":"32323","status":"active","address":"C","createdBy":9,"bankDetails":{"bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1},"creditLimit":333,"securityLevel":1,"currentBalance":-830324,"openingBalance":33},{"id":"CUST-1782480090528","name":"ثقفغع","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":-54323222994874,"openingBalance":0},{"id":"CUST-1782503377782","name":"التجاني","email":"","notes":"","phone":"5678","status":"active","address":"","whatsapp":"6789","createdBy":9,"creditLimit":6789,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":54323916528283,"openingBalance":89},{"id":"CUST-1782729918903","name":"محمد عثمان حمتو عبد الدايم","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":7100230,"openingBalance":0},{"id":"CUST-1782835278886","name":"ابدول حمتو","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":0,"openingBalance":0},{"id":"CUST-1782849809088","name":"مهدي مصر","email":"","notes":"","phone":"","status":"active","address":"","whatsapp":"00201550886559","createdBy":9,"creditLimit":45678,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"contactPerson":"","securityLevel":1,"currentBalance":3901,"openingBalance":4567},{"id":"CUST-1782893378489","name":"عمر طارق","email":"","notes":"","phone":"","status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":56789},{"id":"CUST-1783162615475","name":"شيريهان احمد عثمان تاج الدين","email":"","notes":"","phone":"00249912106075","status":"active","address":"","currency":"USD","whatsapp":"00201550886559","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":2000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1000000,"contactPerson":"","openingCredit":1500000,"securityLevel":1,"currentBalance":-500000},{"id":"CUST-1783187686750","name":"حدكي","email":"","notes":"","phone":"","status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":234567,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":100000,"contactPerson":"","openingCredit":234567,"securityLevel":1,"currentBalance":-134567},{"id":"CUST-1781625556260","name":"محمد عمار","email":"A00105@gmail.com","notes":"زبوم تجريبي 1","phone":"0912300105","status":"active","address":"الخرطوم","whatsapp":"0912300112","createdBy":9,"creditLimit":33333333,"bankAccounts":[{"branch":"السجانة","bankName":"بنك الخرطوم","accountNo":"90290","isDeactivated":false,"securityLevel":1}],"contactPerson":"عمار","securityLevel":1,"currentBalance":11089,"openingBalance":100},{"id":"CUST-1782914588501","name":"حسن علي","email":"s00105@gmail.com","notes":"","phone":"00249912300111","status":"active","address":"شسيس","currency":"USD","whatsapp":"00249912300111","accountNo":"2322","createdBy":9,"taxNumber":"2322","creditLimit":3333,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":2333,"contactPerson":"","openingCredit":3333,"securityLevel":1,"currentBalance":-1000},{"id":"CUST-1783274024802","name":"كوستا ","email":"","notes":"","phone":"","status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":3000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1200000,"contactPerson":"","openingCredit":2000000,"securityLevel":1,"currentBalance":-991156659},{"id":"CUST-1783281050254","name":"قلقله","email":"","notes":"","phone":"","exRate":6300,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":10000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1900000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":1900000},{"id":"C-112681","name":"محمد حسن علي مكي","email":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"timestamp":"2026-07-05T22:38:32.681Z","creditLimit":0,"bankAccounts":[],"securityLevel":"1","currentBalance":89898989},{"id":"CUST-1783356956592","name":"همس مهدي ","email":"@gmamahdi00622","notes":"","phone":"","exRate":622,"status":"active","address":"","currency":"USD","whatsapp":"00249912300622","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":666666,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":66666,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":67233},{"id":"CUST-1783451342581","name":"جمانه مكي","email":"","notes":"","phone":"00249912106076","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"00249912300622","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":888888,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":88888,"securityLevel":1,"currentBalance":367889},{"id":"C-751626","name":"سيد عثمان تاج الدين","email":"","phone":"","status":"active","address":"","whatsapp":"","createdBy":9,"timestamp":"2026-07-10T16:59:11.626Z","creditLimit":0,"bankAccounts":[],"securityLevel":"1","currentBalance":0},{"id":"CUST-1784063515633","name":"فقث","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1},{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1784065972341","name":"تال","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":7654,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":7654},{"id":"CUST-1784100578257","name":"عمر طارق محمد مكي","email":"","notes":"","phone":"","exRate":5620,"status":"active","address":"","currency":"USD","whatsapp":"00249912300622","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":7000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":450000,"securityLevel":1,"currentBalance":450000},{"id":"CUST-1784109545826","name":"محجوب خاص","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"00249912348829","accountNo":"","createdBy":395,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1784109769001","name":"مهدي","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":395,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":55},{"id":"CUST-1784235653011","name":"ايه مهدي محمد مكي","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":888888,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":666666},{"id":"CUST-1784628659773","name":"محمود دمباوي","email":"","notes":"","phone":"","exRate":670,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":4000000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":2500000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":2500000},{"id":"CUST-1784628827641","name":"فتاح شجره","email":"","notes":"","phone":"","exRate":670,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":4500000,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":1600000,"securityLevel":1,"currentBalance":-1599000},{"id":"CUST-1785237947153","name":"رضوان باشا","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":7000000,"securityLevel":1,"currentBalance":6000065},{"id":"CUST-1785253492699","name":"متوكل ازهري","email":"","notes":"","phone":"","exRate":500,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":1000000},{"id":"CUST-1785262394712","name":"حبني","email":"","notes":"","phone":"","exRate":2500,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":2500000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":1422314},{"id":"CUST-1785263869067","name":"طرزان في امدرمان","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":17000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":17000000},{"id":"CUST-1785688472616","name":"سيدو احمد حسن جمال علي","email":"","notes":"","phone":"","exRate":600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":666666,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":5600000,"securityLevel":1,"currentBalance":-33164445},{"id":"CUST-1785703452552","name":"معتذ محمد","email":"","notes":"","phone":"0912300222","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"0912300222","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"محم","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":1111,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1785752274456","name":"cvbnm","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"2322","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":453456789,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":453456789},{"id":"CUST-1785761198609","name":"احمد ولدي","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":19000000,"securityLevel":1,"currentBalance":-19000000},{"id":"CUST-1785761813481","name":"عبدو","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":80000000,"securityLevel":1,"currentBalance":-80000000},{"id":"CUST-1785763080106","name":"عابدين","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":44000000,"securityLevel":1,"currentBalance":-43999457},{"id":"CUST-1785763249630","name":"بشه","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":80000000,"securityLevel":1,"currentBalance":-80000000},{"id":"CUST-1785764619762","name":"فغ","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":10000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":10000000},{"id":"CUST-1785764729392","name":"عماد","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":10000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":10000000},{"id":"CUST-1785766601523","name":"شركه","email":"","notes":"","phone":"","exRate":4400,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":56000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":56000000},{"id":"CUST-1785808277625","name":"موزه","email":"","notes":"","phone":"","exRate":6200,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":6200000,"securityLevel":1,"currentBalance":1577666},{"id":"CUST-1785928750486","name":"مكه","email":"","notes":"","phone":"","exRate":5420,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":20000000,"securityLevel":1,"currentBalance":-15426432},{"id":"CUST-1785968975111","name":"233","email":"","notes":"","phone":"","exRate":1,"status":"active","address":"","currency":"SDG","whatsapp":"","accountNo":"","createdBy":7,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":0},{"id":"CUST-1786320334761","name":"فيصل العجب","email":"","notes":"","phone":"","exRate":300,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":6000000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":6008656},{"id":"CUST-1786384017176","name":"شيخ ميرغني","email":"","notes":"","phone":"","exRate":5600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":0,"contactPerson":"","openingCredit":909090,"securityLevel":1,"currentBalance":-909090},{"id":"CUST-1786394925761","name":"دكتور شول","email":"","notes":"","phone":"","exRate":5600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":20202020,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":20148723},{"id":"CUST-1786476504570","date":"2026-08-11","name":"همس مهدي شيريهان مكي","email":"","notes":"","phone":"","exRate":5600,"status":"active","address":"","currency":"USD","whatsapp":"","accountNo":"","createdAt":"2026-08-11T19:28:24.570Z","createdBy":9,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":650000,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":650000},{"id":"CUST-1789816868387","date":"2026-09-19","name":"محمد عماد","email":"","notes":"","phone":"0123006242","exRate":1,"status":"active","address":"","currency":"USD","whatsapp":"0123006242","accountNo":"","createdAt":"2026-09-19T11:21:08.388Z","createdBy":469,"taxNumber":"","creditLimit":0,"bankAccounts":[{"branch":"","bankName":"","accountNo":"","isDeactivated":false,"securityLevel":1}],"openingDebit":5340944,"contactPerson":"","openingCredit":0,"securityLevel":1,"currentBalance":5340944}],
+      dbWarehouses: [{"id":"WH-1781113448062","name":"m---c","type":"مستودع رئيسي","createdBy":9,"securityLevel":1},{"id":"WH-1781116528837","name":"3333cccccc","type":"مستودع رئيسي","createdBy":9,"securityLevel":1},{"id":"WH-1782504163835","name":"دره اللاماب","type":"مستودع رئيسي","createdBy":9,"securityLevel":1},{"id":"WH-1782159769983","name":"مخزن الدره","type":"مستودع رئيسي","createdBy":9,"securityLevel":1},{"id":"WH-1783208966357","name":"اللاماب","type":"مستودع رئيسي","createdBy":9,"securityLevel":1},{"id":"WH-1782037611629","name":"دكان الخرطوم السجانه ","type":"معرض (نقطة بيع)","securityLevel":1}],
+      currentCalcVal: '0',
+      calcHistoryVal: '',
+
+      init() {
+        this.populateCustomers();
+        this.populateWarehouses();
+        this.populateItems();
+        this.setDefaultDate();
+        this.renderCart();
+        this.calcItemSubtotal();
+      },
+
+      setDefaultDate() {
+        const d = document.getElementById('salesInvoiceDate');
+        if (d && !d.value) d.valueAsDate = new Date();
+      },
+
+      populateCustomers() {
+        const sel = document.getElementById('salesCustomerInput');
+        if (!sel) return;
+        let html = '<option value="عميل نقدي عام" data-balance="0" data-phone="">عميل نقدي عام (Walk-in)</option>';
+        this.dbCustomers.forEach(c => {
+          const bal = parseFloat(c.currentBalance || c.balance || c.openingBalance || 0);
+          const ph = c.phone || c.whatsapp || '';
+          html += `<option value="${c.name}" data-balance="${bal}" data-phone="${ph}">${c.name} ${ph ? ' (' + ph + ')' : ''}</option>`;
+        });
+        sel.innerHTML = html;
+      },
+
+      onCustomerChange(sel) {
+        const opt = sel.options[sel.selectedIndex];
+        const bal = parseFloat(opt?.getAttribute('data-balance') || 0);
+        const bEl = document.getElementById('suiteCustBalanceBadge');
+        if (bEl) {
+          bEl.innerText = 'رصيد: ' + bal.toLocaleString() + ' SDG';
+          bEl.className = bal > 0 ? 'text-[10px] text-rose-400 font-mono font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20' : 'text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20';
+        }
+        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
+      },
+
+      populateWarehouses() {
+        const sel = document.getElementById('salesWarehouseSelect');
+        if (!sel) return;
+        let html = '';
+        this.dbWarehouses.forEach(w => {
+          html += `<option value="${w.name}">${w.name} (${w.type || 'مستودع'})</option>`;
+        });
+        sel.innerHTML = html;
+      },
+
+      populateItems() {
+        const sel = document.getElementById('salesItemSelect');
+        if (!sel) return;
+        let html = '<option value="">-- اختر الصنف من القاعدة --</option>';
+        this.dbItems.forEach((it, idx) => {
+          const prc = parseFloat(it.sellingPrice || it.price || 0);
+          const u = it.baseUnit || it.unit || 'حبة';
+          html += `<option value="${idx}" data-price="${prc}" data-unit="${u}">${it.name} - ${prc > 0 ? prc.toLocaleString() + ' SDG' : 'حسب التسعيرة'} [${u}]</option>`;
+        });
+        sel.innerHTML = html;
+      },
+
+      onItemSelect(sel) {
+        const idx = sel.value;
+        if (idx === '') return;
+        const it = this.dbItems[idx];
+        if (!it) return;
+
+        const prc = parseFloat(it.sellingPrice || it.price || 0);
+        document.getElementById('salesPriceInput').value = prc;
+        document.getElementById('salesQtyInput').value = 1;
+
+        // Populate units for this item
+        const uSel = document.getElementById('salesUnitSelect');
+        if (uSel) {
+          let uHtml = '';
+          if (Array.isArray(it.unitsArray) && it.unitsArray.length > 0) {
+            it.unitsArray.forEach(u => {
+              uHtml += `<option value="${u.name}" data-factor="${u.factor || 1}">${u.name} (${u.factor || 1})</option>`;
+            });
+          } else {
+            const defU = it.baseUnit || it.unit || 'حبة';
+            uHtml = `<option value="${defU}" data-factor="1">${defU}</option>`;
+          }
+          uSel.innerHTML = uHtml;
+        }
+
+        this.calcItemSubtotal();
+        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
+      },
+
+      onUnitChange() {
+        this.calcItemSubtotal();
+      },
+
+      calcItemSubtotal() {
+        const qty = parseFloat(document.getElementById('salesQtyInput')?.value || 0);
+        const prc = parseFloat(document.getElementById('salesPriceInput')?.value || 0);
+        const disc = parseFloat(document.getElementById('salesDiscountInput')?.value || 0);
+        const tax = parseFloat(document.getElementById('salesTaxInput')?.value || 0);
+        const labor = parseFloat(document.getElementById('salesLaborInput')?.value || 0);
+
+        const sub = Math.max(0, (qty * prc) - disc + tax + labor);
+        const totInp = document.getElementById('salesTotalInput');
+        if (totInp) totInp.value = sub.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        return sub;
+      },
+
+      addItemToCart() {
+        const sel = document.getElementById('salesItemSelect');
+        if (!sel || sel.value === '') {
+          alert('يرجى اختيار صنف من قائمة قاعدة البيانات أولاً.');
+          return;
+        }
+        const it = this.dbItems[sel.value];
+        const name = it.name;
+        const uSel = document.getElementById('salesUnitSelect');
+        const unit = uSel ? uSel.value : (it.baseUnit || it.unit);
+        const whSel = document.getElementById('salesWarehouseSelect');
+        const warehouse = whSel ? whSel.value : 'المستودع الرئيسي';
+
+        const qty = parseFloat(document.getElementById('salesQtyInput')?.value || 1);
+        const price = parseFloat(document.getElementById('salesPriceInput')?.value || 0);
+        const discount = parseFloat(document.getElementById('salesDiscountInput')?.value || 0);
+        const tax = parseFloat(document.getElementById('salesTaxInput')?.value || 0);
+        const labor = parseFloat(document.getElementById('salesLaborInput')?.value || 0);
+        const subtotal = Math.max(0, (qty * price) - discount + tax + labor);
+
+        this.cart.push({
+          id: it.id || ('ITEM-' + Date.now()),
+          name,
+          unit,
+          warehouse,
+          qty,
+          price,
+          discount,
+          tax,
+          labor,
+          subtotal
+        });
+
+        // Reset inputs
+        sel.value = '';
+        document.getElementById('salesPriceInput').value = 0;
+        document.getElementById('salesQtyInput').value = 1;
+        document.getElementById('salesDiscountInput').value = 0;
+        document.getElementById('salesTaxInput').value = 0;
+        document.getElementById('salesLaborInput').value = 0;
+        document.getElementById('salesTotalInput').value = '0.00';
+
+        this.renderCart();
+        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
+        if (window.AppHaptics) AppHaptics.light();
+      },
+
+      removeItem(idx) {
+        this.cart.splice(idx, 1);
+        this.renderCart();
+        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
+      },
+
+      clearCart() {
+        if (this.cart.length === 0) return;
+        if (confirm('هل أنت متأكد من تفريغ كافة بنود الفاتورة؟')) {
+          this.cart = [];
+          this.renderCart();
+          if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
+        }
+      },
+
+      renderCart() {
+        const box = document.getElementById('suiteCartItemsContainer');
+        const countEl = document.getElementById('suiteCartCount');
+        if (countEl) countEl.innerText = this.cart.length;
+
+        if (!box) return;
+
+        if (this.cart.length === 0) {
+          box.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs bg-slate-900/40 rounded-2xl border border-slate-800/80">
+            <i class="fa-solid fa-cart-shopping text-2xl mb-1.5 block opacity-40"></i>
+            لم يتم إضافة أي صنف للفاتورة بعد
+          </div>`;
+          const gt = document.getElementById('suiteGrandTotalDisplay');
+          if (gt) gt.innerText = '0.00 SDG';
+          return;
+        }
+
+        let html = '';
+        let grandTot = 0;
+
+        this.cart.forEach((item, idx) => {
+          grandTot += item.subtotal;
+          html += `
+            <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5 relative overflow-hidden" style="border-right: 3px solid #38bdf8;">
+              <div class="flex justify-between items-start">
+                <div>
+                  <span class="font-black text-slate-100 text-xs">${item.name}</span>
+                  <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
+                    <span class="text-amber-300 font-bold"><i class="fa-solid fa-scale-balanced"></i> ${item.unit}</span>
+                    <span>•</span>
+                    <span class="text-sky-300 font-bold"><i class="fa-solid fa-warehouse"></i> ${item.warehouse}</span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="font-black text-emerald-400 font-mono text-xs">${item.subtotal.toLocaleString()} SDG</span>
+                  <button type="button" onclick="SuiteSalesPOS.removeItem(${idx})" class="block mr-auto text-rose-400 hover:text-rose-300 text-[10px] mt-0.5"><i class="fa-solid fa-trash-can"></i> حذف</button>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-4 gap-1 text-center bg-slate-950/80 rounded-xl p-1 text-[9px] font-mono">
+                <div><span class="text-slate-500 block">الكمية</span><span class="text-white font-bold">${item.qty}</span></div>
+                <div><span class="text-slate-500 block">السعر</span><span class="text-cyan-300 font-bold">${item.price.toLocaleString()}</span></div>
+                <div><span class="text-slate-500 block">الخصم</span><span class="text-rose-400 font-bold">${item.discount.toLocaleString()}</span></div>
+                <div><span class="text-slate-500 block">إضافة/عتالة</span><span class="text-purple-300 font-bold">${(item.tax + item.labor).toLocaleString()}</span></div>
+              </div>
+            </div>`;
+        });
+
+        box.innerHTML = html;
+        const gt = document.getElementById('suiteGrandTotalDisplay');
+        if (gt) gt.innerText = grandTot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' SDG';
+      },
+
+      setPayMethod(m) {
+        document.querySelectorAll('.suite-pay-btn').forEach(b => {
+          b.className = 'suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800';
+        });
+        const activeMap = {
+          cash: 'suitePayBtnCash',
+          bank: 'suitePayBtnBank',
+          credit: 'suitePayBtnCredit',
+          split: 'suitePayBtnSplit'
+        };
+        const el = document.getElementById(activeMap[m]);
+        if (el) {
+          el.className = 'suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-emerald-600 text-white border-emerald-400 shadow-md';
+        }
+        const hid = document.getElementById('salesPayMethodSelect');
+        if (hid) hid.value = m;
+      },
+
+      // Calculator Methods
+      toggleCalculator() {
+        const m = document.getElementById('suiteSmartCalcModal');
+        if (m) m.classList.toggle('hidden');
+      },
+
+      calcInput(val) {
+        const screen = document.getElementById('suiteCalcScreen');
+        const hist = document.getElementById('suiteCalcHistory');
+        if (!screen) return;
+
+        if (val === 'C') {
+          this.currentCalcVal = '0';
+          this.calcHistoryVal = '';
+        } else if (val === 'BACK') {
+          this.currentCalcVal = this.currentCalcVal.length > 1 ? this.currentCalcVal.slice(0, -1) : '0';
+        } else if (val === '=') {
+          try {
+            this.calcHistoryVal = this.currentCalcVal + ' =';
+            const res = eval(this.currentCalcVal.replace(/×/g, '*').replace(/÷/g, '/'));
+            this.currentCalcVal = String(res);
+          } catch(e) {
+            this.currentCalcVal = 'Error';
+          }
+        } else {
+          if (this.currentCalcVal === '0' && val !== '.') {
+            this.currentCalcVal = val;
+          } else {
+            this.currentCalcVal += val;
+          }
+        }
+        screen.innerText = this.currentCalcVal;
+        if (hist) hist.innerText = this.calcHistoryVal;
+      },
+
+      pasteCalcToField(target) {
+        const val = parseFloat(this.currentCalcVal) || 0;
+        if (target === 'price') {
+          document.getElementById('salesPriceInput').value = val;
+        } else if (target === 'qty') {
+          document.getElementById('salesQtyInput').value = val;
+        }
+        this.calcItemSubtotal();
+        this.toggleCalculator();
+      }
+    };
+
+
     async function commitOpSales() {
       if (window.AppHaptics) AppHaptics.success();
-      const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText || '';
-      const cust = document.getElementById('salesCustomerInput')?.value || 'عميل نقدي';
-      const item = document.getElementById('salesSelectedItemName')?.innerText || 'صنف عام';
-      const qty = parseFloat(document.getElementById('salesQtyInput')?.value || 1);
-      const prc = parseFloat(document.getElementById('salesPriceInput')?.value || 0);
-      const tot = parseFloat(document.getElementById('salesTotalInput')?.value || (qty * prc));
+      const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText || ('S' + Date.now());
+      const cust = document.getElementById('salesCustomerInput')?.value || 'عميل نقدي عام';
       const payM = document.getElementById('salesPayMethodSelect')?.value || 'cash';
+      const invDate = document.getElementById('salesInvoiceDate')?.value || new Date().toISOString().split('T')[0];
+      const salesRep = document.getElementById('salesRepInput')?.value || 'كاشير الجوال';
+
+      let items = [];
+      let grandTotal = 0;
+
+      if (SuiteSalesPOS.cart && SuiteSalesPOS.cart.length > 0) {
+        items = SuiteSalesPOS.cart;
+        grandTotal = items.reduce((acc, it) => acc + (it.subtotal || 0), 0);
+      } else {
+        // Single item fallback from inputs
+        const itSel = document.getElementById('salesItemSelect');
+        const itName = itSel && itSel.options[itSel.selectedIndex]?.text ? itSel.options[itSel.selectedIndex].text.split(' - ')[0] : 'صنف عام';
+        const qty = parseFloat(document.getElementById('salesQtyInput')?.value || 1);
+        const prc = parseFloat(document.getElementById('salesPriceInput')?.value || 0);
+        const disc = parseFloat(document.getElementById('salesDiscountInput')?.value || 0);
+        const tax = parseFloat(document.getElementById('salesTaxInput')?.value || 0);
+        const labor = parseFloat(document.getElementById('salesLaborInput')?.value || 0);
+        const uSel = document.getElementById('salesUnitSelect');
+        const unit = uSel ? uSel.value : 'حبة';
+        const whSel = document.getElementById('salesWarehouseSelect');
+        const wh = whSel ? whSel.value : 'المستودع الرئيسي';
+        const sub = Math.max(0, (qty * prc) - disc + tax + labor);
+
+        if (prc <= 0 && qty <= 0) {
+          alert('⚠️ يرجى إضافة صنف واحد على الأقل للفاتورة مع تحديد السعر والكمية.');
+          return;
+        }
+
+        items = [{
+          name: itName,
+          unit,
+          warehouse: wh,
+          qty,
+          price: prc,
+          discount: disc,
+          tax,
+          labor,
+          subtotal: sub
+        }];
+        grandTotal = sub;
+      }
 
       const payload = {
         invoiceNo: invNo,
         customerName: cust,
-        grandTotal: tot,
-        total: tot,
+        grandTotal: grandTotal,
+        total: grandTotal,
         paymentMethod: payM,
         status: 'completed',
-        date: new Date().toISOString().split('T')[0],
-        items: [{ name: item, qty: qty, price: prc, subtotal: tot }]
+        date: invDate,
+        salesRep: salesRep,
+        items: items
       };
 
-      if (!navigator.onLine) {
-        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales', payload) : 'أوفلاين';
-        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
-        alert(`⚡ تم حفظ فاتورة المبيعات بنجاح في وضع الأوفلاين!\nالرقم المؤقت: [${offId}]\nستُرحّل تلقائياً إلى قاعدة البيانات الرئيسية فور توفر شبكة النت.`);
-        closeModal('modalOpSales');
-        return;
-      }
       try {
         const res = await fetch('api/mirror_sync.php?action=save_sales_invoice', {
           method: 'POST',
@@ -9606,20 +10069,16 @@
         const out = await res.json();
         if (out && out.success) {
           if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
-          alert(`✓ تم بنجاح حفظ وترحيل فاتورة المبيعات رقم: [${out.invoiceNo}]\nانتقلت فوراً إلى اللابتوب والديسكتوب، والرقم القادم الآن هو: [${out.nextInvoiceNo}]`);
+          alert(`✓ تم بنجاح اعتماد وترحيل فاتورة المبيعات [#${out.invoiceNo}] إلى قاعدة البيانات!\nتم تحديث الأرصدة والمخازن فوراً ومطابقتها مع اللابتوب.`);
+          SuiteSalesPOS.cart = [];
+          SuiteSalesPOS.renderCart();
           closeModal('modalOpSales');
           fetchMirrorNumbers();
         } else {
-          const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales', payload) : 'أوفلاين';
-          if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
-          alert(`⚡ تعذر الوصول المباشر للسيرفر! تم الحفظ أوفلاين برقم مؤقت: [${offId}]\nستُرفع تلقائياً وتأخذ رقمها الرسمي فور توفر الشبكة.`);
-          closeModal('modalOpSales');
+          alert('تعذر الحفظ في السيرفر: ' + (out.error || 'خطأ غير معروف'));
         }
       } catch (err) {
-        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales', payload) : 'أوفلاين';
-        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false);
-        alert(`⚡ شبكة النت منقطعة! تم حفظ الفاتورة بنجاح في الجوال (أوفلاين).\nالرقم المؤقت: [${offId}]\nستُرفع تلقائياً وتأخذ رقمها الحقيقي في السيرفر فور عودة الاتصال.`);
-        closeModal('modalOpSales');
+        alert('حدث خطأ في الاتصال بقاعدة البيانات: ' + err.message);
       }
     }
 

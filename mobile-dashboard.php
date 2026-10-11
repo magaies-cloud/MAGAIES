@@ -1,11 +1,11 @@
-<?php
+﻿<?php
 /**
- * ═════════════════════════════════════════════════════════════════════
- * 📱 MAGAIEES ERP 2026 - POCKET EXECUTIVE MOBILE EDITION
- * ═════════════════════════════════════════════════════════════════════
- * النسخة التنفيذية الذكية للهواتف الذكية والأجهزة اللوحية
- * تصميم ثنائي المحرك: [ ⚡ العمليات السريعة ] + [ 📊 التقارير الذكية ]
- * متصل مباشرة بقاعدة البيانات الحقيقية (MariaDB) ويدعم 4 سمات فائقة التباين
+ * â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+ * ًں“± MAGAIEES ERP 2026 - POCKET EXECUTIVE MOBILE EDITION
+ * â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+ * ط§ظ„ظ†ط³ط®ط© ط§ظ„طھظ†ظپظٹط°ظٹط© ط§ظ„ط°ظƒظٹط© ظ„ظ„ظ‡ظˆط§طھظپ ط§ظ„ط°ظƒظٹط© ظˆط§ظ„ط£ط¬ظ‡ط²ط© ط§ظ„ظ„ظˆط­ظٹط©
+ * طھطµظ…ظٹظ… ط«ظ†ط§ط¦ظٹ ط§ظ„ظ…ط­ط±ظƒ: [ âڑ، ط§ظ„ط¹ظ…ظ„ظٹط§طھ ط§ظ„ط³ط±ظٹط¹ط© ] + [ ًں“ٹ ط§ظ„طھظ‚ط§ط±ظٹط± ط§ظ„ط°ظƒظٹط© ]
+ * ظ…طھطµظ„ ظ…ط¨ط§ط´ط±ط© ط¨ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ط­ظ‚ظٹظ‚ظٹط© (MariaDB) ظˆظٹط¯ط¹ظ… 4 ط³ظ…ط§طھ ظپط§ط¦ظ‚ط© ط§ظ„طھط¨ط§ظٹظ†
  */
 
 // Instant zero-overhead heartbeat probe response
@@ -17,9 +17,9 @@ if ((isset($_GET['action']) && $_GET['action'] === 'heartbeat_ping') || (isset($
     exit;
 }
 
-// ═════════════════════════════════════════════════════════════════════
-// 🌐 LAPTOP & DESKTOP AUTOMATIC ROUTING
-// ═════════════════════════════════════════════════════════════════════
+// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+// ًںŒگ LAPTOP & DESKTOP AUTOMATIC ROUTING
+// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
 $userAgent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 $isLaptopOrPC = (bool)preg_match('/(windows nt|macintosh|x11; linux x86_64|cros)/i', $userAgent) && !preg_match('/(android|iphone|ipad|ipod|mobile)/i', $userAgent);
 $isMobileUserAgent = !$isLaptopOrPC && (bool)preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $userAgent);
@@ -32,9 +32,9 @@ if (isset($_GET['force_desktop']) && $_GET['force_desktop'] === '1') {
     exit;
 }
 
-// ═════════════════════════════════════════════════════════════════════
-// 🌟 FLAGSHIP AGREED MOBILE SUITE (mobile_erp_global_suite.html)
-// ═════════════════════════════════════════════════════════════════════
+// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+// ًںŒں FLAGSHIP AGREED MOBILE SUITE (mobile_erp_global_suite.html)
+// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
 if (file_exists(__DIR__ . '/db_bridge.php')) {
     require_once __DIR__ . '/db_bridge.php';
 } elseif (file_exists(__DIR__ . '/ELSAJANA2/magaies/db_bridge.php')) {
@@ -64,7 +64,7 @@ if (!isset($_GET['legacy']) || $_GET['legacy'] !== '1') {
     }
 }
 
-$page_title = 'مقاييس الموبايل | النسخة السريعة';
+$page_title = 'ظ…ظ‚ط§ظٹظٹط³ ط§ظ„ظ…ظˆط¨ط§ظٹظ„ | ط§ظ„ظ†ط³ط®ط© ط§ظ„ط³ط±ظٹط¹ط©';
 if (file_exists(__DIR__ . '/db_bridge.php')) {
     require_once __DIR__ . '/db_bridge.php';
 } elseif (file_exists(__DIR__ . '/ELSAJANA2/magaies/db_bridge.php')) {
@@ -79,9 +79,9 @@ if (!in_array($activeTheme, $validThemes)) {
     $activeTheme = 'midnight_obsidian';
 }
 
-// ═════════════════════════════════════════════════════════════════════
-// 📱 HARDWARE AUTO-DETECTION PROFILE (IPHONE / SAMSUNG / HUAWEI / HONOR / ANDROID)
-// ═════════════════════════════════════════════════════════════════
+// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+// ًں“± HARDWARE AUTO-DETECTION PROFILE (IPHONE / SAMSUNG / HUAWEI / HONOR / ANDROID)
+// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
 function detectMobileHardwareProfile() {
     $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
     $secChUa = $_SERVER['HTTP_SEC_CH_UA'] ?? '';
@@ -90,7 +90,7 @@ function detectMobileHardwareProfile() {
     $profile = [
         'brand' => 'android',
         'brandKey' => 'android',
-        'brandName' => 'هاتف أندرويد الذكي',
+        'brandName' => 'ظ‡ط§طھظپ ط£ظ†ط¯ط±ظˆظٹط¯ ط§ظ„ط°ظƒظٹ',
         'model' => 'Android Smartphone',
         'os' => 'Android',
         'icon' => 'fa-brands fa-android',
@@ -98,7 +98,7 @@ function detectMobileHardwareProfile() {
         'safeTop' => '0px',
         'safeBottom' => '16px',
         'refreshRate' => '60-120Hz',
-        'tuningNote' => 'معايرة الأندرويد القياسية وتثبيت الارتفاع'
+        'tuningNote' => 'ظ…ط¹ط§ظٹط±ط© ط§ظ„ط£ظ†ط¯ط±ظˆظٹط¯ ط§ظ„ظ‚ظٹط§ط³ظٹط© ظˆطھط«ط¨ظٹطھ ط§ظ„ط§ط±طھظپط§ط¹'
     ];
 
     // 1. Apple iPhone / iPad
@@ -113,7 +113,7 @@ function detectMobileHardwareProfile() {
         $profile['safeTop'] = '44px';
         $profile['safeBottom'] = '24px';
         $profile['refreshRate'] = 'ProMotion 120Hz / 60Hz Retina';
-        $profile['tuningNote'] = 'معايرة Dynamic Island / نوتش وحواف شاشة الآيفون';
+        $profile['tuningNote'] = 'ظ…ط¹ط§ظٹط±ط© Dynamic Island / ظ†ظˆطھط´ ظˆط­ظˆط§ظپ ط´ط§ط´ط© ط§ظ„ط¢ظٹظپظˆظ†';
         return $profile;
     }
 
@@ -129,7 +129,7 @@ function detectMobileHardwareProfile() {
         $profile['safeTop'] = '14px';
         $profile['safeBottom'] = '16px';
         $profile['refreshRate'] = 'Quad-Curved 120Hz';
-        $profile['tuningNote'] = 'معايرة الشاشات المنحنية وحماية حواف اللمس في هونر';
+        $profile['tuningNote'] = 'ظ…ط¹ط§ظٹط±ط© ط§ظ„ط´ط§ط´ط§طھ ط§ظ„ظ…ظ†ط­ظ†ظٹط© ظˆط­ظ…ط§ظٹط© ط­ظˆط§ظپ ط§ظ„ظ„ظ…ط³ ظپظٹ ظ‡ظˆظ†ط±';
         return $profile;
     }
 
@@ -145,7 +145,7 @@ function detectMobileHardwareProfile() {
         $profile['safeTop'] = '14px';
         $profile['safeBottom'] = '16px';
         $profile['refreshRate'] = 'OLED 90-120Hz';
-        $profile['tuningNote'] = 'معايرة كاميرا هواوي والخطوط وشريط إيماءات EMUI';
+        $profile['tuningNote'] = 'ظ…ط¹ط§ظٹط±ط© ظƒط§ظ…ظٹط±ط§ ظ‡ظˆط§ظˆظٹ ظˆط§ظ„ط®ط·ظˆط· ظˆط´ط±ظٹط· ط¥ظٹظ…ط§ط،ط§طھ EMUI';
         return $profile;
     }
 
@@ -171,7 +171,7 @@ function detectMobileHardwareProfile() {
         $profile['safeTop'] = '10px';
         $profile['safeBottom'] = '18px';
         $profile['refreshRate'] = 'Super AMOLED 120Hz Fluidity';
-        $profile['tuningNote'] = 'تسريع عتاد One UI و 120Hz AMOLED وشريط الإيماءات';
+        $profile['tuningNote'] = 'طھط³ط±ظٹط¹ ط¹طھط§ط¯ One UI ظˆ 120Hz AMOLED ظˆط´ط±ظٹط· ط§ظ„ط¥ظٹظ…ط§ط،ط§طھ';
         return $profile;
     }
 
@@ -187,7 +187,7 @@ function detectMobileHardwareProfile() {
         $profile['safeTop'] = '10px';
         $profile['safeBottom'] = '16px';
         $profile['refreshRate'] = 'AdaptiveSync 120Hz';
-        $profile['tuningNote'] = 'معايرة شاشات شاومي ومحرك HyperOS';
+        $profile['tuningNote'] = 'ظ…ط¹ط§ظٹط±ط© ط´ط§ط´ط§طھ ط´ط§ظˆظ…ظٹ ظˆظ…ط­ط±ظƒ HyperOS';
         return $profile;
     }
 
@@ -195,7 +195,7 @@ function detectMobileHardwareProfile() {
     if (!preg_match('/(android|iphone|ipad|ipod|mobile|blackberry|iemobile|opera mini)/i', $ua) && $secMobile !== '?1') {
         $profile['brand'] = 'desktop';
         $profile['brandKey'] = 'desktop';
-        $profile['brandName'] = 'شاشة الكمبيوتر';
+        $profile['brandName'] = 'ط´ط§ط´ط© ط§ظ„ظƒظ…ط¨ظٹظˆطھط±';
         $profile['os'] = 'Desktop OS';
         $profile['icon'] = 'fa-solid fa-desktop';
         $profile['color'] = '#a855f7';
@@ -203,7 +203,7 @@ function detectMobileHardwareProfile() {
         $profile['safeTop'] = '0px';
         $profile['safeBottom'] = '0px';
         $profile['refreshRate'] = 'Standard Monitor';
-        $profile['tuningNote'] = 'عرض محاكي سطح المكتب';
+        $profile['tuningNote'] = 'ط¹ط±ط¶ ظ…ط­ط§ظƒظٹ ط³ط·ط­ ط§ظ„ظ…ظƒطھط¨';
         return $profile;
     }
 
@@ -212,11 +212,11 @@ function detectMobileHardwareProfile() {
 
 $deviceProfile = detectMobileHardwareProfile();
 
-// ═════════════════════════════════════════════════════════════════════
-// 🌐 SERVER-SIDE REAL DATABASE PRELOADER (MARIADB DIRECT)
-// ═════════════════════════════════════════════════════════════════════
+// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+// ًںŒگ SERVER-SIDE REAL DATABASE PRELOADER (MARIADB DIRECT)
+// â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
 $preloadedData = [
-    'companyName' => 'مقاييس لإدارة الأعمال',
+    'companyName' => 'ظ…ظ‚ط§ظٹظٹط³ ظ„ط¥ط¯ط§ط±ط© ط§ظ„ط£ط¹ظ…ط§ظ„',
     'tenantId' => 1,
     'vaults' => [],
     'customers' => [],
@@ -435,7 +435,7 @@ try {
             }
             $amtVal = floatval($tx['amountLocal'] ?? ($tx['amount'] ?? 0));
             if (!$tx || $amtVal <= 0) {
-                echo json_encode(['success' => false, 'error' => 'بيانات الحركة غير صالحة']);
+                echo json_encode(['success' => false, 'error' => 'ط¨ظٹط§ظ†ط§طھ ط§ظ„ط­ط±ظƒط© ط؛ظٹط± طµط§ظ„ط­ط©']);
                 exit;
             }
 
@@ -479,7 +479,7 @@ try {
             $inputJson = json_decode($rawInput, true) ?: $_POST;
             $vNo = $inputJson['voucherNo'] ?? ($inputJson['id'] ?? '');
             if (empty($vNo)) {
-                echo json_encode(['success' => false, 'error' => 'رقم السند مطلوب للحذف']);
+                echo json_encode(['success' => false, 'error' => 'ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯ ظ…ط·ظ„ظˆط¨ ظ„ظ„ط­ط°ظپ']);
                 exit;
             }
 
@@ -498,7 +498,7 @@ try {
                 $stmtDelQ->execute([$delUuid, $vNo]);
             } catch (Exception $eq) {}
 
-            echo json_encode(['success' => true, 'message' => 'تم حذف السند بنجاح', 'voucherNo' => $vNo]);
+            echo json_encode(['success' => true, 'message' => 'طھظ… ط­ط°ظپ ط§ظ„ط³ظ†ط¯ ط¨ظ†ط¬ط§ط­', 'voucherNo' => $vNo]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
@@ -515,7 +515,7 @@ try {
             if (is_string($tx)) $tx = json_decode($tx, true);
             $vNo = $tx['voucherNo'] ?? ($tx['id'] ?? '');
             if (!$tx || empty($vNo)) {
-                echo json_encode(['success' => false, 'error' => 'بيانات السند غير صالحة للتعديل']);
+                echo json_encode(['success' => false, 'error' => 'ط¨ظٹط§ظ†ط§طھ ط§ظ„ط³ظ†ط¯ ط؛ظٹط± طµط§ظ„ط­ط© ظ„ظ„طھط¹ط¯ظٹظ„']);
                 exit;
             }
             $txJson = json_encode($tx, JSON_UNESCAPED_UNICODE);
@@ -533,7 +533,7 @@ try {
                 $stmtUpQ->execute([$upUuid, $vNo, $txJson]);
             } catch (Exception $eq) {}
 
-            echo json_encode(['success' => true, 'message' => 'تم حفظ التعديلات بنجاح', 'voucherNo' => $vNo]);
+            echo json_encode(['success' => true, 'message' => 'طھظ… ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ ط¨ظ†ط¬ط§ط­', 'voucherNo' => $vNo]);
         } catch (Exception $e) {
             echo json_encode(['success' => false, 'error' => $e->getMessage()]);
         }
@@ -551,7 +551,7 @@ try {
                 $items = is_array($reqData['data']) ? $reqData['data'] : json_decode($reqData['data'], true);
             }
             if (!is_array($items) || empty($items)) {
-                echo json_encode(['success' => false, 'error' => 'لا توجد حركات مزامنة في الطلب']);
+                echo json_encode(['success' => false, 'error' => 'ظ„ط§ طھظˆط¬ط¯ ط­ط±ظƒط§طھ ظ…ط²ط§ظ…ظ†ط© ظپظٹ ط§ظ„ط·ظ„ط¨']);
                 exit;
             }
 
@@ -698,7 +698,7 @@ try {
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="مقاييس ERP">
+    <meta name="apple-mobile-web-app-title" content="ظ…ظ‚ط§ظٹظٹط³ ERP">
     <link rel="apple-touch-icon" href="assets/apple-touch-icon.png?v=2026_m_v7">
     <link rel="icon" type="image/svg+xml" href="assets/icon.svg?v=2026_m_v7">
     <link rel="icon" type="image/png" sizes="192x192" href="assets/icon-192.png?v=2026_m_v7">
@@ -724,7 +724,7 @@ try {
     $themeColorHex = $themeHexMap[$activeTheme] ?? '#0b0f19';
     ?>
     <meta name="theme-color" content="<?php echo $themeColorHex; ?>">
-    <title><?php echo htmlspecialchars($preloadedData['companyName']); ?> - النسخة السريعة</title>
+    <title><?php echo htmlspecialchars($preloadedData['companyName']); ?> - ط§ظ„ظ†ط³ط®ط© ط§ظ„ط³ط±ظٹط¹ط©</title>
     <script src="js/magaiees_back.js?v=2026_back_universal" defer></script>
     <script src="js/pwa-manager.js?v=2026_10_04_v26_blue_install" defer></script>
     <script src="js/magaies-offline-sync.js" defer></script>
@@ -768,11 +768,11 @@ try {
     </script>
 
     <style>
-        /* ═════════════════════════════════════════════════════════════════
-           🎨 THE 7-TIER THEME ENGINE (FROM ULTRA-LIGHT TO DEEP NIGHT)
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           ًںژ¨ THE 7-TIER THEME ENGINE (FROM ULTRA-LIGHT TO DEEP NIGHT)
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         
-        /* 1. ⚪ ULTRA-CLEAN WHITE (أبيض فائق النقاء - إضاءة داخلية نهارية) */
+        /* 1. âڑھ ULTRA-CLEAN WHITE (ط£ط¨ظٹط¶ ظپط§ط¦ظ‚ ط§ظ„ظ†ظ‚ط§ط، - ط¥ط¶ط§ط،ط© ط¯ط§ط®ظ„ظٹط© ظ†ظ‡ط§ط±ظٹط©) */
         html[data-theme="ultra_white"],
         body[data-theme="ultra_white"] {
             --bg-base: #ffffff;
@@ -811,7 +811,7 @@ try {
             --dvh: 100dvh;
         }
 
-        /* 2. 📜 WARM PAPER SEPIA (ورق سيبيا دافئ - قراءة نهارية ممتدة بدون إجهاد) */
+        /* 2. ًں“œ WARM PAPER SEPIA (ظˆط±ظ‚ ط³ظٹط¨ظٹط§ ط¯ط§ظپط¦ - ظ‚ط±ط§ط،ط© ظ†ظ‡ط§ط±ظٹط© ظ…ظ…طھط¯ط© ط¨ط¯ظˆظ† ط¥ط¬ظ‡ط§ط¯) */
         html[data-theme="warm_cream"],
         body[data-theme="warm_cream"] {
             --bg-base: #fbf7ee;
@@ -843,7 +843,7 @@ try {
             --shadow-card: none;
         }
 
-        /* 3. 🏢 COOL INDUSTRIAL GRAY (رمادي تنفيذي حديث وأزرق كوبالت) */
+        /* 3. ًںڈ¢ COOL INDUSTRIAL GRAY (ط±ظ…ط§ط¯ظٹ طھظ†ظپظٹط°ظٹ ط­ط¯ظٹط« ظˆط£ط²ط±ظ‚ ظƒظˆط¨ط§ظ„طھ) */
         html[data-theme="exec_gray"],
         body[data-theme="exec_gray"] {
             --bg-base: #f1f5f9;
@@ -875,7 +875,7 @@ try {
             --shadow-card: none;
         }
 
-        /* 4. ☀️ HIGH-CONTRAST SOLAR SUN (شمس ساطعة - تباين فائق 21:1 للساحات المفتوحة #FFFF00 / #000000) */
+        /* 4. âک€ï¸ڈ HIGH-CONTRAST SOLAR SUN (ط´ظ…ط³ ط³ط§ط·ط¹ط© - طھط¨ط§ظٹظ† ظپط§ط¦ظ‚ 21:1 ظ„ظ„ط³ط§ط­ط§طھ ط§ظ„ظ…ظپطھظˆط­ط© #FFFF00 / #000000) */
         html[data-theme="solar_contrast"],
         body[data-theme="solar_contrast"],
         html[data-theme="solar"],
@@ -909,7 +909,7 @@ try {
             --shadow-card: none;
         }
 
-        /* 5. 🌆 DIMMED TWILIGHT / SLATE (سليت مسائي هادئ - إجهاد منخفض للمكتب الليلي) */
+        /* 5. ًںŒ† DIMMED TWILIGHT / SLATE (ط³ظ„ظٹطھ ظ…ط³ط§ط¦ظٹ ظ‡ط§ط¯ط¦ - ط¥ط¬ظ‡ط§ط¯ ظ…ظ†ط®ظپط¶ ظ„ظ„ظ…ظƒطھط¨ ط§ظ„ظ„ظٹظ„ظٹ) */
         html[data-theme="slate_twilight"],
         body[data-theme="slate_twilight"],
         html[data-theme="forest"],
@@ -944,7 +944,7 @@ try {
             --shadow-card: 0 8px 24px rgba(0, 0, 0, 0.45);
         }
 
-        /* 6. 🌌 MIDNIGHT OBSIDIAN (كحلي أوبسيديان فاحم 0B0F19 - مؤشرات نيون زاهية) - DEFAULT */
+        /* 6. ًںŒŒ MIDNIGHT OBSIDIAN (ظƒط­ظ„ظٹ ط£ظˆط¨ط³ظٹط¯ظٹط§ظ† ظپط§ط­ظ… 0B0F19 - ظ…ط¤ط´ط±ط§طھ ظ†ظٹظˆظ† ط²ط§ظ‡ظٹط©) - DEFAULT */
         :root,
         html[data-theme="midnight_obsidian"],
         body[data-theme="midnight_obsidian"],
@@ -986,7 +986,7 @@ try {
             --dvh: 100dvh;
         }
 
-        /* 7. 🖤 PURE OLED BLACK (سواد حقيقي 000000 - توفير 100% طاقة وتباين مطلق) */
+        /* 7. ًں–¤ PURE OLED BLACK (ط³ظˆط§ط¯ ط­ظ‚ظٹظ‚ظٹ 000000 - طھظˆظپظٹط± 100% ط·ط§ظ‚ط© ظˆطھط¨ط§ظٹظ† ظ…ط·ظ„ظ‚) */
         html[data-theme="pure_oled"],
         body[data-theme="pure_oled"],
         html[data-theme="midnight"],
@@ -1031,9 +1031,9 @@ try {
             border-color: #000000 !important;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           ⚡ LOW-END HARDWARE & 60 FPS VISUAL OPTIMIZATIONS (ZERO-LAG MODE)
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           âڑ، LOW-END HARDWARE & 60 FPS VISUAL OPTIMIZATIONS (ZERO-LAG MODE)
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         /* 1. Strip heavy GPU blur filters & complex drop-shadows on budget chipsets */
         .mobile-header,
         .bottom-nav-bar,
@@ -1080,9 +1080,9 @@ try {
             white-space: nowrap;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
            CORE LAYOUT & COMPONENTS (THEME-VARIABLE POWERED)
-           ═════════════════════════════════════════════════════════════════ */
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         *, *::before, *::after {
             box-sizing: border-box;
             margin: 0;
@@ -1101,7 +1101,7 @@ try {
             -webkit-text-size-adjust: 100%;
         }
 
-        /* ⚖️ MOBILE SCREEN CALIBRATION & BUTTON CONTAINMENT SYSTEM */
+        /* âڑ–ï¸ڈ MOBILE SCREEN CALIBRATION & BUTTON CONTAINMENT SYSTEM */
         .mobile-header,
         .view-container,
         .mobile-content,
@@ -1176,7 +1176,7 @@ try {
             animation: screenCalibratePulse 0.45s ease forwards !important;
         }
 
-        /* 🔔 LOW-PROFILE SLIM TOAST NOTIFICATIONS (تقليل ارتفاع الإشعارات مع الحفاظ على حجم الخط) */
+        /* ًں”” LOW-PROFILE SLIM TOAST NOTIFICATIONS (طھظ‚ظ„ظٹظ„ ط§ط±طھظپط§ط¹ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ظ…ط¹ ط§ظ„ط­ظپط§ط¸ ط¹ظ„ظ‰ ط­ط¬ظ… ط§ظ„ط®ط·) */
         #modern-toast-container {
             top: max(14px, env(safe-area-inset-top, 14px)) !important;
             gap: 6px !important;
@@ -1225,7 +1225,7 @@ try {
             border-radius: 0 0 12px 12px !important;
         }
 
-        /* 🎙️ Voice Input Microphone Button */
+        /* ًںژ™ï¸ڈ Voice Input Microphone Button */
         .voice-mic-btn {
             width: 42px; height: 42px; border-radius: 50%;
             background: var(--surface-sub); border: 1.5px solid var(--border-glass);
@@ -1240,7 +1240,7 @@ try {
         }
         .voice-mic-btn:active { transform: scale(0.92); }
 
-        /* 🔤 GLOBAL FONT CLARITY SYSTEM — Minimum readable sizes for mobile */
+        /* ًں”¤ GLOBAL FONT CLARITY SYSTEM â€” Minimum readable sizes for mobile */
         /* Raise dangerously small fonts to readable minimums */
         small, .micro-kpi-sub, .outbox-status-pill span,
         .alert-card-snap .priority-badge, .inv-sku-badge {
@@ -1263,9 +1263,9 @@ try {
             transition: background-color 0.25s ease, color 0.25s ease;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           🧠 PSYCHO-ERGONOMIC FOCUS MAGNIFICATION ENGINE (الراحة النفسية والتركيز)
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           ًں§  PSYCHO-ERGONOMIC FOCUS MAGNIFICATION ENGINE (ط§ظ„ط±ط§ط­ط© ط§ظ„ظ†ظپط³ظٹط© ظˆط§ظ„طھط±ظƒظٹط²)
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .m-input, .m-select, select.m-input, textarea.m-input {
             transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
                         border-color 0.22s ease,
@@ -1444,9 +1444,9 @@ try {
             display: none !important;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           📱 HARDWARE-SPECIFIC CALIBRATION (IPHONE / SAMSUNG / HUAWEI / HONOR / ANDROID)
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           ًں“± HARDWARE-SPECIFIC CALIBRATION (IPHONE / SAMSUNG / HUAWEI / HONOR / ANDROID)
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
 
         /* 1. APPLE IPHONE / IPAD (DYNAMIC ISLAND & SAFE AREAS & INPUT ZOOM FIX) */
         html[data-device-brand="apple"],
@@ -1993,7 +1993,7 @@ try {
             gap: 4px;
         }
 
-        /* 📊 Analytics Mode Styling */
+        /* ًں“ٹ Analytics Mode Styling */
         .analytics-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -2224,9 +2224,9 @@ try {
             transform: scale(0.98);
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           💸 UNIFIED FINANCIAL TRANSACTION & SMART ACCOUNT PICKER STYLES
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           ًں’¸ UNIFIED FINANCIAL TRANSACTION & SMART ACCOUNT PICKER STYLES
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .tx-type-pill-container {
             display: flex;
             background: var(--surface-sub);
@@ -2295,7 +2295,7 @@ try {
         .box-account-picker:active {
             transform: scale(0.98);
         }
-        /* 🔴 FROM ACCOUNT: Light Soft Red */
+        /* ًں”´ FROM ACCOUNT: Light Soft Red */
         .box-account-from {
             background: rgba(239, 68, 68, 0.10);
             border: 1.8px solid rgba(239, 68, 68, 0.38);
@@ -2313,7 +2313,7 @@ try {
             gap: 5px;
         }
 
-        /* 🟢 TO ACCOUNT: Light Soft Green */
+        /* ًںں¢ TO ACCOUNT: Light Soft Green */
         .box-account-to {
             background: rgba(16, 185, 129, 0.10);
             border: 1.8px solid rgba(16, 185, 129, 0.38);
@@ -2634,9 +2634,9 @@ try {
             color: var(--primary);
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           ⚠️ MOBILE FINANCIAL SECURITY & AUDIT MODALS
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           âڑ ï¸ڈ MOBILE FINANCIAL SECURITY & AUDIT MODALS
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .mobile-alert-backdrop {
             position: fixed;
             inset: 0;
@@ -2718,9 +2718,9 @@ try {
             font-family: 'Tajawal', sans-serif;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           ⚡ HYPER-MODERN MOBILE-FIRST ARCHITECTURE COMPONENTS
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           âڑ، HYPER-MODERN MOBILE-FIRST ARCHITECTURE COMPONENTS
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
 
         /* 1. Branch / Warehouse Selector Pill */
         .branch-pill {
@@ -2750,17 +2750,17 @@ try {
             font-size: 0.84rem;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           💎 THE FLAGSHIP LUMINOUS GLASS TOP BAR (السطر الأول الفاخر الموحد)
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           ًں’ژ THE FLAGSHIP LUMINOUS GLASS TOP BAR (ط§ظ„ط³ط·ط± ط§ظ„ط£ظˆظ„ ط§ظ„ظپط§ط®ط± ط§ظ„ظ…ظˆط­ط¯)
            Exact 7-Icon Arrangement:
-           1. مقاييس (Net Status: Green Online / Red Offline)
-           2. السمات (Themes - Palette Standard Icon)
-           3. البحث (Smart Global Search)
-           4. المايك (Voice Copilot AI)
-           5. العين (Privacy Stealth Numbers Hide)
-           6. التنزيل أو التثبيت (PWA Install / Download)
-           7. الخروج (Logout)
-           ═════════════════════════════════════════════════════════════════ */
+           1. ظ…ظ‚ط§ظٹظٹط³ (Net Status: Green Online / Red Offline)
+           2. ط§ظ„ط³ظ…ط§طھ (Themes - Palette Standard Icon)
+           3. ط§ظ„ط¨ط­ط« (Smart Global Search)
+           4. ط§ظ„ظ…ط§ظٹظƒ (Voice Copilot AI)
+           5. ط§ظ„ط¹ظٹظ† (Privacy Stealth Numbers Hide)
+           6. ط§ظ„طھظ†ط²ظٹظ„ ط£ظˆ ط§ظ„طھط«ط¨ظٹطھ (PWA Install / Download)
+           7. ط§ظ„ط®ط±ظˆط¬ (Logout)
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .flagship-top-bar {
             display: flex !important;
             align-items: center !important;
@@ -2983,7 +2983,7 @@ try {
             filter: drop-shadow(0 0 7px rgba(244, 63, 94, 0.75)) !important;
         }
 
-        /* 🌈 Periodic Glass Sheen & Diagonal Reflection Sweep (انعكاسات زجاجية من حين لآخر) */
+        /* ًںŒˆ Periodic Glass Sheen & Diagonal Reflection Sweep (ط§ظ†ط¹ظƒط§ط³ط§طھ ط²ط¬ط§ط¬ظٹط© ظ…ظ† ط­ظٹظ† ظ„ط¢ط®ط±) */
         .flagship-top-tile::after {
             content: '' !important;
             position: absolute !important;
@@ -3011,7 +3011,7 @@ try {
         .tile-install::after { animation-delay: 0.80s !important; }
         .tile-logout::after { animation-delay: 0.94s !important; }
 
-        /* ✨ Interactive Micro-Vibration & Luminous Border Explosion on Hover / Touch / Focus */
+        /* âœ¨ Interactive Micro-Vibration & Luminous Border Explosion on Hover / Touch / Focus */
         @keyframes flagshipMicroVibe {
             0% { transform: translateY(-3px) scale(1.15) rotate(0deg); }
             20% { transform: translateY(-3px) scale(1.15) rotate(-2.5deg); }
@@ -3066,7 +3066,7 @@ try {
             }
         }
 
-        /* 🌐 Live Internet Status Indicator (نقطة خضراء متصل / نقطة حمراء منقطع) */
+        /* ًںŒگ Live Internet Status Indicator (ظ†ظ‚ط·ط© ط®ط¶ط±ط§ط، ظ…طھطµظ„ / ظ†ظ‚ط·ط© ط­ظ…ط±ط§ط، ظ…ظ†ظ‚ط·ط¹) */
         .header-net-status-wrap {
             display: inline-flex;
             align-items: center;
@@ -3123,7 +3123,7 @@ try {
             white-space: nowrap;
         }
 
-        /* 🔄 Top Bar Quick Refresh Button (زر ريفريش ذكي) */
+        /* ًں”„ Top Bar Quick Refresh Button (ط²ط± ط±ظٹظپط±ظٹط´ ط°ظƒظٹ) */
         .header-refresh-btn {
             width: 34px;
             height: 34px;
@@ -3158,10 +3158,10 @@ try {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
-        /* ═════════════════════════════════════════════════════════════════
-           💎 THE FLAGSHIP CRYSTAL GLASS HEADER ACTIONS DECK
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           ًں’ژ THE FLAGSHIP CRYSTAL GLASS HEADER ACTIONS DECK
            5 Equal, Luxurious, Luminous, Animated Crystal Glass Tiles
-           ═════════════════════════════════════════════════════════════════ */
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .header-actions-deck {
             display: grid !important;
             grid-template-columns: repeat(5, 1fr) !important;
@@ -3212,7 +3212,7 @@ try {
             letter-spacing: -0.2px !important;
         }
 
-        /* 🌈 Ambient Light-Sweep Shimmer (إيماءات ضوئية وحركية) */
+        /* ًںŒˆ Ambient Light-Sweep Shimmer (ط¥ظٹظ…ط§ط،ط§طھ ط¶ظˆط¦ظٹط© ظˆط­ط±ظƒظٹط©) */
         .header-deck-pill::after {
             content: '';
             position: absolute;
@@ -3232,7 +3232,7 @@ try {
             70%, 100% { left: 180%; opacity: 0; }
         }
 
-        /* ✨ Interactive Vibration & Growth on Hover / Touch (تهتز وتكبر وحوافها تضيء) */
+        /* âœ¨ Interactive Vibration & Growth on Hover / Touch (طھظ‡طھط² ظˆطھظƒط¨ط± ظˆط­ظˆط§ظپظ‡ط§ طھط¶ظٹط،) */
         @keyframes crystalJiggle {
             0% { transform: translateY(-3px) scale(1.08) rotate(0deg); }
             20% { transform: translateY(-3px) scale(1.08) rotate(-2.5deg); }
@@ -3328,7 +3328,7 @@ try {
             box-shadow: 0 2px 8px rgba(239, 68, 68, 0.65);
         }
 
-        /* 🛰️ Bottom Docked Connection Status Pill */
+        /* ًں›°ï¸ڈ Bottom Docked Connection Status Pill */
         .bottom-connection-dock {
             position: fixed;
             bottom: 66px;
@@ -3428,7 +3428,7 @@ try {
             box-shadow: 0 2px 6px rgba(244, 63, 94, 0.5);
             z-index: 2;
         }
-        /* 🛰️ Outbox Badge for Pending Offline Transactions (Red Circle Counter) */
+        /* ًں›°ï¸ڈ Outbox Badge for Pending Offline Transactions (Red Circle Counter) */
         .header-icon-btn .outbox-count-badge {
             position: absolute;
             top: -4px;
@@ -3465,7 +3465,7 @@ try {
             50% { transform: scale(1.15); }
         }
 
-        /* 🔕 Mute Explanatory Toasts Button (Focus Mode) */
+        /* ًں”• Mute Explanatory Toasts Button (Focus Mode) */
         .header-icon-btn.btn-toast-mute {
             position: relative;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -3623,7 +3623,7 @@ try {
             color: #ffffff;
         }
 
-        /* 4. 💎 THE UNIFIED EXECUTIVE KPI MATRIX (وحدة المؤشرات الكبرى المنسقة) */
+        /* 4. ًں’ژ THE UNIFIED EXECUTIVE KPI MATRIX (ظˆط­ط¯ط© ط§ظ„ظ…ط¤ط´ط±ط§طھ ط§ظ„ظƒط¨ط±ظ‰ ط§ظ„ظ…ظ†ط³ظ‚ط©) */
         .unified-kpi-matrix {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -3655,7 +3655,7 @@ try {
             background: rgba(255, 255, 255, 0.05);
         }
 
-        /* 🪟 Symmetrical Fine Frosted Glass Grid Separators */
+        /* ًںھں Symmetrical Fine Frosted Glass Grid Separators */
         .matrix-quadrant.quad-sales {
             border-bottom: 1px solid var(--border-glass);
             border-inline-end: 1px solid var(--border-glass);
@@ -3670,7 +3670,7 @@ try {
             border: none;
         }
 
-        /* 🏷️ Quadrant Top Section: Title & Arrow / Trend */
+        /* ًںڈ·ï¸ڈ Quadrant Top Section: Title & Arrow / Trend */
         .quad-head {
             display: flex;
             align-items: center;
@@ -3717,7 +3717,7 @@ try {
             color: #fbbf24;
         }
 
-        /* 💰 Quadrant Center (SDG) & Bottom (USD) Section */
+        /* ًں’° Quadrant Center (SDG) & Bottom (USD) Section */
         .quad-val {
             font-family: 'Inter', sans-serif;
             margin: 2px 0 0 0;
@@ -3847,7 +3847,7 @@ try {
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 👁️ Privacy Stealth Eye & 🎙️ Floating AI Voice Copilot Styles */
+        /* ًں‘پï¸ڈ Privacy Stealth Eye & ًںژ™ï¸ڈ Floating AI Voice Copilot Styles */
         .header-deck-pill.pill-privacy {
             color: #38bdf8;
             border-color: rgba(56, 189, 248, 0.4);
@@ -4016,9 +4016,9 @@ try {
             border-radius: 8px;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
            MODULE 1: ULTRA-FAST MOBILE INVOICING (Sales & POS Screen)
-           ═════════════════════════════════════════════════════════════════ */
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .pos-container {
             display: flex;
             flex-direction: column;
@@ -4410,9 +4410,9 @@ try {
             line-height: 1.1;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
            RESPONSIVE FLUID SCALING ENGINE (SMALL SCREENS <= 360px & LARGE >= 390px)
-           ═════════════════════════════════════════════════════════════════ */
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         @media (max-width: 360px) {
             .mobile-header {
                 padding: calc(6px + var(--safe-top)) 6px 6px 6px !important;
@@ -4584,9 +4584,9 @@ try {
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           MODULE 2: CASH MANAGEMENT & QUICK VOUCHERS (سندات القبض والصرف)
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           MODULE 2: CASH MANAGEMENT & QUICK VOUCHERS (ط³ظ†ط¯ط§طھ ط§ظ„ظ‚ط¨ط¶ ظˆط§ظ„طµط±ظپ)
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .voucher-mode-toggle {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -4727,9 +4727,9 @@ try {
             margin: 0 auto 14px auto;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           📦 INVENTORY & WAREHOUSE TRANSFER STYLING ENGINE
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           ًں“¦ INVENTORY & WAREHOUSE TRANSFER STYLING ENGINE
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .inv-search-toolbar {
             display: flex;
             align-items: center;
@@ -5250,9 +5250,9 @@ try {
             background: var(--emerald);
         }
 
-        /* ═════════════════════════════════════════════════════════════════
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
            MODULE 1 & 2: INTERACTIVE LEDGER & DEBT AGING
-           ═════════════════════════════════════════════════════════════════ */
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .ledger-view-switcher {
             display: flex !important;
             background: var(--surface-sub);
@@ -5496,9 +5496,9 @@ try {
             color: #fff;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
            MODULE 2: ACCOUNTS RECEIVABLE & DEBT AGING
-           ═════════════════════════════════════════════════════════════════ */
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .aging-buckets-carousel {
             display: flex !important;
             gap: 8px;
@@ -5583,9 +5583,9 @@ try {
             margin-top: 10px;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
            MODULE 3: EXECUTIVE APPROVALS HUB
-           ═════════════════════════════════════════════════════════════════ */
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .approval-card-modern {
             background: var(--surface-card);
             border: 1.5px solid var(--border-glass);
@@ -5686,9 +5686,9 @@ try {
             text-align: center;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
            OFFLINE-FIRST OUTBOX SYNC ENGINE & STATUS PILL (ULTRA COMPACT DOT)
-           ═════════════════════════════════════════════════════════════════ */
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .outbox-status-pill {
             display: inline-flex;
             align-items: center;
@@ -5807,7 +5807,7 @@ try {
             background: rgba(244, 63, 94, 0.05);
         }
 
-        /* 📟 Tablet / iPad Adaptive Split-View Layout (768px <= width < 1024px) */
+        /* ًں“ں Tablet / iPad Adaptive Split-View Layout (768px <= width < 1024px) */
         @media (min-width: 768px) and (max-width: 1023px) {
             .mobile-header {
                 max-width: 100%;
@@ -5832,9 +5832,9 @@ try {
             }
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           🧾 LAPTOP-PARITY INVOICE SUITE TABS & DETAILED LINE ITEMS
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           ًں§¾ LAPTOP-PARITY INVOICE SUITE TABS & DETAILED LINE ITEMS
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .invoice-suite-tabs {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -5918,7 +5918,7 @@ try {
             white-space: nowrap;
         }
 
-        /* Unified 6-Action Toolbar (مشاركة | جديد | مسح باركود | تأكيد | حفظ | فلترة) */
+        /* Unified 6-Action Toolbar (ظ…ط´ط§ط±ظƒط© | ط¬ط¯ظٹط¯ | ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯ | طھط£ظƒظٹط¯ | ط­ظپط¸ | ظپظ„طھط±ط©) */
         .invoice-action-toolbar-6 {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -6066,7 +6066,7 @@ try {
             font-weight: 800;
         }
 
-        /* 📊 20 Advanced Inventory Reports Crystal Cards & Sheet Styling */
+        /* ًں“ٹ 20 Advanced Inventory Reports Crystal Cards & Sheet Styling */
         .inv-rep-card {
             background: var(--surface-card);
             border: 1px solid var(--border-glass);
@@ -6147,10 +6147,10 @@ try {
             flex-shrink: 0;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           📱 UNIFIED SCREEN ACTION TOOLBAR (شريط الأزرار الموحد في كل شاشات الجوال)
-           [جديد] [حفظ] [تعديل] [حذف] [طباعة] [بحث] [مشاركة] [تراجع]
-           ═════════════════════════════════════════════════════════════════ */
+        /* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+           ًں“± UNIFIED SCREEN ACTION TOOLBAR (ط´ط±ظٹط· ط§ظ„ط£ط²ط±ط§ط± ط§ظ„ظ…ظˆط­ط¯ ظپظٹ ظƒظ„ ط´ط§ط´ط§طھ ط§ظ„ط¬ظˆط§ظ„)
+           [ط¬ط¯ظٹط¯] [ط­ظپط¸] [طھط¹ط¯ظٹظ„] [ط­ط°ظپ] [ط·ط¨ط§ط¹ط©] [ط¨ط­ط«] [ظ…ط´ط§ط±ظƒط©] [طھط±ط§ط¬ط¹]
+           â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
         .screen-unified-action-bar {
             display: flex;
             align-items: center;
@@ -6238,7 +6238,7 @@ try {
             color: #38bdf8;
         }
 
-        /* Screen Navigator Bar (الأول | السابق | التالي | الأخير) */
+        /* Screen Navigator Bar (ط§ظ„ط£ظˆظ„ | ط§ظ„ط³ط§ط¨ظ‚ | ط§ظ„طھط§ظ„ظٹ | ط§ظ„ط£ط®ظٹط±) */
         .screen-navigator-bar {
             display: flex;
             align-items: center;
@@ -6336,175 +6336,270 @@ try {
         .btn-tx-mini.mini-delete { color: #f87171; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08); }
         .btn-tx-mini.mini-print { color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.08); }
         .btn-tx-mini.mini-wa { color: #34d399; border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); }
-    </style>
+    
+/* RADICAL SALES REDESIGN CSS */
+#pane-sales-invoice {
+    background-color: #0b0f19 !important;
+    color: #f8fafc !important;
+    min-height: 100vh;
+    border-radius: 12px;
+    padding-bottom: 120px;
+}
+@keyframes neonPulseHeader {
+    0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.2), inset 0 0 10px rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
+    50% { box-shadow: 0 0 35px rgba(168, 85, 247, 0.5), inset 0 0 20px rgba(168, 85, 247, 0.25); border-color: rgba(192, 132, 252, 0.8); }
+    100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.2), inset 0 0 10px rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
+}
+.magical-glass-header {
+    background: linear-gradient(135deg, rgba(20, 10, 35, 0.75), rgba(35, 15, 60, 0.55)) !important;
+    backdrop-filter: blur(28px) saturate(220%);
+    -webkit-backdrop-filter: blur(28px) saturate(220%);
+    border: 1px solid rgba(192, 132, 252, 0.4);
+    border-top: 2px solid rgba(192, 132, 252, 0.9);
+    border-radius: 20px;
+    animation: neonPulseHeader 4s infinite alternate ease-in-out;
+    padding: 15px;
+    margin: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.laptop-input {
+    background: rgba(15, 23, 42, 0.7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 8px !important;
+    color: #fff !important;
+    transition: all 0.3s ease;
+    font-weight: 700;
+    width: 100%;
+    padding: 8px 12px;
+    box-sizing: border-box;
+}
+.laptop-input:focus {
+    outline: none;
+    border-color: #38bdf8 !important;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.4), inset 0 0 8px rgba(56, 189, 248, 0.1) !important;
+    background: rgba(15, 23, 42, 0.9) !important;
+}
+.input-readonly {
+    background: rgba(52, 211, 153, 0.1) !important;
+    border-color: rgba(52, 211, 153, 0.4) !important;
+    color: #6ee7b7 !important;
+    text-align: center;
+    font-size: 1.2rem;
+}
+.btn-action-glow {
+    background: linear-gradient(135deg, #38bdf8, #0ea5e9) !important;
+    box-shadow: 0 6px 15px rgba(14, 165, 233, 0.4) !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 10px;
+    padding: 10px;
+    font-weight: 900;
+    width: 100%;
+}
+.btn-save-glow {
+    background: linear-gradient(135deg, #10b981, #059669) !important;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
+    color: #fff !important;
+    border: none;
+    border-radius: 15px;
+    padding: 15px;
+    font-weight: 900;
+    width: 100%;
+    font-size: 1.1rem;
+}
+.radical-grid-12 { display: grid; grid-template-columns: repeat(12, 1fr); gap: 8px; margin-bottom: 10px; }
+.radical-col-8 { grid-column: span 8; }
+.radical-col-4 { grid-column: span 4; }
+.radical-col-5 { grid-column: span 5; }
+.radical-col-3 { grid-column: span 3; }
+.radical-col-6 { grid-column: span 6; }
+.radical-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.radical-label { font-size: 0.7rem; font-weight: 800; color: #94a3b8; display: block; margin-bottom: 4px; }
+.db-item-card {
+    background: linear-gradient(180deg, rgba(30,41,59,0.7), rgba(15,23,42,0.9));
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    position: relative;
+    overflow: hidden;
+    padding: 12px;
+    margin-bottom: 10px;
+}
+.db-item-card::before {
+    content: ''; position: absolute; right: 0; top: 0; width: 4px; height: 100%; background: #38bdf8;
+}
+/* END RADICAL CSS */
+</style>
+
 </head>
 <body data-theme="<?php echo htmlspecialchars($activeTheme); ?>">
 
     <!-- 1. Sticky Mobile App Header -->
     <!-- 1. Sticky Mobile App Header (Flagship Luminous Glass Header) -->
     <header class="mobile-header">
-        <!-- 💎 Row 1: The Unified Flagship Executive Action Deck (السطر الأول الفاخر الموحد بالترتيب والمواصفات الدقيقة) -->
+        <!-- ًں’ژ Row 1: The Unified Flagship Executive Action Deck (ط§ظ„ط³ط·ط± ط§ظ„ط£ظˆظ„ ط§ظ„ظپط§ط®ط± ط§ظ„ظ…ظˆط­ط¯ ط¨ط§ظ„طھط±طھظٹط¨ ظˆط§ظ„ظ…ظˆط§طµظپط§طھ ط§ظ„ط¯ظ‚ظٹظ‚ط©) -->
         <div class="header-top-row flagship-top-bar" id="flagship-top-header-row">
             
-            <!-- 1. مقاييس (مؤشر النت الذكي: أخضر عند الاتصال، أحمر عند الانقطاع) -->
+            <!-- 1. ظ…ظ‚ط§ظٹظٹط³ (ظ…ط¤ط´ط± ط§ظ„ظ†طھ ط§ظ„ط°ظƒظٹ: ط£ط®ط¶ط± ط¹ظ†ط¯ ط§ظ„ط§طھطµط§ظ„طŒ ط£ط­ظ…ط± ط¹ظ†ط¯ ط§ظ„ط§ظ†ظ‚ط·ط§ط¹) -->
             <button type="button" 
                     class="flagship-top-tile flagship-brand-tile online" 
                     id="header-net-indicator" 
                     onclick="checkNetworkAndNotify()" 
                     onpointerenter="triggerTileHaptic()"
-                    title="مقاييس ERP: الإنترنت متصل 🟢 (اضغط لاختبار الاتصال أو التبديل)">
+                    title="ظ…ظ‚ط§ظٹظٹط³ ERP: ط§ظ„ط¥ظ†طھط±ظ†طھ ظ…طھطµظ„ ًںں¢ (ط§ط¶ط؛ط· ظ„ط§ط®طھط¨ط§ط± ط§ظ„ط§طھطµط§ظ„ ط£ظˆ ط§ظ„طھط¨ط¯ظٹظ„)">
                 <div class="brand-avatar-mini" id="header-brand-avatar">
-                    <span>م</span>
+                    <span>ظ…</span>
                 </div>
-                <span class="brand-text-luminous" id="header-brand-name">مقاييس</span>
+                <span class="brand-text-luminous" id="header-brand-name">ظ…ظ‚ط§ظٹظٹط³</span>
                 <span class="net-status-dot online" id="header-net-dot"></span>
             </button>
 
-            <!-- 2. أيقونة السمات (شعار السمات المعروف بلوحة الألوان والبريق) -->
+            <!-- 2. ط£ظٹظ‚ظˆظ†ط© ط§ظ„ط³ظ…ط§طھ (ط´ط¹ط§ط± ط§ظ„ط³ظ…ط§طھ ط§ظ„ظ…ط¹ط±ظˆظپ ط¨ظ„ظˆط­ط© ط§ظ„ط£ظ„ظˆط§ظ† ظˆط§ظ„ط¨ط±ظٹظ‚) -->
             <button type="button" 
                     class="flagship-top-tile flagship-action-tile tile-theme" 
                     id="btn-header-theme" 
                     onclick="cycleQuickTheme()" 
                     oncontextmenu="event.preventDefault(); openBottomSheet('sheet-theme');" 
                     onpointerenter="triggerTileHaptic()"
-                    title="السمات والمظهر (اضغط للتبديل السريع)">
+                    title="ط§ظ„ط³ظ…ط§طھ ظˆط§ظ„ظ…ط¸ظ‡ط± (ط§ط¶ط؛ط· ظ„ظ„طھط¨ط¯ظٹظ„ ط§ظ„ط³ط±ظٹط¹)">
                 <i class="fa-solid fa-palette" id="current-theme-icon"></i>
                 <span class="theme-gem-dot" id="current-theme-dot"></span>
             </button>
 
-            <!-- 3. أيقونة البحث (البحث الذكي الشامل) -->
+            <!-- 3. ط£ظٹظ‚ظˆظ†ط© ط§ظ„ط¨ط­ط« (ط§ظ„ط¨ط­ط« ط§ظ„ط°ظƒظٹ ط§ظ„ط´ط§ظ…ظ„) -->
             <button type="button" 
                     class="flagship-top-tile flagship-action-tile tile-search" 
                     id="btn-header-search" 
                     onclick="openBottomSheet('sheet-global-search')" 
                     onpointerenter="triggerTileHaptic()"
-                    title="البحث الذكي الشامل (أصناف، فواتير، حسابات)">
+                    title="ط§ظ„ط¨ط­ط« ط§ظ„ط°ظƒظٹ ط§ظ„ط´ط§ظ…ظ„ (ط£طµظ†ط§ظپطŒ ظپظˆط§طھظٹط±طŒ ط­ط³ط§ط¨ط§طھ)">
                 <i class="fa-solid fa-magnifying-glass"></i>
             </button>
 
-            <!-- 4. أيقونة المايك (المساعد الصوتي المحاسبي الذكي AI) -->
+            <!-- 4. ط£ظٹظ‚ظˆظ†ط© ط§ظ„ظ…ط§ظٹظƒ (ط§ظ„ظ…ط³ط§ط¹ط¯ ط§ظ„طµظˆطھظٹ ط§ظ„ظ…ط­ط§ط³ط¨ظٹ ط§ظ„ط°ظƒظٹ AI) -->
             <button type="button" 
                     class="flagship-top-tile flagship-action-tile tile-voice" 
                     id="btn-header-voice" 
                     onclick="openAiVoiceCopilotModal()" 
                     onpointerenter="triggerTileHaptic()"
-                    title="المساعد الصوتي المحاسبي الذكي AI">
+                    title="ط§ظ„ظ…ط³ط§ط¹ط¯ ط§ظ„طµظˆطھظٹ ط§ظ„ظ…ط­ط§ط³ط¨ظٹ ط§ظ„ط°ظƒظٹ AI">
                 <i class="fa-solid fa-microphone"></i>
             </button>
 
-            <!-- 5. أيقونة العين (درع الخصوصية لإخفاء الأرقام بنجوم) -->
+            <!-- 5. ط£ظٹظ‚ظˆظ†ط© ط§ظ„ط¹ظٹظ† (ط¯ط±ط¹ ط§ظ„ط®طµظˆطµظٹط© ظ„ط¥ط®ظپط§ط، ط§ظ„ط£ط±ظ‚ط§ظ… ط¨ظ†ط¬ظˆظ…) -->
             <button type="button" 
                     class="flagship-top-tile flagship-action-tile tile-privacy" 
                     id="btn-header-privacy" 
                     onclick="togglePrivacyStealthMode()" 
                     onpointerenter="triggerTileHaptic()"
-                    title="وضع الخصوصية: إخفاء الأرقام بنجوم (***)">
+                    title="ظˆط¶ط¹ ط§ظ„ط®طµظˆطµظٹط©: ط¥ط®ظپط§ط، ط§ظ„ط£ط±ظ‚ط§ظ… ط¨ظ†ط¬ظˆظ… (***)">
                 <i class="fa-solid fa-eye" id="privacy-eye-icon"></i>
             </button>
 
-            <!-- 6. أيقونة التنزيل أو التثبيت (تثبيت أو تنزيل التطبيق على الهاتف) -->
+            <!-- 6. ط£ظٹظ‚ظˆظ†ط© ط§ظ„طھظ†ط²ظٹظ„ ط£ظˆ ط§ظ„طھط«ط¨ظٹطھ (طھط«ط¨ظٹطھ ط£ظˆ طھظ†ط²ظٹظ„ ط§ظ„طھط·ط¨ظٹظ‚ ط¹ظ„ظ‰ ط§ظ„ظ‡ط§طھظپ) -->
             <button type="button" 
                     class="flagship-top-tile flagship-action-tile tile-install" 
                     id="btn-header-install" 
                     onclick="triggerNativeAppInstall()" 
                     onpointerenter="triggerTileHaptic()"
-                    title="تثبيت أو تنزيل تطبيق مقاييس على الجوال">
+                    title="طھط«ط¨ظٹطھ ط£ظˆ طھظ†ط²ظٹظ„ طھط·ط¨ظٹظ‚ ظ…ظ‚ط§ظٹظٹط³ ط¹ظ„ظ‰ ط§ظ„ط¬ظˆط§ظ„">
                 <i class="fa-solid fa-download"></i>
             </button>
 
-            <!-- 7. أيقونة الخروج (تسجيل الخروج والعودة لشاشة الدخول) -->
+            <!-- 7. ط£ظٹظ‚ظˆظ†ط© ط§ظ„ط®ط±ظˆط¬ (طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬ ظˆط§ظ„ط¹ظˆط¯ط© ظ„ط´ط§ط´ط© ط§ظ„ط¯ط®ظˆظ„) -->
             <button type="button" 
                     class="flagship-top-tile flagship-action-tile tile-logout" 
                     id="btn-header-logout" 
                     onclick="triggerMobileLogout()" 
                     onpointerenter="triggerTileHaptic()"
-                    title="تسجيل الخروج والعودة لشاشة تسجيل الدخول">
+                    title="طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬ ظˆط§ظ„ط¹ظˆط¯ط© ظ„ط´ط§ط´ط© طھط³ط¬ظٹظ„ ط§ظ„ط¯ط®ظˆظ„">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </button>
         </div>
 
         <!-- Hidden DOM Anchor Deck (Preserving background system listener elements without cluttering UI) -->
         <div class="header-actions-deck" style="display:none !important;" aria-hidden="true">
-            <span id="privacy-eye-label">الخصوصية</span>
+            <span id="privacy-eye-label">ط§ظ„ط®طµظˆطµظٹط©</span>
             <button type="button" id="btn-header-outbox" onclick="openBottomSheet('sheet-outbox-manager')">
                 <i class="fa-solid fa-cloud-arrow-up" id="header-outbox-icon"></i>
                 <span id="header-outbox-badge">0</span>
             </button>
             <span id="header-alert-count">0</span>
-            <span id="mobile-user-greeting">مرحباً بك</span>
+            <span id="mobile-user-greeting">ظ…ط±ط­ط¨ط§ظ‹ ط¨ظƒ</span>
             <button type="button" id="btn-header-refresh" onclick="triggerHeaderRefresh(this)">
                 <i class="fa-solid fa-arrows-rotate" id="header-refresh-spinner"></i>
             </button>
         </div>
     </header>
 
-    <!-- 📲 IN-APP VISUAL INSTALL BANNER (MAGAIEES 1-CLICK ENGINE) -->
+    <!-- ًں“² IN-APP VISUAL INSTALL BANNER (MAGAIEES 1-CLICK ENGINE) -->
     <div id="magaiees-native-install-banner" class="magaiees-install-trigger-wrap" style="display:none; margin:10px 14px 4px 14px; background:linear-gradient(135deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.98)); border:1.5px solid rgba(56, 189, 248, 0.5); border-radius:20px; padding:12px 14px; align-items:center; justify-content:space-between; gap:12px; box-shadow:0 10px 30px rgba(0,0,0,0.6); flex-wrap:wrap; max-width:calc(100vw - 28px); box-sizing:border-box;">
         <div style="display:flex; align-items:center; gap:12px; min-width:0;">
             <div style="width:44px; height:44px; border-radius:14px; background:#0f172a; border:2px solid rgba(56,189,248,0.6); display:flex; align-items:center; justify-content:center; overflow:hidden; flex-shrink:0; box-shadow:0 0 15px rgba(56,189,248,0.4);">
-                <img src="assets/icon-192.png?v=2026_m_v6" alt="مقاييس" style="width:100%; height:100%; object-fit:cover;">
+                <img src="assets/icon-192.png?v=2026_m_v6" alt="ظ…ظ‚ط§ظٹظٹط³" style="width:100%; height:100%; object-fit:cover;">
             </div>
             <div style="min-width:0;">
-                <strong style="font-size:0.92rem; color:#fff; display:block;">تطبيق مقاييس - ثبت الآن</strong>
-                <span style="font-size:0.75rem; color:#94a3b8;">إضافة أيقونة مقاييس الملونة لسطح المكتب والشاشة الرئيسية</span>
+                <strong style="font-size:0.92rem; color:#fff; display:block;">طھط·ط¨ظٹظ‚ ظ…ظ‚ط§ظٹظٹط³ - ط«ط¨طھ ط§ظ„ط¢ظ†</strong>
+                <span style="font-size:0.75rem; color:#94a3b8;">ط¥ط¶ط§ظپط© ط£ظٹظ‚ظˆظ†ط© ظ…ظ‚ط§ظٹظٹط³ ط§ظ„ظ…ظ„ظˆظ†ط© ظ„ط³ط·ط­ ط§ظ„ظ…ظƒطھط¨ ظˆط§ظ„ط´ط§ط´ط© ط§ظ„ط±ط¦ظٹط³ظٹط©</span>
             </div>
         </div>
         <button type="button" class="btn-install-magaiees-action" onclick="PWAManager.triggerInstall()" style="background:linear-gradient(135deg, #0ea5e9, #0284c7); color:#fff; border:none; border-radius:14px; padding:9px 16px; font-size:0.80rem; font-weight:900; cursor:pointer; font-family:inherit; white-space:nowrap; text-align:center; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 15px rgba(14,165,233,0.4);">
-            <i class="fa-solid fa-plus-circle"></i> 📲 ثبت الآن
+            <i class="fa-solid fa-plus-circle"></i> ًں“² ط«ط¨طھ ط§ظ„ط¢ظ†
         </button>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         VIEW CONTAINER 1: 📊 DASHBOARD (الرئيسية)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         VIEW CONTAINER 1: ًں“ٹ DASHBOARD (ط§ظ„ط±ط¦ظٹط³ظٹط©)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="view-container active" id="view-dashboard">
-        <!-- 💎 The Unified Executive KPI Matrix (الوحدة المتكاملة المنسقة للمؤشرات الأربعة الكبرى) -->
+        <!-- ًں’ژ The Unified Executive KPI Matrix (ط§ظ„ظˆط­ط¯ط© ط§ظ„ظ…طھظƒط§ظ…ظ„ط© ط§ظ„ظ…ظ†ط³ظ‚ط© ظ„ظ„ظ…ط¤ط´ط±ط§طھ ط§ظ„ط£ط±ط¨ط¹ط© ط§ظ„ظƒط¨ط±ظ‰) -->
         <div class="unified-kpi-matrix" id="unified-executive-cockpit">
-            <!-- 1. المبيعات (Sales) -->
-            <div class="matrix-quadrant quad-sales" onclick="switchMobileTab('transactions')" title="إجمالي المبيعات — اضغط لعرض السجل">
+            <!-- 1. ط§ظ„ظ…ط¨ظٹط¹ط§طھ (Sales) -->
+            <div class="matrix-quadrant quad-sales" onclick="switchMobileTab('transactions')" title="ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط¨ظٹط¹ط§طھ â€” ط§ط¶ط؛ط· ظ„ط¹ط±ط¶ ط§ظ„ط³ط¬ظ„">
                 <div class="quad-head">
-                    <span class="quad-title"><i class="fa-solid fa-chart-line text-sky-400"></i> المبيعات</span>
-                    <span class="quad-trend" id="kpi-sales-pct">+14.8% ↗</span>
+                    <span class="quad-title"><i class="fa-solid fa-chart-line text-sky-400"></i> ط§ظ„ظ…ط¨ظٹط¹ط§طھ</span>
+                    <span class="quad-trend" id="kpi-sales-pct">+14.8% â†—</span>
                 </div>
                 <div class="quad-val" id="micro-sales-val">
                     <div class="micro-kpi-amt-local" style="color:#ffffff;">0 <small style="font-size:0.68rem; color:rgba(255,255,255,0.7);">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">≈ $0</div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(56,189,248,0.14); color:#38bdf8; border:1px solid rgba(56,189,248,0.25);">â‰ˆ $0</div>
                 </div>
             </div>
 
-            <!-- 2. السيولة النقدية (Liquid Cash) -->
-            <div class="matrix-quadrant quad-liquidity" onclick="document.getElementById('mobile-total-liquidity').scrollIntoView({behavior:'smooth'})" title="السيولة النقدية — اضغط لعرض الخزائن والبنوك">
+            <!-- 2. ط§ظ„ط³ظٹظˆظ„ط© ط§ظ„ظ†ظ‚ط¯ظٹط© (Liquid Cash) -->
+            <div class="matrix-quadrant quad-liquidity" onclick="document.getElementById('mobile-total-liquidity').scrollIntoView({behavior:'smooth'})" title="ط§ظ„ط³ظٹظˆظ„ط© ط§ظ„ظ†ظ‚ط¯ظٹط© â€” ط§ط¶ط؛ط· ظ„ط¹ط±ط¶ ط§ظ„ط®ط²ط§ط¦ظ† ظˆط§ظ„ط¨ظ†ظˆظƒ">
                 <div class="quad-head">
-                    <span class="quad-title"><i class="fa-solid fa-wallet text-emerald-400"></i> السيولة</span>
-                    <span class="quad-trend">فوري ↗</span>
+                    <span class="quad-title"><i class="fa-solid fa-wallet text-emerald-400"></i> ط§ظ„ط³ظٹظˆظ„ط©</span>
+                    <span class="quad-trend">ظپظˆط±ظٹ â†—</span>
                 </div>
                 <div class="quad-val" id="micro-cash-val">
                     <div class="micro-kpi-amt-local" style="color:#34d399;">0 <small style="font-size:0.68rem; color:rgba(52,211,153,0.7);">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.35);">≈ $0</div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.35);">â‰ˆ $0</div>
                 </div>
             </div>
 
-            <!-- 3. مديونية العملاء (Receivables) -->
-            <div class="matrix-quadrant quad-receivables" onclick="switchMobileTab('ledgers')" title="مديونية العملاء — اضغط لعرض كشف الحساب">
+            <!-- 3. ظ…ط¯ظٹظˆظ†ظٹط© ط§ظ„ط¹ظ…ظ„ط§ط، (Receivables) -->
+            <div class="matrix-quadrant quad-receivables" onclick="switchMobileTab('ledgers')" title="ظ…ط¯ظٹظˆظ†ظٹط© ط§ظ„ط¹ظ…ظ„ط§ط، â€” ط§ط¶ط؛ط· ظ„ط¹ط±ط¶ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨">
                 <div class="quad-head">
-                    <span class="quad-title"><i class="fa-solid fa-hand-holding-dollar text-rose-400"></i> مديونية العملاء</span>
-                    <span class="quad-trend" id="micro-overdue-val">سداد منتظم</span>
+                    <span class="quad-title"><i class="fa-solid fa-hand-holding-dollar text-rose-400"></i> ظ…ط¯ظٹظˆظ†ظٹط© ط§ظ„ط¹ظ…ظ„ط§ط،</span>
+                    <span class="quad-trend" id="micro-overdue-val">ط³ط¯ط§ط¯ ظ…ظ†طھط¸ظ…</span>
                 </div>
                 <div class="quad-val" id="micro-receivables-val">
                     <div class="micro-kpi-amt-local" style="color:#fb7185;">0 <small style="font-size:0.68rem; color:rgba(251,113,133,0.7);">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(252,211,77,0.14); color:#fcd34d; border:1px solid rgba(252,211,77,0.25);">≈ $0</div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(252,211,77,0.14); color:#fcd34d; border:1px solid rgba(252,211,77,0.25);">â‰ˆ $0</div>
                 </div>
             </div>
 
-            <!-- 4. تقييم المخزون (Inventory Valuation) -->
-            <div class="matrix-quadrant quad-inventory" onclick="switchMobileTab('inventory')" title="تقييم المخزون — اضغط للأصناف">
+            <!-- 4. طھظ‚ظٹظٹظ… ط§ظ„ظ…ط®ط²ظˆظ† (Inventory Valuation) -->
+            <div class="matrix-quadrant quad-inventory" onclick="switchMobileTab('inventory')" title="طھظ‚ظٹظٹظ… ط§ظ„ظ…ط®ط²ظˆظ† â€” ط§ط¶ط؛ط· ظ„ظ„ط£طµظ†ط§ظپ">
                 <div class="quad-head">
-                    <span class="quad-title"><i class="fa-solid fa-boxes-stacked text-amber-400"></i> تقييم المخزون</span>
-                    <span class="quad-trend" id="micro-stock-items-count">0 صنف</span>
+                    <span class="quad-title"><i class="fa-solid fa-boxes-stacked text-amber-400"></i> طھظ‚ظٹظٹظ… ط§ظ„ظ…ط®ط²ظˆظ†</span>
+                    <span class="quad-trend" id="micro-stock-items-count">0 طµظ†ظپ</span>
                 </div>
                 <div class="quad-val" id="micro-inventory-val">
                     <div class="micro-kpi-amt-local" style="color:#fbbf24;">0 <small style="font-size:0.68rem; color:rgba(251,191,36,0.7);">SDG</small></div>
-                    <div class="micro-kpi-amt-foreign" style="background:rgba(103,232,249,0.14); color:#67e8f9; border:1px solid rgba(103,232,249,0.25);">≈ $0</div>
+                    <div class="micro-kpi-amt-foreign" style="background:rgba(103,232,249,0.14); color:#67e8f9; border:1px solid rgba(103,232,249,0.25);">â‰ˆ $0</div>
                 </div>
             </div>
         </div>
@@ -6514,173 +6609,173 @@ try {
             <div class="mode-segmented-pill">
                 <button type="button" id="tab-btn-operations" class="mode-tab-btn active" onclick="switchMobileMode('operations')">
                     <i class="fa-solid fa-bolt"></i>
-                    <span>⚡ العمليات</span>
+                    <span>âڑ، ط§ظ„ط¹ظ…ظ„ظٹط§طھ</span>
                 </button>
                 <button type="button" id="tab-btn-analytics" class="mode-tab-btn" onclick="switchMobileMode('analytics')">
                     <i class="fa-solid fa-chart-pie"></i>
-                    <span>📊 التقارير</span>
+                    <span>ًں“ٹ ط§ظ„طھظ‚ط§ط±ظٹط±</span>
                 </button>
             </div>
         </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         MODE 1: ⚡ العمليات السريعة (OPERATIONS MODE)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         MODE 1: âڑ، ط§ظ„ط¹ظ…ظ„ظٹط§طھ ط§ظ„ط³ط±ظٹط¹ط© (OPERATIONS MODE)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <main id="mode-operations-section" class="mobile-content">
         <!-- Real-Time Liquidity Pulse Card -->
         <div class="liquidity-card">
             <div class="liquidity-grand" id="mobile-total-liquidity">
                 <div class="liq-grand-local">0 <small>SDG</small></div>
-                <div class="liq-grand-usd">≈ $0</div>
+                <div class="liq-grand-usd">â‰ˆ $0</div>
             </div>
             <div class="liquidity-breakdown" id="mobile-vaults-container">
                 <!-- Dynamic Vaults Loaded Here -->
             </div>
         </div>
 
-        <!-- Power Quick Actions (العمليات والفواتير السريعة) -->
+        <!-- Power Quick Actions (ط§ظ„ط¹ظ…ظ„ظٹط§طھ ظˆط§ظ„ظپظˆط§طھظٹط± ط§ظ„ط³ط±ظٹط¹ط©) -->
         <div class="section-heading" style="margin-top:14px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-            <span>⚡ العمليات والفواتير السريعة</span>
-            <small style="color:var(--text-muted); font-size:0.75rem;">مطابقة لمنظومة اللابتوب</small>
+            <span>âڑ، ط§ظ„ط¹ظ…ظ„ظٹط§طھ ظˆط§ظ„ظپظˆط§طھظٹط± ط§ظ„ط³ط±ظٹط¹ط©</span>
+            <small style="color:var(--text-muted); font-size:0.75rem;">ظ…ط·ط§ط¨ظ‚ط© ظ„ظ…ظ†ط¸ظˆظ…ط© ط§ظ„ظ„ط§ط¨طھظˆط¨</small>
         </div>
         <div class="actions-operations-grid" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:10px;">
-            <!-- 1. Quick Financial Movement (حركة مالية) -->
+            <!-- 1. Quick Financial Movement (ط­ط±ظƒط© ظ…ط§ظ„ظٹط©) -->
             <div class="power-action-btn act-receipt hero-btn" style="grid-column: span 2;" onclick="window.location.href='mobile-voucher.php';">
                 <div class="action-icon-circle">
                     <i class="fa-solid fa-money-bill-transfer"></i>
                 </div>
                 <div class="hero-btn-content">
-                    <div class="action-title" style="font-size:1.15rem;">حركة مالية</div>
+                    <div class="action-title" style="font-size:1.15rem;">ط­ط±ظƒط© ظ…ط§ظ„ظٹط©</div>
                 </div>
                 <div class="hero-btn-actions">
-                    <button type="button" class="btn-ai-chip" onclick="event.stopPropagation(); openBottomSheet('sheet-ai-slip');" title="تفريغ إشعار بالذكاء الاصطناعي">
+                    <button type="button" class="btn-ai-chip" onclick="event.stopPropagation(); openBottomSheet('sheet-ai-slip');" title="طھظپط±ظٹط؛ ط¥ط´ط¹ط§ط± ط¨ط§ظ„ط°ظƒط§ط، ط§ظ„ط§طµط·ظ†ط§ط¹ظٹ">
                         <i class="fa-solid fa-wand-magic-sparkles"></i> AI
                     </button>
                 </div>
             </div>
 
-            <!-- 2. Quick Sales Invoice (فاتورة مبيعات) -->
+            <!-- 2. Quick Sales Invoice (ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ) -->
             <div class="power-action-btn act-pos" onclick="openSalesSuite('invoice')">
                 <div class="action-icon-circle" style="background:rgba(56,189,248,0.2); color:#38bdf8;">
                     <i class="fa-solid fa-receipt"></i>
                 </div>
-                <div class="action-title">فاتورة مبيعات</div>
+                <div class="action-title">ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ</div>
             </div>
 
-            <!-- 3. Split Sales (تقسيم المبيعات) -->
+            <!-- 3. Split Sales (طھظ‚ط³ظٹظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ) -->
             <div class="power-action-btn act-pos" onclick="openSalesSuite('split')">
                 <div class="action-icon-circle" style="background:rgba(236,72,153,0.2); color:#f472b6;">
                     <i class="fa-solid fa-scissors"></i>
                 </div>
-                <div class="action-title">تقسيم المبيعات</div>
+                <div class="action-title">طھظ‚ط³ظٹظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ</div>
             </div>
 
-            <!-- 4. Deliver / Receive Sales (استلام المبيعات) -->
+            <!-- 4. Deliver / Receive Sales (ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ) -->
             <div class="power-action-btn act-pos" onclick="openSalesSuite('delivery')">
                 <div class="action-icon-circle" style="background:rgba(16,185,129,0.2); color:#34d399;">
                     <i class="fa-solid fa-truck-ramp-box"></i>
                 </div>
-                <div class="action-title">استلام المبيعات</div>
+                <div class="action-title">ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ</div>
             </div>
 
-            <!-- 5. Quick Purchase Invoice (فاتورة مشتريات) -->
+            <!-- 5. Quick Purchase Invoice (ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ) -->
             <div class="power-action-btn act-purchase" onclick="openPurchaseSuite('invoice')">
                 <div class="action-icon-circle" style="background:rgba(245,158,11,0.2); color:#fbbf24;">
                     <i class="fa-solid fa-cart-shopping"></i>
                 </div>
-                <div class="action-title">فاتورة مشتريات</div>
+                <div class="action-title">ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ</div>
             </div>
 
-            <!-- 6. Receive Purchases (استلام المشتريات) -->
+            <!-- 6. Receive Purchases (ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ) -->
             <div class="power-action-btn act-purchase" onclick="openPurchaseSuite('receipt')">
                 <div class="action-icon-circle" style="background:rgba(168,85,247,0.2); color:#c084fc;">
                     <i class="fa-solid fa-boxes-packing"></i>
                 </div>
-                <div class="action-title">استلام المشتريات</div>
+                <div class="action-title">ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ</div>
             </div>
 
-            <!-- 7. Split Purchases (تقسيم المشتريات) -->
+            <!-- 7. Split Purchases (طھظ‚ط³ظٹظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ) -->
             <div class="power-action-btn act-purchase" onclick="openPurchaseSuite('split')">
                 <div class="action-icon-circle" style="background:rgba(14,165,233,0.2); color:#38bdf8;">
                     <i class="fa-solid fa-code-branch"></i>
                 </div>
-                <div class="action-title">تقسيم المشتريات</div>
+                <div class="action-title">طھظ‚ط³ظٹظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ</div>
             </div>
         </div>
     </main>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         MODE 2: 📊 التقارير الذكية (EXECUTIVE ANALYTICS MODE)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         MODE 2: ًں“ٹ ط§ظ„طھظ‚ط§ط±ظٹط± ط§ظ„ط°ظƒظٹط© (EXECUTIVE ANALYTICS MODE)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <main id="mode-analytics-section" class="mobile-content" style="display:none;">
         <!-- Executive KPI Matrix -->
         <div class="analytics-grid">
             <div class="kpi-card">
                 <div class="kpi-label">
-                    <i class="fa-solid fa-chart-line text-sky-400"></i> مبيعات اليوم
+                    <i class="fa-solid fa-chart-line text-sky-400"></i> ظ…ط¨ظٹط¹ط§طھ ط§ظ„ظٹظˆظ…
                 </div>
                 <div class="kpi-value" id="kpi-today-sales" style="color:var(--primary);">0</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">
-                    <i class="fa-solid fa-arrow-down text-emerald-400"></i> تحصيلات اليوم
+                    <i class="fa-solid fa-arrow-down text-emerald-400"></i> طھط­طµظٹظ„ط§طھ ط§ظ„ظٹظˆظ…
                 </div>
                 <div class="kpi-value" id="kpi-today-receipts" style="color:var(--emerald);">0</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">
-                    <i class="fa-solid fa-arrow-up text-rose-400"></i> منصرفات اليوم
+                    <i class="fa-solid fa-arrow-up text-rose-400"></i> ظ…ظ†طµط±ظپط§طھ ط§ظ„ظٹظˆظ…
                 </div>
                 <div class="kpi-value" id="kpi-today-payments" style="color:var(--rose);">0</div>
             </div>
             <div class="kpi-card">
                 <div class="kpi-label">
-                    <i class="fa-solid fa-scale-balanced text-amber-400"></i> صافي التدفق
+                    <i class="fa-solid fa-scale-balanced text-amber-400"></i> طµط§ظپظٹ ط§ظ„طھط¯ظپظ‚
                 </div>
                 <div class="kpi-value" id="kpi-today-net" style="color:var(--amber);">0</div>
             </div>
         </div>
 
-        <!-- 📑 تقرير كشف الحساب الذكي ومطالبات واتساب (Smart Statement Report) -->
+        <!-- ًں“‘ طھظ‚ط±ظٹط± ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط°ظƒظٹ ظˆظ…ط·ط§ظ„ط¨ط§طھ ظˆط§طھط³ط§ط¨ (Smart Statement Report) -->
         <div class="radar-card" style="border-color: rgba(168, 85, 247, 0.4); box-shadow: 0 8px 25px rgba(168, 85, 247, 0.08);">
             <div class="radar-title" style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="color:var(--purple); font-weight:900;">
-                    <i class="fa-solid fa-address-book"></i> كشف الحساب الذكي ومطالبات واتساب
+                    <i class="fa-solid fa-address-book"></i> ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط°ظƒظٹ ظˆظ…ط·ط§ظ„ط¨ط§طھ ظˆط§طھط³ط§ط¨
                 </span>
                 <span style="font-size:0.75rem; background:rgba(168,85,247,0.18); border:1px solid #a855f7; color:#c084fc; padding:2px 8px; border-radius:20px; font-weight:800;">
-                    تقرير لحظي 📑
+                    طھظ‚ط±ظٹط± ظ„ط­ط¸ظٹ ًں“‘
                 </span>
             </div>
             
             <div style="margin-top:12px;">
-                <!-- Filter Tabs: عملاء / موردين -->
+                <!-- Filter Tabs: ط¹ظ…ظ„ط§ط، / ظ…ظˆط±ط¯ظٹظ† -->
                 <div style="display:flex; gap:8px; margin-bottom:12px;">
                     <button type="button" id="rep-stmt-tab-cust" onclick="setReportStatementType('customer')" style="flex:1; padding:8px 12px; border-radius:10px; font-weight:800; font-size:0.84rem; border:1.5px solid var(--purple); background:rgba(168,85,247,0.25); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-                        <i class="fa-solid fa-user"></i> كشف عميل
+                        <i class="fa-solid fa-user"></i> ظƒط´ظپ ط¹ظ…ظٹظ„
                     </button>
                     <button type="button" id="rep-stmt-tab-supp" onclick="setReportStatementType('supplier')" style="flex:1; padding:8px 12px; border-radius:10px; font-weight:800; font-size:0.84rem; border:1.5px solid var(--border-glass); background:var(--surface-sub); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-                        <i class="fa-solid fa-truck"></i> كشف مورد
+                        <i class="fa-solid fa-truck"></i> ظƒط´ظپ ظ…ظˆط±ط¯
                     </button>
                 </div>
 
-                <!-- Unified Smart Search & [الأرصدة] Button -->
+                <!-- Unified Smart Search & [ط§ظ„ط£ط±طµط¯ط©] Button -->
                 <div style="display:flex; gap:8px; align-items:center; margin-bottom:12px;">
                     <div style="position:relative; flex:1;">
-                        <input type="text" id="omni-search-kashf" class="m-input" placeholder="اكتب اسم الحساب هنا (عميل، مورد، بنك، خزنة)..." style="padding-left:64px; height:46px; font-size:0.86rem; font-weight:800; border-radius:14px; background:var(--surface-sub); border:1.5px solid var(--border-glass);" oninput="onOmniKashfSearch(this.value)">
+                        <input type="text" id="omni-search-kashf" class="m-input" placeholder="ط§ظƒطھط¨ ط§ط³ظ… ط§ظ„ط­ط³ط§ط¨ ظ‡ظ†ط§ (ط¹ظ…ظٹظ„طŒ ظ…ظˆط±ط¯طŒ ط¨ظ†ظƒطŒ ط®ط²ظ†ط©)..." style="padding-left:64px; height:46px; font-size:0.86rem; font-weight:800; border-radius:14px; background:var(--surface-sub); border:1.5px solid var(--border-glass);" oninput="onOmniKashfSearch(this.value)">
                         <button type="button" onclick="triggerKashfViewFromOmni()" style="position:absolute; left:5px; top:5px; bottom:5px; background:linear-gradient(135deg, #06b6d4, #0891b2); color:#fff; border:none; border-radius:10px; padding:0 14px; font-weight:900; font-size:0.82rem; cursor:pointer; box-shadow:0 2px 10px rgba(6,182,212,0.3);">
-                            عرض
+                            ط¹ط±ط¶
                         </button>
                     </div>
-                    <button type="button" onclick="openNonZeroBalancesSheet()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:1px solid rgba(16,185,129,0.4); border-radius:14px; height:46px; padding:0 16px; font-weight:900; font-size:0.86rem; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 18px rgba(16,185,129,0.35); flex-shrink:0;" title="عرض الحسابات التي بها رصيد فقط">
+                    <button type="button" onclick="openNonZeroBalancesSheet()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:1px solid rgba(16,185,129,0.4); border-radius:14px; height:46px; padding:0 16px; font-weight:900; font-size:0.86rem; cursor:pointer; display:flex; align-items:center; gap:6px; box-shadow:0 4px 18px rgba(16,185,129,0.35); flex-shrink:0;" title="ط¹ط±ط¶ ط§ظ„ط­ط³ط§ط¨ط§طھ ط§ظ„طھظٹ ط¨ظ‡ط§ ط±طµظٹط¯ ظپظ‚ط·">
                         <i class="fa-solid fa-chart-pie" style="font-size:0.95rem;"></i>
-                        <span>الأرصدة</span>
+                        <span>ط§ظ„ط£ط±طµط¯ط©</span>
                     </button>
                 </div>
                 <div id="omni-kashf-suggestions" style="display:none; margin-bottom:10px; background:var(--surface-card); border:1px solid rgba(6,182,212,0.4); border-radius:14px; padding:6px; max-height:180px; overflow-y:auto; box-shadow:0 8px 25px rgba(0,0,0,0.5);"></div>
 
                 <div class="m-form-group" style="margin-bottom:12px;">
                     <select id="report-statement-select" class="m-select" onchange="renderReportStatement(this.value)">
-                        <option value="">-- أو اختر من قائمة الحسابات مباشرة --</option>
+                        <option value="">-- ط£ظˆ ط§ط®طھط± ظ…ظ† ظ‚ط§ط¦ظ…ط© ط§ظ„ط­ط³ط§ط¨ط§طھ ظ…ط¨ط§ط´ط±ط© --</option>
                     </select>
                 </div>
 
@@ -6691,13 +6786,13 @@ try {
                         <!-- Dual Currency Highlight (Bold SDG & Bold USD with beautiful colors) -->
                         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:10px 0;">
                             <div style="background:rgba(245,158,11,0.14); border:1.5px solid rgba(245,158,11,0.4); border-radius:12px; padding:10px 6px;">
-                                <span style="font-size:0.72rem; color:#fbbf24; font-weight:800; display:block; margin-bottom:2px;">🇸🇩 بالعملة المحلية (ج.س):</span>
+                                <span style="font-size:0.72rem; color:#fbbf24; font-weight:800; display:block; margin-bottom:2px;">ًں‡¸ًں‡© ط¨ط§ظ„ط¹ظ…ظ„ط© ط§ظ„ظ…ط­ظ„ظٹط© (ط¬.ط³):</span>
                                 <div id="rep-stmt-balance-sdg" style="font-size:1.15rem; font-weight:900; color:#fbbf24; font-family:'Inter', sans-serif;">
                                     0 SDG
                                 </div>
                             </div>
                             <div style="background:rgba(16,185,129,0.14); border:1.5px solid rgba(16,185,129,0.4); border-radius:12px; padding:10px 6px;">
-                                <span style="font-size:0.72rem; color:#34d399; font-weight:800; display:block; margin-bottom:2px;">💵 المعادل بالدولار (USD):</span>
+                                <span style="font-size:0.72rem; color:#34d399; font-weight:800; display:block; margin-bottom:2px;">ًں’µ ط§ظ„ظ…ط¹ط§ط¯ظ„ ط¨ط§ظ„ط¯ظˆظ„ط§ط± (USD):</span>
                                 <div id="rep-stmt-balance-usd" style="font-size:1.15rem; font-weight:900; color:#34d399; font-family:'Inter', sans-serif;">
                                     $0 USD
                                 </div>
@@ -6707,54 +6802,54 @@ try {
                         <span id="rep-stmt-status" style="font-size:0.84rem; font-weight:800; color:var(--text-main); display:inline-block; margin-top:4px;"></span>
                     </div>
 
-                    <!-- Statement Period Selector: All Time Default (كل الفترة) -->
+                    <!-- Statement Period Selector: All Time Default (ظƒظ„ ط§ظ„ظپطھط±ط©) -->
                     <div style="margin-bottom:12px; background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:12px; padding:8px 10px;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                            <span style="font-size:0.75rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-calendar-days text-purple-400"></i> خيار الفترة:</span>
+                            <span style="font-size:0.75rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-calendar-days text-purple-400"></i> ط®ظٹط§ط± ط§ظ„ظپطھط±ط©:</span>
                             <span id="rep-stmt-period-badge" style="font-size:0.72rem; background:rgba(168,85,247,0.2); border:1px solid rgba(168,85,247,0.4); color:#c084fc; padding:2px 8px; border-radius:20px; font-weight:800;">
-                                ✓ كل الفترة (افتراضي)
+                                âœ“ ظƒظ„ ط§ظ„ظپطھط±ط© (ط§ظپطھط±ط§ط¶ظٹ)
                             </span>
                         </div>
                         <div style="display:flex; gap:6px; overflow-x:auto;" class="no-scrollbar">
-                            <button type="button" class="date-pill active" id="btn-rep-period-all" onclick="setReportPeriod('all', this)">الكل / كل الفترة (افتراضي)</button>
-                            <button type="button" class="date-pill" id="btn-rep-period-today" onclick="setReportPeriod('today', this)">اليوم</button>
-                            <button type="button" class="date-pill" id="btn-rep-period-week" onclick="setReportPeriod('week', this)">هذا الأسبوع</button>
-                            <button type="button" class="date-pill" id="btn-rep-period-month" onclick="setReportPeriod('month', this)">هذا الشهر</button>
-                            <button type="button" class="date-pill" id="btn-rep-period-custom" onclick="setReportPeriod('custom', this)">نطاق مخصص</button>
+                            <button type="button" class="date-pill active" id="btn-rep-period-all" onclick="setReportPeriod('all', this)">ط§ظ„ظƒظ„ / ظƒظ„ ط§ظ„ظپطھط±ط© (ط§ظپطھط±ط§ط¶ظٹ)</button>
+                            <button type="button" class="date-pill" id="btn-rep-period-today" onclick="setReportPeriod('today', this)">ط§ظ„ظٹظˆظ…</button>
+                            <button type="button" class="date-pill" id="btn-rep-period-week" onclick="setReportPeriod('week', this)">ظ‡ط°ط§ ط§ظ„ط£ط³ط¨ظˆط¹</button>
+                            <button type="button" class="date-pill" id="btn-rep-period-month" onclick="setReportPeriod('month', this)">ظ‡ط°ط§ ط§ظ„ط´ظ‡ط±</button>
+                            <button type="button" class="date-pill" id="btn-rep-period-custom" onclick="setReportPeriod('custom', this)">ظ†ط·ط§ظ‚ ظ…ط®طµطµ</button>
                         </div>
                     </div>
 
                     <div style="display:flex; gap:8px; margin-bottom:14px;">
                         <button type="button" onclick="sendReportWhatsAppClaim()" style="flex:1; background:#22c55e; color:#fff; border:none; padding:12px; border-radius:12px; font-weight:900; font-size:0.92rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 15px rgba(34,197,94,0.25);">
-                            <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> إرسال مطالبة بالواتساب
+                            <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> ط¥ط±ط³ط§ظ„ ظ…ط·ط§ظ„ط¨ط© ط¨ط§ظ„ظˆط§طھط³ط§ط¨
                         </button>
                         <button type="button" onclick="openFullStatementInDesktop()" style="background:var(--surface-2); color:var(--text-main); border:1.5px solid var(--border-glass); padding:11px 14px; border-radius:12px; font-weight:800; font-size:0.85rem; cursor:pointer;">
-                            الكشف الكامل 📄
+                            ط§ظ„ظƒط´ظپ ط§ظ„ظƒط§ظ…ظ„ ًں“„
                         </button>
                     </div>
 
                     <div>
-                        <span style="font-size:0.82rem; font-weight:800; color:var(--text-main); margin-bottom:8px; display:block;">آخر المعاملات المسجلة:</span>
+                        <span style="font-size:0.82rem; font-weight:800; color:var(--text-main); margin-bottom:8px; display:block;">ط¢ط®ط± ط§ظ„ظ…ط¹ط§ظ…ظ„ط§طھ ط§ظ„ظ…ط³ط¬ظ„ط©:</span>
                         <div id="rep-stmt-recent" style="font-size:0.82rem; color:var(--text-muted);"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Top Debtors Radar (العملاء الأكثر مديونية) -->
+        <!-- Top Debtors Radar (ط§ظ„ط¹ظ…ظ„ط§ط، ط§ظ„ط£ظƒط«ط± ظ…ط¯ظٹظˆظ†ظٹط©) -->
         <div class="radar-card">
             <div class="radar-title">
-                <span><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> أعلى 5 عملاء مديونية (مطلوب سدادهم)</span>
+                <span><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> ط£ط¹ظ„ظ‰ 5 ط¹ظ…ظ„ط§ط، ظ…ط¯ظٹظˆظ†ظٹط© (ظ…ط·ظ„ظˆط¨ ط³ط¯ط§ط¯ظ‡ظ…)</span>
             </div>
             <div id="mobile-debtors-container">
                 <!-- Dynamic Debtors Rendered Here -->
             </div>
         </div>
 
-        <!-- Low Stock Radar (المخزون الحرج) -->
+        <!-- Low Stock Radar (ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط­ط±ط¬) -->
         <div class="radar-card">
             <div class="radar-title">
-                <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> رادار المخزون الحرج (أوشك على النفاد)</span>
+                <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> ط±ط§ط¯ط§ط± ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط­ط±ط¬ (ط£ظˆط´ظƒ ط¹ظ„ظ‰ ط§ظ„ظ†ظپط§ط¯)</span>
             </div>
             <div id="mobile-low-stock-container">
                 <!-- Dynamic Low Stock Rendered Here -->
@@ -6764,31 +6859,31 @@ try {
     </main>
     </div> <!-- END VIEW CONTAINER 1: view-dashboard -->
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         VIEW CONTAINER 2: 🧾 TRANSACTIONS (سجل الحركات والفواتير)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         VIEW CONTAINER 2: ًں§¾ TRANSACTIONS (ط³ط¬ظ„ ط§ظ„ط­ط±ظƒط§طھ ظˆط§ظ„ظپظˆط§طھظٹط±)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="view-container" id="view-transactions">
         <div class="mobile-content" style="padding-top:12px;">
             <div class="section-heading" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                <span><i class="fa-solid fa-receipt text-sky-400"></i> سجل المعاملات والفواتير</span>
+                <span><i class="fa-solid fa-receipt text-sky-400"></i> ط³ط¬ظ„ ط§ظ„ظ…ط¹ط§ظ…ظ„ط§طھ ظˆط§ظ„ظپظˆط§طھظٹط±</span>
                 <button type="button" onclick="refreshMobileData(true)" class="btn-ai-chip" style="font-size:0.75rem;">
-                    <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> تحديث
+                    <i class="fa-solid fa-arrows-rotate" id="refresh-icon"></i> طھط­ط¯ظٹط«
                 </button>
             </div>
 
             <!-- Quick Filter Chips -->
             <div class="picker-category-pills" style="margin-bottom:10px;">
-                <button type="button" class="cat-pill active" onclick="filterTransactionsView('all', this)">الكل</button>
-                <button type="button" class="cat-pill" onclick="filterTransactionsView('sale', this)">🧾 مبيعات</button>
-                <button type="button" class="cat-pill" onclick="filterTransactionsView('purchase', this)">🛒 مشتريات</button>
-                <button type="button" class="cat-pill" onclick="filterTransactionsView('receipt', this)">📥 قبض</button>
-                <button type="button" class="cat-pill" onclick="filterTransactionsView('payment', this)">📤 صرف</button>
+                <button type="button" class="cat-pill active" onclick="filterTransactionsView('all', this)">ط§ظ„ظƒظ„</button>
+                <button type="button" class="cat-pill" onclick="filterTransactionsView('sale', this)">ًں§¾ ظ…ط¨ظٹط¹ط§طھ</button>
+                <button type="button" class="cat-pill" onclick="filterTransactionsView('purchase', this)">ًں›’ ظ…ط´طھط±ظٹط§طھ</button>
+                <button type="button" class="cat-pill" onclick="filterTransactionsView('receipt', this)">ًں“¥ ظ‚ط¨ط¶</button>
+                <button type="button" class="cat-pill" onclick="filterTransactionsView('payment', this)">ًں“¤ طµط±ظپ</button>
             </div>
 
             <!-- Fast Search Input -->
             <div style="position:relative; margin-bottom:12px;">
                 <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:14px; top:13px; color:var(--text-muted); font-size:0.9rem;"></i>
-                <input type="text" id="tx-view-search-input" class="m-input" style="padding-right:38px; height:42px;" placeholder="ابحث برقم السند، الحساب، أو المبلغ..." oninput="onTxSearchInput(this.value)">
+                <input type="text" id="tx-view-search-input" class="m-input" style="padding-right:38px; height:42px;" placeholder="ط§ط¨ط­ط« ط¨ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯طŒ ط§ظ„ط­ط³ط§ط¨طŒ ط£ظˆ ط§ظ„ظ…ط¨ظ„ط؛..." oninput="onTxSearchInput(this.value)">
             </div>
 
             <div id="tx-view-feed-container">
@@ -6797,38 +6892,38 @@ try {
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         VIEW CONTAINER 3: 📑 LEDGERS & ACCOUNTS (الحسابات والأستاذ)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         VIEW CONTAINER 3: ًں“‘ LEDGERS & ACCOUNTS (ط§ظ„ط­ط³ط§ط¨ط§طھ ظˆط§ظ„ط£ط³طھط§ط°)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="view-container" id="view-ledgers">
         <div class="mobile-content" style="padding-top:12px;">
             <!-- Header Section -->
             <div class="section-heading" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                <span><i class="fa-solid fa-book-bookmark text-emerald-400"></i> كشوف الحسابات والديون</span>
+                <span><i class="fa-solid fa-book-bookmark text-emerald-400"></i> ظƒط´ظˆظپ ط§ظ„ط­ط³ط§ط¨ط§طھ ظˆط§ظ„ط¯ظٹظˆظ†</span>
                 <button type="button" onclick="LedgerEngine.openPdfStatementPreview()" class="btn-ai-chip" style="font-size:0.75rem;">
-                    <i class="fa-solid fa-file-pdf text-purple-400"></i> كشف PDF
+                    <i class="fa-solid fa-file-pdf text-purple-400"></i> ظƒط´ظپ PDF
                 </button>
             </div>
 
             <!-- Top Segmented View Switcher: Interactive Statement vs Debt Aging -->
             <div class="ledger-view-switcher">
                 <button type="button" class="ledger-view-tab active" id="tab-btn-statement" onclick="LedgerEngine.switchSubView('statement')">
-                    <i class="fa-solid fa-receipt"></i> كشف الحساب التفاعلي
+                    <i class="fa-solid fa-receipt"></i> ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط§ظ„طھظپط§ط¹ظ„ظٹ
                 </button>
                 <button type="button" class="ledger-view-tab" id="tab-btn-aging" onclick="LedgerEngine.switchSubView('aging')">
-                    <i class="fa-solid fa-chart-pie"></i> ميزان تقادم الديون
+                    <i class="fa-solid fa-chart-pie"></i> ظ…ظٹط²ط§ظ† طھظ‚ط§ط¯ظ… ط§ظ„ط¯ظٹظˆظ†
                 </button>
             </div>
 
-            <!-- SUB-VIEW 1: INTERACTIVE STATEMENT OF ACCOUNT (كشف الحساب التفاعلي) -->
+            <!-- SUB-VIEW 1: INTERACTIVE STATEMENT OF ACCOUNT (ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط§ظ„طھظپط§ط¹ظ„ظٹ) -->
             <div id="subview-ledger-statement">
                 <!-- Party Selector Toggle (Customers vs Vendors) -->
                 <div class="ledger-party-switch">
                     <button type="button" class="party-switch-btn active party-cust" id="btn-party-cust" onclick="LedgerEngine.setPartyType('customer')">
-                        <i class="fa-solid fa-users"></i> كشف عميل
+                        <i class="fa-solid fa-users"></i> ظƒط´ظپ ط¹ظ…ظٹظ„
                     </button>
                     <button type="button" class="party-switch-btn party-supp" id="btn-party-supp" onclick="LedgerEngine.setPartyType('supplier')">
-                        <i class="fa-solid fa-truck-field"></i> كشف مورد
+                        <i class="fa-solid fa-truck-field"></i> ظƒط´ظپ ظ…ظˆط±ط¯
                     </button>
                 </div>
 
@@ -6837,7 +6932,7 @@ try {
                     <div style="position:relative;">
                         <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:12px; top:13px; color:var(--text-muted); font-size:0.85rem;"></i>
                         <select id="ledger-party-select" class="m-select" style="padding:6px 36px 6px 12px; height:44px; font-size:0.86rem; font-weight:800;" onchange="LedgerEngine.selectParty(this.value)">
-                            <option value="">-- اختر الحساب من قاعدة البيانات --</option>
+                            <option value="">-- ط§ط®طھط± ط§ظ„ط­ط³ط§ط¨ ظ…ظ† ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ --</option>
                         </select>
                     </div>
                 </div>
@@ -6846,26 +6941,26 @@ try {
                 <div class="ledger-summary-card" id="ledger-summary-card">
                     <div class="ledger-party-header">
                         <div>
-                            <span id="ledger-party-badge" class="badge-cash" style="font-size:0.7rem; padding:2px 8px; border-radius:6px; margin-bottom:4px; display:inline-block;">عميل نشط</span>
-                            <div id="ledger-party-name" style="font-size:1.05rem; font-weight:900; color:var(--text-main);">شركة الفهد للمقاولات</div>
+                            <span id="ledger-party-badge" class="badge-cash" style="font-size:0.7rem; padding:2px 8px; border-radius:6px; margin-bottom:4px; display:inline-block;">ط¹ظ…ظٹظ„ ظ†ط´ط·</span>
+                            <div id="ledger-party-name" style="font-size:1.05rem; font-weight:900; color:var(--text-main);">ط´ط±ظƒط© ط§ظ„ظپظ‡ط¯ ظ„ظ„ظ…ظ‚ط§ظˆظ„ط§طھ</div>
                             <span id="ledger-party-phone" style="font-size:0.74rem; color:var(--text-muted); font-family:'Inter', sans-serif;">0912345678</span>
                         </div>
                         <button type="button" class="btn-ai-chip" style="font-size:0.72rem; padding:4px 8px;" onclick="LedgerEngine.callParty()">
-                            <i class="fa-solid fa-phone text-emerald-400"></i> اتصال
+                            <i class="fa-solid fa-phone text-emerald-400"></i> ط§طھطµط§ظ„
                         </button>
                     </div>
 
                     <!-- Net Balance & Status Indicator -->
                     <div class="ledger-net-balance-row">
                         <div>
-                            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; display:block;">صافي الرصيد الحالي:</span>
+                            <span style="font-size:0.72rem; color:var(--text-muted); font-weight:700; display:block;">طµط§ظپظٹ ط§ظ„ط±طµظٹط¯ ط§ظ„ط­ط§ظ„ظٹ:</span>
                             <div class="ledger-balance-val" id="ledger-balance-display" style="color:var(--rose);">
                                 4,850,000 <small style="font-size:0.8rem;">SDG</small>
                             </div>
                         </div>
                         <div style="text-align:left;">
                             <span id="ledger-status-tag" style="font-size:0.72rem; font-weight:800; background:rgba(244,63,94,0.15); color:var(--rose); padding:3px 8px; border-radius:8px; display:inline-block; border:1px solid rgba(244,63,94,0.3);">
-                                🔴 مدين (مطلوب سداده)
+                                ًں”´ ظ…ط¯ظٹظ† (ظ…ط·ظ„ظˆط¨ ط³ط¯ط§ط¯ظ‡)
                             </span>
                         </div>
                     </div>
@@ -6873,8 +6968,8 @@ try {
                     <!-- Credit Limit Utilization Bar -->
                     <div class="credit-limit-gauge" id="ledger-credit-gauge-container">
                         <div style="display:flex; justify-content:space-between; font-size:0.72rem; font-weight:800;">
-                            <span style="color:var(--text-muted);">سقف الائتمان: <span id="ledger-credit-limit-val" style="color:var(--text-main);">3,000,000 SDG</span></span>
-                            <span id="ledger-credit-util-pct" style="color:var(--rose);">161.7% (تجاوز السقف ⚠️)</span>
+                            <span style="color:var(--text-muted);">ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ†: <span id="ledger-credit-limit-val" style="color:var(--text-main);">3,000,000 SDG</span></span>
+                            <span id="ledger-credit-util-pct" style="color:var(--rose);">161.7% (طھط¬ط§ظˆط² ط§ظ„ط³ظ‚ظپ âڑ ï¸ڈ)</span>
                         </div>
                         <div class="gauge-track">
                             <div class="gauge-bar" id="ledger-credit-bar" style="width:100%; background:linear-gradient(90deg, #f59e0b, #ef4444);"></div>
@@ -6883,24 +6978,24 @@ try {
 
                     <!-- Last Payment Info -->
                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.73rem; color:var(--text-muted); padding-top:4px;">
-                        <span><i class="fa-solid fa-clock-rotate-left"></i> آخر حركة سداد:</span>
+                        <span><i class="fa-solid fa-clock-rotate-left"></i> ط¢ط®ط± ط­ط±ظƒط© ط³ط¯ط§ط¯:</span>
                         <strong id="ledger-last-payment-text" style="color:var(--text-main); font-weight:800;">1,200,000 SDG (2026-09-28)</strong>
                     </div>
                 </div>
 
                 <!-- Date Range Filter Pills -->
                 <div class="ledger-date-pills" id="ledger-date-pills-row">
-                    <button type="button" class="date-pill active" onclick="LedgerEngine.setDateFilter('all', this)">الكل / All</button>
-                    <button type="button" class="date-pill" onclick="LedgerEngine.setDateFilter('today', this)">اليوم / Today</button>
-                    <button type="button" class="date-pill" onclick="LedgerEngine.setDateFilter('week', this)">هذا الأسبوع / Week</button>
-                    <button type="button" class="date-pill" onclick="LedgerEngine.setDateFilter('month', this)">هذا الشهر / Month</button>
-                    <button type="button" class="date-pill" onclick="LedgerEngine.setDateFilter('custom', this)">نطاق مخصص / Custom</button>
+                    <button type="button" class="date-pill active" onclick="LedgerEngine.setDateFilter('all', this)">ط§ظ„ظƒظ„ / All</button>
+                    <button type="button" class="date-pill" onclick="LedgerEngine.setDateFilter('today', this)">ط§ظ„ظٹظˆظ… / Today</button>
+                    <button type="button" class="date-pill" onclick="LedgerEngine.setDateFilter('week', this)">ظ‡ط°ط§ ط§ظ„ط£ط³ط¨ظˆط¹ / Week</button>
+                    <button type="button" class="date-pill" onclick="LedgerEngine.setDateFilter('month', this)">ظ‡ط°ط§ ط§ظ„ط´ظ‡ط± / Month</button>
+                    <button type="button" class="date-pill" onclick="LedgerEngine.setDateFilter('custom', this)">ظ†ط·ط§ظ‚ ظ…ط®طµطµ / Custom</button>
                 </div>
 
                 <!-- Compact Transaction Stream Feed -->
                 <div class="section-heading" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <span><i class="fa-solid fa-list-check text-purple-400"></i> جدول الحركات والرصيد المتسلسل</span>
-                    <small id="ledger-entries-count" style="color:var(--text-muted); font-size:0.75rem; font-weight:800;">5 حركات</small>
+                    <span><i class="fa-solid fa-list-check text-purple-400"></i> ط¬ط¯ظˆظ„ ط§ظ„ط­ط±ظƒط§طھ ظˆط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط³ظ„ط³ظ„</span>
+                    <small id="ledger-entries-count" style="color:var(--text-muted); font-size:0.75rem; font-weight:800;">5 ط­ط±ظƒط§طھ</small>
                 </div>
                 <div id="ledger-feed-stream">
                     <!-- Dynamic Ledger Cards -->
@@ -6908,42 +7003,42 @@ try {
 
                 <!-- Sticky Action Bar at Bottom of Ledger -->
                 <div class="ledger-sticky-dock">
-                    <button type="button" class="ledger-dock-btn btn-dock-wa" onclick="LedgerEngine.shareStatementWhatsApp()" title="مشاركة ملخص الحساب عبر واتساب">
-                        <i class="fa-brands fa-whatsapp"></i> واتساب
+                    <button type="button" class="ledger-dock-btn btn-dock-wa" onclick="LedgerEngine.shareStatementWhatsApp()" title="ظ…ط´ط§ط±ظƒط© ظ…ظ„ط®طµ ط§ظ„ط­ط³ط§ط¨ ط¹ط¨ط± ظˆط§طھط³ط§ط¨">
+                        <i class="fa-brands fa-whatsapp"></i> ظˆط§طھط³ط§ط¨
                     </button>
-                    <button type="button" class="ledger-dock-btn btn-dock-call" onclick="LedgerEngine.callParty()" title="اتصال مباشر بالعميل">
-                        <i class="fa-solid fa-phone"></i> اتصال
+                    <button type="button" class="ledger-dock-btn btn-dock-call" onclick="LedgerEngine.callParty()" title="ط§طھطµط§ظ„ ظ…ط¨ط§ط´ط± ط¨ط§ظ„ط¹ظ…ظٹظ„">
+                        <i class="fa-solid fa-phone"></i> ط§طھطµط§ظ„
                     </button>
-                    <button type="button" class="ledger-dock-btn btn-dock-thermal" onclick="LedgerEngine.printThermalStatement()" title="طباعة إيصال حراري عبر البلوتوث">
-                        <i class="fa-solid fa-receipt"></i> طباعة حرارية
+                    <button type="button" class="ledger-dock-btn btn-dock-thermal" onclick="LedgerEngine.printThermalStatement()" title="ط·ط¨ط§ط¹ط© ط¥ظٹطµط§ظ„ ط­ط±ط§ط±ظٹ ط¹ط¨ط± ط§ظ„ط¨ظ„ظˆطھظˆط«">
+                        <i class="fa-solid fa-receipt"></i> ط·ط¨ط§ط¹ط© ط­ط±ط§ط±ظٹط©
                     </button>
-                    <button type="button" class="ledger-dock-btn btn-dock-pdf" onclick="LedgerEngine.openPdfStatementPreview()" title="عرض كشف الحساب بتنسيق PDF">
-                        <i class="fa-solid fa-file-pdf"></i> كشف PDF
+                    <button type="button" class="ledger-dock-btn btn-dock-pdf" onclick="LedgerEngine.openPdfStatementPreview()" title="ط¹ط±ط¶ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط¨طھظ†ط³ظٹظ‚ PDF">
+                        <i class="fa-solid fa-file-pdf"></i> ظƒط´ظپ PDF
                     </button>
                 </div>
             </div>
 
-            <!-- SUB-VIEW 2: ACCOUNTS RECEIVABLE & DEBT AGING (ميزان تقادم الديون) -->
+            <!-- SUB-VIEW 2: ACCOUNTS RECEIVABLE & DEBT AGING (ظ…ظٹط²ط§ظ† طھظ‚ط§ط¯ظ… ط§ظ„ط¯ظٹظˆظ†) -->
             <div id="subview-debt-aging" style="display:none;">
                 <!-- Total Receivables Pulse Card -->
                 <div style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:16px; padding:12px 14px; margin-bottom:12px; box-shadow:var(--shadow-card);">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                        <span style="font-size:0.74rem; color:var(--text-muted); font-weight:800;">إجمالي الذمم المدينة والمطالبات:</span>
+                        <span style="font-size:0.74rem; color:var(--text-muted); font-weight:800;">ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط°ظ…ظ… ط§ظ„ظ…ط¯ظٹظ†ط© ظˆط§ظ„ظ…ط·ط§ظ„ط¨ط§طھ:</span>
                         <span id="aging-debtors-total-badge" style="font-size:0.72rem; font-weight:800; background:rgba(244,63,94,0.15); color:var(--rose); padding:2px 8px; border-radius:8px; border:1px solid rgba(244,63,94,0.3);">
-                            6 عملاء مدينون
+                            6 ط¹ظ…ظ„ط§ط، ظ…ط¯ظٹظ†ظˆظ†
                         </span>
                     </div>
                     <div id="aging-total-receivables" style="font-size:1.6rem; font-weight:900; color:var(--rose); font-family:'Inter', sans-serif;">
                         14,450,000 <small style="font-size:0.8rem;">SDG</small>
                     </div>
                     <span style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:3px;">
-                        ⚠️ <strong id="aging-overdue-pct-text" style="color:var(--amber);">78.9%</strong> من إجمالي الديون تجاوزت موعد الاستحقاق (أكثر من 30 يوماً).
+                        âڑ ï¸ڈ <strong id="aging-overdue-pct-text" style="color:var(--amber);">78.9%</strong> ظ…ظ† ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط¯ظٹظˆظ† طھط¬ط§ظˆط²طھ ظ…ظˆط¹ط¯ ط§ظ„ط§ط³طھط­ظ‚ط§ظ‚ (ط£ظƒط«ط± ظ…ظ† 30 ظٹظˆظ…ط§ظ‹).
                     </span>
                 </div>
 
                 <!-- 1. Horizontal Carousel: 5 Aging Buckets -->
                 <div class="section-heading" style="margin-bottom:6px; font-size:0.82rem;">
-                    <span><i class="fa-solid fa-clock-rotate-left text-sky-400"></i> شرائح التقادم الزمني (اضغط للتصفية):</span>
+                    <span><i class="fa-solid fa-clock-rotate-left text-sky-400"></i> ط´ط±ط§ط¦ط­ ط§ظ„طھظ‚ط§ط¯ظ… ط§ظ„ط²ظ…ظ†ظٹ (ط§ط¶ط؛ط· ظ„ظ„طھطµظپظٹط©):</span>
                 </div>
                 <div class="aging-buckets-carousel" id="aging-buckets-row">
                     <!-- Dynamic Aging Buckets -->
@@ -6957,14 +7052,14 @@ try {
                 <!-- 3. Prioritized Debtor List -->
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <span style="font-size:0.84rem; font-weight:900; color:var(--text-main);">
-                        <i class="fa-solid fa-arrow-down-wide-short text-rose-400"></i> ترتيب العملاء المطالبين
+                        <i class="fa-solid fa-arrow-down-wide-short text-rose-400"></i> طھط±طھظٹط¨ ط§ظ„ط¹ظ…ظ„ط§ط، ط§ظ„ظ…ط·ط§ظ„ط¨ظٹظ†
                     </span>
                     <div style="display:flex; gap:4px;">
                         <button type="button" class="btn-ai-chip active" id="btn-sort-debt" onclick="LedgerEngine.setAgingSort('debt', this)" style="font-size:0.7rem; padding:3px 8px;">
-                            الأعلى ديناً
+                            ط§ظ„ط£ط¹ظ„ظ‰ ط¯ظٹظ†ط§ظ‹
                         </button>
                         <button type="button" class="btn-ai-chip" id="btn-sort-overdue" onclick="LedgerEngine.setAgingSort('overdue', this)" style="font-size:0.7rem; padding:3px 8px;">
-                            الأقدم استحقاقاً
+                            ط§ظ„ط£ظ‚ط¯ظ… ط§ط³طھط­ظ‚ط§ظ‚ط§ظ‹
                         </button>
                     </div>
                 </div>
@@ -6976,18 +7071,18 @@ try {
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         VIEW CONTAINER 4: 📦 INVENTORY (المخزون والمستودعات)
-         ═════════════════════════════════════════════════════════════════ -->
-    <!-- ═════════════════════════════════════════════════════════════════
-         VIEW CONTAINER 4: 📦 INVENTORY (المخزون والمستودعات والجرد الميداني)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         VIEW CONTAINER 4: ًں“¦ INVENTORY (ط§ظ„ظ…ط®ط²ظˆظ† ظˆط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         VIEW CONTAINER 4: ًں“¦ INVENTORY (ط§ظ„ظ…ط®ط²ظˆظ† ظˆط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ ظˆط§ظ„ط¬ط±ط¯ ط§ظ„ظ…ظٹط¯ط§ظ†ظٹ)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="view-container" id="view-inventory">
         <div class="mobile-content" style="padding-top:12px;">
             <div class="section-heading" style="margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> المخزون والجرد والتحويلات</span>
+                <span><i class="fa-solid fa-boxes-stacked text-amber-400"></i> ط§ظ„ظ…ط®ط²ظˆظ† ظˆط§ظ„ط¬ط±ط¯ ظˆط§ظ„طھط­ظˆظٹظ„ط§طھ</span>
                 <span id="inventory-branch-tag" class="branch-pill" style="font-size:0.75rem; cursor:pointer;" onclick="openBottomSheet('sheet-branch-picker')">
-                    <i class="fa-solid fa-warehouse"></i> <span id="inventory-active-wh-name">السجانة الرئيسي</span>
+                    <i class="fa-solid fa-warehouse"></i> <span id="inventory-active-wh-name">ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹ</span>
                 </span>
             </div>
 
@@ -6995,26 +7090,26 @@ try {
             <div style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:16px; padding:12px 14px; margin-bottom:10px; box-shadow:var(--shadow-card);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <div>
-                        <span style="font-size:0.72rem; color:var(--text-muted); font-weight:800; display:block;">إجمالي القيمة التقديرية للبضاعة:</span>
+                        <span style="font-size:0.72rem; color:var(--text-muted); font-weight:800; display:block;">ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ‚ظٹظ…ط© ط§ظ„طھظ‚ط¯ظٹط±ظٹط© ظ„ظ„ط¨ط¶ط§ط¹ط©:</span>
                         <div id="inventory-grand-total" style="font-size:1.45rem; font-weight:900; color:var(--amber); font-family:'Inter', sans-serif;">
                             0 <small style="font-size:0.75rem;">SDG</small>
                         </div>
                     </div>
                     <span id="inventory-items-count-badge" style="font-family:'Inter',sans-serif; font-size:0.72rem; font-weight:800; background:rgba(56,189,248,0.15); color:var(--primary); padding:3px 8px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">
-                        0 صنف نشط
+                        0 طµظ†ظپ ظ†ط´ط·
                     </span>
                 </div>
 
                 <!-- 3 Yard Operations Quick Actions -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
                     <button type="button" class="inv-act-btn act-transfer" style="height:36px;" onclick="StockTransferEngine.openTransferSheet()">
-                        <i class="fa-solid fa-truck-ramp-box"></i> تحويل مخزني
+                        <i class="fa-solid fa-truck-ramp-box"></i> طھط­ظˆظٹظ„ ظ…ط®ط²ظ†ظٹ
                     </button>
                     <button type="button" class="inv-act-btn act-audit" style="height:36px;" onclick="InventoryEngine.openQuickAudit()">
-                        <i class="fa-solid fa-clipboard-check"></i> جرد ميداني
+                        <i class="fa-solid fa-clipboard-check"></i> ط¬ط±ط¯ ظ…ظٹط¯ط§ظ†ظٹ
                     </button>
                     <button type="button" class="inv-act-btn act-sale" style="height:36px;" onclick="openBottomSheet('sheet-purchase')">
-                        <i class="fa-solid fa-cart-plus"></i> توريد بضاعة
+                        <i class="fa-solid fa-cart-plus"></i> طھظˆط±ظٹط¯ ط¨ط¶ط§ط¹ط©
                     </button>
                 </div>
 
@@ -7022,10 +7117,10 @@ try {
                 <button type="button" class="btn-ripple" onclick="openBottomSheet('sheet-20-inventory-reports')" style="margin-top:8px; width:100%; height:40px; border-radius:12px; border:1px solid rgba(139,92,246,0.35); background:linear-gradient(135deg, rgba(139,92,246,0.18), rgba(59,130,246,0.18)); color:#c084fc; font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:space-between; padding:0 12px; cursor:pointer; box-shadow:0 4px 14px rgba(139,92,246,0.12);">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <i class="fa-solid fa-chart-pie" style="color:#c084fc; font-size:14px;"></i>
-                        <span>📊 مصفوفة تقارير المخزون الـ 20 المتقدمة</span>
+                        <span>ًں“ٹ ظ…طµظپظˆظپط© طھظ‚ط§ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظ€ 20 ط§ظ„ظ…طھظ‚ط¯ظ…ط©</span>
                     </div>
                     <div style="display:flex; align-items:center; gap:6px;">
-                        <span style="background:rgba(139,92,246,0.3); font-size:10px; padding:2px 7px; border-radius:10px; color:#e9d5ff; font-weight:700;">20 تقرير</span>
+                        <span style="background:rgba(139,92,246,0.3); font-size:10px; padding:2px 7px; border-radius:10px; color:#e9d5ff; font-weight:700;">20 طھظ‚ط±ظٹط±</span>
                         <i class="fa-solid fa-chevron-left" style="font-size:10px; opacity:0.8;"></i>
                     </div>
                 </button>
@@ -7035,11 +7130,11 @@ try {
             <div class="inv-search-toolbar">
                 <div class="inv-search-input-box">
                     <i class="fa-solid fa-magnifying-glass inv-search-icon"></i>
-                    <input type="text" id="inventory-search-input" class="m-input" placeholder="ابحث بالاسم، SKU، المقاس، أو الوحدة..." oninput="InventoryEngine.onSearch(this.value)">
-                    <button type="button" class="inv-search-clear" onclick="InventoryEngine.clearSearch()" id="btn-clear-inv-search" style="display:none;">✕</button>
+                    <input type="text" id="inventory-search-input" class="m-input" placeholder="ط§ط¨ط­ط« ط¨ط§ظ„ط§ط³ظ…طŒ SKUطŒ ط§ظ„ظ…ظ‚ط§ط³طŒ ط£ظˆ ط§ظ„ظˆط­ط¯ط©..." oninput="InventoryEngine.onSearch(this.value)">
+                    <button type="button" class="inv-search-clear" onclick="InventoryEngine.clearSearch()" id="btn-clear-inv-search" style="display:none;">âœ•</button>
                 </div>
                 <!-- Continuous Barcode / QR Scanner Button -->
-                <button type="button" class="inv-scanner-btn" onclick="InventoryEngine.triggerContinuousScanner()" title="مسح باركود الأصناف بالكاميرا">
+                <button type="button" class="inv-scanner-btn" onclick="InventoryEngine.triggerContinuousScanner()" title="ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯ ط§ظ„ط£طµظ†ط§ظپ ط¨ط§ظ„ظƒط§ظ…ظٹط±ط§">
                     <i class="fa-solid fa-barcode"></i>
                 </button>
             </div>
@@ -7047,20 +7142,20 @@ try {
             <!-- 2. Segmented Filter Chips -->
             <div class="inv-filter-chips" id="inv-filter-chips-row">
                 <button type="button" class="inv-chip-pill active" onclick="InventoryEngine.setFilter('all', this)">
-                    <i class="fa-solid fa-layer-group"></i> الكل / All (<span id="chip-cnt-all">0</span>)
+                    <i class="fa-solid fa-layer-group"></i> ط§ظ„ظƒظ„ / All (<span id="chip-cnt-all">0</span>)
                 </button>
                 <button type="button" class="inv-chip-pill pill-warning" onclick="InventoryEngine.setFilter('low', this)">
-                    <i class="fa-solid fa-triangle-exclamation"></i> نواقص / Low Stock (<span id="chip-cnt-low">0</span>)
+                    <i class="fa-solid fa-triangle-exclamation"></i> ظ†ظˆط§ظ‚طµ / Low Stock (<span id="chip-cnt-low">0</span>)
                 </button>
                 <button type="button" class="inv-chip-pill pill-danger" onclick="InventoryEngine.setFilter('zero', this)">
-                    <i class="fa-solid fa-circle-xmark"></i> أرصدة حرجة / Near Zero (<span id="chip-cnt-zero">0</span>)
+                    <i class="fa-solid fa-circle-xmark"></i> ط£ط±طµط¯ط© ط­ط±ط¬ط© / Near Zero (<span id="chip-cnt-zero">0</span>)
                 </button>
             </div>
 
             <!-- Critical Low Stock Warning Radar -->
             <div class="radar-card" id="inv-radar-card" style="margin-bottom:12px; border-color:rgba(239,68,68,0.35);">
                 <div class="radar-title">
-                    <span><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> رادار النواقص والمخزون الحرج</span>
+                    <span><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> ط±ط§ط¯ط§ط± ط§ظ„ظ†ظˆط§ظ‚طµ ظˆط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط­ط±ط¬</span>
                 </div>
                 <div id="inventory-low-stock-list">
                     <!-- Low Stock List -->
@@ -7069,8 +7164,8 @@ try {
 
             <!-- Full Items Grid / List -->
             <div class="section-heading" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <span>📦 بطاقات الأصناف والتوزيع المخزني</span>
-                <small id="inventory-items-count" style="color:var(--text-muted); font-size:0.75rem;">0 صنف</small>
+                <span>ًں“¦ ط¨ط·ط§ظ‚ط§طھ ط§ظ„ط£طµظ†ط§ظپ ظˆط§ظ„طھظˆط²ظٹط¹ ط§ظ„ظ…ط®ط²ظ†ظٹ</span>
+                <small id="inventory-items-count" style="color:var(--text-muted); font-size:0.75rem;">0 طµظ†ظپ</small>
             </div>
             <div id="inventory-full-items-container">
                 <!-- Items Dynamic -->
@@ -7078,46 +7173,46 @@ try {
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         VIEW CONTAINER 5: 🛡️ EXECUTIVE APPROVALS HUB (مركز الموافقات والتحكم السريع)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         VIEW CONTAINER 5: ًں›،ï¸ڈ EXECUTIVE APPROVALS HUB (ظ…ط±ظƒط² ط§ظ„ظ…ظˆط§ظپظ‚ط§طھ ظˆط§ظ„طھط­ظƒظ… ط§ظ„ط³ط±ظٹط¹)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="view-container" id="view-approvals">
         <div class="mobile-content" style="padding-top:12px;">
             <!-- Header Section -->
             <div class="section-heading" style="margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                <span><i class="fa-solid fa-shield-halved text-rose-400"></i> مركز الموافقات والتحكم التنفيذي</span>
+                <span><i class="fa-solid fa-shield-halved text-rose-400"></i> ظ…ط±ظƒط² ط§ظ„ظ…ظˆط§ظپظ‚ط§طھ ظˆط§ظ„طھط­ظƒظ… ط§ظ„طھظ†ظپظٹط°ظٹ</span>
                 <button type="button" onclick="openBottomSheet('sheet-rule-settings')" class="btn-ai-chip" style="font-size:0.75rem; background:var(--surface-sub);">
-                    <i class="fa-solid fa-sliders"></i> ضبط الحدود
+                    <i class="fa-solid fa-sliders"></i> ط¶ط¨ط· ط§ظ„ط­ط¯ظˆط¯
                 </button>
             </div>
             
             <!-- Executive Summary & Pending Count -->
             <div style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:14px; padding:10px 14px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; box-shadow:var(--shadow-card);">
                 <div>
-                    <span style="font-size:0.72rem; color:var(--text-muted); font-weight:800; display:block;">طلبات بانتظار قرار المدير:</span>
-                    <strong style="font-size:0.95rem; color:var(--text-main); font-weight:900;">اعتمادات استثنائية لحظية ⚡</strong>
+                    <span style="font-size:0.72rem; color:var(--text-muted); font-weight:800; display:block;">ط·ظ„ط¨ط§طھ ط¨ط§ظ†طھط¸ط§ط± ظ‚ط±ط§ط± ط§ظ„ظ…ط¯ظٹط±:</span>
+                    <strong style="font-size:0.95rem; color:var(--text-main); font-weight:900;">ط§ط¹طھظ…ط§ط¯ط§طھ ط§ط³طھط«ظ†ط§ط¦ظٹط© ظ„ط­ط¸ظٹط© âڑ،</strong>
                 </div>
                 <span id="approvals-hub-total-badge" style="font-family:'Inter',sans-serif; font-size:0.82rem; font-weight:900; background:rgba(244,63,94,0.18); color:var(--rose); padding:4px 10px; border-radius:10px; border:1px solid rgba(244,63,94,0.35);">
-                    6 بانتظار القرار
+                    6 ط¨ط§ظ†طھط¸ط§ط± ط§ظ„ظ‚ط±ط§ط±
                 </span>
             </div>
 
             <!-- Filter Tabs with Pending Count Badges -->
             <div class="inv-filter-chips" id="approvals-filter-chips-row" style="margin-bottom:12px;">
                 <button type="button" class="inv-chip-pill active" onclick="ApprovalsHubEngine.setFilter('all', this)">
-                    الكل / All (<span id="app-cnt-all">6</span>)
+                    ط§ظ„ظƒظ„ / All (<span id="app-cnt-all">6</span>)
                 </button>
                 <button type="button" class="inv-chip-pill pill-danger" onclick="ApprovalsHubEngine.setFilter('credit', this)">
-                    🔴 تجاوز حد الائتمان (<span id="app-cnt-credit">2</span>)
+                    ًں”´ طھط¬ط§ظˆط² ط­ط¯ ط§ظ„ط§ط¦طھظ…ط§ظ† (<span id="app-cnt-credit">2</span>)
                 </button>
                 <button type="button" class="inv-chip-pill pill-warning" onclick="ApprovalsHubEngine.setFilter('margin', this)">
-                    ⚠️ بيع تحت هامش الربح (<span id="app-cnt-margin">2</span>)
+                    âڑ ï¸ڈ ط¨ظٹط¹ طھط­طھ ظ‡ط§ظ…ط´ ط§ظ„ط±ط¨ط­ (<span id="app-cnt-margin">2</span>)
                 </button>
                 <button type="button" class="inv-chip-pill" onclick="ApprovalsHubEngine.setFilter('voucher', this)">
-                    💎 سندات نقدية كبرى (<span id="app-cnt-voucher">1</span>)
+                    ًں’ژ ط³ظ†ط¯ط§طھ ظ†ظ‚ط¯ظٹط© ظƒط¨ط±ظ‰ (<span id="app-cnt-voucher">1</span>)
                 </button>
                 <button type="button" class="inv-chip-pill" onclick="ApprovalsHubEngine.setFilter('purchase', this)">
-                    📦 أوامر شراء كبرى (<span id="app-cnt-purchase">1</span>)
+                    ًں“¦ ط£ظˆط§ظ…ط± ط´ط±ط§ط، ظƒط¨ط±ظ‰ (<span id="app-cnt-purchase">1</span>)
                 </button>
             </div>
 
@@ -7128,85 +7223,85 @@ try {
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
          BOTTOM SHEETS (POWER ACTION MODALS)
-         ═════════════════════════════════════════════════════════════════ -->
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         SHEET 1: 💸 حركة مالية موحدة (قيد مزدوج: من حساب إلى حساب)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         SHEET 1: ًں’¸ ط­ط±ظƒط© ظ…ط§ظ„ظٹط© ظ…ظˆط­ط¯ط© (ظ‚ظٹط¯ ظ…ط²ط¯ظˆط¬: ظ…ظ† ط­ط³ط§ط¨ ط¥ظ„ظ‰ ط­ط³ط§ط¨)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-financial-tx" onclick="closeBottomSheet('sheet-financial-tx')"></div>
     <div class="mobile-bottom-sheet" id="sheet-financial-tx" style="max-height:94vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border);">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span class="sheet-title" id="tx-sheet-title" style="color:var(--primary); font-weight:900;">
-                    <i class="fa-solid fa-money-bill-transfer"></i> تحويلة مالية (من حساب إلى حساب)
+                    <i class="fa-solid fa-money-bill-transfer"></i> طھط­ظˆظٹظ„ط© ظ…ط§ظ„ظٹط© (ظ…ظ† ط­ط³ط§ط¨ ط¥ظ„ظ‰ ط­ط³ط§ط¨)
                 </span>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
-                <button type="button" class="voice-mic-btn" onclick="VoiceCommandEngine.toggleListening('voucher')" title="🎙️ أمر صوتي" style="width:36px; height:36px; font-size:0.95rem;">
+                <button type="button" class="voice-mic-btn" onclick="VoiceCommandEngine.toggleListening('voucher')" title="ًںژ™ï¸ڈ ط£ظ…ط± طµظˆطھظٹ" style="width:36px; height:36px; font-size:0.95rem;">
                     <i class="fa-solid fa-microphone"></i>
                 </button>
-                <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-financial-tx')">✕</button>
+                <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-financial-tx')">âœ•</button>
             </div>
         </div>
         <div class="sheet-body" style="padding-top:12px;">
             <form onsubmit="handleFinancialTxSubmit(event)">
                 <input type="hidden" id="tx-operation-type" value="transfer">
 
-                <!-- شريط تنبيه وضع التعديل للسند -->
+                <!-- ط´ط±ظٹط· طھظ†ط¨ظٹظ‡ ظˆط¶ط¹ ط§ظ„طھط¹ط¯ظٹظ„ ظ„ظ„ط³ظ†ط¯ -->
                 <div id="tx-editing-banner" class="screen-editing-banner">
                     <div style="display:flex; align-items:center; gap:8px;">
                         <i class="fa-solid fa-pen-to-square"></i>
-                        <span>وضع تعديل السند: <strong id="tx-editing-vno-display">---</strong></span>
+                        <span>ظˆط¶ط¹ طھط¹ط¯ظٹظ„ ط§ظ„ط³ظ†ط¯: <strong id="tx-editing-vno-display">---</strong></span>
                     </div>
-                    <button type="button" onclick="window.VoucherNavigator.cancelEdit()" style="background:none; border:none; color:#f87171; font-weight:900; font-size:0.8rem; cursor:pointer;">إلغاء التعديل ✕</button>
+                    <button type="button" onclick="window.VoucherNavigator.cancelEdit()" style="background:none; border:none; color:#f87171; font-weight:900; font-size:0.8rem; cursor:pointer;">ط¥ظ„ط؛ط§ط، ط§ظ„طھط¹ط¯ظٹظ„ âœ•</button>
                 </div>
 
-                <!-- شريط التنقل الشامل بين السندات (الأول | السابق | رقم السند | التالي | الأخير) -->
+                <!-- ط´ط±ظٹط· ط§ظ„طھظ†ظ‚ظ„ ط§ظ„ط´ط§ظ…ظ„ ط¨ظٹظ† ط§ظ„ط³ظ†ط¯ط§طھ (ط§ظ„ط£ظˆظ„ | ط§ظ„ط³ط§ط¨ظ‚ | ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯ | ط§ظ„طھط§ظ„ظٹ | ط§ظ„ط£ط®ظٹط±) -->
                 <div class="screen-navigator-bar">
-                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'first')" title="أحدث سند">
-                        <i class="fa-solid fa-backward-step"></i> الأول
+                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'first')" title="ط£ط­ط¯ط« ط³ظ†ط¯">
+                        <i class="fa-solid fa-backward-step"></i> ط§ظ„ط£ظˆظ„
                     </button>
-                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'prev')" title="السند السابق (أقدم)">
-                        <i class="fa-solid fa-chevron-right"></i> السابق
+                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'prev')" title="ط§ظ„ط³ظ†ط¯ ط§ظ„ط³ط§ط¨ظ‚ (ط£ظ‚ط¯ظ…)">
+                        <i class="fa-solid fa-chevron-right"></i> ط§ظ„ط³ط§ط¨ظ‚
                     </button>
                     <span id="tx-voucher-display" class="nav-record-badge">...</span>
-                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'next')" title="السند التالي (أحدث)">
-                        التالي <i class="fa-solid fa-chevron-left"></i>
+                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'next')" title="ط§ظ„ط³ظ†ط¯ ط§ظ„طھط§ظ„ظٹ (ط£ط­ط¯ط«)">
+                        ط§ظ„طھط§ظ„ظٹ <i class="fa-solid fa-chevron-left"></i>
                     </button>
-                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'last')" title="أقدم سند">
-                        الأخير <i class="fa-solid fa-forward-step"></i>
+                    <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'last')" title="ط£ظ‚ط¯ظ… ط³ظ†ط¯">
+                        ط§ظ„ط£ط®ظٹط± <i class="fa-solid fa-forward-step"></i>
                     </button>
                     <input type="hidden" id="tx-voucher-no" value="">
-                    <!-- الصرف -->
+                    <!-- ط§ظ„طµط±ظپ -->
                     <div style="display:inline-flex; align-items:center; gap:3px;">
-                        <span style="font-size:0.74rem; font-weight:800; color:var(--text-muted);">صرف:</span>
+                        <span style="font-size:0.74rem; font-weight:800; color:var(--text-muted);">طµط±ظپ:</span>
                         <input type="number" id="tx-exchange-rate" class="m-input" style="width:68px; height:28px; font-size:0.82rem; font-weight:900; text-align:center; padding:1px 2px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:6px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
                     </div>
                 </div>
 
-                <!-- 2. Action Toolbar: تفريغ الإشعار (واتساب / AI / تحديث / استوديو) -->
+                <!-- 2. Action Toolbar: طھظپط±ظٹط؛ ط§ظ„ط¥ط´ط¹ط§ط± (ظˆط§طھط³ط§ط¨ / AI / طھط­ط¯ظٹط« / ط§ط³طھظˆط¯ظٹظˆ) -->
                 <div class="whatsapp-slip-action-bar" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; margin-bottom:12px; width:100%; box-sizing:border-box;">
-                    <!-- 1. زر الوتساب (الشعار فقط) -->
-                    <button type="button" onclick="openWhatsAppForSlip()" style="height:44px; background:linear-gradient(135deg, rgba(34,197,94,0.18), rgba(22,163,74,0.28)); border:1.5px solid #22c55e; color:#22c55e; border-radius:12px; font-size:1.35rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(34,197,94,0.15);" title="فتح تطبيق واتساب لنسخ الإشعار">
+                    <!-- 1. ط²ط± ط§ظ„ظˆطھط³ط§ط¨ (ط§ظ„ط´ط¹ط§ط± ظپظ‚ط·) -->
+                    <button type="button" onclick="openWhatsAppForSlip()" style="height:44px; background:linear-gradient(135deg, rgba(34,197,94,0.18), rgba(22,163,74,0.28)); border:1.5px solid #22c55e; color:#22c55e; border-radius:12px; font-size:1.35rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(34,197,94,0.15);" title="ظپطھط­ طھط·ط¨ظٹظ‚ ظˆط§طھط³ط§ط¨ ظ„ظ†ط³ط® ط§ظ„ط¥ط´ط¹ط§ط±">
                         <i class="fa-brands fa-whatsapp"></i>
                     </button>
 
-                    <!-- 2. زر AI -->
-                    <button type="button" onclick="pasteAndAutoFillSlip()" style="height:44px; background:linear-gradient(135deg, rgba(56,189,248,0.18), rgba(2,132,199,0.28)); border:1.5px solid #38bdf8; color:#38bdf8; border-radius:12px; font-size:0.95rem; font-weight:900; display:flex; align-items:center; justify-content:center; gap:5px; cursor:pointer; box-shadow:0 2px 8px rgba(56,189,248,0.15);" title="تفريغ الإشعار المنسوخ بالذكاء الاصطناعي">
+                    <!-- 2. ط²ط± AI -->
+                    <button type="button" onclick="pasteAndAutoFillSlip()" style="height:44px; background:linear-gradient(135deg, rgba(56,189,248,0.18), rgba(2,132,199,0.28)); border:1.5px solid #38bdf8; color:#38bdf8; border-radius:12px; font-size:0.95rem; font-weight:900; display:flex; align-items:center; justify-content:center; gap:5px; cursor:pointer; box-shadow:0 2px 8px rgba(56,189,248,0.15);" title="طھظپط±ظٹط؛ ط§ظ„ط¥ط´ط¹ط§ط± ط§ظ„ظ…ظ†ط³ظˆط® ط¨ط§ظ„ط°ظƒط§ط، ط§ظ„ط§طµط·ظ†ط§ط¹ظٹ">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span style="font-family:'Inter',sans-serif; font-weight:900; letter-spacing:0.5px;">AI</span>
                     </button>
 
-                    <!-- 3. شعار تحديث -->
-                    <button type="button" onclick="refreshFinancialTxModal()" style="height:44px; background:linear-gradient(135deg, rgba(245,158,11,0.15), rgba(217,119,6,0.25)); border:1.5px solid #f59e0b; color:#fbbf24; border-radius:12px; font-size:1.15rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(245,158,11,0.15);" title="تحديث رقم السند وسعر الصرف">
+                    <!-- 3. ط´ط¹ط§ط± طھط­ط¯ظٹط« -->
+                    <button type="button" onclick="refreshFinancialTxModal()" style="height:44px; background:linear-gradient(135deg, rgba(245,158,11,0.15), rgba(217,119,6,0.25)); border:1.5px solid #f59e0b; color:#fbbf24; border-radius:12px; font-size:1.15rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(245,158,11,0.15);" title="طھط­ط¯ظٹط« ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯ ظˆط³ط¹ط± ط§ظ„طµط±ظپ">
                         <i class="fa-solid fa-arrows-rotate"></i>
                     </button>
 
-                    <!-- 4. شعار الاستديو -->
-                    <button type="button" onclick="triggerSlipImagePicker()" style="height:44px; background:linear-gradient(135deg, rgba(168,85,247,0.18), rgba(126,34,206,0.28)); border:1.5px solid #a855f7; color:#c084fc; border-radius:12px; font-size:1.2rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(168,85,247,0.15);" title="اختيار صورة الإشعار من الاستوديو وتفريغها فوراً ⚡">
+                    <!-- 4. ط´ط¹ط§ط± ط§ظ„ط§ط³طھط¯ظٹظˆ -->
+                    <button type="button" onclick="triggerSlipImagePicker()" style="height:44px; background:linear-gradient(135deg, rgba(168,85,247,0.18), rgba(126,34,206,0.28)); border:1.5px solid #a855f7; color:#c084fc; border-radius:12px; font-size:1.2rem; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow:0 2px 8px rgba(168,85,247,0.15);" title="ط§ط®طھظٹط§ط± طµظˆط±ط© ط§ظ„ط¥ط´ط¹ط§ط± ظ…ظ† ط§ظ„ط§ط³طھظˆط¯ظٹظˆ ظˆطھظپط±ظٹط؛ظ‡ط§ ظپظˆط±ط§ظ‹ âڑ،">
                         <i class="fa-solid fa-images"></i>
                     </button>
                     <input type="file" id="slip-image-picker" accept="image/*" style="display:none;" onchange="handleSlipImageUpload(event)">
@@ -7215,39 +7310,39 @@ try {
                 <!-- Attachment Preview Thumbnail Box -->
                 <div id="voucher-attach-preview-box" class="voucher-attach-box" style="display:none;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                        <span style="font-size:0.74rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-paperclip"></i> مرفق الإشعار / السند</span>
-                        <button type="button" onclick="CashVoucherEngine.removeAttachment()" style="background:none; border:none; color:var(--rose); font-size:0.72rem; font-weight:800; cursor:pointer;">حذف ✕</button>
+                        <span style="font-size:0.74rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-paperclip"></i> ظ…ط±ظپظ‚ ط§ظ„ط¥ط´ط¹ط§ط± / ط§ظ„ط³ظ†ط¯</span>
+                        <button type="button" onclick="CashVoucherEngine.removeAttachment()" style="background:none; border:none; color:var(--rose); font-size:0.72rem; font-weight:800; cursor:pointer;">ط­ط°ظپ âœ•</button>
                     </div>
                     <img id="voucher-thumb-img" src="" class="voucher-thumb-preview" alt="Attachment Preview">
                 </div>
 
-                <!-- إشعار عائم ذكي عند العودة من واتساب -->
+                <!-- ط¥ط´ط¹ط§ط± ط¹ط§ط¦ظ… ط°ظƒظٹ ط¹ظ†ط¯ ط§ظ„ط¹ظˆط¯ط© ظ…ظ† ظˆط§طھط³ط§ط¨ -->
                 <div id="wa-return-banner" style="display:none; margin-bottom:12px; padding:10px 12px; background:linear-gradient(135deg, rgba(16,185,129,0.18), rgba(5,150,105,0.25)); border:1.5px solid #10b981; border-radius:12px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <span style="font-size:1.2rem;">✨</span>
-                            <span style="font-size:0.82rem; font-weight:800; color:#10b981;">هل نسخت الإشعار من واتساب؟</span>
+                            <span style="font-size:1.2rem;">âœ¨</span>
+                            <span style="font-size:0.82rem; font-weight:800; color:#10b981;">ظ‡ظ„ ظ†ط³ط®طھ ط§ظ„ط¥ط´ط¹ط§ط± ظ…ظ† ظˆط§طھط³ط§ط¨طں</span>
                         </div>
                         <button type="button" onclick="pasteAndAutoFillSlip()" style="background:#10b981; border:none; color:#fff; padding:5px 12px; border-radius:8px; font-size:0.8rem; font-weight:900; cursor:pointer;">
-                            تفريغ الآن ⚡
+                            طھظپط±ظٹط؛ ط§ظ„ط¢ظ† âڑ،
                         </button>
                     </div>
                 </div>
 
-                <!-- 3. Dual Amount Boxes (محلي 50% وأجنبي 50%) -->
+                <!-- 3. Dual Amount Boxes (ظ…ط­ظ„ظٹ 50% ظˆط£ط¬ظ†ط¨ظٹ 50%) -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:6px;">
-                    <!-- محلي -->
+                    <!-- ظ…ط­ظ„ظٹ -->
                     <div class="m-form-group" style="margin-bottom:0;">
                         <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.88rem; color:var(--emerald);">
-                            المبلغ محلي (SDG)
+                            ط§ظ„ظ…ط¨ظ„ط؛ ظ…ط­ظ„ظٹ (SDG)
                         </label>
                         <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0" step="any" required inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onLocalAmountInput(this.value)">
                     </div>
 
-                    <!-- أجنبي -->
+                    <!-- ط£ط¬ظ†ط¨ظٹ -->
                     <div class="m-form-group" style="margin-bottom:0;">
                         <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.88rem; color:#f87171;">
-                            المبلغ أجنبي ($)
+                            ط§ظ„ظ…ط¨ظ„ط؛ ط£ط¬ظ†ط¨ظٹ ($)
                         </label>
                         <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0" step="any" inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onForeignAmountInput(this.value)">
                     </div>
@@ -7255,21 +7350,21 @@ try {
 
                 <!-- Live Currency Verbalizer Helper -->
                 <div id="tx-amount-verbalizer" style="font-size:0.78rem; font-weight:800; color:var(--text-muted); margin-bottom:12px; display:none; padding:4px 8px; background:var(--surface-sub); border-radius:8px; border:1px solid var(--border-glass);">
-                    0 جنيه سوداني
+                    0 ط¬ظ†ظٹظ‡ ط³ظˆط¯ط§ظ†ظٹ
                 </div>
                 <input type="hidden" id="tx-amount" value="">
 
-                <!-- 4. Dual Account Box (من وإلى) بتصميم عالي الوضوح والتركيز -->
+                <!-- 4. Dual Account Box (ظ…ظ† ظˆط¥ظ„ظ‰) ط¨طھطµظ…ظٹظ… ط¹ط§ظ„ظٹ ط§ظ„ظˆط¶ظˆط­ ظˆط§ظ„طھط±ظƒظٹط² -->
                 <div class="account-selector-container" style="margin-bottom:12px;">
-                    <!-- 🔴 FROM (من - الدافع ومصدر الأموال) -->
+                    <!-- ًں”´ FROM (ظ…ظ† - ط§ظ„ط¯ط§ظپط¹ ظˆظ…طµط¯ط± ط§ظ„ط£ظ…ظˆط§ظ„) -->
                     <div class="box-account-picker box-account-from" onclick="openAccountPicker('from')">
                         <div class="box-acc-left">
                             <span class="box-acc-tag" style="font-size:0.95rem; font-weight:900;">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i> من (الدافع / مصدر الأموال):
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i> ظ…ظ† (ط§ظ„ط¯ط§ظپط¹ / ظ…طµط¯ط± ط§ظ„ط£ظ…ظˆط§ظ„):
                             </span>
-                            <div class="box-acc-title" id="display-from-name" style="font-size:1.15rem; font-weight:900;">-- اضغط لتحديد الحساب الصارف --</div>
+                            <div class="box-acc-title" id="display-from-name" style="font-size:1.15rem; font-weight:900;">-- ط§ط¶ط؛ط· ظ„طھط­ط¯ظٹط¯ ط§ظ„ط­ط³ط§ط¨ ط§ظ„طµط§ط±ظپ --</div>
                             <div class="box-acc-meta" id="display-from-meta">
-                                <span>اختر عميلاً أو خزينة أو بنكاً للصرف منه</span>
+                                <span>ط§ط®طھط± ط¹ظ…ظٹظ„ط§ظ‹ ط£ظˆ ط®ط²ظٹظ†ط© ط£ظˆ ط¨ظ†ظƒط§ظ‹ ظ„ظ„طµط±ظپ ظ…ظ†ظ‡</span>
                             </div>
                         </div>
                         <div class="box-acc-right">
@@ -7282,19 +7377,19 @@ try {
                     <input type="hidden" id="tx-from-phone">
 
                     <!-- SWAP BUTTON -->
-                    <button type="button" class="btn-swap-accounts" onclick="swapTxAccounts()" title="تبديل الحسابين">
+                    <button type="button" class="btn-swap-accounts" onclick="swapTxAccounts()" title="طھط¨ط¯ظٹظ„ ط§ظ„ط­ط³ط§ط¨ظٹظ†">
                         <i class="fa-solid fa-arrow-up-down"></i>
                     </button>
 
-                    <!-- 🟢 TO (إلى - المستلم ووجهة الأموال) -->
+                    <!-- ًںں¢ TO (ط¥ظ„ظ‰ - ط§ظ„ظ…ط³طھظ„ظ… ظˆظˆط¬ظ‡ط© ط§ظ„ط£ظ…ظˆط§ظ„) -->
                     <div class="box-account-picker box-account-to" onclick="openAccountPicker('to')">
                         <div class="box-acc-left">
                             <span class="box-acc-tag" style="font-size:0.95rem; font-weight:900;">
-                                <i class="fa-solid fa-arrow-down-to-bracket"></i> إلى (المستلم / وجهة الأموال):
+                                <i class="fa-solid fa-arrow-down-to-bracket"></i> ط¥ظ„ظ‰ (ط§ظ„ظ…ط³طھظ„ظ… / ظˆط¬ظ‡ط© ط§ظ„ط£ظ…ظˆط§ظ„):
                             </span>
-                            <div class="box-acc-title" id="display-to-name" style="font-size:1.15rem; font-weight:900;">-- اضغط لتحديد الحساب المستلم --</div>
+                            <div class="box-acc-title" id="display-to-name" style="font-size:1.15rem; font-weight:900;">-- ط§ط¶ط؛ط· ظ„طھط­ط¯ظٹط¯ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…ط³طھظ„ظ… --</div>
                             <div class="box-acc-meta" id="display-to-meta">
-                                <span>اختر بنكاً أو خزينة أو عميلاً أو مورداً للإيداع فيه</span>
+                                <span>ط§ط®طھط± ط¨ظ†ظƒط§ظ‹ ط£ظˆ ط®ط²ظٹظ†ط© ط£ظˆ ط¹ظ…ظٹظ„ط§ظ‹ ط£ظˆ ظ…ظˆط±ط¯ط§ظ‹ ظ„ظ„ط¥ظٹط¯ط§ط¹ ظپظٹظ‡</span>
                             </div>
                         </div>
                         <div class="box-acc-right">
@@ -7307,20 +7402,20 @@ try {
                     <input type="hidden" id="tx-to-phone">
                 </div>
 
-                <!-- 5. Payment Method Selector (تحويلة بنكية / كاش / شيك) -->
+                <!-- 5. Payment Method Selector (طھط­ظˆظٹظ„ط© ط¨ظ†ظƒظٹط© / ظƒط§ط´ / ط´ظٹظƒ) -->
                 <div style="margin-bottom:10px;">
                     <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.85rem; color:var(--text-muted); display:block;">
-                        <i class="fa-solid fa-credit-card"></i> طريقة التحويل / الدفع:
+                        <i class="fa-solid fa-credit-card"></i> ط·ط±ظٹظ‚ط© ط§ظ„طھط­ظˆظٹظ„ / ط§ظ„ط¯ظپط¹:
                     </label>
                     <div class="payment-method-selector" style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
                         <button type="button" class="btn-pm-method active" id="pm-bank" onclick="setTransferPaymentMethod('bank')">
-                            <i class="fa-solid fa-building-columns"></i> تحويلة بنكية
+                            <i class="fa-solid fa-building-columns"></i> طھط­ظˆظٹظ„ط© ط¨ظ†ظƒظٹط©
                         </button>
                         <button type="button" class="btn-pm-method" id="pm-cash" onclick="setTransferPaymentMethod('cash')">
-                            <i class="fa-solid fa-money-bill-wave"></i> كاش نقدي
+                            <i class="fa-solid fa-money-bill-wave"></i> ظƒط§ط´ ظ†ظ‚ط¯ظٹ
                         </button>
                         <button type="button" class="btn-pm-method" id="pm-cheque" onclick="setTransferPaymentMethod('cheque')">
-                            <i class="fa-solid fa-money-check-dollar"></i> شيك مصرفي
+                            <i class="fa-solid fa-money-check-dollar"></i> ط´ظٹظƒ ظ…طµط±ظپظٹ
                         </button>
                     </div>
                     <input type="hidden" id="tx-payment-method" value="bank">
@@ -7330,15 +7425,15 @@ try {
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
                     <div class="m-form-group" style="margin-bottom:0;">
                         <label class="m-label" style="margin-bottom:4px; font-weight:800; font-size:0.82rem; color:var(--text-muted);">
-                            التاريخ:
+                            ط§ظ„طھط§ط±ظٹط®:
                         </label>
                         <input type="date" id="tx-date" class="m-input" required style="height:44px; font-weight:700;">
                     </div>
                     <div class="m-form-group" style="margin-bottom:0;">
                         <label class="m-label" id="tx-ref-label" style="margin-bottom:4px; font-weight:800; font-size:0.82rem; color:var(--text-muted);">
-                            رقم التحويلة البنكية:
+                            ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© ط§ظ„ط¨ظ†ظƒظٹط©:
                         </label>
-                        <input type="text" id="tx-ref" class="m-input" placeholder="رقم التحويلة البنكية" style="height:44px; font-family:'Inter',monospace; font-weight:800; letter-spacing:0.5px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
+                        <input type="text" id="tx-ref" class="m-input" placeholder="ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© ط§ظ„ط¨ظ†ظƒظٹط©" style="height:44px; font-family:'Inter',monospace; font-weight:800; letter-spacing:0.5px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
                     </div>
                 </div>
                 <div id="tx-ref-validation-hint" style="font-size:0.75rem; font-weight:800; margin-top:-4px; margin-bottom:10px; display:none; padding:4px 10px; border-radius:8px;"></div>
@@ -7347,47 +7442,47 @@ try {
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
                     <div class="m-form-group" style="margin-bottom:0;">
                         <select id="tx-cost-center" class="m-input" style="height:44px; font-weight:700; font-size:0.9rem;">
-                            <option value="">مركز الكلفة</option>
+                            <option value="">ظ…ط±ظƒط² ط§ظ„ظƒظ„ظپط©</option>
                         </select>
                     </div>
                     <div class="m-form-group" style="margin-bottom:0;">
-                        <input type="text" id="tx-beneficiary" class="m-input" placeholder="اسم المستفيد" style="height:44px;">
+                        <input type="text" id="tx-beneficiary" class="m-input" placeholder="ط§ط³ظ… ط§ظ„ظ…ط³طھظپظٹط¯" style="height:44px;">
                     </div>
                 </div>
 
                 <!-- 6. Statement / Notes -->
                 <div class="m-form-group" style="margin-bottom:14px;">
-                    <input type="text" id="tx-notes" class="m-input" placeholder="البيان / ملاحظات السند" style="height:44px;">
+                    <input type="text" id="tx-notes" class="m-input" placeholder="ط§ظ„ط¨ظٹط§ظ† / ظ…ظ„ط§ط­ط¸ط§طھ ط§ظ„ط³ظ†ط¯" style="height:44px;">
                 </div>
 
                 <!-- 7. Comprehensive Bottom Action Buttons Suite -->
                 <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
                     <!-- Primary Save Action -->
                     <button type="submit" class="m-btn-submit" id="btn-save-tx" style="background: linear-gradient(135deg, #10b981, #059669); height:46px; font-size:1rem; box-shadow:0 4px 15px rgba(16,185,129,0.35);">
-                        <i class="fa-solid fa-floppy-disk"></i> <span id="btn-save-tx-label">حفظ ومزامنة الحركة المالية</span>
+                        <i class="fa-solid fa-floppy-disk"></i> <span id="btn-save-tx-label">ط­ظپط¸ ظˆظ…ط²ط§ظ…ظ†ط© ط§ظ„ط­ط±ظƒط© ط§ظ„ظ…ط§ظ„ظٹط©</span>
                     </button>
-                    <!-- Bottom Operation Action Toolbar: جديد | تعديل | حذف | طباعة | بحث | مشاركة | تراجع -->
+                    <!-- Bottom Operation Action Toolbar: ط¬ط¯ظٹط¯ | طھط¹ط¯ظٹظ„ | ط­ط°ظپ | ط·ط¨ط§ط¹ط© | ط¨ط­ط« | ظ…ط´ط§ط±ظƒط© | طھط±ط§ط¬ط¹ -->
                     <div class="screen-unified-action-bar" style="margin-bottom:0;">
                         <button type="button" class="btn-action-pill btn-act-new" id="btn-new-tx-bottom" onclick="window.UniversalActionEngine.dispatch('new', 'financial-tx')">
-                            <i class="fa-solid fa-plus"></i> جديد
+                            <i class="fa-solid fa-plus"></i> ط¬ط¯ظٹط¯
                         </button>
                         <button type="button" class="btn-action-pill btn-act-edit" id="btn-edit-tx-bottom" onclick="window.UniversalActionEngine.dispatch('edit', 'financial-tx')">
-                            <i class="fa-solid fa-pen-to-square"></i> تعديل
+                            <i class="fa-solid fa-pen-to-square"></i> طھط¹ط¯ظٹظ„
                         </button>
                         <button type="button" class="btn-action-pill btn-act-delete" id="btn-del-tx-bottom" onclick="window.UniversalActionEngine.dispatch('delete', 'financial-tx')">
-                            <i class="fa-solid fa-trash-can"></i> حذف
+                            <i class="fa-solid fa-trash-can"></i> ط­ط°ظپ
                         </button>
                         <button type="button" class="btn-action-pill btn-act-print" id="btn-print-tx-bottom" onclick="window.UniversalActionEngine.dispatch('print', 'financial-tx')">
-                            <i class="fa-solid fa-print"></i> طباعة 🖨️
+                            <i class="fa-solid fa-print"></i> ط·ط¨ط§ط¹ط© ًں–¨ï¸ڈ
                         </button>
                         <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'financial-tx')">
-                            <i class="fa-solid fa-magnifying-glass"></i> بحث
+                            <i class="fa-solid fa-magnifying-glass"></i> ط¨ط­ط«
                         </button>
                         <button type="button" class="btn-action-pill btn-act-share" onclick="handleTxWhatsAppShareClick()">
-                            <i class="fa-brands fa-whatsapp"></i> مشاركة 💬
+                            <i class="fa-brands fa-whatsapp"></i> ظ…ط´ط§ط±ظƒط© ًں’¬
                         </button>
                         <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'financial-tx')">
-                            <i class="fa-solid fa-rotate-left"></i> تراجع
+                            <i class="fa-solid fa-rotate-left"></i> طھط±ط§ط¬ط¹
                         </button>
                     </div>
                 </div>
@@ -7395,32 +7490,32 @@ try {
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         SHEET: 🔍 شاشة البحث واختيار الحسابات الشاملة (من / إلى)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         SHEET: ًں”چ ط´ط§ط´ط© ط§ظ„ط¨ط­ط« ظˆط§ط®طھظٹط§ط± ط§ظ„ط­ط³ط§ط¨ط§طھ ط§ظ„ط´ط§ظ…ظ„ط© (ظ…ظ† / ط¥ظ„ظ‰)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-account-picker" onclick="closeBottomSheet('sheet-account-picker')"></div>
     <div class="mobile-bottom-sheet" id="sheet-account-picker" style="max-height:94vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--text-main);">
-                <i class="fa-solid fa-magnifying-glass"></i> <span id="picker-modal-heading">اختر الحساب</span>
+                <i class="fa-solid fa-magnifying-glass"></i> <span id="picker-modal-heading">ط§ط®طھط± ط§ظ„ط­ط³ط§ط¨</span>
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-account-picker')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-account-picker')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding-top:8px;">
             <!-- Sticky Search & Filter Category Pills -->
             <div class="picker-search-bar">
                 <div style="position:relative; margin-bottom:8px;">
                     <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:14px; top:14px; color:var(--text-muted); font-size:0.95rem;"></i>
-                    <input type="text" id="picker-search-input" class="m-input" style="padding-right:40px;" placeholder="ابحث بالاسم، الهاتف، أو نوع الحساب..." oninput="filterAccountsList()" autocomplete="off">
+                    <input type="text" id="picker-search-input" class="m-input" style="padding-right:40px;" placeholder="ط§ط¨ط­ط« ط¨ط§ظ„ط§ط³ظ…طŒ ط§ظ„ظ‡ط§طھظپطŒ ط£ظˆ ظ†ظˆط¹ ط§ظ„ط­ط³ط§ط¨..." oninput="filterAccountsList()" autocomplete="off">
                 </div>
                 <div class="picker-category-pills">
-                    <button type="button" class="cat-pill active" onclick="setPickerCategory('all', this)">الكل</button>
-                    <button type="button" class="cat-pill" onclick="setPickerCategory('bank', this)">🏦 البنوك</button>
-                    <button type="button" class="cat-pill" onclick="setPickerCategory('safe', this)">💵 الخزن</button>
-                    <button type="button" class="cat-pill" onclick="setPickerCategory('customer', this)">👤 العملاء</button>
-                    <button type="button" class="cat-pill" onclick="setPickerCategory('supplier', this)">🏢 الموردين</button>
-                    <button type="button" class="cat-pill" onclick="setPickerCategory('expense', this)">📉 المصروفات</button>
+                    <button type="button" class="cat-pill active" onclick="setPickerCategory('all', this)">ط§ظ„ظƒظ„</button>
+                    <button type="button" class="cat-pill" onclick="setPickerCategory('bank', this)">ًںڈ¦ ط§ظ„ط¨ظ†ظˆظƒ</button>
+                    <button type="button" class="cat-pill" onclick="setPickerCategory('safe', this)">ًں’µ ط§ظ„ط®ط²ظ†</button>
+                    <button type="button" class="cat-pill" onclick="setPickerCategory('customer', this)">ًں‘¤ ط§ظ„ط¹ظ…ظ„ط§ط،</button>
+                    <button type="button" class="cat-pill" onclick="setPickerCategory('supplier', this)">ًںڈ¢ ط§ظ„ظ…ظˆط±ط¯ظٹظ†</button>
+                    <button type="button" class="cat-pill" onclick="setPickerCategory('expense', this)">ًں“‰ ط§ظ„ظ…طµط±ظˆظپط§طھ</button>
                 </div>
             </div>
 
@@ -7431,115 +7526,115 @@ try {
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         SHEET: 🤖 المساعد الذكي لتفريغ إشعارات بنكك والواتساب (AI)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         SHEET: ًں¤– ط§ظ„ظ…ط³ط§ط¹ط¯ ط§ظ„ط°ظƒظٹ ظ„طھظپط±ظٹط؛ ط¥ط´ط¹ط§ط±ط§طھ ط¨ظ†ظƒظƒ ظˆط§ظ„ظˆط§طھط³ط§ط¨ (AI)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-ai-slip" onclick="closeBottomSheet('sheet-ai-slip')"></div>
     <div class="mobile-bottom-sheet" id="sheet-ai-slip">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--primary);">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> المساعد الذكي لتفريغ الإشعارات
+                <i class="fa-solid fa-wand-magic-sparkles"></i> ط§ظ„ظ…ط³ط§ط¹ط¯ ط§ظ„ط°ظƒظٹ ظ„طھظپط±ظٹط؛ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-ai-slip')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-ai-slip')">âœ•</button>
         </div>
         <div class="sheet-body">
             <p style="font-size:0.82rem; color:var(--text-muted); font-weight:700; margin-bottom:10px;">
-                انسخ رسالة إشعار البنك (بنكك، فوري، أوكاش) أو رسالة الواتساب والصقها هنا، وسيقوم الذكاء الاصطناعي باستخراج كافة البيانات وتعبئة السند آلياً:
+                ط§ظ†ط³ط® ط±ط³ط§ظ„ط© ط¥ط´ط¹ط§ط± ط§ظ„ط¨ظ†ظƒ (ط¨ظ†ظƒظƒطŒ ظپظˆط±ظٹطŒ ط£ظˆظƒط§ط´) ط£ظˆ ط±ط³ط§ظ„ط© ط§ظ„ظˆط§طھط³ط§ط¨ ظˆط§ظ„طµظ‚ظ‡ط§ ظ‡ظ†ط§طŒ ظˆط³ظٹظ‚ظˆظ… ط§ظ„ط°ظƒط§ط، ط§ظ„ط§طµط·ظ†ط§ط¹ظٹ ط¨ط§ط³طھط®ط±ط§ط¬ ظƒط§ظپط© ط§ظ„ط¨ظٹط§ظ†ط§طھ ظˆطھط¹ط¨ط¦ط© ط§ظ„ط³ظ†ط¯ ط¢ظ„ظٹط§ظ‹:
             </p>
             
             <div style="position:relative; margin-bottom:8px;">
-                <textarea id="ai-slip-text" class="ai-slip-textarea" placeholder="الصق نص الإشعار هنا..." oninput="parseSlipInputLive(this.value)"></textarea>
+                <textarea id="ai-slip-text" class="ai-slip-textarea" placeholder="ط§ظ„طµظ‚ ظ†طµ ط§ظ„ط¥ط´ط¹ط§ط± ظ‡ظ†ط§..." oninput="parseSlipInputLive(this.value)"></textarea>
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:12px;">
                 <button type="button" class="btn-switch-desktop" onclick="openWhatsAppForSlip()" style="padding:10px; font-size:0.82rem; font-weight:800; background:rgba(34,197,94,0.18); border:1.5px solid #22c55e; color:#22c55e;">
-                    <i class="fa-brands fa-whatsapp"></i> فتح واتساب
+                    <i class="fa-brands fa-whatsapp"></i> ظپطھط­ ظˆط§طھط³ط§ط¨
                 </button>
                 <button type="button" class="btn-switch-desktop" onclick="pasteFromClipboardToAI()" style="padding:10px; font-size:0.82rem; font-weight:800; background:rgba(56,189,248,0.18); border:1.5px solid #38bdf8; color:#38bdf8;">
-                    <i class="fa-solid fa-paste"></i> لصق وتفريغ
+                    <i class="fa-solid fa-paste"></i> ظ„طµظ‚ ظˆطھظپط±ظٹط؛
                 </button>
                 <button type="button" class="btn-switch-desktop" onclick="triggerSlipImagePicker()" style="padding:8px; font-size:0.8rem; font-weight:800; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:var(--text-main);">
-                    <i class="fa-solid fa-image"></i> صورة من واتساب
+                    <i class="fa-solid fa-image"></i> طµظˆط±ط© ظ…ظ† ظˆط§طھط³ط§ط¨
                 </button>
                 <button type="button" class="btn-switch-desktop" onclick="loadSampleBankakSlip()" style="padding:8px; font-size:0.8rem; font-weight:800; background:rgba(16,185,129,0.12); border:1px solid #10b981; color:#10b981;">
-                    <i class="fa-solid fa-flask"></i> إشعار تجريبي
+                    <i class="fa-solid fa-flask"></i> ط¥ط´ط¹ط§ط± طھط¬ط±ظٹط¨ظٹ
                 </button>
             </div>
 
             <!-- Live Extracted Preview Chips -->
             <div id="ai-parsed-preview" style="display:none;">
                 <div style="font-size:0.84rem; font-weight:900; color:var(--emerald); margin-bottom:6px;">
-                    ✨ البيانات المستخرجة بنجاح:
+                    âœ¨ ط§ظ„ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط³طھط®ط±ط¬ط© ط¨ظ†ط¬ط§ط­:
                 </div>
                 <div class="ai-preview-grid">
                     <div class="ai-chip">
-                        <span class="ai-chip-label">💰 المبلغ:</span>
+                        <span class="ai-chip-label">ًں’° ط§ظ„ظ…ط¨ظ„ط؛:</span>
                         <div class="ai-chip-val" id="ai-chip-amount" style="color:var(--emerald);">0 SDG</div>
                     </div>
                     <div class="ai-chip">
-                        <span class="ai-chip-label">🔖 رقم الإشعار / المرجع:</span>
+                        <span class="ai-chip-label">ًں”– ط±ظ‚ظ… ط§ظ„ط¥ط´ط¹ط§ط± / ط§ظ„ظ…ط±ط¬ط¹:</span>
                         <div class="ai-chip-val" id="ai-chip-ref">-</div>
                     </div>
                     <div class="ai-chip">
-                        <span class="ai-chip-label">🔴 الصارف (من حساب):</span>
+                        <span class="ai-chip-label">ًں”´ ط§ظ„طµط§ط±ظپ (ظ…ظ† ط­ط³ط§ط¨):</span>
                         <div class="ai-chip-val" id="ai-chip-from" style="color:#ef4444;">-</div>
                     </div>
                     <div class="ai-chip">
-                        <span class="ai-chip-label">🟢 المستلم (إلى حساب):</span>
+                        <span class="ai-chip-label">ًںں¢ ط§ظ„ظ…ط³طھظ„ظ… (ط¥ظ„ظ‰ ط­ط³ط§ط¨):</span>
                         <div class="ai-chip-val" id="ai-chip-to" style="color:#10b981;">-</div>
                     </div>
                     <div class="ai-chip" style="grid-column: span 2;">
-                        <span class="ai-chip-label">📅 التاريخ والوقت:</span>
+                        <span class="ai-chip-label">ًں“… ط§ظ„طھط§ط±ظٹط® ظˆط§ظ„ظˆظ‚طھ:</span>
                         <div class="ai-chip-val" id="ai-chip-date">-</div>
                     </div>
                 </div>
                 <button type="button" class="m-btn-submit" onclick="applyAIExtractedData()" style="background: linear-gradient(135deg, var(--primary), #0284c7); margin-top:8px;">
-                    <i class="fa-solid fa-arrow-down-short-wide"></i> تطبيق وتعبئة السند فوراً
+                    <i class="fa-solid fa-arrow-down-short-wide"></i> طھط·ط¨ظٹظ‚ ظˆطھط¹ط¨ط¦ط© ط§ظ„ط³ظ†ط¯ ظپظˆط±ط§ظ‹
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         SHEET: 💬 نافذة اختيار مستلم إشعار الواتساب (من / إلى / مخصص)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         SHEET: ًں’¬ ظ†ط§ظپط°ط© ط§ط®طھظٹط§ط± ظ…ط³طھظ„ظ… ط¥ط´ط¹ط§ط± ط§ظ„ظˆط§طھط³ط§ط¨ (ظ…ظ† / ط¥ظ„ظ‰ / ظ…ط®طµطµ)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-whatsapp-target" onclick="closeBottomSheet('sheet-whatsapp-target')"></div>
     <div class="mobile-bottom-sheet" id="sheet-whatsapp-target">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:#22c55e;">
-                <i class="fa-brands fa-whatsapp"></i> مشاركة السند عبر واتساب
+                <i class="fa-brands fa-whatsapp"></i> ظ…ط´ط§ط±ظƒط© ط§ظ„ط³ظ†ط¯ ط¹ط¨ط± ظˆط§طھط³ط§ط¨
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-whatsapp-target')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-whatsapp-target')">âœ•</button>
         </div>
         <div class="sheet-body">
             <p style="font-size:0.84rem; color:var(--text-muted); font-weight:700; margin-bottom:12px;">
-                حدد الطرف الذي ترغب في إرسال الإشعار له عبر واتساب:
+                ط­ط¯ط¯ ط§ظ„ط·ط±ظپ ط§ظ„ط°ظٹ طھط±ط؛ط¨ ظپظٹ ط¥ط±ط³ط§ظ„ ط§ظ„ط¥ط´ط¹ط§ط± ظ„ظ‡ ط¹ط¨ط± ظˆط§طھط³ط§ط¨:
             </p>
 
-            <!-- Option 1: Payer (من حساب) -->
+            <!-- Option 1: Payer (ظ…ظ† ط­ط³ط§ط¨) -->
             <div class="wa-target-option" onclick="sendVoucherWhatsApp('from')">
                 <div class="wa-opt-icon" style="background:rgba(239,68,68,0.15); color:#ef4444; border:1px solid #ef4444;">
                     <i class="fa-solid fa-arrow-up-from-bracket"></i>
                 </div>
                 <div style="flex:1; min-width:0;">
-                    <div style="font-size:0.75rem; color:#ef4444; font-weight:800;">إرسال إلى الحساب الصارف (من):</div>
+                    <div style="font-size:0.75rem; color:#ef4444; font-weight:800;">ط¥ط±ط³ط§ظ„ ط¥ظ„ظ‰ ط§ظ„ط­ط³ط§ط¨ ط§ظ„طµط§ط±ظپ (ظ…ظ†):</div>
                     <div style="font-size:1rem; font-weight:900; color:var(--text-main);" id="wa-from-name">--</div>
-                    <div style="font-size:0.75rem; color:var(--text-muted);" id="wa-from-phone">هاتف: غير مسجل</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);" id="wa-from-phone">ظ‡ط§طھظپ: ط؛ظٹط± ظ…ط³ط¬ظ„</div>
                 </div>
                 <i class="fa-brands fa-whatsapp" style="color:#22c55e; font-size:1.3rem;"></i>
             </div>
 
-            <!-- Option 2: Payee (إلى حساب) -->
+            <!-- Option 2: Payee (ط¥ظ„ظ‰ ط­ط³ط§ط¨) -->
             <div class="wa-target-option" onclick="sendVoucherWhatsApp('to')">
                 <div class="wa-opt-icon" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid #10b981;">
                     <i class="fa-solid fa-arrow-down-to-bracket"></i>
                 </div>
                 <div style="flex:1; min-width:0;">
-                    <div style="font-size:0.75rem; color:#10b981; font-weight:800;">إرسال إلى الحساب المستلم (إلى):</div>
+                    <div style="font-size:0.75rem; color:#10b981; font-weight:800;">ط¥ط±ط³ط§ظ„ ط¥ظ„ظ‰ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…ط³طھظ„ظ… (ط¥ظ„ظ‰):</div>
                     <div style="font-size:1rem; font-weight:900; color:var(--text-main);" id="wa-to-name">--</div>
-                    <div style="font-size:0.75rem; color:var(--text-muted);" id="wa-to-phone">هاتف: غير مسجل</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);" id="wa-to-phone">ظ‡ط§طھظپ: ط؛ظٹط± ظ…ط³ط¬ظ„</div>
                 </div>
                 <i class="fa-brands fa-whatsapp" style="color:#22c55e; font-size:1.3rem;"></i>
             </div>
@@ -7550,458 +7645,357 @@ try {
                     <i class="fa-solid fa-mobile-screen"></i>
                 </div>
                 <div style="flex:1; min-width:0;">
-                    <div style="font-size:0.75rem; color:#38bdf8; font-weight:800;">إرسال إلى رقم واتساب مخصص:</div>
-                    <div style="font-size:0.95rem; font-weight:900; color:var(--text-main);">اختيار أي جهة اتصال في واتساب</div>
+                    <div style="font-size:0.75rem; color:#38bdf8; font-weight:800;">ط¥ط±ط³ط§ظ„ ط¥ظ„ظ‰ ط±ظ‚ظ… ظˆط§طھط³ط§ط¨ ظ…ط®طµطµ:</div>
+                    <div style="font-size:0.95rem; font-weight:900; color:var(--text-main);">ط§ط®طھظٹط§ط± ط£ظٹ ط¬ظ‡ط© ط§طھطµط§ظ„ ظپظٹ ظˆط§طھط³ط§ط¨</div>
                 </div>
                 <i class="fa-brands fa-whatsapp" style="color:#22c55e; font-size:1.3rem;"></i>
             </div>
         </div>
     </div>
 
-    <!-- SHEET 3: 🧾 الموديول الأول: شاشة الفوترة السريعة والمبيعات الفورية (Mobile POS Invoicing) -->
+    <!-- SHEET 3: ًں§¾ ط§ظ„ظ…ظˆط¯ظٹظˆظ„ ط§ظ„ط£ظˆظ„: ط´ط§ط´ط© ط§ظ„ظپظˆطھط±ط© ط§ظ„ط³ط±ظٹط¹ط© ظˆط§ظ„ظ…ط¨ظٹط¹ط§طھ ط§ظ„ظپظˆط±ظٹط© (Mobile POS Invoicing) -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-sale" onclick="closeBottomSheet('sheet-sale')"></div>
     <div class="mobile-bottom-sheet" id="sheet-sale" style="max-height: 94vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass);">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span class="sheet-title" style="color:var(--primary); font-weight:900;">
-                    <i class="fa-solid fa-cash-register"></i> منظومة المبيعات والفوترة الشاملة
+                    <i class="fa-solid fa-cash-register"></i> ظ…ظ†ط¸ظˆظ…ط© ط§ظ„ظ…ط¨ظٹط¹ط§طھ ظˆط§ظ„ظپظˆطھط±ط© ط§ظ„ط´ط§ظ…ظ„ط©
                 </span>
-                <span id="pos-inv-number-pill" style="font-family:'Inter',monospace; font-size:0.75rem; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); color:var(--primary); padding:2px 6px; border-radius:6px; font-weight:800;">
+                <span id="pos-inv-number-pill-old" style="font-family:'Inter',monospace; font-size:0.75rem; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); color:var(--primary); padding:2px 6px; border-radius:6px; font-weight:800;">
                     #INV-8419
                 </span>
             </div>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-sale')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-sale')">âœ•</button>
         </div>
 
         <div class="sheet-body" style="padding-top:10px; padding-bottom:85px;">
-            <!-- Segmented Hub Navigation: [فاتورة مبيعات | تقسيم المبيعات | استلام المبيعات] -->
+            <!-- Segmented Hub Navigation: [ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ | طھظ‚ط³ظٹظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ | ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ] -->
             <div class="invoice-suite-tabs">
                 <button type="button" class="suite-tab-btn active" id="tab-sales-invoice" onclick="switchSalesSuiteTab('invoice')">
-                    <i class="fa-solid fa-cart-shopping"></i> فاتورة مبيعات
+                    <i class="fa-solid fa-cart-shopping"></i> ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ
                 </button>
                 <button type="button" class="suite-tab-btn" id="tab-sales-split" onclick="switchSalesSuiteTab('split')">
-                    <i class="fa-solid fa-scissors"></i> تقسيم المبيعات
+                    <i class="fa-solid fa-scissors"></i> طھظ‚ط³ظٹظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ
                 </button>
                 <button type="button" class="suite-tab-btn" id="tab-sales-delivery" onclick="switchSalesSuiteTab('delivery')">
-                    <i class="fa-solid fa-truck-ramp-box"></i> استلام المبيعات
+                    <i class="fa-solid fa-truck-ramp-box"></i> ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ
                 </button>
             </div>
 
-            <!-- ═════════════════════════════════════════════════════════════
-                 PANE 1: 🛒 فاتورة المبيعات المباشرة (Direct Sales Invoice)
-                 ═════════════════════════════════════════════════════════════ -->
+            <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+                 PANE 1: ًں›’ ظپط§طھظˆط±ط© ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط§ظ„ظ…ط¨ط§ط´ط±ط© (Direct Sales Invoice)
+                 â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
             <div class="suite-pane active" id="pane-sales-invoice">
-                <div class="pos-container">
-                    <!-- 1. Header & Party Selection -->
-                    <div class="invoice-type-toggle">
-                        <button type="button" class="inv-type-btn active" id="btn-invtype-cash" onclick="MobilePOS.setInvoiceType('cash')">
-                            <i class="fa-solid fa-money-bill-wave"></i> نقدي (Cash)
-                        </button>
-                        <button type="button" class="inv-type-btn type-credit" id="btn-invtype-credit" onclick="MobilePOS.setInvoiceType('credit')">
-                            <i class="fa-solid fa-clock-rotate-left"></i> آجل (Credit)
-                        </button>
-                        <button type="button" class="inv-type-btn type-bank" id="btn-invtype-bank" onclick="MobilePOS.setInvoiceType('bank')">
-                            <i class="fa-solid fa-building-columns"></i> بنكك (Transfer)
-                        </button>
-                    </div>
 
-                    <!-- Customer Picker Card with Dynamic Badges -->
-                    <div class="pos-party-card">
-                        <div class="party-header-row">
-                            <span style="font-size:0.8rem; font-weight:800; color:var(--text-muted);">
-                                <i class="fa-solid fa-user-tag text-sky-400"></i> بيانات العميل المستلم:
-                            </span>
-                            <select id="pos-customer-select" class="m-select" style="max-width:210px; height:36px; padding:4px 8px; font-size:0.82rem;" onchange="MobilePOS.onCustomerChange(this.value)">
-                                <option value="walkin">عميل نقدي عام (Walk-in)</option>
-                            </select>
-                        </div>
+<div class="pos-container" style="background:#0b0f19;">
+    <!-- 1. MAGICAL GLASS HEADER -->
+    <div class="magical-glass-header">
+      <div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span style="padding:2px 8px; border-radius:12px; font-size:0.6rem; font-weight:900; background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.3);">جديدة</span>
+          <span id="pos-inv-number-pill" style="padding:2px 8px; border-radius:12px; font-size:0.6rem; font-weight:900; background:rgba(168,85,247,0.2); color:#c084fc; border:1px solid rgba(168,85,247,0.3); font-family:monospace;">#INV-NEW</span>
+        </div>
+        <h1 style="font-size:1.2rem; font-weight:900; color:#fff; display:flex; align-items:center; gap:8px; margin:0; text-shadow:0 0 10px rgba(192,132,252,0.8);">
+          <i class="fa-solid fa-file-invoice-dollar" style="color:#c084fc;"></i> فاتورة مبيعات
+        </h1>
+      </div>
+    </div>
 
-                        <!-- Dynamic Customer Badges -->
-                        <div class="party-badges-row" id="pos-party-badges">
-                            <span class="party-badge badge-phone" id="pos-cust-phone">
-                                <i class="fa-solid fa-phone"></i> نقدي فوري
-                            </span>
-                            <span class="party-badge badge-balance" id="pos-cust-balance">
-                                <i class="fa-solid fa-wallet"></i> الرصيد: 0 SDG
-                            </span>
-                            <span class="party-badge badge-credit-limit" id="pos-cust-credit-limit">
-                                <i class="fa-solid fa-shield-halved"></i> السقف: لا يوجد
-                            </span>
-                        </div>
+    <!-- 2. INVOICE META DATA -->
+    <div style="padding:15px; background:rgba(15,23,42,0.5); border-bottom:1px solid rgba(255,255,255,0.05);">
+        <label class="radical-label">العميل <span style="color:#ef4444;">*</span></label>
+        <select id="pos-customer-select" class="laptop-input" onchange="MobilePOS.onCustomerChange(this.value)" style="margin-bottom:10px;">
+            <option value="walkin">عميل نقدي عام</option>
+        </select>
 
-                        <!-- Dynamic Warning Banner (Breached / Near Credit Limit) -->
-                        <div class="credit-limit-warning" id="pos-credit-warning" style="display:none;">
-                            <div style="display:flex; align-items:center; gap:6px;">
-                                <i class="fa-solid fa-triangle-exclamation" style="font-size:1.1rem; color:#ef4444;"></i>
-                                <p id="pos-credit-warning-msg">تنبيه ائتماني: العميل تجاوز سقف الدين المعتمد!</p>
-                            </div>
-                            <button type="button" onclick="MobilePOS.overrideCreditLimit()" style="background:#ef4444; color:#fff; border:none; border-radius:6px; font-size:0.72rem; padding:4px 8px; font-weight:900; cursor:pointer; white-space:nowrap;">
-                                تجاوز استثنائي ⚡
-                            </button>
-                        </div>
-                    </div>
+        <div class="party-badges-row" id="pos-party-badges" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;">
+            <span class="party-badge badge-phone" id="pos-cust-phone" style="background:#1e293b; color:#38bdf8; padding:4px 8px; border-radius:6px; font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-phone"></i> نقدي فوري</span>
+            <span class="party-badge badge-balance" id="pos-cust-balance" style="background:#1e293b; color:#34d399; padding:4px 8px; border-radius:6px; font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-wallet"></i> الرصيد: 0 SDG</span>
+            <span class="party-badge badge-credit-limit" id="pos-cust-credit-limit" style="background:#1e293b; color:#94a3b8; padding:4px 8px; border-radius:6px; font-size:0.7rem; font-weight:800;"><i class="fa-solid fa-shield-halved"></i> السقف: لا يوجد</span>
+        </div>
 
-                    <!-- 2. Detailed Laptop-Parity Item Entry Form (المخزن، النوع، الصنف، الوحدة، الكمية، السعر، الجملة، الضريبة، العمالة) -->
-                    <div class="invoice-item-entry-card">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <span style="font-size:0.8rem; font-weight:900; color:var(--primary);">
-                                <i class="fa-solid fa-cubes-stacked"></i> إضافة بند مبيعات مطابقة لمنظومة اللابتوب
-                            </span>
-                            <button type="button" onclick="MobilePOS.triggerBarcodeScanner()" style="background:rgba(168,85,247,0.15); border:1px solid #a855f7; color:#c084fc; border-radius:8px; padding:3px 8px; font-size:0.72rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px;">
-                                <i class="fa-solid fa-barcode"></i> مسح باركود
-                            </button>
-                        </div>
+        <div class="credit-limit-warning" id="pos-credit-warning" style="display:none; background:#7f1d1d; color:#fca5a5; padding:8px; border-radius:8px; margin-bottom:10px;">
+            <p id="pos-credit-warning-msg" style="margin:0; font-size:0.7rem; font-weight:800;">تنبيه ائتماني: تجاوز السقف</p>
+        </div>
 
-                        <!-- Grid 1: المخزن + النوع / التصنيف -->
-                        <div class="entry-grid-2">
-                            <div class="entry-field">
-                                <label><i class="fa-solid fa-warehouse text-sky-400"></i> المخزن المنصرف منه:</label>
-                                <select id="pos-item-warehouse" class="m-select" style="height:36px; font-size:0.78rem; font-weight:800;">
-                                    <option value="central">🏢 المستودع المركزي - السجانة</option>
-                                    <option value="kalakla">🏬 فرع الكلاكلة</option>
-                                    <option value="bahri">🏭 مستودع بحري</option>
-                                </select>
-                            </div>
-                            <div class="entry-field">
-                                <label><i class="fa-solid fa-tags text-purple-400"></i> النوع / التصنيف:</label>
-                                <select id="pos-item-category" class="m-select" style="height:36px; font-size:0.78rem; font-weight:800;" onchange="MobilePOS.onCategoryFilterChange(this.value)">
-                                    <option value="all">كل الأنواع والتصنيفات</option>
-                                    <option value="حديد تسليح">حديد تسليح</option>
-                                    <option value="قطاعات حديد">قطاعات حديد</option>
-                                    <option value="أسمنت">أسمنت ومواد لاصقة</option>
-                                    <option value="بويات">بويات وتشطيبات</option>
-                                    <option value="مواسير">مواسير وشبكات</option>
-                                    <option value="زنك ومعدات">زنك ومعدات تسقيف</option>
-                                    <option value="مواد بناء">مواد بناء متنوعة</option>
-                                </select>
-                            </div>
-                        </div>
+        <div class="invoice-type-toggle" style="display:flex; gap:6px; margin-bottom:10px;">
+            <button type="button" class="inv-type-btn active" id="btn-invtype-cash" onclick="MobilePOS.setInvoiceType('cash')" style="flex:1; background:#059669; color:#fff; border:none; padding:8px; border-radius:8px; font-weight:800;"><i class="fa-solid fa-money-bill-wave"></i> كاش</button>
+            <button type="button" class="inv-type-btn type-credit" id="btn-invtype-credit" onclick="MobilePOS.setInvoiceType('credit')" style="flex:1; background:#1e293b; color:#cbd5e1; border:none; padding:8px; border-radius:8px; font-weight:800;"><i class="fa-solid fa-clock-rotate-left"></i> آجل</button>
+            <button type="button" class="inv-type-btn type-bank" id="btn-invtype-bank" onclick="MobilePOS.setInvoiceType('bank')" style="flex:1; background:#1e293b; color:#cbd5e1; border:none; padding:8px; border-radius:8px; font-weight:800;"><i class="fa-solid fa-building-columns"></i> بنك</button>
+        </div>
+    </div>
 
-                        <!-- Grid 2: الصنف + الوحدة من الداتابيز -->
-                        <div class="entry-grid-2">
-                            <div class="entry-field" style="grid-column: span 1;">
-                                <label><i class="fa-solid fa-box-open text-amber-400"></i> الصنف:</label>
-                                <select id="pos-item-select" class="m-select" style="height:38px; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.onItemDropdownSelect(this)">
-                                    <option value="">-- اختر الصنف --</option>
-                                </select>
-                            </div>
-                            <div class="entry-field">
-                                <label><i class="fa-solid fa-scale-balanced text-emerald-400"></i> الوحدة (قاعدة البيانات):</label>
-                                <select id="pos-item-unit" class="m-select" style="height:38px; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.calculateItemRowTotal()">
-                                    <!-- Populated dynamically from erp_global_units_v1 -->
-                                </select>
-                            </div>
-                        </div>
+    <!-- 3. ADVANCED ITEM ENTRY (Matching DB schema exactly) -->
+    <div style="padding:15px; background:rgba(15,23,42,0.8); border-bottom:1px solid rgba(255,255,255,0.05); box-shadow:inset 0 4px 20px rgba(0,0,0,0.5);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <label style="font-size:0.9rem; font-weight:900; color:#fbbf24; display:flex; align-items:center; gap:6px;"><i class="fa-solid fa-layer-group"></i> إضافة صنف (من القاعدة)</label>
+            <button type="button" onclick="MobilePOS.triggerBarcodeScanner()" style="background:rgba(168,85,247,0.15); border:1px solid #a855f7; color:#c084fc; border-radius:8px; padding:4px 10px; font-size:0.75rem; font-weight:800; cursor:pointer;"><i class="fa-solid fa-barcode"></i> باركود</button>
+        </div>
 
-                        <!-- Grid 3: الكمية + السعر + الجملة -->
-                        <div class="entry-grid-3">
-                            <div class="entry-field">
-                                <label>الكمية:</label>
-                                <input type="number" id="pos-item-qty" class="m-input" value="1" min="0.01" step="any" style="height:36px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
-                            </div>
-                            <div class="entry-field">
-                                <label>السعر (SDG):</label>
-                                <input type="number" id="pos-item-price" class="m-input" placeholder="0" step="any" style="height:36px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
-                            </div>
-                            <div class="entry-field">
-                                <label>الجملة (المجموع):</label>
-                                <input type="text" id="pos-item-subtotal" class="m-input" readonly style="height:36px; text-align:center; font-weight:900; background:var(--surface-card); color:var(--primary); font-family:'Inter',sans-serif;" value="0">
-                            </div>
-                        </div>
-
-                        <!-- Grid 4: الضريبة + العمالة + زر الإضافة -->
-                        <div class="entry-grid-3" style="align-items:flex-end;">
-                            <div class="entry-field">
-                                <label>الضريبة (SDG):</label>
-                                <input type="number" id="pos-item-tax" class="m-input" value="0" min="0" step="any" style="height:36px; text-align:center; font-weight:800; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
-                            </div>
-                            <div class="entry-field">
-                                <label>العمالة (تعتيق):</label>
-                                <input type="number" id="pos-item-labor" class="m-input" value="0" min="0" step="any" style="height:36px; text-align:center; font-weight:800; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
-                            </div>
-                            <div class="entry-field">
-                                <button type="button" class="pos-add-item-btn" onclick="MobilePOS.addConfiguredItem()" style="height:36px; border-radius:10px; font-weight:900; font-size:0.84rem; background:linear-gradient(135deg, var(--primary), #0284c7); color:#fff; border:none; cursor:pointer; width:100%; box-shadow:0 2px 8px rgba(56,189,248,0.3);">
-                                    <i class="fa-solid fa-plus"></i> إضافة بند
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 1-Tap Fast Moving Item Chips -->
-                    <div class="pos-fast-chips" id="pos-quick-chips-container">
-                        <!-- Populated dynamically with top items from M_ITEMS -->
-                    </div>
-
-                    <!-- 3. Line Items Container -->
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-                        <span style="font-size:0.82rem; font-weight:900; color:var(--text-main);">
-                            <i class="fa-solid fa-list-check text-amber-400"></i> بنود الفاتورة (<span id="pos-cart-count">0</span>):
-                        </span>
-                        <button type="button" onclick="MobilePOS.clearCart()" style="background:none; border:none; color:var(--rose); font-size:0.75rem; font-weight:800; cursor:pointer;" id="pos-clear-cart-btn">
-                            تفريغ السلة 🗑️
-                        </button>
-                    </div>
-
-                    <div id="pos-cart-items-container">
-                        <!-- Dynamically populated line items -->
-                    </div>
-                </div>
-
-                <!-- 4. Pinned Settlement & Payment Summary Footer -->
-                <div class="pos-settlement-footer">
-                    <!-- Grand Total Banner -->
-                    <div class="pos-grand-total-banner">
-                        <div class="total-meta">
-                            <span class="total-title">إجمالي الفاتورة الصافي</span>
-                            <span class="total-count-badge" id="pos-banner-item-count">0 أصناف</span>
-                        </div>
-                        <div class="total-amount-display" id="pos-banner-netdue">0<small style="font-size:0.55em;">SDG</small></div>
-                    </div>
-
-                    <!-- Subtotal / Tax / Labor / Discount / Net Due Summary Grid -->
-                    <div class="settle-summary-grid" style="grid-template-columns: repeat(4, 1fr);">
-                        <div class="settle-sum-box">
-                            <span class="settle-sum-label">المجموع</span>
-                            <span class="settle-sum-val" id="pos-subtotal-val">0</span>
-                        </div>
-                        <div class="settle-sum-box">
-                            <span class="settle-sum-label">الضريبة</span>
-                            <span class="settle-sum-val" id="pos-tax-val">0</span>
-                        </div>
-                        <div class="settle-sum-box">
-                            <span class="settle-sum-label">العمالة</span>
-                            <span class="settle-sum-val" id="pos-labor-val">0</span>
-                        </div>
-                        <div class="settle-sum-box">
-                            <span class="settle-sum-label" style="color:var(--emerald);">الصافي المستحق</span>
-                            <span class="settle-sum-val net-due" id="pos-netdue-val">0 SDG</span>
-                        </div>
-                    </div>
-
-                    <!-- Split Payment Toggle & Inputs -->
-                    <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:10px; padding:6px 10px; margin-top:6px;">
-                        <label style="font-size:0.78rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px; cursor:pointer;">
-                            <input type="checkbox" id="pos-split-toggle" onchange="MobilePOS.toggleSplitPayment(this.checked)" style="width:16px; height:16px; accent-color:var(--primary);">
-                            <span>سداد مجزأ (نقدي + تحويل بنكك) 🔀</span>
-                        </label>
-                        <span id="pos-split-status-badge" style="font-size:0.72rem; font-weight:800; color:var(--text-muted);">غير مفعّل</span>
-                    </div>
-
-                    <div id="pos-split-inputs-box" class="split-payment-box" style="display:none; margin-top:6px;">
-                        <div class="split-row">
-                            <div>
-                                <label style="font-size:0.72rem; font-weight:800; color:var(--emerald); margin-bottom:2px; display:block;">المبلغ نقداً (SDG):</label>
-                                <input type="number" id="pos-split-cash" class="m-input" style="height:38px; font-weight:800; font-family:'Inter',sans-serif;" placeholder="0" oninput="MobilePOS.onSplitInput('cash', this.value)">
-                            </div>
-                            <div>
-                                <label style="font-size:0.72rem; font-weight:800; color:var(--primary); margin-bottom:2px; display:block;">المبلغ بنكك (SDG):</label>
-                                <input type="number" id="pos-split-bank" class="m-input" style="height:38px; font-weight:800; font-family:'Inter',sans-serif;" placeholder="0" oninput="MobilePOS.onSplitInput('bank', this.value)">
-                            </div>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.74rem; font-weight:800; margin-top:4px;" id="pos-split-balance-row">
-                            <span style="color:var(--text-muted);">فارق المطابقة:</span>
-                            <span id="pos-split-diff-val" style="color:var(--emerald);">0 SDG (مطابق تماماً ✅)</span>
-                        </div>
-                    </div>
-
-                    <!-- 🌟 UNIFIED 6-ACTION TOOLBAR (مشاركة | جديد | مسح باركود | تأكيد | حفظ | فلترة) -->
-                    <div class="invoice-action-toolbar-6">
-                        <button type="button" class="btn-action-pill btn-act-share" onclick="MobilePOS.submitSale(false, true)" title="مشاركة الفاتورة">
-                            <i class="fa-brands fa-whatsapp"></i>
-                            <span>مشاركة</span>
-                        </button>
-                        <button type="button" class="btn-action-pill btn-act-new" onclick="MobilePOS.newInvoice()" title="فاتورة جديدة">
-                            <i class="fa-solid fa-plus"></i>
-                            <span>جديد</span>
-                        </button>
-                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="MobilePOS.triggerBarcodeScanner()" title="مسح باركود بالكاميرا">
-                            <i class="fa-solid fa-barcode"></i>
-                            <span>مسح باركود</span>
-                        </button>
-                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="MobilePOS.confirmInvoice()" title="تأكيد واعتماد الفاتورة">
-                            <i class="fa-solid fa-circle-check"></i>
-                            <span>تأكيد</span>
-                        </button>
-                        <button type="button" class="btn-action-pill btn-act-save" onclick="MobilePOS.submitSale(false, false)" title="حفظ ومزامنة الفاتورة">
-                            <i class="fa-solid fa-floppy-disk"></i>
-                            <span>حفظ</span>
-                        </button>
-                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('sales')" title="فلترة وبحث الفواتير">
-                            <i class="fa-solid fa-filter"></i>
-                            <span>فلترة</span>
-                        </button>
-                    </div>
-                </div>
+        <!-- ROW 1 -->
+        <div class="radical-grid-12">
+            <div class="radical-col-8">
+                <label class="radical-label">الصنف <span style="color:#ef4444;">*</span></label>
+                <select id="pos-item-select" class="laptop-input" onchange="MobilePOS.onItemDropdownSelect(this)">
+                    <option value="">-- اختر الصنف --</option>
+                </select>
             </div>
+            <div class="radical-col-4">
+                <label class="radical-label">الوحدة</label>
+                <select id="pos-item-unit" class="laptop-input" onchange="MobilePOS.calculateItemRowTotal()">
+                    <option value="طن">طن</option>
+                </select>
+            </div>
+        </div>
 
-            <!-- ═════════════════════════════════════════════════════════════
-                 PANE 2: ✂️ تقسيم المبيعات (Sales Split Hub)
-                 ═════════════════════════════════════════════════════════════ -->
+        <div style="display:none;">
+            <select id="pos-item-category"><option value="all">all</option></select>
+        </div>
+
+        <!-- ROW 2 -->
+        <div class="radical-grid-12">
+            <div class="radical-col-5">
+                <label class="radical-label">المخزن <span style="color:#ef4444;">*</span></label>
+                <select id="pos-item-warehouse" class="laptop-input" style="font-size:0.75rem;">
+                    <option value="central">الرئيسي</option>
+                </select>
+            </div>
+            <div class="radical-col-3">
+                <label class="radical-label">الكمية</label>
+                <input type="number" id="pos-item-qty" value="1" min="0.01" step="any" class="laptop-input" style="text-align:center; color:#34d399;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+            </div>
+            <div class="radical-col-4">
+                <label class="radical-label">السعر</label>
+                <input type="number" id="pos-item-price" placeholder="0" class="laptop-input" style="text-align:center; color:#38bdf8;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+            </div>
+        </div>
+
+        <!-- ROW 3 -->
+        <div class="radical-grid-3">
+            <div>
+                <label class="radical-label" style="color:#f43f5e;">الخصم</label>
+                <input type="number" id="pos-item-discount" value="0" class="laptop-input" style="text-align:center; color:#f43f5e;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+            </div>
+            <div>
+                <label class="radical-label" style="color:#c084fc;">الإضافة</label>
+                <input type="number" id="pos-item-tax" value="0" class="laptop-input" style="text-align:center; color:#c084fc;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+            </div>
+            <div>
+                <label class="radical-label" style="color:#fbbf24;">العتالة</label>
+                <input type="number" id="pos-item-labor" value="0" class="laptop-input" style="text-align:center; color:#fbbf24;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+            </div>
+        </div>
+
+        <!-- ROW 4 -->
+        <div class="radical-grid-12" style="align-items:flex-end;">
+            <div class="radical-col-6">
+                <label class="radical-label" style="color:#34d399; font-size:0.8rem;">الجملة (المجموع)</label>
+                <input type="text" id="pos-item-subtotal" readonly value="0.00" class="laptop-input input-readonly">
+            </div>
+            <div class="radical-col-6">
+                <button type="button" class="btn-action-glow" onclick="MobilePOS.addConfiguredItem()">
+                    <i class="fa-solid fa-plus-circle"></i> إضافة للفاتورة
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 1-Tap Fast Moving Item Chips -->
+    <div class="pos-fast-chips" id="pos-quick-chips-container" style="display:flex; gap:8px; overflow-x:auto; padding:15px;">
+        <!-- Populated dynamically -->
+    </div>
+
+    <!-- 4. CART / INVOICE GRID -->
+    <div style="padding:15px; background:#0b0f19;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-size:0.85rem; font-weight:900; color:#cbd5e1;"><i class="fa-solid fa-list-check" style="color:#fbbf24;"></i> قائمة الأصناف بالفاتورة (<span id="pos-cart-count">0</span>)</span>
+            <button type="button" onclick="MobilePOS.clearCart()" id="pos-clear-cart-btn" style="background:none; border:none; color:#f43f5e; font-size:0.75rem; font-weight:900; cursor:pointer;"><i class="fa-solid fa-trash-can"></i> تفريغ</button>
+        </div>
+
+        <div id="pos-cart-items-container">
+            <!-- Dynamically populated by JS (renderCart) -->
+        </div>
+    </div>
+
+    <!-- FLOATING CHECKOUT BAR (Sticky Bottom) -->
+    <div style="background:#0f172a; border-top:1px solid rgba(255,255,255,0.1); padding:15px; border-radius:20px 20px 0 0; box-shadow:0 -10px 40px rgba(0,0,0,0.8); z-index:1000; padding-bottom:30px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; background:#020617; border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:12px; margin-bottom:12px; box-shadow:0 0 15px rgba(16,185,129,0.1);">
+            <span style="font-size:0.9rem; font-weight:900; color:#fff;">الصافي الكلي:</span>
+            <span id="pos-net-due-display" style="font-size:1.4rem; font-weight:900; color:#34d399; text-shadow:0 0 8px rgba(52,211,153,0.5);">0 SDG</span>
+        </div>
+        <button type="button" id="btn-save-invoice" class="btn-save-glow" onclick="MobilePOS.confirmInvoice()">
+            <i class="fa-solid fa-check-double"></i> حفظ واعتماد الفاتورة
+        </button>
+    </div>
+</div>
+
+</div>
+
             <div class="suite-pane" id="pane-sales-split">
                 <div class="invoice-item-entry-card">
                     <span style="font-size:0.85rem; font-weight:900; color:#f472b6; display:block; margin-bottom:8px;">
-                        <i class="fa-solid fa-scissors"></i> تجزئة وتقسيم شحنات المبيعات على المخازن والدفعات
+                        <i class="fa-solid fa-scissors"></i> طھط¬ط²ط¦ط© ظˆطھظ‚ط³ظٹظ… ط´ط­ظ†ط§طھ ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط¹ظ„ظ‰ ط§ظ„ظ…ط®ط§ط²ظ† ظˆط§ظ„ط¯ظپط¹ط§طھ
                     </span>
                     <div class="entry-field" style="margin-bottom:8px;">
-                        <label>اختر الفاتورة المراد تقسيمها:</label>
+                        <label>ط§ط®طھط± ط§ظ„ظپط§طھظˆط±ط© ط§ظ„ظ…ط±ط§ط¯ طھظ‚ط³ظٹظ…ظ‡ط§:</label>
                         <select id="split-sales-select" class="m-select" style="font-weight:800;" onchange="SalesSplitEngine.onInvoiceSelect(this.value)">
-                            <option value="current">الفاتورة الحالية المفتوحة (#INV)</option>
+                            <option value="current">ط§ظ„ظپط§طھظˆط±ط© ط§ظ„ط­ط§ظ„ظٹط© ط§ظ„ظ…ظپطھظˆط­ط© (#INV)</option>
                         </select>
                     </div>
 
                     <div style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:12px; padding:10px; margin-bottom:10px;">
                         <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-bottom:6px;">
-                            🚚 خطة توزيع الدفعات المخزنية:
+                            ًںڑڑ ط®ط·ط© طھظˆط²ظٹط¹ ط§ظ„ط¯ظپط¹ط§طھ ط§ظ„ظ…ط®ط²ظ†ظٹط©:
                         </div>
                         <div class="entry-grid-2">
                             <div class="entry-field">
-                                <label>المخزن (الدفعة الأولى):</label>
+                                <label>ط§ظ„ظ…ط®ط²ظ† (ط§ظ„ط¯ظپط¹ط© ط§ظ„ط£ظˆظ„ظ‰):</label>
                                 <select id="split-wh-1" class="m-select" style="height:36px; font-size:0.78rem;">
-                                    <option value="central">🏢 المستودع المركزي</option>
-                                    <option value="kalakla">🏬 فرع الكلاكلة</option>
-                                    <option value="bahri">🏭 مستودع بحري</option>
+                                    <option value="central">ًںڈ¢ ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ</option>
+                                    <option value="kalakla">ًںڈ¬ ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©</option>
+                                    <option value="bahri">ًںڈ­ ظ…ط³طھظˆط¯ط¹ ط¨ط­ط±ظٹ</option>
                                 </select>
                             </div>
                             <div class="entry-field">
-                                <label>الكمية المخصصة (1):</label>
+                                <label>ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط®طµطµط© (1):</label>
                                 <input type="number" id="split-qty-1" class="m-input" style="height:36px; text-align:center; font-weight:900;" placeholder="0">
                             </div>
                         </div>
                         <div class="entry-grid-2">
                             <div class="entry-field">
-                                <label>المخزن (الدفعة الثانية):</label>
+                                <label>ط§ظ„ظ…ط®ط²ظ† (ط§ظ„ط¯ظپط¹ط© ط§ظ„ط«ط§ظ†ظٹط©):</label>
                                 <select id="split-wh-2" class="m-select" style="height:36px; font-size:0.78rem;">
-                                    <option value="kalakla">🏬 فرع الكلاكلة</option>
-                                    <option value="bahri">🏭 مستودع بحري</option>
-                                    <option value="central">🏢 المستودع المركزي</option>
+                                    <option value="kalakla">ًںڈ¬ ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©</option>
+                                    <option value="bahri">ًںڈ­ ظ…ط³طھظˆط¯ط¹ ط¨ط­ط±ظٹ</option>
+                                    <option value="central">ًںڈ¢ ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ</option>
                                 </select>
                             </div>
                             <div class="entry-field">
-                                <label>الكمية المخصصة (2):</label>
+                                <label>ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط®طµطµط© (2):</label>
                                 <input type="number" id="split-qty-2" class="m-input" style="height:36px; text-align:center; font-weight:900;" placeholder="0">
                             </div>
                         </div>
                         <div class="entry-field" style="margin-top:6px;">
-                            <label>اسم السائق / الناقل ورقم اللوحة:</label>
-                            <input type="text" id="split-carrier-note" class="m-input" placeholder="مثال: أحمد عبد الله - دفار خ 1248" style="height:36px;">
+                            <label>ط§ط³ظ… ط§ظ„ط³ط§ط¦ظ‚ / ط§ظ„ظ†ط§ظ‚ظ„ ظˆط±ظ‚ظ… ط§ظ„ظ„ظˆط­ط©:</label>
+                            <input type="text" id="split-carrier-note" class="m-input" placeholder="ظ…ط«ط§ظ„: ط£ط­ظ…ط¯ ط¹ط¨ط¯ ط§ظ„ظ„ظ‡ - ط¯ظپط§ط± ط® 1248" style="height:36px;">
                         </div>
                     </div>
 
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:rgba(236,72,153,0.1); border:1px solid rgba(236,72,153,0.3); border-radius:10px; font-size:0.8rem; font-weight:800; color:#f472b6;">
-                        <span>حالة التقسيم:</span>
-                        <span id="sales-split-status-tag">جاهز للتقسيم الفوري ⚡</span>
+                        <span>ط­ط§ظ„ط© ط§ظ„طھظ‚ط³ظٹظ…:</span>
+                        <span id="sales-split-status-tag">ط¬ط§ظ‡ط² ظ„ظ„طھظ‚ط³ظٹظ… ط§ظ„ظپظˆط±ظٹ âڑ،</span>
                     </div>
 
                     <!-- Toolbar for Split -->
                     <div class="invoice-action-toolbar-6" style="margin-top:12px;">
-                        <button type="button" class="btn-action-pill btn-act-share" onclick="SalesSplitEngine.shareSplitWhatsApp()" title="مشاركة كشف التقسيم">
+                        <button type="button" class="btn-action-pill btn-act-share" onclick="SalesSplitEngine.shareSplitWhatsApp()" title="ظ…ط´ط§ط±ظƒط© ظƒط´ظپ ط§ظ„طھظ‚ط³ظٹظ…">
                             <i class="fa-brands fa-whatsapp"></i>
-                            <span>مشاركة</span>
+                            <span>ظ…ط´ط§ط±ظƒط©</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-new" onclick="SalesSplitEngine.newSplit()" title="تقسيم جديد">
+                        <button type="button" class="btn-action-pill btn-act-new" onclick="SalesSplitEngine.newSplit()" title="طھظ‚ط³ظٹظ… ط¬ط¯ظٹط¯">
                             <i class="fa-solid fa-plus"></i>
-                            <span>جديد</span>
+                            <span>ط¬ط¯ظٹط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="MobilePOS.triggerBarcodeScanner()" title="مسح باركود الشحنة">
+                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="MobilePOS.triggerBarcodeScanner()" title="ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯ ط§ظ„ط´ط­ظ†ط©">
                             <i class="fa-solid fa-barcode"></i>
-                            <span>مسح باركود</span>
+                            <span>ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="SalesSplitEngine.confirmSplit()" title="تأكيد التقسيم">
+                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="SalesSplitEngine.confirmSplit()" title="طھط£ظƒظٹط¯ ط§ظ„طھظ‚ط³ظٹظ…">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>تأكيد</span>
+                            <span>طھط£ظƒظٹط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-save" onclick="SalesSplitEngine.saveSplit()" title="حفظ خطة التقسيم">
+                        <button type="button" class="btn-action-pill btn-act-save" onclick="SalesSplitEngine.saveSplit()" title="ط­ظپط¸ ط®ط·ط© ط§ظ„طھظ‚ط³ظٹظ…">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span>حفظ</span>
+                            <span>ط­ظپط¸</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('split')" title="فلترة التقسيمات">
+                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('split')" title="ظپظ„طھط±ط© ط§ظ„طھظ‚ط³ظٹظ…ط§طھ">
                             <i class="fa-solid fa-filter"></i>
-                            <span>فلترة</span>
+                            <span>ظپظ„طھط±ط©</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- ═════════════════════════════════════════════════════════════
-                 PANE 3: 🚚 استلام المبيعات (Sales Delivery & Handover)
-                 ═════════════════════════════════════════════════════════════ -->
+            <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+                 PANE 3: ًںڑڑ ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ (Sales Delivery & Handover)
+                 â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
             <div class="suite-pane" id="pane-sales-delivery">
                 <div class="invoice-item-entry-card">
                     <span style="font-size:0.85rem; font-weight:900; color:#34d399; display:block; margin-bottom:8px;">
-                        <i class="fa-solid fa-truck-ramp-box"></i> إذن تسليم واستلام مبيعات للعميل (Delivery Note)
+                        <i class="fa-solid fa-truck-ramp-box"></i> ط¥ط°ظ† طھط³ظ„ظٹظ… ظˆط§ط³طھظ„ط§ظ… ظ…ط¨ظٹط¹ط§طھ ظ„ظ„ط¹ظ…ظٹظ„ (Delivery Note)
                     </span>
                     <div class="entry-field" style="margin-bottom:8px;">
-                        <label>اختر الفاتورة للتسليم:</label>
+                        <label>ط§ط®طھط± ط§ظ„ظپط§طھظˆط±ط© ظ„ظ„طھط³ظ„ظٹظ…:</label>
                         <select id="delivery-sales-select" class="m-select" style="font-weight:800;" onchange="SalesDeliveryEngine.onInvoiceSelect(this.value)">
-                            <option value="current">الفاتورة الحالية المفتوحة (#INV)</option>
+                            <option value="current">ط§ظ„ظپط§طھظˆط±ط© ط§ظ„ط­ط§ظ„ظٹط© ط§ظ„ظ…ظپطھظˆط­ط© (#INV)</option>
                         </select>
                     </div>
 
                     <div class="entry-grid-2">
                         <div class="entry-field">
-                            <label>اسم المستلم / المفوض:</label>
-                            <input type="text" id="delivery-receiver-name" class="m-input" placeholder="اسم المستلم الفعلي" style="height:36px;">
+                            <label>ط§ط³ظ… ط§ظ„ظ…ط³طھظ„ظ… / ط§ظ„ظ…ظپظˆط¶:</label>
+                            <input type="text" id="delivery-receiver-name" class="m-input" placeholder="ط§ط³ظ… ط§ظ„ظ…ط³طھظ„ظ… ط§ظ„ظپط¹ظ„ظٹ" style="height:36px;">
                         </div>
                         <div class="entry-field">
-                            <label>هاتف المستلم:</label>
+                            <label>ظ‡ط§طھظپ ط§ظ„ظ…ط³طھظ„ظ…:</label>
                             <input type="tel" id="delivery-receiver-phone" class="m-input" placeholder="09xxxxxxx" style="height:36px;" inputmode="tel">
                         </div>
                     </div>
 
                     <div class="entry-grid-2" style="margin-top:6px;">
                         <div class="entry-field">
-                            <label>المخزن المسلِّم:</label>
+                            <label>ط§ظ„ظ…ط®ط²ظ† ط§ظ„ظ…ط³ظ„ظ‘ظگظ…:</label>
                             <select id="delivery-warehouse" class="m-select" style="height:36px; font-size:0.78rem;">
-                                <option value="central">🏢 المستودع المركزي - السجانة</option>
-                                <option value="kalakla">🏬 فرع الكلاكلة</option>
-                                <option value="bahri">🏭 مستودع بحري</option>
+                                <option value="central">ًںڈ¢ ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ - ط§ظ„ط³ط¬ط§ظ†ط©</option>
+                                <option value="kalakla">ًںڈ¬ ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©</option>
+                                <option value="bahri">ًںڈ­ ظ…ط³طھظˆط¯ط¹ ط¨ط­ط±ظٹ</option>
                             </select>
                         </div>
                         <div class="entry-field">
-                            <label>حالة الاستلام والتسليم:</label>
+                            <label>ط­ط§ظ„ط© ط§ظ„ط§ط³طھظ„ط§ظ… ظˆط§ظ„طھط³ظ„ظٹظ…:</label>
                             <select id="delivery-status" class="m-select" style="height:36px; font-size:0.78rem; font-weight:800; color:var(--emerald);">
-                                <option value="full">✅ تم التسليم والاستلام بالكامل</option>
-                                <option value="partial">⏳ تسليم جزئي (باقي بالمستودع)</option>
-                                <option value="transit">🚚 في الطريق مع السائق</option>
+                                <option value="full">âœ… طھظ… ط§ظ„طھط³ظ„ظٹظ… ظˆط§ظ„ط§ط³طھظ„ط§ظ… ط¨ط§ظ„ظƒط§ظ…ظ„</option>
+                                <option value="partial">âڈ³ طھط³ظ„ظٹظ… ط¬ط²ط¦ظٹ (ط¨ط§ظ‚ظٹ ط¨ط§ظ„ظ…ط³طھظˆط¯ط¹)</option>
+                                <option value="transit">ًںڑڑ ظپظٹ ط§ظ„ط·ط±ظٹظ‚ ظ…ط¹ ط§ظ„ط³ط§ط¦ظ‚</option>
                             </select>
                         </div>
                     </div>
 
                     <div style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:12px; padding:10px; margin-top:8px;" id="delivery-checklist-box">
                         <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-bottom:6px;">
-                            📋 البنود الجاري تسليمها للعميل:
+                            ًں“‹ ط§ظ„ط¨ظ†ظˆط¯ ط§ظ„ط¬ط§ط±ظٹ طھط³ظ„ظٹظ…ظ‡ط§ ظ„ظ„ط¹ظ…ظٹظ„:
                         </div>
                         <div id="delivery-items-checklist">
-                            <div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:8px;">سيتم إدراج أصناف الفاتورة آلياً هنا</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:8px;">ط³ظٹطھظ… ط¥ط¯ط±ط§ط¬ ط£طµظ†ط§ظپ ط§ظ„ظپط§طھظˆط±ط© ط¢ظ„ظٹط§ظ‹ ظ‡ظ†ط§</div>
                         </div>
                     </div>
 
                     <!-- Toolbar for Delivery -->
                     <div class="invoice-action-toolbar-6" style="margin-top:12px;">
-                        <button type="button" class="btn-action-pill btn-act-share" onclick="SalesDeliveryEngine.shareReceiptWhatsApp()" title="مشاركة إذن التسليم">
+                        <button type="button" class="btn-action-pill btn-act-share" onclick="SalesDeliveryEngine.shareReceiptWhatsApp()" title="ظ…ط´ط§ط±ظƒط© ط¥ط°ظ† ط§ظ„طھط³ظ„ظٹظ…">
                             <i class="fa-brands fa-whatsapp"></i>
-                            <span>مشاركة</span>
+                            <span>ظ…ط´ط§ط±ظƒط©</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-new" onclick="SalesDeliveryEngine.newDelivery()" title="إذن تسليم جديد">
+                        <button type="button" class="btn-action-pill btn-act-new" onclick="SalesDeliveryEngine.newDelivery()" title="ط¥ط°ظ† طھط³ظ„ظٹظ… ط¬ط¯ظٹط¯">
                             <i class="fa-solid fa-plus"></i>
-                            <span>جديد</span>
+                            <span>ط¬ط¯ظٹط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="MobilePOS.triggerBarcodeScanner()" title="مسح باركود الإذن">
+                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="MobilePOS.triggerBarcodeScanner()" title="ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯ ط§ظ„ط¥ط°ظ†">
                             <i class="fa-solid fa-barcode"></i>
-                            <span>مسح باركود</span>
+                            <span>ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="SalesDeliveryEngine.confirmDelivery()" title="تأكيد التسليم">
+                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="SalesDeliveryEngine.confirmDelivery()" title="طھط£ظƒظٹط¯ ط§ظ„طھط³ظ„ظٹظ…">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>تأكيد</span>
+                            <span>طھط£ظƒظٹط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-save" onclick="SalesDeliveryEngine.saveDelivery()" title="حفظ إذن التسليم">
+                        <button type="button" class="btn-action-pill btn-act-save" onclick="SalesDeliveryEngine.saveDelivery()" title="ط­ظپط¸ ط¥ط°ظ† ط§ظ„طھط³ظ„ظٹظ…">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span>حفظ</span>
+                            <span>ط­ظپط¸</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('delivery')" title="فلترة أذونات التسليم">
+                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('delivery')" title="ظپظ„طھط±ط© ط£ط°ظˆظ†ط§طھ ط§ظ„طھط³ظ„ظٹظ…">
                             <i class="fa-solid fa-filter"></i>
-                            <span>فلترة</span>
+                            <span>ظپظ„طھط±ط©</span>
                         </button>
                     </div>
                 </div>
@@ -8009,15 +8003,15 @@ try {
         </div>
     </div>
 
-    <!-- SHEET: 🖨️ معاينة وطباعة الإيصال الحراري (Thermal Receipt Bluetooth / ESC-POS) -->
+    <!-- SHEET: ًں–¨ï¸ڈ ظ…ط¹ط§ظٹظ†ط© ظˆط·ط¨ط§ط¹ط© ط§ظ„ط¥ظٹطµط§ظ„ ط§ظ„ط­ط±ط§ط±ظٹ (Thermal Receipt Bluetooth / ESC-POS) -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-receipt-print" onclick="closeBottomSheet('sheet-receipt-print')"></div>
     <div class="mobile-bottom-sheet" id="sheet-receipt-print" style="max-height:92vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass);">
             <span class="sheet-title" style="color:var(--primary); font-weight:900;">
-                <i class="fa-solid fa-print"></i> معاينة إيصال الطباعة الحرارية (80mm)
+                <i class="fa-solid fa-print"></i> ظ…ط¹ط§ظٹظ†ط© ط¥ظٹطµط§ظ„ ط§ظ„ط·ط¨ط§ط¹ط© ط§ظ„ط­ط±ط§ط±ظٹط© (80mm)
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-receipt-print')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-receipt-print')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding:14px;">
             <!-- Thermal Paper Container -->
@@ -8026,68 +8020,68 @@ try {
             </div>
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
                 <button type="button" class="m-btn-submit" style="background:#0f172a; color:#fff;" onclick="MobilePOS.printThermalDirect()">
-                    <i class="fa-solid fa-print"></i> إرسال للطابعة 🖨️
+                    <i class="fa-solid fa-print"></i> ط¥ط±ط³ط§ظ„ ظ„ظ„ط·ط§ط¨ط¹ط© ًں–¨ï¸ڈ
                 </button>
                 <button type="button" class="m-btn-submit" style="background:#22c55e; color:#fff;" onclick="MobilePOS.shareThermalWhatsApp()">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة PDF 💬
+                    <i class="fa-brands fa-whatsapp"></i> ظ…ط´ط§ط±ظƒط© PDF ًں’¬
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- SHEET: 📷 ماسح الباركود السريع (Barcode Scanner Viewfinder) -->
+    <!-- SHEET: ًں“· ظ…ط§ط³ط­ ط§ظ„ط¨ط§ط±ظƒظˆط¯ ط§ظ„ط³ط±ظٹط¹ (Barcode Scanner Viewfinder) -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-barcode-scanner" onclick="closeBottomSheet('sheet-barcode-scanner')"></div>
     <div class="mobile-bottom-sheet" id="sheet-barcode-scanner" style="max-height:85vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--purple); font-weight:900;">
-                <i class="fa-solid fa-barcode"></i> مسح باركود الأصناف بالكاميرا
+                <i class="fa-solid fa-barcode"></i> ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯ ط§ظ„ط£طµظ†ط§ظپ ط¨ط§ظ„ظƒط§ظ…ظٹط±ط§
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-barcode-scanner')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-barcode-scanner')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding:14px; text-align:center;">
             <!-- Live Camera Preview -->
             <div id="barcode-camera-box" style="position:relative; width:100%; height:220px; background:#000; border-radius:14px; overflow:hidden; display:none; border:2px solid var(--purple); margin-bottom:12px;">
                 <video id="barcode-camera-video" autoplay playsinline muted style="width:100%; height:100%; object-fit:cover;"></video>
                 <div style="position:absolute; top:50%; left:10%; width:80%; height:2px; background:#ef4444; box-shadow:0 0 12px #ef4444; animation:posPulseBorder 1.5s infinite; transform:translateY(-50%);"></div>
-                <div style="position:absolute; bottom:8px; left:0; right:0; font-size:0.82rem; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.8); font-weight:800;">وجّه الكاميرا نحو الباركود...</div>
+                <div style="position:absolute; bottom:8px; left:0; right:0; font-size:0.82rem; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.8); font-weight:800;">ظˆط¬ظ‘ظ‡ ط§ظ„ظƒط§ظ…ظٹط±ط§ ظ†ط­ظˆ ط§ظ„ط¨ط§ط±ظƒظˆط¯...</div>
             </div>
             <!-- Fallback: Manual Input -->
             <div id="barcode-fallback-box" style="display:block;">
                 <div style="background:var(--surface-sub); border:1.5px dashed var(--border-glass); border-radius:14px; padding:20px 14px; margin-bottom:12px;">
                     <i class="fa-solid fa-barcode" style="font-size:2.5rem; color:var(--purple); opacity:0.6; margin-bottom:8px; display:block;"></i>
-                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">أدخل رقم الباركود يدوياً أو امسح بالكاميرا</p>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">ط£ط¯ط®ظ„ ط±ظ‚ظ… ط§ظ„ط¨ط§ط±ظƒظˆط¯ ظٹط¯ظˆظٹط§ظ‹ ط£ظˆ ط§ظ…ط³ط­ ط¨ط§ظ„ظƒط§ظ…ظٹط±ط§</p>
                 </div>
             </div>
             <!-- Status Badge -->
             <div id="barcode-scan-status" style="font-size:0.82rem; color:var(--text-muted); margin-bottom:10px; font-weight:700;">
-                <i class="fa-solid fa-info-circle"></i> في انتظار المسح...
+                <i class="fa-solid fa-info-circle"></i> ظپظٹ ط§ظ†طھط¸ط§ط± ط§ظ„ظ…ط³ط­...
             </div>
             <div class="m-form-group" style="margin-bottom:10px;">
-                <input type="text" id="manual-barcode-input" class="m-input" placeholder="أدخل رقم الباركود يدوياً (مثال: 628000001)" style="text-align:center; font-family:'Inter',monospace; font-weight:800;" inputmode="numeric">
+                <input type="text" id="manual-barcode-input" class="m-input" placeholder="ط£ط¯ط®ظ„ ط±ظ‚ظ… ط§ظ„ط¨ط§ط±ظƒظˆط¯ ظٹط¯ظˆظٹط§ظ‹ (ظ…ط«ط§ظ„: 628000001)" style="text-align:center; font-family:'Inter',monospace; font-weight:800;" inputmode="numeric">
             </div>
             <button type="button" class="m-btn-submit" style="background:var(--purple); color:#fff;" onclick="BarcodeScannerEngine.submitManual()">
-                <i class="fa-solid fa-magnifying-glass"></i> مطابقة وإضافة الصنف فوراً ⚡
+                <i class="fa-solid fa-magnifying-glass"></i> ظ…ط·ط§ط¨ظ‚ط© ظˆط¥ط¶ط§ظپط© ط§ظ„طµظ†ظپ ظپظˆط±ط§ظ‹ âڑ،
             </button>
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         SHEET: 📋 الجرد الميداني السريع (Quick Field Audit)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         SHEET: ًں“‹ ط§ظ„ط¬ط±ط¯ ط§ظ„ظ…ظٹط¯ط§ظ†ظٹ ط§ظ„ط³ط±ظٹط¹ (Quick Field Audit)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-item-audit" onclick="closeBottomSheet('sheet-item-audit')"></div>
     <div class="mobile-bottom-sheet" id="sheet-item-audit" style="max-height:92vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass);">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span class="sheet-title" style="color:var(--primary); font-weight:900;">
-                    <i class="fa-solid fa-clipboard-check"></i> الجرد الميداني السريع للصنف
+                    <i class="fa-solid fa-clipboard-check"></i> ط§ظ„ط¬ط±ط¯ ط§ظ„ظ…ظٹط¯ط§ظ†ظٹ ط§ظ„ط³ط±ظٹط¹ ظ„ظ„طµظ†ظپ
                 </span>
                 <span id="audit-seq-badge" style="font-family:'Inter',monospace; font-size:0.74rem; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); color:var(--emerald); padding:2px 8px; border-radius:6px; font-weight:900;">
                     #AUD-OFF-1
                 </span>
             </div>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-item-audit')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-item-audit')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding:14px;">
             <!-- Item Info Card -->
@@ -8097,197 +8091,197 @@ try {
                     <span id="audit-item-sku" class="inv-sku-badge">SKU: --</span>
                 </div>
                 <div style="display:flex; gap:6px; font-size:0.75rem; color:var(--text-muted);">
-                    <span id="audit-item-unit">الوحدة: حبة</span>
-                    <span>•</span>
-                    <span id="audit-branch-name">المستودع: فرع السجانة</span>
+                    <span id="audit-item-unit">ط§ظ„ظˆط­ط¯ط©: ط­ط¨ط©</span>
+                    <span>â€¢</span>
+                    <span id="audit-branch-name">ط§ظ„ظ…ط³طھظˆط¯ط¹: ظپط±ط¹ ط§ظ„ط³ط¬ط§ظ†ط©</span>
                 </div>
             </div>
 
             <!-- Audit 3-Column Comparison Grid -->
             <div class="audit-stat-grid">
                 <div class="audit-stat-box">
-                    <span class="audit-stat-label">الرصيد الدفتري</span>
+                    <span class="audit-stat-label">ط§ظ„ط±طµظٹط¯ ط§ظ„ط¯ظپطھط±ظٹ</span>
                     <span class="audit-stat-value" id="audit-system-stock" style="color:var(--primary);">0</span>
                 </div>
                 <div class="audit-stat-box" style="border-color:var(--primary); background:rgba(56,189,248,0.06);">
-                    <span class="audit-stat-label" style="color:var(--primary);">العدد الفعلي الميداني</span>
+                    <span class="audit-stat-label" style="color:var(--primary);">ط§ظ„ط¹ط¯ط¯ ط§ظ„ظپط¹ظ„ظٹ ط§ظ„ظ…ظٹط¯ط§ظ†ظٹ</span>
                     <input type="number" id="audit-physical-input" class="m-input" style="height:36px; text-align:center; font-size:1.15rem; font-weight:900; font-family:'Inter',sans-serif; padding:2px;" placeholder="0" inputmode="decimal" oninput="InventoryEngine.calculateAuditVariance(this.value)">
                 </div>
                 <div class="audit-stat-box">
-                    <span class="audit-stat-label">فارق الجرد</span>
+                    <span class="audit-stat-label">ظپط§ط±ظ‚ ط§ظ„ط¬ط±ط¯</span>
                     <span class="audit-stat-value" id="audit-variance-value" style="color:var(--text-muted);">0</span>
                 </div>
             </div>
 
             <!-- Real-Time Variance Alert Badge -->
             <div id="audit-variance-badge" class="audit-variance-badge var-match">
-                <span id="audit-variance-text"><i class="fa-solid fa-circle-check"></i> الرصيد الفعلي مطابق تماماً للرصيد الدفتري</span>
-                <span id="audit-variance-units" style="font-family:'Inter',sans-serif;">0 وحدة</span>
+                <span id="audit-variance-text"><i class="fa-solid fa-circle-check"></i> ط§ظ„ط±طµظٹط¯ ط§ظ„ظپط¹ظ„ظٹ ظ…ط·ط§ط¨ظ‚ طھظ…ط§ظ…ط§ظ‹ ظ„ظ„ط±طµظٹط¯ ط§ظ„ط¯ظپطھط±ظٹ</span>
+                <span id="audit-variance-units" style="font-family:'Inter',sans-serif;">0 ظˆط­ط¯ط©</span>
             </div>
 
             <!-- Reason Selector Pills -->
             <div class="m-form-group" style="margin-bottom:10px;">
-                <label class="m-label" style="font-size:0.76rem; margin-bottom:4px; font-weight:800; color:var(--text-muted);">سبب الفارق / حالة الجرد:</label>
+                <label class="m-label" style="font-size:0.76rem; margin-bottom:4px; font-weight:800; color:var(--text-muted);">ط³ط¨ط¨ ط§ظ„ظپط§ط±ظ‚ / ط­ط§ظ„ط© ط§ظ„ط¬ط±ط¯:</label>
                 <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                    <button type="button" class="v-cat-pill active" onclick="InventoryEngine.setAuditReason('match', this)">✅ مطابق وسليم</button>
-                    <button type="button" class="v-cat-pill" onclick="InventoryEngine.setAuditReason('damage', this)">⚠️ تالف / كسر</button>
-                    <button type="button" class="v-cat-pill" onclick="InventoryEngine.setAuditReason('entry_error', this)">📝 خطأ تقييد فواتير</button>
-                    <button type="button" class="v-cat-pill" onclick="InventoryEngine.setAuditReason('surplus', this)">📦 بضاعة غير مسجلة</button>
+                    <button type="button" class="v-cat-pill active" onclick="InventoryEngine.setAuditReason('match', this)">âœ… ظ…ط·ط§ط¨ظ‚ ظˆط³ظ„ظٹظ…</button>
+                    <button type="button" class="v-cat-pill" onclick="InventoryEngine.setAuditReason('damage', this)">âڑ ï¸ڈ طھط§ظ„ظپ / ظƒط³ط±</button>
+                    <button type="button" class="v-cat-pill" onclick="InventoryEngine.setAuditReason('entry_error', this)">ًں“‌ ط®ط·ط£ طھظ‚ظٹظٹط¯ ظپظˆط§طھظٹط±</button>
+                    <button type="button" class="v-cat-pill" onclick="InventoryEngine.setAuditReason('surplus', this)">ًں“¦ ط¨ط¶ط§ط¹ط© ط؛ظٹط± ظ…ط³ط¬ظ„ط©</button>
                 </div>
                 <input type="hidden" id="audit-reason-val" value="match">
             </div>
 
             <!-- Notes & Auditor Stamp -->
             <div class="m-form-group" style="margin-bottom:14px;">
-                <input type="text" id="audit-notes" class="m-input" placeholder="ملاحظات أمين المستودع / الجرد الميداني...">
+                <input type="text" id="audit-notes" class="m-input" placeholder="ظ…ظ„ط§ط­ط¸ط§طھ ط£ظ…ظٹظ† ط§ظ„ظ…ط³طھظˆط¯ط¹ / ط§ظ„ط¬ط±ط¯ ط§ظ„ظ…ظٹط¯ط§ظ†ظٹ...">
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--text-muted); margin-bottom:14px; padding:6px 10px; background:var(--surface-sub); border-radius:8px;">
-                <span>المسؤول: <strong style="color:var(--text-main);">أمين المستودع</strong></span>
-                <span id="audit-timestamp">التوقيت: اللحظي</span>
+                <span>ط§ظ„ظ…ط³ط¤ظˆظ„: <strong style="color:var(--text-main);">ط£ظ…ظٹظ† ط§ظ„ظ…ط³طھظˆط¯ط¹</strong></span>
+                <span id="audit-timestamp">ط§ظ„طھظˆظ‚ظٹطھ: ط§ظ„ظ„ط­ط¸ظٹ</span>
             </div>
 
             <button type="button" class="m-btn-submit" style="background:linear-gradient(135deg, var(--emerald), #059669); color:#fff; margin-bottom:8px;" onclick="InventoryEngine.submitAuditReconciliation()">
-                <i class="fa-solid fa-check-double"></i> اعتماد الجرد وتسوية الرصيد فوراً ⚡
+                <i class="fa-solid fa-check-double"></i> ط§ط¹طھظ…ط§ط¯ ط§ظ„ط¬ط±ط¯ ظˆطھط³ظˆظٹط© ط§ظ„ط±طµظٹط¯ ظپظˆط±ط§ظ‹ âڑ،
             </button>
             <!-- Bottom Operational Actions Toolbar for Item Audit -->
             <div class="screen-unified-action-bar" style="margin-bottom:0;">
                 <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'item-audit')">
-                    <i class="fa-solid fa-plus"></i> جرد صنف آخر
+                    <i class="fa-solid fa-plus"></i> ط¬ط±ط¯ طµظ†ظپ ط¢ط®ط±
                 </button>
                 <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'item-audit')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل الصنف
+                    <i class="fa-solid fa-pen-to-square"></i> طھط¹ط¯ظٹظ„ ط§ظ„طµظ†ظپ
                 </button>
                 <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'item-audit')">
-                    <i class="fa-solid fa-trash-can"></i> إلغاء الجرد
+                    <i class="fa-solid fa-trash-can"></i> ط¥ظ„ط؛ط§ط، ط§ظ„ط¬ط±ط¯
                 </button>
                 <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'item-audit')">
-                    <i class="fa-solid fa-print"></i> طباعة باركود
+                    <i class="fa-solid fa-print"></i> ط·ط¨ط§ط¹ط© ط¨ط§ط±ظƒظˆط¯
                 </button>
                 <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'item-audit')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                    <i class="fa-solid fa-magnifying-glass"></i> ط¨ط­ط«
                 </button>
                 <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'item-audit')">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة
+                    <i class="fa-brands fa-whatsapp"></i> ظ…ط´ط§ط±ظƒط©
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         SHEET: 🔄 التحويل المخزني الميداني (Inter-Warehouse Stock Transfer)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         SHEET: ًں”„ ط§ظ„طھط­ظˆظٹظ„ ط§ظ„ظ…ط®ط²ظ†ظٹ ط§ظ„ظ…ظٹط¯ط§ظ†ظٹ (Inter-Warehouse Stock Transfer)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-stock-transfer" onclick="closeBottomSheet('sheet-stock-transfer')"></div>
     <div class="mobile-bottom-sheet" id="sheet-stock-transfer" style="max-height:94vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass);">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span class="sheet-title" style="color:var(--purple); font-weight:900;">
-                    <i class="fa-solid fa-truck-ramp-box"></i> تحويل مخزني بين الفروع
+                    <i class="fa-solid fa-truck-ramp-box"></i> طھط­ظˆظٹظ„ ظ…ط®ط²ظ†ظٹ ط¨ظٹظ† ط§ظ„ظپط±ظˆط¹
                 </span>
                 <span id="transfer-waybill-pill" style="font-family:'Inter',monospace; font-size:0.75rem; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.3); color:var(--purple); padding:2px 8px; border-radius:6px; font-weight:900;">
                     #TR-OFF-1
                 </span>
             </div>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-stock-transfer')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-stock-transfer')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding:12px; padding-bottom:80px;">
             <!-- 1. Pipeline Status Indicator -->
             <div class="transfer-pipeline">
                 <div class="pipeline-step active" id="pipe-step-draft">
                     <i class="fa-solid fa-file-pen"></i>
-                    <span>1. مسودة</span>
+                    <span>1. ظ…ط³ظˆط¯ط©</span>
                 </div>
                 <div class="pipeline-line" id="pipe-line-1"></div>
                 <div class="pipeline-step" id="pipe-step-transit">
                     <i class="fa-solid fa-truck-fast"></i>
-                    <span>2. شحن ونقل</span>
+                    <span>2. ط´ط­ظ† ظˆظ†ظ‚ظ„</span>
                 </div>
                 <div class="pipeline-line" id="pipe-line-2"></div>
                 <div class="pipeline-step" id="pipe-step-received">
                     <i class="fa-solid fa-circle-check"></i>
-                    <span>3. استلام وتأكيد</span>
+                    <span>3. ط§ط³طھظ„ط§ظ… ظˆطھط£ظƒظٹط¯</span>
                 </div>
             </div>
 
             <!-- 2. Logistics & Warehouse Selector Grid -->
             <div class="transfer-wh-grid">
                 <div class="transfer-wh-card">
-                    <span class="transfer-wh-label"><i class="fa-solid fa-arrow-up-from-bracket text-rose-400"></i> من مستودع:</span>
+                    <span class="transfer-wh-label"><i class="fa-solid fa-arrow-up-from-bracket text-rose-400"></i> ظ…ظ† ظ…ط³طھظˆط¯ط¹:</span>
                     <select id="transfer-source-wh" class="m-select" style="font-size:0.78rem; height:36px; padding:2px 4px; font-weight:800;" onchange="StockTransferEngine.onWarehouseChange()">
-                        <option value="central">🏢 السجانة المركزي</option>
-                        <option value="kalakla">🏬 الكلاكلة الجنوبي</option>
-                        <option value="bahri">🏭 بحري الصناعي</option>
+                        <option value="central">ًںڈ¢ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ</option>
+                        <option value="kalakla">ًںڈ¬ ط§ظ„ظƒظ„ط§ظƒظ„ط© ط§ظ„ط¬ظ†ظˆط¨ظٹ</option>
+                        <option value="bahri">ًںڈ­ ط¨ط­ط±ظٹ ط§ظ„طµظ†ط§ط¹ظٹ</option>
                     </select>
                 </div>
                 <div class="transfer-arrow-circle">
                     <i class="fa-solid fa-arrow-left-long"></i>
                 </div>
                 <div class="transfer-wh-card">
-                    <span class="transfer-wh-label"><i class="fa-solid fa-arrow-down-to-bracket text-emerald-400"></i> إلى مستودع:</span>
+                    <span class="transfer-wh-label"><i class="fa-solid fa-arrow-down-to-bracket text-emerald-400"></i> ط¥ظ„ظ‰ ظ…ط³طھظˆط¯ط¹:</span>
                     <select id="transfer-dest-wh" class="m-select" style="font-size:0.78rem; height:36px; padding:2px 4px; font-weight:800;" onchange="StockTransferEngine.onWarehouseChange()">
-                        <option value="kalakla">🏬 الكلاكلة (14 كم)</option>
-                        <option value="bahri">🏭 بحري (18 كم)</option>
-                        <option value="central">🏢 السجانة المركزي</option>
+                        <option value="kalakla">ًںڈ¬ ط§ظ„ظƒظ„ط§ظƒظ„ط© (14 ظƒظ…)</option>
+                        <option value="bahri">ًںڈ­ ط¨ط­ط±ظٹ (18 ظƒظ…)</option>
+                        <option value="central">ًںڈ¢ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ</option>
                     </select>
                 </div>
             </div>
 
             <!-- 3. Driver & Vehicle Notes -->
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
-                <input type="text" id="transfer-driver-name" class="m-input" placeholder="اسم السائق / الناقل" style="height:38px; font-size:0.8rem;">
-                <input type="text" id="transfer-vehicle-plate" class="m-input" placeholder="رقم الشاحنة / اللوحة" style="height:38px; font-size:0.8rem; font-family:'Inter',sans-serif;">
+                <input type="text" id="transfer-driver-name" class="m-input" placeholder="ط§ط³ظ… ط§ظ„ط³ط§ط¦ظ‚ / ط§ظ„ظ†ط§ظ‚ظ„" style="height:38px; font-size:0.8rem;">
+                <input type="text" id="transfer-vehicle-plate" class="m-input" placeholder="ط±ظ‚ظ… ط§ظ„ط´ط§ط­ظ†ط© / ط§ظ„ظ„ظˆط­ط©" style="height:38px; font-size:0.8rem; font-family:'Inter',sans-serif;">
             </div>
 
             <!-- 4. Add Items to Transfer Basket -->
             <div style="background:var(--surface-card); border:1px solid var(--border-glass); border-radius:14px; padding:10px; margin-bottom:10px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <span style="font-size:0.78rem; font-weight:900; color:var(--text-main);">
-                        <i class="fa-solid fa-cart-plus text-purple-400"></i> إضافة صنف للشحن:
+                        <i class="fa-solid fa-cart-plus text-purple-400"></i> ط¥ط¶ط§ظپط© طµظ†ظپ ظ„ظ„ط´ط­ظ†:
                     </span>
                     <!-- Unit Selection Toggle -->
                     <div style="display:flex; gap:4px;">
-                        <button type="button" class="v-cat-pill active" id="btn-unit-primary" style="font-size:0.78rem; padding:2px 8px;" onclick="StockTransferEngine.setUnitMode('primary')">وحدة كبرى (طن)</button>
-                        <button type="button" class="v-cat-pill" id="btn-unit-secondary" style="font-size:0.78rem; padding:2px 8px;" onclick="StockTransferEngine.setUnitMode('secondary')">تجزئة (سيخة)</button>
+                        <button type="button" class="v-cat-pill active" id="btn-unit-primary" style="font-size:0.78rem; padding:2px 8px;" onclick="StockTransferEngine.setUnitMode('primary')">ظˆط­ط¯ط© ظƒط¨ط±ظ‰ (ط·ظ†)</button>
+                        <button type="button" class="v-cat-pill" id="btn-unit-secondary" style="font-size:0.78rem; padding:2px 8px;" onclick="StockTransferEngine.setUnitMode('secondary')">طھط¬ط²ط¦ط© (ط³ظٹط®ط©)</button>
                     </div>
                 </div>
 
                 <div style="display:flex; gap:6px; margin-bottom:6px;">
                     <select id="transfer-item-select" class="m-select" style="flex:1; height:40px; font-size:0.82rem;" onchange="StockTransferEngine.onTransferItemSelect(this)">
-                        <option value="">-- اختر الصنف للشحن والتحويل --</option>
+                        <option value="">-- ط§ط®طھط± ط§ظ„طµظ†ظپ ظ„ظ„ط´ط­ظ† ظˆط§ظ„طھط­ظˆظٹظ„ --</option>
                     </select>
-                    <button type="button" class="inv-scanner-btn" style="width:40px; height:40px;" onclick="StockTransferEngine.triggerTransferScanner()" title="مسح باركود الصنف">
+                    <button type="button" class="inv-scanner-btn" style="width:40px; height:40px;" onclick="StockTransferEngine.triggerTransferScanner()" title="ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯ ط§ظ„طµظ†ظپ">
                         <i class="fa-solid fa-barcode"></i>
                     </button>
                 </div>
 
                 <!-- Available Source Stock Indicator -->
                 <div style="display:flex; justify-content:space-between; font-size:0.74rem; font-weight:800; color:var(--text-muted); margin-bottom:6px;">
-                    <span>الرصيد المتاح بالمستودع المصدر:</span>
-                    <strong id="transfer-source-avail" style="color:var(--emerald); font-family:'Inter',sans-serif;">0 وحدة</strong>
+                    <span>ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط§ط­ ط¨ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…طµط¯ط±:</span>
+                    <strong id="transfer-source-avail" style="color:var(--emerald); font-family:'Inter',sans-serif;">0 ظˆط­ط¯ط©</strong>
                 </div>
 
                 <!-- Quantity & Add Action -->
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <input type="number" id="transfer-qty-input" class="m-input" placeholder="الكمية المطلوبة" style="height:40px; font-weight:900; font-family:'Inter',sans-serif; text-align:center;" min="0.01" step="any" oninput="StockTransferEngine.checkCeilingGuard(this.value)">
+                    <input type="number" id="transfer-qty-input" class="m-input" placeholder="ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط·ظ„ظˆط¨ط©" style="height:40px; font-weight:900; font-family:'Inter',sans-serif; text-align:center;" min="0.01" step="any" oninput="StockTransferEngine.checkCeilingGuard(this.value)">
                     <button type="button" class="pos-add-item-btn" style="height:40px; padding:0 16px; background:var(--purple);" onclick="StockTransferEngine.addItemToBasket()">
-                        <i class="fa-solid fa-plus"></i> إضافة
+                        <i class="fa-solid fa-plus"></i> ط¥ط¶ط§ظپط©
                     </button>
                 </div>
 
                 <!-- Real-Time Stock Ceiling Guard Warning -->
                 <div id="transfer-ceiling-guard" class="transfer-ceiling-guard" style="display:none; margin-top:8px;">
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span id="transfer-ceiling-guard-msg">الكمية المدخلة تتجاوز الرصيد المتاح بالمستودع!</span>
+                    <span id="transfer-ceiling-guard-msg">ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط¯ط®ظ„ط© طھطھط¬ط§ظˆط² ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط§ط­ ط¨ط§ظ„ظ…ط³طھظˆط¯ط¹!</span>
                 </div>
             </div>
 
             <!-- 5. Transfer Basket Manifest Items -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <span style="font-size:0.8rem; font-weight:900; color:var(--text-main);">
-                    📋 منافست بضاعة الشحن (<span id="transfer-basket-count">0</span>):
+                    ًں“‹ ظ…ظ†ط§ظپط³طھ ط¨ط¶ط§ط¹ط© ط§ظ„ط´ط­ظ† (<span id="transfer-basket-count">0</span>):
                 </span>
-                <span id="transfer-total-weight" style="font-size:0.72rem; color:var(--text-muted); font-weight:800;">إجمالي: 0 وحدة</span>
+                <span id="transfer-total-weight" style="font-size:0.72rem; color:var(--text-muted); font-weight:800;">ط¥ط¬ظ…ط§ظ„ظٹ: 0 ظˆط­ط¯ط©</span>
             </div>
 
             <div id="transfer-basket-items-container">
@@ -8299,50 +8293,50 @@ try {
         <div class="pos-settlement-footer" style="display:flex; flex-direction:column; gap:6px;">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                 <button type="button" class="pos-btn-print" style="background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main);" onclick="StockTransferEngine.saveDraft()">
-                    <i class="fa-solid fa-file-pen"></i> حفظ كمسودة
+                    <i class="fa-solid fa-file-pen"></i> ط­ظپط¸ ظƒظ…ط³ظˆط¯ط©
                 </button>
                 <button type="button" class="pos-btn-share" style="background:linear-gradient(135deg, var(--purple), #7e22ce); color:#fff;" onclick="StockTransferEngine.confirmAndDispatch()">
-                    <i class="fa-solid fa-truck-fast"></i> تأكيد الترحيل والطباعة 🚚
+                    <i class="fa-solid fa-truck-fast"></i> طھط£ظƒظٹط¯ ط§ظ„طھط±ط­ظٹظ„ ظˆط§ظ„ط·ط¨ط§ط¹ط© ًںڑڑ
                 </button>
             </div>
             <!-- Bottom Operational Actions Toolbar for Stock Transfer -->
             <div class="screen-unified-action-bar" style="margin-bottom:0;">
                 <button type="button" class="btn-action-pill btn-act-new" onclick="window.UniversalActionEngine.dispatch('new', 'stock-transfer')">
-                    <i class="fa-solid fa-plus"></i> تحويل جديد
+                    <i class="fa-solid fa-plus"></i> طھط­ظˆظٹظ„ ط¬ط¯ظٹط¯
                 </button>
                 <button type="button" class="btn-action-pill btn-act-edit" onclick="window.UniversalActionEngine.dispatch('edit', 'stock-transfer')">
-                    <i class="fa-solid fa-pen-to-square"></i> تعديل
+                    <i class="fa-solid fa-pen-to-square"></i> طھط¹ط¯ظٹظ„
                 </button>
                 <button type="button" class="btn-action-pill btn-act-delete" onclick="window.UniversalActionEngine.dispatch('delete', 'stock-transfer')">
-                    <i class="fa-solid fa-trash-can"></i> حذف / تفريغ
+                    <i class="fa-solid fa-trash-can"></i> ط­ط°ظپ / طھظپط±ظٹط؛
                 </button>
                 <button type="button" class="btn-action-pill btn-act-print" onclick="window.UniversalActionEngine.dispatch('print', 'stock-transfer')">
-                    <i class="fa-solid fa-print"></i> طباعة بوليصة
+                    <i class="fa-solid fa-print"></i> ط·ط¨ط§ط¹ط© ط¨ظˆظ„ظٹطµط©
                 </button>
                 <button type="button" class="btn-action-pill btn-act-search" onclick="window.UniversalActionEngine.dispatch('search', 'stock-transfer')">
-                    <i class="fa-solid fa-magnifying-glass"></i> بحث
+                    <i class="fa-solid fa-magnifying-glass"></i> ط¨ط­ط«
                 </button>
                 <button type="button" class="btn-action-pill btn-act-share" onclick="window.UniversalActionEngine.dispatch('share', 'stock-transfer')">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة السائق
+                    <i class="fa-brands fa-whatsapp"></i> ظ…ط´ط§ط±ظƒط© ط§ظ„ط³ط§ط¦ظ‚
                 </button>
                 <button type="button" class="btn-action-pill btn-act-cancel" onclick="window.UniversalActionEngine.dispatch('cancel', 'stock-transfer')">
-                    <i class="fa-solid fa-rotate-left"></i> تراجع
+                    <i class="fa-solid fa-rotate-left"></i> طھط±ط§ط¬ط¹
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         SHEET: 📄 بوليصة التحويل المخزني ومعاينة الشحن (Transfer Waybill Preview)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         SHEET: ًں“„ ط¨ظˆظ„ظٹطµط© ط§ظ„طھط­ظˆظٹظ„ ط§ظ„ظ…ط®ط²ظ†ظٹ ظˆظ…ط¹ط§ظٹظ†ط© ط§ظ„ط´ط­ظ† (Transfer Waybill Preview)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-transfer-waybill" onclick="closeBottomSheet('sheet-transfer-waybill')"></div>
     <div class="mobile-bottom-sheet" id="sheet-transfer-waybill" style="max-height:92vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass);">
             <span class="sheet-title" style="color:var(--primary); font-weight:900;">
-                <i class="fa-solid fa-file-invoice"></i> بوليصة شحن وتحويل مخزني
+                <i class="fa-solid fa-file-invoice"></i> ط¨ظˆظ„ظٹطµط© ط´ط­ظ† ظˆطھط­ظˆظٹظ„ ظ…ط®ط²ظ†ظٹ
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-transfer-waybill')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-transfer-waybill')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding:14px;">
             <div class="thermal-receipt-paper" id="waybill-content-paper" style="border-radius:12px; border:2px solid #000;">
@@ -8352,156 +8346,156 @@ try {
             <!-- Receipt Confirmation & Waybill Actions -->
             <div id="waybill-destination-actions" style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
                 <button type="button" class="m-btn-submit" style="background:linear-gradient(135deg, var(--primary), #0284c7); color:#fff;" onclick="StockTransferEngine.printThermalWaybill()">
-                    <i class="fa-solid fa-print"></i> طباعة بوليصة الترحيل (ESC/POS 80mm) 🖨️
+                    <i class="fa-solid fa-print"></i> ط·ط¨ط§ط¹ط© ط¨ظˆظ„ظٹطµط© ط§ظ„طھط±ط­ظٹظ„ (ESC/POS 80mm) ًں–¨ï¸ڈ
                 </button>
                 <button type="button" class="m-btn-submit" style="background:#22c55e; color:#fff;" onclick="StockTransferEngine.shareWaybillWhatsApp()">
-                    <i class="fa-brands fa-whatsapp"></i> مشاركة البوليصة مع السائق عبر واتساب 💬
+                    <i class="fa-brands fa-whatsapp"></i> ظ…ط´ط§ط±ظƒط© ط§ظ„ط¨ظˆظ„ظٹطµط© ظ…ط¹ ط§ظ„ط³ط§ط¦ظ‚ ط¹ط¨ط± ظˆط§طھط³ط§ط¨ ًں’¬
                 </button>
                 <button type="button" class="m-btn-submit" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff;" onclick="StockTransferEngine.confirmDestinationReceipt()">
-                    <i class="fa-solid fa-circle-check"></i> تأكيد استلام البضاعة في المستودع الوجهة ✅
+                    <i class="fa-solid fa-circle-check"></i> طھط£ظƒظٹط¯ ط§ط³طھظ„ط§ظ… ط§ظ„ط¨ط¶ط§ط¹ط© ظپظٹ ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظˆط¬ظ‡ط© âœ…
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         SHEET: 🛍️ منظومة المشتريات والتوريد الشاملة (Purchases Hub)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         SHEET: ًں›چï¸ڈ ظ…ظ†ط¸ظˆظ…ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ ظˆط§ظ„طھظˆط±ظٹط¯ ط§ظ„ط´ط§ظ…ظ„ط© (Purchases Hub)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-purchase" onclick="closeBottomSheet('sheet-purchase')"></div>
     <div class="mobile-bottom-sheet" id="sheet-purchase" style="max-height: 94vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass);">
             <div style="display:flex; align-items:center; gap:8px;">
                 <span class="sheet-title" style="color:var(--amber); font-weight:900;">
-                    <i class="fa-solid fa-cart-shopping"></i> منظومة المشتريات والتوريد الشاملة
+                    <i class="fa-solid fa-cart-shopping"></i> ظ…ظ†ط¸ظˆظ…ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ ظˆط§ظ„طھظˆط±ظٹط¯ ط§ظ„ط´ط§ظ…ظ„ط©
                 </span>
                 <span id="purchase-inv-number-pill" style="font-family:'Inter',monospace; font-size:0.75rem; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.3); color:var(--amber); padding:2px 6px; border-radius:6px; font-weight:800;">
                     #PUR-5012
                 </span>
             </div>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-purchase')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-purchase')">âœ•</button>
         </div>
 
         <div class="sheet-body" style="padding-top:10px; padding-bottom:85px;">
-            <!-- Segmented Hub Navigation: [فاتورة مشتريات | استلام المشتريات | تقسيم المشتريات] -->
+            <!-- Segmented Hub Navigation: [ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ | ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ | طھظ‚ط³ظٹظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ] -->
             <div class="invoice-suite-tabs">
                 <button type="button" class="suite-tab-btn active" id="tab-purchase-invoice" onclick="switchPurchaseSuiteTab('invoice')">
-                    <i class="fa-solid fa-cart-shopping"></i> فاتورة مشتريات
+                    <i class="fa-solid fa-cart-shopping"></i> ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ
                 </button>
                 <button type="button" class="suite-tab-btn" id="tab-purchase-receipt" onclick="switchPurchaseSuiteTab('receipt')">
-                    <i class="fa-solid fa-boxes-packing"></i> استلام المشتريات
+                    <i class="fa-solid fa-boxes-packing"></i> ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ
                 </button>
                 <button type="button" class="suite-tab-btn" id="tab-purchase-split" onclick="switchPurchaseSuiteTab('split')">
-                    <i class="fa-solid fa-code-branch"></i> تقسيم المشتريات
+                    <i class="fa-solid fa-code-branch"></i> طھظ‚ط³ظٹظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ
                 </button>
             </div>
 
-            <!-- ═════════════════════════════════════════════════════════════
-                 PANE 1: 🛍️ فاتورة المشتريات (Purchase Invoice)
-                 ═════════════════════════════════════════════════════════════ -->
+            <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+                 PANE 1: ًں›چï¸ڈ ظپط§طھظˆط±ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ (Purchase Invoice)
+                 â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
             <div class="suite-pane active" id="pane-purchase-invoice">
                 <div class="pos-container">
                     <!-- Supplier & Payment Settings Card -->
                     <div class="pos-party-card">
                         <div class="party-header-row">
                             <span style="font-size:0.8rem; font-weight:800; color:var(--text-muted);">
-                                <i class="fa-solid fa-truck-moving text-amber-400"></i> بيانات المورد الدافع:
+                                <i class="fa-solid fa-truck-moving text-amber-400"></i> ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ظˆط±ط¯ ط§ظ„ط¯ط§ظپط¹:
                             </span>
                             <select id="purchase-supplier" class="m-select" style="max-width:210px; height:36px; padding:4px 8px; font-size:0.82rem;" onchange="PurchaseEngine.onSupplierChange(this.value)">
-                                <option value="cash_supplier">مورد نقدي عام (Cash Supplier)</option>
+                                <option value="cash_supplier">ظ…ظˆط±ط¯ ظ†ظ‚ط¯ظٹ ط¹ط§ظ… (Cash Supplier)</option>
                             </select>
                         </div>
                         <div class="entry-field" style="margin-top:6px;">
-                            <label>طريقة سداد المشتريات:</label>
+                            <label>ط·ط±ظٹظ‚ط© ط³ط¯ط§ط¯ ط§ظ„ظ…ط´طھط±ظٹط§طھ:</label>
                             <select id="purchase-payment-method" class="m-select" style="height:36px; font-size:0.8rem; font-weight:800;">
-                                <option value="cash">نقداً (كاش من الخزينة الرئيسية)</option>
-                                <option value="bankak">تحويل بنكي / بنكك الخرطوم</option>
-                                <option value="credit">آجل على الحساب (دين للمورد)</option>
+                                <option value="cash">ظ†ظ‚ط¯ط§ظ‹ (ظƒط§ط´ ظ…ظ† ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط©)</option>
+                                <option value="bankak">طھط­ظˆظٹظ„ ط¨ظ†ظƒظٹ / ط¨ظ†ظƒظƒ ط§ظ„ط®ط±ط·ظˆظ…</option>
+                                <option value="credit">ط¢ط¬ظ„ ط¹ظ„ظ‰ ط§ظ„ط­ط³ط§ط¨ (ط¯ظٹظ† ظ„ظ„ظ…ظˆط±ط¯)</option>
                             </select>
                         </div>
                     </div>
 
-                    <!-- Detailed Laptop-Parity Purchase Item Entry Card (المخزن، النوع، الصنف، الوحدة، الكمية، السعر، الجملة، الضريبة، العمالة) -->
+                    <!-- Detailed Laptop-Parity Purchase Item Entry Card (ط§ظ„ظ…ط®ط²ظ†طŒ ط§ظ„ظ†ظˆط¹طŒ ط§ظ„طµظ†ظپطŒ ط§ظ„ظˆط­ط¯ط©طŒ ط§ظ„ظƒظ…ظٹط©طŒ ط§ظ„ط³ط¹ط±طŒ ط§ظ„ط¬ظ…ظ„ط©طŒ ط§ظ„ط¶ط±ظٹط¨ط©طŒ ط§ظ„ط¹ظ…ط§ظ„ط©) -->
                     <div class="invoice-item-entry-card">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                             <span style="font-size:0.8rem; font-weight:900; color:var(--amber);">
-                                <i class="fa-solid fa-dolly"></i> إضافة صنف مشتريات (مطابقة لمنظومة اللابتوب)
+                                <i class="fa-solid fa-dolly"></i> ط¥ط¶ط§ظپط© طµظ†ظپ ظ…ط´طھط±ظٹط§طھ (ظ…ط·ط§ط¨ظ‚ط© ظ„ظ…ظ†ط¸ظˆظ…ط© ط§ظ„ظ„ط§ط¨طھظˆط¨)
                             </span>
                             <button type="button" onclick="PurchaseEngine.triggerBarcodeScanner()" style="background:rgba(245,158,11,0.15); border:1px solid #f59e0b; color:#fbbf24; border-radius:8px; padding:3px 8px; font-size:0.72rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px;">
-                                <i class="fa-solid fa-barcode"></i> مسح باركود
+                                <i class="fa-solid fa-barcode"></i> ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯
                             </button>
                         </div>
 
-                        <!-- Grid 1: المخزن المستلم + النوع / التصنيف -->
+                        <!-- Grid 1: ط§ظ„ظ…ط®ط²ظ† ط§ظ„ظ…ط³طھظ„ظ… + ط§ظ„ظ†ظˆط¹ / ط§ظ„طھطµظ†ظٹظپ -->
                         <div class="entry-grid-2">
                             <div class="entry-field">
-                                <label><i class="fa-solid fa-warehouse text-amber-400"></i> مستودع التوريد:</label>
+                                <label><i class="fa-solid fa-warehouse text-amber-400"></i> ظ…ط³طھظˆط¯ط¹ ط§ظ„طھظˆط±ظٹط¯:</label>
                                 <select id="purchase-item-warehouse" class="m-select" style="height:36px; font-size:0.78rem; font-weight:800;">
-                                    <option value="central">🏢 المستودع المركزي - السجانة</option>
-                                    <option value="kalakla">🏬 فرع الكلاكلة</option>
-                                    <option value="bahri">🏭 مستودع بحري</option>
+                                    <option value="central">ًںڈ¢ ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ - ط§ظ„ط³ط¬ط§ظ†ط©</option>
+                                    <option value="kalakla">ًںڈ¬ ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©</option>
+                                    <option value="bahri">ًںڈ­ ظ…ط³طھظˆط¯ط¹ ط¨ط­ط±ظٹ</option>
                                 </select>
                             </div>
                             <div class="entry-field">
-                                <label><i class="fa-solid fa-tags text-purple-400"></i> النوع / التصنيف:</label>
+                                <label><i class="fa-solid fa-tags text-purple-400"></i> ط§ظ„ظ†ظˆط¹ / ط§ظ„طھطµظ†ظٹظپ:</label>
                                 <select id="purchase-item-category" class="m-select" style="height:36px; font-size:0.78rem; font-weight:800;" onchange="PurchaseEngine.onCategoryFilterChange(this.value)">
-                                    <option value="all">كل الأنواع والتصنيفات</option>
-                                    <option value="حديد تسليح">حديد تسليح</option>
-                                    <option value="قطاعات حديد">قطاعات حديد</option>
-                                    <option value="أسمنت">أسمنت ومواد لاصقة</option>
-                                    <option value="بويات">بويات وتشطيبات</option>
-                                    <option value="مواسير">مواسير وشبكات</option>
-                                    <option value="زنك ومعدات">زنك ومعدات تسقيف</option>
-                                    <option value="مواد بناء">مواد بناء متنوعة</option>
+                                    <option value="all">ظƒظ„ ط§ظ„ط£ظ†ظˆط§ط¹ ظˆط§ظ„طھطµظ†ظٹظپط§طھ</option>
+                                    <option value="ط­ط¯ظٹط¯ طھط³ظ„ظٹط­">ط­ط¯ظٹط¯ طھط³ظ„ظٹط­</option>
+                                    <option value="ظ‚ط·ط§ط¹ط§طھ ط­ط¯ظٹط¯">ظ‚ط·ط§ط¹ط§طھ ط­ط¯ظٹط¯</option>
+                                    <option value="ط£ط³ظ…ظ†طھ">ط£ط³ظ…ظ†طھ ظˆظ…ظˆط§ط¯ ظ„ط§طµظ‚ط©</option>
+                                    <option value="ط¨ظˆظٹط§طھ">ط¨ظˆظٹط§طھ ظˆطھط´ط·ظٹط¨ط§طھ</option>
+                                    <option value="ظ…ظˆط§ط³ظٹط±">ظ…ظˆط§ط³ظٹط± ظˆط´ط¨ظƒط§طھ</option>
+                                    <option value="ط²ظ†ظƒ ظˆظ…ط¹ط¯ط§طھ">ط²ظ†ظƒ ظˆظ…ط¹ط¯ط§طھ طھط³ظ‚ظٹظپ</option>
+                                    <option value="ظ…ظˆط§ط¯ ط¨ظ†ط§ط،">ظ…ظˆط§ط¯ ط¨ظ†ط§ط، ظ…طھظ†ظˆط¹ط©</option>
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Grid 2: الصنف + الوحدة من الداتابيز -->
+                        <!-- Grid 2: ط§ظ„طµظ†ظپ + ط§ظ„ظˆط­ط¯ط© ظ…ظ† ط§ظ„ط¯ط§طھط§ط¨ظٹط² -->
                         <div class="entry-grid-2">
                             <div class="entry-field">
-                                <label><i class="fa-solid fa-box-open text-sky-400"></i> الصنف المشتَرى:</label>
+                                <label><i class="fa-solid fa-box-open text-sky-400"></i> ط§ظ„طµظ†ظپ ط§ظ„ظ…ط´طھظژط±ظ‰:</label>
                                 <select id="purchase-item" class="m-select" style="height:38px; font-size:0.8rem; font-weight:800;" onchange="PurchaseEngine.onItemSelect(this)">
-                                    <option value="">-- اختر الصنف للشراء --</option>
+                                    <option value="">-- ط§ط®طھط± ط§ظ„طµظ†ظپ ظ„ظ„ط´ط±ط§ط، --</option>
                                 </select>
                             </div>
                             <div class="entry-field">
-                                <label><i class="fa-solid fa-scale-balanced text-emerald-400"></i> الوحدة (قاعدة البيانات):</label>
+                                <label><i class="fa-solid fa-scale-balanced text-emerald-400"></i> ط§ظ„ظˆط­ط¯ط© (ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ):</label>
                                 <select id="purchase-item-unit" class="m-select" style="height:38px; font-size:0.8rem; font-weight:800;" onchange="PurchaseEngine.calculateRowTotal()">
                                     <!-- Populated dynamically from erp_global_units_v1 -->
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Grid 3: الكمية + سعر الشراء + الجملة -->
+                        <!-- Grid 3: ط§ظ„ظƒظ…ظٹط© + ط³ط¹ط± ط§ظ„ط´ط±ط§ط، + ط§ظ„ط¬ظ…ظ„ط© -->
                         <div class="entry-grid-3">
                             <div class="entry-field">
-                                <label>الكمية المشتراة:</label>
+                                <label>ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط´طھط±ط§ط©:</label>
                                 <input type="number" id="purchase-qty" class="m-input" value="1" min="0.01" step="any" style="height:36px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="PurchaseEngine.calculateRowTotal()" inputmode="decimal">
                             </div>
                             <div class="entry-field">
-                                <label>سعر الشراء (SDG):</label>
+                                <label>ط³ط¹ط± ط§ظ„ط´ط±ط§ط، (SDG):</label>
                                 <input type="number" id="purchase-price" class="m-input" placeholder="0" step="any" style="height:36px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="PurchaseEngine.calculateRowTotal()" inputmode="decimal">
                             </div>
                             <div class="entry-field">
-                                <label>الجملة (المجموع):</label>
+                                <label>ط§ظ„ط¬ظ…ظ„ط© (ط§ظ„ظ…ط¬ظ…ظˆط¹):</label>
                                 <input type="text" id="purchase-item-subtotal" class="m-input" readonly style="height:36px; text-align:center; font-weight:900; background:var(--surface-card); color:var(--amber); font-family:'Inter',sans-serif;" value="0">
                             </div>
                         </div>
 
-                        <!-- Grid 4: الضريبة + العمالة + زر الإضافة -->
+                        <!-- Grid 4: ط§ظ„ط¶ط±ظٹط¨ط© + ط§ظ„ط¹ظ…ط§ظ„ط© + ط²ط± ط§ظ„ط¥ط¶ط§ظپط© -->
                         <div class="entry-grid-3" style="align-items:flex-end;">
                             <div class="entry-field">
-                                <label>الضريبة (SDG):</label>
+                                <label>ط§ظ„ط¶ط±ظٹط¨ط© (SDG):</label>
                                 <input type="number" id="purchase-item-tax" class="m-input" value="0" min="0" step="any" style="height:36px; text-align:center; font-weight:800; font-family:'Inter',sans-serif;" oninput="PurchaseEngine.calculateRowTotal()" inputmode="decimal">
                             </div>
                             <div class="entry-field">
-                                <label>العمالة (تفريغ):</label>
+                                <label>ط§ظ„ط¹ظ…ط§ظ„ط© (طھظپط±ظٹط؛):</label>
                                 <input type="number" id="purchase-item-labor" class="m-input" value="0" min="0" step="any" style="height:36px; text-align:center; font-weight:800; font-family:'Inter',sans-serif;" oninput="PurchaseEngine.calculateRowTotal()" inputmode="decimal">
                             </div>
                             <div class="entry-field">
                                 <button type="button" onclick="PurchaseEngine.addConfiguredItem()" style="height:36px; border-radius:10px; font-weight:900; font-size:0.84rem; background:linear-gradient(135deg, var(--amber), #d97706); color:#000; border:none; cursor:pointer; width:100%; box-shadow:0 2px 8px rgba(245,158,11,0.3);">
-                                    <i class="fa-solid fa-plus"></i> إضافة بند
+                                    <i class="fa-solid fa-plus"></i> ط¥ط¶ط§ظپط© ط¨ظ†ط¯
                                 </button>
                             </div>
                         </div>
@@ -8510,10 +8504,10 @@ try {
                     <!-- Items Cart List -->
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
                         <span style="font-size:0.82rem; font-weight:900; color:var(--text-main);">
-                            <i class="fa-solid fa-list-check text-amber-400"></i> بنود فاتورة الشراء (<span id="purchase-cart-count">0</span>):
+                            <i class="fa-solid fa-list-check text-amber-400"></i> ط¨ظ†ظˆط¯ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، (<span id="purchase-cart-count">0</span>):
                         </span>
                         <button type="button" onclick="PurchaseEngine.clearCart()" style="background:none; border:none; color:var(--rose); font-size:0.75rem; font-weight:800; cursor:pointer;">
-                            تفريغ السلة 🗑️
+                            طھظپط±ظٹط؛ ط§ظ„ط³ظ„ط© ًں—‘ï¸ڈ
                         </button>
                     </div>
 
@@ -8527,8 +8521,8 @@ try {
                     <!-- Grand Total Banner -->
                     <div class="pos-grand-total-banner" style="background:linear-gradient(135deg, rgba(245,158,11,0.18), rgba(217,119,6,0.12)); border-color:rgba(245,158,11,0.4);">
                         <div class="total-meta">
-                            <span class="total-title" style="color:var(--amber);">إجمالي فاتورة الشراء والتوريد</span>
-                            <span class="total-count-badge" id="purchase-banner-count" style="background:rgba(245,158,11,0.25); color:var(--amber);">0 أصناف</span>
+                            <span class="total-title" style="color:var(--amber);">ط¥ط¬ظ…ط§ظ„ظٹ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ظˆط§ظ„طھظˆط±ظٹط¯</span>
+                            <span class="total-count-badge" id="purchase-banner-count" style="background:rgba(245,158,11,0.25); color:var(--amber);">0 ط£طµظ†ط§ظپ</span>
                         </div>
                         <div class="total-amount-display" id="purchase-total-display" style="color:var(--amber);">0<small style="font-size:0.55em;">SDG</small></div>
                     </div>
@@ -8536,206 +8530,206 @@ try {
                     <!-- Summary Grid -->
                     <div class="settle-summary-grid" style="grid-template-columns: repeat(4, 1fr);">
                         <div class="settle-sum-box">
-                            <span class="settle-sum-label">المجموع</span>
+                            <span class="settle-sum-label">ط§ظ„ظ…ط¬ظ…ظˆط¹</span>
                             <span class="settle-sum-val" id="purchase-subtotal-val">0</span>
                         </div>
                         <div class="settle-sum-box">
-                            <span class="settle-sum-label">الضريبة</span>
+                            <span class="settle-sum-label">ط§ظ„ط¶ط±ظٹط¨ط©</span>
                             <span class="settle-sum-val" id="purchase-tax-val">0</span>
                         </div>
                         <div class="settle-sum-box">
-                            <span class="settle-sum-label">العمالة</span>
+                            <span class="settle-sum-label">ط§ظ„ط¹ظ…ط§ظ„ط©</span>
                             <span class="settle-sum-val" id="purchase-labor-val">0</span>
                         </div>
                         <div class="settle-sum-box">
-                            <span class="settle-sum-label" style="color:var(--amber);">صافي التوريد</span>
+                            <span class="settle-sum-label" style="color:var(--amber);">طµط§ظپظٹ ط§ظ„طھظˆط±ظٹط¯</span>
                             <span class="settle-sum-val" id="purchase-netdue-val" style="color:var(--amber);">0 SDG</span>
                         </div>
                     </div>
 
-                    <!-- 🌟 UNIFIED 6-ACTION TOOLBAR (مشاركة | جديد | مسح باركود | تأكيد | حفظ | فلترة) -->
+                    <!-- ًںŒں UNIFIED 6-ACTION TOOLBAR (ظ…ط´ط§ط±ظƒط© | ط¬ط¯ظٹط¯ | ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯ | طھط£ظƒظٹط¯ | ط­ظپط¸ | ظپظ„طھط±ط©) -->
                     <div class="invoice-action-toolbar-6">
-                        <button type="button" class="btn-action-pill btn-act-share" onclick="PurchaseEngine.shareInvoiceWhatsApp()" title="مشاركة الفاتورة">
+                        <button type="button" class="btn-action-pill btn-act-share" onclick="PurchaseEngine.shareInvoiceWhatsApp()" title="ظ…ط´ط§ط±ظƒط© ط§ظ„ظپط§طھظˆط±ط©">
                             <i class="fa-brands fa-whatsapp"></i>
-                            <span>مشاركة</span>
+                            <span>ظ…ط´ط§ط±ظƒط©</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-new" onclick="PurchaseEngine.newInvoice()" title="فاتورة جديدة">
+                        <button type="button" class="btn-action-pill btn-act-new" onclick="PurchaseEngine.newInvoice()" title="ظپط§طھظˆط±ط© ط¬ط¯ظٹط¯ط©">
                             <i class="fa-solid fa-plus"></i>
-                            <span>جديد</span>
+                            <span>ط¬ط¯ظٹط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="PurchaseEngine.triggerBarcodeScanner()" title="مسح باركود بالكاميرا">
+                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="PurchaseEngine.triggerBarcodeScanner()" title="ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯ ط¨ط§ظ„ظƒط§ظ…ظٹط±ط§">
                             <i class="fa-solid fa-barcode"></i>
-                            <span>مسح باركود</span>
+                            <span>ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="PurchaseEngine.confirmInvoice()" title="تأكيد واعتماد الفاتورة">
+                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="PurchaseEngine.confirmInvoice()" title="طھط£ظƒظٹط¯ ظˆط§ط¹طھظ…ط§ط¯ ط§ظ„ظپط§طھظˆط±ط©">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>تأكيد</span>
+                            <span>طھط£ظƒظٹط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-save" onclick="PurchaseEngine.saveInvoice()" title="حفظ وتوريد المستودع">
+                        <button type="button" class="btn-action-pill btn-act-save" onclick="PurchaseEngine.saveInvoice()" title="ط­ظپط¸ ظˆطھظˆط±ظٹط¯ ط§ظ„ظ…ط³طھظˆط¯ط¹">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span>حفظ</span>
+                            <span>ط­ظپط¸</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('purchases')" title="فلترة وبحث المشتريات">
+                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('purchases')" title="ظپظ„طھط±ط© ظˆط¨ط­ط« ط§ظ„ظ…ط´طھط±ظٹط§طھ">
                             <i class="fa-solid fa-filter"></i>
-                            <span>فلترة</span>
+                            <span>ظپظ„طھط±ط©</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- ═════════════════════════════════════════════════════════════
-                 PANE 2: 📥 استلام المشتريات (Purchase Goods Intake Note)
-                 ═════════════════════════════════════════════════════════════ -->
+            <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+                 PANE 2: ًں“¥ ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ (Purchase Goods Intake Note)
+                 â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
             <div class="suite-pane" id="pane-purchase-receipt">
                 <div class="invoice-item-entry-card">
                     <span style="font-size:0.85rem; font-weight:900; color:#c084fc; display:block; margin-bottom:8px;">
-                        <i class="fa-solid fa-boxes-packing"></i> إذن استلام وتوريد مشتريات فعلي بالمستودع
+                        <i class="fa-solid fa-boxes-packing"></i> ط¥ط°ظ† ط§ط³طھظ„ط§ظ… ظˆطھظˆط±ظٹط¯ ظ…ط´طھط±ظٹط§طھ ظپط¹ظ„ظٹ ط¨ط§ظ„ظ…ط³طھظˆط¯ط¹
                     </span>
                     <div class="entry-field" style="margin-bottom:8px;">
-                        <label>اختر فاتورة أو شحنة المشتريات المستلمة:</label>
+                        <label>ط§ط®طھط± ظپط§طھظˆط±ط© ط£ظˆ ط´ط­ظ†ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ ط§ظ„ظ…ط³طھظ„ظ…ط©:</label>
                         <select id="receipt-purchase-select" class="m-select" style="font-weight:800;" onchange="PurchaseReceiptEngine.onInvoiceSelect(this.value)">
-                            <option value="current">فاتورة الشراء الحالية (#PUR)</option>
+                            <option value="current">ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ط§ظ„ط­ط§ظ„ظٹط© (#PUR)</option>
                         </select>
                     </div>
 
                     <div class="entry-grid-2">
                         <div class="entry-field">
-                            <label>المستودع المستلم:</label>
+                            <label>ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط³طھظ„ظ…:</label>
                             <select id="receipt-target-wh" class="m-select" style="height:36px; font-size:0.78rem;">
-                                <option value="central">🏢 المستودع المركزي - السجانة</option>
-                                <option value="kalakla">🏬 فرع الكلاكلة</option>
-                                <option value="bahri">🏭 مستودع بحري</option>
+                                <option value="central">ًںڈ¢ ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ - ط§ظ„ط³ط¬ط§ظ†ط©</option>
+                                <option value="kalakla">ًںڈ¬ ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©</option>
+                                <option value="bahri">ًںڈ­ ظ…ط³طھظˆط¯ط¹ ط¨ط­ط±ظٹ</option>
                             </select>
                         </div>
                         <div class="entry-field">
-                            <label>أمين المستودع الفاحص:</label>
-                            <input type="text" id="receipt-inspector-name" class="m-input" placeholder="اسم الفاحص المستلم" style="height:36px;">
+                            <label>ط£ظ…ظٹظ† ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظپط§ط­طµ:</label>
+                            <input type="text" id="receipt-inspector-name" class="m-input" placeholder="ط§ط³ظ… ط§ظ„ظپط§ط­طµ ط§ظ„ظ…ط³طھظ„ظ…" style="height:36px;">
                         </div>
                     </div>
 
                     <div class="entry-grid-2" style="margin-top:6px;">
                         <div class="entry-field">
-                            <label>رقم بوليصة الشحن / أمر التوريد:</label>
+                            <label>ط±ظ‚ظ… ط¨ظˆظ„ظٹطµط© ط§ظ„ط´ط­ظ† / ط£ظ…ط± ط§ظ„طھظˆط±ظٹط¯:</label>
                             <input type="text" id="receipt-waybill-no" class="m-input" placeholder="WB-99120" style="height:36px;">
                         </div>
                         <div class="entry-field">
-                            <label>حالة الفحص والمطابقة:</label>
+                            <label>ط­ط§ظ„ط© ط§ظ„ظپط­طµ ظˆط§ظ„ظ…ط·ط§ط¨ظ‚ط©:</label>
                             <select id="receipt-inspection-status" class="m-select" style="height:36px; font-size:0.78rem; font-weight:800; color:var(--emerald);">
-                                <option value="matched">✅ مطابق للمواصفات والكمية 100%</option>
-                                <option value="partial">⏳ توريد جزئي (باقي كمية مع المورد)</option>
-                                <option value="damaged">⚠️ تم تسجيل تلفيات / نواقص</option>
+                                <option value="matched">âœ… ظ…ط·ط§ط¨ظ‚ ظ„ظ„ظ…ظˆط§طµظپط§طھ ظˆط§ظ„ظƒظ…ظٹط© 100%</option>
+                                <option value="partial">âڈ³ طھظˆط±ظٹط¯ ط¬ط²ط¦ظٹ (ط¨ط§ظ‚ظٹ ظƒظ…ظٹط© ظ…ط¹ ط§ظ„ظ…ظˆط±ط¯)</option>
+                                <option value="damaged">âڑ ï¸ڈ طھظ… طھط³ط¬ظٹظ„ طھظ„ظپظٹط§طھ / ظ†ظˆط§ظ‚طµ</option>
                             </select>
                         </div>
                     </div>
 
                     <div style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:12px; padding:10px; margin-top:8px;">
                         <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-bottom:6px;">
-                            📦 تفاصيل الأصناف المستلمة وتحديث رصيد المخزن:
+                            ًں“¦ طھظپط§طµظٹظ„ ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ظ…ط³طھظ„ظ…ط© ظˆطھط­ط¯ظٹط« ط±طµظٹط¯ ط§ظ„ظ…ط®ط²ظ†:
                         </div>
                         <div id="receipt-items-checklist">
-                            <div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:8px;">سيتم فحص البنود وتحديث أرصدة المستودع آلياً فور الحفظ</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:8px;">ط³ظٹطھظ… ظپط­طµ ط§ظ„ط¨ظ†ظˆط¯ ظˆطھط­ط¯ظٹط« ط£ط±طµط¯ط© ط§ظ„ظ…ط³طھظˆط¯ط¹ ط¢ظ„ظٹط§ظ‹ ظپظˆط± ط§ظ„ط­ظپط¸</div>
                         </div>
                     </div>
 
                     <!-- Toolbar for Purchase Receipt -->
                     <div class="invoice-action-toolbar-6" style="margin-top:12px;">
-                        <button type="button" class="btn-action-pill btn-act-share" onclick="PurchaseReceiptEngine.shareReceiptWhatsApp()" title="مشاركة إذن الاستلام">
+                        <button type="button" class="btn-action-pill btn-act-share" onclick="PurchaseReceiptEngine.shareReceiptWhatsApp()" title="ظ…ط´ط§ط±ظƒط© ط¥ط°ظ† ط§ظ„ط§ط³طھظ„ط§ظ…">
                             <i class="fa-brands fa-whatsapp"></i>
-                            <span>مشاركة</span>
+                            <span>ظ…ط´ط§ط±ظƒط©</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-new" onclick="PurchaseReceiptEngine.newReceipt()" title="إذن جديد">
+                        <button type="button" class="btn-action-pill btn-act-new" onclick="PurchaseReceiptEngine.newReceipt()" title="ط¥ط°ظ† ط¬ط¯ظٹط¯">
                             <i class="fa-solid fa-plus"></i>
-                            <span>جديد</span>
+                            <span>ط¬ط¯ظٹط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="PurchaseEngine.triggerBarcodeScanner()" title="مسح باركود الشحنة">
+                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="PurchaseEngine.triggerBarcodeScanner()" title="ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯ ط§ظ„ط´ط­ظ†ط©">
                             <i class="fa-solid fa-barcode"></i>
-                            <span>مسح باركود</span>
+                            <span>ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="PurchaseReceiptEngine.confirmReceipt()" title="تأكيد التوريد">
+                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="PurchaseReceiptEngine.confirmReceipt()" title="طھط£ظƒظٹط¯ ط§ظ„طھظˆط±ظٹط¯">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>تأكيد</span>
+                            <span>طھط£ظƒظٹط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-save" onclick="PurchaseReceiptEngine.saveReceipt()" title="حفظ واعتماد التوريد">
+                        <button type="button" class="btn-action-pill btn-act-save" onclick="PurchaseReceiptEngine.saveReceipt()" title="ط­ظپط¸ ظˆط§ط¹طھظ…ط§ط¯ ط§ظ„طھظˆط±ظٹط¯">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span>حفظ</span>
+                            <span>ط­ظپط¸</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('receipt')" title="فلترة أذونات الاستلام">
+                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('receipt')" title="ظپظ„طھط±ط© ط£ط°ظˆظ†ط§طھ ط§ظ„ط§ط³طھظ„ط§ظ…">
                             <i class="fa-solid fa-filter"></i>
-                            <span>فلترة</span>
+                            <span>ظپظ„طھط±ط©</span>
                         </button>
                     </div>
                 </div>
             </div>
 
-            <!-- ═════════════════════════════════════════════════════════════
-                 PANE 3: 🔀 تقسيم المشتريات (Purchases Split Consignments)
-                 ═════════════════════════════════════════════════════════════ -->
+            <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+                 PANE 3: ًں”€ طھظ‚ط³ظٹظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ (Purchases Split Consignments)
+                 â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
             <div class="suite-pane" id="pane-purchase-split">
                 <div class="invoice-item-entry-card">
                     <span style="font-size:0.85rem; font-weight:900; color:#38bdf8; display:block; margin-bottom:8px;">
-                        <i class="fa-solid fa-code-branch"></i> تقسيم وتوزيع الشحنات المشتراة على الساحات والمخازن
+                        <i class="fa-solid fa-code-branch"></i> طھظ‚ط³ظٹظ… ظˆطھظˆط²ظٹط¹ ط§ظ„ط´ط­ظ†ط§طھ ط§ظ„ظ…ط´طھط±ط§ط© ط¹ظ„ظ‰ ط§ظ„ط³ط§ط­ط§طھ ظˆط§ظ„ظ…ط®ط§ط²ظ†
                     </span>
                     <div class="entry-field" style="margin-bottom:8px;">
-                        <label>اختر شحنة المشتريات للتقسيم:</label>
+                        <label>ط§ط®طھط± ط´ط­ظ†ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ ظ„ظ„طھظ‚ط³ظٹظ…:</label>
                         <select id="split-purchase-select" class="m-select" style="font-weight:800;" onchange="PurchaseSplitEngine.onInvoiceSelect(this.value)">
-                            <option value="current">فاتورة الشراء الحالية (#PUR)</option>
+                            <option value="current">ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ط§ظ„ط­ط§ظ„ظٹط© (#PUR)</option>
                         </select>
                     </div>
 
                     <div style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:12px; padding:10px; margin-bottom:10px;">
                         <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-bottom:6px;">
-                            🏭 توزيع كميات الشحنة المشتراة على المستودعات:
+                            ًںڈ­ طھظˆط²ظٹط¹ ظƒظ…ظٹط§طھ ط§ظ„ط´ط­ظ†ط© ط§ظ„ظ…ط´طھط±ط§ط© ط¹ظ„ظ‰ ط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ:
                         </div>
                         <div class="entry-grid-3">
                             <div class="entry-field">
-                                <label>🏢 السجانة المركزي:</label>
+                                <label>ًںڈ¢ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ:</label>
                                 <input type="number" id="pur-split-central" class="m-input" style="height:36px; text-align:center; font-weight:900;" placeholder="0">
                             </div>
                             <div class="entry-field">
-                                <label>🏬 فرع الكلاكلة:</label>
+                                <label>ًںڈ¬ ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©:</label>
                                 <input type="number" id="pur-split-kalakla" class="m-input" style="height:36px; text-align:center; font-weight:900;" placeholder="0">
                             </div>
                             <div class="entry-field">
-                                <label>🏭 مستودع بحري:</label>
+                                <label>ًںڈ­ ظ…ط³طھظˆط¯ط¹ ط¨ط­ط±ظٹ:</label>
                                 <input type="number" id="pur-split-bahri" class="m-input" style="height:36px; text-align:center; font-weight:900;" placeholder="0">
                             </div>
                         </div>
                         <div class="entry-field" style="margin-top:6px;">
-                            <label>ملاحظات أمر تفريغ الشحنة والمشرف:</label>
-                            <input type="text" id="pur-split-notes" class="m-input" placeholder="مثال: تفريغ 60% في السجانة والباقي للكلاكلة مباشرة" style="height:36px;">
+                            <label>ظ…ظ„ط§ط­ط¸ط§طھ ط£ظ…ط± طھظپط±ظٹط؛ ط§ظ„ط´ط­ظ†ط© ظˆط§ظ„ظ…ط´ط±ظپ:</label>
+                            <input type="text" id="pur-split-notes" class="m-input" placeholder="ظ…ط«ط§ظ„: طھظپط±ظٹط؛ 60% ظپظٹ ط§ظ„ط³ط¬ط§ظ†ط© ظˆط§ظ„ط¨ط§ظ‚ظٹ ظ„ظ„ظƒظ„ط§ظƒظ„ط© ظ…ط¨ط§ط´ط±ط©" style="height:36px;">
                         </div>
                     </div>
 
                     <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 10px; background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); border-radius:10px; font-size:0.8rem; font-weight:800; color:#38bdf8;">
-                        <span>جاهزية توزيع الشحنة:</span>
-                        <span>متاح للتوزيع المباشر ⚡</span>
+                        <span>ط¬ط§ظ‡ط²ظٹط© طھظˆط²ظٹط¹ ط§ظ„ط´ط­ظ†ط©:</span>
+                        <span>ظ…طھط§ط­ ظ„ظ„طھظˆط²ظٹط¹ ط§ظ„ظ…ط¨ط§ط´ط± âڑ،</span>
                     </div>
 
                     <!-- Toolbar for Purchase Split -->
                     <div class="invoice-action-toolbar-6" style="margin-top:12px;">
-                        <button type="button" class="btn-action-pill btn-act-share" onclick="PurchaseSplitEngine.shareSplitWhatsApp()" title="مشاركة خطة التوزيع">
+                        <button type="button" class="btn-action-pill btn-act-share" onclick="PurchaseSplitEngine.shareSplitWhatsApp()" title="ظ…ط´ط§ط±ظƒط© ط®ط·ط© ط§ظ„طھظˆط²ظٹط¹">
                             <i class="fa-brands fa-whatsapp"></i>
-                            <span>مشاركة</span>
+                            <span>ظ…ط´ط§ط±ظƒط©</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-new" onclick="PurchaseSplitEngine.newSplit()" title="تقسيم جديد">
+                        <button type="button" class="btn-action-pill btn-act-new" onclick="PurchaseSplitEngine.newSplit()" title="طھظ‚ط³ظٹظ… ط¬ط¯ظٹط¯">
                             <i class="fa-solid fa-plus"></i>
-                            <span>جديد</span>
+                            <span>ط¬ط¯ظٹط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="PurchaseEngine.triggerBarcodeScanner()" title="مسح باركود الشحنة">
+                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="PurchaseEngine.triggerBarcodeScanner()" title="ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯ ط§ظ„ط´ط­ظ†ط©">
                             <i class="fa-solid fa-barcode"></i>
-                            <span>مسح باركود</span>
+                            <span>ظ…ط³ط­ ط¨ط§ط±ظƒظˆط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="PurchaseSplitEngine.confirmSplit()" title="تأكيد التوزيع">
+                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="PurchaseSplitEngine.confirmSplit()" title="طھط£ظƒظٹط¯ ط§ظ„طھظˆط²ظٹط¹">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>تأكيد</span>
+                            <span>طھط£ظƒظٹط¯</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-save" onclick="PurchaseSplitEngine.saveSplit()" title="حفظ وتوزيع الكميات">
+                        <button type="button" class="btn-action-pill btn-act-save" onclick="PurchaseSplitEngine.saveSplit()" title="ط­ظپط¸ ظˆطھظˆط²ظٹط¹ ط§ظ„ظƒظ…ظٹط§طھ">
                             <i class="fa-solid fa-floppy-disk"></i>
-                            <span>حفظ</span>
+                            <span>ط­ظپط¸</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('purchase-split')" title="فلترة تقسيمات المشتريات">
+                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('purchase-split')" title="ظپظ„طھط±ط© طھظ‚ط³ظٹظ…ط§طھ ط§ظ„ظ…ط´طھط±ظٹط§طھ">
                             <i class="fa-solid fa-filter"></i>
-                            <span>فلترة</span>
+                            <span>ظپظ„طھط±ط©</span>
                         </button>
                     </div>
                 </div>
@@ -8743,147 +8737,147 @@ try {
         </div>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         SHEET: 🔍 فلترة وبحث الفواتير والعمليات الشاملة (Universal Filter Drawer)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         SHEET: ًں”چ ظپظ„طھط±ط© ظˆط¨ط­ط« ط§ظ„ظپظˆط§طھظٹط± ظˆط§ظ„ط¹ظ…ظ„ظٹط§طھ ط§ظ„ط´ط§ظ…ظ„ط© (Universal Filter Drawer)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-invoice-filter" onclick="closeBottomSheet('sheet-invoice-filter')"></div>
     <div class="mobile-bottom-sheet" id="sheet-invoice-filter" style="max-height:88vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header" style="border-bottom:1px solid var(--border-glass); padding-bottom:10px;">
             <span class="sheet-title" style="color:var(--rose);">
-                <i class="fa-solid fa-filter"></i> فلترة وبحث الفواتير والعمليات
+                <i class="fa-solid fa-filter"></i> ظپظ„طھط±ط© ظˆط¨ط­ط« ط§ظ„ظپظˆط§طھظٹط± ظˆط§ظ„ط¹ظ…ظ„ظٹط§طھ
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-invoice-filter')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-invoice-filter')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding:14px; padding-bottom:60px;">
             <div class="entry-field" style="margin-bottom:10px;">
-                <label><i class="fa-solid fa-warehouse text-sky-400"></i> فلترة حسب المخزن:</label>
+                <label><i class="fa-solid fa-warehouse text-sky-400"></i> ظپظ„طھط±ط© ط­ط³ط¨ ط§ظ„ظ…ط®ط²ظ†:</label>
                 <select id="filter-warehouse-select" class="m-select" style="font-weight:800; height:38px;">
-                    <option value="all">كل المخازن والفروع</option>
-                    <option value="central">🏢 المستودع المركزي - السجانة</option>
-                    <option value="kalakla">🏬 فرع الكلاكلة</option>
-                    <option value="bahri">🏭 مستودع بحري</option>
+                    <option value="all">ظƒظ„ ط§ظ„ظ…ط®ط§ط²ظ† ظˆط§ظ„ظپط±ظˆط¹</option>
+                    <option value="central">ًںڈ¢ ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ - ط§ظ„ط³ط¬ط§ظ†ط©</option>
+                    <option value="kalakla">ًںڈ¬ ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©</option>
+                    <option value="bahri">ًںڈ­ ظ…ط³طھظˆط¯ط¹ ط¨ط­ط±ظٹ</option>
                 </select>
             </div>
 
             <div class="entry-field" style="margin-bottom:10px;">
-                <label><i class="fa-solid fa-tags text-purple-400"></i> فلترة حسب النوع / التصنيف:</label>
+                <label><i class="fa-solid fa-tags text-purple-400"></i> ظپظ„طھط±ط© ط­ط³ط¨ ط§ظ„ظ†ظˆط¹ / ط§ظ„طھطµظ†ظٹظپ:</label>
                 <select id="filter-category-select" class="m-select" style="font-weight:800; height:38px;">
-                    <option value="all">كل التصنيفات والأنواع</option>
-                    <option value="حديد تسليح">حديد تسليح</option>
-                    <option value="قطاعات حديد">قطاعات حديد</option>
-                    <option value="أسمنت">أسمنت ومواد لاصقة</option>
-                    <option value="بويات">بويات وتشطيبات</option>
-                    <option value="مواسير">مواسير وشبكات</option>
-                    <option value="زنك ومعدات">زنك ومعدات تسقيف</option>
-                    <option value="مواد بناء">مواد بناء متنوعة</option>
+                    <option value="all">ظƒظ„ ط§ظ„طھطµظ†ظٹظپط§طھ ظˆط§ظ„ط£ظ†ظˆط§ط¹</option>
+                    <option value="ط­ط¯ظٹط¯ طھط³ظ„ظٹط­">ط­ط¯ظٹط¯ طھط³ظ„ظٹط­</option>
+                    <option value="ظ‚ط·ط§ط¹ط§طھ ط­ط¯ظٹط¯">ظ‚ط·ط§ط¹ط§طھ ط­ط¯ظٹط¯</option>
+                    <option value="ط£ط³ظ…ظ†طھ">ط£ط³ظ…ظ†طھ ظˆظ…ظˆط§ط¯ ظ„ط§طµظ‚ط©</option>
+                    <option value="ط¨ظˆظٹط§طھ">ط¨ظˆظٹط§طھ ظˆطھط´ط·ظٹط¨ط§طھ</option>
+                    <option value="ظ…ظˆط§ط³ظٹط±">ظ…ظˆط§ط³ظٹط± ظˆط´ط¨ظƒط§طھ</option>
+                    <option value="ط²ظ†ظƒ ظˆظ…ط¹ط¯ط§طھ">ط²ظ†ظƒ ظˆظ…ط¹ط¯ط§طھ طھط³ظ‚ظٹظپ</option>
+                    <option value="ظ…ظˆط§ط¯ ط¨ظ†ط§ط،">ظ…ظˆط§ط¯ ط¨ظ†ط§ط، ظ…طھظ†ظˆط¹ط©</option>
                 </select>
             </div>
 
             <div class="entry-field" style="margin-bottom:10px;">
-                <label><i class="fa-solid fa-box-open text-amber-400"></i> فلترة حسب الصنف:</label>
+                <label><i class="fa-solid fa-box-open text-amber-400"></i> ظپظ„طھط±ط© ط­ط³ط¨ ط§ظ„طµظ†ظپ:</label>
                 <select id="filter-item-select" class="m-select" style="font-weight:800; height:38px;">
-                    <option value="all">كل الأصناف في المستودع</option>
+                    <option value="all">ظƒظ„ ط§ظ„ط£طµظ†ط§ظپ ظپظٹ ط§ظ„ظ…ط³طھظˆط¯ط¹</option>
                 </select>
             </div>
 
             <div class="entry-field" style="margin-bottom:10px;">
-                <label><i class="fa-solid fa-scale-balanced text-emerald-400"></i> فلترة حسب الوحدة:</label>
+                <label><i class="fa-solid fa-scale-balanced text-emerald-400"></i> ظپظ„طھط±ط© ط­ط³ط¨ ط§ظ„ظˆط­ط¯ط©:</label>
                 <select id="filter-unit-select" class="m-select" style="font-weight:800; height:38px;">
-                    <option value="all">كل الوحدات</option>
+                    <option value="all">ظƒظ„ ط§ظ„ظˆط­ط¯ط§طھ</option>
                 </select>
             </div>
 
             <div class="entry-grid-2" style="margin-bottom:10px;">
                 <div class="entry-field">
-                    <label>من تاريخ:</label>
+                    <label>ظ…ظ† طھط§ط±ظٹط®:</label>
                     <input type="date" id="filter-date-from" class="m-input" style="height:38px;">
                 </div>
                 <div class="entry-field">
-                    <label>إلى تاريخ:</label>
+                    <label>ط¥ظ„ظ‰ طھط§ط±ظٹط®:</label>
                     <input type="date" id="filter-date-to" class="m-input" style="height:38px;">
                 </div>
             </div>
 
             <div class="entry-field" style="margin-bottom:14px;">
-                <label>حالة الحركة / الفاتورة:</label>
+                <label>ط­ط§ظ„ط© ط§ظ„ط­ط±ظƒط© / ط§ظ„ظپط§طھظˆط±ط©:</label>
                 <select id="filter-status-select" class="m-select" style="font-weight:800; height:38px;">
-                    <option value="all">كل الحالات (مؤكدة، مسودة، ملغاة)</option>
-                    <option value="confirmed">✅ مؤكدة ومعتمدة</option>
-                    <option value="draft">⏳ مسودة قيد التعديل</option>
-                    <option value="delivered">🚚 تم الاستلام والتسليم</option>
-                    <option value="split">✂️ مقسمة ومجزأة</option>
+                    <option value="all">ظƒظ„ ط§ظ„ط­ط§ظ„ط§طھ (ظ…ط¤ظƒط¯ط©طŒ ظ…ط³ظˆط¯ط©طŒ ظ…ظ„ط؛ط§ط©)</option>
+                    <option value="confirmed">âœ… ظ…ط¤ظƒط¯ط© ظˆظ…ط¹طھظ…ط¯ط©</option>
+                    <option value="draft">âڈ³ ظ…ط³ظˆط¯ط© ظ‚ظٹط¯ ط§ظ„طھط¹ط¯ظٹظ„</option>
+                    <option value="delivered">ًںڑڑ طھظ… ط§ظ„ط§ط³طھظ„ط§ظ… ظˆط§ظ„طھط³ظ„ظٹظ…</option>
+                    <option value="split">âœ‚ï¸ڈ ظ…ظ‚ط³ظ…ط© ظˆظ…ط¬ط²ط£ط©</option>
                 </select>
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
                 <button type="button" class="m-btn-submit" onclick="applyInvoiceUniversalFilter()" style="background:linear-gradient(135deg, var(--primary), #0284c7); margin:0;">
-                    <i class="fa-solid fa-check"></i> تطبيق الفلترة ⚡
+                    <i class="fa-solid fa-check"></i> طھط·ط¨ظٹظ‚ ط§ظ„ظپظ„طھط±ط© âڑ،
                 </button>
                 <button type="button" class="m-btn-submit" onclick="resetInvoiceUniversalFilter()" style="background:var(--surface-sub); border:1.5px solid var(--border-glass); color:var(--text-main); margin:0;">
-                    <i class="fa-solid fa-rotate-left"></i> تفريغ الفلتر
+                    <i class="fa-solid fa-rotate-left"></i> طھظپط±ظٹط؛ ط§ظ„ظپظ„طھط±
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- SHEET 4: كشف حساب عميل ومطالبة -->
+    <!-- SHEET 4: ظƒط´ظپ ط­ط³ط§ط¨ ط¹ظ…ظٹظ„ ظˆظ…ط·ط§ظ„ط¨ط© -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-statement" onclick="closeBottomSheet('sheet-statement')"></div>
     <div class="mobile-bottom-sheet" id="sheet-statement">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--purple);">
-                <i class="fa-solid fa-address-book"></i> رصيد العميل ومطالبة واتساب
+                <i class="fa-solid fa-address-book"></i> ط±طµظٹط¯ ط§ظ„ط¹ظ…ظٹظ„ ظˆظ…ط·ط§ظ„ط¨ط© ظˆط§طھط³ط§ط¨
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-statement')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-statement')">âœ•</button>
         </div>
         <div class="sheet-body">
             <div class="m-form-group">
-                <label class="m-label">اختر العميل:</label>
+                <label class="m-label">ط§ط®طھط± ط§ظ„ط¹ظ…ظٹظ„:</label>
                 <select id="statement-customer-select" class="m-select" onchange="renderCustomerMiniStatement(this.value)">
-                    <option value="">-- اختر عميلاً لعرض رصيده الفعلي --</option>
+                    <option value="">-- ط§ط®طھط± ط¹ظ…ظٹظ„ط§ظ‹ ظ„ط¹ط±ط¶ ط±طµظٹط¯ظ‡ ط§ظ„ظپط¹ظ„ظٹ --</option>
                 </select>
             </div>
             
             <div id="statement-result-card" style="display:none;">
                 <div style="background:var(--surface-sub); border:2px solid var(--border-glass); border-radius:16px; padding:16px; text-align:center; margin-bottom:14px;">
-                    <span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">الرصيد المتبقي على العميل:</span>
+                    <span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط¨ظ‚ظٹ ط¹ظ„ظ‰ ط§ظ„ط¹ظ…ظٹظ„:</span>
                     <div id="cust-balance-amt" style="font-size:2rem; font-weight:900; color:var(--rose); font-family:'Inter', sans-serif; margin:4px 0;">
                         0.00
                     </div>
-                    <span id="cust-balance-status" style="font-size:0.84rem; font-weight:800; color:var(--text-main);">مدين للشركة</span>
+                    <span id="cust-balance-status" style="font-size:0.84rem; font-weight:800; color:var(--text-main);">ظ…ط¯ظٹظ† ظ„ظ„ط´ط±ظƒط©</span>
                 </div>
 
                 <div class="m-form-group" style="display:flex; gap:8px;">
                     <button type="button" onclick="sendWhatsAppClaim()" style="flex:1; background:#22c55e; color:#fff; border:none; padding:13px; border-radius:12px; font-weight:900; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 15px rgba(34,197,94,0.3);">
-                        <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> إرسال مطالبة بالواتساب
+                        <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> ط¥ط±ط³ط§ظ„ ظ…ط·ط§ظ„ط¨ط© ط¨ط§ظ„ظˆط§طھط³ط§ط¨
                     </button>
                     <button type="button" onclick="openFullStatementInDesktop()" style="background:var(--surface-2); color:var(--text-main); border:1.5px solid var(--border-glass); padding:12px 14px; border-radius:12px; font-weight:800; cursor:pointer;">
-                        الكشف الكامل 📄
+                        ط§ظ„ظƒط´ظپ ط§ظ„ظƒط§ظ…ظ„ ًں“„
                     </button>
                 </div>
 
                 <div style="margin-top:14px;">
-                    <span style="font-size:0.84rem; font-weight:800; color:var(--text-main); margin-bottom:8px; display:block;">آخر المعاملات المسجلة للعميل:</span>
+                    <span style="font-size:0.84rem; font-weight:800; color:var(--text-main); margin-bottom:8px; display:block;">ط¢ط®ط± ط§ظ„ظ…ط¹ط§ظ…ظ„ط§طھ ط§ظ„ظ…ط³ط¬ظ„ط© ظ„ظ„ط¹ظ…ظٹظ„:</span>
                     <div id="cust-recent-txs" style="font-size:0.84rem; color:var(--text-muted);"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- SHEET 5: 🎨 سمات التباين والراحة البصرية -->
+    <!-- SHEET 5: ًںژ¨ ط³ظ…ط§طھ ط§ظ„طھط¨ط§ظٹظ† ظˆط§ظ„ط±ط§ط­ط© ط§ظ„ط¨طµط±ظٹط© -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-theme" onclick="closeBottomSheet('sheet-theme')"></div>
     <div class="mobile-bottom-sheet" id="sheet-theme">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--amber);">
-                <i class="fa-solid fa-palette"></i> سمات التباين والراحة البصرية
+                <i class="fa-solid fa-palette"></i> ط³ظ…ط§طھ ط§ظ„طھط¨ط§ظٹظ† ظˆط§ظ„ط±ط§ط­ط© ط§ظ„ط¨طµط±ظٹط©
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-theme')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-theme')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding-bottom: 24px;">
             <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 14px; font-weight: 700;">
-                اختر السمة المناسبة لظروف إضاءتك وحركتك الحالية:
+                ط§ط®طھط± ط§ظ„ط³ظ…ط© ط§ظ„ظ…ظ†ط§ط³ط¨ط© ظ„ط¸ط±ظˆظپ ط¥ط¶ط§ط،طھظƒ ظˆط­ط±ظƒطھظƒ ط§ظ„ط­ط§ظ„ظٹط©:
             </p>
             
             <div class="theme-options-grid" style="display: flex; flex-direction: column; gap: 10px;">
@@ -8896,11 +8890,11 @@ try {
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>⚪ أبيض فائق النقاء</strong>
-                            <span class="theme-badge" style="background: #f1f5f9; color: #0f172a; font-weight:900;">إضاءة مكتبية نهارية</span>
+                            <strong>âڑھ ط£ط¨ظٹط¶ ظپط§ط¦ظ‚ ط§ظ„ظ†ظ‚ط§ط،</strong>
+                            <span class="theme-badge" style="background: #f1f5f9; color: #0f172a; font-weight:900;">ط¥ط¶ط§ط،ط© ظ…ظƒطھط¨ظٹط© ظ†ظ‡ط§ط±ظٹط©</span>
                         </div>
                         <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Ultra-Clean White</div>
-                        <p>خلفية بيضاء نقية 100% مع نصوص كحلية فاحمة slate-900 مريحة للعمل المكتبي في وضح النهار.</p>
+                        <p>ط®ظ„ظپظٹط© ط¨ظٹط¶ط§ط، ظ†ظ‚ظٹط© 100% ظ…ط¹ ظ†طµظˆطµ ظƒط­ظ„ظٹط© ظپط§ط­ظ…ط© slate-900 ظ…ط±ظٹط­ط© ظ„ظ„ط¹ظ…ظ„ ط§ظ„ظ…ظƒطھط¨ظٹ ظپظٹ ظˆط¶ط­ ط§ظ„ظ†ظ‡ط§ط±.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
@@ -8914,11 +8908,11 @@ try {
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>📜 ورق ناعم دافئ</strong>
-                            <span class="theme-badge" style="background: #f5ede2; color: #b45309; font-weight:900;">حماية العين من الإجهاد</span>
+                            <strong>ًں“œ ظˆط±ظ‚ ظ†ط§ط¹ظ… ط¯ط§ظپط¦</strong>
+                            <span class="theme-badge" style="background: #f5ede2; color: #b45309; font-weight:900;">ط­ظ…ط§ظٹط© ط§ظ„ط¹ظٹظ† ظ…ظ† ط§ظ„ط¥ط¬ظ‡ط§ط¯</span>
                         </div>
                         <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Warm Cream / Paper</div>
-                        <p>نغمة السيبيا والورق الطبيعي تمنع جفاف العين أثناء القراءة الطويلة لكشوفات الحساب والتقارير.</p>
+                        <p>ظ†ط؛ظ…ط© ط§ظ„ط³ظٹط¨ظٹط§ ظˆط§ظ„ظˆط±ظ‚ ط§ظ„ط·ط¨ظٹط¹ظٹ طھظ…ظ†ط¹ ط¬ظپط§ظپ ط§ظ„ط¹ظٹظ† ط£ط«ظ†ط§ط، ط§ظ„ظ‚ط±ط§ط،ط© ط§ظ„ط·ظˆظٹظ„ط© ظ„ظƒط´ظˆظپط§طھ ط§ظ„ط­ط³ط§ط¨ ظˆط§ظ„طھظ‚ط§ط±ظٹط±.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
@@ -8932,11 +8926,11 @@ try {
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>🏢 رمادي تنفيذي حديث</strong>
-                            <span class="theme-badge" style="background: #e2e8f0; color: #2563eb; font-weight:900;">أناقة الشركات الكبرى</span>
+                            <strong>ًںڈ¢ ط±ظ…ط§ط¯ظٹ طھظ†ظپظٹط°ظٹ ط­ط¯ظٹط«</strong>
+                            <span class="theme-badge" style="background: #e2e8f0; color: #2563eb; font-weight:900;">ط£ظ†ط§ظ‚ط© ط§ظ„ط´ط±ظƒط§طھ ط§ظ„ظƒط¨ط±ظ‰</span>
                         </div>
                         <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Executive Light Gray</div>
-                        <p>أسطح رمادية باردة مع لمسات زرقاء ملكية كلاسيكية تعكس بيئة عمل مصرفية راقية.</p>
+                        <p>ط£ط³ط·ط­ ط±ظ…ط§ط¯ظٹط© ط¨ط§ط±ط¯ط© ظ…ط¹ ظ„ظ…ط³ط§طھ ط²ط±ظ‚ط§ط، ظ…ظ„ظƒظٹط© ظƒظ„ط§ط³ظٹظƒظٹط© طھط¹ظƒط³ ط¨ظٹط¦ط© ط¹ظ…ظ„ ظ…طµط±ظپظٹط© ط±ط§ظ‚ظٹط©.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
@@ -8951,11 +8945,11 @@ try {
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>☀️ شمس ساطعة Solar Sun</strong>
-                            <span class="theme-badge" style="background: #000000; color: #ffff00; font-weight:900;">تباين 21:1 | شمس الساحات</span>
+                            <strong>âک€ï¸ڈ ط´ظ…ط³ ط³ط§ط·ط¹ط© Solar Sun</strong>
+                            <span class="theme-badge" style="background: #000000; color: #ffff00; font-weight:900;">طھط¨ط§ظٹظ† 21:1 | ط´ظ…ط³ ط§ظ„ط³ط§ط­ط§طھ</span>
                         </div>
                         <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">High-Contrast Solar Sun (#FFFF00)</div>
-                        <p>أصفر فاقع مع كتابة سوداء حادة وحدود 2px للقراءة الفورية تحت وهج شمس الساحات والمخازن المفتوحة.</p>
+                        <p>ط£طµظپط± ظپط§ظ‚ط¹ ظ…ط¹ ظƒطھط§ط¨ط© ط³ظˆط¯ط§ط، ط­ط§ط¯ط© ظˆط­ط¯ظˆط¯ 2px ظ„ظ„ظ‚ط±ط§ط،ط© ط§ظ„ظپظˆط±ظٹط© طھط­طھ ظˆظ‡ط¬ ط´ظ…ط³ ط§ظ„ط³ط§ط­ط§طھ ظˆط§ظ„ظ…ط®ط§ط²ظ† ط§ظ„ظ…ظپطھظˆط­ط©.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
@@ -8969,11 +8963,11 @@ try {
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>🌆 سليت مسائي هادئ</strong>
-                            <span class="theme-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight:900;">مكتب مسائي مريح</span>
+                            <strong>ًںŒ† ط³ظ„ظٹطھ ظ…ط³ط§ط¦ظٹ ظ‡ط§ط¯ط¦</strong>
+                            <span class="theme-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight:900;">ظ…ظƒطھط¨ ظ…ط³ط§ط¦ظٹ ظ…ط±ظٹط­</span>
                         </div>
                         <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Dimmed Twilight / Slate</div>
-                        <p>درجة كحلية مسائية ناعمة تقلل الوهج بنسبة 70% وتلائم العمل الليلي المكتبي بدون إبهار للعين.</p>
+                        <p>ط¯ط±ط¬ط© ظƒط­ظ„ظٹط© ظ…ط³ط§ط¦ظٹط© ظ†ط§ط¹ظ…ط© طھظ‚ظ„ظ„ ط§ظ„ظˆظ‡ط¬ ط¨ظ†ط³ط¨ط© 70% ظˆطھظ„ط§ط¦ظ… ط§ظ„ط¹ظ…ظ„ ط§ظ„ظ„ظٹظ„ظٹ ط§ظ„ظ…ظƒطھط¨ظٹ ط¨ط¯ظˆظ† ط¥ط¨ظ‡ط§ط± ظ„ظ„ط¹ظٹظ†.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
@@ -8987,11 +8981,11 @@ try {
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>🌌 كحلي أوبسيديان فاحم</strong>
-                            <span class="theme-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight:900;">الافتراضي | نيون زاهي</span>
+                            <strong>ًںŒŒ ظƒط­ظ„ظٹ ط£ظˆط¨ط³ظٹط¯ظٹط§ظ† ظپط§ط­ظ…</strong>
+                            <span class="theme-badge" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; font-weight:900;">ط§ظ„ط§ظپطھط±ط§ط¶ظٹ | ظ†ظٹظˆظ† ط²ط§ظ‡ظٹ</span>
                         </div>
                         <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Midnight Obsidian</div>
-                        <p>سواد كحلي عميق 0B0F19 مع مؤشرات رقمية فسفورية مشعة لإبراز أهم مؤشرات السيولة والأرباح.</p>
+                        <p>ط³ظˆط§ط¯ ظƒط­ظ„ظٹ ط¹ظ…ظٹظ‚ 0B0F19 ظ…ط¹ ظ…ط¤ط´ط±ط§طھ ط±ظ‚ظ…ظٹط© ظپط³ظپظˆط±ظٹط© ظ…ط´ط¹ط© ظ„ط¥ط¨ط±ط§ط² ط£ظ‡ظ… ظ…ط¤ط´ط±ط§طھ ط§ظ„ط³ظٹظˆظ„ط© ظˆط§ظ„ط£ط±ط¨ط§ط­.</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
@@ -9005,11 +8999,11 @@ try {
                     </div>
                     <div class="theme-info-box">
                         <div class="theme-title-row">
-                            <strong>🖤 سواد حقيقي فاحم</strong>
-                            <span class="theme-badge" style="background: rgba(255,255,255,0.15); color: #ffffff; font-weight:900;">سواد 100% | صفر طاقة</span>
+                            <strong>ًں–¤ ط³ظˆط§ط¯ ط­ظ‚ظٹظ‚ظٹ ظپط§ط­ظ…</strong>
+                            <span class="theme-badge" style="background: rgba(255,255,255,0.15); color: #ffffff; font-weight:900;">ط³ظˆط§ط¯ 100% | طµظپط± ط·ط§ظ‚ط©</span>
                         </div>
                         <div style="font-size:0.72rem; color:var(--text-muted); font-weight:700; opacity:0.85; margin-bottom:3px; direction:ltr; text-align:right;">Pure OLED Black</div>
-                        <p>إطفاء كامل لبكسلات شاشة OLED لتوفير البطارية أثناء السفر وأقصى تباين ليلي في الظلام التام.</p>
+                        <p>ط¥ط·ظپط§ط، ظƒط§ظ…ظ„ ظ„ط¨ظƒط³ظ„ط§طھ ط´ط§ط´ط© OLED ظ„طھظˆظپظٹط± ط§ظ„ط¨ط·ط§ط±ظٹط© ط£ط«ظ†ط§ط، ط§ظ„ط³ظپط± ظˆط£ظ‚طµظ‰ طھط¨ط§ظٹظ† ظ„ظٹظ„ظٹ ظپظٹ ط§ظ„ط¸ظ„ط§ظ… ط§ظ„طھط§ظ….</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
@@ -9017,61 +9011,61 @@ try {
         </div>
     </div>
 
-    <!-- SHEET: 🏢 اختيار الفرع والمستودع النشط -->
+    <!-- SHEET: ًںڈ¢ ط§ط®طھظٹط§ط± ط§ظ„ظپط±ط¹ ظˆط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ†ط´ط· -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-branch-picker" onclick="closeBottomSheet('sheet-branch-picker')"></div>
     <div class="mobile-bottom-sheet" id="sheet-branch-picker">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--primary);">
-                <i class="fa-solid fa-building-circle-check"></i> تحديد الفرع والمستودع النشط
+                <i class="fa-solid fa-building-circle-check"></i> طھط­ط¯ظٹط¯ ط§ظ„ظپط±ط¹ ظˆط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ†ط´ط·
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-branch-picker')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-branch-picker')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding-bottom:20px;">
             <p style="font-size:0.82rem; color:var(--text-muted); font-weight:700; margin-bottom:12px;">
-                اختر الموقع المطلوب لعرض الأرصدة والمخزون وسجلات البيع الخاصة به:
+                ط§ط®طھط± ط§ظ„ظ…ظˆظ‚ط¹ ط§ظ„ظ…ط·ظ„ظˆط¨ ظ„ط¹ط±ط¶ ط§ظ„ط£ط±طµط¯ط© ظˆط§ظ„ظ…ط®ط²ظˆظ† ظˆط³ط¬ظ„ط§طھ ط§ظ„ط¨ظٹط¹ ط§ظ„ط®ط§طµط© ط¨ظ‡:
             </p>
             <div style="display:flex; flex-direction:column; gap:10px;">
-                <div class="theme-card-option branch-option active" id="branch-opt-central" onclick="selectBranch('central', '🏢 فرع السجانة المركزي')">
+                <div class="theme-card-option branch-option active" id="branch-opt-central" onclick="selectBranch('central', 'ًںڈ¢ ظپط±ط¹ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ')">
                     <div class="wa-opt-icon" style="background:rgba(56,189,248,0.15); color:var(--primary);">
                         <i class="fa-solid fa-building"></i>
                     </div>
                     <div style="flex:1;">
-                        <strong style="color:var(--text-main); font-size:0.92rem; display:block; margin-bottom:2px;">فرع السجانة المركزي • المقر الرئيسي</strong>
-                        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">الخزينة المركزية، معرض البيع، مبيعات الجملة والقطاعي</p>
+                        <strong style="color:var(--text-main); font-size:0.92rem; display:block; margin-bottom:2px;">ظپط±ط¹ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ â€¢ ط§ظ„ظ…ظ‚ط± ط§ظ„ط±ط¦ظٹط³ظٹ</strong>
+                        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹط©طŒ ظ…ط¹ط±ط¶ ط§ظ„ط¨ظٹط¹طŒ ظ…ط¨ظٹط¹ط§طھ ط§ظ„ط¬ظ…ظ„ط© ظˆط§ظ„ظ‚ط·ط§ط¹ظٹ</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <div class="theme-card-option branch-option" id="branch-opt-kalakla" onclick="selectBranch('kalakla', '🏬 مستودع الكلاكلة الجنوبي')">
+                <div class="theme-card-option branch-option" id="branch-opt-kalakla" onclick="selectBranch('kalakla', 'ًںڈ¬ ظ…ط³طھظˆط¯ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط© ط§ظ„ط¬ظ†ظˆط¨ظٹ')">
                     <div class="wa-opt-icon" style="background:rgba(16,185,129,0.15); color:var(--emerald);">
                         <i class="fa-solid fa-warehouse"></i>
                     </div>
                     <div style="flex:1;">
-                        <strong style="color:var(--text-main); font-size:0.92rem; display:block; margin-bottom:2px;">مستودع الكلاكلة الجنوبي</strong>
-                        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">تخزين حديد التسليح والأسمنت ومواد البناء الثقيلة</p>
+                        <strong style="color:var(--text-main); font-size:0.92rem; display:block; margin-bottom:2px;">ظ…ط³طھظˆط¯ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط© ط§ظ„ط¬ظ†ظˆط¨ظٹ</strong>
+                        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">طھط®ط²ظٹظ† ط­ط¯ظٹط¯ ط§ظ„طھط³ظ„ظٹط­ ظˆط§ظ„ط£ط³ظ…ظ†طھ ظˆظ…ظˆط§ط¯ ط§ظ„ط¨ظ†ط§ط، ط§ظ„ط«ظ‚ظٹظ„ط©</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <div class="theme-card-option branch-option" id="branch-opt-bahri" onclick="selectBranch('bahri', '🏭 معرض الخرطوم بحري')">
+                <div class="theme-card-option branch-option" id="branch-opt-bahri" onclick="selectBranch('bahri', 'ًںڈ­ ظ…ط¹ط±ط¶ ط§ظ„ط®ط±ط·ظˆظ… ط¨ط­ط±ظٹ')">
                     <div class="wa-opt-icon" style="background:rgba(245,158,11,0.15); color:var(--amber);">
                         <i class="fa-solid fa-store"></i>
                     </div>
                     <div style="flex:1;">
-                        <strong style="color:var(--text-main); font-size:0.92rem; display:block; margin-bottom:2px;">معرض الخرطوم بحري الصناعي</strong>
-                        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">نقطة التوزيع المباشرة للمنطقة الصناعية بحري</p>
+                        <strong style="color:var(--text-main); font-size:0.92rem; display:block; margin-bottom:2px;">ظ…ط¹ط±ط¶ ط§ظ„ط®ط±ط·ظˆظ… ط¨ط­ط±ظٹ ط§ظ„طµظ†ط§ط¹ظٹ</strong>
+                        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">ظ†ظ‚ط·ط© ط§ظ„طھظˆط²ظٹط¹ ط§ظ„ظ…ط¨ط§ط´ط±ط© ظ„ظ„ظ…ظ†ط·ظ‚ط© ط§ظ„طµظ†ط§ط¹ظٹط© ط¨ط­ط±ظٹ</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
 
-                <div class="theme-card-option branch-option" id="branch-opt-all" onclick="selectBranch('all', '🌐 كافة الفروع (مجمّع)')">
+                <div class="theme-card-option branch-option" id="branch-opt-all" onclick="selectBranch('all', 'ًںŒگ ظƒط§ظپط© ط§ظ„ظپط±ظˆط¹ (ظ…ط¬ظ…ظ‘ط¹)')">
                     <div class="wa-opt-icon" style="background:rgba(168,85,247,0.15); color:var(--purple);">
                         <i class="fa-solid fa-globe"></i>
                     </div>
                     <div style="flex:1;">
-                        <strong style="color:var(--text-main); font-size:0.92rem; display:block; margin-bottom:2px;">كافة الفروع والمستودعات • موحّد</strong>
-                        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">عرض كلي لجميع المبيعات والأرصدة على مستوى الشركة</p>
+                        <strong style="color:var(--text-main); font-size:0.92rem; display:block; margin-bottom:2px;">ظƒط§ظپط© ط§ظ„ظپط±ظˆط¹ ظˆط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ â€¢ ظ…ظˆط­ظ‘ط¯</strong>
+                        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">ط¹ط±ط¶ ظƒظ„ظٹ ظ„ط¬ظ…ظٹط¹ ط§ظ„ظ…ط¨ظٹط¹ط§طھ ظˆط§ظ„ط£ط±طµط¯ط© ط¹ظ„ظ‰ ظ…ط³طھظˆظ‰ ط§ظ„ط´ط±ظƒط©</p>
                     </div>
                     <i class="fa-solid fa-circle-check theme-check-icon"></i>
                 </div>
@@ -9079,32 +9073,32 @@ try {
         </div>
     </div>
 
-    <!-- SHEET: 🔍 البحث السريع الشامل (Omni-Search) -->
+    <!-- SHEET: ًں”چ ط§ظ„ط¨ط­ط« ط§ظ„ط³ط±ظٹط¹ ط§ظ„ط´ط§ظ…ظ„ (Omni-Search) -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-global-search" onclick="closeBottomSheet('sheet-global-search')"></div>
     <div class="mobile-bottom-sheet" id="sheet-global-search" style="max-height:92vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--primary);">
-                <i class="fa-solid fa-magnifying-glass"></i> البحث السريع الشامل
+                <i class="fa-solid fa-magnifying-glass"></i> ط§ظ„ط¨ط­ط« ط§ظ„ط³ط±ظٹط¹ ط§ظ„ط´ط§ظ…ظ„
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-global-search')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-global-search')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding-top:10px;">
             <div style="display:flex; gap:8px; margin-bottom:10px; align-items:center;">
                 <div style="position:relative; flex:1;">
                     <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:14px; top:13px; color:var(--text-muted);"></i>
-                    <input type="text" id="omni-search-input" class="m-input" style="padding-right:38px; height:44px;" placeholder="ابحث عن صنف، عميل، فاتورة، أو حساب..." oninput="runOmniSearch(this.value)" autocomplete="off">
+                    <input type="text" id="omni-search-input" class="m-input" style="padding-right:38px; height:44px;" placeholder="ط§ط¨ط­ط« ط¹ظ† طµظ†ظپطŒ ط¹ظ…ظٹظ„طŒ ظپط§طھظˆط±ط©طŒ ط£ظˆ ط­ط³ط§ط¨..." oninput="runOmniSearch(this.value)" autocomplete="off">
                 </div>
-                <button type="button" class="voice-mic-btn" onclick="VoiceCommandEngine.toggleListening('search', 'omni-search-input')" title="🎙️ بحث صوتي">
+                <button type="button" class="voice-mic-btn" onclick="VoiceCommandEngine.toggleListening('search', 'omni-search-input')" title="ًںژ™ï¸ڈ ط¨ط­ط« طµظˆطھظٹ">
                     <i class="fa-solid fa-microphone"></i>
                 </button>
             </div>
             <div class="picker-category-pills" style="margin-bottom:12px;">
-                <button type="button" class="cat-pill active" onclick="setOmniCategory('all', this)">الكل</button>
-                <button type="button" class="cat-pill" onclick="setOmniCategory('items', this)">📦 أصناف</button>
-                <button type="button" class="cat-pill" onclick="setOmniCategory('customers', this)">👤 عملاء</button>
-                <button type="button" class="cat-pill" onclick="setOmniCategory('invoices', this)">🧾 فواتير</button>
-                <button type="button" class="cat-pill" onclick="setOmniCategory('accounts', this)">🏦 حسابات</button>
+                <button type="button" class="cat-pill active" onclick="setOmniCategory('all', this)">ط§ظ„ظƒظ„</button>
+                <button type="button" class="cat-pill" onclick="setOmniCategory('items', this)">ًں“¦ ط£طµظ†ط§ظپ</button>
+                <button type="button" class="cat-pill" onclick="setOmniCategory('customers', this)">ًں‘¤ ط¹ظ…ظ„ط§ط،</button>
+                <button type="button" class="cat-pill" onclick="setOmniCategory('invoices', this)">ًں§¾ ظپظˆط§طھظٹط±</button>
+                <button type="button" class="cat-pill" onclick="setOmniCategory('accounts', this)">ًںڈ¦ ط­ط³ط§ط¨ط§طھ</button>
             </div>
             <div id="omni-search-results">
                 <!-- Live Search Results Dynamic -->
@@ -9112,44 +9106,44 @@ try {
         </div>
     </div>
 
-    <!-- SHEET: ⚙️ ضبط حدود وقواعد الأعمال الذكية -->
+    <!-- SHEET: âڑ™ï¸ڈ ط¶ط¨ط· ط­ط¯ظˆط¯ ظˆظ‚ظˆط§ط¹ط¯ ط§ظ„ط£ط¹ظ…ط§ظ„ ط§ظ„ط°ظƒظٹط© -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-rule-settings" onclick="closeBottomSheet('sheet-rule-settings')"></div>
     <div class="mobile-bottom-sheet" id="sheet-rule-settings">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--rose);">
-                <i class="fa-solid fa-sliders"></i> ضبط حدود وقواعد الأعمال الذكية
+                <i class="fa-solid fa-sliders"></i> ط¶ط¨ط· ط­ط¯ظˆط¯ ظˆظ‚ظˆط§ط¹ط¯ ط§ظ„ط£ط¹ظ…ط§ظ„ ط§ظ„ط°ظƒظٹط©
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-rule-settings')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-rule-settings')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding-bottom:20px;">
             <form onsubmit="saveRuleSettings(event)">
                 <div class="m-form-group">
-                    <label class="m-label">💎 حد الفواتير الكبرى (Type A) بالجنيه SDG:</label>
+                    <label class="m-label">ًں’ژ ط­ط¯ ط§ظ„ظپظˆط§طھظٹط± ط§ظ„ظƒط¨ط±ظ‰ (Type A) ط¨ط§ظ„ط¬ظ†ظٹظ‡ SDG:</label>
                     <input type="number" id="rule-high-ticket-limit" class="m-input" value="5000000" step="100000" required>
-                    <small style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:3px;">إصدار تنبيه عاجل عند تسجيل أي فاتورة بيع تفوق هذا المبلغ.</small>
+                    <small style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:3px;">ط¥طµط¯ط§ط± طھظ†ط¨ظٹظ‡ ط¹ط§ط¬ظ„ ط¹ظ†ط¯ طھط³ط¬ظٹظ„ ط£ظٹ ظپط§طھظˆط±ط© ط¨ظٹط¹ طھظپظˆظ‚ ظ‡ط°ط§ ط§ظ„ظ…ط¨ظ„ط؛.</small>
                 </div>
                 <div class="m-form-group">
-                    <label class="m-label">⚠️ الحد الأدنى لهامش الربح المسموح (Type B) %:</label>
+                    <label class="m-label">âڑ ï¸ڈ ط§ظ„ط­ط¯ ط§ظ„ط£ط¯ظ†ظ‰ ظ„ظ‡ط§ظ…ط´ ط§ظ„ط±ط¨ط­ ط§ظ„ظ…ط³ظ…ظˆط­ (Type B) %:</label>
                     <input type="number" id="rule-min-margin-pct" class="m-input" value="5" step="1" required>
-                    <small style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:3px;">إشعار تحذيري إذا كان هامش ربح الصنف أقل من هذه النسبة أو دون التكلفة.</small>
+                    <small style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:3px;">ط¥ط´ط¹ط§ط± طھط­ط°ظٹط±ظٹ ط¥ط°ط§ ظƒط§ظ† ظ‡ط§ظ…ط´ ط±ط¨ط­ ط§ظ„طµظ†ظپ ط£ظ‚ظ„ ظ…ظ† ظ‡ط°ظ‡ ط§ظ„ظ†ط³ط¨ط© ط£ظˆ ط¯ظˆظ† ط§ظ„طھظƒظ„ظپط©.</small>
                 </div>
                 <div class="m-form-group">
-                    <label class="m-label">🔴 سقف الائتمان للعملاء (Type C) SDG:</label>
+                    <label class="m-label">ًں”´ ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ† ظ„ظ„ط¹ظ…ظ„ط§ط، (Type C) SDG:</label>
                     <input type="number" id="rule-credit-limit" class="m-input" value="3000000" step="100000" required>
-                    <small style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:3px;">حظر البيع الآجل تلقائياً وطلب موافقة الإدارة عند تجاوز الدين لهذا السقف.</small>
+                    <small style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:3px;">ط­ط¸ط± ط§ظ„ط¨ظٹط¹ ط§ظ„ط¢ط¬ظ„ طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ظˆط·ظ„ط¨ ظ…ظˆط§ظپظ‚ط© ط§ظ„ط¥ط¯ط§ط±ط© ط¹ظ†ط¯ طھط¬ط§ظˆط² ط§ظ„ط¯ظٹظ† ظ„ظ‡ط°ط§ ط§ظ„ط³ظ‚ظپ.</small>
                 </div>
                 <div class="m-form-group">
-                    <label class="m-label">📦 حد المخزون الحرج وإعادة الطلب (Type D) وحدات:</label>
+                    <label class="m-label">ًں“¦ ط­ط¯ ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط­ط±ط¬ ظˆط¥ط¹ط§ط¯ط© ط§ظ„ط·ظ„ط¨ (Type D) ظˆط­ط¯ط§طھ:</label>
                     <input type="number" id="rule-safety-stock" class="m-input" value="15" step="1" required>
-                    <small style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:3px;">تنبيه فوري لمدير المشتريات عند وصول كمية أي صنف لهذا الحد أو أقل.</small>
+                    <small style="font-size:0.72rem; color:var(--text-muted); display:block; margin-top:3px;">طھظ†ط¨ظٹظ‡ ظپظˆط±ظٹ ظ„ظ…ط¯ظٹط± ط§ظ„ظ…ط´طھط±ظٹط§طھ ط¹ظ†ط¯ ظˆطµظˆظ„ ظƒظ…ظٹط© ط£ظٹ طµظ†ظپ ظ„ظ‡ط°ط§ ط§ظ„ط­ط¯ ط£ظˆ ط£ظ‚ظ„.</small>
                 </div>
                 <button type="submit" class="m-btn-submit" style="background:linear-gradient(135deg, var(--rose), #e11d48);">
-                    <i class="fa-solid fa-floppy-disk"></i> حفظ القواعد وتحديث الرادار فوراً
+                    <i class="fa-solid fa-floppy-disk"></i> ط­ظپط¸ ط§ظ„ظ‚ظˆط§ط¹ط¯ ظˆطھط­ط¯ظٹط« ط§ظ„ط±ط§ط¯ط§ط± ظپظˆط±ط§ظ‹
                 </button>
             </form>
 
-            <!-- 🔔 قسم إشعارات الخلفية والشاشة مقفلة (Web Push / FCM Notifications) -->
+            <!-- ًں”” ظ‚ط³ظ… ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ط®ظ„ظپظٹط© ظˆط§ظ„ط´ط§ط´ط© ظ…ظ‚ظپظ„ط© (Web Push / FCM Notifications) -->
             <div style="margin-top:20px; padding-top:16px; border-top:1px dashed var(--border-glass);">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <div style="display:flex; align-items:center; gap:8px;">
@@ -9157,18 +9151,18 @@ try {
                             <i class="fa-solid fa-bell"></i>
                         </div>
                         <div>
-                            <strong style="font-size:0.88rem; color:var(--text-main); display:block;">إشعارات الخلفية وقفل الشاشة (Web Push)</strong>
-                            <span style="font-size:0.7rem; color:var(--text-muted);">تنبيهات فورية تصلك حتى والهاتف مقفل والمتصفح مغلق</span>
+                            <strong style="font-size:0.88rem; color:var(--text-main); display:block;">ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ط®ظ„ظپظٹط© ظˆظ‚ظپظ„ ط§ظ„ط´ط§ط´ط© (Web Push)</strong>
+                            <span style="font-size:0.7rem; color:var(--text-muted);">طھظ†ط¨ظٹظ‡ط§طھ ظپظˆط±ظٹط© طھطµظ„ظƒ ط­طھظ‰ ظˆط§ظ„ظ‡ط§طھظپ ظ…ظ‚ظپظ„ ظˆط§ظ„ظ…طھطµظپط­ ظ…ط؛ظ„ظ‚</span>
                         </div>
                     </div>
-                    <span id="push-status-badge" style="font-size:0.72rem; font-weight:800; color:rgba(255,255,255,0.4);">⚪ غير مفعلة</span>
+                    <span id="push-status-badge" style="font-size:0.72rem; font-weight:800; color:rgba(255,255,255,0.4);">âڑھ ط؛ظٹط± ظ…ظپط¹ظ„ط©</span>
                 </div>
 
                 <div style="background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:12px; padding:12px; margin-bottom:12px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
                         <div>
-                            <span style="font-size:0.8rem; font-weight:800; color:var(--text-main); display:block;">تفعيل استقبال الإشعارات المشفرة</span>
-                            <small style="font-size:0.78rem; color:var(--text-muted); display:block; margin-top:2px;">اهتزاز ونغمة صوتية عند وجود فواتير كبرى، تجاوز ائتمان، أو نقص مخزون</small>
+                            <span style="font-size:0.8rem; font-weight:800; color:var(--text-main); display:block;">طھظپط¹ظٹظ„ ط§ط³طھظ‚ط¨ط§ظ„ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„ظ…ط´ظپط±ط©</span>
+                            <small style="font-size:0.78rem; color:var(--text-muted); display:block; margin-top:2px;">ط§ظ‡طھط²ط§ط² ظˆظ†ط؛ظ…ط© طµظˆطھظٹط© ط¹ظ†ط¯ ظˆط¬ظˆط¯ ظپظˆط§طھظٹط± ظƒط¨ط±ظ‰طŒ طھط¬ط§ظˆط² ط§ط¦طھظ…ط§ظ†طŒ ط£ظˆ ظ†ظ‚طµ ظ…ط®ط²ظˆظ†</small>
                         </div>
                         <input type="checkbox" id="push-notification-toggle" onchange="PWAManager.enablePushNotifications()" style="width:22px; height:22px; accent-color:var(--primary); cursor:pointer; flex-shrink:0;">
                     </div>
@@ -9176,47 +9170,47 @@ try {
 
                 <button type="button" class="btn-ripple" onclick="PWAManager.sendTestPushNotification()" style="width:100%; height:38px; border-radius:10px; background:linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.2)); border:1px solid rgba(56,189,248,0.4); color:#38bdf8; font-size:0.8rem; font-weight:800; display:flex; align-items:center; justify-content:center; gap:8px; cursor:pointer;">
                     <i class="fa-solid fa-paper-plane"></i>
-                    <span>📲 إرسال إشعار تجريبي فوري (أقفل الشاشة للاختبار)</span>
+                    <span>ًں“² ط¥ط±ط³ط§ظ„ ط¥ط´ط¹ط§ط± طھط¬ط±ظٹط¨ظٹ ظپظˆط±ظٹ (ط£ظ‚ظپظ„ ط§ظ„ط´ط§ط´ط© ظ„ظ„ط§ط®طھط¨ط§ط±)</span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- SHEET: 📄 كشف حساب معتمد رسمي للطباعة والمشاركة -->
+    <!-- SHEET: ًں“„ ظƒط´ظپ ط­ط³ط§ط¨ ظ…ط¹طھظ…ط¯ ط±ط³ظ…ظٹ ظ„ظ„ط·ط¨ط§ط¹ط© ظˆط§ظ„ظ…ط´ط§ط±ظƒط© -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-statement-pdf-preview" onclick="closeBottomSheet('sheet-statement-pdf-preview')"></div>
     <div class="mobile-bottom-sheet" id="sheet-statement-pdf-preview" style="max-height:92vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--purple); font-weight:900;">
-                <i class="fa-solid fa-file-invoice text-purple-400"></i> كشف حساب رسمي معتمد
+                <i class="fa-solid fa-file-invoice text-purple-400"></i> ظƒط´ظپ ط­ط³ط§ط¨ ط±ط³ظ…ظٹ ظ…ط¹طھظ…ط¯
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-statement-pdf-preview')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-statement-pdf-preview')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding-bottom:18px;">
             <div class="statement-pdf-paper" id="stmt-pdf-content">
                 <!-- Formal Company Header -->
                 <div class="stmt-official-header">
-                    <div style="font-size:0.7rem; color:var(--text-muted); font-weight:800; letter-spacing:0.5px;">جمهورية السودان • الخرطوم • المنطقة الصناعية السجانة</div>
-                    <div style="font-size:1.15rem; font-weight:900; color:var(--text-main); margin:4px 0 2px 0;">شركة السجانة لمواد البناء المحدودة</div>
-                    <div style="font-size:0.75rem; color:var(--purple); font-weight:800;">كشف حساب حركة الأستاذ العام (Statement of Account)</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); font-weight:800; letter-spacing:0.5px;">ط¬ظ…ظ‡ظˆط±ظٹط© ط§ظ„ط³ظˆط¯ط§ظ† â€¢ ط§ظ„ط®ط±ط·ظˆظ… â€¢ ط§ظ„ظ…ظ†ط·ظ‚ط© ط§ظ„طµظ†ط§ط¹ظٹط© ط§ظ„ط³ط¬ط§ظ†ط©</div>
+                    <div style="font-size:1.15rem; font-weight:900; color:var(--text-main); margin:4px 0 2px 0;">ط´ط±ظƒط© ط§ظ„ط³ط¬ط§ظ†ط© ظ„ظ…ظˆط§ط¯ ط§ظ„ط¨ظ†ط§ط، ط§ظ„ظ…ط­ط¯ظˆط¯ط©</div>
+                    <div style="font-size:0.75rem; color:var(--purple); font-weight:800;">ظƒط´ظپ ط­ط³ط§ط¨ ط­ط±ظƒط© ط§ظ„ط£ط³طھط§ط° ط§ظ„ط¹ط§ظ… (Statement of Account)</div>
                 </div>
 
                 <!-- Account & Period Metadata Box -->
                 <div style="background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:10px; padding:10px; margin-bottom:12px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                        <span style="font-size:0.75rem; color:var(--text-muted);">اسم الحساب:</span>
-                        <strong id="pdf-stmt-party-name" style="font-size:0.85rem; color:var(--text-main);">شركة الفهد للمقاولات</strong>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">ط§ط³ظ… ط§ظ„ط­ط³ط§ط¨:</span>
+                        <strong id="pdf-stmt-party-name" style="font-size:0.85rem; color:var(--text-main);">ط´ط±ظƒط© ط§ظ„ظپظ‡ط¯ ظ„ظ„ظ…ظ‚ط§ظˆظ„ط§طھ</strong>
                     </div>
                     <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                        <span style="font-size:0.75rem; color:var(--text-muted);">الهاتف / السجل:</span>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">ط§ظ„ظ‡ط§طھظپ / ط§ظ„ط³ط¬ظ„:</span>
                         <span id="pdf-stmt-party-phone" style="font-family:'Inter',sans-serif; font-size:0.78rem;">0912345678</span>
                     </div>
                     <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
-                        <span style="font-size:0.75rem; color:var(--text-muted);">تاريخ إصدار التقرير:</span>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">طھط§ط±ظٹط® ط¥طµط¯ط§ط± ط§ظ„طھظ‚ط±ظٹط±:</span>
                         <span id="pdf-stmt-date" style="font-family:'Inter',sans-serif; font-size:0.78rem;">2026-10-02</span>
                     </div>
                     <div style="display:flex; justify-content:space-between;">
-                        <span style="font-size:0.75rem; color:var(--text-muted);">سقف التسهيلات:</span>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">ط³ظ‚ظپ ط§ظ„طھط³ظ‡ظٹظ„ط§طھ:</span>
                         <span id="pdf-stmt-credit-limit" style="font-family:'Inter',sans-serif; font-size:0.78rem; font-weight:800;">3,000,000 SDG</span>
                     </div>
                 </div>
@@ -9224,15 +9218,15 @@ try {
                 <!-- Financial Balance Summary Banner -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr 1.2fr; gap:6px; text-align:center; margin-bottom:12px;">
                     <div style="background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3); border-radius:10px; padding:8px 4px;">
-                        <span style="font-size:0.78rem; color:var(--rose); font-weight:800; display:block;">إجمالي المدين (+)</span>
+                        <span style="font-size:0.78rem; color:var(--rose); font-weight:800; display:block;">ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط¯ظٹظ† (+)</span>
                         <strong id="pdf-stmt-total-debit" style="font-family:'Inter',sans-serif; font-size:0.84rem; color:var(--rose);">6,870,000</strong>
                     </div>
                     <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:8px 4px;">
-                        <span style="font-size:0.78rem; color:var(--emerald); font-weight:800; display:block;">إجمالي الدائن (-)</span>
+                        <span style="font-size:0.78rem; color:var(--emerald); font-weight:800; display:block;">ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط¯ط§ط¦ظ† (-)</span>
                         <strong id="pdf-stmt-total-credit" style="font-family:'Inter',sans-serif; font-size:0.84rem; color:var(--emerald);">2,020,000</strong>
                     </div>
                     <div style="background:var(--surface-sub); border:1.5px solid var(--border-glass); border-radius:10px; padding:8px 4px;">
-                        <span style="font-size:0.78rem; color:var(--text-muted); font-weight:800; display:block;">صافي الرصيد المستحق</span>
+                        <span style="font-size:0.78rem; color:var(--text-muted); font-weight:800; display:block;">طµط§ظپظٹ ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…ط³طھط­ظ‚</span>
                         <strong id="pdf-stmt-net-balance" style="font-family:'Inter',sans-serif; font-size:0.92rem; color:var(--rose);">4,850,000</strong>
                     </div>
                 </div>
@@ -9241,12 +9235,12 @@ try {
                 <table class="stmt-table">
                     <thead>
                         <tr>
-                            <th>التاريخ</th>
-                            <th>السند</th>
-                            <th>البيان</th>
-                            <th>مدين</th>
-                            <th>دائن</th>
-                            <th>الرصيد</th>
+                            <th>ط§ظ„طھط§ط±ظٹط®</th>
+                            <th>ط§ظ„ط³ظ†ط¯</th>
+                            <th>ط§ظ„ط¨ظٹط§ظ†</th>
+                            <th>ظ…ط¯ظٹظ†</th>
+                            <th>ط¯ط§ط¦ظ†</th>
+                            <th>ط§ظ„ط±طµظٹط¯</th>
                         </tr>
                     </thead>
                     <tbody id="pdf-stmt-table-body">
@@ -9257,12 +9251,12 @@ try {
                 <!-- Official Signature and Bank Transfer Footer -->
                 <div style="margin-top:14px; padding-top:10px; border-top:1px dashed var(--border-glass); display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--text-muted);">
                     <div>
-                        <strong>الحساب البنكي للسداد:</strong><br>
-                        بنك الخرطوم (بنكك): <span style="font-family:'Inter',sans-serif; font-weight:800; color:var(--text-main);">1298402</span>
+                        <strong>ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط¨ظ†ظƒظٹ ظ„ظ„ط³ط¯ط§ط¯:</strong><br>
+                        ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ… (ط¨ظ†ظƒظƒ): <span style="font-family:'Inter',sans-serif; font-weight:800; color:var(--text-main);">1298402</span>
                     </div>
                     <div style="text-align:left;">
                         <span style="border:1px solid var(--border-glass); padding:4px 8px; border-radius:6px; background:var(--surface-sub); font-weight:800; color:var(--primary);">
-                            معتمد رسمياً 🔏
+                            ظ…ط¹طھظ…ط¯ ط±ط³ظ…ظٹط§ظ‹ ًں”ڈ
                         </span>
                     </div>
                 </div>
@@ -9271,75 +9265,75 @@ try {
             <!-- Action Buttons Grid -->
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-top:14px;">
                 <button type="button" class="m-btn-submit" style="background:linear-gradient(135deg, var(--purple), #7c3aed);" onclick="LedgerEngine.printStatement()">
-                    <i class="fa-solid fa-print"></i> طباعة الكشف (Bluetooth / PDF)
+                    <i class="fa-solid fa-print"></i> ط·ط¨ط§ط¹ط© ط§ظ„ظƒط´ظپ (Bluetooth / PDF)
                 </button>
                 <button type="button" class="m-btn-submit" style="background:linear-gradient(135deg, #10b981, #059669);" onclick="LedgerEngine.shareStatementWhatsApp()">
-                    <i class="fa-brands fa-whatsapp"></i> إرسال عبر الواتساب
+                    <i class="fa-brands fa-whatsapp"></i> ط¥ط±ط³ط§ظ„ ط¹ط¨ط± ط§ظ„ظˆط§طھط³ط§ط¨
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- SHEET: ❌ تأكيد رفض طلب الموافقة الإدارية -->
+    <!-- SHEET: â‌Œ طھط£ظƒظٹط¯ ط±ظپط¶ ط·ظ„ط¨ ط§ظ„ظ…ظˆط§ظپظ‚ط© ط§ظ„ط¥ط¯ط§ط±ظٹط© -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-approval-reject-reason" onclick="closeBottomSheet('sheet-approval-reject-reason')"></div>
     <div class="mobile-bottom-sheet" id="sheet-approval-reject-reason">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--rose); font-weight:900;">
-                <i class="fa-solid fa-ban text-rose-400"></i> رفض طلب الاعتماد
+                <i class="fa-solid fa-ban text-rose-400"></i> ط±ظپط¶ ط·ظ„ط¨ ط§ظ„ط§ط¹طھظ…ط§ط¯
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-approval-reject-reason')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-approval-reject-reason')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding-bottom:18px;">
             <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:10px; font-weight:700;">
-                حدد سبب رفض هذا الطلب لإشعار الموظف مقدم الطلب وتوثيق القرار في سجل التدقيق:
+                ط­ط¯ط¯ ط³ط¨ط¨ ط±ظپط¶ ظ‡ط°ط§ ط§ظ„ط·ظ„ط¨ ظ„ط¥ط´ط¹ط§ط± ط§ظ„ظ…ظˆط¸ظپ ظ…ظ‚ط¯ظ… ط§ظ„ط·ظ„ط¨ ظˆطھظˆط«ظٹظ‚ ط§ظ„ظ‚ط±ط§ط± ظپظٹ ط³ط¬ظ„ ط§ظ„طھط¯ظ‚ظٹظ‚:
             </p>
 
             <div class="picker-category-pills" style="margin-bottom:12px;" id="reject-reasons-chips">
-                <button type="button" class="cat-pill active" onclick="ApprovalsHubEngine.selectRejectReason('هامش ربح غير مقبول', this)">هامش ربح غير مقبول</button>
-                <button type="button" class="cat-pill" onclick="ApprovalsHubEngine.selectRejectReason('سقف ائتمان متجاوز دون سداد', this)">سقف ائتمان متجاوز</button>
-                <button type="button" class="cat-pill" onclick="ApprovalsHubEngine.selectRejectReason('نقص وثائق داعمة أو فواتير', this)">نقص وثائق داعمة</button>
-                <button type="button" class="cat-pill" onclick="ApprovalsHubEngine.selectRejectReason('سعر غير معتمد من الإدارة', this)">سعر غير معتمد</button>
+                <button type="button" class="cat-pill active" onclick="ApprovalsHubEngine.selectRejectReason('ظ‡ط§ظ…ط´ ط±ط¨ط­ ط؛ظٹط± ظ…ظ‚ط¨ظˆظ„', this)">ظ‡ط§ظ…ط´ ط±ط¨ط­ ط؛ظٹط± ظ…ظ‚ط¨ظˆظ„</button>
+                <button type="button" class="cat-pill" onclick="ApprovalsHubEngine.selectRejectReason('ط³ظ‚ظپ ط§ط¦طھظ…ط§ظ† ظ…طھط¬ط§ظˆط² ط¯ظˆظ† ط³ط¯ط§ط¯', this)">ط³ظ‚ظپ ط§ط¦طھظ…ط§ظ† ظ…طھط¬ط§ظˆط²</button>
+                <button type="button" class="cat-pill" onclick="ApprovalsHubEngine.selectRejectReason('ظ†ظ‚طµ ظˆط«ط§ط¦ظ‚ ط¯ط§ط¹ظ…ط© ط£ظˆ ظپظˆط§طھظٹط±', this)">ظ†ظ‚طµ ظˆط«ط§ط¦ظ‚ ط¯ط§ط¹ظ…ط©</button>
+                <button type="button" class="cat-pill" onclick="ApprovalsHubEngine.selectRejectReason('ط³ط¹ط± ط؛ظٹط± ظ…ط¹طھظ…ط¯ ظ…ظ† ط§ظ„ط¥ط¯ط§ط±ط©', this)">ط³ط¹ط± ط؛ظٹط± ظ…ط¹طھظ…ط¯</button>
             </div>
 
             <div class="m-form-group">
-                <label class="m-label" style="font-size:0.75rem;">ملاحظات إدارية إضافية (اختياري):</label>
-                <textarea id="approval-reject-notes" class="m-input" style="height:70px; resize:none;" placeholder="اكتب توجيهات للموظف (مثلاً: يرجى تحصيل 50% نقداً أولاً)..."></textarea>
+                <label class="m-label" style="font-size:0.75rem;">ظ…ظ„ط§ط­ط¸ط§طھ ط¥ط¯ط§ط±ظٹط© ط¥ط¶ط§ظپظٹط© (ط§ط®طھظٹط§ط±ظٹ):</label>
+                <textarea id="approval-reject-notes" class="m-input" style="height:70px; resize:none;" placeholder="ط§ظƒطھط¨ طھظˆط¬ظٹظ‡ط§طھ ظ„ظ„ظ…ظˆط¸ظپ (ظ…ط«ظ„ط§ظ‹: ظٹط±ط¬ظ‰ طھط­طµظٹظ„ 50% ظ†ظ‚ط¯ط§ظ‹ ط£ظˆظ„ط§ظ‹)..."></textarea>
             </div>
 
             <button type="button" class="m-btn-submit" style="background:linear-gradient(135deg, var(--rose), #be123c);" onclick="ApprovalsHubEngine.confirmReject()">
-                <i class="fa-solid fa-circle-xmark"></i> تأكيد الرفض النهائي للطلب
+                <i class="fa-solid fa-circle-xmark"></i> طھط£ظƒظٹط¯ ط§ظ„ط±ظپط¶ ط§ظ„ظ†ظ‡ط§ط¦ظٹ ظ„ظ„ط·ظ„ط¨
             </button>
         </div>
     </div>
 
-    <!-- SHEET: 🛰️ مركز التحكم بطابور المزامنة التلقائية (Offline Outbox Manager) -->
+    <!-- SHEET: ًں›°ï¸ڈ ظ…ط±ظƒط² ط§ظ„طھط­ظƒظ… ط¨ط·ط§ط¨ظˆط± ط§ظ„ظ…ط²ط§ظ…ظ†ط© ط§ظ„طھظ„ظ‚ط§ط¦ظٹط© (Offline Outbox Manager) -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-outbox-manager" onclick="closeBottomSheet('sheet-outbox-manager')"></div>
     <div class="mobile-bottom-sheet" id="sheet-outbox-manager" style="max-height:92vh;">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header">
             <span class="sheet-title" style="color:var(--primary); font-weight:900;">
-                <i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i> مركز المزامنة وطابور الخروج (Outbox)
+                <i class="fa-solid fa-cloud-arrow-up text-cyan-400"></i> ظ…ط±ظƒط² ط§ظ„ظ…ط²ط§ظ…ظ†ط© ظˆط·ط§ط¨ظˆط± ط§ظ„ط®ط±ظˆط¬ (Outbox)
             </span>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-outbox-manager')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-outbox-manager')">âœ•</button>
         </div>
         <div class="sheet-body" style="padding-bottom:18px;">
-            <!-- Dual Server Connectivity Selector (السيرفر الحي vs سيرفر اللابتوب) -->
+            <!-- Dual Server Connectivity Selector (ط§ظ„ط³ظٹط±ظپط± ط§ظ„ط­ظٹ vs ط³ظٹط±ظپط± ط§ظ„ظ„ط§ط¨طھظˆط¨) -->
             <div style="background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                     <span style="font-size:0.80rem; font-weight:900; color:var(--text-main);">
-                        <i class="fa-solid fa-network-wired" style="color:var(--primary);"></i> جهة الاتصال الحالية:
+                        <i class="fa-solid fa-network-wired" style="color:var(--primary);"></i> ط¬ظ‡ط© ط§ظ„ط§طھطµط§ظ„ ط§ظ„ط­ط§ظ„ظٹط©:
                     </span>
                     <span id="current-server-badge" style="font-size:0.72rem; padding:2px 8px; border-radius:6px; background:rgba(16,185,129,0.15); color:var(--emerald); font-weight:800;">
-                        <?php echo (strpos($_SERVER['HTTP_HOST'] ?? '', 'elsajana.com') !== false) ? '🌐 السيرفر الحي (الإنترنت)' : '💻 سيرفر اللابتوب (محلي)'; ?>
+                        <?php echo (strpos($_SERVER['HTTP_HOST'] ?? '', 'elsajana.com') !== false) ? 'ًںŒگ ط§ظ„ط³ظٹط±ظپط± ط§ظ„ط­ظٹ (ط§ظ„ط¥ظ†طھط±ظ†طھ)' : 'ًں’» ط³ظٹط±ظپط± ط§ظ„ظ„ط§ط¨طھظˆط¨ (ظ…ط­ظ„ظٹ)'; ?>
                     </span>
                 </div>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px;">
                     <a href="https://c.elsajana.com/mobile-dashboard.php" class="btn-sm" style="font-size:0.74rem; padding:7px 8px; border-radius:8px; background:linear-gradient(135deg, #0284c7, #0369a1); color:#fff; font-weight:800; border:none; text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center; gap:4px;">
-                        <i class="fa-solid fa-globe"></i> السيرفر الحي
+                        <i class="fa-solid fa-globe"></i> ط§ظ„ط³ظٹط±ظپط± ط§ظ„ط­ظٹ
                     </a>
                     <a href="http://192.168.1.101/ELSAJANA2/magaies/mobile-dashboard.php" class="btn-sm" style="font-size:0.74rem; padding:7px 8px; border-radius:8px; background:var(--surface-1); border:1px solid var(--border-glass); color:var(--text-main); font-weight:800; text-decoration:none; text-align:center; display:flex; align-items:center; justify-content:center; gap:4px;">
-                        <i class="fa-solid fa-laptop"></i> سيرفر اللابتوب (Wi-Fi)
+                        <i class="fa-solid fa-laptop"></i> ط³ظٹط±ظپط± ط§ظ„ظ„ط§ط¨طھظˆط¨ (Wi-Fi)
                     </a>
                 </div>
             </div>
@@ -9349,16 +9343,16 @@ try {
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span class="outbox-dot online" id="outbox-banner-dot" style="width:10px; height:10px;"></span>
                     <div>
-                        <div style="font-size:0.82rem; font-weight:800; color:var(--text-main);" id="outbox-banner-title">الاتصال بالسحابة: متصل ومستقر</div>
-                        <div style="font-size:0.78rem; color:var(--text-muted);" id="outbox-banner-sub">زمن الاستجابة: 38ms • البوابة السحابية API Gateway جاهزة</div>
+                        <div style="font-size:0.82rem; font-weight:800; color:var(--text-main);" id="outbox-banner-title">ط§ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط³ط­ط§ط¨ط©: ظ…طھطµظ„ ظˆظ…ط³طھظ‚ط±</div>
+                        <div style="font-size:0.78rem; color:var(--text-muted);" id="outbox-banner-sub">ط²ظ…ظ† ط§ظ„ط§ط³طھط¬ط§ط¨ط©: 38ms â€¢ ط§ظ„ط¨ظˆط§ط¨ط© ط§ظ„ط³ط­ط§ط¨ظٹط© API Gateway ط¬ط§ظ‡ط²ط©</div>
                     </div>
                 </div>
                 <div style="display:flex; gap:6px; align-items:center;">
-                    <button type="button" class="btn-sm" style="font-size:0.78rem; padding:5px 9px; border-radius:8px; background:var(--primary); color:#fff; font-weight:800; border:none; cursor:pointer;" onclick="OfflineOutboxEngine.checkHeartbeat(true)" title="فحص مباشر للاتصال بالسحابة">
-                        <i class="fa-solid fa-arrows-rotate"></i> فحص الاتصال
+                    <button type="button" class="btn-sm" style="font-size:0.78rem; padding:5px 9px; border-radius:8px; background:var(--primary); color:#fff; font-weight:800; border:none; cursor:pointer;" onclick="OfflineOutboxEngine.checkHeartbeat(true)" title="ظپط­طµ ظ…ط¨ط§ط´ط± ظ„ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط³ط­ط§ط¨ط©">
+                        <i class="fa-solid fa-arrows-rotate"></i> ظپط­طµ ط§ظ„ط§طھطµط§ظ„
                     </button>
                     <button type="button" id="btn-toggle-sim-offline" class="btn-sm" style="font-size:0.78rem; padding:5px 9px; border-radius:8px; background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); font-weight:800; cursor:pointer;" onclick="OfflineOutboxEngine.toggleOfflineSimulation()">
-                        محاكاة انقطاع الشبكة
+                        ظ…ط­ط§ظƒط§ط© ط§ظ†ظ‚ط·ط§ط¹ ط§ظ„ط´ط¨ظƒط©
                     </button>
                 </div>
             </div>
@@ -9366,40 +9360,40 @@ try {
             <!-- 4-Stat Grid: Pending, Syncing, Synced, Conflicts -->
             <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; margin-bottom:14px;">
                 <div class="outbox-stat-card">
-                    <span style="font-size:0.76rem; color:var(--amber); font-weight:800; display:block;">في الانتظار</span>
+                    <span style="font-size:0.76rem; color:var(--amber); font-weight:800; display:block;">ظپظٹ ط§ظ„ط§ظ†طھط¸ط§ط±</span>
                     <strong id="outbox-stat-pending" style="font-size:1.15rem; font-family:'Inter',sans-serif; color:var(--amber);">0</strong>
                 </div>
                 <div class="outbox-stat-card">
-                    <span style="font-size:0.76rem; color:var(--primary); font-weight:800; display:block;">جاري الرفع</span>
+                    <span style="font-size:0.76rem; color:var(--primary); font-weight:800; display:block;">ط¬ط§ط±ظٹ ط§ظ„ط±ظپط¹</span>
                     <strong id="outbox-stat-syncing" style="font-size:1.15rem; font-family:'Inter',sans-serif; color:var(--primary);">0</strong>
                 </div>
                 <div class="outbox-stat-card">
-                    <span style="font-size:0.76rem; color:var(--emerald); font-weight:800; display:block;">تم التأكيد</span>
+                    <span style="font-size:0.76rem; color:var(--emerald); font-weight:800; display:block;">طھظ… ط§ظ„طھط£ظƒظٹط¯</span>
                     <strong id="outbox-stat-synced" style="font-size:1.15rem; font-family:'Inter',sans-serif; color:var(--emerald);">0</strong>
                 </div>
                 <div class="outbox-stat-card">
-                    <span style="font-size:0.76rem; color:var(--rose); font-weight:800; display:block;">تعارضات</span>
+                    <span style="font-size:0.76rem; color:var(--rose); font-weight:800; display:block;">طھط¹ط§ط±ط¶ط§طھ</span>
                     <strong id="outbox-stat-conflicts" style="font-size:1.15rem; font-family:'Inter',sans-serif; color:var(--rose);">0</strong>
                 </div>
             </div>
 
-            <!-- Categorized Offline Pending Breakdown (حركات مالية، مبيعات، أخرى) -->
+            <!-- Categorized Offline Pending Breakdown (ط­ط±ظƒط§طھ ظ…ط§ظ„ظٹط©طŒ ظ…ط¨ظٹط¹ط§طھطŒ ط£ط®ط±ظ‰) -->
             <div id="outbox-breakdown-card" style="background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:12px; padding:10px 12px; margin-bottom:12px;">
                 <div style="font-size:0.78rem; font-weight:800; color:var(--text-main); margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                    <span><i class="fa-solid fa-layer-group" style="color:var(--primary);"></i> تفاصيل المعاملات غير المتزامنة (الأوفلاين):</span>
-                    <span id="outbox-total-pending-label" style="font-size:0.72rem; color:var(--amber); font-weight:900; background:rgba(245,158,11,0.12); padding:2px 8px; border-radius:6px;">0 معلقة</span>
+                    <span><i class="fa-solid fa-layer-group" style="color:var(--primary);"></i> طھظپط§طµظٹظ„ ط§ظ„ظ…ط¹ط§ظ…ظ„ط§طھ ط؛ظٹط± ط§ظ„ظ…طھط²ط§ظ…ظ†ط© (ط§ظ„ط£ظˆظپظ„ط§ظٹظ†):</span>
+                    <span id="outbox-total-pending-label" style="font-size:0.72rem; color:var(--amber); font-weight:900; background:rgba(245,158,11,0.12); padding:2px 8px; border-radius:6px;">0 ظ…ط¹ظ„ظ‚ط©</span>
                 </div>
                 <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; text-align:center;">
                     <div style="background:var(--surface-1); border:1px solid var(--border-glass); border-radius:8px; padding:6px 4px;">
-                        <span style="font-size:0.68rem; color:var(--text-muted); display:block;">حركات وسندات</span>
+                        <span style="font-size:0.68rem; color:var(--text-muted); display:block;">ط­ط±ظƒط§طھ ظˆط³ظ†ط¯ط§طھ</span>
                         <strong id="outbox-count-vouchers" style="font-size:0.95rem; color:#38bdf8; font-family:'Inter',sans-serif;">0</strong>
                     </div>
                     <div style="background:var(--surface-1); border:1px solid var(--border-glass); border-radius:8px; padding:6px 4px;">
-                        <span style="font-size:0.68rem; color:var(--text-muted); display:block;">فواتير مبيعات</span>
+                        <span style="font-size:0.68rem; color:var(--text-muted); display:block;">ظپظˆط§طھظٹط± ظ…ط¨ظٹط¹ط§طھ</span>
                         <strong id="outbox-count-sales" style="font-size:0.95rem; color:#f59e0b; font-family:'Inter',sans-serif;">0</strong>
                     </div>
                     <div style="background:var(--surface-1); border:1px solid var(--border-glass); border-radius:8px; padding:6px 4px;">
-                        <span style="font-size:0.68rem; color:var(--text-muted); display:block;">تحويلات وجرد</span>
+                        <span style="font-size:0.68rem; color:var(--text-muted); display:block;">طھط­ظˆظٹظ„ط§طھ ظˆط¬ط±ط¯</span>
                         <strong id="outbox-count-others" style="font-size:0.95rem; color:#a78bfa; font-family:'Inter',sans-serif;">0</strong>
                     </div>
                 </div>
@@ -9408,11 +9402,11 @@ try {
             <!-- Outbox Queue Items List -->
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
                 <div style="font-size:0.76rem; font-weight:800; color:var(--text-muted);">
-                    سجل حركات طابور الإرسال (Outbox Queue):
+                    ط³ط¬ظ„ ط­ط±ظƒط§طھ ط·ط§ط¨ظˆط± ط§ظ„ط¥ط±ط³ط§ظ„ (Outbox Queue):
                 </div>
                 <div style="display:flex; gap:8px;">
                     <button type="button" onclick="OfflineOutboxEngine.clearSyncedItems(true)" style="background:transparent; border:none; color:var(--text-muted); font-size:0.7rem; cursor:pointer; font-weight:700;">
-                        <i class="fa-solid fa-broom"></i> تنظيف المؤكد
+                        <i class="fa-solid fa-broom"></i> طھظ†ط¸ظٹظپ ط§ظ„ظ…ط¤ظƒط¯
                     </button>
                 </div>
             </div>
@@ -9424,16 +9418,16 @@ try {
             <!-- Action Controls -->
             <div style="display:grid; grid-template-columns: 1.4fr 1fr; gap:8px;">
                 <button type="button" class="m-btn-submit" id="btn-flush-outbox" style="background:linear-gradient(135deg, #10b981, #059669); margin:0; font-weight:900;" onclick="OfflineOutboxEngine.flushQueueNow(true)">
-                    <i class="fa-solid fa-cloud-arrow-up"></i> تفريغ ومزامنة فورية الآن ⚡
+                    <i class="fa-solid fa-cloud-arrow-up"></i> طھظپط±ظٹط؛ ظˆظ…ط²ط§ظ…ظ†ط© ظپظˆط±ظٹط© ط§ظ„ط¢ظ† âڑ،
                 </button>
                 <button type="button" class="m-btn-submit" style="background:var(--surface-sub); border:1px solid var(--border-glass); color:var(--text-main); margin:0;" onclick="OfflineOutboxEngine.clearSyncedItems(true)">
-                    <i class="fa-solid fa-broom"></i> تنظيف السجل
+                    <i class="fa-solid fa-broom"></i> طھظ†ط¸ظٹظپ ط§ظ„ط³ط¬ظ„
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- SHEET: 📊 مصفوفة تقارير المخزون الـ 20 المتقدمة (Executive Inventory Intelligence Matrix) -->
+    <!-- SHEET: ًں“ٹ ظ…طµظپظˆظپط© طھظ‚ط§ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظ€ 20 ط§ظ„ظ…طھظ‚ط¯ظ…ط© (Executive Inventory Intelligence Matrix) -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-20-inventory-reports" onclick="closeBottomSheet('sheet-20-inventory-reports')"></div>
     <div class="mobile-bottom-sheet" id="sheet-20-inventory-reports" style="max-height:92vh; display:flex; flex-direction:column;">
         <div class="sheet-drag-handle"></div>
@@ -9444,371 +9438,371 @@ try {
                 </div>
                 <div>
                     <span class="sheet-title" style="color:var(--text-main); font-weight:900; font-size:0.96rem; margin:0; display:block;">
-                        مصفوفة تقارير المخزون الذكية (20 تقرير)
+                        ظ…طµظپظˆظپط© طھظ‚ط§ط±ظٹط± ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط°ظƒظٹط© (20 طھظ‚ط±ظٹط±)
                     </span>
-                    <span style="font-size:0.7rem; color:var(--text-muted); display:block;">مراقبة حدود الأمان، معدل الدوران، الربحية والتنبؤ بالمخاطر</span>
+                    <span style="font-size:0.7rem; color:var(--text-muted); display:block;">ظ…ط±ط§ظ‚ط¨ط© ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ†طŒ ظ…ط¹ط¯ظ„ ط§ظ„ط¯ظˆط±ط§ظ†طŒ ط§ظ„ط±ط¨ط­ظٹط© ظˆط§ظ„طھظ†ط¨ط¤ ط¨ط§ظ„ظ…ط®ط§ط·ط±</span>
                 </div>
             </div>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-20-inventory-reports')">✕</button>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-20-inventory-reports')">âœ•</button>
         </div>
 
         <div class="sheet-body" style="padding:12px 14px 24px 14px; overflow-y:auto; flex-grow:1;">
             <!-- Search & Quick Filter Bar -->
             <div style="position:relative; margin-bottom:10px;">
                 <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:0.85rem; pointer-events:none;"></i>
-                <input type="text" id="filter-20-reports-input" class="m-input" placeholder="ابحث باسم التقرير، المحور، أو المؤشر..." oninput="Inventory20Reports.filter(this.value)" style="padding-right:34px; height:40px; font-size:0.82rem; border-radius:12px; background:var(--surface-sub); border:1px solid var(--border-glass);">
+                <input type="text" id="filter-20-reports-input" class="m-input" placeholder="ط§ط¨ط­ط« ط¨ط§ط³ظ… ط§ظ„طھظ‚ط±ظٹط±طŒ ط§ظ„ظ…ط­ظˆط±طŒ ط£ظˆ ط§ظ„ظ…ط¤ط´ط±..." oninput="Inventory20Reports.filter(this.value)" style="padding-right:34px; height:40px; font-size:0.82rem; border-radius:12px; background:var(--surface-sub); border:1px solid var(--border-glass);">
             </div>
 
             <!-- Filter Chips for 4 Axes -->
             <div class="inv-filter-chips" style="margin-bottom:14px; overflow-x:auto; white-space:nowrap; padding-bottom:4px; display:flex; gap:6px;">
-                <button type="button" class="inv-chip-pill active" onclick="Inventory20Reports.filterCategory('all', this)">الكل (20)</button>
-                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('limits', this)">🛡️ حدود الأمان (5)</button>
-                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('velocity', this)">⚡ سرعة الدوران (5)</button>
-                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('profit', this)">💰 الربحية والهوامش (5)</button>
-                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('forecast', this)">🔮 التنبؤ والمخاطر (5)</button>
+                <button type="button" class="inv-chip-pill active" onclick="Inventory20Reports.filterCategory('all', this)">ط§ظ„ظƒظ„ (20)</button>
+                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('limits', this)">ًں›،ï¸ڈ ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ† (5)</button>
+                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('velocity', this)">âڑ، ط³ط±ط¹ط© ط§ظ„ط¯ظˆط±ط§ظ† (5)</button>
+                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('profit', this)">ًں’° ط§ظ„ط±ط¨ط­ظٹط© ظˆط§ظ„ظ‡ظˆط§ظ…ط´ (5)</button>
+                <button type="button" class="inv-chip-pill" onclick="Inventory20Reports.filterCategory('forecast', this)">ًں”® ط§ظ„طھظ†ط¨ط¤ ظˆط§ظ„ظ…ط®ط§ط·ط± (5)</button>
             </div>
 
             <!-- 20 Reports Grid / List -->
             <div id="inv-20-reports-list" style="display:flex; flex-direction:column; gap:8px;">
 
-                <!-- ── AXIS 1: حدود الأمان وكميات المخزون ── -->
-                <div class="inv-rep-card" data-cat="limits" data-title="حدود الأمان الأربعة للمخزون" data-desc="مراقبة حدود الخطر وإعادة الطلب والسقف الأقصى لكل صنف لمنع العجز" onclick="Inventory20Reports.openReport('حدود الأمان الأربعة للمخزون', 'inv_rep1_limits.php')">
+                <!-- â”€â”€ AXIS 1: ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ† ظˆظƒظ…ظٹط§طھ ط§ظ„ظ…ط®ط²ظˆظ† â”€â”€ -->
+                <div class="inv-rep-card" data-cat="limits" data-title="ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ† ط§ظ„ط£ط±ط¨ط¹ط© ظ„ظ„ظ…ط®ط²ظˆظ†" data-desc="ظ…ط±ط§ظ‚ط¨ط© ط­ط¯ظˆط¯ ط§ظ„ط®ط·ط± ظˆط¥ط¹ط§ط¯ط© ط§ظ„ط·ظ„ط¨ ظˆط§ظ„ط³ظ‚ظپ ط§ظ„ط£ظ‚طµظ‰ ظ„ظƒظ„ طµظ†ظپ ظ„ظ…ظ†ط¹ ط§ظ„ط¹ط¬ط²" onclick="Inventory20Reports.openReport('ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ† ط§ظ„ط£ط±ط¨ط¹ط© ظ„ظ„ظ…ط®ط²ظˆظ†', 'inv_rep1_limits.php')">
                     <div class="rep-card-icon" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3);">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#01</span>
-                            <strong class="rep-card-title">حدود الأمان الأربعة للمخزون</strong>
-                            <span class="rep-card-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5;">حدود الأمان</span>
+                            <strong class="rep-card-title">ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ† ط§ظ„ط£ط±ط¨ط¹ط© ظ„ظ„ظ…ط®ط²ظˆظ†</strong>
+                            <span class="rep-card-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5;">ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ†</span>
                         </div>
-                        <p class="rep-card-desc">مراقبة حدود الخطر، إعادة الطلب، والحد الأقصى لكل صنف لتفادي العجز الفجائي.</p>
+                        <p class="rep-card-desc">ظ…ط±ط§ظ‚ط¨ط© ط­ط¯ظˆط¯ ط§ظ„ط®ط·ط±طŒ ط¥ط¹ط§ط¯ط© ط§ظ„ط·ظ„ط¨طŒ ظˆط§ظ„ط­ط¯ ط§ظ„ط£ظ‚طµظ‰ ظ„ظƒظ„ طµظ†ظپ ظ„طھظپط§ط¯ظٹ ط§ظ„ط¹ط¬ط² ط§ظ„ظپط¬ط§ط¦ظٹ.</p>
                     </div>
-                    <button type="button" class="rep-card-action" title="فتح التقرير">
+                    <button type="button" class="rep-card-action" title="ظپطھط­ ط§ظ„طھظ‚ط±ظٹط±">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="limits" data-title="أيام التغطية والمخزون المتبقي" data-desc="حساب كم يوماً يكفي المخزون الحالي بناءً على متوسط السحب اليومي الفعلي" onclick="Inventory20Reports.openReport('أيام التغطية والمخزون المتبقي', 'inv_rep2_coverage.php')">
+                <div class="inv-rep-card" data-cat="limits" data-title="ط£ظٹط§ظ… ط§ظ„طھط؛ط·ظٹط© ظˆط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظ…طھط¨ظ‚ظٹ" data-desc="ط­ط³ط§ط¨ ظƒظ… ظٹظˆظ…ط§ظ‹ ظٹظƒظپظٹ ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط­ط§ظ„ظٹ ط¨ظ†ط§ط،ظ‹ ط¹ظ„ظ‰ ظ…طھظˆط³ط· ط§ظ„ط³ط­ط¨ ط§ظ„ظٹظˆظ…ظٹ ط§ظ„ظپط¹ظ„ظٹ" onclick="Inventory20Reports.openReport('ط£ظٹط§ظ… ط§ظ„طھط؛ط·ظٹط© ظˆط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظ…طھط¨ظ‚ظٹ', 'inv_rep2_coverage.php')">
                     <div class="rep-card-icon" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3);">
                         <i class="fa-solid fa-calendar-day"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#02</span>
-                            <strong class="rep-card-title">أيام التغطية والمخزون المتبقي</strong>
-                            <span class="rep-card-badge" style="background:rgba(245,158,11,0.2); color:#fde68a;">حدود الأمان</span>
+                            <strong class="rep-card-title">ط£ظٹط§ظ… ط§ظ„طھط؛ط·ظٹط© ظˆط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظ…طھط¨ظ‚ظٹ</strong>
+                            <span class="rep-card-badge" style="background:rgba(245,158,11,0.2); color:#fde68a;">ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ†</span>
                         </div>
-                        <p class="rep-card-desc">حساب كم يوماً يكفي المخزون الحالي بناءً على متوسط السحب اليومي الفعلي لكل عنبر.</p>
+                        <p class="rep-card-desc">ط­ط³ط§ط¨ ظƒظ… ظٹظˆظ…ط§ظ‹ ظٹظƒظپظٹ ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط­ط§ظ„ظٹ ط¨ظ†ط§ط،ظ‹ ط¹ظ„ظ‰ ظ…طھظˆط³ط· ط§ظ„ط³ط­ط¨ ط§ظ„ظٹظˆظ…ظٹ ط§ظ„ظپط¹ظ„ظٹ ظ„ظƒظ„ ط¹ظ†ط¨ط±.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="limits" data-title="مصفوفة البضاعة الراكدة والبطيئة" data-desc="كشف الأصناف المجمدة بدون حركة وحساب حجم رأس المال المعطل فيها" onclick="Inventory20Reports.openReport('مصفوفة البضاعة الراكدة والبطيئة', 'inv_rep3_deadstock.php')">
+                <div class="inv-rep-card" data-cat="limits" data-title="ظ…طµظپظˆظپط© ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ط±ط§ظƒط¯ط© ظˆط§ظ„ط¨ط·ظٹط¦ط©" data-desc="ظƒط´ظپ ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ظ…ط¬ظ…ط¯ط© ط¨ط¯ظˆظ† ط­ط±ظƒط© ظˆط­ط³ط§ط¨ ط­ط¬ظ… ط±ط£ط³ ط§ظ„ظ…ط§ظ„ ط§ظ„ظ…ط¹ط·ظ„ ظپظٹظ‡ط§" onclick="Inventory20Reports.openReport('ظ…طµظپظˆظپط© ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ط±ط§ظƒط¯ط© ظˆط§ظ„ط¨ط·ظٹط¦ط©', 'inv_rep3_deadstock.php')">
                     <div class="rep-card-icon" style="background:rgba(234,88,12,0.15); color:#fb923c; border:1px solid rgba(234,88,12,0.3);">
                         <i class="fa-solid fa-hourglass-half"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#03</span>
-                            <strong class="rep-card-title">مصفوفة البضاعة الراكدة (Dead Stock)</strong>
-                            <span class="rep-card-badge" style="background:rgba(234,88,12,0.2); color:#fdba74;">حدود الأمان</span>
+                            <strong class="rep-card-title">ظ…طµظپظˆظپط© ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ط±ط§ظƒط¯ط© (Dead Stock)</strong>
+                            <span class="rep-card-badge" style="background:rgba(234,88,12,0.2); color:#fdba74;">ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ†</span>
                         </div>
-                        <p class="rep-card-desc">كشف الأصناف الراكدة والبطيئة مع تقدير رأس المال المعطل وتكلفة التخزين الضائعة.</p>
+                        <p class="rep-card-desc">ظƒط´ظپ ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ط±ط§ظƒط¯ط© ظˆط§ظ„ط¨ط·ظٹط¦ط© ظ…ط¹ طھظ‚ط¯ظٹط± ط±ط£ط³ ط§ظ„ظ…ط§ظ„ ط§ظ„ظ…ط¹ط·ظ„ ظˆطھظƒظ„ظپط© ط§ظ„طھط®ط²ظٹظ† ط§ظ„ط¶ط§ط¦ط¹ط©.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="limits" data-title="البضاعة المحجوزة والملتزم بها" data-desc="تتبع الكميات المحجوزة للمشاريع والعملاء لتفادي البيع المزدوج أو النقص" onclick="Inventory20Reports.openReport('البضاعة المحجوزة والملتزم بها', 'inv_rep4_committed.php')">
+                <div class="inv-rep-card" data-cat="limits" data-title="ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ظ…ط­ط¬ظˆط²ط© ظˆط§ظ„ظ…ظ„طھط²ظ… ط¨ظ‡ط§" data-desc="طھطھط¨ط¹ ط§ظ„ظƒظ…ظٹط§طھ ط§ظ„ظ…ط­ط¬ظˆط²ط© ظ„ظ„ظ…ط´ط§ط±ظٹط¹ ظˆط§ظ„ط¹ظ…ظ„ط§ط، ظ„طھظپط§ط¯ظٹ ط§ظ„ط¨ظٹط¹ ط§ظ„ظ…ط²ط¯ظˆط¬ ط£ظˆ ط§ظ„ظ†ظ‚طµ" onclick="Inventory20Reports.openReport('ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ظ…ط­ط¬ظˆط²ط© ظˆط§ظ„ظ…ظ„طھط²ظ… ط¨ظ‡ط§', 'inv_rep4_committed.php')">
                     <div class="rep-card-icon" style="background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3);">
                         <i class="fa-solid fa-lock"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#04</span>
-                            <strong class="rep-card-title">البضاعة المحجوزة والملتزم بها</strong>
-                            <span class="rep-card-badge" style="background:rgba(14,165,233,0.2); color:#bae6fd;">حدود الأمان</span>
+                            <strong class="rep-card-title">ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ظ…ط­ط¬ظˆط²ط© ظˆط§ظ„ظ…ظ„طھط²ظ… ط¨ظ‡ط§</strong>
+                            <span class="rep-card-badge" style="background:rgba(14,165,233,0.2); color:#bae6fd;">ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ†</span>
                         </div>
-                        <p class="rep-card-desc">تتبع الكميات المحجوزة للمشاريع والمقاولين لضمان الالتزام وتفادي البيع المزدوج.</p>
+                        <p class="rep-card-desc">طھطھط¨ط¹ ط§ظ„ظƒظ…ظٹط§طھ ط§ظ„ظ…ط­ط¬ظˆط²ط© ظ„ظ„ظ…ط´ط§ط±ظٹط¹ ظˆط§ظ„ظ…ظ‚ط§ظˆظ„ظٹظ† ظ„ط¶ظ…ط§ظ† ط§ظ„ط§ظ„طھط²ط§ظ… ظˆطھظپط§ط¯ظٹ ط§ظ„ط¨ظٹط¹ ط§ظ„ظ…ط²ط¯ظˆط¬.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="limits" data-title="الطاقة الاستيعابية للعنابر والمستودعات" data-desc="نسبة إشغال المستودعات والمساحات المتبقية بالأطنان والمتر المربع" onclick="Inventory20Reports.openReport('الطاقة الاستيعابية للعنابر والمستودعات', 'inv_rep5_capacity.php')">
+                <div class="inv-rep-card" data-cat="limits" data-title="ط§ظ„ط·ط§ظ‚ط© ط§ظ„ط§ط³طھظٹط¹ط§ط¨ظٹط© ظ„ظ„ط¹ظ†ط§ط¨ط± ظˆط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ" data-desc="ظ†ط³ط¨ط© ط¥ط´ط؛ط§ظ„ ط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ ظˆط§ظ„ظ…ط³ط§ط­ط§طھ ط§ظ„ظ…طھط¨ظ‚ظٹط© ط¨ط§ظ„ط£ط·ظ†ط§ظ† ظˆط§ظ„ظ…طھط± ط§ظ„ظ…ط±ط¨ط¹" onclick="Inventory20Reports.openReport('ط§ظ„ط·ط§ظ‚ط© ط§ظ„ط§ط³طھظٹط¹ط§ط¨ظٹط© ظ„ظ„ط¹ظ†ط§ط¨ط± ظˆط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ', 'inv_rep5_capacity.php')">
                     <div class="rep-card-icon" style="background:rgba(99,102,241,0.15); color:#818cf8; border:1px solid rgba(99,102,241,0.3);">
                         <i class="fa-solid fa-warehouse"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#05</span>
-                            <strong class="rep-card-title">الطاقة الاستيعابية للعنابر</strong>
-                            <span class="rep-card-badge" style="background:rgba(99,102,241,0.2); color:#c7d2fe;">حدود الأمان</span>
+                            <strong class="rep-card-title">ط§ظ„ط·ط§ظ‚ط© ط§ظ„ط§ط³طھظٹط¹ط§ط¨ظٹط© ظ„ظ„ط¹ظ†ط§ط¨ط±</strong>
+                            <span class="rep-card-badge" style="background:rgba(99,102,241,0.2); color:#c7d2fe;">ط­ط¯ظˆط¯ ط§ظ„ط£ظ…ط§ظ†</span>
                         </div>
-                        <p class="rep-card-desc">مراقبة نسبة إشغال العنابر والمساحات التخزينية المتبقية بالأطنان والأمتار المربعة.</p>
+                        <p class="rep-card-desc">ظ…ط±ط§ظ‚ط¨ط© ظ†ط³ط¨ط© ط¥ط´ط؛ط§ظ„ ط§ظ„ط¹ظ†ط§ط¨ط± ظˆط§ظ„ظ…ط³ط§ط­ط§طھ ط§ظ„طھط®ط²ظٹظ†ظٹط© ط§ظ„ظ…طھط¨ظ‚ظٹط© ط¨ط§ظ„ط£ط·ظ†ط§ظ† ظˆط§ظ„ط£ظ…طھط§ط± ط§ظ„ظ…ط±ط¨ط¹ط©.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <!-- ── AXIS 2: حركات التشغيل وسرعة الدوران ── -->
-                <div class="inv-rep-card" data-cat="velocity" data-title="معدل دوران المخزون Turnover Ratio" data-desc="سرعة تصريف البضاعة وتحويل المخزون إلى نقد خلال الدورات التشغيلية" onclick="Inventory20Reports.openReport('معدل دوران المخزون', 'inv_rep6_turnover.php')">
+                <!-- â”€â”€ AXIS 2: ط­ط±ظƒط§طھ ط§ظ„طھط´ط؛ظٹظ„ ظˆط³ط±ط¹ط© ط§ظ„ط¯ظˆط±ط§ظ† â”€â”€ -->
+                <div class="inv-rep-card" data-cat="velocity" data-title="ظ…ط¹ط¯ظ„ ط¯ظˆط±ط§ظ† ط§ظ„ظ…ط®ط²ظˆظ† Turnover Ratio" data-desc="ط³ط±ط¹ط© طھطµط±ظٹظپ ط§ظ„ط¨ط¶ط§ط¹ط© ظˆطھط­ظˆظٹظ„ ط§ظ„ظ…ط®ط²ظˆظ† ط¥ظ„ظ‰ ظ†ظ‚ط¯ ط®ظ„ط§ظ„ ط§ظ„ط¯ظˆط±ط§طھ ط§ظ„طھط´ط؛ظٹظ„ظٹط©" onclick="Inventory20Reports.openReport('ظ…ط¹ط¯ظ„ ط¯ظˆط±ط§ظ† ط§ظ„ظ…ط®ط²ظˆظ†', 'inv_rep6_turnover.php')">
                     <div class="rep-card-icon" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">
                         <i class="fa-solid fa-rotate"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#06</span>
-                            <strong class="rep-card-title">معدل دوران المخزون (Turnover)</strong>
-                            <span class="rep-card-badge" style="background:rgba(16,185,129,0.2); color:#a7f3d0;">سرعة الدوران</span>
+                            <strong class="rep-card-title">ظ…ط¹ط¯ظ„ ط¯ظˆط±ط§ظ† ط§ظ„ظ…ط®ط²ظˆظ† (Turnover)</strong>
+                            <span class="rep-card-badge" style="background:rgba(16,185,129,0.2); color:#a7f3d0;">ط³ط±ط¹ط© ط§ظ„ط¯ظˆط±ط§ظ†</span>
                         </div>
-                        <p class="rep-card-desc">قياس سرعة تحويل المخزون إلى مبيعات ونقد، وتحديد الأصناف سريعة وبطيئة الدوران.</p>
+                        <p class="rep-card-desc">ظ‚ظٹط§ط³ ط³ط±ط¹ط© طھط­ظˆظٹظ„ ط§ظ„ظ…ط®ط²ظˆظ† ط¥ظ„ظ‰ ظ…ط¨ظٹط¹ط§طھ ظˆظ†ظ‚ط¯طŒ ظˆطھط­ط¯ظٹط¯ ط§ظ„ط£طµظ†ط§ظپ ط³ط±ظٹط¹ط© ظˆط¨ط·ظٹط¦ط© ط§ظ„ط¯ظˆط±ط§ظ†.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="velocity" data-title="تحليل الطلب الموسمي والذروات" data-desc="رصد مواسم انتعاش الطلب وهبوطه لتجهيز العنابر بالمخزون المناسب مبكراً" onclick="Inventory20Reports.openReport('تحليل الطلب الموسمي والذروات', 'inv_rep7_seasonal.php')">
+                <div class="inv-rep-card" data-cat="velocity" data-title="طھط­ظ„ظٹظ„ ط§ظ„ط·ظ„ط¨ ط§ظ„ظ…ظˆط³ظ…ظٹ ظˆط§ظ„ط°ط±ظˆط§طھ" data-desc="ط±طµط¯ ظ…ظˆط§ط³ظ… ط§ظ†طھط¹ط§ط´ ط§ظ„ط·ظ„ط¨ ظˆظ‡ط¨ظˆط·ظ‡ ظ„طھط¬ظ‡ظٹط² ط§ظ„ط¹ظ†ط§ط¨ط± ط¨ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ظ…ظ†ط§ط³ط¨ ظ…ط¨ظƒط±ط§ظ‹" onclick="Inventory20Reports.openReport('طھط­ظ„ظٹظ„ ط§ظ„ط·ظ„ط¨ ط§ظ„ظ…ظˆط³ظ…ظٹ ظˆط§ظ„ط°ط±ظˆط§طھ', 'inv_rep7_seasonal.php')">
                     <div class="rep-card-icon" style="background:rgba(217,70,239,0.15); color:#e879f9; border:1px solid rgba(217,70,239,0.3);">
                         <i class="fa-solid fa-chart-line"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#07</span>
-                            <strong class="rep-card-title">تحليل الطلب الموسمي والذروات</strong>
-                            <span class="rep-card-badge" style="background:rgba(217,70,239,0.2); color:#f5d0fe;">سرعة الدوران</span>
+                            <strong class="rep-card-title">طھط­ظ„ظٹظ„ ط§ظ„ط·ظ„ط¨ ط§ظ„ظ…ظˆط³ظ…ظٹ ظˆط§ظ„ط°ط±ظˆط§طھ</strong>
+                            <span class="rep-card-badge" style="background:rgba(217,70,239,0.2); color:#f5d0fe;">ط³ط±ط¹ط© ط§ظ„ط¯ظˆط±ط§ظ†</span>
                         </div>
-                        <p class="rep-card-desc">تحليل المنحنيات الشهرية ورصد مواسم ذروة البناء وتجهيز المخزون قبل ارتفاع الأسعار.</p>
+                        <p class="rep-card-desc">طھط­ظ„ظٹظ„ ط§ظ„ظ…ظ†ط­ظ†ظٹط§طھ ط§ظ„ط´ظ‡ط±ظٹط© ظˆط±طµط¯ ظ…ظˆط§ط³ظ… ط°ط±ظˆط© ط§ظ„ط¨ظ†ط§ط، ظˆطھط¬ظ‡ظٹط² ط§ظ„ظ…ط®ط²ظˆظ† ظ‚ط¨ظ„ ط§ط±طھظپط§ط¹ ط§ظ„ط£ط³ط¹ط§ط±.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="velocity" data-title="ميزان تدفق الوارد والصادر" data-desc="مقارنة حركة الإدخال والصرف لضبط التوازن وتفادي تكدس الأصناف" onclick="Inventory20Reports.openReport('ميزان تدفق الوارد والصادر', 'inv_rep8_flow.php')">
+                <div class="inv-rep-card" data-cat="velocity" data-title="ظ…ظٹط²ط§ظ† طھط¯ظپظ‚ ط§ظ„ظˆط§ط±ط¯ ظˆط§ظ„طµط§ط¯ط±" data-desc="ظ…ظ‚ط§ط±ظ†ط© ط­ط±ظƒط© ط§ظ„ط¥ط¯ط®ط§ظ„ ظˆط§ظ„طµط±ظپ ظ„ط¶ط¨ط· ط§ظ„طھظˆط§ط²ظ† ظˆطھظپط§ط¯ظٹ طھظƒط¯ط³ ط§ظ„ط£طµظ†ط§ظپ" onclick="Inventory20Reports.openReport('ظ…ظٹط²ط§ظ† طھط¯ظپظ‚ ط§ظ„ظˆط§ط±ط¯ ظˆط§ظ„طµط§ط¯ط±', 'inv_rep8_flow.php')">
                     <div class="rep-card-icon" style="background:rgba(6,182,212,0.15); color:#22d3ee; border:1px solid rgba(6,182,212,0.3);">
                         <i class="fa-solid fa-arrows-split-up-and-left"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#08</span>
-                            <strong class="rep-card-title">ميزان تدفق الوارد والصادر</strong>
-                            <span class="rep-card-badge" style="background:rgba(6,182,212,0.2); color:#a5f3fc;">سرعة الدوران</span>
+                            <strong class="rep-card-title">ظ…ظٹط²ط§ظ† طھط¯ظپظ‚ ط§ظ„ظˆط§ط±ط¯ ظˆط§ظ„طµط§ط¯ط±</strong>
+                            <span class="rep-card-badge" style="background:rgba(6,182,212,0.2); color:#a5f3fc;">ط³ط±ط¹ط© ط§ظ„ط¯ظˆط±ط§ظ†</span>
                         </div>
-                        <p class="rep-card-desc">مقارنة حركة التوريدات والمبيعات اليومية لضمان توازن التدفق ومنع الاختناقات.</p>
+                        <p class="rep-card-desc">ظ…ظ‚ط§ط±ظ†ط© ط­ط±ظƒط© ط§ظ„طھظˆط±ظٹط¯ط§طھ ظˆط§ظ„ظ…ط¨ظٹط¹ط§طھ ط§ظ„ظٹظˆظ…ظٹط© ظ„ط¶ظ…ط§ظ† طھظˆط§ط²ظ† ط§ظ„طھط¯ظپظ‚ ظˆظ…ظ†ط¹ ط§ظ„ط§ط®طھظ†ط§ظ‚ط§طھ.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="velocity" data-title="كفاءة الموردين وزمن التوريد Lead Time" data-desc="قياس الفارق الزمني بين أمر الشراء ووصول الشحنة للعنابر" onclick="Inventory20Reports.openReport('كفاءة الموردين وزمن التوريد', 'inv_rep9_leadtime.php')">
+                <div class="inv-rep-card" data-cat="velocity" data-title="ظƒظپط§ط،ط© ط§ظ„ظ…ظˆط±ط¯ظٹظ† ظˆط²ظ…ظ† ط§ظ„طھظˆط±ظٹط¯ Lead Time" data-desc="ظ‚ظٹط§ط³ ط§ظ„ظپط§ط±ظ‚ ط§ظ„ط²ظ…ظ†ظٹ ط¨ظٹظ† ط£ظ…ط± ط§ظ„ط´ط±ط§ط، ظˆظˆطµظˆظ„ ط§ظ„ط´ط­ظ†ط© ظ„ظ„ط¹ظ†ط§ط¨ط±" onclick="Inventory20Reports.openReport('ظƒظپط§ط،ط© ط§ظ„ظ…ظˆط±ط¯ظٹظ† ظˆط²ظ…ظ† ط§ظ„طھظˆط±ظٹط¯', 'inv_rep9_leadtime.php')">
                     <div class="rep-card-icon" style="background:rgba(234,179,8,0.15); color:#facc15; border:1px solid rgba(234,179,8,0.3);">
                         <i class="fa-solid fa-truck-fast"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#09</span>
-                            <strong class="rep-card-title">كفاءة الموردين وزمن التوريد (Lead Time)</strong>
-                            <span class="rep-card-badge" style="background:rgba(234,179,8,0.2); color:#fef08a;">سرعة الدوران</span>
+                            <strong class="rep-card-title">ظƒظپط§ط،ط© ط§ظ„ظ…ظˆط±ط¯ظٹظ† ظˆط²ظ…ظ† ط§ظ„طھظˆط±ظٹط¯ (Lead Time)</strong>
+                            <span class="rep-card-badge" style="background:rgba(234,179,8,0.2); color:#fef08a;">ط³ط±ط¹ط© ط§ظ„ط¯ظˆط±ط§ظ†</span>
                         </div>
-                        <p class="rep-card-desc">تقييم التزام المصانع والموردين بالفترات الزمنية المحددة لشحن البضاعة واستلامها.</p>
+                        <p class="rep-card-desc">طھظ‚ظٹظٹظ… ط§ظ„طھط²ط§ظ… ط§ظ„ظ…طµط§ظ†ط¹ ظˆط§ظ„ظ…ظˆط±ط¯ظٹظ† ط¨ط§ظ„ظپطھط±ط§طھ ط§ظ„ط²ظ…ظ†ظٹط© ط§ظ„ظ…ط­ط¯ط¯ط© ظ„ط´ط­ظ† ط§ظ„ط¨ط¶ط§ط¹ط© ظˆط§ط³طھظ„ط§ظ…ظ‡ط§.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="velocity" data-title="دقة طلبات الصرف ومعدل الإنجاز" data-desc="معدل تنفيذ أذونات الصرف بنجاح بدون نواقص أو تأخير للميدان" onclick="Inventory20Reports.openReport('دقة طلبات الصرف والإنجاز', 'inv_rep10_fulfillment.php')">
+                <div class="inv-rep-card" data-cat="velocity" data-title="ط¯ظ‚ط© ط·ظ„ط¨ط§طھ ط§ظ„طµط±ظپ ظˆظ…ط¹ط¯ظ„ ط§ظ„ط¥ظ†ط¬ط§ط²" data-desc="ظ…ط¹ط¯ظ„ طھظ†ظپظٹط° ط£ط°ظˆظ†ط§طھ ط§ظ„طµط±ظپ ط¨ظ†ط¬ط§ط­ ط¨ط¯ظˆظ† ظ†ظˆط§ظ‚طµ ط£ظˆ طھط£ط®ظٹط± ظ„ظ„ظ…ظٹط¯ط§ظ†" onclick="Inventory20Reports.openReport('ط¯ظ‚ط© ط·ظ„ط¨ط§طھ ط§ظ„طµط±ظپ ظˆط§ظ„ط¥ظ†ط¬ط§ط²', 'inv_rep10_fulfillment.php')">
                     <div class="rep-card-icon" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.3);">
                         <i class="fa-solid fa-clipboard-check"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#10</span>
-                            <strong class="rep-card-title">دقة طلبات الصرف والإنجاز</strong>
-                            <span class="rep-card-badge" style="background:rgba(168,85,247,0.2); color:#e9d5ff;">سرعة الدوران</span>
+                            <strong class="rep-card-title">ط¯ظ‚ط© ط·ظ„ط¨ط§طھ ط§ظ„طµط±ظپ ظˆط§ظ„ط¥ظ†ط¬ط§ط²</strong>
+                            <span class="rep-card-badge" style="background:rgba(168,85,247,0.2); color:#e9d5ff;">ط³ط±ط¹ط© ط§ظ„ط¯ظˆط±ط§ظ†</span>
                         </div>
-                        <p class="rep-card-desc">قياس معدل Fulfillment ومستوى دقة تسليم البضاعة للعملاء والمشاريع في الموعد.</p>
+                        <p class="rep-card-desc">ظ‚ظٹط§ط³ ظ…ط¹ط¯ظ„ Fulfillment ظˆظ…ط³طھظˆظ‰ ط¯ظ‚ط© طھط³ظ„ظٹظ… ط§ظ„ط¨ط¶ط§ط¹ط© ظ„ظ„ط¹ظ…ظ„ط§ط، ظˆط§ظ„ظ…ط´ط§ط±ظٹط¹ ظپظٹ ط§ظ„ظ…ظˆط¹ط¯.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <!-- ── AXIS 3: ربحية الأصناف ومراقبة الخسائر ── -->
-                <div class="inv-rep-card" data-cat="profit" data-title="مصفوفة الربحية مقابل السرعة Margin vs Velocity" data-desc="تصنيف الأصناف حسب الهامش وسرعة البيع وتحديد الأصناف الرابحة والخاسرة" onclick="Inventory20Reports.openReport('مصفوفة الربحية مقابل السرعة', 'inv_rep11_velocity_margin.php')">
+                <!-- â”€â”€ AXIS 3: ط±ط¨ط­ظٹط© ط§ظ„ط£طµظ†ط§ظپ ظˆظ…ط±ط§ظ‚ط¨ط© ط§ظ„ط®ط³ط§ط¦ط± â”€â”€ -->
+                <div class="inv-rep-card" data-cat="profit" data-title="ظ…طµظپظˆظپط© ط§ظ„ط±ط¨ط­ظٹط© ظ…ظ‚ط§ط¨ظ„ ط§ظ„ط³ط±ط¹ط© Margin vs Velocity" data-desc="طھطµظ†ظٹظپ ط§ظ„ط£طµظ†ط§ظپ ط­ط³ط¨ ط§ظ„ظ‡ط§ظ…ط´ ظˆط³ط±ط¹ط© ط§ظ„ط¨ظٹط¹ ظˆطھط­ط¯ظٹط¯ ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ط±ط§ط¨ط­ط© ظˆط§ظ„ط®ط§ط³ط±ط©" onclick="Inventory20Reports.openReport('ظ…طµظپظˆظپط© ط§ظ„ط±ط¨ط­ظٹط© ظ…ظ‚ط§ط¨ظ„ ط§ظ„ط³ط±ط¹ط©', 'inv_rep11_velocity_margin.php')">
                     <div class="rep-card-icon" style="background:rgba(16,185,129,0.15); color:#10b981; border:1px solid rgba(16,185,129,0.3);">
                         <i class="fa-solid fa-scale-balanced"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#11</span>
-                            <strong class="rep-card-title">الربحية مقابل سرعة البيع</strong>
-                            <span class="rep-card-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">الربحية والهوامش</span>
+                            <strong class="rep-card-title">ط§ظ„ط±ط¨ط­ظٹط© ظ…ظ‚ط§ط¨ظ„ ط³ط±ط¹ط© ط§ظ„ط¨ظٹط¹</strong>
+                            <span class="rep-card-badge" style="background:rgba(16,185,129,0.2); color:#6ee7b7;">ط§ظ„ط±ط¨ط­ظٹط© ظˆط§ظ„ظ‡ظˆط§ظ…ط´</span>
                         </div>
-                        <p class="rep-card-desc">مصفوفة BCG الذكية لتصنيف الأصناف الأكثر ربحية وسرعة لتوجيه استراتيجية التسعير.</p>
+                        <p class="rep-card-desc">ظ…طµظپظˆظپط© BCG ط§ظ„ط°ظƒظٹط© ظ„طھطµظ†ظٹظپ ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ط£ظƒط«ط± ط±ط¨ط­ظٹط© ظˆط³ط±ط¹ط© ظ„طھظˆط¬ظٹظ‡ ط§ط³طھط±ط§طھظٹط¬ظٹط© ط§ظ„طھط³ط¹ظٹط±.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="profit" data-title="انحراف التكلفة ومتوسط الشراء" data-desc="رصد تقلبات أسعار شراء المواد الخام ومدى تأثيرها على تكلفة الوحدة" onclick="Inventory20Reports.openReport('انحراف التكلفة ومتوسط الشراء', 'inv_rep12_cost_variance.php')">
+                <div class="inv-rep-card" data-cat="profit" data-title="ط§ظ†ط­ط±ط§ظپ ط§ظ„طھظƒظ„ظپط© ظˆظ…طھظˆط³ط· ط§ظ„ط´ط±ط§ط،" data-desc="ط±طµط¯ طھظ‚ظ„ط¨ط§طھ ط£ط³ط¹ط§ط± ط´ط±ط§ط، ط§ظ„ظ…ظˆط§ط¯ ط§ظ„ط®ط§ظ… ظˆظ…ط¯ظ‰ طھط£ط«ظٹط±ظ‡ط§ ط¹ظ„ظ‰ طھظƒظ„ظپط© ط§ظ„ظˆط­ط¯ط©" onclick="Inventory20Reports.openReport('ط§ظ†ط­ط±ط§ظپ ط§ظ„طھظƒظ„ظپط© ظˆظ…طھظˆط³ط· ط§ظ„ط´ط±ط§ط،', 'inv_rep12_cost_variance.php')">
                     <div class="rep-card-icon" style="background:rgba(59,130,246,0.15); color:#60a5fa; border:1px solid rgba(59,130,246,0.3);">
                         <i class="fa-solid fa-money-bill-transfer"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#12</span>
-                            <strong class="rep-card-title">انحراف التكلفة ومتوسط الشراء</strong>
-                            <span class="rep-card-badge" style="background:rgba(59,130,246,0.2); color:#bfdbfe;">الربحية والهوامش</span>
+                            <strong class="rep-card-title">ط§ظ†ط­ط±ط§ظپ ط§ظ„طھظƒظ„ظپط© ظˆظ…طھظˆط³ط· ط§ظ„ط´ط±ط§ط،</strong>
+                            <span class="rep-card-badge" style="background:rgba(59,130,246,0.2); color:#bfdbfe;">ط§ظ„ط±ط¨ط­ظٹط© ظˆط§ظ„ظ‡ظˆط§ظ…ط´</span>
                         </div>
-                        <p class="rep-card-desc">مقارنة أسعار الشراء الفعلية بتكاليف الموازنة التقديرية لرصد أي فروقات سلبية.</p>
+                        <p class="rep-card-desc">ظ…ظ‚ط§ط±ظ†ط© ط£ط³ط¹ط§ط± ط§ظ„ط´ط±ط§ط، ط§ظ„ظپط¹ظ„ظٹط© ط¨طھظƒط§ظ„ظٹظپ ط§ظ„ظ…ظˆط§ط²ظ†ط© ط§ظ„طھظ‚ط¯ظٹط±ظٹط© ظ„ط±طµط¯ ط£ظٹ ظپط±ظˆظ‚ط§طھ ط³ظ„ط¨ظٹط©.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="profit" data-title="رادار الأصناف الخاسرة والحرجة Zero & Negative Margin" data-desc="كشف أي صنف يباع بهامش صفري أو خسارة دون سعر التكلفة المرجعي" onclick="Inventory20Reports.openReport('رادار الأصناف الخاسرة والحرجة', 'inv_rep13_zero_margin.php')">
+                <div class="inv-rep-card" data-cat="profit" data-title="ط±ط§ط¯ط§ط± ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ط®ط§ط³ط±ط© ظˆط§ظ„ط­ط±ط¬ط© Zero & Negative Margin" data-desc="ظƒط´ظپ ط£ظٹ طµظ†ظپ ظٹط¨ط§ط¹ ط¨ظ‡ط§ظ…ط´ طµظپط±ظٹ ط£ظˆ ط®ط³ط§ط±ط© ط¯ظˆظ† ط³ط¹ط± ط§ظ„طھظƒظ„ظپط© ط§ظ„ظ…ط±ط¬ط¹ظٹ" onclick="Inventory20Reports.openReport('ط±ط§ط¯ط§ط± ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ط®ط§ط³ط±ط© ظˆط§ظ„ط­ط±ط¬ط©', 'inv_rep13_zero_margin.php')">
                     <div class="rep-card-icon" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3);">
                         <i class="fa-solid fa-triangle-exclamation"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#13</span>
-                            <strong class="rep-card-title">الأصناف الخاسرة والحرجة (Zero Margin)</strong>
-                            <span class="rep-card-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5;">الربحية والهوامش</span>
+                            <strong class="rep-card-title">ط§ظ„ط£طµظ†ط§ظپ ط§ظ„ط®ط§ط³ط±ط© ظˆط§ظ„ط­ط±ط¬ط© (Zero Margin)</strong>
+                            <span class="rep-card-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5;">ط§ظ„ط±ط¨ط­ظٹط© ظˆط§ظ„ظ‡ظˆط§ظ…ط´</span>
                         </div>
-                        <p class="rep-card-desc">إنذار رقابي عاجل للأصناف المباعة دون التكلفة أو بهامش ربح صفري لإيقاف النزيف.</p>
+                        <p class="rep-card-desc">ط¥ظ†ط°ط§ط± ط±ظ‚ط§ط¨ظٹ ط¹ط§ط¬ظ„ ظ„ظ„ط£طµظ†ط§ظپ ط§ظ„ظ…ط¨ط§ط¹ط© ط¯ظˆظ† ط§ظ„طھظƒظ„ظپط© ط£ظˆ ط¨ظ‡ط§ظ…ط´ ط±ط¨ط­ طµظپط±ظٹ ظ„ط¥ظٹظ‚ط§ظپ ط§ظ„ظ†ط²ظٹظپ.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="profit" data-title="العائد الإجمالي على الاستثمار GMROII" data-desc="قياس العائد المالي لكل جنيه مستثمر في المخزون بدقة مصرفية" onclick="Inventory20Reports.openReport('العائد الإجمالي على الاستثمار GMROII', 'inv_rep14_gmroii.php')">
+                <div class="inv-rep-card" data-cat="profit" data-title="ط§ظ„ط¹ط§ط¦ط¯ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ط¹ظ„ظ‰ ط§ظ„ط§ط³طھط«ظ…ط§ط± GMROII" data-desc="ظ‚ظٹط§ط³ ط§ظ„ط¹ط§ط¦ط¯ ط§ظ„ظ…ط§ظ„ظٹ ظ„ظƒظ„ ط¬ظ†ظٹظ‡ ظ…ط³طھط«ظ…ط± ظپظٹ ط§ظ„ظ…ط®ط²ظˆظ† ط¨ط¯ظ‚ط© ظ…طµط±ظپظٹط©" onclick="Inventory20Reports.openReport('ط§ظ„ط¹ط§ط¦ط¯ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ط¹ظ„ظ‰ ط§ظ„ط§ط³طھط«ظ…ط§ط± GMROII', 'inv_rep14_gmroii.php')">
                     <div class="rep-card-icon" style="background:rgba(139,92,246,0.15); color:#a78bfa; border:1px solid rgba(139,92,246,0.3);">
                         <i class="fa-solid fa-sack-dollar"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#14</span>
-                            <strong class="rep-card-title">العائد الاستثماري GMROII</strong>
-                            <span class="rep-card-badge" style="background:rgba(139,92,246,0.2); color:#ddd6fe;">الربحية والهوامش</span>
+                            <strong class="rep-card-title">ط§ظ„ط¹ط§ط¦ط¯ ط§ظ„ط§ط³طھط«ظ…ط§ط±ظٹ GMROII</strong>
+                            <span class="rep-card-badge" style="background:rgba(139,92,246,0.2); color:#ddd6fe;">ط§ظ„ط±ط¨ط­ظٹط© ظˆط§ظ„ظ‡ظˆط§ظ…ط´</span>
                         </div>
-                        <p class="rep-card-desc">حساب العائد الإجمالي على استثمار المخزون بدقة لترتيب أولوية السيولة النقدية.</p>
+                        <p class="rep-card-desc">ط­ط³ط§ط¨ ط§ظ„ط¹ط§ط¦ط¯ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ط¹ظ„ظ‰ ط§ط³طھط«ظ…ط§ط± ط§ظ„ظ…ط®ط²ظˆظ† ط¨ط¯ظ‚ط© ظ„طھط±طھظٹط¨ ط£ظˆظ„ظˆظٹط© ط§ظ„ط³ظٹظˆظ„ط© ط§ظ„ظ†ظ‚ط¯ظٹط©.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="profit" data-title="التقييم المالي الإجمالي للمخزون" data-desc="تقييم القيمة الرأسمالية للمخزون بالطرق القياسية FIFO و WAC" onclick="Inventory20Reports.openReport('التقييم المالي الإجمالي للمخزون', 'inv_rep15_valuation.php')">
+                <div class="inv-rep-card" data-cat="profit" data-title="ط§ظ„طھظ‚ظٹظٹظ… ط§ظ„ظ…ط§ظ„ظٹ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ظ„ظ„ظ…ط®ط²ظˆظ†" data-desc="طھظ‚ظٹظٹظ… ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ط±ط£ط³ظ…ط§ظ„ظٹط© ظ„ظ„ظ…ط®ط²ظˆظ† ط¨ط§ظ„ط·ط±ظ‚ ط§ظ„ظ‚ظٹط§ط³ظٹط© FIFO ظˆ WAC" onclick="Inventory20Reports.openReport('ط§ظ„طھظ‚ظٹظٹظ… ط§ظ„ظ…ط§ظ„ظٹ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ظ„ظ„ظ…ط®ط²ظˆظ†', 'inv_rep15_valuation.php')">
                     <div class="rep-card-icon" style="background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3);">
                         <i class="fa-solid fa-vault"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#15</span>
-                            <strong class="rep-card-title">التقييم المالي للمخزون (Valuation)</strong>
-                            <span class="rep-card-badge" style="background:rgba(14,165,233,0.2); color:#bae6fd;">الربحية والهوامش</span>
+                            <strong class="rep-card-title">ط§ظ„طھظ‚ظٹظٹظ… ط§ظ„ظ…ط§ظ„ظٹ ظ„ظ„ظ…ط®ط²ظˆظ† (Valuation)</strong>
+                            <span class="rep-card-badge" style="background:rgba(14,165,233,0.2); color:#bae6fd;">ط§ظ„ط±ط¨ط­ظٹط© ظˆط§ظ„ظ‡ظˆط§ظ…ط´</span>
                         </div>
-                        <p class="rep-card-desc">تحديد القيمة الرأسمالية الشاملة للبضاعة المخزنة وفق معايير المحاسبة والتدقيق.</p>
+                        <p class="rep-card-desc">طھط­ط¯ظٹط¯ ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ط±ط£ط³ظ…ط§ظ„ظٹط© ط§ظ„ط´ط§ظ…ظ„ط© ظ„ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ظ…ط®ط²ظ†ط© ظˆظپظ‚ ظ…ط¹ط§ظٹظٹط± ط§ظ„ظ…ط­ط§ط³ط¨ط© ظˆط§ظ„طھط¯ظ‚ظٹظ‚.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <!-- ── AXIS 4: التنبؤ المستقبلي وحظر المخاطر ── -->
-                <div class="inv-rep-card" data-cat="forecast" data-title="رادار هبوط الأسعار ومخاطر السوق" data-desc="إنذار مبكر عند تراجع الأسعار لحماية السيولة من خسائر انخفاض القيمة" onclick="Inventory20Reports.openReport('رادار هبوط الأسعار ومخاطر السوق', 'inv_rep16_market_drop.php')">
+                <!-- â”€â”€ AXIS 4: ط§ظ„طھظ†ط¨ط¤ ط§ظ„ظ…ط³طھظ‚ط¨ظ„ظٹ ظˆط­ط¸ط± ط§ظ„ظ…ط®ط§ط·ط± â”€â”€ -->
+                <div class="inv-rep-card" data-cat="forecast" data-title="ط±ط§ط¯ط§ط± ظ‡ط¨ظˆط· ط§ظ„ط£ط³ط¹ط§ط± ظˆظ…ط®ط§ط·ط± ط§ظ„ط³ظˆظ‚" data-desc="ط¥ظ†ط°ط§ط± ظ…ط¨ظƒط± ط¹ظ†ط¯ طھط±ط§ط¬ط¹ ط§ظ„ط£ط³ط¹ط§ط± ظ„ط­ظ…ط§ظٹط© ط§ظ„ط³ظٹظˆظ„ط© ظ…ظ† ط®ط³ط§ط¦ط± ط§ظ†ط®ظپط§ط¶ ط§ظ„ظ‚ظٹظ…ط©" onclick="Inventory20Reports.openReport('ط±ط§ط¯ط§ط± ظ‡ط¨ظˆط· ط§ظ„ط£ط³ط¹ط§ط± ظˆظ…ط®ط§ط·ط± ط§ظ„ط³ظˆظ‚', 'inv_rep16_market_drop.php')">
                     <div class="rep-card-icon" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3);">
                         <i class="fa-solid fa-arrow-trend-down"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#16</span>
-                            <strong class="rep-card-title">رادار هبوط الأسعار ومخاطر السوق</strong>
-                            <span class="rep-card-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5;">التنبؤ والمخاطر</span>
+                            <strong class="rep-card-title">ط±ط§ط¯ط§ط± ظ‡ط¨ظˆط· ط§ظ„ط£ط³ط¹ط§ط± ظˆظ…ط®ط§ط·ط± ط§ظ„ط³ظˆظ‚</strong>
+                            <span class="rep-card-badge" style="background:rgba(239,68,68,0.2); color:#fca5a5;">ط§ظ„طھظ†ط¨ط¤ ظˆط§ظ„ظ…ط®ط§ط·ط±</span>
                         </div>
-                        <p class="rep-card-desc">نظام تنبيهات مبكرة عند انخفاض أسعار مواد البناء عالمياً ومحلياً لحماية الأرباح.</p>
+                        <p class="rep-card-desc">ظ†ط¸ط§ظ… طھظ†ط¨ظٹظ‡ط§طھ ظ…ط¨ظƒط±ط© ط¹ظ†ط¯ ط§ظ†ط®ظپط§ط¶ ط£ط³ط¹ط§ط± ظ…ظˆط§ط¯ ط§ظ„ط¨ظ†ط§ط، ط¹ط§ظ„ظ…ظٹط§ظ‹ ظˆظ…ط­ظ„ظٹط§ظ‹ ظ„ط­ظ…ط§ظٹط© ط§ظ„ط£ط±ط¨ط§ط­.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="forecast" data-title="تحليل عجز وجرد العنابر والفارق الجردي" data-desc="تتبع الفروقات الجردية ونسب الفاقد والتلف لتعزيز الرقابة والحوكمة" onclick="Inventory20Reports.openReport('تحليل عجز وجرد العنابر', 'inv_rep17_shrinkage.php')">
+                <div class="inv-rep-card" data-cat="forecast" data-title="طھط­ظ„ظٹظ„ ط¹ط¬ط² ظˆط¬ط±ط¯ ط§ظ„ط¹ظ†ط§ط¨ط± ظˆط§ظ„ظپط§ط±ظ‚ ط§ظ„ط¬ط±ط¯ظٹ" data-desc="طھطھط¨ط¹ ط§ظ„ظپط±ظˆظ‚ط§طھ ط§ظ„ط¬ط±ط¯ظٹط© ظˆظ†ط³ط¨ ط§ظ„ظپط§ظ‚ط¯ ظˆط§ظ„طھظ„ظپ ظ„طھط¹ط²ظٹط² ط§ظ„ط±ظ‚ط§ط¨ط© ظˆط§ظ„ط­ظˆظƒظ…ط©" onclick="Inventory20Reports.openReport('طھط­ظ„ظٹظ„ ط¹ط¬ط² ظˆط¬ط±ط¯ ط§ظ„ط¹ظ†ط§ط¨ط±', 'inv_rep17_shrinkage.php')">
                     <div class="rep-card-icon" style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3);">
                         <i class="fa-solid fa-barcode"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#17</span>
-                            <strong class="rep-card-title">عجز وجرد العنابر (Shrinkage)</strong>
-                            <span class="rep-card-badge" style="background:rgba(245,158,11,0.2); color:#fde68a;">التنبؤ والمخاطر</span>
+                            <strong class="rep-card-title">ط¹ط¬ط² ظˆط¬ط±ط¯ ط§ظ„ط¹ظ†ط§ط¨ط± (Shrinkage)</strong>
+                            <span class="rep-card-badge" style="background:rgba(245,158,11,0.2); color:#fde68a;">ط§ظ„طھظ†ط¨ط¤ ظˆط§ظ„ظ…ط®ط§ط·ط±</span>
                         </div>
-                        <p class="rep-card-desc">رصد نسب الفاقد، التلف، وفروقات الجرد الفعلي عن الدفتري لحوكمة العنابر.</p>
+                        <p class="rep-card-desc">ط±طµط¯ ظ†ط³ط¨ ط§ظ„ظپط§ظ‚ط¯طŒ ط§ظ„طھظ„ظپطŒ ظˆظپط±ظˆظ‚ط§طھ ط§ظ„ط¬ط±ط¯ ط§ظ„ظپط¹ظ„ظٹ ط¹ظ† ط§ظ„ط¯ظپطھط±ظٹ ظ„ط­ظˆظƒظ…ط© ط§ظ„ط¹ظ†ط§ط¨ط±.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="forecast" data-title="بضاعة بالطريق والمناقلات المعلقة Transit" data-desc="تتبع الشحنات المتحركة بين الموانئ والمستودعات ولم تسجل بعد بالعنابر" onclick="Inventory20Reports.openReport('بضاعة بالطريق والمناقلات المعلقة', 'inv_rep18_transit.php')">
+                <div class="inv-rep-card" data-cat="forecast" data-title="ط¨ط¶ط§ط¹ط© ط¨ط§ظ„ط·ط±ظٹظ‚ ظˆط§ظ„ظ…ظ†ط§ظ‚ظ„ط§طھ ط§ظ„ظ…ط¹ظ„ظ‚ط© Transit" data-desc="طھطھط¨ط¹ ط§ظ„ط´ط­ظ†ط§طھ ط§ظ„ظ…طھط­ط±ظƒط© ط¨ظٹظ† ط§ظ„ظ…ظˆط§ظ†ط¦ ظˆط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ ظˆظ„ظ… طھط³ط¬ظ„ ط¨ط¹ط¯ ط¨ط§ظ„ط¹ظ†ط§ط¨ط±" onclick="Inventory20Reports.openReport('ط¨ط¶ط§ط¹ط© ط¨ط§ظ„ط·ط±ظٹظ‚ ظˆط§ظ„ظ…ظ†ط§ظ‚ظ„ط§طھ ط§ظ„ظ…ط¹ظ„ظ‚ط©', 'inv_rep18_transit.php')">
                     <div class="rep-card-icon" style="background:rgba(14,165,233,0.15); color:#38bdf8; border:1px solid rgba(14,165,233,0.3);">
                         <i class="fa-solid fa-ship"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#18</span>
-                            <strong class="rep-card-title">بضاعة بالطريق والمناقلات (Transit)</strong>
-                            <span class="rep-card-badge" style="background:rgba(14,165,233,0.2); color:#bae6fd;">التنبؤ والمخاطر</span>
+                            <strong class="rep-card-title">ط¨ط¶ط§ط¹ط© ط¨ط§ظ„ط·ط±ظٹظ‚ ظˆط§ظ„ظ…ظ†ط§ظ‚ظ„ط§طھ (Transit)</strong>
+                            <span class="rep-card-badge" style="background:rgba(14,165,233,0.2); color:#bae6fd;">ط§ظ„طھظ†ط¨ط¤ ظˆط§ظ„ظ…ط®ط§ط·ط±</span>
                         </div>
-                        <p class="rep-card-desc">تتبع الشحنات في الطريق بين بورتسودان ومستودعات السجانة ومناقلات الفروع.</p>
+                        <p class="rep-card-desc">طھطھط¨ط¹ ط§ظ„ط´ط­ظ†ط§طھ ظپظٹ ط§ظ„ط·ط±ظٹظ‚ ط¨ظٹظ† ط¨ظˆط±طھط³ظˆط¯ط§ظ† ظˆظ…ط³طھظˆط¯ط¹ط§طھ ط§ظ„ط³ط¬ط§ظ†ط© ظˆظ…ظ†ط§ظ‚ظ„ط§طھ ط§ظ„ظپط±ظˆط¹.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="forecast" data-title="تصنيف ABC وفق مبدأ باريتو Pareto Analysis" data-desc="عزل فئة A الحيوية التي تمثل 80% من قيمة المبيعات للتركيز عليها" onclick="Inventory20Reports.openReport('تصنيف ABC باريتو', 'inv_rep19_abc.php')">
+                <div class="inv-rep-card" data-cat="forecast" data-title="طھطµظ†ظٹظپ ABC ظˆظپظ‚ ظ…ط¨ط¯ط£ ط¨ط§ط±ظٹطھظˆ Pareto Analysis" data-desc="ط¹ط²ظ„ ظپط¦ط© A ط§ظ„ط­ظٹظˆظٹط© ط§ظ„طھظٹ طھظ…ط«ظ„ 80% ظ…ظ† ظ‚ظٹظ…ط© ط§ظ„ظ…ط¨ظٹط¹ط§طھ ظ„ظ„طھط±ظƒظٹط² ط¹ظ„ظٹظ‡ط§" onclick="Inventory20Reports.openReport('طھطµظ†ظٹظپ ABC ط¨ط§ط±ظٹطھظˆ', 'inv_rep19_abc.php')">
                     <div class="rep-card-icon" style="background:rgba(168,85,247,0.15); color:#c084fc; border:1px solid rgba(168,85,247,0.3);">
                         <i class="fa-solid fa-ranking-star"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#19</span>
-                            <strong class="rep-card-title">تصنيف ABC باريتو (80/20)</strong>
-                            <span class="rep-card-badge" style="background:rgba(168,85,247,0.2); color:#e9d5ff;">التنبؤ والمخاطر</span>
+                            <strong class="rep-card-title">طھطµظ†ظٹظپ ABC ط¨ط§ط±ظٹطھظˆ (80/20)</strong>
+                            <span class="rep-card-badge" style="background:rgba(168,85,247,0.2); color:#e9d5ff;">ط§ظ„طھظ†ط¨ط¤ ظˆط§ظ„ظ…ط®ط§ط·ط±</span>
                         </div>
-                        <p class="rep-card-desc">تحليل باريتو لتصنيف الأصناف إلى A (استراتيجية)، B (متوسطة)، C (ثانوية).</p>
+                        <p class="rep-card-desc">طھط­ظ„ظٹظ„ ط¨ط§ط±ظٹطھظˆ ظ„طھطµظ†ظٹظپ ط§ظ„ط£طµظ†ط§ظپ ط¥ظ„ظ‰ A (ط§ط³طھط±ط§طھظٹط¬ظٹط©)طŒ B (ظ…طھظˆط³ط·ط©)طŒ C (ط«ط§ظ†ظˆظٹط©).</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
                     </button>
                 </div>
 
-                <div class="inv-rep-card" data-cat="forecast" data-title="محاكي قرارات الشراء الذكي ومستشار الطلبيات" data-desc="محاكاة سيناريوهات الشراء والتنبؤ بالكميات المثالية ومواعيد التوريد" onclick="Inventory20Reports.openReport('محاكي قرارات الشراء الذكي', 'inv_rep20_simulator.php')">
+                <div class="inv-rep-card" data-cat="forecast" data-title="ظ…ط­ط§ظƒظٹ ظ‚ط±ط§ط±ط§طھ ط§ظ„ط´ط±ط§ط، ط§ظ„ط°ظƒظٹ ظˆظ…ط³طھط´ط§ط± ط§ظ„ط·ظ„ط¨ظٹط§طھ" data-desc="ظ…ط­ط§ظƒط§ط© ط³ظٹظ†ط§ط±ظٹظˆظ‡ط§طھ ط§ظ„ط´ط±ط§ط، ظˆط§ظ„طھظ†ط¨ط¤ ط¨ط§ظ„ظƒظ…ظٹط§طھ ط§ظ„ظ…ط«ط§ظ„ظٹط© ظˆظ…ظˆط§ط¹ظٹط¯ ط§ظ„طھظˆط±ظٹط¯" onclick="Inventory20Reports.openReport('ظ…ط­ط§ظƒظٹ ظ‚ط±ط§ط±ط§طھ ط§ظ„ط´ط±ط§ط، ط§ظ„ط°ظƒظٹ', 'inv_rep20_simulator.php')">
                     <div class="rep-card-icon" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">
                         <i class="fa-solid fa-microchip"></i>
                     </div>
                     <div class="rep-card-info">
                         <div class="rep-card-header">
                             <span class="rep-card-num">#20</span>
-                            <strong class="rep-card-title">محاكي قرارات الشراء الذكي</strong>
-                            <span class="rep-card-badge" style="background:rgba(16,185,129,0.2); color:#a7f3d0;">التنبؤ والمخاطر</span>
+                            <strong class="rep-card-title">ظ…ط­ط§ظƒظٹ ظ‚ط±ط§ط±ط§طھ ط§ظ„ط´ط±ط§ط، ط§ظ„ط°ظƒظٹ</strong>
+                            <span class="rep-card-badge" style="background:rgba(16,185,129,0.2); color:#a7f3d0;">ط§ظ„طھظ†ط¨ط¤ ظˆط§ظ„ظ…ط®ط§ط·ط±</span>
                         </div>
-                        <p class="rep-card-desc">أداة محاكاة تفاعلية لاقتراح كميات وأوقات الشراء وتوقع الأرباح وسيولة الصناديق.</p>
+                        <p class="rep-card-desc">ط£ط¯ط§ط© ظ…ط­ط§ظƒط§ط© طھظپط§ط¹ظ„ظٹط© ظ„ط§ظ‚طھط±ط§ط­ ظƒظ…ظٹط§طھ ظˆط£ظˆظ‚ط§طھ ط§ظ„ط´ط±ط§ط، ظˆطھظˆظ‚ط¹ ط§ظ„ط£ط±ط¨ط§ط­ ظˆط³ظٹظˆظ„ط© ط§ظ„طµظ†ط§ط¯ظٹظ‚.</p>
                     </div>
                     <button type="button" class="rep-card-action">
                         <i class="fa-solid fa-chevron-left"></i>
@@ -9820,70 +9814,70 @@ try {
             <!-- Empty Search State -->
             <div id="inv-rep-empty-state" style="display:none; text-align:center; padding:30px 10px; color:var(--text-muted);">
                 <i class="fa-solid fa-magnifying-glass" style="font-size:2rem; opacity:0.3; margin-bottom:8px;"></i>
-                <div style="font-weight:700; font-size:0.9rem; color:var(--text-main);">لم يتم العثور على تقارير مطابقة</div>
-                <div style="font-size:0.75rem; margin-top:4px;">جرب البحث بكلمات أخرى أو اختر محوراً مختلفاً</div>
+                <div style="font-weight:700; font-size:0.9rem; color:var(--text-main);">ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ طھظ‚ط§ط±ظٹط± ظ…ط·ط§ط¨ظ‚ط©</div>
+                <div style="font-size:0.75rem; margin-top:4px;">ط¬ط±ط¨ ط§ظ„ط¨ط­ط« ط¨ظƒظ„ظ…ط§طھ ط£ط®ط±ظ‰ ط£ظˆ ط§ط®طھط± ظ…ط­ظˆط±ط§ظ‹ ظ…ط®طھظ„ظپط§ظ‹</div>
             </div>
         </div>
     </div>
 
-    <!-- SHEET: 📱 نافذة المعاينة السريعة للتقارير (In-App Interactive Report Viewer) -->
+    <!-- SHEET: ًں“± ظ†ط§ظپط°ط© ط§ظ„ظ…ط¹ط§ظٹظ†ط© ط§ظ„ط³ط±ظٹط¹ط© ظ„ظ„طھظ‚ط§ط±ظٹط± (In-App Interactive Report Viewer) -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-report-viewer" onclick="closeBottomSheet('sheet-report-viewer')" style="z-index:1049;"></div>
     <div class="mobile-bottom-sheet" id="sheet-report-viewer" style="height:95vh; max-height:95vh; display:flex; flex-direction:column; z-index:1050; padding:0;">
         <div class="sheet-drag-handle" style="margin:8px auto 4px;"></div>
         <div class="sheet-header" style="padding:10px 16px; border-bottom:1px solid var(--border-glass); flex-shrink:0;">
             <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
                 <span class="sheet-title" id="rep-viewer-title" style="font-size:0.88rem; font-weight:800; color:var(--text-main); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
-                    عرض التقرير
+                    ط¹ط±ط¶ ط§ظ„طھظ‚ط±ظٹط±
                 </span>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
                 <a href="#" id="rep-viewer-external-btn" target="_blank" class="btn-ripple" style="padding:4px 10px; border-radius:8px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; font-size:0.72rem; font-weight:700; text-decoration:none; display:flex; align-items:center; gap:4px;">
-                    <i class="fa-solid fa-up-right-from-square"></i> نافذة كاملة
+                    <i class="fa-solid fa-up-right-from-square"></i> ظ†ط§ظپط°ط© ظƒط§ظ…ظ„ط©
                 </a>
-                <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-report-viewer')">✕</button>
+                <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-report-viewer')">âœ•</button>
             </div>
         </div>
         <div style="flex-grow:1; position:relative; overflow:hidden; background:var(--bg-main, #0b0f19);">
             <div id="rep-viewer-loader" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--text-muted); background:var(--sheet-bg);">
                 <i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.8rem; color:#8b5cf6;"></i>
-                <span style="font-size:0.8rem;">جاري تحميل التقرير التفاعلي...</span>
+                <span style="font-size:0.8rem;">ط¬ط§ط±ظٹ طھط­ظ…ظٹظ„ ط§ظ„طھظ‚ط±ظٹط± ط§ظ„طھظپط§ط¹ظ„ظٹ...</span>
             </div>
             <iframe id="rep-viewer-iframe" src="about:blank" style="width:100%; height:100%; border:none;" onload="const ldr=document.getElementById('rep-viewer-loader'); if(ldr) ldr.style.display='none';"></iframe>
         </div>
     </div>
 
-    <!-- 🛰️ DOCKED ONLINE STATUS PILL (منسق في آخر الشاشة) -->
+    <!-- ًں›°ï¸ڈ DOCKED ONLINE STATUS PILL (ظ…ظ†ط³ظ‚ ظپظٹ ط¢ط®ط± ط§ظ„ط´ط§ط´ط©) -->
     <div class="bottom-connection-dock" id="bottom-connection-dock">
-        <button type="button" class="outbox-status-pill online bottom-dock-pill" id="btn-outbox-status" onclick="if(window.OfflineOutboxEngine && !window.OfflineOutboxEngine.isOnline()){ window.OfflineOutboxEngine.checkHeartbeat(true); } else { openBottomSheet('sheet-outbox-manager'); }" title="حالة الاتصال بالسحابة">
+        <button type="button" class="outbox-status-pill online bottom-dock-pill" id="btn-outbox-status" onclick="if(window.OfflineOutboxEngine && !window.OfflineOutboxEngine.isOnline()){ window.OfflineOutboxEngine.checkHeartbeat(true); } else { openBottomSheet('sheet-outbox-manager'); }" title="ط­ط§ظ„ط© ط§ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط³ط­ط§ط¨ط©">
             <span class="outbox-dot online" id="outbox-pill-dot"></span>
-            <span id="outbox-pill-text">متصل</span>
-            <span class="dock-branch-tag"><i class="fa-solid fa-cloud-check" style="color:var(--primary);"></i> فرع متصل</span>
+            <span id="outbox-pill-text">ظ…طھطµظ„</span>
+            <span class="dock-branch-tag"><i class="fa-solid fa-cloud-check" style="color:var(--primary);"></i> ظپط±ط¹ ظ…طھطµظ„</span>
         </button>
     </div>
 
-    <!-- ═════════════════════════════════════════════════════════════════
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
          E. FIXED BOTTOM NAVIGATION BAR (5 CORE HUBS)
-         ═════════════════════════════════════════════════════════════════ -->
-    <!-- 🎙️ OMNIPRESENT AI VOICE COPILOT FLOATING ORB (ACROSS ALL TABS) -->
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
+    <!-- ًںژ™ï¸ڈ OMNIPRESENT AI VOICE COPILOT FLOATING ORB (ACROSS ALL TABS) -->
     <div id="omnipresent-ai-orb" class="floating-ai-orb-wrap" onclick="openAiVoiceCopilotModal()">
         <div class="floating-ai-pulse-ring"></div>
-        <button type="button" class="floating-ai-orb-btn" title="المساعد الصوتي الذكي المصاحب - تحدث في أي وقت بالذكاء الاصطناعي">
+        <button type="button" class="floating-ai-orb-btn" title="ط§ظ„ظ…ط³ط§ط¹ط¯ ط§ظ„طµظˆطھظٹ ط§ظ„ط°ظƒظٹ ط§ظ„ظ…طµط§ط­ط¨ - طھط­ط¯ط« ظپظٹ ط£ظٹ ظˆظ‚طھ ط¨ط§ظ„ط°ظƒط§ط، ط§ظ„ط§طµط·ظ†ط§ط¹ظٹ">
             <i class="fa-solid fa-microphone-lines"></i>
-            <span class="floating-ai-badge">AI 🎙️</span>
+            <span class="floating-ai-badge">AI ًںژ™ï¸ڈ</span>
         </button>
-        <span class="floating-ai-label">المايك الذكي</span>
+        <span class="floating-ai-label">ط§ظ„ظ…ط§ظٹظƒ ط§ظ„ط°ظƒظٹ</span>
     </div>
 
-    <!-- 👁️ FLOATING PRIVACY TOAST BAR -->
+    <!-- ًں‘پï¸ڈ FLOATING PRIVACY TOAST BAR -->
     <div id="privacy-stealth-toast" style="display:none; position:fixed; top:75px; left:14px; right:14px; z-index:9999; background:rgba(15,23,42,0.95); border:1.5px solid #f59e0b; border-radius:16px; padding:10px 14px; box-shadow:0 0 25px rgba(245,158,11,0.4); backdrop-filter:blur(12px); color:#fbbf24; font-size:0.82rem; font-weight:800; align-items:center; justify-content:space-between; gap:10px;">
         <div style="display:flex; align-items:center; gap:8px;">
             <span style="width:8px; height:8px; border-radius:50%; background:#f59e0b; box-shadow:0 0 8px #f59e0b;"></span>
-            <span id="privacy-toast-text">🛡️ وضع الخصوصية مفعل: تم إخفاء الأرقام بنجوم (••••••)</span>
+            <span id="privacy-toast-text">ًں›،ï¸ڈ ظˆط¶ط¹ ط§ظ„ط®طµظˆطµظٹط© ظ…ظپط¹ظ„: طھظ… ط¥ط®ظپط§ط، ط§ظ„ط£ط±ظ‚ط§ظ… ط¨ظ†ط¬ظˆظ… (â€¢â€¢â€¢â€¢â€¢â€¢)</span>
         </div>
-        <button type="button" onclick="document.getElementById('privacy-stealth-toast').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:0.9rem; cursor:pointer;">✕</button>
+        <button type="button" onclick="document.getElementById('privacy-stealth-toast').style.display='none'" style="background:none; border:none; color:#94a3b8; font-size:0.9rem; cursor:pointer;">âœ•</button>
     </div>
 
-    <!-- 🎙️ BOTTOM SHEET: AI VOICE COPILOT INTERACTIVE CONSOLE -->
+    <!-- ًںژ™ï¸ڈ BOTTOM SHEET: AI VOICE COPILOT INTERACTIVE CONSOLE -->
     <div id="sheet-ai-voice-copilot" class="mobile-bottom-sheet" style="display:none;">
         <div class="sheet-scrim" onclick="closeBottomSheet('sheet-ai-voice-copilot')"></div>
         <div class="sheet-surface" style="max-height:88vh; overflow-y:auto; border-top:2px solid #a855f7;">
@@ -9895,8 +9889,8 @@ try {
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                     </div>
                     <div>
-                        <strong style="font-size:0.95rem; color:#fff; display:block;">المساعد الصوتي المحاسبي الفائق</strong>
-                        <span style="font-size:0.72rem; color:var(--text-muted);">تحكم صوتي فائق لإنشاء الفواتير وسندات الصرف والتقارير</span>
+                        <strong style="font-size:0.95rem; color:#fff; display:block;">ط§ظ„ظ…ط³ط§ط¹ط¯ ط§ظ„طµظˆطھظٹ ط§ظ„ظ…ط­ط§ط³ط¨ظٹ ط§ظ„ظپط§ط¦ظ‚</strong>
+                        <span style="font-size:0.72rem; color:var(--text-muted);">طھط­ظƒظ… طµظˆطھظٹ ظپط§ط¦ظ‚ ظ„ط¥ظ†ط´ط§ط، ط§ظ„ظپظˆط§طھظٹط± ظˆط³ظ†ط¯ط§طھ ط§ظ„طµط±ظپ ظˆط§ظ„طھظ‚ط§ط±ظٹط±</span>
                     </div>
                 </div>
                 <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-ai-voice-copilot')">
@@ -9924,34 +9918,34 @@ try {
                 </button>
 
                 <div>
-                    <span id="voice-copilot-status" style="font-size:0.86rem; font-weight:800; color:#fff; display:block;">اضغط على المايك للتحدث باللغة العربية أو اختر أمراً جاهزاً:</span>
-                    <span style="font-size:0.72rem; color:#38bdf8;">نظام الفهم الذكي للعمليات المحاسبية</span>
+                    <span id="voice-copilot-status" style="font-size:0.86rem; font-weight:800; color:#fff; display:block;">ط§ط¶ط؛ط· ط¹ظ„ظ‰ ط§ظ„ظ…ط§ظٹظƒ ظ„ظ„طھط­ط¯ط« ط¨ط§ظ„ظ„ط؛ط© ط§ظ„ط¹ط±ط¨ظٹط© ط£ظˆ ط§ط®طھط± ط£ظ…ط±ط§ظ‹ ط¬ط§ظ‡ط²ط§ظ‹:</span>
+                    <span style="font-size:0.72rem; color:#38bdf8;">ظ†ط¸ط§ظ… ط§ظ„ظپظ‡ظ… ط§ظ„ط°ظƒظٹ ظ„ظ„ط¹ظ…ظ„ظٹط§طھ ط§ظ„ظ…ط­ط§ط³ط¨ظٹط©</span>
                 </div>
 
                 <div style="width:100%; background:rgba(15,23,42,0.9); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:10px 12px; text-align:right;">
-                    <span style="font-size:0.68rem; color:#94a3b8; display:block; margin-bottom:2px;">النص الملتقط:</span>
-                    <p id="voice-copilot-transcript" style="font-size:0.84rem; font-weight:700; color:#e2e8f0; margin:0; font-style:italic;">بانتظار صوتك أو اختيارك...</p>
+                    <span style="font-size:0.68rem; color:#94a3b8; display:block; margin-bottom:2px;">ط§ظ„ظ†طµ ط§ظ„ظ…ظ„طھظ‚ط·:</span>
+                    <p id="voice-copilot-transcript" style="font-size:0.84rem; font-weight:700; color:#e2e8f0; margin:0; font-style:italic;">ط¨ط§ظ†طھط¸ط§ط± طµظˆطھظƒ ط£ظˆ ط§ط®طھظٹط§ط±ظƒ...</p>
                 </div>
             </div>
 
             <!-- Quick Predefined Scenarios matching user instructions -->
             <div style="margin-top:14px;">
-                <span style="font-size:0.78rem; font-weight:800; color:#c084fc; display:block; margin-bottom:6px;">أوامر صوتية نموذجية (اضغط للتجربة الفورية):</span>
+                <span style="font-size:0.78rem; font-weight:800; color:#c084fc; display:block; margin-bottom:6px;">ط£ظˆط§ظ…ط± طµظˆطھظٹط© ظ†ظ…ظˆط°ط¬ظٹط© (ط§ط¶ط؛ط· ظ„ظ„طھط¬ط±ط¨ط© ط§ظ„ظپظˆط±ظٹط©):</span>
                 
                 <div style="display:flex; flex-direction:column; gap:6px;">
                     <button type="button" onclick="runPredefinedVoiceScenario('sales_mohammed')" style="padding:10px 12px; background:var(--surface-card); border:1.5px solid rgba(168,85,247,0.3); border-radius:14px; text-align:right; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
-                        <span style="font-size:0.8rem; color:#e2e8f0;">🎙️ "أريد فاتورة مبيعات إلى <b>محمد حسن</b>، 5 طن سكر ماستر..."</span>
-                        <span style="font-size:0.72rem; color:#38bdf8; font-weight:800; font-family:monospace;">تجربة ⚡</span>
+                        <span style="font-size:0.8rem; color:#e2e8f0;">ًںژ™ï¸ڈ "ط£ط±ظٹط¯ ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ ط¥ظ„ظ‰ <b>ظ…ط­ظ…ط¯ ط­ط³ظ†</b>طŒ 5 ط·ظ† ط³ظƒط± ظ…ط§ط³طھط±..."</span>
+                        <span style="font-size:0.72rem; color:#38bdf8; font-weight:800; font-family:monospace;">طھط¬ط±ط¨ط© âڑ،</span>
                     </button>
 
                     <button type="button" onclick="runPredefinedVoiceScenario('disbursement_hams')" style="padding:10px 12px; background:var(--surface-card); border:1.5px solid rgba(245,158,11,0.3); border-radius:14px; text-align:right; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
-                        <span style="font-size:0.8rem; color:#e2e8f0;">🎙️ "أريد أن أصرف إلى <b>همس</b> مبلغ 70 ألف جنيه، رقم العملية 678..."</span>
-                        <span style="font-size:0.72rem; color:#fbbf24; font-weight:800; font-family:monospace;">تجربة ⚡</span>
+                        <span style="font-size:0.8rem; color:#e2e8f0;">ًںژ™ï¸ڈ "ط£ط±ظٹط¯ ط£ظ† ط£طµط±ظپ ط¥ظ„ظ‰ <b>ظ‡ظ…ط³</b> ظ…ط¨ظ„ط؛ 70 ط£ظ„ظپ ط¬ظ†ظٹظ‡طŒ ط±ظ‚ظ… ط§ظ„ط¹ظ…ظ„ظٹط© 678..."</span>
+                        <span style="font-size:0.72rem; color:#fbbf24; font-weight:800; font-family:monospace;">طھط¬ط±ط¨ط© âڑ،</span>
                     </button>
 
                     <button type="button" onclick="runPredefinedVoiceScenario('statement_nile')" style="padding:10px 12px; background:var(--surface-card); border:1.5px solid rgba(56,189,248,0.3); border-radius:14px; text-align:right; display:flex; align-items:center; justify-content:space-between; cursor:pointer;">
-                        <span style="font-size:0.8rem; color:#e2e8f0;">🎙️ "أعطني كشف حساب <b>شركة النيل</b> وموقف ديونها"</span>
-                        <span style="font-size:0.72rem; color:#38bdf8; font-weight:800; font-family:monospace;">تجربة ⚡</span>
+                        <span style="font-size:0.8rem; color:#e2e8f0;">ًںژ™ï¸ڈ "ط£ط¹ط·ظ†ظٹ ظƒط´ظپ ط­ط³ط§ط¨ <b>ط´ط±ظƒط© ط§ظ„ظ†ظٹظ„</b> ظˆظ…ظˆظ‚ظپ ط¯ظٹظˆظ†ظ‡ط§"</span>
+                        <span style="font-size:0.72rem; color:#38bdf8; font-weight:800; font-family:monospace;">طھط¬ط±ط¨ط© âڑ،</span>
                     </button>
                 </div>
             </div>
@@ -9960,8 +9954,8 @@ try {
             <div id="voice-copilot-approval-card" style="display:none; margin-top:14px; padding:14px; border-radius:18px; background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95)); border:2px solid #22d3ee; box-shadow:0 0 25px rgba(34,211,238,0.3);">
                 <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.1);">
                     <div style="display:flex; align-items:center; gap:8px;">
-                        <span style="font-size:1.1rem; color:#22d3ee;">⚡</span>
-                        <strong id="voice-card-title" style="font-size:0.88rem; color:#fff;">مسودة المعاملة الجاهزة</strong>
+                        <span style="font-size:1.1rem; color:#22d3ee;">âڑ،</span>
+                        <strong id="voice-card-title" style="font-size:0.88rem; color:#fff;">ظ…ط³ظˆط¯ط© ط§ظ„ظ…ط¹ط§ظ…ظ„ط© ط§ظ„ط¬ط§ظ‡ط²ط©</strong>
                     </div>
                     <span id="voice-card-total" style="font-size:0.95rem; font-weight:900; color:#10b981; font-family:'Inter',sans-serif;">$3,250</span>
                 </div>
@@ -9970,10 +9964,10 @@ try {
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px;">
                     <button type="button" onclick="confirmVoiceCopilotTransaction()" style="padding:12px; background:linear-gradient(135deg, #059669, #10b981); color:#fff; border:none; border-radius:12px; font-size:0.86rem; font-weight:900; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.4);">
-                        ✅ اعتماد وترحيل فوراً
+                        âœ… ط§ط¹طھظ…ط§ط¯ ظˆطھط±ط­ظٹظ„ ظپظˆط±ط§ظ‹
                     </button>
                     <button type="button" onclick="editVoiceCopilotTransaction()" style="padding:12px; background:var(--surface-card); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); border-radius:12px; font-size:0.84rem; font-weight:800; cursor:pointer;">
-                        ✏️ مراجعة وتعديل
+                        âœڈï¸ڈ ظ…ط±ط§ط¬ط¹ط© ظˆطھط¹ط¯ظٹظ„
                     </button>
                 </div>
             </div>
@@ -9984,30 +9978,30 @@ try {
     <nav class="bottom-nav-bar">
         <button type="button" class="nav-item active" id="bnav-dashboard" onclick="switchMobileTab('dashboard')">
             <i class="fa-solid fa-gauge-high"></i>
-            <span>الرئيسية</span>
+            <span>ط§ظ„ط±ط¦ظٹط³ظٹط©</span>
         </button>
         <button type="button" class="nav-item" id="bnav-transactions" onclick="switchMobileTab('transactions')">
             <i class="fa-solid fa-receipt"></i>
-            <span>الحركات</span>
+            <span>ط§ظ„ط­ط±ظƒط§طھ</span>
         </button>
         <button type="button" class="nav-item" id="bnav-ledgers" onclick="switchMobileTab('ledgers')">
             <i class="fa-solid fa-book-bookmark"></i>
-            <span>الحسابات</span>
+            <span>ط§ظ„ط­ط³ط§ط¨ط§طھ</span>
         </button>
         <button type="button" class="nav-item" id="bnav-inventory" onclick="switchMobileTab('inventory')">
             <i class="fa-solid fa-boxes-stacked"></i>
-            <span>المخزون</span>
+            <span>ط§ظ„ظ…ط®ط²ظˆظ†</span>
         </button>
         <button type="button" class="nav-item" id="bnav-approvals" onclick="switchMobileTab('approvals')" style="position:relative;">
             <i class="fa-solid fa-shield-halved"></i>
-            <span>الموافقات</span>
+            <span>ط§ظ„ظ…ظˆط§ظپظ‚ط§طھ</span>
             <span class="notif-badge" id="bnav-approvals-badge" style="top:2px; right:14px; min-width:14px; height:14px; font-size:0.55rem; padding:0 2px;">4</span>
         </button>
     </nav>
 
-    <!-- ═════════════════════════════════════════════════════════════════
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
          CORE JAVASCRIPT APPLICATION ENGINE
-         ═════════════════════════════════════════════════════════════════ -->
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <script>
         // Haptic Feedback Helper
         function triggerHaptic(type = 'light') {
@@ -10017,7 +10011,7 @@ try {
             }
         }
 
-        // 🔊 Sound Effect Bridge — connects playSoundEffect calls to modern-alerts.js acoustic engine
+        // ًں”ٹ Sound Effect Bridge â€” connects playSoundEffect calls to modern-alerts.js acoustic engine
         function playSoundEffect(type) {
             try {
                 if (typeof playModernAcoustic === 'function') {
@@ -10040,8 +10034,8 @@ try {
         }
         window.playSoundEffect = playSoundEffect;
 
-        // ⚖️ MOBILE SCREEN CALIBRATION & BUTTON CONTAINMENT ENGINE
-        // وزن الشاشة الرئيسية حسب أبعاد شاشة الجوال — ضمان بقاء كافة الأزرار داخل الشاشة بنسبة 100%
+        // âڑ–ï¸ڈ MOBILE SCREEN CALIBRATION & BUTTON CONTAINMENT ENGINE
+        // ظˆط²ظ† ط§ظ„ط´ط§ط´ط© ط§ظ„ط±ط¦ظٹط³ظٹط© ط­ط³ط¨ ط£ط¨ط¹ط§ط¯ ط´ط§ط´ط© ط§ظ„ط¬ظˆط§ظ„ â€” ط¶ظ…ط§ظ† ط¨ظ‚ط§ط، ظƒط§ظپط© ط§ظ„ط£ط²ط±ط§ط± ط¯ط§ط®ظ„ ط§ظ„ط´ط§ط´ط© ط¨ظ†ط³ط¨ط© 100%
         function calibrateMobileScreen(interactive = false) {
             try {
                 const vw = Math.min(window.innerWidth, document.documentElement.clientWidth || window.innerWidth);
@@ -10101,7 +10095,7 @@ try {
                     });
 
                     if (window.showModernToast) {
-                        window.showModernToast(`⚖️ تم وزن أبعاد الشاشة ومطابقة جميع الأزرار بنجاح (${vw}px)`, 'success', 3500);
+                        window.showModernToast(`âڑ–ï¸ڈ طھظ… ظˆط²ظ† ط£ط¨ط¹ط§ط¯ ط§ظ„ط´ط§ط´ط© ظˆظ…ط·ط§ط¨ظ‚ط© ط¬ظ…ظٹط¹ ط§ظ„ط£ط²ط±ط§ط± ط¨ظ†ط¬ط§ط­ (${vw}px)`, 'success', 3500);
                     }
                 }
             } catch(e) {
@@ -10112,7 +10106,7 @@ try {
         window.addEventListener('resize', () => calibrateMobileScreen(false));
         window.addEventListener('orientationchange', () => setTimeout(() => calibrateMobileScreen(false), 200));
 
-        // 📷 Real Camera Barcode Scanner Engine (BarcodeDetector API + Manual Fallback)
+        // ًں“· Real Camera Barcode Scanner Engine (BarcodeDetector API + Manual Fallback)
         window.BarcodeScannerEngine = {
             stream: null,
             detector: null,
@@ -10145,14 +10139,14 @@ try {
                     }
                     if (cameraBox) cameraBox.style.display = 'block';
                     if (fallbackBox) fallbackBox.style.display = 'none';
-                    if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-camera" style="color:var(--emerald);"></i> الكاميرا نشطة — وجّه نحو الباركود';
+                    if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-camera" style="color:var(--emerald);"></i> ط§ظ„ظƒط§ظ…ظٹط±ط§ ظ†ط´ط·ط© â€” ظˆط¬ظ‘ظ‡ ظ†ط­ظˆ ط§ظ„ط¨ط§ط±ظƒظˆط¯';
                     this.scanning = true;
                     this.startScanning(videoEl);
                 } catch(err) {
                     console.warn('Camera access denied or unavailable:', err);
                     if (cameraBox) cameraBox.style.display = 'none';
                     if (fallbackBox) fallbackBox.style.display = 'block';
-                    if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-keyboard" style="color:var(--amber);"></i> الكاميرا غير متاحة — أدخل الباركود يدوياً';
+                    if (statusEl) statusEl.innerHTML = '<i class="fa-solid fa-keyboard" style="color:var(--amber);"></i> ط§ظ„ظƒط§ظ…ظٹط±ط§ ط؛ظٹط± ظ…طھط§ط­ط© â€” ط£ط¯ط®ظ„ ط§ظ„ط¨ط§ط±ظƒظˆط¯ ظٹط¯ظˆظٹط§ظ‹';
                 }
 
                 openBottomSheet('sheet-barcode-scanner');
@@ -10177,7 +10171,7 @@ try {
             handleResult(code) {
                 this.scanning = false;
                 const statusEl = document.getElementById('barcode-scan-status');
-                if (statusEl) statusEl.innerHTML = `<i class="fa-solid fa-check-circle" style="color:var(--emerald);"></i> تم المسح: <strong style="font-family:'Inter',monospace;">${code}</strong>`;
+                if (statusEl) statusEl.innerHTML = `<i class="fa-solid fa-check-circle" style="color:var(--emerald);"></i> طھظ… ط§ظ„ظ…ط³ط­: <strong style="font-family:'Inter',monospace;">${code}</strong>`;
 
                 if (this.callback) {
                     this.callback(code);
@@ -10189,7 +10183,7 @@ try {
                 const inp = document.getElementById('manual-barcode-input');
                 const code = inp ? inp.value.trim() : '';
                 if (!code) {
-                    if (window.showModernToast) window.showModernToast('يرجى إدخال رقم الباركود', 'warning');
+                    if (window.showModernToast) window.showModernToast('ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط±ظ‚ظ… ط§ظ„ط¨ط§ط±ظƒظˆط¯', 'warning');
                     return;
                 }
                 triggerHaptic('light');
@@ -10210,7 +10204,7 @@ try {
             }
         };
 
-        // 🎙️ Arabic Voice Command Engine (Web Speech API)
+        // ًںژ™ï¸ڈ Arabic Voice Command Engine (Web Speech API)
         window.VoiceCommandEngine = {
             recognition: null,
             isListening: false,
@@ -10246,7 +10240,7 @@ try {
                     this.isListening = false;
                     this.updateMicUI(false);
                     if (event.error === 'not-allowed') {
-                        if (window.showModernToast) window.showModernToast('⚠️ يرجى السماح باستخدام الميكروفون من إعدادات المتصفح', 'warning', 3000);
+                        if (window.showModernToast) window.showModernToast('âڑ ï¸ڈ ظٹط±ط¬ظ‰ ط§ظ„ط³ظ…ط§ط­ ط¨ط§ط³طھط®ط¯ط§ظ… ط§ظ„ظ…ظٹظƒط±ظˆظپظˆظ† ظ…ظ† ط¥ط¹ط¯ط§ط¯ط§طھ ط§ظ„ظ…طھطµظپط­', 'warning', 3000);
                     }
                 };
                 return true;
@@ -10254,7 +10248,7 @@ try {
 
             startListening(mode = 'search', targetInputId = null) {
                 if (!this.recognition && !this.init()) {
-                    if (window.showModernToast) window.showModernToast('⚠️ الإدخال الصوتي غير مدعوم في هذا المتصفح', 'warning', 3000);
+                    if (window.showModernToast) window.showModernToast('âڑ ï¸ڈ ط§ظ„ط¥ط¯ط®ط§ظ„ ط§ظ„طµظˆطھظٹ ط؛ظٹط± ظ…ط¯ط¹ظˆظ… ظپظٹ ظ‡ط°ط§ ط§ظ„ظ…طھطµظپط­', 'warning', 3000);
                     return;
                 }
                 this.mode = mode;
@@ -10301,20 +10295,20 @@ try {
 
             parseVoucherCommand(text) {
                 // Parse Arabic voice commands like:
-                // "أصرف من محمد علي 15 مليون إلى عثمان عبد الله"
-                // "اقبض من شركة الفهد 5 مليون"
+                // "ط£طµط±ظپ ظ…ظ† ظ…ط­ظ…ط¯ ط¹ظ„ظٹ 15 ظ…ظ„ظٹظˆظ† ط¥ظ„ظ‰ ط¹ط«ظ…ط§ظ† ط¹ط¨ط¯ ط§ظ„ظ„ظ‡"
+                // "ط§ظ‚ط¨ط¶ ظ…ظ† ط´ط±ظƒط© ط§ظ„ظپظ‡ط¯ 5 ظ…ظ„ظٹظˆظ†"
                 const t = text.replace(/\s+/g, ' ').trim();
 
                 // Detect operation type
                 let opType = 'receipt';
-                if (/(أصرف|صرف|ادفع|دفع|سدد)/i.test(t)) opType = 'disbursement';
-                else if (/(اقبض|قبض|استلم|تحصيل)/i.test(t)) opType = 'receipt';
-                else if (/(حول|تحويل|انقل)/i.test(t)) opType = 'transfer';
+                if (/(ط£طµط±ظپ|طµط±ظپ|ط§ط¯ظپط¹|ط¯ظپط¹|ط³ط¯ط¯)/i.test(t)) opType = 'disbursement';
+                else if (/(ط§ظ‚ط¨ط¶|ظ‚ط¨ط¶|ط§ط³طھظ„ظ…|طھط­طµظٹظ„)/i.test(t)) opType = 'receipt';
+                else if (/(ط­ظˆظ„|طھط­ظˆظٹظ„|ط§ظ†ظ‚ظ„)/i.test(t)) opType = 'transfer';
 
-                // Extract amount — support "مليون" and "ألف" and plain numbers
+                // Extract amount â€” support "ظ…ظ„ظٹظˆظ†" and "ط£ظ„ظپ" and plain numbers
                 let amount = 0;
-                const millionMatch = t.match(/(\d+(?:\.\d+)?)\s*مليون/);
-                const thousandMatch = t.match(/(\d+(?:\.\d+)?)\s*أ?لف/);
+                const millionMatch = t.match(/(\d+(?:\.\d+)?)\s*ظ…ظ„ظٹظˆظ†/);
+                const thousandMatch = t.match(/(\d+(?:\.\d+)?)\s*ط£?ظ„ظپ/);
                 const plainMatch = t.match(/(\d[\d,\.]+)/);
                 if (millionMatch) amount = parseFloat(millionMatch[1]) * 1000000;
                 else if (thousandMatch) amount = parseFloat(thousandMatch[1]) * 1000;
@@ -10322,8 +10316,8 @@ try {
 
                 // Extract "from" and "to" names
                 let fromName = '', toName = '';
-                const fromToMatch = t.match(/من\s+(.+?)\s+(?:\d|(?:إلى|الى|لـ?))/i);
-                const toMatch = t.match(/(?:إلى|الى|لـ?)\s+(.+?)(?:\s*$)/i);
+                const fromToMatch = t.match(/ظ…ظ†\s+(.+?)\s+(?:\d|(?:ط¥ظ„ظ‰|ط§ظ„ظ‰|ظ„ظ€?))/i);
+                const toMatch = t.match(/(?:ط¥ظ„ظ‰|ط§ظ„ظ‰|ظ„ظ€?)\s+(.+?)(?:\s*$)/i);
                 if (fromToMatch) fromName = fromToMatch[1].trim();
                 if (toMatch) toName = toMatch[1].trim();
 
@@ -10339,7 +10333,7 @@ try {
 
                     // Set description/notes
                     const noteInp = document.getElementById('tx-notes-input');
-                    if (noteInp) noteInp.value = `🎙️ أمر صوتي: ${text}`;
+                    if (noteInp) noteInp.value = `ًںژ™ï¸ڈ ط£ظ…ط± طµظˆطھظٹ: ${text}`;
 
                     // Try to match from/to accounts
                     if (fromName && typeof buildAllAccountsList === 'function') {
@@ -10359,8 +10353,8 @@ try {
 
                     // Show confirmation
                     if (window.showModernToast) {
-                        const opLabel = opType === 'receipt' ? 'سند قبض' : opType === 'disbursement' ? 'سند صرف' : 'تحويل';
-                        window.showModernToast(`🎙️ تم إعداد ${opLabel}${amount > 0 ? ' بمبلغ ' + fmt(amount) + ' SDG' : ''} — راجع البيانات وأكد`, 'success', 4000);
+                        const opLabel = opType === 'receipt' ? 'ط³ظ†ط¯ ظ‚ط¨ط¶' : opType === 'disbursement' ? 'ط³ظ†ط¯ طµط±ظپ' : 'طھط­ظˆظٹظ„';
+                        window.showModernToast(`ًںژ™ï¸ڈ طھظ… ط¥ط¹ط¯ط§ط¯ ${opLabel}${amount > 0 ? ' ط¨ظ…ط¨ظ„ط؛ ' + fmt(amount) + ' SDG' : ''} â€” ط±ط§ط¬ط¹ ط§ظ„ط¨ظٹط§ظ†ط§طھ ظˆط£ظƒط¯`, 'success', 4000);
                     }
                 }, 500);
             },
@@ -10382,17 +10376,17 @@ try {
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🎨 THE 7-TIER THEME ENGINE (FROM ULTRA-LIGHT TO DEEP NIGHT)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًںژ¨ THE 7-TIER THEME ENGINE (FROM ULTRA-LIGHT TO DEEP NIGHT)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         const THEMES_7 = [
-            { key: 'ultra_white', name: 'أبيض فائق النقاء Ultra-Clean White', icon: 'fa-circle text-blue-500', dot: '#2563eb', meta: '#ffffff' },
-            { key: 'warm_cream', name: 'ورق سيبيا دافئ Warm Paper Sepia', icon: 'fa-scroll text-amber-600', dot: '#b45309', meta: '#fbf7ee' },
-            { key: 'exec_gray', name: 'رمادي تنفيذي بارد Cool Industrial Gray', icon: 'fa-briefcase text-blue-600', dot: '#2563eb', meta: '#f1f5f9' },
-            { key: 'solar_contrast', name: 'شمس ساطعة High-Contrast Solar Sun', icon: 'fa-sun text-yellow-500', dot: '#ffff00', meta: '#ffff00' },
-            { key: 'slate_twilight', name: 'سليت مسائي هادئ Twilight Slate', icon: 'fa-cloud-moon text-sky-400', dot: '#38bdf8', meta: '#1e293b' },
-            { key: 'midnight_obsidian', name: 'كحلي فاحم Midnight Obsidian', icon: 'fa-gem text-cyan-400', dot: '#00f2fe', meta: '#0b0f19' },
-            { key: 'pure_oled', name: 'سواد مطلق Pure OLED Black', icon: 'fa-moon text-emerald-400', dot: '#00e676', meta: '#000000' }
+            { key: 'ultra_white', name: 'ط£ط¨ظٹط¶ ظپط§ط¦ظ‚ ط§ظ„ظ†ظ‚ط§ط، Ultra-Clean White', icon: 'fa-circle text-blue-500', dot: '#2563eb', meta: '#ffffff' },
+            { key: 'warm_cream', name: 'ظˆط±ظ‚ ط³ظٹط¨ظٹط§ ط¯ط§ظپط¦ Warm Paper Sepia', icon: 'fa-scroll text-amber-600', dot: '#b45309', meta: '#fbf7ee' },
+            { key: 'exec_gray', name: 'ط±ظ…ط§ط¯ظٹ طھظ†ظپظٹط°ظٹ ط¨ط§ط±ط¯ Cool Industrial Gray', icon: 'fa-briefcase text-blue-600', dot: '#2563eb', meta: '#f1f5f9' },
+            { key: 'solar_contrast', name: 'ط´ظ…ط³ ط³ط§ط·ط¹ط© High-Contrast Solar Sun', icon: 'fa-sun text-yellow-500', dot: '#ffff00', meta: '#ffff00' },
+            { key: 'slate_twilight', name: 'ط³ظ„ظٹطھ ظ…ط³ط§ط¦ظٹ ظ‡ط§ط¯ط¦ Twilight Slate', icon: 'fa-cloud-moon text-sky-400', dot: '#38bdf8', meta: '#1e293b' },
+            { key: 'midnight_obsidian', name: 'ظƒط­ظ„ظٹ ظپط§ط­ظ… Midnight Obsidian', icon: 'fa-gem text-cyan-400', dot: '#00f2fe', meta: '#0b0f19' },
+            { key: 'pure_oled', name: 'ط³ظˆط§ط¯ ظ…ط·ظ„ظ‚ Pure OLED Black', icon: 'fa-moon text-emerald-400', dot: '#00e676', meta: '#000000' }
         ];
 
         function selectTheme(themeKey) {
@@ -10451,7 +10445,7 @@ try {
             const iconEl = document.getElementById('current-theme-icon');
             const dotEl = document.getElementById('current-theme-dot');
             if (iconEl && curTheme) {
-                // Keep the universally recognized theme palette icon (شعار السمات المعروف)
+                // Keep the universally recognized theme palette icon (ط´ط¹ط§ط± ط§ظ„ط³ظ…ط§طھ ط§ظ„ظ…ط¹ط±ظˆظپ)
                 iconEl.className = 'fa-solid fa-palette';
                 iconEl.style.color = curTheme.dot;
                 iconEl.style.filter = 'drop-shadow(0 0 6px ' + curTheme.dot + ')';
@@ -10476,9 +10470,9 @@ try {
             updateThemeUI(savedTheme);
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🔕 FOCUS MODE / MUTE EXPLANATORY TOASTS ENGINE
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں”• FOCUS MODE / MUTE EXPLANATORY TOASTS ENGINE
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function isToastsMuted() {
             const val = localStorage.getItem('magaiees_mute_toasts');
             if (val === null) {
@@ -10496,9 +10490,9 @@ try {
             updateMuteToastsUI(next);
             if (!silent && window.showModernToast) {
                 if (next) {
-                    window.showModernToast('🔕 تم كتم الرسائل اللحظية لسرعة العمل', 'warning', 2000, { force: true });
+                    window.showModernToast('ًں”• طھظ… ظƒطھظ… ط§ظ„ط±ط³ط§ط¦ظ„ ط§ظ„ظ„ط­ط¸ظٹط© ظ„ط³ط±ط¹ط© ط§ظ„ط¹ظ…ظ„', 'warning', 2000, { force: true });
                 } else {
-                    window.showModernToast('🔔 تم استئناف الرسائل اللحظية', 'info', 2000, { force: true });
+                    window.showModernToast('ًں”” طھظ… ط§ط³طھط¦ظ†ط§ظپ ط§ظ„ط±ط³ط§ط¦ظ„ ط§ظ„ظ„ط­ط¸ظٹط©', 'info', 2000, { force: true });
                 }
             }
         }
@@ -10510,20 +10504,20 @@ try {
             if (!btn) return;
             if (isMuted) {
                 btn.classList.add('mute-active');
-                btn.title = 'الإشعارات التوضيحية متوقفة أثناء العمل — اضغط للتفعيل';
+                btn.title = 'ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„طھظˆط¶ظٹط­ظٹط© ظ…طھظˆظ‚ظپط© ط£ط«ظ†ط§ط، ط§ظ„ط¹ظ…ظ„ â€” ط§ط¶ط؛ط· ظ„ظ„طھظپط¹ظٹظ„';
                 if (icon) { icon.style.color = '#f59e0b'; icon.style.opacity = '1'; }
                 if (dot) dot.style.display = 'block';
             } else {
                 btn.classList.remove('mute-active');
-                btn.title = 'إيقاف الإشعارات التوضيحية أثناء العمل';
+                btn.title = 'ط¥ظٹظ‚ط§ظپ ط§ظ„ط¥ط´ط¹ط§ط±ط§طھ ط§ظ„طھظˆط¶ظٹط­ظٹط© ط£ط«ظ†ط§ط، ط§ظ„ط¹ظ…ظ„';
                 if (icon) { icon.style.color = 'var(--text-muted)'; icon.style.opacity = '0.55'; }
                 if (dot) dot.style.display = 'none';
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🏢 BRANCH / WAREHOUSE SELECTOR ENGINE
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًںڈ¢ BRANCH / WAREHOUSE SELECTOR ENGINE
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function selectBranch(branchKey, branchLabel) {
             triggerHaptic('medium');
             localStorage.setItem('magaiees_branch', branchKey);
@@ -10542,7 +10536,7 @@ try {
 
             closeBottomSheet('sheet-branch-picker');
             if (window.showModernToast) {
-                window.showModernToast(`🏢 تم التحويل إلى: ${branchLabel}`, 'success', 2000);
+                window.showModernToast(`ًںڈ¢ طھظ… ط§ظ„طھط­ظˆظٹظ„ ط¥ظ„ظ‰: ${branchLabel}`, 'success', 2000);
             }
             if (typeof RuleAlertEngine !== 'undefined') {
                 RuleAlertEngine.scanAndRender();
@@ -10554,9 +10548,9 @@ try {
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 📱 5-TAB MOBILE NAVIGATION SWITCHER
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں“± 5-TAB MOBILE NAVIGATION SWITCHER
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function switchMobileTab(tabKey) {
             triggerHaptic('light');
             const validTabs = ['dashboard', 'transactions', 'ledgers', 'inventory', 'approvals'];
@@ -10591,9 +10585,9 @@ try {
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // ⚡ QUICK ACTION HUB HANDLERS (RECEIPT & DISBURSEMENT)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // âڑ، QUICK ACTION HUB HANDLERS (RECEIPT & DISBURSEMENT)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function openQuickCashReceipt() {
             triggerHaptic('medium');
             openBottomSheet('sheet-financial-tx');
@@ -10604,7 +10598,7 @@ try {
                 if (opType) opType.value = 'receipt';
             }
             if (window.showModernToast) {
-                window.showModernToast('📥 تم تهيئة السند كسند قبض، حدد الحساب الدافع والمبلغ', 'info', 2200);
+                window.showModernToast('ًں“¥ طھظ… طھظ‡ظٹط¦ط© ط§ظ„ط³ظ†ط¯ ظƒط³ظ†ط¯ ظ‚ط¨ط¶طŒ ط­ط¯ط¯ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط¯ط§ظپط¹ ظˆط§ظ„ظ…ط¨ظ„ط؛', 'info', 2200);
             }
         }
 
@@ -10618,13 +10612,13 @@ try {
                 if (opType) opType.value = 'disbursement';
             }
             if (window.showModernToast) {
-                window.showModernToast('📤 تم تهيئة السند كسند صرف، حدد الحساب المستفيد والمبلغ', 'info', 2200);
+                window.showModernToast('ًں“¤ طھظ… طھظ‡ظٹط¦ط© ط§ظ„ط³ظ†ط¯ ظƒط³ظ†ط¯ طµط±ظپطŒ ط­ط¯ط¯ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…ط³طھظپظٹط¯ ظˆط§ظ„ظ…ط¨ظ„ط؛', 'info', 2200);
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 📱 REAL-TIME HARDWARE DETECTION & LIVE SCREEN CALIBRATION ENGINE
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں“± REAL-TIME HARDWARE DETECTION & LIVE SCREEN CALIBRATION ENGINE
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.CURRENT_DEVICE_PROFILE = null;
 
         function runLiveHardwareCalibration(isManual = false) {
@@ -10634,15 +10628,15 @@ try {
             const h = Math.max(window.screen.width, window.screen.height);
 
             let brand = 'android';
-            let brandName = 'هاتف أندرويد';
-            let model = 'هاتف ذكي';
+            let brandName = 'ظ‡ط§طھظپ ط£ظ†ط¯ط±ظˆظٹط¯';
+            let model = 'ظ‡ط§طھظپ ط°ظƒظٹ';
             let os = 'Android';
             let icon = 'fa-brands fa-android';
             let color = '#10b981';
             let safeTop = '0px';
             let safeBottom = '16px';
             let refreshRate = '60-120Hz';
-            let tuningNote = 'معايرة الأندرويد القياسية وتثبيت الارتفاع';
+            let tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط§ظ„ط£ظ†ط¯ط±ظˆظٹط¯ ط§ظ„ظ‚ظٹط§ط³ظٹط© ظˆطھط«ط¨ظٹطھ ط§ظ„ط§ط±طھظپط§ط¹';
             let features = [];
 
             // 1. APPLE IPHONE / IPAD
@@ -10658,50 +10652,50 @@ try {
                 // Specific iPhone Model Identification from Logical Resolution
                 if (w === 430 && h === 932) {
                     model = 'iPhone 16 / 15 / 14 Pro Max';
-                    tuningNote = 'Dynamic Island + شاشة 6.7" عملاقة';
+                    tuningNote = 'Dynamic Island + ط´ط§ط´ط© 6.7" ط¹ظ…ظ„ط§ظ‚ط©';
                     safeTop = '54px';
                     safeBottom = '34px';
                 } else if (w === 393 && h === 852) {
                     model = 'iPhone 16 / 15 / 14 Pro';
-                    tuningNote = 'Dynamic Island + شاشة 6.1" فائقة الدقة';
+                    tuningNote = 'Dynamic Island + ط´ط§ط´ط© 6.1" ظپط§ط¦ظ‚ط© ط§ظ„ط¯ظ‚ط©';
                     safeTop = '54px';
                     safeBottom = '34px';
                 } else if (w === 428 && h === 926) {
                     model = 'iPhone 14 Plus / 13 Pro Max / 12 Pro Max';
-                    tuningNote = 'نوتش عريض + شاشة 6.7" Retina';
+                    tuningNote = 'ظ†ظˆطھط´ ط¹ط±ظٹط¶ + ط´ط§ط´ط© 6.7" Retina';
                     safeTop = '47px';
                     safeBottom = '34px';
                 } else if (w === 390 && h === 844) {
                     model = 'iPhone 14 / 13 / 13 Pro / 12 / 12 Pro';
-                    tuningNote = 'نوتش مدمج + شاشة 6.1" OLED';
+                    tuningNote = 'ظ†ظˆطھط´ ظ…ط¯ظ…ط¬ + ط´ط§ط´ط© 6.1" OLED';
                     safeTop = '47px';
                     safeBottom = '34px';
                 } else if (w === 414 && h === 896) {
                     model = 'iPhone 11 Pro Max / 11 / XR / XS Max';
-                    tuningNote = 'نوتش كلاسيكي + حواف Retina';
+                    tuningNote = 'ظ†ظˆطھط´ ظƒظ„ط§ط³ظٹظƒظٹ + ط­ظˆط§ظپ Retina';
                     safeTop = '44px';
                     safeBottom = '34px';
                 } else if (w === 375 && h === 812) {
                     model = 'iPhone 13 mini / 12 mini / 11 Pro / X';
-                    tuningNote = 'نوتش صغير + شاشة مدمجة';
+                    tuningNote = 'ظ†ظˆطھط´ طµط؛ظٹط± + ط´ط§ط´ط© ظ…ط¯ظ…ط¬ط©';
                     safeTop = '44px';
                     safeBottom = '34px';
                 } else if (w === 375 && h === 667) {
                     model = 'iPhone SE (Gen 2/3) / iPhone 8/7';
-                    tuningNote = 'شاشة كلاسيكية مع زر الهوم (بدون نوتش)';
+                    tuningNote = 'ط´ط§ط´ط© ظƒظ„ط§ط³ظٹظƒظٹط© ظ…ط¹ ط²ط± ط§ظ„ظ‡ظˆظ… (ط¨ط¯ظˆظ† ظ†ظˆطھط´)';
                     safeTop = '10px';
                     safeBottom = '12px';
                 } else {
                     model = 'Apple iPhone / iPad';
-                    tuningNote = 'معايرة شاشة أبل ونظام iOS';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط´ط§ط´ط© ط£ط¨ظ„ ظˆظ†ط¸ط§ظ… iOS';
                 }
 
                 brandName = model;
                 features = [
-                    'حجز مساحة Dynamic Island / النوتش بالأعلى لعدم تداخل العناوين',
-                    'حجز مساحة شريط السحب السفلي (Home Indicator) لمنع التداخل مع أزرار التنقل',
-                    'تثبيت قياس الخطوط على 16px لمنع التكبير التلقائي المزعج في Safari',
-                    'تفعيل التمرير المرن الطبيعي (Inertia Scrolling) ومنع ارتداد الصفحة'
+                    'ط­ط¬ط² ظ…ط³ط§ط­ط© Dynamic Island / ط§ظ„ظ†ظˆطھط´ ط¨ط§ظ„ط£ط¹ظ„ظ‰ ظ„ط¹ط¯ظ… طھط¯ط§ط®ظ„ ط§ظ„ط¹ظ†ط§ظˆظٹظ†',
+                    'ط­ط¬ط² ظ…ط³ط§ط­ط© ط´ط±ظٹط· ط§ظ„ط³ط­ط¨ ط§ظ„ط³ظپظ„ظٹ (Home Indicator) ظ„ظ…ظ†ط¹ ط§ظ„طھط¯ط§ط®ظ„ ظ…ط¹ ط£ط²ط±ط§ط± ط§ظ„طھظ†ظ‚ظ„',
+                    'طھط«ط¨ظٹطھ ظ‚ظٹط§ط³ ط§ظ„ط®ط·ظˆط· ط¹ظ„ظ‰ 16px ظ„ظ…ظ†ط¹ ط§ظ„طھظƒط¨ظٹط± ط§ظ„طھظ„ظ‚ط§ط¦ظٹ ط§ظ„ظ…ط²ط¹ط¬ ظپظٹ Safari',
+                    'طھظپط¹ظٹظ„ ط§ظ„طھظ…ط±ظٹط± ط§ظ„ظ…ط±ظ† ط§ظ„ط·ط¨ظٹط¹ظٹ (Inertia Scrolling) ظˆظ…ظ†ط¹ ط§ط±طھط¯ط§ط¯ ط§ظ„طµظپط­ط©'
                 ];
             }
             // 2. HONOR (Check before Samsung to prevent overlap with model prefixes like PGT-)
@@ -10716,24 +10710,24 @@ try {
 
                 if (/PGT-|FRI-|BVX-/i.test(ua)) {
                     model = 'Honor Magic 6 / 5 Pro';
-                    tuningNote = 'معايرة الشاشة رباعية الانحناء + Magic Capsule';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط§ظ„ط´ط§ط´ط© ط±ط¨ط§ط¹ظٹط© ط§ظ„ط§ظ†ط­ظ†ط§ط، + Magic Capsule';
                 } else if (/CRT-|RMO-/i.test(ua)) {
                     model = 'Honor 90 / 70 / 50';
-                    tuningNote = 'معايرة شاشة العرض المنحنية 120Hz';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط´ط§ط´ط© ط§ظ„ط¹ط±ط¶ ط§ظ„ظ…ظ†ط­ظ†ظٹط© 120Hz';
                 } else if (/ALI-|ANY-/i.test(ua)) {
                     model = 'Honor X9 / X8 Series';
-                    tuningNote = 'معايرة شاشة هونر الفئة X المتينة';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط´ط§ط´ط© ظ‡ظˆظ†ط± ط§ظ„ظپط¦ط© X ط§ظ„ظ…طھظٹظ†ط©';
                 } else {
                     model = 'Honor Smartphone';
-                    tuningNote = 'معايرة نظام MagicOS وشاشات هونر';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ظ†ط¸ط§ظ… MagicOS ظˆط´ط§ط´ط§طھ ظ‡ظˆظ†ط±';
                 }
 
                 brandName = model;
                 features = [
-                    'إضافة هوامش أمان جانبية لحماية حواف الشاشات رباعية الانحناء (Quad-Curved)',
-                    'ضبط مساحة ثقب الكاميرا المركزي أو الكبسولة الذكية (Magic Capsule)',
-                    'مواءمة شريط إيماءات MagicOS في أسفل الشاشة',
-                    'تفعيل التدرج اللوني الفائق لشاشات AMOLED عالية التباين'
+                    'ط¥ط¶ط§ظپط© ظ‡ظˆط§ظ…ط´ ط£ظ…ط§ظ† ط¬ط§ظ†ط¨ظٹط© ظ„ط­ظ…ط§ظٹط© ط­ظˆط§ظپ ط§ظ„ط´ط§ط´ط§طھ ط±ط¨ط§ط¹ظٹط© ط§ظ„ط§ظ†ط­ظ†ط§ط، (Quad-Curved)',
+                    'ط¶ط¨ط· ظ…ط³ط§ط­ط© ط«ظ‚ط¨ ط§ظ„ظƒط§ظ…ظٹط±ط§ ط§ظ„ظ…ط±ظƒط²ظٹ ط£ظˆ ط§ظ„ظƒط¨ط³ظˆظ„ط© ط§ظ„ط°ظƒظٹط© (Magic Capsule)',
+                    'ظ…ظˆط§ط،ظ…ط© ط´ط±ظٹط· ط¥ظٹظ…ط§ط،ط§طھ MagicOS ظپظٹ ط£ط³ظپظ„ ط§ظ„ط´ط§ط´ط©',
+                    'طھظپط¹ظٹظ„ ط§ظ„طھط¯ط±ط¬ ط§ظ„ظ„ظˆظ†ظٹ ط§ظ„ظپط§ط¦ظ‚ ظ„ط´ط§ط´ط§طھ AMOLED ط¹ط§ظ„ظٹط© ط§ظ„طھط¨ط§ظٹظ†'
                 ];
             }
             // 3. HUAWEI
@@ -10748,24 +10742,24 @@ try {
 
                 if (/ALN-|BRA-/i.test(ua)) {
                     model = 'Huawei Mate 60 / Pura 70';
-                    tuningNote = 'معايرة الثقوب الثلاثية ونظام HarmonyOS 4';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط§ظ„ط«ظ‚ظˆط¨ ط§ظ„ط«ظ„ط§ط«ظٹط© ظˆظ†ط¸ط§ظ… HarmonyOS 4';
                 } else if (/JAD-|ELS-|ANA-/i.test(ua)) {
                     model = 'Huawei P50 / P40 Pro';
-                    tuningNote = 'معايرة ثقب الكاميرا البيضاوي وشاشة OLED';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط«ظ‚ط¨ ط§ظ„ظƒط§ظ…ظٹط±ط§ ط§ظ„ط¨ظٹط¶ط§ظˆظٹ ظˆط´ط§ط´ط© OLED';
                 } else if (/NOH-|NOP-/i.test(ua)) {
                     model = 'Huawei Mate 40 Pro';
-                    tuningNote = 'معايرة الشاشة الشلالية Horizon Display';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط§ظ„ط´ط§ط´ط© ط§ظ„ط´ظ„ط§ظ„ظٹط© Horizon Display';
                 } else {
                     model = 'Huawei Smartphone';
-                    tuningNote = 'معايرة نظام HarmonyOS وشاشات هواوي';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ظ†ط¸ط§ظ… HarmonyOS ظˆط´ط§ط´ط§طھ ظ‡ظˆط§ظˆظٹ';
                 }
 
                 brandName = model;
                 features = [
-                    'حجز مساحة نوتش الكاميرا البيضاوي أو الثقوب الثلاثية في أعلى الشاشة',
-                    'تحسين وضوح خط Tajawal والأرقام العربية مع محرك خطوط HarmonyOS',
-                    'تعديل هامش شريط الإيماءات السفلي لـ EMUI/HarmonyOS',
-                    'معالجة انحناءات الشاشة الجانبية لتقليل اللمس غير المقصود'
+                    'ط­ط¬ط² ظ…ط³ط§ط­ط© ظ†ظˆطھط´ ط§ظ„ظƒط§ظ…ظٹط±ط§ ط§ظ„ط¨ظٹط¶ط§ظˆظٹ ط£ظˆ ط§ظ„ط«ظ‚ظˆط¨ ط§ظ„ط«ظ„ط§ط«ظٹط© ظپظٹ ط£ط¹ظ„ظ‰ ط§ظ„ط´ط§ط´ط©',
+                    'طھط­ط³ظٹظ† ظˆط¶ظˆط­ ط®ط· Tajawal ظˆط§ظ„ط£ط±ظ‚ط§ظ… ط§ظ„ط¹ط±ط¨ظٹط© ظ…ط¹ ظ…ط­ط±ظƒ ط®ط·ظˆط· HarmonyOS',
+                    'طھط¹ط¯ظٹظ„ ظ‡ط§ظ…ط´ ط´ط±ظٹط· ط§ظ„ط¥ظٹظ…ط§ط،ط§طھ ط§ظ„ط³ظپظ„ظٹ ظ„ظ€ EMUI/HarmonyOS',
+                    'ظ…ط¹ط§ظ„ط¬ط© ط§ظ†ط­ظ†ط§ط،ط§طھ ط§ظ„ط´ط§ط´ط© ط§ظ„ط¬ط§ظ†ط¨ظٹط© ظ„طھظ‚ظ„ظٹظ„ ط§ظ„ظ„ظ…ط³ ط؛ظٹط± ط§ظ„ظ…ظ‚طµظˆط¯'
                 ];
             }
             // 4. SAMSUNG GALAXY
@@ -10780,30 +10774,30 @@ try {
 
                 if (/SM-S92/i.test(ua)) {
                     model = 'Galaxy S24 Ultra / S24+ / S24';
-                    tuningNote = 'معايرة AMOLED 120Hz + شريط One UI 6.1';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© AMOLED 120Hz + ط´ط±ظٹط· One UI 6.1';
                 } else if (/SM-S91/i.test(ua)) {
                     model = 'Galaxy S23 Ultra / S23';
-                    tuningNote = 'معايرة AMOLED 120Hz + شريط One UI';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© AMOLED 120Hz + ط´ط±ظٹط· One UI';
                 } else if (/SM-F9/i.test(ua)) {
                     model = 'Galaxy Z Fold Series';
-                    tuningNote = 'معايرة الشاشة القابلة للطي (Foldable)';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط§ظ„ط´ط§ط´ط© ط§ظ„ظ‚ط§ط¨ظ„ط© ظ„ظ„ط·ظٹ (Foldable)';
                 } else if (/SM-F7/i.test(ua)) {
                     model = 'Galaxy Z Flip Series';
-                    tuningNote = 'معايرة الشاشة الطولية 22:9 (Flip)';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط§ظ„ط´ط§ط´ط© ط§ظ„ط·ظˆظ„ظٹط© 22:9 (Flip)';
                 } else if (/SM-A/i.test(ua)) {
                     model = 'Galaxy A-Series';
-                    tuningNote = 'معايرة شاشات جالاكسي الفئة A';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط´ط§ط´ط§طھ ط¬ط§ظ„ط§ظƒط³ظٹ ط§ظ„ظپط¦ط© A';
                 } else {
                     model = 'Samsung Galaxy Smartphone';
-                    tuningNote = 'معايرة سامسونج وسلاسة One UI';
+                    tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط³ط§ظ…ط³ظˆظ†ط¬ ظˆط³ظ„ط§ط³ط© One UI';
                 }
 
                 brandName = model;
                 features = [
-                    'تسريع عتاد الرسوميات (GPU Acceleration) لتحقيق سلاسة 120 إطار في الثانية',
-                    'ضبط هامش شريط الإيماءات أو أزرار One UI الثلاثية أسفل الشاشة',
-                    'تكييف الارتفاع الديناميكي (100dvh) مع ظهور واختفاء شريط سامسونج إنترنت',
-                    'دعم الأبعاد المرنة للشاشات القابلة للطي (Z Fold / Z Flip)'
+                    'طھط³ط±ظٹط¹ ط¹طھط§ط¯ ط§ظ„ط±ط³ظˆظ…ظٹط§طھ (GPU Acceleration) ظ„طھط­ظ‚ظٹظ‚ ط³ظ„ط§ط³ط© 120 ط¥ط·ط§ط± ظپظٹ ط§ظ„ط«ط§ظ†ظٹط©',
+                    'ط¶ط¨ط· ظ‡ط§ظ…ط´ ط´ط±ظٹط· ط§ظ„ط¥ظٹظ…ط§ط،ط§طھ ط£ظˆ ط£ط²ط±ط§ط± One UI ط§ظ„ط«ظ„ط§ط«ظٹط© ط£ط³ظپظ„ ط§ظ„ط´ط§ط´ط©',
+                    'طھظƒظٹظٹظپ ط§ظ„ط§ط±طھظپط§ط¹ ط§ظ„ط¯ظٹظ†ط§ظ…ظٹظƒظٹ (100dvh) ظ…ط¹ ط¸ظ‡ظˆط± ظˆط§ط®طھظپط§ط، ط´ط±ظٹط· ط³ط§ظ…ط³ظˆظ†ط¬ ط¥ظ†طھط±ظ†طھ',
+                    'ط¯ط¹ظ… ط§ظ„ط£ط¨ط¹ط§ط¯ ط§ظ„ظ…ط±ظ†ط© ظ„ظ„ط´ط§ط´ط§طھ ط§ظ„ظ‚ط§ط¨ظ„ط© ظ„ظ„ط·ظٹ (Z Fold / Z Flip)'
                 ];
             }
             // 5. XIAOMI / REDMI / POCO
@@ -10817,11 +10811,11 @@ try {
                 refreshRate = 'AdaptiveSync 120Hz';
                 model = /POCO/i.test(ua) ? 'POCO Smartphone' : (/Redmi/i.test(ua) ? 'Redmi Smartphone' : 'Xiaomi Flagship');
                 brandName = model;
-                tuningNote = 'معايرة شاشات شاومي ومحرك HyperOS';
+                tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط´ط§ط´ط§طھ ط´ط§ظˆظ…ظٹ ظˆظ…ط­ط±ظƒ HyperOS';
                 features = [
-                    'مواءمة محرك العرض مع HyperOS / MIUI 14',
-                    'تثبيت معدل التحديث التكيفي حتى 120Hz لمنع التقطيع',
-                    'ضبط أبعاد لوحة المفاتيح لمنع رفع النوافذ المنبثقة بشكل زائد'
+                    'ظ…ظˆط§ط،ظ…ط© ظ…ط­ط±ظƒ ط§ظ„ط¹ط±ط¶ ظ…ط¹ HyperOS / MIUI 14',
+                    'طھط«ط¨ظٹطھ ظ…ط¹ط¯ظ„ ط§ظ„طھط­ط¯ظٹط« ط§ظ„طھظƒظٹظپظٹ ط­طھظ‰ 120Hz ظ„ظ…ظ†ط¹ ط§ظ„طھظ‚ط·ظٹط¹',
+                    'ط¶ط¨ط· ط£ط¨ط¹ط§ط¯ ظ„ظˆط­ط© ط§ظ„ظ…ظپط§طھظٹط­ ظ„ظ…ظ†ط¹ ط±ظپط¹ ط§ظ„ظ†ظˆط§ظپط° ط§ظ„ظ…ظ†ط¨ط«ظ‚ط© ط¨ط´ظƒظ„ ط²ط§ط¦ط¯'
                 ];
             }
             // 6. GENERAL ANDROID
@@ -10833,19 +10827,19 @@ try {
                 safeTop = '10px';
                 safeBottom = '16px';
                 refreshRate = 'High Refresh OLED';
-                model = 'هاتف أندرويد الذكي';
+                model = 'ظ‡ط§طھظپ ط£ظ†ط¯ط±ظˆظٹط¯ ط§ظ„ط°ظƒظٹ';
                 brandName = model;
-                tuningNote = 'معايرة الأندرويد القياسية وتثبيت الارتفاع';
+                tuningNote = 'ظ…ط¹ط§ظٹط±ط© ط§ظ„ط£ظ†ط¯ط±ظˆظٹط¯ ط§ظ„ظ‚ظٹط§ط³ظٹط© ظˆطھط«ط¨ظٹطھ ط§ظ„ط§ط±طھظپط§ط¹';
                 features = [
-                    'تثبيت وحدة الارتفاع الديناميكي 100dvh مع المتصفح',
-                    'ضبط مساحات اللمس الإرجونومية (أكثر من 44px لكل زر)',
-                    'التعامل الذكي مع لوحة المفاتيح الافتراضية لمنع إزاحة الشاشة'
+                    'طھط«ط¨ظٹطھ ظˆط­ط¯ط© ط§ظ„ط§ط±طھظپط§ط¹ ط§ظ„ط¯ظٹظ†ط§ظ…ظٹظƒظٹ 100dvh ظ…ط¹ ط§ظ„ظ…طھطµظپط­',
+                    'ط¶ط¨ط· ظ…ط³ط§ط­ط§طھ ط§ظ„ظ„ظ…ط³ ط§ظ„ط¥ط±ط¬ظˆظ†ظˆظ…ظٹط© (ط£ظƒط«ط± ظ…ظ† 44px ظ„ظƒظ„ ط²ط±)',
+                    'ط§ظ„طھط¹ط§ظ…ظ„ ط§ظ„ط°ظƒظٹ ظ…ط¹ ظ„ظˆط­ط© ط§ظ„ظ…ظپط§طھظٹط­ ط§ظ„ط§ظپطھط±ط§ط¶ظٹط© ظ„ظ…ظ†ط¹ ط¥ط²ط§ط­ط© ط§ظ„ط´ط§ط´ط©'
                 ];
             }
 
             window.CURRENT_DEVICE_PROFILE = {
                 brand, brandName, model, os, icon, color, safeTop, safeBottom, refreshRate, tuningNote, features,
-                resolution: `${Math.round(window.screen.width * dpr)} × ${Math.round(window.screen.height * dpr)} (${Math.round(w)}×${Math.round(h)} pt)`,
+                resolution: `${Math.round(window.screen.width * dpr)} أ— ${Math.round(window.screen.height * dpr)} (${Math.round(w)}أ—${Math.round(h)} pt)`,
                 dpr: dpr
             };
 
@@ -10862,7 +10856,7 @@ try {
             document.body.setAttribute('data-device-brand', brand);
 
             if (isManual && window.showModernToast) {
-                window.showModernToast(`✨ تم ضبط الشاشة بنجاح`, 'success', 2500);
+                window.showModernToast(`âœ¨ طھظ… ط¶ط¨ط· ط§ظ„ط´ط§ط´ط© ط¨ظ†ط¬ط§ط­`, 'success', 2500);
             }
         }
 
@@ -10915,7 +10909,7 @@ try {
                 sheet.classList.add('active');
                 document.body.style.overflow = 'hidden';
                 document.documentElement.style.overflow = 'hidden';
-                // Android back button support — push state so back closes sheet
+                // Android back button support â€” push state so back closes sheet
                 history.pushState({ sheet: sheetId }, '', '');
 
                 if (sheetId === 'sheet-sale') {
@@ -10950,7 +10944,7 @@ try {
             }
         }
 
-        // 📱 Android Hardware Back Button — close active bottom sheet instead of exiting app
+        // ًں“± Android Hardware Back Button â€” close active bottom sheet instead of exiting app
         window.addEventListener('popstate', function(event) {
             if (event.state && event.state.sheet) {
                 closeBottomSheet(event.state.sheet);
@@ -10968,9 +10962,9 @@ try {
             return Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         // LIVE DATA ENGINE & DATABASE SYNC
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         let M_CUSTOMERS = [];
         let M_SUPPLIERS = [];
         let M_ITEMS = [];
@@ -11042,7 +11036,7 @@ try {
                 if (btn) btn.classList.remove('is-spinning');
                 if (spinner) spinner.classList.remove('fa-spin');
                 if (window.showModernToast) {
-                    window.showModernToast('🔄 تم تحديث كافة المؤشرات والخزائن بنجاح', 'success', 2200);
+                    window.showModernToast('ًں”„ طھظ… طھط­ط¯ظٹط« ظƒط§ظپط© ط§ظ„ظ…ط¤ط´ط±ط§طھ ظˆط§ظ„ط®ط²ط§ط¦ظ† ط¨ظ†ط¬ط§ط­', 'success', 2200);
                 }
             }, 600);
         };
@@ -11065,8 +11059,8 @@ try {
                 wrap.classList.toggle('online', online);
                 wrap.classList.toggle('offline', !online);
                 wrap.title = online 
-                    ? 'مقاييس ERP: الإنترنت متصل 🟢 (اضغط لاختبار الاتصال)' 
-                    : 'مقاييس ERP: الإنترنت منقطع 🔴 (اضغط لاختبار الاتصال)';
+                    ? 'ظ…ظ‚ط§ظٹظٹط³ ERP: ط§ظ„ط¥ظ†طھط±ظ†طھ ظ…طھطµظ„ ًںں¢ (ط§ط¶ط؛ط· ظ„ط§ط®طھط¨ط§ط± ط§ظ„ط§طھطµط§ظ„)' 
+                    : 'ظ…ظ‚ط§ظٹظٹط³ ERP: ط§ظ„ط¥ظ†طھط±ظ†طھ ظ…ظ†ظ‚ط·ط¹ ًں”´ (ط§ط¶ط؛ط· ظ„ط§ط®طھط¨ط§ط± ط§ظ„ط§طھطµط§ظ„)';
             }
             if (dot) {
                 dot.className = online ? 'net-status-dot online' : 'net-status-dot offline';
@@ -11102,11 +11096,11 @@ try {
 
             if (online) {
                 if (window.showModernToast) {
-                    window.showModernToast('🟢 مقاييس: النت شغال ومتصل بالسيرفر المركزي', 'success', 2500);
+                    window.showModernToast('ًںں¢ ظ…ظ‚ط§ظٹظٹط³: ط§ظ„ظ†طھ ط´ط؛ط§ظ„ ظˆظ…طھطµظ„ ط¨ط§ظ„ط³ظٹط±ظپط± ط§ظ„ظ…ط±ظƒط²ظٹ', 'success', 2500);
                 }
             } else {
                 if (window.showModernToast) {
-                    window.showModernToast('🔴 مقاييس: انقطع النت — تحول النظام للعمل دون اتصال (Offline)', 'warning', 3000);
+                    window.showModernToast('ًں”´ ظ…ظ‚ط§ظٹظٹط³: ط§ظ†ظ‚ط·ط¹ ط§ظ„ظ†طھ â€” طھط­ظˆظ„ ط§ظ„ظ†ط¸ط§ظ… ظ„ظ„ط¹ظ…ظ„ ط¯ظˆظ† ط§طھطµط§ظ„ (Offline)', 'warning', 3000);
                 }
             }
         };
@@ -11120,9 +11114,9 @@ try {
                 window.PWAManager.triggerInstall();
             } else {
                 if (window.showModernToast) {
-                    window.showModernToast('📲 لتثبيت التطبيق: اضغط خيارات المتصفح (⋮) ثم اختر "تثبيت التطبيق" أو "إضافة للشاشة الرئيسية"', 'info', 4500);
+                    window.showModernToast('ًں“² ظ„طھط«ط¨ظٹطھ ط§ظ„طھط·ط¨ظٹظ‚: ط§ط¶ط؛ط· ط®ظٹط§ط±ط§طھ ط§ظ„ظ…طھطµظپط­ (â‹®) ط«ظ… ط§ط®طھط± "طھط«ط¨ظٹطھ ط§ظ„طھط·ط¨ظٹظ‚" ط£ظˆ "ط¥ط¶ط§ظپط© ظ„ظ„ط´ط§ط´ط© ط§ظ„ط±ط¦ظٹط³ظٹط©"', 'info', 4500);
                 } else {
-                    alert('📲 لتثبيت التطبيق: اضغط خيارات المتصفح (⋮) ثم اختر "تثبيت التطبيق" أو "إضافة للشاشة الرئيسية"');
+                    alert('ًں“² ظ„طھط«ط¨ظٹطھ ط§ظ„طھط·ط¨ظٹظ‚: ط§ط¶ط؛ط· ط®ظٹط§ط±ط§طھ ط§ظ„ظ…طھطµظپط­ (â‹®) ط«ظ… ط§ط®طھط± "طھط«ط¨ظٹطھ ط§ظ„طھط·ط¨ظٹظ‚" ط£ظˆ "ط¥ط¶ط§ظپط© ظ„ظ„ط´ط§ط´ط© ط§ظ„ط±ط¦ظٹط³ظٹط©"');
                 }
             }
         };
@@ -11133,9 +11127,9 @@ try {
                 ? window.OfflineOutboxEngine.queue.filter(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase())).length
                 : 0;
 
-            let promptMsg = 'هل ترغب بتسجيل الخروج من تطبيق مقاييس والعودة لشاشة الدخول؟';
+            let promptMsg = 'ظ‡ظ„ طھط±ط؛ط¨ ط¨طھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬ ظ…ظ† طھط·ط¨ظٹظ‚ ظ…ظ‚ط§ظٹظٹط³ ظˆط§ظ„ط¹ظˆط¯ط© ظ„ط´ط§ط´ط© ط§ظ„ط¯ط®ظˆظ„طں';
             if (pendingCount > 0) {
-                promptMsg = `⚠️ تنبيه أمني هام:\nلديك (${pendingCount}) حركات وسندات محاسبية محفوظة محلياً بانتظار المزامنة مع السيرفر!\n\nتسجيل الخروج الآن قد يعطل مزامنتها التلقائية.\nهل ترغب بالخروج على أية حال؟`;
+                promptMsg = `âڑ ï¸ڈ طھظ†ط¨ظٹظ‡ ط£ظ…ظ†ظٹ ظ‡ط§ظ…:\nظ„ط¯ظٹظƒ (${pendingCount}) ط­ط±ظƒط§طھ ظˆط³ظ†ط¯ط§طھ ظ…ط­ط§ط³ط¨ظٹط© ظ…ط­ظپظˆط¸ط© ظ…ط­ظ„ظٹط§ظ‹ ط¨ط§ظ†طھط¸ط§ط± ط§ظ„ظ…ط²ط§ظ…ظ†ط© ظ…ط¹ ط§ظ„ط³ظٹط±ظپط±!\n\nطھط³ط¬ظٹظ„ ط§ظ„ط®ط±ظˆط¬ ط§ظ„ط¢ظ† ظ‚ط¯ ظٹط¹ط·ظ„ ظ…ط²ط§ظ…ظ†طھظ‡ط§ ط§ظ„طھظ„ظ‚ط§ط¦ظٹط©.\nظ‡ظ„ طھط±ط؛ط¨ ط¨ط§ظ„ط®ط±ظˆط¬ ط¹ظ„ظ‰ ط£ظٹط© ط­ط§ظ„طں`;
             }
 
             if (confirm(promptMsg)) {
@@ -11152,7 +11146,7 @@ try {
             window.isSimulatedNetOffline = false;
             window.syncMagaieesNetUI(true);
             if (window.showModernToast) {
-                window.showModernToast('🟢 عاد اتصال الإنترنت! جاري المزامنة التلقائية...', 'success', 3000);
+                window.showModernToast('ًںں¢ ط¹ط§ط¯ ط§طھطµط§ظ„ ط§ظ„ط¥ظ†طھط±ظ†طھ! ط¬ط§ط±ظٹ ط§ظ„ظ…ط²ط§ظ…ظ†ط© ط§ظ„طھظ„ظ‚ط§ط¦ظٹط©...', 'success', 3000);
             }
             if (window.OfflineOutboxEngine && typeof OfflineOutboxEngine.flushQueueNow === 'function') {
                 OfflineOutboxEngine.flushQueueNow(false);
@@ -11163,7 +11157,7 @@ try {
             window.isSimulatedNetOffline = true;
             window.syncMagaieesNetUI(false);
             if (window.showModernToast) {
-                window.showModernToast('🔴 انقطع الإنترنت! تحول النظام تلقائياً للوضع المحلي المستقل', 'warning', 3500);
+                window.showModernToast('ًں”´ ط§ظ†ظ‚ط·ط¹ ط§ظ„ط¥ظ†طھط±ظ†طھ! طھط­ظˆظ„ ط§ظ„ظ†ط¸ط§ظ… طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ظ„ظ„ظˆط¶ط¹ ط§ظ„ظ…ط­ظ„ظٹ ط§ظ„ظ…ط³طھظ‚ظ„', 'warning', 3500);
             }
         });
 
@@ -11186,7 +11180,7 @@ try {
             try {
                 const u = JSON.parse(localStorage.getItem('user') || '{}');
                 if (u.fullName || u.username) {
-                    document.getElementById('mobile-user-greeting').innerText = `مرحباً بك، ${u.fullName || u.username} ✨`;
+                    document.getElementById('mobile-user-greeting').innerText = `ظ…ط±ط­ط¨ط§ظ‹ ط¨ظƒطŒ ${u.fullName || u.username} âœ¨`;
                 }
                 const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
                 const compName = window.SERVER_DATA?.companyName || cfg.companyName || localStorage.getItem('companyName');
@@ -11251,9 +11245,9 @@ try {
                 const cleanNum = String(id).replace(/\D/g, '') || String(idx + 1);
                 const sku = it.sku || it.item_code || ('SKU-' + (1000 + (parseInt(cleanNum, 10) % 9000)));
                 const barcode = it.barcode || ('628' + cleanNum.padStart(7, '0'));
-                const primaryUnit = it.primaryUnit || it.unit || 'طن';
-                const secondaryUnit = it.secondaryUnit || (primaryUnit === 'طن' ? 'سيخة' : (primaryUnit === 'كرتونة' ? 'حبة' : (primaryUnit === 'شوال' ? 'كيس' : (primaryUnit === 'لوح' ? 'قطعة' : 'حبة'))));
-                const unitRatio = parseFloat(it.unitRatio || (primaryUnit === 'طن' ? 120 : (primaryUnit === 'كرتونة' ? 24 : (primaryUnit === 'شوال' ? 20 : 1))));
+                const primaryUnit = it.primaryUnit || it.unit || 'ط·ظ†';
+                const secondaryUnit = it.secondaryUnit || (primaryUnit === 'ط·ظ†' ? 'ط³ظٹط®ط©' : (primaryUnit === 'ظƒط±طھظˆظ†ط©' ? 'ط­ط¨ط©' : (primaryUnit === 'ط´ظˆط§ظ„' ? 'ظƒظٹط³' : (primaryUnit === 'ظ„ظˆط­' ? 'ظ‚ط·ط¹ط©' : 'ط­ط¨ط©'))));
+                const unitRatio = parseFloat(it.unitRatio || (primaryUnit === 'ط·ظ†' ? 120 : (primaryUnit === 'ظƒط±طھظˆظ†ط©' ? 24 : (primaryUnit === 'ط´ظˆط§ظ„' ? 20 : 1))));
                 
                 // Multi-Warehouse Distribution (3 Yards: Central Al-Sajana, Kalakla, Bahri)
                 let whStock = it.warehouseStock;
@@ -11272,9 +11266,9 @@ try {
                     id: id,
                     sku: sku,
                     barcode: barcode,
-                    name: it.name || ('صنف تجاري #' + id),
-                    spec: it.spec || it.specification || it.unit || 'مواصفة قياسية أصلية معتمدة',
-                    category: it.category || 'مواد بناء وتشييد',
+                    name: it.name || ('طµظ†ظپ طھط¬ط§ط±ظٹ #' + id),
+                    spec: it.spec || it.specification || it.unit || 'ظ…ظˆط§طµظپط© ظ‚ظٹط§ط³ظٹط© ط£طµظ„ظٹط© ظ…ط¹طھظ…ط¯ط©',
+                    category: it.category || 'ظ…ظˆط§ط¯ ط¨ظ†ط§ط، ظˆطھط´ظٹظٹط¯',
                     price: price,
                     cost: cost,
                     minPrice: minPrice,
@@ -11292,15 +11286,15 @@ try {
                     id: 1,
                     sku: 'SKU-1001',
                     barcode: '62810010001',
-                    name: 'حديد تسليح تركي 16 ملم مششر',
-                    spec: 'مواصفة ASTM A615 Grade 60 (أصلي)',
-                    category: 'حديد وصلب',
+                    name: 'ط­ط¯ظٹط¯ طھط³ظ„ظٹط­ طھط±ظƒظٹ 16 ظ…ظ„ظ… ظ…ط´ط´ط±',
+                    spec: 'ظ…ظˆط§طµظپط© ASTM A615 Grade 60 (ط£طµظ„ظٹ)',
+                    category: 'ط­ط¯ظٹط¯ ظˆطµظ„ط¨',
                     price: 820000,
                     cost: 740000,
                     minPrice: 760000,
                     stock: 145,
-                    primaryUnit: 'طن',
-                    secondaryUnit: 'سيخة',
+                    primaryUnit: 'ط·ظ†',
+                    secondaryUnit: 'ط³ظٹط®ط©',
                     unitRatio: 120,
                     warehouseStock: { central: 95, kalakla: 35, bahri: 15 },
                     isFastMoving: true
@@ -11309,15 +11303,15 @@ try {
                     id: 2,
                     sku: 'SKU-1002',
                     barcode: '62810020002',
-                    name: 'أسمنت بورتلاندي صقر الجديان 50 كجم',
-                    spec: 'صناعة سودانية مطابقة للمواصفات CEM I 42.5N',
-                    category: 'أسمنت وجير',
+                    name: 'ط£ط³ظ…ظ†طھ ط¨ظˆط±طھظ„ط§ظ†ط¯ظٹ طµظ‚ط± ط§ظ„ط¬ط¯ظٹط§ظ† 50 ظƒط¬ظ…',
+                    spec: 'طµظ†ط§ط¹ط© ط³ظˆط¯ط§ظ†ظٹط© ظ…ط·ط§ط¨ظ‚ط© ظ„ظ„ظ…ظˆط§طµظپط§طھ CEM I 42.5N',
+                    category: 'ط£ط³ظ…ظ†طھ ظˆط¬ظٹط±',
                     price: 480000,
                     cost: 420000,
                     minPrice: 435000,
                     stock: 420,
-                    primaryUnit: 'طن',
-                    secondaryUnit: 'شوال',
+                    primaryUnit: 'ط·ظ†',
+                    secondaryUnit: 'ط´ظˆط§ظ„',
                     unitRatio: 20,
                     warehouseStock: { central: 260, kalakla: 110, bahri: 50 },
                     isFastMoving: true
@@ -11326,15 +11320,15 @@ try {
                     id: 3,
                     sku: 'SKU-1003',
                     barcode: '62810030003',
-                    name: 'سيخ أوميقا 4 لينية سوداني (مخزون حرج)',
-                    spec: 'طول 12 متر - حديد تسليح عالي المقاومة',
-                    category: 'حديد وصلب',
+                    name: 'ط³ظٹط® ط£ظˆظ…ظٹظ‚ط§ 4 ظ„ظٹظ†ظٹط© ط³ظˆط¯ط§ظ†ظٹ (ظ…ط®ط²ظˆظ† ط­ط±ط¬)',
+                    spec: 'ط·ظˆظ„ 12 ظ…طھط± - ط­ط¯ظٹط¯ طھط³ظ„ظٹط­ ط¹ط§ظ„ظٹ ط§ظ„ظ…ظ‚ط§ظˆظ…ط©',
+                    category: 'ط­ط¯ظٹط¯ ظˆطµظ„ط¨',
                     price: 790000,
                     cost: 720000,
                     minPrice: 735000,
                     stock: 8,
-                    primaryUnit: 'طن',
-                    secondaryUnit: 'سيخة',
+                    primaryUnit: 'ط·ظ†',
+                    secondaryUnit: 'ط³ظٹط®ط©',
                     unitRatio: 135,
                     warehouseStock: { central: 5, kalakla: 2, bahri: 1 },
                     isFastMoving: false
@@ -11343,15 +11337,15 @@ try {
                     id: 4,
                     sku: 'SKU-1004',
                     barcode: '62810040004',
-                    name: 'صاج مجلفن كوري 0.45 ملم (3×1 متر)',
-                    spec: 'طلاء زنك مزدوج مقاوم للصدأ والعوامل الجوية',
-                    category: 'صاج وزنك',
+                    name: 'طµط§ط¬ ظ…ط¬ظ„ظپظ† ظƒظˆط±ظٹ 0.45 ظ…ظ„ظ… (3أ—1 ظ…طھط±)',
+                    spec: 'ط·ظ„ط§ط، ط²ظ†ظƒ ظ…ط²ط¯ظˆط¬ ظ…ظ‚ط§ظˆظ… ظ„ظ„طµط¯ط£ ظˆط§ظ„ط¹ظˆط§ظ…ظ„ ط§ظ„ط¬ظˆظٹط©',
+                    category: 'طµط§ط¬ ظˆط²ظ†ظƒ',
                     price: 45000,
                     cost: 38000,
                     minPrice: 40000,
                     stock: 0,
-                    primaryUnit: 'لوح',
-                    secondaryUnit: 'حبة',
+                    primaryUnit: 'ظ„ظˆط­',
+                    secondaryUnit: 'ط­ط¨ط©',
                     unitRatio: 1,
                     warehouseStock: { central: 0, kalakla: 0, bahri: 0 },
                     isFastMoving: false
@@ -11360,15 +11354,15 @@ try {
                     id: 5,
                     sku: 'SKU-1005',
                     barcode: '62810050005',
-                    name: 'مواسير حديد مجلفنة 2 بوصة ثقيل',
-                    spec: 'سمك 3.2 ملم - طول 6 أمتار للسقالات والشبكات',
-                    category: 'مواسير وأنابيب',
+                    name: 'ظ…ظˆط§ط³ظٹط± ط­ط¯ظٹط¯ ظ…ط¬ظ„ظپظ†ط© 2 ط¨ظˆطµط© ط«ظ‚ظٹظ„',
+                    spec: 'ط³ظ…ظƒ 3.2 ظ…ظ„ظ… - ط·ظˆظ„ 6 ط£ظ…طھط§ط± ظ„ظ„ط³ظ‚ط§ظ„ط§طھ ظˆط§ظ„ط´ط¨ظƒط§طھ',
+                    category: 'ظ…ظˆط§ط³ظٹط± ظˆط£ظ†ط§ط¨ظٹط¨',
                     price: 62000,
                     cost: 51000,
                     minPrice: 53500,
                     stock: 88,
-                    primaryUnit: 'ماسورة',
-                    secondaryUnit: 'حبة',
+                    primaryUnit: 'ظ…ط§ط³ظˆط±ط©',
+                    secondaryUnit: 'ط­ط¨ط©',
                     unitRatio: 1,
                     warehouseStock: { central: 55, kalakla: 23, bahri: 10 },
                     isFastMoving: true
@@ -11377,15 +11371,15 @@ try {
                     id: 6,
                     sku: 'SKU-1006',
                     barcode: '62810060006',
-                    name: 'زاوية حديد 2 بوصة سمك 4 ملم (6 متر)',
-                    spec: 'زوايا فولاذية للإنشاءات المعدنية والجمالونات',
-                    category: 'قطاعات حديد',
+                    name: 'ط²ط§ظˆظٹط© ط­ط¯ظٹط¯ 2 ط¨ظˆطµط© ط³ظ…ظƒ 4 ظ…ظ„ظ… (6 ظ…طھط±)',
+                    spec: 'ط²ظˆط§ظٹط§ ظپظˆظ„ط§ط°ظٹط© ظ„ظ„ط¥ظ†ط´ط§ط،ط§طھ ط§ظ„ظ…ط¹ط¯ظ†ظٹط© ظˆط§ظ„ط¬ظ…ط§ظ„ظˆظ†ط§طھ',
+                    category: 'ظ‚ط·ط§ط¹ط§طھ ط­ط¯ظٹط¯',
                     price: 34000,
                     cost: 28000,
                     minPrice: 29500,
                     stock: 160,
-                    primaryUnit: 'حبة',
-                    secondaryUnit: 'قطعة',
+                    primaryUnit: 'ط­ط¨ط©',
+                    secondaryUnit: 'ظ‚ط·ط¹ط©',
                     unitRatio: 1,
                     warehouseStock: { central: 100, kalakla: 40, bahri: 20 },
                     isFastMoving: false
@@ -11415,7 +11409,7 @@ try {
                 M_VAULTS = window.SERVER_DATA.vaults.map(v => ({
                     name: v.vault_name || v.name,
                     amount: parseFloat(v.amount ?? v.currentBalance ?? v.balance ?? 0),
-                    color: v.color || (v.vault_name?.includes('بنك') ? '#38bdf8' : '#10b981')
+                    color: v.color || (v.vault_name?.includes('ط¨ظ†ظƒ') ? '#38bdf8' : '#10b981')
                 }));
             } else {
                 const localBanks = loadTenantArray('erp_banks_v1');
@@ -11425,7 +11419,7 @@ try {
                     M_VAULTS = combined.map(b => ({
                         name: b.name || b.vault_name,
                         amount: parseFloat(b.currentBalance ?? b.balance ?? b.amount ?? 0),
-                        color: b.color || (b.name?.includes('بنك') ? '#38bdf8' : '#10b981')
+                        color: b.color || (b.name?.includes('ط¨ظ†ظƒ') ? '#38bdf8' : '#10b981')
                     }));
                 }
             }
@@ -11444,7 +11438,7 @@ try {
                 const sel = document.getElementById(id);
                 if (sel) {
                     const curVal = sel.value;
-                    let opts = (id === 'sale-customer') ? '<option value="walkin">عميل نقدي عام (Walk-in)</option>' : '<option value="">-- اختر العميل من قاعدة البيانات --</option>';
+                    let opts = (id === 'sale-customer') ? '<option value="walkin">ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ ط¹ط§ظ… (Walk-in)</option>' : '<option value="">-- ط§ط®طھط± ط§ظ„ط¹ظ…ظٹظ„ ظ…ظ† ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ --</option>';
                     M_CUSTOMERS.forEach(c => {
                         opts += `<option value="${c.id}">${c.name} (${fmt(c.balance || 0)} SDG)</option>`;
                     });
@@ -11457,7 +11451,7 @@ try {
             const purSupSel = document.getElementById('purchase-supplier');
             if (purSupSel) {
                 const curVal = purSupSel.value;
-                let opts = '<option value="cash_supplier">مورد نقدي عام (Cash Supplier)</option>';
+                let opts = '<option value="cash_supplier">ظ…ظˆط±ط¯ ظ†ظ‚ط¯ظٹ ط¹ط§ظ… (Cash Supplier)</option>';
                 M_SUPPLIERS.forEach(s => {
                     opts += `<option value="${s.id}">${s.name} (${fmt(s.balance || 0)} SDG)</option>`;
                 });
@@ -11468,7 +11462,7 @@ try {
             // Populate Item Select Dropdown (Sales Invoice)
             const itemSel = document.getElementById('sale-item');
             if (itemSel) {
-                let opts = '<option value="">-- اختر الصنف من المستودع --</option>';
+                let opts = '<option value="">-- ط§ط®طھط± ط§ظ„طµظ†ظپ ظ…ظ† ط§ظ„ظ…ط³طھظˆط¯ط¹ --</option>';
                 M_ITEMS.forEach(it => {
                     opts += `<option value="${it.id}" data-price="${it.price}">${it.name} - ${fmt(it.price)} SDG</option>`;
                 });
@@ -11478,9 +11472,9 @@ try {
             // Populate Item Select Dropdown (Purchase Invoice)
             const purItemSel = document.getElementById('purchase-item');
             if (purItemSel) {
-                let opts = '<option value="">-- اختر الصنف للشراء --</option>';
+                let opts = '<option value="">-- ط§ط®طھط± ط§ظ„طµظ†ظپ ظ„ظ„ط´ط±ط§ط، --</option>';
                 M_ITEMS.forEach(it => {
-                    opts += `<option value="${it.id}" data-price="${it.price}" data-cost="${it.cost || it.price}">${it.name} (المخزون الحالي: ${it.stock || 0})</option>`;
+                    opts += `<option value="${it.id}" data-price="${it.price}" data-cost="${it.cost || it.price}">${it.name} (ط§ظ„ظ…ط®ط²ظˆظ† ط§ظ„ط­ط§ظ„ظٹ: ${it.stock || 0})</option>`;
                 });
                 purItemSel.innerHTML = opts;
             }
@@ -11499,7 +11493,7 @@ try {
                             opts += `<option value="${v.name}">${v.name} (${fmt(v.amount)} SDG)</option>`;
                         });
                     } else {
-                        opts = '<option value="خزنة الكاش">الخزينة الرئيسية</option><option value="بنكك">بنك الخرطوم (بنكك)</option>';
+                        opts = '<option value="ط®ط²ظ†ط© ط§ظ„ظƒط§ط´">ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط©</option><option value="ط¨ظ†ظƒظƒ">ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ… (ط¨ظ†ظƒظƒ)</option>';
                     }
                     sel.innerHTML = opts;
                     if (curVal) sel.value = curVal;
@@ -11527,11 +11521,11 @@ try {
                     voucher_no: f.official_server_id || f.voucherNo || f.id,
                     type: f.type || 'payment',
                     operation_type: f.type || 'payment',
-                    from_account: f.fromAccount?.name || 'الخزينة',
-                    to_account: f.toAccount?.name || f.beneficiaryName || 'المستفيد',
+                    from_account: f.fromAccount?.name || 'ط§ظ„ط®ط²ظٹظ†ط©',
+                    to_account: f.toAccount?.name || f.beneficiaryName || 'ط§ظ„ظ…ط³طھظپظٹط¯',
                     amount: parseFloat(f.amount || f.amountLocal || 0),
-                    notes: f.notes || f.toStatement || (f.type === 'receipt' ? 'سند قبض' : 'سند صرف'),
-                    date: f.date || 'اليوم',
+                    notes: f.notes || f.toStatement || (f.type === 'receipt' ? 'ط³ظ†ط¯ ظ‚ط¨ط¶' : 'ط³ظ†ط¯ طµط±ظپ'),
+                    date: f.date || 'ط§ظ„ظٹظˆظ…',
                     sync_status: f.sync_status || 'SYNCED',
                     official_server_id: f.official_server_id
                 });
@@ -11545,12 +11539,12 @@ try {
                     voucher_no: s.official_server_id || s.invoiceNo || s.id,
                     type: 'sale',
                     operation_type: 'sale',
-                    from_account: 'نقطة البيع',
-                    to_account: s.customerName || 'عميل نقدي',
-                    customer_name: s.customerName || 'عميل نقدي',
+                    from_account: 'ظ†ظ‚ط·ط© ط§ظ„ط¨ظٹط¹',
+                    to_account: s.customerName || 'ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ',
+                    customer_name: s.customerName || 'ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ',
                     amount: parseFloat(s.grandTotal || s.total || 0),
-                    notes: `فاتورة بيع ${s.items ? `(${s.items.length} صنف)` : ''}`,
-                    date: s.fullDate || s.date || 'اليوم',
+                    notes: `ظپط§طھظˆط±ط© ط¨ظٹط¹ ${s.items ? `(${s.items.length} طµظ†ظپ)` : ''}`,
+                    date: s.fullDate || s.date || 'ط§ظ„ظٹظˆظ…',
                     sync_status: s.sync_status || 'SYNCED',
                     official_server_id: s.official_server_id
                 });
@@ -11563,11 +11557,11 @@ try {
                     voucher_no: r.voucherNo || r.id,
                     type: 'receipt',
                     operation_type: 'receipt',
-                    from_account: r.customerName || r.customer || 'العميل',
-                    to_account: r.destination || 'الخزينة',
+                    from_account: r.customerName || r.customer || 'ط§ظ„ط¹ظ…ظٹظ„',
+                    to_account: r.destination || 'ط§ظ„ط®ط²ظٹظ†ط©',
                     amount: parseFloat(r.amount || 0),
-                    notes: r.statement || r.notes || 'سند قبض معتمد بالسيرفر',
-                    date: r.date || 'اليوم',
+                    notes: r.statement || r.notes || 'ط³ظ†ط¯ ظ‚ط¨ط¶ ظ…ط¹طھظ…ط¯ ط¨ط§ظ„ط³ظٹط±ظپط±',
+                    date: r.date || 'ط§ظ„ظٹظˆظ…',
                     sync_status: 'SYNCED',
                     official_server_id: r.voucherNo || r.id
                 });
@@ -11580,11 +11574,11 @@ try {
                     voucher_no: p.voucherNo || p.id,
                     type: 'payment',
                     operation_type: 'payment',
-                    from_account: p.source || 'الخزينة',
-                    to_account: p.recipient || p.toAccount || 'المصروفات',
+                    from_account: p.source || 'ط§ظ„ط®ط²ظٹظ†ط©',
+                    to_account: p.recipient || p.toAccount || 'ط§ظ„ظ…طµط±ظˆظپط§طھ',
                     amount: parseFloat(p.amount || 0),
-                    notes: p.notes || p.toStatement || 'سند صرف معتمد بالسيرفر',
-                    date: p.date || 'اليوم',
+                    notes: p.notes || p.toStatement || 'ط³ظ†ط¯ طµط±ظپ ظ…ط¹طھظ…ط¯ ط¨ط§ظ„ط³ظٹط±ظپط±',
+                    date: p.date || 'ط§ظ„ظٹظˆظ…',
                     sync_status: 'SYNCED',
                     official_server_id: p.voucherNo || p.id
                 });
@@ -11597,12 +11591,12 @@ try {
                     voucher_no: s.invoiceNo || s.id,
                     type: 'sale',
                     operation_type: 'sale',
-                    from_account: 'المبيعات',
-                    to_account: s.customerName || 'عميل',
-                    customer_name: s.customerName || 'عميل',
+                    from_account: 'ط§ظ„ظ…ط¨ظٹط¹ط§طھ',
+                    to_account: s.customerName || 'ط¹ظ…ظٹظ„',
+                    customer_name: s.customerName || 'ط¹ظ…ظٹظ„',
                     amount: parseFloat(s.grandTotal || s.total || 0),
-                    notes: 'فاتورة بيع معتمدة بالسيرفر',
-                    date: s.date || 'اليوم',
+                    notes: 'ظپط§طھظˆط±ط© ط¨ظٹط¹ ظ…ط¹طھظ…ط¯ط© ط¨ط§ظ„ط³ظٹط±ظپط±',
+                    date: s.date || 'ط§ظ„ظٹظˆظ…',
                     sync_status: 'SYNCED',
                     official_server_id: s.invoiceNo || s.id
                 });
@@ -11634,7 +11628,7 @@ try {
                     const spinner = document.getElementById('header-refresh-spinner');
                     if (spinner) spinner.classList.remove('fa-spin');
                     if (showToastAnim && window.showModernToast) {
-                        window.showModernToast('✅ تم تحديث بيانات الموبايل الحية بنجاح', 'success', 2000);
+                        window.showModernToast('âœ… طھظ… طھط­ط¯ظٹط« ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ظˆط¨ط§ظٹظ„ ط§ظ„ط­ظٹط© ط¨ظ†ط¬ط§ط­', 'success', 2000);
                     }
                 }, 350);
             }
@@ -11653,12 +11647,12 @@ try {
                 list = [...sfs, ...bks].map(x => ({
                     name: x.name || x.vault_name,
                     amount: parseFloat(x.currentBalance ?? x.balance ?? x.amount ?? 0),
-                    color: x.color || (x.name?.includes('بنك') ? '#38bdf8' : '#10b981')
+                    color: x.color || (x.name?.includes('ط¨ظ†ظƒ') ? '#38bdf8' : '#10b981')
                 }));
             }
 
-            // Ensure Cheques Portfolio (الشيكات تحت التحصيل) is prominently present
-            const hasCheque = list.some(v => ((v.name || v.vault_name || '').includes('شيك') || (v.type === 'cheque')));
+            // Ensure Cheques Portfolio (ط§ظ„ط´ظٹظƒط§طھ طھط­طھ ط§ظ„طھط­طµظٹظ„) is prominently present
+            const hasCheque = list.some(v => ((v.name || v.vault_name || '').includes('ط´ظٹظƒ') || (v.type === 'cheque')));
             if (!hasCheque) {
                 const localChecks = loadTenantArray('erp_checks_v1') || [];
                 let localChqTotal = 0;
@@ -11671,7 +11665,7 @@ try {
                     }
                 });
                 list.push({
-                    name: 'الشيكات (تحت التحصيل)',
+                    name: 'ط§ظ„ط´ظٹظƒط§طھ (طھط­طھ ط§ظ„طھط­طµظٹظ„)',
                     amount: localChqTotal,
                     count: chqCount,
                     color: '#8b5cf6',
@@ -11681,23 +11675,23 @@ try {
 
             if (list && list.length > 0) {
                 list.forEach(v => {
-                    const vName = v.name || v.vault_name || 'خزنة';
+                    const vName = v.name || v.vault_name || 'ط®ط²ظ†ط©';
                     const amt = parseFloat(v.amount || 0);
                     total += amt;
                     const vUsd = toUSD(amt);
-                    const isBank = vName.includes('بنك') || vName.toLowerCase().includes('bank');
-                    const isCheque = (v.type === 'cheque') || vName.includes('شيك') || vName.toLowerCase().includes('check');
-                    const isDollar = vName.includes('دولار') || vName.toLowerCase().includes('usd');
+                    const isBank = vName.includes('ط¨ظ†ظƒ') || vName.toLowerCase().includes('bank');
+                    const isCheque = (v.type === 'cheque') || vName.includes('ط´ظٹظƒ') || vName.toLowerCase().includes('check');
+                    const isDollar = vName.includes('ط¯ظˆظ„ط§ط±') || vName.toLowerCase().includes('usd');
                     
-                    let icon = '💵';
+                    let icon = 'ًں’µ';
                     let typeBadge = '';
                     if (isCheque) {
-                        icon = '📑';
-                        typeBadge = '<span style="font-size:0.65rem; background:rgba(139,92,246,0.18); color:#a78bfa; padding:1px 5px; border-radius:4px; margin-inline-start:4px;">شيكات</span>';
+                        icon = 'ًں“‘';
+                        typeBadge = '<span style="font-size:0.65rem; background:rgba(139,92,246,0.18); color:#a78bfa; padding:1px 5px; border-radius:4px; margin-inline-start:4px;">ط´ظٹظƒط§طھ</span>';
                     } else if (isBank) {
-                        icon = '🏦';
+                        icon = 'ًںڈ¦';
                     } else if (isDollar) {
-                        icon = '💲';
+                        icon = 'ًں’²';
                         typeBadge = '<span style="font-size:0.65rem; background:rgba(245,158,11,0.18); color:#fbbf24; padding:1px 5px; border-radius:4px; margin-inline-start:4px;">USD</span>';
                     }
 
@@ -11707,7 +11701,7 @@ try {
                             <span class="vault-name">${icon} ${vName} ${typeBadge}</span>
                             <div class="vault-amt-row">
                                 <span class="vault-amt-local" style="${amtColor}">${fmt(amt)} <small>SDG</small></span>
-                                <span class="vault-amt-usd" style="background:rgba(245,158,11,0.14); color:#fbbf24; border:1px solid rgba(245,158,11,0.28);">≈ $${fmt(vUsd)}</span>
+                                <span class="vault-amt-usd" style="background:rgba(245,158,11,0.14); color:#fbbf24; border:1px solid rgba(245,158,11,0.28);">â‰ˆ $${fmt(vUsd)}</span>
                             </div>
                         </div>
                     `;
@@ -11715,10 +11709,10 @@ try {
             } else {
                 vaultsHtml = `
                     <div class="vault-item">
-                        <span class="vault-name">💵 الخزينة الرئيسية</span>
+                        <span class="vault-name">ًں’µ ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط©</span>
                         <div class="vault-amt-row">
                             <span class="vault-amt-local">0 <small>SDG</small></span>
-                            <span class="vault-amt-usd" style="background:rgba(245,158,11,0.14); color:#fbbf24; border:1px solid rgba(245,158,11,0.28);">≈ $0</span>
+                            <span class="vault-amt-usd" style="background:rgba(245,158,11,0.14); color:#fbbf24; border:1px solid rgba(245,158,11,0.28);">â‰ˆ $0</span>
                         </div>
                     </div>
                 `;
@@ -11728,16 +11722,16 @@ try {
             if (liqEl) {
                 liqEl.innerHTML = `
                     <div class="liq-grand-local">${fmt(total)} <small>SDG</small></div>
-                    <div class="liq-grand-usd" style="background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.35);">≈ $${fmt(totalUsd)}</div>
+                    <div class="liq-grand-usd" style="background:rgba(245,158,11,0.18); color:#fbbf24; border:1px solid rgba(245,158,11,0.35);">â‰ˆ $${fmt(totalUsd)}</div>
                 `;
             }
             const vContainer = document.getElementById('mobile-vaults-container');
             if (vContainer) vContainer.innerHTML = vaultsHtml;
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 📊 EXECUTIVE MICRO-KPI CARDS RENDERER (2x2 GRID)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں“ٹ EXECUTIVE MICRO-KPI CARDS RENDERER (2x2 GRID)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function renderExecutiveMicroKPIs() {
             // 1. Sales Today (Local Offline + Central Cloud Combined)
             let salesToday = 0;
@@ -11749,7 +11743,7 @@ try {
                 const isToday = !tx.date || tx.date.startsWith(todayStr);
                 const type = (tx.type || tx.operation_type || '').toLowerCase();
                 const amt = parseFloat(tx.amount || tx.total || 0);
-                if (isToday && (type.includes('sale') || type.includes('بيع') || type === 'invoice')) {
+                if (isToday && (type.includes('sale') || type.includes('ط¨ظٹط¹') || type === 'invoice')) {
                     salesToday += amt;
                     salesCount++;
                 }
@@ -11777,7 +11771,7 @@ try {
             const rate = getDollarExchangeRate();
             const toUSD = (amt) => rate > 0 ? Math.round(amt / rate) : 0;
 
-            // 🔢 Auto-Scaling Number Helper: dynamically scales font size for 6, 10+ digits ensuring 100% full visibility
+            // ًں”¢ Auto-Scaling Number Helper: dynamically scales font size for 6, 10+ digits ensuring 100% full visibility
             function formatScaledKpiAmount(num, currency = 'SDG', color = '#ffffff') {
                 const formatted = fmt(num);
                 const len = formatted.length;
@@ -11805,7 +11799,7 @@ try {
                 if (len >= 12) fontSize = '0.66rem';
                 else if (len >= 10) fontSize = '0.72rem';
                 else if (len >= 8) fontSize = '0.78rem';
-                return `<div class="micro-kpi-amt-foreign" style="font-size:${fontSize}; background:${bg}; color:${color}; border:1px solid ${border}; font-variant-numeric:tabular-nums;" title="≈ $${formatted}">≈ $${formatted}</div>`;
+                return `<div class="micro-kpi-amt-foreign" style="font-size:${fontSize}; background:${bg}; color:${color}; border:1px solid ${border}; font-variant-numeric:tabular-nums;" title="â‰ˆ $${formatted}">â‰ˆ $${formatted}</div>`;
             }
 
             // 1. Net Sales (Pure clean display with trend and dual currencies)
@@ -11849,7 +11843,7 @@ try {
                 `;
             }
             const oVal = document.getElementById('micro-overdue-val');
-            if (oVal) oVal.innerText = debtTotal > 0 ? `${fmt(debtTotal * 0.35)} SDG متأخر` : 'سداد منتظم';
+            if (oVal) oVal.innerText = debtTotal > 0 ? `${fmt(debtTotal * 0.35)} SDG ظ…طھط£ط®ط±` : 'ط³ط¯ط§ط¯ ظ…ظ†طھط¸ظ…';
 
             // 4. Inventory Valuation Snapshot
             let stockVal = 0;
@@ -11869,16 +11863,16 @@ try {
                 `;
             }
             const iCnt = document.getElementById('micro-stock-items-count');
-            if (iCnt) iCnt.innerText = `${M_ITEMS.length} صنف`;
+            if (iCnt) iCnt.innerText = `${M_ITEMS.length} طµظ†ظپ`;
             const critCnt = document.getElementById('micro-critical-stock-count');
             if (critCnt) critCnt.remove();
             const invGrand = document.getElementById('inventory-grand-total');
-            if (invGrand) invGrand.innerHTML = `${fmt(stockVal)} <small style="font-size:0.8rem;">SDG</small> <span style="font-size:0.8rem; margin-inline-start:6px; color:var(--text-muted); font-weight:700;">(≈ $${fmt(toUSD(stockVal))})</span>`;
+            if (invGrand) invGrand.innerHTML = `${fmt(stockVal)} <small style="font-size:0.8rem;">SDG</small> <span style="font-size:0.8rem; margin-inline-start:6px; color:var(--text-muted); font-weight:700;">(â‰ˆ $${fmt(toUSD(stockVal))})</span>`;
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🧠 SMART NOTIFICATION & BUSINESS RULE ENGINE
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں§  SMART NOTIFICATION & BUSINESS RULE ENGINE
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         const RuleAlertEngine = {
             rules: {
                 highTicketLimit: 5000000,
@@ -11908,7 +11902,7 @@ try {
                 localStorage.setItem('magaiees_rule_settings', JSON.stringify(this.rules));
                 this.scanAndRender();
                 if (window.showModernToast) {
-                    window.showModernToast('✅ تم حفظ قواعد الأعمال وتحديث رادار المراقبة', 'success', 2200);
+                    window.showModernToast('âœ… طھظ… ط­ظپط¸ ظ‚ظˆط§ط¹ط¯ ط§ظ„ط£ط¹ظ…ط§ظ„ ظˆطھط­ط¯ظٹط« ط±ط§ط¯ط§ط± ط§ظ„ظ…ط±ط§ظ‚ط¨ط©', 'success', 2200);
                 }
             },
 
@@ -11925,20 +11919,20 @@ try {
                         list.push({
                             id: alertId,
                             type: 'type-c',
-                            typeLabel: '🔴 سقف الائتمان',
-                            priority: 'عاجل جداً',
-                            title: `تجاوز سقف الائتمان: ${c.name}`,
-                            desc: `المديونية الحالية ${fmt(bal)} SDG وتجاوزت السقف (${fmt(this.rules.creditLimit)} SDG) بمقدار ${fmt(bal - this.rules.creditLimit)} SDG.`,
+                            typeLabel: 'ًں”´ ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ†',
+                            priority: 'ط¹ط§ط¬ظ„ ط¬ط¯ط§ظ‹',
+                            title: `طھط¬ط§ظˆط² ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ†: ${c.name}`,
+                            desc: `ط§ظ„ظ…ط¯ظٹظˆظ†ظٹط© ط§ظ„ط­ط§ظ„ظٹط© ${fmt(bal)} SDG ظˆطھط¬ط§ظˆط²طھ ط§ظ„ط³ظ‚ظپ (${fmt(this.rules.creditLimit)} SDG) ط¨ظ…ظ‚ط¯ط§ط± ${fmt(bal - this.rules.creditLimit)} SDG.`,
                             amount: bal,
                             resolved: !!resolved[alertId],
                             resolution: resolved[alertId] || null,
-                            cta1: { label: 'موافقة على التجاوز', action: `RuleAlertEngine.approveOverdraft('${alertId}')`, cls: 'cta-approve' },
-                            cta2: { label: 'إيقاف الطلب', action: `RuleAlertEngine.holdOrder('${alertId}')`, cls: 'cta-reject' }
+                            cta1: { label: 'ظ…ظˆط§ظپظ‚ط© ط¹ظ„ظ‰ ط§ظ„طھط¬ط§ظˆط²', action: `RuleAlertEngine.approveOverdraft('${alertId}')`, cls: 'cta-approve' },
+                            cta2: { label: 'ط¥ظٹظ‚ط§ظپ ط§ظ„ط·ظ„ط¨', action: `RuleAlertEngine.holdOrder('${alertId}')`, cls: 'cta-reject' }
                         });
                         cFound++;
                     }
                 });
-                // No sample fallback — only show real credit alerts
+                // No sample fallback â€” only show real credit alerts
 
                 // Alert Type B: "Below-Margin / Cost Violation"
                 let bFound = 0;
@@ -11952,21 +11946,21 @@ try {
                             list.push({
                                 id: alertId,
                                 type: 'type-b',
-                                typeLabel: '⚠️ هامش ربح دون التكلفة',
-                                priority: 'تحذير مالي',
-                                title: `هامش ربح حرج: ${it.name}`,
-                                desc: `سعر البيع (${fmt(price)}) قريب من التكلفة (${fmt(cost)}) بهامش ${marginPct.toFixed(1)}% فقط وهو أقل من الحد الأدنى (${this.rules.minMarginPct}%).`,
+                                typeLabel: 'âڑ ï¸ڈ ظ‡ط§ظ…ط´ ط±ط¨ط­ ط¯ظˆظ† ط§ظ„طھظƒظ„ظپط©',
+                                priority: 'طھط­ط°ظٹط± ظ…ط§ظ„ظٹ',
+                                title: `ظ‡ط§ظ…ط´ ط±ط¨ط­ ط­ط±ط¬: ${it.name}`,
+                                desc: `ط³ط¹ط± ط§ظ„ط¨ظٹط¹ (${fmt(price)}) ظ‚ط±ظٹط¨ ظ…ظ† ط§ظ„طھظƒظ„ظپط© (${fmt(cost)}) ط¨ظ‡ط§ظ…ط´ ${marginPct.toFixed(1)}% ظپظ‚ط· ظˆظ‡ظˆ ط£ظ‚ظ„ ظ…ظ† ط§ظ„ط­ط¯ ط§ظ„ط£ط¯ظ†ظ‰ (${this.rules.minMarginPct}%).`,
                                 amount: price,
                                 resolved: !!resolved[alertId],
                                 resolution: resolved[alertId] || null,
-                                cta1: { label: 'تعديل السعر فوراً', action: `RuleAlertEngine.reviewMargin('${alertId}', '${it.id}')`, cls: 'cta-action' },
-                                cta2: { label: 'تجاهل مؤقت', action: `RuleAlertEngine.dismissAlert('${alertId}')`, cls: 'cta-reject' }
+                                cta1: { label: 'طھط¹ط¯ظٹظ„ ط§ظ„ط³ط¹ط± ظپظˆط±ط§ظ‹', action: `RuleAlertEngine.reviewMargin('${alertId}', '${it.id}')`, cls: 'cta-action' },
+                                cta2: { label: 'طھط¬ط§ظ‡ظ„ ظ…ط¤ظ‚طھ', action: `RuleAlertEngine.dismissAlert('${alertId}')`, cls: 'cta-reject' }
                             });
                             bFound++;
                         }
                     }
                 });
-                // No sample fallback — only show real margin alerts
+                // No sample fallback â€” only show real margin alerts
 
                 // Alert Type A: "High-Ticket Sale"
                 let aFound = 0;
@@ -11977,20 +11971,20 @@ try {
                         list.push({
                             id: alertId,
                             type: 'type-a',
-                            typeLabel: '💎 فاتورة بيع كبرى',
-                            priority: 'صفقة استثنائية',
-                            title: `فاتورة بيع ضخمة: ${fmt(amt)} SDG`,
-                            desc: `تم تسجيل فاتورة كبرى للسيد (${tx.to_account || tx.customer_name || 'عميل نقدي'}) تجاوزت حد الصفقات الكبرى (${fmt(this.rules.highTicketLimit)} SDG).`,
+                            typeLabel: 'ًں’ژ ظپط§طھظˆط±ط© ط¨ظٹط¹ ظƒط¨ط±ظ‰',
+                            priority: 'طµظپظ‚ط© ط§ط³طھط«ظ†ط§ط¦ظٹط©',
+                            title: `ظپط§طھظˆط±ط© ط¨ظٹط¹ ط¶ط®ظ…ط©: ${fmt(amt)} SDG`,
+                            desc: `طھظ… طھط³ط¬ظٹظ„ ظپط§طھظˆط±ط© ظƒط¨ط±ظ‰ ظ„ظ„ط³ظٹط¯ (${tx.to_account || tx.customer_name || 'ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ'}) طھط¬ط§ظˆط²طھ ط­ط¯ ط§ظ„طµظپظ‚ط§طھ ط§ظ„ظƒط¨ط±ظ‰ (${fmt(this.rules.highTicketLimit)} SDG).`,
                             amount: amt,
                             resolved: !!resolved[alertId],
                             resolution: resolved[alertId] || null,
-                            cta1: { label: 'إرسال إشعار واتساب', action: `RuleAlertEngine.shareHighTicket('${alertId}', ${amt})`, cls: 'cta-approve' },
-                            cta2: { label: 'تدقيق السند', action: `RuleAlertEngine.dismissAlert('${alertId}')`, cls: 'cta-action' }
+                            cta1: { label: 'ط¥ط±ط³ط§ظ„ ط¥ط´ط¹ط§ط± ظˆط§طھط³ط§ط¨', action: `RuleAlertEngine.shareHighTicket('${alertId}', ${amt})`, cls: 'cta-approve' },
+                            cta2: { label: 'طھط¯ظ‚ظٹظ‚ ط§ظ„ط³ظ†ط¯', action: `RuleAlertEngine.dismissAlert('${alertId}')`, cls: 'cta-action' }
                         });
                         aFound++;
                     }
                 });
-                // No sample fallback — only show real big invoice alerts
+                // No sample fallback â€” only show real big invoice alerts
 
                 // Alert Type D: "Critical Stock Depletion"
                 let dFound = 0;
@@ -12001,20 +11995,20 @@ try {
                         list.push({
                             id: alertId,
                             type: 'type-d',
-                            typeLabel: '📦 نفاد مخزون حرج',
-                            priority: 'نواقص مستودع',
-                            title: `نفاد مخزون: ${it.name}`,
-                            desc: `المتبقي في المستودع (${fmt(stk)} وحدة) وبلغ حد الأمان (${this.rules.safetyStockUnits} وحدة). مطلوب توريد عاجل.`,
+                            typeLabel: 'ًں“¦ ظ†ظپط§ط¯ ظ…ط®ط²ظˆظ† ط­ط±ط¬',
+                            priority: 'ظ†ظˆط§ظ‚طµ ظ…ط³طھظˆط¯ط¹',
+                            title: `ظ†ظپط§ط¯ ظ…ط®ط²ظˆظ†: ${it.name}`,
+                            desc: `ط§ظ„ظ…طھط¨ظ‚ظٹ ظپظٹ ط§ظ„ظ…ط³طھظˆط¯ط¹ (${fmt(stk)} ظˆط­ط¯ط©) ظˆط¨ظ„ط؛ ط­ط¯ ط§ظ„ط£ظ…ط§ظ† (${this.rules.safetyStockUnits} ظˆط­ط¯ط©). ظ…ط·ظ„ظˆط¨ طھظˆط±ظٹط¯ ط¹ط§ط¬ظ„.`,
                             amount: stk,
                             resolved: !!resolved[alertId],
                             resolution: resolved[alertId] || null,
-                            cta1: { label: 'طلب شراء عاجل', action: `RuleAlertEngine.reorderStock('${alertId}', '${it.id}')`, cls: 'cta-action' },
-                            cta2: { label: 'تحديث الجرد', action: `RuleAlertEngine.dismissAlert('${alertId}')`, cls: 'cta-reject' }
+                            cta1: { label: 'ط·ظ„ط¨ ط´ط±ط§ط، ط¹ط§ط¬ظ„', action: `RuleAlertEngine.reorderStock('${alertId}', '${it.id}')`, cls: 'cta-action' },
+                            cta2: { label: 'طھط­ط¯ظٹط« ط§ظ„ط¬ط±ط¯', action: `RuleAlertEngine.dismissAlert('${alertId}')`, cls: 'cta-reject' }
                         });
                         dFound++;
                     }
                 });
-                // No sample fallback — only show real stock alerts
+                // No sample fallback â€” only show real stock alerts
 
                 this.alerts = list;
                 const activeAlerts = list.filter(a => !a.resolved);
@@ -12044,7 +12038,7 @@ try {
                 if (activeAlerts.length === 0) {
                     container.innerHTML = `
                         <div style="padding:14px; text-align:center; width:100%; color:var(--emerald); font-weight:800; font-size:0.85rem;">
-                            ✨ كافة المعاملات والمخزون وسقوف الائتمان متوافقة تماماً مع قواعد العمل!
+                            âœ¨ ظƒط§ظپط© ط§ظ„ظ…ط¹ط§ظ…ظ„ط§طھ ظˆط§ظ„ظ…ط®ط²ظˆظ† ظˆط³ظ‚ظˆظپ ط§ظ„ط§ط¦طھظ…ط§ظ† ظ…طھظˆط§ظپظ‚ط© طھظ…ط§ظ…ط§ظ‹ ظ…ط¹ ظ‚ظˆط§ط¹ط¯ ط§ظ„ط¹ظ…ظ„!
                         </div>
                     `;
                     return;
@@ -12086,7 +12080,7 @@ try {
                             <div style="display:flex; justify-content:space-between; align-items:center;">
                                 <span class="alert-priority-tag">${a.typeLabel}</span>
                                 <span style="font-size:0.74rem; font-weight:800; color:${isRes ? 'var(--emerald)' : 'var(--amber)'};">
-                                    ${isRes ? '✅ تم اتخاذ الإجراء: ' + a.resolution : '⚡ بانتظار اعتماد الإدارة'}
+                                    ${isRes ? 'âœ… طھظ… ط§طھط®ط§ط° ط§ظ„ط¥ط¬ط±ط§ط،: ' + a.resolution : 'âڑ، ط¨ط§ظ†طھط¸ط§ط± ط§ط¹طھظ…ط§ط¯ ط§ظ„ط¥ط¯ط§ط±ط©'}
                                 </span>
                             </div>
                             <div style="font-size:0.95rem; font-weight:900; color:var(--text-main);">${a.title}</div>
@@ -12102,7 +12096,7 @@ try {
                                 </div>
                             ` : `
                                 <button type="button" class="alert-cta-btn" style="background:var(--surface-2); color:var(--text-muted); padding:6px;" onclick="RuleAlertEngine.reopenAlert('${a.id}')">
-                                    إعادة فتح التنبيه 🔄
+                                    ط¥ط¹ط§ط¯ط© ظپطھط­ ط§ظ„طھظ†ط¨ظٹظ‡ ًں”„
                                 </button>
                             `}
                         </div>
@@ -12113,23 +12107,23 @@ try {
 
             approveOverdraft(alertId) {
                 triggerHaptic('heavy');
-                this.markResolved(alertId, 'موافقة استثنائية على التجاوز');
+                this.markResolved(alertId, 'ظ…ظˆط§ظپظ‚ط© ط§ط³طھط«ظ†ط§ط¦ظٹط© ط¹ظ„ظ‰ ط§ظ„طھط¬ط§ظˆط²');
                 if (window.showModernToast) {
-                    window.showModernToast('✅ تمت الموافقة على تجاوز سقف الائتمان والسماح بالفوترة', 'success', 2500);
+                    window.showModernToast('âœ… طھظ…طھ ط§ظ„ظ…ظˆط§ظپظ‚ط© ط¹ظ„ظ‰ طھط¬ط§ظˆط² ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ† ظˆط§ظ„ط³ظ…ط§ط­ ط¨ط§ظ„ظپظˆطھط±ط©', 'success', 2500);
                 }
             },
 
             holdOrder(alertId) {
                 triggerHaptic('medium');
-                this.markResolved(alertId, 'إيقاف الطلب وتجميد الحساب');
+                this.markResolved(alertId, 'ط¥ظٹظ‚ط§ظپ ط§ظ„ط·ظ„ط¨ ظˆطھط¬ظ…ظٹط¯ ط§ظ„ط­ط³ط§ط¨');
                 if (window.showModernToast) {
-                    window.showModernToast('🛑 تم إيقاف الطلب وتجميد البيع الآجل للحساب', 'warning', 2500);
+                    window.showModernToast('ًں›‘ طھظ… ط¥ظٹظ‚ط§ظپ ط§ظ„ط·ظ„ط¨ ظˆطھط¬ظ…ظٹط¯ ط§ظ„ط¨ظٹط¹ ط§ظ„ط¢ط¬ظ„ ظ„ظ„ط­ط³ط§ط¨', 'warning', 2500);
                 }
             },
 
             reorderStock(alertId, itemId) {
                 triggerHaptic('medium');
-                this.markResolved(alertId, 'أمر شراء وتوريد');
+                this.markResolved(alertId, 'ط£ظ…ط± ط´ط±ط§ط، ظˆطھظˆط±ظٹط¯');
                 openBottomSheet('sheet-purchase');
                 if (itemId) {
                     setTimeout(() => {
@@ -12144,22 +12138,22 @@ try {
 
             reviewMargin(alertId, itemId) {
                 triggerHaptic('light');
-                this.markResolved(alertId, 'مراجعة وتعديل السعر');
+                this.markResolved(alertId, 'ظ…ط±ط§ط¬ط¹ط© ظˆطھط¹ط¯ظٹظ„ ط§ظ„ط³ط¹ط±');
                 if (window.showModernToast) {
-                    window.showModernToast('📈 تم تحويل الصنف للتسعير الجديد لتفادي الخسارة', 'info', 2500);
+                    window.showModernToast('ًں“ˆ طھظ… طھط­ظˆظٹظ„ ط§ظ„طµظ†ظپ ظ„ظ„طھط³ط¹ظٹط± ط§ظ„ط¬ط¯ظٹط¯ ظ„طھظپط§ط¯ظٹ ط§ظ„ط®ط³ط§ط±ط©', 'info', 2500);
                 }
             },
 
             shareHighTicket(alertId, amount) {
                 triggerHaptic('light');
-                const text = `💎 تنبيه صفقة استثنائية - مقاييس ERP\nتم اعتماد فاتورة بيع كبرى بقيمة: ${fmt(amount)} SDG\nالتاريخ: ${new Date().toLocaleDateString('ar-EG')}`;
+                const text = `ًں’ژ طھظ†ط¨ظٹظ‡ طµظپظ‚ط© ط§ط³طھط«ظ†ط§ط¦ظٹط© - ظ…ظ‚ط§ظٹظٹط³ ERP\nطھظ… ط§ط¹طھظ…ط§ط¯ ظپط§طھظˆط±ط© ط¨ظٹط¹ ظƒط¨ط±ظ‰ ط¨ظ‚ظٹظ…ط©: ${fmt(amount)} SDG\nط§ظ„طھط§ط±ظٹط®: ${new Date().toLocaleDateString('ar-EG')}`;
                 window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`, '_blank');
-                this.markResolved(alertId, 'مشاركة واعتماد الإشعار');
+                this.markResolved(alertId, 'ظ…ط´ط§ط±ظƒط© ظˆط§ط¹طھظ…ط§ط¯ ط§ظ„ط¥ط´ط¹ط§ط±');
             },
 
             dismissAlert(alertId) {
                 triggerHaptic('light');
-                this.markResolved(alertId, 'تم التحقق والتجاهل');
+                this.markResolved(alertId, 'طھظ… ط§ظ„طھط­ظ‚ظ‚ ظˆط§ظ„طھط¬ط§ظ‡ظ„');
             },
 
             reopenAlert(alertId) {
@@ -12178,9 +12172,9 @@ try {
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🧾 VIEW RENDERING FUNCTIONS (TRANSACTIONS, LEDGERS, INVENTORY)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں§¾ VIEW RENDERING FUNCTIONS (TRANSACTIONS, LEDGERS, INVENTORY)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         let CURRENT_TX_FILTER = 'all';
         function filterTransactionsView(type, btn) {
             triggerHaptic('light');
@@ -12200,10 +12194,10 @@ try {
             const q = (searchQuery || '').trim().toLowerCase();
             let filtered = M_TRANSACTIONS.filter(tx => {
                 const t = (tx.type || tx.operation_type || '').toLowerCase();
-                if (CURRENT_TX_FILTER === 'sale') return t.includes('sale') || t.includes('بيع');
-                if (CURRENT_TX_FILTER === 'purchase') return t.includes('purchase') || t.includes('شراء');
-                if (CURRENT_TX_FILTER === 'receipt') return t.includes('receipt') || t.includes('قبض');
-                if (CURRENT_TX_FILTER === 'payment') return t.includes('payment') || t.includes('صرف') || t.includes('disburse');
+                if (CURRENT_TX_FILTER === 'sale') return t.includes('sale') || t.includes('ط¨ظٹط¹');
+                if (CURRENT_TX_FILTER === 'purchase') return t.includes('purchase') || t.includes('ط´ط±ط§ط،');
+                if (CURRENT_TX_FILTER === 'receipt') return t.includes('receipt') || t.includes('ظ‚ط¨ط¶');
+                if (CURRENT_TX_FILTER === 'payment') return t.includes('payment') || t.includes('طµط±ظپ') || t.includes('disburse');
                 return true;
             });
             if (q) {
@@ -12217,7 +12211,7 @@ try {
                 container.innerHTML = `
                     <div style="padding:30px 14px; text-align:center; color:var(--text-muted);">
                         <i class="fa-solid fa-receipt" style="font-size:2.5rem; opacity:0.3; margin-bottom:10px; display:block;"></i>
-                        <p style="font-weight:700;">لا توجد حركات مسجلة تطابق التصفية الحالية</p>
+                        <p style="font-weight:700;">ظ„ط§ طھظˆط¬ط¯ ط­ط±ظƒط§طھ ظ…ط³ط¬ظ„ط© طھط·ط§ط¨ظ‚ ط§ظ„طھطµظپظٹط© ط§ظ„ط­ط§ظ„ظٹط©</p>
                     </div>
                 `;
                 return;
@@ -12237,14 +12231,14 @@ try {
                                 <div style="min-width:0; flex:1;">
                                     <div style="display:flex; align-items:center; gap:6px;">
                                         <span style="font-size:0.86rem; font-weight:900; color:var(--text-main); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                            ${tx.to_account || tx.from_account || tx.customer_name || 'حركة مالية'}
+                                            ${tx.to_account || tx.from_account || tx.customer_name || 'ط­ط±ظƒط© ظ…ط§ظ„ظٹط©'}
                                         </span>
                                         <span style="font-size:0.78rem; padding:1px 6px; border-radius:6px; background:var(--surface-2); color:var(--text-muted); font-family:monospace;">
                                             #${tx.voucher_no || tx.id || '---'}
                                         </span>
                                     </div>
                                     <span style="font-size:0.73rem; color:var(--text-muted); display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                                        ${tx.date || 'اليوم'} • ${tx.notes || (isIncoming ? 'سند قبض / بيع' : 'سند صرف / شراء')}
+                                        ${tx.date || 'ط§ظ„ظٹظˆظ…'} â€¢ ${tx.notes || (isIncoming ? 'ط³ظ†ط¯ ظ‚ط¨ط¶ / ط¨ظٹط¹' : 'ط³ظ†ط¯ طµط±ظپ / ط´ط±ط§ط،')}
                                     </span>
                                 </div>
                             </div>
@@ -12255,22 +12249,22 @@ try {
                             </div>
                         </div>
 
-                        <!-- شريط الأزرار الموحد لكل حركة: [تعديل] [حذف] [طباعة] [واتساب] -->
+                        <!-- ط´ط±ظٹط· ط§ظ„ط£ط²ط±ط§ط± ط§ظ„ظ…ظˆط­ط¯ ظ„ظƒظ„ ط­ط±ظƒط©: [طھط¹ط¯ظٹظ„] [ط­ط°ظپ] [ط·ط¨ط§ط¹ط©] [ظˆط§طھط³ط§ط¨] -->
                         <div class="tx-item-actions-row">
-                            <button type="button" class="btn-tx-mini mini-edit" onclick='window.UniversalActionEngine.editItem("transactions", ${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="تعديل السند">
-                                <i class="fa-solid fa-pen-to-square"></i> تعديل
+                            <button type="button" class="btn-tx-mini mini-edit" onclick='window.UniversalActionEngine.editItem("transactions", ${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="طھط¹ط¯ظٹظ„ ط§ظ„ط³ظ†ط¯">
+                                <i class="fa-solid fa-pen-to-square"></i> طھط¹ط¯ظٹظ„
                             </button>
-                            <button type="button" class="btn-tx-mini mini-delete" onclick='window.UniversalActionEngine.deleteItem("transactions", ${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="حذف السند">
-                                <i class="fa-solid fa-trash-can"></i> حذف
+                            <button type="button" class="btn-tx-mini mini-delete" onclick='window.UniversalActionEngine.deleteItem("transactions", ${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="ط­ط°ظپ ط§ظ„ط³ظ†ط¯">
+                                <i class="fa-solid fa-trash-can"></i> ط­ط°ظپ
                             </button>
-                            <button type="button" class="btn-tx-mini mini-print" onclick='window.UniversalActionEngine.printItem("transactions", ${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="طباعة إيصال">
-                                <i class="fa-solid fa-print"></i> طباعة 🖨️
+                            <button type="button" class="btn-tx-mini mini-print" onclick='window.UniversalActionEngine.printItem("transactions", ${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="ط·ط¨ط§ط¹ط© ط¥ظٹطµط§ظ„">
+                                <i class="fa-solid fa-print"></i> ط·ط¨ط§ط¹ط© ًں–¨ï¸ڈ
                             </button>
-                            <button type="button" class="btn-tx-mini mini-wa" onclick='shareSingleTxWhatsApp(${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="مشاركة واتساب">
-                                <i class="fa-brands fa-whatsapp"></i> إرسال
+                            <button type="button" class="btn-tx-mini mini-wa" onclick='shareSingleTxWhatsApp(${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="ظ…ط´ط§ط±ظƒط© ظˆط§طھط³ط§ط¨">
+                                <i class="fa-brands fa-whatsapp"></i> ط¥ط±ط³ط§ظ„
                             </button>
-                            <button type="button" class="btn-tx-mini mini-settings" onclick='openTxAuditSettings(${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="ضبط وتدقيق المعاملة" style="color:#fbbf24; border-color:rgba(251,191,36,0.3);">
-                                <i class="fa-solid fa-sliders"></i> ضبط
+                            <button type="button" class="btn-tx-mini mini-settings" onclick='openTxAuditSettings(${JSON.stringify(tx).replace(/'/g, "&apos;")})' title="ط¶ط¨ط· ظˆطھط¯ظ‚ظٹظ‚ ط§ظ„ظ…ط¹ط§ظ…ظ„ط©" style="color:#fbbf24; border-color:rgba(251,191,36,0.3);">
+                                <i class="fa-solid fa-sliders"></i> ط¶ط¨ط·
                             </button>
                         </div>
                     </div>
@@ -12279,9 +12273,9 @@ try {
             container.innerHTML = html;
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 📑 ENTERPRISE LEDGERS & DEBT AGING ENGINE (MODULE 1 & 2)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں“‘ ENTERPRISE LEDGERS & DEBT AGING ENGINE (MODULE 1 & 2)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.LedgerEngine = {
             currentSubView: 'statement', // 'statement' or 'aging'
             partyType: 'customer', // 'customer' or 'supplier'
@@ -12293,21 +12287,21 @@ try {
 
             // Comprehensive realistic sample ledger entries mapped to parties
             ledgerDatabase: {
-                // Customer 1: شركة الفهد للمقاولات
+                // Customer 1: ط´ط±ظƒط© ط§ظ„ظپظ‡ط¯ ظ„ظ„ظ…ظ‚ط§ظˆظ„ط§طھ
                 '1': [
                     {
                         id: 'tx_c1_1',
                         date: '2026-09-10 09:30',
                         dateObj: '2026-09-10',
                         type: 'opening',
-                        typeLabel: 'رصيد افتتاحي سابق',
+                        typeLabel: 'ط±طµظٹط¯ ط§ظپطھطھط§ط­ظٹ ط³ط§ط¨ظ‚',
                         ref: '#OP-2026-01',
                         debit: 2500000,
                         credit: 0,
                         balance: 2500000,
-                        desc: 'رصيد مرحل من الدورة المحاسبية السابقة - مشروع برج النخيل',
-                        items: ['رصيد مرحل معتمد بدفتر الأستاذ العام'],
-                        method: 'ترحيل دفتري نظامي',
+                        desc: 'ط±طµظٹط¯ ظ…ط±ط­ظ„ ظ…ظ† ط§ظ„ط¯ظˆط±ط© ط§ظ„ظ…ط­ط§ط³ط¨ظٹط© ط§ظ„ط³ط§ط¨ظ‚ط© - ظ…ط´ط±ظˆط¹ ط¨ط±ط¬ ط§ظ„ظ†ط®ظٹظ„',
+                        items: ['ط±طµظٹط¯ ظ…ط±ط­ظ„ ظ…ط¹طھظ…ط¯ ط¨ط¯ظپطھط± ط§ظ„ط£ط³طھط§ط° ط§ظ„ط¹ط§ظ…'],
+                        method: 'طھط±ط­ظٹظ„ ط¯ظپطھط±ظٹ ظ†ط¸ط§ظ…ظٹ',
                         slip: false
                     },
                     {
@@ -12315,14 +12309,14 @@ try {
                         date: '2026-09-18 11:15',
                         dateObj: '2026-09-18',
                         type: 'sale',
-                        typeLabel: 'فاتورة مبيعات آجلة',
+                        typeLabel: 'ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ ط¢ط¬ظ„ط©',
                         ref: '#INV-8821',
                         debit: 4100000,
                         credit: 0,
                         balance: 6600000,
-                        desc: 'توريد 5 طن حديد تسليح تركي 16 ملم مششر لموقع المقرن',
-                        items: ['5 طن × 820,000 SDG = 4,100,000 SDG'],
-                        method: 'آجل معتمد (بوليصة استلام رقم 4410)',
+                        desc: 'طھظˆط±ظٹط¯ 5 ط·ظ† ط­ط¯ظٹط¯ طھط³ظ„ظٹط­ طھط±ظƒظٹ 16 ظ…ظ„ظ… ظ…ط´ط´ط± ظ„ظ…ظˆظ‚ط¹ ط§ظ„ظ…ظ‚ط±ظ†',
+                        items: ['5 ط·ظ† أ— 820,000 SDG = 4,100,000 SDG'],
+                        method: 'ط¢ط¬ظ„ ظ…ط¹طھظ…ط¯ (ط¨ظˆظ„ظٹطµط© ط§ط³طھظ„ط§ظ… ط±ظ‚ظ… 4410)',
                         slip: true
                     },
                     {
@@ -12330,14 +12324,14 @@ try {
                         date: '2026-09-22 14:40',
                         dateObj: '2026-09-22',
                         type: 'return',
-                        typeLabel: 'مردودات مبيعات',
+                        typeLabel: 'ظ…ط±ط¯ظˆط¯ط§طھ ظ…ط¨ظٹط¹ط§طھ',
                         ref: '#RTN-104',
                         debit: 0,
                         credit: 820000,
                         balance: 5780000,
-                        desc: 'إرجاع 1 طن حديد تركي 16 ملم لوجود انحناء وزيادة بالموقع',
-                        items: ['1 طن حديد تركي 16 ملم مرتجع لمستودع السجانة'],
-                        method: 'إشعار دائن رقم CN-882',
+                        desc: 'ط¥ط±ط¬ط§ط¹ 1 ط·ظ† ط­ط¯ظٹط¯ طھط±ظƒظٹ 16 ظ…ظ„ظ… ظ„ظˆط¬ظˆط¯ ط§ظ†ط­ظ†ط§ط، ظˆط²ظٹط§ط¯ط© ط¨ط§ظ„ظ…ظˆظ‚ط¹',
+                        items: ['1 ط·ظ† ط­ط¯ظٹط¯ طھط±ظƒظٹ 16 ظ…ظ„ظ… ظ…ط±طھط¬ط¹ ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ط³ط¬ط§ظ†ط©'],
+                        method: 'ط¥ط´ط¹ط§ط± ط¯ط§ط¦ظ† ط±ظ‚ظ… CN-882',
                         slip: false
                     },
                     {
@@ -12345,14 +12339,14 @@ try {
                         date: '2026-09-28 10:20',
                         dateObj: '2026-09-28',
                         type: 'receipt',
-                        typeLabel: 'سند قبض بنكي (بنكك)',
+                        typeLabel: 'ط³ظ†ط¯ ظ‚ط¨ط¶ ط¨ظ†ظƒظٹ (ط¨ظ†ظƒظƒ)',
                         ref: '#REC-4412',
                         debit: 0,
                         credit: 1200000,
                         balance: 4580000,
-                        desc: 'سداد دفعة جزئية عبر تطبيق بنكك - إشعار تحويل رقم TX98402',
-                        items: ['دفعة سداد حساب جاري - بنك الخرطوم'],
-                        method: 'تحويل إلكتروني مباشر (بنكك)',
+                        desc: 'ط³ط¯ط§ط¯ ط¯ظپط¹ط© ط¬ط²ط¦ظٹط© ط¹ط¨ط± طھط·ط¨ظٹظ‚ ط¨ظ†ظƒظƒ - ط¥ط´ط¹ط§ط± طھط­ظˆظٹظ„ ط±ظ‚ظ… TX98402',
+                        items: ['ط¯ظپط¹ط© ط³ط¯ط§ط¯ ط­ط³ط§ط¨ ط¬ط§ط±ظٹ - ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ…'],
+                        method: 'طھط­ظˆظٹظ„ ط¥ظ„ظƒطھط±ظˆظ†ظٹ ظ…ط¨ط§ط´ط± (ط¨ظ†ظƒظƒ)',
                         slip: true
                     },
                     {
@@ -12360,32 +12354,32 @@ try {
                         date: '2026-10-01 16:05',
                         dateObj: '2026-10-01',
                         type: 'sale',
-                        typeLabel: 'فاتورة مبيعات',
+                        typeLabel: 'ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ',
                         ref: '#INV-8904',
                         debit: 270000,
                         credit: 0,
                         balance: 4850000,
-                        desc: 'توريد 10 أكياس أسمنت بورتلاندي صقر الجديان + سلك رباط',
-                        items: ['10 شوال أسمنت × 24,000 = 240,000 SDG', 'لفة سلك رباط 30,000 SDG'],
-                        method: 'آجل مضاف للحساب',
+                        desc: 'طھظˆط±ظٹط¯ 10 ط£ظƒظٹط§ط³ ط£ط³ظ…ظ†طھ ط¨ظˆط±طھظ„ط§ظ†ط¯ظٹ طµظ‚ط± ط§ظ„ط¬ط¯ظٹط§ظ† + ط³ظ„ظƒ ط±ط¨ط§ط·',
+                        items: ['10 ط´ظˆط§ظ„ ط£ط³ظ…ظ†طھ أ— 24,000 = 240,000 SDG', 'ظ„ظپط© ط³ظ„ظƒ ط±ط¨ط§ط· 30,000 SDG'],
+                        method: 'ط¢ط¬ظ„ ظ…ط¶ط§ظپ ظ„ظ„ط­ط³ط§ط¨',
                         slip: true
                     }
                 ],
-                // Customer 2: مؤسسة النيل للتعمير
+                // Customer 2: ظ…ط¤ط³ط³ط© ط§ظ„ظ†ظٹظ„ ظ„ظ„طھط¹ظ…ظٹط±
                 '2': [
                     {
                         id: 'tx_c2_1',
                         date: '2026-09-12 10:00',
                         dateObj: '2026-09-12',
                         type: 'sale',
-                        typeLabel: 'فاتورة مبيعات آجلة',
+                        typeLabel: 'ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ ط¢ط¬ظ„ط©',
                         ref: '#INV-8790',
                         debit: 3400000,
                         credit: 0,
                         balance: 3400000,
-                        desc: 'توريد 4 طن حديد 4 لينية أوميقا لمشروع كافوري',
-                        items: ['4 طن × 790,000 SDG + شحن 240,000 SDG'],
-                        method: 'آجل معتمد',
+                        desc: 'طھظˆط±ظٹط¯ 4 ط·ظ† ط­ط¯ظٹط¯ 4 ظ„ظٹظ†ظٹط© ط£ظˆظ…ظٹظ‚ط§ ظ„ظ…ط´ط±ظˆط¹ ظƒط§ظپظˆط±ظٹ',
+                        items: ['4 ط·ظ† أ— 790,000 SDG + ط´ط­ظ† 240,000 SDG'],
+                        method: 'ط¢ط¬ظ„ ظ…ط¹طھظ…ط¯',
                         slip: true
                     },
                     {
@@ -12393,104 +12387,104 @@ try {
                         date: '2026-09-25 15:30',
                         dateObj: '2026-09-25',
                         type: 'receipt',
-                        typeLabel: 'سند قبض نقدي',
+                        typeLabel: 'ط³ظ†ط¯ ظ‚ط¨ط¶ ظ†ظ‚ط¯ظٹ',
                         ref: '#REC-4390',
                         debit: 0,
                         credit: 500000,
                         balance: 2900000,
-                        desc: 'سداد نقدي بخزينة الفرع الرئيسي بالسجانة',
-                        items: ['سداد دفعة نقدية معتمدة'],
-                        method: 'نقداً بالخزينة',
+                        desc: 'ط³ط¯ط§ط¯ ظ†ظ‚ط¯ظٹ ط¨ط®ط²ظٹظ†ط© ط§ظ„ظپط±ط¹ ط§ظ„ط±ط¦ظٹط³ظٹ ط¨ط§ظ„ط³ط¬ط§ظ†ط©',
+                        items: ['ط³ط¯ط§ط¯ ط¯ظپط¹ط© ظ†ظ‚ط¯ظٹط© ظ…ط¹طھظ…ط¯ط©'],
+                        method: 'ظ†ظ‚ط¯ط§ظ‹ ط¨ط§ظ„ط®ط²ظٹظ†ط©',
                         slip: false
                     }
                 ],
-                // Customer 3: المهندس خالد الرشيد
+                // Customer 3: ط§ظ„ظ…ظ‡ظ†ط¯ط³ ط®ط§ظ„ط¯ ط§ظ„ط±ط´ظٹط¯
                 '3': [
                     {
                         id: 'tx_c3_1',
                         date: '2026-09-26 12:00',
                         dateObj: '2026-09-26',
                         type: 'sale',
-                        typeLabel: 'فاتورة مبيعات',
+                        typeLabel: 'ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ',
                         ref: '#INV-8880',
                         debit: 1450000,
                         credit: 0,
                         balance: 1450000,
-                        desc: 'توريد مواسير حديد 2 بوصة وزوايا حديدية لمظلات الجريف',
-                        items: ['15 ماسورة 2 بوصة + 12 زاوية حديد 2 بوصة'],
-                        method: 'آجل معتمد',
+                        desc: 'طھظˆط±ظٹط¯ ظ…ظˆط§ط³ظٹط± ط­ط¯ظٹط¯ 2 ط¨ظˆطµط© ظˆط²ظˆط§ظٹط§ ط­ط¯ظٹط¯ظٹط© ظ„ظ…ط¸ظ„ط§طھ ط§ظ„ط¬ط±ظٹظپ',
+                        items: ['15 ظ…ط§ط³ظˆط±ط© 2 ط¨ظˆطµط© + 12 ط²ط§ظˆظٹط© ط­ط¯ظٹط¯ 2 ط¨ظˆطµط©'],
+                        method: 'ط¢ط¬ظ„ ظ…ط¹طھظ…ط¯',
                         slip: true
                     }
                 ],
-                // Customer 4: مقاولات السجانة الحديثة
+                // Customer 4: ظ…ظ‚ط§ظˆظ„ط§طھ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ط­ط¯ظٹط«ط©
                 '4': [
                     {
                         id: 'tx_c4_1',
                         date: '2026-09-29 11:30',
                         dateObj: '2026-09-29',
                         type: 'sale',
-                        typeLabel: 'فاتورة مبيعات',
+                        typeLabel: 'ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ',
                         ref: '#INV-8895',
                         debit: 980000,
                         credit: 0,
                         balance: 980000,
-                        desc: 'توريد صاج مجلفن كوري 0.45 ملم',
-                        items: ['20 لوح صاج مجلفن كوري'],
-                        method: 'آجل قصير الأجل',
+                        desc: 'طھظˆط±ظٹط¯ طµط§ط¬ ظ…ط¬ظ„ظپظ† ظƒظˆط±ظٹ 0.45 ظ…ظ„ظ…',
+                        items: ['20 ظ„ظˆط­ طµط§ط¬ ظ…ط¬ظ„ظپظ† ظƒظˆط±ظٹ'],
+                        method: 'ط¢ط¬ظ„ ظ‚طµظٹط± ط§ظ„ط£ط¬ظ„',
                         slip: true
                     }
                 ],
-                // Customer 5: مؤسسة أم درمان الهندسية
+                // Customer 5: ظ…ط¤ط³ط³ط© ط£ظ… ط¯ط±ظ…ط§ظ† ط§ظ„ظ‡ظ†ط¯ط³ظٹط©
                 '5': [
                     {
                         id: 'tx_c5_1',
                         date: '2026-07-20 13:00',
                         dateObj: '2026-07-20',
                         type: 'sale',
-                        typeLabel: 'فاتورة مبيعات سابقة',
+                        typeLabel: 'ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ ط³ط§ط¨ظ‚ط©',
                         ref: '#INV-8410',
                         debit: 3650000,
                         credit: 0,
                         balance: 3650000,
-                        desc: 'توريد 4.5 طن حديد تسليح تركي لموقع المهندسين',
-                        items: ['4.5 طن حديد تركي 16 ملم مششر'],
-                        method: 'آجل متأخر السداد',
+                        desc: 'طھظˆط±ظٹط¯ 4.5 ط·ظ† ط­ط¯ظٹط¯ طھط³ظ„ظٹط­ طھط±ظƒظٹ ظ„ظ…ظˆظ‚ط¹ ط§ظ„ظ…ظ‡ظ†ط¯ط³ظٹظ†',
+                        items: ['4.5 ط·ظ† ط­ط¯ظٹط¯ طھط±ظƒظٹ 16 ظ…ظ„ظ… ظ…ط´ط´ط±'],
+                        method: 'ط¢ط¬ظ„ ظ…طھط£ط®ط± ط§ظ„ط³ط¯ط§ط¯',
                         slip: true
                     }
                 ],
-                // Customer 6: ورشة الخرطوم للحدادة والجمالونات
+                // Customer 6: ظˆط±ط´ط© ط§ظ„ط®ط±ط·ظˆظ… ظ„ظ„ط­ط¯ط§ط¯ط© ظˆط§ظ„ط¬ظ…ط§ظ„ظˆظ†ط§طھ
                 '6': [
                     {
                         id: 'tx_c6_1',
                         date: '2026-09-30 14:00',
                         dateObj: '2026-09-30',
                         type: 'sale',
-                        typeLabel: 'فاتورة مبيعات',
+                        typeLabel: 'ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ',
                         ref: '#INV-8901',
                         debit: 620000,
                         credit: 0,
                         balance: 620000,
-                        desc: 'توريد 10 مواسير مجلفنة 2 بوصة ثقيل',
-                        items: ['10 مواسير × 62,000 SDG'],
-                        method: 'آجل',
+                        desc: 'طھظˆط±ظٹط¯ 10 ظ…ظˆط§ط³ظٹط± ظ…ط¬ظ„ظپظ†ط© 2 ط¨ظˆطµط© ط«ظ‚ظٹظ„',
+                        items: ['10 ظ…ظˆط§ط³ظٹط± أ— 62,000 SDG'],
+                        method: 'ط¢ط¬ظ„',
                         slip: true
                     }
                 ],
-                // Vendor 1: مصنع أسمنت بربر
+                // Vendor 1: ظ…طµظ†ط¹ ط£ط³ظ…ظ†طھ ط¨ط±ط¨ط±
                 'supp_1': [
                     {
                         id: 'tx_s1_1',
                         date: '2026-09-15 10:00',
                         dateObj: '2026-09-15',
                         type: 'purchase',
-                        typeLabel: 'فاتورة شراء بضاعة',
+                        typeLabel: 'ظپط§طھظˆط±ط© ط´ط±ط§ط، ط¨ط¶ط§ط¹ط©',
                         ref: '#PUR-3101',
                         debit: 0,
                         credit: 8400000,
                         balance: -8400000,
-                        desc: 'شراء 20 طن أسمنت بورتلاندي للمستودع المركزي',
-                        items: ['20 طن أسمنت بربر × 420,000 SDG'],
-                        method: 'توريد بالآجل التجاري',
+                        desc: 'ط´ط±ط§ط، 20 ط·ظ† ط£ط³ظ…ظ†طھ ط¨ظˆط±طھظ„ط§ظ†ط¯ظٹ ظ„ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ',
+                        items: ['20 ط·ظ† ط£ط³ظ…ظ†طھ ط¨ط±ط¨ط± أ— 420,000 SDG'],
+                        method: 'طھظˆط±ظٹط¯ ط¨ط§ظ„ط¢ط¬ظ„ ط§ظ„طھط¬ط§ط±ظٹ',
                         slip: true
                     },
                     {
@@ -12498,32 +12492,32 @@ try {
                         date: '2026-09-24 12:30',
                         dateObj: '2026-09-24',
                         type: 'disbursement',
-                        typeLabel: 'سند صرف بنكي (سداد)',
+                        typeLabel: 'ط³ظ†ط¯ طµط±ظپ ط¨ظ†ظƒظٹ (ط³ط¯ط§ط¯)',
                         ref: '#PAY-2090',
                         debit: 2600000,
                         credit: 0,
                         balance: -5800000,
-                        desc: 'تحويل بنكي من حساب بنك الخرطوم لسداد دفعة توريد',
-                        items: ['سداد دفعة للمورد - إشعار خصم رسمي'],
-                        method: 'تحويل بنكي رسمي',
+                        desc: 'طھط­ظˆظٹظ„ ط¨ظ†ظƒظٹ ظ…ظ† ط­ط³ط§ط¨ ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ… ظ„ط³ط¯ط§ط¯ ط¯ظپط¹ط© طھظˆط±ظٹط¯',
+                        items: ['ط³ط¯ط§ط¯ ط¯ظپط¹ط© ظ„ظ„ظ…ظˆط±ط¯ - ط¥ط´ط¹ط§ط± ط®طµظ… ط±ط³ظ…ظٹ'],
+                        method: 'طھط­ظˆظٹظ„ ط¨ظ†ظƒظٹ ط±ط³ظ…ظٹ',
                         slip: true
                     }
                 ],
-                // Vendor 2: شركة الراجحي للحديد والصلب
+                // Vendor 2: ط´ط±ظƒط© ط§ظ„ط±ط§ط¬ط­ظٹ ظ„ظ„ط­ط¯ظٹط¯ ظˆط§ظ„طµظ„ط¨
                 'supp_2': [
                     {
                         id: 'tx_s2_1',
                         date: '2026-09-10 09:00',
                         dateObj: '2026-09-10',
                         type: 'purchase',
-                        typeLabel: 'فاتورة شراء بضاعة',
+                        typeLabel: 'ظپط§طھظˆط±ط© ط´ط±ط§ط، ط¨ط¶ط§ط¹ط©',
                         ref: '#PUR-3088',
                         debit: 0,
                         credit: 8200000,
                         balance: -8200000,
-                        desc: 'شراء شحنة 10 أطنان حديد تسليح استيراد مباشر',
-                        items: ['10 طن حديد تسليح 16 ملم ASTM'],
-                        method: 'اعتماد مستندي آجل',
+                        desc: 'ط´ط±ط§ط، ط´ط­ظ†ط© 10 ط£ط·ظ†ط§ظ† ط­ط¯ظٹط¯ طھط³ظ„ظٹط­ ط§ط³طھظٹط±ط§ط¯ ظ…ط¨ط§ط´ط±',
+                        items: ['10 ط·ظ† ط­ط¯ظٹط¯ طھط³ظ„ظٹط­ 16 ظ…ظ„ظ… ASTM'],
+                        method: 'ط§ط¹طھظ…ط§ط¯ ظ…ط³طھظ†ط¯ظٹ ط¢ط¬ظ„',
                         slip: true
                     }
                 ]
@@ -12533,75 +12527,75 @@ try {
             debtAgingData: [
                 {
                     id: '1',
-                    name: 'شركة الفهد للمقاولات',
+                    name: 'ط´ط±ظƒط© ط§ظ„ظپظ‡ط¯ ظ„ظ„ظ…ظ‚ط§ظˆظ„ط§طھ',
                     phone: '0912345678',
                     balance: 4850000,
                     creditLimit: 3000000,
                     bucket: '90_plus',
-                    bucketLabel: 'متأخر > 90 يوماً',
+                    bucketLabel: 'ظ…طھط£ط®ط± > 90 ظٹظˆظ…ط§ظ‹',
                     daysOverdue: 94,
                     lastPayment: '2026-09-28 (1.2M SDG)',
-                    branch: 'السجانة المركزي'
+                    branch: 'ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ'
                 },
                 {
                     id: '5',
-                    name: 'مؤسسة أم درمان الهندسية',
+                    name: 'ظ…ط¤ط³ط³ط© ط£ظ… ط¯ط±ظ…ط§ظ† ط§ظ„ظ‡ظ†ط¯ط³ظٹط©',
                     phone: '0123987654',
                     balance: 3650000,
                     creditLimit: 2000000,
                     bucket: '61_90',
-                    bucketLabel: '61 - 90 يوماً',
+                    bucketLabel: '61 - 90 ظٹظˆظ…ط§ظ‹',
                     daysOverdue: 74,
                     lastPayment: '2026-07-15 (500K SDG)',
-                    branch: 'حظيرة الكلاكلة'
+                    branch: 'ط­ط¸ظٹط±ط© ط§ظ„ظƒظ„ط§ظƒظ„ط©'
                 },
                 {
                     id: '2',
-                    name: 'مؤسسة النيل للتعمير',
+                    name: 'ظ…ط¤ط³ط³ط© ط§ظ„ظ†ظٹظ„ ظ„ظ„طھط¹ظ…ظٹط±',
                     phone: '0923456789',
                     balance: 2900000,
                     creditLimit: 3500000,
                     bucket: '31_60',
-                    bucketLabel: '31 - 60 يوماً',
+                    bucketLabel: '31 - 60 ظٹظˆظ…ط§ظ‹',
                     daysOverdue: 42,
                     lastPayment: '2026-09-25 (500K SDG)',
-                    branch: 'السجانة المركزي'
+                    branch: 'ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ'
                 },
                 {
                     id: '3',
-                    name: 'المهندس خالد الرشيد',
+                    name: 'ط§ظ„ظ…ظ‡ظ†ط¯ط³ ط®ط§ظ„ط¯ ط§ظ„ط±ط´ظٹط¯',
                     phone: '0911223344',
                     balance: 1450000,
                     creditLimit: 2000000,
                     bucket: '1_30',
-                    bucketLabel: '1 - 30 يوماً',
+                    bucketLabel: '1 - 30 ظٹظˆظ…ط§ظ‹',
                     daysOverdue: 18,
                     lastPayment: '2026-09-10 (400K SDG)',
-                    branch: 'معرض بحري'
+                    branch: 'ظ…ط¹ط±ط¶ ط¨ط­ط±ظٹ'
                 },
                 {
                     id: '4',
-                    name: 'مقاولات السجانة الحديثة',
+                    name: 'ظ…ظ‚ط§ظˆظ„ط§طھ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ط­ط¯ظٹط«ط©',
                     phone: '0998877665',
                     balance: 980000,
                     creditLimit: 2500000,
                     bucket: 'current',
-                    bucketLabel: 'جاري (غير مستحق)',
+                    bucketLabel: 'ط¬ط§ط±ظٹ (ط؛ظٹط± ظ…ط³طھط­ظ‚)',
                     daysOverdue: 3,
-                    lastPayment: '2026-09-29 (جديد)',
-                    branch: 'السجانة المركزي'
+                    lastPayment: '2026-09-29 (ط¬ط¯ظٹط¯)',
+                    branch: 'ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ'
                 },
                 {
                     id: '6',
-                    name: 'ورشة الخرطوم للحدادة والجمالونات',
+                    name: 'ظˆط±ط´ط© ط§ظ„ط®ط±ط·ظˆظ… ظ„ظ„ط­ط¯ط§ط¯ط© ظˆط§ظ„ط¬ظ…ط§ظ„ظˆظ†ط§طھ',
                     phone: '0915544332',
                     balance: 620000,
                     creditLimit: 1000000,
                     bucket: 'current',
-                    bucketLabel: 'جاري (غير مستحق)',
+                    bucketLabel: 'ط¬ط§ط±ظٹ (ط؛ظٹط± ظ…ط³طھط­ظ‚)',
                     daysOverdue: 2,
-                    lastPayment: '2026-09-30 (جديد)',
-                    branch: 'معرض بحري'
+                    lastPayment: '2026-09-30 (ط¬ط¯ظٹط¯)',
+                    branch: 'ظ…ط¹ط±ط¶ ط¨ط­ط±ظٹ'
                 }
             ],
 
@@ -12661,18 +12655,18 @@ try {
 
                 let opts = '';
                 if (this.partyType === 'customer') {
-                    opts = '<option value="">-- اختر العميل لاستعراض كشف الحساب --</option>';
+                    opts = '<option value="">-- ط§ط®طھط± ط§ظ„ط¹ظ…ظٹظ„ ظ„ط§ط³طھط¹ط±ط§ط¶ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ --</option>';
                     M_CUSTOMERS.forEach(c => {
-                        opts += `<option value="${c.id}" ${String(c.id) === String(this.selectedPartyId) ? 'selected' : ''}>👤 ${c.name} (${fmt(c.balance || 0)} SDG)</option>`;
+                        opts += `<option value="${c.id}" ${String(c.id) === String(this.selectedPartyId) ? 'selected' : ''}>ًں‘¤ ${c.name} (${fmt(c.balance || 0)} SDG)</option>`;
                     });
                 } else {
-                    opts = '<option value="">-- اختر المورد لاستعراض كشف الحساب --</option>';
+                    opts = '<option value="">-- ط§ط®طھط± ط§ظ„ظ…ظˆط±ط¯ ظ„ط§ط³طھط¹ط±ط§ط¶ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ --</option>';
                     const suppliers = (M_SUPPLIERS.length > 0) ? M_SUPPLIERS : [
-                        { id: 'supp_1', name: 'مصنع أسمنت بربر', balance: 5800000, phone: '0183445566' },
-                        { id: 'supp_2', name: 'شركة الراجحي للحديد والصلب', balance: 8200000, phone: '0183778899' }
+                        { id: 'supp_1', name: 'ظ…طµظ†ط¹ ط£ط³ظ…ظ†طھ ط¨ط±ط¨ط±', balance: 5800000, phone: '0183445566' },
+                        { id: 'supp_2', name: 'ط´ط±ظƒط© ط§ظ„ط±ط§ط¬ط­ظٹ ظ„ظ„ط­ط¯ظٹط¯ ظˆط§ظ„طµظ„ط¨', balance: 8200000, phone: '0183778899' }
                     ];
                     suppliers.forEach(s => {
-                        opts += `<option value="${s.id}" ${String(s.id) === String(this.selectedPartyId) ? 'selected' : ''}>🏢 ${s.name} (${fmt(s.balance || 0)} SDG)</option>`;
+                        opts += `<option value="${s.id}" ${String(s.id) === String(this.selectedPartyId) ? 'selected' : ''}>ًںڈ¢ ${s.name} (${fmt(s.balance || 0)} SDG)</option>`;
                     });
                 }
                 sel.innerHTML = opts;
@@ -12693,7 +12687,7 @@ try {
                 if (btn) btn.classList.add('active');
                 if (filterKey === 'custom') {
                     if (window.showModernToast) {
-                        window.showModernToast('📅 تم تفعيل فلتر النطاق المخصص (سبتمبر - أكتوبر 2026)', 'info', 2000);
+                        window.showModernToast('ًں“… طھظ… طھظپط¹ظٹظ„ ظپظ„طھط± ط§ظ„ظ†ط·ط§ظ‚ ط§ظ„ظ…ط®طµطµ (ط³ط¨طھظ…ط¨ط± - ط£ظƒطھظˆط¨ط± 2026)', 'info', 2000);
                     }
                 }
                 this.renderStatementFeed();
@@ -12723,15 +12717,15 @@ try {
                 if (this.partyType === 'customer') {
                     return M_CUSTOMERS.find(c => String(c.id) === String(this.selectedPartyId)) || {
                         id: '1',
-                        name: 'شركة الفهد للمقاولات',
+                        name: 'ط´ط±ظƒط© ط§ظ„ظپظ‡ط¯ ظ„ظ„ظ…ظ‚ط§ظˆظ„ط§طھ',
                         phone: '0912345678',
                         balance: 4850000,
                         creditLimit: 3000000
                     };
                 } else {
                     const suppliers = (M_SUPPLIERS.length > 0) ? M_SUPPLIERS : [
-                        { id: 'supp_1', name: 'مصنع أسمنت بربر', balance: 5800000, phone: '0183445566' },
-                        { id: 'supp_2', name: 'شركة الراجحي للحديد والصلب', balance: 8200000, phone: '0183778899' }
+                        { id: 'supp_1', name: 'ظ…طµظ†ط¹ ط£ط³ظ…ظ†طھ ط¨ط±ط¨ط±', balance: 5800000, phone: '0183445566' },
+                        { id: 'supp_2', name: 'ط´ط±ظƒط© ط§ظ„ط±ط§ط¬ط­ظٹ ظ„ظ„ط­ط¯ظٹط¯ ظˆط§ظ„طµظ„ط¨', balance: 8200000, phone: '0183778899' }
                     ];
                     return suppliers.find(s => String(s.id) === String(this.selectedPartyId)) || suppliers[0];
                 }
@@ -12762,9 +12756,9 @@ try {
                 const lastPaymentEl = document.getElementById('ledger-last-payment-text');
 
                 if (nameEl) nameEl.innerText = party.name;
-                if (phoneEl) phoneEl.innerText = party.phone || 'هاتف غير مسجل';
+                if (phoneEl) phoneEl.innerText = party.phone || 'ظ‡ط§طھظپ ط؛ظٹط± ظ…ط³ط¬ظ„';
                 if (badgeEl) {
-                    badgeEl.innerText = (this.partyType === 'customer') ? 'عميل نشط' : 'مورد معتمد';
+                    badgeEl.innerText = (this.partyType === 'customer') ? 'ط¹ظ…ظٹظ„ ظ†ط´ط·' : 'ظ…ظˆط±ط¯ ظ…ط¹طھظ…ط¯';
                     badgeEl.className = (this.partyType === 'customer') ? 'badge-cash' : 'badge-bank';
                 }
 
@@ -12781,24 +12775,24 @@ try {
                 if (statusTagEl) {
                     if (this.partyType === 'customer') {
                         if (bal > 0) {
-                            statusTagEl.innerHTML = '🔴 مدين (مطلوب سداده)';
+                            statusTagEl.innerHTML = 'ًں”´ ظ…ط¯ظٹظ† (ظ…ط·ظ„ظˆط¨ ط³ط¯ط§ط¯ظ‡)';
                             statusTagEl.style.background = 'rgba(244,63,94,0.15)';
                             statusTagEl.style.color = 'var(--rose)';
                             statusTagEl.style.borderColor = 'rgba(244,63,94,0.3)';
                         } else {
-                            statusTagEl.innerHTML = '🟢 خالص / دائن له';
+                            statusTagEl.innerHTML = 'ًںں¢ ط®ط§ظ„طµ / ط¯ط§ط¦ظ† ظ„ظ‡';
                             statusTagEl.style.background = 'rgba(16,185,129,0.15)';
                             statusTagEl.style.color = 'var(--emerald)';
                             statusTagEl.style.borderColor = 'rgba(16,185,129,0.3)';
                         }
                     } else {
                         if (bal > 0) {
-                            statusTagEl.innerHTML = '🟠 دائن (مستحق له)';
+                            statusTagEl.innerHTML = 'ًںں  ط¯ط§ط¦ظ† (ظ…ط³طھط­ظ‚ ظ„ظ‡)';
                             statusTagEl.style.background = 'rgba(245,158,11,0.15)';
                             statusTagEl.style.color = 'var(--amber)';
                             statusTagEl.style.borderColor = 'rgba(245,158,11,0.3)';
                         } else {
-                            statusTagEl.innerHTML = '🟢 مدين لنا / خالص';
+                            statusTagEl.innerHTML = 'ًںں¢ ظ…ط¯ظٹظ† ظ„ظ†ط§ / ط®ط§ظ„طµ';
                             statusTagEl.style.background = 'rgba(16,185,129,0.15)';
                             statusTagEl.style.color = 'var(--emerald)';
                             statusTagEl.style.borderColor = 'rgba(16,185,129,0.3)';
@@ -12814,10 +12808,10 @@ try {
                     if (creditValEl) creditValEl.innerText = fmt(limit) + ' SDG';
                     if (creditPctEl) {
                         if (utilPct > 100) {
-                            creditPctEl.innerText = `${utilPct.toFixed(1)}% (تجاوز السقف ⚠️)`;
+                            creditPctEl.innerText = `${utilPct.toFixed(1)}% (طھط¬ط§ظˆط² ط§ظ„ط³ظ‚ظپ âڑ ï¸ڈ)`;
                             creditPctEl.style.color = 'var(--rose)';
                         } else {
-                            creditPctEl.innerText = `${utilPct.toFixed(1)}% متاح`;
+                            creditPctEl.innerText = `${utilPct.toFixed(1)}% ظ…طھط§ط­`;
                             creditPctEl.style.color = 'var(--emerald)';
                         }
                     }
@@ -12871,14 +12865,14 @@ try {
                     }
                 }
 
-                if (countBadge) countBadge.innerText = `${entries.length} حركات`;
+                if (countBadge) countBadge.innerText = `${entries.length} ط­ط±ظƒط§طھ`;
 
                 if (entries.length === 0) {
                     container.innerHTML = `
                         <div style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:14px; padding:30px 14px; text-align:center; color:var(--text-muted);">
                             <i class="fa-solid fa-folder-open" style="font-size:2rem; opacity:0.4; margin-bottom:8px; display:block;"></i>
-                            <strong style="display:block; font-size:0.9rem;">لا توجد حركات مسجلة خلال الفترة المحددة</strong>
-                            <small>جرب اختيار فترة زمنية أوسع مثل "الكل" أو "آخر 30 يوماً".</small>
+                            <strong style="display:block; font-size:0.9rem;">ظ„ط§ طھظˆط¬ط¯ ط­ط±ظƒط§طھ ظ…ط³ط¬ظ„ط© ط®ظ„ط§ظ„ ط§ظ„ظپطھط±ط© ط§ظ„ظ…ط­ط¯ط¯ط©</strong>
+                            <small>ط¬ط±ط¨ ط§ط®طھظٹط§ط± ظپطھط±ط© ط²ظ…ظ†ظٹط© ط£ظˆط³ط¹ ظ…ط«ظ„ "ط§ظ„ظƒظ„" ط£ظˆ "ط¢ط®ط± 30 ظٹظˆظ…ط§ظ‹".</small>
                         </div>
                     `;
                     return;
@@ -12929,15 +12923,15 @@ try {
                             <!-- Debit, Credit, Running Balance Columns -->
                             <div class="ledger-item-grid">
                                 <div>
-                                    <span class="ledger-col-label">مدين (+)</span>
-                                    <span class="ledger-col-val ${item.debit > 0 ? 'debit' : ''}">${item.debit > 0 ? fmt(item.debit) : '—'}</span>
+                                    <span class="ledger-col-label">ظ…ط¯ظٹظ† (+)</span>
+                                    <span class="ledger-col-val ${item.debit > 0 ? 'debit' : ''}">${item.debit > 0 ? fmt(item.debit) : 'â€”'}</span>
                                 </div>
                                 <div>
-                                    <span class="ledger-col-label">دائن (-)</span>
-                                    <span class="ledger-col-val ${item.credit > 0 ? 'credit' : ''}">${item.credit > 0 ? fmt(item.credit) : '—'}</span>
+                                    <span class="ledger-col-label">ط¯ط§ط¦ظ† (-)</span>
+                                    <span class="ledger-col-val ${item.credit > 0 ? 'credit' : ''}">${item.credit > 0 ? fmt(item.credit) : 'â€”'}</span>
                                 </div>
                                 <div>
-                                    <span class="ledger-col-label">الرصيد التراكمي</span>
+                                    <span class="ledger-col-label">ط§ظ„ط±طµظٹط¯ ط§ظ„طھط±ط§ظƒظ…ظٹ</span>
                                     <span class="ledger-col-val balance" style="font-weight:900;">${fmt(item.balance)} SDG</span>
                                 </div>
                             </div>
@@ -12946,14 +12940,14 @@ try {
                             <div class="ledger-expand-drawer ${isExpanded ? 'active' : ''}" id="drawer-${item.id}">
                                 <div style="background:var(--surface-card); border-radius:8px; padding:8px; border:1px solid var(--border-glass);">
                                     <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:4px; font-weight:800;">
-                                        <i class="fa-solid fa-list text-purple-400"></i> تفاصيل البنود والكميات:
+                                        <i class="fa-solid fa-list text-purple-400"></i> طھظپط§طµظٹظ„ ط§ظ„ط¨ظ†ظˆط¯ ظˆط§ظ„ظƒظ…ظٹط§طھ:
                                     </div>
                                     <ul style="margin:0 0 6px 14px; padding:0; font-size:0.75rem; font-weight:700; color:var(--text-main);">
                                         ${item.items.map(it => `<li>${it}</li>`).join('')}
                                     </ul>
                                     <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; border-top:1px dashed var(--border-glass); padding-top:6px;">
-                                        <span><i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i> <strong>طريقة التسوية:</strong> ${item.method}</span>
-                                        ${item.slip ? '<span style="color:var(--primary); font-weight:800;"><i class="fa-solid fa-paperclip"></i> إشعار مرفق</span>' : ''}
+                                        <span><i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i> <strong>ط·ط±ظٹظ‚ط© ط§ظ„طھط³ظˆظٹط©:</strong> ${item.method}</span>
+                                        ${item.slip ? '<span style="color:var(--primary); font-weight:800;"><i class="fa-solid fa-paperclip"></i> ط¥ط´ط¹ط§ط± ظ…ط±ظپظ‚</span>' : ''}
                                     </div>
                                 </div>
                             </div>
@@ -12973,17 +12967,17 @@ try {
                 const badgeEl = document.getElementById('aging-debtors-total-badge');
                 const pctEl = document.getElementById('aging-overdue-pct-text');
                 if (totalEl) totalEl.innerHTML = `${fmt(totalReceivables)} <small style="font-size:0.8rem;">SDG</small>`;
-                if (badgeEl) badgeEl.innerText = `${this.debtAgingData.length} عملاء مدينون`;
+                if (badgeEl) badgeEl.innerText = `${this.debtAgingData.length} ط¹ظ…ظ„ط§ط، ظ…ط¯ظٹظ†ظˆظ†`;
                 if (pctEl) pctEl.innerText = overduePct + '%';
 
                 // Buckets calculation
                 const buckets = [
-                    { key: 'all', title: 'كافة الشرائح / All', color: 'var(--primary)', filterFn: () => true },
-                    { key: 'current', title: 'غير مستحقة بعد (Current)', color: '#10b981', filterFn: d => d.bucket === 'current' },
-                    { key: '1_30', title: '1 - 30 يوماً (تأخير خفيف)', color: '#38bdf8', filterFn: d => d.bucket === '1_30' },
-                    { key: '31_60', title: '31 - 60 يوماً (متوسط)', color: '#f59e0b', filterFn: d => d.bucket === '31_60' },
-                    { key: '61_90', title: '61 - 90 يوماً (حرج)', color: '#f97316', filterFn: d => d.bucket === '61_90' },
-                    { key: '90_plus', title: '+90 يوماً (شديد الخطورة 🚨)', color: '#ef4444', filterFn: d => d.bucket === '90_plus' }
+                    { key: 'all', title: 'ظƒط§ظپط© ط§ظ„ط´ط±ط§ط¦ط­ / All', color: 'var(--primary)', filterFn: () => true },
+                    { key: 'current', title: 'ط؛ظٹط± ظ…ط³طھط­ظ‚ط© ط¨ط¹ط¯ (Current)', color: '#10b981', filterFn: d => d.bucket === 'current' },
+                    { key: '1_30', title: '1 - 30 ظٹظˆظ…ط§ظ‹ (طھط£ط®ظٹط± ط®ظپظٹظپ)', color: '#38bdf8', filterFn: d => d.bucket === '1_30' },
+                    { key: '31_60', title: '31 - 60 ظٹظˆظ…ط§ظ‹ (ظ…طھظˆط³ط·)', color: '#f59e0b', filterFn: d => d.bucket === '31_60' },
+                    { key: '61_90', title: '61 - 90 ظٹظˆظ…ط§ظ‹ (ط­ط±ط¬)', color: '#f97316', filterFn: d => d.bucket === '61_90' },
+                    { key: '90_plus', title: '+90 ظٹظˆظ…ط§ظ‹ (ط´ط¯ظٹط¯ ط§ظ„ط®ط·ظˆط±ط© ًںڑ¨)', color: '#ef4444', filterFn: d => d.bucket === '90_plus' }
                 ];
 
                 // Render Carousel Buckets
@@ -13069,7 +13063,7 @@ try {
                     container.innerHTML = `
                         <div style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:14px; padding:24px 14px; text-align:center; color:var(--text-muted);">
                             <i class="fa-solid fa-circle-check" style="font-size:2rem; color:var(--emerald); opacity:0.6; margin-bottom:8px; display:block;"></i>
-                            <strong>لا يوجد عملاء في هذه الشريحة الزمنية</strong>
+                            <strong>ظ„ط§ ظٹظˆط¬ط¯ ط¹ظ…ظ„ط§ط، ظپظٹ ظ‡ط°ظ‡ ط§ظ„ط´ط±ظٹط­ط© ط§ظ„ط²ظ…ظ†ظٹط©</strong>
                         </div>
                     `;
                     return;
@@ -13095,7 +13089,7 @@ try {
                                     </span>
                                     <div>
                                         <strong style="font-size:0.92rem; color:var(--text-main); display:block;">${d.name}</strong>
-                                        <span style="font-size:0.72rem; color:var(--text-muted); font-family:'Inter',sans-serif;">${d.phone} • ${d.branch}</span>
+                                        <span style="font-size:0.72rem; color:var(--text-muted); font-family:'Inter',sans-serif;">${d.phone} â€¢ ${d.branch}</span>
                                     </div>
                                 </div>
                                 <div style="text-align:left;">
@@ -13109,17 +13103,17 @@ try {
                             </div>
 
                             <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:var(--text-muted); background:var(--surface-sub); border-radius:8px; padding:6px 10px; margin-top:4px;">
-                                <span><i class="fa-solid fa-hourglass-half"></i> فترة التعثر: <strong>${d.daysOverdue} يوم</strong></span>
-                                ${isExceeded ? `<span style="color:var(--rose); font-weight:800;"><i class="fa-solid fa-triangle-exclamation"></i> تجاوز السقف +${exceedPct}%</span>` : `<span style="color:var(--emerald); font-weight:800;"><i class="fa-solid fa-shield-check"></i> ضمن السقف</span>`}
+                                <span><i class="fa-solid fa-hourglass-half"></i> ظپطھط±ط© ط§ظ„طھط¹ط«ط±: <strong>${d.daysOverdue} ظٹظˆظ…</strong></span>
+                                ${isExceeded ? `<span style="color:var(--rose); font-weight:800;"><i class="fa-solid fa-triangle-exclamation"></i> طھط¬ط§ظˆط² ط§ظ„ط³ظ‚ظپ +${exceedPct}%</span>` : `<span style="color:var(--emerald); font-weight:800;"><i class="fa-solid fa-shield-check"></i> ط¶ظ…ظ† ط§ظ„ط³ظ‚ظپ</span>`}
                             </div>
 
                             <!-- 1-Tap Collection Action & View Statement -->
                             <div class="debtor-actions-row">
                                 <button type="button" class="btn-dock-wa" style="height:36px; border-radius:8px; font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; gap:6px; border:none; cursor:pointer;" onclick="LedgerEngine.sendDebtReminderWhatsApp('${d.id}')">
-                                    <i class="fa-brands fa-whatsapp"></i> إرسال إشعار مطالبة
+                                    <i class="fa-brands fa-whatsapp"></i> ط¥ط±ط³ط§ظ„ ط¥ط´ط¹ط§ط± ظ…ط·ط§ظ„ط¨ط©
                                 </button>
                                 <button type="button" class="btn-dock-call" style="height:36px; border-radius:8px; font-size:0.75rem; font-weight:800; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;" onclick="LedgerEngine.openStatementForDebtor('${d.id}')">
-                                    <i class="fa-solid fa-file-lines"></i> كشف الحساب
+                                    <i class="fa-solid fa-file-lines"></i> ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨
                                 </button>
                             </div>
                         </div>
@@ -13134,12 +13128,12 @@ try {
                 if (!debtor) return;
 
                 const phone = debtor.phone || '0912345678';
-                const msg = `السلام عليكم ورحمة الله وبركاته،\nالأفاضل / ${debtor.name} المحترمون،\n\nتحية طيبة من شركة السجانة لمواد البناء المحدودة.\nنود تذكيركم بمطابقة الرصيد القائم بحسابكم طرفنا والبالغ:\n💰 *${fmt(debtor.balance)} SDG*\n\nيرجى التكرم بالترتيب لتسوية المبلغ أو تحويله لحسابنا المعتمد:\n🏦 بنك الخرطوم (بنكك): 1298402\nشاكرين ومقدرين حسن تعاونكم الدائم معنا.`;
+                const msg = `ط§ظ„ط³ظ„ط§ظ… ط¹ظ„ظٹظƒظ… ظˆط±ط­ظ…ط© ط§ظ„ظ„ظ‡ ظˆط¨ط±ظƒط§طھظ‡طŒ\nط§ظ„ط£ظپط§ط¶ظ„ / ${debtor.name} ط§ظ„ظ…ط­طھط±ظ…ظˆظ†طŒ\n\nطھط­ظٹط© ط·ظٹط¨ط© ظ…ظ† ط´ط±ظƒط© ط§ظ„ط³ط¬ط§ظ†ط© ظ„ظ…ظˆط§ط¯ ط§ظ„ط¨ظ†ط§ط، ط§ظ„ظ…ط­ط¯ظˆط¯ط©.\nظ†ظˆط¯ طھط°ظƒظٹط±ظƒظ… ط¨ظ…ط·ط§ط¨ظ‚ط© ط§ظ„ط±طµظٹط¯ ط§ظ„ظ‚ط§ط¦ظ… ط¨ط­ط³ط§ط¨ظƒظ… ط·ط±ظپظ†ط§ ظˆط§ظ„ط¨ط§ظ„ط؛:\nًں’° *${fmt(debtor.balance)} SDG*\n\nظٹط±ط¬ظ‰ ط§ظ„طھظƒط±ظ… ط¨ط§ظ„طھط±طھظٹط¨ ظ„طھط³ظˆظٹط© ط§ظ„ظ…ط¨ظ„ط؛ ط£ظˆ طھط­ظˆظٹظ„ظ‡ ظ„ط­ط³ط§ط¨ظ†ط§ ط§ظ„ظ…ط¹طھظ…ط¯:\nًںڈ¦ ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ… (ط¨ظ†ظƒظƒ): 1298402\nط´ط§ظƒط±ظٹظ† ظˆظ…ظ‚ط¯ط±ظٹظ† ط­ط³ظ† طھط¹ط§ظˆظ†ظƒظ… ط§ظ„ط¯ط§ط¦ظ… ظ…ط¹ظ†ط§.`;
 
                 const url = `https://wa.me/249${phone.replace(/^0/, '')}?text=${encodeURIComponent(msg)}`;
                 window.open(url, '_blank');
                 if (window.showModernToast) {
-                    window.showModernToast(`📲 جاري فتح واتساب لإرسال مطالبة مالية لـ ${debtor.name}...`, 'success', 2500);
+                    window.showModernToast(`ًں“² ط¬ط§ط±ظٹ ظپطھط­ ظˆط§طھط³ط§ط¨ ظ„ط¥ط±ط³ط§ظ„ ظ…ط·ط§ظ„ط¨ط© ظ…ط§ظ„ظٹط© ظ„ظ€ ${debtor.name}...`, 'success', 2500);
                 }
             },
 
@@ -13159,22 +13153,22 @@ try {
 
                 const entries = this.ledgerDatabase[String(this.selectedPartyId)] || [];
                 const bal = party.balance || 0;
-                let summaryLines = entries.slice(0, 3).map(e => `• ${e.dateObj}: ${e.typeLabel} (${e.debit > 0 ? '+' + fmt(e.debit) : '-' + fmt(e.credit)})`).join('\n');
+                let summaryLines = entries.slice(0, 3).map(e => `â€¢ ${e.dateObj}: ${e.typeLabel} (${e.debit > 0 ? '+' + fmt(e.debit) : '-' + fmt(e.credit)})`).join('\n');
 
-                const msg = `*كشف حساب معتمد - شركة السجانة لمواد البناء*\n` +
-                            `الجهة: *${party.name}*\n` +
-                            `صافي الرصيد المستحق: *${fmt(bal)} SDG*\n` +
-                            `تاريخ الكشف: 2026-10-02\n\n` +
-                            `*ملخص أحدث الحركات:*\n${summaryLines}\n\n` +
-                            `الحساب البنكي المعتمد للسداد:\n` +
-                            `🏦 بنك الخرطوم (بنكك): 1298402\n` +
-                            `نظام السجانة المحاسبي الذكي.`;
+                const msg = `*ظƒط´ظپ ط­ط³ط§ط¨ ظ…ط¹طھظ…ط¯ - ط´ط±ظƒط© ط§ظ„ط³ط¬ط§ظ†ط© ظ„ظ…ظˆط§ط¯ ط§ظ„ط¨ظ†ط§ط،*\n` +
+                            `ط§ظ„ط¬ظ‡ط©: *${party.name}*\n` +
+                            `طµط§ظپظٹ ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…ط³طھط­ظ‚: *${fmt(bal)} SDG*\n` +
+                            `طھط§ط±ظٹط® ط§ظ„ظƒط´ظپ: 2026-10-02\n\n` +
+                            `*ظ…ظ„ط®طµ ط£ط­ط¯ط« ط§ظ„ط­ط±ظƒط§طھ:*\n${summaryLines}\n\n` +
+                            `ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط¨ظ†ظƒظٹ ط§ظ„ظ…ط¹طھظ…ط¯ ظ„ظ„ط³ط¯ط§ط¯:\n` +
+                            `ًںڈ¦ ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ… (ط¨ظ†ظƒظƒ): 1298402\n` +
+                            `ظ†ط¸ط§ظ… ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط­ط§ط³ط¨ظٹ ط§ظ„ط°ظƒظٹ.`;
 
                 const phone = party.phone || '0912345678';
                 const url = `https://wa.me/249${phone.replace(/^0/, '')}?text=${encodeURIComponent(msg)}`;
                 window.open(url, '_blank');
                 if (window.showModernToast) {
-                    window.showModernToast(`📲 تم إعداد كشف الحساب وفتح الواتساب لإرساله لـ ${party.name}`, 'success', 2500);
+                    window.showModernToast(`ًں“² طھظ… ط¥ط¹ط¯ط§ط¯ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ظˆظپطھط­ ط§ظ„ظˆط§طھط³ط§ط¨ ظ„ط¥ط±ط³ط§ظ„ظ‡ ظ„ظ€ ${party.name}`, 'success', 2500);
                 }
             },
 
@@ -13199,7 +13193,7 @@ try {
                 const tbody = document.getElementById('pdf-stmt-table-body');
 
                 if (nameEl) nameEl.innerText = party.name;
-                if (phoneEl) phoneEl.innerText = party.phone || 'غير مسجل';
+                if (phoneEl) phoneEl.innerText = party.phone || 'ط؛ظٹط± ظ…ط³ط¬ظ„';
                 if (limitEl) limitEl.innerText = fmt(party.creditLimit || 3000000) + ' SDG';
 
                 const entries = this.ledgerDatabase[String(this.selectedPartyId)] || [];
@@ -13215,8 +13209,8 @@ try {
                             <td>${e.dateObj}</td>
                             <td>${e.ref}</td>
                             <td style="text-align:right;">${e.typeLabel}</td>
-                            <td style="color:var(--rose);">${e.debit > 0 ? fmt(e.debit) : '—'}</td>
-                            <td style="color:var(--emerald);">${e.credit > 0 ? fmt(e.credit) : '—'}</td>
+                            <td style="color:var(--rose);">${e.debit > 0 ? fmt(e.debit) : 'â€”'}</td>
+                            <td style="color:var(--emerald);">${e.credit > 0 ? fmt(e.credit) : 'â€”'}</td>
                             <td style="font-weight:800;">${fmt(e.balance)}</td>
                         </tr>
                     `;
@@ -13233,7 +13227,7 @@ try {
             printStatement() {
                 triggerHaptic('medium');
                 if (window.showModernToast) {
-                    window.showModernToast('🖨️ جاري إرسال كشف الحساب للطابعة الحرارية عبر البلوتوث / PDF...', 'info', 2500);
+                    window.showModernToast('ًں–¨ï¸ڈ ط¬ط§ط±ظٹ ط¥ط±ط³ط§ظ„ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ظ„ظ„ط·ط§ط¨ط¹ط© ط§ظ„ط­ط±ط§ط±ظٹط© ط¹ط¨ط± ط§ظ„ط¨ظ„ظˆطھظˆط« / PDF...', 'info', 2500);
                 }
                 setTimeout(() => {
                     window.print();
@@ -13245,7 +13239,7 @@ try {
                 const party = this.getCurrentParty();
                 if (!party) return;
                 if (window.showModernToast) {
-                    window.showModernToast(`🖨️ جاري تجهيز إيصال كشف الحساب لطابعة البلوتوث الحرارية (80mm)...`, 'success', 2800);
+                    window.showModernToast(`ًں–¨ï¸ڈ ط¬ط§ط±ظٹ طھط¬ظ‡ظٹط² ط¥ظٹطµط§ظ„ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ظ„ط·ط§ط¨ط¹ط© ط§ظ„ط¨ظ„ظˆطھظˆط« ط§ظ„ط­ط±ط§ط±ظٹط© (80mm)...`, 'success', 2800);
                 }
                 setTimeout(() => {
                     this.openThermalReceiptSlip(party);
@@ -13265,9 +13259,9 @@ try {
                         <div class="sheet-drag-handle"></div>
                         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border);">
                             <span class="sheet-title" style="color:var(--primary); font-weight:900;">
-                                <i class="fa-solid fa-receipt"></i> إيصال كشف حساب حراري (80mm ESC/POS)
+                                <i class="fa-solid fa-receipt"></i> ط¥ظٹطµط§ظ„ ظƒط´ظپ ط­ط³ط§ط¨ ط­ط±ط§ط±ظٹ (80mm ESC/POS)
                             </span>
-                            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('${modalId}')">✕</button>
+                            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('${modalId}')">âœ•</button>
                         </div>
                         <div class="sheet-body" style="padding-top:12px;" id="${modalId}-content"></div>
                     `;
@@ -13283,19 +13277,19 @@ try {
                     contentEl.innerHTML = `
                         <div style="background:#fff; color:#000; font-family:'Courier New', monospace; padding:16px 14px; border-radius:8px; border:2px dashed #333; line-height:1.45; font-size:0.8rem; box-shadow:0 4px 14px rgba(0,0,0,0.18);">
                             <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:8px; margin-bottom:8px;">
-                                <strong style="font-size:1.05rem; display:block; letter-spacing:0.5px;">شركة السجانة لمواد البناء المحدودة</strong>
-                                <span style="font-size:0.75rem;">الخرطوم - المنطقة الصناعية السجانة</span><br>
-                                <span style="font-size:0.72rem;">هاتف: 0183472000 | سجل تجاري: 49201</span>
+                                <strong style="font-size:1.05rem; display:block; letter-spacing:0.5px;">ط´ط±ظƒط© ط§ظ„ط³ط¬ط§ظ†ط© ظ„ظ…ظˆط§ط¯ ط§ظ„ط¨ظ†ط§ط، ط§ظ„ظ…ط­ط¯ظˆط¯ط©</strong>
+                                <span style="font-size:0.75rem;">ط§ظ„ط®ط±ط·ظˆظ… - ط§ظ„ظ…ظ†ط·ظ‚ط© ط§ظ„طµظ†ط§ط¹ظٹط© ط§ظ„ط³ط¬ط§ظ†ط©</span><br>
+                                <span style="font-size:0.72rem;">ظ‡ط§طھظپ: 0183472000 | ط³ط¬ظ„ طھط¬ط§ط±ظٹ: 49201</span>
                             </div>
                             <div style="margin-bottom:8px; font-size:0.76rem;">
-                                <div><strong>اسم العميل:</strong> ${party.name}</div>
-                                <div><strong>رقم الهاتف:</strong> ${party.phone || '—'}</div>
-                                <div><strong>تاريخ الطباعة:</strong> 2026-10-02 15:30</div>
-                                <div><strong>العملة المعتمدة:</strong> الجنيه السوداني (SDG)</div>
+                                <div><strong>ط§ط³ظ… ط§ظ„ط¹ظ…ظٹظ„:</strong> ${party.name}</div>
+                                <div><strong>ط±ظ‚ظ… ط§ظ„ظ‡ط§طھظپ:</strong> ${party.phone || 'â€”'}</div>
+                                <div><strong>طھط§ط±ظٹط® ط§ظ„ط·ط¨ط§ط¹ط©:</strong> 2026-10-02 15:30</div>
+                                <div><strong>ط§ظ„ط¹ظ…ظ„ط© ط§ظ„ظ…ط¹طھظ…ط¯ط©:</strong> ط§ظ„ط¬ظ†ظٹظ‡ ط§ظ„ط³ظˆط¯ط§ظ†ظٹ (SDG)</div>
                             </div>
                             <div style="border-top:1px dashed #000; border-bottom:1px dashed #000; padding:5px 0; margin-bottom:8px; font-weight:bold; display:flex; justify-content:space-between; font-size:0.75rem;">
-                                <span>المرجع / التاريخ</span>
-                                <span>مدين (+) / دائن (-)</span>
+                                <span>ط§ظ„ظ…ط±ط¬ط¹ / ط§ظ„طھط§ط±ظٹط®</span>
+                                <span>ظ…ط¯ظٹظ† (+) / ط¯ط§ط¦ظ† (-)</span>
                             </div>
                             ${entries.map(e => `
                                 <div style="display:flex; justify-content:space-between; margin-bottom:5px; font-size:0.73rem;">
@@ -13305,21 +13299,21 @@ try {
                             `).join('')}
                             <div style="border-top:2px solid #000; margin-top:8px; padding-top:6px;">
                                 <div style="display:flex; justify-content:space-between; font-size:0.95rem; font-weight:bold;">
-                                    <span>صافي الرصيد القائم:</span>
+                                    <span>طµط§ظپظٹ ط§ظ„ط±طµظٹط¯ ط§ظ„ظ‚ط§ط¦ظ…:</span>
                                     <span>${fmt(party.balance)} SDG</span>
                                 </div>
                             </div>
                             <div style="text-align:center; margin-top:12px; font-size:0.72rem; border-top:1px dashed #000; padding-top:8px;">
-                                <span>*** شكراً لتعاملكم الراقي معنا ***</span><br>
-                                <span>الحساب البنكي (بنكك): 1298402</span>
+                                <span>*** ط´ظƒط±ط§ظ‹ ظ„طھط¹ط§ظ…ظ„ظƒظ… ط§ظ„ط±ط§ظ‚ظٹ ظ…ط¹ظ†ط§ ***</span><br>
+                                <span>ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط¨ظ†ظƒظٹ (ط¨ظ†ظƒظƒ): 1298402</span>
                             </div>
                         </div>
                         <div style="margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                             <button type="button" class="m-btn m-btn-primary" style="height:42px; font-weight:900;" onclick="window.print()">
-                                <i class="fa-solid fa-print"></i> أمر طباعة بلوتوث
+                                <i class="fa-solid fa-print"></i> ط£ظ…ط± ط·ط¨ط§ط¹ط© ط¨ظ„ظˆطھظˆط«
                             </button>
                             <button type="button" class="m-btn m-btn-outline" style="height:42px;" onclick="closeBottomSheet('${modalId}')">
-                                إغلاق
+                                ط¥ط؛ظ„ط§ظ‚
                             </button>
                         </div>
                     `;
@@ -13333,9 +13327,9 @@ try {
             LedgerEngine.render();
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 📦 ENTERPRISE INVENTORY & FIELD AUDIT ENGINE (MODULE 1)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں“¦ ENTERPRISE INVENTORY & FIELD AUDIT ENGINE (MODULE 1)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.InventoryEngine = {
             searchQuery: '',
             activeFilter: 'all',
@@ -13388,11 +13382,11 @@ try {
                     if (found) {
                         const inp = document.getElementById('inventory-search-input');
                         if (inp) { inp.value = found.name; this.onSearch(found.name); }
-                        if (window.showModernToast) window.showModernToast(`📸 تم العثور: [${found.sku}] ${found.name}`, 'success', 2500);
+                        if (window.showModernToast) window.showModernToast(`ًں“¸ طھظ… ط§ظ„ط¹ط«ظˆط±: [${found.sku}] ${found.name}`, 'success', 2500);
                     } else {
                         const inp = document.getElementById('inventory-search-input');
                         if (inp) { inp.value = code; this.onSearch(code); }
-                        if (window.showModernToast) window.showModernToast(`🔍 بحث بالباركود: ${code}`, 'info', 2500);
+                        if (window.showModernToast) window.showModernToast(`ًں”چ ط¨ط­ط« ط¨ط§ظ„ط¨ط§ط±ظƒظˆط¯: ${code}`, 'info', 2500);
                     }
                 });
             },
@@ -13412,7 +13406,7 @@ try {
                         eyeIconEl.classList.add('fa-eye-slash');
                     } else {
                         costValEl.classList.remove('revealed');
-                        costValEl.innerText = '•••••• SDG';
+                        costValEl.innerText = 'â€¢â€¢â€¢â€¢â€¢â€¢ SDG';
                         eyeIconEl.classList.remove('fa-eye-slash');
                         eyeIconEl.classList.add('fa-eye');
                     }
@@ -13468,14 +13462,14 @@ try {
                 const grandTotalEl = document.getElementById('inventory-grand-total');
                 if (grandTotalEl) grandTotalEl.innerHTML = `${fmt(totalValuation)} <small style="font-size:0.75rem;">SDG</small>`;
                 const countBadge = document.getElementById('inventory-items-count-badge');
-                if (countBadge) countBadge.innerText = `${allCount} صنف نشط`;
+                if (countBadge) countBadge.innerText = `${allCount} طµظ†ظپ ظ†ط´ط·`;
 
                 // Render Low Stock Radar
                 if (lowContainer) {
                     const lowItems = M_ITEMS.filter(it => parseFloat(it.stock || 0) <= (RuleAlertEngine?.rules?.safetyStockUnits || 15));
                     if (lowItems.length === 0) {
                         if (radarCard) radarCard.style.display = 'none';
-                        lowContainer.innerHTML = '<div style="padding:10px; color:var(--emerald); text-align:center; font-weight:800;">✨ المخزون آمن وكافة الأصناف فوق حد الأمان</div>';
+                        lowContainer.innerHTML = '<div style="padding:10px; color:var(--emerald); text-align:center; font-weight:800;">âœ¨ ط§ظ„ظ…ط®ط²ظˆظ† ط¢ظ…ظ† ظˆظƒط§ظپط© ط§ظ„ط£طµظ†ط§ظپ ظپظˆظ‚ ط­ط¯ ط§ظ„ط£ظ…ط§ظ†</div>';
                     } else {
                         if (radarCard) radarCard.style.display = 'block';
                         let lHtml = '';
@@ -13486,17 +13480,17 @@ try {
                                     <div>
                                         <strong style="color:var(--text-main); font-size:0.84rem;">${it.name}</strong>
                                         <span style="display:block; font-size:0.72rem; color:${isZero ? 'var(--rose)' : 'var(--amber)'}; font-weight:800;">
-                                            ${isZero ? 'نفدت الكمية تماماً (0 وحدة)' : 'متبقي: ' + it.stock + ' ' + (it.primaryUnit || 'وحدة') + ' فقط (دون حد الأمان)'}
+                                            ${isZero ? 'ظ†ظپط¯طھ ط§ظ„ظƒظ…ظٹط© طھظ…ط§ظ…ط§ظ‹ (0 ظˆط­ط¯ط©)' : 'ظ…طھط¨ظ‚ظٹ: ' + it.stock + ' ' + (it.primaryUnit || 'ظˆط­ط¯ط©') + ' ظپظ‚ط· (ط¯ظˆظ† ط­ط¯ ط§ظ„ط£ظ…ط§ظ†)'}
                                         </span>
                                     </div>
                                     <button type="button" class="alert-cta-btn cta-action" style="padding:4px 8px; font-size:0.72rem;" onclick="openBottomSheet('sheet-purchase');">
-                                        <i class="fa-solid fa-cart-plus"></i> توريد عاجل
+                                        <i class="fa-solid fa-cart-plus"></i> طھظˆط±ظٹط¯ ط¹ط§ط¬ظ„
                                     </button>
                                 </div>
                             `;
                         });
                         if (lowItems.length > 2) {
-                            lHtml += `<div style="text-align:center; font-size:0.7rem; color:var(--text-muted); font-weight:800; padding:2px 0;">+ يوجد ${lowItems.length - 2} أصناف إضافية بلغت حد الأمان أو نفدت</div>`;
+                            lHtml += `<div style="text-align:center; font-size:0.7rem; color:var(--text-muted); font-weight:800; padding:2px 0;">+ ظٹظˆط¬ط¯ ${lowItems.length - 2} ط£طµظ†ط§ظپ ط¥ط¶ط§ظپظٹط© ط¨ظ„ط؛طھ ط­ط¯ ط§ظ„ط£ظ…ط§ظ† ط£ظˆ ظ†ظپط¯طھ</div>`;
                         }
                         lowContainer.innerHTML = lHtml;
                     }
@@ -13520,16 +13514,16 @@ try {
                 });
 
                 const countEl = document.getElementById('inventory-items-count');
-                if (countEl) countEl.innerText = `${filtered.length} صنف متاح`;
+                if (countEl) countEl.innerText = `${filtered.length} طµظ†ظپ ظ…طھط§ط­`;
 
                 if (filtered.length === 0) {
                     fullContainer.innerHTML = `
                         <div style="text-align:center; padding:32px 16px; background:var(--surface-card); border-radius:16px; border:1px dashed var(--border-glass);">
                             <i class="fa-solid fa-box-open" style="font-size:2.4rem; color:var(--text-muted); opacity:0.5; margin-bottom:10px;"></i>
-                            <h4 style="color:var(--text-main); font-weight:800; font-size:0.95rem; margin-bottom:4px;">لم يتم العثور على نتائج مطابقة</h4>
-                            <p style="color:var(--text-muted); font-size:0.78rem;">جرّب تعديل البحث أو إزالة فلتر التصفية</p>
+                            <h4 style="color:var(--text-main); font-weight:800; font-size:0.95rem; margin-bottom:4px;">ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ظ†طھط§ط¦ط¬ ظ…ط·ط§ط¨ظ‚ط©</h4>
+                            <p style="color:var(--text-muted); font-size:0.78rem;">ط¬ط±ظ‘ط¨ طھط¹ط¯ظٹظ„ ط§ظ„ط¨ط­ط« ط£ظˆ ط¥ط²ط§ظ„ط© ظپظ„طھط± ط§ظ„طھطµظپظٹط©</p>
                             <button type="button" class="btn-ai-chip" style="margin-top:10px;" onclick="InventoryEngine.clearSearch(); InventoryEngine.setFilter('all');">
-                                إعادة تعيين الفلترة
+                                ط¥ط¹ط§ط¯ط© طھط¹ظٹظٹظ† ط§ظ„ظپظ„طھط±ط©
                             </button>
                         </div>
                     `;
@@ -13559,7 +13553,7 @@ try {
                             <div class="inv-card-header">
                                 <div>
                                     <div class="inv-card-title">${it.name}</div>
-                                    <div class="inv-card-spec">${it.spec || 'مواصفة قياسية معتمدة'}</div>
+                                    <div class="inv-card-spec">${it.spec || 'ظ…ظˆط§طµظپط© ظ‚ظٹط§ط³ظٹط© ظ…ط¹طھظ…ط¯ط©'}</div>
                                 </div>
                                 <div style="text-align:left;">
                                     <span class="inv-sku-badge">${it.sku || ('SKU-' + it.id)}</span>
@@ -13572,32 +13566,32 @@ try {
                             <!-- Unit Row: Primary & Secondary with Ratio -->
                             <div class="inv-unit-row">
                                 <div style="display:flex; gap:6px; align-items:center;">
-                                    <span class="inv-unit-badge">كلي: ${it.primaryUnit || 'طن'}</span>
+                                    <span class="inv-unit-badge">ظƒظ„ظٹ: ${it.primaryUnit || 'ط·ظ†'}</span>
                                     <span class="inv-unit-badge" style="background:rgba(56,189,248,0.1); color:var(--primary); border-color:rgba(56,189,248,0.3);">
-                                        تجزئة: ${it.secondaryUnit || 'سيخة'}
+                                        طھط¬ط²ط¦ط©: ${it.secondaryUnit || 'ط³ظٹط®ط©'}
                                     </span>
                                 </div>
                                 <span class="inv-ratio-badge">
-                                    1 ${it.primaryUnit || 'طن'} = ${it.unitRatio || 120} ${it.secondaryUnit || 'سيخة'}
+                                    1 ${it.primaryUnit || 'ط·ظ†'} = ${it.unitRatio || 120} ${it.secondaryUnit || 'ط³ظٹط®ط©'}
                                 </span>
                             </div>
 
                             <!-- Price & Masked Cost Row -->
                             <div class="inv-price-stock-row">
                                 <div>
-                                    <span style="font-size:0.7rem; color:var(--text-muted); font-weight:800; display:block;">سعر البيع المعتمد:</span>
+                                    <span style="font-size:0.7rem; color:var(--text-muted); font-weight:800; display:block;">ط³ط¹ط± ط§ظ„ط¨ظٹط¹ ط§ظ„ظ…ط¹طھظ…ط¯:</span>
                                     <span class="inv-selling-price">${fmt(it.price)} <small style="font-size:0.7rem;">SDG</small></span>
                                     <span class="margin-pct-pill" style="font-size:0.78rem; margin-right:4px; font-weight:900; background:rgba(16,185,129,0.15); color:var(--emerald); padding:1px 6px; border-radius:6px;">
                                         +${marginPct}%
                                     </span>
                                 </div>
                                 <div style="text-align:left;">
-                                    <span style="font-size:0.7rem; color:var(--text-muted); font-weight:800; display:block;">سعر التكلفة (سري):</span>
+                                    <span style="font-size:0.7rem; color:var(--text-muted); font-weight:800; display:block;">ط³ط¹ط± ط§ظ„طھظƒظ„ظپط© (ط³ط±ظٹ):</span>
                                     <div class="inv-cost-price">
                                         <span class="inv-cost-masked ${isRevealed ? 'revealed' : ''}" id="cost-val-${it.id}">
-                                            ${isRevealed ? fmt(it.cost) + ' SDG' : '•••••• SDG'}
+                                            ${isRevealed ? fmt(it.cost) + ' SDG' : 'â€¢â€¢â€¢â€¢â€¢â€¢ SDG'}
                                         </span>
-                                        <button type="button" class="btn-peek-cost" onclick="InventoryEngine.toggleCostReveal(${it.id}, event)" title="إظهار / إخفاء سعر التكلفة">
+                                        <button type="button" class="btn-peek-cost" onclick="InventoryEngine.toggleCostReveal(${it.id}, event)" title="ط¥ط¸ظ‡ط§ط± / ط¥ط®ظپط§ط، ط³ط¹ط± ط§ظ„طھظƒظ„ظپط©">
                                             <i class="fa-solid ${isRevealed ? 'fa-eye-slash' : 'fa-eye'}" id="cost-eye-${it.id}"></i>
                                         </button>
                                     </div>
@@ -13607,12 +13601,12 @@ try {
                             <!-- Dual-Unit Balance Display -->
                             <div class="inv-dual-balance-box">
                                 <div class="inv-balance-primary">
-                                    <span class="lbl">الرصيد الفعلي (وحدة كبرى):</span>
-                                    <span class="val">${stock} <small style="font-size:0.75rem;">${it.primaryUnit || 'طن'}</small></span>
+                                    <span class="lbl">ط§ظ„ط±طµظٹط¯ ط§ظ„ظپط¹ظ„ظٹ (ظˆط­ط¯ط© ظƒط¨ط±ظ‰):</span>
+                                    <span class="val">${stock} <small style="font-size:0.75rem;">${it.primaryUnit || 'ط·ظ†'}</small></span>
                                 </div>
                                 <div class="inv-balance-secondary">
-                                    <span class="lbl">المعادل بالتجزئة:</span>
-                                    <span class="val">≈ ${fmt(Math.round(stock * (it.unitRatio || 120)))} <small style="font-size:0.7rem;">${it.secondaryUnit || 'سيخة'}</small></span>
+                                    <span class="lbl">ط§ظ„ظ…ط¹ط§ط¯ظ„ ط¨ط§ظ„طھط¬ط²ط¦ط©:</span>
+                                    <span class="val">â‰ˆ ${fmt(Math.round(stock * (it.unitRatio || 120)))} <small style="font-size:0.7rem;">${it.secondaryUnit || 'ط³ظٹط®ط©'}</small></span>
                                 </div>
                             </div>
 
@@ -13621,46 +13615,46 @@ try {
                                 <div>
                                     <span class="stock-pill ${isZero ? 'out-stock' : (isLow ? 'low-stock' : 'in-stock')}">
                                         <i class="fa-solid ${isZero ? 'fa-circle-xmark' : (isLow ? 'fa-triangle-exclamation' : 'fa-circle-check')}"></i>
-                                        ${isZero ? 'نفد / Out' : (isLow ? 'طلب شراء / Reorder' : 'متوفر / In Stock')}
+                                        ${isZero ? 'ظ†ظپط¯ / Out' : (isLow ? 'ط·ظ„ط¨ ط´ط±ط§ط، / Reorder' : 'ظ…طھظˆظپط± / In Stock')}
                                     </span>
                                 </div>
                                 <div style="font-size:0.72rem; color:var(--text-muted); font-weight:800;">
-                                    حد الأمان: ${it.minStock || 15} ${it.primaryUnit || 'طن'}
+                                    ط­ط¯ ط§ظ„ط£ظ…ط§ظ†: ${it.minStock || 15} ${it.primaryUnit || 'ط·ظ†'}
                                 </div>
                             </div>
 
                             <!-- Multi-Warehouse Breakdown Toggle Button -->
                             <button type="button" class="inv-wh-toggle-btn" onclick="InventoryEngine.toggleWarehouseDrawer(${it.id}, event)">
-                                <span><i class="fa-solid fa-warehouse text-primary"></i> توزيع البضاعة عبر المستودعات (3 فروع)</span>
+                                <span><i class="fa-solid fa-warehouse text-primary"></i> طھظˆط²ظٹط¹ ط§ظ„ط¨ط¶ط§ط¹ط© ط¹ط¨ط± ط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ (3 ظپط±ظˆط¹)</span>
                                 <i class="fa-solid fa-chevron-down toggle-arrow" id="wh-icon-${it.id}" style="${isWhExpanded ? 'transform:rotate(180deg);' : ''}"></i>
                             </button>
 
                             <!-- Expandable Warehouse Drawer -->
                             <div class="inv-wh-drawer ${isWhExpanded ? 'active' : ''}" id="wh-drawer-${it.id}">
                                 <div class="inv-wh-row">
-                                    <span><i class="fa-solid fa-building text-sky-400"></i> المستودع المركزي (السجانة):</span>
-                                    <strong>${wh.central || 0} ${it.primaryUnit || 'طن'} <small style="font-size:0.78rem; color:var(--primary);">(${Math.round((wh.central || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'سيخة'})</small></strong>
+                                    <span><i class="fa-solid fa-building text-sky-400"></i> ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ (ط§ظ„ط³ط¬ط§ظ†ط©):</span>
+                                    <strong>${wh.central || 0} ${it.primaryUnit || 'ط·ظ†'} <small style="font-size:0.78rem; color:var(--primary);">(${Math.round((wh.central || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'ط³ظٹط®ط©'})</small></strong>
                                 </div>
                                 <div class="inv-wh-row">
-                                    <span><i class="fa-solid fa-store text-emerald-400"></i> حظيرة الكلاكلة الميدانية:</span>
-                                    <strong>${wh.kalakla || 0} ${it.primaryUnit || 'طن'} <small style="font-size:0.78rem; color:var(--emerald);">(${Math.round((wh.kalakla || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'سيخة'})</small></strong>
+                                    <span><i class="fa-solid fa-store text-emerald-400"></i> ط­ط¸ظٹط±ط© ط§ظ„ظƒظ„ط§ظƒظ„ط© ط§ظ„ظ…ظٹط¯ط§ظ†ظٹط©:</span>
+                                    <strong>${wh.kalakla || 0} ${it.primaryUnit || 'ط·ظ†'} <small style="font-size:0.78rem; color:var(--emerald);">(${Math.round((wh.kalakla || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'ط³ظٹط®ط©'})</small></strong>
                                 </div>
                                 <div class="inv-wh-row">
-                                    <span><i class="fa-solid fa-industry text-amber-400"></i> معرض بحري الصناعي:</span>
-                                    <strong>${wh.bahri || 0} ${it.primaryUnit || 'طن'} <small style="font-size:0.78rem; color:var(--amber);">(${Math.round((wh.bahri || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'سيخة'})</small></strong>
+                                    <span><i class="fa-solid fa-industry text-amber-400"></i> ظ…ط¹ط±ط¶ ط¨ط­ط±ظٹ ط§ظ„طµظ†ط§ط¹ظٹ:</span>
+                                    <strong>${wh.bahri || 0} ${it.primaryUnit || 'ط·ظ†'} <small style="font-size:0.78rem; color:var(--amber);">(${Math.round((wh.bahri || 0) * (it.unitRatio || 120))} ${it.secondaryUnit || 'ط³ظٹط®ط©'})</small></strong>
                                 </div>
                             </div>
 
                             <!-- 3-Action Yard Footer Buttons -->
                             <div class="inv-card-actions">
                                 <button type="button" class="inv-act-btn act-transfer" onclick="StockTransferEngine.openTransferSheet(${it.id})">
-                                    <i class="fa-solid fa-truck-ramp-box"></i> تحويل
+                                    <i class="fa-solid fa-truck-ramp-box"></i> طھط­ظˆظٹظ„
                                 </button>
                                 <button type="button" class="inv-act-btn act-audit" onclick="InventoryEngine.openQuickAudit(${it.id})">
-                                    <i class="fa-solid fa-clipboard-check"></i> جرد ميداني
+                                    <i class="fa-solid fa-clipboard-check"></i> ط¬ط±ط¯ ظ…ظٹط¯ط§ظ†ظٹ
                                 </button>
                                 <button type="button" class="inv-act-btn act-sale" onclick="openBottomSheet('sheet-sale')">
-                                    <i class="fa-solid fa-plus"></i> بيع فوري
+                                    <i class="fa-solid fa-plus"></i> ط¨ظٹط¹ ظپظˆط±ظٹ
                                 </button>
                             </div>
                         </div>
@@ -13691,10 +13685,10 @@ try {
 
                 if (nameEl) nameEl.innerText = item.name;
                 if (skuEl) skuEl.innerText = `SKU: ${item.sku || ('SKU-' + item.id)}`;
-                if (unitEl) unitEl.innerText = `الوحدة: ${item.primaryUnit || 'طن'} (${item.unitRatio || 120} ${item.secondaryUnit || 'سيخة'})`;
+                if (unitEl) unitEl.innerText = `ط§ظ„ظˆط­ط¯ط©: ${item.primaryUnit || 'ط·ظ†'} (${item.unitRatio || 120} ${item.secondaryUnit || 'ط³ظٹط®ط©'})`;
                 
-                const curBranchLabel = localStorage.getItem('magaiees_branch_label') || 'المستودع الرئيسي (السجانة)';
-                if (branchEl) branchEl.innerText = `المستودع: ${curBranchLabel}`;
+                const curBranchLabel = localStorage.getItem('magaiees_branch_label') || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ط±ط¦ظٹط³ظٹ (ط§ظ„ط³ط¬ط§ظ†ط©)';
+                if (branchEl) branchEl.innerText = `ط§ظ„ظ…ط³طھظˆط¯ط¹: ${curBranchLabel}`;
 
                 const seqEl = document.getElementById('audit-seq-badge');
                 if (seqEl && window.DualNumberingEngine) {
@@ -13709,7 +13703,7 @@ try {
                 }
                 if (tsEl) {
                     const now = new Date();
-                    tsEl.innerText = `التوقيت: ${now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
+                    tsEl.innerText = `ط§ظ„طھظˆظ‚ظٹطھ: ${now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}`;
                 }
             },
 
@@ -13733,16 +13727,16 @@ try {
                     badgeEl.className = 'audit-variance-badge';
                     if (variance === 0) {
                         badgeEl.classList.add('var-match');
-                        txtEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> الرصيد الفعلي مطابق تماماً للرصيد الدفتري';
-                        unitsEl.innerText = `0 ${item?.primaryUnit || 'وحدة'}`;
+                        txtEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> ط§ظ„ط±طµظٹط¯ ط§ظ„ظپط¹ظ„ظٹ ظ…ط·ط§ط¨ظ‚ طھظ…ط§ظ…ط§ظ‹ ظ„ظ„ط±طµظٹط¯ ط§ظ„ط¯ظپطھط±ظٹ';
+                        unitsEl.innerText = `0 ${item?.primaryUnit || 'ظˆط­ط¯ط©'}`;
                     } else if (variance < 0) {
                         badgeEl.classList.add('var-short');
-                        txtEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> عجز ميداني (نقص في البضاعة)`;
-                        unitsEl.innerText = `${Math.abs(variance)} ${item?.primaryUnit || 'وحدة'}`;
+                        txtEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ط¹ط¬ط² ظ…ظٹط¯ط§ظ†ظٹ (ظ†ظ‚طµ ظپظٹ ط§ظ„ط¨ط¶ط§ط¹ط©)`;
+                        unitsEl.innerText = `${Math.abs(variance)} ${item?.primaryUnit || 'ظˆط­ط¯ط©'}`;
                     } else {
                         badgeEl.classList.add('var-surplus');
-                        txtEl.innerHTML = `<i class="fa-solid fa-box-open"></i> فائض ميداني (بضاعة إضافية غير مقيدة)`;
-                        unitsEl.innerText = `+${variance} ${item?.primaryUnit || 'وحدة'}`;
+                        txtEl.innerHTML = `<i class="fa-solid fa-box-open"></i> ظپط§ط¦ط¶ ظ…ظٹط¯ط§ظ†ظٹ (ط¨ط¶ط§ط¹ط© ط¥ط¶ط§ظپظٹط© ط؛ظٹط± ظ…ظ‚ظٹط¯ط©)`;
+                        unitsEl.innerText = `+${variance} ${item?.primaryUnit || 'ظˆط­ط¯ط©'}`;
                     }
                 }
             },
@@ -13794,10 +13788,10 @@ try {
                     systemQty: sysQty,
                     physicalQty: physQty,
                     variance: variance,
-                    unit: item.primaryUnit || 'طن',
+                    unit: item.primaryUnit || 'ط·ظ†',
                     reason: reason,
                     notes: notes,
-                    auditor: 'أمين المستودع الميداني'
+                    auditor: 'ط£ظ…ظٹظ† ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ظٹط¯ط§ظ†ظٹ'
                 }) : {
                     id: 'AUD-OFF-' + Date.now(),
                     local_seq: 'AUD-OFF-' + Date.now(),
@@ -13808,10 +13802,10 @@ try {
                     systemQty: sysQty,
                     physicalQty: physQty,
                     variance: variance,
-                    unit: item.primaryUnit || 'طن',
+                    unit: item.primaryUnit || 'ط·ظ†',
                     reason: reason,
                     notes: notes,
-                    auditor: 'أمين المستودع الميداني',
+                    auditor: 'ط£ظ…ظٹظ† ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ظٹط¯ط§ظ†ظٹ',
                     timestamp: new Date().toISOString()
                 };
                 if (!auditRecord.id) auditRecord.id = auditRecord.local_seq;
@@ -13827,16 +13821,16 @@ try {
                 closeBottomSheet('sheet-item-audit');
                 if (typeof playSoundEffect === 'function') playSoundEffect('cash');
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم اعتماد جرد الصنف [${auditRecord.local_seq || auditRecord.id}] وتحديث الرصيد إلى ${physQty} ${item.primaryUnit}!`, 'success', 3500);
+                    window.showModernToast(`âœ… طھظ… ط§ط¹طھظ…ط§ط¯ ط¬ط±ط¯ ط§ظ„طµظ†ظپ [${auditRecord.local_seq || auditRecord.id}] ظˆطھط­ط¯ظٹط« ط§ظ„ط±طµظٹط¯ ط¥ظ„ظ‰ ${physQty} ${item.primaryUnit}!`, 'success', 3500);
                 }
 
                 this.render();
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🔄 INTER-WAREHOUSE STOCK TRANSFER ENGINE (MODULE 2)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں”„ INTER-WAREHOUSE STOCK TRANSFER ENGINE (MODULE 2)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.StockTransferEngine = {
             sourceWh: 'central',
             destWh: 'kalakla',
@@ -13846,9 +13840,9 @@ try {
             selectedItemId: null,
 
             warehouseNames: {
-                central: '🏢 السجانة المركزي',
-                kalakla: '🏬 الكلاكلة الجنوبي',
-                bahri: '🏭 بحري الصناعي'
+                central: 'ًںڈ¢ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ',
+                kalakla: 'ًںڈ¬ ط§ظ„ظƒظ„ط§ظƒظ„ط© ط§ظ„ط¬ظ†ظˆط¨ظٹ',
+                bahri: 'ًںڈ­ ط¨ط­ط±ظٹ ط§ظ„طµظ†ط§ط¹ظٹ'
             },
 
             initTransferModal(presetItemId) {
@@ -13866,9 +13860,9 @@ try {
                 // Populate items select dropdown
                 const sel = document.getElementById('transfer-item-select');
                 if (sel) {
-                    let opts = '<option value="">-- اختر الصنف للشحن والتحويل --</option>';
+                    let opts = '<option value="">-- ط§ط®طھط± ط§ظ„طµظ†ظپ ظ„ظ„ط´ط­ظ† ظˆط§ظ„طھط­ظˆظٹظ„ --</option>';
                     M_ITEMS.forEach(it => {
-                        opts += `<option value="${it.id}">[${it.sku || it.id}] ${it.name} (${it.stock} ${it.primaryUnit || 'وحدة'})</option>`;
+                        opts += `<option value="${it.id}">[${it.sku || it.id}] ${it.name} (${it.stock} ${it.primaryUnit || 'ظˆط­ط¯ط©'})</option>`;
                     });
                     sel.innerHTML = opts;
                     if (presetItemId) {
@@ -13960,8 +13954,8 @@ try {
 
                 const btnPri = document.getElementById('btn-unit-primary');
                 const btnSec = document.getElementById('btn-unit-secondary');
-                if (btnPri) btnPri.innerText = `وحدة كبرى (${item.primaryUnit || 'طن'})`;
-                if (btnSec) btnSec.innerText = `تجزئة (${item.secondaryUnit || 'سيخة'})`;
+                if (btnPri) btnPri.innerText = `ظˆط­ط¯ط© ظƒط¨ط±ظ‰ (${item.primaryUnit || 'ط·ظ†'})`;
+                if (btnSec) btnSec.innerText = `طھط¬ط²ط¦ط© (${item.secondaryUnit || 'ط³ظٹط®ط©'})`;
 
                 // Calculate available stock in selected source warehouse
                 const whStock = item.warehouseStock || {};
@@ -13973,7 +13967,7 @@ try {
                 const isSec = (this.unitMode === 'secondary');
                 const ratio = item.unitRatio || 120;
                 const maxAvail = isSec ? (availInSource * ratio) : availInSource;
-                const unitName = isSec ? (item.secondaryUnit || 'سيخة') : (item.primaryUnit || 'طن');
+                const unitName = isSec ? (item.secondaryUnit || 'ط³ظٹط®ط©') : (item.primaryUnit || 'ط·ظ†');
 
                 const availEl = document.getElementById('transfer-source-avail');
                 if (availEl) {
@@ -13999,7 +13993,7 @@ try {
                 const isSec = (this.unitMode === 'secondary');
                 const ratio = item.unitRatio || 120;
                 const maxAvail = isSec ? (availInSource * ratio) : availInSource;
-                const unitName = isSec ? (item.secondaryUnit || 'سيخة') : (item.primaryUnit || 'طن');
+                const unitName = isSec ? (item.secondaryUnit || 'ط³ظٹط®ط©') : (item.primaryUnit || 'ط·ظ†');
 
                 const requestedQty = parseFloat(val || 0);
                 const guardEl = document.getElementById('transfer-ceiling-guard');
@@ -14008,7 +14002,7 @@ try {
 
                 if (requestedQty > maxAvail) {
                     if (guardEl) guardEl.style.display = 'flex';
-                    if (msgEl) msgEl.innerText = `⚠️ الكمية المطلوبة (${requestedQty} ${unitName}) تتجاوز الرصيد المتاح بالمستودع (${maxAvail} ${unitName})!`;
+                    if (msgEl) msgEl.innerText = `âڑ ï¸ڈ ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط·ظ„ظˆط¨ط© (${requestedQty} ${unitName}) طھطھط¬ط§ظˆط² ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط§ط­ ط¨ط§ظ„ظ…ط³طھظˆط¯ط¹ (${maxAvail} ${unitName})!`;
                     if (qtyInp) qtyInp.style.borderColor = 'var(--rose)';
                     return false;
                 } else {
@@ -14025,9 +14019,9 @@ try {
                     if (found) {
                         const sel = document.getElementById('transfer-item-select');
                         if (sel) { sel.value = found.id; this.onTransferItemSelect(sel); }
-                        if (window.showModernToast) window.showModernToast(`📸 تم التقاط: ${found.name}`, 'success', 2000);
+                        if (window.showModernToast) window.showModernToast(`ًں“¸ طھظ… ط§ظ„طھظ‚ط§ط·: ${found.name}`, 'success', 2000);
                     } else {
-                        if (window.showModernToast) window.showModernToast(`⚠️ الباركود (${code}) غير مطابق لأي صنف`, 'warning', 3000);
+                        if (window.showModernToast) window.showModernToast(`âڑ ï¸ڈ ط§ظ„ط¨ط§ط±ظƒظˆط¯ (${code}) ط؛ظٹط± ظ…ط·ط§ط¨ظ‚ ظ„ط£ظٹ طµظ†ظپ`, 'warning', 3000);
                     }
                 });
             },
@@ -14035,26 +14029,26 @@ try {
             addItemToBasket() {
                 const item = M_ITEMS.find(x => String(x.id) === String(this.selectedItemId));
                 if (!item) {
-                    if (window.showModernToast) window.showModernToast('يرجى اختيار صنف أولاً', 'warning');
+                    if (window.showModernToast) window.showModernToast('ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± طµظ†ظپ ط£ظˆظ„ط§ظ‹', 'warning');
                     return;
                 }
 
                 const qtyInp = document.getElementById('transfer-qty-input');
                 const qty = parseFloat(qtyInp?.value || 0);
                 if (qty <= 0) {
-                    if (window.showModernToast) window.showModernToast('يرجى إدخال كمية صحيحة أكبر من صفر', 'warning');
+                    if (window.showModernToast) window.showModernToast('ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ظƒظ…ظٹط© طµط­ظٹط­ط© ط£ظƒط¨ط± ظ…ظ† طµظپط±', 'warning');
                     return;
                 }
 
                 if (!this.checkCeilingGuard(qty)) {
                     triggerHaptic('heavy');
-                    if (window.showModernToast) window.showModernToast('❌ لا يمكن إضافة كمية تتجاوز الرصيد المتاح!', 'error');
+                    if (window.showModernToast) window.showModernToast('â‌Œ ظ„ط§ ظٹظ…ظƒظ† ط¥ط¶ط§ظپط© ظƒظ…ظٹط© طھطھط¬ط§ظˆط² ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط§ط­!', 'error');
                     return;
                 }
 
                 triggerHaptic('light');
                 const isSec = (this.unitMode === 'secondary');
-                const unitName = isSec ? (item.secondaryUnit || 'سيخة') : (item.primaryUnit || 'طن');
+                const unitName = isSec ? (item.secondaryUnit || 'ط³ظٹط®ط©') : (item.primaryUnit || 'ط·ظ†');
 
                 const existingIdx = this.basket.findIndex(x => String(x.itemId) === String(item.id) && x.unit === unitName);
                 if (existingIdx >= 0) {
@@ -14074,7 +14068,7 @@ try {
                 if (qtyInp) qtyInp.value = '';
                 this.renderBasket();
                 if (window.showModernToast) {
-                    window.showModernToast(`📦 تمت إضافة [${item.name}] لمنافست الشحن`, 'success', 2000);
+                    window.showModernToast(`ًں“¦ طھظ…طھ ط¥ط¶ط§ظپط© [${item.name}] ظ„ظ…ظ†ط§ظپط³طھ ط§ظ„ط´ط­ظ†`, 'success', 2000);
                 }
             },
 
@@ -14094,13 +14088,13 @@ try {
 
                 let totalUnits = 0;
                 this.basket.forEach(b => totalUnits += b.qty);
-                if (totalWeightEl) totalWeightEl.innerText = `إجمالي: ${totalUnits} وحدة`;
+                if (totalWeightEl) totalWeightEl.innerText = `ط¥ط¬ظ…ط§ظ„ظٹ: ${totalUnits} ظˆط­ط¯ط©`;
 
                 if (this.basket.length === 0) {
                     container.innerHTML = `
                         <div style="text-align:center; padding:16px; background:var(--surface-sub); border-radius:12px; color:var(--text-muted); font-size:0.78rem;">
                             <i class="fa-solid fa-basket-shopping" style="font-size:1.4rem; margin-bottom:4px; opacity:0.6;"></i>
-                            <div>منافست الشحن فارغة حالياً. أضف الأصناف أعلاه لبدء التحويل.</div>
+                            <div>ظ…ظ†ط§ظپط³طھ ط§ظ„ط´ط­ظ† ظپط§ط±ط؛ط© ط­ط§ظ„ظٹط§ظ‹. ط£ط¶ظپ ط§ظ„ط£طµظ†ط§ظپ ط£ط¹ظ„ط§ظ‡ ظ„ط¨ط¯ط، ط§ظ„طھط­ظˆظٹظ„.</div>
                         </div>
                     `;
                     return;
@@ -14113,7 +14107,7 @@ try {
                             <div>
                                 <strong style="color:var(--text-main); font-size:0.84rem;">${item.name}</strong>
                                 <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">
-                                    ${item.sku} • وحدة: <strong style="color:var(--primary);">${item.unit}</strong>
+                                    ${item.sku} â€¢ ظˆط­ط¯ط©: <strong style="color:var(--primary);">${item.unit}</strong>
                                 </div>
                             </div>
                             <div style="display:flex; align-items:center; gap:8px;">
@@ -14121,7 +14115,7 @@ try {
                                     ${item.qty}
                                 </span>
                                 <button type="button" class="btn-sheet-close" style="width:26px; height:26px; font-size:0.75rem;" onclick="StockTransferEngine.removeBasketItem(${idx})">
-                                    ✕
+                                    âœ•
                                 </button>
                             </div>
                         </div>
@@ -14133,11 +14127,11 @@ try {
             saveDraft() {
                 triggerHaptic('light');
                 if (this.basket.length === 0) {
-                    if (window.showModernToast) window.showModernToast('منافست التحويل فارغة!', 'warning');
+                    if (window.showModernToast) window.showModernToast('ظ…ظ†ط§ظپط³طھ ط§ظ„طھط­ظˆظٹظ„ ظپط§ط±ط؛ط©!', 'warning');
                     return;
                 }
                 if (window.showModernToast) {
-                    window.showModernToast(`💾 تم حفظ مسودة التحويل #${this.currentTransferNo}`, 'info', 2500);
+                    window.showModernToast(`ًں’¾ طھظ… ط­ظپط¸ ظ…ط³ظˆط¯ط© ط§ظ„طھط­ظˆظٹظ„ #${this.currentTransferNo}`, 'info', 2500);
                 }
                 closeBottomSheet('sheet-stock-transfer');
             },
@@ -14145,12 +14139,12 @@ try {
             confirmAndDispatch() {
                 if (this.basket.length === 0) {
                     triggerHaptic('heavy');
-                    if (window.showModernToast) window.showModernToast('⚠️ يجب إضافة صنف واحد على الأقل للمنافست!', 'warning');
+                    if (window.showModernToast) window.showModernToast('âڑ ï¸ڈ ظٹط¬ط¨ ط¥ط¶ط§ظپط© طµظ†ظپ ظˆط§ط­ط¯ ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„ ظ„ظ„ظ…ظ†ط§ظپط³طھ!', 'warning');
                     return;
                 }
 
-                const driver = document.getElementById('transfer-driver-name')?.value || 'محمد عثمان (سائق شاحنة)';
-                const plate = document.getElementById('transfer-vehicle-plate')?.value || 'خ 12 - 4892';
+                const driver = document.getElementById('transfer-driver-name')?.value || 'ظ…ط­ظ…ط¯ ط¹ط«ظ…ط§ظ† (ط³ط§ط¦ظ‚ ط´ط§ط­ظ†ط©)';
+                const plate = document.getElementById('transfer-vehicle-plate')?.value || 'ط® 12 - 4892';
 
                 triggerHaptic('heavy');
                 this.updatePipelineStatus('in_transit');
@@ -14215,7 +14209,7 @@ try {
 
                 if (typeof playSoundEffect === 'function') playSoundEffect('cash');
                 if (window.showModernToast) {
-                    window.showModernToast(`🚚 تم تأكيد الشحن وإصدار بوليصة التحويل [${localSeq}]`, 'success', 3500);
+                    window.showModernToast(`ًںڑڑ طھظ… طھط£ظƒظٹط¯ ط§ظ„ط´ط­ظ† ظˆط¥طµط¯ط§ط± ط¨ظˆظ„ظٹطµط© ط§ظ„طھط­ظˆظٹظ„ [${localSeq}]`, 'success', 3500);
                 }
 
                 if (window.InventoryEngine) window.InventoryEngine.render();
@@ -14238,31 +14232,31 @@ try {
 
                 paperEl.innerHTML = `
                     <div style="text-align:center; padding-bottom:8px; border-bottom:2px dashed #000; margin-bottom:8px;">
-                        <div style="font-size:1.15rem; font-weight:900; color:#000;">شركة السجانة للتجارة والإنشاءات</div>
-                        <div style="font-size:0.78rem; font-weight:800; color:#333;">بوليصة شحن وترحيل بضاعة بين المستودعات</div>
+                        <div style="font-size:1.15rem; font-weight:900; color:#000;">ط´ط±ظƒط© ط§ظ„ط³ط¬ط§ظ†ط© ظ„ظ„طھط¬ط§ط±ط© ظˆط§ظ„ط¥ظ†ط´ط§ط،ط§طھ</div>
+                        <div style="font-size:0.78rem; font-weight:800; color:#333;">ط¨ظˆظ„ظٹطµط© ط´ط­ظ† ظˆطھط±ط­ظٹظ„ ط¨ط¶ط§ط¹ط© ط¨ظٹظ† ط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ</div>
                         <div style="font-family:'Inter',monospace; font-size:0.95rem; font-weight:900; color:#000; margin-top:4px;">
                             #${record.waybillNo}
                         </div>
                     </div>
 
                     <div style="display:flex; justify-content:space-between; font-size:0.74rem; font-weight:800; color:#111; margin-bottom:6px;">
-                        <span>التاريخ: ${new Date(record.timestamp).toLocaleDateString('ar-EG')}</span>
-                        <span>الوقت: ${new Date(record.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span>ط§ظ„طھط§ط±ظٹط®: ${new Date(record.timestamp).toLocaleDateString('ar-EG')}</span>
+                        <span>ط§ظ„ظˆظ‚طھ: ${new Date(record.timestamp).toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })}</span>
                     </div>
 
                     <div style="background:#f3f4f6; border-radius:8px; padding:8px; font-size:0.76rem; font-weight:800; color:#111; margin-bottom:10px; line-height:1.6;">
-                        <div>🏢 من مستودع: <strong>${record.sourceWhName}</strong></div>
-                        <div>🏬 إلى مستودع: <strong>${record.destWhName}</strong></div>
-                        <div>🚛 الناقل / السائق: <strong>${record.driver}</strong> (لوحة: ${record.vehicle})</div>
-                        <div>حالة البوليصة: <span style="background:#e0e7ff; color:#4338ca; padding:1px 6px; border-radius:4px; font-weight:900;">${record.status === 'received' ? '✅ تم الاستلام والتأكيد' : '🚚 جاري الشحن والنقل'}</span></div>
+                        <div>ًںڈ¢ ظ…ظ† ظ…ط³طھظˆط¯ط¹: <strong>${record.sourceWhName}</strong></div>
+                        <div>ًںڈ¬ ط¥ظ„ظ‰ ظ…ط³طھظˆط¯ط¹: <strong>${record.destWhName}</strong></div>
+                        <div>ًںڑ› ط§ظ„ظ†ط§ظ‚ظ„ / ط§ظ„ط³ط§ط¦ظ‚: <strong>${record.driver}</strong> (ظ„ظˆط­ط©: ${record.vehicle})</div>
+                        <div>ط­ط§ظ„ط© ط§ظ„ط¨ظˆظ„ظٹطµط©: <span style="background:#e0e7ff; color:#4338ca; padding:1px 6px; border-radius:4px; font-weight:900;">${record.status === 'received' ? 'âœ… طھظ… ط§ظ„ط§ط³طھظ„ط§ظ… ظˆط§ظ„طھط£ظƒظٹط¯' : 'ًںڑڑ ط¬ط§ط±ظٹ ط§ظ„ط´ط­ظ† ظˆط§ظ„ظ†ظ‚ظ„'}</span></div>
                     </div>
 
                     <table style="width:100%; border-collapse:collapse; margin-bottom:10px;">
                         <thead>
                             <tr style="background:#e5e7eb; border-bottom:1.5px solid #000;">
-                                <th style="padding:4px; font-size:0.74rem; text-align:right;">بيان الصنف</th>
-                                <th style="padding:4px; font-size:0.74rem; text-align:center;">الكمية</th>
-                                <th style="padding:4px; font-size:0.74rem; text-align:center;">الوحدة</th>
+                                <th style="padding:4px; font-size:0.74rem; text-align:right;">ط¨ظٹط§ظ† ط§ظ„طµظ†ظپ</th>
+                                <th style="padding:4px; font-size:0.74rem; text-align:center;">ط§ظ„ظƒظ…ظٹط©</th>
+                                <th style="padding:4px; font-size:0.74rem; text-align:center;">ط§ظ„ظˆط­ط¯ط©</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -14271,8 +14265,8 @@ try {
                     </table>
 
                     <div style="border-top:1.5px dashed #000; padding-top:8px; margin-top:8px; display:flex; justify-content:space-between; font-size:0.72rem; font-weight:800;">
-                        <div>توقيع أمين الشحن:<br><br>_________________</div>
-                        <div>توقيع أمين الاستلام:<br><br>_________________</div>
+                        <div>طھظˆظ‚ظٹط¹ ط£ظ…ظٹظ† ط§ظ„ط´ط­ظ†:<br><br>_________________</div>
+                        <div>طھظˆظ‚ظٹط¹ ط£ظ…ظٹظ† ط§ظ„ط§ط³طھظ„ط§ظ…:<br><br>_________________</div>
                     </div>
                 `;
             },
@@ -14322,7 +14316,7 @@ try {
 
                 if (typeof playSoundEffect === 'function') playSoundEffect('cash');
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم تأكيد استلام الشحنة في مستودع الوجهة ومطابقتها بنجاح!`, 'success', 3500);
+                    window.showModernToast(`âœ… طھظ… طھط£ظƒظٹط¯ ط§ط³طھظ„ط§ظ… ط§ظ„ط´ط­ظ†ط© ظپظٹ ظ…ط³طھظˆط¯ط¹ ط§ظ„ظˆط¬ظ‡ط© ظˆظ…ط·ط§ط¨ظ‚طھظ‡ط§ ط¨ظ†ط¬ط§ط­!`, 'success', 3500);
                 }
 
                 if (window.InventoryEngine) window.InventoryEngine.render();
@@ -14331,7 +14325,7 @@ try {
             printThermalWaybill() {
                 triggerHaptic('medium');
                 if (window.showModernToast) {
-                    window.showModernToast('🖨️ جاري الاتصال بطابعة البلوتوث المحمولة وطباعة بوليصة الترحيل (80mm)...', 'info', 2500);
+                    window.showModernToast('ًں–¨ï¸ڈ ط¬ط§ط±ظٹ ط§ظ„ط§طھطµط§ظ„ ط¨ط·ط§ط¨ط¹ط© ط§ظ„ط¨ظ„ظˆطھظˆط« ط§ظ„ظ…ط­ظ…ظˆظ„ط© ظˆط·ط¨ط§ط¹ط© ط¨ظˆظ„ظٹطµط© ط§ظ„طھط±ط­ظٹظ„ (80mm)...', 'info', 2500);
                 }
                 setTimeout(() => {
                     window.print();
@@ -14341,17 +14335,17 @@ try {
             shareWaybillWhatsApp() {
                 triggerHaptic('medium');
                 const itemsList = (this.basket && this.basket.length > 0) ? this.basket : (this.currentTransferRecord?.items || []);
-                const itemsTxt = itemsList.map(i => `▪ ${i.name} (${i.qty} ${i.unit})`).join('%0A');
-                const text = `*بوليصة شحن وترحيل بضاعة #${this.currentTransferNo}*%0A`
-                    + `من: ${this.warehouseNames[this.sourceWh]}%0A`
-                    + `إلى: ${this.warehouseNames[this.destWh]}%0A`
-                    + `السائق: ${document.getElementById('transfer-driver-name')?.value || 'محمد عثمان'}%0A`
-                    + `اللوحة: ${document.getElementById('transfer-vehicle-plate')?.value || 'خ 12 - 4892'}%0A`
-                    + `──────────────%0A`
+                const itemsTxt = itemsList.map(i => `â–ھ ${i.name} (${i.qty} ${i.unit})`).join('%0A');
+                const text = `*ط¨ظˆظ„ظٹطµط© ط´ط­ظ† ظˆطھط±ط­ظٹظ„ ط¨ط¶ط§ط¹ط© #${this.currentTransferNo}*%0A`
+                    + `ظ…ظ†: ${this.warehouseNames[this.sourceWh]}%0A`
+                    + `ط¥ظ„ظ‰: ${this.warehouseNames[this.destWh]}%0A`
+                    + `ط§ظ„ط³ط§ط¦ظ‚: ${document.getElementById('transfer-driver-name')?.value || 'ظ…ط­ظ…ط¯ ط¹ط«ظ…ط§ظ†'}%0A`
+                    + `ط§ظ„ظ„ظˆط­ط©: ${document.getElementById('transfer-vehicle-plate')?.value || 'ط® 12 - 4892'}%0A`
+                    + `â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€%0A`
                     + `${itemsTxt}%0A`
-                    + `──────────────%0A`
-                    + `الحالة: جاري النقل والتسليم%0A`
-                    + `تم الإصدار عبر تطبيق السجانة الميداني.`;
+                    + `â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€%0A`
+                    + `ط§ظ„ط­ط§ظ„ط©: ط¬ط§ط±ظٹ ط§ظ„ظ†ظ‚ظ„ ظˆط§ظ„طھط³ظ„ظٹظ…%0A`
+                    + `طھظ… ط§ظ„ط¥طµط¯ط§ط± ط¹ط¨ط± طھط·ط¨ظٹظ‚ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ظٹط¯ط§ظ†ظٹ.`;
                 window.open(`https://wa.me/?text=${text}`, '_blank');
             }
         };
@@ -14367,133 +14361,133 @@ try {
             if (window.InventoryEngine) window.InventoryEngine.onSearch(q);
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🛡️ EXECUTIVE APPROVALS HUB ENGINE (MODULE 3)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں›،ï¸ڈ EXECUTIVE APPROVALS HUB ENGINE (MODULE 3)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.ApprovalsHubEngine = {
             activeFilter: 'all',
             pendingRejectId: null,
-            selectedRejectReason: 'هامش ربح غير مقبول',
+            selectedRejectReason: 'ظ‡ط§ظ…ط´ ط±ط¨ط­ ط؛ظٹط± ظ…ظ‚ط¨ظˆظ„',
 
             requests: [
                 {
                     id: 'app_c1',
                     category: 'credit',
-                    categoryLabel: '🔴 تجاوز سقف الائتمان',
-                    priority: 'عاجل جداً',
-                    requester: 'الكاشير: عمر الفاتح',
-                    branch: 'فرع السجانة المركزي - صالة 1',
-                    time: 'منذ 14 دقيقة',
-                    party: 'شركة الفهد للمقاولات',
+                    categoryLabel: 'ًں”´ طھط¬ط§ظˆط² ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ†',
+                    priority: 'ط¹ط§ط¬ظ„ ط¬ط¯ط§ظ‹',
+                    requester: 'ط§ظ„ظƒط§ط´ظٹط±: ط¹ظ…ط± ط§ظ„ظپط§طھط­',
+                    branch: 'ظپط±ط¹ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ - طµط§ظ„ط© 1',
+                    time: 'ظ…ظ†ط° 14 ط¯ظ‚ظٹظ‚ط©',
+                    party: 'ط´ط±ظƒط© ط§ظ„ظپظ‡ط¯ ظ„ظ„ظ…ظ‚ط§ظˆظ„ط§طھ',
                     amount: 750000,
-                    metricTitle: 'تفاصيل تجاوز السقف المالي:',
+                    metricTitle: 'طھظپط§طµظٹظ„ طھط¬ط§ظˆط² ط§ظ„ط³ظ‚ظپ ط§ظ„ظ…ط§ظ„ظٹ:',
                     metrics: [
-                        { label: 'سقف الائتمان المعتمد', val: '3,000,000 SDG' },
-                        { label: 'الرصيد بعد الفاتورة', val: '4,850,000 SDG', highlight: 'rose' },
-                        { label: 'نسبة التجاوز الإجمالية', val: '+61.7% (+1,850,000 SDG)', highlight: 'rose' }
+                        { label: 'ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ† ط§ظ„ظ…ط¹طھظ…ط¯', val: '3,000,000 SDG' },
+                        { label: 'ط§ظ„ط±طµظٹط¯ ط¨ط¹ط¯ ط§ظ„ظپط§طھظˆط±ط©', val: '4,850,000 SDG', highlight: 'rose' },
+                        { label: 'ظ†ط³ط¨ط© ط§ظ„طھط¬ط§ظˆط² ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹط©', val: '+61.7% (+1,850,000 SDG)', highlight: 'rose' }
                     ],
-                    details: 'طلب اعتماد فاتورة بيع آجلة بقيمة 750,000 SDG لتوريد حديد تسليح لمشروع برج النخيل، متجاوزاً السقف الائتماني المعتمد.',
+                    details: 'ط·ظ„ط¨ ط§ط¹طھظ…ط§ط¯ ظپط§طھظˆط±ط© ط¨ظٹط¹ ط¢ط¬ظ„ط© ط¨ظ‚ظٹظ…ط© 750,000 SDG ظ„طھظˆط±ظٹط¯ ط­ط¯ظٹط¯ طھط³ظ„ظٹط­ ظ„ظ…ط´ط±ظˆط¹ ط¨ط±ط¬ ط§ظ„ظ†ط®ظٹظ„طŒ ظ…طھط¬ط§ظˆط²ط§ظ‹ ط§ظ„ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ†ظٹ ط§ظ„ظ…ط¹طھظ…ط¯.',
                     status: 'pending', // 'pending', 'approved', 'rejected', 'held'
                     statusNote: ''
                 },
                 {
                     id: 'app_c2',
                     category: 'credit',
-                    categoryLabel: '🔴 تجاوز سقف الائتمان',
-                    priority: 'عاجل جداً',
-                    requester: 'مسؤول المبيعات: محمد عادل',
-                    branch: 'حظيرة الكلاكلة',
-                    time: 'منذ 45 دقيقة',
-                    party: 'مؤسسة أم درمان الهندسية',
+                    categoryLabel: 'ًں”´ طھط¬ط§ظˆط² ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ†',
+                    priority: 'ط¹ط§ط¬ظ„ ط¬ط¯ط§ظ‹',
+                    requester: 'ظ…ط³ط¤ظˆظ„ ط§ظ„ظ…ط¨ظٹط¹ط§طھ: ظ…ط­ظ…ط¯ ط¹ط§ط¯ظ„',
+                    branch: 'ط­ط¸ظٹط±ط© ط§ظ„ظƒظ„ط§ظƒظ„ط©',
+                    time: 'ظ…ظ†ط° 45 ط¯ظ‚ظٹظ‚ط©',
+                    party: 'ظ…ط¤ط³ط³ط© ط£ظ… ط¯ط±ظ…ط§ظ† ط§ظ„ظ‡ظ†ط¯ط³ظٹط©',
                     amount: 1650000,
-                    metricTitle: 'سقف ائتماني متجاوز بنسبة حرجة:',
+                    metricTitle: 'ط³ظ‚ظپ ط§ط¦طھظ…ط§ظ†ظٹ ظ…طھط¬ط§ظˆط² ط¨ظ†ط³ط¨ط© ط­ط±ط¬ط©:',
                     metrics: [
-                        { label: 'سقف الائتمان', val: '2,000,000 SDG' },
-                        { label: 'الرصيد الحالي', val: '3,650,000 SDG', highlight: 'rose' },
-                        { label: 'التجاوز الفعلي', val: '+82.5% (+1,650,000 SDG)', highlight: 'rose' }
+                        { label: 'ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ†', val: '2,000,000 SDG' },
+                        { label: 'ط§ظ„ط±طµظٹط¯ ط§ظ„ط­ط§ظ„ظٹ', val: '3,650,000 SDG', highlight: 'rose' },
+                        { label: 'ط§ظ„طھط¬ط§ظˆط² ط§ظ„ظپط¹ظ„ظٹ', val: '+82.5% (+1,650,000 SDG)', highlight: 'rose' }
                     ],
-                    details: 'سحب مواد بالآجل لمشروع بنية تحتية متعاقد عليه، مع التزام العميل بسداد 50% خلال أسبوع.',
+                    details: 'ط³ط­ط¨ ظ…ظˆط§ط¯ ط¨ط§ظ„ط¢ط¬ظ„ ظ„ظ…ط´ط±ظˆط¹ ط¨ظ†ظٹط© طھط­طھظٹط© ظ…طھط¹ط§ظ‚ط¯ ط¹ظ„ظٹظ‡طŒ ظ…ط¹ ط§ظ„طھط²ط§ظ… ط§ظ„ط¹ظ…ظٹظ„ ط¨ط³ط¯ط§ط¯ 50% ط®ظ„ط§ظ„ ط£ط³ط¨ظˆط¹.',
                     status: 'pending',
                     statusNote: ''
                 },
                 {
                     id: 'app_b1',
                     category: 'margin',
-                    categoryLabel: '⚠️ بيع تحت هامش الربح',
-                    priority: 'تحذير مالي حرج',
-                    requester: 'الكاشير: أحمد السر',
-                    branch: 'فرع السجانة المركزي - صالة 1',
-                    time: 'منذ 25 دقيقة',
-                    party: 'شركة المقاول طارق عثمان',
+                    categoryLabel: 'âڑ ï¸ڈ ط¨ظٹط¹ طھط­طھ ظ‡ط§ظ…ط´ ط§ظ„ط±ط¨ط­',
+                    priority: 'طھط­ط°ظٹط± ظ…ط§ظ„ظٹ ط­ط±ط¬',
+                    requester: 'ط§ظ„ظƒط§ط´ظٹط±: ط£ط­ظ…ط¯ ط§ظ„ط³ط±',
+                    branch: 'ظپط±ط¹ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ - طµط§ظ„ط© 1',
+                    time: 'ظ…ظ†ط° 25 ط¯ظ‚ظٹظ‚ط©',
+                    party: 'ط´ط±ظƒط© ط§ظ„ظ…ظ‚ط§ظˆظ„ ط·ط§ط±ظ‚ ط¹ط«ظ…ط§ظ†',
                     amount: 820000,
-                    metricTitle: 'مؤشرات كسر هامش الربح المعتمد:',
+                    metricTitle: 'ظ…ط¤ط´ط±ط§طھ ظƒط³ط± ظ‡ط§ظ…ط´ ط§ظ„ط±ط¨ط­ ط§ظ„ظ…ط¹طھظ…ط¯:',
                     metrics: [
-                        { label: 'سعر البيع المطلوب', val: '820,000 SDG/طن', highlight: 'rose' },
-                        { label: 'أدنى سعر معتمد (Floor)', val: '850,000 SDG (التكلفة: 810,000)' },
-                        { label: 'الفارق عن السعر المعتمد', val: '-3.5% (-30,000 SDG)', highlight: 'amber' },
-                        { label: 'هامش الربح المتبقي', val: '1.2% فقط (الأدنى المسموح: 5.0%)', highlight: 'rose' }
+                        { label: 'ط³ط¹ط± ط§ظ„ط¨ظٹط¹ ط§ظ„ظ…ط·ظ„ظˆط¨', val: '820,000 SDG/ط·ظ†', highlight: 'rose' },
+                        { label: 'ط£ط¯ظ†ظ‰ ط³ط¹ط± ظ…ط¹طھظ…ط¯ (Floor)', val: '850,000 SDG (ط§ظ„طھظƒظ„ظپط©: 810,000)' },
+                        { label: 'ط§ظ„ظپط§ط±ظ‚ ط¹ظ† ط§ظ„ط³ط¹ط± ط§ظ„ظ…ط¹طھظ…ط¯', val: '-3.5% (-30,000 SDG)', highlight: 'amber' },
+                        { label: 'ظ‡ط§ظ…ط´ ط§ظ„ط±ط¨ط­ ط§ظ„ظ…طھط¨ظ‚ظٹ', val: '1.2% ظپظ‚ط· (ط§ظ„ط£ط¯ظ†ظ‰ ط§ظ„ظ…ط³ظ…ظˆط­: 5.0%)', highlight: 'rose' }
                     ],
-                    details: 'طلب تخفيض سعر حديد تسليح تركي 16 ملم مششر لكسب توريد مناقصة برج النيل بكمية 10 أطنان.',
+                    details: 'ط·ظ„ط¨ طھط®ظپظٹط¶ ط³ط¹ط± ط­ط¯ظٹط¯ طھط³ظ„ظٹط­ طھط±ظƒظٹ 16 ظ…ظ„ظ… ظ…ط´ط´ط± ظ„ظƒط³ط¨ طھظˆط±ظٹط¯ ظ…ظ†ط§ظ‚طµط© ط¨ط±ط¬ ط§ظ„ظ†ظٹظ„ ط¨ظƒظ…ظٹط© 10 ط£ط·ظ†ط§ظ†.',
                     status: 'pending',
                     statusNote: ''
                 },
                 {
                     id: 'app_b2',
                     category: 'margin',
-                    categoryLabel: '⚠️ بيع دون هامش الربح',
-                    priority: 'تحذير مالي',
-                    requester: 'مسؤول المبيعات: خالد بابكر',
-                    branch: 'معرض بحري',
-                    time: 'منذ ساعة',
-                    party: 'ورشة الوفاق للحديد',
+                    categoryLabel: 'âڑ ï¸ڈ ط¨ظٹط¹ ط¯ظˆظ† ظ‡ط§ظ…ط´ ط§ظ„ط±ط¨ط­',
+                    priority: 'طھط­ط°ظٹط± ظ…ط§ظ„ظٹ',
+                    requester: 'ظ…ط³ط¤ظˆظ„ ط§ظ„ظ…ط¨ظٹط¹ط§طھ: ط®ط§ظ„ط¯ ط¨ط§ط¨ظƒط±',
+                    branch: 'ظ…ط¹ط±ط¶ ط¨ط­ط±ظٹ',
+                    time: 'ظ…ظ†ط° ط³ط§ط¹ط©',
+                    party: 'ظˆط±ط´ط© ط§ظ„ظˆظپط§ظ‚ ظ„ظ„ط­ط¯ظٹط¯',
                     amount: 385000,
-                    metricTitle: 'بيع بسعر التكلفة تقريباً:',
+                    metricTitle: 'ط¨ظٹط¹ ط¨ط³ط¹ط± ط§ظ„طھظƒظ„ظپط© طھظ‚ط±ظٹط¨ط§ظ‹:',
                     metrics: [
-                        { label: 'السعر المقترح', val: '38,500 SDG/لوح', highlight: 'rose' },
-                        { label: 'سعر التكلفة المباشرة', val: '38,000 SDG/لوح' },
-                        { label: 'الهامش المتبقي', val: '1.3% (أدنى من حد الأمان)', highlight: 'amber' }
+                        { label: 'ط§ظ„ط³ط¹ط± ط§ظ„ظ…ظ‚طھط±ط­', val: '38,500 SDG/ظ„ظˆط­', highlight: 'rose' },
+                        { label: 'ط³ط¹ط± ط§ظ„طھظƒظ„ظپط© ط§ظ„ظ…ط¨ط§ط´ط±ط©', val: '38,000 SDG/ظ„ظˆط­' },
+                        { label: 'ط§ظ„ظ‡ط§ظ…ط´ ط§ظ„ظ…طھط¨ظ‚ظٹ', val: '1.3% (ط£ط¯ظ†ظ‰ ظ…ظ† ط­ط¯ ط§ظ„ط£ظ…ط§ظ†)', highlight: 'amber' }
                     ],
-                    details: 'طلب خصم لتصفية 10 ألواح صاج مجلفن كوري قديمة بمعرض بحري.',
+                    details: 'ط·ظ„ط¨ ط®طµظ… ظ„طھطµظپظٹط© 10 ط£ظ„ظˆط§ط­ طµط§ط¬ ظ…ط¬ظ„ظپظ† ظƒظˆط±ظٹ ظ‚ط¯ظٹظ…ط© ط¨ظ…ط¹ط±ط¶ ط¨ط­ط±ظٹ.',
                     status: 'pending',
                     statusNote: ''
                 },
                 {
                     id: 'app_a1',
                     category: 'voucher',
-                    categoryLabel: '💎 سند مالي مرتفع (صرف)',
-                    priority: 'تدقيق فوري',
-                    requester: 'المحاسب: ياسر الطيب',
-                    branch: 'الإدارة المالية - السجانة',
-                    time: 'منذ ساعتين',
-                    party: 'محطة وقود النيلين',
+                    categoryLabel: 'ًں’ژ ط³ظ†ط¯ ظ…ط§ظ„ظٹ ظ…ط±طھظپط¹ (طµط±ظپ)',
+                    priority: 'طھط¯ظ‚ظٹظ‚ ظپظˆط±ظٹ',
+                    requester: 'ط§ظ„ظ…ط­ط§ط³ط¨: ظٹط§ط³ط± ط§ظ„ط·ظٹط¨',
+                    branch: 'ط§ظ„ط¥ط¯ط§ط±ط© ط§ظ„ظ…ط§ظ„ظٹط© - ط§ظ„ط³ط¬ط§ظ†ط©',
+                    time: 'ظ…ظ†ط° ط³ط§ط¹طھظٹظ†',
+                    party: 'ظ…ط­ط·ط© ظˆظ‚ظˆط¯ ط§ظ„ظ†ظٹظ„ظٹظ†',
                     amount: 1800000,
-                    metricTitle: 'تجاوز سقف الصرف الفوري للفرع:',
+                    metricTitle: 'طھط¬ط§ظˆط² ط³ظ‚ظپ ط§ظ„طµط±ظپ ط§ظ„ظپظˆط±ظٹ ظ„ظ„ظپط±ط¹:',
                     metrics: [
-                        { label: 'المبلغ المطلوب صرفه', val: '1,800,000 SDG', highlight: 'rose' },
-                        { label: 'سقف الصرف اللحظي المسموح', val: '500,000 SDG' },
-                        { label: 'الفائض فوق الصلاحية', val: '+1,300,000 SDG', highlight: 'amber' }
+                        { label: 'ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط·ظ„ظˆط¨ طµط±ظپظ‡', val: '1,800,000 SDG', highlight: 'rose' },
+                        { label: 'ط³ظ‚ظپ ط§ظ„طµط±ظپ ط§ظ„ظ„ط­ط¸ظٹ ط§ظ„ظ…ط³ظ…ظˆط­', val: '500,000 SDG' },
+                        { label: 'ط§ظ„ظپط§ط¦ط¶ ظپظˆظ‚ ط§ظ„طµظ„ط§ط­ظٹط©', val: '+1,300,000 SDG', highlight: 'amber' }
                     ],
-                    details: 'سند صرف نقدي لشراء وقود جازولين ودفع صيانة أسطول شاحنات التوزيع للأسبوع القادم.',
+                    details: 'ط³ظ†ط¯ طµط±ظپ ظ†ظ‚ط¯ظٹ ظ„ط´ط±ط§ط، ظˆظ‚ظˆط¯ ط¬ط§ط²ظˆظ„ظٹظ† ظˆط¯ظپط¹ طµظٹط§ظ†ط© ط£ط³ط·ظˆظ„ ط´ط§ط­ظ†ط§طھ ط§ظ„طھظˆط²ظٹط¹ ظ„ظ„ط£ط³ط¨ظˆط¹ ط§ظ„ظ‚ط§ط¯ظ….',
                     status: 'pending',
                     statusNote: ''
                 },
                 {
                     id: 'app_p1',
                     category: 'purchase',
-                    categoryLabel: '📦 أمر شراء وتوريد كبير',
-                    priority: 'اعتماد تعاقدي',
-                    requester: 'مدير المشتريات: عثمان البدوي',
-                    branch: 'المستودع المركزي',
-                    time: 'منذ 3 ساعات',
-                    party: 'مصنع أسمنت بربر',
+                    categoryLabel: 'ًں“¦ ط£ظ…ط± ط´ط±ط§ط، ظˆطھظˆط±ظٹط¯ ظƒط¨ظٹط±',
+                    priority: 'ط§ط¹طھظ…ط§ط¯ طھط¹ط§ظ‚ط¯ظٹ',
+                    requester: 'ظ…ط¯ظٹط± ط§ظ„ظ…ط´طھط±ظٹط§طھ: ط¹ط«ظ…ط§ظ† ط§ظ„ط¨ط¯ظˆظٹ',
+                    branch: 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ',
+                    time: 'ظ…ظ†ط° 3 ط³ط§ط¹ط§طھ',
+                    party: 'ظ…طµظ†ط¹ ط£ط³ظ…ظ†طھ ط¨ط±ط¨ط±',
                     amount: 8400000,
-                    metricTitle: 'أمر شراء بضاعة استراتيجية:',
+                    metricTitle: 'ط£ظ…ط± ط´ط±ط§ط، ط¨ط¶ط§ط¹ط© ط§ط³طھط±ط§طھظٹط¬ظٹط©:',
                     metrics: [
-                        { label: 'إجمالي قيمة الأمر', val: '8,400,000 SDG', highlight: 'purple' },
-                        { label: 'الكمية المطلوبة', val: '20 طن أسمنت بورتلاندي' },
-                        { label: 'الدفعة المقدمة المطلوبة', val: '50% (4,200,000 SDG)' }
+                        { label: 'ط¥ط¬ظ…ط§ظ„ظٹ ظ‚ظٹظ…ط© ط§ظ„ط£ظ…ط±', val: '8,400,000 SDG', highlight: 'purple' },
+                        { label: 'ط§ظ„ظƒظ…ظٹط© ط§ظ„ظ…ط·ظ„ظˆط¨ط©', val: '20 ط·ظ† ط£ط³ظ…ظ†طھ ط¨ظˆط±طھظ„ط§ظ†ط¯ظٹ' },
+                        { label: 'ط§ظ„ط¯ظپط¹ط© ط§ظ„ظ…ظ‚ط¯ظ…ط© ط§ظ„ظ…ط·ظ„ظˆط¨ط©', val: '50% (4,200,000 SDG)' }
                     ],
-                    details: 'طلب اعتماد أمر شراء وتغذية فورية لمخازن السجانة والكلاكلة تحسباً لارتفاع أسعار الأسمنت.',
+                    details: 'ط·ظ„ط¨ ط§ط¹طھظ…ط§ط¯ ط£ظ…ط± ط´ط±ط§ط، ظˆطھط؛ط°ظٹط© ظپظˆط±ظٹط© ظ„ظ…ط®ط§ط²ظ† ط§ظ„ط³ط¬ط§ظ†ط© ظˆط§ظ„ظƒظ„ط§ظƒظ„ط© طھط­ط³ط¨ط§ظ‹ ظ„ط§ط±طھظپط§ط¹ ط£ط³ط¹ط§ط± ط§ظ„ط£ط³ظ…ظ†طھ.',
                     status: 'pending',
                     statusNote: ''
                 }
@@ -14526,7 +14520,7 @@ try {
                 const totalPending = pending.length;
 
                 const hubBadge = document.getElementById('approvals-hub-total-badge');
-                if (hubBadge) hubBadge.innerText = `${totalPending} بانتظار القرار`;
+                if (hubBadge) hubBadge.innerText = `${totalPending} ط¨ط§ظ†طھط¸ط§ط± ط§ظ„ظ‚ط±ط§ط±`;
 
                 const bnavBadge = document.getElementById('bnav-approvals-badge');
                 if (bnavBadge) {
@@ -14565,20 +14559,20 @@ try {
                 if (!req) return;
 
                 req.status = 'approved';
-                req.statusNote = 'تم الاعتماد الإداري من المدير التنفيذي';
+                req.statusNote = 'طھظ… ط§ظ„ط§ط¹طھظ…ط§ط¯ ط§ظ„ط¥ط¯ط§ط±ظٹ ظ…ظ† ط§ظ„ظ…ط¯ظٹط± ط§ظ„طھظ†ظپظٹط°ظٹ';
                 this.saveResolution(id, 'approved', req.statusNote);
                 this.updateBadges();
                 this.render();
 
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم اعتماد الطلب [${req.party}] بنجاح وتمرير العملية`, 'success', 2500);
+                    window.showModernToast(`âœ… طھظ… ط§ط¹طھظ…ط§ط¯ ط§ظ„ط·ظ„ط¨ [${req.party}] ط¨ظ†ط¬ط§ط­ ظˆطھظ…ط±ظٹط± ط§ظ„ط¹ظ…ظ„ظٹط©`, 'success', 2500);
                 }
             },
 
             openRejectModal(id) {
                 triggerHaptic('medium');
                 this.pendingRejectId = id;
-                this.selectedRejectReason = 'هامش ربح غير مقبول';
+                this.selectedRejectReason = 'ظ‡ط§ظ…ط´ ط±ط¨ط­ ط؛ظٹط± ظ…ظ‚ط¨ظˆظ„';
                 const notesInp = document.getElementById('approval-reject-notes');
                 if (notesInp) notesInp.value = '';
                 openBottomSheet('sheet-approval-reject-reason');
@@ -14612,7 +14606,7 @@ try {
                 this.render();
 
                 if (window.showModernToast) {
-                    window.showModernToast(`❌ تم رفض الطلب [${req.party}]: ${finalReason}`, 'error', 2800);
+                    window.showModernToast(`â‌Œ طھظ… ط±ظپط¶ ط§ظ„ط·ظ„ط¨ [${req.party}]: ${finalReason}`, 'error', 2800);
                 }
             },
 
@@ -14622,13 +14616,13 @@ try {
                 if (!req) return;
 
                 req.status = 'held';
-                req.statusNote = 'تم تعليق الطلب لمراجعة إضافية على ديسكتوب المحاسبة';
+                req.statusNote = 'طھظ… طھط¹ظ„ظٹظ‚ ط§ظ„ط·ظ„ط¨ ظ„ظ…ط±ط§ط¬ط¹ط© ط¥ط¶ط§ظپظٹط© ط¹ظ„ظ‰ ط¯ظٹط³ظƒطھظˆط¨ ط§ظ„ظ…ط­ط§ط³ط¨ط©';
                 this.saveResolution(id, 'held', req.statusNote);
                 this.updateBadges();
                 this.render();
 
                 if (window.showModernToast) {
-                    window.showModernToast(`⏳ تم تعليق الطلب [${req.party}] للمراجعة اللاحقة`, 'warning', 2500);
+                    window.showModernToast(`âڈ³ طھظ… طھط¹ظ„ظٹظ‚ ط§ظ„ط·ظ„ط¨ [${req.party}] ظ„ظ„ظ…ط±ط§ط¬ط¹ط© ط§ظ„ظ„ط§ط­ظ‚ط©`, 'warning', 2500);
                 }
             },
 
@@ -14645,8 +14639,8 @@ try {
                     container.innerHTML = `
                         <div style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:14px; padding:35px 14px; text-align:center; color:var(--text-muted);">
                             <i class="fa-solid fa-shield-check" style="font-size:2.5rem; color:var(--emerald); opacity:0.6; margin-bottom:10px; display:block;"></i>
-                            <strong style="display:block; font-size:0.95rem; color:var(--text-main);">لا توجد طلبات معلقة ضمن هذا التصنيف</strong>
-                            <small>كافة حركات الفرع مطابقة لقواعد وضوابط الحوكمة المالية.</small>
+                            <strong style="display:block; font-size:0.95rem; color:var(--text-main);">ظ„ط§ طھظˆط¬ط¯ ط·ظ„ط¨ط§طھ ظ…ط¹ظ„ظ‚ط© ط¶ظ…ظ† ظ‡ط°ط§ ط§ظ„طھطµظ†ظٹظپ</strong>
+                            <small>ظƒط§ظپط© ط­ط±ظƒط§طھ ط§ظ„ظپط±ط¹ ظ…ط·ط§ط¨ظ‚ط© ظ„ظ‚ظˆط§ط¹ط¯ ظˆط¶ظˆط§ط¨ط· ط§ظ„ط­ظˆظƒظ…ط© ط§ظ„ظ…ط§ظ„ظٹط©.</small>
                         </div>
                     `;
                     return;
@@ -14662,16 +14656,16 @@ try {
                         statusClass = 'resolved-approved';
                         statusBanner = `
                             <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:10px; padding:8px 10px; margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:0.75rem; font-weight:800; color:var(--emerald);"><i class="fa-solid fa-circle-check"></i> ${req.statusNote || 'تم الاعتماد بنجاح'}</span>
-                                <small style="font-size:0.7rem; color:var(--text-muted);">معتمد 🔏</small>
+                                <span style="font-size:0.75rem; font-weight:800; color:var(--emerald);"><i class="fa-solid fa-circle-check"></i> ${req.statusNote || 'طھظ… ط§ظ„ط§ط¹طھظ…ط§ط¯ ط¨ظ†ط¬ط§ط­'}</span>
+                                <small style="font-size:0.7rem; color:var(--text-muted);">ظ…ط¹طھظ…ط¯ ًں”ڈ</small>
                             </div>
                         `;
                     } else if (req.status === 'rejected') {
                         statusClass = 'resolved-rejected';
                         statusBanner = `
                             <div style="background:rgba(244,63,94,0.12); border:1px solid rgba(244,63,94,0.3); border-radius:10px; padding:8px 10px; margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:0.75rem; font-weight:800; color:var(--rose);"><i class="fa-solid fa-ban"></i> مرفوض: ${req.statusNote}</span>
-                                <small style="font-size:0.7rem; color:var(--text-muted);">مرفوض ✕</small>
+                                <span style="font-size:0.75rem; font-weight:800; color:var(--rose);"><i class="fa-solid fa-ban"></i> ظ…ط±ظپظˆط¶: ${req.statusNote}</span>
+                                <small style="font-size:0.7rem; color:var(--text-muted);">ظ…ط±ظپظˆط¶ âœ•</small>
                             </div>
                         `;
                     } else if (req.status === 'held') {
@@ -14679,7 +14673,7 @@ try {
                         statusBanner = `
                             <div style="background:rgba(245,158,11,0.12); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:8px 10px; margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
                                 <span style="font-size:0.75rem; font-weight:800; color:var(--amber);"><i class="fa-solid fa-hourglass-half"></i> ${req.statusNote}</span>
-                                <small style="font-size:0.7rem; color:var(--text-muted);">معلّق ⏳</small>
+                                <small style="font-size:0.7rem; color:var(--text-muted);">ظ…ط¹ظ„ظ‘ظ‚ âڈ³</small>
                             </div>
                         `;
                     }
@@ -14731,13 +14725,13 @@ try {
                             ${isPending ? `
                                 <div class="approval-actions-bar">
                                     <button type="button" class="btn-app-action btn-app-approve" onclick="ApprovalsHubEngine.approve('${req.id}')">
-                                        <i class="fa-solid fa-check-double"></i> اعتماد
+                                        <i class="fa-solid fa-check-double"></i> ط§ط¹طھظ…ط§ط¯
                                     </button>
                                     <button type="button" class="btn-app-action btn-app-reject" onclick="ApprovalsHubEngine.openRejectModal('${req.id}')">
-                                        <i class="fa-solid fa-xmark"></i> رفض
+                                        <i class="fa-solid fa-xmark"></i> ط±ظپط¶
                                     </button>
                                     <button type="button" class="btn-app-action btn-app-hold" onclick="ApprovalsHubEngine.putOnHold('${req.id}')">
-                                        <i class="fa-solid fa-pause"></i> تعليق
+                                        <i class="fa-solid fa-pause"></i> طھط¹ظ„ظٹظ‚
                                     </button>
                                 </div>
                             ` : statusBanner}
@@ -14772,7 +14766,7 @@ try {
                 container.innerHTML = `
                     <div style="padding:24px 10px; text-align:center; color:var(--text-muted); font-size:0.82rem;">
                         <i class="fa-solid fa-magnifying-glass" style="font-size:2rem; opacity:0.3; margin-bottom:8px; display:block;"></i>
-                        اكتب حرفين أو أكثر للبحث في الأصناف، العملاء، الفواتير، والخزائن...
+                        ط§ظƒطھط¨ ط­ط±ظپظٹظ† ط£ظˆ ط£ظƒط«ط± ظ„ظ„ط¨ط­ط« ظپظٹ ط§ظ„ط£طµظ†ط§ظپطŒ ط§ظ„ط¹ظ…ظ„ط§ط،طŒ ط§ظ„ظپظˆط§طھظٹط±طŒ ظˆط§ظ„ط®ط²ط§ط¦ظ†...
                     </div>
                 `;
                 return;
@@ -14783,10 +14777,10 @@ try {
                 M_ITEMS.forEach(it => {
                     if ((it.name || '').toLowerCase().includes(q)) {
                         results.push({
-                            type: 'صنف',
+                            type: 'طµظ†ظپ',
                             badge: 'badge-revenue',
                             title: it.name,
-                            sub: `سعر: ${fmt(it.price)} SDG • مخزون: ${it.stock || 0}`,
+                            sub: `ط³ط¹ط±: ${fmt(it.price)} SDG â€¢ ظ…ط®ط²ظˆظ†: ${it.stock || 0}`,
                             action: `openBottomSheet('sheet-sale')`
                         });
                     }
@@ -14796,10 +14790,10 @@ try {
                 M_CUSTOMERS.forEach(c => {
                     if ((c.name || '').toLowerCase().includes(q) || (c.phone || '').includes(q)) {
                         results.push({
-                            type: 'عميل',
+                            type: 'ط¹ظ…ظٹظ„',
                             badge: 'badge-customer',
                             title: c.name,
-                            sub: `رصيد: ${fmt(c.balance)} SDG • هاتف: ${c.phone || 'غير مسجل'}`,
+                            sub: `ط±طµظٹط¯: ${fmt(c.balance)} SDG â€¢ ظ‡ط§طھظپ: ${c.phone || 'ط؛ظٹط± ظ…ط³ط¬ظ„'}`,
                             action: `switchMobileTab('ledgers'); closeBottomSheet('sheet-global-search');`
                         });
                     }
@@ -14810,10 +14804,10 @@ try {
                     const text = `${tx.id || ''} ${tx.voucher_no || ''} ${tx.to_account || ''}`.toLowerCase();
                     if (text.includes(q)) {
                         results.push({
-                            type: 'فاتورة',
+                            type: 'ظپط§طھظˆط±ط©',
                             badge: 'badge-bank',
-                            title: `سند #${tx.voucher_no || tx.id} - ${tx.to_account || 'حساب'}`,
-                            sub: `مبلغ: ${fmt(tx.amount || 0)} SDG • ${tx.date || 'اليوم'}`,
+                            title: `ط³ظ†ط¯ #${tx.voucher_no || tx.id} - ${tx.to_account || 'ط­ط³ط§ط¨'}`,
+                            sub: `ظ…ط¨ظ„ط؛: ${fmt(tx.amount || 0)} SDG â€¢ ${tx.date || 'ط§ظ„ظٹظˆظ…'}`,
                             action: `switchMobileTab('transactions'); closeBottomSheet('sheet-global-search');`
                         });
                     }
@@ -14823,7 +14817,7 @@ try {
             if (results.length === 0) {
                 container.innerHTML = `
                     <div style="padding:24px 10px; text-align:center; color:var(--text-muted); font-size:0.82rem;">
-                        لم يتم العثور على أي نتائج مطابقة لـ "${query}"
+                        ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط£ظٹ ظ†طھط§ط¦ط¬ ظ…ط·ط§ط¨ظ‚ط© ظ„ظ€ "${query}"
                     </div>
                 `;
                 return;
@@ -14859,9 +14853,9 @@ try {
             closeBottomSheet('sheet-rule-settings');
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 📊 20 ADVANCED INVENTORY REPORTS CONTROLLER
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں“ٹ 20 ADVANCED INVENTORY REPORTS CONTROLLER
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.Inventory20Reports = {
             currentCat: 'all',
             filterText: '',
@@ -14931,26 +14925,26 @@ try {
 
         function sendDebtWhatsApp(name, phone, amount) {
             triggerHaptic('light');
-            const comp = document.getElementById('mobile-company-name')?.innerText || 'شركة السجانة';
-            const text = `السلام عليكم ورحمة الله، الأستاذ الكريم ${name}.\nنود تذكيركم بأن الرصيد المستحق عليكم لصالح ${comp} هو:\n💰 ${fmt(amount)} SDG\nشاكرين ومقدرين حسن تعاونكم الدائم.`;
+            const comp = document.getElementById('mobile-company-name')?.innerText || 'ط´ط±ظƒط© ط§ظ„ط³ط¬ط§ظ†ط©';
+            const text = `ط§ظ„ط³ظ„ط§ظ… ط¹ظ„ظٹظƒظ… ظˆط±ط­ظ…ط© ط§ظ„ظ„ظ‡طŒ ط§ظ„ط£ط³طھط§ط° ط§ظ„ظƒط±ظٹظ… ${name}.\nظ†ظˆط¯ طھط°ظƒظٹط±ظƒظ… ط¨ط£ظ† ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…ط³طھط­ظ‚ ط¹ظ„ظٹظƒظ… ظ„طµط§ظ„ط­ ${comp} ظ‡ظˆ:\nًں’° ${fmt(amount)} SDG\nط´ط§ظƒط±ظٹظ† ظˆظ…ظ‚ط¯ط±ظٹظ† ط­ط³ظ† طھط¹ط§ظˆظ†ظƒظ… ط§ظ„ط¯ط§ط¦ظ….`;
             const url = phone ? `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}` : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
             window.open(url, '_blank');
         }
 
         function shareSingleTxWhatsApp(tx) {
             triggerHaptic('light');
-            const comp = document.getElementById('mobile-company-name')?.innerText || 'شركة السجانة';
+            const comp = document.getElementById('mobile-company-name')?.innerText || 'ط´ط±ظƒط© ط§ظ„ط³ط¬ط§ظ†ط©';
             const isInc = tx.type === 'receipt' || tx.type === 'sale';
-            const text = `📋 إشعار حركة مالية - ${comp}\n` +
-                         `━━━━━━━━━━━━━━━━\n` +
-                         `🔖 رقم السند: #${tx.voucher_no || tx.id || '---'}\n` +
-                         `📅 التاريخ: ${tx.date || 'اليوم'}\n` +
-                         `💰 المبلغ: ${fmt(tx.amount || tx.total)} SDG\n` +
-                         `🔴 من: ${tx.from_account || 'الحساب الدافع'}\n` +
-                         `🟢 إلى: ${tx.to_account || 'الحساب المستلم'}\n` +
-                         `📝 البيان: ${tx.notes || (isInc ? 'سند قبض' : 'سند صرف')}\n` +
-                         `━━━━━━━━━━━━━━━━\n` +
-                         `نظام مقاييس ERP الذكي`;
+            const text = `ًں“‹ ط¥ط´ط¹ط§ط± ط­ط±ظƒط© ظ…ط§ظ„ظٹط© - ${comp}\n` +
+                         `â”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ\n` +
+                         `ًں”– ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯: #${tx.voucher_no || tx.id || '---'}\n` +
+                         `ًں“… ط§ظ„طھط§ط±ظٹط®: ${tx.date || 'ط§ظ„ظٹظˆظ…'}\n` +
+                         `ًں’° ط§ظ„ظ…ط¨ظ„ط؛: ${fmt(tx.amount || tx.total)} SDG\n` +
+                         `ًں”´ ظ…ظ†: ${tx.from_account || 'ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط¯ط§ظپط¹'}\n` +
+                         `ًںں¢ ط¥ظ„ظ‰: ${tx.to_account || 'ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…ط³طھظ„ظ…'}\n` +
+                         `ًں“‌ ط§ظ„ط¨ظٹط§ظ†: ${tx.notes || (isInc ? 'ط³ظ†ط¯ ظ‚ط¨ط¶' : 'ط³ظ†ط¯ طµط±ظپ')}\n` +
+                         `â”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ\n` +
+                         `ظ†ط¸ط§ظ… ظ…ظ‚ط§ظٹظٹط³ ERP ط§ظ„ط°ظƒظٹ`;
             const phone = tx.phone || tx.from_phone || tx.to_phone || '';
             const url = phone ? `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}` : `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
             window.open(url, '_blank');
@@ -14962,13 +14956,13 @@ try {
             // 1. Unified Financial Movements
             const financialTxs = loadTenantArray('erp_financial_txs_v1');
             financialTxs.forEach(f => {
-                let typeLabel = (f.type === 'payment') ? 'سند صرف' : ((f.type === 'transfer') ? 'تحويل بيني' : 'سند قبض');
-                let parties = (f.fromAccount?.name || 'حساب') + ' ➜ ' + (f.toAccount?.name || 'حساب');
+                let typeLabel = (f.type === 'payment') ? 'ط³ظ†ط¯ طµط±ظپ' : ((f.type === 'transfer') ? 'طھط­ظˆظٹظ„ ط¨ظٹظ†ظٹ' : 'ط³ظ†ط¯ ظ‚ط¨ط¶');
+                let parties = (f.fromAccount?.name || 'ط­ط³ط§ط¨') + ' â‍œ ' + (f.toAccount?.name || 'ط­ط³ط§ط¨');
                 txs.push({
                     type: f.type || 'receipt',
                     title: `${typeLabel} - ${parties}`,
                     amount: parseFloat(f.amount || 0),
-                    time: f.date || f.createdAt || 'اليوم',
+                    time: f.date || f.createdAt || 'ط§ظ„ظٹظˆظ…',
                     ref: f.refNo || f.id || 'TX'
                 });
             });
@@ -15019,9 +15013,9 @@ try {
                 if (!txs.some(t => t.ref === rRef)) {
                     txs.push({
                         type: 'receipt',
-                        title: 'سند قبض - ' + (r.customerName || r.customer || 'عميل'),
+                        title: 'ط³ظ†ط¯ ظ‚ط¨ط¶ - ' + (r.customerName || r.customer || 'ط¹ظ…ظٹظ„'),
                         amount: parseFloat(r.amount || 0),
-                        time: r.date || r.createdAt || 'اليوم',
+                        time: r.date || r.createdAt || 'ط§ظ„ظٹظˆظ…',
                         ref: rRef
                     });
                 }
@@ -15032,9 +15026,9 @@ try {
                 if (!txs.some(t => t.ref === pRef)) {
                     txs.push({
                         type: 'payment',
-                        title: 'سند صرف - ' + (p.recipient || p.party || 'مصروف'),
+                        title: 'ط³ظ†ط¯ طµط±ظپ - ' + (p.recipient || p.party || 'ظ…طµط±ظˆظپ'),
                         amount: parseFloat(p.amount || 0),
-                        time: p.date || p.createdAt || 'اليوم',
+                        time: p.date || p.createdAt || 'ط§ظ„ظٹظˆظ…',
                         ref: pRef
                     });
                 }
@@ -15043,9 +15037,9 @@ try {
             sales.forEach(s => {
                 txs.push({
                     type: 'sale',
-                    title: 'فاتورة بيع - ' + (s.customerName || 'عميل نقدي'),
+                    title: 'ظپط§طھظˆط±ط© ط¨ظٹط¹ - ' + (s.customerName || 'ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ'),
                     amount: parseFloat(s.grandTotal || s.total || 0),
-                    time: s.date || s.createdAt || 'اليوم',
+                    time: s.date || s.createdAt || 'ط§ظ„ظٹظˆظ…',
                     ref: s.invoiceNo || s.id || 'INV'
                 });
             });
@@ -15053,22 +15047,22 @@ try {
             purchases.forEach(pur => {
                 txs.push({
                     type: 'purchase',
-                    title: 'فاتورة شراء - ' + (pur.supplierName || 'مورد نقدي'),
+                    title: 'ظپط§طھظˆط±ط© ط´ط±ط§ط، - ' + (pur.supplierName || 'ظ…ظˆط±ط¯ ظ†ظ‚ط¯ظٹ'),
                     amount: parseFloat(pur.grandTotal || pur.total || 0),
-                    time: pur.date || pur.createdAt || 'اليوم',
+                    time: pur.date || pur.createdAt || 'ط§ظ„ظٹظˆظ…',
                     ref: pur.invoiceNo || pur.id || 'PUR'
                 });
             });
 
             const txCntEl = document.getElementById('mobile-tx-count');
-            if (txCntEl) txCntEl.innerText = `${txs.length} حركة مسجلة`;
+            if (txCntEl) txCntEl.innerText = `${txs.length} ط­ط±ظƒط© ظ…ط³ط¬ظ„ط©`;
 
             let feedHtml = '';
             if (txs.length === 0) {
                 feedHtml = `
                     <div style="text-align:center; padding:30px 10px; color:var(--text-muted); font-size:0.9rem;">
                         <i class="fa-solid fa-file-invoice" style="font-size:2rem; margin-bottom:8px; opacity:0.5;"></i><br>
-                        لا توجد حركات مالية مسجلة اليوم حتى الآن.<br>استخدم الأزرار السريعة بالأعلى لتسجيل حركة جديدة.
+                        ظ„ط§ طھظˆط¬ط¯ ط­ط±ظƒط§طھ ظ…ط§ظ„ظٹط© ظ…ط³ط¬ظ„ط© ط§ظ„ظٹظˆظ… ط­طھظ‰ ط§ظ„ط¢ظ†.<br>ط§ط³طھط®ط¯ظ… ط§ظ„ط£ط²ط±ط§ط± ط§ظ„ط³ط±ظٹط¹ط© ط¨ط§ظ„ط£ط¹ظ„ظ‰ ظ„طھط³ط¬ظٹظ„ ط­ط±ظƒط© ط¬ط¯ظٹط¯ط©.
                     </div>
                 `;
             } else {
@@ -15099,13 +15093,13 @@ try {
                                 </div>
                                 <div class="activity-details">
                                     <h5>${tx.title}</h5>
-                                    <span>المرجع: ${tx.ref} • ${tx.time}</span>
+                                    <span>ط§ظ„ظ…ط±ط¬ط¹: ${tx.ref} â€¢ ${tx.time}</span>
                                 </div>
                             </div>
                             <div class="activity-amount">
                                 <span class="activity-val ${colorClass}">${fmt(tx.amount)} SDG</span>
                                 <button type="button" class="btn-wa-direct" onclick="shareTxWhatsApp('${tx.title}', ${tx.amount}, '${tx.ref}')">
-                                    <i class="fa-brands fa-whatsapp"></i> واتساب
+                                    <i class="fa-brands fa-whatsapp"></i> ظˆط§طھط³ط§ط¨
                                 </button>
                             </div>
                         </div>
@@ -15120,27 +15114,27 @@ try {
         function shareTxWhatsApp(title, amount, ref) {
             triggerHaptic('medium');
             const comp = document.getElementById('mobile-company-name').innerText;
-            const msg = `🧾 *إشعار مالي معتمد - ${comp}*\n━━━━━━━━━━━━━━━━━━━━\n📌 *البيان:* ${title}\n💰 *المبلغ:* ${fmt(amount)} SDG\n🔢 *رقم المرجع:* ${ref}\n📅 *التاريخ:* ${new Date().toLocaleDateString('ar-SD')}\n━━━━━━━━━━━━━━━━━━━━\n✓ تمت العملية بنجاح عبر نظام مقاييس السحابي.`;
+            const msg = `ًں§¾ *ط¥ط´ط¹ط§ط± ظ…ط§ظ„ظٹ ظ…ط¹طھظ…ط¯ - ${comp}*\nâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ\nًں“Œ *ط§ظ„ط¨ظٹط§ظ†:* ${title}\nًں’° *ط§ظ„ظ…ط¨ظ„ط؛:* ${fmt(amount)} SDG\nًں”¢ *ط±ظ‚ظ… ط§ظ„ظ…ط±ط¬ط¹:* ${ref}\nًں“… *ط§ظ„طھط§ط±ظٹط®:* ${new Date().toLocaleDateString('ar-SD')}\nâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ\nâœ“ طھظ…طھ ط§ظ„ط¹ظ…ظ„ظٹط© ط¨ظ†ط¬ط§ط­ ط¹ط¨ط± ظ†ط¸ط§ظ… ظ…ظ‚ط§ظٹظٹط³ ط§ظ„ط³ط­ط§ط¨ظٹ.`;
             const waUrl = `https://wa.me/?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, '_blank');
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         // 1. UNIVERSAL CHART OF ACCOUNTS BUILDER
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function buildAllAccountsList() {
             ALL_ACCOUNTS = [];
 
-            // 1. Banks (🏦 البنوك)
+            // 1. Banks (ًںڈ¦ ط§ظ„ط¨ظ†ظˆظƒ)
             const bankItems = [];
             if (window.SERVER_DATA?.banks && window.SERVER_DATA.banks.length > 0) {
                 window.SERVER_DATA.banks.forEach((b, i) => {
                     bankItems.push({
                         id: 'bank_' + (b.id || i + 1),
                         rawId: b.id || i + 1,
-                        name: b.name || b.bank_name || 'بنك ' + (i + 1),
+                        name: b.name || b.bank_name || 'ط¨ظ†ظƒ ' + (i + 1),
                         category: 'bank',
-                        categoryName: 'بنك',
+                        categoryName: 'ط¨ظ†ظƒ',
                         balance: parseFloat(b.currentBalance ?? b.balance ?? b.amount ?? 0),
                         phone: b.accountNumber || b.account_number || '',
                         icon: 'fa-building-columns',
@@ -15154,9 +15148,9 @@ try {
                         bankItems.push({
                             id: 'bank_' + (b.id || i + 1),
                             rawId: b.id || i + 1,
-                            name: b.name || 'بنك ' + (i + 1),
+                            name: b.name || 'ط¨ظ†ظƒ ' + (i + 1),
                             category: 'bank',
-                            categoryName: 'بنك',
+                            categoryName: 'ط¨ظ†ظƒ',
                             balance: parseFloat(b.currentBalance ?? b.balance ?? 0),
                             phone: b.accountNumber || '',
                             icon: 'fa-building-columns',
@@ -15167,9 +15161,9 @@ try {
                     bankItems.push({
                         id: 'bank_bankak',
                         rawId: 'bankak',
-                        name: 'بنك الخرطوم (بنكك)',
+                        name: 'ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ… (ط¨ظ†ظƒظƒ)',
                         category: 'bank',
-                        categoryName: 'بنك',
+                        categoryName: 'ط¨ظ†ظƒ',
                         balance: 0,
                         phone: '',
                         icon: 'fa-building-columns',
@@ -15178,9 +15172,9 @@ try {
                     bankItems.push({
                         id: 'bank_faisal',
                         rawId: 'faisal',
-                        name: 'بنك فيصل الإسلامي (فوري)',
+                        name: 'ط¨ظ†ظƒ ظپظٹطµظ„ ط§ظ„ط¥ط³ظ„ط§ظ…ظٹ (ظپظˆط±ظٹ)',
                         category: 'bank',
-                        categoryName: 'بنك',
+                        categoryName: 'ط¨ظ†ظƒ',
                         balance: 0,
                         phone: '',
                         icon: 'fa-building-columns',
@@ -15189,9 +15183,9 @@ try {
                     bankItems.push({
                         id: 'bank_omdurman',
                         rawId: 'omdurman',
-                        name: 'بنك أم درمان الوطني (أوكاش)',
+                        name: 'ط¨ظ†ظƒ ط£ظ… ط¯ط±ظ…ط§ظ† ط§ظ„ظˆط·ظ†ظٹ (ط£ظˆظƒط§ط´)',
                         category: 'bank',
-                        categoryName: 'بنك',
+                        categoryName: 'ط¨ظ†ظƒ',
                         balance: 0,
                         phone: '',
                         icon: 'fa-building-columns',
@@ -15202,7 +15196,7 @@ try {
 
             // Also include any bank vaults from M_VAULTS
             M_VAULTS.forEach((v, idx) => {
-                const isSafe = v.name.includes('خزن') || v.name.includes('كاش') || v.name.includes('صندوق');
+                const isSafe = v.name.includes('ط®ط²ظ†') || v.name.includes('ظƒط§ط´') || v.name.includes('طµظ†ط¯ظˆظ‚');
                 if (!isSafe) {
                     const exists = bankItems.some(b => b.name.toLowerCase() === v.name.toLowerCase());
                     if (!exists) {
@@ -15211,7 +15205,7 @@ try {
                             rawId: 'vault_bank_' + idx,
                             name: v.name,
                             category: 'bank',
-                            categoryName: 'بنك',
+                            categoryName: 'ط¨ظ†ظƒ',
                             balance: v.amount || 0,
                             phone: '',
                             icon: 'fa-building-columns',
@@ -15221,16 +15215,16 @@ try {
                 }
             });
 
-            // 2. Safes (💵 الخزن)
+            // 2. Safes (ًں’µ ط§ظ„ط®ط²ظ†)
             const safeItems = [];
             if (window.SERVER_DATA?.safes && window.SERVER_DATA.safes.length > 0) {
                 window.SERVER_DATA.safes.forEach((s, i) => {
                     safeItems.push({
                         id: 'safe_' + (s.id || i + 1),
                         rawId: s.id || i + 1,
-                        name: s.name || s.safe_name || 'الخزينة الرئيسية',
+                        name: s.name || s.safe_name || 'ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط©',
                         category: 'safe',
-                        categoryName: 'خزينة',
+                        categoryName: 'ط®ط²ظٹظ†ط©',
                         balance: parseFloat(s.currentBalance ?? s.balance ?? s.amount ?? 0),
                         phone: '',
                         icon: 'fa-vault',
@@ -15244,9 +15238,9 @@ try {
                         safeItems.push({
                             id: 'safe_' + (s.id || i + 1),
                             rawId: s.id || i + 1,
-                            name: s.name || 'الخزينة الرئيسية',
+                            name: s.name || 'ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط©',
                             category: 'safe',
-                            categoryName: 'خزينة',
+                            categoryName: 'ط®ط²ظٹظ†ط©',
                             balance: parseFloat(s.currentBalance ?? s.balance ?? 0),
                             phone: '',
                             icon: 'fa-vault',
@@ -15257,9 +15251,9 @@ try {
                     safeItems.push({
                         id: 'safe_main',
                         rawId: 'safe_main',
-                        name: 'الخزينة الرئيسية (كاش)',
+                        name: 'ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط© (ظƒط§ط´)',
                         category: 'safe',
-                        categoryName: 'خزينة',
+                        categoryName: 'ط®ط²ظٹظ†ط©',
                         balance: 0,
                         phone: '',
                         icon: 'fa-vault',
@@ -15270,7 +15264,7 @@ try {
 
             // Add cash vaults from M_VAULTS
             M_VAULTS.forEach((v, idx) => {
-                const isSafe = v.name.includes('خزن') || v.name.includes('كاش') || v.name.includes('صندوق');
+                const isSafe = v.name.includes('ط®ط²ظ†') || v.name.includes('ظƒط§ط´') || v.name.includes('طµظ†ط¯ظˆظ‚');
                 if (isSafe) {
                     const exists = safeItems.some(s => s.name.toLowerCase() === v.name.toLowerCase());
                     if (!exists) {
@@ -15279,7 +15273,7 @@ try {
                             rawId: 'vault_safe_' + idx,
                             name: v.name,
                             category: 'safe',
-                            categoryName: 'خزينة',
+                            categoryName: 'ط®ط²ظٹظ†ط©',
                             balance: v.amount || 0,
                             phone: '',
                             icon: 'fa-vault',
@@ -15289,20 +15283,20 @@ try {
                 }
             });
 
-            // 3. Customers (👤 العملاء)
+            // 3. Customers (ًں‘¤ ط§ظ„ط¹ظ…ظ„ط§ط،)
             const customerItems = M_CUSTOMERS.map(c => ({
                 id: 'cust_' + c.id,
                 rawId: c.id,
                 name: c.name,
                 category: 'customer',
-                categoryName: 'عميل',
+                categoryName: 'ط¹ظ…ظٹظ„',
                 balance: c.balance || 0,
                 phone: c.phone || '',
                 icon: 'fa-user',
                 color: '#fbbf24'
             }));
 
-            // 4. Suppliers (🏢 الموردين)
+            // 4. Suppliers (ًںڈ¢ ط§ظ„ظ…ظˆط±ط¯ظٹظ†)
             const supplierItems = [];
             const rawSups = window.SERVER_DATA?.suppliers || loadTenantArray('erp_suppliers_v1');
             if (rawSups.length > 0) {
@@ -15310,9 +15304,9 @@ try {
                     supplierItems.push({
                         id: 'sup_' + (s.id || s.supplier_id || i + 1),
                         rawId: s.id || s.supplier_id || i + 1,
-                        name: s.name || s.supplier_name || 'مورد ' + (i + 1),
+                        name: s.name || s.supplier_name || 'ظ…ظˆط±ط¯ ' + (i + 1),
                         category: 'supplier',
-                        categoryName: 'مورد',
+                        categoryName: 'ظ…ظˆط±ط¯',
                         balance: parseFloat(s.balance || s.current_balance || s.exposure || 0),
                         phone: s.phone || '',
                         icon: 'fa-truck-field',
@@ -15321,16 +15315,16 @@ try {
                 });
             }
 
-            // 5. Standard Expense & Revenue Accounts (📉 المصروفات)
+            // 5. Standard Expense & Revenue Accounts (ًں“‰ ط§ظ„ظ…طµط±ظˆظپط§طھ)
             const expenseItems = [
-                { id: 'exp_admin', rawId: 'exp_admin', name: 'مصروفات عمومية وإدارية', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-money-bill-trend-up', color: '#f43f5e' },
-                { id: 'exp_salaries', rawId: 'exp_salaries', name: 'مرتبات وأجور العاملين', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-users', color: '#f43f5e' },
-                { id: 'exp_rent', rawId: 'exp_rent', name: 'إيجار مقرات ومخازن', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-warehouse', color: '#f43f5e' },
-                { id: 'exp_utilities', rawId: 'exp_utilities', name: 'كهرباء ومياه وإنترنت', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-bolt', color: '#f43f5e' },
-                { id: 'exp_hospitality', rawId: 'exp_hospitality', name: 'نثريات وضيافة', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-mug-hot', color: '#f43f5e' },
-                { id: 'exp_fuel', rawId: 'exp_fuel', name: 'وقود ونقليات وترحيل', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-gas-pump', color: '#f43f5e' },
-                { id: 'exp_maintenance', rawId: 'exp_maintenance', name: 'صيانة وتشغيل', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-wrench', color: '#f43f5e' },
-                { id: 'exp_purchases', rawId: 'exp_purchases', name: 'مشتريات بضاعة نقدية', category: 'expense', categoryName: 'مصروف', balance: 0, phone: '', icon: 'fa-cart-shopping', color: '#f43f5e' }
+                { id: 'exp_admin', rawId: 'exp_admin', name: 'ظ…طµط±ظˆظپط§طھ ط¹ظ…ظˆظ…ظٹط© ظˆط¥ط¯ط§ط±ظٹط©', category: 'expense', categoryName: 'ظ…طµط±ظˆظپ', balance: 0, phone: '', icon: 'fa-money-bill-trend-up', color: '#f43f5e' },
+                { id: 'exp_salaries', rawId: 'exp_salaries', name: 'ظ…ط±طھط¨ط§طھ ظˆط£ط¬ظˆط± ط§ظ„ط¹ط§ظ…ظ„ظٹظ†', category: 'expense', categoryName: 'ظ…طµط±ظˆظپ', balance: 0, phone: '', icon: 'fa-users', color: '#f43f5e' },
+                { id: 'exp_rent', rawId: 'exp_rent', name: 'ط¥ظٹط¬ط§ط± ظ…ظ‚ط±ط§طھ ظˆظ…ط®ط§ط²ظ†', category: 'expense', categoryName: 'ظ…طµط±ظˆظپ', balance: 0, phone: '', icon: 'fa-warehouse', color: '#f43f5e' },
+                { id: 'exp_utilities', rawId: 'exp_utilities', name: 'ظƒظ‡ط±ط¨ط§ط، ظˆظ…ظٹط§ظ‡ ظˆط¥ظ†طھط±ظ†طھ', category: 'expense', categoryName: 'ظ…طµط±ظˆظپ', balance: 0, phone: '', icon: 'fa-bolt', color: '#f43f5e' },
+                { id: 'exp_hospitality', rawId: 'exp_hospitality', name: 'ظ†ط«ط±ظٹط§طھ ظˆط¶ظٹط§ظپط©', category: 'expense', categoryName: 'ظ…طµط±ظˆظپ', balance: 0, phone: '', icon: 'fa-mug-hot', color: '#f43f5e' },
+                { id: 'exp_fuel', rawId: 'exp_fuel', name: 'ظˆظ‚ظˆط¯ ظˆظ†ظ‚ظ„ظٹط§طھ ظˆطھط±ط­ظٹظ„', category: 'expense', categoryName: 'ظ…طµط±ظˆظپ', balance: 0, phone: '', icon: 'fa-gas-pump', color: '#f43f5e' },
+                { id: 'exp_maintenance', rawId: 'exp_maintenance', name: 'طµظٹط§ظ†ط© ظˆطھط´ط؛ظٹظ„', category: 'expense', categoryName: 'ظ…طµط±ظˆظپ', balance: 0, phone: '', icon: 'fa-wrench', color: '#f43f5e' },
+                { id: 'exp_purchases', rawId: 'exp_purchases', name: 'ظ…ط´طھط±ظٹط§طھ ط¨ط¶ط§ط¹ط© ظ†ظ‚ط¯ظٹط©', category: 'expense', categoryName: 'ظ…طµط±ظˆظپ', balance: 0, phone: '', icon: 'fa-cart-shopping', color: '#f43f5e' }
             ];
 
             // Combine into unified accounts array
@@ -15339,9 +15333,9 @@ try {
 
         let LAST_FOCUSED_CURRENCY = 'local';
 
-        // ═════════════════════════════════════════════════════════════════
-        // 2. UNIFIED FINANCIAL MOVEMENT ENGINE (قيد مزدوج: دائن / مدين)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // 2. UNIFIED FINANCIAL MOVEMENT ENGINE (ظ‚ظٹط¯ ظ…ط²ط¯ظˆط¬: ط¯ط§ط¦ظ† / ظ…ط¯ظٹظ†)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function computeNextVoucherNo() {
             const today = new Date();
             const yy = String(today.getFullYear()).slice(-2);
@@ -15437,7 +15431,7 @@ try {
                     costCenters = loadTenantArray('erp_jobs_v1');
                 }
             }
-            let html = '<option value="">مركز الكلفة</option>';
+            let html = '<option value="">ظ…ط±ظƒط² ط§ظ„ظƒظ„ظپط©</option>';
             (costCenters || []).forEach(cc => {
                 if (!cc) return;
                 const id = cc.id || cc.code || cc.name;
@@ -15529,9 +15523,9 @@ try {
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 💳 PAYMENT METHOD CONTROLLER (تحويلة بنكية / كاش / شيك)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں’³ PAYMENT METHOD CONTROLLER (طھط­ظˆظٹظ„ط© ط¨ظ†ظƒظٹط© / ظƒط§ط´ / ط´ظٹظƒ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function setTransferPaymentMethod(method) {
             triggerHaptic('light');
             const pmInput = document.getElementById('tx-payment-method');
@@ -15548,31 +15542,31 @@ try {
             const refLabel = document.getElementById('tx-ref-label');
             const refInp = document.getElementById('tx-ref');
             if (method === 'bank') {
-                if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-building-columns" style="color:var(--primary);"></i> رقم التحويلة البنكية:';
+                if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-building-columns" style="color:var(--primary);"></i> ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© ط§ظ„ط¨ظ†ظƒظٹط©:';
                 if (refInp) {
-                    refInp.placeholder = 'أدخل رقم التحويلة البنكية (مثال: 98765432)';
+                    refInp.placeholder = 'ط£ط¯ط®ظ„ ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© ط§ظ„ط¨ظ†ظƒظٹط© (ظ…ط«ط§ظ„: 98765432)';
                     refInp.style.display = 'block';
                 }
             } else if (method === 'cheque') {
-                if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-money-check-dollar" style="color:var(--purple);"></i> رقم الشيك المصرفي:';
+                if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-money-check-dollar" style="color:var(--purple);"></i> ط±ظ‚ظ… ط§ظ„ط´ظٹظƒ ط§ظ„ظ…طµط±ظپظٹ:';
                 if (refInp) {
-                    refInp.placeholder = 'أدخل رقم الشيك المصرفي (مثال: CHQ-554433)';
+                    refInp.placeholder = 'ط£ط¯ط®ظ„ ط±ظ‚ظ… ط§ظ„ط´ظٹظƒ ط§ظ„ظ…طµط±ظپظٹ (ظ…ط«ط§ظ„: CHQ-554433)';
                     refInp.style.display = 'block';
                 }
             } else { // cash
-                if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-money-bill-wave" style="color:var(--emerald);"></i> مرجع الإيصال اليدوي (اختياري):';
+                if (refLabel) refLabel.innerHTML = '<i class="fa-solid fa-money-bill-wave" style="color:var(--emerald);"></i> ظ…ط±ط¬ط¹ ط§ظ„ط¥ظٹطµط§ظ„ ط§ظ„ظٹط¯ظˆظٹ (ط§ط®طھظٹط§ط±ظٹ):';
                 if (refInp) {
-                    refInp.placeholder = 'رقم إيصال الكاش اليدوي (اختياري)';
+                    refInp.placeholder = 'ط±ظ‚ظ… ط¥ظٹطµط§ظ„ ط§ظ„ظƒط§ط´ ط§ظ„ظٹط¯ظˆظٹ (ط§ط®طھظٹط§ط±ظٹ)';
                     refInp.style.display = 'block';
                 }
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🧭 VOUCHER NAVIGATOR (التنقل بين السندات السابقة والتالية بالسيرفر الحي)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں§­ VOUCHER NAVIGATOR (ط§ظ„طھظ†ظ‚ظ„ ط¨ظٹظ† ط§ظ„ط³ظ†ط¯ط§طھ ط§ظ„ط³ط§ط¨ظ‚ط© ظˆط§ظ„طھط§ظ„ظٹط© ط¨ط§ظ„ط³ظٹط±ظپط± ط§ظ„ط­ظٹ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.VoucherNavigator = {
-            currentIndex: -1, // -1 = وضع إنشاء سند جديد
+            currentIndex: -1, // -1 = ظˆط¶ط¹ ط¥ظ†ط´ط§ط، ط³ظ†ط¯ ط¬ط¯ظٹط¯
             vouchers: [],
             loading: false,
             isEditing: false,
@@ -15605,7 +15599,7 @@ try {
                         this.currentIndex = 0;
                         this.displayVoucher(0);
                     } else {
-                        if (window.showModernToast) window.showModernToast("يرجى اختيار سند أولاً لتعديله", "info", 2000);
+                        if (window.showModernToast) window.showModernToast("ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط³ظ†ط¯ ط£ظˆظ„ط§ظ‹ ظ„طھط¹ط¯ظٹظ„ظ‡", "info", 2000);
                         return;
                     }
                 }
@@ -15619,13 +15613,13 @@ try {
                 if (bDisp) bDisp.textContent = vNum;
 
                 const saveLabel = document.getElementById("btn-save-tx-label");
-                if (saveLabel) saveLabel.textContent = "حفظ التعديلات على السند";
+                if (saveLabel) saveLabel.textContent = "ط­ظپط¸ ط§ظ„طھط¹ط¯ظٹظ„ط§طھ ط¹ظ„ظ‰ ط§ظ„ط³ظ†ط¯";
 
                 const locInp = document.getElementById("tx-amount-local");
                 if (locInp) locInp.focus();
 
                 if (window.showModernToast) {
-                    window.showModernToast(`✏️ تم تفعيل وضع تعديل السند [${vNum}] — قم بالتعديل ثم اضغط حفظ`, "warning", 3000);
+                    window.showModernToast(`âœڈï¸ڈ طھظ… طھظپط¹ظٹظ„ ظˆط¶ط¹ طھط¹ط¯ظٹظ„ ط§ظ„ط³ظ†ط¯ [${vNum}] â€” ظ‚ظ… ط¨ط§ظ„طھط¹ط¯ظٹظ„ ط«ظ… ط§ط¶ط؛ط· ط­ظپط¸`, "warning", 3000);
                 }
             },
 
@@ -15638,7 +15632,7 @@ try {
                 if (banner) banner.style.display = "none";
 
                 const saveLabel = document.getElementById("btn-save-tx-label");
-                if (saveLabel) saveLabel.textContent = "حفظ الحركة المالية";
+                if (saveLabel) saveLabel.textContent = "ط­ظپط¸ ط§ظ„ط­ط±ظƒط© ط§ظ„ظ…ط§ظ„ظٹط©";
 
                 if (this.currentIndex >= 0 && this.vouchers[this.currentIndex]) {
                     this.displayVoucher(this.currentIndex);
@@ -15650,14 +15644,14 @@ try {
             async deleteCurrentVoucher() {
                 triggerHaptic("heavy");
                 if (this.currentIndex < 0 || !this.vouchers[this.currentIndex]) {
-                    if (window.showModernToast) window.showModernToast("يرجى اختيار سند أولاً لحذفه", "info", 2000);
+                    if (window.showModernToast) window.showModernToast("ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط³ظ†ط¯ ط£ظˆظ„ط§ظ‹ ظ„ط­ط°ظپظ‡", "info", 2000);
                     return;
                 }
                 const v = this.vouchers[this.currentIndex];
                 const vNum = v.voucherNo || v.paymentNo || v.receiptNo || v.id;
                 const amt = v.amountLocal || v.amount || 0;
 
-                if (!confirm(`⚠️ هل أنت متأكد من حذف السند [${vNum}] بمبلغ [${fmt(amt)} SDG] نهائياً؟\nسيتم إلغاء أثره المحاسبي محلياً وعلى السيرفر.`)) {
+                if (!confirm(`âڑ ï¸ڈ ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط­ط°ظپ ط§ظ„ط³ظ†ط¯ [${vNum}] ط¨ظ…ط¨ظ„ط؛ [${fmt(amt)} SDG] ظ†ظ‡ط§ط¦ظٹط§ظ‹طں\nط³ظٹطھظ… ط¥ظ„ط؛ط§ط، ط£ط«ط±ظ‡ ط§ظ„ظ…ط­ط§ط³ط¨ظٹ ظ…ط­ظ„ظٹط§ظ‹ ظˆط¹ظ„ظ‰ ط§ظ„ط³ظٹط±ظپط±.`)) {
                     return;
                 }
 
@@ -15693,7 +15687,7 @@ try {
                 if (banner) banner.style.display = "none";
 
                 if (window.showModernToast) {
-                    window.showModernToast(`🗑️ تم حذف السند [${vNum}] بنجاح`, "success", 2500);
+                    window.showModernToast(`ًں—‘ï¸ڈ طھظ… ط­ط°ظپ ط§ظ„ط³ظ†ط¯ [${vNum}] ط¨ظ†ط¬ط§ط­`, "success", 2500);
                 }
 
                 if (this.vouchers.length > 0) {
@@ -15720,9 +15714,9 @@ try {
                         amount: amt,
                         amountLocal: amt,
                         date: document.getElementById("tx-date")?.value || new Date().toISOString().split("T")[0],
-                        notes: document.getElementById("tx-notes")?.value || "سند حركة مالية",
-                        fromAccount: SELECTED_FROM_ACCOUNT ? SELECTED_FROM_ACCOUNT.name : "الخزينة",
-                        toAccount: SELECTED_TO_ACCOUNT ? SELECTED_TO_ACCOUNT.name : "المستلم",
+                        notes: document.getElementById("tx-notes")?.value || "ط³ظ†ط¯ ط­ط±ظƒط© ظ…ط§ظ„ظٹط©",
+                        fromAccount: SELECTED_FROM_ACCOUNT ? SELECTED_FROM_ACCOUNT.name : "ط§ظ„ط®ط²ظٹظ†ط©",
+                        toAccount: SELECTED_TO_ACCOUNT ? SELECTED_TO_ACCOUNT.name : "ط§ظ„ظ…ط³طھظ„ظ…",
                         paymentMethod: document.getElementById("tx-payment-method")?.value || "bank",
                         refNo: document.getElementById("tx-ref")?.value || "---"
                     };
@@ -15734,12 +15728,12 @@ try {
 
             searchPrompt() {
                 triggerHaptic("light");
-                const q = prompt("🔍 أدخل رقم السند، اسم الحساب، أو المبلغ للبحث والاستدعاء الفوري:");
+                const q = prompt("ًں”چ ط£ط¯ط®ظ„ ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯طŒ ط§ط³ظ… ط§ظ„ط­ط³ط§ط¨طŒ ط£ظˆ ط§ظ„ظ…ط¨ظ„ط؛ ظ„ظ„ط¨ط­ط« ظˆط§ظ„ط§ط³طھط¯ط¹ط§ط، ط§ظ„ظپظˆط±ظٹ:");
                 if (!q || !q.trim()) return;
                 const query = q.trim().toLowerCase();
 
                 if (this.vouchers.length === 0) {
-                    if (window.showModernToast) window.showModernToast("لا توجد سندات مسجلة للبحث", "info", 2000);
+                    if (window.showModernToast) window.showModernToast("ظ„ط§ طھظˆط¬ط¯ ط³ظ†ط¯ط§طھ ظ…ط³ط¬ظ„ط© ظ„ظ„ط¨ط­ط«", "info", 2000);
                     return;
                 }
 
@@ -15752,10 +15746,10 @@ try {
                     this.currentIndex = foundIdx;
                     this.displayVoucher(foundIdx);
                     if (window.showModernToast) {
-                        window.showModernToast(`🎯 تم العثور على السند واستدعاؤه`, "success", 2000);
+                        window.showModernToast(`ًںژ¯ طھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط§ظ„ط³ظ†ط¯ ظˆط§ط³طھط¯ط¹ط§ط¤ظ‡`, "success", 2000);
                     }
                 } else {
-                    alert(`لم يتم العثور على أي سند يطابق: "${q}"`);
+                    alert(`ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط£ظٹ ط³ظ†ط¯ ظٹط·ط§ط¨ظ‚: "${q}"`);
                 }
             },
 
@@ -15813,7 +15807,7 @@ try {
                 if (this.vouchers.length === 0) {
                     this.loadVouchers().then(() => {
                         if (this.vouchers.length > 0) this.prev();
-                        else if (window.showModernToast) window.showModernToast('لا توجد سندات سابقة مسجلة في النظام', 'info', 2000);
+                        else if (window.showModernToast) window.showModernToast('ظ„ط§ طھظˆط¬ط¯ ط³ظ†ط¯ط§طھ ط³ط§ط¨ظ‚ط© ظ…ط³ط¬ظ„ط© ظپظٹ ط§ظ„ظ†ط¸ط§ظ…', 'info', 2000);
                     });
                     return;
                 }
@@ -15821,7 +15815,7 @@ try {
                     this.currentIndex++;
                     this.displayVoucher(this.currentIndex);
                 } else {
-                    if (window.showModernToast) window.showModernToast('وصلت إلى أقدم سند مسجل في النظام', 'info', 2000);
+                    if (window.showModernToast) window.showModernToast('ظˆطµظ„طھ ط¥ظ„ظ‰ ط£ظ‚ط¯ظ… ط³ظ†ط¯ ظ…ط³ط¬ظ„ ظپظٹ ط§ظ„ظ†ط¸ط§ظ…', 'info', 2000);
                 }
             },
 
@@ -15833,7 +15827,7 @@ try {
                 } else if (this.currentIndex === 0) {
                     this.newVoucher();
                 } else {
-                    if (window.showModernToast) window.showModernToast('أنت بالفعل في وضع إنشاء سند جديد', 'info', 2000);
+                    if (window.showModernToast) window.showModernToast('ط£ظ†طھ ط¨ط§ظ„ظپط¹ظ„ ظپظٹ ظˆط¶ط¹ ط¥ظ†ط´ط§ط، ط³ظ†ط¯ ط¬ط¯ظٹط¯', 'info', 2000);
                 }
             },
 
@@ -15843,7 +15837,7 @@ try {
                 const newBtn = document.getElementById('btn-voucher-new-entry');
                 if (newBtn) newBtn.style.display = 'none';
 
-                // تفريغ الحقول لإدخال سند جديد
+                // طھظپط±ظٹط؛ ط§ظ„ط­ظ‚ظˆظ„ ظ„ط¥ط¯ط®ط§ظ„ ط³ظ†ط¯ ط¬ط¯ظٹط¯
                 const locInp = document.getElementById('tx-amount-local');
                 const forInp = document.getElementById('tx-amount-foreign');
                 const refInp = document.getElementById('tx-ref');
@@ -15855,7 +15849,7 @@ try {
                 if (noteInp) noteInp.value = '';
                 if (benInp) benInp.value = '';
 
-                // إعادة حساب الرقم التسلسلي التالي للسند
+                // ط¥ط¹ط§ط¯ط© ط­ط³ط§ط¨ ط§ظ„ط±ظ‚ظ… ط§ظ„طھط³ظ„ط³ظ„ظٹ ط§ظ„طھط§ظ„ظٹ ظ„ظ„ط³ظ†ط¯
                 const vObj = computeNextVoucherNo();
                 const vNoEl = document.getElementById('tx-voucher-no');
                 const vDispEl = document.getElementById('tx-voucher-display');
@@ -15867,20 +15861,20 @@ try {
                     vDispEl.style.background = 'rgba(16,185,129,0.12)';
                 }
 
-                // التاريخ لليوم
+                // ط§ظ„طھط§ط±ظٹط® ظ„ظ„ظٹظˆظ…
                 const dtInp = document.getElementById('tx-date');
                 if (dtInp) dtInp.value = new Date().toISOString().split('T')[0];
 
-                // إعادة مسميات الحسابات
+                // ط¥ط¹ط§ط¯ط© ظ…ط³ظ…ظٹط§طھ ط§ظ„ط­ط³ط§ط¨ط§طھ
                 const dFrom = document.getElementById('display-from-name');
                 const dTo = document.getElementById('display-to-name');
-                if (dFrom) dFrom.textContent = '-- اضغط لتحديد الحساب الصارف --';
-                if (dTo) dTo.textContent = '-- اضغط لتحديد الحساب المستلم --';
+                if (dFrom) dFrom.textContent = '-- ط§ط¶ط؛ط· ظ„طھط­ط¯ظٹط¯ ط§ظ„ط­ط³ط§ط¨ ط§ظ„طµط§ط±ظپ --';
+                if (dTo) dTo.textContent = '-- ط§ط¶ط؛ط· ظ„طھط­ط¯ظٹط¯ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…ط³طھظ„ظ… --';
 
                 setTransferPaymentMethod('bank');
 
                 if (window.showModernToast) {
-                    window.showModernToast(`✨ وضع إنشاء سند جديد (${vObj.voucherNo})`, 'success', 2000);
+                    window.showModernToast(`âœ¨ ظˆط¶ط¹ ط¥ظ†ط´ط§ط، ط³ظ†ط¯ ط¬ط¯ظٹط¯ (${vObj.voucherNo})`, 'success', 2000);
                 }
             },
 
@@ -15891,7 +15885,7 @@ try {
                 const newBtn = document.getElementById('btn-voucher-new-entry');
                 if (newBtn) newBtn.style.display = 'inline-flex';
 
-                // رقم السند
+                // ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯
                 const vNum = v.voucherNo || v.paymentNo || v.receiptNo || v.id || ('#TX-' + (idx + 1));
                 const vNoEl = document.getElementById('tx-voucher-no');
                 const vDispEl = document.getElementById('tx-voucher-display');
@@ -15903,7 +15897,7 @@ try {
                     vDispEl.style.background = 'rgba(56,189,248,0.18)';
                 }
 
-                // المبلغ
+                // ط§ظ„ظ…ط¨ظ„ط؛
                 const amt = parseFloat(v.amountLocal || v.amount || 0);
                 const locInp = document.getElementById('tx-amount-local');
                 if (locInp) {
@@ -15915,15 +15909,15 @@ try {
                 const forInp = document.getElementById('tx-amount-foreign');
                 if (forInp) forInp.value = amtFor || '';
 
-                // التاريخ
+                // ط§ظ„طھط§ط±ظٹط®
                 const dtInp = document.getElementById('tx-date');
                 if (dtInp && v.date) dtInp.value = v.date;
 
-                // طريقة الدفع
+                // ط·ط±ظٹظ‚ط© ط§ظ„ط¯ظپط¹
                 const pm = v.paymentMethod || (v.reference || v.refNo ? 'bank' : 'cash');
                 setTransferPaymentMethod(pm);
 
-                // رقم التحويلة / الشيك
+                // ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© / ط§ظ„ط´ظٹظƒ
                 const refInp = document.getElementById('tx-ref');
                 const refVal = v.reference || v.refNo || v.transferNo || v.chequeNo || '';
                 if (refInp) {
@@ -15931,13 +15925,13 @@ try {
                     if (typeof validateRefNoLive === 'function' && refVal) validateRefNoLive(refVal);
                 }
 
-                // البيان والمستفيد
+                // ط§ظ„ط¨ظٹط§ظ† ظˆط§ظ„ظ…ط³طھظپظٹط¯
                 const noteInp = document.getElementById('tx-notes');
                 if (noteInp) noteInp.value = v.notes || v.statement || '';
                 const benInp = document.getElementById('tx-beneficiary');
                 if (benInp) benInp.value = v.beneficiary || v.collectorName || v.partnerName || '';
 
-                // مطابقة الحسابين
+                // ظ…ط·ط§ط¨ظ‚ط© ط§ظ„ط­ط³ط§ط¨ظٹظ†
                 if (ALL_ACCOUNTS.length === 0) buildAllAccountsList();
 
                 let fromAccountObj = null;
@@ -15953,24 +15947,24 @@ try {
                 if (fromAccountObj) selectAccountDirectly('from', fromAccountObj);
                 else {
                     const dFrom = document.getElementById('display-from-name');
-                    if (dFrom) dFrom.textContent = v.fromAccount || v.partnerName || '-- غير مسجل --';
+                    if (dFrom) dFrom.textContent = v.fromAccount || v.partnerName || '-- ط؛ظٹط± ظ…ط³ط¬ظ„ --';
                 }
 
                 if (toAccountObj) selectAccountDirectly('to', toAccountObj);
                 else {
                     const dTo = document.getElementById('display-to-name');
-                    if (dTo) dTo.textContent = v.toAccount || v.partnerName || '-- غير مسجل --';
+                    if (dTo) dTo.textContent = v.toAccount || v.partnerName || '-- ط؛ظٹط± ظ…ط³ط¬ظ„ --';
                 }
 
                 if (window.showModernToast) {
-                    window.showModernToast(`👁️ عرض السند المسجل [${vNum}] (${idx + 1} من ${this.vouchers.length})`, 'info', 2200);
+                    window.showModernToast(`ًں‘پï¸ڈ ط¹ط±ط¶ ط§ظ„ط³ظ†ط¯ ط§ظ„ظ…ط³ط¬ظ„ [${vNum}] (${idx + 1} ظ…ظ† ${this.vouchers.length})`, 'info', 2200);
                 }
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 💸 OPEN FINANCIAL TRANSFER SHEET (تحويلة مالية من حساب إلى حساب)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں’¸ OPEN FINANCIAL TRANSFER SHEET (طھط­ظˆظٹظ„ط© ظ…ط§ظ„ظٹط© ظ…ظ† ط­ط³ط§ط¨ ط¥ظ„ظ‰ ط­ط³ط§ط¨)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function openFinancialTxSheet(mode = 'transfer') {
             window.location.href = 'mobile-voucher.php';
             return;
@@ -16023,35 +16017,35 @@ try {
         // Auto-infer movement nature based on the chosen parties
         function inferTransactionNature(fromAcc, toAcc) {
             if (!fromAcc || !toAcc) {
-                return { type: 'financial_movement', label: 'حركة مالية عامة (قيد مزدوج)' };
+                return { type: 'financial_movement', label: 'ط­ط±ظƒط© ظ…ط§ظ„ظٹط© ط¹ط§ظ…ط© (ظ‚ظٹط¯ ظ…ط²ط¯ظˆط¬)' };
             }
             const fCat = fromAcc.category;
             const tCat = toAcc.category;
 
             if (fCat === 'customer' && (tCat === 'bank' || tCat === 'safe')) {
-                return { type: 'receipt', label: 'سند قبض نقدية من عميل' };
+                return { type: 'receipt', label: 'ط³ظ†ط¯ ظ‚ط¨ط¶ ظ†ظ‚ط¯ظٹط© ظ…ظ† ط¹ظ…ظٹظ„' };
             }
             if ((fCat === 'bank' || fCat === 'safe') && tCat === 'supplier') {
-                return { type: 'payment', label: 'سند صرف وسداد لمورد' };
+                return { type: 'payment', label: 'ط³ظ†ط¯ طµط±ظپ ظˆط³ط¯ط§ط¯ ظ„ظ…ظˆط±ط¯' };
             }
             if ((fCat === 'bank' || fCat === 'safe') && tCat === 'expense') {
-                return { type: 'payment', label: 'سند صرف منصرفات وتشغيل' };
+                return { type: 'payment', label: 'ط³ظ†ط¯ طµط±ظپ ظ…ظ†طµط±ظپط§طھ ظˆطھط´ط؛ظٹظ„' };
             }
             if ((fCat === 'bank' || fCat === 'safe') && (tCat === 'bank' || tCat === 'safe')) {
-                return { type: 'transfer', label: 'تحويل مالي بيني' };
+                return { type: 'transfer', label: 'طھط­ظˆظٹظ„ ظ…ط§ظ„ظٹ ط¨ظٹظ†ظٹ' };
             }
             if (fCat === 'customer' && tCat === 'customer') {
-                return { type: 'journal_transfer', label: 'تسوية وتحويل ذمة بين عميلين' };
+                return { type: 'journal_transfer', label: 'طھط³ظˆظٹط© ظˆطھط­ظˆظٹظ„ ط°ظ…ط© ط¨ظٹظ† ط¹ظ…ظٹظ„ظٹظ†' };
             }
             if (fCat === 'supplier' && tCat === 'supplier') {
-                return { type: 'journal_transfer', label: 'تسوية وتحويل بين موردين' };
+                return { type: 'journal_transfer', label: 'طھط³ظˆظٹط© ظˆطھط­ظˆظٹظ„ ط¨ظٹظ† ظ…ظˆط±ط¯ظٹظ†' };
             }
-            return { type: 'financial_movement', label: 'حركة مالية عامة (قيد مزدوج)' };
+            return { type: 'financial_movement', label: 'ط­ط±ظƒط© ظ…ط§ظ„ظٹط© ط¹ط§ظ…ط© (ظ‚ظٹط¯ ظ…ط²ط¯ظˆط¬)' };
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🔒 DESKTOP FINANCIAL CONSTRAINTS: DUPLICATE & LENGTH CHECKERS
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں”’ DESKTOP FINANCIAL CONSTRAINTS: DUPLICATE & LENGTH CHECKERS
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function checkTransferDuplicate(tno, currentTxId) {
             if (!tno || String(tno).trim().length < 6) return false;
             const cleanTno = String(tno).trim().toLowerCase();
@@ -16127,16 +16121,16 @@ try {
                         <div class="mob-alert-icon-ring" style="background:rgba(245,158,11,0.18); color:#f59e0b; border:2px solid #f59e0b;">
                             <i class="fa-solid fa-triangle-exclamation"></i>
                         </div>
-                        <div class="mob-alert-title">تنبيه رقابي أمني!</div>
+                        <div class="mob-alert-title">طھظ†ط¨ظٹظ‡ ط±ظ‚ط§ط¨ظٹ ط£ظ…ظ†ظٹ!</div>
                         <div class="mob-alert-body">
-                            رقم التحويلة / الإشعار البنكي <span style="background:rgba(245,158,11,0.25); color:#f59e0b; font-weight:900; padding:2px 8px; border-radius:6px; font-family:monospace; font-size:1.15rem;">${tStr || '(فارغ)'}</span><br>
-                            <strong>أقل من 6 أرقام!</strong> (أدخلت ${len} ${len === 1 ? 'رقم' : 'أرقام'} فقط).<br>
+                            ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© / ط§ظ„ط¥ط´ط¹ط§ط± ط§ظ„ط¨ظ†ظƒظٹ <span style="background:rgba(245,158,11,0.25); color:#f59e0b; font-weight:900; padding:2px 8px; border-radius:6px; font-family:monospace; font-size:1.15rem;">${tStr || '(ظپط§ط±ط؛)'}</span><br>
+                            <strong>ط£ظ‚ظ„ ظ…ظ† 6 ط£ط±ظ‚ط§ظ…!</strong> (ط£ط¯ط®ظ„طھ ${len} ${len === 1 ? 'ط±ظ‚ظ…' : 'ط£ط±ظ‚ط§ظ…'} ظپظ‚ط·).<br>
                             <span style="font-size:0.8rem; color:#94a3b8; display:block; margin-top:8px;">
-                                يشترط النظام الأساسي أن يتكون رقم التحويلة من 6 أرقام على الأقل لضمان صحة القيود المصرفية ومنع التلاعب.
+                                ظٹط´طھط±ط· ط§ظ„ظ†ط¸ط§ظ… ط§ظ„ط£ط³ط§ط³ظٹ ط£ظ† ظٹطھظƒظˆظ† ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© ظ…ظ† 6 ط£ط±ظ‚ط§ظ… ط¹ظ„ظ‰ ط§ظ„ط£ظ‚ظ„ ظ„ط¶ظ…ط§ظ† طµط­ط© ط§ظ„ظ‚ظٹظˆط¯ ط§ظ„ظ…طµط±ظپظٹط© ظˆظ…ظ†ط¹ ط§ظ„طھظ„ط§ط¹ط¨.
                             </span>
                         </div>
                         <button type="button" class="mob-alert-btn" style="background:#f59e0b; color:#000;" onclick="document.getElementById('mob-length-modal').remove(); document.getElementById('tx-ref')?.focus();">
-                            <i class="fa-solid fa-pen-to-square"></i> تصحيح رقم التحويلة الآن
+                            <i class="fa-solid fa-pen-to-square"></i> طھطµط­ظٹط­ ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© ط§ظ„ط¢ظ†
                         </button>
                     </div>
                 </div>
@@ -16157,16 +16151,16 @@ try {
                         <div class="mob-alert-icon-ring" style="background:rgba(239,68,68,0.2); color:#ef4444; border:2px solid #ef4444;">
                             <i class="fa-solid fa-ban"></i>
                         </div>
-                        <div class="mob-alert-title" style="color:#ef4444;">🚨 تحويلة مكررة محظورة!</div>
+                        <div class="mob-alert-title" style="color:#ef4444;">ًںڑ¨ طھط­ظˆظٹظ„ط© ظ…ظƒط±ط±ط© ظ…ط­ط¸ظˆط±ط©!</div>
                         <div class="mob-alert-body">
-                            رقم التحويلة البنكية <span style="background:rgba(239,68,68,0.3); color:#fff; font-weight:900; padding:2px 8px; border-radius:6px; font-family:monospace; font-size:1.2rem;">${tStr}</span><br>
-                            <strong>مسجل مسبقاً في النظام!</strong> (تطابق آخر 6 أرقام مع سند آخر).<br>
+                            ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© ط§ظ„ط¨ظ†ظƒظٹط© <span style="background:rgba(239,68,68,0.3); color:#fff; font-weight:900; padding:2px 8px; border-radius:6px; font-family:monospace; font-size:1.2rem;">${tStr}</span><br>
+                            <strong>ظ…ط³ط¬ظ„ ظ…ط³ط¨ظ‚ط§ظ‹ ظپظٹ ط§ظ„ظ†ط¸ط§ظ…!</strong> (طھط·ط§ط¨ظ‚ ط¢ط®ط± 6 ط£ط±ظ‚ط§ظ… ظ…ط¹ ط³ظ†ط¯ ط¢ط®ط±).<br>
                             <span style="font-size:0.8rem; color:#fca5a5; display:block; margin-top:8px;">
-                                يمنع نظام الرقابة والتدقيق تكرار استخدام نفس رقم التحويلة البنكية في أكثر من حركة لمنع الازدواجية والخطأ المالي.
+                                ظٹظ…ظ†ط¹ ظ†ط¸ط§ظ… ط§ظ„ط±ظ‚ط§ط¨ط© ظˆط§ظ„طھط¯ظ‚ظٹظ‚ طھظƒط±ط§ط± ط§ط³طھط®ط¯ط§ظ… ظ†ظپط³ ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© ط§ظ„ط¨ظ†ظƒظٹط© ظپظٹ ط£ظƒط«ط± ظ…ظ† ط­ط±ظƒط© ظ„ظ…ظ†ط¹ ط§ظ„ط§ط²ط¯ظˆط§ط¬ظٹط© ظˆط§ظ„ط®ط·ط£ ط§ظ„ظ…ط§ظ„ظٹ.
                             </span>
                         </div>
                         <button type="button" class="mob-alert-btn" style="background:#ef4444; color:#fff;" onclick="document.getElementById('mob-duplicate-modal').remove(); document.getElementById('tx-ref')?.focus();">
-                            <i class="fa-solid fa-arrow-rotate-left"></i> إدخال رقم تحويلة مختلف
+                            <i class="fa-solid fa-arrow-rotate-left"></i> ط¥ط¯ط®ط§ظ„ ط±ظ‚ظ… طھط­ظˆظٹظ„ط© ظ…ط®طھظ„ظپ
                         </button>
                     </div>
                 </div>
@@ -16188,7 +16182,7 @@ try {
                 hint.style.background = 'rgba(245, 158, 11, 0.15)';
                 hint.style.color = '#f59e0b';
                 hint.style.border = '1px solid #f59e0b';
-                hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> الرقم الحالي (${clean.length} أرقام) - يشترط 6 أرقام فأكثر`;
+                hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ط§ظ„ط±ظ‚ظ… ط§ظ„ط­ط§ظ„ظٹ (${clean.length} ط£ط±ظ‚ط§ظ…) - ظٹط´طھط±ط· 6 ط£ط±ظ‚ط§ظ… ظپط£ظƒط«ط±`;
                 return;
             }
 
@@ -16198,7 +16192,7 @@ try {
                 hint.style.background = 'rgba(239, 68, 68, 0.18)';
                 hint.style.color = '#ef4444';
                 hint.style.border = '1px solid #ef4444';
-                hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> هذا الرقم مسجل مسبقاً في حركة أخرى (مكرر)!`;
+                hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> ظ‡ط°ط§ ط§ظ„ط±ظ‚ظ… ظ…ط³ط¬ظ„ ظ…ط³ط¨ظ‚ط§ظ‹ ظپظٹ ط­ط±ظƒط© ط£ط®ط±ظ‰ (ظ…ظƒط±ط±)!`;
                 return;
             }
 
@@ -16206,7 +16200,7 @@ try {
             hint.style.background = 'rgba(16, 185, 129, 0.15)';
             hint.style.color = '#10b981';
             hint.style.border = '1px solid #10b981';
-            hint.innerHTML = `<i class="fa-solid fa-circle-check"></i> رقم التحويلة نظامي ومتاح للتقييد (${clean.length} أرقام)`;
+            hint.innerHTML = `<i class="fa-solid fa-circle-check"></i> ط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© ظ†ط¸ط§ظ…ظٹ ظˆظ…طھط§ط­ ظ„ظ„طھظ‚ظٹظٹط¯ (${clean.length} ط£ط±ظ‚ط§ظ…)`;
         }
 
         function updateTxAmountPreview(val) {
@@ -16227,7 +16221,7 @@ try {
 
                 document.getElementById('display-from-name').textContent = acc.name;
                 document.getElementById('display-from-meta').innerHTML = `
-                    <span>الرصيد: <strong>${fmt(acc.balance)} SDG</strong></span>
+                    <span>ط§ظ„ط±طµظٹط¯: <strong>${fmt(acc.balance)} SDG</strong></span>
                 `;
                 const badge = document.getElementById('display-from-badge');
                 if (badge) {
@@ -16245,7 +16239,7 @@ try {
 
                 document.getElementById('display-to-name').textContent = acc.name;
                 document.getElementById('display-to-meta').innerHTML = `
-                    <span>الرصيد: <strong>${fmt(acc.balance)} SDG</strong></span>
+                    <span>ط§ظ„ط±طµظٹط¯: <strong>${fmt(acc.balance)} SDG</strong></span>
                 `;
                 const badge = document.getElementById('display-to-badge');
                 if (badge) {
@@ -16264,13 +16258,13 @@ try {
             if (SELECTED_TO_ACCOUNT) selectAccountDirectly('to', SELECTED_TO_ACCOUNT);
 
             if (window.showModernToast) {
-                window.showModernToast('🔄 تم تبديل الحسابين (من / إلى)', 'info', 1500);
+                window.showModernToast('ًں”„ طھظ… طھط¨ط¯ظٹظ„ ط§ظ„ط­ط³ط§ط¨ظٹظ† (ظ…ظ† / ط¥ظ„ظ‰)', 'info', 1500);
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         // 3. UNIVERSAL SEARCHABLE ACCOUNT PICKER
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function openAccountPicker(target) {
             triggerHaptic('light');
             CURRENT_PICKER_TARGET = target;
@@ -16283,9 +16277,9 @@ try {
             const heading = document.getElementById('picker-modal-heading');
             if (heading) {
                 if (target === 'from') {
-                    heading.innerHTML = '<span style="color:#ef4444; font-size:1.05rem; font-weight:900;"><i class="fa-solid fa-arrow-up-right-from-square"></i> أنت الآن تحدد: [من حساب] (الدافع ومصدر الأموال)</span>';
+                    heading.innerHTML = '<span style="color:#ef4444; font-size:1.05rem; font-weight:900;"><i class="fa-solid fa-arrow-up-right-from-square"></i> ط£ظ†طھ ط§ظ„ط¢ظ† طھط­ط¯ط¯: [ظ…ظ† ط­ط³ط§ط¨] (ط§ظ„ط¯ط§ظپط¹ ظˆظ…طµط¯ط± ط§ظ„ط£ظ…ظˆط§ظ„)</span>';
                 } else {
-                    heading.innerHTML = '<span style="color:#10b981; font-size:1.05rem; font-weight:900;"><i class="fa-solid fa-arrow-down-to-bracket"></i> أنت الآن تحدد: [إلى حساب] (المستلم ووجهة الأموال)</span>';
+                    heading.innerHTML = '<span style="color:#10b981; font-size:1.05rem; font-weight:900;"><i class="fa-solid fa-arrow-down-to-bracket"></i> ط£ظ†طھ ط§ظ„ط¢ظ† طھط­ط¯ط¯: [ط¥ظ„ظ‰ ط­ط³ط§ط¨] (ط§ظ„ظ…ط³طھظ„ظ… ظˆظˆط¬ظ‡ط© ط§ظ„ط£ظ…ظˆط§ظ„)</span>';
                 }
             }
 
@@ -16337,8 +16331,8 @@ try {
                 container.innerHTML = `
                     <div style="text-align:center; padding:35px 15px; color:var(--text-muted);">
                         <i class="fa-solid fa-magnifying-glass" style="font-size:2.2rem; opacity:0.35; margin-bottom:10px;"></i>
-                        <div style="font-size:0.95rem; font-weight:800; color:var(--text-main);">لم يتم العثور على حساب مطابق</div>
-                        <div style="font-size:0.8rem; margin-top:4px;">تأكد من كتابة الاسم أو الرقم بشكل صحيح</div>
+                        <div style="font-size:0.95rem; font-weight:800; color:var(--text-main);">ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط­ط³ط§ط¨ ظ…ط·ط§ط¨ظ‚</div>
+                        <div style="font-size:0.8rem; margin-top:4px;">طھط£ظƒط¯ ظ…ظ† ظƒطھط§ط¨ط© ط§ظ„ط§ط³ظ… ط£ظˆ ط§ظ„ط±ظ‚ظ… ط¨ط´ظƒظ„ طµط­ظٹط­</div>
                     </div>
                 `;
                 return;
@@ -16350,18 +16344,18 @@ try {
                 const isToSelected = SELECTED_TO_ACCOUNT && SELECTED_TO_ACCOUNT.id === acc.id;
                 const isSelected = (CURRENT_PICKER_TARGET === 'from' && isFromSelected) || (CURRENT_PICKER_TARGET === 'to' && isToSelected);
 
-                let balLabel = 'الرصيد الدفتري';
+                let balLabel = 'ط§ظ„ط±طµظٹط¯ ط§ظ„ط¯ظپطھط±ظٹ';
                 let balColor = 'var(--text-main)';
                 if (acc.category === 'customer') {
                     if (acc.balance > 0) {
-                        balLabel = 'مدين للشركة';
+                        balLabel = 'ظ…ط¯ظٹظ† ظ„ظ„ط´ط±ظƒط©';
                         balColor = 'var(--rose)';
                     } else {
-                        balLabel = 'خالص';
+                        balLabel = 'ط®ط§ظ„طµ';
                         balColor = 'var(--emerald)';
                     }
                 } else if (acc.category === 'supplier') {
-                    balLabel = 'مستحق للمورد';
+                    balLabel = 'ظ…ط³طھط­ظ‚ ظ„ظ„ظ…ظˆط±ط¯';
                     balColor = 'var(--amber)';
                 }
 
@@ -16397,9 +16391,9 @@ try {
             closeBottomSheet('sheet-account-picker');
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         // 4. TRANSACTION SUBMIT & LEDGER ADJUSTMENT
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function handleFinancialTxSubmit(e, openWhatsAppDirect = false) {
             if (e && e.preventDefault) e.preventDefault();
             triggerHaptic('heavy');
@@ -16422,7 +16416,7 @@ try {
 
             // 1. Amount Validation
             if (amt <= 0 && foreignAmt <= 0) {
-                alert('⚠️ يرجى إدخال مبلغ صحيح أكبر من صفر');
+                alert('âڑ ï¸ڈ ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ظ…ط¨ظ„ط؛ طµط­ظٹط­ ط£ظƒط¨ط± ظ…ظ† طµظپط±');
                 document.getElementById('tx-amount-local')?.focus();
                 return false;
             }
@@ -16431,33 +16425,33 @@ try {
             if (window.MagaieesPermissions && typeof window.MagaieesPermissions.checkFinancialLimits === 'function') {
                 const limitCheck = window.MagaieesPermissions.checkFinancialLimits('voucher_amount', amt);
                 if (!limitCheck.allowed) {
-                    alert('⚠️ تجاوز سقف الصرف المالي المسموح به: ' + limitCheck.message);
+                    alert('âڑ ï¸ڈ طھط¬ط§ظˆط² ط³ظ‚ظپ ط§ظ„طµط±ظپ ط§ظ„ظ…ط§ظ„ظٹ ط§ظ„ظ…ط³ظ…ظˆط­ ط¨ظ‡: ' + limitCheck.message);
                     return false;
                 }
             }
 
             // 3. Accounts Selection & Distinct Identity Validation
             if (!SELECTED_FROM_ACCOUNT) {
-                alert('⚠️ يرجى اختيار الحساب الدافع (من حساب)');
+                alert('âڑ ï¸ڈ ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط¯ط§ظپط¹ (ظ…ظ† ط­ط³ط§ط¨)');
                 openAccountPicker('from');
                 return false;
             }
 
             if (!SELECTED_TO_ACCOUNT) {
-                alert('⚠️ يرجى اختيار الحساب المستلم (إلى حساب)');
+                alert('âڑ ï¸ڈ ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…ط³طھظ„ظ… (ط¥ظ„ظ‰ ط­ط³ط§ط¨)');
                 openAccountPicker('to');
                 return false;
             }
 
             if (SELECTED_FROM_ACCOUNT.id === SELECTED_TO_ACCOUNT.id) {
-                alert('⚠️ خطأ محاسبي: لا يمكن أن يكون الحساب الدافع والحساب المستلم نفس الحساب!');
+                alert('âڑ ï¸ڈ ط®ط·ط£ ظ…ط­ط§ط³ط¨ظٹ: ظ„ط§ ظٹظ…ظƒظ† ط£ظ† ظٹظƒظˆظ† ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط¯ط§ظپط¹ ظˆط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…ط³طھظ„ظ… ظ†ظپط³ ط§ظ„ط­ط³ط§ط¨!');
                 return false;
             }
 
             // 4. Transfer / Reference Number Rules (Desktop Rules Enforcement: Min 6 digits & Duplicate check)
             const isBankInvolved = (SELECTED_FROM_ACCOUNT.category === 'bank' || SELECTED_TO_ACCOUNT.category === 'bank' ||
-                                    (SELECTED_FROM_ACCOUNT.name || '').includes('بنك') || (SELECTED_TO_ACCOUNT.name || '').includes('بنك') ||
-                                    (SELECTED_FROM_ACCOUNT.name || '').includes('بنكك') || (SELECTED_TO_ACCOUNT.name || '').includes('بنكك'));
+                                    (SELECTED_FROM_ACCOUNT.name || '').includes('ط¨ظ†ظƒ') || (SELECTED_TO_ACCOUNT.name || '').includes('ط¨ظ†ظƒ') ||
+                                    (SELECTED_FROM_ACCOUNT.name || '').includes('ط¨ظ†ظƒظƒ') || (SELECTED_TO_ACCOUNT.name || '').includes('ط¨ظ†ظƒظƒ'));
 
             // If bank is involved, reference number is mandatory
             if (isBankInvolved && !txRef) {
@@ -16490,7 +16484,7 @@ try {
             if (SELECTED_FROM_ACCOUNT.category === 'safe' || SELECTED_FROM_ACCOUNT.category === 'bank') {
                 const currentBal = parseFloat(SELECTED_FROM_ACCOUNT.balance || 0);
                 if (amt > currentBal && currentBal > 0) {
-                    const allowOverdraft = confirm(`⚠️ تنبيه سيولة: رصيد [${SELECTED_FROM_ACCOUNT.name}] الحالي هو (${fmt(currentBal)} SDG)، بينما المبلغ المطلوب صرفه هو (${fmt(amt)} SDG).\n\nهل تريد المتابعة والسماح بالحركة على المكشوف؟`);
+                    const allowOverdraft = confirm(`âڑ ï¸ڈ طھظ†ط¨ظٹظ‡ ط³ظٹظˆظ„ط©: ط±طµظٹط¯ [${SELECTED_FROM_ACCOUNT.name}] ط§ظ„ط­ط§ظ„ظٹ ظ‡ظˆ (${fmt(currentBal)} SDG)طŒ ط¨ظٹظ†ظ…ط§ ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط·ظ„ظˆط¨ طµط±ظپظ‡ ظ‡ظˆ (${fmt(amt)} SDG).\n\nظ‡ظ„ طھط±ظٹط¯ ط§ظ„ظ…طھط§ط¨ط¹ط© ظˆط§ظ„ط³ظ…ط§ط­ ط¨ط§ظ„ط­ط±ظƒط© ط¹ظ„ظ‰ ط§ظ„ظ…ظƒط´ظˆظپطں`);
                     if (!allowOverdraft) return false;
                 }
             }
@@ -16759,9 +16753,9 @@ try {
 
             if (window.showModernToast) {
                 if (isAppOnline) {
-                    window.showModernToast(`✅ تم حفظ الحركة المالية [${vNo}] بمبلغ (${fmt(amt)} SDG) بنجاح!`, 'success', 3500);
+                    window.showModernToast(`âœ… طھظ… ط­ظپط¸ ط§ظ„ط­ط±ظƒط© ط§ظ„ظ…ط§ظ„ظٹط© [${vNo}] ط¨ظ…ط¨ظ„ط؛ (${fmt(amt)} SDG) ط¨ظ†ط¬ط§ط­!`, 'success', 3500);
                 } else {
-                    window.showModernToast(`⏳ تم حفظ السند أوفلاين [${vNo}] (النور أحمر) • سيتم ترحيله وأخذ الرقم الرسمي فور عودة النت ⚡`, 'info', 4000);
+                    window.showModernToast(`âڈ³ طھظ… ط­ظپط¸ ط§ظ„ط³ظ†ط¯ ط£ظˆظپظ„ط§ظٹظ† [${vNo}] (ط§ظ„ظ†ظˆط± ط£ط­ظ…ط±) â€¢ ط³ظٹطھظ… طھط±ط­ظٹظ„ظ‡ ظˆط£ط®ط° ط§ظ„ط±ظ‚ظ… ط§ظ„ط±ط³ظ…ظٹ ظپظˆط± ط¹ظˆط¯ط© ط§ظ„ظ†طھ âڑ،`, 'info', 4000);
                 }
             }
 
@@ -16783,13 +16777,13 @@ try {
             if (ACTIVE_TX_FOR_WA) {
                 promptWhatsAppRecipient();
             } else {
-                alert('⚠️ يرجى إدخال المبلغ وتفاصيل الحركة أولاً');
+                alert('âڑ ï¸ڈ ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ظ…ط¨ظ„ط؛ ظˆطھظپط§طµظٹظ„ ط§ظ„ط­ط±ظƒط© ط£ظˆظ„ط§ظ‹');
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         // 5. SMART WHATSAPP RECIPIENT TARGET SELECTOR
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function promptWhatsAppRecipient() {
             if (!ACTIVE_TX_FOR_WA) return;
             const tx = ACTIVE_TX_FOR_WA;
@@ -16799,11 +16793,11 @@ try {
             const toNameEl = document.getElementById('wa-to-name');
             const toPhoneEl = document.getElementById('wa-to-phone');
 
-            if (fromNameEl) fromNameEl.textContent = tx.fromAccount?.name || 'حساب الصارف';
-            if (fromPhoneEl) fromPhoneEl.textContent = tx.fromAccount?.phone ? ('هاتف: ' + tx.fromAccount.phone) : 'هاتف: غير مسجل (اختيار جهة الاتصال)';
+            if (fromNameEl) fromNameEl.textContent = tx.fromAccount?.name || 'ط­ط³ط§ط¨ ط§ظ„طµط§ط±ظپ';
+            if (fromPhoneEl) fromPhoneEl.textContent = tx.fromAccount?.phone ? ('ظ‡ط§طھظپ: ' + tx.fromAccount.phone) : 'ظ‡ط§طھظپ: ط؛ظٹط± ظ…ط³ط¬ظ„ (ط§ط®طھظٹط§ط± ط¬ظ‡ط© ط§ظ„ط§طھطµط§ظ„)';
 
-            if (toNameEl) toNameEl.textContent = tx.toAccount?.name || 'حساب المستلم';
-            if (toPhoneEl) toPhoneEl.textContent = tx.toAccount?.phone ? ('هاتف: ' + tx.toAccount.phone) : 'هاتف: غير مسجل (اختيار جهة الاتصال)';
+            if (toNameEl) toNameEl.textContent = tx.toAccount?.name || 'ط­ط³ط§ط¨ ط§ظ„ظ…ط³طھظ„ظ…';
+            if (toPhoneEl) toPhoneEl.textContent = tx.toAccount?.phone ? ('ظ‡ط§طھظپ: ' + tx.toAccount.phone) : 'ظ‡ط§طھظپ: ط؛ظٹط± ظ…ط³ط¬ظ„ (ط§ط®طھظٹط§ط± ط¬ظ‡ط© ط§ظ„ط§طھطµط§ظ„)';
 
             openBottomSheet('sheet-whatsapp-target');
         }
@@ -16816,42 +16810,42 @@ try {
             }
 
             const tx = ACTIVE_TX_FOR_WA;
-            const compName = document.getElementById('mobile-company-name')?.innerText || 'مؤسسة السجانة';
+            const compName = document.getElementById('mobile-company-name')?.innerText || 'ظ…ط¤ط³ط³ط© ط§ظ„ط³ط¬ط§ظ†ط©';
 
-            let typeTitle = tx.natureLabel || 'حركة مالية (قيد مزدوج)';
+            let typeTitle = tx.natureLabel || 'ط­ط±ظƒط© ظ…ط§ظ„ظٹط© (ظ‚ظٹط¯ ظ…ط²ط¯ظˆط¬)';
             if (!tx.natureLabel) {
-                if (tx.type === 'receipt') typeTitle = 'سند قبض واستلام نقدية';
-                else if (tx.type === 'payment') typeTitle = 'سند صرف ودفع نقدية';
-                else if (tx.type === 'transfer') typeTitle = 'سند تحويل مالي بيني';
-                else if (tx.type === 'journal_transfer') typeTitle = 'تسوية وتحويل ذمة بين حسابين';
+                if (tx.type === 'receipt') typeTitle = 'ط³ظ†ط¯ ظ‚ط¨ط¶ ظˆط§ط³طھظ„ط§ظ… ظ†ظ‚ط¯ظٹط©';
+                else if (tx.type === 'payment') typeTitle = 'ط³ظ†ط¯ طµط±ظپ ظˆط¯ظپط¹ ظ†ظ‚ط¯ظٹط©';
+                else if (tx.type === 'transfer') typeTitle = 'ط³ظ†ط¯ طھط­ظˆظٹظ„ ظ…ط§ظ„ظٹ ط¨ظٹظ†ظٹ';
+                else if (tx.type === 'journal_transfer') typeTitle = 'طھط³ظˆظٹط© ظˆطھط­ظˆظٹظ„ ط°ظ…ط© ط¨ظٹظ† ط­ط³ط§ط¨ظٹظ†';
             }
 
             let extraDetails = [];
             if (tx.amountForeign && tx.amountForeign > 0) {
-                extraDetails.push(`💵 *المعادل بالدولار:* $${fmt(tx.amountForeign)} USD (سعر الصرف: ${fmt(tx.rate)} SDG)`);
+                extraDetails.push(`ًں’µ *ط§ظ„ظ…ط¹ط§ط¯ظ„ ط¨ط§ظ„ط¯ظˆظ„ط§ط±:* $${fmt(tx.amountForeign)} USD (ط³ط¹ط± ط§ظ„طµط±ظپ: ${fmt(tx.rate)} SDG)`);
             }
             if (tx.costCenterName) {
-                extraDetails.push(`📊 *مركز الكلفة:* ${tx.costCenterName}`);
+                extraDetails.push(`ًں“ٹ *ظ…ط±ظƒط² ط§ظ„ظƒظ„ظپط©:* ${tx.costCenterName}`);
             }
             if (tx.beneficiaryName) {
-                extraDetails.push(`👤 *المستفيد:* ${tx.beneficiaryName}`);
+                extraDetails.push(`ًں‘¤ *ط§ظ„ظ…ط³طھظپظٹط¯:* ${tx.beneficiaryName}`);
             }
             const extraText = extraDetails.length > 0 ? (extraDetails.join('\n') + '\n') : '';
 
             const voucherMsg = 
-`🧾 *إشعار حركة مالية معتمد*
-🏢 *${compName}*
-━━━━━━━━━━━━━━━━━━━━
-📑 *رقم السند:* ${tx.voucherNo || tx.id}
-📌 *نوع الحركة:* ${typeTitle}
-💰 *المبلغ (محلي):* ${fmt(tx.amountLocal || tx.amount)} SDG
-${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
-🟢 *إلى حساب (المستلم):* ${tx.toAccount?.name || '--'}
-🔢 *رقم الإشعار / التحويل:* ${tx.transferNo || tx.refNo || '--'}
-📅 *التاريخ:* ${tx.date}
-📝 *البيان:* ${tx.notes || 'سند معتمد بنجاح'}
-━━━━━━━━━━━━━━━━━━━━
-✓ قيد محاسبي مزدوج معتمد ومطابق لدفاتر وسجلات النظام.`;
+`ًں§¾ *ط¥ط´ط¹ط§ط± ط­ط±ظƒط© ظ…ط§ظ„ظٹط© ظ…ط¹طھظ…ط¯*
+ًںڈ¢ *${compName}*
+â”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ
+ًں“‘ *ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯:* ${tx.voucherNo || tx.id}
+ًں“Œ *ظ†ظˆط¹ ط§ظ„ط­ط±ظƒط©:* ${typeTitle}
+ًں’° *ط§ظ„ظ…ط¨ظ„ط؛ (ظ…ط­ظ„ظٹ):* ${fmt(tx.amountLocal || tx.amount)} SDG
+${extraText}ًں”´ *ظ…ظ† ط­ط³ط§ط¨ (ط§ظ„طµط§ط±ظپ):* ${tx.fromAccount?.name || '--'}
+ًںں¢ *ط¥ظ„ظ‰ ط­ط³ط§ط¨ (ط§ظ„ظ…ط³طھظ„ظ…):* ${tx.toAccount?.name || '--'}
+ًں”¢ *ط±ظ‚ظ… ط§ظ„ط¥ط´ط¹ط§ط± / ط§ظ„طھط­ظˆظٹظ„:* ${tx.transferNo || tx.refNo || '--'}
+ًں“… *ط§ظ„طھط§ط±ظٹط®:* ${tx.date}
+ًں“‌ *ط§ظ„ط¨ظٹط§ظ†:* ${tx.notes || 'ط³ظ†ط¯ ظ…ط¹طھظ…ط¯ ط¨ظ†ط¬ط§ط­'}
+â”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پâ”پ
+âœ“ ظ‚ظٹط¯ ظ…ط­ط§ط³ط¨ظٹ ظ…ط²ط¯ظˆط¬ ظ…ط¹طھظ…ط¯ ظˆظ…ط·ط§ط¨ظ‚ ظ„ط¯ظپط§طھط± ظˆط³ط¬ظ„ط§طھ ط§ظ„ظ†ط¸ط§ظ….`;
 
             let phone = '';
             if (targetOption === 'from' && tx.fromAccount?.phone) {
@@ -16873,9 +16867,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             window.open(waUrl, '_blank');
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         // 6. AI BANK SLIP / NOTIFICATION EXTRACTOR
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function parseSlipInputLive(rawText) {
             if (!rawText || !rawText.trim()) {
                 const preview = document.getElementById('ai-parsed-preview');
@@ -16887,8 +16881,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             // 1. Amount Extraction
             let extractedAmount = null;
             const amountRegexes = [
-                /(?:المبلغ|مبلغ|المبلغ المحول|المبلغ المخصوم|المبلغ المسحوب|Amount|Total)\s*[:=]?\s*([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)/i,
-                /([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*(?:SDG|ج\.س|جنيه|ريال|دولار)/i
+                /(?:ط§ظ„ظ…ط¨ظ„ط؛|ظ…ط¨ظ„ط؛|ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط­ظˆظ„|ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط®طµظˆظ…|ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ظ…ط³ط­ظˆط¨|Amount|Total)\s*[:=]?\s*([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)/i,
+                /([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?|[0-9]+(?:\.[0-9]+)?)\s*(?:SDG|ط¬\.ط³|ط¬ظ†ظٹظ‡|ط±ظٹط§ظ„|ط¯ظˆظ„ط§ط±)/i
             ];
             for (let rx of amountRegexes) {
                 const m = rawText.match(rx);
@@ -16905,7 +16899,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             // 2. Ref / Transaction ID
             let extractedRef = null;
             const refRegexes = [
-                /(?:رقم العملية|رقم المرجع|المرجع|رقم الإشعار|رقم المعاملة|Transaction ID|Ref(?:erence)?\s*(?:No)?)\s*[:=]?\s*([A-Za-z0-9\-_]{4,35})/i,
+                /(?:ط±ظ‚ظ… ط§ظ„ط¹ظ…ظ„ظٹط©|ط±ظ‚ظ… ط§ظ„ظ…ط±ط¬ط¹|ط§ظ„ظ…ط±ط¬ط¹|ط±ظ‚ظ… ط§ظ„ط¥ط´ط¹ط§ط±|ط±ظ‚ظ… ط§ظ„ظ…ط¹ط§ظ…ظ„ط©|Transaction ID|Ref(?:erence)?\s*(?:No)?)\s*[:=]?\s*([A-Za-z0-9\-_]{4,35})/i,
                 /(?:TX|TRX|REF|FT)[0-9A-Za-z]{6,25}/i
             ];
             for (let rx of refRegexes) {
@@ -16933,10 +16927,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 extractedDate = new Date().toISOString().split('T')[0];
             }
 
-            // 4. Sender / Payer (من / المحول)
+            // 4. Sender / Payer (ظ…ظ† / ط§ظ„ظ…ط­ظˆظ„)
             let extractedFrom = null;
             const fromRegexes = [
-                /(?:من حساب|من المحول|المحول|المرسل|من)\s*[:=]?\s*([^\n\r,–—]+)/i
+                /(?:ظ…ظ† ط­ط³ط§ط¨|ظ…ظ† ط§ظ„ظ…ط­ظˆظ„|ط§ظ„ظ…ط­ظˆظ„|ط§ظ„ظ…ط±ط³ظ„|ظ…ظ†)\s*[:=]?\s*([^\n\r,â€“â€”]+)/i
             ];
             for (let rx of fromRegexes) {
                 const m = rawText.match(rx);
@@ -16946,10 +16940,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
             }
 
-            // 5. Receiver / Payee (إلى / المحول إليه / المستلم)
+            // 5. Receiver / Payee (ط¥ظ„ظ‰ / ط§ظ„ظ…ط­ظˆظ„ ط¥ظ„ظٹظ‡ / ط§ظ„ظ…ط³طھظ„ظ…)
             let extractedTo = null;
             const toRegexes = [
-                /(?:إلى حساب|المحول إليه|المستلم|إلى)\s*[:=]?\s*([^\n\r,–—]+)/i
+                /(?:ط¥ظ„ظ‰ ط­ط³ط§ط¨|ط§ظ„ظ…ط­ظˆظ„ ط¥ظ„ظٹظ‡|ط§ظ„ظ…ط³طھظ„ظ…|ط¥ظ„ظ‰)\s*[:=]?\s*([^\n\r,â€“â€”]+)/i
             ];
             for (let rx of toRegexes) {
                 const m = rawText.match(rx);
@@ -16978,8 +16972,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 );
             }
 
-            if (!matchedToAcc && (rawText.includes('بنكك') || rawText.includes('بنك الخرطوم') || rawText.includes('Bankak'))) {
-                matchedToAcc = ALL_ACCOUNTS.find(a => a.name.includes('الخرطوم') || a.name.includes('بنكك')) || ALL_ACCOUNTS.find(a => a.category === 'bank');
+            if (!matchedToAcc && (rawText.includes('ط¨ظ†ظƒظƒ') || rawText.includes('ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ…') || rawText.includes('Bankak'))) {
+                matchedToAcc = ALL_ACCOUNTS.find(a => a.name.includes('ط§ظ„ط®ط±ط·ظˆظ…') || a.name.includes('ط¨ظ†ظƒظƒ')) || ALL_ACCOUNTS.find(a => a.category === 'bank');
             }
 
             AI_EXTRACTED_DATA = {
@@ -16995,24 +16989,24 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             const previewBox = document.getElementById('ai-parsed-preview');
             if (previewBox) {
                 previewBox.style.display = 'block';
-                document.getElementById('ai-chip-amount').innerText = extractedAmount ? (fmt(extractedAmount) + ' SDG') : 'لم يتم تحديده';
-                document.getElementById('ai-chip-ref').innerText = extractedRef || 'غير محدد';
-                document.getElementById('ai-chip-from').innerText = matchedFromAcc ? (matchedFromAcc.name + ' (' + matchedFromAcc.categoryName + ')') : (extractedFrom || 'غير محدد');
-                document.getElementById('ai-chip-to').innerText = matchedToAcc ? (matchedToAcc.name + ' (' + matchedToAcc.categoryName + ')') : (extractedTo || 'بنك الخرطوم');
-                document.getElementById('ai-chip-date').innerText = extractedDate || 'اليوم';
+                document.getElementById('ai-chip-amount').innerText = extractedAmount ? (fmt(extractedAmount) + ' SDG') : 'ظ„ظ… ظٹطھظ… طھط­ط¯ظٹط¯ظ‡';
+                document.getElementById('ai-chip-ref').innerText = extractedRef || 'ط؛ظٹط± ظ…ط­ط¯ط¯';
+                document.getElementById('ai-chip-from').innerText = matchedFromAcc ? (matchedFromAcc.name + ' (' + matchedFromAcc.categoryName + ')') : (extractedFrom || 'ط؛ظٹط± ظ…ط­ط¯ط¯');
+                document.getElementById('ai-chip-to').innerText = matchedToAcc ? (matchedToAcc.name + ' (' + matchedToAcc.categoryName + ')') : (extractedTo || 'ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ…');
+                document.getElementById('ai-chip-date').innerText = extractedDate || 'ط§ظ„ظٹظˆظ…';
             }
         }
 
         function loadSampleBankakSlip() {
             triggerHaptic('light');
             const sample = 
-`إشعار تحويل بنكك - بنك الخرطوم
-رقم العملية: 94820148
-المبلغ: 250,000 SDG
-من: محمد عثمان إدريس
-إلى: مؤسسة السجانة التجارية
-التاريخ: ${new Date().toISOString().split('T')[0]} 14:35
-حالة العملية: ناجحة ومكتملة`;
+`ط¥ط´ط¹ط§ط± طھط­ظˆظٹظ„ ط¨ظ†ظƒظƒ - ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ…
+ط±ظ‚ظ… ط§ظ„ط¹ظ…ظ„ظٹط©: 94820148
+ط§ظ„ظ…ط¨ظ„ط؛: 250,000 SDG
+ظ…ظ†: ظ…ط­ظ…ط¯ ط¹ط«ظ…ط§ظ† ط¥ط¯ط±ظٹط³
+ط¥ظ„ظ‰: ظ…ط¤ط³ط³ط© ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„طھط¬ط§ط±ظٹط©
+ط§ظ„طھط§ط±ظٹط®: ${new Date().toISOString().split('T')[0]} 14:35
+ط­ط§ظ„ط© ط§ظ„ط¹ظ…ظ„ظٹط©: ظ†ط§ط¬ط­ط© ظˆظ…ظƒطھظ…ظ„ط©`;
 
             const textarea = document.getElementById('ai-slip-text');
             if (textarea) {
@@ -17036,7 +17030,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     }
                 }
             } catch(err) {}
-            alert('يرجى لصق النص يدوياً داخل المربع بالضغط المطول واختيار "لصق"');
+            alert('ظٹط±ط¬ظ‰ ظ„طµظ‚ ط§ظ„ظ†طµ ظٹط¯ظˆظٹط§ظ‹ ط¯ط§ط®ظ„ ط§ظ„ظ…ط±ط¨ط¹ ط¨ط§ظ„ط¶ط؛ط· ط§ظ„ظ…ط·ظˆظ„ ظˆط§ط®طھظٹط§ط± "ظ„طµظ‚"');
         }
 
         function applyAIExtractedData() {
@@ -17067,19 +17061,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 selectAccountDirectly('to', data.matchedToAcc);
             }
 
-            document.getElementById('tx-notes').value = `تحويل بنكك آلي - مرجع ${data.ref}`;
+            document.getElementById('tx-notes').value = `طھط­ظˆظٹظ„ ط¨ظ†ظƒظƒ ط¢ظ„ظٹ - ظ…ط±ط¬ط¹ ${data.ref}`;
 
             closeBottomSheet('sheet-ai-slip');
             openFinancialTxSheet();
 
             if (window.showModernToast) {
-                window.showModernToast('✨ تم تفريغ الإشعار وتعبئة السند بنجاح!', 'success', 2500);
+                window.showModernToast('âœ¨ طھظ… طھظپط±ظٹط؛ ط§ظ„ط¥ط´ط¹ط§ط± ظˆطھط¹ط¨ط¦ط© ط§ظ„ط³ظ†ط¯ ط¨ظ†ط¬ط§ط­!', 'success', 2500);
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🔄 REFRESH FINANCIAL TX MODAL (رقم السند وسعر الصرف)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں”„ REFRESH FINANCIAL TX MODAL (ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯ ظˆط³ط¹ط± ط§ظ„طµط±ظپ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function refreshFinancialTxModal() {
             triggerHaptic('medium');
             const vObj = computeNextVoucherNo();
@@ -17097,20 +17091,20 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (localVal > 0) onLocalAmountInput(localVal);
 
             if (window.showModernToast) {
-                window.showModernToast('🔄 تم تحديث رقم السند وسعر الصرف بنجاح', 'info', 1800);
+                window.showModernToast('ًں”„ طھظ… طھط­ط¯ظٹط« ط±ظ‚ظ… ط§ظ„ط³ظ†ط¯ ظˆط³ط¹ط± ط§ظ„طµط±ظپ ط¨ظ†ط¬ط§ط­', 'info', 1800);
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 📲 WHATSAPP BANK SLIP PARSER & DIRECT EXTRACTOR
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں“² WHATSAPP BANK SLIP PARSER & DIRECT EXTRACTOR
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function openWhatsAppForSlip() {
             triggerHaptic('medium');
             sessionStorage.setItem('waiting_whatsapp_slip', 'true');
             sessionStorage.setItem('waiting_whatsapp_slip_time', String(Date.now()));
 
             if (window.showModernToast) {
-                window.showModernToast('📲 جاري فتح واتساب.. انسخ نص الإشعار أو شارك صورته ثم ارجع للتطبيق!', 'info', 3000);
+                window.showModernToast('ًں“² ط¬ط§ط±ظٹ ظپطھط­ ظˆط§طھط³ط§ط¨.. ط§ظ†ط³ط® ظ†طµ ط§ظ„ط¥ط´ط¹ط§ط± ط£ظˆ ط´ط§ط±ظƒ طµظˆط±طھظ‡ ط«ظ… ط§ط±ط¬ط¹ ظ„ظ„طھط·ط¨ظٹظ‚!', 'info', 3000);
             }
 
             try {
@@ -17141,7 +17135,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (navigator.clipboard && navigator.clipboard.readText) {
                 navigator.clipboard.readText().then(text => {
                     if (text && text.trim().length > 10) {
-                        const hasKeywords = /بنك|تحويل|مبلغ|حوالة|سداد|خصم|إيداع|SDG|SAR|جنيه|ريال|عملية|مرجع|أوكاش|فوري|Bankak|Transfer|Receipt/i.test(text);
+                        const hasKeywords = /ط¨ظ†ظƒ|طھط­ظˆظٹظ„|ظ…ط¨ظ„ط؛|ط­ظˆط§ظ„ط©|ط³ط¯ط§ط¯|ط®طµظ…|ط¥ظٹط¯ط§ط¹|SDG|SAR|ط¬ظ†ظٹظ‡|ط±ظٹط§ظ„|ط¹ظ…ظ„ظٹط©|ظ…ط±ط¬ط¹|ط£ظˆظƒط§ط´|ظپظˆط±ظٹ|Bankak|Transfer|Receipt/i.test(text);
                         if (hasKeywords) {
                             pasteAndAutoFillSlip(text);
                         }
@@ -17184,7 +17178,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             const blob = await item.getType(imageType);
                             if (blob) {
                                 if (window.showModernToast) {
-                                    window.showModernToast('🖼️ تم العثور على صورة إشعار في الحافظة، جار الفحص بالذكاء الاصطناعي...', 'info', 3000);
+                                    window.showModernToast('ًں–¼ï¸ڈ طھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ طµظˆط±ط© ط¥ط´ط¹ط§ط± ظپظٹ ط§ظ„ط­ط§ظپط¸ط©طŒ ط¬ط§ط± ط§ظ„ظپط­طµ ط¨ط§ظ„ط°ظƒط§ط، ط§ظ„ط§طµط·ظ†ط§ط¹ظٹ...', 'info', 3000);
                                 }
                                 processSlipImageBlob(blob);
                                 return;
@@ -17199,7 +17193,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (!text || !text.trim()) {
                 openBottomSheet('sheet-ai-slip');
                 if (window.showModernToast) {
-                    window.showModernToast('📋 الصق نص الإشعار هنا لتفريغه آلياً', 'info', 2500);
+                    window.showModernToast('ًں“‹ ط§ظ„طµظ‚ ظ†طµ ط§ظ„ط¥ط´ط¹ط§ط± ظ‡ظ†ط§ ظ„طھظپط±ظٹط؛ظ‡ ط¢ظ„ظٹط§ظ‹', 'info', 2500);
                 }
                 return;
             }
@@ -17216,19 +17210,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (AI_EXTRACTED_DATA && (AI_EXTRACTED_DATA.amount || AI_EXTRACTED_DATA.ref)) {
                 applyAIExtractedData();
                 if (window.showModernToast) {
-                    window.showModernToast('✨ تم تفريغ الإشعار وتعبئة السند بنجاح!', 'success', 2500);
+                    window.showModernToast('âœ¨ طھظ… طھظپط±ظٹط؛ ط§ظ„ط¥ط´ط¹ط§ط± ظˆطھط¹ط¨ط¦ط© ط§ظ„ط³ظ†ط¯ ط¨ظ†ط¬ط§ط­!', 'success', 2500);
                 }
             } else {
                 openBottomSheet('sheet-ai-slip');
                 if (window.showModernToast) {
-                    window.showModernToast('يرجى مراجعة وتأكيد بيانات الإشعار', 'info', 2500);
+                    window.showModernToast('ظٹط±ط¬ظ‰ ظ…ط±ط§ط¬ط¹ط© ظˆطھط£ظƒظٹط¯ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط¥ط´ط¹ط§ط±', 'info', 2500);
                 }
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🖼️ STUDIO / GALLERY IMAGE PICKER & HIGH-SPEED CLIENT RESIZE OCR
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں–¼ï¸ڈ STUDIO / GALLERY IMAGE PICKER & HIGH-SPEED CLIENT RESIZE OCR
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function triggerSlipImagePicker() {
             triggerHaptic('light');
             const inp = document.getElementById('slip-image-picker');
@@ -17272,7 +17266,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         async function processSlipImageBlob(fileOrBlob) {
             triggerHaptic('medium');
             if (window.showModernToast) {
-                window.showModernToast('🔍 جاري فحص وقراءة صورة الإشعار وتفريغها آلياً...', 'info', 4000);
+                window.showModernToast('ًں”چ ط¬ط§ط±ظٹ ظپط­طµ ظˆظ‚ط±ط§ط،ط© طµظˆط±ط© ط§ظ„ط¥ط´ط¹ط§ط± ظˆطھظپط±ظٹط؛ظ‡ط§ ط¢ظ„ظٹط§ظ‹...', 'info', 4000);
             }
 
             // Always ensure Payment Method is set to Bank Transfer
@@ -17336,7 +17330,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                     const noteInp = document.getElementById('tx-notes');
                     if (noteInp) {
-                        noteInp.value = `تحويل ${d.bank_name || 'بنكي'} - مرجع ${d.transaction_ref || d.reference_no || ''}`;
+                        noteInp.value = `طھط­ظˆظٹظ„ ${d.bank_name || 'ط¨ظ†ظƒظٹ'} - ظ…ط±ط¬ط¹ ${d.transaction_ref || d.reference_no || ''}`;
                     }
 
                     const banner = document.getElementById('wa-return-banner');
@@ -17345,18 +17339,18 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                     if (typeof playSoundEffect === 'function') playSoundEffect('cash');
                     if (window.showModernToast) {
-                        window.showModernToast('✨ تم استخراج بيانات الإشعار وتفريغ السند بنجاح!', 'success', 3500);
+                        window.showModernToast('âœ¨ طھظ… ط§ط³طھط®ط±ط§ط¬ ط¨ظٹط§ظ†ط§طھ ط§ظ„ط¥ط´ط¹ط§ط± ظˆطھظپط±ظٹط؛ ط§ظ„ط³ظ†ط¯ ط¨ظ†ط¬ط§ط­!', 'success', 3500);
                     }
                 } else {
                     if (window.showModernToast) {
-                        window.showModernToast('📸 تم إرفاق صورة الإشعار بالسند — يرجى إدخال المبلغ ورقم التحويلة', 'info', 4000);
+                        window.showModernToast('ًں“¸ طھظ… ط¥ط±ظپط§ظ‚ طµظˆط±ط© ط§ظ„ط¥ط´ط¹ط§ط± ط¨ط§ظ„ط³ظ†ط¯ â€” ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ظ…ط¨ظ„ط؛ ظˆط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط©', 'info', 4000);
                     }
                     document.getElementById('tx-amount-local')?.focus();
                 }
             } catch(err) {
                 console.error('OCR Error:', err);
                 if (window.showModernToast) {
-                    window.showModernToast('📸 تم حفظ مرفق الإشعار بنجاح بالسند — يرجى إدخال المبلغ ورقم التحويلة يدوياً', 'info', 4000);
+                    window.showModernToast('ًں“¸ طھظ… ط­ظپط¸ ظ…ط±ظپظ‚ ط§ظ„ط¥ط´ط¹ط§ط± ط¨ظ†ط¬ط§ط­ ط¨ط§ظ„ط³ظ†ط¯ â€” ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ط§ظ„ظ…ط¨ظ„ط؛ ظˆط±ظ‚ظ… ط§ظ„طھط­ظˆظٹظ„ط© ظٹط¯ظˆظٹط§ظ‹', 'info', 4000);
                 }
                 document.getElementById('tx-amount-local')?.focus();
             }
@@ -17382,9 +17376,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         }
 
         // 3. Fast POS Invoice
-        // ═════════════════════════════════════════════════════════════════
-        // 💰 MODULE 2: CASH MANAGEMENT & QUICK VOUCHERS (سندات القبض والصرف)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں’° MODULE 2: CASH MANAGEMENT & QUICK VOUCHERS (ط³ظ†ط¯ط§طھ ط§ظ„ظ‚ط¨ط¶ ظˆط§ظ„طµط±ظپ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.CashVoucherEngine = {
             state: {
                 mode: 'receipt', // 'receipt' | 'disbursement' | 'transfer'
@@ -17417,39 +17411,39 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 buildAllAccountsList();
 
                 if (mode === 'receipt') {
-                    if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-arrow-down-left text-emerald-400"></i> سند قبض نقدي / بنكي (Cash In)';
+                    if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-arrow-down-left text-emerald-400"></i> ط³ظ†ط¯ ظ‚ط¨ط¶ ظ†ظ‚ط¯ظٹ / ط¨ظ†ظƒظٹ (Cash In)';
                     if (guardCard) guardCard.style.display = 'flex';
                     if (catContainer) catContainer.style.display = 'none';
                     if (approvalCard) approvalCard.style.display = 'none';
 
-                    // "إلى" (to) defaults to primary safe/bank
+                    // "ط¥ظ„ظ‰" (to) defaults to primary safe/bank
                     const primaryVault = ALL_ACCOUNTS.find(a => a.category === 'safe') || ALL_ACCOUNTS.find(a => a.category === 'bank');
                     if (primaryVault) selectAccountDirectly('to', primaryVault);
 
-                    // "من" (from) can be selected customer
+                    // "ظ…ظ†" (from) can be selected customer
                     const firstCust = ALL_ACCOUNTS.find(a => a.category === 'customer');
                     if (firstCust) selectAccountDirectly('from', firstCust);
 
                     this.checkTreasuryGuard();
 
                 } else if (mode === 'disbursement') {
-                    if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square text-rose-400"></i> سند صرف نقدي / منصرفات (Cash Out)';
+                    if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-arrow-up-right-from-square text-rose-400"></i> ط³ظ†ط¯ طµط±ظپ ظ†ظ‚ط¯ظٹ / ظ…ظ†طµط±ظپط§طھ (Cash Out)';
                     if (guardCard) guardCard.style.display = 'flex';
                     if (catContainer) catContainer.style.display = 'block';
                     if (approvalCard) approvalCard.style.display = 'flex';
 
-                    // "من" (from) defaults to primary safe
+                    // "ظ…ظ†" (from) defaults to primary safe
                     const primarySafe = ALL_ACCOUNTS.find(a => a.category === 'safe') || ALL_ACCOUNTS.find(a => a.category === 'bank');
                     if (primarySafe) selectAccountDirectly('from', primarySafe);
 
-                    // "إلى" (to) defaults to expense or supplier
+                    // "ط¥ظ„ظ‰" (to) defaults to expense or supplier
                     const expenseAcc = ALL_ACCOUNTS.find(a => a.category === 'expense') || ALL_ACCOUNTS.find(a => a.category === 'supplier');
                     if (expenseAcc) selectAccountDirectly('to', expenseAcc);
 
                     this.checkTreasuryGuard();
 
                 } else if (mode === 'transfer') {
-                    if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-money-bill-transfer text-sky-400"></i> تحويل مالي بيني / قيد مزدوج';
+                    if (titleEl) titleEl.innerHTML = '<i class="fa-solid fa-money-bill-transfer text-sky-400"></i> طھط­ظˆظٹظ„ ظ…ط§ظ„ظٹ ط¨ظٹظ†ظٹ / ظ‚ظٹط¯ ظ…ط²ط¯ظˆط¬';
                     if (guardCard) guardCard.style.display = 'none';
                     if (catContainer) catContainer.style.display = 'none';
                     if (approvalCard) approvalCard.style.display = 'none';
@@ -17468,7 +17462,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     const offSeq = window.DualNumberingEngine.peekNextSequence(mode);
                     if (vNoEl) vNoEl.value = offSeq;
                     if (vDispEl) {
-                        vDispEl.innerHTML = `⏳ ${offSeq} <small style="font-size:0.76rem; opacity:0.85;">(أوفلاين)</small>`;
+                        vDispEl.innerHTML = `âڈ³ ${offSeq} <small style="font-size:0.76rem; opacity:0.85;">(ط£ظˆظپظ„ط§ظٹظ†)</small>`;
                         vDispEl.style.color = '#f59e0b';
                         vDispEl.style.borderColor = '#f59e0b';
                         vDispEl.style.background = 'rgba(245, 158, 11, 0.15)';
@@ -17493,11 +17487,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 // Auto update note placeholder or prefix
                 const catLabels = {
-                    operational: 'منصرف تشغيلي وإداري',
-                    maintenance: 'صيانة دورية وإصلاحات',
-                    fuel: 'وقود ونقل ومشاوير',
-                    supplier: 'دفعة سداد حساب مورد',
-                    petty: 'عهدة نثريات'
+                    operational: 'ظ…ظ†طµط±ظپ طھط´ط؛ظٹظ„ظٹ ظˆط¥ط¯ط§ط±ظٹ',
+                    maintenance: 'طµظٹط§ظ†ط© ط¯ظˆط±ظٹط© ظˆط¥طµظ„ط§ط­ط§طھ',
+                    fuel: 'ظˆظ‚ظˆط¯ ظˆظ†ظ‚ظ„ ظˆظ…ط´ط§ظˆظٹط±',
+                    supplier: 'ط¯ظپط¹ط© ط³ط¯ط§ط¯ ط­ط³ط§ط¨ ظ…ظˆط±ط¯',
+                    petty: 'ط¹ظ‡ط¯ط© ظ†ط«ط±ظٹط§طھ'
                 };
                 const notesInp = document.getElementById('tx-notes');
                 if (notesInp && !notesInp.value) {
@@ -17521,9 +17515,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         if (approvalInp) approvalInp.checked = true;
                         this.state.requestApproval = true;
                         if (approvalCard) approvalCard.style.borderColor = 'var(--amber)';
-                        if (subtext) subtext.innerHTML = '<strong style="color:var(--amber);">المبلغ يتجاوز 500,000 SDG ويتطلب اعتماد المدير المالي إجبارياً ⚠️</strong>';
+                        if (subtext) subtext.innerHTML = '<strong style="color:var(--amber);">ط§ظ„ظ…ط¨ظ„ط؛ ظٹطھط¬ط§ظˆط² 500,000 SDG ظˆظٹطھط·ظ„ط¨ ط§ط¹طھظ…ط§ط¯ ط§ظ„ظ…ط¯ظٹط± ط§ظ„ظ…ط§ظ„ظٹ ط¥ط¬ط¨ط§ط±ظٹط§ظ‹ âڑ ï¸ڈ</strong>';
                     } else {
-                        if (subtext) subtext.innerHTML = 'للمصروفات التي تتجاوز سقف الصرف اللحظي';
+                        if (subtext) subtext.innerHTML = 'ظ„ظ„ظ…طµط±ظˆظپط§طھ ط§ظ„طھظٹ طھطھط¬ط§ظˆط² ط³ظ‚ظپ ط§ظ„طµط±ظپ ط§ظ„ظ„ط­ط¸ظٹ';
                     }
                 } else if (this.state.mode === 'receipt') {
                     this.checkTreasuryGuard(num);
@@ -17540,18 +17534,18 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (this.state.mode === 'receipt') {
                     card.style.display = 'flex';
                     card.className = 'treasury-guard-card guard-safe';
-                    let safeName = 'الخزينة';
+                    let safeName = 'ط§ظ„ط®ط²ظٹظ†ط©';
                     let safeBal = 0;
                     if (SELECTED_TO_ACCOUNT) {
-                        safeName = SELECTED_TO_ACCOUNT.name || 'الخزينة';
+                        safeName = SELECTED_TO_ACCOUNT.name || 'ط§ظ„ط®ط²ظٹظ†ط©';
                         safeBal = parseFloat(SELECTED_TO_ACCOUNT.balance || 0);
                     } else if (Array.isArray(M_VAULTS) && M_VAULTS.length > 0) {
-                        safeName = M_VAULTS[0].name || 'الخزينة الرئيسية';
+                        safeName = M_VAULTS[0].name || 'ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط©';
                         safeBal = parseFloat(M_VAULTS[0].amount || 0);
                     }
                     if (icon) icon.className = 'fa-solid fa-vault';
-                    if (text) text.innerHTML = `🛡️ الخزينة المستلمة: [${safeName}]`;
-                    if (bal) bal.innerHTML = `الرصيد الحالي: ${fmt(safeBal)} SDG`;
+                    if (text) text.innerHTML = `ًں›،ï¸ڈ ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ظ…ط³طھظ„ظ…ط©: [${safeName}]`;
+                    if (bal) bal.innerHTML = `ط§ظ„ط±طµظٹط¯ ط§ظ„ط­ط§ظ„ظٹ: ${fmt(safeBal)} SDG`;
                     return;
                 }
 
@@ -17562,14 +17556,14 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 const amt = enteredAmt !== null ? enteredAmt : (parseFloat(document.getElementById('tx-amount-local')?.value) || 0);
                 let availableBalance = 0;
-                let accountName = 'الخزينة';
+                let accountName = 'ط§ظ„ط®ط²ظٹظ†ط©';
 
                 if (SELECTED_FROM_ACCOUNT) {
                     availableBalance = parseFloat(SELECTED_FROM_ACCOUNT.balance || 0);
-                    accountName = SELECTED_FROM_ACCOUNT.name || 'الخزينة';
+                    accountName = SELECTED_FROM_ACCOUNT.name || 'ط§ظ„ط®ط²ظٹظ†ط©';
                 } else if (Array.isArray(M_VAULTS) && M_VAULTS.length > 0) {
                     availableBalance = parseFloat(M_VAULTS[0].amount || 0);
-                    accountName = M_VAULTS[0].name || 'الخزينة الرئيسية';
+                    accountName = M_VAULTS[0].name || 'ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط©';
                 }
 
                 card.style.display = 'flex';
@@ -17577,13 +17571,13 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (amt > availableBalance) {
                     card.className = 'treasury-guard-card guard-danger';
                     if (icon) icon.className = 'fa-solid fa-triangle-exclamation';
-                    if (text) text.innerHTML = `⚠️ عجز سيولة! رصيد [${accountName}] لا يكفي`;
-                    if (bal) bal.innerHTML = `المتاح: ${fmt(availableBalance)} | العجز: -${fmt(amt - availableBalance)} SDG`;
+                    if (text) text.innerHTML = `âڑ ï¸ڈ ط¹ط¬ط² ط³ظٹظˆظ„ط©! ط±طµظٹط¯ [${accountName}] ظ„ط§ ظٹظƒظپظٹ`;
+                    if (bal) bal.innerHTML = `ط§ظ„ظ…طھط§ط­: ${fmt(availableBalance)} | ط§ظ„ط¹ط¬ط²: -${fmt(amt - availableBalance)} SDG`;
                 } else {
                     card.className = 'treasury-guard-card guard-safe';
                     if (icon) icon.className = 'fa-solid fa-shield-halved';
-                    if (text) text.innerHTML = `🛡️ رصيد [${accountName}] كافٍ ومتاح للصرف`;
-                    if (bal) bal.innerHTML = `المتاح: ${fmt(availableBalance)} SDG`;
+                    if (text) text.innerHTML = `ًں›،ï¸ڈ ط±طµظٹط¯ [${accountName}] ظƒط§ظپظچ ظˆظ…طھط§ط­ ظ„ظ„طµط±ظپ`;
+                    if (bal) bal.innerHTML = `ط§ظ„ظ…طھط§ط­: ${fmt(availableBalance)} SDG`;
                 }
             },
 
@@ -17600,15 +17594,15 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     return;
                 }
                 verbalizerEl.style.display = 'block';
-                verbalizerEl.innerHTML = `🗣️ <strong>${fmt(num)}</strong> SDG (${this.numberToArabicWords(num)} جنيه سوداني فقط لا غير)`;
+                verbalizerEl.innerHTML = `ًں—£ï¸ڈ <strong>${fmt(num)}</strong> SDG (${this.numberToArabicWords(num)} ط¬ظ†ظٹظ‡ ط³ظˆط¯ط§ظ†ظٹ ظپظ‚ط· ظ„ط§ ط؛ظٹط±)`;
             },
 
             numberToArabicWords(num) {
-                if (!num || num <= 0) return 'صفر';
-                const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
-                const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
-                const teens = ['عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
-                const hundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+                if (!num || num <= 0) return 'طµظپط±';
+                const ones = ['', 'ظˆط§ط­ط¯', 'ط§ط«ظ†ط§ظ†', 'ط«ظ„ط§ط«ط©', 'ط£ط±ط¨ط¹ط©', 'ط®ظ…ط³ط©', 'ط³طھط©', 'ط³ط¨ط¹ط©', 'ط«ظ…ط§ظ†ظٹط©', 'طھط³ط¹ط©'];
+                const tens = ['', 'ط¹ط´ط±ط©', 'ط¹ط´ط±ظˆظ†', 'ط«ظ„ط§ط«ظˆظ†', 'ط£ط±ط¨ط¹ظˆظ†', 'ط®ظ…ط³ظˆظ†', 'ط³طھظˆظ†', 'ط³ط¨ط¹ظˆظ†', 'ط«ظ…ط§ظ†ظˆظ†', 'طھط³ط¹ظˆظ†'];
+                const teens = ['ط¹ط´ط±ط©', 'ط£ط­ط¯ ط¹ط´ط±', 'ط§ط«ظ†ط§ ط¹ط´ط±', 'ط«ظ„ط§ط«ط© ط¹ط´ط±', 'ط£ط±ط¨ط¹ط© ط¹ط´ط±', 'ط®ظ…ط³ط© ط¹ط´ط±', 'ط³طھط© ط¹ط´ط±', 'ط³ط¨ط¹ط© ط¹ط´ط±', 'ط«ظ…ط§ظ†ظٹط© ط¹ط´ط±', 'طھط³ط¹ط© ط¹ط´ط±'];
+                const hundreds = ['', 'ظ…ط§ط¦ط©', 'ظ…ط¦طھط§ظ†', 'ط«ظ„ط§ط«ظ…ط§ط¦ط©', 'ط£ط±ط¨ط¹ظ…ط§ط¦ط©', 'ط®ظ…ط³ظ…ط§ط¦ط©', 'ط³طھظ…ط§ط¦ط©', 'ط³ط¨ط¹ظ…ط§ط¦ط©', 'ط«ظ…ط§ظ†ظ…ط§ط¦ط©', 'طھط³ط¹ظ…ط§ط¦ط©'];
 
                 const n = Math.floor(num);
                 if (n < 10) return ones[n];
@@ -17616,27 +17610,27 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (n < 100) {
                     const o = n % 10;
                     const t = Math.floor(n / 10);
-                    return (o > 0 ? ones[o] + ' و' : '') + tens[t];
+                    return (o > 0 ? ones[o] + ' ظˆ' : '') + tens[t];
                 }
                 if (n < 1000) {
                     const h = Math.floor(n / 100);
                     const rem = n % 100;
-                    return hundreds[h] + (rem > 0 ? ' و' + this.numberToArabicWords(rem) : '');
+                    return hundreds[h] + (rem > 0 ? ' ظˆ' + this.numberToArabicWords(rem) : '');
                 }
                 if (n < 1000000) {
                     const th = Math.floor(n / 1000);
                     const rem = n % 1000;
                     let thStr = '';
-                    if (th === 1) thStr = 'ألف';
-                    else if (th === 2) thStr = 'ألفان';
-                    else if (th >= 3 && th <= 10) thStr = ones[th] + ' آلاف';
-                    else thStr = this.numberToArabicWords(th) + ' ألف';
-                    return thStr + (rem > 0 ? ' و' + this.numberToArabicWords(rem) : '');
+                    if (th === 1) thStr = 'ط£ظ„ظپ';
+                    else if (th === 2) thStr = 'ط£ظ„ظپط§ظ†';
+                    else if (th >= 3 && th <= 10) thStr = ones[th] + ' ط¢ظ„ط§ظپ';
+                    else thStr = this.numberToArabicWords(th) + ' ط£ظ„ظپ';
+                    return thStr + (rem > 0 ? ' ظˆ' + this.numberToArabicWords(rem) : '');
                 }
                 const m = Math.floor(n / 1000000);
                 const rem = n % 1000000;
-                let mStr = m === 1 ? 'مليون' : (m === 2 ? 'مليونان' : this.numberToArabicWords(m) + ' مليون');
-                return mStr + (rem > 0 ? ' و' + this.numberToArabicWords(rem) : '');
+                let mStr = m === 1 ? 'ظ…ظ„ظٹظˆظ†' : (m === 2 ? 'ظ…ظ„ظٹظˆظ†ط§ظ†' : this.numberToArabicWords(m) + ' ظ…ظ„ظٹظˆظ†');
+                return mStr + (rem > 0 ? ' ظˆ' + this.numberToArabicWords(rem) : '');
             },
 
             removeAttachment() {
@@ -17645,7 +17639,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (box) box.style.display = 'none';
                 if (img) img.src = '';
                 this.state.attachedImage = null;
-                if (window.showModernToast) window.showModernToast('تمت إزالة المرفق', 'info', 1500);
+                if (window.showModernToast) window.showModernToast('طھظ…طھ ط¥ط²ط§ظ„ط© ط§ظ„ظ…ط±ظپظ‚', 'info', 1500);
             },
 
             syncUI() {
@@ -17653,9 +17647,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🛒 MODULE 1: ULTRA-FAST MOBILE INVOICING & POS (نقطة البيع والفوترة السريعة)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں›’ MODULE 1: ULTRA-FAST MOBILE INVOICING & POS (ظ†ظ‚ط·ط© ط§ظ„ط¨ظٹط¹ ظˆط§ظ„ظپظˆطھط±ط© ط§ظ„ط³ط±ظٹط¹ط©)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.MobilePOS = {
             state: {
                 invoiceType: 'cash', // 'cash' | 'credit' | 'bank'
@@ -17685,9 +17679,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             populateWarehouses() {
                 const defaultWhs = [
-                    { id: 'central', name: '🏢 المستودع المركزي - السجانة' },
-                    { id: 'kalakla', name: '🏬 فرع الكلاكلة' },
-                    { id: 'bahri', name: '🏭 مستودع بحري' }
+                    { id: 'central', name: 'ًںڈ¢ ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ - ط§ظ„ط³ط¬ط§ظ†ط©' },
+                    { id: 'kalakla', name: 'ًںڈ¬ ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©' },
+                    { id: 'bahri', name: 'ًںڈ­ ظ…ط³طھظˆط¯ط¹ ط¨ط­ط±ظٹ' }
                 ];
                 let whs = (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.warehouses) && window.SERVER_DATA.warehouses.length > 0)
                     ? window.SERVER_DATA.warehouses
@@ -17697,7 +17691,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const fillSelect = (id, includeAll = false) => {
                     const el = document.getElementById(id);
                     if (!el) return;
-                    let html = includeAll ? '<option value="all">كل المخازن والفروع</option>' : '';
+                    let html = includeAll ? '<option value="all">ظƒظ„ ط§ظ„ظ…ط®ط§ط²ظ† ظˆط§ظ„ظپط±ظˆط¹</option>' : '';
                     whs.forEach(w => {
                         const wId = w.id || w.code || w.warehouse_id || w;
                         const wName = w.name || w.warehouse_name || wId;
@@ -17716,7 +17710,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             },
 
             populateUnits() {
-                const defaultUnits = ["طن","طن وزني","طن عددي","سيخه","سيخة / عود","كيس","حبة","ألف حبة","متر مكعب","متر مربع","متر طولي","كرتونة","درزن","جالون","لتر","كيلو","قطعة","عددي","قلاب 12متر","شيله","كرتونة (4 جالون)"];
+                const defaultUnits = ["ط·ظ†","ط·ظ† ظˆط²ظ†ظٹ","ط·ظ† ط¹ط¯ط¯ظٹ","ط³ظٹط®ظ‡","ط³ظٹط®ط© / ط¹ظˆط¯","ظƒظٹط³","ط­ط¨ط©","ط£ظ„ظپ ط­ط¨ط©","ظ…طھط± ظ…ظƒط¹ط¨","ظ…طھط± ظ…ط±ط¨ط¹","ظ…طھط± ط·ظˆظ„ظٹ","ظƒط±طھظˆظ†ط©","ط¯ط±ط²ظ†","ط¬ط§ظ„ظˆظ†","ظ„طھط±","ظƒظٹظ„ظˆ","ظ‚ط·ط¹ط©","ط¹ط¯ط¯ظٹ","ظ‚ظ„ط§ط¨ 12ظ…طھط±","ط´ظٹظ„ظ‡","ظƒط±طھظˆظ†ط© (4 ط¬ط§ظ„ظˆظ†)"];
                 let units = (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.units) && window.SERVER_DATA.units.length > 0)
                     ? window.SERVER_DATA.units
                     : ((typeof loadTenantArray === 'function') ? (loadTenantArray('erp_global_units_v1') || []) : []);
@@ -17725,7 +17719,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const fillSelect = (id, includeAll = false) => {
                     const el = document.getElementById(id);
                     if (!el) return;
-                    let html = includeAll ? '<option value="all">كل الوحدات القياسية</option>' : '';
+                    let html = includeAll ? '<option value="all">ظƒظ„ ط§ظ„ظˆط­ط¯ط§طھ ط§ظ„ظ‚ظٹط§ط³ظٹط©</option>' : '';
                     units.forEach(u => {
                         const uName = (typeof u === 'string') ? u : (u.name || u.unit_name || u.id);
                         html += `<option value="${uName}">${uName}</option>`;
@@ -17748,12 +17742,12 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
                 const catList = Array.from(cats);
                 if (catList.length === 0) {
-                    catList.push("حديد تسليح", "قطاعات حديد", "أسمنت", "بويات", "مواسير", "زنك ومعدات", "مواد بناء");
+                    catList.push("ط­ط¯ظٹط¯ طھط³ظ„ظٹط­", "ظ‚ط·ط§ط¹ط§طھ ط­ط¯ظٹط¯", "ط£ط³ظ…ظ†طھ", "ط¨ظˆظٹط§طھ", "ظ…ظˆط§ط³ظٹط±", "ط²ظ†ظƒ ظˆظ…ط¹ط¯ط§طھ", "ظ…ظˆط§ط¯ ط¨ظ†ط§ط،");
                 }
                 const fillSelect = (id, includeAll = true) => {
                     const el = document.getElementById(id);
                     if (!el) return;
-                    let html = includeAll ? '<option value="all">كل الأنواع والتصنيفات</option>' : '';
+                    let html = includeAll ? '<option value="all">ظƒظ„ ط§ظ„ط£ظ†ظˆط§ط¹ ظˆط§ظ„طھطµظ†ظٹظپط§طھ</option>' : '';
                     catList.forEach(c => {
                         html += `<option value="${c}">${c}</option>`;
                     });
@@ -17782,7 +17776,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (isOffline) {
                     const peek = window.DualNumberingEngine ? window.DualNumberingEngine.peekNextSequence('sale') : invNo;
                     if (pill) {
-                        pill.innerHTML = `⏳ أوفلاين ${peek} <span style="font-size:0.76rem; opacity:0.85;">(معلق)</span>`;
+                        pill.innerHTML = `âڈ³ ط£ظˆظپظ„ط§ظٹظ† ${peek} <span style="font-size:0.76rem; opacity:0.85;">(ظ…ط¹ظ„ظ‚)</span>`;
                         pill.style.background = 'rgba(245, 158, 11, 0.2)';
                         pill.style.borderColor = '#f59e0b';
                         pill.style.color = '#f59e0b';
@@ -17790,7 +17784,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     return peek;
                 } else {
                     if (pill) {
-                        pill.innerHTML = `🟢 #${invNo}`;
+                        pill.innerHTML = `ًںں¢ #${invNo}`;
                         pill.style.background = 'rgba(56, 189, 248, 0.15)';
                         pill.style.borderColor = 'rgba(56, 189, 248, 0.3)';
                         pill.style.color = 'var(--primary)';
@@ -17803,7 +17797,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 if (data && data.sales && data.sales.nextInvoiceNo) {
                                     window._mirrorNextSalesNo = data.sales.nextInvoiceNo;
                                     if (pill && window.MobilePOS && window.MobilePOS.state.cart.length === 0) {
-                                        pill.innerHTML = `🟢 #${data.sales.nextInvoiceNo}`;
+                                        pill.innerHTML = `ًںں¢ #${data.sales.nextInvoiceNo}`;
                                     }
                                 }
                             }).catch(() => {});
@@ -17824,7 +17818,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (type === 'credit') {
                     if (this.state.customerId === 'walkin') {
                         if (window.showModernToast) {
-                            window.showModernToast('ℹ️ الفاتورة الآجلة تتطلب تحديد عميل مسجل لفحص سقف الائتمان', 'info', 2500);
+                            window.showModernToast('â„¹ï¸ڈ ط§ظ„ظپط§طھظˆط±ط© ط§ظ„ط¢ط¬ظ„ط© طھطھط·ظ„ط¨ طھط­ط¯ظٹط¯ ط¹ظ…ظٹظ„ ظ…ط³ط¬ظ„ ظ„ظپط­طµ ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ†', 'info', 2500);
                         }
                     }
                 }
@@ -17835,7 +17829,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const sel = document.getElementById('pos-customer-select');
                 if (!sel) return;
                 const currentVal = sel.value;
-                let html = '<option value="walkin">عميل نقدي عام (Walk-in)</option>';
+                let html = '<option value="walkin">ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ ط¹ط§ظ… (Walk-in)</option>';
                 if (Array.isArray(M_CUSTOMERS)) {
                     M_CUSTOMERS.forEach(c => {
                         const bal = parseFloat(c.balance || c.currentBalance || 0);
@@ -17856,20 +17850,20 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const limitEl = document.getElementById('pos-cust-credit-limit');
 
                 if (custId === 'walkin') {
-                    this.state.customer = { id: 'walkin', name: 'عميل نقدي عام', phone: 'نقدي فوري', balance: 0, creditLimit: 0 };
-                    if (phoneEl) phoneEl.innerHTML = '<i class="fa-solid fa-phone"></i> نقدي فوري';
-                    if (balEl) balEl.innerHTML = '<i class="fa-solid fa-wallet"></i> الرصيد: 0 SDG';
-                    if (limitEl) limitEl.innerHTML = '<i class="fa-solid fa-shield-halved"></i> السقف: لا يوجد';
+                    this.state.customer = { id: 'walkin', name: 'ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ ط¹ط§ظ…', phone: 'ظ†ظ‚ط¯ظٹ ظپظˆط±ظٹ', balance: 0, creditLimit: 0 };
+                    if (phoneEl) phoneEl.innerHTML = '<i class="fa-solid fa-phone"></i> ظ†ظ‚ط¯ظٹ ظپظˆط±ظٹ';
+                    if (balEl) balEl.innerHTML = '<i class="fa-solid fa-wallet"></i> ط§ظ„ط±طµظٹط¯: 0 SDG';
+                    if (limitEl) limitEl.innerHTML = '<i class="fa-solid fa-shield-halved"></i> ط§ظ„ط³ظ‚ظپ: ظ„ط§ ظٹظˆط¬ط¯';
                 } else {
                     const c = (Array.isArray(M_CUSTOMERS) ? M_CUSTOMERS.find(x => String(x.id) === String(custId)) : null);
                     if (c) {
                         const bal = parseFloat(c.balance || c.currentBalance || 0);
                         const limit = parseFloat(c.creditLimit || c.credit_limit || 0);
                         this.state.customer = { ...c, balance: bal, creditLimit: limit };
-                        if (phoneEl) phoneEl.innerHTML = `<i class="fa-solid fa-phone"></i> ${c.phone || 'بدون هاتف'}`;
+                        if (phoneEl) phoneEl.innerHTML = `<i class="fa-solid fa-phone"></i> ${c.phone || 'ط¨ط¯ظˆظ† ظ‡ط§طھظپ'}`;
                         const balColor = bal > 0 ? '#ef4444' : '#10b981';
-                        if (balEl) balEl.innerHTML = `<i class="fa-solid fa-wallet"></i> الرصيد: <strong style="color:${balColor};">${fmt(bal)} SDG</strong>`;
-                        if (limitEl) limitEl.innerHTML = `<i class="fa-solid fa-shield-halved"></i> السقف: <strong>${limit > 0 ? fmt(limit) + ' SDG' : 'غير محدد'}</strong>`;
+                        if (balEl) balEl.innerHTML = `<i class="fa-solid fa-wallet"></i> ط§ظ„ط±طµظٹط¯: <strong style="color:${balColor};">${fmt(bal)} SDG</strong>`;
+                        if (limitEl) limitEl.innerHTML = `<i class="fa-solid fa-shield-halved"></i> ط§ظ„ط³ظ‚ظپ: <strong>${limit > 0 ? fmt(limit) + ' SDG' : 'ط؛ظٹط± ظ…ط­ط¯ط¯'}</strong>`;
                     }
                 }
                 this.checkCreditLimit();
@@ -17907,17 +17901,17 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     if (this.state.creditLimitOverridden) {
                         warnBox.style.borderColor = '#10b981';
                         warnBox.style.background = 'rgba(16, 185, 129, 0.12)';
-                        if (warnMsg) warnMsg.innerHTML = `✅ تم منح استثناء للمدير: تجاوز السقف بمبلغ (${fmt(projectedDebt - limit)} SDG)`;
+                        if (warnMsg) warnMsg.innerHTML = `âœ… طھظ… ظ…ظ†ط­ ط§ط³طھط«ظ†ط§ط، ظ„ظ„ظ…ط¯ظٹط±: طھط¬ط§ظˆط² ط§ظ„ط³ظ‚ظپ ط¨ظ…ط¨ظ„ط؛ (${fmt(projectedDebt - limit)} SDG)`;
                     } else {
                         warnBox.style.borderColor = '#ef4444';
                         warnBox.style.background = 'rgba(239, 68, 68, 0.12)';
-                        if (warnMsg) warnMsg.innerHTML = `⚠️ تنبيه ائتماني: الدين المتوقع (${fmt(projectedDebt)} SDG) يتجاوز السقف (${fmt(limit)} SDG)!`;
+                        if (warnMsg) warnMsg.innerHTML = `âڑ ï¸ڈ طھظ†ط¨ظٹظ‡ ط§ط¦طھظ…ط§ظ†ظٹ: ط§ظ„ط¯ظٹظ† ط§ظ„ظ…طھظˆظ‚ط¹ (${fmt(projectedDebt)} SDG) ظٹطھط¬ط§ظˆط² ط§ظ„ط³ظ‚ظپ (${fmt(limit)} SDG)!`;
                     }
                 } else if (limit > 0 && projectedDebt >= limit * 0.9) {
                     warnBox.style.display = 'flex';
                     warnBox.style.borderColor = '#f59e0b';
                     warnBox.style.background = 'rgba(245, 158, 11, 0.12)';
-                    if (warnMsg) warnMsg.innerHTML = `⚡ تنبيه: العميل قارب على استنفاذ سقف الائتمان (${fmt(projectedDebt)} / ${fmt(limit)} SDG)`;
+                    if (warnMsg) warnMsg.innerHTML = `âڑ، طھظ†ط¨ظٹظ‡: ط§ظ„ط¹ظ…ظٹظ„ ظ‚ط§ط±ط¨ ط¹ظ„ظ‰ ط§ط³طھظ†ظپط§ط° ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ† (${fmt(projectedDebt)} / ${fmt(limit)} SDG)`;
                 } else {
                     warnBox.style.display = 'none';
                 }
@@ -17927,7 +17921,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.state.creditLimitOverridden = true;
                 triggerHaptic('medium');
                 if (window.showModernToast) {
-                    window.showModernToast('⚡ تم تسجيل تجاوز استثنائي لسقف الائتمان بواسطة الصلاحية الإدارية', 'warning', 3000);
+                    window.showModernToast('âڑ، طھظ… طھط³ط¬ظٹظ„ طھط¬ط§ظˆط² ط§ط³طھط«ظ†ط§ط¦ظٹ ظ„ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ† ط¨ظˆط§ط³ط·ط© ط§ظ„طµظ„ط§ط­ظٹط© ط§ظ„ط¥ط¯ط§ط±ظٹط©', 'warning', 3000);
                 }
                 this.checkCreditLimit();
             },
@@ -17935,7 +17929,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             populateItems(filterCategory = 'all') {
                 const sel = document.getElementById('pos-item-select');
                 if (!sel) return;
-                let html = '<option value="">-- ابحث أو اختر الصنف للإضافة --</option>';
+                let html = '<option value="">-- ط§ط¨ط­ط« ط£ظˆ ط§ط®طھط± ط§ظ„طµظ†ظپ ظ„ظ„ط¥ط¶ط§ظپط© --</option>';
                 if (Array.isArray(M_ITEMS)) {
                     M_ITEMS.forEach(it => {
                         const itemCat = it.category || it.type || '';
@@ -17947,9 +17941,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         const minPrice = parseFloat(it.minPrice || (cost * 1.05) || 0);
                         const stock = parseFloat(it.stock || it.quantity || 0);
                         const spec = it.spec || it.dimension || '';
-                        const unit = it.unit || it.primaryUnit || 'طن';
+                        const unit = it.unit || it.primaryUnit || 'ط·ظ†';
                         html += `<option value="${it.id}" data-name="${it.name}" data-spec="${spec}" data-price="${price}" data-cost="${cost}" data-min="${minPrice}" data-stock="${stock}" data-unit="${unit}" data-cat="${itemCat}" data-barcode="${it.barcode || ''}">
-                            ${it.name} ${spec ? `(${spec})` : ''} - ${fmt(price)} SDG [المتاح: ${stock} ${unit}]
+                            ${it.name} ${spec ? `(${spec})` : ''} - ${fmt(price)} SDG [ط§ظ„ظ…طھط§ط­: ${stock} ${unit}]
                         </option>`;
                     });
                 }
@@ -18020,41 +18014,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             calculateItemRowTotal() {
                 const qty = parseFloat(document.getElementById('pos-item-qty')?.value) || 0;
                 const price = parseFloat(document.getElementById('pos-item-price')?.value) || 0;
-                const tax = parseFloat(document.getElementById('pos-item-tax')?.value) || 0;
-                const labor = parseFloat(document.getElementById('pos-item-labor')?.value) || 0;
-                const subtotal = Math.max(0, (qty * price) + tax + labor);
-                const subEl = document.getElementById('pos-item-subtotal');
-                if (subEl) subEl.value = fmt(subtotal);
-                return subtotal;
-            },
-
-            addConfiguredItem() {
-                triggerHaptic('light');
-                const itemSel = document.getElementById('pos-item-select');
-                if (!itemSel || !itemSel.value) {
-                    if (window.showModernToast) window.showModernToast('⚠️ يرجى اختيار الصنف أولاً من القائمة', 'warning');
-                    return;
-                }
-                const opt = itemSel.selectedOptions[0];
-                const itemId = itemSel.value;
-                const itemName = opt ? (opt.dataset.name || opt.text.split(' - ')[0]) : 'صنف';
-                const spec = opt ? (opt.dataset.spec || '') : '';
-                const barcode = opt ? (opt.dataset.barcode || '') : '';
-                const minPrice = opt ? parseFloat(opt.dataset.min || 0) : 0;
-                const cost = opt ? parseFloat(opt.dataset.cost || 0) : 0;
-
-                const whSel = document.getElementById('pos-item-warehouse');
-                const warehouse = whSel ? whSel.value : 'central';
-                const warehouseName = whSel ? whSel.selectedOptions[0]?.text || 'المستودع الرئيسي' : 'المستودع الرئيسي';
-
-                const catSel = document.getElementById('pos-item-category');
-                const category = catSel ? catSel.value : 'all';
-
-                const unitSel = document.getElementById('pos-item-unit');
-                const unit = unitSel ? unitSel.value : 'طن';
-
-                const qty = parseFloat(document.getElementById('pos-item-qty')?.value) || 0;
-                const price = parseFloat(document.getElementById('pos-item-price')?.value) || 0;
+                const discount = parseFloat(document.getElementById('pos-item-discount')?.value) || 0;
+                const discount = parseFloat(document.getElementById('pos-item-discount')?.value) || 0;
                 const tax = parseFloat(document.getElementById('pos-item-tax')?.value) || 0;
                 const labor = parseFloat(document.getElementById('pos-item-labor')?.value) || 0;
 
@@ -18067,7 +18028,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     return;
                 }
 
-                const subtotal = (qty * price) + tax + labor;
+                const subtotal = Math.max(0, (qty * price) - discount + tax + labor);
 
                 this.state.cart.push({
                     id: itemId,
@@ -18085,32 +18046,32 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     cost: cost,
                     tax: tax,
                     labor: labor,
-                    discount: 0,
+                    discount: discount,
                     subtotal: subtotal
                 });
 
                 this.renderCart();
                 if (window.showModernToast) {
-                    window.showModernToast(`+ أضيف: ${itemName} (${qty} ${unit})`, 'success', 1500);
+                    window.showModernToast(`+ ط£ط¶ظٹظپ: ${itemName} (${qty} ${unit})`, 'success', 1500);
                 }
             },
 
             confirmInvoice() {
                 triggerHaptic('heavy');
                 if (this.state.cart.length === 0) {
-                    if (window.showModernToast) window.showModernToast('⚠️ الفاتورة فارغة! يرجى إضافة أصناف أولاً للتأكيد', 'warning');
+                    if (window.showModernToast) window.showModernToast('âڑ ï¸ڈ ط§ظ„ظپط§طھظˆط±ط© ظپط§ط±ط؛ط©! ظٹط±ط¬ظ‰ ط¥ط¶ط§ظپط© ط£طµظ†ط§ظپ ط£ظˆظ„ط§ظ‹ ظ„ظ„طھط£ظƒظٹط¯', 'warning');
                     return;
                 }
                 const totals = this.calculateTotals();
                 const pill = document.getElementById('pos-inv-number-pill');
                 if (pill) {
-                    pill.innerHTML = `🟢 مؤكدة (${fmt(totals.netDue)} SDG)`;
+                    pill.innerHTML = `ًںں¢ ظ…ط¤ظƒط¯ط© (${fmt(totals.netDue)} SDG)`;
                     pill.style.background = 'rgba(16,185,129,0.2)';
                     pill.style.borderColor = '#10b981';
                     pill.style.color = '#10b981';
                 }
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم تأكيد ومطابقة الفاتورة جاهزة للحفظ والترحيل (${fmt(totals.netDue)} SDG)`, 'success', 3000);
+                    window.showModernToast(`âœ… طھظ… طھط£ظƒظٹط¯ ظˆظ…ط·ط§ط¨ظ‚ط© ط§ظ„ظپط§طھظˆط±ط© ط¬ط§ظ‡ط²ط© ظ„ظ„ط­ظپط¸ ظˆط§ظ„طھط±ط­ظٹظ„ (${fmt(totals.netDue)} SDG)`, 'success', 3000);
                 }
             },
 
@@ -18118,7 +18079,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 triggerHaptic('light');
                 const item = (Array.isArray(M_ITEMS) ? M_ITEMS.find(x => String(x.id) === String(itemId)) : null);
                 if (!item) {
-                    if (window.showModernToast) window.showModernToast('الصنف غير موجود في قاعدة البيانات', 'warning');
+                    if (window.showModernToast) window.showModernToast('ط§ظ„طµظ†ظپ ط؛ظٹط± ظ…ظˆط¬ظˆط¯ ظپظٹ ظ‚ط§ط¹ط¯ط© ط§ظ„ط¨ظٹط§ظ†ط§طھ', 'warning');
                     return;
                 }
 
@@ -18140,8 +18101,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         cost: cost,
                         minPrice: minPrice,
                         baseMinPrice: minPrice,
-                        primaryUnit: item.primaryUnit || 'طن',
-                        secondaryUnit: item.secondaryUnit || (item.primaryUnit === 'طن' ? 'شوال' : 'قطعة'),
+                        primaryUnit: item.primaryUnit || 'ط·ظ†',
+                        secondaryUnit: item.secondaryUnit || (item.primaryUnit === 'ط·ظ†' ? 'ط´ظˆط§ظ„' : 'ظ‚ط·ط¹ط©'),
                         unitRatio: parseFloat(item.unitRatio || 20) || 20,
                         activeUnit: 'primary',
                         qty: 1,
@@ -18151,7 +18112,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
                 this.renderCart();
                 if (window.showModernToast) {
-                    window.showModernToast(`+ أضيف: ${item.name}`, 'success', 1200);
+                    window.showModernToast(`+ ط£ط¶ظٹظپ: ${item.name}`, 'success', 1200);
                 }
             },
 
@@ -18173,7 +18134,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.renderCart();
                 if (window.showModernToast) {
                     const uName = it.activeUnit === 'primary' ? it.primaryUnit : it.secondaryUnit;
-                    window.showModernToast(`تبديل الوحدة إلى: ${uName} (${fmt(it.price)} SDG)`, 'info', 1500);
+                    window.showModernToast(`طھط¨ط¯ظٹظ„ ط§ظ„ظˆط­ط¯ط© ط¥ظ„ظ‰: ${uName} (${fmt(it.price)} SDG)`, 'info', 1500);
                 }
             },
 
@@ -18231,7 +18192,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             clearCart() {
                 if (this.state.cart.length === 0) return;
-                if (confirm('هل أنت متأكد من تفريغ كافة أصناف الفاتورة؟')) {
+                if (confirm('ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† طھظپط±ظٹط؛ ظƒط§ظپط© ط£طµظ†ط§ظپ ط§ظ„ظپط§طھظˆط±ط©طں')) {
                     triggerHaptic('medium');
                     this.state.cart = [];
                     this.renderCart();
@@ -18249,8 +18210,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     container.innerHTML = `
                         <div style="text-align:center; padding:24px 10px; color:var(--text-muted); opacity:0.8;">
                             <i class="fa-solid fa-cart-shopping" style="font-size:2rem; margin-bottom:8px; display:block; opacity:0.4;"></i>
-                            <p style="font-size:0.82rem; margin:0; font-weight:800;">السلة فارغة حالياً</p>
-                            <span style="font-size:0.72rem;">اختر صنفاً من القائمة أعلاه أو امسح الباركود بالكاميرا للإضافة</span>
+                            <p style="font-size:0.82rem; margin:0; font-weight:800;">ط§ظ„ط³ظ„ط© ظپط§ط±ط؛ط© ط­ط§ظ„ظٹط§ظ‹</p>
+                            <span style="font-size:0.72rem;">ط§ط®طھط± طµظ†ظپط§ظ‹ ظ…ظ† ط§ظ„ظ‚ط§ط¦ظ…ط© ط£ط¹ظ„ط§ظ‡ ط£ظˆ ط§ظ…ط³ط­ ط§ظ„ط¨ط§ط±ظƒظˆط¯ ط¨ط§ظ„ظƒط§ظ…ظٹط±ط§ ظ„ظ„ط¥ط¶ط§ظپط©</span>
                         </div>
                     `;
                     this.calculateTotals();
@@ -18261,8 +18222,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.state.cart.forEach((item, idx) => {
                     const isMarginViolation = item.minPrice > 0 && item.price < item.minPrice;
                     const lineClass = isMarginViolation ? 'pos-line-item margin-violation line-card-laptop' : 'pos-line-item line-card-laptop';
-                    const activeUnitLabel = item.unit || item.primaryUnit || 'طن';
-                    const whLabel = item.warehouseName || 'المستودع الرئيسي';
+                    const activeUnitLabel = item.unit || item.primaryUnit || 'ط·ظ†';
+                    const whLabel = item.warehouseName || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ط±ط¦ظٹط³ظٹ';
                     
                     html += `
                         <div class="${lineClass}" style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:14px; padding:10px 12px; margin-bottom:8px;">
@@ -18277,23 +18238,23 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 </div>
                                 <div style="display:flex; align-items:center; gap:8px;">
                                     <span class="pos-line-total" style="font-weight:900; font-family:'Inter',sans-serif; color:var(--emerald);">${fmt(item.subtotal)} SDG</span>
-                                    <button type="button" class="pos-line-del-btn" onclick="MobilePOS.removeItem(${idx})" title="حذف" style="background:rgba(239,68,68,0.15); color:#ef4444; border:none; border-radius:6px; width:26px; height:26px; font-weight:900; cursor:pointer;">✕</button>
+                                    <button type="button" class="pos-line-del-btn" onclick="MobilePOS.removeItem(${idx})" title="ط­ط°ظپ" style="background:rgba(239,68,68,0.15); color:#ef4444; border:none; border-radius:6px; width:26px; height:26px; font-weight:900; cursor:pointer;">âœ•</button>
                                 </div>
                             </div>
 
                             <!-- Laptop Parity Badges: Qty, Price, Tax, Labor -->
                             <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.7rem; font-weight:800; margin-bottom:6px; color:var(--text-muted);">
-                                <span>الكمية: <strong style="color:var(--text-main);">${item.qty} ${activeUnitLabel}</strong></span>
-                                <span>•</span>
-                                <span>السعر: <strong style="color:var(--text-main);">${fmt(item.price)}</strong></span>
-                                ${item.tax > 0 ? `<span>•</span><span>الضريبة: <strong style="color:var(--amber);">${fmt(item.tax)}</strong></span>` : ''}
-                                ${item.labor > 0 ? `<span>•</span><span>العمالة: <strong style="color:#38bdf8;">${fmt(item.labor)}</strong></span>` : ''}
+                                <span>ط§ظ„ظƒظ…ظٹط©: <strong style="color:var(--text-main);">${item.qty} ${activeUnitLabel}</strong></span>
+                                <span>â€¢</span>
+                                <span>ط§ظ„ط³ط¹ط±: <strong style="color:var(--text-main);">${fmt(item.price)}</strong></span>
+                                ${item.tax > 0 ? `<span>â€¢</span><span>ط§ظ„ط¶ط±ظٹط¨ط©: <strong style="color:var(--amber);">${fmt(item.tax)}</strong></span>` : ''}
+                                ${item.labor > 0 ? `<span>â€¢</span><span>ط§ظ„ط¹ظ…ط§ظ„ط©: <strong style="color:#38bdf8;">${fmt(item.labor)}</strong></span>` : ''}
                             </div>
 
                             ${isMarginViolation ? `
                                 <div class="margin-violation-badge" style="margin-bottom:6px; font-size:0.7rem; color:#ef4444; display:flex; align-items:center; gap:4px;">
                                     <i class="fa-solid fa-triangle-exclamation"></i>
-                                    <span>تنبيه هامش الربح: السعر (${fmt(item.price)}) أدنى من حد التكلفة (${fmt(item.minPrice)})!</span>
+                                    <span>طھظ†ط¨ظٹظ‡ ظ‡ط§ظ…ط´ ط§ظ„ط±ط¨ط­: ط§ظ„ط³ط¹ط± (${fmt(item.price)}) ط£ط¯ظ†ظ‰ ظ…ظ† ط­ط¯ ط§ظ„طھظƒظ„ظپط© (${fmt(item.minPrice)})!</span>
                                 </div>
                             ` : ''}
 
@@ -18307,13 +18268,13 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                                 <!-- Unit Price Input -->
                                 <div style="display:flex; align-items:center; gap:4px;">
-                                    <span style="font-size:0.72rem; color:var(--text-muted); font-weight:800;">السعر:</span>
+                                    <span style="font-size:0.72rem; color:var(--text-muted); font-weight:800;">ط§ظ„ط³ط¹ط±:</span>
                                     <input type="number" value="${item.price}" step="any" class="m-input" style="width:78px; height:30px; padding:2px 4px; font-size:0.8rem; font-weight:900; font-family:'Inter',sans-serif; text-align:center;" onchange="MobilePOS.setItemPrice(${idx}, this.value)">
                                 </div>
 
                                 <!-- Item Discount Input -->
                                 <div style="display:flex; align-items:center; gap:4px;">
-                                    <span style="font-size:0.72rem; color:var(--rose); font-weight:800;">خصم:</span>
+                                    <span style="font-size:0.72rem; color:var(--rose); font-weight:800;">ط®طµظ…:</span>
                                     <input type="number" value="${item.discount || 0}" step="any" class="m-input" style="width:60px; height:30px; padding:2px 4px; font-size:0.8rem; font-weight:900; font-family:'Inter',sans-serif; text-align:center; color:var(--rose);" onchange="MobilePOS.setItemDiscount(${idx}, this.value)">
                                 </div>
                             </div>
@@ -18353,6 +18314,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (netEl) netEl.innerText = fmt(netDue) + ' SDG';
                 if (bannerDue) bannerDue.innerHTML = `${fmt(netDue)} <small style="font-size:0.55em;">SDG</small>`;
                 if (bannerCount) bannerCount.textContent = `${this.state.cart.length} أصناف`;
+                const netDisplay = document.getElementById('pos-net-due-display');
+                if (netDisplay) netDisplay.innerText = fmt(netDue) + ' SDG';
 
                 if (this.state.isSplit) {
                     this.syncSplitAmounts(netDue);
@@ -18368,7 +18331,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const statusBadge = document.getElementById('pos-split-status-badge');
                 if (box) box.style.display = checked ? 'block' : 'none';
                 if (statusBadge) {
-                    statusBadge.innerText = checked ? 'مفعّل 🔀' : 'غير مفعّل';
+                    statusBadge.innerText = checked ? 'ظ…ظپط¹ظ‘ظ„ ًں”€' : 'ط؛ظٹط± ظ…ظپط¹ظ‘ظ„';
                     statusBadge.style.color = checked ? 'var(--emerald)' : 'var(--text-muted)';
                 }
                 if (checked) {
@@ -18419,11 +18382,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const totalSplit = (this.state.splitCash || 0) + (this.state.splitBank || 0);
                 const diff = totalSplit - netDue;
                 if (Math.abs(diff) < 0.01) {
-                    diffEl.innerHTML = `<span style="color:var(--emerald);">0 SDG (مطابق تماماً ✅)</span>`;
+                    diffEl.innerHTML = `<span style="color:var(--emerald);">0 SDG (ظ…ط·ط§ط¨ظ‚ طھظ…ط§ظ…ط§ظ‹ âœ…)</span>`;
                 } else if (diff > 0) {
-                    diffEl.innerHTML = `<span style="color:var(--amber);">زيادة: +${fmt(diff)} SDG ⚠️</span>`;
+                    diffEl.innerHTML = `<span style="color:var(--amber);">ط²ظٹط§ط¯ط©: +${fmt(diff)} SDG âڑ ï¸ڈ</span>`;
                 } else {
-                    diffEl.innerHTML = `<span style="color:var(--rose);">عجز: -${fmt(Math.abs(diff))} SDG ⚠️</span>`;
+                    diffEl.innerHTML = `<span style="color:var(--rose);">ط¹ط¬ط²: -${fmt(Math.abs(diff))} SDG âڑ ï¸ڈ</span>`;
                 }
             },
 
@@ -18433,9 +18396,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     const found = M_ITEMS.find(x => String(x.barcode || '') === code || String(x.sku || '') === code || String(x.id) === code || x.name.includes(code));
                     if (found) {
                         this.addItemById(found.id);
-                        if (window.showModernToast) window.showModernToast(`🎯 تمت إضافة: ${found.name}`, 'success');
+                        if (window.showModernToast) window.showModernToast(`ًںژ¯ طھظ…طھ ط¥ط¶ط§ظپط©: ${found.name}`, 'success');
                     } else {
-                        if (window.showModernToast) window.showModernToast(`⚠️ الباركود (${code}) غير مطابق`, 'warning', 3000);
+                        if (window.showModernToast) window.showModernToast(`âڑ ï¸ڈ ط§ظ„ط¨ط§ط±ظƒظˆط¯ (${code}) ط؛ظٹط± ظ…ط·ط§ط¨ظ‚`, 'warning', 3000);
                     }
                 });
             },
@@ -18444,7 +18407,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const inp = document.getElementById('manual-barcode-input');
                 const code = inp ? inp.value.trim() : '';
                 if (!code) {
-                    alert('يرجى كتابة رقم الباركود');
+                    alert('ظٹط±ط¬ظ‰ ظƒطھط§ط¨ط© ط±ظ‚ظ… ط§ظ„ط¨ط§ط±ظƒظˆط¯');
                     return;
                 }
                 let found = null;
@@ -18456,36 +18419,36 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     closeBottomSheet('sheet-barcode-scanner');
                     if (inp) inp.value = '';
                     if (window.showModernToast) {
-                        window.showModernToast(`🎯 تم العثور على الصنف: ${found.name}`, 'success');
+                        window.showModernToast(`ًںژ¯ طھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط§ظ„طµظ†ظپ: ${found.name}`, 'success');
                     }
                 } else {
-                    alert(`لم يتم العثور على أي صنف بالباركود (${code})`);
+                    alert(`ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط£ظٹ طµظ†ظپ ط¨ط§ظ„ط¨ط§ط±ظƒظˆط¯ (${code})`);
                 }
             },
 
             submitSale(doPrint = false, doShare = false) {
                 triggerHaptic('heavy');
                 if (this.state.cart.length === 0) {
-                    alert('⚠️ الفاتورة فارغة! يرجى إضافة أصناف أولاً');
+                    alert('âڑ ï¸ڈ ط§ظ„ظپط§طھظˆط±ط© ظپط§ط±ط؛ط©! ظٹط±ط¬ظ‰ ط¥ط¶ط§ظپط© ط£طµظ†ط§ظپ ط£ظˆظ„ط§ظ‹');
                     return false;
                 }
 
                 const totals = this.calculateTotals();
                 if (totals.netDue <= 0 && totals.subtotal <= 0) {
-                    alert('⚠️ إجمالي الفاتورة يجب أن يكون أكبر من صفر');
+                    alert('âڑ ï¸ڈ ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظپط§طھظˆط±ط© ظٹط¬ط¨ ط£ظ† ظٹظƒظˆظ† ط£ظƒط¨ط± ظ…ظ† طµظپط±');
                     return false;
                 }
 
                 // Credit limit enforcement
                 if (this.state.invoiceType === 'credit') {
                     if (this.state.customerId === 'walkin') {
-                        alert('⚠️ لا يمكن إصدار فاتورة آجلة لعميل نقدي عام (Walk-in). يرجى اختيار عميل مسجل!');
+                        alert('âڑ ï¸ڈ ظ„ط§ ظٹظ…ظƒظ† ط¥طµط¯ط§ط± ظپط§طھظˆط±ط© ط¢ط¬ظ„ط© ظ„ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ ط¹ط§ظ… (Walk-in). ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط¹ظ…ظٹظ„ ظ…ط³ط¬ظ„!');
                         return false;
                     }
                     const limit = parseFloat(this.state.customer?.creditLimit || 0);
                     const currentBal = parseFloat(this.state.customer?.balance || 0);
                     if (limit > 0 && (currentBal + totals.netDue) > limit && !this.state.creditLimitOverridden) {
-                        alert(`⚠️ تجاوز سقف الائتمان!\nالرصيد الحالي: ${fmt(currentBal)} SDG\nسقف الائتمان: ${fmt(limit)} SDG\nالفاتورة الحالية: ${fmt(totals.netDue)} SDG\n\nيرجى الضغط على زر "تجاوز استثنائي ⚡" إذا كان لديك اعتماد إداري.`);
+                        alert(`âڑ ï¸ڈ طھط¬ط§ظˆط² ط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ†!\nط§ظ„ط±طµظٹط¯ ط§ظ„ط­ط§ظ„ظٹ: ${fmt(currentBal)} SDG\nط³ظ‚ظپ ط§ظ„ط§ط¦طھظ…ط§ظ†: ${fmt(limit)} SDG\nط§ظ„ظپط§طھظˆط±ط© ط§ظ„ط­ط§ظ„ظٹط©: ${fmt(totals.netDue)} SDG\n\nظٹط±ط¬ظ‰ ط§ظ„ط¶ط؛ط· ط¹ظ„ظ‰ ط²ط± "طھط¬ط§ظˆط² ط§ط³طھط«ظ†ط§ط¦ظٹ âڑ،" ط¥ط°ط§ ظƒط§ظ† ظ„ط¯ظٹظƒ ط§ط¹طھظ…ط§ط¯ ط¥ط¯ط§ط±ظٹ.`);
                         return false;
                     }
                 }
@@ -18494,7 +18457,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (this.state.isSplit) {
                     const totalSplit = (this.state.splitCash || 0) + (this.state.splitBank || 0);
                     if (Math.abs(totalSplit - totals.netDue) > 1) {
-                        alert(`⚠️ مبالغ السداد المجزأ غير متطابقة!\nإجمالي المطلوب: ${fmt(totals.netDue)} SDG\nالمجموع المدخل: ${fmt(totalSplit)} SDG\nالفارق: ${fmt(Math.abs(totalSplit - totals.netDue))} SDG`);
+                        alert(`âڑ ï¸ڈ ظ…ط¨ط§ظ„ط؛ ط§ظ„ط³ط¯ط§ط¯ ط§ظ„ظ…ط¬ط²ط£ ط؛ظٹط± ظ…طھط·ط§ط¨ظ‚ط©!\nط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط·ظ„ظˆط¨: ${fmt(totals.netDue)} SDG\nط§ظ„ظ…ط¬ظ…ظˆط¹ ط§ظ„ظ…ط¯ط®ظ„: ${fmt(totalSplit)} SDG\nط§ظ„ظپط§ط±ظ‚: ${fmt(Math.abs(totalSplit - totals.netDue))} SDG`);
                         return false;
                     }
                 }
@@ -18502,14 +18465,14 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 // Margin Violation Warning Confirmation
                 const hasMarginViolation = this.state.cart.some(it => it.price < it.minPrice);
                 if (hasMarginViolation) {
-                    const confirmMargin = confirm('⚠️ تحذير: تتضمن الفاتورة أصنافاً مباعة بسعر أقل من حد التكلفة الأدنى المسموح به!\nهل تريد المتابعة واعتماد الفاتورة تحت مسؤولية الكاشير؟');
+                    const confirmMargin = confirm('âڑ ï¸ڈ طھط­ط°ظٹط±: طھطھط¶ظ…ظ† ط§ظ„ظپط§طھظˆط±ط© ط£طµظ†ط§ظپط§ظ‹ ظ…ط¨ط§ط¹ط© ط¨ط³ط¹ط± ط£ظ‚ظ„ ظ…ظ† ط­ط¯ ط§ظ„طھظƒظ„ظپط© ط§ظ„ط£ط¯ظ†ظ‰ ط§ظ„ظ…ط³ظ…ظˆط­ ط¨ظ‡!\nظ‡ظ„ طھط±ظٹط¯ ط§ظ„ظ…طھط§ط¨ط¹ط© ظˆط§ط¹طھظ…ط§ط¯ ط§ظ„ظپط§طھظˆط±ط© طھط­طھ ظ…ط³ط¤ظˆظ„ظٹط© ط§ظ„ظƒط§ط´ظٹط±طں');
                     if (!confirmMargin) return false;
                 }
 
                 // Local collision-proof sequence generation (Dual-Numbering Engine)
                 const localSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('sale') : ('INV-OFF-' + Date.now().toString().slice(-4));
                 const invNo = localSeq;
-                const custName = this.state.customer?.name || (this.state.customerId === 'walkin' ? 'عميل نقدي عام' : 'عميل');
+                const custName = this.state.customer?.name || (this.state.customerId === 'walkin' ? 'ط¹ظ…ظٹظ„ ظ†ظ‚ط¯ظٹ ط¹ط§ظ…' : 'ط¹ظ…ظٹظ„');
                 const invoiceData = {
                     id: invNo,
                     invoiceNo: invNo,
@@ -18535,9 +18498,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         spec: it.spec,
                         barcode: it.barcode,
                         warehouse: it.warehouse || 'central',
-                        warehouseName: it.warehouseName || 'المستودع الرئيسي',
+                        warehouseName: it.warehouseName || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ط±ط¦ظٹط³ظٹ',
                         category: it.category || 'all',
-                        unit: it.unit || it.primaryUnit || 'طن',
+                        unit: it.unit || it.primaryUnit || 'ط·ظ†',
                         qty: it.qty,
                         price: it.price,
                         cost: it.cost,
@@ -18616,9 +18579,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (window.showModernToast) {
                     const isAppOnline = window.OfflineOutboxEngine ? window.OfflineOutboxEngine.isOnline() : navigator.onLine;
                     if (isAppOnline) {
-                        window.showModernToast(`✅ تم حفظ وترحيل الفاتورة ${invNo} بنجاح (${fmt(totals.netDue)} SDG)`, 'success', 3500);
+                        window.showModernToast(`âœ… طھظ… ط­ظپط¸ ظˆطھط±ط­ظٹظ„ ط§ظ„ظپط§طھظˆط±ط© ${invNo} ط¨ظ†ط¬ط§ط­ (${fmt(totals.netDue)} SDG)`, 'success', 3500);
                     } else {
-                        window.showModernToast(`⏳ تم حفظ الفاتورة أوفلاين ${invNo} (النور أحمر) • سيتم ترحيلها وأخذ الرقم الرسمي فور عودة النت ⚡`, 'info', 4000);
+                        window.showModernToast(`âڈ³ طھظ… ط­ظپط¸ ط§ظ„ظپط§طھظˆط±ط© ط£ظˆظپظ„ط§ظٹظ† ${invNo} (ط§ظ„ظ†ظˆط± ط£ط­ظ…ط±) â€¢ ط³ظٹطھظ… طھط±ط­ظٹظ„ظ‡ط§ ظˆط£ط®ط° ط§ظ„ط±ظ‚ظ… ط§ظ„ط±ط³ظ…ظٹ ظپظˆط± ط¹ظˆط¯ط© ط§ظ„ظ†طھ âڑ،`, 'info', 4000);
                     }
                 }
 
@@ -18649,87 +18612,87 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 inv.items.forEach(it => {
                     itemsHtml += `
                         <div class="thermal-row" style="font-weight:700;">
-                            <span>${it.name} × ${it.qty}</span>
+                            <span>${it.name} أ— ${it.qty}</span>
                             <span>${fmt(it.subtotal)}</span>
                         </div>
-                        ${it.discount > 0 ? `<div class="thermal-row" style="color:#ef4444; font-size:0.76rem;"><span>(خصم الصنف)</span><span>-${fmt(it.discount)}</span></div>` : ''}
+                        ${it.discount > 0 ? `<div class="thermal-row" style="color:#ef4444; font-size:0.76rem;"><span>(ط®طµظ… ط§ظ„طµظ†ظپ)</span><span>-${fmt(it.discount)}</span></div>` : ''}
                     `;
                 });
 
-                const payMethodLabel = inv.isSplit ? 'سداد مجزأ (نقدي + بنكك)' : (inv.paymentMethod === 'cash' ? 'نقداً (Cash)' : (inv.paymentMethod === 'bank' ? 'تحويل بنكي (Bankak)' : 'آجل (Credit)'));
+                const payMethodLabel = inv.isSplit ? 'ط³ط¯ط§ط¯ ظ…ط¬ط²ط£ (ظ†ظ‚ط¯ظٹ + ط¨ظ†ظƒظƒ)' : (inv.paymentMethod === 'cash' ? 'ظ†ظ‚ط¯ط§ظ‹ (Cash)' : (inv.paymentMethod === 'bank' ? 'طھط­ظˆظٹظ„ ط¨ظ†ظƒظٹ (Bankak)' : 'ط¢ط¬ظ„ (Credit)'));
 
                 const isSynced = String(inv.sync_status).toUpperCase() === 'SYNCED' || !!inv.official_server_id;
                 const statusBadgeHtml = isSynced
-                    ? `<div style="display:inline-block; background:#059669; color:#ffffff; font-size:0.72rem; font-weight:900; padding:2px 10px; border-radius:6px; margin-top:4px;" id="receipt-sync-badge">✅ معتمد سحابياً: ${inv.official_server_id || '#10542'}</div>`
-                    : `<div style="display:inline-block; background:#d97706; color:#ffffff; font-size:0.72rem; font-weight:900; padding:2px 10px; border-radius:6px; margin-top:4px;" id="receipt-sync-badge">⏳ مسودة محلية (قيد المزامنة)</div>`;
+                    ? `<div style="display:inline-block; background:#059669; color:#ffffff; font-size:0.72rem; font-weight:900; padding:2px 10px; border-radius:6px; margin-top:4px;" id="receipt-sync-badge">âœ… ظ…ط¹طھظ…ط¯ ط³ط­ط§ط¨ظٹط§ظ‹: ${inv.official_server_id || '#10542'}</div>`
+                    : `<div style="display:inline-block; background:#d97706; color:#ffffff; font-size:0.72rem; font-weight:900; padding:2px 10px; border-radius:6px; margin-top:4px;" id="receipt-sync-badge">âڈ³ ظ…ط³ظˆط¯ط© ظ…ط­ظ„ظٹط© (ظ‚ظٹط¯ ط§ظ„ظ…ط²ط§ظ…ظ†ط©)</div>`;
 
                 paper.innerHTML = `
                     <div class="thermal-header">
-                        <h3>مؤسسة الصجانة التجارية</h3>
-                        <p>سوق السجانة لمواد البناء والأخشاب - الخرطوم</p>
-                        <p>هاتف: +249 91 234 5678</p>
+                        <h3>ظ…ط¤ط³ط³ط© ط§ظ„طµط¬ط§ظ†ط© ط§ظ„طھط¬ط§ط±ظٹط©</h3>
+                        <p>ط³ظˆظ‚ ط§ظ„ط³ط¬ط§ظ†ط© ظ„ظ…ظˆط§ط¯ ط§ظ„ط¨ظ†ط§ط، ظˆط§ظ„ط£ط®ط´ط§ط¨ - ط§ظ„ط®ط±ط·ظˆظ…</p>
+                        <p>ظ‡ط§طھظپ: +249 91 234 5678</p>
                         <div class="thermal-divider"></div>
-                        <h4>فاتورة مبيعات ضريبية مبسطة</h4>
+                        <h4>ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ ط¶ط±ظٹط¨ظٹط© ظ…ط¨ط³ط·ط©</h4>
                         <p style="font-family:monospace; font-weight:900; font-size:1.15rem; margin-top:2px;" id="receipt-seq-display">${inv.local_seq || inv.invoiceNo}</p>
                         ${statusBadgeHtml}
                     </div>
                     <div class="thermal-divider"></div>
                     <div class="thermal-row">
-                        <span>التسلسل المحلي:</span>
+                        <span>ط§ظ„طھط³ظ„ط³ظ„ ط§ظ„ظ…ط­ظ„ظٹ:</span>
                         <strong style="font-family:monospace;">${inv.local_seq || inv.invoiceNo}</strong>
                     </div>
                     ${isSynced ? `
                     <div class="thermal-row" style="color:#059669;">
-                        <span>الاعتماد السحابي:</span>
+                        <span>ط§ظ„ط§ط¹طھظ…ط§ط¯ ط§ظ„ط³ط­ط§ط¨ظٹ:</span>
                         <strong style="font-family:monospace;">${inv.official_server_id || '#10542'}</strong>
                     </div>` : ''}
                     <div class="thermal-row">
-                        <span>التاريخ والوقت:</span>
+                        <span>ط§ظ„طھط§ط±ظٹط® ظˆط§ظ„ظˆظ‚طھ:</span>
                         <span>${inv.date} - ${inv.fullDate || ''}</span>
                     </div>
                     <div class="thermal-row">
-                        <span>العميل:</span>
+                        <span>ط§ظ„ط¹ظ…ظٹظ„:</span>
                         <span>${inv.customerName}</span>
                     </div>
                     <div class="thermal-row">
-                        <span>طريقة الدفع:</span>
+                        <span>ط·ط±ظٹظ‚ط© ط§ظ„ط¯ظپط¹:</span>
                         <span>${payMethodLabel}</span>
                     </div>
                     <div class="thermal-divider"></div>
                     <div class="thermal-row" style="font-weight:900; border-bottom:1px dashed #000; padding-bottom:3px;">
-                        <span>الصنف والكمية</span>
-                        <span>المبلغ (SDG)</span>
+                        <span>ط§ظ„طµظ†ظپ ظˆط§ظ„ظƒظ…ظٹط©</span>
+                        <span>ط§ظ„ظ…ط¨ظ„ط؛ (SDG)</span>
                     </div>
                     ${itemsHtml}
                     <div class="thermal-divider"></div>
                     <div class="thermal-row">
-                        <span>المجموع الفرعي:</span>
+                        <span>ط§ظ„ظ…ط¬ظ…ظˆط¹ ط§ظ„ظپط±ط¹ظٹ:</span>
                         <span>${fmt(inv.subtotal)} SDG</span>
                     </div>
                     ${inv.discount > 0 ? `
                     <div class="thermal-row" style="color:#ef4444;">
-                        <span>إجمالي الخصم:</span>
+                        <span>ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط®طµظ…:</span>
                         <span>-${fmt(inv.discount)} SDG</span>
                     </div>` : ''}
                     <div class="thermal-row">
-                        <span>ضريبة القيمة المضافة:</span>
+                        <span>ط¶ط±ظٹط¨ط© ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ظ…ط¶ط§ظپط©:</span>
                         <span>0 SDG</span>
                     </div>
                     <div class="thermal-total-row">
-                        <span>الصافي النهائي:</span>
+                        <span>ط§ظ„طµط§ظپظٹ ط§ظ„ظ†ظ‡ط§ط¦ظٹ:</span>
                         <span>${fmt(inv.total)} SDG</span>
                     </div>
                     ${inv.isSplit ? `
                     <div class="thermal-row" style="font-size:0.7rem;">
-                        <span>المدفوع نقداً: ${fmt(inv.splitCash)}</span>
-                        <span>المحول بنكك: ${fmt(inv.splitBank)}</span>
+                        <span>ط§ظ„ظ…ط¯ظپظˆط¹ ظ†ظ‚ط¯ط§ظ‹: ${fmt(inv.splitCash)}</span>
+                        <span>ط§ظ„ظ…ط­ظˆظ„ ط¨ظ†ظƒظƒ: ${fmt(inv.splitBank)}</span>
                     </div>` : ''}
                     <div class="thermal-divider"></div>
                     <div class="thermal-footer">
-                        <p>شكراً لتعاملكم معنا! البضاعة المباعة ترد وتستبدل حسب الشروط</p>
+                        <p>ط´ظƒط±ط§ظ‹ ظ„طھط¹ط§ظ…ظ„ظƒظ… ظ…ط¹ظ†ط§! ط§ظ„ط¨ط¶ط§ط¹ط© ط§ظ„ظ…ط¨ط§ط¹ط© طھط±ط¯ ظˆطھط³طھط¨ط¯ظ„ ط­ط³ط¨ ط§ظ„ط´ط±ظˆط·</p>
                         <div style="font-family:monospace; letter-spacing:2px; font-size:1.1rem; margin-top:6px;">*${inv.official_server_id || inv.local_seq || inv.invoiceNo}*</div>
                         <div style="font-size:0.78rem; color:#555; margin-top:4px;">
-                            ${isSynced ? `سيرفر المزامنة: ${inv.official_server_id || '#10542'} • معتمد` : `إيصال محلي: ${inv.local_seq || inv.invoiceNo} (في انتظار المزامنة)`}
+                            ${isSynced ? `ط³ظٹط±ظپط± ط§ظ„ظ…ط²ط§ظ…ظ†ط©: ${inv.official_server_id || '#10542'} â€¢ ظ…ط¹طھظ…ط¯` : `ط¥ظٹطµط§ظ„ ظ…ط­ظ„ظٹ: ${inv.local_seq || inv.invoiceNo} (ظپظٹ ط§ظ†طھط¸ط§ط± ط§ظ„ظ…ط²ط§ظ…ظ†ط©)`}
                         </div>
                     </div>
                 `;
@@ -18740,7 +18703,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             printThermalDirect() {
                 triggerHaptic('medium');
                 if (window.showModernToast) {
-                    window.showModernToast('🖨️ جاري الاتصال بطابعة البلوتوث الحرارية (80mm ESC/POS)...', 'info', 2500);
+                    window.showModernToast('ًں–¨ï¸ڈ ط¬ط§ط±ظٹ ط§ظ„ط§طھطµط§ظ„ ط¨ط·ط§ط¨ط¹ط© ط§ظ„ط¨ظ„ظˆطھظˆط« ط§ظ„ط­ط±ط§ط±ظٹط© (80mm ESC/POS)...', 'info', 2500);
                 }
                 setTimeout(() => {
                     window.print();
@@ -18754,19 +18717,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             shareInvoiceViaWhatsApp(inv) {
                 triggerHaptic('light');
-                let text = `🧾 *فاتورة مبيعات - مؤسسة السجانة*\n`;
-                text += `رقم الفاتورة: ${inv.invoiceNo}\n`;
-                text += `التاريخ: ${inv.date}\n`;
-                text += `العميل: ${inv.customerName}\n`;
-                text += `──────────────────\n`;
+                let text = `ًں§¾ *ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ - ظ…ط¤ط³ط³ط© ط§ظ„ط³ط¬ط§ظ†ط©*\n`;
+                text += `ط±ظ‚ظ… ط§ظ„ظپط§طھظˆط±ط©: ${inv.invoiceNo}\n`;
+                text += `ط§ظ„طھط§ط±ظٹط®: ${inv.date}\n`;
+                text += `ط§ظ„ط¹ظ…ظٹظ„: ${inv.customerName}\n`;
+                text += `â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€\n`;
                 inv.items.forEach(it => {
-                    text += `▪ ${it.name} × ${it.qty} = ${fmt(it.subtotal)} SDG\n`;
+                    text += `â–ھ ${it.name} أ— ${it.qty} = ${fmt(it.subtotal)} SDG\n`;
                 });
-                text += `──────────────────\n`;
-                if (inv.discount > 0) text += `الخصم: -${fmt(inv.discount)} SDG\n`;
-                text += `*الصافي المستحق: ${fmt(inv.total)} SDG*\n`;
-                text += `طريقة الدفع: ${inv.isSplit ? 'مجزأ (كاش + بنكك)' : inv.paymentMethod}\n\n`;
-                text += `شكراً لتعاملكم معنا!`;
+                text += `â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€\n`;
+                if (inv.discount > 0) text += `ط§ظ„ط®طµظ…: -${fmt(inv.discount)} SDG\n`;
+                text += `*ط§ظ„طµط§ظپظٹ ط§ظ„ظ…ط³طھط­ظ‚: ${fmt(inv.total)} SDG*\n`;
+                text += `ط·ط±ظٹظ‚ط© ط§ظ„ط¯ظپط¹: ${inv.isSplit ? 'ظ…ط¬ط²ط£ (ظƒط§ط´ + ط¨ظ†ظƒظƒ)' : inv.paymentMethod}\n\n`;
+                text += `ط´ظƒط±ط§ظ‹ ظ„طھط¹ط§ظ…ظ„ظƒظ… ظ…ط¹ظ†ط§!`;
 
                 let url = `https://wa.me/`;
                 if (inv.customerPhone && inv.customerPhone.length >= 9) {
@@ -18797,22 +18760,22 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (custSel) custSel.value = 'walkin';
                 this.onCustomerChange('walkin');
                 this.renderCart();
-                if (window.showModernToast) window.showModernToast(`✨ تم فتح فاتورة مبيعات جديدة #${nextSeq}`, 'success', 2200);
+                if (window.showModernToast) window.showModernToast(`âœ¨ طھظ… ظپطھط­ ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ ط¬ط¯ظٹط¯ط© #${nextSeq}`, 'success', 2200);
             },
 
             editInvoicePrompt() {
                 triggerHaptic('medium');
                 const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
                 if (sales.length === 0) {
-                    if (window.showModernToast) window.showModernToast('لا توجد فواتير مبيعات سابقة مسجلة للتعديل', 'info', 2000);
+                    if (window.showModernToast) window.showModernToast('ظ„ط§ طھظˆط¬ط¯ ظپظˆط§طھظٹط± ظ…ط¨ظٹط¹ط§طھ ط³ط§ط¨ظ‚ط© ظ…ط³ط¬ظ„ط© ظ„ظ„طھط¹ط¯ظٹظ„', 'info', 2000);
                     return;
                 }
-                const q = prompt('🔍 أدخل رقم الفاتورة أو اسم العميل لاستدعاء وتعديل الفاتورة:\nآخر فاتورة مسجلة: ' + (sales[0].invoiceNo || sales[0].id));
+                const q = prompt('ًں”چ ط£ط¯ط®ظ„ ط±ظ‚ظ… ط§ظ„ظپط§طھظˆط±ط© ط£ظˆ ط§ط³ظ… ط§ظ„ط¹ظ…ظٹظ„ ظ„ط§ط³طھط¯ط¹ط§ط، ظˆطھط¹ط¯ظٹظ„ ط§ظ„ظپط§طھظˆط±ط©:\nط¢ط®ط± ظپط§طھظˆط±ط© ظ…ط³ط¬ظ„ط©: ' + (sales[0].invoiceNo || sales[0].id));
                 if (!q || !q.trim()) return;
                 const query = q.trim().toLowerCase();
                 const inv = sales.find(s => `${s.invoiceNo || ''} ${s.id || ''} ${s.customerName || ''}`.toLowerCase().includes(query));
                 if (!inv) {
-                    alert(`لم يتم العثور على فاتورة تطابق: "${q}"`);
+                    alert(`ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ظپط§طھظˆط±ط© طھط·ط§ط¨ظ‚: "${q}"`);
                     return;
                 }
                 // Load into cart
@@ -18821,46 +18784,46 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.state.invoiceType = inv.paymentMethod || 'cash';
                 this.setInvoiceType(this.state.invoiceType);
                 const pill = document.getElementById('pos-inv-number-pill');
-                if (pill) pill.textContent = '#' + (inv.invoiceNo || inv.id) + ' (تعديل)';
+                if (pill) pill.textContent = '#' + (inv.invoiceNo || inv.id) + ' (طھط¹ط¯ظٹظ„)';
                 const custSel = document.getElementById('pos-customer-select');
                 if (custSel) custSel.value = this.state.customerId;
                 this.renderCart();
-                if (window.showModernToast) window.showModernToast(`✏️ تم استدعاء الفاتورة [${inv.invoiceNo || inv.id}] للتعديل`, 'warning', 2500);
+                if (window.showModernToast) window.showModernToast(`âœڈï¸ڈ طھظ… ط§ط³طھط¯ط¹ط§ط، ط§ظ„ظپط§طھظˆط±ط© [${inv.invoiceNo || inv.id}] ظ„ظ„طھط¹ط¯ظٹظ„`, 'warning', 2500);
             },
 
             deleteCurrentInvoice() {
                 triggerHaptic('heavy');
                 if (this.state.cart.length === 0) {
-                    if (window.showModernToast) window.showModernToast('السلة فارغة بالفعل', 'info', 2000);
+                    if (window.showModernToast) window.showModernToast('ط§ظ„ط³ظ„ط© ظپط§ط±ط؛ط© ط¨ط§ظ„ظپط¹ظ„', 'info', 2000);
                     return;
                 }
-                if (!confirm('⚠️ هل أنت متأكد من تفريغ وحذف بيانات الفاتورة الحالية؟')) return;
+                if (!confirm('âڑ ï¸ڈ ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† طھظپط±ظٹط؛ ظˆط­ط°ظپ ط¨ظٹط§ظ†ط§طھ ط§ظ„ظپط§طھظˆط±ط© ط§ظ„ط­ط§ظ„ظٹط©طں')) return;
                 this.newInvoice();
-                if (window.showModernToast) window.showModernToast('🗑️ تم تفريغ وحذف الفاتورة', 'success', 2000);
+                if (window.showModernToast) window.showModernToast('ًں—‘ï¸ڈ طھظ… طھظپط±ظٹط؛ ظˆط­ط°ظپ ط§ظ„ظپط§طھظˆط±ط©', 'success', 2000);
             },
 
             searchInvoice() {
                 triggerHaptic('light');
                 const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
                 if (sales.length === 0) {
-                    if (window.showModernToast) window.showModernToast('لا توجد فواتير مبيعات سابقة للبحث', 'info', 2000);
+                    if (window.showModernToast) window.showModernToast('ظ„ط§ طھظˆط¬ط¯ ظپظˆط§طھظٹط± ظ…ط¨ظٹط¹ط§طھ ط³ط§ط¨ظ‚ط© ظ„ظ„ط¨ط­ط«', 'info', 2000);
                     return;
                 }
-                const q = prompt('🔍 أدخل رقم الفاتورة أو اسم العميل للبحث:');
+                const q = prompt('ًں”چ ط£ط¯ط®ظ„ ط±ظ‚ظ… ط§ظ„ظپط§طھظˆط±ط© ط£ظˆ ط§ط³ظ… ط§ظ„ط¹ظ…ظٹظ„ ظ„ظ„ط¨ط­ط«:');
                 if (!q || !q.trim()) return;
                 const query = q.trim().toLowerCase();
                 const inv = sales.find(s => `${s.invoiceNo || ''} ${s.id || ''} ${s.customerName || ''}`.toLowerCase().includes(query));
                 if (inv) {
                     this.openThermalReceiptSheet(inv);
                 } else {
-                    alert(`لم يتم العثور على أي فاتورة تطابق: "${q}"`);
+                    alert(`ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ط£ظٹ ظپط§طھظˆط±ط© طھط·ط§ط¨ظ‚: "${q}"`);
                 }
             },
 
             navigate(dir) {
                 const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
                 if (sales.length === 0) {
-                    if (window.showModernToast) window.showModernToast('لا توجد فواتير سابقة للتنقل', 'info', 2000);
+                    if (window.showModernToast) window.showModernToast('ظ„ط§ طھظˆط¬ط¯ ظپظˆط§طھظٹط± ط³ط§ط¨ظ‚ط© ظ„ظ„طھظ†ظ‚ظ„', 'info', 2000);
                     return;
                 }
                 if (dir === 'first') this.openThermalReceiptSheet(sales[0]);
@@ -18869,14 +18832,14 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             },
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🛍️ MODULE 2: ULTRA-FAST MULTI-ITEM PURCHASE ENGINE (منظومة المشتريات)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں›چï¸ڈ MODULE 2: ULTRA-FAST MULTI-ITEM PURCHASE ENGINE (ظ…ظ†ط¸ظˆظ…ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.PurchaseEngine = {
             state: {
                 cart: [],
                 supplierId: 'cash_supplier',
-                supplierName: 'مورد نقدي عام',
+                supplierName: 'ظ…ظˆط±ط¯ ظ†ظ‚ط¯ظٹ ط¹ط§ظ…',
                 paymentMethod: 'cash',
                 lastSubmittedInvoice: null
             },
@@ -18907,7 +18870,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (isOffline) {
                     const peek = window.DualNumberingEngine ? window.DualNumberingEngine.peekNextSequence('purchase') : purNo;
                     if (pill) {
-                        pill.innerHTML = `⏳ أوفلاين ${peek}`;
+                        pill.innerHTML = `âڈ³ ط£ظˆظپظ„ط§ظٹظ† ${peek}`;
                         pill.style.background = 'rgba(245, 158, 11, 0.2)';
                         pill.style.borderColor = '#f59e0b';
                         pill.style.color = '#f59e0b';
@@ -18915,7 +18878,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     return peek;
                 } else {
                     if (pill) {
-                        pill.innerHTML = `🟠 #${purNo}`;
+                        pill.innerHTML = `ًںں  #${purNo}`;
                         pill.style.background = 'rgba(245, 158, 11, 0.15)';
                         pill.style.borderColor = 'rgba(245, 158, 11, 0.3)';
                         pill.style.color = 'var(--amber)';
@@ -18928,7 +18891,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 if (data && data.purchase && data.purchase.nextPurchaseNo) {
                                     window._mirrorNextPurchaseNo = data.purchase.nextPurchaseNo;
                                     if (pill && window.PurchaseEngine && window.PurchaseEngine.state && window.PurchaseEngine.state.cart.length === 0) {
-                                        pill.innerHTML = `🟠 #${data.purchase.nextPurchaseNo}`;
+                                        pill.innerHTML = `ًںں  #${data.purchase.nextPurchaseNo}`;
                                     }
                                 }
                             }).catch(() => {});
@@ -18940,14 +18903,14 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             populateSuppliers() {
                 const sel = document.getElementById('purchase-supplier');
                 if (!sel) return;
-                let html = '<option value="cash_supplier">مورد نقدي عام (Cash Supplier)</option>';
+                let html = '<option value="cash_supplier">ظ…ظˆط±ط¯ ظ†ظ‚ط¯ظٹ ط¹ط§ظ… (Cash Supplier)</option>';
                 const supps = (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.suppliers))
                     ? window.SERVER_DATA.suppliers
                     : ((typeof loadTenantArray === 'function') ? (loadTenantArray('erp_suppliers_v1') || []) : []);
                 if (Array.isArray(supps)) {
                     supps.forEach(s => {
                         const bal = parseFloat(s.balance || s.currentBalance || 0);
-                        html += `<option value="${s.id}" data-name="${s.name}" data-phone="${s.phone || ''}">${s.name} [الرصيد: ${fmt(bal)}]</option>`;
+                        html += `<option value="${s.id}" data-name="${s.name}" data-phone="${s.phone || ''}">${s.name} [ط§ظ„ط±طµظٹط¯: ${fmt(bal)}]</option>`;
                     });
                 }
                 sel.innerHTML = html;
@@ -18968,7 +18931,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             populateItems(filterCategory = 'all') {
                 const sel = document.getElementById('purchase-item');
                 if (!sel) return;
-                let html = '<option value="">-- اختر الصنف للشراء --</option>';
+                let html = '<option value="">-- ط§ط®طھط± ط§ظ„طµظ†ظپ ظ„ظ„ط´ط±ط§ط، --</option>';
                 if (Array.isArray(M_ITEMS)) {
                     M_ITEMS.forEach(it => {
                         const itemCat = it.category || it.type || '';
@@ -18979,9 +18942,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         const cost = parseFloat(it.cost || it.standardCost || (price * 0.75) || 0);
                         const stock = parseFloat(it.stock || it.quantity || 0);
                         const spec = it.spec || it.dimension || '';
-                        const unit = it.unit || it.primaryUnit || 'طن';
+                        const unit = it.unit || it.primaryUnit || 'ط·ظ†';
                         html += `<option value="${it.id}" data-name="${it.name}" data-spec="${spec}" data-cost="${cost}" data-price="${price}" data-stock="${stock}" data-unit="${unit}" data-cat="${itemCat}">
-                            ${it.name} ${spec ? `(${spec})` : ''} - تكلفة: ${fmt(cost)} SDG [رصيد: ${stock} ${unit}]
+                            ${it.name} ${spec ? `(${spec})` : ''} - طھظƒظ„ظپط©: ${fmt(cost)} SDG [ط±طµظٹط¯: ${stock} ${unit}]
                         </option>`;
                     });
                 }
@@ -19039,24 +19002,24 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 triggerHaptic('light');
                 const itemSel = document.getElementById('purchase-item');
                 if (!itemSel || !itemSel.value) {
-                    if (window.showModernToast) window.showModernToast('⚠️ يرجى اختيار الصنف أولاً من القائمة', 'warning');
+                    if (window.showModernToast) window.showModernToast('âڑ ï¸ڈ ظٹط±ط¬ظ‰ ط§ط®طھظٹط§ط± ط§ظ„طµظ†ظپ ط£ظˆظ„ط§ظ‹ ظ…ظ† ط§ظ„ظ‚ط§ط¦ظ…ط©', 'warning');
                     return;
                 }
                 const opt = itemSel.selectedOptions[0];
                 const itemId = itemSel.value;
-                const itemName = opt ? (opt.dataset.name || opt.text.split(' - ')[0]) : 'صنف';
+                const itemName = opt ? (opt.dataset.name || opt.text.split(' - ')[0]) : 'طµظ†ظپ';
                 const spec = opt ? (opt.dataset.spec || '') : '';
                 const barcode = opt ? (opt.dataset.barcode || '') : '';
 
                 const whSel = document.getElementById('purchase-item-warehouse');
                 const warehouse = whSel ? whSel.value : 'central';
-                const warehouseName = whSel ? whSel.selectedOptions[0]?.text || 'المستودع المركزي' : 'المستودع المركزي';
+                const warehouseName = whSel ? whSel.selectedOptions[0]?.text || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ' : 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ';
 
                 const catSel = document.getElementById('purchase-item-category');
                 const category = catSel ? catSel.value : 'all';
 
                 const unitSel = document.getElementById('purchase-item-unit');
-                const unit = unitSel ? unitSel.value : 'طن';
+                const unit = unitSel ? unitSel.value : 'ط·ظ†';
 
                 const qty = parseFloat(document.getElementById('purchase-qty')?.value) || 0;
                 const price = parseFloat(document.getElementById('purchase-price')?.value) || 0;
@@ -19064,11 +19027,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const labor = parseFloat(document.getElementById('purchase-item-labor')?.value) || 0;
 
                 if (qty <= 0) {
-                    if (window.showModernToast) window.showModernToast('⚠️ يرجى إدخال كمية شراء صحيحة', 'warning');
+                    if (window.showModernToast) window.showModernToast('âڑ ï¸ڈ ظٹط±ط¬ظ‰ ط¥ط¯ط®ط§ظ„ ظƒظ…ظٹط© ط´ط±ط§ط، طµط­ظٹط­ط©', 'warning');
                     return;
                 }
                 if (price <= 0) {
-                    if (window.showModernToast) window.showModernToast('⚠️ يرجى تحديد سعر شراء صحيح', 'warning');
+                    if (window.showModernToast) window.showModernToast('âڑ ï¸ڈ ظٹط±ط¬ظ‰ طھط­ط¯ظٹط¯ ط³ط¹ط± ط´ط±ط§ط، طµط­ظٹط­', 'warning');
                     return;
                 }
 
@@ -19092,7 +19055,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 this.renderCart();
                 if (window.showModernToast) {
-                    window.showModernToast(`+ أضيف للمشتريات: ${itemName} (${qty} ${unit})`, 'success', 1500);
+                    window.showModernToast(`+ ط£ط¶ظٹظپ ظ„ظ„ظ…ط´طھط±ظٹط§طھ: ${itemName} (${qty} ${unit})`, 'success', 1500);
                 }
             },
 
@@ -19141,7 +19104,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             clearCart() {
                 if (this.state.cart.length === 0) return;
-                if (confirm('هل أنت متأكد من تفريغ أصناف فاتورة الشراء؟')) {
+                if (confirm('ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† طھظپط±ظٹط؛ ط£طµظ†ط§ظپ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط،طں')) {
                     triggerHaptic('medium');
                     this.state.cart = [];
                     this.renderCart();
@@ -19159,8 +19122,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     container.innerHTML = `
                         <div style="text-align:center; padding:24px 10px; color:var(--text-muted); opacity:0.8;">
                             <i class="fa-solid fa-cart-shopping" style="font-size:2rem; margin-bottom:8px; display:block; opacity:0.4;"></i>
-                            <p style="font-size:0.82rem; margin:0; font-weight:800;">سلة المشتريات فارغة</p>
-                            <span style="font-size:0.72rem;">اختر صنفاً أو امسح الباركود لإضافة بنود الشراء والتوريد</span>
+                            <p style="font-size:0.82rem; margin:0; font-weight:800;">ط³ظ„ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ ظپط§ط±ط؛ط©</p>
+                            <span style="font-size:0.72rem;">ط§ط®طھط± طµظ†ظپط§ظ‹ ط£ظˆ ط§ظ…ط³ط­ ط§ظ„ط¨ط§ط±ظƒظˆط¯ ظ„ط¥ط¶ط§ظپط© ط¨ظ†ظˆط¯ ط§ظ„ط´ط±ط§ط، ظˆط§ظ„طھظˆط±ظٹط¯</span>
                         </div>
                     `;
                     this.calculateTotals();
@@ -19169,48 +19132,30 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 let html = '';
                 this.state.cart.forEach((item, idx) => {
-                    const activeUnitLabel = item.unit || 'طن';
-                    const whLabel = item.warehouseName || 'المستودع الرئيسي';
+                    const activeUnitLabel = item.unit || 'ط·ظ†';
+                    const whLabel = item.warehouseName || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ط±ط¦ظٹط³ظٹ';
                     
                     html += `
-                        <div class="pos-line-item line-card-laptop" style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:14px; padding:10px 12px; margin-bottom:8px;">
-                            <div class="pos-line-top" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
-                                <div class="pos-line-title">
-                                    <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-                                        <strong style="font-size:0.88rem; color:var(--text-main);">${item.name}</strong>
-                                        <span style="font-size:0.7rem; font-weight:800; background:rgba(245,158,11,0.15); color:var(--amber); padding:1px 6px; border-radius:6px;">${activeUnitLabel}</span>
-                                        <span style="font-size:0.68rem; font-weight:800; background:rgba(168,85,247,0.15); color:#c084fc; padding:1px 6px; border-radius:6px;"><i class="fa-solid fa-warehouse"></i> ${whLabel}</span>
-                                    </div>
-                                    ${item.spec ? `<span class="pos-line-spec" style="font-size:0.72rem; color:var(--text-muted);">${item.spec}</span>` : ''}
-                                </div>
-                                <div style="display:flex; align-items:center; gap:8px;">
-                                    <span class="pos-line-total" style="font-weight:900; font-family:'Inter',sans-serif; color:var(--amber);">${fmt(item.subtotal)} SDG</span>
-                                    <button type="button" class="pos-line-del-btn" onclick="PurchaseEngine.removeItem(${idx})" title="حذف" style="background:rgba(239,68,68,0.15); color:#ef4444; border:none; border-radius:6px; width:26px; height:26px; font-weight:900; cursor:pointer;">✕</button>
-                                </div>
-                            </div>
-
-                            <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.7rem; font-weight:800; margin-bottom:6px; color:var(--text-muted);">
-                                <span>الكمية: <strong style="color:var(--text-main);">${item.qty} ${activeUnitLabel}</strong></span>
-                                <span>•</span>
-                                <span>سعر الشراء: <strong style="color:var(--text-main);">${fmt(item.price)}</strong></span>
-                                ${item.tax > 0 ? `<span>•</span><span>الضريبة: <strong style="color:var(--amber);">${fmt(item.tax)}</strong></span>` : ''}
-                                ${item.labor > 0 ? `<span>•</span><span>العمالة: <strong style="color:#38bdf8;">${fmt(item.labor)}</strong></span>` : ''}
-                            </div>
-
-                            <div class="pos-line-controls" style="display:flex; align-items:center; gap:8px; justify-content:space-between; border-top:1px dashed var(--border-glass); padding-top:6px;">
-                                <div class="qty-stepper" style="display:flex; align-items:center; gap:2px;">
-                                    <button type="button" class="stepper-btn" onclick="PurchaseEngine.updateItemQty(${idx}, -1)">-</button>
-                                    <input type="number" class="stepper-input" value="${item.qty}" min="0.01" step="any" onchange="PurchaseEngine.setItemQty(${idx}, this.value)" style="width:55px; height:30px; text-align:center; font-weight:900; font-family:'Inter',sans-serif; border-radius:6px; border:1px solid var(--border-glass); background:var(--surface-sub); color:var(--text-main);">
-                                    <button type="button" class="stepper-btn" onclick="PurchaseEngine.updateItemQty(${idx}, 1)">+</button>
-                                </div>
-
-                                <div style="display:flex; align-items:center; gap:4px;">
-                                    <span style="font-size:0.72rem; color:var(--text-muted); font-weight:800;">السعر:</span>
-                                    <input type="number" value="${item.price}" step="any" class="m-input" style="width:84px; height:30px; padding:2px 4px; font-size:0.8rem; font-weight:900; font-family:'Inter',sans-serif; text-align:center;" onchange="PurchaseEngine.setItemPrice(${idx}, this.value)">
-                                </div>
-                            </div>
-                        </div>
-                    `;
+                        <div class="db-item-card">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
+        <span style="font-size:0.9rem; font-weight:800; color:#fff;">${item.name}</span>
+        <span style="font-size:0.8rem; font-weight:900; color:#34d399;">${fmt(item.subtotal)} SDG</span>
+    </div>
+    <div style="font-size:0.65rem; color:#94a3b8; font-family:'Inter',sans-serif; margin-bottom:8px; display:flex; gap:12px;">
+        <span><i class="fa-solid fa-boxes-stacked" style="color:#c084fc;"></i> المخزن: ${whLabel}</span>
+        <span><i class="fa-solid fa-scale-balanced" style="color:#fbbf24;"></i> الوحدة: ${activeUnitLabel}</span>
+    </div>
+    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:4px; text-align:center; background:rgba(0,0,0,0.4); border-radius:8px; padding:6px; margin-bottom:8px;">
+        <div style="font-size:0.6rem;"><div style="color:#64748b; margin-bottom:2px;">الكمية</div><div style="color:#fff; font-weight:900; font-family:'Inter',sans-serif;">${item.qty}</div></div>
+        <div style="font-size:0.6rem;"><div style="color:#64748b; margin-bottom:2px;">السعر</div><div style="color:#38bdf8; font-weight:900; font-family:'Inter',sans-serif;">${fmt(item.price)}</div></div>
+        <div style="font-size:0.6rem;"><div style="color:#64748b; margin-bottom:2px;">خصم</div><div style="color:#f43f5e; font-weight:900; font-family:'Inter',sans-serif;">${fmt(item.discount || 0)}</div></div>
+        <div style="font-size:0.6rem;"><div style="color:#64748b; margin-bottom:2px;">إضافات</div><div style="color:#fbbf24; font-weight:900; font-family:'Inter',sans-serif;">${fmt((item.tax || 0) + (item.labor || 0))}</div></div>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
+        <span style="font-size:0.7rem; font-weight:900; color:#34d399;">الجملة: ${fmt(item.subtotal)}</span>
+        <button type="button" onclick="MobilePOS.removeItem(${idx})" style="background:rgba(244,63,94,0.1); color:#f43f5e; border:none; padding:4px 10px; border-radius:6px; font-size:0.65rem; font-weight:900; cursor:pointer;"><i class="fa-solid fa-trash-can"></i> حذف</button>
+    </div>
+</div>`;
                 });
 
                 container.innerHTML = html;
@@ -19240,7 +19185,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (laborEl) laborEl.innerText = fmt(totalLabor);
                 if (netEl) netEl.innerText = fmt(total) + ' SDG';
                 if (displayTotal) displayTotal.innerHTML = `${fmt(total)} <small style="font-size:0.55em;">SDG</small>`;
-                if (bannerCount) bannerCount.textContent = `${this.state.cart.length} أصناف`;
+                if (bannerCount) bannerCount.textContent = `${this.state.cart.length} ط£طµظ†ط§ظپ`;
 
                 return { subtotal, totalTax, totalLabor, total };
             },
@@ -19248,38 +19193,38 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             confirmInvoice() {
                 triggerHaptic('heavy');
                 if (this.state.cart.length === 0) {
-                    if (window.showModernToast) window.showModernToast('⚠️ فاتورة الشراء فارغة! يرجى إضافة أصناف للتأكيد', 'warning');
+                    if (window.showModernToast) window.showModernToast('âڑ ï¸ڈ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ظپط§ط±ط؛ط©! ظٹط±ط¬ظ‰ ط¥ط¶ط§ظپط© ط£طµظ†ط§ظپ ظ„ظ„طھط£ظƒظٹط¯', 'warning');
                     return;
                 }
                 const totals = this.calculateTotals();
                 const pill = document.getElementById('purchase-inv-number-pill');
                 if (pill) {
-                    pill.innerHTML = `🟢 مؤكدة (${fmt(totals.total)} SDG)`;
+                    pill.innerHTML = `ًںں¢ ظ…ط¤ظƒط¯ط© (${fmt(totals.total)} SDG)`;
                     pill.style.background = 'rgba(16,185,129,0.2)';
                     pill.style.borderColor = '#10b981';
                     pill.style.color = '#10b981';
                 }
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم تأكيد ومطابقة فاتورة الشراء (${fmt(totals.total)} SDG)`, 'success', 3000);
+                    window.showModernToast(`âœ… طھظ… طھط£ظƒظٹط¯ ظˆظ…ط·ط§ط¨ظ‚ط© ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، (${fmt(totals.total)} SDG)`, 'success', 3000);
                 }
             },
 
             saveInvoice() {
                 triggerHaptic('heavy');
                 if (this.state.cart.length === 0) {
-                    alert('⚠️ الفاتورة فارغة! يرجى إضافة أصناف للشراء أولاً');
+                    alert('âڑ ï¸ڈ ط§ظ„ظپط§طھظˆط±ط© ظپط§ط±ط؛ط©! ظٹط±ط¬ظ‰ ط¥ط¶ط§ظپط© ط£طµظ†ط§ظپ ظ„ظ„ط´ط±ط§ط، ط£ظˆظ„ط§ظ‹');
                     return false;
                 }
 
                 const totals = this.calculateTotals();
                 if (totals.total <= 0) {
-                    alert('⚠️ إجمالي فاتورة الشراء يجب أن يكون أكبر من صفر');
+                    alert('âڑ ï¸ڈ ط¥ط¬ظ…ط§ظ„ظٹ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ظٹط¬ط¨ ط£ظ† ظٹظƒظˆظ† ط£ظƒط¨ط± ظ…ظ† طµظپط±');
                     return false;
                 }
 
                 const supSel = document.getElementById('purchase-supplier');
                 const supId = supSel ? supSel.value : 'cash_supplier';
-                const supName = supSel ? (supSel.selectedOptions[0]?.text || 'مورد نقدي') : 'مورد نقدي';
+                const supName = supSel ? (supSel.selectedOptions[0]?.text || 'ظ…ظˆط±ط¯ ظ†ظ‚ط¯ظٹ') : 'ظ…ظˆط±ط¯ ظ†ظ‚ط¯ظٹ';
                 const payMethod = document.getElementById('purchase-payment-method')?.value || 'cash';
 
                 const localSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('purchase') : ('PUR-OFF-' + Date.now().toString().slice(-4));
@@ -19305,9 +19250,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         spec: it.spec,
                         barcode: it.barcode,
                         warehouse: it.warehouse || 'central',
-                        warehouseName: it.warehouseName || 'المستودع الرئيسي',
+                        warehouseName: it.warehouseName || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ط±ط¦ظٹط³ظٹ',
                         category: it.category || 'all',
-                        unit: it.unit || 'طن',
+                        unit: it.unit || 'ط·ظ†',
                         qty: it.qty,
                         price: it.price,
                         tax: it.tax || 0,
@@ -19365,9 +19310,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (window.showModernToast) {
                     const isAppOnline = window.OfflineOutboxEngine ? window.OfflineOutboxEngine.isOnline() : navigator.onLine;
                     if (isAppOnline) {
-                        window.showModernToast(`✅ تم حفظ وترحيل فاتورة الشراء ${purNo} بنجاح (${fmt(totals.total)} SDG)`, 'success', 3500);
+                        window.showModernToast(`âœ… طھظ… ط­ظپط¸ ظˆطھط±ط­ظٹظ„ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ${purNo} ط¨ظ†ط¬ط§ط­ (${fmt(totals.total)} SDG)`, 'success', 3500);
                     } else {
-                        window.showModernToast(`⏳ تم حفظ فاتورة الشراء أوفلاين ${purNo} • سيتم ترحيلها فور عودة النت ⚡`, 'info', 4000);
+                        window.showModernToast(`âڈ³ طھظ… ط­ظپط¸ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ط£ظˆظپظ„ط§ظٹظ† ${purNo} â€¢ ط³ظٹطھظ… طھط±ط­ظٹظ„ظ‡ط§ ظپظˆط± ط¹ظˆط¯ط© ط§ظ„ظ†طھ âڑ،`, 'info', 4000);
                     }
                 }
 
@@ -19389,26 +19334,26 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.state.cart = [];
                 this.generateInvoiceNumber();
                 this.renderCart();
-                if (window.showModernToast) window.showModernToast('✨ تم فتح فاتورة مشتريات جديدة', 'success', 2000);
+                if (window.showModernToast) window.showModernToast('âœ¨ طھظ… ظپطھط­ ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ ط¬ط¯ظٹط¯ط©', 'success', 2000);
             },
 
             shareInvoiceWhatsApp() {
                 if (this.state.cart.length === 0) {
-                    if (window.showModernToast) window.showModernToast('السلة فارغة للمشاركة', 'warning');
+                    if (window.showModernToast) window.showModernToast('ط§ظ„ط³ظ„ط© ظپط§ط±ط؛ط© ظ„ظ„ظ…ط´ط§ط±ظƒط©', 'warning');
                     return;
                 }
                 const totals = this.calculateTotals();
-                let text = `📦 *فاتورة مشتريات وتوريد - مؤسسة السجانة*\n`;
-                text += `رقم الفاتورة: #${this.generateInvoiceNumber()}\n`;
-                text += `التاريخ: ${new Date().toLocaleDateString('ar-SD')}\n`;
-                text += `المورد: ${this.state.supplierName}\n`;
-                text += `──────────────────\n`;
+                let text = `ًں“¦ *ظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ ظˆطھظˆط±ظٹط¯ - ظ…ط¤ط³ط³ط© ط§ظ„ط³ط¬ط§ظ†ط©*\n`;
+                text += `ط±ظ‚ظ… ط§ظ„ظپط§طھظˆط±ط©: #${this.generateInvoiceNumber()}\n`;
+                text += `ط§ظ„طھط§ط±ظٹط®: ${new Date().toLocaleDateString('ar-SD')}\n`;
+                text += `ط§ظ„ظ…ظˆط±ط¯: ${this.state.supplierName}\n`;
+                text += `â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€\n`;
                 this.state.cart.forEach(it => {
-                    text += `▪ ${it.name} (${it.qty} ${it.unit}) = ${fmt(it.subtotal)} SDG\n`;
+                    text += `â–ھ ${it.name} (${it.qty} ${it.unit}) = ${fmt(it.subtotal)} SDG\n`;
                 });
-                text += `──────────────────\n`;
-                text += `*الإجمالي الصافي: ${fmt(totals.total)} SDG*\n`;
-                text += `شكراً لتعاملكم معنا!`;
+                text += `â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€\n`;
+                text += `*ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„طµط§ظپظٹ: ${fmt(totals.total)} SDG*\n`;
+                text += `ط´ظƒط±ط§ظ‹ ظ„طھط¹ط§ظ…ظ„ظƒظ… ظ…ط¹ظ†ط§!`;
                 window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
             },
 
@@ -19423,18 +19368,18 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 sel.value = found.id;
                                 this.onItemSelect(sel);
                             }
-                            if (window.showModernToast) window.showModernToast(`🎯 تم اختيار: ${found.name}`, 'success');
+                            if (window.showModernToast) window.showModernToast(`ًںژ¯ طھظ… ط§ط®طھظٹط§ط±: ${found.name}`, 'success');
                         } else {
-                            if (window.showModernToast) window.showModernToast(`⚠️ الباركود (${code}) غير مطابق`, 'warning', 3000);
+                            if (window.showModernToast) window.showModernToast(`âڑ ï¸ڈ ط§ظ„ط¨ط§ط±ظƒظˆط¯ (${code}) ط؛ظٹط± ظ…ط·ط§ط¨ظ‚`, 'warning', 3000);
                         }
                     });
                 }
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🔄 SUITE NAVIGATION ENGINE (تبديل علامات تبويب المبيعات والمشتريات)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں”„ SUITE NAVIGATION ENGINE (طھط¨ط¯ظٹظ„ ط¹ظ„ط§ظ…ط§طھ طھط¨ظˆظٹط¨ ط§ظ„ظ…ط¨ظٹط¹ط§طھ ظˆط§ظ„ظ…ط´طھط±ظٹط§طھ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.switchSalesSuiteTab = function(tab) {
             triggerHaptic('light');
             ['invoice', 'split', 'delivery'].forEach(t => {
@@ -19483,17 +19428,17 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             }, 50);
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // ✂️ SALES SPLIT ENGINE (تقسيم المبيعات على المخازن والدفعات)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // âœ‚ï¸ڈ SALES SPLIT ENGINE (طھظ‚ط³ظٹظ… ط§ظ„ظ…ط¨ظٹط¹ط§طھ ط¹ظ„ظ‰ ط§ظ„ظ…ط®ط§ط²ظ† ظˆط§ظ„ط¯ظپط¹ط§طھ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.SalesSplitEngine = {
             init() {
                 const sel = document.getElementById('split-sales-select');
                 if (!sel) return;
                 const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
-                let html = '<option value="current">الفاتورة الحالية المفتوحة (#INV)</option>';
+                let html = '<option value="current">ط§ظ„ظپط§طھظˆط±ط© ط§ظ„ط­ط§ظ„ظٹط© ط§ظ„ظ…ظپطھظˆط­ط© (#INV)</option>';
                 sales.slice(0, 15).forEach(s => {
-                    html += `<option value="${s.id || s.invoiceNo}">${s.invoiceNo || s.id} - ${s.customerName || 'عميل'} (${fmt(s.total || s.grandTotal || 0)} SDG)</option>`;
+                    html += `<option value="${s.id || s.invoiceNo}">${s.invoiceNo || s.id} - ${s.customerName || 'ط¹ظ…ظٹظ„'} (${fmt(s.total || s.grandTotal || 0)} SDG)</option>`;
                 });
                 sel.innerHTML = html;
                 this.onInvoiceSelect(sel.value);
@@ -19517,7 +19462,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (q1) q1.value = half;
                 if (q2) q2.value = totalQty - half;
                 const tag = document.getElementById('sales-split-status-tag');
-                if (tag) tag.innerText = `جاهز للتقسيم: ${totalQty} وحدة إجمالاً ⚡`;
+                if (tag) tag.innerText = `ط¬ط§ظ‡ط² ظ„ظ„طھظ‚ط³ظٹظ…: ${totalQty} ظˆط­ط¯ط© ط¥ط¬ظ…ط§ظ„ط§ظ‹ âڑ،`;
             },
 
             confirmSplit() {
@@ -19525,11 +19470,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const q1 = parseFloat(document.getElementById('split-qty-1')?.value) || 0;
                 const q2 = parseFloat(document.getElementById('split-qty-2')?.value) || 0;
                 if (q1 + q2 <= 0) {
-                    if (window.showModernToast) window.showModernToast('⚠️ يرجى تحديد كميات التقسيم أولاً', 'warning');
+                    if (window.showModernToast) window.showModernToast('âڑ ï¸ڈ ظٹط±ط¬ظ‰ طھط­ط¯ظٹط¯ ظƒظ…ظٹط§طھ ط§ظ„طھظ‚ط³ظٹظ… ط£ظˆظ„ط§ظ‹', 'warning');
                     return;
                 }
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم تأكيد ومطابقة خطة التقسيم (${q1 + q2} وحدة)`, 'success', 2500);
+                    window.showModernToast(`âœ… طھظ… طھط£ظƒظٹط¯ ظˆظ…ط·ط§ط¨ظ‚ط© ط®ط·ط© ط§ظ„طھظ‚ط³ظٹظ… (${q1 + q2} ظˆط­ط¯ط©)`, 'success', 2500);
                 }
             },
 
@@ -19537,9 +19482,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 triggerHaptic('heavy');
                 const q1 = parseFloat(document.getElementById('split-qty-1')?.value) || 0;
                 const q2 = parseFloat(document.getElementById('split-qty-2')?.value) || 0;
-                const wh1 = document.getElementById('split-wh-1')?.selectedOptions[0]?.text || 'المستودع المركزي';
-                const wh2 = document.getElementById('split-wh-2')?.selectedOptions[0]?.text || 'فرع الكلاكلة';
-                const carrier = document.getElementById('split-carrier-note')?.value || 'سائق داخلي';
+                const wh1 = document.getElementById('split-wh-1')?.selectedOptions[0]?.text || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ';
+                const wh2 = document.getElementById('split-wh-2')?.selectedOptions[0]?.text || 'ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©';
+                const carrier = document.getElementById('split-carrier-note')?.value || 'ط³ط§ط¦ظ‚ ط¯ط§ط®ظ„ظٹ';
                 const invId = document.getElementById('split-sales-select')?.value || 'INV-CURRENT';
 
                 const splitRecord = {
@@ -19557,7 +19502,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (typeof saveTenantArray === 'function') saveTenantArray('erp_sales_splits_v1', splits);
 
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم حفظ واعتماد خطة تقسيم الشحنة #${splitRecord.id} بنجاح!`, 'success', 3500);
+                    window.showModernToast(`âœ… طھظ… ط­ظپط¸ ظˆط§ط¹طھظ…ط§ط¯ ط®ط·ط© طھظ‚ط³ظٹظ… ط§ظ„ط´ط­ظ†ط© #${splitRecord.id} ط¨ظ†ط¬ط§ط­!`, 'success', 3500);
                 }
             },
 
@@ -19569,38 +19514,38 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (q1) q1.value = 0;
                 if (q2) q2.value = 0;
                 if (note) note.value = '';
-                if (window.showModernToast) window.showModernToast('✨ تم تجهيز خطة تقسيم جديدة', 'info', 1800);
+                if (window.showModernToast) window.showModernToast('âœ¨ طھظ… طھط¬ظ‡ظٹط² ط®ط·ط© طھظ‚ط³ظٹظ… ط¬ط¯ظٹط¯ط©', 'info', 1800);
             },
 
             shareSplitWhatsApp() {
                 const q1 = document.getElementById('split-qty-1')?.value || 0;
                 const q2 = document.getElementById('split-qty-2')?.value || 0;
-                const wh1 = document.getElementById('split-wh-1')?.selectedOptions[0]?.text || 'المستودع المركزي';
-                const wh2 = document.getElementById('split-wh-2')?.selectedOptions[0]?.text || 'فرع الكلاكلة';
+                const wh1 = document.getElementById('split-wh-1')?.selectedOptions[0]?.text || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ';
+                const wh2 = document.getElementById('split-wh-2')?.selectedOptions[0]?.text || 'ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©';
                 const carrier = document.getElementById('split-carrier-note')?.value || '';
                 const invId = document.getElementById('split-sales-select')?.value || 'INV';
 
-                let text = `🚚 *أمر تقسيم وتوزيع شحنة مبيعات*\n`;
-                text += `الفاتورة الأصل: #${invId}\n`;
-                text += `الدفعة 1: ${q1} وحدة -> (${wh1})\n`;
-                text += `الدفعة 2: ${q2} وحدة -> (${wh2})\n`;
-                if (carrier) text += `الناقل / السائق: ${carrier}\n`;
-                text += `التاريخ: ${new Date().toLocaleDateString('ar-SD')}\n`;
+                let text = `ًںڑڑ *ط£ظ…ط± طھظ‚ط³ظٹظ… ظˆطھظˆط²ظٹط¹ ط´ط­ظ†ط© ظ…ط¨ظٹط¹ط§طھ*\n`;
+                text += `ط§ظ„ظپط§طھظˆط±ط© ط§ظ„ط£طµظ„: #${invId}\n`;
+                text += `ط§ظ„ط¯ظپط¹ط© 1: ${q1} ظˆط­ط¯ط© -> (${wh1})\n`;
+                text += `ط§ظ„ط¯ظپط¹ط© 2: ${q2} ظˆط­ط¯ط© -> (${wh2})\n`;
+                if (carrier) text += `ط§ظ„ظ†ط§ظ‚ظ„ / ط§ظ„ط³ط§ط¦ظ‚: ${carrier}\n`;
+                text += `ط§ظ„طھط§ط±ظٹط®: ${new Date().toLocaleDateString('ar-SD')}\n`;
                 window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🚚 SALES DELIVERY ENGINE (إذن تسليم واستلام مبيعات للعميل)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًںڑڑ SALES DELIVERY ENGINE (ط¥ط°ظ† طھط³ظ„ظٹظ… ظˆط§ط³طھظ„ط§ظ… ظ…ط¨ظٹط¹ط§طھ ظ„ظ„ط¹ظ…ظٹظ„)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.SalesDeliveryEngine = {
             init() {
                 const sel = document.getElementById('delivery-sales-select');
                 if (!sel) return;
                 const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
-                let html = '<option value="current">الفاتورة الحالية المفتوحة (#INV)</option>';
+                let html = '<option value="current">ط§ظ„ظپط§طھظˆط±ط© ط§ظ„ط­ط§ظ„ظٹط© ط§ظ„ظ…ظپطھظˆط­ط© (#INV)</option>';
                 sales.slice(0, 15).forEach(s => {
-                    html += `<option value="${s.id || s.invoiceNo}">${s.invoiceNo || s.id} - ${s.customerName || 'عميل'} (${s.date || ''})</option>`;
+                    html += `<option value="${s.id || s.invoiceNo}">${s.invoiceNo || s.id} - ${s.customerName || 'ط¹ظ…ظٹظ„'} (${s.date || ''})</option>`;
                 });
                 sel.innerHTML = html;
                 this.onInvoiceSelect(sel.value);
@@ -19620,7 +19565,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
 
                 if (items.length === 0) {
-                    box.innerHTML = '<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:8px;">لا توجد أصناف في الفاتورة المحددة</div>';
+                    box.innerHTML = '<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:8px;">ظ„ط§ طھظˆط¬ط¯ ط£طµظ†ط§ظپ ظپظٹ ط§ظ„ظپط§طھظˆط±ط© ط§ظ„ظ…ط­ط¯ط¯ط©</div>';
                     return;
                 }
 
@@ -19632,7 +19577,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 <input type="checkbox" checked style="width:16px; height:16px; accent-color:var(--emerald);">
                                 <strong style="color:var(--text-main);">${it.name}</strong>
                             </label>
-                            <span style="font-weight:900; color:var(--emerald);">${it.qty} ${it.unit || 'طن'}</span>
+                            <span style="font-weight:900; color:var(--emerald);">${it.qty} ${it.unit || 'ط·ظ†'}</span>
                         </div>
                     `;
                 });
@@ -19642,15 +19587,15 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             confirmDelivery() {
                 triggerHaptic('heavy');
                 if (window.showModernToast) {
-                    window.showModernToast('✅ تم تأكيد مطابقة أصناف إذن التسليم وجاهز للاعتماد', 'success', 2500);
+                    window.showModernToast('âœ… طھظ… طھط£ظƒظٹط¯ ظ…ط·ط§ط¨ظ‚ط© ط£طµظ†ط§ظپ ط¥ط°ظ† ط§ظ„طھط³ظ„ظٹظ… ظˆط¬ط§ظ‡ط² ظ„ظ„ط§ط¹طھظ…ط§ط¯', 'success', 2500);
                 }
             },
 
             saveDelivery() {
                 triggerHaptic('heavy');
-                const receiverName = document.getElementById('delivery-receiver-name')?.value || 'العميل المستلم';
+                const receiverName = document.getElementById('delivery-receiver-name')?.value || 'ط§ظ„ط¹ظ…ظٹظ„ ط§ظ„ظ…ط³طھظ„ظ…';
                 const receiverPhone = document.getElementById('delivery-receiver-phone')?.value || '';
-                const wh = document.getElementById('delivery-warehouse')?.selectedOptions[0]?.text || 'المستودع الرئيسي';
+                const wh = document.getElementById('delivery-warehouse')?.selectedOptions[0]?.text || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ط±ط¦ظٹط³ظٹ';
                 const status = document.getElementById('delivery-status')?.value || 'full';
                 const invId = document.getElementById('delivery-sales-select')?.value || 'INV';
 
@@ -19670,7 +19615,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (typeof saveTenantArray === 'function') saveTenantArray('erp_sales_deliveries_v1', deliveries);
 
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم حفظ وترحيل إذن التسليم #${dlvRecord.id} بنجاح!`, 'success', 3500);
+                    window.showModernToast(`âœ… طھظ… ط­ظپط¸ ظˆطھط±ط­ظٹظ„ ط¥ط°ظ† ط§ظ„طھط³ظ„ظٹظ… #${dlvRecord.id} ط¨ظ†ط¬ط§ط­!`, 'success', 3500);
                 }
             },
 
@@ -19680,35 +19625,35 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const phone = document.getElementById('delivery-receiver-phone');
                 if (name) name.value = '';
                 if (phone) phone.value = '';
-                if (window.showModernToast) window.showModernToast('✨ تم فتح إذن تسليم جديد', 'info', 1800);
+                if (window.showModernToast) window.showModernToast('âœ¨ طھظ… ظپطھط­ ط¥ط°ظ† طھط³ظ„ظٹظ… ط¬ط¯ظٹط¯', 'info', 1800);
             },
 
             shareReceiptWhatsApp() {
-                const receiverName = document.getElementById('delivery-receiver-name')?.value || 'العميل';
+                const receiverName = document.getElementById('delivery-receiver-name')?.value || 'ط§ظ„ط¹ظ…ظٹظ„';
                 const invId = document.getElementById('delivery-sales-select')?.value || 'INV';
-                const wh = document.getElementById('delivery-warehouse')?.selectedOptions[0]?.text || 'المستودع الرئيسي';
+                const wh = document.getElementById('delivery-warehouse')?.selectedOptions[0]?.text || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ط±ط¦ظٹط³ظٹ';
 
-                let text = `📦 *إذن تسليم واستلام مبيعات (Delivery Note)*\n`;
-                text += `رقم الفاتورة: #${invId}\n`;
-                text += `المستودع المسلِّم: ${wh}\n`;
-                text += `المستلم: ${receiverName}\n`;
-                text += `التاريخ: ${new Date().toLocaleDateString('ar-SD')}\n`;
-                text += `الحالة: تم التسليم والاستلام بنجاح ✅\n`;
+                let text = `ًں“¦ *ط¥ط°ظ† طھط³ظ„ظٹظ… ظˆط§ط³طھظ„ط§ظ… ظ…ط¨ظٹط¹ط§طھ (Delivery Note)*\n`;
+                text += `ط±ظ‚ظ… ط§ظ„ظپط§طھظˆط±ط©: #${invId}\n`;
+                text += `ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط³ظ„ظ‘ظگظ…: ${wh}\n`;
+                text += `ط§ظ„ظ…ط³طھظ„ظ…: ${receiverName}\n`;
+                text += `ط§ظ„طھط§ط±ظٹط®: ${new Date().toLocaleDateString('ar-SD')}\n`;
+                text += `ط§ظ„ط­ط§ظ„ط©: طھظ… ط§ظ„طھط³ظ„ظٹظ… ظˆط§ظ„ط§ط³طھظ„ط§ظ… ط¨ظ†ط¬ط§ط­ âœ…\n`;
                 window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 📥 PURCHASE GOODS INTAKE ENGINE (استلام وتوريد المشتريات)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں“¥ PURCHASE GOODS INTAKE ENGINE (ط§ط³طھظ„ط§ظ… ظˆطھظˆط±ظٹط¯ ط§ظ„ظ…ط´طھط±ظٹط§طھ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.PurchaseReceiptEngine = {
             init() {
                 const sel = document.getElementById('receipt-purchase-select');
                 if (!sel) return;
                 const purs = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_purchase_invoices_v1') || []) : [];
-                let html = '<option value="current">فاتورة الشراء الحالية (#PUR)</option>';
+                let html = '<option value="current">ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ط§ظ„ط­ط§ظ„ظٹط© (#PUR)</option>';
                 purs.slice(0, 15).forEach(p => {
-                    html += `<option value="${p.id || p.invoiceNo}">${p.invoiceNo || p.id} - ${p.supplierName || 'مورد'} (${fmt(p.total || p.grandTotal || 0)} SDG)</option>`;
+                    html += `<option value="${p.id || p.invoiceNo}">${p.invoiceNo || p.id} - ${p.supplierName || 'ظ…ظˆط±ط¯'} (${fmt(p.total || p.grandTotal || 0)} SDG)</option>`;
                 });
                 sel.innerHTML = html;
                 this.onInvoiceSelect(sel.value);
@@ -19728,7 +19673,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
 
                 if (items.length === 0) {
-                    box.innerHTML = '<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:8px;">لا توجد أصناف في فاتورة الشراء المحددة</div>';
+                    box.innerHTML = '<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:8px;">ظ„ط§ طھظˆط¬ط¯ ط£طµظ†ط§ظپ ظپظٹ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ط§ظ„ظ…ط­ط¯ط¯ط©</div>';
                     return;
                 }
 
@@ -19740,7 +19685,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 <input type="checkbox" checked style="width:16px; height:16px; accent-color:var(--amber);">
                                 <strong style="color:var(--text-main);">${it.name}</strong>
                             </label>
-                            <span style="font-weight:900; color:var(--amber);">${it.qty} ${it.unit || 'طن'}</span>
+                            <span style="font-weight:900; color:var(--amber);">${it.qty} ${it.unit || 'ط·ظ†'}</span>
                         </div>
                     `;
                 });
@@ -19750,15 +19695,15 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             confirmReceipt() {
                 triggerHaptic('heavy');
                 if (window.showModernToast) {
-                    window.showModernToast('✅ تم تأكيد فحص واستلام البضاعة بالمستودع', 'success', 2500);
+                    window.showModernToast('âœ… طھظ… طھط£ظƒظٹط¯ ظپط­طµ ظˆط§ط³طھظ„ط§ظ… ط§ظ„ط¨ط¶ط§ط¹ط© ط¨ط§ظ„ظ…ط³طھظˆط¯ط¹', 'success', 2500);
                 }
             },
 
             saveReceipt() {
                 triggerHaptic('heavy');
-                const inspector = document.getElementById('receipt-inspector-name')?.value || 'أمين المستودع';
+                const inspector = document.getElementById('receipt-inspector-name')?.value || 'ط£ظ…ظٹظ† ط§ظ„ظ…ط³طھظˆط¯ط¹';
                 const waybill = document.getElementById('receipt-waybill-no')?.value || 'WB-LOCAL';
-                const wh = document.getElementById('receipt-target-wh')?.selectedOptions[0]?.text || 'المستودع المركزي';
+                const wh = document.getElementById('receipt-target-wh')?.selectedOptions[0]?.text || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ';
                 const purId = document.getElementById('receipt-purchase-select')?.value || 'PUR';
 
                 const rcptRecord = {
@@ -19776,7 +19721,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (typeof saveTenantArray === 'function') saveTenantArray('erp_purchase_receipts_v1', receipts);
 
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم حفظ إذن استلام المشتريات #${rcptRecord.id} وتحديث المخزن بنجاح!`, 'success', 3500);
+                    window.showModernToast(`âœ… طھظ… ط­ظپط¸ ط¥ط°ظ† ط§ط³طھظ„ط§ظ… ط§ظ„ظ…ط´طھط±ظٹط§طھ #${rcptRecord.id} ظˆطھط­ط¯ظٹط« ط§ظ„ظ…ط®ط²ظ† ط¨ظ†ط¬ط§ط­!`, 'success', 3500);
                 }
             },
 
@@ -19786,35 +19731,35 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const wb = document.getElementById('receipt-waybill-no');
                 if (insp) insp.value = '';
                 if (wb) wb.value = '';
-                if (window.showModernToast) window.showModernToast('✨ تم تجهيز إذن استلام مشتريات جديد', 'info', 1800);
+                if (window.showModernToast) window.showModernToast('âœ¨ طھظ… طھط¬ظ‡ظٹط² ط¥ط°ظ† ط§ط³طھظ„ط§ظ… ظ…ط´طھط±ظٹط§طھ ط¬ط¯ظٹط¯', 'info', 1800);
             },
 
             shareReceiptWhatsApp() {
-                const inspector = document.getElementById('receipt-inspector-name')?.value || 'أمين المستودع';
+                const inspector = document.getElementById('receipt-inspector-name')?.value || 'ط£ظ…ظٹظ† ط§ظ„ظ…ط³طھظˆط¯ط¹';
                 const purId = document.getElementById('receipt-purchase-select')?.value || 'PUR';
-                const wh = document.getElementById('receipt-target-wh')?.selectedOptions[0]?.text || 'المستودع المركزي';
+                const wh = document.getElementById('receipt-target-wh')?.selectedOptions[0]?.text || 'ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ';
 
-                let text = `📦 *إذن استلام وتوريد مشتريات بالمستودع*\n`;
-                text += `فاتورة الشراء: #${purId}\n`;
-                text += `المستودع المستلم: ${wh}\n`;
-                text += `أمين المستودع: ${inspector}\n`;
-                text += `الحالة: توريد معتمد ومطابق ✅\n`;
-                text += `التاريخ: ${new Date().toLocaleDateString('ar-SD')}\n`;
+                let text = `ًں“¦ *ط¥ط°ظ† ط§ط³طھظ„ط§ظ… ظˆطھظˆط±ظٹط¯ ظ…ط´طھط±ظٹط§طھ ط¨ط§ظ„ظ…ط³طھظˆط¯ط¹*\n`;
+                text += `ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط،: #${purId}\n`;
+                text += `ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط³طھظ„ظ…: ${wh}\n`;
+                text += `ط£ظ…ظٹظ† ط§ظ„ظ…ط³طھظˆط¯ط¹: ${inspector}\n`;
+                text += `ط§ظ„ط­ط§ظ„ط©: طھظˆط±ظٹط¯ ظ…ط¹طھظ…ط¯ ظˆظ…ط·ط§ط¨ظ‚ âœ…\n`;
+                text += `ط§ظ„طھط§ط±ظٹط®: ${new Date().toLocaleDateString('ar-SD')}\n`;
                 window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🔀 PURCHASE SPLIT ENGINE (تقسيم وتوزيع المشتريات على المستودعات)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں”€ PURCHASE SPLIT ENGINE (طھظ‚ط³ظٹظ… ظˆطھظˆط²ظٹط¹ ط§ظ„ظ…ط´طھط±ظٹط§طھ ط¹ظ„ظ‰ ط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.PurchaseSplitEngine = {
             init() {
                 const sel = document.getElementById('split-purchase-select');
                 if (!sel) return;
                 const purs = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_purchase_invoices_v1') || []) : [];
-                let html = '<option value="current">فاتورة الشراء الحالية (#PUR)</option>';
+                let html = '<option value="current">ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ط§ظ„ط­ط§ظ„ظٹط© (#PUR)</option>';
                 purs.slice(0, 15).forEach(p => {
-                    html += `<option value="${p.id || p.invoiceNo}">${p.invoiceNo || p.id} - ${p.supplierName || 'مورد'} (${fmt(p.total || p.grandTotal || 0)} SDG)</option>`;
+                    html += `<option value="${p.id || p.invoiceNo}">${p.invoiceNo || p.id} - ${p.supplierName || 'ظ…ظˆط±ط¯'} (${fmt(p.total || p.grandTotal || 0)} SDG)</option>`;
                 });
                 sel.innerHTML = html;
                 this.onInvoiceSelect(sel.value);
@@ -19849,11 +19794,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const k = parseFloat(document.getElementById('pur-split-kalakla')?.value) || 0;
                 const b = parseFloat(document.getElementById('pur-split-bahri')?.value) || 0;
                 if (c + k + b <= 0) {
-                    if (window.showModernToast) window.showModernToast('⚠️ يرجى توزيع الكميات على المخازن', 'warning');
+                    if (window.showModernToast) window.showModernToast('âڑ ï¸ڈ ظٹط±ط¬ظ‰ طھظˆط²ظٹط¹ ط§ظ„ظƒظ…ظٹط§طھ ط¹ظ„ظ‰ ط§ظ„ظ…ط®ط§ط²ظ†', 'warning');
                     return;
                 }
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم تأكيد توزيع الشحنة (${c + k + b} وحدة) على المستودعات`, 'success', 2500);
+                    window.showModernToast(`âœ… طھظ… طھط£ظƒظٹط¯ طھظˆط²ظٹط¹ ط§ظ„ط´ط­ظ†ط© (${c + k + b} ظˆط­ط¯ط©) ط¹ظ„ظ‰ ط§ظ„ظ…ط³طھظˆط¯ط¹ط§طھ`, 'success', 2500);
                 }
             },
 
@@ -19881,7 +19826,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (typeof saveTenantArray === 'function') saveTenantArray('erp_purchase_splits_v1', splits);
 
                 if (window.showModernToast) {
-                    window.showModernToast(`✅ تم حفظ وتوزيع كميات الشراء #${record.id} بنجاح!`, 'success', 3500);
+                    window.showModernToast(`âœ… طھظ… ط­ظپط¸ ظˆطھظˆط²ظٹط¹ ظƒظ…ظٹط§طھ ط§ظ„ط´ط±ط§ط، #${record.id} ط¨ظ†ط¬ط§ط­!`, 'success', 3500);
                 }
             },
 
@@ -19895,7 +19840,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (kInp) kInp.value = 0;
                 if (bInp) bInp.value = 0;
                 if (notes) notes.value = '';
-                if (window.showModernToast) window.showModernToast('✨ تم تجهيز توزيع جديد للمشتريات', 'info', 1800);
+                if (window.showModernToast) window.showModernToast('âœ¨ طھظ… طھط¬ظ‡ظٹط² طھظˆط²ظٹط¹ ط¬ط¯ظٹط¯ ظ„ظ„ظ…ط´طھط±ظٹط§طھ', 'info', 1800);
             },
 
             shareSplitWhatsApp() {
@@ -19904,19 +19849,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const b = document.getElementById('pur-split-bahri')?.value || 0;
                 const purId = document.getElementById('split-purchase-select')?.value || 'PUR';
 
-                let text = `🏭 *خطة توزيع وتفريغ شحنة المشتريات*\n`;
-                text += `فاتورة الشراء: #${purId}\n`;
-                text += `🏢 المستودع المركزي: ${c} وحدة\n`;
-                text += `🏬 فرع الكلاكلة: ${k} وحدة\n`;
-                text += `🏭 مستودع بحري: ${b} وحدة\n`;
-                text += `التاريخ: ${new Date().toLocaleDateString('ar-SD')}\n`;
+                let text = `ًںڈ­ *ط®ط·ط© طھظˆط²ظٹط¹ ظˆطھظپط±ظٹط؛ ط´ط­ظ†ط© ط§ظ„ظ…ط´طھط±ظٹط§طھ*\n`;
+                text += `ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط،: #${purId}\n`;
+                text += `ًںڈ¢ ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ظ…ط±ظƒط²ظٹ: ${c} ظˆط­ط¯ط©\n`;
+                text += `ًںڈ¬ ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط©: ${k} ظˆط­ط¯ط©\n`;
+                text += `ًںڈ­ ظ…ط³طھظˆط¯ط¹ ط¨ط­ط±ظٹ: ${b} ظˆط­ط¯ط©\n`;
+                text += `ط§ظ„طھط§ط±ظٹط®: ${new Date().toLocaleDateString('ar-SD')}\n`;
                 window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🔍 UNIVERSAL FILTER DRAWER ENGINE (محرك فلترة وبحث الفواتير)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں”چ UNIVERSAL FILTER DRAWER ENGINE (ظ…ط­ط±ظƒ ظپظ„طھط±ط© ظˆط¨ط­ط« ط§ظ„ظپظˆط§طھظٹط±)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.activeFilterContext = 'sales';
 
         window.openInvoiceFilter = function(type = 'sales') {
@@ -19935,7 +19880,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             const itemSel = document.getElementById('filter-item-select');
             if (itemSel && Array.isArray(M_ITEMS)) {
-                let html = '<option value="all">كل الأصناف في المستودع</option>';
+                let html = '<option value="all">ظƒظ„ ط§ظ„ط£طµظ†ط§ظپ ظپظٹ ط§ظ„ظ…ط³طھظˆط¯ط¹</option>';
                 M_ITEMS.forEach(it => {
                     html += `<option value="${it.id}">${it.name}</option>`;
                 });
@@ -19956,16 +19901,16 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             closeBottomSheet('sheet-invoice-filter');
 
             let desc = [];
-            if (wh !== 'all') desc.push(`المخزن: ${wh}`);
-            if (cat !== 'all') desc.push(`التصنيف: ${cat}`);
-            if (unit !== 'all') desc.push(`الوحدة: ${unit}`);
-            if (status !== 'all') desc.push(`الحالة: ${status}`);
-            if (dateFrom) desc.push(`من: ${dateFrom}`);
+            if (wh !== 'all') desc.push(`ط§ظ„ظ…ط®ط²ظ†: ${wh}`);
+            if (cat !== 'all') desc.push(`ط§ظ„طھطµظ†ظٹظپ: ${cat}`);
+            if (unit !== 'all') desc.push(`ط§ظ„ظˆط­ط¯ط©: ${unit}`);
+            if (status !== 'all') desc.push(`ط§ظ„ط­ط§ظ„ط©: ${status}`);
+            if (dateFrom) desc.push(`ظ…ظ†: ${dateFrom}`);
 
-            const filterSummary = desc.length > 0 ? desc.join(' | ') : 'كافة السجلات';
+            const filterSummary = desc.length > 0 ? desc.join(' | ') : 'ظƒط§ظپط© ط§ظ„ط³ط¬ظ„ط§طھ';
 
             if (window.showModernToast) {
-                window.showModernToast(`🎯 تم تطبيق الفلترة: (${filterSummary})`, 'success', 3500);
+                window.showModernToast(`ًںژ¯ طھظ… طھط·ط¨ظٹظ‚ ط§ظ„ظپظ„طھط±ط©: (${filterSummary})`, 'success', 3500);
             }
 
             // Sync with MobilePOS if on sales
@@ -19998,7 +19943,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (window.PurchaseEngine) window.PurchaseEngine.populateItems('all');
 
             if (window.showModernToast) {
-                window.showModernToast('🔄 تم تفريغ معايير الفلترة وإعادة ضبط العرض', 'info', 2000);
+                window.showModernToast('ًں”„ طھظ… طھظپط±ظٹط؛ ظ…ط¹ط§ظٹظٹط± ط§ظ„ظپظ„طھط±ط© ظˆط¥ط¹ط§ط¯ط© ط¶ط¨ط· ط§ظ„ط¹ط±ط¶', 'info', 2000);
             }
         };
 
@@ -20049,10 +19994,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             balEl.innerText = fmt(bal) + ' SDG';
             if (bal > 0) {
                 balEl.style.color = 'var(--rose)';
-                statusEl.innerText = '🔴 مطلوب سداد هذا المبلغ للشركة';
+                statusEl.innerText = 'ًں”´ ظ…ط·ظ„ظˆط¨ ط³ط¯ط§ط¯ ظ‡ط°ط§ ط§ظ„ظ…ط¨ظ„ط؛ ظ„ظ„ط´ط±ظƒط©';
             } else {
                 balEl.style.color = 'var(--emerald)';
-                statusEl.innerText = '🟢 الحساب خالص / رصيد دائن';
+                statusEl.innerText = 'ًںں¢ ط§ظ„ط­ط³ط§ط¨ ط®ط§ظ„طµ / ط±طµظٹط¯ ط¯ط§ط¦ظ†';
             }
 
             // Real customer recent activity
@@ -20065,10 +20010,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (allTxs.length > 0) {
                 allTxs.slice(0, 3).forEach(t => {
                     const isRec = !!t.destination;
-                    txSummary += `• ${isRec ? 'سند قبض' : 'فاتورة'}: ${fmt(t.amount || t.grandTotal)} SDG (${t.date || 'مؤخراً'})<br>`;
+                    txSummary += `â€¢ ${isRec ? 'ط³ظ†ط¯ ظ‚ط¨ط¶' : 'ظپط§طھظˆط±ط©'}: ${fmt(t.amount || t.grandTotal)} SDG (${t.date || 'ظ…ط¤ط®ط±ط§ظ‹'})<br>`;
                 });
             } else {
-                txSummary = '• لا توجد فواتير سابقة مسجلة لهذا العميل.';
+                txSummary = 'â€¢ ظ„ط§ طھظˆط¬ط¯ ظپظˆط§طھظٹط± ط³ط§ط¨ظ‚ط© ظ…ط³ط¬ظ„ط© ظ„ظ‡ط°ط§ ط§ظ„ط¹ظ…ظٹظ„.';
             }
 
             document.getElementById('cust-recent-txs').innerHTML = `
@@ -20084,13 +20029,13 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             const c = activeStatementCustomer;
             const bal = fmt(c.balance || 0);
             const comp = document.getElementById('mobile-company-name').innerText;
-            const msg = `السيد المحترم/ *${c.name}*\nتحية طيبة من *${comp}* 🌟\n\nنود تذكيركم بلطف بأن الرصيد المتبقي على حسابكم حتى تاريخ اليوم هو:\n💰 *${bal} SDG*\n\nيرجى التكرم بالتحويل عبر حسابنا في بنكك أو مراجعة الحساب، ولكم وافر الشكر والتقدير.`;
+            const msg = `ط§ظ„ط³ظٹط¯ ط§ظ„ظ…ط­طھط±ظ…/ *${c.name}*\nطھط­ظٹط© ط·ظٹط¨ط© ظ…ظ† *${comp}* ًںŒں\n\nظ†ظˆط¯ طھط°ظƒظٹط±ظƒظ… ط¨ظ„ط·ظپ ط¨ط£ظ† ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط¨ظ‚ظٹ ط¹ظ„ظ‰ ط­ط³ط§ط¨ظƒظ… ط­طھظ‰ طھط§ط±ظٹط® ط§ظ„ظٹظˆظ… ظ‡ظˆ:\nًں’° *${bal} SDG*\n\nظٹط±ط¬ظ‰ ط§ظ„طھظƒط±ظ… ط¨ط§ظ„طھط­ظˆظٹظ„ ط¹ط¨ط± ط­ط³ط§ط¨ظ†ط§ ظپظٹ ط¨ظ†ظƒظƒ ط£ظˆ ظ…ط±ط§ط¬ط¹ط© ط§ظ„ط­ط³ط§ط¨طŒ ظˆظ„ظƒظ… ظˆط§ظپط± ط§ظ„ط´ظƒط± ظˆط§ظ„طھظ‚ط¯ظٹط±.`;
             const phone = c.phone ? c.phone.replace(/[^0-9]/g, '') : '';
             const waUrl = phone ? `https://wa.me/249${phone.slice(-9)}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
             window.open(waUrl, '_blank');
         }
 
-        // 4.1 Smart Statement Report Engine (قسم التقارير الذكية)
+        // 4.1 Smart Statement Report Engine (ظ‚ط³ظ… ط§ظ„طھظ‚ط§ط±ظٹط± ط§ظ„ط°ظƒظٹط©)
         function setReportStatementType(type) {
             currentReportStatementType = type;
             const btnCust = document.getElementById('rep-stmt-tab-cust');
@@ -20121,7 +20066,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             const sel = document.getElementById('report-statement-select');
             if (!sel) return;
             const isCust = (currentReportStatementType === 'customer');
-            let opts = `<option value="">-- اختر ${isCust ? 'العميل' : 'المورد'} لعرض كشف الحساب الفوري --</option>`;
+            let opts = `<option value="">-- ط§ط®طھط± ${isCust ? 'ط§ظ„ط¹ظ…ظٹظ„' : 'ط§ظ„ظ…ظˆط±ط¯'} ظ„ط¹ط±ط¶ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظپظˆط±ظٹ --</option>`;
             const list = isCust ? M_CUSTOMERS : M_SUPPLIERS;
             list.forEach(a => {
                 opts += `<option value="${a.id}">${a.name} (${fmt(a.balance || 0)} SDG)</option>`;
@@ -20151,7 +20096,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             const balEl = document.getElementById('rep-stmt-balance');
             const statusEl = document.getElementById('rep-stmt-status');
 
-            if (nameEl) nameEl.innerText = `${isCust ? 'عميل' : 'مورد'}: ${acc.name}`;
+            if (nameEl) nameEl.innerText = `${isCust ? 'ط¹ظ…ظٹظ„' : 'ظ…ظˆط±ط¯'}: ${acc.name}`;
             const bal = acc.balance || 0;
             const rate = (typeof currentUsdRate !== 'undefined' && currentUsdRate > 0) ? currentUsdRate : 2800;
             const usdVal = Math.round(bal / rate);
@@ -20163,13 +20108,13 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (usdEl) usdEl.innerText = '$' + fmt(usdVal) + ' USD';
             if (balEl) balEl.innerText = fmt(bal) + ' SDG';
 
-            // Ensure "كل الفترة" is selected by default
+            // Ensure "ظƒظ„ ط§ظ„ظپطھط±ط©" is selected by default
             setReportPeriod('all', document.getElementById('btn-rep-period-all'));
             if (statusEl) {
                 if (isCust) {
-                    statusEl.innerText = bal > 0 ? '🔴 مطلوب سداد هذا المبلغ للشركة' : '🟢 الحساب خالص / رصيد دائن';
+                    statusEl.innerText = bal > 0 ? 'ًں”´ ظ…ط·ظ„ظˆط¨ ط³ط¯ط§ط¯ ظ‡ط°ط§ ط§ظ„ظ…ط¨ظ„ط؛ ظ„ظ„ط´ط±ظƒط©' : 'ًںں¢ ط§ظ„ط­ط³ط§ط¨ ط®ط§ظ„طµ / ط±طµظٹط¯ ط¯ط§ط¦ظ†';
                 } else {
-                    statusEl.innerText = bal > 0 ? '🟠 مستحق للمورد على الشركة' : '🟢 الحساب خالص / لا مديونية';
+                    statusEl.innerText = bal > 0 ? 'ًںں  ظ…ط³طھط­ظ‚ ظ„ظ„ظ…ظˆط±ط¯ ط¹ظ„ظ‰ ط§ظ„ط´ط±ظƒط©' : 'ًںں¢ ط§ظ„ط­ط³ط§ط¨ ط®ط§ظ„طµ / ظ„ط§ ظ…ط¯ظٹظˆظ†ظٹط©';
                 }
             }
 
@@ -20183,10 +20128,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (allTxs.length > 0) {
                     allTxs.slice(0, 3).forEach(t => {
                         const isRec = !!t.destination;
-                        recentHtml += `• ${isRec ? 'سند قبض' : 'فاتورة بيع'}: ${fmt(t.amount || t.grandTotal)} SDG (${t.date || 'مؤخراً'})<br>`;
+                        recentHtml += `â€¢ ${isRec ? 'ط³ظ†ط¯ ظ‚ط¨ط¶' : 'ظپط§طھظˆط±ط© ط¨ظٹط¹'}: ${fmt(t.amount || t.grandTotal)} SDG (${t.date || 'ظ…ط¤ط®ط±ط§ظ‹'})<br>`;
                     });
                 } else {
-                    recentHtml = '• لا توجد معاملات سابقة مسجلة لهذا العميل.';
+                    recentHtml = 'â€¢ ظ„ط§ طھظˆط¬ط¯ ظ…ط¹ط§ظ…ظ„ط§طھ ط³ط§ط¨ظ‚ط© ظ…ط³ط¬ظ„ط© ظ„ظ‡ط°ط§ ط§ظ„ط¹ظ…ظٹظ„.';
                 }
             } else {
                 const allTxs = [
@@ -20196,10 +20141,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (allTxs.length > 0) {
                     allTxs.slice(0, 3).forEach(t => {
                         const isPay = !!t.source;
-                        recentHtml += `• ${isPay ? 'سند صرف' : 'فاتورة شراء'}: ${fmt(t.amount || t.grandTotal)} SDG (${t.date || 'مؤخراً'})<br>`;
+                        recentHtml += `â€¢ ${isPay ? 'ط³ظ†ط¯ طµط±ظپ' : 'ظپط§طھظˆط±ط© ط´ط±ط§ط،'}: ${fmt(t.amount || t.grandTotal)} SDG (${t.date || 'ظ…ط¤ط®ط±ط§ظ‹'})<br>`;
                     });
                 } else {
-                    recentHtml = '• لا توجد معاملات سابقة مسجلة لهذا المورد.';
+                    recentHtml = 'â€¢ ظ„ط§ طھظˆط¬ط¯ ظ…ط¹ط§ظ…ظ„ط§طھ ط³ط§ط¨ظ‚ط© ظ…ط³ط¬ظ„ط© ظ„ظ‡ط°ط§ ط§ظ„ظ…ظˆط±ط¯.';
                 }
             }
 
@@ -20218,9 +20163,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             const comp = document.getElementById('mobile-company-name').innerText;
             let msg = '';
             if (isCust) {
-                msg = `السيد المحترم/ *${acc.name}*\nتحية طيبة من *${comp}* 🌟\n\nنود تذكيركم بلطف بأن الرصيد المتبقي على حسابكم حتى تاريخ اليوم هو:\n💰 *${bal} SDG*\n\nيرجى التكرم بالتحويل عبر حسابنا في بنكك أو مراجعة الحساب، ولكم وافر الشكر والتقدير.`;
+                msg = `ط§ظ„ط³ظٹط¯ ط§ظ„ظ…ط­طھط±ظ…/ *${acc.name}*\nطھط­ظٹط© ط·ظٹط¨ط© ظ…ظ† *${comp}* ًںŒں\n\nظ†ظˆط¯ طھط°ظƒظٹط±ظƒظ… ط¨ظ„ط·ظپ ط¨ط£ظ† ط§ظ„ط±طµظٹط¯ ط§ظ„ظ…طھط¨ظ‚ظٹ ط¹ظ„ظ‰ ط­ط³ط§ط¨ظƒظ… ط­طھظ‰ طھط§ط±ظٹط® ط§ظ„ظٹظˆظ… ظ‡ظˆ:\nًں’° *${bal} SDG*\n\nظٹط±ط¬ظ‰ ط§ظ„طھظƒط±ظ… ط¨ط§ظ„طھط­ظˆظٹظ„ ط¹ط¨ط± ط­ط³ط§ط¨ظ†ط§ ظپظٹ ط¨ظ†ظƒظƒ ط£ظˆ ظ…ط±ط§ط¬ط¹ط© ط§ظ„ط­ط³ط§ط¨طŒ ظˆظ„ظƒظ… ظˆط§ظپط± ط§ظ„ط´ظƒط± ظˆط§ظ„طھظ‚ط¯ظٹط±.`;
             } else {
-                msg = `المورد الفاضل/ *${acc.name}*\nتحية طيبة من *${comp}* 🌟\n\nإشعار مطابقة كشف الحساب المسجل لدينا حتى تاريخ اليوم:\n💰 الرصيد الحالي: *${bal} SDG*\n\nشاكرين ومقدرين حسن تعاونكم الدائم.`;
+                msg = `ط§ظ„ظ…ظˆط±ط¯ ط§ظ„ظپط§ط¶ظ„/ *${acc.name}*\nطھط­ظٹط© ط·ظٹط¨ط© ظ…ظ† *${comp}* ًںŒں\n\nط¥ط´ط¹ط§ط± ظ…ط·ط§ط¨ظ‚ط© ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…ط³ط¬ظ„ ظ„ط¯ظٹظ†ط§ ط­طھظ‰ طھط§ط±ظٹط® ط§ظ„ظٹظˆظ…:\nًں’° ط§ظ„ط±طµظٹط¯ ط§ظ„ط­ط§ظ„ظٹ: *${bal} SDG*\n\nط´ط§ظƒط±ظٹظ† ظˆظ…ظ‚ط¯ط±ظٹظ† ط­ط³ظ† طھط¹ط§ظˆظ†ظƒظ… ط§ظ„ط¯ط§ط¦ظ….`;
             }
             const phone = acc.phone ? acc.phone.replace(/[^0-9]/g, '') : '';
             const waUrl = phone ? `https://wa.me/249${phone.slice(-9)}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
@@ -20262,14 +20207,14 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             const toUSD = (amt) => rate > 0 ? Math.round(amt / rate) : 0;
 
             const sEl = document.getElementById('kpi-today-sales');
-            if (sEl) sEl.innerHTML = `${fmt(sales)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">≈ $${fmt(toUSD(sales))}</small>`;
+            if (sEl) sEl.innerHTML = `${fmt(sales)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">â‰ˆ $${fmt(toUSD(sales))}</small>`;
             const rEl = document.getElementById('kpi-today-receipts');
-            if (rEl) rEl.innerHTML = `${fmt(receipts)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">≈ $${fmt(toUSD(receipts))}</small>`;
+            if (rEl) rEl.innerHTML = `${fmt(receipts)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">â‰ˆ $${fmt(toUSD(receipts))}</small>`;
             const pEl = document.getElementById('kpi-today-payments');
-            if (pEl) pEl.innerHTML = `${fmt(payments)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">≈ $${fmt(toUSD(payments))}</small>`;
+            if (pEl) pEl.innerHTML = `${fmt(payments)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">â‰ˆ $${fmt(toUSD(payments))}</small>`;
             const nEl = document.getElementById('kpi-today-net');
             const netVal = receipts - payments;
-            if (nEl) nEl.innerHTML = `${fmt(netVal)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">≈ $${fmt(toUSD(netVal))}</small>`;
+            if (nEl) nEl.innerHTML = `${fmt(netVal)} <small style="font-size:0.75rem; color:var(--text-muted); font-weight:800; display:block; margin-top:2px;">â‰ˆ $${fmt(toUSD(netVal))}</small>`;
 
             // Populate statement select in smart reports
             populateReportStatementSelect();
@@ -20278,19 +20223,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             let debtorsHtml = '';
             const topDebtors = [...M_CUSTOMERS].filter(c => (c.balance || 0) > 0).sort((a, b) => (b.balance || 0) - (a.balance || 0)).slice(0, 5);
             if (topDebtors.length === 0) {
-                debtorsHtml = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">لا توجد مديونيات قائمة على العملاء حالياً.</div>';
+                debtorsHtml = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">ظ„ط§ طھظˆط¬ط¯ ظ…ط¯ظٹظˆظ†ظٹط§طھ ظ‚ط§ط¦ظ…ط© ط¹ظ„ظ‰ ط§ظ„ط¹ظ…ظ„ط§ط، ط­ط§ظ„ظٹط§ظ‹.</div>';
             } else {
                 topDebtors.forEach((c, idx) => {
                     debtorsHtml += `
-                        <div class="radar-row" onclick="selectDebtorForStatement('${c.id}')" style="cursor:pointer;" title="عرض كشف حساب العميل">
+                        <div class="radar-row" onclick="selectDebtorForStatement('${c.id}')" style="cursor:pointer;" title="ط¹ط±ط¶ ظƒط´ظپ ط­ط³ط§ط¨ ط§ظ„ط¹ظ…ظٹظ„">
                             <div>
                                 <div class="radar-name">${idx + 1}. ${c.name}</div>
-                                <div style="font-size:0.75rem; color:var(--text-muted);">هاتف: ${c.phone || 'غير مسجل'}</div>
+                                <div style="font-size:0.75rem; color:var(--text-muted);">ظ‡ط§طھظپ: ${c.phone || 'ط؛ظٹط± ظ…ط³ط¬ظ„'}</div>
                             </div>
                             <div style="text-align:left;">
                                 <div style="font-size:1.15rem; font-weight:900; color:var(--rose); font-family:'Inter', sans-serif;">${fmt(c.balance)} SDG</div>
                                 <button type="button" onclick="event.stopPropagation(); activeStatementCustomer=M_CUSTOMERS.find(x=>x.id==='${c.id}'); sendWhatsAppClaim();" style="background:rgba(34,197,94,0.18); border:1px solid #22c55e; color:#22c55e; border-radius:6px; padding:3px 8px; font-size:0.74rem; font-weight:800; cursor:pointer;">
-                                    <i class="fa-brands fa-whatsapp"></i> مطالبة
+                                    <i class="fa-brands fa-whatsapp"></i> ظ…ط·ط§ظ„ط¨ط©
                                 </button>
                             </div>
                         </div>
@@ -20303,17 +20248,17 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             let stockHtml = '';
             const lowStockItems = [...M_ITEMS].slice(0, 5);
             if (lowStockItems.length === 0) {
-                stockHtml = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">لا توجد أصناف في المستودع.</div>';
+                stockHtml = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.85rem;">ظ„ط§ طھظˆط¬ط¯ ط£طµظ†ط§ظپ ظپظٹ ط§ظ„ظ…ط³طھظˆط¯ط¹.</div>';
             } else {
                 lowStockItems.forEach(it => {
                     stockHtml += `
                         <div class="radar-row">
                             <div>
-                                <div class="radar-name">📦 ${it.name}</div>
-                                <div style="font-size:0.75rem; color:var(--amber); font-weight:700;">سعر البيع: ${fmt(it.price)} SDG</div>
+                                <div class="radar-name">ًں“¦ ${it.name}</div>
+                                <div style="font-size:0.75rem; color:var(--amber); font-weight:700;">ط³ط¹ط± ط§ظ„ط¨ظٹط¹: ${fmt(it.price)} SDG</div>
                             </div>
                             <div style="font-size:1.15rem; font-weight:900; color:var(--amber); font-family:'Inter', sans-serif;">
-                                المتبقي: ${it.stock || 0}
+                                ط§ظ„ظ…طھط¨ظ‚ظٹ: ${it.stock || 0}
                             </div>
                         </div>
                     `;
@@ -20365,9 +20310,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             }).catch(() => {});
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🔢 MODULE: DUAL-NUMBERING ENGINE (OFFLINE VS. CLOUD OFFICIAL)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں”¢ MODULE: DUAL-NUMBERING ENGINE (OFFLINE VS. CLOUD OFFICIAL)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.DualNumberingEngine = {
             prefixes: {
                 sale: 'INV-OFF-',
@@ -20527,14 +20472,14 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const liveBadge = document.getElementById('receipt-sync-badge');
                 if (liveBadge && officialServerId) {
                     liveBadge.style.background = '#059669';
-                    liveBadge.innerHTML = `✅ معتمد سحابياً: ${officialServerId}`;
+                    liveBadge.innerHTML = `âœ… ظ…ط¹طھظ…ط¯ ط³ط­ط§ط¨ظٹط§ظ‹: ${officialServerId}`;
                 }
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🛰️ OFFLINE-FIRST OUTBOX SYNCHRONIZATION ENGINE
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں›°ï¸ڈ OFFLINE-FIRST OUTBOX SYNCHRONIZATION ENGINE
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.OfflineOutboxEngine = {
             queue: [],
             isSimulatedOffline: false,
@@ -20654,7 +20599,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         triggerHaptic('medium');
                         if (typeof playSoundEffect === 'function') playSoundEffect('success');
                         if (window.showModernToast) {
-                            window.showModernToast('🟢 تم استعادة اتصال الإنترنت (النور أخضر) — جاري ترحيل ورفع كافة العمليات فوراً ⚡', 'success', 3000);
+                            window.showModernToast('ًںں¢ طھظ… ط§ط³طھط¹ط§ط¯ط© ط§طھطµط§ظ„ ط§ظ„ط¥ظ†طھط±ظ†طھ (ط§ظ„ظ†ظˆط± ط£ط®ط¶ط±) â€” ط¬ط§ط±ظٹ طھط±ط­ظٹظ„ ظˆط±ظپط¹ ظƒط§ظپط© ط§ظ„ط¹ظ…ظ„ظٹط§طھ ظپظˆط±ط§ظ‹ âڑ،', 'success', 3000);
                         }
                         // Instantly drain all pending items upon internet recovery
                         this.flushQueueNow(false);
@@ -20662,7 +20607,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         triggerHaptic('heavy');
                         if (typeof playSoundEffect === 'function') playSoundEffect('warning');
                         if (window.showModernToast) {
-                            window.showModernToast('🔴 انقطع اتصال الإنترنت (النور أحمر) — البرنامج يعمل في وضع الأوفلاين والسندات تُحفظ محلياً', 'warning', 3500);
+                            window.showModernToast('ًں”´ ط§ظ†ظ‚ط·ط¹ ط§طھطµط§ظ„ ط§ظ„ط¥ظ†طھط±ظ†طھ (ط§ظ„ظ†ظˆط± ط£ط­ظ…ط±) â€” ط§ظ„ط¨ط±ظ†ط§ظ…ط¬ ظٹط¹ظ…ظ„ ظپظٹ ظˆط¶ط¹ ط§ظ„ط£ظˆظپظ„ط§ظٹظ† ظˆط§ظ„ط³ظ†ط¯ط§طھ طھظڈط­ظپط¸ ظ…ط­ظ„ظٹط§ظ‹', 'warning', 3500);
                         }
                     }
                 } else {
@@ -20707,11 +20652,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 if (this.isSimulatedOffline) {
                     if (window.showModernToast) {
-                        window.showModernToast('📴 تم تفعيل محاكاة انقطاع الشبكة (النور أحمر)', 'warning', 2500);
+                        window.showModernToast('ًں“´ طھظ… طھظپط¹ظٹظ„ ظ…ط­ط§ظƒط§ط© ط§ظ†ظ‚ط·ط§ط¹ ط§ظ„ط´ط¨ظƒط© (ط§ظ„ظ†ظˆط± ط£ط­ظ…ط±)', 'warning', 2500);
                     }
                 } else {
                     if (window.showModernToast) {
-                        window.showModernToast('🌐 تم إلغاء المحاكاة واستعادة الاتصال (النور أخضر) — جاري التفريغ...', 'success', 2500);
+                        window.showModernToast('ًںŒگ طھظ… ط¥ظ„ط؛ط§ط، ط§ظ„ظ…ط­ط§ظƒط§ط© ظˆط§ط³طھط¹ط§ط¯ط© ط§ظ„ط§طھطµط§ظ„ (ط§ظ„ظ†ظˆط± ط£ط®ط¶ط±) â€” ط¬ط§ط±ظٹ ط§ظ„طھظپط±ظٹط؛...', 'success', 2500);
                     }
                     this.flushQueueNow(false);
                 }
@@ -20734,7 +20679,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
 
                 if (isUserTriggered && window.showModernToast) {
-                    window.showModernToast('⚡ جاري فحص الاتصال بالخادم وتحديث الحالة...', 'info', 1500);
+                    window.showModernToast('âڑ، ط¬ط§ط±ظٹ ظپط­طµ ط§ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط®ط§ط¯ظ… ظˆطھط­ط¯ظٹط« ط§ظ„ط­ط§ظ„ط©...', 'info', 1500);
                 }
 
                 // Generous timeout for challenging mobile / 3G / 4G cellular links
@@ -20774,7 +20719,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         this.setConnectionState(true, latency);
 
                         if (isUserTriggered && window.showModernToast) {
-                            window.showModernToast(`🟢 الاتصال بالخادم ممتاز (النور أخضر) • زمن الاستجابة: ${latency}ms`, 'success', 2500);
+                            window.showModernToast(`ًںں¢ ط§ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط®ط§ط¯ظ… ظ…ظ…طھط§ط² (ط§ظ„ظ†ظˆط± ط£ط®ط¶ط±) â€¢ ط²ظ…ظ† ط§ظ„ط§ط³طھط¬ط§ط¨ط©: ${latency}ms`, 'success', 2500);
                         }
 
                         // Auto-drain if pending transactions exist
@@ -20789,7 +20734,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         if (!navigator.onLine || this.failedPings >= 2) {
                             this.setConnectionState(false);
                             if (isUserTriggered && window.showModernToast) {
-                                window.showModernToast('🔴 تعذر الوصول إلى الخادم — يرجى التأكد من توفر شبكة الإنترنت', 'warning', 3000);
+                                window.showModernToast('ًں”´ طھط¹ط°ط± ط§ظ„ظˆطµظˆظ„ ط¥ظ„ظ‰ ط§ظ„ط®ط§ط¯ظ… â€” ظٹط±ط¬ظ‰ ط§ظ„طھط£ظƒط¯ ظ…ظ† طھظˆظپط± ط´ط¨ظƒط© ط§ظ„ط¥ظ†طھط±ظ†طھ', 'warning', 3000);
                             }
                         }
                     }
@@ -20825,36 +20770,36 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 if (type === 'sale_invoice') {
                     entityName = 'sales_invoices';
-                    itemTitle = itemTitle || `فاتورة بيع #${recordId}`;
-                    itemSummary = itemSummary || `العميل: ${payload.customerName || 'عميل'} • ${typeof fmt === 'function' ? fmt(payload.total || payload.grandTotal || 0) : payload.total} SDG`;
+                    itemTitle = itemTitle || `ظپط§طھظˆط±ط© ط¨ظٹط¹ #${recordId}`;
+                    itemSummary = itemSummary || `ط§ظ„ط¹ظ…ظٹظ„: ${payload.customerName || 'ط¹ظ…ظٹظ„'} â€¢ ${typeof fmt === 'function' ? fmt(payload.total || payload.grandTotal || 0) : payload.total} SDG`;
                 } else if (type === 'purchase_invoice') {
                     entityName = 'purchase_invoices';
-                    itemTitle = itemTitle || `فاتورة توريد #${recordId}`;
-                    itemSummary = itemSummary || `المورد: ${payload.supplierName || 'مورد'} • ${typeof fmt === 'function' ? fmt(payload.total || 0) : payload.total} SDG`;
+                    itemTitle = itemTitle || `ظپط§طھظˆط±ط© طھظˆط±ظٹط¯ #${recordId}`;
+                    itemSummary = itemSummary || `ط§ظ„ظ…ظˆط±ط¯: ${payload.supplierName || 'ظ…ظˆط±ط¯'} â€¢ ${typeof fmt === 'function' ? fmt(payload.total || 0) : payload.total} SDG`;
                 } else if (type.includes('receipt') || (payload && payload.type === 'receipt')) {
                     entityName = 'single_receipts';
-                    itemTitle = itemTitle || `سند قبض #${recordId}`;
-                    itemSummary = itemSummary || `المستلم منه: ${payload.beneficiaryName || payload.customerName || payload.toStatement || 'سند قبض'} • ${typeof fmt === 'function' ? fmt(payload.amountLocal || payload.amount || 0) : payload.amount} SDG`;
+                    itemTitle = itemTitle || `ط³ظ†ط¯ ظ‚ط¨ط¶ #${recordId}`;
+                    itemSummary = itemSummary || `ط§ظ„ظ…ط³طھظ„ظ… ظ…ظ†ظ‡: ${payload.beneficiaryName || payload.customerName || payload.toStatement || 'ط³ظ†ط¯ ظ‚ط¨ط¶'} â€¢ ${typeof fmt === 'function' ? fmt(payload.amountLocal || payload.amount || 0) : payload.amount} SDG`;
                 } else if (type.includes('voucher') || type.includes('payment') || type.includes('disburse')) {
                     entityName = 'single_payments';
-                    itemTitle = itemTitle || `سند صرف #${recordId}`;
-                    itemSummary = itemSummary || `المستفيد: ${payload.beneficiaryName || payload.recipient || payload.toStatement || 'سند صرف'} • ${typeof fmt === 'function' ? fmt(payload.amountLocal || payload.amount || 0) : payload.amount} SDG`;
+                    itemTitle = itemTitle || `ط³ظ†ط¯ طµط±ظپ #${recordId}`;
+                    itemSummary = itemSummary || `ط§ظ„ظ…ط³طھظپظٹط¯: ${payload.beneficiaryName || payload.recipient || payload.toStatement || 'ط³ظ†ط¯ طµط±ظپ'} â€¢ ${typeof fmt === 'function' ? fmt(payload.amountLocal || payload.amount || 0) : payload.amount} SDG`;
                 } else if (type.includes('transfer')) {
                     entityName = 'stock_transfers';
-                    itemTitle = itemTitle || `تحويل مخزني #${recordId}`;
-                    itemSummary = itemSummary || `من المستودع الرئيسي إلى الفرع • ${payload.totalQty || (payload.items ? payload.items.length : 1)} وحدة`;
+                    itemTitle = itemTitle || `طھط­ظˆظٹظ„ ظ…ط®ط²ظ†ظٹ #${recordId}`;
+                    itemSummary = itemSummary || `ظ…ظ† ط§ظ„ظ…ط³طھظˆط¯ط¹ ط§ظ„ط±ط¦ظٹط³ظٹ ط¥ظ„ظ‰ ط§ظ„ظپط±ط¹ â€¢ ${payload.totalQty || (payload.items ? payload.items.length : 1)} ظˆط­ط¯ط©`;
                 } else if (type.includes('audit')) {
                     entityName = 'stock_transfers';
-                    itemTitle = itemTitle || `جرد مخزني #${recordId}`;
-                    itemSummary = itemSummary || `صنف: ${payload.itemName || 'صنف'} • فارق: ${payload.variance > 0 ? '+' : ''}${payload.variance || 0}`;
+                    itemTitle = itemTitle || `ط¬ط±ط¯ ظ…ط®ط²ظ†ظٹ #${recordId}`;
+                    itemSummary = itemSummary || `طµظ†ظپ: ${payload.itemName || 'طµظ†ظپ'} â€¢ ظپط§ط±ظ‚: ${payload.variance > 0 ? '+' : ''}${payload.variance || 0}`;
                 } else if (type.includes('approval')) {
                     entityName = 'vouchers';
-                    itemTitle = itemTitle || `قرار اعتماد #${recordId}`;
-                    itemSummary = itemSummary || `القرار: ${payload.status === 'approved' ? 'موافقة' : 'رفض'} • ${payload.note || 'معتمد'}`;
+                    itemTitle = itemTitle || `ظ‚ط±ط§ط± ط§ط¹طھظ…ط§ط¯ #${recordId}`;
+                    itemSummary = itemSummary || `ط§ظ„ظ‚ط±ط§ط±: ${payload.status === 'approved' ? 'ظ…ظˆط§ظپظ‚ط©' : 'ط±ظپط¶'} â€¢ ${payload.note || 'ظ…ط¹طھظ…ط¯'}`;
                 } else {
                     entityName = 'invoices';
-                    itemTitle = itemTitle || `معاملة مالية ${type}`;
-                    itemSummary = itemSummary || 'حفظ فوري محلياً في sync_queue';
+                    itemTitle = itemTitle || `ظ…ط¹ط§ظ…ظ„ط© ظ…ط§ظ„ظٹط© ${type}`;
+                    itemSummary = itemSummary || 'ط­ظپط¸ ظپظˆط±ظٹ ظ…ط­ظ„ظٹط§ظ‹ ظپظٹ sync_queue';
                 }
 
                 const outboxRecord = {
@@ -20898,7 +20843,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             async flushQueueNow(isManual = false) {
                 if (!this.isOnline()) {
                     if (isManual && window.showModernToast) {
-                        window.showModernToast('⚠️ الجهاز غير متصل حالياً (النور أحمر)! السندات محفوظة محلياً وسيتم ترحيلها فور توفر الإنترنت.', 'warning', 3000);
+                        window.showModernToast('âڑ ï¸ڈ ط§ظ„ط¬ظ‡ط§ط² ط؛ظٹط± ظ…طھطµظ„ ط­ط§ظ„ظٹط§ظ‹ (ط§ظ„ظ†ظˆط± ط£ط­ظ…ط±)! ط§ظ„ط³ظ†ط¯ط§طھ ظ…ط­ظپظˆط¸ط© ظ…ط­ظ„ظٹط§ظ‹ ظˆط³ظٹطھظ… طھط±ط­ظٹظ„ظ‡ط§ ظپظˆط± طھظˆظپط± ط§ظ„ط¥ظ†طھط±ظ†طھ.', 'warning', 3000);
                     }
                     this.renderUI();
                     return;
@@ -20909,7 +20854,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const pendingItems = this.queue.filter(q => ['PENDING', 'FAILED', 'SYNCING'].includes(String(q.status).toUpperCase()));
                 if (pendingItems.length === 0) {
                     if (isManual && window.showModernToast) {
-                        window.showModernToast('✅ جدول المزامنة متطابق بالكامل مع السيرفر! لا توجد حركات معلقة.', 'success', 2500);
+                        window.showModernToast('âœ… ط¬ط¯ظˆظ„ ط§ظ„ظ…ط²ط§ظ…ظ†ط© ظ…طھط·ط§ط¨ظ‚ ط¨ط§ظ„ظƒط§ظ…ظ„ ظ…ط¹ ط§ظ„ط³ظٹط±ظپط±! ظ„ط§ طھظˆط¬ط¯ ط­ط±ظƒط§طھ ظ…ط¹ظ„ظ‚ط©.', 'success', 2500);
                     }
                     this.renderUI();
                     return;
@@ -20926,7 +20871,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const btnFlush = document.getElementById('btn-flush-outbox');
                 if (btnFlush) {
                     btnFlush.disabled = true;
-                    btnFlush.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري ترحيل ورفع العمليات إلى السيرفر...';
+                    btnFlush.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ط¬ط§ط±ظٹ طھط±ط­ظٹظ„ ظˆط±ظپط¹ ط§ظ„ط¹ظ…ظ„ظٹط§طھ ط¥ظ„ظ‰ ط§ظ„ط³ظٹط±ظپط±...';
                 }
 
                 try {
@@ -20965,10 +20910,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             }
                         }
                     } catch(netErr) {
-                        console.warn('⚠️ Batch sync failed, trying weak-network sequential upload...', netErr);
+                        console.warn('âڑ ï¸ڈ Batch sync failed, trying weak-network sequential upload...', netErr);
                     }
 
-                    // 2. Weak Connection Adaptive Mode ("نت ضعيف جداً"): Upload one-by-one
+                    // 2. Weak Connection Adaptive Mode ("ظ†طھ ط¶ط¹ظٹظپ ط¬ط¯ط§ظ‹"): Upload one-by-one
                     if (!syncSuccess) {
                         let singleSuccessCount = 0;
                         for (const it of pendingItems) {
@@ -21046,7 +20991,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     }
 
                     if (syncSuccess) {
-                        // 🔄 Refresh all live data on screen immediately
+                        // ًں”„ Refresh all live data on screen immediately
                         if (typeof refreshMobileData === 'function') refreshMobileData();
                         if (window.VoucherNavigator && typeof window.VoucherNavigator.loadVouchers === 'function') {
                             window.VoucherNavigator.loadVouchers();
@@ -21061,10 +21006,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         const serials = pendingItems
                             .filter(it => it.status === 'SYNCED' && it.official_server_id)
                             .map(it => it.official_server_id);
-                        const serialListStr = serials.slice(0, 3).join(', ') + (serials.length > 3 ? ` و+${serials.length - 3} أخرى` : '');
+                        const serialListStr = serials.slice(0, 3).join(', ') + (serials.length > 3 ? ` ظˆ+${serials.length - 3} ط£ط®ط±ظ‰` : '');
                         const msg = serials.length > 0 
-                            ? `🟢 تم الاتصال بالإنترنت! تم تدوين (${syncedCount}) عملية في الموقع الحي بأرقام تسلسلية رسمية: [${serialListStr}] ⚡`
-                            : `🟢 تم الاتصال بالإنترنت! تم تدوين وتوثيق (${syncedCount}) عملية في الموقع الحي بنجاح ⚡`;
+                            ? `ًںں¢ طھظ… ط§ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط¥ظ†طھط±ظ†طھ! طھظ… طھط¯ظˆظٹظ† (${syncedCount}) ط¹ظ…ظ„ظٹط© ظپظٹ ط§ظ„ظ…ظˆظ‚ط¹ ط§ظ„ط­ظٹ ط¨ط£ط±ظ‚ط§ظ… طھط³ظ„ط³ظ„ظٹط© ط±ط³ظ…ظٹط©: [${serialListStr}] âڑ،`
+                            : `ًںں¢ طھظ… ط§ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط¥ظ†طھط±ظ†طھ! طھظ… طھط¯ظˆظٹظ† ظˆطھظˆط«ظٹظ‚ (${syncedCount}) ط¹ظ…ظ„ظٹط© ظپظٹ ط§ظ„ظ…ظˆظ‚ط¹ ط§ظ„ط­ظٹ ط¨ظ†ط¬ط§ط­ âڑ،`;
                         if (window.showModernToast) {
                             window.showModernToast(msg, 'success', 5000);
                         }
@@ -21075,7 +21020,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         }, 4000);
 
                     } else {
-                        // 🔴 Network failed — keep items PENDING for retry with cooldown
+                        // ًں”´ Network failed â€” keep items PENDING for retry with cooldown
                         this.lastSyncFailed = true;
                         this.lastSyncAttempt = Date.now();
                         pendingItems.forEach(it => {
@@ -21084,7 +21029,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             it.lastError = 'Network sync failed at ' + new Date().toISOString();
                         });
                         if (isManual && window.showModernToast) {
-                            window.showModernToast('⚠️ تعذر إتمام المزامنة — الحركات محفوظة في الطابور وسيعاد المحاولة تلقائياً', 'warning', 3500);
+                            window.showModernToast('âڑ ï¸ڈ طھط¹ط°ط± ط¥طھظ…ط§ظ… ط§ظ„ظ…ط²ط§ظ…ظ†ط© â€” ط§ظ„ط­ط±ظƒط§طھ ظ…ط­ظپظˆط¸ط© ظپظٹ ط§ظ„ط·ط§ط¨ظˆط± ظˆط³ظٹط¹ط§ط¯ ط§ظ„ظ…ط­ط§ظˆظ„ط© طھظ„ظ‚ط§ط¦ظٹط§ظ‹', 'warning', 3500);
                         }
                     }
 
@@ -21095,17 +21040,17 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     pendingItems.forEach(it => {
                         it.status = 'PENDING';
                         it.retry_count = (it.retry_count || 0) + 1;
-                        it.lastError = err.message || 'خطأ في الاتصال';
+                        it.lastError = err.message || 'ط®ط·ط£ ظپظٹ ط§ظ„ط§طھطµط§ظ„';
                     });
                     this.saveQueue();
                     if (isManual && window.showModernToast) {
-                        window.showModernToast('❌ تعذر إتمام المزامنة • تم الإبقاء على الحركات في الطابور', 'danger', 3000);
+                        window.showModernToast('â‌Œ طھط¹ط°ط± ط¥طھظ…ط§ظ… ط§ظ„ظ…ط²ط§ظ…ظ†ط© â€¢ طھظ… ط§ظ„ط¥ط¨ظ‚ط§ط، ط¹ظ„ظ‰ ط§ظ„ط­ط±ظƒط§طھ ظپظٹ ط§ظ„ط·ط§ط¨ظˆط±', 'danger', 3000);
                     }
                 } finally {
                     this.isSyncing = false;
                     if (btnFlush) {
                         btnFlush.disabled = false;
-                        btnFlush.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> تفريغ ومزامنة فورية الآن ⚡';
+                        btnFlush.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> طھظپط±ظٹط؛ ظˆظ…ط²ط§ظ…ظ†ط© ظپظˆط±ظٹط© ط§ظ„ط¢ظ† âڑ،';
                     }
                     this.renderUI();
                 }
@@ -21118,7 +21063,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.renderUI();
                 const removed = beforeCount - this.queue.length;
                 if (showToast && removed > 0 && window.showModernToast) {
-                    window.showModernToast(`🧹 تم تنظيف (${removed}) حركات مؤكدة من السجل المحلي`, 'info', 2000);
+                    window.showModernToast(`ًں§¹ طھظ… طھظ†ط¸ظٹظپ (${removed}) ط­ط±ظƒط§طھ ظ…ط¤ظƒط¯ط© ظ…ظ† ط§ظ„ط³ط¬ظ„ ط§ظ„ظ…ط­ظ„ظٹ`, 'info', 2000);
                 }
             },
 
@@ -21132,9 +21077,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         operation: 'INSERT',
                         type: 'sale_invoice',
                         priority: 'HIGH',
-                        title: 'فاتورة بيع نقدي #INV-882194',
-                        summary: 'شركة الفهد للمقاولات • 4,850,000 SDG',
-                        payload: { invoiceNo: 'INV-882194', customerName: 'شركة الفهد للمقاولات', total: 4850000, items: [{ name: 'حديد تسليح 12 ملم', qty: 5, price: 850000 }] }
+                        title: 'ظپط§طھظˆط±ط© ط¨ظٹط¹ ظ†ظ‚ط¯ظٹ #INV-882194',
+                        summary: 'ط´ط±ظƒط© ط§ظ„ظپظ‡ط¯ ظ„ظ„ظ…ظ‚ط§ظˆظ„ط§طھ â€¢ 4,850,000 SDG',
+                        payload: { invoiceNo: 'INV-882194', customerName: 'ط´ط±ظƒط© ط§ظ„ظپظ‡ط¯ ظ„ظ„ظ…ظ‚ط§ظˆظ„ط§طھ', total: 4850000, items: [{ name: 'ط­ط¯ظٹط¯ طھط³ظ„ظٹط­ 12 ظ…ظ„ظ…', qty: 5, price: 850000 }] }
                     },
                     {
                         id: 'b7c1d2e3-5f6a-4b2c-9d3e-4f5a6b7c8d9e',
@@ -21143,8 +21088,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         operation: 'INSERT',
                         type: 'stock_transfer',
                         priority: 'NORMAL',
-                        title: 'تحويل مخزني #TR-2026-0042',
-                        summary: 'مستودع السجانة المركزي ➔ فرع الكلاكلة • 5 طن حديد تسليح',
+                        title: 'طھط­ظˆظٹظ„ ظ…ط®ط²ظ†ظٹ #TR-2026-0042',
+                        summary: 'ظ…ط³طھظˆط¯ط¹ ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„ظ…ط±ظƒط²ظٹ â‍” ظپط±ط¹ ط§ظ„ظƒظ„ط§ظƒظ„ط© â€¢ 5 ط·ظ† ط­ط¯ظٹط¯ طھط³ظ„ظٹط­',
                         payload: { transferNo: 'TR-2026-0042', sourceWh: 'central', destWh: 'kalakla', totalQty: 5 }
                     },
                     {
@@ -21154,9 +21099,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         operation: 'INSERT',
                         type: 'cash_voucher',
                         priority: 'HIGH',
-                        title: 'سند قبض نقدي #REC-4109',
-                        summary: 'مؤسسة النيل للتجارة • 1,200,000 SDG',
-                        payload: { voucherNo: 'REC-4109', beneficiaryName: 'مؤسسة النيل للتجارة', amountLocal: 1200000 }
+                        title: 'ط³ظ†ط¯ ظ‚ط¨ط¶ ظ†ظ‚ط¯ظٹ #REC-4109',
+                        summary: 'ظ…ط¤ط³ط³ط© ط§ظ„ظ†ظٹظ„ ظ„ظ„طھط¬ط§ط±ط© â€¢ 1,200,000 SDG',
+                        payload: { voucherNo: 'REC-4109', beneficiaryName: 'ظ…ط¤ط³ط³ط© ط§ظ„ظ†ظٹظ„ ظ„ظ„طھط¬ط§ط±ط©', amountLocal: 1200000 }
                     }
                 ];
 
@@ -21183,7 +21128,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.saveQueue();
                 this.renderUI();
                 if (window.showModernToast) {
-                    window.showModernToast('✨ تم توليد 3 معاملات أوفلاين في الطابور للتجربة الميدانية', 'success', 2500);
+                    window.showModernToast('âœ¨ طھظ… طھظˆظ„ظٹط¯ 3 ظ…ط¹ط§ظ…ظ„ط§طھ ط£ظˆظپظ„ط§ظٹظ† ظپظٹ ط§ظ„ط·ط§ط¨ظˆط± ظ„ظ„طھط¬ط±ط¨ط© ط§ظ„ظ…ظٹط¯ط§ظ†ظٹط©', 'success', 2500);
                 }
             },
 
@@ -21195,7 +21140,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const syncedCount = this.queue.filter(q => String(q.status).toUpperCase() === 'SYNCED').length;
                 const conflictCount = this.queue.filter(q => String(q.status).toUpperCase() === 'FAILED' || String(q.status).toUpperCase() === 'CONFLICT').length;
 
-                // 1. Header Outbox Drain Button & Red Counter Badge (جوار البحث والسمات)
+                // 1. Header Outbox Drain Button & Red Counter Badge (ط¬ظˆط§ط± ط§ظ„ط¨ط­ط« ظˆط§ظ„ط³ظ…ط§طھ)
                 const headerOutboxBtn = document.getElementById('btn-header-outbox');
                 const headerOutboxBadge = document.getElementById('header-outbox-badge');
                 const headerOutboxIcon = document.getElementById('header-outbox-icon');
@@ -21205,23 +21150,23 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         headerOutboxBtn.className = 'header-deck-pill pill-sync is-syncing-outbox';
                         if (headerOutboxIcon) headerOutboxIcon.className = 'fa-solid fa-rotate fa-spin';
                         headerOutboxBadge.style.display = 'flex';
-                        headerOutboxBadge.innerText = '⟳';
-                        headerOutboxBtn.title = 'جاري تفريغ الطابور ومزامنة المعاملات مع السيرفر...';
+                        headerOutboxBadge.innerText = 'âں³';
+                        headerOutboxBtn.title = 'ط¬ط§ط±ظٹ طھظپط±ظٹط؛ ط§ظ„ط·ط§ط¨ظˆط± ظˆظ…ط²ط§ظ…ظ†ط© ط§ظ„ظ…ط¹ط§ظ…ظ„ط§طھ ظ…ط¹ ط§ظ„ط³ظٹط±ظپط±...';
                     } else if (pendingCount > 0) {
                         headerOutboxBtn.className = 'header-deck-pill pill-sync has-pending-outbox';
                         if (headerOutboxIcon) headerOutboxIcon.className = 'fa-solid fa-cloud-arrow-up';
                         headerOutboxBadge.style.display = 'flex';
                         headerOutboxBadge.innerText = pendingCount;
-                        headerOutboxBtn.title = `${pendingCount} معاملات أوفلاين بانتظار التفريغ (${breakdown.vouchers} مالية، ${breakdown.sales} مبيعات) — اضغط للتفريغ الآن`;
+                        headerOutboxBtn.title = `${pendingCount} ظ…ط¹ط§ظ…ظ„ط§طھ ط£ظˆظپظ„ط§ظٹظ† ط¨ط§ظ†طھط¸ط§ط± ط§ظ„طھظپط±ظٹط؛ (${breakdown.vouchers} ظ…ط§ظ„ظٹط©طŒ ${breakdown.sales} ظ…ط¨ظٹط¹ط§طھ) â€” ط§ط¶ط؛ط· ظ„ظ„طھظپط±ظٹط؛ ط§ظ„ط¢ظ†`;
                     } else {
                         headerOutboxBtn.className = 'header-deck-pill pill-sync';
                         if (headerOutboxIcon) headerOutboxIcon.className = 'fa-solid fa-cloud-arrow-up';
                         headerOutboxBadge.style.display = 'none';
-                        headerOutboxBtn.title = online ? 'طابور الأوفلاين مفرغ بالكامل ومؤكد بالسحابة (Online)' : 'دون اتصال (Offline) — لا توجد معاملات معلقة';
+                        headerOutboxBtn.title = online ? 'ط·ط§ط¨ظˆط± ط§ظ„ط£ظˆظپظ„ط§ظٹظ† ظ…ظپط±ط؛ ط¨ط§ظ„ظƒط§ظ…ظ„ ظˆظ…ط¤ظƒط¯ ط¨ط§ظ„ط³ط­ط§ط¨ط© (Online)' : 'ط¯ظˆظ† ط§طھطµط§ظ„ (Offline) â€” ظ„ط§ طھظˆط¬ط¯ ظ…ط¹ط§ظ…ظ„ط§طھ ظ…ط¹ظ„ظ‚ط©';
                     }
                 }
 
-                // 2. Row 1 Live Internet Status Dot (نقطة خضراء متصل / نقطة حمراء منقطع)
+                // 2. Row 1 Live Internet Status Dot (ظ†ظ‚ط·ط© ط®ط¶ط±ط§ط، ظ…طھطµظ„ / ظ†ظ‚ط·ط© ط­ظ…ط±ط§ط، ظ…ظ†ظ‚ط·ط¹)
                 if (typeof window.syncMagaieesNetUI === 'function') {
                     window.syncMagaieesNetUI(online);
                 } else {
@@ -21240,13 +21185,13 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     headerPill.className = `outbox-status-pill ${statusClass}`;
                     pillDot.className = `outbox-dot ${statusClass}`;
                     if (pillText) {
-                        pillText.innerText = !online ? 'أوفلاين' : (this.isSyncing ? 'مزامنة ⚡' : 'متصل');
+                        pillText.innerText = !online ? 'ط£ظˆظپظ„ط§ظٹظ†' : (this.isSyncing ? 'ظ…ط²ط§ظ…ظ†ط© âڑ،' : 'ظ…طھطµظ„');
                     }
                     headerPill.title = !online 
-                        ? `انقطع النت (النور أحمر) — البرنامج في وضع الأوفلاين والسندات تُحفظ محلياً (${pendingCount} معلق)` 
+                        ? `ط§ظ†ظ‚ط·ط¹ ط§ظ„ظ†طھ (ط§ظ„ظ†ظˆط± ط£ط­ظ…ط±) â€” ط§ظ„ط¨ط±ظ†ط§ظ…ط¬ ظپظٹ ظˆط¶ط¹ ط§ظ„ط£ظˆظپظ„ط§ظٹظ† ظˆط§ظ„ط³ظ†ط¯ط§طھ طھظڈط­ظپط¸ ظ…ط­ظ„ظٹط§ظ‹ (${pendingCount} ظ…ط¹ظ„ظ‚)` 
                         : (this.isSyncing 
-                            ? 'جاري المزامنة اللحظية مع السيرفر ⚡' 
-                            : `متصل بالسحابة (النور أخضر) • استجابة الشبكة: ${this.lastHeartbeatMs || 24}ms`);
+                            ? 'ط¬ط§ط±ظٹ ط§ظ„ظ…ط²ط§ظ…ظ†ط© ط§ظ„ظ„ط­ط¸ظٹط© ظ…ط¹ ط§ظ„ط³ظٹط±ظپط± âڑ،' 
+                            : `ظ…طھطµظ„ ط¨ط§ظ„ط³ط­ط§ط¨ط© (ط§ظ„ظ†ظˆط± ط£ط®ط¶ط±) â€¢ ط§ط³طھط¬ط§ط¨ط© ط§ظ„ط´ط¨ظƒط©: ${this.lastHeartbeatMs || 24}ms`);
                 }
 
                 // 3. Outbox Sheet Breakdown Elements
@@ -21257,7 +21202,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (elVouchers) elVouchers.innerText = breakdown.vouchers;
                 if (elSales) elSales.innerText = breakdown.sales;
                 if (elOthers) elOthers.innerText = breakdown.others;
-                if (elTotalPending) elTotalPending.innerText = `${pendingCount} معلقة`;
+                if (elTotalPending) elTotalPending.innerText = `${pendingCount} ظ…ط¹ظ„ظ‚ط©`;
 
                 // 4. Outbox Sheet Stats Grid Counters
                 const elPending = document.getElementById('outbox-stat-pending');
@@ -21279,15 +21224,15 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (bannerDot && bannerTitle && bannerSub && btnSimOffline) {
                     bannerDot.className = `outbox-dot ${!online ? 'offline' : 'online'}`;
                     if (!online) {
-                        bannerTitle.innerText = this.isSimulatedOffline ? 'وضع انقطاع الشبكة (محاكاة نشطة)' : 'الاتصال بالسحابة: غير متصل (Offline)';
-                        bannerSub.innerText = pendingCount > 0 ? `يوجد (${pendingCount}) معاملات محفوظة محلياً بانتظار عودة الشبكة` : 'يتم حفظ المعاملات محلياً وتأجيل الرفع تلقائياً';
-                        btnSimOffline.innerText = 'إلغاء المحاكاة (اتصال)';
+                        bannerTitle.innerText = this.isSimulatedOffline ? 'ظˆط¶ط¹ ط§ظ†ظ‚ط·ط§ط¹ ط§ظ„ط´ط¨ظƒط© (ظ…ط­ط§ظƒط§ط© ظ†ط´ط·ط©)' : 'ط§ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط³ط­ط§ط¨ط©: ط؛ظٹط± ظ…طھطµظ„ (Offline)';
+                        bannerSub.innerText = pendingCount > 0 ? `ظٹظˆط¬ط¯ (${pendingCount}) ظ…ط¹ط§ظ…ظ„ط§طھ ظ…ط­ظپظˆط¸ط© ظ…ط­ظ„ظٹط§ظ‹ ط¨ط§ظ†طھط¸ط§ط± ط¹ظˆط¯ط© ط§ظ„ط´ط¨ظƒط©` : 'ظٹطھظ… ط­ظپط¸ ط§ظ„ظ…ط¹ط§ظ…ظ„ط§طھ ظ…ط­ظ„ظٹط§ظ‹ ظˆطھط£ط¬ظٹظ„ ط§ظ„ط±ظپط¹ طھظ„ظ‚ط§ط¦ظٹط§ظ‹';
+                        btnSimOffline.innerText = 'ط¥ظ„ط؛ط§ط، ط§ظ„ظ…ط­ط§ظƒط§ط© (ط§طھطµط§ظ„)';
                         btnSimOffline.style.background = 'rgba(239, 68, 94, 0.2)';
                         btnSimOffline.style.color = 'var(--rose)';
                     } else {
-                        bannerTitle.innerText = pendingCount > 0 ? `متصل بالسحابة — يوجد (${pendingCount}) حركات قيد التفريغ` : 'الاتصال بالسحابة: متصل ومستقر';
-                        bannerSub.innerText = pendingCount > 0 ? 'جاري تفريغ الطابور تلقائياً وربط الأرقام التسلسلية' : 'جميع المعاملات مؤكدة في السيرفر المركزي • الاستجابة: 24ms';
-                        btnSimOffline.innerText = 'محاكاة انقطاع الشبكة';
+                        bannerTitle.innerText = pendingCount > 0 ? `ظ…طھطµظ„ ط¨ط§ظ„ط³ط­ط§ط¨ط© â€” ظٹظˆط¬ط¯ (${pendingCount}) ط­ط±ظƒط§طھ ظ‚ظٹط¯ ط§ظ„طھظپط±ظٹط؛` : 'ط§ظ„ط§طھطµط§ظ„ ط¨ط§ظ„ط³ط­ط§ط¨ط©: ظ…طھطµظ„ ظˆظ…ط³طھظ‚ط±';
+                        bannerSub.innerText = pendingCount > 0 ? 'ط¬ط§ط±ظٹ طھظپط±ظٹط؛ ط§ظ„ط·ط§ط¨ظˆط± طھظ„ظ‚ط§ط¦ظٹط§ظ‹ ظˆط±ط¨ط· ط§ظ„ط£ط±ظ‚ط§ظ… ط§ظ„طھط³ظ„ط³ظ„ظٹط©' : 'ط¬ظ…ظٹط¹ ط§ظ„ظ…ط¹ط§ظ…ظ„ط§طھ ظ…ط¤ظƒط¯ط© ظپظٹ ط§ظ„ط³ظٹط±ظپط± ط§ظ„ظ…ط±ظƒط²ظٹ â€¢ ط§ظ„ط§ط³طھط¬ط§ط¨ط©: 24ms';
+                        btnSimOffline.innerText = 'ظ…ط­ط§ظƒط§ط© ط§ظ†ظ‚ط·ط§ط¹ ط§ظ„ط´ط¨ظƒط©';
                         btnSimOffline.style.background = 'var(--surface-sub)';
                         btnSimOffline.style.color = 'var(--text-main)';
                     }
@@ -21301,8 +21246,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     container.innerHTML = `
                         <div style="text-align:center; padding:24px 12px; color:var(--text-muted); font-size:0.78rem;">
                             <i class="fa-solid fa-cloud-check" style="font-size:1.8rem; color:var(--emerald); opacity:0.8; margin-bottom:8px; display:block;"></i>
-                            <strong>طابور sync_queue نظيف تماماً</strong>
-                            <div style="font-size:0.7rem; margin-top:2px;">لا توجد معاملات مؤجلة بانتظار الإرسال للسحابة</div>
+                            <strong>ط·ط§ط¨ظˆط± sync_queue ظ†ط¸ظٹظپ طھظ…ط§ظ…ط§ظ‹</strong>
+                            <div style="font-size:0.7rem; margin-top:2px;">ظ„ط§ طھظˆط¬ط¯ ظ…ط¹ط§ظ…ظ„ط§طھ ظ…ط¤ط¬ظ„ط© ط¨ط§ظ†طھط¸ط§ط± ط§ظ„ط¥ط±ط³ط§ظ„ ظ„ظ„ط³ط­ط§ط¨ط©</div>
                         </div>
                     `;
                     return;
@@ -21312,20 +21257,20 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.queue.forEach(item => {
                     const st = String(item.status).toUpperCase();
                     let badgeClass = 'status-pending';
-                    let statusLabel = '⏳ PENDING';
+                    let statusLabel = 'âڈ³ PENDING';
                     let statusColor = 'var(--amber)';
 
                     if (st === 'SYNCING') {
                         badgeClass = 'status-syncing';
-                        statusLabel = '🔄 SYNCING...';
+                        statusLabel = 'ًں”„ SYNCING...';
                         statusColor = 'var(--primary)';
                     } else if (st === 'SYNCED') {
                         badgeClass = 'status-synced';
-                        statusLabel = '✅ SYNCED';
+                        statusLabel = 'âœ… SYNCED';
                         statusColor = 'var(--emerald)';
                     } else if (st === 'FAILED' || st === 'CONFLICT') {
                         badgeClass = 'status-conflict';
-                        statusLabel = '⚠️ FAILED';
+                        statusLabel = 'âڑ ï¸ڈ FAILED';
                         statusColor = 'var(--rose)';
                     }
 
@@ -21349,7 +21294,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                     <div style="font-size:0.75rem; font-family:'Inter',monospace; color:var(--text-muted); margin-top:2px; opacity:0.85;">
                                         <span style="color:var(--primary); font-weight:700;">[${item.entity_name || 'invoices'}:${item.operation || 'INSERT'}]</span> 
                                         ${item.id.slice(0, 18)}...
-                                        ${item.serverRef ? `• <span style="color:var(--emerald); font-weight:700;">${item.serverRef}</span>` : ''}
+                                        ${item.serverRef ? `â€¢ <span style="color:var(--emerald); font-weight:700;">${item.serverRef}</span>` : ''}
                                     </div>
                                 </div>
                             </div>
@@ -21369,9 +21314,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         // KEYBOARD-AWARE FLUID VIEWPORT ENGINE
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         function setupFluidKeyboardViewport() {
             // When entering amounts/quantities, input fields automatically scroll into clear view without hiding the primary action button
             document.addEventListener('focusin', (e) => {
@@ -21429,9 +21374,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             }
         });
     
-        // ═════════════════════════════════════════════════════════════════
-        // 🖨️ UNIVERSAL PRINT ENGINE (طباعة حرارية لجميع السندات والعمليات)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں–¨ï¸ڈ UNIVERSAL PRINT ENGINE (ط·ط¨ط§ط¹ط© ط­ط±ط§ط±ظٹط© ظ„ط¬ظ…ظٹط¹ ط§ظ„ط³ظ†ط¯ط§طھ ظˆط§ظ„ط¹ظ…ظ„ظٹط§طھ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.UniversalPrintEngine = {
             printVoucher(v) {
                 if (!v) return;
@@ -21444,81 +21389,81 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const amtForeign = parseFloat(v.amountForeign || 0);
                 const txDate = v.date || new Date().toISOString().split('T')[0];
                 const txTime = v.time || new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' });
-                const fromName = (typeof v.fromAccount === 'object' ? v.fromAccount.name : v.fromAccount) || v.from_account || v.customerName || v.customer || 'الخزينة الرئيسية';
-                const toName = (typeof v.toAccount === 'object' ? v.toAccount.name : v.toAccount) || v.to_account || v.recipient || v.partnerName || 'الحساب المستلم';
-                const notes = v.notes || v.statement || 'حركة مالية معتمدة';
+                const fromName = (typeof v.fromAccount === 'object' ? v.fromAccount.name : v.fromAccount) || v.from_account || v.customerName || v.customer || 'ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط©';
+                const toName = (typeof v.toAccount === 'object' ? v.toAccount.name : v.toAccount) || v.to_account || v.recipient || v.partnerName || 'ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…ط³طھظ„ظ…';
+                const notes = v.notes || v.statement || 'ط­ط±ظƒط© ظ…ط§ظ„ظٹط© ظ…ط¹طھظ…ط¯ط©';
                 const isReceipt = v.type === 'receipt' || (String(vNum).startsWith('R') || String(vNum).startsWith('IN-'));
-                const typeTitle = isReceipt ? 'سند قبض واستلام مالي' : 'سند صرف ودفع مالي';
+                const typeTitle = isReceipt ? 'ط³ظ†ط¯ ظ‚ط¨ط¶ ظˆط§ط³طھظ„ط§ظ… ظ…ط§ظ„ظٹ' : 'ط³ظ†ط¯ طµط±ظپ ظˆط¯ظپط¹ ظ…ط§ظ„ظٹ';
                 const refNo = v.reference || v.refNo || v.transferNo || v.mobileTransferNo || '---';
 
                 paper.innerHTML = `
                     <div class="thermal-header">
-                        <h3>مؤسسة الصجانة التجارية</h3>
-                        <p>سوق السجانة لمواد البناء والأخشاب - الخرطوم</p>
-                        <p>هاتف: +249 91 234 5678</p>
+                        <h3>ظ…ط¤ط³ط³ط© ط§ظ„طµط¬ط§ظ†ط© ط§ظ„طھط¬ط§ط±ظٹط©</h3>
+                        <p>ط³ظˆظ‚ ط§ظ„ط³ط¬ط§ظ†ط© ظ„ظ…ظˆط§ط¯ ط§ظ„ط¨ظ†ط§ط، ظˆط§ظ„ط£ط®ط´ط§ط¨ - ط§ظ„ط®ط±ط·ظˆظ…</p>
+                        <p>ظ‡ط§طھظپ: +249 91 234 5678</p>
                         <div class="thermal-divider"></div>
                         <h4>${typeTitle}</h4>
                         <p style="font-family:monospace; font-weight:900; font-size:1.15rem; margin-top:2px;">#${vNum}</p>
                         <div style="display:inline-block; background:#059669; color:#ffffff; font-size:0.72rem; font-weight:900; padding:2px 10px; border-radius:6px; margin-top:4px;">
-                            ✅ معتمد بالسيرفر
+                            âœ… ظ…ط¹طھظ…ط¯ ط¨ط§ظ„ط³ظٹط±ظپط±
                         </div>
                     </div>
                     <div class="thermal-divider"></div>
                     <div class="thermal-row">
-                        <span>التاريخ والوقت:</span>
+                        <span>ط§ظ„طھط§ط±ظٹط® ظˆط§ظ„ظˆظ‚طھ:</span>
                         <span>${txDate} ${txTime}</span>
                     </div>
                     <div class="thermal-row">
-                        <span>من حساب (الصارف):</span>
+                        <span>ظ…ظ† ط­ط³ط§ط¨ (ط§ظ„طµط§ط±ظپ):</span>
                         <strong>${fromName}</strong>
                     </div>
                     <div class="thermal-row">
-                        <span>إلى حساب (المستلم):</span>
+                        <span>ط¥ظ„ظ‰ ط­ط³ط§ط¨ (ط§ظ„ظ…ط³طھظ„ظ…):</span>
                         <strong>${toName}</strong>
                     </div>
                     ${v.beneficiaryName ? `
                     <div class="thermal-row">
-                        <span>المستفيد / المسلم:</span>
+                        <span>ط§ظ„ظ…ط³طھظپظٹط¯ / ط§ظ„ظ…ط³ظ„ظ…:</span>
                         <span>${v.beneficiaryName}</span>
                     </div>` : ''}
                     <div class="thermal-row">
-                        <span>طريقة الدفع:</span>
-                        <span>${v.paymentMethod === 'bank' ? 'تحويل بنكي / بنكك' : (v.paymentMethod === 'cheque' ? 'شيك مصرفي' : 'نقداً (كاش)')}</span>
+                        <span>ط·ط±ظٹظ‚ط© ط§ظ„ط¯ظپط¹:</span>
+                        <span>${v.paymentMethod === 'bank' ? 'طھط­ظˆظٹظ„ ط¨ظ†ظƒظٹ / ط¨ظ†ظƒظƒ' : (v.paymentMethod === 'cheque' ? 'ط´ظٹظƒ ظ…طµط±ظپظٹ' : 'ظ†ظ‚ط¯ط§ظ‹ (ظƒط§ط´)')}</span>
                     </div>
                     <div class="thermal-row">
-                        <span>رقم المرجع / الإشعار:</span>
+                        <span>ط±ظ‚ظ… ط§ظ„ظ…ط±ط¬ط¹ / ط§ظ„ط¥ط´ط¹ط§ط±:</span>
                         <span style="font-family:monospace; font-weight:800;">${refNo}</span>
                     </div>
                     <div class="thermal-divider"></div>
                     <div class="thermal-total-row">
-                        <span>المبلغ الصافي:</span>
+                        <span>ط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„طµط§ظپظٹ:</span>
                         <span>${fmt(amt)} SDG</span>
                     </div>
                     ${amtForeign > 0 ? `
                     <div class="thermal-row" style="color:#0284c7; font-weight:800;">
-                        <span>المقابل الأجنبي ($):</span>
+                        <span>ط§ظ„ظ…ظ‚ط§ط¨ظ„ ط§ظ„ط£ط¬ظ†ط¨ظٹ ($):</span>
                         <span>$${fmt(amtForeign)}</span>
                     </div>` : ''}
                     <div class="thermal-divider"></div>
                     <div class="thermal-row" style="font-size:0.76rem; color:#444;">
-                        <span>البيان:</span>
+                        <span>ط§ظ„ط¨ظٹط§ظ†:</span>
                         <span>${notes}</span>
                     </div>
                     <div class="thermal-divider"></div>
                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:center; font-size:0.75rem; margin-top:10px;">
                         <div>
-                            <div>توقيع الصارف / المحاسب</div>
+                            <div>طھظˆظ‚ظٹط¹ ط§ظ„طµط§ط±ظپ / ط§ظ„ظ…ط­ط§ط³ط¨</div>
                             <div style="border-bottom:1px solid #000; height:30px; margin-top:5px;"></div>
                         </div>
                         <div>
-                            <div>توقيع المستلم</div>
+                            <div>طھظˆظ‚ظٹط¹ ط§ظ„ظ…ط³طھظ„ظ…</div>
                             <div style="border-bottom:1px solid #000; height:30px; margin-top:5px;"></div>
                         </div>
                     </div>
                     <div class="thermal-footer" style="margin-top:12px;">
                         <div style="font-family:monospace; letter-spacing:2px; font-size:1.1rem;">*${vNum}*</div>
                         <div style="font-size:0.76rem; color:#555; margin-top:4px;">
-                            نظام مقاييس المحاسبي 2026 • معتمد سحابياً ومحلياً
+                            ظ†ط¸ط§ظ… ظ…ظ‚ط§ظٹظٹط³ ط§ظ„ظ…ط­ط§ط³ط¨ظٹ 2026 â€¢ ظ…ط¹طھظ…ط¯ ط³ط­ط§ط¨ظٹط§ظ‹ ظˆظ…ط­ظ„ظٹط§ظ‹
                         </div>
                     </div>
                 `;
@@ -21538,7 +21483,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     if (isRec) totalIn += a; else totalOut += a;
                     listHtml += `
                         <div class="thermal-row" style="font-size:0.74rem;">
-                            <span>#${tx.voucher_no || tx.id} (${(tx.to_account || tx.from_account || 'حركة').slice(0, 14)})</span>
+                            <span>#${tx.voucher_no || tx.id} (${(tx.to_account || tx.from_account || 'ط­ط±ظƒط©').slice(0, 14)})</span>
                             <span style="font-weight:800; color:${isRec ? '#059669' : '#dc2626'};">${isRec ? '+' : '-'}${fmt(a)}</span>
                         </div>
                     `;
@@ -21546,25 +21491,25 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 paper.innerHTML = `
                     <div class="thermal-header">
-                        <h3>مؤسسة الصجانة التجارية</h3>
-                        <p>كشف العمليات الميدانية السريع</p>
+                        <h3>ظ…ط¤ط³ط³ط© ط§ظ„طµط¬ط§ظ†ط© ط§ظ„طھط¬ط§ط±ظٹط©</h3>
+                        <p>ظƒط´ظپ ط§ظ„ط¹ظ…ظ„ظٹط§طھ ط§ظ„ظ…ظٹط¯ط§ظ†ظٹط© ط§ظ„ط³ط±ظٹط¹</p>
                         <div class="thermal-divider"></div>
-                        <h4>ملخص الحركات اليومية</h4>
+                        <h4>ظ…ظ„ط®طµ ط§ظ„ط­ط±ظƒط§طھ ط§ظ„ظٹظˆظ…ظٹط©</h4>
                         <p>${new Date().toLocaleDateString('ar-SD')} - ${new Date().toLocaleTimeString('ar-SD')}</p>
                     </div>
                     <div class="thermal-divider"></div>
                     ${listHtml}
                     <div class="thermal-divider"></div>
                     <div class="thermal-row" style="color:#059669; font-weight:900;">
-                        <span>إجمالي المقبوضات (+):</span>
+                        <span>ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ظ‚ط¨ظˆط¶ط§طھ (+):</span>
                         <span>+${fmt(totalIn)} SDG</span>
                     </div>
                     <div class="thermal-row" style="color:#dc2626; font-weight:900;">
-                        <span>إجمالي المدفوعات (-):</span>
+                        <span>ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ…ط¯ظپظˆط¹ط§طھ (-):</span>
                         <span>-${fmt(totalOut)} SDG</span>
                     </div>
                     <div class="thermal-total-row">
-                        <span>صافي التدفق:</span>
+                        <span>طµط§ظپظٹ ط§ظ„طھط¯ظپظ‚:</span>
                         <span>${fmt(totalIn - totalOut)} SDG</span>
                     </div>
                 `;
@@ -21572,9 +21517,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🛒 PURCHASE ENGINE (إدارة فواتير الشراء والتوريد السريعة)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں›’ PURCHASE ENGINE (ط¥ط¯ط§ط±ط© ظپظˆط§طھظٹط± ط§ظ„ط´ط±ط§ط، ظˆط§ظ„طھظˆط±ظٹط¯ ط§ظ„ط³ط±ظٹط¹ط©)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.PurchaseEngine = {
             newInvoice() {
                 triggerHaptic('success');
@@ -21586,7 +21531,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (qtyInp) qtyInp.value = '1';
                 if (priceInp) priceInp.value = '';
                 if (totalDisp) totalDisp.textContent = '0 SDG';
-                if (window.showModernToast) window.showModernToast('✨ فتح فاتورة شراء وتوريد جديدة', 'success', 2000);
+                if (window.showModernToast) window.showModernToast('âœ¨ ظپطھط­ ظپط§طھظˆط±ط© ط´ط±ط§ط، ظˆطھظˆط±ظٹط¯ ط¬ط¯ظٹط¯ط©', 'success', 2000);
             },
             saveInvoice() {
                 const form = document.querySelector('#sheet-purchase form');
@@ -21599,10 +21544,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 triggerHaptic('medium');
                 const purchases = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_purchase_invoices_v1') || []) : [];
                 if (purchases.length === 0) {
-                    if (window.showModernToast) window.showModernToast('لا توجد فواتير شراء سابقة للتعديل', 'info', 2000);
+                    if (window.showModernToast) window.showModernToast('ظ„ط§ طھظˆط¬ط¯ ظپظˆط§طھظٹط± ط´ط±ط§ط، ط³ط§ط¨ظ‚ط© ظ„ظ„طھط¹ط¯ظٹظ„', 'info', 2000);
                     return;
                 }
-                const q = prompt('🔍 أدخل رقم فاتورة الشراء أو اسم المورد للتعديل:\nآخر فاتورة: ' + (purchases[0].invoiceNo || purchases[0].id));
+                const q = prompt('ًں”چ ط£ط¯ط®ظ„ ط±ظ‚ظ… ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ط£ظˆ ط§ط³ظ… ط§ظ„ظ…ظˆط±ط¯ ظ„ظ„طھط¹ط¯ظٹظ„:\nط¢ط®ط± ظپط§طھظˆط±ط©: ' + (purchases[0].invoiceNo || purchases[0].id));
                 if (!q || !q.trim()) return;
                 const p = purchases.find(x => `${x.invoiceNo || ''} ${x.id || ''} ${x.supplier || ''}`.toLowerCase().includes(q.trim().toLowerCase()));
                 if (p) {
@@ -21611,23 +21556,23 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     if (qtyInp && p.qty) qtyInp.value = p.qty;
                     if (priceInp && p.price) priceInp.value = p.price;
                     if (typeof calculatePurchaseTotal === 'function') calculatePurchaseTotal();
-                    if (window.showModernToast) window.showModernToast('✏️ تم استدعاء بيانات فاتورة الشراء للتعديل', 'warning', 2000);
+                    if (window.showModernToast) window.showModernToast('âœڈï¸ڈ طھظ… ط§ط³طھط¯ط¹ط§ط، ط¨ظٹط§ظ†ط§طھ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ظ„ظ„طھط¹ط¯ظٹظ„', 'warning', 2000);
                 } else {
-                    alert('لم يتم العثور على فاتورة شراء بهذا الرقم');
+                    alert('ظ„ظ… ظٹطھظ… ط§ظ„ط¹ط«ظˆط± ط¹ظ„ظ‰ ظپط§طھظˆط±ط© ط´ط±ط§ط، ط¨ظ‡ط°ط§ ط§ظ„ط±ظ‚ظ…');
                 }
             },
             deleteInvoice() {
                 triggerHaptic('heavy');
-                if (!confirm('⚠️ هل أنت متأكد من إلغاء وتفريغ فاتورة الشراء الحالية؟')) return;
+                if (!confirm('âڑ ï¸ڈ ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط¥ظ„ط؛ط§ط، ظˆطھظپط±ظٹط؛ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط، ط§ظ„ط­ط§ظ„ظٹط©طں')) return;
                 this.newInvoice();
-                if (window.showModernToast) window.showModernToast('🗑️ تم تفريغ فاتورة الشراء', 'success', 2000);
+                if (window.showModernToast) window.showModernToast('ًں—‘ï¸ڈ طھظ… طھظپط±ظٹط؛ ظپط§طھظˆط±ط© ط§ظ„ط´ط±ط§ط،', 'success', 2000);
             },
             printInvoice() {
                 triggerHaptic('medium');
                 const totalDisp = document.getElementById('purchase-total-display')?.textContent || '0 SDG';
-                const supp = document.getElementById('purchase-supplier')?.value || 'مورد نقدي عام';
+                const supp = document.getElementById('purchase-supplier')?.value || 'ظ…ظˆط±ط¯ ظ†ظ‚ط¯ظٹ ط¹ط§ظ…';
                 const item = document.getElementById('purchase-item');
-                const itemName = item && item.selectedIndex > 0 ? item.options[item.selectedIndex].text : 'صنف مشتريات';
+                const itemName = item && item.selectedIndex > 0 ? item.options[item.selectedIndex].text : 'طµظ†ظپ ظ…ط´طھط±ظٹط§طھ';
                 const qty = document.getElementById('purchase-qty')?.value || '1';
                 const price = document.getElementById('purchase-price')?.value || '0';
 
@@ -21635,21 +21580,21 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (!paper) return;
                 paper.innerHTML = `
                     <div class="thermal-header">
-                        <h3>مؤسسة الصجانة التجارية</h3>
-                        <p>إذن توريد وفاتورة مشتريات مخزنية</p>
+                        <h3>ظ…ط¤ط³ط³ط© ط§ظ„طµط¬ط§ظ†ط© ط§ظ„طھط¬ط§ط±ظٹط©</h3>
+                        <p>ط¥ط°ظ† طھظˆط±ظٹط¯ ظˆظپط§طھظˆط±ط© ظ…ط´طھط±ظٹط§طھ ظ…ط®ط²ظ†ظٹط©</p>
                         <div class="thermal-divider"></div>
-                        <h4>فاتورة شراء بضاعة</h4>
+                        <h4>ظپط§طھظˆط±ط© ط´ط±ط§ط، ط¨ط¶ط§ط¹ط©</h4>
                         <p style="font-family:monospace; font-weight:900;">#PUR-${new Date().toISOString().slice(2,7).replace('-','')}-${Date.now().toString().slice(-4)}</p>
                     </div>
                     <div class="thermal-divider"></div>
-                    <div class="thermal-row"><span>المورد:</span><strong>${supp}</strong></div>
-                    <div class="thermal-row"><span>الصنف المورّد:</span><strong>${itemName}</strong></div>
-                    <div class="thermal-row"><span>الكمية:</span><span>${qty}</span></div>
-                    <div class="thermal-row"><span>سعر الوحدة:</span><span>${fmt(price)} SDG</span></div>
+                    <div class="thermal-row"><span>ط§ظ„ظ…ظˆط±ط¯:</span><strong>${supp}</strong></div>
+                    <div class="thermal-row"><span>ط§ظ„طµظ†ظپ ط§ظ„ظ…ظˆط±ظ‘ط¯:</span><strong>${itemName}</strong></div>
+                    <div class="thermal-row"><span>ط§ظ„ظƒظ…ظٹط©:</span><span>${qty}</span></div>
+                    <div class="thermal-row"><span>ط³ط¹ط± ط§ظ„ظˆط­ط¯ط©:</span><span>${fmt(price)} SDG</span></div>
                     <div class="thermal-divider"></div>
-                    <div class="thermal-total-row"><span>الإجمالي:</span><span>${totalDisp}</span></div>
+                    <div class="thermal-total-row"><span>ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ:</span><span>${totalDisp}</span></div>
                     <div class="thermal-footer" style="margin-top:10px;">
-                        <p>توقيع أمين المستودع والمستلم</p>
+                        <p>طھظˆظ‚ظٹط¹ ط£ظ…ظٹظ† ط§ظ„ظ…ط³طھظˆط¯ط¹ ظˆط§ظ„ظ…ط³طھظ„ظ…</p>
                         <div style="border-bottom:1px solid #000; height:30px;"></div>
                     </div>
                 `;
@@ -21660,7 +21605,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             },
             shareInvoice() {
                 const totalDisp = document.getElementById('purchase-total-display')?.textContent || '0 SDG';
-                const text = `📦 *فاتورة شراء وتوريد - مؤسسة السجانة*\nالمبلغ الإجمالي: ${totalDisp}\nالتاريخ: ${new Date().toLocaleDateString('ar-SD')}`;
+                const text = `ًں“¦ *ظپط§طھظˆط±ط© ط´ط±ط§ط، ظˆطھظˆط±ظٹط¯ - ظ…ط¤ط³ط³ط© ط§ظ„ط³ط¬ط§ظ†ط©*\nط§ظ„ظ…ط¨ظ„ط؛ ط§ظ„ط¥ط¬ظ…ط§ظ„ظٹ: ${totalDisp}\nط§ظ„طھط§ط±ظٹط®: ${new Date().toLocaleDateString('ar-SD')}`;
                 window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent(text), '_blank');
             },
             resetForm() {
@@ -21671,10 +21616,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             }
         };
 
-        // ═════════════════════════════════════════════════════════════════
-        // ⚡ UNIVERSAL ACTION ENGINE (المحرك الموحد لجميع أزرار شاشات الجوال)
-        // [جديد] [حفظ] [تعديل] [حذف] [طباعة] [بحث] [مشاركة] [تراجع]
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // âڑ، UNIVERSAL ACTION ENGINE (ط§ظ„ظ…ط­ط±ظƒ ط§ظ„ظ…ظˆط­ط¯ ظ„ط¬ظ…ظٹط¹ ط£ط²ط±ط§ط± ط´ط§ط´ط§طھ ط§ظ„ط¬ظˆط§ظ„)
+        // [ط¬ط¯ظٹط¯] [ط­ظپط¸] [طھط¹ط¯ظٹظ„] [ط­ط°ظپ] [ط·ط¨ط§ط¹ط©] [ط¨ط­ط«] [ظ…ط´ط§ط±ظƒط©] [طھط±ط§ط¬ط¹]
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         window.UniversalActionEngine = {
             dispatch(action, screen) {
                 triggerHaptic('light');
@@ -21774,7 +21719,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     } else if (typeof refreshMobileData === 'function') {
                         refreshMobileData(true);
                     }
-                    if (window.showModernToast) window.showModernToast('💾 جاري حفظ ومزامنة كافة السجلات مع السيرفر الحي...', 'success', 2200);
+                    if (window.showModernToast) window.showModernToast('ًں’¾ ط¬ط§ط±ظٹ ط­ظپط¸ ظˆظ…ط²ط§ظ…ظ†ط© ظƒط§ظپط© ط§ظ„ط³ط¬ظ„ط§طھ ظ…ط¹ ط§ظ„ط³ظٹط±ظپط± ط§ظ„ط­ظٹ...', 'success', 2200);
                 }
             },
 
@@ -21797,12 +21742,12 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     if (M_TRANSACTIONS && M_TRANSACTIONS.length > 0) {
                         this.editItem('transactions', M_TRANSACTIONS[0]);
                     } else {
-                        if (window.showModernToast) window.showModernToast('لا توجد حركات للتعديل', 'info', 2000);
+                        if (window.showModernToast) window.showModernToast('ظ„ط§ طھظˆط¬ط¯ ط­ط±ظƒط§طھ ظ„ظ„طھط¹ط¯ظٹظ„', 'info', 2000);
                     }
                 } else if (screen === 'inventory') {
                     InventoryEngine.openQuickAudit();
                 } else {
-                    if (window.showModernToast) window.showModernToast('✏️ حدد عنصراً لتعديله', 'info', 2000);
+                    if (window.showModernToast) window.showModernToast('âœڈï¸ڈ ط­ط¯ط¯ ط¹ظ†طµط±ط§ظ‹ ظ„طھط¹ط¯ظٹظ„ظ‡', 'info', 2000);
                 }
             },
 
@@ -21848,7 +21793,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 triggerHaptic('heavy');
                 const vNum = item.voucher_no || item.id;
                 const amt = item.amount || item.total || 0;
-                if (!confirm(`⚠️ هل أنت متأكد من حذف الحركة [${vNum}] بمبلغ [${fmt(amt)} SDG]؟ لا يمكن التراجع.`)) return;
+                if (!confirm(`âڑ ï¸ڈ ظ‡ظ„ ط£ظ†طھ ظ…طھط£ظƒط¯ ظ…ظ† ط­ط°ظپ ط§ظ„ط­ط±ظƒط© [${vNum}] ط¨ظ…ط¨ظ„ط؛ [${fmt(amt)} SDG]طں ظ„ط§ ظٹظ…ظƒظ† ط§ظ„طھط±ط§ط¬ط¹.`)) return;
 
                 try {
                     await fetch('mobile-dashboard.php?action=delete_voucher', {
@@ -21879,7 +21824,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
 
                 if (typeof renderTransactionsView === 'function') renderTransactionsView();
-                if (window.showModernToast) window.showModernToast(`🗑️ تم حذف الحركة [${vNum}] بنجاح`, 'success', 2200);
+                if (window.showModernToast) window.showModernToast(`ًں—‘ï¸ڈ طھظ… ط­ط°ظپ ط§ظ„ط­ط±ظƒط© [${vNum}] ط¨ظ†ط¬ط§ط­`, 'success', 2200);
             },
 
             print(screen) {
@@ -21892,10 +21837,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 } else if (screen === 'stock-transfer') {
                     StockTransferEngine.printThermalWaybill();
                 } else if (screen === 'item-audit') {
-                    const itemName = document.getElementById('audit-item-name')?.textContent || 'صنف';
+                    const itemName = document.getElementById('audit-item-name')?.textContent || 'طµظ†ظپ';
                     const sku = document.getElementById('audit-item-sku')?.textContent || 'SKU';
                     const stock = document.getElementById('audit-system-stock')?.textContent || '0';
-                    alert(`🖨️ طباعة بطاقة الصنف:\n${itemName} (${sku})\nالرصيد: ${stock}`);
+                    alert(`ًں–¨ï¸ڈ ط·ط¨ط§ط¹ط© ط¨ط·ط§ظ‚ط© ط§ظ„طµظ†ظپ:\n${itemName} (${sku})\nط§ظ„ط±طµظٹط¯: ${stock}`);
                 } else if (screen === 'statement') {
                     if (typeof LedgerEngine.openPdfStatementPreview === 'function') LedgerEngine.openPdfStatementPreview();
                 } else if (screen === 'transactions') {
@@ -21945,17 +21890,17 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     if (sel && sel.value && typeof sendStatementWhatsApp === 'function') {
                         sendStatementWhatsApp();
                     } else {
-                        if (window.showModernToast) window.showModernToast('اختر عميلاً أولاً لمشاركة كشف الحساب', 'info', 2000);
+                        if (window.showModernToast) window.showModernToast('ط§ط®طھط± ط¹ظ…ظٹظ„ط§ظ‹ ط£ظˆظ„ط§ظ‹ ظ„ظ…ط´ط§ط±ظƒط© ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨', 'info', 2000);
                     }
                 } else {
                     if (navigator.share) {
                         navigator.share({
-                            title: 'مقاييس ERP - تقرير سريع',
-                            text: 'تقرير العمليات الميدانية - مؤسسة السجانة التجارية',
+                            title: 'ظ…ظ‚ط§ظٹظٹط³ ERP - طھظ‚ط±ظٹط± ط³ط±ظٹط¹',
+                            text: 'طھظ‚ط±ظٹط± ط§ظ„ط¹ظ…ظ„ظٹط§طھ ط§ظ„ظ…ظٹط¯ط§ظ†ظٹط© - ظ…ط¤ط³ط³ط© ط§ظ„ط³ط¬ط§ظ†ط© ط§ظ„طھط¬ط§ط±ظٹط©',
                             url: window.location.href
                         }).catch(() => {});
                     } else {
-                        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('تقرير مقاييس ERP: ' + window.location.href), '_blank');
+                        window.open('https://api.whatsapp.com/send?text=' + encodeURIComponent('طھظ‚ط±ظٹط± ظ…ظ‚ط§ظٹظٹط³ ERP: ' + window.location.href), '_blank');
                     }
                 }
             },
@@ -21975,9 +21920,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             }
         };
     
-        // ═════════════════════════════════════════════════════════════════
-        // 👁️ PRIVACY STEALTH SHIELD ENGINE (إخفاء الأرقام بنجوم)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًں‘پï¸ڈ PRIVACY STEALTH SHIELD ENGINE (ط¥ط®ظپط§ط، ط§ظ„ط£ط±ظ‚ط§ظ… ط¨ظ†ط¬ظˆظ…)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         let isStealthPrivacyActive = false;
         const originalTextValues = new WeakMap();
 
@@ -22000,25 +21945,25 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (isStealthPrivacyActive) {
                 if (btn) btn.classList.add('stealth-active');
                 if (icon) icon.className = 'fa-solid fa-eye-slash';
-                if (label) label.textContent = 'مخفي';
+                if (label) label.textContent = 'ظ…ط®ظپظٹ';
 
                 amountNodes.forEach(node => {
                     if (!originalTextValues.has(node)) {
                         originalTextValues.set(node, node.innerText);
                     }
                     node.setAttribute('data-original-val', node.innerText);
-                    node.innerText = '••••••';
+                    node.innerText = 'â€¢â€¢â€¢â€¢â€¢â€¢';
                 });
 
                 if (toast && toastText) {
-                    toastText.textContent = '🛡️ تم تفعيل وضع الخصوصية: تم إخفاء كافة الأرقام بالنجوم (••••••)';
+                    toastText.textContent = 'ًں›،ï¸ڈ طھظ… طھظپط¹ظٹظ„ ظˆط¶ط¹ ط§ظ„ط®طµظˆطµظٹط©: طھظ… ط¥ط®ظپط§ط، ظƒط§ظپط© ط§ظ„ط£ط±ظ‚ط§ظ… ط¨ط§ظ„ظ†ط¬ظˆظ… (â€¢â€¢â€¢â€¢â€¢â€¢)';
                     toast.style.display = 'flex';
                     setTimeout(() => { toast.style.display = 'none'; }, 2500);
                 }
             } else {
                 if (btn) btn.classList.remove('stealth-active');
                 if (icon) icon.className = 'fa-solid fa-eye';
-                if (label) label.textContent = 'الخصوصية';
+                if (label) label.textContent = 'ط§ظ„ط®طµظˆطµظٹط©';
 
                 amountNodes.forEach(node => {
                     const orig = originalTextValues.get(node) || node.getAttribute('data-original-val');
@@ -22026,16 +21971,16 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 });
 
                 if (toast && toastText) {
-                    toastText.textContent = '👁️ تم إظهار الأرقام والمبالغ المالية';
+                    toastText.textContent = 'ًں‘پï¸ڈ طھظ… ط¥ط¸ظ‡ط§ط± ط§ظ„ط£ط±ظ‚ط§ظ… ظˆط§ظ„ظ…ط¨ط§ظ„ط؛ ط§ظ„ظ…ط§ظ„ظٹط©';
                     toast.style.display = 'flex';
                     setTimeout(() => { toast.style.display = 'none'; }, 2200);
                 }
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        // 🎙️ AI VOICE COPILOT ENGINE (محرك الصوت المحاسبي والاعتماد الفوري)
-        // ═════════════════════════════════════════════════════════════════
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+        // ًںژ™ï¸ڈ AI VOICE COPILOT ENGINE (ظ…ط­ط±ظƒ ط§ظ„طµظˆطھ ط§ظ„ظ…ط­ط§ط³ط¨ظٹ ظˆط§ظ„ط§ط¹طھظ…ط§ط¯ ط§ظ„ظپظˆط±ظٹ)
+        // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
         let voiceCopilotRecognition = null;
         let isVoiceCopilotListening = false;
         let currentVoiceCopilotData = null;
@@ -22050,8 +21995,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             const status = document.getElementById('voice-copilot-status');
             const transcript = document.getElementById('voice-copilot-transcript');
             const card = document.getElementById('voice-copilot-approval-card');
-            if (status) status.textContent = 'اضغط على المايك للتحدث باللغة العربية أو اختر أمراً جاهزاً:';
-            if (transcript) transcript.textContent = 'بانتظار صوتك أو اختيارك...';
+            if (status) status.textContent = 'ط§ط¶ط؛ط· ط¹ظ„ظ‰ ط§ظ„ظ…ط§ظٹظƒ ظ„ظ„طھط­ط¯ط« ط¨ط§ظ„ظ„ط؛ط© ط§ظ„ط¹ط±ط¨ظٹط© ط£ظˆ ط§ط®طھط± ط£ظ…ط±ط§ظ‹ ط¬ط§ظ‡ط²ط§ظ‹:';
+            if (transcript) transcript.textContent = 'ط¨ط§ظ†طھط¸ط§ط± طµظˆطھظƒ ط£ظˆ ط§ط®طھظٹط§ط±ظƒ...';
             if (card) card.style.display = 'none';
             stopVoiceWaveAnimation();
         }
@@ -22083,7 +22028,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SpeechRecognition) {
-                alert('المتصفح الحالي لا يدعم التعرف المباشر على الصوت من الميكروفون، يمكنك تجربة الأوامر النموذجية الجاهزة فوراً بالأسفل!');
+                alert('ط§ظ„ظ…طھطµظپط­ ط§ظ„ط­ط§ظ„ظٹ ظ„ط§ ظٹط¯ط¹ظ… ط§ظ„طھط¹ط±ظپ ط§ظ„ظ…ط¨ط§ط´ط± ط¹ظ„ظ‰ ط§ظ„طµظˆطھ ظ…ظ† ط§ظ„ظ…ظٹظƒط±ظˆظپظˆظ†طŒ ظٹظ…ظƒظ†ظƒ طھط¬ط±ط¨ط© ط§ظ„ط£ظˆط§ظ…ط± ط§ظ„ظ†ظ…ظˆط°ط¬ظٹط© ط§ظ„ط¬ط§ظ‡ط²ط© ظپظˆط±ط§ظ‹ ط¨ط§ظ„ط£ط³ظپظ„!');
                 return;
             }
 
@@ -22097,7 +22042,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     isVoiceCopilotListening = true;
                     startVoiceWaveAnimation();
                     const status = document.getElementById('voice-copilot-status');
-                    if (status) status.textContent = '🔴 جاري الاستماع لنبرة صوتك... تحدث باللغة العربية';
+                    if (status) status.textContent = 'ًں”´ ط¬ط§ط±ظٹ ط§ظ„ط§ط³طھظ…ط§ط¹ ظ„ظ†ط¨ط±ط© طµظˆطھظƒ... طھط­ط¯ط« ط¨ط§ظ„ظ„ط؛ط© ط§ظ„ط¹ط±ط¨ظٹط©';
                 };
 
                 voiceCopilotRecognition.onresult = (event) => {
@@ -22124,7 +22069,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 voiceCopilotRecognition.start();
             } catch (e) {
-                alert('يرجى التحقق من صلاحية الميكروفون بالمتصفح أو النقر على الأوامر الجاهزة.');
+                alert('ظٹط±ط¬ظ‰ ط§ظ„طھط­ظ‚ظ‚ ظ…ظ† طµظ„ط§ط­ظٹط© ط§ظ„ظ…ظٹظƒط±ظˆظپظˆظ† ط¨ط§ظ„ظ…طھطµظپط­ ط£ظˆ ط§ظ„ظ†ظ‚ط± ط¹ظ„ظ‰ ط§ظ„ط£ظˆط§ظ…ط± ط§ظ„ط¬ط§ظ‡ط²ط©.');
             }
         }
 
@@ -22135,19 +22080,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             const st = document.getElementById('voice-copilot-status');
 
             if (scenarioKey === 'sales_mohammed') {
-                const phrase = 'أريد فاتورة مبيعات إلى العميل محمد حسن، 5 طن سكر ماستر، سعر الطن 650 دولار، نقداً من مخزن الخرطوم';
+                const phrase = 'ط£ط±ظٹط¯ ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ ط¥ظ„ظ‰ ط§ظ„ط¹ظ…ظٹظ„ ظ…ط­ظ…ط¯ ط­ط³ظ†طŒ 5 ط·ظ† ط³ظƒط± ظ…ط§ط³طھط±طŒ ط³ط¹ط± ط§ظ„ط·ظ† 650 ط¯ظˆظ„ط§ط±طŒ ظ†ظ‚ط¯ط§ظ‹ ظ…ظ† ظ…ط®ط²ظ† ط§ظ„ط®ط±ط·ظˆظ…';
                 if (tr) tr.textContent = phrase;
-                if (st) st.textContent = '🟢 تم التقاط وتحليل أمر الفاتورة بالذكاء الاصطناعي:';
+                if (st) st.textContent = 'ًںں¢ طھظ… ط§ظ„طھظ‚ط§ط· ظˆطھط­ظ„ظٹظ„ ط£ظ…ط± ط§ظ„ظپط§طھظˆط±ط© ط¨ط§ظ„ط°ظƒط§ط، ط§ظ„ط§طµط·ظ†ط§ط¹ظٹ:';
                 setTimeout(() => { stopVoiceWaveAnimation(); parseVoiceAccountingIntent(phrase); }, 400);
             } else if (scenarioKey === 'disbursement_hams') {
-                const phrase = 'أريد أن أصرف إلى همس مبلغ 70 ألف جنيه، رقم العملية 678 بتاريخ اليوم من الخزينة الرئيسية';
+                const phrase = 'ط£ط±ظٹط¯ ط£ظ† ط£طµط±ظپ ط¥ظ„ظ‰ ظ‡ظ…ط³ ظ…ط¨ظ„ط؛ 70 ط£ظ„ظپ ط¬ظ†ظٹظ‡طŒ ط±ظ‚ظ… ط§ظ„ط¹ظ…ظ„ظٹط© 678 ط¨طھط§ط±ظٹط® ط§ظ„ظٹظˆظ… ظ…ظ† ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط©';
                 if (tr) tr.textContent = phrase;
-                if (st) st.textContent = '🟢 تم التقاط وتحليل سند الصرف بالذكاء الاصطناعي:';
+                if (st) st.textContent = 'ًںں¢ طھظ… ط§ظ„طھظ‚ط§ط· ظˆطھط­ظ„ظٹظ„ ط³ظ†ط¯ ط§ظ„طµط±ظپ ط¨ط§ظ„ط°ظƒط§ط، ط§ظ„ط§طµط·ظ†ط§ط¹ظٹ:';
                 setTimeout(() => { stopVoiceWaveAnimation(); parseVoiceAccountingIntent(phrase); }, 400);
             } else if (scenarioKey === 'statement_nile') {
-                const phrase = 'أعطني كشف حساب شركة النيل للاستيراد وموقف ديونها';
+                const phrase = 'ط£ط¹ط·ظ†ظٹ ظƒط´ظپ ط­ط³ط§ط¨ ط´ط±ظƒط© ط§ظ„ظ†ظٹظ„ ظ„ظ„ط§ط³طھظٹط±ط§ط¯ ظˆظ…ظˆظ‚ظپ ط¯ظٹظˆظ†ظ‡ط§';
                 if (tr) tr.textContent = phrase;
-                if (st) st.textContent = '🟢 تم استخراج طلب كشف الحساب بالذكاء الاصطناعي:';
+                if (st) st.textContent = 'ًںں¢ طھظ… ط§ط³طھط®ط±ط§ط¬ ط·ظ„ط¨ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط¨ط§ظ„ط°ظƒط§ط، ط§ظ„ط§طµط·ظ†ط§ط¹ظٹ:';
                 setTimeout(() => { stopVoiceWaveAnimation(); parseVoiceAccountingIntent(phrase); }, 400);
             }
         }
@@ -22156,35 +22101,35 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             const lower = text.toLowerCase();
             let parsed = { type: 'unknown' };
 
-            if (lower.includes('مبيعات') || lower.includes('فاتورة') || lower.includes('محمد حسن') || lower.includes('طن')) {
+            if (lower.includes('ظ…ط¨ظٹط¹ط§طھ') || lower.includes('ظپط§طھظˆط±ط©') || lower.includes('ظ…ط­ظ…ط¯ ط­ط³ظ†') || lower.includes('ط·ظ†')) {
                 parsed = {
                     type: 'sales',
-                    title: 'فاتورة مبيعات - العميل محمد حسن',
-                    partner: 'محمد حسن',
-                    item: 'سكر ماستر (5 طن)',
-                    unitPrice: '$650 / طن (30 ريال للوحدة)',
+                    title: 'ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ - ط§ظ„ط¹ظ…ظٹظ„ ظ…ط­ظ…ط¯ ط­ط³ظ†',
+                    partner: 'ظ…ط­ظ…ط¯ ط­ط³ظ†',
+                    item: 'ط³ظƒط± ظ…ط§ط³طھط± (5 ط·ظ†)',
+                    unitPrice: '$650 / ط·ظ† (30 ط±ظٹط§ظ„ ظ„ظ„ظˆط­ط¯ط©)',
                     total: '$3,250 (9.1M SDG)',
-                    warehouse: 'مستودع الخرطوم الرئيسي',
+                    warehouse: 'ظ…ط³طھظˆط¯ط¹ ط§ظ„ط®ط±ط·ظˆظ… ط§ظ„ط±ط¦ظٹط³ظٹ',
                     ref: '#1049'
                 };
-            } else if (lower.includes('صرف') || lower.includes('أصرف') || lower.includes('همس') || lower.includes('678') || lower.includes('جنيه')) {
+            } else if (lower.includes('طµط±ظپ') || lower.includes('ط£طµط±ظپ') || lower.includes('ظ‡ظ…ط³') || lower.includes('678') || lower.includes('ط¬ظ†ظٹظ‡')) {
                 parsed = {
                     type: 'payment',
-                    title: 'سند صرف نقدية مستعجل (#678)',
-                    partner: 'همس للخدمات والترحيل',
-                    amount: '70,000 ج.س ($250)',
+                    title: 'ط³ظ†ط¯ طµط±ظپ ظ†ظ‚ط¯ظٹط© ظ…ط³طھط¹ط¬ظ„ (#678)',
+                    partner: 'ظ‡ظ…ط³ ظ„ظ„ط®ط¯ظ…ط§طھ ظˆط§ظ„طھط±ط­ظٹظ„',
+                    amount: '70,000 ط¬.ط³ ($250)',
                     total: '70,000 SDG',
-                    account: 'الخزينة الرئيسية للإدارة',
-                    notes: 'تفريغ ونقل شحنة استثنائية من المحطة',
+                    account: 'ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط© ظ„ظ„ط¥ط¯ط§ط±ط©',
+                    notes: 'طھظپط±ظٹط؛ ظˆظ†ظ‚ظ„ ط´ط­ظ†ط© ط§ط³طھط«ظ†ط§ط¦ظٹط© ظ…ظ† ط§ظ„ظ…ط­ط·ط©',
                     ref: '#678'
                 };
             } else {
                 parsed = {
                     type: 'statement',
-                    title: 'كشف حساب - شركة النيل للاستيراد',
-                    partner: 'شركة النيل للاستيراد',
-                    total: '$12,400 مدين (متأخر 35 يوماً)',
-                    ref: 'كشف الأستاذ'
+                    title: 'ظƒط´ظپ ط­ط³ط§ط¨ - ط´ط±ظƒط© ط§ظ„ظ†ظٹظ„ ظ„ظ„ط§ط³طھظٹط±ط§ط¯',
+                    partner: 'ط´ط±ظƒط© ط§ظ„ظ†ظٹظ„ ظ„ظ„ط§ط³طھظٹط±ط§ط¯',
+                    total: '$12,400 ظ…ط¯ظٹظ† (ظ…طھط£ط®ط± 35 ظٹظˆظ…ط§ظ‹)',
+                    ref: 'ظƒط´ظپ ط§ظ„ط£ط³طھط§ط°'
                 };
             }
 
@@ -22193,9 +22138,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             if ('speechSynthesis' in window) {
                 let msg = '';
-                if (parsed.type === 'sales') msg = 'تم تجهيز فاتورة مبيعات للعميل محمد حسن بإجمالي ثلاثة آلاف ومائتين وخمسين دولاراً، هل تعتمد الترحيل؟';
-                else if (parsed.type === 'payment') msg = 'تم تجهيز سند صرف للطرف همس بمبلغ سبعين ألف جنيه برقم عملية 678، هل تعتمد الصرف؟';
-                else msg = 'تم استخراج كشف الحساب المطلوب بنجاح';
+                if (parsed.type === 'sales') msg = 'طھظ… طھط¬ظ‡ظٹط² ظپط§طھظˆط±ط© ظ…ط¨ظٹط¹ط§طھ ظ„ظ„ط¹ظ…ظٹظ„ ظ…ط­ظ…ط¯ ط­ط³ظ† ط¨ط¥ط¬ظ…ط§ظ„ظٹ ط«ظ„ط§ط«ط© ط¢ظ„ط§ظپ ظˆظ…ط§ط¦طھظٹظ† ظˆط®ظ…ط³ظٹظ† ط¯ظˆظ„ط§ط±ط§ظ‹طŒ ظ‡ظ„ طھط¹طھظ…ط¯ ط§ظ„طھط±ط­ظٹظ„طں';
+                else if (parsed.type === 'payment') msg = 'طھظ… طھط¬ظ‡ظٹط² ط³ظ†ط¯ طµط±ظپ ظ„ظ„ط·ط±ظپ ظ‡ظ…ط³ ط¨ظ…ط¨ظ„ط؛ ط³ط¨ط¹ظٹظ† ط£ظ„ظپ ط¬ظ†ظٹظ‡ ط¨ط±ظ‚ظ… ط¹ظ…ظ„ظٹط© 678طŒ ظ‡ظ„ طھط¹طھظ…ط¯ ط§ظ„طµط±ظپطں';
+                else msg = 'طھظ… ط§ط³طھط®ط±ط§ط¬ ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…ط·ظ„ظˆط¨ ط¨ظ†ط¬ط§ط­';
                 const utt = new SpeechSynthesisUtterance(msg);
                 utt.lang = 'ar-SA';
                 window.speechSynthesis.speak(utt);
@@ -22214,22 +22159,22 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             if (d.type === 'sales') {
                 body.innerHTML = `
-                    <div><b>العميل:</b> ${d.partner}</div>
-                    <div><b>الأصناف والكمية:</b> ${d.item}</div>
-                    <div><b>السعر الفردي:</b> ${d.unitPrice}</div>
-                    <div><b>المستودع والدفع:</b> ${d.warehouse} • نقداً</div>
+                    <div><b>ط§ظ„ط¹ظ…ظٹظ„:</b> ${d.partner}</div>
+                    <div><b>ط§ظ„ط£طµظ†ط§ظپ ظˆط§ظ„ظƒظ…ظٹط©:</b> ${d.item}</div>
+                    <div><b>ط§ظ„ط³ط¹ط± ط§ظ„ظپط±ط¯ظٹ:</b> ${d.unitPrice}</div>
+                    <div><b>ط§ظ„ظ…ط³طھظˆط¯ط¹ ظˆط§ظ„ط¯ظپط¹:</b> ${d.warehouse} â€¢ ظ†ظ‚ط¯ط§ظ‹</div>
                 `;
             } else if (d.type === 'payment') {
                 body.innerHTML = `
-                    <div><b>الطرف المستفيد:</b> ${d.partner}</div>
-                    <div><b>المبلغ:</b> ${d.amount}</div>
-                    <div><b>الحساب المصروف منه:</b> ${d.account}</div>
-                    <div><b>رقم القيد والبيان:</b> ${d.ref} • ${d.notes}</div>
+                    <div><b>ط§ظ„ط·ط±ظپ ط§ظ„ظ…ط³طھظپظٹط¯:</b> ${d.partner}</div>
+                    <div><b>ط§ظ„ظ…ط¨ظ„ط؛:</b> ${d.amount}</div>
+                    <div><b>ط§ظ„ط­ط³ط§ط¨ ط§ظ„ظ…طµط±ظˆظپ ظ…ظ†ظ‡:</b> ${d.account}</div>
+                    <div><b>ط±ظ‚ظ… ط§ظ„ظ‚ظٹط¯ ظˆط§ظ„ط¨ظٹط§ظ†:</b> ${d.ref} â€¢ ${d.notes}</div>
                 `;
             } else {
                 body.innerHTML = `
-                    <div><b>الطرف:</b> ${d.partner}</div>
-                    <div><b>الرصيد القائم:</b> ${d.total}</div>
+                    <div><b>ط§ظ„ط·ط±ظپ:</b> ${d.partner}</div>
+                    <div><b>ط§ظ„ط±طµظٹط¯ ط§ظ„ظ‚ط§ط¦ظ…:</b> ${d.total}</div>
                 `;
             }
 
@@ -22243,9 +22188,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (!d) return;
 
             if (d.type === 'sales') {
-                alert('✅ تم بنجاح اعتماد وترحيل الفاتورة #' + d.ref + ' للعميل [' + d.partner + ']!\nتم تحديث المخزون وقيد المبيعات فوراً.');
+                alert('âœ… طھظ… ط¨ظ†ط¬ط§ط­ ط§ط¹طھظ…ط§ط¯ ظˆطھط±ط­ظٹظ„ ط§ظ„ظپط§طھظˆط±ط© #' + d.ref + ' ظ„ظ„ط¹ظ…ظٹظ„ [' + d.partner + ']!\nطھظ… طھط­ط¯ظٹط« ط§ظ„ظ…ط®ط²ظˆظ† ظˆظ‚ظٹط¯ ط§ظ„ظ…ط¨ظٹط¹ط§طھ ظپظˆط±ط§ظ‹.');
             } else if (d.type === 'payment') {
-                alert('✅ تم بنجاح صرف مبلغ [' + d.amount + '] إلى [' + d.partner + '] برقم قيد ' + d.ref + '!\nتم خصم المبلغ من الخزينة الرئيسية.');
+                alert('âœ… طھظ… ط¨ظ†ط¬ط§ط­ طµط±ظپ ظ…ط¨ظ„ط؛ [' + d.amount + '] ط¥ظ„ظ‰ [' + d.partner + '] ط¨ط±ظ‚ظ… ظ‚ظٹط¯ ' + d.ref + '!\nطھظ… ط®طµظ… ط§ظ„ظ…ط¨ظ„ط؛ ظ…ظ† ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط©.');
             } else {
                 closeBottomSheet('sheet-ai-voice-copilot');
                 switchMobileTab('ledgers');
@@ -22267,14 +22212,14 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
         function openTxAuditSettings(tx) {
             triggerHaptic('light');
-            alert('⚙️ ضبط وتدقيق المعاملة #' + (tx.voucher_no || tx.id || '---') + '\nتم فتح نافذة الربط الضريبي وسجل مراجعة القيد المزدوج.');
+            alert('âڑ™ï¸ڈ ط¶ط¨ط· ظˆطھط¯ظ‚ظٹظ‚ ط§ظ„ظ…ط¹ط§ظ…ظ„ط© #' + (tx.voucher_no || tx.id || '---') + '\nطھظ… ظپطھط­ ظ†ط§ظپط°ط© ط§ظ„ط±ط¨ط· ط§ظ„ط¶ط±ظٹط¨ظٹ ظˆط³ط¬ظ„ ظ…ط±ط§ط¬ط¹ط© ط§ظ„ظ‚ظٹط¯ ط§ظ„ظ…ط²ط¯ظˆط¬.');
         }
 
     
 
-    // ═════════════════════════════════════════════════════════════════
-    // 📊 BALANCES MODAL & OMNI SEARCH ENGINE ("الأرصدة" وكشف الحساب)
-    // ═════════════════════════════════════════════════════════════════
+    // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+    // ًں“ٹ BALANCES MODAL & OMNI SEARCH ENGINE ("ط§ظ„ط£ط±طµط¯ط©" ظˆظƒط´ظپ ط§ظ„ط­ط³ط§ط¨)
+    // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
     let currentNonZeroTab = 'all';
     let currentNonZeroSearch = '';
     let currentReportPeriodFilter = 'all';
@@ -22320,11 +22265,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         id: c.id,
                         name: c.name,
                         category: 'customer',
-                        typeLabel: 'عميل',
+                        typeLabel: 'ط¹ظ…ظٹظ„',
                         typeClass: 'badge-receivables',
                         balanceLocal: bal,
                         balanceUSD: Math.round(bal / rate),
-                        nature: 'مدين (مطلوب سداده لنا)',
+                        nature: 'ظ…ط¯ظٹظ† (ظ…ط·ظ„ظˆط¨ ط³ط¯ط§ط¯ظ‡ ظ„ظ†ط§)',
                         natureColor: '#fb7185'
                     });
                 }
@@ -22333,9 +22278,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
         // Aggregate Suppliers (Non-Zero)
         const supps = (typeof M_SUPPLIERS !== 'undefined' && M_SUPPLIERS.length > 0) ? M_SUPPLIERS : [
-            { id: 'supp_1', name: 'مطاحن الخرطوم للغلال', balance: 51240000 },
-            { id: 'supp_2', name: 'مصانع سيقا للزيوت', balance: 38780000 },
-            { id: 'supp_3', name: 'مصنع أسمنت بربر', balance: 16240000 }
+            { id: 'supp_1', name: 'ظ…ط·ط§ط­ظ† ط§ظ„ط®ط±ط·ظˆظ… ظ„ظ„ط؛ظ„ط§ظ„', balance: 51240000 },
+            { id: 'supp_2', name: 'ظ…طµط§ظ†ط¹ ط³ظٹظ‚ط§ ظ„ظ„ط²ظٹظˆطھ', balance: 38780000 },
+            { id: 'supp_3', name: 'ظ…طµظ†ط¹ ط£ط³ظ…ظ†طھ ط¨ط±ط¨ط±', balance: 16240000 }
         ];
         supps.forEach(s => {
             const bal = parseFloat(s.balance || 0);
@@ -22344,11 +22289,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     id: s.id,
                     name: s.name,
                     category: 'supplier',
-                    typeLabel: 'مورد',
+                    typeLabel: 'ظ…ظˆط±ط¯',
                     typeClass: 'badge-payable',
                     balanceLocal: bal,
                     balanceUSD: Math.round(bal / rate),
-                    nature: 'دائن (له مستحقات علينا)',
+                    nature: 'ط¯ط§ط¦ظ† (ظ„ظ‡ ظ…ط³طھط­ظ‚ط§طھ ط¹ظ„ظٹظ†ط§)',
                     natureColor: '#38bdf8'
                 });
             }
@@ -22356,9 +22301,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
         // Aggregate Cash & Banks (Non-Zero)
         const vaults = (typeof M_VAULTS !== 'undefined' && M_VAULTS.length > 0) ? M_VAULTS : [
-            { id: 'v_1', name: 'الخزينة الرئيسية (الإدارة)', balance: 25060000, type: 'خزينة' },
-            { id: 'v_2', name: 'بنك الخرطوم (الحساب الجاري)', balance: 79520000, type: 'بنك' },
-            { id: 'v_3', name: 'بنك فيصل الإسلامي', balance: 60200000, type: 'بنك' }
+            { id: 'v_1', name: 'ط§ظ„ط®ط²ظٹظ†ط© ط§ظ„ط±ط¦ظٹط³ظٹط© (ط§ظ„ط¥ط¯ط§ط±ط©)', balance: 25060000, type: 'ط®ط²ظٹظ†ط©' },
+            { id: 'v_2', name: 'ط¨ظ†ظƒ ط§ظ„ط®ط±ط·ظˆظ… (ط§ظ„ط­ط³ط§ط¨ ط§ظ„ط¬ط§ط±ظٹ)', balance: 79520000, type: 'ط¨ظ†ظƒ' },
+            { id: 'v_3', name: 'ط¨ظ†ظƒ ظپظٹطµظ„ ط§ظ„ط¥ط³ظ„ط§ظ…ظٹ', balance: 60200000, type: 'ط¨ظ†ظƒ' }
         ];
         vaults.forEach(v => {
             const bal = parseFloat(v.balance || 0);
@@ -22367,11 +22312,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     id: v.id,
                     name: v.name,
                     category: 'cash',
-                    typeLabel: v.type || 'نقدية',
+                    typeLabel: v.type || 'ظ†ظ‚ط¯ظٹط©',
                     typeClass: 'badge-cash',
                     balanceLocal: bal,
                     balanceUSD: Math.round(bal / rate),
-                    nature: 'رصيد نقدية متاح',
+                    nature: 'ط±طµظٹط¯ ظ†ظ‚ط¯ظٹط© ظ…طھط§ط­',
                     natureColor: '#34d399'
                 });
             }
@@ -22393,7 +22338,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         if (!container) return;
 
         if (filtered.length === 0) {
-            container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.84rem; font-weight:800;">لا توجد حسابات نشطة تطابق البحث</div>';
+            container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:0.84rem; font-weight:800;">ظ„ط§ طھظˆط¬ط¯ ط­ط³ط§ط¨ط§طھ ظ†ط´ط·ط© طھط·ط§ط¨ظ‚ ط§ظ„ط¨ط­ط«</div>';
             return;
         }
 
@@ -22413,11 +22358,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     <!-- Dual Currency Highlight (Bold SDG & Bold USD with beautiful colors) -->
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
                         <div style="background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); border-radius:10px; padding:8px; text-align:right;">
-                            <span style="font-size:0.68rem; color:#fbbf24; font-weight:800; display:block; margin-bottom:2px;">🇸🇩 العملة المحلية:</span>
+                            <span style="font-size:0.68rem; color:#fbbf24; font-weight:800; display:block; margin-bottom:2px;">ًں‡¸ًں‡© ط§ظ„ط¹ظ…ظ„ط© ط§ظ„ظ…ط­ظ„ظٹط©:</span>
                             <span style="font-size:0.95rem; font-weight:900; color:#fbbf24; font-family:'Inter', sans-serif;">${sdgFormatted}</span>
                         </div>
                         <div style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); border-radius:10px; padding:8px; text-align:right;">
-                            <span style="font-size:0.68rem; color:#34d399; font-weight:800; display:block; margin-bottom:2px;">💵 المعادل بالدولار:</span>
+                            <span style="font-size:0.68rem; color:#34d399; font-weight:800; display:block; margin-bottom:2px;">ًں’µ ط§ظ„ظ…ط¹ط§ط¯ظ„ ط¨ط§ظ„ط¯ظˆظ„ط§ط±:</span>
                             <span style="font-size:0.95rem; font-weight:900; color:#34d399; font-family:'Inter', sans-serif;">${usdFormatted}</span>
                         </div>
                     </div>
@@ -22425,7 +22370,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     <!-- Action Buttons -->
                     <div style="display:flex; gap:8px; justify-content:flex-end; border-top:1px solid rgba(255,255,255,0.05); padding-top:8px;">
                         <button type="button" onclick="viewStatementFromBalances('${acc.id}', '${acc.category}', '${acc.name}')" style="flex:1; background:linear-gradient(135deg, #06b6d4, #0891b2); color:#fff; border:none; border-radius:10px; padding:8px 12px; font-size:0.78rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;">
-                            <i class="fa-solid fa-file-invoice"></i> كشف الحساب (كل الفترة)
+                            <i class="fa-solid fa-file-invoice"></i> ظƒط´ظپ ط§ظ„ط­ط³ط§ط¨ (ظƒظ„ ط§ظ„ظپطھط±ط©)
                         </button>
                         <button type="button" onclick="shareBalanceWhatsAppDirect('${acc.name}', '${sdgFormatted}', '${usdFormatted}')" style="background:#22c55e; color:#fff; border:none; border-radius:10px; padding:8px 14px; font-size:0.78rem; font-weight:900; cursor:pointer;">
                             <i class="fa-brands fa-whatsapp"></i>
@@ -22443,7 +22388,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             if (typeof LedgerEngine !== 'undefined') {
                 LedgerEngine.setPartyType(category);
                 LedgerEngine.selectParty(accId);
-                // Guaranteed default to 'all' ("كل الفترة")
+                // Guaranteed default to 'all' ("ظƒظ„ ط§ظ„ظپطھط±ط©")
                 LedgerEngine.setDateFilter('all');
             }
         } else {
@@ -22455,7 +22400,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
     }
 
     function shareBalanceWhatsAppDirect(name, sdgFormatted, usdFormatted) {
-        const text = encodeURIComponent(`*إشعار رصيد معتمد - شركة السجانة*\nالحساب: ${name}\nالمبلغ: ${sdgFormatted} (ما يعادل ${usdFormatted})\nتاريخ الاستخراج: 2026-10-04`);
+        const text = encodeURIComponent(`*ط¥ط´ط¹ط§ط± ط±طµظٹط¯ ظ…ط¹طھظ…ط¯ - ط´ط±ظƒط© ط§ظ„ط³ط¬ط§ظ†ط©*\nط§ظ„ط­ط³ط§ط¨: ${name}\nط§ظ„ظ…ط¨ظ„ط؛: ${sdgFormatted} (ظ…ط§ ظٹط¹ط§ط¯ظ„ ${usdFormatted})\nطھط§ط±ظٹط® ط§ظ„ط§ط³طھط®ط±ط§ط¬: 2026-10-04`);
         window.open(`https://wa.me/?text=${text}`, '_blank');
     }
 
@@ -22470,18 +22415,18 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         const rate = (typeof currentUsdRate !== 'undefined' && currentUsdRate > 0) ? currentUsdRate : 2800;
         let pool = [];
         if (typeof M_CUSTOMERS !== 'undefined') {
-            M_CUSTOMERS.forEach(c => pool.push({ id: c.id, name: c.name, type: 'عميل', category: 'customer', balance: c.balance || 0 }));
+            M_CUSTOMERS.forEach(c => pool.push({ id: c.id, name: c.name, type: 'ط¹ظ…ظٹظ„', category: 'customer', balance: c.balance || 0 }));
         }
         if (typeof M_SUPPLIERS !== 'undefined') {
-            M_SUPPLIERS.forEach(s => pool.push({ id: s.id, name: s.name, type: 'مورد', category: 'supplier', balance: s.balance || 0 }));
+            M_SUPPLIERS.forEach(s => pool.push({ id: s.id, name: s.name, type: 'ظ…ظˆط±ط¯', category: 'supplier', balance: s.balance || 0 }));
         }
         if (typeof M_VAULTS !== 'undefined') {
-            M_VAULTS.forEach(v => pool.push({ id: v.id, name: v.name, type: v.type || 'خزينة', category: 'cash', balance: v.balance || 0 }));
+            M_VAULTS.forEach(v => pool.push({ id: v.id, name: v.name, type: v.type || 'ط®ط²ظٹظ†ط©', category: 'cash', balance: v.balance || 0 }));
         }
 
         const matches = pool.filter(p => p.name.toLowerCase().includes(q));
         if (matches.length === 0) {
-            drop.innerHTML = '<div style="padding:8px; text-align:center; color:var(--text-muted); font-size:0.78rem;">لا توجد نتائج مطابقة</div>';
+            drop.innerHTML = '<div style="padding:8px; text-align:center; color:var(--text-muted); font-size:0.78rem;">ظ„ط§ طھظˆط¬ط¯ ظ†طھط§ط¦ط¬ ظ…ط·ط§ط¨ظ‚ط©</div>';
         } else {
             drop.innerHTML = matches.map(m => `
                 <div onclick="selectOmniAccount('${m.id}', '${m.category}', '${m.name}')" style="padding:8px 10px; border-radius:10px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.05); font-size:0.80rem;">
@@ -22534,17 +22479,17 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         if (btn) btn.classList.add('active');
         const badge = document.getElementById('rep-stmt-period-badge');
         const names = {
-            'all': '✓ كل الفترة (افتراضي)',
-            'today': 'اليوم فقط',
-            'week': 'هذا الأسبوع',
-            'month': 'هذا الشهر',
-            'custom': 'نطاق مخصص'
+            'all': 'âœ“ ظƒظ„ ط§ظ„ظپطھط±ط© (ط§ظپطھط±ط§ط¶ظٹ)',
+            'today': 'ط§ظ„ظٹظˆظ… ظپظ‚ط·',
+            'week': 'ظ‡ط°ط§ ط§ظ„ط£ط³ط¨ظˆط¹',
+            'month': 'ظ‡ط°ط§ ط§ظ„ط´ظ‡ط±',
+            'custom': 'ظ†ط·ط§ظ‚ ظ…ط®طµطµ'
         };
         if (badge && names[periodKey]) badge.textContent = names[periodKey];
     }
-    // ═════════════════════════════════════════════════════════════════
-    // 🪞 REAL-TIME MIRROR SYNC ENGINE (MOBILE DASHBOARD)
-    // ═════════════════════════════════════════════════════════════════
+    // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+    // ًںھ‍ REAL-TIME MIRROR SYNC ENGINE (MOBILE DASHBOARD)
+    // â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
     window.initMobileMirrorSync = function() {
         function pollMirror() {
             if (!navigator.onLine) return;
@@ -22556,14 +22501,14 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             window._mirrorNextSalesNo = data.sales.nextInvoiceNo;
                             const sPill = document.getElementById('pos-inv-number-pill');
                             if (sPill && window.MobilePOS && (!window.MobilePOS.state || window.MobilePOS.state.cart.length === 0)) {
-                                sPill.innerHTML = `🟢 #${data.sales.nextInvoiceNo}`;
+                                sPill.innerHTML = `ًںں¢ #${data.sales.nextInvoiceNo}`;
                             }
                         }
                         if (data.purchase && data.purchase.nextPurchaseNo) {
                             window._mirrorNextPurchaseNo = data.purchase.nextPurchaseNo;
                             const pPill = document.getElementById('purchase-inv-number-pill');
                             if (pPill && window.PurchaseEngine && (!window.PurchaseEngine.state || window.PurchaseEngine.state.cart.length === 0)) {
-                                pPill.innerHTML = `🟠 #${data.purchase.nextPurchaseNo}`;
+                                pPill.innerHTML = `ًںں  #${data.purchase.nextPurchaseNo}`;
                             }
                         }
                     }
@@ -22580,9 +22525,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
 </script>
 
-    <!-- ═════════════════════════════════════════════════════════════════
-         BOTTOM SHEET: 📊 ميزان الأرصدة الحية (الحسابات غير الصفرية فقط)
-         ═════════════════════════════════════════════════════════════════ -->
+    <!-- â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+         BOTTOM SHEET: ًں“ٹ ظ…ظٹط²ط§ظ† ط§ظ„ط£ط±طµط¯ط© ط§ظ„ط­ظٹط© (ط§ظ„ط­ط³ط§ط¨ط§طھ ط؛ظٹط± ط§ظ„طµظپط±ظٹط© ظپظ‚ط·)
+         â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ -->
     <div class="m-sheet" id="sheet-balances-nonzero" style="z-index:9999;">
         <div class="m-sheet-scrim" onclick="closeNonZeroBalancesSheet()"></div>
         <div class="m-sheet-panel" style="max-height:85vh; border-radius:24px 24px 0 0; background:#0f172a; border-top:2px solid #10b981;">
@@ -22594,24 +22539,24 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             <i class="fa-solid fa-scale-balanced" style="font-size:1.1rem;"></i>
                         </div>
                         <div>
-                            <h3 style="margin:0; font-size:1rem; font-weight:900; color:#fff;">ميزان الأرصدة الحية (غير الصفرية)</h3>
-                            <span style="font-size:0.72rem; color:#34d399; font-weight:700;">الحسابات التي بها رصيد بالعملة المحلية وبالدولار</span>
+                            <h3 style="margin:0; font-size:1rem; font-weight:900; color:#fff;">ظ…ظٹط²ط§ظ† ط§ظ„ط£ط±طµط¯ط© ط§ظ„ط­ظٹط© (ط؛ظٹط± ط§ظ„طµظپط±ظٹط©)</h3>
+                            <span style="font-size:0.72rem; color:#34d399; font-weight:700;">ط§ظ„ط­ط³ط§ط¨ط§طھ ط§ظ„طھظٹ ط¨ظ‡ط§ ط±طµظٹط¯ ط¨ط§ظ„ط¹ظ…ظ„ط© ط§ظ„ظ…ط­ظ„ظٹط© ظˆط¨ط§ظ„ط¯ظˆظ„ط§ط±</span>
                         </div>
                     </div>
-                    <button type="button" class="m-sheet-close" onclick="closeNonZeroBalancesSheet()" style="background:rgba(255,255,255,0.08); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; cursor:pointer;">✕</button>
+                    <button type="button" class="m-sheet-close" onclick="closeNonZeroBalancesSheet()" style="background:rgba(255,255,255,0.08); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; cursor:pointer;">âœ•</button>
                 </div>
 
                 <!-- Instant Search input in Sheet -->
                 <div style="margin-top:10px;">
-                    <input type="text" id="sheet-bal-search-input" class="m-input" placeholder="بحث سريع في الحسابات والأرصدة..." style="height:38px; font-size:0.82rem; border-radius:10px;" oninput="filterNonZeroBalances(currentNonZeroTab, this.value)">
+                    <input type="text" id="sheet-bal-search-input" class="m-input" placeholder="ط¨ط­ط« ط³ط±ظٹط¹ ظپظٹ ط§ظ„ط­ط³ط§ط¨ط§طھ ظˆط§ظ„ط£ط±طµط¯ط©..." style="height:38px; font-size:0.82rem; border-radius:10px;" oninput="filterNonZeroBalances(currentNonZeroTab, this.value)">
                 </div>
 
                 <!-- Category Tabs -->
                 <div style="display:flex; gap:6px; overflow-x:auto; margin-top:8px;" class="no-scrollbar">
-                    <button type="button" class="btn-ai-chip active" id="bal-tab-all" onclick="filterNonZeroBalances('all')" style="font-size:0.75rem; padding:4px 10px;">الكل</button>
-                    <button type="button" class="btn-ai-chip" id="bal-tab-cust" onclick="filterNonZeroBalances('customer')" style="font-size:0.75rem; padding:4px 10px;">عملاء (مدين)</button>
-                    <button type="button" class="btn-ai-chip" id="bal-tab-supp" onclick="filterNonZeroBalances('supplier')" style="font-size:0.75rem; padding:4px 10px;">موردين (دائن)</button>
-                    <button type="button" class="btn-ai-chip" id="bal-tab-cash" onclick="filterNonZeroBalances('cash')" style="font-size:0.75rem; padding:4px 10px;">خزن وبنوك</button>
+                    <button type="button" class="btn-ai-chip active" id="bal-tab-all" onclick="filterNonZeroBalances('all')" style="font-size:0.75rem; padding:4px 10px;">ط§ظ„ظƒظ„</button>
+                    <button type="button" class="btn-ai-chip" id="bal-tab-cust" onclick="filterNonZeroBalances('customer')" style="font-size:0.75rem; padding:4px 10px;">ط¹ظ…ظ„ط§ط، (ظ…ط¯ظٹظ†)</button>
+                    <button type="button" class="btn-ai-chip" id="bal-tab-supp" onclick="filterNonZeroBalances('supplier')" style="font-size:0.75rem; padding:4px 10px;">ظ…ظˆط±ط¯ظٹظ† (ط¯ط§ط¦ظ†)</button>
+                    <button type="button" class="btn-ai-chip" id="bal-tab-cash" onclick="filterNonZeroBalances('cash')" style="font-size:0.75rem; padding:4px 10px;">ط®ط²ظ† ظˆط¨ظ†ظˆظƒ</button>
                 </div>
             </div>
 
@@ -22625,3 +22570,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
 </body>
 </html>
+
+
+
+
+
+

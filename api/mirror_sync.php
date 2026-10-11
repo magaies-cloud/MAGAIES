@@ -235,6 +235,14 @@ try {
             $delSeq = getDeliverySequence($pdo, $tenantId);
             $recSeq = getReceiptSequence($pdo, $tenantId);
 
+            $rawItems = $pdo->query("SELECT data FROM items WHERE (is_deleted = 0 OR is_deleted IS NULL) LIMIT 100")->fetchAll(PDO::FETCH_COLUMN);
+            $rawCusts = $pdo->query("SELECT data FROM customers WHERE (is_deleted = 0 OR is_deleted IS NULL) LIMIT 100")->fetchAll(PDO::FETCH_COLUMN);
+            $rawWhs = $pdo->query("SELECT data FROM warehouses WHERE (is_deleted = 0 OR is_deleted IS NULL) LIMIT 50")->fetchAll(PDO::FETCH_COLUMN);
+
+            $dbItems = array_values(array_filter(array_map('json_decode', $rawItems)));
+            $dbCusts = array_values(array_filter(array_map('json_decode', $rawCusts)));
+            $dbWhs = array_values(array_filter(array_map('json_decode', $rawWhs)));
+
             echo json_encode([
                 'success' => true,
                 'tenant_id' => $tenantId,
@@ -243,7 +251,10 @@ try {
                 'sales' => $salesSeq,
                 'purchase' => $purSeq,
                 'delivery' => $delSeq,
-                'receipt' => $recSeq
+                'receipt' => $recSeq,
+                'items' => $dbItems,
+                'customers' => $dbCusts,
+                'warehouses' => $dbWhs
             ], JSON_UNESCAPED_UNICODE);
             break;
 
