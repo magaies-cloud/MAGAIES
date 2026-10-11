@@ -61,7 +61,6 @@ $authUser = requireMobileAuth($pdo, false);
 // ═════════════════════════════════════════════════════════════════════
 $isDedicatedSales = (isset($_GET['open']) && in_array(strtolower($_GET['open']), ['sale', 'sales', 'pos'])) || 
                     (isset($_GET['sheet']) && in_array(strtolower($_GET['sheet']), ['sale', 'sales'])) ||
-                    (isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1') ||
                     (isset($_GET['view']) && in_array(strtolower($_GET['view']), ['sale', 'sales', 'pos'])) ||
                     (strpos($_SERVER['REQUEST_URI'] ?? '', 'mobile-sales.php') !== false);
 

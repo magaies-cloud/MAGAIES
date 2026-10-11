@@ -100,40 +100,6 @@ if (!function_exists('mg_is_loopback_request')) {
             }
         }
 
-        // 4. بيئة التطوير المحلية (Localhost Loopback) - اعتماد المستخدم الإداري المباشر تلقائياً
-        if (mg_is_loopback_request()) {
-            try {
-                $stmt = $pdo->prepare("SELECT * FROM users WHERE username IN ('c', 'C', 'admin') AND (status = 'active' OR status IS NULL) ORDER BY id ASC LIMIT 1");
-                $stmt->execute();
-                $cUser = $stmt->fetch(PDO::FETCH_ASSOC);
-                if ($cUser && !empty($cUser['tenant_id'])) {
-                    if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
-                        @session_start();
-                    }
-                    if (isset($_SESSION)) {
-                        $_SESSION['user'] = [
-                            'id' => (int)$cUser['id'],
-                            'tenant_id' => (int)$cUser['tenant_id'],
-                            'username' => (string)$cUser['username'],
-                            'role' => (string)($cUser['role'] ?? 'admin'),
-                        ];
-                    }
-                    if (!headers_sent()) {
-                        @setcookie('session_active', 'true', time() + 86400 * 30, '/');
-                        @setcookie('saas_token', $cUser['token'] ?? 'magaiees_sovereign_token_c', time() + 86400 * 30, '/');
-                        @setcookie('currentTenantId', (string)$cUser['tenant_id'], time() + 86400 * 30, '/');
-                    }
-                    return [
-                        'id'        => (int)$cUser['id'],
-                        'tenant_id' => (int)$cUser['tenant_id'],
-                        'username'  => (string)$cUser['username'],
-                        'role'      => (string)($cUser['role'] ?? 'admin'),
-                        'source'    => 'loopback-auto',
-                    ];
-                }
-            } catch (Exception $e) {}
-        }
-
         return null;
     }
 

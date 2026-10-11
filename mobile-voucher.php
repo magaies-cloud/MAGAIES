@@ -1536,6 +1536,10 @@ $currenciesData = [
       
       <!-- اليمين: مايك الذكاء الصوتي الشامل + عنوان الشاشة (حركة مالية) + منطقة عناية متصل -->
       <div class="flex items-center gap-2">
+        <!-- زر الرجوع الفوري للشاشة الرئيسية -->
+        <a href="mobile-dashboard.php" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-cyan-400 border border-slate-800 flex items-center justify-center shrink-0 shadow transition cursor-pointer" title="الرجوع للشاشة الرئيسية">
+          <i class="fa-solid fa-arrow-right text-sm"></i>
+        </a>
         <!-- زر المايك الصوتي الذكي الشامل للشاشة بأكملها (في مكان زر الخروج قبل حركة مالية) -->
         <button type="button" onclick="toggleMasterVoiceInput()" id="masterMicBtn" class="w-8 h-8 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 active:scale-95 text-white flex items-center justify-center shrink-0 border border-cyan-300 shadow-[0_0_16px_rgba(6,182,212,0.6)] transition cursor-pointer relative group" title="المايك الصوتي الذكي الشامل: اضغط وتحدث لتعبئة كامل السند تلقائياً">
           <i class="fa-solid fa-microphone text-sm text-yellow-300" id="masterMicIcon"></i>
@@ -2083,8 +2087,8 @@ $currenciesData = [
 
         <!-- 6. زر إنهاء: إغلاق والرجوع للقائمة الرئيسية -->
         <button type="button" onclick="handleExit()" class="action-btn-kinetic h-11 flex-1 min-w-0 px-0.5 rounded-xl bg-slate-900 border border-red-500/50 text-red-300 font-black text-[10px] sm:text-[11px] flex flex-col items-center justify-center gap-0.5 shadow-md active:scale-95 transition" title="إنهاء والرجوع للقائمة الرئيسية">
-          <i class="fa-solid fa-power-off text-red-400 text-xs"></i>
-          <span class="truncate w-full text-center">إنهاء</span>
+          <i class="fa-solid fa-arrow-right text-cyan-400 text-xs"></i>
+          <span class="truncate w-full text-center">رجوع</span>
         </button>
 
         <!-- 7. زر حفظ (في الآخر!): الزر الأساسي الأبرز والأكبر بإماضة ضوئية حركية متوهجة -->
@@ -8935,12 +8939,7 @@ $currenciesData = [
     }
 
     function handleExit() {
-      if (confirm('هل تريد الخروج من شاشة الحركة المالية والرجوع للشاشة الرئيسية؟')) {
-        showToastNotification('🚪 جاري الخروج والرجوع للشاشة الرئيسية...');
-        setTimeout(() => {
-          window.location.href = 'index.php';
-        }, 300);
-      }
+      window.location.href = 'mobile-dashboard.php';
     }
 
     function showToastNotification(message) {
