@@ -8,16 +8,10 @@
  * متصل مباشرة بقاعدة البيانات الحقيقية (MariaDB) ويدعم 4 سمات فائقة التباين
  */
 
-// Strict Anti-Caching Headers for Instant Fresh Delivery
-if (!headers_sent()) {
-    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0');
-    header('Pragma: no-cache');
-    header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
-}
-
 // Instant zero-overhead heartbeat probe response
 if ((isset($_GET['action']) && $_GET['action'] === 'heartbeat_ping') || (isset($_POST['action']) && $_POST['action'] === 'heartbeat_ping')) {
     header('Content-Type: text/plain; charset=UTF-8');
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0');
     header('X-Magaiees-Heartbeat: 1');
     echo '1';
     exit;
@@ -56,15 +50,7 @@ if (file_exists(__DIR__ . '/mobile_auth_guard.php')) {
 $pdo = getDBConnection();
 $authUser = requireMobileAuth($pdo, false);
 
-// ═════════════════════════════════════════════════════════════════════
-// 🌟 FLAGSHIP AGREED MOBILE SUITE (mobile_erp_global_suite.html)
-// ═════════════════════════════════════════════════════════════════════
-$isDedicatedSales = (isset($_GET['open']) && in_array(strtolower($_GET['open']), ['sale', 'sales', 'pos'])) || 
-                    (isset($_GET['sheet']) && in_array(strtolower($_GET['sheet']), ['sale', 'sales'])) ||
-                    (isset($_GET['view']) && in_array(strtolower($_GET['view']), ['sale', 'sales', 'pos'])) ||
-                    (strpos($_SERVER['REQUEST_URI'] ?? '', 'mobile-sales.php') !== false);
-
-if (!$isDedicatedSales && (!isset($_GET['legacy']) || $_GET['legacy'] !== '1')) {
+if (!isset($_GET['legacy']) || $_GET['legacy'] !== '1') {
     $suiteFile = __DIR__ . '/mobile_erp_global_suite.html';
     if (!file_exists($suiteFile) && file_exists(__DIR__ . '/ELSAJANA2/magaies/mobile_erp_global_suite.html')) {
         $suiteFile = __DIR__ . '/ELSAJANA2/magaies/mobile_erp_global_suite.html';
@@ -619,36 +605,12 @@ try {
         exit;
     }
 
-    // 6. Real Sales Invoices & Synchronized Sequence (Laptop Parity)
-    $prefixSale = 'S' . date('ym');
-    $maxSaleSeq = 0;
-    try {
-        $stmtSale = $pdo->prepare("SELECT id, invoice_no, total_val, data, created_at FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (is_deleted = 0 OR is_deleted IS NULL) ORDER BY id ASC");
-        $stmtSale->execute([$currentTenantId]);
-        while ($r = $stmtSale->fetch()) {
-            $saleObj = json_decode($r['data'], true) ?: [];
-            $invNo = (string)($r['invoice_no'] ?: ($saleObj['invoiceNo'] ?? ($saleObj['id'] ?? '')));
-            $saleObj['invoiceNo'] = $invNo;
-            $saleObj['id'] = $invNo;
-            $saleObj['total'] = (float)($r['total_val'] ?? ($saleObj['grandTotal'] ?? ($saleObj['total'] ?? 0)));
-            $preloadedData['sales'][] = $saleObj;
-
-            if (strpos($invNo, $prefixSale) === 0) {
-                $s = (int)substr($invNo, strlen($prefixSale));
-                if ($s > $maxSaleSeq) $maxSaleSeq = $s;
-            } elseif (preg_match('/^S\d{4}(\d{1,6})$/', $invNo, $m)) {
-                $s = (int)$m[1];
-                if ($s > $maxSaleSeq) $maxSaleSeq = $s;
-            } elseif (is_numeric($invNo)) {
-                $s = (int)$invNo;
-                if ($s > $maxSaleSeq) $maxSaleSeq = $s;
-            } elseif (preg_match('/(\d+)$/', $invNo, $m)) {
-                $s = (int)$m[1];
-                if ($s > $maxSaleSeq) $maxSaleSeq = $s;
-            }
-        }
-        $preloadedData['nextSalesNo'] = $prefixSale . str_pad($maxSaleSeq + 1, 4, '0', STR_PAD_LEFT);
-    } catch(Exception $e){}
+    $stmtSale = $pdo->prepare("SELECT data FROM sales_invoices WHERE tenant_id = ? ORDER BY id DESC LIMIT 20");
+    $stmtSale->execute([$currentTenantId]);
+    while ($r = $stmtSale->fetch()) {
+        $saleObj = json_decode($r['data'], true);
+        if ($saleObj) $preloadedData['sales'][] = $saleObj;
+    }
 
     try {
         $stmtPur = $pdo->prepare("SELECT data FROM purchase_invoices WHERE tenant_id = ? ORDER BY id DESC LIMIT 20");
@@ -730,21 +692,6 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
-    <script>
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function(regs) {
-            regs.forEach(function(reg) { reg.unregister(); });
-        });
-    }
-    if (typeof caches !== 'undefined') {
-        caches.keys().then(function(names) {
-            names.forEach(function(name) { caches.delete(name); });
-        });
-    }
-    </script>
     
     <!-- PWA & Native Standalone Configuration -->
     <link rel="manifest" href="manifest.json?v=2026_m_v7">
@@ -2132,8 +2079,8 @@ try {
             border-radius: 26px 26px 0 0;
             box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85);
             z-index: 1001;
-            transform: translateY(105%);
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
+            transform: translateY(100%);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -2143,13 +2090,9 @@ try {
             box-sizing: border-box;
             padding-bottom: var(--safe-bottom);
             color: var(--text-main);
-            pointer-events: none;
-            visibility: hidden;
         }
         .mobile-bottom-sheet.active {
             transform: translateY(0);
-            pointer-events: auto;
-            visibility: visible;
         }
         .sheet-drag-handle {
             width: 44px;
@@ -4412,153 +4355,21 @@ try {
             opacity: 0.85;
         }
 
-        /* ═════════════════════════════════════════════════════════════════
-           ✨ UNIFIED HIGH-CONTRAST EDGE ILLUMINATION (نظام الإنارة في الحواف)
-           ═════════════════════════════════════════════════════════════════ */
-        .glow-border-cyan {
-            border: 1.5px solid rgba(6, 182, 212, 0.7) !important;
-            box-shadow: 0 0 14px rgba(6, 182, 212, 0.35) !important;
-            transition: all 0.25s ease-in-out !important;
-        }
-        .glow-border-cyan:hover {
-            border-color: rgba(6, 182, 212, 1) !important;
-            box-shadow: 0 0 22px rgba(6, 182, 212, 0.65), inset 0 0 6px rgba(6, 182, 212, 0.18) !important;
-        }
-        .glow-border-cyan:focus, .glow-border-cyan:focus-within, .glow-border-cyan.is-active-glow {
-            border-color: #22d3ee !important;
-            box-shadow: 0 0 30px rgba(6, 182, 212, 0.85), inset 0 0 10px rgba(6, 182, 212, 0.3) !important;
-        }
-
-        .glow-border-amber {
-            border: 1.5px solid rgba(245, 158, 11, 0.7) !important;
-            box-shadow: 0 0 14px rgba(245, 158, 11, 0.35) !important;
-            transition: all 0.25s ease-in-out !important;
-        }
-        .glow-border-amber:hover {
-            border-color: rgba(245, 158, 11, 1) !important;
-            box-shadow: 0 0 22px rgba(245, 158, 11, 0.65), inset 0 0 6px rgba(245, 158, 11, 0.18) !important;
-        }
-        .glow-border-amber:focus, .glow-border-amber:focus-within, .glow-border-amber.is-active-glow {
-            border-color: #fbbf24 !important;
-            box-shadow: 0 0 30px rgba(245, 158, 11, 0.85), inset 0 0 10px rgba(245, 158, 11, 0.3) !important;
-        }
-
-        .glow-border-emerald {
-            border: 1.5px solid rgba(16, 185, 129, 0.7) !important;
-            box-shadow: 0 0 14px rgba(16, 185, 129, 0.35) !important;
-            transition: all 0.25s ease-in-out !important;
-        }
-        .glow-border-emerald:hover {
-            border-color: rgba(16, 185, 129, 1) !important;
-            box-shadow: 0 0 22px rgba(16, 185, 129, 0.65), inset 0 0 6px rgba(16, 185, 129, 0.18) !important;
-        }
-        .glow-border-emerald:focus, .glow-border-emerald:focus-within, .glow-border-emerald.is-active-glow {
-            border-color: #34d399 !important;
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.85), inset 0 0 10px rgba(16, 185, 129, 0.3) !important;
-        }
-
-        .glow-border-sky {
-            border: 1.5px solid rgba(56, 189, 248, 0.7) !important;
-            box-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
-            transition: all 0.25s ease-in-out !important;
-        }
-        .glow-border-sky:hover {
-            border-color: rgba(56, 189, 248, 1) !important;
-            box-shadow: 0 0 22px rgba(56, 189, 248, 0.65), inset 0 0 6px rgba(56, 189, 248, 0.18) !important;
-        }
-        .glow-border-sky:focus, .glow-border-sky:focus-within, .glow-border-sky.is-active-glow {
-            border-color: #38bdf8 !important;
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.85), inset 0 0 10px rgba(56, 189, 248, 0.3) !important;
-        }
-
-        .glow-border-indigo {
-            border: 1.5px solid rgba(99, 102, 241, 0.7) !important;
-            box-shadow: 0 0 14px rgba(99, 102, 241, 0.35) !important;
-            transition: all 0.25s ease-in-out !important;
-        }
-        .glow-border-indigo:hover {
-            border-color: rgba(99, 102, 241, 1) !important;
-            box-shadow: 0 0 22px rgba(99, 102, 241, 0.65), inset 0 0 6px rgba(99, 102, 241, 0.18) !important;
-        }
-        .glow-border-indigo:focus, .glow-border-indigo:focus-within, .glow-border-indigo.is-active-glow {
-            border-color: #818cf8 !important;
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.85), inset 0 0 10px rgba(99, 102, 241, 0.3) !important;
-        }
-
-        .glow-border-rose {
-            border: 1.5px solid rgba(244, 63, 94, 0.7) !important;
-            box-shadow: 0 0 14px rgba(244, 63, 94, 0.35) !important;
-            transition: all 0.25s ease-in-out !important;
-        }
-        .glow-border-rose:hover {
-            border-color: rgba(244, 63, 94, 1) !important;
-            box-shadow: 0 0 22px rgba(244, 63, 94, 0.65), inset 0 0 6px rgba(244, 63, 94, 0.18) !important;
-        }
-        .glow-border-rose:focus, .glow-border-rose:focus-within, .glow-border-rose.is-active-glow {
-            border-color: #fb7185 !important;
-            box-shadow: 0 0 30px rgba(244, 63, 94, 0.85), inset 0 0 10px rgba(244, 63, 94, 0.3) !important;
-        }
-
-        .glow-border-purple {
-            border: 1.5px solid rgba(168, 85, 247, 0.7) !important;
-            box-shadow: 0 0 14px rgba(168, 85, 247, 0.35) !important;
-            transition: all 0.25s ease-in-out !important;
-        }
-        .glow-border-purple:hover {
-            border-color: rgba(168, 85, 247, 1) !important;
-            box-shadow: 0 0 22px rgba(168, 85, 247, 0.65), inset 0 0 6px rgba(168, 85, 247, 0.18) !important;
-        }
-        .glow-border-purple:focus, .glow-border-purple:focus-within, .glow-border-purple.is-active-glow {
-            border-color: #c084fc !important;
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.85), inset 0 0 10px rgba(168, 85, 247, 0.3) !important;
-        }
-
-        /* Laptop Parity Settlement & Payment Footer */
+        /* Pinned Settlement & Payment Footer */
         .pos-settlement-footer {
-            position: relative;
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
             background: var(--surface-card);
-            border: 1.5px solid var(--border-glass);
-            border-radius: 18px;
-            padding: 12px 14px;
-            margin-top: 14px;
-            margin-bottom: 25px;
-            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+            border-top: 1.5px solid var(--border-glass);
+            border-radius: 18px 18px 0 0;
+            padding: 10px 12px calc(12px + var(--safe-bottom)) 12px;
+            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.3);
+            margin-top: 10px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-        }
-
-        /* 📱 Floating Mobile Mini-Summary Quick Action Bar */
-        .pos-mini-float-bar {
-            position: fixed;
-            bottom: max(14px, env(safe-area-inset-bottom, 14px));
-            left: 12px;
-            right: 12px;
-            z-index: 1000;
-            background: rgba(15, 23, 42, 0.94);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1.5px solid rgba(56, 189, 248, 0.45);
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.3);
-            border-radius: 16px;
-            padding: 8px 14px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            animation: slideUpFloat 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes slideUpFloat {
-            from { transform: translateY(100px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .mini-cart-pill {
-            background: rgba(56, 189, 248, 0.2);
-            border: 1px solid rgba(56, 189, 248, 0.4);
-            color: #38bdf8;
-            font-size: 0.72rem;
-            font-weight: 800;
-            padding: 3px 8px;
-            border-radius: 8px;
+            gap: 8px;
         }
 
         /* Dynamic Grand Total 100% Surface Badge */
@@ -4597,158 +4408,6 @@ try {
             text-align: left;
             direction: ltr;
             line-height: 1.1;
-        }
-
-        /* ═══ LAPTOP-PARITY POS STYLES: GOLD SERIAL, USD DISPLAY & EXPENSES ═══ */
-        .pos-gold-serial-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.12), rgba(30, 41, 59, 0.85));
-            border: 1.5px solid rgba(212, 175, 55, 0.45);
-            border-radius: 14px;
-            padding: 6px 12px;
-            gap: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25), inset 0 1px 2px rgba(255, 255, 255, 0.1);
-        }
-        .pro-serial-btn {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            color: #f1f5f9;
-            border-radius: 9px;
-            width: 36px;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.15rem;
-            font-weight: 900;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-        }
-        .pro-serial-btn:active {
-            background: var(--primary);
-            color: #fff;
-            transform: scale(0.92);
-        }
-        .pos-gold-serial-text {
-            font-family: 'Outfit', 'Inter', monospace;
-            font-size: 1.15rem;
-            font-weight: 900;
-            color: #fbbf24;
-            letter-spacing: 1.5px;
-            text-shadow: 0 0 12px rgba(251, 191, 36, 0.45);
-        }
-        .inv-mode-badge {
-            font-size: 0.7rem;
-            font-weight: 800;
-            padding: 2px 8px;
-            border-radius: 6px;
-            white-space: nowrap;
-        }
-        .inv-mode-badge.mode-new {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.4);
-        }
-        .inv-mode-badge.mode-posted {
-            background: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
-            border: 1px solid rgba(245, 158, 11, 0.5);
-        }
-
-        .pos-core-card {
-            background: var(--surface-card);
-            border: 1.5px solid var(--border-glass);
-            border-radius: 14px;
-            padding: 10px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .pos-grand-amounts-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            flex-wrap: wrap;
-            width: 100%;
-        }
-        .pos-grand-loc {
-            font-size: clamp(1.4rem, 6vw, 2.1rem);
-            font-weight: 900;
-            color: #ffffff;
-            font-family: 'Cairo', 'Inter', sans-serif;
-            text-shadow: 0 2px 12px rgba(16, 185, 129, 0.6);
-            line-height: 1.1;
-        }
-        .pos-grand-usd {
-            font-size: 0.95rem;
-            font-weight: 900;
-            color: #38bdf8;
-            background: rgba(56, 189, 248, 0.15);
-            border: 1.5px solid rgba(56, 189, 248, 0.45);
-            padding: 4px 10px;
-            border-radius: 10px;
-            font-family: 'Inter', monospace;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25);
-        }
-
-        .extra-costs-toggle-bar {
-            display: flex;
-            gap: 6px;
-            overflow-x: auto;
-            padding: 2px 0;
-            scrollbar-width: none;
-        }
-        .extra-costs-toggle-bar::-webkit-scrollbar { display: none; }
-        .btn-cost-toggle {
-            background: var(--surface-sub);
-            border: 1px solid var(--border-glass);
-            color: var(--text-muted);
-            border-radius: 8px;
-            padding: 5px 9px;
-            font-size: 0.74rem;
-            font-weight: 800;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
-        .btn-cost-toggle.active {
-            background: rgba(56, 189, 248, 0.2);
-            border-color: #38bdf8;
-            color: #38bdf8;
-            font-weight: 900;
-            box-shadow: 0 2px 8px rgba(56, 189, 248, 0.25);
-        }
-
-        .history-invoice-card {
-            background: var(--surface-card);
-            border: 1.5px solid var(--border-glass);
-            border-radius: 14px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-        .history-invoice-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        .history-invoice-card:active {
-            transform: scale(0.98);
         }
 
         /* ═════════════════════════════════════════════════════════════════
@@ -6187,16 +5846,6 @@ try {
             margin-bottom: 12px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
         }
-        .invoice-suite-tabs.tabs-4 {
-            grid-template-columns: repeat(4, 1fr) !important;
-            gap: 4px !important;
-            padding: 4px !important;
-        }
-        .invoice-suite-tabs.tabs-4 .suite-tab-btn {
-            padding: 8px 2px !important;
-            font-size: 0.74rem !important;
-            gap: 4px !important;
-        }
         .suite-tab-btn {
             display: flex;
             align-items: center;
@@ -7523,7 +7172,7 @@ try {
                     <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'prev')" title="السند السابق (أقدم)">
                         <i class="fa-solid fa-chevron-right"></i> السابق
                     </button>
-                    <span id="tx-voucher-display" class="nav-record-badge glow-border-amber">...</span>
+                    <span id="tx-voucher-display" class="nav-record-badge">...</span>
                     <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'next')" title="السند التالي (أحدث)">
                         التالي <i class="fa-solid fa-chevron-left"></i>
                     </button>
@@ -7534,7 +7183,7 @@ try {
                     <!-- الصرف -->
                     <div style="display:inline-flex; align-items:center; gap:3px;">
                         <span style="font-size:0.74rem; font-weight:800; color:var(--text-muted);">صرف:</span>
-                        <input type="number" id="tx-exchange-rate" class="m-input glow-border-cyan" style="width:68px; height:28px; font-size:0.82rem; font-weight:900; text-align:center; padding:1px 2px; color:var(--amber); border-radius:6px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
+                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:68px; height:28px; font-size:0.82rem; font-weight:900; text-align:center; padding:1px 2px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:6px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
                     </div>
                 </div>
 
@@ -7592,7 +7241,7 @@ try {
                         <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.88rem; color:var(--emerald);">
                             المبلغ محلي (SDG)
                         </label>
-                        <input type="number" id="tx-amount-local" class="m-input huge-number glow-border-emerald" placeholder="0" step="any" required inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onLocalAmountInput(this.value)">
+                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0" step="any" required inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onLocalAmountInput(this.value)">
                     </div>
 
                     <!-- أجنبي -->
@@ -7600,7 +7249,7 @@ try {
                         <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.88rem; color:#f87171;">
                             المبلغ أجنبي ($)
                         </label>
-                        <input type="number" id="tx-amount-foreign" class="m-input huge-number glow-border-rose" placeholder="0" step="any" inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onForeignAmountInput(this.value)">
+                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0" step="any" inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onForeignAmountInput(this.value)">
                     </div>
                 </div>
 
@@ -7613,7 +7262,7 @@ try {
                 <!-- 4. Dual Account Box (من وإلى) بتصميم عالي الوضوح والتركيز -->
                 <div class="account-selector-container" style="margin-bottom:12px;">
                     <!-- 🔴 FROM (من - الدافع ومصدر الأموال) -->
-                    <div class="box-account-picker box-account-from glow-border-rose" onclick="openAccountPicker('from')">
+                    <div class="box-account-picker box-account-from" onclick="openAccountPicker('from')">
                         <div class="box-acc-left">
                             <span class="box-acc-tag" style="font-size:0.95rem; font-weight:900;">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i> من (الدافع / مصدر الأموال):
@@ -7638,7 +7287,7 @@ try {
                     </button>
 
                     <!-- 🟢 TO (إلى - المستلم ووجهة الأموال) -->
-                    <div class="box-account-picker box-account-to glow-border-emerald" onclick="openAccountPicker('to')">
+                    <div class="box-account-picker box-account-to" onclick="openAccountPicker('to')">
                         <div class="box-acc-left">
                             <span class="box-acc-tag" style="font-size:0.95rem; font-weight:900;">
                                 <i class="fa-solid fa-arrow-down-to-bracket"></i> إلى (المستلم / وجهة الأموال):
@@ -7683,13 +7332,13 @@ try {
                         <label class="m-label" style="margin-bottom:4px; font-weight:800; font-size:0.82rem; color:var(--text-muted);">
                             التاريخ:
                         </label>
-                        <input type="date" id="tx-date" class="m-input glow-border-purple" required style="height:44px; font-weight:700;">
+                        <input type="date" id="tx-date" class="m-input" required style="height:44px; font-weight:700;">
                     </div>
                     <div class="m-form-group" style="margin-bottom:0;">
                         <label class="m-label" id="tx-ref-label" style="margin-bottom:4px; font-weight:800; font-size:0.82rem; color:var(--text-muted);">
                             رقم التحويلة البنكية:
                         </label>
-                        <input type="text" id="tx-ref" class="m-input glow-border-sky" placeholder="رقم التحويلة البنكية" style="height:44px; font-family:'Inter',monospace; font-weight:800; letter-spacing:0.5px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
+                        <input type="text" id="tx-ref" class="m-input" placeholder="رقم التحويلة البنكية" style="height:44px; font-family:'Inter',monospace; font-weight:800; letter-spacing:0.5px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
                     </div>
                 </div>
                 <div id="tx-ref-validation-hint" style="font-size:0.75rem; font-weight:800; margin-top:-4px; margin-bottom:10px; display:none; padding:4px 10px; border-radius:8px;"></div>
@@ -7697,18 +7346,18 @@ try {
                 <!-- 5. Cost Center & Beneficiary -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
                     <div class="m-form-group" style="margin-bottom:0;">
-                        <select id="tx-cost-center" class="m-input glow-border-cyan" style="height:44px; font-weight:700; font-size:0.9rem;">
+                        <select id="tx-cost-center" class="m-input" style="height:44px; font-weight:700; font-size:0.9rem;">
                             <option value="">مركز الكلفة</option>
                         </select>
                     </div>
                     <div class="m-form-group" style="margin-bottom:0;">
-                        <input type="text" id="tx-beneficiary" class="m-input glow-border-indigo" placeholder="اسم المستفيد" style="height:44px;">
+                        <input type="text" id="tx-beneficiary" class="m-input" placeholder="اسم المستفيد" style="height:44px;">
                     </div>
                 </div>
 
                 <!-- 6. Statement / Notes -->
                 <div class="m-form-group" style="margin-bottom:14px;">
-                    <input type="text" id="tx-notes" class="m-input glow-border-purple" placeholder="البيان / ملاحظات السند" style="height:44px;">
+                    <input type="text" id="tx-notes" class="m-input" placeholder="البيان / ملاحظات السند" style="height:44px;">
                 </div>
 
                 <!-- 7. Comprehensive Bottom Action Buttons Suite -->
@@ -7763,7 +7412,7 @@ try {
             <div class="picker-search-bar">
                 <div style="position:relative; margin-bottom:8px;">
                     <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:14px; top:14px; color:var(--text-muted); font-size:0.95rem;"></i>
-                    <input type="text" id="picker-search-input" class="m-input glow-border-sky" style="padding-right:40px;" placeholder="ابحث بالاسم، الهاتف، أو نوع الحساب..." oninput="filterAccountsList()" autocomplete="off">
+                    <input type="text" id="picker-search-input" class="m-input" style="padding-right:40px;" placeholder="ابحث بالاسم، الهاتف، أو نوع الحساب..." oninput="filterAccountsList()" autocomplete="off">
                 </div>
                 <div class="picker-category-pills">
                     <button type="button" class="cat-pill active" onclick="setPickerCategory('all', this)">الكل</button>
@@ -7910,128 +7559,74 @@ try {
     </div>
 
     <!-- SHEET 3: 🧾 الموديول الأول: شاشة الفوترة السريعة والمبيعات الفورية (Mobile POS Invoicing) -->
-    <div class="mobile-sheet-overlay <?= (!empty($isDedicatedSales) ? 'active' : '') ?>" id="overlay-sheet-sale" onclick="closeBottomSheet('sheet-sale')"></div>
-    <div class="mobile-bottom-sheet <?= (!empty($isDedicatedSales) ? 'active' : '') ?>" id="sheet-sale" style="max-height: 98vh; <?= (!empty($isDedicatedSales) ? 'transform: translateY(0);' : '') ?>">
+    <div class="mobile-sheet-overlay" id="overlay-sheet-sale" onclick="closeBottomSheet('sheet-sale')"></div>
+    <div class="mobile-bottom-sheet" id="sheet-sale" style="max-height: 94vh;">
         <div class="sheet-drag-handle"></div>
-        <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass); display:flex; align-items:center; justify-content:space-between; gap:6px;">
-            <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
-                <a href="mobile-dashboard.php" style="text-decoration:none; display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid var(--border-glass); color:#38bdf8; font-size:0.95rem; font-weight:bold; flex-shrink:0;" title="العودة لشاشات المنظومة">
-                    <i class="fa-solid fa-arrow-right"></i>
-                </a>
-                <span class="sheet-title" style="color:var(--primary); font-weight:900; font-size:0.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-                    <i class="fa-solid fa-cash-register"></i> المبيعات والفوترة
+        <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass);">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span class="sheet-title" style="color:var(--primary); font-weight:900;">
+                    <i class="fa-solid fa-cash-register"></i> منظومة المبيعات والفوترة الشاملة
                 </span>
-                <span id="pos-inv-number-pill" style="font-family:'Outfit','Inter',monospace; font-size:0.75rem; background:rgba(56,189,248,0.15); border:1.5px solid rgba(56,189,248,0.4); color:var(--primary); padding:2px 8px; border-radius:8px; font-weight:800; white-space:nowrap; box-shadow:0 0 10px rgba(56,189,248,0.25);">
-                    <?= htmlspecialchars(ltrim($preloadedData['nextSalesNo'] ?? 'S26100127', '#')) ?>
+                <span id="pos-inv-number-pill" style="font-family:'Inter',monospace; font-size:0.75rem; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); color:var(--primary); padding:2px 6px; border-radius:6px; font-weight:800;">
+                    #INV-8419
                 </span>
             </div>
-            <a href="mobile-dashboard.php" class="btn-sheet-close" style="text-decoration:none; display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.06); color:var(--text-muted); font-size:0.95rem;" title="إغلاق">✕</a>
+            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-sale')">✕</button>
         </div>
 
-        <div class="sheet-body" style="padding-top:10px; padding-bottom:70px;">
-            <!-- Segmented Hub Navigation: [الفاتورة | السجل | التقسيم | التسليم] -->
-            <div class="invoice-suite-tabs tabs-4">
+        <div class="sheet-body" style="padding-top:10px; padding-bottom:85px;">
+            <!-- Segmented Hub Navigation: [فاتورة مبيعات | تقسيم المبيعات | استلام المبيعات] -->
+            <div class="invoice-suite-tabs">
                 <button type="button" class="suite-tab-btn active" id="tab-sales-invoice" onclick="switchSalesSuiteTab('invoice')">
-                    <i class="fa-solid fa-cart-shopping text-sky-400"></i> الفاتورة
-                </button>
-                <button type="button" class="suite-tab-btn" id="tab-sales-history" onclick="switchSalesSuiteTab('history')">
-                    <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> السجل
+                    <i class="fa-solid fa-cart-shopping"></i> فاتورة مبيعات
                 </button>
                 <button type="button" class="suite-tab-btn" id="tab-sales-split" onclick="switchSalesSuiteTab('split')">
-                    <i class="fa-solid fa-scissors text-pink-400"></i> التقسيم
+                    <i class="fa-solid fa-scissors"></i> تقسيم المبيعات
                 </button>
                 <button type="button" class="suite-tab-btn" id="tab-sales-delivery" onclick="switchSalesSuiteTab('delivery')">
-                    <i class="fa-solid fa-truck-ramp-box text-emerald-400"></i> التسليم
+                    <i class="fa-solid fa-truck-ramp-box"></i> استلام المبيعات
                 </button>
             </div>
 
             <!-- ═════════════════════════════════════════════════════════════
-                 PANE 1: 🛒 فاتورة المبيعات المباشرة (Direct Sales Invoice) - مطابقة اللابتوب
+                 PANE 1: 🛒 فاتورة المبيعات المباشرة (Direct Sales Invoice)
                  ═════════════════════════════════════════════════════════════ -->
             <div class="suite-pane active" id="pane-sales-invoice">
                 <div class="pos-container">
-
-                    <!-- Saved Invoice Edit Advisory Banner (Laptop Parity) -->
-                    <div id="pos-saved-invoice-banner" style="display:none; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(180, 83, 9, 0.25)); border: 1.5px solid #f59e0b; border-radius: 12px; padding: 10px 14px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);">
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                            <div style="display: flex; align-items: center; gap: 8px;">
-                                <span style="font-size: 1.2rem;">⚠️</span>
-                                <div>
-                                    <div style="color: #fbbf24; font-size: 0.82rem; font-weight: 900;">
-                                        تعديل فاتورة محفوظة ومعتمدة (<span id="pos-edit-inv-no-badge" style="color:#ffffff; font-family:'Outfit',sans-serif; text-decoration: underline;">-</span>)
-                                    </div>
-                                    <div style="color: #fde68a; font-size: 0.72rem; font-weight: 600;">
-                                        حفظ التعديلات سيقوم بتحديث القيود وحركات المخزن تلقائياً.
-                                    </div>
-                                </div>
-                            </div>
-                            <button type="button" onclick="MobilePOS.newInvoice()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 4px 10px; border-radius: 8px; font-weight: 900; font-size: 0.74rem; cursor: pointer; white-space: nowrap;">
-                                ➕ فاتورة جديدة
-                            </button>
-                        </div>
+                    <!-- 1. Header & Party Selection -->
+                    <div class="invoice-type-toggle">
+                        <button type="button" class="inv-type-btn active" id="btn-invtype-cash" onclick="MobilePOS.setInvoiceType('cash')">
+                            <i class="fa-solid fa-money-bill-wave"></i> نقدي (Cash)
+                        </button>
+                        <button type="button" class="inv-type-btn type-credit" id="btn-invtype-credit" onclick="MobilePOS.setInvoiceType('credit')">
+                            <i class="fa-solid fa-clock-rotate-left"></i> آجل (Credit)
+                        </button>
+                        <button type="button" class="inv-type-btn type-bank" id="btn-invtype-bank" onclick="MobilePOS.setInvoiceType('bank')">
+                            <i class="fa-solid fa-building-columns"></i> بنكك (Transfer)
+                        </button>
                     </div>
 
-                    <!-- CARD 1: شريط السند والتنقل الرقمي + التاريخ + البيان (Laptop Serial & Info Box) -->
-                    <div class="pos-core-card" style="border-color: rgba(212, 175, 55, 0.35);">
-                        <div class="pos-gold-serial-box glow-border-amber">
-                            <button type="button" class="pro-serial-btn" onclick="MobilePOS.loadNextInvoice()" title="الفاتورة التالية">❮</button>
-                            <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
-                                <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 800;">رقم الفاتورة:</span>
-                                    <span id="pos-inv-number-display" class="pos-gold-serial-text" style="font-size:1.15rem; font-weight:900;">---</span>
-                                    <input type="hidden" id="pos-inv-no" value="">
-                                </div>
-                                <span id="pos-inv-mode-badge" class="inv-mode-badge mode-new">✨ فاتورة جديدة</span>
-                            </div>
-                            <button type="button" class="pro-serial-btn" onclick="MobilePOS.loadPreviousInvoice()" title="الفاتورة السابقة">❯</button>
-                        </div>
-
-                        <!-- Date & Description Grid -->
-                        <div class="entry-grid-2" style="margin-top: 4px;">
-                            <div class="entry-field">
-                                <label style="font-size:0.75rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-calendar-day text-sky-400"></i> التاريخ:</label>
-                                <input type="date" id="pos-inv-date" class="m-input glow-border-cyan" style="height:38px; text-align:center; font-weight:800; font-family:'Inter',sans-serif; font-size:0.85rem;">
-                            </div>
-                            <div class="entry-field">
-                                <label style="font-size:0.75rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-pen-to-square text-amber-400"></i> البيان / ملاحظات:</label>
-                                <input type="text" id="pos-inv-description" class="m-input glow-border-indigo" placeholder="ملاحظات الفاتورة أو مرجع..." style="height:38px; font-size:0.82rem;">
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CARD 2: Customer Picker & Financial Status Strip (مطابق للابتوب) -->
-                    <div class="pos-party-card glow-border-emerald">
+                    <!-- Customer Picker Card with Dynamic Badges -->
+                    <div class="pos-party-card">
                         <div class="party-header-row">
                             <span style="font-size:0.8rem; font-weight:800; color:var(--text-muted);">
-                                <i class="fa-solid fa-user-tag text-emerald-400"></i> العميل والحساب المالي:
+                                <i class="fa-solid fa-user-tag text-sky-400"></i> بيانات العميل المستلم:
                             </span>
-                            <div style="display:flex; align-items:center; gap:6px;">
-                                <button type="button" onclick="openBottomSheet('sheet-customers-list')" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:var(--primary); border-radius:8px; padding:3px 8px; font-size:0.72rem; font-weight:800; cursor:pointer;" title="دليل العملاء">
-                                    <i class="fa-solid fa-address-book"></i> الدليل
-                                </button>
-                                <button type="button" onclick="openBottomSheet('sheet-add-customer')" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; border-radius:8px; padding:3px 8px; font-size:0.74rem; font-weight:900; cursor:pointer;" title="إضافة عميل جديد">
-                                    ➕ عميل
-                                </button>
-                            </div>
+                            <select id="pos-customer-select" class="m-select" style="max-width:210px; height:36px; padding:4px 8px; font-size:0.82rem;" onchange="MobilePOS.onCustomerChange(this.value)">
+                                <option value="walkin">عميل نقدي عام (Walk-in)</option>
+                            </select>
                         </div>
 
-                        <select id="pos-customer-select" class="m-select glow-border-emerald" style="width:100%; height:40px; padding:4px 8px; font-size:0.85rem; font-weight:800;" onchange="MobilePOS.onCustomerChange(this.value)">
-                            <option value="walkin">عميل نقدي عام (Walk-in)</option>
-                        </select>
-
-                        <!-- Dynamic Customer Financial Strip Badges -->
+                        <!-- Dynamic Customer Badges -->
                         <div class="party-badges-row" id="pos-party-badges">
-                            <span class="party-badge badge-phone glow-border-sky" id="pos-cust-phone">
+                            <span class="party-badge badge-phone" id="pos-cust-phone">
                                 <i class="fa-solid fa-phone"></i> نقدي فوري
                             </span>
-                            <span class="party-badge badge-balance glow-border-amber" id="pos-cust-balance">
+                            <span class="party-badge badge-balance" id="pos-cust-balance">
                                 <i class="fa-solid fa-wallet"></i> الرصيد: 0 SDG
                             </span>
-                            <span class="party-badge badge-credit-limit glow-border-cyan" id="pos-cust-credit-limit">
+                            <span class="party-badge badge-credit-limit" id="pos-cust-credit-limit">
                                 <i class="fa-solid fa-shield-halved"></i> السقف: لا يوجد
-                            </span>
-                            <span class="party-badge glow-border-emerald" id="pos-cust-remaining" style="background:rgba(16,185,129,0.15); color:#34d399;">
-                                <i class="fa-solid fa-sparkles"></i> المتاح: 0
                             </span>
                         </div>
 
@@ -8047,160 +7642,99 @@ try {
                         </div>
                     </div>
 
-                    <!-- CARD 3: المخزن + مركز الكلفة + العملة وسعر صرف الدولار (Core Operational Card) -->
-                    <div class="pos-core-card">
-                        <div class="entry-grid-2">
-                            <div class="entry-field">
-                                <label style="font-size:0.75rem; font-weight:800; color:#fb923c;"><i class="fa-solid fa-warehouse"></i> 📦 المخزن المنصرف منه:</label>
-                                <select id="pos-item-warehouse" class="m-select glow-border-amber" style="height:38px; font-size:0.8rem; font-weight:800;">
-                                    <!-- Populated from DB -->
-                                </select>
-                            </div>
-                            <div class="entry-field">
-                                <label style="font-size:0.75rem; font-weight:800; color:#a3e635;"><i class="fa-solid fa-tags"></i> 🏷️ مركز التكلفة:</label>
-                                <select id="pos-item-cost-center" class="m-select glow-border-cyan" style="height:38px; font-size:0.8rem; font-weight:800;">
-                                    <option value="cc-001">الفرع الرئيسي</option>
-                                    <option value="cc-002">فرع بحري</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Currency & Dollar Exchange Rate Row -->
-                        <div class="entry-grid-2" style="align-items: flex-end; margin-top:2px;">
-                            <div class="entry-field">
-                                <label style="font-size:0.75rem; font-weight:800; color:#a78bfa;"><i class="fa-solid fa-money-bill-transfer"></i> 💱 العملة وسعر الصرف:</label>
-                                <div style="display:flex; gap:6px;">
-                                    <select id="pos-currency-select" class="m-select glow-border-amber" style="height:38px; flex:1; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.handleCurrencyChange(this.value)">
-                                        <option value="SDG">🇸🇩 جنيه (SDG)</option>
-                                        <option value="USD">🇺🇸 دولار (USD)</option>
-                                        <option value="SAR">🇸🇦 ريال (SAR)</option>
-                                        <option value="AED">🇦🇪 درهم (AED)</option>
-                                        <option value="EGP">🇪🇬 مصري (EGP)</option>
-                                    </select>
-                                    <input type="number" id="pos-exchange-rate" class="m-input glow-border-emerald" style="height:38px; width:85px; text-align:center; font-weight:900; font-family:'Inter',sans-serif; color:#10b981; background:rgba(16,185,129,0.1);" placeholder="الصرف" readonly title="سعر الصرف المعتمد من إعدادات النظام" onclick="MobilePOS.editExchangeRatePrompt()">
-                                </div>
-                            </div>
-                            <div class="entry-field">
-                                <div id="pos-usd-rate-pill" class="glow-border-sky" style="height:38px; display:flex; align-items:center; justify-content:center; background:rgba(56,189,248,0.12); border-radius:10px; font-size:0.75rem; font-weight:800; color:#38bdf8; gap:4px; cursor:pointer;" onclick="MobilePOS.editExchangeRatePrompt()" title="انقر لتعديل سعر الصرف">
-                                    <i class="fa-solid fa-dollar-sign"></i> سعر الدولار: <strong id="pos-usd-rate-val">5,999</strong> SDG
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CARD 4: طريقة الدفع والسداد المجزأ -->
-                    <div class="pos-core-card">
-                        <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-bottom:4px;">
-                            💳 طريقة السداد والدفع:
-                        </div>
-                        <div class="invoice-type-toggle">
-                            <button type="button" class="inv-type-btn active" id="btn-invtype-cash" onclick="MobilePOS.setInvoiceType('cash')">
-                                <i class="fa-solid fa-money-bill-wave"></i> نقدي
-                            </button>
-                            <button type="button" class="inv-type-btn type-credit" id="btn-invtype-credit" onclick="MobilePOS.setInvoiceType('credit')">
-                                <i class="fa-solid fa-clock-rotate-left"></i> آجل
-                            </button>
-                            <button type="button" class="inv-type-btn type-bank" id="btn-invtype-bank" onclick="MobilePOS.setInvoiceType('bank')">
-                                <i class="fa-solid fa-building-columns"></i> بنكك
-                            </button>
-                            <button type="button" class="inv-type-btn" id="btn-invtype-cheque" onclick="MobilePOS.setInvoiceType('cheque')" style="color:#c084fc;">
-                                <i class="fa-solid fa-money-check"></i> شيك
-                            </button>
-                        </div>
-
-                        <!-- Split Payment Toggle -->
-                        <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:10px; padding:6px 10px; margin-top:4px;">
-                            <label style="font-size:0.76rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px; cursor:pointer;">
-                                <input type="checkbox" id="pos-split-toggle" onchange="MobilePOS.toggleSplitPayment(this.checked)" style="width:16px; height:16px; accent-color:var(--primary);">
-                                <span>سداد مجزأ (نقدي + تحويل بنكك) 🔀</span>
-                            </label>
-                            <span id="pos-split-status-badge" style="font-size:0.72rem; font-weight:800; color:var(--text-muted);">غير مفعّل</span>
-                        </div>
-
-                        <div id="pos-split-inputs-box" class="split-payment-box" style="display:none; margin-top:4px;">
-                            <div class="split-row">
-                                <div>
-                                    <label style="font-size:0.72rem; font-weight:800; color:var(--emerald); margin-bottom:2px; display:block;">المبلغ نقداً (SDG):</label>
-                                    <input type="number" id="pos-split-cash" class="m-input glow-border-emerald" style="height:38px; font-weight:800; font-family:'Inter',sans-serif;" placeholder="0" oninput="MobilePOS.onSplitInput('cash', this.value)">
-                                </div>
-                                <div>
-                                    <label style="font-size:0.72rem; font-weight:800; color:var(--primary); margin-bottom:2px; display:block;">المبلغ بنكك (SDG):</label>
-                                    <input type="number" id="pos-split-bank" class="m-input glow-border-sky" style="height:38px; font-weight:800; font-family:'Inter',sans-serif;" placeholder="0" oninput="MobilePOS.onSplitInput('bank', this.value)">
-                                </div>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.74rem; font-weight:800; margin-top:4px;" id="pos-split-balance-row">
-                                <span style="color:var(--text-muted);">فارق المطابقة:</span>
-                                <span id="pos-split-diff-val" style="color:var(--emerald);">0 SDG (مطابق تماماً ✅)</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CARD 5: Detailed Laptop-Parity Item Entry Form (الصنف، الوحدة، الكمية، السعر، الجملة) -->
-                    <div class="invoice-item-entry-card glow-border-sky">
+                    <!-- 2. Detailed Laptop-Parity Item Entry Form (المخزن، النوع، الصنف، الوحدة، الكمية، السعر، الجملة، الضريبة، العمالة) -->
+                    <div class="invoice-item-entry-card">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <span style="font-size:0.84rem; font-weight:900; color:var(--primary);">
-                                <i class="fa-solid fa-cubes-stacked"></i> إضافة بند مبيعات
+                            <span style="font-size:0.8rem; font-weight:900; color:var(--primary);">
+                                <i class="fa-solid fa-cubes-stacked"></i> إضافة بند مبيعات مطابقة لمنظومة اللابتوب
                             </span>
-                            <button type="button" onclick="MobilePOS.triggerBarcodeScanner()" style="background:rgba(168,85,247,0.15); border:1px solid #a855f7; color:#c084fc; border-radius:8px; padding:4px 9px; font-size:0.72rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px;">
+                            <button type="button" onclick="MobilePOS.triggerBarcodeScanner()" style="background:rgba(168,85,247,0.15); border:1px solid #a855f7; color:#c084fc; border-radius:8px; padding:3px 8px; font-size:0.72rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px;">
                                 <i class="fa-solid fa-barcode"></i> مسح باركود
                             </button>
                         </div>
 
-                        <!-- Item Category & Item Selector -->
+                        <!-- Grid 1: المخزن + النوع / التصنيف -->
                         <div class="entry-grid-2">
                             <div class="entry-field">
-                                <label style="font-size:0.74rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-tags text-purple-400"></i> التصنيف:</label>
-                                <select id="pos-item-category" class="m-select glow-border-indigo" style="height:38px; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.onCategoryFilterChange(this.value)">
-                                    <option value="all">كل التصنيفات</option>
+                                <label><i class="fa-solid fa-warehouse text-sky-400"></i> المخزن المنصرف منه:</label>
+                                <select id="pos-item-warehouse" class="m-select" style="height:36px; font-size:0.78rem; font-weight:800;">
+                                    <option value="central">🏢 المستودع المركزي - السجانة</option>
+                                    <option value="kalakla">🏬 فرع الكلاكلة</option>
+                                    <option value="bahri">🏭 مستودع بحري</option>
                                 </select>
                             </div>
                             <div class="entry-field">
-                                <label style="font-size:0.74rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-scale-balanced text-emerald-400"></i> الوحدة القياسية:</label>
-                                <select id="pos-item-unit" class="m-select glow-border-cyan" style="height:38px; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.calculateItemRowTotal()">
-                                    <!-- Populated from erp_global_units_v1 -->
+                                <label><i class="fa-solid fa-tags text-purple-400"></i> النوع / التصنيف:</label>
+                                <select id="pos-item-category" class="m-select" style="height:36px; font-size:0.78rem; font-weight:800;" onchange="MobilePOS.onCategoryFilterChange(this.value)">
+                                    <option value="all">كل الأنواع والتصنيفات</option>
+                                    <option value="حديد تسليح">حديد تسليح</option>
+                                    <option value="قطاعات حديد">قطاعات حديد</option>
+                                    <option value="أسمنت">أسمنت ومواد لاصقة</option>
+                                    <option value="بويات">بويات وتشطيبات</option>
+                                    <option value="مواسير">مواسير وشبكات</option>
+                                    <option value="زنك ومعدات">زنك ومعدات تسقيف</option>
+                                    <option value="مواد بناء">مواد بناء متنوعة</option>
                                 </select>
                             </div>
                         </div>
 
-                        <!-- Item Select Dropdown -->
-                        <div class="entry-field" style="margin-top:6px;">
-                            <label style="font-size:0.74rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-box-open text-amber-400"></i> اسم الصنف:</label>
-                            <select id="pos-item-select" class="m-select glow-border-sky" style="height:40px; font-size:0.84rem; font-weight:800;" onchange="MobilePOS.onItemDropdownSelect(this)">
-                                <option value="">-- اختر الصنف --</option>
-                            </select>
-                        </div>
-
-                        <!-- Qty + Price + Subtotal (الجملة) -->
-                        <div class="entry-grid-3" style="margin-top:6px;">
-                            <div class="entry-field">
-                                <label style="font-size:0.74rem; font-weight:800; color:#34d399;">الكمية:</label>
-                                <input type="number" id="pos-item-qty" class="m-input glow-border-emerald" value="1" min="0.01" step="any" style="height:38px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+                        <!-- Grid 2: الصنف + الوحدة من الداتابيز -->
+                        <div class="entry-grid-2">
+                            <div class="entry-field" style="grid-column: span 1;">
+                                <label><i class="fa-solid fa-box-open text-amber-400"></i> الصنف:</label>
+                                <select id="pos-item-select" class="m-select" style="height:38px; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.onItemDropdownSelect(this)">
+                                    <option value="">-- اختر الصنف --</option>
+                                </select>
                             </div>
                             <div class="entry-field">
-                                <label style="font-size:0.74rem; font-weight:800; color:#38bdf8;">السعر (SDG):</label>
-                                <input type="number" id="pos-item-price" class="m-input glow-border-cyan" placeholder="0" step="any" style="height:38px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
-                            </div>
-                            <div class="entry-field">
-                                <label style="font-size:0.74rem; font-weight:800; color:var(--emerald);">الجملة:</label>
-                                <input type="text" id="pos-item-subtotal" class="m-input glow-border-emerald" readonly style="height:38px; text-align:center; font-weight:900; background:var(--surface-card); color:var(--emerald); font-family:'Inter',sans-serif;" value="0">
+                                <label><i class="fa-solid fa-scale-balanced text-emerald-400"></i> الوحدة (قاعدة البيانات):</label>
+                                <select id="pos-item-unit" class="m-select" style="height:38px; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.calculateItemRowTotal()">
+                                    <!-- Populated dynamically from erp_global_units_v1 -->
+                                </select>
                             </div>
                         </div>
 
-                        <!-- Add Item Button -->
-                        <div style="margin-top:8px;">
-                            <button type="button" class="pos-add-item-btn glow-border-sky" onclick="MobilePOS.addConfiguredItem()" style="height:42px; border-radius:12px; font-weight:900; font-size:0.9rem; background:linear-gradient(135deg, var(--primary), #0284c7); color:#fff; border:none; cursor:pointer; width:100%; box-shadow:0 0 16px rgba(56,189,248,0.4);">
-                                <i class="fa-solid fa-plus"></i> إضافة الصنف إلى الفاتورة 🛒
-                            </button>
+                        <!-- Grid 3: الكمية + السعر + الجملة -->
+                        <div class="entry-grid-3">
+                            <div class="entry-field">
+                                <label>الكمية:</label>
+                                <input type="number" id="pos-item-qty" class="m-input" value="1" min="0.01" step="any" style="height:36px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+                            </div>
+                            <div class="entry-field">
+                                <label>السعر (SDG):</label>
+                                <input type="number" id="pos-item-price" class="m-input" placeholder="0" step="any" style="height:36px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+                            </div>
+                            <div class="entry-field">
+                                <label>الجملة (المجموع):</label>
+                                <input type="text" id="pos-item-subtotal" class="m-input" readonly style="height:36px; text-align:center; font-weight:900; background:var(--surface-card); color:var(--primary); font-family:'Inter',sans-serif;" value="0">
+                            </div>
+                        </div>
+
+                        <!-- Grid 4: الضريبة + العمالة + زر الإضافة -->
+                        <div class="entry-grid-3" style="align-items:flex-end;">
+                            <div class="entry-field">
+                                <label>الضريبة (SDG):</label>
+                                <input type="number" id="pos-item-tax" class="m-input" value="0" min="0" step="any" style="height:36px; text-align:center; font-weight:800; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+                            </div>
+                            <div class="entry-field">
+                                <label>العمالة (تعتيق):</label>
+                                <input type="number" id="pos-item-labor" class="m-input" value="0" min="0" step="any" style="height:36px; text-align:center; font-weight:800; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+                            </div>
+                            <div class="entry-field">
+                                <button type="button" class="pos-add-item-btn" onclick="MobilePOS.addConfiguredItem()" style="height:36px; border-radius:10px; font-weight:900; font-size:0.84rem; background:linear-gradient(135deg, var(--primary), #0284c7); color:#fff; border:none; cursor:pointer; width:100%; box-shadow:0 2px 8px rgba(56,189,248,0.3);">
+                                    <i class="fa-solid fa-plus"></i> إضافة بند
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Fast Moving Item Chips -->
+                    <!-- 1-Tap Fast Moving Item Chips -->
                     <div class="pos-fast-chips" id="pos-quick-chips-container">
-                        <!-- Populated from M_ITEMS -->
+                        <!-- Populated dynamically with top items from M_ITEMS -->
                     </div>
 
-                    <!-- CARD 6: بنود الفاتورة المضافة (Cart Items) -->
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:2px;">
+                    <!-- 3. Line Items Container -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
                         <span style="font-size:0.82rem; font-weight:900; color:var(--text-main);">
                             <i class="fa-solid fa-list-check text-amber-400"></i> بنود الفاتورة (<span id="pos-cart-count">0</span>):
                         </span>
@@ -8210,126 +7744,93 @@ try {
                     </div>
 
                     <div id="pos-cart-items-container">
-                        <!-- Populated by JS -->
+                        <!-- Dynamically populated line items -->
                     </div>
-
-                    <!-- CARD 7: المصاريف الإضافية والخصم (Matching Laptop Extra Costs) -->
-                    <div class="pos-core-card">
-                        <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-bottom:4px;">
-                            ➕ إضافة مصاريف وخصومات (مطابقة لشاشة اللابتوب):
-                        </div>
-                        <div class="extra-costs-toggle-bar">
-                            <button type="button" class="btn-cost-toggle" id="btn-toggle-transport" onclick="MobilePOS.toggleExtraCost('transport')">🚚 ترحيل</button>
-                            <button type="button" class="btn-cost-toggle" id="btn-toggle-labor" onclick="MobilePOS.toggleExtraCost('labor')">👷‍♂️ عمالة</button>
-                            <button type="button" class="btn-cost-toggle" id="btn-toggle-additions" onclick="MobilePOS.toggleExtraCost('additions')">➕ إضافات</button>
-                            <button type="button" class="btn-cost-toggle" id="btn-toggle-tax" onclick="MobilePOS.toggleExtraCost('tax')">💰 ضريبة</button>
-                            <button type="button" class="btn-cost-toggle" id="btn-toggle-discount" onclick="MobilePOS.toggleExtraCost('discount')">➖ خصم</button>
-                        </div>
-
-                        <!-- Expandable Extra Cost Inputs Grid -->
-                        <div id="pos-extra-inputs-box" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; margin-top:6px;">
-                            <div class="entry-field" id="wrap-extra-transport" style="display:none;">
-                                <label style="font-size:0.7rem; font-weight:800; color:#f97316;">🚚 ترحيل (SDG):</label>
-                                <input type="number" id="pos-extra-transport" class="m-input glow-border-amber" placeholder="0" min="0" step="any" style="height:36px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
-                            </div>
-                            <div class="entry-field" id="wrap-extra-labor" style="display:none;">
-                                <label style="font-size:0.7rem; font-weight:800; color:#38bdf8;">👷‍♂️ عمالة (SDG):</label>
-                                <input type="number" id="pos-extra-labor" class="m-input glow-border-sky" placeholder="0" min="0" step="any" style="height:36px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
-                            </div>
-                            <div class="entry-field" id="wrap-extra-additions" style="display:none;">
-                                <label style="font-size:0.7rem; font-weight:800; color:#eab308;">➕ إضافات (SDG):</label>
-                                <input type="number" id="pos-extra-additions" class="m-input glow-border-amber" placeholder="0" min="0" step="any" style="height:36px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
-                            </div>
-                            <div class="entry-field" id="wrap-extra-tax" style="display:none;">
-                                <label style="font-size:0.7rem; font-weight:800; color:#ef4444;">💰 ضريبة (SDG):</label>
-                                <input type="number" id="pos-extra-tax" class="m-input glow-border-rose" placeholder="0" min="0" step="any" style="height:36px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
-                            </div>
-                            <div class="entry-field" id="wrap-extra-discount" style="display:none;">
-                                <label style="font-size:0.7rem; font-weight:800; color:#22c55e;">➖ خصم (SDG):</label>
-                                <input type="number" id="pos-extra-discount" class="m-input glow-border-emerald" placeholder="0" min="0" step="any" style="height:36px; text-align:center; font-weight:900; color:#ef4444;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
-                <!-- CARD 8: Settlement & Grand Totals with Live USD Conversion -->
-                <div class="pos-settlement-footer glow-border-emerald" id="pos-settlement-card">
-                    <!-- Grand Total Banner (SDG & Live USD Equivalent) -->
-                    <div class="pos-grand-total-banner glow-border-emerald">
-                        <div class="total-meta" style="flex:1;">
-                            <span class="total-title" style="color:#94a3b8; font-size:0.76rem; font-weight:800;">إجمالي الفاتورة الصافي</span>
-                            <span class="total-count-badge glow-border-sky" id="pos-banner-item-count">0 أصناف</span>
+                <!-- 4. Pinned Settlement & Payment Summary Footer -->
+                <div class="pos-settlement-footer">
+                    <!-- Grand Total Banner -->
+                    <div class="pos-grand-total-banner">
+                        <div class="total-meta">
+                            <span class="total-title">إجمالي الفاتورة الصافي</span>
+                            <span class="total-count-badge" id="pos-banner-item-count">0 أصناف</span>
                         </div>
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-                            <div class="pos-grand-loc" id="pos-banner-netdue">0 SDG</div>
-                            <div class="pos-grand-usd" id="pos-banner-usd">≈ 0.00 $ USD</div>
-                        </div>
+                        <div class="total-amount-display" id="pos-banner-netdue">0<small style="font-size:0.55em;">SDG</small></div>
                     </div>
 
-                    <!-- Summary Grid: Subtotal / Expenses / Discount / Net Due -->
+                    <!-- Subtotal / Tax / Labor / Discount / Net Due Summary Grid -->
                     <div class="settle-summary-grid" style="grid-template-columns: repeat(4, 1fr);">
-                        <div class="settle-sum-box glow-border-sky">
+                        <div class="settle-sum-box">
                             <span class="settle-sum-label">المجموع</span>
                             <span class="settle-sum-val" id="pos-subtotal-val">0</span>
                         </div>
-                        <div class="settle-sum-box glow-border-amber">
-                            <span class="settle-sum-label">المصاريف</span>
-                            <span class="settle-sum-val" id="pos-expenses-val">0</span>
+                        <div class="settle-sum-box">
+                            <span class="settle-sum-label">الضريبة</span>
+                            <span class="settle-sum-val" id="pos-tax-val">0</span>
                         </div>
-                        <div class="settle-sum-box glow-border-rose">
-                            <span class="settle-sum-label" style="color:var(--rose);">الخصم</span>
-                            <span class="settle-sum-val" id="pos-discount-val" style="color:var(--rose);">0</span>
+                        <div class="settle-sum-box">
+                            <span class="settle-sum-label">العمالة</span>
+                            <span class="settle-sum-val" id="pos-labor-val">0</span>
                         </div>
-                        <div class="settle-sum-box glow-border-emerald">
-                            <span class="settle-sum-label" style="color:var(--emerald);">الصافي</span>
+                        <div class="settle-sum-box">
+                            <span class="settle-sum-label" style="color:var(--emerald);">الصافي المستحق</span>
                             <span class="settle-sum-val net-due" id="pos-netdue-val">0 SDG</span>
                         </div>
                     </div>
 
-                    <!-- 🌟 UNIFIED 6-ACTION TOOLBAR (جديد | حفظ | طباعة | واتساب | باركود | سجل) -->
+                    <!-- Split Payment Toggle & Inputs -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface-sub); border:1px solid var(--border-glass); border-radius:10px; padding:6px 10px; margin-top:6px;">
+                        <label style="font-size:0.78rem; font-weight:800; color:var(--text-main); display:flex; align-items:center; gap:6px; cursor:pointer;">
+                            <input type="checkbox" id="pos-split-toggle" onchange="MobilePOS.toggleSplitPayment(this.checked)" style="width:16px; height:16px; accent-color:var(--primary);">
+                            <span>سداد مجزأ (نقدي + تحويل بنكك) 🔀</span>
+                        </label>
+                        <span id="pos-split-status-badge" style="font-size:0.72rem; font-weight:800; color:var(--text-muted);">غير مفعّل</span>
+                    </div>
+
+                    <div id="pos-split-inputs-box" class="split-payment-box" style="display:none; margin-top:6px;">
+                        <div class="split-row">
+                            <div>
+                                <label style="font-size:0.72rem; font-weight:800; color:var(--emerald); margin-bottom:2px; display:block;">المبلغ نقداً (SDG):</label>
+                                <input type="number" id="pos-split-cash" class="m-input" style="height:38px; font-weight:800; font-family:'Inter',sans-serif;" placeholder="0" oninput="MobilePOS.onSplitInput('cash', this.value)">
+                            </div>
+                            <div>
+                                <label style="font-size:0.72rem; font-weight:800; color:var(--primary); margin-bottom:2px; display:block;">المبلغ بنكك (SDG):</label>
+                                <input type="number" id="pos-split-bank" class="m-input" style="height:38px; font-weight:800; font-family:'Inter',sans-serif;" placeholder="0" oninput="MobilePOS.onSplitInput('bank', this.value)">
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.74rem; font-weight:800; margin-top:4px;" id="pos-split-balance-row">
+                            <span style="color:var(--text-muted);">فارق المطابقة:</span>
+                            <span id="pos-split-diff-val" style="color:var(--emerald);">0 SDG (مطابق تماماً ✅)</span>
+                        </div>
+                    </div>
+
+                    <!-- 🌟 UNIFIED 6-ACTION TOOLBAR (مشاركة | جديد | مسح باركود | تأكيد | حفظ | فلترة) -->
                     <div class="invoice-action-toolbar-6">
-                        <button type="button" class="btn-action-pill btn-act-new glow-border-sky" onclick="MobilePOS.newInvoice()" title="فاتورة جديدة وتفريغ الحقول">
+                        <button type="button" class="btn-action-pill btn-act-share" onclick="MobilePOS.submitSale(false, true)" title="مشاركة الفاتورة">
+                            <i class="fa-brands fa-whatsapp"></i>
+                            <span>مشاركة</span>
+                        </button>
+                        <button type="button" class="btn-action-pill btn-act-new" onclick="MobilePOS.newInvoice()" title="فاتورة جديدة">
                             <i class="fa-solid fa-plus"></i>
                             <span>جديد</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-save glow-border-emerald" onclick="MobilePOS.submitSale(false, false)" title="حفظ واعتماد الفاتورة ومزامنتها">
+                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="MobilePOS.triggerBarcodeScanner()" title="مسح باركود بالكاميرا">
+                            <i class="fa-solid fa-barcode"></i>
+                            <span>مسح باركود</span>
+                        </button>
+                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="MobilePOS.confirmInvoice()" title="تأكيد واعتماد الفاتورة">
+                            <i class="fa-solid fa-circle-check"></i>
+                            <span>تأكيد</span>
+                        </button>
+                        <button type="button" class="btn-action-pill btn-act-save" onclick="MobilePOS.submitSale(false, false)" title="حفظ ومزامنة الفاتورة">
                             <i class="fa-solid fa-floppy-disk"></i>
                             <span>حفظ</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-confirm glow-border-amber" onclick="MobilePOS.printThermalReceipt()" title="معاينة وطباعة الفاتورة">
-                            <i class="fa-solid fa-print"></i>
-                            <span>طباعة</span>
+                        <button type="button" class="btn-action-pill btn-act-filter" onclick="openInvoiceFilter('sales')" title="فلترة وبحث الفواتير">
+                            <i class="fa-solid fa-filter"></i>
+                            <span>فلترة</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-share glow-border-emerald" onclick="MobilePOS.shareInvoiceViaWhatsApp()" title="مشاركة الفاتورة عبر واتساب">
-                            <i class="fa-brands fa-whatsapp"></i>
-                            <span>واتساب</span>
-                        </button>
-                        <button type="button" class="btn-action-pill btn-act-barcode glow-border-purple" onclick="MobilePOS.triggerBarcodeScanner()" title="مسح باركود بالكاميرا">
-                            <i class="fa-solid fa-barcode"></i>
-                            <span>باركود</span>
-                        </button>
-                        <button type="button" class="btn-action-pill btn-act-filter glow-border-indigo" onclick="switchSalesSuiteTab('history')" title="سجل فواتير المبيعات">
-                            <i class="fa-solid fa-clock-rotate-left"></i>
-                            <span>السجل</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ═════════════════════════════════════════════════════════════
-                 PANE 2: 📋 سجل فواتير المبيعات السابقة (Recent Sales History & Quick Search)
-                 ═════════════════════════════════════════════════════════════ -->
-            <div class="suite-pane" id="pane-sales-history">
-                <div class="pos-container">
-                    <div style="display:flex; gap:8px; align-items:center;">
-                        <input type="text" id="sales-history-search" class="m-input" placeholder="🔍 بحث برقم الفاتورة، اسم العميل..." style="height:40px; font-size:0.85rem;" oninput="MobilePOS.filterHistory(this.value)">
-                        <button type="button" onclick="MobilePOS.syncWithMirror(true)" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:var(--primary); height:40px; padding:0 12px; border-radius:10px; font-weight:800; font-size:0.8rem; cursor:pointer; white-space:nowrap;">
-                            🔄 تحديث
-                        </button>
-                    </div>
-                    <div id="sales-history-container" style="max-height:60vh; overflow-y:auto; padding-bottom:20px;">
-                        <!-- Dynamically populated past sales list -->
                     </div>
                 </div>
             </div>
@@ -8504,28 +8005,9 @@ try {
                         </button>
                     </div>
                 </div>
-        </div>
-
-        <!-- 📱 Floating Mobile Mini-Summary Quick Action Bar -->
-        <div id="pos-mini-float-bar" class="pos-mini-float-bar" style="display:none;" onclick="MobilePOS.scrollToSettlement()">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span class="mini-cart-pill" id="pos-mini-cart-pill">0 أصناف</span>
-                <div style="display:flex; flex-direction:column; line-height:1.2;">
-                    <span style="font-size:0.68rem; color:var(--text-muted); font-weight:800;">الصافي:</span>
-                    <span id="pos-mini-due-val" style="font-size:0.95rem; font-weight:900; color:var(--emerald); font-family:'Inter',sans-serif;">0 SDG</span>
-                </div>
             </div>
-            <div style="display:flex; align-items:center; gap:6px;">
-                <button type="button" onclick="event.stopPropagation(); MobilePOS.submitSale(false, false);" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; border-radius:10px; padding:6px 14px; font-weight:900; font-size:0.82rem; cursor:pointer; display:flex; align-items:center; gap:5px; box-shadow:0 0 12px rgba(16,185,129,0.4);">
-                    <i class="fa-solid fa-floppy-disk"></i> حفظ
-                </button>
-                <button type="button" onclick="event.stopPropagation(); MobilePOS.printThermalReceipt();" style="background:rgba(255,255,255,0.08); border:1px solid var(--border-glass); color:var(--text-main); border-radius:10px; padding:6px 10px; font-size:0.82rem; cursor:pointer;" title="طباعة">
-                    <i class="fa-solid fa-print"></i>
-                </button>
         </div>
     </div>
-</div>
-</div>
 
     <!-- SHEET: 🖨️ معاينة وطباعة الإيصال الحراري (Thermal Receipt Bluetooth / ESC-POS) -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-receipt-print" onclick="closeBottomSheet('sheet-receipt-print')"></div>
@@ -11466,13 +10948,6 @@ try {
                 document.body.style.overflow = '';
                 document.documentElement.style.overflow = '';
             }
-            if (sheetId === 'sheet-sale') {
-                const urlParams = new URLSearchParams(window.location.search);
-                const isDedicatedSales = window.location.pathname.includes('mobile-sales.php') || urlParams.get('open') === 'sale' || urlParams.get('open') === 'sales';
-                if (isDedicatedSales) {
-                    window.location.href = 'mobile-dashboard.php';
-                }
-            }
         }
 
         // 📱 Android Hardware Back Button — close active bottom sheet instead of exiting app
@@ -11933,15 +11408,6 @@ try {
             const extraItems = loadedItems.filter(x => !existingNames.has(x.name));
             M_ITEMS = [...baseFlagship, ...extraItems];
             saveTenantArray('erp_items_v1', M_ITEMS);
-
-            // 🔄 Keep MobilePOS updated with fresh catalog
-            if (window.MobilePOS && typeof window.MobilePOS.populateCustomers === 'function') {
-                try {
-                    window.MobilePOS.populateCustomers();
-                    window.MobilePOS.populateItems();
-                    window.MobilePOS.populateQuickChips();
-                } catch(e) {}
-            }
 
             // 4. Load Vaults & Liquidity
             M_VAULTS = [];
@@ -16506,6 +15972,10 @@ try {
         // 💸 OPEN FINANCIAL TRANSFER SHEET (تحويلة مالية من حساب إلى حساب)
         // ═════════════════════════════════════════════════════════════════
         function openFinancialTxSheet(mode = 'transfer') {
+            window.location.href = 'mobile-voucher.php';
+            return;
+            }
+
             const opEl = document.getElementById('tx-operation-type');
             if (opEl) opEl.value = 'transfer';
 
@@ -18188,80 +17658,29 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         // ═════════════════════════════════════════════════════════════════
         window.MobilePOS = {
             state: {
-                invoiceType: 'cash', // 'cash' | 'credit' | 'bank' | 'cheque'
+                invoiceType: 'cash', // 'cash' | 'credit' | 'bank'
                 customerId: 'walkin',
                 customer: null,
-                cart: [], // [{ id, name, spec, barcode, warehouse, warehouseName, category, unit, primaryUnit, qty, price, minPrice, cost, tax, labor, discount, subtotal }]
-                isEditing: false,
-                currentInvoiceNo: null,
+                cart: [], // [{ id, name, spec, barcode, qty, price, minPrice, cost, discount, subtotal }]
+                discountTotal: 0,
+                taxPercent: 0,
                 isSplit: false,
                 splitCash: 0,
                 splitBank: 0,
                 creditLimitOverridden: false,
-                lastSubmittedInvoice: null,
-                activeCosts: {
-                    transport: false,
-                    labor: false,
-                    additions: false,
-                    tax: false,
-                    discount: false
-                }
+                lastSubmittedInvoice: null
             },
 
             init() {
-                if (window.SERVER_DATA && window.SERVER_DATA.nextSalesNo && !window._mirrorNextSalesNo) {
-                    window._mirrorNextSalesNo = window.SERVER_DATA.nextSalesNo;
-                }
                 this.populateCustomers();
                 this.populateWarehouses();
-                this.populateCostCenters();
                 this.populateUnits();
                 this.populateCategories();
-                this.populateItems('all');
+                this.populateItems();
                 this.populateQuickChips();
                 this.setInvoiceType(this.state.invoiceType || 'cash');
-
-                // Set exchange rate from system global settings
-                const rateInput = document.getElementById('pos-exchange-rate');
-                const rateVal = window.SERVER_DATA?.exchangeRateUSD || 5999;
-                if (rateInput && !rateInput.value) rateInput.value = rateVal;
-                const usdPillVal = document.getElementById('pos-usd-rate-val');
-                if (usdPillVal) usdPillVal.textContent = fmt(rateVal);
-
-                // Set date to today
-                const dateInp = document.getElementById('pos-inv-date');
-                if (dateInp && !dateInp.value) {
-                    const now = new Date();
-                    dateInp.value = now.toISOString().split('T')[0];
-                }
-
-                if (!this.state.isEditing) {
-                    this.generateInvoiceNumber();
-                }
-                this.syncWithMirror();
+                this.generateInvoiceNumber();
                 this.renderCart();
-            },
-
-            populateCostCenters() {
-                const sel = document.getElementById('pos-item-cost-center');
-                if (!sel) return;
-                let ccs = (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.costCenters) && window.SERVER_DATA.costCenters.length > 0)
-                    ? window.SERVER_DATA.costCenters
-                    : ((typeof loadTenantArray === 'function') ? (loadTenantArray('erp_cost_centers_v1') || []) : []);
-                if (!ccs || ccs.length === 0) {
-                    ccs = [
-                        { id: 'cc-001', name: 'الفرع الرئيسي' },
-                        { id: 'cc-002', name: 'فرع بحري' },
-                        { id: 'cc-003', name: 'فرع الكلاكلة' }
-                    ];
-                }
-                let html = '';
-                ccs.forEach(c => {
-                    const cId = c.id || c.code || c;
-                    const cName = c.name || c.title || cId;
-                    html += `<option value="${cId}">${cName}</option>`;
-                });
-                sel.innerHTML = html;
             },
 
             populateWarehouses() {
@@ -18349,40 +17768,188 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.populateItems(cat);
             },
 
+            generateInvoiceNumber() {
+                const isOffline = !navigator.onLine || window.IS_OFFLINE_SIMULATED;
+                const pill = document.getElementById('pos-inv-number-pill');
+                let invNo = window._mirrorNextSalesNo;
+                if (!invNo) {
+                    const now = new Date();
+                    const yy = String(now.getFullYear()).substring(2, 4);
+                    const mm = String(now.getMonth() + 1).padStart(2, '0');
+                    invNo = 'S' + yy + mm + '0127';
+                }
+
+                if (isOffline) {
+                    const peek = window.DualNumberingEngine ? window.DualNumberingEngine.peekNextSequence('sale') : invNo;
+                    if (pill) {
+                        pill.innerHTML = `⏳ أوفلاين ${peek} <span style="font-size:0.76rem; opacity:0.85;">(معلق)</span>`;
+                        pill.style.background = 'rgba(245, 158, 11, 0.2)';
+                        pill.style.borderColor = '#f59e0b';
+                        pill.style.color = '#f59e0b';
+                    }
+                    return peek;
+                } else {
+                    if (pill) {
+                        pill.innerHTML = `🟢 #${invNo}`;
+                        pill.style.background = 'rgba(56, 189, 248, 0.15)';
+                        pill.style.borderColor = 'rgba(56, 189, 248, 0.3)';
+                        pill.style.color = 'var(--primary)';
+                    }
+                    // Background refresh from mirror API
+                    if (typeof fetch === 'function') {
+                        fetch('api/mirror_sync.php?action=get_next_numbers&_t=' + Date.now())
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data && data.sales && data.sales.nextInvoiceNo) {
+                                    window._mirrorNextSalesNo = data.sales.nextInvoiceNo;
+                                    if (pill && window.MobilePOS && window.MobilePOS.state.cart.length === 0) {
+                                        pill.innerHTML = `🟢 #${data.sales.nextInvoiceNo}`;
+                                    }
+                                }
+                            }).catch(() => {});
+                    }
+                    return invNo;
+                }
+            },
+
+            setInvoiceType(type) {
+                this.state.invoiceType = type;
+                ['cash', 'credit', 'bank'].forEach(t => {
+                    const btn = document.getElementById(`btn-invtype-${t}`);
+                    if (btn) {
+                        if (t === type) btn.classList.add('active');
+                        else btn.classList.remove('active');
+                    }
+                });
+                if (type === 'credit') {
+                    if (this.state.customerId === 'walkin') {
+                        if (window.showModernToast) {
+                            window.showModernToast('ℹ️ الفاتورة الآجلة تتطلب تحديد عميل مسجل لفحص سقف الائتمان', 'info', 2500);
+                        }
+                    }
+                }
+                this.checkCreditLimit();
+            },
+
+            populateCustomers() {
+                const sel = document.getElementById('pos-customer-select');
+                if (!sel) return;
+                const currentVal = sel.value;
+                let html = '<option value="walkin">عميل نقدي عام (Walk-in)</option>';
+                if (Array.isArray(M_CUSTOMERS)) {
+                    M_CUSTOMERS.forEach(c => {
+                        const bal = parseFloat(c.balance || c.currentBalance || 0);
+                        const limit = parseFloat(c.creditLimit || c.credit_limit || 0);
+                        html += `<option value="${c.id}" data-phone="${c.phone || ''}" data-balance="${bal}" data-limit="${limit}">${c.name}</option>`;
+                    });
+                }
+                sel.innerHTML = html;
+                if (currentVal) sel.value = currentVal;
+                this.onCustomerChange(sel.value);
+            },
+
+            onCustomerChange(custId) {
+                this.state.customerId = custId;
+                this.state.creditLimitOverridden = false;
+                const phoneEl = document.getElementById('pos-cust-phone');
+                const balEl = document.getElementById('pos-cust-balance');
+                const limitEl = document.getElementById('pos-cust-credit-limit');
+
+                if (custId === 'walkin') {
+                    this.state.customer = { id: 'walkin', name: 'عميل نقدي عام', phone: 'نقدي فوري', balance: 0, creditLimit: 0 };
+                    if (phoneEl) phoneEl.innerHTML = '<i class="fa-solid fa-phone"></i> نقدي فوري';
+                    if (balEl) balEl.innerHTML = '<i class="fa-solid fa-wallet"></i> الرصيد: 0 SDG';
+                    if (limitEl) limitEl.innerHTML = '<i class="fa-solid fa-shield-halved"></i> السقف: لا يوجد';
+                } else {
+                    const c = (Array.isArray(M_CUSTOMERS) ? M_CUSTOMERS.find(x => String(x.id) === String(custId)) : null);
+                    if (c) {
+                        const bal = parseFloat(c.balance || c.currentBalance || 0);
+                        const limit = parseFloat(c.creditLimit || c.credit_limit || 0);
+                        this.state.customer = { ...c, balance: bal, creditLimit: limit };
+                        if (phoneEl) phoneEl.innerHTML = `<i class="fa-solid fa-phone"></i> ${c.phone || 'بدون هاتف'}`;
+                        const balColor = bal > 0 ? '#ef4444' : '#10b981';
+                        if (balEl) balEl.innerHTML = `<i class="fa-solid fa-wallet"></i> الرصيد: <strong style="color:${balColor};">${fmt(bal)} SDG</strong>`;
+                        if (limitEl) limitEl.innerHTML = `<i class="fa-solid fa-shield-halved"></i> السقف: <strong>${limit > 0 ? fmt(limit) + ' SDG' : 'غير محدد'}</strong>`;
+                    }
+                }
+                this.checkCreditLimit();
+            },
+
+            checkCreditLimit(t = null) {
+                const warnBox = document.getElementById('pos-credit-warning');
+                const warnMsg = document.getElementById('pos-credit-warning-msg');
+                if (!warnBox) return;
+
+                if (this.state.invoiceType !== 'credit' || this.state.customerId === 'walkin' || !this.state.customer) {
+                    warnBox.style.display = 'none';
+                    return;
+                }
+
+                let netDue = 0;
+                if (t && typeof t.netDue === 'number') {
+                    netDue = t.netDue;
+                } else {
+                    let sub = 0;
+                    let disc = 0;
+                    this.state.cart.forEach(it => {
+                        sub += (it.qty * it.price);
+                        disc += (parseFloat(it.discount) || 0);
+                    });
+                    netDue = Math.max(0, sub - disc);
+                }
+
+                const limit = parseFloat(this.state.customer.creditLimit || 0);
+                const currentBal = parseFloat(this.state.customer.balance || 0);
+                const projectedDebt = currentBal + netDue;
+
+                if (limit > 0 && projectedDebt > limit) {
+                    warnBox.style.display = 'flex';
+                    if (this.state.creditLimitOverridden) {
+                        warnBox.style.borderColor = '#10b981';
+                        warnBox.style.background = 'rgba(16, 185, 129, 0.12)';
+                        if (warnMsg) warnMsg.innerHTML = `✅ تم منح استثناء للمدير: تجاوز السقف بمبلغ (${fmt(projectedDebt - limit)} SDG)`;
+                    } else {
+                        warnBox.style.borderColor = '#ef4444';
+                        warnBox.style.background = 'rgba(239, 68, 68, 0.12)';
+                        if (warnMsg) warnMsg.innerHTML = `⚠️ تنبيه ائتماني: الدين المتوقع (${fmt(projectedDebt)} SDG) يتجاوز السقف (${fmt(limit)} SDG)!`;
+                    }
+                } else if (limit > 0 && projectedDebt >= limit * 0.9) {
+                    warnBox.style.display = 'flex';
+                    warnBox.style.borderColor = '#f59e0b';
+                    warnBox.style.background = 'rgba(245, 158, 11, 0.12)';
+                    if (warnMsg) warnMsg.innerHTML = `⚡ تنبيه: العميل قارب على استنفاذ سقف الائتمان (${fmt(projectedDebt)} / ${fmt(limit)} SDG)`;
+                } else {
+                    warnBox.style.display = 'none';
+                }
+            },
+
+            overrideCreditLimit() {
+                this.state.creditLimitOverridden = true;
+                triggerHaptic('medium');
+                if (window.showModernToast) {
+                    window.showModernToast('⚡ تم تسجيل تجاوز استثنائي لسقف الائتمان بواسطة الصلاحية الإدارية', 'warning', 3000);
+                }
+                this.checkCreditLimit();
+            },
+
             populateItems(filterCategory = 'all') {
                 const sel = document.getElementById('pos-item-select');
                 if (!sel) return;
                 let html = '<option value="">-- ابحث أو اختر الصنف للإضافة --</option>';
-                let items = (Array.isArray(M_ITEMS) && M_ITEMS.length > 0)
-                    ? M_ITEMS
-                    : (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.items) && window.SERVER_DATA.items.length > 0)
-                        ? window.SERVER_DATA.items.map((it, idx) => ({
-                            id: it.id || (idx + 1),
-                            name: it.name || it.item_name,
-                            spec: it.spec || it.dimension || '',
-                            price: parseFloat(it.salePrice || it.price || 0),
-                            cost: parseFloat(it.cost || it.buyPrice || 0),
-                            minPrice: parseFloat(it.minPrice || 0),
-                            stock: parseFloat(it.quantity ?? it.stock ?? 0),
-                            unit: it.unit || it.primaryUnit || 'طن',
-                            category: it.category || it.type || '',
-                            barcode: it.barcode || ''
-                        }))
-                        : ((typeof loadTenantArray === 'function') ? (loadTenantArray('erp_items_v1') || []) : []);
-                if (Array.isArray(items)) {
-                    items.forEach(it => {
+                if (Array.isArray(M_ITEMS)) {
+                    M_ITEMS.forEach(it => {
                         const itemCat = it.category || it.type || '';
                         if (filterCategory && filterCategory !== 'all' && itemCat !== filterCategory) {
                             return;
                         }
-                        const price = parseFloat(it.price || it.salePrice || 0);
+                        const price = parseFloat(it.price || 0);
                         const cost = parseFloat(it.cost || it.standardCost || (price * 0.75) || 0);
                         const minPrice = parseFloat(it.minPrice || (cost * 1.05) || 0);
                         const stock = parseFloat(it.stock || it.quantity || 0);
                         const spec = it.spec || it.dimension || '';
                         const unit = it.unit || it.primaryUnit || 'طن';
-                        html += `<option value="${it.id}" data-name="${it.name || it.item_name}" data-spec="${spec}" data-price="${price}" data-cost="${cost}" data-min="${minPrice}" data-stock="${stock}" data-unit="${unit}" data-cat="${itemCat}" data-barcode="${it.barcode || ''}">
-                            ${it.name || it.item_name} ${spec ? `(${spec})` : ''} - ${fmt(price)} SDG [المتاح: ${stock} ${unit}]
+                        html += `<option value="${it.id}" data-name="${it.name}" data-spec="${spec}" data-price="${price}" data-cost="${cost}" data-min="${minPrice}" data-stock="${stock}" data-unit="${unit}" data-cat="${itemCat}" data-barcode="${it.barcode || ''}">
+                            ${it.name} ${spec ? `(${spec})` : ''} - ${fmt(price)} SDG [المتاح: ${stock} ${unit}]
                         </option>`;
                     });
                 }
@@ -18392,23 +17959,17 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             populateQuickChips() {
                 const container = document.getElementById('pos-quick-chips-container');
                 if (!container) return;
-                let items = (Array.isArray(M_ITEMS) && M_ITEMS.length > 0)
-                    ? M_ITEMS
-                    : (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.items) && window.SERVER_DATA.items.length > 0)
-                        ? window.SERVER_DATA.items
-                        : [];
-                if (!Array.isArray(items) || items.length === 0) {
+                if (!Array.isArray(M_ITEMS) || M_ITEMS.length === 0) {
                     container.innerHTML = '';
                     return;
                 }
-                const topItems = items.slice(0, 6);
+                const topItems = M_ITEMS.slice(0, 6);
                 let html = '';
                 topItems.forEach(it => {
-                    const price = parseFloat(it.price || it.salePrice || 0);
-                    const itName = it.name || it.item_name || 'صنف';
+                    const price = parseFloat(it.price || 0);
                     html += `
                         <div class="pos-chip" onclick="MobilePOS.addItemById('${it.id}')">
-                            <span class="pos-chip-name">${itName}</span>
+                            <span class="pos-chip-name">${it.name}</span>
                             <span class="pos-chip-price">${fmt(price)} SDG</span>
                         </div>
                     `;
@@ -18459,7 +18020,9 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             calculateItemRowTotal() {
                 const qty = parseFloat(document.getElementById('pos-item-qty')?.value) || 0;
                 const price = parseFloat(document.getElementById('pos-item-price')?.value) || 0;
-                const subtotal = Math.max(0, qty * price);
+                const tax = parseFloat(document.getElementById('pos-item-tax')?.value) || 0;
+                const labor = parseFloat(document.getElementById('pos-item-labor')?.value) || 0;
+                const subtotal = Math.max(0, (qty * price) + tax + labor);
                 const subEl = document.getElementById('pos-item-subtotal');
                 if (subEl) subEl.value = fmt(subtotal);
                 return subtotal;
@@ -18492,6 +18055,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 const qty = parseFloat(document.getElementById('pos-item-qty')?.value) || 0;
                 const price = parseFloat(document.getElementById('pos-item-price')?.value) || 0;
+                const tax = parseFloat(document.getElementById('pos-item-tax')?.value) || 0;
+                const labor = parseFloat(document.getElementById('pos-item-labor')?.value) || 0;
 
                 if (qty <= 0) {
                     if (window.showModernToast) window.showModernToast('⚠️ يرجى إدخال كمية صحيحة أكبر من الصفر', 'warning');
@@ -18502,7 +18067,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     return;
                 }
 
-                const subtotal = qty * price;
+                const subtotal = (qty * price) + tax + labor;
 
                 this.state.cart.push({
                     id: itemId,
@@ -18518,20 +18083,11 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     price: price,
                     minPrice: minPrice,
                     cost: cost,
-                    tax: 0,
-                    labor: 0,
+                    tax: tax,
+                    labor: labor,
                     discount: 0,
                     subtotal: subtotal
                 });
-
-                // Reset item entry fields
-                itemSel.value = '';
-                const qtyInp = document.getElementById('pos-item-qty');
-                if (qtyInp) qtyInp.value = '1';
-                const priceInp = document.getElementById('pos-item-price');
-                if (priceInp) priceInp.value = '';
-                const subInp = document.getElementById('pos-item-subtotal');
-                if (subInp) subInp.value = '0';
 
                 this.renderCart();
                 if (window.showModernToast) {
@@ -18539,12 +18095,28 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
             },
 
+            confirmInvoice() {
+                triggerHaptic('heavy');
+                if (this.state.cart.length === 0) {
+                    if (window.showModernToast) window.showModernToast('⚠️ الفاتورة فارغة! يرجى إضافة أصناف أولاً للتأكيد', 'warning');
+                    return;
+                }
+                const totals = this.calculateTotals();
+                const pill = document.getElementById('pos-inv-number-pill');
+                if (pill) {
+                    pill.innerHTML = `🟢 مؤكدة (${fmt(totals.netDue)} SDG)`;
+                    pill.style.background = 'rgba(16,185,129,0.2)';
+                    pill.style.borderColor = '#10b981';
+                    pill.style.color = '#10b981';
+                }
+                if (window.showModernToast) {
+                    window.showModernToast(`✅ تم تأكيد ومطابقة الفاتورة جاهزة للحفظ والترحيل (${fmt(totals.netDue)} SDG)`, 'success', 3000);
+                }
+            },
+
             addItemById(itemId) {
                 triggerHaptic('light');
-                let pool = (Array.isArray(M_ITEMS) && M_ITEMS.length > 0)
-                    ? M_ITEMS
-                    : (window.SERVER_DATA?.items || []);
-                const item = pool.find(x => String(x.id) === String(itemId));
+                const item = (Array.isArray(M_ITEMS) ? M_ITEMS.find(x => String(x.id) === String(itemId)) : null);
                 if (!item) {
                     if (window.showModernToast) window.showModernToast('الصنف غير موجود في قاعدة البيانات', 'warning');
                     return;
@@ -18553,31 +18125,25 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const existingIdx = this.state.cart.findIndex(x => String(x.id) === String(itemId));
                 if (existingIdx >= 0) {
                     this.state.cart[existingIdx].qty += 1;
-                    this.state.cart[existingIdx].subtotal = (this.state.cart[existingIdx].qty * this.state.cart[existingIdx].price) - (this.state.cart[existingIdx].discount || 0);
+                    this.state.cart[existingIdx].subtotal = this.state.cart[existingIdx].qty * this.state.cart[existingIdx].price - (this.state.cart[existingIdx].discount || 0);
                 } else {
                     const price = parseFloat(item.price || 0);
                     const cost = parseFloat(item.cost || item.standardCost || (price * 0.75) || 0);
                     const minPrice = Math.max(parseFloat(item.minPrice || 0), parseFloat(cost * 1.05) || 0, price > 0 ? (price * 0.85) : 50);
-                    const whSel = document.getElementById('pos-item-warehouse');
-                    const warehouse = whSel ? whSel.value : 'central';
-                    const warehouseName = whSel ? whSel.selectedOptions[0]?.text || 'المستودع الرئيسي' : 'المستودع الرئيسي';
-                    const unit = item.unit || item.primaryUnit || 'طن';
-
                     this.state.cart.push({
                         id: item.id,
                         name: item.name,
                         spec: item.spec || item.dimension || '',
                         barcode: item.barcode || '',
-                        warehouse: warehouse,
-                        warehouseName: warehouseName,
-                        category: item.category || 'all',
                         price: price,
                         basePrice: price,
                         cost: cost,
                         minPrice: minPrice,
                         baseMinPrice: minPrice,
-                        unit: unit,
-                        primaryUnit: unit,
+                        primaryUnit: item.primaryUnit || 'طن',
+                        secondaryUnit: item.secondaryUnit || (item.primaryUnit === 'طن' ? 'شوال' : 'قطعة'),
+                        unitRatio: parseFloat(item.unitRatio || 20) || 20,
+                        activeUnit: 'primary',
                         qty: 1,
                         discount: 0,
                         subtotal: price
@@ -18586,6 +18152,28 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.renderCart();
                 if (window.showModernToast) {
                     window.showModernToast(`+ أضيف: ${item.name}`, 'success', 1200);
+                }
+            },
+
+            toggleItemUnit(idx) {
+                triggerHaptic('light');
+                const it = this.state.cart[idx];
+                if (!it) return;
+                const ratio = (parseFloat(it.unitRatio) > 1) ? parseFloat(it.unitRatio) : 1;
+                if (it.activeUnit === 'primary') {
+                    it.activeUnit = 'secondary';
+                    it.price = Math.round(it.basePrice / ratio);
+                    it.minPrice = Math.round(it.baseMinPrice / ratio);
+                } else {
+                    it.activeUnit = 'primary';
+                    it.price = it.basePrice;
+                    it.minPrice = it.baseMinPrice;
+                }
+                it.subtotal = (it.qty * it.price) - (it.discount || 0);
+                this.renderCart();
+                if (window.showModernToast) {
+                    const uName = it.activeUnit === 'primary' ? it.primaryUnit : it.secondaryUnit;
+                    window.showModernToast(`تبديل الوحدة إلى: ${uName} (${fmt(it.price)} SDG)`, 'info', 1500);
                 }
             },
 
@@ -18599,7 +18187,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
                 const it = this.state.cart[idx];
                 it.qty = newQty;
-                it.subtotal = (it.qty * it.price) - (it.discount || 0);
+                it.subtotal = (it.qty * it.price) - (it.discount || 0) + (it.tax || 0) + (it.labor || 0);
                 this.renderCart();
             },
 
@@ -18612,7 +18200,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
                 const it = this.state.cart[idx];
                 it.qty = qty;
-                it.subtotal = (it.qty * it.price) - (it.discount || 0);
+                it.subtotal = (it.qty * it.price) - (it.discount || 0) + (it.tax || 0) + (it.labor || 0);
                 this.renderCart();
             },
 
@@ -18621,7 +18209,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const price = parseFloat(val) || 0;
                 const it = this.state.cart[idx];
                 it.price = price;
-                it.subtotal = (it.qty * price) - (it.discount || 0);
+                it.subtotal = (it.qty * price) - (it.discount || 0) + (it.tax || 0) + (it.labor || 0);
                 this.renderCart();
             },
 
@@ -18630,7 +18218,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const discount = parseFloat(val) || 0;
                 const it = this.state.cart[idx];
                 it.discount = discount;
-                it.subtotal = (it.qty * it.price) - discount;
+                it.subtotal = (it.qty * it.price) - discount + (it.tax || 0) + (it.labor || 0);
                 this.renderCart();
             },
 
@@ -18675,7 +18263,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     const lineClass = isMarginViolation ? 'pos-line-item margin-violation line-card-laptop' : 'pos-line-item line-card-laptop';
                     const activeUnitLabel = item.unit || item.primaryUnit || 'طن';
                     const whLabel = item.warehouseName || 'المستودع الرئيسي';
-
+                    
                     html += `
                         <div class="${lineClass}" style="background:var(--surface-card); border:1.5px solid var(--border-glass); border-radius:14px; padding:10px 12px; margin-bottom:8px;">
                             <div class="pos-line-top" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
@@ -18693,11 +18281,13 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 </div>
                             </div>
 
+                            <!-- Laptop Parity Badges: Qty, Price, Tax, Labor -->
                             <div style="display:flex; gap:6px; flex-wrap:wrap; font-size:0.7rem; font-weight:800; margin-bottom:6px; color:var(--text-muted);">
                                 <span>الكمية: <strong style="color:var(--text-main);">${item.qty} ${activeUnitLabel}</strong></span>
                                 <span>•</span>
-                                <span>السعر: <strong style="color:var(--text-main);">${fmt(item.price)} SDG</strong></span>
-                                ${item.discount > 0 ? `<span>•</span><span>الخصم: <strong style="color:var(--rose);">${fmt(item.discount)}</strong></span>` : ''}
+                                <span>السعر: <strong style="color:var(--text-main);">${fmt(item.price)}</strong></span>
+                                ${item.tax > 0 ? `<span>•</span><span>الضريبة: <strong style="color:var(--amber);">${fmt(item.tax)}</strong></span>` : ''}
+                                ${item.labor > 0 ? `<span>•</span><span>العمالة: <strong style="color:#38bdf8;">${fmt(item.labor)}</strong></span>` : ''}
                             </div>
 
                             ${isMarginViolation ? `
@@ -18708,17 +18298,20 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             ` : ''}
 
                             <div class="pos-line-controls" style="display:flex; align-items:center; gap:8px; justify-content:space-between; border-top:1px dashed var(--border-glass); padding-top:6px;">
+                                <!-- Qty Stepper -->
                                 <div class="qty-stepper" style="display:flex; align-items:center; gap:2px;">
                                     <button type="button" class="stepper-btn" onclick="MobilePOS.updateItemQty(${idx}, -1)">-</button>
                                     <input type="number" class="stepper-input" value="${item.qty}" min="0.01" step="any" onchange="MobilePOS.setItemQty(${idx}, this.value)" style="width:55px; height:30px; text-align:center; font-weight:900; font-family:'Inter',sans-serif; border-radius:6px; border:1px solid var(--border-glass); background:var(--surface-sub); color:var(--text-main);">
                                     <button type="button" class="stepper-btn" onclick="MobilePOS.updateItemQty(${idx}, 1)">+</button>
                                 </div>
 
+                                <!-- Unit Price Input -->
                                 <div style="display:flex; align-items:center; gap:4px;">
                                     <span style="font-size:0.72rem; color:var(--text-muted); font-weight:800;">السعر:</span>
                                     <input type="number" value="${item.price}" step="any" class="m-input" style="width:78px; height:30px; padding:2px 4px; font-size:0.8rem; font-weight:900; font-family:'Inter',sans-serif; text-align:center;" onchange="MobilePOS.setItemPrice(${idx}, this.value)">
                                 </div>
 
+                                <!-- Item Discount Input -->
                                 <div style="display:flex; align-items:center; gap:4px;">
                                     <span style="font-size:0.72rem; color:var(--rose); font-weight:800;">خصم:</span>
                                     <input type="number" value="${item.discount || 0}" step="any" class="m-input" style="width:60px; height:30px; padding:2px 4px; font-size:0.8rem; font-weight:900; font-family:'Inter',sans-serif; text-align:center; color:var(--rose);" onchange="MobilePOS.setItemDiscount(${idx}, this.value)">
@@ -18732,143 +18325,41 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.calculateTotals();
             },
 
-            toggleExtraCost(type) {
-                triggerHaptic('light');
-                const wrap = document.getElementById(`wrap-extra-${type}`);
-                const btn = document.getElementById(`btn-toggle-${type}`);
-                const inp = document.getElementById(`pos-extra-${type}`);
-                if (!wrap) return;
-
-                const isVisible = wrap.style.display !== 'none';
-                if (isVisible) {
-                    wrap.style.display = 'none';
-                    if (btn) btn.classList.remove('active');
-                    if (inp) inp.value = '';
-                    this.state.activeCosts[type] = false;
-                } else {
-                    wrap.style.display = 'block';
-                    if (btn) btn.classList.add('active');
-                    this.state.activeCosts[type] = true;
-                    if (inp) inp.focus();
-                }
-                this.calculateTotals();
-            },
-
             calculateTotals() {
-                let itemsSubtotal = 0;
-                let itemDiscounts = 0;
+                let subtotal = 0;
+                let totalDiscount = 0;
+                let totalTax = 0;
+                let totalLabor = 0;
                 this.state.cart.forEach(it => {
-                    const lineSub = (parseFloat(it.qty) || 0) * (parseFloat(it.price) || 0);
-                    itemsSubtotal += lineSub;
-                    itemDiscounts += (parseFloat(it.discount) || 0);
+                    subtotal += (it.qty * it.price);
+                    totalDiscount += (parseFloat(it.discount) || 0);
+                    totalTax += (parseFloat(it.tax) || 0);
+                    totalLabor += (parseFloat(it.labor) || 0);
                 });
-
-                const transport = parseFloat(document.getElementById('pos-extra-transport')?.value) || 0;
-                const labor = parseFloat(document.getElementById('pos-extra-labor')?.value) || 0;
-                const additions = parseFloat(document.getElementById('pos-extra-additions')?.value) || 0;
-                const tax = parseFloat(document.getElementById('pos-extra-tax')?.value) || 0;
-                const invoiceDiscount = parseFloat(document.getElementById('pos-extra-discount')?.value) || 0;
-
-                const totalExpenses = transport + labor + additions + tax;
-                const totalDiscount = itemDiscounts + invoiceDiscount;
-                const netDue = Math.max(0, itemsSubtotal + totalExpenses - totalDiscount);
-
-                const rateUSD = parseFloat(document.getElementById('pos-exchange-rate')?.value) || window.SERVER_DATA?.exchangeRateUSD || 5999;
-                const usdAmount = (rateUSD > 0 && netDue > 0) ? (netDue / rateUSD) : 0;
+                const netDue = Math.max(0, subtotal - totalDiscount + totalTax + totalLabor);
 
                 const subEl = document.getElementById('pos-subtotal-val');
-                const expEl = document.getElementById('pos-expenses-val');
                 const discEl = document.getElementById('pos-discount-val');
+                const taxEl = document.getElementById('pos-tax-val');
+                const laborEl = document.getElementById('pos-labor-val');
                 const netEl = document.getElementById('pos-netdue-val');
                 const bannerDue = document.getElementById('pos-banner-netdue');
-                const bannerUsd = document.getElementById('pos-banner-usd');
                 const bannerCount = document.getElementById('pos-banner-item-count');
 
-                if (subEl) subEl.innerText = fmt(itemsSubtotal);
-                if (expEl) expEl.innerText = fmt(totalExpenses);
+                if (subEl) subEl.innerText = fmt(subtotal);
                 if (discEl) discEl.innerText = fmt(totalDiscount);
+                if (taxEl) taxEl.innerText = fmt(totalTax);
+                if (laborEl) laborEl.innerText = fmt(totalLabor);
                 if (netEl) netEl.innerText = fmt(netDue) + ' SDG';
-                if (bannerDue) bannerDue.innerText = fmt(netDue) + ' SDG';
-                if (bannerUsd) bannerUsd.innerText = `≈ ${usdAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $ USD`;
+                if (bannerDue) bannerDue.innerHTML = `${fmt(netDue)} <small style="font-size:0.55em;">SDG</small>`;
                 if (bannerCount) bannerCount.textContent = `${this.state.cart.length} أصناف`;
-
-                // Update Mobile Floating Mini-Summary Bar
-                const miniBar = document.getElementById('pos-mini-float-bar');
-                const miniPill = document.getElementById('pos-mini-cart-pill');
-                const miniDue = document.getElementById('pos-mini-due-val');
-                if (miniBar) {
-                    if (this.state.cart.length > 0) {
-                        miniBar.style.display = 'flex';
-                        if (miniPill) miniPill.textContent = `${this.state.cart.length} أصناف`;
-                        if (miniDue) miniDue.textContent = `${fmt(netDue)} SDG`;
-                    } else {
-                        miniBar.style.display = 'none';
-                    }
-                }
 
                 if (this.state.isSplit) {
                     this.syncSplitAmounts(netDue);
                 }
 
-                this.checkCreditLimit({ itemsSubtotal, totalExpenses, totalDiscount, netDue });
-                return { itemsSubtotal, totalExpenses, totalDiscount, netDue, usdAmount, transport, labor, additions, tax };
-            },
-
-            scrollToSettlement() {
-                const el = document.getElementById('pos-settlement-card');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-            },
-
-            handleCurrencyChange(val) {
-                const rateInp = document.getElementById('pos-exchange-rate');
-                const baseUSD = window.SERVER_DATA?.exchangeRateUSD || 5999;
-                if (val === 'USD') {
-                    if (rateInp) { rateInp.value = 1; rateInp.disabled = true; }
-                } else if (val === 'SDG') {
-                    if (rateInp) { rateInp.value = baseUSD; rateInp.disabled = false; }
-                } else if (val === 'SAR') {
-                    if (rateInp) { rateInp.value = Math.round(baseUSD / 3.75); rateInp.disabled = false; }
-                } else if (val === 'AED') {
-                    if (rateInp) { rateInp.value = Math.round(baseUSD / 3.67); rateInp.disabled = false; }
-                } else if (val === 'EGP') {
-                    if (rateInp) { rateInp.value = Math.round(baseUSD / 48); rateInp.disabled = false; }
-                }
-                this.calculateTotals();
-            },
-
-            editExchangeRatePrompt() {
-                const rateInp = document.getElementById('pos-exchange-rate');
-                const cur = rateInp ? (parseFloat(rateInp.value) || 5999) : 5999;
-                const userVal = prompt('💱 تعديل سعر صرف الدولار (SDG / USD):', cur);
-                if (userVal !== null && !isNaN(parseFloat(userVal)) && parseFloat(userVal) > 0) {
-                    const newRate = parseFloat(userVal);
-                    if (rateInp) rateInp.value = newRate;
-                    const usdPillVal = document.getElementById('pos-usd-rate-val');
-                    if (usdPillVal) usdPillVal.textContent = fmt(newRate);
-                    this.calculateTotals();
-                    if (window.showModernToast) {
-                        window.showModernToast(`✅ تم تحديث سعر الصرف إلى: ${fmt(newRate)} SDG`, 'success', 2000);
-                    }
-                }
-            },
-
-            setInvoiceType(type) {
-                this.state.invoiceType = type;
-                ['cash', 'credit', 'bank', 'cheque'].forEach(t => {
-                    const btn = document.getElementById(`btn-invtype-${t}`);
-                    if (btn) {
-                        if (t === type) btn.classList.add('active');
-                        else btn.classList.remove('active');
-                    }
-                });
-                if (type === 'credit') {
-                    if (this.state.customerId === 'walkin') {
-                        if (window.showModernToast) {
-                            window.showModernToast('ℹ️ الفاتورة الآجلة تتطلب تحديد عميل مسجل لفحص سقف الائتمان', 'info', 2500);
-                        }
-                    }
-                }
-                this.checkCreditLimit();
+                this.checkCreditLimit({ subtotal, totalDiscount, tax: totalTax, labor: totalLabor, netDue });
+                return { subtotal, totalDiscount, tax: totalTax, labor: totalLabor, netDue };
             },
 
             toggleSplitPayment(checked) {
@@ -18936,557 +18427,17 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
             },
 
-            populateCustomers() {
-                const sel = document.getElementById('pos-customer-select');
-                if (!sel) return;
-                const currentVal = sel.value;
-                let html = '<option value="walkin">عميل نقدي عام (Walk-in)</option>';
-                let custs = (Array.isArray(M_CUSTOMERS) && M_CUSTOMERS.length > 0)
-                    ? M_CUSTOMERS
-                    : (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.customers) && window.SERVER_DATA.customers.length > 0)
-                        ? window.SERVER_DATA.customers.map(c => ({
-                            id: c.customer_id || c.id,
-                            name: c.customer_name || c.name,
-                            phone: c.phone || '',
-                            balance: parseFloat(c.total_exposure ?? c.ledger_balance ?? c.currentBalance ?? 0),
-                            creditLimit: parseFloat(c.credit_limit ?? c.creditLimit ?? 3000000)
-                        }))
-                        : ((typeof loadTenantArray === 'function') ? (loadTenantArray('erp_customers_v1') || []) : []);
-                if (Array.isArray(custs)) {
-                    custs.forEach(c => {
-                        const bal = parseFloat(c.balance || c.currentBalance || 0);
-                        const limit = parseFloat(c.creditLimit || c.credit_limit || 0);
-                        html += `<option value="${c.id}" data-phone="${c.phone || ''}" data-balance="${bal}" data-limit="${limit}">${c.name}</option>`;
-                    });
-                }
-                sel.innerHTML = html;
-                if (currentVal && currentVal !== 'walkin') {
-                    sel.value = currentVal;
-                }
-                this.onCustomerChange(sel.value);
-            },
-
-            onCustomerChange(custId) {
-                this.state.customerId = custId;
-                this.state.creditLimitOverridden = false;
-                const phoneEl = document.getElementById('pos-cust-phone');
-                const balEl = document.getElementById('pos-cust-balance');
-                const limitEl = document.getElementById('pos-cust-credit-limit');
-                const remEl = document.getElementById('pos-cust-remaining');
-
-                if (custId === 'walkin') {
-                    this.state.customer = { id: 'walkin', name: 'عميل نقدي عام', phone: 'نقدي فوري', balance: 0, creditLimit: 0 };
-                    if (phoneEl) phoneEl.innerHTML = '<i class="fa-solid fa-phone"></i> نقدي فوري';
-                    if (balEl) balEl.innerHTML = '<i class="fa-solid fa-wallet"></i> الرصيد: 0 SDG';
-                    if (limitEl) limitEl.innerHTML = '<i class="fa-solid fa-shield-halved"></i> السقف: لا يوجد';
-                    if (remEl) remEl.innerHTML = '<i class="fa-solid fa-sparkles"></i> المتاح: نقدي فوري';
-                } else {
-                    const c = (Array.isArray(M_CUSTOMERS) ? M_CUSTOMERS.find(x => String(x.id) === String(custId)) : null);
-                    if (c) {
-                        const bal = parseFloat(c.balance || c.currentBalance || 0);
-                        const limit = parseFloat(c.creditLimit || c.credit_limit || 0);
-                        const remaining = Math.max(0, limit - bal);
-                        this.state.customer = { ...c, balance: bal, creditLimit: limit };
-                        if (phoneEl) phoneEl.innerHTML = `<i class="fa-solid fa-phone"></i> ${c.phone || 'بدون هاتف'}`;
-                        const balColor = bal > 0 ? '#ef4444' : '#10b981';
-                        if (balEl) balEl.innerHTML = `<i class="fa-solid fa-wallet"></i> الرصيد: <strong style="color:${balColor};">${fmt(bal)} SDG</strong>`;
-                        if (limitEl) limitEl.innerHTML = `<i class="fa-solid fa-shield-halved"></i> السقف: <strong>${limit > 0 ? fmt(limit) + ' SDG' : 'غير محدد'}</strong>`;
-                        if (remEl) remEl.innerHTML = `<i class="fa-solid fa-sparkles"></i> المتاح: <strong>${limit > 0 ? fmt(remaining) + ' SDG' : 'مفتوح'}</strong>`;
-                    }
-                }
-                this.checkCreditLimit();
-            },
-
-            checkCreditLimit(t = null) {
-                const warnBox = document.getElementById('pos-credit-warning');
-                const warnMsg = document.getElementById('pos-credit-warning-msg');
-                if (!warnBox) return;
-
-                if (this.state.invoiceType !== 'credit' || this.state.customerId === 'walkin' || !this.state.customer) {
-                    warnBox.style.display = 'none';
-                    return;
-                }
-
-                let netDue = 0;
-                if (t && typeof t.netDue === 'number') {
-                    netDue = t.netDue;
-                } else {
-                    const totals = this.calculateTotals();
-                    netDue = totals.netDue;
-                }
-
-                const limit = parseFloat(this.state.customer.creditLimit || 0);
-                const currentBal = parseFloat(this.state.customer.balance || 0);
-                const projectedDebt = currentBal + netDue;
-
-                if (limit > 0 && projectedDebt > limit) {
-                    warnBox.style.display = 'flex';
-                    if (this.state.creditLimitOverridden) {
-                        warnBox.style.borderColor = '#10b981';
-                        warnBox.style.background = 'rgba(16, 185, 129, 0.12)';
-                        if (warnMsg) warnMsg.innerHTML = `✅ تم منح استثناء للمدير: تجاوز السقف بمبلغ (${fmt(projectedDebt - limit)} SDG)`;
-                    } else {
-                        warnBox.style.borderColor = '#ef4444';
-                        warnBox.style.background = 'rgba(239, 68, 68, 0.12)';
-                        if (warnMsg) warnMsg.innerHTML = `⚠️ تنبيه ائتماني: الدين المتوقع (${fmt(projectedDebt)} SDG) يتجاوز السقف (${fmt(limit)} SDG)!`;
-                    }
-                } else if (limit > 0 && projectedDebt >= limit * 0.9) {
-                    warnBox.style.display = 'flex';
-                    warnBox.style.borderColor = '#f59e0b';
-                    warnBox.style.background = 'rgba(245, 158, 11, 0.12)';
-                    if (warnMsg) warnMsg.innerHTML = `⚡ تنبيه: العميل قارب على استنفاذ سقف الائتمان (${fmt(projectedDebt)} / ${fmt(limit)} SDG)`;
-                } else {
-                    warnBox.style.display = 'none';
-                }
-            },
-
-            overrideCreditLimit() {
-                this.state.creditLimitOverridden = true;
-                triggerHaptic('medium');
-                if (window.showModernToast) {
-                    window.showModernToast('⚡ تم تسجيل تجاوز استثنائي لسقف الائتمان بواسطة الصلاحية الإدارية', 'warning', 3000);
-                }
-                this.checkCreditLimit();
-            },
-
-            getSortedInvoices() {
-                let localSales = [];
-                try {
-                    localSales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
-                } catch(e) {}
-
-                if (!Array.isArray(localSales)) localSales = [];
-                const map = new Map();
-
-                if (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.sales)) {
-                    window.SERVER_DATA.sales.forEach(s => {
-                        const no = String(s.invoiceNo || s.id || '');
-                        if (no && !map.has(no)) map.set(no, s);
-                    });
-                }
-
-                localSales.forEach(s => {
-                    const no = String(s.invoiceNo || s.id || '');
-                    if (no) map.set(no, s);
-                });
-
-                const list = Array.from(map.values())
-                    .filter(inv => inv.invoiceNo && inv.invoiceNo !== 'preliminary' && !String(inv.invoiceNo).startsWith('PRE-'))
-                    .sort((a, b) => {
-                        const numA = parseInt(String(a.invoiceNo || a.id || '').replace(/\D/g, '')) || 0;
-                        const numB = parseInt(String(b.invoiceNo || b.id || '').replace(/\D/g, '')) || 0;
-                        if (numA !== numB) return numA - numB;
-                        return String(a.invoiceNo || a.id).localeCompare(String(b.invoiceNo || b.id));
-                    });
-                return list;
-            },
-
-            generateInvoiceNumber() {
-                const isOffline = !navigator.onLine || window.IS_OFFLINE_SIMULATED;
-                const cleanInv = (val) => String(val || '').replace(/^#+/, '');
-                let invNo = cleanInv(window._mirrorNextSalesNo);
-                if (!invNo) {
-                    const now = new Date();
-                    const yy = String(now.getFullYear()).substring(2, 4);
-                    const mm = String(now.getMonth() + 1).padStart(2, '0');
-                    invNo = 'S' + yy + mm + '0127';
-                }
-
-                const pill = document.getElementById('pos-inv-number-pill');
-                const dispEl = document.getElementById('pos-inv-number-display');
-                const noInp = document.getElementById('pos-inv-no');
-
-                if (isOffline) {
-                    const peekRaw = window.DualNumberingEngine ? window.DualNumberingEngine.peekNextSequence('sale') : invNo;
-                    const peek = cleanInv(peekRaw);
-                    if (pill) {
-                        pill.innerHTML = `⏳ أوفلاين ${peek} <span style="font-size:0.76rem; opacity:0.85;">(معلق)</span>`;
-                        pill.style.background = 'rgba(245, 158, 11, 0.2)';
-                        pill.style.borderColor = '#f59e0b';
-                        pill.style.color = '#f59e0b';
-                    }
-                    if (dispEl && !this.state.isEditing) dispEl.textContent = '#' + peek;
-                    if (noInp && !this.state.isEditing) noInp.value = peek;
-                    return peek;
-                } else {
-                    if (pill && !this.state.isEditing) {
-                        pill.innerHTML = `🟢 #${invNo}`;
-                        pill.style.background = 'rgba(56, 189, 248, 0.15)';
-                        pill.style.borderColor = 'rgba(56, 189, 248, 0.3)';
-                        pill.style.color = 'var(--primary)';
-                    }
-                    if (dispEl && !this.state.isEditing) dispEl.textContent = '#' + invNo;
-                    if (noInp && !this.state.isEditing) noInp.value = invNo;
-
-                    // Background sync check
-                    if (typeof fetch === 'function') {
-                        fetch('api/mirror_sync.php?action=get_next_numbers&_t=' + Date.now())
-                            .then(r => r.json())
-                            .then(data => {
-                                if (data && data.sales && data.sales.nextInvoiceNo) {
-                                    const nextNo = cleanInv(data.sales.nextInvoiceNo);
-                                    window._mirrorNextSalesNo = nextNo;
-                                    if (!this.state.isEditing && this.state.cart.length === 0) {
-                                        if (pill) pill.innerHTML = `🟢 #${nextNo}`;
-                                        if (dispEl) dispEl.textContent = '#' + nextNo;
-                                        if (noInp) noInp.value = nextNo;
-                                    }
-                                }
-                            }).catch(() => {});
-                    }
-                    return invNo;
-                }
-            },
-
-            loadInvoice(invNo, invData = null) {
-                if (!invNo) return;
-                triggerHaptic('medium');
-                const cleanInv = (val) => String(val || '').replace(/^#+/, '');
-                const cleanNo = cleanInv(invNo);
-
-                const proceed = (data) => {
-                    if (!data) {
-                        alert(`تعذر العثور على بيانات الفاتورة ${cleanNo}`);
-                        return;
-                    }
-
-                    this.state.isEditing = true;
-                    this.state.currentInvoiceNo = cleanInv(data.invoiceNo || data.id || cleanNo);
-
-                    // Serial and Badges
-                    const dispEl = document.getElementById('pos-inv-number-display');
-                    const noInp = document.getElementById('pos-inv-no');
-                    const pill = document.getElementById('pos-inv-number-pill');
-                    const editBadge = document.getElementById('pos-edit-inv-no-badge');
-                    const editBanner = document.getElementById('pos-saved-invoice-banner');
-                    const modeBadge = document.getElementById('pos-inv-mode-badge');
-
-                    if (dispEl) dispEl.textContent = '#' + this.state.currentInvoiceNo;
-                    if (noInp) noInp.value = this.state.currentInvoiceNo;
-                    if (pill) pill.innerHTML = `🟢 #${this.state.currentInvoiceNo}`;
-                    if (editBadge) editBadge.textContent = this.state.currentInvoiceNo;
-                    if (editBanner) editBanner.style.display = 'block';
-                    if (modeBadge) {
-                        modeBadge.textContent = '⚠️ تعديل فاتورة معتمدة';
-                        modeBadge.className = 'inv-mode-badge mode-posted';
-                    }
-
-                    // Date & Description
-                    const dateInp = document.getElementById('pos-inv-date');
-                    if (dateInp) dateInp.value = data.date || data.fullDate || new Date().toISOString().split('T')[0];
-                    const descInp = document.getElementById('pos-inv-description');
-                    if (descInp) descInp.value = data.description || data.notes || '';
-
-                    // Customer
-                    const custId = data.customer || data.customerId || 'walkin';
-                    const custSel = document.getElementById('pos-customer-select');
-                    if (custSel) custSel.value = custId;
-                    this.onCustomerChange(custId);
-
-                    // Warehouse & Cost Center
-                    const whSel = document.getElementById('pos-item-warehouse');
-                    if (whSel && data.warehouse) whSel.value = data.warehouse;
-                    const ccSel = document.getElementById('pos-item-cost-center');
-                    if (ccSel && (data.costCenter || data.costCenterId)) ccSel.value = data.costCenter || data.costCenterId;
-
-                    // Currency & Exchange Rate
-                    const curSel = document.getElementById('pos-currency-select');
-                    if (curSel && data.currency) curSel.value = data.currency;
-                    const rateInp = document.getElementById('pos-exchange-rate');
-                    if (rateInp && data.exchangeRate) rateInp.value = data.exchangeRate;
-
-                    // Payment Method
-                    this.setInvoiceType(data.paymentMethod || 'cash');
-
-                    // Split Payment
-                    const splitToggle = document.getElementById('pos-split-toggle');
-                    if (data.isSplit || (data.splitCash && data.splitBank)) {
-                        if (splitToggle) splitToggle.checked = true;
-                        this.toggleSplitPayment(true);
-                        const cInp = document.getElementById('pos-split-cash');
-                        const bInp = document.getElementById('pos-split-bank');
-                        if (cInp) cInp.value = data.splitCash || 0;
-                        if (bInp) bInp.value = data.splitBank || 0;
-                        this.state.splitCash = parseFloat(data.splitCash || 0);
-                        this.state.splitBank = parseFloat(data.splitBank || 0);
-                    } else {
-                        if (splitToggle) splitToggle.checked = false;
-                        this.toggleSplitPayment(false);
-                    }
-
-                    // Extra Costs
-                    const setCost = (type, val) => {
-                        const wrap = document.getElementById(`wrap-extra-${type}`);
-                        const btn = document.getElementById(`btn-toggle-${type}`);
-                        const inp = document.getElementById(`pos-extra-${type}`);
-                        const num = parseFloat(val) || 0;
-                        if (num > 0) {
-                            if (wrap) wrap.style.display = 'block';
-                            if (btn) btn.classList.add('active');
-                            if (inp) inp.value = num;
-                            this.state.activeCosts[type] = true;
-                        } else {
-                            if (wrap) wrap.style.display = 'none';
-                            if (btn) btn.classList.remove('active');
-                            if (inp) inp.value = '';
-                            this.state.activeCosts[type] = false;
-                        }
-                    };
-                    setCost('transport', data.transportCost || data.transport);
-                    setCost('labor', data.laborCost || data.labor);
-                    setCost('additions', data.additionsCost || data.additions);
-                    setCost('tax', data.tax || data.vatAmount);
-                    setCost('discount', data.discount || data.discountAmt);
-
-                    // Cart Items
-                    this.state.cart = [];
-                    const items = data.items || data.products || [];
-                    items.forEach(it => {
-                        const itPrice = parseFloat(it.price || it.rate || 0);
-                        const itQty = parseFloat(it.qty || it.quantity || 1);
-                        const itDiscount = parseFloat(it.discount || 0);
-                        const itSubtotal = (itQty * itPrice) - itDiscount;
-                        this.state.cart.push({
-                            id: it.id || it.itemId || 'ITEM-' + Date.now(),
-                            name: it.name || it.itemName || 'صنف مبيعات',
-                            spec: it.spec || '',
-                            barcode: it.barcode || it.qrCode || '',
-                            warehouse: it.warehouse || it.warehouseId || 'central',
-                            warehouseName: it.warehouseName || 'المستودع الرئيسي',
-                            category: it.category || 'all',
-                            unit: it.unit || it.selectedUnit || 'طن',
-                            primaryUnit: it.unit || it.selectedUnit || 'طن',
-                            qty: itQty,
-                            price: itPrice,
-                            minPrice: parseFloat(it.minPrice || 0),
-                            cost: parseFloat(it.cost || it.buyPrice || 0),
-                            tax: parseFloat(it.tax || 0),
-                            labor: parseFloat(it.labor || 0),
-                            discount: itDiscount,
-                            subtotal: itSubtotal
-                        });
-                    });
-
-                    this.renderCart();
-                    window.switchSalesSuiteTab('invoice');
-                    if (window.showModernToast) {
-                        window.showModernToast(`✅ تم استدعاء الفاتورة #${this.state.currentInvoiceNo} للتعديل`, 'success', 2500);
-                    }
-                };
-
-                if (invData) {
-                    proceed(invData);
-                    return;
-                }
-
-                // Check local sorted list
-                const sorted = this.getSortedInvoices();
-                const found = sorted.find(s => String(s.invoiceNo || s.id) === String(invNo));
-                if (found) {
-                    proceed(found);
-                    return;
-                }
-
-                // Try fetching from mirror API
-                if (navigator.onLine && typeof fetch === 'function') {
-                    fetch(`api/mirror_sync.php?action=get_sales_invoice&invoice_no=${encodeURIComponent(invNo)}`)
-                        .then(r => r.json())
-                        .then(res => {
-                            if (res && res.success && res.invoice) {
-                                proceed(res.invoice);
-                            } else {
-                                alert(`تعذر جلب الفاتورة ${invNo} من السيرفر`);
-                            }
-                        }).catch(() => {
-                            alert(`حدث خطأ أثناء جلب الفاتورة ${invNo}`);
-                        });
-                }
-            },
-
-            loadPreviousInvoice() {
-                triggerHaptic('light');
-                const sorted = this.getSortedInvoices();
-                if (sorted.length === 0) {
-                    if (window.showModernToast) window.showModernToast('ℹ️ لا توجد فواتير سابقة مسجلة', 'info', 2000);
-                    return;
-                }
-
-                const currentNo = this.state.currentInvoiceNo || document.getElementById('pos-inv-no')?.value;
-                const idx = sorted.findIndex(s => String(s.invoiceNo || s.id) === String(currentNo));
-
-                let targetIdx = -1;
-                if (!this.state.isEditing || idx === -1) {
-                    // New invoice -> step to latest saved invoice
-                    targetIdx = sorted.length - 1;
-                } else if (idx > 0) {
-                    targetIdx = idx - 1;
-                }
-
-                if (targetIdx >= 0) {
-                    const prevInv = sorted[targetIdx];
-                    this.loadInvoice(prevInv.invoiceNo || prevInv.id, prevInv);
-                } else {
-                    if (window.showModernToast) window.showModernToast('ℹ️ أنت في أول فاتورة مسجلة بالفعل', 'info', 2000);
-                }
-            },
-
-            loadNextInvoice() {
-                triggerHaptic('light');
-                const sorted = this.getSortedInvoices();
-                if (!this.state.isEditing) {
-                    if (window.showModernToast) window.showModernToast('✨ أنت في أحدث فاتورة جديدة بالفعل', 'info', 2000);
-                    return;
-                }
-
-                const currentNo = this.state.currentInvoiceNo || document.getElementById('pos-inv-no')?.value;
-                const idx = sorted.findIndex(s => String(s.invoiceNo || s.id) === String(currentNo));
-
-                if (idx >= 0 && idx < sorted.length - 1) {
-                    const nextInv = sorted[idx + 1];
-                    this.loadInvoice(nextInv.invoiceNo || nextInv.id, nextInv);
-                } else {
-                    // Jump to new invoice
-                    this.newInvoice();
-                }
-            },
-
-            newInvoice() {
-                triggerHaptic('success');
-                this.state.isEditing = false;
-                this.state.currentInvoiceNo = null;
-                this.state.cart = [];
-                this.state.customerId = 'walkin';
-                this.state.customer = null;
-                this.state.invoiceType = 'cash';
-                this.state.isSplit = false;
-                this.state.splitCash = 0;
-                this.state.splitBank = 0;
-                this.state.creditLimitOverridden = false;
-
-                // Reset Extra Costs
-                ['transport', 'labor', 'additions', 'tax', 'discount'].forEach(t => {
-                    const wrap = document.getElementById(`wrap-extra-${t}`);
-                    const btn = document.getElementById(`btn-toggle-${t}`);
-                    const inp = document.getElementById(`pos-extra-${t}`);
-                    if (wrap) wrap.style.display = 'none';
-                    if (btn) btn.classList.remove('active');
-                    if (inp) inp.value = '';
-                    this.state.activeCosts[t] = false;
-                });
-
-                // Reset Split
-                const splitToggle = document.getElementById('pos-split-toggle');
-                if (splitToggle) splitToggle.checked = false;
-                this.toggleSplitPayment(false);
-
-                // Reset Date to today
-                const dateInp = document.getElementById('pos-inv-date');
-                if (dateInp) dateInp.value = new Date().toISOString().split('T')[0];
-
-                // Reset Description
-                const descInp = document.getElementById('pos-inv-description');
-                if (descInp) descInp.value = '';
-
-                // Reset Mode Badge & Hide Banner
-                const editBanner = document.getElementById('pos-saved-invoice-banner');
-                if (editBanner) editBanner.style.display = 'none';
-                const modeBadge = document.getElementById('pos-inv-mode-badge');
-                if (modeBadge) {
-                    modeBadge.textContent = '✨ فاتورة جديدة';
-                    modeBadge.className = 'inv-mode-badge mode-new';
-                }
-
-                // Reset Customer
-                const custSel = document.getElementById('pos-customer-select');
-                if (custSel) custSel.value = 'walkin';
-                this.onCustomerChange('walkin');
-
-                // Invoice Number
-                const nextSeq = String(this.generateInvoiceNumber()).replace(/^#+/, '');
-                const dispEl = document.getElementById('pos-inv-number-display');
-                const noInp = document.getElementById('pos-inv-no');
-                if (dispEl) dispEl.textContent = '#' + nextSeq;
-                if (noInp) noInp.value = nextSeq;
-
-                this.setInvoiceType('cash');
-                this.renderCart();
-
-                if (window.showModernToast) {
-                    window.showModernToast(`✨ تم فتح فاتورة مبيعات جديدة #${nextSeq}`, 'success', 2200);
-                }
-            },
-
-            syncWithMirror(forceToast = false) {
-                if (!navigator.onLine) {
-                    if (forceToast && window.showModernToast) {
-                        window.showModernToast('⚠️ الجهاز غير متصل بالإنترنت حالياً (أوفلاين)', 'warning', 2500);
-                    }
-                    return;
-                }
-                fetch('api/mirror_sync.php?action=get_recent_sales&_t=' + Date.now())
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data && data.success && Array.isArray(data.sales)) {
-                            let localSales = [];
-                            try { localSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
-                            let map = new Map();
-                            localSales.forEach(inv => {
-                                const no = String(inv.invoiceNo || inv.id || '');
-                                if (no) map.set(no, inv);
-                            });
-
-                            let hasNew = false;
-                            data.sales.forEach(serverInv => {
-                                const sNo = String(serverInv.invoiceNo || serverInv.id || '');
-                                if (sNo && !map.has(sNo)) {
-                                    localSales.unshift(serverInv);
-                                    map.set(sNo, serverInv);
-                                    hasNew = true;
-                                }
-                            });
-
-                            if (hasNew) {
-                                localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(localSales));
-                            }
-
-                            if (data.nextInvoiceNo) {
-                                window._mirrorNextSalesNo = data.nextInvoiceNo;
-                                if (!this.state.isEditing && this.state.cart.length === 0) {
-                                    const pill = document.getElementById('pos-inv-number-pill');
-                                    const dispEl = document.getElementById('pos-inv-number-display');
-                                    const noInp = document.getElementById('pos-inv-no');
-                                    if (pill) pill.innerHTML = `🟢 #${data.nextInvoiceNo}`;
-                                    if (dispEl) dispEl.textContent = '#' + data.nextInvoiceNo;
-                                    if (noInp) noInp.value = data.nextInvoiceNo;
-                                }
-                            }
-
-                            this.renderHistory();
-
-                            if (forceToast && window.showModernToast) {
-                                window.showModernToast(`✅ تم تحديث المزامنة مع قاعدة البيانات (التالي: #${data.nextInvoiceNo})`, 'success', 2500);
-                            }
-                        }
-                    }).catch(err => {
-                        if (forceToast && window.showModernToast) {
-                            window.showModernToast('⚠️ تعذر إكمال المزامنة السحابية', 'warning', 2500);
-                        }
-                    });
-            },
-
             triggerBarcodeScanner() {
                 triggerHaptic('light');
-                if (window.BarcodeScannerEngine) {
-                    BarcodeScannerEngine.open((code) => {
-                        const found = M_ITEMS.find(x => String(x.barcode || '') === code || String(x.sku || '') === code || String(x.id) === code || x.name.includes(code));
-                        if (found) {
-                            this.addItemById(found.id);
-                            if (window.showModernToast) window.showModernToast(`🎯 تمت إضافة: ${found.name}`, 'success');
-                        } else {
-                            if (window.showModernToast) window.showModernToast(`⚠️ الباركود (${code}) غير مطابق`, 'warning', 3000);
-                        }
-                    });
-                }
+                BarcodeScannerEngine.open((code) => {
+                    const found = M_ITEMS.find(x => String(x.barcode || '') === code || String(x.sku || '') === code || String(x.id) === code || x.name.includes(code));
+                    if (found) {
+                        this.addItemById(found.id);
+                        if (window.showModernToast) window.showModernToast(`🎯 تمت إضافة: ${found.name}`, 'success');
+                    } else {
+                        if (window.showModernToast) window.showModernToast(`⚠️ الباركود (${code}) غير مطابق`, 'warning', 3000);
+                    }
+                });
             },
 
             simulateBarcodeFromInput() {
@@ -19520,12 +18471,12 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
 
                 const totals = this.calculateTotals();
-                if (totals.netDue <= 0 && totals.itemsSubtotal <= 0) {
+                if (totals.netDue <= 0 && totals.subtotal <= 0) {
                     alert('⚠️ إجمالي الفاتورة يجب أن يكون أكبر من صفر');
                     return false;
                 }
 
-                // Credit limit check
+                // Credit limit enforcement
                 if (this.state.invoiceType === 'credit') {
                     if (this.state.customerId === 'walkin') {
                         alert('⚠️ لا يمكن إصدار فاتورة آجلة لعميل نقدي عام (Walk-in). يرجى اختيار عميل مسجل!');
@@ -19548,115 +18499,68 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     }
                 }
 
-                // Sequence Number
-                let invNo = '';
-                if (this.state.isEditing && this.state.currentInvoiceNo) {
-                    invNo = this.state.currentInvoiceNo;
-                } else {
-                    const inpNo = document.getElementById('pos-inv-no')?.value;
-                    const isOnline = navigator.onLine && !window.IS_OFFLINE_SIMULATED;
-                    if (inpNo && inpNo !== '---') {
-                        invNo = inpNo;
-                    } else if (isOnline && window._mirrorNextSalesNo) {
-                        invNo = window._mirrorNextSalesNo;
-                    } else if (window.DualNumberingEngine) {
-                        invNo = window.DualNumberingEngine.nextSequence('sale');
-                    } else {
-                        const now = new Date();
-                        const yy = String(now.getFullYear()).substring(2, 4);
-                        const mm = String(now.getMonth() + 1).padStart(2, '0');
-                        invNo = 'S' + yy + mm + '0127';
-                    }
+                // Margin Violation Warning Confirmation
+                const hasMarginViolation = this.state.cart.some(it => it.price < it.minPrice);
+                if (hasMarginViolation) {
+                    const confirmMargin = confirm('⚠️ تحذير: تتضمن الفاتورة أصنافاً مباعة بسعر أقل من حد التكلفة الأدنى المسموح به!\nهل تريد المتابعة واعتماد الفاتورة تحت مسؤولية الكاشير؟');
+                    if (!confirmMargin) return false;
                 }
 
-                const custName = this.state.customer?.name || (this.state.customerId === 'walkin' ? 'عميل نقدي عام' : 'عميل مسجل');
-                const invDate = document.getElementById('pos-inv-date')?.value || new Date().toISOString().split('T')[0];
-                const invDesc = document.getElementById('pos-inv-description')?.value || '';
-                const whVal = document.getElementById('pos-item-warehouse')?.value || 'central';
-                const ccVal = document.getElementById('pos-item-cost-center')?.value || 'cc-001';
-                const curVal = document.getElementById('pos-currency-select')?.value || 'SDG';
-                const rateVal = parseFloat(document.getElementById('pos-exchange-rate')?.value) || window.SERVER_DATA?.exchangeRateUSD || 5999;
-
+                // Local collision-proof sequence generation (Dual-Numbering Engine)
+                const localSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('sale') : ('INV-OFF-' + Date.now().toString().slice(-4));
+                const invNo = localSeq;
+                const custName = this.state.customer?.name || (this.state.customerId === 'walkin' ? 'عميل نقدي عام' : 'عميل');
                 const invoiceData = {
                     id: invNo,
                     invoiceNo: invNo,
-                    local_seq: invNo,
-                    sync_status: navigator.onLine ? 'SYNCED' : 'PENDING_OFFLINE',
-                    official_server_id: navigator.onLine ? invNo : null,
-                    isAmended: this.state.isEditing,
+                    local_seq: localSeq,
+                    sync_status: 'PENDING_OFFLINE',
+                    official_server_id: null,
                     customer: this.state.customerId,
-                    customerId: this.state.customerId,
                     customerName: custName,
                     customerPhone: this.state.customer?.phone || '',
-                    date: invDate,
-                    fullDate: invDate,
-                    time: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' }),
-                    description: invDesc,
-                    notes: invDesc,
-                    warehouse: whVal,
-                    costCenter: ccVal,
-                    costCenterId: ccVal,
-                    currency: curVal,
-                    exchangeRate: rateVal,
-                    items: this.state.cart.map(it => ({
-                        id: it.id,
-                        itemId: it.id,
-                        name: it.name,
-                        itemName: it.name,
-                        spec: it.spec || '',
-                        barcode: it.barcode || '',
-                        warehouse: it.warehouse || whVal,
-                        warehouseId: it.warehouse || whVal,
-                        unit: it.unit || 'طن',
-                        selectedUnit: it.unit || 'طن',
-                        qty: it.qty,
-                        quantity: it.qty,
-                        price: it.price,
-                        cost: it.cost || 0,
-                        minPrice: it.minPrice || 0,
-                        discount: it.discount || 0,
-                        subtotal: it.subtotal,
-                        total: it.subtotal
-                    })),
-                    subtotal: totals.itemsSubtotal,
-                    subTotal: totals.itemsSubtotal,
-                    transportCost: totals.transport,
-                    laborCost: totals.labor,
-                    additionsCost: totals.additions,
-                    tax: totals.tax,
-                    vatAmount: totals.tax,
+                    subtotal: totals.subtotal,
                     discount: totals.totalDiscount,
+                    tax: totals.tax,
+                    labor: totals.labor,
                     total: totals.netDue,
                     grandTotal: totals.netDue,
-                    totalAmount: totals.netDue,
                     paymentMethod: this.state.invoiceType,
                     isSplit: this.state.isSplit,
                     splitCash: this.state.splitCash,
                     splitBank: this.state.splitBank,
-                    cashAmount: this.state.invoiceType === 'cash' ? totals.netDue : (this.state.isSplit ? this.state.splitCash : 0),
-                    bankAmount: this.state.invoiceType === 'bank' ? totals.netDue : (this.state.isSplit ? this.state.splitBank : 0),
-                    creditAmount: this.state.invoiceType === 'credit' ? totals.netDue : 0,
-                    status: 'posted',
-                    isPosted: true,
+                    items: this.state.cart.map(it => ({
+                        id: it.id,
+                        name: it.name,
+                        spec: it.spec,
+                        barcode: it.barcode,
+                        warehouse: it.warehouse || 'central',
+                        warehouseName: it.warehouseName || 'المستودع الرئيسي',
+                        category: it.category || 'all',
+                        unit: it.unit || it.primaryUnit || 'طن',
+                        qty: it.qty,
+                        price: it.price,
+                        cost: it.cost,
+                        minPrice: it.minPrice,
+                        tax: it.tax || 0,
+                        labor: it.labor || 0,
+                        discount: it.discount || 0,
+                        subtotal: it.subtotal
+                    })),
+                    date: new Date().toLocaleTimeString('ar-SD', { hour: '2-digit', minute: '2-digit' }),
+                    fullDate: new Date().toISOString().split('T')[0],
                     timestamp: new Date().toISOString()
                 };
 
                 this.state.lastSubmittedInvoice = invoiceData;
 
                 // Save into local tenant store
-                let sales = [];
-                try { sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
-                const exIdx = sales.findIndex(x => String(x.invoiceNo || x.id) === String(invNo));
-                if (exIdx >= 0) {
-                    sales[exIdx] = invoiceData;
-                } else {
-                    sales.unshift(invoiceData);
-                }
-                localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(sales));
-                localStorage.setItem('erp_inv_' + invNo, JSON.stringify(invoiceData));
+                let sales = loadTenantArray('erp_sales_invoices_v1');
+                sales.unshift(invoiceData);
+                saveTenantArray('erp_sales_invoices_v1', sales);
 
                 // Deduct inventory items
-                let items = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_items_v1') || []) : [];
+                let items = loadTenantArray('erp_items_v1');
                 invoiceData.items.forEach(cItem => {
                     const itIdx = items.findIndex(x => String(x.id) === String(cItem.id));
                     if (itIdx >= 0) {
@@ -19665,19 +18569,32 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         items[itIdx].stock = items[itIdx].quantity;
                     }
                 });
-                if (typeof saveTenantArray === 'function') saveTenantArray('erp_items_v1', items);
+                saveTenantArray('erp_items_v1', items);
 
                 // Adjust Accounts / Ledgers
                 if (this.state.invoiceType === 'credit' && this.state.customerId !== 'walkin') {
-                    let custs = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_customers_v1') || []) : [];
+                    let custs = loadTenantArray('erp_customers_v1');
                     const cIdx = custs.findIndex(x => String(x.id) === String(this.state.customerId));
                     if (cIdx >= 0) {
                         custs[cIdx].currentBalance = (parseFloat(custs[cIdx].currentBalance || custs[cIdx].balance || 0) + totals.netDue);
-                        if (typeof saveTenantArray === 'function') saveTenantArray('erp_customers_v1', custs);
+                        saveTenantArray('erp_customers_v1', custs);
+                    }
+                } else if (this.state.invoiceType === 'cash') {
+                    let vaults = loadTenantArray('erp_vaults_v1');
+                    if (vaults.length > 0) {
+                        vaults[0].amount = (parseFloat(vaults[0].amount || 0) + totals.netDue);
+                        saveTenantArray('erp_vaults_v1', vaults);
+                    }
+                } else if (this.state.invoiceType === 'bank') {
+                    let banks = loadTenantArray('erp_banks_v1');
+                    if (banks.length > 0) {
+                        banks[0].balance = (parseFloat(banks[0].balance || 0) + totals.netDue);
+                        saveTenantArray('erp_banks_v1', banks);
                     }
                 }
 
-                // Push to MariaDB mirror sync engine
+                // Push to backend sync engine & Outbox
+                pushChangesToBackend();
                 if (navigator.onLine && typeof fetch === 'function') {
                     fetch('api/mirror_sync.php?action=save_sales_invoice', {
                         method: 'POST',
@@ -19689,119 +18606,90 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             invoiceData.official_server_id = res.invoiceNo;
                             invoiceData.sync_status = 'SYNCED';
                         }
-                    }).catch(e => console.warn('Mirror sales sync error:', e));
+                    }).catch(e => console.warn('Mirror sales sync warning:', e));
                 }
-
                 if (window.OfflineOutboxEngine) {
                     window.OfflineOutboxEngine.enqueue('sale_invoice', invoiceData, 'HIGH');
                 }
+                closeBottomSheet('sheet-sale');
 
                 if (window.showModernToast) {
-                    const usdFormatted = (rateVal > 0 ? (totals.netDue / rateVal).toFixed(2) : '0.00');
-                    window.showModernToast(`✅ تم حفظ وترحيل الفاتورة #${invNo} بنجاح (${fmt(totals.netDue)} SDG / ≈ $${usdFormatted} USD)`, 'success', 3500);
+                    const isAppOnline = window.OfflineOutboxEngine ? window.OfflineOutboxEngine.isOnline() : navigator.onLine;
+                    if (isAppOnline) {
+                        window.showModernToast(`✅ تم حفظ وترحيل الفاتورة ${invNo} بنجاح (${fmt(totals.netDue)} SDG)`, 'success', 3500);
+                    } else {
+                        window.showModernToast(`⏳ تم حفظ الفاتورة أوفلاين ${invNo} (النور أحمر) • سيتم ترحيلها وأخذ الرقم الرسمي فور عودة النت ⚡`, 'info', 4000);
+                    }
                 }
 
-                if (typeof refreshMobileData === 'function') refreshMobileData();
+                refreshMobileData();
 
                 // Handle Action Triggers (Print / Share)
                 if (doPrint) {
                     setTimeout(() => {
                         this.openThermalReceiptSheet(invoiceData);
-                    }, 250);
+                    }, 300);
                 } else if (doShare) {
                     setTimeout(() => {
                         this.shareInvoiceViaWhatsApp(invoiceData);
-                    }, 250);
+                    }, 300);
                 }
 
-                // Reset for next invoice
-                this.newInvoice();
-                this.renderHistory();
+                // Reset cart for next transaction
+                this.state.cart = [];
+                this.renderCart();
                 return true;
             },
 
-            printThermalReceipt() {
-                if (this.state.cart.length > 0) {
-                    const totals = this.calculateTotals();
-                    const invNo = document.getElementById('pos-inv-no')?.value || window._mirrorNextSalesNo || 'INV-TEMP';
-                    const custName = this.state.customer?.name || (this.state.customerId === 'walkin' ? 'عميل نقدي عام' : 'عميل');
-                    const invDate = document.getElementById('pos-inv-date')?.value || new Date().toISOString().split('T')[0];
-                    const tempInv = {
-                        invoiceNo: invNo,
-                        customerName: custName,
-                        date: invDate,
-                        items: this.state.cart,
-                        subtotal: totals.itemsSubtotal,
-                        discount: totals.totalDiscount,
-                        total: totals.netDue,
-                        grandTotal: totals.netDue,
-                        paymentMethod: this.state.invoiceType,
-                        isSplit: this.state.isSplit,
-                        splitCash: this.state.splitCash,
-                        splitBank: this.state.splitBank
-                    };
-                    this.openThermalReceiptSheet(tempInv);
-                } else if (this.state.lastSubmittedInvoice) {
-                    this.openThermalReceiptSheet(this.state.lastSubmittedInvoice);
-                } else {
-                    const sorted = this.getSortedInvoices();
-                    if (sorted.length > 0) {
-                        this.openThermalReceiptSheet(sorted[sorted.length - 1]);
-                    } else {
-                        alert('لا توجد بيانات فاتورة حالية أو سابقة للطباعة');
-                    }
-                }
-            },
-
             openThermalReceiptSheet(inv) {
-                if (!inv) return;
                 const paper = document.getElementById('thermal-receipt-content');
                 if (!paper) return;
 
                 let itemsHtml = '';
-                (inv.items || []).forEach(it => {
-                    const itSub = parseFloat(it.subtotal || it.total || (it.qty * it.price) || 0);
+                inv.items.forEach(it => {
                     itemsHtml += `
                         <div class="thermal-row" style="font-weight:700;">
-                            <span>${it.name || it.itemName} × ${it.qty || it.quantity}</span>
-                            <span>${fmt(itSub)}</span>
+                            <span>${it.name} × ${it.qty}</span>
+                            <span>${fmt(it.subtotal)}</span>
                         </div>
-                        ${(it.discount > 0) ? `<div class="thermal-row" style="color:#ef4444; font-size:0.76rem;"><span>(خصم)</span><span>-${fmt(it.discount)}</span></div>` : ''}
+                        ${it.discount > 0 ? `<div class="thermal-row" style="color:#ef4444; font-size:0.76rem;"><span>(خصم الصنف)</span><span>-${fmt(it.discount)}</span></div>` : ''}
                     `;
                 });
 
-                const payMethodLabel = inv.isSplit ? 'سداد مجزأ (نقدي + بنكك)' : (inv.paymentMethod === 'cash' ? 'نقداً (Cash)' : (inv.paymentMethod === 'bank' ? 'تحويل بنكي (Bankak)' : (inv.paymentMethod === 'cheque' ? 'شيك (Cheque)' : 'آجل (Credit)')));
+                const payMethodLabel = inv.isSplit ? 'سداد مجزأ (نقدي + بنكك)' : (inv.paymentMethod === 'cash' ? 'نقداً (Cash)' : (inv.paymentMethod === 'bank' ? 'تحويل بنكي (Bankak)' : 'آجل (Credit)'));
+
                 const isSynced = String(inv.sync_status).toUpperCase() === 'SYNCED' || !!inv.official_server_id;
                 const statusBadgeHtml = isSynced
-                    ? `<div style="display:inline-block; background:#059669; color:#ffffff; font-size:0.72rem; font-weight:900; padding:2px 10px; border-radius:6px; margin-top:4px;" id="receipt-sync-badge">✅ معتمد سحابياً: ${inv.official_server_id || inv.invoiceNo}</div>`
+                    ? `<div style="display:inline-block; background:#059669; color:#ffffff; font-size:0.72rem; font-weight:900; padding:2px 10px; border-radius:6px; margin-top:4px;" id="receipt-sync-badge">✅ معتمد سحابياً: ${inv.official_server_id || '#10542'}</div>`
                     : `<div style="display:inline-block; background:#d97706; color:#ffffff; font-size:0.72rem; font-weight:900; padding:2px 10px; border-radius:6px; margin-top:4px;" id="receipt-sync-badge">⏳ مسودة محلية (قيد المزامنة)</div>`;
-
-                const totalSDG = parseFloat(inv.grandTotal || inv.total || inv.totalAmount || 0);
-                const rate = parseFloat(inv.exchangeRate || window.SERVER_DATA?.exchangeRateUSD || 5999);
-                const totalUSD = (rate > 0 && totalSDG > 0) ? (totalSDG / rate).toFixed(2) : '0.00';
 
                 paper.innerHTML = `
                     <div class="thermal-header">
-                        <h3>مؤسسة السجانة التجارية</h3>
+                        <h3>مؤسسة الصجانة التجارية</h3>
                         <p>سوق السجانة لمواد البناء والأخشاب - الخرطوم</p>
                         <p>هاتف: +249 91 234 5678</p>
                         <div class="thermal-divider"></div>
                         <h4>فاتورة مبيعات ضريبية مبسطة</h4>
-                        <p style="font-family:monospace; font-weight:900; font-size:1.15rem; margin-top:2px;" id="receipt-seq-display">#${inv.local_seq || inv.invoiceNo}</p>
+                        <p style="font-family:monospace; font-weight:900; font-size:1.15rem; margin-top:2px;" id="receipt-seq-display">${inv.local_seq || inv.invoiceNo}</p>
                         ${statusBadgeHtml}
                     </div>
                     <div class="thermal-divider"></div>
                     <div class="thermal-row">
-                        <span>رقم الفاتورة:</span>
+                        <span>التسلسل المحلي:</span>
                         <strong style="font-family:monospace;">${inv.local_seq || inv.invoiceNo}</strong>
                     </div>
+                    ${isSynced ? `
+                    <div class="thermal-row" style="color:#059669;">
+                        <span>الاعتماد السحابي:</span>
+                        <strong style="font-family:monospace;">${inv.official_server_id || '#10542'}</strong>
+                    </div>` : ''}
                     <div class="thermal-row">
                         <span>التاريخ والوقت:</span>
-                        <span>${inv.date || ''} ${inv.time || ''}</span>
+                        <span>${inv.date} - ${inv.fullDate || ''}</span>
                     </div>
                     <div class="thermal-row">
                         <span>العميل:</span>
-                        <span>${inv.customerName || 'عميل'}</span>
+                        <span>${inv.customerName}</span>
                     </div>
                     <div class="thermal-row">
                         <span>طريقة الدفع:</span>
@@ -19816,40 +18704,33 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                     <div class="thermal-divider"></div>
                     <div class="thermal-row">
                         <span>المجموع الفرعي:</span>
-                        <span>${fmt(inv.subtotal || totalSDG)} SDG</span>
+                        <span>${fmt(inv.subtotal)} SDG</span>
                     </div>
-                    ${(inv.discount > 0) ? `
+                    ${inv.discount > 0 ? `
                     <div class="thermal-row" style="color:#ef4444;">
                         <span>إجمالي الخصم:</span>
                         <span>-${fmt(inv.discount)} SDG</span>
                     </div>` : ''}
-                    ${(inv.transportCost > 0) ? `
                     <div class="thermal-row">
-                        <span>مصاريف ترحيل:</span>
-                        <span>+${fmt(inv.transportCost)} SDG</span>
-                    </div>` : ''}
-                    ${(inv.laborCost > 0) ? `
-                    <div class="thermal-row">
-                        <span>مصاريف عمالة:</span>
-                        <span>+${fmt(inv.laborCost)} SDG</span>
-                    </div>` : ''}
+                        <span>ضريبة القيمة المضافة:</span>
+                        <span>0 SDG</span>
+                    </div>
                     <div class="thermal-total-row">
                         <span>الصافي النهائي:</span>
-                        <span>${fmt(totalSDG)} SDG</span>
-                    </div>
-                    <div class="thermal-row" style="font-size:0.75rem; color:#0284c7; font-weight:800;">
-                        <span>المعادل بالدولار:</span>
-                        <span>≈ $${totalUSD} USD</span>
+                        <span>${fmt(inv.total)} SDG</span>
                     </div>
                     ${inv.isSplit ? `
                     <div class="thermal-row" style="font-size:0.7rem;">
-                        <span>المدفوع نقداً: ${fmt(inv.splitCash || 0)}</span>
-                        <span>المحول بنكك: ${fmt(inv.splitBank || 0)}</span>
+                        <span>المدفوع نقداً: ${fmt(inv.splitCash)}</span>
+                        <span>المحول بنكك: ${fmt(inv.splitBank)}</span>
                     </div>` : ''}
                     <div class="thermal-divider"></div>
                     <div class="thermal-footer">
                         <p>شكراً لتعاملكم معنا! البضاعة المباعة ترد وتستبدل حسب الشروط</p>
                         <div style="font-family:monospace; letter-spacing:2px; font-size:1.1rem; margin-top:6px;">*${inv.official_server_id || inv.local_seq || inv.invoiceNo}*</div>
+                        <div style="font-size:0.78rem; color:#555; margin-top:4px;">
+                            ${isSynced ? `سيرفر المزامنة: ${inv.official_server_id || '#10542'} • معتمد` : `إيصال محلي: ${inv.local_seq || inv.invoiceNo} (في انتظار المزامنة)`}
+                        </div>
                     </div>
                 `;
 
@@ -19867,49 +18748,29 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             },
 
             shareThermalWhatsApp() {
-                if (this.state.lastSubmittedInvoice) {
-                    this.shareInvoiceViaWhatsApp(this.state.lastSubmittedInvoice);
-                } else {
-                    const sorted = this.getSortedInvoices();
-                    if (sorted.length > 0) {
-                        this.shareInvoiceViaWhatsApp(sorted[sorted.length - 1]);
-                    }
-                }
+                if (!this.state.lastSubmittedInvoice) return;
+                this.shareInvoiceViaWhatsApp(this.state.lastSubmittedInvoice);
             },
 
-            shareInvoiceViaWhatsApp(inv = null) {
+            shareInvoiceViaWhatsApp(inv) {
                 triggerHaptic('light');
-                const invoice = inv || this.state.lastSubmittedInvoice || (this.getSortedInvoices().length > 0 ? this.getSortedInvoices()[this.getSortedInvoices().length - 1] : null);
-                if (!invoice) {
-                    alert('لا توجد بيانات فاتورة لمشاركتها');
-                    return;
-                }
-
-                const totalSDG = parseFloat(invoice.grandTotal || invoice.total || invoice.totalAmount || 0);
-                const rate = parseFloat(invoice.exchangeRate || window.SERVER_DATA?.exchangeRateUSD || 5999);
-                const totalUSD = (rate > 0 && totalSDG > 0) ? (totalSDG / rate).toFixed(2) : '0.00';
-
                 let text = `🧾 *فاتورة مبيعات - مؤسسة السجانة*\n`;
-                text += `رقم السند: #${invoice.invoiceNo || invoice.id}\n`;
-                text += `التاريخ: ${invoice.date || ''}\n`;
-                text += `العميل: ${invoice.customerName || 'عميل'}\n`;
+                text += `رقم الفاتورة: ${inv.invoiceNo}\n`;
+                text += `التاريخ: ${inv.date}\n`;
+                text += `العميل: ${inv.customerName}\n`;
                 text += `──────────────────\n`;
-                (invoice.items || []).forEach(it => {
-                    const itSub = parseFloat(it.subtotal || it.total || (it.qty * it.price) || 0);
-                    text += `▪ ${it.name || it.itemName} × ${it.qty || it.quantity} = ${fmt(itSub)} SDG\n`;
+                inv.items.forEach(it => {
+                    text += `▪ ${it.name} × ${it.qty} = ${fmt(it.subtotal)} SDG\n`;
                 });
                 text += `──────────────────\n`;
-                if (invoice.discount > 0) text += `الخصم: -${fmt(invoice.discount)} SDG\n`;
-                if (invoice.transportCost > 0) text += `ترحيل: +${fmt(invoice.transportCost)} SDG\n`;
-                if (invoice.laborCost > 0) text += `عمالة: +${fmt(invoice.laborCost)} SDG\n`;
-                text += `*الصافي المستحق: ${fmt(totalSDG)} SDG*\n`;
-                text += `*المعادل بالدولار: ≈ $${totalUSD} USD*\n`;
-                text += `طريقة الدفع: ${invoice.isSplit ? 'مجزأ (كاش + بنكك)' : (invoice.paymentMethod || 'نقدي')}\n\n`;
+                if (inv.discount > 0) text += `الخصم: -${fmt(inv.discount)} SDG\n`;
+                text += `*الصافي المستحق: ${fmt(inv.total)} SDG*\n`;
+                text += `طريقة الدفع: ${inv.isSplit ? 'مجزأ (كاش + بنكك)' : inv.paymentMethod}\n\n`;
                 text += `شكراً لتعاملكم معنا!`;
 
                 let url = `https://wa.me/`;
-                if (invoice.customerPhone && invoice.customerPhone.length >= 9) {
-                    let p = invoice.customerPhone.replace(/[^0-9]/g, '');
+                if (inv.customerPhone && inv.customerPhone.length >= 9) {
+                    let p = inv.customerPhone.replace(/[^0-9]/g, '');
                     if (p.startsWith('0')) p = '249' + p.substring(1);
                     else if (!p.startsWith('249')) p = '249' + p;
                     url += `${p}?text=${encodeURIComponent(text)}`;
@@ -19918,133 +18779,94 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 }
                 window.open(url, '_blank');
             },
-
-            renderHistory(filterText = '') {
-                const container = document.getElementById('sales-history-container');
-                if (!container) return;
-
-                const sorted = this.getSortedInvoices().slice().reverse();
-                if (sorted.length === 0) {
-                    container.innerHTML = `
-                        <div style="text-align:center; padding:30px 10px; color:var(--text-muted);">
-                            <i class="fa-solid fa-folder-open" style="font-size:2rem; opacity:0.4; margin-bottom:8px; display:block;"></i>
-                            <p style="font-weight:800; font-size:0.85rem;">لا توجد فواتير مبيعات سابقة مسجلة</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                const q = (filterText || '').toLowerCase().trim();
-                const filtered = q ? sorted.filter(inv => {
-                    const no = String(inv.invoiceNo || inv.id || '').toLowerCase();
-                    const cust = String(inv.customerName || '').toLowerCase();
-                    const date = String(inv.date || '').toLowerCase();
-                    return no.includes(q) || cust.includes(q) || date.includes(q);
-                }) : sorted;
-
-                if (filtered.length === 0) {
-                    container.innerHTML = `
-                        <div style="text-align:center; padding:24px 10px; color:var(--text-muted);">
-                            <p style="font-weight:800; font-size:0.85rem;">لم يتم العثور على فواتير تطابق "${filterText}"</p>
-                        </div>
-                    `;
-                    return;
-                }
-
-                let html = '';
-                filtered.forEach(inv => {
-                    const rawNo = inv.invoiceNo || inv.id || '---';
-                    const invNo = String(rawNo).replace(/^#+/, '');
-                    let cust = inv.customerName || '';
-                    if (!cust || cust.startsWith('CUST-') || cust.startsWith('cust_')) {
-                        const custId = inv.customerId || cust;
-                        const allCusts = (window.SERVER_DATA && window.SERVER_DATA.customers) || window.M_CUSTOMERS || [];
-                        const found = allCusts.find(c => String(c.id) === String(custId) || String(c.name) === String(custId));
-                        if (found && found.name) {
-                            cust = found.name;
-                        } else if (cust.startsWith('CUST-') || cust.startsWith('cust_')) {
-                            cust = 'عميل نقدي';
-                        }
-                    }
-                    if (!cust) cust = 'عميل نقدي';
-
-                    const date = inv.date || inv.fullDate || '';
-                    const totalSDG = parseFloat(inv.grandTotal || inv.total || inv.totalAmount || 0);
-                    const rate = parseFloat(inv.exchangeRate || window.SERVER_DATA?.exchangeRateUSD || 5999);
-                    const totalUSD = (rate > 0 && totalSDG > 0) ? (totalSDG / rate).toFixed(2) : '0.00';
-                    const payMethod = inv.isSplit ? 'مجزأ' : (inv.paymentMethod === 'credit' ? 'آجل' : (inv.paymentMethod === 'bank' ? 'بنكك' : (inv.paymentMethod === 'cheque' ? 'شيك' : 'نقدي')));
-                    const payColor = inv.paymentMethod === 'credit' ? '#f59e0b' : (inv.paymentMethod === 'bank' ? '#38bdf8' : '#10b981');
-
-                    html += `
-                        <div class="history-invoice-card" onclick="MobilePOS.loadInvoice('${invNo}')">
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <div style="display:flex; align-items:center; gap:8px;">
-                                    <span style="font-family:'Outfit','Inter',monospace; font-weight:900; font-size:0.95rem; color:#fbbf24;">#${invNo}</span>
-                                    <span style="font-size:0.7rem; font-weight:800; background:rgba(255,255,255,0.08); color:${payColor}; border:1px solid ${payColor}44; padding:1px 6px; border-radius:6px;">${payMethod}</span>
-                                </div>
-                                <span style="font-size:0.74rem; color:var(--text-muted); font-family:'Inter',sans-serif;">${date}</span>
-                            </div>
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
-                                <span style="font-size:0.84rem; font-weight:800; color:var(--text-main);">${cust}</span>
-                                <div style="text-align:left;">
-                                    <div style="font-weight:900; font-family:'Inter',sans-serif; color:var(--emerald); font-size:0.9rem;">${fmt(totalSDG)} SDG</div>
-                                    <div style="font-size:0.7rem; color:#38bdf8; font-family:'Inter',monospace;">≈ $${totalUSD} USD</div>
-                                </div>
-                            </div>
-                            <div style="display:flex; justify-content:flex-end; gap:6px; margin-top:4px; border-top:1px dashed var(--border-glass); padding-top:6px;">
-                                <button type="button" onclick="event.stopPropagation(); MobilePOS.loadInvoice('${invNo}')" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:var(--primary); border-radius:6px; padding:3px 8px; font-size:0.72rem; font-weight:800; cursor:pointer;">
-                                    استعراض وتعديل ↗
-                                </button>
-                                <button type="button" onclick="event.stopPropagation(); MobilePOS.openThermalReceiptSheet(MobilePOS.getSortedInvoices().find(x=>String(x.invoiceNo||x.id).replace(/^#+/,'')==='${invNo}'))" style="background:rgba(255,255,255,0.08); border:1px solid var(--border-glass); color:var(--text-main); border-radius:6px; padding:3px 8px; font-size:0.72rem; font-weight:800; cursor:pointer;">
-                                    🖨️ طباعة
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
-            },
-
-            filterHistory(query) {
-                this.renderHistory(query);
+            newInvoice() {
+                triggerHaptic('success');
+                this.state.cart = [];
+                this.state.customerId = 'walkin';
+                this.state.customer = null;
+                this.state.invoiceType = 'cash';
+                this.state.isSplit = false;
+                this.state.splitCash = 0;
+                this.state.splitBank = 0;
+                this.state.creditLimitOverridden = false;
+                this.setInvoiceType('cash');
+                const nextSeq = window.DualNumberingEngine ? window.DualNumberingEngine.nextSequence('sale') : ('INV-OFF-' + Date.now().toString().slice(-4));
+                const pill = document.getElementById('pos-inv-number-pill');
+                if (pill) pill.textContent = '#' + nextSeq;
+                const custSel = document.getElementById('pos-customer-select');
+                if (custSel) custSel.value = 'walkin';
+                this.onCustomerChange('walkin');
+                this.renderCart();
+                if (window.showModernToast) window.showModernToast(`✨ تم فتح فاتورة مبيعات جديدة #${nextSeq}`, 'success', 2200);
             },
 
             editInvoicePrompt() {
-                const sales = this.getSortedInvoices();
+                triggerHaptic('medium');
+                const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
                 if (sales.length === 0) {
                     if (window.showModernToast) window.showModernToast('لا توجد فواتير مبيعات سابقة مسجلة للتعديل', 'info', 2000);
                     return;
                 }
-                const q = prompt('🔍 أدخل رقم الفاتورة أو اسم العميل لاستدعاء وتعديل الفاتورة:\nآخر فاتورة مسجلة: ' + (sales[sales.length - 1].invoiceNo || sales[sales.length - 1].id));
+                const q = prompt('🔍 أدخل رقم الفاتورة أو اسم العميل لاستدعاء وتعديل الفاتورة:\nآخر فاتورة مسجلة: ' + (sales[0].invoiceNo || sales[0].id));
                 if (!q || !q.trim()) return;
                 const query = q.trim().toLowerCase();
                 const inv = sales.find(s => `${s.invoiceNo || ''} ${s.id || ''} ${s.customerName || ''}`.toLowerCase().includes(query));
-                if (inv) {
-                    this.loadInvoice(inv.invoiceNo || inv.id, inv);
-                } else {
+                if (!inv) {
                     alert(`لم يتم العثور على فاتورة تطابق: "${q}"`);
+                    return;
                 }
+                // Load into cart
+                this.state.cart = (inv.items || []).map(it => ({ ...it }));
+                this.state.customerId = inv.customer || 'walkin';
+                this.state.invoiceType = inv.paymentMethod || 'cash';
+                this.setInvoiceType(this.state.invoiceType);
+                const pill = document.getElementById('pos-inv-number-pill');
+                if (pill) pill.textContent = '#' + (inv.invoiceNo || inv.id) + ' (تعديل)';
+                const custSel = document.getElementById('pos-customer-select');
+                if (custSel) custSel.value = this.state.customerId;
+                this.renderCart();
+                if (window.showModernToast) window.showModernToast(`✏️ تم استدعاء الفاتورة [${inv.invoiceNo || inv.id}] للتعديل`, 'warning', 2500);
             },
 
             deleteCurrentInvoice() {
                 triggerHaptic('heavy');
-                if (this.state.cart.length === 0 && !this.state.isEditing) {
+                if (this.state.cart.length === 0) {
                     if (window.showModernToast) window.showModernToast('السلة فارغة بالفعل', 'info', 2000);
                     return;
                 }
                 if (!confirm('⚠️ هل أنت متأكد من تفريغ وحذف بيانات الفاتورة الحالية؟')) return;
                 this.newInvoice();
-                if (window.showModernToast) window.showModernToast('🗑️ تم تفريغ وإلغاء الفاتورة', 'success', 2000);
+                if (window.showModernToast) window.showModernToast('🗑️ تم تفريغ وحذف الفاتورة', 'success', 2000);
             },
 
             searchInvoice() {
-                this.editInvoicePrompt();
+                triggerHaptic('light');
+                const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
+                if (sales.length === 0) {
+                    if (window.showModernToast) window.showModernToast('لا توجد فواتير مبيعات سابقة للبحث', 'info', 2000);
+                    return;
+                }
+                const q = prompt('🔍 أدخل رقم الفاتورة أو اسم العميل للبحث:');
+                if (!q || !q.trim()) return;
+                const query = q.trim().toLowerCase();
+                const inv = sales.find(s => `${s.invoiceNo || ''} ${s.id || ''} ${s.customerName || ''}`.toLowerCase().includes(query));
+                if (inv) {
+                    this.openThermalReceiptSheet(inv);
+                } else {
+                    alert(`لم يتم العثور على أي فاتورة تطابق: "${q}"`);
+                }
             },
 
             navigate(dir) {
-                if (dir === 'first' || dir === 'prev') this.loadPreviousInvoice();
-                else if (dir === 'last' || dir === 'next') this.loadNextInvoice();
-            }
+                const sales = (typeof loadTenantArray === 'function') ? (loadTenantArray('erp_sales_invoices_v1') || []) : [];
+                if (sales.length === 0) {
+                    if (window.showModernToast) window.showModernToast('لا توجد فواتير سابقة للتنقل', 'info', 2000);
+                    return;
+                }
+                if (dir === 'first') this.openThermalReceiptSheet(sales[0]);
+                else if (dir === 'last') this.openThermalReceiptSheet(sales[sales.length - 1]);
+                else this.openThermalReceiptSheet(sales[0]);
+            },
         };
 
         // ═════════════════════════════════════════════════════════════════
@@ -20615,26 +19437,18 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
         // ═════════════════════════════════════════════════════════════════
         window.switchSalesSuiteTab = function(tab) {
             triggerHaptic('light');
-            ['invoice', 'history', 'split', 'delivery'].forEach(t => {
+            ['invoice', 'split', 'delivery'].forEach(t => {
                 const btn = document.getElementById(`tab-sales-${t}`);
                 const pane = document.getElementById(`pane-sales-${t}`);
                 if (btn) btn.classList.toggle('active', t === tab);
                 if (pane) pane.classList.toggle('active', t === tab);
             });
-            const miniBar = document.getElementById('pos-mini-float-bar');
-            if (miniBar) {
-                miniBar.style.display = (tab === 'invoice' && window.MobilePOS && window.MobilePOS.state.cart.length > 0) ? 'flex' : 'none';
-            }
-            if (tab === 'history' && window.MobilePOS) {
-                window.MobilePOS.renderHistory();
-            } else if (tab === 'split' && window.SalesSplitEngine) {
+            if (tab === 'split' && window.SalesSplitEngine) {
                 window.SalesSplitEngine.init();
             } else if (tab === 'delivery' && window.SalesDeliveryEngine) {
                 window.SalesDeliveryEngine.init();
             } else if (tab === 'invoice' && window.MobilePOS) {
-                if (!window.MobilePOS.state.isEditing && window.MobilePOS.state.cart.length === 0) {
-                    window.MobilePOS.init();
-                }
+                window.MobilePOS.init();
             }
         };
 
@@ -23741,12 +22555,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                         if (data.sales && data.sales.nextInvoiceNo) {
                             window._mirrorNextSalesNo = data.sales.nextInvoiceNo;
                             const sPill = document.getElementById('pos-inv-number-pill');
-                            const sDisp = document.getElementById('pos-inv-number-display');
-                            const sInp = document.getElementById('pos-inv-no');
-                            if (window.MobilePOS && (!window.MobilePOS.state || (!window.MobilePOS.state.isEditing && window.MobilePOS.state.cart.length === 0))) {
-                                if (sPill) sPill.innerHTML = `🟢 #${data.sales.nextInvoiceNo}`;
-                                if (sDisp) sDisp.textContent = '#' + data.sales.nextInvoiceNo;
-                                if (sInp) sInp.value = data.sales.nextInvoiceNo;
+                            if (sPill && window.MobilePOS && (!window.MobilePOS.state || window.MobilePOS.state.cart.length === 0)) {
+                                sPill.innerHTML = `🟢 #${data.sales.nextInvoiceNo}`;
                             }
                         }
                         if (data.purchase && data.purchase.nextPurchaseNo) {
@@ -23766,28 +22576,6 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(window.initMobileMirrorSync, 600);
-
-        // Auto-open sales sheet if requested in URL (e.g. mobile-sales.php, or ?open=sale|sales|pos, or ?sheet=sale, or ?force_mobile=1)
-        try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const openTarget = urlParams.get('open') || urlParams.get('sheet') || urlParams.get('action') || urlParams.get('view');
-            const forceMobile = urlParams.get('force_mobile') === '1';
-            const isDedicated = window.location.pathname.indexOf('mobile-sales.php') !== -1;
-            const targetTab = urlParams.get('salestab') || urlParams.get('tab') || 'invoice';
-            const shouldOpenSales = (openTarget === 'sales' || openTarget === 'sale' || openTarget === 'pos' || isDedicated || forceMobile);
-            if (shouldOpenSales) {
-                setTimeout(() => {
-                    if (typeof openSalesSuite === 'function') {
-                        openSalesSuite(targetTab);
-                    } else if (typeof openBottomSheet === 'function') {
-                        openBottomSheet('sheet-sale');
-                    }
-                    if (window.MobilePOS && typeof window.MobilePOS.init === 'function') {
-                        window.MobilePOS.init();
-                    }
-                }, 80);
-            }
-        } catch(e) {}
     });
 
 </script>
@@ -23795,39 +22583,42 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
     <!-- ═════════════════════════════════════════════════════════════════
          BOTTOM SHEET: 📊 ميزان الأرصدة الحية (الحسابات غير الصفرية فقط)
          ═════════════════════════════════════════════════════════════════ -->
-    <div class="mobile-bottom-sheet" id="sheet-balances-nonzero" style="z-index:1100; max-height:85vh; border-top:2px solid #10b981; background:#0f172a;">
-        <div class="sheet-drag-handle"></div>
-        <div class="sheet-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:10px; display:flex; flex-direction:column; gap:8px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center;">
-                        <i class="fa-solid fa-scale-balanced" style="font-size:1.1rem;"></i>
+    <div class="m-sheet" id="sheet-balances-nonzero" style="z-index:9999;">
+        <div class="m-sheet-scrim" onclick="closeNonZeroBalancesSheet()"></div>
+        <div class="m-sheet-panel" style="max-height:85vh; border-radius:24px 24px 0 0; background:#0f172a; border-top:2px solid #10b981;">
+            <div class="m-sheet-handle"></div>
+            <div class="m-sheet-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-scale-balanced" style="font-size:1.1rem;"></i>
+                        </div>
+                        <div>
+                            <h3 style="margin:0; font-size:1rem; font-weight:900; color:#fff;">ميزان الأرصدة الحية (غير الصفرية)</h3>
+                            <span style="font-size:0.72rem; color:#34d399; font-weight:700;">الحسابات التي بها رصيد بالعملة المحلية وبالدولار</span>
+                        </div>
                     </div>
-                    <div>
-                        <h3 style="margin:0; font-size:1rem; font-weight:900; color:#fff;">ميزان الأرصدة الحية (غير الصفرية)</h3>
-                        <span style="font-size:0.72rem; color:#34d399; font-weight:700;">الحسابات التي بها رصيد بالعملة المحلية وبالدولار</span>
-                    </div>
+                    <button type="button" class="m-sheet-close" onclick="closeNonZeroBalancesSheet()" style="background:rgba(255,255,255,0.08); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; cursor:pointer;">✕</button>
                 </div>
-                <button type="button" class="sheet-close" onclick="closeNonZeroBalancesSheet()" style="background:rgba(255,255,255,0.08); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; cursor:pointer;">✕</button>
+
+                <!-- Instant Search input in Sheet -->
+                <div style="margin-top:10px;">
+                    <input type="text" id="sheet-bal-search-input" class="m-input" placeholder="بحث سريع في الحسابات والأرصدة..." style="height:38px; font-size:0.82rem; border-radius:10px;" oninput="filterNonZeroBalances(currentNonZeroTab, this.value)">
+                </div>
+
+                <!-- Category Tabs -->
+                <div style="display:flex; gap:6px; overflow-x:auto; margin-top:8px;" class="no-scrollbar">
+                    <button type="button" class="btn-ai-chip active" id="bal-tab-all" onclick="filterNonZeroBalances('all')" style="font-size:0.75rem; padding:4px 10px;">الكل</button>
+                    <button type="button" class="btn-ai-chip" id="bal-tab-cust" onclick="filterNonZeroBalances('customer')" style="font-size:0.75rem; padding:4px 10px;">عملاء (مدين)</button>
+                    <button type="button" class="btn-ai-chip" id="bal-tab-supp" onclick="filterNonZeroBalances('supplier')" style="font-size:0.75rem; padding:4px 10px;">موردين (دائن)</button>
+                    <button type="button" class="btn-ai-chip" id="bal-tab-cash" onclick="filterNonZeroBalances('cash')" style="font-size:0.75rem; padding:4px 10px;">خزن وبنوك</button>
+                </div>
             </div>
 
-            <!-- Instant Search input in Sheet -->
-            <div style="width:100%;">
-                <input type="text" id="sheet-bal-search-input" class="m-input" placeholder="بحث سريع في الحسابات والأرصدة..." style="height:38px; font-size:0.82rem; border-radius:10px; width:100%; box-sizing:border-box;" oninput="filterNonZeroBalances(currentNonZeroTab, this.value)">
-            </div>
-
-            <!-- Category Tabs -->
-            <div style="display:flex; gap:6px; overflow-x:auto; width:100%;" class="no-scrollbar">
-                <button type="button" class="btn-ai-chip active" id="bal-tab-all" onclick="filterNonZeroBalances('all')" style="font-size:0.75rem; padding:4px 10px;">الكل</button>
-                <button type="button" class="btn-ai-chip" id="bal-tab-cust" onclick="filterNonZeroBalances('customer')" style="font-size:0.75rem; padding:4px 10px;">عملاء (مدين)</button>
-                <button type="button" class="btn-ai-chip" id="bal-tab-supp" onclick="filterNonZeroBalances('supplier')" style="font-size:0.75rem; padding:4px 10px;">موردين (دائن)</button>
-                <button type="button" class="btn-ai-chip" id="bal-tab-cash" onclick="filterNonZeroBalances('cash')" style="font-size:0.75rem; padding:4px 10px;">خزن وبنوك</button>
-            </div>
-        </div>
-
-        <div class="sheet-body" style="padding:12px; overflow-y:auto; flex:1;">
-            <div id="nonzero-balances-container" style="display:flex; flex-direction:column; gap:10px;">
-                <!-- Rendered Dynamically -->
+            <div class="m-sheet-body" style="padding:12px; overflow-y:auto; max-height:calc(85vh - 160px);">
+                <div id="nonzero-balances-container" style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- Rendered Dynamically -->
+                </div>
             </div>
         </div>
     </div>

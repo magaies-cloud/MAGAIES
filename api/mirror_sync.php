@@ -97,12 +97,6 @@ function getSalesSequence($pdo, $tenantId) {
         } elseif (preg_match('/^S\d{4}(\d{1,6})$/', $invNo, $m)) {
             $s = (int)$m[1];
             if ($s > $maxSeq) $maxSeq = $s;
-        } elseif (is_numeric($invNo)) {
-            $s = (int)$invNo;
-            if ($s > $maxSeq) $maxSeq = $s;
-        } elseif (preg_match('/(\d+)$/', $invNo, $m)) {
-            $s = (int)$m[1];
-            if ($s > $maxSeq) $maxSeq = $s;
         }
     }
 
@@ -707,8 +701,7 @@ try {
                 $invNo = $r['invoice_no'] ?: ($d['invoiceNo'] ?? ('S-' . $r['id']));
                 $d['invoiceNo'] = $invNo;
                 $d['id'] = $invNo;
-                $cName = !empty($d['customerName']) ? $d['customerName'] : (!empty($d['customer_name']) ? $d['customer_name'] : ($r['customer_id_val'] ?: 'عميل نقدي'));
-                $d['customerName'] = $cName;
+                $d['customerName'] = $r['customer_id_val'] ?: ($d['customerName'] ?? ($d['customer_name'] ?? 'عميل نقدي'));
                 $d['total'] = (float)($r['total_val'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0)));
                 $d['grandTotal'] = $d['total'];
                 $d['date'] = $r['date_val'] ?: ($d['date'] ?? date('Y-m-d', strtotime($r['created_at'])));
@@ -716,30 +709,6 @@ try {
             }
             $salesSeq = getSalesSequence($pdo, $tenantId);
             echo json_encode(['success' => true, 'sales' => $list, 'nextInvoiceNo' => $salesSeq['nextInvoiceNo']], JSON_UNESCAPED_UNICODE);
-            break;
-
-        case 'get_sales_invoice':
-            $targetNo = trim($_GET['invoice_no'] ?? ($_POST['invoice_no'] ?? ''));
-            if (empty($targetNo)) {
-                echo json_encode(['success' => false, 'error' => 'رقم الفاتورة مطلوب'], JSON_UNESCAPED_UNICODE);
-                exit;
-            }
-            $stmt = $pdo->prepare("SELECT id, invoice_no, total_val, customer_id_val, date_val, status_val, data, created_at FROM sales_invoices WHERE (tenant_id = ? OR tenant_id IS NULL) AND (invoice_no = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.invoiceNo')) = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) AND (is_deleted = 0 OR is_deleted IS NULL) LIMIT 1");
-            $stmt->execute([$tenantId, $targetNo, $targetNo, $targetNo]);
-            $r = $stmt->fetch(PDO::FETCH_ASSOC);
-            if ($r) {
-                $d = json_decode($r['data'], true) ?: [];
-                $invNo = $r['invoice_no'] ?: ($d['invoiceNo'] ?? ('S-' . $r['id']));
-                $d['invoiceNo'] = $invNo;
-                $d['id'] = $invNo;
-                $d['customerName'] = $r['customer_id_val'] ?: ($d['customerName'] ?? ($d['customer_name'] ?? 'عميل نقدي'));
-                $d['total'] = (float)($r['total_val'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0)));
-                $d['grandTotal'] = $d['total'];
-                $d['date'] = $r['date_val'] ?: ($d['date'] ?? date('Y-m-d', strtotime($r['created_at'])));
-                echo json_encode(['success' => true, 'invoice' => $d], JSON_UNESCAPED_UNICODE);
-            } else {
-                echo json_encode(['success' => false, 'error' => 'الفاتورة غير موجودة'], JSON_UNESCAPED_UNICODE);
-            }
             break;
 
         case 'get_recent_purchases':

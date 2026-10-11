@@ -413,17 +413,18 @@
       color: #a5f3fc !important;
     }
 
-    /* 4. MIC AI (Neural Purple / Violet) */
+    /* 4. MIC AI (Luminous Cyan Voice Copilot - السمة المضيئة المتناسقة) */
     .flagship-tile-mic {
-      border: 1.5px solid rgba(168, 85, 247, 0.5) !important;
-      box-shadow: 0 0 10px rgba(168, 85, 247, 0.3), 0 3px 10px -2px rgba(168, 85, 247, 0.35), inset 0 0 6px rgba(168, 85, 247, 0.15) !important;
-      color: #c084fc !important;
+      border: 1.5px solid rgba(6, 182, 212, 0.6) !important;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.3), 0 3px 10px -2px rgba(6, 182, 212, 0.35), inset 0 0 6px rgba(6, 182, 212, 0.15) !important;
+      color: #38bdf8 !important;
+      background: radial-gradient(circle at center, rgba(6, 182, 212, 0.18) 0%, rgba(15, 23, 42, 0.75) 100%) !important;
     }
     .flagship-tile-mic:hover,
     .flagship-tile-mic.touch-active {
-      border-color: #c084fc !important;
-      box-shadow: 0 0 22px rgba(168, 85, 247, 0.7), 0 5px 16px rgba(168, 85, 247, 0.5), inset 0 0 10px rgba(168, 85, 247, 0.3) !important;
-      color: #f3e8ff !important;
+      border-color: #22d3ee !important;
+      box-shadow: 0 0 22px rgba(6, 182, 212, 0.8), 0 5px 16px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(6, 182, 212, 0.35) !important;
+      color: #e0f2fe !important;
     }
 
     /* 5. PRIVACY EYE (Emerald / Jade or Active Amber) */
@@ -3151,13 +3152,13 @@
           </svg>
         </button>
 
-        <!-- 4. المساعد الصوتي الذكي (المايك AI Copilot) -->
+        <!-- 4. المساعد الصوتي الذكي (المايك AI Copilot - السمة المضيئة) -->
         <button id="headerAiVoiceBtn" onclick="openAiVoiceConsole(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="flagship-tile flagship-action-tile flagship-tile-mic" title="المساعد الصوتي الذكي (AI Voice Copilot)">
-          <svg class="w-5 h-5 transition-transform animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M19 10v2a7 7 0 01-14 0v-2M12 19v4M8 23h8"/>
           </svg>
-          <span class="absolute -top-1 -right-1 bg-cyan-400 text-slate-950 text-[7px] font-black px-0.5 rounded-full shadow">AI</span>
+          <span class="absolute -top-1 -right-1 bg-gradient-to-r from-cyan-400 to-sky-400 text-slate-950 text-[7px] font-black px-1 rounded-full shadow">AI</span>
         </button>
 
         <!-- 5. درع الخصوصية (العين: إخفاء الأرقام وتحويلها لنجوم) -->
@@ -3199,6 +3200,28 @@
           <span class="absolute -top-1 -right-1 bg-indigo-500 text-slate-950 text-[7px] font-black px-1 rounded-full shadow">QR</span>
         </button>
 
+        <!-- زر الحاسبة الذكية (حساب) - بجانب زر الـ refresh والـ barcode وبشعار الحاسبة فقط دون ملصقات -->
+        <button 
+          id="quickCalcHeaderBtn" 
+          onclick="openAccountingNumpad(null, 'حساب'); if(window.triggerHapticPulse)triggerHapticPulse(20);" 
+          class="row2-glass-tile r2-gold rounded-xl flex items-center justify-center gap-1.5 px-3 h-[40px] shrink-0 text-amber-300 relative cursor-pointer active:scale-95 transition group shadow-[0_0_12px_rgba(245,158,11,0.25)] border border-amber-500/40" 
+          title="حساب - الآلة الحاسبة الذكية">
+          <svg class="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="4" y="2" width="16" height="20" rx="3" stroke-width="2"/>
+            <line x1="8" y1="6" x2="16" y2="6" stroke-width="2"/>
+            <circle cx="8" cy="11" r="1.2" fill="currentColor"/>
+            <circle cx="12" cy="11" r="1.2" fill="currentColor"/>
+            <circle cx="16" cy="11" r="1.2" fill="currentColor"/>
+            <circle cx="8" cy="15" r="1.2" fill="currentColor"/>
+            <circle cx="12" cy="15" r="1.2" fill="currentColor"/>
+            <circle cx="16" cy="15" r="1.2" fill="currentColor"/>
+            <circle cx="8" cy="18.5" r="1.2" fill="currentColor"/>
+            <circle cx="12" cy="18.5" r="1.2" fill="currentColor"/>
+            <circle cx="16" cy="18.5" r="1.2" fill="currentColor"/>
+          </svg>
+          <span class="text-[12px] font-black tracking-tight text-amber-200">حساب</span>
+        </button>
+
         <!-- تايمر الوردية والمطابقة والتركيز 30 دقيقة -->
         <button 
           id="btnTopHeaderTimer" 
@@ -3215,35 +3238,6 @@
         <!-- زر المزامنة السحابية الفورية لقاعدة البيانات -->
         <button id="quickCloudSyncBtn" onclick="handleQuickCloudSync(); if(window.triggerHapticPulse)triggerHapticPulse(20);" class="row2-glass-tile r2-emerald rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-emerald-300 relative cursor-pointer active:scale-95 transition" title="مزامنة السحابة الفورية لقاعدة البيانات">
           <svg id="quickCloudSyncIcon" class="w-4 h-4 text-emerald-300 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"/></svg>
-        </button>
-
-        <!-- زر وشعار (احسبها) - الآلة الحاسبة الذكية الفورية المرفوعة للصف الأعلى -->
-        <button 
-          id="quickCalcHeaderBtn" 
-          onclick="openAccountingNumpad(null, 'احسبها'); if(window.triggerHapticPulse)triggerHapticPulse(20);" 
-          class="row2-glass-tile r2-gold rounded-xl flex items-center justify-center gap-1.5 px-3 h-[40px] shrink-0 text-amber-300 relative cursor-pointer active:scale-95 transition group shadow-[0_0_12px_rgba(245,158,11,0.25)] border border-amber-500/40" 
-          title="احسبها - الآلة الحاسبة الذكية">
-          <svg class="w-4 h-4 text-amber-300 group-hover:scale-110 transition-transform shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <rect x="4" y="2" width="16" height="20" rx="3" stroke-width="2"/>
-            <line x1="8" y1="6" x2="16" y2="6" stroke-width="2"/>
-            <circle cx="8" cy="11" r="1.2" fill="currentColor"/>
-            <circle cx="12" cy="11" r="1.2" fill="currentColor"/>
-            <circle cx="16" cy="11" r="1.2" fill="currentColor"/>
-            <circle cx="8" cy="15" r="1.2" fill="currentColor"/>
-            <circle cx="12" cy="15" r="1.2" fill="currentColor"/>
-            <circle cx="16" cy="15" r="1.2" fill="currentColor"/>
-            <circle cx="8" cy="18.5" r="1.2" fill="currentColor"/>
-            <circle cx="12" cy="18.5" r="1.2" fill="currentColor"/>
-            <circle cx="16" cy="18.5" r="1.2" fill="currentColor"/>
-          </svg>
-          <span class="text-[12px] font-black tracking-tight text-amber-200">احسبها</span>
-          <span class="absolute -top-1 -right-1 bg-gradient-to-r from-amber-500 to-yellow-400 text-slate-950 text-[7.5px] font-black px-1 rounded-full shadow">🧮</span>
-        </button>
-
-        <!-- التنبيهات والجرس -->
-        <button id="btnHeaderBell" onclick="switchTab('alerts'); if(window.triggerHapticPulse)triggerHapticPulse(15);" class="row2-glass-tile r2-amber rounded-xl flex items-center justify-center w-[52.5px] h-[40px] shrink-0 text-amber-300 relative cursor-pointer active:scale-95 transition" title="التنبيهات ومعمل الضبط">
-          <svg class="w-4 h-4 text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
-          <span id="badgeTopBellCount" class="luminous-number-badge badge-amber-glow absolute -top-1.5 -right-1.5 animate-pulse">6</span>
         </button>
 
         <!-- 4-Level Dynamic Font Scaler Button (4 درجات تكبير) -->
@@ -3288,26 +3282,6 @@
       <!-- FLAGSHIP CRYSTAL ACTION BUTTONS HUB (أزرار وأيقونة البرنامج العالمية - الصف الثالث المرفوع) -->
       <div class="mt-[4.5px] pt-[4.5px] border-t border-slate-800/40">
         <div class="crystal-flagship-container">
-
-          <!-- 1. الآلة الحاسبة الذكية (احسبها) -->
-          <button onclick="openAccountingNumpad(null, 'احسبها'); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-gold" title="احسبها - الآلة الحاسبة الذكية">
-            <div class="btn-emblem">
-              <svg class="w-4 h-4 text-amber-300" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <rect x="4" y="2" width="16" height="20" rx="3" stroke-width="2"/>
-                <line x1="8" y1="6" x2="16" y2="6" stroke-width="2"/>
-                <circle cx="8" cy="11" r="1.2" fill="currentColor"/>
-                <circle cx="12" cy="11" r="1.2" fill="currentColor"/>
-                <circle cx="16" cy="11" r="1.2" fill="currentColor"/>
-                <circle cx="8" cy="15" r="1.2" fill="currentColor"/>
-                <circle cx="12" cy="15" r="1.2" fill="currentColor"/>
-                <circle cx="16" cy="15" r="1.2" fill="currentColor"/>
-                <circle cx="8" cy="18.5" r="1.2" fill="currentColor"/>
-                <circle cx="12" cy="18.5" r="1.2" fill="currentColor"/>
-                <circle cx="16" cy="18.5" r="1.2" fill="currentColor"/>
-              </svg>
-            </div>
-            <span class="btn-label">احسبها</span>
-          </button>
 
           <!-- 2. قارئ الإشعارات البنكية OCR -->
           <button onclick="openBankReceiptOcrModal(); triggerFlagshipClick(this);" class="crystal-flagship-btn flagship-emerald" title="قارئ إشعار بنكك الذكي OCR">
@@ -9555,20 +9529,18 @@
         window.location.href = 'mobile-voucher.php';
         return;
       }
-      if (formType === 'sales' || formType === 'salesInvoice') {
-        window.location.href = 'mobile-sales.php?tab=invoice';
-        return;
-      }
-      if (formType === 'salesSplit') {
-        window.location.href = 'mobile-sales.php?tab=split';
-        return;
-      }
-      if (formType === 'salesDelivery') {
-        window.location.href = 'mobile-sales.php?tab=delivery';
-        return;
-      }
       let modalId = '';
-      if (formType === 'purchaseInvoice') {
+      if (formType === 'sales' || formType === 'salesInvoice') {
+        modalId = 'modalOpSales';
+        fetchMirrorNumbers();
+      } else if (formType === 'salesSplit') {
+        modalId = 'modalOpSalesSplit';
+        fetchMirrorNumbers();
+      } else if (formType === 'salesDelivery') {
+        modalId = 'modalOpDelivery';
+        fetchMirrorNumbers();
+        loadDeliverySalesInvoices();
+      } else if (formType === 'purchaseInvoice') {
         modalId = 'modalOpPurchase';
         fetchMirrorNumbers();
       } else if (formType === 'purchaseReceive' || formType === 'purchaseReceipt') {
