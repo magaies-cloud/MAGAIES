@@ -1294,30 +1294,93 @@ $currenciesData = [
       40%, 100% { left: 130%; }
     }
 
-    /* إضاءة ووضوح الحواف لجميع الأزرار والمناطق الحيوية */
+    /* ═══════════════════════════════════════════════════════════════════
+       إضاءة الحواف المتناغمة (Neon Edge Illumination Suite):
+       المستوى الأساسي موحّد لجميع الحقول والبطاقات تماماً كمستوى التاريخ ورقم المستند.
+       وحينما يأتي عليه المؤشر (Hover) تزيد الإضاءة، وعند النقر والتركيز (Focus) تزيد أكثر وأكثر.
+       ═══════════════════════════════════════════════════════════════════ */
     .glow-border-cyan {
       border: 2px solid rgba(6, 182, 212, 0.8) !important;
       box-shadow: 0 0 14px rgba(6, 182, 212, 0.35) !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
+    .glow-border-cyan:hover {
+      border-color: #22d3ee !important;
+      box-shadow: 0 0 22px rgba(6, 182, 212, 0.65), inset 0 0 6px rgba(6, 182, 212, 0.18) !important;
+    }
+    .glow-border-cyan:focus, .glow-border-cyan:focus-within, .glow-border-cyan.is-active-glow {
+      border-color: #67e8f9 !important;
+      box-shadow: 0 0 30px rgba(6, 182, 212, 0.9), inset 0 0 12px rgba(6, 182, 212, 0.28) !important;
+    }
+
     .glow-border-amber {
       border: 2px solid rgba(245, 158, 11, 0.8) !important;
       box-shadow: 0 0 14px rgba(245, 158, 11, 0.35) !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
+    .glow-border-amber:hover {
+      border-color: #fbbf24 !important;
+      box-shadow: 0 0 22px rgba(245, 158, 11, 0.65), inset 0 0 6px rgba(245, 158, 11, 0.18) !important;
+    }
+    .glow-border-amber:focus, .glow-border-amber:focus-within, .glow-border-amber.is-active-glow {
+      border-color: #fde047 !important;
+      box-shadow: 0 0 30px rgba(245, 158, 11, 0.9), inset 0 0 12px rgba(245, 158, 11, 0.28) !important;
+    }
+
     .glow-border-emerald {
-      border: 2px solid rgba(16, 185, 129, 0.85) !important;
-      box-shadow: 0 0 16px rgba(16, 185, 129, 0.4) !important;
+      border: 2px solid rgba(16, 185, 129, 0.8) !important;
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.35) !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
+    .glow-border-emerald:hover {
+      border-color: #34d399 !important;
+      box-shadow: 0 0 22px rgba(16, 185, 129, 0.65), inset 0 0 6px rgba(16, 185, 129, 0.18) !important;
+    }
+    .glow-border-emerald:focus, .glow-border-emerald:focus-within, .glow-border-emerald.is-active-glow {
+      border-color: #6ee7b7 !important;
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.9), inset 0 0 12px rgba(16, 185, 129, 0.28) !important;
+    }
+
     .glow-border-sky {
-      border: 2px solid rgba(56, 189, 248, 0.85) !important;
-      box-shadow: 0 0 18px rgba(56, 189, 248, 0.45) !important;
+      border: 2px solid rgba(56, 189, 248, 0.8) !important;
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
+    .glow-border-sky:hover {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.65), inset 0 0 6px rgba(56, 189, 248, 0.18) !important;
+    }
+    .glow-border-sky:focus, .glow-border-sky:focus-within, .glow-border-sky.is-active-glow {
+      border-color: #7dd3fc !important;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.9), inset 0 0 12px rgba(56, 189, 248, 0.28) !important;
+    }
+
     .glow-border-indigo {
       border: 2px solid rgba(99, 102, 241, 0.8) !important;
       box-shadow: 0 0 14px rgba(99, 102, 241, 0.35) !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
+    .glow-border-indigo:hover {
+      border-color: #818cf8 !important;
+      box-shadow: 0 0 22px rgba(99, 102, 241, 0.65), inset 0 0 6px rgba(99, 102, 241, 0.18) !important;
+    }
+    .glow-border-indigo:focus, .glow-border-indigo:focus-within, .glow-border-indigo.is-active-glow {
+      border-color: #a5b4fc !important;
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.9), inset 0 0 12px rgba(99, 102, 241, 0.28) !important;
+    }
+
     .glow-border-red {
-      border: 2px solid rgba(239, 68, 68, 0.85) !important;
-      box-shadow: 0 0 16px rgba(239, 68, 68, 0.4) !important;
+      border: 2px solid rgba(239, 68, 68, 0.8) !important;
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.35) !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    }
+    .glow-border-red:hover {
+      border-color: #f87171 !important;
+      box-shadow: 0 0 22px rgba(239, 68, 68, 0.65), inset 0 0 6px rgba(239, 68, 68, 0.18) !important;
+    }
+    .glow-border-red:focus, .glow-border-red:focus-within, .glow-border-red.is-active-glow {
+      border-color: #fca5a5 !important;
+      box-shadow: 0 0 30px rgba(239, 68, 68, 0.9), inset 0 0 12px rgba(239, 68, 68, 0.28) !important;
     }
 
     /* أزرار الدفع الزجاجية العصرية المضيئة بتباين فائق */
@@ -1374,7 +1437,44 @@ $currenciesData = [
 
     .amount-display-card {
       user-select: none;
-      transition: all 0.2s ease;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .amount-display-card.is-typing-sdg {
+      border-color: #7dd3fc !important;
+      box-shadow: 0 0 32px rgba(56, 189, 248, 0.95), inset 0 0 14px rgba(56, 189, 248, 0.3) !important;
+    }
+    .amount-display-card.is-typing-usd {
+      border-color: #6ee7b7 !important;
+      box-shadow: 0 0 32px rgba(16, 185, 129, 0.95), inset 0 0 14px rgba(16, 185, 129, 0.3) !important;
+    }
+    .input-typing-glow-amber {
+      border-color: #fde047 !important;
+      box-shadow: 0 0 32px rgba(245, 158, 11, 0.95), inset 0 0 14px rgba(245, 158, 11, 0.3) !important;
+    }
+    .input-typing-glow-cyan {
+      border-color: #67e8f9 !important;
+      box-shadow: 0 0 32px rgba(6, 182, 212, 0.95), inset 0 0 14px rgba(6, 182, 212, 0.3) !important;
+    }
+    .input-typing-glow-indigo {
+      border-color: #a5b4fc !important;
+      box-shadow: 0 0 32px rgba(99, 102, 241, 0.95), inset 0 0 14px rgba(99, 102, 241, 0.3) !important;
+    }
+
+    #amountContainerCard {
+      background: linear-gradient(165deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.94) 100%);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.5), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+    #amountContainerCard::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 12%;
+      right: 12%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.5), rgba(16, 185, 129, 0.5), transparent);
+      pointer-events: none;
     }
     .amount-number-input {
       font-variant-numeric: tabular-nums;
@@ -1620,7 +1720,7 @@ $currenciesData = [
       <div class="grid grid-cols-2 gap-2.5 w-full">
         
         <!-- 1. مساحة التاريخ: تصغير الخط وعكس اليوم والشهر ليظهر اليوم أولاً ثم الشهر ثم السنة (DD / MM / YYYY) -->
-        <div class="relative bg-slate-950 glow-border-cyan rounded-2xl px-2 py-1 flex items-center justify-center h-[54px] shadow-inner focus-within:border-cyan-400 transition cursor-pointer select-none" onclick="triggerDatePicker()" title="انقر لتعديل التاريخ">
+        <div class="relative bg-slate-950 glow-border-cyan rounded-2xl px-2 py-1 flex items-center justify-center h-[54px] shadow-inner transition cursor-pointer select-none" onclick="triggerDatePicker()" title="انقر لتعديل التاريخ">
           <!-- العرض المرئي الأنيق بالتنسيق المحاسبي: اليوم / الشهر / السنة بخط مصغر درجتان -->
           <div class="flex items-center justify-center gap-1.5 pointer-events-none select-none" dir="ltr">
             <i class="fa-regular fa-calendar text-cyan-400/80 text-xs mr-0.5"></i>
@@ -1631,7 +1731,7 @@ $currenciesData = [
         </div>
 
         <!-- 2. مساحة الرقم التسلسلي: تصغير الرقم درجة، وتصغير الأسهم يمين وشمال على الأطراف -->
-        <div class="bg-slate-950 glow-border-amber rounded-2xl px-1.5 py-1 flex items-center justify-between h-[54px] shadow-inner">
+        <div class="bg-slate-950 glow-border-amber rounded-2xl px-1.5 py-1 flex items-center justify-between h-[54px] shadow-inner transition cursor-pointer">
           <!-- سهم يمين صغير على الطرف (للطلوع للأحدث) -->
           <button type="button" onclick="navigateVoucher(1)" id="btnNextVoucher" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-slate-800 hover:bg-slate-700 active:scale-90 text-amber-300 hover:text-amber-200 flex items-center justify-center transition border border-amber-500/40 shadow shrink-0" title="سهم يمين: السند التالي (للطلوع للأحدث)">
             <i class="fa-solid fa-arrow-right text-[10px]"></i>
@@ -1744,24 +1844,24 @@ $currenciesData = [
            - اليسار: المبلغ دولار (بدون كلمة أجنبي) مع علامة الدولار ومستوى متساوٍ تماماً
            - ضبط وتخصيص منفصل تماماً لكل مبلغ عند النقر أو كليك يمين أو الضغط على مسافة
            ═════════════════════════════════════════════════════════════════ -->
-      <div class="bg-slate-900/95 border-2 border-slate-700/80 rounded-2xl p-2.5 space-y-2 shadow-[0_0_18px_rgba(56,189,248,0.2)]">
+      <div id="amountContainerCard" class="rounded-2xl p-2.5 space-y-2.5 backdrop-blur-md relative">
         
         <!-- في نفس السطر: المبلغ محلي (يمين) والمبلغ دولار (يسار) بدون أي كلمات إضافية -->
         <div class="grid grid-cols-2 gap-2.5">
           
-          <!-- 1. اليمين: المبلغ المحلي (إضاءة سماوية فائقة الحواف) -->
+          <!-- 1. اليمين: المبلغ المحلي (إنارة هادئة عند السكون وتتوهج عند الكتابة والتركيز) -->
           <div>
             <div class="flex items-center justify-between mb-1 px-1 h-6">
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1.5">
                 <button type="button" onclick="startFieldVoiceInput('sdg', this)" class="field-mic-btn w-6 h-6 rounded-full bg-sky-950/95 border border-sky-400/80 text-sky-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي للمبلغ المحلي فقط" aria-label="تسجيل صوتي للمبلغ المحلي">
                   <i class="fa-solid fa-microphone text-[10px]"></i>
                 </button>
                 <span class="text-xs sm:text-sm font-black text-sky-300">المبلغ المحلي</span>
               </div>
             </div>
-            <!-- المربع شاغر بحواف مضيئة ساطعة -->
-            <div id="sdgAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-sky-400 shadow-[0_0_24px_rgba(56,189,248,0.55)] focus-within:shadow-[0_0_32px_rgba(56,189,248,0.85)] focus-within:border-sky-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
-              <input type="text" id="sdgAmount" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg')" oninput="handleAmountInput('sdg'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 32px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
+            <!-- المربع شاغر بحواف مضيئة على مستوى التاريخ ورقم المستند وتزيد إنارتها عند اقتراب المؤشر والتركيز والكتابة -->
+            <div id="sdgAmountCard" class="amount-display-card bg-slate-950/90 p-2 rounded-2xl glow-border-sky relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='sdgAmount') openNumberPropertiesModal(event, 'sdg')" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ المحلي">
+              <input type="text" id="sdgAmount" placeholder="0" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('sdg'); onAmountInputBlur('sdg');" oninput="handleAmountInput('sdg'); updateTafqeet(); onAmountInputLive('sdg');" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'sdg'); }" oncontextmenu="openNumberPropertiesModal(event, 'sdg'); return false;" ondblclick="openNumberPropertiesModal(event, 'sdg')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-sdg, 32px); font-weight: var(--num-weight-sdg, 900); color: var(--num-color-sdg, #ffffff); text-align: center;">
             </div>
           </div>
 
@@ -1769,15 +1869,15 @@ $currenciesData = [
           <div>
             <div class="flex items-center justify-between mb-1 px-1 h-6">
               <span class="text-xs sm:text-sm font-black text-emerald-300" id="foreignAmountTitle">مبلغ الدولار</span>
-              <div class="flex items-center gap-1">
+              <div class="flex items-center gap-1.5">
                 <button type="button" onclick="startFieldVoiceInput('usd', this)" class="field-mic-btn w-6 h-6 rounded-full bg-emerald-950/95 border border-emerald-400/80 text-emerald-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي للمبلغ بالدولار فقط" aria-label="تسجيل صوتي للمبلغ بالدولار">
                   <i class="fa-solid fa-microphone text-[10px]"></i>
                 </button>
               </div>
             </div>
-            <!-- المربع شاغر بحواف مضيئة ساطعة -->
-            <div id="usdAmountCard" class="amount-display-card bg-slate-950 p-2 rounded-2xl border-2 border-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.55)] focus-within:shadow-[0_0_32px_rgba(16,185,129,0.85)] focus-within:border-emerald-300 transition relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
-              <input type="text" id="usdAmount" placeholder="0.00" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('usd')" oninput="handleAmountInput('foreign'); updateTafqeet();" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-usd, 32px); font-weight: var(--num-weight-usd, 900); color: var(--num-color-usd, #10b981); text-align: center;">
+            <!-- المربع شاغر بحواف مضيئة على مستوى التاريخ ورقم المستند وتزيد إنارتها عند اقتراب المؤشر والتركيز والكتابة -->
+            <div id="usdAmountCard" class="amount-display-card bg-slate-950/90 p-2 rounded-2xl glow-border-emerald relative cursor-pointer flex items-center justify-center min-h-[72px]" onclick="if(event.target.id!=='usdAmount') openNumberPropertiesModal(event, 'usd')" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" title="انقر لتخصيص الألوان والتقريب والحجم للمبلغ بالدولار">
+              <input type="text" id="usdAmount" placeholder="0.00" inputmode="decimal" onfocus="this.select()" onblur="formatCurrentAmountInput('usd'); onAmountInputBlur('usd');" oninput="handleAmountInput('foreign'); updateTafqeet(); onAmountInputLive('usd');" onkeydown="if(event.key===' ' || event.code==='Space'){ event.preventDefault(); openNumberPropertiesModal(event, 'usd'); }" oncontextmenu="openNumberPropertiesModal(event, 'usd'); return false;" ondblclick="openNumberPropertiesModal(event, 'usd')" class="amount-number-input w-full bg-transparent text-center focus:outline-none placeholder-slate-700 font-black tracking-tight" style="font-size: var(--num-size-usd, 32px); font-weight: var(--num-weight-usd, 900); color: var(--num-color-usd, #10b981); text-align: center;">
             </div>
           </div>
 
@@ -1795,7 +1895,7 @@ $currenciesData = [
            - زيادة المساحة والعرض بنسبة 15%+ لاستيعاب الأسماء الطويلة بحجم خط كبير جداً
            - حواف حمراء فائقة الإضاءة والوضوح مع عرض الرصيد المتوقع بعد الحركة
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 border-[2.5px] border-red-500 shadow-[0_0_28px_rgba(239,68,68,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
+      <div id="fromAccountCard" class="bg-gradient-to-b from-red-950/40 to-slate-900/95 glow-border-red rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
             <button type="button" onclick="startFieldVoiceInput('from', this)" class="field-mic-btn w-7 h-7 rounded-full bg-red-950/90 border border-red-400/70 text-red-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (مِن) فقط" aria-label="تسجيل صوتي لحساب من">
@@ -1818,7 +1918,7 @@ $currenciesData = [
 
         <!-- حقل اسم الحساب: المساحة بالكامل 100% مخصصة للاسم دون أي تشويش أو حركة رأسية -->
         <div class="relative w-full">
-          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onblur="handleAccountInputBlur('from')" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-red-500/70 rounded-xl text-white focus:outline-none focus:border-red-400 focus:shadow-[0_0_28px_rgba(239,68,68,0.8)] placeholder-slate-500 shadow-inner">
+          <input type="text" id="fromSearchInput" oninput="liveSearchAccount('from')" onblur="handleAccountInputBlur('from')" onclick="onAccountInputFocus('from')" onfocus="onAccountInputFocus('from')" placeholder="اضغط لاختيار أو كتابة اسم الحساب..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 glow-border-red rounded-xl text-white focus:outline-none placeholder-slate-500">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
           <div id="fromDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-red-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
@@ -1845,7 +1945,7 @@ $currenciesData = [
            - زيادة المساحة والعرض بنسبة 15%+ مع خط كبير جداً وواضح
            - حواف خضراء زمردية فائقة الإضاءة والوضوح مع عرض الرصيد بعد الاستلام
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 border-[2.5px] border-emerald-500 shadow-[0_0_28px_rgba(16,185,129,0.55)] rounded-2xl p-3.5 sm:p-4 relative">
+      <div id="toAccountCard" class="bg-gradient-to-b from-emerald-950/40 to-slate-900/95 glow-border-emerald rounded-2xl p-3.5 sm:p-4 relative">
         <div class="flex items-center justify-between mb-2">
           <div class="flex items-center gap-1.5">
             <button type="button" onclick="startFieldVoiceInput('to', this)" class="field-mic-btn w-7 h-7 rounded-full bg-emerald-950/90 border border-emerald-400/70 text-emerald-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لحساب (إلى) فقط" aria-label="تسجيل صوتي لحساب إلى">
@@ -1868,7 +1968,7 @@ $currenciesData = [
 
         <!-- حقل اسم الحساب: المساحة بالكامل 100% مخصصة للاسم دون أي تشويش أو حركة رأسية -->
         <div class="relative w-full">
-          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onblur="handleAccountInputBlur('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستفيد..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 border-2 border-emerald-500/70 rounded-xl text-white focus:outline-none focus:border-emerald-400 focus:shadow-[0_0_28px_rgba(16,185,129,0.8)] placeholder-slate-500 shadow-inner">
+          <input type="text" id="toSearchInput" oninput="liveSearchAccount('to')" onblur="handleAccountInputBlur('to')" onclick="onAccountInputFocus('to')" onfocus="onAccountInputFocus('to')" placeholder="اضغط لاختيار أو كتابة اسم المستفيد..." value="" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="account-search-input w-full bg-slate-950 glow-border-emerald rounded-xl text-white focus:outline-none placeholder-slate-500">
           
           <!-- القائمة المنسدلة الذكية الفورية مع تبويبات التصنيف الذكية -->
           <div id="toDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-950 border-2 border-emerald-500/60 rounded-2xl shadow-2xl z-40 max-h-72 overflow-y-auto no-scrollbar"></div>
@@ -1886,14 +1986,14 @@ $currenciesData = [
            - رقم التحويلة: لون ذهبي دافئ أنيق بخط كبير
            - اسم البنك: لون أزرق جليدي فيروزي أنيق
            ═════════════════════════════════════════════════════════════════ -->
-      <div id="transferContainer" class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2.5 space-y-2">
+      <div id="transferContainer" class="bg-gradient-to-br from-slate-800/70 via-slate-900/85 to-slate-950/95 border border-slate-700/60 rounded-2xl p-2.5 space-y-2 shadow-[0_4px_20px_rgba(0,0,0,0.35),inset_0_1px_0_0_rgba(255,255,255,0.06)] backdrop-blur-md">
         <input type="file" id="directReceiptCameraInput" accept="image/*" capture="environment" class="hidden" onchange="handleDirectReceiptSelected(event)">
         <input type="file" id="directReceiptGalleryInput" accept="image/*" class="hidden" onchange="handleDirectReceiptSelected(event)">
 
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-2 gap-2.5 items-start">
           <!-- 1. رقم التحويلة بأناقة اللون الذهبي الدافئ والخط العريض -->
-          <div>
-            <div class="flex items-center gap-1 mb-1">
+          <div class="flex flex-col">
+            <div class="flex items-center gap-1.5 mb-1.5 h-7">
               <button type="button" onclick="startFieldVoiceInput('transfer', this)" class="field-mic-btn w-6 h-6 rounded-full bg-amber-950/95 border border-amber-400/80 text-amber-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لرقم التحويلة فقط" aria-label="تسجيل صوتي لرقم التحويلة">
                 <i class="fa-solid fa-microphone text-[10px]"></i>
               </button>
@@ -1902,17 +2002,21 @@ $currenciesData = [
                 <span>رقم التحويل:</span>
               </label>
             </div>
-            <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value)" onblur="handleTransferBlur(this.value)" placeholder="رقم التحويل" class="w-full bg-slate-950 border-2 border-amber-500/50 focus:border-amber-400 rounded-xl px-2.5 h-[50px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight shadow-[0_0_12px_rgba(245,158,11,0.2)] transition-colors" style="font-size: 20px; text-align: center; direction: ltr;">
-            <div id="transferFeedbackBadge" class="mt-1 min-h-[20px] transition-all flex items-center justify-center"></div>
+            <input type="text" id="transferInput" oninput="handleTransferLiveInput(this.value); onTransferInputLive(this.value);" onblur="handleTransferBlur(this.value); onTransferInputBlur();" placeholder="رقم التحويل" class="w-full bg-slate-950/90 glow-border-amber rounded-xl px-2.5 h-[48px] font-mono font-black text-yellow-300 focus:outline-none tracking-tight box-border cursor-text" style="font-size: 19px; text-align: center; direction: ltr;">
           </div>
 
-          <!-- 2. اسم البنك بأناقة الفيروزي الجليدي والخط الواضح المعزز -->
-          <div>
-            <label class="block text-xs sm:text-sm font-black text-cyan-300 mb-1 flex items-center gap-1" id="bankNameLabel">
-              <i class="fa-solid fa-building-columns text-cyan-400 text-xs"></i>
-              <span>اسم البنك:</span>
-            </label>
-            <input type="text" id="bankNameInput" list="banksDataList" placeholder="اسم البنك" class="w-full bg-slate-950 border-2 border-cyan-500/50 focus:border-cyan-400 rounded-xl px-2.5 h-[50px] text-sm font-black text-cyan-300 focus:outline-none shadow-[0_0_12px_rgba(6,182,212,0.2)]" value="بنك الخرطوم">
+          <!-- 2. اسم البنك بأناقة الفيروزي الجليدي والخط الواضح المعزز بمحاذاة تامة ومستوى واحد -->
+          <div class="flex flex-col">
+            <div class="flex items-center gap-1.5 mb-1.5 h-7">
+              <button type="button" onclick="startFieldVoiceInput('bank', this)" class="field-mic-btn w-6 h-6 rounded-full bg-cyan-950/95 border border-cyan-400/80 text-cyan-200 flex items-center justify-center active:scale-90 transition shrink-0" title="تسجيل صوتي لاسم البنك" aria-label="تسجيل صوتي لاسم البنك">
+                <i class="fa-solid fa-microphone text-[10px]"></i>
+              </button>
+              <label class="text-xs sm:text-sm font-black text-cyan-300 flex items-center gap-1" id="bankNameLabel">
+                <i class="fa-solid fa-building-columns text-cyan-400 text-xs"></i>
+                <span>اسم البنك:</span>
+              </label>
+            </div>
+            <input type="text" id="bankNameInput" list="banksDataList" oninput="onBankInputLive(this.value)" onblur="onBankInputBlur()" placeholder="اسم البنك" class="w-full bg-slate-950/90 glow-border-cyan rounded-xl px-2.5 h-[48px] text-xs sm:text-sm font-black text-cyan-300 focus:outline-none box-border cursor-text" value="بنك الخرطوم">
             <datalist id="banksDataList">
               <option value="بنك الخرطوم"></option>
               <option value="بنك فيصل الإسلامي"></option>
@@ -1926,6 +2030,9 @@ $currenciesData = [
               <option value="البنك الفرنسي السوداني"></option>
             </datalist>
           </div>
+
+          <!-- شارة التحقق من رقم التحويلة تمتد بكامل العرض في الأسفل بتوازن تام -->
+          <div id="transferFeedbackBadge" class="col-span-2 min-h-[20px] transition-all flex items-center justify-center"></div>
         </div>
 
         <!-- بطاقة الإشعار البنكي المرفق والمثبت كمستند ثبوتي -->
@@ -1962,7 +2069,7 @@ $currenciesData = [
            - يكتب فقط "البيان" داخل المساحة بلون خفيف
            ═════════════════════════════════════════════════════════════════ -->
       <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-2">
-        <textarea id="voucherNotes" rows="2" placeholder="البيان" class="w-full bg-slate-950 border-2 border-indigo-500/40 focus:border-indigo-400 rounded-xl p-2.5 text-slate-100 placeholder-slate-400/60 placeholder:font-medium text-xs font-bold focus:outline-none resize-none shadow-inner"></textarea>
+        <textarea id="voucherNotes" rows="2" oninput="onNotesInputLive(this.value)" onblur="onNotesInputBlur()" placeholder="البيان" class="w-full bg-slate-950 glow-border-indigo rounded-xl p-2.5 text-slate-100 placeholder-slate-400/60 placeholder:font-medium text-xs font-bold focus:outline-none resize-none cursor-text"></textarea>
       </div>
 
       <!-- ═════════════════════════════════════════════════════════════════
@@ -5544,8 +5651,8 @@ $currenciesData = [
     let fieldVoiceTarget = null;
     let fieldVoiceGotResult = false;
 
-    const FIELD_VOICE_LABELS = { from: 'مِن حساب', to: 'إلى حساب', sdg: 'المبلغ المحلي', usd: 'المبلغ بالدولار', transfer: 'رقم التحويلة' };
-    const FIELD_VOICE_INPUTS = { from: 'fromSearchInput', to: 'toSearchInput', sdg: 'sdgAmount', usd: 'usdAmount', transfer: 'transferInput' };
+    const FIELD_VOICE_LABELS = { from: 'مِن حساب', to: 'إلى حساب', sdg: 'المبلغ المحلي', usd: 'المبلغ بالدولار', transfer: 'رقم التحويلة', bank: 'اسم البنك' };
+    const FIELD_VOICE_INPUTS = { from: 'fromSearchInput', to: 'toSearchInput', sdg: 'sdgAmount', usd: 'usdAmount', transfer: 'transferInput', bank: 'bankNameInput' };
 
     // تحويل الأرقام المنطوقة رقماً رقماً (خمسة أربعة صفر...) إلى سلسلة أرقام لرقم التحويلة
     function spokenToDigitString(text) {
@@ -5715,6 +5822,23 @@ $currenciesData = [
           playBankerChime();
           triggerHapticPulse();
           showToastNotification(`🎙️ رقم التحويلة: ${digits}`);
+        }
+        return;
+      }
+
+      // 6. مايك اسم البنك:
+      if (target === 'bank') {
+        let clean = cleanFillers(text).replace(/^(?:اسم البنك|بنك|البنك|مصرف)\s*/gi, '').trim();
+        const banks = ['بنك الخرطوم', 'بنك فيصل الإسلامي', 'بنك أم درمان الوطني', 'بنك النيلين', 'بنك الخليج', 'بنك البركة', 'بنك العمال الوطني', 'مصرف الساحل والصحراء', 'بنك الثروة الحيوانية', 'البنك الفرنسي السوداني'];
+        let matched = banks.find(b => b.includes(clean) || clean.includes(b.replace(/^(?:بنك|مصرف|البنك)\s*/, '')));
+        const finalBank = matched || (text.startsWith('بنك') || text.startsWith('مصرف') ? text : 'بنك ' + text);
+        const bInp = document.getElementById('bankNameInput');
+        if (bInp) {
+          bInp.value = finalBank;
+          glowFieldVoice('bankNameInput');
+          playBankerChime();
+          triggerHapticPulse();
+          showToastNotification(`🎙️ اسم البنك: ${finalBank}`);
         }
         return;
       }
@@ -6675,10 +6799,94 @@ $currenciesData = [
       return isNaN(num) ? 0 : num;
     }
 
+    let amountTypingTimers = {};
+    function onAmountInputLive(type) {
+      const card = document.getElementById(type === 'sdg' ? 'sdgAmountCard' : 'usdAmountCard');
+      if (!card) return;
+      const cls = type === 'sdg' ? 'is-typing-sdg' : 'is-typing-usd';
+      card.classList.add(cls);
+      if (amountTypingTimers[type]) clearTimeout(amountTypingTimers[type]);
+      amountTypingTimers[type] = setTimeout(() => {
+        card.classList.remove(cls);
+      }, 1000);
+    }
+    function onAmountInputBlur(type) {
+      const card = document.getElementById(type === 'sdg' ? 'sdgAmountCard' : 'usdAmountCard');
+      if (!card) return;
+      const cls = type === 'sdg' ? 'is-typing-sdg' : 'is-typing-usd';
+      card.classList.remove(cls);
+      if (amountTypingTimers[type]) clearTimeout(amountTypingTimers[type]);
+    }
+
+    let transferTypingTimer = null;
+    function onTransferInputLive(val) {
+      const inp = document.getElementById('transferInput');
+      if (!inp) return;
+      inp.classList.add('input-typing-glow-amber');
+      if (transferTypingTimer) clearTimeout(transferTypingTimer);
+      transferTypingTimer = setTimeout(() => {
+        inp.classList.remove('input-typing-glow-amber');
+      }, 1000);
+    }
+    function onTransferInputBlur() {
+      const inp = document.getElementById('transferInput');
+      if (!inp) return;
+      inp.classList.remove('input-typing-glow-amber');
+      if (transferTypingTimer) clearTimeout(transferTypingTimer);
+    }
+
+    let bankTypingTimer = null;
+    function onBankInputLive(val) {
+      const inp = document.getElementById('bankNameInput');
+      if (!inp) return;
+      inp.classList.add('input-typing-glow-cyan');
+      if (bankTypingTimer) clearTimeout(bankTypingTimer);
+      bankTypingTimer = setTimeout(() => {
+        inp.classList.remove('input-typing-glow-cyan');
+      }, 1000);
+    }
+    function onBankInputBlur() {
+      const inp = document.getElementById('bankNameInput');
+      if (!inp) return;
+      inp.classList.remove('input-typing-glow-cyan');
+      if (bankTypingTimer) clearTimeout(bankTypingTimer);
+    }
+
+    let notesTypingTimer = null;
+    function onNotesInputLive(val) {
+      const inp = document.getElementById('voucherNotes');
+      if (!inp) return;
+      inp.classList.add('input-typing-glow-indigo');
+      if (notesTypingTimer) clearTimeout(notesTypingTimer);
+      notesTypingTimer = setTimeout(() => {
+        inp.classList.remove('input-typing-glow-indigo');
+      }, 1000);
+    }
+    function onNotesInputBlur() {
+      const inp = document.getElementById('voucherNotes');
+      if (!inp) return;
+      inp.classList.remove('input-typing-glow-indigo');
+      if (notesTypingTimer) clearTimeout(notesTypingTimer);
+    }
+
+    window.onAmountInputLive = onAmountInputLive;
+    window.onAmountInputBlur = onAmountInputBlur;
+    window.onTransferInputLive = onTransferInputLive;
+    window.onTransferInputBlur = onTransferInputBlur;
+    window.onBankInputLive = onBankInputLive;
+    window.onBankInputBlur = onBankInputBlur;
+    window.onNotesInputLive = onNotesInputLive;
+    window.onNotesInputBlur = onNotesInputBlur;
+
     function handleAmountInput(source) {
       calculateExchange(source);
       updateTafqeet();
       updateAccountBalanceBadges();
+      if (source === 'sdg') {
+        onAmountInputLive('sdg');
+      } else if (source === 'foreign' || source === 'usd') {
+        onAmountInputLive('usd');
+      }
     }
 
     function calculateExchange(source) {
