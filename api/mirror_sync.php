@@ -707,7 +707,8 @@ try {
                 $invNo = $r['invoice_no'] ?: ($d['invoiceNo'] ?? ('S-' . $r['id']));
                 $d['invoiceNo'] = $invNo;
                 $d['id'] = $invNo;
-                $d['customerName'] = $r['customer_id_val'] ?: ($d['customerName'] ?? ($d['customer_name'] ?? 'عميل نقدي'));
+                $cName = !empty($d['customerName']) ? $d['customerName'] : (!empty($d['customer_name']) ? $d['customer_name'] : ($r['customer_id_val'] ?: 'عميل نقدي'));
+                $d['customerName'] = $cName;
                 $d['total'] = (float)($r['total_val'] ?? ($d['grandTotal'] ?? ($d['total'] ?? 0)));
                 $d['grandTotal'] = $d['total'];
                 $d['date'] = $r['date_val'] ?: ($d['date'] ?? date('Y-m-d', strtotime($r['created_at'])));

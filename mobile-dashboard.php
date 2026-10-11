@@ -2132,8 +2132,8 @@ try {
             border-radius: 26px 26px 0 0;
             box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.85);
             z-index: 1001;
-            transform: translateY(100%);
-            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(105%);
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -2143,9 +2143,13 @@ try {
             box-sizing: border-box;
             padding-bottom: var(--safe-bottom);
             color: var(--text-main);
+            pointer-events: none;
+            visibility: hidden;
         }
         .mobile-bottom-sheet.active {
             transform: translateY(0);
+            pointer-events: auto;
+            visibility: visible;
         }
         .sheet-drag-handle {
             width: 44px;
@@ -4408,21 +4412,153 @@ try {
             opacity: 0.85;
         }
 
-        /* Pinned Settlement & Payment Footer */
+        /* ═════════════════════════════════════════════════════════════════
+           ✨ UNIFIED HIGH-CONTRAST EDGE ILLUMINATION (نظام الإنارة في الحواف)
+           ═════════════════════════════════════════════════════════════════ */
+        .glow-border-cyan {
+            border: 1.5px solid rgba(6, 182, 212, 0.7) !important;
+            box-shadow: 0 0 14px rgba(6, 182, 212, 0.35) !important;
+            transition: all 0.25s ease-in-out !important;
+        }
+        .glow-border-cyan:hover {
+            border-color: rgba(6, 182, 212, 1) !important;
+            box-shadow: 0 0 22px rgba(6, 182, 212, 0.65), inset 0 0 6px rgba(6, 182, 212, 0.18) !important;
+        }
+        .glow-border-cyan:focus, .glow-border-cyan:focus-within, .glow-border-cyan.is-active-glow {
+            border-color: #22d3ee !important;
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.85), inset 0 0 10px rgba(6, 182, 212, 0.3) !important;
+        }
+
+        .glow-border-amber {
+            border: 1.5px solid rgba(245, 158, 11, 0.7) !important;
+            box-shadow: 0 0 14px rgba(245, 158, 11, 0.35) !important;
+            transition: all 0.25s ease-in-out !important;
+        }
+        .glow-border-amber:hover {
+            border-color: rgba(245, 158, 11, 1) !important;
+            box-shadow: 0 0 22px rgba(245, 158, 11, 0.65), inset 0 0 6px rgba(245, 158, 11, 0.18) !important;
+        }
+        .glow-border-amber:focus, .glow-border-amber:focus-within, .glow-border-amber.is-active-glow {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 30px rgba(245, 158, 11, 0.85), inset 0 0 10px rgba(245, 158, 11, 0.3) !important;
+        }
+
+        .glow-border-emerald {
+            border: 1.5px solid rgba(16, 185, 129, 0.7) !important;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.35) !important;
+            transition: all 0.25s ease-in-out !important;
+        }
+        .glow-border-emerald:hover {
+            border-color: rgba(16, 185, 129, 1) !important;
+            box-shadow: 0 0 22px rgba(16, 185, 129, 0.65), inset 0 0 6px rgba(16, 185, 129, 0.18) !important;
+        }
+        .glow-border-emerald:focus, .glow-border-emerald:focus-within, .glow-border-emerald.is-active-glow {
+            border-color: #34d399 !important;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.85), inset 0 0 10px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        .glow-border-sky {
+            border: 1.5px solid rgba(56, 189, 248, 0.7) !important;
+            box-shadow: 0 0 14px rgba(56, 189, 248, 0.35) !important;
+            transition: all 0.25s ease-in-out !important;
+        }
+        .glow-border-sky:hover {
+            border-color: rgba(56, 189, 248, 1) !important;
+            box-shadow: 0 0 22px rgba(56, 189, 248, 0.65), inset 0 0 6px rgba(56, 189, 248, 0.18) !important;
+        }
+        .glow-border-sky:focus, .glow-border-sky:focus-within, .glow-border-sky.is-active-glow {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.85), inset 0 0 10px rgba(56, 189, 248, 0.3) !important;
+        }
+
+        .glow-border-indigo {
+            border: 1.5px solid rgba(99, 102, 241, 0.7) !important;
+            box-shadow: 0 0 14px rgba(99, 102, 241, 0.35) !important;
+            transition: all 0.25s ease-in-out !important;
+        }
+        .glow-border-indigo:hover {
+            border-color: rgba(99, 102, 241, 1) !important;
+            box-shadow: 0 0 22px rgba(99, 102, 241, 0.65), inset 0 0 6px rgba(99, 102, 241, 0.18) !important;
+        }
+        .glow-border-indigo:focus, .glow-border-indigo:focus-within, .glow-border-indigo.is-active-glow {
+            border-color: #818cf8 !important;
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.85), inset 0 0 10px rgba(99, 102, 241, 0.3) !important;
+        }
+
+        .glow-border-rose {
+            border: 1.5px solid rgba(244, 63, 94, 0.7) !important;
+            box-shadow: 0 0 14px rgba(244, 63, 94, 0.35) !important;
+            transition: all 0.25s ease-in-out !important;
+        }
+        .glow-border-rose:hover {
+            border-color: rgba(244, 63, 94, 1) !important;
+            box-shadow: 0 0 22px rgba(244, 63, 94, 0.65), inset 0 0 6px rgba(244, 63, 94, 0.18) !important;
+        }
+        .glow-border-rose:focus, .glow-border-rose:focus-within, .glow-border-rose.is-active-glow {
+            border-color: #fb7185 !important;
+            box-shadow: 0 0 30px rgba(244, 63, 94, 0.85), inset 0 0 10px rgba(244, 63, 94, 0.3) !important;
+        }
+
+        .glow-border-purple {
+            border: 1.5px solid rgba(168, 85, 247, 0.7) !important;
+            box-shadow: 0 0 14px rgba(168, 85, 247, 0.35) !important;
+            transition: all 0.25s ease-in-out !important;
+        }
+        .glow-border-purple:hover {
+            border-color: rgba(168, 85, 247, 1) !important;
+            box-shadow: 0 0 22px rgba(168, 85, 247, 0.65), inset 0 0 6px rgba(168, 85, 247, 0.18) !important;
+        }
+        .glow-border-purple:focus, .glow-border-purple:focus-within, .glow-border-purple.is-active-glow {
+            border-color: #c084fc !important;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.85), inset 0 0 10px rgba(168, 85, 247, 0.3) !important;
+        }
+
+        /* Laptop Parity Settlement & Payment Footer */
         .pos-settlement-footer {
-            position: sticky;
-            bottom: 0;
-            left: 0;
-            right: 0;
+            position: relative;
             background: var(--surface-card);
-            border-top: 1.5px solid var(--border-glass);
-            border-radius: 18px 18px 0 0;
-            padding: 10px 12px calc(12px + var(--safe-bottom)) 12px;
-            box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.3);
-            margin-top: 10px;
+            border: 1.5px solid var(--border-glass);
+            border-radius: 18px;
+            padding: 12px 14px;
+            margin-top: 14px;
+            margin-bottom: 25px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 10px;
+        }
+
+        /* 📱 Floating Mobile Mini-Summary Quick Action Bar */
+        .pos-mini-float-bar {
+            position: fixed;
+            bottom: max(14px, env(safe-area-inset-bottom, 14px));
+            left: 12px;
+            right: 12px;
+            z-index: 1000;
+            background: rgba(15, 23, 42, 0.94);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1.5px solid rgba(56, 189, 248, 0.45);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(56, 189, 248, 0.3);
+            border-radius: 16px;
+            padding: 8px 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            animation: slideUpFloat 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideUpFloat {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .mini-cart-pill {
+            background: rgba(56, 189, 248, 0.2);
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 8px;
         }
 
         /* Dynamic Grand Total 100% Surface Badge */
@@ -6051,6 +6187,16 @@ try {
             margin-bottom: 12px;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
         }
+        .invoice-suite-tabs.tabs-4 {
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 4px !important;
+            padding: 4px !important;
+        }
+        .invoice-suite-tabs.tabs-4 .suite-tab-btn {
+            padding: 8px 2px !important;
+            font-size: 0.74rem !important;
+            gap: 4px !important;
+        }
         .suite-tab-btn {
             display: flex;
             align-items: center;
@@ -7377,7 +7523,7 @@ try {
                     <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'prev')" title="السند السابق (أقدم)">
                         <i class="fa-solid fa-chevron-right"></i> السابق
                     </button>
-                    <span id="tx-voucher-display" class="nav-record-badge">...</span>
+                    <span id="tx-voucher-display" class="nav-record-badge glow-border-amber">...</span>
                     <button type="button" class="btn-nav-step" onclick="window.UniversalActionEngine.navigate('financial-tx', 'next')" title="السند التالي (أحدث)">
                         التالي <i class="fa-solid fa-chevron-left"></i>
                     </button>
@@ -7388,7 +7534,7 @@ try {
                     <!-- الصرف -->
                     <div style="display:inline-flex; align-items:center; gap:3px;">
                         <span style="font-size:0.74rem; font-weight:800; color:var(--text-muted);">صرف:</span>
-                        <input type="number" id="tx-exchange-rate" class="m-input" style="width:68px; height:28px; font-size:0.82rem; font-weight:900; text-align:center; padding:1px 2px; border-color:rgba(245,158,11,0.4); background:rgba(245,158,11,0.08); color:var(--amber); border-radius:6px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
+                        <input type="number" id="tx-exchange-rate" class="m-input glow-border-cyan" style="width:68px; height:28px; font-size:0.82rem; font-weight:900; text-align:center; padding:1px 2px; color:var(--amber); border-radius:6px;" value="6000" step="any" oninput="onExchangeRateInput(this.value)">
                     </div>
                 </div>
 
@@ -7446,7 +7592,7 @@ try {
                         <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.88rem; color:var(--emerald);">
                             المبلغ محلي (SDG)
                         </label>
-                        <input type="number" id="tx-amount-local" class="m-input huge-number" placeholder="0" step="any" required inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onLocalAmountInput(this.value)">
+                        <input type="number" id="tx-amount-local" class="m-input huge-number glow-border-emerald" placeholder="0" step="any" required inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onLocalAmountInput(this.value)">
                     </div>
 
                     <!-- أجنبي -->
@@ -7454,7 +7600,7 @@ try {
                         <label class="m-label" style="margin-bottom:4px; font-weight:900; font-size:0.88rem; color:#f87171;">
                             المبلغ أجنبي ($)
                         </label>
-                        <input type="number" id="tx-amount-foreign" class="m-input huge-number" placeholder="0" step="any" inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onForeignAmountInput(this.value)">
+                        <input type="number" id="tx-amount-foreign" class="m-input huge-number glow-border-rose" placeholder="0" step="any" inputmode="decimal" style="height:54px; font-size:1.35rem; padding:6px 10px; color:#f87171; font-family:'Inter',sans-serif; direction:ltr !important; text-align:center;" oninput="onForeignAmountInput(this.value)">
                     </div>
                 </div>
 
@@ -7467,7 +7613,7 @@ try {
                 <!-- 4. Dual Account Box (من وإلى) بتصميم عالي الوضوح والتركيز -->
                 <div class="account-selector-container" style="margin-bottom:12px;">
                     <!-- 🔴 FROM (من - الدافع ومصدر الأموال) -->
-                    <div class="box-account-picker box-account-from" onclick="openAccountPicker('from')">
+                    <div class="box-account-picker box-account-from glow-border-rose" onclick="openAccountPicker('from')">
                         <div class="box-acc-left">
                             <span class="box-acc-tag" style="font-size:0.95rem; font-weight:900;">
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i> من (الدافع / مصدر الأموال):
@@ -7492,7 +7638,7 @@ try {
                     </button>
 
                     <!-- 🟢 TO (إلى - المستلم ووجهة الأموال) -->
-                    <div class="box-account-picker box-account-to" onclick="openAccountPicker('to')">
+                    <div class="box-account-picker box-account-to glow-border-emerald" onclick="openAccountPicker('to')">
                         <div class="box-acc-left">
                             <span class="box-acc-tag" style="font-size:0.95rem; font-weight:900;">
                                 <i class="fa-solid fa-arrow-down-to-bracket"></i> إلى (المستلم / وجهة الأموال):
@@ -7537,13 +7683,13 @@ try {
                         <label class="m-label" style="margin-bottom:4px; font-weight:800; font-size:0.82rem; color:var(--text-muted);">
                             التاريخ:
                         </label>
-                        <input type="date" id="tx-date" class="m-input" required style="height:44px; font-weight:700;">
+                        <input type="date" id="tx-date" class="m-input glow-border-purple" required style="height:44px; font-weight:700;">
                     </div>
                     <div class="m-form-group" style="margin-bottom:0;">
                         <label class="m-label" id="tx-ref-label" style="margin-bottom:4px; font-weight:800; font-size:0.82rem; color:var(--text-muted);">
                             رقم التحويلة البنكية:
                         </label>
-                        <input type="text" id="tx-ref" class="m-input" placeholder="رقم التحويلة البنكية" style="height:44px; font-family:'Inter',monospace; font-weight:800; letter-spacing:0.5px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
+                        <input type="text" id="tx-ref" class="m-input glow-border-sky" placeholder="رقم التحويلة البنكية" style="height:44px; font-family:'Inter',monospace; font-weight:800; letter-spacing:0.5px;" autocomplete="off" oninput="validateRefNoLive(this.value)">
                     </div>
                 </div>
                 <div id="tx-ref-validation-hint" style="font-size:0.75rem; font-weight:800; margin-top:-4px; margin-bottom:10px; display:none; padding:4px 10px; border-radius:8px;"></div>
@@ -7551,18 +7697,18 @@ try {
                 <!-- 5. Cost Center & Beneficiary -->
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:10px;">
                     <div class="m-form-group" style="margin-bottom:0;">
-                        <select id="tx-cost-center" class="m-input" style="height:44px; font-weight:700; font-size:0.9rem;">
+                        <select id="tx-cost-center" class="m-input glow-border-cyan" style="height:44px; font-weight:700; font-size:0.9rem;">
                             <option value="">مركز الكلفة</option>
                         </select>
                     </div>
                     <div class="m-form-group" style="margin-bottom:0;">
-                        <input type="text" id="tx-beneficiary" class="m-input" placeholder="اسم المستفيد" style="height:44px;">
+                        <input type="text" id="tx-beneficiary" class="m-input glow-border-indigo" placeholder="اسم المستفيد" style="height:44px;">
                     </div>
                 </div>
 
                 <!-- 6. Statement / Notes -->
                 <div class="m-form-group" style="margin-bottom:14px;">
-                    <input type="text" id="tx-notes" class="m-input" placeholder="البيان / ملاحظات السند" style="height:44px;">
+                    <input type="text" id="tx-notes" class="m-input glow-border-purple" placeholder="البيان / ملاحظات السند" style="height:44px;">
                 </div>
 
                 <!-- 7. Comprehensive Bottom Action Buttons Suite -->
@@ -7617,7 +7763,7 @@ try {
             <div class="picker-search-bar">
                 <div style="position:relative; margin-bottom:8px;">
                     <i class="fa-solid fa-magnifying-glass" style="position:absolute; right:14px; top:14px; color:var(--text-muted); font-size:0.95rem;"></i>
-                    <input type="text" id="picker-search-input" class="m-input" style="padding-right:40px;" placeholder="ابحث بالاسم، الهاتف، أو نوع الحساب..." oninput="filterAccountsList()" autocomplete="off">
+                    <input type="text" id="picker-search-input" class="m-input glow-border-sky" style="padding-right:40px;" placeholder="ابحث بالاسم، الهاتف، أو نوع الحساب..." oninput="filterAccountsList()" autocomplete="off">
                 </div>
                 <div class="picker-category-pills">
                     <button type="button" class="cat-pill active" onclick="setPickerCategory('all', this)">الكل</button>
@@ -7767,35 +7913,35 @@ try {
     <div class="mobile-sheet-overlay <?= (!empty($isDedicatedSales) ? 'active' : '') ?>" id="overlay-sheet-sale" onclick="closeBottomSheet('sheet-sale')"></div>
     <div class="mobile-bottom-sheet <?= (!empty($isDedicatedSales) ? 'active' : '') ?>" id="sheet-sale" style="max-height: 98vh; <?= (!empty($isDedicatedSales) ? 'transform: translateY(0);' : '') ?>">
         <div class="sheet-drag-handle"></div>
-        <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass);">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <a href="mobile-dashboard.php" style="text-decoration:none; display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid var(--border-glass); color:#38bdf8; font-size:0.95rem; font-weight:bold;" title="العودة لشاشات المنظومة">
+        <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass); display:flex; align-items:center; justify-content:space-between; gap:6px;">
+            <div style="display:flex; align-items:center; gap:8px; flex:1; min-width:0;">
+                <a href="mobile-dashboard.php" style="text-decoration:none; display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid var(--border-glass); color:#38bdf8; font-size:0.95rem; font-weight:bold; flex-shrink:0;" title="العودة لشاشات المنظومة">
                     <i class="fa-solid fa-arrow-right"></i>
                 </a>
-                <span class="sheet-title" style="color:var(--primary); font-weight:900;">
-                    <i class="fa-solid fa-cash-register"></i> منظومة المبيعات والفوترة المباشرة
+                <span class="sheet-title" style="color:var(--primary); font-weight:900; font-size:0.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+                    <i class="fa-solid fa-cash-register"></i> المبيعات والفوترة
                 </span>
-                <span id="pos-inv-number-pill" style="font-family:'Outfit','Inter',monospace; font-size:0.78rem; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); color:var(--primary); padding:2px 8px; border-radius:6px; font-weight:800;">
-                    <?= htmlspecialchars($preloadedData['nextSalesNo'] ?? '#S26100127') ?>
+                <span id="pos-inv-number-pill" style="font-family:'Outfit','Inter',monospace; font-size:0.75rem; background:rgba(56,189,248,0.15); border:1.5px solid rgba(56,189,248,0.4); color:var(--primary); padding:2px 8px; border-radius:8px; font-weight:800; white-space:nowrap; box-shadow:0 0 10px rgba(56,189,248,0.25);">
+                    <?= htmlspecialchars(ltrim($preloadedData['nextSalesNo'] ?? 'S26100127', '#')) ?>
                 </span>
             </div>
-            <a href="mobile-dashboard.php" class="btn-sheet-close" style="text-decoration:none; display:flex; align-items:center; justify-content:center;" title="العودة لشاشات المنظومة">✕</a>
+            <a href="mobile-dashboard.php" class="btn-sheet-close" style="text-decoration:none; display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:8px; background:rgba(255,255,255,0.06); color:var(--text-muted); font-size:0.95rem;" title="إغلاق">✕</a>
         </div>
 
-        <div class="sheet-body" style="padding-top:10px; padding-bottom:85px;">
-            <!-- Segmented Hub Navigation: [فاتورة مبيعات | سجل الفواتير | تقسيم المبيعات | استلام المبيعات] -->
-            <div class="invoice-suite-tabs">
+        <div class="sheet-body" style="padding-top:10px; padding-bottom:70px;">
+            <!-- Segmented Hub Navigation: [الفاتورة | السجل | التقسيم | التسليم] -->
+            <div class="invoice-suite-tabs tabs-4">
                 <button type="button" class="suite-tab-btn active" id="tab-sales-invoice" onclick="switchSalesSuiteTab('invoice')">
-                    <i class="fa-solid fa-cart-shopping"></i> فاتورة مبيعات
+                    <i class="fa-solid fa-cart-shopping text-sky-400"></i> الفاتورة
                 </button>
                 <button type="button" class="suite-tab-btn" id="tab-sales-history" onclick="switchSalesSuiteTab('history')">
-                    <i class="fa-solid fa-clock-rotate-left"></i> سجل الفواتير
+                    <i class="fa-solid fa-clock-rotate-left text-amber-400"></i> السجل
                 </button>
                 <button type="button" class="suite-tab-btn" id="tab-sales-split" onclick="switchSalesSuiteTab('split')">
-                    <i class="fa-solid fa-scissors"></i> تقسيم المبيعات
+                    <i class="fa-solid fa-scissors text-pink-400"></i> التقسيم
                 </button>
                 <button type="button" class="suite-tab-btn" id="tab-sales-delivery" onclick="switchSalesSuiteTab('delivery')">
-                    <i class="fa-solid fa-truck-ramp-box"></i> استلام المبيعات
+                    <i class="fa-solid fa-truck-ramp-box text-emerald-400"></i> التسليم
                 </button>
             </div>
 
@@ -7827,34 +7973,34 @@ try {
 
                     <!-- CARD 1: شريط السند والتنقل الرقمي + التاريخ + البيان (Laptop Serial & Info Box) -->
                     <div class="pos-core-card" style="border-color: rgba(212, 175, 55, 0.35);">
-                        <div class="pos-gold-serial-box">
-                            <button type="button" class="pro-serial-btn" onclick="MobilePOS.loadPreviousInvoice()" title="الفاتورة السابقة">❮</button>
+                        <div class="pos-gold-serial-box glow-border-amber">
+                            <button type="button" class="pro-serial-btn" onclick="MobilePOS.loadNextInvoice()" title="الفاتورة التالية">❮</button>
                             <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
                                 <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 800;">رقم السند / الفاتورة:</span>
-                                    <span id="pos-inv-number-display" class="pos-gold-serial-text">---</span>
+                                    <span style="font-size: 0.72rem; color: #94a3b8; font-weight: 800;">رقم الفاتورة:</span>
+                                    <span id="pos-inv-number-display" class="pos-gold-serial-text" style="font-size:1.15rem; font-weight:900;">---</span>
                                     <input type="hidden" id="pos-inv-no" value="">
                                 </div>
                                 <span id="pos-inv-mode-badge" class="inv-mode-badge mode-new">✨ فاتورة جديدة</span>
                             </div>
-                            <button type="button" class="pro-serial-btn" onclick="MobilePOS.loadNextInvoice()" title="الفاتورة التالية">❯</button>
+                            <button type="button" class="pro-serial-btn" onclick="MobilePOS.loadPreviousInvoice()" title="الفاتورة السابقة">❯</button>
                         </div>
 
                         <!-- Date & Description Grid -->
                         <div class="entry-grid-2" style="margin-top: 4px;">
                             <div class="entry-field">
                                 <label style="font-size:0.75rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-calendar-day text-sky-400"></i> التاريخ:</label>
-                                <input type="date" id="pos-inv-date" class="m-input" style="height:36px; text-align:center; font-weight:800; font-family:'Inter',sans-serif; font-size:0.82rem;">
+                                <input type="date" id="pos-inv-date" class="m-input glow-border-cyan" style="height:38px; text-align:center; font-weight:800; font-family:'Inter',sans-serif; font-size:0.85rem;">
                             </div>
                             <div class="entry-field">
                                 <label style="font-size:0.75rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-pen-to-square text-amber-400"></i> البيان / ملاحظات:</label>
-                                <input type="text" id="pos-inv-description" class="m-input" placeholder="ملاحظات الفاتورة أو مرجع..." style="height:36px; font-size:0.8rem;">
+                                <input type="text" id="pos-inv-description" class="m-input glow-border-indigo" placeholder="ملاحظات الفاتورة أو مرجع..." style="height:38px; font-size:0.82rem;">
                             </div>
                         </div>
                     </div>
 
                     <!-- CARD 2: Customer Picker & Financial Status Strip (مطابق للابتوب) -->
-                    <div class="pos-party-card">
+                    <div class="pos-party-card glow-border-emerald">
                         <div class="party-header-row">
                             <span style="font-size:0.8rem; font-weight:800; color:var(--text-muted);">
                                 <i class="fa-solid fa-user-tag text-emerald-400"></i> العميل والحساب المالي:
@@ -7869,22 +8015,22 @@ try {
                             </div>
                         </div>
 
-                        <select id="pos-customer-select" class="m-select" style="width:100%; height:38px; padding:4px 8px; font-size:0.85rem; font-weight:800;" onchange="MobilePOS.onCustomerChange(this.value)">
+                        <select id="pos-customer-select" class="m-select glow-border-emerald" style="width:100%; height:40px; padding:4px 8px; font-size:0.85rem; font-weight:800;" onchange="MobilePOS.onCustomerChange(this.value)">
                             <option value="walkin">عميل نقدي عام (Walk-in)</option>
                         </select>
 
                         <!-- Dynamic Customer Financial Strip Badges -->
                         <div class="party-badges-row" id="pos-party-badges">
-                            <span class="party-badge badge-phone" id="pos-cust-phone">
+                            <span class="party-badge badge-phone glow-border-sky" id="pos-cust-phone">
                                 <i class="fa-solid fa-phone"></i> نقدي فوري
                             </span>
-                            <span class="party-badge badge-balance" id="pos-cust-balance">
+                            <span class="party-badge badge-balance glow-border-amber" id="pos-cust-balance">
                                 <i class="fa-solid fa-wallet"></i> الرصيد: 0 SDG
                             </span>
-                            <span class="party-badge badge-credit-limit" id="pos-cust-credit-limit">
+                            <span class="party-badge badge-credit-limit glow-border-cyan" id="pos-cust-credit-limit">
                                 <i class="fa-solid fa-shield-halved"></i> السقف: لا يوجد
                             </span>
-                            <span class="party-badge" id="pos-cust-remaining" style="background:rgba(16,185,129,0.15); color:#34d399; border:1px solid rgba(16,185,129,0.3);">
+                            <span class="party-badge glow-border-emerald" id="pos-cust-remaining" style="background:rgba(16,185,129,0.15); color:#34d399;">
                                 <i class="fa-solid fa-sparkles"></i> المتاح: 0
                             </span>
                         </div>
@@ -7906,13 +8052,13 @@ try {
                         <div class="entry-grid-2">
                             <div class="entry-field">
                                 <label style="font-size:0.75rem; font-weight:800; color:#fb923c;"><i class="fa-solid fa-warehouse"></i> 📦 المخزن المنصرف منه:</label>
-                                <select id="pos-item-warehouse" class="m-select" style="height:36px; font-size:0.8rem; font-weight:800;">
+                                <select id="pos-item-warehouse" class="m-select glow-border-amber" style="height:38px; font-size:0.8rem; font-weight:800;">
                                     <!-- Populated from DB -->
                                 </select>
                             </div>
                             <div class="entry-field">
                                 <label style="font-size:0.75rem; font-weight:800; color:#a3e635;"><i class="fa-solid fa-tags"></i> 🏷️ مركز التكلفة:</label>
-                                <select id="pos-item-cost-center" class="m-select" style="height:36px; font-size:0.8rem; font-weight:800;">
+                                <select id="pos-item-cost-center" class="m-select glow-border-cyan" style="height:38px; font-size:0.8rem; font-weight:800;">
                                     <option value="cc-001">الفرع الرئيسي</option>
                                     <option value="cc-002">فرع بحري</option>
                                 </select>
@@ -7924,18 +8070,18 @@ try {
                             <div class="entry-field">
                                 <label style="font-size:0.75rem; font-weight:800; color:#a78bfa;"><i class="fa-solid fa-money-bill-transfer"></i> 💱 العملة وسعر الصرف:</label>
                                 <div style="display:flex; gap:6px;">
-                                    <select id="pos-currency-select" class="m-select" style="height:36px; flex:1; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.handleCurrencyChange(this.value)">
+                                    <select id="pos-currency-select" class="m-select glow-border-amber" style="height:38px; flex:1; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.handleCurrencyChange(this.value)">
                                         <option value="SDG">🇸🇩 جنيه (SDG)</option>
                                         <option value="USD">🇺🇸 دولار (USD)</option>
                                         <option value="SAR">🇸🇦 ريال (SAR)</option>
                                         <option value="AED">🇦🇪 درهم (AED)</option>
                                         <option value="EGP">🇪🇬 مصري (EGP)</option>
                                     </select>
-                                    <input type="number" id="pos-exchange-rate" class="m-input" style="height:36px; width:85px; text-align:center; font-weight:900; font-family:'Inter',sans-serif; color:#10b981; background:rgba(16,185,129,0.1);" placeholder="الصرف" readonly title="سعر الصرف المعتمد من إعدادات النظام" onclick="MobilePOS.editExchangeRatePrompt()">
+                                    <input type="number" id="pos-exchange-rate" class="m-input glow-border-emerald" style="height:38px; width:85px; text-align:center; font-weight:900; font-family:'Inter',sans-serif; color:#10b981; background:rgba(16,185,129,0.1);" placeholder="الصرف" readonly title="سعر الصرف المعتمد من إعدادات النظام" onclick="MobilePOS.editExchangeRatePrompt()">
                                 </div>
                             </div>
                             <div class="entry-field">
-                                <div id="pos-usd-rate-pill" style="height:36px; display:flex; align-items:center; justify-content:center; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); border-radius:10px; font-size:0.75rem; font-weight:800; color:#38bdf8; gap:4px;">
+                                <div id="pos-usd-rate-pill" class="glow-border-sky" style="height:38px; display:flex; align-items:center; justify-content:center; background:rgba(56,189,248,0.12); border-radius:10px; font-size:0.75rem; font-weight:800; color:#38bdf8; gap:4px; cursor:pointer;" onclick="MobilePOS.editExchangeRatePrompt()" title="انقر لتعديل سعر الصرف">
                                     <i class="fa-solid fa-dollar-sign"></i> سعر الدولار: <strong id="pos-usd-rate-val">5,999</strong> SDG
                                 </div>
                             </div>
@@ -7944,7 +8090,7 @@ try {
 
                     <!-- CARD 4: طريقة الدفع والسداد المجزأ -->
                     <div class="pos-core-card">
-                        <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-bottom:2px;">
+                        <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); margin-bottom:4px;">
                             💳 طريقة السداد والدفع:
                         </div>
                         <div class="invoice-type-toggle">
@@ -7975,11 +8121,11 @@ try {
                             <div class="split-row">
                                 <div>
                                     <label style="font-size:0.72rem; font-weight:800; color:var(--emerald); margin-bottom:2px; display:block;">المبلغ نقداً (SDG):</label>
-                                    <input type="number" id="pos-split-cash" class="m-input" style="height:36px; font-weight:800; font-family:'Inter',sans-serif;" placeholder="0" oninput="MobilePOS.onSplitInput('cash', this.value)">
+                                    <input type="number" id="pos-split-cash" class="m-input glow-border-emerald" style="height:38px; font-weight:800; font-family:'Inter',sans-serif;" placeholder="0" oninput="MobilePOS.onSplitInput('cash', this.value)">
                                 </div>
                                 <div>
                                     <label style="font-size:0.72rem; font-weight:800; color:var(--primary); margin-bottom:2px; display:block;">المبلغ بنكك (SDG):</label>
-                                    <input type="number" id="pos-split-bank" class="m-input" style="height:36px; font-weight:800; font-family:'Inter',sans-serif;" placeholder="0" oninput="MobilePOS.onSplitInput('bank', this.value)">
+                                    <input type="number" id="pos-split-bank" class="m-input glow-border-sky" style="height:38px; font-weight:800; font-family:'Inter',sans-serif;" placeholder="0" oninput="MobilePOS.onSplitInput('bank', this.value)">
                                 </div>
                             </div>
                             <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.74rem; font-weight:800; margin-top:4px;" id="pos-split-balance-row">
@@ -7990,12 +8136,12 @@ try {
                     </div>
 
                     <!-- CARD 5: Detailed Laptop-Parity Item Entry Form (الصنف، الوحدة، الكمية، السعر، الجملة) -->
-                    <div class="invoice-item-entry-card">
+                    <div class="invoice-item-entry-card glow-border-sky">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-                            <span style="font-size:0.82rem; font-weight:900; color:var(--primary);">
-                                <i class="fa-solid fa-cubes-stacked"></i> إضافة بند مبيعات (مطابقة اللابتوب)
+                            <span style="font-size:0.84rem; font-weight:900; color:var(--primary);">
+                                <i class="fa-solid fa-cubes-stacked"></i> إضافة بند مبيعات
                             </span>
-                            <button type="button" onclick="MobilePOS.triggerBarcodeScanner()" style="background:rgba(168,85,247,0.15); border:1px solid #a855f7; color:#c084fc; border-radius:8px; padding:3px 8px; font-size:0.72rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px;">
+                            <button type="button" onclick="MobilePOS.triggerBarcodeScanner()" style="background:rgba(168,85,247,0.15); border:1px solid #a855f7; color:#c084fc; border-radius:8px; padding:4px 9px; font-size:0.72rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:4px;">
                                 <i class="fa-solid fa-barcode"></i> مسح باركود
                             </button>
                         </div>
@@ -8004,13 +8150,13 @@ try {
                         <div class="entry-grid-2">
                             <div class="entry-field">
                                 <label style="font-size:0.74rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-tags text-purple-400"></i> التصنيف:</label>
-                                <select id="pos-item-category" class="m-select" style="height:36px; font-size:0.78rem; font-weight:800;" onchange="MobilePOS.onCategoryFilterChange(this.value)">
+                                <select id="pos-item-category" class="m-select glow-border-indigo" style="height:38px; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.onCategoryFilterChange(this.value)">
                                     <option value="all">كل التصنيفات</option>
                                 </select>
                             </div>
                             <div class="entry-field">
                                 <label style="font-size:0.74rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-scale-balanced text-emerald-400"></i> الوحدة القياسية:</label>
-                                <select id="pos-item-unit" class="m-select" style="height:36px; font-size:0.78rem; font-weight:800;" onchange="MobilePOS.calculateItemRowTotal()">
+                                <select id="pos-item-unit" class="m-select glow-border-cyan" style="height:38px; font-size:0.8rem; font-weight:800;" onchange="MobilePOS.calculateItemRowTotal()">
                                     <!-- Populated from erp_global_units_v1 -->
                                 </select>
                             </div>
@@ -8019,7 +8165,7 @@ try {
                         <!-- Item Select Dropdown -->
                         <div class="entry-field" style="margin-top:6px;">
                             <label style="font-size:0.74rem; font-weight:800; color:var(--text-muted);"><i class="fa-solid fa-box-open text-amber-400"></i> اسم الصنف:</label>
-                            <select id="pos-item-select" class="m-select" style="height:38px; font-size:0.82rem; font-weight:800;" onchange="MobilePOS.onItemDropdownSelect(this)">
+                            <select id="pos-item-select" class="m-select glow-border-sky" style="height:40px; font-size:0.84rem; font-weight:800;" onchange="MobilePOS.onItemDropdownSelect(this)">
                                 <option value="">-- اختر الصنف --</option>
                             </select>
                         </div>
@@ -8027,22 +8173,22 @@ try {
                         <!-- Qty + Price + Subtotal (الجملة) -->
                         <div class="entry-grid-3" style="margin-top:6px;">
                             <div class="entry-field">
-                                <label style="font-size:0.74rem; font-weight:800;">الكمية:</label>
-                                <input type="number" id="pos-item-qty" class="m-input" value="1" min="0.01" step="any" style="height:36px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+                                <label style="font-size:0.74rem; font-weight:800; color:#34d399;">الكمية:</label>
+                                <input type="number" id="pos-item-qty" class="m-input glow-border-emerald" value="1" min="0.01" step="any" style="height:38px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
                             </div>
                             <div class="entry-field">
-                                <label style="font-size:0.74rem; font-weight:800;">السعر (SDG):</label>
-                                <input type="number" id="pos-item-price" class="m-input" placeholder="0" step="any" style="height:36px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
+                                <label style="font-size:0.74rem; font-weight:800; color:#38bdf8;">السعر (SDG):</label>
+                                <input type="number" id="pos-item-price" class="m-input glow-border-cyan" placeholder="0" step="any" style="height:38px; text-align:center; font-weight:900; font-family:'Inter',sans-serif;" oninput="MobilePOS.calculateItemRowTotal()" inputmode="decimal">
                             </div>
                             <div class="entry-field">
                                 <label style="font-size:0.74rem; font-weight:800; color:var(--emerald);">الجملة:</label>
-                                <input type="text" id="pos-item-subtotal" class="m-input" readonly style="height:36px; text-align:center; font-weight:900; background:var(--surface-card); color:var(--emerald); font-family:'Inter',sans-serif;" value="0">
+                                <input type="text" id="pos-item-subtotal" class="m-input glow-border-emerald" readonly style="height:38px; text-align:center; font-weight:900; background:var(--surface-card); color:var(--emerald); font-family:'Inter',sans-serif;" value="0">
                             </div>
                         </div>
 
                         <!-- Add Item Button -->
                         <div style="margin-top:8px;">
-                            <button type="button" class="pos-add-item-btn" onclick="MobilePOS.addConfiguredItem()" style="height:38px; border-radius:10px; font-weight:900; font-size:0.88rem; background:linear-gradient(135deg, var(--primary), #0284c7); color:#fff; border:none; cursor:pointer; width:100%; box-shadow:0 2px 10px rgba(56,189,248,0.35);">
+                            <button type="button" class="pos-add-item-btn glow-border-sky" onclick="MobilePOS.addConfiguredItem()" style="height:42px; border-radius:12px; font-weight:900; font-size:0.9rem; background:linear-gradient(135deg, var(--primary), #0284c7); color:#fff; border:none; cursor:pointer; width:100%; box-shadow:0 0 16px rgba(56,189,248,0.4);">
                                 <i class="fa-solid fa-plus"></i> إضافة الصنف إلى الفاتورة 🛒
                             </button>
                         </div>
@@ -8084,36 +8230,36 @@ try {
                         <div id="pos-extra-inputs-box" style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; margin-top:6px;">
                             <div class="entry-field" id="wrap-extra-transport" style="display:none;">
                                 <label style="font-size:0.7rem; font-weight:800; color:#f97316;">🚚 ترحيل (SDG):</label>
-                                <input type="number" id="pos-extra-transport" class="m-input" placeholder="0" min="0" step="any" style="height:34px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
+                                <input type="number" id="pos-extra-transport" class="m-input glow-border-amber" placeholder="0" min="0" step="any" style="height:36px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
                             </div>
                             <div class="entry-field" id="wrap-extra-labor" style="display:none;">
                                 <label style="font-size:0.7rem; font-weight:800; color:#38bdf8;">👷‍♂️ عمالة (SDG):</label>
-                                <input type="number" id="pos-extra-labor" class="m-input" placeholder="0" min="0" step="any" style="height:34px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
+                                <input type="number" id="pos-extra-labor" class="m-input glow-border-sky" placeholder="0" min="0" step="any" style="height:36px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
                             </div>
                             <div class="entry-field" id="wrap-extra-additions" style="display:none;">
                                 <label style="font-size:0.7rem; font-weight:800; color:#eab308;">➕ إضافات (SDG):</label>
-                                <input type="number" id="pos-extra-additions" class="m-input" placeholder="0" min="0" step="any" style="height:34px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
+                                <input type="number" id="pos-extra-additions" class="m-input glow-border-amber" placeholder="0" min="0" step="any" style="height:36px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
                             </div>
                             <div class="entry-field" id="wrap-extra-tax" style="display:none;">
                                 <label style="font-size:0.7rem; font-weight:800; color:#ef4444;">💰 ضريبة (SDG):</label>
-                                <input type="number" id="pos-extra-tax" class="m-input" placeholder="0" min="0" step="any" style="height:34px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
+                                <input type="number" id="pos-extra-tax" class="m-input glow-border-rose" placeholder="0" min="0" step="any" style="height:36px; text-align:center; font-weight:900;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
                             </div>
                             <div class="entry-field" id="wrap-extra-discount" style="display:none;">
                                 <label style="font-size:0.7rem; font-weight:800; color:#22c55e;">➖ خصم (SDG):</label>
-                                <input type="number" id="pos-extra-discount" class="m-input" placeholder="0" min="0" step="any" style="height:34px; text-align:center; font-weight:900; color:#ef4444;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
+                                <input type="number" id="pos-extra-discount" class="m-input glow-border-emerald" placeholder="0" min="0" step="any" style="height:36px; text-align:center; font-weight:900; color:#ef4444;" oninput="MobilePOS.calculateTotals()" inputmode="decimal">
                             </div>
                         </div>
                     </div>
 
                 </div>
 
-                <!-- CARD 8: Pinned Settlement & Laptop Parity Grand Totals with Live USD Conversion -->
-                <div class="pos-settlement-footer">
+                <!-- CARD 8: Settlement & Grand Totals with Live USD Conversion -->
+                <div class="pos-settlement-footer glow-border-emerald" id="pos-settlement-card">
                     <!-- Grand Total Banner (SDG & Live USD Equivalent) -->
-                    <div class="pos-grand-total-banner">
+                    <div class="pos-grand-total-banner glow-border-emerald">
                         <div class="total-meta" style="flex:1;">
                             <span class="total-title" style="color:#94a3b8; font-size:0.76rem; font-weight:800;">إجمالي الفاتورة الصافي</span>
-                            <span class="total-count-badge" id="pos-banner-item-count">0 أصناف</span>
+                            <span class="total-count-badge glow-border-sky" id="pos-banner-item-count">0 أصناف</span>
                         </div>
                         <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
                             <div class="pos-grand-loc" id="pos-banner-netdue">0 SDG</div>
@@ -8123,19 +8269,19 @@ try {
 
                     <!-- Summary Grid: Subtotal / Expenses / Discount / Net Due -->
                     <div class="settle-summary-grid" style="grid-template-columns: repeat(4, 1fr);">
-                        <div class="settle-sum-box">
+                        <div class="settle-sum-box glow-border-sky">
                             <span class="settle-sum-label">المجموع</span>
                             <span class="settle-sum-val" id="pos-subtotal-val">0</span>
                         </div>
-                        <div class="settle-sum-box">
+                        <div class="settle-sum-box glow-border-amber">
                             <span class="settle-sum-label">المصاريف</span>
                             <span class="settle-sum-val" id="pos-expenses-val">0</span>
                         </div>
-                        <div class="settle-sum-box">
+                        <div class="settle-sum-box glow-border-rose">
                             <span class="settle-sum-label" style="color:var(--rose);">الخصم</span>
                             <span class="settle-sum-val" id="pos-discount-val" style="color:var(--rose);">0</span>
                         </div>
-                        <div class="settle-sum-box">
+                        <div class="settle-sum-box glow-border-emerald">
                             <span class="settle-sum-label" style="color:var(--emerald);">الصافي</span>
                             <span class="settle-sum-val net-due" id="pos-netdue-val">0 SDG</span>
                         </div>
@@ -8143,27 +8289,27 @@ try {
 
                     <!-- 🌟 UNIFIED 6-ACTION TOOLBAR (جديد | حفظ | طباعة | واتساب | باركود | سجل) -->
                     <div class="invoice-action-toolbar-6">
-                        <button type="button" class="btn-action-pill btn-act-new" onclick="MobilePOS.newInvoice()" title="فاتورة جديدة وتفريغ الحقول">
+                        <button type="button" class="btn-action-pill btn-act-new glow-border-sky" onclick="MobilePOS.newInvoice()" title="فاتورة جديدة وتفريغ الحقول">
                             <i class="fa-solid fa-plus"></i>
                             <span>جديد</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-save" onclick="MobilePOS.submitSale(false, false)" title="حفظ واعتماد الفاتورة ومزامنتها">
+                        <button type="button" class="btn-action-pill btn-act-save glow-border-emerald" onclick="MobilePOS.submitSale(false, false)" title="حفظ واعتماد الفاتورة ومزامنتها">
                             <i class="fa-solid fa-floppy-disk"></i>
                             <span>حفظ</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-confirm" onclick="MobilePOS.printThermalReceipt()" title="معاينة وطباعة الفاتورة">
+                        <button type="button" class="btn-action-pill btn-act-confirm glow-border-amber" onclick="MobilePOS.printThermalReceipt()" title="معاينة وطباعة الفاتورة">
                             <i class="fa-solid fa-print"></i>
                             <span>طباعة</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-share" onclick="MobilePOS.shareInvoiceViaWhatsApp()" title="مشاركة الفاتورة عبر واتساب">
+                        <button type="button" class="btn-action-pill btn-act-share glow-border-emerald" onclick="MobilePOS.shareInvoiceViaWhatsApp()" title="مشاركة الفاتورة عبر واتساب">
                             <i class="fa-brands fa-whatsapp"></i>
                             <span>واتساب</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-barcode" onclick="MobilePOS.triggerBarcodeScanner()" title="مسح باركود بالكاميرا">
+                        <button type="button" class="btn-action-pill btn-act-barcode glow-border-purple" onclick="MobilePOS.triggerBarcodeScanner()" title="مسح باركود بالكاميرا">
                             <i class="fa-solid fa-barcode"></i>
                             <span>باركود</span>
                         </button>
-                        <button type="button" class="btn-action-pill btn-act-filter" onclick="switchSalesSuiteTab('history')" title="سجل فواتير المبيعات">
+                        <button type="button" class="btn-action-pill btn-act-filter glow-border-indigo" onclick="switchSalesSuiteTab('history')" title="سجل فواتير المبيعات">
                             <i class="fa-solid fa-clock-rotate-left"></i>
                             <span>السجل</span>
                         </button>
@@ -8358,9 +8504,28 @@ try {
                         </button>
                     </div>
                 </div>
+        </div>
+
+        <!-- 📱 Floating Mobile Mini-Summary Quick Action Bar -->
+        <div id="pos-mini-float-bar" class="pos-mini-float-bar" style="display:none;" onclick="MobilePOS.scrollToSettlement()">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <span class="mini-cart-pill" id="pos-mini-cart-pill">0 أصناف</span>
+                <div style="display:flex; flex-direction:column; line-height:1.2;">
+                    <span style="font-size:0.68rem; color:var(--text-muted); font-weight:800;">الصافي:</span>
+                    <span id="pos-mini-due-val" style="font-size:0.95rem; font-weight:900; color:var(--emerald); font-family:'Inter',sans-serif;">0 SDG</span>
+                </div>
             </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <button type="button" onclick="event.stopPropagation(); MobilePOS.submitSale(false, false);" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; border-radius:10px; padding:6px 14px; font-weight:900; font-size:0.82rem; cursor:pointer; display:flex; align-items:center; gap:5px; box-shadow:0 0 12px rgba(16,185,129,0.4);">
+                    <i class="fa-solid fa-floppy-disk"></i> حفظ
+                </button>
+                <button type="button" onclick="event.stopPropagation(); MobilePOS.printThermalReceipt();" style="background:rgba(255,255,255,0.08); border:1px solid var(--border-glass); color:var(--text-main); border-radius:10px; padding:6px 10px; font-size:0.82rem; cursor:pointer;" title="طباعة">
+                    <i class="fa-solid fa-print"></i>
+                </button>
         </div>
     </div>
+</div>
+</div>
 
     <!-- SHEET: 🖨️ معاينة وطباعة الإيصال الحراري (Thermal Receipt Bluetooth / ESC-POS) -->
     <div class="mobile-sheet-overlay" id="overlay-sheet-receipt-print" onclick="closeBottomSheet('sheet-receipt-print')"></div>
@@ -18627,12 +18792,31 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (bannerUsd) bannerUsd.innerText = `≈ ${usdAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} $ USD`;
                 if (bannerCount) bannerCount.textContent = `${this.state.cart.length} أصناف`;
 
+                // Update Mobile Floating Mini-Summary Bar
+                const miniBar = document.getElementById('pos-mini-float-bar');
+                const miniPill = document.getElementById('pos-mini-cart-pill');
+                const miniDue = document.getElementById('pos-mini-due-val');
+                if (miniBar) {
+                    if (this.state.cart.length > 0) {
+                        miniBar.style.display = 'flex';
+                        if (miniPill) miniPill.textContent = `${this.state.cart.length} أصناف`;
+                        if (miniDue) miniDue.textContent = `${fmt(netDue)} SDG`;
+                    } else {
+                        miniBar.style.display = 'none';
+                    }
+                }
+
                 if (this.state.isSplit) {
                     this.syncSplitAmounts(netDue);
                 }
 
                 this.checkCreditLimit({ itemsSubtotal, totalExpenses, totalDiscount, netDue });
                 return { itemsSubtotal, totalExpenses, totalDiscount, netDue, usdAmount, transport, labor, additions, tax };
+            },
+
+            scrollToSettlement() {
+                const el = document.getElementById('pos-settlement-card');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
             },
 
             handleCurrencyChange(val) {
@@ -18899,7 +19083,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             generateInvoiceNumber() {
                 const isOffline = !navigator.onLine || window.IS_OFFLINE_SIMULATED;
-                let invNo = window._mirrorNextSalesNo;
+                const cleanInv = (val) => String(val || '').replace(/^#+/, '');
+                let invNo = cleanInv(window._mirrorNextSalesNo);
                 if (!invNo) {
                     const now = new Date();
                     const yy = String(now.getFullYear()).substring(2, 4);
@@ -18912,7 +19097,8 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const noInp = document.getElementById('pos-inv-no');
 
                 if (isOffline) {
-                    const peek = window.DualNumberingEngine ? window.DualNumberingEngine.peekNextSequence('sale') : invNo;
+                    const peekRaw = window.DualNumberingEngine ? window.DualNumberingEngine.peekNextSequence('sale') : invNo;
+                    const peek = cleanInv(peekRaw);
                     if (pill) {
                         pill.innerHTML = `⏳ أوفلاين ${peek} <span style="font-size:0.76rem; opacity:0.85;">(معلق)</span>`;
                         pill.style.background = 'rgba(245, 158, 11, 0.2)';
@@ -18938,11 +19124,12 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                             .then(r => r.json())
                             .then(data => {
                                 if (data && data.sales && data.sales.nextInvoiceNo) {
-                                    window._mirrorNextSalesNo = data.sales.nextInvoiceNo;
+                                    const nextNo = cleanInv(data.sales.nextInvoiceNo);
+                                    window._mirrorNextSalesNo = nextNo;
                                     if (!this.state.isEditing && this.state.cart.length === 0) {
-                                        if (pill) pill.innerHTML = `🟢 #${data.sales.nextInvoiceNo}`;
-                                        if (dispEl) dispEl.textContent = '#' + data.sales.nextInvoiceNo;
-                                        if (noInp) noInp.value = data.sales.nextInvoiceNo;
+                                        if (pill) pill.innerHTML = `🟢 #${nextNo}`;
+                                        if (dispEl) dispEl.textContent = '#' + nextNo;
+                                        if (noInp) noInp.value = nextNo;
                                     }
                                 }
                             }).catch(() => {});
@@ -18954,15 +19141,17 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             loadInvoice(invNo, invData = null) {
                 if (!invNo) return;
                 triggerHaptic('medium');
+                const cleanInv = (val) => String(val || '').replace(/^#+/, '');
+                const cleanNo = cleanInv(invNo);
 
                 const proceed = (data) => {
                     if (!data) {
-                        alert(`تعذر العثور على بيانات الفاتورة ${invNo}`);
+                        alert(`تعذر العثور على بيانات الفاتورة ${cleanNo}`);
                         return;
                     }
 
                     this.state.isEditing = true;
-                    this.state.currentInvoiceNo = data.invoiceNo || data.id || invNo;
+                    this.state.currentInvoiceNo = cleanInv(data.invoiceNo || data.id || cleanNo);
 
                     // Serial and Badges
                     const dispEl = document.getElementById('pos-inv-number-display');
@@ -19213,7 +19402,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 this.onCustomerChange('walkin');
 
                 // Invoice Number
-                const nextSeq = this.generateInvoiceNumber();
+                const nextSeq = String(this.generateInvoiceNumber()).replace(/^#+/, '');
                 const dispEl = document.getElementById('pos-inv-number-display');
                 const noInp = document.getElementById('pos-inv-no');
                 if (dispEl) dispEl.textContent = '#' + nextSeq;
@@ -19764,8 +19953,21 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
                 let html = '';
                 filtered.forEach(inv => {
-                    const invNo = inv.invoiceNo || inv.id || '---';
-                    const cust = inv.customerName || 'عميل';
+                    const rawNo = inv.invoiceNo || inv.id || '---';
+                    const invNo = String(rawNo).replace(/^#+/, '');
+                    let cust = inv.customerName || '';
+                    if (!cust || cust.startsWith('CUST-') || cust.startsWith('cust_')) {
+                        const custId = inv.customerId || cust;
+                        const allCusts = (window.SERVER_DATA && window.SERVER_DATA.customers) || window.M_CUSTOMERS || [];
+                        const found = allCusts.find(c => String(c.id) === String(custId) || String(c.name) === String(custId));
+                        if (found && found.name) {
+                            cust = found.name;
+                        } else if (cust.startsWith('CUST-') || cust.startsWith('cust_')) {
+                            cust = 'عميل نقدي';
+                        }
+                    }
+                    if (!cust) cust = 'عميل نقدي';
+
                     const date = inv.date || inv.fullDate || '';
                     const totalSDG = parseFloat(inv.grandTotal || inv.total || inv.totalAmount || 0);
                     const rate = parseFloat(inv.exchangeRate || window.SERVER_DATA?.exchangeRateUSD || 5999);
@@ -19793,7 +19995,7 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                                 <button type="button" onclick="event.stopPropagation(); MobilePOS.loadInvoice('${invNo}')" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:var(--primary); border-radius:6px; padding:3px 8px; font-size:0.72rem; font-weight:800; cursor:pointer;">
                                     استعراض وتعديل ↗
                                 </button>
-                                <button type="button" onclick="event.stopPropagation(); MobilePOS.openThermalReceiptSheet(MobilePOS.getSortedInvoices().find(x=>x.invoiceNo==='${invNo}'||x.id==='${invNo}'))" style="background:rgba(255,255,255,0.08); border:1px solid var(--border-glass); color:var(--text-main); border-radius:6px; padding:3px 8px; font-size:0.72rem; font-weight:800; cursor:pointer;">
+                                <button type="button" onclick="event.stopPropagation(); MobilePOS.openThermalReceiptSheet(MobilePOS.getSortedInvoices().find(x=>String(x.invoiceNo||x.id).replace(/^#+/,'')==='${invNo}'))" style="background:rgba(255,255,255,0.08); border:1px solid var(--border-glass); color:var(--text-main); border-radius:6px; padding:3px 8px; font-size:0.72rem; font-weight:800; cursor:pointer;">
                                     🖨️ طباعة
                                 </button>
                             </div>
@@ -20419,6 +20621,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (btn) btn.classList.toggle('active', t === tab);
                 if (pane) pane.classList.toggle('active', t === tab);
             });
+            const miniBar = document.getElementById('pos-mini-float-bar');
+            if (miniBar) {
+                miniBar.style.display = (tab === 'invoice' && window.MobilePOS && window.MobilePOS.state.cart.length > 0) ? 'flex' : 'none';
+            }
             if (tab === 'history' && window.MobilePOS) {
                 window.MobilePOS.renderHistory();
             } else if (tab === 'split' && window.SalesSplitEngine) {
@@ -23589,42 +23795,39 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
     <!-- ═════════════════════════════════════════════════════════════════
          BOTTOM SHEET: 📊 ميزان الأرصدة الحية (الحسابات غير الصفرية فقط)
          ═════════════════════════════════════════════════════════════════ -->
-    <div class="m-sheet" id="sheet-balances-nonzero" style="z-index:9999;">
-        <div class="m-sheet-scrim" onclick="closeNonZeroBalancesSheet()"></div>
-        <div class="m-sheet-panel" style="max-height:85vh; border-radius:24px 24px 0 0; background:#0f172a; border-top:2px solid #10b981;">
-            <div class="m-sheet-handle"></div>
-            <div class="m-sheet-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:10px;">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center;">
-                            <i class="fa-solid fa-scale-balanced" style="font-size:1.1rem;"></i>
-                        </div>
-                        <div>
-                            <h3 style="margin:0; font-size:1rem; font-weight:900; color:#fff;">ميزان الأرصدة الحية (غير الصفرية)</h3>
-                            <span style="font-size:0.72rem; color:#34d399; font-weight:700;">الحسابات التي بها رصيد بالعملة المحلية وبالدولار</span>
-                        </div>
+    <div class="mobile-bottom-sheet" id="sheet-balances-nonzero" style="z-index:1100; max-height:85vh; border-top:2px solid #10b981; background:#0f172a;">
+        <div class="sheet-drag-handle"></div>
+        <div class="sheet-header" style="border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:10px; display:flex; flex-direction:column; gap:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center;">
+                        <i class="fa-solid fa-scale-balanced" style="font-size:1.1rem;"></i>
                     </div>
-                    <button type="button" class="m-sheet-close" onclick="closeNonZeroBalancesSheet()" style="background:rgba(255,255,255,0.08); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; cursor:pointer;">✕</button>
+                    <div>
+                        <h3 style="margin:0; font-size:1rem; font-weight:900; color:#fff;">ميزان الأرصدة الحية (غير الصفرية)</h3>
+                        <span style="font-size:0.72rem; color:#34d399; font-weight:700;">الحسابات التي بها رصيد بالعملة المحلية وبالدولار</span>
+                    </div>
                 </div>
-
-                <!-- Instant Search input in Sheet -->
-                <div style="margin-top:10px;">
-                    <input type="text" id="sheet-bal-search-input" class="m-input" placeholder="بحث سريع في الحسابات والأرصدة..." style="height:38px; font-size:0.82rem; border-radius:10px;" oninput="filterNonZeroBalances(currentNonZeroTab, this.value)">
-                </div>
-
-                <!-- Category Tabs -->
-                <div style="display:flex; gap:6px; overflow-x:auto; margin-top:8px;" class="no-scrollbar">
-                    <button type="button" class="btn-ai-chip active" id="bal-tab-all" onclick="filterNonZeroBalances('all')" style="font-size:0.75rem; padding:4px 10px;">الكل</button>
-                    <button type="button" class="btn-ai-chip" id="bal-tab-cust" onclick="filterNonZeroBalances('customer')" style="font-size:0.75rem; padding:4px 10px;">عملاء (مدين)</button>
-                    <button type="button" class="btn-ai-chip" id="bal-tab-supp" onclick="filterNonZeroBalances('supplier')" style="font-size:0.75rem; padding:4px 10px;">موردين (دائن)</button>
-                    <button type="button" class="btn-ai-chip" id="bal-tab-cash" onclick="filterNonZeroBalances('cash')" style="font-size:0.75rem; padding:4px 10px;">خزن وبنوك</button>
-                </div>
+                <button type="button" class="sheet-close" onclick="closeNonZeroBalancesSheet()" style="background:rgba(255,255,255,0.08); border:none; color:#94a3b8; width:32px; height:32px; border-radius:50%; cursor:pointer;">✕</button>
             </div>
 
-            <div class="m-sheet-body" style="padding:12px; overflow-y:auto; max-height:calc(85vh - 160px);">
-                <div id="nonzero-balances-container" style="display:flex; flex-direction:column; gap:10px;">
-                    <!-- Rendered Dynamically -->
-                </div>
+            <!-- Instant Search input in Sheet -->
+            <div style="width:100%;">
+                <input type="text" id="sheet-bal-search-input" class="m-input" placeholder="بحث سريع في الحسابات والأرصدة..." style="height:38px; font-size:0.82rem; border-radius:10px; width:100%; box-sizing:border-box;" oninput="filterNonZeroBalances(currentNonZeroTab, this.value)">
+            </div>
+
+            <!-- Category Tabs -->
+            <div style="display:flex; gap:6px; overflow-x:auto; width:100%;" class="no-scrollbar">
+                <button type="button" class="btn-ai-chip active" id="bal-tab-all" onclick="filterNonZeroBalances('all')" style="font-size:0.75rem; padding:4px 10px;">الكل</button>
+                <button type="button" class="btn-ai-chip" id="bal-tab-cust" onclick="filterNonZeroBalances('customer')" style="font-size:0.75rem; padding:4px 10px;">عملاء (مدين)</button>
+                <button type="button" class="btn-ai-chip" id="bal-tab-supp" onclick="filterNonZeroBalances('supplier')" style="font-size:0.75rem; padding:4px 10px;">موردين (دائن)</button>
+                <button type="button" class="btn-ai-chip" id="bal-tab-cash" onclick="filterNonZeroBalances('cash')" style="font-size:0.75rem; padding:4px 10px;">خزن وبنوك</button>
+            </div>
+        </div>
+
+        <div class="sheet-body" style="padding:12px; overflow-y:auto; flex:1;">
+            <div id="nonzero-balances-container" style="display:flex; flex-direction:column; gap:10px;">
+                <!-- Rendered Dynamically -->
             </div>
         </div>
     </div>
