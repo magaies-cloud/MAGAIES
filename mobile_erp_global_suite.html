@@ -6852,13 +6852,14 @@
         <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) - RADICAL UPGRADE -->
         <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) - ADVANCED LAPTOP PARITY -->
         <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) - ULTRA REFINED -->
+        <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) - USER CUSTOMIZED FLOW -->
     <div id="modalOpSales" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
       <div class="glass-base w-full max-w-xl rounded-3xl border border-sky-500/40 p-3.5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #0b1120, #030712);">
         
         <!-- ═══════════════════════════════════════════════════════════════
-             1. HEADER: شريط علوي صغير أنيق (شعار + فاتورة مبيعات + رقم العملية بأسهم + التاريخ + الحاسبة + ✕)
+             1. HEADER: شريط علوي صغير أنيق (شعار + فاتورة مبيعات + أسهم رقم العملية + التاريخ + الحاسبة + ✕)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="px-3 py-1.5 rounded-2xl flex items-center justify-between gap-1.5 relative overflow-hidden" style="background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.9)); border: 1.5px solid rgba(56,189,248,0.35); box-shadow: 0 0 16px rgba(56,189,248,0.18);">
+        <div class="px-2.5 py-1.5 rounded-2xl flex items-center justify-between gap-1.5 relative overflow-hidden" style="background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.9)); border: 1.5px solid rgba(56,189,248,0.35); box-shadow: 0 0 16px rgba(56,189,248,0.18);">
           <!-- Emblem & Title -->
           <div class="flex items-center gap-1.5 shrink-0">
             <span class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center text-xs shadow-inner"><i class="fa-solid fa-file-invoice-dollar"></i></span>
@@ -6887,25 +6888,65 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             2. CUSTOMER ZONE: اسم العميل بلون خفيف + زر كشف الحساب باليسار + الرصيد
+             2. CUSTOMER ZONE: اسم العميل والبحث + رقم الهاتف المغاير + زر كشف الحساب
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="space-y-1.5">
-          <div class="relative flex items-center">
-            <span class="absolute right-3 text-slate-500 pointer-events-none text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
-            <select id="salesCustomerInput" onchange="SuiteSalesPOS.onCustomerChange(this)" class="glow-input-field glow-cyan w-full pr-8 pl-24 py-2 font-bold text-white text-xs outline-none cursor-pointer">
-              <option value="" disabled selected class="text-slate-500">اسم العميل...</option>
-              <!-- Populated dynamically from MariaDB -->
-            </select>
-            <!-- زر كشف الحساب في الطرف الأيسر بداخل نفس مساحة البحث -->
-            <button type="button" onclick="SuiteSalesPOS.printCustomerStatement()" class="absolute left-1.5 px-2.5 py-1 rounded-lg bg-sky-500/25 hover:bg-sky-500/40 text-sky-200 border border-sky-400/40 text-[10px] font-black flex items-center gap-1 transition active:scale-95 shadow-sm" title="كشف حساب العميل الحالي">
-              <i class="fa-solid fa-file-invoice text-sky-400"></i> كشف الحساب
-            </button>
-          </div>
+        <div class="space-y-1.5 relative">
+          <!-- Customer Selection Box (Click opens search modal) -->
+          <div class="glow-input-field glow-cyan w-full p-2 flex items-center justify-between gap-2 cursor-pointer transition" onclick="SuiteSalesPOS.openCustomerSearch()">
+            <div class="flex items-center gap-2 overflow-hidden flex-1">
+              <span class="text-sky-400 shrink-0 text-xs"><i class="fa-solid fa-user-tag"></i></span>
+              <div id="suiteCustDisplayName" class="font-bold text-xs truncate">
+                <span class="text-slate-500">اسم العميل... (اضغط للبحث)</span>
+              </div>
+            </div>
 
-          <!-- الرصيد في مساحة مخصصة أنيقة -->
-          <div class="flex items-center justify-between px-2.5 py-1 bg-slate-900/60 border border-slate-800/80 rounded-xl text-[11px]">
-            <span class="text-slate-400 flex items-center gap-1 font-bold"><i class="fa-solid fa-wallet text-emerald-400"></i> الرصيد الحالي للعميل:</span>
-            <span id="suiteCustBalanceBadge" class="font-mono font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/20">0.00 SDG</span>
+            <!-- زر كشف الحساب يظهر هنا عند اختيار العميل -->
+            <div class="flex items-center gap-1 shrink-0">
+              <button type="button" id="btnCustStatementDirect" onclick="event.stopPropagation(); SuiteSalesPOS.printCustomerStatement();" class="hidden px-2.5 py-1 rounded-lg bg-sky-500/25 hover:bg-sky-500/40 text-sky-200 border border-sky-400/40 text-[10px] font-black flex items-center gap-1 transition active:scale-95 shadow-sm" title="كشف حساب العميل الحالي">
+                <i class="fa-solid fa-file-invoice text-sky-400"></i> كشف الحساب
+              </button>
+              <span class="text-slate-500 text-[11px]"><i class="fa-solid fa-magnifying-glass"></i></span>
+            </div>
+          </div>
+          <input type="hidden" id="salesCustomerInput" value="عميل نقدي عام">
+
+          <!-- ═══════════════════════════════════════════════════════════════
+               منطقة مركز التكلفة والرصيد بالعملة المحلية والأجنبية (بدون كلمة الرصيد الحالي)
+               ═══════════════════════════════════════════════════════════════ -->
+          <div class="flex flex-wrap items-center justify-between gap-1.5 p-1.5 bg-slate-900/80 border border-slate-800 rounded-xl text-xs">
+            <!-- مركز التكلفة -->
+            <div class="flex items-center gap-1.5 flex-1 min-w-[170px]">
+              <span class="text-[10px] text-purple-400 font-bold whitespace-nowrap"><i class="fa-solid fa-crosshairs"></i> مركز الكلفة:</span>
+              <select id="salesCostCenterSelect" class="bg-slate-950 border border-purple-500/30 text-purple-300 font-bold text-[11px] rounded-lg px-2 py-1 outline-none w-full cursor-pointer">
+                <option value="الرئيسي">الرئيسي (عام)</option>
+                <option value="فرع السجانة">فرع السجانة المركزي</option>
+                <option value="مخزن بحري">مخزن بحري الرئيسي</option>
+                <option value="معرض التوزيع">معرض التوزيع</option>
+                <option value="مبيعات المشاريع">مشاريع ومقاولات</option>
+              </select>
+            </div>
+
+            <!-- الرصيد بالعملة المحلية والأجنبية بجواره -->
+            <div id="suiteCustDualBalance" class="flex items-center gap-1.5 font-mono text-[11px] font-black bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800 shadow-sm shrink-0">
+              <span id="suiteCustBalLocal" class="text-emerald-400">0.00 SDG</span>
+              <span class="text-slate-600">•</span>
+              <span id="suiteCustBalForeign" class="text-cyan-300">0.00 $</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEARCHABLE CUSTOMER PICKER MODAL (داخل نفس الشاشة) -->
+        <div id="suiteCustomerSearchModal" class="hidden p-3 rounded-2xl bg-slate-950/98 border border-sky-500/60 shadow-[0_0_35px_rgba(56,189,248,0.3)] space-y-2">
+          <div class="flex justify-between items-center pb-1 border-b border-slate-800">
+            <span class="text-xs font-black text-sky-300 flex items-center gap-1.5"><i class="fa-solid fa-users-viewfinder"></i> اختيار عميل من قاعدة البيانات (بحث فوري)</span>
+            <button type="button" onclick="SuiteSalesPOS.closeCustomerSearch()" class="text-slate-400 hover:text-white text-xs">✕</button>
+          </div>
+          <div class="relative">
+            <span class="absolute right-3 top-2.5 text-slate-500 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" id="suiteCustSearchFilter" oninput="SuiteSalesPOS.filterCustomerSearch(this.value)" placeholder="ابحث بالاسم أو رقم الهاتف..." class="glow-input-field glow-cyan w-full pr-8 pl-3 py-2 text-xs font-bold text-white outline-none" />
+          </div>
+          <div id="suiteCustSearchResults" class="max-h-52 overflow-y-auto space-y-1 pr-1 text-xs">
+            <!-- Populated dynamically -->
           </div>
         </div>
 
@@ -6950,47 +6991,34 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             3. ITEM ENTRY FORM (ترتيب دقيق: صنف رمادي خفيف، وحدة، مخزن، مركز كلفة، كمية، سعر، جملة مباشرة)
+             3. ITEM ENTRY FORM (الترتيب الدقيق: المخزن -> الصنف -> الوحدة | الكمية -> السعر -> الجملة)
              ═══════════════════════════════════════════════════════════════ -->
         <div class="p-3 rounded-2xl border border-slate-800 space-y-2.5 text-xs shadow-inner" style="background: linear-gradient(180deg, rgba(15,23,42,0.85), rgba(11,15,25,0.95));">
           
-          <!-- ROW 1: اختر الصنف (برمادي خفيف) + الوحدة + المخزن -->
+          <!-- السطر الأول: المخزن أولاً، ثم الصنف (برمادي خفيف)، ثم الوحدة -->
           <div class="grid grid-cols-12 gap-1.5">
-            <div class="col-span-6">
+            <div class="col-span-4">
+              <label class="block text-[10px] text-purple-300 font-bold mb-0.5"><i class="fa-solid fa-warehouse"></i> المخزن:</label>
+              <select id="salesWarehouseSelect" class="glow-input-field glow-purple w-full p-2 text-slate-200 font-bold text-[11px] outline-none cursor-pointer" title="المخزن">
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+            <div class="col-span-5">
+              <label class="block text-[10px] text-amber-300 font-bold mb-0.5"><i class="fa-solid fa-layer-group"></i> الصنف:</label>
               <select id="salesItemSelect" onchange="SuiteSalesPOS.onItemSelect(this)" class="glow-input-field glow-amber w-full p-2 text-white font-bold text-xs outline-none cursor-pointer">
                 <option value="" disabled selected class="text-slate-500">اختر الصنف...</option>
                 <!-- Populated dynamically -->
               </select>
             </div>
             <div class="col-span-3">
+              <label class="block text-[10px] text-emerald-300 font-bold mb-0.5"><i class="fa-solid fa-scale-balanced"></i> الوحدة:</label>
               <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" class="glow-input-field glow-emerald w-full p-2 text-emerald-400 font-black text-center text-xs outline-none cursor-pointer" title="الوحدة">
                 <!-- Dynamically filled per item -->
               </select>
             </div>
-            <div class="col-span-3">
-              <select id="salesWarehouseSelect" class="glow-input-field glow-purple w-full p-2 text-slate-200 font-bold text-[11px] outline-none cursor-pointer" title="المخزن">
-                <!-- Populated dynamically -->
-              </select>
-            </div>
           </div>
 
-          <!-- ROW 2: مركز التكلفة -->
-          <div class="grid grid-cols-12 gap-1.5">
-            <div class="col-span-12">
-              <div class="flex items-center gap-1.5 bg-slate-950/70 border border-slate-800 rounded-xl px-2 py-1">
-                <span class="text-[10px] text-slate-400 font-bold whitespace-nowrap"><i class="fa-solid fa-crosshairs text-purple-400"></i> مركز التكلفة:</span>
-                <select id="salesCostCenterSelect" class="bg-transparent text-purple-300 font-bold text-xs outline-none w-full cursor-pointer">
-                  <option value="الرئيسي">مركز التكلفة الرئيسي (عام)</option>
-                  <option value="فرع السجانة">فرع السجانة المركزي</option>
-                  <option value="مخزن بحري">مخزن بحري الرئيسي</option>
-                  <option value="معرض التوزيع">معرض التوزيع المباشر</option>
-                  <option value="مبيعات المشاريع">مبيعات المشاريع والمقاولات</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- ROW 3: الكمية + السعر + الجملة مجاورة للسعر مباشرة -->
+          <!-- السطر الثاني: الكمية -> السعر -> الجملة مجاورة للسعر مباشرة -->
           <div class="grid grid-cols-12 gap-1.5">
             <div class="col-span-3">
               <label class="block text-[10px] text-slate-400 font-bold mb-0.5">الكمية:</label>
@@ -7006,7 +7034,7 @@
             </div>
           </div>
 
-          <!-- ROW 4: الخصم + الإضافة + العتالة + زر الإضافة -->
+          <!-- السطر الثالث: الخصم -> الإضافة -> الإزالة/العتالة -> زر إضافة للصنف -->
           <div class="grid grid-cols-12 gap-1.5 items-end pt-0.5">
             <div class="col-span-3">
               <label class="block text-[10px] text-rose-400 font-bold mb-0.5">الخصم:</label>
@@ -7017,7 +7045,7 @@
               <input type="number" id="salesTaxInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-purple w-full p-1.5 font-black font-mono text-center text-purple-300 text-xs outline-none" />
             </div>
             <div class="col-span-3">
-              <label class="block text-[10px] text-amber-400 font-bold mb-0.5">العتالة:</label>
+              <label class="block text-[10px] text-amber-400 font-bold mb-0.5">الإزالة / عتالة:</label>
               <input type="number" id="salesLaborInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-amber w-full p-1.5 font-black font-mono text-center text-amber-300 text-xs outline-none" />
             </div>
             <div class="col-span-3">
@@ -7029,7 +7057,7 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             4. CART ITEMS LIST (قائمة الأصناف المضافة بالفاتورة)
+             4. CART ITEMS LIST (قائمة الأصناف المضافة)
              ═══════════════════════════════════════════════════════════════ -->
         <div class="space-y-1.5">
           <div class="flex justify-between items-center px-1">
@@ -7063,9 +7091,9 @@
             <input type="hidden" id="salesPayMethodSelect" value="cash">
           </div>
 
-          <!-- الصافي الكلي (الجملة العامة) -->
+          <!-- الإجمالي العام النهائي (الصافي الكلي) -->
           <div class="flex justify-between items-center px-3 py-2 rounded-xl bg-slate-950 border border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
-            <span class="text-xs font-black text-slate-200">الصافي الكلي النهائي:</span>
+            <span class="text-xs font-black text-slate-200">الإجمالي العام (الصافي):</span>
             <span id="suiteGrandTotalDisplay" class="text-lg sm:text-xl font-black text-emerald-400 font-mono drop-shadow-[0_0_10px_rgba(52,211,153,0.6)]">0.00 SDG</span>
           </div>
         </div>
@@ -9796,15 +9824,124 @@
       recentInvoices: [],
       currentInvoiceIndex: -1,
       latestGeneratedInvNo: '',
+      selectedCustomer: null,
+      usdExchangeRate: 6000,
 
       async init() {
-        this.populateCustomers();
         this.populateWarehouses();
         this.populateItems();
         this.setDefaultDate();
         this.renderCart();
         this.calcItemSubtotal();
         await this.loadRecentInvoices();
+        this.initDefaultCustomer();
+      },
+
+      initDefaultCustomer() {
+        if (!this.selectedCustomer) {
+          const walkin = this.dbCustomers.find(c => c.name && c.name.includes('نقدي')) || {
+            name: 'عميل نقدي عام',
+            phone: 'فوري',
+            currentBalance: 0
+          };
+          this.selectCustomer(walkin);
+        }
+      },
+
+      openCustomerSearch() {
+        const modal = document.getElementById('suiteCustomerSearchModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          const inp = document.getElementById('suiteCustSearchFilter');
+          if (inp) {
+            inp.value = '';
+            setTimeout(() => inp.focus(), 50);
+          }
+          this.filterCustomerSearch('');
+        }
+      },
+
+      closeCustomerSearch() {
+        const modal = document.getElementById('suiteCustomerSearchModal');
+        if (modal) modal.classList.add('hidden');
+      },
+
+      filterCustomerSearch(q) {
+        const list = document.getElementById('suiteCustSearchResults');
+        if (!list) return;
+
+        const term = (q || '').trim().toLowerCase();
+        const filtered = this.dbCustomers.filter(c => {
+          const name = (c.name || '').toLowerCase();
+          const phone = (c.phone || c.whatsapp || '').toLowerCase();
+          return name.includes(term) || phone.includes(term);
+        });
+
+        if (filtered.length === 0) {
+          list.innerHTML = '<div class="text-center py-4 text-slate-500">لا توجد نتائج مطابقة للبحث</div>';
+          return;
+        }
+
+        let html = '';
+        filtered.forEach(c => {
+          const bal = parseFloat(c.currentBalance || c.balance || c.openingBalance || 0);
+          const ph = c.phone || c.whatsapp || '';
+          const foreignBal = (bal / this.usdExchangeRate).toFixed(2);
+
+          html += `
+            <div class="p-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-sky-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99]" onclick="SuiteSalesPOS.selectCustomer(${JSON.stringify(c).replace(/"/g, '&quot;')})">
+              <div>
+                <span class="font-bold text-white block text-xs">${c.name}</span>
+                ${ph ? `<span class="text-cyan-400 font-mono text-[11px] block"><i class="fa-solid fa-phone text-[9px]"></i> ${ph}</span>` : '<span class="text-slate-600 text-[10px]">بدون هاتف</span>'}
+              </div>
+              <div class="text-left font-mono text-[11px]">
+                <span class="${bal > 0 ? 'text-rose-400' : 'text-emerald-400'} font-black block">${bal.toLocaleString()} SDG</span>
+                <span class="text-slate-400 text-[10px] block">${foreignBal} $</span>
+              </div>
+            </div>`;
+        });
+
+        list.innerHTML = html;
+      },
+
+      selectCustomer(c) {
+        if (!c) return;
+        this.selectedCustomer = c;
+        const name = c.name || 'عميل نقدي عام';
+        const phone = c.phone || c.whatsapp || '';
+        const bal = parseFloat(c.currentBalance || c.balance || c.openingBalance || 0);
+        const foreignBal = (bal / this.usdExchangeRate).toFixed(2);
+
+        // Update Hidden input
+        const hid = document.getElementById('salesCustomerInput');
+        if (hid) hid.value = name;
+
+        // Update Display with Name + Phone in distinct Cyan color
+        const disp = document.getElementById('suiteCustDisplayName');
+        if (disp) {
+          disp.innerHTML = `<span class="text-white font-black">${name}</span> ${phone ? `<span class="text-cyan-400 font-mono font-bold text-[11px] mr-1.5 bg-cyan-950/60 px-1.5 py-0.5 rounded border border-cyan-500/30">(${phone})</span>` : ''}`;
+        }
+
+        // Show Statement Button
+        const stmtBtn = document.getElementById('btnCustStatementDirect');
+        if (stmtBtn) {
+          stmtBtn.classList.remove('hidden');
+          stmtBtn.title = 'كشف حساب ' + name;
+        }
+
+        // Update Dual Currency Balance
+        const localEl = document.getElementById('suiteCustBalLocal');
+        if (localEl) {
+          localEl.innerText = bal.toLocaleString() + ' SDG';
+          localEl.className = bal > 0 ? 'text-rose-400 font-black' : 'text-emerald-400 font-black';
+        }
+        const foreignEl = document.getElementById('suiteCustBalForeign');
+        if (foreignEl) {
+          foreignEl.innerText = foreignBal + ' $';
+        }
+
+        this.closeCustomerSearch();
+        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
       },
 
       async loadRecentInvoices() {
@@ -9830,7 +9967,6 @@
         }
 
         if (dir === 'prev') {
-          // Move backward to older invoices
           if (this.currentInvoiceIndex < this.recentInvoices.length - 1) {
             this.currentInvoiceIndex++;
             this.displayArchivedInvoice(this.recentInvoices[this.currentInvoiceIndex]);
@@ -9838,13 +9974,11 @@
             alert('وصلت إلى أقدم فاتورة مسجلة في الذاكرة.');
           }
         } else if (dir === 'next') {
-          // Move forward to newer invoices
           if (this.currentInvoiceIndex > 0) {
             this.currentInvoiceIndex--;
             this.displayArchivedInvoice(this.recentInvoices[this.currentInvoiceIndex]);
           } else if (this.currentInvoiceIndex === 0) {
             this.currentInvoiceIndex = -1;
-            // Return to new draft
             if (pill) pill.innerText = this.latestGeneratedInvNo || 'S26101012';
             this.cart = [];
             this.renderCart();
@@ -9860,15 +9994,13 @@
         const pill = document.getElementById('opSalesInvoiceNoPill');
         if (pill) pill.innerText = inv.invoiceNo || inv.id;
 
-        const custSel = document.getElementById('salesCustomerInput');
-        if (custSel && inv.customerName) {
-          for (let i = 0; i < custSel.options.length; i++) {
-            if (custSel.options[i].value === inv.customerName || custSel.options[i].text.includes(inv.customerName)) {
-              custSel.selectedIndex = i;
-              this.onCustomerChange(custSel);
-              break;
-            }
-          }
+        if (inv.customerName) {
+          const c = this.dbCustomers.find(cu => cu.name === inv.customerName) || {
+            name: inv.customerName,
+            phone: '',
+            currentBalance: 0
+          };
+          this.selectCustomer(c);
         }
 
         const dInp = document.getElementById('salesInvoiceDate');
@@ -9879,6 +10011,7 @@
             name: it.name || 'صنف',
             unit: it.unit || 'حبة',
             warehouse: it.warehouse || 'المستودع الرئيسي',
+            costCenter: it.costCenter || 'الرئيسي',
             qty: parseFloat(it.qty || 1),
             price: parseFloat(it.price || 0),
             discount: parseFloat(it.discount || 0),
@@ -9900,30 +10033,6 @@
           const now = new Date();
           d.value = now.toISOString().split('T')[0];
         }
-      },
-
-      populateCustomers() {
-        const sel = document.getElementById('salesCustomerInput');
-        if (!sel) return;
-        let html = '<option value="" disabled selected class="text-slate-500">اسم العميل...</option>';
-        html += '<option value="عميل نقدي عام" data-balance="0" data-phone="">عميل نقدي عام (Walk-in)</option>';
-        this.dbCustomers.forEach(c => {
-          const bal = parseFloat(c.currentBalance || c.balance || c.openingBalance || 0);
-          const ph = c.phone || c.whatsapp || '';
-          html += `<option value="${c.name}" data-balance="${bal}" data-phone="${ph}">${c.name} ${ph ? ' (' + ph + ')' : ''}</option>`;
-        });
-        sel.innerHTML = html;
-      },
-
-      onCustomerChange(sel) {
-        const opt = sel.options[sel.selectedIndex];
-        const bal = parseFloat(opt?.getAttribute('data-balance') || 0);
-        const bEl = document.getElementById('suiteCustBalanceBadge');
-        if (bEl) {
-          bEl.innerText = bal.toLocaleString() + ' SDG';
-          bEl.className = bal > 0 ? 'font-mono font-black text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-lg border border-rose-500/25' : 'font-mono font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/25';
-        }
-        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
       },
 
       populateWarehouses() {
@@ -9958,7 +10067,6 @@
         document.getElementById('salesPriceInput').value = prc;
         document.getElementById('salesQtyInput').value = 1;
 
-        // Populate units for this item
         const uSel = document.getElementById('salesUnitSelect');
         if (uSel) {
           let uHtml = '';
@@ -10087,10 +10195,10 @@
                 <div>
                   <span class="font-black text-slate-100 text-xs">${item.name}</span>
                   <div class="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
-                    <span class="text-amber-300 font-bold"><i class="fa-solid fa-scale-balanced"></i> ${item.unit}</span>
+                    <span class="text-purple-300 font-bold"><i class="fa-solid fa-warehouse"></i> ${item.warehouse}</span>
                     <span>•</span>
-                    <span class="text-sky-300 font-bold"><i class="fa-solid fa-warehouse"></i> ${item.warehouse}</span>
-                    ${item.costCenter ? `<span>•</span><span class="text-purple-300 font-bold">${item.costCenter}</span>` : ''}
+                    <span class="text-emerald-300 font-bold"><i class="fa-solid fa-scale-balanced"></i> ${item.unit}</span>
+                    ${item.costCenter ? `<span>•</span><span class="text-amber-300 font-bold">${item.costCenter}</span>` : ''}
                   </div>
                 </div>
                 <div class="text-right">
@@ -10103,7 +10211,7 @@
                 <div><span class="text-slate-500 block">الكمية</span><span class="text-white font-black">${item.qty}</span></div>
                 <div><span class="text-slate-500 block">السعر</span><span class="text-cyan-300 font-black">${item.price.toLocaleString()}</span></div>
                 <div><span class="text-slate-500 block">الخصم</span><span class="text-rose-400 font-black">${item.discount.toLocaleString()}</span></div>
-                <div><span class="text-slate-500 block">إضافة/عتالة</span><span class="text-purple-300 font-black">${(item.tax + item.labor).toLocaleString()}</span></div>
+                <div><span class="text-slate-500 block">إضافة/إزالة</span><span class="text-purple-300 font-black">${(item.tax + item.labor).toLocaleString()}</span></div>
               </div>
             </div>`;
         });
@@ -10178,10 +10286,10 @@
         this.toggleCalculator();
       },
 
-      // 🖨️ PRINT INVOICE WITH QR CODE (طباعة الفاتورة الرسمية مع رمز الاستجابة السريع)
+      // 🖨️ PRINT INVOICE WITH QR CODE
       printInvoice() {
         const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText || 'S-PRINT';
-        const cust = document.getElementById('salesCustomerInput')?.value || 'عميل نقدي عام';
+        const cust = this.selectedCustomer?.name || document.getElementById('salesCustomerInput')?.value || 'عميل نقدي عام';
         const date = document.getElementById('salesInvoiceDate')?.value || new Date().toISOString().split('T')[0];
         const payMethod = document.getElementById('salesPayMethodSelect')?.value || 'كاش';
 
@@ -10196,7 +10304,6 @@
 
         const grandTotal = items.reduce((acc, it) => acc + (parseFloat(it.subtotal) || 0), 0);
 
-        // QR Code Payload (ZATCA / Institutional e-Invoice Format)
         const qrData = `المؤسسة: مؤسسة السجانة لمواد البناء\nالرقم الضريبي / السجل: 10482910\nالفاتورة: #${invNo}\nالتاريخ: ${date}\nالعميل: ${cust}\nالإجمالي: ${grandTotal.toLocaleString()} SDG`;
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&margin=4&data=${encodeURIComponent(qrData)}`;
 
@@ -10270,15 +10377,15 @@
         printWin.document.close();
       },
 
-      // 👁️ PREVIEW INVOICE (معاينة الفاتورة مع الـ QR)
+      // 👁️ PREVIEW INVOICE
       previewInvoice() {
         this.printInvoice();
       },
 
-      // 📦 PRINT DELIVERY NOTE (إذن صرف وتسليم بضاعة مخزني GIN)
+      // 📦 PRINT DELIVERY NOTE
       printDeliveryNote() {
         const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText || 'DEL-PRINT';
-        const cust = document.getElementById('salesCustomerInput')?.value || 'عميل نقدي عام';
+        const cust = this.selectedCustomer?.name || document.getElementById('salesCustomerInput')?.value || 'عميل نقدي عام';
         const date = document.getElementById('salesInvoiceDate')?.value || new Date().toISOString().split('T')[0];
 
         const items = this.cart.length > 0 ? this.cart : [{
@@ -10351,13 +10458,13 @@
         printWin.document.close();
       },
 
-      // 📑 PRINT CUSTOMER STATEMENT (كشف حساب العميل الحالي)
+      // 📑 PRINT CUSTOMER STATEMENT
       printCustomerStatement() {
-        const cust = document.getElementById('salesCustomerInput')?.value || '';
-        if (typeof triggerStatementForAccount === 'function' && cust) {
-          triggerStatementForAccount(cust, 'عميل', 'حسب الفواتير', 'SDG');
+        const custName = this.selectedCustomer?.name || document.getElementById('salesCustomerInput')?.value || '';
+        if (typeof triggerStatementForAccount === 'function' && custName) {
+          triggerStatementForAccount(custName, 'عميل', 'حسب الفواتير', 'SDG');
         } else {
-          alert('جاري فتح وطباعة كشف الحساب للعميل: ' + (cust || 'المحدد'));
+          alert('جاري فتح وطباعة كشف الحساب للعميل: ' + (custName || 'المحدد'));
         }
       }
     };
