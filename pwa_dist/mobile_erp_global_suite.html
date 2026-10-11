@@ -9555,18 +9555,20 @@
         window.location.href = 'mobile-voucher.php';
         return;
       }
-      let modalId = '';
       if (formType === 'sales' || formType === 'salesInvoice') {
-        modalId = 'modalOpSales';
-        fetchMirrorNumbers();
-      } else if (formType === 'salesSplit') {
-        modalId = 'modalOpSalesSplit';
-        fetchMirrorNumbers();
-      } else if (formType === 'salesDelivery') {
-        modalId = 'modalOpDelivery';
-        fetchMirrorNumbers();
-        loadDeliverySalesInvoices();
-      } else if (formType === 'purchaseInvoice') {
+        window.location.href = 'mobile-sales.php?tab=invoice';
+        return;
+      }
+      if (formType === 'salesSplit') {
+        window.location.href = 'mobile-sales.php?tab=split';
+        return;
+      }
+      if (formType === 'salesDelivery') {
+        window.location.href = 'mobile-sales.php?tab=delivery';
+        return;
+      }
+      let modalId = '';
+      if (formType === 'purchaseInvoice') {
         modalId = 'modalOpPurchase';
         fetchMirrorNumbers();
       } else if (formType === 'purchaseReceive' || formType === 'purchaseReceipt') {

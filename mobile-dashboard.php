@@ -56,6 +56,28 @@ if (file_exists(__DIR__ . '/mobile_auth_guard.php')) {
 $pdo = getDBConnection();
 $authUser = requireMobileAuth($pdo, false);
 
+// ═════════════════════════════════════════════════════════════════════
+// 🌟 FLAGSHIP AGREED MOBILE SUITE (mobile_erp_global_suite.html)
+// ═════════════════════════════════════════════════════════════════════
+$isDedicatedSales = (isset($_GET['open']) && in_array(strtolower($_GET['open']), ['sale', 'sales', 'pos'])) || 
+                    (isset($_GET['sheet']) && in_array(strtolower($_GET['sheet']), ['sale', 'sales'])) ||
+                    (isset($_GET['force_mobile']) && $_GET['force_mobile'] === '1') ||
+                    (isset($_GET['view']) && in_array(strtolower($_GET['view']), ['sale', 'sales', 'pos'])) ||
+                    (strpos($_SERVER['REQUEST_URI'] ?? '', 'mobile-sales.php') !== false);
+
+if (!$isDedicatedSales && (!isset($_GET['legacy']) || $_GET['legacy'] !== '1')) {
+    $suiteFile = __DIR__ . '/mobile_erp_global_suite.html';
+    if (!file_exists($suiteFile) && file_exists(__DIR__ . '/ELSAJANA2/magaies/mobile_erp_global_suite.html')) {
+        $suiteFile = __DIR__ . '/ELSAJANA2/magaies/mobile_erp_global_suite.html';
+    }
+    if (file_exists($suiteFile)) {
+        header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0');
+        header('Pragma: no-cache');
+        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+        require_once $suiteFile;
+        exit;
+    }
+}
 
 $page_title = 'مقاييس الموبايل | النسخة السريعة';
 if (file_exists(__DIR__ . '/db_bridge.php')) {
@@ -7743,19 +7765,22 @@ try {
     </div>
 
     <!-- SHEET 3: 🧾 الموديول الأول: شاشة الفوترة السريعة والمبيعات الفورية (Mobile POS Invoicing) -->
-    <div class="mobile-sheet-overlay" id="overlay-sheet-sale" onclick="closeBottomSheet('sheet-sale')"></div>
-    <div class="mobile-bottom-sheet" id="sheet-sale" style="max-height: 94vh;">
+    <div class="mobile-sheet-overlay <?= (!empty($isDedicatedSales) ? 'active' : '') ?>" id="overlay-sheet-sale" onclick="closeBottomSheet('sheet-sale')"></div>
+    <div class="mobile-bottom-sheet <?= (!empty($isDedicatedSales) ? 'active' : '') ?>" id="sheet-sale" style="max-height: 98vh; <?= (!empty($isDedicatedSales) ? 'transform: translateY(0);' : '') ?>">
         <div class="sheet-drag-handle"></div>
         <div class="sheet-header" style="padding-bottom:10px; border-bottom:1px solid var(--border-glass);">
             <div style="display:flex; align-items:center; gap:8px;">
+                <a href="mobile-dashboard.php" style="text-decoration:none; display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid var(--border-glass); color:#38bdf8; font-size:0.95rem; font-weight:bold;" title="العودة لشاشات المنظومة">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
                 <span class="sheet-title" style="color:var(--primary); font-weight:900;">
                     <i class="fa-solid fa-cash-register"></i> منظومة المبيعات والفوترة المباشرة
                 </span>
                 <span id="pos-inv-number-pill" style="font-family:'Outfit','Inter',monospace; font-size:0.78rem; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); color:var(--primary); padding:2px 8px; border-radius:6px; font-weight:800;">
-                    #S26100127
+                    <?= htmlspecialchars($preloadedData['nextSalesNo'] ?? '#S26100127') ?>
                 </span>
             </div>
-            <button type="button" class="btn-sheet-close" onclick="closeBottomSheet('sheet-sale')">✕</button>
+            <a href="mobile-dashboard.php" class="btn-sheet-close" style="text-decoration:none; display:flex; align-items:center; justify-content:center;" title="العودة لشاشات المنظومة">✕</a>
         </div>
 
         <div class="sheet-body" style="padding-top:10px; padding-bottom:85px;">
@@ -11277,6 +11302,13 @@ try {
                 document.body.style.overflow = '';
                 document.documentElement.style.overflow = '';
             }
+            if (sheetId === 'sheet-sale') {
+                const urlParams = new URLSearchParams(window.location.search);
+                const isDedicatedSales = window.location.pathname.includes('mobile-sales.php') || urlParams.get('open') === 'sale' || urlParams.get('open') === 'sales';
+                if (isDedicatedSales) {
+                    window.location.href = 'mobile-dashboard.php';
+                }
+            }
         }
 
         // 📱 Android Hardware Back Button — close active bottom sheet instead of exiting app
@@ -11737,6 +11769,15 @@ try {
             const extraItems = loadedItems.filter(x => !existingNames.has(x.name));
             M_ITEMS = [...baseFlagship, ...extraItems];
             saveTenantArray('erp_items_v1', M_ITEMS);
+
+            // 🔄 Keep MobilePOS updated with fresh catalog
+            if (window.MobilePOS && typeof window.MobilePOS.populateCustomers === 'function') {
+                try {
+                    window.MobilePOS.populateCustomers();
+                    window.MobilePOS.populateItems();
+                    window.MobilePOS.populateQuickChips();
+                } catch(e) {}
+            }
 
             // 4. Load Vaults & Liquidity
             M_VAULTS = [];
@@ -18148,20 +18189,36 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 const sel = document.getElementById('pos-item-select');
                 if (!sel) return;
                 let html = '<option value="">-- ابحث أو اختر الصنف للإضافة --</option>';
-                if (Array.isArray(M_ITEMS)) {
-                    M_ITEMS.forEach(it => {
+                let items = (Array.isArray(M_ITEMS) && M_ITEMS.length > 0)
+                    ? M_ITEMS
+                    : (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.items) && window.SERVER_DATA.items.length > 0)
+                        ? window.SERVER_DATA.items.map((it, idx) => ({
+                            id: it.id || (idx + 1),
+                            name: it.name || it.item_name,
+                            spec: it.spec || it.dimension || '',
+                            price: parseFloat(it.salePrice || it.price || 0),
+                            cost: parseFloat(it.cost || it.buyPrice || 0),
+                            minPrice: parseFloat(it.minPrice || 0),
+                            stock: parseFloat(it.quantity ?? it.stock ?? 0),
+                            unit: it.unit || it.primaryUnit || 'طن',
+                            category: it.category || it.type || '',
+                            barcode: it.barcode || ''
+                        }))
+                        : ((typeof loadTenantArray === 'function') ? (loadTenantArray('erp_items_v1') || []) : []);
+                if (Array.isArray(items)) {
+                    items.forEach(it => {
                         const itemCat = it.category || it.type || '';
                         if (filterCategory && filterCategory !== 'all' && itemCat !== filterCategory) {
                             return;
                         }
-                        const price = parseFloat(it.price || 0);
+                        const price = parseFloat(it.price || it.salePrice || 0);
                         const cost = parseFloat(it.cost || it.standardCost || (price * 0.75) || 0);
                         const minPrice = parseFloat(it.minPrice || (cost * 1.05) || 0);
                         const stock = parseFloat(it.stock || it.quantity || 0);
                         const spec = it.spec || it.dimension || '';
                         const unit = it.unit || it.primaryUnit || 'طن';
-                        html += `<option value="${it.id}" data-name="${it.name}" data-spec="${spec}" data-price="${price}" data-cost="${cost}" data-min="${minPrice}" data-stock="${stock}" data-unit="${unit}" data-cat="${itemCat}" data-barcode="${it.barcode || ''}">
-                            ${it.name} ${spec ? `(${spec})` : ''} - ${fmt(price)} SDG [المتاح: ${stock} ${unit}]
+                        html += `<option value="${it.id}" data-name="${it.name || it.item_name}" data-spec="${spec}" data-price="${price}" data-cost="${cost}" data-min="${minPrice}" data-stock="${stock}" data-unit="${unit}" data-cat="${itemCat}" data-barcode="${it.barcode || ''}">
+                            ${it.name || it.item_name} ${spec ? `(${spec})` : ''} - ${fmt(price)} SDG [المتاح: ${stock} ${unit}]
                         </option>`;
                     });
                 }
@@ -18171,17 +18228,23 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
             populateQuickChips() {
                 const container = document.getElementById('pos-quick-chips-container');
                 if (!container) return;
-                if (!Array.isArray(M_ITEMS) || M_ITEMS.length === 0) {
+                let items = (Array.isArray(M_ITEMS) && M_ITEMS.length > 0)
+                    ? M_ITEMS
+                    : (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.items) && window.SERVER_DATA.items.length > 0)
+                        ? window.SERVER_DATA.items
+                        : [];
+                if (!Array.isArray(items) || items.length === 0) {
                     container.innerHTML = '';
                     return;
                 }
-                const topItems = M_ITEMS.slice(0, 6);
+                const topItems = items.slice(0, 6);
                 let html = '';
                 topItems.forEach(it => {
-                    const price = parseFloat(it.price || 0);
+                    const price = parseFloat(it.price || it.salePrice || 0);
+                    const itName = it.name || it.item_name || 'صنف';
                     html += `
                         <div class="pos-chip" onclick="MobilePOS.addItemById('${it.id}')">
-                            <span class="pos-chip-name">${it.name}</span>
+                            <span class="pos-chip-name">${itName}</span>
                             <span class="pos-chip-price">${fmt(price)} SDG</span>
                         </div>
                     `;
@@ -18314,7 +18377,10 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
 
             addItemById(itemId) {
                 triggerHaptic('light');
-                const item = (Array.isArray(M_ITEMS) ? M_ITEMS.find(x => String(x.id) === String(itemId)) : null);
+                let pool = (Array.isArray(M_ITEMS) && M_ITEMS.length > 0)
+                    ? M_ITEMS
+                    : (window.SERVER_DATA?.items || []);
+                const item = pool.find(x => String(x.id) === String(itemId));
                 if (!item) {
                     if (window.showModernToast) window.showModernToast('الصنف غير موجود في قاعدة البيانات', 'warning');
                     return;
@@ -18692,8 +18758,19 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
                 if (!sel) return;
                 const currentVal = sel.value;
                 let html = '<option value="walkin">عميل نقدي عام (Walk-in)</option>';
-                if (Array.isArray(M_CUSTOMERS)) {
-                    M_CUSTOMERS.forEach(c => {
+                let custs = (Array.isArray(M_CUSTOMERS) && M_CUSTOMERS.length > 0)
+                    ? M_CUSTOMERS
+                    : (window.SERVER_DATA && Array.isArray(window.SERVER_DATA.customers) && window.SERVER_DATA.customers.length > 0)
+                        ? window.SERVER_DATA.customers.map(c => ({
+                            id: c.customer_id || c.id,
+                            name: c.customer_name || c.name,
+                            phone: c.phone || '',
+                            balance: parseFloat(c.total_exposure ?? c.ledger_balance ?? c.currentBalance ?? 0),
+                            creditLimit: parseFloat(c.credit_limit ?? c.creditLimit ?? 3000000)
+                        }))
+                        : ((typeof loadTenantArray === 'function') ? (loadTenantArray('erp_customers_v1') || []) : []);
+                if (Array.isArray(custs)) {
+                    custs.forEach(c => {
                         const bal = parseFloat(c.balance || c.currentBalance || 0);
                         const limit = parseFloat(c.creditLimit || c.credit_limit || 0);
                         html += `<option value="${c.id}" data-phone="${c.phone || ''}" data-balance="${bal}" data-limit="${limit}">${c.name}</option>`;
@@ -23485,21 +23562,25 @@ ${extraText}🔴 *من حساب (الصارف):* ${tx.fromAccount?.name || '--'}
     window.addEventListener('DOMContentLoaded', () => {
         setTimeout(window.initMobileMirrorSync, 600);
 
-        // Auto-open sales sheet if requested in URL (e.g. ?open=sales or ?force_mobile=1 or ?sheet=sale)
+        // Auto-open sales sheet if requested in URL (e.g. mobile-sales.php, or ?open=sale|sales|pos, or ?sheet=sale, or ?force_mobile=1)
         try {
             const urlParams = new URLSearchParams(window.location.search);
-            const openTarget = urlParams.get('open') || urlParams.get('sheet') || urlParams.get('action');
+            const openTarget = urlParams.get('open') || urlParams.get('sheet') || urlParams.get('action') || urlParams.get('view');
             const forceMobile = urlParams.get('force_mobile') === '1';
-            const shouldOpenSales = (openTarget === 'sales' || openTarget === 'sale' || openTarget === 'pos') ||
-                                    (forceMobile && !openTarget);
+            const isDedicated = window.location.pathname.indexOf('mobile-sales.php') !== -1;
+            const targetTab = urlParams.get('salestab') || urlParams.get('tab') || 'invoice';
+            const shouldOpenSales = (openTarget === 'sales' || openTarget === 'sale' || openTarget === 'pos' || isDedicated || forceMobile);
             if (shouldOpenSales) {
                 setTimeout(() => {
                     if (typeof openSalesSuite === 'function') {
-                        openSalesSuite('invoice');
+                        openSalesSuite(targetTab);
                     } else if (typeof openBottomSheet === 'function') {
                         openBottomSheet('sheet-sale');
                     }
-                }, 350);
+                    if (window.MobilePOS && typeof window.MobilePOS.init === 'function') {
+                        window.MobilePOS.init();
+                    }
+                }, 80);
             }
         } catch(e) {}
     });
