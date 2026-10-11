@@ -235,6 +235,12 @@ try {
                 'suite_size' => strlen($suiteContent),
                 'suite_has_pos' => strpos($suiteContent, 'SuiteSalesPOS') !== false,
                 'suite_has_calc' => strpos($suiteContent, 'suiteSmartCalcModal') !== false,
+                'has_customer_search' => strpos($suiteContent, 'suiteCustomerSearchModal') !== false,
+                'has_dual_balance' => strpos($suiteContent, 'suiteCustBalForeign') !== false,
+                'has_cost_center' => strpos($suiteContent, 'salesCostCenterSelect') !== false,
+                'has_warehouse_first' => strpos($suiteContent, 'salesWarehouseSelect') !== false,
+                'has_statement_btn' => strpos($suiteContent, 'btnCustStatementDirect') !== false,
+                'has_checks_payment' => strpos($suiteContent, 'suitePayBtnCheck') !== false,
                 'server_time' => date('Y-m-d H:i:s')
             ], JSON_UNESCAPED_UNICODE);
             exit;
