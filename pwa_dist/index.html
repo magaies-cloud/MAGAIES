@@ -8057,11 +8057,11 @@
           <div class="w-full flex justify-between items-center pb-2 border-b border-slate-800">
             <div class="flex items-center gap-2">
               <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
-                🔢
+                🧮
               </div>
               <div>
-                <h3 id="numpadTitle" class="text-sm font-black text-white">احسبها - الآلة الحاسبة الذكية</h3>
-                <span id="numpadSub" class="text-[11px] text-amber-300 font-bold">إدخال مالي سريع ودقيق ومزدوج العملة</span>
+                <h3 id="numpadTitle" class="text-sm font-black text-white">الآلة الحاسبة الذكية</h3>
+                <span id="numpadSub" class="text-[11px] text-amber-300 font-bold">حسابات فورية ودقيقة ومزدوجة العملة</span>
               </div>
             </div>
             <button onclick="closeAccountingNumpad()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
@@ -8071,14 +8071,18 @@
         <!-- Giant Display Value Screen -->
         <div class="p-3.5 bg-slate-950/90 rounded-2xl border border-amber-500/40 text-left font-mono space-y-1">
           <div class="flex justify-between items-center text-xs text-slate-400 font-sans">
-            <span id="numpadTargetLabel">المبلغ الحالي:</span>
+            <span id="numpadTargetLabel">العملية الحسابية:</span>
             <div class="flex items-center gap-1.5">
               <button onclick="setNumpadCurrency('USD')" id="numpadCurUsd" class="px-2 py-0.5 rounded-lg bg-emerald-500 text-slate-950 text-[11px] font-black">USD $</button>
               <button onclick="setNumpadCurrency('SDG')" id="numpadCurSdg" class="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 text-[11px] font-bold">ج.س SDG</button>
             </div>
           </div>
-          <div id="numpadDisplayValue" class="text-3xl font-black text-amber-300 tracking-tight overflow-x-auto no-scrollbar py-1">0</div>
-          <div id="numpadDualPreview" class="text-xs font-bold text-slate-400">≈ 0 ج.س</div>
+          <!-- Expression / Formula Line -->
+          <div id="numpadExpression" class="text-xs text-slate-400 font-mono tracking-wider min-h-[1.2rem] text-right truncate" dir="ltr"></div>
+          <!-- Giant Display Main Value -->
+          <div id="numpadDisplayValue" class="text-3xl font-black text-amber-300 tracking-tight overflow-x-auto no-scrollbar py-1 text-right" dir="ltr">0</div>
+          <!-- Dual Currency Preview -->
+          <div id="numpadDualPreview" class="text-xs font-bold text-slate-400 text-right">≈ 0 ج.س</div>
         </div>
 
         <!-- Multipliers Quick Bar -->
@@ -8089,36 +8093,42 @@
           <button onclick="numpadAddMultiplier(100000)" class="py-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 border border-amber-500/40 active:scale-95 transition font-mono">+100,000</button>
         </div>
 
-        <!-- Giant Numpad Grid (4x4) - Reversed Number Rows (3 2 1 | 6 5 4 | 9 8 7) -->
-        <div class="grid grid-cols-4 gap-2 text-xl font-bold font-mono">
-          <!-- Row 1: 3 2 1 -->
-          <button onclick="numpadPressKey('3')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow">3</button>
-          <button onclick="numpadPressKey('2')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow">2</button>
-          <button onclick="numpadPressKey('1')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow">1</button>
-          <button onclick="numpadBackspace()" class="py-3.5 rounded-2xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-500/40 active:scale-95 transition font-sans text-xs flex items-center justify-center font-bold">⌫ مسح</button>
+        <!-- Full Smart Calculator Keypad Grid (Standard LTR: 1 2 3 top, 4 5 6 mid, 7 8 9 bot, operators on right) -->
+        <div class="grid grid-cols-4 gap-2 text-xl font-bold font-mono" dir="ltr">
+          <!-- Row 1: AC, Backspace, %, Division ÷ -->
+          <button onclick="numpadClear()" class="py-3 rounded-2xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-500/40 active:scale-95 transition text-base font-bold shadow">AC</button>
+          <button onclick="numpadBackspace()" class="py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 active:scale-95 transition text-lg flex items-center justify-center font-bold shadow">⌫</button>
+          <button onclick="numpadPressPercent()" class="py-3 rounded-2xl bg-indigo-950/60 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/40 active:scale-95 transition text-lg font-bold shadow">%</button>
+          <button onclick="numpadPressOperator('÷')" class="py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-xl font-bold shadow">÷</button>
 
-          <!-- Row 2: 6 5 4 -->
-          <button onclick="numpadPressKey('6')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow">6</button>
-          <button onclick="numpadPressKey('5')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow">5</button>
-          <button onclick="numpadPressKey('4')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow">4</button>
-          <button onclick="numpadClear()" class="py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 active:scale-95 transition text-xs font-bold">C تصفير</button>
+          <!-- Row 2: 1 2 3 × (الواحد محل السبعة، والاثنين محل الثمانية، والثلاثة محل التسعة) -->
+          <button onclick="numpadPressKey('1')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">1</button>
+          <button onclick="numpadPressKey('2')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">2</button>
+          <button onclick="numpadPressKey('3')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">3</button>
+          <button onclick="numpadPressOperator('×')" class="py-3.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-xl font-bold shadow">×</button>
 
-          <!-- Row 3: 9 8 7 -->
-          <button onclick="numpadPressKey('9')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow">9</button>
-          <button onclick="numpadPressKey('8')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow">8</button>
-          <button onclick="numpadPressKey('7')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow">7</button>
-          <button onclick="numpadPressKey('00')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-slate-700 active:scale-95 transition text-lg font-bold">00</button>
+          <!-- Row 3: 4 5 6 − (الأربعة محل الأربعة، والخمسة محل الخمسة، والستة محل الستة) -->
+          <button onclick="numpadPressKey('4')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">4</button>
+          <button onclick="numpadPressKey('5')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">5</button>
+          <button onclick="numpadPressKey('6')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">6</button>
+          <button onclick="numpadPressOperator('−')" class="py-3.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-2xl font-bold shadow">−</button>
 
-          <!-- Row 4: 000 0 . -->
-          <button onclick="numpadPressKey('000')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-slate-700 active:scale-95 transition text-base font-bold">000</button>
-          <button onclick="numpadPressKey('0')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow">0</button>
-          <button onclick="numpadPressKey('.')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition">.</button>
-          <button onclick="numpadMultiply(2)" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-amber-300 border border-slate-700 active:scale-95 transition text-xs font-bold">×2 مضاعف</button>
+          <!-- Row 4: 7 8 9 + (السبعة محل الواحد، والثمانية محل الاثنين، والتسعة محل الثلاثة) -->
+          <button onclick="numpadPressKey('7')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">7</button>
+          <button onclick="numpadPressKey('8')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">8</button>
+          <button onclick="numpadPressKey('9')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">9</button>
+          <button onclick="numpadPressOperator('+')" class="py-3.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-2xl font-bold shadow">+</button>
+
+          <!-- Row 5: 00 0 . = (إضافة الصفر، النقطة العشرية، ويساوي) -->
+          <button onclick="numpadPressKey('00')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-slate-700 active:scale-95 transition text-lg font-bold shadow">00</button>
+          <button onclick="numpadPressKey('0')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">0</button>
+          <button onclick="numpadPressKey('.')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition text-2xl shadow">.</button>
+          <button onclick="numpadCalculate()" class="py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-2xl shadow-[0_0_15px_rgba(245,158,11,0.4)] active:scale-95 transition">=</button>
         </div>
 
         <!-- Giant Confirmation Trigger -->
-        <button onclick="numpadConfirm()" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-slate-950 font-black text-base shadow-[0_0_25px_rgba(16,185,129,0.4)] active:scale-95 transition flex items-center justify-center gap-2">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <button onclick="numpadConfirm()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-slate-950 font-black text-sm shadow-[0_0_25px_rgba(16,185,129,0.4)] active:scale-95 transition flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
           <span id="numpadConfirmBtnText">تأكيد وترحيل المبلغ ✓</span>
         </button>
 
@@ -11111,27 +11121,41 @@
     }
 
     // ========================================================
-    // IN-APP GIANT ACCOUNTING NUMPAD ENGINE
+    // IN-APP GIANT SMART ACCOUNTING CALCULATOR & NUMPAD ENGINE
     // ========================================================
     let numpadTargetInput = null;
     let numpadCurrentBuffer = '0';
+    let numpadPreviousValue = null;
+    let numpadPendingOperator = null;
+    let numpadWaitingForSecondOperand = false;
+    let numpadExpressionStr = '';
     let numpadSelectedCurrency = 'USD';
     const SDG_RATE = 2800;
 
-    function openAccountingNumpad(targetInputId = null, title = 'احسبها') {
-      AudioEngine.play('numpad');
-      triggerHapticPulse(30);
+    function openAccountingNumpad(targetInputId = null, title = 'الآلة الحاسبة') {
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+      if (window.triggerHapticPulse) triggerHapticPulse(30);
 
       numpadTargetInput = targetInputId ? document.getElementById(targetInputId) : null;
       if (numpadTargetInput && numpadTargetInput.value) {
-        const cleaned = numpadTargetInput.value.replace(/[^0-9.]/g, '');
+        const cleaned = numpadTargetInput.value.replace(/[^0-9.-]/g, '');
         numpadCurrentBuffer = cleaned || '0';
       } else {
         numpadCurrentBuffer = '0';
       }
 
+      numpadPreviousValue = null;
+      numpadPendingOperator = null;
+      numpadWaitingForSecondOperand = false;
+      numpadExpressionStr = '';
+
       const titleEl = document.getElementById('numpadTitle');
       if (titleEl) titleEl.textContent = title;
+
+      const confirmBtnText = document.getElementById('numpadConfirmBtnText');
+      if (confirmBtnText) {
+        confirmBtnText.textContent = numpadTargetInput ? 'تأكيد وترحيل المبلغ ✓' : 'نسخ الناتج وإغلاق الحاسبة 📋';
+      }
 
       updateNumpadDisplay();
       openModal('accountingNumpadDrawer');
@@ -11141,14 +11165,29 @@
       closeModal('accountingNumpadDrawer');
     }
 
+    function formatCalculatorDisplay(str) {
+      if (!str || str === 'NaN' || str === 'Infinity' || str === '-Infinity') return '0';
+      const parts = str.split('.');
+      const intPart = parts[0];
+      const decPart = parts.length > 1 ? '.' + parts[1] : (str.endsWith('.') ? '.' : '');
+      const num = Number(intPart);
+      if (isNaN(num)) return str;
+      return num.toLocaleString('en-US') + decPart;
+    }
+
     function updateNumpadDisplay() {
       const disp = document.getElementById('numpadDisplayValue');
+      const exprEl = document.getElementById('numpadExpression');
       const dual = document.getElementById('numpadDualPreview');
       const num = parseFloat(numpadCurrentBuffer) || 0;
 
+      if (exprEl) {
+        exprEl.textContent = numpadExpressionStr || '';
+      }
+
       if (disp) {
         const symbol = numpadSelectedCurrency === 'USD' ? '$ ' : '';
-        disp.textContent = symbol + (num === 0 && !numpadCurrentBuffer.includes('.') ? '0' : numpadCurrentBuffer);
+        disp.textContent = symbol + formatCalculatorDisplay(numpadCurrentBuffer);
       }
 
       if (dual) {
@@ -11163,24 +11202,113 @@
     }
 
     function numpadPressKey(key) {
-      AudioEngine.play('numpad');
-      triggerHapticPulse(25);
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+      if (window.triggerHapticPulse) triggerHapticPulse(25);
 
-      if (numpadCurrentBuffer === '0' && key !== '.') {
-        numpadCurrentBuffer = key;
+      if (numpadWaitingForSecondOperand) {
+        numpadCurrentBuffer = key === '.' ? '0.' : key;
+        numpadWaitingForSecondOperand = false;
       } else {
-        if (key === '.' && numpadCurrentBuffer.includes('.')) return;
-        numpadCurrentBuffer += key;
+        if (numpadCurrentBuffer === '0' && key !== '.') {
+          numpadCurrentBuffer = key === '00' ? '0' : key;
+        } else {
+          if (key === '.' && numpadCurrentBuffer.includes('.')) return;
+          numpadCurrentBuffer += key;
+        }
+      }
+      updateNumpadDisplay();
+    }
+
+    function executeNumpadMath(a, b, op) {
+      let res = 0;
+      switch (op) {
+        case '+': res = a + b; break;
+        case '−':
+        case '-': res = a - b; break;
+        case '×':
+        case '*': res = a * b; break;
+        case '÷':
+        case '/': res = b === 0 ? 0 : a / b; break;
+        default: res = b;
+      }
+      return Math.round(res * 1e9) / 1e9;
+    }
+
+    function numpadPressOperator(op) {
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+      if (window.triggerHapticPulse) triggerHapticPulse(30);
+
+      const inputValue = parseFloat(numpadCurrentBuffer) || 0;
+
+      if (numpadPendingOperator && numpadWaitingForSecondOperand) {
+        numpadPendingOperator = op;
+        numpadExpressionStr = `${numpadPreviousValue} ${op}`;
+        updateNumpadDisplay();
+        return;
+      }
+
+      if (numpadPreviousValue === null) {
+        numpadPreviousValue = inputValue;
+      } else if (numpadPendingOperator) {
+        const result = executeNumpadMath(numpadPreviousValue, inputValue, numpadPendingOperator);
+        numpadCurrentBuffer = String(result);
+        numpadPreviousValue = result;
+      }
+
+      numpadWaitingForSecondOperand = true;
+      numpadPendingOperator = op;
+      numpadExpressionStr = `${numpadPreviousValue} ${op}`;
+      updateNumpadDisplay();
+    }
+
+    function numpadCalculate() {
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
+      if (window.triggerHapticPulse) triggerHapticPulse(45);
+
+      if (!numpadPendingOperator || numpadPreviousValue === null) return;
+
+      const inputValue = parseFloat(numpadCurrentBuffer) || 0;
+      const result = executeNumpadMath(numpadPreviousValue, inputValue, numpadPendingOperator);
+
+      numpadExpressionStr = `${numpadPreviousValue} ${numpadPendingOperator} ${inputValue} =`;
+      numpadCurrentBuffer = String(result);
+      numpadPreviousValue = null;
+      numpadPendingOperator = null;
+      numpadWaitingForSecondOperand = true;
+      updateNumpadDisplay();
+    }
+
+    function numpadPressPercent() {
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+      if (window.triggerHapticPulse) triggerHapticPulse(30);
+
+      const current = parseFloat(numpadCurrentBuffer) || 0;
+
+      if (numpadPendingOperator && numpadPreviousValue !== null) {
+        if (numpadPendingOperator === '+' || numpadPendingOperator === '−' || numpadPendingOperator === '-') {
+          const pctVal = (numpadPreviousValue * current) / 100;
+          numpadCurrentBuffer = String(pctVal);
+        } else if (numpadPendingOperator === '×' || numpadPendingOperator === '*' || numpadPendingOperator === '÷' || numpadPendingOperator === '/') {
+          const pctVal = current / 100;
+          numpadCurrentBuffer = String(pctVal);
+        }
+      } else {
+        numpadCurrentBuffer = String(current / 100);
       }
       updateNumpadDisplay();
     }
 
     function numpadBackspace() {
-      AudioEngine.play('numpad');
-      triggerHapticPulse(30);
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+      if (window.triggerHapticPulse) triggerHapticPulse(25);
+
+      if (numpadWaitingForSecondOperand) return;
 
       if (numpadCurrentBuffer.length > 1) {
         numpadCurrentBuffer = numpadCurrentBuffer.slice(0, -1);
+        if (numpadCurrentBuffer === '-' || numpadCurrentBuffer === '') {
+          numpadCurrentBuffer = '0';
+        }
       } else {
         numpadCurrentBuffer = '0';
       }
@@ -11188,30 +11316,41 @@
     }
 
     function numpadClear() {
-      AudioEngine.play('numpad');
-      triggerHapticPulse(40);
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+      if (window.triggerHapticPulse) triggerHapticPulse(40);
+
       numpadCurrentBuffer = '0';
+      numpadPreviousValue = null;
+      numpadPendingOperator = null;
+      numpadWaitingForSecondOperand = false;
+      numpadExpressionStr = '';
       updateNumpadDisplay();
     }
 
     function numpadAddMultiplier(val) {
-      AudioEngine.play('numpad');
-      triggerHapticPulse(35);
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+      if (window.triggerHapticPulse) triggerHapticPulse(35);
+
+      if (numpadWaitingForSecondOperand) {
+        numpadCurrentBuffer = '0';
+        numpadWaitingForSecondOperand = false;
+      }
       const cur = parseFloat(numpadCurrentBuffer) || 0;
       numpadCurrentBuffer = String(cur + val);
       updateNumpadDisplay();
     }
 
     function numpadMultiply(factor) {
-      AudioEngine.play('numpad');
-      triggerHapticPulse(35);
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
+      if (window.triggerHapticPulse) triggerHapticPulse(35);
+
       const cur = parseFloat(numpadCurrentBuffer) || 0;
       numpadCurrentBuffer = String(cur * factor);
       updateNumpadDisplay();
     }
 
     function setNumpadCurrency(curr) {
-      AudioEngine.play('numpad');
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('numpad');
       numpadSelectedCurrency = curr;
       const usdBtn = document.getElementById('numpadCurUsd');
       const sdgBtn = document.getElementById('numpadCurSdg');
@@ -11226,17 +11365,57 @@
     }
 
     function numpadConfirm() {
-      AudioEngine.play('success');
-      triggerHapticPulse(60);
+      if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
+      if (window.triggerHapticPulse) triggerHapticPulse(60);
+
+      if (numpadPendingOperator && numpadPreviousValue !== null) {
+        numpadCalculate();
+      }
 
       if (numpadTargetInput) {
         numpadTargetInput.value = numpadCurrentBuffer;
         numpadTargetInput.dispatchEvent(new Event('input', { bubbles: true }));
+        showFloatingToast(`✓ تم اعتماد المبلغ: ${numpadCurrentBuffer} ${numpadSelectedCurrency}`);
+      } else {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(numpadCurrentBuffer).catch(() => {});
+        }
+        showFloatingToast(`✓ تم نسخ الناتج: ${numpadCurrentBuffer} ${numpadSelectedCurrency}`);
       }
-
-      showFloatingToast(`✓ تم اعتماد المبلغ: ${numpadCurrentBuffer} ${numpadSelectedCurrency}`);
       closeAccountingNumpad();
     }
+
+    // Keyboard listener when calculator modal is open
+    document.addEventListener('keydown', (e) => {
+      const drawer = document.getElementById('accountingNumpadDrawer');
+      if (!drawer || drawer.classList.contains('hidden')) return;
+
+      if ((e.key >= '0' && e.key <= '9') || e.key === '.') {
+        e.preventDefault();
+        numpadPressKey(e.key);
+      } else if (e.key === '+' || e.key === '-') {
+        e.preventDefault();
+        numpadPressOperator(e.key === '-' ? '−' : '+');
+      } else if (e.key === '*' || e.key === 'x' || e.key === 'X') {
+        e.preventDefault();
+        numpadPressOperator('×');
+      } else if (e.key === '/') {
+        e.preventDefault();
+        numpadPressOperator('÷');
+      } else if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        numpadCalculate();
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        numpadBackspace();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        closeAccountingNumpad();
+      } else if (e.key === '%') {
+        e.preventDefault();
+        numpadPressPercent();
+      }
+    });
 
     // ========================================================
     // SMART BANK RECEIPT OCR CAMERA SCANNER ENGINE
