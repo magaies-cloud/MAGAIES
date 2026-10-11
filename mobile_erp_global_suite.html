@@ -126,6 +126,48 @@
     }
 
     /* Glassmorphism & High-tech Glow Effects */
+
+    /* Dynamic Optical & Motion Input Glow */
+    .glow-input-field {
+      background: rgba(15, 23, 42, 0.92) !important;
+      border: 1.5px solid rgba(148, 163, 184, 0.28) !important;
+      color: #ffffff !important;
+      border-radius: 12px;
+      transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.05);
+    }
+    .glow-input-field:focus, .glow-input-field:focus-within {
+      transform: scale(1.025);
+      background: rgba(15, 23, 42, 0.98) !important;
+      outline: none !important;
+      z-index: 10;
+    }
+    .glow-cyan { border-color: rgba(56, 189, 248, 0.45) !important; }
+    .glow-cyan:focus, .glow-cyan:focus-within {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.65), inset 0 0 8px rgba(56, 189, 248, 0.3) !important;
+    }
+    .glow-emerald { border-color: rgba(52, 211, 153, 0.45) !important; }
+    .glow-emerald:focus, .glow-emerald:focus-within {
+      border-color: #34d399 !important;
+      box-shadow: 0 0 20px rgba(52, 211, 153, 0.65), inset 0 0 8px rgba(52, 211, 153, 0.3) !important;
+    }
+    .glow-rose { border-color: rgba(244, 63, 94, 0.45) !important; }
+    .glow-rose:focus, .glow-rose:focus-within {
+      border-color: #f43f5e !important;
+      box-shadow: 0 0 20px rgba(244, 63, 94, 0.65), inset 0 0 8px rgba(244, 63, 94, 0.3) !important;
+    }
+    .glow-purple { border-color: rgba(192, 132, 252, 0.45) !important; }
+    .glow-purple:focus, .glow-purple:focus-within {
+      border-color: #c084fc !important;
+      box-shadow: 0 0 20px rgba(192, 132, 252, 0.65), inset 0 0 8px rgba(192, 132, 252, 0.3) !important;
+    }
+    .glow-amber { border-color: rgba(251, 191, 36, 0.45) !important; }
+    .glow-amber:focus, .glow-amber:focus-within {
+      border-color: #fbbf24 !important;
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.65), inset 0 0 8px rgba(251, 191, 36, 0.3) !important;
+    }
+
     
     /* Ultra-Smooth Mobile GPU Acceleration & Ergonomic Performance */
     @media (max-width: 768px) {
@@ -6808,120 +6850,125 @@
 
     <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) -->
         <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) - RADICAL UPGRADE -->
+        <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) - ADVANCED LAPTOP PARITY -->
     <div id="modalOpSales" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
-      <div class="glass-base w-full max-w-lg rounded-3xl border border-purple-500/50 p-4 space-y-3 max-h-[92vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, rgba(15,23,42,0.98), rgba(11,15,25,0.99));">
+      <div class="glass-base w-full max-w-xl rounded-3xl border border-sky-500/50 p-4 space-y-3.5 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #0b1120, #030712);">
         
-        <!-- Header -->
-        <div class="p-3 rounded-2xl flex justify-between items-center relative overflow-hidden" style="background: linear-gradient(135deg, rgba(30,15,50,0.8), rgba(45,20,80,0.6)); border: 1px solid rgba(192,132,252,0.4); box-shadow: 0 0 20px rgba(168,85,247,0.25);">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">جديدة</span>
-              <span id="opSalesInvoiceNoPill" class="px-2.5 py-0.5 rounded-full text-[11px] font-black bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">S26101012</span>
-            </div>
-            <h3 class="text-base font-black text-white flex items-center gap-2 drop-shadow-[0_0_10px_rgba(192,132,252,0.8)]">
-              <i class="fa-solid fa-file-invoice-dollar text-purple-400"></i> فاتورة مبيعات (مطابقة للابتوب)
+        <!-- ═══════════════════════════════════════════════════════════════
+             1. HEADER: فاتورة مبيعات + بجوارها رقم العملية والتاريخ
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="p-3 rounded-2xl flex flex-wrap justify-between items-center gap-2 relative overflow-hidden" style="background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.9)); border: 1.5px solid rgba(56,189,248,0.4); box-shadow: 0 0 22px rgba(56,189,248,0.25);">
+          <!-- Right side: Title + Operation No + Date -->
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h3 class="text-base sm:text-lg font-black text-white flex items-center gap-2 drop-shadow-[0_0_12px_rgba(56,189,248,0.8)]">
+              <span class="w-8 h-8 rounded-xl bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center text-sm shadow-inner"><i class="fa-solid fa-file-invoice-dollar"></i></span>
+              <span>فاتورة مبيعات</span>
             </h3>
+
+            <!-- رقم العملية بجوار الفاتورة -->
+            <div class="flex items-center gap-1 bg-sky-950/70 border border-sky-500/40 px-2.5 py-1 rounded-xl shadow-sm">
+              <span class="text-[10px] text-sky-300 font-bold">رقم العملية:</span>
+              <span id="opSalesInvoiceNoPill" class="text-xs font-mono font-black text-white tracking-wider">S26101012</span>
+            </div>
+
+            <!-- التاريخ بجوار رقم العملية -->
+            <div class="flex items-center gap-1 bg-slate-900/80 border border-slate-700/80 px-2 py-1 rounded-xl shadow-sm">
+              <span class="text-[10px] text-slate-400 font-bold"><i class="fa-regular fa-calendar-days text-sky-400"></i></span>
+              <input type="date" id="salesInvoiceDate" class="bg-transparent text-white font-mono text-[11px] font-bold outline-none cursor-pointer p-0" />
+            </div>
           </div>
-          <div class="flex items-center gap-1.5">
-            <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" class="px-2.5 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 text-xs font-bold transition flex items-center gap-1.5 shadow-sm" title="الآلة الحاسبة الذكية">
+
+          <!-- Left side: Calculator button & Close -->
+          <div class="flex items-center gap-1.5 mr-auto">
+            <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" class="px-2.5 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 text-xs font-bold transition flex items-center gap-1.5 shadow-[0_0_10px_rgba(168,85,247,0.25)] active:scale-95" title="الآلة الحاسبة الذكية">
               <i class="fa-solid fa-calculator"></i> <span class="hidden sm:inline">الحاسبة</span>
             </button>
-            <button type="button" onclick="SafeInvoiceGuard.requestExit('modalOpSales')" class="w-8 h-8 rounded-full bg-slate-800/80 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90" title="إغلاق">✕</button>
+            <button type="button" onclick="SafeInvoiceGuard.requestExit('modalOpSales')" class="w-8 h-8 rounded-full bg-slate-800/90 text-slate-400 hover:text-white flex items-center justify-center cursor-pointer transition active:scale-90" title="إغلاق">✕</button>
           </div>
         </div>
 
-        <!-- Safe Indicator -->
-        <div class="flex items-center justify-between text-[11px] bg-slate-900/80 px-3 py-1.5 rounded-xl border border-slate-800">
-          <span class="text-slate-400">حالة الربط وقاعدة البيانات:</span>
-          <span id="modalOpSalesUnsavedBadge" class="flex items-center gap-1.5 font-bold text-emerald-400">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-            <span>متصل بـ MariaDB ونظام المرآة المباشر 🪞</span>
-          </span>
+        <!-- ═══════════════════════════════════════════════════════════════
+             2. CUSTOMER ZONE: اسم العميل يأتي بعد الترويسة مباشرة
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="p-3 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-2 text-xs relative overflow-hidden" style="box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-0.5">
+            <label class="font-black text-slate-200 flex items-center gap-1.5 text-xs">
+              <i class="fa-solid fa-user-tag text-sky-400"></i> اسم العميل <span class="text-rose-500">*</span>:
+            </label>
+            <div class="flex items-center gap-2">
+              <span id="suiteCustBalanceBadge" class="text-[10px] text-emerald-400 font-mono font-black bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/25">رصيد: 0 SDG</span>
+              <button type="button" onclick="SuiteSalesPOS.printCustomerStatement()" class="text-[10px] text-sky-300 hover:text-sky-200 bg-sky-950/60 border border-sky-500/30 px-2 py-0.5 rounded-lg font-bold flex items-center gap-1 transition" title="طباعة كشف حساب العميل الحالي">
+                <i class="fa-solid fa-file-lines text-sky-400"></i> كشف الحساب
+              </button>
+            </div>
+          </div>
+          <select id="salesCustomerInput" onchange="SuiteSalesPOS.onCustomerChange(this)" class="glow-input-field glow-cyan w-full p-2.5 font-black text-white text-xs outline-none cursor-pointer">
+            <!-- Populated dynamically from MariaDB -->
+          </select>
         </div>
 
         <!-- SMART CALCULATOR POPUP (Nested) -->
-        <div id="suiteSmartCalcModal" class="hidden p-3 rounded-2xl bg-slate-950/95 border border-purple-500/60 shadow-2xl space-y-2">
+        <div id="suiteSmartCalcModal" class="hidden p-3 rounded-2xl bg-slate-950/98 border border-purple-500/60 shadow-[0_0_30px_rgba(168,85,247,0.3)] space-y-2">
           <div class="flex justify-between items-center pb-1 border-b border-slate-800">
-            <span class="text-xs font-black text-purple-300"><i class="fa-solid fa-calculator"></i> آلة حاسبة ذكية متقدمة</span>
+            <span class="text-xs font-black text-purple-300 flex items-center gap-1.5"><i class="fa-solid fa-calculator"></i> آلة حاسبة ذكية متطورة</span>
             <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" class="text-slate-400 hover:text-white text-xs">✕</button>
           </div>
-          <div class="bg-slate-900 rounded-xl p-2 text-right border border-purple-500/30">
+          <div class="bg-slate-900 rounded-xl p-2.5 text-right border border-purple-500/30 shadow-inner">
             <div id="suiteCalcHistory" class="text-[10px] text-slate-400 h-4 overflow-hidden font-mono"></div>
-            <div id="suiteCalcScreen" class="text-lg font-mono font-black text-emerald-400">0</div>
+            <div id="suiteCalcScreen" class="text-xl font-mono font-black text-emerald-400">0</div>
           </div>
           <div class="grid grid-cols-4 gap-1.5 text-xs font-bold font-mono">
-            <button type="button" onclick="SuiteSalesPOS.calcInput('C')" class="p-2 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/30">C</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('/')" class="p-2 rounded-lg bg-slate-800 text-sky-400 border border-slate-700">÷</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('*')" class="p-2 rounded-lg bg-slate-800 text-sky-400 border border-slate-700">×</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('BACK')" class="p-2 rounded-lg bg-slate-800 text-amber-400 border border-slate-700">⌫</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('C')" class="p-2 rounded-xl bg-rose-500/20 text-rose-300 border border-rose-500/30 active:scale-95 transition">C</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('/')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition">÷</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('*')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition">×</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('BACK')" class="p-2 rounded-xl bg-slate-800 text-amber-400 border border-slate-700 active:scale-95 transition">⌫</button>
 
-            <button type="button" onclick="SuiteSalesPOS.calcInput('7')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">7</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('8')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">8</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('9')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">9</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('-')" class="p-2 rounded-lg bg-slate-800 text-sky-400 border border-slate-700">-</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('7')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">7</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('8')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">8</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('9')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">9</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('-')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition">-</button>
 
-            <button type="button" onclick="SuiteSalesPOS.calcInput('4')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">4</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('5')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">5</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('6')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">6</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('+')" class="p-2 rounded-lg bg-slate-800 text-sky-400 border border-slate-700">+</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('4')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">4</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('5')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">5</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('6')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">6</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('+')" class="p-2 rounded-xl bg-slate-800 text-sky-400 border border-slate-700 active:scale-95 transition">+</button>
 
-            <button type="button" onclick="SuiteSalesPOS.calcInput('1')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">1</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('2')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">2</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('3')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">3</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('=')" class="row-span-2 p-2 rounded-lg bg-emerald-600 text-white font-black text-sm flex items-center justify-center shadow-lg">=</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('1')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">1</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('2')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">2</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('3')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">3</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('=')" class="row-span-2 p-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-sm flex items-center justify-center shadow-lg active:scale-95 transition">=</button>
 
-            <button type="button" onclick="SuiteSalesPOS.calcInput('0')" class="col-span-2 p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">0</button>
-            <button type="button" onclick="SuiteSalesPOS.calcInput('.')" class="p-2 rounded-lg bg-slate-800/90 text-white border border-slate-700">.</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('0')" class="col-span-2 p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">0</button>
+            <button type="button" onclick="SuiteSalesPOS.calcInput('.')" class="p-2 rounded-xl bg-slate-800 text-white border border-slate-700 active:scale-95 transition">.</button>
           </div>
           <div class="flex gap-2 pt-1">
-            <button type="button" onclick="SuiteSalesPOS.pasteCalcToField('price')" class="flex-1 py-1.5 rounded-lg bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[11px] font-bold">إدراج في السعر ↵</button>
-            <button type="button" onclick="SuiteSalesPOS.pasteCalcToField('qty')" class="flex-1 py-1.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold">إدراج في الكمية ↵</button>
+            <button type="button" onclick="SuiteSalesPOS.pasteCalcToField('price')" class="flex-1 py-1.5 rounded-xl bg-sky-500/20 text-sky-300 border border-sky-500/30 text-[11px] font-black active:scale-95 transition">إدراج في السعر ↵</button>
+            <button type="button" onclick="SuiteSalesPOS.pasteCalcToField('qty')" class="flex-1 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-black active:scale-95 transition">إدراج في الكمية ↵</button>
           </div>
         </div>
 
-        <!-- Customer & Meta Section -->
-        <div class="p-3 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2 text-xs">
-          <div>
-            <div class="flex justify-between items-center mb-1">
-              <label class="font-bold text-slate-300"><i class="fa-solid fa-user-tag text-sky-400"></i> العميل (قاعدة البيانات) <span class="text-rose-500">*</span>:</label>
-              <span id="suiteCustBalanceBadge" class="text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">رصيد: 0 SDG</span>
-            </div>
-            <select id="salesCustomerInput" onchange="SuiteSalesPOS.onCustomerChange(this)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold focus:border-sky-400 outline-none transition">
-              <!-- Populated dynamically -->
-            </select>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-[11px] text-slate-400 font-bold mb-1">تاريخ الفاتورة:</label>
-              <input type="date" id="salesInvoiceDate" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-white font-mono text-center outline-none">
-            </div>
-            <div>
-              <label class="block text-[11px] text-slate-400 font-bold mb-1">المندوب / الكاشير:</label>
-              <input type="text" id="salesRepInput" value="حساب الكاشير" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-slate-200 text-center font-bold outline-none">
-            </div>
-          </div>
-        </div>
-
-        <!-- 3. DETAILED ITEM ENTRY FORM (الخانات المطلوبة حرفياً) -->
-        <div class="p-3.5 rounded-2xl border border-amber-500/30 space-y-2.5 text-xs shadow-inner" style="background: rgba(18, 24, 38, 0.9);">
-          <div class="flex justify-between items-center border-b border-slate-700/60 pb-1.5">
-            <span class="font-black text-amber-400 flex items-center gap-1.5 text-sm">
-              <i class="fa-solid fa-layer-group"></i> إضافة صنف (خانات قاعدة البيانات)
+        <!-- ═══════════════════════════════════════════════════════════════
+             3. ITEM ENTRY FORM (خانات قاعدة البيانات مع الإنارة الحركية)
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="p-3.5 rounded-2xl border border-amber-500/30 space-y-3 text-xs shadow-inner" style="background: linear-gradient(180deg, rgba(15,23,42,0.85), rgba(11,15,25,0.95));">
+          <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+            <span class="font-black text-amber-400 flex items-center gap-1.5 text-sm drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">
+              <i class="fa-solid fa-boxes-stacked"></i> بيانات الأصناف والمحاسبة (قاعدة البيانات)
             </span>
-            <span class="text-[10px] text-slate-400 font-mono font-bold">23 صنف متاح</span>
+            <span class="text-[10px] text-slate-400 font-mono font-bold bg-slate-900 px-2 py-0.5 rounded-md border border-slate-800">23 صنف متاح</span>
           </div>
 
           <!-- ROW 1: الصنف + الوحدة -->
           <div class="grid grid-cols-12 gap-2">
             <div class="col-span-8">
               <label class="block text-[11px] text-slate-300 font-bold mb-1">الصنف <span class="text-rose-500">*</span>:</label>
-              <select id="salesItemSelect" onchange="SuiteSalesPOS.onItemSelect(this)" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-white font-bold focus:border-amber-400 outline-none transition text-xs">
+              <select id="salesItemSelect" onchange="SuiteSalesPOS.onItemSelect(this)" class="glow-input-field glow-amber w-full p-2.5 text-white font-bold text-xs outline-none cursor-pointer">
                 <!-- Populated dynamically -->
               </select>
             </div>
             <div class="col-span-4">
               <label class="block text-[11px] text-slate-300 font-bold mb-1">الوحدة:</label>
-              <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-emerald-400 font-bold text-center outline-none text-xs">
+              <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" class="glow-input-field glow-emerald w-full p-2.5 text-emerald-400 font-black text-center text-xs outline-none cursor-pointer">
                 <!-- Dynamically filled per item -->
               </select>
             </div>
@@ -6931,33 +6978,33 @@
           <div class="grid grid-cols-12 gap-2">
             <div class="col-span-5">
               <label class="block text-[11px] text-slate-300 font-bold mb-1">المخزن:</label>
-              <select id="salesWarehouseSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-slate-200 font-bold text-[11px] outline-none">
+              <select id="salesWarehouseSelect" class="glow-input-field glow-purple w-full p-2 text-slate-200 font-bold text-[11px] outline-none cursor-pointer">
                 <!-- Populated dynamically -->
               </select>
             </div>
             <div class="col-span-3">
               <label class="block text-[11px] text-slate-300 font-bold mb-1">الكمية:</label>
-              <input type="number" id="salesQtyInput" value="1" min="0.01" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-bold font-mono text-center text-white focus:border-amber-400 outline-none text-xs" />
+              <input type="number" id="salesQtyInput" value="1" min="0.01" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-cyan w-full p-2 font-black font-mono text-center text-white text-xs outline-none" />
             </div>
             <div class="col-span-4">
               <label class="block text-[11px] text-slate-300 font-bold mb-1">السعر (SDG):</label>
-              <input type="number" id="salesPriceInput" value="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-bold font-mono text-center text-cyan-300 focus:border-cyan-400 outline-none text-xs" />
+              <input type="number" id="salesPriceInput" value="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-cyan w-full p-2 font-black font-mono text-center text-cyan-300 text-xs outline-none" />
             </div>
           </div>
 
           <!-- ROW 3: الخصم + الإضافة + العتالة -->
           <div class="grid grid-cols-3 gap-2">
             <div>
-              <label class="block text-[11px] text-rose-400 font-bold mb-1">الخصم:</label>
-              <input type="number" id="salesDiscountInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-bold font-mono text-center text-rose-400 focus:border-rose-400 outline-none text-xs" />
+              <label class="block text-[11px] text-rose-400 font-bold mb-1 flex items-center gap-1"><i class="fa-solid fa-tag"></i> الخصم:</label>
+              <input type="number" id="salesDiscountInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-rose w-full p-2 font-black font-mono text-center text-rose-400 text-xs outline-none" />
             </div>
             <div>
-              <label class="block text-[11px] text-purple-400 font-bold mb-1">الإضافة:</label>
-              <input type="number" id="salesTaxInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-bold font-mono text-center text-purple-300 focus:border-purple-400 outline-none text-xs" />
+              <label class="block text-[11px] text-purple-400 font-bold mb-1 flex items-center gap-1"><i class="fa-solid fa-percent"></i> الإضافة:</label>
+              <input type="number" id="salesTaxInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-purple w-full p-2 font-black font-mono text-center text-purple-300 text-xs outline-none" />
             </div>
             <div>
-              <label class="block text-[11px] text-amber-400 font-bold mb-1">العتالة:</label>
-              <input type="number" id="salesLaborInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 font-bold font-mono text-center text-amber-300 focus:border-amber-400 outline-none text-xs" />
+              <label class="block text-[11px] text-amber-400 font-bold mb-1 flex items-center gap-1"><i class="fa-solid fa-dolly"></i> العتالة:</label>
+              <input type="number" id="salesLaborInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-amber w-full p-2 font-black font-mono text-center text-amber-300 text-xs outline-none" />
             </div>
           </div>
 
@@ -6965,23 +7012,25 @@
           <div class="grid grid-cols-12 gap-2 pt-1 items-end">
             <div class="col-span-6">
               <label class="block text-[11px] text-emerald-400 font-black mb-1">الجملة (المجموع للصنف):</label>
-              <input type="text" id="salesTotalInput" readonly value="0.00" class="w-full bg-emerald-950/30 border border-emerald-500/40 rounded-xl p-2 font-black font-mono text-center text-emerald-400 text-sm outline-none" />
+              <input type="text" id="salesTotalInput" readonly value="0.00" class="glow-input-field glow-emerald w-full p-2.5 font-black font-mono text-center text-emerald-400 text-sm outline-none" />
             </div>
             <div class="col-span-6">
-              <button type="button" onclick="SuiteSalesPOS.addItemToCart()" class="w-full py-2.5 rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); box-shadow: 0 4px 14px rgba(14,165,233,0.4);">
-                <i class="fa-solid fa-plus-circle"></i> إضافة للصنف
+              <button type="button" onclick="SuiteSalesPOS.addItemToCart()" class="w-full py-2.5 rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition" style="background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 4px 15px rgba(2,132,199,0.45); border: 1px solid rgba(56,189,248,0.4);">
+                <i class="fa-solid fa-plus-circle"></i> إضافة الصنف للفاتورة +
               </button>
             </div>
           </div>
         </div>
 
-        <!-- 4. CART ITEMS LIST (قائمة الأصناف بالفاتورة) -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             4. CART ITEMS LIST (قائمة الأصناف المضافة)
+             ═══════════════════════════════════════════════════════════════ -->
         <div class="space-y-2">
           <div class="flex justify-between items-center px-1">
             <span class="text-xs font-black text-slate-300 flex items-center gap-1.5">
-              <i class="fa-solid fa-list-check text-purple-400"></i> بنود الفاتورة (<span id="suiteCartCount" class="font-mono text-purple-300">0</span>)
+              <i class="fa-solid fa-list-check text-sky-400"></i> بنود الفاتورة (<span id="suiteCartCount" class="font-mono text-sky-300">0</span>)
             </span>
-            <button type="button" onclick="SuiteSalesPOS.clearCart()" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold cursor-pointer">تفريغ السلة 🗑️</button>
+            <button type="button" onclick="SuiteSalesPOS.clearCart()" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold cursor-pointer transition">تفريغ السلة 🗑️</button>
           </div>
 
           <div id="suiteCartItemsContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
@@ -6992,29 +7041,52 @@
           </div>
         </div>
 
-        <!-- 5. PAYMENT METHOD & GRAND TOTAL -->
-        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+        <!-- ═══════════════════════════════════════════════════════════════
+             5. PAYMENT METHODS & NET TOTAL
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5 shadow-md">
           <div>
-            <label class="block text-[11px] text-slate-400 font-bold mb-1.5">طريقة الدفع:</label>
+            <label class="block text-[11px] text-slate-400 font-bold mb-1.5">طريقة السداد المعتمدة:</label>
             <div class="grid grid-cols-4 gap-1.5">
-              <button type="button" onclick="SuiteSalesPOS.setPayMethod('cash')" id="suitePayBtnCash" class="suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-emerald-600 text-white border-emerald-400 shadow-md">نقداً (كاش)</button>
-              <button type="button" onclick="SuiteSalesPOS.setPayMethod('bank')" id="suitePayBtnBank" class="suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800">تحويل بنكك</button>
-              <button type="button" onclick="SuiteSalesPOS.setPayMethod('credit')" id="suitePayBtnCredit" class="suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800">آجل (ديون)</button>
-              <button type="button" onclick="SuiteSalesPOS.setPayMethod('split')" id="suitePayBtnSplit" class="suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800">دفع مجزأ</button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('cash')" id="suitePayBtnCash" class="suite-pay-btn py-2 rounded-xl text-[11px] font-black border transition text-center bg-emerald-600 text-white border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.4)] flex items-center justify-center gap-1"><i class="fa-solid fa-money-bill-wave"></i> نقداً</button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('bank')" id="suitePayBtnBank" class="suite-pay-btn py-2 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex items-center justify-center gap-1"><i class="fa-solid fa-building-columns"></i> بنكك</button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('credit')" id="suitePayBtnCredit" class="suite-pay-btn py-2 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex items-center justify-center gap-1"><i class="fa-solid fa-clock-rotate-left"></i> آجل</button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('split')" id="suitePayBtnSplit" class="suite-pay-btn py-2 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex items-center justify-center gap-1"><i class="fa-solid fa-scissors"></i> مجزأ</button>
             </div>
             <input type="hidden" id="salesPayMethodSelect" value="cash">
           </div>
 
-          <div class="flex justify-between items-center p-3 rounded-xl bg-slate-950 border border-emerald-500/40 shadow-lg">
+          <div class="flex justify-between items-center p-3 rounded-xl bg-slate-950 border border-emerald-500/40 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
             <span class="text-xs font-black text-slate-200">الصافي الكلي النهائي:</span>
-            <span id="suiteGrandTotalDisplay" class="text-lg font-black text-emerald-400 font-mono drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]">0.00 SDG</span>
+            <span id="suiteGrandTotalDisplay" class="text-xl font-black text-emerald-400 font-mono drop-shadow-[0_0_10px_rgba(52,211,153,0.6)]">0.00 SDG</span>
           </div>
         </div>
 
-        <!-- SAVE BUTTON -->
-        <button type="button" onclick="commitOpSales()" class="w-full py-3.5 rounded-2xl font-black text-sm text-white shadow-xl flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 6px 20px rgba(16,185,129,0.45);">
-          <i class="fa-solid fa-check-double"></i> حفظ واعتماد الفاتورة في قاعدة البيانات فوراً
-        </button>
+        <!-- ═══════════════════════════════════════════════════════════════
+             6. ACTION BUTTONS: أزرار الحفظ والطباعة والمعاينة وإذن الصرف
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="space-y-2 pt-1">
+          <!-- Primary Save Button -->
+          <button type="button" onclick="commitOpSales()" class="w-full py-3.5 rounded-2xl font-black text-sm text-white shadow-xl flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition" style="background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 6px 22px rgba(16,185,129,0.45); border: 1px solid rgba(52,211,153,0.5);">
+            <i class="fa-solid fa-check-double text-base"></i> حفظ واعتماد الفاتورة في قاعدة البيانات فوراً
+          </button>
+
+          <!-- 4 Operation / Print / Preview Buttons -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <button type="button" onclick="SuiteSalesPOS.printInvoice()" class="py-2.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-sky-300 border border-sky-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm" title="طباعة الفاتورة">
+              <i class="fa-solid fa-print text-sky-400"></i> طباعة الفاتورة
+            </button>
+            <button type="button" onclick="SuiteSalesPOS.previewInvoice()" class="py-2.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-purple-300 border border-purple-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm" title="معاينة الفاتورة">
+              <i class="fa-solid fa-eye text-purple-400"></i> معاينة
+            </button>
+            <button type="button" onclick="SuiteSalesPOS.printDeliveryNote()" class="py-2.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm" title="طباعة إذن صرف / تسليم">
+              <i class="fa-solid fa-truck-ramp-box text-amber-400"></i> طباعة إذن
+            </button>
+            <button type="button" onclick="SuiteSalesPOS.printCustomerStatement()" class="py-2.5 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm" title="طباعة كشف حساب العميل">
+              <i class="fa-solid fa-file-invoice text-emerald-400"></i> كشف حساب
+            </button>
+          </div>
+        </div>
 
       </div>
     </div>
@@ -9725,7 +9797,10 @@
 
       setDefaultDate() {
         const d = document.getElementById('salesInvoiceDate');
-        if (d && !d.value) d.valueAsDate = new Date();
+        if (d && !d.value) {
+          const now = new Date();
+          d.value = now.toISOString().split('T')[0];
+        }
       },
 
       populateCustomers() {
@@ -9746,7 +9821,7 @@
         const bEl = document.getElementById('suiteCustBalanceBadge');
         if (bEl) {
           bEl.innerText = 'رصيد: ' + bal.toLocaleString() + ' SDG';
-          bEl.className = bal > 0 ? 'text-[10px] text-rose-400 font-mono font-bold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20' : 'text-[10px] text-emerald-400 font-mono font-bold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20';
+          bEl.className = bal > 0 ? 'text-[10px] text-rose-400 font-mono font-black bg-rose-500/10 px-2.5 py-0.5 rounded-lg border border-rose-500/25' : 'text-[10px] text-emerald-400 font-mono font-black bg-emerald-500/10 px-2.5 py-0.5 rounded-lg border border-emerald-500/25';
         }
         if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
       },
@@ -9822,7 +9897,7 @@
       addItemToCart() {
         const sel = document.getElementById('salesItemSelect');
         if (!sel || sel.value === '') {
-          alert('يرجى اختيار صنف من قائمة قاعدة البيانات أولاً.');
+          alert('⚠️ يرجى اختيار صنف من قائمة قاعدة البيانات أولاً.');
           return;
         }
         const it = this.dbItems[sel.value];
@@ -9904,10 +9979,10 @@
         this.cart.forEach((item, idx) => {
           grandTot += item.subtotal;
           html += `
-            <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5 relative overflow-hidden" style="border-right: 3px solid #38bdf8;">
+            <div class="p-3 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1.5 relative overflow-hidden" style="border-right: 3px solid #38bdf8;">
               <div class="flex justify-between items-start">
                 <div>
-                  <span class="font-black text-slate-100 text-xs">${item.name}</span>
+                  <span class="font-black text-slate-100 text-xs sm:text-sm">${item.name}</span>
                   <div class="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5">
                     <span class="text-amber-300 font-bold"><i class="fa-solid fa-scale-balanced"></i> ${item.unit}</span>
                     <span>•</span>
@@ -9915,16 +9990,16 @@
                   </div>
                 </div>
                 <div class="text-right">
-                  <span class="font-black text-emerald-400 font-mono text-xs">${item.subtotal.toLocaleString()} SDG</span>
-                  <button type="button" onclick="SuiteSalesPOS.removeItem(${idx})" class="block mr-auto text-rose-400 hover:text-rose-300 text-[10px] mt-0.5"><i class="fa-solid fa-trash-can"></i> حذف</button>
+                  <span class="font-black text-emerald-400 font-mono text-xs sm:text-sm">${item.subtotal.toLocaleString()} SDG</span>
+                  <button type="button" onclick="SuiteSalesPOS.removeItem(${idx})" class="block mr-auto text-rose-400 hover:text-rose-300 text-[10px] mt-0.5 font-bold"><i class="fa-solid fa-trash-can"></i> حذف</button>
                 </div>
               </div>
 
-              <div class="grid grid-cols-4 gap-1 text-center bg-slate-950/80 rounded-xl p-1 text-[9px] font-mono">
-                <div><span class="text-slate-500 block">الكمية</span><span class="text-white font-bold">${item.qty}</span></div>
-                <div><span class="text-slate-500 block">السعر</span><span class="text-cyan-300 font-bold">${item.price.toLocaleString()}</span></div>
-                <div><span class="text-slate-500 block">الخصم</span><span class="text-rose-400 font-bold">${item.discount.toLocaleString()}</span></div>
-                <div><span class="text-slate-500 block">إضافة/عتالة</span><span class="text-purple-300 font-bold">${(item.tax + item.labor).toLocaleString()}</span></div>
+              <div class="grid grid-cols-4 gap-1 text-center bg-slate-950/90 rounded-xl p-1.5 text-[9px] font-mono">
+                <div><span class="text-slate-500 block">الكمية</span><span class="text-white font-black">${item.qty}</span></div>
+                <div><span class="text-slate-500 block">السعر</span><span class="text-cyan-300 font-black">${item.price.toLocaleString()}</span></div>
+                <div><span class="text-slate-500 block">الخصم</span><span class="text-rose-400 font-black">${item.discount.toLocaleString()}</span></div>
+                <div><span class="text-slate-500 block">إضافة/عتالة</span><span class="text-purple-300 font-black">${(item.tax + item.labor).toLocaleString()}</span></div>
               </div>
             </div>`;
         });
@@ -9936,7 +10011,7 @@
 
       setPayMethod(m) {
         document.querySelectorAll('.suite-pay-btn').forEach(b => {
-          b.className = 'suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800';
+          b.className = 'suite-pay-btn py-2 rounded-xl text-[11px] font-black border transition text-center bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex items-center justify-center gap-1';
         });
         const activeMap = {
           cash: 'suitePayBtnCash',
@@ -9946,7 +10021,7 @@
         };
         const el = document.getElementById(activeMap[m]);
         if (el) {
-          el.className = 'suite-pay-btn py-1.5 rounded-xl text-[11px] font-black border transition text-center bg-emerald-600 text-white border-emerald-400 shadow-md';
+          el.className = 'suite-pay-btn py-2 rounded-xl text-[11px] font-black border transition text-center bg-emerald-600 text-white border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.4)] flex items-center justify-center gap-1';
         }
         const hid = document.getElementById('salesPayMethodSelect');
         if (hid) hid.value = m;
@@ -9996,9 +10071,171 @@
         }
         this.calcItemSubtotal();
         this.toggleCalculator();
+      },
+
+      // 🖨️ PRINT INVOICE (طباعة الفاتورة الرسمية)
+      printInvoice() {
+        const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText || 'S-PRINT';
+        const cust = document.getElementById('salesCustomerInput')?.value || 'عميل نقدي عام';
+        const date = document.getElementById('salesInvoiceDate')?.value || new Date().toISOString().split('T')[0];
+        const payMethod = document.getElementById('salesPayMethodSelect')?.value || 'كاش';
+
+        const items = this.cart.length > 0 ? this.cart : [{
+          name: document.getElementById('salesItemSelect')?.selectedOptions[0]?.text || 'صنف',
+          unit: document.getElementById('salesUnitSelect')?.value || 'حبة',
+          qty: document.getElementById('salesQtyInput')?.value || 1,
+          price: document.getElementById('salesPriceInput')?.value || 0,
+          discount: document.getElementById('salesDiscountInput')?.value || 0,
+          subtotal: parseFloat(document.getElementById('salesTotalInput')?.value?.replace(/,/g, '') || 0)
+        }];
+
+        const grandTotal = items.reduce((acc, it) => acc + (parseFloat(it.subtotal) || 0), 0);
+
+        let rowsHtml = '';
+        items.forEach((it, i) => {
+          rowsHtml += `<tr>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${i + 1}</td>
+            <td style="padding:6px; border:1px solid #ccc; font-weight:bold;">${it.name}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${it.unit}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${it.qty}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${Number(it.price).toLocaleString()}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center;">${Number(it.discount || 0).toLocaleString()}</td>
+            <td style="padding:6px; border:1px solid #ccc; text-align:center; font-weight:bold;">${Number(it.subtotal).toLocaleString()} SDG</td>
+          </tr>`;
+        });
+
+        const printWin = window.open('', '_blank', 'width=800,height=700');
+        printWin.document.write(`
+          <html dir="rtl" lang="ar">
+          <head>
+            <title>فاتورة مبيعات - #${invNo}</title>
+            <style>
+              body { font-family: 'Cairo', Tahoma, sans-serif; padding: 20px; color: #111; }
+              .header { text-align:center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; }
+              table { width:100%; border-collapse:collapse; margin-top:15px; }
+              th { background:#f3f4f6; border:1px solid #ccc; padding:8px; }
+              .total-box { margin-top:20px; padding:10px; background:#f9fafb; border:1px solid #e5e7eb; font-size:1.1rem; font-weight:bold; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h2 style="margin:0;">مؤسسة السجانة لمواد البناء والتجارة</h2>
+              <p style="margin:4px 0; color:#555;">فاتورة مبيعات معتمدة • نظام مقاييس ERP</p>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+              <div><strong>رقم الفاتورة:</strong> #${invNo}</div>
+              <div><strong>التاريخ:</strong> ${date}</div>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+              <div><strong>العميل:</strong> ${cust}</div>
+              <div><strong>طريقة السداد:</strong> ${payMethod}</div>
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>الصنف</th><th>الوحدة</th><th>الكمية</th><th>السعر</th><th>الخصم</th><th>الجملة</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+            <div class="total-box" style="display:flex; justify-content:space-between;">
+              <span>الصافي الكلي:</span>
+              <span>${grandTotal.toLocaleString()} SDG</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-top:40px; text-align:center;">
+              <div>توقيع المستلم: ....................</div>
+              <div>توقيع الكاشير / المسؤول: ....................</div>
+            </div>
+            <script>window.onload = function() { window.print(); }<\/script>
+          </body>
+          </html>
+        `);
+        printWin.document.close();
+      },
+
+      // 👁️ PREVIEW INVOICE (معاينة الفاتورة)
+      previewInvoice() {
+        this.printInvoice();
+      },
+
+      // 📦 PRINT DELIVERY NOTE (طباعة إذن صرف / تسليم GIN)
+      printDeliveryNote() {
+        const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText || 'DEL-PRINT';
+        const cust = document.getElementById('salesCustomerInput')?.value || 'عميل نقدي عام';
+        const date = document.getElementById('salesInvoiceDate')?.value || new Date().toISOString().split('T')[0];
+
+        const items = this.cart.length > 0 ? this.cart : [{
+          name: document.getElementById('salesItemSelect')?.selectedOptions[0]?.text || 'صنف',
+          unit: document.getElementById('salesUnitSelect')?.value || 'حبة',
+          warehouse: document.getElementById('salesWarehouseSelect')?.value || 'المستودع الرئيسي',
+          qty: document.getElementById('salesQtyInput')?.value || 1
+        }];
+
+        let rowsHtml = '';
+        items.forEach((it, i) => {
+          rowsHtml += `<tr>
+            <td style="padding:8px; border:1px solid #ccc; text-align:center;">${i + 1}</td>
+            <td style="padding:8px; border:1px solid #ccc; font-weight:bold;">${it.name}</td>
+            <td style="padding:8px; border:1px solid #ccc; text-align:center;">${it.unit}</td>
+            <td style="padding:8px; border:1px solid #ccc; text-align:center;">${it.warehouse || 'المستودع الرئيسي'}</td>
+            <td style="padding:8px; border:1px solid #ccc; text-align:center; font-weight:bold; font-size:1.1rem;">${it.qty}</td>
+            <td style="padding:8px; border:1px solid #ccc; text-align:center;">[ &nbsp; ] سليم ومطابق</td>
+          </tr>`;
+        });
+
+        const printWin = window.open('', '_blank', 'width=800,height=700');
+        printWin.document.write(`
+          <html dir="rtl" lang="ar">
+          <head>
+            <title>إذن صرف وتسليم بضاعة (GIN)</title>
+            <style>
+              body { font-family: 'Cairo', Tahoma, sans-serif; padding: 20px; color: #111; }
+              .header { text-align:center; border-bottom: 2px dashed #000; padding-bottom: 10px; margin-bottom: 15px; }
+              table { width:100%; border-collapse:collapse; margin-top:15px; }
+              th { background:#f3f4f6; border:1px solid #ccc; padding:8px; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h2 style="margin:0;">إذن صرف بضاعة وتسليم مخزني (GIN)</h2>
+              <p style="margin:4px 0; color:#555;">مؤسسة السجانة لمواد البناء • مستودعات التوزيع</p>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+              <div><strong>رقم الفاتورة المرجعية:</strong> #${invNo}</div>
+              <div><strong>تاريخ الإذن:</strong> ${date}</div>
+            </div>
+            <div style="margin-bottom:10px;">
+              <strong>العميل المستلم / السائق:</strong> ${cust}
+            </div>
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th><th>الصنف</th><th>الوحدة</th><th>المخزن</th><th>الكمية المصروفة</th><th>حالة الاستلام</th>
+                </tr>
+              </thead>
+              <tbody>${rowsHtml}</tbody>
+            </table>
+            <div style="display:flex; justify-content:space-between; margin-top:50px; text-align:center;">
+              <div>توقيع أمين المستودع: ....................</div>
+              <div>توقيع السائق / المستلم: ....................</div>
+            </div>
+            <script>window.onload = function() { window.print(); }<\/script>
+          </body>
+          </html>
+        `);
+        printWin.document.close();
+      },
+
+      // 📑 PRINT CUSTOMER STATEMENT (كشف حساب العميل الحالي)
+      printCustomerStatement() {
+        const cust = document.getElementById('salesCustomerInput')?.value || '';
+        if (typeof triggerStatementForAccount === 'function' && cust) {
+          triggerStatementForAccount(cust, 'عميل', 'حسب الفواتير', 'SDG');
+        } else {
+          alert('جاري إعداد وطباعة كشف الحساب للعميل: ' + (cust || 'المحدد'));
+        }
       }
     };
-
 
     async function commitOpSales() {
       if (window.AppHaptics) AppHaptics.success();
