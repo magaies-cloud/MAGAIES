@@ -8048,87 +8048,76 @@
     <!-- ======================================================== -->
     <!-- GIANT IN-APP SMART ACCOUNTING NUMPAD DRAWER (اللوحة المحاسبية العملاقة) -->
     <!-- ======================================================== -->
-    <div id="accountingNumpadDrawer" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
-      <div class="glass-base w-full max-w-md rounded-t-[36px] rounded-b-2xl border-t-2 border-x border-amber-500/60 p-4 space-y-3 max-h-[92vh] overflow-y-auto shadow-[0_-15px_40px_rgba(245,158,11,0.25)]">
+    <div id="accountingNumpadDrawer" class="hidden fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4">
+      <div class="glass-base w-full max-w-sm rounded-3xl border border-amber-500/60 p-4 space-y-3 shadow-[0_0_40px_rgba(245,158,11,0.25)]">
         
-        <!-- Drawer Handle & Header -->
-        <div class="flex flex-col items-center">
-          <div class="w-12 h-1.5 bg-slate-700 rounded-full mb-2"></div>
-          <div class="w-full flex justify-between items-center pb-2 border-b border-slate-800">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
-                🧮
-              </div>
-              <div>
-                <h3 id="numpadTitle" class="text-sm font-black text-white">الآلة الحاسبة الذكية</h3>
-                <span id="numpadSub" class="text-[11px] text-amber-300 font-bold">حسابات فورية ودقيقة ومزدوجة العملة</span>
-              </div>
+        <!-- Header -->
+        <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
+              🧮
             </div>
-            <button onclick="closeAccountingNumpad()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
+            <div>
+              <h3 id="numpadTitle" class="text-sm font-black text-white">الآلة الحاسبة</h3>
+              <span id="numpadSub" class="text-[10px] text-amber-300 font-bold">مزدوجة العملة</span>
+            </div>
           </div>
+          <button onclick="closeAccountingNumpad()" class="w-8 h-8 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-sm font-bold">✕</button>
         </div>
 
-        <!-- Giant Display Value Screen -->
-        <div class="p-3.5 bg-slate-950/90 rounded-2xl border border-amber-500/40 text-left font-mono space-y-1">
+        <!-- Display Value Screen -->
+        <div class="p-3 bg-slate-950/90 rounded-2xl border border-amber-500/40 text-left font-mono space-y-1">
           <div class="flex justify-between items-center text-xs text-slate-400 font-sans">
-            <span id="numpadTargetLabel">العملية الحسابية:</span>
+            <span id="numpadTargetLabel">العملية:</span>
             <div class="flex items-center gap-1.5">
-              <button onclick="setNumpadCurrency('USD')" id="numpadCurUsd" class="px-2 py-0.5 rounded-lg bg-emerald-500 text-slate-950 text-[11px] font-black">USD $</button>
-              <button onclick="setNumpadCurrency('SDG')" id="numpadCurSdg" class="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 text-[11px] font-bold">ج.س SDG</button>
+              <button onclick="setNumpadCurrency('USD')" id="numpadCurUsd" class="px-2 py-0.5 rounded-lg bg-emerald-500 text-slate-950 text-[10px] font-black">USD $</button>
+              <button onclick="setNumpadCurrency('SDG')" id="numpadCurSdg" class="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300 text-[10px] font-bold">ج.س SDG</button>
             </div>
           </div>
           <!-- Expression / Formula Line -->
-          <div id="numpadExpression" class="text-xs text-slate-400 font-mono tracking-wider min-h-[1.2rem] text-right truncate" dir="ltr"></div>
-          <!-- Giant Display Main Value -->
-          <div id="numpadDisplayValue" class="text-3xl font-black text-amber-300 tracking-tight overflow-x-auto no-scrollbar py-1 text-right" dir="ltr">0</div>
+          <div id="numpadExpression" class="text-xs text-slate-400 font-mono tracking-wider min-h-[1.1rem] text-right truncate" dir="ltr"></div>
+          <!-- Main Value -->
+          <div id="numpadDisplayValue" class="text-3xl font-black text-amber-300 tracking-tight overflow-x-auto no-scrollbar py-0.5 text-right" dir="ltr">0</div>
           <!-- Dual Currency Preview -->
-          <div id="numpadDualPreview" class="text-xs font-bold text-slate-400 text-right">≈ 0 ج.س</div>
+          <div id="numpadDualPreview" class="text-[10px] font-bold text-slate-400 text-right">≈ 0 ج.س</div>
         </div>
 
-        <!-- Multipliers Quick Bar -->
-        <div class="grid grid-cols-4 gap-1.5 text-xs font-bold">
-          <button onclick="numpadAddMultiplier(1000)" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 active:scale-95 transition font-mono">+1,000</button>
-          <button onclick="numpadAddMultiplier(10000)" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 active:scale-95 transition font-mono">+10,000</button>
-          <button onclick="numpadAddMultiplier(50000)" class="py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-slate-700 active:scale-95 transition font-mono">+50,000</button>
-          <button onclick="numpadAddMultiplier(100000)" class="py-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/80 text-amber-300 border border-amber-500/40 active:scale-95 transition font-mono">+100,000</button>
-        </div>
-
-        <!-- Full Smart Calculator Keypad Grid (Standard LTR: 1 2 3 top, 4 5 6 mid, 7 8 9 bot, operators on right) -->
+        <!-- Full Smart Calculator Keypad Grid (Standard LTR: 7 8 9 top, 4 5 6 mid, 1 2 3 bot) -->
         <div class="grid grid-cols-4 gap-2 text-xl font-bold font-mono" dir="ltr">
           <!-- Row 1: AC, Backspace, %, Division ÷ -->
-          <button onclick="numpadClear()" class="py-3 rounded-2xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-500/40 active:scale-95 transition text-base font-bold shadow">AC</button>
-          <button onclick="numpadBackspace()" class="py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 active:scale-95 transition text-lg flex items-center justify-center font-bold shadow">⌫</button>
-          <button onclick="numpadPressPercent()" class="py-3 rounded-2xl bg-indigo-950/60 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/40 active:scale-95 transition text-lg font-bold shadow">%</button>
-          <button onclick="numpadPressOperator('÷')" class="py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-xl font-bold shadow">÷</button>
+          <button onclick="numpadClear()" class="py-2.5 rounded-2xl bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-500/40 active:scale-95 transition text-sm font-bold shadow">AC</button>
+          <button onclick="numpadBackspace()" class="py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 active:scale-95 transition text-lg flex items-center justify-center font-bold shadow">⌫</button>
+          <button onclick="numpadPressPercent()" class="py-2.5 rounded-2xl bg-indigo-950/60 hover:bg-indigo-900 text-indigo-300 border border-indigo-500/40 active:scale-95 transition text-lg font-bold shadow">%</button>
+          <button onclick="numpadPressOperator('÷')" class="py-2.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-xl font-bold shadow">÷</button>
 
-          <!-- Row 2: 1 2 3 × (الواحد محل السبعة، والاثنين محل الثمانية، والثلاثة محل التسعة) -->
-          <button onclick="numpadPressKey('1')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">1</button>
-          <button onclick="numpadPressKey('2')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">2</button>
-          <button onclick="numpadPressKey('3')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">3</button>
-          <button onclick="numpadPressOperator('×')" class="py-3.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-xl font-bold shadow">×</button>
+          <!-- Row 2: 7 8 9 × -->
+          <button onclick="numpadPressKey('7')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-xl">7</button>
+          <button onclick="numpadPressKey('8')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-xl">8</button>
+          <button onclick="numpadPressKey('9')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-xl">9</button>
+          <button onclick="numpadPressOperator('×')" class="py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-xl font-bold shadow">×</button>
 
-          <!-- Row 3: 4 5 6 − (الأربعة محل الأربعة، والخمسة محل الخمسة، والستة محل الستة) -->
-          <button onclick="numpadPressKey('4')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">4</button>
-          <button onclick="numpadPressKey('5')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">5</button>
-          <button onclick="numpadPressKey('6')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">6</button>
-          <button onclick="numpadPressOperator('−')" class="py-3.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-2xl font-bold shadow">−</button>
+          <!-- Row 3: 4 5 6 − -->
+          <button onclick="numpadPressKey('4')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-xl">4</button>
+          <button onclick="numpadPressKey('5')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-xl">5</button>
+          <button onclick="numpadPressKey('6')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-xl">6</button>
+          <button onclick="numpadPressOperator('−')" class="py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-2xl font-bold shadow">−</button>
 
-          <!-- Row 4: 7 8 9 + (السبعة محل الواحد، والثمانية محل الاثنين، والتسعة محل الثلاثة) -->
-          <button onclick="numpadPressKey('7')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">7</button>
-          <button onclick="numpadPressKey('8')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">8</button>
-          <button onclick="numpadPressKey('9')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">9</button>
-          <button onclick="numpadPressOperator('+')" class="py-3.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-2xl font-bold shadow">+</button>
+          <!-- Row 4: 1 2 3 + -->
+          <button onclick="numpadPressKey('1')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-xl">1</button>
+          <button onclick="numpadPressKey('2')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-xl">2</button>
+          <button onclick="numpadPressKey('3')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-xl">3</button>
+          <button onclick="numpadPressOperator('+')" class="py-3 rounded-2xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 active:scale-95 transition text-2xl font-bold shadow">+</button>
 
-          <!-- Row 5: 00 0 . = (إضافة الصفر، النقطة العشرية، ويساوي) -->
-          <button onclick="numpadPressKey('00')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-slate-700 active:scale-95 transition text-lg font-bold shadow">00</button>
-          <button onclick="numpadPressKey('0')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-2xl">0</button>
-          <button onclick="numpadPressKey('.')" class="py-3.5 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition text-2xl shadow">.</button>
-          <button onclick="numpadCalculate()" class="py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-2xl shadow-[0_0_15px_rgba(245,158,11,0.4)] active:scale-95 transition">=</button>
+          <!-- Row 5: 00 0 . = -->
+          <button onclick="numpadPressKey('00')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-cyan-300 border border-slate-700 active:scale-95 transition text-base font-bold shadow">00</button>
+          <button onclick="numpadPressKey('0')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition shadow text-xl">0</button>
+          <button onclick="numpadPressKey('.')" class="py-3 rounded-2xl bg-slate-800/90 hover:bg-slate-700 text-white border border-slate-700 active:scale-95 transition text-xl shadow">.</button>
+          <button onclick="numpadCalculate()" class="py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-2xl shadow-[0_0_15px_rgba(245,158,11,0.4)] active:scale-95 transition">=</button>
         </div>
 
-        <!-- Giant Confirmation Trigger -->
-        <button onclick="numpadConfirm()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-slate-950 font-black text-sm shadow-[0_0_25px_rgba(16,185,129,0.4)] active:scale-95 transition flex items-center justify-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+        <!-- Confirmation Trigger -->
+        <button onclick="numpadConfirm()" class="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 text-slate-950 font-black text-sm shadow-[0_0_20px_rgba(16,185,129,0.3)] active:scale-95 transition flex items-center justify-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
           <span id="numpadConfirmBtnText">تأكيد وترحيل المبلغ ✓</span>
         </button>
 
