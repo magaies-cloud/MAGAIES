@@ -6859,7 +6859,7 @@
         <div class="rounded-2xl p-2.5 space-y-2 border relative overflow-hidden" 
              style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.06);">
           
-          <!-- السطر الأول: 1. مايك -> 2. أيقونة مبيعات -> 3. أيقونة صغيرة للحاسبة -> 4. بقية المساحة لمركز التكلفة مباشرة (بدون علامات وبدون بحث، ويفتح البحث بالنقر) -->
+          <!-- السطر الأول: 1. المايك -> 2. مبيعات -> 3. مركز الكلفة (بكامل المساحة المتسعة) -> 4. أيقونة الآلة الحاسبة في الركن -->
           <div class="flex items-center gap-1.5 w-full">
             
             <!-- 1. أيقونة المايك: مربع زجاجي عصري وفخم -->
@@ -6871,14 +6871,23 @@
               <span id="salesMicPulseDot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></span>
             </button>
 
-            <!-- 2. أيقونة المبيعات: في مربع مضيء أنيق يحيط بكلمة مبيعات كعنوان للصفحة -->
-            <div class="px-2.5 py-1.5 h-9 rounded-xl flex items-center justify-center gap-1 shrink-0" 
-                 style="background: linear-gradient(135deg, rgba(3, 105, 161, 0.4), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(56, 189, 248, 0.85); box-shadow: 0 0 14px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.25);">
-              <i class="fa-solid fa-cart-shopping text-sky-300 text-xs"></i>
-              <h2 class="text-white font-black text-xs sm:text-sm tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap select-none m-0">مبيعات</h2>
+            <!-- 2. مبيعات: في مربع مضيء أنيق ومقتصد الحجم تزيد المساحة الموفرة منه لصالح مركز الكلفة -->
+            <div class="px-2 py-1 h-9 rounded-xl flex items-center justify-center shrink-0" 
+                 style="background: linear-gradient(135deg, rgba(3, 105, 161, 0.4), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(56, 189, 248, 0.85); box-shadow: 0 0 12px rgba(56, 189, 248, 0.4), inset 0 0 6px rgba(56, 189, 248, 0.2);">
+              <h2 class="text-white font-black text-xs tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap select-none m-0" style="color: #ffffff !important;">مبيعات</h2>
             </div>
 
-            <!-- 3. أيقونة صغيرة للآلة الحاسبة -->
+            <!-- 3. مركز الكلفة: يأتي بعد المبيعات مباشرة وبكامل المساحة المتبقية بمرونة تامة (بدون أي علامات وبدون بحث، ويفتح البحث بالنقر) -->
+            <div class="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 overflow-hidden" 
+                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);" 
+                 onclick="SuiteSalesPOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز الكلفة">
+              <div id="suiteCostCenterDisplayName" class="font-bold text-xs truncate text-purple-200 text-center w-full">
+                <span>المركز الرئيسي</span>
+              </div>
+            </div>
+            <input type="hidden" id="salesCostCenterInput" value="المركز الرئيسي">
+
+            <!-- 4. أيقونة الآلة الحاسبة: في الركن الأيسر -->
             <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
                     class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
                     style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
@@ -6886,39 +6895,28 @@
               <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
             </button>
 
-            <!-- 4. بقية المساحة لمركز التكلفة مباشرة بدون أي علامات وبدون علامة بحث (وعند الضغط يفتح البحث) -->
-            <div class="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 overflow-hidden" 
-                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);" 
-                 onclick="SuiteSalesPOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز التكلفة">
-              <div id="suiteCostCenterDisplayName" class="font-bold text-xs truncate text-purple-200 text-center w-full">
-                <span>المركز الرئيسي</span>
-              </div>
-            </div>
-            <input type="hidden" id="salesCostCenterInput" value="المركز الرئيسي">
-
           </div>
 
-          <!-- السطر الثاني: التاريخ ثم رقم السند (بأسهم التنقل الذكية) -->
+          <!-- السطر الثاني: التاريخ ثم رقم السند (بأسهم التنقل الذكية المصغرة) -->
           <div class="flex items-center gap-2 w-full pt-0.5">
             
-            <!-- التاريخ: مربع أنيق مع أيقونة التقويم وتاريخ اليوم المتزامن -->
-            <div class="flex-1 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 transition relative overflow-hidden h-[38px]" 
+            <!-- التاريخ: مساحة مكتوب فيها التاريخ فقط (بدون شعار/أيقونة التاريخ) -->
+            <div class="flex-1 px-2.5 py-1.5 rounded-xl flex items-center justify-center transition relative overflow-hidden h-[36px]" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 8px rgba(56, 189, 248, 0.15);" 
                  title="تاريخ السند / الفاتورة (انقر للتعديل)">
-              <div class="flex items-center gap-1.5 pointer-events-none select-none w-full">
-                <span class="text-cyan-400 shrink-0 text-xs"><i class="fa-solid fa-calendar-days"></i></span>
+              <div class="flex items-center justify-center gap-1.5 pointer-events-none select-none w-full text-center whitespace-nowrap">
                 <span class="text-[10px] text-slate-400 font-bold shrink-0">التاريخ:</span>
-                <span id="opSalesHeaderDatePill" class="text-xs font-mono font-bold text-cyan-200">2026-10-12</span>
+                <span id="opSalesHeaderDatePill" class="text-xs font-mono font-bold text-cyan-200 whitespace-nowrap">2026-10-12</span>
               </div>
               <input type="date" id="salesInvoiceDate" onchange="SuiteSalesPOS.syncHeaderDatePill(this.value)" oninput="SuiteSalesPOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
             </div>
 
-            <!-- رقم السند: مربع أنيق مع سهم يمين وسهم يسار للتنقل -->
-            <div class="flex-1 px-1.5 py-1 rounded-xl flex items-center justify-between gap-1 shadow-sm h-[38px]" 
+            <!-- رقم السند: مساحة مكتوب فيها رقم السند مع تصغير أسهم التنقل -->
+            <div class="flex-1 px-1.5 py-1 rounded-xl flex items-center justify-between gap-1 shadow-sm h-[36px]" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);">
-              <!-- سهم التالي للأحدث -->
+              <!-- سهم التالي للأحدث (مصغر قليلاً) -->
               <button type="button" onclick="SuiteSalesPOS.navigateInvoice('next')" 
-                      class="w-7 h-7 rounded-lg bg-slate-800/90 text-amber-300 hover:text-white hover:bg-amber-600/40 border border-amber-500/30 flex items-center justify-center text-xs transition active:scale-90 shrink-0 cursor-pointer" 
+                      class="w-6 h-6 rounded-lg bg-slate-800/90 text-amber-300 hover:text-white hover:bg-amber-600/40 border border-amber-500/30 flex items-center justify-center text-[10px] transition active:scale-90 shrink-0 cursor-pointer" 
                       title="السند التالي">▶</button>
               
               <div class="flex items-center gap-1 overflow-hidden px-1 text-center justify-center flex-1">
@@ -6926,9 +6924,9 @@
                 <span id="opSalesInvoiceNoPill" class="text-xs font-mono font-black text-amber-300 tracking-wider select-all truncate">S26101012</span>
               </div>
 
-              <!-- سهم السابق للأقدم -->
+              <!-- سهم السابق للأقدم (مصغر قليلاً) -->
               <button type="button" onclick="SuiteSalesPOS.navigateInvoice('prev')" 
-                      class="w-7 h-7 rounded-lg bg-slate-800/90 text-amber-300 hover:text-white hover:bg-amber-600/40 border border-amber-500/30 flex items-center justify-center text-xs transition active:scale-90 shrink-0 cursor-pointer" 
+                      class="w-6 h-6 rounded-lg bg-slate-800/90 text-amber-300 hover:text-white hover:bg-amber-600/40 border border-amber-500/30 flex items-center justify-center text-[10px] transition active:scale-90 shrink-0 cursor-pointer" 
                       title="السند السابق">◀</button>
             </div>
 
