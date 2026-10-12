@@ -6967,10 +6967,10 @@
              style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.3); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);" 
              onclick="SuiteSalesPOS.openCustomerSearch()" title="انقر لتغيير أو بحث العميل بالاسم أو الهاتف">
           
-          <!-- اسم العميل الحالي ناصع البياض مباشرة (بدون كلمة عميل وبدون شعار أو عدسة) -->
+          <!-- اسم العميل الحالي بلون مميز جداً وحجم مكبر درجة (بدون كلمة عميل وبدون شعار أو عدسة) -->
           <div class="flex items-center overflow-hidden flex-1">
-            <div id="suiteCustDisplayName" class="font-black text-xs sm:text-sm truncate" style="color: #ffffff !important;">
-              <span style="color: #ffffff !important;">عميل نقدي عام</span>
+            <div id="suiteCustDisplayName" class="font-black text-sm sm:text-base truncate" style="color: #34d399 !important;">
+              <span style="color: #34d399 !important;">عميل نقدي عام</span>
             </div>
           </div>
 
@@ -10127,7 +10127,7 @@
         // Display ONLY customer name in the main field (no phone here as requested)
         const disp = document.getElementById('suiteCustDisplayName');
         if (disp) {
-          disp.innerHTML = `<span class="font-black text-xs sm:text-sm" style="color: #ffffff !important;">${name}</span>`;
+          disp.innerHTML = `<span class="font-black text-sm sm:text-base" style="color: #34d399 !important;">${name}</span>`;
         }
 
         // Show Statement Button
