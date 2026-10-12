@@ -7211,50 +7211,94 @@
             </div>
           </div>
 
-          <!-- السطر الثالث: الكمية (مصغرة 40%) -> السعر -> الجملة (مساحة مضاعفة للأرقام الكبيرة) -->
-          <div class="grid grid-cols-12 gap-1.5">
-            <!-- 1. الكمية: مصغرة بنسبة 40% لتأخذ (col-span-2) وتكفي الأرقام بدقة -->
-            <div class="col-span-2">
-              <input type="number" id="salesQtyInput" placeholder="كمية" min="0.01" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                     class="glow-input-field glow-cyan w-full h-[38px] font-black font-mono text-center text-white text-[11px] sm:text-xs outline-none placeholder:text-slate-400 placeholder:font-bold px-0.5" 
-                     style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" 
+          <!-- السطر الثالث: الكمية والسعر معاً في سطر واحد بمساحة متساوية وخط بلوط عريض سميك (+4 درجات) -->
+          <div class="grid grid-cols-2 gap-2">
+            <!-- 1. الكمية: مساحة متسعة (50%) وخط بلوط عريض وتكبير 4 درجات -->
+            <div class="relative rounded-2xl p-1.5 flex flex-col justify-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);">
+              <div class="text-[10px] font-black text-sky-400 text-center pb-0.5 pointer-events-none select-none">الكمية</div>
+              <input type="number" id="salesQtyInput" placeholder="1" min="0.01" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
+                     class="w-full h-[36px] font-black font-mono text-center text-white text-base sm:text-lg outline-none placeholder:text-slate-500" 
+                     style="background: transparent !important; color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px;" 
                      inputmode="decimal" title="الكمية" />
             </div>
 
-            <!-- 2. السعر: col-span-4 -->
-            <div class="col-span-4">
-              <input type="number" id="salesPriceInput" placeholder="السعر" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                     class="glow-input-field glow-cyan w-full h-[38px] font-black font-mono text-center text-cyan-300 text-xs sm:text-sm outline-none placeholder:text-slate-400 placeholder:font-bold" 
-                     style="background: rgba(15, 23, 42, 0.92) !important; color: #67e8f9 !important;" 
+            <!-- 2. السعر: مساحة متسعة (50%) وخط بلوط عريض وتكبير 4 درجات -->
+            <div class="relative rounded-2xl p-1.5 flex flex-col justify-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15);">
+              <div class="text-[10px] font-black text-cyan-400 text-center pb-0.5 pointer-events-none select-none">السعر</div>
+              <input type="number" id="salesPriceInput" placeholder="0.00" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
+                     class="w-full h-[36px] font-black font-mono text-center text-cyan-300 text-base sm:text-lg outline-none placeholder:text-slate-500" 
+                     style="background: transparent !important; color: #67e8f9 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px;" 
                      inputmode="decimal" title="السعر" />
-            </div>
-
-            <!-- 3. الجملة: زيادة المساحة إلى النصف (col-span-6) لعرض الأرقام الضخمة والمبالغ المالية بوضوح -->
-            <div class="col-span-6">
-              <input type="text" id="salesTotalInput" readonly placeholder="الجملة" 
-                     class="glow-input-field glow-emerald w-full h-[38px] font-black font-mono text-center text-emerald-400 text-xs sm:text-sm outline-none placeholder:text-slate-400 placeholder:font-bold" 
-                     style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
-                     title="الجملة (المجموع)" />
             </div>
           </div>
 
-          <!-- السطر الرابع: الخصم -> الإضافة -> الإزالة/العتالة -> زر إضافة للصنف -->
-          <div class="grid grid-cols-12 gap-1.5 items-end pt-0.5">
-            <div class="col-span-3">
-              <label class="block text-[10px] text-rose-400 font-bold mb-0.5">الخصم:</label>
-              <input type="number" id="salesDiscountInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-rose w-full p-1.5 font-black font-mono text-center text-rose-400 text-xs outline-none" style="background: rgba(15, 23, 42, 0.92) !important;" />
+          <!-- السطر الرابع: الجملة (تحت السعر والكمية مباشرة، حجم كبير وبارز = السعر × الكمية) -->
+          <div class="rounded-2xl p-2 flex items-center justify-between px-3 shadow-lg relative overflow-hidden" 
+               style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-xs sm:text-sm font-black text-emerald-400 select-none">الجملة:</span>
+              <span class="text-[10px] text-emerald-300/70 select-none">(السعر × الكمية)</span>
             </div>
-            <div class="col-span-3">
-              <label class="block text-[10px] text-purple-400 font-bold mb-0.5">الإضافة:</label>
-              <input type="number" id="salesTaxInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-purple w-full p-1.5 font-black font-mono text-center text-purple-300 text-xs outline-none" style="background: rgba(15, 23, 42, 0.92) !important;" />
+            <div class="flex items-center">
+              <input type="text" id="salesItemGrossTotal" readonly placeholder="0.00" 
+                     class="text-left font-black font-mono text-emerald-300 text-lg sm:text-xl outline-none select-none bg-transparent border-none w-36" 
+                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; text-align: left;" 
+                     title="الجملة (السعر × الكمية)" />
             </div>
-            <div class="col-span-3">
-              <label class="block text-[10px] text-amber-400 font-bold mb-0.5">الإزالة / عتالة:</label>
-              <input type="number" id="salesLaborInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-amber w-full p-1.5 font-black font-mono text-center text-amber-300 text-xs outline-none" style="background: rgba(15, 23, 42, 0.92) !important;" />
+          </div>
+
+          <!-- السطر الخامس: الإضافة -> الخصم -> الإعالة (الكلمات مكتوبة داخل المربعات، بدون كلمة إزالة) -->
+          <div class="grid grid-cols-3 gap-1.5 pt-0.5">
+            <!-- 1. الإضافة: الكلمة مكتوبة داخل المربع -->
+            <div class="relative rounded-xl p-1 text-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
+              <div class="text-[9.5px] font-black text-purple-300 pointer-events-none select-none pb-0.5">الإضافة</div>
+              <input type="number" id="salesTaxInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
+                     class="w-full h-[28px] font-black font-mono text-center text-purple-200 text-xs sm:text-sm outline-none" 
+                     style="background: transparent !important; color: #d8b4fe !important;" 
+                     placeholder="0" title="الإضافة" />
             </div>
-            <div class="col-span-3">
-              <button type="button" onclick="SuiteSalesPOS.addItemToCart()" class="w-full py-2 rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1 cursor-pointer active:scale-95 transition" style="background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 4px 14px rgba(2,132,199,0.45); border: 1px solid rgba(56,189,248,0.4);">
-                <i class="fa-solid fa-plus-circle"></i> إضافة
+
+            <!-- 2. الخصم: الكلمة مكتوبة داخل المربع -->
+            <div class="relative rounded-xl p-1 text-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.45); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
+              <div class="text-[9.5px] font-black text-rose-400 pointer-events-none select-none pb-0.5">الخصم</div>
+              <input type="number" id="salesDiscountInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
+                     class="w-full h-[28px] font-black font-mono text-center text-rose-400 text-xs sm:text-sm outline-none" 
+                     style="background: transparent !important; color: #fb7185 !important;" 
+                     placeholder="0" title="الخصم" />
+            </div>
+
+            <!-- 3. الإعالة: الكلمة مكتوبة داخل المربع (تم إلغاء كلمة الإزالة نهائياً) -->
+            <div class="relative rounded-xl p-1 text-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.45); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
+              <div class="text-[9.5px] font-black text-amber-300 pointer-events-none select-none pb-0.5">الإعالة</div>
+              <input type="number" id="salesLaborInput" value="0" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
+                     class="w-full h-[28px] font-black font-mono text-center text-amber-300 text-xs sm:text-sm outline-none" 
+                     style="background: transparent !important; color: #fcd34d !important;" 
+                     placeholder="0" title="الإعالة (العتالة والخدمات)" />
+            </div>
+          </div>
+
+          <!-- السطر السادس: إجمالي الفاتورة للبند (الجملة + الإضافة - الخصم + الإعالة) وبجواره زر إضافة للصنف -->
+          <div class="grid grid-cols-12 gap-1.5 items-center pt-0.5">
+            <!-- مربع إجمالي الفاتورة: الذي يضم الخصم والإضافة والإعالة -->
+            <div class="col-span-8 rounded-xl p-1 px-2.5 flex items-center justify-between shadow-md" 
+                 style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.3), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);">
+              <div class="text-[11px] font-black text-amber-400 whitespace-nowrap select-none">
+                <span>إجمالي الفاتورة:</span>
+              </div>
+              <input type="text" id="salesTotalInput" readonly placeholder="0.00" 
+                     class="flex-1 text-center font-black font-mono text-amber-300 text-base sm:text-lg outline-none select-none bg-transparent border-none" 
+                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important;" 
+                     title="إجمالي البند شاملاً الإضافة والخصم والإعالة" />
+            </div>
+
+            <!-- زر إضافة للصنف -->
+            <div class="col-span-4">
+              <button type="button" onclick="SuiteSalesPOS.addItemToCart()" 
+                      class="w-full h-[40px] rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition" 
+                      style="background: linear-gradient(135deg, #0284c7, #0369a1); box-shadow: 0 4px 14px rgba(2,132,199,0.45); border: 1px solid rgba(56,189,248,0.5);">
+                <i class="fa-solid fa-plus-circle text-sm"></i>
+                <span>إضافة</span>
               </button>
             </div>
           </div>
@@ -7450,56 +7494,319 @@
       </div>
     </div>
 
-    <!-- OPERATIONAL MODAL: 4. فواتير المشتريات (Purchase Invoice) -->
-    <div id="modalOpPurchase" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
-      <div class="glass-base w-full max-w-md rounded-3xl border border-amber-500/50 p-4 space-y-3.5 max-h-[85vh] overflow-y-auto">
-        <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+    <!-- OPERATIONAL MODAL: 4. فواتير المشتريات (Purchase Invoice) - FLAGSHIP POS PARITY -->
+    <div id="modalOpPurchase" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
+      <div class="glass-base w-full max-w-xl rounded-3xl border border-amber-500/40 p-3.5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #130e06, #030712);">
+        
+        <!-- ═══════════════════════════════════════════════════════════════
+             1. HEADER & INVOICE META MODULE: المربع الموحد للسطر الأول والسطر الثاني
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="rounded-2xl p-2.5 space-y-2 border relative overflow-hidden" 
+             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.06);">
+          
+          <!-- السطر الأول: 1. المايك -> 2. مشتريات -> 3. مركز الكلفة -> 4. أيقونة الآلة الحاسبة في الركن -->
+          <div class="flex items-center gap-1.5 w-full">
+            <button type="button" id="btnPurVoiceMic" onclick="SuitePurchasePOS.toggleVoiceFeed()" 
+                    class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-lg transition-all duration-200 active:scale-90 relative shrink-0 cursor-pointer" 
+                    style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.15)); border: 1.5px solid rgba(245, 158, 11, 0.6); backdrop-filter: blur(8px); box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);" 
+                    title="مايك التسجيل الصوتي الذكي للمشتريات">
+              <i class="fa-solid fa-microphone text-amber-300"></i>
+              <span id="purMicPulseDot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></span>
+            </button>
+
+            <!-- 2. مشتريات -->
+            <div class="px-2 py-1 h-9 rounded-xl flex items-center justify-center shrink-0" 
+                 style="background: linear-gradient(135deg, rgba(217, 119, 6, 0.4), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(245, 158, 11, 0.85); box-shadow: 0 0 12px rgba(245, 158, 11, 0.4), inset 0 0 6px rgba(245, 158, 11, 0.2);">
+              <h2 class="text-white font-black text-xs tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap select-none m-0" style="color: #ffffff !important;">مشتريات</h2>
             </div>
-            <div>
-              <div class="flex items-center gap-2">
-                <h4 id="opPurchaseTitle" class="text-sm font-black text-slate-100">فاتورة مشتريات</h4>
-                <span id="opPurchaseNoPill" class="text-[11px] font-mono font-black text-amber-300 px-2 py-0.5 rounded-lg bg-amber-500/20 border border-amber-500/30">جارِ التوليد...</span>
+
+            <!-- 3. مركز الكلفة -->
+            <div class="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 overflow-hidden" 
+                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);" 
+                 onclick="SuitePurchasePOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز الكلفة">
+              <div id="purCostCenterDisplayName" class="font-bold text-xs truncate text-purple-200 text-center w-full">
+                <span>المركز الرئيسي</span>
               </div>
-              <span class="text-[10px] text-amber-400 font-bold">إثبات توريد وتحديث مديونية المورد</span>
+            </div>
+            <input type="hidden" id="purCostCenterInput" value="المركز الرئيسي">
+
+            <!-- 4. أيقونة الآلة الحاسبة + زر إغلاق -->
+            <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
+                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
+                    style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
+                    title="الآلة الحاسبة الذكية">
+              <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
+            </button>
+            <button type="button" onclick="closeModal('modalOpPurchase')" class="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition active:scale-95 cursor-pointer">✕</button>
+          </div>
+
+          <!-- السطر الثاني: التاريخ -> رقم السند -> سعر الصرف -->
+          <div class="flex items-center gap-1.5 w-full pt-0.5">
+            <!-- 1. التاريخ -->
+            <div class="w-[88px] shrink-0 px-1 py-1 rounded-xl flex items-center justify-center transition relative overflow-hidden h-[34px]" 
+                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 8px rgba(245, 158, 11, 0.15);" 
+                 title="تاريخ فاتورة الشراء">
+              <div class="flex items-center justify-center pointer-events-none select-none w-full text-center whitespace-nowrap">
+                <span id="opPurHeaderDatePill" class="text-[12px] font-mono font-black text-amber-200 tracking-tight whitespace-nowrap" style="color: #fde68a !important;">2026-10-12</span>
+              </div>
+              <input type="date" id="purInvoiceDate" onchange="SuitePurchasePOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
+            </div>
+
+            <!-- 2. رقم التسلسل: بأسهم خفيفة وصغيرة جداً في الأطراف -->
+            <div id="opPurInvoiceSwipeBox" class="flex-1 min-w-0 px-1 py-0.5 rounded-xl flex items-center justify-between shadow-sm h-[34px] cursor-grab active:cursor-grabbing select-none relative overflow-hidden transition-all duration-150" 
+                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.55); box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); touch-action: pan-y;" 
+                 title="اسحب أو مرر يميناً أو يساراً للتنقل">
+              <button type="button" onclick="event.stopPropagation(); SuitePurchasePOS.navigateInvoice('next');" 
+                      class="w-3.5 h-3.5 rounded flex items-center justify-center text-[7.5px] text-amber-400/40 hover:text-amber-300 hover:bg-amber-500/20 transition cursor-pointer select-none shrink-0" 
+                      title="فاتورة الشراء التالية">▶</button>
+              
+              <div class="flex items-center overflow-hidden px-1 text-center justify-center flex-1 min-w-0">
+                <span id="opPurchaseNoPill" class="text-[12.5px] sm:text-xs font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block" style="color: #fcd34d !important;">P26101012</span>
+              </div>
+
+              <button type="button" onclick="event.stopPropagation(); SuitePurchasePOS.navigateInvoice('prev');" 
+                      class="w-3.5 h-3.5 rounded flex items-center justify-center text-[7.5px] text-amber-400/40 hover:text-amber-300 hover:bg-amber-500/20 transition cursor-pointer select-none shrink-0" 
+                      title="فاتورة الشراء السابقة">◀</button>
+            </div>
+
+            <!-- 3. سعر صرف العملة -->
+            <div id="purRateContainer" class="w-[88px] shrink-0 px-1.5 py-0.5 rounded-xl flex items-center justify-between gap-1 shadow-sm h-[34px] transition-all duration-300" 
+                 style="background: linear-gradient(135deg, #064e3b, #042f2e); border: 2px solid #10b981; box-shadow: 0 0 14px rgba(16, 185, 129, 0.6), inset 0 0 8px rgba(16, 185, 129, 0.3);" 
+                 title="سعر صرف العملة (5 خانات)">
+              <input type="text" id="purUsdRateInput" inputmode="decimal" maxlength="5" value="2850" 
+                     class="w-[50px] text-center p-0 m-0 tracking-wider selection:bg-emerald-600 cursor-text" 
+                     style="background: transparent !important; color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 13px !important; letter-spacing: 0.5px !important; border: none !important; outline: none !important; box-shadow: none !important;" 
+                     onchange="SuitePurchasePOS.updateUsdRate(this.value)" 
+                     placeholder="2850" />
+              <button type="button" id="btnPurCurrencyToggle" onclick="SuitePurchasePOS.toggleCurrency()" 
+                      class="w-5 h-5 rounded-md flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-85 select-none" 
+                      style="background: rgba(16, 185, 129, 0.5); border: 1.5px solid #34d399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);" 
+                      title="العملة: دولار ($) - انقر للتحويل إلى جنيه">
+                <span id="purCurrencySymbol" class="text-[11px] font-black leading-none pointer-events-none" style="color: #34d399 !important;">$</span>
+              </button>
             </div>
           </div>
-          <button onclick="closeModal('modalOpPurchase')" class="w-7 h-7 rounded-full bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center">✕</button>
         </div>
 
-        <div class="space-y-2.5 text-xs">
-          <div>
-            <label class="block text-slate-300 font-bold mb-1">اسم المورد:</label>
-            <input type="text" id="purchaseSupplierInput" value="مطاحن الخرطوم للغلال" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white" />
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block text-slate-300 font-bold mb-1">قيمة المشتريات ($):</label>
-              <input type="number" id="purchaseTotalInput" value="4650" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 font-bold font-mono text-amber-400" />
+        <!-- ═══════════════════════════════════════════════════════════════
+             2. SUPPLIER ZONE MODULE: وحدة المورد المستقلة
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="rounded-2xl p-2.5 flex items-center justify-between gap-2 cursor-pointer transition active:scale-[0.99] relative overflow-hidden" 
+             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);" 
+             onclick="SuitePurchasePOS.openSupplierSearch()" title="انقر لتغيير أو بحث المورد">
+          <div class="flex items-center overflow-hidden flex-1">
+            <div id="suiteSupplierDisplayName" class="font-black text-sm sm:text-base truncate" style="color: #f59e0b !important;">
+              <span style="color: #f59e0b !important;">مطاحن الخرطوم للغلال (مورد)</span>
             </div>
-            <div>
-              <label class="block text-slate-300 font-bold mb-1">طريقة السداد:</label>
-              <select id="purchasePayMethodSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-                <option value="credit">آجل 15 يوماً</option>
-                <option value="cash">نقداً من الخزينة</option>
-                <option value="cheque">شيك بنكي مؤجل</option>
+          </div>
+          <div class="shrink-0 flex items-center">
+            <button type="button" onclick="event.stopPropagation(); SuitePurchasePOS.printSupplierStatement();" 
+                    class="px-2.5 py-1 rounded-xl text-[11px] font-black transition active:scale-95 shadow-md flex items-center justify-center gap-1 cursor-pointer" 
+                    style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1.5px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 10px rgba(245, 158, 11, 0.25);" 
+                    title="كشف حساب المورد">
+              <i class="fa-solid fa-file-invoice text-[10px]"></i>
+              <span>كشف</span>
+            </button>
+          </div>
+        </div>
+        <input type="hidden" id="purchaseSupplierInput" value="مطاحن الخرطوم للغلال">
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             3. ITEM ENTRY FORM (الترتيب الدقيق: المخزن -> الصنف -> الكمية والسعر -> الجملة -> الإضافة والخصم والإعالة -> إجمالي الفاتورة)
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="p-3 rounded-2xl border space-y-2.5 text-xs shadow-2xl relative overflow-hidden" 
+             style="background: #03050a; border: 1.5px solid rgba(148, 163, 184, 0.25); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
+          
+          <!-- السطر الأول: المخزن المستلم (40%) وبجواره الملحوظة (60%) -->
+          <div class="grid grid-cols-12 gap-1.5">
+            <div class="col-span-4">
+              <div onclick="SuitePurchasePOS.openWarehouseSearch()" 
+                   class="glow-input-field glow-purple flex items-center justify-center h-[38px] px-1.5 rounded-xl cursor-pointer transition active:scale-[0.98] select-none" 
+                   style="background: rgba(15, 23, 42, 0.92) !important; border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.15);" 
+                   title="انقر لاختيار المستودع المستلم">
+                <span id="suitePurWarehouseDisplayName" class="font-black text-xs truncate text-center text-purple-300">المستودع الرئيسي</span>
+              </div>
+              <input type="hidden" id="purchaseWarehouseSelect" value="المستودع الرئيسي">
+            </div>
+
+            <div class="col-span-8">
+              <div class="relative cursor-pointer" onclick="SuitePurchasePOS.openNotesModal()" title="انقر لفتح لوحة الملحوظة الكبيرة وعرض كامل التفاصيل">
+                <input type="text" id="purNotesInput" placeholder="الملحوظة (انقر للوحة الكبيرة)..." 
+                       class="glow-input-field glow-sky w-full h-[38px] text-white font-medium text-xs outline-none pr-7 pl-2 cursor-pointer placeholder:text-slate-400" 
+                       style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" readonly />
+                <span class="absolute right-2 top-2.5 text-sky-400 text-xs pointer-events-none"><i class="fa-solid fa-expand text-[11px]"></i></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- السطر الثاني: الصنف والوحدة -->
+          <div class="grid grid-cols-12 gap-1.5">
+            <div class="col-span-8">
+              <div onclick="SuitePurchasePOS.openItemSearch()" 
+                   class="glow-input-field glow-amber flex items-center justify-center h-[38px] px-2.5 rounded-xl cursor-pointer transition active:scale-[0.98] select-none" 
+                   style="background: rgba(15, 23, 42, 0.92) !important; border: 1.5px solid rgba(245, 158, 11, 0.55); box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);" 
+                   title="انقر لاختيار الصنف (بحث فوري)">
+                <span id="suitePurItemDisplayName" class="font-bold text-xs sm:text-sm truncate text-center text-amber-300">اختر الصنف...</span>
+              </div>
+              <input type="hidden" id="purItemSelectVal" value="">
+            </div>
+
+            <div class="col-span-4">
+              <select id="purUnitSelect" onchange="SuitePurchasePOS.onUnitChange()" 
+                      class="glow-input-field glow-emerald w-full h-[38px] text-emerald-400 font-black text-center text-xs outline-none cursor-pointer px-1" 
+                      style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
+                      title="الوحدة">
+                <option value="" disabled selected hidden>الوحدة</option>
+                <option value="حبة">حبة</option>
               </select>
             </div>
           </div>
-          <div>
-            <label class="block text-slate-300 font-bold mb-1">المستودع المستلم:</label>
-            <select id="purchaseWarehouseSelect" class="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-white">
-              <option value="المستودع الرئيسي (الخرطوم)">المستودع الرئيسي (الخرطوم)</option>
-              <option value="مخزن صالة المعرض">مخزن صالة المعرض</option>
-            </select>
+
+          <!-- السطر الثالث: الكمية والسعر معاً (50% / 50%) بخط بلوط تخين +4 درجات -->
+          <div class="grid grid-cols-2 gap-2">
+            <div class="relative rounded-2xl p-1.5 flex flex-col justify-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);">
+              <div class="text-[10px] font-black text-sky-400 text-center pb-0.5 pointer-events-none select-none">الكمية</div>
+              <input type="number" id="purQtyInput" placeholder="1" min="0.01" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
+                     class="w-full h-[36px] font-black font-mono text-center text-white text-base sm:text-lg outline-none placeholder:text-slate-500" 
+                     style="background: transparent !important; color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px;" 
+                     inputmode="decimal" title="الكمية" />
+            </div>
+
+            <div class="relative rounded-2xl p-1.5 flex flex-col justify-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15);">
+              <div class="text-[10px] font-black text-cyan-400 text-center pb-0.5 pointer-events-none select-none">السعر</div>
+              <input type="number" id="purPriceInput" placeholder="0.00" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
+                     class="w-full h-[36px] font-black font-mono text-center text-cyan-300 text-base sm:text-lg outline-none placeholder:text-slate-500" 
+                     style="background: transparent !important; color: #67e8f9 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px;" 
+                     inputmode="decimal" title="السعر" />
+            </div>
+          </div>
+
+          <!-- السطر الرابع: الجملة (تحت السعر والكمية مباشرة = السعر × الكمية) -->
+          <div class="rounded-2xl p-2 flex items-center justify-between px-3 shadow-lg relative overflow-hidden" 
+               style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span class="text-xs sm:text-sm font-black text-emerald-400 select-none">الجملة:</span>
+              <span class="text-[10px] text-emerald-300/70 select-none">(السعر × الكمية)</span>
+            </div>
+            <div class="flex items-center">
+              <input type="text" id="purItemGrossTotal" readonly placeholder="0.00" 
+                     class="text-left font-black font-mono text-emerald-300 text-lg sm:text-xl outline-none select-none bg-transparent border-none w-36" 
+                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; text-align: left;" 
+                     title="الجملة (السعر × الكمية)" />
+            </div>
+          </div>
+
+          <!-- السطر الخامس: الإضافة -> الخصم -> الإعالة (الكلمات داخل المربعات، بدون كلمة إزالة) -->
+          <div class="grid grid-cols-3 gap-1.5 pt-0.5">
+            <div class="relative rounded-xl p-1 text-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
+              <div class="text-[9.5px] font-black text-purple-300 pointer-events-none select-none pb-0.5">الإضافة</div>
+              <input type="number" id="purTaxInput" value="0" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
+                     class="w-full h-[28px] font-black font-mono text-center text-purple-200 text-xs sm:text-sm outline-none" 
+                     style="background: transparent !important; color: #d8b4fe !important;" 
+                     placeholder="0" title="الإضافة" />
+            </div>
+
+            <div class="relative rounded-xl p-1 text-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.45); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
+              <div class="text-[9.5px] font-black text-rose-400 pointer-events-none select-none pb-0.5">الخصم</div>
+              <input type="number" id="purDiscountInput" value="0" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
+                     class="w-full h-[28px] font-black font-mono text-center text-rose-400 text-xs sm:text-sm outline-none" 
+                     style="background: transparent !important; color: #fb7185 !important;" 
+                     placeholder="0" title="الخصم" />
+            </div>
+
+            <div class="relative rounded-xl p-1 text-center" style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.45); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
+              <div class="text-[9.5px] font-black text-amber-300 pointer-events-none select-none pb-0.5">الإعالة</div>
+              <input type="number" id="purLaborInput" value="0" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
+                     class="w-full h-[28px] font-black font-mono text-center text-amber-300 text-xs sm:text-sm outline-none" 
+                     style="background: transparent !important; color: #fcd34d !important;" 
+                     placeholder="0" title="الإعالة (العتالة والخدمات)" />
+            </div>
+          </div>
+
+          <!-- السطر السادس: إجمالي الفاتورة للبند وبجواره زر إضافة -->
+          <div class="grid grid-cols-12 gap-1.5 items-center pt-0.5">
+            <div class="col-span-8 rounded-xl p-1 px-2.5 flex items-center justify-between shadow-md" 
+                 style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.3), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 10px rgba(245, 158, 11, 0.2);">
+              <div class="text-[11px] font-black text-amber-400 whitespace-nowrap select-none">
+                <span>إجمالي الفاتورة:</span>
+              </div>
+              <input type="text" id="purTotalInput" readonly placeholder="0.00" 
+                     class="flex-1 text-center font-black font-mono text-amber-300 text-base sm:text-lg outline-none select-none bg-transparent border-none" 
+                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important;" 
+                     title="إجمالي البند شاملاً الإضافة والخصم والإعالة" />
+            </div>
+
+            <div class="col-span-4">
+              <button type="button" onclick="SuitePurchasePOS.addItemToCart()" 
+                      class="w-full h-[40px] rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition" 
+                      style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow: 0 4px 14px rgba(217, 119, 6, 0.45); border: 1px solid rgba(251, 191, 36, 0.5);">
+                <i class="fa-solid fa-plus-circle text-sm"></i>
+                <span>إضافة</span>
+              </button>
+            </div>
           </div>
         </div>
 
-        <button onclick="commitOpPurchase()" class="w-full py-3 bg-gradient-to-r from-amber-600 to-orange-500 text-white rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition cursor-pointer">
-          حفظ الفاتورة وتأكيد إضافة البضاعة للمخزن فوراً ✓
-        </button>
+        <!-- ═══════════════════════════════════════════════════════════════
+             4. CART ITEMS MODULE: بنود فاتورة المشتريات
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="p-2.5 rounded-2xl border space-y-1.5" 
+             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.25); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);">
+          <div class="flex justify-between items-center px-1">
+            <span class="text-xs font-black text-slate-200 flex items-center gap-1.5">
+              <i class="fa-solid fa-list-check text-amber-400"></i> بنود فاتورة المشتريات (<span id="suitePurCartCount" class="font-mono text-amber-300">0</span>)
+            </span>
+            <button type="button" onclick="SuitePurchasePOS.clearCart()" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold cursor-pointer transition">تفريغ السلة 🗑️</button>
+          </div>
+
+          <div id="suitePurCartItemsContainer" class="space-y-1.5 max-h-44 overflow-y-auto pr-1">
+            <div class="text-center py-5 text-slate-500 text-xs bg-slate-900/40 rounded-2xl border border-slate-800/80">
+              <i class="fa-solid fa-cart-shopping text-xl mb-1 block opacity-40"></i>
+              لم يتم إضافة أي صنف لفاتورة الشراء بعد
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             5. PAYMENT & TOTALS MODULE: السداد وإجمالي فاتورة الشراء النهائي
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="p-2.5 rounded-2xl border space-y-2" 
+             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
+          <div>
+            <label class="block text-[10px] text-slate-400 font-bold mb-1">طريقة السداد للمورد:</label>
+            <div class="grid grid-cols-5 gap-1 text-center">
+              <button type="button" onclick="SuitePurchasePOS.setPayMethod('cash')" id="suitePurPayBtnCash" class="suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-amber-600 text-white border-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.4)] flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-money-bill-wave"></i><span>كاش</span></button>
+              <button type="button" onclick="SuitePurchasePOS.setPayMethod('bank')" id="suitePurPayBtnBank" class="suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-building-columns"></i><span>بنكك</span></button>
+              <button type="button" onclick="SuitePurchasePOS.setPayMethod('check')" id="suitePurPayBtnCheck" class="suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-money-check"></i><span>شيكات</span></button>
+              <button type="button" onclick="SuitePurchasePOS.setPayMethod('credit')" id="suitePurPayBtnCredit" class="suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-clock-rotate-left"></i><span>آجل</span></button>
+              <button type="button" onclick="SuitePurchasePOS.setPayMethod('split')" id="suitePurPayBtnSplit" class="suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-scissors"></i><span>مجزأ</span></button>
+            </div>
+            <input type="hidden" id="purchasePayMethodSelect" value="cash">
+          </div>
+
+          <!-- الإجمالي العام النهائي لفاتورة الشراء -->
+          <div class="rounded-2xl p-2.5 flex items-center justify-between border shadow-inner relative overflow-hidden" 
+               style="background: #020408; border: 1.5px solid rgba(245, 158, 11, 0.4);">
+            <div>
+              <span class="text-xs font-black text-slate-300 block">إجمالي الفاتورة العام:</span>
+              <span class="text-[10px] text-amber-400/80 font-mono">الصافي الكلي للمورد</span>
+            </div>
+            <div id="suitePurGrandTotalDisplay" class="text-xl sm:text-2xl font-mono font-black text-amber-300" style="color: #fcd34d !important;">
+              0.00 SDG
+            </div>
+          </div>
+
+          <div class="pt-1">
+            <button type="button" onclick="commitOpPurchase()" 
+                    class="w-full py-3.5 rounded-2xl font-black text-sm text-white shadow-2xl flex items-center justify-center gap-2 cursor-pointer transition active:scale-95" 
+                    style="background: linear-gradient(135deg, #d97706, #b45309); box-shadow: 0 4px 20px rgba(217, 119, 6, 0.5); border: 1.5px solid rgba(251, 191, 36, 0.6);">
+              <i class="fa-solid fa-circle-check text-base"></i>
+              <span>حفظ واعتماد فاتورة المشتريات في قاعدة البيانات فوراً ✓</span>
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -9994,6 +10301,7 @@
       } else if (formType === 'purchaseInvoice') {
         modalId = 'modalOpPurchase';
         fetchMirrorNumbers();
+        setTimeout(() => { if (window.SuitePurchasePOS) SuitePurchasePOS.init(); }, 50);
       } else if (formType === 'purchaseReceive' || formType === 'purchaseReceipt') {
         modalId = 'modalOpReceipt';
         fetchMirrorNumbers();
@@ -10612,12 +10920,20 @@
         const tax = parseFloat(document.getElementById('salesTaxInput')?.value || 0);
         const labor = parseFloat(document.getElementById('salesLaborInput')?.value || 0);
 
-        const sub = Math.max(0, (qty * prc) - disc + tax + labor);
+        // 1. الجملة هي السعر في الكمية
+        const gross = qty * prc;
+        const grossEl = document.getElementById('salesItemGrossTotal');
+        if (grossEl) {
+          grossEl.value = (gross > 0) ? gross.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ((qty > 0 && prc > 0) ? '0.00' : '0.00');
+        }
+
+        // 2. إجمالي الفاتورة للبند = الجملة + الإضافة - الخصم + الإعالة
+        const netTotal = Math.max(0, gross - disc + tax + labor);
         const totInp = document.getElementById('salesTotalInput');
         if (totInp) {
-          totInp.value = (sub > 0) ? sub.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ((qty > 0 && prc > 0) ? '0.00' : '');
+          totInp.value = (netTotal > 0) ? netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ((gross > 0 || tax > 0 || labor > 0) ? '0.00' : '0.00');
         }
-        return sub;
+        return netTotal;
       },
 
       addItemToCart() {
@@ -10735,7 +11051,7 @@
                 <div><span class="text-slate-500 block">الكمية</span><span class="text-white font-black">${item.qty}</span></div>
                 <div><span class="text-slate-500 block">السعر</span><span class="text-cyan-300 font-black">${item.price.toLocaleString()}</span></div>
                 <div><span class="text-slate-500 block">الخصم</span><span class="text-rose-400 font-black">${item.discount.toLocaleString()}</span></div>
-                <div><span class="text-slate-500 block">إضافة/إزالة</span><span class="text-purple-300 font-black">${(item.tax + item.labor).toLocaleString()}</span></div>
+                <div><span class="text-slate-500 block">إضافة/إعالة</span><span class="text-purple-300 font-black">${(item.tax + item.labor).toLocaleString()}</span></div>
               </div>
             </div>`;
         });
@@ -10770,6 +11086,7 @@
       async loadRecentInvoices() {
         try {
           const res = await fetch('api/mirror_sync.php?action=get_recent_sales');
+          if (!res.ok) return;
           const data = await res.json();
           if (data && Array.isArray(data.sales)) {
             this.recentInvoices = data.sales;
@@ -11164,6 +11481,15 @@
           feedback.push(`إضافة: ${tVal.toLocaleString()}`);
         }
 
+        // 9.5 الإعالة (Labor / E'ala)
+        const mLabor = raw.match(/(?:الاعالة|إعالة|اعالة|عتالة|العتالة)\s+([0-9٠-٩]+|[^\s,،]+)/i);
+        if (mLabor && mLabor[1]) {
+          const lVal = parseNum(mLabor[1]);
+          const lInp = document.getElementById('salesLaborInput');
+          if (lInp) lInp.value = lVal;
+          feedback.push(`إعالة: ${lVal.toLocaleString()}`);
+        }
+
         // 10. حساب وتفريغ الجملة (Subtotal)
         const subtotal = this.calcItemSubtotal();
         feedback.push(`الجملة: ${subtotal.toLocaleString()} SDG`);
@@ -11418,6 +11744,287 @@
       }
     };
 
+
+    // ═════════════════════════════════════════════════════════════════════
+    // 📦 SUITE PURCHASE POS ENGINE - DIRECT PARITY WITH SALES POS
+    // ═════════════════════════════════════════════════════════════════════
+    window.SuitePurchasePOS = {
+      cart: [],
+      selectedItemIndex: -1,
+      selectedWarehouse: 'المستودع الرئيسي',
+      selectedCostCenter: 'المركز الرئيسي',
+      currencyMode: 'USD',
+      usdExchangeRate: 2850,
+
+      init() {
+        this.syncHeaderDatePill();
+        this.renderCart();
+      },
+
+      syncHeaderDatePill(val) {
+        const pill = document.getElementById('opPurHeaderDatePill');
+        if (!pill) return;
+        const d = val ? new Date(val) : new Date();
+        pill.innerText = d.toISOString().split('T')[0];
+      },
+
+      toggleCurrency() {
+        this.currencyMode = this.currencyMode === 'USD' ? 'SDG' : 'USD';
+        const sym = document.getElementById('purCurrencySymbol');
+        const rateBox = document.getElementById('purRateContainer');
+        const inp = document.getElementById('purUsdRateInput');
+        const btn = document.getElementById('btnPurCurrencyToggle');
+
+        if (this.currencyMode === 'SDG') {
+          if (sym) {
+            sym.innerText = 'ج.س';
+            sym.style.color = '#fbbf24';
+            sym.className = 'text-amber-300 text-[9px] font-black leading-none pointer-events-none';
+          }
+          if (btn) {
+            btn.style.setProperty('background', 'rgba(245, 158, 11, 0.5)', 'important');
+            btn.style.setProperty('border', '1.5px solid #fbbf24', 'important');
+            btn.style.setProperty('box-shadow', '0 0 8px rgba(251, 191, 36, 0.7)', 'important');
+          }
+          if (rateBox) {
+            rateBox.style.setProperty('background', 'linear-gradient(135deg, #78350f, #451a03)', 'important');
+            rateBox.style.setProperty('border', '2px solid #f59e0b', 'important');
+            rateBox.style.setProperty('box-shadow', '0 0 14px rgba(245, 158, 11, 0.65), inset 0 0 8px rgba(245, 158, 11, 0.35)', 'important');
+          }
+          if (inp) {
+            inp.style.setProperty('color', '#fffbeb', 'important');
+            inp.style.fontFamily = "'Impact', 'Arial Black', sans-serif";
+            inp.style.fontWeight = '900';
+          }
+        } else {
+          if (sym) {
+            sym.innerText = '$';
+            sym.style.color = '#34d399';
+            sym.className = 'text-emerald-300 text-[11px] font-black leading-none pointer-events-none';
+          }
+          if (btn) {
+            btn.style.setProperty('background', 'rgba(16, 185, 129, 0.5)', 'important');
+            btn.style.setProperty('border', '1.5px solid #34d399', 'important');
+            btn.style.setProperty('box-shadow', '0 0 8px rgba(52, 211, 153, 0.7)', 'important');
+          }
+          if (rateBox) {
+            rateBox.style.setProperty('background', 'linear-gradient(135deg, #064e3b, #042f2e)', 'important');
+            rateBox.style.setProperty('border', '2px solid #10b981', 'important');
+            rateBox.style.setProperty('box-shadow', '0 0 14px rgba(16, 185, 129, 0.65), inset 0 0 8px rgba(16, 185, 129, 0.35)', 'important');
+          }
+          if (inp) {
+            inp.style.setProperty('color', '#ffffff', 'important');
+            inp.style.fontFamily = "'Impact', 'Arial Black', sans-serif";
+            inp.style.fontWeight = '900';
+          }
+        }
+      },
+
+      updateUsdRate(val) {
+        const clean = (val || '').toString().slice(0, 5);
+        const num = parseFloat(clean);
+        if (!isNaN(num) && num > 0) {
+          this.usdExchangeRate = num;
+          if (this.cart && this.cart.length > 0) this.renderCart();
+        }
+      },
+
+      openSupplierSearch() {
+        if (window.SuiteSalesPOS) SuiteSalesPOS.openCustomerSearch();
+      },
+
+      openCostCenterSearch() {
+        if (window.SuiteSalesPOS) SuiteSalesPOS.openCostCenterSearch();
+      },
+
+      printSupplierStatement() {
+        const supp = document.getElementById('purchaseSupplierInput')?.value || 'مطاحن الخرطوم للغلال';
+        alert('جاري فتح وطباعة كشف حساب المورد: ' + supp);
+      },
+
+      openWarehouseSearch() {
+        if (window.SuiteSalesPOS) SuiteSalesPOS.openWarehouseSearch();
+      },
+
+      openItemSearch() {
+        if (window.SuiteSalesPOS) SuiteSalesPOS.openItemSearch();
+      },
+
+      openNotesModal() {
+        if (window.SuiteSalesPOS) SuiteSalesPOS.openNotesModal();
+      },
+
+      onUnitChange() {
+        this.calcItemSubtotal();
+      },
+
+      calcItemSubtotal() {
+        const qty = parseFloat(document.getElementById('purQtyInput')?.value || 0);
+        const prc = parseFloat(document.getElementById('purPriceInput')?.value || 0);
+        const disc = parseFloat(document.getElementById('purDiscountInput')?.value || 0);
+        const tax = parseFloat(document.getElementById('purTaxInput')?.value || 0);
+        const labor = parseFloat(document.getElementById('purLaborInput')?.value || 0);
+
+        const gross = qty * prc;
+        const grossEl = document.getElementById('purItemGrossTotal');
+        if (grossEl) {
+          grossEl.value = (gross > 0) ? gross.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ((qty > 0 && prc > 0) ? '0.00' : '0.00');
+        }
+
+        const netTotal = Math.max(0, gross - disc + tax + labor);
+        const totInp = document.getElementById('purTotalInput');
+        if (totInp) {
+          totInp.value = (netTotal > 0) ? netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ((gross > 0 || tax > 0 || labor > 0) ? '0.00' : '0.00');
+        }
+        return netTotal;
+      },
+
+      addItemToCart() {
+        const itIdx = (this.selectedItemIndex !== -1) ? this.selectedItemIndex : (window.SuiteSalesPOS ? SuiteSalesPOS.selectedItemIndex : -1);
+        if (itIdx === -1 || !SuiteSalesPOS.dbItems || !SuiteSalesPOS.dbItems[itIdx]) {
+          alert('⚠️ يرجى اختيار صنف أولاً عبر الضغط على خانة الصنف للبحث.');
+          return;
+        }
+        const it = SuiteSalesPOS.dbItems[itIdx];
+        const name = it.name;
+        const uSel = document.getElementById('purUnitSelect');
+        const unit = uSel ? uSel.value : (it.baseUnit || it.unit || 'حبة');
+        const warehouse = this.selectedWarehouse || document.getElementById('purchaseWarehouseSelect')?.value || 'المستودع الرئيسي';
+        const costCenter = this.selectedCostCenter || 'المركز الرئيسي';
+
+        const qty = parseFloat(document.getElementById('purQtyInput')?.value || 1);
+        const price = parseFloat(document.getElementById('purPriceInput')?.value || 0);
+        const discount = parseFloat(document.getElementById('purDiscountInput')?.value || 0);
+        const tax = parseFloat(document.getElementById('purTaxInput')?.value || 0);
+        const labor = parseFloat(document.getElementById('purLaborInput')?.value || 0);
+        const subtotal = Math.max(0, (qty * price) - discount + tax + labor);
+
+        this.cart.push({
+          id: it.id || ('PUR-ITEM-' + Date.now()),
+          name,
+          unit,
+          warehouse,
+          costCenter,
+          qty,
+          price,
+          discount,
+          tax,
+          labor,
+          subtotal
+        });
+
+        // Reset item inputs
+        this.selectedItemIndex = -1;
+        const disp = document.getElementById('suitePurItemDisplayName');
+        if (disp) disp.innerHTML = '<span class="font-bold text-xs sm:text-sm truncate text-center text-amber-300">اختر الصنف...</span>';
+        const hid = document.getElementById('purItemSelectVal');
+        if (hid) hid.value = '';
+        document.getElementById('purPriceInput').value = '';
+        document.getElementById('purQtyInput').value = '';
+        document.getElementById('purDiscountInput').value = 0;
+        document.getElementById('purTaxInput').value = 0;
+        document.getElementById('purLaborInput').value = 0;
+        document.getElementById('purTotalInput').value = '';
+        if (document.getElementById('purItemGrossTotal')) document.getElementById('purItemGrossTotal').value = '';
+
+        this.renderCart();
+        if (window.AppHaptics) AppHaptics.light();
+      },
+
+      removeItem(idx) {
+        this.cart.splice(idx, 1);
+        this.renderCart();
+      },
+
+      clearCart() {
+        if (this.cart.length === 0) return;
+        if (confirm('هل أنت متأكد من تفريغ كافة بنود فاتورة الشراء؟')) {
+          this.cart = [];
+          this.renderCart();
+        }
+      },
+
+      renderCart() {
+        const box = document.getElementById('suitePurCartItemsContainer');
+        const countEl = document.getElementById('suitePurCartCount');
+        if (countEl) countEl.innerText = this.cart.length;
+        if (!box) return;
+
+        if (this.cart.length === 0) {
+          box.innerHTML = `<div class="text-center py-5 text-slate-500 text-xs bg-slate-900/40 rounded-2xl border border-slate-800/80">
+            <i class="fa-solid fa-cart-shopping text-xl mb-1 block opacity-40"></i>
+            لم يتم إضافة أي صنف لفاتورة الشراء بعد
+          </div>`;
+          const gt = document.getElementById('suitePurGrandTotalDisplay');
+          if (gt) gt.innerText = '0.00 SDG';
+          return;
+        }
+
+        let html = '';
+        let grandTot = 0;
+        this.cart.forEach((item, idx) => {
+          grandTot += item.subtotal;
+          html += `
+            <div class="p-2.5 rounded-2xl bg-slate-900/90 border border-slate-800 space-y-1 relative overflow-hidden" style="border-right: 3px solid #f59e0b;">
+              <div class="flex justify-between items-start">
+                <div>
+                  <span class="font-black text-slate-100 text-xs">${item.name}</span>
+                  <div class="flex items-center gap-1.5 text-[10px] text-slate-400 mt-0.5">
+                    <span class="text-purple-300 font-bold"><i class="fa-solid fa-warehouse"></i> ${item.warehouse}</span>
+                    <span>•</span>
+                    <span class="text-emerald-300 font-bold"><i class="fa-solid fa-scale-balanced"></i> ${item.unit}</span>
+                  </div>
+                </div>
+                <div class="text-right">
+                  <span class="font-black text-amber-400 font-mono text-xs">${item.subtotal.toLocaleString()} SDG</span>
+                  <button type="button" onclick="SuitePurchasePOS.removeItem(${idx})" class="block mr-auto text-rose-400 hover:text-rose-300 text-[10px] mt-0.5 font-bold cursor-pointer"><i class="fa-solid fa-trash-can"></i> حذف</button>
+                </div>
+              </div>
+              <div class="grid grid-cols-4 gap-1 text-center bg-slate-950/90 rounded-xl p-1 text-[9px] font-mono">
+                <div><span class="text-slate-500 block">الكمية</span><span class="text-white font-black">${item.qty}</span></div>
+                <div><span class="text-slate-500 block">السعر</span><span class="text-cyan-300 font-black">${item.price.toLocaleString()}</span></div>
+                <div><span class="text-slate-500 block">الخصم</span><span class="text-rose-400 font-black">${item.discount.toLocaleString()}</span></div>
+                <div><span class="text-slate-500 block">إضافة/إعالة</span><span class="text-purple-300 font-black">${(item.tax + item.labor).toLocaleString()}</span></div>
+              </div>
+            </div>`;
+        });
+
+        box.innerHTML = html;
+        const gt = document.getElementById('suitePurGrandTotalDisplay');
+        if (gt) gt.innerText = grandTot.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' SDG';
+      },
+
+      setPayMethod(m) {
+        document.querySelectorAll('.suite-pur-pay-btn').forEach(b => {
+          b.className = 'suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer';
+          b.style.boxShadow = 'none';
+        });
+        const map = {
+          cash: 'suitePurPayBtnCash',
+          bank: 'suitePurPayBtnBank',
+          check: 'suitePurPayBtnCheck',
+          credit: 'suitePurPayBtnCredit',
+          split: 'suitePurPayBtnSplit'
+        };
+        const active = document.getElementById(map[m]);
+        if (active) {
+          active.className = 'suite-pur-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-amber-600 text-white border-amber-400 flex flex-col items-center justify-center gap-0.5 cursor-pointer';
+          active.style.boxShadow = '0 0 12px rgba(245, 158, 11, 0.4)';
+        }
+        const hid = document.getElementById('purchasePayMethodSelect');
+        if (hid) hid.value = m;
+      },
+
+      toggleVoiceFeed() {
+        if (window.SuiteSalesPOS) SuiteSalesPOS.toggleVoiceFeed();
+      },
+
+      navigateInvoice(dir) {
+        if (window.AppHaptics) AppHaptics.light();
+        alert(dir === 'next' ? 'فاتورة الشراء التالية' : 'فاتورة الشراء السابقة');
+      }
+    };
+
     async function commitOpSales() {
       if (window.AppHaptics) AppHaptics.success();
       const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText || ('S' + Date.now());
@@ -11604,22 +12211,60 @@
 
     async function commitOpPurchase() {
       if (window.AppHaptics) AppHaptics.success();
-      const purNo = document.getElementById('opPurchaseNoPill')?.innerText || '';
-      const supp = document.getElementById('purchaseSupplierInput')?.value || 'مورد نقدي';
-      const tot = parseFloat(document.getElementById('purchaseTotalInput')?.value || 0);
-      const payM = document.getElementById('purchasePayMethodSelect')?.value || 'credit';
+      const purNo = document.getElementById('opPurchaseNoPill')?.innerText || ('P' + Date.now());
+      const supp = document.getElementById('purchaseSupplierInput')?.value || 'مطاحن الخرطوم للغلال';
+      const payM = document.getElementById('purchasePayMethodSelect')?.value || 'cash';
       const wh = document.getElementById('purchaseWarehouseSelect')?.value || 'المستودع الرئيسي';
+      const purDate = document.getElementById('purInvoiceDate')?.value || new Date().toISOString().split('T')[0];
+
+      let items = [];
+      let grandTotal = 0;
+
+      if (window.SuitePurchasePOS && SuitePurchasePOS.cart && SuitePurchasePOS.cart.length > 0) {
+        items = SuitePurchasePOS.cart;
+        grandTotal = items.reduce((acc, it) => acc + (it.subtotal || 0), 0);
+      } else {
+        const itIdx = (window.SuitePurchasePOS && SuitePurchasePOS.selectedItemIndex !== -1) ? SuitePurchasePOS.selectedItemIndex : (window.SuiteSalesPOS ? SuiteSalesPOS.selectedItemIndex : -1);
+        let itName = (itIdx !== -1 && SuiteSalesPOS.dbItems && SuiteSalesPOS.dbItems[itIdx]) ? SuiteSalesPOS.dbItems[itIdx].name : '';
+
+        const qty = parseFloat(document.getElementById('purQtyInput')?.value || 1);
+        const prc = parseFloat(document.getElementById('purPriceInput')?.value || 0);
+        const disc = parseFloat(document.getElementById('purDiscountInput')?.value || 0);
+        const tax = parseFloat(document.getElementById('purTaxInput')?.value || 0);
+        const labor = parseFloat(document.getElementById('purLaborInput')?.value || 0);
+        const uSel = document.getElementById('purUnitSelect');
+        const unit = uSel ? uSel.value : 'حبة';
+        const sub = Math.max(0, (qty * prc) - disc + tax + labor);
+
+        if (!itName && (!window.SuitePurchasePOS || SuitePurchasePOS.cart.length === 0)) {
+          alert('⚠️ يرجى اختيار صنف أولاً عبر الضغط على خانة الصنف للبحث.');
+          return;
+        }
+
+        items = [{
+          name: itName || 'بضاعة مشتريات عامة',
+          unit,
+          warehouse: wh,
+          qty,
+          price: prc,
+          discount: disc,
+          tax,
+          labor,
+          subtotal: sub
+        }];
+        grandTotal = sub;
+      }
 
       const payload = {
         invoiceNo: purNo,
         supplierName: supp,
-        grandTotal: tot,
-        total: tot,
+        grandTotal: grandTotal,
+        total: grandTotal,
         paymentMethod: payM,
         warehouse: wh,
         status: 'completed',
-        date: new Date().toISOString().split('T')[0],
-        items: [{ name: 'مشتريات مواد وبضاعة', qty: 1, price: tot, subtotal: tot }]
+        date: purDate,
+        items: items
       };
 
       if (!navigator.onLine) {
@@ -11644,9 +12289,9 @@
           alert(`⚡ تعذر الاتصال المباشر! تم الحفظ أوفلاين برقم مؤقت: [${offId}]\nستُرحّل تلقائياً فور توفر الشبكة.`);
           closeModal('modalOpPurchase');
         }
-      } catch (err) {
+      } catch(err) {
         const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('purchase', payload) : 'أوفلاين';
-        alert(`⚡ شبكة النت منقطعة! تم حفظ فاتورة المشتريات بالجوال (أوفلاين).\nالرقم المؤقت: [${offId}]\nستُرفع تلقائياً وتأخذ رقمها الرسمي فور عودة الاتصال.`);
+        alert(`⚡ شبكة النت منقطعة! تم حفظ فاتورة المشتريات أوفلاين في الجوال.\nالرقم المؤقت: [${offId}]\nستُرفع تلقائياً فور عودة الاتصال.`);
         closeModal('modalOpPurchase');
       }
     }
