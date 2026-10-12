@@ -7098,50 +7098,58 @@
         <div class="p-3 rounded-2xl border space-y-2.5 text-xs shadow-2xl relative overflow-hidden" 
              style="background: #03050a; border: 1.5px solid rgba(148, 163, 184, 0.25); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- السطر الأول: المخزن (مع خانة بحث) -> الصنف (مع خانة بحث) -> الوحدة -->
+          <!-- السطر الأول: المخزن والصنف فقط (مربعات نظيفة بدون تسميات علوية وبدون شعارات أو أيقونة بحث مع دعم البحث الفوري بالضغط) -->
           <div class="grid grid-cols-12 gap-1.5">
-            <!-- المستودع / المخزن مع بحث -->
-            <div class="col-span-4">
-              <label class="block text-[10px] text-purple-300 font-bold mb-0.5"><i class="fa-solid fa-warehouse"></i> المخزن (بحث):</label>
-              <div class="glow-input-field glow-purple w-full p-2 flex items-center justify-between gap-1 cursor-pointer transition active:scale-[0.99]" onclick="SuiteSalesPOS.openWarehouseSearch()">
-                <span id="suiteWarehouseDisplayName" class="font-bold text-xs text-white truncate">المستودع الرئيسي</span>
-                <span class="text-purple-400/70 text-[10px] shrink-0"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <!-- 1. المستودع / المخزن: اسم المخزن بالداخل فقط وبدون شعار أو علامة بحث مع فتح نافذة البحث بالضغط -->
+            <div class="col-span-5">
+              <div class="glow-input-field glow-purple w-full h-[38px] px-2 flex items-center justify-center cursor-pointer transition active:scale-[0.99] overflow-hidden" 
+                   onclick="SuiteSalesPOS.openWarehouseSearch()" title="انقر لاختيار المخزن">
+                <span id="suiteWarehouseDisplayName" class="font-black text-xs sm:text-sm truncate text-center" style="color: #ffffff !important;">المستودع الرئيسي</span>
               </div>
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- الصنف مع بحث -->
-            <div class="col-span-5">
-              <label class="block text-[10px] text-amber-300 font-bold mb-0.5"><i class="fa-solid fa-layer-group"></i> الصنف (بحث):</label>
-              <div class="glow-input-field glow-amber w-full p-2 flex items-center justify-between gap-1 cursor-pointer transition active:scale-[0.99]" onclick="SuiteSalesPOS.openItemSearch()">
-                <span id="suiteItemDisplayName" class="font-medium text-xs text-slate-400 truncate">اختر الصنف...</span>
-                <span class="text-amber-400/70 text-[10px] shrink-0"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <!-- 2. الصنف: مربع اختيار الصنف بالداخل فقط بدون كتابة في الأعلى وبدون علامة بحث مع فتح نافذة البحث بالضغط -->
+            <div class="col-span-7">
+              <div class="glow-input-field glow-amber w-full h-[38px] px-2 flex items-center justify-center cursor-pointer transition active:scale-[0.99] overflow-hidden" 
+                   onclick="SuiteSalesPOS.openItemSearch()" title="انقر لاختيار الصنف">
+                <span id="suiteItemDisplayName" class="font-bold text-xs sm:text-sm truncate text-center" style="color: #fcd34d !important;">اختر الصنف...</span>
               </div>
               <input type="hidden" id="salesItemSelectVal" value="">
             </div>
+          </div>
 
-            <!-- الوحدة -->
+          <!-- السطر الذي يليه (السطر الأسفل): الوحدة -> الكمية -> السعر -> الجملة (جميع التسميات والقيم بالداخل فقط وبدون تسميات علوية) -->
+          <div class="grid grid-cols-12 gap-1.5">
+            <!-- 1. الوحدة: داخل المربع فقط وبدون تسمية في الأعلى -->
             <div class="col-span-3">
-              <label class="block text-[10px] text-emerald-300 font-bold mb-0.5"><i class="fa-solid fa-scale-balanced"></i> الوحدة:</label>
-              <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" class="glow-input-field glow-emerald w-full p-2 text-emerald-400 font-black text-center text-xs outline-none cursor-pointer" title="الوحدة">
+              <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" 
+                      class="glow-input-field glow-emerald w-full h-[38px] text-emerald-400 font-black text-center text-xs outline-none cursor-pointer px-1" 
+                      title="الوحدة">
+                <option value="" disabled selected hidden>الوحدة</option>
                 <option value="حبة">حبة</option>
               </select>
             </div>
-          </div>
 
-          <!-- السطر الثاني: الكمية -> السعر -> الجملة مجاورة للسعر مباشرة -->
-          <div class="grid grid-cols-12 gap-1.5">
+            <!-- 2. الكمية: مكتوبة بالداخل فقط وبدون تسمية في الأعلى -->
             <div class="col-span-3">
-              <label class="block text-[10px] text-slate-400 font-bold mb-0.5">الكمية:</label>
-              <input type="number" id="salesQtyInput" value="1" min="0.01" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-cyan w-full p-1.5 font-black font-mono text-center text-white text-xs outline-none" />
+              <input type="number" id="salesQtyInput" placeholder="الكمية" min="0.01" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
+                     class="glow-input-field glow-cyan w-full h-[38px] font-black font-mono text-center text-white text-xs outline-none placeholder:text-slate-400 placeholder:font-bold" 
+                     inputmode="decimal" title="الكمية" />
             </div>
-            <div class="col-span-4">
-              <label class="block text-[10px] text-slate-400 font-bold mb-0.5">السعر (SDG):</label>
-              <input type="number" id="salesPriceInput" value="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" class="glow-input-field glow-cyan w-full p-1.5 font-black font-mono text-center text-cyan-300 text-xs outline-none" />
+
+            <!-- 3. السعر: مكتوب بالداخل فقط وبدون تسمية في الأعلى -->
+            <div class="col-span-3">
+              <input type="number" id="salesPriceInput" placeholder="السعر" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
+                     class="glow-input-field glow-cyan w-full h-[38px] font-black font-mono text-center text-cyan-300 text-xs outline-none placeholder:text-slate-400 placeholder:font-bold" 
+                     inputmode="decimal" title="السعر" />
             </div>
-            <div class="col-span-5">
-              <label class="block text-[10px] text-emerald-400 font-black mb-0.5">الجملة (سعر الجملة):</label>
-              <input type="text" id="salesTotalInput" readonly value="0.00" class="glow-input-field glow-emerald w-full p-1.5 font-black font-mono text-center text-emerald-400 text-sm outline-none" />
+
+            <!-- 4. الجملة: مكتوبة بالداخل في السطر الأسفل وبدون تسمية في الأعلى -->
+            <div class="col-span-3">
+              <input type="text" id="salesTotalInput" readonly placeholder="الجملة" 
+                     class="glow-input-field glow-emerald w-full h-[38px] font-black font-mono text-center text-emerald-400 text-xs outline-none placeholder:text-slate-400 placeholder:font-bold" 
+                     title="الجملة (المجموع)" />
             </div>
           </div>
 
@@ -10191,7 +10199,7 @@
         if (hid) hid.value = name;
         const disp = document.getElementById('suiteWarehouseDisplayName');
         if (disp) {
-          disp.innerHTML = `<span class="text-white font-bold text-xs"><i class="fa-solid fa-warehouse text-purple-400 text-[10px]"></i> ${name}</span>`;
+          disp.innerHTML = `<span class="font-black text-xs sm:text-sm truncate text-center" style="color: #ffffff !important;">${name}</span>`;
         }
         this.closeWarehouseSearch();
         if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
@@ -10262,14 +10270,14 @@
 
         const disp = document.getElementById('suiteItemDisplayName');
         if (disp) {
-          disp.innerHTML = `<span class="text-white font-bold text-xs">${it.name}</span>`;
+          disp.innerHTML = `<span class="font-black text-xs sm:text-sm truncate text-center" style="color: #ffffff !important;">${it.name}</span>`;
         }
         const hid = document.getElementById('salesItemSelectVal');
         if (hid) hid.value = idx;
 
         const prc = parseFloat(it.sellingPrice || it.price || 0);
         const pInp = document.getElementById('salesPriceInput');
-        if (pInp) pInp.value = prc;
+        if (pInp) pInp.value = prc > 0 ? prc : '';
         const qInp = document.getElementById('salesQtyInput');
         if (qInp) qInp.value = 1;
 
@@ -10305,7 +10313,9 @@
 
         const sub = Math.max(0, (qty * prc) - disc + tax + labor);
         const totInp = document.getElementById('salesTotalInput');
-        if (totInp) totInp.value = sub.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (totInp) {
+          totInp.value = (sub > 0) ? sub.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ((qty > 0 && prc > 0) ? '0.00' : '');
+        }
         return sub;
       },
 
@@ -10345,15 +10355,20 @@
         // Reset item inputs
         this.selectedItemIndex = -1;
         const disp = document.getElementById('suiteItemDisplayName');
-        if (disp) disp.innerHTML = '<span class="text-slate-400 font-normal">اختر الصنف... (اضغط للبحث)</span>';
+        if (disp) disp.innerHTML = '<span class="font-bold text-xs sm:text-sm truncate text-center" style="color: #fcd34d !important;">اختر الصنف...</span>';
         const hid = document.getElementById('salesItemSelectVal');
         if (hid) hid.value = '';
-        document.getElementById('salesPriceInput').value = 0;
-        document.getElementById('salesQtyInput').value = 1;
+        const uSelReset = document.getElementById('salesUnitSelect');
+        if (uSelReset) {
+          uSelReset.innerHTML = '<option value="" disabled selected hidden>الوحدة</option><option value="حبة">حبة</option>';
+          uSelReset.value = '';
+        }
+        document.getElementById('salesPriceInput').value = '';
+        document.getElementById('salesQtyInput').value = '';
         document.getElementById('salesDiscountInput').value = 0;
         document.getElementById('salesTaxInput').value = 0;
         document.getElementById('salesLaborInput').value = 0;
-        document.getElementById('salesTotalInput').value = '0.00';
+        document.getElementById('salesTotalInput').value = '';
 
         this.renderCart();
         if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
