@@ -1156,11 +1156,14 @@ try {
         box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4) !important;
         transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
     }
+    .ctrl-input:hover, .v-input:hover, .system-currency-select:hover,
     .ctrl-input:focus, .v-input:focus, .system-currency-select:focus {
         background: #020104 !important;
         border-color: #38bdf8 !important;
-        box-shadow: 0 0 10px rgba(56, 189, 248, 0.4), inset 0 1px 2px rgba(0,0,0,0.6) !important;
-        transform: translateY(-1px);
+        box-shadow: 0 0 22px rgba(56, 189, 248, 0.7), inset 0 1px 3px rgba(0,0,0,0.6) !important;
+        transform: scale(1.025) translateY(-1px);
+        position: relative;
+        z-index: 10;
     }
     /* Labels formatting */
     .h-label {

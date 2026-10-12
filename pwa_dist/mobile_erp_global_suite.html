@@ -168,7 +168,80 @@
       box-shadow: 0 0 20px rgba(251, 191, 36, 0.65), inset 0 0 8px rgba(251, 191, 36, 0.3) !important;
     }
 
-    
+    /* ── التوهج التفاعلي الفخم وإضاءة الحواف وتكبير الحجم التلقائي عند التواجد في منطقة الحقل (الكمبيوتر والجوال) ── */
+    .pos-field-interactive {
+      transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.24s ease, border-color 0.24s ease, background 0.24s ease !important;
+      position: relative;
+      will-change: transform, box-shadow;
+    }
+    .pos-field-interactive:hover,
+    .pos-field-interactive:focus-within {
+      transform: scale(1.035) translateY(-1px);
+      z-index: 50 !important;
+    }
+    .pos-field-customer:hover,
+    .pos-field-customer:focus-within {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.85), inset 0 0 12px rgba(56, 189, 248, 0.35) !important;
+    }
+    .pos-field-warehouse:hover,
+    .pos-field-warehouse:focus-within {
+      border-color: #d8b4fe !important;
+      box-shadow: 0 0 30px rgba(192, 132, 252, 0.9), inset 0 0 12px rgba(192, 132, 252, 0.4) !important;
+    }
+    .pos-field-note:hover,
+    .pos-field-note:focus-within {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.9), inset 0 0 12px rgba(56, 189, 248, 0.4) !important;
+    }
+    .pos-field-item:hover,
+    .pos-field-item:focus-within {
+      border-color: #fde047 !important;
+      box-shadow: 0 0 34px rgba(251, 191, 36, 0.95), inset 0 0 14px rgba(251, 191, 36, 0.45) !important;
+    }
+    .pos-field-unit:hover,
+    .pos-field-unit:focus-within {
+      border-color: #34d399 !important;
+      box-shadow: 0 0 28px rgba(52, 211, 153, 0.85), inset 0 0 12px rgba(52, 211, 153, 0.4) !important;
+    }
+    .pos-field-qty:hover,
+    .pos-field-qty:focus-within {
+      border-color: #38bdf8 !important;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.9), inset 0 0 12px rgba(56, 189, 248, 0.4) !important;
+    }
+    .pos-field-price:hover,
+    .pos-field-price:focus-within {
+      border-color: #22d3ee !important;
+      box-shadow: 0 0 30px rgba(34, 211, 238, 0.9), inset 0 0 12px rgba(34, 211, 238, 0.4) !important;
+    }
+    .pos-field-gross:hover,
+    .pos-field-gross:focus-within {
+      border-color: #34d399 !important;
+      box-shadow: 0 0 36px rgba(16, 185, 129, 0.95), inset 0 0 16px rgba(52, 211, 153, 0.45) !important;
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.55), rgba(15, 23, 42, 0.98)) !important;
+    }
+    .pos-field-discount:hover,
+    .pos-field-discount:focus-within {
+      border-color: #fb7185 !important;
+      box-shadow: 0 0 32px rgba(251, 113, 133, 0.95), inset 0 0 14px rgba(251, 113, 133, 0.45) !important;
+    }
+    .pos-field-tax:hover,
+    .pos-field-tax:focus-within {
+      border-color: #c084fc !important;
+      box-shadow: 0 0 28px rgba(192, 132, 252, 0.85), inset 0 0 12px rgba(192, 132, 252, 0.4) !important;
+    }
+    .pos-field-labor:hover,
+    .pos-field-labor:focus-within {
+      border-color: #fbbf24 !important;
+      box-shadow: 0 0 28px rgba(251, 191, 36, 0.85), inset 0 0 12px rgba(251, 191, 36, 0.4) !important;
+    }
+    .pos-field-total:hover,
+    .pos-field-total:focus-within {
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 38px rgba(245, 158, 11, 0.95), inset 0 0 16px rgba(245, 158, 11, 0.45) !important;
+      background: linear-gradient(135deg, rgba(120, 53, 15, 0.55), rgba(15, 23, 42, 0.98)) !important;
+    }
+
     /* Ultra-Smooth Mobile GPU Acceleration & Ergonomic Performance */
     @media (max-width: 768px) {
       .glass-base {
@@ -6850,7 +6923,7 @@
 
         <!-- OPERATIONAL MODAL: 1. فاتورة مبيعات (Sales Invoice) - USER CUSTOMIZED FLOW -->
     <div id="modalOpSales" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
-      <div class="glass-base w-full max-w-xl rounded-3xl border border-sky-500/40 p-3.5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #0b1120, #030712);">
+      <div class="glass-base w-full max-w-xl sm:max-w-[700px] rounded-3xl border border-sky-500/40 p-3.5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #0b1120, #030712);">
         
         <!-- ═══════════════════════════════════════════════════════════════
              1. HEADER & INVOICE META MODULE: المربع الموحد للسطر الأول والسطر الثاني
@@ -6990,7 +7063,7 @@
              2. CUSTOMER ZONE MODULE: وحدة العميل المستقلة بالتباين العالي
              (يكتب "عميل" باللون الرمادي الخفيف + اسم العميل + في الركن مربع صغير أنيق يسمى "كشف")
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 flex items-center justify-between gap-2 cursor-pointer transition active:scale-[0.99] relative overflow-hidden" 
+        <div class="rounded-2xl p-2.5 flex items-center justify-between gap-2 cursor-pointer transition active:scale-[0.99] relative overflow-hidden pos-field-interactive pos-field-customer" 
              style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.3); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);" 
              onclick="SuiteSalesPOS.openCustomerSearch()" title="انقر لتغيير أو بحث العميل بالاسم أو الهاتف">
           
@@ -7170,43 +7243,43 @@
         <div class="p-2 sm:p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-hidden" 
              style="background: #03050a; border: 1.5px solid rgba(148, 163, 184, 0.25); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- السطر الأول (تحت الاسم مباشرة): المخزن والملحوظة بمساحة عرض مكبرة -->
+          <!-- السطر الأول (تحت الاسم مباشرة): المخزن والملحوظة بمساحة عرض مكبرة وتوهج تفاعلي متقدم -->
           <div class="grid grid-cols-12 gap-1.5">
-            <!-- 1. المستودع / المخزن: مساحة عرض مريحة وأنيقة (col-span-4) -->
-            <div class="col-span-4">
-              <div class="glow-input-field glow-purple w-full h-[42px] px-2 flex items-center justify-center cursor-pointer transition active:scale-[0.99] overflow-hidden rounded-xl" 
+            <!-- 1. المستودع / المخزن: مساحة عرض مريحة وأنيقة (col-span-4 sm:col-span-5) مع زيادة العرض والارتفاع 20% على الكمبيوتر -->
+            <div class="col-span-4 sm:col-span-5">
+              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[42px] sm:h-[50px] px-2 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
                    onclick="SuiteSalesPOS.openWarehouseSearch()" title="انقر لاختيار المخزن">
-                <span id="suiteWarehouseDisplayName" class="font-black text-xs sm:text-sm truncate text-center" style="color: #ffffff !important;">المستودع الرئيسي</span>
+                <span id="suiteWarehouseDisplayName" class="font-black text-xs sm:text-base truncate text-center" style="color: #ffffff !important;">المستودع الرئيسي</span>
               </div>
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- 2. الملحوظة: مساحة عرض واسعة ومكبرة مع إمكانية فتح اللوحة العملاقة (col-span-8) -->
-            <div class="col-span-8 relative">
+            <!-- 2. الملحوظة: مساحة عرض واسعة ومكبرة مع إمكانية فتح اللوحة العملاقة (col-span-8 sm:col-span-7) -->
+            <div class="col-span-8 sm:col-span-7 relative">
               <input type="text" id="salesNotesInput" placeholder="الملحوظة (انقر للوحة المكبرة)..." 
                      onclick="SuiteSalesPOS.openNotesModal()" 
-                     class="glow-input-field glow-cyan w-full h-[42px] pr-3 pl-7 font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-normal text-right cursor-pointer truncate rounded-xl" 
+                     class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[42px] sm:h-[50px] pr-3 pl-7 font-bold text-xs sm:text-base text-white outline-none placeholder:text-slate-400 placeholder:font-normal text-right cursor-pointer truncate rounded-xl" 
                      style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" 
                      title="انقر لتكبير واستعراض كامل الملحوظة في لوحة مخصصة" readonly />
-              <span class="absolute left-2.5 top-3.5 text-cyan-400/60 pointer-events-none text-[11px]"><i class="fa-solid fa-expand"></i></span>
+              <span class="absolute left-2.5 top-3.5 sm:top-4 text-cyan-400/60 pointer-events-none text-[11px] sm:text-xs"><i class="fa-solid fa-expand"></i></span>
             </div>
           </div>
 
-          <!-- السطر الثاني: الصنف والوحدة بمساحة عرض مكبرة وخط عريض واضح وبمستوى متناسق 42px -->
+          <!-- السطر الثاني: الصنف والوحدة بمساحة عرض مكبرة وخط عريض واضح وبمستوى متناسق (+20% على الكمبيوتر) -->
           <div class="grid grid-cols-12 gap-1.5">
-            <!-- 1. الصنف: مساحة عرض مكبرة ومريحة مع خط عريض بارز -->
+            <!-- 1. الصنف: مساحة عرض مكبرة ومريحة مع خط عريض بارز وتوهج تفاعلي نيون -->
             <div class="col-span-8">
-              <div class="glow-input-field glow-amber w-full h-[42px] px-3 flex items-center justify-center cursor-pointer transition active:scale-[0.99] overflow-hidden rounded-xl" 
+              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[42px] sm:h-[50px] px-3 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
                    onclick="SuiteSalesPOS.openItemSearch()" title="انقر لاختيار الصنف">
-                <span id="suiteItemDisplayName" class="font-black text-sm sm:text-base truncate text-center tracking-wide" style="color: #fcd34d !important;">اختر الصنف...</span>
+                <span id="suiteItemDisplayName" class="font-black text-sm sm:text-lg truncate text-center tracking-wide" style="color: #fcd34d !important;">اختر الصنف...</span>
               </div>
               <input type="hidden" id="salesItemSelectVal" value="">
             </div>
 
-            <!-- 2. الوحدة: مساحة مكبرة بخط واضح بجوار الصنف بنفس الارتفاع 42px -->
+            <!-- 2. الوحدة: مساحة مكبرة بخط واضح بجوار الصنف بنفس الارتفاع المتناسق -->
             <div class="col-span-4">
               <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald w-full h-[42px] text-emerald-400 font-black text-center text-xs sm:text-sm outline-none cursor-pointer px-1.5 rounded-xl" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[42px] sm:h-[50px] text-emerald-400 font-black text-center text-xs sm:text-base outline-none cursor-pointer px-1.5 rounded-xl" 
                       style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
                       title="الوحدة">
                 <option value="" disabled selected hidden>الوحدة</option>
@@ -7215,71 +7288,71 @@
             </div>
           </div>
 
-          <!-- السطر الثالث: الكمية والسعر - بنفس ارتفاع الإضافة والخصم والعطالة وبداخل المربع رمادي يختفي عند الكتابة -->
+          <!-- السطر الثالث: الكمية والسعر - بنفس ارتفاع الإضافة والخصم والعطالة وتوهج وتكبير عند التواجد -->
           <div class="grid grid-cols-2 gap-2">
-            <!-- 1. الكمية: كتابة الكلمة داخل المربع بلون رمادي وتختفي عند كتابة الرقم -->
-            <div class="relative rounded-xl overflow-hidden flex items-center justify-center" 
+            <!-- 1. الكمية: كتابة الكلمة داخل المربع بلون رمادي وتختفي عند كتابة الرقم وتكبر وتتوهج عند التواجد -->
+            <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-qty" 
                  style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);">
               <input type="number" id="salesQtyInput" placeholder="الكمية" min="0.01" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                     class="w-full h-[38px] font-black font-mono text-center text-white text-base outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:font-sans" 
+                     class="w-full h-[38px] sm:h-[46px] font-black font-mono text-center text-white text-base sm:text-lg outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:font-sans" 
                      style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px;" 
                      inputmode="decimal" title="الكمية" />
             </div>
 
-            <!-- 2. السعر: كتابة الكلمة داخل المربع بلون رمادي وتختفي عند كتابة الرقم -->
-            <div class="relative rounded-xl overflow-hidden flex items-center justify-center" 
+            <!-- 2. السعر: كتابة الكلمة داخل المربع بلون رمادي وتختفي عند كتابة الرقم وتكبر وتتوهج عند التواجد -->
+            <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-price" 
                  style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15);">
               <input type="number" id="salesPriceInput" placeholder="السعر" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                     class="w-full h-[38px] font-black font-mono text-center text-cyan-300 text-base outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:font-sans" 
+                     class="w-full h-[38px] sm:h-[46px] font-black font-mono text-center text-cyan-300 text-base sm:text-lg outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:font-sans" 
                      style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px;" 
                      inputmode="decimal" title="السعر" />
             </div>
           </div>
 
-          <!-- السطر الرابع: الجملة (بمستوى متناسق مع الحقول ومكتوبة في المنتصف بلون خفيف وتختفي عند ظهور الأرقام) -->
-          <div class="w-full h-[42px] rounded-xl flex items-center justify-center px-3 shadow-lg relative overflow-hidden" 
+          <!-- السطر الرابع: الجملة (بمستوى متناسق مع الحقول ومكتوبة في المنتصف بلون خفيف مع زيادة 20% على الكمبيوتر وتوهج زمردي) -->
+          <div class="w-full h-[42px] sm:h-[50px] rounded-xl flex items-center justify-center px-3 shadow-lg relative overflow-hidden pos-field-interactive pos-field-gross" 
                style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
             <input type="text" id="salesItemGrossTotal" readonly placeholder="الجملة" 
-                   class="w-full text-center font-black font-mono text-emerald-300 text-base sm:text-lg outline-none select-none bg-transparent border-none placeholder:text-emerald-400/60 placeholder:font-bold placeholder:font-sans" 
+                   class="w-full text-center font-black font-mono text-emerald-300 text-base sm:text-xl outline-none select-none bg-transparent border-none placeholder:text-emerald-400/60 placeholder:font-bold placeholder:font-sans cursor-default" 
                    style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px;" 
                    title="الجملة" />
           </div>
 
-          <!-- السطر الخامس: الإضافة -> الخصم -> العطالة (مكتوبة في المنتصف بلون خفيف وبنفس ارتفاع السعر والكمية) -->
+          <!-- السطر الخامس: الإضافة -> الخصم -> العطالة (مكتوبة في المنتصف بلون خفيف وتكبر وتتوهج عند التواجد) -->
           <div class="grid grid-cols-3 gap-1.5 pt-0.5">
-            <!-- 1. الإضافة: مكتوبة في المنتصف -->
-            <div class="relative rounded-xl overflow-hidden flex items-center justify-center" 
+            <!-- 1. الإضافة: مكتوبة في المنتصف وتتوهج عند التواجد -->
+            <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax" 
                  style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
               <input type="number" id="salesTaxInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                     class="w-full h-[38px] font-black font-mono text-center text-purple-200 text-sm sm:text-base outline-none placeholder:text-purple-300/60 placeholder:font-bold placeholder:font-sans" 
+                     class="w-full h-[38px] sm:h-[46px] font-black font-mono text-center text-purple-200 text-sm sm:text-base outline-none placeholder:text-purple-300/60 placeholder:font-bold placeholder:font-sans" 
                      style="background: transparent !important; color: #d8b4fe !important;" 
                      placeholder="الإضافة" inputmode="decimal" title="الإضافة" />
             </div>
 
-            <!-- 2. الخصم: مكتوبة في المنتصف -->
-            <div class="relative rounded-xl overflow-hidden flex items-center justify-center" 
+            <!-- 2. الخصم: مكتوبة في المنتصف وتتوهج وتكبر بنسبة 20% على الكمبيوتر -->
+            <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount" 
                  style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.45); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
               <input type="number" id="salesDiscountInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                     class="w-full h-[38px] font-black font-mono text-center text-rose-400 text-sm sm:text-base outline-none placeholder:text-rose-400/60 placeholder:font-bold placeholder:font-sans" 
+                     class="w-full h-[38px] sm:h-[46px] font-black font-mono text-center text-rose-400 text-sm sm:text-base outline-none placeholder:text-rose-400/60 placeholder:font-bold placeholder:font-sans" 
                      style="background: transparent !important; color: #fb7185 !important;" 
                      placeholder="الخصم" inputmode="decimal" title="الخصم" />
             </div>
 
-            <!-- 3. العطالة: مكتوبة في المنتصف -->
-            <div class="relative rounded-xl overflow-hidden flex items-center justify-center" 
+            <!-- 3. العطالة: مكتوبة في المنتصف وتتوهج عند التواجد -->
+            <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor" 
                  style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.45); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
               <input type="number" id="salesLaborInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                     class="w-full h-[38px] font-black font-mono text-center text-amber-300 text-sm sm:text-base outline-none placeholder:text-amber-400/60 placeholder:font-bold placeholder:font-sans" 
+                     class="w-full h-[38px] sm:h-[46px] font-black font-mono text-center text-amber-300 text-sm sm:text-base outline-none placeholder:text-amber-400/60 placeholder:font-bold placeholder:font-sans" 
                      style="background: transparent !important; color: #fcd34d !important;" 
                      placeholder="العطالة" inputmode="decimal" title="العطالة" />
             </div>
           </div>
 
-          <!-- السطر السادس: حقل الإجمالي بمستوى الجملة تماماً وبالعرض الكامل ومكتوب في المنتصف -->
-          <div class="w-full h-[42px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden" 
+          <!-- السطر السادس: حقل الإجمالي بمستوى الجملة تماماً وبالعرض الكامل وتوهج ذهبي وتكبير عند التواجد -->
+          <div class="w-full h-[42px] sm:h-[50px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
                style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);">
             <input type="text" id="salesTotalInput" readonly placeholder="الإجمالي" 
-                   class="w-full text-center font-black font-mono text-amber-300 text-base sm:text-lg outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-bold placeholder:font-sans" 
+                   class="w-full text-center font-black font-mono text-amber-300 text-base sm:text-xl outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-bold placeholder:font-sans cursor-default" 
                    style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px;" 
                    title="الإجمالي" />
           </div>
