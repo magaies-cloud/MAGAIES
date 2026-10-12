@@ -6853,38 +6853,96 @@
       <div class="glass-base w-full max-w-xl rounded-3xl border border-sky-500/40 p-3.5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #0b1120, #030712);">
         
         <!-- ═══════════════════════════════════════════════════════════════
-             1. HEADER: شريط علوي أنيق (مايك لتغذية الخانات + مبيعات + تاريخ + رقم المبيعات مع أسهم + الحاسبة + خروج)
+             1. HEADER & INVOICE META MODULE: المربع الموحد للسطر الأول والسطر الثاني
+             (خلفية سوداء فاخرة متباينة مع حواف زجاجية مضيئة بتناسق وتركيز بصري فائق)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="px-2.5 py-1.5 rounded-2xl flex items-center justify-between gap-1.5 relative overflow-hidden" style="background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.9)); border: 1.5px solid rgba(56,189,248,0.35); box-shadow: 0 0 16px rgba(56,189,248,0.18);">
-          <!-- مايك لتغذية الخانات بالصوت + مبيعات -->
-          <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" id="btnSalesVoiceMic" onclick="SuiteSalesPOS.toggleVoiceFeed()" class="w-7 h-7 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white flex items-center justify-center text-xs shadow-md transition active:scale-90 relative" title="مايك التسجيل الصوتي لتغذية وتفريغ الخانات">
-              <i class="fa-solid fa-microphone"></i>
+        <div class="rounded-2xl p-2.5 space-y-2 border relative overflow-hidden" 
+             style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.06);">
+          
+          <!-- السطر الأول: المايك (زجاجي عصري مسحوب يمين) -> مبيعات (مربع مضيء ناصع مسحوب يمين) -> مركز الكلفة -> الآلة الحاسبة -> زر الإغلاق ✕ -->
+          <div class="flex items-center gap-1.5 w-full">
+            
+            <!-- 1. أيقونة المايك: مربع زجاجي عصري فخم ومسحوب يمين قليلاً -->
+            <button type="button" id="btnSalesVoiceMic" onclick="SuiteSalesPOS.toggleVoiceFeed()" 
+                    class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-lg transition-all duration-200 active:scale-90 relative shrink-0 cursor-pointer" 
+                    style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(2, 132, 199, 0.15)); border: 1.5px solid rgba(56, 189, 248, 0.6); backdrop-filter: blur(8px); box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);" 
+                    title="مايك التسجيل الصوتي الذكي لتغذية وتفريغ الخانات">
+              <i class="fa-solid fa-microphone text-sky-300"></i>
               <span id="salesMicPulseDot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></span>
             </button>
-            <span class="text-xs sm:text-sm font-black text-white whitespace-nowrap">مبيعات</span>
-          </div>
 
-          <!-- التاريخ (عرض التاريخ في السطر الأول) -->
-          <div class="flex items-center bg-slate-900/90 border border-slate-700/80 px-2 py-0.5 rounded-xl cursor-pointer hover:border-sky-500/50 transition shrink-0" onclick="document.getElementById('salesInvoiceDate')?.focus()" title="التاريخ">
-            <span class="text-[9px] text-cyan-400 ml-1"><i class="fa-solid fa-calendar-day"></i></span>
-            <span id="opSalesHeaderDatePill" class="text-[11px] font-mono font-bold text-slate-200">2026-10-12</span>
-          </div>
+            <!-- 2. مبيعات: في مربع مضيء يحيط بكلمة مبيعات بخط جميل ناصع كعنوان للصفحة، مسحوب يمين -->
+            <div class="px-3 py-1.5 rounded-xl flex items-center justify-center shrink-0" 
+                 style="background: linear-gradient(135deg, rgba(3, 105, 161, 0.4), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(56, 189, 248, 0.85); box-shadow: 0 0 16px rgba(56, 189, 248, 0.5), inset 0 0 8px rgba(56, 189, 248, 0.25);">
+              <h2 class="text-white font-black text-sm tracking-wider drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap select-none m-0">مبيعات</h2>
+            </div>
 
-          <!-- رقم المبيعات ومعه سهم يمين وسهم يسار للتنقل -->
-          <div class="flex items-center bg-sky-950/80 border border-sky-500/40 rounded-xl px-1 py-0.5 shadow-sm">
-            <button type="button" onclick="SuiteSalesPOS.navigateInvoice('next')" class="w-6 h-6 rounded-lg bg-slate-800 text-sky-300 hover:text-white hover:bg-sky-600 flex items-center justify-center text-xs transition active:scale-90" title="الفاتورة التالية">▶</button>
-            <span id="opSalesInvoiceNoPill" class="text-[11px] font-mono font-black text-white px-2 tracking-wider select-all">S26101012</span>
-            <button type="button" onclick="SuiteSalesPOS.navigateInvoice('prev')" class="w-6 h-6 rounded-lg bg-slate-800 text-sky-300 hover:text-white hover:bg-sky-600 flex items-center justify-center text-xs transition active:scale-90" title="الفاتورة السابقة">◀</button>
-          </div>
+            <!-- 3. مربع مركز الكلفة: يأتي بعد المبيعات مباشرة مع زر بحث فوري -->
+            <div class="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1 cursor-pointer transition active:scale-[0.99] h-9" 
+                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);" 
+                 onclick="SuiteSalesPOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز الكلفة">
+              <div class="flex items-center gap-1.5 overflow-hidden flex-1">
+                <span class="text-purple-400 shrink-0 text-xs"><i class="fa-solid fa-crosshairs"></i></span>
+                <div id="suiteCostCenterDisplayName" class="font-bold text-xs truncate text-purple-200">
+                  <span>المركز الرئيسي</span>
+                </div>
+              </div>
+              <span class="text-purple-400/80 text-[11px] shrink-0"><i class="fa-solid fa-magnifying-glass"></i></span>
+            </div>
+            <input type="hidden" id="salesCostCenterInput" value="المركز الرئيسي">
 
-          <!-- الحاسبة وعلامة الخروج -->
-          <div class="flex items-center gap-1 shrink-0 mr-auto">
-            <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" class="w-7 h-7 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 flex items-center justify-center text-xs transition active:scale-90 shadow-sm" title="الآلة الحاسبة الذكية">
-              <i class="fa-solid fa-calculator"></i>
+            <!-- 4. الآلة الحاسبة: أيقونة الآلة الحاسبة في مربع زجاجي أنيق -->
+            <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
+                    class="w-9 h-9 rounded-xl flex items-center justify-center text-xs transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
+                    style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
+                    title="الآلة الحاسبة الذكية">
+              <i class="fa-solid fa-calculator text-purple-200 text-sm"></i>
             </button>
-            <button type="button" onclick="SafeInvoiceGuard.requestExit('modalOpSales')" class="w-7 h-7 rounded-xl bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center text-xs transition active:scale-90" title="إغلاق">✕</button>
+
+            <!-- 5. زر الخروج ✕ في الركن الأيسر -->
+            <button type="button" onclick="SafeInvoiceGuard.requestExit('modalOpSales')" 
+                    class="w-8 h-8 rounded-xl bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/60 flex items-center justify-center text-xs transition active:scale-90 shrink-0 cursor-pointer" 
+                    title="إغلاق الفاتورة بأمان">
+              ✕
+            </button>
           </div>
+
+          <!-- السطر الثاني: التاريخ ثم رقم السند (بأسهم التنقل الذكية) -->
+          <div class="flex items-center gap-2 w-full pt-0.5">
+            
+            <!-- التاريخ: مربع أنيق مع أيقونة التقويم وتاريخ اليوم المتزامن -->
+            <div class="flex-1 px-2.5 py-1.5 rounded-xl flex items-center gap-1.5 transition relative overflow-hidden h-[38px]" 
+                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 8px rgba(56, 189, 248, 0.15);" 
+                 title="تاريخ السند / الفاتورة (انقر للتعديل)">
+              <div class="flex items-center gap-1.5 pointer-events-none select-none w-full">
+                <span class="text-cyan-400 shrink-0 text-xs"><i class="fa-solid fa-calendar-days"></i></span>
+                <span class="text-[10px] text-slate-400 font-bold shrink-0">التاريخ:</span>
+                <span id="opSalesHeaderDatePill" class="text-xs font-mono font-bold text-cyan-200">2026-10-12</span>
+              </div>
+              <input type="date" id="salesInvoiceDate" onchange="SuiteSalesPOS.syncHeaderDatePill(this.value)" oninput="SuiteSalesPOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
+            </div>
+
+            <!-- رقم السند: مربع أنيق مع سهم يمين وسهم يسار للتنقل -->
+            <div class="flex-1 px-1.5 py-1 rounded-xl flex items-center justify-between gap-1 shadow-sm h-[38px]" 
+                 style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);">
+              <!-- سهم التالي للأحدث -->
+              <button type="button" onclick="SuiteSalesPOS.navigateInvoice('next')" 
+                      class="w-7 h-7 rounded-lg bg-slate-800/90 text-amber-300 hover:text-white hover:bg-amber-600/40 border border-amber-500/30 flex items-center justify-center text-xs transition active:scale-90 shrink-0 cursor-pointer" 
+                      title="السند التالي">▶</button>
+              
+              <div class="flex items-center gap-1 overflow-hidden px-1 text-center justify-center flex-1">
+                <span class="text-[10px] text-slate-400 font-bold shrink-0">السند:</span>
+                <span id="opSalesInvoiceNoPill" class="text-xs font-mono font-black text-amber-300 tracking-wider select-all truncate">S26101012</span>
+              </div>
+
+              <!-- سهم السابق للأقدم -->
+              <button type="button" onclick="SuiteSalesPOS.navigateInvoice('prev')" 
+                      class="w-7 h-7 rounded-lg bg-slate-800/90 text-amber-300 hover:text-white hover:bg-amber-600/40 border border-amber-500/30 flex items-center justify-center text-xs transition active:scale-90 shrink-0 cursor-pointer" 
+                      title="السند السابق">◀</button>
+            </div>
+
+          </div>
+
         </div>
 
         <!-- لوحة التحكم الصوتية الذكية لتغذية الخانات (تفتح بالمايك) -->
@@ -6894,7 +6952,7 @@
               <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
               <span id="suiteSalesVoiceStatusText" class="text-[11px] font-black text-sky-300">جاري الاستماع لصوتك لتغذية الخانات...</span>
             </div>
-            <button type="button" onclick="SuiteSalesPOS.stopVoiceFeed()" class="text-slate-400 hover:text-white text-xs px-1">✕</button>
+            <button type="button" onclick="SuiteSalesPOS.stopVoiceFeed()" class="text-slate-400 hover:text-white text-xs px-1 cursor-pointer">✕</button>
           </div>
 
           <div class="p-2 rounded-xl bg-slate-900 border border-sky-500/20 text-xs">
@@ -6903,58 +6961,46 @@
 
           <!-- تجارب وأوامر سريعة بنقرة زر -->
           <div class="flex gap-1 overflow-x-auto py-0.5 no-scrollbar text-[10px]">
-            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('العميل التجاني، مركز الكلفة مخزن الدرة، المخزن اللاماب، الصنف سيخ 4 لينيا، الوحدة طن عددي، الكمية 5، السعر 18000، خصم 200، إضافة 50')" class="px-2 py-1 rounded-lg bg-sky-950 text-sky-200 border border-sky-600/40 shrink-0 hover:bg-sky-800 transition active:scale-95">تجربة: التجاني + سيخ 4 + طن + خصم + إضافة</button>
-            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('العميل عمر طارق، الصنف أسمنت بورتلاندي 50 كجم، الكمية 10، السعر 4500')" class="px-2 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 shrink-0 hover:bg-slate-700 transition active:scale-95">تجربة: عمر طارق + أسمنت</button>
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('العميل التجاني، مركز الكلفة مخزن الدرة، المخزن اللاماب، الصنف سيخ 4 لينيا، الوحدة طن عددي، الكمية 5، السعر 18000، خصم 200، إضافة 50')" class="px-2 py-1 rounded-lg bg-sky-950 text-sky-200 border border-sky-600/40 shrink-0 hover:bg-sky-800 transition active:scale-95 cursor-pointer">تجربة: التجاني + سيخ 4 + طن + خصم + إضافة</button>
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('العميل عمر طارق، الصنف أسمنت بورتلاندي 50 كجم، الكمية 10، السعر 4500')" class="px-2 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 shrink-0 hover:bg-slate-700 transition active:scale-95 cursor-pointer">تجربة: عمر طارق + أسمنت</button>
           </div>
 
           <!-- تفريغ يدوي أو نصي سريع -->
           <div class="flex gap-1.5 items-center">
             <input type="text" id="suiteSalesVoiceManualInput" placeholder="أو اكتب النص الصوتي هنا واضغط تفريغ..." onkeydown="if(event.key==='Enter') SuiteSalesPOS.feedVoiceFromInput()" class="glow-input-field glow-cyan flex-1 px-2.5 py-1 text-xs text-white outline-none" />
-            <button type="button" onclick="SuiteSalesPOS.feedVoiceFromInput()" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs shrink-0 active:scale-95 shadow">تفريغ الخانات ↵</button>
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceFromInput()" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs shrink-0 active:scale-95 shadow cursor-pointer">تفريغ الخانات ↵</button>
           </div>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             2. السطر الذي يليه: التاريخ ثم مركز الكلفة (مع حذف مديونية العميل بالدولار بالمحلي)
+             2. CUSTOMER ZONE MODULE: وحدة العميل المستقلة بالتباين العالي
+             (يكتب "عميل" باللون الرمادي الخفيف + اسم العميل + في الركن مربع صغير أنيق يسمى "كشف")
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="flex items-center gap-1.5">
-          <!-- التاريخ وضعه في الأسفل -->
-          <div class="glow-input-field glow-cyan p-2 flex items-center gap-1.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shrink-0" style="min-width: 145px;">
-            <span class="text-cyan-400 shrink-0 text-xs"><i class="fa-solid fa-calendar-days"></i></span>
-            <input type="date" id="salesInvoiceDate" onchange="SuiteSalesPOS.syncHeaderDatePill(this.value)" class="bg-transparent text-white font-mono text-xs font-bold outline-none cursor-pointer p-0 w-full" />
-          </div>
-
-          <!-- مركز الكلفة بجوار التاريخ مع بحث فوري -->
-          <div class="glow-input-field glow-purple flex-1 p-2 flex items-center justify-between gap-1.5 cursor-pointer transition active:scale-[0.99]" onclick="SuiteSalesPOS.openCostCenterSearch()">
-            <div class="flex items-center gap-1.5 overflow-hidden flex-1">
-              <span class="text-purple-400 shrink-0 text-xs"><i class="fa-solid fa-crosshairs"></i></span>
-              <div id="suiteCostCenterDisplayName" class="font-bold text-xs truncate">
-                <span class="text-slate-400 font-normal">مركز الكلفة... (اضغط للبحث)</span>
-              </div>
-            </div>
-            <span class="text-purple-400/70 text-[11px] shrink-0"><i class="fa-solid fa-magnifying-glass"></i></span>
-          </div>
-          <input type="hidden" id="salesCostCenterInput" value="المركز الرئيسي">
-        </div>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             3. CUSTOMER ZONE بعد مركز الكلفة (اسم العميل فقط + زر كشف الحساب)
-             ═══════════════════════════════════════════════════════════════ -->
-        <div class="glow-input-field glow-cyan w-full p-2 flex items-center justify-between gap-2 cursor-pointer transition active:scale-[0.99]" onclick="SuiteSalesPOS.openCustomerSearch()">
+        <div class="rounded-2xl p-2.5 flex items-center justify-between gap-2 cursor-pointer transition active:scale-[0.99] relative overflow-hidden" 
+             style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.3); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);" 
+             onclick="SuiteSalesPOS.openCustomerSearch()" title="انقر لتغيير أو بحث العميل بالاسم أو الهاتف">
+          
+          <!-- اليمين: تسمية "عميل" بالرمادي الخفيف + اسم العميل الحالي ناصع البياض -->
           <div class="flex items-center gap-2 overflow-hidden flex-1">
             <span class="text-sky-400 shrink-0 text-xs"><i class="fa-solid fa-user-tag"></i></span>
-            <div id="suiteCustDisplayName" class="font-bold text-xs truncate">
-              <span class="text-slate-400 font-normal">اسم العميل... (اضغط للبحث)</span>
+            <span class="text-slate-400 font-normal text-xs shrink-0 select-none">عميل:</span>
+            <div id="suiteCustDisplayName" class="font-black text-xs text-white truncate">
+              <span>عميل نقدي عام</span>
             </div>
+            <span class="text-slate-500 text-[10px] shrink-0 mr-1"><i class="fa-solid fa-magnifying-glass"></i></span>
           </div>
 
-          <!-- زر كشف الحساب يظهر هنا عند اختيار العميل وبجواره أيقونة البحث -->
-          <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" id="btnCustStatementDirect" onclick="event.stopPropagation(); SuiteSalesPOS.printCustomerStatement();" class="hidden px-2.5 py-1 rounded-lg bg-sky-500/25 hover:bg-sky-500/40 text-sky-200 border border-sky-400/40 text-[10px] font-black flex items-center gap-1 transition active:scale-95 shadow-sm" title="كشف حساب العميل الحالي">
-              <i class="fa-solid fa-file-invoice text-sky-400"></i> كشف الحساب
+          <!-- الركن: مربع صغير أنيق يسمى "كشف" (بدون كلمة حساب) -->
+          <div class="shrink-0 flex items-center">
+            <button type="button" id="btnCustStatementDirect" onclick="event.stopPropagation(); SuiteSalesPOS.printCustomerStatement();" 
+                    class="px-2.5 py-1 rounded-xl text-[11px] font-black transition active:scale-95 shadow-md flex items-center justify-center gap-1 cursor-pointer" 
+                    style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1.5px solid rgba(56, 189, 248, 0.5); box-shadow: 0 0 10px rgba(56, 189, 248, 0.25);" 
+                    title="كشف العميل">
+              <i class="fa-solid fa-file-invoice text-[10px]"></i>
+              <span>كشف</span>
             </button>
-            <span class="text-slate-400 text-[11px]"><i class="fa-solid fa-magnifying-glass"></i></span>
           </div>
+
         </div>
         <input type="hidden" id="salesCustomerInput" value="عميل نقدي عام">
 
@@ -7061,7 +7107,12 @@
         <!-- ═══════════════════════════════════════════════════════════════
              4. ITEM ENTRY FORM (الترتيب الدقيق: المخزن -> الصنف -> الوحدة | الكمية -> السعر -> الجملة)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="p-3 rounded-2xl border border-slate-800 space-y-2.5 text-xs shadow-inner" style="background: linear-gradient(180deg, rgba(15,23,42,0.85), rgba(11,15,25,0.95));">
+        <!-- ═══════════════════════════════════════════════════════════════
+             3. ITEM ENTRY MODULE: وحدة المخزون والأصناف والكميات
+             (مربع واحد بلون أسود فخم يختلف عن الخلفية العامة لمزيد من التركيز والتباين)
+             ═══════════════════════════════════════════════════════════════ -->
+        <div class="p-3 rounded-2xl border space-y-2.5 text-xs shadow-2xl relative overflow-hidden" 
+             style="background: #03050a; border: 1.5px solid rgba(148, 163, 184, 0.25); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
           <!-- السطر الأول: المخزن (مع خانة بحث) -> الصنف (مع خانة بحث) -> الوحدة -->
           <div class="grid grid-cols-12 gap-1.5">
@@ -7133,11 +7184,12 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             5. CART ITEMS LIST (قائمة بنود الفاتورة)
+             4. CART ITEMS MODULE: وحدة بنود الفاتورة المستقلة
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="space-y-1.5">
+        <div class="p-2.5 rounded-2xl border space-y-1.5" 
+             style="background: #050811; border: 1.5px solid rgba(56, 189, 248, 0.25); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);">
           <div class="flex justify-between items-center px-1">
-            <span class="text-xs font-black text-slate-300 flex items-center gap-1.5">
+            <span class="text-xs font-black text-slate-200 flex items-center gap-1.5">
               <i class="fa-solid fa-list-check text-sky-400"></i> بنود الفاتورة (<span id="suiteCartCount" class="font-mono text-sky-300">0</span>)
             </span>
             <button type="button" onclick="SuiteSalesPOS.clearCart()" class="text-[11px] text-rose-400 hover:text-rose-300 font-bold cursor-pointer transition">تفريغ السلة 🗑️</button>
@@ -7152,17 +7204,18 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             6. PAYMENT METHODS & GRAND TOTAL (طرق السداد كاملة مطابقة للبرنامج)
+             5. PAYMENT & TOTALS MODULE: وحدة السداد والإجمالي العام
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="p-2.5 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2 shadow-md">
+        <div class="p-2.5 rounded-2xl border space-y-2" 
+             style="background: #060913; border: 1.5px solid rgba(16, 185, 129, 0.3); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
           <div>
             <label class="block text-[10px] text-slate-400 font-bold mb-1">طريقة السداد:</label>
             <div class="grid grid-cols-5 gap-1 text-center">
-              <button type="button" onclick="SuiteSalesPOS.setPayMethod('cash')" id="suitePayBtnCash" class="suite-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-emerald-600 text-white border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.4)] flex flex-col items-center justify-center gap-0.5"><i class="fa-solid fa-money-bill-wave"></i><span>كاش</span></button>
-              <button type="button" onclick="SuiteSalesPOS.setPayMethod('bank')" id="suitePayBtnBank" class="suite-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5"><i class="fa-solid fa-building-columns"></i><span>بنكك</span></button>
-              <button type="button" onclick="SuiteSalesPOS.setPayMethod('check')" id="suitePayBtnCheck" class="suite-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5"><i class="fa-solid fa-money-check"></i><span>شيكات</span></button>
-              <button type="button" onclick="SuiteSalesPOS.setPayMethod('credit')" id="suitePayBtnCredit" class="suite-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5"><i class="fa-solid fa-clock-rotate-left"></i><span>آجل</span></button>
-              <button type="button" onclick="SuiteSalesPOS.setPayMethod('split')" id="suitePayBtnSplit" class="suite-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5"><i class="fa-solid fa-scissors"></i><span>مجزأ</span></button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('cash')" id="suitePayBtnCash" class="suite-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-emerald-600 text-white border-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.4)] flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-money-bill-wave"></i><span>كاش</span></button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('bank')" id="suitePayBtnBank" class="suite-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-building-columns"></i><span>بنكك</span></button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('check')" id="suitePayBtnCheck" class="suite-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-money-check"></i><span>شيكات</span></button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('credit')" id="suitePayBtnCredit" class="suite-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-clock-rotate-left"></i><span>آجل</span></button>
+              <button type="button" onclick="SuiteSalesPOS.setPayMethod('split')" id="suitePayBtnSplit" class="suite-pay-btn py-1.5 rounded-xl text-[10px] font-black border transition bg-slate-950 text-slate-400 border-slate-800 hover:text-white flex flex-col items-center justify-center gap-0.5 cursor-pointer"><i class="fa-solid fa-scissors"></i><span>مجزأ</span></button>
             </div>
             <input type="hidden" id="salesPayMethodSelect" value="cash">
           </div>
