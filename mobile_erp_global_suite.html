@@ -6853,28 +6853,32 @@
       <div class="glass-base w-full max-w-xl rounded-3xl border border-sky-500/40 p-3.5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #0b1120, #030712);">
         
         <!-- ═══════════════════════════════════════════════════════════════
-             1. HEADER: شريط علوي أنيق (شعار + فاتورة مبيعات + أسهم رقم العملية + التاريخ + الحاسبة + ✕)
+             1. HEADER: شريط علوي أنيق (مايك لتغذية الخانات + مبيعات + تاريخ + رقم المبيعات مع أسهم + الحاسبة + خروج)
              ═══════════════════════════════════════════════════════════════ -->
         <div class="px-2.5 py-1.5 rounded-2xl flex items-center justify-between gap-1.5 relative overflow-hidden" style="background: linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.9)); border: 1.5px solid rgba(56,189,248,0.35); box-shadow: 0 0 16px rgba(56,189,248,0.18);">
-          <!-- Emblem & Title -->
+          <!-- مايك لتغذية الخانات بالصوت + مبيعات -->
           <div class="flex items-center gap-1.5 shrink-0">
-            <span class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 border border-sky-500/30 flex items-center justify-center text-xs shadow-inner"><i class="fa-solid fa-file-invoice-dollar"></i></span>
-            <span class="text-xs sm:text-sm font-black text-white whitespace-nowrap">فاتورة مبيعات</span>
+            <button type="button" id="btnSalesVoiceMic" onclick="SuiteSalesPOS.toggleVoiceFeed()" class="w-7 h-7 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white flex items-center justify-center text-xs shadow-md transition active:scale-90 relative" title="مايك التسجيل الصوتي لتغذية وتفريغ الخانات">
+              <i class="fa-solid fa-microphone"></i>
+              <span id="salesMicPulseDot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></span>
+            </button>
+            <span class="text-xs sm:text-sm font-black text-white whitespace-nowrap">مبيعات</span>
           </div>
 
-          <!-- رقم العملية ومعه سهم يمين وسهم يسار للتنقل -->
+          <!-- التاريخ (عرض التاريخ في السطر الأول) -->
+          <div class="flex items-center bg-slate-900/90 border border-slate-700/80 px-2 py-0.5 rounded-xl cursor-pointer hover:border-sky-500/50 transition shrink-0" onclick="document.getElementById('salesInvoiceDate')?.focus()" title="التاريخ">
+            <span class="text-[9px] text-cyan-400 ml-1"><i class="fa-solid fa-calendar-day"></i></span>
+            <span id="opSalesHeaderDatePill" class="text-[11px] font-mono font-bold text-slate-200">2026-10-12</span>
+          </div>
+
+          <!-- رقم المبيعات ومعه سهم يمين وسهم يسار للتنقل -->
           <div class="flex items-center bg-sky-950/80 border border-sky-500/40 rounded-xl px-1 py-0.5 shadow-sm">
             <button type="button" onclick="SuiteSalesPOS.navigateInvoice('next')" class="w-6 h-6 rounded-lg bg-slate-800 text-sky-300 hover:text-white hover:bg-sky-600 flex items-center justify-center text-xs transition active:scale-90" title="الفاتورة التالية">▶</button>
             <span id="opSalesInvoiceNoPill" class="text-[11px] font-mono font-black text-white px-2 tracking-wider select-all">S26101012</span>
             <button type="button" onclick="SuiteSalesPOS.navigateInvoice('prev')" class="w-6 h-6 rounded-lg bg-slate-800 text-sky-300 hover:text-white hover:bg-sky-600 flex items-center justify-center text-xs transition active:scale-90" title="الفاتورة السابقة">◀</button>
           </div>
 
-          <!-- التاريخ -->
-          <div class="flex items-center bg-slate-900 border border-slate-700/80 px-1.5 py-0.5 rounded-xl">
-            <input type="date" id="salesInvoiceDate" class="bg-transparent text-white font-mono text-[11px] font-bold outline-none cursor-pointer p-0" />
-          </div>
-
-          <!-- الحاسبة وعلامة الكروس -->
+          <!-- الحاسبة وعلامة الخروج -->
           <div class="flex items-center gap-1 shrink-0 mr-auto">
             <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" class="w-7 h-7 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/40 text-purple-200 flex items-center justify-center text-xs transition active:scale-90 shadow-sm" title="الآلة الحاسبة الذكية">
               <i class="fa-solid fa-calculator"></i>
@@ -6883,11 +6887,44 @@
           </div>
         </div>
 
+        <!-- لوحة التحكم الصوتية الذكية لتغذية الخانات (تفتح بالمايك) -->
+        <div id="suiteSalesVoiceConsole" class="hidden p-2.5 rounded-2xl bg-slate-950/95 border border-sky-400/50 shadow-2xl space-y-2">
+          <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
+              <span id="suiteSalesVoiceStatusText" class="text-[11px] font-black text-sky-300">جاري الاستماع لصوتك لتغذية الخانات...</span>
+            </div>
+            <button type="button" onclick="SuiteSalesPOS.stopVoiceFeed()" class="text-slate-400 hover:text-white text-xs px-1">✕</button>
+          </div>
+
+          <div class="p-2 rounded-xl bg-slate-900 border border-sky-500/20 text-xs">
+            <div id="suiteSalesVoiceTranscript" class="text-white font-medium min-h-[22px]">تحدث الآن (مثال: العميل التجاني، المخزن اللاماب، الصنف سيخ 4 لينيا، الوحدة طن عددي، الكمية 5، السعر 18000، خصم 200، إضافة 50)...</div>
+          </div>
+
+          <!-- تجارب وأوامر سريعة بنقرة زر -->
+          <div class="flex gap-1 overflow-x-auto py-0.5 no-scrollbar text-[10px]">
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('العميل التجاني، مركز الكلفة مخزن الدرة، المخزن اللاماب، الصنف سيخ 4 لينيا، الوحدة طن عددي، الكمية 5، السعر 18000، خصم 200، إضافة 50')" class="px-2 py-1 rounded-lg bg-sky-950 text-sky-200 border border-sky-600/40 shrink-0 hover:bg-sky-800 transition active:scale-95">تجربة: التجاني + سيخ 4 + طن + خصم + إضافة</button>
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('العميل عمر طارق، الصنف أسمنت بورتلاندي 50 كجم، الكمية 10، السعر 4500')" class="px-2 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 shrink-0 hover:bg-slate-700 transition active:scale-95">تجربة: عمر طارق + أسمنت</button>
+          </div>
+
+          <!-- تفريغ يدوي أو نصي سريع -->
+          <div class="flex gap-1.5 items-center">
+            <input type="text" id="suiteSalesVoiceManualInput" placeholder="أو اكتب النص الصوتي هنا واضغط تفريغ..." onkeydown="if(event.key==='Enter') SuiteSalesPOS.feedVoiceFromInput()" class="glow-input-field glow-cyan flex-1 px-2.5 py-1 text-xs text-white outline-none" />
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceFromInput()" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs shrink-0 active:scale-95 shadow">تفريغ الخانات ↵</button>
+          </div>
+        </div>
+
         <!-- ═══════════════════════════════════════════════════════════════
-             2. COST CENTER أولاً (فوق اسم العميل) + رصيد العميل بالدولار أو بالمحلي
+             2. السطر الذي يليه: التاريخ ثم مركز الكلفة (مع حذف مديونية العميل بالدولار بالمحلي)
              ═══════════════════════════════════════════════════════════════ -->
         <div class="flex items-center gap-1.5">
-          <!-- مستطيل مركز الكلفة مع نص خفيف وبحث فوري -->
+          <!-- التاريخ وضعه في الأسفل -->
+          <div class="glow-input-field glow-cyan p-2 flex items-center gap-1.5 rounded-2xl bg-slate-900/90 border border-slate-700/80 shrink-0" style="min-width: 145px;">
+            <span class="text-cyan-400 shrink-0 text-xs"><i class="fa-solid fa-calendar-days"></i></span>
+            <input type="date" id="salesInvoiceDate" onchange="SuiteSalesPOS.syncHeaderDatePill(this.value)" class="bg-transparent text-white font-mono text-xs font-bold outline-none cursor-pointer p-0 w-full" />
+          </div>
+
+          <!-- مركز الكلفة بجوار التاريخ مع بحث فوري -->
           <div class="glow-input-field glow-purple flex-1 p-2 flex items-center justify-between gap-1.5 cursor-pointer transition active:scale-[0.99]" onclick="SuiteSalesPOS.openCostCenterSearch()">
             <div class="flex items-center gap-1.5 overflow-hidden flex-1">
               <span class="text-purple-400 shrink-0 text-xs"><i class="fa-solid fa-crosshairs"></i></span>
@@ -6898,13 +6935,6 @@
             <span class="text-purple-400/70 text-[11px] shrink-0"><i class="fa-solid fa-magnifying-glass"></i></span>
           </div>
           <input type="hidden" id="salesCostCenterInput" value="المركز الرئيسي">
-
-          <!-- بجوار مركز الكلفة: يظهر رصيد العميل هل بالدولار أو بالمحلي -->
-          <div id="suiteCustDualBalanceBox" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 flex items-center gap-1.5 font-mono text-[11px] font-black shrink-0 shadow-sm" title="رصيد العميل بالعملتين">
-            <span id="suiteCustBalLocal" class="text-emerald-400">0.00 SDG</span>
-            <span class="text-slate-600">•</span>
-            <span id="suiteCustBalForeign" class="text-cyan-300">0.00 $</span>
-          </div>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
@@ -10064,18 +10094,6 @@
           stmtBtn.title = 'كشف حساب ' + name;
         }
 
-        // Update Dual Currency Balance beside Cost Center
-        const localEl = document.getElementById('suiteCustBalLocal');
-        if (localEl) {
-          localEl.innerText = (isUSD ? 'محلي: ' : '') + bal.toLocaleString() + ' SDG';
-          localEl.className = bal > 0 ? 'text-rose-400 font-black' : 'text-emerald-400 font-black';
-        }
-        const foreignEl = document.getElementById('suiteCustBalForeign');
-        if (foreignEl) {
-          foreignEl.innerText = (isUSD ? 'دولار: ' : '') + foreignBal + ' $';
-          foreignEl.className = isUSD ? 'text-cyan-300 font-black bg-cyan-950/70 px-1 rounded border border-cyan-500/30' : 'text-cyan-300';
-        }
-
         this.closeCustomerSearch();
         if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
       },
@@ -10480,6 +10498,315 @@
           const now = new Date();
           d.value = now.toISOString().split('T')[0];
         }
+        this.syncHeaderDatePill();
+      },
+
+      syncHeaderDatePill(val) {
+        const d = val || document.getElementById('salesInvoiceDate')?.value;
+        const pill = document.getElementById('opSalesHeaderDatePill');
+        if (pill && d) {
+          pill.innerText = d;
+        }
+      },
+
+      // ─────────────────────────────────────────────────────────────
+      // VOICE FEEDING & SMART EVACUATION ENGINE (تغذية وتفريغ الخانات بالصوت)
+      // ─────────────────────────────────────────────────────────────
+      voiceRecognitionInstance: null,
+      isVoiceListening: false,
+
+      toggleVoiceFeed() {
+        const consoleEl = document.getElementById('suiteSalesVoiceConsole');
+        if (consoleEl && consoleEl.classList.contains('hidden')) {
+          consoleEl.classList.remove('hidden');
+        }
+
+        if (this.isVoiceListening) {
+          this.stopVoiceFeed();
+          return;
+        }
+
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const statusText = document.getElementById('suiteSalesVoiceStatusText');
+        const transcriptEl = document.getElementById('suiteSalesVoiceTranscript');
+        const pulseDot = document.getElementById('salesMicPulseDot');
+
+        if (!SpeechRec) {
+          if (statusText) statusText.innerHTML = '<span class="text-amber-400">ℹ️ المتصفح لا يدعم الميكروفون المباشر. يمكنك استخدام التجارب الجاهزة أدناه أو كتابة الأمر والتفريغ فوراً:</span>';
+          return;
+        }
+
+        try {
+          this.voiceRecognitionInstance = new SpeechRec();
+          this.voiceRecognitionInstance.lang = 'ar-SA';
+          this.voiceRecognitionInstance.continuous = false;
+          this.voiceRecognitionInstance.interimResults = true;
+
+          this.voiceRecognitionInstance.onstart = () => {
+            this.isVoiceListening = true;
+            if (pulseDot) pulseDot.classList.remove('hidden');
+            if (statusText) statusText.innerHTML = '<span class="text-rose-400 animate-pulse font-black">🔴 جاري الاستماع لصوتك الآن... تحدث باللغة العربية:</span>';
+            if (transcriptEl) transcriptEl.innerText = 'استمع إليك... تحدث الآن';
+            if (window.AppHaptics) AppHaptics.selection();
+          };
+
+          this.voiceRecognitionInstance.onresult = (evt) => {
+            let interim = '';
+            let final = '';
+            for (let i = evt.resultIndex; i < evt.results.length; ++i) {
+              if (evt.results[i].isFinal) final += evt.results[i][0].transcript;
+              else interim += evt.results[i][0].transcript;
+            }
+            const text = final || interim;
+            if (transcriptEl) transcriptEl.innerText = text;
+            if (final) {
+              this.feedVoiceToFields(final);
+            }
+          };
+
+          this.voiceRecognitionInstance.onerror = (err) => {
+            console.warn('Sales voice error:', err);
+            this.stopVoiceFeed();
+            if (statusText) statusText.innerHTML = '<span class="text-amber-400">⚠️ تعذر التقاط الصوت، يمكنك استخدام الأمثلة الجاهزة أو كتابة الأمر أدناه:</span>';
+          };
+
+          this.voiceRecognitionInstance.onend = () => {
+            this.stopVoiceFeed();
+          };
+
+          this.voiceRecognitionInstance.start();
+        } catch (e) {
+          console.error(e);
+          this.stopVoiceFeed();
+        }
+      },
+
+      stopVoiceFeed() {
+        this.isVoiceListening = false;
+        const pulseDot = document.getElementById('salesMicPulseDot');
+        if (pulseDot) pulseDot.classList.add('hidden');
+        if (this.voiceRecognitionInstance) {
+          try { this.voiceRecognitionInstance.stop(); } catch(e) {}
+        }
+      },
+
+      feedVoiceFromInput() {
+        const inp = document.getElementById('suiteSalesVoiceManualInput');
+        if (inp && inp.value.trim()) {
+          this.feedVoiceToFields(inp.value.trim());
+          inp.value = '';
+        }
+      },
+
+      feedVoiceToFields(spokenText) {
+        if (!spokenText || !spokenText.trim()) return;
+        const raw = spokenText.trim();
+        const transcriptEl = document.getElementById('suiteSalesVoiceTranscript');
+        if (transcriptEl) transcriptEl.innerText = `تم الالتقاط: "${raw}"`;
+
+        const norm = (s) => (s || '').trim()
+          .replace(/[\u064B-\u065F\u0670]/g, '')
+          .replace(/[إأآٱ]/g, 'ا')
+          .replace(/ة/g, 'ه')
+          .replace(/[ى]/g, 'ي')
+          .toLowerCase();
+
+        const cleanText = norm(raw);
+        let feedback = [];
+
+        // دالة تحويل الأرقام المنطوقة أو المكتوبة
+        const parseNum = (str) => {
+          if (!str) return 0;
+          let s = str.trim();
+          const eastern = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+          for (let i = 0; i < 10; i++) s = s.split(eastern[i]).join(i.toString());
+          s = s.replace(/,/g, '');
+          const matchDigits = s.match(/\d+(?:\.\d+)?/);
+          if (matchDigits) return parseFloat(matchDigits[0]);
+          const wordMap = {
+            'صفر': 0, 'واحد': 1, 'واحدة': 1, 'اثنين': 2, 'اثنان': 2, 'ثلاثة': 3, 'ثلاث': 3,
+            'اربعة': 4, 'أربعة': 4, 'خمسة': 5, 'خمس': 5, 'ستة': 6, 'ست': 6, 'سبعة': 7, 'سبع': 7,
+            'ثمانية': 8, 'تمانية': 8, 'تسعة': 9, 'تسع': 9, 'عشرة': 10, 'عشر': 10,
+            'عشرين': 20, 'عشرون': 20, 'ثلاثين': 30, 'ثلاثون': 30, 'اربعين': 40, 'خمسين': 50,
+            'ستين': 60, 'سبعين': 70, 'ثمانين': 80, 'تسعين': 90, 'مائة': 100, 'مية': 100, 'ميه': 100,
+            'مائتين': 200, 'ميتين': 200, 'الف': 1000, 'الفين': 2000, 'مليون': 1000000
+          };
+          for (const [w, val] of Object.entries(wordMap)) {
+            if (s.includes(w)) return val;
+          }
+          return 0;
+        };
+
+        // 1. اسم العميل (Customer Name)
+        let matchedCustomer = null;
+        for (const cust of this.dbCustomers) {
+          if (cust.name && cleanText.includes(norm(cust.name))) {
+            matchedCustomer = cust;
+            break;
+          }
+        }
+        if (!matchedCustomer) {
+          const mCust = raw.match(/(?:العميل|عميل|زبون|حساب)\s+([^\s,،]+(?:\s+[^\s,،]+){0,3})/i);
+          if (mCust && mCust[1]) {
+            const candName = mCust[1].replace(/(?:مركز|مخزن|مستودع|صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة).*/i, '').trim();
+            if (candName) {
+              matchedCustomer = this.dbCustomers.find(c => norm(c.name).includes(norm(candName))) || {
+                name: candName,
+                phone: '',
+                currentBalance: 0,
+                currency: 'SDG'
+              };
+            }
+          }
+        }
+        if (matchedCustomer) {
+          this.selectCustomer(matchedCustomer);
+          feedback.push(`العميل: ${matchedCustomer.name}`);
+        }
+
+        // 2. مركز الكلفة (Cost Center)
+        let matchedCC = null;
+        for (const cc of this.dbCostCenters) {
+          if (cc.name && cleanText.includes(norm(cc.name))) {
+            matchedCC = cc.name;
+            break;
+          }
+        }
+        if (!matchedCC) {
+          const mCC = raw.match(/(?:مركز الكلفة|مركز كلفة|المركز|مركز)\s+([^\s,،]+(?:\s+[^\s,،]+){0,2})/i);
+          if (mCC && mCC[1]) {
+            const candCC = mCC[1].replace(/(?:مخزن|مستودع|صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة).*/i, '').trim();
+            if (candCC) matchedCC = candCC;
+          }
+        }
+        if (matchedCC) {
+          this.selectCostCenter(matchedCC);
+          feedback.push(`مركز الكلفة: ${matchedCC}`);
+        }
+
+        // 3. المخزن / المستودع (Warehouse)
+        let matchedWH = null;
+        for (const wh of this.dbWarehouses) {
+          if (wh.name && cleanText.includes(norm(wh.name))) {
+            matchedWH = wh.name;
+            break;
+          }
+        }
+        if (!matchedWH) {
+          const mWH = raw.match(/(?:المخزن|مخزن|المستودع|مستودع)\s+([^\s,،]+(?:\s+[^\s,،]+){0,2})/i);
+          if (mWH && mWH[1]) {
+            const candWH = mWH[1].replace(/(?:صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة).*/i, '').trim();
+            if (candWH) matchedWH = candWH;
+          }
+        }
+        if (matchedWH) {
+          this.selectWarehouse(matchedWH);
+          feedback.push(`المخزن: ${matchedWH}`);
+        }
+
+        // 4. الصنف (Item Name)
+        let matchedItemIdx = -1;
+        const sortedItems = this.dbItems.map((it, idx) => ({ ...it, idx })).sort((a,b) => (b.name||'').length - (a.name||'').length);
+        for (const it of sortedItems) {
+          if (it.name && cleanText.includes(norm(it.name))) {
+            matchedItemIdx = it.idx;
+            break;
+          }
+        }
+        if (matchedItemIdx === -1) {
+          const mItem = raw.match(/(?:الصنف|صنف|بضاعة|سلعة)\s+([^\s,،]+(?:\s+[^\s,،]+){0,3})/i);
+          if (mItem && mItem[1]) {
+            const candItem = norm(mItem[1].replace(/(?:وحدة|كمية|سعر|خصم|إضافة|اضافة).*/i, '').trim());
+            for (const it of sortedItems) {
+              if (it.name && (norm(it.name).includes(candItem) || candItem.includes(norm(it.name)))) {
+                matchedItemIdx = it.idx;
+                break;
+              }
+            }
+          }
+        }
+        if (matchedItemIdx !== -1) {
+          this.selectItemByIndex(matchedItemIdx);
+          feedback.push(`الصنف: ${this.dbItems[matchedItemIdx].name}`);
+        }
+
+        // 5. الوحدة (Unit)
+        const mUnit = raw.match(/(?:الوحدة|وحدة|الوحدات)\s+([^\s,،]+)/i);
+        if (mUnit && mUnit[1]) {
+          const uStr = norm(mUnit[1]);
+          const uSel = document.getElementById('salesUnitSelect');
+          if (uSel && uSel.options) {
+            for (let i = 0; i < uSel.options.length; i++) {
+              if (norm(uSel.options[i].value).includes(uStr) || norm(uSel.options[i].text).includes(uStr)) {
+                uSel.selectedIndex = i;
+                this.onUnitChange();
+                feedback.push(`الوحدة: ${uSel.options[i].value}`);
+                break;
+              }
+            }
+          }
+        }
+
+        // 6. الكمية (Quantity)
+        const mQty = raw.match(/(?:الكمية|كمية|عدد|بعدد)\s+([0-9٠-٩]+|[^\s,،]+)/i);
+        if (mQty && mQty[1]) {
+          const qVal = parseNum(mQty[1]);
+          if (qVal > 0) {
+            const qInp = document.getElementById('salesQtyInput');
+            if (qInp) qInp.value = qVal;
+            feedback.push(`الكمية: ${qVal}`);
+          }
+        }
+
+        // 7. السعر (Price)
+        const mPrice = raw.match(/(?:السعر|سعر|بسعر|قيمة|بقيمة)\s+([0-9٠-٩]+|[^\s,،]+)/i);
+        if (mPrice && mPrice[1]) {
+          const pVal = parseNum(mPrice[1]);
+          if (pVal > 0) {
+            const pInp = document.getElementById('salesPriceInput');
+            if (pInp) pInp.value = pVal;
+            feedback.push(`السعر: ${pVal.toLocaleString()}`);
+          }
+        }
+
+        // 8. الخصم (Discount)
+        const mDisc = raw.match(/(?:الخصم|خصم|تخفيض|تنزيل)\s+([0-9٠-٩]+|[^\s,،]+)/i);
+        if (mDisc && mDisc[1]) {
+          const dVal = parseNum(mDisc[1]);
+          const dInp = document.getElementById('salesDiscountInput');
+          if (dInp) dInp.value = dVal;
+          feedback.push(`خصم: ${dVal.toLocaleString()}`);
+        }
+
+        // 9. الإضافة (Addition / Tax)
+        const mTax = raw.match(/(?:الاضافة|إضافة|اضافة|ضريبة|زيادة)\s+([0-9٠-٩]+|[^\s,،]+)/i);
+        if (mTax && mTax[1]) {
+          const tVal = parseNum(mTax[1]);
+          const tInp = document.getElementById('salesTaxInput');
+          if (tInp) tInp.value = tVal;
+          feedback.push(`إضافة: ${tVal.toLocaleString()}`);
+        }
+
+        // 10. حساب وتفريغ الجملة (Subtotal)
+        const subtotal = this.calcItemSubtotal();
+        feedback.push(`الجملة: ${subtotal.toLocaleString()} SDG`);
+
+        // إشعار النتيجة
+        const statusText = document.getElementById('suiteSalesVoiceStatusText');
+        if (statusText) {
+          statusText.innerHTML = `<span class="text-emerald-400 font-black">✅ تم التفريغ الصوتي بنجاح:</span> <span class="text-white">${feedback.join(' • ')}</span>`;
+        }
+
+        if (window.AppHaptics) AppHaptics.success();
+
+        // إضاءة نبضية للخانات التي تم تغذيتها
+        ['salesQtyInput', 'salesPriceInput', 'salesTotalInput', 'salesDiscountInput', 'salesTaxInput'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) {
+            el.classList.add('ring-2', 'ring-emerald-400', 'bg-emerald-950/60');
+            setTimeout(() => el.classList.remove('ring-2', 'ring-emerald-400', 'bg-emerald-950/60'), 2500);
+          }
+        });
       },
 
       // ─────────────────────────────────────────────────────────────
