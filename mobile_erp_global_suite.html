@@ -6900,33 +6900,31 @@
           <!-- السطر الثاني: التاريخ ثم رقم السند (بأسهم التنقل الذكية المصغرة) -->
           <div class="flex items-center gap-2 w-full pt-0.5">
             
-            <!-- التاريخ: مساحة مكتوب فيها التاريخ فقط (بدون شعار/أيقونة التاريخ) -->
+            <!-- التاريخ: مساحة بقيمة التاريخ فقط (بدون كلمة التاريخ وبدون شعار) -->
             <div class="flex-1 px-2.5 py-1.5 rounded-xl flex items-center justify-center transition relative overflow-hidden h-[36px]" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 8px rgba(56, 189, 248, 0.15);" 
                  title="تاريخ السند / الفاتورة (انقر للتعديل)">
-              <div class="flex items-center justify-center gap-1.5 pointer-events-none select-none w-full text-center whitespace-nowrap">
-                <span class="text-[10px] text-slate-400 font-bold shrink-0">التاريخ:</span>
-                <span id="opSalesHeaderDatePill" class="text-xs font-mono font-bold text-cyan-200 whitespace-nowrap">2026-10-12</span>
+              <div class="flex items-center justify-center pointer-events-none select-none w-full text-center whitespace-nowrap">
+                <span id="opSalesHeaderDatePill" class="text-xs sm:text-sm font-mono font-bold text-cyan-200 tracking-wider whitespace-nowrap">2026-10-12</span>
               </div>
               <input type="date" id="salesInvoiceDate" onchange="SuiteSalesPOS.syncHeaderDatePill(this.value)" oninput="SuiteSalesPOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
             </div>
 
-            <!-- رقم السند: مساحة مكتوب فيها رقم السند مع تصغير أسهم التنقل -->
+            <!-- رقم السند: مساحة برقم السند فقط مع أسهم تنقل مصغرة رقيقة -->
             <div class="flex-1 px-1.5 py-1 rounded-xl flex items-center justify-between gap-1 shadow-sm h-[36px]" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 8px rgba(245, 158, 11, 0.2);">
-              <!-- سهم التالي للأحدث (مصغر قليلاً) -->
+              <!-- سهم التالي للأحدث (مصغر) -->
               <button type="button" onclick="SuiteSalesPOS.navigateInvoice('next')" 
-                      class="w-6 h-6 rounded-lg bg-slate-800/90 text-amber-300 hover:text-white hover:bg-amber-600/40 border border-amber-500/30 flex items-center justify-center text-[10px] transition active:scale-90 shrink-0 cursor-pointer" 
+                      class="w-5 h-5 rounded-md bg-slate-800/90 text-amber-300 hover:text-white hover:bg-amber-600/40 border border-amber-500/30 flex items-center justify-center text-[8px] transition active:scale-90 shrink-0 cursor-pointer" 
                       title="السند التالي">▶</button>
               
-              <div class="flex items-center gap-1 overflow-hidden px-1 text-center justify-center flex-1">
-                <span class="text-[10px] text-slate-400 font-bold shrink-0">السند:</span>
-                <span id="opSalesInvoiceNoPill" class="text-xs font-mono font-black text-amber-300 tracking-wider select-all truncate">S26101012</span>
+              <div class="flex items-center overflow-hidden px-1 text-center justify-center flex-1">
+                <span id="opSalesInvoiceNoPill" class="text-xs sm:text-sm font-mono font-black text-amber-300 tracking-wider select-all truncate">S26101012</span>
               </div>
 
-              <!-- سهم السابق للأقدم (مصغر قليلاً) -->
+              <!-- سهم السابق للأقدم (مصغر) -->
               <button type="button" onclick="SuiteSalesPOS.navigateInvoice('prev')" 
-                      class="w-6 h-6 rounded-lg bg-slate-800/90 text-amber-300 hover:text-white hover:bg-amber-600/40 border border-amber-500/30 flex items-center justify-center text-[10px] transition active:scale-90 shrink-0 cursor-pointer" 
+                      class="w-5 h-5 rounded-md bg-slate-800/90 text-amber-300 hover:text-white hover:bg-amber-600/40 border border-amber-500/30 flex items-center justify-center text-[8px] transition active:scale-90 shrink-0 cursor-pointer" 
                       title="السند السابق">◀</button>
             </div>
 
