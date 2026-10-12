@@ -6859,10 +6859,10 @@
         <div class="rounded-2xl p-2.5 space-y-2 border relative overflow-hidden" 
              style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.06);">
           
-          <!-- السطر الأول: المايك (زجاجي عصري مسحوب يمين) -> مبيعات (مربع مضيء ناصع مسحوب يمين) -> مركز الكلفة -> الآلة الحاسبة -> زر الإغلاق ✕ -->
+          <!-- السطر الأول: 1. مايك -> 2. أيقونة مبيعات -> 3. أيقونة صغيرة للحاسبة -> 4. بقية المساحة لمركز التكلفة مباشرة (بدون علامات وبدون بحث، ويفتح البحث بالنقر) -->
           <div class="flex items-center gap-1.5 w-full">
             
-            <!-- 1. أيقونة المايك: مربع زجاجي عصري فخم ومسحوب يمين قليلاً -->
+            <!-- 1. أيقونة المايك: مربع زجاجي عصري وفخم -->
             <button type="button" id="btnSalesVoiceMic" onclick="SuiteSalesPOS.toggleVoiceFeed()" 
                     class="w-9 h-9 rounded-xl flex items-center justify-center text-sm shadow-lg transition-all duration-200 active:scale-90 relative shrink-0 cursor-pointer" 
                     style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.3), rgba(2, 132, 199, 0.15)); border: 1.5px solid rgba(56, 189, 248, 0.6); backdrop-filter: blur(8px); box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);" 
@@ -6871,40 +6871,31 @@
               <span id="salesMicPulseDot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></span>
             </button>
 
-            <!-- 2. مبيعات: في مربع مضيء يحيط بكلمة مبيعات بخط جميل ناصع كعنوان للصفحة، مسحوب يمين -->
-            <div class="px-3 py-1.5 rounded-xl flex items-center justify-center shrink-0" 
-                 style="background: linear-gradient(135deg, rgba(3, 105, 161, 0.4), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(56, 189, 248, 0.85); box-shadow: 0 0 16px rgba(56, 189, 248, 0.5), inset 0 0 8px rgba(56, 189, 248, 0.25);">
-              <h2 class="text-white font-black text-sm tracking-wider drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap select-none m-0">مبيعات</h2>
+            <!-- 2. أيقونة المبيعات: في مربع مضيء أنيق يحيط بكلمة مبيعات كعنوان للصفحة -->
+            <div class="px-2.5 py-1.5 h-9 rounded-xl flex items-center justify-center gap-1 shrink-0" 
+                 style="background: linear-gradient(135deg, rgba(3, 105, 161, 0.4), rgba(15, 23, 42, 0.9)); border: 1.5px solid rgba(56, 189, 248, 0.85); box-shadow: 0 0 14px rgba(56, 189, 248, 0.45), inset 0 0 8px rgba(56, 189, 248, 0.25);">
+              <i class="fa-solid fa-cart-shopping text-sky-300 text-xs"></i>
+              <h2 class="text-white font-black text-xs sm:text-sm tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap select-none m-0">مبيعات</h2>
             </div>
 
-            <!-- 3. مربع مركز الكلفة: يأتي بعد المبيعات مباشرة مع زر بحث فوري -->
-            <div class="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl flex items-center justify-between gap-1 cursor-pointer transition active:scale-[0.99] h-9" 
+            <!-- 3. أيقونة صغيرة للآلة الحاسبة -->
+            <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
+                    class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
+                    style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
+                    title="الآلة الحاسبة الذكية">
+              <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
+            </button>
+
+            <!-- 4. بقية المساحة لمركز التكلفة مباشرة بدون أي علامات وبدون علامة بحث (وعند الضغط يفتح البحث) -->
+            <div class="flex-1 min-w-0 px-2.5 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 overflow-hidden" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);" 
-                 onclick="SuiteSalesPOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز الكلفة">
-              <div class="flex items-center gap-1.5 overflow-hidden flex-1">
-                <span class="text-purple-400 shrink-0 text-xs"><i class="fa-solid fa-crosshairs"></i></span>
-                <div id="suiteCostCenterDisplayName" class="font-bold text-xs truncate text-purple-200">
-                  <span>المركز الرئيسي</span>
-                </div>
+                 onclick="SuiteSalesPOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز التكلفة">
+              <div id="suiteCostCenterDisplayName" class="font-bold text-xs truncate text-purple-200 text-center w-full">
+                <span>المركز الرئيسي</span>
               </div>
-              <span class="text-purple-400/80 text-[11px] shrink-0"><i class="fa-solid fa-magnifying-glass"></i></span>
             </div>
             <input type="hidden" id="salesCostCenterInput" value="المركز الرئيسي">
 
-            <!-- 4. الآلة الحاسبة: أيقونة الآلة الحاسبة في مربع زجاجي أنيق -->
-            <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
-                    class="w-9 h-9 rounded-xl flex items-center justify-center text-xs transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
-                    style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
-                    title="الآلة الحاسبة الذكية">
-              <i class="fa-solid fa-calculator text-purple-200 text-sm"></i>
-            </button>
-
-            <!-- 5. زر الخروج ✕ في الركن الأيسر -->
-            <button type="button" onclick="SafeInvoiceGuard.requestExit('modalOpSales')" 
-                    class="w-8 h-8 rounded-xl bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-700 border border-slate-700/60 flex items-center justify-center text-xs transition active:scale-90 shrink-0 cursor-pointer" 
-                    title="إغلاق الفاتورة بأمان">
-              ✕
-            </button>
           </div>
 
           <!-- السطر الثاني: التاريخ ثم رقم السند (بأسهم التنقل الذكية) -->
@@ -7251,6 +7242,12 @@
               <i class="fa-solid fa-file-invoice text-teal-400"></i> كشف حساب
             </button>
           </div>
+
+          <!-- زر إغلاق وقفل الشاشة في الأسفل -->
+          <button type="button" onclick="SafeInvoiceGuard.requestExit('modalOpSales')" class="w-full py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 hover:border-rose-500/50 text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition active:scale-95 shadow-sm mt-1" title="إغلاق وقفل الشاشة">
+            <i class="fa-solid fa-xmark text-sm text-rose-400"></i>
+            <span>إغلاق وقفل الشاشة (✕)</span>
+          </button>
         </div>
 
       </div>
@@ -10056,7 +10053,7 @@
         if (hid) hid.value = name;
         const disp = document.getElementById('suiteCostCenterDisplayName');
         if (disp) {
-          disp.innerHTML = `<span class="text-purple-300 font-black text-xs"><i class="fa-solid fa-crosshairs text-[10px] text-purple-400"></i> ${name}</span>`;
+          disp.innerHTML = `<span class="text-purple-200 font-bold text-xs truncate">${name}</span>`;
         }
         this.closeCostCenterSearch();
         if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
