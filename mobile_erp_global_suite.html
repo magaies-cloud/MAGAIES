@@ -6910,42 +6910,44 @@
               <input type="date" id="salesInvoiceDate" onchange="SuiteSalesPOS.syncHeaderDatePill(this.value)" oninput="SuiteSalesPOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
             </div>
 
-            <!-- 2. رقم التسلسل: بأسهم خفيفة وصغيرة جداً في الأطراف كإشارة للتنقل دون شغل حيز، مع استغلال المساحة ودعم السحب يمين وشمال -->
-            <div id="opSalesInvoiceSwipeBox" class="flex-1 min-w-0 px-1 py-0.5 rounded-xl flex items-center justify-between shadow-sm h-[34px] cursor-grab active:cursor-grabbing select-none relative overflow-hidden transition-all duration-150" 
+            <!-- 2. رقم التسلسل: بأسهم ميكرو فائقة الصغر في الأطراف تكاد ألا تكون مرئية ولا تشغل حيزاً إطلاقاً -->
+            <div id="opSalesInvoiceSwipeBox" class="flex-1 min-w-0 px-1 py-0.5 rounded-xl flex items-center justify-center shadow-sm h-[34px] cursor-grab active:cursor-grabbing select-none relative overflow-hidden transition-all duration-150" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.55); box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); touch-action: pan-y;" 
-                 title="اسحب أو مرر يميناً (للتالي) أو يساراً (للسابق) للتنقل بين السندات">
+                 title="اسحب أو مرر يميناً أو يساراً للتنقل بين السندات">
               
-              <!-- سهم خفيف وصغير جداً في الطرف الأيمن كإشارة للتنقل -->
+              <!-- سهم ميكرو خافت جداً في أقصى اليمين شبه غير مرئي ولا يشغل حيزاً -->
               <button type="button" onclick="event.stopPropagation(); SuiteSalesPOS.navigateInvoice('next'); SuiteSalesPOS.animateSwipePill('right');" 
-                      class="w-3.5 h-3.5 rounded flex items-center justify-center text-[7.5px] text-amber-400/40 hover:text-amber-300 hover:bg-amber-500/20 transition cursor-pointer select-none shrink-0" 
-                      title="السند التالي (أو اسحب يميناً)">▶</button>
+                      class="absolute right-0.5 top-1/2 -translate-y-1/2 w-2.5 h-full flex items-center justify-center text-[5.5px] text-amber-400/20 hover:text-amber-300/80 transition cursor-pointer select-none z-10" 
+                      title="السند التالي">▶</button>
               
-              <div class="flex items-center overflow-hidden px-1 text-center justify-center flex-1 min-w-0">
-                <span id="opSalesInvoiceNoPill" class="text-[12.5px] sm:text-xs font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block transition-transform duration-150" style="color: #fcd34d !important;">S26101012</span>
+              <!-- رقم السند يستغل كامل مساحة المربع بالعرض التام -->
+              <div class="w-full flex items-center overflow-hidden px-2 text-center justify-center min-w-0">
+                <span id="opSalesInvoiceNoPill" class="text-xs sm:text-[13px] font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block transition-transform duration-150" style="color: #fcd34d !important;">S26101012</span>
               </div>
 
-              <!-- سهم خفيف وصغير جداً في الطرف الأيسر كإشارة للتنقل -->
+              <!-- سهم ميكرو خافت جداً في أقصى اليسار شبه غير مرئي ولا يشغل حيزاً -->
               <button type="button" onclick="event.stopPropagation(); SuiteSalesPOS.navigateInvoice('prev'); SuiteSalesPOS.animateSwipePill('left');" 
-                      class="w-3.5 h-3.5 rounded flex items-center justify-center text-[7.5px] text-amber-400/40 hover:text-amber-300 hover:bg-amber-500/20 transition cursor-pointer select-none shrink-0" 
-                      title="السند السابق (أو اسحب يساراً)">◀</button>
+                      class="absolute left-0.5 top-1/2 -translate-y-1/2 w-2.5 h-full flex items-center justify-center text-[5.5px] text-amber-400/20 hover:text-amber-300/80 transition cursor-pointer select-none z-10" 
+                      title="السند السابق">◀</button>
             </div>
 
-            <!-- 3. سعر صرف العملة: كتابة بلوك وتغير شكلي شامل ومتباين جذرياً بين الدولار ($) والجنيه (ج.س) -->
-            <div id="salesRateContainer" class="w-[88px] shrink-0 px-1.5 py-0.5 rounded-xl flex items-center justify-between gap-1 shadow-sm h-[34px] transition-all duration-300" 
+            <!-- 3. سعر صرف العملة: مربوط بالنظام وقاعدة البيانات + نافذة تعديل وحفظ عند النقر -->
+            <div id="salesRateContainer" onclick="SuiteFXManager.openModal()" 
+                 class="w-[94px] shrink-0 px-1.5 py-0.5 rounded-xl flex items-center justify-between gap-1 shadow-sm h-[34px] transition-all duration-300 cursor-pointer active:scale-95 group relative select-none" 
                  style="background: linear-gradient(135deg, #064e3b, #042f2e); border: 2px solid #10b981; box-shadow: 0 0 14px rgba(16, 185, 129, 0.6), inset 0 0 8px rgba(16, 185, 129, 0.3);" 
-                 title="سعر صرف العملة (5 خانات واضحة)">
+                 title="سعر صرف العملة من السيستم - انقر للتعديل والحفظ في قاعدة البيانات">
               
-              <!-- حقل السعر: كتابة بلوك عريضة بنفس المقاس و 5 خانات واضحة تماماً -->
-              <input type="text" id="salesUsdRateInput" inputmode="decimal" maxlength="5" value="2850" 
-                     class="w-[50px] text-center p-0 m-0 tracking-wider selection:bg-emerald-600 cursor-text" 
-                     style="background: transparent !important; color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 13px !important; letter-spacing: 0.5px !important; border: none !important; outline: none !important; box-shadow: none !important;" 
-                     title="سعر الصرف (5 خانات واضحة)" 
-                     onchange="SuiteSalesPOS.updateUsdRate(this.value)" 
-                     oninput="SuiteSalesPOS.onRateInput(this)" 
-                     placeholder="2850" />
+              <!-- حقل السعر: كتابة بلوك عريضة و 5 خانات واضحة تماماً -->
+              <div class="flex items-center gap-1 min-w-0 flex-1 justify-center pointer-events-none">
+                <span id="salesUsdRateDisplay" 
+                      class="text-center font-black tracking-wider truncate" 
+                      style="color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 13.5px !important; letter-spacing: 0.5px !important;">2850</span>
+                <i class="fa-solid fa-pen text-[7px] text-emerald-300/50 group-hover:text-emerald-200 transition shrink-0"></i>
+              </div>
+              <input type="hidden" id="salesUsdRateInput" value="2850" />
 
               <!-- شعار العملة التفاعلي: ينقر للتبديل بين الدولار والجنيه -->
-              <button type="button" id="btnSalesCurrencyToggle" onclick="SuiteSalesPOS.toggleCurrency()" 
+              <button type="button" id="btnSalesCurrencyToggle" onclick="event.stopPropagation(); SuiteSalesPOS.toggleCurrency()" 
                       class="w-5 h-5 rounded-md flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-85 select-none" 
                       style="background: rgba(16, 185, 129, 0.5); border: 1.5px solid #34d399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);" 
                       title="العملة: دولار ($) - انقر للتحويل إلى جنيه (ج.س)">
@@ -7156,6 +7158,8 @@
           </div>
         </div>
 
+        
+
         <!-- ═══════════════════════════════════════════════════════════════
              4. ITEM ENTRY FORM (الترتيب الدقيق: المخزن -> الصنف -> الوحدة | الكمية -> السعر -> الجملة)
              ═══════════════════════════════════════════════════════════════ -->
@@ -7163,46 +7167,46 @@
              3. ITEM ENTRY MODULE: وحدة المخزون والأصناف والكميات
              (مربع واحد بلون أسود فخم يختلف عن الخلفية العامة لمزيد من التركيز والتباين)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="p-3 rounded-2xl border space-y-2.5 text-xs shadow-2xl relative overflow-hidden" 
+        <div class="p-2 sm:p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-hidden" 
              style="background: #03050a; border: 1.5px solid rgba(148, 163, 184, 0.25); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- السطر الأول (تحت الاسم مباشرة): المخزن (مصغر 40%) وبجواره الملحوظة (مساحة واسعة مع النقر للتكبير) -->
+          <!-- السطر الأول (تحت الاسم مباشرة): المخزن والملحوظة بمساحة عرض مكبرة -->
           <div class="grid grid-cols-12 gap-1.5">
-            <!-- 1. المستودع / المخزن: تقليص المساحة بنسبة 40% (col-span-4) لتوفير المساحة للملحوظة -->
+            <!-- 1. المستودع / المخزن: مساحة عرض مريحة وأنيقة (col-span-4) -->
             <div class="col-span-4">
-              <div class="glow-input-field glow-purple w-full h-[38px] px-1.5 flex items-center justify-center cursor-pointer transition active:scale-[0.99] overflow-hidden" 
+              <div class="glow-input-field glow-purple w-full h-[42px] px-2 flex items-center justify-center cursor-pointer transition active:scale-[0.99] overflow-hidden rounded-xl" 
                    onclick="SuiteSalesPOS.openWarehouseSearch()" title="انقر لاختيار المخزن">
-                <span id="suiteWarehouseDisplayName" class="font-black text-[11px] sm:text-xs truncate text-center" style="color: #ffffff !important;">المستودع الرئيسي</span>
+                <span id="suiteWarehouseDisplayName" class="font-black text-xs sm:text-sm truncate text-center" style="color: #ffffff !important;">المستودع الرئيسي</span>
               </div>
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- 2. الملحوظة: مساحة واسعة مع ميزة النقر لفتح لوحة العرض والكتابة الكبيرة (col-span-8) -->
+            <!-- 2. الملحوظة: مساحة عرض واسعة ومكبرة مع إمكانية فتح اللوحة العملاقة (col-span-8) -->
             <div class="col-span-8 relative">
-              <input type="text" id="salesNotesInput" placeholder="الملحوظة (انقر للوحة الكبيرة)..." 
+              <input type="text" id="salesNotesInput" placeholder="الملحوظة (انقر للوحة المكبرة)..." 
                      onclick="SuiteSalesPOS.openNotesModal()" 
-                     class="glow-input-field glow-cyan w-full h-[38px] pr-2.5 pl-6 font-bold text-xs text-white outline-none placeholder:text-slate-400 placeholder:font-normal text-right cursor-pointer truncate" 
+                     class="glow-input-field glow-cyan w-full h-[42px] pr-3 pl-7 font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-normal text-right cursor-pointer truncate rounded-xl" 
                      style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" 
                      title="انقر لتكبير واستعراض كامل الملحوظة في لوحة مخصصة" readonly />
-              <span class="absolute left-2.5 top-2.5 text-cyan-400/50 pointer-events-none text-[10px]"><i class="fa-solid fa-expand"></i></span>
+              <span class="absolute left-2.5 top-3.5 text-cyan-400/60 pointer-events-none text-[11px]"><i class="fa-solid fa-expand"></i></span>
             </div>
           </div>
 
-          <!-- السطر الثاني: الصنف وبجواره الوحدة -->
+          <!-- السطر الثاني: الصنف والوحدة بمساحة عرض مكبرة وخط عريض واضح -->
           <div class="grid grid-cols-12 gap-1.5">
-            <!-- 1. الصنف: مربع اختيار الصنف بالداخل فقط مع فتح نافذة البحث بالضغط -->
+            <!-- 1. الصنف: مساحة عرض مكبرة ومريحة مع خط عريض بارز -->
             <div class="col-span-8">
-              <div class="glow-input-field glow-amber w-full h-[38px] px-2 flex items-center justify-center cursor-pointer transition active:scale-[0.99] overflow-hidden" 
+              <div class="glow-input-field glow-amber w-full h-[46px] px-3 flex items-center justify-center cursor-pointer transition active:scale-[0.99] overflow-hidden rounded-xl" 
                    onclick="SuiteSalesPOS.openItemSearch()" title="انقر لاختيار الصنف">
-                <span id="suiteItemDisplayName" class="font-bold text-xs sm:text-sm truncate text-center" style="color: #fcd34d !important;">اختر الصنف...</span>
+                <span id="suiteItemDisplayName" class="font-black text-sm sm:text-base truncate text-center tracking-wide" style="color: #fcd34d !important;">اختر الصنف...</span>
               </div>
               <input type="hidden" id="salesItemSelectVal" value="">
             </div>
 
-            <!-- 2. الوحدة: بجوار الصنف مباشرة -->
+            <!-- 2. الوحدة: مساحة مكبرة بخط واضح بجوار الصنف -->
             <div class="col-span-4">
               <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald w-full h-[38px] text-emerald-400 font-black text-center text-xs outline-none cursor-pointer px-1" 
+                      class="glow-input-field glow-emerald w-full h-[46px] text-emerald-400 font-black text-center text-xs sm:text-sm outline-none cursor-pointer px-1.5 rounded-xl" 
                       style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
                       title="الوحدة">
                 <option value="" disabled selected hidden>الوحدة</option>
@@ -7494,6 +7498,73 @@
       </div>
     </div>
 
+    <!-- SUITE CURRENCY RATE MODAL: نافذة تعديل سعر صرف الدولار وحفظه في السيستم وقاعدة البيانات -->
+        <div id="suiteCurrencyRateModal" class="hidden fixed inset-0 z-[70] modal-backdrop flex items-center justify-center p-3 sm:p-4">
+          <div class="w-full max-w-md rounded-3xl border border-emerald-500/50 p-4 space-y-4 shadow-2xl relative select-none text-white" 
+               style="background: linear-gradient(180deg, #032016, #030712) !important; color: #ffffff !important; box-shadow: 0 0 50px rgba(16, 185, 129, 0.35) !important; border: 1.5px solid rgba(16, 185, 129, 0.5) !important;">
+            
+            <!-- هيدر النافذة -->
+            <div class="flex items-center justify-between pb-2 border-b border-emerald-500/20">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-2xl flex items-center justify-center bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 shadow-sm">
+                  <i class="fa-solid fa-coins text-base"></i>
+                </div>
+                <div>
+                  <h3 class="font-black text-sm text-white drop-shadow" style="color: #ffffff !important;">تعديل سعر صرف الدولار في السيستم</h3>
+                  <p class="text-[10px] text-emerald-300/80">المعتمد في قاعدة البيانات والمربوط بكافة الشاشات</p>
+                </div>
+              </div>
+              <button type="button" onclick="SuiteFXManager.closeModal()" 
+                      class="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition active:scale-95 cursor-pointer">✕</button>
+            </div>
+
+            <!-- عرض السعر الحالي في السيستم -->
+            <div class="flex items-center justify-between px-3 py-2 rounded-xl border border-emerald-500/20 text-xs" style="background: rgba(15, 23, 42, 0.95) !important;">
+              <span class="text-slate-300 font-bold" style="color: #cbd5e1 !important;">السعر المعتمد حالياً في النظام:</span>
+              <div class="flex items-center gap-1 font-mono font-black text-amber-300 text-sm">
+                <span id="fxModalCurrentRateVal" style="color: #fcd34d !important;">2,850</span>
+                <span class="text-[10px] text-amber-400/80">ج.س</span>
+              </div>
+            </div>
+
+            <!-- حقل إدخال السعر الجديد -->
+            <div class="relative rounded-2xl p-3 border-2 border-emerald-500/60 shadow-[0_0_20px_rgba(16,185,129,0.25)] flex flex-col items-center" style="background: rgba(0, 0, 0, 0.8) !important;">
+              <span class="text-[10.5px] font-black text-emerald-400 mb-1.5" style="color: #34d399 !important;">السعر الجديد (5 خانات)</span>
+              <div class="flex items-center justify-center gap-2 w-full">
+                <span class="text-emerald-400 font-black text-2xl select-none" style="color: #34d399 !important;">$</span>
+                <input type="number" id="fxModalNewRateInput" inputmode="decimal" maxlength="5" placeholder="2850"
+                       class="w-full text-center font-black font-mono text-3xl outline-none" 
+                       style="background: transparent !important; color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; letter-spacing: 1.5px; border: none !important;" 
+                       onkeydown="if(event.key==='Enter') SuiteFXManager.saveNewRate()" />
+                <span class="text-amber-300 font-black text-sm select-none" style="color: #fcd34d !important;">ج.س</span>
+              </div>
+            </div>
+
+            <!-- أزرار تعديل سريعة (+ / -) -->
+            <div class="flex items-center justify-center gap-1.5 text-xs font-mono font-bold">
+              <button type="button" onclick="SuiteFXManager.adjustRate(-100)" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 active:scale-95 transition cursor-pointer">-100</button>
+              <button type="button" onclick="SuiteFXManager.adjustRate(-50)" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 active:scale-95 transition cursor-pointer">-50</button>
+              <button type="button" onclick="SuiteFXManager.adjustRate(50)" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 active:scale-95 transition cursor-pointer">+50</button>
+              <button type="button" onclick="SuiteFXManager.adjustRate(100)" class="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 active:scale-95 transition cursor-pointer">+100</button>
+            </div>
+
+            <!-- أزرار الحفظ والإلغاء -->
+            <div class="flex items-center gap-2 pt-1">
+              <button type="button" onclick="SuiteFXManager.closeModal()" 
+                      class="px-4 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition active:scale-95 cursor-pointer">
+                إلغاء
+              </button>
+              <button type="button" id="btnSaveFxRate" onclick="SuiteFXManager.saveNewRate()" 
+                      class="flex-1 py-2.5 rounded-2xl font-black text-xs text-white shadow-xl flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer" 
+                      style="background: linear-gradient(135deg, #059669, #10b981) !important; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.45); border: 1.5px solid #34d399;">
+                <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                <span>حفظ وتحديث في السيستم 💾</span>
+              </button>
+            </div>
+
+          </div>
+        </div>
+
     <!-- OPERATIONAL MODAL: 4. فواتير المشتريات (Purchase Invoice) - FLAGSHIP POS PARITY -->
     <div id="modalOpPurchase" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end sm:items-center justify-center p-2 sm:p-4">
       <div class="glass-base w-full max-w-xl rounded-3xl border border-amber-500/40 p-3.5 space-y-3 max-h-[94vh] overflow-y-auto shadow-2xl relative" style="background: linear-gradient(180deg, #130e06, #030712);">
@@ -7552,33 +7623,38 @@
               <input type="date" id="purInvoiceDate" onchange="SuitePurchasePOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
             </div>
 
-            <!-- 2. رقم التسلسل: بأسهم خفيفة وصغيرة جداً في الأطراف -->
-            <div id="opPurInvoiceSwipeBox" class="flex-1 min-w-0 px-1 py-0.5 rounded-xl flex items-center justify-between shadow-sm h-[34px] cursor-grab active:cursor-grabbing select-none relative overflow-hidden transition-all duration-150" 
+            <!-- 2. رقم التسلسل: بأسهم ميكرو فائقة الصغر في الأطراف تكاد ألا تكون مرئية ولا تشغل حيزاً إطلاقاً -->
+            <div id="opPurInvoiceSwipeBox" class="flex-1 min-w-0 px-1 py-0.5 rounded-xl flex items-center justify-center shadow-sm h-[34px] cursor-grab active:cursor-grabbing select-none relative overflow-hidden transition-all duration-150" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.55); box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); touch-action: pan-y;" 
                  title="اسحب أو مرر يميناً أو يساراً للتنقل">
               <button type="button" onclick="event.stopPropagation(); SuitePurchasePOS.navigateInvoice('next');" 
-                      class="w-3.5 h-3.5 rounded flex items-center justify-center text-[7.5px] text-amber-400/40 hover:text-amber-300 hover:bg-amber-500/20 transition cursor-pointer select-none shrink-0" 
+                      class="absolute right-0.5 top-1/2 -translate-y-1/2 w-2.5 h-full flex items-center justify-center text-[5.5px] text-amber-400/20 hover:text-amber-300/80 transition cursor-pointer select-none z-10" 
                       title="فاتورة الشراء التالية">▶</button>
               
-              <div class="flex items-center overflow-hidden px-1 text-center justify-center flex-1 min-w-0">
-                <span id="opPurchaseNoPill" class="text-[12.5px] sm:text-xs font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block" style="color: #fcd34d !important;">P26101012</span>
+              <div class="w-full flex items-center overflow-hidden px-2 text-center justify-center min-w-0">
+                <span id="opPurchaseNoPill" class="text-xs sm:text-[13px] font-mono font-black text-amber-300 tracking-wider whitespace-nowrap select-none inline-block" style="color: #fcd34d !important;">P26101012</span>
               </div>
 
               <button type="button" onclick="event.stopPropagation(); SuitePurchasePOS.navigateInvoice('prev');" 
-                      class="w-3.5 h-3.5 rounded flex items-center justify-center text-[7.5px] text-amber-400/40 hover:text-amber-300 hover:bg-amber-500/20 transition cursor-pointer select-none shrink-0" 
+                      class="absolute left-0.5 top-1/2 -translate-y-1/2 w-2.5 h-full flex items-center justify-center text-[5.5px] text-amber-400/20 hover:text-amber-300/80 transition cursor-pointer select-none z-10" 
                       title="فاتورة الشراء السابقة">◀</button>
             </div>
 
-            <!-- 3. سعر صرف العملة -->
-            <div id="purRateContainer" class="w-[88px] shrink-0 px-1.5 py-0.5 rounded-xl flex items-center justify-between gap-1 shadow-sm h-[34px] transition-all duration-300" 
+            <!-- 3. سعر صرف العملة: مربوط بالنظام وقاعدة البيانات + نافذة تعديل وحفظ عند النقر -->
+            <div id="purRateContainer" onclick="SuiteFXManager.openModal()" 
+                 class="w-[94px] shrink-0 px-1.5 py-0.5 rounded-xl flex items-center justify-between gap-1 shadow-sm h-[34px] transition-all duration-300 cursor-pointer active:scale-95 group relative select-none" 
                  style="background: linear-gradient(135deg, #064e3b, #042f2e); border: 2px solid #10b981; box-shadow: 0 0 14px rgba(16, 185, 129, 0.6), inset 0 0 8px rgba(16, 185, 129, 0.3);" 
-                 title="سعر صرف العملة (5 خانات)">
-              <input type="text" id="purUsdRateInput" inputmode="decimal" maxlength="5" value="2850" 
-                     class="w-[50px] text-center p-0 m-0 tracking-wider selection:bg-emerald-600 cursor-text" 
-                     style="background: transparent !important; color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 13px !important; letter-spacing: 0.5px !important; border: none !important; outline: none !important; box-shadow: none !important;" 
-                     onchange="SuitePurchasePOS.updateUsdRate(this.value)" 
-                     placeholder="2850" />
-              <button type="button" id="btnPurCurrencyToggle" onclick="SuitePurchasePOS.toggleCurrency()" 
+                 title="سعر صرف العملة من السيستم - انقر للتعديل والحفظ في قاعدة البيانات">
+              
+              <div class="flex items-center gap-1 min-w-0 flex-1 justify-center pointer-events-none">
+                <span id="purUsdRateDisplay" 
+                      class="text-center font-black tracking-wider truncate" 
+                      style="color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 13.5px !important; letter-spacing: 0.5px !important;">2850</span>
+                <i class="fa-solid fa-pen text-[7px] text-emerald-300/50 group-hover:text-emerald-200 transition shrink-0"></i>
+              </div>
+              <input type="hidden" id="purUsdRateInput" value="2850" />
+
+              <button type="button" id="btnPurCurrencyToggle" onclick="event.stopPropagation(); SuitePurchasePOS.toggleCurrency()" 
                       class="w-5 h-5 rounded-md flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-85 select-none" 
                       style="background: rgba(16, 185, 129, 0.5); border: 1.5px solid #34d399; box-shadow: 0 0 8px rgba(52, 211, 153, 0.7);" 
                       title="العملة: دولار ($) - انقر للتحويل إلى جنيه">
@@ -7614,46 +7690,46 @@
         <!-- ═══════════════════════════════════════════════════════════════
              3. ITEM ENTRY FORM (الترتيب الدقيق: المخزن -> الصنف -> الكمية والسعر -> الجملة -> الإضافة والخصم والإعالة -> إجمالي الفاتورة)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="p-3 rounded-2xl border space-y-2.5 text-xs shadow-2xl relative overflow-hidden" 
+        <div class="p-2 sm:p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-hidden" 
              style="background: #03050a; border: 1.5px solid rgba(148, 163, 184, 0.25); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- السطر الأول: المخزن المستلم (40%) وبجواره الملحوظة (60%) -->
+          <!-- السطر الأول: المخزن المستلم والملحوظة بمساحة عرض مكبرة -->
           <div class="grid grid-cols-12 gap-1.5">
             <div class="col-span-4">
               <div onclick="SuitePurchasePOS.openWarehouseSearch()" 
-                   class="glow-input-field glow-purple flex items-center justify-center h-[38px] px-1.5 rounded-xl cursor-pointer transition active:scale-[0.98] select-none" 
+                   class="glow-input-field glow-purple flex items-center justify-center h-[42px] px-2 rounded-xl cursor-pointer transition active:scale-[0.98] select-none overflow-hidden" 
                    style="background: rgba(15, 23, 42, 0.92) !important; border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.15);" 
                    title="انقر لاختيار المستودع المستلم">
-                <span id="suitePurWarehouseDisplayName" class="font-black text-xs truncate text-center text-purple-300">المستودع الرئيسي</span>
+                <span id="suitePurWarehouseDisplayName" class="font-black text-xs sm:text-sm truncate text-center text-purple-300">المستودع الرئيسي</span>
               </div>
               <input type="hidden" id="purchaseWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
             <div class="col-span-8">
               <div class="relative cursor-pointer" onclick="SuitePurchasePOS.openNotesModal()" title="انقر لفتح لوحة الملحوظة الكبيرة وعرض كامل التفاصيل">
-                <input type="text" id="purNotesInput" placeholder="الملحوظة (انقر للوحة الكبيرة)..." 
-                       class="glow-input-field glow-sky w-full h-[38px] text-white font-medium text-xs outline-none pr-7 pl-2 cursor-pointer placeholder:text-slate-400" 
+                <input type="text" id="purNotesInput" placeholder="الملحوظة (انقر للوحة المكبرة)..." 
+                       class="glow-input-field glow-sky w-full h-[42px] text-white font-bold text-xs sm:text-sm outline-none pr-3 pl-7 cursor-pointer placeholder:text-slate-400 rounded-xl" 
                        style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" readonly />
-                <span class="absolute right-2 top-2.5 text-sky-400 text-xs pointer-events-none"><i class="fa-solid fa-expand text-[11px]"></i></span>
+                <span class="absolute left-2.5 top-3.5 text-sky-400/60 text-xs pointer-events-none"><i class="fa-solid fa-expand text-[11px]"></i></span>
               </div>
             </div>
           </div>
 
-          <!-- السطر الثاني: الصنف والوحدة -->
+          <!-- السطر الثاني: الصنف والوحدة بمساحة عرض مكبرة وخط عريض واضح -->
           <div class="grid grid-cols-12 gap-1.5">
             <div class="col-span-8">
               <div onclick="SuitePurchasePOS.openItemSearch()" 
-                   class="glow-input-field glow-amber flex items-center justify-center h-[38px] px-2.5 rounded-xl cursor-pointer transition active:scale-[0.98] select-none" 
+                   class="glow-input-field glow-amber flex items-center justify-center h-[46px] px-3 rounded-xl cursor-pointer transition active:scale-[0.98] select-none overflow-hidden" 
                    style="background: rgba(15, 23, 42, 0.92) !important; border: 1.5px solid rgba(245, 158, 11, 0.55); box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);" 
                    title="انقر لاختيار الصنف (بحث فوري)">
-                <span id="suitePurItemDisplayName" class="font-bold text-xs sm:text-sm truncate text-center text-amber-300">اختر الصنف...</span>
+                <span id="suitePurItemDisplayName" class="font-black text-sm sm:text-base truncate text-center text-amber-300 tracking-wide">اختر الصنف...</span>
               </div>
               <input type="hidden" id="purItemSelectVal" value="">
             </div>
 
             <div class="col-span-4">
               <select id="purUnitSelect" onchange="SuitePurchasePOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald w-full h-[38px] text-emerald-400 font-black text-center text-xs outline-none cursor-pointer px-1" 
+                      class="glow-input-field glow-emerald w-full h-[46px] text-emerald-400 font-black text-center text-xs sm:text-sm outline-none cursor-pointer px-1.5 rounded-xl" 
                       style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
                       title="الوحدة">
                 <option value="" disabled selected hidden>الوحدة</option>
@@ -10332,6 +10408,139 @@
 
     
     // ═════════════════════════════════════════════════════════════════════
+    // 🌐 SUITE FX MANAGER: REAL-TIME SYSTEM EXCHANGE RATE SYNC (DATABASE)
+    // ═════════════════════════════════════════════════════════════════════
+    window.SuiteFXManager = {
+      currentRate: 2850,
+      isLoading: false,
+
+      async fetchSystemRate() {
+        try {
+          const cached = localStorage.getItem('magaies_usd_rate') || localStorage.getItem('erp_rate_usd');
+          if (cached) {
+            const n = parseFloat(cached);
+            if (!isNaN(n) && n > 0) this.currentRate = n;
+          }
+          const res = await fetch('api/mirror_sync.php?action=get_currency_rate&_t=' + Date.now());
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.success && data.rate) {
+              this.currentRate = parseFloat(data.rate);
+              localStorage.setItem('magaies_usd_rate', this.currentRate.toString());
+              localStorage.setItem('erp_rate_usd', this.currentRate.toString());
+            }
+          }
+        } catch(e) {
+          console.warn('[FX] Offline fallback for currency rate:', e);
+        }
+        this.broadcastRate(this.currentRate);
+        return this.currentRate;
+      },
+
+      broadcastRate(rate) {
+        this.currentRate = rate;
+        const sDisplay = document.getElementById('salesUsdRateDisplay');
+        const sInp = document.getElementById('salesUsdRateInput');
+        if (sDisplay) sDisplay.innerText = rate.toString().slice(0, 5);
+        if (sInp) sInp.value = rate.toString().slice(0, 5);
+        if (window.SuiteSalesPOS) {
+          window.SuiteSalesPOS.usdExchangeRate = rate;
+          if (window.SuiteSalesPOS.cart && window.SuiteSalesPOS.cart.length > 0) window.SuiteSalesPOS.renderCart();
+        }
+
+        const pDisplay = document.getElementById('purUsdRateDisplay');
+        const pInp = document.getElementById('purUsdRateInput');
+        if (pDisplay) pDisplay.innerText = rate.toString().slice(0, 5);
+        if (pInp) pInp.value = rate.toString().slice(0, 5);
+        if (window.SuitePurchasePOS) {
+          window.SuitePurchasePOS.usdExchangeRate = rate;
+          if (window.SuitePurchasePOS.cart && window.SuitePurchasePOS.cart.length > 0) window.SuitePurchasePOS.renderCart();
+        }
+
+        window.dispatchEvent(new CustomEvent('magaies_rate_changed', { detail: { rate } }));
+      },
+
+      openModal() {
+        const modal = document.getElementById('suiteCurrencyRateModal');
+        if (!modal) return;
+        const inp = document.getElementById('fxModalNewRateInput');
+        const curValDisplay = document.getElementById('fxModalCurrentRateVal');
+        if (inp) inp.value = this.currentRate;
+        if (curValDisplay) curValDisplay.innerText = this.currentRate.toLocaleString('en-US');
+        modal.classList.remove('hidden');
+        setTimeout(() => { if (inp) { inp.focus(); inp.select(); } }, 100);
+      },
+
+      closeModal() {
+        const modal = document.getElementById('suiteCurrencyRateModal');
+        if (modal) modal.classList.add('hidden');
+      },
+
+      adjustRate(delta) {
+        const inp = document.getElementById('fxModalNewRateInput');
+        if (!inp) return;
+        let val = parseFloat(inp.value) || this.currentRate;
+        val = Math.max(1, val + delta);
+        inp.value = val;
+      },
+
+      async saveNewRate() {
+        const inp = document.getElementById('fxModalNewRateInput');
+        if (!inp) return;
+        const newRate = parseFloat(inp.value);
+        if (isNaN(newRate) || newRate <= 0) {
+          alert('الرجاء إدخال سعر صرف صالح');
+          return;
+        }
+
+        const saveBtn = document.getElementById('btnSaveFxRate');
+        const originalText = saveBtn ? saveBtn.innerHTML : '';
+        if (saveBtn) {
+          saveBtn.disabled = true;
+          saveBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري الحفظ في السيستم...';
+        }
+
+        try {
+          const res = await fetch('api/mirror_sync.php?action=save_currency_rate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'save_currency_rate', rate: newRate })
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            throw new Error(data.error || 'فشل الحفظ في قاعدة البيانات');
+          }
+
+          localStorage.setItem('magaies_usd_rate', newRate.toString());
+          localStorage.setItem('erp_rate_usd', newRate.toString());
+          try {
+            let crObj = JSON.parse(localStorage.getItem('erp_currency_rates_v1') || '{}');
+            crObj['USD'] = newRate;
+            crObj['SDG'] = 1;
+            localStorage.setItem('erp_currency_rates_v1', JSON.stringify(crObj));
+          } catch(e) {}
+
+          this.broadcastRate(newRate);
+          this.closeModal();
+
+          if (window.triggerHapticPulse) triggerHapticPulse(25);
+          if (typeof showToast === 'function') {
+            showToast('✅ تم حفظ وتحديث سعر صرف الدولار في قاعدة البيانات وعلى مستوى السيستم بنجاح', 'success');
+          } else {
+            alert('✅ تم حفظ سعر صرف الدولار المعتمد (' + newRate + ') في قاعدة البيانات بنجاح');
+          }
+        } catch(err) {
+          alert('⚠️ تنبيه: ' + err.message);
+        } finally {
+          if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = originalText;
+          }
+        }
+      }
+    };
+
+    // ═════════════════════════════════════════════════════════════════════
     // 💎 SUITE SALES POS ENGINE - DIRECT LAPTOP PARITY & MARIADB SYNC
     // ═════════════════════════════════════════════════════════════════════
     window.SuiteSalesPOS = {
@@ -10360,21 +10569,14 @@
 
       currencyMode: 'USD',
 
-      initCurrencyAndRate() {
-        const savedRate = localStorage.getItem('magaies_usd_rate');
-        if (savedRate) {
-          const num = parseFloat(savedRate);
-          if (!isNaN(num) && num > 0) this.usdExchangeRate = num;
-        } else if (!this.usdExchangeRate || this.usdExchangeRate === 6000) {
-          this.usdExchangeRate = 2850;
-        }
-        const inp = document.getElementById('salesUsdRateInput');
-        if (inp) {
-          inp.value = this.usdExchangeRate.toString().slice(0, 5);
-        }
+      async initCurrencyAndRate() {
         const savedMode = localStorage.getItem('magaies_currency_mode');
         if (savedMode) {
           this.currencyMode = savedMode;
+        }
+        if (window.SuiteFXManager) {
+          await SuiteFXManager.fetchSystemRate();
+          this.usdExchangeRate = SuiteFXManager.currentRate;
         }
         this.syncCurrencyDisplay();
       },
@@ -10395,8 +10597,12 @@
       syncCurrencyDisplay() {
         const btn = document.getElementById('btnSalesCurrencyToggle');
         const sym = document.getElementById('salesCurrencySymbol');
+        const disp = document.getElementById('salesUsdRateDisplay');
         const inp = document.getElementById('salesUsdRateInput');
         const rateBox = document.getElementById('salesRateContainer');
+
+        if (disp) disp.innerText = this.usdExchangeRate.toString().slice(0, 5);
+        if (inp) inp.value = this.usdExchangeRate.toString().slice(0, 5);
 
         if (!btn || !sym) return;
 
@@ -10413,13 +10619,6 @@
             rateBox.style.setProperty('border', '2px solid #f59e0b', 'important');
             rateBox.style.setProperty('box-shadow', '0 0 14px rgba(245, 158, 11, 0.65), inset 0 0 8px rgba(245, 158, 11, 0.35)', 'important');
           }
-          if (inp) {
-            inp.style.setProperty('color', '#fffbeb', 'important');
-            inp.style.fontFamily = "'Impact', 'Arial Black', sans-serif";
-            inp.style.fontWeight = '900';
-            inp.style.letterSpacing = '0.5px';
-            inp.title = 'سعر الصرف بالجنيه (5 خانات)';
-          }
         } else {
           sym.innerText = '$';
           sym.style.color = '#34d399';
@@ -10432,13 +10631,6 @@
             rateBox.style.setProperty('background', 'linear-gradient(135deg, #064e3b, #042f2e)', 'important');
             rateBox.style.setProperty('border', '2px solid #10b981', 'important');
             rateBox.style.setProperty('box-shadow', '0 0 14px rgba(16, 185, 129, 0.65), inset 0 0 8px rgba(16, 185, 129, 0.35)', 'important');
-          }
-          if (inp) {
-            inp.style.setProperty('color', '#ffffff', 'important');
-            inp.style.fontFamily = "'Impact', 'Arial Black', sans-serif";
-            inp.style.fontWeight = '900';
-            inp.style.letterSpacing = '0.5px';
-            inp.title = 'سعر صرف الدولار (5 خانات)';
           }
         }
 
@@ -11756,8 +11948,13 @@
       currencyMode: 'USD',
       usdExchangeRate: 2850,
 
-      init() {
+      async init() {
         this.syncHeaderDatePill();
+        if (window.SuiteFXManager) {
+          await SuiteFXManager.fetchSystemRate();
+          this.usdExchangeRate = SuiteFXManager.currentRate;
+        }
+        this.syncCurrencyDisplay();
         this.renderCart();
       },
 
@@ -11770,53 +11967,52 @@
 
       toggleCurrency() {
         this.currencyMode = this.currencyMode === 'USD' ? 'SDG' : 'USD';
-        const sym = document.getElementById('purCurrencySymbol');
-        const rateBox = document.getElementById('purRateContainer');
-        const inp = document.getElementById('purUsdRateInput');
+        this.syncCurrencyDisplay();
+        if (window.triggerHapticPulse) triggerHapticPulse(15);
+      },
+
+      syncCurrencyDisplay() {
         const btn = document.getElementById('btnPurCurrencyToggle');
+        const sym = document.getElementById('purCurrencySymbol');
+        const disp = document.getElementById('purUsdRateDisplay');
+        const inp = document.getElementById('purUsdRateInput');
+        const rateBox = document.getElementById('purRateContainer');
+
+        if (disp) disp.innerText = this.usdExchangeRate.toString().slice(0, 5);
+        if (inp) inp.value = this.usdExchangeRate.toString().slice(0, 5);
+
+        if (!btn || !sym) return;
 
         if (this.currencyMode === 'SDG') {
-          if (sym) {
-            sym.innerText = 'ج.س';
-            sym.style.color = '#fbbf24';
-            sym.className = 'text-amber-300 text-[9px] font-black leading-none pointer-events-none';
-          }
-          if (btn) {
-            btn.style.setProperty('background', 'rgba(245, 158, 11, 0.5)', 'important');
-            btn.style.setProperty('border', '1.5px solid #fbbf24', 'important');
-            btn.style.setProperty('box-shadow', '0 0 8px rgba(251, 191, 36, 0.7)', 'important');
-          }
+          sym.innerText = 'ج.س';
+          sym.style.color = '#fcd34d';
+          sym.className = 'text-amber-300 text-[8.5px] font-black leading-none pointer-events-none';
+          btn.style.setProperty('background', 'rgba(245, 158, 11, 0.5)', 'important');
+          btn.style.setProperty('border', '1.5px solid #fbbf24', 'important');
+          btn.style.setProperty('box-shadow', '0 0 8px rgba(251, 191, 36, 0.7)', 'important');
           if (rateBox) {
             rateBox.style.setProperty('background', 'linear-gradient(135deg, #78350f, #451a03)', 'important');
             rateBox.style.setProperty('border', '2px solid #f59e0b', 'important');
             rateBox.style.setProperty('box-shadow', '0 0 14px rgba(245, 158, 11, 0.65), inset 0 0 8px rgba(245, 158, 11, 0.35)', 'important');
           }
-          if (inp) {
-            inp.style.setProperty('color', '#fffbeb', 'important');
-            inp.style.fontFamily = "'Impact', 'Arial Black', sans-serif";
-            inp.style.fontWeight = '900';
-          }
         } else {
-          if (sym) {
-            sym.innerText = '$';
-            sym.style.color = '#34d399';
-            sym.className = 'text-emerald-300 text-[11px] font-black leading-none pointer-events-none';
-          }
-          if (btn) {
-            btn.style.setProperty('background', 'rgba(16, 185, 129, 0.5)', 'important');
-            btn.style.setProperty('border', '1.5px solid #34d399', 'important');
-            btn.style.setProperty('box-shadow', '0 0 8px rgba(52, 211, 153, 0.7)', 'important');
-          }
+          sym.innerText = '$';
+          sym.style.color = '#34d399';
+          sym.className = 'text-emerald-300 text-[11px] font-black leading-none pointer-events-none';
+          btn.style.setProperty('background', 'rgba(16, 185, 129, 0.5)', 'important');
+          btn.style.setProperty('border', '1.5px solid #34d399', 'important');
+          btn.style.setProperty('box-shadow', '0 0 8px rgba(52, 211, 153, 0.7)', 'important');
           if (rateBox) {
             rateBox.style.setProperty('background', 'linear-gradient(135deg, #064e3b, #042f2e)', 'important');
             rateBox.style.setProperty('border', '2px solid #10b981', 'important');
             rateBox.style.setProperty('box-shadow', '0 0 14px rgba(16, 185, 129, 0.65), inset 0 0 8px rgba(16, 185, 129, 0.35)', 'important');
           }
-          if (inp) {
-            inp.style.setProperty('color', '#ffffff', 'important');
-            inp.style.fontFamily = "'Impact', 'Arial Black', sans-serif";
-            inp.style.fontWeight = '900';
-          }
+        }
+
+        const gt = document.getElementById('suitePurGrandTotalDisplay');
+        if (gt) {
+          const num = parseFloat(gt.innerText.replace(/[^0-9.]/g, '')) || 0;
+          gt.innerText = num.toFixed(2) + (this.currencyMode === 'USD' ? ' $' : ' SDG');
         }
       },
 

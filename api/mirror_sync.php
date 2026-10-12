@@ -795,6 +795,121 @@ try {
             $delSeq = getDeliverySequence($pdo, $tenantId);
             echo json_encode(['success' => true, 'deliveries' => $list, 'nextDeliveryNo' => $delSeq['nextDeliveryNo']], JSON_UNESCAPED_UNICODE);
             break;
+
+        // ═════════════════════════════════════════════════════════
+        // 8. REAL-TIME CURRENCY EXCHANGE RATE (SYSTEM-WIDE)
+        // ═════════════════════════════════════════════════════════
+        case 'get_currency_rate':
+            $rate = 0;
+            $details = [];
+            $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('tenant_rate_" . intval($tenantId) . "', 'exchange_rate', 'erp_rate_usd', 'erp_currency_rates_v1')");
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+
+            if (!empty($rows['tenant_rate_' . intval($tenantId)])) {
+                $val = $rows['tenant_rate_' . intval($tenantId)];
+                $rate = is_numeric($val) ? (float)$val : 0;
+            }
+            if (!$rate && !empty($rows['exchange_rate'])) {
+                $val = $rows['exchange_rate'];
+                if (is_numeric($val)) {
+                    $rate = (float)$val;
+                } else {
+                    $d = json_decode($val, true);
+                    if ($d) {
+                        $details = $d;
+                        if (!empty($d['rate'])) $rate = (float)$d['rate'];
+                        elseif (!empty($d['USD'])) $rate = (float)$d['USD'];
+                    }
+                }
+            }
+            if (!$rate && !empty($rows['erp_rate_usd'])) {
+                $rate = (float)$rows['erp_rate_usd'];
+            }
+            if (!$rate && !empty($rows['erp_currency_rates_v1'])) {
+                $ratesObj = json_decode($rows['erp_currency_rates_v1'], true);
+                if (!empty($ratesObj['USD'])) $rate = (float)$ratesObj['USD'];
+            }
+            if (!$rate) {
+                $rate = 2850.0;
+            }
+
+            echo json_encode([
+                'success' => true,
+                'rate' => $rate,
+                'currency' => 'USD',
+                'details' => $details
+            ], JSON_UNESCAPED_UNICODE);
+            break;
+
+        case 'save_currency_rate':
+            $newRate = 0;
+            if (isset($_POST['rate'])) {
+                $newRate = (float)$_POST['rate'];
+            } elseif (isset($rawInput['rate'])) {
+                $newRate = (float)$rawInput['rate'];
+            } elseif (isset($_GET['rate'])) {
+                $newRate = (float)$_GET['rate'];
+            }
+            if ($newRate <= 0) {
+                throw new Exception('القيمة المدخلة لسعر الصرف غير صالحة');
+            }
+
+            // 1. Update exchange_rate with history preservation
+            $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");
+            $stmt->execute();
+            $curVal = $stmt->fetchColumn();
+            $d = $curVal ? json_decode($curVal, true) : null;
+            $oldRate = 0;
+            if (is_array($d)) {
+                $oldRate = (float)($d['rate'] ?? 0);
+                $d['rate'] = $newRate;
+                $trend = ($newRate >= $oldRate) ? 'up' : 'down';
+                $d['trend'] = $trend;
+                if (!isset($d['history']) || !is_array($d['history'])) $d['history'] = [];
+                $d['history'][] = [
+                    'date' => date('Y-m-d'),
+                    'time' => date('H:i'),
+                    'rate' => $newRate,
+                    'old_rate' => $oldRate,
+                    'trend' => $trend,
+                    'source' => 'mobile_pos'
+                ];
+                if (count($d['history']) > 50) $d['history'] = array_slice($d['history'], -50);
+                $stmtUp = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmtUp->execute([json_encode($d, JSON_UNESCAPED_UNICODE)]);
+            } else {
+                $stmtUp = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('exchange_rate', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmtUp->execute([json_encode(['rate' => $newRate, 'trend' => 'up', 'history' => [['date' => date('Y-m-d'), 'rate' => $newRate, 'source' => 'mobile_pos']]], JSON_UNESCAPED_UNICODE)]);
+            }
+
+            // 2. Update erp_currency_rates_v1
+            $stmtCr = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_currency_rates_v1'");
+            $stmtCr->execute();
+            $crVal = $stmtCr->fetchColumn();
+            $rates = $crVal ? json_decode($crVal, true) : [];
+            if (!is_array($rates)) $rates = [];
+            $rates['USD'] = $newRate;
+            $rates['SDG'] = 1;
+            $stmtUpCr = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_currency_rates_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+            $stmtUpCr->execute([json_encode($rates, JSON_UNESCAPED_UNICODE)]);
+
+            // 3. Update erp_rate_usd & tenant_rate
+            $stmtUpUsd = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_rate_usd', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+            $stmtUpUsd->execute([(string)$newRate]);
+
+            if (!empty($tenantId)) {
+                $stmtUpTen = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('tenant_rate_" . intval($tenantId) . "', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmtUpTen->execute([(string)$newRate]);
+            }
+
+            echo json_encode([
+                'success' => true,
+                'rate' => $newRate,
+                'old_rate' => $oldRate,
+                'message' => 'تم حفظ وتحديث سعر صرف الدولار بنجاح في قاعدة البيانات وعلى مستوى السيستم بالكامل'
+            ], JSON_UNESCAPED_UNICODE);
+            break;
     }
 } catch (Exception $e) {
     http_response_code(500);
