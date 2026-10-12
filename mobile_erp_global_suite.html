@@ -6510,13 +6510,19 @@
             </div>
             <div>
               <h4 class="text-sm font-black text-slate-100 flex items-center gap-1.5">
-                <span>حركة مالية وتحويل بين الحسابات</span>
-                <span class="text-[10px] bg-cyan-950 text-cyan-300 font-mono px-1.5 py-0.5 rounded-full border border-cyan-500/30">من ➔ إلى</span>
+                <span>شاشة الحركة المالية</span>
+                <span class="text-[10px] bg-cyan-950 text-cyan-300 font-mono px-1.5 py-0.5 rounded-full border border-cyan-500/30">سداد فوري</span>
               </h4>
-              <span class="text-[10px] text-slate-400 font-bold block">تحويل فوري مزدوج القيد مع تحديث الأرصدة ومانع التكرار</span>
+              <span class="text-[10px] text-slate-400 font-bold block">تحويل وسداد فوري مزدوج القيد مع تحديث الأرصدة</span>
             </div>
           </div>
-          <button onclick="closeModal('modalOpFinance')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm transition">✕</button>
+          <div class="flex items-center gap-1.5">
+            <a href="mobile-voucher.php" id="btnOpenFullVoucherScreen" class="px-2 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 text-[10px] font-black flex items-center gap-1 transition" title="فتح شاشة السند الموسعة">
+              <span>شاشة السند</span>
+              <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+            </a>
+            <button onclick="closeModal('modalOpFinance')" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center text-sm transition">✕</button>
+          </div>
         </div>
 
         <!-- 1. طريقة التحويل والوسيلة المالية -->
@@ -6541,18 +6547,31 @@
           </div>
         </div>
 
-        <!-- 2. طرف الصرف (من الصارف / دائن) - أحمر فخم Rose -->
+        <!-- 2. طرف الصرف (من الصارف / العميل الصارف) - أحمر فخم Rose -->
         <div class="rounded-2xl border-2 border-rose-500/60 bg-gradient-to-b from-rose-950/25 to-slate-900/80 p-3 space-y-2 relative shadow-lg shadow-rose-950/20">
           <div class="flex items-center justify-between pb-1 border-b border-rose-500/30">
             <div class="flex items-center gap-1.5">
-              <span class="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs">📤</span>
-              <span class="text-xs font-black text-rose-300">من (حساب الصارف / دائن):</span>
+              <span class="w-6 h-6 rounded-lg bg-rose-500/20 text-rose-400 flex items-center justify-center font-bold text-xs">👤</span>
+              <span class="text-xs font-black text-rose-300">الاسم:</span>
+              <span class="text-[10px] text-slate-400 font-bold">(اسم الشخص الذي تم البيع له)</span>
             </div>
-            <span class="text-[10px] bg-rose-950 text-rose-300 font-bold px-2 py-0.5 rounded-full border border-rose-500/40">صرف وخروج أموال</span>
+            <span class="text-[10px] bg-rose-950 text-rose-300 font-bold px-2 py-0.5 rounded-full border border-rose-500/40">الطرف الصارف</span>
           </div>
 
+          <!-- حقل الاسم الواضح والمفرغ تلقائياً -->
           <div>
-            <select id="finTransferFromAccount" onchange="updateFinTransferBalancesPreview()" class="w-full bg-slate-900 border border-rose-500/40 rounded-xl p-2.5 text-white font-bold text-xs focus:outline-none focus:border-rose-400">
+            <input 
+              type="text" 
+              id="finTransferCustomerNameInput" 
+              placeholder="اسم الشخص الذي تم البيع له..." 
+              class="w-full bg-slate-900 border-2 border-rose-500/60 focus:border-rose-400 rounded-xl p-2.5 text-white font-black text-sm focus:outline-none shadow-inner"
+              oninput="if(typeof SuiteSalesPOS!=='undefined') SuiteSalesPOS.syncCustomerNameToAccount(this.value);"
+            />
+          </div>
+
+          <div class="pt-0.5">
+            <label class="block text-[10px] font-bold text-slate-400 mb-1">الحساب المحاسبي المرتبط للصرف (دائن):</label>
+            <select id="finTransferFromAccount" onchange="updateFinTransferBalancesPreview()" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2 text-slate-200 font-bold text-xs focus:outline-none">
               <!-- Populated dynamically via JS -->
             </select>
           </div>
@@ -6629,10 +6648,11 @@
         <!-- 4. المبلغ والعملة ولوحة الأرقام المحاسبية -->
         <div class="glass-card-interactive p-3 rounded-2xl border border-cyan-500/40 space-y-2">
           <div class="flex justify-between items-center">
-            <label class="text-[11px] font-black text-slate-200 flex items-center gap-1">
-              <span>💰 مبلغ الحركة المالية:</span>
+            <label class="text-xs font-black text-slate-200 flex items-center gap-1.5">
+              <span>💰 المبلغ:</span>
+              <span class="text-[10px] text-cyan-400 font-mono font-bold">(المبلغ المطلوب في محل المبلغ)</span>
             </label>
-            <button type="button" onclick="openAccountingNumpad('finTransferAmountInput', 'مبلغ التحويل المالي')" class="px-2 py-0.5 rounded-lg bg-cyan-950 border border-cyan-500/40 text-[10px] text-cyan-300 font-bold hover:bg-cyan-900/60 transition flex items-center gap-1">
+            <button type="button" onclick="openAccountingNumpad('finTransferAmountInput', 'مبلغ الحركة المالية')" class="px-2 py-0.5 rounded-lg bg-cyan-950 border border-cyan-500/40 text-[10px] text-cyan-300 font-bold hover:bg-cyan-900/60 transition flex items-center gap-1">
               <span>🔢 لوحة الأرقام العملاقة</span>
             </button>
           </div>
@@ -6642,10 +6662,10 @@
               <input 
                 id="finTransferAmountInput" 
                 type="number" 
-                value="1500" 
-                placeholder="0.00"
-                oninput="updateFinTransferBalancesPreview()"
-                class="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-xl py-2.5 px-3 font-mono font-black text-base text-cyan-300 focus:outline-none" 
+                value="0" 
+                placeholder="0.00" 
+                oninput="updateFinTransferBalancesPreview()" 
+                class="w-full bg-slate-900 border-2 border-cyan-500/60 focus:border-cyan-400 rounded-xl py-2.5 px-3 font-mono font-black text-lg text-cyan-300 focus:outline-none" 
               />
             </div>
             <div class="flex bg-slate-900 border border-slate-700 rounded-xl p-0.5">
@@ -7251,70 +7271,62 @@
              ═══════════════════════════════════════════════════════════════ -->
         <!-- ═══════════════════════════════════════════════════════════════
              3. ITEM ENTRY MODULE: وحدة المخزون والأصناف والكميات
-             (مربع واحد بلون أسود فخم يختلف عن الخلفية العامة لمزيد من التركيز والتباين)
+             (زيادة الحجم والارتفاع بنسبة 10%+ مع نقطة ميكرو فائقة الصغر في الركن لتبديل التسميات)
              ═══════════════════════════════════════════════════════════════ -->
         <div id="suiteSalesItemBox" class="p-2 sm:p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-hidden pos-labels-inside" 
              style="background: #03050a; border: 1.5px solid rgba(148, 163, 184, 0.25); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- شريط الركن العلوي: عنوان القسم وزر تبديل موضع التسميات الصغير -->
-          <div class="flex items-center justify-between pb-1 px-0.5 border-b border-slate-800/80">
-            <div class="flex items-center gap-1.5 text-slate-300 text-[11px] font-bold">
-              <i class="fa-solid fa-cube text-amber-400"></i>
-              <span>بيانات الصنف والمخزون</span>
-            </div>
-            <!-- زر الركن الصغير للتبديل بين التسميات العلوية والداخلية -->
-            <button type="button" id="btnToggleSalesLabels" onclick="SuiteSalesPOS.toggleLabelsPosition()" 
-                    class="px-2 py-0.5 rounded-lg text-[10.5px] font-bold flex items-center gap-1 transition active:scale-90 cursor-pointer shadow-sm select-none" 
-                    style="background: rgba(15, 23, 42, 0.95); border: 1.5px solid rgba(56, 189, 248, 0.45); color: #38bdf8;" 
-                    title="تبديل موضع التسميات: أعلى الحقول أو مدمجة بداخلها">
-              <i id="iconToggleSalesLabels" class="fa-solid fa-arrow-up-short-wide text-[10px]"></i>
-              <span id="lblToggleSalesLabelsText">تسميات أعلى الحقول</span>
-            </button>
-          </div>
+          <!-- نقطة ميكرو فائقة الصغر في الركن تماماً للتبديل بين التسميات الداخلية والعلوية دون أن تشغل أي حيز إطلاقاً -->
+          <button type="button" id="btnToggleSalesLabels" onclick="SuiteSalesPOS.toggleLabelsPosition()" 
+                  class="absolute top-1.5 left-1.5 z-30 w-3 h-3 rounded-full flex items-center justify-center p-0 cursor-pointer transition-all duration-300 active:scale-150 select-none opacity-60 hover:opacity-100" 
+                  style="background: transparent;" 
+                  title="تبديل موضع التسميات (نقطة الركن)">
+            <span id="iconToggleSalesLabels" class="w-1.5 h-1.5 rounded-full bg-cyan-400 block transition-all shadow-[0_0_6px_#38bdf8]"></span>
+          </button>
 
-          <!-- السطر الأول (تحت الاسم مباشرة): المخزن والملحوظة بمساحة عرض مكبرة وتوهج تفاعلي متقدم -->
+          <!-- السطر الأول (تحت الاسم مباشرة): المخزن والملحوظة بمساحة عرض مكبرة وتوهج تفاعلي متقدم (+10%) -->
           <div class="grid grid-cols-12 gap-1.5">
-            <!-- 1. المستودع / المخزن: مساحة عرض مريحة وأنيقة مع إمكانية التسمية العلوية -->
+            <!-- 1. المستودع / المخزن (+10%) -->
             <div class="col-span-4 sm:col-span-5">
-              <label class="sales-top-label text-[11px] font-bold text-purple-300 mb-0.5 truncate"><i class="fa-solid fa-warehouse text-[10px]"></i> المخزن:</label>
-              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[42px] sm:h-[50px] px-2 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
+              <label class="sales-top-label text-[12px] font-bold text-purple-300 mb-0.5 truncate"><i class="fa-solid fa-warehouse text-[10px]"></i> المخزن:</label>
+              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[52px] sm:h-[62px] px-2 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
                    onclick="SuiteSalesPOS.openWarehouseSearch()" title="انقر لاختيار المخزن">
-                <span id="suiteWarehouseDisplayName" class="font-black text-xs sm:text-base truncate text-center" style="color: #ffffff !important;">المستودع الرئيسي</span>
+                <span id="suiteWarehouseDisplayName" class="font-black text-sm sm:text-lg truncate text-center" style="color: #ffffff !important;">المستودع الرئيسي</span>
               </div>
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- 2. الملحوظة: مساحة عرض واسعة ومكبرة مع إمكانية فتح اللوحة العملاقة -->
+            <!-- 2. الملحوظة (+10%) -->
             <div class="col-span-8 sm:col-span-7 relative">
-              <label class="sales-top-label text-[11px] font-bold text-cyan-300 mb-0.5 truncate"><i class="fa-solid fa-pen text-[10px]"></i> الملحوظة:</label>
+              <label class="sales-top-label text-[12px] font-bold text-cyan-300 mb-0.5 truncate"><i class="fa-solid fa-pen text-[10px]"></i> الملحوظة:</label>
               <div class="relative">
                 <input type="text" id="salesNotesInput" placeholder="الملحوظة (انقر للوحة المكبرة)..." 
                        onclick="SuiteSalesPOS.openNotesModal()" 
-                       class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[42px] sm:h-[50px] pr-3 pl-7 font-bold text-xs sm:text-base text-white outline-none placeholder:text-slate-400 placeholder:font-normal text-right cursor-pointer truncate rounded-xl" 
+                       class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[62px] pr-3 pl-8 font-bold text-sm sm:text-base text-white outline-none placeholder:text-slate-400 placeholder:font-bold text-right cursor-pointer truncate rounded-xl" 
                        style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" 
                        title="انقر لتكبير واستعراض كامل الملحوظة في لوحة مخصصة" readonly />
-                <span class="absolute left-2.5 top-3.5 sm:top-4 text-cyan-400/60 pointer-events-none text-[11px] sm:text-xs"><i class="fa-solid fa-expand"></i></span>
+                <span class="absolute left-2.5 top-4 sm:top-5 text-cyan-400/60 pointer-events-none text-xs sm:text-sm"><i class="fa-solid fa-expand"></i></span>
               </div>
             </div>
           </div>
 
-          <!-- السطر الثاني: الصنف والوحدة بمساحة عرض مكبرة وخط عريض واضح وبمستوى متناسق (+20% على الكمبيوتر) -->
+          <!-- السطر الثاني: الصنف والوحدة بمساحة عرض مكبرة وخط عريض واضح (+10%) -->
           <div class="grid grid-cols-12 gap-1.5">
-            <!-- 1. الصنف: مساحة عرض مكبرة ومريحة مع خط عريض بارز وتوهج تفاعلي نيون -->
+            <!-- 1. الصنف (+10%) -->
             <div class="col-span-8">
-              <label class="sales-top-label text-[11px] font-bold text-amber-300 mb-0.5 truncate"><i class="fa-solid fa-layer-group text-[10px]"></i> اختيار الصنف:</label>
-              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[42px] sm:h-[50px] px-3 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
+              <label class="sales-top-label text-[12px] font-bold text-amber-300 mb-0.5 truncate"><i class="fa-solid fa-layer-group text-[10px]"></i> اختيار الصنف:</label>
+              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[52px] sm:h-[62px] px-3 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
                    onclick="SuiteSalesPOS.openItemSearch()" title="انقر لاختيار الصنف">
-                <span id="suiteItemDisplayName" class="font-black text-sm sm:text-lg truncate text-center tracking-wide" style="color: #fcd34d !important;">اختر الصنف...</span>
+                <span id="suiteItemDisplayName" class="font-black text-lg sm:text-2xl truncate text-center tracking-wide" style="color: #fcd34d !important;">اختر الصنف...</span>
               </div>
               <input type="hidden" id="salesItemSelectVal" value="">
             </div>
 
-            <!-- 2. الوحدة: مساحة مكبرة بخط واضح بجوار الصنف بنفس الارتفاع المتناسق -->
+            <!-- 2. الوحدة (+10%) -->
             <div class="col-span-4">
-              <label class="sales-top-label text-[11px] font-bold text-emerald-300 mb-0.5 truncate"><i class="fa-solid fa-scale-balanced text-[10px]"></i> الوحدة:</label>
+              <label class="sales-top-label text-[12px] font-bold text-emerald-300 mb-0.5 truncate"><i class="fa-solid fa-scale-balanced text-[10px]"></i> الوحدة:</label>
               <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[42px] sm:h-[50px] text-emerald-400 font-black text-center text-xs sm:text-base outline-none cursor-pointer px-1.5 rounded-xl" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[52px] sm:h-[62px] text-emerald-400 font-black text-center text-sm sm:text-base outline-none cursor-pointer px-1.5 rounded-xl" 
                       style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
                       title="الوحدة">
                 <option value="" disabled selected hidden>الوحدة</option>
@@ -7323,91 +7335,91 @@
             </div>
           </div>
 
-          <!-- السطر الثالث: الكمية والسعر - بنفس ارتفاع الإضافة والخصم والعتالة وتوهج وتكبير عند التواجد -->
+          <!-- السطر الثالث: الكمية والسعر (+10% بالارتفاع والخط) -->
           <div class="grid grid-cols-2 gap-2">
-            <!-- 1. الكمية: كتابة الكلمة داخل المربع بلون رمادي وتختفي عند كتابة الرقم وتكبر وتتوهج عند التواجد -->
+            <!-- 1. الكمية (+10%) -->
             <div>
-              <label class="sales-top-label text-[11px] font-bold text-sky-300 mb-0.5 truncate"><i class="fa-solid fa-boxes-stacked text-[10px]"></i> الكمية:</label>
+              <label class="sales-top-label text-[12px] font-bold text-sky-300 mb-0.5 truncate"><i class="fa-solid fa-boxes-stacked text-[10px]"></i> الكمية:</label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-qty" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);">
                 <input type="number" id="salesQtyInput" placeholder="الكمية" min="0.01" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-[38px] sm:h-[46px] font-black font-mono text-center text-white text-base sm:text-lg outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:font-sans" 
+                       class="w-full h-[48px] sm:h-[56px] font-black font-mono text-center text-white text-xl sm:text-2xl outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:font-sans" 
                        style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px;" 
                        inputmode="decimal" title="الكمية" />
               </div>
             </div>
 
-            <!-- 2. السعر: كتابة الكلمة داخل المربع بلون رمادي وتختفي عند كتابة الرقم وتكبر وتتوهج عند التواجد -->
+            <!-- 2. السعر (+10%) -->
             <div>
-              <label class="sales-top-label text-[11px] font-bold text-cyan-300 mb-0.5 truncate"><i class="fa-solid fa-tag text-[10px]"></i> السعر:</label>
+              <label class="sales-top-label text-[12px] font-bold text-cyan-300 mb-0.5 truncate"><i class="fa-solid fa-tag text-[10px]"></i> السعر:</label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-price" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15);">
                 <input type="number" id="salesPriceInput" placeholder="السعر" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-[38px] sm:h-[46px] font-black font-mono text-center text-cyan-300 text-base sm:text-lg outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:font-sans" 
+                       class="w-full h-[48px] sm:h-[56px] font-black font-mono text-center text-cyan-300 text-xl sm:text-2xl outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:font-sans" 
                        style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px;" 
                        inputmode="decimal" title="السعر" />
               </div>
             </div>
           </div>
 
-          <!-- السطر الرابع: الجملة (بمستوى متناسق مع الحقول ومكتوبة في المنتصف بلون خفيف مع زيادة 20% على الكمبيوتر وتوهج زمردي) -->
+          <!-- السطر الرابع: الجملة (+10%) -->
           <div>
-            <label class="sales-top-label text-[11px] font-bold text-emerald-300 mb-0.5 truncate"><i class="fa-solid fa-calculator text-[10px]"></i> الجملة (السعر × الكمية):</label>
-            <div class="w-full h-[42px] sm:h-[50px] rounded-xl flex items-center justify-center px-3 shadow-lg relative overflow-hidden pos-field-interactive pos-field-gross" 
+            <label class="sales-top-label text-[12px] font-bold text-emerald-300 mb-0.5 truncate"><i class="fa-solid fa-calculator text-[10px]"></i> الجملة (السعر × الكمية):</label>
+            <div class="w-full h-[52px] sm:h-[62px] rounded-xl flex items-center justify-center px-3 shadow-lg relative overflow-hidden pos-field-interactive pos-field-gross" 
                  style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
               <input type="text" id="salesItemGrossTotal" readonly placeholder="الجملة" 
-                     class="w-full text-center font-black font-mono text-emerald-300 text-base sm:text-xl outline-none select-none bg-transparent border-none placeholder:text-emerald-400/60 placeholder:font-bold placeholder:font-sans cursor-default" 
+                     class="w-full text-center font-black font-mono text-emerald-300 text-xl sm:text-3xl outline-none select-none bg-transparent border-none placeholder:text-emerald-400/60 placeholder:font-bold placeholder:font-sans cursor-default" 
                      style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px;" 
                      title="الجملة" />
             </div>
           </div>
 
-          <!-- السطر الخامس: الإضافة -> الخصم -> العتالة (مكتوبة في المنتصف بلون خفيف وتكبر وتتوهج عند التواجد) -->
+          <!-- السطر الخامس: الإضافة -> الخصم -> العتالة (+10% بالارتفاع والخط) -->
           <div class="grid grid-cols-3 gap-1.5 pt-0.5">
-            <!-- 1. الإضافة: مكتوبة في المنتصف وتتوهج عند التواجد -->
+            <!-- 1. الإضافة (+10%) -->
             <div>
-              <label class="sales-top-label text-[11px] font-bold text-purple-300 mb-0.5 truncate"><i class="fa-solid fa-plus-circle text-[10px]"></i> الإضافة:</label>
+              <label class="sales-top-label text-[12px] font-bold text-purple-300 mb-0.5 truncate"><i class="fa-solid fa-plus-circle text-[10px]"></i> الإضافة:</label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
                 <input type="number" id="salesTaxInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-[38px] sm:h-[46px] font-black font-mono text-center text-purple-200 text-sm sm:text-base outline-none placeholder:text-purple-300/60 placeholder:font-bold placeholder:font-sans" 
+                       class="w-full h-[48px] sm:h-[56px] font-black font-mono text-center text-purple-200 text-lg sm:text-xl outline-none placeholder:text-purple-300/60 placeholder:font-bold placeholder:font-sans" 
                        style="background: transparent !important; color: #d8b4fe !important;" 
                        placeholder="الإضافة" inputmode="decimal" title="الإضافة" />
               </div>
             </div>
 
-            <!-- 2. الخصم: مكتوبة في المنتصف وتتوهج وتكبر بنسبة 20% على الكمبيوتر -->
+            <!-- 2. الخصم (+10%) -->
             <div>
-              <label class="sales-top-label text-[11px] font-bold text-rose-300 mb-0.5 truncate"><i class="fa-solid fa-minus-circle text-[10px]"></i> الخصم:</label>
+              <label class="sales-top-label text-[12px] font-bold text-rose-300 mb-0.5 truncate"><i class="fa-solid fa-minus-circle text-[10px]"></i> الخصم:</label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.45); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
                 <input type="number" id="salesDiscountInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-[38px] sm:h-[46px] font-black font-mono text-center text-rose-400 text-sm sm:text-base outline-none placeholder:text-rose-400/60 placeholder:font-bold placeholder:font-sans" 
+                       class="w-full h-[48px] sm:h-[56px] font-black font-mono text-center text-rose-400 text-lg sm:text-xl outline-none placeholder:text-rose-400/60 placeholder:font-bold placeholder:font-sans" 
                        style="background: transparent !important; color: #fb7185 !important;" 
                        placeholder="الخصم" inputmode="decimal" title="الخصم" />
               </div>
             </div>
 
-            <!-- 3. العتالة: مكتوبة في المنتصف ومصححة من العطالة إلى العتالة -->
+            <!-- 3. العتالة (+10%) -->
             <div>
-              <label class="sales-top-label text-[11px] font-bold text-amber-300 mb-0.5 truncate"><i class="fa-solid fa-truck-ramp-box text-[10px]"></i> العتالة:</label>
+              <label class="sales-top-label text-[12px] font-bold text-amber-300 mb-0.5 truncate"><i class="fa-solid fa-truck-ramp-box text-[10px]"></i> العتالة:</label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.45); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
                 <input type="number" id="salesLaborInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-[38px] sm:h-[46px] font-black font-mono text-center text-amber-300 text-sm sm:text-base outline-none placeholder:text-amber-400/60 placeholder:font-bold placeholder:font-sans" 
+                       class="w-full h-[48px] sm:h-[56px] font-black font-mono text-center text-amber-300 text-lg sm:text-xl outline-none placeholder:text-amber-400/60 placeholder:font-bold placeholder:font-sans" 
                        style="background: transparent !important; color: #fcd34d !important;" 
                        placeholder="العتالة" inputmode="decimal" title="العتالة" />
               </div>
             </div>
           </div>
 
-          <!-- السطر السادس: حقل الإجمالي بمستوى الجملة تماماً وبالعرض الكامل وتوهج ذهبي وتكبير عند التواجد -->
+          <!-- السطر السادس: حقل الإجمالي (+10%) -->
           <div>
-            <label class="sales-top-label text-[11px] font-bold text-amber-300 mb-0.5 truncate"><i class="fa-solid fa-coins text-[10px]"></i> الإجمالي الصافي المطلوب:</label>
-            <div class="w-full h-[42px] sm:h-[50px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
+            <label class="sales-top-label text-[12px] font-bold text-amber-300 mb-0.5 truncate"><i class="fa-solid fa-coins text-[10px]"></i> الإجمالي الصافي المطلوب:</label>
+            <div class="w-full h-[56px] sm:h-[66px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
                  style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);">
               <input type="text" id="salesTotalInput" readonly placeholder="الإجمالي" 
-                     class="w-full text-center font-black font-mono text-amber-300 text-base sm:text-xl outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-bold placeholder:font-sans cursor-default" 
+                     class="w-full text-center font-black font-mono text-amber-300 text-2xl sm:text-3xl outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-bold placeholder:font-sans cursor-default" 
                      style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; letter-spacing: 0.5px;" 
                      title="الإجمالي" />
             </div>
@@ -7421,18 +7433,18 @@
         <span id="suiteGrandTotalDisplay" class="hidden">0.00 SDG</span>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             7. ACTION BUTTONS: حفظ (دفتر الأستاذ) + حفظ وسداد + جديد + مسح + مشاركة + طباعة + معاينة
+             7. ACTION BUTTONS: حفظ + حفظ وسداد + جديد + مسح + مشاركة
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="space-y-1.5 pt-1">
-          <!-- Primary Save Actions: حفظ (دفتر الأستاذ) + حفظ وسداد -->
+        <div class="space-y-2 pt-1">
+          <!-- Primary Save Actions: حفظ + حفظ وسداد -->
           <div class="grid grid-cols-2 gap-2">
-            <!-- 1. زر حفظ فقط في دفتر الأستاذ -->
+            <!-- 1. زر حفظ فقط (بدون كلمة دفتر أستاذ) -->
             <button type="button" onclick="commitOpSales(false)" 
                     class="py-3 px-2 rounded-2xl font-black text-xs sm:text-sm text-emerald-200 hover:text-white flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 transition shadow-lg" 
                     style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.9), rgba(15, 23, 42, 0.95)); border: 1.5px solid #10b981; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);" 
-                    title="حفظ واعتماد الفاتورة في دفتر الأستاذ وقاعدة البيانات فقط">
+                    title="حفظ">
               <i class="fa-solid fa-floppy-disk text-emerald-400 text-sm"></i>
-              <span>حفظ (دفتر الأستاذ)</span>
+              <span>حفظ</span>
             </button>
 
             <!-- 2. زر حفظ وسداد (حفظ والانتقال المباشر للحركة المالية وتفريغ البيانات) -->
@@ -7445,57 +7457,34 @@
             </button>
           </div>
 
-          <!-- الأزرار التشغيلية المعتادة: جديد + مسح + مشاركة -->
-          <div class="grid grid-cols-3 gap-1.5">
-            <!-- زر جديد -->
+          <!-- Secondary Actions: جديد + مسح + مشاركة (المطلوبة بالكامل) -->
+          <div class="grid grid-cols-3 gap-2">
+            <!-- 1. جديد -->
             <button type="button" onclick="SuiteSalesPOS.newInvoice()" 
-                    class="py-2.5 px-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-sky-300 border border-sky-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
-                    title="بدء فاتورة جديدة وتوليد رقم جديد">
+                    class="py-2.5 px-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-sky-300 border border-sky-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
+                    title="فاتورة جديدة وتصفير الشاشة">
               <i class="fa-solid fa-file-circle-plus text-sky-400"></i>
               <span>جديد</span>
             </button>
 
-            <!-- زر مسح -->
+            <!-- 2. مسح -->
             <button type="button" onclick="SuiteSalesPOS.clearCurrentInputs()" 
-                    class="py-2.5 px-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-rose-300 border border-rose-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
+                    class="py-2.5 px-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-rose-300 border border-rose-500/40 text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
                     title="مسح وتفريغ خانات الصنف والكميات">
               <i class="fa-solid fa-eraser text-rose-400"></i>
               <span>مسح</span>
             </button>
 
-            <!-- زر مشاركة (أهم حاجة!) -->
+            <!-- 3. مشاركة (المطلوب وبارز) -->
             <button type="button" onclick="SuiteSalesPOS.shareInvoice()" 
-                    class="py-2.5 px-1.5 rounded-xl bg-emerald-950/50 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-500/50 text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-sm cursor-pointer" 
-                    title="مشاركة تفاصيل الفاتورة عبر الواتساب وتطبيقات الهاتف">
-              <i class="fa-solid fa-share-nodes text-emerald-400"></i>
+                    class="py-2.5 px-2 rounded-xl text-xs font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-amber-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(180, 83, 9, 0.4), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f59e0b; box-shadow: 0 0 10px rgba(245, 158, 11, 0.3);" 
+                    title="مشاركة تفاصيل الفاتورة">
+              <i class="fa-solid fa-share-nodes text-amber-400"></i>
               <span>مشاركة</span>
             </button>
           </div>
-
-          <!-- الأزرار المعتادة: طباعة (QR) + معاينة + إذن صرف + كشف حساب -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-            <button type="button" onclick="SuiteSalesPOS.printInvoice()" class="py-2 px-1 rounded-xl bg-sky-950/40 hover:bg-sky-900/60 text-sky-300 border border-sky-500/40 text-[11px] sm:text-xs font-black flex items-center justify-center gap-1 transition active:scale-95 shadow-sm cursor-pointer" title="طباعة الفاتورة مع رمز الـ QR">
-              <i class="fa-solid fa-qrcode text-sky-400"></i> طباعة (مع QR)
-            </button>
-            <button type="button" onclick="SuiteSalesPOS.previewInvoice()" class="py-2 px-1 rounded-xl bg-purple-950/40 hover:bg-purple-900/60 text-purple-300 border border-purple-500/40 text-[11px] sm:text-xs font-black flex items-center justify-center gap-1 transition active:scale-95 shadow-sm cursor-pointer" title="معاينة الفاتورة">
-              <i class="fa-solid fa-eye text-purple-400"></i> معاينة
-            </button>
-            <button type="button" onclick="SuiteSalesPOS.printDeliveryNote()" class="py-2 px-1 rounded-xl bg-amber-950/40 hover:bg-amber-900/60 text-amber-300 border border-amber-500/40 text-[11px] sm:text-xs font-black flex items-center justify-center gap-1 transition active:scale-95 shadow-sm cursor-pointer" title="طباعة إذن صرف / تسليم">
-              <i class="fa-solid fa-truck-ramp-box text-amber-400"></i> إذن صرف
-            </button>
-            <button type="button" onclick="SuiteSalesPOS.printCustomerStatement()" class="py-2 px-1 rounded-xl bg-teal-950/40 hover:bg-teal-900/60 text-teal-300 border border-teal-500/40 text-[11px] sm:text-xs font-black flex items-center justify-center gap-1 transition active:scale-95 shadow-sm cursor-pointer" title="طباعة كشف حساب العميل">
-              <i class="fa-solid fa-file-invoice text-teal-400"></i> كشف حساب
-            </button>
-          </div>
-
-          <!-- زر إغلاق وقفل الشاشة في الأسفل -->
-          <button type="button" onclick="SafeInvoiceGuard.requestExit('modalOpSales')" class="w-full py-2.5 rounded-2xl bg-slate-900/90 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/80 hover:border-rose-500/50 text-xs font-black flex items-center justify-center gap-2 cursor-pointer transition active:scale-95 shadow-sm mt-0.5" title="إغلاق وقفل الشاشة">
-            <i class="fa-solid fa-xmark text-sm text-rose-400"></i>
-            <span>إغلاق وقفل الشاشة (✕)</span>
-          </button>
         </div>
-
-      </div>
     </div>
 
     <div id="modalOpSalesSplit" class="hidden fixed inset-0 z-50 modal-backdrop flex items-end justify-center p-2">
@@ -9462,6 +9451,18 @@
             warnEl.classList.add('hidden');
           }
         }
+      } else {
+        const curBalEl = document.getElementById('finFromCurrentBalance');
+        const deductEl = document.getElementById('finFromDeductAmount');
+        const newBalEl = document.getElementById('finFromNewBalance');
+        const sdgPreviewEl = document.getElementById('finFromSdgPreview');
+        const warnEl = document.getElementById('finFromWarning');
+
+        if (curBalEl) curBalEl.textContent = 'حساب العميل (سداد مباشر)';
+        if (deductEl) deductEl.textContent = (currentFinTransferCurrency === 'USD' ? `-$${amtUsd.toLocaleString('en-US')}` : `-${amtSdg.toLocaleString('en-US')} ج.س`);
+        if (newBalEl) newBalEl.textContent = 'تم سداد الفاتورة';
+        if (sdgPreviewEl) sdgPreviewEl.textContent = `المبلغ الصافي: ${amtSdg.toLocaleString('en-US')} ج.س`;
+        if (warnEl) warnEl.classList.add('hidden');
       }
 
       // 2. Update Receiver (إلى المستلم - إضافة)
@@ -10894,33 +10895,45 @@
       applyLabelsPosition(mode) {
         const container = document.getElementById('suiteSalesItemBox');
         const btn = document.getElementById('btnToggleSalesLabels');
-        const txt = document.getElementById('lblToggleSalesLabelsText');
-        const icon = document.getElementById('iconToggleSalesLabels');
+        const dot = document.getElementById('iconToggleSalesLabels');
         if (!container) return;
 
         if (mode === 'top') {
           container.classList.remove('pos-labels-inside');
           container.classList.add('pos-labels-top');
-          if (txt) txt.innerText = 'تسميات داخل الحقول';
-          if (icon) icon.className = 'fa-solid fa-arrow-down-short-wide text-[10px] text-amber-300';
+          if (dot) {
+            dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 block transition-all shadow-[0_0_8px_#10b981]';
+          }
           if (btn) {
-            btn.style.setProperty('border-color', '#f59e0b', 'important');
-            btn.style.setProperty('color', '#fcd34d', 'important');
-            btn.style.setProperty('background', 'rgba(120, 53, 15, 0.45)', 'important');
-            btn.title = 'انقر لإخفاء التسميات العلوية وجعلها داخل الحقول';
+            btn.title = 'تسميات أعلى الحقول مفعلة (انقر للتبديل للتسميات الداخلية)';
           }
         } else {
           container.classList.remove('pos-labels-top');
           container.classList.add('pos-labels-inside');
-          if (txt) txt.innerText = 'تسميات أعلى الحقول';
-          if (icon) icon.className = 'fa-solid fa-arrow-up-short-wide text-[10px] text-sky-400';
+          if (dot) {
+            dot.className = 'w-1.5 h-1.5 rounded-full bg-cyan-400 block transition-all shadow-[0_0_6px_#38bdf8]';
+          }
           if (btn) {
-            btn.style.setProperty('border-color', 'rgba(56, 189, 248, 0.45)', 'important');
-            btn.style.setProperty('color', '#38bdf8', 'important');
-            btn.style.setProperty('background', 'rgba(15, 23, 42, 0.95)', 'important');
-            btn.title = 'انقر لإظهار أسماء الحقول في الأعلى';
+            btn.title = 'تسميات داخل الحقول مفعلة (انقر للتبديل للتسميات العلوية)';
           }
         }
+      },
+
+      syncCustomerNameToAccount(val) {
+        const fromSelect = document.getElementById('finTransferFromAccount');
+        if (!fromSelect || !val) return;
+        let matched = false;
+        for (let i = 0; i < fromSelect.options.length; i++) {
+          if (fromSelect.options[i].text.toLowerCase().includes(val.toLowerCase())) {
+            fromSelect.selectedIndex = i;
+            matched = true;
+            break;
+          }
+        }
+        if (!matched && fromSelect.options.length > 0) {
+          fromSelect.options[0].text = `👤 ${val}`;
+        }
+        if (typeof updateFinTransferBalancesPreview === 'function') updateFinTransferBalancesPreview();
       },
 
       // ─────────────────────────────────────────────────────────────
@@ -12528,8 +12541,8 @@
 
     async function commitOpSales(andPay = false) {
       if (window.AppHaptics) AppHaptics.success();
-      const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText || ('S' + Date.now());
-      const cust = document.getElementById('salesCustomerInput')?.value || 'عميل نقدي عام';
+      const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText?.trim() || ('S' + Date.now());
+      const cust = document.getElementById('salesCustomerInput')?.value?.trim() || 'عميل نقدي عام';
       const payM = document.getElementById('salesPayMethodSelect')?.value || 'cash';
       const invDate = document.getElementById('salesInvoiceDate')?.value || new Date().toISOString().split('T')[0];
       const salesRep = document.getElementById('salesRepInput')?.value || 'كاشير الجوال';
@@ -12547,6 +12560,14 @@
         if (SuiteSalesPOS.selectedItemIndex !== -1 && SuiteSalesPOS.dbItems[SuiteSalesPOS.selectedItemIndex]) {
           itName = SuiteSalesPOS.dbItems[SuiteSalesPOS.selectedItemIndex].name;
         }
+        if (!itName) {
+          const itemDisp = document.getElementById('suiteItemDisplayName')?.innerText?.trim();
+          if (itemDisp && itemDisp !== 'اختر الصنف...') {
+            itName = itemDisp;
+          } else {
+            itName = 'مبيعات نقدية عامة';
+          }
+        }
 
         const qty = parseFloat(document.getElementById('salesQtyInput')?.value || 1);
         const prc = parseFloat(document.getElementById('salesPriceInput')?.value || 0);
@@ -12558,13 +12579,8 @@
         const wh = SuiteSalesPOS.selectedWarehouse || document.getElementById('salesWarehouseSelect')?.value || 'المستودع الرئيسي';
         const sub = Math.max(0, (qty * prc) - disc + tax + labor);
 
-        if (!itName && SuiteSalesPOS.cart.length === 0) {
-          alert('⚠️ يرجى اختيار صنف أولاً عبر الضغط على خانة الصنف للبحث.');
-          return;
-        }
-
         items = [{
-          name: itName || 'صنف عام',
+          name: itName,
           unit,
           warehouse: wh,
           costCenter: costCenter,
@@ -12576,6 +12592,12 @@
           subtotal: sub
         }];
         grandTotal = sub;
+      }
+
+      // Sync total if user manually typed or gross total changed
+      const manualTot = parseFloat(document.getElementById('salesTotalInput')?.value);
+      if (!isNaN(manualTot) && manualTot > 0) {
+        grandTotal = manualTot;
       }
 
       const notesVal = document.getElementById('salesNotesInput')?.value || '';
@@ -12598,26 +12620,35 @@
         if (typeof fetchMirrorNumbers === 'function') fetchMirrorNumbers();
 
         if (andPay) {
-          // حفظ وسداد: إغلاق شاشة المبيعات والانتقال المباشر للحركة المالية وتفريغ البيانات
+          // حفظ وسداد: إغلاق شاشة المبيعات والانتقال المباشر لشاشة الحركة المالية وتفريغ البيانات فوراً
           closeModal('modalOpSales');
           openModal('modalOpFinance');
           if (typeof initFinancialTransferModal === 'function') initFinancialTransferModal();
 
-          // تفريغ العملة
+          // 1. تفريغ العملة
           if (typeof setFinTransferCurrency === 'function') {
             setFinTransferCurrency(SuiteSalesPOS.currencyMode === 'SDG' ? 'SDG' : 'USD');
           }
 
-          // تفريغ المبلغ المطلوب
+          // 2. تفريغ المبلغ المطلوب في محل المبلغ
           const amtInp = document.getElementById('finTransferAmountInput');
-          if (amtInp) amtInp.value = grandTotal;
+          if (amtInp) {
+            amtInp.value = grandTotal;
+            amtInp.dispatchEvent(new Event('input', { bubbles: true }));
+          }
 
-          // تفريغ اسم العميل في خانة الصارف/دائن
+          // 3. تفريغ اسم الشخص الذي تم البيع له في خانة الاسم
+          const nameInp = document.getElementById('finTransferCustomerNameInput');
+          if (nameInp) {
+            nameInp.value = cust;
+          }
+
+          // مزامنة واختيار الحساب المرتبط
           const fromSelect = document.getElementById('finTransferFromAccount');
           if (fromSelect) {
             let matched = false;
             for (let i = 0; i < fromSelect.options.length; i++) {
-              if (fromSelect.options[i].text.includes(cust)) {
+              if (fromSelect.options[i].text.toLowerCase().includes(cust.toLowerCase())) {
                 fromSelect.selectedIndex = i;
                 matched = true;
                 break;
@@ -12625,41 +12656,60 @@
             }
             if (!matched) {
               const opt = document.createElement('option');
-              opt.value = 'cust_inv_' + Date.now();
-              opt.text = `👥 ${cust} (عميل الفاتورة)`;
+              opt.value = 'cust_pos_' + Date.now();
+              opt.text = `👤 ${cust}`;
               opt.selected = true;
-              fromSelect.insertBefore(opt, fromSelect.firstChild);
+              if (fromSelect.children.length > 0) {
+                fromSelect.insertBefore(opt, fromSelect.firstChild);
+              } else {
+                fromSelect.appendChild(opt);
+              }
               fromSelect.value = opt.value;
             }
           }
 
-          // تفريغ الحساب المستلم (الخزينة النقدية أو بنكك)
+          // 4. تفريغ الحساب المستلم (الخزينة النقدية أو بنكك)
           const toSelect = document.getElementById('finTransferToAccount');
           if (toSelect) {
-            const defRec = Array.from(toSelect.options).find(o => o.text.includes('خزينة') || o.text.includes('الصندوق') || o.text.includes('بنك'));
+            const defRec = Array.from(toSelect.options).find(o => o.text.includes('خزينة') || o.text.includes('الصندوق') || o.text.includes('كاشير'));
             if (defRec) toSelect.value = defRec.value;
           }
 
-          // تفريغ البيان
+          // 5. تفريغ البيان
           const notesInp = document.getElementById('finTransferNotes');
           if (notesInp) {
             notesInp.value = `سداد فاتورة مبيعات #${invoiceNumber} - العميل: ${cust}`;
           }
 
-          // طريقة السداد الافتراضية
+          // طريقة السداد الافتراضية: كاش
           if (typeof setFinTransferMethod === 'function') setFinTransferMethod('cash');
+
+          // تحديث الحسابات والمعاينات فوراً
           if (typeof updateFinTransferBalancesPreview === 'function') updateFinTransferBalancesPreview();
+
+          // حفظ البيانات في sessionStorage لتمريرها في حال الانتقال لشاشة السند الكاملة
+          try {
+            sessionStorage.setItem('pending_pos_voucher', JSON.stringify({
+              party: cust,
+              amount: grandTotal,
+              cur: SuiteSalesPOS.currencyMode,
+              ref: invoiceNumber,
+              notes: `سداد فاتورة مبيعات #${invoiceNumber} - العميل: ${cust}`
+            }));
+          } catch(e) {}
 
           if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
           if (typeof showFloatingToast === 'function') {
-            showFloatingToast(`⚡ تم حفظ الفاتورة [#${invoiceNumber}] في دفتر الأستاذ! تم تحويلك مباشرة للحركة المالية للسداد.`);
-          } else {
-            alert(`⚡ تم حفظ الفاتورة [#${invoiceNumber}] في دفتر الأستاذ بنجاح!\nتم فتح شاشة الحركة المالية لتحديد طريقة السداد والاعتماد.`);
+            showFloatingToast(`⚡ تم حفظ الفاتورة #${invoiceNumber} ونقلك لشاشة الحركة المالية للعميل: ${cust}`);
           }
         } else {
-          // حفظ فقط في دفتر الأستاذ
+          // حفظ فقط
           if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
-          alert(`✓ تم بنجاح اعتماد وترحيل فاتورة المبيعات [#${invoiceNumber}] إلى دفتر الأستاذ وقاعدة البيانات!\nتم تحديث الأرصدة والمخازن فوراً.`);
+          if (typeof showFloatingToast === 'function') {
+            showFloatingToast(`✓ تم بنجاح حفظ فاتورة المبيعات #${invoiceNumber}!`);
+          } else {
+            alert(`✓ تم بنجاح حفظ فاتورة المبيعات [#${invoiceNumber}]!`);
+          }
           SuiteSalesPOS.newInvoice();
         }
       };

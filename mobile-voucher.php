@@ -6600,6 +6600,85 @@ $currenciesData = [
         showToastNotification(`📑 سند #${vouchersList[newIndex].id} (${newIndex + 1} من ${vouchersList.length})`);
       } else if (newIndex >= vouchersList.length) {
         startNewVoucher();
+    setTimeout(initPendingPosPayment, 250);
+    // ════════════════════════════════════════════════════════════════
+    // استلام وتفريغ بيانات السداد الفوري القادمة من فاتورة المبيعات / POS
+    // ════════════════════════════════════════════════════════════════
+    function initPendingPosPayment() {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        let party = urlParams.get('party');
+        let amount = urlParams.get('amount');
+        let cur = urlParams.get('cur') || 'SDG';
+        let ref = urlParams.get('ref');
+        let notes = urlParams.get('notes');
+
+        if (!party && sessionStorage.getItem('pending_pos_voucher')) {
+          try {
+            const stored = JSON.parse(sessionStorage.getItem('pending_pos_voucher'));
+            party = stored.party;
+            amount = stored.amount;
+            cur = stored.cur || cur;
+            ref = stored.ref;
+            notes = stored.notes;
+            sessionStorage.removeItem('pending_pos_voucher');
+          } catch(e) {}
+        }
+
+        if (party || amount) {
+          // 1. تفريغ الاسم (اسم الشخص الذي تم البيع له)
+          if (party) {
+            const fromInp = document.getElementById('fromSearchInput');
+            if (fromInp) {
+              fromInp.value = party;
+              if (typeof selectAcc === 'function') {
+                selectAcc('from', party);
+              }
+            }
+          }
+
+          // 2. تفريغ المبلغ في محل المبلغ
+          if (amount) {
+            const numAmt = parseFloat(amount) || 0;
+            if (cur === 'USD') {
+              const usdInp = document.getElementById('usdAmount');
+              if (usdInp) {
+                usdInp.value = numAmt;
+                if (typeof handleAmountInput === 'function') handleAmountInput('foreign');
+              }
+            } else {
+              const sdgInp = document.getElementById('sdgAmount');
+              if (sdgInp) {
+                sdgInp.value = numAmt;
+                if (typeof handleAmountInput === 'function') handleAmountInput('sdg');
+              }
+            }
+            if (typeof updateTafqeet === 'function') updateTafqeet();
+          }
+
+          // 3. المستلم الافتراضي (الخزينة النقدية الرئيسية)
+          const toInp = document.getElementById('toSearchInput');
+          if (toInp && !toInp.value) {
+            const defCash = (typeof accountsDB !== 'undefined' && accountsDB.find(a => a && a.name && (a.name.includes('خزينة') || a.name.includes('كاش')))) ? accountsDB.find(a => a && a.name && (a.name.includes('خزينة') || a.name.includes('كاش'))).name : 'الخزينة الرئيسية (الكاش)';
+            if (typeof selectAcc === 'function') selectAcc('to', defCash);
+            else toInp.value = defCash;
+          }
+
+          // 4. البيان
+          const notesInp = document.getElementById('voucherNotes');
+          if (notesInp && !notesInp.value) {
+            notesInp.value = notes || (ref ? ('سداد فاتورة مبيعات #' + ref + ' - العميل: ' + (party || '')) : ('سداد مبيعات - ' + (party || '')));
+          }
+
+          if (typeof showToastNotification === 'function') {
+            showToastNotification('⚡ تم تفريغ بيانات سداد الفاتورة للعميل: ' + (party || ''));
+          }
+        }
+      } catch(err) {
+        console.warn('initPendingPosPayment error:', err);
+      }
+    }
+
       } else if (newIndex < 0) {
         showToastNotification('⏮️ هذا هو أول وأقدم سند مسجل في السجل');
       }
