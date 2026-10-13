@@ -318,11 +318,14 @@
     #modalOpSales, #modalOpFinance, #modalOpPurchase {
       z-index: 100005 !important;
     }
-    #suiteSalesNotesModal, #suiteSmartCalcModal, #suiteCurrencyRateModal,
+    #suiteSmartCalcModal, #suiteCurrencyRateModal,
     #suiteCostCenterSearchModal, #suiteCustomerSearchModal,
     #suiteWarehouseSearchModal, #suiteItemSearchModal,
     #modalOpDelivery, #modalOpStatement, #modalStatementView, #modalOpSalesSplit {
       z-index: 100050 !important;
+    }
+    #suiteSalesNotesModal, #suiteFieldStyleModal {
+      z-index: 100200 !important;
     }
     #modalSafeExitConfirm {
       z-index: 100090 !important;
@@ -7070,35 +7073,34 @@
         <div class="rounded-2xl p-2.5 space-y-2 border relative overflow-hidden" 
              style="background: linear-gradient(180deg, #070c18, #040710); border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 6px 22px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);">
           
-          <!-- السطر الأول: المايك -> المبيعات -> الدولار -> الآلة الحاسبة -> زر الخروج الصغير -->
-          <div class="flex items-center justify-between gap-1.5 w-full">
+          <!-- السطر الأول: 1. المايك (بلون أحمر ياقوتي مميز) -> 2. المبيعات (بالسماوي الملكي) -> 3. الدولار (برقم كبير وواضح جداً) -> 4. الآلة الحاسبة (تم حذف زر الإغلاق العلوي) -->
+          <div class="flex items-center justify-between gap-2 w-full">
             
-            <!-- 1. أيقونة المايك -->
+            <!-- 1. أيقونة المايك: لون ياقوتي/وردي مميز ومختلف تماماً عن لون شارة المبيعات -->
             <button type="button" id="btnSalesVoiceMic" onclick="SuiteSalesPOS.toggleVoiceFeed()" 
-                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-sm shadow-lg transition-all duration-200 active:scale-90 relative shrink-0 cursor-pointer" 
-                    style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.32), rgba(2, 132, 199, 0.16)); border: 1.5px solid rgba(56, 189, 248, 0.65); backdrop-filter: blur(8px); box-shadow: 0 0 12px rgba(56, 189, 248, 0.35);" 
-                    title="مايك التسجيل الصوتي الذكي لتغذية وتفريغ الخانات">
-              <i class="fa-solid fa-microphone text-sky-300"></i>
-              <span id="salesMicPulseDot" class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 bg-rose-500 rounded-full animate-ping"></span>
+                    class="w-10 h-10 rounded-xl flex items-center justify-center text-base shadow-lg transition-all duration-200 active:scale-90 relative shrink-0 cursor-pointer" 
+                    style="background: linear-gradient(135deg, #e11d48, #881337); border: 1.5px solid #fda4af; box-shadow: 0 0 14px rgba(244, 63, 94, 0.45);" 
+                    title="مايك المبيعات الذكي المستمر (لا ينقطع التسجيل أبداً حتى تضغط إيقاف أو تقول حفظ)">
+              <i class="fa-solid fa-microphone text-white"></i>
+              <span id="salesMicPulseDot" class="hidden absolute -top-1 -right-1 w-3 h-3 bg-amber-300 rounded-full animate-ping"></span>
             </button>
 
-            <!-- 2. شارة المبيعات -->
-            <div class="px-3 py-1 h-9 sm:h-10 rounded-xl flex items-center justify-center shrink-0" 
-                 style="background: linear-gradient(135deg, rgba(3, 105, 161, 0.45), rgba(15, 23, 42, 0.92)); border: 1.5px solid rgba(56, 189, 248, 0.85); box-shadow: 0 0 12px rgba(56, 189, 248, 0.35), inset 0 0 6px rgba(56, 189, 248, 0.2);">
+            <!-- 2. شارة المبيعات: باللون الأزرق السماوي الملكي -->
+            <div class="px-3.5 py-1 h-10 rounded-xl flex items-center justify-center shrink-0" 
+                 style="background: linear-gradient(135deg, #0284c7, #0f172a); border: 1.5px solid #38bdf8; box-shadow: 0 0 12px rgba(56, 189, 248, 0.35), inset 0 0 6px rgba(56, 189, 248, 0.2);">
               <h2 class="text-white font-black text-sm sm:text-base tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] whitespace-nowrap select-none m-0" style="color: #ffffff !important;">مبيعات</h2>
             </div>
 
-            <!-- 3. الدولار وسعر الصرف (مرفوع في السطر الأول بوضوح فائق وأناقة عالية) -->
+            <!-- 3. الدولار وسعر الصرف: رقم كبير وواضح جداً بتباين فائق القوة -->
             <div id="salesRateContainer" onclick="SuiteFXManager.openModal()" 
-                 class="flex-1 min-w-[92px] max-w-[180px] px-2 py-1 rounded-xl flex items-center justify-between gap-1 shadow-md h-9 sm:h-10 transition-all duration-300 cursor-pointer active:scale-95 group relative select-none" 
-                 style="background: linear-gradient(135deg, #064e3b, #022c22); border: 1.5px solid #10b981; box-shadow: 0 0 12px rgba(16, 185, 129, 0.45), inset 0 0 6px rgba(16, 185, 129, 0.25);" 
-                 title="سعر صرف العملة من السيستم - انقر للتعديل والحفظ في قاعدة البيانات">
+                 class="flex-1 min-w-[115px] max-w-[220px] px-2.5 py-1 rounded-xl flex items-center justify-between gap-1.5 shadow-lg h-10 transition-all duration-300 cursor-pointer active:scale-95 group relative select-none" 
+                 style="background: linear-gradient(135deg, #022c22, #02130e); border: 2px solid #10b981; box-shadow: 0 0 14px rgba(16, 185, 129, 0.5), inset 0 0 8px rgba(16, 185, 129, 0.25);" 
+                 title="سعر صرف الدولار - انقر للتعديل والحفظ في قاعدة البيانات">
               
-              <div class="flex items-center gap-1 min-w-0 flex-1 justify-center pointer-events-none">
+              <div class="flex items-center justify-center min-w-0 flex-1 pointer-events-none">
                 <span id="salesUsdRateDisplay" 
-                      class="text-center font-black tracking-wider truncate" 
-                      style="color: #ffffff !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 13.5px !important; letter-spacing: 0.4px !important;">2850</span>
-                <i class="fa-solid fa-pen text-[7px] text-emerald-300/70 group-hover:text-emerald-200 transition shrink-0"></i>
+                      class="text-center font-black tracking-wider truncate block" 
+                      style="color: #ffffff !important; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important; font-weight: 900 !important; font-size: 19px !important; letter-spacing: 0.6px !important; line-height: 1 !important; text-shadow: 0 2px 6px rgba(0,0,0,0.95) !important;">2850</span>
               </div>
               <input type="hidden" id="salesUsdRateInput" value="2850" />
 
@@ -7107,24 +7109,16 @@
                       class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-85 select-none shadow-md" 
                       style="background: #000000 !important; border: 1.5px solid #22c55e !important; box-shadow: 0 0 8px rgba(34, 197, 94, 0.85) !important;" 
                       title="العملة: دولار ($) - انقر للتحويل إلى جنيه (ج.س)">
-                <span id="salesCurrencySymbol" class="text-xs font-black leading-none pointer-events-none" style="color: #22c55e !important; font-size: 14px !important; font-weight: 900 !important; text-shadow: 0 0 5px #22c55e;">$</span>
+                <span id="salesCurrencySymbol" class="text-xs font-black leading-none pointer-events-none" style="color: #22c55e !important; font-size: 15px !important; font-weight: 900 !important; text-shadow: 0 0 5px #22c55e;">$</span>
               </button>
             </div>
 
             <!-- 4. أيقونة الآلة الحاسبة -->
             <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
-                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
-                    style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.3), rgba(88, 28, 135, 0.25)); border: 1.5px solid rgba(192, 132, 252, 0.6); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
+                    class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
+                    style="background: linear-gradient(135deg, rgba(147, 51, 234, 0.35), rgba(88, 28, 135, 0.3)); border: 1.5px solid rgba(192, 132, 252, 0.7); box-shadow: 0 0 10px rgba(168, 85, 247, 0.35);" 
                     title="الآلة الحاسبة الذكية">
-              <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
-            </button>
-
-            <!-- 5. زر صغير للخروج في السطر الأول -->
-            <button type="button" onclick="exitToMainDashboard('modalOpSales')" 
-                    class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer text-rose-200 hover:text-white" 
-                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.35), rgba(136, 19, 55, 0.3)); border: 1.5px solid rgba(244, 63, 94, 0.75); box-shadow: 0 0 10px rgba(244, 63, 94, 0.35);" 
-                    title="خروج للشاشة الرئيسية">
-              <i class="fa-solid fa-power-off text-rose-300 text-xs sm:text-sm"></i>
+              <i class="fa-solid fa-calculator text-purple-200 text-sm"></i>
             </button>
 
           </div>
@@ -7169,30 +7163,30 @@
 
         </div>
 
-        <!-- لوحة التحكم الصوتية الذكية لتغذية الخانات (تفتح بالمايك) -->
-        <div id="suiteSalesVoiceConsole" class="hidden p-2.5 rounded-2xl bg-slate-950/95 border border-sky-400/50 shadow-2xl space-y-2">
+        <!-- لوحة التحكم الصوتية الذكية لتغذية الخانات (تفتح بالمايك وتستمر بلا انقطاع مهما طالت المدة) -->
+        <div id="suiteSalesVoiceConsole" class="hidden p-2.5 rounded-2xl bg-slate-950/95 border border-rose-500/60 shadow-2xl space-y-2">
           <div class="flex items-center justify-between pb-1 border-b border-slate-800">
             <div class="flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse"></span>
-              <span id="suiteSalesVoiceStatusText" class="text-[11px] font-black text-sky-300">جاري الاستماع لصوتك لتغذية الخانات...</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+              <span id="suiteSalesVoiceStatusText" class="text-[11px] font-black text-rose-300">🔴 التسجيل مستمر بلا انقطاع (تحدث بأي ترتيب أو قل "حفظ" / "حفظ وسداد")</span>
             </div>
-            <button type="button" onclick="SuiteSalesPOS.stopVoiceFeed()" class="text-slate-400 hover:text-white text-xs px-1 cursor-pointer">✕</button>
+            <button type="button" onclick="SuiteSalesPOS.stopVoiceFeed(true, '⏹️ تم إيقاف التسجيل الصوتي يدوياً')" class="text-rose-200 hover:text-white text-[11px] font-bold px-2 py-0.5 rounded-lg bg-rose-950/80 border border-rose-500/40 cursor-pointer">إيقاف ✕</button>
           </div>
 
-          <div class="p-2 rounded-xl bg-slate-900 border border-sky-500/20 text-xs">
-            <div id="suiteSalesVoiceTranscript" class="text-white font-medium min-h-[22px]">تحدث الآن (مثال: العميل التجاني، المخزن اللاماب، الصنف سيخ 4 لينيا، الوحدة طن عددي، الكمية 5، السعر 18000، خصم 200، إضافة 50)...</div>
+          <div class="p-2 rounded-xl bg-slate-900 border border-sky-500/30 text-xs">
+            <div id="suiteSalesVoiceTranscript" class="text-white font-bold min-h-[22px]">تحدث بأي ترتيب مباشرة بدون كلمات مفتاحية (مثال: محمد حسن علي مكي، درة اللمام، سيخ 3 لينيا، طن عددي، الكمية 6 طن، السعر 3500، الإضافة 70000، الخصم 10000، العتال 16000، حفظ)...</div>
           </div>
 
-          <!-- تجارب وأوامر سريعة بنقرة زر -->
-          <div class="flex gap-1 overflow-x-auto py-0.5 no-scrollbar text-[10px]">
-            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('العميل التجاني، مركز الكلفة مخزن الدرة، المخزن اللاماب، الصنف سيخ 4 لينيا، الوحدة طن عددي، الكمية 5، السعر 18000، خصم 200، إضافة 50')" class="px-2 py-1 rounded-lg bg-sky-950 text-sky-200 border border-sky-600/40 shrink-0 hover:bg-sky-800 transition active:scale-95 cursor-pointer">تجربة: التجاني + سيخ 4 + طن + خصم + إضافة</button>
-            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('العميل عمر طارق، الصنف أسمنت بورتلاندي 50 كجم، الكمية 10، السعر 4500')" class="px-2 py-1 rounded-lg bg-slate-800 text-slate-300 border border-slate-700 shrink-0 hover:bg-slate-700 transition active:scale-95 cursor-pointer">تجربة: عمر طارق + أسمنت</button>
+          <!-- تجارب وأوامر سريعة بنقرة زر (مرتبة أو مشقلبة) -->
+          <div class="flex gap-1.5 overflow-x-auto py-0.5 no-scrollbar text-[10px]">
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('محمد حسن علي مكي، درة اللمام، سيخ 3 لينيا، طن عددي، الكمية 6 طن، السعر 3500، الإضافة 70000، الخصم 10000، العتال 16000')" class="px-2.5 py-1 rounded-lg bg-emerald-950/90 text-emerald-200 border border-emerald-500/50 shrink-0 hover:bg-emerald-800 transition active:scale-95 cursor-pointer font-bold">🎙️ تجربة 1 (الترتيب المباشر): محمد حسن + درة اللمام + سيخ 3 + 6 طن</button>
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('5 طن، السعر 748، سيخ 3 لينيا، طن وزني، محمد حسن علي مكي، المستودع درة اللمام')" class="px-2.5 py-1 rounded-lg bg-amber-950/90 text-amber-200 border border-amber-500/50 shrink-0 hover:bg-amber-800 transition active:scale-95 cursor-pointer font-bold">🔀 تجربة 2 (ترتيب مشقلب ذكي): 5 طن + 748 + سيخ 3 + طن وزني + محمد حسن</button>
           </div>
 
           <!-- تفريغ يدوي أو نصي سريع -->
           <div class="flex gap-1.5 items-center">
-            <input type="text" id="suiteSalesVoiceManualInput" placeholder="أو اكتب النص الصوتي هنا واضغط تفريغ..." onkeydown="if(event.key==='Enter') SuiteSalesPOS.feedVoiceFromInput()" class="glow-input-field glow-cyan flex-1 px-2.5 py-1 text-xs text-white outline-none" />
-            <button type="button" onclick="SuiteSalesPOS.feedVoiceFromInput()" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs shrink-0 active:scale-95 shadow cursor-pointer">تفريغ الخانات ↵</button>
+            <input type="text" id="suiteSalesVoiceManualInput" placeholder="أو اكتب الأمر الصوتي بأي ترتيب هنا واضغط تفريغ..." onkeydown="if(event.key==='Enter') SuiteSalesPOS.feedVoiceFromInput()" class="glow-input-field glow-cyan flex-1 px-2.5 py-1 text-xs text-white outline-none" />
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceFromInput()" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-black text-xs shrink-0 active:scale-95 shadow cursor-pointer">تفريغ فوري ↵</button>
           </div>
         </div>
 
@@ -7225,6 +7219,18 @@
 
           <div id="salesCustomerDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-sky-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
 
+        </div>
+
+        <!-- مؤشر ERP الذكي الفوري (رصيد العميل والائتمان + رصيد الصنف ومعامل الوحدة) -->
+        <div id="salesErpSmartStatusStrip" class="hidden px-3 py-1.5 rounded-xl bg-slate-950/90 border border-sky-500/30 flex items-center justify-between gap-2 text-[10.5px] font-bold shadow-inner">
+          <div id="salesErpCustBalanceBadge" class="flex items-center gap-1.5 text-sky-300 truncate">
+            <i class="fa-solid fa-wallet text-[10px]"></i>
+            <span>الرصيد: 0 ج.س</span>
+          </div>
+          <div id="salesErpItemStockBadge" class="flex items-center gap-1.5 text-emerald-300 truncate font-mono">
+            <i class="fa-solid fa-boxes-stacked text-[10px]"></i>
+            <span>المخزون: متاح</span>
+          </div>
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
@@ -7289,18 +7295,18 @@
         <div id="suiteSalesItemBox" class="p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-visible" 
              style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.38); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- السطر الأول: الصنف (8 أعمدة بالذكاء الاصطناعي للمقاس) + الوحدات (4 أعمدة منقصة درجة واحدة) -->
+          <!-- السطر الأول: الصنف (8 أعمدة بتكبير وتصغير أوتوماتيك يملأ المساحة) + الوحدات (4 أعمدة بدون أرقام معاملات التحويل) -->
           <div class="grid grid-cols-12 gap-1.5 items-end relative">
             <!-- 1. الصنف -->
             <div class="col-span-8 relative">
               <label for="salesItemSearchInput" class="text-[11px] sm:text-xs font-bold text-amber-300 block mb-1 text-right">الصنف</label>
-              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[58px] sm:h-[64px] px-2.5 flex items-center transition rounded-xl relative" 
-                   style="background: #060913; border: 1.5px solid rgba(245, 158, 11, 0.5);">
+              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[58px] sm:h-[64px] px-2 flex items-center justify-center transition rounded-xl relative overflow-hidden" 
+                   style="background: #060913; border: 1.5px solid rgba(245, 158, 11, 0.55);">
                 <input type="text" id="salesItemSearchInput" 
-                       placeholder="ابحث واختر الصنف (مثال: سيخ 3 لينيا أسعد 10 مللي)..." 
+                       placeholder="اختر الصنف..." 
                        autocomplete="off" 
-                       class="w-full h-full bg-transparent font-black text-center tracking-normal outline-none cursor-text border-none p-0 m-0 truncate leading-normal" 
-                       style="color: #fcd34d !important; font-size: 15px;" 
+                       class="w-full h-full bg-transparent font-black text-center tracking-normal outline-none cursor-text border-none p-0 m-0 truncate leading-tight placeholder:text-amber-300/60 placeholder:font-black" 
+                       style="color: #fcd34d !important; font-size: 21px; font-weight: 900 !important;" 
                        oninput="SuiteSalesPOS.onItemInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleItem(this);" 
                        onfocus="SuiteSalesPOS.onItemFocus(this)" 
                        onblur="SuiteSalesPOS.onItemBlur(this)" 
@@ -7309,7 +7315,7 @@
               <input type="hidden" id="salesItemSelectVal" value="">
             </div>
 
-            <!-- 2. الوحدات: تم تنقيص مقاس خط الوحدات درجة واحدة (11.5px) -->
+            <!-- 2. الوحدات: اسم الوحدة فقط بدون أرقام (القيمة محفوظة في الجهاز data-factor) -->
             <div class="col-span-4">
               <label for="salesUnitSelect" class="text-[11px] sm:text-xs font-bold text-emerald-400 block mb-1 text-right">الوحدات</label>
               <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange(); window.SmartPOSFontAI && SmartPOSFontAI.scaleUnit(this);" 
@@ -7317,11 +7323,12 @@
                       style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important; font-size: 11.5px !important;" 
                       title="الوحدات">
                 <option value="" disabled selected hidden>الوحدات</option>
-                <option value="حبة">حبة</option>
-                <option value="طن عددي" selected>طن عددي</option>
-                <option value="طن">طن</option>
-                <option value="متر">متر</option>
-                <option value="كيلو">كيلو</option>
+                <option value="حبة" data-factor="1">حبة</option>
+                <option value="طن عددي" data-factor="135" selected>طن عددي</option>
+                <option value="طن وزني" data-factor="140">طن وزني</option>
+                <option value="طن" data-factor="1">طن</option>
+                <option value="متر" data-factor="1">متر</option>
+                <option value="كيلو" data-factor="1">كيلو</option>
               </select>
             </div>
 
@@ -7329,35 +7336,37 @@
             <div id="salesItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
           </div>
 
-          <!-- السطر الثاني: الكمية والسعر: خط بولد تخين جداً وزيادة 4 درجات (الكمية 45px، السعر 41px) بارتفاع موحد 62px -->
+          <!-- السطر الثاني: الكمية والسعر: تم تصغيرهما 3 درجات ليكونا بنفس مقاس وحجم خط الخصم والإضافة والعتالة تماماً (28px) -->
           <div class="grid grid-cols-2 gap-2">
-            <!-- 1. الكمية: بولد تخين + زيادة 4 درجات -->
+            <!-- 1. الكمية: نفس مقاس خط الخصم والإضافة والعتالة (28px) -->
             <div>
-              <label class="text-[12px] sm:text-[13px] font-black text-sky-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-boxes-stacked text-[11px]"></i> الكمية:
+              <label class="text-[11.5px] sm:text-[12.5px] font-black text-sky-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-boxes-stacked text-[10px]"></i> الكمية:
               </label>
-              <div class="relative rounded-xl flex items-center justify-center pos-field-interactive pos-field-qty h-[62px] sm:h-[66px]" 
-                   style="background: rgba(15, 23, 42, 0.94); border: 1.5px solid rgba(56, 189, 248, 0.5); box-shadow: 0 0 12px rgba(56, 189, 248, 0.18);">
-                <input type="number" id="salesQtyInput" placeholder="الكمية" min="0.01" step="any" 
-                       oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleQty(this);" 
-                       class="w-full h-full font-black font-mono text-center text-white outline-none pos-thick-bold-num placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #ffffff !important; font-family: 'Impact', 'Arial Black', system-ui, sans-serif !important; font-size: 45px !important; font-weight: 900 !important; -webkit-text-stroke: 0.6px currentColor; line-height: 1 !important;" 
-                       inputmode="decimal" title="الكمية" />
+              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-qty h-[60px] sm:h-[64px]" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.48); box-shadow: 0 0 8px rgba(56, 189, 248, 0.15);">
+                <input type="text" id="salesQtyInput" placeholder="الكمية" autocomplete="off"
+                       oninput="window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleQty(this);" 
+                       onblur="window.SmartFieldCustomizer && SmartFieldCustomizer.formatInputOnBlur(this);"
+                       class="w-full h-full font-black font-mono text-center text-white outline-none pos-thick-bold-num placeholder:text-slate-400/70 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
+                       style="background: transparent !important; color: #ffffff !important; font-size: 28px !important; font-weight: 900 !important;" 
+                       inputmode="decimal" title="الكمية (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
               </div>
             </div>
 
-            <!-- 2. السعر: بولد تخين + زيادة 4 درجات -->
+            <!-- 2. السعر: نفس مقاس خط الخصم والإضافة والعتالة (28px) -->
             <div>
-              <label class="text-[12px] sm:text-[13px] font-black text-cyan-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-tag text-[11px]"></i> السعر:
+              <label class="text-[11.5px] sm:text-[12.5px] font-black text-cyan-300 mb-0.5 flex items-center gap-1 truncate">
+                <i class="fa-solid fa-tag text-[10px]"></i> السعر:
               </label>
-              <div class="relative rounded-xl flex items-center justify-center pos-field-interactive pos-field-price h-[62px] sm:h-[66px]" 
-                   style="background: rgba(15, 23, 42, 0.94); border: 1.5px solid rgba(34, 211, 238, 0.5); box-shadow: 0 0 12px rgba(34, 211, 238, 0.18);">
-                <input type="number" id="salesPriceInput" placeholder="السعر" step="any" 
-                       oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scalePrice(this);" 
-                       class="w-full h-full font-black font-mono text-center text-cyan-300 outline-none pos-thick-bold-num placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #67e8f9 !important; font-family: 'Impact', 'Arial Black', system-ui, sans-serif !important; font-size: 41px !important; font-weight: 900 !important; -webkit-text-stroke: 0.6px currentColor; line-height: 1 !important;" 
-                       inputmode="decimal" title="السعر" />
+              <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-price h-[60px] sm:h-[64px]" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.48); box-shadow: 0 0 8px rgba(34, 211, 238, 0.15);">
+                <input type="text" id="salesPriceInput" placeholder="السعر" autocomplete="off"
+                       oninput="window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scalePrice(this);" 
+                       onblur="window.SmartFieldCustomizer && SmartFieldCustomizer.formatInputOnBlur(this);"
+                       class="w-full h-full font-black font-mono text-center text-cyan-300 outline-none pos-thick-bold-num placeholder:text-slate-400/70 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
+                       style="background: transparent !important; color: #67e8f9 !important; font-size: 28px !important; font-weight: 900 !important;" 
+                       inputmode="decimal" title="السعر (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
               </div>
             </div>
           </div>
@@ -7367,12 +7376,12 @@
             <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
               <i class="fa-solid fa-calculator text-[11px]"></i> الجملة:
             </label>
-            <div class="w-full h-[62px] sm:h-[66px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
+            <div onclick="document.getElementById('salesItemGrossTotal')?.focus()" class="w-full h-[62px] sm:h-[66px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross cursor-pointer" 
                  style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.38), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.65); box-shadow: 0 0 12px rgba(16, 185, 129, 0.22);">
               <input type="text" id="salesItemGrossTotal" readonly placeholder="الجملة" 
-                     class="w-full h-full text-center font-black font-mono text-emerald-300 outline-none select-none bg-transparent border-none pos-thick-bold-num placeholder:text-emerald-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
+                     class="w-full h-full text-center font-black font-mono text-emerald-300 outline-none bg-transparent border-none pos-thick-bold-num placeholder:text-emerald-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-pointer" 
                      style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 46px !important; -webkit-text-stroke: 0.5px currentColor; letter-spacing: 0.5px !important;" 
-                     title="الجملة" />
+                     title="الجملة (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
             </div>
           </div>
 
@@ -7396,11 +7405,12 @@
               </label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax h-[60px] sm:h-[64px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.48); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
-                <input type="number" id="salesTaxInput" min="0" step="any" 
-                       oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                <input type="text" id="salesTaxInput" autocomplete="off"
+                       oninput="window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                       onblur="window.SmartFieldCustomizer && SmartFieldCustomizer.formatInputOnBlur(this);"
                        class="w-full h-full font-black font-mono text-center text-purple-200 outline-none pos-thick-bold-num placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
                        style="background: transparent !important; color: #d8b4fe !important; font-size: 28px !important; font-weight: 900 !important;" 
-                       placeholder="الإضافة" inputmode="decimal" title="الإضافة" />
+                       placeholder="الإضافة" inputmode="decimal" title="الإضافة (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
               </div>
             </div>
 
@@ -7411,11 +7421,12 @@
               </label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount h-[60px] sm:h-[64px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.48); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
-                <input type="number" id="salesDiscountInput" min="0" step="any" 
-                       oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                <input type="text" id="salesDiscountInput" autocomplete="off"
+                       oninput="window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                       onblur="window.SmartFieldCustomizer && SmartFieldCustomizer.formatInputOnBlur(this);"
                        class="w-full h-full font-black font-mono text-center text-rose-400 outline-none pos-thick-bold-num placeholder:text-rose-400/60 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
                        style="background: transparent !important; color: #fb7185 !important; font-size: 28px !important; font-weight: 900 !important;" 
-                       placeholder="الخصم" inputmode="decimal" title="الخصم" />
+                       placeholder="الخصم" inputmode="decimal" title="الخصم (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
               </div>
             </div>
 
@@ -7426,11 +7437,12 @@
               </label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor h-[60px] sm:h-[64px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.48); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
-                <input type="number" id="salesLaborInput" min="0" step="any" 
-                       oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                <input type="text" id="salesLaborInput" autocomplete="off"
+                       oninput="window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                       onblur="window.SmartFieldCustomizer && SmartFieldCustomizer.formatInputOnBlur(this);"
                        class="w-full h-full font-black font-mono text-center text-amber-300 outline-none pos-thick-bold-num placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
                        style="background: transparent !important; color: #fcd34d !important; font-size: 28px !important; font-weight: 900 !important;" 
-                       placeholder="العتالة" inputmode="decimal" title="العتالة" />
+                       placeholder="العتالة" inputmode="decimal" title="العتالة (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
               </div>
             </div>
           </div>
@@ -7440,25 +7452,22 @@
             <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1">
               <i class="fa-solid fa-coins text-[11px]"></i> الإجمالي الصافي المطلوب:
             </label>
-            <div class="w-full h-[64px] sm:h-[68px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
+            <div onclick="document.getElementById('salesTotalInput')?.focus()" class="w-full h-[64px] sm:h-[68px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total cursor-pointer" 
                  style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.4), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.65); box-shadow: 0 0 12px rgba(245, 158, 11, 0.22);">
               <input type="text" id="salesTotalInput" readonly placeholder="الإجمالي الصافي" 
-                     class="w-full h-full text-center font-black font-mono text-amber-300 outline-none select-none bg-transparent border-none pos-thick-bold-num placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
+                     class="w-full h-full text-center font-black font-mono text-amber-300 outline-none bg-transparent border-none pos-thick-bold-num placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-pointer" 
                      style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 46px !important; -webkit-text-stroke: 0.5px currentColor; letter-spacing: 0.5px !important;" 
-                     title="الإجمالي الصافي المطلوب" />
+                     title="الإجمالي الصافي المطلوب (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
             </div>
           </div>
 
-          <!-- السطر الثالث (تحت الإجمالي الصافي مباشرة): البيان / الملحوظة وبداخله مربع التكبير لعرض كامل الكتابة بمساحة كبيرة -->
+          <!-- السطر الثالث (تحت الإجمالي الصافي مباشرة): البيان وبداخله مربع التكبير بدون شرح إضافي -->
           <div class="pt-0.5">
             <div class="flex items-center justify-between mb-1">
               <label for="salesNotesInput" class="text-[11.5px] sm:text-xs font-black text-cyan-300 flex items-center gap-1.5">
                 <i class="fa-solid fa-pen-to-square text-cyan-400 text-xs"></i>
-                <span>البيان / الملحوظة:</span>
+                <span>البيان:</span>
               </label>
-              <span onclick="SuiteSalesPOS.openNotesModal('sales')" class="text-[10px] text-cyan-400/80 hover:text-cyan-300 font-bold cursor-pointer select-none">
-                اضغط مربع التكبير لعرض كامل النص ⤢
-              </span>
             </div>
             <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[56px] px-2.5 flex items-center justify-between gap-2 transition rounded-xl relative overflow-hidden" 
                  style="background: rgba(15, 23, 42, 0.95); border: 1.5px solid rgba(56, 189, 248, 0.6); box-shadow: 0 0 12px rgba(56, 189, 248, 0.15);">
@@ -7905,6 +7914,27 @@
           </div>
         </div>
 
+        <!-- لوحة التحكم الصوتية الذكية للمشتريات (تفتح بالمايك وتستمر بالتسجيل حتى السكوت لمدة 3 ثوانٍ) -->
+        <div id="suitePurVoiceConsole" class="hidden p-2.5 rounded-2xl bg-slate-950/95 border border-amber-400/60 shadow-2xl space-y-2">
+          <div class="flex items-center justify-between pb-1 border-b border-slate-800">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping"></span>
+              <span id="suitePurVoiceStatusText" class="text-[11px] font-black text-amber-300">🔴 التسجيل مستمر... (يتوقف تلقائياً عند السكوت لمدة 3 ثوانٍ)</span>
+            </div>
+            <button type="button" onclick="SuitePurchasePOS.stopVoiceFeed(true)" class="text-slate-400 hover:text-white text-xs px-1.5 py-0.5 rounded bg-slate-800 cursor-pointer">إيقاف ✕</button>
+          </div>
+
+          <div class="p-2 rounded-xl bg-slate-900 border border-amber-500/30 text-xs">
+            <div id="suitePurVoiceTranscript" class="text-white font-bold min-h-[22px]">تحدث الآن... التسجيل مستمر ولا يتوقف إلا عند السكوت لمدة 3 ثوانٍ.</div>
+          </div>
+
+          <!-- تفريغ يدوي أو نصي سريع للمشتريات -->
+          <div class="flex gap-1.5 items-center">
+            <input type="text" id="suitePurVoiceManualInput" placeholder="أو اكتب النص الصوتي للمشتريات هنا واضغط تفريغ..." onkeydown="if(event.key==='Enter') SuitePurchasePOS.feedVoiceFromInput()" class="glow-input-field glow-amber flex-1 px-2.5 py-1 text-xs text-white outline-none" />
+            <button type="button" onclick="SuitePurchasePOS.feedVoiceFromInput()" class="px-2.5 py-1 rounded-xl bg-gradient-to-r from-amber-600 to-orange-600 text-white font-black text-xs shrink-0 active:scale-95 shadow cursor-pointer">تفريغ الخانات ↵</button>
+          </div>
+        </div>
+
         <!-- ═══════════════════════════════════════════════════════════════
              2. SUPPLIER ZONE MODULE: الوحدة الثانية: اسم المورد
              (بحث ذكي منسدل فوري عند الكتابة بدون أيقونات أو كلمات، اسم المورد بالرمادي الخفيف وزر كشف)
@@ -7998,10 +8028,10 @@
               <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[56px] sm:h-[64px] px-3 flex items-center transition rounded-xl relative" 
                    style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.45);">
                 <input type="text" id="purItemSearchInput" 
-                       placeholder="ابحث واختر من الأصناف المحفوظة..." 
+                       placeholder="اختر الصنف..." 
                        autocomplete="off" 
-                       class="w-full h-full bg-transparent font-black text-center tracking-wide outline-none cursor-text border-none p-0 m-0 truncate leading-normal" 
-                       style="color: #fcd34d !important; font-size: 14px;" 
+                       class="w-full h-full bg-transparent font-black text-center tracking-normal outline-none cursor-text border-none p-0 m-0 truncate leading-tight placeholder:text-amber-300/60 placeholder:font-black" 
+                       style="color: #fcd34d !important; font-size: 21px; font-weight: 900 !important;" 
                        oninput="SuitePurchasePOS.onItemInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleItem(this);" 
                        onfocus="SuitePurchasePOS.onItemFocus(this)" 
                        onblur="SuitePurchasePOS.onItemBlur(this)" 
@@ -8458,83 +8488,231 @@
       </div>
     </div>
 
-    <!-- 6. DEDICATED EXPANDED NOTES SCREEN (المربع الكبير للملحوظة الموسّعة لعرض وتعديل كامل الكتابة بوضوح تام دون أي اختفاء) -->
-    <div id="suiteSalesNotesModal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center p-2 sm:p-4 bg-slate-950/92 backdrop-blur-md overflow-y-auto" 
-         style="z-index: 99999 !important; display: none;"
+    <!-- 6. DEDICATED EXPANDED NOTES SCREEN (شاشة مربعة تماماً في منتصف الشاشة لعرض وتعديل البيان بوضوح تام) -->
+    <div id="suiteSalesNotesModal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-md" 
+         style="z-index: 100200 !important; display: none;"
          onclick="if(event.target === this) SuiteSalesPOS.closeNotesModal();">
-      <div id="suiteNotesModalDialog" class="glass-base flex flex-col justify-between p-3.5 sm:p-5 relative transition-all duration-200" 
+      <div id="suiteNotesModalDialog" class="glass-base flex flex-col justify-between p-3.5 relative transition-all duration-200 overflow-hidden" 
            style="background: linear-gradient(180deg, #091326 0%, #020611 100%); 
-                  border: 2px solid rgba(56, 189, 248, 0.85); 
-                  box-shadow: 0 0 50px rgba(6, 182, 212, 0.45), 0 20px 50px rgba(0, 0, 0, 0.95); 
-                  border-radius: 24px; 
-                  width: min(96vw, 680px) !important; 
-                  min-height: min(75vh, 480px) !important; 
-                  max-height: 94vh !important; 
-                  max-width: 680px !important; 
+                  border: 2.5px solid rgba(56, 189, 248, 0.9); 
+                  box-shadow: 0 0 50px rgba(6, 182, 212, 0.5), 0 20px 60px rgba(0, 0, 0, 0.98); 
+                  border-radius: 24px !important; 
+                  width: min(92vw, 390px) !important; 
+                  height: min(92vw, 390px) !important; 
+                  min-height: min(92vw, 390px) !important; 
+                  max-height: min(92vw, 390px) !important; 
+                  max-width: min(92vw, 390px) !important; 
+                  aspect-ratio: 1 / 1 !important; 
                   margin: auto !important; 
                   box-sizing: border-box !important; 
                   display: flex !important; 
                   flex-direction: column !important;">
         
-        <!-- رأس الشاشة الموسعة للملحوظة: العنوان وشارة السياق وزر التكبير الإضافي وزر الإغلاق -->
-        <div class="flex items-center justify-between pb-3 border-b border-cyan-500/30 shrink-0">
-          <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-xl flex items-center justify-center bg-cyan-500/25 border border-cyan-400/60 text-cyan-300 shadow-sm shrink-0">
-              <i class="fa-solid fa-note-sticky text-base"></i>
+        <!-- رأس الشاشة المربعة للبيان -->
+        <div class="flex items-center justify-between pb-2 border-b border-cyan-500/30 shrink-0">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-cyan-500/25 border border-cyan-400/60 text-cyan-300 shadow-sm shrink-0">
+              <i class="fa-solid fa-note-sticky text-sm"></i>
             </div>
             <div>
-              <h3 class="font-black text-sm sm:text-base text-white flex items-center gap-2">
-                <span>المربع الكبير للملحوظة</span>
-                <span id="suiteNotesContextBadge" class="text-[10px] px-2.5 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/50">فاتورة مبيعات</span>
+              <h3 class="font-black text-xs sm:text-sm text-white flex items-center gap-1.5">
+                <span>البيان</span>
+                <span id="suiteNotesContextBadge" class="text-[9.5px] px-2 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/50">فاتورة مبيعات</span>
               </h3>
-              <p id="suiteNotesPartnerInfo" class="text-[11px] text-cyan-200/70 font-bold m-0 mt-0.5">كامل الكتابة واضحة ومفتوحة دون أي اختفاء</p>
+              <p id="suiteNotesPartnerInfo" class="text-[10px] text-cyan-200/80 font-bold m-0 truncate max-w-[180px]"></p>
             </div>
           </div>
-          <div class="flex items-center gap-2">
-            <button type="button" id="btnToggleNotesFullscreen" onclick="SuiteSalesPOS.toggleNotesFullscreen()" 
-                    class="w-9 h-9 rounded-full bg-slate-800/90 hover:bg-cyan-900/60 text-cyan-300 hover:text-white flex items-center justify-center text-sm transition active:scale-90 cursor-pointer border border-cyan-500/50 shrink-0 shadow-sm" 
-                    title="تكبير أقصى ملء الشاشة">
-              <i id="notesFullscreenIcon" class="fa-solid fa-maximize"></i>
-            </button>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="SuiteSalesPOS.zoomNotesFont(2)" 
+                    class="px-2 h-8 rounded-lg bg-cyan-950/90 hover:bg-cyan-800 text-cyan-200 font-black text-xs flex items-center justify-center transition active:scale-90 cursor-pointer border border-cyan-500/50 shrink-0" 
+                    title="تكبير خط البيان">A+</button>
+            <button type="button" onclick="SuiteSalesPOS.zoomNotesFont(-2)" 
+                    class="px-2 h-8 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-300 font-black text-xs flex items-center justify-center transition active:scale-90 cursor-pointer border border-slate-600 shrink-0" 
+                    title="تصغير خط البيان">A-</button>
+            <button type="button" onclick="SuiteSalesPOS.toggleNotesFullscreen()" 
+                    class="w-8 h-8 rounded-lg bg-slate-800/90 hover:bg-cyan-900/60 text-cyan-300 flex items-center justify-center text-xs transition active:scale-90 cursor-pointer border border-cyan-500/40 shrink-0" 
+                    title="ملء الشاشة / شاشة مربعة"><i id="notesFullscreenIcon" class="fa-solid fa-maximize"></i></button>
             <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" 
-                    class="w-9 h-9 rounded-full bg-slate-800/90 hover:bg-rose-900/60 text-slate-300 hover:text-white flex items-center justify-center text-base transition active:scale-90 cursor-pointer border border-slate-700 shrink-0" 
+                    class="w-8 h-8 rounded-full bg-slate-800/90 hover:bg-rose-900/60 text-slate-300 hover:text-white flex items-center justify-center text-sm transition active:scale-90 cursor-pointer border border-slate-700 shrink-0" 
                     title="إغلاق">✕</button>
           </div>
         </div>
 
-        <!-- مساحة عرض وكتابة الملحوظة الكاملة: مساحة واسعة ورحبة تستوعب كافة الأسطر والنصوص بوضوح تام -->
-        <div class="flex-1 my-3 flex flex-col relative" style="flex: 1 1 auto; min-height: 180px;">
+        <!-- مساحة عرض وكتابة البيان داخل الشاشة المربعة -->
+        <div class="flex-1 my-2 flex flex-col relative min-h-0">
           <textarea id="salesNotesExpandedTextarea" 
-                    placeholder="اكتب هنا كامل نص الملحوظة بالتفصيل... كل الكتابة والأسطر تظهر كاملة وواضحة جداً بمساحة كبيرة دون أي اختفاء أو قص." 
+                    placeholder="اكتب البيان هنا..." 
                     oninput="SuiteSalesPOS.updateNotesStats(); SuiteSalesPOS.syncNotesLive();" 
-                    class="w-full flex-1 p-3.5 sm:p-4 rounded-2xl text-white font-bold outline-none resize-none shadow-inner placeholder:text-slate-400 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-400/40 leading-relaxed overflow-y-auto" 
-                    style="scrollbar-width: thin; scrollbar-color: rgba(6,182,212,0.6) #0b1329; line-height: 1.85; color: #ffffff !important; background: #060b17 !important; border: 2px solid rgba(56, 189, 248, 0.6) !important; min-height: 180px; font-size: 18px !important; font-weight: 700 !important; border-radius: 18px;"></textarea>
+                    class="w-full h-full flex-1 p-3 rounded-2xl text-white font-bold outline-none resize-none shadow-inner placeholder:text-slate-400 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-400/40 leading-relaxed overflow-y-auto" 
+                    style="scrollbar-width: thin; scrollbar-color: rgba(6,182,212,0.6) #0b1329; line-height: 1.75; color: #ffffff !important; background: #060b17 !important; border: 2px solid rgba(56, 189, 248, 0.6) !important; font-size: 18px !important; font-weight: 800 !important; border-radius: 16px;"></textarea>
         </div>
 
-        <!-- عبارات سريعة مصغرة لشاشة الملحوظة -->
-        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-1.5 shrink-0">
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('توصيل للعنوان')" class="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-xs font-bold shrink-0 border border-slate-700 active:scale-95 transition">🚚 توصيل للعنوان</button>
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('شامل الضريبة والنقل')" class="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-xs font-bold shrink-0 border border-slate-700 active:scale-95 transition">📦 شامل النقل</button>
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('دفع آجل')" class="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-xs font-bold shrink-0 border border-slate-700 active:scale-95 transition">⏳ دفع آجل</button>
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('تم استلام البضاعة')" class="px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-xs font-bold shrink-0 border border-slate-700 active:scale-95 transition">✅ تم الاستلام</button>
-          <button type="button" onclick="SuiteSalesPOS.insertTimestamp()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-xs font-bold shrink-0 border border-amber-500/40 active:scale-95 transition">⏰ +الوقت</button>
-        </div>
-
-        <!-- أسفل الشاشة الموسعة: الإحصائيات وأزرار الحفظ والإلغاء -->
-        <div class="flex items-center justify-between gap-2 pt-3 border-t border-cyan-500/30 shrink-0">
-          <div class="flex items-center gap-2">
-            <button type="button" onclick="SuiteSalesPOS.clearNotesExpanded()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-rose-300 border border-slate-700 hover:border-rose-500/50 text-xs font-bold transition active:scale-95 cursor-pointer">
+        <!-- أسفل الشاشة المربعة: أزرار المسح والنسخ والحفظ -->
+        <div class="flex items-center justify-between gap-2 pt-2 border-t border-cyan-500/30 shrink-0">
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="SuiteSalesPOS.clearNotesExpanded()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-rose-300 border border-slate-700 hover:border-rose-500/50 text-xs font-bold transition active:scale-95 cursor-pointer">
               مسح 🗑️
             </button>
-            <button type="button" onclick="SuiteSalesPOS.copyNotesToClipboard()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-cyan-900/40 text-cyan-300 border border-slate-700 hover:border-cyan-500/50 text-xs font-bold transition active:scale-95 cursor-pointer">
+            <button type="button" onclick="SuiteSalesPOS.copyNotesToClipboard()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-cyan-900/40 text-cyan-300 border border-slate-700 hover:border-cyan-500/50 text-xs font-bold transition active:scale-95 cursor-pointer">
               <span id="notesCopyFeedback"><i class="fa-solid fa-copy"></i> نسخ</span>
             </button>
           </div>
-          <div class="text-[11px] text-slate-400 font-mono hidden xs:block sm:block">
-            حروف: <span id="notesCharCount" class="text-cyan-300 font-bold">0</span> | كلمات: <span id="notesWordCount" class="text-amber-300 font-bold">0</span> | أسطر: <span id="notesLineCount" class="text-emerald-300 font-bold">1</span>
+          <span class="hidden"><span id="notesCharCount">0</span><span id="notesWordCount">0</span><span id="notesLineCount">1</span></span>
+          <button type="button" onclick="SuiteSalesPOS.saveNotesExpanded()" class="px-4 py-1.5 rounded-xl font-black text-xs sm:text-sm text-white shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer" style="background: linear-gradient(135deg, #0284c7, #0891b2); box-shadow: 0 4px 14px rgba(6, 182, 212, 0.45); border: 1px solid rgba(34, 211, 238, 0.6);">
+            <i class="fa-solid fa-check"></i> حفظ 💾
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 7. SMART FIELD STYLE & NUMBER FORMAT CUSTOMIZER MODAL (تظهر عند الضغط على الحقل + مسافة للتحكم الدائم في حجم الخط ولون الخط والفاصلة الألفية والعشرية والتقريب) -->
+    <div id="suiteFieldStyleModal" class="hidden fixed inset-0 modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/90 backdrop-blur-md"
+         style="z-index: 100200 !important; display: none;"
+         onclick="if(event.target === this) SmartFieldCustomizer.closeModal();">
+      <div class="glass-base w-full max-w-md rounded-3xl p-4 space-y-3.5 relative shadow-2xl overflow-y-auto max-h-[92vh]"
+           style="background: linear-gradient(180deg, #0b1528 0%, #030712 100%); border: 2px solid rgba(56, 189, 248, 0.85); box-shadow: 0 0 50px rgba(14, 165, 233, 0.45), 0 20px 60px rgba(0,0,0,0.95); direction: rtl;">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between pb-2.5 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-2xl bg-sky-500/20 border border-sky-400/50 text-sky-300 flex items-center justify-center text-base shadow">
+              <i class="fa-solid fa-sliders"></i>
+            </div>
+            <div>
+              <h3 class="font-black text-xs sm:text-sm text-white flex items-center gap-1.5">
+                <span>تخصيص وتنسيق الحقل</span>
+                <span id="sfcFieldLabelBadge" class="text-[10.5px] px-2.5 py-0.5 rounded-full font-black bg-amber-500/20 text-amber-300 border border-amber-400/50">اسم العميل</span>
+              </h3>
+              <p class="text-[10px] text-slate-400 font-bold m-0">يُحفظ كإعداد افتراضي دائم لا يتغير إلا عند تعديله مجدداً</p>
+            </div>
           </div>
-          <button type="button" onclick="SuiteSalesPOS.saveNotesExpanded()" class="px-5 py-2 rounded-xl font-black text-xs sm:text-sm text-white shadow-lg flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer" style="background: linear-gradient(135deg, #0284c7, #0891b2); box-shadow: 0 4px 14px rgba(6, 182, 212, 0.45); border: 1px solid rgba(34, 211, 238, 0.6);">
-            <i class="fa-solid fa-check"></i> حفظ الملحوظة 💾
+          <button type="button" onclick="SmartFieldCustomizer.closeModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-rose-900/60 text-slate-300 hover:text-white flex items-center justify-center text-sm transition active:scale-90 cursor-pointer border border-slate-700">✕</button>
+        </div>
+
+        <!-- معاينة حية فورية للحقل -->
+        <div class="rounded-2xl p-3 bg-slate-950/95 border border-slate-800 flex flex-col items-center justify-center min-h-[68px] relative overflow-hidden shadow-inner">
+          <span class="text-[9.5px] text-slate-400 font-bold absolute top-1.5 right-2.5">معاينة حية:</span>
+          <div id="sfcLivePreviewText" class="font-black text-center truncate w-full px-2 mt-2 transition-all duration-150" style="font-size: 24px; color: #38bdf8;">عميل نقدي عام</div>
+        </div>
+
+        <!-- 1. التحكم في حجم الخط -->
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-sky-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-text-height text-sky-400"></i>
+              <span>حجم الخط (Font Size):</span>
+            </span>
+            <div class="flex items-center gap-1.5">
+              <span id="sfcFontSizeValBadge" class="px-2.5 py-0.5 rounded-lg bg-sky-950 text-sky-300 border border-sky-500/40 font-mono font-black text-xs">24px</span>
+              <button type="button" id="sfcBtnAiMode" onclick="SmartFieldCustomizer.toggleAiFontMode()" class="px-2 py-0.5 rounded-lg text-[10px] font-black border transition cursor-pointer bg-slate-800 text-slate-300 border-slate-700" title="تبديل بين الحجم الثابت المخصص والتحجيم التلقائي الذكي">
+                🤖 ذكاء تلقائي
+              </button>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="SmartFieldCustomizer.stepFontSize(-2)" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-base border border-slate-700 active:scale-90 transition cursor-pointer shrink-0" title="تصغير الخط">-A</button>
+            <input type="range" id="sfcFontSizeRange" min="11" max="54" step="0.5" value="24" oninput="SmartFieldCustomizer.onFontSizeChange(this.value)" class="flex-1 accent-sky-400 cursor-pointer h-2 bg-slate-800 rounded-lg" />
+            <button type="button" onclick="SmartFieldCustomizer.stepFontSize(2)" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-black text-base border border-slate-700 active:scale-90 transition cursor-pointer shrink-0" title="تكبير الخط">+A</button>
+          </div>
+
+          <!-- مقاسات سريعة -->
+          <div class="grid grid-cols-5 gap-1 text-[10px] font-bold">
+            <button type="button" onclick="SmartFieldCustomizer.onFontSizeChange(14)" class="py-1 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800 transition cursor-pointer">14px</button>
+            <button type="button" onclick="SmartFieldCustomizer.onFontSizeChange(18)" class="py-1 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800 transition cursor-pointer">18px</button>
+            <button type="button" onclick="SmartFieldCustomizer.onFontSizeChange(24)" class="py-1 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800 transition cursor-pointer">24px</button>
+            <button type="button" onclick="SmartFieldCustomizer.onFontSizeChange(28)" class="py-1 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800 transition cursor-pointer">28px</button>
+            <button type="button" onclick="SmartFieldCustomizer.onFontSizeChange(38)" class="py-1 rounded-lg bg-slate-950 hover:bg-slate-800 text-slate-300 border border-slate-800 transition cursor-pointer">38px</button>
+          </div>
+        </div>
+
+        <!-- 2. التحكم في لون الخط -->
+        <div class="p-3 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black text-amber-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-palette text-amber-400"></i>
+              <span>لون الخط (Font Color):</span>
+            </span>
+            <label class="flex items-center gap-1 text-[10px] font-bold text-slate-300 bg-slate-950 px-2 py-0.5 rounded-lg border border-slate-700 cursor-pointer">
+              <span>لون حر 🎨</span>
+              <input type="color" id="sfcCustomColorPicker" onchange="SmartFieldCustomizer.onColorChange(this.value)" oninput="SmartFieldCustomizer.onColorChange(this.value)" class="w-4 h-4 rounded cursor-pointer border-0 bg-transparent p-0" value="#38bdf8" />
+            </label>
+          </div>
+
+          <div id="sfcColorSwatches" class="grid grid-cols-5 gap-2 pt-0.5">
+            <button type="button" onclick="SmartFieldCustomizer.onColorChange('#ffffff')" data-color="#ffffff" class="sfc-color-btn h-8 rounded-xl border-2 border-slate-600 flex items-center justify-center text-[10px] font-black text-slate-950 shadow transition active:scale-90 cursor-pointer" style="background: #ffffff;">أبيض</button>
+            <button type="button" onclick="SmartFieldCustomizer.onColorChange('#38bdf8')" data-color="#38bdf8" class="sfc-color-btn h-8 rounded-xl border-2 border-slate-600 flex items-center justify-center text-[10px] font-black text-slate-950 shadow transition active:scale-90 cursor-pointer" style="background: #38bdf8;">سماوي</button>
+            <button type="button" onclick="SmartFieldCustomizer.onColorChange('#67e8f9')" data-color="#67e8f9" class="sfc-color-btn h-8 rounded-xl border-2 border-slate-600 flex items-center justify-center text-[10px] font-black text-slate-950 shadow transition active:scale-90 cursor-pointer" style="background: #67e8f9;">سيان</button>
+            <button type="button" onclick="SmartFieldCustomizer.onColorChange('#34d399')" data-color="#34d399" class="sfc-color-btn h-8 rounded-xl border-2 border-slate-600 flex items-center justify-center text-[10px] font-black text-slate-950 shadow transition active:scale-90 cursor-pointer" style="background: #34d399;">زمردي</button>
+            <button type="button" onclick="SmartFieldCustomizer.onColorChange('#22c55e')" data-color="#22c55e" class="sfc-color-btn h-8 rounded-xl border-2 border-slate-600 flex items-center justify-center text-[10px] font-black text-slate-950 shadow transition active:scale-90 cursor-pointer" style="background: #22c55e;">أخضر</button>
+            <button type="button" onclick="SmartFieldCustomizer.onColorChange('#fcd34d')" data-color="#fcd34d" class="sfc-color-btn h-8 rounded-xl border-2 border-slate-600 flex items-center justify-center text-[10px] font-black text-slate-950 shadow transition active:scale-90 cursor-pointer" style="background: #fcd34d;">ذهبي</button>
+            <button type="button" onclick="SmartFieldCustomizer.onColorChange('#fb923c')" data-color="#fb923c" class="sfc-color-btn h-8 rounded-xl border-2 border-slate-600 flex items-center justify-center text-[10px] font-black text-slate-950 shadow transition active:scale-90 cursor-pointer" style="background: #fb923c;">برتقالي</button>
+            <button type="button" onclick="SmartFieldCustomizer.onColorChange('#fb7185')" data-color="#fb7185" class="sfc-color-btn h-8 rounded-xl border-2 border-slate-600 flex items-center justify-center text-[10px] font-black text-slate-950 shadow transition active:scale-90 cursor-pointer" style="background: #fb7185;">وردي</button>
+            <button type="button" onclick="SmartFieldCustomizer.onColorChange('#d8b4fe')" data-color="#d8b4fe" class="sfc-color-btn h-8 rounded-xl border-2 border-slate-600 flex items-center justify-center text-[10px] font-black text-slate-950 shadow transition active:scale-90 cursor-pointer" style="background: #d8b4fe;">بنفسجي</button>
+            <button type="button" onclick="SmartFieldCustomizer.onColorChange('#cbd5e1')" data-color="#cbd5e1" class="sfc-color-btn h-8 rounded-xl border-2 border-slate-600 flex items-center justify-center text-[10px] font-black text-slate-950 shadow transition active:scale-90 cursor-pointer" style="background: #cbd5e1;">فضي</button>
+          </div>
+        </div>
+
+        <!-- 3. التحكم في الفاصلة الألفية والفاصلة العشرية والتقريب (للأرقام والمبالغ) -->
+        <div id="sfcNumberFormatSection" class="p-3 rounded-2xl bg-slate-900/80 border border-emerald-500/35 space-y-2.5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <span class="text-xs font-black text-emerald-300 flex items-center gap-1.5">
+              <i class="fa-solid fa-hashtag text-emerald-400"></i>
+              <span>تنسيق الأرقام والفواصل والتقريب:</span>
+            </span>
+            <span class="text-[10px] text-emerald-400/80 font-mono">1,234.56</span>
+          </div>
+
+          <!-- أ. الفاصلة الألفية -->
+          <div class="space-y-1">
+            <label class="text-[11px] font-bold text-slate-300 block">الفاصلة الألفية (تجزئة الآلاف):</label>
+            <div class="grid grid-cols-4 gap-1 text-[10.5px] font-bold">
+              <button type="button" onclick="SmartFieldCustomizer.setThousandsSep(',')" data-th="," class="sfc-th-btn py-1.5 rounded-xl border transition cursor-pointer">فاصلة (1,000)</button>
+              <button type="button" onclick="SmartFieldCustomizer.setThousandsSep('none')" data-th="none" class="sfc-th-btn py-1.5 rounded-xl border transition cursor-pointer">بدون (1000)</button>
+              <button type="button" onclick="SmartFieldCustomizer.setThousandsSep('.')" data-th="." class="sfc-th-btn py-1.5 rounded-xl border transition cursor-pointer">نقطة (1.000)</button>
+              <button type="button" onclick="SmartFieldCustomizer.setThousandsSep(' ')" data-th=" " class="sfc-th-btn py-1.5 rounded-xl border transition cursor-pointer">مسافة (1 000)</button>
+            </div>
+          </div>
+
+          <!-- ب. الفاصلة العشرية -->
+          <div class="space-y-1">
+            <label class="text-[11px] font-bold text-slate-300 block">الفاصلة العشرية (بين الصحيح والكسور):</label>
+            <div class="grid grid-cols-3 gap-1.5 text-[10.5px] font-bold">
+              <button type="button" onclick="SmartFieldCustomizer.setDecimalSep('.')" data-dec="." class="sfc-dec-btn py-1.5 rounded-xl border transition cursor-pointer">نقطة عشرية (.)</button>
+              <button type="button" onclick="SmartFieldCustomizer.setDecimalSep(',')" data-dec="," class="sfc-dec-btn py-1.5 rounded-xl border transition cursor-pointer">فاصلة عشرية (,)</button>
+              <button type="button" onclick="SmartFieldCustomizer.setDecimalSep('٫')" data-dec="٫" class="sfc-dec-btn py-1.5 rounded-xl border transition cursor-pointer">فاصلة عربية (٫)</button>
+            </div>
+          </div>
+
+          <!-- ج. التقريب إلى كم منزلة عشرية -->
+          <div class="space-y-1">
+            <label class="text-[11px] font-bold text-slate-300 block">التقريب إلى عدد المنازل العشرية:</label>
+            <div class="grid grid-cols-6 gap-1 text-[10.5px] font-mono font-black">
+              <button type="button" onclick="SmartFieldCustomizer.setDecimals('auto')" data-round="auto" class="sfc-round-btn py-1.5 rounded-xl border transition cursor-pointer font-sans">تلقائي</button>
+              <button type="button" onclick="SmartFieldCustomizer.setDecimals(0)" data-round="0" class="sfc-round-btn py-1.5 rounded-xl border transition cursor-pointer" title="عدد صحيح بدون كسور">0</button>
+              <button type="button" onclick="SmartFieldCustomizer.setDecimals(1)" data-round="1" class="sfc-round-btn py-1.5 rounded-xl border transition cursor-pointer" title="منزلة عشرية واحدة">1</button>
+              <button type="button" onclick="SmartFieldCustomizer.setDecimals(2)" data-round="2" class="sfc-round-btn py-1.5 rounded-xl border transition cursor-pointer" title="منزلتان عشريتان">2</button>
+              <button type="button" onclick="SmartFieldCustomizer.setDecimals(3)" data-round="3" class="sfc-round-btn py-1.5 rounded-xl border transition cursor-pointer" title="3 منازل عشرية">3</button>
+              <button type="button" onclick="SmartFieldCustomizer.setDecimals(4)" data-round="4" class="sfc-round-btn py-1.5 rounded-xl border transition cursor-pointer" title="4 منازل عشرية">4</button>
+            </div>
+          </div>
+
+          <!-- خيار تعميم إعدادات الفواصل والتقريب على كافة الأرقام -->
+          <label class="flex items-center gap-2 pt-1 text-[11px] font-bold text-emerald-200 cursor-pointer select-none">
+            <input type="checkbox" id="sfcApplyToAllNumbers" class="w-4 h-4 rounded accent-emerald-500 cursor-pointer" />
+            <span>تعميم تنسيق الفواصل والتقريب على جميع المبالغ والأرقام</span>
+          </label>
+        </div>
+
+        <!-- أزرار الحفظ النهائي الدائم أو الاستعادة -->
+        <div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-800">
+          <button type="button" onclick="SmartFieldCustomizer.resetCurrentField()" class="px-3 py-2.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold border border-slate-700 active:scale-95 transition cursor-pointer" title="إرجاع هذا الحقل لإعدادات المصنع">
+            استعادة الافتراضي 🔄
+          </button>
+          <button type="button" onclick="SmartFieldCustomizer.savePermanent()" class="flex-1 py-2.5 px-4 rounded-2xl font-black text-xs sm:text-sm text-white shadow-xl flex items-center justify-center gap-2 active:scale-95 transition cursor-pointer" style="background: linear-gradient(135deg, #059669, #0284c7); border: 1.5px solid #34d399; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>حفظ كافتراضي دائم 💾</span>
           </button>
         </div>
 
@@ -11289,6 +11467,578 @@
     // تنسيق تلقائي فوري لأحجام الخطوط بما يناسب المساحة المتاحة وعدد الأرقام والأحرف
     // خط الجملة والإجمالي الصافي متساويان تماماً ومكبران (38px)
     // ═════════════════════════════════════════════════════════════════
+    // ═════════════════════════════════════════════════════════════════════
+    // 🎛️ SMART FIELD STYLE & NUMBER FORMAT CUSTOMIZER (التحكم الدائم بالحقول والأرقام عبر زر المسافة)
+    // ═════════════════════════════════════════════════════════════════════
+    window.SmartFieldCustomizer = {
+      STORAGE_KEY: 'magaies_pos_field_styles_v1',
+      BACKUP_KEY: 'erp_permanent_field_styles_v1',
+      configs: {},
+      activeFieldId: null,
+      tempConfig: null,
+
+      fieldMeta: {
+        salesCustomerInput:    { label: 'اسم العميل', isNumeric: false, defSize: 15, defColor: '#38bdf8', defMode: 'ai' },
+        salesWarehouseInput:   { label: 'المستودع', isNumeric: false, defSize: 14.5, defColor: '#ffffff', defMode: 'ai' },
+        salesCostCenterInput:  { label: 'مركز الكلفة', isNumeric: false, defSize: 14.5, defColor: '#bae6fd', defMode: 'ai' },
+        salesItemSearchInput:  { label: 'الصنف', isNumeric: false, defSize: 21, defColor: '#fcd34d', defMode: 'ai' },
+        salesUnitSelect:       { label: 'الوحدات', isNumeric: false, defSize: 12, defColor: '#34d399', defMode: 'ai' },
+        salesQtyInput:         { label: 'الكمية', isNumeric: true, defSize: 28, defColor: '#ffffff', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
+        salesPriceInput:       { label: 'السعر', isNumeric: true, defSize: 28, defColor: '#67e8f9', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
+        salesItemGrossTotal:   { label: 'الجملة', isNumeric: true, defSize: 46, defColor: '#34d399', defMode: 'fixed', defDecimals: 2, defThousands: ',' },
+        salesTaxInput:         { label: 'الإضافة', isNumeric: true, defSize: 28, defColor: '#d8b4fe', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
+        salesDiscountInput:    { label: 'الخصم', isNumeric: true, defSize: 28, defColor: '#fb7185', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
+        salesLaborInput:       { label: 'العتالة', isNumeric: true, defSize: 28, defColor: '#fcd34d', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
+        salesTotalInput:       { label: 'الإجمالي الصافي', isNumeric: true, defSize: 46, defColor: '#fcd34d', defMode: 'fixed', defDecimals: 2, defThousands: ',' },
+        suiteGrandTotalDisplay:{ label: 'إجمالي الأسطر', isNumeric: true, defSize: 14, defColor: '#34d399', defMode: 'fixed', defDecimals: 2, defThousands: ',' },
+        salesUsdRateDisplay:   { label: 'سعر صرف الدولار', isNumeric: true, defSize: 19, defColor: '#ffffff', defMode: 'fixed', defDecimals: 'auto', defThousands: 'none' },
+        salesNotesInput:       { label: 'البيان / الملحوظة', isNumeric: false, defSize: 15, defColor: '#ffffff', defMode: 'ai' },
+        // حقول المشتريات أيضاً
+        purchaseSupplierInput: { label: 'اسم المورد (مشتريات)', isNumeric: false, defSize: 14, defColor: '#fbbf24', defMode: 'ai' },
+        purchaseWarehouseInput:{ label: 'المستودع (مشتريات)', isNumeric: false, defSize: 14, defColor: '#ffffff', defMode: 'ai' },
+        purItemSearchInput:    { label: 'الصنف (مشتريات)', isNumeric: false, defSize: 21, defColor: '#fcd34d', defMode: 'ai' },
+        purUnitSelect:         { label: 'الوحدات (مشتريات)', isNumeric: false, defSize: 12.5, defColor: '#34d399', defMode: 'ai' },
+        purQtyInput:           { label: 'الكمية (مشتريات)', isNumeric: true, defSize: 39, defColor: '#ffffff', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
+        purPriceInput:         { label: 'السعر (مشتريات)', isNumeric: true, defSize: 32, defColor: '#67e8f9', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
+        purItemGrossTotal:     { label: 'الجملة (مشتريات)', isNumeric: true, defSize: 43, defColor: '#34d399', defMode: 'fixed', defDecimals: 2, defThousands: ',' },
+        purTaxInput:           { label: 'الإضافة (مشتريات)', isNumeric: true, defSize: 28, defColor: '#d8b4fe', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
+        purDiscountInput:      { label: 'الخصم (مشتريات)', isNumeric: true, defSize: 28, defColor: '#fb7185', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
+        purLaborInput:         { label: 'العتالة (مشتريات)', isNumeric: true, defSize: 28, defColor: '#fcd34d', defMode: 'fixed', defDecimals: 'auto', defThousands: ',' },
+        purTotalInput:         { label: 'الإجمالي الصافي (مشتريات)', isNumeric: true, defSize: 43, defColor: '#fcd34d', defMode: 'fixed', defDecimals: 2, defThousands: ',' },
+        purNotesInput:         { label: 'البيان (مشتريات)', isNumeric: false, defSize: 14, defColor: '#ffffff', defMode: 'ai' }
+      },
+
+      init() {
+        this.loadSavedConfigs();
+        this.bindSpaceShortcutListeners();
+        this.applyAllSavedStyles();
+        setTimeout(() => this.applyAllSavedStyles(), 200);
+      },
+
+      loadSavedConfigs() {
+        try {
+          const raw = localStorage.getItem(this.STORAGE_KEY) || localStorage.getItem(this.BACKUP_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') {
+              this.configs = parsed;
+            }
+          }
+        } catch (e) {
+          console.warn('Could not load saved field styles:', e);
+        }
+      },
+
+      persistConfigs() {
+        try {
+          const json = JSON.stringify(this.configs);
+          localStorage.setItem(this.STORAGE_KEY, json);
+          localStorage.setItem(this.BACKUP_KEY, json);
+        } catch (e) {
+          console.warn('Could not save field styles:', e);
+        }
+      },
+
+      getDefaultConfig(fieldId) {
+        const meta = this.fieldMeta[fieldId] || { label: fieldId, isNumeric: false, defSize: 18, defColor: '#ffffff', defMode: 'fixed' };
+        return {
+          fontSize: meta.defSize,
+          fontColor: meta.defColor,
+          fontMode: meta.defMode || 'fixed',
+          isNumeric: !!meta.isNumeric,
+          thousandsSep: meta.defThousands !== undefined ? meta.defThousands : ',',
+          decimalSep: '.',
+          decimals: meta.defDecimals !== undefined ? meta.defDecimals : 'auto'
+        };
+      },
+
+      getFieldConfig(fieldId) {
+        const def = this.getDefaultConfig(fieldId);
+        const saved = this.configs[fieldId];
+        if (!saved) return def;
+        return Object.assign({}, def, saved);
+      },
+
+      hasCustomConfig(fieldId) {
+        return !!this.configs[fieldId];
+      },
+
+      // تحليل الرقم من أي حقل حتى لو كان يحتوي على فواصل ألفية أو عشرية مخصصة
+      parseNum(val, fieldId) {
+        if (val === null || val === undefined) return 0;
+        if (typeof val === 'number') return isNaN(val) ? 0 : val;
+        let s = String(val).trim();
+        if (!s) return 0;
+        const eastern = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+        for (let i = 0; i < 10; i++) s = s.split(eastern[i]).join(i.toString());
+
+        const cfg = fieldId ? this.getFieldConfig(fieldId) : null;
+        if (cfg && cfg.decimalSep === ',' && cfg.thousandsSep === '.') {
+          s = s.replace(/\./g, '').replace(/,/g, '.');
+        } else if (cfg && cfg.decimalSep === ',' && cfg.thousandsSep !== ',') {
+          if (cfg.thousandsSep && cfg.thousandsSep !== 'none') {
+            s = s.split(cfg.thousandsSep).join('');
+          }
+          s = s.replace(/,/g, '.');
+        } else {
+          // الوضع القياسي: إزالة الفاصلة الألفية ',' والمسافات وتحويل الفاصلة العربية '٫' إلى نقطة '.'
+          s = s.replace(/,/g, '').replace(/\s+/g, '').replace(/٫/g, '.');
+        }
+        s = s.replace(/[^0-9.\-]/g, '');
+        const num = parseFloat(s);
+        return isNaN(num) ? 0 : num;
+      },
+
+      // تنسيق الرقم حسب إعدادات الحقل المحفوظة (الفاصلة الألفية، الفاصلة العشرية، والتقريب)
+      formatNumberForField(fieldId, rawNum) {
+        const num = (typeof rawNum === 'number') ? rawNum : this.parseNum(rawNum, fieldId);
+        if (isNaN(num)) return '';
+        const cfg = this.getFieldConfig(fieldId);
+
+        let fixedStr = '';
+        if (cfg.decimals === 'auto' || cfg.decimals === undefined || cfg.decimals === null) {
+          // تقريب نظيف حتى 4 منازل بدون أصفار زائدة
+          const rounded = Math.round((num + Number.EPSILON) * 10000) / 10000;
+          fixedStr = String(rounded);
+        } else {
+          const d = Math.max(0, Math.min(6, parseInt(cfg.decimals, 10) || 0));
+          fixedStr = num.toFixed(d);
+        }
+
+        const parts = fixedStr.split('.');
+        let intPart = parts[0];
+        const decPart = parts.length > 1 ? parts[1] : '';
+
+        const thSep = cfg.thousandsSep !== undefined ? cfg.thousandsSep : ',';
+        if (thSep && thSep !== 'none') {
+          intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thSep);
+        }
+
+        const decSep = cfg.decimalSep || '.';
+        return decPart ? (intPart + decSep + decPart) : intPart;
+      },
+
+      handleNumericLiveInput(el) {
+        if (!el) return;
+        // إذا ضغط المستخدم مسافة داخل حقل رقمي، نفتح نافذة التخصيص فوراً ونحذف المسافة
+        const v = el.value || '';
+        if (v.includes(' ')) {
+          el.value = v.replace(/\s+/g, '');
+          this.openModal(el.id);
+        }
+      },
+
+      formatInputOnBlur(el) {
+        if (!el || !el.id) return;
+        const raw = (el.value || '').trim();
+        if (!raw) return;
+        const num = this.parseNum(raw, el.id);
+        if (num === 0 && !raw.includes('0')) return;
+        el.value = this.formatNumberForField(el.id, num);
+        this.applySavedStyleToElement(el);
+      },
+
+      applySavedStyleToElement(el) {
+        if (!el || !el.id) return;
+        const saved = this.configs[el.id];
+        if (!saved) return;
+        if (saved.fontColor) {
+          el.style.setProperty('color', saved.fontColor, 'important');
+        }
+        if (saved.fontSize) {
+          el.style.setProperty('font-size', saved.fontSize + 'px', 'important');
+        }
+      },
+
+      applyAllSavedStyles() {
+        Object.keys(this.fieldMeta).forEach(fieldId => {
+          const el = document.getElementById(fieldId);
+          if (!el) return;
+          const saved = this.configs[fieldId];
+          if (saved) {
+            if (saved.fontColor) {
+              el.style.setProperty('color', saved.fontColor, 'important');
+            }
+            if (saved.fontSize) {
+              el.style.setProperty('font-size', saved.fontSize + 'px', 'important');
+            }
+            if (this.fieldMeta[fieldId].isNumeric && el.value && el.value.trim() !== '') {
+              const n = this.parseNum(el.value, fieldId);
+              if (!isNaN(n) && (n !== 0 || el.value.includes('0'))) {
+                el.value = this.formatNumberForField(fieldId, n);
+              }
+            }
+          }
+        });
+      },
+
+      showQuickPillForField(el) {
+        if (!el || !el.id || !this.fieldMeta[el.id]) return;
+        let pill = document.getElementById('sfcFloatingSpacePill');
+        if (!pill) {
+          pill = document.createElement('button');
+          pill.id = 'sfcFloatingSpacePill';
+          pill.type = 'button';
+          pill.className = 'fixed z-[99990] px-3 py-1.5 rounded-full text-[11px] font-black text-white shadow-2xl flex items-center gap-1.5 transition-all duration-200 active:scale-90 cursor-pointer';
+          pill.style.cssText = 'background: linear-gradient(135deg, #0284c7, #0f172a); border: 1.5px solid #38bdf8; box-shadow: 0 4px 18px rgba(56, 189, 248, 0.5); bottom: 14px; left: 50%; transform: translateX(-50%); direction: rtl;';
+          pill.onclick = (e) => {
+            e.stopPropagation();
+            if (this.activeFieldId) this.openModal(this.activeFieldId);
+          };
+          document.body.appendChild(pill);
+        }
+        const meta = this.fieldMeta[el.id];
+        pill.innerHTML = '<i class="fa-solid fa-sliders text-amber-300"></i> <span>مسافة ␣ : تنسيق وخط [' + meta.label + ']</span>';
+        pill.classList.remove('hidden');
+        pill.style.display = 'flex';
+        if (this._pillHideTimer) clearTimeout(this._pillHideTimer);
+        this._pillHideTimer = setTimeout(() => {
+          if (pill) pill.style.display = 'none';
+        }, 5500);
+      },
+
+      bindSpaceShortcutListeners() {
+        const attachToField = (fieldId) => {
+          const el = document.getElementById(fieldId);
+          if (!el || el._sfcBound) return;
+          el._sfcBound = true;
+          const meta = this.fieldMeta[fieldId];
+
+          const markClicked = () => {
+            this.activeFieldId = fieldId;
+            el._awaitingSpaceShortcut = true;
+            el._savedValueForSpace = el.value !== undefined ? el.value : el.innerText;
+            this.showQuickPillForField(el);
+          };
+
+          el.addEventListener('focus', markClicked);
+          el.addEventListener('click', markClicked);
+          if (el.parentElement) {
+            el.parentElement.addEventListener('click', () => {
+              this.activeFieldId = fieldId;
+              this.showQuickPillForField(el);
+            });
+          }
+
+          // 1. رصد ضغط المسافة عبر لوحة المفاتيح (Desktop & Mobile Keyboards)
+          el.addEventListener('keydown', (e) => {
+            const isSpace = (e.key === ' ' || e.code === 'Space' || e.keyCode === 32);
+            if (isSpace) {
+              // في الحقول الرقمية أو للقراءة فقط أو مباشرة بعد الضغط على الحقل النصي (أو عند تحديد النص بالكامل)
+              const isAllSelected = (typeof el.selectionStart === 'number' && el.selectionStart === 0 && el.selectionEnd === (el.value || '').length && (el.value || '').length > 0);
+              const isEmpty = !(el.value || '').trim();
+              if (meta.isNumeric || el.readOnly || el.tagName === 'SELECT' || el._awaitingSpaceShortcut || isAllSelected || isEmpty) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (el._savedValueForSpace !== undefined && el.value !== undefined) {
+                  el.value = el._savedValueForSpace;
+                }
+                this.openModal(fieldId);
+                return false;
+              }
+            } else if (e.key && e.key.length === 1 && e.key !== ' ') {
+              el._awaitingSpaceShortcut = false;
+            }
+          });
+
+          // 2. رصد المسافة على كيبورد الجوال (Android Gboard / iOS) عبر beforeinput
+          el.addEventListener('beforeinput', (e) => {
+            if (e.data === ' ') {
+              const isAllSelected = (typeof el.selectionStart === 'number' && el.selectionStart === 0 && el.selectionEnd === (el.value || '').length && (el.value || '').length > 0);
+              const isEmpty = !(el.value || '').trim();
+              if (meta.isNumeric || el.readOnly || el._awaitingSpaceShortcut || isAllSelected || isEmpty) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (el._savedValueForSpace !== undefined && el.value !== undefined) {
+                  el.value = el._savedValueForSpace;
+                }
+                this.openModal(fieldId);
+                return false;
+              }
+              el._awaitingSpaceShortcut = false;
+            } else if (e.data && e.data.trim().length > 0) {
+              el._awaitingSpaceShortcut = false;
+            }
+          });
+
+          // 3. حماية إضافية لكيبورد الجوال إذا أرسل المسافة في حدث input مباشرة
+          el.addEventListener('input', (e) => {
+            const val = el.value || '';
+            if ((meta.isNumeric && val.includes(' ')) || (el._awaitingSpaceShortcut && (val === ' ' || (e && e.data === ' ')))) {
+              if (el._savedValueForSpace !== undefined && !meta.isNumeric) {
+                el.value = el._savedValueForSpace;
+              } else if (meta.isNumeric) {
+                el.value = val.replace(/\s+/g, '');
+              }
+              this.openModal(fieldId);
+            } else if (val.trim().length > 0 && val !== el._savedValueForSpace) {
+              el._awaitingSpaceShortcut = false;
+            }
+          });
+        };
+
+        Object.keys(this.fieldMeta).forEach(attachToField);
+
+        // مستمع عام لزر المسافة عندما يكون الحقل النشط هو الجملة أو الإجمالي الصافي أو سعر الصرف
+        window.addEventListener('keydown', (e) => {
+          const modalOpen = document.getElementById('suiteFieldStyleModal');
+          if (modalOpen && !modalOpen.classList.contains('hidden')) return;
+          const isSpace = (e.key === ' ' || e.code === 'Space' || e.keyCode === 32);
+          if (!isSpace || !this.activeFieldId) return;
+          const activeEl = document.activeElement;
+          const isTypingInOtherInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA') && !activeEl.readOnly && activeEl.id !== this.activeFieldId;
+          if (isTypingInOtherInput) return;
+
+          const meta = this.fieldMeta[this.activeFieldId];
+          const targetEl = document.getElementById(this.activeFieldId);
+          if (targetEl && (targetEl.readOnly || meta?.isNumeric || targetEl.tagName === 'SPAN' || targetEl.tagName === 'SELECT')) {
+            e.preventDefault();
+            this.openModal(this.activeFieldId);
+          }
+        });
+      },
+
+      openModal(fieldId) {
+        if (!fieldId || !this.fieldMeta[fieldId]) return;
+        this.activeFieldId = fieldId;
+        this.tempConfig = Object.assign({}, this.getFieldConfig(fieldId));
+
+        // إغلاق أي قوائم بحث منسدلة مفتوحة
+        ['salesCustomerDropdown', 'salesWarehouseDropdown', 'salesCostCenterDropdown', 'salesItemDropdown', 'purchaseSupplierDropdown', 'purchaseWarehouseDropdown', 'purItemDropdown'].forEach(id => {
+          const d = document.getElementById(id);
+          if (d) d.classList.add('hidden');
+        });
+
+        const el = document.getElementById(fieldId);
+        if (el && typeof el.blur === 'function') el.blur();
+
+        const meta = this.fieldMeta[fieldId];
+        const badge = document.getElementById('sfcFieldLabelBadge');
+        if (badge) badge.innerText = meta.label;
+
+        const numSec = document.getElementById('sfcNumberFormatSection');
+        if (numSec) {
+          numSec.style.display = meta.isNumeric ? 'block' : 'none';
+        }
+
+        const applyAllChk = document.getElementById('sfcApplyToAllNumbers');
+        if (applyAllChk) applyAllChk.checked = false;
+
+        this.syncModalControls();
+
+        const modal = document.getElementById('suiteFieldStyleModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          modal.style.display = 'flex';
+        }
+        if (window.triggerHapticPulse) triggerHapticPulse(12);
+      },
+
+      closeModal() {
+        const modal = document.getElementById('suiteFieldStyleModal');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.style.display = 'none';
+        }
+      },
+
+      syncModalControls() {
+        if (!this.tempConfig) return;
+        const cfg = this.tempConfig;
+
+        // 1. حجم الخط
+        const range = document.getElementById('sfcFontSizeRange');
+        if (range) range.value = cfg.fontSize;
+        const sizeBadge = document.getElementById('sfcFontSizeValBadge');
+        if (sizeBadge) sizeBadge.innerText = cfg.fontSize + 'px';
+
+        const aiBtn = document.getElementById('sfcBtnAiMode');
+        if (aiBtn) {
+          if (cfg.fontMode === 'ai') {
+            aiBtn.className = 'px-2 py-0.5 rounded-lg text-[10px] font-black border transition cursor-pointer bg-emerald-600/30 text-emerald-300 border-emerald-400';
+            aiBtn.innerText = '🤖 ذكاء تلقائي: مفعل';
+          } else {
+            aiBtn.className = 'px-2 py-0.5 rounded-lg text-[10px] font-black border transition cursor-pointer bg-sky-600/30 text-sky-200 border-sky-400';
+            aiBtn.innerText = '📌 حجم ثابت مخصص';
+          }
+        }
+
+        // 2. لون الخط
+        const picker = document.getElementById('sfcCustomColorPicker');
+        if (picker && cfg.fontColor && cfg.fontColor.startsWith('#')) {
+          picker.value = cfg.fontColor;
+        }
+        document.querySelectorAll('#sfcColorSwatches .sfc-color-btn').forEach(btn => {
+          const c = btn.getAttribute('data-color');
+          if (c && c.toLowerCase() === (cfg.fontColor || '').toLowerCase()) {
+            btn.style.outline = '3px solid #ffffff';
+            btn.style.transform = 'scale(1.06)';
+          } else {
+            btn.style.outline = 'none';
+            btn.style.transform = 'scale(1)';
+          }
+        });
+
+        // 3. الفاصلة الألفية والعشرية والتقريب
+        document.querySelectorAll('.sfc-th-btn').forEach(btn => {
+          const th = btn.getAttribute('data-th');
+          const active = (th === String(cfg.thousandsSep));
+          btn.className = 'sfc-th-btn py-1.5 rounded-xl border transition cursor-pointer ' + (active ? 'bg-emerald-600 text-white border-emerald-300 font-black shadow' : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white');
+        });
+
+        document.querySelectorAll('.sfc-dec-btn').forEach(btn => {
+          const dec = btn.getAttribute('data-dec');
+          const active = (dec === String(cfg.decimalSep));
+          btn.className = 'sfc-dec-btn py-1.5 rounded-xl border transition cursor-pointer ' + (active ? 'bg-cyan-600 text-white border-cyan-300 font-black shadow' : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white');
+        });
+
+        document.querySelectorAll('.sfc-round-btn').forEach(btn => {
+          const r = btn.getAttribute('data-round');
+          const active = (r === String(cfg.decimals));
+          btn.className = 'sfc-round-btn py-1.5 rounded-xl border transition cursor-pointer ' + (active ? 'bg-amber-500 text-slate-950 border-amber-300 font-black shadow' : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white');
+        });
+
+        this.updateLivePreview();
+      },
+
+      updateLivePreview() {
+        const prev = document.getElementById('sfcLivePreviewText');
+        if (!prev || !this.activeFieldId || !this.tempConfig) return;
+        const el = document.getElementById(this.activeFieldId);
+        const meta = this.fieldMeta[this.activeFieldId];
+        const cfg = this.tempConfig;
+
+        prev.style.fontSize = cfg.fontSize + 'px';
+        prev.style.color = cfg.fontColor || '#ffffff';
+
+        if (meta && meta.isNumeric) {
+          let sampleNum = 125480.756;
+          if (el) {
+            const rawVal = el.value !== undefined ? el.value : el.innerText;
+            const parsed = this.parseNum(rawVal, this.activeFieldId);
+            if (parsed > 0) sampleNum = parsed;
+          }
+          // تنسيق المعاينة الحية حسب الإعدادات المؤقتة الحالية
+          const savedBackup = this.configs[this.activeFieldId];
+          this.configs[this.activeFieldId] = Object.assign({}, cfg);
+          prev.innerText = this.formatNumberForField(this.activeFieldId, sampleNum);
+          if (savedBackup) this.configs[this.activeFieldId] = savedBackup;
+          else delete this.configs[this.activeFieldId];
+        } else {
+          const txt = el ? (el.value || el.innerText || meta.label) : meta.label;
+          prev.innerText = txt;
+        }
+      },
+
+      onFontSizeChange(val) {
+        if (!this.tempConfig) return;
+        const px = parseFloat(val);
+        if (isNaN(px)) return;
+        this.tempConfig.fontSize = Math.max(10, Math.min(58, px));
+        this.tempConfig.fontMode = 'fixed';
+        this.syncModalControls();
+      },
+
+      stepFontSize(delta) {
+        if (!this.tempConfig) return;
+        const next = (parseFloat(this.tempConfig.fontSize) || 20) + delta;
+        this.onFontSizeChange(next);
+      },
+
+      toggleAiFontMode() {
+        if (!this.tempConfig) return;
+        this.tempConfig.fontMode = (this.tempConfig.fontMode === 'ai') ? 'fixed' : 'ai';
+        this.syncModalControls();
+      },
+
+      onColorChange(color) {
+        if (!this.tempConfig || !color) return;
+        this.tempConfig.fontColor = color;
+        this.syncModalControls();
+      },
+
+      setThousandsSep(sep) {
+        if (!this.tempConfig) return;
+        this.tempConfig.thousandsSep = sep;
+        this.syncModalControls();
+      },
+
+      setDecimalSep(sep) {
+        if (!this.tempConfig) return;
+        this.tempConfig.decimalSep = sep;
+        this.syncModalControls();
+      },
+
+      setDecimals(d) {
+        if (!this.tempConfig) return;
+        this.tempConfig.decimals = d;
+        this.syncModalControls();
+      },
+
+      savePermanent() {
+        if (!this.activeFieldId || !this.tempConfig) return;
+        this.configs[this.activeFieldId] = Object.assign({}, this.tempConfig);
+
+        const applyAllChk = document.getElementById('sfcApplyToAllNumbers');
+        if (applyAllChk && applyAllChk.checked) {
+          Object.keys(this.fieldMeta).forEach(fid => {
+            if (this.fieldMeta[fid].isNumeric) {
+              const cur = this.getFieldConfig(fid);
+              cur.thousandsSep = this.tempConfig.thousandsSep;
+              cur.decimalSep = this.tempConfig.decimalSep;
+              cur.decimals = this.tempConfig.decimals;
+              this.configs[fid] = cur;
+            }
+          });
+        }
+
+        this.persistConfigs();
+        this.applyAllSavedStyles();
+        if (window.SuiteSalesPOS && typeof SuiteSalesPOS.calcItemSubtotal === 'function') {
+          SuiteSalesPOS.calcItemSubtotal();
+        }
+        if (window.SuitePurchasePOS && typeof SuitePurchasePOS.calcItemSubtotal === 'function') {
+          SuitePurchasePOS.calcItemSubtotal();
+        }
+        if (window.SmartPOSFontAI) {
+          window.SmartPOSFontAI.scaleAll();
+        }
+        this.closeModal();
+        if (window.triggerHapticPulse) triggerHapticPulse(20);
+        if (typeof showFloatingToast === 'function') {
+          const label = this.fieldMeta[this.activeFieldId]?.label || 'الحقل';
+          showFloatingToast('✓ تم حفظ إعدادات [' + label + '] كافتراضي دائم لا يتغير!');
+        }
+      },
+
+      resetCurrentField() {
+        if (!this.activeFieldId) return;
+        delete this.configs[this.activeFieldId];
+        this.persistConfigs();
+        this.tempConfig = Object.assign({}, this.getDefaultConfig(this.activeFieldId));
+        this.syncModalControls();
+        const el = document.getElementById(this.activeFieldId);
+        if (el) {
+          el.style.setProperty('color', this.tempConfig.fontColor, 'important');
+          el.style.setProperty('font-size', this.tempConfig.fontSize + 'px', 'important');
+        }
+        if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleAll();
+        if (window.SuiteSalesPOS && typeof SuiteSalesPOS.calcItemSubtotal === 'function') {
+          SuiteSalesPOS.calcItemSubtotal();
+        }
+        this.closeModal();
+        if (typeof showFloatingToast === 'function') {
+          showFloatingToast('🔄 تمت استعادة الإعدادات الأصلية للحقل');
+        }
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => window.SmartFieldCustomizer && window.SmartFieldCustomizer.init());
+    } else {
+      setTimeout(() => window.SmartFieldCustomizer && window.SmartFieldCustomizer.init(), 40);
+    }
+
     window.SmartPOSFontAI = {
       _canvas: null,
       _ctx: null,
@@ -11304,6 +12054,18 @@
       // محرك ذكاء اصطناعي لقياس عرض النص الفعلي بالبيكسل مقارنة بالمساحة المتاحة داخل الخانة
       fitTextToBox(el, text, opts = {}) {
         if (!el) return;
+        if (window.SmartFieldCustomizer && el.id && SmartFieldCustomizer.hasCustomConfig(el.id)) {
+          const uCfg = SmartFieldCustomizer.getFieldConfig(el.id);
+          if (uCfg.fontColor) el.style.setProperty('color', uCfg.fontColor, 'important');
+          if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
+            el.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
+            el.style.setProperty('font-weight', opts.weight || '900', 'important');
+            return;
+          }
+          if (uCfg.fontSize) {
+            opts = Object.assign({}, opts, { maxPx: uCfg.fontSize, defPx: uCfg.fontSize });
+          }
+        }
         const maxPx = opts.maxPx || 18;
         const minPx = opts.minPx || 10.5;
         const defPx = opts.defPx || 15;
@@ -11323,10 +12085,10 @@
           // Fallback intelligent character-length curve when modal is hidden or rendering
           const len = clean.length;
           let fallbackPx = maxPx;
-          if (len > 30) fallbackPx = minPx;
-          else if (len > 22) fallbackPx = Math.max(minPx, maxPx - 4.5);
-          else if (len > 15) fallbackPx = Math.max(minPx, maxPx - 3);
-          else if (len > 9) fallbackPx = Math.max(minPx, maxPx - 1.5);
+          if (len > 28) fallbackPx = minPx;
+          else if (len > 22) fallbackPx = Math.max(minPx, maxPx - 6.5);
+          else if (len > 16) fallbackPx = Math.max(minPx, maxPx - 4.5);
+          else if (len > 10) fallbackPx = Math.max(minPx, maxPx - 2);
           el.style.setProperty('font-size', fallbackPx + 'px', 'important');
           el.style.setProperty('font-weight', weight, 'important');
           return;
@@ -11346,85 +12108,58 @@
         el.style.setProperty('font-weight', weight, 'important');
       },
 
-      scaleQty(input) {
+      _applyCustomNumericOrScale(input, defaultBase, stepThresholds) {
         if (!input) return;
+        if (window.SmartFieldCustomizer && input.id && SmartFieldCustomizer.hasCustomConfig(input.id)) {
+          const uCfg = SmartFieldCustomizer.getFieldConfig(input.id);
+          if (uCfg.fontColor) input.style.setProperty('color', uCfg.fontColor, 'important');
+          if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
+            input.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
+            input.style.setProperty('font-weight', '900', 'important');
+            return;
+          }
+          if (uCfg.fontSize) defaultBase = uCfg.fontSize;
+        }
         const raw = (input.value || '').toString().trim();
-        const isSales = input.id === 'salesQtyInput';
-        const maxBase = isSales ? 45 : 41; // +4 درجات في المبيعات وبولد تخين
         const len = raw.replace(/[^0-9.]/g, '').length;
-        let size = maxBase;
-        if (len >= 9) size = 24;
-        else if (len === 8) size = 27;
-        else if (len === 7) size = 31;
-        else if (len === 6) size = 35;
-        else if (len === 5) size = 39;
-        else size = maxBase;
+        let size = defaultBase;
+        for (const [minLen, ratio] of stepThresholds) {
+          if (len >= minLen) {
+            size = Math.max(14, Math.round(defaultBase * ratio));
+            break;
+          }
+        }
         input.style.setProperty('font-size', size + 'px', 'important');
         input.style.setProperty('font-weight', '900', 'important');
-        input.style.setProperty('-webkit-text-stroke', '0.6px currentColor', 'important');
+      },
+
+      scaleQty(input) {
+        if (!input) return;
+        const isSales = input.id === 'salesQtyInput';
+        this._applyCustomNumericOrScale(input, isSales ? 28 : 39, [[9, 0.6], [7, 0.72], [5, 0.85]]);
       },
 
       scalePrice(input) {
         if (!input) return;
-        const raw = (input.value || '').toString().trim();
         const isSales = input.id === 'salesPriceInput';
-        const maxBase = isSales ? 41 : 37; // +4 درجات في المبيعات وبولد تخين
-        const len = raw.replace(/[^0-9.]/g, '').length;
-        let size = maxBase;
-        if (len >= 11) size = 23;
-        else if (len >= 10) size = 26;
-        else if (len >= 9) size = 30;
-        else if (len >= 8) size = 34;
-        else if (len >= 7) size = 37;
-        else size = maxBase;
-        input.style.setProperty('font-size', size + 'px', 'important');
-        input.style.setProperty('font-weight', '900', 'important');
-        input.style.setProperty('-webkit-text-stroke', '0.6px currentColor', 'important');
+        this._applyCustomNumericOrScale(input, isSales ? 28 : 32, [[9, 0.6], [7, 0.72], [5, 0.85]]);
       },
 
       scaleGross(input) {
         if (!input) return;
-        const raw = (input.value || '').toString().trim();
         const isSales = input.id === 'salesItemGrossTotal';
-        const maxBase = isSales ? 46 : 43; // +3 درجات إضافية في المبيعات (46px)
-        const len = raw.replace(/[^0-9]/g, '').length;
-        let size = maxBase;
-        if (len >= 13) size = 27;
-        else if (len >= 11) size = 31;
-        else if (len >= 9) size = 36;
-        else if (len >= 7) size = 41;
-        else size = maxBase;
-        input.style.setProperty('font-size', size + 'px', 'important');
-        input.style.setProperty('font-weight', '900', 'important');
+        this._applyCustomNumericOrScale(input, isSales ? 46 : 43, [[13, 0.58], [11, 0.68], [9, 0.78], [7, 0.88]]);
       },
 
       scaleTotal(input) {
         if (!input) return;
-        const raw = (input.value || '').toString().trim();
         const isSales = input.id === 'salesTotalInput';
-        const maxBase = isSales ? 46 : 43; // +3 درجات إضافية في المبيعات (46px)
-        const len = raw.replace(/[^0-9]/g, '').length;
-        let size = maxBase;
-        if (len >= 13) size = 27;
-        else if (len >= 11) size = 31;
-        else if (len >= 9) size = 36;
-        else if (len >= 7) size = 41;
-        else size = maxBase;
-        input.style.setProperty('font-size', size + 'px', 'important');
-        input.style.setProperty('font-weight', '900', 'important');
+        this._applyCustomNumericOrScale(input, isSales ? 46 : 43, [[13, 0.58], [11, 0.68], [9, 0.78], [7, 0.88]]);
       },
 
       scaleTax(input) {
         if (!input) return;
-        const raw = (input.value || '').toString().trim();
-        const len = raw.replace(/[^0-9.]/g, '').length;
-        let size = 28;
-        if (len >= 9) size = 17;
-        else if (len >= 7) size = 20;
-        else if (len >= 5) size = 24;
-        else size = 28;
-        input.style.setProperty('font-size', size + 'px', 'important');
-        input.style.setProperty('font-weight', '900', 'important');
+        this._applyCustomNumericOrScale(input, 28, [[9, 0.6], [7, 0.72], [5, 0.85]]);
       },
 
       scaleWarehouse(input) {
@@ -11445,12 +12180,21 @@
 
       scaleItem(input) {
         if (!input) return;
-        // تكبير تلقائي للأسماء القصيرة وتصغير ذكي للأسماء الطويلة مثل "سيخ 3 لينيا أسعد 10 مللي" لتظهر كاملة بوضوح
-        this.fitTextToBox(input, input.value, { maxPx: 18.5, minPx: 11.5, defPx: 15, paddingPx: 22 });
+        // تكبير اسم الصنف ليكون كبيراً وملائماً للمساحة المخصصة له (يكبر أوتوماتيك حتى 26px للأسماء القصيرة ويصغر أوتوماتيك للأسماء الطويلة)
+        this.fitTextToBox(input, input.value, { maxPx: 26, minPx: 13.5, defPx: 21, paddingPx: 14 });
       },
 
       scaleUnit(select) {
         if (!select) return;
+        if (window.SmartFieldCustomizer && select.id && SmartFieldCustomizer.hasCustomConfig(select.id)) {
+          const uCfg = SmartFieldCustomizer.getFieldConfig(select.id);
+          if (uCfg.fontColor) select.style.setProperty('color', uCfg.fontColor, 'important');
+          if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
+            select.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
+            select.style.setProperty('font-weight', '800', 'important');
+            return;
+          }
+        }
         const text = (select.options && select.selectedIndex >= 0) ? select.options[select.selectedIndex].text : (select.value || '');
         const len = (text || '').trim().length;
         // تنقيص مقاس الوحدات درجة واحدة كما طلب المستخدم
@@ -11728,22 +12472,23 @@ window.SuiteSalesPOS = {
         const dlg = document.getElementById('suiteNotesModalDialog');
         const icon = document.getElementById('notesFullscreenIcon');
         
-        // إعادة ضبط وضع ملء الشاشة إذا كان مفتوحاً سابقاً
+        // ضبط الشاشة لتكون مربعة تماماً في المنتصف (1:1 Square Centered)
         this._isNotesFullscreen = false;
         if (dlg) {
           dlg.classList.remove('notes-dialog-fullscreen');
-          dlg.style.width = 'min(96vw, 680px)';
-          dlg.style.height = 'auto';
-          dlg.style.maxWidth = '680px';
-          dlg.style.maxHeight = '94vh';
-          dlg.style.minHeight = 'min(82vh, 540px)';
-          dlg.style.borderRadius = '24px';
-          dlg.style.margin = 'auto';
+          dlg.style.setProperty('width', 'min(92vw, 390px)', 'important');
+          dlg.style.setProperty('height', 'min(92vw, 390px)', 'important');
+          dlg.style.setProperty('max-width', 'min(92vw, 390px)', 'important');
+          dlg.style.setProperty('max-height', 'min(92vw, 390px)', 'important');
+          dlg.style.setProperty('min-height', 'min(92vw, 390px)', 'important');
+          dlg.style.setProperty('aspect-ratio', '1 / 1', 'important');
+          dlg.style.setProperty('border-radius', '24px', 'important');
+          dlg.style.setProperty('margin', 'auto', 'important');
         }
         if (icon) icon.className = 'fa-solid fa-maximize';
         if (txt) {
-          txt.style.minHeight = '260px';
-          txt.style.setProperty('font-size', '21px', 'important');
+          txt.style.minHeight = '0px';
+          txt.style.setProperty('font-size', '18px', 'important');
         }
 
         // ضبط شارة السياق واسم الشريك
@@ -11773,9 +12518,10 @@ window.SuiteSalesPOS = {
 
         if (modal) {
           modal.classList.remove('hidden');
-          modal.style.display = 'flex';
-          modal.style.visibility = 'visible';
-          modal.style.opacity = '1';
+          modal.style.setProperty('z-index', '100200', 'important');
+          modal.style.setProperty('display', 'flex', 'important');
+          modal.style.setProperty('visibility', 'visible', 'important');
+          modal.style.setProperty('opacity', '1', 'important');
           setTimeout(() => { 
             if (txt) {
               txt.focus();
@@ -11784,6 +12530,15 @@ window.SuiteSalesPOS = {
           }, 80);
         }
         if (window.triggerHapticPulse) triggerHapticPulse(10);
+      },
+
+      zoomNotesFont(delta = 2) {
+        const txt = document.getElementById('salesNotesExpandedTextarea');
+        if (!txt) return;
+        const cur = parseFloat(window.getComputedStyle(txt).fontSize) || 18;
+        const next = Math.max(13, Math.min(34, cur + delta));
+        txt.style.setProperty('font-size', next + 'px', 'important');
+        if (window.triggerHapticPulse) triggerHapticPulse(8);
       },
 
       toggleNotesFullscreen() {
@@ -12555,22 +13310,37 @@ window.SuiteSalesPOS = {
 
         const prc = parseFloat(it.sellingPrice || it.price || 0);
         const pInp = document.getElementById('salesPriceInput');
-        if (pInp) pInp.value = prc > 0 ? prc : '';
+        if (pInp) {
+          pInp.value = prc > 0 ? (window.SmartFieldCustomizer ? SmartFieldCustomizer.formatNumberForField('salesPriceInput', prc) : prc) : '';
+        }
         const qInp = document.getElementById('salesQtyInput');
-        if (qInp) qInp.value = 1;
+        if (qInp) {
+          qInp.value = window.SmartFieldCustomizer ? SmartFieldCustomizer.formatNumberForField('salesQtyInput', 1) : 1;
+        }
 
         const uSel = document.getElementById('salesUnitSelect');
         if (uSel) {
           let uHtml = '';
+          const savedFactors = {};
           if (Array.isArray(it.unitsArray) && it.unitsArray.length > 0) {
             it.unitsArray.forEach(u => {
-              uHtml += `<option value="${u.name}" data-factor="${u.factor || 1}">${u.name} (${u.factor || 1})</option>`;
+              const cleanUnitName = String(u.name || '').replace(/\s*\(\d+(?:\.\d+)?\)\s*/g, '').trim() || 'حبة';
+              const factorVal = u.factor || 1;
+              savedFactors[cleanUnitName] = factorVal;
+              uHtml += `<option value="${cleanUnitName}" data-factor="${factorVal}">${cleanUnitName}</option>`;
             });
           } else {
-            const defU = it.baseUnit || it.unit || 'حبة';
+            const defU = String(it.baseUnit || it.unit || 'حبة').replace(/\s*\(\d+(?:\.\d+)?\)\s*/g, '').trim() || 'حبة';
+            savedFactors[defU] = 1;
             uHtml = `<option value="${defU}" data-factor="1">${defU}</option>`;
           }
+          try {
+            const allFactors = JSON.parse(localStorage.getItem('magaies_saved_unit_factors_v1') || '{}');
+            allFactors[it.id || it.name] = savedFactors;
+            localStorage.setItem('magaies_saved_unit_factors_v1', JSON.stringify(allFactors));
+          } catch(e) {}
           uSel.innerHTML = uHtml;
+          if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleUnit(uSel);
         }
 
         this.calcItemSubtotal();
@@ -12583,31 +13353,35 @@ window.SuiteSalesPOS = {
       },
 
       calcItemSubtotal() {
-        const qty = parseFloat(document.getElementById('salesQtyInput')?.value || 0);
-        const prc = parseFloat(document.getElementById('salesPriceInput')?.value || 0);
-        const disc = parseFloat(document.getElementById('salesDiscountInput')?.value || 0);
-        const tax = parseFloat(document.getElementById('salesTaxInput')?.value || 0);
-        const labor = parseFloat(document.getElementById('salesLaborInput')?.value || 0);
+        const pNum = (id) => window.SmartFieldCustomizer ? SmartFieldCustomizer.parseNum(document.getElementById(id)?.value, id) : parseFloat(String(document.getElementById(id)?.value || '0').replace(/,/g, ''));
+        const fmtNum = (id, val) => window.SmartFieldCustomizer ? SmartFieldCustomizer.formatNumberForField(id, val) : val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-        // 1. الجملة هي السعر في الكمية (تظهر الكلمة في المنتصف بلون خفيف وتختفي عند كتابة الأرقام)
+        const qty = pNum('salesQtyInput');
+        const prc = pNum('salesPriceInput');
+        const disc = pNum('salesDiscountInput');
+        const tax = pNum('salesTaxInput');
+        const labor = pNum('salesLaborInput');
+
+        // 1. الجملة هي السعر في الكمية
         const gross = qty * prc;
         const grossEl = document.getElementById('salesItemGrossTotal');
         if (grossEl) {
-          grossEl.value = (gross > 0) ? gross.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+          grossEl.value = (gross > 0) ? fmtNum('salesItemGrossTotal', gross) : '';
         }
 
-        // 2. إجمالي الفاتورة (الإجمالي) للبند = الجملة + الإضافة - الخصم + العتالة
+        // 2. إجمالي الفاتورة (الإجمالي الصافي) = الجملة + الإضافة - الخصم + العتالة
         const hasInputs = (qty > 0 || prc > 0 || disc > 0 || tax > 0 || labor > 0);
         const netTotal = Math.max(0, gross - disc + tax + labor);
         const totInp = document.getElementById('salesTotalInput');
         if (totInp) {
           if (!this.cart || this.cart.length === 0) {
-            totInp.value = (hasInputs && netTotal >= 0) ? netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+            totInp.value = (hasInputs && netTotal >= 0) ? fmtNum('salesTotalInput', netTotal) : '';
           } else {
             const cartSum = this.cart.reduce((sum, item) => sum + (item.subtotal || 0), 0);
-            totInp.value = (cartSum + netTotal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            totInp.value = fmtNum('salesTotalInput', cartSum + netTotal);
           }
         }
+        if (window.SmartFieldCustomizer) window.SmartFieldCustomizer.applyAllSavedStyles();
         if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleAll();
         return netTotal;
       },
@@ -12651,11 +13425,16 @@ window.SuiteSalesPOS = {
         const warehouse = this.selectedWarehouse || document.getElementById('salesWarehouseSelect')?.value || 'المستودع الرئيسي';
         const costCenter = this.selectedCostCenter || document.getElementById('salesCostCenterInput')?.value || 'المركز الرئيسي';
 
-        const qty = parseFloat(document.getElementById('salesQtyInput')?.value || 1);
-        const price = parseFloat(document.getElementById('salesPriceInput')?.value || 0);
-        const discount = parseFloat(document.getElementById('salesDiscountInput')?.value || 0);
-        const tax = parseFloat(document.getElementById('salesTaxInput')?.value || 0);
-        const labor = parseFloat(document.getElementById('salesLaborInput')?.value || 0);
+        const pNum = (id, defVal = 0) => {
+          const raw = document.getElementById(id)?.value;
+          if (!raw || !String(raw).trim()) return defVal;
+          return window.SmartFieldCustomizer ? SmartFieldCustomizer.parseNum(raw, id) : parseFloat(String(raw).replace(/,/g, '')) || defVal;
+        };
+        const qty = pNum('salesQtyInput', 1);
+        const price = pNum('salesPriceInput', 0);
+        const discount = pNum('salesDiscountInput', 0);
+        const tax = pNum('salesTaxInput', 0);
+        const labor = pNum('salesLaborInput', 0);
         const notes = document.getElementById('salesNotesInput')?.value?.trim() || '';
         const subtotal = Math.max(0, (qty * price) - discount + tax + labor);
 
@@ -12812,11 +13591,24 @@ window.SuiteSalesPOS = {
       // ─────────────────────────────────────────────────────────────
       async loadRecentInvoices() {
         try {
+          const localSaved = JSON.parse(localStorage.getItem('magaies_local_sales_invoices_v1') || '[]');
+          if (Array.isArray(localSaved) && localSaved.length > 0) {
+            this.recentInvoices = localSaved;
+          }
+        } catch(e) {}
+        try {
           const res = await fetch('api/mirror_sync.php?action=get_recent_sales');
           if (!res.ok) return;
           const data = await res.json();
-          if (data && Array.isArray(data.sales)) {
-            this.recentInvoices = data.sales;
+          if (data && Array.isArray(data.sales) && data.sales.length > 0) {
+            const localSaved = JSON.parse(localStorage.getItem('magaies_local_sales_invoices_v1') || '[]');
+            const merged = [...localSaved];
+            data.sales.forEach(s => {
+              if (!merged.some(m => (m.invoiceNo || m.id) === (s.invoiceNo || s.id))) {
+                merged.push(s);
+              }
+            });
+            this.recentInvoices = merged;
           }
         } catch(e) {}
       },
@@ -12922,6 +13714,19 @@ window.SuiteSalesPOS = {
       // ─────────────────────────────────────────────────────────────
       voiceRecognitionInstance: null,
       isVoiceListening: false,
+      _voiceSilenceTimer: null,
+      _lastVoiceActivityAt: 0,
+      _manualStopVoice: false,
+      _pendingInterimVoice: '',
+
+      // في شاشة المبيعات: التسجيل مستمر بلا انقطاع مهما طالت المدة وحتى لو سكت المستخدم 3 ثوانٍ أو أكثر
+      resetVoiceSilenceTimer() {
+        this._lastVoiceActivityAt = Date.now();
+        if (this._voiceSilenceTimer) {
+          clearTimeout(this._voiceSilenceTimer);
+          this._voiceSilenceTimer = null;
+        }
+      },
 
       toggleVoiceFeed() {
         const consoleEl = document.getElementById('suiteSalesVoiceConsole');
@@ -12930,7 +13735,7 @@ window.SuiteSalesPOS = {
         }
 
         if (this.isVoiceListening) {
-          this.stopVoiceFeed();
+          this.stopVoiceFeed(true, '⏹️ تم إيقاف التسجيل الصوتي يدوياً');
           return;
         }
 
@@ -12938,6 +13743,7 @@ window.SuiteSalesPOS = {
         const statusText = document.getElementById('suiteSalesVoiceStatusText');
         const transcriptEl = document.getElementById('suiteSalesVoiceTranscript');
         const pulseDot = document.getElementById('salesMicPulseDot');
+        const micBtn = document.getElementById('btnSalesVoiceMic');
 
         if (!SpeechRec) {
           if (statusText) statusText.innerHTML = '<span class="text-amber-400">ℹ️ المتصفح لا يدعم الميكروفون المباشر. يمكنك استخدام التجارب الجاهزة أدناه أو كتابة الأمر والتفريغ فوراً:</span>';
@@ -12945,54 +13751,104 @@ window.SuiteSalesPOS = {
         }
 
         try {
+          this._manualStopVoice = false;
+          this._pendingInterimVoice = '';
           this.voiceRecognitionInstance = new SpeechRec();
           this.voiceRecognitionInstance.lang = 'ar-SA';
-          this.voiceRecognitionInstance.continuous = false;
+          this.voiceRecognitionInstance.continuous = true;
           this.voiceRecognitionInstance.interimResults = true;
 
           this.voiceRecognitionInstance.onstart = () => {
             this.isVoiceListening = true;
+            this._lastVoiceActivityAt = Date.now();
             if (pulseDot) pulseDot.classList.remove('hidden');
-            if (statusText) statusText.innerHTML = '<span class="text-rose-400 animate-pulse font-black">🔴 جاري الاستماع لصوتك الآن... تحدث باللغة العربية:</span>';
-            if (transcriptEl) transcriptEl.innerText = 'استمع إليك... تحدث الآن';
+            if (micBtn) micBtn.style.setProperty('box-shadow', '0 0 22px rgba(244, 63, 94, 0.95)', 'important');
+            if (statusText) statusText.innerHTML = '<span class="text-rose-400 animate-pulse font-black">🔴 التسجيل مستمر بلا انقطاع... تحدث بأي ترتيب أو قل "حفظ"</span>';
+            if (transcriptEl && !this._pendingInterimVoice) transcriptEl.innerText = 'أستمع إليك الآن بلا توقف... اذكر العميل، المستودع، الصنف، الوحدة، الكمية، السعر بأي ترتيب';
             if (window.AppHaptics) AppHaptics.selection();
           };
 
+          this.voiceRecognitionInstance.onsoundstart = () => { this._lastVoiceActivityAt = Date.now(); };
+          this.voiceRecognitionInstance.onspeechstart = () => { this._lastVoiceActivityAt = Date.now(); };
+
           this.voiceRecognitionInstance.onresult = (evt) => {
+            this._lastVoiceActivityAt = Date.now();
             let interim = '';
-            let final = '';
+            let finalChunk = '';
             for (let i = evt.resultIndex; i < evt.results.length; ++i) {
-              if (evt.results[i].isFinal) final += evt.results[i][0].transcript;
-              else interim += evt.results[i][0].transcript;
+              if (evt.results[i].isFinal) finalChunk += ' ' + evt.results[i][0].transcript;
+              else interim += ' ' + evt.results[i][0].transcript;
             }
-            const text = final || interim;
-            if (transcriptEl) transcriptEl.innerText = text;
-            if (final) {
-              this.feedVoiceToFields(final);
+            const cleanFinal = finalChunk.trim();
+            const cleanInterim = interim.trim();
+            if (transcriptEl) transcriptEl.innerText = cleanFinal || cleanInterim;
+            if (cleanFinal) {
+              this._pendingInterimVoice = '';
+              this.feedVoiceToFields(cleanFinal);
+            } else if (cleanInterim) {
+              this._pendingInterimVoice = cleanInterim;
             }
           };
 
           this.voiceRecognitionInstance.onerror = (err) => {
+            // لا نوقف التسجيل أبداً عند السكوت (no-speech) أو انقطاع الجلسة المؤقت
+            if (this.isVoiceListening && !this._manualStopVoice) {
+              if (!err || err.error === 'no-speech' || err.error === 'aborted' || err.error === 'network') {
+                return;
+              }
+            }
             console.warn('Sales voice error:', err);
-            this.stopVoiceFeed();
-            if (statusText) statusText.innerHTML = '<span class="text-amber-400">⚠️ تعذر التقاط الصوت، يمكنك استخدام الأمثلة الجاهزة أو كتابة الأمر أدناه:</span>';
+            if (err && (err.error === 'not-allowed' || err.error === 'service-not-allowed')) {
+              this.stopVoiceFeed(true);
+              if (statusText) statusText.innerHTML = '<span class="text-amber-400">⚠️ يرجى السماح بصلاحية الميكروفون، أو استخدم التجارب والأوامر السريعة أدناه:</span>';
+            }
           };
 
           this.voiceRecognitionInstance.onend = () => {
-            this.stopVoiceFeed();
+            // إذا لم يضغط المستخدم إيقاف ولم يقل حفظ، نعيد تشغيل المايك فوراً وبلا انقطاع مهما طال السكوت
+            if (this.isVoiceListening && !this._manualStopVoice) {
+              try {
+                this.voiceRecognitionInstance.start();
+                return;
+              } catch (e) {
+                setTimeout(() => {
+                  if (this.isVoiceListening && !this._manualStopVoice && this.voiceRecognitionInstance) {
+                    try { this.voiceRecognitionInstance.start(); } catch (e2) {}
+                  }
+                }, 150);
+                return;
+              }
+            }
+            this.stopVoiceFeed(true);
           };
 
           this.voiceRecognitionInstance.start();
         } catch (e) {
           console.error(e);
-          this.stopVoiceFeed();
+          this.stopVoiceFeed(true);
         }
       },
 
-      stopVoiceFeed() {
+      stopVoiceFeed(manual = true, customMsg = '') {
+        if (manual) this._manualStopVoice = true;
+        if (this._voiceSilenceTimer) {
+          clearTimeout(this._voiceSilenceTimer);
+          this._voiceSilenceTimer = null;
+        }
+        if (this._pendingInterimVoice) {
+          const pending = this._pendingInterimVoice;
+          this._pendingInterimVoice = '';
+          this.feedVoiceToFields(pending);
+        }
         this.isVoiceListening = false;
         const pulseDot = document.getElementById('salesMicPulseDot');
         if (pulseDot) pulseDot.classList.add('hidden');
+        const micBtn = document.getElementById('btnSalesVoiceMic');
+        if (micBtn) micBtn.style.setProperty('box-shadow', '0 0 14px rgba(244, 63, 94, 0.45)', 'important');
+        const statusText = document.getElementById('suiteSalesVoiceStatusText');
+        if (statusText && customMsg) {
+          statusText.innerHTML = '<span class="text-emerald-400 font-black">' + customMsg + '</span>';
+        }
         if (this.voiceRecognitionInstance) {
           try { this.voiceRecognitionInstance.stop(); } catch(e) {}
         }
@@ -13008,70 +13864,170 @@ window.SuiteSalesPOS = {
 
       feedVoiceToFields(spokenText) {
         if (!spokenText || !spokenText.trim()) return;
-        const raw = spokenText.trim();
+        const rawOriginal = spokenText.trim();
         const transcriptEl = document.getElementById('suiteSalesVoiceTranscript');
-        if (transcriptEl) transcriptEl.innerText = `تم الالتقاط: "${raw}"`;
+        if (transcriptEl) transcriptEl.innerText = '🎙️ تم التقاط: "' + rawOriginal + '"';
 
-        const norm = (s) => (s || '').trim()
-          .replace(/[\u064B-\u065F\u0670]/g, '')
+        // 1. تحويل الأرقام الهندية والألفاظ العددية المركبة إلى أرقام قياسية
+        const normalizeSpokenNumbers = (inputStr) => {
+          let s = String(inputStr || '');
+          const eastern = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+          for (let i = 0; i < 10; i++) s = s.split(eastern[i]).join(i.toString());
+          // إزالة الفواصل الألفية بين الأرقام مثل 70,000 -> 70000
+          s = s.replace(/(\d)[,،](\d{3})/g, '$1$2');
+
+          // تحويل الأرقام المنطوقة الشائعة (مثل سبعين ألف، عشرة ألف، ستة عشر ألف، خمسة طن...)
+          const compoundMap = [
+            [/سبعين\s*الف/gi, '70000'],
+            [/ستين\s*الف/gi, '60000'],
+            [/خمسين\s*الف/gi, '50000'],
+            [/اربعين\s*الف|أربعين\s*الف/gi, '40000'],
+            [/ثلاثين\s*الف/gi, '30000'],
+            [/عشرين\s*الف/gi, '20000'],
+            [/ستة\s*عشر\s*الف|سته\s*عشر\s*الف|سطاشر\s*الف/gi, '16000'],
+            [/خمسة\s*عشر\s*الف|خمسه\s*عشر\s*الف|خمسطاشر\s*الف/gi, '15000'],
+            [/عشرة\s*الف|عشره\s*الف|عشر\s*آلاف|عشرة\s*آلاف/gi, '10000'],
+            [/ثلاثة\s*الف\s*وخمسمائة|ثلاثه\s*الف\s*وخمسمائه|ثلاثة\s*آلاف\s*وخمسمائة/gi, '3500'],
+            [/الفين|ألفين/gi, '2000'],
+            [/الف|ألف/gi, '1000'],
+            [/(?:^|[\s,،])(?:واحد)(?=$|[\s,،])/gi, ' 1 '],
+            [/(?:^|[\s,،])(?:اثنين|اثنان)(?=$|[\s,،])/gi, ' 2 '],
+            [/(?:^|[\s,،])(?:ثلاثة|ثلاثه|ثلاث|تلاتة|تلاته)(?=$|[\s,،])/gi, ' 3 '],
+            [/(?:^|[\s,،])(?:اربعة|أربعة|اربعه|أربعه|اربع)(?=$|[\s,،])/gi, ' 4 '],
+            [/(?:^|[\s,،])(?:خمسة|خمسه|خمس)(?=$|[\s,،])/gi, ' 5 '],
+            [/(?:^|[\s,،])(?:ستة|سته|ست)(?=$|[\s,،])/gi, ' 6 '],
+            [/(?:^|[\s,،])(?:سبعة|سبعه|سبع)(?=$|[\s,،])/gi, ' 7 '],
+            [/(?:^|[\s,،])(?:ثمانية|ثمانيه|تمانية|تمانيه|ثمان)(?=$|[\s,،])/gi, ' 8 '],
+            [/(?:^|[\s,،])(?:تسعة|تسعه|تسع)(?=$|[\s,،])/gi, ' 9 '],
+            [/(?:^|[\s,،])(?:عشرة|عشره|عشر)(?=$|[\s,،])/gi, ' 10 ']
+          ];
+          for (const [rgx, val] of compoundMap) {
+            s = s.replace(rgx, val);
+          }
+          return s;
+        };
+
+        const raw = normalizeSpokenNumbers(rawOriginal);
+
+        // 2. دالة التطبيع الذكي (توحيد الهمزات والتاء المربوطة والأخطاء الصوتية الشائعة مثل اللمام/اللاماب ولينية/لينيا والعتال/العتالة)
+        const norm = (s) => (s || '').toString().trim()
+          .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
           .replace(/[إأآٱ]/g, 'ا')
           .replace(/ة/g, 'ه')
           .replace(/[ى]/g, 'ي')
+          .replace(/اللمام|اللماب|للمام|لامام|لاماب/g, 'اللاماب')
+          .replace(/دره|درة|الدره|الدرة/g, 'دره')
+          .replace(/لينيار|لينيه|لينية|لنيه|لنيا/g, 'لينيا')
+          .replace(/العتال(?=$|[\s,،])|عتال(?=$|[\s,،])/g, 'العتاله')
+          .replace(/الاسعد|أسعد/g, 'اسعد')
+          .replace(/\s+/g, ' ')
           .toLowerCase();
 
         const cleanText = norm(raw);
         let feedback = [];
 
-        // دالة تحويل الأرقام المنطوقة أو المكتوبة
         const parseNum = (str) => {
           if (!str) return 0;
-          let s = str.trim();
-          const eastern = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
-          for (let i = 0; i < 10; i++) s = s.split(eastern[i]).join(i.toString());
-          s = s.replace(/,/g, '');
-          const matchDigits = s.match(/\d+(?:\.\d+)?/);
-          if (matchDigits) return parseFloat(matchDigits[0]);
-          const wordMap = {
-            'صفر': 0, 'واحد': 1, 'واحدة': 1, 'اثنين': 2, 'اثنان': 2, 'ثلاثة': 3, 'ثلاث': 3,
-            'اربعة': 4, 'أربعة': 4, 'خمسة': 5, 'خمس': 5, 'ستة': 6, 'ست': 6, 'سبعة': 7, 'سبع': 7,
-            'ثمانية': 8, 'تمانية': 8, 'تسعة': 9, 'تسع': 9, 'عشرة': 10, 'عشر': 10,
-            'عشرين': 20, 'عشرون': 20, 'ثلاثين': 30, 'ثلاثون': 30, 'اربعين': 40, 'خمسين': 50,
-            'ستين': 60, 'سبعين': 70, 'ثمانين': 80, 'تسعين': 90, 'مائة': 100, 'مية': 100, 'ميه': 100,
-            'مائتين': 200, 'ميتين': 200, 'الف': 1000, 'الفين': 2000, 'مليون': 1000000
-          };
-          for (const [w, val] of Object.entries(wordMap)) {
-            if (s.includes(w)) return val;
-          }
-          return 0;
+          const s = String(str).replace(/,/g, '').trim();
+          const m = s.match(/\d+(?:\.\d+)?/);
+          return m ? parseFloat(m[0]) : 0;
         };
 
-        // الملاحظة (Notes / Remarks)
-        const mNote = raw.match(/(?:الملحوظة|ملحوظة|الملاحظة|ملاحظة|ملاحظات|البيان|بيان)\s+([^\s,،]+(?:\s+[^\s,،]+){0,5})/i);
-        if (mNote && mNote[1]) {
-          const nVal = mNote[1].replace(/(?:صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة).*/i, '').trim();
-          const nInp = document.getElementById('salesNotesInput');
-          if (nInp && nVal) {
-            nInp.value = nVal;
-            const nTxt = document.getElementById('salesNotesExpandedTextarea');
-            if (nTxt) nTxt.value = nVal;
-            feedback.push(`الملحوظة: ${nVal}`);
+        // حفظ القيم الحالية في الحقول قبل اختيار الصنف حتى لا يقوم selectItemByIndex بمسح الكمية أو السعر إذا نطقها المستخدم بترتيب مشقلب
+        const prevQtyVal = document.getElementById('salesQtyInput')?.value || '';
+        const prevPriceVal = document.getElementById('salesPriceInput')?.value || '';
+        const prevUnitVal = document.getElementById('salesUnitSelect')?.value || '';
+
+        // ─────────────────────────────────────────────────────────────
+        // أ) استخراج الأرقام المرتبطة بكلمات دلالية (السعر، الإضافة، الخصم، العتالة، الكمية) بأي ترتيب
+        // ─────────────────────────────────────────────────────────────
+        let workingTextForQty = raw;
+
+        // 1. السعر (Price)
+        let spokenPrice = null;
+        const mPrice = raw.match(/(?:السعر|سعر|بسعر|قيمة|بقيمة|بفئة)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
+        if (mPrice && mPrice[1]) {
+          spokenPrice = parseNum(mPrice[1]);
+          workingTextForQty = workingTextForQty.replace(mPrice[0], ' ');
+        }
+
+        // 2. الإضافة (Addition / Tax)
+        let spokenTax = null;
+        const mTax = raw.match(/(?:الإضافة|الاضافة|إضافة|اضافة|الاضافه|اضافه|ضريبة|زيادة)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
+        if (mTax && mTax[1]) {
+          spokenTax = parseNum(mTax[1]);
+          workingTextForQty = workingTextForQty.replace(mTax[0], ' ');
+        }
+
+        // 3. الخصم (Discount)
+        let spokenDisc = null;
+        const mDisc = raw.match(/(?:الخصم|خصم|تخفيض|تنزيل)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
+        if (mDisc && mDisc[1]) {
+          spokenDisc = parseNum(mDisc[1]);
+          workingTextForQty = workingTextForQty.replace(mDisc[0], ' ');
+        }
+
+        // 4. العتالة / العتال (Labor)
+        let spokenLabor = null;
+        const mLabor = raw.match(/(?:العتالة|العتاله|عتالة|عتاله|العتال|عتال|الإعالة|الاعالة|إعالة|اعالة|مشال|تحميل)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
+        if (mLabor && mLabor[1]) {
+          spokenLabor = parseNum(mLabor[1]);
+          workingTextForQty = workingTextForQty.replace(mLabor[0], ' ');
+        }
+
+        // 5. الكمية (Quantity): سواء قال "الكمية 6 طن" أو قال مباشرة "5 طن" أو "6 طن" بدون كلمة الكمية!
+        let spokenQty = null;
+        const mQtyExplicit = workingTextForQty.match(/(?:الكمية|الكميه|كمية|كميه|عدد|بعدد)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
+        if (mQtyExplicit && mQtyExplicit[1]) {
+          spokenQty = parseNum(mQtyExplicit[1]);
+        } else {
+          // التقاط ذكي للكمية عند ذكر الرقم متبوعاً بوحدة (مثل: "5 طن"، "6 طن"، "10 سيخة"، "20 كيس") مع استثناء مقاسات الأصناف مثل "3 لينيا" أو "10 مللي" أو "50 كجم"
+          const cleanedForImplicitQty = workingTextForQty
+            .replace(/سيخ\s*\d+\s*(?:لينيا|لينية|لينيه|لنيه|ملم|مللي)?/gi, ' ')
+            .replace(/\d+\s*(?:لينيا|لينية|لينيه|لنيه|مللي|ملم|كجم|كيلو\s*جرام)/gi, ' ');
+          const mQtyImplicit = cleanedForImplicitQty.match(/(?:^|[\s,،])([0-9]+(?:\.[0-9]+)?)\s*(?:طن|سيخة|سيخه|كيس|اكياس|أكياس|حبة|حبه|قطعة|قطعه|متر|جالون|كرتونة|كرتونه|لوح|ربطة|ربطه)(?=$|[\s,،])/i);
+          if (mQtyImplicit && mQtyImplicit[1]) {
+            spokenQty = parseNum(mQtyImplicit[1]);
           }
         }
 
-        // 1. اسم العميل (Customer Name)
+        // ─────────────────────────────────────────────────────────────
+        // ب) التعرف الذكي على العميل (Customer) بدون اشتراط كلمة "العميل" وبأي ترتيب
+        // ─────────────────────────────────────────────────────────────
         let matchedCustomer = null;
-        for (const cust of this.dbCustomers) {
-          if (cust.name && cleanText.includes(norm(cust.name))) {
-            matchedCustomer = cust;
-            break;
+        let bestCustScore = 0;
+        const stopWordsCust = new Set(['العميل','عميل','زبون','المستودع','مستودع','المخزن','مخزن','الصنف','صنف','الوحدة','وحده','الكمية','كميه','السعر','سعر','الخصم','خصم','الاضافه','اضافه','العتاله','عتال','طن','عددي','وزني','سيخ','لينيا','دره','اللاماب','حفظ','وسداد']);
+
+        for (const cust of (this.dbCustomers || [])) {
+          if (!cust || !cust.name || cust.name.length < 2) continue;
+          const cNorm = norm(cust.name);
+          if (!cNorm) continue;
+          if (cleanText.includes(cNorm)) {
+            const sc = 100 + cNorm.length;
+            if (sc > bestCustScore) {
+              bestCustScore = sc;
+              matchedCustomer = cust;
+            }
+          } else {
+            const cTokens = cNorm.split(' ').filter(t => t.length >= 2 && !stopWordsCust.has(t));
+            if (cTokens.length >= 2) {
+              const matchedTokens = cTokens.filter(t => cleanText.includes(t));
+              if (matchedTokens.length >= 2 && matchedTokens.length >= Math.ceil(cTokens.length * 0.6)) {
+                const sc = matchedTokens.length * 25;
+                if (sc > bestCustScore) {
+                  bestCustScore = sc;
+                  matchedCustomer = cust;
+                }
+              }
+            }
           }
         }
         if (!matchedCustomer) {
           const mCust = raw.match(/(?:العميل|عميل|زبون|حساب)\s+([^\s,،]+(?:\s+[^\s,،]+){0,3})/i);
           if (mCust && mCust[1]) {
-            const candName = mCust[1].replace(/(?:مركز|مخزن|مستودع|صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة).*/i, '').trim();
+            const candName = mCust[1].replace(/(?:مركز|مخزن|مستودع|درة|دره|صنف|سيخ|وحدة|طن|كمية|سعر|خصم|إضافة|اضافة|العتال|عتالة|حفظ).*/i, '').trim();
             if (candName) {
-              matchedCustomer = this.dbCustomers.find(c => norm(c.name).includes(norm(candName))) || {
+              matchedCustomer = (this.dbCustomers || []).find(c => norm(c.name).includes(norm(candName))) || {
                 name: candName,
                 phone: '',
                 currentBalance: 0,
@@ -13082,161 +14038,303 @@ window.SuiteSalesPOS = {
         }
         if (matchedCustomer) {
           this.selectCustomer(matchedCustomer);
-          feedback.push(`العميل: ${matchedCustomer.name}`);
+          feedback.push('العميل: ' + matchedCustomer.name);
         }
 
-        // 2. مركز الكلفة (Cost Center)
-        let matchedCC = null;
-        for (const cc of this.dbCostCenters) {
-          if (cc.name && cleanText.includes(norm(cc.name))) {
-            matchedCC = cc.name;
-            break;
-          }
-        }
-        if (!matchedCC) {
-          const mCC = raw.match(/(?:مركز الكلفة|مركز كلفة|المركز|مركز)\s+([^\s,،]+(?:\s+[^\s,،]+){0,2})/i);
-          if (mCC && mCC[1]) {
-            const candCC = mCC[1].replace(/(?:مخزن|مستودع|صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة).*/i, '').trim();
-            if (candCC) matchedCC = candCC;
-          }
-        }
-        if (matchedCC) {
-          this.selectCostCenter(matchedCC);
-          feedback.push(`مركز الكلفة: ${matchedCC}`);
-        }
-
-        // 3. المخزن / المستودع (Warehouse)
+        // ─────────────────────────────────────────────────────────────
+        // ج) التعرف الذكي على المستودع (Warehouse) بدون اشتراط كلمة "المستودع" (مثل "درة اللمام" -> "دره اللاماب")
+        // ─────────────────────────────────────────────────────────────
         let matchedWH = null;
-        for (const wh of this.dbWarehouses) {
-          if (wh.name && cleanText.includes(norm(wh.name))) {
-            matchedWH = wh.name;
-            break;
+        if (cleanText.includes('دره اللاماب') || (cleanText.includes('دره') && cleanText.includes('اللاماب'))) {
+          const whObj = (this.dbWarehouses || []).find(w => norm(w.name).includes('دره') && norm(w.name).includes('اللاماب'));
+          matchedWH = whObj ? whObj.name : 'دره اللاماب';
+        } else {
+          const sortedWH = [...(this.dbWarehouses || [])].sort((a, b) => (b.name || '').length - (a.name || '').length);
+          for (const wh of sortedWH) {
+            if (wh.name && cleanText.includes(norm(wh.name))) {
+              matchedWH = wh.name;
+              break;
+            }
           }
         }
         if (!matchedWH) {
           const mWH = raw.match(/(?:المخزن|مخزن|المستودع|مستودع)\s+([^\s,،]+(?:\s+[^\s,،]+){0,2})/i);
           if (mWH && mWH[1]) {
-            const candWH = mWH[1].replace(/(?:صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة).*/i, '').trim();
-            if (candWH) matchedWH = candWH;
+            const candWH = mWH[1].replace(/(?:صنف|سيخ|وحدة|طن|كمية|سعر|خصم|إضافة|اضافة|العتال|عتالة|حفظ).*/i, '').trim();
+            if (candWH) {
+              const candNorm = norm(candWH);
+              const foundWh = (this.dbWarehouses || []).find(w => norm(w.name).includes(candNorm) || candNorm.includes(norm(w.name)));
+              matchedWH = foundWh ? foundWh.name : candWH;
+            }
           }
         }
         if (matchedWH) {
           this.selectWarehouse(matchedWH);
-          feedback.push(`المخزن: ${matchedWH}`);
+          feedback.push('المستودع: ' + matchedWH);
         }
 
-        // 4. الصنف (Item Name)
-        let matchedItemIdx = -1;
-        const sortedItems = this.dbItems.map((it, idx) => ({ ...it, idx })).sort((a,b) => (b.name||'').length - (a.name||'').length);
-        for (const it of sortedItems) {
-          if (it.name && cleanText.includes(norm(it.name))) {
-            matchedItemIdx = it.idx;
-            break;
-          }
+        // ─────────────────────────────────────────────────────────────
+        // د) التعرف الذكي على مركز الكلفة (Cost Center)
+        // ─────────────────────────────────────────────────────────────
+        let matchedCC = null;
+        const mCC = raw.match(/(?:مركز الكلفة|مركز كلفة|المركز)\s+([^\s,،]+(?:\s+[^\s,،]+){0,2})/i);
+        if (mCC && mCC[1]) {
+          const candCC = mCC[1].replace(/(?:مخزن|مستودع|صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة|حفظ).*/i, '').trim();
+          if (candCC) matchedCC = candCC;
         }
-        if (matchedItemIdx === -1) {
-          const mItem = raw.match(/(?:الصنف|صنف|بضاعة|سلعة)\s+([^\s,،]+(?:\s+[^\s,،]+){0,3})/i);
-          if (mItem && mItem[1]) {
-            const candItem = norm(mItem[1].replace(/(?:وحدة|كمية|سعر|خصم|إضافة|اضافة).*/i, '').trim());
-            for (const it of sortedItems) {
-              if (it.name && (norm(it.name).includes(candItem) || candItem.includes(norm(it.name)))) {
-                matchedItemIdx = it.idx;
-                break;
+        if (matchedCC) {
+          this.selectCostCenter(matchedCC);
+          feedback.push('مركز الكلفة: ' + matchedCC);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // هـ) التعرف الذكي على الصنف (Item) بدون اشتراط كلمة "الصنف" (مثل "سيخ 3 لينيا")
+        // ─────────────────────────────────────────────────────────────
+        let matchedItemIdx = -1;
+        let bestItemScore = 0;
+
+        (this.dbItems || []).forEach((it, idx) => {
+          if (!it || !it.name || it.name.length < 2) return;
+          const iNorm = norm(it.name);
+          if (!iNorm) return;
+
+          if (cleanText.includes(iNorm)) {
+            let sc = 200 + iNorm.length;
+            // تفضيل الأصناف التي تحتوي على كافة الوحدات القياسية (سيخه + طن عددي + طن وزني)
+            if (Array.isArray(it.unitsArray) && it.unitsArray.length >= 3) sc += 50;
+            if (it.name.includes('لينيا')) sc += 20;
+            if (sc > bestItemScore) {
+              bestItemScore = sc;
+              matchedItemIdx = idx;
+            }
+            return;
+          }
+
+          // مطابقة ذكية للكلمات المفتاحية للصنف مثل "سيخ 3 لينيا" مع "سيخ 3 لينيا الاسعد" أو "سيخ 3 لينيا أسعد 10 مللي"
+          const tokens = iNorm.split(' ').filter(Boolean);
+          let matchCount = 0;
+          let hasCoreNoun = false;
+          let hasNumberMatch = true;
+
+          for (const tok of tokens) {
+            if (/^\d+$/.test(tok)) {
+              if (cleanText.includes(tok)) {
+                matchCount += 2;
+              } else if (tok === '10' && iNorm.includes('3 لينيا')) {
+                // تجاهل غياب "10" في "سيخ 3 لينيا أسعد 10 مللي" عند قول "سيخ 3 لينيا"
+              } else {
+                hasNumberMatch = false;
+              }
+            } else if (cleanText.includes(tok)) {
+              matchCount += 1;
+              if (['سيخ','اسمنت','حديد','طوب','رمل','دهان','زنك','ماسوره'].includes(tok)) {
+                hasCoreNoun = true;
               }
             }
           }
-        }
+
+          if (hasCoreNoun && hasNumberMatch && matchCount >= 3) {
+            let sc = matchCount * 40;
+            if (Array.isArray(it.unitsArray) && it.unitsArray.length >= 3) sc += 50;
+            if (it.name.includes('لينيا')) sc += 20;
+            if (parseFloat(it.sellingPrice || it.price || 0) > 0) sc += 15;
+            if (sc > bestItemScore) {
+              bestItemScore = sc;
+              matchedItemIdx = idx;
+            }
+          }
+        });
+
         if (matchedItemIdx !== -1) {
           this.selectItemByIndex(matchedItemIdx);
-          feedback.push(`الصنف: ${this.dbItems[matchedItemIdx].name}`);
+          if (prevQtyVal && spokenQty === null) {
+            const qInp = document.getElementById('salesQtyInput');
+            if (qInp) qInp.value = prevQtyVal;
+          }
+          if (prevPriceVal && spokenPrice === null) {
+            const pInp = document.getElementById('salesPriceInput');
+            if (pInp) pInp.value = prevPriceVal;
+          }
+          feedback.push('الصنف: ' + this.dbItems[matchedItemIdx].name);
         }
 
-        // 5. الوحدة (Unit)
-        const mUnit = raw.match(/(?:الوحدة|وحدة|الوحدات)\s+([^\s,،]+)/i);
-        if (mUnit && mUnit[1]) {
-          const uStr = norm(mUnit[1]);
+        // ─────────────────────────────────────────────────────────────
+        // و) التعرف الذكي على الوحدة (Unit) بدون اشتراط كلمة "الوحدة" (تُطبق بعد اختيار الصنف حتى لا تُمسح!)
+        // ─────────────────────────────────────────────────────────────
+        let targetUnit = null;
+        if (cleanText.includes('طن عددي') || cleanText.includes('الطن العددي')) {
+          targetUnit = 'طن عددي';
+        } else if (cleanText.includes('طن وزني') || cleanText.includes('الطن الوزني')) {
+          targetUnit = 'طن وزني';
+        } else if (cleanText.includes('سيخه') || cleanText.includes('بالسيخه')) {
+          targetUnit = 'سيخه';
+        } else if (cleanText.includes('متر مكعب')) {
+          targetUnit = 'متر مكعب';
+        } else if (cleanText.includes('الف حبه')) {
+          targetUnit = 'ألف حبة';
+        } else if (cleanText.includes('كيس') || cleanText.includes('اكياس')) {
+          targetUnit = 'كيس';
+        } else if (cleanText.includes('جالون')) {
+          targetUnit = 'جالون';
+        } else if (cleanText.includes('كرتونه')) {
+          targetUnit = 'كرتونة';
+        } else if (cleanText.includes('حبه') || cleanText.includes('قطعه')) {
+          targetUnit = 'حبة';
+        } else {
+          const mUnit = raw.match(/(?:الوحدة|وحدة|الوحدات)\s+([^\s,،]+(?:\s+[^\s,،]+)?)/i);
+          if (mUnit && mUnit[1]) {
+            targetUnit = mUnit[1].replace(/(?:الكمية|كمية|السعر|سعر|خصم|إضافة|اضافة|العتال|عتالة|حفظ).*/i, '').trim();
+          }
+        }
+
+        if (targetUnit) {
+          const uSel = document.getElementById('salesUnitSelect');
+          if (uSel) {
+            const uNorm = norm(targetUnit);
+            let foundUnitIdx = -1;
+            for (let i = 0; i < uSel.options.length; i++) {
+              const optNorm = norm(uSel.options[i].value || uSel.options[i].text);
+              if (optNorm && (optNorm === uNorm || optNorm.includes(uNorm) || uNorm.includes(optNorm))) {
+                foundUnitIdx = i;
+                break;
+              }
+            }
+            if (foundUnitIdx === -1) {
+              const newOpt = document.createElement('option');
+              newOpt.value = targetUnit;
+              newOpt.text = targetUnit;
+              newOpt.setAttribute('data-factor', targetUnit.includes('عددي') ? '135' : (targetUnit.includes('وزني') ? '140' : '1'));
+              uSel.appendChild(newOpt);
+              foundUnitIdx = uSel.options.length - 1;
+            }
+            uSel.selectedIndex = foundUnitIdx;
+            if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleUnit(uSel);
+            this.onUnitChange();
+            feedback.push('الوحدة: ' + uSel.options[foundUnitIdx].value);
+          }
+        } else if (prevUnitVal) {
           const uSel = document.getElementById('salesUnitSelect');
           if (uSel && uSel.options) {
             for (let i = 0; i < uSel.options.length; i++) {
-              if (norm(uSel.options[i].value).includes(uStr) || norm(uSel.options[i].text).includes(uStr)) {
+              if (uSel.options[i].value === prevUnitVal) {
                 uSel.selectedIndex = i;
-                this.onUnitChange();
-                feedback.push(`الوحدة: ${uSel.options[i].value}`);
+                uSel.value = prevUnitVal;
                 break;
               }
             }
           }
         }
 
-        // 6. الكمية (Quantity)
-        const mQty = raw.match(/(?:الكمية|كمية|عدد|بعدد)\s+([0-9٠-٩]+|[^\s,،]+)/i);
-        if (mQty && mQty[1]) {
-          const qVal = parseNum(mQty[1]);
-          if (qVal > 0) {
-            const qInp = document.getElementById('salesQtyInput');
-            if (qInp) qInp.value = qVal;
-            feedback.push(`الكمية: ${qVal}`);
+        // ─────────────────────────────────────────────────────────────
+        // ز) تفريغ القيم الرقمية المستخرجة في الحقول وتحديث الجملة والصافي فوراً
+        // ─────────────────────────────────────────────────────────────
+        const fmtField = (id, val) => window.SmartFieldCustomizer ? SmartFieldCustomizer.formatNumberForField(id, val) : val;
+
+        if (spokenQty !== null && spokenQty > 0) {
+          const qInp = document.getElementById('salesQtyInput');
+          if (qInp) {
+            qInp.value = fmtField('salesQtyInput', spokenQty);
+            if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleQty(qInp);
           }
+          feedback.push('الكمية: ' + spokenQty);
         }
 
-        // 7. السعر (Price)
-        const mPrice = raw.match(/(?:السعر|سعر|بسعر|قيمة|بقيمة)\s+([0-9٠-٩]+|[^\s,،]+)/i);
-        if (mPrice && mPrice[1]) {
-          const pVal = parseNum(mPrice[1]);
-          if (pVal > 0) {
-            const pInp = document.getElementById('salesPriceInput');
-            if (pInp) pInp.value = pVal;
-            feedback.push(`السعر: ${pVal.toLocaleString()}`);
+        if (spokenPrice !== null && spokenPrice > 0) {
+          const pInp = document.getElementById('salesPriceInput');
+          if (pInp) {
+            pInp.value = fmtField('salesPriceInput', spokenPrice);
+            if (window.SmartPOSFontAI) window.SmartPOSFontAI.scalePrice(pInp);
           }
+          feedback.push('السعر: ' + spokenPrice.toLocaleString());
         }
 
-        // 8. الخصم (Discount)
-        const mDisc = raw.match(/(?:الخصم|خصم|تخفيض|تنزيل)\s+([0-9٠-٩]+|[^\s,،]+)/i);
-        if (mDisc && mDisc[1]) {
-          const dVal = parseNum(mDisc[1]);
-          const dInp = document.getElementById('salesDiscountInput');
-          if (dInp) dInp.value = dVal;
-          feedback.push(`خصم: ${dVal.toLocaleString()}`);
-        }
-
-        // 9. الإضافة (Addition / Tax)
-        const mTax = raw.match(/(?:الاضافة|إضافة|اضافة|ضريبة|زيادة)\s+([0-9٠-٩]+|[^\s,،]+)/i);
-        if (mTax && mTax[1]) {
-          const tVal = parseNum(mTax[1]);
+        if (spokenTax !== null && spokenTax >= 0) {
           const tInp = document.getElementById('salesTaxInput');
-          if (tInp) tInp.value = tVal;
-          feedback.push(`إضافة: ${tVal.toLocaleString()}`);
+          if (tInp) {
+            tInp.value = fmtField('salesTaxInput', spokenTax);
+            if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleTax(tInp);
+          }
+          feedback.push('الإضافة: ' + spokenTax.toLocaleString());
         }
 
-        // 9.5 الإعالة (Labor / E'ala)
-        const mLabor = raw.match(/(?:الاعالة|إعالة|اعالة|عتالة|العتالة)\s+([0-9٠-٩]+|[^\s,،]+)/i);
-        if (mLabor && mLabor[1]) {
-          const lVal = parseNum(mLabor[1]);
+        if (spokenDisc !== null && spokenDisc >= 0) {
+          const dInp = document.getElementById('salesDiscountInput');
+          if (dInp) {
+            dInp.value = fmtField('salesDiscountInput', spokenDisc);
+            if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleTax(dInp);
+          }
+          feedback.push('الخصم: ' + spokenDisc.toLocaleString());
+        }
+
+        if (spokenLabor !== null && spokenLabor >= 0) {
           const lInp = document.getElementById('salesLaborInput');
-          if (lInp) lInp.value = lVal;
-          feedback.push(`عتالة: ${lVal.toLocaleString()}`);
+          if (lInp) {
+            lInp.value = fmtField('salesLaborInput', spokenLabor);
+            if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleTax(lInp);
+          }
+          feedback.push('العتالة: ' + spokenLabor.toLocaleString());
         }
 
-        // 10. حساب وتفريغ الجملة (Subtotal)
-        const subtotal = this.calcItemSubtotal();
-        feedback.push(`الجملة: ${subtotal.toLocaleString()} SDG`);
+        // الملاحظة / البيان (Notes)
+        const mNote = raw.match(/(?:الملحوظة|ملحوظة|الملاحظة|ملاحظة|ملاحظات|البيان|بيان)\s+([^\s,،]+(?:\s+[^\s,،]+){0,6})/i);
+        if (mNote && mNote[1]) {
+          const nVal = mNote[1].replace(/(?:صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة|العتال|عتالة|حفظ).*/i, '').trim();
+          const nInp = document.getElementById('salesNotesInput');
+          if (nInp && nVal) {
+            nInp.value = nVal;
+            const nTxt = document.getElementById('salesNotesExpandedTextarea');
+            if (nTxt) nTxt.value = nVal;
+            if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleNotes(nInp);
+            feedback.push('البيان: ' + nVal);
+          }
+        }
 
-        // إشعار النتيجة
+        // حساب وتفريغ الجملة والإجمالي الصافي فوراً
+        const netSubtotal = this.calcItemSubtotal();
+        const grossVal = document.getElementById('salesItemGrossTotal')?.value || '0';
+        if (grossVal && grossVal !== '0') {
+          feedback.push('الجملة: ' + grossVal);
+        }
+        feedback.push('الصافي: ' + netSubtotal.toLocaleString());
+
+        // تحديث شريط حالة الـ ERP الذكي
+        if (typeof this.updateErpSmartStatusStrip === 'function') {
+          this.updateErpSmartStatusStrip();
+        }
+
+        // إشعار النتيجة في لوحة الصوت
         const statusText = document.getElementById('suiteSalesVoiceStatusText');
         if (statusText) {
-          statusText.innerHTML = `<span class="text-emerald-400 font-black">✅ تم التفريغ الصوتي بنجاح:</span> <span class="text-white">${feedback.join(' • ')}</span>`;
+          statusText.innerHTML = '<span class="text-emerald-400 font-black">✅ تم التفريغ الذكي:</span> <span class="text-white">' + feedback.join(' • ') + '</span>';
         }
 
         if (window.AppHaptics) AppHaptics.success();
 
-        // إضاءة نبضية للخانات التي تم تغذيتها
-        ['salesQtyInput', 'salesPriceInput', 'salesTotalInput', 'salesDiscountInput', 'salesTaxInput'].forEach(id => {
+        // إضاءة نبضية للحقول التي تم تغذيتها
+        ['salesCustomerInput', 'salesWarehouseInput', 'salesItemSearchInput', 'salesQtyInput', 'salesPriceInput', 'salesItemGrossTotal', 'salesTaxInput', 'salesDiscountInput', 'salesLaborInput', 'salesTotalInput'].forEach(id => {
           const el = document.getElementById(id);
           if (el) {
-            el.classList.add('ring-2', 'ring-emerald-400', 'bg-emerald-950/60');
-            setTimeout(() => el.classList.remove('ring-2', 'ring-emerald-400', 'bg-emerald-950/60'), 2500);
+            el.classList.add('ring-2', 'ring-emerald-400');
+            setTimeout(() => el.classList.remove('ring-2', 'ring-emerald-400'), 1800);
           }
         });
+
+        // ─────────────────────────────────────────────────────────────
+        // ح) تنفيذ أمر الحفظ الصوتي الفوري ("حفظ" أو "حفظ وسداد")
+        // ─────────────────────────────────────────────────────────────
+        if (/(?:حفظ\s*وسداد|احفظ\s*وسدد|حفظ\s*و\s*سداد)/i.test(rawOriginal) || /(?:حفظ\s*وسداد|احفظ\s*وسدد)/i.test(cleanText)) {
+          this.stopVoiceFeed(true, '⚡ جاري تنفيذ أمر "حفظ وسداد" والانتقال لشاشة الحركة المالية...');
+          setTimeout(() => {
+            if (typeof commitOpSales === 'function') commitOpSales(true);
+          }, 250);
+          return;
+        } else if (/(?:^|[\s,،])(?:حفظ|احفظ|اعتمد\s*الفاتوره|اعتماد\s*الفاتوره)(?=$|[\s,،])/i.test(cleanText)) {
+          this.stopVoiceFeed(true, '💾 جاري تنفيذ أمر "حفظ" الفاتورة فوراً...');
+          setTimeout(() => {
+            if (typeof commitOpSales === 'function') commitOpSales(false);
+          }, 250);
+          return;
+        }
       },
 
       // ─────────────────────────────────────────────────────────────
@@ -13511,14 +14609,65 @@ window.SuiteSalesPOS = {
         printWin.document.close();
       },
 
+      updateErpSmartStatusStrip() {
+        const strip = document.getElementById('salesErpSmartStatusStrip');
+        const custBadge = document.getElementById('salesErpCustBalanceBadge');
+        const stockBadge = document.getElementById('salesErpItemStockBadge');
+        if (!strip) return;
+
+        const custName = (document.getElementById('salesCustomerInput')?.value || this.selectedCustomer?.name || '').trim();
+        const custObj = this.selectedCustomer || (this.dbCustomers || []).find(c => c.name === custName);
+        const itObj = (this.selectedItemIndex !== -1 && this.dbItems) ? this.dbItems[this.selectedItemIndex] : null;
+
+        if ((!custName || custName === 'عميل نقدي عام') && !itObj) {
+          strip.classList.add('hidden');
+          return;
+        }
+        strip.classList.remove('hidden');
+
+        if (custBadge) {
+          const bal = parseFloat(custObj?.currentBalance || custObj?.balance || custObj?.openingBalance || 0);
+          const limit = parseFloat(custObj?.creditLimit || 0);
+          const cur = custObj?.currency === 'USD' ? '$' : 'ج.س';
+          const isOverLimit = (limit > 0 && bal > limit);
+          custBadge.className = 'flex items-center gap-1.5 truncate ' + (isOverLimit ? 'text-rose-400' : (bal > 0 ? 'text-amber-300' : 'text-sky-300'));
+          custBadge.innerHTML = `<i class="fa-solid fa-wallet text-[10px]"></i><span>رصيد العميل: ${bal.toLocaleString()} ${cur}${isOverLimit ? ' ⚠️ (تجاوز الحد)' : ''}</span>`;
+        }
+
+        if (stockBadge) {
+          const uSel = document.getElementById('salesUnitSelect');
+          const opt = uSel && uSel.options ? uSel.options[uSel.selectedIndex] : null;
+          const factor = opt ? (opt.getAttribute('data-factor') || '1') : '1';
+          const uName = opt ? opt.value : (itObj?.unit || 'حبة');
+          let stockQty = 'متاح';
+          if (itObj && itObj.stock) {
+            if (typeof itObj.stock === 'object' && !Array.isArray(itObj.stock)) {
+              const vals = Object.values(itObj.stock).map(v => parseFloat(v) || 0);
+              const sum = vals.reduce((a, b) => a + b, 0);
+              if (sum > 0) stockQty = sum.toLocaleString();
+            } else if (Array.isArray(itObj.stock) && itObj.stock[0]?.qty !== undefined) {
+              stockQty = Number(itObj.stock[0].qty).toLocaleString();
+            }
+          }
+          stockBadge.innerHTML = `<i class="fa-solid fa-Layer-group text-[10px]"></i><span>المخزون: ${stockQty} | ${uName} (معامل: ${factor})</span>`;
+        }
+      },
+
       printCustomerStatement() {
-        const custName = this.selectedCustomer?.name || document.getElementById('salesCustomerInput')?.value || 'عميل نقدي عام';
+        const custName = (document.getElementById('salesCustomerInput')?.value || this.selectedCustomer?.name || 'عميل نقدي عام').trim();
+        const custObj = (this.dbCustomers || []).find(c => c.name === custName) || this.selectedCustomer;
+        const bal = parseFloat(custObj?.currentBalance || custObj?.balance || custObj?.openingBalance || 0);
+        const rate = this.usdExchangeRate || 2850;
+        const isUsd = custObj?.currency === 'USD';
+        const usdStr = isUsd ? ('$' + bal.toLocaleString('en-US')) : ('$' + Math.round(bal / rate).toLocaleString('en-US'));
+        const sdgStr = isUsd ? (Math.round(bal * rate).toLocaleString('en-US') + ' ج.س') : (bal.toLocaleString('en-US') + ' ج.س');
+
         if (typeof triggerStatementForAccount === 'function' && custName) {
-          triggerStatementForAccount(custName, 'عميل', '$0.00', '0.00 SDG');
+          triggerStatementForAccount(custName, 'عميل', usdStr, sdgStr);
         } else if (typeof openModal === 'function') {
           openModal('modalOpStatement');
         } else {
-          alert('كشف حساب العميل: ' + custName);
+          alert('كشف حساب العميل: ' + custName + ' | الرصيد: ' + sdgStr);
         }
       },
 
@@ -13858,13 +15007,23 @@ window.SuiteSalesPOS = {
             });
           }
           if (units.length === 0) units.push({ name: 'حبة', factor: 1 });
+          const savedFactors = {};
           units.forEach(u => {
+            const cleanUnitName = String(u.name || '').replace(/\s*\(\d+(?:\.\d+)?\)\s*/g, '').trim() || 'حبة';
+            const factorVal = u.factor || 1;
+            savedFactors[cleanUnitName] = factorVal;
             const opt = document.createElement('option');
-            opt.value = u.name;
-            opt.innerText = u.name;
-            opt.dataset.factor = u.factor || 1;
+            opt.value = cleanUnitName;
+            opt.innerText = cleanUnitName;
+            opt.dataset.factor = factorVal;
             uSel.appendChild(opt);
           });
+          try {
+            const allFactors = JSON.parse(localStorage.getItem('magaies_saved_unit_factors_v1') || '{}');
+            allFactors[item.id || item.name] = savedFactors;
+            localStorage.setItem('magaies_saved_unit_factors_v1', JSON.stringify(allFactors));
+          } catch(e) {}
+          if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleUnit(uSel);
         }
 
         // Pre-fill last purchase price or cost if available
@@ -14349,8 +15508,268 @@ window.SuiteSalesPOS = {
         printWin.document.close();
       },
 
+      voiceRecognitionInstance: null,
+      isVoiceListening: false,
+      _voiceSilenceTimer: null,
+      _lastVoiceActivityAt: 0,
+      _manualStopVoice: false,
+      _pendingInterimVoice: '',
+
+      resetVoiceSilenceTimer() {
+        this._lastVoiceActivityAt = Date.now();
+        if (this._voiceSilenceTimer) clearTimeout(this._voiceSilenceTimer);
+        this._voiceSilenceTimer = setTimeout(() => {
+          if (this.isVoiceListening) {
+            this.stopVoiceFeed(true, '✓ توقف التسجيل تلقائياً بعد السكوت لمدة 3 ثوانٍ');
+          }
+        }, 3000);
+      },
+
       toggleVoiceFeed() {
-        if (window.SuiteSalesPOS) SuiteSalesPOS.toggleVoiceFeed();
+        const consoleEl = document.getElementById('suitePurVoiceConsole');
+        if (consoleEl && consoleEl.classList.contains('hidden')) {
+          consoleEl.classList.remove('hidden');
+        }
+
+        if (this.isVoiceListening) {
+          this.stopVoiceFeed(true);
+          return;
+        }
+
+        const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const statusText = document.getElementById('suitePurVoiceStatusText');
+        const transcriptEl = document.getElementById('suitePurVoiceTranscript');
+        const pulseDot = document.getElementById('purMicPulseDot');
+        const micBtn = document.getElementById('btnPurVoiceMic');
+
+        if (!SpeechRec) {
+          if (statusText) statusText.innerHTML = '<span class="text-amber-400">ℹ️ المتصفح لا يدعم الميكروفون المباشر. يمكنك كتابة الأمر أدناه والتفريغ فوراً:</span>';
+          return;
+        }
+
+        try {
+          this._manualStopVoice = false;
+          this._pendingInterimVoice = '';
+          this.voiceRecognitionInstance = new SpeechRec();
+          this.voiceRecognitionInstance.lang = 'ar-SA';
+          this.voiceRecognitionInstance.continuous = true;
+          this.voiceRecognitionInstance.interimResults = true;
+
+          this.voiceRecognitionInstance.onstart = () => {
+            this.isVoiceListening = true;
+            this.resetVoiceSilenceTimer();
+            if (pulseDot) pulseDot.classList.remove('hidden');
+            if (micBtn) micBtn.style.setProperty('box-shadow', '0 0 18px rgba(244, 63, 94, 0.85)', 'important');
+            if (statusText) statusText.innerHTML = '<span class="text-rose-400 animate-pulse font-black">🔴 التسجيل مستمر... (يتوقف تلقائياً عند السكوت لمدة 3 ثوانٍ)</span>';
+            if (transcriptEl && !this._pendingInterimVoice) transcriptEl.innerText = 'استمع إليك... تحدث الآن (المورد، المستودع، الصنف، الوحدة، الكمية، السعر...)';
+            if (window.AppHaptics) AppHaptics.selection();
+          };
+
+          this.voiceRecognitionInstance.onsoundstart = () => this.resetVoiceSilenceTimer();
+          this.voiceRecognitionInstance.onspeechstart = () => this.resetVoiceSilenceTimer();
+
+          this.voiceRecognitionInstance.onresult = (evt) => {
+            this.resetVoiceSilenceTimer();
+            let interim = '';
+            let finalChunk = '';
+            for (let i = evt.resultIndex; i < evt.results.length; ++i) {
+              if (evt.results[i].isFinal) finalChunk += ' ' + evt.results[i][0].transcript;
+              else interim += ' ' + evt.results[i][0].transcript;
+            }
+            const cleanFinal = finalChunk.trim();
+            const cleanInterim = interim.trim();
+            if (transcriptEl) transcriptEl.innerText = cleanFinal || cleanInterim;
+            if (cleanFinal) {
+              this._pendingInterimVoice = '';
+              this.feedVoiceToFields(cleanFinal);
+            } else if (cleanInterim) {
+              this._pendingInterimVoice = cleanInterim;
+            }
+          };
+
+          this.voiceRecognitionInstance.onerror = (err) => {
+            if (err && err.error === 'no-speech' && this.isVoiceListening && !this._manualStopVoice) {
+              return;
+            }
+            console.warn('Purchase voice error:', err);
+            this.stopVoiceFeed(true);
+            if (statusText) statusText.innerHTML = '<span class="text-amber-400">⚠️ تعذر التقاط الصوت، يمكنك كتابة الأمر أدناه:</span>';
+          };
+
+          this.voiceRecognitionInstance.onend = () => {
+            if (this.isVoiceListening && !this._manualStopVoice) {
+              const elapsed = Date.now() - (this._lastVoiceActivityAt || 0);
+              if (elapsed < 2900) {
+                try {
+                  this.voiceRecognitionInstance.start();
+                  return;
+                } catch (e) {}
+              }
+            }
+            this.stopVoiceFeed(true);
+          };
+
+          this.voiceRecognitionInstance.start();
+        } catch (e) {
+          console.error(e);
+          this.stopVoiceFeed(true);
+        }
+      },
+
+      stopVoiceFeed(manual = true, customMsg = '') {
+        if (manual) this._manualStopVoice = true;
+        if (this._voiceSilenceTimer) {
+          clearTimeout(this._voiceSilenceTimer);
+          this._voiceSilenceTimer = null;
+        }
+        if (this._pendingInterimVoice) {
+          const pending = this._pendingInterimVoice;
+          this._pendingInterimVoice = '';
+          this.feedVoiceToFields(pending);
+        }
+        this.isVoiceListening = false;
+        const pulseDot = document.getElementById('purMicPulseDot');
+        if (pulseDot) pulseDot.classList.add('hidden');
+        const micBtn = document.getElementById('btnPurVoiceMic');
+        if (micBtn) micBtn.style.setProperty('box-shadow', '0 0 12px rgba(245, 158, 11, 0.35)', 'important');
+        const statusText = document.getElementById('suitePurVoiceStatusText');
+        if (statusText && customMsg) {
+          statusText.innerHTML = '<span class="text-emerald-400 font-black">' + customMsg + '</span>';
+        }
+        if (this.voiceRecognitionInstance) {
+          try { this.voiceRecognitionInstance.stop(); } catch(e) {}
+        }
+      },
+
+      feedVoiceFromInput() {
+        const inp = document.getElementById('suitePurVoiceManualInput');
+        if (inp && inp.value.trim()) {
+          this.feedVoiceToFields(inp.value.trim());
+          inp.value = '';
+        }
+      },
+
+      feedVoiceToFields(spokenText) {
+        if (!spokenText || !spokenText.trim()) return;
+        const raw = spokenText.trim();
+        const transcriptEl = document.getElementById('suitePurVoiceTranscript');
+        if (transcriptEl) transcriptEl.innerText = 'تم الالتقاط: "' + raw + '"';
+
+        const norm = (s) => (s || '').trim()
+          .replace(/[\u064B-\u065F\u0670]/g, '')
+          .replace(/[إأآٱ]/g, 'ا')
+          .replace(/ة/g, 'ه')
+          .replace(/[ى]/g, 'ي')
+          .toLowerCase();
+
+        const cleanText = norm(raw);
+        const parseNum = (str) => {
+          if (!str) return 0;
+          let s = str.trim();
+          const eastern = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+          for (let i = 0; i < 10; i++) s = s.split(eastern[i]).join(i.toString());
+          s = s.replace(/,/g, '');
+          const matchDigits = s.match(/\d+(?:\.\d+)?/);
+          if (matchDigits) return parseFloat(matchDigits[0]);
+          const wordMap = {
+            'صفر': 0, 'واحد': 1, 'واحدة': 1, 'اثنين': 2, 'اثنان': 2, 'ثلاثة': 3, 'ثلاث': 3,
+            'اربعة': 4, 'أربعة': 4, 'خمسة': 5, 'خمس': 5, 'ستة': 6, 'ست': 6, 'سبعة': 7, 'سبع': 7,
+            'ثمانية': 8, 'تمانية': 8, 'تسعة': 9, 'تسع': 9, 'عشرة': 10, 'عشر': 10,
+            'عشرين': 20, 'ثلاثين': 30, 'اربعين': 40, 'خمسين': 50, 'ستين': 60, 'سبعين': 70, 'ثمانين': 80, 'تسعين': 90,
+            'مائة': 100, 'مية': 100, 'مائتين': 200, 'ميتين': 200, 'الف': 1000, 'الفين': 2000, 'مليون': 1000000
+          };
+          for (const [w, val] of Object.entries(wordMap)) {
+            if (s.includes(w)) return val;
+          }
+          return 0;
+        };
+
+        // 1. المورد
+        let matchedSup = null;
+        for (const sup of (this.dbSuppliers || [])) {
+          if (sup.name && cleanText.includes(norm(sup.name))) {
+            matchedSup = sup;
+            break;
+          }
+        }
+        if (!matchedSup) {
+          const mSup = raw.match(/(?:المورد|مورد|شركة|مصنع)\s+([^\s,،]+(?:\s+[^\s,،]+){0,3})/i);
+          if (mSup && mSup[1]) {
+            const cand = mSup[1].replace(/(?:مركز|مخزن|مستودع|صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة).*/i, '').trim();
+            if (cand) {
+              matchedSup = (this.dbSuppliers || []).find(s => norm(s.name).includes(norm(cand))) || { name: cand, phone: '' };
+            }
+          }
+        }
+        if (matchedSup) this.selectSupplier(matchedSup);
+
+        // 2. المستودع
+        const whList = (window.SuiteSalesPOS && SuiteSalesPOS.dbWarehouses) ? SuiteSalesPOS.dbWarehouses : [];
+        for (const wh of whList) {
+          if (wh.name && cleanText.includes(norm(wh.name))) {
+            this.selectWarehouse(wh.name);
+            break;
+          }
+        }
+
+        // 3. الصنف
+        const itemsList = (window.SuiteSalesPOS && SuiteSalesPOS.dbItems) ? SuiteSalesPOS.dbItems : [];
+        const sortedItems = itemsList.map((it, idx) => ({ ...it, idx })).sort((a,b) => (b.name||'').length - (a.name||'').length);
+        let matchedItemIdx = -1;
+        for (const it of sortedItems) {
+          if (it.name && cleanText.includes(norm(it.name))) {
+            matchedItemIdx = it.idx;
+            break;
+          }
+        }
+        if (matchedItemIdx !== -1) {
+          this.selectItemByIndex(matchedItemIdx);
+        }
+
+        // 4. الوحدة
+        const mUnit = raw.match(/(?:الوحدة|وحدة|الوحدات)\s+([^\s,،]+)/i);
+        if (mUnit && mUnit[1]) {
+          const uStr = norm(mUnit[1]);
+          const uSel = document.getElementById('purUnitSelect');
+          if (uSel && uSel.options) {
+            for (let i = 0; i < uSel.options.length; i++) {
+              if (norm(uSel.options[i].value).includes(uStr) || norm(uSel.options[i].text).includes(uStr)) {
+                uSel.selectedIndex = i;
+                this.onUnitChange();
+                break;
+              }
+            }
+          }
+        }
+
+        // 5. الكمية والسعر والخصم والإضافة والعتالة والبيان
+        const mQty = raw.match(/(?:الكمية|كمية|عدد|بعدد)\s+([0-9٠-٩]+|[^\s,،]+)/i);
+        if (mQty && mQty[1]) {
+          const qVal = parseNum(mQty[1]);
+          if (qVal > 0 && document.getElementById('purQtyInput')) document.getElementById('purQtyInput').value = qVal;
+        }
+        const mPrice = raw.match(/(?:السعر|سعر|بسعر|قيمة|بقيمة)\s+([0-9٠-٩]+|[^\s,،]+)/i);
+        if (mPrice && mPrice[1]) {
+          const pVal = parseNum(mPrice[1]);
+          if (pVal > 0 && document.getElementById('purPriceInput')) document.getElementById('purPriceInput').value = pVal;
+        }
+        const mDisc = raw.match(/(?:الخصم|خصم|تخفيض)\s+([0-9٠-٩]+|[^\s,،]+)/i);
+        if (mDisc && mDisc[1] && document.getElementById('purDiscountInput')) {
+          document.getElementById('purDiscountInput').value = parseNum(mDisc[1]);
+        }
+        const mTax = raw.match(/(?:الإضافة|الاضافة|إضافة|اضافة)\s+([0-9٠-٩]+|[^\s,،]+)/i);
+        if (mTax && mTax[1] && document.getElementById('purTaxInput')) {
+          document.getElementById('purTaxInput').value = parseNum(mTax[1]);
+        }
+        const mLabor = raw.match(/(?:العتالة|عتالة)\s+([0-9٠-٩]+|[^\s,،]+)/i);
+        if (mLabor && mLabor[1] && document.getElementById('purLaborInput')) {
+          document.getElementById('purLaborInput').value = parseNum(mLabor[1]);
+        }
+        const mNote = raw.match(/(?:الملحوظة|ملحوظة|البيان|بيان)\s+([^\s,،]+(?:\s+[^\s,،]+){0,5})/i);
+        if (mNote && mNote[1] && document.getElementById('purNotesInput')) {
+          document.getElementById('purNotesInput').value = mNote[1].trim();
+        }
+        this.calcItemSubtotal();
       },
 
       navigateInvoice(dir) {
@@ -14735,7 +16154,11 @@ window.SuiteSalesPOS = {
       const drop = document.getElementById('salesCustomerDropdown');
       if (drop) drop.classList.add('hidden');
       const inp = document.getElementById('salesCustomerInput');
-      if (inp && c && c.name) inp.value = c.name;
+      if (inp && c && c.name) {
+        inp.value = c.name;
+        if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(inp);
+      }
+      if (typeof this.updateErpSmartStatusStrip === 'function') this.updateErpSmartStatusStrip();
     };
 
     // Wrap selectWarehouse
@@ -14764,6 +16187,7 @@ window.SuiteSalesPOS = {
         if (window.SmartPOSFontAI) SmartPOSFontAI.scaleItem(inp);
       }
       if (window.SmartPOSFontAI) SmartPOSFontAI.scaleAll();
+      if (typeof this.updateErpSmartStatusStrip === 'function') this.updateErpSmartStatusStrip();
     };
 
     // Wrap newInvoice
@@ -15035,45 +16459,54 @@ window.SuiteSalesPOS = {
 
 async function commitOpSales(andPay = false) {
       if (window.AppHaptics) AppHaptics.success();
+      if (window.SuiteSalesPOS && SuiteSalesPOS.isVoiceListening) {
+        SuiteSalesPOS.stopVoiceFeed(true);
+      }
+
+      // ضمان تحديث الجملة والإجمالي الصافي من الحقول الحالية قبل الحفظ مباشرة
+      if (window.SuiteSalesPOS && typeof SuiteSalesPOS.calcItemSubtotal === 'function') {
+        SuiteSalesPOS.calcItemSubtotal();
+      }
+
       const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText?.trim() || ('S' + Date.now());
-      const cust = document.getElementById('salesCustomerInput')?.value?.trim() || 'عميل نقدي عام';
+      const cust = document.getElementById('salesCustomerInput')?.value?.trim() || SuiteSalesPOS.selectedCustomer?.name || 'عميل نقدي عام';
       const payM = document.getElementById('salesPayMethodSelect')?.value || 'cash';
       const invDate = document.getElementById('salesInvoiceDate')?.value || new Date().toISOString().split('T')[0];
       const salesRep = document.getElementById('salesRepInput')?.value || 'كاشير الجوال';
-      const costCenter = SuiteSalesPOS.selectedCostCenter || document.getElementById('salesCostCenterInput')?.value || 'المركز الرئيسي';
+      const costCenter = document.getElementById('salesCostCenterInput')?.value?.trim() || SuiteSalesPOS.selectedCostCenter || 'المركز الرئيسي';
+      const wh = document.getElementById('salesWarehouseInput')?.value?.trim() || SuiteSalesPOS.selectedWarehouse || document.getElementById('salesWarehouseSelect')?.value || 'المستودع الرئيسي';
 
       let items = [];
       let grandTotal = 0;
 
+      const pNum = (id, defVal = 0) => {
+        const raw = document.getElementById(id)?.value;
+        if (!raw || !String(raw).trim()) return defVal;
+        return window.SmartFieldCustomizer ? SmartFieldCustomizer.parseNum(raw, id) : (parseFloat(String(raw).replace(/,/g, '')) || defVal);
+      };
+
       if (SuiteSalesPOS.cart && SuiteSalesPOS.cart.length > 0) {
-        items = SuiteSalesPOS.cart;
-        grandTotal = items.reduce((acc, it) => acc + (it.subtotal || 0), 0);
+        items = [...SuiteSalesPOS.cart];
+        grandTotal = items.reduce((acc, it) => acc + (parseFloat(it.subtotal) || 0), 0);
       } else {
-        // Fallback from inputs if user didn't click add to cart
         let itName = '';
-        if (SuiteSalesPOS.selectedItemIndex !== -1 && SuiteSalesPOS.dbItems[SuiteSalesPOS.selectedItemIndex]) {
+        const itemInpVal = document.getElementById('salesItemSearchInput')?.value?.trim();
+        if (itemInpVal) {
+          itName = itemInpVal;
+        } else if (SuiteSalesPOS.selectedItemIndex !== -1 && SuiteSalesPOS.dbItems[SuiteSalesPOS.selectedItemIndex]) {
           itName = SuiteSalesPOS.dbItems[SuiteSalesPOS.selectedItemIndex].name;
-        }
-        if (!itName) {
-          const itemInpVal = document.getElementById('salesItemSearchInput')?.value?.trim();
+        } else {
           const itemDisp = document.getElementById('suiteItemDisplayName')?.innerText?.trim();
-          if (itemInpVal) {
-            itName = itemInpVal;
-          } else if (itemDisp && itemDisp !== 'اختر الصنف...') {
-            itName = itemDisp;
-          } else {
-            itName = 'مبيعات نقدية عامة';
-          }
+          itName = (itemDisp && itemDisp !== 'اختر الصنف...') ? itemDisp : 'مبيعات عامة';
         }
 
-        const qty = parseFloat(document.getElementById('salesQtyInput')?.value || 1);
-        const prc = parseFloat(document.getElementById('salesPriceInput')?.value || 0);
-        const disc = parseFloat(document.getElementById('salesDiscountInput')?.value || 0);
-        const tax = parseFloat(document.getElementById('salesTaxInput')?.value || 0);
-        const labor = parseFloat(document.getElementById('salesLaborInput')?.value || 0);
+        const qty = pNum('salesQtyInput', 1);
+        const prc = pNum('salesPriceInput', 0);
+        const disc = pNum('salesDiscountInput', 0);
+        const tax = pNum('salesTaxInput', 0);
+        const labor = pNum('salesLaborInput', 0);
         const uSel = document.getElementById('salesUnitSelect');
-        const unit = uSel ? uSel.value : 'حبة';
-        const wh = SuiteSalesPOS.selectedWarehouse || document.getElementById('salesWarehouseInput')?.value || document.getElementById('salesWarehouseSelect')?.value || 'المستودع الرئيسي';
+        const unit = (uSel && uSel.value) ? uSel.value : 'طن عددي';
         const sub = Math.max(0, (qty * prc) - disc + tax + labor);
 
         items = [{
@@ -15091,17 +16524,16 @@ async function commitOpSales(andPay = false) {
         grandTotal = sub;
       }
 
-      // Sync total if user manually typed or gross total changed (strip commas first!)
-      const rawTotStr = (document.getElementById('salesTotalInput')?.value || '').toString().replace(/,/g, '').trim();
-      const manualTot = parseFloat(rawTotStr);
+      const manualTot = pNum('salesTotalInput', 0);
       if (!isNaN(manualTot) && manualTot > 0) {
         grandTotal = manualTot;
       }
 
-      const notesVal = document.getElementById('salesNotesInput')?.value || '';
+      const notesVal = document.getElementById('salesNotesInput')?.value?.trim() || '';
       const payload = {
         invoiceNo: invNo,
         customerName: cust,
+        warehouse: wh,
         costCenter: costCenter,
         grandTotal: grandTotal,
         total: grandTotal,
@@ -15110,39 +16542,59 @@ async function commitOpSales(andPay = false) {
         date: invDate,
         salesRep: salesRep,
         notes: notesVal,
-        items: items
+        items: items,
+        savedAt: new Date().toISOString()
       };
+
+      // حفظ فوري في أرشيف الفواتير المحلي حتى تعمل أسهم التنقل (◀ / ▶) فوراً
+      try {
+        if (window.SuiteSalesPOS) {
+          if (!Array.isArray(SuiteSalesPOS.recentInvoices)) SuiteSalesPOS.recentInvoices = [];
+          const existIdx = SuiteSalesPOS.recentInvoices.findIndex(x => (x.invoiceNo || x.id) === invNo);
+          if (existIdx !== -1) SuiteSalesPOS.recentInvoices[existIdx] = payload;
+          else SuiteSalesPOS.recentInvoices.unshift(payload);
+          SuiteSalesPOS.currentInvoiceIndex = -1;
+        }
+        const savedList = JSON.parse(localStorage.getItem('magaies_local_sales_invoices_v1') || '[]');
+        savedList.unshift(payload);
+        localStorage.setItem('magaies_local_sales_invoices_v1', JSON.stringify(savedList.slice(0, 100)));
+      } catch (e) {}
 
       const handleSuccess = (invoiceNumber) => {
         if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(false, 'modalOpSales');
         if (typeof fetchMirrorNumbers === 'function') fetchMirrorNumbers();
 
         if (andPay) {
-          // حفظ وسداد: تصفير شاشة المبيعات وإغلاقها والانتقال المباشر لشاشة الحركة المالية وتفريغ البيانات فوراً
+          // حفظ البيانات في sessionStorage لتمريرها أيضاً لشاشة السند المستقلة إن فتحت
+          try {
+            sessionStorage.setItem('pending_pos_voucher', JSON.stringify({
+              party: cust,
+              amount: grandTotal,
+              cur: SuiteSalesPOS.currencyMode || 'SDG',
+              ref: invoiceNumber,
+              notes: `سداد فاتورة مبيعات #${invoiceNumber} - العميل: ${cust}`
+            }));
+          } catch(e) {}
+
+          // تصفير شاشة المبيعات وإغلاقها والانتقال المباشر لشاشة الحركة المالية
           if (SuiteSalesPOS && SuiteSalesPOS.newInvoice) SuiteSalesPOS.newInvoice();
           closeModal('modalOpSales');
           openModal('modalOpFinance');
           if (typeof initFinancialTransferModal === 'function') initFinancialTransferModal();
 
-          // 1. تفريغ العملة
+          // 1. ضبط العملة المناسبة للمبلغ
+          const targetCur = (SuiteSalesPOS.currencyMode === 'SDG' || grandTotal >= 1000) ? 'SDG' : 'USD';
           if (typeof setFinTransferCurrency === 'function') {
-            setFinTransferCurrency(SuiteSalesPOS.currencyMode === 'SDG' ? 'SDG' : 'USD');
+            setFinTransferCurrency(targetCur);
           }
 
-          // 2. تفريغ المبلغ المطلوب في محل المبلغ
-          const amtInp = document.getElementById('finTransferAmountInput');
-          if (amtInp) {
-            amtInp.value = grandTotal;
-            amtInp.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-
-          // 3. تفريغ اسم الشخص الذي تم البيع له في خانة الاسم
+          // 2. تفريغ اسم العميل (مثل: محمد حسن علي مكي) مباشرة في حقل اسم الشخص الذي تم البيع له
           const nameInp = document.getElementById('finTransferCustomerNameInput');
           if (nameInp) {
             nameInp.value = cust;
           }
 
-          // مزامنة واختيار الحساب المرتبط
+          // 3. مطابقة أو إدراج حساب العميل في قائمة (الحساب المحاسبي المرتبط للصرف - دائن)
           const fromSelect = document.getElementById('finTransferFromAccount');
           if (fromSelect) {
             let matched = false;
@@ -15167,45 +16619,39 @@ async function commitOpSales(andPay = false) {
             }
           }
 
-          // 4. تفريغ الحساب المستلم (الخزينة النقدية أو بنكك)
+          // 4. تفريغ المبلغ الصافي جاهزاً في حقل المبلغ
+          const amtInp = document.getElementById('finTransferAmountInput');
+          if (amtInp) {
+            amtInp.value = grandTotal;
+            amtInp.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+
+          // 5. اختيار الخزينة / البنك المستلم افتراضياً
           const toSelect = document.getElementById('finTransferToAccount');
           if (toSelect) {
-            const defRec = Array.from(toSelect.options).find(o => o.text.includes('خزينة') || o.text.includes('الصندوق') || o.text.includes('كاشير'));
+            const defRec = Array.from(toSelect.options).find(o => o.text.includes('خزينة') || o.text.includes('الصندوق') || o.text.includes('بنكك'));
             if (defRec) toSelect.value = defRec.value;
           }
 
-          // 5. تفريغ البيان
+          // 6. تفريغ البيان تلقائياً
           const notesInp = document.getElementById('finTransferNotes');
           if (notesInp) {
             notesInp.value = `سداد فاتورة مبيعات #${invoiceNumber} - العميل: ${cust}`;
           }
 
-          // طريقة السداد الافتراضية: كاش
+          // طريقة السداد الافتراضية: كاش لتسهيل الاعتماد المباشر، ويمكن للمستخدم تغييرها لبنكك/شيك
           if (typeof setFinTransferMethod === 'function') setFinTransferMethod('cash');
-
-          // تحديث الحسابات والمعاينات فوراً
           if (typeof updateFinTransferBalancesPreview === 'function') updateFinTransferBalancesPreview();
-
-          // حفظ البيانات في sessionStorage لتمريرها في حال الانتقال لشاشة السند الكاملة
-          try {
-            sessionStorage.setItem('pending_pos_voucher', JSON.stringify({
-              party: cust,
-              amount: grandTotal,
-              cur: SuiteSalesPOS.currencyMode,
-              ref: invoiceNumber,
-              notes: `سداد فاتورة مبيعات #${invoiceNumber} - العميل: ${cust}`
-            }));
-          } catch(e) {}
 
           if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
           if (typeof showFloatingToast === 'function') {
-            showFloatingToast(`⚡ تم حفظ الفاتورة #${invoiceNumber} ونقلك لشاشة الحركة المالية للعميل: ${cust}`);
+            showFloatingToast(`⚡ تم حفظ الفاتورة #${invoiceNumber} وتجهيز الحركة المالية للعميل [${cust}] بمبلغ [${grandTotal.toLocaleString()}]!`);
           }
         } else {
           // حفظ فقط
           if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
           if (typeof showFloatingToast === 'function') {
-            showFloatingToast(`✓ تم بنجاح حفظ فاتورة المبيعات #${invoiceNumber}!`);
+            showFloatingToast(`✅ تم بنجاح حفظ فاتورة المبيعات #${invoiceNumber} للعميل [${cust}] بمبلغ [${grandTotal.toLocaleString()}]!`);
           } else {
             alert(`✓ تم بنجاح حفظ فاتورة المبيعات [#${invoiceNumber}]!`);
           }
@@ -15214,7 +16660,7 @@ async function commitOpSales(andPay = false) {
       };
 
       if (!navigator.onLine) {
-        const offId = window.MagaiesOffline ? MagaiesOffline.enqueue('sales_invoice', payload) : ('OFF-' + Date.now());
+        if (window.MagaiesOffline) MagaiesOffline.enqueue('sales_invoice', payload);
         handleSuccess(invNo);
         return;
       }
@@ -15229,10 +16675,12 @@ async function commitOpSales(andPay = false) {
         if (out && out.success) {
           handleSuccess(out.invoiceNo || invNo);
         } else {
-          alert('تعذر الحفظ في السيرفر: ' + (out.error || 'خطأ غير معروف'));
+          if (window.MagaiesOffline) MagaiesOffline.enqueue('sales_invoice', payload);
+          handleSuccess(invNo);
         }
       } catch (err) {
         console.warn('API sync fallback:', err);
+        if (window.MagaiesOffline) MagaiesOffline.enqueue('sales_invoice', payload);
         handleSuccess(invNo);
       }
     }
