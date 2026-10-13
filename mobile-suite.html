@@ -7140,16 +7140,16 @@
              style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
           
           <div class="grid grid-cols-12 gap-1.5 items-end relative">
-            <!-- 1. المستودع / المخزن: 5 أعمدة مع كتابة "المستودع" بخط صغير فوقه -->
+            <!-- 1. المستودع / المخزن: 5 أعمدة مع كتابة "المستودع" بنفس خط الصنف وإنقاص خط المستودع 3 درجات -->
             <div class="col-span-5 relative">
-              <label for="salesWarehouseInput" class="text-[10px] sm:text-[10.5px] font-bold text-purple-300 block mb-1 text-right">المستودع</label>
+              <label for="salesWarehouseInput" class="text-[11px] sm:text-xs font-bold text-purple-300 block mb-1 text-right">المستودع</label>
               <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative" 
                    style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.45);">
                 <input type="text" id="salesWarehouseInput" 
                        value="المستودع الرئيسي" 
                        placeholder="المستودع..." 
                        autocomplete="off" 
-                       class="w-full bg-transparent font-black text-sm sm:text-base text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
+                       class="w-full bg-transparent font-bold text-[10.5px] sm:text-xs text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
                        oninput="SuiteSalesPOS.onWarehouseInput(this.value)" 
                        onfocus="SuiteSalesPOS.onWarehouseFocus(this)" 
                        onclick="this.select()" />
@@ -7157,19 +7157,33 @@
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- 2. الملحوظة / البيان: 7 أعمدة مع كتابة "الملحوظة" بخط صغير، كتابة مباشرة وزر تكبير مستقل -->
+            <!-- 2. الملحوظة / البيان: 7 أعمدة مع كتابة "الملحوظة" بنفس خط الصنف، كتابة مباشرة ومربع تكبير مضمون للشاشة الخاصة -->
             <div class="col-span-7 relative">
-              <label for="salesNotesInput" class="text-[10px] sm:text-[10.5px] font-bold text-cyan-300 block mb-1 text-right">الملحوظة</label>
-              <div class="relative">
-                <input type="text" id="salesNotesInput" placeholder="اكتب الملحوظة والبيان هنا مباشرة..." 
-                       class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] pr-3 pl-10 font-bold text-sm sm:text-base text-white outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:text-xs sm:placeholder:text-sm text-right cursor-text rounded-xl" 
-                       style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" 
-                       title="اكتب الملحوظة مباشرة، أو اضغط زر التكبير على اليسار" />
-                <button type="button" onclick="event.stopPropagation(); SuiteSalesPOS.openNotesModal();" 
-                        class="absolute left-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-cyan-400 hover:text-white bg-slate-800/80 hover:bg-cyan-500/30 transition active:scale-95 cursor-pointer z-10" 
-                        title="تكبير واستعراض كامل الملحوظة">
-                  <i class="fa-solid fa-expand text-xs"></i>
+              <div class="flex items-center justify-between mb-1">
+                <label for="salesNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block text-right">الملحوظة</label>
+                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
+                        class="text-[10px] text-cyan-300 hover:text-cyan-100 flex items-center gap-1 font-bold bg-cyan-950/70 border border-cyan-500/40 px-1.5 py-0.5 rounded-md transition active:scale-95 cursor-pointer">
+                  <i class="fa-solid fa-expand text-[9px] pointer-events-none"></i> تكبير
                 </button>
+              </div>
+              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] px-1.5 flex items-center gap-1.5 transition rounded-xl relative" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45);">
+                <!-- المربع التكبير: واضح وكبير لفتح الشاشة الخاصة بكل ما يخص الملحوظة -->
+                <button type="button" id="btnZoomSalesNotes" 
+                        onclick="event.preventDefault(); event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
+                        ontouchend="event.preventDefault(); event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
+                        class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg flex items-center justify-center text-cyan-300 hover:text-white bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/50 shadow-md transition active:scale-90 cursor-pointer z-20" 
+                        title="المربع التكبير: فتح واستعراض شاشة الملحوظة الموسعة">
+                  <i class="fa-solid fa-expand text-sm pointer-events-none"></i>
+                </button>
+                <!-- حقل الملحوظة للكتابة المباشرة وإنقاص خط الملحوظة درجة واحدة -->
+                <input type="text" id="salesNotesInput" 
+                       placeholder="اكتب الملحوظة مباشرة..." 
+                       ondblclick="SuiteSalesPOS.openNotesModal('sales')" 
+                       autocomplete="off" 
+                       class="flex-1 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0" 
+                       style="color: #ffffff !important;" 
+                       title="اكتب الملحوظة مباشرة، أو اضغط مربع التكبير" />
               </div>
             </div>
 
@@ -7203,11 +7217,11 @@
               <input type="hidden" id="salesItemSelectVal" value="">
             </div>
 
-            <!-- 2. الوحدات: 4 أعمدة مع كتابة "الوحدات" فوق الوحدات -->
+            <!-- 2. الوحدات: 4 أعمدة مع تنقيص خط الوحدات درجتين -->
             <div class="col-span-4">
               <label for="salesUnitSelect" class="text-[11px] sm:text-xs font-bold text-emerald-400 block mb-1 text-right">الوحدات</label>
               <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[54px] sm:h-[62px] text-emerald-400 font-black text-center text-lg sm:text-xl outline-none cursor-pointer px-1 rounded-xl" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[54px] sm:h-[62px] text-emerald-400 font-bold text-center text-sm sm:text-base outline-none cursor-pointer px-1 rounded-xl" 
                       style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
                       title="الوحدات">
                 <option value="" disabled selected hidden>الوحدات</option>
@@ -7801,16 +7815,16 @@
         <div class="rounded-2xl p-2.5 border shadow-xl relative overflow-visible" 
              style="background: #0d0a04; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
           <div class="grid grid-cols-12 gap-1.5 items-end relative">
-            <!-- 1. المستودع / المخزن: 5 أعمدة مع كتابة "المستودع" بخط صغير فوقه -->
+            <!-- 1. المستودع / المخزن: 5 أعمدة مع كتابة "المستودع" بنفس خط الصنف وإنقاص خط المستودع 3 درجات -->
             <div class="col-span-5 relative">
-              <label for="purchaseWarehouseInput" class="text-[10px] sm:text-[10.5px] font-bold text-purple-300 block mb-1 text-right">المستودع</label>
+              <label for="purchaseWarehouseInput" class="text-[11px] sm:text-xs font-bold text-purple-300 block mb-1 text-right">المستودع</label>
               <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative" 
                    style="background: #0d0a04; border: 1.5px solid rgba(168, 85, 247, 0.45);">
                 <input type="text" id="purchaseWarehouseInput" 
                        value="المستودع الرئيسي" 
                        placeholder="المستودع..." 
                        autocomplete="off" 
-                       class="w-full bg-transparent font-black text-sm sm:text-base text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
+                       class="w-full bg-transparent font-bold text-[10.5px] sm:text-xs text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
                        oninput="SuitePurchasePOS.onWarehouseInput(this.value)" 
                        onfocus="SuitePurchasePOS.onWarehouseFocus(this)" 
                        onclick="this.select()" />
@@ -7818,19 +7832,33 @@
               <input type="hidden" id="purchaseWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- 2. الملحوظة / البيان: 7 أعمدة مع كتابة "الملحوظة" بخط صغير، كتابة مباشرة وزر تكبير مستقل -->
+            <!-- 2. الملحوظة / البيان: 7 أعمدة مع كتابة "الملحوظة" بنفس خط الصنف، كتابة مباشرة ومربع تكبير مضمون للشاشة الخاصة -->
             <div class="col-span-7 relative">
-              <label for="purNotesInput" class="text-[10px] sm:text-[10.5px] font-bold text-cyan-300 block mb-1 text-right">الملحوظة</label>
-              <div class="relative">
-                <input type="text" id="purNotesInput" placeholder="اكتب الملحوظة والبيان هنا مباشرة..." 
-                       class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] pr-3 pl-10 font-bold text-sm sm:text-base text-white outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:text-xs sm:placeholder:text-sm text-right cursor-text rounded-xl" 
-                       style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" 
-                       title="اكتب الملحوظة مباشرة، أو اضغط زر التكبير على اليسار" />
-                <button type="button" onclick="event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
-                        class="absolute left-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-lg flex items-center justify-center text-cyan-400 hover:text-white bg-slate-800/80 hover:bg-cyan-500/30 transition active:scale-95 cursor-pointer z-10" 
-                        title="تكبير واستعراض كامل الملحوظة">
-                  <i class="fa-solid fa-expand text-xs"></i>
+              <div class="flex items-center justify-between mb-1">
+                <label for="purNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block text-right">الملحوظة</label>
+                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
+                        class="text-[10px] text-cyan-300 hover:text-cyan-100 flex items-center gap-1 font-bold bg-cyan-950/70 border border-cyan-500/40 px-1.5 py-0.5 rounded-md transition active:scale-95 cursor-pointer">
+                  <i class="fa-solid fa-expand text-[9px] pointer-events-none"></i> تكبير
                 </button>
+              </div>
+              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] px-1.5 flex items-center gap-1.5 transition rounded-xl relative" 
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45);">
+                <!-- المربع التكبير: واضح وكبير لفتح الشاشة الخاصة بكل ما يخص الملحوظة -->
+                <button type="button" id="btnZoomPurNotes" 
+                        onclick="event.preventDefault(); event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
+                        ontouchend="event.preventDefault(); event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
+                        class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg flex items-center justify-center text-cyan-300 hover:text-white bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/50 shadow-md transition active:scale-90 cursor-pointer z-20" 
+                        title="المربع التكبير: فتح واستعراض شاشة الملحوظة الموسعة">
+                  <i class="fa-solid fa-expand text-sm pointer-events-none"></i>
+                </button>
+                <!-- حقل الملحوظة للكتابة المباشرة وإنقاص خط الملحوظة درجة واحدة -->
+                <input type="text" id="purNotesInput" 
+                       placeholder="اكتب الملحوظة مباشرة..." 
+                       ondblclick="SuitePurchasePOS.openNotesModal()" 
+                       autocomplete="off" 
+                       class="flex-1 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0" 
+                       style="color: #ffffff !important;" 
+                       title="اكتب الملحوظة مباشرة، أو اضغط مربع التكبير" />
               </div>
             </div>
 
@@ -7864,11 +7892,11 @@
               <input type="hidden" id="purItemSelectVal" value="">
             </div>
 
-            <!-- 2. الوحدات: 4 أعمدة مع كتابة "الوحدات" فوق الوحدات -->
+            <!-- 2. الوحدات: 4 أعمدة مع تنقيص خط الوحدات درجتين -->
             <div class="col-span-4">
               <label for="purUnitSelect" class="text-[11px] sm:text-xs font-bold text-emerald-400 block mb-1 text-right">الوحدات</label>
               <select id="purUnitSelect" onchange="SuitePurchasePOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[54px] sm:h-[62px] text-emerald-400 font-black text-center text-lg sm:text-xl outline-none cursor-pointer px-1 rounded-xl" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[54px] sm:h-[62px] text-emerald-400 font-bold text-center text-sm sm:text-base outline-none cursor-pointer px-1 rounded-xl" 
                       style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
                       title="الوحدات">
                 <option value="" disabled selected hidden>الوحدات</option>
@@ -8310,39 +8338,76 @@
       </div>
     </div>
 
-    <!-- 6. EXPANDED NOTES MODAL -->
-    <div id="suiteSalesNotesModal" class="hidden fixed inset-0 z-[160] modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/80 backdrop-blur-md">
-      <div class="glass-base w-full max-w-lg rounded-3xl border border-sky-400/50 p-4 space-y-3.5 shadow-2xl relative" style="background: linear-gradient(180deg, #0a0f1d, #030712); box-shadow: 0 0 40px rgba(56, 189, 248, 0.3);">
-        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-sky-500/20 border border-sky-400/40 text-sky-300">
-              <i class="fa-solid fa-pen-to-square text-sm"></i>
+    <!-- 6. DEDICATED EXPANDED NOTES SCREEN (شاشة خاصة متكاملة بها كل ما يخص الملحوظة) -->
+    <div id="suiteSalesNotesModal" class="hidden fixed inset-0 z-[170] modal-backdrop flex items-center justify-center p-3 sm:p-4 bg-slate-950/85 backdrop-blur-md">
+      <div class="glass-base w-full max-w-lg rounded-3xl border border-cyan-400/50 p-4 sm:p-5 space-y-3.5 shadow-2xl relative" style="background: linear-gradient(180deg, #070e1b, #020610); box-shadow: 0 0 50px rgba(6, 182, 212, 0.35);">
+        
+        <!-- رأس الشاشة الخاصة: عنوان وسياق الفاتورة والعميل/المورد -->
+        <div class="flex items-center justify-between pb-2.5 border-b border-slate-800">
+          <div class="flex items-center gap-2.5">
+            <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-cyan-500/20 border border-cyan-400/50 text-cyan-300 shadow-md">
+              <i class="fa-solid fa-note-sticky text-base"></i>
             </div>
             <div>
-              <h3 class="font-black text-sm text-white">بيان وملحوظة الفاتورة</h3>
-              <p class="text-[10.5px] text-slate-400">عرض وكتابة تفاصيل الملحوظة بخط كبير وواضح</p>
+              <div class="flex items-center gap-2">
+                <h3 class="font-black text-sm sm:text-base text-white">شاشة وبيان ملحوظة الفاتورة</h3>
+                <span id="suiteNotesContextBadge" class="text-[10px] px-2 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">مبيعات</span>
+              </div>
+              <p id="suiteNotesPartnerInfo" class="text-[10.5px] sm:text-xs text-slate-400 truncate max-w-[240px] sm:max-w-xs">العميل: عميل نقدي عام</p>
             </div>
           </div>
-          <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition active:scale-95 cursor-pointer">✕</button>
+          <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-rose-900/40 text-slate-300 hover:text-rose-300 flex items-center justify-center text-xs transition active:scale-95 cursor-pointer">✕</button>
         </div>
-        <div class="relative">
-          <textarea id="salesNotesExpandedTextarea" rows="5" 
+
+        <!-- شريط القوالب والعبارات السريعة الجاهزة (بنقرة واحدة تضيف للملحوظة) -->
+        <div class="space-y-1.5 bg-slate-900/80 p-2.5 rounded-2xl border border-slate-800/80">
+          <div class="flex items-center justify-between text-[11px] font-bold text-slate-300 px-0.5">
+            <span class="flex items-center gap-1.5 text-cyan-300"><i class="fa-solid fa-bolt text-amber-400"></i> ملاحظات وعبارات سريعة جاهزة:</span>
+            <button type="button" onclick="SuiteSalesPOS.insertTimestamp()" class="text-[10px] text-amber-300 hover:text-amber-200 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-lg transition active:scale-95 cursor-pointer">
+              <i class="fa-regular fa-clock"></i> + التاريخ والوقت
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto no-scrollbar pt-1">
+            <button type="button" onclick="SuiteSalesPOS.appendQuickNote('توصيل للعنوان')" class="px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 hover:text-cyan-200 border border-slate-700 hover:border-cyan-500/50 text-[10.5px] font-bold transition active:scale-95 cursor-pointer">🚚 توصيل للعنوان</button>
+            <button type="button" onclick="SuiteSalesPOS.appendQuickNote('شامل الضريبة والنقل')" class="px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 hover:text-cyan-200 border border-slate-700 hover:border-cyan-500/50 text-[10.5px] font-bold transition active:scale-95 cursor-pointer">📦 شامل الضريبة والنقل</button>
+            <button type="button" onclick="SuiteSalesPOS.appendQuickNote('دفع آجل - استحقاق 30 يوم')" class="px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 hover:text-cyan-200 border border-slate-700 hover:border-cyan-500/50 text-[10.5px] font-bold transition active:scale-95 cursor-pointer">⏳ دفع آجل</button>
+            <button type="button" onclick="SuiteSalesPOS.appendQuickNote('تم استلام البضاعة كاملة بحالة ممتازة')" class="px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 hover:text-cyan-200 border border-slate-700 hover:border-cyan-500/50 text-[10.5px] font-bold transition active:scale-95 cursor-pointer">✅ تم استلام البضاعة</button>
+            <button type="button" onclick="SuiteSalesPOS.appendQuickNote('تم استلام دفعة مقدمة والباقي لاحقاً')" class="px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 hover:text-cyan-200 border border-slate-700 hover:border-cyan-500/50 text-[10.5px] font-bold transition active:scale-95 cursor-pointer">💵 دفعة مقدمة</button>
+            <button type="button" onclick="SuiteSalesPOS.appendQuickNote('ضمان معتمد لمدة عام')" class="px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 hover:text-cyan-200 border border-slate-700 hover:border-cyan-500/50 text-[10.5px] font-bold transition active:scale-95 cursor-pointer">🛡️ ضمان معتمد</button>
+            <button type="button" onclick="SuiteSalesPOS.appendQuickNote('بضاعة برسم الأمانة')" class="px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 hover:text-cyan-200 border border-slate-700 hover:border-cyan-500/50 text-[10.5px] font-bold transition active:scale-95 cursor-pointer">🏷️ برسم الأمانة</button>
+            <button type="button" onclick="SuiteSalesPOS.appendQuickNote('خصم تجاري خاص متفق عليه')" class="px-2.5 py-1 rounded-xl bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 hover:text-cyan-200 border border-slate-700 hover:border-cyan-500/50 text-[10.5px] font-bold transition active:scale-95 cursor-pointer">🤝 خصم خاص</button>
+          </div>
+        </div>
+
+        <!-- مساحة كتابة الملحوظة الكبيرة الموسعة مع الإحصائيات -->
+        <div class="relative space-y-1">
+          <textarea id="salesNotesExpandedTextarea" rows="6" 
                     placeholder="اكتب هنا كل ما تريده في الملحوظة والبيان بالتفصيل..." 
-                    class="w-full p-3.5 rounded-2xl bg-slate-900/95 border border-sky-500/40 text-white font-bold text-base sm:text-lg outline-none resize-none shadow-inner placeholder:text-slate-500 focus:border-sky-400 focus:ring-2 focus:ring-sky-400/30 transition leading-relaxed"></textarea>
+                    oninput="SuiteSalesPOS.updateNotesStats()" 
+                    class="w-full p-3.5 rounded-2xl bg-slate-900/95 border border-cyan-500/40 text-white font-bold text-sm sm:text-base outline-none resize-none shadow-inner placeholder:text-slate-500 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/30 transition leading-relaxed"></textarea>
+          <div class="flex items-center justify-between text-[10px] text-slate-400 px-1 font-mono">
+            <div>عدد الحروف: <span id="notesCharCount" class="text-cyan-300 font-bold">0</span> | الكلمات: <span id="notesWordCount" class="text-cyan-300 font-bold">0</span></div>
+            <button type="button" onclick="SuiteSalesPOS.copyNotesToClipboard()" class="text-slate-400 hover:text-cyan-300 transition cursor-pointer flex items-center gap-1 font-sans">
+              <i class="fa-regular fa-copy"></i> <span id="notesCopyFeedback">نسخ النص</span>
+            </button>
+          </div>
         </div>
-        <div class="flex items-center justify-between gap-2 pt-1">
-          <button type="button" onclick="SuiteSalesPOS.clearNotesExpanded()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/30 text-rose-300 border border-slate-700 hover:border-rose-500/40 text-xs font-bold transition active:scale-95 cursor-pointer">
+
+        <!-- أزرار الإجراءات المتكاملة -->
+        <div class="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
+          <button type="button" onclick="SuiteSalesPOS.clearNotesExpanded()" class="px-3.5 py-2.5 rounded-xl bg-slate-800 hover:bg-rose-900/30 text-rose-300 border border-slate-700 hover:border-rose-500/40 text-xs font-bold transition active:scale-95 cursor-pointer">
             مسح 🗑️
           </button>
           <div class="flex items-center gap-2">
-            <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition active:scale-95 cursor-pointer">
+            <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition active:scale-95 cursor-pointer">
               إلغاء
             </button>
-            <button type="button" onclick="SuiteSalesPOS.saveNotesExpanded()" class="px-5 py-2 rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer" style="background: linear-gradient(135deg, #0284c7, #026597); box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4); border: 1px solid rgba(56, 189, 248, 0.5);">
-              <i class="fa-solid fa-check"></i> حفظ الملحوظة
+            <button type="button" onclick="SuiteSalesPOS.saveNotesExpanded()" class="px-5 py-2.5 rounded-xl font-black text-xs sm:text-sm text-white shadow-lg flex items-center justify-center gap-2 transition active:scale-95 cursor-pointer" style="background: linear-gradient(135deg, #0284c7, #0891b2); box-shadow: 0 4px 16px rgba(6, 182, 212, 0.45); border: 1px solid rgba(34, 211, 238, 0.6);">
+              <i class="fa-solid fa-check"></i> حفظ وتطبيق الملحوظة 💾
             </button>
           </div>
         </div>
+
       </div>
     </div>
 
@@ -11229,20 +11294,100 @@ window.SuiteSalesPOS = {
       },
 
       // ─────────────────────────────────────────────────────────────
-      // EXPANDED NOTES MODAL HANDLERS (لوحة الملحوظة الكبيرة)
+      // EXPANDED NOTES MODAL HANDLERS (الشاشة الخاصة بكل ما يخص الملحوظة)
       // ─────────────────────────────────────────────────────────────
-      openNotesModal() {
-        window._activeModalContext = 'sales';
+      openNotesModal(context = 'sales') {
+        window._activeModalContext = (context === 'purchase') ? 'purchase' : 'sales';
         const modal = document.getElementById('suiteSalesNotesModal');
-        const inp = document.getElementById('salesNotesInput');
+        const isPur = (window._activeModalContext === 'purchase');
+        const targetId = isPur ? 'purNotesInput' : 'salesNotesInput';
+        const inp = document.getElementById(targetId);
         const txt = document.getElementById('salesNotesExpandedTextarea');
+        
+        // ضبط شارة السياق واسم الشريك
+        const badge = document.getElementById('suiteNotesContextBadge');
+        if (badge) {
+          badge.innerText = isPur ? 'فاتورة مشتريات' : 'فاتورة مبيعات';
+          badge.className = isPur 
+            ? 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40'
+            : 'text-[10px] px-2 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40';
+        }
+        const partnerEl = document.getElementById('suiteNotesPartnerInfo');
+        if (partnerEl) {
+          if (isPur) {
+            const supp = document.getElementById('purchaseSupplierInput')?.value || 'مورد نقدي عام';
+            partnerEl.innerText = 'المورد: ' + supp;
+          } else {
+            const cust = document.getElementById('salesCustomerSearchInput')?.value || 'عميل نقدي عام';
+            partnerEl.innerText = 'العميل: ' + cust;
+          }
+        }
+
         if (txt && inp) {
           txt.value = inp.value || '';
         }
+        this.updateNotesStats();
         if (modal) {
           modal.classList.remove('hidden');
-          setTimeout(() => { if (txt) txt.focus(); }, 100);
+          setTimeout(() => { if (txt) txt.focus(); }, 120);
         }
+        if (window.triggerHapticPulse) triggerHapticPulse(10);
+      },
+
+      updateNotesStats() {
+        const txt = document.getElementById('salesNotesExpandedTextarea');
+        const charEl = document.getElementById('notesCharCount');
+        const wordEl = document.getElementById('notesWordCount');
+        if (!txt) return;
+        const val = txt.value || '';
+        if (charEl) charEl.innerText = val.length;
+        if (wordEl) {
+          const words = val.trim() ? val.trim().split(/\s+/).length : 0;
+          wordEl.innerText = words;
+        }
+      },
+
+      appendQuickNote(str) {
+        const txt = document.getElementById('salesNotesExpandedTextarea');
+        if (!txt) return;
+        const current = txt.value.trim();
+        if (!current) {
+          txt.value = str;
+        } else if (!current.includes(str)) {
+          txt.value = current + ' - ' + str;
+        }
+        this.updateNotesStats();
+        txt.focus();
+        if (window.triggerHapticPulse) triggerHapticPulse(8);
+      },
+
+      insertTimestamp() {
+        const now = new Date();
+        const stamp = '[' + now.toLocaleDateString('ar-EG') + ' ' + now.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'}) + ']';
+        const txt = document.getElementById('salesNotesExpandedTextarea');
+        if (!txt) return;
+        const current = txt.value.trim();
+        txt.value = current ? current + ' ' + stamp : stamp;
+        this.updateNotesStats();
+        txt.focus();
+        if (window.triggerHapticPulse) triggerHapticPulse(8);
+      },
+
+      copyNotesToClipboard() {
+        const txt = document.getElementById('salesNotesExpandedTextarea');
+        const feedback = document.getElementById('notesCopyFeedback');
+        if (!txt || !txt.value) return;
+        navigator.clipboard.writeText(txt.value).then(() => {
+          if (feedback) {
+            feedback.innerText = 'تم النسخ! ✓';
+            setTimeout(() => { feedback.innerText = 'نسخ النص'; }, 1500);
+          }
+        }).catch(() => {
+          if (feedback) {
+            feedback.innerText = 'فشل النسخ';
+            setTimeout(() => { feedback.innerText = 'نسخ النص'; }, 1500);
+          }
+        });
       },
 
       closeNotesModal() {
@@ -11252,7 +11397,8 @@ window.SuiteSalesPOS = {
 
       saveNotesExpanded() {
         const txt = document.getElementById('salesNotesExpandedTextarea');
-        const targetId = (window._activeModalContext === 'purchase') ? 'purNotesInput' : 'salesNotesInput';
+        const isPur = (window._activeModalContext === 'purchase');
+        const targetId = isPur ? 'purNotesInput' : 'salesNotesInput';
         const inp = document.getElementById(targetId);
         if (inp && txt) {
           inp.value = txt.value.trim();
@@ -11265,6 +11411,7 @@ window.SuiteSalesPOS = {
         const txt = document.getElementById('salesNotesExpandedTextarea');
         if (txt) {
           txt.value = '';
+          this.updateNotesStats();
           txt.focus();
         }
       },
@@ -13155,13 +13302,17 @@ window.SuiteSalesPOS = {
       },
 
       openNotesModal() {
-        window._activeModalContext = 'purchase';
-        const modal = document.getElementById('suiteSalesNotesModal');
-        if (modal) {
-          modal.classList.remove('hidden');
-          const ta = document.getElementById('salesNotesExpandedTextarea');
-          const inp = document.getElementById('purNotesInput');
-          if (ta) ta.value = inp ? inp.value : '';
+        if (window.SuiteSalesPOS && SuiteSalesPOS.openNotesModal) {
+          SuiteSalesPOS.openNotesModal('purchase');
+        } else {
+          window._activeModalContext = 'purchase';
+          const modal = document.getElementById('suiteSalesNotesModal');
+          if (modal) {
+            modal.classList.remove('hidden');
+            const ta = document.getElementById('salesNotesExpandedTextarea');
+            const inp = document.getElementById('purNotesInput');
+            if (ta) ta.value = inp ? inp.value : '';
+          }
         }
       },
 
