@@ -7139,7 +7139,7 @@
         <div class="rounded-2xl p-2.5 border shadow-xl relative overflow-visible" 
              style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
           
-          <div class="grid grid-cols-12 gap-1.5 items-center">
+          <div class="grid grid-cols-12 gap-1.5 items-center relative">
             <!-- 1. المستودع / المخزن: 5 أعمدة - بدون أيقونة وبدون كلمة وقائمة ذكية منسدلة عند الكتابة -->
             <div class="col-span-5 relative">
               <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative" 
@@ -7154,8 +7154,6 @@
                        onclick="this.select()" />
               </div>
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
-              <!-- قائمة منسدلة ذكية للمستودعات -->
-              <div id="salesWarehouseDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-purple-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-56 overflow-y-auto z-[300] text-xs"></div>
             </div>
 
             <!-- 2. الملحوظة / البيان: 7 أعمدة -->
@@ -7169,6 +7167,9 @@
                 <span class="absolute left-2.5 top-3.5 text-cyan-400/60 pointer-events-none text-sm"><i class="fa-solid fa-expand"></i></span>
               </div>
             </div>
+
+            <!-- قائمة منسدلة ذكية للمستودعات: بكامل عرض الشاشة لجميع الـ 12 عمود ممتدة فوق الملحوظة والمستودع معاً -->
+            <div id="salesWarehouseDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-purple-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
           </div>
         </div>
 
@@ -7179,7 +7180,7 @@
              style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
           <!-- السطر الأول: الصنف والوحدة (بدون أيقونة وبدون كلمة، وبحث ذكي منسدل عند الكتابة) -->
-          <div class="grid grid-cols-12 gap-1.5 items-center">
+          <div class="grid grid-cols-12 gap-1.5 items-center relative">
             <!-- 1. الصنف: 8 أعمدة -->
             <div class="col-span-8 relative">
               <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[54px] sm:h-[62px] px-3 flex items-center transition rounded-xl relative" 
@@ -7194,8 +7195,6 @@
                        onclick="this.select()" />
               </div>
               <input type="hidden" id="salesItemSelectVal" value="">
-              <!-- قائمة منسدلة ذكية جداً للأصناف -->
-              <div id="salesItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[72vh] overflow-y-auto z-[999] text-xs"></div>
             </div>
 
             <!-- 2. الوحدة: 4 أعمدة -->
@@ -7208,6 +7207,9 @@
                 <option value="حبة">حبة</option>
               </select>
             </div>
+
+            <!-- قائمة منسدلة ذكية جداً للأصناف: من أول الشاشة لآخر الشاشة بكامل عرض الـ 12 عمود -->
+            <div id="salesItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
           </div>
 
           <!-- السطر الثاني: الكمية والسعر -->
@@ -7791,7 +7793,7 @@
              ═══════════════════════════════════════════════════════════════ -->
         <div class="rounded-2xl p-2.5 border shadow-xl relative overflow-visible" 
              style="background: #0d0a04; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
-          <div class="grid grid-cols-12 gap-1.5 items-center">
+          <div class="grid grid-cols-12 gap-1.5 items-center relative">
             <!-- 1. المستودع / المخزن: 5 أعمدة -->
             <div class="col-span-5 relative">
               <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative" 
@@ -7806,7 +7808,6 @@
                        onclick="this.select()" />
               </div>
               <input type="hidden" id="purchaseWarehouseSelect" value="المستودع الرئيسي">
-              <div id="purchaseWarehouseDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-purple-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-56 overflow-y-auto z-[300] text-xs"></div>
             </div>
 
             <!-- 2. الملحوظة / البيان: 7 أعمدة -->
@@ -7820,6 +7821,9 @@
                 <span class="absolute left-2.5 top-3.5 text-cyan-400/60 pointer-events-none text-sm"><i class="fa-solid fa-expand"></i></span>
               </div>
             </div>
+
+            <!-- قائمة منسدلة ذكية للمستودعات: بكامل عرض الشاشة لجميع الـ 12 عمود ممتدة فوق الملحوظة والمستودع معاً -->
+            <div id="purchaseWarehouseDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-purple-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
           </div>
         </div>
 
@@ -7830,7 +7834,7 @@
              style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
           <!-- السطر الأول: الصنف والوحدة (بدون أيقونة وبدون كلمة، وبحث ذكي منسدل عند الكتابة) -->
-          <div class="grid grid-cols-12 gap-1.5 items-center">
+          <div class="grid grid-cols-12 gap-1.5 items-center relative">
             <!-- 1. الصنف: 8 أعمدة -->
             <div class="col-span-8 relative">
               <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[54px] sm:h-[62px] px-3 flex items-center transition rounded-xl relative" 
@@ -7845,7 +7849,6 @@
                        onclick="this.select()" />
               </div>
               <input type="hidden" id="purItemSelectVal" value="">
-              <div id="purItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[72vh] overflow-y-auto z-[999] text-xs"></div>
             </div>
 
             <!-- 2. الوحدة: 4 أعمدة -->
@@ -7858,6 +7861,9 @@
                 <option value="حبة">حبة</option>
               </select>
             </div>
+
+            <!-- قائمة منسدلة ذكية جداً للأصناف: من أول الشاشة لآخر الشاشة بكامل عرض الـ 12 عمود -->
+            <div id="purItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
           </div>
 
           <!-- السطر الثاني: الكمية والسعر -->
@@ -13710,9 +13716,9 @@ window.SuiteSalesPOS = {
           const safeName = (w.name || '').replace(/'/g, "\\'");
           html += `
             <div onclick="SuiteSalesPOS.selectWarehouse('${safeName}')" 
-                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99]">
-              <span class="font-bold text-white text-[11.5px] sm:text-xs whitespace-normal break-words leading-relaxed flex-1">${nameHl}</span>
-              <span class="text-[10px] text-purple-300 font-mono">${w.type || 'مستودع'}</span>
+                 class="py-2.5 px-3.5 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-slate-800/90 hover:border-purple-500/60 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-3 w-full shadow-sm">
+              <span class="font-bold text-purple-200 hover:text-white block text-[13px] sm:text-sm whitespace-normal break-words leading-relaxed flex-1 text-right">${nameHl}</span>
+              <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-950/80 text-purple-300 font-mono shrink-0 border border-purple-800/50">${w.type || 'مستودع'}</span>
             </div>`;
         });
         drop.innerHTML = html;
@@ -13768,14 +13774,14 @@ window.SuiteSalesPOS = {
 
           html += `
             <div onclick="SuiteSalesPOS.selectItemByIndex(${idx})" 
-                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-2">
+                 class="py-2.5 px-3.5 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-slate-800/90 hover:border-amber-500/60 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-3 w-full shadow-sm">
               <div class="min-w-0 flex-1">
-                <span class="font-bold text-slate-100 block text-[11.5px] sm:text-xs whitespace-normal break-words leading-relaxed">${nameHl}</span>
-                ${it.barcode ? `<span class="text-slate-400 text-[10px] font-mono block truncate">${it.barcode}</span>` : ''}
+                <span class="font-bold text-amber-200 hover:text-white block text-[13px] sm:text-sm whitespace-normal break-words leading-relaxed text-right">${nameHl}</span>
+                ${it.barcode ? `<span class="text-slate-400 text-[10.5px] font-mono block truncate mt-0.5 text-right">${it.barcode}</span>` : ''}
               </div>
-              <div class="text-left font-mono text-[11px] shrink-0">
-                <span class="text-emerald-400 font-black block">${prc.toLocaleString()} SDG</span>
-                <span class="text-amber-300 text-[10px] block">${unit}</span>
+              <div class="text-left font-mono shrink-0">
+                <span class="text-emerald-400 font-black block text-[13px] sm:text-sm">${prc.toLocaleString()} SDG</span>
+                <span class="text-amber-300 text-[10.5px] block font-bold">${unit}</span>
               </div>
             </div>`;
         });
@@ -13919,9 +13925,9 @@ window.SuiteSalesPOS = {
           const safeName = (w.name || '').replace(/'/g, "\\'");
           html += `
             <div onclick="SuitePurchasePOS.selectWarehouse('${safeName}')" 
-                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99]">
-              <span class="font-bold text-white text-[11.5px] sm:text-xs whitespace-normal break-words leading-relaxed flex-1">${nameHl}</span>
-              <span class="text-[10px] text-purple-300 font-mono">${w.type || 'مستودع'}</span>
+                 class="py-2.5 px-3.5 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-slate-800/90 hover:border-purple-500/60 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-3 w-full shadow-sm">
+              <span class="font-bold text-purple-200 hover:text-white block text-[13px] sm:text-sm whitespace-normal break-words leading-relaxed flex-1 text-right">${nameHl}</span>
+              <span class="text-[11px] px-2.5 py-0.5 rounded-full bg-purple-950/80 text-purple-300 font-mono shrink-0 border border-purple-800/50">${w.type || 'مستودع'}</span>
             </div>`;
         });
         drop.innerHTML = html;
@@ -13978,14 +13984,14 @@ window.SuiteSalesPOS = {
 
           html += `
             <div onclick="SuitePurchasePOS.selectItemByIndex(${idx})" 
-                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-2">
+                 class="py-2.5 px-3.5 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-slate-800/90 hover:border-amber-500/60 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-3 w-full shadow-sm">
               <div class="min-w-0 flex-1">
-                <span class="font-bold text-slate-100 block text-[11.5px] sm:text-xs whitespace-normal break-words leading-relaxed">${nameHl}</span>
-                ${it.barcode ? `<span class="text-slate-400 text-[10px] font-mono block truncate">${it.barcode}</span>` : ''}
+                <span class="font-bold text-amber-200 hover:text-white block text-[13px] sm:text-sm whitespace-normal break-words leading-relaxed text-right">${nameHl}</span>
+                ${it.barcode ? `<span class="text-slate-400 text-[10.5px] font-mono block truncate mt-0.5 text-right">${it.barcode}</span>` : ''}
               </div>
-              <div class="text-left font-mono text-[11px] shrink-0">
-                <span class="text-amber-400 font-black block">${prc.toLocaleString()} SDG</span>
-                <span class="text-slate-400 text-[10px] block">${unit}</span>
+              <div class="text-left font-mono shrink-0">
+                <span class="text-amber-400 font-black block text-[13px] sm:text-sm">${prc.toLocaleString()} SDG</span>
+                <span class="text-slate-400 text-[10.5px] block font-bold">${unit}</span>
               </div>
             </div>`;
         });
