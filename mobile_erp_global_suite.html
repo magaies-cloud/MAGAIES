@@ -7051,7 +7051,7 @@
             <div class="flex-1 min-w-0 px-3 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 sm:h-10 overflow-hidden" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);" 
                  onclick="SuiteSalesPOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز الكلفة">
-              <div id="suiteCostCenterDisplayName" class="font-black text-sm sm:text-base truncate text-purple-200 text-center w-full px-1">
+              <div id="suiteCostCenterDisplayName" class="font-black text-xs sm:text-sm truncate text-purple-200 text-center w-full px-1" style="font-size: 13px !important;">
                 <span>المركز الرئيسي</span>
               </div>
             </div>
@@ -7118,10 +7118,10 @@
 
               <!-- زر تبديل العملة ورمز الدولار مصغر 30% -->
               <button type="button" id="btnSalesCurrencyToggle" onclick="event.stopPropagation(); SuiteSalesPOS.toggleCurrency()" 
-                      class="w-4 h-4 rounded-md flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-85 select-none" 
-                      style="background: rgba(16, 185, 129, 0.5); border: 1px solid #34d399; box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);" 
+                      class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-85 select-none shadow-md" 
+                      style="background: #000000 !important; border: 1.5px solid #22c55e !important; box-shadow: 0 0 8px rgba(34, 197, 94, 0.8) !important;" 
                       title="العملة: دولار ($) - انقر للتحويل إلى جنيه (ج.س)">
-                <span id="salesCurrencySymbol" class="text-[9px] font-black leading-none pointer-events-none" style="color: #34d399 !important;">$</span>
+                <span id="salesCurrencySymbol" class="text-xs font-black leading-none pointer-events-none" style="color: #22c55e !important; font-size: 13px !important; font-weight: 900 !important; text-shadow: 0 0 4px #22c55e;">$</span>
               </button>
             </div>
 
@@ -7217,37 +7217,19 @@
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- 2. الملحوظة / البيان: محتواها محصور 100% داخل المستطيل دون خروج ومربع تكبير يفتح الشاشة المربعة -->
+            <!-- 2. البيان في المبيعات: تم حذف كلمة ملحوظة ومربع التكبير -->
             <div class="col-span-7 relative">
-              <label for="salesNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 flex items-center justify-between mb-1 text-right">
-                <span class="flex items-center gap-1">
-                  <i class="fa-solid fa-note-sticky text-cyan-400 text-xs"></i>
-                  <span>الملحوظة</span>
-                </span>
-                <button type="button" onclick="SuiteSalesPOS.openNotesModal('sales'); return false;" 
-                        class="text-[10px] sm:text-[11px] text-cyan-200 hover:text-white cursor-pointer font-bold flex items-center gap-1 bg-gradient-to-r from-cyan-900/90 to-sky-900/90 hover:from-cyan-800 hover:to-sky-800 px-2 py-0.5 rounded-lg border border-cyan-400/60 shadow-sm active:scale-95 transition" 
-                        title="تكبير المربع: فتح مربع كبير لعرض كامل الكتابة دون أي اختفاء">
-                  <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px] text-cyan-300"></i> تكبير المربع
-                </button>
+              <label for="salesNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block mb-1 text-right">
+                <i class="fa-solid fa-pen text-cyan-400 text-xs"></i> البيان
               </label>
-              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[58px] px-1.5 flex items-center gap-2 transition rounded-xl relative overflow-hidden" 
+              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] px-2.5 flex items-center transition rounded-xl relative overflow-hidden" 
                    style="background: rgba(15, 23, 42, 0.95); border: 1.5px solid rgba(56, 189, 248, 0.55); max-width: 100%; box-sizing: border-box;">
-                <!-- المربع التكبير: زر ورمز واضح جداً لفتح المربع الكبير وعرض كامل الكتابة دون اختفاء -->
-                <button type="button" id="btnZoomSalesNotes" 
-                        onclick="SuiteSalesPOS.openNotesModal('sales'); return false;" 
-                        class="w-10 h-10 shrink-0 flex-shrink-0 rounded-xl flex items-center justify-center text-cyan-200 hover:text-white bg-gradient-to-br from-cyan-600/40 to-sky-600/40 hover:from-cyan-500/60 hover:to-sky-500/60 border border-cyan-400/70 shadow-md transition active:scale-90 cursor-pointer z-20" 
-                        title="مربع التكبير: فتح المربع الكبير واستعراض كامل نص الملحوظة دون أي اختفاء">
-                  <i class="fa-solid fa-expand text-base pointer-events-none text-cyan-300"></i>
-                </button>
-                <!-- حقل الملحوظة: مساحة كتابة آمنة، النص واضح، وعند النقر يفتح المربع الكبير -->
                 <input type="text" id="salesNotesInput" 
-                       placeholder="اكتب الملحوظة (أو اضغط زر التكبير)..." 
-                       onclick="if(this.value && this.value.length > 20) SuiteSalesPOS.openNotesModal('sales');" 
-                       ondblclick="SuiteSalesPOS.openNotesModal('sales')" 
+                       placeholder="بيان الفاتورة / ملاحظات..." 
                        autocomplete="off" 
-                       class="flex-1 min-w-0 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-medium placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0 truncate" 
+                       class="w-full bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-medium text-right cursor-text border-none p-0 m-0 truncate" 
                        style="color: #ffffff !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; width: 0; flex: 1 1 0%; box-sizing: border-box;" 
-                       title="اكتب الملحوظة هنا أو اضغط زر التكبير لفتح المربع الكبير" />
+                       title="البيان" />
               </div>
             </div>
 
@@ -7310,11 +7292,11 @@
                 <i class="fa-solid fa-boxes-stacked text-[11px]"></i> الكمية:
               </label>
               <div class="relative rounded-xl flex items-center justify-center pos-field-interactive pos-field-qty" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15); height: 58px;">
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15); height: 64px;">
                 <input type="number" id="salesQtyInput" placeholder="الكمية" min="0.01" step="any" 
                        oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleQty(this);" 
                        class="w-full h-full font-black font-mono text-center text-white outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px; font-size: 36px !important; font-weight: 900 !important; line-height: 1 !important;" 
+                       style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px; font-size: 39px !important; font-weight: 900 !important; line-height: 1 !important;" 
                        inputmode="decimal" title="الكمية" />
               </div>
             </div>
@@ -7325,11 +7307,11 @@
                 <i class="fa-solid fa-tag text-[11px]"></i> السعر:
               </label>
               <div class="relative rounded-xl flex items-center justify-center pos-field-interactive pos-field-price" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15); height: 58px;">
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15); height: 64px;">
                 <input type="number" id="salesPriceInput" placeholder="السعر" step="any" 
                        oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scalePrice(this);" 
                        class="w-full h-full font-black font-mono text-center text-cyan-300 outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px; font-size: 29px !important; font-weight: 900 !important; line-height: 1 !important;" 
+                       style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px; font-size: 32px !important; font-weight: 900 !important; line-height: 1 !important;" 
                        inputmode="decimal" title="السعر" />
               </div>
             </div>
@@ -7340,11 +7322,11 @@
             <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
               <i class="fa-solid fa-calculator text-[11px]"></i> الجملة:
             </label>
-            <div class="w-full h-[64px] sm:h-[72px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
+            <div class="w-full h-[72px] sm:h-[80px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
                  style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
               <input type="text" id="salesItemGrossTotal" readonly placeholder="الجملة" 
                      class="w-full h-full text-center font-black font-mono text-emerald-300 outline-none select-none bg-transparent border-none placeholder:text-emerald-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
-                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 38px !important; letter-spacing: 0.5px !important;" 
+                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 43px !important; letter-spacing: 0.5px !important;" 
                      title="الجملة" />
             </div>
           </div>
@@ -7408,11 +7390,11 @@
             <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1">
               <i class="fa-solid fa-coins text-[11px]"></i> الإجمالي الصافي المطلوب:
             </label>
-            <div class="w-full h-[64px] sm:h-[72px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
+            <div class="w-full h-[72px] sm:h-[80px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
                  style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);">
               <input type="text" id="salesTotalInput" readonly placeholder="الإجمالي" 
                      class="w-full h-full text-center font-black font-mono text-amber-300 outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
-                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 38px !important; letter-spacing: 0.5px !important;" 
+                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 43px !important; letter-spacing: 0.5px !important;" 
                      title="الإجمالي الصافي المطلوب" />
             </div>
           </div>
@@ -7774,7 +7756,7 @@
             <div class="flex-1 min-w-0 px-3 py-1.5 rounded-xl flex items-center justify-center cursor-pointer transition active:scale-[0.99] h-9 sm:h-10 overflow-hidden" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(168, 85, 247, 0.55); box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);" 
                  onclick="SuitePurchasePOS.openCostCenterSearch()" title="اضغط لاختيار أو بحث مركز الكلفة">
-              <div id="purCostCenterDisplayName" class="font-black text-sm sm:text-base truncate text-purple-200 text-center w-full px-1">
+              <div id="purCostCenterDisplayName" class="font-black text-xs sm:text-sm truncate text-purple-200 text-center w-full px-1" style="font-size: 13px !important;">
                 <span>المركز الرئيسي</span>
               </div>
             </div>
@@ -7835,10 +7817,10 @@
 
               <!-- زر تبديل العملة ورمز الدولار مصغر 30% -->
               <button type="button" id="btnPurCurrencyToggle" onclick="event.stopPropagation(); SuitePurchasePOS.toggleCurrency()" 
-                      class="w-4 h-4 rounded-md flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-85 select-none" 
-                      style="background: rgba(16, 185, 129, 0.5); border: 1px solid #34d399; box-shadow: 0 0 6px rgba(52, 211, 153, 0.6);" 
+                      class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 cursor-pointer transition-all duration-200 active:scale-85 select-none shadow-md" 
+                      style="background: #000000 !important; border: 1.5px solid #22c55e !important; box-shadow: 0 0 8px rgba(34, 197, 94, 0.8) !important;" 
                       title="العملة: دولار ($) - انقر للتحويل إلى جنيه">
-                <span id="purCurrencySymbol" class="text-[9px] font-black leading-none pointer-events-none" style="color: #34d399 !important;">$</span>
+                <span id="purCurrencySymbol" class="text-xs font-black leading-none pointer-events-none" style="color: #22c55e !important; font-size: 13px !important; font-weight: 900 !important; text-shadow: 0 0 4px #22c55e;">$</span>
               </button>
             </div>
           </div>
@@ -7903,37 +7885,19 @@
               <input type="hidden" id="purchaseWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- 2. الملحوظة / البيان في المشتريات: محصورة 100% داخل المستطيل دون خروج -->
+            <!-- 2. البيان في المشتريات: تم حذف كلمة ملحوظة ومربع التكبير -->
             <div class="col-span-7 relative">
-              <label for="purNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 flex items-center justify-between mb-1 text-right">
-                <span class="flex items-center gap-1">
-                  <i class="fa-solid fa-note-sticky text-cyan-400 text-xs"></i>
-                  <span>الملحوظة</span>
-                </span>
-                <button type="button" onclick="SuitePurchasePOS.openNotesModal(); return false;" 
-                        class="text-[10px] sm:text-[11px] text-cyan-200 hover:text-white cursor-pointer font-bold flex items-center gap-1 bg-gradient-to-r from-cyan-900/90 to-sky-900/90 hover:from-cyan-800 hover:to-sky-800 px-2 py-0.5 rounded-lg border border-cyan-400/60 shadow-sm active:scale-95 transition" 
-                        title="تكبير المربع: فتح مربع كبير لعرض كامل الكتابة دون أي اختفاء">
-                  <i class="fa-solid fa-up-right-and-down-left-from-center text-[10px] text-cyan-300"></i> تكبير المربع
-                </button>
+              <label for="purNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block mb-1 text-right">
+                <i class="fa-solid fa-pen text-cyan-400 text-xs"></i> البيان
               </label>
-              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[58px] px-1.5 flex items-center gap-2 transition rounded-xl relative overflow-hidden" 
+              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] px-2.5 flex items-center transition rounded-xl relative overflow-hidden" 
                    style="background: rgba(15, 23, 42, 0.95); border: 1.5px solid rgba(56, 189, 248, 0.55); max-width: 100%; box-sizing: border-box;">
-                <!-- المربع التكبير: زر ورمز واضح جداً لفتح المربع الكبير وعرض كامل الكتابة دون اختفاء -->
-                <button type="button" id="btnZoomPurNotes" 
-                        onclick="SuitePurchasePOS.openNotesModal(); return false;" 
-                        class="w-10 h-10 shrink-0 flex-shrink-0 rounded-xl flex items-center justify-center text-cyan-200 hover:text-white bg-gradient-to-br from-cyan-600/40 to-sky-600/40 hover:from-cyan-500/60 hover:to-sky-500/60 border border-cyan-400/70 shadow-md transition active:scale-90 cursor-pointer z-20" 
-                        title="مربع التكبير: فتح المربع الكبير واستعراض كامل نص الملحوظة دون أي اختفاء">
-                  <i class="fa-solid fa-expand text-base pointer-events-none text-cyan-300"></i>
-                </button>
-                <!-- حقل الملحوظة: مساحة كتابة آمنة، النص واضح، وعند النقر يفتح المربع الكبير -->
                 <input type="text" id="purNotesInput" 
-                       placeholder="اكتب الملحوظة (أو اضغط زر التكبير)..." 
-                       onclick="if(this.value && this.value.length > 20) SuitePurchasePOS.openNotesModal();" 
-                       ondblclick="SuitePurchasePOS.openNotesModal()" 
+                       placeholder="بيان الفاتورة / ملاحظات..." 
                        autocomplete="off" 
-                       class="flex-1 min-w-0 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-medium placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0 truncate" 
+                       class="w-full bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-medium text-right cursor-text border-none p-0 m-0 truncate" 
                        style="color: #ffffff !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; width: 0; flex: 1 1 0%; box-sizing: border-box;" 
-                       title="اكتب الملحوظة هنا أو اضغط زر التكبير لفتح المربع الكبير" />
+                       title="البيان" />
               </div>
             </div>
 
@@ -7992,11 +7956,11 @@
                 <i class="fa-solid fa-boxes-stacked text-[11px]"></i> الكمية:
               </label>
               <div class="relative rounded-xl flex items-center justify-center pos-field-interactive pos-field-qty" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15); height: 58px;">
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15); height: 64px;">
                 <input type="number" id="purQtyInput" placeholder="الكمية" min="0.01" step="any" 
                        oninput="SuitePurchasePOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleQty(this);" 
                        class="w-full h-full font-black font-mono text-center text-white outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px; font-size: 36px !important; font-weight: 900 !important; line-height: 1 !important;" 
+                       style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px; font-size: 39px !important; font-weight: 900 !important; line-height: 1 !important;" 
                        inputmode="decimal" title="الكمية" />
               </div>
             </div>
@@ -8006,11 +7970,11 @@
                 <i class="fa-solid fa-tag text-[11px]"></i> السعر:
               </label>
               <div class="relative rounded-xl flex items-center justify-center pos-field-interactive pos-field-price" 
-                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15); height: 58px;">
+                   style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15); height: 64px;">
                 <input type="number" id="purPriceInput" placeholder="السعر" step="any" 
                        oninput="SuitePurchasePOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scalePrice(this);" 
                        class="w-full h-full font-black font-mono text-center text-cyan-300 outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px; font-size: 29px !important; font-weight: 900 !important; line-height: 1 !important;" 
+                       style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px; font-size: 32px !important; font-weight: 900 !important; line-height: 1 !important;" 
                        inputmode="decimal" title="السعر" />
               </div>
             </div>
@@ -8021,11 +7985,11 @@
             <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
               <i class="fa-solid fa-calculator text-[11px]"></i> الجملة:
             </label>
-            <div class="w-full h-[64px] sm:h-[72px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
+            <div class="w-full h-[72px] sm:h-[80px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross" 
                  style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.6); box-shadow: 0 0 12px rgba(16, 185, 129, 0.2);">
               <input type="text" id="purItemGrossTotal" readonly placeholder="الجملة" 
                      class="w-full h-full text-center font-black font-mono text-emerald-300 outline-none select-none bg-transparent border-none placeholder:text-emerald-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
-                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 38px !important; letter-spacing: 0.5px !important;" 
+                     style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 43px !important; letter-spacing: 0.5px !important;" 
                      title="الجملة" />
             </div>
           </div>
@@ -8089,11 +8053,11 @@
             <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1">
               <i class="fa-solid fa-coins text-[11px]"></i> الإجمالي الصافي المطلوب:
             </label>
-            <div class="w-full h-[64px] sm:h-[72px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
+            <div class="w-full h-[72px] sm:h-[80px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total" 
                  style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.35), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.6); box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);">
               <input type="text" id="purTotalInput" readonly placeholder="الإجمالي" 
                      class="w-full h-full text-center font-black font-mono text-amber-300 outline-none select-none bg-transparent border-none placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-default" 
-                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 38px !important; letter-spacing: 0.5px !important;" 
+                     style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 43px !important; letter-spacing: 0.5px !important;" 
                      title="الإجمالي الصافي المطلوب" />
             </div>
           </div>
@@ -11235,11 +11199,11 @@
         if (!input) return;
         const raw = (input.value || '').toString().trim();
         const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '38px'; // تكبير الخطوط والخط بلوط عريض
-        if (len >= 8) size = '22px';
-        else if (len === 7) size = '26px';
-        else if (len === 6) size = '30px';
-        else size = '38px';
+        let size = '41px'; // تكبير الخطوط والخط بلوط عريض (+3 درجات)
+        if (len >= 8) size = '25px';
+        else if (len === 7) size = '29px';
+        else if (len === 6) size = '33px';
+        else size = '41px';
         input.style.fontSize = size;
         input.style.fontWeight = '900';
       },
@@ -11248,12 +11212,12 @@
         if (!input) return;
         const raw = (input.value || '').toString().trim();
         const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '34px'; // تكبير السعر ليكون بارزاً وفخماً
-        if (len >= 11) size = '20px';
-        else if (len >= 10) size = '24px';
-        else if (len >= 9) size = '28px';
-        else if (len >= 8) size = '31px';
-        else size = '34px';
+        let size = '37px'; // تكبير السعر ليكون بارزاً وفخماً (+3 درجات)
+        if (len >= 11) size = '23px';
+        else if (len >= 10) size = '27px';
+        else if (len >= 9) size = '31px';
+        else if (len >= 8) size = '34px';
+        else size = '37px';
         input.style.fontSize = size;
         input.style.fontWeight = '900';
       },
@@ -11262,12 +11226,12 @@
         if (!input) return;
         const raw = (input.value || '').toString().trim();
         const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '38px'; // حجم خط الجملة مساوٍ تماماً للإجمالي الصافي ومكبّر
-        if (len >= 13) size = '22px';
-        else if (len >= 11) size = '26px';
-        else if (len >= 9) size = '30px';
-        else if (len >= 7) size = '34px';
-        else size = '38px';
+        let size = '43px'; // حجم خط الجملة مساوٍ تماماً للإجمالي الصافي ومكبّر (+5 درجات)
+        if (len >= 13) size = '27px';
+        else if (len >= 11) size = '31px';
+        else if (len >= 9) size = '35px';
+        else if (len >= 7) size = '39px';
+        else size = '43px';
         input.style.fontSize = size;
         input.style.fontWeight = '900';
       },
@@ -11276,12 +11240,12 @@
         if (!input) return;
         const raw = (input.value || '').toString().trim();
         const len = raw.replace(/[^0-9]/g, '').length;
-        let size = '38px'; // مساوٍ تماماً لحجم خط الجملة في كل درجات القياس
-        if (len >= 13) size = '22px';
-        else if (len >= 11) size = '26px';
-        else if (len >= 9) size = '30px';
-        else if (len >= 7) size = '34px';
-        else size = '38px';
+        let size = '43px'; // مساوٍ تماماً لحجم خط الجملة في كل درجات القياس (+5 درجات)
+        if (len >= 13) size = '27px';
+        else if (len >= 11) size = '31px';
+        else if (len >= 9) size = '35px';
+        else if (len >= 7) size = '39px';
+        else size = '43px';
         input.style.fontSize = size;
         input.style.fontWeight = '900';
       },
@@ -11442,27 +11406,33 @@ window.SuiteSalesPOS = {
 
         if (this.currencyMode === 'SDG') {
           sym.innerText = 'ج.س';
-          sym.style.color = '#fcd34d';
-          sym.className = 'text-amber-300 text-[7px] font-black leading-none pointer-events-none';
-          btn.style.setProperty('background', 'rgba(245, 158, 11, 0.5)', 'important');
-          btn.style.setProperty('border', '1.5px solid #fbbf24', 'important');
-          btn.style.setProperty('box-shadow', '0 0 8px rgba(251, 191, 36, 0.7)', 'important');
+          sym.style.setProperty('color', '#fbbf24', 'important');
+          sym.style.setProperty('font-size', '10px', 'important');
+          sym.style.setProperty('font-weight', '900', 'important');
+          sym.style.setProperty('text-shadow', '0 0 4px #fbbf24', 'important');
+          sym.className = 'text-amber-300 text-[10px] font-black leading-none pointer-events-none';
+          btn.style.setProperty('background', '#000000', 'important');
+          btn.style.setProperty('border', '1.5px solid #f59e0b', 'important');
+          btn.style.setProperty('box-shadow', '0 0 8px rgba(245, 158, 11, 0.8)', 'important');
           btn.title = 'العملة: جنيه سوداني (ج.س) - انقر للتحويل إلى دولار ($)';
           if (rateBox) {
-            rateBox.style.setProperty('background', 'linear-gradient(135deg, #78350f, #451a03)', 'important');
+            rateBox.style.setProperty('background', 'linear-gradient(135deg, #451a03, #09090b)', 'important');
             rateBox.style.setProperty('border', '2px solid #f59e0b', 'important');
             rateBox.style.setProperty('box-shadow', '0 0 14px rgba(245, 158, 11, 0.65), inset 0 0 8px rgba(245, 158, 11, 0.35)', 'important');
           }
         } else {
           sym.innerText = '$';
-          sym.style.color = '#34d399';
-          sym.className = 'text-emerald-300 text-[9px] font-black leading-none pointer-events-none';
-          btn.style.setProperty('background', 'rgba(16, 185, 129, 0.5)', 'important');
-          btn.style.setProperty('border', '1.5px solid #34d399', 'important');
-          btn.style.setProperty('box-shadow', '0 0 8px rgba(52, 211, 153, 0.7)', 'important');
+          sym.style.setProperty('color', '#22c55e', 'important');
+          sym.style.setProperty('font-size', '13px', 'important');
+          sym.style.setProperty('font-weight', '900', 'important');
+          sym.style.setProperty('text-shadow', '0 0 4px #22c55e', 'important');
+          sym.className = 'text-emerald-400 text-xs font-black leading-none pointer-events-none';
+          btn.style.setProperty('background', '#000000', 'important');
+          btn.style.setProperty('border', '1.5px solid #22c55e', 'important');
+          btn.style.setProperty('box-shadow', '0 0 8px rgba(34, 197, 94, 0.8)', 'important');
           btn.title = 'العملة: دولار ($) - انقر للتحويل إلى جنيه (ج.س)';
           if (rateBox) {
-            rateBox.style.setProperty('background', 'linear-gradient(135deg, #064e3b, #042f2e)', 'important');
+            rateBox.style.setProperty('background', 'linear-gradient(135deg, #022c22, #09090b)', 'important');
             rateBox.style.setProperty('border', '2px solid #10b981', 'important');
             rateBox.style.setProperty('box-shadow', '0 0 14px rgba(16, 185, 129, 0.65), inset 0 0 8px rgba(16, 185, 129, 0.35)', 'important');
           }
@@ -13459,25 +13429,33 @@ window.SuiteSalesPOS = {
 
         if (this.currencyMode === 'SDG') {
           sym.innerText = 'ج.س';
-          sym.style.color = '#fcd34d';
-          sym.className = 'text-amber-300 text-[7px] font-black leading-none pointer-events-none';
-          btn.style.setProperty('background', 'rgba(245, 158, 11, 0.5)', 'important');
-          btn.style.setProperty('border', '1.5px solid #fbbf24', 'important');
-          btn.style.setProperty('box-shadow', '0 0 8px rgba(251, 191, 36, 0.7)', 'important');
+          sym.style.setProperty('color', '#fbbf24', 'important');
+          sym.style.setProperty('font-size', '10px', 'important');
+          sym.style.setProperty('font-weight', '900', 'important');
+          sym.style.setProperty('text-shadow', '0 0 4px #fbbf24', 'important');
+          sym.className = 'text-amber-300 text-[10px] font-black leading-none pointer-events-none';
+          btn.style.setProperty('background', '#000000', 'important');
+          btn.style.setProperty('border', '1.5px solid #f59e0b', 'important');
+          btn.style.setProperty('box-shadow', '0 0 8px rgba(245, 158, 11, 0.8)', 'important');
+          btn.title = 'العملة: جنيه سوداني (ج.س) - انقر للتحويل إلى دولار ($)';
           if (rateBox) {
-            rateBox.style.setProperty('background', 'linear-gradient(135deg, #78350f, #451a03)', 'important');
+            rateBox.style.setProperty('background', 'linear-gradient(135deg, #451a03, #09090b)', 'important');
             rateBox.style.setProperty('border', '2px solid #f59e0b', 'important');
             rateBox.style.setProperty('box-shadow', '0 0 14px rgba(245, 158, 11, 0.65), inset 0 0 8px rgba(245, 158, 11, 0.35)', 'important');
           }
         } else {
           sym.innerText = '$';
-          sym.style.color = '#34d399';
-          sym.className = 'text-emerald-300 text-[9px] font-black leading-none pointer-events-none';
-          btn.style.setProperty('background', 'rgba(16, 185, 129, 0.5)', 'important');
-          btn.style.setProperty('border', '1.5px solid #34d399', 'important');
-          btn.style.setProperty('box-shadow', '0 0 8px rgba(52, 211, 153, 0.7)', 'important');
+          sym.style.setProperty('color', '#22c55e', 'important');
+          sym.style.setProperty('font-size', '13px', 'important');
+          sym.style.setProperty('font-weight', '900', 'important');
+          sym.style.setProperty('text-shadow', '0 0 4px #22c55e', 'important');
+          sym.className = 'text-emerald-400 text-xs font-black leading-none pointer-events-none';
+          btn.style.setProperty('background', '#000000', 'important');
+          btn.style.setProperty('border', '1.5px solid #22c55e', 'important');
+          btn.style.setProperty('box-shadow', '0 0 8px rgba(34, 197, 94, 0.8)', 'important');
+          btn.title = 'العملة: دولار ($) - انقر للتحويل إلى جنيه';
           if (rateBox) {
-            rateBox.style.setProperty('background', 'linear-gradient(135deg, #064e3b, #042f2e)', 'important');
+            rateBox.style.setProperty('background', 'linear-gradient(135deg, #022c22, #09090b)', 'important');
             rateBox.style.setProperty('border', '2px solid #10b981', 'important');
             rateBox.style.setProperty('box-shadow', '0 0 14px rgba(16, 185, 129, 0.65), inset 0 0 8px rgba(16, 185, 129, 0.35)', 'important');
           }
@@ -13486,7 +13464,13 @@ window.SuiteSalesPOS = {
         const gt = document.getElementById('suitePurGrandTotalDisplay');
         if (gt) {
           const num = parseFloat(gt.innerText.replace(/[^0-9.]/g, '')) || 0;
-          gt.innerText = num.toFixed(2) + (this.currencyMode === 'USD' ? ' $' : ' SDG');
+          if (this.currencyMode === 'USD') {
+            gt.innerText = num.toFixed(2) + ' $';
+            gt.style.setProperty('color', '#22c55e', 'important');
+          } else {
+            gt.innerText = num.toFixed(2) + ' SDG';
+            gt.style.setProperty('color', '#fbbf24', 'important');
+          }
         }
       },
 
