@@ -7140,50 +7140,46 @@
              style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
           
           <div class="grid grid-cols-12 gap-1.5 items-end relative">
-            <!-- 1. المستودع / المخزن: 5 أعمدة مع كتابة "المستودع" بنفس خط الصنف وإنقاص خط المستودع 3 درجات -->
+            <!-- 1. المستودع / المخزن: 5 أعمدة مع تنسيق ذكي يتسع لكلمتين مثل 'درة اللاماب' أو 'السجانة الكبير' -->
             <div class="col-span-5 relative">
               <label for="salesWarehouseInput" class="text-[11px] sm:text-xs font-bold text-purple-300 block mb-1 text-right">المستودع</label>
-              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative" 
+              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative overflow-hidden" 
                    style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.45);">
                 <input type="text" id="salesWarehouseInput" 
                        value="المستودع الرئيسي" 
                        placeholder="المستودع..." 
                        autocomplete="off" 
-                       class="w-full bg-transparent font-bold text-[10.5px] sm:text-xs text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
-                       oninput="SuiteSalesPOS.onWarehouseInput(this.value)" 
+                       class="w-full bg-transparent font-black text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
+                       style="font-size: 13.5px;" 
+                       oninput="SuiteSalesPOS.onWarehouseInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleWarehouse(this);" 
                        onfocus="SuiteSalesPOS.onWarehouseFocus(this)" 
                        onclick="this.select()" />
               </div>
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- 2. الملحوظة / البيان: 7 أعمدة مع كتابة "الملحوظة" بنفس خط الصنف، كتابة مباشرة ومربع تكبير مضمون للشاشة الخاصة -->
+            <!-- 2. الملحوظة / البيان: 7 أعمدة كتابة مباشرة بدون خروج النص ومربع تكبير للشاشة الخاصة لقراءة كل الكلام -->
             <div class="col-span-7 relative">
-              <div class="flex items-center justify-between mb-1">
-                <label for="salesNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block text-right">الملحوظة</label>
-                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
-                        class="text-[10px] text-cyan-300 hover:text-cyan-100 flex items-center gap-1 font-bold bg-cyan-950/70 border border-cyan-500/40 px-1.5 py-0.5 rounded-md transition active:scale-95 cursor-pointer">
-                  <i class="fa-solid fa-expand text-[9px] pointer-events-none"></i> تكبير
-                </button>
-              </div>
-              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] px-1.5 flex items-center gap-1.5 transition rounded-xl relative" 
+              <label for="salesNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block mb-1 text-right">الملحوظة</label>
+              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] px-1.5 flex items-center gap-1.5 transition rounded-xl relative overflow-hidden" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45);">
-                <!-- المربع التكبير: واضح وكبير لفتح الشاشة الخاصة بكل ما يخص الملحوظة -->
+                <!-- المربع هناك: زر التكبير المربع الأنيق لفتح الشاشة المربعة التي يظهر فيها كل الكلام -->
                 <button type="button" id="btnZoomSalesNotes" 
-                        onclick="event.preventDefault(); event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
-                        ontouchend="event.preventDefault(); event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
+                        onclick="event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
+                        ontouchend="event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
                         class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg flex items-center justify-center text-cyan-300 hover:text-white bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/50 shadow-md transition active:scale-90 cursor-pointer z-20" 
                         title="المربع التكبير: فتح واستعراض شاشة الملحوظة الموسعة">
                   <i class="fa-solid fa-expand text-sm pointer-events-none"></i>
                 </button>
-                <!-- حقل الملحوظة للكتابة المباشرة وإنقاص خط الملحوظة درجة واحدة -->
+                <!-- حقل الملحوظة للكتابة المباشرة بدون أن تخرج الكتابة عن المربع نهائياً -->
                 <input type="text" id="salesNotesInput" 
-                       placeholder="اكتب الملحوظة مباشرة..." 
+                       placeholder="اكتب الملحوظة..." 
+                       onclick="if(this.value && this.value.length > 25) SuiteSalesPOS.openNotesModal('sales');" 
                        ondblclick="SuiteSalesPOS.openNotesModal('sales')" 
                        autocomplete="off" 
-                       class="flex-1 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0" 
-                       style="color: #ffffff !important;" 
-                       title="اكتب الملحوظة مباشرة، أو اضغط مربع التكبير" />
+                       class="flex-1 min-w-0 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0 truncate" 
+                       style="color: #ffffff !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
+                       title="اكتب الملحوظة، أو اضغط على المربع لفتح الشاشة وقراءة كل الكلام" />
               </div>
             </div>
 
@@ -7198,34 +7194,38 @@
         <div id="suiteSalesItemBox" class="p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-visible" 
              style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- السطر الأول: الصنف والوحدات مع العناوين المطلوبة -->
+          <!-- السطر الأول: الصنف والوحدات مع العناوين والتنسيق بالذكاء الاصطناعي -->
           <div class="grid grid-cols-12 gap-1.5 items-end relative">
-            <!-- 1. الصنف: 8 أعمدة مع كتابة "الصنف" فوق مربع البحث -->
+            <!-- 1. الصنف: 8 أعمدة مع كتابة "الصنف" فوق مربع البحث وتنسيق ذكي يتسع لـ 'سيخ 3 لينية الأسد 10 ملي' -->
             <div class="col-span-8 relative">
               <label for="salesItemSearchInput" class="text-[11px] sm:text-xs font-bold text-amber-300 block mb-1 text-right">الصنف</label>
-              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[54px] sm:h-[62px] px-3 flex items-center transition rounded-xl relative" 
+              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[54px] sm:h-[62px] px-3 flex items-center transition rounded-xl relative overflow-hidden" 
                    style="background: #060913; border: 1.5px solid rgba(245, 158, 11, 0.45);">
                 <input type="text" id="salesItemSearchInput" 
                        placeholder="اختر أو ابحث عن صنف..." 
                        autocomplete="off" 
-                       class="w-full bg-transparent font-black text-base sm:text-lg text-center tracking-wide outline-none cursor-text border-none p-0 m-0" 
-                       style="color: #fcd34d !important;" 
-                       oninput="SuiteSalesPOS.onItemInput(this.value)" 
+                       class="w-full bg-transparent font-bold text-center tracking-wide outline-none cursor-text border-none p-0 m-0 truncate" 
+                       style="color: #fcd34d !important; font-size: 14px;" 
+                       oninput="SuiteSalesPOS.onItemInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleItem(this);" 
                        onfocus="SuiteSalesPOS.onItemFocus(this)" 
                        onclick="this.select()" />
               </div>
               <input type="hidden" id="salesItemSelectVal" value="">
             </div>
 
-            <!-- 2. الوحدات: 4 أعمدة مع تنقيص خط الوحدات درجتين -->
+            <!-- 2. الوحدات: 4 أعمدة تتسع لـ 'طن عددي' بتنسيق ذكي متناسق -->
             <div class="col-span-4">
               <label for="salesUnitSelect" class="text-[11px] sm:text-xs font-bold text-emerald-400 block mb-1 text-right">الوحدات</label>
-              <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[54px] sm:h-[62px] text-emerald-400 font-bold text-center text-sm sm:text-base outline-none cursor-pointer px-1 rounded-xl" 
-                      style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
+              <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange(); window.SmartPOSFontAI && SmartPOSFontAI.scaleUnit(this);" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[54px] sm:h-[62px] text-emerald-400 font-bold text-center outline-none cursor-pointer px-1 rounded-xl" 
+                      style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important; font-size: 13.5px;" 
                       title="الوحدات">
                 <option value="" disabled selected hidden>الوحدات</option>
                 <option value="حبة">حبة</option>
+                <option value="طن عددي" selected>طن عددي</option>
+                <option value="طن">طن</option>
+                <option value="متر">متر</option>
+                <option value="كيلو">كيلو</option>
               </select>
             </div>
 
@@ -7233,38 +7233,40 @@
             <div id="salesItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
           </div>
 
-          <!-- السطر الثاني: الكمية والسعر -->
+          <!-- السطر الثاني: الكمية والسعر مع التنسيق بالذكاء الاصطناعي -->
           <div class="grid grid-cols-2 gap-2">
-            <!-- 1. الكمية -->
+            <!-- 1. الكمية: خط كبير لـ 5 أرقام، ويصغر تلقائياً إذا زادت عن 6 و 7 أرقام -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-sky-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-boxes-stacked text-[11px]"></i> الكمية:
               </label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-qty" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);">
-                <input type="number" id="salesQtyInput" placeholder="الالكمية" min="0.01" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-[52px] sm:h-[60px] font-black font-mono text-center text-white text-3xl sm:text-4xl outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px;" 
+                <input type="number" id="salesQtyInput" placeholder="الالكمية" min="0.01" step="any" 
+                       oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleQty(this);" 
+                       class="w-full h-[52px] sm:h-[60px] font-black font-mono text-center text-white outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
+                       style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px; font-size: 32px;" 
                        inputmode="decimal" title="الكمية" />
               </div>
             </div>
 
-            <!-- 2. السعر -->
+            <!-- 2. السعر: خط كبير لـ 8 أرقام، ويصغر تلقائياً إذا وصل لـ 9 أرقام -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-cyan-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-tag text-[11px]"></i> السعر:
               </label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-price" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15);">
-                <input type="number" id="salesPriceInput" placeholder="السعر" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-[52px] sm:h-[60px] font-black font-mono text-center text-cyan-300 text-3xl sm:text-4xl outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px;" 
+                <input type="number" id="salesPriceInput" placeholder="السعر" step="any" 
+                       oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scalePrice(this);" 
+                       class="w-full h-[52px] sm:h-[60px] font-black font-mono text-center text-cyan-300 outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
+                       style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px; font-size: 25px;" 
                        inputmode="decimal" title="السعر" />
               </div>
             </div>
           </div>
 
-          <!-- السطر الثالث: الجملة (الكمية × السعر) -->
+          <!-- السطر الثالث: الجملة (الكمية × السعر) تتسع لكميات مرتاحة وبنفس الخط الكبير -->
           <div>
             <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
               <i class="fa-solid fa-calculator text-[11px]"></i> الجملة (السعر × الكمية):
@@ -7288,16 +7290,17 @@
           
           <!-- السطر الأول: الإضافة والخصم والعتالة -->
           <div class="grid grid-cols-3 gap-1.5">
-            <!-- 1. الإضافة -->
+            <!-- 1. الإضافة بخط كبير وتنسيق ذكي -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-purple-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-plus-circle text-[11px]"></i> الإضافة:
               </label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
-                <input type="number" id="salesTaxInput" min="0" step="any" oninput="SuiteSalesPOS.calcItemSubtotal()" 
-                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-purple-200 text-2xl sm:text-3xl outline-none placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
-                       style="background: transparent !important; color: #d8b4fe !important;" 
+                <input type="number" id="salesTaxInput" min="0" step="any" 
+                       oninput="SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-purple-200 outline-none placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       style="background: transparent !important; color: #d8b4fe !important; font-size: 26px;" 
                        placeholder="الإضافة" inputmode="decimal" title="الإضافة" />
               </div>
             </div>
@@ -7815,50 +7818,46 @@
         <div class="rounded-2xl p-2.5 border shadow-xl relative overflow-visible" 
              style="background: #0d0a04; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
           <div class="grid grid-cols-12 gap-1.5 items-end relative">
-            <!-- 1. المستودع / المخزن: 5 أعمدة مع كتابة "المستودع" بنفس خط الصنف وإنقاص خط المستودع 3 درجات -->
+            <!-- 1. المستودع / المخزن: 5 أعمدة مع تنسيق ذكي بالذكاء الاصطناعي يتسع لكلمتين مثل 'درة اللاماب' أو 'السجانة الكبير' -->
             <div class="col-span-5 relative">
               <label for="purchaseWarehouseInput" class="text-[11px] sm:text-xs font-bold text-purple-300 block mb-1 text-right">المستودع</label>
-              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative" 
+              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative overflow-hidden" 
                    style="background: #0d0a04; border: 1.5px solid rgba(168, 85, 247, 0.45);">
                 <input type="text" id="purchaseWarehouseInput" 
                        value="المستودع الرئيسي" 
                        placeholder="المستودع..." 
                        autocomplete="off" 
-                       class="w-full bg-transparent font-bold text-[10.5px] sm:text-xs text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
-                       oninput="SuitePurchasePOS.onWarehouseInput(this.value)" 
+                       class="w-full bg-transparent font-black text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
+                       style="font-size: 13.5px;" 
+                       oninput="SuitePurchasePOS.onWarehouseInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleWarehouse(this);" 
                        onfocus="SuitePurchasePOS.onWarehouseFocus(this)" 
                        onclick="this.select()" />
               </div>
               <input type="hidden" id="purchaseWarehouseSelect" value="المستودع الرئيسي">
             </div>
 
-            <!-- 2. الملحوظة / البيان: 7 أعمدة مع كتابة "الملحوظة" بنفس خط الصنف، كتابة مباشرة ومربع تكبير مضمون للشاشة الخاصة -->
+            <!-- 2. الملحوظة / البيان: 7 أعمدة كتابة مباشرة بدون خروج النص ومربع تكبير للشاشة الخاصة لقراءة كل الكلام -->
             <div class="col-span-7 relative">
-              <div class="flex items-center justify-between mb-1">
-                <label for="purNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block text-right">الملحوظة</label>
-                <button type="button" onclick="event.preventDefault(); event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
-                        class="text-[10px] text-cyan-300 hover:text-cyan-100 flex items-center gap-1 font-bold bg-cyan-950/70 border border-cyan-500/40 px-1.5 py-0.5 rounded-md transition active:scale-95 cursor-pointer">
-                  <i class="fa-solid fa-expand text-[9px] pointer-events-none"></i> تكبير
-                </button>
-              </div>
-              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] px-1.5 flex items-center gap-1.5 transition rounded-xl relative" 
+              <label for="purNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block mb-1 text-right">الملحوظة</label>
+              <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] px-1.5 flex items-center gap-1.5 transition rounded-xl relative overflow-hidden" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45);">
-                <!-- المربع التكبير: واضح وكبير لفتح الشاشة الخاصة بكل ما يخص الملحوظة -->
+                <!-- المربع هناك: زر التكبير المربع الأنيق لفتح الشاشة المربعة التي يظهر فيها كل الكلام -->
                 <button type="button" id="btnZoomPurNotes" 
-                        onclick="event.preventDefault(); event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
-                        ontouchend="event.preventDefault(); event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
+                        onclick="event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
+                        ontouchend="event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
                         class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-lg flex items-center justify-center text-cyan-300 hover:text-white bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/50 shadow-md transition active:scale-90 cursor-pointer z-20" 
                         title="المربع التكبير: فتح واستعراض شاشة الملحوظة الموسعة">
                   <i class="fa-solid fa-expand text-sm pointer-events-none"></i>
                 </button>
-                <!-- حقل الملحوظة للكتابة المباشرة وإنقاص خط الملحوظة درجة واحدة -->
+                <!-- حقل الملحوظة للكتابة المباشرة بدون أن تخرج الكتابة عن المربع نهائياً -->
                 <input type="text" id="purNotesInput" 
-                       placeholder="اكتب الملحوظة مباشرة..." 
+                       placeholder="اكتب الملحوظة..." 
+                       onclick="if(this.value && this.value.length > 25) SuitePurchasePOS.openNotesModal();" 
                        ondblclick="SuitePurchasePOS.openNotesModal()" 
                        autocomplete="off" 
-                       class="flex-1 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0" 
-                       style="color: #ffffff !important;" 
-                       title="اكتب الملحوظة مباشرة، أو اضغط مربع التكبير" />
+                       class="flex-1 min-w-0 bg-transparent font-bold text-xs sm:text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-bold placeholder:text-[11px] sm:placeholder:text-xs text-right cursor-text border-none p-0 m-0 truncate" 
+                       style="color: #ffffff !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
+                       title="اكتب الملحوظة، أو اضغط على المربع لفتح الشاشة وقراءة كل الكلام" />
               </div>
             </div>
 
@@ -7873,34 +7872,38 @@
         <div id="suitePurItemBox" class="p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-visible" 
              style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- السطر الأول: الصنف والوحدات مع العناوين المطلوبة -->
+          <!-- السطر الأول: الصنف والوحدات مع العناوين والتنسيق بالذكاء الاصطناعي -->
           <div class="grid grid-cols-12 gap-1.5 items-end relative">
-            <!-- 1. الصنف: 8 أعمدة مع كتابة "الصنف" فوق مربع البحث -->
+            <!-- 1. الصنف: 8 أعمدة مع كتابة "الصنف" فوق مربع البحث وتنسيق ذكي يتسع لـ 'سيخ 3 لينية الأسد 10 ملي' -->
             <div class="col-span-8 relative">
               <label for="purItemSearchInput" class="text-[11px] sm:text-xs font-bold text-amber-300 block mb-1 text-right">الصنف</label>
-              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[54px] sm:h-[62px] px-3 flex items-center transition rounded-xl relative" 
+              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[54px] sm:h-[62px] px-3 flex items-center transition rounded-xl relative overflow-hidden" 
                    style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.45);">
                 <input type="text" id="purItemSearchInput" 
                        placeholder="اختر أو ابحث عن صنف..." 
                        autocomplete="off" 
-                       class="w-full bg-transparent font-black text-base sm:text-lg text-center tracking-wide outline-none cursor-text truncate border-none p-0 m-0" 
-                       style="color: #fcd34d !important;" 
-                       oninput="SuitePurchasePOS.onItemInput(this.value)" 
+                       class="w-full bg-transparent font-bold text-center tracking-wide outline-none cursor-text border-none p-0 m-0 truncate" 
+                       style="color: #fcd34d !important; font-size: 14px;" 
+                       oninput="SuitePurchasePOS.onItemInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleItem(this);" 
                        onfocus="SuitePurchasePOS.onItemFocus(this)" 
                        onclick="this.select()" />
               </div>
               <input type="hidden" id="purItemSelectVal" value="">
             </div>
 
-            <!-- 2. الوحدات: 4 أعمدة مع تنقيص خط الوحدات درجتين -->
+            <!-- 2. الوحدات: 4 أعمدة تتسع لـ 'طن عددي' بتنسيق ذكي متناسق -->
             <div class="col-span-4">
               <label for="purUnitSelect" class="text-[11px] sm:text-xs font-bold text-emerald-400 block mb-1 text-right">الوحدات</label>
-              <select id="purUnitSelect" onchange="SuitePurchasePOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[54px] sm:h-[62px] text-emerald-400 font-bold text-center text-sm sm:text-base outline-none cursor-pointer px-1 rounded-xl" 
-                      style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
+              <select id="purUnitSelect" onchange="SuitePurchasePOS.onUnitChange(); window.SmartPOSFontAI && SmartPOSFontAI.scaleUnit(this);" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[54px] sm:h-[62px] text-emerald-400 font-bold text-center outline-none cursor-pointer px-1 rounded-xl" 
+                      style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important; font-size: 13.5px;" 
                       title="الوحدات">
                 <option value="" disabled selected hidden>الوحدات</option>
                 <option value="حبة">حبة</option>
+                <option value="طن عددي" selected>طن عددي</option>
+                <option value="طن">طن</option>
+                <option value="متر">متر</option>
+                <option value="كيلو">كيلو</option>
               </select>
             </div>
 
@@ -7908,38 +7911,40 @@
             <div id="purItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
           </div>
 
-          <!-- السطر الثاني: الكمية والسعر -->
+          <!-- السطر الثاني: الكمية والسعر مع التنسيق بالذكاء الاصطناعي -->
           <div class="grid grid-cols-2 gap-2">
-            <!-- 1. الكمية -->
+            <!-- 1. الكمية: خط كبير لـ 5 أرقام، ويصغر تلقائياً إذا زادت عن 6 و 7 أرقام -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-sky-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-boxes-stacked text-[11px]"></i> الكمية:
               </label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-qty" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);">
-                <input type="number" id="purQtyInput" placeholder="الكمية" min="0.01" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
-                       class="w-full h-[52px] sm:h-[60px] font-black font-mono text-center text-white text-3xl sm:text-4xl outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px;" 
+                <input type="number" id="purQtyInput" placeholder="الكمية" min="0.01" step="any" 
+                       oninput="SuitePurchasePOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleQty(this);" 
+                       class="w-full h-[52px] sm:h-[60px] font-black font-mono text-center text-white outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
+                       style="background: transparent !important; color: #ffffff !important; letter-spacing: 0.5px; font-size: 32px;" 
                        inputmode="decimal" title="الكمية" />
               </div>
             </div>
 
-            <!-- 2. السعر -->
+            <!-- 2. السعر: خط كبير لـ 8 أرقام، ويصغر تلقائياً إذا وصل لـ 9 أرقام -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-cyan-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-tag text-[11px]"></i> السعر:
               </label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-price" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.45); box-shadow: 0 0 10px rgba(34, 211, 238, 0.15);">
-                <input type="number" id="purPriceInput" placeholder="السعر" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
-                       class="w-full h-[52px] sm:h-[60px] font-black font-mono text-center text-cyan-300 text-3xl sm:text-4xl outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
-                       style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px;" 
+                <input type="number" id="purPriceInput" placeholder="السعر" step="any" 
+                       oninput="SuitePurchasePOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scalePrice(this);" 
+                       class="w-full h-[52px] sm:h-[60px] font-black font-mono text-center text-cyan-300 outline-none placeholder:text-slate-400 placeholder:font-black placeholder:font-sans placeholder:text-xl sm:placeholder:text-2xl" 
+                       style="background: transparent !important; color: #67e8f9 !important; letter-spacing: 0.5px; font-size: 25px;" 
                        inputmode="decimal" title="السعر" />
               </div>
             </div>
           </div>
 
-          <!-- السطر الثالث: الجملة (الكمية × السعر) -->
+          <!-- السطر الثالث: الجملة (الكمية × السعر) تتسع لكميات مرتاحة وبنفس الخط الكبير -->
           <div>
             <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
               <i class="fa-solid fa-calculator text-[11px]"></i> الجملة (السعر × الكمية):
@@ -7963,16 +7968,17 @@
           
           <!-- السطر الأول: الإضافة والخصم والإعالة -->
           <div class="grid grid-cols-3 gap-1.5">
-            <!-- 1. الإضافة -->
+            <!-- 1. الإضافة بخط كبير وتنسيق ذكي -->
             <div>
               <label class="text-[12px] sm:text-[13px] font-black text-purple-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-plus-circle text-[11px]"></i> الإضافة:
               </label>
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.45); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
-                <input type="number" id="purTaxInput" min="0" step="any" oninput="SuitePurchasePOS.calcItemSubtotal()" 
-                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-purple-200 text-2xl sm:text-3xl outline-none placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
-                       style="background: transparent !important; color: #d8b4fe !important;" 
+                <input type="number" id="purTaxInput" min="0" step="any" 
+                       oninput="SuitePurchasePOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                       class="w-full h-[50px] sm:h-[58px] font-black font-mono text-center text-purple-200 outline-none placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-base sm:placeholder:text-lg" 
+                       style="background: transparent !important; color: #d8b4fe !important; font-size: 26px;" 
                        placeholder="الإضافة" inputmode="decimal" title="الإضافة" />
               </div>
             </div>
@@ -11111,6 +11117,135 @@
       });
     }
 
+    // ═════════════════════════════════════════════════════════════════
+    // SMART AI FONT COORDINATOR (تنسيق الخطوط الذكي بالذكاء الاصطناعي)
+    // تنسيق تلقائي فوري لأحجام الخطوط بما يناسب المساحة المتاحة وعدد الأرقام والأحرف
+    // ═════════════════════════════════════════════════════════════════
+    window.SmartPOSFontAI = {
+      scaleQty(input) {
+        if (!input) return;
+        const raw = (input.value || '').toString().trim();
+        const len = raw.replace(/[^0-9]/g, '').length;
+        let size = '32px';
+        if (len >= 8) size = '17px';
+        else if (len === 7) size = '21px'; // 7 أرقام يصغر قليلاً
+        else if (len === 6) size = '25px'; // 6 أرقام يصغر قليلاً
+        else size = '32px'; // 5 أرقام فما دون: خط كبير جداً
+        input.style.fontSize = size;
+      },
+
+      scalePrice(input) {
+        if (!input) return;
+        const raw = (input.value || '').toString().trim();
+        const len = raw.replace(/[^0-9]/g, '').length;
+        let size = '25px';
+        if (len >= 11) size = '16px';
+        else if (len === 10) size = '19px';
+        else if (len === 9) size = '22px'; // 9 أرقام يصغر قليلاً
+        else size = '25px'; // 8 أرقام فما دون: أكبر مقاس
+        input.style.fontSize = size;
+      },
+
+      scaleGross(input) {
+        if (!input) return;
+        const raw = (input.value || '').toString().trim();
+        const len = raw.replace(/[^0-9]/g, '').length;
+        let size = '32px';
+        if (len >= 12) size = '17px';
+        else if (len >= 10) size = '21px';
+        else if (len >= 8) size = '26px';
+        else size = '32px'; // يستوعب كميات مرتاحة مع الحفاظ على الخط الكبير
+        input.style.fontSize = size;
+      },
+
+      scaleTax(input) {
+        if (!input) return;
+        const raw = (input.value || '').toString().trim();
+        const len = raw.replace(/[^0-9]/g, '').length;
+        let size = '26px';
+        if (len >= 8) size = '18px';
+        else if (len >= 6) size = '22px';
+        else size = '26px'; // خط كبير للإضافة
+        input.style.fontSize = size;
+      },
+
+      scaleWarehouse(input) {
+        if (!input) return;
+        const text = (input.value || '').trim();
+        const len = text.length;
+        let size = '13.5px';
+        if (len >= 17) size = '10.5px';
+        else if (len >= 13) size = '12px'; // مثل "السجانة الكبير" (14 حرف)
+        else size = '13.5px'; // مثل "درة اللاماب" (10 أحرف)
+        input.style.fontSize = size;
+      },
+
+      scaleItem(input) {
+        if (!input) return;
+        const text = (input.value || '').trim();
+        const len = text.length;
+        let size = '16px';
+        if (len >= 32) size = '11.5px';
+        else if (len >= 25) size = '12.5px';
+        else if (len >= 15) size = '14px'; // يتسع لـ "سيخ 3 لينية الأسد 10 ملي" (24 حرف)
+        else size = '16px';
+        input.style.fontSize = size;
+      },
+
+      scaleUnit(select) {
+        if (!select) return;
+        const text = (select.options && select.selectedIndex >= 0) ? select.options[select.selectedIndex].text : (select.value || '');
+        const len = (text || '').trim().length;
+        let size = '15px';
+        if (len >= 11) size = '11.5px';
+        else if (len >= 5) size = '13.5px'; // يتسع لـ "طن عددي"
+        else size = '15px';
+        select.style.fontSize = size;
+      },
+
+      scaleAll() {
+        ['purQtyInput', 'salesQtyInput'].forEach(id => this.scaleQty(document.getElementById(id)));
+        ['purPriceInput', 'salesPriceInput'].forEach(id => this.scalePrice(document.getElementById(id)));
+        ['purItemGrossTotal', 'salesItemGrossTotal'].forEach(id => this.scaleGross(document.getElementById(id)));
+        ['purTaxInput', 'salesTaxInput'].forEach(id => this.scaleTax(document.getElementById(id)));
+        ['purchaseWarehouseInput', 'salesWarehouseInput'].forEach(id => this.scaleWarehouse(document.getElementById(id)));
+        ['purItemSearchInput', 'salesItemSearchInput'].forEach(id => this.scaleItem(document.getElementById(id)));
+        ['purUnitSelect', 'salesUnitSelect'].forEach(id => this.scaleUnit(document.getElementById(id)));
+      },
+
+      initListeners() {
+        const bind = (id, fn) => {
+          const el = document.getElementById(id);
+          if (el) {
+            ['input', 'change', 'keyup', 'blur'].forEach(ev => {
+              el.addEventListener(ev, () => fn.call(this, el));
+            });
+            fn.call(this, el);
+          }
+        };
+        bind('purQtyInput', this.scaleQty);
+        bind('salesQtyInput', this.scaleQty);
+        bind('purPriceInput', this.scalePrice);
+        bind('salesPriceInput', this.scalePrice);
+        bind('purItemGrossTotal', this.scaleGross);
+        bind('salesItemGrossTotal', this.scaleGross);
+        bind('purTaxInput', this.scaleTax);
+        bind('salesTaxInput', this.scaleTax);
+        bind('purchaseWarehouseInput', this.scaleWarehouse);
+        bind('salesWarehouseInput', this.scaleWarehouse);
+        bind('purItemSearchInput', this.scaleItem);
+        bind('salesItemSearchInput', this.scaleItem);
+        bind('purUnitSelect', this.scaleUnit);
+        bind('salesUnitSelect', this.scaleUnit);
+      }
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => window.SmartPOSFontAI && window.SmartPOSFontAI.initListeners());
+    } else {
+      setTimeout(() => window.SmartPOSFontAI && window.SmartPOSFontAI.initListeners(), 50);
+    }
+
 window.SuiteSalesPOS = {
       cart: [],
       dbItems: [{"id":"ITEM-1781116468152","name":"ccc44","unit":"c","image":"","price":0,"stock":[],"barcode":"22","baseUnit":"c","createdBy":9,"unitsArray":[{"name":"c","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782492860575","name":"سيخ 3 لينيا fj","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":68547},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":135},{"name":"طن وزني","factor":146}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559307727","name":"سيخ 4 لينيا fj","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":11053},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن العددي","factor":92},{"name":"طن وزني","factor":111}],"averageCost":1.8565095449199311,"bundleFactor":10,"averageCostFc":1.8565095449199311,"conversionFactor":1,"lastPurchaseCost":4.956521739130435,"lastPurchaseCostFc":4.956521739130435},{"id":"ITEM-1782559457671","name":"سيخ 3 لينيا الاسعد","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":675},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":135},{"name":"طن وزني","factor":140}],"bundleFactor":15,"conversionFactor":1},{"id":"ITEM-1782559559372","name":"سيخ 4 لينيا الاسعد","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":92},{"name":"طن وزني","factor":140}],"bundleFactor":10,"conversionFactor":1},{"id":"ITEM-1782561316951","name":"سيخ 5 لينيا الامجد","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":66}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782562286396","name":"سيخ 5 لينيا التركي","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":55}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782567905125","name":"سيخ 5 لينيا صيني","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":66}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1782250715067","name":"سيخ44","unit":"طن","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن","createdBy":9,"unitsArray":[{"name":"طن","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782509115624","name":"سيخ 3 لينية","unit":"طن وزني","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن وزني","createdBy":9,"unitsArray":[{"name":"طن وزني","factor":1},{"name":"طن وزني","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"ITEM-1782511169954","name":"سيخ 5ل","unit":"طن عددي","image":"","price":0,"stock":[],"barcode":"","baseUnit":"طن عددي","createdBy":9,"unitsArray":[{"name":"طن عددي","factor":1}],"bundleFactor":1,"conversionFactor":1},{"id":"item-001","name":"أسمنت بورتلاندي 50 كجم","unit":"كيس","barcode":"1001","baseUnit":"كيس","createdBy":7,"unitsArray":[{"name":"كيس","factor":1},{"name":"طن","factor":20}],"sellingPrice":4500},{"id":"item-002","name":"حديد تسليح 12 ملم","unit":"سيخة / عود","barcode":"1002","baseUnit":"سيخة / عود","createdBy":7,"unitsArray":[{"name":"سيخة / عود","factor":1},{"name":"طن","factor":120}],"sellingPrice":12500},{"id":"item-003","name":"طوب مفرغ 20×20×40","unit":"حبة","barcode":"1003","baseUnit":"حبة","createdBy":7,"unitsArray":[{"name":"حبة","factor":1},{"name":"ألف حبة","factor":1000}],"sellingPrice":650},{"id":"item-004","name":"رمل بناء ممتاز","unit":"متر مكعب","barcode":"1004","baseUnit":"متر مكعب","createdBy":7,"unitsArray":[{"name":"متر مكعب","factor":1},{"name":"قلاب 12متر","factor":12}],"sellingPrice":8500},{"id":"item-005","name":"دهان بلاستيك مط داخلي","unit":"جالون","barcode":"1005","baseUnit":"جالون","createdBy":7,"unitsArray":[{"name":"جالون","factor":1},{"name":"كرتونة (4 جالون)","factor":4}],"sellingPrice":14000},{"id":"ITEM-1786316992222","name":"سيخ 5 لينيا fj m","unit":"سيخه","image":"","price":0,"stock":[],"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":57}],"bundleFactor":5,"conversionFactor":1},{"id":"ITEM-1786727449011","name":"سيخ 5 لينيا  الاسعد","unit":"سيخه","image":"","price":0,"stock":{"PENDING_RECEIPT":230},"barcode":"","baseUnit":"سيخه","createdBy":9,"unitsArray":[{"name":"سيخه","factor":1},{"name":"طن عددي","factor":52},{"name":"طن وزني","factor":58}],"bundleFactor":5,"conversionFactor":1},{"id":"item-001","name":"أسمنت بورتلاندي 50 كجم","unit":"كيس","barcode":"1001","baseUnit":"كيس","createdBy":405,"unitsArray":[{"name":"كيس","factor":1},{"name":"طن","factor":20}],"sellingPrice":4500},{"id":"item-002","name":"حديد تسليح 12 ملم","unit":"سيخة / عود","barcode":"1002","baseUnit":"سيخة / عود","createdBy":405,"unitsArray":[{"name":"سيخة / عود","factor":1},{"name":"طن","factor":120}],"sellingPrice":12500},{"id":"item-003","name":"طوب مفرغ 20×20×40","unit":"حبة","barcode":"1003","baseUnit":"حبة","createdBy":405,"unitsArray":[{"name":"حبة","factor":1},{"name":"ألف حبة","factor":1000}],"sellingPrice":650},{"id":"item-004","name":"رمل بناء ممتاز","unit":"متر مكعب","barcode":"1004","baseUnit":"متر مكعب","createdBy":405,"unitsArray":[{"name":"متر مكعب","factor":1},{"name":"قلاب 12متر","factor":12}],"sellingPrice":8500},{"id":"item-005","name":"دهان بلاستيك مط داخلي","unit":"جالون","barcode":"1005","baseUnit":"جالون","createdBy":405,"unitsArray":[{"name":"جالون","factor":1},{"name":"كرتونة (4 جالون)","factor":4}],"sellingPrice":14000}],
@@ -12081,6 +12216,7 @@ window.SuiteSalesPOS = {
             totInp.value = (cartSum + netTotal).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
           }
         }
+        if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleAll();
         return netTotal;
       },
 
@@ -13338,6 +13474,7 @@ window.SuiteSalesPOS = {
         if (totInp) {
           totInp.value = (netTotal > 0) ? netTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00';
         }
+        if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleAll();
         return netTotal;
       },
 
@@ -13975,7 +14112,10 @@ window.SuiteSalesPOS = {
       const drop = document.getElementById('salesWarehouseDropdown');
       if (drop) drop.classList.add('hidden');
       const inp = document.getElementById('salesWarehouseInput');
-      if (inp) inp.value = name;
+      if (inp) {
+        inp.value = name;
+        if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(inp);
+      }
     };
 
     // Wrap selectItemByIndex
@@ -13986,7 +14126,11 @@ window.SuiteSalesPOS = {
       if (drop) drop.classList.add('hidden');
       const it = this.dbItems && this.dbItems[idx];
       const inp = document.getElementById('salesItemSearchInput');
-      if (inp && it) inp.value = it.name;
+      if (inp && it) {
+        inp.value = it.name;
+        if (window.SmartPOSFontAI) SmartPOSFontAI.scaleItem(inp);
+      }
+      if (window.SmartPOSFontAI) SmartPOSFontAI.scaleAll();
     };
 
     // Wrap newInvoice
@@ -14184,7 +14328,10 @@ window.SuiteSalesPOS = {
       const drop = document.getElementById('purchaseWarehouseDropdown');
       if (drop) drop.classList.add('hidden');
       const inp = document.getElementById('purchaseWarehouseInput');
-      if (inp) inp.value = name;
+      if (inp) {
+        inp.value = name;
+        if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(inp);
+      }
     };
 
     // Wrap selectItemByIndex
@@ -14196,7 +14343,11 @@ window.SuiteSalesPOS = {
       const items = (window.SuiteSalesPOS && SuiteSalesPOS.dbItems) ? SuiteSalesPOS.dbItems : [];
       const item = items[idx];
       const inp = document.getElementById('purItemSearchInput');
-      if (inp && item) inp.value = item.name;
+      if (inp && item) {
+        inp.value = item.name;
+        if (window.SmartPOSFontAI) SmartPOSFontAI.scaleItem(inp);
+      }
+      if (window.SmartPOSFontAI) SmartPOSFontAI.scaleAll();
     };
 
     // Wrap selectCustomItem
@@ -14206,7 +14357,11 @@ window.SuiteSalesPOS = {
       const drop = document.getElementById('purItemDropdown');
       if (drop) drop.classList.add('hidden');
       const inp = document.getElementById('purItemSearchInput');
-      if (inp) inp.value = name;
+      if (inp) {
+        inp.value = name;
+        if (window.SmartPOSFontAI) SmartPOSFontAI.scaleItem(inp);
+      }
+      if (window.SmartPOSFontAI) SmartPOSFontAI.scaleAll();
     };
 
     // Wrap newInvoice
