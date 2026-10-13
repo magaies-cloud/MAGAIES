@@ -7099,29 +7099,28 @@
 
         <!-- ═══════════════════════════════════════════════════════════════
              2. CUSTOMER ZONE MODULE: الوحدة الثانية: اسم العميل
-             (وحدة مستقلة مخصصة لاسم العميل مع بحث فوري وعرض واضح جداً)
+             (اسم العميل رمادي خفيف يمتد بكامل المساحة، مع خط منقص درجتين، وزر كشف الحساب، والبحث الذكي فعال)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 px-3 flex items-center justify-between gap-2.5 cursor-pointer transition active:scale-[0.99] relative overflow-hidden pos-field-interactive pos-field-customer min-h-[52px]" 
-             style="background: #060913; border: 1.5px solid rgba(52, 211, 153, 0.4); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);" 
-             onclick="SuiteSalesPOS.openCustomerSearch()" title="انقر لتغيير أو بحث العميل بالاسم أو الهاتف">
+        <div class="rounded-2xl p-2.5 px-3 flex items-center justify-between gap-2 cursor-pointer transition active:scale-[0.99] relative overflow-hidden pos-field-interactive pos-field-customer min-h-[46px]" 
+             style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);" 
+             onclick="SuiteSalesPOS.openCustomerSearch()" title="انقر للبحث واختيار العميل بالاسم أو الهاتف">
           
-          <div class="flex items-center gap-2.5 overflow-hidden flex-1">
-            <div class="w-8 h-8 rounded-xl flex items-center justify-center shrink-0" 
-                 style="background: rgba(16, 185, 129, 0.2); border: 1px solid rgba(52, 211, 153, 0.4);">
-              <i class="fa-solid fa-user-tie text-emerald-400 text-sm"></i>
-            </div>
-            <div class="flex flex-col min-w-0 flex-1">
-              <span class="text-[11px] font-black text-emerald-400/80 leading-tight">اسم العميل:</span>
-              <div id="suiteCustDisplayName" class="font-black text-lg sm:text-xl truncate tracking-wide leading-tight" style="color: #34d399 !important;">
-                <span style="color: #34d399 !important;">عميل نقدي عام</span>
-              </div>
+          <!-- اسم العميل: يمتد من بداية المساحة لآخرها بلون رمادي خفيف وخط منقص درجتين -->
+          <div class="flex items-center overflow-hidden flex-1 min-w-0">
+            <div id="suiteCustDisplayName" class="font-bold text-[15px] sm:text-base truncate tracking-wide w-full text-right" style="color: #cbd5e1 !important;">
+              <span style="color: #cbd5e1 !important;">عميل نقدي عام</span>
             </div>
           </div>
 
-          <div class="shrink-0 flex items-center gap-1.5">
-            <span class="text-[11px] text-slate-300 font-black px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-emerald-500/30 flex items-center gap-1.5 text-emerald-300">
-              <i class="fa-solid fa-users-viewfinder text-xs"></i> بحث
-            </span>
+          <!-- زر كشف الحساب الصغير في الآخر -->
+          <div class="shrink-0 flex items-center">
+            <button type="button" onclick="event.stopPropagation(); SuiteSalesPOS.printCustomerStatement();" 
+                    class="px-2.5 py-1 rounded-xl text-[11px] font-black transition active:scale-95 shadow-md flex items-center justify-center gap-1 cursor-pointer" 
+                    style="background: rgba(14, 165, 233, 0.2); color: #38bdf8; border: 1.5px solid rgba(56, 189, 248, 0.5); box-shadow: 0 0 8px rgba(56, 189, 248, 0.2);" 
+                    title="كشف حساب العميل">
+              <i class="fa-solid fa-file-invoice text-[10px]"></i>
+              <span>كشف</span>
+            </button>
           </div>
 
         </div>
@@ -11298,7 +11297,7 @@ window.SuiteSalesPOS = {
         if (itVal) itVal.value = '';
         
         const custDisp = document.getElementById('suiteCustDisplayName');
-        if (custDisp) custDisp.innerHTML = '<span style="color: #34d399 !important;">عميل نقدي عام</span>';
+        if (custDisp) custDisp.innerHTML = '<span class="font-bold text-[15px] sm:text-base truncate tracking-wide block w-full text-right" style="color: #cbd5e1 !important;">عميل نقدي عام</span>';
         const custInp = document.getElementById('salesCustomerInput');
         if (custInp) custInp.value = 'عميل نقدي عام';
         this.selectedCustomer = null;
@@ -11634,7 +11633,7 @@ window.SuiteSalesPOS = {
         // Display ONLY customer name in the main field (no phone here as requested)
         const disp = document.getElementById('suiteCustDisplayName');
         if (disp) {
-          disp.innerHTML = `<span class="font-black text-lg sm:text-xl truncate tracking-wide" style="color: #34d399 !important;">${name}</span>`;
+          disp.innerHTML = `<span class="font-bold text-[15px] sm:text-base truncate tracking-wide block w-full text-right" style="color: #cbd5e1 !important;">${name}</span>`;
         }
 
         // Show Statement Button
