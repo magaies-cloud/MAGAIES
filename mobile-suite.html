@@ -7686,8 +7686,8 @@
 
           <!-- السطر الثاني: التاريخ -> رقم السند -> سعر الصرف -->
           <div class="flex items-center gap-1.5 w-full pt-0.5">
-            <!-- 1. التاريخ -->
-            <div class="w-[88px] shrink-0 px-1 py-1 rounded-xl flex items-center justify-center transition relative overflow-hidden h-[34px]" 
+            <!-- 1. التاريخ: ارتفاع متناسق 36px -->
+            <div class="w-[88px] shrink-0 px-1 py-1 rounded-xl flex items-center justify-center transition relative overflow-hidden h-[36px]" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 8px rgba(245, 158, 11, 0.15);" 
                  title="تاريخ فاتورة الشراء">
               <div class="flex items-center justify-center pointer-events-none select-none w-full text-center whitespace-nowrap">
@@ -7696,8 +7696,8 @@
               <input type="date" id="purInvoiceDate" onchange="SuitePurchasePOS.syncHeaderDatePill(this.value)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" style="color-scheme: dark;" />
             </div>
 
-            <!-- 2. رقم التسلسل -->
-            <div id="opPurInvoiceSwipeBox" class="flex-1 min-w-0 px-1 py-0.5 rounded-xl flex items-center justify-center shadow-sm h-[34px] cursor-grab active:cursor-grabbing select-none relative overflow-hidden transition-all duration-150" 
+            <!-- 2. رقم التسلسل: ارتفاع متناسق 36px -->
+            <div id="opPurInvoiceSwipeBox" class="flex-1 min-w-0 px-1 py-0.5 rounded-xl flex items-center justify-center shadow-sm h-[36px] cursor-grab active:cursor-grabbing select-none relative overflow-hidden transition-all duration-150" 
                  style="background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(245, 158, 11, 0.55); box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); touch-action: pan-y;" 
                  title="اسحب أو مرر يميناً أو يساراً للتنقل">
               <button type="button" onclick="event.stopPropagation(); SuitePurchasePOS.navigateInvoice('next');" 
@@ -7713,9 +7713,9 @@
                       title="فاتورة الشراء السابقة">◀</button>
             </div>
 
-            <!-- 3. سعر صرف العملة: حجم مصغر ومدمج بنسبة 30% -->
+            <!-- 3. سعر صرف العملة: ارتفاع متناسق تماماً 36px -->
             <div id="purRateContainer" onclick="SuiteFXManager.openModal()" 
-                 class="w-[72px] sm:w-[78px] shrink-0 px-1 py-0.5 rounded-xl flex items-center justify-between gap-0.5 shadow-sm h-[28px] sm:h-[30px] transition-all duration-300 cursor-pointer active:scale-95 group relative select-none" 
+                 class="w-[72px] sm:w-[78px] shrink-0 px-1 py-0.5 rounded-xl flex items-center justify-between gap-0.5 shadow-sm h-[36px] transition-all duration-300 cursor-pointer active:scale-95 group relative select-none" 
                  style="background: linear-gradient(135deg, #064e3b, #042f2e); border: 1.5px solid #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.5), inset 0 0 6px rgba(16, 185, 129, 0.25);" 
                  title="سعر صرف العملة من السيستم - انقر للتعديل والحفظ في قاعدة البيانات">
               
