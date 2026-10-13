@@ -7057,6 +7057,15 @@
               <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
             </button>
 
+            <!-- 5. زر خروج للشاشة الرئيسية -->
+            <button type="button" onclick="exitToMainDashboard('modalOpSales')" 
+                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl flex items-center justify-center gap-1 transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer text-rose-300 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(244, 63, 94, 0.6); box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);" 
+                    title="خروج والرجوع للشاشة الرئيسية">
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+              <span class="text-xs font-black">خروج</span>
+            </button>
+
           </div>
 
           <!-- السطر الثاني: 1. التاريخ (مكبر درجة) -> 2. رقم التسلسل (بأسهم خفيفة جداً في الأطراف لا تشغل الحيز مع السحب يمين وشمال) -> 3. سعر صرف العملة (كتابة بلوك وتغير شكلي جذري بين الدولار والجنيه) -->
@@ -7519,8 +7528,8 @@
             </button>
           </div>
 
-          <!-- الصف الثالث: كشف الحساب + الإذن (الأزرار الإضافية المطلوبة) -->
-          <div class="grid grid-cols-2 gap-2">
+          <!-- الصف الثالث: كشف الحساب + الإذن + زر خروج للشاشة الرئيسية -->
+          <div class="grid grid-cols-3 gap-2">
             <!-- 6. كشف الحساب -->
             <button type="button" id="btnCustStatementDirect" onclick="SuiteSalesPOS.printCustomerStatement()" 
                     class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-sky-200 hover:text-white" 
@@ -7537,6 +7546,15 @@
                     title="إذن تسليم وصرف المخزن لهذه الفاتورة">
               <i class="fa-solid fa-truck-ramp-box text-indigo-400 text-sm"></i>
               <span>الإذن (تسليم)</span>
+            </button>
+
+            <!-- 8. زر خروج للشاشة الرئيسية -->
+            <button type="button" onclick="exitToMainDashboard('modalOpSales')" 
+                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-rose-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.3), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f43f5e; box-shadow: 0 0 10px rgba(244, 63, 94, 0.35);" 
+                    title="خروج والرجوع للشاشة الرئيسية">
+              <i class="fa-solid fa-arrow-right-from-bracket text-rose-400 text-sm"></i>
+              <span>خروج</span>
             </button>
           </div>
         </div>
@@ -7757,14 +7775,20 @@
             </div>
             <input type="hidden" id="purCostCenterInput" value="المركز الرئيسي">
 
-            <!-- 4. أيقونة الآلة الحاسبة + زر إغلاق -->
+            <!-- 4. أيقونة الآلة الحاسبة + زر خروج للشاشة الرئيسية -->
             <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
                     class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
                     style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
                     title="الآلة الحاسبة الذكية">
               <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
             </button>
-            <button type="button" onclick="closeModal('modalOpPurchase')" class="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition active:scale-95 cursor-pointer">✕</button>
+            <button type="button" onclick="exitToMainDashboard('modalOpPurchase')" 
+                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl flex items-center justify-center gap-1 transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer text-rose-300 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(244, 63, 94, 0.6); box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);" 
+                    title="خروج والرجوع للشاشة الرئيسية">
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+              <span class="text-xs font-black">خروج</span>
+            </button>
           </div>
 
           <!-- السطر الثاني: التاريخ -> رقم السند -> سعر الصرف -->
@@ -8192,8 +8216,8 @@
             </button>
           </div>
 
-          <!-- الصف الثالث: كشف الحساب + الإذن (استلام مخزني GRN) -->
-          <div class="grid grid-cols-2 gap-2">
+          <!-- الصف الثالث: كشف الحساب + الإذن + زر خروج للشاشة الرئيسية -->
+          <div class="grid grid-cols-3 gap-2">
             <!-- 6. كشف الحساب -->
             <button type="button" id="btnSuppStatementDirect" onclick="SuitePurchasePOS.printSupplierStatement()" 
                     class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-purple-200 hover:text-white" 
@@ -8210,6 +8234,15 @@
                     title="إذن استلام وتوريد بضاعة بالمستودع (GRN)">
               <i class="fa-solid fa-truck-ramp-box text-teal-400 text-sm"></i>
               <span>إذن استلام (GRN)</span>
+            </button>
+
+            <!-- 8. زر خروج للشاشة الرئيسية -->
+            <button type="button" onclick="exitToMainDashboard('modalOpPurchase')" 
+                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-rose-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.3), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f43f5e; box-shadow: 0 0 10px rgba(244, 63, 94, 0.35);" 
+                    title="خروج والرجوع للشاشة الرئيسية">
+              <i class="fa-solid fa-arrow-right-from-bracket text-rose-400 text-sm"></i>
+              <span>خروج</span>
             </button>
           </div>
         </div>
@@ -10574,6 +10607,20 @@
       ItemSelectorSheet.hide();
     };
 
+    // دالة الخروج الموحدة للشاشة الرئيسية لكافة الشاشات (المبيعات والمشتريات)
+    window.exitToMainDashboard = function(modalId) {
+      if (window.AppHaptics) AppHaptics.click();
+      else if (window.triggerHapticPulse) triggerHapticPulse(15);
+
+      if (window.SafeInvoiceGuard) {
+        SafeInvoiceGuard.requestExit(modalId);
+      } else {
+        closeModal(modalId);
+        if (typeof switchTab === 'function') switchTab('dashboard');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
     // ================================================================
     // 🛡️ SAFE INVOICE SCREEN & POP-SCOPE SYSTEM (نظام الرجوع الآمن ومنع فقدان البيانات)
     // ================================================================
@@ -10697,10 +10744,17 @@
         const targetId = modalId || this.activeModalId;
         if (targetId) {
           const m = document.getElementById(targetId);
-          if (m) m.classList.add('hidden');
+          if (m) {
+            m.classList.add('hidden');
+            m.style.display = 'none';
+          }
         }
         this.activeModalId = null;
         this.hasUnsavedChanges = false;
+        if (typeof switchTab === 'function') {
+          switchTab('dashboard');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
 
@@ -11597,6 +11651,10 @@ window.SuiteSalesPOS = {
           modal.classList.add('hidden');
           modal.style.display = 'none';
         }
+      },
+
+      exit() {
+        exitToMainDashboard('modalOpSales');
       },
 
       saveNotesExpanded() {
@@ -13200,6 +13258,10 @@ window.SuiteSalesPOS = {
       selectedCostCenter: 'المركز الرئيسي',
       currencyMode: 'USD',
       usdExchangeRate: 2850,
+
+      exit() {
+        exitToMainDashboard('modalOpPurchase');
+      },
 
       dbSuppliers: [
         { id: 'SUP-001', name: 'مطاحن الخرطوم للغلال', phone: '0123445566', currentBalance: 0, currency: 'SDG' },
@@ -15383,11 +15445,21 @@ async function commitOpReceipt() {
 
     function openModal(modalId) {
       const m = document.getElementById(modalId);
-      if (m) m.classList.remove('hidden');
+      if (m) {
+        m.classList.remove('hidden');
+        m.style.display = '';
+      }
     }
     function closeModal(modalId) {
       const m = document.getElementById(modalId);
-      if (m) m.classList.add('hidden');
+      if (m) {
+        m.classList.add('hidden');
+        m.style.display = 'none';
+      }
+      if (modalId === 'modalOpSales' || modalId === 'modalOpPurchase') {
+        if (typeof switchTab === 'function') switchTab('dashboard');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
 
     function triggerRefreshAnimation() {

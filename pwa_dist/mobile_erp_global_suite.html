@@ -216,6 +216,11 @@
       padding-top: 1px !important;
       padding-bottom: 1px !important;
     }
+    .pos-field-interactive.pos-field-note input {
+      width: auto !important;
+      flex: 1 1 0% !important;
+      min-width: 0 !important;
+    }
     input[type=number]::-webkit-inner-spin-button, 
     input[type=number]::-webkit-outer-spin-button { 
       -webkit-appearance: none !important; 
@@ -7052,6 +7057,15 @@
               <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
             </button>
 
+            <!-- 5. زر خروج للشاشة الرئيسية -->
+            <button type="button" onclick="exitToMainDashboard('modalOpSales')" 
+                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl flex items-center justify-center gap-1 transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer text-rose-300 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(244, 63, 94, 0.6); box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);" 
+                    title="خروج والرجوع للشاشة الرئيسية">
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+              <span class="text-xs font-black">خروج</span>
+            </button>
+
           </div>
 
           <!-- السطر الثاني: 1. التاريخ (مكبر درجة) -> 2. رقم التسلسل (بأسهم خفيفة جداً في الأطراف لا تشغل الحيز مع السحب يمين وشمال) -> 3. سعر صرف العملة (كتابة بلوك وتغير شكلي جذري بين الدولار والجنيه) -->
@@ -7206,15 +7220,19 @@
 
             <!-- 2. الملحوظة / البيان: محتواها محصور 100% داخل المستطيل دون خروج ومربع تكبير يفتح الشاشة المربعة -->
             <div class="col-span-7 relative">
-              <label for="salesNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block mb-1 text-right">الملحوظة</label>
+              <label for="salesNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 flex items-center justify-between mb-1 text-right">
+                <span>الملحوظة</span>
+                <span onclick="SuiteSalesPOS.openNotesModal('sales');" class="text-[9.5px] text-cyan-400 hover:text-white cursor-pointer font-bold flex items-center gap-1 bg-cyan-950/60 px-1.5 py-0.5 rounded-md border border-cyan-500/30 active:scale-95 transition">
+                  <i class="fa-solid fa-expand text-[9px]"></i> تكبير المربع
+                </span>
+              </label>
               <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[58px] px-1.5 flex items-center gap-1.5 transition rounded-xl relative overflow-hidden" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); max-width: 100%; box-sizing: border-box;">
                 <!-- المربع التكبير: زر مربع أنيق لفتح الشاشة المربعة التي يظهر فيها كل ما كُتب -->
                 <button type="button" id="btnZoomSalesNotes" 
-                        onclick="event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
-                        ontouchend="event.stopPropagation(); SuiteSalesPOS.openNotesModal('sales');" 
-                        class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex-shrink-0 rounded-lg flex items-center justify-center text-cyan-300 hover:text-white bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/50 shadow-md transition active:scale-90 cursor-pointer z-20" 
-                        title="المربع التكبير: فتح الشاشة المربعة واستعراض كامل نص الملحوظة">
+                        onclick="SuiteSalesPOS.openNotesModal('sales'); return false;" 
+                        class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex-shrink-0 rounded-xl flex items-center justify-center text-cyan-300 hover:text-white bg-cyan-500/25 hover:bg-cyan-500/40 border border-cyan-400/60 shadow-md transition active:scale-90 cursor-pointer z-20" 
+                        title="مربع التكبير: فتح الشاشة المربعة واستعراض كامل نص الملحوظة">
                   <i class="fa-solid fa-expand text-sm pointer-events-none"></i>
                 </button>
                 <!-- حقل الملحوظة: مساحة كتابة آمنة، النص لا يخرج أبداً خارج المستطيل مهما طالت الكتابة -->
@@ -7510,8 +7528,8 @@
             </button>
           </div>
 
-          <!-- الصف الثالث: كشف الحساب + الإذن (الأزرار الإضافية المطلوبة) -->
-          <div class="grid grid-cols-2 gap-2">
+          <!-- الصف الثالث: كشف الحساب + الإذن + زر خروج للشاشة الرئيسية -->
+          <div class="grid grid-cols-3 gap-2">
             <!-- 6. كشف الحساب -->
             <button type="button" id="btnCustStatementDirect" onclick="SuiteSalesPOS.printCustomerStatement()" 
                     class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-sky-200 hover:text-white" 
@@ -7528,6 +7546,15 @@
                     title="إذن تسليم وصرف المخزن لهذه الفاتورة">
               <i class="fa-solid fa-truck-ramp-box text-indigo-400 text-sm"></i>
               <span>الإذن (تسليم)</span>
+            </button>
+
+            <!-- 8. زر خروج للشاشة الرئيسية -->
+            <button type="button" onclick="exitToMainDashboard('modalOpSales')" 
+                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-rose-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.3), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f43f5e; box-shadow: 0 0 10px rgba(244, 63, 94, 0.35);" 
+                    title="خروج والرجوع للشاشة الرئيسية">
+              <i class="fa-solid fa-arrow-right-from-bracket text-rose-400 text-sm"></i>
+              <span>خروج</span>
             </button>
           </div>
         </div>
@@ -7748,14 +7775,20 @@
             </div>
             <input type="hidden" id="purCostCenterInput" value="المركز الرئيسي">
 
-            <!-- 4. أيقونة الآلة الحاسبة + زر إغلاق -->
+            <!-- 4. أيقونة الآلة الحاسبة + زر خروج للشاشة الرئيسية -->
             <button type="button" onclick="SuiteSalesPOS.toggleCalculator()" 
                     class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer" 
                     style="background: rgba(147, 51, 234, 0.25); border: 1.5px solid rgba(192, 132, 252, 0.5); box-shadow: 0 0 10px rgba(168, 85, 247, 0.3);" 
                     title="الآلة الحاسبة الذكية">
               <i class="fa-solid fa-calculator text-purple-200 text-xs sm:text-sm"></i>
             </button>
-            <button type="button" onclick="closeModal('modalOpPurchase')" class="w-8 h-8 rounded-full bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center text-xs transition active:scale-95 cursor-pointer">✕</button>
+            <button type="button" onclick="exitToMainDashboard('modalOpPurchase')" 
+                    class="h-8 sm:h-9 px-2 sm:px-2.5 rounded-xl flex items-center justify-center gap-1 transition-all duration-200 active:scale-90 shadow-md shrink-0 cursor-pointer text-rose-300 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.25), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(244, 63, 94, 0.6); box-shadow: 0 0 10px rgba(244, 63, 94, 0.25);" 
+                    title="خروج والرجوع للشاشة الرئيسية">
+              <i class="fa-solid fa-arrow-right text-xs"></i>
+              <span class="text-xs font-black">خروج</span>
+            </button>
           </div>
 
           <!-- السطر الثاني: التاريخ -> رقم السند -> سعر الصرف -->
@@ -7874,14 +7907,18 @@
 
             <!-- 2. الملحوظة / البيان في المشتريات: محصورة 100% داخل المستطيل دون خروج -->
             <div class="col-span-7 relative">
-              <label for="purNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 block mb-1 text-right">الملحوظة</label>
+              <label for="purNotesInput" class="text-[11px] sm:text-xs font-bold text-cyan-300 flex items-center justify-between mb-1 text-right">
+                <span>الملحوظة</span>
+                <span onclick="SuitePurchasePOS.openNotesModal();" class="text-[9.5px] text-cyan-400 hover:text-white cursor-pointer font-bold flex items-center gap-1 bg-cyan-950/60 px-1.5 py-0.5 rounded-md border border-cyan-500/30 active:scale-95 transition">
+                  <i class="fa-solid fa-expand text-[9px]"></i> تكبير المربع
+                </span>
+              </label>
               <div class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[58px] px-1.5 flex items-center gap-1.5 transition rounded-xl relative overflow-hidden" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.45); max-width: 100%; box-sizing: border-box;">
                 <button type="button" id="btnZoomPurNotes" 
-                        onclick="event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
-                        ontouchend="event.stopPropagation(); SuitePurchasePOS.openNotesModal();" 
-                        class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex-shrink-0 rounded-lg flex items-center justify-center text-cyan-300 hover:text-white bg-cyan-500/20 hover:bg-cyan-500/40 border border-cyan-400/50 shadow-md transition active:scale-90 cursor-pointer z-20" 
-                        title="المربع التكبير: فتح الشاشة المربعة واستعراض كامل نص الملحوظة">
+                        onclick="SuitePurchasePOS.openNotesModal(); return false;" 
+                        class="w-9 h-9 sm:w-10 sm:h-10 shrink-0 flex-shrink-0 rounded-xl flex items-center justify-center text-cyan-300 hover:text-white bg-cyan-500/25 hover:bg-cyan-500/40 border border-cyan-400/60 shadow-md transition active:scale-90 cursor-pointer z-20" 
+                        title="مربع التكبير: فتح الشاشة المربعة واستعراض كامل نص الملحوظة">
                   <i class="fa-solid fa-expand text-sm pointer-events-none"></i>
                 </button>
                 <input type="text" id="purNotesInput" 
@@ -8179,8 +8216,8 @@
             </button>
           </div>
 
-          <!-- الصف الثالث: كشف الحساب + الإذن (استلام مخزني GRN) -->
-          <div class="grid grid-cols-2 gap-2">
+          <!-- الصف الثالث: كشف الحساب + الإذن + زر خروج للشاشة الرئيسية -->
+          <div class="grid grid-cols-3 gap-2">
             <!-- 6. كشف الحساب -->
             <button type="button" id="btnSuppStatementDirect" onclick="SuitePurchasePOS.printSupplierStatement()" 
                     class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer text-purple-200 hover:text-white" 
@@ -8197,6 +8234,15 @@
                     title="إذن استلام وتوريد بضاعة بالمستودع (GRN)">
               <i class="fa-solid fa-truck-ramp-box text-teal-400 text-sm"></i>
               <span>إذن استلام (GRN)</span>
+            </button>
+
+            <!-- 8. زر خروج للشاشة الرئيسية -->
+            <button type="button" onclick="exitToMainDashboard('modalOpPurchase')" 
+                    class="py-3 px-2 rounded-xl text-xs sm:text-sm font-black flex items-center justify-center gap-1.5 transition active:scale-95 shadow-lg cursor-pointer text-rose-200 hover:text-white" 
+                    style="background: linear-gradient(135deg, rgba(225, 29, 72, 0.3), rgba(15, 23, 42, 0.95)); border: 1.5px solid #f43f5e; box-shadow: 0 0 10px rgba(244, 63, 94, 0.35);" 
+                    title="خروج والرجوع للشاشة الرئيسية">
+              <i class="fa-solid fa-arrow-right-from-bracket text-rose-400 text-sm"></i>
+              <span>خروج</span>
             </button>
           </div>
         </div>
@@ -8373,54 +8419,67 @@
       </div>
     </div>
 
-    <!-- 6. DEDICATED EXPANDED NOTES SCREEN (شاشة مربعة أنيقة يظهر فيها بالكامل كل ما كُتب في الملحوظة) -->
-    <div id="suiteSalesNotesModal" class="hidden fixed inset-0 z-[170] modal-backdrop flex items-center justify-center p-3 bg-slate-950/90 backdrop-blur-md">
-      <div class="glass-base w-[92vw] max-w-[420px] aspect-square flex flex-col justify-between rounded-3xl border-2 border-cyan-400/60 p-4 shadow-[0_0_50px_rgba(6,182,212,0.4)] relative" 
-           style="background: linear-gradient(180deg, #081225, #020611); max-height: 92vw;">
+    <!-- 6. DEDICATED EXPANDED NOTES SCREEN (شاشة مربعة حقيقية أنيقة يظهر فيها بالكامل كل ما كُتب في الملحوظة) -->
+    <div id="suiteSalesNotesModal" class="hidden fixed inset-0 modal-backdrop items-center justify-center p-3 bg-slate-950/90 backdrop-blur-md" 
+         style="z-index: 99999 !important; display: none;"
+         onclick="if(event.target === this) SuiteSalesPOS.closeNotesModal();">
+      <div class="glass-base flex flex-col justify-between p-3.5 sm:p-4 relative" 
+           style="background: linear-gradient(180deg, #081225 0%, #020611 100%); 
+                  border: 2px solid rgba(56, 189, 248, 0.75); 
+                  box-shadow: 0 0 50px rgba(6, 182, 212, 0.45), 0 20px 40px rgba(0, 0, 0, 0.95); 
+                  border-radius: 26px; 
+                  width: min(92vw, 410px) !important; 
+                  height: min(92vw, 410px) !important; 
+                  aspect-ratio: 1 / 1 !important; 
+                  max-width: 410px !important; 
+                  max-height: 410px !important; 
+                  box-sizing: border-box !important; 
+                  display: flex !important; 
+                  flex-direction: column !important;">
         
         <!-- رأس الشاشة المربعة: العنوان والأيقونة وزر الإغلاق -->
         <div class="flex items-center justify-between pb-2 border-b border-cyan-500/30 shrink-0">
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-cyan-500/25 border border-cyan-400/50 text-cyan-300 shadow-sm">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center bg-cyan-500/25 border border-cyan-400/50 text-cyan-300 shadow-sm shrink-0">
               <i class="fa-solid fa-note-sticky text-sm"></i>
             </div>
             <div>
-              <h3 class="font-black text-sm text-white flex items-center gap-1.5">
+              <h3 class="font-black text-xs sm:text-sm text-white flex items-center gap-1.5">
                 <span>بيان وملحوظة الفاتورة</span>
                 <span id="suiteNotesContextBadge" class="text-[9.5px] px-2 py-0.5 rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">مبيعات</span>
               </h3>
             </div>
           </div>
-          <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="w-7 h-7 rounded-full bg-slate-800 hover:bg-rose-900/50 text-slate-300 hover:text-rose-300 flex items-center justify-center text-xs transition active:scale-95 cursor-pointer">✕</button>
+          <button type="button" onclick="SuiteSalesPOS.closeNotesModal()" class="w-8 h-8 rounded-full bg-slate-800/90 hover:bg-rose-900/60 text-slate-300 hover:text-white flex items-center justify-center text-sm transition active:scale-90 cursor-pointer border border-slate-700 shrink-0">✕</button>
         </div>
 
-        <!-- مساحة عرض وكتابة الملحوظة الكاملة: تحتل المساحة الرئيسية في الشاشة المربعة وتتسع لكافة الكلمات -->
-        <div class="flex-1 my-2 min-h-0 flex flex-col relative">
+        <!-- مساحة عرض وكتابة الملحوظة الكاملة: تحتل المساحة الرئيسية في الشاشة المربعة وتتسع لكافة الكلمات والنصوص بوضوح -->
+        <div class="flex-1 my-2 min-h-0 flex flex-col relative" style="flex: 1 1 0%; min-height: 0;">
           <textarea id="salesNotesExpandedTextarea" 
-                    placeholder="اكتب هنا الملحوظة كاملة، كل ما تم كتابته يظهر هنا بالتفصيل..." 
+                    placeholder="اكتب هنا الملحوظة كاملة، كل ما تم كتابته يظهر هنا بالتفصيل وبوضوح تام..." 
                     oninput="SuiteSalesPOS.updateNotesStats(); SuiteSalesPOS.syncNotesLive();" 
-                    class="w-full h-full p-3 rounded-2xl bg-slate-900/90 border border-cyan-500/40 text-white font-bold text-sm sm:text-base outline-none resize-none shadow-inner placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40 leading-relaxed overflow-y-auto"
-                    style="scrollbar-width: thin; scrollbar-color: rgba(6,182,212,0.4) transparent;"></textarea>
+                    class="w-full h-full p-3 rounded-2xl bg-slate-900/95 border-2 border-cyan-500/50 text-white font-bold text-sm sm:text-base outline-none resize-none shadow-inner placeholder:text-slate-500 focus:border-cyan-300 focus:ring-2 focus:ring-cyan-400/40 leading-relaxed overflow-y-auto"
+                    style="scrollbar-width: thin; scrollbar-color: rgba(6,182,212,0.5) transparent; line-height: 1.6; color: #ffffff !important;"></textarea>
         </div>
 
-        <!-- عبارات سريعة مصغرة لشاشة الملحوظة بدون تشويه المربع -->
+        <!-- عبارات سريعة مصغرة لشاشة الملحوظة -->
         <div class="flex items-center gap-1 overflow-x-auto no-scrollbar py-1 shrink-0">
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('توصيل للعنوان')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700">🚚 توصيل</button>
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('شامل الضريبة والنقل')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700">📦 شامل النقل</button>
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('دفع آجل')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700">⏳ دفع آجل</button>
-          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('تم استلام البضاعة')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700">✅ تم الاستلام</button>
-          <button type="button" onclick="SuiteSalesPOS.insertTimestamp()" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 text-[10px] font-bold shrink-0 border border-amber-500/40">⏰ +الوقت</button>
+          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('توصيل للعنوان')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700 active:scale-95 transition">🚚 توصيل</button>
+          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('شامل الضريبة والنقل')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700 active:scale-95 transition">📦 شامل النقل</button>
+          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('دفع آجل')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700 active:scale-95 transition">⏳ دفع آجل</button>
+          <button type="button" onclick="SuiteSalesPOS.appendQuickNote('تم استلام البضاعة')" class="px-2 py-0.5 rounded-lg bg-slate-800/90 hover:bg-cyan-900/40 text-slate-200 text-[10px] font-bold shrink-0 border border-slate-700 active:scale-95 transition">✅ تم الاستلام</button>
+          <button type="button" onclick="SuiteSalesPOS.insertTimestamp()" class="px-2 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 text-[10px] font-bold shrink-0 border border-amber-500/40 active:scale-95 transition">⏰ +الوقت</button>
         </div>
 
         <!-- أسفل الشاشة المربعة: الإحصائيات وأزرار الحفظ والإلغاء -->
         <div class="flex items-center justify-between gap-1.5 pt-2 border-t border-cyan-500/30 shrink-0">
-          <button type="button" onclick="SuiteSalesPOS.clearNotesExpanded()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-rose-300 border border-slate-700 hover:border-rose-500/50 text-[11px] font-bold transition active:scale-95 cursor-pointer">
+          <button type="button" onclick="SuiteSalesPOS.clearNotesExpanded()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-900/40 text-rose-300 border border-slate-700 hover:border-rose-500/50 text-[11px] font-bold transition active:scale-95 cursor-pointer">
             مسح 🗑️
           </button>
           <div class="text-[10px] text-slate-400 font-mono">
             حروف: <span id="notesCharCount" class="text-cyan-300 font-bold">0</span>
           </div>
-          <button type="button" onclick="SuiteSalesPOS.saveNotesExpanded()" class="px-4 py-2 rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer" style="background: linear-gradient(135deg, #0284c7, #0891b2); box-shadow: 0 4px 14px rgba(6, 182, 212, 0.45); border: 1px solid rgba(34, 211, 238, 0.6);">
+          <button type="button" onclick="SuiteSalesPOS.saveNotesExpanded()" class="px-4 py-1.5 rounded-xl font-black text-xs text-white shadow-lg flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer" style="background: linear-gradient(135deg, #0284c7, #0891b2); box-shadow: 0 4px 14px rgba(6, 182, 212, 0.45); border: 1px solid rgba(34, 211, 238, 0.6);">
             <i class="fa-solid fa-check"></i> حفظ الملحوظة 💾
           </button>
         </div>
@@ -10548,6 +10607,20 @@
       ItemSelectorSheet.hide();
     };
 
+    // دالة الخروج الموحدة للشاشة الرئيسية لكافة الشاشات (المبيعات والمشتريات)
+    window.exitToMainDashboard = function(modalId) {
+      if (window.AppHaptics) AppHaptics.click();
+      else if (window.triggerHapticPulse) triggerHapticPulse(15);
+
+      if (window.SafeInvoiceGuard) {
+        SafeInvoiceGuard.requestExit(modalId);
+      } else {
+        closeModal(modalId);
+        if (typeof switchTab === 'function') switchTab('dashboard');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    };
+
     // ================================================================
     // 🛡️ SAFE INVOICE SCREEN & POP-SCOPE SYSTEM (نظام الرجوع الآمن ومنع فقدان البيانات)
     // ================================================================
@@ -10671,10 +10744,17 @@
         const targetId = modalId || this.activeModalId;
         if (targetId) {
           const m = document.getElementById(targetId);
-          if (m) m.classList.add('hidden');
+          if (m) {
+            m.classList.add('hidden');
+            m.style.display = 'none';
+          }
         }
         this.activeModalId = null;
         this.hasUnsavedChanges = false;
+        if (typeof switchTab === 'function') {
+          switchTab('dashboard');
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     };
 
@@ -11478,18 +11558,20 @@ window.SuiteSalesPOS = {
           }
         }
 
-        if (txt && inp) {
-          txt.value = inp.value || '';
+        // نقل النص المسجل في الحقل إلى الشاشة المربعة بالكامل دون نقصان
+        if (txt) {
+          txt.value = (inp && inp.value) ? inp.value : '';
         }
         this.updateNotesStats();
         if (modal) {
           modal.classList.remove('hidden');
+          modal.style.display = 'flex';
           setTimeout(() => { 
             if (txt) {
               txt.focus();
               txt.selectionStart = txt.selectionEnd = txt.value.length;
             }
-          }, 120);
+          }, 80);
         }
         if (window.triggerHapticPulse) triggerHapticPulse(10);
       },
@@ -11527,6 +11609,7 @@ window.SuiteSalesPOS = {
           txt.value = current + ' - ' + str;
         }
         this.updateNotesStats();
+        this.syncNotesLive();
         txt.focus();
         if (window.triggerHapticPulse) triggerHapticPulse(8);
       },
@@ -11539,6 +11622,7 @@ window.SuiteSalesPOS = {
         const current = txt.value.trim();
         txt.value = current ? current + ' ' + stamp : stamp;
         this.updateNotesStats();
+        this.syncNotesLive();
         txt.focus();
         if (window.triggerHapticPulse) triggerHapticPulse(8);
       },
@@ -11561,8 +11645,16 @@ window.SuiteSalesPOS = {
       },
 
       closeNotesModal() {
+        this.syncNotesLive();
         const modal = document.getElementById('suiteSalesNotesModal');
-        if (modal) modal.classList.add('hidden');
+        if (modal) {
+          modal.classList.add('hidden');
+          modal.style.display = 'none';
+        }
+      },
+
+      exit() {
+        exitToMainDashboard('modalOpSales');
       },
 
       saveNotesExpanded() {
@@ -11582,6 +11674,7 @@ window.SuiteSalesPOS = {
         if (txt) {
           txt.value = '';
           this.updateNotesStats();
+          this.syncNotesLive();
           txt.focus();
         }
       },
@@ -13165,6 +13258,10 @@ window.SuiteSalesPOS = {
       selectedCostCenter: 'المركز الرئيسي',
       currencyMode: 'USD',
       usdExchangeRate: 2850,
+
+      exit() {
+        exitToMainDashboard('modalOpPurchase');
+      },
 
       dbSuppliers: [
         { id: 'SUP-001', name: 'مطاحن الخرطوم للغلال', phone: '0123445566', currentBalance: 0, currency: 'SDG' },
@@ -15348,11 +15445,21 @@ async function commitOpReceipt() {
 
     function openModal(modalId) {
       const m = document.getElementById(modalId);
-      if (m) m.classList.remove('hidden');
+      if (m) {
+        m.classList.remove('hidden');
+        m.style.display = '';
+      }
     }
     function closeModal(modalId) {
       const m = document.getElementById(modalId);
-      if (m) m.classList.add('hidden');
+      if (m) {
+        m.classList.add('hidden');
+        m.style.display = 'none';
+      }
+      if (modalId === 'modalOpSales' || modalId === 'modalOpPurchase') {
+        if (typeof switchTab === 'function') switchTab('dashboard');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
 
     function triggerRefreshAnimation() {

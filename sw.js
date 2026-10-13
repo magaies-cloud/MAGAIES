@@ -9,7 +9,7 @@
  * - Zero Cache Staleness for Critical Real-Time APIs
  */
 
-const CACHE_NAME = 'magaiees-pwa-v2026-10-13-ai-fonts-v5';
+const CACHE_NAME = 'magaiees-pwa-v2026-10-13-exit-btn-v1';
 
 const PRECACHE_ASSETS = [
     './manifest.json',
