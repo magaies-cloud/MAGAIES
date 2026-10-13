@@ -7099,17 +7099,24 @@
 
         <!-- ═══════════════════════════════════════════════════════════════
              2. CUSTOMER ZONE MODULE: الوحدة الثانية: اسم العميل
-             (اسم العميل رمادي خفيف يمتد بكامل المساحة، مع خط منقص درجتين، وزر كشف الحساب، والبحث الذكي فعال)
+             (بحث ذكي منسدل فوري عند الكتابة بدون أيقونات أو كلمات، اسم العميل بالرمادي الخفيف وزر كشف)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 px-3 flex items-center justify-between gap-2 cursor-pointer transition active:scale-[0.99] relative overflow-hidden pos-field-interactive pos-field-customer min-h-[46px]" 
-             style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);" 
-             onclick="SuiteSalesPOS.openCustomerSearch()" title="انقر للبحث واختيار العميل بالاسم أو الهاتف">
+        <div class="rounded-2xl p-2.5 px-3 flex items-center justify-between gap-2 relative pos-field-interactive pos-field-customer min-h-[46px]" 
+             style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);">
           
-          <!-- اسم العميل: يمتد من بداية المساحة لآخرها بلون رمادي خفيف وخط منقص درجتين -->
-          <div class="flex items-center overflow-hidden flex-1 min-w-0">
-            <div id="suiteCustDisplayName" class="font-bold text-[15px] sm:text-base truncate tracking-wide w-full text-right" style="color: #cbd5e1 !important;">
-              <span style="color: #cbd5e1 !important;">عميل نقدي عام</span>
-            </div>
+          <!-- خانة اسم العميل: تمتد من البداية لآخر المساحة بلون رمادي خفيف وخط منقص درجتين وبحث ذكي منسدل -->
+          <div class="relative flex-1 min-w-0 flex items-center">
+            <input type="text" id="salesCustomerInput" 
+                   value="عميل نقدي عام" 
+                   placeholder="عميل نقدي عام" 
+                   autocomplete="off" 
+                   class="w-full bg-transparent font-bold text-[15px] sm:text-base tracking-wide text-right outline-none cursor-text truncate border-none p-0 m-0" 
+                   style="color: #cbd5e1 !important;" 
+                   oninput="SuiteSalesPOS.onCustomerInput(this.value)" 
+                   onfocus="SuiteSalesPOS.onCustomerFocus(this)" 
+                   onclick="this.select()" />
+            <!-- قائمة منسدلة ذكية جداً للعملاء -->
+            <div id="salesCustomerDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-sky-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-60 overflow-y-auto z-[300] text-xs"></div>
           </div>
 
           <!-- زر كشف الحساب الصغير في الآخر -->
@@ -7124,39 +7131,42 @@
           </div>
 
         </div>
-        <input type="hidden" id="salesCustomerInput" value="عميل نقدي عام">
 
         <!-- ═══════════════════════════════════════════════════════════════
              3. WAREHOUSE & NOTES MODULE: الوحدة الثالثة: المخزن والملحوظة
+             (بحث ذكي منسدل فوري بدون أيقونة وبدون كلمة)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 border space-y-1.5 shadow-xl relative overflow-hidden" 
+        <div class="rounded-2xl p-2.5 border shadow-xl relative overflow-visible" 
              style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
           
-          <div class="grid grid-cols-12 gap-1.5">
-            <!-- 1. المستودع / المخزن: 5 أعمدة -->
-            <div class="col-span-5">
-              <label class="text-[12px] sm:text-[13px] font-black text-purple-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-warehouse text-[11px]"></i> المخزن:
-              </label>
-              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[52px] sm:h-[60px] px-1.5 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
-                   onclick="SuiteSalesPOS.openWarehouseSearch()" title="انقر لاختيار المخزن">
-                <span id="suiteWarehouseDisplayName" class="font-black text-sm sm:text-base text-center leading-snug px-1" style="color: #ffffff !important;">المستودع الرئيسي</span>
+          <div class="grid grid-cols-12 gap-1.5 items-center">
+            <!-- 1. المستودع / المخزن: 5 أعمدة - بدون أيقونة وبدون كلمة وقائمة ذكية منسدلة عند الكتابة -->
+            <div class="col-span-5 relative">
+              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative" 
+                   style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.45);">
+                <input type="text" id="salesWarehouseInput" 
+                       value="المستودع الرئيسي" 
+                       placeholder="المستودع..." 
+                       autocomplete="off" 
+                       class="w-full bg-transparent font-black text-sm sm:text-base text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
+                       oninput="SuiteSalesPOS.onWarehouseInput(this.value)" 
+                       onfocus="SuiteSalesPOS.onWarehouseFocus(this)" 
+                       onclick="this.select()" />
               </div>
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
+              <!-- قائمة منسدلة ذكية للمستودعات -->
+              <div id="salesWarehouseDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-purple-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-56 overflow-y-auto z-[300] text-xs"></div>
             </div>
 
             <!-- 2. الملحوظة / البيان: 7 أعمدة -->
             <div class="col-span-7 relative">
-              <label class="text-[12px] sm:text-[13px] font-black text-cyan-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-pen text-[11px]"></i> الملحوظة:
-              </label>
               <div class="relative">
                 <input type="text" id="salesNotesInput" placeholder="الملحوظة والبيان..." 
                        onclick="SuiteSalesPOS.openNotesModal()" 
-                       class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[60px] pr-3 pl-8 font-black text-base sm:text-lg text-white outline-none placeholder:text-slate-400 placeholder:font-black placeholder:text-sm sm:placeholder:text-base text-right cursor-pointer truncate rounded-xl" 
+                       class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] pr-3 pl-8 font-black text-base sm:text-lg text-white outline-none placeholder:text-slate-400 placeholder:font-black placeholder:text-sm sm:placeholder:text-base text-right cursor-pointer truncate rounded-xl" 
                        style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" 
                        title="انقر لتكبير واستعراض كامل الملحوظة في لوحة مخصصة" readonly />
-                <span class="absolute left-2.5 top-4 text-cyan-400/60 pointer-events-none text-sm"><i class="fa-solid fa-expand"></i></span>
+                <span class="absolute left-2.5 top-3.5 text-cyan-400/60 pointer-events-none text-sm"><i class="fa-solid fa-expand"></i></span>
               </div>
             </div>
           </div>
@@ -7165,30 +7175,33 @@
         <!-- ═══════════════════════════════════════════════════════════════
              4. ITEM ENTRY MODULE: الوحدة الرابعة: الصنف، الوحدة، الكمية، السعر، الجملة
              ═══════════════════════════════════════════════════════════════ -->
-        <div id="suiteSalesItemBox" class="p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-hidden" 
+        <div id="suiteSalesItemBox" class="p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-visible" 
              style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- السطر الأول: الصنف والوحدة -->
-          <div class="grid grid-cols-12 gap-1.5">
-            <!-- 1. الصنف -->
-            <div class="col-span-8">
-              <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-layer-group text-[11px]"></i> الصنف:
-              </label>
-              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[56px] sm:h-[66px] px-2.5 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
-                   onclick="SuiteSalesPOS.openItemSearch()" title="انقر لاختيار الصنف أو إضافة صنف غير مسجل">
-                <span id="suiteItemDisplayName" class="font-black text-xl sm:text-2xl truncate text-center tracking-wide" style="color: #fcd34d !important;">اختر الصنف...</span>
+          <!-- السطر الأول: الصنف والوحدة (بدون أيقونة وبدون كلمة، وبحث ذكي منسدل عند الكتابة) -->
+          <div class="grid grid-cols-12 gap-1.5 items-center">
+            <!-- 1. الصنف: 8 أعمدة -->
+            <div class="col-span-8 relative">
+              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[54px] sm:h-[62px] px-3 flex items-center transition rounded-xl relative" 
+                   style="background: #060913; border: 1.5px solid rgba(245, 158, 11, 0.45);">
+                <input type="text" id="salesItemSearchInput" 
+                       placeholder="اختر أو ابحث عن صنف..." 
+                       autocomplete="off" 
+                       class="w-full bg-transparent font-black text-lg sm:text-xl text-center tracking-wide outline-none cursor-text truncate border-none p-0 m-0" 
+                       style="color: #fcd34d !important;" 
+                       oninput="SuiteSalesPOS.onItemInput(this.value)" 
+                       onfocus="SuiteSalesPOS.onItemFocus(this)" 
+                       onclick="this.select()" />
               </div>
               <input type="hidden" id="salesItemSelectVal" value="">
+              <!-- قائمة منسدلة ذكية جداً للأصناف -->
+              <div id="salesItemDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-amber-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-64 overflow-y-auto z-[300] text-xs"></div>
             </div>
 
-            <!-- 2. الوحدة -->
+            <!-- 2. الوحدة: 4 أعمدة -->
             <div class="col-span-4">
-              <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-scale-balanced text-[11px]"></i> الوحدة:
-              </label>
               <select id="salesUnitSelect" onchange="SuiteSalesPOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[56px] sm:h-[66px] text-emerald-400 font-black text-center text-lg sm:text-xl outline-none cursor-pointer px-1 rounded-xl" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[54px] sm:h-[62px] text-emerald-400 font-black text-center text-lg sm:text-xl outline-none cursor-pointer px-1 rounded-xl" 
                       style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
                       title="الوحدة">
                 <option value="" disabled selected hidden>الوحدة</option>
@@ -7740,63 +7753,69 @@
 
         <!-- ═══════════════════════════════════════════════════════════════
              2. SUPPLIER ZONE MODULE: الوحدة الثانية: اسم المورد
+             (بحث ذكي منسدل فوري عند الكتابة بدون أيقونات أو كلمات، اسم المورد بالرمادي الخفيف وزر كشف)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 flex items-center justify-between gap-2 cursor-pointer transition active:scale-[0.99] relative overflow-hidden" 
-             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.4); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);" 
-             onclick="SuitePurchasePOS.openSupplierSearch()" title="انقر لتغيير أو بحث المورد">
+        <div class="rounded-2xl p-2 px-3 flex items-center justify-between gap-2 relative pos-field-interactive pos-field-customer min-h-[46px]" 
+             style="background: #0d0a04; border: 1.5px solid rgba(245, 158, 11, 0.4); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
           
-          <div class="flex items-center overflow-hidden flex-1">
-            <div id="suitePurSupplierDisplayName" class="font-black text-sm sm:text-base truncate" style="color: #f59e0b !important;">
-              <span style="color: #f59e0b !important;">مطاحن الخرطوم للغلال (مورد)</span>
-            </div>
+          <div class="relative flex-1 min-w-0 flex items-center">
+            <input type="text" id="purchaseSupplierInput" 
+                   value="مطاحن الخرطوم للغلال" 
+                   placeholder="ابحث باسم المورد أو الهاتف..." 
+                   autocomplete="off" 
+                   class="w-full bg-transparent font-bold text-[15px] sm:text-base tracking-wide text-right outline-none cursor-text truncate border-none p-0 m-0" 
+                   style="color: #cbd5e1 !important;" 
+                   oninput="SuitePurchasePOS.onSupplierInput(this.value)" 
+                   onfocus="SuitePurchasePOS.onSupplierFocus(this)" 
+                   onclick="this.select()" />
+            <div id="purchaseSupplierDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-amber-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-60 overflow-y-auto z-[300] text-xs"></div>
           </div>
 
-          <div class="shrink-0 flex items-center gap-1.5">
+          <div class="shrink-0 flex items-center">
             <button type="button" onclick="event.stopPropagation(); SuitePurchasePOS.printSupplierStatement();" 
-                    class="px-2 py-1 rounded-xl text-[10.5px] font-black transition active:scale-95 shadow-md flex items-center justify-center gap-1 cursor-pointer" 
+                    class="px-2.5 py-1 rounded-xl text-[11px] font-black transition active:scale-95 shadow-md flex items-center justify-center gap-1 cursor-pointer" 
                     style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1.5px solid rgba(245, 158, 11, 0.5); box-shadow: 0 0 8px rgba(245, 158, 11, 0.25);" 
                     title="كشف حساب المورد">
               <i class="fa-solid fa-file-invoice text-[10px]"></i>
               <span>كشف</span>
             </button>
-            <span class="text-[11px] text-slate-300 font-black px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-amber-500/30 flex items-center gap-1.5 text-amber-300">
-              <i class="fa-solid fa-truck-field text-xs"></i> بحث
-            </span>
           </div>
 
         </div>
-        <input type="hidden" id="purchaseSupplierInput" value="مطاحن الخرطوم للغلال">
 
         <!-- ═══════════════════════════════════════════════════════════════
              3. WAREHOUSE & NOTES MODULE: الوحدة الثالثة: المخزن والملحوظة
+             (بحث ذكي منسدل فوري بدون أيقونة وبدون كلمة)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 border space-y-1.5 shadow-xl relative overflow-hidden" 
+        <div class="rounded-2xl p-2.5 border shadow-xl relative overflow-visible" 
              style="background: #0d0a04; border: 1.5px solid rgba(168, 85, 247, 0.35); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
-          <div class="grid grid-cols-12 gap-1.5">
+          <div class="grid grid-cols-12 gap-1.5 items-center">
             <!-- 1. المستودع / المخزن: 5 أعمدة -->
-            <div class="col-span-5">
-              <label class="text-[12px] sm:text-[13px] font-black text-purple-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-warehouse text-[11px]"></i> المخزن:
-              </label>
-              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[52px] sm:h-[60px] px-1.5 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
-                   onclick="SuitePurchasePOS.openWarehouseSearch()" title="انقر لاختيار المخزن">
-                <span id="suitePurWarehouseDisplayName" class="font-black text-sm sm:text-base text-center leading-snug px-1" style="color: #ffffff !important;">المستودع الرئيسي</span>
+            <div class="col-span-5 relative">
+              <div class="glow-input-field glow-purple pos-field-interactive pos-field-warehouse w-full h-[50px] sm:h-[56px] px-2 flex items-center transition rounded-xl relative" 
+                   style="background: #0d0a04; border: 1.5px solid rgba(168, 85, 247, 0.45);">
+                <input type="text" id="purchaseWarehouseInput" 
+                       value="المستودع الرئيسي" 
+                       placeholder="المستودع..." 
+                       autocomplete="off" 
+                       class="w-full bg-transparent font-black text-sm sm:text-base text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
+                       oninput="SuitePurchasePOS.onWarehouseInput(this.value)" 
+                       onfocus="SuitePurchasePOS.onWarehouseFocus(this)" 
+                       onclick="this.select()" />
               </div>
               <input type="hidden" id="purchaseWarehouseSelect" value="المستودع الرئيسي">
+              <div id="purchaseWarehouseDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-purple-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-56 overflow-y-auto z-[300] text-xs"></div>
             </div>
 
             <!-- 2. الملحوظة / البيان: 7 أعمدة -->
             <div class="col-span-7 relative">
-              <label class="text-[12px] sm:text-[13px] font-black text-cyan-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-pen text-[11px]"></i> الملحوظة:
-              </label>
               <div class="relative">
                 <input type="text" id="purNotesInput" placeholder="الملحوظة والبيان..." 
                        onclick="SuitePurchasePOS.openNotesModal()" 
-                       class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[52px] sm:h-[60px] pr-3 pl-8 font-black text-base sm:text-lg text-white outline-none placeholder:text-slate-400 placeholder:font-black placeholder:text-sm sm:placeholder:text-base text-right cursor-pointer truncate rounded-xl" 
+                       class="glow-input-field glow-cyan pos-field-interactive pos-field-note w-full h-[50px] sm:h-[56px] pr-3 pl-8 font-black text-base sm:text-lg text-white outline-none placeholder:text-slate-400 placeholder:font-black placeholder:text-sm sm:placeholder:text-base text-right cursor-pointer truncate rounded-xl" 
                        style="background: rgba(15, 23, 42, 0.92) !important; color: #ffffff !important;" 
                        title="انقر لتكبير واستعراض كامل الملحوظة في لوحة مخصصة" readonly />
-                <span class="absolute left-2.5 top-4 text-cyan-400/60 pointer-events-none text-sm"><i class="fa-solid fa-expand"></i></span>
+                <span class="absolute left-2.5 top-3.5 text-cyan-400/60 pointer-events-none text-sm"><i class="fa-solid fa-expand"></i></span>
               </div>
             </div>
           </div>
@@ -7805,30 +7824,32 @@
         <!-- ═══════════════════════════════════════════════════════════════
              4. ITEM ENTRY MODULE: الوحدة الرابعة: الصنف، الوحدة، الكمية، السعر، الجملة
              ═══════════════════════════════════════════════════════════════ -->
-        <div id="suitePurItemBox" class="p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-hidden" 
+        <div id="suitePurItemBox" class="p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-visible" 
              style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.35); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
           
-          <!-- السطر الأول: الصنف والوحدة -->
-          <div class="grid grid-cols-12 gap-1.5">
-            <!-- 1. الصنف -->
-            <div class="col-span-8">
-              <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-layer-group text-[11px]"></i> الصنف:
-              </label>
-              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[56px] sm:h-[66px] px-2.5 flex items-center justify-center cursor-pointer transition overflow-hidden rounded-xl" 
-                   onclick="SuitePurchasePOS.openItemSearch()" title="انقر لاختيار الصنف أو إضافة صنف غير مسجل">
-                <span id="suitePurItemDisplayName" class="font-black text-xl sm:text-2xl truncate text-center tracking-wide" style="color: #fcd34d !important;">اختر الصنف...</span>
+          <!-- السطر الأول: الصنف والوحدة (بدون أيقونة وبدون كلمة، وبحث ذكي منسدل عند الكتابة) -->
+          <div class="grid grid-cols-12 gap-1.5 items-center">
+            <!-- 1. الصنف: 8 أعمدة -->
+            <div class="col-span-8 relative">
+              <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[54px] sm:h-[62px] px-3 flex items-center transition rounded-xl relative" 
+                   style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.45);">
+                <input type="text" id="purItemSearchInput" 
+                       placeholder="اختر أو ابحث عن صنف..." 
+                       autocomplete="off" 
+                       class="w-full bg-transparent font-black text-lg sm:text-xl text-center tracking-wide outline-none cursor-text truncate border-none p-0 m-0" 
+                       style="color: #fcd34d !important;" 
+                       oninput="SuitePurchasePOS.onItemInput(this.value)" 
+                       onfocus="SuitePurchasePOS.onItemFocus(this)" 
+                       onclick="this.select()" />
               </div>
               <input type="hidden" id="purItemSelectVal" value="">
+              <div id="purItemDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-amber-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-64 overflow-y-auto z-[300] text-xs"></div>
             </div>
 
-            <!-- 2. الوحدة -->
+            <!-- 2. الوحدة: 4 أعمدة -->
             <div class="col-span-4">
-              <label class="text-[12px] sm:text-[13px] font-black text-emerald-300 mb-0.5 flex items-center gap-1 truncate">
-                <i class="fa-solid fa-scale-balanced text-[11px]"></i> الوحدة:
-              </label>
               <select id="purUnitSelect" onchange="SuitePurchasePOS.onUnitChange()" 
-                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[56px] sm:h-[66px] text-emerald-400 font-black text-center text-lg sm:text-xl outline-none cursor-pointer px-1 rounded-xl" 
+                      class="glow-input-field glow-emerald pos-field-interactive pos-field-unit w-full h-[54px] sm:h-[62px] text-emerald-400 font-black text-center text-lg sm:text-xl outline-none cursor-pointer px-1 rounded-xl" 
                       style="background: rgba(15, 23, 42, 0.92) !important; color: #34d399 !important;" 
                       title="الوحدة">
                 <option value="" disabled selected hidden>الوحدة</option>
@@ -13499,6 +13520,533 @@ window.SuiteSalesPOS = {
         alert(dir === 'next' ? 'فاتورة الشراء التالية' : 'فاتورة الشراء السابقة');
       }
     };
+
+// ═══════════════════════════════════════════════════════════════════
+// SUITE SMART SEARCH ENGINE (بحث فائق الذكاء مع تطبيع الحروف والقوائم المنسدلة)
+// ═══════════════════════════════════════════════════════════════════
+(function() {
+  window.SuiteSmartSearch = {
+    norm(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/[يى]/g, 'ي')
+        .replace(/[\s\-_/\\,،]+/g, ' ')
+        .trim()
+        .toLowerCase();
+    },
+
+    match(targetText, query) {
+      if (!query || !query.trim()) return true;
+      const qNorm = this.norm(query);
+      const tNorm = this.norm(targetText);
+      const tokens = qNorm.split(' ').filter(Boolean);
+      return tokens.every(tok => tNorm.includes(tok));
+    },
+
+    score(targetText, query) {
+      if (!query || !query.trim()) return 100;
+      const qNorm = this.norm(query);
+      const tNorm = this.norm(targetText);
+      if (tNorm === qNorm) return 1000;
+      if (tNorm.startsWith(qNorm)) return 800;
+      const tokens = qNorm.split(' ').filter(Boolean);
+      if (tokens.every(tok => tNorm.includes(tok))) {
+        let sc = 500;
+        if (tNorm.startsWith(tokens[0])) sc += 200;
+        return sc;
+      }
+      return 0;
+    },
+
+    highlight(text, query) {
+      if (!query || !query.trim() || !text) return text || '';
+      const tokens = this.norm(query).split(' ').filter(tok => tok.length > 0);
+      if (!tokens.length) return text;
+      let res = String(text);
+      tokens.forEach(tok => {
+        try {
+          const escaped = tok.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
+          const regex = new RegExp('(' + escaped + ')', 'gi');
+          res = res.replace(regex, '<span class="text-amber-300 font-black underline bg-amber-500/20 px-0.5 rounded">$1</span>');
+        } catch(e) {}
+      });
+      return res;
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────
+  // 1. EXTEND SUITE SALES POS
+  // ─────────────────────────────────────────────────────────────
+  if (window.SuiteSalesPOS) {
+    Object.assign(window.SuiteSalesPOS, {
+      onCustomerFocus(el) {
+        this.renderCustomerDropdown(el.value || '');
+      },
+
+      onCustomerInput(q) {
+        this.renderCustomerDropdown(q);
+      },
+
+      renderCustomerDropdown(q) {
+        const drop = document.getElementById('salesCustomerDropdown');
+        if (!drop) return;
+        const query = (q || '').trim();
+        const scored = (this.dbCustomers || []).map(c => {
+          const target = (c.name || '') + ' ' + (c.phone || c.whatsapp || '');
+          return {
+            customer: c,
+            score: SuiteSmartSearch.score(target, query),
+            match: SuiteSmartSearch.match(target, query)
+          };
+        }).filter(item => item.match)
+          .sort((a, b) => b.score - a.score);
+
+        if (scored.length === 0) {
+          drop.innerHTML = '<div class="text-center py-3 text-slate-400 text-xs">لا توجد نتائج مطابقة لـ "' + query + '"</div>';
+          drop.classList.remove('hidden');
+          return;
+        }
+
+        let html = '';
+        scored.slice(0, 15).forEach(item => {
+          const c = item.customer;
+          const bal = parseFloat(c.currentBalance || c.balance || c.openingBalance || 0);
+          const foreignBal = (bal / (this.usdExchangeRate || 3100)).toFixed(2);
+          const isUSD = (c.currency === 'USD');
+          const ph = c.phone || c.whatsapp || '';
+          const nameHl = SuiteSmartSearch.highlight(c.name, query);
+          const phHl = ph ? SuiteSmartSearch.highlight(ph, query) : '';
+          const cJson = JSON.stringify(c).replace(/"/g, '&quot;');
+
+          html += `
+            <div onclick="SuiteSalesPOS.selectCustomer(${cJson})" 
+                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800/80 hover:border-sky-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-2">
+              <div class="min-w-0 flex-1">
+                <span class="font-bold text-slate-200 block text-xs truncate">${nameHl}</span>
+                ${ph ? `<span class="text-cyan-400 font-mono text-[10px] block truncate">${phHl}</span>` : ''}
+              </div>
+              <div class="text-left font-mono text-[11px] shrink-0">
+                <span class="${bal > 0 ? 'text-rose-400' : 'text-emerald-400'} font-black block">${bal.toLocaleString()} SDG ${isUSD ? '<span class="text-amber-300 text-[9px] font-sans">[USD]</span>' : ''}</span>
+                <span class="text-slate-400 text-[9.5px] block">${foreignBal} $</span>
+              </div>
+            </div>`;
+        });
+
+        drop.innerHTML = html;
+        drop.classList.remove('hidden');
+      },
+
+      onWarehouseFocus(el) {
+        this.renderWarehouseDropdown(el.value || '');
+      },
+
+      onWarehouseInput(q) {
+        this.renderWarehouseDropdown(q);
+      },
+
+      renderWarehouseDropdown(q) {
+        const drop = document.getElementById('salesWarehouseDropdown');
+        if (!drop) return;
+        const query = (q || '').trim();
+        const scored = (this.dbWarehouses || []).map(w => {
+          const target = (w.name || '') + ' ' + (w.type || '');
+          return {
+            warehouse: w,
+            score: SuiteSmartSearch.score(target, query),
+            match: SuiteSmartSearch.match(target, query)
+          };
+        }).filter(item => item.match)
+          .sort((a, b) => b.score - a.score);
+
+        if (scored.length === 0) {
+          drop.innerHTML = '<div class="text-center py-3 text-slate-400 text-xs">لا يوجد مستودع مطابق</div>';
+          drop.classList.remove('hidden');
+          return;
+        }
+
+        let html = '';
+        scored.forEach(item => {
+          const w = item.warehouse;
+          const nameHl = SuiteSmartSearch.highlight(w.name, query);
+          const safeName = (w.name || '').replace(/'/g, "\\'");
+          html += `
+            <div onclick="SuiteSalesPOS.selectWarehouse('${safeName}')" 
+                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99]">
+              <span class="font-bold text-white text-xs">${nameHl}</span>
+              <span class="text-[10px] text-purple-300 font-mono">${w.type || 'مستودع'}</span>
+            </div>`;
+        });
+        drop.innerHTML = html;
+        drop.classList.remove('hidden');
+      },
+
+      onItemFocus(el) {
+        this.renderItemDropdown(el.value || '');
+      },
+
+      onItemInput(q) {
+        this.renderItemDropdown(q);
+      },
+
+      renderItemDropdown(q) {
+        const drop = document.getElementById('salesItemDropdown');
+        if (!drop) return;
+        const query = (q || '').trim();
+        const scored = (this.dbItems || []).map((it, idx) => {
+          const target = (it.name || '') + ' ' + (it.barcode || '') + ' ' + (it.baseUnit || it.unit || '');
+          return {
+            item: it,
+            originalIndex: idx,
+            score: SuiteSmartSearch.score(target, query),
+            match: SuiteSmartSearch.match(target, query)
+          };
+        }).filter(item => item.match)
+          .sort((a, b) => b.score - a.score);
+
+        let html = '';
+        if (query && !scored.some(s => s.item.name === query)) {
+          const safeQ = query.replace(/'/g, "\\'");
+          html += `
+            <div onclick="SuiteSalesPOS.selectCustomItem('${safeQ}')" 
+                 class="p-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/70 border border-amber-500/60 flex items-center justify-between cursor-pointer transition active:scale-[0.99] text-amber-200 mb-1">
+              <span class="font-bold text-xs">+ اعتماد "${query}" كصنف مخصص</span>
+              <span class="text-[10px] text-amber-300 font-mono">سطر حر</span>
+            </div>`;
+        }
+
+        if (scored.length === 0 && !query) {
+          drop.innerHTML = '<div class="text-center py-3 text-slate-400 text-xs">اكتب للبحث عن الصنف أو الباركود...</div>';
+          drop.classList.remove('hidden');
+          return;
+        }
+
+        scored.slice(0, 20).forEach(entry => {
+          const it = entry.item;
+          const idx = entry.originalIndex;
+          const prc = parseFloat(it.sellingPrice || it.price || 0);
+          const nameHl = SuiteSmartSearch.highlight(it.name, query);
+          const unit = it.baseUnit || it.unit || 'حبة';
+
+          html += `
+            <div onclick="SuiteSalesPOS.selectItemByIndex(${idx})" 
+                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-2">
+              <div class="min-w-0 flex-1">
+                <span class="font-bold text-slate-100 block text-xs truncate">${nameHl}</span>
+                ${it.barcode ? `<span class="text-slate-400 text-[10px] font-mono block truncate">${it.barcode}</span>` : ''}
+              </div>
+              <div class="text-left font-mono text-[11px] shrink-0">
+                <span class="text-emerald-400 font-black block">${prc.toLocaleString()} SDG</span>
+                <span class="text-amber-300 text-[10px] block">${unit}</span>
+              </div>
+            </div>`;
+        });
+
+        drop.innerHTML = html;
+        drop.classList.remove('hidden');
+      }
+    });
+
+    // Wrap selectCustomer
+    const origSelectCustomer = window.SuiteSalesPOS.selectCustomer;
+    window.SuiteSalesPOS.selectCustomer = function(c) {
+      origSelectCustomer.call(this, c);
+      const drop = document.getElementById('salesCustomerDropdown');
+      if (drop) drop.classList.add('hidden');
+      const inp = document.getElementById('salesCustomerInput');
+      if (inp && c && c.name) inp.value = c.name;
+    };
+
+    // Wrap selectWarehouse
+    const origSelectWarehouse = window.SuiteSalesPOS.selectWarehouse;
+    window.SuiteSalesPOS.selectWarehouse = function(name) {
+      origSelectWarehouse.call(this, name);
+      const drop = document.getElementById('salesWarehouseDropdown');
+      if (drop) drop.classList.add('hidden');
+      const inp = document.getElementById('salesWarehouseInput');
+      if (inp) inp.value = name;
+    };
+
+    // Wrap selectItemByIndex
+    const origSelectItemByIndex = window.SuiteSalesPOS.selectItemByIndex;
+    window.SuiteSalesPOS.selectItemByIndex = function(idx) {
+      origSelectItemByIndex.call(this, idx);
+      const drop = document.getElementById('salesItemDropdown');
+      if (drop) drop.classList.add('hidden');
+      const it = this.dbItems && this.dbItems[idx];
+      const inp = document.getElementById('salesItemSearchInput');
+      if (inp && it) inp.value = it.name;
+    };
+
+    // Wrap newInvoice
+    const origNewInvoice = window.SuiteSalesPOS.newInvoice;
+    window.SuiteSalesPOS.newInvoice = function() {
+      origNewInvoice.call(this);
+      const custInp = document.getElementById('salesCustomerInput');
+      if (custInp) custInp.value = 'عميل نقدي عام';
+      const whInp = document.getElementById('salesWarehouseInput');
+      if (whInp) whInp.value = 'المستودع الرئيسي';
+      const itInp = document.getElementById('salesItemSearchInput');
+      if (itInp) itInp.value = '';
+      ['salesCustomerDropdown', 'salesWarehouseDropdown', 'salesItemDropdown'].forEach(id => {
+        const d = document.getElementById(id);
+        if (d) d.classList.add('hidden');
+      });
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 2. EXTEND SUITE PURCHASE POS
+  // ─────────────────────────────────────────────────────────────
+  if (window.SuitePurchasePOS) {
+    Object.assign(window.SuitePurchasePOS, {
+      onSupplierFocus(el) {
+        this.renderSupplierDropdown(el.value || '');
+      },
+
+      onSupplierInput(q) {
+        this.renderSupplierDropdown(q);
+      },
+
+      renderSupplierDropdown(q) {
+        const drop = document.getElementById('purchaseSupplierDropdown');
+        if (!drop) return;
+        const query = (q || '').trim();
+        const scored = (this.dbSuppliers || []).map(s => {
+          const target = (s.name || '') + ' ' + (s.phone || '');
+          return {
+            supplier: s,
+            score: SuiteSmartSearch.score(target, query),
+            match: SuiteSmartSearch.match(target, query)
+          };
+        }).filter(item => item.match)
+          .sort((a, b) => b.score - a.score);
+
+        if (scored.length === 0) {
+          drop.innerHTML = '<div class="text-center py-3 text-slate-400 text-xs">لا يوجد مورد مطابق لـ "' + query + '"</div>';
+          drop.classList.remove('hidden');
+          return;
+        }
+
+        let html = '';
+        scored.slice(0, 15).forEach(item => {
+          const s = item.supplier;
+          const nameHl = SuiteSmartSearch.highlight(s.name, query);
+          const ph = s.phone || '';
+          const sJson = JSON.stringify(s).replace(/"/g, '&quot;');
+          html += `
+            <div onclick="SuitePurchasePOS.selectSupplier(${sJson})" 
+                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-2">
+              <div class="min-w-0 flex-1">
+                <span class="font-bold text-slate-200 block text-xs truncate">${nameHl}</span>
+                ${ph ? `<span class="text-amber-400 font-mono text-[10px] block truncate">${ph}</span>` : ''}
+              </div>
+              <div class="text-right shrink-0">
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-amber-300 font-bold">مورد</span>
+              </div>
+            </div>`;
+        });
+        drop.innerHTML = html;
+        drop.classList.remove('hidden');
+      },
+
+      onWarehouseFocus(el) {
+        this.renderWarehouseDropdown(el.value || '');
+      },
+
+      onWarehouseInput(q) {
+        this.renderWarehouseDropdown(q);
+      },
+
+      renderWarehouseDropdown(q) {
+        const drop = document.getElementById('purchaseWarehouseDropdown');
+        if (!drop) return;
+        const query = (q || '').trim();
+        const warehouses = (window.SuiteSalesPOS && SuiteSalesPOS.dbWarehouses) ? SuiteSalesPOS.dbWarehouses : [];
+        const scored = warehouses.map(w => {
+          const target = (w.name || '') + ' ' + (w.type || '');
+          return {
+            warehouse: w,
+            score: SuiteSmartSearch.score(target, query),
+            match: SuiteSmartSearch.match(target, query)
+          };
+        }).filter(item => item.match)
+          .sort((a, b) => b.score - a.score);
+
+        if (scored.length === 0) {
+          drop.innerHTML = '<div class="text-center py-3 text-slate-400 text-xs">لا يوجد مستودع مطابق</div>';
+          drop.classList.remove('hidden');
+          return;
+        }
+
+        let html = '';
+        scored.forEach(item => {
+          const w = item.warehouse;
+          const nameHl = SuiteSmartSearch.highlight(w.name, query);
+          const safeName = (w.name || '').replace(/'/g, "\\'");
+          html += `
+            <div onclick="SuitePurchasePOS.selectWarehouse('${safeName}')" 
+                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-purple-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99]">
+              <span class="font-bold text-white text-xs">${nameHl}</span>
+              <span class="text-[10px] text-purple-300 font-mono">${w.type || 'مستودع'}</span>
+            </div>`;
+        });
+        drop.innerHTML = html;
+        drop.classList.remove('hidden');
+      },
+
+      onItemFocus(el) {
+        this.renderItemDropdown(el.value || '');
+      },
+
+      onItemInput(q) {
+        this.renderItemDropdown(q);
+      },
+
+      renderItemDropdown(q) {
+        const drop = document.getElementById('purItemDropdown');
+        if (!drop) return;
+        const query = (q || '').trim();
+        const items = (window.SuiteSalesPOS && SuiteSalesPOS.dbItems) ? SuiteSalesPOS.dbItems : [];
+        const scored = items.map((it, idx) => {
+          const target = (it.name || '') + ' ' + (it.barcode || '') + ' ' + (it.baseUnit || it.unit || '');
+          return {
+            item: it,
+            originalIndex: idx,
+            score: SuiteSmartSearch.score(target, query),
+            match: SuiteSmartSearch.match(target, query)
+          };
+        }).filter(item => item.match)
+          .sort((a, b) => b.score - a.score);
+
+        let html = '';
+        if (query && !scored.some(s => s.item.name === query)) {
+          const safeQ = query.replace(/'/g, "\\'");
+          html += `
+            <div onclick="SuitePurchasePOS.selectCustomItem('${safeQ}')" 
+                 class="p-2 rounded-xl bg-amber-950/60 hover:bg-amber-900/70 border border-amber-500/60 flex items-center justify-between cursor-pointer transition active:scale-[0.99] text-amber-200 mb-1">
+              <span class="font-bold text-xs">+ اعتماد "${query}" كصنف مخصص</span>
+              <span class="text-[10px] text-amber-300 font-mono">سطر حر</span>
+            </div>`;
+        }
+
+        if (scored.length === 0 && !query) {
+          drop.innerHTML = '<div class="text-center py-3 text-slate-400 text-xs">اكتب للبحث عن الصنف أو الباركود...</div>';
+          drop.classList.remove('hidden');
+          return;
+        }
+
+        scored.slice(0, 20).forEach(entry => {
+          const it = entry.item;
+          const idx = entry.originalIndex;
+          const prc = parseFloat(it.costPrice || it.price || 0);
+          const nameHl = SuiteSmartSearch.highlight(it.name, query);
+          const unit = it.baseUnit || it.unit || 'حبة';
+
+          html += `
+            <div onclick="SuitePurchasePOS.selectItemByIndex(${idx})" 
+                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-2">
+              <div class="min-w-0 flex-1">
+                <span class="font-bold text-slate-100 block text-xs truncate">${nameHl}</span>
+                ${it.barcode ? `<span class="text-slate-400 text-[10px] font-mono block truncate">${it.barcode}</span>` : ''}
+              </div>
+              <div class="text-left font-mono text-[11px] shrink-0">
+                <span class="text-amber-400 font-black block">${prc.toLocaleString()} SDG</span>
+                <span class="text-slate-400 text-[10px] block">${unit}</span>
+              </div>
+            </div>`;
+        });
+        drop.innerHTML = html;
+        drop.classList.remove('hidden');
+      }
+    });
+
+    // Wrap selectSupplier
+    const origSelectSupplier = window.SuitePurchasePOS.selectSupplier;
+    window.SuitePurchasePOS.selectSupplier = function(s) {
+      origSelectSupplier.call(this, s);
+      const drop = document.getElementById('purchaseSupplierDropdown');
+      if (drop) drop.classList.add('hidden');
+      const inp = document.getElementById('purchaseSupplierInput');
+      if (inp && s && s.name) inp.value = s.name;
+    };
+
+    // Wrap selectWarehouse
+    const origPurSelectWarehouse = window.SuitePurchasePOS.selectWarehouse;
+    window.SuitePurchasePOS.selectWarehouse = function(name) {
+      origPurSelectWarehouse.call(this, name);
+      const drop = document.getElementById('purchaseWarehouseDropdown');
+      if (drop) drop.classList.add('hidden');
+      const inp = document.getElementById('purchaseWarehouseInput');
+      if (inp) inp.value = name;
+    };
+
+    // Wrap selectItemByIndex
+    const origPurSelectItemByIndex = window.SuitePurchasePOS.selectItemByIndex;
+    window.SuitePurchasePOS.selectItemByIndex = function(idx) {
+      origPurSelectItemByIndex.call(this, idx);
+      const drop = document.getElementById('purItemDropdown');
+      if (drop) drop.classList.add('hidden');
+      const items = (window.SuiteSalesPOS && SuiteSalesPOS.dbItems) ? SuiteSalesPOS.dbItems : [];
+      const item = items[idx];
+      const inp = document.getElementById('purItemSearchInput');
+      if (inp && item) inp.value = item.name;
+    };
+
+    // Wrap selectCustomItem
+    const origPurSelectCustomItem = window.SuitePurchasePOS.selectCustomItem;
+    window.SuitePurchasePOS.selectCustomItem = function(name) {
+      origPurSelectCustomItem.call(this, name);
+      const drop = document.getElementById('purItemDropdown');
+      if (drop) drop.classList.add('hidden');
+      const inp = document.getElementById('purItemSearchInput');
+      if (inp) inp.value = name;
+    };
+
+    // Wrap newInvoice
+    const origPurNewInvoice = window.SuitePurchasePOS.newInvoice;
+    if (typeof origPurNewInvoice === 'function') {
+      window.SuitePurchasePOS.newInvoice = function() {
+        origPurNewInvoice.call(this);
+        const suppInp = document.getElementById('purchaseSupplierInput');
+        if (suppInp) suppInp.value = 'مطاحن الخرطوم للغلال';
+        const whInp = document.getElementById('purchaseWarehouseInput');
+        if (whInp) whInp.value = 'المستودع الرئيسي';
+        const itInp = document.getElementById('purItemSearchInput');
+        if (itInp) itInp.value = '';
+        ['purchaseSupplierDropdown', 'purchaseWarehouseDropdown', 'purItemDropdown'].forEach(id => {
+          const d = document.getElementById(id);
+          if (d) d.classList.add('hidden');
+        });
+      };
+    }
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // 3. GLOBAL CLICK-OUTSIDE DISMISSAL
+  // ─────────────────────────────────────────────────────────────
+  document.addEventListener('click', function(e) {
+    const dropdowns = [
+      { inp: 'salesCustomerInput', drop: 'salesCustomerDropdown' },
+      { inp: 'salesWarehouseInput', drop: 'salesWarehouseDropdown' },
+      { inp: 'salesItemSearchInput', drop: 'salesItemDropdown' },
+      { inp: 'purchaseSupplierInput', drop: 'purchaseSupplierDropdown' },
+      { inp: 'purchaseWarehouseInput', drop: 'purchaseWarehouseDropdown' },
+      { inp: 'purItemSearchInput', drop: 'purItemDropdown' }
+    ];
+    dropdowns.forEach(item => {
+      if (!e.target.closest('#' + item.inp + ', #' + item.drop)) {
+        const d = document.getElementById(item.drop);
+        if (d && !d.classList.contains('hidden')) {
+          d.classList.add('hidden');
+        }
+      }
+    });
+  });
+})();
+
 
 async function commitOpSales(andPay = false) {
       if (window.AppHaptics) AppHaptics.success();
