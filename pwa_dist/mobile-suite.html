@@ -336,6 +336,54 @@
       letter-spacing: 0.5px;
     }
 
+    /* ── فواصل المناطق (Zones) الواضحة في شاشة المبيعات بخلفيات وحدود مميزة وقوية لكل منطقة ── */
+    #modalOpSales .pos-zone-1 {
+      background: linear-gradient(145deg, #0d2247 0%, #071329 100%) !important;
+      border: 2px solid rgba(56, 189, 248, 0.85) !important;
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+    }
+    #modalOpSales .pos-zone-2 {
+      background: linear-gradient(145deg, #0b2b3c 0%, #061824 100%) !important;
+      border: 2px solid rgba(14, 165, 233, 0.88) !important;
+      box-shadow: 0 6px 20px rgba(6, 182, 212, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+    }
+    #modalOpSales .pos-zone-3 {
+      background: linear-gradient(145deg, #27154a 0%, #130a29 100%) !important;
+      border: 2px solid rgba(192, 132, 252, 0.88) !important;
+      box-shadow: 0 6px 20px rgba(168, 85, 247, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+    }
+    #modalOpSales .pos-zone-4 {
+      background: linear-gradient(145deg, #331f0b 0%, #180f05 100%) !important;
+      border: 2.5px solid rgba(251, 191, 36, 0.92) !important;
+      box-shadow: 0 8px 26px rgba(245, 158, 11, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    }
+    #modalOpSales .pos-zone-5 {
+      background: linear-gradient(145deg, #092e26 0%, #041814 100%) !important;
+      border: 2px solid rgba(52, 211, 153, 0.88) !important;
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+    }
+    #modalOpSales .pos-zone-6 {
+      background: linear-gradient(145deg, #131f42 0%, #091024 100%) !important;
+      border: 2px solid rgba(96, 165, 250, 0.82) !important;
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+    }
+
+    /* ── النصوص الافتراضية المؤقتة (عميل نقدي عام، المستودع الرئيسي، اختيار الصنف، الكمية، الجملة، الخصم، الصافي) بلون خفيف جداً جداً ── */
+    #modalOpSales input.pos-ghost-default {
+      color: rgba(148, 163, 184, 0.28) !important;
+      text-shadow: none !important;
+      -webkit-text-stroke: 0px transparent !important;
+      font-weight: 700 !important;
+    }
+    #modalOpSales input::placeholder,
+    #modalOpSales textarea::placeholder {
+      color: rgba(148, 163, 184, 0.24) !important;
+      opacity: 1 !important;
+      text-shadow: none !important;
+      -webkit-text-stroke: 0px transparent !important;
+      font-weight: 700 !important;
+    }
+
     /* Ultra-Smooth Mobile GPU Acceleration & Ergonomic Performance */
     @media (max-width: 768px) {
       .glass-base {
@@ -7070,8 +7118,7 @@
              السطر الأول: 1. المايك -> 2. المبيعات -> 3. الدولار (سعر الصرف والعملة) -> 4. الآلة الحاسبة -> 5. زر صغير للخروج
              السطر الثاني: 1. التاريخ -> 2. رقم السند واضح وبأسهم يمين وشمال بارزة
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 space-y-2 border relative overflow-hidden" 
-             style="background: linear-gradient(180deg, #070c18, #040710); border: 1.5px solid rgba(56, 189, 248, 0.4); box-shadow: 0 6px 22px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.08);">
+        <div class="pos-zone-1 rounded-2xl p-2.5 space-y-2 border relative overflow-hidden">
           
           <!-- السطر الأول: 1. المايك (بلون أحمر ياقوتي مميز) -> 2. المبيعات (بالسماوي الملكي) -> 3. الدولار (برقم كبير وواضح جداً) -> 4. الآلة الحاسبة (تم حذف زر الإغلاق العلوي) -->
           <div class="flex items-center justify-between gap-2 w-full">
@@ -7174,13 +7221,13 @@
           </div>
 
           <div class="p-2 rounded-xl bg-slate-900 border border-sky-500/30 text-xs">
-            <div id="suiteSalesVoiceTranscript" class="text-white font-bold min-h-[22px]">تحدث بأي ترتيب مباشرة بدون كلمات مفتاحية (مثال: محمد حسن علي مكي، درة اللمام، سيخ 3 لينيا، طن عددي، الكمية 6 طن، السعر 3500، الإضافة 70000، الخصم 10000، العتال 16000، حفظ)...</div>
+            <div id="suiteSalesVoiceTranscript" class="text-white font-bold min-h-[22px]">تحدث بأي ترتيب مباشرة بدون كلمات مفتاحية (مثال: محمد حسن علي مكي، درة اللاماب، سيخ 3 لين، طن عددي، الكمية 6 طن، السعر 3500، الإضافة 70000، الخصم 10000، العتال 16000، حفظ)...</div>
           </div>
 
           <!-- تجارب وأوامر سريعة بنقرة زر (مرتبة أو مشقلبة) -->
           <div class="flex gap-1.5 overflow-x-auto py-0.5 no-scrollbar text-[10px]">
-            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('محمد حسن علي مكي، درة اللمام، سيخ 3 لينيا، طن عددي، الكمية 6 طن، السعر 3500، الإضافة 70000، الخصم 10000، العتال 16000')" class="px-2.5 py-1 rounded-lg bg-emerald-950/90 text-emerald-200 border border-emerald-500/50 shrink-0 hover:bg-emerald-800 transition active:scale-95 cursor-pointer font-bold">🎙️ تجربة 1 (الترتيب المباشر): محمد حسن + درة اللمام + سيخ 3 + 6 طن</button>
-            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('5 طن، السعر 748، سيخ 3 لينيا، طن وزني، محمد حسن علي مكي، المستودع درة اللمام')" class="px-2.5 py-1 rounded-lg bg-amber-950/90 text-amber-200 border border-amber-500/50 shrink-0 hover:bg-amber-800 transition active:scale-95 cursor-pointer font-bold">🔀 تجربة 2 (ترتيب مشقلب ذكي): 5 طن + 748 + سيخ 3 + طن وزني + محمد حسن</button>
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('محمد حسن علي مكي، درة اللاماب، سيخ 3 لين، طن عددي، الكمية 6 طن، السعر 3500، الإضافة 70000، الخصم 10000، العتال 16000')" class="px-2.5 py-1 rounded-lg bg-emerald-950/90 text-emerald-200 border border-emerald-500/50 shrink-0 hover:bg-emerald-800 transition active:scale-95 cursor-pointer font-bold">🎙️ تجربة 1 (الترتيب المباشر): محمد حسن + درة اللاماب + سيخ 3 لين + 6 طن</button>
+            <button type="button" onclick="SuiteSalesPOS.feedVoiceToFields('5 طن، السعر 748، سيخ 3 لين، طن وزني، محمد حسن علي مكي، المستودع درة اللاماب')" class="px-2.5 py-1 rounded-lg bg-amber-950/90 text-amber-200 border border-amber-500/50 shrink-0 hover:bg-amber-800 transition active:scale-95 cursor-pointer font-bold">🔀 تجربة 2 (ترتيب مشقلب ذكي): 5 طن + 748 + سيخ 3 لين + طن وزني + محمد حسن</button>
           </div>
 
           <!-- تفريغ يدوي أو نصي سريع -->
@@ -7191,21 +7238,21 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             2. CUSTOMER ZONE MODULE: السطر الثالث: اسم العميل + كشف (كما هو مع تحجيم ذكي للخط)
+             2. CUSTOMER ZONE MODULE: السطر الثالث: اسم العميل + كشف (بلون افتراضي خفيف جداً يمسح عند الكتابة)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 px-3 flex items-center justify-between gap-2 relative pos-field-interactive pos-field-customer min-h-[48px]" 
-             style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.38); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.75);">
+        <div class="pos-zone-2 rounded-2xl p-2.5 px-3 flex items-center justify-between gap-2 relative pos-field-interactive pos-field-customer min-h-[48px]">
           
           <div class="relative flex-1 min-w-0 flex items-center">
             <input type="text" id="salesCustomerInput" 
                    value="عميل نقدي عام" 
-                   placeholder="ابحث باسم العميل أو الهاتف..." 
+                   data-default-val="عميل نقدي عام"
+                   placeholder="عميل نقدي عام" 
                    autocomplete="off" 
-                   class="w-full bg-transparent font-black text-[13px] sm:text-[14px] tracking-wide text-right outline-none cursor-text border-none p-0 m-0" 
+                   class="pos-ghost-default w-full bg-transparent font-black text-[13px] sm:text-[14px] tracking-wide text-right outline-none cursor-text border-none p-0 m-0" 
                    style="color: #38bdf8 !important; text-shadow: 0 0 10px rgba(56, 189, 248, 0.3);" 
                    oninput="SuiteSalesPOS.onCustomerInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleCustomer(this);" 
                    onfocus="SuiteSalesPOS.onCustomerFocus(this)" 
-                   onclick="this.select()" />
+                   onblur="SuiteSalesPOS.onCustomerBlur && SuiteSalesPOS.onCustomerBlur(this)" />
           </div>
 
           <div class="shrink-0 flex items-center mr-auto -ml-1">
@@ -7235,10 +7282,9 @@
 
         <!-- ═══════════════════════════════════════════════════════════════
              3. WAREHOUSE & COST CENTER MODULE: السطر الرابع: المستودع وبجواره مركز الكلفة
-             (كلاهما متجاوران بنفس الارتفاع وبنفس الذكاء الاصطناعي لمقاس الخط والبحث المنسدل)
+             (بألوان افتراضية خفيفة جداً تمسح تلقائياً عند الكتابة)
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 border shadow-xl relative overflow-visible" 
-             style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.38); box-shadow: 0 4px 18px rgba(0, 0, 0, 0.8);">
+        <div class="pos-zone-3 rounded-2xl p-2.5 border shadow-xl relative overflow-visible">
           
           <div class="grid grid-cols-12 gap-2 items-end relative">
             <!-- 1. المستودع (6 أعمدة) -->
@@ -7248,13 +7294,14 @@
                    style="background: #060913; border: 1.5px solid rgba(168, 85, 247, 0.5);">
                 <input type="text" id="salesWarehouseInput" 
                        value="المستودع الرئيسي" 
-                       placeholder="المستودع..." 
+                       data-default-val="المستودع الرئيسي"
+                       placeholder="المستودع الرئيسي" 
                        autocomplete="off" 
-                       class="w-full bg-transparent font-black text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
+                       class="pos-ghost-default w-full bg-transparent font-black text-center leading-snug px-1 text-white outline-none cursor-text truncate border-none p-0 m-0" 
                        style="font-size: 14px;" 
                        oninput="SuiteSalesPOS.onWarehouseInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleWarehouse(this);" 
                        onfocus="SuiteSalesPOS.onWarehouseFocus(this)" 
-                       onclick="this.select()" />
+                       onblur="SuiteSalesPOS.onWarehouseBlur && SuiteSalesPOS.onWarehouseBlur(this)" />
               </div>
               <input type="hidden" id="salesWarehouseSelect" value="المستودع الرئيسي">
             </div>
@@ -7266,13 +7313,14 @@
                    style="background: #060913; border: 1.5px solid rgba(56, 189, 248, 0.5);">
                 <input type="text" id="salesCostCenterInput" 
                        value="المركز الرئيسي" 
-                       placeholder="مركز الكلفة..." 
+                       data-default-val="المركز الرئيسي"
+                       placeholder="المركز الرئيسي" 
                        autocomplete="off" 
-                       class="w-full bg-transparent font-black text-center leading-snug px-1 text-sky-200 outline-none cursor-text truncate border-none p-0 m-0" 
+                       class="pos-ghost-default w-full bg-transparent font-black text-center leading-snug px-1 text-sky-200 outline-none cursor-text truncate border-none p-0 m-0" 
                        style="color: #bae6fd !important; font-size: 14px;" 
                        oninput="SuiteSalesPOS.onCostCenterInput && SuiteSalesPOS.onCostCenterInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleCostCenter(this);" 
                        onfocus="SuiteSalesPOS.onCostCenterFocus && SuiteSalesPOS.onCostCenterFocus(this)" 
-                       onclick="this.select()" />
+                       onblur="SuiteSalesPOS.onCostCenterBlur && SuiteSalesPOS.onCostCenterBlur(this)" />
                 <button type="button" onclick="event.stopPropagation(); SuiteSalesPOS.openCostCenterSearch();" 
                         class="w-6 h-6 rounded-lg bg-sky-500/15 hover:bg-sky-500/30 border border-sky-400/40 text-sky-300 flex items-center justify-center text-[10px] shrink-0 cursor-pointer transition" 
                         title="بحث واستعراض مراكز الكلفة">
@@ -7290,10 +7338,10 @@
         </div>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             4. ITEM ENTRY MODULE: الوحدة الرابعة: الصنف، الوحدات (-1 درجة)، الكمية والسعر (+4 درجات وبولد تخين)، الجملة (+3 درجات)
+             4. ITEM ENTRY MODULE: الوحدة الرابعة: الصنف، الوحدات، الكمية والسعر، الجملة
+             (بألوان افتراضية خفيفة جداً جداً وتمسح فور الكتابة)
              ═══════════════════════════════════════════════════════════════ -->
-        <div id="suiteSalesItemBox" class="p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-visible" 
-             style="background: #03050a; border: 1.5px solid rgba(245, 158, 11, 0.38); box-shadow: 0 6px 24px rgba(0, 0, 0, 0.95), inset 0 1px 0 rgba(255, 255, 255, 0.04);">
+        <div id="suiteSalesItemBox" class="pos-zone-4 p-2.5 rounded-2xl border space-y-2 text-xs shadow-2xl relative overflow-visible">
           
           <!-- السطر الأول: الصنف (8 أعمدة بتكبير وتصغير أوتوماتيك يملأ المساحة) + الوحدات (4 أعمدة بدون أرقام معاملات التحويل) -->
           <div class="grid grid-cols-12 gap-1.5 items-end relative">
@@ -7303,9 +7351,9 @@
               <div class="glow-input-field glow-amber pos-field-interactive pos-field-item w-full h-[58px] sm:h-[64px] px-2 flex items-center justify-center transition rounded-xl relative overflow-hidden" 
                    style="background: #060913; border: 1.5px solid rgba(245, 158, 11, 0.55);">
                 <input type="text" id="salesItemSearchInput" 
-                       placeholder="اختر الصنف..." 
+                       placeholder="اختيار الصنف" 
                        autocomplete="off" 
-                       class="w-full h-full bg-transparent font-black text-center tracking-normal outline-none cursor-text border-none p-0 m-0 truncate leading-tight placeholder:text-amber-300/60 placeholder:font-black" 
+                       class="w-full h-full bg-transparent font-black text-center tracking-normal outline-none cursor-text border-none p-0 m-0 truncate leading-tight" 
                        style="color: #fcd34d !important; font-size: 21px; font-weight: 900 !important;" 
                        oninput="SuiteSalesPOS.onItemInput(this.value); window.SmartPOSFontAI && SmartPOSFontAI.scaleItem(this);" 
                        onfocus="SuiteSalesPOS.onItemFocus(this)" 
@@ -7336,9 +7384,9 @@
             <div id="salesItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
           </div>
 
-          <!-- السطر الثاني: الكمية والسعر: تم تصغيرهما 3 درجات ليكونا بنفس مقاس وحجم خط الخصم والإضافة والعتالة تماماً (28px) -->
+          <!-- السطر الثاني: الكمية والسعر: بنفس مقاس وحجم خط الخصم والإضافة والعتالة تماماً (28px) وبنص افتراضي خفيف جداً يمسح عند الكتابة -->
           <div class="grid grid-cols-2 gap-2">
-            <!-- 1. الكمية: نفس مقاس خط الخصم والإضافة والعتالة (28px) -->
+            <!-- 1. الكمية -->
             <div>
               <label class="text-[11.5px] sm:text-[12.5px] font-black text-sky-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-boxes-stacked text-[10px]"></i> الكمية:
@@ -7346,15 +7394,16 @@
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-qty h-[60px] sm:h-[64px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(56, 189, 248, 0.48); box-shadow: 0 0 8px rgba(56, 189, 248, 0.15);">
                 <input type="text" id="salesQtyInput" placeholder="الكمية" autocomplete="off"
-                       oninput="window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleQty(this);" 
+                       onfocus="SuiteSalesPOS.onNumericFieldFocus && SuiteSalesPOS.onNumericFieldFocus(this)"
+                       oninput="SuiteSalesPOS.onNumericFieldInput && SuiteSalesPOS.onNumericFieldInput(this); window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleQty(this);" 
                        onblur="window.SmartFieldCustomizer && SmartFieldCustomizer.formatInputOnBlur(this);"
-                       class="w-full h-full font-black font-mono text-center text-white outline-none pos-thick-bold-num placeholder:text-slate-400/70 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
+                       class="w-full h-full font-black font-mono text-center text-white outline-none pos-thick-bold-num" 
                        style="background: transparent !important; color: #ffffff !important; font-size: 28px !important; font-weight: 900 !important;" 
                        inputmode="decimal" title="الكمية (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
               </div>
             </div>
 
-            <!-- 2. السعر: نفس مقاس خط الخصم والإضافة والعتالة (28px) -->
+            <!-- 2. السعر -->
             <div>
               <label class="text-[11.5px] sm:text-[12.5px] font-black text-cyan-300 mb-0.5 flex items-center gap-1 truncate">
                 <i class="fa-solid fa-tag text-[10px]"></i> السعر:
@@ -7362,9 +7411,10 @@
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-price h-[60px] sm:h-[64px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(34, 211, 238, 0.48); box-shadow: 0 0 8px rgba(34, 211, 238, 0.15);">
                 <input type="text" id="salesPriceInput" placeholder="السعر" autocomplete="off"
-                       oninput="window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scalePrice(this);" 
+                       onfocus="SuiteSalesPOS.onNumericFieldFocus && SuiteSalesPOS.onNumericFieldFocus(this)"
+                       oninput="SuiteSalesPOS.onNumericFieldInput && SuiteSalesPOS.onNumericFieldInput(this); window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scalePrice(this);" 
                        onblur="window.SmartFieldCustomizer && SmartFieldCustomizer.formatInputOnBlur(this);"
-                       class="w-full h-full font-black font-mono text-center text-cyan-300 outline-none pos-thick-bold-num placeholder:text-slate-400/70 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
+                       class="w-full h-full font-black font-mono text-center text-cyan-300 outline-none pos-thick-bold-num" 
                        style="background: transparent !important; color: #67e8f9 !important; font-size: 28px !important; font-weight: 900 !important;" 
                        inputmode="decimal" title="السعر (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
               </div>
@@ -7379,7 +7429,7 @@
             <div onclick="document.getElementById('salesItemGrossTotal')?.focus()" class="w-full h-[62px] sm:h-[66px] rounded-xl flex items-center justify-center px-3 shadow-lg relative pos-field-interactive pos-field-gross cursor-pointer" 
                  style="background: linear-gradient(135deg, rgba(6, 78, 59, 0.38), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(16, 185, 129, 0.65); box-shadow: 0 0 12px rgba(16, 185, 129, 0.22);">
               <input type="text" id="salesItemGrossTotal" readonly placeholder="الجملة" 
-                     class="w-full h-full text-center font-black font-mono text-emerald-300 outline-none bg-transparent border-none pos-thick-bold-num placeholder:text-emerald-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-pointer" 
+                     class="w-full h-full text-center font-black font-mono text-emerald-300 outline-none bg-transparent border-none pos-thick-bold-num cursor-pointer" 
                      style="background: transparent !important; color: #34d399 !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 46px !important; -webkit-text-stroke: 0.5px currentColor; letter-spacing: 0.5px !important;" 
                      title="الجملة (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
             </div>
@@ -7390,11 +7440,10 @@
         <!-- ═══════════════════════════════════════════════════════════════
              5. ADJUSTMENTS, NET TOTAL & NOTES MODULE:
              - الإضافة والخصم والعتالة: تنقيص الارتفاع بنسبة 30% (62px) ليتساوى مع الجملة والكمية والسعر
-             - الإجمالي الصافي: زيادة 3 درجات (46px)
+             - الإجمالي الصافي: زيادة 3 درجات (46px) وبنص افتراضي خفيف جداً "الصافي"
              - تحت الإجمالي الصافي مباشرة: البيان / الملحوظة وبداخله مربع التكبير لعرض كامل الكتابة
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 border space-y-2 shadow-xl relative overflow-hidden" 
-             style="background: #050811; border: 1.5px solid rgba(16, 185, 129, 0.38); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);">
+        <div class="pos-zone-5 rounded-2xl p-2.5 border space-y-2 shadow-xl relative overflow-hidden">
           
           <!-- السطر الأول: الإضافة والخصم والعتالة بارتفاع منقص 30% (62px) مساوٍ تماماً للكمية والسعر والجملة -->
           <div class="grid grid-cols-3 gap-1.5">
@@ -7406,9 +7455,10 @@
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-tax h-[60px] sm:h-[64px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(192, 132, 252, 0.48); box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);">
                 <input type="text" id="salesTaxInput" autocomplete="off"
-                       oninput="window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                       onfocus="SuiteSalesPOS.onNumericFieldFocus && SuiteSalesPOS.onNumericFieldFocus(this)"
+                       oninput="SuiteSalesPOS.onNumericFieldInput && SuiteSalesPOS.onNumericFieldInput(this); window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
                        onblur="window.SmartFieldCustomizer && SmartFieldCustomizer.formatInputOnBlur(this);"
-                       class="w-full h-full font-black font-mono text-center text-purple-200 outline-none pos-thick-bold-num placeholder:text-purple-300/60 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
+                       class="w-full h-full font-black font-mono text-center text-purple-200 outline-none pos-thick-bold-num" 
                        style="background: transparent !important; color: #d8b4fe !important; font-size: 28px !important; font-weight: 900 !important;" 
                        placeholder="الإضافة" inputmode="decimal" title="الإضافة (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
               </div>
@@ -7422,9 +7472,10 @@
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-discount h-[60px] sm:h-[64px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 113, 133, 0.48); box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);">
                 <input type="text" id="salesDiscountInput" autocomplete="off"
-                       oninput="window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                       onfocus="SuiteSalesPOS.onNumericFieldFocus && SuiteSalesPOS.onNumericFieldFocus(this)"
+                       oninput="SuiteSalesPOS.onNumericFieldInput && SuiteSalesPOS.onNumericFieldInput(this); window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
                        onblur="window.SmartFieldCustomizer && SmartFieldCustomizer.formatInputOnBlur(this);"
-                       class="w-full h-full font-black font-mono text-center text-rose-400 outline-none pos-thick-bold-num placeholder:text-rose-400/60 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
+                       class="w-full h-full font-black font-mono text-center text-rose-400 outline-none pos-thick-bold-num" 
                        style="background: transparent !important; color: #fb7185 !important; font-size: 28px !important; font-weight: 900 !important;" 
                        placeholder="الخصم" inputmode="decimal" title="الخصم (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
               </div>
@@ -7438,24 +7489,25 @@
               <div class="relative rounded-xl overflow-hidden flex items-center justify-center pos-field-interactive pos-field-labor h-[60px] sm:h-[64px]" 
                    style="background: rgba(15, 23, 42, 0.92); border: 1.5px solid rgba(251, 191, 36, 0.48); box-shadow: 0 0 8px rgba(251, 191, 36, 0.15);">
                 <input type="text" id="salesLaborInput" autocomplete="off"
-                       oninput="window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
+                       onfocus="SuiteSalesPOS.onNumericFieldFocus && SuiteSalesPOS.onNumericFieldFocus(this)"
+                       oninput="SuiteSalesPOS.onNumericFieldInput && SuiteSalesPOS.onNumericFieldInput(this); window.SmartFieldCustomizer && SmartFieldCustomizer.handleNumericLiveInput(this); SuiteSalesPOS.calcItemSubtotal(); window.SmartPOSFontAI && SmartPOSFontAI.scaleTax(this);" 
                        onblur="window.SmartFieldCustomizer && SmartFieldCustomizer.formatInputOnBlur(this);"
-                       class="w-full h-full font-black font-mono text-center text-amber-300 outline-none pos-thick-bold-num placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-sm sm:placeholder:text-base" 
+                       class="w-full h-full font-black font-mono text-center text-amber-300 outline-none pos-thick-bold-num" 
                        style="background: transparent !important; color: #fcd34d !important; font-size: 28px !important; font-weight: 900 !important;" 
                        placeholder="العتالة" inputmode="decimal" title="العتالة (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
               </div>
             </div>
           </div>
 
-          <!-- السطر الثاني: الإجمالي الصافي المطلوب بزيادة 3 درجات (46px) -->
+          <!-- السطر الثاني: الإجمالي الصافي المطلوب بزيادة 3 درجات (46px) وبنص افتراضي خفيف جداً "الصافي" -->
           <div>
             <label class="text-[12px] sm:text-[13px] font-black text-amber-300 mb-0.5 flex items-center gap-1">
               <i class="fa-solid fa-coins text-[11px]"></i> الإجمالي الصافي المطلوب:
             </label>
             <div onclick="document.getElementById('salesTotalInput')?.focus()" class="w-full h-[64px] sm:h-[68px] rounded-xl flex items-center justify-center px-3 shadow-md relative overflow-hidden pos-field-interactive pos-field-total cursor-pointer" 
                  style="background: linear-gradient(135deg, rgba(120, 53, 15, 0.4), rgba(15, 23, 42, 0.95)); border: 1.5px solid rgba(245, 158, 11, 0.65); box-shadow: 0 0 12px rgba(245, 158, 11, 0.22);">
-              <input type="text" id="salesTotalInput" readonly placeholder="الإجمالي الصافي" 
-                     class="w-full h-full text-center font-black font-mono text-amber-300 outline-none bg-transparent border-none pos-thick-bold-num placeholder:text-amber-400/60 placeholder:font-black placeholder:font-sans placeholder:text-2xl sm:placeholder:text-3xl cursor-pointer" 
+              <input type="text" id="salesTotalInput" readonly placeholder="الصافي" 
+                     class="w-full h-full text-center font-black font-mono text-amber-300 outline-none bg-transparent border-none pos-thick-bold-num cursor-pointer" 
                      style="background: transparent !important; color: #fcd34d !important; font-family: 'Impact', 'Arial Black', sans-serif !important; font-weight: 900 !important; font-size: 46px !important; -webkit-text-stroke: 0.5px currentColor; letter-spacing: 0.5px !important;" 
                      title="الإجمالي الصافي المطلوب (اضغط مسافة لتخصيص الخط واللون والتقريب)" />
             </div>
@@ -7475,7 +7527,7 @@
                      placeholder="اكتب البيان أو الملحوظة هنا..." 
                      autocomplete="off" 
                      oninput="window.SmartPOSFontAI && SmartPOSFontAI.scaleNotes(this);"
-                     class="flex-1 min-w-0 bg-transparent font-black text-sm text-white outline-none placeholder:text-slate-400 placeholder:font-bold text-right cursor-text border-none p-0 m-0 truncate" 
+                     class="flex-1 min-w-0 bg-transparent font-black text-sm text-white outline-none text-right cursor-text border-none p-0 m-0 truncate" 
                      style="color: #ffffff !important; font-size: 15px;" 
                      title="البيان / الملحوظة" />
               <!-- مربع صغير في البيان لتكبير مربع البيان على مساحة كبيرة من الشاشة -->
@@ -7494,8 +7546,7 @@
         <!-- ═══════════════════════════════════════════════════════════════
              6. INVOICE LINES MODULE: الوحدة السادسة: أسطر الفاتورة
              ═══════════════════════════════════════════════════════════════ -->
-        <div class="rounded-2xl p-2.5 border space-y-2 shadow-xl relative overflow-hidden" 
-             style="background: #030611; border: 1.5px solid rgba(56, 189, 248, 0.35); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.85);">
+        <div class="pos-zone-6 rounded-2xl p-2.5 border space-y-2 shadow-xl relative overflow-hidden">
           
           <!-- هيدر وحدة الأسطر مع العداد والإجمالي الصافي للأسطر -->
           <div class="flex items-center justify-between pb-1.5 border-b border-slate-800">
@@ -11640,12 +11691,14 @@
 
       applySavedStyleToElement(el) {
         if (!el || !el.id) return;
-        const saved = this.configs[el.id];
-        if (!saved) return;
-        if (saved.fontColor) {
-          el.style.setProperty('color', saved.fontColor, 'important');
+        const cfg = this.getFieldConfig(el.id);
+        if (el.classList.contains('pos-ghost-default')) {
+          el.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
+        } else if (cfg && cfg.fontColor) {
+          el.style.setProperty('color', cfg.fontColor, 'important');
         }
-        if (saved.fontSize) {
+        const saved = this.configs[el.id];
+        if (saved && saved.fontSize) {
           el.style.setProperty('font-size', saved.fontSize + 'px', 'important');
         }
       },
@@ -11654,11 +11707,14 @@
         Object.keys(this.fieldMeta).forEach(fieldId => {
           const el = document.getElementById(fieldId);
           if (!el) return;
+          const cfg = this.getFieldConfig(fieldId);
           const saved = this.configs[fieldId];
+          if (el.classList.contains('pos-ghost-default')) {
+            el.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
+          } else if (cfg && cfg.fontColor) {
+            el.style.setProperty('color', cfg.fontColor, 'important');
+          }
           if (saved) {
-            if (saved.fontColor) {
-              el.style.setProperty('color', saved.fontColor, 'important');
-            }
             if (saved.fontSize) {
               el.style.setProperty('font-size', saved.fontSize + 'px', 'important');
             }
@@ -12054,16 +12110,23 @@
       // محرك ذكاء اصطناعي لقياس عرض النص الفعلي بالبيكسل مقارنة بالمساحة المتاحة داخل الخانة
       fitTextToBox(el, text, opts = {}) {
         if (!el) return;
-        if (window.SmartFieldCustomizer && el.id && SmartFieldCustomizer.hasCustomConfig(el.id)) {
+        const isGhost = el.classList.contains('pos-ghost-default');
+        if (window.SmartFieldCustomizer && el.id) {
           const uCfg = SmartFieldCustomizer.getFieldConfig(el.id);
-          if (uCfg.fontColor) el.style.setProperty('color', uCfg.fontColor, 'important');
-          if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
-            el.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
-            el.style.setProperty('font-weight', opts.weight || '900', 'important');
-            return;
+          if (isGhost) {
+            el.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
+          } else if (uCfg && uCfg.fontColor) {
+            el.style.setProperty('color', uCfg.fontColor, 'important');
           }
-          if (uCfg.fontSize) {
-            opts = Object.assign({}, opts, { maxPx: uCfg.fontSize, defPx: uCfg.fontSize });
+          if (SmartFieldCustomizer.hasCustomConfig(el.id)) {
+            if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
+              el.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
+              el.style.setProperty('font-weight', opts.weight || '900', 'important');
+              return;
+            }
+            if (uCfg.fontSize) {
+              opts = Object.assign({}, opts, { maxPx: uCfg.fontSize, defPx: uCfg.fontSize });
+            }
           }
         }
         const maxPx = opts.maxPx || 18;
@@ -12110,15 +12173,22 @@
 
       _applyCustomNumericOrScale(input, defaultBase, stepThresholds) {
         if (!input) return;
-        if (window.SmartFieldCustomizer && input.id && SmartFieldCustomizer.hasCustomConfig(input.id)) {
+        const isGhost = input.classList.contains('pos-ghost-default');
+        if (window.SmartFieldCustomizer && input.id) {
           const uCfg = SmartFieldCustomizer.getFieldConfig(input.id);
-          if (uCfg.fontColor) input.style.setProperty('color', uCfg.fontColor, 'important');
-          if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
-            input.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
-            input.style.setProperty('font-weight', '900', 'important');
-            return;
+          if (isGhost) {
+            input.style.setProperty('color', 'rgba(148, 163, 184, 0.24)', 'important');
+          } else if (uCfg && uCfg.fontColor) {
+            input.style.setProperty('color', uCfg.fontColor, 'important');
           }
-          if (uCfg.fontSize) defaultBase = uCfg.fontSize;
+          if (SmartFieldCustomizer.hasCustomConfig(input.id)) {
+            if (uCfg.fontMode === 'fixed' && uCfg.fontSize) {
+              input.style.setProperty('font-size', uCfg.fontSize + 'px', 'important');
+              input.style.setProperty('font-weight', '900', 'important');
+              return;
+            }
+            if (uCfg.fontSize) defaultBase = uCfg.fontSize;
+          }
         }
         const raw = (input.value || '').toString().trim();
         const len = raw.replace(/[^0-9.]/g, '').length;
@@ -12931,12 +13001,12 @@ window.SuiteSalesPOS = {
 
       initDefaultCostCenter() {
         const def = this.dbCostCenters[0]?.name || 'المركز الرئيسي';
-        this.selectCostCenter(def);
+        this.selectCostCenter(def, true);
       },
 
       initDefaultWarehouse() {
         const def = (this.dbWarehouses && this.dbWarehouses.length > 0) ? this.dbWarehouses[0].name : 'المستودع الرئيسي';
-        this.selectWarehouse(def);
+        this.selectWarehouse(def, true);
       },
 
       initDefaultCustomer() {
@@ -12947,7 +13017,7 @@ window.SuiteSalesPOS = {
             currentBalance: 0,
             currency: 'SDG'
           };
-          this.selectCustomer(walkin);
+          this.selectCustomer(walkin, true);
         }
       },
 
@@ -13003,15 +13073,21 @@ window.SuiteSalesPOS = {
         list.innerHTML = html;
       },
 
-      selectCostCenter(name) {
+      selectCostCenter(name, isDefaultInit = false) {
         if (window.SuitePOSRouter && SuitePOSRouter.getActiveContext() === 'purchase') {
           if (window.SuitePurchasePOS) SuitePurchasePOS.selectCostCenter(name);
           return;
         }
         this.selectedCostCenter = name;
+        if (!isDefaultInit) this._userPickedCostCenter = true;
         const hid = document.getElementById('salesCostCenterInput');
         if (hid) {
           hid.value = name;
+          if (isDefaultInit) {
+            hid.classList.add('pos-ghost-default');
+          } else {
+            hid.classList.remove('pos-ghost-default');
+          }
           if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleCostCenter(hid);
         }
         const disp = document.getElementById('suiteCostCenterDisplayName');
@@ -13021,7 +13097,7 @@ window.SuiteSalesPOS = {
         const drop = document.getElementById('salesCostCenterDropdown');
         if (drop) drop.classList.add('hidden');
         this.closeCostCenterSearch();
-        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
+        if (!isDefaultInit && window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
       },
 
       // ─────────────────────────────────────────────────────────────
@@ -13088,21 +13164,27 @@ window.SuiteSalesPOS = {
         list.innerHTML = html;
       },
 
-      selectCustomer(c) {
+      selectCustomer(c, isDefaultInit = false) {
         if (window.SuitePOSRouter && SuitePOSRouter.getActiveContext() === 'purchase') {
           if (window.SuitePurchasePOS) SuitePurchasePOS.selectSupplier(c);
           return;
         }
         if (!c) return;
         this.selectedCustomer = c;
+        if (!isDefaultInit) this._userPickedCustomer = true;
         const name = c.name || 'عميل نقدي عام';
-        const bal = parseFloat(c.currentBalance || c.balance || c.openingBalance || 0);
-        const foreignBal = (bal / this.usdExchangeRate).toFixed(2);
-        const isUSD = (c.currency === 'USD');
 
-        // Update Hidden input
+        // Update input
         const hid = document.getElementById('salesCustomerInput');
-        if (hid) hid.value = name;
+        if (hid) {
+          hid.value = name;
+          if (isDefaultInit) {
+            hid.classList.add('pos-ghost-default');
+          } else {
+            hid.classList.remove('pos-ghost-default');
+          }
+          if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleCustomer(hid);
+        }
 
         // Display ONLY customer name in the main field (no phone here as requested)
         const disp = document.getElementById('suiteCustDisplayName');
@@ -13118,7 +13200,7 @@ window.SuiteSalesPOS = {
         }
 
         this.closeCustomerSearch();
-        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
+        if (!isDefaultInit && window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
       },
 
       // ─────────────────────────────────────────────────────────────
@@ -13166,20 +13248,31 @@ window.SuiteSalesPOS = {
         list.innerHTML = html;
       },
 
-      selectWarehouse(name) {
+      selectWarehouse(name, isDefaultInit = false) {
         if (window.SuitePOSRouter && SuitePOSRouter.getActiveContext() === 'purchase') {
           if (window.SuitePurchasePOS) SuitePurchasePOS.selectWarehouse(name);
           return;
         }
         this.selectedWarehouse = name;
+        if (!isDefaultInit) this._userPickedWarehouse = true;
         const hid = document.getElementById('salesWarehouseSelect');
         if (hid) hid.value = name;
+        const wInp = document.getElementById('salesWarehouseInput');
+        if (wInp) {
+          wInp.value = name;
+          if (isDefaultInit) {
+            wInp.classList.add('pos-ghost-default');
+          } else {
+            wInp.classList.remove('pos-ghost-default');
+          }
+          if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleWarehouse(wInp);
+        }
         const disp = document.getElementById('suiteWarehouseDisplayName');
         if (disp) {
           disp.innerHTML = `<span class="font-black text-sm sm:text-base text-center leading-snug px-1" style="color: #ffffff !important;">${name}</span>`;
         }
         this.closeWarehouseSearch();
-        if (window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
+        if (!isDefaultInit && window.SafeInvoiceGuard) SafeInvoiceGuard.setUnsavedChanges(true, 'modalOpSales');
       },
 
       // ─────────────────────────────────────────────────────────────
@@ -13292,6 +13385,23 @@ window.SuiteSalesPOS = {
         this.selectCustomItem(customName.trim());
       },
 
+      onNumericFieldFocus(el) {
+        if (!el) return;
+        if (el.classList.contains('pos-ghost-default') || el.dataset.ghostAuto === '1') {
+          el.value = '';
+          el.classList.remove('pos-ghost-default');
+          delete el.dataset.ghostAuto;
+        }
+      },
+
+      onNumericFieldInput(el) {
+        if (!el) return;
+        if (el.classList.contains('pos-ghost-default') || el.dataset.ghostAuto === '1') {
+          el.classList.remove('pos-ghost-default');
+          delete el.dataset.ghostAuto;
+        }
+      },
+
       selectItemByIndex(idx) {
         if (window.SuitePOSRouter && SuitePOSRouter.getActiveContext() === 'purchase') {
           if (window.SuitePurchasePOS) SuitePurchasePOS.selectItemByIndex(idx);
@@ -13307,15 +13417,11 @@ window.SuiteSalesPOS = {
         }
         const hid = document.getElementById('salesItemSelectVal');
         if (hid) hid.value = idx;
-
-        const prc = parseFloat(it.sellingPrice || it.price || 0);
-        const pInp = document.getElementById('salesPriceInput');
-        if (pInp) {
-          pInp.value = prc > 0 ? (window.SmartFieldCustomizer ? SmartFieldCustomizer.formatNumberForField('salesPriceInput', prc) : prc) : '';
-        }
-        const qInp = document.getElementById('salesQtyInput');
-        if (qInp) {
-          qInp.value = window.SmartFieldCustomizer ? SmartFieldCustomizer.formatNumberForField('salesQtyInput', 1) : 1;
+        const itInp = document.getElementById('salesItemSearchInput');
+        if (itInp) {
+          itInp.value = it.name;
+          itInp.classList.remove('pos-ghost-default');
+          if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleItem(itInp);
         }
 
         const uSel = document.getElementById('salesUnitSelect');
@@ -13353,7 +13459,11 @@ window.SuiteSalesPOS = {
       },
 
       calcItemSubtotal() {
-        const pNum = (id) => window.SmartFieldCustomizer ? SmartFieldCustomizer.parseNum(document.getElementById(id)?.value, id) : parseFloat(String(document.getElementById(id)?.value || '0').replace(/,/g, ''));
+        const pNum = (id) => {
+          const el = document.getElementById(id);
+          if (!el || !el.value || !String(el.value).trim()) return 0;
+          return window.SmartFieldCustomizer ? SmartFieldCustomizer.parseNum(el.value, id) : (parseFloat(String(el.value).replace(/,/g, '')) || 0);
+        };
         const fmtNum = (id, val) => window.SmartFieldCustomizer ? SmartFieldCustomizer.formatNumberForField(id, val) : val.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
         const qty = pNum('salesQtyInput');
@@ -13362,8 +13472,9 @@ window.SuiteSalesPOS = {
         const tax = pNum('salesTaxInput');
         const labor = pNum('salesLaborInput');
 
-        // 1. الجملة هي السعر في الكمية
-        const gross = qty * prc;
+        // 1. الجملة هي السعر في الكمية (أو السعر × 1 إذا كُتب السعر فقط ولم تُكتب الكمية بعد)
+        const effectiveQty = (qty > 0) ? qty : (prc > 0 ? 1 : 0);
+        const gross = effectiveQty * prc;
         const grossEl = document.getElementById('salesItemGrossTotal');
         if (grossEl) {
           grossEl.value = (gross > 0) ? fmtNum('salesItemGrossTotal', gross) : '';
@@ -13375,7 +13486,7 @@ window.SuiteSalesPOS = {
         const totInp = document.getElementById('salesTotalInput');
         if (totInp) {
           if (!this.cart || this.cart.length === 0) {
-            totInp.value = (hasInputs && netTotal >= 0) ? fmtNum('salesTotalInput', netTotal) : '';
+            totInp.value = (hasInputs && netTotal > 0) ? fmtNum('salesTotalInput', netTotal) : '';
           } else {
             const cartSum = this.cart.reduce((sum, item) => sum + (item.subtotal || 0), 0);
             totInp.value = fmtNum('salesTotalInput', cartSum + netTotal);
@@ -13458,13 +13569,13 @@ window.SuiteSalesPOS = {
         const itInpReset = document.getElementById('salesItemSearchInput');
         if (itInpReset) itInpReset.value = '';
         const disp = document.getElementById('suiteItemDisplayName');
-        if (disp) disp.innerHTML = '<span class="font-black text-xl sm:text-2xl truncate text-center" style="color: #fcd34d !important;">اختر الصنف...</span>';
+        if (disp) disp.innerHTML = '<span class="font-black text-xl sm:text-2xl truncate text-center" style="color: #fcd34d !important;">اختيار الصنف</span>';
         const hid = document.getElementById('salesItemSelectVal');
         if (hid) hid.value = '';
         const uSelReset = document.getElementById('salesUnitSelect');
         if (uSelReset) {
-          uSelReset.innerHTML = '<option value="" disabled selected hidden>الوحدة</option><option value="حبة">حبة</option>';
-          uSelReset.value = '';
+          uSelReset.innerHTML = '<option value="" disabled selected hidden>الوحدات</option><option value="حبة" data-factor="1">حبة</option><option value="طن عددي" data-factor="135" selected>طن عددي</option><option value="طن وزني" data-factor="140">طن وزني</option>';
+          uSelReset.value = 'طن عددي';
         }
         document.getElementById('salesPriceInput').value = '';
         document.getElementById('salesQtyInput').value = '';
@@ -13710,7 +13821,7 @@ window.SuiteSalesPOS = {
       },
 
       // ─────────────────────────────────────────────────────────────
-      // VOICE FEEDING & SMART EVACUATION ENGINE (تغذية وتفريغ الخانات بالصوت)
+      // VOICE FEEDING & SMART EVACUATION ENGINE (تغذية وتفريغ الخانات بالصوت بأعلى درجات الذكاء الاصطناعي)
       // ─────────────────────────────────────────────────────────────
       voiceRecognitionInstance: null,
       isVoiceListening: false,
@@ -13718,6 +13829,45 @@ window.SuiteSalesPOS = {
       _lastVoiceActivityAt: 0,
       _manualStopVoice: false,
       _pendingInterimVoice: '',
+
+      syncAllErpDataForAI() {
+        try {
+          const extraCusts = [];
+          if (Array.isArray(window.masterAccountsList)) {
+            window.masterAccountsList.forEach(a => {
+              if (a && a.name) extraCusts.push({ id: a.id || ('ACC-' + a.name), name: a.name, phone: a.phone || '', currentBalance: parseFloat(a.balance || a.sdgBalance || 0), currency: a.currency || 'SDG' });
+            });
+          }
+          ['erp_customers_v1', 'erp_accounts_v1', 'magaies_customers_cache'].forEach(k => {
+            try {
+              const raw = localStorage.getItem(k) || (window.getTenantKey ? localStorage.getItem(window.getTenantKey(k)) : null);
+              if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed)) {
+                  parsed.forEach(c => {
+                    const nm = c?.name || c?.accountName || c?.title;
+                    if (nm && String(nm).trim().length >= 2) {
+                      extraCusts.push({
+                        id: c.id || ('CUST-' + nm),
+                        name: String(nm).trim(),
+                        phone: c.phone || c.whatsapp || '',
+                        currentBalance: parseFloat(c.currentBalance || c.balance || c.openingBalance || 0),
+                        currency: c.currency || 'SDG'
+                      });
+                    }
+                  });
+                }
+              }
+            } catch (e) {}
+          });
+          if (!Array.isArray(this.dbCustomers)) this.dbCustomers = [];
+          extraCusts.forEach(ec => {
+            if (!this.dbCustomers.some(x => x && x.name && x.name.trim() === ec.name.trim())) {
+              this.dbCustomers.push(ec);
+            }
+          });
+        } catch (e) {}
+      },
 
       // في شاشة المبيعات: التسجيل مستمر بلا انقطاع مهما طالت المدة وحتى لو سكت المستخدم 3 ثوانٍ أو أكثر
       resetVoiceSilenceTimer() {
@@ -13791,7 +13941,6 @@ window.SuiteSalesPOS = {
           };
 
           this.voiceRecognitionInstance.onerror = (err) => {
-            // لا نوقف التسجيل أبداً عند السكوت (no-speech) أو انقطاع الجلسة المؤقت
             if (this.isVoiceListening && !this._manualStopVoice) {
               if (!err || err.error === 'no-speech' || err.error === 'aborted' || err.error === 'network') {
                 return;
@@ -13805,7 +13954,6 @@ window.SuiteSalesPOS = {
           };
 
           this.voiceRecognitionInstance.onend = () => {
-            // إذا لم يضغط المستخدم إيقاف ولم يقل حفظ، نعيد تشغيل المايك فوراً وبلا انقطاع مهما طال السكوت
             if (this.isVoiceListening && !this._manualStopVoice) {
               try {
                 this.voiceRecognitionInstance.start();
@@ -13864,6 +14012,8 @@ window.SuiteSalesPOS = {
 
       feedVoiceToFields(spokenText) {
         if (!spokenText || !spokenText.trim()) return;
+        this.syncAllErpDataForAI();
+
         const rawOriginal = spokenText.trim();
         const transcriptEl = document.getElementById('suiteSalesVoiceTranscript');
         if (transcriptEl) transcriptEl.innerText = '🎙️ تم التقاط: "' + rawOriginal + '"';
@@ -13873,10 +14023,8 @@ window.SuiteSalesPOS = {
           let s = String(inputStr || '');
           const eastern = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
           for (let i = 0; i < 10; i++) s = s.split(eastern[i]).join(i.toString());
-          // إزالة الفواصل الألفية بين الأرقام مثل 70,000 -> 70000
           s = s.replace(/(\d)[,،](\d{3})/g, '$1$2');
 
-          // تحويل الأرقام المنطوقة الشائعة (مثل سبعين ألف، عشرة ألف، ستة عشر ألف، خمسة طن...)
           const compoundMap = [
             [/سبعين\s*الف/gi, '70000'],
             [/ستين\s*الف/gi, '60000'],
@@ -13909,22 +14057,26 @@ window.SuiteSalesPOS = {
 
         const raw = normalizeSpokenNumbers(rawOriginal);
 
-        // 2. دالة التطبيع الذكي (توحيد الهمزات والتاء المربوطة والأخطاء الصوتية الشائعة مثل اللمام/اللاماب ولينية/لينيا والعتال/العتالة)
+        // 2. دالة التطبيع الذكي الشامل (تدعم "درة اللاماب"، "سيخ 3 لين"، "سيخ 3 لينيا"، "العتال"، وكل اللهجات السودانية)
         const norm = (s) => (s || '').toString().trim()
           .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
           .replace(/[إأآٱ]/g, 'ا')
           .replace(/ة/g, 'ه')
           .replace(/[ى]/g, 'ي')
-          .replace(/اللمام|اللماب|للمام|لامام|لاماب/g, 'اللاماب')
-          .replace(/دره|درة|الدره|الدرة/g, 'دره')
+          .replace(/اللمام|اللماب|للمام|لامام|لاماب|الاماب|الماب/g, 'اللاماب')
+          .replace(/دره|درة|الدره|الدرة|داره|دارة/g, 'دره')
           .replace(/لينيار|لينيه|لينية|لنيه|لنيا/g, 'لينيا')
+          .replace(/(\d)\s*لين(?=$|[\s,،])/g, '$1 لينيا')
+          .replace(/(?:^|[\s,،])لين(?=$|[\s,،])/g, ' لينيا ')
           .replace(/العتال(?=$|[\s,،])|عتال(?=$|[\s,،])/g, 'العتاله')
           .replace(/الاسعد|أسعد/g, 'اسعد')
           .replace(/\s+/g, ' ')
+          .trim()
           .toLowerCase();
 
         const cleanText = norm(raw);
         let feedback = [];
+        let residualText = raw;
 
         const parseNum = (str) => {
           if (!str) return 0;
@@ -13933,7 +14085,6 @@ window.SuiteSalesPOS = {
           return m ? parseFloat(m[0]) : 0;
         };
 
-        // حفظ القيم الحالية في الحقول قبل اختيار الصنف حتى لا يقوم selectItemByIndex بمسح الكمية أو السعر إذا نطقها المستخدم بترتيب مشقلب
         const prevQtyVal = document.getElementById('salesQtyInput')?.value || '';
         const prevPriceVal = document.getElementById('salesPriceInput')?.value || '';
         const prevUnitVal = document.getElementById('salesUnitSelect')?.value || '';
@@ -13945,26 +14096,29 @@ window.SuiteSalesPOS = {
 
         // 1. السعر (Price)
         let spokenPrice = null;
-        const mPrice = raw.match(/(?:السعر|سعر|بسعر|قيمة|بقيمة|بفئة)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
+        const mPrice = raw.match(/(?:السعر|سعر|بسعر|قيمة|بقيمة|بفئة|فئة|سعر\s*الطن)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
         if (mPrice && mPrice[1]) {
           spokenPrice = parseNum(mPrice[1]);
           workingTextForQty = workingTextForQty.replace(mPrice[0], ' ');
+          residualText = residualText.replace(mPrice[0], ' ');
         }
 
         // 2. الإضافة (Addition / Tax)
         let spokenTax = null;
-        const mTax = raw.match(/(?:الإضافة|الاضافة|إضافة|اضافة|الاضافه|اضافه|ضريبة|زيادة)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
+        const mTax = raw.match(/(?:الإضافة|الاضافة|إضافة|اضافة|الاضافه|اضافه|ضريبة|زيادة|ترحيل)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
         if (mTax && mTax[1]) {
           spokenTax = parseNum(mTax[1]);
           workingTextForQty = workingTextForQty.replace(mTax[0], ' ');
+          residualText = residualText.replace(mTax[0], ' ');
         }
 
         // 3. الخصم (Discount)
         let spokenDisc = null;
-        const mDisc = raw.match(/(?:الخصم|خصم|تخفيض|تنزيل)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
+        const mDisc = raw.match(/(?:الخصم|خصم|تخفيض|تنزيل|سماح)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
         if (mDisc && mDisc[1]) {
           spokenDisc = parseNum(mDisc[1]);
           workingTextForQty = workingTextForQty.replace(mDisc[0], ' ');
+          residualText = residualText.replace(mDisc[0], ' ');
         }
 
         // 4. العتالة / العتال (Labor)
@@ -13973,86 +14127,54 @@ window.SuiteSalesPOS = {
         if (mLabor && mLabor[1]) {
           spokenLabor = parseNum(mLabor[1]);
           workingTextForQty = workingTextForQty.replace(mLabor[0], ' ');
+          residualText = residualText.replace(mLabor[0], ' ');
         }
 
-        // 5. الكمية (Quantity): سواء قال "الكمية 6 طن" أو قال مباشرة "5 طن" أو "6 طن" بدون كلمة الكمية!
+        // 5. الكمية (Quantity): سواء قال "الكمية 6 طن" أو قال مباشرة "5 طن" أو "6 طن" بدون كلمة الكمية
         let spokenQty = null;
-        const mQtyExplicit = workingTextForQty.match(/(?:الكمية|الكميه|كمية|كميه|عدد|بعدد)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)/i);
+        const mQtyExplicit = workingTextForQty.match(/(?:الكمية|الكميه|كمية|كميه|عدد|بعدد|وزن)\s*[:=]?\s*([0-9]+(?:\.[0-9]+)?)(?:\s*(?:طن|سيخة|سيخه|كيس|حبة|حبه|قطعة|متر|جالون|كرتونة|ربطة))?/i);
         if (mQtyExplicit && mQtyExplicit[1]) {
           spokenQty = parseNum(mQtyExplicit[1]);
+          workingTextForQty = workingTextForQty.replace(mQtyExplicit[0], ' ');
+          residualText = residualText.replace(mQtyExplicit[0], ' ');
         } else {
-          // التقاط ذكي للكمية عند ذكر الرقم متبوعاً بوحدة (مثل: "5 طن"، "6 طن"، "10 سيخة"، "20 كيس") مع استثناء مقاسات الأصناف مثل "3 لينيا" أو "10 مللي" أو "50 كجم"
+          // استثناء مقاسات الأصناف مثل "سيخ 3 لين" أو "سيخ 3 لينيا" أو "10 مللي" أو "50 كجم" قبل البحث عن الكمية الضمنية
           const cleanedForImplicitQty = workingTextForQty
-            .replace(/سيخ\s*\d+\s*(?:لينيا|لينية|لينيه|لنيه|ملم|مللي)?/gi, ' ')
-            .replace(/\d+\s*(?:لينيا|لينية|لينيه|لنيه|مللي|ملم|كجم|كيلو\s*جرام)/gi, ' ');
+            .replace(/سيخ\s*\d+\s*(?:لينيا|لينية|لينيه|لنيه|لين|ل|ملم|مللي)?/gi, ' ')
+            .replace(/\d+\s*(?:لينيا|لينية|لينيه|لنيه|لين|مللي|ملم|كجم|كيلو\s*جرام)/gi, ' ');
           const mQtyImplicit = cleanedForImplicitQty.match(/(?:^|[\s,،])([0-9]+(?:\.[0-9]+)?)\s*(?:طن|سيخة|سيخه|كيس|اكياس|أكياس|حبة|حبه|قطعة|قطعه|متر|جالون|كرتونة|كرتونه|لوح|ربطة|ربطه)(?=$|[\s,،])/i);
           if (mQtyImplicit && mQtyImplicit[1]) {
             spokenQty = parseNum(mQtyImplicit[1]);
+            residualText = residualText.replace(mQtyImplicit[0], ' ');
+          }
+        }
+
+        // 6. ذكاء اصطناعي إضافي للسعر الضمني: إذا قال مثلاً "6 طن بـ 3500" أو ذكر رقماً كبيراً منفرداً بعد الكمية بدون كلمة "السعر"
+        if (spokenPrice === null) {
+          const mImplicitPrice = workingTextForQty
+            .replace(/سيخ\s*\d+\s*(?:لينيا|لينية|لينيه|لنيه|لين|ل|ملم|مللي)?/gi, ' ')
+            .replace(/\d+\s*(?:لينيا|لينية|لينيه|لنيه|لين|مللي|ملم|كجم)/gi, ' ')
+            .match(/(?:بـ|ب)\s*([0-9]{3,}(?:\.[0-9]+)?)/i);
+          if (mImplicitPrice && mImplicitPrice[1]) {
+            spokenPrice = parseNum(mImplicitPrice[1]);
+            residualText = residualText.replace(mImplicitPrice[0], ' ');
           }
         }
 
         // ─────────────────────────────────────────────────────────────
-        // ب) التعرف الذكي على العميل (Customer) بدون اشتراط كلمة "العميل" وبأي ترتيب
-        // ─────────────────────────────────────────────────────────────
-        let matchedCustomer = null;
-        let bestCustScore = 0;
-        const stopWordsCust = new Set(['العميل','عميل','زبون','المستودع','مستودع','المخزن','مخزن','الصنف','صنف','الوحدة','وحده','الكمية','كميه','السعر','سعر','الخصم','خصم','الاضافه','اضافه','العتاله','عتال','طن','عددي','وزني','سيخ','لينيا','دره','اللاماب','حفظ','وسداد']);
-
-        for (const cust of (this.dbCustomers || [])) {
-          if (!cust || !cust.name || cust.name.length < 2) continue;
-          const cNorm = norm(cust.name);
-          if (!cNorm) continue;
-          if (cleanText.includes(cNorm)) {
-            const sc = 100 + cNorm.length;
-            if (sc > bestCustScore) {
-              bestCustScore = sc;
-              matchedCustomer = cust;
-            }
-          } else {
-            const cTokens = cNorm.split(' ').filter(t => t.length >= 2 && !stopWordsCust.has(t));
-            if (cTokens.length >= 2) {
-              const matchedTokens = cTokens.filter(t => cleanText.includes(t));
-              if (matchedTokens.length >= 2 && matchedTokens.length >= Math.ceil(cTokens.length * 0.6)) {
-                const sc = matchedTokens.length * 25;
-                if (sc > bestCustScore) {
-                  bestCustScore = sc;
-                  matchedCustomer = cust;
-                }
-              }
-            }
-          }
-        }
-        if (!matchedCustomer) {
-          const mCust = raw.match(/(?:العميل|عميل|زبون|حساب)\s+([^\s,،]+(?:\s+[^\s,،]+){0,3})/i);
-          if (mCust && mCust[1]) {
-            const candName = mCust[1].replace(/(?:مركز|مخزن|مستودع|درة|دره|صنف|سيخ|وحدة|طن|كمية|سعر|خصم|إضافة|اضافة|العتال|عتالة|حفظ).*/i, '').trim();
-            if (candName) {
-              matchedCustomer = (this.dbCustomers || []).find(c => norm(c.name).includes(norm(candName))) || {
-                name: candName,
-                phone: '',
-                currentBalance: 0,
-                currency: 'SDG'
-              };
-            }
-          }
-        }
-        if (matchedCustomer) {
-          this.selectCustomer(matchedCustomer);
-          feedback.push('العميل: ' + matchedCustomer.name);
-        }
-
-        // ─────────────────────────────────────────────────────────────
-        // ج) التعرف الذكي على المستودع (Warehouse) بدون اشتراط كلمة "المستودع" (مثل "درة اللمام" -> "دره اللاماب")
+        // ب) التعرف الذكي على المستودع (Warehouse) المحفوظ في السيستم (مثل "درة اللاماب" / "مخزن السجانة" / "المستودع الرئيسي")
         // ─────────────────────────────────────────────────────────────
         let matchedWH = null;
-        if (cleanText.includes('دره اللاماب') || (cleanText.includes('دره') && cleanText.includes('اللاماب'))) {
+        if (cleanText.includes('دره اللاماب') || cleanText.includes('اللاماب') || (cleanText.includes('دره') && !cleanText.includes('مخزن الدره'))) {
           const whObj = (this.dbWarehouses || []).find(w => norm(w.name).includes('دره') && norm(w.name).includes('اللاماب'));
           matchedWH = whObj ? whObj.name : 'دره اللاماب';
+          residualText = residualText.replace(/(?:المستودع|مستودع|المخزن|مخزن)?\s*(?:درة|دره|الدرة|الدره)?\s*(?:اللاماب|اللمام|للمام|لاماب)/gi, ' ');
         } else {
           const sortedWH = [...(this.dbWarehouses || [])].sort((a, b) => (b.name || '').length - (a.name || '').length);
           for (const wh of sortedWH) {
             if (wh.name && cleanText.includes(norm(wh.name))) {
               matchedWH = wh.name;
+              residualText = residualText.replace(new RegExp(wh.name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), ' ');
               break;
             }
           }
@@ -14065,85 +14187,119 @@ window.SuiteSalesPOS = {
               const candNorm = norm(candWH);
               const foundWh = (this.dbWarehouses || []).find(w => norm(w.name).includes(candNorm) || candNorm.includes(norm(w.name)));
               matchedWH = foundWh ? foundWh.name : candWH;
+              residualText = residualText.replace(mWH[0], ' ');
             }
           }
         }
         if (matchedWH) {
+          this._userPickedWarehouse = true;
           this.selectWarehouse(matchedWH);
+          const whInp = document.getElementById('salesWarehouseInput');
+          if (whInp) whInp.classList.remove('pos-ghost-default');
           feedback.push('المستودع: ' + matchedWH);
         }
 
         // ─────────────────────────────────────────────────────────────
-        // د) التعرف الذكي على مركز الكلفة (Cost Center)
+        // ج) التعرف الذكي على مركز الكلفة (Cost Center)
         // ─────────────────────────────────────────────────────────────
         let matchedCC = null;
         const mCC = raw.match(/(?:مركز الكلفة|مركز كلفة|المركز)\s+([^\s,،]+(?:\s+[^\s,،]+){0,2})/i);
         if (mCC && mCC[1]) {
           const candCC = mCC[1].replace(/(?:مخزن|مستودع|صنف|وحدة|كمية|سعر|خصم|إضافة|اضافة|حفظ).*/i, '').trim();
-          if (candCC) matchedCC = candCC;
+          if (candCC) {
+            matchedCC = candCC;
+            residualText = residualText.replace(mCC[0], ' ');
+          }
         }
         if (matchedCC) {
+          this._userPickedCostCenter = true;
           this.selectCostCenter(matchedCC);
+          const ccInp = document.getElementById('salesCostCenterInput');
+          if (ccInp) ccInp.classList.remove('pos-ghost-default');
           feedback.push('مركز الكلفة: ' + matchedCC);
         }
 
         // ─────────────────────────────────────────────────────────────
-        // هـ) التعرف الذكي على الصنف (Item) بدون اشتراط كلمة "الصنف" (مثل "سيخ 3 لينيا")
+        // د) التعرف الذكي الفائق على الصنف المحفوظ (Item) — يدعم "سيخ 3 لين" و "سيخ 3 لينيا" وجميع الأصناف المحفوظة
         // ─────────────────────────────────────────────────────────────
         let matchedItemIdx = -1;
         let bestItemScore = 0;
 
-        (this.dbItems || []).forEach((it, idx) => {
-          if (!it || !it.name || it.name.length < 2) return;
-          const iNorm = norm(it.name);
-          if (!iNorm) return;
-
-          if (cleanText.includes(iNorm)) {
-            let sc = 200 + iNorm.length;
-            // تفضيل الأصناف التي تحتوي على كافة الوحدات القياسية (سيخه + طن عددي + طن وزني)
-            if (Array.isArray(it.unitsArray) && it.unitsArray.length >= 3) sc += 50;
-            if (it.name.includes('لينيا')) sc += 20;
-            if (sc > bestItemScore) {
-              bestItemScore = sc;
-              matchedItemIdx = idx;
-            }
-            return;
+        // أولاً: اختصارات الأصناف المحفوظة الأكثر تداولاً (مثل "سيخ 3 لين" أو "سيخ 3 لينيا" أو "سيخ 4 لين" أو "سيخ 5 لين")
+        if (/سيخ\s*3(?:\s*لينيا|\s*لين|\s*ل)?(?=$|[\s,،])/i.test(cleanText)) {
+          const prefIdx = (this.dbItems || []).findIndex(it => it && it.name && it.name.includes('سيخ 3 لينيا أسعد 10 مللي'));
+          const altIdx = (this.dbItems || []).findIndex(it => it && it.name && norm(it.name).includes('سيخ 3 لينيا'));
+          matchedItemIdx = prefIdx !== -1 ? prefIdx : altIdx;
+          bestItemScore = 500;
+          residualText = residualText.replace(/سيخ\s*3\s*(?:لينيا|لينية|لينيه|لنيه|لين|ل)?(?:\s*اسعد|\s*أسعد)?(?:\s*10\s*مللي)?/gi, ' ');
+        } else if (/سيخ\s*4(?:\s*لينيا|\s*لين|\s*ل)?(?=$|[\s,،])/i.test(cleanText)) {
+          const prefIdx = (this.dbItems || []).findIndex(it => it && it.name && norm(it.name).includes('سيخ 4 لينيا'));
+          if (prefIdx !== -1) {
+            matchedItemIdx = prefIdx;
+            bestItemScore = 500;
+            residualText = residualText.replace(/سيخ\s*4\s*(?:لينيا|لينية|لينيه|لنيه|لين|ل)?/gi, ' ');
           }
+        } else if (/سيخ\s*5(?:\s*لينيا|\s*لين|\s*ل)?(?=$|[\s,،])/i.test(cleanText)) {
+          const prefIdx = (this.dbItems || []).findIndex(it => it && it.name && norm(it.name).includes('سيخ 5 لينيا'));
+          if (prefIdx !== -1) {
+            matchedItemIdx = prefIdx;
+            bestItemScore = 500;
+            residualText = residualText.replace(/سيخ\s*5\s*(?:لينيا|لينية|لينيه|لنيه|لين|ل)?/gi, ' ');
+          }
+        }
 
-          // مطابقة ذكية للكلمات المفتاحية للصنف مثل "سيخ 3 لينيا" مع "سيخ 3 لينيا الاسعد" أو "سيخ 3 لينيا أسعد 10 مللي"
-          const tokens = iNorm.split(' ').filter(Boolean);
-          let matchCount = 0;
-          let hasCoreNoun = false;
-          let hasNumberMatch = true;
+        // ثانياً: البحث الذكي في كامل قائمة الأصناف المحفوظة (dbItems)
+        if (matchedItemIdx === -1) {
+          (this.dbItems || []).forEach((it, idx) => {
+            if (!it || !it.name || it.name.length < 2) return;
+            const iNorm = norm(it.name);
+            if (!iNorm) return;
 
-          for (const tok of tokens) {
-            if (/^\d+$/.test(tok)) {
-              if (cleanText.includes(tok)) {
-                matchCount += 2;
-              } else if (tok === '10' && iNorm.includes('3 لينيا')) {
-                // تجاهل غياب "10" في "سيخ 3 لينيا أسعد 10 مللي" عند قول "سيخ 3 لينيا"
-              } else {
-                hasNumberMatch = false;
+            if (cleanText.includes(iNorm)) {
+              let sc = 200 + iNorm.length;
+              if (Array.isArray(it.unitsArray) && it.unitsArray.length >= 3) sc += 50;
+              if (it.name.includes('لينيا')) sc += 20;
+              if (sc > bestItemScore) {
+                bestItemScore = sc;
+                matchedItemIdx = idx;
               }
-            } else if (cleanText.includes(tok)) {
-              matchCount += 1;
-              if (['سيخ','اسمنت','حديد','طوب','رمل','دهان','زنك','ماسوره'].includes(tok)) {
-                hasCoreNoun = true;
+              return;
+            }
+
+            const tokens = iNorm.split(' ').filter(Boolean);
+            let matchCount = 0;
+            let hasCoreNoun = false;
+            let hasNumberMatch = true;
+
+            for (const tok of tokens) {
+              if (/^\d+$/.test(tok)) {
+                if (cleanText.includes(tok)) {
+                  matchCount += 2;
+                } else if (tok === '10' && iNorm.includes('3 لينيا')) {
+                  // تجاهل غياب "10" في "سيخ 3 لينيا أسعد 10 مللي"
+                } else {
+                  hasNumberMatch = false;
+                }
+              } else if (cleanText.includes(tok)) {
+                matchCount += 1;
+                if (['سيخ','اسمنت','حديد','طوب','رمل','دهان','زنك','ماسوره'].includes(tok)) {
+                  hasCoreNoun = true;
+                }
               }
             }
-          }
 
-          if (hasCoreNoun && hasNumberMatch && matchCount >= 3) {
-            let sc = matchCount * 40;
-            if (Array.isArray(it.unitsArray) && it.unitsArray.length >= 3) sc += 50;
-            if (it.name.includes('لينيا')) sc += 20;
-            if (parseFloat(it.sellingPrice || it.price || 0) > 0) sc += 15;
-            if (sc > bestItemScore) {
-              bestItemScore = sc;
-              matchedItemIdx = idx;
+            if (hasCoreNoun && hasNumberMatch && matchCount >= 2) {
+              let sc = matchCount * 40;
+              if (Array.isArray(it.unitsArray) && it.unitsArray.length >= 3) sc += 50;
+              if (it.name.includes('لينيا')) sc += 20;
+              if (parseFloat(it.sellingPrice || it.price || 0) > 0) sc += 15;
+              if (sc > bestItemScore) {
+                bestItemScore = sc;
+                matchedItemIdx = idx;
+              }
             }
-          }
-        });
+          });
+        }
 
         if (matchedItemIdx !== -1) {
           this.selectItemByIndex(matchedItemIdx);
@@ -14159,7 +14315,113 @@ window.SuiteSalesPOS = {
         }
 
         // ─────────────────────────────────────────────────────────────
-        // و) التعرف الذكي على الوحدة (Unit) بدون اشتراط كلمة "الوحدة" (تُطبق بعد اختيار الصنف حتى لا تُمسح!)
+        // هـ) التعرف الذكي الفائق على العميل / الحساب (Customer / Account)
+        // يبحث أولاً في جميع العملاء والحسابات المسجلة، وإذا لم يجده يستخرج اسم الحساب المنطوق بالذكاء الاصطناعي!
+        // ─────────────────────────────────────────────────────────────
+        let matchedCustomer = null;
+        let bestCustScore = 0;
+        const stopWordsCust = new Set([
+          'العميل','عميل','زبون','حساب','المستودع','مستودع','المخزن','مخزن','الصنف','صنف',
+          'الوحدة','وحده','الوحدات','وحدات','الكمية','كميه','الكميه','كمية','السعر','سعر','بسعر',
+          'الخصم','خصم','الاضافه','اضافه','الإضافة','الاضافة','العتاله','عتال','العتال','عتاله',
+          'طن','عددي','وزني','سيخ','لينيا','لين','دره','درة','اللاماب','اللمام','حفظ','وسداد',
+          'احفظ','وسدد','ملحوظه','البيان','بيان','الرئيسي','كيس','سيخه','حبه','متر','جالون'
+        ]);
+
+        for (const cust of (this.dbCustomers || [])) {
+          if (!cust || !cust.name || cust.name.trim().length < 2) continue;
+          if (cust.name.includes('نقدي عام')) continue;
+          const cNorm = norm(cust.name);
+          if (!cNorm || stopWordsCust.has(cNorm)) continue;
+
+          if (cleanText.includes(cNorm) && cNorm.length >= 3) {
+            const sc = 150 + cNorm.length * 3;
+            if (sc > bestCustScore) {
+              bestCustScore = sc;
+              matchedCustomer = cust;
+            }
+          } else {
+            const cTokens = cNorm.split(' ').filter(t => t.length >= 2 && !stopWordsCust.has(t));
+            if (cTokens.length >= 2) {
+              const matchedTokens = cTokens.filter(t => cleanText.split(' ').includes(t) || cleanText.includes(t));
+              if (matchedTokens.length >= 2 && matchedTokens.length >= Math.ceil(cTokens.length * 0.6)) {
+                const sc = matchedTokens.length * 35;
+                if (sc > bestCustScore) {
+                  bestCustScore = sc;
+                  matchedCustomer = cust;
+                }
+              }
+            } else if (cTokens.length === 1 && cTokens[0].length >= 4) {
+              const tok = cTokens[0];
+              const wordRgx = new RegExp('(?:^|[\\s,،])' + tok.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?=$|[\\s,،])', 'i');
+              if (wordRgx.test(cleanText)) {
+                const sc = 65 + tok.length;
+                if (sc > bestCustScore) {
+                  bestCustScore = sc;
+                  matchedCustomer = cust;
+                }
+              }
+            }
+          }
+        }
+
+        // إذا ذكر المستخدم كلمة "العميل / حساب / زبون" متبوعة بأي اسم
+        if (!matchedCustomer) {
+          const mCust = raw.match(/(?:العميل|عميل|زبون|حساب|باسم)\s+([^\s,،]+(?:\s+[^\s,،]+){0,3})/i);
+          if (mCust && mCust[1]) {
+            const candName = mCust[1].replace(/(?:مركز|مخزن|مستودع|درة|دره|صنف|سيخ|وحدة|طن|كمية|سعر|خصم|إضافة|اضافة|العتال|عتالة|حفظ).*/i, '').trim();
+            if (candName && candName.length >= 2) {
+              matchedCustomer = (this.dbCustomers || []).find(c => norm(c.name).includes(norm(candName))) || {
+                id: 'CUST-VOICE-' + Date.now(),
+                name: candName,
+                phone: '',
+                currentBalance: 0,
+                currency: 'SDG'
+              };
+            }
+          }
+        }
+
+        // الذكاء الاصطناعي الاستنتاجي للأسماء: إذا نطق المستخدم أي اسم شخص أو حساب في بداية أو وسط الجملة بدون كلمة "العميل" ولم يكن مسجلاً مسبقاً
+        if (!matchedCustomer) {
+          const segments = residualText
+            .replace(/(?:طن\s*عددي|طن\s*وزني|الطن\s*العددي|الطن\s*الوزني|حفظ\s*وسداد|حفظ|احفظ)/gi, ' ')
+            .split(/[,،.\n]+/)
+            .map(s => s.trim())
+            .filter(Boolean);
+
+          for (const seg of segments) {
+            const words = seg.split(/\s+/).filter(w => {
+              const wn = norm(w);
+              return wn.length >= 2 && !/^\d+$/.test(wn) && !stopWordsCust.has(wn);
+            });
+            if (words.length >= 2 && words.length <= 5) {
+              const candidateName = words.join(' ').trim();
+              if (candidateName.length >= 5) {
+                matchedCustomer = {
+                  id: 'CUST-VOICE-' + Date.now(),
+                  name: candidateName,
+                  phone: '',
+                  currentBalance: 0,
+                  currency: 'SDG'
+                };
+                this.dbCustomers.unshift(matchedCustomer);
+                break;
+              }
+            }
+          }
+        }
+
+        if (matchedCustomer) {
+          this._userPickedCustomer = true;
+          this.selectCustomer(matchedCustomer);
+          const custInp = document.getElementById('salesCustomerInput');
+          if (custInp) custInp.classList.remove('pos-ghost-default');
+          feedback.push('العميل: ' + matchedCustomer.name);
+        }
+
+        // ─────────────────────────────────────────────────────────────
+        // و) التعرف الذكي على الوحدة (Unit) بدون اشتراط كلمة "الوحدة"
         // ─────────────────────────────────────────────────────────────
         let targetUnit = null;
         if (cleanText.includes('طن عددي') || cleanText.includes('الطن العددي')) {
@@ -14233,6 +14495,8 @@ window.SuiteSalesPOS = {
         if (spokenQty !== null && spokenQty > 0) {
           const qInp = document.getElementById('salesQtyInput');
           if (qInp) {
+            qInp.classList.remove('pos-ghost-default');
+            delete qInp.dataset.ghostAuto;
             qInp.value = fmtField('salesQtyInput', spokenQty);
             if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleQty(qInp);
           }
@@ -14242,6 +14506,8 @@ window.SuiteSalesPOS = {
         if (spokenPrice !== null && spokenPrice > 0) {
           const pInp = document.getElementById('salesPriceInput');
           if (pInp) {
+            pInp.classList.remove('pos-ghost-default');
+            delete pInp.dataset.ghostAuto;
             pInp.value = fmtField('salesPriceInput', spokenPrice);
             if (window.SmartPOSFontAI) window.SmartPOSFontAI.scalePrice(pInp);
           }
@@ -14251,6 +14517,8 @@ window.SuiteSalesPOS = {
         if (spokenTax !== null && spokenTax >= 0) {
           const tInp = document.getElementById('salesTaxInput');
           if (tInp) {
+            tInp.classList.remove('pos-ghost-default');
+            delete tInp.dataset.ghostAuto;
             tInp.value = fmtField('salesTaxInput', spokenTax);
             if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleTax(tInp);
           }
@@ -14260,6 +14528,8 @@ window.SuiteSalesPOS = {
         if (spokenDisc !== null && spokenDisc >= 0) {
           const dInp = document.getElementById('salesDiscountInput');
           if (dInp) {
+            dInp.classList.remove('pos-ghost-default');
+            delete dInp.dataset.ghostAuto;
             dInp.value = fmtField('salesDiscountInput', spokenDisc);
             if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleTax(dInp);
           }
@@ -14269,6 +14539,8 @@ window.SuiteSalesPOS = {
         if (spokenLabor !== null && spokenLabor >= 0) {
           const lInp = document.getElementById('salesLaborInput');
           if (lInp) {
+            lInp.classList.remove('pos-ghost-default');
+            delete lInp.dataset.ghostAuto;
             lInp.value = fmtField('salesLaborInput', spokenLabor);
             if (window.SmartPOSFontAI) window.SmartPOSFontAI.scaleTax(lInp);
           }
@@ -14291,11 +14563,13 @@ window.SuiteSalesPOS = {
 
         // حساب وتفريغ الجملة والإجمالي الصافي فوراً
         const netSubtotal = this.calcItemSubtotal();
-        const grossVal = document.getElementById('salesItemGrossTotal')?.value || '0';
+        const grossVal = document.getElementById('salesItemGrossTotal')?.value || '';
         if (grossVal && grossVal !== '0') {
           feedback.push('الجملة: ' + grossVal);
         }
-        feedback.push('الصافي: ' + netSubtotal.toLocaleString());
+        if (netSubtotal > 0) {
+          feedback.push('الصافي: ' + netSubtotal.toLocaleString());
+        }
 
         // تحديث شريط حالة الـ ERP الذكي
         if (typeof this.updateErpSmartStatusStrip === 'function') {
@@ -14323,7 +14597,7 @@ window.SuiteSalesPOS = {
         // ح) تنفيذ أمر الحفظ الصوتي الفوري ("حفظ" أو "حفظ وسداد")
         // ─────────────────────────────────────────────────────────────
         if (/(?:حفظ\s*وسداد|احفظ\s*وسدد|حفظ\s*و\s*سداد)/i.test(rawOriginal) || /(?:حفظ\s*وسداد|احفظ\s*وسدد)/i.test(cleanText)) {
-          this.stopVoiceFeed(true, '⚡ جاري تنفيذ أمر "حفظ وسداد" والانتقال لشاشة الحركة المالية...');
+          this.stopVoiceFeed(true, '⚡ جاري تنفيذ أمر "حفظ وسداد" والانتقال لشاشة حركة مالية...');
           setTimeout(() => {
             if (typeof commitOpSales === 'function') commitOpSales(true);
           }, 250);
@@ -14672,9 +14946,19 @@ window.SuiteSalesPOS = {
       },
 
       openDeliveryOrder() {
-        const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText || '';
-        const wh = this.selectedWarehouse || document.getElementById('salesWarehouseSelect')?.value || 'المستودع الرئيسي';
-        const cust = this.selectedCustomer?.name || document.getElementById('salesCustomerInput')?.value || 'عميل نقدي عام';
+        const invNo = document.getElementById('opSalesInvoiceNoPill')?.innerText?.trim() || ('S' + Date.now());
+        const wh = document.getElementById('salesWarehouseInput')?.value?.trim() || this.selectedWarehouse || document.getElementById('salesWarehouseSelect')?.value || 'المستودع الرئيسي';
+        const cust = document.getElementById('salesCustomerInput')?.value?.trim() || this.selectedCustomer?.name || 'عميل نقدي عام';
+
+        let curItems = [];
+        if (this.cart && this.cart.length > 0) {
+          curItems = this.cart.map(it => ({ name: it.name, qty: (it.qty || 1) + ' ' + (it.unit || '') }));
+        } else {
+          const itName = document.getElementById('salesItemSearchInput')?.value?.trim() || (this.selectedItemIndex !== -1 && this.dbItems[this.selectedItemIndex] ? this.dbItems[this.selectedItemIndex].name : 'صنف الفاتورة الحالية');
+          const qtyVal = document.getElementById('salesQtyInput')?.value?.trim() || '1';
+          const unitVal = document.getElementById('salesUnitSelect')?.value || 'طن عددي';
+          curItems = [{ name: itName, qty: `${qtyVal} ${unitVal}` }];
+        }
 
         if (typeof openModal === 'function') openModal('modalOpDelivery');
         if (typeof fetchMirrorNumbers === 'function') fetchMirrorNumbers();
@@ -14686,6 +14970,7 @@ window.SuiteSalesPOS = {
             let found = false;
             for (let i = 0; i < refSel.options.length; i++) {
               if (refSel.options[i].value === invNo) {
+                refSel.options[i].setAttribute('data-items', JSON.stringify(curItems));
                 refSel.selectedIndex = i;
                 found = true;
                 break;
@@ -14695,14 +14980,23 @@ window.SuiteSalesPOS = {
               const opt = document.createElement('option');
               opt.value = invNo;
               opt.text = `${invNo} - ${cust}`;
+              opt.setAttribute('data-items', JSON.stringify(curItems));
               refSel.appendChild(opt);
               refSel.value = invNo;
             }
             if (typeof onOpDeliveryRefChange === 'function') onOpDeliveryRefChange();
           }
           const whSel = document.getElementById('opDeliveryWarehouseSelect');
-          if (whSel && wh) whSel.value = wh;
-        }, 150);
+          if (whSel && wh) {
+            if (!Array.from(whSel.options).some(o => o.value === wh)) {
+              const wOpt = document.createElement('option');
+              wOpt.value = wh;
+              wOpt.text = wh;
+              whSel.appendChild(wOpt);
+            }
+            whSel.value = wh;
+          }
+        }, 160);
       }
     };
 
@@ -15885,11 +16179,46 @@ window.SuiteSalesPOS = {
   if (window.SuiteSalesPOS) {
     Object.assign(window.SuiteSalesPOS, {
       onCustomerFocus(el) {
-        this.renderCustomerDropdown(el.value || '');
+        if (typeof this.syncAllErpDataForAI === 'function') this.syncAllErpDataForAI();
+        if (el && (el.classList.contains('pos-ghost-default') || (el.value === 'عميل نقدي عام' && !this._userPickedCustomer))) {
+          el.value = '';
+          el.classList.remove('pos-ghost-default');
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(el);
+        }
+        this.renderCustomerDropdown(el ? (el.value || '') : '');
       },
 
       onCustomerInput(q) {
+        const el = document.getElementById('salesCustomerInput');
+        if (el) {
+          el.classList.remove('pos-ghost-default');
+          this._userPickedCustomer = true;
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(el);
+        }
         this.renderCustomerDropdown(q);
+      },
+
+      onCustomerBlur(el) {
+        setTimeout(() => {
+          const drop = document.getElementById('salesCustomerDropdown');
+          if (drop) drop.classList.add('hidden');
+          if (!el) return;
+          const val = (el.value || '').trim();
+          if (!val) {
+            if (this._userPickedCustomer && this.selectedCustomer && this.selectedCustomer.name && this.selectedCustomer.name !== 'عميل نقدي عام') {
+              el.value = this.selectedCustomer.name;
+              el.classList.remove('pos-ghost-default');
+            } else {
+              el.value = 'عميل نقدي عام';
+              el.classList.add('pos-ghost-default');
+              this._userPickedCustomer = false;
+            }
+          } else {
+            el.classList.remove('pos-ghost-default');
+            this._userPickedCustomer = true;
+          }
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(el);
+        }, 220);
       },
 
       renderCustomerDropdown(q) {
@@ -15918,7 +16247,6 @@ window.SuiteSalesPOS = {
           const nameHl = SuiteSmartSearch.highlight(c.name, query);
           const cJson = JSON.stringify(c).replace(/"/g, '&quot;');
 
-          // Solo el nombre completo, sin saldo, sin móvil, ancho completo, negrita con tamaño disminuido 2 grados
           html += `
             <div onclick="SuiteSalesPOS.selectCustomer(${cJson})" 
                  class="py-2.5 px-3.5 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-slate-800/90 hover:border-sky-500/60 flex items-center cursor-pointer transition active:scale-[0.99] w-full shadow-sm">
@@ -15933,12 +16261,47 @@ window.SuiteSalesPOS = {
       onCostCenterFocus(el) {
         const wDrop = document.getElementById('salesWarehouseDropdown');
         if (wDrop) wDrop.classList.add('hidden');
-        this.renderCostCenterDropdown(el.value || '');
+        if (el && (el.classList.contains('pos-ghost-default') || (el.value === 'المركز الرئيسي' && !this._userPickedCostCenter))) {
+          el.value = '';
+          el.classList.remove('pos-ghost-default');
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCostCenter(el);
+        }
+        this.renderCostCenterDropdown(el ? (el.value || '') : '');
       },
 
       onCostCenterInput(q) {
+        const el = document.getElementById('salesCostCenterInput');
+        if (el) {
+          el.classList.remove('pos-ghost-default');
+          this._userPickedCostCenter = true;
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCostCenter(el);
+        }
         this.selectedCostCenter = (q || '').trim() || 'المركز الرئيسي';
         this.renderCostCenterDropdown(q);
+      },
+
+      onCostCenterBlur(el) {
+        setTimeout(() => {
+          const drop = document.getElementById('salesCostCenterDropdown');
+          if (drop) drop.classList.add('hidden');
+          if (!el) return;
+          const val = (el.value || '').trim();
+          if (!val) {
+            if (this._userPickedCostCenter && this.selectedCostCenter && this.selectedCostCenter !== 'المركز الرئيسي') {
+              el.value = this.selectedCostCenter;
+              el.classList.remove('pos-ghost-default');
+            } else {
+              el.value = 'المركز الرئيسي';
+              this.selectedCostCenter = 'المركز الرئيسي';
+              el.classList.add('pos-ghost-default');
+              this._userPickedCostCenter = false;
+            }
+          } else {
+            el.classList.remove('pos-ghost-default');
+            this._userPickedCostCenter = true;
+          }
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCostCenter(el);
+        }, 220);
       },
 
       renderCostCenterDropdown(q) {
@@ -15985,11 +16348,46 @@ window.SuiteSalesPOS = {
       onWarehouseFocus(el) {
         const ccDrop = document.getElementById('salesCostCenterDropdown');
         if (ccDrop) ccDrop.classList.add('hidden');
-        this.renderWarehouseDropdown(el.value || '');
+        if (el && (el.classList.contains('pos-ghost-default') || (el.value === 'المستودع الرئيسي' && !this._userPickedWarehouse))) {
+          el.value = '';
+          el.classList.remove('pos-ghost-default');
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(el);
+        }
+        this.renderWarehouseDropdown(el ? (el.value || '') : '');
       },
 
       onWarehouseInput(q) {
+        const el = document.getElementById('salesWarehouseInput');
+        if (el) {
+          el.classList.remove('pos-ghost-default');
+          this._userPickedWarehouse = true;
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(el);
+        }
         this.renderWarehouseDropdown(q);
+      },
+
+      onWarehouseBlur(el) {
+        setTimeout(() => {
+          const drop = document.getElementById('salesWarehouseDropdown');
+          if (drop) drop.classList.add('hidden');
+          if (!el) return;
+          const val = (el.value || '').trim();
+          if (!val) {
+            if (this._userPickedWarehouse && this.selectedWarehouse && this.selectedWarehouse !== 'المستودع الرئيسي') {
+              el.value = this.selectedWarehouse;
+              el.classList.remove('pos-ghost-default');
+            } else {
+              el.value = 'المستودع الرئيسي';
+              this.selectedWarehouse = 'المستودع الرئيسي';
+              el.classList.add('pos-ghost-default');
+              this._userPickedWarehouse = false;
+            }
+          } else {
+            el.classList.remove('pos-ghost-default');
+            this._userPickedWarehouse = true;
+          }
+          if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(el);
+        }, 220);
       },
 
       renderWarehouseDropdown(q) {
@@ -16028,42 +16426,14 @@ window.SuiteSalesPOS = {
       },
 
       onItemFocus(el) {
-        this.renderItemDropdown(el.value || '');
+        if (el) el.classList.remove('pos-ghost-default');
+        this.renderItemDropdown(el ? (el.value || '') : '');
       },
 
       onItemInput(q) {
+        const el = document.getElementById('salesItemSearchInput');
+        if (el) el.classList.remove('pos-ghost-default');
         this.renderItemDropdown(q);
-      },
-
-      onItemBlur(el) {
-        setTimeout(() => {
-          const drop = document.getElementById('purItemDropdown');
-          if (drop) drop.classList.add('hidden');
-          const val = (el.value || '').trim();
-          const items = (window.SuiteSalesPOS && SuiteSalesPOS.dbItems) ? SuiteSalesPOS.dbItems : [];
-          if (!val) {
-            this.selectedItemIndex = -1;
-            const hid = document.getElementById('purItemSelectVal');
-            if (hid) hid.value = '';
-            return;
-          }
-          const matchIdx = items.findIndex(it => (it.name || '').trim().toLowerCase() === val.toLowerCase());
-          if (matchIdx !== -1) {
-            this.selectItemByIndex(matchIdx);
-          } else if (this.selectedItemIndex !== -1 && items[this.selectedItemIndex]) {
-            el.value = items[this.selectedItemIndex].name;
-            if (window.SmartPOSFontAI) SmartPOSFontAI.scaleItem(el);
-          } else {
-            el.value = '';
-            this.selectedItemIndex = -1;
-            const hid = document.getElementById('purItemSelectVal');
-            if (hid) hid.value = '';
-            if (window.SmartPOSFontAI) SmartPOSFontAI.scaleItem(el);
-            if (typeof showFloatingToast === 'function') {
-              showFloatingToast('⚠️ البحث محصور على الأصناف المحفوظة فقط');
-            }
-          }
-        }, 220);
       },
 
       onItemBlur(el) {
@@ -16149,13 +16519,15 @@ window.SuiteSalesPOS = {
 
     // Wrap selectCustomer
     const origSelectCustomer = window.SuiteSalesPOS.selectCustomer;
-    window.SuiteSalesPOS.selectCustomer = function(c) {
-      origSelectCustomer.call(this, c);
+    window.SuiteSalesPOS.selectCustomer = function(c, isDefaultInit = false) {
+      origSelectCustomer.call(this, c, isDefaultInit);
       const drop = document.getElementById('salesCustomerDropdown');
       if (drop) drop.classList.add('hidden');
       const inp = document.getElementById('salesCustomerInput');
       if (inp && c && c.name) {
         inp.value = c.name;
+        if (isDefaultInit) inp.classList.add('pos-ghost-default');
+        else inp.classList.remove('pos-ghost-default');
         if (window.SmartPOSFontAI) SmartPOSFontAI.scaleCustomer(inp);
       }
       if (typeof this.updateErpSmartStatusStrip === 'function') this.updateErpSmartStatusStrip();
@@ -16163,13 +16535,15 @@ window.SuiteSalesPOS = {
 
     // Wrap selectWarehouse
     const origSelectWarehouse = window.SuiteSalesPOS.selectWarehouse;
-    window.SuiteSalesPOS.selectWarehouse = function(name) {
-      origSelectWarehouse.call(this, name);
+    window.SuiteSalesPOS.selectWarehouse = function(name, isDefaultInit = false) {
+      origSelectWarehouse.call(this, name, isDefaultInit);
       const drop = document.getElementById('salesWarehouseDropdown');
       if (drop) drop.classList.add('hidden');
       const inp = document.getElementById('salesWarehouseInput');
       if (inp) {
         inp.value = name;
+        if (isDefaultInit) inp.classList.add('pos-ghost-default');
+        else inp.classList.remove('pos-ghost-default');
         if (window.SmartPOSFontAI) SmartPOSFontAI.scaleWarehouse(inp);
       }
     };
@@ -16184,6 +16558,7 @@ window.SuiteSalesPOS = {
       const inp = document.getElementById('salesItemSearchInput');
       if (inp && it) {
         inp.value = it.name;
+        inp.classList.remove('pos-ghost-default');
         if (window.SmartPOSFontAI) SmartPOSFontAI.scaleItem(inp);
       }
       if (window.SmartPOSFontAI) SmartPOSFontAI.scaleAll();
@@ -16194,14 +16569,26 @@ window.SuiteSalesPOS = {
     const origNewInvoice = window.SuiteSalesPOS.newInvoice;
     window.SuiteSalesPOS.newInvoice = function() {
       origNewInvoice.call(this);
+      this._userPickedCustomer = false;
+      this._userPickedWarehouse = false;
+      this._userPickedCostCenter = false;
       const custInp = document.getElementById('salesCustomerInput');
-      if (custInp) custInp.value = 'عميل نقدي عام';
+      if (custInp) {
+        custInp.value = 'عميل نقدي عام';
+        custInp.classList.add('pos-ghost-default');
+      }
       const whInp = document.getElementById('salesWarehouseInput');
-      if (whInp) whInp.value = 'المستودع الرئيسي';
+      if (whInp) {
+        whInp.value = 'المستودع الرئيسي';
+        whInp.classList.add('pos-ghost-default');
+      }
       const itInp = document.getElementById('salesItemSearchInput');
       if (itInp) itInp.value = '';
       const ccInp = document.getElementById('salesCostCenterInput');
-      if (ccInp) ccInp.value = this.selectedCostCenter || 'المركز الرئيسي';
+      if (ccInp) {
+        ccInp.value = this.selectedCostCenter || 'المركز الرئيسي';
+        ccInp.classList.add('pos-ghost-default');
+      }
       ['salesCustomerDropdown', 'salesWarehouseDropdown', 'salesCostCenterDropdown', 'salesItemDropdown'].forEach(id => {
         const d = document.getElementById(id);
         if (d) d.classList.add('hidden');
@@ -16565,88 +16952,40 @@ async function commitOpSales(andPay = false) {
         if (typeof fetchMirrorNumbers === 'function') fetchMirrorNumbers();
 
         if (andPay) {
-          // حفظ البيانات في sessionStorage لتمريرها أيضاً لشاشة السند المستقلة إن فتحت
+          const targetCur = (SuiteSalesPOS.currencyMode === 'SDG' || grandTotal >= 1000) ? 'SDG' : 'USD';
+          const voucherNotes = notesVal
+            ? `سداد فاتورة مبيعات #${invoiceNumber} - العميل: ${cust} (${notesVal})`
+            : `سداد فاتورة مبيعات #${invoiceNumber} - العميل: ${cust}`;
+
+          // حفظ البيانات في sessionStorage لتمريرها فوراً لشاشة حركة مالية الحقيقية (mobile-voucher.php)
           try {
             sessionStorage.setItem('pending_pos_voucher', JSON.stringify({
               party: cust,
               amount: grandTotal,
-              cur: SuiteSalesPOS.currencyMode || 'SDG',
+              cur: targetCur,
+              warehouse: wh,
+              costCenter: costCenter,
               ref: invoiceNumber,
-              notes: `سداد فاتورة مبيعات #${invoiceNumber} - العميل: ${cust}`
+              notes: voucherNotes
             }));
           } catch(e) {}
 
-          // تصفير شاشة المبيعات وإغلاقها والانتقال المباشر لشاشة الحركة المالية
-          if (SuiteSalesPOS && SuiteSalesPOS.newInvoice) SuiteSalesPOS.newInvoice();
-          closeModal('modalOpSales');
-          openModal('modalOpFinance');
-          if (typeof initFinancialTransferModal === 'function') initFinancialTransferModal();
-
-          // 1. ضبط العملة المناسبة للمبلغ
-          const targetCur = (SuiteSalesPOS.currencyMode === 'SDG' || grandTotal >= 1000) ? 'SDG' : 'USD';
-          if (typeof setFinTransferCurrency === 'function') {
-            setFinTransferCurrency(targetCur);
-          }
-
-          // 2. تفريغ اسم العميل (مثل: محمد حسن علي مكي) مباشرة في حقل اسم الشخص الذي تم البيع له
-          const nameInp = document.getElementById('finTransferCustomerNameInput');
-          if (nameInp) {
-            nameInp.value = cust;
-          }
-
-          // 3. مطابقة أو إدراج حساب العميل في قائمة (الحساب المحاسبي المرتبط للصرف - دائن)
-          const fromSelect = document.getElementById('finTransferFromAccount');
-          if (fromSelect) {
-            let matched = false;
-            for (let i = 0; i < fromSelect.options.length; i++) {
-              if (fromSelect.options[i].text.toLowerCase().includes(cust.toLowerCase())) {
-                fromSelect.selectedIndex = i;
-                matched = true;
-                break;
-              }
-            }
-            if (!matched) {
-              const opt = document.createElement('option');
-              opt.value = 'cust_pos_' + Date.now();
-              opt.text = `👤 ${cust}`;
-              opt.selected = true;
-              if (fromSelect.children.length > 0) {
-                fromSelect.insertBefore(opt, fromSelect.firstChild);
-              } else {
-                fromSelect.appendChild(opt);
-              }
-              fromSelect.value = opt.value;
-            }
-          }
-
-          // 4. تفريغ المبلغ الصافي جاهزاً في حقل المبلغ
-          const amtInp = document.getElementById('finTransferAmountInput');
-          if (amtInp) {
-            amtInp.value = grandTotal;
-            amtInp.dispatchEvent(new Event('input', { bubbles: true }));
-          }
-
-          // 5. اختيار الخزينة / البنك المستلم افتراضياً
-          const toSelect = document.getElementById('finTransferToAccount');
-          if (toSelect) {
-            const defRec = Array.from(toSelect.options).find(o => o.text.includes('خزينة') || o.text.includes('الصندوق') || o.text.includes('بنكك'));
-            if (defRec) toSelect.value = defRec.value;
-          }
-
-          // 6. تفريغ البيان تلقائياً
-          const notesInp = document.getElementById('finTransferNotes');
-          if (notesInp) {
-            notesInp.value = `سداد فاتورة مبيعات #${invoiceNumber} - العميل: ${cust}`;
-          }
-
-          // طريقة السداد الافتراضية: كاش لتسهيل الاعتماد المباشر، ويمكن للمستخدم تغييرها لبنكك/شيك
-          if (typeof setFinTransferMethod === 'function') setFinTransferMethod('cash');
-          if (typeof updateFinTransferBalancesPreview === 'function') updateFinTransferBalancesPreview();
-
           if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');
           if (typeof showFloatingToast === 'function') {
-            showFloatingToast(`⚡ تم حفظ الفاتورة #${invoiceNumber} وتجهيز الحركة المالية للعميل [${cust}] بمبلغ [${grandTotal.toLocaleString()}]!`);
+            showFloatingToast(`⚡ تم حفظ الفاتورة #${invoiceNumber} وجاري فتح شاشة حركة مالية للعميل [${cust}] بمبلغ [${grandTotal.toLocaleString()}]...`);
           }
+
+          if (SuiteSalesPOS && SuiteSalesPOS.newInvoice) SuiteSalesPOS.newInvoice();
+
+          const params = new URLSearchParams({
+            party: cust,
+            amount: String(grandTotal),
+            cur: targetCur,
+            warehouse: wh,
+            ref: String(invoiceNumber),
+            notes: voucherNotes
+          });
+          window.location.href = 'mobile-voucher.php?' + params.toString();
         } else {
           // حفظ فقط
           if (window.AudioEngine && AudioEngine.play) AudioEngine.play('success');

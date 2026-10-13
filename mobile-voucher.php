@@ -6600,7 +6600,11 @@ $currenciesData = [
         showToastNotification(`📑 سند #${vouchersList[newIndex].id} (${newIndex + 1} من ${vouchersList.length})`);
       } else if (newIndex >= vouchersList.length) {
         startNewVoucher();
-    setTimeout(initPendingPosPayment, 250);
+      } else if (newIndex < 0) {
+        showToastNotification('⏮️ هذا هو أول وأقدم سند مسجل في السجل');
+      }
+    }
+
     // ════════════════════════════════════════════════════════════════
     // استلام وتفريغ بيانات السداد الفوري القادمة من فاتورة المبيعات / POS
     // ════════════════════════════════════════════════════════════════
@@ -6612,6 +6616,7 @@ $currenciesData = [
         let cur = urlParams.get('cur') || 'SDG';
         let ref = urlParams.get('ref');
         let notes = urlParams.get('notes');
+        let warehouse = urlParams.get('warehouse');
 
         if (!party && sessionStorage.getItem('pending_pos_voucher')) {
           try {
@@ -6621,12 +6626,36 @@ $currenciesData = [
             cur = stored.cur || cur;
             ref = stored.ref;
             notes = stored.notes;
+            warehouse = stored.warehouse || warehouse;
             sessionStorage.removeItem('pending_pos_voucher');
           } catch(e) {}
         }
 
         if (party || amount) {
-          // 1. تفريغ الاسم (اسم الشخص الذي تم البيع له)
+          window._activePosPaymentPayload = { party, amount, cur, ref, notes, warehouse };
+
+          // 1. ضمان تسجيل حساب العميل القادم من المبيعات في accountsDB حتى يقبل الحفظ فوراً
+          if (party && typeof accountsDB !== 'undefined' && Array.isArray(accountsDB)) {
+            const cleanParty = party.trim();
+            const exists = accountsDB.some(a => a && a.name && (a.name.trim() === cleanParty || (typeof normalizeArabicText === 'function' && normalizeArabicText(a.name) === normalizeArabicText(cleanParty))));
+            if (!exists && cleanParty) {
+              accountsDB.unshift({
+                id: 'cust_pos_' + Date.now(),
+                name: cleanParty,
+                category: 'العملاء والزبائن',
+                sdgBalance: 0,
+                balanceType: ''
+              });
+            }
+          }
+
+          // 1.5 تفريغ المستودع / مركز الكلفة إذا أُرسل من شاشة المبيعات
+          if (warehouse) {
+            const ccInp = document.getElementById('costCenterInput');
+            if (ccInp) ccInp.value = warehouse;
+          }
+
+          // 2. تفريغ الاسم (اسم العميل الذي تم البيع له) في خانة (من حساب)
           if (party) {
             const fromInp = document.getElementById('fromSearchInput');
             if (fromInp) {
@@ -6637,50 +6666,46 @@ $currenciesData = [
             }
           }
 
-          // 2. تفريغ المبلغ في محل المبلغ
-          if (amount) {
-            const numAmt = parseFloat(amount) || 0;
-            if (cur === 'USD') {
-              const usdInp = document.getElementById('usdAmount');
-              if (usdInp) {
-                usdInp.value = numAmt;
-                if (typeof handleAmountInput === 'function') handleAmountInput('foreign');
-              }
-            } else {
-              const sdgInp = document.getElementById('sdgAmount');
-              if (sdgInp) {
-                sdgInp.value = numAmt;
-                if (typeof handleAmountInput === 'function') handleAmountInput('sdg');
-              }
+          // 3. تفريغ المبلغ في المبلغ المحلي (#sdgAmount) وحساب المكافئ بالدولار تلقائياً
+          if (amount !== null && amount !== undefined && amount !== '') {
+            const numAmt = parseFloat(String(amount).replace(/,/g, '')) || 0;
+            const sdgInp = document.getElementById('sdgAmount');
+            if (sdgInp) {
+              sdgInp.value = numAmt;
+              if (typeof handleAmountInput === 'function') handleAmountInput('sdg');
             }
             if (typeof updateTafqeet === 'function') updateTafqeet();
           }
 
-          // 3. المستلم الافتراضي (الخزينة النقدية الرئيسية)
+          // 4. المستلم الافتراضي (الخزينة النقدية أو البنك)
           const toInp = document.getElementById('toSearchInput');
           if (toInp && !toInp.value) {
-            const defCash = (typeof accountsDB !== 'undefined' && accountsDB.find(a => a && a.name && (a.name.includes('خزينة') || a.name.includes('كاش')))) ? accountsDB.find(a => a && a.name && (a.name.includes('خزينة') || a.name.includes('كاش'))).name : 'الخزينة الرئيسية (الكاش)';
+            const foundSafe = (typeof accountsDB !== 'undefined' && Array.isArray(accountsDB))
+              ? accountsDB.find(a => a && a.name && (a.name.includes('خزينة') || a.name.includes('كاش') || a.name.includes('بنك الخرطوم')))
+              : null;
+            const defCash = foundSafe ? foundSafe.name : 'خزينة المركز الرئيسي - كاش';
+            if (typeof accountsDB !== 'undefined' && Array.isArray(accountsDB) && !foundSafe) {
+              accountsDB.push({ id: 'safe_default_pos', name: defCash, category: 'الخزن', sdgBalance: 0, balanceType: '' });
+            }
             if (typeof selectAcc === 'function') selectAcc('to', defCash);
             else toInp.value = defCash;
           }
 
-          // 4. البيان
+          // 5. البيان
           const notesInp = document.getElementById('voucherNotes');
-          if (notesInp && !notesInp.value) {
+          if (notesInp) {
             notesInp.value = notes || (ref ? ('سداد فاتورة مبيعات #' + ref + ' - العميل: ' + (party || '')) : ('سداد مبيعات - ' + (party || '')));
           }
 
+          if (typeof updateAccountBalanceBadges === 'function') updateAccountBalanceBadges();
+          if (typeof applyNumberStylesToInputs === 'function') applyNumberStylesToInputs();
+
           if (typeof showToastNotification === 'function') {
-            showToastNotification('⚡ تم تفريغ بيانات سداد الفاتورة للعميل: ' + (party || ''));
+            showToastNotification('⚡ تم تجهيز حركة مالية لسداد الفاتورة — العميل: ' + (party || '') + ' | المبلغ: ' + Number(parseFloat(String(amount || 0).replace(/,/g, '')) || 0).toLocaleString());
           }
         }
       } catch(err) {
         console.warn('initPendingPosPayment error:', err);
-      }
-    }
-
-      } else if (newIndex < 0) {
-        showToastNotification('⏮️ هذا هو أول وأقدم سند مسجل في السجل');
       }
     }
 
@@ -8660,6 +8685,12 @@ $currenciesData = [
               sdgBalance: a.rawBalance || 0,
               balanceType: ''
             }));
+            if (window._activePosPaymentPayload && window._activePosPaymentPayload.party) {
+              const pName = window._activePosPaymentPayload.party.trim();
+              if (pName && !accountsDB.some(a => a && a.name && (a.name.trim() === pName || (typeof normalizeArabicText === 'function' && normalizeArabicText(a.name) === normalizeArabicText(pName))))) {
+                accountsDB.unshift({ id: 'cust_pos_live', name: pName, category: 'العملاء والزبائن', sdgBalance: 0, balanceType: '' });
+              }
+            }
           }
 
           const isAtNewVoucher = (currentIndex >= vouchersList.length || currentIndex === -1);
@@ -9407,6 +9438,8 @@ $currenciesData = [
     setupAmountLongPress(document.getElementById('usdAmountCard'), 'usd');
     setupAmountLongPress(document.getElementById('usdAmount'), 'usd');
     startNewVoucher();
+    initPendingPosPayment();
+    setTimeout(initPendingPosPayment, 200);
 
     // فحص وجلب أحدث بيانات السيرفر وقاعدة البيانات MariaDB بالخلفية
     fetchLiveDbData(false);
