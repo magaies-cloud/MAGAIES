@@ -7115,8 +7115,6 @@
                    oninput="SuiteSalesPOS.onCustomerInput(this.value)" 
                    onfocus="SuiteSalesPOS.onCustomerFocus(this)" 
                    onclick="this.select()" />
-            <!-- قائمة منسدلة ذكية جداً للعملاء -->
-            <div id="salesCustomerDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-sky-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-60 overflow-y-auto z-[300] text-xs"></div>
           </div>
 
           <!-- زر كشف الحساب الصغير في الآخر -->
@@ -7129,6 +7127,9 @@
               <span>كشف</span>
             </button>
           </div>
+
+          <!-- قائمة منسدلة ذكية جداً للعملاء: بكامل عرض وطول شاشة الجوال (del tamaño de la pantalla completa de ancho y de largo) -->
+          <div id="salesCustomerDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-sky-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
 
         </div>
 
@@ -7195,7 +7196,7 @@
               </div>
               <input type="hidden" id="salesItemSelectVal" value="">
               <!-- قائمة منسدلة ذكية جداً للأصناف -->
-              <div id="salesItemDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-amber-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-64 overflow-y-auto z-[300] text-xs"></div>
+              <div id="salesItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[72vh] overflow-y-auto z-[999] text-xs"></div>
             </div>
 
             <!-- 2. الوحدة: 4 أعمدة -->
@@ -7768,7 +7769,6 @@
                    oninput="SuitePurchasePOS.onSupplierInput(this.value)" 
                    onfocus="SuitePurchasePOS.onSupplierFocus(this)" 
                    onclick="this.select()" />
-            <div id="purchaseSupplierDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-amber-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-60 overflow-y-auto z-[300] text-xs"></div>
           </div>
 
           <div class="shrink-0 flex items-center">
@@ -7780,6 +7780,9 @@
               <span>كشف</span>
             </button>
           </div>
+
+          <!-- قائمة منسدلة ذكية جداً للموردين: بكامل عرض وطول شاشة الجوال (del tamaño de la pantalla completa de ancho y de largo) -->
+          <div id="purchaseSupplierDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[75vh] overflow-y-auto z-[999] text-xs"></div>
 
         </div>
 
@@ -7843,7 +7846,7 @@
                        onclick="this.select()" />
               </div>
               <input type="hidden" id="purItemSelectVal" value="">
-              <div id="purItemDropdown" class="hidden absolute top-full right-0 left-0 mt-1.5 bg-slate-900/98 backdrop-blur-md border border-amber-500/50 rounded-2xl p-1.5 space-y-1 shadow-[0_12px_36px_rgba(0,0,0,0.95)] max-h-64 overflow-y-auto z-[300] text-xs"></div>
+              <div id="purItemDropdown" class="hidden absolute top-full right-0 left-0 mt-2 bg-slate-950/98 backdrop-blur-2xl border-2 border-amber-500/70 rounded-2xl p-2 space-y-1.5 shadow-[0_25px_60px_rgba(0,0,0,0.98)] max-h-[72vh] overflow-y-auto z-[999] text-xs"></div>
             </div>
 
             <!-- 2. الوحدة: 4 أعمدة -->
@@ -13538,39 +13541,84 @@ window.SuiteSalesPOS = {
         .toLowerCase();
     },
 
+    getVariants(token) {
+      const vars = [token];
+      if (token === 'sh') vars.push('ش');
+      else if (token === 'ش') vars.push('sh');
+      else if (token === 'kh') vars.push('خ');
+      else if (token === 'خ') vars.push('kh');
+      else if (token === 'th') vars.push('ث');
+      else if (token === 'ث') vars.push('th');
+      else if (token === 'gh') vars.push('غ');
+      else if (token === 'غ') vars.push('gh');
+      return vars;
+    },
+
     match(targetText, query) {
       if (!query || !query.trim()) return true;
       const qNorm = this.norm(query);
       const tNorm = this.norm(targetText);
+      const rawTarget = String(targetText).toLowerCase();
       const tokens = qNorm.split(' ').filter(Boolean);
-      return tokens.every(tok => tNorm.includes(tok));
+      return tokens.every(tok => {
+        const vars = this.getVariants(tok);
+        return vars.some(v => tNorm.includes(v) || rawTarget.includes(v));
+      });
     },
 
     score(targetText, query) {
       if (!query || !query.trim()) return 100;
       const qNorm = this.norm(query);
       const tNorm = this.norm(targetText);
-      if (tNorm === qNorm) return 1000;
-      if (tNorm.startsWith(qNorm)) return 800;
+      const rawTarget = String(targetText).toLowerCase();
+      if (tNorm === qNorm || rawTarget === query.toLowerCase().trim()) return 1000;
+      if (tNorm.startsWith(qNorm) || rawTarget.startsWith(query.toLowerCase().trim())) return 800;
       const tokens = qNorm.split(' ').filter(Boolean);
-      if (tokens.every(tok => tNorm.includes(tok))) {
+      let matchCount = 0;
+      tokens.forEach(tok => {
+        const vars = this.getVariants(tok);
+        if (vars.some(v => tNorm.includes(v) || rawTarget.includes(v))) matchCount++;
+      });
+      if (matchCount === tokens.length) {
         let sc = 500;
-        if (tNorm.startsWith(tokens[0])) sc += 200;
+        const firstVars = this.getVariants(tokens[0]);
+        if (firstVars.some(v => tNorm.startsWith(v) || rawTarget.startsWith(v))) sc += 200;
         return sc;
       }
       return 0;
     },
 
+    buildPattern(tok) {
+      if (tok === 'sh') return '(?:sh|ش)';
+      if (tok === 'ش') return '(?:ش|sh)';
+      if (tok === 'kh') return '(?:kh|خ)';
+      if (tok === 'خ') return '(?:خ|kh)';
+      if (tok === 'th') return '(?:th|ث)';
+      if (tok === 'ث') return '(?:ث|th)';
+      if (tok === 'gh') return '(?:gh|غ)';
+      if (tok === 'غ') return '(?:غ|gh)';
+      const special = '-/\\^$*+?.()|[]{}';
+      let p = '';
+      for (const ch of tok) {
+        if ('اأإآ'.includes(ch)) p += '[اأإآ]';
+        else if ('هة'.includes(ch)) p += '[هة]';
+        else if ('يى'.includes(ch)) p += '[يى]';
+        else if (special.includes(ch)) p += '\\' + ch;
+        else p += ch;
+      }
+      return p;
+    },
+
     highlight(text, query) {
       if (!query || !query.trim() || !text) return text || '';
-      const tokens = this.norm(query).split(' ').filter(tok => tok.length > 0);
+      const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
       if (!tokens.length) return text;
       let res = String(text);
       tokens.forEach(tok => {
         try {
-          const escaped = tok.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&');
-          const regex = new RegExp('(' + escaped + ')', 'gi');
-          res = res.replace(regex, '<span class="text-amber-300 font-black underline bg-amber-500/20 px-0.5 rounded">$1</span>');
+          const pattern = this.buildPattern(tok);
+          const regex = new RegExp('(' + pattern + ')', 'gi');
+          res = res.replace(regex, '<span class="text-amber-300 font-black underline bg-amber-500/25 px-0.5 rounded">$1</span>');
         } catch(e) {}
       });
       return res;
@@ -13611,27 +13659,16 @@ window.SuiteSalesPOS = {
         }
 
         let html = '';
-        scored.slice(0, 15).forEach(item => {
+        scored.slice(0, 30).forEach(item => {
           const c = item.customer;
-          const bal = parseFloat(c.currentBalance || c.balance || c.openingBalance || 0);
-          const foreignBal = (bal / (this.usdExchangeRate || 3100)).toFixed(2);
-          const isUSD = (c.currency === 'USD');
-          const ph = c.phone || c.whatsapp || '';
           const nameHl = SuiteSmartSearch.highlight(c.name, query);
-          const phHl = ph ? SuiteSmartSearch.highlight(ph, query) : '';
           const cJson = JSON.stringify(c).replace(/"/g, '&quot;');
 
+          // Solo el nombre completo, sin saldo, sin móvil, ancho completo, negrita con tamaño disminuido 2 grados
           html += `
             <div onclick="SuiteSalesPOS.selectCustomer(${cJson})" 
-                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800/80 hover:border-sky-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-2">
-              <div class="min-w-0 flex-1">
-                <span class="font-bold text-slate-100 block text-[11.5px] sm:text-xs whitespace-normal break-words leading-relaxed">${nameHl}</span>
-                ${ph ? `<span class="text-cyan-400 font-mono text-[10px] block truncate">${phHl}</span>` : ''}
-              </div>
-              <div class="text-left font-mono text-[11px] shrink-0">
-                <span class="${bal > 0 ? 'text-rose-400' : 'text-emerald-400'} font-black block">${bal.toLocaleString()} SDG ${isUSD ? '<span class="text-amber-300 text-[9px] font-sans">[USD]</span>' : ''}</span>
-                <span class="text-slate-400 text-[9.5px] block">${foreignBal} $</span>
-              </div>
+                 class="py-2.5 px-3.5 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-slate-800/90 hover:border-sky-500/60 flex items-center cursor-pointer transition active:scale-[0.99] w-full shadow-sm">
+              <span class="font-bold text-slate-100 block text-[13px] sm:text-sm whitespace-normal break-words leading-relaxed w-full text-right">${nameHl}</span>
             </div>`;
         });
 
@@ -13831,21 +13868,16 @@ window.SuiteSalesPOS = {
         }
 
         let html = '';
-        scored.slice(0, 15).forEach(item => {
+        scored.slice(0, 30).forEach(item => {
           const s = item.supplier;
           const nameHl = SuiteSmartSearch.highlight(s.name, query);
-          const ph = s.phone || '';
           const sJson = JSON.stringify(s).replace(/"/g, '&quot;');
+
+          // Solo el nombre completo, sin saldo, sin móvil, ancho completo, negrita con tamaño disminuido 2 grados
           html += `
             <div onclick="SuitePurchasePOS.selectSupplier(${sJson})" 
-                 class="p-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/50 flex justify-between items-center cursor-pointer transition active:scale-[0.99] gap-2">
-              <div class="min-w-0 flex-1">
-                <span class="font-bold text-slate-100 block text-[11.5px] sm:text-xs whitespace-normal break-words leading-relaxed">${nameHl}</span>
-                ${ph ? `<span class="text-amber-400 font-mono text-[10px] block truncate">${ph}</span>` : ''}
-              </div>
-              <div class="text-right shrink-0">
-                <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-800 text-amber-300 font-bold">مورد</span>
-              </div>
+                 class="py-2.5 px-3.5 rounded-xl bg-slate-900/95 hover:bg-slate-800 border border-slate-800/90 hover:border-amber-500/60 flex items-center cursor-pointer transition active:scale-[0.99] w-full shadow-sm">
+              <span class="font-bold text-slate-100 block text-[13px] sm:text-sm whitespace-normal break-words leading-relaxed w-full text-right">${nameHl}</span>
             </div>`;
         });
         drop.innerHTML = html;
